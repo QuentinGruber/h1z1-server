@@ -3,7 +3,7 @@
 //   GNU GENERAL PUBLIC LICENSE
 //   Version 3, 29 June 2007
 //   copyright (C) 2020 - 2021 Quentin Gruber
-//   copyright (C) 2021 - 2022 H1emu community
+//   copyright (C) 2021 - 2023 H1emu community
 //
 //   https://github.com/QuentinGruber/h1z1-server
 //   https://www.npmjs.com/package/h1z1-server
@@ -46,7 +46,7 @@ export class LoginProtocol2016 {
           subPacketName: name,
           packetLength: data.readUInt32LE(9),
           name: packet.name,
-          result: result,
+          result: result
         };
       } else if (packet.schema) {
         debug(packet.name);
@@ -61,7 +61,7 @@ export class LoginProtocol2016 {
         return {
           type: packet.type,
           name: packet.name,
-          result: result,
+          result: result
         };
       } else {
         debug("parse()", "No schema for packet ", packet.name);

@@ -3,21 +3,22 @@
 //   GNU GENERAL PUBLIC LICENSE
 //   Version 3, 29 June 2007
 //   copyright (C) 2020 - 2021 Quentin Gruber
-//   copyright (C) 2021 - 2022 H1emu community
+//   copyright (C) 2021 - 2023 H1emu community
 //
 //   https://github.com/QuentinGruber/h1z1-server
 //   https://www.npmjs.com/package/h1z1-server
 //
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
+import { PacketStructures } from "types/packetStructure";
 
-export const facilityPackets: any = [
+export const facilityPackets: PacketStructures = [
   [
     "Facility.ReferenceData",
     0x8501,
     {
-      fields: [{ name: "data", type: "byteswithlength" }],
-    },
+      fields: [{ name: "data", type: "byteswithlength" }]
+    }
   ],
   [
     "Facility.FacilityData",
@@ -42,11 +43,11 @@ export const facilityPackets: any = [
             { name: "unknown5_uint32", type: "uint32", defaultValue: 0 },
             { name: "unknown6_uint8", type: "uint8", defaultValue: 0 },
             { name: "unknown7_uint8", type: "uint8", defaultValue: 0 },
-            { name: "unknown8_bytes", type: "bytes", length: 36 },
-          ],
-        },
-      ],
-    },
+            { name: "unknown8_bytes", type: "bytes", length: 36 }
+          ]
+        }
+      ]
+    }
   ],
   ["Facility.CurrentFacilityUpdate", 0x8503, {}],
   ["Facility.SpawnDataRequest", 0x8504, {}],
@@ -122,7 +123,7 @@ export const facilityPackets: any = [
         if ((flags >> 11) & 1) {
           result["unknown10"] = [
             data.readUInt32LE(offset),
-            data.readUInt32LE(offset + 4),
+            data.readUInt32LE(offset + 4)
           ];
           offset += 8;
         }
@@ -136,10 +137,10 @@ export const facilityPackets: any = [
         }
         return {
           result: result,
-          length: offset - startOffset,
+          length: offset - startOffset
         };
-      },
-    },
+      }
+    }
   ],
   ["Facility.FacilitySpawnStatus", 0x8507, {}],
   ["Facility.FacilitySpawnStatusTracked", 0x8508, {}],
@@ -159,13 +160,13 @@ export const facilityPackets: any = [
       fields: [
         { name: "unknown1", type: "uint32", defaultValue: 0 },
         { name: "unknown2", type: "boolean", defaultValue: false },
-        { name: "unknown3", type: "uint32", defaultValue: 0 },
-      ],
-    },
+        { name: "unknown3", type: "uint32", defaultValue: 0 }
+      ]
+    }
   ],
   ["Facility.NotificationFacilitySecondaryObjectiveEventPacket", 0x8513, {}],
   ["Facility.PenetrateShieldEffect", 0x8514, {}],
   ["Facility.SpawnUpdateGuid", 0x8515, {}],
   ["Facility.FacilityUpdateRequest", 0x8516, {}],
-  ["Facility.EmpireScoreValueUpdate", 0x8517, {}],
+  ["Facility.EmpireScoreValueUpdate", 0x8517, {}]
 ];

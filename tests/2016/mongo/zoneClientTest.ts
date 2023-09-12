@@ -1,7 +1,7 @@
 import {
   ZoneServer2016 as ZoneServer,
   ZoneClient,
-  LoginServer,
+  LoginServer
 } from "../../../h1z1-server";
 
 const character = {
@@ -28,24 +28,24 @@ const character = {
       tintItemId: 0,
       unknownDword2: 0,
       decalItemId: 0,
-      loadoutSlots: [],
+      loadoutSlots: []
     },
     attachmentDefinitions: [],
-    lastUseDate: "0x0000000053da0a5b",
+    lastUseDate: "0x0000000053da0a5b"
   },
   ownerId: "someone",
   position: {
     "0": -41.59000015258789,
     "1": 16.1200008392334,
     "2": -72.55999755859375,
-    "3": 0,
+    "3": 0
   },
   rotation: {
     "0": 0,
     "1": 0.9978362321853638,
     "2": 0,
-    "3": 0.06574886292219162,
-  },
+    "3": 0.06574886292219162
+  }
 };
 
 async function test() {
@@ -56,6 +56,7 @@ async function test() {
     2
   );
   zoneServer._loginServerInfo.address = "127.0.0.1";
+  (zoneServer as any)._gatewayServer._soeServer._crcSeed = 0;
   //@ts-ignore
   zoneServer._gatewayServer._waitQueueTimeMs = 0;
 
@@ -81,7 +82,9 @@ async function test() {
     });
     client.on("ZoneDoneSendingInitialData", (err, res) => {
       console.log("ZoneDoneSendingInitialData");
-      process.exit(0);
+      zoneServer.saveWorld().then(() => {
+        process.exit(0);
+      });
     });
   }, 2000);
   setTimeout(() => {

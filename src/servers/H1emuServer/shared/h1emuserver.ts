@@ -3,7 +3,7 @@
 //   GNU GENERAL PUBLIC LICENSE
 //   Version 3, 29 June 2007
 //   copyright (C) 2020 - 2021 Quentin Gruber
-//   copyright (C) 2021 - 2022 H1emu community
+//   copyright (C) 2021 - 2023 H1emu community
 //
 //   https://github.com/QuentinGruber/h1z1-server
 //   https://www.npmjs.com/package/h1z1-server
@@ -11,11 +11,11 @@
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
 
-import { EventEmitter } from "events";
+import { EventEmitter } from "node:events";
 import { H1emuProtocol } from "../../../protocols/h1emuprotocol";
 import { H1emuClient as H1emuClient } from "./h1emuclient";
-import { Worker } from "worker_threads";
-import { RemoteInfo } from "dgram";
+import { Worker } from "node:worker_threads";
+import { RemoteInfo } from "node:dgram";
 
 const debug = require("debug")("H1emuServer");
 process.env.isBin && require("../../shared/workers/udpServerWorker.js");
@@ -36,7 +36,7 @@ export abstract class H1emuServer extends EventEmitter {
     this._connection = new Worker(
       `${__dirname}/../../shared/workers/udpServerWorker.js`,
       {
-        workerData: { serverPort: serverPort },
+        workerData: { serverPort: serverPort }
       }
     );
   }
@@ -96,8 +96,8 @@ export abstract class H1emuServer extends EventEmitter {
           data: {
             packetData: data,
             port: client.port,
-            address: client.address,
-          },
+            address: client.address
+          }
         },
         [data.buffer]
       );

@@ -3,7 +3,7 @@
 //   GNU GENERAL PUBLIC LICENSE
 //   Version 3, 29 June 2007
 //   copyright (C) 2020 - 2021 Quentin Gruber
-//   copyright (C) 2021 - 2022 H1emu community
+//   copyright (C) 2021 - 2023 H1emu community
 //
 //   https://github.com/QuentinGruber/h1z1-server
 //   https://www.npmjs.com/package/h1z1-server
@@ -27,5 +27,5 @@ export const guildPackets: any = [
   ["Guild.TagsUpdated", 0x5816, {}],
   ["Guild.Notification", 0x5817, {}],
   ["Guild.UpdateAppData", 0x5820, {}],
-  ["Guild.RecruitingGuildsForBrowserReply", 0x5826, {}],
+  ["Guild.RecruitingGuildsForBrowserReply", 0x5826, {}]
 ];

@@ -3,7 +3,7 @@
 //   GNU GENERAL PUBLIC LICENSE
 //   Version 3, 29 June 2007
 //   copyright (C) 2020 - 2021 Quentin Gruber
-//   copyright (C) 2021 - 2022 H1emu community
+//   copyright (C) 2021 - 2023 H1emu community
 //
 //   https://github.com/QuentinGruber/h1z1-server
 //   https://www.npmjs.com/package/h1z1-server
@@ -11,7 +11,9 @@
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
 
-export const operationPackets: any = [
+import { PacketStructures } from "types/packetStructure";
+
+export const operationPackets: PacketStructures = [
   ["Operation.ClientJoined", 0xbc06, {}],
   ["Operation.ClientLeft", 0xbc07, {}],
   ["Operation.AvailableData", 0xbc09, {}],
@@ -21,5 +23,5 @@ export const operationPackets: any = [
   ["Operation.InstanceAreaUpdate", 0xbc0d, {}],
   ["Operation.ClientInArea", 0xbc0e, {}],
   ["Operation.InstanceLocationUpdate", 0xbc0f, {}],
-  ["Operation.GroupOperationListReply", 0xbc11, {}],
+  ["Operation.GroupOperationListReply", 0xbc11, {}]
 ];

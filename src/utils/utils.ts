@@ -1,9 +1,9 @@
-// ======================================================================
+﻿// ======================================================================
 //
 //   GNU GENERAL PUBLIC LICENSE
 //   Version 3, 29 June 2007
 //   copyright (C) 2020 - 2021 Quentin Gruber
-//   copyright (C) 2021 - 2022 H1emu community
+//   copyright (C) 2021 - 2023 H1emu community
 //
 //   https://github.com/QuentinGruber/h1z1-server
 //   https://www.npmjs.com/package/h1z1-server
@@ -12,32 +12,68 @@
 // ======================================================================
 
 import { generate_random_guid } from "h1emu-core";
-import v8 from "v8";
 import { compress, compressBound } from "./lz4/lz4";
-import fs, { readdirSync } from "fs";
-import { normalize, resolve } from "path";
+import fs, { readdirSync } from "node:fs";
+import { normalize, resolve } from "node:path";
 import {
   setImmediate as setImmediatePromise,
-  setTimeout as setTimeoutPromise,
-} from "timers/promises";
-import { MongoClient } from "mongodb";
-import { MAX_TRANSIENT_ID, MAX_UINT16 } from "./constants";
+  setTimeout as setTimeoutPromise
+} from "node:timers/promises";
+import { Collection, MongoClient } from "mongodb";
+import { DB_NAME, MAX_TRANSIENT_ID, MAX_UINT16 } from "./constants";
 import { ZoneServer2016 } from "servers/ZoneServer2016/zoneserver";
 import { ZoneServer2015 } from "servers/ZoneServer2015/zoneserver";
-import { positionUpdate } from "types/zoneserver";
+import {
+  ConstructionSlotPositionMap,
+  positionUpdate,
+  SquareBounds
+} from "types/zoneserver";
+import { ConstructionSlots } from "servers/ZoneServer2016/data/constructionslots";
+import { ConstructionParentEntity } from "servers/ZoneServer2016/entities/constructionparententity";
+import { ConstructionChildEntity } from "servers/ZoneServer2016/entities/constructionchildentity";
+import { DB_COLLECTIONS, NAME_VALIDATION_STATUS } from "./enums";
+import { Resolver } from "node:dns";
+import { ZoneClient2016 } from "servers/ZoneServer2016/classes/zoneclient";
+import * as crypto from "crypto";
 
+/**
+ * Represents a custom implementation of lodash library.
+ */
 export class customLodash {
+  /**
+   * Calculate the sum of numbers in an array.
+   * @param pings - The array of numbers.
+   * @returns The sum of numbers.
+   */
   sum(pings: number[]): number {
     return pings.reduce((a, b) => a + b, 0);
   }
-  cloneDeep(value: unknown) {
-    return v8.deserialize(v8.serialize(value));
+
+  /**
+   * Create a deep clone of the given value.
+   * @param value - The value to clone.
+   * @returns The cloned value.
+   */
+  cloneDeep(value: unknown): unknown {
+    return structuredClone(value);
   }
 
+  /**
+   * Find the first element in the array that satisfies the filter function.
+   * @param array - The array to search in.
+   * @param filter - The filter function.
+   * @returns The first matching element, or undefined if not found.
+   */
   find(array: any[], filter: any) {
     return array.find(filter);
   }
 
+  /**
+   * Check if two arrays are equal.
+   * @param array1 - The first array.
+   * @param array2 - The second array.
+   * @returns True if the arrays are equal, false otherwise.
+   */
   isEqual(array1: any[], array2: any[]) {
     return (
       Array.isArray(array1) &&
@@ -47,6 +83,12 @@ export class customLodash {
     );
   }
 
+  /**
+   * Iterates over each property in the given object and invokes the provided callback function.
+   *
+   * @param object - The object to iterate over.
+   * @param callback - The function to be called for each property in the object.
+   */
   forEach(object: Record<string, unknown>, callback: (arg0: any) => void) {
     const objectLength = Object.keys(object).length;
     const objectValues = Object.values(object);
@@ -55,16 +97,36 @@ export class customLodash {
     }
   }
 
+  /**
+   * Calculates and returns the number of properties in the given object.
+   *
+   * @param object - The object to get the size of.
+   * @returns The number of properties in the object.
+   */
   size(object: Record<string, unknown>) {
     return Object.keys(object).length;
   }
 
+  /**
+   * Fills the provided array with the specified object.
+   *
+   * @param array - The array to fill.
+   * @param object - The object to fill the array with.
+   * @returns The modified array after filling.
+   */
   fill(array: any[], object: any) {
     for (let index = 0; index < array.length; index++) {
       array[index] = object;
     }
     return array;
   }
+
+  /**
+   * Deletes the specified entry from the given array.
+   *
+   * @param array - The array to delete the entry from.
+   * @param entry - The entry to delete from the array.
+   */
   delete(array: any[], entry: any) {
     const index = array.indexOf(entry);
     if (index > -1) {
@@ -75,8 +137,26 @@ export class customLodash {
 
 export const _ = new customLodash();
 
-// Original code from GuinnessRules
+/**
+ * Checks if the given rotation is a quaternion. If not, converts the Euler angles to a quaternion.
+ *
+ * @param rotation - The rotation to check or convert, represented as a Float32Array.
+ * @returns The quaternion representation of the rotation.
+ */
+export function isQuat(rotation: Float32Array) {
+  return rotation[1] != 0 && rotation[2] != 0 && rotation[3] != 0
+    ? rotation
+    : eul2quat(rotation);
+}
+
+/**
+ * Converts Euler angles to a quaternion representation.
+ *
+ * @param angle - The Euler angles to convert, represented as a Float32Array.
+ * @returns The quaternion representation of the Euler angles.
+ */
 export function eul2quat(angle: Float32Array): Float32Array {
+  // Original code from GuinnessRules.
   // Assuming the angles are in radians.
   const heading = angle[0],
     attitude = angle[1],
@@ -96,8 +176,14 @@ export function eul2quat(angle: Float32Array): Float32Array {
   return new Float32Array([qx, qy, -qz, qw]);
 }
 
+/**
+ * Converts a quaternion to a matrix representation.
+ *
+ * @param angle - The quaternion to convert, represented as a Float32Array.
+ * @returns The matrix representation of the quaternion.
+ */
 export function quat2matrix(angle: Float32Array): any {
-  // a little modified for my needs, may not work for other things than construction
+  //  may not work for other things than construction
   const x = angle[0];
   const y = angle[1];
   const z = angle[2];
@@ -124,10 +210,16 @@ export function quat2matrix(angle: Float32Array): any {
     yz - wx,
     xz - wy,
     yz + wx,
-    1 - (xx + yy),
+    1 - (xx + yy)
   ];
 }
 
+/**
+ * Converts Euler angles to a legacy quaternion representation.
+ *
+ * @param angle - The Euler angles to convert, represented as an array of numbers.
+ * @returns The legacy quaternion representation of the Euler angles.
+ */
 export function eul2quatLegacy(angle: number[]) {
   // Assuming the angles are in radians.
   const heading = angle[0],
@@ -148,19 +240,59 @@ export function eul2quatLegacy(angle: number[]) {
   return [qx, qy, -qz, qw];
 }
 
+/**
+ * Fixes the Euler order of the rotation by modifying the rotation array.
+ *
+ * @param rotation - The rotation to fix, represented as a Float32Array.
+ * @returns The fixed rotation as a Float32Array.
+ */
+export function fixEulerOrder(rotation: Float32Array): Float32Array {
+  return new Float32Array([0, rotation[0], 0, 0]);
+}
+
+/**
+ * Moves a point in a given direction by a specified distance.
+ *
+ * @param position - The initial position of the point, represented as a Float32Array.
+ * @param angle - The angle in radians representing the direction of movement.
+ * @param distance - The distance to move the point.
+ * @returns The new position of the point after movement as a Float32Array.
+ */
 export function movePoint(
   position: Float32Array,
   angle: number,
   distance: number
 ) {
-  // angle in radians
   return new Float32Array([
     position[0] + Math.cos(angle) * distance,
     position[1],
-    position[2] + Math.sin(angle) * distance,
+    position[2] + Math.sin(angle) * distance
   ]);
 }
 
+/**
+ * Calculates the angle between two points in a 2D space.
+ *
+ * @param position1 - The position of the first point, represented as a Float32Array.
+ * @param position2 - The position of the second point, represented as a Float32Array.
+ * @returns The angle between the two points in radians.
+ */
+export function getAngle(position1: Float32Array, position2: Float32Array) {
+  const dx = position2[0] - position1[0];
+  const dz = position2[2] - position1[2];
+  const angle = Math.atan2(dz, dx);
+  return angle;
+}
+
+/**
+ * Shuts down the zone server with a countdown timer and performs necessary cleanup operations.
+ *
+ * @param server - The zone server instance (ZoneServer2016 or ZoneServer2015).
+ * @param startedTime - The timestamp when the server shutdown started.
+ * @param timeLeft - The duration of the shutdown timer in seconds.
+ * @param message - The message to display during the shutdown process.
+ * @returns A promise that resolves after the shutdown process is completed.
+ */
 export async function zoneShutdown(
   server: ZoneServer2016 | ZoneServer2015,
   startedTime: number,
@@ -172,11 +304,15 @@ export async function zoneShutdown(
   if (currentTimeLeft < 0) {
     server.sendDataToAll("WorldShutdownNotice", {
       timeLeft: 0,
-      message: message,
+      message: message
     });
-    server.sendDataToAll("CharacterSelectSessionResponse", {
-      status: 1,
-      sessionId: "0", // TODO: get sessionId from client object
+    Object.values(server._clients).forEach((client: ZoneClient2016) => {
+      // weird issue with typescript union type system
+      //@ts-ignore
+      server.sendData(client as any, "CharacterSelectSessionResponse", {
+        status: 1,
+        sessionId: client.loginSessionId
+      });
     });
     setTimeout(() => {
       process.exit(0);
@@ -184,7 +320,7 @@ export async function zoneShutdown(
   } else {
     server.sendDataToAll("WorldShutdownNotice", {
       timeLeft: currentTimeLeft / 1000,
-      message: message,
+      message: message
     });
     setTimeout(
       () => zoneShutdown(server, startedTime, timeLeft, message),
@@ -193,6 +329,13 @@ export async function zoneShutdown(
   }
 }
 
+/**
+ * Calculates the difference between two strings using the Levenshtein distance algorithm.
+ *
+ * @param s1 - The first string to compare.
+ * @param s2 - The second string to compare.
+ * @returns The difference between the two strings as a number.
+ */
 export function getDifference(s1: string, s2: string) {
   s1 = s1.toLowerCase();
   s2 = s2.toLowerCase();
@@ -216,16 +359,52 @@ export function getDifference(s1: string, s2: string) {
   return costs[s2.length];
 }
 
+/**
+ * Generates a random integer within the specified range (inclusive).
+ *
+ * @param min - The minimum value of the range.
+ * @param max - The maximum value of the range.
+ * @returns The random integer generated.
+ */
 export const randomIntFromInterval = (min: number, max: number) => {
   // min and max included
   return Math.floor(Math.random() * (max - min + 1) + min);
 };
 
+/**
+ * Retrieves the application data folder path.
+ *
+ * @returns The path to the application data folder.
+ */
 export const getAppDataFolderPath = (): string => {
   const folderName = "h1emu";
   return `${process.env.APPDATA || process.env.HOME}/${folderName}`;
 };
 
+/**
+ * Decrypts the encrypted text using the provided key and initialization vector (IV).
+ *
+ * @param text - The encrypted data and IV.
+ * @param key - The decryption key.
+ * @returns The decrypted text.
+ */
+export function decrypt(
+  text: { iv: string; encryptedData: string },
+  key: string
+): string {
+  const iv = Buffer.from(text.iv, "hex");
+  const encryptedText = Buffer.from(text.encryptedData, "hex");
+
+  const decipher = crypto.createDecipheriv("aes-256-cbc", Buffer.from(key), iv);
+
+  let decrypted = decipher.update(encryptedText);
+  decrypted = Buffer.concat([decrypted, decipher.final()]);
+  return decrypted.toString();
+}
+
+/**
+ * Sets up the application data folder by creating necessary files and directories if they don't exist (Singleplayer windows usage only).
+ */
 export const setupAppDataFolder = (): void => {
   const AppDataFolderPath = getAppDataFolderPath();
   if (!fs.existsSync(AppDataFolderPath)) {
@@ -238,7 +417,10 @@ export const setupAppDataFolder = (): void => {
     );
   }
   if (
-    !fs.existsSync(`${AppDataFolderPath}/single_player_characters2016.json`)
+    !fs.existsSync(`${AppDataFolderPath}/single_player_characters2016.json`) ||
+    fs
+      .readFileSync(`${AppDataFolderPath}/single_player_characters2016.json`)
+      .toString() === "{}"
   ) {
     fs.writeFileSync(
       `${AppDataFolderPath}/single_player_characters2016.json`,
@@ -262,6 +444,24 @@ export const setupAppDataFolder = (): void => {
       JSON.stringify([])
     );
   }
+  if (!fs.existsSync(`${AppDataFolderPath}/worlddata/construction.json`)) {
+    fs.writeFileSync(
+      `${AppDataFolderPath}/worlddata/construction.json`,
+      JSON.stringify([])
+    );
+  }
+  if (!fs.existsSync(`${AppDataFolderPath}/worlddata/worldconstruction.json`)) {
+    fs.writeFileSync(
+      `${AppDataFolderPath}/worlddata/worldconstruction.json`,
+      JSON.stringify([])
+    );
+  }
+  if (!fs.existsSync(`${AppDataFolderPath}/worlddata/crops.json`)) {
+    fs.writeFileSync(
+      `${AppDataFolderPath}/worlddata/crops.json`,
+      JSON.stringify([])
+    );
+  }
   if (!fs.existsSync(`${AppDataFolderPath}/worlddata/world.json`)) {
     fs.writeFileSync(
       `${AppDataFolderPath}/worlddata/world.json`,
@@ -270,15 +470,39 @@ export const setupAppDataFolder = (): void => {
   }
 };
 
+/**
+ * Checks if an object is empty (has no enumerable properties).
+ *
+ * @param obj - The object to check.
+ * @returns A boolean indicating whether the object is empty.
+ */
 export const objectIsEmpty = (obj: Record<string, unknown>) => {
   return Object.keys(obj).length === 0;
 };
 
+/**
+ * Checks if a value is within a specified range.
+ *
+ * @param radius - The range around the value.
+ * @param value1 - The value to check.
+ * @param value2 - The reference value.
+ * @returns A boolean indicating whether the value is within the range.
+ */
 const isBetween = (radius: number, value1: number, value2: number): boolean => {
   return value1 <= value2 + radius && value1 >= value2 - radius;
 };
 
-export const isInside = (point: [number, number], vs: any) => {
+/**
+ * Checks if a point is inside a square region defined by its vertices.
+ *
+ * @param point - The point to check.
+ * @param vs - The vertices of the square.
+ * @returns A boolean indicating whether the point is inside the square.
+ */
+export const isInsideSquare = (
+  point: [number, number],
+  vs: SquareBounds | number[][]
+) => {
   const x = point[0],
     y = point[1];
 
@@ -295,9 +519,19 @@ export const isInside = (point: [number, number], vs: any) => {
   return inside;
 };
 
-export const isInsideWithY = (
+/**
+ * Checks if a point is inside a cube region defined by a square base and height.
+ *
+ * @param point - The point to check.
+ * @param vs - The vertices of the square base.
+ * @param y_pos1 - The bottom y-coordinate of the cube.
+ * @param y_pos2 - The top y-coordinate of the cube.
+ * @param y_radius - The radius around the y-axis for the cube.
+ * @returns A boolean indicating whether the point is inside the cube.
+ */
+export const isInsideCube = (
   point: [number, number],
-  vs: any,
+  vs: SquareBounds,
   y_pos1: number,
   y_pos2: number,
   y_radius: number
@@ -315,32 +549,58 @@ export const isInsideWithY = (
         yi > y != yj > y && x < ((xj - xi) * (y - yi)) / (yj - yi) + xi;
     if (intersect) inside = !inside;
   }
-  return inside && isBetween(y_radius, y_pos1, y_pos2);
+  return inside && isBetween(y_radius, y_pos1, y_pos2) && y_pos1 > y_pos2 - 0.2;
 };
 
+/**
+ * Checks if a position is within a specified radius from another position in 2D space.
+ *
+ * @param radius - The radius to check.
+ * @param position1 - The position of the first point.
+ * @param position2 - The position of the second point.
+ * @returns A boolean indicating whether the second point is within the specified radius of the first point.
+ */
 export const isPosInRadius = (
   radius: number,
-  player_position: Float32Array,
-  enemi_position: Float32Array
+  position1: Float32Array,
+  position2: Float32Array
 ): boolean => {
-  return (
-    isBetween(radius, player_position[0], enemi_position[0]) &&
-    isBetween(radius, player_position[2], enemi_position[2])
-  );
+  const xDiff = position1[0] - position2[0];
+  const zDiff = position1[2] - position2[2];
+  const radiusSquared = radius * radius;
+
+  return xDiff * xDiff + zDiff * zDiff <= radiusSquared;
 };
+
+/**
+ * Checks if a position is within a specified radius from another position in 3D space, taking into account the y-axis.
+ *
+ * @param radius - The radius to check.
+ * @param position1 - The position of the first point.
+ * @param position2 - The position of the second point.
+ * @param y_radius - The radius around the y-axis.
+ * @returns A boolean indicating whether the second point is within the specified radius of the first point in both x-z and y axes.
+ */
 export const isPosInRadiusWithY = (
   radius: number,
-  player_position: Float32Array,
-  enemi_position: Float32Array,
+  position1: Float32Array,
+  position2: Float32Array,
   y_radius: number
 ): boolean => {
   return (
-    isBetween(radius, player_position[0], enemi_position[0]) &&
-    isBetween(radius, player_position[2], enemi_position[2]) &&
-    isBetween(y_radius, player_position[1], enemi_position[1])
+    isBetween(radius, position1[0], position2[0]) &&
+    isBetween(radius, position1[2], position2[2]) &&
+    isBetween(y_radius, position1[1], position2[1])
   );
 };
 
+/**
+ * Calculates the Euclidean distance between two 3D points.
+ *
+ * @param p1 - The position of the first point.
+ * @param p2 - The position of the second point.
+ * @returns The Euclidean distance between the two points.
+ */
 export function getDistance(p1: Float32Array, p2: Float32Array) {
   const a = p1[0] - p2[0];
   const b = p1[1] - p2[1];
@@ -348,6 +608,64 @@ export function getDistance(p1: Float32Array, p2: Float32Array) {
   return Math.sqrt(a * a + b * b + c * c);
 }
 
+/**
+ * Calculates the Euclidean distance between two 2D points (ignoring the y-axis).
+ *
+ * @param p1 - The position of the first point.
+ * @param p2 - The position of the second point.
+ * @returns The Euclidean distance between the two points in 2D space.
+ */
+export function getDistance2d(p1: Float32Array, p2: Float32Array) {
+  const dx = p1[0] - p2[0];
+  const dy = p1[2] - p2[2];
+  return Math.sqrt(dx * dx + dy * dy);
+}
+
+/**
+ * Calculates the absolute difference between two 1D values.
+ *
+ * @param height1 - The first height value.
+ * @param height2 - The second height value.
+ * @returns The absolute difference between the two heights.
+ */
+export function getDistance1d(height1: number, height2: number) {
+  const dh = height1 - height2;
+  return Math.abs(dh);
+}
+
+/**
+ * Checks if any construction in the dictionary is within the specified range of the given position and has a matching itemDefinitionId.
+ *
+ * @param dictionary - The dictionary of constructions to check.
+ * @param position - The position to check against.
+ * @param range - The range to check.
+ * @param itemDefinitionId - The item definition ID to match.
+ * @returns A boolean indicating whether a matching construction is within range of the position.
+ */
+export function checkConstructionInRange(
+  dictionary: any,
+  position: Float32Array,
+  range: number,
+  itemDefinitionId: number
+): boolean {
+  for (const a in dictionary) {
+    const construction = dictionary[a];
+    if (construction.itemDefinitionId != itemDefinitionId) continue;
+    if (isPosInRadius(range, position, construction.state.position)) {
+      return true;
+    }
+  }
+  return false;
+}
+
+/**
+ * Creates a position update object with the given position, rotation, and game time.
+ *
+ * @param position - The position for the update.
+ * @param rotation - The rotation for the update.
+ * @param gameTime - The game time for the update.
+ * @returns The position update object.
+ */
 export function createPositionUpdate(
   position: Float32Array,
   rotation: Float32Array,
@@ -356,7 +674,7 @@ export function createPositionUpdate(
   const obj: positionUpdate = {
     flags: 4095,
     sequenceTime: gameTime,
-    position: [...position],
+    position: [...position]
   };
   if (rotation) {
     obj.rotation = rotation;
@@ -364,65 +682,102 @@ export function createPositionUpdate(
   return obj;
 }
 
+/**
+ * Calculates the coordinates of the corners of a rectangle given the center point, angle, offset, and euler rotation.
+ *
+ * @param centerPoint - The center point of the rectangle.
+ * @param angle - The angle of the rectangle.
+ * @param offset - The offset of the rectangle.
+ * @param eulerRot - The euler rotation of the rectangle.
+ * @returns An array containing the coordinates of the rectangle's corners.
+ */
 export function getRectangleCorners(
   centerPoint: Float32Array,
-  a_len: number,
-  h_len: number,
-  angle: number
-): any[] {
-  const middlePointA = movePoint(centerPoint, angle, h_len / 2);
+  angle: number,
+  offset: number,
+  eulerRot: number
+): SquareBounds {
+  const middlePointA = movePoint(centerPoint, eulerRot, offset / 2);
   const middlePointB = movePoint(
     centerPoint,
-    angle + (180 * Math.PI) / 180,
-    h_len / 2
+    eulerRot + (180 * Math.PI) / 180,
+    offset / 2
   );
   const pointA = movePoint(
     middlePointA,
-    angle + 90 * (Math.PI / 180),
-    a_len / 2
+    eulerRot + 90 * (Math.PI / 180),
+    angle / 2
   );
   const pointB = movePoint(
     middlePointA,
-    angle + 270 * (Math.PI / 180),
-    a_len / 2
+    eulerRot + 270 * (Math.PI / 180),
+    angle / 2
   );
   const pointC = movePoint(
     middlePointB,
-    angle + 270 * (Math.PI / 180),
-    a_len / 2
+    eulerRot + 270 * (Math.PI / 180),
+    angle / 2
   );
   const pointD = movePoint(
     middlePointB,
-    angle + 90 * (Math.PI / 180),
-    a_len / 2
+    eulerRot + 90 * (Math.PI / 180),
+    angle / 2
   );
   return [
     [pointA[0], pointA[2]],
     [pointB[0], pointB[2]],
     [pointC[0], pointC[2]],
-    [pointD[0], pointD[2]],
+    [pointD[0], pointD[2]]
   ];
 }
 
+/**
+ * Converts a number to an integer by rounding it down.
+ *
+ * @param value - The number to convert.
+ * @returns The converted integer value.
+ */
 export const toInt = (value: number) => {
   return Number(value.toFixed(0));
 };
 
+/**
+ * Converts a number to a hexadecimal string representation.
+ *
+ * @param value - The number to convert.
+ * @returns The hexadecimal string representation of the number.
+ */
 export const Int64String = function (value: number): string {
   return "0x" + ("0000000000000000" + value.toString(16)).substr(-16);
 };
 
+/**
+ * Generates a random GUID string.
+ *
+ * @returns The generated GUID string.
+ */
 export const generateRandomGuid = function (): string {
   return "0x" + generate_random_guid();
 };
 
-export function* generateTransientId() {
-  let id = 0;
+/**
+ * Generates a transient ID starting from the specified ID.
+ *
+ * @param startId - The starting ID for the generator.
+ * @yields The generated transient ID.
+ */
+export function* generateTransientId(startId: number = 0) {
+  let id = startId;
   for (let index = 0; index < MAX_TRANSIENT_ID; index++) {
     yield id++;
   }
 }
 
+/**
+ * Removes the cache for all files in the specified directory path.
+ *
+ * @param directoryPath - The path of the directory to remove the cache for.
+ */
 export const removeCacheFullDir = function (directoryPath: string): void {
   const files = readdirSync(directoryPath); // need to be sync
   for (const file of files) {
@@ -436,6 +791,13 @@ export const removeCacheFullDir = function (directoryPath: string): void {
   }
 };
 
+/**
+ * Generates a list of command strings from the command object and namespace.
+ *
+ * @param commandObject - The command object containing the commands.
+ * @param commandNamespace - The namespace of the commands.
+ * @returns An array of command strings.
+ */
 export const generateCommandList = (
   commandObject: string[],
   commandNamespace: string
@@ -447,13 +809,39 @@ export const generateCommandList = (
   return commandList;
 };
 
+/**
+ * LZ4 compression class with static methods for encoding blocks and calculating the encoding bound.
+ */
 export class LZ4 {
+  /**
+   * Encodes a block of data using LZ4 compression.
+   *
+   * @param src - The source data to compress.
+   * @param dst - The destination buffer to store the compressed data.
+   * @param sIdx - The starting index in the source data.
+   * @param eIdx - The ending index in the source data.
+   * @returns The size of the compressed block.
+   */
   static encodeBlock: (src: any, dst: any, sIdx?: any, eIdx?: any) => number;
+  /**
+   * Calculates the size of the encoded block given the input size.
+   *
+   * @param isize - The input size.
+   * @returns The size of the encoded block.
+   */
   static encodeBound: (isize: number) => number;
 }
 LZ4.encodeBlock = compress;
 LZ4.encodeBound = compressBound;
 
+/**
+ * Decompresses LZ4-compressed data.
+ *
+ * @param data - The compressed data.
+ * @param inSize - The size of the input data.
+ * @param outSize - The size of the output data.
+ * @returns The decompressed data.
+ */
 export const lz4_decompress = function (
   // from original implementation
   data: any,
@@ -511,24 +899,34 @@ export const lz4_decompress = function (
   return outdata;
 };
 
+/**
+ * Initializes the MongoDB database.
+ *
+ * @param mongoClient - The MongoDB client.
+ * @param serverName - The name of the server.
+ * @returns A promise that resolves once the database is initialized.
+ */
 export const initMongo = async function (
   mongoClient: MongoClient,
   serverName: string
 ): Promise<void> {
   const debug = require("debug")(serverName);
-  const dbName = "h1server";
-  await mongoClient.db(dbName).createCollection("servers");
+  const dbName = DB_NAME;
+  await mongoClient.db(dbName).createCollection(DB_COLLECTIONS.SERVERS);
   const servers = require("../../data/defaultDatabase/shared/servers.json");
-  await mongoClient.db(dbName).collection("servers").insertMany(servers);
-  await mongoClient.db(dbName).createCollection("zone-whitelist");
-  const zoneWhitelist = require("../../data/defaultDatabase/shared/zone-whitelist.json");
   await mongoClient
     .db(dbName)
-    .collection("zone-whitelist")
-    .insertMany(zoneWhitelist);
+    .collection(DB_COLLECTIONS.SERVERS)
+    .insertMany(servers);
   debug("h1server database was missing... created one with samples.");
 };
 
+/**
+ * Converts a packet type to an array of bytes.
+ *
+ * @param packetType - The packet type.
+ * @returns An array of bytes representing the packet type.
+ */
 export const getPacketTypeBytes = function (packetType: number): number[] {
   const packetTypeBytes = [];
   for (let i = 0; i < 4; i++) {
@@ -541,6 +939,12 @@ export const getPacketTypeBytes = function (packetType: number): number[] {
   return packetTypeBytes;
 };
 
+/**
+ * Clears the cache for a folder by deleting cached modules that belong to the folder.
+ *
+ * @param currentFolderDirname - The dirname of the current folder.
+ * @param folderPath - The path of the folder to clear the cache for.
+ */
 export const clearFolderCache = (
   currentFolderDirname: string,
   folderPath: string
@@ -553,19 +957,37 @@ export const clearFolderCache = (
   });
 };
 
-// experimental custom implementation of the scheduler API
+/**
+ * Experimental custom implementation of the scheduler API.
+ */
 export class Scheduler {
+  /**
+   * Yields execution to the event loop.
+   *
+   * @returns A promise that resolves immediately after the next event loop iteration.
+   */
   static async yield() {
     return await setImmediatePromise();
   }
+
+  /**
+   * Pauses execution for a specified duration.
+   *
+   * @param delay - The delay in milliseconds.
+   * @param options - Optional options for the wait operation.
+   * @returns A promise that resolves after the specified delay.
+   */
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   static async wait(delay: number, options?: any) {
     return await setTimeoutPromise(delay, undefined, {
-      signal: options?.signal,
+      signal: options?.signal
     });
   }
 }
 
+/**
+ * A wrapped Uint16 class that ensures the value stays within the range of 0 to 65535.
+ */
 export class wrappedUint16 {
   private value: number;
   constructor(initValue: number) {
@@ -574,6 +996,13 @@ export class wrappedUint16 {
     }
     this.value = initValue;
   }
+
+  /**
+   * Wraps the given value to ensure it stays within the range of 0 to 65535.
+   *
+   * @param value - The value to wrap.
+   * @returns The wrapped value.
+   */
   static wrap(value: number) {
     let uint16 = value;
     if (uint16 > MAX_UINT16) {
@@ -581,64 +1010,119 @@ export class wrappedUint16 {
     }
     return uint16;
   }
+
+  /**
+   * Adds a value to the wrappedUint16 value.
+   *
+   * @param value - The value to add.
+   */
   add(value: number): void {
     this.value = wrappedUint16.wrap(this.value + value);
   }
+
+  /**
+   * Sets the wrappedUint16 value.
+   *
+   * @param value - The value to set.
+   */
   set(value: number): void {
     this.value = wrappedUint16.wrap(value);
   }
+
+  /**
+   * Retrieves the wrappedUint16 value.
+   *
+   * @returns The wrappedUint16 value.
+   */
   get(): number {
     return this.value;
   }
+
+  /**
+   * Increments the wrappedUint16 value by 1.
+   */
   increment(): void {
     this.add(1);
   }
 }
 
+/**
+ * Converts a BigInt to a hexadecimal string.
+ *
+ * @param bigInt - The BigInt to convert.
+ * @returns The hexadecimal string representation of the BigInt.
+ */
 export const toBigHex = (bigInt: bigint): string => {
   return `0x${bigInt.toString(16)}`;
 };
 
+/**
+ * Converts a number to a hexadecimal string.
+ *
+ * @param number - The number to convert.
+ * @returns The hexadecimal string representation of the number.
+ */
 export const toHex = (number: number): string => {
   return `0x${number.toString(16)}`;
 };
 
+/**
+ * Retrieves a random element from an array.
+ *
+ * @param array - The array from which to retrieve a random element.
+ * @returns A random element from the array.
+ */
 export const getRandomFromArray = (array: any[]): any => {
   return array[Math.floor(Math.random() * array.length)];
 };
 
-export function validateVersion(
-  loginVersion: string,
-  zoneVersion: string
-): boolean {
-  const [loginMajor, loginMinor, loginPatch] = loginVersion.split(".");
-  const [zoneMajor, zoneMinor, zonePatch] = zoneVersion.split(".");
-  if (loginMajor > zoneMajor) {
-    return false;
-  }
-  if (loginMinor > zoneMinor) {
-    return false;
-  }
-  if (loginPatch > zonePatch) {
-    return false;
-  }
-  return true;
-}
-
+/**
+ * Retrieves a random key from an object.
+ *
+ * @param object - The object from which to retrieve a random key.
+ * @returns A random key from the object.
+ */
 export const getRandomKeyFromAnObject = (object: any): string => {
   const keys = Object.keys(object);
   return keys[Math.floor(Math.random() * keys.length)];
 };
 
-export function calculateDamageDistFallOff(
+/**
+ * Calculates the damage reduction based on distance using a linear falloff formula.
+ *
+ * @param distance - The distance between the target and the source.
+ * @param minDamage - The minimum damage value.
+ * @param maxDamage - The maximum damage value.
+ * @param falloffStart - The distance at which damage falloff begins.
+ * @param falloffEnd - The distance at which damage reaches its minimum value.
+ * @returns The calculated damage after falloff.
+ */
+export function calculate_falloff(
   distance: number,
-  damage: number,
-  range: number
-) {
-  //return damage / (distance * range);
-  return damage * Math.pow(range, distance / 10);
+  minDamage: number,
+  maxDamage: number,
+  falloffStart: number,
+  falloffEnd: number
+): number {
+  if (distance <= falloffStart) {
+    return maxDamage;
+  } else if (distance >= falloffEnd) {
+    return minDamage;
+  }
+  const damageRange = maxDamage - minDamage,
+    distanceRange = falloffEnd - falloffStart,
+    distanceFromStart = distance - falloffStart,
+    interpolation = 1 - distanceFromStart / distanceRange,
+    reducedDamage = minDamage + interpolation * damageRange;
+  return Math.round(reducedDamage);
 }
 
+/**
+ * A typescript port of the ForgeLight engine's hashing algorithm used in the game.
+ *
+ * @param str - The string to calculate the hash for.
+ * @returns The calculated hash value.
+ */
 export function flhash(str: string) {
   let hashvar1 = 0,
     hashvar2 = 0;
@@ -651,4 +1135,252 @@ export function flhash(str: string) {
   const hash = 32769 * (((9 * hashvar2) >> 11) ^ (9 * hashvar2));
 
   return Number(`0x${hash.toString(16).slice(-8)}`);
+}
+
+/**
+ * Calculates the orientation (rotation) between two positions.
+ *
+ * @param pos1 - The first position.
+ * @param pos2 - The second position.
+ * @returns The calculated orientation.
+ */
+export function calculateOrientation(
+  pos1: Float32Array,
+  pos2: Float32Array
+): number {
+  return Math.atan2(pos1[2] - pos2[2], pos1[0] - pos2[0]) * -1 - 1.4;
+}
+
+/**
+ * Calculates the position offset based on rotation, angle, and distance from a given position.
+ *
+ * @param position - The base position.
+ * @param rotation - The rotation angle in radians.
+ * @param angle - The additional angle in degrees.
+ * @param distance - The distance from the base position.
+ * @returns The offset position.
+ */
+export function getOffsetPoint(
+  position: Float32Array,
+  rotation: number,
+  angle: number,
+  distance: number
+) {
+  return movePoint(position, -rotation + (angle * Math.PI) / 180, distance);
+}
+
+/**
+ * Calculates the angle and distance between two points in a 2D plane.
+ *
+ * @param p1 - The first point.
+ * @param p2 - The second point.
+ * @returns An object containing the calculated angle (in degrees) and distance.
+ */
+export function getAngleAndDistance(
+  p1: Float32Array,
+  p2: Float32Array
+): { angle: number; distance: number } {
+  const dx = p2[0] - p1[0];
+  const dy = p2[2] - p1[2];
+  const angle = (Math.atan2(dy, dx) * 180) / Math.PI; // Angle of rotation in degrees
+  const distance = Math.sqrt(dx ** 2 + dy ** 2); // Distance between the points
+  return { angle, distance };
+}
+
+/**
+ * Retrieves the construction slot ID based on the building slot name.
+ *
+ * @param buildingSlot - The name of the building slot.
+ * @returns The corresponding construction slot ID.
+ */
+export function getConstructionSlotId(buildingSlot: string) {
+  switch (buildingSlot) {
+    case "LoveShackDoor":
+    case "WoodShackDoor":
+      return 1;
+    case "WallStack":
+      return 101;
+    default:
+      return Number(
+        buildingSlot.substring(buildingSlot.length, buildingSlot.length - 2)
+      );
+  }
+}
+
+/**
+ * Registers construction slots for a construction entity based on slot definitions.
+ *
+ * @param construction - The construction entity.
+ * @param setSlots - The construction slot position map.
+ * @param slotDefinitions - The slot definitions for the construction entity.
+ */
+export function registerConstructionSlots(
+  construction: ConstructionParentEntity | ConstructionChildEntity,
+  setSlots: ConstructionSlotPositionMap,
+  slotDefinitions: ConstructionSlots
+) {
+  const slots = slotDefinitions[construction.itemDefinitionId];
+  if (slots) {
+    slots.offsets.forEach((offset: number, i: number) => {
+      const point = getOffsetPoint(
+        construction.state.position,
+        construction.eulerAngle,
+        slots.angles[i],
+        slots.offsets[i]
+      );
+      setSlots[i + 1] = {
+        position: new Float32Array([
+          point[0],
+          construction.state.position[1] + slots.yOffset,
+          point[2],
+          1
+        ]),
+        rotation: new Float32Array([
+          0,
+          construction.eulerAngle + slots.rotationOffsets[i],
+          0
+        ])
+      };
+    });
+  }
+}
+
+/**
+ * Checks if a character name is valid.
+ *
+ * @param name - The character name to validate.
+ * @returns The validation status of the character name.
+ */
+export function isValidCharacterName(name: string) {
+  // Regular expression that matches all special characters
+  const specialCharRegex = /[^\w\s]/gi;
+
+  // Check if the string is only made up of blank characters
+  const onlyBlankChars = name.replace(/\s/g, "").length === 0;
+
+  // Check if the string contains any special characters
+  const hasSpecialChars = specialCharRegex.test(name);
+
+  // Return false if the string is only made up of blank characters or contains special characters
+  return !onlyBlankChars &&
+    !hasSpecialChars &&
+    !name.startsWith(" ") &&
+    !name.endsWith(" ")
+    ? NAME_VALIDATION_STATUS.AVAILABLE
+    : NAME_VALIDATION_STATUS.INVALID;
+}
+
+/**
+ * Resolves the host address using a resolver.
+ *
+ * @param resolver - The resolver object.
+ * @param hostName - The hostname to resolve.
+ * @returns A Promise that resolves to an array of resolved IP addresses.
+ */
+export async function resolveHostAddress(
+  resolver: Resolver,
+  hostName: string
+): Promise<string[]> {
+  const resolvedAddress = await new Promise((resolve) => {
+    resolver.resolve4(hostName, (err, addresses) => {
+      if (!err) {
+        resolve(addresses);
+      } else {
+        // console.log(
+        //   `Failed to resolve ${hostName} as an host name, it will be used as an IP`
+        // );
+        resolve([hostName]); // if it can't resolve it, assume that's an IPV4 / IPV6 not an hostname
+      }
+    });
+  });
+  return resolvedAddress as string[];
+}
+
+/**
+ * Logs a client action to MongoDB.
+ *
+ * @param collection - The MongoDB collection to log to.
+ * @param client - The ZoneClient2016 instance representing the client.
+ * @param serverId - The ID of the server.
+ * @param logMessage - The log message to insert.
+ */
+export async function logClientActionToMongo(
+  collection: Collection,
+  client: ZoneClient2016,
+  serverId: number,
+  logMessage: Record<string, unknown>
+) {
+  collection.insertOne({
+    ...logMessage,
+    serverId,
+    characterName: client.character.name,
+    loginSessionId: client.loginSessionId
+  });
+}
+
+/**
+ * Removes untransferable fields from an object recursively.
+ *
+ * @param data - The object to remove untransferable fields from.
+ */
+export function removeUntransferableFields(data: any) {
+  const allowedTypes = ["string", "number", "boolean", "undefined", "bigint"];
+
+  for (const key in data) {
+    // eslint-disable-next-line no-prototype-builtins
+    if (data.hasOwnProperty(key)) {
+      const value = data[key];
+      if (typeof value === "object") {
+        removeUntransferableFields(value);
+      } else if (!allowedTypes.includes(typeof value)) {
+        console.log(`Invalid value type: ${typeof value}.`);
+        delete data[key];
+      }
+    }
+  }
+}
+
+/**
+ * Checks if a number is a float.
+ *
+ * @param number - The number to check.
+ * @returns A boolean indicating whether the number is a float.
+ */
+export function isFloat(number: number) {
+  return number % 1 != 0;
+}
+
+export function fileExists(filePath: string): boolean {
+  try {
+    fs.accessSync(filePath);
+    return true;
+  } catch (error) {
+    return false;
+  }
+}
+
+export async function copyFile(
+  originalFilePath: string,
+  newFilePath: string
+): Promise<void> {
+  return new Promise<void>((resolve, reject) => {
+    const readStream = fs.createReadStream(originalFilePath);
+    const writeStream = fs.createWriteStream(newFilePath);
+
+    readStream.pipe(writeStream);
+
+    writeStream.on("finish", () => {
+      console.log("File copied successfully!");
+      readStream.close();
+      writeStream.close();
+      resolve();
+    });
+
+    writeStream.on("error", (err) => {
+      console.error("Error copying file:", err);
+      readStream.close();
+      writeStream.close();
+      reject(err);
+    });
+  });
 }

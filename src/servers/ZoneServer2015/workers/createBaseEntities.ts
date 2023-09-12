@@ -3,7 +3,7 @@
 //   GNU GENERAL PUBLIC LICENSE
 //   Version 3, 29 June 2007
 //   copyright (C) 2020 - 2021 Quentin Gruber
-//   copyright (C) 2021 - 2022 H1emu community
+//   copyright (C) 2021 - 2023 H1emu community
 //
 //   https://github.com/QuentinGruber/h1z1-server
 //   https://www.npmjs.com/package/h1z1-server
@@ -86,7 +86,7 @@ function createEntity(
     scale: scale,
     texture: texture,
     position: position,
-    rotation: rotation,
+    rotation: rotation
   };
 }
 
@@ -128,7 +128,7 @@ function createDTO(
     renderDistance: renderDistance,
 
     dontRequestFullData: true,
-    color: { g: 127 },
+    color: { g: 127 }
   };
 }
 
@@ -180,7 +180,7 @@ function createDoor(
     rotationRaw: startRot,
     openAngle: openAngle,
     closedAngle: startRot[0],
-    color: { g: 127 },
+    color: { g: 127 }
   };
 }
 
@@ -211,7 +211,7 @@ export function createAllEntities(server: ZoneServer2015): any {
     vehicles: vehicles,
     doors: doors,
     props: props,
-    destroyable: destroyable,
+    destroyable: destroyable
   };
 }
 

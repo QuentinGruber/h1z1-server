@@ -3,7 +3,7 @@
 //   GNU GENERAL PUBLIC LICENSE
 //   Version 3, 29 June 2007
 //   copyright (C) 2020 - 2021 Quentin Gruber
-//   copyright (C) 2021 - 2022 H1emu community
+//   copyright (C) 2021 - 2023 H1emu community
 //
 //   https://github.com/QuentinGruber/h1z1-server
 //   https://www.npmjs.com/package/h1z1-server
@@ -12,8 +12,9 @@
 // ======================================================================
 
 import { identitySchema } from "./shared";
+import { PacketStructures } from "types/packetStructure";
 
-export const chatPackets: any = [
+export const chatPackets: PacketStructures = [
   [
     "Chat.Chat",
     0x060100,
@@ -32,9 +33,9 @@ export const chatPackets: any = [
         { name: "color1", type: "uint32", defaultValue: 0 },
         { name: "color2", type: "uint32", defaultValue: 0 },
         { name: "unknownByte1", type: "uint8", defaultValue: 0 },
-        { name: "unknownBoolean1", type: "boolean", defaultValue: false },
-      ],
-    },
+        { name: "unknownBoolean1", type: "boolean", defaultValue: false }
+      ]
+    }
   ],
   ["Chat.EnterArea", 0x060200, {}],
   ["Chat.DebugChat", 0x060300, {}],
@@ -50,8 +51,8 @@ export const chatPackets: any = [
         { name: "color", type: "bytes", length: 4 },
         { name: "unknownDword2", type: "uint32", defaultValue: 0 },
         { name: "unknownByte3", type: "uint8", defaultValue: 0 },
-        { name: "unknownByte4", type: "uint8", defaultValue: 0 },
-      ],
-    },
-  ],
+        { name: "unknownByte4", type: "uint8", defaultValue: 0 }
+      ]
+    }
+  ]
 ];

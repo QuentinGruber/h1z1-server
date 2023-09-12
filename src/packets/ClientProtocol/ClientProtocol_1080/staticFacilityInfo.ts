@@ -3,7 +3,7 @@
 //   GNU GENERAL PUBLIC LICENSE
 //   Version 3, 29 June 2007
 //   copyright (C) 2020 - 2021 Quentin Gruber
-//   copyright (C) 2021 - 2022 H1emu community
+//   copyright (C) 2021 - 2023 H1emu community
 //
 //   https://github.com/QuentinGruber/h1z1-server
 //   https://www.npmjs.com/package/h1z1-server
@@ -11,7 +11,9 @@
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
 
-export const staticFacilityInfoPackets: any = [
+import { PacketStructures } from "types/packetStructure";
+
+export const staticFacilityInfoPackets: PacketStructures = [
   ["StaticFacilityInfo.Request", 0xbe01, {}],
   ["StaticFacilityInfo.Reply", 0xbe02, {}],
   [
@@ -30,12 +32,12 @@ export const staticFacilityInfoPackets: any = [
             { name: "facilityType", type: "uint8", defaultValue: 0 },
             { name: "locationX", type: "float", defaultValue: 0.0 },
             { name: "locationY", type: "float", defaultValue: 0.0 },
-            { name: "locationZ", type: "float", defaultValue: 0.0 },
-          ],
-        },
-      ],
-    },
+            { name: "locationZ", type: "float", defaultValue: 0.0 }
+          ]
+        }
+      ]
+    }
   ],
   ["StaticFacilityInfo.ReplyWarpgate", 0xbe04, {}],
-  ["StaticFacilityInfo.AllWarpgateRespawns", 0xbe05, {}],
+  ["StaticFacilityInfo.AllWarpgateRespawns", 0xbe05, {}]
 ];

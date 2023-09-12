@@ -3,7 +3,7 @@
 //   GNU GENERAL PUBLIC LICENSE
 //   Version 3, 29 June 2007
 //   copyright (C) 2020 - 2021 Quentin Gruber
-//   copyright (C) 2021 - 2022 H1emu community
+//   copyright (C) 2021 - 2023 H1emu community
 //
 //   https://github.com/QuentinGruber/h1z1-server
 //   https://www.npmjs.com/package/h1z1-server
@@ -15,7 +15,7 @@ import {
   npcData,
   seats,
   passengers,
-  positionUpdate,
+  positionUpdate
 } from "../../../types/zoneserver";
 import { generateRandomGuid } from "../../../utils/utils";
 import { ZoneClient } from "./zoneclient";
@@ -100,7 +100,7 @@ export class Vehicle {
       destroyedState: 0,
       array5: [{ unknown1: 0 }],
       array17: [{ unknown1: 0 }],
-      array18: [{ unknown1: 0 }],
+      array18: [{ unknown1: 0 }]
     };
     this.unknownGuid1 = generateRandomGuid();
     this.positionUpdate = {};
@@ -108,7 +108,7 @@ export class Vehicle {
       seat1: false,
       seat2: false,
       seat3: false,
-      seat4: false,
+      seat4: false
     };
     this.passengers = {};
     this.vehicleType = getVehicleType(modelId);

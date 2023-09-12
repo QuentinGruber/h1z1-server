@@ -3,7 +3,7 @@
 //   GNU GENERAL PUBLIC LICENSE
 //   Version 3, 29 June 2007
 //   copyright (C) 2020 - 2021 Quentin Gruber
-//   copyright (C) 2021 - 2022 H1emu community
+//   copyright (C) 2021 - 2023 H1emu community
 //
 //   https://github.com/QuentinGruber/h1z1-server
 //   https://www.npmjs.com/package/h1z1-server
@@ -36,14 +36,14 @@ export const quickChatPackets: any = [
                 { name: "unknownDword4", type: "uint32", defaultValue: 0 },
                 { name: "unknownDword5", type: "uint32", defaultValue: 0 },
                 { name: "unknownDword6", type: "uint32", defaultValue: 0 },
-                { name: "unknownDword7", type: "uint32", defaultValue: 0 },
-              ],
-            },
-          ],
-        },
-      ],
-    },
+                { name: "unknownDword7", type: "uint32", defaultValue: 0 }
+              ]
+            }
+          ]
+        }
+      ]
+    }
   ],
   ["QuickChat.SendTell", 0x2802, {}],
-  ["QuickChat.SendChatToChannel", 0x2803, {}],
+  ["QuickChat.SendChatToChannel", 0x2803, {}]
 ];

@@ -3,7 +3,7 @@
 //   GNU GENERAL PUBLIC LICENSE
 //   Version 3, 29 June 2007
 //   copyright (C) 2020 - 2021 Quentin Gruber
-//   copyright (C) 2021 - 2022 H1emu community
+//   copyright (C) 2021 - 2023 H1emu community
 //
 //   https://github.com/QuentinGruber/h1z1-server
 //   https://www.npmjs.com/package/h1z1-server
@@ -26,17 +26,17 @@ export const referenceDataPackets: any = [
           name: "profiles",
           type: "array",
           defaultValue: [],
-          fields: profileDataSchema,
-        },
-      ],
-    },
+          fields: profileDataSchema
+        }
+      ]
+    }
   ],
   [
     "ReferenceData.WeaponDefinitions",
     0x1704,
     {
-      fields: [{ name: "data", type: "byteswithlength" }],
-    },
+      fields: [{ name: "data", type: "byteswithlength" }]
+    }
   ],
   ["ReferenceData.ProjectileDefinitions", 0x1705, {}],
   [
@@ -48,9 +48,9 @@ export const referenceDataPackets: any = [
           name: "data",
           type: "custom",
           parser: parseVehicleReferenceData,
-          packer: packVehicleReferenceData,
-        },
-      ],
-    },
-  ],
+          packer: packVehicleReferenceData
+        }
+      ]
+    }
+  ]
 ];

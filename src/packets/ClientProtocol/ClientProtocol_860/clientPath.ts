@@ -3,7 +3,7 @@
 //   GNU GENERAL PUBLIC LICENSE
 //   Version 3, 29 June 2007
 //   copyright (C) 2020 - 2021 Quentin Gruber
-//   copyright (C) 2021 - 2022 H1emu community
+//   copyright (C) 2021 - 2023 H1emu community
 //
 //   https://github.com/QuentinGruber/h1z1-server
 //   https://www.npmjs.com/package/h1z1-server
@@ -16,8 +16,8 @@ export const clientPathPackets: any = [
     "ClientPath.Request",
     0x3e01,
     {
-      fields: [],
-    },
+      fields: []
+    }
   ],
   [
     "ClientPath.Reply",
@@ -34,11 +34,11 @@ export const clientPathPackets: any = [
             {
               name: "node",
               type: "floatvector4",
-              defaultValue: [0, 0, 0, 0],
-            },
-          ],
-        },
-      ],
-    },
-  ],
+              defaultValue: [0, 0, 0, 0]
+            }
+          ]
+        }
+      ]
+    }
+  ]
 ];

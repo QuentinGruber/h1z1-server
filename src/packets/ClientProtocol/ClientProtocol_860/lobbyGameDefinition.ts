@@ -3,7 +3,7 @@
 //   GNU GENERAL PUBLIC LICENSE
 //   Version 3, 29 June 2007
 //   copyright (C) 2020 - 2021 Quentin Gruber
-//   copyright (C) 2021 - 2022 H1emu community
+//   copyright (C) 2021 - 2023 H1emu community
 //
 //   https://github.com/QuentinGruber/h1z1-server
 //   https://www.npmjs.com/package/h1z1-server
@@ -16,8 +16,8 @@ export const lobbyGameDefinitionPackets: any = [
     "LobbyGameDefinition.DefinitionsRequest",
     0x420100,
     {
-      fields: [],
-    },
+      fields: []
+    }
   ],
   [
     "LobbyGameDefinition.DefinitionsResponse",
@@ -27,9 +27,9 @@ export const lobbyGameDefinitionPackets: any = [
         {
           name: "definitionsData",
           type: "byteswithlength",
-          fields: [{ name: "data", type: "string", defaultValue: "" }],
-        },
-      ],
-    },
-  ],
+          fields: [{ name: "data", type: "string", defaultValue: "" }]
+        }
+      ]
+    }
+  ]
 ];

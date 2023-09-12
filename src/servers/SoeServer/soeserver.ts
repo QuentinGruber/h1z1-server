@@ -3,7 +3,7 @@
 //   GNU GENERAL PUBLIC LICENSE
 //   Version 3, 29 June 2007
 //   copyright (C) 2020 - 2021 Quentin Gruber
-//   copyright (C) 2021 - 2022 H1emu community
+//   copyright (C) 2021 - 2023 H1emu community
 //
 //   https://github.com/QuentinGruber/h1z1-server
 //   https://www.npmjs.com/package/h1z1-server
@@ -11,15 +11,16 @@
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
 
-import { EventEmitter } from "events";
-import { RemoteInfo } from "dgram";
-import { Soeprotocol } from "h1emu-core";
+import { EventEmitter } from "node:events";
+import { RemoteInfo } from "node:dgram";
+import { append_crc_legacy, Soeprotocol } from "h1emu-core";
 import Client, { packetsQueue } from "./soeclient";
 import SOEClient from "./soeclient";
-import { Worker } from "worker_threads";
+import { Worker } from "node:worker_threads";
 import { crc_length_options } from "../../types/soeserver";
 import { LogicalPacket } from "./logicalPacket";
 import { json } from "types/shared";
+import { wrappedUint16 } from "../../utils/utils";
 const debug = require("debug")("SOEServer");
 process.env.isBin && require("../shared/workers/udpServerWorker.js");
 
@@ -31,21 +32,22 @@ export class SOEServer extends EventEmitter {
   _useEncryption: boolean = true;
   private _clients: Map<string, SOEClient> = new Map();
   private _connection: Worker;
-  _crcSeed: number = 0;
+  _crcSeed: number = Math.floor(Math.random() * 256);
   _crcLength: crc_length_options = 2;
   _waitQueueTimeMs: number = 50;
   _pingTimeoutTime: number = 60000;
   _usePingTimeout: boolean = false;
-  private _maxMultiBufferSize: number;
+  private readonly _maxMultiBufferSize: number;
   private _soeClientRoutineLoopMethod!: (
     arg0: () => void,
     arg1: number
   ) => void;
-  private _resendTimeout: number = 300;
+  private _resendTimeout: number = 500;
   packetRatePerClient: number = 500;
   private _ackTiming: number = 80;
   private _routineTiming: number = 3;
-  _allowRawDataReception: boolean = true;
+  _allowRawDataReception: boolean = false;
+  private _maxSeqResendRange: number = 50;
   constructor(
     serverPort: number,
     cryptoKey: Uint8Array,
@@ -59,7 +61,7 @@ export class SOEServer extends EventEmitter {
     this._connection = new Worker(
       `${__dirname}/../shared/workers/udpServerWorker.js`,
       {
-        workerData: { serverPort: serverPort, disableAntiDdos },
+        workerData: { serverPort: serverPort, disableAntiDdos }
       }
     );
     setInterval(() => {
@@ -77,7 +79,7 @@ export class SOEServer extends EventEmitter {
     }
   }
 
-  private _sendPhysicalPacket(client: Client, packet: Buffer): void {
+  private _sendPhysicalPacket(client: Client, packet: Uint8Array): void {
     client.packetsSentThisSec++;
     client.stats.totalPacketSent++;
     this._connection.postMessage({
@@ -85,8 +87,8 @@ export class SOEServer extends EventEmitter {
       data: {
         packetData: packet,
         port: client.port,
-        address: client.address,
-      },
+        address: client.address
+      }
     });
   }
 
@@ -99,7 +101,11 @@ export class SOEServer extends EventEmitter {
         if (logicalPacket.isReliable && logicalPacket.sequence) {
           client.unAckData.set(logicalPacket.sequence, Date.now());
         }
-        this._sendPhysicalPacket(client, logicalPacket.data);
+        const data =
+          logicalPacket.canCrc && this._crcLength
+            ? append_crc_legacy(logicalPacket.data, this._crcSeed)
+            : logicalPacket.data;
+        this._sendPhysicalPacket(client, data);
       } else {
         break;
       }
@@ -140,7 +146,13 @@ export class SOEServer extends EventEmitter {
   checkResendQueue(client: Client) {
     const currentTime = Date.now();
     for (const [sequence, time] of client.unAckData) {
-      if (time + this._resendTimeout < currentTime) {
+      if (
+        time + this._resendTimeout < currentTime &&
+        sequence <=
+          wrappedUint16.wrap(
+            client.outputStream.lastAck.get() + this._maxSeqResendRange
+          )
+      ) {
         client.outputStream.resendData(sequence);
         client.unAckData.delete(sequence);
       }
@@ -153,7 +165,7 @@ export class SOEServer extends EventEmitter {
     if (client.lastAck.get() != client.nextAck.get()) {
       client.lastAck.set(client.nextAck.get());
       this._sendLogicalPacket(client, "Ack", {
-        sequence: client.nextAck.get(),
+        sequence: client.nextAck.get()
       });
     }
   }
@@ -185,7 +197,7 @@ export class SOEServer extends EventEmitter {
       this._sendLogicalPacket(client, "MultiPacket", {
         sub_packets: queue.packets.map((packet) => {
           return Array.from(packet.data);
-        }),
+        })
       });
       // if a packet in the waiting queue is a reliable packet, then we need to set the timeout
       this.setupResendForQueuedPackets(client, queue);
@@ -199,7 +211,7 @@ export class SOEServer extends EventEmitter {
         const sequence = client.outOfOrderPackets.shift();
         if (sequence > client.lastAck.get()) {
           this._sendLogicalPacket(client, "OutOfOrder", {
-            sequence: sequence,
+            sequence: sequence
           });
         }
       }
@@ -241,11 +253,12 @@ export class SOEServer extends EventEmitter {
             crc_seed: client.crcSeed,
             crc_length: client.crcLength,
             encrypt_method: 0,
-            udp_length: client.serverUdpLength,
+            udp_length: client.serverUdpLength
           },
           true
         );
         break;
+      case "FatalError":
       case "Disconnect":
         debug("Received disconnect from client");
         this.emit("disconnect", client);
@@ -282,10 +295,23 @@ export class SOEServer extends EventEmitter {
         );
         break;
       case "OutOfOrder":
-        client.unAckData.delete(packet.sequence);
+        client.addPing(
+          Date.now() +
+            this._waitQueueTimeMs -
+            (client.unAckData.get(packet.sequence) as number)
+        );
         client.outputStream.removeFromCache(packet.sequence);
+        client.unAckData.delete(packet.sequence);
         break;
       case "Ack":
+        const mostWaitedPacketTime = client.unAckData.get(
+          client.outputStream.lastAck.get()
+        ) as number;
+        if (mostWaitedPacketTime) {
+          client.addPing(
+            Date.now() + this._waitQueueTimeMs - mostWaitedPacketTime
+          );
+        }
         client.outputStream.ack(packet.sequence, client.unAckData);
         break;
       default:
@@ -351,7 +377,7 @@ export class SOEServer extends EventEmitter {
                 fragment ? "DataFragment" : "Data",
                 {
                   sequence: sequence,
-                  data: data,
+                  data: data
                 },
                 unbuffered
               );
@@ -368,7 +394,7 @@ export class SOEServer extends EventEmitter {
                 fragment ? "DataFragment" : "Data",
                 {
                   sequence: sequence,
-                  data: data,
+                  data: data
                 }
               );
             }
@@ -381,7 +407,8 @@ export class SOEServer extends EventEmitter {
           if (raw_parsed_data) {
             const parsed_data = JSON.parse(raw_parsed_data);
             if (parsed_data.name === "Error") {
-              console.error(parsed_data.error);
+              console.error("parsing error " + parsed_data.error);
+              console.error(parsed_data);
             } else {
               this.handlePacket(client, parsed_data);
             }
@@ -390,10 +417,10 @@ export class SOEServer extends EventEmitter {
           }
         } else {
           if (this._allowRawDataReception) {
-            debug("Raw data received from client", clientId, data);
+            console.log("Raw data received from client", clientId, data);
             this.emit("appdata", client, data, true); // Unreliable + Unordered
           } else {
-            debug(
+            console.log(
               "Raw data received from client but raw data reception isn't enabled",
               clientId,
               data
@@ -540,7 +567,7 @@ export class SOEServer extends EventEmitter {
   }
 
   // Called by the application to send data to a client
-  sendAppData(client: Client, data: Buffer): void {
+  sendAppData(client: Client, data: Uint8Array): void {
     if (client.outputStream.isUsingEncryption()) {
       debug("Sending app data: " + data.length + " bytes with encryption");
     } else {
@@ -549,7 +576,7 @@ export class SOEServer extends EventEmitter {
     client.outputStream.write(data);
   }
 
-  sendUnbufferedAppData(client: Client, data: Buffer): void {
+  sendUnbufferedAppData(client: Client, data: Uint8Array): void {
     if (client.outputStream.isUsingEncryption()) {
       debug(
         "Sending unbuffered app data: " + data.length + " bytes with encryption"
@@ -571,6 +598,7 @@ export class SOEServer extends EventEmitter {
   }
 
   deleteClient(client: SOEClient): void {
+    client.closeTimers();
     this._clients.delete(client.address + ":" + client.port);
     debug("client connection from port : ", client.port, " deleted");
   }

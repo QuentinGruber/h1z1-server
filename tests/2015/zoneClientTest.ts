@@ -6,6 +6,7 @@ const zoneServer = new ZoneServer(
   Buffer.from("F70IaxuU8C/w7FPXY1ibXw==", "base64")
 );
 (zoneServer as any)._gatewayServer._soeServer._waitQueueTimeMs = 0;
+(zoneServer as any)._gatewayServer._soeServer._crcSeed = 0;
 zoneServer.start();
 
 fs.writeFileSync(
@@ -35,11 +36,11 @@ fs.writeFileSync(
           tintItemId: 0,
           unknownDword2: 0,
           decalItemId: 0,
-          loadoutSlots: [],
+          loadoutSlots: []
         },
         attachmentDefinitions: [],
-        lastUseDate: "0x0000000053da0a5b",
-      },
+        lastUseDate: "0x0000000053da0a5b"
+      }
     },
     {
       characterId: "0x01c339062a639939",
@@ -65,11 +66,11 @@ fs.writeFileSync(
           tintItemId: 0,
           unknownDword2: 0,
           decalItemId: 0,
-          loadoutSlots: [],
+          loadoutSlots: []
         },
         attachmentDefinitions: [],
-        lastUseDate: "0x0000000053da0a5b",
-      },
+        lastUseDate: "0x0000000053da0a5b"
+      }
     },
     {
       characterId: "0x3e06ed7da6ac3ec6",
@@ -95,11 +96,11 @@ fs.writeFileSync(
           tintItemId: 0,
           unknownDword2: 0,
           decalItemId: 0,
-          loadoutSlots: [],
+          loadoutSlots: []
         },
         attachmentDefinitions: [],
-        lastUseDate: "0x0000000053da0a5b",
-      },
+        lastUseDate: "0x0000000053da0a5b"
+      }
     },
     {
       characterId: "0xabb486d33e35802b",
@@ -125,11 +126,11 @@ fs.writeFileSync(
           tintItemId: 0,
           unknownDword2: 0,
           decalItemId: 0,
-          loadoutSlots: [],
+          loadoutSlots: []
         },
         attachmentDefinitions: [],
-        lastUseDate: "0x0000000053da0a5b",
-      },
+        lastUseDate: "0x0000000053da0a5b"
+      }
     },
     {
       characterId: "0x2c3701b93e57bf22",
@@ -155,11 +156,11 @@ fs.writeFileSync(
           tintItemId: 0,
           unknownDword2: 0,
           decalItemId: 0,
-          loadoutSlots: [],
+          loadoutSlots: []
         },
         attachmentDefinitions: [],
-        lastUseDate: "0x0000000053da0a5b",
-      },
+        lastUseDate: "0x0000000053da0a5b"
+      }
     },
     {
       characterId: "0xa633a32d701a2ff1",
@@ -185,12 +186,12 @@ fs.writeFileSync(
           tintItemId: 0,
           unknownDword2: 0,
           decalItemId: 0,
-          loadoutSlots: [],
+          loadoutSlots: []
         },
         attachmentDefinitions: [],
-        lastUseDate: "0x0000000053da0a5b",
-      },
-    },
+        lastUseDate: "0x0000000053da0a5b"
+      }
+    }
   ])
 );
 
@@ -211,7 +212,9 @@ setTimeout(() => {
   });
   client.on("ZoneDoneSendingInitialData", (err, res) => {
     console.log("ZoneDoneSendingInitialData");
-    process.exit(0);
+    zoneServer.saveWorld().then(() => {
+      process.exit(0);
+    });
   });
 }, 2000);
 

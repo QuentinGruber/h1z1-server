@@ -3,7 +3,7 @@
 //   GNU GENERAL PUBLIC LICENSE
 //   Version 3, 29 June 2007
 //   copyright (C) 2020 - 2021 Quentin Gruber
-//   copyright (C) 2021 - 2022 H1emu community
+//   copyright (C) 2021 - 2023 H1emu community
 //
 //   https://github.com/QuentinGruber/h1z1-server
 //   https://www.npmjs.com/package/h1z1-server
@@ -11,7 +11,7 @@
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
 
-import { EventEmitter } from "events";
+import { EventEmitter } from "node:events";
 import { GatewayClient } from "./gatewayclient";
 import { H1Z1Protocol as ZoneProtocol } from "../protocols/h1z1protocol";
 
@@ -114,13 +114,13 @@ export class ZoneClient extends EventEmitter {
 
               this._gatewayClient.sendTunnelData(
                 this._protocol.pack("ClientInitializationDetails", {
-                  unknownDword1: 7200,
+                  unknownDword1: 7200
                 }),
                 0
               );
               this._gatewayClient.sendTunnelData(
                 this._protocol.pack("SetLocale", {
-                  locale: "en_US",
+                  locale: "en_US"
                 }),
                 1
               );

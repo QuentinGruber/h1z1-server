@@ -8,6 +8,7 @@ const zone = new ZoneServer2016(
 );
 zone.start();
 (zone as any)._gatewayServer._soeServer._waitQueueTimeMs = 0;
+(zone as any)._gatewayServer._soeServer._crcSeed = 0;
 
 var client = new ZoneClient(
   "127.0.0.1",
@@ -25,7 +26,9 @@ client.on("connect", (err, res) => {
 });
 client.on("ZoneDoneSendingInitialData", (err, res) => {
   console.log("ZoneDoneSendingInitialData");
-  process.exit(0);
+  zone.saveWorld().then(() => {
+    process.exit(0);
+  });
 });
 
 setInterval(() => {

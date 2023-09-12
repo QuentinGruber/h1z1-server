@@ -3,7 +3,7 @@
 //   GNU GENERAL PUBLIC LICENSE
 //   Version 3, 29 June 2007
 //   copyright (C) 2020 - 2021 Quentin Gruber
-//   copyright (C) 2021 - 2022 H1emu community
+//   copyright (C) 2021 - 2023 H1emu community
 //
 //   https://github.com/QuentinGruber/h1z1-server
 //   https://www.npmjs.com/package/h1z1-server
@@ -11,7 +11,7 @@
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
 
-import { EventEmitter } from "events";
+import { EventEmitter } from "node:events";
 
 import { SOEClient } from "./soeclient";
 import { LoginProtocol } from "../protocols/loginprotocol";
@@ -88,7 +88,7 @@ export class LoginClient extends EventEmitter {
           if (result.status === 1) {
             this.emit("login", null, {
               loggedIn: result.loggedIn,
-              isMember: result.isMember,
+              isMember: result.isMember
             });
           } else {
             this.emit("login", "Login failed");
@@ -107,7 +107,7 @@ export class LoginClient extends EventEmitter {
         case "CharacterCreateReply":
           if (result.status === 1) {
             this.emit("charactercreate", null, {
-              characterId: result.characterId,
+              characterId: result.characterId
             });
           } else {
             this.emit("charactercreate", "Character create failed");
@@ -129,7 +129,7 @@ export class LoginClient extends EventEmitter {
           break;
         case "ServerListReply":
           this.emit("serverlist", null, {
-            servers: result.servers,
+            servers: result.servers
           });
           break;
         case "ServerUpdate":
@@ -153,7 +153,7 @@ export class LoginClient extends EventEmitter {
   login(fingerprint: string) {
     const data = this._protocol.pack("LoginRequest", {
       sessionId: this._soeClient._sessionId.toString(),
-      systemFingerPrint: fingerprint,
+      systemFingerPrint: fingerprint
     });
     debug("Sending login request");
     this._soeClient.sendAppData(data, true);
@@ -182,7 +182,7 @@ export class LoginClient extends EventEmitter {
     const data = this._protocol.pack("CharacterLoginRequest", {
       characterId: characterId,
       serverId: serverId,
-      payload: payload,
+      payload: payload
     });
     if (data) {
       this._soeClient.sendAppData(data, true);
@@ -203,8 +203,8 @@ export class LoginClient extends EventEmitter {
         headType: 1,
         profileType: 3,
         gender: 1,
-        characterName: "test",
-      },
+        characterName: "test"
+      }
     });
     if (data) {
       this._soeClient.sendAppData(data, true);

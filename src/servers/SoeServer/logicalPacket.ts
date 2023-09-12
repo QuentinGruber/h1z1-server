@@ -3,7 +3,7 @@
 //   GNU GENERAL PUBLIC LICENSE
 //   Version 3, 29 June 2007
 //   copyright (C) 2020 - 2021 Quentin Gruber
-//   copyright (C) 2021 - 2022 H1emu community
+//   copyright (C) 2021 - 2023 H1emu community
 //
 //   https://github.com/QuentinGruber/h1z1-server
 //   https://www.npmjs.com/package/h1z1-server
@@ -13,11 +13,37 @@
 
 export class LogicalPacket {
   sequence?: number;
-  data: Buffer;
+  data: Uint8Array;
   isReliable: boolean;
-  constructor(data: Buffer, sequence?: number) {
+  canCrc: boolean;
+  constructor(data: Uint8Array, sequence?: number) {
     this.sequence = sequence;
     this.data = data;
-    this.isReliable = data[1] === 9 || data[1] === 13;
+    switch (data[1]) {
+      case 3:
+        this.isReliable = false;
+        this.canCrc = true;
+        break;
+      case 9:
+        this.isReliable = true;
+        this.canCrc = true;
+        break;
+      case 11:
+        this.isReliable = false;
+        this.canCrc = true;
+        break;
+      case 21:
+        this.isReliable = false;
+        this.canCrc = true;
+        break;
+      case 13:
+        this.isReliable = true;
+        this.canCrc = true;
+        break;
+      default:
+        this.isReliable = false;
+        this.canCrc = false;
+        break;
+    }
   }
 }

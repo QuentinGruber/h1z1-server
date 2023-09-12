@@ -3,7 +3,7 @@
 //   GNU GENERAL PUBLIC LICENSE
 //   Version 3, 29 June 2007
 //   copyright (C) 2020 - 2021 Quentin Gruber
-//   copyright (C) 2021 - 2022 H1emu community
+//   copyright (C) 2021 - 2023 H1emu community
 //
 //   https://github.com/QuentinGruber/h1z1-server
 //   https://www.npmjs.com/package/h1z1-server
@@ -12,6 +12,7 @@
 // ======================================================================
 
 import { h1z1Buffer } from "h1z1-dataschema";
+import { PacketStructures } from "types/packetStructure";
 
 export function parseItemRequestSubData(data: h1z1Buffer, offset: number) {
   const obj: any = {},
@@ -30,16 +31,34 @@ export function parseItemRequestSubData(data: h1z1Buffer, offset: number) {
     offset += 4;
     obj["unknownQword1"] = data.readUInt64String(offset);
     offset += 8;
-    obj["unknownQword2"] = data.readUInt64String(offset);
-    offset += 8;
+    obj["unknownByte1"] = data.readUInt8(offset);
+    offset += 1;
+
+    // TODO: FIX THIS
+    if (obj["itemUseOption"] == 16) {
+      // this is the correct amount of bytes for this exact packet but
+      // may be in a different order
+      obj["unknownQword2"] = data.readUInt64String(offset);
+      offset += 8;
+      obj["unknownByte2"] = data.readUInt8(offset);
+      offset += 1;
+      obj["unknownByte3"] = data.readUInt8(offset);
+      offset += 1;
+      obj["unknownByte4"] = data.readUInt8(offset);
+      offset += 1;
+      obj["characterId"] = data.readUInt64String(offset);
+      offset += 8;
+      obj["unknownQword3"] = data.readUInt64String(offset);
+      offset += 8;
+    }
   }
 
   return {
     value: obj,
-    length: offset - startOffset,
+    length: offset - startOffset
   };
 }
-export const itemsPackets: any = [
+export const itemsPackets: PacketStructures = [
   ["Items.LoadItemRentalDefinitionManager", 0xad01, {}],
   ["Items.SetItemTimerManager", 0xad02, {}],
   ["Items.SetItemLockTimer", 0xad03, {}],
@@ -90,17 +109,17 @@ export const itemsPackets: any = [
         { name: "unknownDword1", type: "uint32", defaultValue: 0 },
         { name: "itemUseOption", type: "uint32", defaultValue: 0 },
         { name: "characterId", type: "uint64string", defaultValue: "" },
-        { name: "characterId2", type: "uint64string", defaultValue: "" },
-        { name: "characterId3", type: "uint64string", defaultValue: "" },
+        { name: "targetCharacterId", type: "uint64string", defaultValue: "" },
+        { name: "sourceCharacterId", type: "uint64string", defaultValue: "" },
         { name: "itemGuid", type: "uint64string", defaultValue: "" },
         {
           name: "itemSubData",
           type: "custom",
           defaultValue: {},
-          parser: parseItemRequestSubData,
-        },
-      ],
-    },
+          parser: parseItemRequestSubData
+        }
+      ]
+    }
   ],
   ["Items.RequestUseAccountItem", 0xad2b, {}],
   ["Items.RequestRemoveNewAccountItemRec", 0xad2c, {}],
@@ -115,5 +134,5 @@ export const itemsPackets: any = [
   ["Items.SetSkinItemCollectionCustomName", 0xad35, {}],
   ["Items.RequestSelectSkinItemCollection", 0xad36, {}],
   ["Items.RequestOpenAccountCrate", 0xad37, {}],
-  ["Items.RequestPreviewAccountCrateRewards", 0xad38, {}],
+  ["Items.RequestPreviewAccountCrateRewards", 0xad38, {}]
 ];

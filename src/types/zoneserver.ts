@@ -3,7 +3,7 @@
 //   GNU GENERAL PUBLIC LICENSE
 //   Version 3, 29 June 2007
 //   copyright (C) 2020 - 2021 Quentin Gruber
-//   copyright (C) 2021 - 2022 H1emu community
+//   copyright (C) 2021 - 2023 H1emu community
 //
 //   https://github.com/QuentinGruber/h1z1-server
 //   https://www.npmjs.com/package/h1z1-server
@@ -11,7 +11,12 @@
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
 
-import { FilterIds, Items } from "servers/ZoneServer2016/models/enums";
+import { ConstructionParentEntity } from "servers/ZoneServer2016/entities/constructionparententity";
+import { ConstructionChildEntity } from "servers/ZoneServer2016/entities/constructionchildentity";
+import { FilterIds, HealTypes, Items } from "servers/ZoneServer2016/models/enums";
+import { ConstructionDoor } from "servers/ZoneServer2016/entities/constructiondoor";
+import { LootableConstructionEntity } from "servers/ZoneServer2016/entities/lootableconstructionentity";
+import { LoadoutItem } from "servers/ZoneServer2016/classes/loadoutItem";
 
 export interface npcData {
   guid: string;
@@ -74,31 +79,6 @@ export interface characterEquipment {
   textureAlias?: string;
   tintAlias?: string;
   decalAlias?: string;
-}
-
-export interface weaponItem {
-  ammoCount: number;
-  reloadTimer?: NodeJS.Timeout;
-  currentReloadCount: number; // needed for reload packet to work every time
-}
-
-export interface inventoryItem {
-  itemDefinitionId: number;
-  slotId: number;
-  itemGuid: string;
-  containerGuid: string;
-  currentDurability: number;
-  stackCount: number;
-  weapon?: weaponItem;
-}
-
-export interface loadoutItem extends inventoryItem {
-  loadoutItemOwnerGuid: string;
-}
-
-export interface loadoutContainer extends loadoutItem {
-  containerDefinitionId: number;
-  items: { [itemGuid: string]: inventoryItem };
 }
 
 export interface Weather {
@@ -207,6 +187,7 @@ export interface DamageInfo {
   damage: number;
   causeBleed?: boolean;
   hitReport?: HitReport;
+  message?: string;
 }
 
 export interface DamageRecord {
@@ -226,7 +207,25 @@ export interface DamageRecord {
     hitPosition: Float32Array;
     oldHP: number;
     newHP: number;
+    message: string;
   };
+}
+
+export interface fireHint {
+  id: number;
+  position: Float32Array;
+  rotation: number;
+  hitNumber: number;
+  weaponItem: LoadoutItem
+  timeStamp: number,
+  marked?: { characterId: string, position: Float32Array, rotation: Float32Array, gameTime: number }
+}
+
+export interface characterEffect {
+  id: number;
+  duration: number;
+  callback?: any;
+  endCallback?: any;
 }
 
 export interface SpawnLocation {
@@ -263,4 +262,147 @@ export interface Recipe {
   filterId: FilterIds;
   bundleCount?: number;
   components: Array<RecipeComponent>;
+  requireWorkbench?: boolean
+  leftOverItems?: number[]
+}
+
+export interface ItemUseOption {
+  itemDef: number,
+  type: number,
+  timeout: number,
+  eatCount?: number,
+  drinkCount?: number,
+  givetrash?: number,
+  healCount?: number,
+  staminaCount?: number,
+  bandagingCount?: number,
+  refuelCount?: number,
+  healType?: HealTypes,
+}
+
+export interface smeltRecipe {
+  filterId: FilterIds;
+  rewardId: number;
+  components: Array<RecipeComponent>;
+}
+
+export interface dailyRepairMaterial {
+    itemDefinitionId: number;
+    requiredCount: number;
+}
+
+export type SlottedConstructionEntity = ConstructionChildEntity | ConstructionParentEntity | ConstructionDoor;
+
+export type ConstructionEntity = SlottedConstructionEntity | LootableConstructionEntity;
+
+export interface ConstructionPermissions {
+  characterId: string;
+  characterName: string;
+  useContainers: boolean;
+  build: boolean;
+  demolish: boolean;
+  visit: boolean;
+}
+
+export type ConstructionSlotPositionMap = { [slot: number]: { position: Float32Array, rotation: Float32Array } };
+
+export type OccupiedSlotMap = { [slot: string]: SlottedConstructionEntity };
+
+type Point2D = [number, number];
+
+export type SquareBounds = [Point2D, Point2D, Point2D, Point2D];
+
+export interface ClientBan {
+  name: string;
+  banType: string;
+  banReason: string;
+  loginSessionId: string;
+  IP: string;
+  HWID: string;
+  adminName: string;
+  expirationDate: number;
+  active: boolean;
+  unBanAdminName: string;
+}
+
+export interface ClientMute {
+  name: string;
+  muteReason: string;
+  loginSessionId: string;
+  adminName: string;
+  expirationDate: number;
+  active: boolean;
+  unmuteAdminName: string;
+}
+
+export interface Group {
+  groupId: number;
+  leader: string;
+  members: Array<string>;
+}
+
+export interface FairPlayWeaponStat {
+  maxSpeed: number;
+  minSpeed: number;
+  maxDistance: number;
+}
+
+export interface FairPlayValues {
+  lastLoginDateAddVal: number;
+  maxTimeDrift: number;
+  maxSpeed: number;
+  maxVerticalSpeed: number;
+  speedWarnsNumber: number;
+  maxTpDist: number;
+  defaultMaxProjectileSpeed: number;
+  defaultMinProjectileSpeed: number;
+  defaultMaxDistance: number;
+  WEAPON_308: FairPlayWeaponStat;
+  WEAPON_CROSSBOW: FairPlayWeaponStat;
+  WEAPON_BOW_MAKESHIFT: FairPlayWeaponStat;
+  WEAPON_BOW_RECURVE: FairPlayWeaponStat;
+  WEAPON_BOW_WOOD: FairPlayWeaponStat;
+  WEAPON_SHOTGUN: FairPlayWeaponStat;
+  dotProductMin: number;
+  dotProductMinShotgun: number;
+  dotProductBlockValue: number;
+  requiredFile: string;
+  requiredString: string;
+  requiredFile2: string;
+  respawnCheckRange: number;
+  respawnCheckTime: number;
+  respawnCheckIterations: number;
+  maxFlying: number;
+  maxPositionDesync: number;
+  maxFlaggedShots: number;
+}
+
+export interface SpeedTree {
+  objectId: number;
+  modelName: string;
+}
+
+export interface StanceFlags {
+  FIRST_PERSON: boolean,
+  FLAG1: boolean,
+  SITTING: boolean,
+  STRAFE_RIGHT: boolean,
+  STRAFE_LEFT: boolean,
+  FORWARD: boolean,
+  BACKWARD: boolean,
+  FLAG7: boolean,
+  FLAG8: boolean,
+  PRONED: boolean,
+  FLAG10: boolean,
+  ON_GROUND: boolean,
+  FLAG12: boolean,
+  FLAG13: boolean,
+  FLAG14: boolean,
+  STATIONARY: boolean,
+  FLOATING: boolean,
+  JUMPING: boolean,
+  FLAG18: boolean,
+  SPRINTING: boolean,
+  CROUCHING: boolean,
+  FLAG21: boolean,
 }

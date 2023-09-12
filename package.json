@@ -1,35 +1,39 @@
 {
   "name": "h1z1-server",
-  "version": "0.22.4-0",
+  "version": "0.28.1-0",
   "description": "Library for emulating h1z1 servers",
   "author": "Quentin Gruber <quentingruber@gmail.com> (http://github.com/quentingruber)",
   "license": "GPL-3.0-only",
   "main": "h1z1-server.js",
   "engines": {
-    "node": ">=0.16.0 <20"
+    "node": ">=0.17.0 <21"
   },
   "bin": {
     "h1z1-server-demo": "scripts/h1z1-server-demo.js",
     "h1z1-server-demo-2016": "scripts/h1z1-server-demo-2016.js"
   },
   "dependencies": {
+    "@types/js-yaml": "4.0.5",
+    "@types/node": "20.4.4",
     "debug": "4.3.4",
-    "h1emu-core": "1.0.0",
+    "h1emu-core": "1.2.1",
     "h1z1-dataschema": "1.7.0",
-    "mongodb": "4.12.0",
-    "typescript": "4.9.3"
+    "js-yaml": "4.1.0",
+    "mongodb": "5.7.0",
+    "threads": "1.7.0",
+    "typescript": "5.1.6"
   },
   "directories": {
     "src": "./src"
   },
   "devDependencies": {
-    "@typescript-eslint/eslint-plugin": "5.44.0",
-    "@typescript-eslint/parser": "5.44.0",
-    "eslint": "8.28.0",
-    "glob": "8.0.3",
-    "prettier": "2.7.1",
+    "@typescript-eslint/eslint-plugin": "^6.1.0",
+    "@typescript-eslint/parser": "^6.1.0",
+    "eslint": "^8.45.0",
+    "glob": "8.1.0",
+    "prettier": "3.0.2",
     "ts-node": "10.9.1",
-    "typedoc": "0.23.21"
+    "typedoc": "^0.24.8"
   },
   "scripts": {
     "gen-packets-types": "npx ts-node ./scripts/genPacketsNames.ts",
@@ -37,6 +41,7 @@
     "gen-packets-interfaces": "npx ts-node ./scripts/genPacketsInterfaces.ts ",
     "fix-signatures": "npx ts-node ./scripts/fixSignatures.ts && npm run prettier_sources",
     "gen-doc": "npx typedoc",
+    "start": "node ./scripts/h1z1-server-demo-2016.js",
     "lint": "npx eslint src",
     "lint-quiet": "npx eslint --quiet src",
     "build": "npm run build-all",
@@ -46,7 +51,7 @@
     "build-zone-2015": "tsc -p ./tsconfigs/tsconfig-2015-zone.json",
     "build-zone-2016": "tsc -p ./tsconfigs/tsconfig-2016-zone.json",
     "build-tests": "npx tsc -p tsconfigs/tsconfig-tests.json",
-    "build-benchs": "npx swc benchmarks -d benchmarks_out",
+    "build-benchs": "npx tsc -p ./benchmarks/tsconfig.json",
     "build-docker-images": "npx ts-node ./docker/buildDocker.ts",
     "build-binaries-win": "cd ./bin/ && build.bat",
     "build-binaries-unix": "chmod +x ./bin/build.sh && ./bin/build.sh",

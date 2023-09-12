@@ -3,7 +3,7 @@
 //   GNU GENERAL PUBLIC LICENSE
 //   Version 3, 29 June 2007
 //   copyright (C) 2020 - 2021 Quentin Gruber
-//   copyright (C) 2021 - 2022 H1emu community
+//   copyright (C) 2021 - 2023 H1emu community
 //
 //   https://github.com/QuentinGruber/h1z1-server
 //   https://www.npmjs.com/package/h1z1-server
@@ -29,5 +29,5 @@ export const missionsPackets: any = [
   ["Missions.SetMissionChangeList", 0x9d0f, {}],
   ["Missions.SetConqueredZone", 0x9d10, {}],
   ["Missions.UnsetConqueredZone", 0x9d11, {}],
-  ["Missions.SetConqueredZones", 0x9d12, {}],
+  ["Missions.SetConqueredZones", 0x9d12, {}]
 ];

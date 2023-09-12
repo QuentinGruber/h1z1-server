@@ -3,7 +3,7 @@
 //   GNU GENERAL PUBLIC LICENSE
 //   Version 3, 29 June 2007
 //   copyright (C) 2020 - 2021 Quentin Gruber
-//   copyright (C) 2021 - 2022 H1emu community
+//   copyright (C) 2021 - 2023 H1emu community
 //
 //   https://github.com/QuentinGruber/h1z1-server
 //   https://www.npmjs.com/package/h1z1-server
@@ -11,10 +11,10 @@
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
 
-import { EventEmitter } from "events";
+import { EventEmitter } from "node:events";
 
 import { SOEServer } from "../SoeServer/soeserver";
-import { H1emuLoginServer } from "../H1emuServer/h1emuLoginServer";
+import { H1emuLoginServer as ZoneConnectionManager } from "../H1emuServer/h1emuLoginServer";
 import { H1emuClient } from "../H1emuServer/shared/h1emuclient";
 import { LoginProtocol } from "../../protocols/loginprotocol";
 import { MongoClient } from "mongodb";
@@ -24,17 +24,18 @@ import {
   getAppDataFolderPath,
   initMongo,
   setupAppDataFolder,
-  validateVersion,
+  isValidCharacterName,
+  resolveHostAddress
 } from "../../utils/utils";
 import { GameServer } from "../../types/loginserver";
 import Client from "servers/LoginServer/loginclient";
-import fs from "fs";
+import fs from "node:fs";
 import { loginPacketsType } from "types/packets";
-import { Worker } from "worker_threads";
+import { Worker } from "node:worker_threads";
 import { httpServerMessage } from "types/shared";
 import { LoginProtocol2016 } from "../../protocols/loginprotocol2016";
 import { crc_length_options } from "../../types/soeserver";
-import { DEFAULT_CRYPTO_KEY } from "../../utils/constants";
+import { DB_NAME, DEFAULT_CRYPTO_KEY } from "../../utils/constants";
 import { healthThreadDecorator } from "../../servers/shared/workers/healthWorker";
 import {
   LoginReply,
@@ -47,13 +48,20 @@ import {
   CharacterLoginRequest,
   CharacterCreateRequest,
   LoginUdp_11packets,
+  LoginRequest
 } from "types/LoginUdp_11packets";
 import { LoginUdp_9packets } from "types/LoginUdp_9packets";
 import { getCharacterModelData } from "../shared/functions";
 import LoginClient from "servers/LoginServer/loginclient";
-import { GAME_VERSIONS } from "../../utils/enums";
+import {
+  BAN_INFO,
+  DB_COLLECTIONS,
+  GAME_VERSIONS,
+  NAME_VALIDATION_STATUS
+} from "../../utils/enums";
 import DataSchema from "h1z1-dataschema";
 import { applicationDataKOTK } from "../../packets/LoginUdp/LoginUdp_11/loginpackets";
+import { Resolver } from "node:dns";
 
 const debugName = "LoginServer";
 const debug = require("debug")(debugName);
@@ -65,35 +73,33 @@ export class LoginServer extends EventEmitter {
   _protocol: LoginProtocol;
   _protocol2016: LoginProtocol2016;
   _db: any;
-  _crcSeed: number;
   _crcLength: crc_length_options;
   _udpLength: number;
-  private _cryptoKey: Uint8Array;
-  private _mongoAddress: string;
-  private _soloMode: boolean;
-  private _appDataFolder: string;
+  private readonly _cryptoKey: Uint8Array;
+  private readonly _mongoAddress: string;
+  private readonly _soloMode: boolean;
+  private readonly _appDataFolder: string;
   private _httpServer!: Worker;
   _enableHttpServer: boolean;
   _httpServerPort: number = 80;
-  private _h1emuLoginServer!: H1emuLoginServer;
+  private _zoneConnectionManager!: ZoneConnectionManager;
   private _zoneConnections: { [h1emuClientId: string]: number } = {};
-  private _zoneWhitelist!: any[];
   private _internalReqCount: number = 0;
   private _pendingInternalReq: { [requestId: number]: any } = {};
   private _pendingInternalReqTimeouts: { [requestId: number]: NodeJS.Timeout } =
     {};
   private _soloPlayIp: string = process.env.SOLO_PLAY_IP || "127.0.0.1";
   private clients: Map<string, LoginClient>;
+  private _resolver = new Resolver();
   constructor(serverPort: number, mongoAddress = "") {
     super();
-    this._crcSeed = 0;
-    this._crcLength = 0;
+    this._crcLength = 2;
     this._udpLength = 512;
     this._cryptoKey = Buffer.from(DEFAULT_CRYPTO_KEY, "base64");
     this._soloMode = false;
     this._mongoAddress = mongoAddress;
     this._appDataFolder = getAppDataFolderPath();
-    this._enableHttpServer = true;
+    this._enableHttpServer = false;
     this.clients = new Map();
 
     // reminders
@@ -126,8 +132,7 @@ export class LoginServer extends EventEmitter {
           // if packet parsing succeed
           switch (packet.name) {
             case "LoginRequest":
-              const { sessionId } = packet.result;
-              await this.LoginRequest(client, sessionId);
+              await this.LoginRequest(client, packet.result);
               break;
             case "CharacterSelectInfoRequest":
               await this.CharacterSelectInfoRequest(client);
@@ -161,85 +166,125 @@ export class LoginServer extends EventEmitter {
     });
 
     if (!this._soloMode) {
-      this._h1emuLoginServer = new H1emuLoginServer(1110);
+      this._zoneConnectionManager = new ZoneConnectionManager(1110);
 
-      this._h1emuLoginServer.on(
+      this._zoneConnectionManager.on(
         "data",
         async (err: string, client: H1emuClient, packet: any) => {
           if (err) {
             console.error(err);
-          } else {
-            try {
-              const connectionEstablished: boolean =
-                !!this._zoneConnections[client.clientId];
-              if (connectionEstablished || packet.name === "SessionRequest") {
-                switch (packet.name) {
-                  case "SessionRequest": {
-                    const { serverId, h1emuVersion } = packet.data;
-                    debug(
-                      `Received session request from ${client.address}:${client.port}`
-                    );
-                    let status =
-                      this._zoneWhitelist.find((e) => e.serverId === serverId)
-                        ?.address === client.address
-                        ? 1
-                        : 0;
-                    if (
-                      status &&
-                      process.env.H1Z1_SERVER_VERSION &&
-                      !validateVersion(
-                        process.env.H1Z1_SERVER_VERSION,
-                        h1emuVersion
-                      )
-                    ) {
-                      console.log(
-                        `serverId : ${serverId} version mismatch ${h1emuVersion} vs ${process.env.H1Z1_SERVER_VERSION}`
+            return;
+          }
+          try {
+            const connectionEstablished: boolean =
+              !!this._zoneConnections[client.clientId];
+            if (connectionEstablished || packet.name === "SessionRequest") {
+              switch (packet.name) {
+                case "SessionRequest": {
+                  const { serverId, h1emuVersion } = packet.data;
+                  debug(
+                    `Received session request from ${client.address}:${client.port}`
+                  );
+                  let status = 0;
+                  const server = await this._db
+                    .collection(DB_COLLECTIONS.SERVERS)
+                    .findOne({ serverId: serverId, isDisabled: false });
+                  if (server) {
+                    const fullServerAddress = server.serverAddress;
+                    const serverAddress = fullServerAddress.split(":")[0];
+                    if (serverAddress) {
+                      const resolvedServerAddress = await resolveHostAddress(
+                        this._resolver,
+                        serverAddress
                       );
-                      status = 0;
-                    }
-                    if (status === 1) {
-                      debug(`ZoneConnection established`);
-                      client.serverId = serverId;
-                      this._zoneConnections[client.clientId] = serverId;
-                      await this.updateServerStatus(serverId, true);
-                    } else {
-                      console.log(
-                        `rejected connection serverId : ${serverId} address: ${client.address} `
-                      );
-                      delete this._h1emuLoginServer._clients[client.clientId];
-                      return;
-                    }
-                    this._h1emuLoginServer.sendData(client, "SessionReply", {
-                      status: status,
-                    });
-                    break;
-                  }
-                  case "UpdateZonePopulation": {
-                    const { population } = packet.data;
-                    const serverId = this._zoneConnections[client.clientId];
-                    this._db?.collection("servers").findOneAndUpdate(
-                      { serverId: serverId },
-                      {
-                        $set: {
-                          populationNumber: population,
-                          populationLevel: Number((population / 1).toFixed(0)),
-                        },
+                      if (resolvedServerAddress.includes(client.address)) {
+                        status = 1;
                       }
-                    );
-                    break;
+                    }
                   }
-                  default:
-                    debug(`Unhandled h1emu packet: ${packet.name}`);
-                    break;
+                  if (status === 1) {
+                    debug(`ZoneConnection established`);
+                    client.serverId = serverId;
+                    this._zoneConnections[client.clientId] = serverId;
+                    await this.updateZoneServerVersion(serverId, h1emuVersion);
+                    await this.updateServerStatus(serverId, true);
+                  } else {
+                    this.rejectH1emuConnection(serverId, client);
+                    return;
+                  }
+                  this._zoneConnectionManager.sendData(client, "SessionReply", {
+                    status: status
+                  });
+                  break;
                 }
+                case "UpdateZonePopulation": {
+                  const { population } = packet.data;
+                  const serverId = this._zoneConnections[client.clientId];
+                  this._db?.collection(DB_COLLECTIONS.SERVERS).findOneAndUpdate(
+                    { serverId: serverId },
+                    {
+                      $set: {
+                        populationNumber: population,
+                        populationLevel: population
+                      }
+                    }
+                  );
+                  break;
+                }
+                case "ClientBan": {
+                  const { status, loginSessionId } = packet.data;
+                  const serverId = this._zoneConnections[client.clientId];
+                  try {
+                    const userSession = await this._db
+                      .collection(DB_COLLECTIONS.USERS_SESSIONS)
+                      .findOne({ guid: loginSessionId });
+                    this._db
+                      ?.collection(DB_COLLECTIONS.BANNED_LIGHT)
+                      .findOneAndUpdate(
+                        { serverId: serverId },
+                        {
+                          $set: {
+                            serverId,
+                            authKey: userSession.authKey,
+                            status,
+                            isGlobal: await this._isServerOfficial(serverId)
+                          }
+                        },
+                        { upsert: true }
+                      );
+                  } catch (e) {
+                    console.log(e);
+                    console.log(
+                      `Failed to register clientBan serverId:${serverId} loginSessionId:${loginSessionId}`
+                    );
+                  }
+                  break;
+                }
+                case "ClientMessage": {
+                  const { guid, message, showConsole, clearOutput } =
+                    packet.data;
+
+                  const client = await this.getClientByGuid(guid);
+                  if (!client) return;
+
+                  this.sendData(client, "H1emu.PrintToConsole", {
+                    message: message,
+                    showConsole: showConsole,
+                    clearOutput: clearOutput
+                  });
+                  break;
+                }
+                default:
+                  console.log(`Unhandled h1emu packet: ${packet.name}`);
+                  break;
               }
-            } catch (e) {
-              console.log(e);
             }
+          } catch (e) {
+            console.log(e);
           }
         }
       );
-      this._h1emuLoginServer.on(
+      this._zoneConnectionManager.on(
         "processInternalReq",
         (packet: any, keysToReturn: string[]) => {
           const { reqId } = packet.data;
@@ -264,7 +309,7 @@ export class LoginServer extends EventEmitter {
           }
         }
       );
-      this._h1emuLoginServer.on(
+      this._zoneConnectionManager.on(
         "disconnect",
         async (err: string, client: H1emuClient, reason: number) => {
           debug(
@@ -273,14 +318,54 @@ export class LoginServer extends EventEmitter {
             }`
           );
           delete this._zoneConnections[client.clientId];
-          if (client.serverId) {
+          if (
+            client.serverId &&
+            !Object.values(this._zoneConnections).includes(client.serverId)
+          ) {
             await this.updateServerStatus(client.serverId, false);
           }
         }
       );
 
-      this._h1emuLoginServer.start();
+      this._zoneConnectionManager.start();
     }
+  }
+
+  async getGuidByAuthkey(authKey: string): Promise<string | undefined> {
+    const session = await this._db
+      .collection(DB_COLLECTIONS.USERS_SESSIONS)
+      .findOne({ authKey });
+    if (!session) return;
+    return session.guid;
+  }
+
+  async getClientByGuid(guid: string): Promise<Client | undefined> {
+    const session = await this._db
+      .collection(DB_COLLECTIONS.USERS_SESSIONS)
+      .findOne({ guid });
+    if (!session) return;
+
+    let client: Client | undefined;
+    this.clients.forEach((c) => {
+      if (c.authKey == session.authKey) {
+        client = c;
+      }
+    });
+
+    return client;
+  }
+
+  rejectH1emuConnection(serverId: number, client: H1emuClient) {
+    debug(
+      `rejected connection serverId : ${serverId} address: ${client.address} `
+    );
+    delete this._zoneConnectionManager._clients[client.clientId];
+  }
+  private async _isServerOfficial(serverId: number): Promise<boolean> {
+    const server = await this._db
+      .collection(DB_COLLECTIONS.SERVERS)
+      .findOne({ serverId });
+    return !!server.IsOfficial;
   }
 
   parseData(clientProtocol: string, data: Buffer) {
@@ -363,46 +448,47 @@ export class LoginServer extends EventEmitter {
       }
     } else {
       const charactersQuery = {
-        authKey: client.loginSessionId,
+        authKey: client.authKey,
         gameVersion: client.gameVersion,
-        status: 1,
+        status: 1
       };
       return await this._db
-        .collection("characters-light")
+        .collection(DB_COLLECTIONS.CHARACTERS_LIGHT)
         .find(charactersQuery)
         .toArray();
     }
   }
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  async LoginRequest(client: Client, sessionIdString: string) {
-    let sessionId, gameVersion;
+  async LoginRequest(client: Client, request: LoginRequest) {
+    let authKey, gameVersion;
+    let sessionIdString = request.sessionId;
     // In case of shitty json formatting
     sessionIdString = sessionIdString.replaceAll("\\", "");
     try {
       const sessionIdObject = JSON.parse(sessionIdString);
-      sessionId = sessionIdObject.sessionId;
+      authKey = sessionIdObject.sessionId;
       gameVersion = sessionIdObject.gameVersion;
-      if (!sessionId || !gameVersion) {
+      if (!authKey || !gameVersion) {
         throw new Error("Invalid sessionId");
       }
     } catch (e) {
-      sessionId = sessionIdString;
+      authKey = sessionIdString;
       gameVersion =
         client.protocolName === "LoginUdp_9"
           ? GAME_VERSIONS.H1Z1_15janv_2015
           : GAME_VERSIONS.H1Z1_6dec_2016;
-      console.warn(
-        "Your session id is not a valid json string, please update your launcher to avoid this warning"
-      );
+      //console.warn(
+      //  "Your session id is not a valid json string, please update your launcher to avoid this warning"
+      //);
     }
     if (this._soloMode) {
-      client.loginSessionId = String(sessionId);
+      client.authKey = String(authKey);
     } else {
       const realSession = await this._db
-        .collection("user-sessions")
-        .findOne({ guid: sessionId });
-      client.loginSessionId = realSession ? realSession.authKey : sessionId;
+        .collection(DB_COLLECTIONS.USERS_SESSIONS)
+        .findOne({ guid: authKey });
+      client.authKey = realSession ? realSession.authKey : authKey;
     }
     client.gameVersion = gameVersion;
     const loginReply: LoginReply = {
@@ -419,19 +505,19 @@ export class LoginServer extends EventEmitter {
             id: 2,
             active: true,
             remainingCount: 2,
-            rawData: "test",
-          },
-        },
+            rawData: "test"
+          }
+        }
       ],
       errorDetails: [
         {
           unknownDword1: 0,
           name: "None",
-          value: "None",
-        },
+          value: "None"
+        }
       ],
       ipCountryCode: "US",
-      applicationPayload: "US",
+      applicationPayload: "US"
     };
     this.clients.set(client.soeClientId, client);
     this.sendData(client, "LoginReply", loginReply);
@@ -442,30 +528,30 @@ export class LoginServer extends EventEmitter {
     let response: unknown;
     switch (packet.subPacketName) {
       case "nameValidationRequest":
-        let status = 1;
         const characterName = packet.result.characterName;
+        let status = isValidCharacterName(characterName);
         if (!this._soloMode) {
           const blackListedEntry = await this._db
-            .collection("blackListEntries")
+            .collection(DB_COLLECTIONS.BLACK_LIST_ENTRIES)
             .findOne({
-              WORD: characterName.toUpperCase(),
+              WORD: characterName.toUpperCase()
             });
           if (blackListedEntry) {
             if (blackListedEntry.FILTER_TYPE === 3) {
-              status = 5;
+              status = NAME_VALIDATION_STATUS.RESERVED;
             } else {
-              status = 4;
+              status = NAME_VALIDATION_STATUS.PROFANE;
             }
           } else {
             const duplicateCharacter = await this._db
-              .collection("characters-light")
+              .collection(DB_COLLECTIONS.CHARACTERS_LIGHT)
               .findOne({
                 "payload.name": characterName,
                 serverId: baseResponse.serverId,
-                status: 1,
+                status: 1
               });
             if (duplicateCharacter) {
-              status = 2;
+              status = NAME_VALIDATION_STATUS.TAKEN;
             }
           }
         }
@@ -473,7 +559,7 @@ export class LoginServer extends EventEmitter {
           ...baseResponse,
           subPacketOpcode: 0x02,
           firstName: characterName,
-          status: status,
+          status: status
         };
         break;
       default:
@@ -501,17 +587,17 @@ export class LoginServer extends EventEmitter {
         loadoutId: 3,
         unknownData1: {
           unknownDword1: 22,
-          unknownByte1: 1,
+          unknownByte1: 1
         },
         unknownDword1: 0,
         unknownData2: {
           unknownDword1: 0,
-          loadoutName: "",
+          loadoutName: ""
         },
         tintItemId: 0,
         unknownDword2: 0,
         decalItemId: 0,
-        loadoutSlots: [],
+        loadoutSlots: []
       };
       PlayerCharacter.payload.attachmentDefinitions = [];
     }
@@ -533,8 +619,8 @@ export class LoginServer extends EventEmitter {
             payload: {
               name: character.characterName,
               modelId: character.actorModelId,
-              gender: character.gender,
-            },
+              gender: character.gender
+            }
           };
         });
         characters = this.addDummyDataToCharacters(characterList);
@@ -545,35 +631,52 @@ export class LoginServer extends EventEmitter {
     const characterSelectInfoReply: CharacterSelectInfoReply = {
       status: 1,
       canBypassServerLock: true,
-      characters: characters,
+      characters: characters
     };
     this.sendData(client, "CharacterSelectInfoReply", characterSelectInfoReply);
     debug("CharacterSelectInfoRequest");
   }
 
   async updateServerStatus(serverId: number, status: boolean) {
-    const server = await this._db.collection("servers").findOneAndUpdate(
-      { serverId: serverId },
-      {
-        $set: {
-          allowedAccess: status,
-          populationNumber: 0,
-          populationLevel: 0,
-        },
-      }
-    );
+    const server = await this._db
+      .collection(DB_COLLECTIONS.SERVERS)
+      .findOneAndUpdate(
+        { serverId: serverId },
+        {
+          $set: {
+            allowedAccess: status,
+            statusTimestamp: Date.now(),
+            populationNumber: 0,
+            populationLevel: 0
+          }
+        }
+      );
     this.clients.forEach((client: Client) => {
       if (client.gameVersion === server.value.gameVersion) {
         this.sendData(client, "ServerUpdate", {
           ...server.value,
-          allowedAccess: status,
+          allowedAccess: !server.value.locked ? status : false
         });
       }
     });
   }
 
+  async updateZoneServerVersion(serverId: number, version: string) {
+    await this._db.collection(DB_COLLECTIONS.SERVERS).updateOne(
+      { serverId: serverId },
+      {
+        $set: {
+          h1emuVersion: version
+        }
+      }
+    );
+  }
+
   async updateServersStatus(): Promise<void> {
-    const servers = await this._db.collection("servers").find().toArray();
+    const servers = await this._db
+      .collection(DB_COLLECTIONS.SERVERS)
+      .find()
+      .toArray();
 
     for (let index = 0; index < servers.length; index++) {
       const server: GameServer = servers[index];
@@ -587,30 +690,24 @@ export class LoginServer extends EventEmitter {
   }
 
   async ServerListRequest(client: Client) {
-    let servers;
+    let servers: any[];
     if (!this._soloMode) {
       servers = await this._db
-        .collection("servers")
+        .collection(DB_COLLECTIONS.SERVERS)
         .find({
-          gameVersion: client.gameVersion,
+          gameVersion: client.gameVersion
         })
         .toArray();
-      const userWhiteList = await this._db
-        .collection("servers-whitelist")
-        .find({ userId: client.loginSessionId })
-        .toArray();
-      if (userWhiteList) {
-        for (let i = 0; i < servers.length; i++) {
-          if (!servers[i].allowedAccess) {
-            for (let y = 0; y < userWhiteList.length; y++) {
-              if (servers[i].serverId == userWhiteList[y].serverId) {
-                servers[i].allowedAccess = true;
-              }
-            }
-            delete servers[i]._id;
+      servers = servers
+        .map((server: any) => {
+          if (server.locked) {
+            server.allowedAccess = false;
           }
-        }
-      }
+          return server;
+        })
+        .filter((v) => {
+          return !v.isDisabled;
+        });
     } else {
       switch (client.gameVersion) {
         default:
@@ -672,12 +769,9 @@ export class LoginServer extends EventEmitter {
       const characterId = packet.characterId;
       const characterQuery = { characterId: characterId };
       const charracterToDelete = await this._db
-        .collection("characters-light")
+        .collection(DB_COLLECTIONS.CHARACTERS_LIGHT)
         .findOne(characterQuery);
-      if (
-        charracterToDelete &&
-        charracterToDelete.authKey === client.loginSessionId
-      ) {
+      if (charracterToDelete && charracterToDelete.authKey === client.authKey) {
         deletionStatus = (await this.askZone(
           charracterToDelete.serverId,
           "CharacterDeleteRequest",
@@ -685,11 +779,11 @@ export class LoginServer extends EventEmitter {
         )) as number;
         if (deletionStatus) {
           await this._db
-            .collection("characters-light")
+            .collection(DB_COLLECTIONS.CHARACTERS_LIGHT)
             .updateOne(characterQuery, {
               $set: {
-                status: 0,
-              },
+                status: 0
+              }
             });
           debug(`Character ${packet.characterId} deleted !`);
         }
@@ -698,7 +792,7 @@ export class LoginServer extends EventEmitter {
     const characterDeleteReply: CharacterDeleteReply = {
       characterId: packet.characterId,
       status: deletionStatus,
-      Payload: "\0",
+      Payload: "\0"
     };
     this.sendData(client, "CharacterDeleteReply", characterDeleteReply);
   }
@@ -706,16 +800,18 @@ export class LoginServer extends EventEmitter {
   async getCharactersLoginInfo(
     serverId: number,
     characterId: string,
-    loginSessionId: string | undefined
+    authKey: string | undefined
   ): Promise<CharacterLoginReply> {
     const { serverAddress, populationNumber, maxPopulationNumber } =
-      await this._db.collection("servers").findOne({ serverId: serverId });
+      await this._db
+        .collection(DB_COLLECTIONS.SERVERS)
+        .findOne({ serverId: serverId });
     const character = await this._db
-      .collection("characters-light")
+      .collection(DB_COLLECTIONS.CHARACTERS_LIGHT)
       .findOne({ characterId: characterId });
-    const connectionStatus =
+    let connectionStatus =
       Object.values(this._zoneConnections).includes(serverId) &&
-      (populationNumber <= maxPopulationNumber || !maxPopulationNumber);
+      (populationNumber < maxPopulationNumber || !maxPopulationNumber);
     debug(`connectionStatus ${connectionStatus}`);
 
     if (!character) {
@@ -723,11 +819,15 @@ export class LoginServer extends EventEmitter {
         `CharacterId "${characterId}" unfound on serverId: "${serverId}"`
       );
     }
-    const hiddenSession = connectionStatus
-      ? await this._db
-          .collection("user-sessions")
-          .findOne({ authKey: loginSessionId })
-      : { guid: "" };
+    const hiddenSession = (await this._db
+      .collection(DB_COLLECTIONS.USERS_SESSIONS)
+      .findOne({ authKey })) ?? { guid: "" };
+    if (!connectionStatus && hiddenSession.guid) {
+      // Admins bypass max pop
+      connectionStatus = (await this.askZone(serverId, "ClientIsAdminRequest", {
+        guid: hiddenSession.guid
+      })) as boolean;
+    }
     return {
       unknownQword1: "0x0",
       unknownDword1: 0,
@@ -741,8 +841,8 @@ export class LoginServer extends EventEmitter {
         unknownQword2: "0x0",
         stationName: "",
         characterName: character ? character.payload.name : "error",
-        unknownString: "",
-      },
+        unknownString: ""
+      }
     };
   }
 
@@ -773,31 +873,79 @@ export class LoginServer extends EventEmitter {
       status: 1,
       applicationData: {
         serverAddress: `${this._soloPlayIp}:1117`,
-        serverTicket: client.loginSessionId,
+        serverTicket: client.authKey,
         encryptionKey: this._cryptoKey,
         guid: characterId,
         unknownQword2: "0x0",
         stationName: "",
         characterName: character.characterName,
-        unknownString: "",
-      },
+        unknownString: ""
+      }
     };
+  }
+
+  // need to be self-implemented
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  async isClientUsingVpn(_address: string): Promise<boolean> {
+    return false;
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  async isClientHWIDBanned(client: Client, serverId: number): Promise<boolean> {
+    return false;
+  }
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  async isClientVerified(client: Client): Promise<boolean> {
+    // to implement
+    return true;
+  }
+  async getOwnerBanInfo(serverId: number, client: Client) {
+    const ownerBanInfos: any[] = await this._db
+      .collection(DB_COLLECTIONS.BANNED_LIGHT)
+      .find({ authKey: client.authKey, status: true })
+      .toArray();
+    const banInfos: { banInfo: BAN_INFO }[] = [];
+    for (let i = 0; i < ownerBanInfos.length; i++) {
+      const ownerBanInfo = ownerBanInfos[i];
+      if (ownerBanInfo.serverId === serverId) {
+        banInfos.push({ banInfo: BAN_INFO.LOCAL_BAN });
+      }
+      if (ownerBanInfo.isGlobal) {
+        banInfos.push({ banInfo: BAN_INFO.GLOBAL_BAN });
+      }
+    }
+
+    if (await this.isClientUsingVpn(client.address)) {
+      banInfos.push({ banInfo: BAN_INFO.VPN });
+    }
+
+    if (await this.isClientHWIDBanned(client, serverId)) {
+      banInfos.push({ banInfo: BAN_INFO.HWID });
+    }
+
+    if (!(await this.isClientVerified(client))) {
+      banInfos.push({ banInfo: BAN_INFO.UNVERIFIED });
+    }
+
+    return banInfos;
   }
 
   async CharacterLoginRequest(client: Client, packet: CharacterLoginRequest) {
     let charactersLoginInfo: CharacterLoginReply;
     const { serverId, characterId } = packet;
-    let characterExistOnZone = 1;
+    let CharacterAllowedOnZone = 1;
+    let banInfos: Array<{ banInfo: BAN_INFO }> = [];
     if (!this._soloMode) {
       charactersLoginInfo = await this.getCharactersLoginInfo(
         serverId,
         characterId,
-        client.loginSessionId
+        client.authKey
       );
-      characterExistOnZone = (await this.askZone(
+      banInfos = await this.getOwnerBanInfo(serverId, client);
+      CharacterAllowedOnZone = (await this.askZone(
         serverId,
-        "CharacterExistRequest",
-        { characterId: characterId }
+        "CharacterAllowedRequest",
+        { characterId: characterId, banInfos }
       )) as number;
     } else {
       charactersLoginInfo = await this.getCharactersLoginInfoSolo(
@@ -812,7 +960,48 @@ export class LoginServer extends EventEmitter {
       ).data;
     }
     debug(charactersLoginInfo);
-    charactersLoginInfo.status = Number(characterExistOnZone);
+    if (charactersLoginInfo.status) {
+      charactersLoginInfo.status = Number(CharacterAllowedOnZone);
+    } else {
+      this.sendData(client, "H1emu.PrintToConsole", {
+        message: `Invalid character status! If this is a new character, please delete and recreate it.`,
+        showConsole: true,
+        clearOutput: true
+      });
+    }
+    if (!CharacterAllowedOnZone) {
+      let reason =
+        "UNDEFINED. If this is a new character, please delete and recreate it.";
+      switch (banInfos[0]?.banInfo) {
+        case 1:
+          reason = "LOCAL_BAN";
+          break;
+        case 2:
+          reason = "GLOBAL_BAN";
+          break;
+        case 3:
+          reason = "VPN";
+          break;
+        case 4:
+          reason = "HWID_BAN";
+          break;
+        case 5:
+          reason = "UNVERIFIED";
+          break;
+      }
+      this.sendData(client, "H1emu.PrintToConsole", {
+        message: `CONNECTION REJECTED! Reason: ${reason}`,
+        showConsole: true,
+        clearOutput: true
+      });
+      if (reason == "UNVERIFIED") {
+        this.sendData(client, "H1emu.PrintToConsole", {
+          message: `Please follow the steps to verify your account using the #how-to-play channel in the discord. discord.gg/h1emu`,
+          showConsole: false,
+          clearOutput: false
+        });
+      }
+    }
     this.sendData(client, "CharacterLoginReply", charactersLoginInfo);
     debug("CharacterLoginRequest");
   }
@@ -833,12 +1022,12 @@ export class LoginServer extends EventEmitter {
           zoneConnectionIndex
         ];
         const [address, port] = zoneConnectionString.split(":");
-        this._h1emuLoginServer.sendData(
+        this._zoneConnectionManager.sendData(
           {
             address: address,
             port: port,
             clientId: zoneConnectionString,
-            serverId: 1, // TODO: that's a hack
+            serverId: 1 // TODO: that's a hack
           } as any,
           packetName,
           { reqId: reqId, ...packetObj }
@@ -850,6 +1039,7 @@ export class LoginServer extends EventEmitter {
           resolve(0);
         }, 5000);
       } catch (e) {
+        console.error(e);
         resolve(0);
       }
     });
@@ -860,14 +1050,14 @@ export class LoginServer extends EventEmitter {
     const {
       payload: { characterName },
       serverId,
-      payload,
+      payload
     } = packet;
     // create character object
     let sampleCharacter, newCharacter;
     switch (client.gameVersion) {
       case GAME_VERSIONS.H1Z1_15janv_2015: {
         sampleCharacter = require("../../../data/2015/sampleData/single_player_character.json");
-        newCharacter = _.cloneDeep(sampleCharacter);
+        newCharacter = _.cloneDeep(sampleCharacter) as any;
         newCharacter.payload.name = characterName;
         break;
       }
@@ -875,7 +1065,7 @@ export class LoginServer extends EventEmitter {
       case GAME_VERSIONS.H1Z1_KOTK_PS3:
       case GAME_VERSIONS.H1Z1_6dec_2016: {
         sampleCharacter = require("../../../data/2016/sampleData/character.json");
-        newCharacter = _.cloneDeep(sampleCharacter);
+        newCharacter = _.cloneDeep(sampleCharacter) as any;
         newCharacter.characterName = characterName;
         break;
       }
@@ -902,7 +1092,7 @@ export class LoginServer extends EventEmitter {
             actorModelId: characterModelData.modelId,
             headActor: characterModelData.headActor,
             gender: payload.gender,
-            hairModel: characterModelData.hairModel,
+            hairModel: characterModelData.hairModel
           };
           SinglePlayerCharacters[SinglePlayerCharacters.length] = newCharacter;
           fs.writeFileSync(
@@ -918,7 +1108,7 @@ export class LoginServer extends EventEmitter {
             actorModelId: characterModelData.modelId,
             headActor: characterModelData.headActor,
             gender: payload.gender,
-            hairModel: characterModelData.hairModel,
+            hairModel: characterModelData.hairModel
           };
           SinglePlayerCharacters[SinglePlayerCharacters.length] = newCharacter;
           fs.writeFileSync(
@@ -931,17 +1121,18 @@ export class LoginServer extends EventEmitter {
     } else {
       let sessionObj;
       const storedUserSession = await this._db
-        ?.collection("user-sessions")
-        .findOne({ authKey: client.loginSessionId, serverId: serverId });
+        ?.collection(DB_COLLECTIONS.USERS_SESSIONS)
+        .findOne({ authKey: client.authKey });
       if (storedUserSession) {
         sessionObj = storedUserSession;
       } else {
         sessionObj = {
-          serverId: serverId,
-          authKey: client.loginSessionId,
-          guid: generateRandomGuid(),
+          authKey: client.authKey,
+          guid: generateRandomGuid()
         };
-        await this._db?.collection("user-sessions").insertOne(sessionObj);
+        await this._db
+          ?.collection(DB_COLLECTIONS.USERS_SESSIONS)
+          .insertOne(sessionObj);
       }
       let newCharacterData;
       switch (client.gameVersion) {
@@ -957,32 +1148,32 @@ export class LoginServer extends EventEmitter {
             serverId: newCharacter.serverId,
             ownerId: sessionObj.guid,
             payload: packet.payload,
-            status: 1,
+            status: 1
           };
           break;
         }
       }
       creationStatus = (await this.askZone(serverId, "CharacterCreateRequest", {
-        characterObjStringify: JSON.stringify(newCharacterData),
+        characterObjStringify: JSON.stringify(newCharacterData)
       }))
         ? 1
         : 0;
 
       if (creationStatus === 1) {
-        await this._db.collection("characters-light").insertOne({
-          authKey: client.loginSessionId,
+        await this._db.collection(DB_COLLECTIONS.CHARACTERS_LIGHT).insertOne({
+          authKey: client.authKey,
           serverId: serverId,
           gameVersion: client.gameVersion,
           payload: { name: characterName },
           characterId: newCharacter.characterId,
-          status: 1,
+          status: 1
         });
       }
       newCharacter;
     }
     const characterCreateReply: CharacterCreateReply = {
       status: creationStatus,
-      characterId: newCharacter.characterId,
+      characterId: newCharacter.characterId
     };
     this.sendData(client, "CharacterCreateReply", characterCreateReply);
   }
@@ -991,7 +1182,7 @@ export class LoginServer extends EventEmitter {
     debug("Starting server");
     if (this._mongoAddress) {
       const mongoClient = new MongoClient(this._mongoAddress, {
-        maxPoolSize: 100,
+        maxPoolSize: 100
       });
       try {
         await mongoClient.connect();
@@ -1003,22 +1194,12 @@ export class LoginServer extends EventEmitter {
       debug("connected to mongo !");
       // if no collections exist on h1server database , fill it with samples
       const dbIsEmpty =
-        (await mongoClient.db("h1server").collections()).length < 1;
+        (await mongoClient.db(DB_NAME).collections()).length < 1;
       if (dbIsEmpty) {
         await initMongo(mongoClient, debugName);
       }
-      this._db = mongoClient.db("h1server");
-      this._zoneWhitelist = await this._db
-        .collection("zone-whitelist")
-        .find({})
-        .toArray();
+      this._db = mongoClient.db(DB_NAME);
       this.updateServersStatus();
-      setInterval(async () => {
-        this._zoneWhitelist = await this._db
-          .collection("zone-whitelist")
-          .find({})
-          .toArray();
-      }, 60000);
     }
 
     if (this._soloMode) {
@@ -1029,8 +1210,8 @@ export class LoginServer extends EventEmitter {
       this._httpServer = new Worker(`${__dirname}/workers/httpServer.js`, {
         workerData: {
           MONGO_URL: this._mongoAddress,
-          SERVER_PORT: this._httpServerPort,
-        },
+          SERVER_PORT: this._httpServerPort
+        }
       });
       this._httpServer.on("message", (message: httpServerMessage) => {
         const { type, requestId, data } = message;
@@ -1041,7 +1222,7 @@ export class LoginServer extends EventEmitter {
               requestId: requestId,
               data: Object.values(this._zoneConnections).includes(data)
                 ? "pong"
-                : "error",
+                : "error"
             };
             this._httpServer.postMessage(response);
             break;
@@ -1050,7 +1231,7 @@ export class LoginServer extends EventEmitter {
             const response: httpServerMessage = {
               type: "ping",
               requestId: requestId,
-              data: "pong",
+              data: "pong"
             };
             this._httpServer.postMessage(response);
             break;

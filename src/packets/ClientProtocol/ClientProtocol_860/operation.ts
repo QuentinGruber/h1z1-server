@@ -3,7 +3,7 @@
 //   GNU GENERAL PUBLIC LICENSE
 //   Version 3, 29 June 2007
 //   copyright (C) 2020 - 2021 Quentin Gruber
-//   copyright (C) 2021 - 2022 H1emu community
+//   copyright (C) 2021 - 2023 H1emu community
 //
 //   https://github.com/QuentinGruber/h1z1-server
 //   https://www.npmjs.com/package/h1z1-server
@@ -27,13 +27,13 @@ export const operationPackets: any = [
     "Operation.ClientClearMissions",
     0xbf0c,
     {
-      fields: [],
-    },
+      fields: []
+    }
   ],
   ["Operation.InstanceAreaUpdate", 0xbf0d, {}],
   ["Operation.ClientInArea", 0xbf0e, {}],
   ["Operation.InstanceLocationUpdate", 0xbf0f, {}],
   ["Operation.GroupOperationListRequest", 0xbf10, {}],
   ["Operation.GroupOperationListReply", 0xbf11, {}],
-  ["Operation.GroupOperationSelect", 0xbf12, {}],
+  ["Operation.GroupOperationSelect", 0xbf12, {}]
 ];

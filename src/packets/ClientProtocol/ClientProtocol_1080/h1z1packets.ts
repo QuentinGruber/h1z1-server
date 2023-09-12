@@ -3,7 +3,7 @@
 //   GNU GENERAL PUBLIC LICENSE
 //   Version 3, 29 June 2007
 //   copyright (C) 2020 - 2021 Quentin Gruber
-//   copyright (C) 2021 - 2022 H1emu community
+//   copyright (C) 2021 - 2023 H1emu community
 //
 //   https://github.com/QuentinGruber/h1z1-server
 //   https://www.npmjs.com/package/h1z1-server
@@ -66,8 +66,14 @@ import { wallOfDataPackets } from "./wallOfData";
 import { wordFilterPackets } from "./wordFilter";
 import { zoneSettingPackets } from "./zoneSetting";
 import { clientPathPackets } from "./clientPath";
+import { groupPackets } from "./group";
+import { accessedCharacterPackets } from "./accessedCharacter";
+import { replicationPackets } from "./replication";
+import { spectatorPackets } from "./spectator";
+import { h1emuPackets } from "./h1emu";
+import { PacketStructures } from "types/packetStructure";
 
-const packets: any = [
+const packets: PacketStructures = [
   ...basePackets,
   ...abilitiesPackets,
   ...abilityPackets,
@@ -122,6 +128,11 @@ const packets: any = [
   ...wordFilterPackets,
   ...zoneSettingPackets,
   ...clientPathPackets,
+  ...groupPackets,
+  ...accessedCharacterPackets,
+  ...replicationPackets,
+  ...spectatorPackets,
+  ...h1emuPackets
 ];
 
 const [packetTypes, packetDescriptors] = PacketTableBuild(packets);

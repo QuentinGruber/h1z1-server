@@ -3,7 +3,7 @@
 //   GNU GENERAL PUBLIC LICENSE
 //   Version 3, 29 June 2007
 //   copyright (C) 2020 - 2021 Quentin Gruber
-//   copyright (C) 2021 - 2022 H1emu community
+//   copyright (C) 2021 - 2023 H1emu community
 //
 //   https://github.com/QuentinGruber/h1z1-server
 //   https://www.npmjs.com/package/h1z1-server
@@ -11,15 +11,17 @@
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
 
-const EventEmitter = require("events").EventEmitter,
+const { LogicalPacket } = require("../servers/SoeServer/logicalPacket");
+
+const EventEmitter = require("node:events").EventEmitter,
   SOEInputStream =
     require("../servers/SoeServer/soeinputstream").SOEInputStream,
   SOEOutputStream =
     require("../servers/SoeServer/soeoutputstream").SOEOutputStream,
-  { Soeprotocol } = require("h1emu-core"),
-  util = require("util"),
-  fs = require("fs"),
-  dgram = require("dgram"),
+  { Soeprotocol, append_crc_legacy } = require("h1emu-core"),
+  util = require("node:util"),
+  fs = require("node:fs"),
+  dgram = require("node:dgram"),
   debug = require("debug")("SOEClient");
 
 function createSessionId() {
@@ -44,7 +46,7 @@ class SOEClient {
     this._outQueue = [];
 
     const connection = (this._connection = dgram.createSocket("udp4"));
-    const protocol = (this._protocol = new Soeprotocol(false, 0));
+    const protocol = (this._protocol = new Soeprotocol(true, 0));
     const inputStream = (this._inputStream = new SOEInputStream(cryptoKey));
     const outputStream = (this._outputStream = new SOEOutputStream(cryptoKey));
 
@@ -70,12 +72,12 @@ class SOEClient {
       if (fragment) {
         me._sendPacket("DataFragment", {
           sequence: sequence,
-          data: data,
+          data: data
         });
       } else {
         me._sendPacket("Data", {
           sequence: sequence,
-          data: data,
+          data: data
         });
       }
     });
@@ -89,7 +91,7 @@ class SOEClient {
         lastAck = nextAck;
         me._sendPacket("Ack", {
           channel: 0,
-          sequence: nextAck,
+          sequence: nextAck
         });
       }
       me._ackTimer = setTimeout(checkAck, 50);
@@ -107,8 +109,8 @@ class SOEClient {
             name: "OutOfOrder",
             soePacket: {
               channel: 0,
-              sequence: sequence,
-            },
+              sequence: sequence
+            }
           });
           if (!outOfOrderPackets.length) {
             break;
@@ -118,7 +120,7 @@ class SOEClient {
         me._sendPacket(
           "MultiPacket",
           {
-            subPackets: packets,
+            subPackets: packets
           },
           true
         );
@@ -130,7 +132,10 @@ class SOEClient {
 
     function checkOutQueue() {
       if (me._outQueue.length) {
-        const data = me._outQueue.shift();
+        const logical = new LogicalPacket(me._outQueue.shift());
+        const data = logical.canCrc
+          ? append_crc_legacy(logical.data, this._crcSeed)
+          : logical.data;
         if (me._dumpData) {
           fs.writeFileSync("debug/soeclient_" + n1++ + "_out.dat", data);
         }
@@ -179,7 +184,7 @@ class SOEClient {
                 break;
               default:
                 handlePacket({
-                  soePacket: subPacket,
+                  soePacket: subPacket
                 });
             }
           }
@@ -255,7 +260,7 @@ class SOEClient {
         protocol: me._protocolName,
         crc_length: 3,
         session_id: me._sessionId,
-        udp_length: 512,
+        udp_length: 512
       });
     });
   }

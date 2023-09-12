@@ -3,7 +3,7 @@
 //   GNU GENERAL PUBLIC LICENSE
 //   Version 3, 29 June 2007
 //   copyright (C) 2020 - 2021 Quentin Gruber
-//   copyright (C) 2021 - 2022 H1emu community
+//   copyright (C) 2021 - 2023 H1emu community
 //
 //   https://github.com/QuentinGruber/h1z1-server
 //   https://www.npmjs.com/package/h1z1-server
@@ -13,13 +13,15 @@
 
 import { MongoClient } from "mongodb";
 import { httpServerMessage } from "types/shared";
-import { parentPort, workerData } from "worker_threads";
-import http from "http";
+import { parentPort, workerData } from "node:worker_threads";
+import http from "node:http";
+import { DB_COLLECTIONS } from "../../../utils/enums";
+import { DB_NAME } from "../../../utils/constants";
 function sendMessageToServer(type: string, requestId: number, data: any) {
   const message: httpServerMessage = {
     type: type,
     requestId: requestId,
-    data: data,
+    data: data
   };
   parentPort?.postMessage(message);
 }
@@ -27,9 +29,9 @@ function sendMessageToServer(type: string, requestId: number, data: any) {
 const { MONGO_URL, SERVER_PORT } = workerData;
 
 const client = new MongoClient(MONGO_URL, {
-  maxPoolSize: 5,
+  maxPoolSize: 5
 });
-const dbName = "h1server";
+const dbName = DB_NAME;
 const db = client.db(dbName);
 client.connect();
 let requestCount = 0;
@@ -46,13 +48,13 @@ function parseQueryString(queryString: string) {
 }
 const agent = new http.Agent({
   keepAlive: true,
-  maxSockets: 45,
+  maxSockets: 45
 });
 http.request({
   agent: agent,
   method: "GET",
   hostname: "localhost",
-  port: SERVER_PORT,
+  port: SERVER_PORT
 });
 const httpServer = http.createServer().listen(SERVER_PORT);
 httpServer.on("request", async function (req, res) {
@@ -61,8 +63,11 @@ httpServer.on("request", async function (req, res) {
   const queryObject: any = queryString ? parseQueryString(queryString) : null;
   switch (path) {
     case "servers": {
-      const collection = db.collection("servers");
+      const collection = db.collection(DB_COLLECTIONS.SERVERS);
       const serversArray = await collection.find().toArray();
+      serversArray.forEach((server) => {
+        delete server.serverAddress;
+      });
       res.writeHead(200, { "Content-Type": "text/json" });
       res.write(JSON.stringify(serversArray));
       res.end();

@@ -3,7 +3,7 @@
 //   GNU GENERAL PUBLIC LICENSE
 //   Version 3, 29 June 2007
 //   copyright (C) 2020 - 2021 Quentin Gruber
-//   copyright (C) 2021 - 2022 H1emu community
+//   copyright (C) 2021 - 2023 H1emu community
 //
 //   https://github.com/QuentinGruber/h1z1-server
 //   https://www.npmjs.com/package/h1z1-server
@@ -23,10 +23,10 @@ export const achievementPackets: any = [
         {
           name: "achievementData",
           type: "schema",
-          fields: objectiveDataSchema,
-        },
-      ],
-    },
+          fields: objectiveDataSchema
+        }
+      ]
+    }
   ],
   [
     "Achievement.Initialize",
@@ -37,7 +37,7 @@ export const achievementPackets: any = [
           name: "clientAchievements",
           type: "array",
           defaultValue: [],
-          fields: achievementDataSchema,
+          fields: achievementDataSchema
         },
         {
           name: "achievementData",
@@ -47,16 +47,16 @@ export const achievementPackets: any = [
               name: "achievements",
               type: "array",
               defaultValue: [],
-              fields: achievementDataSchema,
-            },
-          ],
-        },
-      ],
-    },
+              fields: achievementDataSchema
+            }
+          ]
+        }
+      ]
+    }
   ],
   ["Achievement.Complete", 0x6504, {}],
   ["Achievement.ObjectiveAdded", 0x6505, {}],
   ["Achievement.ObjectiveActivated", 0x6506, {}],
   ["Achievement.ObjectiveUpdate", 0x6507, {}],
-  ["Achievement.ObjectiveComplete", 0x6508, {}],
+  ["Achievement.ObjectiveComplete", 0x6508, {}]
 ];

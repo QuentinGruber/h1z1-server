@@ -3,7 +3,7 @@
 //   GNU GENERAL PUBLIC LICENSE
 //   Version 3, 29 June 2007
 //   copyright (C) 2020 - 2021 Quentin Gruber
-//   copyright (C) 2021 - 2022 H1emu community
+//   copyright (C) 2021 - 2023 H1emu community
 //
 //   https://github.com/QuentinGruber/h1z1-server
 //   https://www.npmjs.com/package/h1z1-server
@@ -11,13 +11,13 @@
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
 
-import { EventEmitter } from "events";
+import { EventEmitter } from "node:events";
 import { RC4 } from "h1emu-core";
 import { wrappedUint16 } from "../../utils/utils";
 import {
   DATA_HEADER_SIZE,
   MAX_SEQUENCE,
-  MAX_UINT8,
+  MAX_UINT8
 } from "../../utils/constants";
 
 const debug = require("debug")("SOEInputStream");
@@ -132,9 +132,7 @@ export class SOEInputStream extends EventEmitter {
 
       if (appData.length) {
         if (this._fragments.has(this._lastProcessedSequence + 1)) {
-          queueMicrotask(() => {
-            this._processData();
-          });
+          setImmediate(() => this._processData());
         }
         this.processAppData(appData);
       }
@@ -234,7 +232,7 @@ function readDataLength(
   }
   return {
     length,
-    sizeValueBytes,
+    sizeValueBytes
   };
 }
 

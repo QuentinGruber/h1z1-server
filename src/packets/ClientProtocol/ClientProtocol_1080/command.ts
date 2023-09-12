@@ -3,7 +3,7 @@
 //   GNU GENERAL PUBLIC LICENSE
 //   Version 3, 29 June 2007
 //   copyright (C) 2020 - 2021 Quentin Gruber
-//   copyright (C) 2021 - 2022 H1emu community
+//   copyright (C) 2021 - 2023 H1emu community
 //
 //   https://github.com/QuentinGruber/h1z1-server
 //   https://www.npmjs.com/package/h1z1-server
@@ -12,8 +12,9 @@
 // ======================================================================
 
 import { packItemDefinitionData, packTargetData } from "./shared";
+import { PacketStructures } from "types/packetStructure";
 
-export const commandPackets: any = [
+export const commandPackets: PacketStructures = [
   ["Command.ShowDialog", 0x090100, {}],
   ["Command.EndDialog", 0x090200, {}],
   ["Command.StartDialog", 0x090300, {}],
@@ -27,30 +28,38 @@ export const commandPackets: any = [
         { name: "unknownString1", type: "string", defaultValue: "" },
         { name: "unknownDword1", type: "uint32", defaultValue: 0 },
         { name: "unknownDword2", type: "uint32", defaultValue: 0 },
-        { name: "unknownDword3", type: "uint32", defaultValue: 0 },
-      ],
-    },
+        { name: "unknownDword3", type: "uint32", defaultValue: 0 }
+      ]
+    }
   ],
   [
     "Command.InteractRequest",
     0x090700,
     {
-      fields: [{ name: "guid", type: "uint64string", defaultValue: "0" }],
-    },
+      fields: [
+        { name: "characterId", type: "uint64string", defaultValue: "0" },
+        {
+          name: "entityPosition",
+          type: "floatvector4",
+          defaultValue: [0, 0, 0, 0]
+        },
+        { name: "isInstant", type: "boolean", defaultValue: true }
+      ]
+    }
   ],
   [
     "Command.InteractCancel",
     0x090800,
     {
-      fields: [],
-    },
+      fields: []
+    }
   ],
   [
     "Command.InteractDebug",
     0x090900,
     {
-      fields: [],
-    },
+      fields: []
+    }
   ],
   [
     "Command.InteractionList",
@@ -70,8 +79,8 @@ export const commandPackets: any = [
             { name: "unknownDword4", type: "uint32", defaultValue: 0 },
             { name: "unknownDword5", type: "uint32", defaultValue: 0 },
             { name: "unknownDword6", type: "uint32", defaultValue: 0 },
-            { name: "unknownDword7", type: "uint32", defaultValue: 0 },
-          ],
+            { name: "unknownDword7", type: "uint32", defaultValue: 0 }
+          ]
         },
         { name: "unknownString1", type: "string", defaultValue: "" },
         { name: "unknownBoolean2", type: "boolean", defaultValue: false },
@@ -88,12 +97,12 @@ export const commandPackets: any = [
             { name: "unknownDword4", type: "uint32", defaultValue: 0 },
             { name: "unknownDword5", type: "uint32", defaultValue: 0 },
             { name: "unknownDword6", type: "uint32", defaultValue: 0 },
-            { name: "unknownDword7", type: "uint32", defaultValue: 0 },
-          ],
+            { name: "unknownDword7", type: "uint32", defaultValue: 0 }
+          ]
         },
-        { name: "unknownBoolean3", type: "boolean", defaultValue: false },
-      ],
-    },
+        { name: "unknownBoolean3", type: "boolean", defaultValue: false }
+      ]
+    }
   ],
   [
     "Command.InteractionSelect",
@@ -101,9 +110,9 @@ export const commandPackets: any = [
     {
       fields: [
         { name: "guid", type: "uint64string", defaultValue: "0" },
-        { name: "interactionId", type: "uint32", defaultValue: 0 },
-      ],
-    },
+        { name: "interactionId", type: "uint32", defaultValue: 0 }
+      ]
+    }
   ],
   ["Command.InteractionStartWheel", 0x090c00, {}],
   ["Command.InteractionComplete", 0x090d00, {}],
@@ -114,9 +123,9 @@ export const commandPackets: any = [
     {
       fields: [
         { name: "profileId", type: "uint32", defaultValue: 0 },
-        { name: "tab", type: "uint32", defaultValue: 0 },
-      ],
-    },
+        { name: "tab", type: "uint32", defaultValue: 0 }
+      ]
+    }
   ],
   ["Command.AddFriendRequest", 0x091000, {}],
   ["Command.RemoveFriendRequest", 0x091100, {}],
@@ -129,16 +138,16 @@ export const commandPackets: any = [
     {
       fields: [
         { name: "characterId", type: "uint64string", defaultValue: "0" },
-        { name: "guid", type: "uint64string", defaultValue: "0" },
-      ],
-    },
+        { name: "guid", type: "uint64string", defaultValue: "0" }
+      ]
+    }
   ],
   [
     "Command.FreeInteractionNpc",
     0x091600,
     {
-      fields: [],
-    },
+      fields: []
+    }
   ],
   ["Command.FriendsPositionRequest", 0x091700, {}],
   ["Command.MoveAndInteract", 0x091800, {}],
@@ -149,9 +158,9 @@ export const commandPackets: any = [
     {
       fields: [
         { name: "recipeId", type: "uint32", defaultValue: 0 },
-        { name: "count", type: "uint32", defaultValue: 0 },
-      ],
-    },
+        { name: "count", type: "uint32", defaultValue: 0 }
+      ]
+    }
   ],
   ["Command.ShowRecipeWindow", 0x091b00, {}],
   ["Command.ActivateProfileFailed", 0x091c00, {}],
@@ -161,9 +170,9 @@ export const commandPackets: any = [
     {
       fields: [
         { name: "characterId", type: "uint64string", defaultValue: "0x000" },
-        { name: "effectId", type: "uint32", defaultValue: 0 },
-      ],
-    },
+        { name: "effectId", type: "uint32", defaultValue: 0 }
+      ]
+    }
   ],
   ["Command.ForceClearDialog", 0x091e00, {}],
   ["Command.IgnoreRequest", 0x091f00, {}],
@@ -181,9 +190,9 @@ export const commandPackets: any = [
     {
       fields: [
         { name: "soundId", type: "uint32", defaultValue: 0 },
-        { name: "targetData", type: "custom", packer: packTargetData },
-      ],
-    },
+        { name: "targetData", type: "custom", packer: packTargetData }
+      ]
+    }
   ],
   ["Command.RequestPlayIntroEncounter", 0x092900, {}],
   ["Command.SpotPlayer", 0x092a00, {}],
@@ -196,9 +205,9 @@ export const commandPackets: any = [
       fields: [
         { name: "guid", type: "uint64string", defaultValue: "0" },
         { name: "stringId", type: "uint32", defaultValue: 0 },
-        { name: "unknown4", type: "uint32", defaultValue: 0 },
-      ],
-    },
+        { name: "unknown4", type: "uint32", defaultValue: 0 }
+      ]
+    }
   ],
   ["Command.GiveCurrency", 0x092e00, {}],
   ["Command.HoldBreath", 0x092f00, {}],
@@ -222,15 +231,15 @@ export const commandPackets: any = [
     "Command.AddWorldCommand",
     0x094000,
     {
-      fields: [{ name: "command", type: "string", defaultValue: "" }],
-    },
+      fields: [{ name: "command", type: "string", defaultValue: "" }]
+    }
   ],
   [
     "Command.AddZoneCommand",
     0x094100,
     {
-      fields: [{ name: "command", type: "string", defaultValue: "" }],
-    },
+      fields: [{ name: "command", type: "string", defaultValue: "" }]
+    }
   ],
   [
     "Command.ExecuteCommand",
@@ -238,9 +247,9 @@ export const commandPackets: any = [
     {
       fields: [
         { name: "commandHash", type: "uint32", defaultValue: 0 },
-        { name: "arguments", type: "string", defaultValue: "" },
-      ],
-    },
+        { name: "arguments", type: "string", defaultValue: "" }
+      ]
+    }
   ],
   [
     "Command.ZoneExecuteCommand",
@@ -248,17 +257,17 @@ export const commandPackets: any = [
     {
       fields: [
         { name: "commandHash", type: "uint32", defaultValue: 0 },
-        { name: "arguments", type: "string", defaultValue: "" },
-      ],
-    },
+        { name: "arguments", type: "string", defaultValue: "" }
+      ]
+    }
   ],
   ["Command.RequestStripEffect", 0x094400, {}],
   [
     "Command.ItemDefinitionRequest",
     0x094500,
     {
-      fields: [{ name: "ID", type: "uint32", defaultValue: "0" }],
-    },
+      fields: [{ name: "ID", type: "uint32", defaultValue: "0" }]
+    }
   ],
   [
     "Command.ItemDefinitionReply",
@@ -274,12 +283,12 @@ export const commandPackets: any = [
               name: "definitionData",
               type: "custom",
               defaultValue: {},
-              packer: packItemDefinitionData,
-            },
-          ],
-        },
-      ],
-    },
+              packer: packItemDefinitionData
+            }
+          ]
+        }
+      ]
+    }
   ],
   [
     "Command.ItemDefinitions",
@@ -298,21 +307,21 @@ export const commandPackets: any = [
                 {
                   name: "definitionData",
                   type: "custom",
-                  packer: packItemDefinitionData,
-                },
-              ],
-            },
-          ],
-        },
-      ],
-    },
+                  packer: packItemDefinitionData
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
   ],
   [
     "Command.EnableCompositeEffects",
     0x094800,
     {
-      fields: [{ name: "enabled", type: "boolean", defaultValue: false }],
-    },
+      fields: [{ name: "enabled", type: "boolean", defaultValue: false }]
+    }
   ],
   ["Command.StartRentalUpsell", 0x094900, {}],
   ["Command.SafeEject", 0x094a00, {}],
@@ -321,10 +330,8 @@ export const commandPackets: any = [
     "Command.RequestWeaponFireStateUpdate",
     0x094b00,
     {
-      fields: [
-        { name: "characterId", type: "uint64string", defaultValue: "0" },
-      ],
-    },
+      fields: [{ name: "characterId", type: "uint64string", defaultValue: "0" }]
+    }
   ],
   ["Command.SetInWater", 0x094c00, {}],
   ["Command.ClearInWater", 0x094d00, {}],
@@ -346,9 +353,9 @@ export const commandPackets: any = [
         { name: "imageSetId", type: "uint32", defaultValue: "0" },
         { name: "imageTintValue", type: "uint32", defaultValue: "0" },
         { name: "NameId", type: "uint32", defaultValue: "0" },
-        { name: "DescriptionId", type: "uint32", defaultValue: "0" },
-      ],
-    },
+        { name: "DescriptionId", type: "uint32", defaultValue: "0" }
+      ]
+    }
   ],
   ["Command.DeleteItem", 0x09eb03, {}],
   ["Command.AbilityReply", 0x09ec03, {}],
@@ -458,8 +465,8 @@ export const commandPackets: any = [
     "Command.ReportLastDeath",
     0x095300,
     {
-      fields: [],
-    },
+      fields: []
+    }
   ],
   [
     "Command.PointAndReport",
@@ -471,10 +478,10 @@ export const commandPackets: any = [
         {
           name: "reportedCharacterId",
           type: "uint64string",
-          defaultValue: "0x0",
-        },
-      ],
-    },
+          defaultValue: "0x0"
+        }
+      ]
+    }
   ],
   ["Command.BecomeReferee", 0x095504, {}],
   ["Command.Profiler", 0x095604, {}],
@@ -558,9 +565,9 @@ export const commandPackets: any = [
         { name: "position", type: "floatvector3", defaultValue: [0, 0, 0] },
         { name: "heading", type: "float", defaultValue: 0.0 },
         { name: "unknownDword1", type: "uint32", defaultValue: 0 },
-        { name: "autoMount", type: "boolean", defaultValue: false },
-      ],
-    },
+        { name: "autoMount", type: "boolean", defaultValue: false }
+      ]
+    }
   ],
   ["Command.SpawnVehicleReply", 0x099c04, {}],
   ["Command.DespawnVehicle", 0x099d04, {}],
@@ -608,8 +615,8 @@ export const commandPackets: any = [
     "Command.RunSpeed",
     0x09c604,
     {
-      fields: [{ name: "runSpeed", type: "float", defaultValue: 0.0 }],
-    },
+      fields: [{ name: "runSpeed", type: "float", defaultValue: 0.0 }]
+    }
   ],
   ["Command.LocationRequest", 0x09c704, {}],
   ["Command.GriefBase", 0x09c804, {}],
@@ -689,5 +696,5 @@ export const commandPackets: any = [
   ["Command.HeatControl", 0x091905, {}],
   ["Command.GameModeBase", 0x091a05, {}],
   ["Command.AddMatchScore", 0x091b05, {}],
-  ["Command.NpcReport", 0x091c05, {}],
+  ["Command.NpcReport", 0x091c05, {}]
 ];
