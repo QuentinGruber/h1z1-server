@@ -24,26 +24,34 @@ export const abilitiesPackets: PacketStructures = [
     {
       fields: [
         {
-          name: "unknownArray1",
+          name: "abilities",
           type: "array",
           defaultValue: [{}],
           fields: [
-            { name: "unknownQword1", type: "uint64string", defaultValue: "0" },
+            { name: "abilityId", type: "uint32", defaultValue: 0 },
             {
-              name: "unknownData1",
+              name: "abilityData",
               type: "schema",
+              defaultValue: {},
               fields: [
+                { name: "abilityId", type: "uint32", defaultValue: 0 },
+                //{ name: "unknownDword1", type: "uint32", defaultValue: 0 },
+                //{ name: "unknownDword2", type: "uint32", defaultValue: 0 },
                 {
-                  name: "unknownQword1",
-                  type: "uint64string",
-                  defaultValue: "0"
+                  name: "unknownArray1",
+                  type: "array",
+                  defaultValue: [],
+                  fields: [
+                    { name: "unknownDword1", type: "uint32", defaultValue: 0 },
+                    { name: "unknownDword2", type: "uint32", defaultValue: 0 },
+                    { name: "unknownDword3", type: "uint32", defaultValue: 0 }
+                  ]
                 },
-                { name: "unknownDword1", type: "uint32", defaultValue: 0 },
-                { name: "unknownDword2", type: "uint32", defaultValue: 0 }
+                { name: "unknownDword3", type: "uint32", defaultValue: 0 },
+                { name: "unknownDword4", type: "uint32", defaultValue: 0 },
+                { name: "unknownByte1", type: "uint8", defaultValue: 0 }
               ]
-            },
-            { name: "unknownDword1", type: "uint32", defaultValue: 0 },
-            { name: "unknownByte1", type: "uint8", defaultValue: 0 }
+            }
           ]
         }
       ]

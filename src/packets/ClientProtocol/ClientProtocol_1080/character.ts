@@ -600,7 +600,25 @@ export const characterPackets: PacketStructures = [
     }
   ],
   ["Character.RequestMovementVersion", 0x0f57, {}],
-  ["Character.DailyRepairMaterials", 0x0f58, {}],
+  [
+    "Character.DailyRepairMaterials",
+    0x0f58,
+    {
+      fields: [
+        { name: "characterId", type: "uint64string", defaultValue: "0" },
+        { name: "containerId", type: "uint64string", defaultValue: "0" },
+        {
+          name: "materials",
+          type: "array",
+          defaultValue: [{}],
+          fields: [
+            { name: "itemDefinitionId", type: "uint32", defaultValue: 0 },
+            { name: "requiredCount", type: "uint32", defaultValue: 0 }
+          ]
+        }
+      ]
+    }
+  ],
   ["Character.BeginPreviewInteraction", 0x0f59, {}],
   ["Character.TransportPlayerToFactionHub", 0x0f5a, {}],
   ["Character.EnterCache", 0x0f5b, {}],
