@@ -21,6 +21,7 @@ import { ZoneClient2016 } from "../classes/zoneclient";
 import { SmeltingEntity } from "../classes/smeltingentity";
 import { lootableContainerDefaultLoadouts } from "../data/loadouts";
 import { CollectingEntity } from "../classes/collectingentity";
+import { EXTERNAL_CONTAINER_GUID } from "../../../utils/constants";
 
 export class LootableConstructionEntity extends BaseLootableEntity {
   placementTime = Date.now();
@@ -30,6 +31,7 @@ export class LootableConstructionEntity extends BaseLootableEntity {
   damageRange: number = 1.5;
   interactionDistance = 3;
   subEntity?: SmeltingEntity | CollectingEntity;
+  isDecayProtected: boolean = false;
   constructor(
     characterId: string,
     transientId: number,
@@ -48,7 +50,10 @@ export class LootableConstructionEntity extends BaseLootableEntity {
     if (itemDefinition) this.nameId = itemDefinition.NAME_ID;
     this.profileId = 999; /// mark as construction
     this.health = 1000000;
-    this.defaultLoadout = lootableContainerDefaultLoadouts.storage;
+    this.defaultLoadout =
+      this.itemDefinitionId == Items.REPAIR_BOX
+        ? lootableContainerDefaultLoadouts.repair_box
+        : lootableContainerDefaultLoadouts.storage;
     if (subEntityType === "SmeltingEntity") {
       this.subEntity = new SmeltingEntity(this, server);
       this.npcRenderDistance = 250;
@@ -185,6 +190,13 @@ export class LootableConstructionEntity extends BaseLootableEntity {
     }
 
     super.OnPlayerSelect(server, client);
+    if (this.itemDefinitionId == Items.REPAIR_BOX) {
+      server.sendData(client, "Character.DailyRepairMaterials", {
+        characterId: this.characterId,
+        containerId: EXTERNAL_CONTAINER_GUID,
+        materials: server.decayManager.dailyRepairMaterials
+      });
+    }
   }
 
   OnInteractionString(server: ZoneServer2016, client: ZoneClient2016) {
