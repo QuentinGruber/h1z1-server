@@ -259,7 +259,8 @@ export class ConfigManager {
       vacantFoundationTicks,
       baseVehicleDamage,
       maxVehiclesPerArea,
-      vehicleDamageRange
+      vehicleDamageRange,
+      dailyRepairMaterials
     } = this.config.decay;
     server.decayManager.decayTickInterval = decayTickInterval;
     server.decayManager.constructionDamageTicks = constructionDamageTicks;
@@ -269,6 +270,7 @@ export class ConfigManager {
     server.decayManager.baseVehicleDamage = baseVehicleDamage;
     server.decayManager.maxVehiclesPerArea = maxVehiclesPerArea;
     server.decayManager.vehicleDamageRange = vehicleDamageRange;
+    server.decayManager.dailyRepairMaterials = dailyRepairMaterials;
     //#endregion
 
     //#region smelting

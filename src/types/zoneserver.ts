@@ -286,6 +286,11 @@ export interface smeltRecipe {
   components: Array<RecipeComponent>;
 }
 
+export interface dailyRepairMaterial {
+    itemDefinitionId: number;
+    requiredCount: number;
+}
+
 export type SlottedConstructionEntity = ConstructionChildEntity | ConstructionParentEntity | ConstructionDoor;
 
 export type ConstructionEntity = SlottedConstructionEntity | LootableConstructionEntity;

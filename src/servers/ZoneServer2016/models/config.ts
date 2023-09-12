@@ -11,6 +11,8 @@
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
 
+import { dailyRepairMaterial } from ".../../types/zoneserver";
+
 interface ServerConfig {
   proximityItemsDistance: number;
   interactionDistance: number;
@@ -86,6 +88,7 @@ interface DecayConfig {
   baseVehicleDamage: number;
   maxVehiclesPerArea: number;
   vehicleDamageRange: number;
+  dailyRepairMaterials: dailyRepairMaterial[];
 }
 
 interface SmeltingConfig {

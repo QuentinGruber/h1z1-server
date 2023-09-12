@@ -17,6 +17,7 @@ const Z1_vehicles = require("../../../../data/2016/zoneData/Z1_vehicleLocations.
 
 import {
   ConstructionEntity,
+  dailyRepairMaterial,
   DamageInfo,
   SlottedConstructionEntity
 } from "types/zoneserver";
@@ -1366,8 +1367,19 @@ export class ConstructionManager {
     } else {
       server._worldLootableConstruction[characterId] = obj;
     }
-      obj.equipLoadout(server);
-      console.log(parent)
+    obj.equipLoadout(server);
+
+    if (itemDefinitionId == Items.REPAIR_BOX) {
+      const container = obj.getContainer();
+      if (container) {
+        container.acceptedItems = [];
+        server.decayManager.dailyRepairMaterials.forEach(
+          (material: dailyRepairMaterial) => {
+            container.acceptedItems.push(material.itemDefinitionId);
+          }
+        );
+      }
+    }
 
     server.executeFuncForAllReadyClientsInRange((client) => {
       this.spawnLootableConstruction(server, client, obj);
@@ -1406,7 +1418,7 @@ export class ConstructionManager {
       server._worldLootableConstruction[characterId] = obj;
     }
 
-      obj.equipLoadout(server);
+    obj.equipLoadout(server);
 
     server.executeFuncForAllReadyClientsInRange((client) => {
       this.spawnLootableConstruction(server, client, obj);

@@ -18,6 +18,7 @@ import { ConstructionChildEntity } from "../entities/constructionchildentity";
 import { getDistance, Scheduler } from "../../../utils/utils";
 import { ConstructionParentEntity } from "../entities/constructionparententity";
 import { Vehicle2016 } from "../entities/vehicle";
+import { dailyRepairMaterial } from "types/zoneserver";
 
 export class DecayManager {
   constructionDamageTickCount = 0; // used to run structure damaging once every x loops
@@ -32,6 +33,7 @@ export class DecayManager {
   baseVehicleDamage!: number;
   maxVehiclesPerArea!: number;
   vehicleDamageRange!: number;
+  dailyRepairMaterials!: dailyRepairMaterial[];
 
   public async run(server: ZoneServer2016) {
     this.contructionExpirationCheck(server);
