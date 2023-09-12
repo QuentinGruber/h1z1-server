@@ -44,18 +44,18 @@ export const abilitiesPackets: PacketStructures = [
                   fields: [
                     { name: "unknownDword1", type: "uint32", defaultValue: 0 },
                     { name: "unknownDword2", type: "uint32", defaultValue: 0 },
-                    { name: "unknownDword3", type: "uint32", defaultValue: 0 },
-                  ],
+                    { name: "unknownDword3", type: "uint32", defaultValue: 0 }
+                  ]
                 },
                 { name: "unknownDword3", type: "uint32", defaultValue: 0 },
                 { name: "unknownDword4", type: "uint32", defaultValue: 0 },
-                { name: "unknownByte1", type: "uint8", defaultValue: 0 },
-              ],
+                { name: "unknownByte1", type: "uint8", defaultValue: 0 }
+              ]
             }
-          ],
-        },
-      ],
-    },
+          ]
+        }
+      ]
+    }
   ],
   ["Abilities.SetVehicleActivatableAbilityManager", 0xa106, {}],
   ["Abilities.SetAbilityTimerManager", 0xa107, {}],

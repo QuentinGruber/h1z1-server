@@ -166,7 +166,7 @@ export class ZonePacketHandlers {
     server.sendRawData(client, server.projectileDefinitionsCache);
 
     server.sendRawData(client, server.profileDefinitionsCache);
-    
+
     // for melees / emotes / vehicle boost / etc (needs more work)
     /*
     server.sendData(client, "Abilities.SetActivatableAbilityManager", abilities);
@@ -185,7 +185,7 @@ export class ZonePacketHandlers {
         ]
       })
     */
-    
+
     /*
       server.sendData(client, "Loadout.SetCurrentLoadout", {
         guid: client.character.guid,
