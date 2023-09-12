@@ -108,7 +108,7 @@ function getStanceFlags(num: number): StanceFlags {
   };
 }
 
-const abilities = require("../../../data/2016/sampleData/abilities.json");
+//const abilities = require("../../../data/2016/sampleData/abilities.json");
 
 export class ZonePacketHandlers {
   commandHandler: CommandHandler;
@@ -167,6 +167,8 @@ export class ZonePacketHandlers {
 
     server.sendRawData(client, server.profileDefinitionsCache);
     
+    // for melees / emotes / vehicle boost / etc (needs more work)
+    /*
     server.sendData(client, "Abilities.SetActivatableAbilityManager", abilities);
       server.sendData(client, "ClientUpdate.UpdateStat", {
         stats: [
@@ -182,6 +184,7 @@ export class ZonePacketHandlers {
           }
         ]
       })
+    */
     
     /*
       server.sendData(client, "Loadout.SetCurrentLoadout", {
