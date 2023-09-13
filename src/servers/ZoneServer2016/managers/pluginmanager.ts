@@ -17,6 +17,7 @@ import { ZoneServer2016 } from "../zoneserver";
 import { execSync } from "child_process";
 import { copyFile, fileExists, flhash } from "../../../utils/utils";
 import { Command } from "../handlers/commands/types";
+import { ZoneClient2016 } from "../classes/zoneclient";
 
 /**
  * Abstract class representing a base plugin.
@@ -25,6 +26,7 @@ export abstract class BasePlugin {
   public abstract name: string;
   public abstract description: string;
   public abstract version: string;
+  public abstract commands?: Array<Command>;
   /**
    * Loads the configuration for the plugin.
    * @param config - The configuration object for the plugin.
@@ -301,6 +303,18 @@ export class PluginManager {
   }
 
   /**
+   * Registers all commands defined by the plugin.
+   * @param server - The ZoneServer2016 instance.
+   * @param plugin - The plugin instance.
+   */
+  private registerPluginCommands(server: ZoneServer2016, plugin: BasePlugin) {
+    if (!plugin.commands) return;
+    plugin.commands.forEach((command) => {
+      this.registerCommand(plugin, server, command);
+    });
+  }
+
+  /**
    * Initializes the plugins and loads their configurations.
    * @param server - The ZoneServer2016 instance.
    */
@@ -318,6 +332,7 @@ export class PluginManager {
       try {
         await plugin.init(server);
         await this.loadPluginConfig(server, plugin);
+        this.registerPluginCommands(server, plugin);
         console.log(`[PluginManager] ${plugin.name} initialized!`);
       } catch (e: any) {
         console.error(e);
@@ -366,10 +381,12 @@ export class PluginManager {
 
   /**
    * Registers a custom command to be used in-game.
-   * @param plugin - The plugin instance ("this")
+   * @param plugin - The plugin instance ("this").
    * @param server - The ZoneServer2016 instance.
    * @param command - The command to register.
+   * @deprecated Add your command to the commands array instead. Refer to documentation for more info.
    */
+  // to be made private, keeping public for a bit in case plugins use legacy command adding
   public registerCommand(
     plugin: BasePlugin,
     server: ZoneServer2016,
@@ -381,6 +398,36 @@ export class PluginManager {
     console.log(
       `[PluginManager] Plugin ${plugin.name} registered a command: /${command.name}`
     );
+  }
+
+  /**
+   * Lists and sends commands from a plugin to a player's console.
+   *
+   * This function iterates through the list of commands provided by a plugin
+   * and sends each command to a client's console in a game server.
+   *
+   * @param server - The ZoneServer2016 instance.
+   * @param client - The client requesting the command list.
+   * @param plugin - The plugin instance ("this").
+   */
+  public listCommands(
+    server: ZoneServer2016,
+    client: ZoneClient2016,
+    plugin: BasePlugin
+  ) {
+    if (!plugin.commands) return;
+    const commands = plugin.commands.map((command) => {
+      return `/${command.name}: ${command.description}`;
+    });
+
+    // workaround for possible h1z1 console text limit?
+    commands.forEach((command) => {
+      server.sendData(client, "H1emu.PrintToConsole", {
+        message: `${command}`,
+        showConsole: true,
+        clearOutput: false
+      });
+    });
   }
 
   //#endregion
