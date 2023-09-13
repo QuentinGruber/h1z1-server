@@ -627,6 +627,8 @@ export class WorldObjectManager {
     this.setSpawnchance(server, vehicle, 50, Items.SPARKPLUGS);
     this.setSpawnchance(server, vehicle, 30, Items.VEHICLE_KEY);
     this.setSpawnchance(server, vehicle, 20, Items.FUEL_BIOFUEL);
+    this.setSpawnchance(server, vehicle, 30, vehicle.getHeadlightsItemId());
+    this.setSpawnchance(server, vehicle, 30, vehicle.getTurboItemId());
 
     server._vehicles[vehicle.characterId] = vehicle;
   }
