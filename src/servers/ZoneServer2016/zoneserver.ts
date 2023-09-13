@@ -1379,7 +1379,7 @@ export class ZoneServer2016 extends EventEmitter {
       zoneId2: 5,
       nameId: 7699,
       unknownBoolean2: true,
-      lighting: "Lighting.txt",
+      lighting: "Lighting_JustSurvive.txt",
       unknownBoolean3: false
     });
 
