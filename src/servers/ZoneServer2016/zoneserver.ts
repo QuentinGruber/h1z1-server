@@ -6730,14 +6730,14 @@ export class ZoneServer2016 extends EventEmitter {
   sendGlobalChatText(message: string, clearChat = false) {
     this.chatManager.sendGlobalChatText(this, message, clearChat);
   }
-  sendConsoleText(client: Client, message: string) {
-    this.sendData(client, "H1emu.PrintToConsole", { message });
+  sendConsoleText(client: Client, message: string, showConsole = false, clearOutput = false) {
+    this.sendData(client, "H1emu.PrintToConsole", { message, showConsole, clearOutput });
   }
-  sendConsoleTextToAdmins(message: string) {
+  sendConsoleTextToAdmins(message: string, showConsole = false, clearOutput = false) {
     for (const a in this._clients) {
       const client = this._clients[a];
       if (client.isAdmin) {
-        this.sendData(client, "H1emu.PrintToConsole", { message });
+        this.sendData(client, "H1emu.PrintToConsole", { message, showConsole, clearOutput });
       }
     }
   }

@@ -422,11 +422,10 @@ export class PluginManager {
 
     // workaround for possible h1z1 console text limit?
     commands.forEach((command) => {
-      server.sendData(client, "H1emu.PrintToConsole", {
-        message: `${command}`,
-        showConsole: true,
-        clearOutput: false
-      });
+      server.sendConsoleText(client,
+        `${command}`,
+        true
+      );
     });
   }
 
