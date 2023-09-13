@@ -161,6 +161,7 @@ export enum LoadoutSlots {
   TERTIARY = 4,
   FISTS = 7,
   HEAD = 11,
+  VEHICLE_BATTERY = 33,
   ARMOR = 38,
   RADIO = 39,
   ITEM2 = 41

@@ -2067,9 +2067,10 @@ export class ZonePacketHandlers {
               newSlotId,
               targetCharacter.loadoutId
             )
-          )
+          ) {
             return;
-
+          }
+            
           targetCharacter.equipContainerItem(
             server,
             item,

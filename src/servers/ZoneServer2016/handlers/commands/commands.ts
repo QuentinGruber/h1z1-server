@@ -238,58 +238,8 @@ export const commands: Array<Command> = [
         );
         return;
       }
-      let headlightType: number;
-      switch (vehicle.vehicleId) {
-        case VehicleIds.OFFROADER:
-          headlightType = Effects.VEH_Headlight_OffRoader_wShadows;
-          break;
-        case VehicleIds.PICKUP:
-          headlightType = Effects.VEH_Headlight_PickupTruck_wShadows;
-          break;
-        case VehicleIds.POLICECAR:
-          headlightType = Effects.VEH_Headlight_PoliceCar_wShadows;
-          break;
-        case VehicleIds.ATV:
-          headlightType = Effects.VEH_Headlight_ATV_wShadows;
-          break;
-        default:
-          headlightType = Effects.VEH_Headlight_OffRoader_wShadows;
-          break;
-      }
-      const index = vehicle.effectTags.indexOf(headlightType);
-      if (index <= -1) {
-        if (!vehicle._loadout["33"]) {
-          server.sendChatText(
-            client,
-            "[ERROR] Vehicle does not have a battery"
-          );
-          return;
-        }
-        server.sendDataToAllWithSpawnedEntity(
-          server._vehicles,
-          vehicle.characterId,
-          "Character.AddEffectTagCompositeEffect",
-          {
-            characterId: client.vehicle.mountedVehicle,
-            effectId: headlightType,
-            unknownDword1: headlightType,
-            unknownDword2: headlightType
-          }
-        );
-        vehicle.effectTags.push(headlightType);
-      } else {
-        server.sendDataToAllWithSpawnedEntity(
-          server._vehicles,
-          vehicle.characterId,
-          "Character.RemoveEffectTagCompositeEffect",
-          {
-            characterId: client.vehicle.mountedVehicle,
-            effectId: headlightType,
-            newEffectId: 0
-          }
-        );
-        vehicle.effectTags.splice(index, 1);
-      }
+      
+      vehicle.toggleHeadlights(server, client);
     }
   },
   {
