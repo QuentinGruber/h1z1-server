@@ -308,10 +308,10 @@ export class PluginManager {
    * @param plugin - The plugin instance.
    */
   private registerPluginCommands(server: ZoneServer2016, plugin: BasePlugin) {
-    if(!plugin.commands) return;
-    plugin.commands.forEach((command)=> {
+    if (!plugin.commands) return;
+    plugin.commands.forEach((command) => {
       this.registerCommand(plugin, server, command);
-    })
+    });
   }
 
   /**
@@ -410,18 +410,24 @@ export class PluginManager {
    * @param client - The client requesting the command list.
    * @param plugin - The plugin instance ("this").
    */
-  public listCommands(server: ZoneServer2016, client: ZoneClient2016, plugin: BasePlugin) {
-    if(!plugin.commands) return;
-    const commands = (plugin.commands.map((command)=> {return `/${command.name}: ${command.description}`}));
+  public listCommands(
+    server: ZoneServer2016,
+    client: ZoneClient2016,
+    plugin: BasePlugin
+  ) {
+    if (!plugin.commands) return;
+    const commands = plugin.commands.map((command) => {
+      return `/${command.name}: ${command.description}`;
+    });
 
     // workaround for possible h1z1 console text limit?
-    commands.forEach((command)=> {
+    commands.forEach((command) => {
       server.sendData(client, "H1emu.PrintToConsole", {
         message: `${command}`,
         showConsole: true,
         clearOutput: false
       });
-    })
+    });
   }
 
   //#endregion
