@@ -2623,6 +2623,8 @@ export class ZonePacketHandlers {
                 entity.state.position,
                 client.character.state.position
               )
+              &&
+              !entity.destroyed
             ) {
               if (!client.character.temporaryScrapSoundTimeout) {
                 client.character.temporaryScrapSoundTimeout = setTimeout(() => {

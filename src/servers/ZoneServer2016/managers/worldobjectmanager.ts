@@ -616,13 +616,6 @@ export class WorldObjectManager {
   createVehicle(server: ZoneServer2016, vehicle: Vehicle2016) {
     vehicle.equipLoadout(server);
 
-    /*
-    vehicle.equipItem(server, server.generateItem(vehicle.getTurboItemId()));
-    vehicle.equipItem(
-      server,
-      server.generateItem(vehicle.getHeadlightsItemId())
-    );*/
-
     this.setSpawnchance(server, vehicle, 50, Items.BATTERY);
     this.setSpawnchance(server, vehicle, 50, Items.SPARKPLUGS);
     this.setSpawnchance(server, vehicle, 30, Items.VEHICLE_KEY);
