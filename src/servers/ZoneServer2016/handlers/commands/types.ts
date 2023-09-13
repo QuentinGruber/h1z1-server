@@ -23,6 +23,7 @@ export enum PermissionLevels {
 
 export interface Command {
   name: string;
+  description?: string;
   permissionLevel: PermissionLevels;
   keepCase?: boolean;
   execute: (
