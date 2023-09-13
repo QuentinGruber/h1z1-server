@@ -26,7 +26,6 @@ import { ZoneServer2015 } from "servers/ZoneServer2015/zoneserver";
 import {
   ConstructionSlotPositionMap,
   CubeBounds,
-  Point3D,
   positionUpdate,
   SquareBounds
 } from "types/zoneserver";
