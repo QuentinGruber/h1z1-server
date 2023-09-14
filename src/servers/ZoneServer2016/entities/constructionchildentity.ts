@@ -44,7 +44,8 @@ import {
   OccupiedSlotMap,
   SlottedConstructionEntity,
   SquareBounds,
-  CubeBounds
+  CubeBounds,
+  Point3D
 } from "types/zoneserver";
 import {
   getConstructionSlotId,
@@ -423,7 +424,7 @@ export class ConstructionChildEntity extends BaseLightweightCharacter {
       case Items.SHELTER_UPPER_LARGE:
       case Items.SHELTER:
       case Items.SHELTER_UPPER:
-       return isInsideCube([position[0], position[1], position[2]], this.cubebounds)
+       return isInsideCube(Array.from(position) as Point3D, this.cubebounds)
       default:
         return false;
     }
@@ -444,12 +445,12 @@ export class ConstructionChildEntity extends BaseLightweightCharacter {
         // get bounds for on top of shelter detection
         bounds = getCubeBounds(centerPoint, 10, 5, angle, position[1] + 2.4, position[1]+1.8);
 
-        return isInsideCube([position[0], position[1], position[2]], bounds);
+        return isInsideCube(Array.from(position) as Point3D, bounds);
       case Items.SHELTER:
       case Items.SHELTER_UPPER:
         // get bounds for on top of shelter detection
         bounds = getCubeBounds(position, 5, 5, angle, position[1], position[1]+1.8);
-        return isInsideCube([position[0], position[1], position[2]], bounds);
+        return isInsideCube(Array.from(position) as Point3D, bounds);
       default:
         return false;
     }

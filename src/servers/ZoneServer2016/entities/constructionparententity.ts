@@ -30,6 +30,7 @@ import {
   ConstructionSlotPositionMap,
   CubeBounds,
   OccupiedSlotMap,
+  Point3D,
   SquareBounds
 } from "types/zoneserver";
 import {
@@ -694,7 +695,7 @@ export class ConstructionParentEntity extends ConstructionChildEntity {
       case Items.SHACK:
       case Items.SHACK_BASIC:
       case Items.SHACK_SMALL:
-        return isInsideCube([position[0], position[1], position[2]], cubebounds);
+        return isInsideCube(Array.from(position) as Point3D, cubebounds);
       default:
         return false;
     }
