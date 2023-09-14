@@ -1403,14 +1403,14 @@ export class ZoneServer2016 extends EventEmitter {
 
     this.sendData(client, "ClientGameSettings", {
       Unknown2: 0,
-      interactGlowAndDist: 16, // need it high for tampers
+      interactionCheckRadius: 16, // need it high for tampers
       unknownBoolean1: true,
       timescale: 1.0,
       enableWeapons: 1,
       Unknown5: 1,
       unknownFloat1: 0.0,
-      unknownFloat2: 15,
-      damageMultiplier: 11
+      fallDamageVelocityThreshold: 15,
+      fallDamageVelocityMultiplier: 11
     });
 
     this.sendCharacterData(client);
