@@ -2624,9 +2624,9 @@ export const basePackets: PacketStructures = [
         { name: "timescale", type: "float", defaultValue: 1.0 },
         { name: "enableWeapons", type: "uint32", defaultValue: 0 },
         { name: "Unknown5", type: "uint32", defaultValue: 0 },
-        { name: "unknownFloat1", type: "float", defaultValue: 0.0 },
-        { name: "unknownFloat2", type: "float", defaultValue: 0.0 },
-        { name: "damageMultiplier", type: "float", defaultValue: 1.0 } // 0 = crash
+        { name: "unknownFloat1", type: "float", defaultValue: 0 .0},
+        { name: "fallDamageVelocityThreshold", type: "float", defaultValue: 0.0 },
+        { name: "fallDamageVelocityMultiplier", type: "float", defaultValue: 1.0 } // 0 = crash
       ]
     }
   ],
