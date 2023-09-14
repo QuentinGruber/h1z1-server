@@ -75,13 +75,29 @@ construction:
 
 decay:
   decayTickInterval: 1200000 # 20 minutes per decay tick
-  constructionDamageTicks: 36 # damage structures every 12 hours
-  baseConstructionDamage: 62500 # construction damage per 36 ticks
+  constructionDamageTicks: 72 # damage structures every 24 hours
+  baseConstructionDamage: 125000 # construction damage per required ticks
+  repairBoxHealValue: 1000000 # heals base to full condition
   vehicleDamageTicks: 3 # damage vehicles every hour
   vacantFoundationTicks: 3 # destroy empty foundations after 1 hour
   baseVehicleDamage: 6000 # 6% damage per 3 ticks
   maxVehiclesPerArea: 2 # the max amount of vehicles that can be in an area before they start taking more damage
   vehicleDamageRange: 25 # how large of a range to detect maxVehiclesPerArea
+  dailyRepairMaterials:
+  - itemDefinitionId: 16 # wood log
+    requiredCount: 5
+  - itemDefinitionId: 109 # wood plank
+    requiredCount: 79
+  - itemDefinitionId: 135 # nail
+    requiredCount: 28
+  - itemDefinitionId: 141 # metal bracket
+    requiredCount: 16
+  - itemDefinitionId: 46 # metal sheet
+    requiredCount: 20
+  - itemDefinitionId: 114 # metal shard
+    requiredCount: 44
+  - itemDefinitionId: 111 # wood stick
+    requiredCount: 2
   
 smelting:
   burnTime: 120000 # consume fuel every 120 seconds

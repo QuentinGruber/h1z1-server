@@ -44,6 +44,7 @@ export class ConstructionDoor extends DoorEntity {
   readonly fixedPosition: Float32Array;
   placementTime = Date.now();
   isSecured = true;
+  isDecayProtected: boolean = false;
   constructor(
     characterId: string,
     transientId: number,

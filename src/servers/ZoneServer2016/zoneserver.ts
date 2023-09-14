@@ -171,6 +171,7 @@ const spawnLocations2 = require("../../../data/2016/zoneData/Z1_gridSpawns.json"
   loadoutSlotItemClasses = require("./../../../data/2016/dataSources/LoadoutSlotItemClasses.json"),
   equipSlotItemClasses = require("./../../../data/2016/dataSources/EquipSlotItemClasses.json"),
   weaponDefinitions = require("../../../data/2016/dataSources/ServerWeaponDefinitions"),
+  //dynamicappearance = require("../../../data/2016/sampleData/dynamicappearance"),
   resourceDefinitions = require("../../../data/2016/dataSources/Resources"),
   Z1_POIs = require("../../../data/2016/zoneData/Z1_POIs"),
   equipmentModelTexturesMapping: Record<
@@ -1378,7 +1379,7 @@ export class ZoneServer2016 extends EventEmitter {
       zoneId2: 5,
       nameId: 7699,
       unknownBoolean2: true,
-      lighting: "Lighting.txt",
+      lighting: "Lighting_JustSurvive.txt",
       unknownBoolean3: false
     });
 
@@ -1392,6 +1393,16 @@ export class ZoneServer2016 extends EventEmitter {
       this.packWeaponDefinitions();
     }
     this.sendRawData(client, this.weaponDefinitionsCache);
+
+    // used for equipment textures / skins, does nothing so far
+    /*
+    this.sendData(client, "ReferenceData.DynamicAppearance", {
+      array1: dynamicappearance.array1,
+      array2: dynamicappearance.array2,
+      array3: dynamicappearance.array3
+    })
+    */
+
     // packet is just broken, idk why
     /*
     this.sendData(client, "ClientBeginZoning", {
@@ -4415,10 +4426,14 @@ export class ZoneServer2016 extends EventEmitter {
       }
     );
     client.isInAir = false;
-    if (seatId === "0" && vehicle.engineOn) {
-      vehicle.stopEngine(this);
+
+    if (seatId === "0") {
+      if (vehicle.engineOn) {
+        vehicle.stopEngine(this);
+      }
       vehicle.isLocked = false;
     }
+
     client.vehicle.mountedVehicle = "";
     this.sendData(client, "Vehicle.Occupy", {
       guid: "",
