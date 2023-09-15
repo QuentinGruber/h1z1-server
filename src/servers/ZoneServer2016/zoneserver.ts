@@ -1417,7 +1417,7 @@ export class ZoneServer2016 extends EventEmitter {
       interactGlowAndDist: 16, // need it high for tampers
       unknownBoolean1: true,
       timescale: 1.0,
-      enableWeapons: 1,
+      enableWeapons: 1, // no longer seems to do anything, used to disable weapons from working
       Unknown5: 1,
       unknownFloat1: 0.0,
       unknownFloat2: 15,

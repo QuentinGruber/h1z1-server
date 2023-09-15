@@ -28,6 +28,7 @@ import { ConstructionChildEntity } from "../../entities/constructionchildentity"
 import { ConstructionDoor } from "../../entities/constructiondoor";
 import { randomIntFromInterval } from "../../../../utils/utils";
 import { Zombie } from "../../entities/zombie";
+import { ConstructionParentEntity } from "../../entities/constructionparententity";
 
 const debug = require("debug")("zonepacketHandlers");
 
@@ -813,45 +814,23 @@ const dev: any = {
       return;
     }
 
-    const bounds = entity.bounds;
-    if (!bounds) {
+    const cubebounds = entity.cubebounds;
+    if (!cubebounds) {
       server.sendChatText(client, "Bounds not defined!");
       return;
     }
 
-    if(entity.cubebounds) {
-      for (const point of entity.cubebounds) {
-        server.constructionManager.placeTemporaryEntity(
-          server,
-          1,
-          new Float32Array([
-            point[0],
-            point[1],
-            point[2]
-          ]),
-          new Float32Array([0, 0, 0, 1]),
-          30000
-        );
-      }
-
-      server.sendChatText(client, "Displaying 3d bounds");
-      return;
-    }
-
-    for (const point of bounds) {
+    for (const point of cubebounds) {
       server.constructionManager.placeTemporaryEntity(
         server,
         1,
-        new Float32Array([
-          point[0],
-          client.character.state.position[1],
-          point[1]
-        ]),
+        new Float32Array(point),
         new Float32Array([0, 0, 0, 1]),
         30000
       );
     }
-    server.sendChatText(client, "Displaying 2d bounds");
+
+    server.sendChatText(client, "Displaying 3d bounds");
   }
 };
 export default dev;

@@ -26,6 +26,7 @@ import { ZoneServer2015 } from "servers/ZoneServer2015/zoneserver";
 import {
   ConstructionSlotPositionMap,
   CubeBounds,
+  Point3D,
   positionUpdate,
   SquareBounds
 } from "types/zoneserver";
@@ -521,39 +522,6 @@ export const isInsideSquare = (
 };
 
 /**
- * Checks if a point is inside a cube region defined by a square base and height.
- *
- * @param point - The point to check.
- * @param vs - The vertices of the square base.
- * @param y_pos1 - The bottom y-coordinate of the cube.
- * @param y_pos2 - The top y-coordinate of the cube.
- * @param y_radius - The radius around the y-axis for the cube.
- * @returns A boolean indicating whether the point is inside the cube.
- */
-export const isInsideCubeOld = (
-  point: [number, number],
-  vs: SquareBounds,
-  y_pos1: number,
-  y_pos2: number,
-  y_radius: number
-) => {
-  const x = point[0],
-    y = point[1];
-
-  let inside = false;
-  for (let i = 0, j = vs.length - 1; i < vs.length; j = i++) {
-    const xi = vs[i][0],
-      yi = vs[i][1],
-      xj = vs[j][0],
-      yj = vs[j][1],
-      intersect =
-        yi > y != yj > y && x < ((xj - xi) * (y - yi)) / (yj - yi) + xi;
-    if (intersect) inside = !inside;
-  }
-  return inside && isBetween(y_radius, y_pos1, y_pos2) && y_pos1 > y_pos2 - 0.2;
-};
-
-/**
  * Checks if a 3D point is inside a cube region defined by a cube's bounds.
  *
  * @param point - The 3D point [x, y, z] to check.
@@ -561,30 +529,26 @@ export const isInsideCubeOld = (
  * @returns A boolean indicating whether the point is inside the cube.
  */
 export const isInsideCube = (
-  point: [number, number, number],
-  cubeBounds: CubeBounds
+  point: Point3D,
+  bounds: CubeBounds
 ) => {
   const x = point[0],
-    y = point[1],
-    z = point[2];
+    z = point[2],
+  lowerY = bounds[0][1],
+  upperY = bounds[7][1];
 
   let inside = false;
-  for (let i = 0, j = cubeBounds.length - 1; i < cubeBounds.length; j = i++) {
-    const xi = cubeBounds[i][0],
-      yi = cubeBounds[i][1],
-      zi = cubeBounds[i][2],
-      xj = cubeBounds[j][0],
-      yj = cubeBounds[j][1],
-      zj = cubeBounds[j][2],
+  for (let i = 0, j = 4 - 1; i < 4; j = i++) {
+    const xi = bounds[i][0],
+      zi = bounds[i][2],
+      xj = bounds[j][0],
+      zj = bounds[j][2],
       intersect =
-        yi > y !== yj > y && x < ((xj - xi) * (y - yi)) / (yj - yi) + xi;
-
-    // Check if the point is within the z-axis range of the cube
-    if (intersect && z >= Math.min(zi, zj) && z <= Math.max(zi, zj)) {
-      inside = !inside;
-    }
+        zi > z != zj > z && x < ((xj - xi) * (z - zi)) / (zj - zi) + xi;
+    if (intersect) inside = !inside;
   }
-  return inside;
+
+  return inside && (point[1] > lowerY && point[1] < upperY);
 };
 
 /**

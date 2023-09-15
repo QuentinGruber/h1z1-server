@@ -43,14 +43,12 @@ import {
   DamageInfo,
   OccupiedSlotMap,
   SlottedConstructionEntity,
-  SquareBounds,
   CubeBounds,
   Point3D
 } from "types/zoneserver";
 import {
   getConstructionSlotId,
   getCubeBounds,
-  getRectangleCorners,
   isInsideCube,
   movePoint,
   registerConstructionSlots
@@ -91,7 +89,6 @@ export class ConstructionChildEntity extends BaseLightweightCharacter {
   readonly damageRange: number;
   readonly fixedPosition?: Float32Array;
   placementTime = Date.now();
-  readonly bounds?: SquareBounds;
   readonly cubebounds?: CubeBounds;
   undoPlacementTime = 600000;
   interactionDistance = 4;
@@ -174,13 +171,11 @@ export class ConstructionChildEntity extends BaseLightweightCharacter {
           2.5
         );
         this.fixedPosition = centerPoint;
-        this.bounds = getRectangleCorners(centerPoint, 10, 5, angle);
         
         this.cubebounds = getCubeBounds(centerPoint, 10, 5, angle, position[1], position[1]+1.8);
         break;
       case Items.SHELTER:
       case Items.SHELTER_UPPER:
-        this.bounds = getRectangleCorners(position, 5, 5, angle);
         this.cubebounds = getCubeBounds(position, 5, 5, angle, position[1], position[1]+1.8);
         break;
     }
