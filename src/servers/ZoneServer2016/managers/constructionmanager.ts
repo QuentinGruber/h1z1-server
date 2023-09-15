@@ -388,7 +388,7 @@ export class ConstructionManager {
         isInFoundation = true;
         break;
       }
-      if (iteratedFoundation.bounds) {
+      if (iteratedFoundation.cubebounds) {
         if (iteratedFoundation.isInside(position)) isInFoundation = true;
       }
     }
@@ -396,7 +396,7 @@ export class ConstructionManager {
     for (const a in server._constructionFoundations) {
       const iteratedFoundation = server._constructionFoundations[a];
       if (
-        iteratedFoundation.bounds &&
+        iteratedFoundation.cubebounds &&
         iteratedFoundation.getHasPermission(
           server,
           client.character.characterId,
@@ -435,7 +435,7 @@ export class ConstructionManager {
                 : shelter.state.position,
               position
             )) ||
-          (shelter.bounds && shelter.isInside(position))
+          (shelter.cubebounds && shelter.isInside(position))
         ) {
           isInsidePermissionedFoundation = true;
         }
@@ -444,7 +444,7 @@ export class ConstructionManager {
           if (
             (upperShelter.characterId == parentObjectCharacterId &&
               isPosInRadius(10, upperShelter.state.position, position)) ||
-            (upperShelter.bounds && upperShelter.isInside(position))
+            (upperShelter.cubebounds && upperShelter.isInside(position))
           ) {
             isInsidePermissionedFoundation = true;
           }

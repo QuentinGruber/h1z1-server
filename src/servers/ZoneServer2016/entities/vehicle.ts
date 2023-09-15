@@ -590,32 +590,25 @@ export class Vehicle2016 extends BaseLootableEntity {
 
   getHeadlightState() {
     const headlightType = getHeadlightEffect(this.vehicleId),
-    index = this.effectTags.indexOf(headlightType);
-    
+      index = this.effectTags.indexOf(headlightType);
+
     return !(index <= -1);
   }
 
-
   toggleHeadlights(server: ZoneServer2016, client?: ZoneClient2016) {
     const headlightType = getHeadlightEffect(this.vehicleId),
-    index = this.effectTags.indexOf(headlightType);
-    
+      index = this.effectTags.indexOf(headlightType);
+
     if (index <= -1) {
       if (!this.hasBattery()) {
-        if(client) {
-          server.sendChatText(
-            client,
-            "[ERROR] Vehicle missing battery."
-          );
+        if (client) {
+          server.sendChatText(client, "[ERROR] Vehicle missing battery.");
         }
         return;
       }
       if (!this.hasHeadlights()) {
-        if(client) {
-          server.sendChatText(
-            client,
-            "[ERROR] Vehicle missing headlights."
-          );
+        if (client) {
+          server.sendChatText(client, "[ERROR] Vehicle missing headlights.");
         }
         return;
       }
@@ -633,7 +626,7 @@ export class Vehicle2016 extends BaseLootableEntity {
       this.effectTags.push(headlightType);
       return;
     }
-      
+
     server.sendDataToAllWithSpawnedEntity(
       server._vehicles,
       this.characterId,
@@ -670,10 +663,7 @@ export class Vehicle2016 extends BaseLootableEntity {
   }
 
   hasRequiredEngineParts(): boolean {
-    return (
-      !!this.hasBattery() &&
-      !!this.getLoadoutItemById(Items.SPARKPLUGS)
-    );
+    return !!this.hasBattery() && !!this.getLoadoutItemById(Items.SPARKPLUGS);
   }
 
   hasVehicleKey(server: ZoneServer2016): boolean {
@@ -703,8 +693,11 @@ export class Vehicle2016 extends BaseLootableEntity {
 
     const driver = this.getDriver(server),
       client = server.getClientByCharId(driver?.characterId || "");
-    
-    if(this.getHeadlightState() && (!this.hasHeadlights() || !this.hasBattery())) {
+
+    if (
+      this.getHeadlightState() &&
+      (!this.hasHeadlights() || !this.hasBattery())
+    ) {
       this.toggleHeadlights(server);
     }
 

@@ -372,8 +372,15 @@ export class GroupManager {
   }
 
   handleGroupView(server: ZoneServer2016, client: Client, group: Group) {
-    server.sendConsoleText(client, `----------Group Info----------\n| Member Count: ${group.members.length} |`, true, true)
-    server.sendConsoleText(client, `| Members |\n- ${group.members
+    server.sendConsoleText(
+      client,
+      `----------Group Info----------\n| Member Count: ${group.members.length} |`,
+      true,
+      true
+    );
+    server.sendConsoleText(
+      client,
+      `| Members |\n- ${group.members
         .map((characterId) => {
           const client = server.getClientByCharId(characterId);
           if (!client) {

@@ -528,14 +528,11 @@ export const isInsideSquare = (
  * @param cubeBounds - The cube's bounds represented as CubeBounds.
  * @returns A boolean indicating whether the point is inside the cube.
  */
-export const isInsideCube = (
-  point: Point3D,
-  bounds: CubeBounds
-) => {
+export const isInsideCube = (point: Point3D, bounds: CubeBounds) => {
   const x = point[0],
     z = point[2],
-  lowerY = bounds[0][1],
-  upperY = bounds[7][1];
+    lowerY = bounds[0][1],
+    upperY = bounds[7][1];
 
   let inside = false;
   for (let i = 0, j = 4 - 1; i < 4; j = i++) {
@@ -548,7 +545,7 @@ export const isInsideCube = (
     if (intersect) inside = !inside;
   }
 
-  return inside && (point[1] > lowerY && point[1] < upperY);
+  return inside && point[1] > lowerY && point[1] < upperY;
 };
 
 /**

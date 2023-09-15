@@ -422,10 +422,7 @@ export class PluginManager {
 
     // workaround for possible h1z1 console text limit?
     commands.forEach((command) => {
-      server.sendConsoleText(client,
-        `${command}`,
-        true
-      );
+      server.sendConsoleText(client, `${command}`, true);
     });
   }
 

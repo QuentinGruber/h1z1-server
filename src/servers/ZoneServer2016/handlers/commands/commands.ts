@@ -238,7 +238,7 @@ export const commands: Array<Command> = [
         );
         return;
       }
-      
+
       vehicle.toggleHeadlights(server, client);
     }
   },

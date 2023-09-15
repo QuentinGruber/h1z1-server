@@ -171,12 +171,26 @@ export class ConstructionChildEntity extends BaseLightweightCharacter {
           2.5
         );
         this.fixedPosition = centerPoint;
-        
-        this.cubebounds = getCubeBounds(centerPoint, 10, 5, angle, position[1], position[1]+1.8);
+
+        this.cubebounds = getCubeBounds(
+          centerPoint,
+          10,
+          5,
+          angle,
+          position[1],
+          position[1] + 1.8
+        );
         break;
       case Items.SHELTER:
       case Items.SHELTER_UPPER:
-        this.cubebounds = getCubeBounds(position, 5, 5, angle, position[1], position[1]+1.8);
+        this.cubebounds = getCubeBounds(
+          position,
+          5,
+          5,
+          angle,
+          position[1],
+          position[1] + 1.8
+        );
         break;
     }
 
@@ -419,7 +433,7 @@ export class ConstructionChildEntity extends BaseLightweightCharacter {
       case Items.SHELTER_UPPER_LARGE:
       case Items.SHELTER:
       case Items.SHELTER_UPPER:
-       return isInsideCube(Array.from(position) as Point3D, this.cubebounds)
+        return isInsideCube(Array.from(position) as Point3D, this.cubebounds);
       default:
         return false;
     }
@@ -436,15 +450,29 @@ export class ConstructionChildEntity extends BaseLightweightCharacter {
           angle + (90 * Math.PI) / 180,
           2.5
         );
-        
+
         // get bounds for on top of shelter detection
-        bounds = getCubeBounds(centerPoint, 10, 5, angle, position[1] + 2.4, position[1]+1.8);
+        bounds = getCubeBounds(
+          centerPoint,
+          10,
+          5,
+          angle,
+          position[1] + 2.4,
+          position[1] + 1.8
+        );
 
         return isInsideCube(Array.from(position) as Point3D, bounds);
       case Items.SHELTER:
       case Items.SHELTER_UPPER:
         // get bounds for on top of shelter detection
-        bounds = getCubeBounds(position, 5, 5, angle, position[1], position[1]+1.8);
+        bounds = getCubeBounds(
+          position,
+          5,
+          5,
+          angle,
+          position[1],
+          position[1] + 1.8
+        );
         return isInsideCube(Array.from(position) as Point3D, bounds);
       default:
         return false;

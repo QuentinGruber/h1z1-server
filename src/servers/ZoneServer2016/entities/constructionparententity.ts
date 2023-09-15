@@ -114,31 +114,77 @@ export class ConstructionParentEntity extends ConstructionChildEntity {
     this.damageRange = getDamageRange(this.itemDefinitionId);
     switch (this.itemDefinitionId) {
       case Items.GROUND_TAMPER:
-        this.cubebounds = this.getCubeBoundsFromWallSlots(server, [1, 5, 9, 13], 0, 10);
+        this.cubebounds = this.getCubeBoundsFromWallSlots(
+          server,
+          [1, 5, 9, 13],
+          0,
+          10
+        );
         this.interactionDistance = 16; // fix tamper interact distance if deck is placed on it
         break;
       case Items.FOUNDATION:
-        this.cubebounds = this.getCubeBoundsFromWallSlots(server, [1, 4, 7, 10], -4, 11);
-        this.boundsUnder = this.getCubeBoundsFromWallSlots(server, [1, 4, 7, 10], -4, 2.1);
-        
+        this.cubebounds = this.getCubeBoundsFromWallSlots(
+          server,
+          [1, 4, 7, 10],
+          -4,
+          11
+        );
+        this.boundsUnder = this.getCubeBoundsFromWallSlots(
+          server,
+          [1, 4, 7, 10],
+          -4,
+          2.1
+        );
+
         this.interactionDistance = 10;
         break;
       case Items.FOUNDATION_EXPANSION:
-        this.cubebounds = this.getCubeBoundsFromWallSlots(server, [1, 2, 5, 0], -6, 9);
-        this.boundsUnder = this.getCubeBoundsFromWallSlots(server, [1, 2, 5, 0], -6, -.1);
+        this.cubebounds = this.getCubeBoundsFromWallSlots(
+          server,
+          [1, 2, 5, 0],
+          -6,
+          9
+        );
+        this.boundsUnder = this.getCubeBoundsFromWallSlots(
+          server,
+          [1, 2, 5, 0],
+          -6,
+          -0.1
+        );
 
         this.interactionDistance = 8;
         break;
       case Items.SHACK:
-        this.cubebounds = getCubeBounds(position, 4.7, 5, -this.eulerAngle, position[1]+.7, position[1]+2.8);
+        this.cubebounds = getCubeBounds(
+          position,
+          4.7,
+          5,
+          -this.eulerAngle,
+          position[1] + 0.7,
+          position[1] + 2.8
+        );
         this.interactionDistance = 4;
         break;
       case Items.SHACK_SMALL:
-        this.cubebounds = getCubeBounds(position, 3.5, 2.5, -this.eulerAngle, position[1]+.7, position[1]+2.8);
+        this.cubebounds = getCubeBounds(
+          position,
+          3.5,
+          2.5,
+          -this.eulerAngle,
+          position[1] + 0.7,
+          position[1] + 2.8
+        );
         this.interactionDistance = 4;
         break;
       case Items.SHACK_BASIC:
-        this.cubebounds = getCubeBounds(position, 1.6, 1.6, -this.eulerAngle, position[1], position[1]+1.7);
+        this.cubebounds = getCubeBounds(
+          position,
+          1.6,
+          1.6,
+          -this.eulerAngle,
+          position[1],
+          position[1] + 1.7
+        );
         this.interactionDistance = 4;
         break;
     }
@@ -197,10 +243,12 @@ export class ConstructionParentEntity extends ConstructionChildEntity {
     );
   }
 
-  private getExpansionSquareBounds(server: ZoneServer2016): SquareBounds | undefined {
+  private getExpansionSquareBounds(
+    server: ZoneServer2016
+  ): SquareBounds | undefined {
     // 1, 2, 5, 3RD dependent foundation wall
     const bounds = this.getSquareBounds([1, 2, 5, 0]),
-    pos = this.getExpansionDependentWallPos(server);
+      pos = this.getExpansionDependentWallPos(server);
     if (!pos) return;
 
     bounds[3] = [pos[0], pos[2]];
@@ -209,28 +257,29 @@ export class ConstructionParentEntity extends ConstructionChildEntity {
 
   private getCubeBoundsFromWallSlots(
     server: ZoneServer2016,
-    slots: [number, number, number, number], 
-    lowerYOffset: number, 
+    slots: [number, number, number, number],
+    lowerYOffset: number,
     upperYOffset: number
   ): CubeBounds | undefined {
     const bounds: CubeBounds = [
-      [0, 0, 0],
-      [0, 0, 0],
-      [0, 0, 0],
-      [0, 0, 0],
-      [0, 0, 0],
-      [0, 0, 0],
-      [0, 0, 0],
-      [0, 0, 0]
-    ],
-    lowerY = this.state.position[1] + lowerYOffset,
-    upperY = this.state.position[1] + upperYOffset;
+        [0, 0, 0],
+        [0, 0, 0],
+        [0, 0, 0],
+        [0, 0, 0],
+        [0, 0, 0],
+        [0, 0, 0],
+        [0, 0, 0],
+        [0, 0, 0]
+      ],
+      lowerY = this.state.position[1] + lowerYOffset,
+      upperY = this.state.position[1] + upperYOffset;
 
-    for(let i = 0; i < 4; i++) {
+    for (let i = 0; i < 4; i++) {
       const adjustedIdx = i >= 4 ? i - 4 : i;
       let pos = this.getSlotPosition(slots[adjustedIdx], this.wallSlots);
 
-      if(slots[adjustedIdx] == 0) { // for expansion slot #4
+      if (slots[adjustedIdx] == 0) {
+        // for expansion slot #4
         pos = this.getExpansionDependentWallPos(server);
       }
 
@@ -716,7 +765,7 @@ export class ConstructionParentEntity extends ConstructionChildEntity {
           );
           return false; // this should never occur
         }
-      break;
+        break;
     }
 
     const cubebounds = this.cubebounds as CubeBounds;
@@ -742,7 +791,7 @@ export class ConstructionParentEntity extends ConstructionChildEntity {
       return false; // this should never occur
     }
 
-    return isInsideCube(Array.from(position) as Point3D, this.boundsUnder)
+    return isInsideCube(Array.from(position) as Point3D, this.boundsUnder);
   }
 
   destroy(server: ZoneServer2016, destructTime = 0) {

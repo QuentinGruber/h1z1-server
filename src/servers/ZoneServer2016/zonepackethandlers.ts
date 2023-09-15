@@ -2070,7 +2070,7 @@ export class ZonePacketHandlers {
           ) {
             return;
           }
-            
+
           targetCharacter.equipContainerItem(
             server,
             item,
@@ -2622,8 +2622,7 @@ export class ZonePacketHandlers {
                 3,
                 entity.state.position,
                 client.character.state.position
-              )
-              &&
+              ) &&
               !entity.destroyed
             ) {
               if (!client.character.temporaryScrapSoundTimeout) {
