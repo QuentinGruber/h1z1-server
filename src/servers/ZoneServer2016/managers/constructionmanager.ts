@@ -650,7 +650,7 @@ export class ConstructionManager {
           modelId,
           position,
           eul2quat(rotation),
-          900000
+          120000
         );
       case Items.IED:
       case Items.LANDMINE:
