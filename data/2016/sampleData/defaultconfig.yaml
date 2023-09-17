@@ -7,6 +7,7 @@ server:
   tickRate: 2000
   worldRoutineRate: 10000
   enableLoginServerKickRequests: true
+  rebootTime: 72 # hours
 
 # Fairplay / anticheat config
 fairplay:

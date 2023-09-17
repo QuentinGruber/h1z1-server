@@ -129,8 +129,10 @@ import {
 } from "../../utils/enums";
 
 import {
+  CharacterSelectSessionResponse,
   ClientUpdateDeathMetrics,
   ClientUpdateProximateItems,
+  ClientUpdateTextAlert,
   zone2016packets
 } from "types/zone2016packets";
 import { getCharacterModelData } from "../shared/functions";
@@ -304,6 +306,8 @@ export class ZoneServer2016 extends EventEmitter {
   private _isSaving: boolean = false;
   readonly worldSaveVersion: number = 2;
   enablePacketInputLogging: boolean = false;
+  shutdownStartedTime: number = 0;
+  isRebooting: boolean = false;
 
   /* MANAGED BY CONFIGMANAGER */
   proximityItemsDistance!: number;
@@ -314,6 +318,7 @@ export class ZoneServer2016 extends EventEmitter {
   welcomeMessage!: string;
   adminMessage!: string;
   enableLoginServerKickRequests!: boolean;
+  rebootTime: number = 0; // in hours
   /*                          */
 
   constructor(
@@ -523,6 +528,17 @@ export class ZoneServer2016 extends EventEmitter {
               }
               case "CharacterAllowedRequest": {
                 const { characterId, reqId } = packet.data;
+                if (this.isRebooting) {
+                  console.log(
+                    `Character (${characterId}) connection rejected due to reboot`
+                  );
+                  this._h1emuZoneServer.sendData(
+                    client,
+                    "CharacterAllowedReply",
+                    { status: 0, reqId: reqId }
+                  );
+                  return;
+                }
                 const banInfos = packet.data.banInfos ?? [];
                 try {
                   for (let i = 0; i < banInfos.length; i++) {
@@ -665,6 +681,54 @@ export class ZoneServer2016 extends EventEmitter {
           }
         }
       );
+    }
+    if (this._mongoAddress && this.rebootTime) {
+      console.log("Reboot time set to " + this.rebootTime + " hours");
+      setTimeout(
+        () => {
+          console.log("Rebooting server due to reboot time set");
+          this.isRebooting = true;
+          this.shutdown(60, "Server rebooting");
+        },
+        this.rebootTime * 60 * 60 * 1000
+      );
+    }
+  }
+
+  async shutdown(timeLeft: number, message: string) {
+    if (this.shutdownStartedTime === 0) {
+      this.shutdownStartedTime = Date.now();
+    }
+
+    const timeLeftMs = timeLeft * 1000;
+    const currentTimeLeft =
+      timeLeftMs - (Date.now() - this.shutdownStartedTime);
+    if (currentTimeLeft < 0) {
+      this.sendDataToAll<ClientUpdateTextAlert>("ClientUpdate.TextAlert", {
+        message: `Server will shutdown now`
+      });
+      await this.saveWorld();
+      Object.values(this._clients).forEach((client: Client) => {
+        this.sendData<CharacterSelectSessionResponse>(
+          client,
+          "CharacterSelectSessionResponse",
+          {
+            status: 1,
+            sessionId: client.loginSessionId
+          }
+        );
+      });
+      setTimeout(() => {
+        process.exit(0);
+      }, 60000);
+    } else {
+      this.sendDataToAll<ClientUpdateTextAlert>("ClientUpdate.TextAlert", {
+        message: ` reason: ${message}`
+      });
+      this.sendDataToAll<ClientUpdateTextAlert>("ClientUpdate.TextAlert", {
+        message: `Server will shutdown in ${currentTimeLeft / 1000} seconds`
+      });
+      setTimeout(() => this.shutdown(timeLeft, message), timeLeftMs / 5);
     }
   }
 
@@ -6592,9 +6656,9 @@ export class ZoneServer2016 extends EventEmitter {
     }
   }
 
-  private _sendDataToAll(
+  private _sendDataToAll<ZonePacket>(
     packetName: h1z1PacketsType2016,
-    obj: zone2016packets,
+    obj: ZonePacket,
     unbuffered: boolean
   ) {
     const data = this._protocol.pack(packetName, obj);
@@ -6609,7 +6673,7 @@ export class ZoneServer2016 extends EventEmitter {
     }
   }
 
-  sendDataToAll(packetName: h1z1PacketsType2016, obj: zone2016packets) {
+  sendDataToAll<ZonePacket>(packetName: h1z1PacketsType2016, obj: ZonePacket) {
     this._sendDataToAll(packetName, obj, false);
   }
   sendUnbufferedDataToAll(
