@@ -36,7 +36,7 @@ export class ConstructionDoor extends DoorEntity {
   ownerCharacterId: string;
   passwordHash: number = 0;
   grantedAccess: Array<string> = [];
-  
+
   parentObjectCharacterId: string;
   readonly itemDefinitionId: number;
   readonly slot: string;

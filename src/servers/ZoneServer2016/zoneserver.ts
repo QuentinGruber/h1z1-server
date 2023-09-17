@@ -1912,7 +1912,7 @@ export class ZoneServer2016 extends EventEmitter {
     // TODO: REDO THIS WITH AN OnExplosiveDamage method per class
 
     // TODO: REDO THIS WITH GRID CHUNK SYSTEM
-    
+
     for (const characterId in this._characters) {
       const character = this._characters[characterId];
       if (isPosInRadiusWithY(3, character.state.position, position, 1.5)) {
@@ -2034,7 +2034,7 @@ export class ZoneServer2016 extends EventEmitter {
           position
         )
       ) {
-        switch(constructionObject.itemDefinitionId) {
+        switch (constructionObject.itemDefinitionId) {
           case Items.SHACK:
           case Items.SHACK_SMALL:
           case Items.SHACK_BASIC:

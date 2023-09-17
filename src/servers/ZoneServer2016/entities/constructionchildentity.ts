@@ -79,7 +79,7 @@ function getDamageRange(definitionId: Items): number {
 }
 
 function getMaxHealth(itemDefinitionId: Items): number {
-  switch(itemDefinitionId) {
+  switch (itemDefinitionId) {
     case Items.SHELTER:
     case Items.SHELTER_LARGE:
     case Items.SHELTER_UPPER:

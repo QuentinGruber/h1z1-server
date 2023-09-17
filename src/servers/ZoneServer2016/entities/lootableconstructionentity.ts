@@ -24,7 +24,7 @@ import { CollectingEntity } from "../classes/collectingentity";
 import { EXTERNAL_CONTAINER_GUID } from "../../../utils/constants";
 
 function getMaxHealth(itemDefinitionId: Items): number {
-  switch(itemDefinitionId) {
+  switch (itemDefinitionId) {
     case Items.CAMPFIRE:
     case Items.DEW_COLLECTOR:
       return 100000;
@@ -59,10 +59,10 @@ export class LootableConstructionEntity extends BaseLootableEntity {
     const itemDefinition = server.getItemDefinition(itemDefinitionId);
     if (itemDefinition) this.nameId = itemDefinition.NAME_ID;
     this.profileId = 999; /// mark as construction
-    
+
     this.maxHealth = getMaxHealth(this.itemDefinitionId);
     this.health = this.maxHealth;
-    
+
     this.defaultLoadout =
       this.itemDefinitionId == Items.REPAIR_BOX
         ? lootableContainerDefaultLoadouts.repair_box

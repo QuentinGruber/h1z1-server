@@ -2078,17 +2078,29 @@ export class ConstructionManager {
     if (entity instanceof ConstructionChildEntity) {
       Object.values(entity.occupiedShelterSlots).forEach(
         (slot: ConstructionChildEntity) => {
-          accumulatedItemDamage = this.repairChildEntity(server, slot, accumulatedItemDamage);
+          accumulatedItemDamage = this.repairChildEntity(
+            server,
+            slot,
+            accumulatedItemDamage
+          );
         }
       );
       Object.values(entity.occupiedWallSlots).forEach(
         (wall: ConstructionDoor | ConstructionChildEntity) => {
-          accumulatedItemDamage = this.repairChildEntity(server, wall, accumulatedItemDamage);
+          accumulatedItemDamage = this.repairChildEntity(
+            server,
+            wall,
+            accumulatedItemDamage
+          );
         }
       );
       Object.values(entity.occupiedUpperWallSlots).forEach(
         (slot: ConstructionDoor | ConstructionChildEntity) => {
-          accumulatedItemDamage = this.repairChildEntity(server, slot, accumulatedItemDamage);
+          accumulatedItemDamage = this.repairChildEntity(
+            server,
+            slot,
+            accumulatedItemDamage
+          );
         }
       );
       accumulatedItemDamage += this.repairFreeplaceEntities(server, entity);
@@ -2099,7 +2111,10 @@ export class ConstructionManager {
     return accumulatedItemDamage;
   }
 
-  private fullyRepairShelterSlots(server: ZoneServer2016, entity: ConstructionChildEntity) {
+  private fullyRepairShelterSlots(
+    server: ZoneServer2016,
+    entity: ConstructionChildEntity
+  ) {
     Object.values(entity.occupiedShelterSlots).forEach(
       (child: ConstructionChildEntity) => {
         this.fullyRepairChildEntity(server, child);
@@ -2107,9 +2122,12 @@ export class ConstructionManager {
     );
   }
 
-  private fullyRepairWallSlots(server: ZoneServer2016, occupiedWallSlotMap: {
-    [slot: number]: ConstructionDoor | ConstructionChildEntity;
-  }) {
+  private fullyRepairWallSlots(
+    server: ZoneServer2016,
+    occupiedWallSlotMap: {
+      [slot: number]: ConstructionDoor | ConstructionChildEntity;
+    }
+  ) {
     Object.values(occupiedWallSlotMap).forEach(
       (child: ConstructionChildEntity | ConstructionDoor) => {
         this.fullyRepairChildEntity(server, child);
@@ -2221,7 +2239,10 @@ export class ConstructionManager {
     }
   }
 
-  private repairFreeplaceEntities(server: ZoneServer2016, entity: ConstructionChildEntity): number {
+  private repairFreeplaceEntities(
+    server: ZoneServer2016,
+    entity: ConstructionChildEntity
+  ): number {
     let accumulatedItemDamage = 0;
     Object.values(entity.freeplaceEntities).forEach(
       (
@@ -2239,31 +2260,35 @@ export class ConstructionManager {
     return accumulatedItemDamage;
   }
 
-  private repairShelterSlots(server: ZoneServer2016, entity: ConstructionChildEntity): number {
+  private repairShelterSlots(
+    server: ZoneServer2016,
+    entity: ConstructionChildEntity
+  ): number {
     let accumulatedItemDamage = 0;
     Object.values(entity.occupiedShelterSlots).forEach(
       (child: ConstructionChildEntity) => {
-        accumulatedItemDamage =
-          server.constructionManager.repairChildEntity(
-            server,
-            child,
-            accumulatedItemDamage
-          );
+        accumulatedItemDamage = server.constructionManager.repairChildEntity(
+          server,
+          child,
+          accumulatedItemDamage
+        );
       }
     );
     return accumulatedItemDamage;
   }
 
-  private repairWallSlots(server: ZoneServer2016, entity: ConstructionChildEntity): number {
+  private repairWallSlots(
+    server: ZoneServer2016,
+    entity: ConstructionChildEntity
+  ): number {
     let accumulatedItemDamage = 0;
     Object.values(entity.occupiedWallSlots).forEach(
       (child: ConstructionChildEntity | ConstructionDoor) => {
-        accumulatedItemDamage =
-          server.constructionManager.repairChildEntity(
-            server,
-            child,
-            accumulatedItemDamage
-          );
+        accumulatedItemDamage = server.constructionManager.repairChildEntity(
+          server,
+          child,
+          accumulatedItemDamage
+        );
       }
     );
     return accumulatedItemDamage;
@@ -2292,7 +2317,10 @@ export class ConstructionManager {
             // repair every object on each expansion
             accumulatedItemDamage += this.repairShelterSlots(server, expansion);
             accumulatedItemDamage += this.repairWallSlots(server, expansion);
-            accumulatedItemDamage += this.repairFreeplaceEntities(server, expansion);
+            accumulatedItemDamage += this.repairFreeplaceEntities(
+              server,
+              expansion
+            );
           }
         );
         // repair every object on main foundation
@@ -2323,7 +2351,10 @@ export class ConstructionManager {
     }
   }
 
-  private fullyRepairFreeplaceEntities(server: ZoneServer2016, entity: ConstructionChildEntity) {
+  private fullyRepairFreeplaceEntities(
+    server: ZoneServer2016,
+    entity: ConstructionChildEntity
+  ) {
     Object.values(entity.freeplaceEntities).forEach(
       (
         child:
@@ -2369,52 +2400,6 @@ export class ConstructionManager {
     server: ZoneServer2016,
     construction: SlottedConstructionEntity
   ) {
-    /*switch (type) {
-      case "simple":
-        for (const a in this._constructionFoundations) {
-          const foundation = this._constructionFoundations[a];
-          // Linked to #1160
-          if (!foundation) {
-            return;
-          }
-          if (
-            this._constructionFoundations[foundation.parentObjectCharacterId]
-          ) {
-            if (
-              foundation.isSecured &&
-              foundation.isInside(construction.state.position)
-            )
-              return true;
-            else return false;
-          }
-          if (
-            foundation.isSecured &&
-            foundation.isInside(construction.state.position)
-          )
-            return true;
-        }
-      case "door":
-        if (construction.itemDefinitionId == Items.METAL_GATE) return false;
-        for (const a in this._constructionFoundations) {
-          const foundation = this._constructionFoundations[a];
-          if (
-            this._constructionFoundations[foundation.parentObjectCharacterId]
-          ) {
-            if (
-              foundation.isSecured &&
-              foundation.isInside(construction.state.position)
-            )
-              return true;
-            else return false;
-          }
-          if (
-            foundation.isSecured &&
-            foundation.isInside(construction.state.position)
-          )
-            return true;
-        }
-    }
-    return false;*/
     const gates: number[] = [
       Items.METAL_GATE,
       Items.METAL_WALL,
@@ -2465,8 +2450,9 @@ export class ConstructionManager {
               if (
                 parentFoundation.occupiedExpansionSlots["1"] &&
                 parentFoundation.occupiedExpansionSlots["1"].isSecured
-              )
+              ) {
                 return true;
+              }
               break;
             case 1:
             case 2:
@@ -2474,8 +2460,9 @@ export class ConstructionManager {
               if (
                 parentFoundation.occupiedExpansionSlots["2"] &&
                 parentFoundation.occupiedExpansionSlots["2"].isSecured
-              )
+              ) {
                 return true;
+              }
               break;
             case 10:
             case 11:
@@ -2483,8 +2470,9 @@ export class ConstructionManager {
               if (
                 parentFoundation.occupiedExpansionSlots["3"] &&
                 parentFoundation.occupiedExpansionSlots["3"].isSecured
-              )
+              ) {
                 return true;
+              }
               break;
             case 7:
             case 8:
@@ -2492,8 +2480,9 @@ export class ConstructionManager {
               if (
                 parentFoundation.occupiedExpansionSlots["4"] &&
                 parentFoundation.occupiedExpansionSlots["4"].isSecured
-              )
+              ) {
                 return true;
+              }
               break;
           }
           return false;
@@ -2533,8 +2522,6 @@ export class ConstructionManager {
     entityPosition: Float32Array,
     source: string
   ) {
-
-
     switch (source) {
       case "vehicle":
         damage /= 12;
