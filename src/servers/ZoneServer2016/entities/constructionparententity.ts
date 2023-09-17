@@ -787,7 +787,7 @@ export class ConstructionParentEntity extends ConstructionChildEntity {
     }
   }
 
-  isOn(position: Float32Array) {
+  isOn() {
     // prevents isOn not defined messages if deck is checked by mistake
     // only used for ConstructionChildEntity
     return false;
