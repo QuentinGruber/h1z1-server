@@ -2073,29 +2073,48 @@ export class ConstructionManager {
   public repairChildEntity(
     server: ZoneServer2016,
     entity: ConstructionChildEntity | ConstructionDoor,
-    hammerHit: number
+    accumulatedItemDamage: number
   ): number {
     if (entity instanceof ConstructionChildEntity) {
       Object.values(entity.occupiedShelterSlots).forEach(
         (slot: ConstructionChildEntity) => {
-          hammerHit = this.repairChildEntity(server, slot, hammerHit);
+          accumulatedItemDamage = this.repairChildEntity(server, slot, accumulatedItemDamage);
         }
       );
       Object.values(entity.occupiedWallSlots).forEach(
         (wall: ConstructionDoor | ConstructionChildEntity) => {
-          hammerHit = this.repairChildEntity(server, wall, hammerHit);
+          accumulatedItemDamage = this.repairChildEntity(server, wall, accumulatedItemDamage);
         }
       );
       Object.values(entity.occupiedUpperWallSlots).forEach(
         (slot: ConstructionDoor | ConstructionChildEntity) => {
-          hammerHit = this.repairChildEntity(server, slot, hammerHit);
+          accumulatedItemDamage = this.repairChildEntity(server, slot, accumulatedItemDamage);
         }
       );
+      accumulatedItemDamage += this.repairFreeplaceEntities(server, entity);
     }
-    if (entity.health >= 1000000) return hammerHit;
+    if (entity.health >= 1000000) return accumulatedItemDamage;
     this.repairConstruction(server, entity, 50000);
-    hammerHit += 15;
-    return hammerHit;
+    accumulatedItemDamage += 15;
+    return accumulatedItemDamage;
+  }
+
+  private fullyRepairShelterSlots(server: ZoneServer2016, entity: ConstructionChildEntity) {
+    Object.values(entity.occupiedShelterSlots).forEach(
+      (child: ConstructionChildEntity) => {
+        this.fullyRepairChildEntity(server, child);
+      }
+    );
+  }
+
+  private fullyRepairWallSlots(server: ZoneServer2016, occupiedWallSlotMap: {
+    [slot: number]: ConstructionDoor | ConstructionChildEntity;
+  }) {
+    Object.values(occupiedWallSlotMap).forEach(
+      (child: ConstructionChildEntity | ConstructionDoor) => {
+        this.fullyRepairChildEntity(server, child);
+      }
+    );
   }
 
   public fullyRepairChildEntity(
@@ -2103,21 +2122,10 @@ export class ConstructionManager {
     entity: ConstructionChildEntity | ConstructionDoor
   ) {
     if (entity instanceof ConstructionChildEntity) {
-      Object.values(entity.occupiedShelterSlots).forEach(
-        (slot: ConstructionChildEntity) => {
-          this.fullyRepairChildEntity(server, slot);
-        }
-      );
-      Object.values(entity.occupiedWallSlots).forEach(
-        (wall: ConstructionDoor | ConstructionChildEntity) => {
-          this.fullyRepairChildEntity(server, wall);
-        }
-      );
-      Object.values(entity.occupiedUpperWallSlots).forEach(
-        (slot: ConstructionDoor | ConstructionChildEntity) => {
-          this.fullyRepairChildEntity(server, slot);
-        }
-      );
+      this.fullyRepairShelterSlots(server, entity);
+      this.fullyRepairWallSlots(server, entity.occupiedWallSlots);
+      this.fullyRepairWallSlots(server, entity.occupiedUpperWallSlots);
+      this.fullyRepairFreeplaceEntities(server, entity);
     }
     entity.isDecayProtected = true;
     this.fullyRepairConstruction(server, entity);
@@ -2241,12 +2249,11 @@ export class ConstructionManager {
             child,
             accumulatedItemDamage
           );
-        accumulatedItemDamage += this.repairFreeplaceEntities(server, child);
       }
     );
     return accumulatedItemDamage;
   }
-  
+
   private repairWallSlots(server: ZoneServer2016, entity: ConstructionChildEntity): number {
     let accumulatedItemDamage = 0;
     Object.values(entity.occupiedWallSlots).forEach(
@@ -2331,23 +2338,6 @@ export class ConstructionManager {
     );
   }
 
-  private fullyRepairShelterSlots(server: ZoneServer2016, entity: ConstructionChildEntity) {
-    Object.values(entity.occupiedShelterSlots).forEach(
-      (child: ConstructionChildEntity) => {
-        this.fullyRepairChildEntity(server, child);
-        this.fullyRepairFreeplaceEntities(server, child);
-      }
-    );
-  }
-
-  private fullyRepairWallSlots(server: ZoneServer2016, entity: ConstructionChildEntity) {
-    Object.values(entity.occupiedWallSlots).forEach(
-      (child: ConstructionChildEntity | ConstructionDoor) => {
-        this.fullyRepairChildEntity(server, child);
-      }
-    );
-  }
-
   fullyRepairConstructionEntity(
     server: ZoneServer2016,
     entity: ConstructionParentEntity
@@ -2359,13 +2349,13 @@ export class ConstructionManager {
         (expansion: ConstructionParentEntity) => {
           // repair every object on each expansion
           this.fullyRepairShelterSlots(server, expansion);
-          this.fullyRepairWallSlots(server, expansion);
+          this.fullyRepairWallSlots(server, expansion.occupiedWallSlots);
           this.fullyRepairFreeplaceEntities(server, expansion);
         }
       );
       // repair every object on main foundation
       this.fullyRepairShelterSlots(server, entity);
-      this.fullyRepairWallSlots(server, entity);
+      this.fullyRepairWallSlots(server, entity.occupiedWallSlots);
       this.fullyRepairFreeplaceEntities(server, entity);
       entity.isDecayProtected = true;
       if (entity.health < 1000000) {
