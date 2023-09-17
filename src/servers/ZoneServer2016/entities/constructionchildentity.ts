@@ -184,7 +184,7 @@ export class ConstructionChildEntity extends BaseLightweightCharacter {
           position[1] + 1.8
         );
 
-        let pos = position[1] + 2.4;
+        const pos = position[1] + 2.4;
         this.boundsOn = getCubeBounds(
           centerPoint,
           10,
@@ -206,7 +206,7 @@ export class ConstructionChildEntity extends BaseLightweightCharacter {
           position[1] + 1.8
         );
         
-        let p = position[1] + 2.4;
+        const p = position[1] + 2.4;
         this.boundsOn = getCubeBounds(
           position,
           5,
@@ -440,18 +440,22 @@ export class ConstructionChildEntity extends BaseLightweightCharacter {
   }
 
   isInside(position: Float32Array) {
-    if (!this.cubebounds) {
-      switch (this.itemDefinitionId) {
-        case Items.STRUCTURE_STAIRS:
-        case Items.STRUCTURE_STAIRS_UPPER:
-        case Items.LOOKOUT_TOWER:
-          return false;
-      }
-      console.error(
-        `ERROR: CONSTRUCTION CUBE BOUNDS IS NOT DEFINED FOR ${this.itemDefinitionId} ${this.characterId}`
-      );
-      return false; // this should never occur
+    switch (this.itemDefinitionId) {
+      case Items.SHELTER:
+      case Items.SHELTER_LARGE:
+      case Items.SHELTER_UPPER:
+      case Items.SHELTER_UPPER_LARGE:
+        if (!this.cubebounds) {
+          console.error(
+            `ERROR: CONSTRUCTION CUBE BOUNDS IS NOT DEFINED FOR ${this.itemDefinitionId} ${this.characterId}`
+          );
+          return false; // this should never occur
+        }
+        break;
+      default:
+        return false;
     }
+      
 
     switch (this.itemDefinitionId) {
       case Items.SHELTER_LARGE:
@@ -477,7 +481,7 @@ export class ConstructionChildEntity extends BaseLightweightCharacter {
       // should never trigger
       console.log(`[ERROR] boundsOn not defined for ${this.itemDefinitionId}!`);
       return false;
-    };
+    }
 
     switch (this.itemDefinitionId) {
       case Items.SHELTER_LARGE:

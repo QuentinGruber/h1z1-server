@@ -766,6 +766,8 @@ export class ConstructionParentEntity extends ConstructionChildEntity {
           return false; // this should never occur
         }
         break;
+      default:
+        return false;
     }
 
     const cubebounds = this.cubebounds as CubeBounds;
@@ -792,6 +794,12 @@ export class ConstructionParentEntity extends ConstructionChildEntity {
     }
 
     return isInsideCube(Array.from(position) as Point3D, this.boundsUnder);
+  }
+
+  isOn(position: Float32Array) {
+    // prevents isOn not defined messages if deck is checked by mistake
+    // only used for ConstructionChildEntity
+    return false;
   }
 
   destroy(server: ZoneServer2016, destructTime = 0) {
@@ -860,6 +868,8 @@ export class ConstructionParentEntity extends ConstructionChildEntity {
     permission: ConstructionPermissionIds
   ) {
     if (characterId == this.ownerCharacterId) return true;
+    if(!this.permissions[characterId]) return false;
+
     switch (permission) {
       case ConstructionPermissionIds.BUILD:
         return this.permissions[characterId]?.build;

@@ -1527,16 +1527,19 @@ export class ZoneServer2016 extends EventEmitter {
 
   pushToGridCell(obj: BaseEntity) {
     if (this._grid.length == 0)
-      this._grid = this.divideMapIntoGrid(8000, 8000, 250);
+      this._grid = this.divideMapIntoGrid(8196, 8196, 250);
     if (
       obj instanceof Vehicle ||
       obj instanceof Character ||
       (obj instanceof ConstructionChildEntity &&
-        !obj.getParent(this) &&
-        obj instanceof ConstructionParentEntity) ||
+        !obj.getParent(this)) ||
       (obj instanceof LootableConstructionEntity && !obj.getParent(this))
-    )
-      return; // dont push objects that can change its position
+    ) {
+      // dont push objects that can change its position or are
+      // handled by the construction system
+      return; 
+    }
+      
     for (let i = 0; i < this._grid.length; i++) {
       const gridCell = this._grid[i];
       if (
@@ -6518,7 +6521,6 @@ export class ZoneServer2016 extends EventEmitter {
     this.constructionManager.constructionPermissionsManager(this, client);
     this.constructionManager.spawnConstructionParentsInRange(this, client);
     this.vehicleManager(client);
-    //this.npcManager(client);
     this.removeOutOfDistanceEntities(client);
     this.spawnCharacters(client);
     this.spawnGridObjects(client);

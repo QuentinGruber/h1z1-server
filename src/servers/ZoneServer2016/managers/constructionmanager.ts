@@ -381,9 +381,8 @@ export class ConstructionManager {
     let isInFoundation = false;
     for (const a in server._constructionFoundations) {
       const iteratedFoundation = server._constructionFoundations[a];
-      const permissions =
-        iteratedFoundation.permissions[client.character.characterId];
-      if (!permissions || !permissions.build) continue;
+      const hasBuildPermission = iteratedFoundation.getHasPermission(server, client.character.characterId, ConstructionPermissionIds.BUILD)
+      if (!hasBuildPermission) continue;
       if (iteratedFoundation.characterId == parentObjectCharacterId) {
         isInFoundation = true;
         break;
@@ -456,8 +455,8 @@ export class ConstructionManager {
       const foundation = server._constructionFoundations[a];
       let allowBuild = false;
       if (client.isDebugMode) allowBuild = true;
-      const permissions = foundation.permissions[client.character.characterId];
-      if (permissions && permissions.build) allowBuild = true;
+      const hasBuildPermission = foundation.getHasPermission(server, client.character.characterId, ConstructionPermissionIds.BUILD);
+      if (hasBuildPermission) allowBuild = true;
       if (
         !isInFoundation &&
         isPosInRadius(
@@ -1534,19 +1533,55 @@ export class ConstructionManager {
     return true;
   }
 
+  placeSimpleConstruction(
+    server: ZoneServer2016,
+    modelId: number,
+    position: Float32Array,
+    rotation: Float32Array,
+    parentObjectCharacterId: string,
+    itemDefinitionId: number
+  ) {
+    const characterId = server.generateGuid(),
+    transientId = 1, // not needed hopefully probably maybe it'll break one day we'll see
+    construction = new ConstructionChildEntity(
+      characterId,
+      transientId,
+      modelId,
+      position,
+      fixEulerOrder(rotation),
+      server,
+      itemDefinitionId,
+      parentObjectCharacterId,
+      ""
+    );
+
+    const parent = construction.getParent(server);
+    if (parent) {
+      server._constructionSimple[characterId] = construction;
+      parent.addFreeplaceConstruction(construction);
+    } else {
+      server._worldSimpleConstruction[characterId] = construction;
+    }
+    server.executeFuncForAllReadyClientsInRange((client) => {
+      this.spawnSimpleConstruction(server, client, construction);
+    }, construction);
+    return true;
+  }
+
   checkFoundationPermission(
     server: ZoneServer2016,
     client: Client,
     foundation: ConstructionParentEntity
   ): boolean {
     // under foundation check
-    const permissions = foundation.permissions[client.character.characterId];
+    const hasVisitPermission = foundation.getHasPermission(server, client.character.characterId, ConstructionPermissionIds.VISIT);
+
     if (
       foundation.itemDefinitionId == Items.FOUNDATION ||
       foundation.itemDefinitionId == Items.FOUNDATION_EXPANSION
     ) {
       if (foundation.isUnder(client.character.state.position))
-        if (permissions && permissions.visit) {
+        if (hasVisitPermission) {
           this.tpPlayerOutsideFoundation(server, client, foundation, true);
         } else {
           this.tpPlayerOutsideFoundation(server, client, foundation, false);
@@ -1554,7 +1589,7 @@ export class ConstructionManager {
     }
     if (!foundation.isSecured) return false;
     let allowed = false;
-    if (permissions && permissions.visit) allowed = true;
+    if (hasVisitPermission) allowed = true;
     if (
       foundation.itemDefinitionId == Items.SHACK ||
       foundation.itemDefinitionId == Items.SHACK_SMALL ||
@@ -1624,8 +1659,8 @@ export class ConstructionManager {
       }
     }
     if (!foundation) return false;
-    const permissions = foundation.permissions[client.character.characterId];
-    if (permissions && permissions.visit) allowed = true;
+    const hasVisitPermission = foundation.getHasPermission(server, client.character.characterId, ConstructionPermissionIds.VISIT);
+    if (hasVisitPermission) allowed = true;
     if (construction.isInside(client.character.state.position)) {
       if (allowed) {
         this.constructionHidePlayer(
@@ -1808,9 +1843,22 @@ export class ConstructionManager {
     client: Client,
     entity: BaseEntity
   ): boolean {
-    if (!(entity instanceof LootableConstructionEntity)) {
+    if (
+      !(entity instanceof LootableConstructionEntity ||
+      entity instanceof ConstructionChildEntity)
+    ) {
       return false;
     }
+
+    // these entities can be handled as freeplace but should never be hidden
+    switch(entity.itemDefinitionId) {
+      case Items.SHELTER_UPPER:
+      case Items.SHELTER_UPPER_LARGE:
+      case Items.STRUCTURE_STAIRS_UPPER:
+      case Items.METAL_WALL_UPPER:
+        return false;
+    }
+    
 
     const parent = entity.getParent(server);
 
@@ -1822,10 +1870,9 @@ export class ConstructionManager {
         client.character.characterId,
         ConstructionPermissionIds.VISIT
       ),
-      isInside = parent.isInside(entity.state.position),
-      isOn = parent.isOn(entity.state.position);
+      isInside = parent.isInside(entity.state.position);
 
-    return parentSecured && isInside && !hasVisitPermission && !isOn;
+    return parentSecured && isInside && !hasVisitPermission;
     // TODO: check if character is in secured shelter / shack
   }
 
@@ -1840,17 +1887,15 @@ export class ConstructionManager {
           entity.npcRenderDistance || server.charactersRenderDistance,
           entity.state.position,
           client.character.state.position
-        )
+        ) ||
+        this.constructionShouldHideEntity(server, client, entity)
       )
         continue;
       if (entity instanceof ConstructionChildEntity) {
         this.spawnSimpleConstruction(server, client, entity);
       } else if (entity instanceof ConstructionDoor) {
         this.spawnConstructionDoor(server, client, entity);
-      } else if (
-        entity instanceof LootableConstructionEntity &&
-        !this.constructionShouldHideEntity(server, client, entity)
-      ) {
+      } else if (entity instanceof LootableConstructionEntity) {
         this.spawnLootableConstruction(server, client, entity);
       }
     }
