@@ -830,8 +830,6 @@ const dev: any = {
       );
     }
 
-  
-
     server.sendChatText(client, "Displaying 3d bounds");
   },
 
@@ -872,18 +870,28 @@ const dev: any = {
   ) {
     const entityId = client.character.currentInteractionGuid,
       entity = server.getEntity(entityId || "");
-    if (!entity || (!(entity instanceof ConstructionChildEntity) && !(entity instanceof LootableConstructionEntity))) {
+    if (
+      !entity ||
+      (!(entity instanceof ConstructionChildEntity) &&
+        !(entity instanceof LootableConstructionEntity))
+    ) {
       server.sendChatText(client, "Invalid entity!");
       return;
     }
 
     const parent = entity.getParent(server);
-    if(!parent) {
-      server.sendChatText(client, `No parent found for ${entity.itemDefinitionId}`);
+    if (!parent) {
+      server.sendChatText(
+        client,
+        `No parent found for ${entity.itemDefinitionId}`
+      );
       return;
     }
 
-    server.sendChatText(client, `Parent itemDefinitionId: ${parent.itemDefinitionId} characterId: ${parent.characterId}`);
+    server.sendChatText(
+      client,
+      `Parent itemDefinitionId: ${parent.itemDefinitionId} characterId: ${parent.characterId}`
+    );
   }
 };
 export default dev;

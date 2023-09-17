@@ -1531,15 +1531,14 @@ export class ZoneServer2016 extends EventEmitter {
     if (
       obj instanceof Vehicle ||
       obj instanceof Character ||
-      (obj instanceof ConstructionChildEntity &&
-        !obj.getParent(this)) ||
+      (obj instanceof ConstructionChildEntity && !obj.getParent(this)) ||
       (obj instanceof LootableConstructionEntity && !obj.getParent(this))
     ) {
       // dont push objects that can change its position or are
       // handled by the construction system
-      return; 
+      return;
     }
-      
+
     for (let i = 0; i < this._grid.length; i++) {
       const gridCell = this._grid[i];
       if (

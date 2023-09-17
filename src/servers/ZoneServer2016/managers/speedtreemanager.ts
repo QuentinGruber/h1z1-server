@@ -85,9 +85,9 @@ export class SpeedTreeManager {
       case "SpeedTree.PaperBirch":
       case "SpeedTree.OregonOak":
         const wep = client.character.getEquippedWeapon();
-        if(!wep) return;
+        if (!wep) return;
 
-        switch(wep.itemDefinitionId) {
+        switch (wep.itemDefinitionId) {
           case Items.WEAPON_HATCHET:
           case Items.WEAPON_HATCHET_MAKESHIFT:
           case Items.WEAPON_AXE_FIRE:
@@ -95,11 +95,11 @@ export class SpeedTreeManager {
           case Items.WEAPON_MACHETE01:
             break;
           default:
-            server.sendAlert(client, "This tool is not sharp enough for this!")
+            server.sendAlert(client, "This tool is not sharp enough for this!");
             return;
         }
 
-        server.damageItem(client, wep, 5)
+        server.damageItem(client, wep, 5);
 
         if (!this._speedTreesCounter[objectId]) {
           this._speedTreesCounter[objectId] = {

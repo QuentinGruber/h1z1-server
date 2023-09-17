@@ -859,7 +859,7 @@ export class ConstructionParentEntity extends ConstructionChildEntity {
     permission: ConstructionPermissionIds
   ) {
     if (characterId == this.ownerCharacterId) return true;
-    if(!this.permissions[characterId]) return false;
+    if (!this.permissions[characterId]) return false;
 
     switch (permission) {
       case ConstructionPermissionIds.BUILD:

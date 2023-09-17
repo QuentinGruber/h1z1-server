@@ -205,16 +205,9 @@ export class ConstructionChildEntity extends BaseLightweightCharacter {
           position[1],
           position[1] + 1.8
         );
-        
+
         const p = position[1] + 2.4;
-        this.boundsOn = getCubeBounds(
-          position,
-          5,
-          5,
-          angle,
-          p,
-          p + 1.8
-        );
+        this.boundsOn = getCubeBounds(position, 5, 5, angle, p, p + 1.8);
 
         break;
     }

@@ -402,45 +402,55 @@ export class ConstructionManager {
     return false;
   }
 
-  getFreeplaceParentCharacterId(foundation: ConstructionParentEntity, position: Float32Array) {
+  getFreeplaceParentCharacterId(
+    server: ZoneServer2016,
+    position: Float32Array
+  ): string {
     // for construction entities that don't have a parentObjectCharacterId from the client
     let freeplaceParentCharacterId = "";
-
-    // check if inside a shelter even if not inside foundation (large shelters can extend it)
-    Object.values(foundation.occupiedShelterSlots).forEach((shelter) => {
-      if (shelter.isInside(position) || shelter.isOn(position)) {
-        freeplaceParentCharacterId = shelter.characterId;
-      }
-      if (!Number(freeplaceParentCharacterId)) {
-        // check upper shelters if its not in lower ones
-        Object.values(shelter.occupiedShelterSlots).forEach(
-          (upperShelter) => {
-            if (
-              upperShelter.isInside(position) ||
-              upperShelter.isOn(position)
-            ) {
-              freeplaceParentCharacterId = upperShelter.characterId;
+    for (const a in server._constructionFoundations) {
+      const foundation = server._constructionFoundations[a];
+      // check if inside a shelter even if not inside foundation (large shelters can extend it)
+      Object.values(foundation.occupiedShelterSlots).forEach((shelter) => {
+        if (shelter.isInside(position) || shelter.isOn(position)) {
+          freeplaceParentCharacterId = shelter.characterId;
+        }
+        if (!Number(freeplaceParentCharacterId)) {
+          // check upper shelters if its not in lower ones
+          Object.values(shelter.occupiedShelterSlots).forEach(
+            (upperShelter) => {
+              if (
+                upperShelter.isInside(position) ||
+                upperShelter.isOn(position)
+              ) {
+                freeplaceParentCharacterId = upperShelter.characterId;
+              }
             }
-          }
-        );
-      }
-    });
-
-    // for disconnected upper shelters
-    if (!Number(freeplaceParentCharacterId)) {
-      Object.values(foundation.freeplaceEntities).forEach((freeplace) => {
-        if (
-          freeplace instanceof ConstructionChildEntity &&
-          (freeplace.isInside(position) || freeplace.isOn(position))
-        ) {
-          freeplaceParentCharacterId = freeplace.characterId;
+          );
         }
       });
-    }
 
-    // check deck last in case it's parented to a shelter or upper first
-    if (!Number(freeplaceParentCharacterId) && foundation.isInside(position)) {
-      freeplaceParentCharacterId = foundation.characterId;
+      // for disconnected upper shelters
+      if (!Number(freeplaceParentCharacterId)) {
+        Object.values(foundation.freeplaceEntities).forEach((freeplace) => {
+          if (
+            freeplace instanceof ConstructionChildEntity &&
+            (freeplace.isInside(position) || freeplace.isOn(position))
+          ) {
+            freeplaceParentCharacterId = freeplace.characterId;
+          }
+        });
+      }
+
+      // check deck last in case it's parented to a shelter or upper first
+      if (
+        !Number(freeplaceParentCharacterId) &&
+        foundation.isInside(position)
+      ) {
+        return foundation.characterId;
+      }
+
+      if (Number(freeplaceParentCharacterId)) return freeplaceParentCharacterId;
     }
 
     return freeplaceParentCharacterId;
@@ -452,123 +462,58 @@ export class ConstructionManager {
     foundation: ConstructionParentEntity,
     position: Float32Array,
     itemDefinitionId: Items,
-    isInFoundation: boolean,
     isInsidePermissionedFoundation: boolean
   ): boolean {
     let allowBuild = false;
-    const hasBuildPermission = foundation.getHasPermission(server, client.character.characterId, ConstructionPermissionIds.BUILD);
+    const hasBuildPermission = foundation.getHasPermission(
+      server,
+      client.character.characterId,
+      ConstructionPermissionIds.BUILD
+    );
     if (client.isDebugMode || hasBuildPermission) allowBuild = true;
-      if (
-        !isInFoundation &&
-        isPosInRadius(
-          foundation.itemDefinitionId === Items.FOUNDATION ||
-            foundation.itemDefinitionId === Items.GROUND_TAMPER
-            ? this.playerFoundationBlockedPlacementRange
-            : this.playerShackBlockedPlacementRange,
-          position,
-          foundation.state.position
-        ) &&
-        allowBuild === false &&
-        !this.overridePlacementItems.includes(itemDefinitionId) &&
-        !isInsidePermissionedFoundation
-      ) {
-        server.sendAlert(
-          client,
-          "You may not place this object this close to another players foundation"
-        );
-        this.sendPlacementFinalize(server, client, 0);
-        return true;
-      }
-    return false;
-  }
-
-  getIsInFoundation(
-    server: ZoneServer2016,
-    client: Client,
-    position: Float32Array,
-    parentObjectCharacterId: string
-  ): boolean {
-    for (const a in server._constructionFoundations) {
-      const foundation = server._constructionFoundations[a];
-      const hasBuildPermission = foundation.getHasPermission(server, client.character.characterId, ConstructionPermissionIds.BUILD)
-      if (!hasBuildPermission) continue;
-      if (foundation.characterId == parentObjectCharacterId) {
-        return true;
-      }
-      if (foundation.cubebounds && foundation.isInside(position)) {
-        return true;
-      }
+    if (
+      isPosInRadius(
+        foundation.itemDefinitionId === Items.FOUNDATION ||
+          foundation.itemDefinitionId === Items.GROUND_TAMPER
+          ? this.playerFoundationBlockedPlacementRange
+          : this.playerShackBlockedPlacementRange,
+        position,
+        foundation.state.position
+      ) &&
+      //!isInFoundation &&
+      !allowBuild &&
+      !this.overridePlacementItems.includes(itemDefinitionId) &&
+      !isInsidePermissionedFoundation
+    ) {
+      server.sendAlert(
+        client,
+        "You may not place this object this close to another players foundation"
+      );
+      this.sendPlacementFinalize(server, client, 0);
+      return true;
     }
     return false;
   }
 
-  getIsInsidePermissionedFoundation(
+  getIsOnPermissionedFoundation(
     server: ZoneServer2016,
     client: Client,
-    position: Float32Array,
     parentObjectCharacterId: string,
+    freeplaceParentCharacterId: string
   ): boolean {
-    for (const a in server._constructionFoundations) {
-      const foundation = server._constructionFoundations[a];
-      if (
-        foundation.cubebounds &&
-        foundation.getHasPermission(
-          server,
-          client.character.characterId,
-          ConstructionPermissionIds.BUILD
-        )
-      ) {
-        if (
-          foundation.isInside(position) ||
-          (foundation.characterId == parentObjectCharacterId &&
-            isPosInRadius(20, foundation.state.position, position))
-        ) {
-          return true;
-        }
-      }
-      for (const c in foundation.occupiedWallSlots) {
-        const wall = foundation.occupiedWallSlots[c];
-        if (wall instanceof ConstructionDoor) continue;
-        if (
-          wall.characterId == parentObjectCharacterId &&
-          isPosInRadius(
-            1,
-            wall.fixedPosition ? wall.fixedPosition : wall.state.position,
-            position
-          )
-        ) {
-          return true;
-        }
-      }
+    const characterId = !!Number(parentObjectCharacterId)
+        ? parentObjectCharacterId
+        : freeplaceParentCharacterId,
+      parent =
+        server._constructionFoundations[characterId] ||
+        server._constructionSimple[characterId];
 
-      for (const b in foundation.occupiedShelterSlots) {
-        const shelter = foundation.occupiedShelterSlots[b];
-        if (
-          (shelter.characterId == parentObjectCharacterId &&
-            isPosInRadius(
-              10,
-              shelter.fixedPosition
-                ? shelter.fixedPosition
-                : shelter.state.position,
-              position
-            )) ||
-          (shelter.cubebounds && shelter.isInside(position))
-        ) {
-          return true;
-        }
-        for (const b in shelter.occupiedShelterSlots) {
-          const upperShelter = shelter.occupiedShelterSlots[b];
-          if (
-            (upperShelter.characterId == parentObjectCharacterId &&
-              isPosInRadius(10, upperShelter.state.position, position)) ||
-            (upperShelter.cubebounds && upperShelter.isInside(position))
-          ) {
-            return true;
-          }
-        }
-      }
-    }
-    return false;
+    if (!parent) return false;
+    return parent.getHasPermission(
+      server,
+      client.character.characterId,
+      ConstructionPermissionIds.BUILD
+    );
   }
 
   placement(
@@ -587,6 +532,7 @@ export class ConstructionManager {
       return;
     }
 
+    // invalid placement checks that don't require a parentCharacterId
     if (
       this.detectStackedPlacement(
         server,
@@ -612,70 +558,55 @@ export class ConstructionManager {
       return;
     }
 
-    const isInFoundation = this.getIsInFoundation(
-      server,
-      client,
-      position,
-      parentObjectCharacterId
-    );
-
-    const isInsidePermissionedFoundation = this.getIsInsidePermissionedFoundation(
-      server,
-      client,
-      position,
-      parentObjectCharacterId
-    );
-
-    console.log(`isInFoundation ${isInFoundation}`);
-
-    console.log(`isInsidePermissionedFoundation ${isInsidePermissionedFoundation}`);
-
     // for construction entities that don't have a parentObjectCharacterId from the client
-    let freeplaceParentCharacterId = "";
+    const freeplaceParentCharacterId = this.getFreeplaceParentCharacterId(
+        server,
+        position
+      ),
+      isOnPermissionedFoundation = this.getIsOnPermissionedFoundation(
+        server,
+        client,
+        parentObjectCharacterId,
+        freeplaceParentCharacterId
+      );
+
+    if (
+      (!!Number(parentObjectCharacterId) ||
+        !!Number(freeplaceParentCharacterId)) &&
+      !isOnPermissionedFoundation &&
+      !client.isDebugMode
+    ) {
+      this.placementError(server, client, ConstructionErrors.BUILD_PERMISSION);
+      this.sendPlacementFinalize(server, client, 0);
+      return;
+    }
 
     for (const a in server._constructionFoundations) {
       const foundation = server._constructionFoundations[a];
 
-      if(
+      if (
         this.handleClosePlacement(
           server,
           client,
           foundation,
           position,
           itemDefinitionId,
-          isInFoundation,
-          isInsidePermissionedFoundation
+          isOnPermissionedFoundation
         )
       ) {
         return;
       }
-
-      if(!Number(parentObjectCharacterId)) {
-        freeplaceParentCharacterId = this.getFreeplaceParentCharacterId(foundation, position);
-      }
     }
 
-
-    if (server._constructionSimple[parentObjectCharacterId]) {
-      const simple = server._constructionSimple[parentObjectCharacterId];
-      if (
-        !simple.getHasPermission(
-          server,
-          client.character.characterId,
-          ConstructionPermissionIds.BUILD
-        )
-      ) {
-        this.placementError(
-          server,
-          client,
-          ConstructionErrors.BUILD_PERMISSION
-        );
-        this.sendPlacementFinalize(server, client, 0);
-        return;
-      }
-    }
-
-    if(this.handleInvalidPlacement(server, client, itemDefinitionId, position, isInsidePermissionedFoundation)) {
+    if (
+      this.handleInvalidPlacement(
+        server,
+        client,
+        itemDefinitionId,
+        position,
+        isOnPermissionedFoundation
+      )
+    ) {
       return;
     }
 
@@ -875,7 +806,7 @@ export class ConstructionManager {
           rotation,
           parentObjectCharacterId,
           itemDefinitionId
-        )
+        );
     }
   }
 
@@ -1443,7 +1374,7 @@ export class ConstructionManager {
     }
 
     server.executeFuncForAllReadyClientsInRange((client) => {
-      if(this.constructionShouldHideEntity(server, client, obj)) {
+      if (this.constructionShouldHideEntity(server, client, obj)) {
         return;
       }
       this.spawnLootableConstruction(server, client, obj);
@@ -1485,7 +1416,7 @@ export class ConstructionManager {
     obj.equipLoadout(server);
 
     server.executeFuncForAllReadyClientsInRange((client) => {
-      if(this.constructionShouldHideEntity(server, client, obj)) {
+      if (this.constructionShouldHideEntity(server, client, obj)) {
         return;
       }
       this.spawnLootableConstruction(server, client, obj);
@@ -1537,7 +1468,7 @@ export class ConstructionManager {
       }
     }
     server.executeFuncForAllReadyClientsInRange((client) => {
-      if(this.constructionShouldHideEntity(server, client, obj)) {
+      if (this.constructionShouldHideEntity(server, client, obj)) {
         return;
       }
       this.spawnLootableConstruction(server, client, obj);
@@ -1617,18 +1548,18 @@ export class ConstructionManager {
     itemDefinitionId: number
   ) {
     const characterId = server.generateGuid(),
-    transientId = 1, // not needed hopefully probably maybe it'll break one day we'll see
-    construction = new ConstructionChildEntity(
-      characterId,
-      transientId,
-      modelId,
-      position,
-      fixEulerOrder(rotation),
-      server,
-      itemDefinitionId,
-      parentObjectCharacterId,
-      ""
-    );
+      transientId = 1, // not needed hopefully probably maybe it'll break one day we'll see
+      construction = new ConstructionChildEntity(
+        characterId,
+        transientId,
+        modelId,
+        position,
+        fixEulerOrder(rotation),
+        server,
+        itemDefinitionId,
+        parentObjectCharacterId,
+        ""
+      );
 
     const parent = construction.getParent(server);
     if (parent) {
@@ -1638,7 +1569,7 @@ export class ConstructionManager {
       server._worldSimpleConstruction[characterId] = construction;
     }
     server.executeFuncForAllReadyClientsInRange((client) => {
-      if(this.constructionShouldHideEntity(server, client, construction)) {
+      if (this.constructionShouldHideEntity(server, client, construction)) {
         return;
       }
       this.spawnSimpleConstruction(server, client, construction);
@@ -1652,7 +1583,11 @@ export class ConstructionManager {
     foundation: ConstructionParentEntity
   ): boolean {
     // under foundation check
-    const hasVisitPermission = foundation.getHasPermission(server, client.character.characterId, ConstructionPermissionIds.VISIT);
+    const hasVisitPermission = foundation.getHasPermission(
+      server,
+      client.character.characterId,
+      ConstructionPermissionIds.VISIT
+    );
 
     if (
       foundation.itemDefinitionId == Items.FOUNDATION ||
@@ -1737,7 +1672,11 @@ export class ConstructionManager {
       }
     }
     if (!foundation) return false;
-    const hasVisitPermission = foundation.getHasPermission(server, client.character.characterId, ConstructionPermissionIds.VISIT);
+    const hasVisitPermission = foundation.getHasPermission(
+      server,
+      client.character.characterId,
+      ConstructionPermissionIds.VISIT
+    );
     if (hasVisitPermission) allowed = true;
     if (construction.isInside(client.character.state.position)) {
       if (allowed) {
@@ -1922,21 +1861,22 @@ export class ConstructionManager {
     entity: BaseEntity
   ): boolean {
     if (
-      !(entity instanceof LootableConstructionEntity ||
-      entity instanceof ConstructionChildEntity)
+      !(
+        entity instanceof LootableConstructionEntity ||
+        entity instanceof ConstructionChildEntity
+      )
     ) {
       return false;
     }
 
     // these entities can be handled as freeplace but should never be hidden
-    switch(entity.itemDefinitionId) {
+    switch (entity.itemDefinitionId) {
       case Items.SHELTER_UPPER:
       case Items.SHELTER_UPPER_LARGE:
       case Items.STRUCTURE_STAIRS_UPPER:
       case Items.METAL_WALL_UPPER:
         return false;
     }
-    
 
     const parent = entity.getParent(server);
 
