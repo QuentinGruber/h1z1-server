@@ -90,6 +90,9 @@ export class ConstructionChildEntity extends BaseLightweightCharacter {
   readonly fixedPosition?: Float32Array;
   placementTime = Date.now();
   readonly cubebounds?: CubeBounds;
+
+  readonly boundsOn?: CubeBounds;
+
   undoPlacementTime = 600000;
   interactionDistance = 4;
   destroyedEffect: number = 242;
@@ -180,6 +183,17 @@ export class ConstructionChildEntity extends BaseLightweightCharacter {
           position[1],
           position[1] + 1.8
         );
+
+        let pos = position[1] + 2.4;
+        this.boundsOn = getCubeBounds(
+          centerPoint,
+          10,
+          5,
+          angle,
+          pos,
+          pos + 1.8
+        );
+
         break;
       case Items.SHELTER:
       case Items.SHELTER_UPPER:
@@ -191,6 +205,17 @@ export class ConstructionChildEntity extends BaseLightweightCharacter {
           position[1],
           position[1] + 1.8
         );
+        
+        let p = position[1] + 2.4;
+        this.boundsOn = getCubeBounds(
+          position,
+          5,
+          5,
+          angle,
+          p,
+          p + 1.8
+        );
+
         break;
     }
 
@@ -440,40 +465,27 @@ export class ConstructionChildEntity extends BaseLightweightCharacter {
   }
 
   isOn(position: Float32Array) {
-    const angle = -this.state.rotation[1];
-    let bounds: CubeBounds;
+    if(!this.boundsOn) {
+      switch (this.itemDefinitionId) {
+        // todo: define bounds for these at some point
+        case Items.STRUCTURE_STAIRS:
+        case Items.STRUCTURE_STAIRS_UPPER:
+        case Items.LOOKOUT_TOWER:
+          return false;
+      }
+
+      // should never trigger
+      console.log(`[ERROR] boundsOn not defined for ${this.itemDefinitionId}!`);
+      return false;
+    };
+
     switch (this.itemDefinitionId) {
       case Items.SHELTER_LARGE:
       case Items.SHELTER_UPPER_LARGE:
-        const centerPoint = movePoint(
-          position,
-          angle + (90 * Math.PI) / 180,
-          2.5
-        );
-
-        // get bounds for on top of shelter detection
-        bounds = getCubeBounds(
-          centerPoint,
-          10,
-          5,
-          angle,
-          position[1] + 2.4,
-          position[1] + 1.8
-        );
-
-        return isInsideCube(Array.from(position) as Point3D, bounds);
+        return isInsideCube(Array.from(position) as Point3D, this.boundsOn);
       case Items.SHELTER:
-      case Items.SHELTER_UPPER:
-        // get bounds for on top of shelter detection
-        bounds = getCubeBounds(
-          position,
-          5,
-          5,
-          angle,
-          position[1],
-          position[1] + 1.8
-        );
-        return isInsideCube(Array.from(position) as Point3D, bounds);
+      case Items.SHELTER_UPPER: 
+        return isInsideCube(Array.from(position) as Point3D, this.boundsOn);
       default:
         return false;
     }

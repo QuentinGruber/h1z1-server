@@ -482,9 +482,7 @@ export class ConstructionManager {
 
       // for construction entities that don't have a parentObjectCharacterId from the client
       if (!Number(parentObjectCharacterId)) {
-        if (foundation.isInside(position)) {
-          freeplaceParentCharacterId = foundation.characterId;
-        }
+        
         // check if inside a shelter even if not inside foundation (large shelters can extend it)
         Object.values(foundation.occupiedShelterSlots).forEach((shelter) => {
           if (shelter.isInside(position) || shelter.isOn(position)) {
@@ -514,6 +512,11 @@ export class ConstructionManager {
               freeplaceParentCharacterId = freeplace.characterId;
             }
           });
+        }
+
+        // check deck last in case it's parented to a shelter or upper first
+        if (!Number(freeplaceParentCharacterId) && foundation.isInside(position)) {
+          freeplaceParentCharacterId = foundation.characterId;
         }
       }
     }
@@ -629,13 +632,6 @@ export class ConstructionManager {
     switch (itemDefinitionId) {
       case Items.SNARE:
       case Items.PUNJI_STICKS:
-        return this.placeTrap(
-          server,
-          itemDefinitionId,
-          modelId,
-          position,
-          fixEulerOrder(rotation)
-        );
       case Items.PUNJI_STICK_ROW:
         return this.placeTrap(
           server,
@@ -717,7 +713,7 @@ export class ConstructionManager {
           modelId,
           position,
           fixEulerOrder(rotation),
-          parentObjectCharacterId || freeplaceParentCharacterId
+          freeplaceParentCharacterId
         );
       case Items.FURNACE:
       case Items.BARBEQUE:
@@ -1815,17 +1811,21 @@ export class ConstructionManager {
     if (!(entity instanceof LootableConstructionEntity)) {
       return false;
     }
+
     const parent = entity.getParent(server);
+
     if (!parent) return false;
+
     const parentSecured = parent.isSecured,
       hasVisitPermission = parent.getHasPermission(
         server,
         client.character.characterId,
         ConstructionPermissionIds.VISIT
       ),
-      isInside = parent.isInside(entity.state.position);
+      isInside = parent.isInside(entity.state.position),
+      isOn = parent.isOn(entity.state.position);
 
-    return parentSecured && isInside && !hasVisitPermission;
+    return parentSecured && isInside && !hasVisitPermission && !isOn;
     // TODO: check if character is in secured shelter / shack
   }
 
