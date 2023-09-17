@@ -761,39 +761,30 @@ export class ConstructionParentEntity extends ConstructionChildEntity {
       case Items.SHACK_SMALL:
         if (!this.cubebounds) {
           console.error(
-            `ERROR: CONSTRUCTION 3D BOUNDS IS NOT DEFINED FOR ${this.itemDefinitionId} ${this.characterId}`
+            `ERROR: CONSTRUCTION CUBE BOUNDS IS NOT DEFINED FOR ${this.itemDefinitionId} ${this.characterId}`
           );
           return false; // this should never occur
         }
-        break;
-      default:
-        return false;
-    }
-
-    const cubebounds = this.cubebounds as CubeBounds;
-
-    switch (this.itemDefinitionId) {
-      case Items.FOUNDATION:
-      case Items.FOUNDATION_EXPANSION:
-      case Items.GROUND_TAMPER:
-      case Items.SHACK:
-      case Items.SHACK_BASIC:
-      case Items.SHACK_SMALL:
-        return isInsideCube(Array.from(position) as Point3D, cubebounds);
+        return isInsideCube(Array.from(position) as Point3D, this.cubebounds);
       default:
         return false;
     }
   }
 
   isUnder(position: Float32Array) {
-    if (!this.boundsUnder) {
-      console.error(
-        `ERROR: CONSTRUCTION BOUNDS UNDER IS NOT DEFINED FOR ${this.itemDefinitionId} ${this.characterId}`
-      );
-      return false; // this should never occur
+    switch (this.itemDefinitionId) {
+      case Items.FOUNDATION:
+      case Items.FOUNDATION_EXPANSION:
+        if (!this.boundsUnder) {
+          console.error(
+            `ERROR: CONSTRUCTION BOUNDS UNDER IS NOT DEFINED FOR ${this.itemDefinitionId} ${this.characterId}`
+          );
+          return false; // this should never occur
+        }
+        return isInsideCube(Array.from(position) as Point3D, this.boundsUnder);
+      default:
+        return false;
     }
-
-    return isInsideCube(Array.from(position) as Point3D, this.boundsUnder);
   }
 
   isOn(position: Float32Array) {

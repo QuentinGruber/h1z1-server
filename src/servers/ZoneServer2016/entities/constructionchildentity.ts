@@ -447,21 +447,10 @@ export class ConstructionChildEntity extends BaseLightweightCharacter {
       case Items.SHELTER_UPPER_LARGE:
         if (!this.cubebounds) {
           console.error(
-            `ERROR: CONSTRUCTION CUBE BOUNDS IS NOT DEFINED FOR ${this.itemDefinitionId} ${this.characterId}`
+            `ERROR: CONSTRUCTION CUBEBOUNDS IS NOT DEFINED FOR ${this.itemDefinitionId} ${this.characterId}`
           );
           return false; // this should never occur
         }
-        break;
-      default:
-        return false;
-    }
-      
-
-    switch (this.itemDefinitionId) {
-      case Items.SHELTER_LARGE:
-      case Items.SHELTER_UPPER_LARGE:
-      case Items.SHELTER:
-      case Items.SHELTER_UPPER:
         return isInsideCube(Array.from(position) as Point3D, this.cubebounds);
       default:
         return false;
@@ -469,26 +458,17 @@ export class ConstructionChildEntity extends BaseLightweightCharacter {
   }
 
   isOn(position: Float32Array) {
-    if(!this.boundsOn) {
-      switch (this.itemDefinitionId) {
-        // todo: define bounds for these at some point
-        case Items.STRUCTURE_STAIRS:
-        case Items.STRUCTURE_STAIRS_UPPER:
-        case Items.LOOKOUT_TOWER:
-          return false;
-      }
-
-      // should never trigger
-      console.log(`[ERROR] boundsOn not defined for ${this.itemDefinitionId}!`);
-      return false;
-    }
-
     switch (this.itemDefinitionId) {
-      case Items.SHELTER_LARGE:
-      case Items.SHELTER_UPPER_LARGE:
-        return isInsideCube(Array.from(position) as Point3D, this.boundsOn);
       case Items.SHELTER:
-      case Items.SHELTER_UPPER: 
+      case Items.SHELTER_LARGE:
+      case Items.SHELTER_UPPER:
+      case Items.SHELTER_UPPER_LARGE:
+        if (!this.boundsOn) {
+          console.error(
+            `ERROR: CONSTRUCTION boundsOn IS NOT DEFINED FOR ${this.itemDefinitionId} ${this.characterId}`
+          );
+          return false; // this should never occur
+        }
         return isInsideCube(Array.from(position) as Point3D, this.boundsOn);
       default:
         return false;
