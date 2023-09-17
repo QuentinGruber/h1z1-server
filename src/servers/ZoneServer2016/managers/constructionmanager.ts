@@ -784,32 +784,14 @@ export class ConstructionManager {
       default:
         //this.placementError(client, ConstructionErrors.UNKNOWN_CONSTRUCTION);
 
-        // need to add all valid construction eventually
-        const characterId = server.generateGuid(),
-          transientId = 1, // dont think its needed
-          construction = new ConstructionChildEntity(
-            characterId,
-            transientId,
-            modelId,
-            position,
-            fixEulerOrder(rotation),
-            server,
-            itemDefinitionId,
-            freeplaceParentCharacterId || "",
-            ""
-          );
-
-        const parent = construction.getParent(server);
-        if (parent) {
-          server._constructionSimple[characterId] = construction;
-          parent.addFreeplaceConstruction(construction);
-        } else {
-          server._worldSimpleConstruction[characterId] = construction;
-        }
-        server.executeFuncForAllReadyClientsInRange((client) => {
-          this.spawnSimpleConstruction(server, client, construction);
-        }, construction);
-        return true;
+        return this.placeSimpleConstruction(
+          server,
+          modelId,
+          position,
+          rotation,
+          parentObjectCharacterId,
+          itemDefinitionId
+        )
     }
   }
 
@@ -1377,6 +1359,9 @@ export class ConstructionManager {
     }
 
     server.executeFuncForAllReadyClientsInRange((client) => {
+      if(this.constructionShouldHideEntity(server, client, obj)) {
+        return;
+      }
       this.spawnLootableConstruction(server, client, obj);
     }, obj);
 
@@ -1416,6 +1401,9 @@ export class ConstructionManager {
     obj.equipLoadout(server);
 
     server.executeFuncForAllReadyClientsInRange((client) => {
+      if(this.constructionShouldHideEntity(server, client, obj)) {
+        return;
+      }
       this.spawnLootableConstruction(server, client, obj);
     }, obj);
 
@@ -1465,6 +1453,9 @@ export class ConstructionManager {
       }
     }
     server.executeFuncForAllReadyClientsInRange((client) => {
+      if(this.constructionShouldHideEntity(server, client, obj)) {
+        return;
+      }
       this.spawnLootableConstruction(server, client, obj);
     }, obj);
     server.smeltingManager._collectingEntities[characterId] = characterId;
@@ -1563,6 +1554,9 @@ export class ConstructionManager {
       server._worldSimpleConstruction[characterId] = construction;
     }
     server.executeFuncForAllReadyClientsInRange((client) => {
+      if(this.constructionShouldHideEntity(server, client, construction)) {
+        return;
+      }
       this.spawnSimpleConstruction(server, client, construction);
     }, construction);
     return true;
