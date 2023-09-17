@@ -36,7 +36,7 @@ export class ConstructionDoor extends DoorEntity {
   ownerCharacterId: string;
   passwordHash: number = 0;
   grantedAccess: Array<string> = [];
-  health: number = 1000000;
+  
   parentObjectCharacterId: string;
   readonly itemDefinitionId: number;
   readonly slot: string;
@@ -72,6 +72,10 @@ export class ConstructionDoor extends DoorEntity {
     this.parentObjectCharacterId = parentObjectCharacterId;
     this.slot = slot;
     this.profileId = 999; /// mark as construction
+
+    this.maxHealth = 1000000;
+    this.health = this.maxHealth;
+
     this.damageRange = getDamageRange(this.itemDefinitionId);
     this.fixedPosition = movePoint(
       this.state.position,

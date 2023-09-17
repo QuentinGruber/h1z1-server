@@ -1910,6 +1910,9 @@ export class ZoneServer2016 extends EventEmitter {
     client?: Client
   ) {
     // TODO: REDO THIS WITH AN OnExplosiveDamage method per class
+
+    // TODO: REDO THIS WITH GRID CHUNK SYSTEM
+    
     for (const characterId in this._characters) {
       const character = this._characters[characterId];
       if (isPosInRadiusWithY(3, character.state.position, position, 1.5)) {
@@ -2031,17 +2034,19 @@ export class ZoneServer2016 extends EventEmitter {
           position
         )
       ) {
-        const allowed = [Items.SHACK, Items.SHACK_SMALL, Items.SHACK_BASIC];
-        if (allowed.includes(constructionObject.itemDefinitionId)) {
-          this.constructionManager.checkConstructionDamage(
-            this,
-            constructionObject.characterId,
-            50000,
-            this._constructionFoundations,
-            position,
-            constructionObject.state.position,
-            source
-          );
+        switch(constructionObject.itemDefinitionId) {
+          case Items.SHACK:
+          case Items.SHACK_SMALL:
+          case Items.SHACK_BASIC:
+            this.constructionManager.checkConstructionDamage(
+              this,
+              constructionObject.characterId,
+              50000,
+              this._constructionFoundations,
+              position,
+              constructionObject.state.position,
+              source
+            );
         }
       }
     }

@@ -9,12 +9,12 @@
 function getRenderDistance(itemDefinitionId: number) {
   let range: number = 0;
   switch (itemDefinitionId) {
-    case Items.SHACK: // metal shack
-    case Items.SHACK_SMALL: // small shack
-    case Items.SHACK_BASIC: // wood shack
-    case Items.FOUNDATION: // foundation,
-    case Items.FOUNDATION_EXPANSION: // expansion
-    case Items.GROUND_TAMPER: // tamper
+    case Items.SHACK:
+    case Items.SHACK_SMALL:
+    case Items.SHACK_BASIC:
+    case Items.FOUNDATION:
+    case Items.FOUNDATION_EXPANSION:
+    case Items.GROUND_TAMPER:
       range = 350;
       break;
     case Items.FURNACE:
@@ -63,7 +63,7 @@ import {
 } from "../data/constructionslots";
 import { ConstructionDoor } from "./constructiondoor";
 import { LootableConstructionEntity } from "./lootableconstructionentity";
-function getDamageRange(definitionId: number): number {
+function getDamageRange(definitionId: Items): number {
   switch (definitionId) {
     case Items.METAL_WALL:
     case Items.METAL_WALL_UPPER:
@@ -78,9 +78,27 @@ function getDamageRange(definitionId: number): number {
   }
 }
 
+function getMaxHealth(itemDefinitionId: Items): number {
+  switch(itemDefinitionId) {
+    case Items.SHELTER:
+    case Items.SHELTER_LARGE:
+    case Items.SHELTER_UPPER:
+    case Items.SHELTER_UPPER_LARGE:
+    case Items.STRUCTURE_STAIRS:
+    case Items.STRUCTURE_STAIRS_UPPER:
+    case Items.LOOKOUT_TOWER:
+    case Items.METAL_WALL:
+    case Items.METAL_WALL_UPPER:
+      return 1000000;
+    case Items.WORKBENCH:
+    case Items.WORKBENCH_WEAPON:
+      return 500000;
+    default:
+      return 10000;
+  }
+}
+
 export class ConstructionChildEntity extends BaseLightweightCharacter {
-  health: number = 1000000;
-  maxHealth: number = 1000000;
   readonly itemDefinitionId: number;
   parentObjectCharacterId: string;
   eulerAngle: number;
@@ -147,11 +165,8 @@ export class ConstructionChildEntity extends BaseLightweightCharacter {
     this.npcRenderDistance = getRenderDistance(this.itemDefinitionId);
     this.useSimpleStruct = true;
 
-    if (this.itemDefinitionId == Items.SLEEPING_MAT) {
-      this.maxHealth = 10000;
-      this.health = 10000;
-      this.destroyedEffect = 0;
-    }
+    this.maxHealth = getMaxHealth(this.itemDefinitionId);
+    this.health = this.maxHealth;
 
     registerConstructionSlots(this, this.wallSlots, wallSlotDefinitions);
     Object.seal(this.wallSlots);

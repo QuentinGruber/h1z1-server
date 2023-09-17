@@ -238,9 +238,9 @@ export class DecayManager {
       }
       this.decayDamage(server, server._constructionSimple[a]);
     }
-    /*for (const a in server._lootableConstruction) {
+    for (const a in server._lootableConstruction) {
       this.decayDamage(server, server._lootableConstruction[a]);
-    }*/
+    }
     for (const a in server._constructionDoors) {
       const door = server._constructionDoors[a];
       if (door.isDecayProtected) {
