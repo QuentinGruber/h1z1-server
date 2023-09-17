@@ -3298,10 +3298,10 @@ export class ZoneServer2016 extends EventEmitter {
     console.log(JSON.stringify(this._packetsStats));
   }
 
-  private _sendData(
+  private _sendData<ZonePacket>(
     client: Client,
     packetName: h1z1PacketsType2016,
-    obj: zone2016packets,
+    obj: ZonePacket,
     unbuffered: boolean
   ) {
     if (this._packetsStats[packetName]) this._packetsStats[packetName]++;
@@ -3337,10 +3337,10 @@ export class ZoneServer2016 extends EventEmitter {
     this._sendData(client, packetName, obj, true);
   }
 
-  sendData(
+  sendData<ZonePacket>(
     client: Client,
     packetName: h1z1PacketsType2016,
-    obj: zone2016packets
+    obj: ZonePacket
   ) {
     this._sendData(client, packetName, obj, false);
   }
