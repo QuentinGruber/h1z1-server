@@ -23,6 +23,7 @@ interface ServerConfig {
   adminMessage: string;
   enableLoginServerKickRequests: boolean;
   rebootTime: number;
+  rebootWarnTime: number;
 }
 
 interface FairplayConfig {

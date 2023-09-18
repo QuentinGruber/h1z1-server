@@ -137,7 +137,8 @@ export class ConfigManager {
       welcomeMessage,
       adminMessage,
       enableLoginServerKickRequests,
-      rebootTime
+      rebootTime,
+      rebootWarnTime
     } = this.config.server;
     server.proximityItemsDistance = proximityItemsDistance;
     server.interactionDistance = interactionDistance;
@@ -148,6 +149,7 @@ export class ConfigManager {
     server.adminMessage = adminMessage;
     server.enableLoginServerKickRequests = enableLoginServerKickRequests;
     server.rebootTime = rebootTime;
+    server.rebootWarnTime = rebootWarnTime;
     //#endregion
 
     //#region fairplay

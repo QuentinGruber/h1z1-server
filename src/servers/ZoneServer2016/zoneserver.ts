@@ -318,7 +318,8 @@ export class ZoneServer2016 extends EventEmitter {
   welcomeMessage!: string;
   adminMessage!: string;
   enableLoginServerKickRequests!: boolean;
-  rebootTime: number = 0; // in hours
+  rebootTime!: number; // in hours
+  rebootWarnTime!: number; // in seconds
   /*                          */
 
   constructor(
@@ -688,7 +689,7 @@ export class ZoneServer2016 extends EventEmitter {
         () => {
           console.log("Rebooting server due to reboot time set");
           this.isRebooting = true;
-          this.shutdown(60, "Server rebooting");
+          this.shutdown(this.rebootWarnTime, "Server rebooting");
         },
         this.rebootTime * 60 * 60 * 1000
       );
@@ -727,7 +728,7 @@ export class ZoneServer2016 extends EventEmitter {
           currentTimeLeft / 1000
         )} seconds. Reason: ${message}`
       });
-      setTimeout(() => this.shutdown(timeLeft, message), timeLeftMs / 5);
+      setTimeout(() => this.shutdown(timeLeft, message), timeLeftMs <= 60000 ? timeLeftMs / 6 : timeLeftMs / 10);
     }
   }
 
