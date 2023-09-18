@@ -823,7 +823,8 @@ const dev: any = {
       );
     }
   },
-
+  
+  /*
   shutdown: function (
     server: ZoneServer2016,
     client: Client,
@@ -832,5 +833,6 @@ const dev: any = {
     server.isRebooting = true;
     server.shutdown(300, "test")
   }
+  */
 };
 export default dev;
