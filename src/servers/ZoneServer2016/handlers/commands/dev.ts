@@ -822,8 +822,8 @@ const dev: any = {
         30000
       );
     }
-  },
-  
+  }
+
   /*
   shutdown: function (
     server: ZoneServer2016,

@@ -728,7 +728,10 @@ export class ZoneServer2016 extends EventEmitter {
           currentTimeLeft / 1000
         )} seconds. Reason: ${message}`
       });
-      setTimeout(() => this.shutdown(timeLeft, message), timeLeftMs <= 60000 ? timeLeftMs / 6 : timeLeftMs / 10);
+      setTimeout(
+        () => this.shutdown(timeLeft, message),
+        timeLeftMs <= 60000 ? timeLeftMs / 6 : timeLeftMs / 10
+      );
     }
   }
 
