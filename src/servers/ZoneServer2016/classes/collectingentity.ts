@@ -17,6 +17,7 @@ import { LootableConstructionEntity } from "../entities/lootableconstructionenti
 import { lootableContainerDefaultLoadouts } from "../data/loadouts";
 import { BaseEntity } from "../entities/baseentity";
 import { ZoneClient2016 } from "./zoneclient";
+import { CommandInteractionString } from "types/zone2016packets";
 
 function getSubEntityData(
   entity: LootableConstructionEntity,
@@ -65,10 +66,14 @@ export class CollectingEntity {
   }
 
   OnInteractionString(server: ZoneServer2016, client: ZoneClient2016) {
-    server.sendData(client, "Command.InteractionString", {
-      guid: this.parentObject.characterId,
-      stringId: StringIds.OPEN
-    });
+    server.sendData<CommandInteractionString>(
+      client,
+      "Command.InteractionString",
+      {
+        guid: this.parentObject.characterId,
+        stringId: StringIds.OPEN
+      }
+    );
   }
 
   OnFullCharacterDataRequest(server: ZoneServer2016, client: ZoneClient2016) {
