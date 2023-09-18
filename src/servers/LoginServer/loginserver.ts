@@ -973,21 +973,31 @@ export class LoginServer extends EventEmitter {
       let reason =
         "UNDEFINED. If this is a new character, please delete and recreate it.";
       switch (banInfos[0]?.banInfo) {
-        case 1:
+        case BAN_INFO.LOCAL_BAN:
           reason = "LOCAL_BAN";
           break;
-        case 2:
+        case BAN_INFO.GLOBAL_BAN:
           reason = "GLOBAL_BAN";
           break;
-        case 3:
+        case BAN_INFO.VPN:
           reason = "VPN";
           break;
-        case 4:
+        case BAN_INFO.HWID:
           reason = "HWID_BAN";
           break;
-        case 5:
+        case BAN_INFO.UNVERIFIED:
           reason = "UNVERIFIED";
           break;
+
+        // todo
+        /*
+        case BAN_INFO.SERVER_LOCKED:
+          reason = "SERVER LOCKED";
+          break;
+        case BAN_INFO.SERVER_REBOOT:
+          reason = "SERVER IS REBOOTING";
+          break;
+          */
       }
       this.sendData(client, "H1emu.PrintToConsole", {
         message: `CONNECTION REJECTED! Reason: ${reason}`,

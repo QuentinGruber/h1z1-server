@@ -723,10 +723,9 @@ export class ZoneServer2016 extends EventEmitter {
       }, 60000);
     } else {
       this.sendDataToAll<ClientUpdateTextAlert>("ClientUpdate.TextAlert", {
-        message: ` reason: ${message}`
-      });
-      this.sendDataToAll<ClientUpdateTextAlert>("ClientUpdate.TextAlert", {
-        message: `Server will shutdown in ${currentTimeLeft / 1000} seconds`
+        message: `Server will shutdown in ${Math.ceil(
+          currentTimeLeft / 1000
+        )} seconds. Reason: ${message}`
       });
       setTimeout(() => this.shutdown(timeLeft, message), timeLeftMs / 5);
     }

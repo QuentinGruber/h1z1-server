@@ -487,16 +487,6 @@ const dev: any = {
       containers: client.character.pGetContainers(server)
     });
   },
-  shutdown: function (
-    server: ZoneServer2016,
-    client: Client,
-    args: Array<string>
-  ) {
-    server.sendData(client, "WorldShutdownNotice", {
-      timeLeft: 0,
-      message: " "
-    });
-  },
   fte: function (server: ZoneServer2016, client: Client, args: Array<string>) {
     if (!args[3]) {
       server.sendChatText(client, "Missing 3 args");
