@@ -1267,6 +1267,7 @@ export class ConstructionManager {
       );
     npc.setDespawnTimer(server, time);
     server._temporaryObjects[characterId] = npc;
+    server.spawnSimpleNpcForAllInRange(npc);
     return true;
   }
 
@@ -1290,6 +1291,7 @@ export class ConstructionManager {
       );
     npc.arm(server);
     server._traps[characterId] = npc;
+    server.spawnSimpleNpcForAllInRange(npc);
     return true;
   }
 
@@ -1315,6 +1317,7 @@ export class ConstructionManager {
       npc.arm(server);
     }
     server._explosives[characterId] = npc;
+    server.spawnSimpleNpcForAllInRange(npc);
     return true;
   }
 
@@ -1493,11 +1496,8 @@ export class ConstructionManager {
       rotation,
       server
     );
-    server.executeFuncForAllReadyClientsInRange((client) => {
-      server.addSimpleNpc(client, obj);
-      client.spawnedEntities.push(obj);
-    }, obj);
     server._temporaryObjects[characterId] = obj;
+    server.spawnSimpleNpcForAllInRange(obj);
 
     return true;
   }
@@ -1536,6 +1536,7 @@ export class ConstructionManager {
     );
     parent.seedSlots[slot] = obj;
     server._plants[characterId] = obj;
+    server.spawnSimpleNpcForAllInRange(obj);
     return true;
   }
 
