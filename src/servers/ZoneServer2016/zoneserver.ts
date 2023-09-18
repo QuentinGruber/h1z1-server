@@ -3132,6 +3132,15 @@ export class ZoneServer2016 extends EventEmitter {
     this.sendData(client, "AddSimpleNpc", entity.pGetSimpleNpc());
   }
 
+  spawnSimpleNpcForAllInRange(entity: BaseSimpleNpc) {
+    this.executeFuncForAllReadyClientsInRange((client) => {
+      if (!client.spawnedEntities.includes(entity)) {
+        this.addSimpleNpc(client, entity);
+        client.spawnedEntities.push(entity);
+      }
+    }, entity);
+  }
+
   spawnWorkAroundLightWeight(client: Client) {
     const lightWeight = {
       characterId: EXTERNAL_CONTAINER_GUID,

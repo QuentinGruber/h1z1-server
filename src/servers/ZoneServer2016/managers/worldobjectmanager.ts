@@ -345,6 +345,7 @@ export class WorldObjectManager {
     }
 
     server._lootbags[characterId] = lootbag;
+    server.spawnSimpleNpcForAllInRange(lootbag);
   }
 
   createAirdropContainer(server: ZoneServer2016, pos: Float32Array) {
