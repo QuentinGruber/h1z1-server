@@ -158,14 +158,14 @@ export interface UnknownPacketName {
 }
 export interface ClientGameSettings {
   Unknown2?: number;
-  interactGlowAndDist?: number;
+  interactionCheckRadius?: number;
   unknownBoolean1?: boolean;
   timescale?: number;
   enableWeapons?: number;
   Unknown5?: number;
   unknownFloat1?: number;
-  unknownFloat2?: number;
-  damageMultiplier?: number;
+  fallDamageVelocityThreshold?: number;
+  fallDamageVelocityMultiplier?: number;
 }
 export interface PlayerTitle {
   unknown1?: number;
