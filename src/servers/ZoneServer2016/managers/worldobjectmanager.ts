@@ -224,11 +224,11 @@ export class WorldObjectManager {
           : this.lootDespawnTimer;
       if (Date.now() - itemObject.creationTime >= despawnTime) {
         server.deleteEntity(itemObject.characterId, server._spawnedItems);
-        if (
-          itemObject.item.itemDefinitionId == Items.FUEL_BIOFUEL ||
-          itemObject.item.itemDefinitionId == Items.FUEL_ETHANOL
-        ) {
-          server.deleteEntity(itemObject.characterId, server._explosives);
+        switch (itemObject.item.itemDefinitionId) {
+          case Items.FUEL_ETHANOL:
+          case Items.FUEL_BIOFUEL:
+            server.deleteEntity(itemObject.characterId, server._explosives);
+            break;
         }
         if (itemObject.spawnerId != -1)
           delete this.spawnedLootObjects[itemObject.spawnerId];
@@ -297,36 +297,38 @@ export class WorldObjectManager {
       return;
     }
     const characterId = generateRandomGuid(),
-      modelId = itemDef.WORLD_MODEL_ID || 9;
-    server._spawnedItems[characterId] = new ItemObject(
-      characterId,
-      server.getTransientId(characterId),
-      modelId,
-      position,
-      rotation,
-      server,
-      itemSpawnerId || 0,
-      item
-    );
-    server._spawnedItems[characterId].nameId = itemDef.NAME_ID;
-    if (
-      item.itemDefinitionId === Items.FUEL_ETHANOL ||
-      item.itemDefinitionId === Items.FUEL_BIOFUEL
-    ) {
-      server._spawnedItems[characterId].flags.projectileCollision = 1;
-      server._explosives[characterId] = new ExplosiveEntity(
+      modelId = itemDef.WORLD_MODEL_ID || 9,
+      lootObj = new ItemObject(
         characterId,
         server.getTransientId(characterId),
         modelId,
         position,
         rotation,
         server,
-        item.itemDefinitionId
+        itemSpawnerId || 0,
+        item
       );
+    server._spawnedItems[characterId] = lootObj;
+    server._spawnedItems[characterId].nameId = itemDef.NAME_ID;
+
+    switch (item.itemDefinitionId) {
+      case Items.FUEL_ETHANOL:
+      case Items.FUEL_BIOFUEL:
+        lootObj.flags.projectileCollision = 1;
+        server._explosives[characterId] = new ExplosiveEntity(
+          characterId,
+          server.getTransientId(characterId),
+          modelId,
+          position,
+          rotation,
+          server,
+          item.itemDefinitionId
+        );
+        break;
     }
     if (itemSpawnerId) this.spawnedLootObjects[itemSpawnerId] = characterId;
-    server._spawnedItems[characterId].creationTime = Date.now();
-    return server._spawnedItems[characterId];
+    lootObj.creationTime = Date.now();
+    return lootObj;
   }
 
   createLootbag(server: ZoneServer2016, entity: BaseFullCharacter) {
