@@ -89,6 +89,7 @@ function getMaxHealth(itemDefinitionId: Items): number {
     case Items.LOOKOUT_TOWER:
     case Items.METAL_WALL:
     case Items.METAL_WALL_UPPER:
+    case Items.METAL_DOORWAY:
       return 1000000;
     case Items.WORKBENCH:
     case Items.WORKBENCH_WEAPON:
