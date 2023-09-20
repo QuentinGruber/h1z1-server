@@ -80,8 +80,7 @@ export class Character2016 extends BaseFullCharacter {
   isBleeding = false;
   isBandaged = false;
   isExhausted = false;
-  temporaryScrapTimeout: NodeJS.Timeout | undefined;
-  temporaryScrapSoundTimeout: NodeJS.Timeout | undefined;
+  lastMeleeHitTime: number = 0;
   static isAlive = true;
   public set isAlive(state) {
     this.characterStates.knockedOut = !state;
@@ -816,6 +815,10 @@ export class Character2016 extends BaseFullCharacter {
         ) as EquipmentSetCharacterEquipmentSlot
       );
     });
+  }
+
+  meleeBlocked(delay: number = 1000) {
+    return this.lastMeleeHitTime + delay >= Date.now();
   }
 
   pGetEquipmentSlotFull(slotId: number, groupId?: number) {

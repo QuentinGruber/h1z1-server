@@ -2543,7 +2543,7 @@ export class ZoneServer2016 extends EventEmitter {
   }
 
   damageItem(client: Client, item: LoadoutItem, damage: number) {
-    if(item.itemDefinitionId == Items.WEAPON_FISTS) return;
+    if (item.itemDefinitionId == Items.WEAPON_FISTS) return;
 
     item.currentDurability -= damage;
     if (item.currentDurability <= 0) {
@@ -6337,25 +6337,22 @@ export class ZoneServer2016 extends EventEmitter {
   ): boolean {
     if (!(entity instanceof Vehicle2016)) return true;
 
-    if (!client.character.temporaryScrapSoundTimeout) {
-      this.sendCompositeEffectToAllInRange(
-        15,
-        client.character.characterId,
-        entity.state.position,
-        1605
-      );
-      client.character.temporaryScrapSoundTimeout = setTimeout(() => {
-        delete client.character.temporaryScrapSoundTimeout;
-      }, 1000);
+    if (client.character.meleeBlocked()) {
+      return true;
     }
 
+    this.sendCompositeEffectToAllInRange(
+      15,
+      client.character.characterId,
+      entity.state.position,
+      1605
+    );
+
     if (entity._resources[ResourceIds.CONDITION] < 100000) {
-      entity.damage(this, { entity: "", damage: -2000 });
-      this.damageItem(client, weaponItem, 40);
-      client.character.temporaryScrapTimeout = setTimeout(() => {
-        delete client.character.temporaryScrapTimeout;
-      }, 300);
+      entity.damage(this, { entity: "", damage: -5000 });
+      this.damageItem(client, weaponItem, 100);
     }
+    client.character.lastMeleeHitTime = Date.now();
     return true;
   }
 
@@ -6365,6 +6362,7 @@ export class ZoneServer2016 extends EventEmitter {
     entity: BaseEntity
   ): boolean {
     if (!(entity instanceof LootableProp)) return true;
+    if (client.character.meleeBlocked()) return true;
 
     switch (entity.lootSpawner) {
       case "Wrecked Van":
@@ -6380,12 +6378,8 @@ export class ZoneServer2016 extends EventEmitter {
           client.character.lootItem(this, this.generateItem(Items.METAL_SCRAP));
           this.damageItem(client, weaponItem, 25);
         }
-        client.character.temporaryScrapTimeout = setTimeout(
-          () => {
-            delete client.character.temporaryScrapTimeout;
-          }, 1000
-        );
     }
+    client.character.lastMeleeHitTime = Date.now();
     return true;
   }
 
@@ -6395,8 +6389,8 @@ export class ZoneServer2016 extends EventEmitter {
     entity: BaseEntity
   ): boolean {
     const construction = this.getConstructionEntity(entity.characterId);
-
     if (!construction) return true;
+    if (client.character.meleeBlocked()) return true;
 
     switch (construction.itemDefinitionId) {
       case Items.FOUNDATION:
@@ -6432,44 +6426,39 @@ export class ZoneServer2016 extends EventEmitter {
       return true;
     }
 
-      client.character.temporaryScrapSoundTimeout = setTimeout(() => {
-        delete client.character.temporaryScrapSoundTimeout;
-      }, 375);
-      this.sendCompositeEffectToAllInRange(
-        15,
-        client.character.characterId,
-        construction.state.position,
-        1667
+    this.sendCompositeEffectToAllInRange(
+      15,
+      client.character.characterId,
+      construction.state.position,
+      1667
+    );
+    const damageInfo: DamageInfo = {
+      entity: "Server.DemoHammer",
+      damage: 250000
+    };
+    if (construction instanceof ConstructionParentEntity) {
+      construction.damageSimpleNpc(
+        this,
+        damageInfo,
+        this._constructionFoundations
       );
-      const damageInfo: DamageInfo = {
-        entity: "Server.DemoHammer",
-        damage: 250000
-      };
-      if (construction instanceof ConstructionParentEntity) {
-        construction.damageSimpleNpc(
-          this,
-          damageInfo,
-          this._constructionFoundations
-        );
-      } else if (construction instanceof ConstructionChildEntity) {
-        construction.damageSimpleNpc(
-          this,
-          damageInfo,
-          this._constructionSimple
-        );
-      } else if (construction instanceof ConstructionDoor) {
-        construction.damageSimpleNpc(this, damageInfo, this._constructionDoors);
-      } else if (construction instanceof LootableConstructionEntity) {
-        construction.damageSimpleNpc(
-          this,
-          damageInfo,
-          this._lootableConstruction
-        );
-      }
-      this.damageItem(client, weaponItem, 50);
+    } else if (construction instanceof ConstructionChildEntity) {
+      construction.damageSimpleNpc(this, damageInfo, this._constructionSimple);
+    } else if (construction instanceof ConstructionDoor) {
+      construction.damageSimpleNpc(this, damageInfo, this._constructionDoors);
+    } else if (construction instanceof LootableConstructionEntity) {
+      construction.damageSimpleNpc(
+        this,
+        damageInfo,
+        this._lootableConstruction
+      );
+    }
+    this.damageItem(client, weaponItem, 50);
 
-      if (construction.health > 0) return true;
-      construction.destroy(this);
+    if (construction.health > 0) return true;
+    construction.destroy(this);
+
+    client.character.lastMeleeHitTime = Date.now();
     return true;
   }
 
@@ -6484,8 +6473,7 @@ export class ZoneServer2016 extends EventEmitter {
     entity: BaseEntity
   ): boolean {
     if (!(entity instanceof Crate)) return false;
-
-    if (client.character.temporaryScrapTimeout) return true;
+    if (client.character.meleeBlocked(500)) return true;
 
     if (
       entity.spawnTimestamp >= Date.now() ||
@@ -6494,9 +6482,6 @@ export class ZoneServer2016 extends EventEmitter {
       return true;
     }
 
-    client.character.temporaryScrapSoundTimeout = setTimeout(() => {
-      delete client.character.temporaryScrapSoundTimeout;
-    }, 375);
     this.sendCompositeEffectToAllInRange(
       15,
       client.character.characterId,
@@ -6509,6 +6494,7 @@ export class ZoneServer2016 extends EventEmitter {
     };
     entity.OnProjectileHit(this, damageInfo);
     this.damageItem(client, weaponItem, 10);
+    client.character.lastMeleeHitTime = Date.now();
     return true;
   }
 
@@ -6518,8 +6504,7 @@ export class ZoneServer2016 extends EventEmitter {
     entity: BaseEntity
   ): boolean {
     if (!(entity instanceof Destroyable)) return false;
-
-    if (client.character.temporaryScrapTimeout) return true;
+    if (client.character.meleeBlocked(500)) return true;
 
     if (
       !entity.destroyedModel ||
@@ -6533,9 +6518,6 @@ export class ZoneServer2016 extends EventEmitter {
       return true;
     }
 
-    client.character.temporaryScrapSoundTimeout = setTimeout(() => {
-      delete client.character.temporaryScrapSoundTimeout;
-    }, 210);
     this.sendCompositeEffectToAllInRange(
       15,
       client.character.characterId,
@@ -6548,6 +6530,7 @@ export class ZoneServer2016 extends EventEmitter {
     };
     entity.OnProjectileHit(this, damageInfo);
     this.damageItem(client, weaponItem, 10);
+    client.character.lastMeleeHitTime = Date.now();
     return true;
   }
 
@@ -6567,16 +6550,12 @@ export class ZoneServer2016 extends EventEmitter {
 
     switch (weaponItem.itemDefinitionId) {
       case Items.WEAPON_WRENCH:
-        if (client.character.temporaryScrapTimeout) return true;
         return this.handleWrenchHit(client, weaponItem, entity);
       case Items.WEAPON_CROWBAR:
-        if (client.character.temporaryScrapTimeout) return true;
         return this.handleCrowbarHit(client, weaponItem, entity);
       case Items.WEAPON_HAMMER_DEMOLITION:
-        if (client.character.temporaryScrapTimeout) return true;
         return this.handleDemolitionHit(client, weaponItem, entity);
       case Items.WEAPON_HAMMER:
-        if (client.character.temporaryScrapTimeout) return true;
         return this.handleHammerHit(client, weaponItem);
     }
 

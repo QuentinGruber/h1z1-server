@@ -2304,21 +2304,22 @@ export class ConstructionManager {
       client.character.currentInteractionGuid || ""
     );
     if (!entity) return;
-    if (!client.character.temporaryScrapSoundTimeout) {
-      let accumulatedItemDamage = 0;
-      server.sendCompositeEffectToAllInRange(
-        15,
-        client.character.characterId,
-        entity.state.position,
-        1605
-      );
-      if (entity instanceof ConstructionParentEntity) {
-        Object.values(entity.occupiedExpansionSlots).forEach(
-          (expansion: ConstructionParentEntity) => {
-            // repair every object on each expansion
-            accumulatedItemDamage += this.repairShelterSlots(server, expansion);
-            accumulatedItemDamage += this.repairWallSlots(server, expansion);
-            accumulatedItemDamage += this.repairFreeplaceEntities(
+    if(client.character.meleeBlocked()) return;
+
+    let accumulatedItemDamage = 0;
+    server.sendCompositeEffectToAllInRange(
+      15,
+      client.character.characterId,
+      entity.state.position,
+      1605
+    );
+    if (entity instanceof ConstructionParentEntity) {
+      Object.values(entity.occupiedExpansionSlots).forEach(
+        (expansion: ConstructionParentEntity) => {
+          // repair every object on each expansion
+          accumulatedItemDamage += this.repairShelterSlots(server, expansion);
+          accumulatedItemDamage += this.repairWallSlots(server, expansion);
+          accumulatedItemDamage += this.repairFreeplaceEntities(
               server,
               expansion
             );
@@ -2338,18 +2339,13 @@ export class ConstructionManager {
           weaponItem,
           Math.ceil(accumulatedItemDamage / 4)
         );
-        client.character.temporaryScrapSoundTimeout = setTimeout(() => {
-          delete client.character.temporaryScrapSoundTimeout;
-        }, 1000);
-        return;
-      }
-      accumulatedItemDamage = 50;
-      this.repairConstruction(server, entity, 50000);
-      accumulatedItemDamage += 15;
-      client.character.temporaryScrapSoundTimeout = setTimeout(() => {
-        delete client.character.temporaryScrapSoundTimeout;
-      }, 1000);
+      client.character.lastMeleeHitTime = Date.now();
+      return;
     }
+    accumulatedItemDamage = 50;
+    this.repairConstruction(server, entity, 50000);
+    accumulatedItemDamage += 15;
+    client.character.lastMeleeHitTime = Date.now();
   }
 
   private fullyRepairFreeplaceEntities(

@@ -2368,7 +2368,6 @@ export class ZonePacketHandlers {
         case "Weapon.FireStateUpdate":
           // melee workaround
           if (server.handleMeleeHit(client, weaponItem)) {
-            console.log("handleMeleeHit")
             return;
           }
 
