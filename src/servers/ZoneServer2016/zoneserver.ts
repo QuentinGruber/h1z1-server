@@ -45,7 +45,8 @@ import {
   VehicleIds,
   ConstructionPermissionIds,
   ItemUseOptions,
-  HealTypes
+  HealTypes,
+  ConstructionErrors
 } from "./models/enums";
 import { healthThreadDecorator } from "../shared/workers/healthWorker";
 import { WeatherManager } from "./managers/weathermanager";
@@ -1935,9 +1936,7 @@ export class ZoneServer2016 extends EventEmitter {
             );
           }
           slot.weapon.ammoCount = 0;
-          if (slot.itemDefinitionId != Items.WEAPON_FISTS) {
-            this.damageItem(client, slot, 350);
-          }
+          this.damageItem(client, slot, 350);
         }
       });
       this.worldObjectManager.createLootbag(this, character);
@@ -2544,6 +2543,8 @@ export class ZoneServer2016 extends EventEmitter {
   }
 
   damageItem(client: Client, item: LoadoutItem, damage: number) {
+    if(item.itemDefinitionId == Items.WEAPON_FISTS) return;
+
     item.currentDurability -= damage;
     if (item.currentDurability <= 0) {
       this.removeInventoryItem(client.character, item);
@@ -6327,6 +6328,259 @@ export class ZoneServer2016 extends EventEmitter {
       if (!container) return;
       this.updateContainerItem(mountedContainer, item, container);
     }
+  }
+
+  handleWrenchHit(
+    client: Client,
+    weaponItem: LoadoutItem,
+    entity: BaseEntity
+  ): boolean {
+    if (!(entity instanceof Vehicle2016)) return true;
+
+    if (!client.character.temporaryScrapSoundTimeout) {
+      this.sendCompositeEffectToAllInRange(
+        15,
+        client.character.characterId,
+        entity.state.position,
+        1605
+      );
+      client.character.temporaryScrapSoundTimeout = setTimeout(() => {
+        delete client.character.temporaryScrapSoundTimeout;
+      }, 1000);
+    }
+
+    if (entity._resources[ResourceIds.CONDITION] < 100000) {
+      entity.damage(this, { entity: "", damage: -2000 });
+      this.damageItem(client, weaponItem, 40);
+      client.character.temporaryScrapTimeout = setTimeout(() => {
+        delete client.character.temporaryScrapTimeout;
+      }, 300);
+    }
+    return true;
+  }
+
+  handleCrowbarHit(
+    client: Client,
+    weaponItem: LoadoutItem,
+    entity: BaseEntity
+  ): boolean {
+    if (!(entity instanceof LootableProp)) return true;
+
+    switch (entity.lootSpawner) {
+      case "Wrecked Van":
+      case "Wrecked Car":
+      case "Wrecked Truck":
+        this.sendCompositeEffectToAllInRange(
+          15,
+          client.character.characterId,
+          entity.state.position,
+          1605
+        );
+        if (randomIntFromInterval(0, 100) <= 20) {
+          client.character.lootItem(this, this.generateItem(Items.METAL_SCRAP));
+          this.damageItem(client, weaponItem, 25);
+        }
+        client.character.temporaryScrapTimeout = setTimeout(
+          () => {
+            delete client.character.temporaryScrapTimeout;
+          }, 1000
+        );
+    }
+    return true;
+  }
+
+  handleDemolitionHit(
+    client: Client,
+    weaponItem: LoadoutItem,
+    entity: BaseEntity
+  ): boolean {
+    const construction = this.getConstructionEntity(entity.characterId);
+
+    if (!construction) return true;
+
+    switch (construction.itemDefinitionId) {
+      case Items.FOUNDATION:
+      case Items.FOUNDATION_EXPANSION:
+      case Items.GROUND_TAMPER:
+      case Items.FOUNDATION_RAMP:
+      case Items.FOUNDATION_STAIRS:
+        return true;
+    }
+
+    const permission = construction.getHasPermission(
+      this,
+      client.character.characterId,
+      ConstructionPermissionIds.DEMOLISH
+    );
+
+    if (!permission) {
+      this.constructionManager.placementError(
+        this,
+        client,
+        ConstructionErrors.DEMOLISH_PERMISSION
+      );
+      return true;
+    }
+
+    if (construction.canUndoPlacement(this, client)) {
+      // give back item only if can undo
+      client.character.lootItem(
+        this,
+        this.generateItem(construction.itemDefinitionId)
+      );
+      construction.destroy(this);
+      return true;
+    }
+
+      client.character.temporaryScrapSoundTimeout = setTimeout(() => {
+        delete client.character.temporaryScrapSoundTimeout;
+      }, 375);
+      this.sendCompositeEffectToAllInRange(
+        15,
+        client.character.characterId,
+        construction.state.position,
+        1667
+      );
+      const damageInfo: DamageInfo = {
+        entity: "Server.DemoHammer",
+        damage: 250000
+      };
+      if (construction instanceof ConstructionParentEntity) {
+        construction.damageSimpleNpc(
+          this,
+          damageInfo,
+          this._constructionFoundations
+        );
+      } else if (construction instanceof ConstructionChildEntity) {
+        construction.damageSimpleNpc(
+          this,
+          damageInfo,
+          this._constructionSimple
+        );
+      } else if (construction instanceof ConstructionDoor) {
+        construction.damageSimpleNpc(this, damageInfo, this._constructionDoors);
+      } else if (construction instanceof LootableConstructionEntity) {
+        construction.damageSimpleNpc(
+          this,
+          damageInfo,
+          this._lootableConstruction
+        );
+      }
+      this.damageItem(client, weaponItem, 50);
+
+      if (construction.health > 0) return true;
+      construction.destroy(this);
+    return true;
+  }
+
+  handleHammerHit(client: Client, weaponItem: LoadoutItem): boolean {
+    this.constructionManager.hammerConstructionEntity(this, client, weaponItem);
+    return true;
+  }
+
+  handleCrateHit(
+    client: Client,
+    weaponItem: LoadoutItem,
+    entity: BaseEntity
+  ): boolean {
+    if (!(entity instanceof Crate)) return false;
+
+    if (client.character.temporaryScrapTimeout) return true;
+
+    if (
+      entity.spawnTimestamp >= Date.now() ||
+      !isPosInRadius(3, entity.state.position, client.character.state.position)
+    ) {
+      return true;
+    }
+
+    client.character.temporaryScrapSoundTimeout = setTimeout(() => {
+      delete client.character.temporaryScrapSoundTimeout;
+    }, 375);
+    this.sendCompositeEffectToAllInRange(
+      15,
+      client.character.characterId,
+      entity.state.position,
+      1667
+    );
+    const damageInfo: DamageInfo = {
+      entity: "Server.WorkAroundMelee",
+      damage: 1250
+    };
+    entity.OnProjectileHit(this, damageInfo);
+    this.damageItem(client, weaponItem, 10);
+    return true;
+  }
+
+  handleDestroyableHit(
+    client: Client,
+    weaponItem: LoadoutItem,
+    entity: BaseEntity
+  ): boolean {
+    if (!(entity instanceof Destroyable)) return false;
+
+    if (client.character.temporaryScrapTimeout) return true;
+
+    if (
+      !entity.destroyedModel ||
+      !isPosInRadius(
+        3,
+        entity.state.position,
+        client.character.state.position
+      ) ||
+      entity.destroyed
+    ) {
+      return true;
+    }
+
+    client.character.temporaryScrapSoundTimeout = setTimeout(() => {
+      delete client.character.temporaryScrapSoundTimeout;
+    }, 210);
+    this.sendCompositeEffectToAllInRange(
+      15,
+      client.character.characterId,
+      entity.state.position,
+      1663
+    );
+    const damageInfo: DamageInfo = {
+      entity: "Server.WorkAroundMelee",
+      damage: 700
+    };
+    entity.OnProjectileHit(this, damageInfo);
+    this.damageItem(client, weaponItem, 10);
+    return true;
+  }
+
+  // using workaround logic for now
+  handleMeleeHit(client: Client, weaponItem: LoadoutItem): boolean {
+    const entity = this.getEntity(client.character.currentInteractionGuid);
+    if (!entity) return false;
+
+    // check crate / destroyable before anything else
+    if (this.handleCrateHit(client, weaponItem, entity)) {
+      return true;
+    }
+
+    if (this.handleDestroyableHit(client, weaponItem, entity)) {
+      return true;
+    }
+
+    switch (weaponItem.itemDefinitionId) {
+      case Items.WEAPON_WRENCH:
+        if (client.character.temporaryScrapTimeout) return true;
+        return this.handleWrenchHit(client, weaponItem, entity);
+      case Items.WEAPON_CROWBAR:
+        if (client.character.temporaryScrapTimeout) return true;
+        return this.handleCrowbarHit(client, weaponItem, entity);
+      case Items.WEAPON_HAMMER_DEMOLITION:
+        if (client.character.temporaryScrapTimeout) return true;
+        return this.handleDemolitionHit(client, weaponItem, entity);
+      case Items.WEAPON_HAMMER:
+        if (client.character.temporaryScrapTimeout) return true;
+        return this.handleHammerHit(client, weaponItem);
+    }
+
+    return false;
   }
 
   pUtilizeHudTimer = promisify(this.utilizeHudTimer);

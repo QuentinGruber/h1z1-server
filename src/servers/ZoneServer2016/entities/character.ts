@@ -134,7 +134,7 @@ export class Character2016 extends BaseFullCharacter {
   private combatlog: DamageRecord[] = [];
   // characterId of vehicle spawned by /hax drive or spawnvehicle
   ownedVehicle?: string;
-  currentInteractionGuid?: string;
+  currentInteractionGuid: string = "";
   lastInteractionRequestGuid?: string;
   lastInteractionStringTime = 0;
   lastInteractionTime = 0;

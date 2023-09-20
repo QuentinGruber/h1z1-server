@@ -824,29 +824,25 @@ export class Vehicle2016 extends BaseLootableEntity {
 
   flipVehicle(server: ZoneServer2016) {
     let c: ZoneClient2016 | undefined;
-      for (const a in server._clients) {
-        if (
-          server._clients[a].managedObjects.includes(
-            this.characterId
-          )
-        ) {
-          c = server._clients[a];
-        }
+    for (const a in server._clients) {
+      if (server._clients[a].managedObjects.includes(this.characterId)) {
+        c = server._clients[a];
       }
-      if (c) {
-        this.positionUpdate.sideTilt = 0;
-        server.sendData(c, "ClientUpdate.UpdateManagedLocation", {
-          characterId: this.characterId,
-          position: this.state.position,
-          rotation: eul2quat(
-            new Float32Array([
-              this.positionUpdate.orientation,
-              this.positionUpdate.sideTilt,
-              this.positionUpdate.frontTilt
-            ])
-          )
-        });
-      }
+    }
+    if (c) {
+      this.positionUpdate.sideTilt = 0;
+      server.sendData(c, "ClientUpdate.UpdateManagedLocation", {
+        characterId: this.characterId,
+        position: this.state.position,
+        rotation: eul2quat(
+          new Float32Array([
+            this.positionUpdate.orientation,
+            this.positionUpdate.sideTilt,
+            this.positionUpdate.frontTilt
+          ])
+        )
+      });
+    }
   }
 
   /* eslint-disable @typescript-eslint/no-unused-vars */
@@ -856,11 +852,11 @@ export class Vehicle2016 extends BaseLootableEntity {
     isInstant?: boolean
     /* eslint-enable @typescript-eslint/no-unused-vars */
   ) {
-    if(client.vehicle.mountedVehicle) {
+    if (client.vehicle.mountedVehicle) {
       server.dismountVehicle(client);
       return;
     }
-    if(this.isFlipped()) {
+    if (this.isFlipped()) {
       this.flipVehicle(server);
       return;
     }
@@ -870,7 +866,7 @@ export class Vehicle2016 extends BaseLootableEntity {
   OnInteractionString(server: ZoneServer2016, client: ZoneClient2016) {
     if (client.vehicle.mountedVehicle) return;
 
-    if(this.isFlipped()) {
+    if (this.isFlipped()) {
       server.sendData(client, "Command.InteractionString", {
         guid: this.characterId,
         stringId: StringIds.USE_TARGET
