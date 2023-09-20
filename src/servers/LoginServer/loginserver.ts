@@ -1004,6 +1004,11 @@ export class LoginServer extends EventEmitter {
         showConsole: true,
         clearOutput: true
       });
+      this.sendData(client, "H1emu.PrintToConsole", {
+        message: `Server may be rebooting, check back later!`,
+        showConsole: true,
+        clearOutput: false
+      });
       if (reason == "UNVERIFIED") {
         this.sendData(client, "H1emu.PrintToConsole", {
           message: `Please follow the steps to verify your account using the #how-to-play channel in the discord. discord.gg/h1emu`,

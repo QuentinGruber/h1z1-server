@@ -690,7 +690,6 @@ export class ZoneServer2016 extends EventEmitter {
       setTimeout(
         () => {
           console.log("Rebooting server due to reboot time set");
-          this.isRebooting = true;
           this.shutdown(this.rebootWarnTime, "Server rebooting");
         },
         this.rebootTime * 60 * 60 * 1000
@@ -723,16 +722,22 @@ export class ZoneServer2016 extends EventEmitter {
       });
       setTimeout(() => {
         process.exit(0);
-      }, 60000);
+      }, 30000);
     } else {
       this.sendDataToAll<ClientUpdateTextAlert>("ClientUpdate.TextAlert", {
         message: `Server will shutdown in ${Math.ceil(
           currentTimeLeft / 1000
         )} seconds. Reason: ${message}`
       });
+
+      if(currentTimeLeft / 1000 <= 60) {
+        // block client connections for last minute
+        this.isRebooting = true;
+      }
+
       setTimeout(
         () => this.shutdown(timeLeft, message),
-        timeLeftMs <= 60000 ? timeLeftMs / 6 : timeLeftMs / 10
+        currentTimeLeft <= 60 * 1000 ? timeLeftMs / 6 : timeLeftMs / 10
       );
     }
   }
