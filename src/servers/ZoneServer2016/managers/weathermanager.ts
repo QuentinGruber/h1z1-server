@@ -13,7 +13,7 @@
 
 import fs from "node:fs";
 
-import { Weather2016 } from "types/zoneserver";
+import { Weather2016, WeatherTemplate } from "types/zoneserver";
 import { randomIntFromInterval, _ } from "../../../utils/utils";
 import { ZoneClient2016 as Client } from "../classes/zoneclient";
 import { ZoneServer2016 } from "../zoneserver";
@@ -37,7 +37,7 @@ export class WeatherManager {
   seasonStarted = false;
 
   weather!: Weather2016;
-  templates = localWeatherTemplates;
+  templates: { [name: string]: WeatherTemplate } = localWeatherTemplates;
   dynamicWorker: any;
   dynamicEnabled = true;
 
@@ -55,38 +55,42 @@ export class WeatherManager {
     client: Client,
     args: Array<string>
   ) {
-    if (this.dynamicEnabled) {
-      this.dynamicEnabled = false;
-      server.sendChatText(client, "Dynamic weather removed !");
-    }
-    const weatherTemplate = server._soloMode
-      ? this.templates[args[0] || ""]
-      : _.find(this.templates, (template: { templateName: any }) => {
-          return template.templateName === args[0];
-        });
-    if (!args[0]) {
+
+    const templateName = args[0];
+
+    if (!templateName) {
       server.sendChatText(
         client,
-        "Please define a weather template to use (data/2016/dataSources/weather.json)"
+        "Please define a weather template to use (data/2016/dataSources/weather.json)."
       );
-    } else if (weatherTemplate) {
-      this.weather = weatherTemplate;
-      server.weatherManager.sendUpdateToAll(server, client, true);
-      server.sendChatText(client, `Applied weather template: "${args[0]}"`);
-    } else {
-      if (args[0] === "list") {
+    }
+
+    if (this.dynamicEnabled) {
+      this.dynamicEnabled = false;
+      server.sendChatText(client, "Dynamic weather removed!");
+    }
+    
+    const weatherTemplate = this.templates[templateName];
+
+    if(!weatherTemplate) {
+      if(templateName === "list") {
         server.sendChatText(client, `Weather templates :`);
         _.forEach(this.templates, (element: { templateName: any }) => {
           server.sendChatText(client, `- ${element.templateName}`);
         });
-      } else {
-        server.sendChatText(client, `"${args[0]}" isn't a weather template`);
-        server.sendChatText(
-          client,
-          `Use "/weather list" to know all available templates`
-        );
+        return;
       }
+      server.sendChatText(client, `"${templateName}" isn't a validweather template.`);
+      server.sendChatText(
+        client,
+        `Use "/weather list" to know all available templates.`
+      );
+      return;
     }
+
+    this.weather = weatherTemplate;
+    server.weatherManager.sendUpdateToAll(server, client, true);
+    server.sendChatText(client, `Applied weather template: "${args[0]}"`);
   }
 
   async handleSaveCommand(

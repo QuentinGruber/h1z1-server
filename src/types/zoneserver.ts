@@ -407,5 +407,5 @@ export interface Weather2016 {
 }
 
 export interface WeatherTemplate extends Weather2016 {
-  templateName: "z1br",
+  templateName: string,
 }
