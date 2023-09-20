@@ -730,7 +730,7 @@ export class ZoneServer2016 extends EventEmitter {
         )} seconds. Reason: ${message}`
       });
 
-      if(currentTimeLeft / 1000 <= 60) {
+      if (currentTimeLeft / 1000 <= 60) {
         // block client connections for last minute
         this.isRebooting = true;
       }
