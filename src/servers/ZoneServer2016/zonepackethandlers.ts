@@ -34,9 +34,7 @@ import { CraftManager } from "./managers/craftmanager";
 import {
   ConstructionPermissionIds,
   ContainerErrors,
-  EntityTypes,
   Items,
-  ConstructionErrors,
   ResourceIds,
   ResourceTypes,
   ItemUseOptions,
@@ -53,12 +51,10 @@ import {
   ClientBan,
   ConstructionPermissions,
   DamageInfo,
-  StanceFlags,
-  fireHint
+  StanceFlags
 } from "types/zoneserver";
 import { positionUpdate } from "types/savedata";
 import { GameTimeSync } from "types/zone2016packets";
-import { LootableProp } from "./entities/lootableprop";
 import { Vehicle2016 } from "./entities/vehicle";
 import { Plant } from "./entities/plant";
 import { ConstructionChildEntity } from "./entities/constructionchildentity";
@@ -2343,463 +2339,178 @@ export class ZonePacketHandlers {
       }
     );
   }
+
+  handleWeaponPacket(server: ZoneServer2016, client: Client, packet: any) {
+    const weaponItem = client.character.getEquippedWeapon();
+    if (!weaponItem || !weaponItem.weapon) return;
+    switch (packet.packetName) {
+      case "Weapon.FireStateUpdate":
+        server.handleWeaponFireStateUpdate(
+          client,
+          weaponItem,
+          packet.packet.firestate
+        );
+        break;
+      case "Weapon.Fire":
+        server.handleWeaponFire(client, weaponItem, packet);
+        break;
+      case "Weapon.ProjectileHitReport":
+        const weapon = client.character.getEquippedWeapon();
+        if (!weapon) return;
+        if (weapon.itemDefinitionId == Items.WEAPON_REMOVER) {
+          if (!client.isAdmin) return;
+          const characterId = packet.packet.hitReport.characterId,
+            entity = server.getEntity(characterId);
+          if (!entity) {
+            server.sendAlert(client, "Entity is undefined!");
+            return;
+          }
+          if (entity instanceof Character2016) return;
+          if (entity instanceof Vehicle2016) {
+            if (!entity.destroy(server, true)) return;
+            server.sendAlert(client, "Object removed.");
+            return;
+          }
+          if (entity.destroy(server)) {
+            server.sendAlert(client, "Object removed.");
+          }
+          return;
+        }
+        if (client.banType === "nodamage") return;
+        server.registerHit(client, packet.packet, packet.gameTime);
+        break;
+      case "Weapon.ReloadRequest":
+        server.handleWeaponReload(client, weaponItem);
+        break;
+      case "Weapon.ReloadInterrupt":
+        server.reloadInterrupt(client, weaponItem);
+        break;
+      case "Weapon.SwitchFireModeRequest":
+        // workaround so aiming in doesn't sometimes make the shooting sound
+        if (!weaponItem.weapon?.ammoCount) return;
+
+        // temp workaround to fix 308 sound while aiming
+        // this workaround applies to all weapons
+        if (packet.packet.firemodeIndex == 1) return;
+        server.sendRemoteWeaponUpdateDataToAllOthers(
+          client,
+          client.character.transientId,
+          weaponItem.itemGuid,
+          "Update.SwitchFireMode",
+          {
+            firegroupIndex: packet.packet.firegroupIndex,
+            firemodeIndex: packet.packet.firemodeIndex
+          }
+        );
+        break;
+      case "Weapon.WeaponFireHint":
+        debug("WeaponFireHint");
+        /*if (weaponItem.weapon.ammoCount <= 0) return;
+        if (weaponItem.weapon.ammoCount > 0) {
+          weaponItem.weapon.ammoCount -= 1;
+        }
+        const driftH = Math.abs(packet.gameTime - server.getServerTime());
+        if (driftH > server.maxPing + 200) {
+          server.sendChatText(
+            client,
+            `FairPlay: Your shots didnt register due to packet loss`
+          );
+          return;
+        }
+        const keysH = Object.keys(client.fireHints);
+        const lastFireHintH =
+          client.fireHints[Number(keysH[keysH.length - 1])];
+        if (lastFireHintH) {
+          let blockedTime = 50;
+          switch (weaponItem.itemDefinitionId) {
+            case Items.WEAPON_308:
+              blockedTime = 1300;
+              break;
+            case Items.WEAPON_SHOTGUN:
+              blockedTime = 400;
+              break;
+          }
+          if (packet.gameTime - lastFireHintH.timeStamp < blockedTime) return;
+        }
+        let hitNumberH = 0;
+        if (
+          !client.vehicle.mountedVehicle &&
+          !isPosInRadius(
+            3,
+            client.character.state.position,
+            packet.packet.position
+          )
+        )
+          hitNumberH = 1;
+        const shotProjectilesH =
+          weaponItem.itemDefinitionId == Items.WEAPON_SHOTGUN ? 12 : 1;
+        for (let x = 0; x < shotProjectilesH; x++) {
+          const fireHint: fireHint = {
+            id: packet.packet.sessionProjectileCount + x,
+            position: packet.packet.position,
+            rotation: new Float32Array([...packet.packet.rotation, 0]),
+            hitNumber: hitNumberH,
+            weaponItem: weaponItem,
+            timeStamp: packet.gameTime,
+          };
+          client.fireHints[packet.packet.sessionProjectileCount + x] = fireHint;
+          setTimeout(() => {
+            delete client.fireHints[packet.packet.sessionProjectileCount + x];
+          }, 10000);
+        }*/
+        break;
+      case "Weapon.ProjectileContactReport":
+        debug("ProjectileContactReport");
+        break;
+      case "Weapon.MeleeHitMaterial":
+        debug("MeleeHitMaterial");
+        break;
+      case "Weapon.AimBlockedNotify":
+        server.sendRemoteWeaponUpdateDataToAllOthers(
+          client,
+          client.character.transientId,
+          weaponItem.itemGuid,
+          "Update.AimBlocked",
+          {
+            aimBlocked: packet.packet.aimBlocked
+          }
+        );
+        break;
+      case "Weapon.ProjectileSpawnNpc":
+        server.createProjectileNpc(client, packet.packet);
+        break;
+      case "Weapon.ProjectileSpawnAttachedNpc":
+        debug("Weapon.ProjectileSpawnAttachedNpc");
+        if (client.fireHints[packet.packet.sessionProjectileCount]) {
+          client.fireHints[packet.packet.sessionProjectileCount].marked = {
+            characterId: packet.packet.characterId,
+            position: packet.packet.position,
+            rotation: packet.packet.rotation,
+            gameTime: packet.gameTime
+          };
+        }
+        break;
+      default:
+        debug(`Unhandled weapon packet type: ${packet.packetName}`);
+        break;
+    }
+  }
+
   Weapon(server: ZoneServer2016, client: Client, packet: any) {
     debug("Weapon.Weapon");
     if (client.character.tempGodMode) {
+      // used to disable spawn godmode
       server.setTempGodMode(client, false);
     }
     switch (packet.data.weaponPacket.packetName) {
       case "Weapon.MultiWeapon":
         packet.data.weaponPacket.packet.packets.forEach((p: any) => {
-          handleWeaponPacket(p);
+          this.handleWeaponPacket(server, client, p);
         });
         break;
       default:
-        handleWeaponPacket(packet.data.weaponPacket);
+        this.handleWeaponPacket(server, client, packet.data.weaponPacket);
         break;
-    }
-
-    // this function is disgusting: TODO: FIX IT - MEME
-
-    function handleWeaponPacket(p: any) {
-      const weaponItem = client.character.getEquippedWeapon();
-      if (!weaponItem || !weaponItem.weapon) return;
-      switch (p.packetName) {
-        case "Weapon.FireStateUpdate":
-          // melee workaround
-          if (server.handleMeleeHit(client, weaponItem)) {
-            return;
-          }
-
-          if (p.packet.firestate == 64) {
-            // empty firestate
-            server.sendRemoteWeaponUpdateDataToAllOthers(
-              client,
-              client.character.transientId,
-              weaponItem.itemGuid,
-              "Update.Empty",
-              {}
-            );
-            server.sendRemoteWeaponUpdateDataToAllOthers(
-              client,
-              client.character.transientId,
-              weaponItem.itemGuid,
-              "Update.FireState",
-              {
-                state: {
-                  firestate: 64,
-                  transientId: client.character.transientId,
-                  position: client.character.state.position
-                }
-              }
-            );
-          }
-          // prevent empty weapons from entering an active firestate
-          if (
-            !weaponItem.weapon?.ammoCount &&
-            weaponItem.itemDefinitionId != Items.WEAPON_BOW_MAKESHIFT &&
-            weaponItem.itemDefinitionId != Items.WEAPON_BOW_RECURVE &&
-            weaponItem.itemDefinitionId != Items.WEAPON_BOW_WOOD
-          )
-            return;
-          if (p.packet.firestate > 0) {
-            server.sendRemoteWeaponUpdateDataToAllOthers(
-              client,
-              client.character.transientId,
-              weaponItem.itemGuid,
-              "Update.Chamber",
-              {}
-            );
-          }
-          server.sendRemoteWeaponUpdateDataToAllOthers(
-            client,
-            client.character.transientId,
-            weaponItem.itemGuid,
-            "Update.FireState",
-            {
-              state: {
-                firestate: p.packet.firestate,
-                transientId: client.character.transientId,
-                position: client.character.state.position
-              }
-            }
-          );
-          if (weaponItem.weapon.ammoCount)
-            server.damageItem(client, weaponItem, 2);
-          break;
-        case "Weapon.Fire":
-          if (weaponItem.weapon.ammoCount <= 0) return;
-          if (weaponItem.weapon.ammoCount > 0) {
-            weaponItem.weapon.ammoCount -= 1;
-          }
-          if (
-            !client.vehicle.mountedVehicle &&
-            server.fairPlayManager.fairPlayValues
-          ) {
-            if (
-              getDistance(client.character.state.position, p.packet.position) >
-              server.fairPlayManager.fairPlayValues?.maxPositionDesync
-            ) {
-              server.sendChatText(
-                client,
-                `FairPlay: Your shot didnt register due to position desync`
-              );
-              server.sendChatTextToAdmins(
-                `FairPlay: ${
-                  client.character.name
-                }'s shot didnt register due to position desync by ${getDistance(
-                  client.character.state.position,
-                  p.packet.position
-                )}`
-              );
-            }
-          }
-          const drift = Math.abs(p.gameTime - server.getServerTime());
-          if (drift > server.fairPlayManager.maxPing + 200) {
-            server.sendChatText(
-              client,
-              `FairPlay: Your shot didnt register due to packet loss or high ping`
-            );
-            server.sendChatTextToAdmins(
-              `FairPlay: ${client.character.name}'s shot wasnt registered due to time drift by ${drift}`
-            );
-            return;
-          }
-          const keys = Object.keys(client.fireHints);
-          const lastFireHint = client.fireHints[Number(keys[keys.length - 1])];
-          if (lastFireHint) {
-            let blockedTime = 50;
-            switch (weaponItem.itemDefinitionId) {
-              case Items.WEAPON_308:
-              case Items.WEAPON_REAPER:
-                blockedTime = 1300;
-                break;
-              case Items.WEAPON_SHOTGUN:
-              case Items.WEAPON_NAGAFENS_RAGE:
-                blockedTime = 400;
-                break;
-            }
-            if (p.gameTime - lastFireHint.timeStamp < blockedTime) return;
-          }
-          let hitNumber = 0;
-          if (
-            !client.vehicle.mountedVehicle &&
-            !isPosInRadius(
-              3,
-              client.character.state.position,
-              p.packet.position
-            )
-          )
-            hitNumber = 1;
-          const shotProjectiles =
-            weaponItem.itemDefinitionId == Items.WEAPON_SHOTGUN ||
-            weaponItem.itemDefinitionId == Items.WEAPON_NAGAFENS_RAGE
-              ? 12
-              : 1;
-          for (let x = 0; x < shotProjectiles; x++) {
-            const fireHint: fireHint = {
-              id: p.packet.sessionProjectileCount + x,
-              position: p.packet.position,
-              rotation: client.character.state.yaw,
-              hitNumber: hitNumber,
-              weaponItem: weaponItem,
-              timeStamp: p.gameTime
-            };
-            client.fireHints[p.packet.sessionProjectileCount + x] = fireHint;
-            setTimeout(() => {
-              delete client.fireHints[p.packet.sessionProjectileCount + x];
-            }, 10000);
-          }
-          server.fairPlayManager.hitMissFairPlayCheck(
-            server,
-            client,
-            false,
-            ""
-          );
-          server.stopHudTimer(client);
-          server.sendRemoteWeaponUpdateDataToAllOthers(
-            client,
-            client.character.transientId,
-            weaponItem.itemGuid,
-            "Update.ProjectileLaunch",
-            {}
-          );
-          break;
-        case "Weapon.ProjectileHitReport":
-          const weapon = client.character.getEquippedWeapon();
-          if (!weapon) return;
-          if (weapon.itemDefinitionId == Items.WEAPON_REMOVER) {
-            if (!client.isAdmin) return;
-            const characterId = p.packet.hitReport.characterId,
-              entity = server.getEntity(characterId);
-            if (!entity) {
-              server.sendAlert(client, "Entity is undefined!");
-              return;
-            }
-            if (entity instanceof Character2016) return;
-            if (entity instanceof Vehicle2016) {
-              if (!entity.destroy(server, true)) return;
-              server.sendAlert(client, "Object removed.");
-              return;
-            }
-            if (entity.destroy(server)) {
-              server.sendAlert(client, "Object removed.");
-            }
-            return;
-          }
-          if (client.banType === "nodamage") return;
-          server.registerHit(client, p.packet, p.gameTime);
-          break;
-        case "Weapon.ReloadRequest":
-          if (weaponItem.weapon.reloadTimer) return;
-          const maxAmmo = server.getWeaponMaxAmmo(weaponItem.itemDefinitionId); // max clip size
-          if (weaponItem.weapon.ammoCount >= maxAmmo) return;
-          // force 0 firestate so gun doesnt shoot randomly after reloading
-          server.sendRemoteWeaponUpdateDataToAllOthers(
-            client,
-            client.character.transientId,
-            weaponItem.itemGuid,
-            "Update.FireState",
-            {
-              state: {
-                firestate: 0,
-                transientId: client.character.transientId,
-                position: client.character.state.position
-              }
-            }
-          );
-          server.sendRemoteWeaponUpdateDataToAllOthers(
-            client,
-            client.character.transientId,
-            weaponItem.itemGuid,
-            "Update.Reload",
-            {}
-          );
-          const weaponAmmoId = server.getWeaponAmmoId(
-              weaponItem.itemDefinitionId
-            ),
-            reloadTime = server.getWeaponReloadTime(
-              weaponItem.itemDefinitionId
-            );
-
-          if (
-            weaponItem.itemDefinitionId == Items.WEAPON_BOW_MAKESHIFT ||
-            weaponItem.itemDefinitionId == Items.WEAPON_BOW_RECURVE ||
-            weaponItem.itemDefinitionId == Items.WEAPON_BOW_WOOD
-          ) {
-            const currentWeapon = client.character.getEquippedWeapon();
-            if (
-              !currentWeapon ||
-              currentWeapon.itemGuid != weaponItem.itemGuid
-            ) {
-              return;
-            }
-            const maxReloadAmount = maxAmmo - weaponItem.weapon.ammoCount, // how much ammo is needed for full clip
-              reserveAmmo = // how much ammo is in inventory
-                client.character.getInventoryItemAmount(weaponAmmoId),
-              reloadAmount =
-                reserveAmmo >= maxReloadAmount ? maxReloadAmount : reserveAmmo; // actual amount able to reload
-
-            if (
-              !server.removeInventoryItems(client, weaponAmmoId, reloadAmount)
-            ) {
-              return;
-            }
-            server.sendWeaponReload(
-              client,
-              weaponItem,
-              (weaponItem.weapon.ammoCount += reloadAmount)
-            );
-            return;
-          }
-          //#region SHOTGUN ONLY
-          if (weaponAmmoId == Items.AMMO_12GA) {
-            weaponItem.weapon.reloadTimer = setTimeout(() => {
-              if (!weaponItem.weapon?.reloadTimer) {
-                client.character.clearReloadTimeout();
-                return;
-              }
-              const reserveAmmo = // how much ammo is in inventory
-                client.character.getInventoryItemAmount(weaponAmmoId);
-              if (
-                !reserveAmmo ||
-                (weaponItem.weapon.ammoCount < maxAmmo &&
-                  !server.removeInventoryItems(client, weaponAmmoId, 1)) ||
-                ++weaponItem.weapon.ammoCount == maxAmmo
-              ) {
-                server.sendWeaponReload(client, weaponItem);
-                server.sendRemoteWeaponUpdateDataToAllOthers(
-                  client,
-                  client.character.transientId,
-                  weaponItem.itemGuid,
-                  "Update.ReloadLoopEnd",
-                  {
-                    endLoop: true
-                  }
-                );
-                client.character.clearReloadTimeout();
-                return;
-              }
-              if (reserveAmmo - 1 < 0) {
-                // updated reserve ammo
-                server.sendWeaponReload(client, weaponItem);
-                server.sendRemoteWeaponUpdateDataToAllOthers(
-                  client,
-                  client.character.transientId,
-                  weaponItem.itemGuid,
-                  "Update.ReloadLoopEnd",
-                  {
-                    endLoop: true
-                  }
-                );
-                client.character.clearReloadTimeout();
-                return;
-              }
-              weaponItem.weapon.reloadTimer.refresh();
-            }, reloadTime);
-            return;
-          }
-          //#endregion
-          weaponItem.weapon.reloadTimer = setTimeout(() => {
-            const currentWeapon = client.character.getEquippedWeapon();
-            if (
-              !weaponItem.weapon?.reloadTimer ||
-              !currentWeapon ||
-              currentWeapon.itemGuid != weaponItem.itemGuid
-            ) {
-              return;
-            }
-            const maxReloadAmount = maxAmmo - weaponItem.weapon.ammoCount, // how much ammo is needed for full clip
-              reserveAmmo = // how much ammo is in inventory
-                client.character.getInventoryItemAmount(weaponAmmoId),
-              reloadAmount =
-                reserveAmmo >= maxReloadAmount ? maxReloadAmount : reserveAmmo; // actual amount able to reload
-
-            if (
-              !server.removeInventoryItems(client, weaponAmmoId, reloadAmount)
-            ) {
-              return;
-            }
-            server.sendWeaponReload(
-              client,
-              weaponItem,
-              (weaponItem.weapon.ammoCount += reloadAmount)
-            );
-            client.character.clearReloadTimeout();
-          }, reloadTime);
-          break;
-        case "Weapon.ReloadInterrupt":
-          server.reloadInterrupt(client, weaponItem);
-          break;
-        case "Weapon.SwitchFireModeRequest":
-          // workaround so aiming in doesn't sometimes make the shooting sound
-          if (!weaponItem.weapon?.ammoCount) return;
-
-          // temp workaround to fix 308 sound while aiming
-          // this workaround applies to all weapons
-          if (p.packet.firemodeIndex == 1) return;
-          server.sendRemoteWeaponUpdateDataToAllOthers(
-            client,
-            client.character.transientId,
-            weaponItem.itemGuid,
-            "Update.SwitchFireMode",
-            {
-              firegroupIndex: p.packet.firegroupIndex,
-              firemodeIndex: p.packet.firemodeIndex
-            }
-          );
-          break;
-        case "Weapon.WeaponFireHint":
-          debug("WeaponFireHint");
-          /*if (weaponItem.weapon.ammoCount <= 0) return;
-          if (weaponItem.weapon.ammoCount > 0) {
-            weaponItem.weapon.ammoCount -= 1;
-          }
-          const driftH = Math.abs(p.gameTime - server.getServerTime());
-          if (driftH > server.maxPing + 200) {
-            server.sendChatText(
-              client,
-              `FairPlay: Your shots didnt register due to packet loss`
-            );
-            return;
-          }
-          const keysH = Object.keys(client.fireHints);
-          const lastFireHintH =
-            client.fireHints[Number(keysH[keysH.length - 1])];
-          if (lastFireHintH) {
-            let blockedTime = 50;
-            switch (weaponItem.itemDefinitionId) {
-              case Items.WEAPON_308:
-                blockedTime = 1300;
-                break;
-              case Items.WEAPON_SHOTGUN:
-                blockedTime = 400;
-                break;
-            }
-            if (p.gameTime - lastFireHintH.timeStamp < blockedTime) return;
-          }
-          let hitNumberH = 0;
-          if (
-            !client.vehicle.mountedVehicle &&
-            !isPosInRadius(
-              3,
-              client.character.state.position,
-              p.packet.position
-            )
-          )
-            hitNumberH = 1;
-          const shotProjectilesH =
-            weaponItem.itemDefinitionId == Items.WEAPON_SHOTGUN ? 12 : 1;
-          for (let x = 0; x < shotProjectilesH; x++) {
-            const fireHint: fireHint = {
-              id: p.packet.sessionProjectileCount + x,
-              position: p.packet.position,
-              rotation: new Float32Array([...p.packet.rotation, 0]),
-              hitNumber: hitNumberH,
-              weaponItem: weaponItem,
-              timeStamp: p.gameTime,
-            };
-            client.fireHints[p.packet.sessionProjectileCount + x] = fireHint;
-            setTimeout(() => {
-              delete client.fireHints[p.packet.sessionProjectileCount + x];
-            }, 10000);
-          }*/
-          break;
-        case "Weapon.ProjectileContactReport":
-          debug("ProjectileContactReport");
-          break;
-        case "Weapon.MeleeHitMaterial":
-          debug("MeleeHitMaterial");
-          break;
-        case "Weapon.AimBlockedNotify":
-          server.sendRemoteWeaponUpdateDataToAllOthers(
-            client,
-            client.character.transientId,
-            weaponItem.itemGuid,
-            "Update.AimBlocked",
-            {
-              aimBlocked: p.packet.aimBlocked
-            }
-          );
-          break;
-        case "Weapon.ProjectileSpawnNpc":
-          server.createProjectileNpc(client, p.packet);
-          break;
-        case "Weapon.ProjectileSpawnAttachedNpc":
-          debug("Weapon.ProjectileSpawnAttachedNpc");
-          if (client.fireHints[p.packet.sessionProjectileCount]) {
-            client.fireHints[p.packet.sessionProjectileCount].marked = {
-              characterId: p.packet.characterId,
-              position: p.packet.position,
-              rotation: p.packet.rotation,
-              gameTime: p.gameTime
-            };
-          }
-          break;
-        default:
-          debug(`Unhandled weapon packet type: ${p.packetName}`);
-          break;
-      }
     }
   }
   CommandRun(server: ZoneServer2016, client: Client, packet: any) {

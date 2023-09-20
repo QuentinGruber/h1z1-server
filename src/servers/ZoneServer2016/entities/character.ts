@@ -25,7 +25,7 @@ import { ZoneClient2016 } from "../classes/zoneclient";
 import { ZoneServer2016 } from "../zoneserver";
 import { BaseFullCharacter } from "./basefullcharacter";
 import {
-  characterEffect,
+  CharacterEffect,
   DamageInfo,
   DamageRecord,
   positionUpdate,
@@ -142,7 +142,7 @@ export class Character2016 extends BaseFullCharacter {
   mutedCharacters: Array<string> = [];
   groupId: number = 0;
   _characterEffects: {
-    [effectId: number]: characterEffect;
+    [effectId: number]: CharacterEffect;
   } = {};
   lastLockFailure: number = 0;
   constructor(

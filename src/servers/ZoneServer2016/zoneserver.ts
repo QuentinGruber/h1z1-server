@@ -56,6 +56,7 @@ import {
   ConstructionEntity,
   DamageInfo,
   DamageRecord,
+  FireHint,
   Recipe
 } from "../../types/zoneserver";
 import { h1z1PacketsType2016 } from "../../types/packets";
@@ -6328,6 +6329,289 @@ export class ZoneServer2016 extends EventEmitter {
       if (!container) return;
       this.updateContainerItem(mountedContainer, item, container);
     }
+  }
+
+  handleWeaponFireStateUpdate(
+    client: Client,
+    weaponItem: LoadoutItem,
+    firestate: number
+  ) {
+    // melee workaround
+    if (this.handleMeleeHit(client, weaponItem)) {
+      return;
+    }
+
+    if (firestate == 64) {
+      // empty firestate
+      this.sendRemoteWeaponUpdateDataToAllOthers(
+        client,
+        client.character.transientId,
+        weaponItem.itemGuid,
+        "Update.Empty",
+        {}
+      );
+      this.sendRemoteWeaponUpdateDataToAllOthers(
+        client,
+        client.character.transientId,
+        weaponItem.itemGuid,
+        "Update.FireState",
+        {
+          state: {
+            firestate: 64,
+            transientId: client.character.transientId,
+            position: client.character.state.position
+          }
+        }
+      );
+    }
+    // prevent empty weapons from entering an active firestate
+    if (
+      !weaponItem.weapon?.ammoCount &&
+      weaponItem.itemDefinitionId != Items.WEAPON_BOW_MAKESHIFT &&
+      weaponItem.itemDefinitionId != Items.WEAPON_BOW_RECURVE &&
+      weaponItem.itemDefinitionId != Items.WEAPON_BOW_WOOD
+    )
+      return;
+    if (firestate > 0) {
+      this.sendRemoteWeaponUpdateDataToAllOthers(
+        client,
+        client.character.transientId,
+        weaponItem.itemGuid,
+        "Update.Chamber",
+        {}
+      );
+    }
+    this.sendRemoteWeaponUpdateDataToAllOthers(
+      client,
+      client.character.transientId,
+      weaponItem.itemGuid,
+      "Update.FireState",
+      {
+        state: {
+          firestate: firestate,
+          transientId: client.character.transientId,
+          position: client.character.state.position
+        }
+      }
+    );
+    if (!weaponItem.weapon?.ammoCount) return;
+    this.damageItem(client, weaponItem, 2);
+  }
+
+  handleWeaponFire(client: Client, weaponItem: LoadoutItem, packet: any) {
+    if (!weaponItem.weapon || weaponItem.weapon.ammoCount <= 0) {
+      return;
+    }
+    if (weaponItem.weapon.ammoCount > 0) {
+      weaponItem.weapon.ammoCount -= 1;
+    }
+    if (!client.vehicle.mountedVehicle && this.fairPlayManager.fairPlayValues) {
+      if (
+        getDistance(client.character.state.position, packet.packet.position) >
+        this.fairPlayManager.fairPlayValues?.maxPositionDesync
+      ) {
+        this.sendChatText(
+          client,
+          `FairPlay: Your shot didnt register due to position desync`
+        );
+        this.sendChatTextToAdmins(
+          `FairPlay: ${
+            client.character.name
+          }'s shot didnt register due to position desync by ${getDistance(
+            client.character.state.position,
+            packet.packet.position
+          )}`
+        );
+      }
+    }
+    const drift = Math.abs(packet.gameTime - this.getServerTime());
+    if (drift > this.fairPlayManager.maxPing + 200) {
+      this.sendChatText(
+        client,
+        `FairPlay: Your shot didnt register due to packet loss or high ping`
+      );
+      this.sendChatTextToAdmins(
+        `FairPlay: ${client.character.name}'s shot wasnt registered due to time drift by ${drift}`
+      );
+      return;
+    }
+    const keys = Object.keys(client.fireHints);
+    const lastFireHint = client.fireHints[Number(keys[keys.length - 1])];
+    if (lastFireHint) {
+      let blockedTime = 50;
+      switch (weaponItem.itemDefinitionId) {
+        case Items.WEAPON_308:
+        case Items.WEAPON_REAPER:
+          blockedTime = 1300;
+          break;
+        case Items.WEAPON_SHOTGUN:
+        case Items.WEAPON_NAGAFENS_RAGE:
+          blockedTime = 400;
+          break;
+      }
+      if (packet.gameTime - lastFireHint.timeStamp < blockedTime) return;
+    }
+    let hitNumber = 0;
+    if (
+      !client.vehicle.mountedVehicle &&
+      !isPosInRadius(3, client.character.state.position, packet.packet.position)
+    )
+      hitNumber = 1;
+    const shotProjectiles =
+      weaponItem.itemDefinitionId == Items.WEAPON_SHOTGUN ||
+      weaponItem.itemDefinitionId == Items.WEAPON_NAGAFENS_RAGE
+        ? 12
+        : 1;
+    for (let x = 0; x < shotProjectiles; x++) {
+      const fireHint: FireHint = {
+        id: packet.packet.sessionProjectileCount + x,
+        position: packet.packet.position,
+        rotation: client.character.state.yaw,
+        hitNumber: hitNumber,
+        weaponItem: weaponItem,
+        timeStamp: packet.gameTime
+      };
+      client.fireHints[packet.packet.sessionProjectileCount + x] = fireHint;
+      setTimeout(() => {
+        delete client.fireHints[packet.packet.sessionProjectileCount + x];
+      }, 10000);
+    }
+    this.fairPlayManager.hitMissFairPlayCheck(this, client, false, "");
+    this.stopHudTimer(client);
+    this.sendRemoteWeaponUpdateDataToAllOthers(
+      client,
+      client.character.transientId,
+      weaponItem.itemGuid,
+      "Update.ProjectileLaunch",
+      {}
+    );
+  }
+
+  handleWeaponReload(client: Client, weaponItem: LoadoutItem) {
+    if (!weaponItem.weapon) return;
+    if (weaponItem.weapon.reloadTimer) return;
+    const maxAmmo = this.getWeaponMaxAmmo(weaponItem.itemDefinitionId); // max clip size
+    if (weaponItem.weapon.ammoCount >= maxAmmo) return;
+    // force 0 firestate so gun doesnt shoot randomly after reloading
+    this.sendRemoteWeaponUpdateDataToAllOthers(
+      client,
+      client.character.transientId,
+      weaponItem.itemGuid,
+      "Update.FireState",
+      {
+        state: {
+          firestate: 0,
+          transientId: client.character.transientId,
+          position: client.character.state.position
+        }
+      }
+    );
+    this.sendRemoteWeaponUpdateDataToAllOthers(
+      client,
+      client.character.transientId,
+      weaponItem.itemGuid,
+      "Update.Reload",
+      {}
+    );
+    const weaponAmmoId = this.getWeaponAmmoId(weaponItem.itemDefinitionId),
+      reloadTime = this.getWeaponReloadTime(weaponItem.itemDefinitionId);
+
+    switch (weaponItem.itemDefinitionId) {
+      case Items.WEAPON_BOW_MAKESHIFT:
+      case Items.WEAPON_BOW_RECURVE:
+      case Items.WEAPON_BOW_WOOD:
+        const currentWeapon = client.character.getEquippedWeapon();
+        if (!currentWeapon || currentWeapon.itemGuid != weaponItem.itemGuid) {
+          return;
+        }
+        const maxReloadAmount = maxAmmo - weaponItem.weapon.ammoCount, // how much ammo is needed for full clip
+          reserveAmmo = client.character.getInventoryItemAmount(weaponAmmoId), // how much ammo is in inventory
+          reloadAmount =
+            reserveAmmo >= maxReloadAmount ? maxReloadAmount : reserveAmmo; // actual amount able to reload
+
+        if (!this.removeInventoryItems(client, weaponAmmoId, reloadAmount)) {
+          return;
+        }
+        this.sendWeaponReload(
+          client,
+          weaponItem,
+          (weaponItem.weapon.ammoCount += reloadAmount)
+        );
+        return;
+    }
+
+    //#region SHOTGUN ONLY
+    if (weaponAmmoId == Items.AMMO_12GA) {
+      weaponItem.weapon.reloadTimer = setTimeout(() => {
+        if (!weaponItem.weapon?.reloadTimer) {
+          client.character.clearReloadTimeout();
+          return;
+        }
+        const reserveAmmo = // how much ammo is in inventory
+          client.character.getInventoryItemAmount(weaponAmmoId);
+        if (
+          !reserveAmmo ||
+          (weaponItem.weapon.ammoCount < maxAmmo &&
+            !this.removeInventoryItems(client, weaponAmmoId, 1)) ||
+          ++weaponItem.weapon.ammoCount == maxAmmo
+        ) {
+          this.sendWeaponReload(client, weaponItem);
+          this.sendRemoteWeaponUpdateDataToAllOthers(
+            client,
+            client.character.transientId,
+            weaponItem.itemGuid,
+            "Update.ReloadLoopEnd",
+            {
+              endLoop: true
+            }
+          );
+          client.character.clearReloadTimeout();
+          return;
+        }
+        if (reserveAmmo - 1 < 0) {
+          // updated reserve ammo
+          this.sendWeaponReload(client, weaponItem);
+          this.sendRemoteWeaponUpdateDataToAllOthers(
+            client,
+            client.character.transientId,
+            weaponItem.itemGuid,
+            "Update.ReloadLoopEnd",
+            {
+              endLoop: true
+            }
+          );
+          client.character.clearReloadTimeout();
+          return;
+        }
+        weaponItem.weapon.reloadTimer.refresh();
+      }, reloadTime);
+      return;
+    }
+    //#endregion
+    weaponItem.weapon.reloadTimer = setTimeout(() => {
+      const currentWeapon = client.character.getEquippedWeapon();
+      if (
+        !weaponItem.weapon?.reloadTimer ||
+        !currentWeapon ||
+        currentWeapon.itemGuid != weaponItem.itemGuid
+      ) {
+        return;
+      }
+      const maxReloadAmount = maxAmmo - weaponItem.weapon.ammoCount, // how much ammo is needed for full clip
+        reserveAmmo = client.character.getInventoryItemAmount(weaponAmmoId), // how much ammo is in inventory
+        reloadAmount =
+          reserveAmmo >= maxReloadAmount ? maxReloadAmount : reserveAmmo; // actual amount able to reload
+
+      if (!this.removeInventoryItems(client, weaponAmmoId, reloadAmount)) {
+        return;
+      }
+      this.sendWeaponReload(
+        client,
+        weaponItem,
+        (weaponItem.weapon.ammoCount += reloadAmount)
+      );
+      client.character.clearReloadTimeout();
+    }, reloadTime);
   }
 
   handleWrenchHit(

@@ -173,7 +173,7 @@ export interface DamageRecord {
   };
 }
 
-export interface fireHint {
+export interface FireHint {
   id: number;
   position: Float32Array;
   rotation: number;
@@ -183,7 +183,7 @@ export interface fireHint {
   marked?: { characterId: string, position: Float32Array, rotation: Float32Array, gameTime: number }
 }
 
-export interface characterEffect {
+export interface CharacterEffect {
   id: number;
   duration: number;
   callback?: any;

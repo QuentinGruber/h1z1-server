@@ -12,7 +12,7 @@
 // ======================================================================
 
 import { Collection } from "mongodb";
-import { FairPlayValues, StanceFlags, fireHint } from "types/zoneserver";
+import { FairPlayValues, StanceFlags, FireHint } from "types/zoneserver";
 import { BAN_INFO, DB_COLLECTIONS } from "../../../utils/enums";
 import {
   decrypt,
@@ -387,7 +387,7 @@ export class FairPlayManager {
     server: ZoneServer2016,
     client: Client,
     entity: BaseEntity,
-    fireHint: fireHint,
+    fireHint: FireHint,
     weaponItem: LoadoutItem,
     hitReport: any,
     gameTime: number
