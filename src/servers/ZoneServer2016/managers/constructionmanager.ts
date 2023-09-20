@@ -2304,7 +2304,7 @@ export class ConstructionManager {
       client.character.currentInteractionGuid || ""
     );
     if (!entity) return;
-    if(client.character.meleeBlocked()) return;
+    if (client.character.meleeBlocked()) return;
 
     let accumulatedItemDamage = 0;
     server.sendCompositeEffectToAllInRange(
@@ -2320,25 +2320,25 @@ export class ConstructionManager {
           accumulatedItemDamage += this.repairShelterSlots(server, expansion);
           accumulatedItemDamage += this.repairWallSlots(server, expansion);
           accumulatedItemDamage += this.repairFreeplaceEntities(
-              server,
-              expansion
-            );
-          }
-        );
-        // repair every object on main foundation
-        accumulatedItemDamage += this.repairShelterSlots(server, entity);
-        accumulatedItemDamage += this.repairWallSlots(server, entity);
-        accumulatedItemDamage += this.repairFreeplaceEntities(server, entity);
-
-        if (entity.health < entity.maxHealth) {
-          this.repairConstruction(server, entity, 50000);
-          accumulatedItemDamage += 15;
+            server,
+            expansion
+          );
         }
-        server.damageItem(
-          client,
-          weaponItem,
-          Math.ceil(accumulatedItemDamage / 4)
-        );
+      );
+      // repair every object on main foundation
+      accumulatedItemDamage += this.repairShelterSlots(server, entity);
+      accumulatedItemDamage += this.repairWallSlots(server, entity);
+      accumulatedItemDamage += this.repairFreeplaceEntities(server, entity);
+
+      if (entity.health < entity.maxHealth) {
+        this.repairConstruction(server, entity, 50000);
+        accumulatedItemDamage += 15;
+      }
+      server.damageItem(
+        client,
+        weaponItem,
+        Math.ceil(accumulatedItemDamage / 4)
+      );
       client.character.lastMeleeHitTime = Date.now();
       return;
     }

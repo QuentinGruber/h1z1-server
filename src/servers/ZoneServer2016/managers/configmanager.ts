@@ -275,7 +275,8 @@ export class ConfigManager {
     server.decayManager.decayTickInterval = decayTickInterval;
     server.decayManager.constructionDamageTicks = constructionDamageTicks;
     server.decayManager.ticksToFullDecay = ticksToFullDecay;
-    (server.decayManager.worldFreeplaceDecayMultiplier = worldFreeplaceDecayMultiplier),
+    (server.decayManager.worldFreeplaceDecayMultiplier =
+      worldFreeplaceDecayMultiplier),
       (server.decayManager.vehicleDamageTicks = vehicleDamageTicks);
     server.decayManager.vacantFoundationTicks = vacantFoundationTicks;
     server.decayManager.baseVehicleDamage = baseVehicleDamage;
