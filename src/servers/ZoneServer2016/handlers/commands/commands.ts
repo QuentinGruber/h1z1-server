@@ -21,7 +21,8 @@ import {
   isPosInRadius,
   toHex,
   randomIntFromInterval,
-  Scheduler
+  Scheduler,
+  isPosInRadiusWithY
 } from "../../../../utils/utils";
 import { ExplosiveEntity } from "../../entities/explosiveentity";
 import { Npc } from "../../entities/npc";
@@ -420,52 +421,52 @@ export const commands: Array<Command> = [
     name: "tp",
     permissionLevel: PermissionLevels.MODERATOR,
     execute: (server: ZoneServer2016, client: Client, args: Array<string>) => {
-      let locationPosition;
+      let position;
       switch (args[0]) {
         case "farm":
-          locationPosition = new Float32Array([-696.48, 13.86, -1847.15, 1]);
+          position = new Float32Array([-696.48, 13.86, -1847.15, 1]);
           break;
         case "zimms":
-          locationPosition = new Float32Array([2209.17, 47.42, -1011.48, 1]);
+          position = new Float32Array([2209.17, 47.42, -1011.48, 1]);
           break;
         case "pv":
-          locationPosition = new Float32Array([-125.55, 23.41, -1131.71, 1]);
+          position = new Float32Array([-125.55, 23.41, -1131.71, 1]);
           break;
         case "br":
-          locationPosition = new Float32Array([3824.41, 168.19, -4000.0, 1]);
+          position = new Float32Array([3824.41, 168.19, -4000.0, 1]);
           break;
         case "ranchito":
-          locationPosition = new Float32Array([2185.32, 42.36, 2130.49, 1]);
+          position = new Float32Array([2185.32, 42.36, 2130.49, 1]);
           break;
         case "drylake":
-          locationPosition = new Float32Array([479.46, 109.7, 2902.51, 1]);
+          position = new Float32Array([479.46, 109.7, 2902.51, 1]);
           break;
         case "dam":
-          locationPosition = new Float32Array([-629.49, 69.96, 1233.49, 1]);
+          position = new Float32Array([-629.49, 69.96, 1233.49, 1]);
           break;
         case "cranberry":
-          locationPosition = new Float32Array([-1368.37, 71.29, 1837.61, 1]);
+          position = new Float32Array([-1368.37, 71.29, 1837.61, 1]);
           break;
         case "church":
-          locationPosition = new Float32Array([-1928.68, 62.77, 2880.1, 1]);
+          position = new Float32Array([-1928.68, 62.77, 2880.1, 1]);
           break;
         case "desoto":
-          locationPosition = new Float32Array([-2793.22, 140.77, 1035.8, 1]);
+          position = new Float32Array([-2793.22, 140.77, 1035.8, 1]);
           break;
         case "toxic":
-          locationPosition = new Float32Array([-3064.68, 42.98, -2160.06, 1]);
+          position = new Float32Array([-3064.68, 42.98, -2160.06, 1]);
           break;
         case "radiotower":
-          locationPosition = new Float32Array([-1499.21, 353.98, -840.52, 1]);
+          position = new Float32Array([-1499.21, 353.98, -840.52, 1]);
           break;
         case "villas":
-          locationPosition = new Float32Array([489.02, 102, 2942.65, 1]);
+          position = new Float32Array([489.02, 102, 2942.65, 1]);
           break;
         case "military":
-          locationPosition = new Float32Array([696.53, 48.08, -2470.62, 1]);
+          position = new Float32Array([696.53, 48.08, -2470.62, 1]);
           break;
         case "hospital":
-          locationPosition = new Float32Array([1895.4, 93.69, -2914.39, 1]);
+          position = new Float32Array([1895.4, 93.69, -2914.39, 1]);
           break;
         default:
           if (args.length < 3) {
@@ -481,16 +482,36 @@ export const commands: Array<Command> = [
             );
             return;
           }
-          locationPosition = new Float32Array([
-            Number(args[0]),
-            Number(args[1]),
-            Number(args[2]),
-            1
-          ]);
+
+          const pos = client.character.state.position,
+            x =
+              args[0] == "~"
+                ? pos[0]
+                : Object.is(NaN, Number(args[0]))
+                ? pos[0]
+                : Number(args[0]),
+            y =
+              args[1] == "~"
+                ? pos[1]
+                : Object.is(NaN, Number(args[1]))
+                ? pos[1]
+                : Number(args[1]),
+            z =
+              args[2] == "~"
+                ? pos[2]
+                : Object.is(NaN, Number(args[2]))
+                ? pos[2]
+                : Number(args[2]);
+          position = new Float32Array([x, y, z, 1]);
           break;
       }
 
-      client.character.state.position = locationPosition;
+      const triggerLoadingScreen = !isPosInRadius(
+        100,
+        client.character.state.position,
+        position
+      );
+      client.character.state.position = position;
       client.managedObjects?.forEach((characterId: any) => {
         server.dropVehicleManager(client, characterId);
       });
@@ -498,9 +519,10 @@ export const commands: Array<Command> = [
       client.characterReleased = false;
       client.character.lastLoginDate = toHex(Date.now());
       server.dropAllManagedObjects(client);
+
       server.sendData(client, "ClientUpdate.UpdateLocation", {
-        position: locationPosition,
-        triggerLoadingScreen: true
+        position,
+        triggerLoadingScreen
       });
     }
   },
