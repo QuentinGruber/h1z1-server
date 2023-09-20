@@ -552,9 +552,14 @@ export const commands: Array<Command> = [
       targetClient.characterReleased = false;
       targetClient.character.lastLoginDate = toHex(Date.now());
       server.dropAllManagedObjects(targetClient);
+      const triggerLoadingScreen = !isPosInRadius(
+        250,
+        client.character.state.position,
+        targetClient.character.state.position
+      );
       server.sendData(targetClient, "ClientUpdate.UpdateLocation", {
         position: client.character.state.position,
-        triggerLoadingScreen: true
+        triggerLoadingScreen
       });
       server.sendChatText(
         client,
@@ -588,9 +593,14 @@ export const commands: Array<Command> = [
       client.characterReleased = false;
       client.character.lastLoginDate = toHex(Date.now());
       server.dropAllManagedObjects(client);
+      const triggerLoadingScreen = !isPosInRadius(
+        250,
+        client.character.state.position,
+        targetClient.character.state.position
+      );
       server.sendData(client, "ClientUpdate.UpdateLocation", {
         position: targetClient.character.state.position,
-        triggerLoadingScreen: true
+        triggerLoadingScreen
       });
       server.sendChatText(
         client,
