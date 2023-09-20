@@ -656,8 +656,8 @@ export const lootTables: { [lootSpawner: string]: LootSpawner } = {
         }
       },
       {
-        item: Items.LIGHTER,
-        weight: 20,
+        item: Items.WEAPON_REPAIR_KIT,
+        weight: 5,
         spawnCount: {
           min: 1,
           max: 1
@@ -2060,6 +2060,14 @@ export const containerLootSpawners: {
         }
       },
       {
+        item: Items.LIGHTER,
+        weight: 10,
+        spawnCount: {
+          min: 1,
+          max: 1
+        }
+      },
+      {
         item: Items.AMMO_45,
         weight: 15,
         spawnCount: {
@@ -2069,7 +2077,7 @@ export const containerLootSpawners: {
       },
       {
         item: Items.SALT,
-        weight: 18,
+        weight: 13,
         spawnCount: {
           min: 1,
           max: 1
@@ -2099,7 +2107,15 @@ export const containerLootSpawners: {
     items: [
       {
         item: Items.SALT,
-        weight: 18,
+        weight: 13,
+        spawnCount: {
+          min: 1,
+          max: 1
+        }
+      },
+      {
+        item: Items.LIGHTER,
+        weight: 5,
         spawnCount: {
           min: 1,
           max: 1
@@ -2245,7 +2261,15 @@ export const containerLootSpawners: {
       },
       {
         item: Items.WEAPON_PIPE,
-        weight: 37,
+        weight: 32,
+        spawnCount: {
+          min: 1,
+          max: 1
+        }
+      },
+      {
+        item: Items.LIGHTER,
+        weight: 8,
         spawnCount: {
           min: 1,
           max: 1
@@ -2769,6 +2793,14 @@ export const containerLootSpawners: {
     spawnChance: 100,
     maxItems: 5,
     items: [
+      {
+        item: Items.LIGHTER,
+        weight: 3,
+        spawnCount: {
+          min: 1,
+          max: 1
+        }
+      },
       {
         item: Items.SUGAR,
         weight: 13,

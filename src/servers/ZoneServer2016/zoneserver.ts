@@ -6305,11 +6305,37 @@ export class ZoneServer2016 extends EventEmitter {
       return;
     }
 
+    switch(repairItem.itemDefinitionId) {
+      case Items.WEAPON_NAGAFENS_RAGE:
+      case Items.WEAPON_REAPER:
+      case Items.WEAPON_BLAZE:
+      case Items.WEAPON_FROSTBITE:
+      case Items.WEAPON_PURGE:
+        this.sendChatText(client, "This weapon cannot be repaired.");
+        return;
+    }
+
+    const itemDef = this.getItemDefinition(item.itemDefinitionId);
+    if (!itemDef) return;
+    const nameId = itemDef.NAME_ID;
+
+    this.utilizeHudTimer(client, nameId, 5000, () => {
+      this.repairOptionPass(client, item, repairItem, durability);
+    });
+  }
+
+  repairOptionPass(client: Client, item: BaseItem, repairItem: BaseItem, durability: number) {
     const diff = 2000 - durability,
-      repairAmount = diff < 500 ? diff : 500;
+    isGunKit = item.itemDefinitionId == Items.GUN_REPAIR_KIT,
+    repairAmount = diff < 500 ? diff : 500;
 
     if (!this.removeInventoryItem(client.character, item)) return;
-    repairItem.currentDurability += repairAmount;
+    if(isGunKit) {
+      repairItem.currentDurability = 2000;
+    }
+    else {
+      repairItem.currentDurability += repairAmount;
+    }
 
     // TODO: move below logic to it's own updateItem function
 
@@ -6399,8 +6425,6 @@ export class ZoneServer2016 extends EventEmitter {
         }
       }
     );
-    if (!weaponItem.weapon?.ammoCount) return;
-    this.damageItem(client, weaponItem, 2);
   }
 
   handleWeaponFire(client: Client, weaponItem: LoadoutItem, packet: any) {
@@ -6490,6 +6514,7 @@ export class ZoneServer2016 extends EventEmitter {
       "Update.ProjectileLaunch",
       {}
     );
+    this.damageItem(client, weaponItem, 5);
   }
 
   handleWeaponReload(client: Client, weaponItem: LoadoutItem) {
