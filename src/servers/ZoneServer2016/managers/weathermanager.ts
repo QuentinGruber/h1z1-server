@@ -55,7 +55,6 @@ export class WeatherManager {
     client: Client,
     args: Array<string>
   ) {
-
     const templateName = args[0];
 
     if (!templateName) {
@@ -69,18 +68,21 @@ export class WeatherManager {
       this.dynamicEnabled = false;
       server.sendChatText(client, "Dynamic weather removed!");
     }
-    
+
     const weatherTemplate = this.templates[templateName];
 
-    if(!weatherTemplate) {
-      if(templateName === "list") {
+    if (!weatherTemplate) {
+      if (templateName === "list") {
         server.sendChatText(client, `Weather templates :`);
         _.forEach(this.templates, (element: { templateName: any }) => {
           server.sendChatText(client, `- ${element.templateName}`);
         });
         return;
       }
-      server.sendChatText(client, `"${templateName}" isn't a validweather template.`);
+      server.sendChatText(
+        client,
+        `"${templateName}" isn't a validweather template.`
+      );
       server.sendChatText(
         client,
         `Use "/weather list" to know all available templates.`
@@ -109,26 +111,25 @@ export class WeatherManager {
       const template = {
         templateName: args[0],
         ...this.weather
+      };
+      if (server._soloMode) {
+        this.templates[template.templateName] = template;
+        fs.writeFileSync(
+          `${__dirname}/../../../../data/2016/dataSources/weather.json`,
+          JSON.stringify(this.templates, null, "\t")
+        );
+        delete require.cache[
+          require.resolve("../../../../data/2016/dataSources/weather.json")
+        ];
+        this.templates = require("../../../../data/2016/dataSources/weather.json");
+      } else {
+        await server._db?.collection("weathers").insertOne(template);
+        this.templates = await (server._db as any)
+          .collection("weathers")
+          .find()
+          .toArray();
       }
-        if (server._soloMode) {
-          this.templates[template.templateName] =
-            template;
-          fs.writeFileSync(
-            `${__dirname}/../../../../data/2016/dataSources/weather.json`,
-            JSON.stringify(this.templates, null, "\t")
-          );
-          delete require.cache[
-            require.resolve("../../../../data/2016/dataSources/weather.json")
-          ];
-          this.templates = require("../../../../data/2016/dataSources/weather.json");
-        } else {
-          await server._db?.collection("weathers").insertOne(template);
-          this.templates = await (server._db as any)
-            .collection("weathers")
-            .find()
-            .toArray();
-        }
-        server.sendChatText(client, `template "${args[0]}" saved !`);
+      server.sendChatText(client, `template "${args[0]}" saved !`);
     }
   }
 
@@ -146,9 +147,9 @@ export class WeatherManager {
 
     this.weather = {
       overcast: 50.0,
-      fogDensity: rnd_number(0.0010),
+      fogDensity: rnd_number(0.001),
       fogFloor: rnd_number(100),
-      fogGradient: rnd_number(0.0140),
+      fogGradient: rnd_number(0.014),
       globalPrecipitation: 1.0,
       temperature: rnd_number(50),
       skyClarity: rnd_number(1.0),
