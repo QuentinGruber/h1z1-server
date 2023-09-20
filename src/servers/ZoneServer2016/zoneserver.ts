@@ -1481,7 +1481,7 @@ export class ZoneServer2016 extends EventEmitter {
       interactionCheckRadius: 16, // need it high for tampers
       unknownBoolean1: true,
       timescale: 1.0,
-      enableWeapons: 1,
+      enableWeapons: 1, // no longer seems to do anything, used to disable weapons from working
       Unknown5: 1,
       unknownFloat1: 0.0,
       fallDamageVelocityThreshold: 15,
@@ -1591,16 +1591,17 @@ export class ZoneServer2016 extends EventEmitter {
 
   pushToGridCell(obj: BaseEntity) {
     if (this._grid.length == 0)
-      this._grid = this.divideMapIntoGrid(8000, 8000, 250);
+      this._grid = this.divideMapIntoGrid(8196, 8196, 250);
     if (
       obj instanceof Vehicle ||
       obj instanceof Character ||
-      (obj instanceof ConstructionChildEntity &&
-        !obj.getParent(this) &&
-        obj instanceof ConstructionParentEntity) ||
+      (obj instanceof ConstructionChildEntity && !obj.getParent(this)) ||
       (obj instanceof LootableConstructionEntity && !obj.getParent(this))
-    )
-      return; // dont push objects that can change its position
+    ) {
+      // dont push objects that can change its position or are
+      // handled by the construction system
+      return;
+    }
     for (let i = 0; i < this._grid.length; i++) {
       const gridCell = this._grid[i];
       if (
@@ -1972,6 +1973,9 @@ export class ZoneServer2016 extends EventEmitter {
     client?: Client
   ) {
     // TODO: REDO THIS WITH AN OnExplosiveDamage method per class
+
+    // TODO: REDO THIS WITH GRID CHUNK SYSTEM
+
     for (const characterId in this._characters) {
       const character = this._characters[characterId];
       if (isPosInRadiusWithY(3, character.state.position, position, 1.5)) {
@@ -2093,17 +2097,20 @@ export class ZoneServer2016 extends EventEmitter {
           position
         )
       ) {
-        const allowed = [Items.SHACK, Items.SHACK_SMALL, Items.SHACK_BASIC];
-        if (allowed.includes(constructionObject.itemDefinitionId)) {
-          this.constructionManager.checkConstructionDamage(
-            this,
-            constructionObject.characterId,
-            50000,
-            this._constructionFoundations,
-            position,
-            constructionObject.state.position,
-            source
-          );
+        switch (constructionObject.itemDefinitionId) {
+          case Items.SHACK:
+          case Items.SHACK_SMALL:
+          case Items.SHACK_BASIC:
+            this.constructionManager.checkConstructionDamage(
+              this,
+              constructionObject.characterId,
+              50000,
+              this._constructionFoundations,
+              position,
+              constructionObject.state.position,
+              source
+            );
+            break;
         }
       }
     }
@@ -6591,7 +6598,6 @@ export class ZoneServer2016 extends EventEmitter {
     this.constructionManager.constructionPermissionsManager(this, client);
     this.constructionManager.spawnConstructionParentsInRange(this, client);
     this.vehicleManager(client);
-    //this.npcManager(client);
     this.removeOutOfDistanceEntities(client);
     this.spawnCharacters(client);
     this.spawnGridObjects(client);
@@ -6803,14 +6809,31 @@ export class ZoneServer2016 extends EventEmitter {
   sendGlobalChatText(message: string, clearChat = false) {
     this.chatManager.sendGlobalChatText(this, message, clearChat);
   }
-  sendConsoleText(client: Client, message: string) {
-    this.sendData(client, "H1emu.PrintToConsole", { message });
+  sendConsoleText(
+    client: Client,
+    message: string,
+    showConsole = false,
+    clearOutput = false
+  ) {
+    this.sendData(client, "H1emu.PrintToConsole", {
+      message,
+      showConsole,
+      clearOutput
+    });
   }
-  sendConsoleTextToAdmins(message: string) {
+  sendConsoleTextToAdmins(
+    message: string,
+    showConsole = false,
+    clearOutput = false
+  ) {
     for (const a in this._clients) {
       const client = this._clients[a];
       if (client.isAdmin) {
-        this.sendData(client, "H1emu.PrintToConsole", { message });
+        this.sendData(client, "H1emu.PrintToConsole", {
+          message,
+          showConsole,
+          clearOutput
+        });
       }
     }
   }
