@@ -11,7 +11,7 @@
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
 
-import { createPositionUpdate } from "../../../utils/utils";
+import { createPositionUpdate, eul2quat } from "../../../utils/utils";
 import {
   Items,
   LoadoutIds,
@@ -818,6 +818,37 @@ export class Vehicle2016 extends BaseLootableEntity {
     };
   }
 
+  isFlipped(): boolean {
+    return Math.abs(this.positionUpdate.sideTilt) > 2;
+  }
+
+  flipVehicle(server: ZoneServer2016) {
+    let c: ZoneClient2016 | undefined;
+      for (const a in server._clients) {
+        if (
+          server._clients[a].managedObjects.includes(
+            this.characterId
+          )
+        ) {
+          c = server._clients[a];
+        }
+      }
+      if (c) {
+        this.positionUpdate.sideTilt = 0;
+        server.sendData(c, "ClientUpdate.UpdateManagedLocation", {
+          characterId: this.characterId,
+          position: this.state.position,
+          rotation: eul2quat(
+            new Float32Array([
+              this.positionUpdate.orientation,
+              this.positionUpdate.sideTilt,
+              this.positionUpdate.frontTilt
+            ])
+          )
+        });
+      }
+  }
+
   /* eslint-disable @typescript-eslint/no-unused-vars */
   OnPlayerSelect(
     server: ZoneServer2016,
@@ -825,18 +856,32 @@ export class Vehicle2016 extends BaseLootableEntity {
     isInstant?: boolean
     /* eslint-enable @typescript-eslint/no-unused-vars */
   ) {
-    !client.vehicle.mountedVehicle
-      ? server.mountVehicle(client, this.characterId)
-      : server.dismountVehicle(client);
+    if(client.vehicle.mountedVehicle) {
+      server.dismountVehicle(client);
+      return;
+    }
+    if(this.isFlipped()) {
+      this.flipVehicle(server);
+      return;
+    }
+    server.mountVehicle(client, this.characterId);
   }
 
   OnInteractionString(server: ZoneServer2016, client: ZoneClient2016) {
-    if (!client.vehicle.mountedVehicle) {
+    if (client.vehicle.mountedVehicle) return;
+
+    if(this.isFlipped()) {
       server.sendData(client, "Command.InteractionString", {
         guid: this.characterId,
-        stringId: 15
+        stringId: StringIds.USE_TARGET
       });
+      return;
     }
+
+    server.sendData(client, "Command.InteractionString", {
+      guid: this.characterId,
+      stringId: StringIds.ENTER_VEHICLE
+    });
   }
 
   pGetItemData(server: ZoneServer2016, item: BaseItem, containerDefId: number) {
