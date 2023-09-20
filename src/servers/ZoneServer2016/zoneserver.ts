@@ -1197,9 +1197,7 @@ export class ZoneServer2016 extends EventEmitter {
   }
 
   private async setupServer() {
-    this.weatherManager.weather =
-      this.weatherManager.templates[this.weatherManager.defaultTemplate];
-    this.weatherManager.seasonstart();
+    this.weatherManager.init();
 
     this.worldDataManager = (await spawn(
       new Worker("./managers/worlddatamanagerthread")
@@ -1446,7 +1444,7 @@ export class ZoneServer2016 extends EventEmitter {
       zoneId2: 5,
       nameId: 7699,
       unknownBoolean2: true,
-      lighting: "Lighting.txt",
+      lighting: "Lighting_JustSurvive.txt",
       unknownBoolean3: false
     });
 
@@ -1481,14 +1479,14 @@ export class ZoneServer2016 extends EventEmitter {
 
     this.sendData(client, "ClientGameSettings", {
       Unknown2: 0,
-      interactGlowAndDist: 16, // need it high for tampers
+      interactionCheckRadius: 16, // need it high for tampers
       unknownBoolean1: true,
       timescale: 1.0,
       enableWeapons: 1,
       Unknown5: 1,
       unknownFloat1: 0.0,
-      unknownFloat2: 15,
-      damageMultiplier: 11
+      fallDamageVelocityThreshold: 15,
+      fallDamageVelocityMultiplier: 11
     });
 
     this.sendCharacterData(client);

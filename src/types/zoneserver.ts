@@ -133,44 +133,6 @@ export interface skyData {
   wind: number;
 }
 
-export interface Weather2016 {
-  templateName?: string;
-  name: string;
-  unknownDword1: number;
-  fogDensity: number;
-  fogFloor: number;
-  fogGradient: number;
-  rain: number;
-  temp: number;
-  colorGradient: number;
-  unknownDword8: number;
-  unknownDword9: number;
-  unknownDword10: number;
-  unknownDword11: number;
-  unknownDword12: number;
-  sunAxisX: number;
-  sunAxisY: number;
-  unknownDword15: number;
-  windDirectionX: number;
-  windDirectionY: number;
-  windDirectionZ: number;
-  wind: number;
-  unknownDword20: number;
-  unknownDword21: number;
-  unknownDword22: number;
-  unknownDword23: number;
-  unknownDword24: number;
-  unknownDword25: number;
-  unknownDword26: number;
-  unknownDword27: number;
-  unknownDword28: number;
-  unknownDword29: number;
-  AOSize: number;
-  AOGamma: number;
-  AOBlackpoint: number;
-  unknownDword33: number;
-}
-
 export interface HitReport {
   sessionProjectileCount: number;
   characterId: string;
@@ -405,4 +367,45 @@ export interface StanceFlags {
   SPRINTING: boolean,
   CROUCHING: boolean,
   FLAG21: boolean,
+}
+
+export interface Weather2016 {
+  overcast: number,
+	fogDensity: number,
+	fogFloor: number,
+	fogGradient: number,
+	globalPrecipitation: number,
+	temperature: number,
+	skyClarity: number,
+	cloudWeight0: number,
+	cloudWeight1: number,
+	cloudWeight2: number,
+	cloudWeight3: number,
+	transitionTime: number,
+	sunAxisX: number,
+	sunAxisY: number,
+	sunAxisZ: number,
+	windDirectionX: number,
+	windDirectionY: number,
+	windDirectionZ: number,
+	wind: number,
+	rainminStrength: number,
+	rainRampupTimeSeconds: number,
+	cloudFile: string,
+	stratusCloudTiling: number,
+	stratusCloudScrollU: number,
+	stratusCloudScrollV: number,
+	stratusCloudHeight: number,
+	cumulusCloudTiling: number,
+	cumulusCloudScrollU: number,
+	cumulusCloudScrollV: number,
+	cumulusCloudHeight: number,
+	cloudAnimationSpeed: number,
+	cloudSilverLiningThickness: number,
+	cloudSilverLiningBrightness: number,
+	cloudShadows: number
+}
+
+export interface WeatherTemplate extends Weather2016 {
+  templateName: string,
 }

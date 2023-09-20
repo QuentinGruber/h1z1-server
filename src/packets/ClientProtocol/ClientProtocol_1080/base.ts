@@ -2619,14 +2619,22 @@ export const basePackets: PacketStructures = [
     {
       fields: [
         { name: "Unknown2", type: "uint32", defaultValue: 0 },
-        { name: "interactGlowAndDist", type: "uint32", defaultValue: 3 }, // client doesnt send interactionstring by distance but still sends interactrequest
+        { name: "interactionCheckRadius", type: "uint32", defaultValue: 3 }, // client doesnt send interactionstring by distance but still sends interactrequest
         { name: "unknownBoolean1", type: "boolean", defaultValue: false },
         { name: "timescale", type: "float", defaultValue: 1.0 },
         { name: "enableWeapons", type: "uint32", defaultValue: 0 },
         { name: "Unknown5", type: "uint32", defaultValue: 0 },
         { name: "unknownFloat1", type: "float", defaultValue: 0.0 },
-        { name: "unknownFloat2", type: "float", defaultValue: 0.0 },
-        { name: "damageMultiplier", type: "float", defaultValue: 1.0 } // 0 = crash
+        {
+          name: "fallDamageVelocityThreshold",
+          type: "float",
+          defaultValue: 0.0
+        },
+        {
+          name: "fallDamageVelocityMultiplier",
+          type: "float",
+          defaultValue: 1.0
+        } // 0 = crash
       ]
     }
   ],
