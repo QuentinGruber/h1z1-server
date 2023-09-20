@@ -1868,9 +1868,10 @@ export class ZonePacketHandlers {
         );
         break;
       case ItemUseOptions.REPAIR:
-        
-        const repairItem = character.getInventoryItem(packet.data.itemSubData?.targetItemGuid);
-        if(!repairItem) {
+        const repairItem = character.getInventoryItem(
+          packet.data.itemSubData?.targetItemGuid
+        );
+        if (!repairItem) {
           server.sendChatText(client, "[ERROR] Invalid weapon");
           return;
         }

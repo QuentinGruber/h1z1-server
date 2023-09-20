@@ -6305,7 +6305,7 @@ export class ZoneServer2016 extends EventEmitter {
       return;
     }
 
-    switch(repairItem.itemDefinitionId) {
+    switch (repairItem.itemDefinitionId) {
       case Items.WEAPON_NAGAFENS_RAGE:
       case Items.WEAPON_REAPER:
       case Items.WEAPON_BLAZE:
@@ -6324,16 +6324,20 @@ export class ZoneServer2016 extends EventEmitter {
     });
   }
 
-  repairOptionPass(client: Client, item: BaseItem, repairItem: BaseItem, durability: number) {
+  repairOptionPass(
+    client: Client,
+    item: BaseItem,
+    repairItem: BaseItem,
+    durability: number
+  ) {
     const diff = 2000 - durability,
-    isGunKit = item.itemDefinitionId == Items.GUN_REPAIR_KIT,
-    repairAmount = diff < 500 ? diff : 500;
+      isGunKit = item.itemDefinitionId == Items.GUN_REPAIR_KIT,
+      repairAmount = diff < 500 ? diff : 500;
 
     if (!this.removeInventoryItem(client.character, item)) return;
-    if(isGunKit) {
+    if (isGunKit) {
       repairItem.currentDurability = 2000;
-    }
-    else {
+    } else {
       repairItem.currentDurability += repairAmount;
     }
 
