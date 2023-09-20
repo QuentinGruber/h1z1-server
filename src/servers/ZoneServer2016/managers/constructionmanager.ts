@@ -2107,7 +2107,7 @@ export class ConstructionManager {
       accumulatedItemDamage += this.repairFreeplaceEntities(server, entity);
     }
     if (entity.health >= entity.maxHealth) return accumulatedItemDamage;
-    this.repairConstruction(server, entity, 50000);
+    this.repairConstruction(server, entity, entity.maxHealth / 10);
     accumulatedItemDamage += 15;
     return accumulatedItemDamage;
   }
@@ -2252,8 +2252,8 @@ export class ConstructionManager {
           | ConstructionDoor
           | LootableConstructionEntity
       ) => {
-        if (child.health >= entity.maxHealth) return;
-        this.repairConstruction(server, child, 50000);
+        if (child.health >= child.maxHealth) return;
+        this.repairConstruction(server, child, child.maxHealth / 10);
         accumulatedItemDamage += 5;
       }
     );
@@ -2328,10 +2328,12 @@ export class ConstructionManager {
       // repair every object on main foundation
       accumulatedItemDamage += this.repairShelterSlots(server, entity);
       accumulatedItemDamage += this.repairWallSlots(server, entity);
+      console.log("REPAIR FREEPLACE")
+      console.log(entity.freeplaceEntities)
       accumulatedItemDamage += this.repairFreeplaceEntities(server, entity);
 
       if (entity.health < entity.maxHealth) {
-        this.repairConstruction(server, entity, 50000);
+        this.repairConstruction(server, entity, entity.maxHealth / 10);
         accumulatedItemDamage += 15;
       }
       server.damageItem(
@@ -2343,7 +2345,7 @@ export class ConstructionManager {
       return;
     }
     accumulatedItemDamage = 50;
-    this.repairConstruction(server, entity, 50000);
+    this.repairConstruction(server, entity, entity.maxHealth / 10);
     accumulatedItemDamage += 15;
     client.character.lastMeleeHitTime = Date.now();
   }
