@@ -208,6 +208,7 @@ export class ConstructionDoor extends DoorEntity {
         this.passwordHash == 0 ||
         this.grantedAccess.includes(client.character.characterId) ||
         client.character.characterId === this.ownerCharacterId ||
+        this.getHasPermission(server, client.character.characterId, ConstructionPermissionIds.DEMOLISH) ||
         (client.isAdmin && client.isDebugMode) // debug mode open all doors/gates
       ) {
         if (this.moving) {
@@ -282,7 +283,10 @@ export class ConstructionDoor extends DoorEntity {
         return;
       }
     } else if (!isInstant) {
-      if (client.character.characterId === this.ownerCharacterId) {
+      if (
+        client.character.characterId === this.ownerCharacterId ||
+        this.getHasPermission(server, client.character.characterId, ConstructionPermissionIds.DEMOLISH)
+        ) {
         server.sendData(client, "Locks.ShowMenu", {
           characterId: client.character.characterId,
           unknownDword1: 2,
@@ -312,6 +316,7 @@ export class ConstructionDoor extends DoorEntity {
     }
     if (
       client.character.characterId === this.ownerCharacterId ||
+      this.getHasPermission(server, client.character.characterId, ConstructionPermissionIds.DEMOLISH) ||
       !this.grantedAccess.includes(client.character.characterId)
     ) {
       server.sendData(client, "Command.InteractionString", {
