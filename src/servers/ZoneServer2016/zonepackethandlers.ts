@@ -1336,13 +1336,17 @@ export class ZonePacketHandlers {
     }
     if (
       doorEntity.ownerCharacterId === client.character.characterId ||
-      doorEntity.getHasPermission(server, client.character.characterId, ConstructionPermissionIds.DEMOLISH)
-      ) {
+      doorEntity.getHasPermission(
+        server,
+        client.character.characterId,
+        ConstructionPermissionIds.DEMOLISH
+      )
+    ) {
       if (doorEntity.passwordHash != packet.data.password) {
         doorEntity.passwordHash = packet.data.password;
         doorEntity.grantedAccess = [];
         doorEntity.grantedAccess.push(client.character.characterId);
-        if(client.character.characterId != doorEntity.ownerCharacterId) {
+        if (client.character.characterId != doorEntity.ownerCharacterId) {
           doorEntity.grantedAccess.push(doorEntity.ownerCharacterId);
         }
       }
