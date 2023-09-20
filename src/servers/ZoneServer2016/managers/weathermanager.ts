@@ -45,6 +45,11 @@ export class WeatherManager {
   frozeCycle = false;
   defaultTemplate = "z1br";
 
+  init() {
+    this.weather = this.templates[this.defaultTemplate];
+    this.seasonstart();
+  }
+
   handleWeatherCommand(
     server: ZoneServer2016,
     client: Client,
@@ -97,12 +102,13 @@ export class WeatherManager {
     } else if (this.templates[args[0]]) {
       server.sendChatText(client, `"${args[0]}" already exists !`);
     } else {
-      const currentWeather = this.weather;
-      if (currentWeather) {
-        currentWeather.templateName = args[0];
+      const template = {
+        templateName: args[0],
+        ...this.weather
+      }
         if (server._soloMode) {
-          this.templates[currentWeather.templateName as string] =
-            currentWeather;
+          this.templates[template.templateName] =
+            template;
           fs.writeFileSync(
             `${__dirname}/../../../../data/2016/dataSources/weather.json`,
             JSON.stringify(this.templates, null, "\t")
@@ -112,17 +118,13 @@ export class WeatherManager {
           ];
           this.templates = require("../../../../data/2016/dataSources/weather.json");
         } else {
-          await server._db?.collection("weathers").insertOne(currentWeather);
+          await server._db?.collection("weathers").insertOne(template);
           this.templates = await (server._db as any)
             .collection("weathers")
             .find()
             .toArray();
         }
         server.sendChatText(client, `template "${args[0]}" saved !`);
-      } else {
-        server.sendChatText(client, `Saving current weather failed...`);
-        server.sendChatText(client, `plz report this`);
-      }
     }
   }
 
@@ -139,45 +141,40 @@ export class WeatherManager {
     }
 
     this.weather = {
-      ...this.weather,
-      //name: "sky_dome_600.dds", todo: use random template from a list
-      /*
-            unknownDword1: 0,
-            unknownDword2: 0,
-            skyBrightness1: 1,
-            skyBrightness2: 1,
-            */
-      rain: rnd_number(200, true),
-      temp: rnd_number(80, true),
-      colorGradient: rnd_number(1),
-      unknownDword8: rnd_number(1),
-      unknownDword9: rnd_number(1),
-      unknownDword10: rnd_number(1),
-      unknownDword11: 0,
-      unknownDword12: 0,
-      sunAxisX: rnd_number(360, true),
-      sunAxisY: rnd_number(360, true),
-      unknownDword15: 0,
-      windDirectionX: rnd_number(360, true),
-      windDirectionY: rnd_number(360, true),
-      windDirectionZ: rnd_number(360, true),
-      wind: rnd_number(100, true),
-      unknownDword20: 0,
-      unknownDword21: 0,
-      unknownDword22: 0,
-      unknownDword23: 0,
-      unknownDword24: 0,
-      unknownDword25: 0,
-      unknownDword26: 0,
-      unknownDword27: 0,
-      unknownDword28: 0,
-      unknownDword29: 0,
-
-      AOSize: rnd_number(0.5),
-      AOGamma: rnd_number(0.2),
-      AOBlackpoint: rnd_number(2),
-
-      unknownDword33: 0
+      overcast: 50.0,
+      fogDensity: rnd_number(0.0010),
+      fogFloor: rnd_number(100),
+      fogGradient: rnd_number(0.0140),
+      globalPrecipitation: 1.0,
+      temperature: rnd_number(50),
+      skyClarity: rnd_number(1.0),
+      cloudWeight0: rnd_number(0.02),
+      cloudWeight1: rnd_number(40),
+      cloudWeight2: rnd_number(0.02),
+      cloudWeight3: rnd_number(0.02),
+      transitionTime: rnd_number(0.02),
+      sunAxisX: rnd_number(100),
+      sunAxisY: rnd_number(100),
+      sunAxisZ: rnd_number(10),
+      windDirectionX: rnd_number(40),
+      windDirectionY: rnd_number(20),
+      windDirectionZ: rnd_number(10),
+      wind: rnd_number(6),
+      rainminStrength: rnd_number(2),
+      rainRampupTimeSeconds: rnd_number(0.02),
+      cloudFile: "sky_Z_clouds.dds",
+      stratusCloudTiling: 0.3,
+      stratusCloudScrollU: -0.002,
+      stratusCloudScrollV: 0,
+      stratusCloudHeight: 1000,
+      cumulusCloudTiling: 0.2,
+      cumulusCloudScrollU: 0,
+      cumulusCloudScrollV: 0.002,
+      cumulusCloudHeight: 8000,
+      cloudAnimationSpeed: rnd_number(0.1),
+      cloudSilverLiningThickness: 0.25,
+      cloudSilverLiningBrightness: 0,
+      cloudShadows: rnd_number(0.02)
     };
     this.sendUpdateToAll(server, client, true);
   }
@@ -329,7 +326,7 @@ export class WeatherManager {
     serverTime: number,
     startTime: number,
     timeMultiplier: number
-  ) {
+  ): Weather2016 {
     const delta = Date.now() - startTime;
     const currentDate = new Date((serverTime + delta) * timeMultiplier);
     const currentHour = currentDate.getUTCHours();
@@ -448,44 +445,44 @@ export class WeatherManager {
       this.windStrengthValue++;
     }
     this.seasonstart();
-    const weather = {
-      name: "sky_Z_clouds.dds",
-      unknownDword1: 1,
+
+    return {
+      overcast: 1,
       fogDensity: this.fogEnabled
         ? Number((this.fogValue / 40000).toFixed(5))
         : 0,
       fogFloor: 71,
       fogGradient: 0.008,
-      rain: 0, //broken
-      temp: this.temperature, // does almost nothing
-      colorGradient: Number((this.skyColor / 400).toFixed(5)),
-      unknownDword8: 0, //clouds cause the screen flickering
-      unknownDword9: 0,
-      unknownDword10: 0,
-      unknownDword11: 0,
-      unknownDword12: 0.25,
+      globalPrecipitation: 0, //broken
+      temperature: this.temperature, // does almost nothing
+      skyClarity: Number((this.skyColor / 400).toFixed(5)),
+      cloudWeight0: 0, //clouds cause the screen flickering
+      cloudWeight1: 0,
+      cloudWeight2: 0,
+      cloudWeight3: 0,
+      transitionTime: 0.25,
       sunAxisX: 0,
       sunAxisY: 0,
-      unknownDword15: 0,
+      sunAxisZ: 0,
       windDirectionX: -1,
       windDirectionY: -0.5,
       windDirectionZ: -1,
       wind: Number((this.windStrength / 25).toFixed(5)),
-      unknownDword20: 0,
-      unknownDword21: 1,
-      unknownDword22: 0.3,
-      unknownDword23: -0.002,
-      unknownDword24: 0,
-      unknownDword25: 1000,
-      unknownDword26: 0.2,
-      unknownDword27: 0,
-      unknownDword28: 0.002,
-      unknownDword29: 8000,
-      AOSize: 0.1,
-      AOGamma: 0.8,
-      AOBlackpoint: 0.2,
-      unknownDword33: 0.5
+      rainminStrength: 0,
+      rainRampupTimeSeconds: 1,
+      cloudFile: "sky_Z_clouds.dds",
+      stratusCloudTiling: 0.3,
+      stratusCloudScrollU: -0.002,
+      stratusCloudScrollV: 0,
+      stratusCloudHeight: 1000,
+      cumulusCloudTiling: 0.2,
+      cumulusCloudScrollU: 0,
+      cumulusCloudScrollV: 0.002,
+      cumulusCloudHeight: 8000,
+      cloudAnimationSpeed: 0.1,
+      cloudSilverLiningThickness: 0.8,
+      cloudSilverLiningBrightness: 0.2,
+      cloudShadows: 0.5
     };
-    return weather;
   }
 }

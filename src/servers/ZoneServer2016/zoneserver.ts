@@ -1197,9 +1197,7 @@ export class ZoneServer2016 extends EventEmitter {
   }
 
   private async setupServer() {
-    this.weatherManager.weather =
-      this.weatherManager.templates[this.weatherManager.defaultTemplate];
-    this.weatherManager.seasonstart();
+    this.weatherManager.init();
 
     this.worldDataManager = (await spawn(
       new Worker("./managers/worlddatamanagerthread")
