@@ -507,7 +507,7 @@ export const commands: Array<Command> = [
       }
 
       const triggerLoadingScreen = !isPosInRadius(
-        100,
+        250,
         client.character.state.position,
         position
       );
