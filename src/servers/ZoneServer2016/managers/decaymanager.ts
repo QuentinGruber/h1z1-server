@@ -28,8 +28,8 @@ export class DecayManager {
   /* MANAGED BY CONFIGMANAGER */
   decayTickInterval!: number;
   constructionDamageTicks!: number;
-  baseConstructionDamage!: number;
-  repairBoxHealValue!: number;
+  ticksToFullDecay!: number;
+  worldFreeplaceDecayMultiplier!: number;
   vehicleDamageTicks!: number;
   vacantFoundationTicks!: number;
   baseVehicleDamage!: number;
@@ -134,14 +134,14 @@ export class DecayManager {
         server,
         {
           entity: "Server.DecayManager",
-          damage: this.baseConstructionDamage
+          damage: entity.maxHealth / this.ticksToFullDecay
         },
         dictionary
       );
     } else {
       entity.damage(server, {
         entity: "Server.DecayManager",
-        damage: this.baseConstructionDamage
+        damage: entity.maxHealth / this.ticksToFullDecay
       });
     }
     server.updateResourceToAllWithSpawnedEntity(

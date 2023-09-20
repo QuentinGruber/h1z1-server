@@ -78,8 +78,18 @@ construction:
 decay:
   decayTickInterval: 1200000 # 20 minutes per decay tick
   constructionDamageTicks: 72 # damage structures every 24 hours
+
+  # with default values it'll take 14 days for a base to fully decay
+  ticksToFullDecay: 14 # how many decay ticks * constructionDamageTicks it takes to fully decay any construction entity.
+
+  # unused for now but is planned
+  worldFreeplaceDecayMultiplier: 2 # used to multiply decay damage for freeplace constuction with no parent
+
+  ##### DEPRECATED - NO LONGER DOES ANYTHING #####
   baseConstructionDamage: 125000 # construction damage per required ticks
   repairBoxHealValue: 1000000 # heals base to full condition
+  #####                                      #####
+
   vehicleDamageTicks: 3 # damage vehicles every hour
   vacantFoundationTicks: 3 # destroy empty foundations after 1 hour
   baseVehicleDamage: 6000 # 6% damage per 3 ticks
@@ -104,5 +114,3 @@ decay:
 smelting:
   burnTime: 120000 # consume fuel every 120 seconds
   smeltTime: 40000 # smelt 1 item every 40 seconds
-
-misc:

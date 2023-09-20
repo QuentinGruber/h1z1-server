@@ -84,8 +84,8 @@ interface ConstructionConfig {
 interface DecayConfig {
   decayTickInterval: number;
   constructionDamageTicks: number;
-  baseConstructionDamage: number;
-  repairBoxHealValue: number;
+  ticksToFullDecay: number;
+  worldFreeplaceDecayMultiplier: number;
   vehicleDamageTicks: number;
   vacantFoundationTicks: number;
   baseVehicleDamage: number;

@@ -2106,7 +2106,7 @@ export class ConstructionManager {
       );
       accumulatedItemDamage += this.repairFreeplaceEntities(server, entity);
     }
-    if (entity.health >= 1000000) return accumulatedItemDamage;
+    if (entity.health >= entity.maxHealth) return accumulatedItemDamage;
     this.repairConstruction(server, entity, 50000);
     accumulatedItemDamage += 15;
     return accumulatedItemDamage;
@@ -2252,7 +2252,7 @@ export class ConstructionManager {
           | ConstructionDoor
           | LootableConstructionEntity
       ) => {
-        if (child.health >= 1000000) return;
+        if (child.health >= entity.maxHealth) return;
         this.repairConstruction(server, child, 50000);
         accumulatedItemDamage += 5;
       }
@@ -2330,7 +2330,7 @@ export class ConstructionManager {
         accumulatedItemDamage += this.repairWallSlots(server, entity);
         accumulatedItemDamage += this.repairFreeplaceEntities(server, entity);
 
-        if (entity.health < 1000000) {
+        if (entity.health < entity.maxHealth) {
           this.repairConstruction(server, entity, 50000);
           accumulatedItemDamage += 15;
         }
@@ -2360,7 +2360,7 @@ export class ConstructionManager {
           | LootableConstructionEntity
       ) => {
         child.isDecayProtected = true;
-        if (child.health >= 1000000) return;
+        if (child.health >= entity.maxHealth) return;
         this.fullyRepairConstruction(server, child);
       }
     );
@@ -2386,7 +2386,7 @@ export class ConstructionManager {
       this.fullyRepairWallSlots(server, entity.occupiedWallSlots);
       this.fullyRepairFreeplaceEntities(server, entity);
       entity.isDecayProtected = true;
-      if (entity.health < 1000000) {
+      if (entity.health < entity.maxHealth) {
         this.fullyRepairConstruction(server, entity);
       }
       return;
