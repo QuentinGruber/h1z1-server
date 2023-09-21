@@ -164,6 +164,9 @@ export class SpeedTreeManager {
       return;
     }
 
+    if (!isPosInRadius(5, zoneTree.position, client.character.state.position))
+      return;
+
     this._speedTrees[objectId] = {
       objectId: objectId,
       modelName: name,
