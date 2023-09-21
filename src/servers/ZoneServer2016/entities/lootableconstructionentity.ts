@@ -23,6 +23,16 @@ import { lootableContainerDefaultLoadouts } from "../data/loadouts";
 import { CollectingEntity } from "../classes/collectingentity";
 import { EXTERNAL_CONTAINER_GUID } from "../../../utils/constants";
 
+function getMaxHealth(itemDefinitionId: Items): number {
+  switch (itemDefinitionId) {
+    case Items.CAMPFIRE:
+    case Items.DEW_COLLECTOR:
+      return 100000;
+    default:
+      return 500000;
+  }
+}
+
 export class LootableConstructionEntity extends BaseLootableEntity {
   placementTime = Date.now();
   parentObjectCharacterId: string;
@@ -49,7 +59,10 @@ export class LootableConstructionEntity extends BaseLootableEntity {
     const itemDefinition = server.getItemDefinition(itemDefinitionId);
     if (itemDefinition) this.nameId = itemDefinition.NAME_ID;
     this.profileId = 999; /// mark as construction
-    this.health = 1000000;
+
+    this.maxHealth = getMaxHealth(this.itemDefinitionId);
+    this.health = this.maxHealth;
+
     this.defaultLoadout =
       this.itemDefinitionId == Items.REPAIR_BOX
         ? lootableContainerDefaultLoadouts.repair_box

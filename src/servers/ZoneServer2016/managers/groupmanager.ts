@@ -372,12 +372,15 @@ export class GroupManager {
   }
 
   handleGroupView(server: ZoneServer2016, client: Client, group: Group) {
-    server.sendChatText(client, "Open console to view group.");
-    server.sendData(client, "H1emu.PrintToConsole", {
-      message: `----------Group Info----------\n| Member Count: ${group.members.length} |`
-    });
-    server.sendData(client, "H1emu.PrintToConsole", {
-      message: `| Members |\n- ${group.members
+    server.sendConsoleText(
+      client,
+      `----------Group Info----------\n| Member Count: ${group.members.length} |`,
+      true,
+      true
+    );
+    server.sendConsoleText(
+      client,
+      `| Members |\n- ${group.members
         .map((characterId) => {
           const client = server.getClientByCharId(characterId);
           if (!client) {
@@ -388,7 +391,7 @@ export class GroupManager {
             : client.character.name;
         })
         .join("\n- ")}`
-    });
+    );
   }
 
   handleGroupDisband(server: ZoneServer2016, client: Client, group: Group) {

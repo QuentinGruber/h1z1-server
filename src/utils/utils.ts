@@ -25,6 +25,8 @@ import { ZoneServer2016 } from "servers/ZoneServer2016/zoneserver";
 import { ZoneServer2015 } from "servers/ZoneServer2015/zoneserver";
 import {
   ConstructionSlotPositionMap,
+  CubeBounds,
+  Point3D,
   positionUpdate,
   SquareBounds
 } from "types/zoneserver";
@@ -520,36 +522,30 @@ export const isInsideSquare = (
 };
 
 /**
- * Checks if a point is inside a cube region defined by a square base and height.
+ * Checks if a 3D point is inside a cube region defined by a cube's bounds.
  *
- * @param point - The point to check.
- * @param vs - The vertices of the square base.
- * @param y_pos1 - The bottom y-coordinate of the cube.
- * @param y_pos2 - The top y-coordinate of the cube.
- * @param y_radius - The radius around the y-axis for the cube.
+ * @param point - The 3D point [x, y, z] to check.
+ * @param cubeBounds - The cube's bounds represented as CubeBounds.
  * @returns A boolean indicating whether the point is inside the cube.
  */
-export const isInsideCube = (
-  point: [number, number],
-  vs: SquareBounds,
-  y_pos1: number,
-  y_pos2: number,
-  y_radius: number
-) => {
+export const isInsideCube = (point: Point3D, bounds: CubeBounds) => {
   const x = point[0],
-    y = point[1];
+    z = point[2],
+    lowerY = bounds[0][1],
+    upperY = bounds[7][1];
 
   let inside = false;
-  for (let i = 0, j = vs.length - 1; i < vs.length; j = i++) {
-    const xi = vs[i][0],
-      yi = vs[i][1],
-      xj = vs[j][0],
-      yj = vs[j][1],
+  for (let i = 0, j = 4 - 1; i < 4; j = i++) {
+    const xi = bounds[i][0],
+      zi = bounds[i][2],
+      xj = bounds[j][0],
+      zj = bounds[j][2],
       intersect =
-        yi > y != yj > y && x < ((xj - xi) * (y - yi)) / (yj - yi) + xi;
+        zi > z != zj > z && x < ((xj - xi) * (z - zi)) / (zj - zi) + xi;
     if (intersect) inside = !inside;
   }
-  return inside && isBetween(y_radius, y_pos1, y_pos2) && y_pos1 > y_pos2 - 0.2;
+
+  return inside && point[1] > lowerY && point[1] < upperY;
 };
 
 /**
@@ -728,6 +724,65 @@ export function getRectangleCorners(
     [pointB[0], pointB[2]],
     [pointC[0], pointC[2]],
     [pointD[0], pointD[2]]
+  ];
+}
+
+/**
+ * Calculates the coordinates of the corners of a cube given the center point, angle, offset, euler rotation,
+ * bottom y, and top y values.
+ *
+ * @param centerPoint - The center point of the cube.
+ * @param angle - The angle of the cube.
+ * @param offset - The offset of the cube.
+ * @param eulerRot - The euler rotation of the cube.
+ * @param bottomY - The bottom y value of the cube.
+ * @param topY - The top y value of the cube.
+ * @returns An array containing the coordinates of the cube's corners.
+ */
+export function getCubeBounds(
+  centerPoint: Float32Array,
+  angle: number,
+  offset: number,
+  eulerRot: number,
+  bottomY: number,
+  topY: number
+): CubeBounds {
+  const middlePointA = movePoint(centerPoint, eulerRot, offset / 2);
+  const middlePointB = movePoint(
+    centerPoint,
+    eulerRot + (180 * Math.PI) / 180,
+    offset / 2
+  );
+  const pointA = movePoint(
+    middlePointA,
+    eulerRot + 90 * (Math.PI / 180),
+    angle / 2
+  );
+  const pointB = movePoint(
+    middlePointA,
+    eulerRot + 270 * (Math.PI / 180),
+    angle / 2
+  );
+  const pointC = movePoint(
+    middlePointB,
+    eulerRot + 270 * (Math.PI / 180),
+    angle / 2
+  );
+  const pointD = movePoint(
+    middlePointB,
+    eulerRot + 90 * (Math.PI / 180),
+    angle / 2
+  );
+
+  return [
+    [pointA[0], bottomY, pointA[2]],
+    [pointB[0], bottomY, pointB[2]],
+    [pointC[0], bottomY, pointC[2]],
+    [pointD[0], bottomY, pointD[2]],
+    [pointA[0], topY, pointA[2]],
+    [pointB[0], topY, pointB[2]],
+    [pointC[0], topY, pointC[2]],
+    [pointD[0], topY, pointD[2]]
   ];
 }
 

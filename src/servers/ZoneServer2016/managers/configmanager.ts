@@ -90,7 +90,8 @@ export class ConfigManager {
       worldobjects,
       speedtree,
       construction,
-      decay
+      decay,
+      smelting
     } = this.defaultConfig;
     return {
       ...this.defaultConfig,
@@ -122,6 +123,10 @@ export class ConfigManager {
       decay: {
         ...decay,
         ...config.decay
+      },
+      smelting: {
+        ...smelting,
+        ...config.smelting
       }
     };
   }
@@ -258,8 +263,8 @@ export class ConfigManager {
     const {
       decayTickInterval,
       constructionDamageTicks,
-      baseConstructionDamage,
-      repairBoxHealValue,
+      ticksToFullDecay,
+      worldFreeplaceDecayMultiplier,
       vehicleDamageTicks,
       vacantFoundationTicks,
       baseVehicleDamage,
@@ -269,8 +274,9 @@ export class ConfigManager {
     } = this.config.decay;
     server.decayManager.decayTickInterval = decayTickInterval;
     server.decayManager.constructionDamageTicks = constructionDamageTicks;
-    server.decayManager.baseConstructionDamage = baseConstructionDamage;
-    (server.decayManager.repairBoxHealValue = repairBoxHealValue),
+    server.decayManager.ticksToFullDecay = ticksToFullDecay;
+    (server.decayManager.worldFreeplaceDecayMultiplier =
+      worldFreeplaceDecayMultiplier),
       (server.decayManager.vehicleDamageTicks = vehicleDamageTicks);
     server.decayManager.vacantFoundationTicks = vacantFoundationTicks;
     server.decayManager.baseVehicleDamage = baseVehicleDamage;

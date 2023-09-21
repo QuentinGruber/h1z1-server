@@ -9,12 +9,12 @@
 function getRenderDistance(itemDefinitionId: number) {
   let range: number = 0;
   switch (itemDefinitionId) {
-    case Items.SHACK: // metal shack
-    case Items.SHACK_SMALL: // small shack
-    case Items.SHACK_BASIC: // wood shack
-    case Items.FOUNDATION: // foundation,
-    case Items.FOUNDATION_EXPANSION: // expansion
-    case Items.GROUND_TAMPER: // tamper
+    case Items.SHACK:
+    case Items.SHACK_SMALL:
+    case Items.SHACK_BASIC:
+    case Items.FOUNDATION:
+    case Items.FOUNDATION_EXPANSION:
+    case Items.GROUND_TAMPER:
       range = 350;
       break;
     case Items.FURNACE:
@@ -43,11 +43,12 @@ import {
   DamageInfo,
   OccupiedSlotMap,
   SlottedConstructionEntity,
-  SquareBounds
+  CubeBounds,
+  Point3D
 } from "types/zoneserver";
 import {
   getConstructionSlotId,
-  getRectangleCorners,
+  getCubeBounds,
   isInsideCube,
   movePoint,
   registerConstructionSlots
@@ -62,7 +63,7 @@ import {
 } from "../data/constructionslots";
 import { ConstructionDoor } from "./constructiondoor";
 import { LootableConstructionEntity } from "./lootableconstructionentity";
-function getDamageRange(definitionId: number): number {
+function getDamageRange(definitionId: Items): number {
   switch (definitionId) {
     case Items.METAL_WALL:
     case Items.METAL_WALL_UPPER:
@@ -77,9 +78,28 @@ function getDamageRange(definitionId: number): number {
   }
 }
 
+function getMaxHealth(itemDefinitionId: Items): number {
+  switch (itemDefinitionId) {
+    case Items.SHELTER:
+    case Items.SHELTER_LARGE:
+    case Items.SHELTER_UPPER:
+    case Items.SHELTER_UPPER_LARGE:
+    case Items.STRUCTURE_STAIRS:
+    case Items.STRUCTURE_STAIRS_UPPER:
+    case Items.LOOKOUT_TOWER:
+    case Items.METAL_WALL:
+    case Items.METAL_WALL_UPPER:
+    case Items.METAL_DOORWAY:
+      return 1000000;
+    case Items.WORKBENCH:
+    case Items.WORKBENCH_WEAPON:
+      return 500000;
+    default:
+      return 10000;
+  }
+}
+
 export class ConstructionChildEntity extends BaseLightweightCharacter {
-  health: number = 1000000;
-  maxHealth: number = 1000000;
   readonly itemDefinitionId: number;
   parentObjectCharacterId: string;
   eulerAngle: number;
@@ -88,7 +108,10 @@ export class ConstructionChildEntity extends BaseLightweightCharacter {
   readonly damageRange: number;
   readonly fixedPosition?: Float32Array;
   placementTime = Date.now();
-  readonly bounds?: SquareBounds;
+  readonly cubebounds?: CubeBounds;
+
+  readonly boundsOn?: CubeBounds;
+
   undoPlacementTime = 600000;
   interactionDistance = 4;
   destroyedEffect: number = 242;
@@ -143,11 +166,8 @@ export class ConstructionChildEntity extends BaseLightweightCharacter {
     this.npcRenderDistance = getRenderDistance(this.itemDefinitionId);
     this.useSimpleStruct = true;
 
-    if (this.itemDefinitionId == Items.SLEEPING_MAT) {
-      this.maxHealth = 10000;
-      this.health = 10000;
-      this.destroyedEffect = 0;
-    }
+    this.maxHealth = getMaxHealth(this.itemDefinitionId);
+    this.health = this.maxHealth;
 
     registerConstructionSlots(this, this.wallSlots, wallSlotDefinitions);
     Object.seal(this.wallSlots);
@@ -170,11 +190,41 @@ export class ConstructionChildEntity extends BaseLightweightCharacter {
           2.5
         );
         this.fixedPosition = centerPoint;
-        this.bounds = getRectangleCorners(centerPoint, 10, 5, angle);
+
+        this.cubebounds = getCubeBounds(
+          centerPoint,
+          10,
+          5,
+          angle,
+          position[1],
+          position[1] + 1.8
+        );
+
+        const pos = position[1] + 2.4;
+        this.boundsOn = getCubeBounds(
+          centerPoint,
+          10,
+          5,
+          angle,
+          pos,
+          pos + 1.8
+        );
+
         break;
       case Items.SHELTER:
       case Items.SHELTER_UPPER:
-        this.bounds = getRectangleCorners(position, 5, 5, angle);
+        this.cubebounds = getCubeBounds(
+          position,
+          5,
+          5,
+          angle,
+          position[1],
+          position[1] + 1.8
+        );
+
+        const p = position[1] + 2.4;
+        this.boundsOn = getCubeBounds(position, 5, 5, angle, p, p + 1.8);
+
         break;
     }
 
@@ -399,62 +449,36 @@ export class ConstructionChildEntity extends BaseLightweightCharacter {
   }
 
   isInside(position: Float32Array) {
-    if (!this.bounds) {
-      switch (this.itemDefinitionId) {
-        case Items.STRUCTURE_STAIRS:
-        case Items.STRUCTURE_STAIRS_UPPER:
-        case Items.LOOKOUT_TOWER:
-          return false;
-      }
-      console.error(
-        `ERROR: CONSTRUCTION BOUNDS IS NOT DEFINED FOR ${this.itemDefinitionId} ${this.characterId}`
-      );
-      return false; // this should never occur
-    }
-
     switch (this.itemDefinitionId) {
-      case Items.SHELTER_LARGE:
-      case Items.SHELTER_UPPER_LARGE:
       case Items.SHELTER:
+      case Items.SHELTER_LARGE:
       case Items.SHELTER_UPPER:
-        return isInsideCube(
-          [position[0], position[2]],
-          this.bounds,
-          position[1],
-          this.state.position[1],
-          1.8
-        );
+      case Items.SHELTER_UPPER_LARGE:
+        if (!this.cubebounds) {
+          console.error(
+            `ERROR: CONSTRUCTION CUBEBOUNDS IS NOT DEFINED FOR ${this.itemDefinitionId} ${this.characterId}`
+          );
+          return false; // this should never occur
+        }
+        return isInsideCube(Array.from(position) as Point3D, this.cubebounds);
       default:
         return false;
     }
   }
 
   isOn(position: Float32Array) {
-    if (!this.bounds) {
-      switch (this.itemDefinitionId) {
-        case Items.STRUCTURE_STAIRS:
-        case Items.STRUCTURE_STAIRS_UPPER:
-        case Items.LOOKOUT_TOWER:
-          return false;
-      }
-      console.error(
-        `ERROR: CONSTRUCTION BOUNDS IS NOT DEFINED FOR ${this.itemDefinitionId} ${this.characterId}`
-      );
-      return false; // this should never occur
-    }
-
     switch (this.itemDefinitionId) {
-      case Items.SHELTER_LARGE:
-      case Items.SHELTER_UPPER_LARGE:
       case Items.SHELTER:
+      case Items.SHELTER_LARGE:
       case Items.SHELTER_UPPER:
-        return isInsideCube(
-          [position[0], position[2]],
-          this.bounds,
-          position[1],
-          this.state.position[1] + 2.4,
-          1.8
-        );
+      case Items.SHELTER_UPPER_LARGE:
+        if (!this.boundsOn) {
+          console.error(
+            `ERROR: CONSTRUCTION boundsOn IS NOT DEFINED FOR ${this.itemDefinitionId} ${this.characterId}`
+          );
+          return false; // this should never occur
+        }
+        return isInsideCube(Array.from(position) as Point3D, this.boundsOn);
       default:
         return false;
     }

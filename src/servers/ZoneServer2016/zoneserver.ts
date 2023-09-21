@@ -45,7 +45,8 @@ import {
   VehicleIds,
   ConstructionPermissionIds,
   ItemUseOptions,
-  HealTypes
+  HealTypes,
+  ConstructionErrors
 } from "./models/enums";
 import { healthThreadDecorator } from "../shared/workers/healthWorker";
 import { WeatherManager } from "./managers/weathermanager";
@@ -55,6 +56,7 @@ import {
   ConstructionEntity,
   DamageInfo,
   DamageRecord,
+  FireHint,
   Recipe
 } from "../../types/zoneserver";
 import { h1z1PacketsType2016 } from "../../types/packets";
@@ -688,7 +690,6 @@ export class ZoneServer2016 extends EventEmitter {
       setTimeout(
         () => {
           console.log("Rebooting server due to reboot time set");
-          this.isRebooting = true;
           this.shutdown(this.rebootWarnTime, "Server rebooting");
         },
         this.rebootTime * 60 * 60 * 1000
@@ -721,16 +722,22 @@ export class ZoneServer2016 extends EventEmitter {
       });
       setTimeout(() => {
         process.exit(0);
-      }, 60000);
+      }, 30000);
     } else {
       this.sendDataToAll<ClientUpdateTextAlert>("ClientUpdate.TextAlert", {
         message: `Server will shutdown in ${Math.ceil(
           currentTimeLeft / 1000
         )} seconds. Reason: ${message}`
       });
+
+      if (currentTimeLeft / 1000 <= 60) {
+        // block client connections for last minute
+        this.isRebooting = true;
+      }
+
       setTimeout(
         () => this.shutdown(timeLeft, message),
-        timeLeftMs <= 60000 ? timeLeftMs / 6 : timeLeftMs / 10
+        currentTimeLeft <= 60 * 1000 ? timeLeftMs / 6 : timeLeftMs / 10
       );
     }
   }
@@ -1005,7 +1012,7 @@ export class ZoneServer2016 extends EventEmitter {
     });
     */
 
-    // temp custom logic for external container workaround
+    // temp custom logic for items with custom itemDefintion data
 
     const defs: any[] = [];
     Object.values(this._itemDefinitions).forEach((itemDef: any) => {
@@ -1451,8 +1458,7 @@ export class ZoneServer2016 extends EventEmitter {
     if (!this.itemDefinitionsCache) {
       this.packItemDefinitions();
     }
-    // disabled since it breaks weapon inspect
-    // re-enabled for just external container workaround custom definitions
+    // only sends a few needed definitions
     this.sendRawData(client, this.itemDefinitionsCache);
     if (!this.weaponDefinitionsCache) {
       this.packWeaponDefinitions();
@@ -1482,7 +1488,7 @@ export class ZoneServer2016 extends EventEmitter {
       interactionCheckRadius: 16, // need it high for tampers
       unknownBoolean1: true,
       timescale: 1.0,
-      enableWeapons: 1,
+      enableWeapons: 1, // no longer seems to do anything, used to disable weapons from working
       Unknown5: 1,
       unknownFloat1: 0.0,
       fallDamageVelocityThreshold: 15,
@@ -1592,16 +1598,17 @@ export class ZoneServer2016 extends EventEmitter {
 
   pushToGridCell(obj: BaseEntity) {
     if (this._grid.length == 0)
-      this._grid = this.divideMapIntoGrid(8000, 8000, 250);
+      this._grid = this.divideMapIntoGrid(8196, 8196, 250);
     if (
       obj instanceof Vehicle ||
       obj instanceof Character ||
-      (obj instanceof ConstructionChildEntity &&
-        !obj.getParent(this) &&
-        obj instanceof ConstructionParentEntity) ||
+      (obj instanceof ConstructionChildEntity && !obj.getParent(this)) ||
       (obj instanceof LootableConstructionEntity && !obj.getParent(this))
-    )
-      return; // dont push objects that can change its position
+    ) {
+      // dont push objects that can change its position or are
+      // handled by the construction system
+      return;
+    }
     for (let i = 0; i < this._grid.length; i++) {
       const gridCell = this._grid[i];
       if (
@@ -1935,9 +1942,7 @@ export class ZoneServer2016 extends EventEmitter {
             );
           }
           slot.weapon.ammoCount = 0;
-          if (slot.itemDefinitionId != Items.WEAPON_FISTS) {
-            this.damageItem(client, slot, 350);
-          }
+          this.damageItem(client, slot, 350);
         }
       });
       this.worldObjectManager.createLootbag(this, character);
@@ -1973,6 +1978,9 @@ export class ZoneServer2016 extends EventEmitter {
     client?: Client
   ) {
     // TODO: REDO THIS WITH AN OnExplosiveDamage method per class
+
+    // TODO: REDO THIS WITH GRID CHUNK SYSTEM
+
     for (const characterId in this._characters) {
       const character = this._characters[characterId];
       if (isPosInRadiusWithY(3, character.state.position, position, 1.5)) {
@@ -2094,17 +2102,20 @@ export class ZoneServer2016 extends EventEmitter {
           position
         )
       ) {
-        const allowed = [Items.SHACK, Items.SHACK_SMALL, Items.SHACK_BASIC];
-        if (allowed.includes(constructionObject.itemDefinitionId)) {
-          this.constructionManager.checkConstructionDamage(
-            this,
-            constructionObject.characterId,
-            50000,
-            this._constructionFoundations,
-            position,
-            constructionObject.state.position,
-            source
-          );
+        switch (constructionObject.itemDefinitionId) {
+          case Items.SHACK:
+          case Items.SHACK_SMALL:
+          case Items.SHACK_BASIC:
+            this.constructionManager.checkConstructionDamage(
+              this,
+              constructionObject.characterId,
+              50000,
+              this._constructionFoundations,
+              position,
+              constructionObject.state.position,
+              source
+            );
+            break;
         }
       }
     }
@@ -2538,6 +2549,8 @@ export class ZoneServer2016 extends EventEmitter {
   }
 
   damageItem(client: Client, item: LoadoutItem, damage: number) {
+    if (item.itemDefinitionId == Items.WEAPON_FISTS) return;
+
     item.currentDurability -= damage;
     if (item.currentDurability <= 0) {
       this.removeInventoryItem(client.character, item);
@@ -3121,6 +3134,15 @@ export class ZoneServer2016 extends EventEmitter {
   }
   addSimpleNpc(client: Client, entity: BaseSimpleNpc) {
     this.sendData(client, "AddSimpleNpc", entity.pGetSimpleNpc());
+  }
+
+  spawnSimpleNpcForAllInRange(entity: BaseSimpleNpc) {
+    this.executeFuncForAllReadyClientsInRange((client) => {
+      if (!client.spawnedEntities.includes(entity)) {
+        this.addSimpleNpc(client, entity);
+        client.spawnedEntities.push(entity);
+      }
+    }, entity);
   }
 
   spawnWorkAroundLightWeight(client: Client) {
@@ -6283,11 +6305,41 @@ export class ZoneServer2016 extends EventEmitter {
       return;
     }
 
+    switch (repairItem.itemDefinitionId) {
+      case Items.WEAPON_NAGAFENS_RAGE:
+      case Items.WEAPON_REAPER:
+      case Items.WEAPON_BLAZE:
+      case Items.WEAPON_FROSTBITE:
+      case Items.WEAPON_PURGE:
+        this.sendChatText(client, "This weapon cannot be repaired.");
+        return;
+    }
+
+    const itemDef = this.getItemDefinition(item.itemDefinitionId);
+    if (!itemDef) return;
+    const nameId = itemDef.NAME_ID;
+
+    this.utilizeHudTimer(client, nameId, 5000, () => {
+      this.repairOptionPass(client, item, repairItem, durability);
+    });
+  }
+
+  repairOptionPass(
+    client: Client,
+    item: BaseItem,
+    repairItem: BaseItem,
+    durability: number
+  ) {
     const diff = 2000 - durability,
+      isGunKit = item.itemDefinitionId == Items.GUN_REPAIR_KIT,
       repairAmount = diff < 500 ? diff : 500;
 
     if (!this.removeInventoryItem(client.character, item)) return;
-    repairItem.currentDurability += repairAmount;
+    if (isGunKit) {
+      repairItem.currentDurability = 2000;
+    } else {
+      repairItem.currentDurability += repairAmount;
+    }
 
     // TODO: move below logic to it's own updateItem function
 
@@ -6312,6 +6364,520 @@ export class ZoneServer2016 extends EventEmitter {
       if (!container) return;
       this.updateContainerItem(mountedContainer, item, container);
     }
+  }
+
+  handleWeaponFireStateUpdate(
+    client: Client,
+    weaponItem: LoadoutItem,
+    firestate: number
+  ) {
+    // melee workaround
+    if (this.handleMeleeHit(client, weaponItem)) {
+      return;
+    }
+
+    if (firestate == 64) {
+      // empty firestate
+      this.sendRemoteWeaponUpdateDataToAllOthers(
+        client,
+        client.character.transientId,
+        weaponItem.itemGuid,
+        "Update.Empty",
+        {}
+      );
+      this.sendRemoteWeaponUpdateDataToAllOthers(
+        client,
+        client.character.transientId,
+        weaponItem.itemGuid,
+        "Update.FireState",
+        {
+          state: {
+            firestate: 64,
+            transientId: client.character.transientId,
+            position: client.character.state.position
+          }
+        }
+      );
+    }
+    // prevent empty weapons from entering an active firestate
+    if (
+      !weaponItem.weapon?.ammoCount &&
+      weaponItem.itemDefinitionId != Items.WEAPON_BOW_MAKESHIFT &&
+      weaponItem.itemDefinitionId != Items.WEAPON_BOW_RECURVE &&
+      weaponItem.itemDefinitionId != Items.WEAPON_BOW_WOOD
+    )
+      return;
+    if (firestate > 0) {
+      this.sendRemoteWeaponUpdateDataToAllOthers(
+        client,
+        client.character.transientId,
+        weaponItem.itemGuid,
+        "Update.Chamber",
+        {}
+      );
+    }
+    this.sendRemoteWeaponUpdateDataToAllOthers(
+      client,
+      client.character.transientId,
+      weaponItem.itemGuid,
+      "Update.FireState",
+      {
+        state: {
+          firestate: firestate,
+          transientId: client.character.transientId,
+          position: client.character.state.position
+        }
+      }
+    );
+  }
+
+  handleWeaponFire(client: Client, weaponItem: LoadoutItem, packet: any) {
+    if (!weaponItem.weapon || weaponItem.weapon.ammoCount <= 0) {
+      return;
+    }
+    if (weaponItem.weapon.ammoCount > 0) {
+      weaponItem.weapon.ammoCount -= 1;
+    }
+    if (!client.vehicle.mountedVehicle && this.fairPlayManager.fairPlayValues) {
+      if (
+        getDistance(client.character.state.position, packet.packet.position) >
+        this.fairPlayManager.fairPlayValues?.maxPositionDesync
+      ) {
+        this.sendChatText(
+          client,
+          `FairPlay: Your shot didnt register due to position desync`
+        );
+        this.sendChatTextToAdmins(
+          `FairPlay: ${
+            client.character.name
+          }'s shot didnt register due to position desync by ${getDistance(
+            client.character.state.position,
+            packet.packet.position
+          )}`
+        );
+      }
+    }
+    const drift = Math.abs(packet.gameTime - this.getServerTime());
+    if (drift > this.fairPlayManager.maxPing + 200) {
+      this.sendChatText(
+        client,
+        `FairPlay: Your shot didnt register due to packet loss or high ping`
+      );
+      this.sendChatTextToAdmins(
+        `FairPlay: ${client.character.name}'s shot wasnt registered due to time drift by ${drift}`
+      );
+      return;
+    }
+    const keys = Object.keys(client.fireHints);
+    const lastFireHint = client.fireHints[Number(keys[keys.length - 1])];
+    if (lastFireHint) {
+      let blockedTime = 50;
+      switch (weaponItem.itemDefinitionId) {
+        case Items.WEAPON_308:
+        case Items.WEAPON_REAPER:
+          blockedTime = 1300;
+          break;
+        case Items.WEAPON_SHOTGUN:
+        case Items.WEAPON_NAGAFENS_RAGE:
+          blockedTime = 400;
+          break;
+      }
+      if (packet.gameTime - lastFireHint.timeStamp < blockedTime) return;
+    }
+    let hitNumber = 0;
+    if (
+      !client.vehicle.mountedVehicle &&
+      !isPosInRadius(3, client.character.state.position, packet.packet.position)
+    )
+      hitNumber = 1;
+    const shotProjectiles =
+      weaponItem.itemDefinitionId == Items.WEAPON_SHOTGUN ||
+      weaponItem.itemDefinitionId == Items.WEAPON_NAGAFENS_RAGE
+        ? 12
+        : 1;
+    for (let x = 0; x < shotProjectiles; x++) {
+      const fireHint: FireHint = {
+        id: packet.packet.sessionProjectileCount + x,
+        position: packet.packet.position,
+        rotation: client.character.state.yaw,
+        hitNumber: hitNumber,
+        weaponItem: weaponItem,
+        timeStamp: packet.gameTime
+      };
+      client.fireHints[packet.packet.sessionProjectileCount + x] = fireHint;
+      setTimeout(() => {
+        delete client.fireHints[packet.packet.sessionProjectileCount + x];
+      }, 10000);
+    }
+    this.fairPlayManager.hitMissFairPlayCheck(this, client, false, "");
+    this.stopHudTimer(client);
+    this.sendRemoteWeaponUpdateDataToAllOthers(
+      client,
+      client.character.transientId,
+      weaponItem.itemGuid,
+      "Update.ProjectileLaunch",
+      {}
+    );
+    this.damageItem(client, weaponItem, 5);
+  }
+
+  handleWeaponReload(client: Client, weaponItem: LoadoutItem) {
+    if (!weaponItem.weapon) return;
+    if (weaponItem.weapon.reloadTimer) return;
+    const maxAmmo = this.getWeaponMaxAmmo(weaponItem.itemDefinitionId); // max clip size
+    if (weaponItem.weapon.ammoCount >= maxAmmo) return;
+    // force 0 firestate so gun doesnt shoot randomly after reloading
+    this.sendRemoteWeaponUpdateDataToAllOthers(
+      client,
+      client.character.transientId,
+      weaponItem.itemGuid,
+      "Update.FireState",
+      {
+        state: {
+          firestate: 0,
+          transientId: client.character.transientId,
+          position: client.character.state.position
+        }
+      }
+    );
+    this.sendRemoteWeaponUpdateDataToAllOthers(
+      client,
+      client.character.transientId,
+      weaponItem.itemGuid,
+      "Update.Reload",
+      {}
+    );
+    const weaponAmmoId = this.getWeaponAmmoId(weaponItem.itemDefinitionId),
+      reloadTime = this.getWeaponReloadTime(weaponItem.itemDefinitionId);
+
+    switch (weaponItem.itemDefinitionId) {
+      case Items.WEAPON_BOW_MAKESHIFT:
+      case Items.WEAPON_BOW_RECURVE:
+      case Items.WEAPON_BOW_WOOD:
+        const currentWeapon = client.character.getEquippedWeapon();
+        if (!currentWeapon || currentWeapon.itemGuid != weaponItem.itemGuid) {
+          return;
+        }
+        const maxReloadAmount = maxAmmo - weaponItem.weapon.ammoCount, // how much ammo is needed for full clip
+          reserveAmmo = client.character.getInventoryItemAmount(weaponAmmoId), // how much ammo is in inventory
+          reloadAmount =
+            reserveAmmo >= maxReloadAmount ? maxReloadAmount : reserveAmmo; // actual amount able to reload
+
+        if (!this.removeInventoryItems(client, weaponAmmoId, reloadAmount)) {
+          return;
+        }
+        this.sendWeaponReload(
+          client,
+          weaponItem,
+          (weaponItem.weapon.ammoCount += reloadAmount)
+        );
+        return;
+    }
+
+    //#region SHOTGUN ONLY
+    if (weaponAmmoId == Items.AMMO_12GA) {
+      weaponItem.weapon.reloadTimer = setTimeout(() => {
+        if (!weaponItem.weapon?.reloadTimer) {
+          client.character.clearReloadTimeout();
+          return;
+        }
+        const reserveAmmo = // how much ammo is in inventory
+          client.character.getInventoryItemAmount(weaponAmmoId);
+        if (
+          !reserveAmmo ||
+          (weaponItem.weapon.ammoCount < maxAmmo &&
+            !this.removeInventoryItems(client, weaponAmmoId, 1)) ||
+          ++weaponItem.weapon.ammoCount == maxAmmo
+        ) {
+          this.sendWeaponReload(client, weaponItem);
+          this.sendRemoteWeaponUpdateDataToAllOthers(
+            client,
+            client.character.transientId,
+            weaponItem.itemGuid,
+            "Update.ReloadLoopEnd",
+            {
+              endLoop: true
+            }
+          );
+          client.character.clearReloadTimeout();
+          return;
+        }
+        if (reserveAmmo - 1 < 0) {
+          // updated reserve ammo
+          this.sendWeaponReload(client, weaponItem);
+          this.sendRemoteWeaponUpdateDataToAllOthers(
+            client,
+            client.character.transientId,
+            weaponItem.itemGuid,
+            "Update.ReloadLoopEnd",
+            {
+              endLoop: true
+            }
+          );
+          client.character.clearReloadTimeout();
+          return;
+        }
+        weaponItem.weapon.reloadTimer.refresh();
+      }, reloadTime);
+      return;
+    }
+    //#endregion
+    weaponItem.weapon.reloadTimer = setTimeout(() => {
+      const currentWeapon = client.character.getEquippedWeapon();
+      if (
+        !weaponItem.weapon?.reloadTimer ||
+        !currentWeapon ||
+        currentWeapon.itemGuid != weaponItem.itemGuid
+      ) {
+        return;
+      }
+      const maxReloadAmount = maxAmmo - weaponItem.weapon.ammoCount, // how much ammo is needed for full clip
+        reserveAmmo = client.character.getInventoryItemAmount(weaponAmmoId), // how much ammo is in inventory
+        reloadAmount =
+          reserveAmmo >= maxReloadAmount ? maxReloadAmount : reserveAmmo; // actual amount able to reload
+
+      if (!this.removeInventoryItems(client, weaponAmmoId, reloadAmount)) {
+        return;
+      }
+      this.sendWeaponReload(
+        client,
+        weaponItem,
+        (weaponItem.weapon.ammoCount += reloadAmount)
+      );
+      client.character.clearReloadTimeout();
+    }, reloadTime);
+  }
+
+  handleWrenchHit(
+    client: Client,
+    weaponItem: LoadoutItem,
+    entity: BaseEntity
+  ): boolean {
+    if (!(entity instanceof Vehicle2016)) return true;
+
+    if (client.character.meleeBlocked()) {
+      return true;
+    }
+
+    this.sendCompositeEffectToAllInRange(
+      15,
+      client.character.characterId,
+      entity.state.position,
+      1605
+    );
+
+    if (entity._resources[ResourceIds.CONDITION] < 100000) {
+      entity.damage(this, { entity: "", damage: -5000 });
+      this.damageItem(client, weaponItem, 100);
+    }
+    client.character.lastMeleeHitTime = Date.now();
+    return true;
+  }
+
+  handleCrowbarHit(
+    client: Client,
+    weaponItem: LoadoutItem,
+    entity: BaseEntity
+  ): boolean {
+    if (!(entity instanceof LootableProp)) return true;
+    if (client.character.meleeBlocked()) return true;
+
+    switch (entity.lootSpawner) {
+      case "Wrecked Van":
+      case "Wrecked Car":
+      case "Wrecked Truck":
+        this.sendCompositeEffectToAllInRange(
+          15,
+          client.character.characterId,
+          entity.state.position,
+          1605
+        );
+        if (randomIntFromInterval(0, 100) <= 20) {
+          client.character.lootItem(this, this.generateItem(Items.METAL_SCRAP));
+          this.damageItem(client, weaponItem, 25);
+        }
+    }
+    client.character.lastMeleeHitTime = Date.now();
+    return true;
+  }
+
+  handleDemolitionHit(
+    client: Client,
+    weaponItem: LoadoutItem,
+    entity: BaseEntity
+  ): boolean {
+    const construction = this.getConstructionEntity(entity.characterId);
+    if (!construction) return true;
+    if (client.character.meleeBlocked()) return true;
+
+    switch (construction.itemDefinitionId) {
+      case Items.FOUNDATION:
+      case Items.FOUNDATION_EXPANSION:
+      case Items.GROUND_TAMPER:
+      case Items.FOUNDATION_RAMP:
+      case Items.FOUNDATION_STAIRS:
+        return true;
+    }
+
+    const permission = construction.getHasPermission(
+      this,
+      client.character.characterId,
+      ConstructionPermissionIds.DEMOLISH
+    );
+
+    if (!permission) {
+      this.constructionManager.placementError(
+        this,
+        client,
+        ConstructionErrors.DEMOLISH_PERMISSION
+      );
+      return true;
+    }
+
+    if (construction.canUndoPlacement(this, client)) {
+      // give back item only if can undo
+      client.character.lootItem(
+        this,
+        this.generateItem(construction.itemDefinitionId)
+      );
+      construction.destroy(this);
+      return true;
+    }
+
+    this.sendCompositeEffectToAllInRange(
+      15,
+      client.character.characterId,
+      construction.state.position,
+      1667
+    );
+    const damageInfo: DamageInfo = {
+      entity: "Server.DemoHammer",
+      damage: 250000
+    };
+    if (construction instanceof ConstructionParentEntity) {
+      construction.damageSimpleNpc(
+        this,
+        damageInfo,
+        this._constructionFoundations
+      );
+    } else if (construction instanceof ConstructionChildEntity) {
+      construction.damageSimpleNpc(this, damageInfo, this._constructionSimple);
+    } else if (construction instanceof ConstructionDoor) {
+      construction.damageSimpleNpc(this, damageInfo, this._constructionDoors);
+    } else if (construction instanceof LootableConstructionEntity) {
+      construction.damageSimpleNpc(
+        this,
+        damageInfo,
+        this._lootableConstruction
+      );
+    }
+    this.damageItem(client, weaponItem, 50);
+
+    if (construction.health > 0) return true;
+    construction.destroy(this);
+
+    client.character.lastMeleeHitTime = Date.now();
+    return true;
+  }
+
+  handleHammerHit(client: Client, weaponItem: LoadoutItem): boolean {
+    this.constructionManager.hammerConstructionEntity(this, client, weaponItem);
+    return true;
+  }
+
+  handleCrateHit(
+    client: Client,
+    weaponItem: LoadoutItem,
+    entity: BaseEntity
+  ): boolean {
+    if (!(entity instanceof Crate)) return false;
+    if (client.character.meleeBlocked(500)) return true;
+
+    if (
+      entity.spawnTimestamp >= Date.now() ||
+      !isPosInRadius(3, entity.state.position, client.character.state.position)
+    ) {
+      return true;
+    }
+
+    this.sendCompositeEffectToAllInRange(
+      15,
+      client.character.characterId,
+      entity.state.position,
+      1667
+    );
+    const damageInfo: DamageInfo = {
+      entity: "Server.WorkAroundMelee",
+      damage: 1250
+    };
+    entity.OnProjectileHit(this, damageInfo);
+    this.damageItem(client, weaponItem, 10);
+    client.character.lastMeleeHitTime = Date.now();
+    return true;
+  }
+
+  handleDestroyableHit(
+    client: Client,
+    weaponItem: LoadoutItem,
+    entity: BaseEntity
+  ): boolean {
+    if (!(entity instanceof Destroyable)) return false;
+    if (client.character.meleeBlocked(500)) return true;
+
+    if (
+      !entity.destroyedModel ||
+      !isPosInRadius(
+        3,
+        entity.state.position,
+        client.character.state.position
+      ) ||
+      entity.destroyed
+    ) {
+      return true;
+    }
+
+    this.sendCompositeEffectToAllInRange(
+      15,
+      client.character.characterId,
+      entity.state.position,
+      1663
+    );
+    const damageInfo: DamageInfo = {
+      entity: "Server.WorkAroundMelee",
+      damage: 700
+    };
+    entity.OnProjectileHit(this, damageInfo);
+    this.damageItem(client, weaponItem, 10);
+    client.character.lastMeleeHitTime = Date.now();
+    return true;
+  }
+
+  // using workaround logic for now
+  handleMeleeHit(client: Client, weaponItem: LoadoutItem): boolean {
+    const entity = this.getEntity(client.character.currentInteractionGuid);
+    if (!entity) return false;
+
+    // check crate / destroyable before anything else
+    if (this.handleCrateHit(client, weaponItem, entity)) {
+      return true;
+    }
+
+    if (this.handleDestroyableHit(client, weaponItem, entity)) {
+      return true;
+    }
+
+    switch (weaponItem.itemDefinitionId) {
+      case Items.WEAPON_WRENCH:
+        return this.handleWrenchHit(client, weaponItem, entity);
+      case Items.WEAPON_CROWBAR:
+        return this.handleCrowbarHit(client, weaponItem, entity);
+      case Items.WEAPON_HAMMER_DEMOLITION:
+        return this.handleDemolitionHit(client, weaponItem, entity);
+      case Items.WEAPON_HAMMER:
+        return this.handleHammerHit(client, weaponItem);
+    }
+
+    return false;
   }
 
   pUtilizeHudTimer = promisify(this.utilizeHudTimer);
@@ -6583,7 +7149,6 @@ export class ZoneServer2016 extends EventEmitter {
     this.constructionManager.constructionPermissionsManager(this, client);
     this.constructionManager.spawnConstructionParentsInRange(this, client);
     this.vehicleManager(client);
-    //this.npcManager(client);
     this.removeOutOfDistanceEntities(client);
     this.spawnCharacters(client);
     this.spawnGridObjects(client);
@@ -6795,14 +7360,31 @@ export class ZoneServer2016 extends EventEmitter {
   sendGlobalChatText(message: string, clearChat = false) {
     this.chatManager.sendGlobalChatText(this, message, clearChat);
   }
-  sendConsoleText(client: Client, message: string) {
-    this.sendData(client, "H1emu.PrintToConsole", { message });
+  sendConsoleText(
+    client: Client,
+    message: string,
+    showConsole = false,
+    clearOutput = false
+  ) {
+    this.sendData(client, "H1emu.PrintToConsole", {
+      message,
+      showConsole,
+      clearOutput
+    });
   }
-  sendConsoleTextToAdmins(message: string) {
+  sendConsoleTextToAdmins(
+    message: string,
+    showConsole = false,
+    clearOutput = false
+  ) {
     for (const a in this._clients) {
       const client = this._clients[a];
       if (client.isAdmin) {
-        this.sendData(client, "H1emu.PrintToConsole", { message });
+        this.sendData(client, "H1emu.PrintToConsole", {
+          message,
+          showConsole,
+          clearOutput
+        });
       }
     }
   }

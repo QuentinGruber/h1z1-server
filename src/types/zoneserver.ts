@@ -173,7 +173,7 @@ export interface DamageRecord {
   };
 }
 
-export interface fireHint {
+export interface FireHint {
   id: number;
   position: Float32Array;
   rotation: number;
@@ -183,7 +183,7 @@ export interface fireHint {
   marked?: { characterId: string, position: Float32Array, rotation: Float32Array, gameTime: number }
 }
 
-export interface characterEffect {
+export interface CharacterEffect {
   id: number;
   duration: number;
   callback?: any;
@@ -273,6 +273,10 @@ export type OccupiedSlotMap = { [slot: string]: SlottedConstructionEntity };
 type Point2D = [number, number];
 
 export type SquareBounds = [Point2D, Point2D, Point2D, Point2D];
+
+export type Point3D = [...Point2D, number];
+
+export type CubeBounds = [Point3D, Point3D, Point3D, Point3D, Point3D, Point3D, Point3D, Point3D];
 
 export interface ClientBan {
   name: string;

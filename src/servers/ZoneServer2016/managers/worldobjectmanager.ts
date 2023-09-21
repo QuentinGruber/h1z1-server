@@ -353,6 +353,7 @@ export class WorldObjectManager {
     }
 
     server._lootbags[characterId] = lootbag;
+    server.spawnSimpleNpcForAllInRange(lootbag);
   }
 
   createAirdropContainer(server: ZoneServer2016, pos: Float32Array) {
@@ -624,17 +625,12 @@ export class WorldObjectManager {
   createVehicle(server: ZoneServer2016, vehicle: Vehicle2016) {
     vehicle.equipLoadout(server);
 
-    /*
-    vehicle.equipItem(server, server.generateItem(vehicle.getTurboItemId()));
-    vehicle.equipItem(
-      server,
-      server.generateItem(vehicle.getHeadlightsItemId())
-    );*/
-
     this.setSpawnchance(server, vehicle, 50, Items.BATTERY);
     this.setSpawnchance(server, vehicle, 50, Items.SPARKPLUGS);
     this.setSpawnchance(server, vehicle, 30, Items.VEHICLE_KEY);
     this.setSpawnchance(server, vehicle, 20, Items.FUEL_BIOFUEL);
+    this.setSpawnchance(server, vehicle, 30, vehicle.getHeadlightsItemId());
+    this.setSpawnchance(server, vehicle, 30, vehicle.getTurboItemId());
 
     server._vehicles[vehicle.characterId] = vehicle;
   }

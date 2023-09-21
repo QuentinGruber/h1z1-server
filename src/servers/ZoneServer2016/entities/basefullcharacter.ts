@@ -511,9 +511,6 @@ export abstract class BaseFullCharacter extends BaseLightweightCharacter {
     }
     if (!count) count = item.stackCount;
     if (count > item.stackCount) {
-      console.error(
-        `LootContainerItem: Not enough items in stack! Count ${count} > Stackcount ${item.stackCount}`
-      );
       count = item.stackCount;
     }
 
