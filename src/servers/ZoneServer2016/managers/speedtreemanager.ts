@@ -11,15 +11,17 @@
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
 
-import { SpeedTree } from "types/zoneserver";
-import { randomIntFromInterval } from "../../../utils/utils";
+import { SpeedTree, ZoneSpeedTreeData } from "types/zoneserver";
+import { isPosInRadius, randomIntFromInterval } from "../../../utils/utils";
 import { ZoneClient2016 as Client } from "../classes/zoneclient";
 import { Items } from "../models/enums";
 import { ZoneServer2016 } from "../zoneserver";
+const Z1_speedTrees = require("../../../../data/2016/zoneData/Z1_speedTrees.json");
 
 export class SpeedTreeManager {
   _speedTrees: { [objectId: number]: SpeedTree } = {};
   _speedTreesCounter: any = {};
+  _speedTreesList: { [objectId: number]: ZoneSpeedTreeData } = {};
 
   /* MANAGED BY CONFIGMANAGER */
   minBlackberryHarvest!: number;
@@ -32,6 +34,16 @@ export class SpeedTreeManager {
   maxWoodLogHarvest!: number;
   minTreeHits!: number;
   maxTreeHits!: number;
+
+  initiateList() {
+    Z1_speedTrees.forEach((tree: any) => {
+      this._speedTreesList[tree.uniqueId] = {
+        objectId: tree.uniqueId,
+        treeId: tree.id,
+        position: tree.position
+      };
+    });
+  }
 
   customize(DTOArray: Array<any>) {
     for (const object in this._speedTrees) {
@@ -129,11 +141,16 @@ export class SpeedTreeManager {
       );
     }
     if (destroy) {
-      this.destroy(server, objectId, name);
+      this.destroy(server, client, objectId, name);
     }
   }
 
-  destroy(server: ZoneServer2016, objectId: number, name: string) {
+  destroy(
+    server: ZoneServer2016,
+    client: Client,
+    objectId: number,
+    name: string
+  ) {
     server.sendDataToAll("DtoStateChange", {
       objectId: objectId,
       modelName: name.concat(".Stump"),
@@ -141,9 +158,16 @@ export class SpeedTreeManager {
       unk3: 0,
       unk4: true
     });
+    const zoneTree = this._speedTreesList[objectId];
+    if (!zoneTree) {
+      server.sendChatText(client, `[ERROR] tree with id ${objectId} not found`);
+      return;
+    }
+
     this._speedTrees[objectId] = {
       objectId: objectId,
-      modelName: name
+      modelName: name,
+      position: zoneTree.position
     };
     setTimeout(() => {
       server.sendDataToAll("DtoStateChange", {
@@ -153,6 +177,32 @@ export class SpeedTreeManager {
         unk3: 0,
         unk4: true
       });
+      // delete any storages hidden in the tree when it respawns
+      if (
+        !this._speedTrees[objectId].modelName
+          .toLowerCase()
+          .includes("devilclub") &&
+        !this._speedTrees[objectId].modelName
+          .toLowerCase()
+          .includes("blackberry")
+      ) {
+        for (const key in server._lootableConstruction) {
+          const construction = server._lootableConstruction[key];
+          if (
+            isPosInRadius(1, construction.state.position, zoneTree.position)
+          ) {
+            construction.destroy(server);
+          }
+        }
+        for (const key in server._worldLootableConstruction) {
+          const construction = server._worldLootableConstruction[key];
+          if (
+            isPosInRadius(1, construction.state.position, zoneTree.position)
+          ) {
+            construction.destroy(server);
+          }
+        }
+      }
       delete this._speedTrees[objectId];
     }, this.treeRespawnTimeMS);
   }

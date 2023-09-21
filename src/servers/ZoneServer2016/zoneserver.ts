@@ -1361,6 +1361,7 @@ export class ZoneServer2016 extends EventEmitter {
 
     this.fairPlayManager.decryptFairPlayValues();
     this._spawnGrid = this.divideMapIntoSpawnGrid(7448, 7448, 744);
+    this.speedtreeManager.initiateList();
     this.startRoutinesLoop();
     this.smeltingManager.checkSmeltables(this);
     this.smeltingManager.checkCollectors(this);
