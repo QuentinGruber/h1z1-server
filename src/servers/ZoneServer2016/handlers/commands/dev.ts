@@ -882,7 +882,69 @@ const dev: any = {
       client,
       `Parent itemDefinitionId: ${parent.itemDefinitionId} characterId: ${parent.characterId}`
     );
+  },
+  /*
+  weathervalue: function (
+    server: ZoneServer2016,
+    client: Client,
+    args: Array<string>
+  ) {
+    if(!args[2]) {
+      server.sendChatText(client, "Missing 2 args");
+      return;
+    }
+
+    if(Object.is(NaN, Number(args[2]))) {
+      server.sendChatText(client, "args[2] is not a number");
+      return;
+    }
+
+    switch(args[1]) {
+      case "overcast":
+      case "fogDensity":
+      case "fogFloor":
+      case "fogGradient":
+      case "globalPrecipitation":
+      case "temperature":
+      case "skyClarity":
+      case "cloudWeight0":
+      case "cloudWeight1":
+      case "cloudWeight2":
+      case "cloudWeight3":
+      case "transitionTime":
+      case "sunAxisX":
+      case "sunAxisY":
+      case "sunAxisZ":
+      case "windDirectionX":
+      case "windDirectionY":
+      case "windDirectionZ":
+      case "wind":
+      case "rainminStrength":
+      case "rainRampupTimeSeconds":
+      case "stratusCloudTiling":
+      case "stratusCloudScrollU":
+      case "stratusCloudScrollV":
+      case "stratusCloudHeight":
+      case "cumulusCloudTiling":
+      case "cumulusCloudScrollU":
+      case "cumulusCloudScrollV":
+      case "cumulusCloudHeight":
+      case "cloudAnimationSpeed":
+      case "cloudSilverLiningThickness":
+      case "cloudSilverLiningBrightness":
+      case "cloudShadows":
+        break;
+      default:
+        server.sendChatText(client, "Invalid args[1]");
+        return;
+    }
+
+    server.weatherManager.weather[args[1]] = Number(args[2]);
+    server.weatherManager.sendUpdateToAll(server, client, false);
+    server.sendChatText(client, `Set weather ${args[1]} to ${args[2]}`);
   }
+
+  */
 
   /*
   shutdown: function (

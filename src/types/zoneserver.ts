@@ -393,7 +393,7 @@ export interface Weather2016 {
 	windDirectionY: number,
 	windDirectionZ: number,
 	wind: number,
-	rainminStrength: number,
+	rainMinStrength: number,
 	rainRampupTimeSeconds: number,
 	cloudFile: string,
 	stratusCloudTiling: number,
