@@ -192,7 +192,7 @@ export class SpeedTreeManager {
         for (const key in server._lootableConstruction) {
           const construction = server._lootableConstruction[key];
           if (
-            isPosInRadius(1, construction.state.position, zoneTree.position)
+            isPosInRadius(0.75, construction.state.position, zoneTree.position)
           ) {
             construction.destroy(server);
           }
@@ -200,7 +200,7 @@ export class SpeedTreeManager {
         for (const key in server._worldLootableConstruction) {
           const construction = server._worldLootableConstruction[key];
           if (
-            isPosInRadius(1, construction.state.position, zoneTree.position)
+            isPosInRadius(0.75, construction.state.position, zoneTree.position)
           ) {
             construction.destroy(server);
           }
