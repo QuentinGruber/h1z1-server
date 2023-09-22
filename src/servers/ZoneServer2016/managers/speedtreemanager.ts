@@ -180,32 +180,6 @@ export class SpeedTreeManager {
         unk3: 0,
         unk4: true
       });
-      // delete any storages hidden in the tree when it respawns
-      if (
-        !this._speedTrees[objectId].modelName
-          .toLowerCase()
-          .includes("devilclub") &&
-        !this._speedTrees[objectId].modelName
-          .toLowerCase()
-          .includes("blackberry")
-      ) {
-        for (const key in server._lootableConstruction) {
-          const construction = server._lootableConstruction[key];
-          if (
-            isPosInRadius(0.75, construction.state.position, zoneTree.position)
-          ) {
-            construction.destroy(server);
-          }
-        }
-        for (const key in server._worldLootableConstruction) {
-          const construction = server._worldLootableConstruction[key];
-          if (
-            isPosInRadius(0.75, construction.state.position, zoneTree.position)
-          ) {
-            construction.destroy(server);
-          }
-        }
-      }
       delete this._speedTrees[objectId];
     }, this.treeRespawnTimeMS);
   }
