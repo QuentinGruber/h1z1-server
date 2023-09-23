@@ -65,14 +65,15 @@ export class SpeedTreeManager {
   ) {
     const zoneSpeedTree = this._speedTreesList[objectId];
     if (!zoneSpeedTree || zoneSpeedTree.treeId != treeId) {
-      server.sendChatText(client, `[Server] zone tree doesnt exist`);
+
+      server.sendChatText(client, `[Server] Invalid tree, please report this! ${treeId}`);
       return;
     }
 
     if (
       !isPosInRadius(3, zoneSpeedTree.position, client.character.state.position)
     ) {
-      server.sendChatText(client, `[Server] zone tree is too far`);
+      server.sendConsoleText(client, `[Server] Tree is too far.`);
       return;
     }
     const speedtreeDestroyed = this._speedTrees[objectId];
