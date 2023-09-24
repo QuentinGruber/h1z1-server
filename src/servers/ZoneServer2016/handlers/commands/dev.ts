@@ -32,6 +32,9 @@ import { ConstructionParentEntity } from "../../entities/constructionparententit
 
 const debug = require("debug")("zonepacketHandlers");
 
+const abilities = require("../../../../../data/2016/dataSources/Abilities.json"),
+  vehicleAbilities = require("../../../../../data/2016/dataSources/VehicleAbilities.json");
+
 const dev: any = {
   path: function (server: ZoneServer2016, client: Client, args: Array<string>) {
     const characterId = server.generateGuid();
@@ -68,6 +71,80 @@ const dev: any = {
       server
     );
     server._npcs[characterId] = zombie;
+  },
+  abilities: function (
+    server: ZoneServer2016,
+    client: Client,
+    args: Array<string>
+  ) {
+    // spawn a zombie
+    server.sendData(client, "Abilities.ClearAbilityLineManager", {});
+
+    server.sendData(client, "Abilities.SetProfileAbilityLineMembers", {});
+    server.sendData(client, "Abilities.SetProfileRankAbilities", {
+      abilities: [
+        {
+          abilityId: 1111157,
+          abilityId2: 1111157
+        },
+        {
+          abilityId: 1111272,
+          abilityId2: 1111272
+        },
+        {
+          abilityId: 1111278,
+          abilityId2: 1111278
+        }
+      ]
+    });
+
+    server.sendData(client, "Abilities.SetProfileRankAbilities", {
+      abilities: [
+        {
+          abilitySlotId: 8,
+          abilityData: {
+            abilitySlotId: 8,
+            abilityId: 1111278,
+            guid1: client.character.characterId,
+            guid2: client.character.characterId
+          }
+        }
+      ]
+    });
+
+    server.sendData(
+      client,
+      "Abilities.SetActivatableAbilityManager",
+      abilities
+    );
+
+    server.sendData(
+      client,
+      "Abilities.SetVehicleActivatableAbilityManager",
+      vehicleAbilities
+    );
+
+    server.sendData(client, "Abilities.AddLoadoutAbility", {
+      abilitySlotId: 12,
+      abilityId: 1111278,
+      unknownDword1: 0,
+      guid1: client.character.characterId,
+      guid2: client.character.characterId
+    });
+
+    server.sendData(client, "Abilities.AddLoadoutAbility", {
+      abilitySlotId: 11,
+      abilityId: 1111157,
+      unknownDword1: 0,
+      guid1: client.character.characterId,
+      guid2: client.character.characterId
+    });
+
+    server.sendData(client, "Abilities.AddPersistentAbility", {
+      unk: 1111278
+    });
+
+    console.log(client.character.characterId);
   },
   deletesmallshacks: function (server: ZoneServer2016, client: Client) {
     let counter = 0;
