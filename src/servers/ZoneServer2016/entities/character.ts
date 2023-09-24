@@ -568,11 +568,9 @@ export class Character2016 extends BaseFullCharacter {
 
     // to avoid a mounted container being dismounted if loadout is updated while mounted
 
-    const loadoutSlots = Object.values(this.getLoadoutSlots()).map(
-      (slotId) => {
-        return this.pGetLoadoutSlot(slotId);
-      }
-    );
+    const loadoutSlots = Object.values(this.getLoadoutSlots()).map((slotId) => {
+      return this.pGetLoadoutSlot(slotId);
+    });
 
     //const mountedContainer = this.mountedContainer.getContainer();
     //if (mountedContainer) {}

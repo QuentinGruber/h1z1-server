@@ -922,11 +922,9 @@ export abstract class BaseFullCharacter extends BaseLightweightCharacter {
       characterId: EXTERNAL_CONTAINER_GUID,
       loadoutId: this.loadoutId,
       loadoutData: {
-        loadoutSlots: Object.values(this.getLoadoutSlots()).map(
-          (slotId) => {
-            return this.pGetLoadoutSlot(slotId);
-          }
-        )
+        loadoutSlots: Object.values(this.getLoadoutSlots()).map((slotId) => {
+          return this.pGetLoadoutSlot(slotId);
+        })
       },
       currentSlotId: this.currentLoadoutSlot
     };

@@ -133,7 +133,6 @@ import {
 } from "../../utils/enums";
 
 import {
-  AddLightweightNpc,
   AddSimpleNpc,
   CharacterAddEffectTagCompositeEffect,
   CharacterDroppedItemNotification,
@@ -180,7 +179,6 @@ import {
   RewardAddNonRewardItem,
   SendSelfToClient,
   SendZoneDetails,
-  UiConfirmHit,
   VehicleOccupy,
   VehicleOwner,
   WeaponWeapon,

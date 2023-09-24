@@ -12,7 +12,12 @@
 // ======================================================================
 
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import { ClientBan, ClientMute, DamageInfo } from "types/zoneserver";
+import {
+  ClientBan,
+  ClientMute,
+  DamageInfo,
+  EntityDictionary
+} from "types/zoneserver";
 
 import {
   zoneShutdown,
@@ -50,6 +55,7 @@ import { LoadoutContainer } from "../../classes/loadoutcontainer";
 import { BaseItem } from "../../classes/baseItem";
 import { DB_COLLECTIONS } from "../../../../utils/enums";
 import { WorldDataManager } from "../../managers/worlddatamanager";
+import { BaseEntity } from "servers/ZoneServer2016/entities/baseentity";
 const itemDefinitions = require("./../../../../../data/2016/dataSources/ServerItemDefinitions.json");
 
 export const commands: Array<Command> = [
@@ -512,7 +518,7 @@ export const commands: Array<Command> = [
         position
       );
       client.character.state.position = position;
-      client.managedObjects?.forEach((characterId: any) => {
+      client.managedObjects?.forEach((characterId) => {
         server.dropVehicleManager(client, characterId);
       });
       client.isLoading = true;
@@ -545,7 +551,7 @@ export const commands: Array<Command> = [
         return;
       }
       targetClient.character.state.position = client.character.state.position;
-      targetClient.managedObjects?.forEach((characterId: any) => {
+      targetClient.managedObjects?.forEach((characterId) => {
         server.dropVehicleManager(client, characterId);
       });
       targetClient.isLoading = true;
@@ -586,7 +592,7 @@ export const commands: Array<Command> = [
         return;
       }
       client.character.state.position = targetClient.character.state.position;
-      client.managedObjects?.forEach((characterId: any) => {
+      client.managedObjects?.forEach((characterId) => {
         server.dropVehicleManager(client, characterId);
       });
       client.isLoading = true;
@@ -1000,7 +1006,7 @@ export const commands: Array<Command> = [
           currentAngle += degreesPerPoint;
         }
       }
-      points.forEach((obj: any) => {
+      points.forEach((obj) => {
         server.worldObjectManager.createZombie(
           server,
           9634,
@@ -1051,7 +1057,7 @@ export const commands: Array<Command> = [
           currentAngle += degreesPerPoint;
         }
       }
-      points.forEach((obj: any) => {
+      points.forEach((obj) => {
         const characterId = server.generateGuid();
         server._explosives[characterId] = new ExplosiveEntity(
           characterId,
@@ -1661,7 +1667,10 @@ export const commands: Array<Command> = [
         server.sendChatText(client, `Maximum range is 100`);
         return;
       }
-      const entitiesToDelete: { characterId: string; dictionary: any }[] = [];
+      const entitiesToDelete: {
+        characterId: string;
+        dictionary: EntityDictionary<BaseEntity>;
+      }[] = [];
       for (const a in server._constructionSimple) {
         const construction = server._constructionSimple[a];
         if (
@@ -1773,8 +1782,16 @@ export const commands: Array<Command> = [
       }
 
       entitiesToDelete.forEach(
-        (entity: { characterId: string; dictionary: any }) => {
-          server.deleteEntity(entity.characterId, entity.dictionary, 1875, 500);
+        (entity: {
+          characterId: string;
+          dictionary: EntityDictionary<BaseEntity>;
+        }) => {
+          server.deleteEntity(
+            entity.characterId,
+            entity.dictionary,
+            Effects.PFX_Impact_Explosion_Landmine_Dirt_10m,
+            500
+          );
         }
       );
       server.sendChatText(
@@ -1977,7 +1994,7 @@ export const commands: Array<Command> = [
         client,
         `Displaying list of permissions for foundation: ${foundation.characterId}, owner: ${foundation.ownerCharacterId}`
       );
-      Object.values(foundation.permissions).forEach((permission: any) => {
+      Object.values(foundation.permissions).forEach((permission) => {
         server.sendChatText(client, JSON.stringify(permission));
       });
     }
