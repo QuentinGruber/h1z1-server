@@ -58,6 +58,7 @@ import { ZoneClient2016 } from "../classes/zoneclient";
 import { TaskProp } from "../entities/taskprop";
 import { Crate } from "../entities/crate";
 import { Destroyable } from "../entities/destroyable";
+import { CharacterPlayWorldCompositeEffect } from "types/zone2016packets";
 const debug = require("debug")("ZoneServer");
 
 function getRandomSkin(itemDefinitionId: number) {
@@ -457,7 +458,7 @@ export class WorldObjectManager {
       ]);
       for (const a in server._clients) {
         const c = server._clients[a];
-        server.sendData(c, "Character.PlayWorldCompositeEffect", {
+        server.sendData<CharacterPlayWorldCompositeEffect>(c, "Character.PlayWorldCompositeEffect", {
           characterId: c.character.characterId,
           effectId: effectId,
           position: smokePos,

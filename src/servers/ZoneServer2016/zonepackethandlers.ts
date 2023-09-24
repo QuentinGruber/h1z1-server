@@ -247,10 +247,13 @@ export class ZonePacketHandlers {
         gameTime: (server.getServerTime() & 0xffffffff) >>> 0
       }
     );
-
-    server.sendRawData(client, server.projectileDefinitionsCache);
-
-    server.sendRawData(client, server.profileDefinitionsCache);
+    
+    if(server.projectileDefinitionsCache) {
+      server.sendRawData(client, server.projectileDefinitionsCache);
+    }
+    if(server.profileDefinitionsCache) {
+      server.sendRawData(client, server.profileDefinitionsCache);
+    }
 
     // for melees / emotes / vehicle boost / etc (needs more work)
     /*

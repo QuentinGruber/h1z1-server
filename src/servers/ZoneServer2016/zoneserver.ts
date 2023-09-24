@@ -46,7 +46,8 @@ import {
   ConstructionPermissionIds,
   ItemUseOptions,
   HealTypes,
-  ConstructionErrors
+  ConstructionErrors,
+  Effects
 } from "./models/enums";
 import { healthThreadDecorator } from "../shared/workers/healthWorker";
 import { WeatherManager } from "./managers/weathermanager";
@@ -56,6 +57,7 @@ import {
   ConstructionEntity,
   DamageInfo,
   DamageRecord,
+  EntityDictionary,
   FireHint,
   Recipe
 } from "../../types/zoneserver";
@@ -249,29 +251,34 @@ export class ZoneServer2016 extends EventEmitter {
   nextSaveTime: number = Date.now() + this.saveTimeInterval;
 
   readonly _clients: { [characterId: string]: Client } = {};
-  _characters: { [characterId: string]: Character } = {};
-  _npcs: { [characterId: string]: Npc } = {};
-  _spawnedItems: { [characterId: string]: ItemObject } = {};
-  _plants: { [characterId: string]: Plant } = {};
-  _doors: { [characterId: string]: DoorEntity } = {};
-  _explosives: { [characterId: string]: ExplosiveEntity } = {};
-  _traps: { [characterId: string]: TrapEntity } = {};
-  _temporaryObjects: {
-    [characterId: string]: TemporaryEntity | PlantingDiameter;
-  } = {};
-  _vehicles: { [characterId: string]: Vehicle } = {};
-  _lootbags: { [characterId: string]: Lootbag } = {};
-  _lootableConstruction: { [characterId: string]: LootableConstructionEntity } =
-    {};
-  _constructionFoundations: {
-    [characterId: string]: ConstructionParentEntity;
-  } = {};
-  _constructionDoors: { [characterId: string]: ConstructionDoor } = {};
-  _constructionSimple: { [characterId: string]: ConstructionChildEntity } = {};
-  _lootableProps: { [characterId: string]: LootableProp } = {};
-  _taskProps: { [characterId: string]: TaskProp } = {};
-  _crates: { [characterId: string]: Crate } = {};
-  _destroyables: { [characterId: string]: Destroyable } = {};
+
+  _characters: EntityDictionary<Character> = {};
+  _npcs: EntityDictionary<Npc> = {};
+  _spawnedItems: EntityDictionary<ItemObject> = {};
+  _plants: EntityDictionary<Plant> = {};
+  _doors: EntityDictionary<DoorEntity> = {};
+  _explosives: EntityDictionary<ExplosiveEntity> = {};
+  _traps: EntityDictionary<TrapEntity> = {};
+  _temporaryObjects: EntityDictionary<TemporaryEntity | PlantingDiameter> = {};
+  _vehicles: EntityDictionary<Vehicle> = {};
+  _lootbags: EntityDictionary<Lootbag> = {};
+  _lootableConstruction: EntityDictionary<LootableConstructionEntity> = {};
+  _constructionFoundations: EntityDictionary<ConstructionParentEntity> = {};
+  _constructionDoors: EntityDictionary<ConstructionDoor> = {};
+  _constructionSimple: EntityDictionary<ConstructionChildEntity> = {};
+  _lootableProps: EntityDictionary<LootableProp> = {};
+  _taskProps: EntityDictionary<TaskProp> = {};
+  _crates: EntityDictionary<Crate> = {};
+  _destroyables: EntityDictionary<Destroyable> = {};
+  _worldLootableConstruction: EntityDictionary<LootableConstructionEntity> = {};
+  _worldSimpleConstruction: EntityDictionary<ConstructionChildEntity> = {};
+
+
+
+
+
+
+
   _destroyableDTOlist: number[] = [];
   _decoys: {
     [transientId: number]: {
@@ -281,11 +288,7 @@ export class ZoneServer2016 extends EventEmitter {
       action: string;
     };
   } = {};
-  _worldLootableConstruction: {
-    [characterId: string]: LootableConstructionEntity;
-  } = {};
-  _worldSimpleConstruction: { [characterId: string]: ConstructionChildEntity } =
-    {};
+  
   _airdrop?: {
     plane: Plane;
     cargo?: Plane;
@@ -339,10 +342,10 @@ export class ZoneServer2016 extends EventEmitter {
     weaponDefinitions.FIRE_GROUP_DEFINITIONS;
   _firemodeDefinitions: { [firemodeId: number]: any } =
     weaponDefinitions.FIRE_MODE_DEFINITIONS;
-  itemDefinitionsCache: any;
-  weaponDefinitionsCache: any;
-  projectileDefinitionsCache: any;
-  profileDefinitionsCache: any;
+  itemDefinitionsCache?: Buffer;
+  weaponDefinitionsCache?: Buffer;
+  projectileDefinitionsCache?: Buffer;
+  profileDefinitionsCache?: Buffer;
   _containerDefinitions: { [containerDefinitionId: number]: any } =
     containerDefinitions;
   _recipes: { [recipeId: number]: Recipe } = recipes;
@@ -1020,9 +1023,7 @@ export class ZoneServer2016 extends EventEmitter {
     );
     client.startingPos = client.character.state.position;
     // guid is sensitive for now, so don't send real one to client rn
-    this.sendData<SendSelfToClient>(client, "SendSelfToClient", {
-      data: client.character.pGetSendSelf(this, "0x665a2bff2b44c034", client)
-    });
+    this.sendData<SendSelfToClient>(client, "SendSelfToClient", client.character.pGetSendSelf(this, "0x665a2bff2b44c034", client));
     client.character.initialized = true;
     this.initializeContainerList(client);
 
@@ -1106,18 +1107,22 @@ export class ZoneServer2016 extends EventEmitter {
       }
     });
 
-    this.itemDefinitionsCache = this._protocol.pack("Command.ItemDefinitions", {
+    
+
+    const itemDefinitionsCache = this._protocol.pack("Command.ItemDefinitions", {
       data: {
         itemDefinitions: defs
       }
     });
+    if(!itemDefinitionsCache) return;
+    this.itemDefinitionsCache = itemDefinitionsCache;
   }
 
   /**
    * Caches weapon definitons so they aren't packed every time a client logs in.
    */
   private packWeaponDefinitions() {
-    this.weaponDefinitionsCache = this._protocol.pack(
+    const weaponDefinitionsCache = this._protocol.pack(
       "ReferenceData.WeaponDefinitions",
       {
         data: {
@@ -1144,25 +1149,30 @@ export class ZoneServer2016 extends EventEmitter {
         }
       }
     );
+    if(!weaponDefinitionsCache) return;
+    this.weaponDefinitionsCache = weaponDefinitionsCache;
   }
 
   /**
    * Caches projectile definitons so they aren't packed every time a client logs in.
    */
   private packProjectileDefinitions() {
-    this.projectileDefinitionsCache = this._protocol.pack(
+    const projectileDefinitionsCache = this._protocol.pack(
       "ReferenceData.ProjectileDefinitions",
       {
         definitionsData: projectileDefinitons
       }
     );
+
+    if(!projectileDefinitionsCache) return;
+    this.projectileDefinitionsCache = projectileDefinitionsCache;
   }
 
   /**
    * Caches profile definitons so they aren't packed every time a client logs in.
    */
   private packProfileDefinitions() {
-    this.profileDefinitionsCache = this._protocol.pack(
+    const profileDefinitionsCache = this._protocol.pack(
       "ReferenceData.ProfileDefinitions",
       {
         data: {
@@ -1170,6 +1180,9 @@ export class ZoneServer2016 extends EventEmitter {
         }
       }
     );
+
+    if(!profileDefinitionsCache) return;
+    this.profileDefinitionsCache = profileDefinitionsCache;
   }
 
   private async initializeLoginServerConnection() {
@@ -1510,11 +1523,15 @@ export class ZoneServer2016 extends EventEmitter {
       this.packItemDefinitions();
     }
     // only sends a few needed definitions
-    this.sendRawData(client, this.itemDefinitionsCache);
+    if(this.itemDefinitionsCache) {
+      this.sendRawData(client, this.itemDefinitionsCache);
+    }
     if (!this.weaponDefinitionsCache) {
       this.packWeaponDefinitions();
     }
-    this.sendRawData(client, this.weaponDefinitionsCache);
+    if(this.weaponDefinitionsCache) {
+      this.sendRawData(client, this.weaponDefinitionsCache);
+    }
 
     // used for equipment textures / skins, does nothing so far
     /*
@@ -1741,7 +1758,7 @@ export class ZoneServer2016 extends EventEmitter {
       );
       this.worldDataManager.saveCharacterData(characterSave, this.lastItemGuid);
       this.dismountVehicle(client);
-      client.managedObjects?.forEach((characterId: any) => {
+      client.managedObjects?.forEach((characterId: string) => {
         this.dropVehicleManager(client, characterId);
       });
       this.deleteEntity(client.character.characterId, this._characters);
@@ -2318,7 +2335,7 @@ export class ZoneServer2016 extends EventEmitter {
       Math.random() * cell.spawnPoints.length
     );
     if (client.character.initialized) {
-      client.managedObjects?.forEach((characterId: any) => {
+      client.managedObjects?.forEach((characterId) => {
         this.dropVehicleManager(client, characterId);
       });
       this.sendData<CharacterRespawnReply>(client, "Character.RespawnReply", {
@@ -2480,7 +2497,7 @@ export class ZoneServer2016 extends EventEmitter {
     value: number,
     resourceId: number,
     resourceType: number,
-    dictionary: any
+    dictionary: EntityDictionary<BaseEntity>
   ) {
     this.sendDataToAllWithSpawnedEntity<ResourceEvent>(
       dictionary,
@@ -2685,7 +2702,7 @@ export class ZoneServer2016 extends EventEmitter {
 
   checkArmor(
     characterId: string,
-    damage: any,
+    damage: number,
     kevlarDamageDivider = 4
   ): number {
     // TODO: REDO THIS
@@ -3094,7 +3111,7 @@ export class ZoneServer2016 extends EventEmitter {
     client.spawnedEntities = client.spawnedEntities.filter((el) => {
       return !objectsToRemove.includes(el);
     });
-    objectsToRemove.forEach((object: any) => {
+    objectsToRemove.forEach((object) => {
       this.sendData<CharacterRemovePlayer>(client, "Character.RemovePlayer", {
         characterId: object.characterId
       });
@@ -3118,7 +3135,7 @@ export class ZoneServer2016 extends EventEmitter {
 
   deleteEntity(
     characterId: string,
-    dictionary: any,
+    dictionary: EntityDictionary<BaseEntity>,
     effectId?: number,
     timeToDisappear?: number
   ): boolean {
@@ -3165,7 +3182,7 @@ export class ZoneServer2016 extends EventEmitter {
       {
         characterId: crate.characterId,
         unknownWord1: effectId ? 1 : 0,
-        effectId: 163,
+        effectId: Effects.PFX_Damage_Crate_01m,
         timeToDisappear: 0,
         effectDelay: 0
       }
@@ -3902,7 +3919,7 @@ export class ZoneServer2016 extends EventEmitter {
   sendRawToAllOthersWithSpawnedCharacter(
     client: Client,
     entityCharacterId: string = "",
-    data: any
+    data: Buffer
   ) {
     for (const a in this._clients) {
       if (
@@ -4060,7 +4077,7 @@ export class ZoneServer2016 extends EventEmitter {
         this.sendData<CharacterRemovePlayer>(client, "Character.RemovePlayer", {
           characterId: this._airdrop.cargo.characterId,
           unknownWord1: 1,
-          effectId: 5328,
+          effectId: Effects.PFX_Impact_Explosion_AirdropBomb_Default_10m,
           timeToDisappear: 0,
           effectDelay: 0
         });
@@ -4210,7 +4227,6 @@ export class ZoneServer2016 extends EventEmitter {
   vehicleManager(client: Client) {
     for (const key in this._vehicles) {
       const vehicle = this._vehicles[key];
-      //if (vehicle.vehicleId == VehicleIds.SPECTATE) continue; //ignore spectator cam // shouldnt be needed anymore
       if (
         // vehicle spawning / managed object assignment logic
         isPosInRadius(
@@ -4369,7 +4385,7 @@ export class ZoneServer2016 extends EventEmitter {
   }
 
   sendCompositeEffectToAllWithSpawnedEntity(
-    dictionary: { [id: string]: any },
+    dictionary: EntityDictionary<BaseEntity>,
     object: BaseEntity,
     effectId: number
   ) {
@@ -4421,7 +4437,7 @@ export class ZoneServer2016 extends EventEmitter {
   }*/
 
   sendDataToAllWithSpawnedEntity<ZonePacket>(
-    dictionary: { [id: string]: any },
+    dictionary: EntityDictionary<BaseEntity>,
     entityCharacterId: string = "",
     packetName: h1z1PacketsType2016,
     obj: ZonePacket
@@ -4438,25 +4454,6 @@ export class ZoneServer2016 extends EventEmitter {
       }
     }
   }
-
-  /*addNpcQueueToAllWithSpawnedEntity(
-    dictionary: { [id: string]: any },
-    entityCharacterId: string = "",
-    packetName: h1z1PacketsType2016,
-    obj: zone2016packets
-  ) {
-    if (!entityCharacterId) return;
-    for (const a in this._clients) {
-      if (
-        this._clients[a].spawnedEntities.includes(
-          dictionary[entityCharacterId]
-        ) ||
-        this._clients[a].character.characterId == entityCharacterId
-      ) {
-        this.addLightWeightNpcQueue(this._clients[a], packetName, obj);
-      }
-    }
-  }*/
 
   sendDataToAllInRange<ZonePacket>(
     range: number,
@@ -4478,7 +4475,7 @@ export class ZoneServer2016 extends EventEmitter {
   }
 
   sendDataToAllOthersWithSpawnedEntity<ZonePacket>(
-    dictionary: { [id: string]: any },
+    dictionary: EntityDictionary<BaseEntity>,
     client: Client,
     entityCharacterId: string = "",
     packetName: h1z1PacketsType2016,
@@ -6030,7 +6027,7 @@ export class ZoneServer2016 extends EventEmitter {
             "Command.PlayDialogEffect",
             {
               characterId: plant.characterId,
-              effectId: 5056
+              effectId: Effects.EFX_Crop_Fertilizer
             }
           );
         });
