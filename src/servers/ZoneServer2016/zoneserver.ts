@@ -133,6 +133,8 @@ import {
 } from "../../utils/enums";
 
 import {
+  AddLightweightNpc,
+  AddLightweightPc,
   AddSimpleNpc,
   CharacterAddEffectTagCompositeEffect,
   CharacterDroppedItemNotification,
@@ -2442,7 +2444,7 @@ export class ZoneServer2016 extends EventEmitter {
         vehicle = vehicleId ? this._vehicles[vehicleId] : false;
       setTimeout(() => {
         if (!client?.character) return;
-        this.sendDataToAllOthersWithSpawnedEntity<object>(
+        this.sendDataToAllOthersWithSpawnedEntity<AddLightweightPc>(
           this._characters,
           client,
           client.character.characterId,
@@ -3212,7 +3214,7 @@ export class ZoneServer2016 extends EventEmitter {
     nameId = 0
   ) {
     // TODO: BITFLAGS FIX - Meme
-    this.sendData<object>(client, "AddLightweightNpc", {
+    this.sendData<AddLightweightNpc>(client, "AddLightweightNpc", {
       ...entity.pGetLightweight(),
       nameId
     });
@@ -4585,7 +4587,7 @@ export class ZoneServer2016 extends EventEmitter {
         }
       ],
       unknownArray2: [{}]
-    });
+    } as any);
   }
 
   dismountVehicle(client: Client) {
@@ -4652,7 +4654,7 @@ export class ZoneServer2016 extends EventEmitter {
       ],
       passengers: [],
       unknownArray2: []
-    });
+    } as any);
     this.sendDataToAllWithSpawnedEntity<VehicleOwner>(
       this._vehicles,
       vehicle.characterId,

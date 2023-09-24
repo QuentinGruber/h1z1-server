@@ -261,9 +261,10 @@ export class Vehicle2016 extends BaseLootableEntity {
   getCharacterSeat(characterId: string) {
     for (const seatId in this.seats) {
       if (this.seats[seatId] === characterId) {
-        return seatId;
+        return Number(seatId);
       }
     }
+    return 0;
   }
 
   getPassengerList(): string[] {

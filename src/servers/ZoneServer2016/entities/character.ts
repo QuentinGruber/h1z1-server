@@ -455,7 +455,7 @@ export class Character2016 extends BaseFullCharacter {
         recipes: server.pGetRecipes(), // todo: change to per-character recipe lists
         stats: this.getStats(),
         loadoutSlots: this.pGetLoadoutSlots(),
-        equipmentSlots: this.pGetEquipment(),
+        equipmentSlots: this.pGetEquipment() as any,
         characterResources: this.pGetResources(),
         containers: this.pGetContainers(server),
         //unknownQword1: this.characterId,
@@ -465,7 +465,7 @@ export class Character2016 extends BaseFullCharacter {
         //vehicleLoadoutRelatedDword: 1,
         //unknownDword40: 1
         isAdmin: client.isAdmin
-      }
+      } as any
     };
   }
 

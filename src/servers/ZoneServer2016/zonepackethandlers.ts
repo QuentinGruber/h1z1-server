@@ -485,7 +485,8 @@ export class ZonePacketHandlers {
     client: Client,
     packet: ReceivedPacket<VehicleCollision>
   ) {
-    const characterId: string = server._transientIds[packet.data.transientId],
+    const transientId = packet.data.transientId as number || 0,
+    characterId = server._transientIds[transientId],
       vehicle = characterId ? server._vehicles[characterId] : undefined,
       damage = Number((packet.data.damage || 0).toFixed(0));
 
@@ -981,32 +982,35 @@ export class ZonePacketHandlers {
       console.log(packet);
       return;
     }
-    if (packet.data.positionUpdate.unknown3_int8 == 5) {
-      if (!server._airdrop || !packet.data.positionUpdate.position) return;
+
+    const positionUpdate = packet.data.positionUpdate as any;
+
+    if (positionUpdate.unknown3_int8 == 5) {
+      if (!server._airdrop || !positionUpdate.position) return;
       if (
         server._airdrop.manager?.character.characterId !=
         client.character.characterId
       )
         return;
       server._airdrop.plane.state.position = new Float32Array([
-        packet.data.positionUpdate.position[0],
+        positionUpdate.position[0],
         400,
-        packet.data.positionUpdate.position[2],
+        positionUpdate.position[2],
         1
       ]);
       server._airdrop.plane.positionUpdate.orientation =
-        packet.data.positionUpdate.orientation;
+        positionUpdate.orientation;
       server._airdrop.plane.state.rotation = eul2quat(
-        new Float32Array([packet.data.positionUpdate.orientation, 0, 0, 0])
+        new Float32Array([positionUpdate.orientation, 0, 0, 0])
       );
       server._airdrop.plane.positionUpdate.frontTilt =
-        packet.data.positionUpdate.frontTile;
+        positionUpdate.frontTile;
       server._airdrop.plane.positionUpdate.sideTilt =
-        packet.data.positionUpdate.sideTilt;
+        positionUpdate.sideTilt;
       if (
         isPosInRadius(
           150,
-          packet.data.positionUpdate.position,
+          positionUpdate.position,
           server._airdrop.destinationPos
         ) &&
         !server._airdrop.cargoSpawned &&
@@ -1032,7 +1036,7 @@ export class ZonePacketHandlers {
                 server.sendData<LightweightToFullVehicle>(
                   client,
                   "LightweightToFullVehicle",
-                  server._airdrop.cargo.pGetFullVehicle(server)
+                  server._airdrop.cargo.pGetFullVehicle(server) as any
                 );
                 server.sendData<CharacterSeekTarget>(
                   client,
@@ -1061,10 +1065,10 @@ export class ZonePacketHandlers {
         }, 4500);
       }
       return;
-    } else if (packet.data.positionUpdate.unknown3_int8 == 6) {
+    } else if (positionUpdate.unknown3_int8 == 6) {
       if (
         !server._airdrop ||
-        !packet.data.positionUpdate.position ||
+        !positionUpdate.position ||
         !server._airdrop.cargo
       )
         return;
@@ -1075,18 +1079,18 @@ export class ZonePacketHandlers {
         return;
       server._airdrop.cargo.state.position = new Float32Array([
         server._airdrop.cargo.state.position[0],
-        packet.data.positionUpdate.position[1],
+        positionUpdate.position[1],
         server._airdrop.cargo.state.position[2],
         1
       ]);
       server._airdrop.cargo.positionUpdate.orientation =
-        packet.data.positionUpdate.orientation;
+        positionUpdate.orientation;
       server._airdrop.cargo.positionUpdate.frontTilt =
-        packet.data.positionUpdate.frontTile;
+        positionUpdate.frontTile;
       server._airdrop.cargo.positionUpdate.sideTilt =
-        packet.data.positionUpdate.sideTilt;
+        positionUpdate.sideTilt;
       if (
-        packet.data.positionUpdate.position[1] <=
+        positionUpdate.position[1] <=
           server._airdrop.destinationPos[1] + 2 &&
         !server._airdrop.containerSpawned
       ) {
@@ -1101,11 +1105,12 @@ export class ZonePacketHandlers {
         delete server._airdrop;
       }
     }
-    const characterId: string = server._transientIds[packet.data.transientId],
-      vehicle = characterId ? server._vehicles[characterId] : undefined;
+    const transientId = packet.data.transientId as number || 0,
+    characterId = server._transientIds[transientId],
+    vehicle = characterId ? server._vehicles[characterId] : undefined;
 
     if (!vehicle) {
-      const pos = packet.data.positionUpdate.position;
+      const pos = positionUpdate.position;
       if (client.character.isSpectator && pos)
         client.character.state.position = pos;
       return;
@@ -1132,13 +1137,13 @@ export class ZonePacketHandlers {
         return;
       }
     } else client.blockedPositionUpdates = 0;
-    if (packet.data.positionUpdate.position) {
+    if (positionUpdate.position) {
       if (
         server.fairPlayManager.checkVehicleSpeed(
           server,
           client,
-          packet.data.positionUpdate.sequenceTime,
-          packet.data.positionUpdate.position,
+          positionUpdate.sequenceTime,
+          positionUpdate.position,
           vehicle
         )
       )
@@ -1146,7 +1151,7 @@ export class ZonePacketHandlers {
       let kick = false;
       const dist = getDistance(
         vehicle.positionUpdate.position,
-        packet.data.positionUpdate.position
+        positionUpdate.position
       );
       if (dist > 220) {
         kick = true;
@@ -1154,13 +1159,13 @@ export class ZonePacketHandlers {
       if (
         getDistance1d(
           vehicle.oldPos.position[1],
-          packet.data.positionUpdate.position[1]
+          positionUpdate.position[1]
         ) > 100
       ) {
         kick = true;
         server.kickPlayer(client);
         server.sendChatTextToAdmins(
-          `FairPlay: kicking ${client.character.name} for suspeced teleport in vehicle by ${dist} from [${vehicle.positionUpdate.position[0]} ${vehicle.positionUpdate.position[1]} ${vehicle.positionUpdate.position[2]}] to [${packet.data.positionUpdate.position[0]} ${packet.data.positionUpdate.position[1]} ${packet.data.positionUpdate.position[2]}]`,
+          `FairPlay: kicking ${client.character.name} for suspeced teleport in vehicle by ${dist} from [${vehicle.positionUpdate.position[0]} ${vehicle.positionUpdate.position[1]} ${vehicle.positionUpdate.position[2]}] to [${positionUpdate.position[0]} ${positionUpdate.position[1]} ${positionUpdate.position[2]}]`,
           false
         );
       }
@@ -1171,19 +1176,19 @@ export class ZonePacketHandlers {
             if (!c) return;
             server.kickPlayer(c);
             server.sendChatTextToAdmins(
-              `FairPlay: kicking ${c.character.name} for suspeced teleport in vehicle by ${dist} from [${vehicle.positionUpdate.position[0]} ${vehicle.positionUpdate.position[1]} ${vehicle.positionUpdate.position[2]}] to [${packet.data.positionUpdate.position[0]} ${packet.data.positionUpdate.position[1]} ${packet.data.positionUpdate.position[2]}]`,
+              `FairPlay: kicking ${c.character.name} for suspeced teleport in vehicle by ${dist} from [${vehicle.positionUpdate.position[0]} ${vehicle.positionUpdate.position[1]} ${vehicle.positionUpdate.position[2]}] to [${positionUpdate.position[0]} ${positionUpdate.position[1]} ${positionUpdate.position[2]}]`,
               false
             );
             return;
           }
           server._characters[passenger].state.position = new Float32Array([
-            packet.data.positionUpdate.position[0],
-            packet.data.positionUpdate.position[1],
-            packet.data.positionUpdate.position[2],
+            positionUpdate.position[0],
+            positionUpdate.position[1],
+            positionUpdate.position[2],
             1
           ]);
           const c = server.getClientByCharId(passenger);
-          if (c) c.startLoc = packet.data.positionUpdate.position[1];
+          if (c) c.startLoc = positionUpdate.position[1];
         } else {
           debug(`passenger ${passenger} not found`);
           vehicle.removePassenger(passenger);
@@ -1202,9 +1207,9 @@ export class ZonePacketHandlers {
         delete client.hudTimer;
       }
       vehicle.state.position = new Float32Array([
-        packet.data.positionUpdate.position[0],
-        packet.data.positionUpdate.position[1] - 0.4,
-        packet.data.positionUpdate.position[2],
+        positionUpdate.position[0],
+        positionUpdate.position[1] - 0.4,
+        positionUpdate.position[2],
         1
       ]);
       // disabled, dont think we need it and wastes alot of resources
@@ -1229,19 +1234,18 @@ export class ZonePacketHandlers {
       "PlayerUpdatePosition",
       {
         transientId: packet.data.transientId,
-        positionUpdate: packet.data.positionUpdate
+        positionUpdate: positionUpdate
       }
     );
     //}
-    if (packet.data.positionUpdate.engineRPM) {
-      vehicle.engineRPM = packet.data.positionUpdate.engineRPM;
+    if (positionUpdate.engineRPM) {
+      vehicle.engineRPM = positionUpdate.engineRPM;
     }
 
-    const positionUpdate: positionUpdate = packet.data.positionUpdate;
     if (positionUpdate.orientation) {
       vehicle.positionUpdate.orientation = positionUpdate.orientation;
       vehicle.state.rotation = eul2quat(
-        new Float32Array([packet.data.positionUpdate.orientation, 0, 0, 0])
+        new Float32Array([positionUpdate.orientation, 0, 0, 0])
       );
     }
     if (positionUpdate.frontTilt) {
@@ -1523,22 +1527,22 @@ export class ZonePacketHandlers {
         attachmentData: [],
         characterId: EXTERNAL_CONTAINER_GUID,
         resources: {
-          data: {}
+          data: []
         },
         effectTags: [],
         unknownData1: {},
         targetData: {},
         unknownArray1: [],
         unknownArray2: [],
-        unknownArray3: { data: {} },
-        unknownArray4: { data: {} },
-        unknownArray5: { data: {} },
+        unknownArray3: { data: [] },
+        unknownArray4: {},
+        unknownArray5: { data: [] },
         remoteWeapons: {
           isVehicle: false,
           data: {}
         },
         itemsData: {
-          items: {},
+          items: [],
           unknownDword1: 0
         }
       });
@@ -1918,9 +1922,9 @@ export class ZonePacketHandlers {
     debug(packet.data);
     const { itemGuid, itemUseOption, targetCharacterId, sourceCharacterId } =
       packet.data;
-    const { count } = packet.data.itemSubData;
+    const { count } = packet.data.itemSubData as any;
 
-    if (count < 1) return;
+    if (!count || count < 1) return;
     if (!itemGuid) {
       server.sendChatText(client, "[ERROR] ItemGuid is invalid!");
       return;
@@ -2210,7 +2214,7 @@ export class ZonePacketHandlers {
         break;
       case ItemUseOptions.REPAIR:
         const repairItem = character.getInventoryItem(
-          packet.data.itemSubData?.targetItemGuid
+          (packet.data.itemSubData as any)?.targetItemGuid
         );
         if (!repairItem) {
           server.sendChatText(client, "[ERROR] Invalid weapon");
@@ -2876,9 +2880,12 @@ export class ZonePacketHandlers {
       // used to disable spawn godmode
       server.setTempGodMode(client, false);
     }
-    switch (packet.data.weaponPacket.packetName) {
+
+    const weaponpacket = packet.data.weaponPacket as any;
+
+    switch (weaponpacket?.packetName) {
       case "Weapon.MultiWeapon":
-        packet.data.weaponPacket.packet.packets.forEach((p: any) => {
+        weaponpacket?.packet.packets.forEach((p: any) => {
           this.handleWeaponPacket(server, client, p);
         });
         break;
