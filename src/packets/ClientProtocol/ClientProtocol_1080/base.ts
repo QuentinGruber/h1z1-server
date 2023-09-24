@@ -947,7 +947,7 @@ export const basePackets: PacketStructures = [
                   ]
                 },
                 {
-                  name: "unknownData1",
+                  name: "unknownData11",
                   type: "schema",
                   defaultValue: {},
                   fields: [

@@ -837,11 +837,7 @@ export class LoginServer extends EventEmitter {
         serverAddress: serverAddress,
         serverTicket: hiddenSession?.guid,
         encryptionKey: this._cryptoKey,
-        guid: characterId,
-        unknownQword2: "0x0",
-        stationName: "",
-        characterName: character ? character.payload.name : "error",
-        unknownString: ""
+        guid: characterId
       }
     };
   }
@@ -954,10 +950,11 @@ export class LoginServer extends EventEmitter {
       );
     }
     if (client.gameVersion === GAME_VERSIONS.H1Z1_KOTK_PS3) {
+      // any type can be pass to a byteswithlength field but only the specified type in the table can be read
       charactersLoginInfo.applicationData = DataSchema.pack(
         applicationDataKOTK,
         charactersLoginInfo.applicationData
-      ).data;
+      ).data as unknown as CharacterLoginReply["applicationData"];
     }
     debug(charactersLoginInfo);
     if (charactersLoginInfo.status) {
