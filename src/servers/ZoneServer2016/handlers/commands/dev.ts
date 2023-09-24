@@ -77,7 +77,6 @@ const dev: any = {
     client: Client,
     args: Array<string>
   ) {
-    // spawn a zombie
     server.sendData(client, "Abilities.ClearAbilityLineManager", {});
 
     server.sendData(client, "Abilities.SetProfileAbilityLineMembers", {});

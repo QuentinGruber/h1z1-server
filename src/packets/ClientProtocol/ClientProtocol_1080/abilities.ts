@@ -14,6 +14,39 @@
 import { PacketStructures } from "types/packetStructure";
 
 export const abilitiesPackets: PacketStructures = [
+  [
+    "Abilities.InitAbility",
+    0xa101,
+    {
+      fields: [
+        { name: "unknownDword1", type: "uint32", defaultValue: 0 },
+        { name: "unknownDword2", type: "uint32", defaultValue: 0 },
+        { name: "abilityId", type: "uint32", defaultValue: 0 },
+        { name: "unknownDword3", type: "uint32", defaultValue: 0 },
+        { name: "characterId", type: "uint64string", defaultValue: 0 },
+        { name: "unknownDword4", type: "uint32", defaultValue: 0 },
+        { name: "unknownDword5", type: "uint32", defaultValue: 0 },
+        { name: "unknownDword6", type: "uint32", defaultValue: 0 },
+        { name: "targetCharacterId", type: "uint64string", defaultValue: 0 },
+        { name: "unknownDword7", type: "uint32", defaultValue: 0 },
+        { name: "unknownDword8", type: "uint32", defaultValue: 0 },
+        { name: "position", type: "floatvector4", defaultValue: 0 },
+        { name: "unknownByte1", type: "uint8", defaultValue: 0 },
+        { name: "unknownByte2", type: "uint8", defaultValue: 0 },
+        { name: "unknownDword8", type: "uint32", defaultValue: 0 },
+        { name: "unknownDword9", type: "uint32", defaultValue: 0 },
+        { name: "unknownDword10", type: "uint32", defaultValue: 0 },
+        { name: "unknownDword11", type: "uint32", defaultValue: 0 },
+        { name: "unknownDword12", type: "uint32", defaultValue: 0 },
+        { name: "unknownDword13", type: "uint32", defaultValue: 0 },
+        { name: "unknownDword14", type: "uint32", defaultValue: 0 },
+        { name: "targetPosition", type: "floatvector4", defaultValue: 0 },
+        { name: "unknownDword15", type: "uint32", defaultValue: 0 },
+        { name: "unknownDword16", type: "uint32", defaultValue: 0 },
+        { name: "hitLocation", type: "string", defaultValue: "" }
+      ]
+    }
+  ],
   ["Abilities.UpdateAbility", 0xa102, {}],
   ["Abilities.UninitAbility", 0xa103, {}],
   ["Abilities.SetAbilityActivationManager", 0xa104, {}],
@@ -106,7 +139,7 @@ export const abilitiesPackets: PacketStructures = [
     "Abilities.SetProfileAbilityLineMembers",
     0xa114,
     {
-      fields: [{ name: "arrayLenght", type: "uint32", defaultValue: 0 }]
+      fields: [{ name: "unknownDword1", type: "uint32", defaultValue: 0 }]
     }
   ],
   ["Abilities.SetProfileAbilityLineMember", 0xa115, {}],
