@@ -895,7 +895,7 @@ export class ConstructionParentEntity extends ConstructionChildEntity {
       return;
     server.sendData(
       client,
-      "NpcFoundationPermissionsManagerBase.showPermissions",
+      "NpcFoundationPermissionsManagerBase.ShowPermissions",
       {
         characterId: this.characterId,
         characterId2: this.characterId,
