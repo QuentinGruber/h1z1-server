@@ -45,7 +45,11 @@ import { BaseLightweightCharacter } from "./entities/baselightweightcharacter";
 import { ConstructionParentEntity } from "./entities/constructionparententity";
 import { ConstructionDoor } from "./entities/constructiondoor";
 import { CommandHandler } from "./handlers/commands/commandhandler";
-import { ChatChat, Synchronization } from "types/zone2016packets";
+import {
+  ChatChat,
+  DtoHitSpeedTreeReport,
+  Synchronization
+} from "types/zone2016packets";
 import { VehicleCurrentMoveMode } from "types/zone2015packets";
 import {
   ClientBan,
@@ -71,6 +75,7 @@ import {
 import { BaseLootableEntity } from "./entities/baselootableentity";
 import { Destroyable } from "./entities/destroyable";
 import { Lootbag } from "./entities/lootbag";
+import { ReceivedPacket } from "types/shared";
 
 function getStanceFlags(num: number): StanceFlags {
   function getBit(bin: string, bit: number) {
@@ -719,7 +724,11 @@ export class ZonePacketHandlers {
       //server.enforceBan(client);
     }
   }
-  DtoHitSpeedTreeReport(server: ZoneServer2016, client: Client, packet: any) {
+  DtoHitSpeedTreeReport(
+    server: ZoneServer2016,
+    client: Client,
+    packet: ReceivedPacket<DtoHitSpeedTreeReport>
+  ) {
     server.speedtreeManager.use(
       server,
       client,
