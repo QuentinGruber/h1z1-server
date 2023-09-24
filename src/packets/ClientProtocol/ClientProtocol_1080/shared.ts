@@ -132,6 +132,138 @@ export function packSignedIntWith2bitLengthValue(value: number): Buffer {
   return data.slice(0, n + 1);
 }
 
+export function readAbilityInitData(data: Buffer, offset: number) {
+  const obj: any = {},
+    startOffset = offset;
+  obj["unknownByte1"] = data.readUint8(offset);
+  offset += 1;
+  obj["unknownByte2"] = data.readUint8(offset);
+  offset += 1;
+
+  if (obj["unknownByte1"] == 128) {
+    obj["unknownDword8"] = data.readUInt32LE(offset);
+    offset += 4;
+    obj["unknownDword9"] = data.readUInt32LE(offset);
+    offset += 4;
+    obj["unknownDword10"] = data.readUInt32LE(offset);
+    offset += 4;
+    obj["unknownDword11"] = data.readUInt32LE(offset);
+    offset += 4;
+    obj["unknownDword12"] = data.readUInt32LE(offset);
+    offset += 4;
+    obj["unknownDword13"] = data.readUInt32LE(offset);
+    offset += 4;
+    obj["unknownDword14"] = data.readUInt32LE(offset);
+    offset += 4;
+    obj["targetPosition"] = [];
+    obj["targetPosition"][0] = data.readFloatLE(offset);
+    offset += 4;
+    obj["targetPosition"][1] = data.readFloatLE(offset);
+    offset += 4;
+    obj["targetPosition"][2] = data.readFloatLE(offset);
+    offset += 4;
+    obj["targetPosition"][3] = data.readFloatLE(offset);
+    offset += 4;
+    obj["unknownDword15"] = data.readUInt32LE(offset);
+    offset += 4;
+    obj["unknownDword16"] = data.readUInt32LE(offset);
+    offset += 4;
+    obj["stringLength"] = data.readUInt32LE(offset);
+    offset += 4;
+    obj["hitLocation"] = data.toString(
+      "utf8",
+      offset,
+      offset + obj["stringLength"]
+    );
+    offset += obj["stringLength"];
+    return {
+      value: obj,
+      length: offset - startOffset
+    };
+  } else {
+    return {
+      value: obj,
+      length: offset - startOffset
+    };
+  }
+}
+
+export function readAbilityUpdateData(data: Buffer, offset: number) {
+  const obj: any = {},
+    startOffset = offset;
+  obj["unknownDword11"] = data.readUInt32LE(offset);
+  offset += 4;
+
+  if (obj["unknownDword11"] == 16) {
+    obj["unknownDword12"] = data.readUInt32LE(offset);
+    offset += 4;
+    obj["unknownDword13"] = data.readUInt32LE(offset);
+    offset += 4;
+    obj["unknownDword14"] = data.readUInt32LE(offset);
+    offset += 4;
+    obj["unknownDword15"] = data.readUInt32LE(offset);
+    offset += 4;
+    obj["unknownDword16"] = data.readUInt32LE(offset);
+    offset += 4;
+    obj["targetPosition"] = [];
+    obj["targetPosition"][0] = data.readFloatLE(offset);
+    offset += 4;
+    obj["targetPosition"][1] = data.readFloatLE(offset);
+    offset += 4;
+    obj["targetPosition"][2] = data.readFloatLE(offset);
+    offset += 4;
+    obj["targetPosition"][3] = data.readFloatLE(offset);
+    offset += 4;
+    obj["unknownDword17"] = data.readUInt32LE(offset);
+    offset += 4;
+    obj["unknownDword18"] = data.readUInt32LE(offset);
+    offset += 4;
+    obj["stringLength"] = data.readUInt32LE(offset);
+    offset += 4;
+    obj["hitLocation"] = data.toString(
+      "utf8",
+      offset,
+      offset + obj["stringLength"]
+    );
+    offset += obj["stringLength"];
+    return {
+      value: obj,
+      length: offset - startOffset
+    };
+  } else {
+    obj["unknownDword12"] = data.readUInt32LE(offset);
+    offset += 4;
+    obj["unknownDword13"] = data.readUInt32LE(offset);
+    offset += 4;
+    obj["unknownDword14"] = data.readUInt32LE(offset);
+    offset += 4;
+    obj["unknownDword15"] = data.readUInt32LE(offset);
+    offset += 4;
+    obj["unknownDword16"] = data.readUInt32LE(offset);
+    offset += 4;
+    obj["unknownDword17"] = data.readUInt32LE(offset);
+    offset += 4;
+    obj["unknownDword18"] = data.readUInt32LE(offset);
+    offset += 4;
+    obj["targetPosition"] = [];
+    obj["targetPosition"][0] = data.readFloatLE(offset);
+    offset += 4;
+    obj["targetPosition"][1] = data.readFloatLE(offset);
+    offset += 4;
+    obj["targetPosition"][2] = data.readFloatLE(offset);
+    offset += 4;
+    obj["targetPosition"][3] = data.readFloatLE(offset);
+    offset += 4;
+    obj["unknownDword19"] = data.readUInt32LE(offset);
+    offset += 4;
+
+    return {
+      value: obj,
+      length: offset - startOffset
+    };
+  }
+}
+
 export function readPositionUpdateData(data: Buffer, offset: number) {
   const obj: any = {},
     startOffset = offset;
