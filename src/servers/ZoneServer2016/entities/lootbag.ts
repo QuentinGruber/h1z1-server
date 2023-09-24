@@ -78,7 +78,7 @@ export class Lootbag extends BaseLootableEntity {
     }
   }
 
-  destroy(server: ZoneServer2016) {
+  destroy(server: ZoneServer2016): boolean {
     return server.deleteEntity(this.characterId, server._lootbags);
   }
 }

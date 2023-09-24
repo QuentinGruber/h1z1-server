@@ -988,7 +988,7 @@ export class Vehicle2016 extends BaseLootableEntity {
       delete this.onReadyCallback;
     }
   }
-  destroy(server: ZoneServer2016, disableExplosion = false) {
+  destroy(server: ZoneServer2016, disableExplosion = false): boolean {
     if (!server._vehicles[this.characterId]) return false;
     this._resources[ResourceIds.CONDITION] = 0;
     for (const c in server._clients) {
