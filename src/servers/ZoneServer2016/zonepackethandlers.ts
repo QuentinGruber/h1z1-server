@@ -2581,6 +2581,22 @@ export class ZonePacketHandlers {
       packet.data.joinState == 1
     );
   }
+  EffectAddEffect(server: ZoneServer2016, client: Client, packet: any) {
+    const vehicle =
+      server._vehicles[packet.data.unknownData3.targetCharacterId];
+    if (!vehicle) return;
+    vehicle.checkEngineRequirements(server);
+    server.sendData(client, "Effect.AddEffect", packet.data);
+
+    // for now we can only turn on/off once and then it breaks
+  }
+  EffectRemoveEffect(server: ZoneServer2016, client: Client, packet: any) {
+    const vehicle =
+      server._vehicles[packet.data.unknownData3.targetCharacterId];
+    if (!vehicle) return;
+    vehicle.stopEngine(server);
+    server.sendData(client, "Effect.RemoveEffect", packet.data);
+  }
   //#endregion
 
   processPacket(server: ZoneServer2016, client: Client, packet: any) {
@@ -2792,6 +2808,12 @@ export class ZonePacketHandlers {
         break;
       case "Group.Join":
         this.GroupJoin(server, client, packet);
+        break;
+      case "Effect.AddEffect":
+        this.EffectAddEffect(server, client, packet);
+        break;
+      case "Effect.RemoveEffect":
+        this.EffectRemoveEffect(server, client, packet);
         break;
       default:
         debug(packet);

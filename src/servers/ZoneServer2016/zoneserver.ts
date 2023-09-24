@@ -4412,7 +4412,7 @@ export class ZoneServer2016 extends EventEmitter {
     vehicle.seats[seatId] = client.character.characterId;
     if (seatId === "0") {
       this.takeoverManagedObject(client, vehicle);
-      vehicle.checkEngineRequirements(this);
+      //vehicle.checkEngineRequirements(this);
       this.sendData(client, "Vehicle.Owner", {
         guid: vehicle.characterId,
         characterId: client.character.characterId,
