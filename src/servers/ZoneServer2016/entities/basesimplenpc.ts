@@ -11,7 +11,10 @@
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
 
-import { AddSimpleNpc, CharacterUpdateSimpleProxyHealth } from "types/zone2016packets";
+import {
+  AddSimpleNpc,
+  CharacterUpdateSimpleProxyHealth
+} from "types/zone2016packets";
 import { ZoneServer2016 } from "../zoneserver";
 import { BaseEntity } from "./baseentity";
 

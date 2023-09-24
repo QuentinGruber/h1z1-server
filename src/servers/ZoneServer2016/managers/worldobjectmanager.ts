@@ -458,12 +458,16 @@ export class WorldObjectManager {
       ]);
       for (const a in server._clients) {
         const c = server._clients[a];
-        server.sendData<CharacterPlayWorldCompositeEffect>(c, "Character.PlayWorldCompositeEffect", {
-          characterId: c.character.characterId,
-          effectId: effectId,
-          position: smokePos,
-          unk3: 60
-        });
+        server.sendData<CharacterPlayWorldCompositeEffect>(
+          c,
+          "Character.PlayWorldCompositeEffect",
+          {
+            characterId: c.character.characterId,
+            effectId: effectId,
+            position: smokePos,
+            unk3: 60
+          }
+        );
       }
     }
     server._lootbags[characterId] = lootbag;

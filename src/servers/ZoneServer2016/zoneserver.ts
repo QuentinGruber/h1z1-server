@@ -273,12 +273,6 @@ export class ZoneServer2016 extends EventEmitter {
   _worldLootableConstruction: EntityDictionary<LootableConstructionEntity> = {};
   _worldSimpleConstruction: EntityDictionary<ConstructionChildEntity> = {};
 
-
-
-
-
-
-
   _destroyableDTOlist: number[] = [];
   _decoys: {
     [transientId: number]: {
@@ -288,7 +282,7 @@ export class ZoneServer2016 extends EventEmitter {
       action: string;
     };
   } = {};
-  
+
   _airdrop?: {
     plane: Plane;
     cargo?: Plane;
@@ -331,7 +325,6 @@ export class ZoneServer2016 extends EventEmitter {
   constructionManager: ConstructionManager;
   fairPlayManager: FairPlayManager;
   pluginManager: PluginManager;
-
   configManager: ConfigManager;
 
   _ready: boolean = false;
@@ -1023,7 +1016,11 @@ export class ZoneServer2016 extends EventEmitter {
     );
     client.startingPos = client.character.state.position;
     // guid is sensitive for now, so don't send real one to client rn
-    this.sendData<SendSelfToClient>(client, "SendSelfToClient", client.character.pGetSendSelf(this, "0x665a2bff2b44c034", client));
+    this.sendData<SendSelfToClient>(
+      client,
+      "SendSelfToClient",
+      client.character.pGetSendSelf(this, "0x665a2bff2b44c034", client)
+    );
     client.character.initialized = true;
     this.initializeContainerList(client);
 
@@ -1107,14 +1104,15 @@ export class ZoneServer2016 extends EventEmitter {
       }
     });
 
-    
-
-    const itemDefinitionsCache = this._protocol.pack("Command.ItemDefinitions", {
-      data: {
-        itemDefinitions: defs
+    const itemDefinitionsCache = this._protocol.pack(
+      "Command.ItemDefinitions",
+      {
+        data: {
+          itemDefinitions: defs
+        }
       }
-    });
-    if(!itemDefinitionsCache) return;
+    );
+    if (!itemDefinitionsCache) return;
     this.itemDefinitionsCache = itemDefinitionsCache;
   }
 
@@ -1149,7 +1147,7 @@ export class ZoneServer2016 extends EventEmitter {
         }
       }
     );
-    if(!weaponDefinitionsCache) return;
+    if (!weaponDefinitionsCache) return;
     this.weaponDefinitionsCache = weaponDefinitionsCache;
   }
 
@@ -1164,7 +1162,7 @@ export class ZoneServer2016 extends EventEmitter {
       }
     );
 
-    if(!projectileDefinitionsCache) return;
+    if (!projectileDefinitionsCache) return;
     this.projectileDefinitionsCache = projectileDefinitionsCache;
   }
 
@@ -1181,7 +1179,7 @@ export class ZoneServer2016 extends EventEmitter {
       }
     );
 
-    if(!profileDefinitionsCache) return;
+    if (!profileDefinitionsCache) return;
     this.profileDefinitionsCache = profileDefinitionsCache;
   }
 
@@ -1523,13 +1521,13 @@ export class ZoneServer2016 extends EventEmitter {
       this.packItemDefinitions();
     }
     // only sends a few needed definitions
-    if(this.itemDefinitionsCache) {
+    if (this.itemDefinitionsCache) {
       this.sendRawData(client, this.itemDefinitionsCache);
     }
     if (!this.weaponDefinitionsCache) {
       this.packWeaponDefinitions();
     }
-    if(this.weaponDefinitionsCache) {
+    if (this.weaponDefinitionsCache) {
       this.sendRawData(client, this.weaponDefinitionsCache);
     }
 

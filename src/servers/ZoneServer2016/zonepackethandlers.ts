@@ -247,11 +247,11 @@ export class ZonePacketHandlers {
         gameTime: (server.getServerTime() & 0xffffffff) >>> 0
       }
     );
-    
-    if(server.projectileDefinitionsCache) {
+
+    if (server.projectileDefinitionsCache) {
       server.sendRawData(client, server.projectileDefinitionsCache);
     }
-    if(server.profileDefinitionsCache) {
+    if (server.profileDefinitionsCache) {
       server.sendRawData(client, server.profileDefinitionsCache);
     }
 

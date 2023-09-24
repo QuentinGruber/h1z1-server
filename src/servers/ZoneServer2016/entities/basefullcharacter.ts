@@ -11,7 +11,10 @@
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
 
-import { EquipmentSetCharacterEquipment, EquipmentSetCharacterEquipmentSlot } from "types/zone2016packets";
+import {
+  EquipmentSetCharacterEquipment,
+  EquipmentSetCharacterEquipmentSlot
+} from "types/zone2016packets";
 import { characterEquipment, DamageInfo } from "../../../types/zoneserver";
 import { LoadoutKit } from "../data/loadouts";
 import {

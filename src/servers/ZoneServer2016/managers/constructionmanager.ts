@@ -55,7 +55,15 @@ import {
   StringIds
 } from "../models/enums";
 import { ZoneServer2016 } from "../zoneserver";
-import { CharacterRemovePlayer, CharacterUpdateSimpleProxyHealth, ClientUpdateUpdateLocation, CommandInteractionString, ConstructionPlacementFinalizeResponse, ConstructionUnknown, PlayerUpdatePosition } from "types/zone2016packets";
+import {
+  CharacterRemovePlayer,
+  CharacterUpdateSimpleProxyHealth,
+  ClientUpdateUpdateLocation,
+  CommandInteractionString,
+  ConstructionPlacementFinalizeResponse,
+  ConstructionUnknown,
+  PlayerUpdatePosition
+} from "types/zone2016packets";
 
 export class ConstructionManager {
   overridePlacementItems: Array<number> = [
@@ -92,11 +100,19 @@ export class ConstructionManager {
     });
   }
 
-  sendPlacementFinalize(server: ZoneServer2016, client: Client, status: boolean) {
-    server.sendData<ConstructionPlacementFinalizeResponse>(client, "Construction.PlacementFinalizeResponse", {
-      status: status,
-      unknownString1: ""
-    });
+  sendPlacementFinalize(
+    server: ZoneServer2016,
+    client: Client,
+    status: boolean
+  ) {
+    server.sendData<ConstructionPlacementFinalizeResponse>(
+      client,
+      "Construction.PlacementFinalizeResponse",
+      {
+        status: status,
+        unknownString1: ""
+      }
+    );
   }
 
   placementError(
@@ -1329,10 +1345,14 @@ export class ConstructionManager {
     entity: ConstructionEntity,
     client: Client
   ) {
-    server.sendData<CommandInteractionString>(client, "Command.InteractionString", {
-      guid: entity.characterId,
-      stringId: StringIds.UNDO_PLACEMENT
-    });
+    server.sendData<CommandInteractionString>(
+      client,
+      "Command.InteractionString",
+      {
+        guid: entity.characterId,
+        stringId: StringIds.UNDO_PLACEMENT
+      }
+    );
   }
 
   placeLootableConstruction(
@@ -1718,9 +1738,13 @@ export class ConstructionManager {
             iteratedClient.spawnedEntities.includes(client.character) &&
             iteratedClient.character.isHidden != client.character.isHidden
           ) {
-            server.sendData<CharacterRemovePlayer>(iteratedClient, "Character.RemovePlayer", {
-              characterId: client.character.characterId
-            });
+            server.sendData<CharacterRemovePlayer>(
+              iteratedClient,
+              "Character.RemovePlayer",
+              {
+                characterId: client.character.characterId
+              }
+            );
             iteratedClient.spawnedEntities.splice(
               iteratedClient.spawnedEntities.indexOf(client.character),
               1
@@ -1746,15 +1770,19 @@ export class ConstructionManager {
       const foundationY = foundation.state.position[1],
         yOffset = foundation.itemDefinitionId == Items.FOUNDATION ? 2.2 : 0.1;
       client.startLoc = foundationY + yOffset;
-      server.sendData<ClientUpdateUpdateLocation>(client, "ClientUpdate.UpdateLocation", {
-        position: new Float32Array([
-          client.character.state.position[0],
-          foundationY + yOffset,
-          client.character.state.position[2],
-          1
-        ]),
-        triggerLoadingScreen: false
-      });
+      server.sendData<ClientUpdateUpdateLocation>(
+        client,
+        "ClientUpdate.UpdateLocation",
+        {
+          position: new Float32Array([
+            client.character.state.position[0],
+            foundationY + yOffset,
+            client.character.state.position[2],
+            1
+          ]),
+          triggerLoadingScreen: false
+        }
+      );
       client.enableChecks = false;
       client.isInAir = false;
       setTimeout(() => {
@@ -1777,10 +1805,14 @@ export class ConstructionManager {
       newPos[2],
       1
     ]);
-    server.sendData<ClientUpdateUpdateLocation>(client, "ClientUpdate.UpdateLocation", {
-      position: client.character.state.position,
-      triggerLoadingScreen: false
-    });
+    server.sendData<ClientUpdateUpdateLocation>(
+      client,
+      "ClientUpdate.UpdateLocation",
+      {
+        position: client.character.state.position,
+        triggerLoadingScreen: false
+      }
+    );
     client.enableChecks = false;
 
     setTimeout(() => {
@@ -1828,10 +1860,14 @@ export class ConstructionManager {
           newPos[2],
           1
         ]);
-        server.sendData<ClientUpdateUpdateLocation>(client, "ClientUpdate.UpdateLocation", {
-          position: client.character.state.position,
-          triggerLoadingScreen: false
-        });
+        server.sendData<ClientUpdateUpdateLocation>(
+          client,
+          "ClientUpdate.UpdateLocation",
+          {
+            position: client.character.state.position,
+            triggerLoadingScreen: false
+          }
+        );
         this.recheckClientInsideShelter(client, server, tpDirection);
         return;
       }

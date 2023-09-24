@@ -42,7 +42,18 @@ import {
 import { BaseItem } from "../classes/baseItem";
 import { BaseLootableEntity } from "./baselootableentity";
 import { characterDefaultLoadout } from "../data/loadouts";
-import { AccessedCharacterBeginCharacterAccess, AccessedCharacterEndCharacterAccess, CharacterWeaponStance, ClientUpdateDamageInfo, ClientUpdateModifyMovementSpeed, CommandPlayDialogEffect, EquipmentSetCharacterEquipment, EquipmentSetCharacterEquipmentSlot, LoadoutSetLoadoutSlots, SendSelfToClient } from "types/zone2016packets";
+import {
+  AccessedCharacterBeginCharacterAccess,
+  AccessedCharacterEndCharacterAccess,
+  CharacterWeaponStance,
+  ClientUpdateDamageInfo,
+  ClientUpdateModifyMovementSpeed,
+  CommandPlayDialogEffect,
+  EquipmentSetCharacterEquipment,
+  EquipmentSetCharacterEquipmentSlot,
+  LoadoutSetLoadoutSlots,
+  SendSelfToClient
+} from "types/zone2016packets";
 import { Vehicle2016 } from "../entities/vehicle";
 import {
   EXTERNAL_CONTAINER_GUID,
@@ -420,36 +431,42 @@ export class Character2016 extends BaseFullCharacter {
     };
   }
 
-  pGetSendSelf(server: ZoneServer2016, guid = "", client: ZoneClient2016): SendSelfToClient {
-    return {data: {
-      ...this.pGetLightweight(),
-      guid: guid,
-      hairModel: this.hairModel,
-      isRespawning: this.isRespawning,
-      gender: this.gender,
-      creationDate: this.creationDate,
-      lastLoginDate: this.lastLoginDate,
-      identity: {
-        characterName: this.name
-      },
-      inventory: {
-        items: this.pGetInventoryItems(server)
-        //unknownDword1: 2355
-      },
-      recipes: server.pGetRecipes(), // todo: change to per-character recipe lists
-      stats: this.getStats(),
-      loadoutSlots: this.pGetLoadoutSlots(),
-      equipmentSlots: this.pGetEquipment(),
-      characterResources: this.pGetResources(),
-      containers: this.pGetContainers(server),
-      //unknownQword1: this.characterId,
-      //unknownDword38: 1,
-      //vehicleLoadoutRelatedQword: this.characterId,
-      //unknownQword3: this.characterId,
-      //vehicleLoadoutRelatedDword: 1,
-      //unknownDword40: 1
-      isAdmin: client.isAdmin
-    }};
+  pGetSendSelf(
+    server: ZoneServer2016,
+    guid = "",
+    client: ZoneClient2016
+  ): SendSelfToClient {
+    return {
+      data: {
+        ...this.pGetLightweight(),
+        guid: guid,
+        hairModel: this.hairModel,
+        isRespawning: this.isRespawning,
+        gender: this.gender,
+        creationDate: this.creationDate,
+        lastLoginDate: this.lastLoginDate,
+        identity: {
+          characterName: this.name
+        },
+        inventory: {
+          items: this.pGetInventoryItems(server)
+          //unknownDword1: 2355
+        },
+        recipes: server.pGetRecipes(), // todo: change to per-character recipe lists
+        stats: this.getStats(),
+        loadoutSlots: this.pGetLoadoutSlots(),
+        equipmentSlots: this.pGetEquipment(),
+        characterResources: this.pGetResources(),
+        containers: this.pGetContainers(server),
+        //unknownQword1: this.characterId,
+        //unknownDword38: 1,
+        //vehicleLoadoutRelatedQword: this.characterId,
+        //unknownQword3: this.characterId,
+        //vehicleLoadoutRelatedDword: 1,
+        //unknownDword40: 1
+        isAdmin: client.isAdmin
+      }
+    };
   }
 
   pGetRemoteWeaponData(server: ZoneServer2016, item: BaseItem) {
@@ -684,25 +701,29 @@ export class Character2016 extends BaseFullCharacter {
     lootableEntity.mountedCharacter = this.characterId;
     this.mountedContainer = lootableEntity;
 
-    server.sendData<AccessedCharacterBeginCharacterAccess>(client, "AccessedCharacter.BeginCharacterAccess", {
-      objectCharacterId:
-        lootableEntity instanceof Vehicle2016
-          ? lootableEntity.characterId
-          : EXTERNAL_CONTAINER_GUID,
-      mutatorCharacterId: client.character.characterId,
-      dontOpenInventory:
-        lootableEntity instanceof Vehicle2016 ? true : !!oldMount,
-      itemsData: {
-        items: Object.values(container.items).map((item) => {
-          return lootableEntity.pGetItemData(
-            server,
-            item,
-            container.containerDefinitionId
-          );
-        }),
-        unknownDword1: 92 // idk
+    server.sendData<AccessedCharacterBeginCharacterAccess>(
+      client,
+      "AccessedCharacter.BeginCharacterAccess",
+      {
+        objectCharacterId:
+          lootableEntity instanceof Vehicle2016
+            ? lootableEntity.characterId
+            : EXTERNAL_CONTAINER_GUID,
+        mutatorCharacterId: client.character.characterId,
+        dontOpenInventory:
+          lootableEntity instanceof Vehicle2016 ? true : !!oldMount,
+        itemsData: {
+          items: Object.values(container.items).map((item) => {
+            return lootableEntity.pGetItemData(
+              server,
+              item,
+              container.containerDefinitionId
+            );
+          }),
+          unknownDword1: 92 // idk
+        }
       }
-    });
+    );
 
     server.initializeContainerList(client, lootableEntity);
 
@@ -757,9 +778,13 @@ export class Character2016 extends BaseFullCharacter {
       server.deleteEntity(this.mountedContainer.characterId, server._lootbags);
     }
 
-    server.sendData<AccessedCharacterEndCharacterAccess>(client, "AccessedCharacter.EndCharacterAccess", {
-      characterId: this.mountedContainer.characterId || ""
-    });
+    server.sendData<AccessedCharacterEndCharacterAccess>(
+      client,
+      "AccessedCharacter.EndCharacterAccess",
+      {
+        characterId: this.mountedContainer.characterId || ""
+      }
+    );
 
     delete this.mountedContainer.mountedCharacter;
     delete this.mountedContainer;
@@ -1067,9 +1092,13 @@ export class Character2016 extends BaseFullCharacter {
         break;
       case Items.WEAPON_FROSTBITE:
         if (!this._characterEffects[Effects.PFX_Seasonal_Holiday_Snow_skel]) {
-          server.sendData<ClientUpdateModifyMovementSpeed>(c, "ClientUpdate.ModifyMovementSpeed", {
-            speed: 0.5
-          });
+          server.sendData<ClientUpdateModifyMovementSpeed>(
+            c,
+            "ClientUpdate.ModifyMovementSpeed",
+            {
+              speed: 0.5
+            }
+          );
         }
         this._characterEffects[Effects.PFX_Seasonal_Holiday_Snow_skel] = {
           id: Effects.PFX_Seasonal_Holiday_Snow_skel,
@@ -1078,9 +1107,13 @@ export class Character2016 extends BaseFullCharacter {
             server: ZoneServer2016,
             character: Character2016
           ) {
-            server.sendData<ClientUpdateModifyMovementSpeed>(c, "ClientUpdate.ModifyMovementSpeed", {
-              speed: 2
-            });
+            server.sendData<ClientUpdateModifyMovementSpeed>(
+              c,
+              "ClientUpdate.ModifyMovementSpeed",
+              {
+                speed: 2
+              }
+            );
           }
         };
         server.sendDataToAllWithSpawnedEntity(
