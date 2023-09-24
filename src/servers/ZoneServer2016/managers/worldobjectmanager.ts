@@ -107,9 +107,6 @@ export function getRandomItem(items: Array<LootDefinition>) {
       return items[i];
     }
   }
-
-  // This line should never be reached, but is included for type safety
-  return;
 }
 
 export class WorldObjectManager {
