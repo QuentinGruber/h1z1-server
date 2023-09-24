@@ -47,19 +47,36 @@ import { ConstructionDoor } from "./entities/constructiondoor";
 import { CommandHandler } from "./handlers/commands/commandhandler";
 import {
   AccessedCharacterEndCharacterAccess,
+  AddLightweightVehicle,
+  CharacterCharacterStateDelta,
   CharacterFullCharacterDataRequest,
+  CharacterManagedObject,
+  CharacterMovementVersion,
+  CharacterNoSpaceNotification,
   CharacterRespawn,
+  CharacterSeekTarget,
+  CharacterSelectSessionResponse,
+  CharacterStartMultiStateDeath,
   CharacterWeaponStance,
   ChatChat,
   ClientInitializationDetails,
   ClientIsReady,
   ClientLog,
+  ClientUpdateCompleteLogoutProcess,
+  ClientUpdateDoneSendingPreloadCharacters,
   ClientUpdateMonitorTimeDrift,
+  ClientUpdateNetworkProximityUpdatesComplete,
+  ClientUpdateProximateItems,
+  ClientUpdateStartTimer,
+  ClientUpdateUpdateLocation,
+  ClientUpdateUpdateManagedLocation,
   CollisionDamage,
+  CommandAddWorldCommand,
   CommandExecuteCommand,
   CommandFreeInteractionNpc,
   CommandInteractRequest,
   CommandInteractionString,
+  CommandItemDefinitionReply,
   CommandItemDefinitionRequest,
   CommandPointAndReport,
   CommandRecipeStart,
@@ -68,21 +85,29 @@ import {
   CommandSpawnVehicle,
   ConstructionPlacementFinalizeRequest,
   ConstructionPlacementRequest,
+  ConstructionPlacementResponse,
   ContainerMoveItem,
+  ContinentBattleInfo,
   DtoHitSpeedTreeReport,
   GetContinentBattleInfo,
   GroupInvite,
   GroupJoin,
   ItemsRequestUseItem,
   KeepAlive,
+  LightweightToFullNpc,
+  LightweightToFullVehicle,
   LoadoutSelectSlot,
   LobbyGameDefinitionDefinitionsRequest,
-  LockssetLock,
+  LocksSetLock,
   MountSeatChangeRequest,
   NpcFoundationPermissionsManagerAddPermission,
+  NpcFoundationPermissionsManagerBaseShowPermissions,
   NpcFoundationPermissionsManagerEditPermission,
   PlayerUpdateManagedPosition,
   PlayerUpdatePosition,
+  ReplicationInteractionComponent,
+  ReplicationNpcComponent,
+  RewardBuffInfo,
   Security,
   SetLocale,
   SpectatorTeleport,
@@ -94,7 +119,8 @@ import {
   VoiceRadioChannel,
   WallOfDataClientSystemInfo,
   WallOfDataUIEvent,
-  WeaponWeapon
+  WeaponWeapon,
+  ZoneDoneSendingInitialData
 } from "types/zone2016packets";
 import { VehicleCurrentMoveMode } from "types/zone2015packets";
 import {
@@ -163,9 +189,13 @@ export class ZonePacketHandlers {
     this.commandHandler = new CommandHandler();
   }
 
-  ClientIsReady(server: ZoneServer2016, client: Client, packet: ReceivedPacket<{}>) {
+  ClientIsReady(
+    server: ZoneServer2016,
+    client: Client,
+    packet: ReceivedPacket<object>
+  ) {
     /*
-    server.sendData(client, "ClientUpdate.ActivateProfile", {
+    server.sendData<>(client, "ClientUpdate.ActivateProfile", {
       profileData: {
           profileId: 5,
           nameId: 66,
@@ -185,14 +215,18 @@ export class ZonePacketHandlers {
     server.firstRoutine(client);
     server.setGodMode(client, true);
 
-    server.sendData(client, "ClientUpdate.DoneSendingPreloadCharacters", {
-      done: true
-    }); // Required for WaitForWorldReady
+    server.sendData<ClientUpdateDoneSendingPreloadCharacters>(
+      client,
+      "ClientUpdate.DoneSendingPreloadCharacters",
+      {
+        done: true
+      }
+    ); // Required for WaitForWorldReady
 
     // Required for WaitForWorldReady
     setTimeout(() => {
       // makes loading longer but gives game time to spawn objects and reduce lag
-      server.sendData(
+      server.sendData<ClientUpdateNetworkProximityUpdatesComplete>(
         client,
         "ClientUpdate.NetworkProximityUpdatesComplete",
         {}
@@ -202,13 +236,17 @@ export class ZonePacketHandlers {
     server.customizeDTO(client);
 
     client.character.startResourceUpdater(client, server);
-    server.sendData(client, "Character.CharacterStateDelta", {
-      guid1: client.guid,
-      guid2: "0x0000000000000000",
-      guid3: "0x0000000040000000",
-      guid4: "0x0000000000000000",
-      gameTime: (server.getServerTime() & 0xffffffff) >>> 0
-    });
+    server.sendData<CharacterCharacterStateDelta>(
+      client,
+      "Character.CharacterStateDelta",
+      {
+        guid1: client.guid,
+        guid2: "0x0000000000000000",
+        guid3: "0x0000000040000000",
+        guid4: "0x0000000000000000",
+        gameTime: (server.getServerTime() & 0xffffffff) >>> 0
+      }
+    );
 
     server.sendRawData(client, server.projectileDefinitionsCache);
 
@@ -216,8 +254,8 @@ export class ZonePacketHandlers {
 
     // for melees / emotes / vehicle boost / etc (needs more work)
     /*
-    server.sendData(client, "Abilities.SetActivatableAbilityManager", abilities);
-      server.sendData(client, "ClientUpdate.UpdateStat", {
+    server.sendData<>(client, "Abilities.SetActivatableAbilityManager", abilities);
+      server.sendData<>(client, "ClientUpdate.UpdateStat", {
         stats: [
           {
             statId: 5,
@@ -234,15 +272,23 @@ export class ZonePacketHandlers {
     */
 
     /*
-      server.sendData(client, "Loadout.SetCurrentLoadout", {
+      server.sendData<>(client, "Loadout.SetCurrentLoadout", {
         guid: client.character.guid,
         loadoutId: client.character.currentLoadoutId,
       });
       */
 
-    server.sendData(client, "ZoneDoneSendingInitialData", {}); // Required for WaitForWorldReady
+    server.sendData<ZoneDoneSendingInitialData>(
+      client,
+      "ZoneDoneSendingInitialData",
+      {}
+    ); // Required for WaitForWorldReady
   }
-  ClientFinishedLoading(server: ZoneServer2016, client: Client, packet: ReceivedPacket<{}>) {
+  ClientFinishedLoading(
+    server: ZoneServer2016,
+    client: Client,
+    packet: ReceivedPacket<object>
+  ) {
     if (!server.hookManager.checkHook("OnClientFinishedLoading", client))
       return;
     server.tempGodMode(client, 15000);
@@ -272,16 +318,24 @@ export class ZonePacketHandlers {
       client.firstLoading = false;
       client.pingTimer?.refresh();
 
-      server.sendData(client, "Command.AddWorldCommand", {
-        command: "help"
-      });
+      server.sendData<CommandAddWorldCommand>(
+        client,
+        "Command.AddWorldCommand",
+        {
+          command: "help"
+        }
+      );
       Object.values(this.commandHandler.commands).forEach((command) => {
-        server.sendData(client, "Command.AddWorldCommand", {
-          command: command.name
-        });
+        server.sendData<CommandAddWorldCommand>(
+          client,
+          "Command.AddWorldCommand",
+          {
+            command: command.name
+          }
+        );
       });
 
-      server.sendData(client, "Character.WeaponStance", {
+      server.sendData<CharacterWeaponStance>(client, "Character.WeaponStance", {
         // activates weaponstance key
         characterId: client.character.characterId,
         stance: 1
@@ -289,7 +343,7 @@ export class ZonePacketHandlers {
       client.character.updateEquipment(server); // needed or third person character will be invisible
       client.character.updateLoadout(server); // needed or all loadout context menu entries aren't shown
       // clear /hax run since switching servers doesn't automatically clear it
-      server.sendData(client, "Command.RunSpeed", {
+      server.sendData<CommandRunSpeed>(client, "Command.RunSpeed", {
         runSpeed: 0
       });
       client.character.isReady = true;
@@ -297,20 +351,36 @@ export class ZonePacketHandlers {
     }
     if (!client.character.isAlive || client.character.isRespawning) {
       // try to fix stuck on death screen
-      server.sendData(client, "Character.StartMultiStateDeath", {
-        characterId: client.character.characterId
-      });
+      server.sendData<CharacterStartMultiStateDeath>(
+        client,
+        "Character.StartMultiStateDeath",
+        {
+          characterId: client.character.characterId
+        }
+      );
     }
     server.spawnWorkAroundLightWeight(client);
     server.setTickRate();
   }
-  Security(server: ZoneServer2016, client: Client, packet: ReceivedPacket<Security>) {
+  Security(
+    server: ZoneServer2016,
+    client: Client,
+    packet: ReceivedPacket<Security>
+  ) {
     debug(packet);
   }
-  CommandRecipeStart(server: ZoneServer2016, client: Client, packet: ReceivedPacket<CommandRecipeStart>) {
+  CommandRecipeStart(
+    server: ZoneServer2016,
+    client: Client,
+    packet: ReceivedPacket<CommandRecipeStart>
+  ) {
     new CraftManager(client, server, packet.data.recipeId, packet.data.count);
   }
-  CommandSpawnVehicle(server: ZoneServer2016, client: Client, packet: ReceivedPacket<CommandSpawnVehicle>) {
+  CommandSpawnVehicle(
+    server: ZoneServer2016,
+    client: Client,
+    packet: ReceivedPacket<CommandSpawnVehicle>
+  ) {
     this.commandHandler.executeInternalCommand(
       server,
       client,
@@ -318,11 +388,19 @@ export class ZonePacketHandlers {
       packet
     );
   }
-  CommandSetInWater(server: ZoneServer2016, client: Client, packet: ReceivedPacket<{}>) {
+  CommandSetInWater(
+    server: ZoneServer2016,
+    client: Client,
+    packet: ReceivedPacket<object>
+  ) {
     debug(packet);
     client.character.characterStates.inWater = true;
   }
-  CommandClearInWater(server: ZoneServer2016, client: Client, packet: ReceivedPacket<{}>) {
+  CommandClearInWater(
+    server: ZoneServer2016,
+    client: Client,
+    packet: ReceivedPacket<object>
+  ) {
     debug(packet);
     client.character.characterStates.inWater = false;
   }
@@ -332,9 +410,17 @@ export class ZonePacketHandlers {
     packet: ReceivedPacket<CommandFreeInteractionNpc>
   ) {
     debug("FreeInteractionNpc");
-    server.sendData(client, "Command.FreeInteractionNpc", {});
+    server.sendData<CommandFreeInteractionNpc>(
+      client,
+      "Command.FreeInteractionNpc",
+      {}
+    );
   }
-  CollisionDamage(server: ZoneServer2016, client: Client, packet: ReceivedPacket<CollisionDamage>) {
+  CollisionDamage(
+    server: ZoneServer2016,
+    client: Client,
+    packet: ReceivedPacket<CollisionDamage>
+  ) {
     if (packet.data.objectCharacterId != client.character.characterId) {
       const objVehicle = server._vehicles[packet.data.objectCharacterId || ""];
       if (objVehicle && objVehicle.engineRPM > 4500) {
@@ -391,17 +477,25 @@ export class ZonePacketHandlers {
     }
   }
 
-  VehicleCollision(server: ZoneServer2016, client: Client, packet: ReceivedPacket<VehicleCollision>) {
+  VehicleCollision(
+    server: ZoneServer2016,
+    client: Client,
+    packet: ReceivedPacket<VehicleCollision>
+  ) {
     const characterId: string = server._transientIds[packet.data.transientId],
       vehicle = characterId ? server._vehicles[characterId] : undefined,
       damage = Number((packet.data.damage || 0).toFixed(0));
 
     if (!vehicle) return;
-    vehicle.damage(server, { entity: "", damage});
+    vehicle.damage(server, { entity: "", damage });
     //server.DTOhit(client, packet);
   }
 
-  CommandPointAndReport(server: ZoneServer2016, client: Client, packet: ReceivedPacket<CommandPointAndReport>) {
+  CommandPointAndReport(
+    server: ZoneServer2016,
+    client: Client,
+    packet: ReceivedPacket<CommandPointAndReport>
+  ) {
     debug(packet);
     /*const targetClient = Object.values(server._clients).find((c) => {
             if (c.character.characterId == packet.data.reportedCharacterId) {
@@ -436,7 +530,11 @@ export class ZonePacketHandlers {
           server.sendDiscordHook(client, targetClient, 'Point and Click Report', 'player decided that suspect is sus :)', obj) // mas�o ma�lane
         */ // disabled for now, people use it to check if a player is nearby
   }
-  CommandReportLastDeath(server: ZoneServer2016, client: Client, packet: ReceivedPacket<CommandReportLastDeath>) {
+  CommandReportLastDeath(
+    server: ZoneServer2016,
+    client: Client,
+    packet: ReceivedPacket<CommandReportLastDeath>
+  ) {
     const targetClient = client.lastDeathReport?.attacker;
     if (!client.lastDeathReport) return;
     if (!targetClient) {
@@ -506,11 +604,19 @@ export class ZonePacketHandlers {
     client: Client,
     packet: ReceivedPacket<LobbyGameDefinitionDefinitionsRequest>
   ) {
-    server.sendData(client, "LobbyGameDefinition.DefinitionsResponse", {
-      definitionsData: { data: "" }
-    });
+    server.sendData<LobbyGameDefinitionDefinitionsRequest>(
+      client,
+      "LobbyGameDefinition.DefinitionsResponse",
+      {
+        definitionsData: { data: "" }
+      }
+    );
   }
-  KeepAlive(server: ZoneServer2016, client: Client, packet: ReceivedPacket<KeepAlive>) {
+  KeepAlive(
+    server: ZoneServer2016,
+    client: Client,
+    packet: ReceivedPacket<KeepAlive>
+  ) {
     if (client.isLoading && client.characterReleased && client.isSynced) {
       setTimeout(() => {
         client.isLoading = false;
@@ -521,10 +627,14 @@ export class ZonePacketHandlers {
           client.character.state.position[1] < client.startingPos[1]
         ) {
           client.firstReleased = false;
-          server.sendData(client, "ClientUpdate.UpdateLocation", {
-            position: client.startingPos,
-            triggerLoadingScreen: false
-          });
+          server.sendData<ClientUpdateUpdateLocation>(
+            client,
+            "ClientUpdate.UpdateLocation",
+            {
+              position: client.startingPos,
+              triggerLoadingScreen: false
+            }
+          );
           client.character.state.position = client.startingPos;
         }
         client.firstReleased = false;
@@ -539,7 +649,11 @@ export class ZonePacketHandlers {
   ) {
     // nothing for now
   }
-  ClientLog(server: ZoneServer2016, client: Client, packet: ReceivedPacket<ClientLog>) {
+  ClientLog(
+    server: ZoneServer2016,
+    client: Client,
+    packet: ReceivedPacket<ClientLog>
+  ) {
     const message = packet.data.message || "";
     if (
       packet.data.file ===
@@ -578,14 +692,26 @@ export class ZonePacketHandlers {
     }
     debug(packet);
   }
-  WallOfDataUIEvent(server: ZoneServer2016, client: Client, packet: ReceivedPacket<WallOfDataUIEvent>) {
+  WallOfDataUIEvent(
+    server: ZoneServer2016,
+    client: Client,
+    packet: ReceivedPacket<WallOfDataUIEvent>
+  ) {
     debug("UIEvent");
   }
-  SetLocale(server: ZoneServer2016, client: Client, packet: ReceivedPacket<SetLocale>) {
+  SetLocale(
+    server: ZoneServer2016,
+    client: Client,
+    packet: ReceivedPacket<SetLocale>
+  ) {
     debug("SetLocale");
   }
-  GetContinentBattleInfo(server: ZoneServer2016, client: Client, packet: ReceivedPacket<GetContinentBattleInfo>) {
-    server.sendData(client, "ContinentBattleInfo", {
+  GetContinentBattleInfo(
+    server: ZoneServer2016,
+    client: Client,
+    packet: ReceivedPacket<GetContinentBattleInfo>
+  ) {
+    server.sendData<ContinentBattleInfo>(client, "ContinentBattleInfo", {
       zones: [
         {
           id: 1,
@@ -648,7 +774,11 @@ export class ZonePacketHandlers {
       debug("ClientInitializationDetails : ", packet.data.unknownDword1);
     }
   }
-  ClientLogout(server: ZoneServer2016, client: Client, packet: ReceivedPacket<{}>) {
+  ClientLogout(
+    server: ZoneServer2016,
+    client: Client,
+    packet: ReceivedPacket<object>
+  ) {
     debug("ClientLogout");
     if (client.hudTimer) {
       clearTimeout(client.hudTimer); // clear the timer started at StartLogoutRequest
@@ -660,11 +790,15 @@ export class ZonePacketHandlers {
   GameTimeSync(
     server: ZoneServer2016,
     client: Client,
-    packet: ReceivedPacket<{}>
+    packet: ReceivedPacket<object>
   ) {
     server.sendGameTimeSync(client);
   }
-  Synchronization(server: ZoneServer2016, client: Client, packet: ReceivedPacket<Synchronization>) {
+  Synchronization(
+    server: ZoneServer2016,
+    client: Client,
+    packet: ReceivedPacket<Synchronization>
+  ) {
     const serverTime = Int64String(server.getServerTime());
     const reflectedPacket: Synchronization = {
       ...packet.data,
@@ -672,16 +806,28 @@ export class ZonePacketHandlers {
       serverTime2: serverTime,
       time3: Int64String(Number(packet.data.clientTime)) + 2
     };
-    server.sendData(client, "Synchronization", reflectedPacket);
+    server.sendData<Synchronization>(
+      client,
+      "Synchronization",
+      reflectedPacket
+    );
     if (client.isSynced) return;
     client.isSynced = true;
     client.character.lastLoginDate = toHex(Date.now());
     server.constructionManager.constructionPermissionsManager(server, client);
   }
-  CommandExecuteCommand(server: ZoneServer2016, client: Client, packet: ReceivedPacket<CommandExecuteCommand>) {
+  CommandExecuteCommand(
+    server: ZoneServer2016,
+    client: Client,
+    packet: ReceivedPacket<CommandExecuteCommand>
+  ) {
     this.commandHandler.executeCommand(server, client, packet);
   }
-  CommandInteractRequest(server: ZoneServer2016, client: Client, packet: ReceivedPacket<CommandInteractRequest>) {
+  CommandInteractRequest(
+    server: ZoneServer2016,
+    client: Client,
+    packet: ReceivedPacket<CommandInteractRequest>
+  ) {
     const entity = server.getEntity(packet.data.characterId || "");
     if (!entity) return;
     const isConstruction =
@@ -705,25 +851,33 @@ export class ZonePacketHandlers {
     client.character.lastInteractionRequestGuid = entity.characterId;
     entity.OnPlayerSelect(server, client, packet.data.isInstant);
   }
-  CommandInteractCancel(server: ZoneServer2016, client: Client, packet: ReceivedPacket<{}>) {
+  CommandInteractCancel(
+    server: ZoneServer2016,
+    client: Client,
+    packet: ReceivedPacket<object>
+  ) {
     debug("Interaction Canceled");
   }
   CommandStartLogoutRequest(
     server: ZoneServer2016,
     client: Client,
-    packet: ReceivedPacket<{}>
+    packet: ReceivedPacket<object>
   ) {
     client.posAtTimerStart = client.character.state.position;
     if (!client.character.isAlive) {
       client.properlyLogout = true;
       // Exit to menu button on respawn screen
-      server.sendData(client, "ClientUpdate.CompleteLogoutProcess", {});
+      server.sendData<ClientUpdateCompleteLogoutProcess>(
+        client,
+        "ClientUpdate.CompleteLogoutProcess",
+        {}
+      );
       return;
     }
     server.dismountVehicle(client);
     client.character.dismountContainer(server);
     const timerTime = 10000;
-    server.sendData(client, "ClientUpdate.StartTimer", {
+    server.sendData<ClientUpdateStartTimer>(client, "ClientUpdate.StartTimer", {
       stringId: 0,
       time: timerTime
     });
@@ -732,25 +886,33 @@ export class ZonePacketHandlers {
     }
     client.hudTimer = setTimeout(() => {
       client.properlyLogout = true;
-      server.sendData(client, "ClientUpdate.CompleteLogoutProcess", {});
+      server.sendData<ClientUpdateCompleteLogoutProcess>(
+        client,
+        "ClientUpdate.CompleteLogoutProcess",
+        {}
+      );
     }, timerTime);
   }
   CharacterSelectSessionRequest(
     server: ZoneServer2016,
     client: Client,
-    packet: ReceivedPacket<{}>
+    packet: ReceivedPacket<object>
   ) {
-    server.sendData(client, "CharacterSelectSessionResponse", {
-      status: 1,
-      sessionId: client.loginSessionId
-    });
+    server.sendData<CharacterSelectSessionResponse>(
+      client,
+      "CharacterSelectSessionResponse",
+      {
+        status: 1,
+        sessionId: client.loginSessionId
+      }
+    );
   }
   ProfileStatsGetPlayerProfileStats(
     server: ZoneServer2016,
     client: Client,
-    packet: ReceivedPacket<{}>
+    packet: ReceivedPacket<object>
   ) {
-    // server.sendData(
+    // server.sendData<>(
     //   client,
     //   "ProfileStats.PlayerProfileStats",
     //   require("../../../data/profilestats.json")
@@ -762,7 +924,7 @@ export class ZonePacketHandlers {
     packet: ReceivedPacket<WallOfDataClientSystemInfo>
   ) {
     const info = packet.data.info;
-    if(!info) return;
+    if (!info) return;
     const startPos = info.search("Device") + 9;
     const cut = info.substring(startPos, info.length);
     client.HWID = cut.substring(0, cut.search(",") - 1);
@@ -786,8 +948,12 @@ export class ZonePacketHandlers {
       packet.data.name
     );
   }
-  GetRewardBuffInfo(server: ZoneServer2016, client: Client, packet: ReceivedPacket<{}>) {
-    server.sendData(client, "RewardBuffInfo", {
+  GetRewardBuffInfo(
+    server: ZoneServer2016,
+    client: Client,
+    packet: ReceivedPacket<object>
+  ) {
+    server.sendData<RewardBuffInfo>(client, "RewardBuffInfo", {
       unknownFloat1: 1,
       unknownFloat2: 2,
       unknownFloat3: 3,
@@ -852,28 +1018,40 @@ export class ZonePacketHandlers {
                   ...server._airdrop.cargo.pGetLightweightVehicle(),
                   unknownGuid1: server.generateGuid()
                 });
-                server.sendData(client, "Character.MovementVersion", {
-                  characterId: server._airdrop.cargo.characterId,
-                  version: 6
-                });
-                server.sendData(
+                server.sendData<CharacterMovementVersion>(
+                  client,
+                  "Character.MovementVersion",
+                  {
+                    characterId: server._airdrop.cargo.characterId,
+                    version: 6
+                  }
+                );
+                server.sendData<LightweightToFullVehicle>(
                   client,
                   "LightweightToFullVehicle",
                   server._airdrop.cargo.pGetFullVehicle(server)
                 );
-                server.sendData(client, "Character.SeekTarget", {
-                  characterId: server._airdrop.cargo.characterId,
-                  TargetCharacterId: server._airdrop.cargoTarget,
-                  initSpeed: -5,
-                  acceleration: 0,
-                  speed: 0,
-                  turn: 5,
-                  yRot: 0
-                });
-                server.sendData(client, "Character.ManagedObject", {
-                  objectCharacterId: server._airdrop.cargo.characterId,
-                  characterId: client.character.characterId
-                });
+                server.sendData<CharacterSeekTarget>(
+                  client,
+                  "Character.SeekTarget",
+                  {
+                    characterId: server._airdrop.cargo.characterId,
+                    TargetCharacterId: server._airdrop.cargoTarget,
+                    initSpeed: -5,
+                    acceleration: 0,
+                    speed: 0,
+                    turn: 5,
+                    yRot: 0
+                  }
+                );
+                server.sendData<CharacterManagedObject>(
+                  client,
+                  "Character.ManagedObject",
+                  {
+                    objectCharacterId: server._airdrop.cargo.characterId,
+                    characterId: client.character.characterId
+                  }
+                );
               }
             }
           }
@@ -940,9 +1118,13 @@ export class ZonePacketHandlers {
           client.character.characterStates,
           false
         );
-        server.sendData(client, "Character.StartMultiStateDeath", {
-          characterId: client.character.characterId
-        });
+        server.sendData<CharacterStartMultiStateDeath>(
+          client,
+          "Character.StartMultiStateDeath",
+          {
+            characterId: client.character.characterId
+          }
+        );
         client.blockedPositionUpdates = 0;
         return;
       }
@@ -1066,7 +1248,11 @@ export class ZonePacketHandlers {
       vehicle.positionUpdate.sideTilt = positionUpdate.sideTilt;
     }
   }
-  VehicleStateData(server: ZoneServer2016, client: Client, packet: ReceivedPacket<VehicleStateData>) {
+  VehicleStateData(
+    server: ZoneServer2016,
+    client: Client,
+    packet: ReceivedPacket<VehicleStateData>
+  ) {
     server.sendDataToAllOthersWithSpawnedEntity(
       server._vehicles,
       client,
@@ -1099,9 +1285,13 @@ export class ZonePacketHandlers {
           client.character.characterStates,
           false
         );
-        server.sendData(client, "Character.StartMultiStateDeath", {
-          characterId: client.character.characterId
-        });
+        server.sendData<CharacterStartMultiStateDeath>(
+          client,
+          "Character.StartMultiStateDeath",
+          {
+            characterId: client.character.characterId
+          }
+        );
         return;
       }
     } else client.blockedPositionUpdates = 0;
@@ -1277,7 +1467,11 @@ export class ZonePacketHandlers {
       });
     }
   }
-  CharacterRespawn(server: ZoneServer2016, client: Client, packet: ReceivedPacket<CharacterRespawn>) {
+  CharacterRespawn(
+    server: ZoneServer2016,
+    client: Client,
+    packet: ReceivedPacket<CharacterRespawn>
+  ) {
     this.commandHandler.executeInternalCommand(
       server,
       client,
@@ -1285,22 +1479,35 @@ export class ZonePacketHandlers {
       packet
     );
   }
-  SpectatorTeleport(server: ZoneServer2016, client: Client, packet: ReceivedPacket<SpectatorTeleport>) {
+  SpectatorTeleport(
+    server: ZoneServer2016,
+    client: Client,
+    packet: ReceivedPacket<SpectatorTeleport>
+  ) {
+    const { x, y } = packet.data;
+    if (x == null || y == null) return;
     server.dropAllManagedObjects(client);
-    server.sendData(client, "ClientUpdate.UpdateLocation", {
-      position: [packet.data.x, 355, packet.data.y, 1],
-      triggerLoadingScreen: false
-    });
-    server.sendData(client, "ClientUpdate.UpdateManagedLocation", {
-      characterId: OBSERVER_GUID,
-      position: [
-        packet.data.x,
-        client.character.state.position[1],
-        packet.data.y,
-        1
-      ],
-      triggerLoadingScreen: false
-    });
+    server.sendData<ClientUpdateUpdateLocation>(
+      client,
+      "ClientUpdate.UpdateLocation",
+      {
+        position: new Float32Array([x, 355, y, 1]),
+        triggerLoadingScreen: false
+      }
+    );
+    server.sendData<ClientUpdateUpdateManagedLocation>(
+      client,
+      "ClientUpdate.UpdateManagedLocation",
+      {
+        characterId: OBSERVER_GUID,
+        position: new Float32Array([
+          x,
+          client.character.state.position[1],
+          y,
+          1
+        ])
+      }
+    );
   }
   CharacterFullCharacterDataRequest(
     server: ZoneServer2016,
@@ -1308,9 +1515,9 @@ export class ZonePacketHandlers {
     packet: ReceivedPacket<CharacterFullCharacterDataRequest>
   ) {
     if (packet.data.characterId == EXTERNAL_CONTAINER_GUID) {
-      server.sendData(client, "LightweightToFullNpc", {
+      server.sendData<LightweightToFullNpc>(client, "LightweightToFullNpc", {
         transientId: 0,
-        attachmentData: {},
+        attachmentData: [],
         characterId: EXTERNAL_CONTAINER_GUID,
         resources: {
           data: {}
@@ -1354,10 +1561,18 @@ export class ZonePacketHandlers {
     }
     entity.OnFullCharacterDataRequest(server, client);
   }
-  CommandPlayerSelect(server: ZoneServer2016, client: Client, packet: ReceivedPacket<{}>) {
+  CommandPlayerSelect(
+    server: ZoneServer2016,
+    client: Client,
+    packet: ReceivedPacket<object>
+  ) {
     debug("Command.PlayerSelect");
   }
-  LockssetLock(server: ZoneServer2016, client: Client, packet: ReceivedPacket<LockssetLock>) {
+  LocksSetLock(
+    server: ZoneServer2016,
+    client: Client,
+    packet: ReceivedPacket<LocksSetLock>
+  ) {
     if (!client.character.isAlive || client.isLoading) return;
 
     // if player hits cancel
@@ -1436,7 +1651,11 @@ export class ZonePacketHandlers {
       client.character.damage(server, damageInfo);
     }
   }
-  MountDismountRequest(server: ZoneServer2016, client: Client, packet: ReceivedPacket<{}>) {
+  MountDismountRequest(
+    server: ZoneServer2016,
+    client: Client,
+    packet: ReceivedPacket<object>
+  ) {
     // only for driver seat
     server.dismountVehicle(client);
   }
@@ -1454,16 +1673,24 @@ export class ZonePacketHandlers {
       } time:${Date.now()}`
     );
   }
-  VehicleDismiss(server: ZoneServer2016, client: Client, packet: ReceivedPacket<{}>) {
+  VehicleDismiss(
+    server: ZoneServer2016,
+    client: Client,
+    packet: ReceivedPacket<object>
+  ) {
     const vehicleGuid = client.vehicle.mountedVehicle;
     if (vehicleGuid) {
       server.dismountVehicle(client);
       server.dismissVehicle(vehicleGuid);
     }
   }
-  VehicleAccessType(server: ZoneServer2016, client: Client, packet: ReceivedPacket<VehicleAccessType>) {
+  VehicleAccessType(
+    server: ZoneServer2016,
+    client: Client,
+    packet: ReceivedPacket<VehicleAccessType>
+  ) {
     const vehicleGuid = packet.data.vehicleGuid || "",
-    accessType = packet.data.accessType || 0;
+      accessType = packet.data.accessType || 0;
     server._vehicles[vehicleGuid].handleVehicleLock(server, !!accessType);
   }
   CommandInteractionString(
@@ -1472,8 +1699,8 @@ export class ZonePacketHandlers {
     packet: ReceivedPacket<CommandInteractionString>
   ) {
     const guid = packet.data.guid || "",
-    entity = server.getEntity(guid);
-    
+      entity = server.getEntity(guid);
+
     if (!entity) return;
     if (entity instanceof Crate) {
       client.character.currentInteractionGuid = guid;
@@ -1501,10 +1728,14 @@ export class ZonePacketHandlers {
       !(entity instanceof Destroyable) &&
       !client.sentInteractionData.includes(entity)
     ) {
-      server.sendData(client, "Replication.NpcComponent", {
-        transientId: entity.transientId,
-        nameId: entity.nameId
-      });
+      server.sendData<ReplicationNpcComponent>(
+        client,
+        "Replication.NpcComponent",
+        {
+          transientId: entity.transientId,
+          nameId: entity.nameId
+        }
+      );
       client.sentInteractionData.push(entity);
       if (
         !(
@@ -1512,14 +1743,22 @@ export class ZonePacketHandlers {
           entity instanceof ConstructionChildEntity
         )
       ) {
-        server.sendData(client, "Replication.InteractionComponent", {
-          transientId: entity.transientId
-        });
+        server.sendData<ReplicationInteractionComponent>(
+          client,
+          "Replication.InteractionComponent",
+          {
+            transientId: entity.transientId
+          }
+        );
       }
     }
     entity.OnInteractionString(server, client);
   }
-  MountSeatChangeRequest(server: ZoneServer2016, client: Client, packet: ReceivedPacket<MountSeatChangeRequest>) {
+  MountSeatChangeRequest(
+    server: ZoneServer2016,
+    client: Client,
+    packet: ReceivedPacket<MountSeatChangeRequest>
+  ) {
     //server.changeSeat(client, packet); disabled for now
   }
   ConstructionPlacementFinalizeRequest(
@@ -1587,31 +1826,39 @@ export class ZonePacketHandlers {
       );
       return;
     }
-    server.sendData(client, "Command.ItemDefinitionReply", {
-      data: {
-        ID: itemDef.ID,
-        definitionData: {
-          ...itemDef,
-          HUD_IMAGE_SET_ID: itemDef.IMAGE_SET_ID,
-          ITEM_TYPE_1: itemDef.ITEM_TYPE,
-          flags1: {
-            ...itemDef
-          },
-          flags2: {
-            ...itemDef
-          },
-          stats: []
+    server.sendData<CommandItemDefinitionReply>(
+      client,
+      "Command.ItemDefinitionReply",
+      {
+        data: {
+          ID: itemDef.ID,
+          definitionData: {
+            ...itemDef,
+            HUD_IMAGE_SET_ID: itemDef.IMAGE_SET_ID,
+            ITEM_TYPE_1: itemDef.ITEM_TYPE,
+            flags1: {
+              ...itemDef
+            },
+            flags2: {
+              ...itemDef
+            },
+            stats: []
+          }
         }
       }
-    });
+    );
     if (server.isContainer(itemDef.ID)) {
       // Fixes containers missing an itemdefinition not showing in inventory
       client.character.updateLoadout(server);
     }
   }
-  CharacterWeaponStance(server: ZoneServer2016, client: Client, packet: ReceivedPacket<CharacterWeaponStance>) {
+  CharacterWeaponStance(
+    server: ZoneServer2016,
+    client: Client,
+    packet: ReceivedPacket<CharacterWeaponStance>
+  ) {
     const stance = packet.data.stance || -1;
-    if(stance == -1) return;
+    if (stance == -1) return;
     if (client.character.positionUpdate) {
       client.character.weaponStance = stance;
     }
@@ -1626,7 +1873,11 @@ export class ZonePacketHandlers {
       }
     );
   }
-  CommandRedeploy(server: ZoneServer2016, client: Client, packet: ReceivedPacket<{}>) {
+  CommandRedeploy(
+    server: ZoneServer2016,
+    client: Client,
+    packet: ReceivedPacket<object>
+  ) {
     const damageInfo: DamageInfo = {
       entity: "",
       damage: 0
@@ -1636,19 +1887,31 @@ export class ZonePacketHandlers {
   FirstTimeEventInventoryAccess(
     server: ZoneServer2016,
     client: Client,
-    packet: ReceivedPacket<{}>
+    packet: ReceivedPacket<object>
   ) {
     const proximityItems = server.getProximityItems(client.character);
-    server.sendData(client, "ClientUpdate.ProximateItems", proximityItems);
+    server.sendData<ClientUpdateProximateItems>(
+      client,
+      "ClientUpdate.ProximateItems",
+      proximityItems
+    );
   }
-  CommandSuicide(server: ZoneServer2016, client: Client, packet: ReceivedPacket<{}>) {
+  CommandSuicide(
+    server: ZoneServer2016,
+    client: Client,
+    packet: ReceivedPacket<object>
+  ) {
     server.killCharacter(client, {
       entity: client.character.characterId,
       damage: 9999
     });
   }
   //#region ITEMS
-  RequestUseItem(server: ZoneServer2016, client: Client, packet: ReceivedPacket<ItemsRequestUseItem>) {
+  RequestUseItem(
+    server: ZoneServer2016,
+    client: Client,
+    packet: ReceivedPacket<ItemsRequestUseItem>
+  ) {
     debug(packet.data);
     const { itemGuid, itemUseOption, targetCharacterId, sourceCharacterId } =
       packet.data;
@@ -1896,9 +2159,13 @@ export class ZonePacketHandlers {
             1
           );
           if (!container) {
-            server.sendData(client, "Character.NoSpaceNotification", {
-              characterId: client.character.characterId
-            });
+            server.sendData<CharacterNoSpaceNotification>(
+              client,
+              "Character.NoSpaceNotification",
+              {
+                characterId: client.character.characterId
+              }
+            );
             return;
           }
           sourceCharacter.transferItemFromLoadout(
@@ -1971,12 +2238,20 @@ export class ZonePacketHandlers {
       );
       return;
     }
-    server.sendData(client, "Construction.PlacementResponse", {
-      itemDefinitionId: packet.data.itemDefinitionId,
-      model: modelId
-    });
+    server.sendData<ConstructionPlacementResponse>(
+      client,
+      "Construction.PlacementResponse",
+      {
+        itemDefinitionId: packet.data.itemDefinitionId,
+        model: modelId
+      }
+    );
   }
-  ContainerMoveItem(server: ZoneServer2016, client: Client, packet: ReceivedPacket</*ContainerMoveItem*/any>) {
+  ContainerMoveItem(
+    server: ZoneServer2016,
+    client: Client,
+    packet: ReceivedPacket</*ContainerMoveItem*/ any>
+  ) {
     const {
       containerGuid,
       characterId,
@@ -2218,9 +2493,13 @@ export class ZonePacketHandlers {
         if (
           !targetContainer.getHasSpace(server, item.itemDefinitionId, count)
         ) {
-          server.sendData(client, "Character.NoSpaceNotification", {
-            characterId: client.character.characterId
-          });
+          server.sendData<CharacterNoSpaceNotification>(
+            client,
+            "Character.NoSpaceNotification",
+            {
+              characterId: client.character.characterId
+            }
+          );
           return;
         }
 
@@ -2257,9 +2536,13 @@ export class ZonePacketHandlers {
       return;
     }
   }
-  LoadoutSelectSlot(server: ZoneServer2016, client: Client, packet: ReceivedPacket<LoadoutSelectSlot>) {
+  LoadoutSelectSlot(
+    server: ZoneServer2016,
+    client: Client,
+    packet: ReceivedPacket<LoadoutSelectSlot>
+  ) {
     const slotId = packet.data.slotId || 0,
-    slot = client.character._loadout[slotId];
+      slot = client.character._loadout[slotId];
     if (!slot) {
       server.sendChatText(client, "[ERROR] Target slot is empty!");
       return;
@@ -2272,7 +2555,9 @@ export class ZonePacketHandlers {
     packet: ReceivedPacket<NpcFoundationPermissionsManagerEditPermission>
   ) {
     const objectCharacterId = packet.data.objectCharacterId || "",
-    foundation = server._constructionFoundations[objectCharacterId] as ConstructionParentEntity;
+      foundation = server._constructionFoundations[
+        objectCharacterId
+      ] as ConstructionParentEntity;
     if (
       foundation.ownerCharacterId != client.character.characterId &&
       (!client.isAdmin || !client.isDebugMode) // allows debug mode
@@ -2317,16 +2602,15 @@ export class ZonePacketHandlers {
 
     // update child expansion permissions
     Object.values(
-      server._constructionFoundations[objectCharacterId]
-        .occupiedExpansionSlots
+      server._constructionFoundations[objectCharacterId].occupiedExpansionSlots
     ).forEach((expansion) => {
       expansion.permissions = foundation.permissions;
     });
 
     // update permissions list
-    server.sendData(
+    server.sendData<NpcFoundationPermissionsManagerBaseShowPermissions>(
       client,
-      "NpcFoundationPermissionsManagerBase.showPermissions",
+      "NpcFoundationPermissionsManagerBase.ShowPermissions",
       {
         characterId: foundation.characterId,
         characterId2: foundation.characterId,
@@ -2343,8 +2627,10 @@ export class ZonePacketHandlers {
     packet: ReceivedPacket<NpcFoundationPermissionsManagerAddPermission>
   ) {
     const objectCharacterId = packet.data.objectCharacterId || "",
-    characterName = packet.data.characterName || "",
-    foundation = server._constructionFoundations[objectCharacterId] as ConstructionParentEntity;
+      characterName = packet.data.characterName || "",
+      foundation = server._constructionFoundations[
+        objectCharacterId
+      ] as ConstructionParentEntity;
     if (
       foundation.ownerCharacterId != client.character.characterId &&
       (!client.isAdmin || !client.isDebugMode)
@@ -2402,15 +2688,14 @@ export class ZonePacketHandlers {
 
     // update child expansion permissions
     Object.values(
-      server._constructionFoundations[objectCharacterId]
-        .occupiedExpansionSlots
+      server._constructionFoundations[objectCharacterId].occupiedExpansionSlots
     ).forEach((expansion) => {
       expansion.permissions = foundation.permissions;
     });
 
-    server.sendData(
+    server.sendData<NpcFoundationPermissionsManagerBaseShowPermissions>(
       client,
-      "NpcFoundationPermissionsManagerBase.showPermissions",
+      "NpcFoundationPermissionsManagerBase.ShowPermissions",
       {
         characterId: foundation.characterId,
         characterId2: foundation.characterId,
@@ -2578,7 +2863,11 @@ export class ZonePacketHandlers {
     }
   }
 
-  Weapon(server: ZoneServer2016, client: Client, packet: ReceivedPacket<WeaponWeapon>) {
+  Weapon(
+    server: ZoneServer2016,
+    client: Client,
+    packet: ReceivedPacket<WeaponWeapon>
+  ) {
     debug("Weapon.Weapon");
     if (client.character.tempGodMode) {
       // used to disable spawn godmode
@@ -2595,10 +2884,18 @@ export class ZonePacketHandlers {
         break;
     }
   }
-  CommandRun(server: ZoneServer2016, client: Client, packet: ReceivedPacket<CommandRunSpeed>) {
+  CommandRun(
+    server: ZoneServer2016,
+    client: Client,
+    packet: ReceivedPacket<CommandRunSpeed>
+  ) {
     this.commandHandler.executeInternalCommand(server, client, "run", packet);
   }
-  CommandSpectate(server: ZoneServer2016, client: Client, packet: ReceivedPacket<{}>) {
+  CommandSpectate(
+    server: ZoneServer2016,
+    client: Client,
+    packet: ReceivedPacket<object>
+  ) {
     this.commandHandler.executeInternalCommand(
       server,
       client,
@@ -2606,7 +2903,11 @@ export class ZonePacketHandlers {
       packet
     );
   }
-  VoiceRadioChannel(server: ZoneServer2016, client: Client, packet: ReceivedPacket<VoiceRadioChannel>) {
+  VoiceRadioChannel(
+    server: ZoneServer2016,
+    client: Client,
+    packet: ReceivedPacket<VoiceRadioChannel>
+  ) {
     if (!client.character._loadout[LoadoutSlots.RADIO]) return;
     if (
       client.character._loadout[LoadoutSlots.RADIO].itemDefinitionId !=
@@ -2615,16 +2916,31 @@ export class ZonePacketHandlers {
       return;
     client.radio = true;
   }
-  VoiceLeaveRadio(server: ZoneServer2016, client: Client, packet: ReceivedPacket<VoiceLeaveRadio>) {
+  VoiceLeaveRadio(
+    server: ZoneServer2016,
+    client: Client,
+    packet: ReceivedPacket<VoiceLeaveRadio>
+  ) {
     client.radio = false;
   }
-  EndCharacterAccess(server: ZoneServer2016, client: Client, packet: ReceivedPacket<AccessedCharacterEndCharacterAccess>) {
+  EndCharacterAccess(
+    server: ZoneServer2016,
+    client: Client,
+    packet: ReceivedPacket<AccessedCharacterEndCharacterAccess>
+  ) {
     client.character.dismountContainer(server);
   }
 
-  GroupInvite(server: ZoneServer2016, client: Client, packet: ReceivedPacket<GroupInvite>) {
-    const targetCharacterId = packet.data.inviteData?.targetCharacter?.characterId || "",
-    targetCharacterName = packet.data.inviteData?.targetCharacter?.identity?.characterFirstName || "";
+  GroupInvite(
+    server: ZoneServer2016,
+    client: Client,
+    packet: ReceivedPacket<GroupInvite>
+  ) {
+    const targetCharacterId =
+        packet.data.inviteData?.targetCharacter?.characterId || "",
+      targetCharacterName =
+        packet.data.inviteData?.targetCharacter?.identity?.characterFirstName ||
+        "";
     let target: Client | string | undefined;
 
     if (Number(targetCharacterId)) {
@@ -2638,9 +2954,14 @@ export class ZonePacketHandlers {
     server.groupManager.sendGroupInvite(server, client, target);
   }
 
-  GroupJoin(server: ZoneServer2016, client: Client, packet: ReceivedPacket<GroupJoin>) {
-    const characterName = packet.data.inviteData?.sourceCharacter?.identity?.characterName || "",
-    source = server.getClientByNameOrLoginSession(characterName);
+  GroupJoin(
+    server: ZoneServer2016,
+    client: Client,
+    packet: ReceivedPacket<GroupJoin>
+  ) {
+    const characterName =
+        packet.data.inviteData?.sourceCharacter?.identity?.characterName || "",
+      source = server.getClientByNameOrLoginSession(characterName);
     if (!(source instanceof Client)) return;
 
     server.groupManager.handleGroupJoin(
@@ -2652,7 +2973,11 @@ export class ZonePacketHandlers {
   }
   //#endregion
 
-  processPacket(server: ZoneServer2016, client: Client, packet: ReceivedPacket<any>) {
+  processPacket(
+    server: ZoneServer2016,
+    client: Client,
+    packet: ReceivedPacket<any>
+  ) {
     switch (packet.name) {
       case "ClientIsReady":
         this.ClientIsReady(server, client, packet);
@@ -2731,7 +3056,7 @@ export class ZonePacketHandlers {
         );
         break;
       case "Locks.setLock":
-        this.LockssetLock(server, client, packet);
+        this.LocksSetLock(server, client, packet);
         break;
       case "Synchronization":
         this.Synchronization(server, client, packet);
