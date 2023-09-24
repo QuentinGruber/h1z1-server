@@ -393,7 +393,7 @@ export class FairPlayManager {
     gameTime: number
   ): boolean {
     if (!this.fairPlayValues) return true;
-    const message = `FairPlay: blocked incoming projectile from ${client.character.name}`,
+    const message = `[${Date.now()}] FairPlay: Blocked incoming projectile from ${client.character.name}`,
       targetClient = server.getClientByCharId(entity.characterId);
 
     if (targetClient) fireHint.hitNumber++;
@@ -415,7 +415,7 @@ export class FairPlayManager {
             `FairPlay: ${client.character.name} is hitting invalid projectiles on player ${targetClient.character.name}`,
             false
           );
-          server.sendChatText(targetClient, message, false);
+          server.sendConsoleText(targetClient, message);
         }
         return false;
       }
@@ -433,7 +433,7 @@ export class FairPlayManager {
       ) {
         if (dotProduct < this.fairPlayValues.dotProductBlockValue) {
           if (c) {
-            this.sendChatText(c, message, false);
+            this.sendConsoleText(c, message);
           }
           this.sendChatTextToAdmins(
             `FairPlay: ${
@@ -481,7 +481,7 @@ export class FairPlayManager {
             `FairPlay: ${targetClient.character.name} shot has been blocked due to position desync`,
             false
           );
-          server.sendChatText(targetClient, message, false);
+          server.sendConsoleText(targetClient, message);
           return false;
         }
       }
@@ -547,7 +547,7 @@ export class FairPlayManager {
           } | ${hitReport.hitLocation}`,
           false
         );
-        server.sendChatText(targetClient, message, false);
+        server.sendConsoleText(targetClient, message);
         return false;
       }
     }
