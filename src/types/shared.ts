@@ -21,6 +21,7 @@ export interface ReceivedPacket<PacketType> {
   name: string;
   data: PacketType;
 }
+
 export interface httpServerMessage {
   type: string;
   requestId: number;

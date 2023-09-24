@@ -2523,7 +2523,7 @@ export class ZoneServer2016 extends EventEmitter {
     }
   }
 
-  getEntity(entityKey: string): BaseEntity | undefined {
+  getEntity(entityKey: string = ""): BaseEntity | undefined {
     return (
       this._npcs[entityKey] ||
       this._vehicles[entityKey] ||
