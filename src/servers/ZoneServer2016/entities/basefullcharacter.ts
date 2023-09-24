@@ -748,8 +748,8 @@ export abstract class BaseFullCharacter extends BaseLightweightCharacter {
   }
 
   pGetEquipmentSlots() {
-    return Object.keys(this._equipment).map((slotId: any) => {
-      return this.pGetEquipmentSlot(slotId);
+    return Object.keys(this._equipment).map((slotId) => {
+      return this.pGetEquipmentSlot(Number(slotId));
     });
   }
 
@@ -767,8 +767,8 @@ export abstract class BaseFullCharacter extends BaseLightweightCharacter {
   }
 
   pGetAttachmentSlots() {
-    return Object.keys(this._equipment).map((slotId: any) => {
-      return this.pGetAttachmentSlot(slotId);
+    return Object.keys(this._equipment).map((slotId) => {
+      return this.pGetAttachmentSlot(Number(slotId));
     });
   }
 
@@ -923,7 +923,7 @@ export abstract class BaseFullCharacter extends BaseLightweightCharacter {
       loadoutId: this.loadoutId,
       loadoutData: {
         loadoutSlots: Object.values(this.getLoadoutSlots()).map(
-          (slotId: any) => {
+          (slotId) => {
             return this.pGetLoadoutSlot(slotId);
           }
         )
@@ -1022,7 +1022,7 @@ export abstract class BaseFullCharacter extends BaseLightweightCharacter {
   }
 
   pGetInventoryItems(server: ZoneServer2016) {
-    const items: any[] = Object.values(this._loadout)
+    const items = Object.values(this._loadout)
       .filter((slot) => {
         if (slot.itemDefinitionId) {
           return true;

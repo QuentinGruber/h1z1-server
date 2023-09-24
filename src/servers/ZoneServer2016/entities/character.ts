@@ -569,7 +569,7 @@ export class Character2016 extends BaseFullCharacter {
     // to avoid a mounted container being dismounted if loadout is updated while mounted
 
     const loadoutSlots = Object.values(this.getLoadoutSlots()).map(
-      (slotId: any) => {
+      (slotId) => {
         return this.pGetLoadoutSlot(slotId);
       }
     );
@@ -749,7 +749,7 @@ export class Character2016 extends BaseFullCharacter {
         lootableEntity instanceof Vehicle2016 ? lootableEntity.loadoutId : 5,
       loadoutData: {
         loadoutSlots: Object.values(lootableEntity.getLoadoutSlots()).map(
-          (slotId: any) => {
+          (slotId) => {
             return lootableEntity.pGetLoadoutSlot(slotId);
           }
         )
@@ -887,8 +887,8 @@ export class Character2016 extends BaseFullCharacter {
   }
 
   pGetAttachmentSlots(groupId?: number) {
-    return Object.keys(this._equipment).map((slotId: any) => {
-      return this.pGetAttachmentSlot(slotId, groupId);
+    return Object.keys(this._equipment).map((slotId) => {
+      return this.pGetAttachmentSlot(Number(slotId), groupId);
     });
   }
 

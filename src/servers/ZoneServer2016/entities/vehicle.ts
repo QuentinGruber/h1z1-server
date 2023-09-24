@@ -113,7 +113,7 @@ function getHeadlightEffect(vehicleId: VehicleIds) {
 
 export class Vehicle2016 extends BaseLootableEntity {
   isManaged: boolean = false;
-  manager?: any;
+  manager?: ZoneClient2016;
   destroyedEffect: number = 0;
   destroyedModel: number = 0;
   minorDamageEffect: number = 0;
@@ -809,7 +809,7 @@ export class Vehicle2016 extends BaseLootableEntity {
       loadoutId: this.loadoutId,
       loadoutData: {
         loadoutSlots: Object.values(this.getLoadoutSlots()).map(
-          (slotId: any) => {
+          (slotId) => {
             return this.pGetLoadoutSlot(slotId);
           }
         )
