@@ -16,7 +16,7 @@ const typeMap: Record<PacketDataType, string> = {
   bytes: "unknown[]",
   rgb: "number[]",
   variabletype8: "unknown",
-  bitflags: "number[]",
+  bitflags: "unknown",
   custom: "unknown",
   int64: "bigint",
   float: "number",
@@ -51,15 +51,29 @@ function getSchemaBody(schema: PacketFields) {
         bodyInterfaceString += " :{\n";
         bodyInterfaceString += getSchemaBody(element.fields as PacketFields);
         bodyInterfaceString += "}";
-        if (element.type === "byteswithlength") {
-          // bodyInterfaceString += "| any";
-        }
         bodyInterfaceString += ";\n";
       }
       else {
         bodyInterfaceString += addSimpleType(element);
       }
-    } else {
+    }
+    else if (element.type === "bitflags") {
+      if (element.flags) {
+        bodyInterfaceString += "  ";
+        bodyInterfaceString += element.name;
+        bodyInterfaceString += ":{\n";
+        for (const flag of element.flags) {
+          bodyInterfaceString += "     ";
+          bodyInterfaceString += `${flag.name}: boolean,\n`;
+        }
+        bodyInterfaceString += "}";
+        bodyInterfaceString += ";\n";
+      }
+      else {
+        bodyInterfaceString += addSimpleType(element);
+      }
+    }
+    else {
       bodyInterfaceString += addSimpleType(element);
     }
   });

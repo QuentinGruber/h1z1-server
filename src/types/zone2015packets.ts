@@ -590,13 +590,76 @@ export interface PlayerUpdateSetLookAt {
 }
 export interface PlayerUpdateUpdateCharacterState {
   characterId?: string;
-  states1: number[];
-  states2: number[];
-  states3: number[];
-  states4: number[];
-  states5: number[];
-  states6: number[];
-  states7: number[];
+  states1:{
+     visible: boolean,
+     afraid: boolean,
+     asleep: boolean,
+     silenced: boolean,
+     bound: boolean,
+     rooted: boolean,
+     stunned: boolean,
+     knockedOut: boolean,
+};
+  states2:{
+     nonAttackable: boolean,
+     knockedBack: boolean,
+     confused: boolean,
+     goinghome: boolean,
+     inCombat: boolean,
+     frozen: boolean,
+     berserk: boolean,
+     inScriptedAnimation: boolean,
+};
+  states3:{
+     pull: boolean,
+     revivable: boolean,
+     beingRevived: boolean,
+     cloaked: boolean,
+     interactBlocked: boolean,
+     nonHealable: boolean,
+     weaponFireBlocked: boolean,
+     nonResuppliable: boolean,
+};
+  states4:{
+     charging: boolean,
+     invincibility: boolean,
+     thrustPadded: boolean,
+     castingAbility: boolean,
+     userMovementDisabled: boolean,
+     flying: boolean,
+     hideCorpse: boolean,
+     gmHidden: boolean,
+};
+  states5:{
+     griefInvulnerability: boolean,
+     canSpawnTank: boolean,
+     inGravityField: boolean,
+     invulnerable: boolean,
+     friendlyFireImmunity: boolean,
+     riotShielded: boolean,
+     supplyingAmmo: boolean,
+     supplyingRepairs: boolean,
+};
+  states6:{
+     REUSE_ME_2: boolean,
+     REUSE_ME_3: boolean,
+     hidesHeat: boolean,
+     nearDeath: boolean,
+     dormant: boolean,
+     ignoreStatusNotUsed: boolean,
+     inWater: boolean,
+     disarmed: boolean,
+};
+  states7:{
+     doorState: boolean,
+     sitting: boolean,
+     error1: boolean,
+     error2: boolean,
+     handsUp: boolean,
+     bit5: boolean,
+     bit6: boolean,
+     bit7: boolean,
+};
   placeholder?: number;
   gameTime?: number;
 }

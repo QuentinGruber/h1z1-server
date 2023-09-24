@@ -569,7 +569,16 @@ export interface AddLightweightPc {
   unknownDword4?: number;
   unknownQword1?: string;
   unknownDword5?: number;
-  flags1?: number[];
+  flags1:{
+     flag0: boolean,
+     knockedOut: boolean,
+     disableEquipment: boolean,
+     useEffect: boolean,
+     flag4: boolean,
+     isAdmin: boolean,
+     flag6: boolean,
+     flag7: boolean,
+};
 }
 export interface AddLightweightNpc {
   characterId?: string;
@@ -597,9 +606,36 @@ export interface AddLightweightNpc {
   profileId?: number;
   isLightweight?: boolean;
   flags :{
-  flags1?: number[];
-  flags2?: number[];
-  flags3?: number[];
+  flags1:{
+     bit0: boolean,
+     bit1: boolean,
+     bit2: boolean,
+     bit3: boolean,
+     bit4: boolean,
+     bit5: boolean,
+     bit6: boolean,
+     bit7: boolean,
+};
+  flags2:{
+     bit8: boolean,
+     bit9: boolean,
+     bit10: boolean,
+     bit11: boolean,
+     projectileCollision: boolean,
+     bit13: boolean,
+     bit14: boolean,
+     bit15: boolean,
+};
+  flags3:{
+     bit16: boolean,
+     bit17: boolean,
+     bit18: boolean,
+     bit19: boolean,
+     noCollide: boolean,
+     knockedOut: boolean,
+     bit22: boolean,
+     bit23: boolean,
+};
 };
   unknownByte3?: number;
   unknownDword8?: number;
@@ -643,9 +679,36 @@ export interface AddLightweightVehicle {
   profileId?: number;
   isLightweight?: boolean;
   flags :{
-  flags1?: number[];
-  flags2?: number[];
-  flags3?: number[];
+  flags1:{
+     bit0: boolean,
+     bit1: boolean,
+     bit2: boolean,
+     bit3: boolean,
+     bit4: boolean,
+     bit5: boolean,
+     bit6: boolean,
+     bit7: boolean,
+};
+  flags2:{
+     bit8: boolean,
+     bit9: boolean,
+     bit10: boolean,
+     bit11: boolean,
+     projectileCollision: boolean,
+     bit13: boolean,
+     bit14: boolean,
+     bit15: boolean,
+};
+  flags3:{
+     bit16: boolean,
+     bit17: boolean,
+     bit18: boolean,
+     bit19: boolean,
+     noCollide: boolean,
+     knockedOut: boolean,
+     bit22: boolean,
+     bit23: boolean,
+};
 };
   unknownByte3?: number;
   unknownDword8?: number;
@@ -893,13 +956,76 @@ export interface CharacterUpdateScale {
 }
 export interface CharacterUpdateCharacterState {
   characterId?: string;
-  states1: number[];
-  states2: number[];
-  states3: number[];
-  states4: number[];
-  states5: number[];
-  states6: number[];
-  states7: number[];
+  states1:{
+     visible: boolean,
+     afraid: boolean,
+     asleep: boolean,
+     silenced: boolean,
+     bound: boolean,
+     rooted: boolean,
+     stunned: boolean,
+     knockedOut: boolean,
+};
+  states2:{
+     nonAttackable: boolean,
+     knockedBack: boolean,
+     confused: boolean,
+     goinghome: boolean,
+     inCombat: boolean,
+     frozen: boolean,
+     berserk: boolean,
+     inScriptedAnimation: boolean,
+};
+  states3:{
+     pull: boolean,
+     revivable: boolean,
+     beingRevived: boolean,
+     cloaked: boolean,
+     interactBlocked: boolean,
+     nonHealable: boolean,
+     weaponFireBlocked: boolean,
+     nonResuppliable: boolean,
+};
+  states4:{
+     charging: boolean,
+     invincibility: boolean,
+     thrustPadded: boolean,
+     castingAbility: boolean,
+     userMovementDisabled: boolean,
+     flying: boolean,
+     hideCorpse: boolean,
+     gmHidden: boolean,
+};
+  states5:{
+     griefInvulnerability: boolean,
+     canSpawnTank: boolean,
+     inGravityField: boolean,
+     invulnerable: boolean,
+     friendlyFireImmunity: boolean,
+     riotShielded: boolean,
+     supplyingAmmo: boolean,
+     supplyingRepairs: boolean,
+};
+  states6:{
+     REUSE_ME_2: boolean,
+     REUSE_ME_3: boolean,
+     hidesHeat: boolean,
+     nearDeath: boolean,
+     dormant: boolean,
+     ignoreStatusNotUsed: boolean,
+     inWater: boolean,
+     disarmed: boolean,
+};
+  states7:{
+     doorState: boolean,
+     sitting: boolean,
+     error1: boolean,
+     error2: boolean,
+     handsUp: boolean,
+     bit5: boolean,
+     bit6: boolean,
+     bit7: boolean,
+};
   placeholder?: number;
   gameTime?: number;
 }
@@ -1420,7 +1546,16 @@ export interface UiWeaponHitFeedback {
   unknownDword2?: number;
 }
 export interface UiConfirmHit {
-  hitType?: number[];
+  hitType:{
+     isAlly: boolean,
+     isHeadshot: boolean,
+     damagedArmor: boolean,
+     crackedArmor: boolean,
+     bit4: boolean,
+     bit5: boolean,
+     bit6: boolean,
+     bit7: boolean,
+};
 }
 export interface RewardAddNonRewardItem {
   itemDefId?: number;
