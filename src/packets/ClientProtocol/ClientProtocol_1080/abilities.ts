@@ -69,7 +69,15 @@ export const abilitiesPackets: PacketStructures = [
       ]
     }
   ],
-  ["Abilities.UninitAbility", 0xa103, {}],
+  ["Abilities.UninitAbility", 0xa103,
+    {
+      fields: [
+        { name: "unknownDword1", type: "uint32", defaultValue: 0 },
+        { name: "abilityId", type: "uint32", defaultValue: 0 },
+        { name: "unknownDword2", type: "uint32", defaultValue: 0 }
+      ]
+    }
+  ],
   ["Abilities.SetAbilityActivationManager", 0xa104, {}],
   [
     "Abilities.SetActivatableAbilityManager",
