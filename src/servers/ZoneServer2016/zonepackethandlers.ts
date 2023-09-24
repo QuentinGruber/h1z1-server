@@ -2597,6 +2597,15 @@ export class ZonePacketHandlers {
     vehicle.stopEngine(server);
     server.sendData(client, "Effect.RemoveEffect", packet.data);
   }
+  AbilitiesInitAbility(server: ZoneServer2016, client: Client, packet: any) {
+    console.log(packet.data);
+  }
+  AbilitiesUninitAbility(server: ZoneServer2016, client: Client, packet: any) {
+    server.sendData(client, "Abilities.DeactivateAbility", {
+      abilityId: packet.data.abilityId,
+      unknownDword1: packet.data.unknownDword2
+    });
+  }
   //#endregion
 
   processPacket(server: ZoneServer2016, client: Client, packet: any) {
@@ -2814,6 +2823,12 @@ export class ZonePacketHandlers {
         break;
       case "Effect.RemoveEffect":
         this.EffectRemoveEffect(server, client, packet);
+        break;
+      case "Abilities.InitAbility":
+        this.AbilitiesInitAbility(server, client, packet);
+        break;
+      case "Abilities.UninitAbility":
+        this.AbilitiesUninitAbility(server, client, packet);
         break;
       default:
         debug(packet);

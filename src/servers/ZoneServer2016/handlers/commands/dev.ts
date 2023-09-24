@@ -77,7 +77,7 @@ const dev: any = {
     client: Client,
     args: Array<string>
   ) {
-    server.sendData(client, "Abilities.ClearAbilityLineManager", {});
+    /*server.sendData(client, "Abilities.ClearAbilityLineManager", {});
 
     server.sendData(client, "Abilities.SetProfileAbilityLineMembers", {});
     server.sendData(client, "Abilities.SetProfileRankAbilities", {
@@ -111,6 +111,26 @@ const dev: any = {
       ]
     });
 
+      server.sendData(client, "Abilities.AddLoadoutAbility", {
+          abilitySlotId: 12,
+          abilityId: 1111278,
+          unknownDword1: 0,
+          guid1: client.character.characterId,
+          guid2: client.character.characterId
+      });
+
+      server.sendData(client, "Abilities.AddLoadoutAbility", {
+          abilitySlotId: 11,
+          abilityId: 1111157,
+          unknownDword1: 0,
+          guid1: client.character.characterId,
+          guid2: client.character.characterId
+      });
+
+      server.sendData(client, "Abilities.AddPersistentAbility", {
+          unk: 1111278
+      });*/
+
     server.sendData(
       client,
       "Abilities.SetActivatableAbilityManager",
@@ -122,28 +142,19 @@ const dev: any = {
       "Abilities.SetVehicleActivatableAbilityManager",
       vehicleAbilities
     );
-
-    server.sendData(client, "Abilities.AddLoadoutAbility", {
-      abilitySlotId: 12,
-      abilityId: 1111278,
-      unknownDword1: 0,
-      guid1: client.character.characterId,
-      guid2: client.character.characterId
+  },
+  abilitiesoff: function (
+    server: ZoneServer2016,
+    client: Client,
+    args: Array<string>
+  ) {
+    server.sendData(client, "Abilities.SetActivatableAbilityManager", {
+      abilities: []
     });
 
-    server.sendData(client, "Abilities.AddLoadoutAbility", {
-      abilitySlotId: 11,
-      abilityId: 1111157,
-      unknownDword1: 0,
-      guid1: client.character.characterId,
-      guid2: client.character.characterId
+    server.sendData(client, "Abilities.SetVehicleActivatableAbilityManager", {
+      abilities: []
     });
-
-    server.sendData(client, "Abilities.AddPersistentAbility", {
-      unk: 1111278
-    });
-
-    console.log(client.character.characterId);
   },
   deletesmallshacks: function (server: ZoneServer2016, client: Client) {
     let counter = 0;

@@ -69,7 +69,9 @@ export const abilitiesPackets: PacketStructures = [
       ]
     }
   ],
-  ["Abilities.UninitAbility", 0xa103,
+  [
+    "Abilities.UninitAbility",
+    0xa103,
     {
       fields: [
         { name: "unknownDword1", type: "uint32", defaultValue: 0 },
@@ -150,11 +152,38 @@ export const abilitiesPackets: PacketStructures = [
   ["Abilities.RemoveAbilityTimer", 0xa109, {}],
   ["Abilities.UpdateAbilityTimer", 0xa10a, {}],
   ["Abilities.SetAbilityLockTimer", 0xa10b, {}],
-  ["Abilities.ActivateAbility", 0xa10c, {}],
+  [
+    "Abilities.ActivateAbility",
+    0xa10c,
+    {
+      fields: [
+        { name: "abilityId", type: "uint32", defaultValue: 0 },
+        { name: "unknownDword1", type: "uint32", defaultValue: 0 }
+      ]
+    }
+  ],
   ["Abilities.VehicleActivateAbility", 0xa10d, {}],
-  ["Abilities.DeactivateAbility", 0xa10e, {}],
+  [
+    "Abilities.DeactivateAbility",
+    0xa10e,
+    {
+      fields: [
+        { name: "abilityId", type: "uint32", defaultValue: 0 },
+        { name: "unknownDword1", type: "uint32", defaultValue: 0 }
+      ]
+    }
+  ],
   ["Abilities.VehicleDeactivateAbility", 0xa10f, {}],
-  ["Abilities.ActivateAbilityFailed", 0xa110, {}],
+  [
+    "Abilities.ActivateAbilityFailed",
+    0xa110,
+    {
+      fields: [
+        { name: "abilityId", type: "uint32", defaultValue: 0 },
+        { name: "unknownDword1", type: "uint32", defaultValue: 0 }
+      ]
+    }
+  ],
   ["Abilities.VehicleActivateAbilityFailed", 0xa111, {}],
   [
     "Abilities.ClearAbilityLineManager",
