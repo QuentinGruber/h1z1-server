@@ -164,13 +164,68 @@ export const effectsPackets: PacketStructures = [
     0x9f06,
     {
       fields: [
+        { name: "unknownGuid1", type: "uint64string", defaultValue: "0x0" },
+        { name: "unknownGuid2", type: "uint64string", defaultValue: "0x0" },
+        { name: "unknownDword1", type: "uint32", defaultValue: 1 },
         {
           name: "unknownData1",
           type: "schema",
           fields: [
-            { name: "unknownQword1", type: "uint64string", defaultValue: "0" }
+            { name: "unknownDword1", type: "uint32", defaultValue: 1 },
+            { name: "unknownDword2", type: "uint32", defaultValue: 2 },
+            { name: "unknownDword3", type: "uint32", defaultValue: 3 }
           ]
-        }
+        },
+        {
+          name: "unknownData2",
+          type: "schema",
+          fields: [
+            { name: "unknownDword1", type: "uint32", defaultValue: 2 },
+            { name: "unknownDword2", type: "uint32", defaultValue: 3 },
+            { name: "unknownDword3", type: "uint32", defaultValue: 4 }
+          ]
+        },
+        {
+          name: "unknownData3",
+          type: "schema",
+          fields: [
+            { name: "unknownGuid1", type: "uint64string", defaultValue: "0x0" },
+            { name: "unknownDword1", type: "uint32", defaultValue: 0 },
+            { name: "unknownGuid2", type: "uint64string", defaultValue: "0x0" }
+          ]
+        },
+        {
+          name: "unknownData4",
+          type: "schema",
+          fields: [
+            {
+              name: "targetCharacterId",
+              type: "uint64string",
+              defaultValue: "0"
+            },
+            {
+              name: "unknownQword2",
+              type: "uint64string",
+              defaultValue: "0x0"
+            },
+            {
+              name: "unknownVector1",
+              type: "floatvector4",
+              defaultValue: [0, 0, 0, 0]
+            }
+          ]
+        },
+        {
+          name: "unknownData5",
+          type: "schema",
+          fields: [
+            { name: "unknownDword1", type: "uint32", defaultValue: 1 },
+            { name: "unknownDword2", type: "uint32", defaultValue: 2 },
+            { name: "unknownDword3", type: "uint32", defaultValue: 3 }
+          ]
+        },
+        { name: "unknownDword1", type: "uint32", defaultValue: 4 },
+        { name: "unknownByte1", type: "uint8", defaultValue: 128 }
       ]
     }
   ]
