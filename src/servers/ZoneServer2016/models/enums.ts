@@ -230,6 +230,13 @@ export enum ResourceTypes {
   CONDITION = 1
 }
 
+export enum Abilities {
+  VEHICLE_HEADLIGHTS = 99998,
+  VEHICLE_TURBO = 1111141,
+  VEHICLE_SIREN = 1111295,
+  VEHICLE_HORN = 1111301
+}
+
 export enum Items {
   //#region WEAPONS
   WEAPON_AR15 = 10,

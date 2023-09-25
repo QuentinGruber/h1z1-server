@@ -194,6 +194,7 @@ export class ZonePacketHandlers {
   ClientFinishedLoading(server: ZoneServer2016, client: Client, packet: any) {
     if (!server.hookManager.checkHook("OnClientFinishedLoading", client))
       return;
+    server.abilitiesManager.sendVehicleAbilities(server, client);
     server.tempGodMode(client, 15000);
     client.currentPOI = 0; // clears currentPOI for POIManager
     server.sendGameTimeSync(client);
@@ -2582,29 +2583,43 @@ export class ZonePacketHandlers {
     );
   }
   EffectAddEffect(server: ZoneServer2016, client: Client, packet: any) {
-    const vehicle =
+    /*const vehicle =
       server._vehicles[packet.data.unknownData3.targetCharacterId];
     if (!vehicle) return;
     vehicle.checkEngineRequirements(server);
-    server.sendData(client, "Effect.AddEffect", packet.data);
-
-    // for now we can only turn on/off once and then it breaks
+    server.sendData(client, "Effect.AddEffect", packet.data);*/
+    //for now we can only turn on/off once and then it breaks
   }
   EffectRemoveEffect(server: ZoneServer2016, client: Client, packet: any) {
-    const vehicle =
+    // doesnt work
+    /*const vehicle =
       server._vehicles[packet.data.unknownData3.targetCharacterId];
     if (!vehicle) return;
     vehicle.stopEngine(server);
-    server.sendData(client, "Effect.RemoveEffect", packet.data);
+    server.sendData(client, "Effect.RemoveEffect", packet.data);*/
   }
   AbilitiesInitAbility(server: ZoneServer2016, client: Client, packet: any) {
-    console.log(packet.data);
+    const vehicle = server._vehicles[packet.data.targetCharacterId];
+    if (vehicle) {
+      server.abilitiesManager.processVehicleAbilityInit(
+        server,
+        client,
+        vehicle,
+        packet.data
+      );
+    }
   }
   AbilitiesUninitAbility(server: ZoneServer2016, client: Client, packet: any) {
-    server.sendData(client, "Abilities.DeactivateAbility", {
-      abilityId: packet.data.abilityId,
-      unknownDword1: packet.data.unknownDword2
-    });
+    if (!client.vehicle.mountedVehicle) return;
+    const vehicle = server._vehicles[client.vehicle.mountedVehicle];
+    if (vehicle) {
+      server.abilitiesManager.processAbilityUninit(
+        server,
+        client,
+        vehicle,
+        packet.data
+      );
+    }
   }
   //#endregion
 

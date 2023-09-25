@@ -640,6 +640,98 @@ export class Vehicle2016 extends BaseLootableEntity {
     this.effectTags.splice(index, 1);
   }
 
+  toggleSiren(server: ZoneServer2016, client?: ZoneClient2016) {
+    const headlightType = Effects.VEH_SirenLight_PoliceCar,
+      index = this.effectTags.indexOf(headlightType);
+
+    if (index <= -1) {
+      if (!this.hasBattery()) {
+        if (client) {
+          server.sendChatText(client, "[ERROR] Vehicle missing battery.");
+        }
+        return;
+      }
+      server.sendDataToAllWithSpawnedEntity(
+        server._vehicles,
+        this.characterId,
+        "Character.AddEffectTagCompositeEffect",
+        {
+          characterId: this.characterId,
+          effectId: headlightType,
+          unknownDword1: headlightType,
+          unknownDword2: headlightType
+        }
+      );
+      this.effectTags.push(headlightType);
+      return;
+    }
+
+    server.sendDataToAllWithSpawnedEntity(
+      server._vehicles,
+      this.characterId,
+      "Character.RemoveEffectTagCompositeEffect",
+      {
+        characterId: this.characterId,
+        effectId: headlightType,
+        newEffectId: 0
+      }
+    );
+    this.effectTags.splice(index, 1);
+  }
+
+  toggleHorn(server: ZoneServer2016, on: boolean, client?: ZoneClient2016) {
+    let headlightType = Effects.SFX_VEH_Offroader_Horn;
+    switch (this.vehicleId) {
+      case VehicleIds.PICKUP:
+        headlightType = Effects.SFX_VEH_Pickup_Truck_Horn;
+        break;
+      case VehicleIds.POLICECAR:
+        headlightType = Effects.SFX_VEH_Police_Car_Horn;
+        break;
+      case VehicleIds.OFFROADER:
+        headlightType = Effects.SFX_VEH_Offroader_Horn;
+        break;
+      case VehicleIds.ATV:
+        headlightType = Effects.SFX_VEH_ATV_Horn;
+        break;
+    }
+    const index = this.effectTags.indexOf(headlightType);
+
+    if (on && index <= -1) {
+      if (!this.hasBattery()) {
+        if (client) {
+          server.sendChatText(client, "[ERROR] Vehicle missing battery.");
+        }
+        return;
+      }
+      server.sendDataToAllWithSpawnedEntity(
+        server._vehicles,
+        this.characterId,
+        "Character.AddEffectTagCompositeEffect",
+        {
+          characterId: this.characterId,
+          effectId: headlightType,
+          unknownDword1: headlightType,
+          unknownDword2: headlightType
+        }
+      );
+      this.effectTags.push(headlightType);
+      return;
+    }
+
+    server.sendDataToAllWithSpawnedEntity(
+      server._vehicles,
+      this.characterId,
+      "Character.RemoveEffectTagCompositeEffect",
+      {
+        characterId: this.characterId,
+        effectId: headlightType,
+        newEffectId: 0
+      }
+    );
+    this.effectTags.splice(index, 1);
+  }
+
   hasTurbo(): boolean {
     return (
       !!this.getLoadoutItemById(Items.TURBO_OFFROADER) ||

@@ -32,6 +32,7 @@ import { SpawnCell } from "./classes/spawncell";
 import { WorldObjectManager } from "./managers/worldobjectmanager";
 import { SmeltingManager } from "./managers/smeltingmanager";
 import { DecayManager } from "./managers/decaymanager";
+import { AbilitiesManager } from "./managers/abilitiesmanager";
 import {
   ContainerErrors,
   EntityTypes,
@@ -271,6 +272,7 @@ export class ZoneServer2016 extends EventEmitter {
   worldObjectManager: WorldObjectManager;
   smeltingManager: SmeltingManager;
   decayManager: DecayManager;
+  abilitiesManager: AbilitiesManager;
   weatherManager: WeatherManager;
   worldDataManager!: WorldDataManagerThreaded;
   hookManager: HookManager;
@@ -340,6 +342,7 @@ export class ZoneServer2016 extends EventEmitter {
     this.worldObjectManager = new WorldObjectManager();
     this.smeltingManager = new SmeltingManager();
     this.decayManager = new DecayManager();
+    this.abilitiesManager = new AbilitiesManager();
     this.weatherManager = new WeatherManager();
     this.hookManager = new HookManager();
     this.chatManager = new ChatManager();
@@ -4412,7 +4415,7 @@ export class ZoneServer2016 extends EventEmitter {
     vehicle.seats[seatId] = client.character.characterId;
     if (seatId === "0") {
       this.takeoverManagedObject(client, vehicle);
-      //vehicle.checkEngineRequirements(this);
+      vehicle.checkEngineRequirements(this);
       this.sendData(client, "Vehicle.Owner", {
         guid: vehicle.characterId,
         characterId: client.character.characterId,

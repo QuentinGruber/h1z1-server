@@ -173,7 +173,16 @@ export const abilitiesPackets: PacketStructures = [
       ]
     }
   ],
-  ["Abilities.VehicleDeactivateAbility", 0xa10f, {}],
+  [
+    "Abilities.VehicleDeactivateAbility",
+    0xa10f,
+    {
+      fields: [
+        { name: "abilityId", type: "uint32", defaultValue: 0 },
+        { name: "unknownDword1", type: "uint32", defaultValue: 0 }
+      ]
+    }
+  ],
   [
     "Abilities.ActivateAbilityFailed",
     0xa110,
