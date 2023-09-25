@@ -13,7 +13,7 @@ export interface LoginReply {
   isMember: boolean;
   isInternal: boolean;
   namespace: string;
-  applicationPayload: any;
+  applicationPayload: unknown;
 }
 export interface Logout {
 }
@@ -23,7 +23,13 @@ export interface ForceDisconnect {
 export interface CharacterCreateRequest {
   serverId: number;
   unknown: number;
-  payload: any;
+  payload :{
+  empireId: number;
+  headType: number;
+  profileType: number;
+  gender: number;
+  characterName: string;
+};
 }
 export interface CharacterCreateReply {
   status: number;
@@ -33,14 +39,27 @@ export interface CharacterLoginRequest {
   characterId: string;
   serverId: number;
   status?: number;
-  payload: any;
+  payload :{
+  locale: string;
+  localeId: number;
+  preferredGatewayId: number;
+};
 }
 export interface CharacterLoginReply {
   unknownQword1: string;
   unknownDword1: number;
   unknownDword2: number;
   status: number;
-  applicationData: any;
+  applicationData :{
+  serverAddress: string;
+  serverTicket: string;
+  encryptionKey: unknown;
+  guid: string;
+  unknownQword2: string;
+  stationName: string;
+  characterName: string;
+  unknownString: string;
+};
 }
 export interface CharacterDeleteRequest {
   characterId: string;
@@ -55,12 +74,12 @@ export interface CharacterSelectInfoRequest {
 export interface CharacterSelectInfoReply {
   status: number;
   canBypassServerLock: boolean;
-  characters: any[];
+  characters: unknown[];
 }
 export interface ServerListRequest {
 }
 export interface ServerListReply {
-  servers: any[];
+  servers: unknown[];
 }
 export interface ServerUpdate {
   serverId: number;
