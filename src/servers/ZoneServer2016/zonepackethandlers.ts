@@ -725,6 +725,7 @@ export class ZonePacketHandlers {
       server,
       client,
       packet.data.id,
+      packet.data.treeId,
       packet.data.name
     );
   }
