@@ -1846,10 +1846,6 @@ export const commands: Array<Command> = [
       client: Client,
       args: Array<string>
     ) => {
-      client.character.equipItem(
-        server,
-        server.generateItem(Items.FANNY_PACK_DEV)
-      );
       server.sendChatText(client, "Usage: /kit build [target client]");
     }
   },
@@ -1861,10 +1857,6 @@ export const commands: Array<Command> = [
       client: Client,
       args: Array<string>
     ) => {
-      client.character.equipItem(
-        server,
-        server.generateItem(Items.FANNY_PACK_DEV)
-      );
       server.sendChatText(client, "Usage: /kit skins [target client]");
     }
   },
