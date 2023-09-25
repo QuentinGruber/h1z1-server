@@ -1348,7 +1348,7 @@ export const commands: Array<Command> = [
     name: "kit",
     permissionLevel: PermissionLevels.ADMIN,
     execute: (server, client, args) => {
-      if (args.length < 2) {
+      if (args.length < 1) {
         server.sendChatText(client, "Usage: /kit [kit name] [target client]");
         return;
       }
@@ -1356,8 +1356,11 @@ export const commands: Array<Command> = [
       const kitName = args[0];
       const targetClientName = args[1];
   
-      // Find the target client
-      const targetClient = server.getClientByNameOrLoginSession(targetClientName);
+      // Check if the third argument is provided and truthy, or default to the sender (self)
+      const targetClient = args[2]
+        ? server.getClientByNameOrLoginSession(args[2])
+        : client;
+  
       if (typeof targetClient === "string") {
         server.sendChatText(
           client,
@@ -1394,7 +1397,7 @@ export const commands: Array<Command> = [
             server.sendChatText(client, `Build kit sent to ${targetClientName}`);
           break;
         default:
-          server.sendChatText(client, "Invalid kit name");
+          server.sendChatText(client, "Use pvp,parts,skins,build kits!");
           break;
       }
     },
