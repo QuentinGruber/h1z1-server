@@ -576,11 +576,14 @@ export class ConstructionManager {
       return;
     }
 
+    // takes too long to process for now
+    /*
     if (this.detectStackedTreePlacement(server, item, position)) {
       this.sendPlacementFinalize(server, client, 0);
       this.placementError(server, client, ConstructionErrors.TREESTACKED);
       return;
     }
+    */
 
     if (this.detectOutOfRange(client, item, position)) {
       this.sendPlacementFinalize(server, client, 0);

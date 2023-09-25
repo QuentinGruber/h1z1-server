@@ -65,8 +65,10 @@ export class SpeedTreeManager {
   ) {
     const zoneSpeedTree = this._speedTreesList[objectId];
     if (!zoneSpeedTree || zoneSpeedTree.treeId != treeId) {
-
-      server.sendChatText(client, `[Server] Invalid tree, please report this! ${treeId}`);
+      server.sendChatText(
+        client,
+        `[Server] Invalid tree, please report this! ${treeId}`
+      );
       return;
     }
 
