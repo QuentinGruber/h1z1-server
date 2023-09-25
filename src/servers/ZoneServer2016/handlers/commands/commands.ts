@@ -1384,7 +1384,7 @@ export const commands: Array<Command> = [
         case "skins":
             client.character.equipItem(server,server.generateItem(Items.FANNY_PACK_DEV) );
             targetClient.character.equipLoadout(server, characterSkinsLoadout);
-            server.sendChatText(targetClient, "You received the vehicle parts kit");
+            server.sendChatText(targetClient, "You received the skin kit");
             server.sendChatText(client, `You sent skin kit sent to ${targetClientName}`);
           break;
         case "build":
