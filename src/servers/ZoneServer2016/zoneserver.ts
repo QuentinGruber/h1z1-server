@@ -1378,8 +1378,8 @@ export class ZoneServer2016 extends EventEmitter {
 
   sendInitData(client: Client) {
     this.sendData(client, "InitializationParameters", {
-      ENVIRONMENT: "LIVE",
-      unknownString1: "",
+      ENVIRONMENT: "LIVE",// LOCAL, MAIN, QA, TEST, STAGE, LIVE, //THE_NINE, INNOVA 
+      unknownString1: "JS.Environment",//JS.Environment
       rulesetDefinitions: [
         /*
         {
