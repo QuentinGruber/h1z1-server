@@ -1379,12 +1379,12 @@ export class ZoneServer2016 extends EventEmitter {
   sendInitData(client: Client) {
     this.sendData(client, "InitializationParameters", {
       ENVIRONMENT: "LIVE",// LOCAL, MAIN, QA, TEST, STAGE, LIVE, //THE_NINE, INNOVA 
-      unknownString1: "JS.Environment",//JS.Environment
+      unknownString1: "SKU_Is_JustSurvive",//JS.Environment
       rulesetDefinitions: [
-        /*
+        
         {
-          unknownDword1: 1,
-          unknownDword2: 1,
+          RULESET_ID: 1,
+          RULESET_ID_: 1,
           ruleset: "Permadeath",
           unknownString2: "",
           rulesets: [
@@ -1400,22 +1400,22 @@ export class ZoneServer2016 extends EventEmitter {
           ]
         },
         {
-          unknownDword1: 3,
-          unknownDword2: 3,
+          RULESET_ID: 3,
+          RULESET_ID_: 3,
           ruleset: "Headshots",
           unknownString2: "",
           rulesets: []
         },
         {
-          unknownDword1: 4,
-          unknownDword2: 4,
+          RULESET_ID: 4,
+          RULESET_ID_: 4,
           ruleset: "FirstPersonOnly",
           unknownString2: "",
           rulesets: []
         },
         {
-          unknownDword1: 5,
-          unknownDword2: 5,
+          RULESET_ID: 5,
+          RULESET_ID_: 5,
           ruleset: "PvE", //  could be "Normal"
           unknownString2: "",
           rulesets: [
@@ -1431,14 +1431,14 @@ export class ZoneServer2016 extends EventEmitter {
           ]
         },
         {
-          unknownDword1: 6,
-          unknownDword2: 6,
+          RULESET_ID: 6,
+          RULESET_ID_: 6,
           ruleset: "BattleRoyale",
           unknownString2: "",
           rulesets: [
             
           ]
-        },*/
+        },
       ]
     });
 

@@ -2722,8 +2722,8 @@ export const basePackets: PacketStructures = [
           type: "array",
           defaultValue: [],
           fields: [
-            { name: "unknownDword1", type: "uint32", defaultValue: 0 },
-            { name: "unknownDword2", type: "uint32", defaultValue: 0 },
+            { name: "RULESET_ID", type: "uint32", defaultValue: 0 },
+            { name: "RULESET_ID_", type: "uint32", defaultValue: 0 },
             { name: "ruleset", type: "string", defaultValue: "" },
             { name: "unknownString2", type: "string", defaultValue: "" },
             {
