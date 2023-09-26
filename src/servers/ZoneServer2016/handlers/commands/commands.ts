@@ -1403,6 +1403,42 @@ export const commands: Array<Command> = [
     },
   },
   {
+    name: "tpl",
+    permissionLevel: PermissionLevels.MODERATOR,
+    execute: (server: ZoneServer2016, client: Client, args: Array<string>) => {
+      // Check if the client has a valid character and lookAt vector
+      if (!client.character || !client.character.state.lookAt) {
+        server.sendChatText(client, "Unable to determine lookAt direction.");
+        return;
+      }
+  
+      // Calculate the destination position based on lookAt direction
+      const lookAtDirection = client.character.state.lookAt;
+      const currentPosition = client.character.state.position;
+      const teleportDistance = 100; // Adjust this value as needed
+      const x = currentPosition[0] + teleportDistance * lookAtDirection[0];
+      const y = currentPosition[1] * lookAtDirection[1];
+      const z = currentPosition[2] + teleportDistance * lookAtDirection[2];
+  
+      // Set the new position for the client
+      const crosshairLocation = new Float32Array([x, y, z, 1]);
+      client.character.state.position = crosshairLocation;
+  
+      // Trigger loading screen and update client's location
+      client.isLoading = true;
+      client.characterReleased = false;
+      client.character.lastLoginDate = toHex(Date.now());
+      server.dropAllManagedObjects(client);
+      server.sendData(client, "ClientUpdate.UpdateLocation", {
+        position: crosshairLocation,
+        triggerLoadingScreen: false
+      });
+  
+      // Inform the player about the teleport
+      server.sendChatText(client, "You have been teleported to your crosshair position.");
+    }
+  },
+  {
     name: "kit",
     permissionLevel: PermissionLevels.ADMIN,
     execute: (server: ZoneServer2016, client: Client, args: Array<string>) => {
