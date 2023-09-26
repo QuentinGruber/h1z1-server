@@ -363,6 +363,11 @@ export interface HudIndicator {
 	imageSetId: number,
 }
 
+export interface characterIndicatorData {
+	typeName: string;
+	expirationTime: number;
+}
+
 export interface HealType {
 	healingTicks: number,
 	healingMaxTicks: number

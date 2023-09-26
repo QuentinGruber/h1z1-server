@@ -26,6 +26,7 @@ import { ZoneServer2016 } from "../zoneserver";
 import { BaseFullCharacter } from "./basefullcharacter";
 import {
   CharacterEffect,
+  characterIndicatorData,
   DamageInfo,
   DamageRecord,
   HealType,
@@ -158,7 +159,8 @@ export class Character2016 extends BaseFullCharacter {
     [effectId: number]: CharacterEffect;
   } = {};
   lastLockFailure: number = 0;
-  hudIndicators: string[] = [];
+  resourceHudIndicators: string[] = [];
+  hudIndicators: { [typeName: string]: characterIndicatorData } = {};
   constructor(
     characterId: string,
     transientId: number,
@@ -210,9 +212,9 @@ export class Character2016 extends BaseFullCharacter {
             break;
         }
         if (!typeName) return;
-        const index = this.hudIndicators.indexOf(typeName);
+        const index = this.resourceHudIndicators.indexOf(typeName);
         if (index <= -1) {
-          this.hudIndicators.push(typeName);
+          this.resourceHudIndicators.push(typeName);
           server.sendHudIndicators(client);
         }
         client.character._resources[ResourceIds.HEALTH] += 100;
@@ -237,7 +239,7 @@ export class Character2016 extends BaseFullCharacter {
           clearTimeout(
             client.character.healingIntervals[healType] as NodeJS.Timeout
           );
-          this.hudIndicators.splice(index, 1);
+          this.resourceHudIndicators.splice(index, 1);
           server.sendHudIndicators(client);
           client.character.healingIntervals[healType] = null;
         }
@@ -254,6 +256,13 @@ export class Character2016 extends BaseFullCharacter {
 
   updateResources(client: ZoneClient2016, server: ZoneServer2016) {
     let effectId;
+    for (const a in this.hudIndicators) {
+      const indicator = this.hudIndicators[a];
+      if (Date.now() > indicator.expirationTime) {
+        delete this.hudIndicators[a];
+        server.sendHudIndicators(client);
+      }
+    }
     for (const a in this._characterEffects) {
       const characterEffect = this._characterEffects[a];
       if (characterEffect.duration < Date.now()) {
@@ -329,12 +338,12 @@ export class Character2016 extends BaseFullCharacter {
         break;
     }
     bleedingIndicators.forEach((indicator: string) => {
-      const index = this.hudIndicators.indexOf(indicator);
+      const index = this.resourceHudIndicators.indexOf(indicator);
       if (index > -1 && indicator != desiredIndicator) {
-        this.hudIndicators.splice(index, 1);
+        this.resourceHudIndicators.splice(index, 1);
         server.sendHudIndicators(client);
       } else if (indicator == desiredIndicator && index <= -1) {
-        this.hudIndicators.push(desiredIndicator);
+        this.resourceHudIndicators.push(desiredIndicator);
         server.sendHudIndicators(client);
       }
     });

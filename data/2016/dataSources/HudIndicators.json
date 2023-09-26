@@ -81,6 +81,13 @@
     "typeName": "COLD_MEDICINE",
     "nameId": 9018,
     "descriptionId": 9019,
-    "imageSetId": 135
+    "imageSetId": 251
+  },
+  {
+    "id": 13,
+    "typeName": "SWIZZLE",
+    "nameId": 8919,
+    "descriptionId": 8920,
+    "imageSetId": 243
   }
 ]

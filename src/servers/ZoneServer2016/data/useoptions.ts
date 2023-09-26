@@ -511,6 +511,24 @@ export const UseOptions: { [itemDefinitionIds: number]: ItemUseOption } = {
     timeout: 1000
   },
 
+  127: {
+    itemDef: Items.COLD_MEDICINE,
+    type: ItemUseOptions.USE,
+    timeout: 500
+  },
+
+  128: {
+    itemDef: Items.IMMUNITY_BOOSTERS,
+    type: ItemUseOptions.USE,
+    timeout: 500
+  },
+
+  129: {
+    itemDef: Items.VITAMINS,
+    type: ItemUseOptions.USE,
+    timeout: 500
+  },
+
   //----------Repair------------//
   125: {
     itemDef: Items.WEAPON_REPAIR_KIT,

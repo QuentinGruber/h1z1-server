@@ -2266,6 +2266,7 @@ export class ZoneServer2016 extends EventEmitter {
       healType.healingTicks = 0;
       healType.healingMaxTicks = 0;
     }
+    (client.character.hudIndicators = {}), this.sendHudIndicators(client);
     client.character.resourcesUpdater?.refresh();
 
     const randomSpawnIndex = Math.floor(
@@ -5910,6 +5911,34 @@ export class ZoneServer2016 extends EventEmitter {
     }
   }
 
+  usePills(client: Client, item: BaseItem) {
+    if (!this.removeInventoryItem(client.character, item)) return;
+    let hudIndicator: HudIndicator | undefined = undefined;
+    switch (item.itemDefinitionId) {
+      case Items.COLD_MEDICINE:
+        hudIndicator = this._hudIndicators["COLD_MEDICINE"];
+        break;
+      case Items.IMMUNITY_BOOSTERS:
+        hudIndicator = this._hudIndicators["IMMUNITY_BOOST_LOW"];
+        break;
+      case Items.VITAMINS:
+        hudIndicator = this._hudIndicators["IMMUNITY_BOOST_LOW"];
+        break;
+    }
+    if (!hudIndicator) return;
+    if (client.character.hudIndicators[hudIndicator.typeName]) {
+      client.character.hudIndicators[
+        hudIndicator.typeName
+      ].expirationTime += 600000;
+    } else {
+      client.character.hudIndicators[hudIndicator.typeName] = {
+        typeName: hudIndicator.typeName,
+        expirationTime: Date.now() + 600000
+      };
+      this.sendHudIndicators(client);
+    }
+  }
+
   useItem(client: Client, item: BaseItem) {
     const itemDef = this.getItemDefinition(item.itemDefinitionId);
     if (!itemDef) return;
@@ -5946,6 +5975,12 @@ export class ZoneServer2016 extends EventEmitter {
       case Items.FERTILIZER:
         this.utilizeHudTimer(client, nameId, timeout, () => {
           this.fertilizePlants(client, item);
+        });
+      case Items.COLD_MEDICINE:
+      case Items.VITAMINS:
+      case Items.IMMUNITY_BOOSTERS:
+        this.utilizeHudTimer(client, nameId, timeout, () => {
+          this.usePills(client, item);
         });
         return;
       default:
@@ -6958,11 +6993,22 @@ export class ZoneServer2016 extends EventEmitter {
     this.multiplyMovementModifier(client, modifier);
     switch (modifier) {
       case MovementModifiers.SWIZZLE:
+        const hudIndicator = this._hudIndicators["SWIZZLE"];
         if (client.character.timeouts["swizzle"]) {
           client.character.timeouts["swizzle"]._onTimeout();
           clearTimeout(client.character.timeouts["swizzle"]);
           delete client.character.timeouts["swizzle"];
+          if (client.character.hudIndicators[hudIndicator.typeName]) {
+            client.character.hudIndicators[
+              hudIndicator.typeName
+            ].expirationTime += 30000;
+          }
         }
+        client.character.hudIndicators[hudIndicator.typeName] = {
+          typeName: hudIndicator.typeName,
+          expirationTime: Date.now() + 30000
+        };
+        this.sendHudIndicators(client);
         client.character.timeouts["swizzle"] = setTimeout(() => {
           if (!client.character.timeouts["swizzle"]) {
             return;
@@ -7249,7 +7295,7 @@ export class ZoneServer2016 extends EventEmitter {
       },
       unknownData2: {}
     });
-    client.character.hudIndicators.forEach((typeName: string) => {
+    client.character.resourceHudIndicators.forEach((typeName: string) => {
       const indicator = this._hudIndicators[typeName];
       this.sendData(client, "Effect.AddUiIndicator", {
         characterId: client.character.characterId,
@@ -7267,6 +7313,25 @@ export class ZoneServer2016 extends EventEmitter {
         unknownData5: {}
       });
     });
+    for (const a in client.character.hudIndicators) {
+      const indicator =
+        this._hudIndicators[client.character.hudIndicators[a].typeName];
+      this.sendData(client, "Effect.AddUiIndicator", {
+        characterId: client.character.characterId,
+        hudElementGuid: this.generateGuid(),
+        unknownData1: {
+          hudElementId: indicator.nameId
+        },
+        hudElementData: {
+          nameId: indicator.nameId,
+          descriptionId: indicator.descriptionId,
+          imageSetId: indicator.imageSetId
+        },
+        unknownData3: {},
+        unknownData4: {},
+        unknownData5: {}
+      });
+    }
   }
 
   private _sendDataToAll<ZonePacket>(
