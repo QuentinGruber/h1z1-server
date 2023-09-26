@@ -1397,7 +1397,7 @@ export const commands: Array<Command> = [
             server.sendChatText(client, `Build kit sent to ${targetClientName}`);
           break;
         default:
-          server.sendChatText(client, "Use pvp,parts,skins,build kits!");
+          server.sendChatText(client, "valid kit names are pvp,parts,skins,build");
           break;
       }
     },
