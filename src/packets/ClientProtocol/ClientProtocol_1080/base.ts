@@ -2597,15 +2597,20 @@ export const basePackets: PacketStructures = [
   ["ZoneSafeTeleportRequest", 0x53, {}],
   ["RemoteInteractionRequest", 0x54, {}],
   ["UpdateCamera", 0x57, {}],
-
   [
-    "UnknownPacketName", // unknown name, sent from client, same dword value every time ?
+    // name isn't in client, packet triggers when player collides with a zombie or with /run any object
+    "NpcCollision",
     0x58,
     {
-      fields: [{ name: "unknownDword1", type: "uint32", defaultValue: 0 }]
+      fields: [
+        { name: "unknownDword1", type: "uint32", defaultValue: 0 },
+        { name: "unknownDword2", type: "uint32", defaultValue: 0 }, // 1 when it's an npc
+        { name: "unknownDword3", type: "uint32", defaultValue: 0 },
+        { name: "unknownDword4", type: "uint32", defaultValue: 0 },
+        { name: "unknownDword5", type: "uint32", defaultValue: 0 }
+      ]
     }
   ],
-
   ["AdminGuild", 0x5a, {}],
   ["BattleMages", 0x5b, {}],
   ["WorldToWorld", 0x5c, {}],

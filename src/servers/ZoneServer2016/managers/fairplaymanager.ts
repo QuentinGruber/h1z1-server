@@ -393,7 +393,9 @@ export class FairPlayManager {
     gameTime: number
   ): boolean {
     if (!this.fairPlayValues) return true;
-    const message = `[${Date.now()}] FairPlay: Blocked incoming projectile from ${client.character.name}`,
+    const message = `[${Date.now()}] FairPlay: Blocked incoming projectile from ${
+        client.character.name
+      }`,
       targetClient = server.getClientByCharId(entity.characterId);
 
     if (targetClient) fireHint.hitNumber++;
