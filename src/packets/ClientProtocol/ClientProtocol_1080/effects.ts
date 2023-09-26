@@ -136,7 +136,7 @@ export const effectsPackets: PacketStructures = [
     }
   ],
   [
-    "Effect.RemoveEffectTag",
+    "Effect.RemoveUiIndicators",
     0x9f05,
     {
       fields: [
@@ -160,29 +160,29 @@ export const effectsPackets: PacketStructures = [
     }
   ],
   [
-    "Effect.TargetBlockedEffect",
+    "Effect.AddUiIndicator",
     0x9f06,
     {
       fields: [
-        { name: "unknownGuid1", type: "uint64string", defaultValue: "0x0" },
-        { name: "unknownGuid2", type: "uint64string", defaultValue: "0x0" },
+        { name: "characterId", type: "uint64string", defaultValue: "0x0" },
+        { name: "hudElementGuid", type: "uint64string", defaultValue: "0x0" },
         { name: "unknownDword1", type: "uint32", defaultValue: 1 },
         {
           name: "unknownData1",
           type: "schema",
           fields: [
-            { name: "unknownDword1", type: "uint32", defaultValue: 1 },
-            { name: "unknownDword2", type: "uint32", defaultValue: 2 },
-            { name: "unknownDword3", type: "uint32", defaultValue: 3 }
+            { name: "hudElementId", type: "uint32", defaultValue: 0 },
+            { name: "unknownDword2", type: "uint32", defaultValue: 0 },
+            { name: "unknownDword3", type: "uint32", defaultValue: 0 }
           ]
         },
         {
-          name: "unknownData2",
+          name: "hudElementData",
           type: "schema",
           fields: [
-            { name: "unknownDword1", type: "uint32", defaultValue: 2 },
-            { name: "unknownDword2", type: "uint32", defaultValue: 3 },
-            { name: "unknownDword3", type: "uint32", defaultValue: 4 }
+            { name: "nameId", type: "uint32", defaultValue: 5 },
+            { name: "descriptionId", type: "uint32", defaultValue: 6 },
+            { name: "imageSetId", type: "uint32", defaultValue: 7 }
           ]
         },
         {
@@ -224,7 +224,7 @@ export const effectsPackets: PacketStructures = [
             { name: "unknownDword3", type: "uint32", defaultValue: 3 }
           ]
         },
-        { name: "unknownDword1", type: "uint32", defaultValue: 4 },
+        { name: "unknownDword2", type: "uint32", defaultValue: 4 },
         { name: "unknownByte1", type: "uint8", defaultValue: 128 }
       ]
     }

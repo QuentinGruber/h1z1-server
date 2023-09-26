@@ -51,6 +51,35 @@ const dev: any = {
       });
     }, 2000);
   },
+  ui: function (server: ZoneServer2016, client: Client, args: Array<string>) {
+    server.sendData(client, "Effect.AddUiIndicator", {
+      characterId: client.character.characterId,
+      hudElementGuid: server.generateGuid(),
+      unknownData1: {
+        hudElementId: Number(args[1])
+      },
+      hudElementData: {
+        nameId: Number(args[1]),
+        descriptionId: Number(args[2]),
+        imageSetId: Number(args[3])
+      },
+      unknownData3: {},
+      unknownData4: {},
+      unknownData5: {}
+    });
+  },
+  uioff: function (
+    server: ZoneServer2016,
+    client: Client,
+    args: Array<string>
+  ) {
+    server.sendData(client, "Effect.RemoveUiIndicators", {
+      unknownData1: {
+        unknownQword1: client.character.characterId
+      },
+      unknownData2: {}
+    });
+  },
   zombie: function (
     server: ZoneServer2016,
     client: Client,
