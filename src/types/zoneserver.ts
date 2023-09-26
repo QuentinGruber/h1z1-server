@@ -355,6 +355,19 @@ export interface ZoneSpeedTreeData {
 	position: Float32Array
 }
 
+export interface HudIndicator {
+	id: number;
+	typeName: string;
+	nameId: number,
+	descriptionId: number,
+	imageSetId: number,
+}
+
+export interface HealType {
+	healingTicks: number,
+	healingMaxTicks: number
+}
+
 export interface StanceFlags {
   FIRST_PERSON: boolean,
   FLAG1: boolean,

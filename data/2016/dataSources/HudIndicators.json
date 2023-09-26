@@ -1,84 +1,84 @@
 [
   {
-    "ID": 1,
-    "TYPE_NAME": "BLEEDING_LIGHT",
+    "id": 1,
+    "typeName": "BLEEDING_LIGHT",
     "nameId": 9034,
     "descriptionId": 1349,
     "imageSetId": 180
   },
   {
-    "ID": 2,
-    "TYPE_NAME": "BLEEDING_MODERATE",
+    "id": 2,
+    "typeName": "BLEEDING_MODERATE",
     "nameId": 1110,
     "descriptionId": 9876,
     "imageSetId": 180
   },
   {
-    "ID": 3,
-    "TYPE_NAME": "BLEEDING_SEVERE",
+    "id": 3,
+    "typeName": "BLEEDING_SEVERE",
     "nameId": 9035,
     "descriptionId": 9878,
     "imageSetId": 180
   },
   {
-    "ID": 4,
-    "TYPE_NAME": "TIRED",
+    "id": 4,
+    "typeName": "TIRED",
     "nameId": 9053,
     "descriptionId": 11872,
     "imageSetId": 177
   },
   {
-    "ID": 5,
-    "TYPE_NAME": "VERY_TIRED",
+    "id": 5,
+    "typeName": "VERY_TIRED",
     "nameId": 11871,
     "descriptionId": 9054,
     "imageSetId": 177
   },
   {
-    "ID": 6,
-    "TYPE_NAME": "WELL_RESTED",
+    "id": 6,
+    "typeName": "WELL_RESTED",
     "nameId": 9042,
     "descriptionId": 9043,
     "imageSetId": 135
   },
   {
-    "ID": 7,
-    "TYPE_NAME": "HEALING_BANDAGE",
-    "nameId": 11871,
+    "id": 7,
+    "typeName": "HEALING_BANDAGE",
+    "nameId": 8886,
     "descriptionId": 12275,
     "imageSetId": 21
   },
   {
-    "ID": 8,
-    "TYPE_NAME": "HEALING_BANDAGE_DRESSED",
+    "id": 8,
+    "typeName": "HEALING_BANDAGE_DRESSED",
     "nameId": 12274,
     "descriptionId": 12275,
     "imageSetId": 21
   },
   {
-    "ID": 9,
-    "TYPE_NAME": "HEALING_FIRST_AID",
+    "id": 9,
+    "typeName": "HEALING_FIRST_AID",
     "nameId": 8887,
     "descriptionId": 12275,
     "imageSetId": 171
   },
   {
-    "ID": 10,
-    "TYPE_NAME": "IMMUNITY_BOOST_LOW",
+    "id": 10,
+    "typeName": "IMMUNITY_BOOST_LOW",
     "nameId": 1481,
     "descriptionId": 1379,
     "imageSetId": 135
   },
   {
-    "ID": 11,
-    "TYPE_NAME": "IMMUNITY_BOOST_MEDIUM",
+    "id": 11,
+    "typeName": "IMMUNITY_BOOST_MEDIUM",
     "nameId": 1380,
     "descriptionId": 1379,
     "imageSetId": 135
   },
   {
-    "ID": 12,
-    "TYPE_NAME": "COLD_MEDICINE",
+    "id": 12,
+    "typeName": "COLD_MEDICINE",
     "nameId": 9018,
     "descriptionId": 9019,
     "imageSetId": 135

@@ -57,6 +57,7 @@ import {
   DamageInfo,
   DamageRecord,
   FireHint,
+  HudIndicator,
   Recipe
 } from "../../types/zoneserver";
 import { h1z1PacketsType2016 } from "../../types/packets";
@@ -178,6 +179,7 @@ const spawnLocations2 = require("../../../data/2016/zoneData/Z1_gridSpawns.json"
   //dynamicappearance = require("../../../data/2016/sampleData/dynamicappearance"),
   resourceDefinitions = require("../../../data/2016/dataSources/Resources"),
   Z1_POIs = require("../../../data/2016/zoneData/Z1_POIs"),
+  hudIndicators = require("../../../data/2016/dataSources/HudIndicators"),
   equipmentModelTexturesMapping: Record<
     string,
     Record<string, string[]>
@@ -226,6 +228,7 @@ export class ZoneServer2016 extends EventEmitter {
   _crates: { [characterId: string]: Crate } = {};
   _destroyables: { [characterId: string]: Destroyable } = {};
   _destroyableDTOlist: number[] = [];
+  _hudIndicators: { [indicatorId: string]: HudIndicator } = {};
   _decoys: {
     [transientId: number]: {
       characterId: string;
@@ -1374,6 +1377,7 @@ export class ZoneServer2016 extends EventEmitter {
       () => this.worldRoutine.bind(this)(),
       this.worldRoutineRate
     );
+    this.initHudIndicatorDataSource();
     this.hookManager.checkHook("OnServerReady");
   }
 
@@ -2257,8 +2261,11 @@ export class ZoneServer2016 extends EventEmitter {
     client.character._resources[ResourceIds.HYDRATION] = 10000;
     client.character._resources[ResourceIds.STAMINA] = 600;
     client.character._resources[ResourceIds.BLEEDING] = -40;
-    client.character.healingTicks = 0;
-    client.character.healingMaxTicks = 0;
+    for (const a in client.character.healType) {
+      const healType = client.character.healType[a];
+      healType.healingTicks = 0;
+      healType.healingMaxTicks = 0;
+    }
     client.character.resourcesUpdater?.refresh();
 
     const randomSpawnIndex = Math.floor(
@@ -6152,7 +6159,7 @@ export class ZoneServer2016 extends EventEmitter {
       if (!client.character.healingIntervals[healType]) {
         client.character.starthealingInterval(client, this, healType);
       }
-      client.character.healingMaxTicks += healCount;
+      client.character.healType[healType].healingMaxTicks += healCount;
       if (client.character._resources[ResourceIds.BLEEDING] > 0) {
         client.character._resources[ResourceIds.BLEEDING] -= bandagingCount;
         const bleeding = client.character._resources[ResourceIds.BLEEDING];
@@ -7221,6 +7228,45 @@ export class ZoneServer2016 extends EventEmitter {
       this.sendAlert(client, `The radiation here seems to be dangerously high`);
       client.character.damage(this, damageInfo);
     }
+  }
+
+  initHudIndicatorDataSource() {
+    hudIndicators.forEach((indicator: any) => {
+      this._hudIndicators[indicator.typeName] = {
+        id: indicator.ID,
+        typeName: indicator.typeName,
+        nameId: indicator.nameId,
+        descriptionId: indicator.descriptionId,
+        imageSetId: indicator.imageSetId
+      };
+    });
+  }
+
+  sendHudIndicators(client: Client) {
+    this.sendData(client, "Effect.RemoveUiIndicators", {
+      unknownData1: {
+        unknownQword1: client.character.characterId
+      },
+      unknownData2: {}
+    });
+    client.character.hudIndicators.forEach((typeName: string) => {
+      const indicator = this._hudIndicators[typeName];
+      this.sendData(client, "Effect.AddUiIndicator", {
+        characterId: client.character.characterId,
+        hudElementGuid: this.generateGuid(),
+        unknownData1: {
+          hudElementId: indicator.nameId
+        },
+        hudElementData: {
+          nameId: indicator.nameId,
+          descriptionId: indicator.descriptionId,
+          imageSetId: indicator.imageSetId
+        },
+        unknownData3: {},
+        unknownData4: {},
+        unknownData5: {}
+      });
+    });
   }
 
   private _sendDataToAll<ZonePacket>(

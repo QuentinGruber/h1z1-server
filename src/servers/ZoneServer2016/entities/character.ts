@@ -28,6 +28,7 @@ import {
   CharacterEffect,
   DamageInfo,
   DamageRecord,
+  HealType,
   positionUpdate,
   StanceFlags
 } from "../../../types/zoneserver";
@@ -105,8 +106,20 @@ export class Character2016 extends BaseFullCharacter {
     2: null,
     3: null
   };
-  healingTicks: number;
-  healingMaxTicks: number;
+  healType: { [healType: number]: HealType } = {
+    1: {
+      healingTicks: 0,
+      healingMaxTicks: 0
+    },
+    2: {
+      healingTicks: 0,
+      healingMaxTicks: 0
+    },
+    3: {
+      healingTicks: 0,
+      healingMaxTicks: 0
+    }
+  };
   starthealingInterval: (
     client: ZoneClient2016,
     server: ZoneServer2016,
@@ -145,6 +158,7 @@ export class Character2016 extends BaseFullCharacter {
     [effectId: number]: CharacterEffect;
   } = {};
   lastLockFailure: number = 0;
+  hudIndicators: string[] = [];
   constructor(
     characterId: string,
     transientId: number,
@@ -159,8 +173,6 @@ export class Character2016 extends BaseFullCharacter {
       server
     );
     this.npcRenderDistance = 400;
-    this.healingTicks = 0;
-    this.healingMaxTicks = 0;
     (this._resources = {
       [ResourceIds.HEALTH]: 10000,
       [ResourceIds.STAMINA]: 600,
@@ -185,6 +197,24 @@ export class Character2016 extends BaseFullCharacter {
         if (!server._clients[client.sessionId]) {
           return;
         }
+        let typeName = "";
+        switch (healType) {
+          case 1:
+            typeName = "HEALING_BANDAGE_DRESSED";
+            break;
+          case 2:
+            typeName = "HEALING_BANDAGE";
+            break;
+          case 3:
+            typeName = "HEALING_FIRST_AID";
+            break;
+        }
+        if (!typeName) return;
+        const index = this.hudIndicators.indexOf(typeName);
+        if (index <= -1) {
+          this.hudIndicators.push(typeName);
+          server.sendHudIndicators(client);
+        }
         client.character._resources[ResourceIds.HEALTH] += 100;
         if (client.character._resources[ResourceIds.HEALTH] > 10000) {
           client.character._resources[ResourceIds.HEALTH] = 10000;
@@ -197,15 +227,18 @@ export class Character2016 extends BaseFullCharacter {
           ResourceIds.HEALTH
         );
         if (
-          client.character.healingTicks++ < client.character.healingMaxTicks
+          client.character.healType[healType].healingTicks++ <
+          client.character.healType[healType].healingMaxTicks
         ) {
           client.character.healingIntervals[healType]?.refresh();
         } else {
-          client.character.healingMaxTicks = 0;
-          client.character.healingTicks = 0;
+          client.character.healType[healType].healingMaxTicks = 0;
+          client.character.healType[healType].healingTicks = 0;
           clearTimeout(
             client.character.healingIntervals[healType] as NodeJS.Timeout
           );
+          this.hudIndicators.splice(index, 1);
+          server.sendHudIndicators(client);
           client.character.healingIntervals[healType] = null;
         }
       }, 1000);
