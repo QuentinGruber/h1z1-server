@@ -1397,7 +1397,7 @@ export const commands: Array<Command> = [
             server.sendChatText(client, `Build kit sent to ${targetClientName}`);
           break;
         default:
-          server.sendChatText(client, "valid kit names are pvp,parts,skins,build");
+          server.sendChatText(client, "Valid Kit Names Are PVP,PARTS,SKINS,BUILD");
           break;
       }
     },
@@ -1406,6 +1406,7 @@ export const commands: Array<Command> = [
     name: "kit",
     permissionLevel: PermissionLevels.ADMIN,
     execute: (server: ZoneServer2016, client: Client, args: Array<string>) => {
+      /*client.character.equipLoadout(server, characterKitLoadout);*/
       server.sendChatText(client, "Usage: /kit pvp [target client]");
     }
   },
@@ -1413,7 +1414,7 @@ export const commands: Array<Command> = [
     name: "vehicleparts",
     permissionLevel: PermissionLevels.ADMIN,
     execute: (server: ZoneServer2016, client: Client, args: Array<string>) => {
-      client.character.equipLoadout(server, characterVehicleKit);
+      /*client.character.equipLoadout(server, characterVehicleKit);*/
       server.sendChatText(client, "Usage: /kit parts [target client]");
     }
   },
@@ -1849,6 +1850,12 @@ export const commands: Array<Command> = [
       client: Client,
       args: Array<string>
     ) => {
+      /*client.character.equipItem(
+        server,
+        server.generateItem(Items.FANNY_PACK_DEV)
+      );
+      client.character.equipLoadout(server, characterBuildKitLoadout);
+      server.sendChatText(client, `Build kit given`);*/
       server.sendChatText(client, "Usage: /kit build [target client]");
     }
   },
@@ -1860,6 +1867,12 @@ export const commands: Array<Command> = [
       client: Client,
       args: Array<string>
     ) => {
+      /*client.character.equipItem(
+        server,
+        server.generateItem(Items.FANNY_PACK_DEV)
+      );
+      client.character.equipLoadout(server, characterSkinsLoadout);
+      server.sendChatText(client, `skins kit given`);*/
       server.sendChatText(client, "Usage: /kit skins [target client]");
     }
   },
