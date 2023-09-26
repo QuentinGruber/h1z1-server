@@ -307,6 +307,37 @@ export class Character2016 extends BaseFullCharacter {
     client.character._resources[ResourceIds.HYDRATION] -= 4;
 
     this.checkResource(server, ResourceIds.STAMINA);
+    const bleedingValue = client.character._resources[ResourceIds.BLEEDING];
+    const bleedingIndicators = [
+      "BLEEDING_LIGHT",
+      "BLEEDING_MODERATE",
+      "BLEEDING_SEVERE"
+    ];
+    let desiredIndicator = "";
+    switch (true) {
+      case bleedingValue >= 20 && bleedingValue < 40:
+        desiredIndicator = "BLEEDING_LIGHT";
+        break;
+      case bleedingValue >= 40 && bleedingValue < 80:
+        desiredIndicator = "BLEEDING_MODERATE";
+        break;
+      case bleedingValue >= 80:
+        desiredIndicator = "BLEEDING_SEVERE";
+        break;
+      default:
+        desiredIndicator = "";
+        break;
+    }
+    bleedingIndicators.forEach((indicator: string) => {
+      const index = this.hudIndicators.indexOf(indicator);
+      if (index > -1 && indicator != desiredIndicator) {
+        this.hudIndicators.splice(index, 1);
+        server.sendHudIndicators(client);
+      } else if (indicator == desiredIndicator && index <= -1) {
+        this.hudIndicators.push(desiredIndicator);
+        server.sendHudIndicators(client);
+      }
+    });
     if (client.character._resources[ResourceIds.BLEEDING] > 0) {
       this.damage(server, {
         entity: "Character.Bleeding",
