@@ -237,6 +237,7 @@ export interface ItemUseOption {
   givetrash?: number,
   healCount?: number,
   staminaCount?: number,
+  enduranceCount?: number
   bandagingCount?: number,
   refuelCount?: number,
   healType?: HealTypes,

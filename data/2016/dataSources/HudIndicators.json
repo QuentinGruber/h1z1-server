@@ -36,55 +36,62 @@
   },
   {
     "id": 6,
+    "typeName": "EXHAUSTED",
+    "nameId": 9055,
+    "descriptionId": 9056,
+    "imageSetId": 177
+  },
+  {
+    "id": 7,
     "typeName": "WELL_RESTED",
     "nameId": 9042,
     "descriptionId": 9043,
     "imageSetId": 135
   },
   {
-    "id": 7,
+    "id": 8,
     "typeName": "HEALING_BANDAGE",
     "nameId": 8886,
     "descriptionId": 12275,
     "imageSetId": 21
   },
   {
-    "id": 8,
+    "id": 9,
     "typeName": "HEALING_BANDAGE_DRESSED",
     "nameId": 12274,
     "descriptionId": 12275,
     "imageSetId": 21
   },
   {
-    "id": 9,
+    "id": 10,
     "typeName": "HEALING_FIRST_AID",
     "nameId": 8887,
     "descriptionId": 12275,
     "imageSetId": 171
   },
   {
-    "id": 10,
+    "id": 11,
     "typeName": "IMMUNITY_BOOST_LOW",
     "nameId": 1481,
     "descriptionId": 1379,
     "imageSetId": 135
   },
   {
-    "id": 11,
+    "id": 12,
     "typeName": "IMMUNITY_BOOST_MEDIUM",
     "nameId": 1380,
     "descriptionId": 1379,
     "imageSetId": 135
   },
   {
-    "id": 12,
+    "id": 13,
     "typeName": "COLD_MEDICINE",
     "nameId": 9018,
     "descriptionId": 9019,
     "imageSetId": 251
   },
   {
-    "id": 13,
+    "id": 14,
     "typeName": "SWIZZLE",
     "nameId": 8919,
     "descriptionId": 8920,

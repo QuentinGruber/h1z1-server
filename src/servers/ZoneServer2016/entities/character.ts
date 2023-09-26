@@ -182,7 +182,8 @@ export class Character2016 extends BaseFullCharacter {
       [ResourceIds.HYDRATION]: 10000,
       [ResourceIds.VIRUS]: 0,
       [ResourceIds.COMFORT]: 5000,
-      [ResourceIds.BLEEDING]: -40
+      [ResourceIds.BLEEDING]: -40,
+      [ResourceIds.ENDURANCE]: 8000
     }),
       (this.characterStates = {
         knockedOut: false,
@@ -299,7 +300,8 @@ export class Character2016 extends BaseFullCharacter {
       health = this._resources[ResourceIds.HEALTH],
       virus = this._resources[ResourceIds.VIRUS],
       stamina = this._resources[ResourceIds.STAMINA],
-      bleeding = this._resources[ResourceIds.BLEEDING];
+      bleeding = this._resources[ResourceIds.BLEEDING],
+      energy = this._resources[ResourceIds.ENDURANCE];
 
     if (
       client.character.isRunning &&
@@ -313,37 +315,70 @@ export class Character2016 extends BaseFullCharacter {
     }
 
     client.character._resources[ResourceIds.HUNGER] -= 2;
+    client.character._resources[ResourceIds.ENDURANCE] -= 1;
     client.character._resources[ResourceIds.HYDRATION] -= 4;
 
+    let desiredEnergyIndicator = "";
+    const energyIndicators = ["VERY_TIRED", "TIRED", "EXHAUSTED"];
+    switch (true) {
+      case energy <= 801:
+        desiredEnergyIndicator = "EXHAUSTED";
+        client.character._resources[ResourceIds.STAMINA] -= 20;
+        break;
+      case energy <= 2601 && energy > 801:
+        desiredEnergyIndicator = "VERY_TIRED";
+        client.character._resources[ResourceIds.STAMINA] -= 14;
+        break;
+      case energy <= 3501 && energy > 2601:
+        desiredEnergyIndicator = "TIRED";
+        break;
+      case energy > 3501:
+        desiredEnergyIndicator = "";
+        break;
+      default:
+        desiredEnergyIndicator = "";
+        break;
+    }
+    this.checkResource(server, ResourceIds.ENDURANCE);
     this.checkResource(server, ResourceIds.STAMINA);
-    const bleedingValue = client.character._resources[ResourceIds.BLEEDING];
+    energyIndicators.forEach((indicator: string) => {
+      const index = this.resourceHudIndicators.indexOf(indicator);
+      if (index > -1 && indicator != desiredEnergyIndicator) {
+        this.resourceHudIndicators.splice(index, 1);
+        server.sendHudIndicators(client);
+      } else if (indicator == desiredEnergyIndicator && index <= -1) {
+        this.resourceHudIndicators.push(desiredEnergyIndicator);
+        server.sendHudIndicators(client);
+      }
+    });
+
     const bleedingIndicators = [
       "BLEEDING_LIGHT",
       "BLEEDING_MODERATE",
       "BLEEDING_SEVERE"
     ];
-    let desiredIndicator = "";
+    let desiredBleedingIndicator = "";
     switch (true) {
-      case bleedingValue >= 20 && bleedingValue < 40:
-        desiredIndicator = "BLEEDING_LIGHT";
+      case bleeding >= 20 && bleeding < 40:
+        desiredBleedingIndicator = "BLEEDING_LIGHT";
         break;
-      case bleedingValue >= 40 && bleedingValue < 80:
-        desiredIndicator = "BLEEDING_MODERATE";
+      case bleeding >= 40 && bleeding < 80:
+        desiredBleedingIndicator = "BLEEDING_MODERATE";
         break;
-      case bleedingValue >= 80:
-        desiredIndicator = "BLEEDING_SEVERE";
+      case bleeding >= 80:
+        desiredBleedingIndicator = "BLEEDING_SEVERE";
         break;
       default:
-        desiredIndicator = "";
+        desiredBleedingIndicator = "";
         break;
     }
     bleedingIndicators.forEach((indicator: string) => {
       const index = this.resourceHudIndicators.indexOf(indicator);
-      if (index > -1 && indicator != desiredIndicator) {
+      if (index > -1 && indicator != desiredBleedingIndicator) {
         this.resourceHudIndicators.splice(index, 1);
         server.sendHudIndicators(client);
-      } else if (indicator == desiredIndicator && index <= -1) {
-        this.resourceHudIndicators.push(desiredIndicator);
+      } else if (indicator == desiredBleedingIndicator && index <= -1) {
+        this.resourceHudIndicators.push(desiredBleedingIndicator);
         server.sendHudIndicators(client);
       }
     });
@@ -409,6 +444,13 @@ export class Character2016 extends BaseFullCharacter {
       ResourceTypes.BLEEDING,
       bleeding
     );
+    this.updateResource(
+      server,
+      client,
+      ResourceIds.ENDURANCE,
+      ResourceTypes.ENDURANCE,
+      energy
+    );
 
     client.character.resourcesUpdater.refresh();
   }
@@ -423,7 +465,7 @@ export class Character2016 extends BaseFullCharacter {
     if (this._resources[resourceId] > maxValue) {
       this._resources[resourceId] = maxValue;
     } else if (this._resources[resourceId] < minValue) {
-      this._resources[resourceId] = minValue;
+      this._resources[resourceId] = minValue + 1;
       if (damageCallback) {
         damageCallback();
       }

@@ -2261,6 +2261,7 @@ export class ZoneServer2016 extends EventEmitter {
     client.character._resources[ResourceIds.HYDRATION] = 10000;
     client.character._resources[ResourceIds.STAMINA] = 600;
     client.character._resources[ResourceIds.BLEEDING] = -40;
+    client.character._resources[ResourceIds.ENDURANCE] = 8000;
     for (const a in client.character.healType) {
       const healType = client.character.healType[a];
       healType.healingTicks = 0;
@@ -5762,6 +5763,7 @@ export class ZoneServer2016 extends EventEmitter {
     let drinkCount = 0;
     let eatCount = 0;
     let staminaCount = 0;
+    let enduranceCount = 0;
     let givetrash = 0;
     let healCount = 0;
     let bandagingCount = 0;
@@ -5780,6 +5782,7 @@ export class ZoneServer2016 extends EventEmitter {
         if (useOption.drinkCount) drinkCount = useOption.drinkCount;
         if (useOption.eatCount) eatCount = useOption.eatCount;
         if (useOption.staminaCount) staminaCount = useOption.staminaCount;
+        if (useOption.enduranceCount) enduranceCount = useOption.enduranceCount;
         if (useOption.givetrash) givetrash = useOption.givetrash;
         if (useOption.healCount) healCount = useOption.healCount;
         if (useOption.bandagingCount) bandagingCount = useOption.bandagingCount;
@@ -5805,6 +5808,7 @@ export class ZoneServer2016 extends EventEmitter {
         givetrash,
         healCount,
         bandagingCount,
+        enduranceCount,
         healType
       );
     });
@@ -5937,6 +5941,26 @@ export class ZoneServer2016 extends EventEmitter {
       };
       this.sendHudIndicators(client);
     }
+  }
+
+  sleep(client: Client) {
+    client.character._resources[ResourceIds.ENDURANCE] = 8000;
+    client.character._resources[ResourceIds.STAMINA] = 600;
+    this.applyMovementModifier(client, MovementModifiers.RESTED);
+    this.updateResourceToAllWithSpawnedEntity(
+      client.character.characterId,
+      client.character._resources[ResourceIds.STAMINA],
+      ResourceIds.STAMINA,
+      ResourceTypes.STAMINA,
+      this._characters
+    );
+    this.updateResource(
+      client,
+      client.character.characterId,
+      8000,
+      ResourceIds.ENDURANCE,
+      ResourceTypes.ENDURANCE
+    );
   }
 
   useItem(client: Client, item: BaseItem) {
@@ -6149,6 +6173,7 @@ export class ZoneServer2016 extends EventEmitter {
     givetrash: number,
     healCount: number,
     bandagingCount: number,
+    enduranceCount: number,
     healType: HealTypes
   ) {
     if (!this.removeInventoryItem(client.character, item)) return;
@@ -6177,6 +6202,16 @@ export class ZoneServer2016 extends EventEmitter {
         client.character.characterId,
         client.character._resources[ResourceIds.STAMINA],
         ResourceIds.STAMINA
+      );
+    }
+
+    if (enduranceCount) {
+      client.character._resources[ResourceIds.ENDURANCE] += enduranceCount;
+      this.updateResource(
+        client,
+        client.character.characterId,
+        client.character._resources[ResourceIds.ENDURANCE],
+        ResourceIds.ENDURANCE
       );
     }
 
@@ -6991,9 +7026,10 @@ export class ZoneServer2016 extends EventEmitter {
 
   applyMovementModifier(client: Client, modifier: MovementModifiers) {
     this.multiplyMovementModifier(client, modifier);
+    let hudIndicator: HudIndicator | undefined;
     switch (modifier) {
       case MovementModifiers.SWIZZLE:
-        const hudIndicator = this._hudIndicators["SWIZZLE"];
+        hudIndicator = this._hudIndicators["SWIZZLE"];
         if (client.character.timeouts["swizzle"]) {
           client.character.timeouts["swizzle"]._onTimeout();
           clearTimeout(client.character.timeouts["swizzle"]);
@@ -7016,6 +7052,31 @@ export class ZoneServer2016 extends EventEmitter {
           this.divideMovementModifier(client, modifier);
           delete client.character.timeouts["swizzle"];
         }, 30000);
+        break;
+      case MovementModifiers.RESTED:
+        hudIndicator = this._hudIndicators["WELL_RESTED"];
+        if (client.character.timeouts["WELL_RESTED"]) {
+          client.character.timeouts["WELL_RESTED"]._onTimeout();
+          clearTimeout(client.character.timeouts["WELL_RESTED"]);
+          delete client.character.timeouts["WELL_RESTED"];
+          if (client.character.hudIndicators[hudIndicator.typeName]) {
+            client.character.hudIndicators[
+              hudIndicator.typeName
+            ].expirationTime += 120000;
+          }
+        }
+        client.character.hudIndicators[hudIndicator.typeName] = {
+          typeName: hudIndicator.typeName,
+          expirationTime: Date.now() + 120000
+        };
+        this.sendHudIndicators(client);
+        client.character.timeouts["WELL_RESTED"] = setTimeout(() => {
+          if (!client.character.timeouts["WELL_RESTED"]) {
+            return;
+          }
+          this.divideMovementModifier(client, modifier);
+          delete client.character.timeouts["WELL_RESTED"];
+        }, 120000);
         break;
       case MovementModifiers.SNARED:
         if (client.character.timeouts["snared"]) {

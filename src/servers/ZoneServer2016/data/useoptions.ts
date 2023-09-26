@@ -447,6 +447,7 @@ export const UseOptions: { [itemDefinitionIds: number]: ItemUseOption } = {
     timeout: 1000,
     drinkCount: 4000,
     staminaCount: 300,
+    enduranceCount: 2000,
     givetrash: Items.WATER_EMPTY
   },
   35: {
@@ -455,6 +456,7 @@ export const UseOptions: { [itemDefinitionIds: number]: ItemUseOption } = {
     timeout: 1000,
     drinkCount: 4000,
     staminaCount: 400,
+    enduranceCount: 4000,
     givetrash: Items.WATER_EMPTY
   },
 

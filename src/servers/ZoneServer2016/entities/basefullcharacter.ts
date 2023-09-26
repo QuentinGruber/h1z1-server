@@ -1123,8 +1123,13 @@ export abstract class BaseFullCharacter extends BaseLightweightCharacter {
 
   pGetResources() {
     return Object.keys(this._resources).map((resource) => {
-      const resourceId = Number(resource);
-      const resourceType = this.getResourceType(resourceId);
+      let resourceId = Number(resource);
+      let resourceType = this.getResourceType(resourceId);
+      // sending endurence with sendself makes it stuck on lower tier client-side
+      if (resourceId == ResourceIds.ENDURANCE) {
+        resourceId = 0;
+        resourceType = 0;
+      }
       return {
         resourceType: resourceType,
         resourceData: {
