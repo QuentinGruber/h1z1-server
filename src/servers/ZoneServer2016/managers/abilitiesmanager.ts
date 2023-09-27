@@ -21,7 +21,7 @@ import { ZoneClient2016 as Client } from "../classes/zoneclient";
 import { ZoneServer2016 } from "../zoneserver";
 import { Vehicle2016 } from "../entities/vehicle";
 import { BaseLightweightCharacter } from "../entities/baselightweightcharacter";
-const abilities = require("../../../../data/2016/dataSources/Abilities.json"),
+const //abilities = require("../../../../data/2016/dataSources/Abilities.json"),
   vehicleAbilities = require("../../../../data/2016/dataSources/VehicleAbilities.json");
 
 export class AbilitiesManager {
