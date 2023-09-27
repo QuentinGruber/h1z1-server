@@ -843,7 +843,7 @@ export class Vehicle2016 extends BaseLootableEntity {
         return;
       }
       if (this.engineRPM) {
-        const fuelLoss = this.engineRPM * 0.003;
+        const fuelLoss = this.engineRPM * 0.003 * (this.turboOn? 3 : 1);
         this._resources[ResourceIds.FUEL] -= fuelLoss;
       }
       if (this._resources[ResourceIds.FUEL] < 0) {
