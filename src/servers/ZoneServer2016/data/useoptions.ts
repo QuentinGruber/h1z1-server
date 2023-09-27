@@ -447,6 +447,7 @@ export const UseOptions: { [itemDefinitionIds: number]: ItemUseOption } = {
     timeout: 1000,
     drinkCount: 4000,
     staminaCount: 300,
+    enduranceCount: 2000,
     givetrash: Items.WATER_EMPTY
   },
   35: {
@@ -455,6 +456,7 @@ export const UseOptions: { [itemDefinitionIds: number]: ItemUseOption } = {
     timeout: 1000,
     drinkCount: 4000,
     staminaCount: 400,
+    enduranceCount: 4000,
     givetrash: Items.WATER_EMPTY
   },
 
@@ -509,6 +511,24 @@ export const UseOptions: { [itemDefinitionIds: number]: ItemUseOption } = {
     itemDef: Items.SWIZZLE,
     type: ItemUseOptions.USE,
     timeout: 1000
+  },
+
+  127: {
+    itemDef: Items.COLD_MEDICINE,
+    type: ItemUseOptions.USE,
+    timeout: 500
+  },
+
+  128: {
+    itemDef: Items.IMMUNITY_BOOSTERS,
+    type: ItemUseOptions.USE,
+    timeout: 500
+  },
+
+  129: {
+    itemDef: Items.VITAMINS,
+    type: ItemUseOptions.USE,
+    timeout: 500
   },
 
   //----------Repair------------//
