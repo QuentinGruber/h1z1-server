@@ -236,7 +236,6 @@ export enum Abilities {
   VEHICLE_TURBO = 1111141,
   VEHICLE_SIREN = 1111295,
   VEHICLE_HORN = 1111301
-
 }
 
 export enum TreeIds {
