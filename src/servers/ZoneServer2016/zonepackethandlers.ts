@@ -194,7 +194,6 @@ export class ZonePacketHandlers {
   ClientFinishedLoading(server: ZoneServer2016, client: Client, packet: any) {
     if (!server.hookManager.checkHook("OnClientFinishedLoading", client))
       return;
-    server.abilitiesManager.sendVehicleAbilities(server, client);
     server.tempGodMode(client, 15000);
     client.currentPOI = 0; // clears currentPOI for POIManager
     server.sendGameTimeSync(client);
@@ -1837,9 +1836,6 @@ export class ZonePacketHandlers {
             container,
             loadoutItem
           );
-          if (sourceCharacter instanceof Vehicle2016) {
-            sourceCharacter.checkEngineRequirements(server);
-          }
           return;
         }
         break;
@@ -2086,9 +2082,6 @@ export class ZonePacketHandlers {
             newSlotId,
             sourceCharacter
           );
-          if (targetCharacter instanceof Vehicle2016) {
-            targetCharacter.checkEngineRequirements(server);
-          }
           return;
         }
 
@@ -2584,20 +2577,10 @@ export class ZonePacketHandlers {
     );
   }
   EffectAddEffect(server: ZoneServer2016, client: Client, packet: any) {
-    /*const vehicle =
-      server._vehicles[packet.data.unknownData3.targetCharacterId];
-    if (!vehicle) return;
-    vehicle.checkEngineRequirements(server);
-    server.sendData(client, "Effect.AddEffect", packet.data);*/
-    //for now we can only turn on/off once and then it breaks
+    server.abilitiesManager.processAddEffectPacket(server, client, packet);
   }
   EffectRemoveEffect(server: ZoneServer2016, client: Client, packet: any) {
-    // doesnt work
-    /*const vehicle =
-      server._vehicles[packet.data.unknownData3.targetCharacterId];
-    if (!vehicle) return;
-    vehicle.stopEngine(server);
-    server.sendData(client, "Effect.RemoveEffect", packet.data);*/
+    server.abilitiesManager.processRemoveEffectPacket(server, client, packet);
   }
   AbilitiesInitAbility(server: ZoneServer2016, client: Client, packet: any) {
     const vehicle = server._vehicles[packet.data.targetCharacterId];

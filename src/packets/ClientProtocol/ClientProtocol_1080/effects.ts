@@ -117,21 +117,19 @@ export const effectsPackets: PacketStructures = [
           ]
         },
         {
-          name: "unknownData3",
-          type: "schema",
-          fields: [
-            {
-              name: "targetCharacterId",
-              type: "uint64string",
-              defaultValue: "0"
-            },
-            { name: "unknownQword2", type: "uint64string", defaultValue: "0" },
-            {
-              name: "unknownVector1",
-              type: "floatvector4",
-              defaultValue: [0, 0, 0, 0]
-            }
-          ]
+          name: "targetCharacterId",
+          type: "uint64string",
+          defaultValue: "0"
+        },
+        {
+          name: "guid2",
+          type: "uint64string",
+          defaultValue: "0"
+        },
+        {
+          name: "unknownVector1",
+          type: "floatvector4",
+          defaultValue: [0, 0, 0, 0]
         }
       ]
     }

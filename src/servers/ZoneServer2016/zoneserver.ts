@@ -47,7 +47,8 @@ import {
   ConstructionPermissionIds,
   ItemUseOptions,
   HealTypes,
-  ConstructionErrors
+  ConstructionErrors,
+  VehicleEffects
 } from "./models/enums";
 import { healthThreadDecorator } from "../shared/workers/healthWorker";
 import { WeatherManager } from "./managers/weathermanager";
@@ -2552,6 +2553,50 @@ export class ZoneServer2016 extends EventEmitter {
     );
   }
 
+  getEntityDictionary(entityKey: string): any | undefined {
+    switch (true) {
+      case !!this._npcs[entityKey]:
+        return this._npcs;
+      case !!this._vehicles[entityKey]:
+        return this._vehicles;
+      case !!this._characters[entityKey]:
+        return this._characters;
+      case !!this._spawnedItems[entityKey]:
+        return this._spawnedItems;
+      case !!this._doors[entityKey]:
+        return this._doors;
+      case !!this._explosives[entityKey]:
+        return this._explosives;
+      case !!this._constructionFoundations[entityKey]:
+        return this._constructionFoundations;
+      case !!this._constructionDoors[entityKey]:
+        return this._constructionDoors;
+      case !!this._constructionSimple[entityKey]:
+        return this._constructionSimple;
+      case !!this._lootbags[entityKey]:
+        return this._lootbags;
+      case !!this._lootableConstruction[entityKey]:
+        return this._lootableConstruction;
+      case !!this._lootableProps[entityKey]:
+        return this._lootableProps;
+      case !!this._worldLootableConstruction[entityKey]:
+        return this._worldLootableConstruction;
+      case !!this._worldSimpleConstruction[entityKey]:
+        return this._worldSimpleConstruction;
+      case !!this._plants[entityKey]:
+        return this._plants;
+      case !!this._taskProps[entityKey]:
+        return this._taskProps;
+      case !!this._crates[entityKey]:
+        return this._crates;
+      case !!this._destroyables[entityKey]:
+        return this._destroyables;
+      case !!this._temporaryObjects[entityKey]:
+      default:
+        return;
+    }
+  }
+
   damageItem(client: Client, item: LoadoutItem, damage: number) {
     if (item.itemDefinitionId == Items.WEAPON_FISTS) return;
 
@@ -4416,7 +4461,8 @@ export class ZoneServer2016 extends EventEmitter {
     vehicle.seats[seatId] = client.character.characterId;
     if (seatId === "0") {
       this.takeoverManagedObject(client, vehicle);
-      vehicle.checkEngineRequirements(this);
+      this.abilitiesManager.sendVehicleAbilities(this, client, vehicle);
+      //vehicle.checkEngineRequirements(this);
       this.sendData(client, "Vehicle.Owner", {
         guid: vehicle.characterId,
         characterId: client.character.characterId,
@@ -4521,6 +4567,24 @@ export class ZoneServer2016 extends EventEmitter {
     if (seatId === "0") {
       if (vehicle.engineOn) {
         vehicle.stopEngine(this);
+        this.sendDataToAllWithSpawnedEntity(
+          this._vehicles,
+          vehicle.characterId,
+          "Effect.RemoveEffect",
+          {
+            unknownData1: {
+              unknownDword1: 4,
+              unknownDword2: VehicleEffects.MOTOR_RUN_OFFROADER,
+              unknownDword3: 100042
+            },
+            unknownData2: {
+              characterId: client.character.characterId
+            },
+            targetCharacterId: vehicle.characterId,
+            guid2: "0x0",
+            unknownVector1: [0, 0, 0, 0]
+          }
+        );
       }
       vehicle.isLocked = false;
     }

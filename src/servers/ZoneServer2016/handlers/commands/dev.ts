@@ -161,10 +161,15 @@ const dev: any = {
     client: Client,
     args: Array<string>
   ) {
-    server.sendData(client, "AnimationBase", {
-      characterId: client.character.characterId,
-      unknownDword1: args[1]
-    });
+    server.sendDataToAllWithSpawnedEntity(
+      server._characters,
+      client.character.characterId,
+      "AnimationBase",
+      {
+        characterId: client.character.characterId,
+        unknownDword1: args[1]
+      }
+    );
   },
   deletesmallshacks: function (server: ZoneServer2016, client: Client) {
     let counter = 0;

@@ -141,6 +141,7 @@ export class Vehicle2016 extends BaseLootableEntity {
   };
   droppedManagedClient?: ZoneClient2016; // for temporary fix
   isMountable: boolean = true;
+  turboOn: boolean = false;
   constructor(
     characterId: string,
     transientId: number,
@@ -641,6 +642,7 @@ export class Vehicle2016 extends BaseLootableEntity {
   }
 
   toggleSiren(server: ZoneServer2016, client?: ZoneClient2016) {
+    if (this.vehicleId != VehicleIds.POLICECAR) return;
     const headlightType = Effects.VEH_SirenLight_PoliceCar,
       index = this.effectTags.indexOf(headlightType);
 
@@ -843,7 +845,7 @@ export class Vehicle2016 extends BaseLootableEntity {
         return;
       }
       if (this.engineRPM) {
-        const fuelLoss = this.engineRPM * 0.003 * (this.turboOn? 3 : 1);
+        const fuelLoss = this.engineRPM * 0.003 * (this.turboOn ? 4 : 1);
         this._resources[ResourceIds.FUEL] -= fuelLoss;
       }
       if (this._resources[ResourceIds.FUEL] < 0) {
