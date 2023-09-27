@@ -1438,14 +1438,14 @@ export const commands: Array<Command> = [
       server.sendChatText(client, "You have been teleported to your crosshair position.");
     }
   },
-  {
-    name: "kit",
-    permissionLevel: PermissionLevels.ADMIN,
-    execute: (server: ZoneServer2016, client: Client, args: Array<string>) => {
-      /*client.character.equipLoadout(server, characterKitLoadout);*/
-      server.sendChatText(client, "Usage: /kit pvp [target client]");
-    }
-  },
+  // {
+  //   name: "kit",
+  //   permissionLevel: PermissionLevels.ADMIN,
+  //   execute: (server: ZoneServer2016, client: Client, args: Array<string>) => {
+  //     /*client.character.equipLoadout(server, characterKitLoadout);*/
+  //     server.sendChatText(client, "Usage: /kit pvp [target client]");
+  //   }
+  // },
   {
     name: "vehicleparts",
     permissionLevel: PermissionLevels.ADMIN,
