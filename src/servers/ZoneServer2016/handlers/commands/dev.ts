@@ -240,10 +240,7 @@ const dev: any = {
     args: Array<string>
   ) {
     if (!args[2]) {
-      server.sendChatText(
-        client,
-        "Missing resourceId, and value args"
-      );
+      server.sendChatText(client, "Missing resourceId, and value args");
       return;
     }
 
