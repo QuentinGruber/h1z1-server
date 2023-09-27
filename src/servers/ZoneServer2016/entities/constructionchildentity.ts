@@ -37,7 +37,12 @@ function getRenderDistance(itemDefinitionId: number) {
 
 import { BaseLightweightCharacter } from "./baselightweightcharacter";
 import { ZoneServer2016 } from "../zoneserver";
-import { ConstructionPermissionIds, Items } from "../models/enums";
+import {
+  ConstructionPermissionIds,
+  Items,
+  ResourceIds,
+  StringIds
+} from "../models/enums";
 import {
   ConstructionSlotPositionMap,
   DamageInfo,
@@ -621,6 +626,14 @@ export class ConstructionChildEntity extends BaseLightweightCharacter {
       );
       return;
     }
+    if (
+      client.character._resources[ResourceIds.ENDURANCE] <= 3501 &&
+      this.itemDefinitionId == Items.SLEEPING_MAT
+    ) {
+      server.utilizeHudTimer(client, StringIds.RESTING, 30000, () => {
+        server.sleep(client);
+      });
+    }
   }
 
   OnInteractionString(server: ZoneServer2016, client: ZoneClient2016) {
@@ -631,6 +644,15 @@ export class ConstructionChildEntity extends BaseLightweightCharacter {
         client
       );
       return;
+    }
+    if (
+      client.character._resources[ResourceIds.ENDURANCE] <= 3501 &&
+      this.itemDefinitionId == Items.SLEEPING_MAT
+    ) {
+      server.sendData(client, "Command.InteractionString", {
+        guid: this.characterId,
+        stringId: StringIds.REST
+      });
     }
   }
 
