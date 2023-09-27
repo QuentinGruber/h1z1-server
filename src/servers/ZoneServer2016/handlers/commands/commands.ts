@@ -1416,9 +1416,9 @@ export const commands: Array<Command> = [
       const lookAtDirection = client.character.state.lookAt;
       const currentPosition = client.character.state.position;
       const teleportDistance = 100; // Adjust this value as needed
-      const x = currentPosition[0] + teleportDistance * lookAtDirection[0];
-      const y = currentPosition[1] * lookAtDirection[1];
-      const z = currentPosition[2] + teleportDistance * lookAtDirection[2];
+      const x = lookAtDirection[0];
+      const y = lookAtDirection[1];
+      const z = lookAtDirection[2];
   
       // Set the new position for the client
       const crosshairLocation = new Float32Array([x, y, z, 1]);
