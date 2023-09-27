@@ -237,6 +237,7 @@ export interface ItemUseOption {
   givetrash?: number,
   healCount?: number,
   staminaCount?: number,
+  enduranceCount?: number
   bandagingCount?: number,
   refuelCount?: number,
   healType?: HealTypes,
@@ -353,6 +354,24 @@ export interface ZoneSpeedTreeData {
 	objectId: number;
 	treeId: number;
 	position: Float32Array
+}
+
+export interface HudIndicator {
+	id: number;
+	typeName: string;
+	nameId: number,
+	descriptionId: number,
+	imageSetId: number,
+}
+
+export interface characterIndicatorData {
+	typeName: string;
+	expirationTime: number;
+}
+
+export interface HealType {
+	healingTicks: number,
+	healingMaxTicks: number
 }
 
 export interface StanceFlags {

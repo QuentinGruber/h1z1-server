@@ -75,6 +75,8 @@ export enum StringIds {
   USE_TARGET = 1186,
   SEARCH = 1191,
   OPEN_AND_LOCK = 8944,
+  REST = 9041,
+  RESTING = 9051,
   USE_IGNITABLE = 9224,
   UNDO_PLACEMENT = 12001,
   OPEN_TARGET = 12156,
@@ -85,7 +87,7 @@ export enum StringIds {
 }
 
 export enum MovementModifiers {
-  RESTED = 1.1,
+  RESTED = 1.11,
   SWIZZLE = 1.1,
   SNARED = 0.5,
   BOOTS = 1.15
@@ -213,6 +215,7 @@ export enum ResourceIds {
   STAMINA = 6,
   VIRUS = 12,
   BLEEDING = 21,
+  ENDURANCE = 22,
   COMFORT = 68,
   FUEL = 396,
   CONDITION = 561,
@@ -226,6 +229,7 @@ export enum ResourceTypes {
   STAMINA = 6,
   VIRUS = 12,
   BLEEDING = 21,
+  ENDURANCE = 22,
   COMFORT = 68,
   FUEL = 50,
   CONDITION = 1

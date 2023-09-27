@@ -26,8 +26,10 @@ import { ZoneServer2016 } from "../zoneserver";
 import { BaseFullCharacter } from "./basefullcharacter";
 import {
   CharacterEffect,
+  characterIndicatorData,
   DamageInfo,
   DamageRecord,
+  HealType,
   positionUpdate,
   StanceFlags
 } from "../../../types/zoneserver";
@@ -105,8 +107,20 @@ export class Character2016 extends BaseFullCharacter {
     2: null,
     3: null
   };
-  healingTicks: number;
-  healingMaxTicks: number;
+  healType: { [healType: number]: HealType } = {
+    1: {
+      healingTicks: 0,
+      healingMaxTicks: 0
+    },
+    2: {
+      healingTicks: 0,
+      healingMaxTicks: 0
+    },
+    3: {
+      healingTicks: 0,
+      healingMaxTicks: 0
+    }
+  };
   starthealingInterval: (
     client: ZoneClient2016,
     server: ZoneServer2016,
@@ -145,6 +159,8 @@ export class Character2016 extends BaseFullCharacter {
     [effectId: number]: CharacterEffect;
   } = {};
   lastLockFailure: number = 0;
+  resourceHudIndicators: string[] = [];
+  hudIndicators: { [typeName: string]: characterIndicatorData } = {};
   constructor(
     characterId: string,
     transientId: number,
@@ -159,8 +175,6 @@ export class Character2016 extends BaseFullCharacter {
       server
     );
     this.npcRenderDistance = 400;
-    this.healingTicks = 0;
-    this.healingMaxTicks = 0;
     (this._resources = {
       [ResourceIds.HEALTH]: 10000,
       [ResourceIds.STAMINA]: 600,
@@ -168,7 +182,8 @@ export class Character2016 extends BaseFullCharacter {
       [ResourceIds.HYDRATION]: 10000,
       [ResourceIds.VIRUS]: 0,
       [ResourceIds.COMFORT]: 5000,
-      [ResourceIds.BLEEDING]: -40
+      [ResourceIds.BLEEDING]: -40,
+      [ResourceIds.ENDURANCE]: 8000
     }),
       (this.characterStates = {
         knockedOut: false,
@@ -185,6 +200,24 @@ export class Character2016 extends BaseFullCharacter {
         if (!server._clients[client.sessionId]) {
           return;
         }
+        let typeName = "";
+        switch (healType) {
+          case 1:
+            typeName = "HEALING_BANDAGE_DRESSED";
+            break;
+          case 2:
+            typeName = "HEALING_BANDAGE";
+            break;
+          case 3:
+            typeName = "HEALING_FIRST_AID";
+            break;
+        }
+        if (!typeName) return;
+        const index = this.resourceHudIndicators.indexOf(typeName);
+        if (index <= -1) {
+          this.resourceHudIndicators.push(typeName);
+          server.sendHudIndicators(client);
+        }
         client.character._resources[ResourceIds.HEALTH] += 100;
         if (client.character._resources[ResourceIds.HEALTH] > 10000) {
           client.character._resources[ResourceIds.HEALTH] = 10000;
@@ -197,15 +230,18 @@ export class Character2016 extends BaseFullCharacter {
           ResourceIds.HEALTH
         );
         if (
-          client.character.healingTicks++ < client.character.healingMaxTicks
+          client.character.healType[healType].healingTicks++ <
+          client.character.healType[healType].healingMaxTicks
         ) {
           client.character.healingIntervals[healType]?.refresh();
         } else {
-          client.character.healingMaxTicks = 0;
-          client.character.healingTicks = 0;
+          client.character.healType[healType].healingMaxTicks = 0;
+          client.character.healType[healType].healingTicks = 0;
           clearTimeout(
             client.character.healingIntervals[healType] as NodeJS.Timeout
           );
+          this.resourceHudIndicators.splice(index, 1);
+          server.sendHudIndicators(client);
           client.character.healingIntervals[healType] = null;
         }
       }, 1000);
@@ -221,6 +257,13 @@ export class Character2016 extends BaseFullCharacter {
 
   updateResources(client: ZoneClient2016, server: ZoneServer2016) {
     let effectId;
+    for (const a in this.hudIndicators) {
+      const indicator = this.hudIndicators[a];
+      if (Date.now() > indicator.expirationTime) {
+        delete this.hudIndicators[a];
+        server.sendHudIndicators(client);
+      }
+    }
     for (const a in this._characterEffects) {
       const characterEffect = this._characterEffects[a];
       if (characterEffect.duration < Date.now()) {
@@ -257,7 +300,8 @@ export class Character2016 extends BaseFullCharacter {
       health = this._resources[ResourceIds.HEALTH],
       virus = this._resources[ResourceIds.VIRUS],
       stamina = this._resources[ResourceIds.STAMINA],
-      bleeding = this._resources[ResourceIds.BLEEDING];
+      bleeding = this._resources[ResourceIds.BLEEDING],
+      energy = this._resources[ResourceIds.ENDURANCE];
 
     if (
       client.character.isRunning &&
@@ -271,9 +315,73 @@ export class Character2016 extends BaseFullCharacter {
     }
 
     client.character._resources[ResourceIds.HUNGER] -= 2;
+    client.character._resources[ResourceIds.ENDURANCE] -= 1;
     client.character._resources[ResourceIds.HYDRATION] -= 4;
 
+    let desiredEnergyIndicator = "";
+    const energyIndicators = ["VERY_TIRED", "TIRED", "EXHAUSTED"];
+    switch (true) {
+      case energy <= 801:
+        desiredEnergyIndicator = "EXHAUSTED";
+        client.character._resources[ResourceIds.STAMINA] -= 20;
+        break;
+      case energy <= 2601 && energy > 801:
+        desiredEnergyIndicator = "VERY_TIRED";
+        client.character._resources[ResourceIds.STAMINA] -= 14;
+        break;
+      case energy <= 3501 && energy > 2601:
+        desiredEnergyIndicator = "TIRED";
+        break;
+      case energy > 3501:
+        desiredEnergyIndicator = "";
+        break;
+      default:
+        desiredEnergyIndicator = "";
+        break;
+    }
+    this.checkResource(server, ResourceIds.ENDURANCE);
     this.checkResource(server, ResourceIds.STAMINA);
+    energyIndicators.forEach((indicator: string) => {
+      const index = this.resourceHudIndicators.indexOf(indicator);
+      if (index > -1 && indicator != desiredEnergyIndicator) {
+        this.resourceHudIndicators.splice(index, 1);
+        server.sendHudIndicators(client);
+      } else if (indicator == desiredEnergyIndicator && index <= -1) {
+        this.resourceHudIndicators.push(desiredEnergyIndicator);
+        server.sendHudIndicators(client);
+      }
+    });
+
+    const bleedingIndicators = [
+      "BLEEDING_LIGHT",
+      "BLEEDING_MODERATE",
+      "BLEEDING_SEVERE"
+    ];
+    let desiredBleedingIndicator = "";
+    switch (true) {
+      case bleeding >= 20 && bleeding < 40:
+        desiredBleedingIndicator = "BLEEDING_LIGHT";
+        break;
+      case bleeding >= 40 && bleeding < 80:
+        desiredBleedingIndicator = "BLEEDING_MODERATE";
+        break;
+      case bleeding >= 80:
+        desiredBleedingIndicator = "BLEEDING_SEVERE";
+        break;
+      default:
+        desiredBleedingIndicator = "";
+        break;
+    }
+    bleedingIndicators.forEach((indicator: string) => {
+      const index = this.resourceHudIndicators.indexOf(indicator);
+      if (index > -1 && indicator != desiredBleedingIndicator) {
+        this.resourceHudIndicators.splice(index, 1);
+        server.sendHudIndicators(client);
+      } else if (indicator == desiredBleedingIndicator && index <= -1) {
+        this.resourceHudIndicators.push(desiredBleedingIndicator);
+        server.sendHudIndicators(client);
+      }
+    });
     if (client.character._resources[ResourceIds.BLEEDING] > 0) {
       this.damage(server, {
         entity: "Character.Bleeding",
@@ -336,6 +444,13 @@ export class Character2016 extends BaseFullCharacter {
       ResourceTypes.BLEEDING,
       bleeding
     );
+    this.updateResource(
+      server,
+      client,
+      ResourceIds.ENDURANCE,
+      ResourceTypes.ENDURANCE,
+      energy
+    );
 
     client.character.resourcesUpdater.refresh();
   }
@@ -350,7 +465,7 @@ export class Character2016 extends BaseFullCharacter {
     if (this._resources[resourceId] > maxValue) {
       this._resources[resourceId] = maxValue;
     } else if (this._resources[resourceId] < minValue) {
-      this._resources[resourceId] = minValue;
+      this._resources[resourceId] = minValue + 1;
       if (damageCallback) {
         damageCallback();
       }
