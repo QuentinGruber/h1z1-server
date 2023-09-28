@@ -394,12 +394,36 @@ export class Character2016 extends BaseFullCharacter {
     this.checkResource(server, ResourceIds.HUNGER, () => {
       this.damage(server, { entity: "Character.Hunger", damage: 100 });
     });
+    const indexHunger = this.resourceHudIndicators.indexOf("STARVING");
+    if (hunger == 0) {
+      if (indexHunger <= -1) {
+        this.resourceHudIndicators.push("STARVING");
+        server.sendHudIndicators(client);
+      }
+    } else {
+      if (indexHunger > -1) {
+        this.resourceHudIndicators.splice(indexHunger, 1);
+        server.sendHudIndicators(client);
+      }
+    }
     this.checkResource(server, ResourceIds.HUNGER, () => {
       this.damage(server, { entity: "Character.Hunger", damage: 100 });
     });
     this.checkResource(server, ResourceIds.HYDRATION, () => {
       this.damage(server, { entity: "Character.Hydration", damage: 100 });
     });
+    const indexDehydrated = this.resourceHudIndicators.indexOf("DEHYDRATED");
+    if (hydration == 0) {
+      if (indexDehydrated <= -1) {
+        this.resourceHudIndicators.push("DEHYDRATED");
+        server.sendHudIndicators(client);
+      }
+    } else {
+      if (indexDehydrated > -1) {
+        this.resourceHudIndicators.splice(indexDehydrated, 1);
+        server.sendHudIndicators(client);
+      }
+    }
     this.checkResource(server, ResourceIds.HEALTH);
 
     this.updateResource(
@@ -465,7 +489,8 @@ export class Character2016 extends BaseFullCharacter {
     if (this._resources[resourceId] > maxValue) {
       this._resources[resourceId] = maxValue;
     } else if (this._resources[resourceId] < minValue) {
-      this._resources[resourceId] = minValue + 1;
+      this._resources[resourceId] =
+        minValue + resourceId == ResourceIds.ENDURANCE ? 1 : 0;
       if (damageCallback) {
         damageCallback();
       }

@@ -2025,7 +2025,8 @@ export const commands: Array<Command> = [
         [ResourceIds.HYDRATION]: 10000,
         [ResourceIds.VIRUS]: 0,
         [ResourceIds.COMFORT]: 5000,
-        [ResourceIds.BLEEDING]: -40
+        [ResourceIds.BLEEDING]: -40,
+        [ResourceIds.ENDURANCE]: 8000
       };
       client.character.updateResource(
         server,
@@ -2068,6 +2069,12 @@ export const commands: Array<Command> = [
         client,
         ResourceIds.BLEEDING,
         ResourceTypes.BLEEDING
+      );
+      client.character.updateResource(
+        server,
+        client,
+        ResourceIds.ENDURANCE,
+        ResourceTypes.ENDURANCE
       );
 
       server.sendChatText(client, `Set resources to maximum values.`);
