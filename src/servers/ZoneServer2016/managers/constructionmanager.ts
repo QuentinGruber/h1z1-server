@@ -52,7 +52,8 @@ import {
   Items,
   ResourceIds,
   ResourceTypes,
-  StringIds
+  StringIds,
+  TreeIds
 } from "../models/enums";
 import { ZoneServer2016 } from "../zoneserver";
 import {
@@ -221,6 +222,29 @@ export class ConstructionManager {
       }
       if (tampersInRadius >= 3) {
         return true;
+      }
+    }
+    return false;
+  }
+
+  detectStackedTreePlacement(
+    server: ZoneServer2016,
+    item: BaseItem,
+    position: Float32Array
+  ): boolean {
+    const disallowedItems = [Items.STORAGE_BOX, Items.BEE_BOX, Items.FURNACE];
+    if (disallowedItems.includes(item.itemDefinitionId)) {
+      for (const treeKey in server.speedtreeManager._speedTreesList) {
+        const zoneTree = server.speedtreeManager._speedTreesList[treeKey];
+        const allowedTrees = [
+          TreeIds.BLACKBERRY,
+          TreeIds.DEVILCLUB,
+          TreeIds.VINEMAPLE
+        ];
+        if (allowedTrees.includes(zoneTree.treeId)) continue;
+        if (isPosInRadius(1, position, zoneTree.position)) {
+          return true;
+        }
       }
     }
     return false;
@@ -569,6 +593,15 @@ export class ConstructionManager {
       this.placementError(server, client, ConstructionErrors.STACKED);
       return;
     }
+
+    // takes too long to process for now
+    /*
+    if (this.detectStackedTreePlacement(server, item, position)) {
+      this.sendPlacementFinalize(server, client, 0);
+      this.placementError(server, client, ConstructionErrors.TREESTACKED);
+      return;
+    }
+    */
 
     if (this.detectOutOfRange(client, item, position)) {
       this.sendPlacementFinalize(server, client, false);

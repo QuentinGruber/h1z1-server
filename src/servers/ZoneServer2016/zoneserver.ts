@@ -59,7 +59,9 @@ import {
   DamageRecord,
   EntityDictionary,
   FireHint,
-  Recipe
+  HudIndicator,
+  Recipe,
+  UseOption
 } from "../../types/zoneserver";
 import { h1z1PacketsType2016 } from "../../types/packets";
 import {
@@ -227,6 +229,8 @@ const spawnLocations2 = require("../../../data/2016/zoneData/Z1_gridSpawns.json"
   //dynamicappearance = require("../../../data/2016/sampleData/dynamicappearance"),
   resourceDefinitions = require("../../../data/2016/dataSources/Resources"),
   Z1_POIs = require("../../../data/2016/zoneData/Z1_POIs"),
+  hudIndicators = require("../../../data/2016/dataSources/HudIndicators"),
+  itemUseOptionsDataSource = require("../../../data/2016/dataSources/ItemUseOptions"),
   equipmentModelTexturesMapping: Record<
     string,
     Record<string, string[]>
@@ -274,6 +278,8 @@ export class ZoneServer2016 extends EventEmitter {
   _worldSimpleConstruction: EntityDictionary<ConstructionChildEntity> = {};
 
   _destroyableDTOlist: number[] = [];
+  _hudIndicators: { [indicatorId: string]: HudIndicator } = {};
+  _itemUseOptions: { [optionId: number]: UseOption } = {};
   _decoys: {
     [transientId: number]: {
       characterId: string;
@@ -1419,6 +1425,7 @@ export class ZoneServer2016 extends EventEmitter {
 
     this.fairPlayManager.decryptFairPlayValues();
     this._spawnGrid = this.divideMapIntoSpawnGrid(7448, 7448, 744);
+    this.speedtreeManager.initiateList();
     this.startRoutinesLoop();
     this.smeltingManager.checkSmeltables(this);
     this.smeltingManager.checkCollectors(this);
@@ -1431,6 +1438,8 @@ export class ZoneServer2016 extends EventEmitter {
       () => this.worldRoutine.bind(this)(),
       this.worldRoutineRate
     );
+    this.initHudIndicatorDataSource();
+    this.initUseOptionsDataSource();
     this.hookManager.checkHook("OnServerReady");
   }
 
@@ -2325,8 +2334,13 @@ export class ZoneServer2016 extends EventEmitter {
     client.character._resources[ResourceIds.HYDRATION] = 10000;
     client.character._resources[ResourceIds.STAMINA] = 600;
     client.character._resources[ResourceIds.BLEEDING] = -40;
-    client.character.healingTicks = 0;
-    client.character.healingMaxTicks = 0;
+    client.character._resources[ResourceIds.ENDURANCE] = 8000;
+    for (const a in client.character.healType) {
+      const healType = client.character.healType[a];
+      healType.healingTicks = 0;
+      healType.healingMaxTicks = 0;
+    }
+    (client.character.hudIndicators = {}), this.sendHudIndicators(client);
     client.character.resourcesUpdater?.refresh();
 
     const randomSpawnIndex = Math.floor(
@@ -4725,6 +4739,25 @@ export class ZoneServer2016 extends EventEmitter {
     });
   }
 
+  startInteractionTimer(
+    client: Client,
+    stringId: number,
+    time: number,
+    animationId: number
+  ) {
+    this.sendDataToAllWithSpawnedEntity(
+      this._characters,
+      client.character.characterId,
+      "CharacterState.InteractionStart",
+      {
+        characterId: client.character.characterId,
+        time: time,
+        animationId: animationId,
+        stringId: stringId
+      }
+    );
+  }
+
   reloadInterrupt(client: Client, weaponItem: LoadoutItem) {
     if (!weaponItem || !weaponItem.weapon || !weaponItem.weapon.reloadTimer)
       return;
@@ -5499,7 +5532,8 @@ export class ZoneServer2016 extends EventEmitter {
   dropItem(
     character: BaseFullCharacter,
     item: BaseItem,
-    count: number = 1
+    count: number = 1,
+    animationId: number
   ): void {
     const client = this.getClientByContainerAccessor(character);
 
@@ -5528,6 +5562,7 @@ export class ZoneServer2016 extends EventEmitter {
         count: count
       }
     );
+    this.startInteractionTimer(client, 0, 0, animationId);
     if (dropItem && dropItem.weapon) {
       const ammo = this.generateItem(
         this.getWeaponAmmoId(dropItem.itemDefinitionId),
@@ -5581,7 +5616,7 @@ export class ZoneServer2016 extends EventEmitter {
     );
 
     client.character.lootItem(this, item);
-
+    this.startInteractionTimer(client, 0, 0, 9);
     if (
       item.itemDefinitionId === Items.FUEL_BIOFUEL ||
       item.itemDefinitionId === Items.FUEL_ETHANOL
@@ -5877,13 +5912,14 @@ export class ZoneServer2016 extends EventEmitter {
     }, 600000);
   }
 
-  useConsumable(client: Client, item: BaseItem) {
+  useConsumable(client: Client, item: BaseItem, animationId: number) {
     const itemDef = this.getItemDefinition(item.itemDefinitionId);
     if (!itemDef) return;
     let doReturn = true;
     let drinkCount = 0;
     let eatCount = 0;
     let staminaCount = 0;
+    let enduranceCount = 0;
     let givetrash = 0;
     let healCount = 0;
     let bandagingCount = 0;
@@ -5902,6 +5938,7 @@ export class ZoneServer2016 extends EventEmitter {
         if (useOption.drinkCount) drinkCount = useOption.drinkCount;
         if (useOption.eatCount) eatCount = useOption.eatCount;
         if (useOption.staminaCount) staminaCount = useOption.staminaCount;
+        if (useOption.enduranceCount) enduranceCount = useOption.enduranceCount;
         if (useOption.givetrash) givetrash = useOption.givetrash;
         if (useOption.healCount) healCount = useOption.healCount;
         if (useOption.bandagingCount) bandagingCount = useOption.bandagingCount;
@@ -5917,7 +5954,7 @@ export class ZoneServer2016 extends EventEmitter {
       return;
     }
 
-    this.utilizeHudTimer(client, itemDef.NAME_ID, timeout, () => {
+    this.utilizeHudTimer(client, itemDef.NAME_ID, timeout, animationId, () => {
       this.useComsumablePass(
         client,
         item,
@@ -5927,6 +5964,7 @@ export class ZoneServer2016 extends EventEmitter {
         givetrash,
         healCount,
         bandagingCount,
+        enduranceCount,
         healType
       );
     });
@@ -5972,7 +6010,7 @@ export class ZoneServer2016 extends EventEmitter {
       );
       return;
     }
-    this.utilizeHudTimer(client, itemDef.NAME_ID, timeout, () => {
+    this.utilizeHudTimer(client, itemDef.NAME_ID, timeout, 0, () => {
       this.igniteoptionPass(client);
     });
   }
@@ -5984,7 +6022,7 @@ export class ZoneServer2016 extends EventEmitter {
     removedItem: BaseItem,
     rewardItems: { itemDefinitionId: number; count: number }[]
   ) {
-    this.utilizeHudTimer(client, nameId, timeout, () => {
+    this.utilizeHudTimer(client, nameId, timeout, 0, () => {
       this.taskOptionPass(client, removedItem, rewardItems);
     });
   }
@@ -6033,7 +6071,55 @@ export class ZoneServer2016 extends EventEmitter {
     }
   }
 
-  useItem(client: Client, item: BaseItem) {
+  usePills(client: Client, item: BaseItem) {
+    if (!this.removeInventoryItem(client.character, item)) return;
+    let hudIndicator: HudIndicator | undefined = undefined;
+    switch (item.itemDefinitionId) {
+      case Items.COLD_MEDICINE:
+        hudIndicator = this._hudIndicators["COLD_MEDICINE"];
+        break;
+      case Items.IMMUNITY_BOOSTERS:
+        hudIndicator = this._hudIndicators["IMMUNITY_BOOST_LOW"];
+        break;
+      case Items.VITAMINS:
+        hudIndicator = this._hudIndicators["IMMUNITY_BOOST_LOW"];
+        break;
+    }
+    if (!hudIndicator) return;
+    if (client.character.hudIndicators[hudIndicator.typeName]) {
+      client.character.hudIndicators[
+        hudIndicator.typeName
+      ].expirationTime += 600000;
+    } else {
+      client.character.hudIndicators[hudIndicator.typeName] = {
+        typeName: hudIndicator.typeName,
+        expirationTime: Date.now() + 600000
+      };
+      this.sendHudIndicators(client);
+    }
+  }
+
+  sleep(client: Client) {
+    client.character._resources[ResourceIds.ENDURANCE] = 8000;
+    client.character._resources[ResourceIds.STAMINA] = 600;
+    this.applyMovementModifier(client, MovementModifiers.RESTED);
+    this.updateResourceToAllWithSpawnedEntity(
+      client.character.characterId,
+      client.character._resources[ResourceIds.STAMINA],
+      ResourceIds.STAMINA,
+      ResourceTypes.STAMINA,
+      this._characters
+    );
+    this.updateResource(
+      client,
+      client.character.characterId,
+      8000,
+      ResourceIds.ENDURANCE,
+      ResourceTypes.ENDURANCE
+    );
+  }
+
+  useItem(client: Client, item: BaseItem, animationId: number) {
     const itemDef = this.getItemDefinition(item.itemDefinitionId);
     if (!itemDef) return;
     const nameId = itemDef.NAME_ID;
@@ -6067,8 +6153,14 @@ export class ZoneServer2016 extends EventEmitter {
         timeout = 3000;
         break;
       case Items.FERTILIZER:
-        this.utilizeHudTimer(client, nameId, timeout, () => {
+        this.utilizeHudTimer(client, nameId, timeout, animationId, () => {
           this.fertilizePlants(client, item);
+        });
+      case Items.COLD_MEDICINE:
+      case Items.VITAMINS:
+      case Items.IMMUNITY_BOOSTERS:
+        this.utilizeHudTimer(client, nameId, timeout, animationId, () => {
+          this.usePills(client, item);
         });
         return;
       default:
@@ -6080,12 +6172,12 @@ export class ZoneServer2016 extends EventEmitter {
     }
     switch (useoption) {
       case "fill": // empty bottle
-        this.utilizeHudTimer(client, nameId, timeout, () => {
+        this.utilizeHudTimer(client, nameId, timeout, animationId, () => {
           this.fillPass(client, item);
         });
         break;
       case "sniff": // swizzle
-        this.utilizeHudTimer(client, nameId, timeout, () => {
+        this.utilizeHudTimer(client, nameId, timeout, animationId, () => {
           this.sniffPass(client, item);
         });
         break;
@@ -6094,7 +6186,7 @@ export class ZoneServer2016 extends EventEmitter {
     }
   }
 
-  sliceItem(client: Client, item: BaseItem) {
+  sliceItem(client: Client, item: BaseItem, animationId: number) {
     const itemDef = this.getItemDefinition(item.itemDefinitionId);
     if (!itemDef) return;
     const nameId = itemDef.NAME_ID;
@@ -6118,12 +6210,17 @@ export class ZoneServer2016 extends EventEmitter {
       );
       return;
     }
-    this.utilizeHudTimer(client, nameId, timeout, () => {
+    this.utilizeHudTimer(client, nameId, timeout, animationId, () => {
       this.slicePass(client, item);
     });
   }
 
-  refuelVehicle(client: Client, item: BaseItem, vehicleGuid: string) {
+  refuelVehicle(
+    client: Client,
+    item: BaseItem,
+    vehicleGuid: string,
+    animationId: number
+  ) {
     const itemDef = this.getItemDefinition(item.itemDefinitionId);
     if (!itemDef) return;
     const nameId = itemDef.NAME_ID;
@@ -6148,12 +6245,12 @@ export class ZoneServer2016 extends EventEmitter {
       );
       return;
     }
-    this.utilizeHudTimer(client, nameId, timeout, () => {
+    this.utilizeHudTimer(client, nameId, timeout, animationId, () => {
       this.refuelVehiclePass(client, item, vehicleGuid, fuelValue);
     });
   }
 
-  shredItem(client: Client, item: BaseItem) {
+  shredItem(client: Client, item: BaseItem, animationId: number) {
     const itemDefinition = this.getItemDefinition(item.itemDefinitionId),
       nameId = itemDefinition.NAME_ID,
       itemType = itemDefinition.ITEM_TYPE;
@@ -6170,12 +6267,12 @@ export class ZoneServer2016 extends EventEmitter {
       default:
         this.sendChatText(client, "[ERROR] Unknown salvage item or count.");
     }
-    this.utilizeHudTimer(client, nameId, timeout, () => {
+    this.utilizeHudTimer(client, nameId, timeout, animationId, () => {
       this.shredItemPass(client, item, count);
     });
   }
 
-  salvageAmmo(client: Client, item: BaseItem) {
+  salvageAmmo(client: Client, item: BaseItem, animationId: number) {
     const itemDefinition = this.getItemDefinition(item.itemDefinitionId),
       nameId = itemDefinition.NAME_ID;
     const timeout = 1000;
@@ -6223,7 +6320,7 @@ export class ZoneServer2016 extends EventEmitter {
       item.itemDefinitionId == Items.AMMO_44
         ? 2
         : 1;
-    this.utilizeHudTimer(client, nameId, timeout, () => {
+    this.utilizeHudTimer(client, nameId, timeout, animationId, () => {
       this.salvageItemPass(client, item, count);
     });
   }
@@ -6237,6 +6334,7 @@ export class ZoneServer2016 extends EventEmitter {
     givetrash: number,
     healCount: number,
     bandagingCount: number,
+    enduranceCount: number,
     healType: HealTypes
   ) {
     if (!this.removeInventoryItem(client.character, item)) return;
@@ -6268,6 +6366,16 @@ export class ZoneServer2016 extends EventEmitter {
       );
     }
 
+    if (enduranceCount) {
+      client.character._resources[ResourceIds.ENDURANCE] += enduranceCount;
+      this.updateResource(
+        client,
+        client.character.characterId,
+        client.character._resources[ResourceIds.ENDURANCE],
+        ResourceIds.ENDURANCE
+      );
+    }
+
     if (item.itemDefinitionId == Items.MEAT_ROTTEN) {
       const damageInfo: DamageInfo = {
         entity: "",
@@ -6282,7 +6390,7 @@ export class ZoneServer2016 extends EventEmitter {
       if (!client.character.healingIntervals[healType]) {
         client.character.starthealingInterval(client, this, healType);
       }
-      client.character.healingMaxTicks += healCount;
+      client.character.healType[healType].healingMaxTicks += healCount;
       if (client.character._resources[ResourceIds.BLEEDING] > 0) {
         client.character._resources[ResourceIds.BLEEDING] -= bandagingCount;
         const bleeding = client.character._resources[ResourceIds.BLEEDING];
@@ -6428,7 +6536,12 @@ export class ZoneServer2016 extends EventEmitter {
     );
   }
 
-  repairOption(client: Client, item: BaseItem, repairItem: BaseItem) {
+  repairOption(
+    client: Client,
+    item: BaseItem,
+    repairItem: BaseItem,
+    animationId: number
+  ) {
     const durability = repairItem.currentDurability;
     if (durability >= 2000) {
       // todo: get max durability from somewhere, do not hard-code
@@ -6450,7 +6563,7 @@ export class ZoneServer2016 extends EventEmitter {
     if (!itemDef) return;
     const nameId = itemDef.NAME_ID;
 
-    this.utilizeHudTimer(client, nameId, 5000, () => {
+    this.utilizeHudTimer(client, nameId, 5000, animationId, () => {
       this.repairOptionPass(client, item, repairItem, durability);
     });
   }
@@ -7014,7 +7127,15 @@ export class ZoneServer2016 extends EventEmitter {
   pUtilizeHudTimer = promisify(this.utilizeHudTimer);
 
   stopHudTimer(client: Client) {
-    this.utilizeHudTimer(client, 0, 0, () => {
+    this.utilizeHudTimer(client, 0, 0, 0, () => {
+      this.sendDataToAllWithSpawnedEntity(
+        this._characters,
+        client.character.characterId,
+        "CharacterState.InteractionStop",
+        {
+          characterId: client.character.characterId
+        }
+      );
       /*/*/
     });
   }
@@ -7023,15 +7144,28 @@ export class ZoneServer2016 extends EventEmitter {
     client: Client,
     nameId: number,
     timeout: number,
+    animationId: number,
     callback: any
   ) {
-    this.startTimer(client, nameId, timeout);
+    if (!animationId) {
+      this.startTimer(client, nameId, timeout);
+    } else {
+      this.startInteractionTimer(client, nameId, timeout, animationId);
+    }
     if (client.hudTimer != null) {
       clearTimeout(client.hudTimer);
     }
     client.posAtTimerStart = client.character.state.position;
     client.hudTimer = setTimeout(() => {
       callback.apply(this);
+      this.sendDataToAllWithSpawnedEntity(
+        this._characters,
+        client.character.characterId,
+        "CharacterState.InteractionStop",
+        {
+          characterId: client.character.characterId
+        }
+      );
     }, timeout);
   }
 
@@ -7079,13 +7213,25 @@ export class ZoneServer2016 extends EventEmitter {
 
   applyMovementModifier(client: Client, modifier: MovementModifiers) {
     this.multiplyMovementModifier(client, modifier);
+    let hudIndicator: HudIndicator | undefined;
     switch (modifier) {
       case MovementModifiers.SWIZZLE:
+        hudIndicator = this._hudIndicators["SWIZZLE"];
         if (client.character.timeouts["swizzle"]) {
           client.character.timeouts["swizzle"]._onTimeout();
           clearTimeout(client.character.timeouts["swizzle"]);
           delete client.character.timeouts["swizzle"];
+          if (client.character.hudIndicators[hudIndicator.typeName]) {
+            client.character.hudIndicators[
+              hudIndicator.typeName
+            ].expirationTime += 30000;
+          }
         }
+        client.character.hudIndicators[hudIndicator.typeName] = {
+          typeName: hudIndicator.typeName,
+          expirationTime: Date.now() + 30000
+        };
+        this.sendHudIndicators(client);
         client.character.timeouts["swizzle"] = setTimeout(() => {
           if (!client.character.timeouts["swizzle"]) {
             return;
@@ -7093,6 +7239,31 @@ export class ZoneServer2016 extends EventEmitter {
           this.divideMovementModifier(client, modifier);
           delete client.character.timeouts["swizzle"];
         }, 30000);
+        break;
+      case MovementModifiers.RESTED:
+        hudIndicator = this._hudIndicators["WELL_RESTED"];
+        if (client.character.timeouts["WELL_RESTED"]) {
+          client.character.timeouts["WELL_RESTED"]._onTimeout();
+          clearTimeout(client.character.timeouts["WELL_RESTED"]);
+          delete client.character.timeouts["WELL_RESTED"];
+          if (client.character.hudIndicators[hudIndicator.typeName]) {
+            client.character.hudIndicators[
+              hudIndicator.typeName
+            ].expirationTime += 120000;
+          }
+        }
+        client.character.hudIndicators[hudIndicator.typeName] = {
+          typeName: hudIndicator.typeName,
+          expirationTime: Date.now() + 120000
+        };
+        this.sendHudIndicators(client);
+        client.character.timeouts["WELL_RESTED"] = setTimeout(() => {
+          if (!client.character.timeouts["WELL_RESTED"]) {
+            return;
+          }
+          this.divideMovementModifier(client, modifier);
+          delete client.character.timeouts["WELL_RESTED"];
+        }, 120000);
         break;
       case MovementModifiers.SNARED:
         if (client.character.timeouts["snared"]) {
@@ -7358,6 +7529,74 @@ export class ZoneServer2016 extends EventEmitter {
       };
       this.sendAlert(client, `The radiation here seems to be dangerously high`);
       client.character.damage(this, damageInfo);
+    }
+  }
+
+  initHudIndicatorDataSource() {
+    hudIndicators.forEach((indicator: any) => {
+      this._hudIndicators[indicator.typeName] = {
+        id: indicator.ID,
+        typeName: indicator.typeName,
+        nameId: indicator.nameId,
+        descriptionId: indicator.descriptionId,
+        imageSetId: indicator.imageSetId
+      };
+    });
+  }
+
+  initUseOptionsDataSource() {
+    itemUseOptionsDataSource.forEach((useOption: any) => {
+      this._itemUseOptions[useOption.ITEM_USE_OPTION_ID] = {
+        id: useOption.ITEM_USE_OPTION_ID,
+        typeName: useOption.TYPE_NAME,
+        animationId: useOption.INTERACTION_ANIMATION_ID
+      };
+    });
+  }
+
+  sendHudIndicators(client: Client) {
+    this.sendData(client, "Effect.RemoveUiIndicators", {
+      unknownData1: {
+        unknownQword1: client.character.characterId
+      },
+      unknownData2: {}
+    });
+    client.character.resourceHudIndicators.forEach((typeName: string) => {
+      const indicator = this._hudIndicators[typeName];
+      this.sendData(client, "Effect.AddUiIndicator", {
+        characterId: client.character.characterId,
+        hudElementGuid: this.generateGuid(),
+        unknownData1: {
+          hudElementId: indicator.nameId
+        },
+        hudElementData: {
+          nameId: indicator.nameId,
+          descriptionId: indicator.descriptionId,
+          imageSetId: indicator.imageSetId
+        },
+        unknownData3: {},
+        unknownData4: {},
+        unknownData5: {}
+      });
+    });
+    for (const a in client.character.hudIndicators) {
+      const indicator =
+        this._hudIndicators[client.character.hudIndicators[a].typeName];
+      this.sendData(client, "Effect.AddUiIndicator", {
+        characterId: client.character.characterId,
+        hudElementGuid: this.generateGuid(),
+        unknownData1: {
+          hudElementId: indicator.nameId
+        },
+        hudElementData: {
+          nameId: indicator.nameId,
+          descriptionId: indicator.descriptionId,
+          imageSetId: indicator.imageSetId
+        },
+        unknownData3: {},
+        unknownData4: {},
+        unknownData5: {}
+      });
     }
   }
 

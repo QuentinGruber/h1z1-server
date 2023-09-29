@@ -405,7 +405,8 @@ export class CraftManager {
     await server.pUtilizeHudTimer(
       client,
       server.getItemDefinition(recipeId).NAME_ID,
-      1000 * recipeCount
+      1000 * recipeCount,
+      0
     );
     const r = server._recipes[recipeId];
     for (const component of r.components) {

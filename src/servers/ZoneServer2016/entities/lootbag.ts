@@ -68,6 +68,7 @@ export class Lootbag extends BaseLootableEntity {
         server.getItemDefinition(this._containers["31"].itemDefinitionId)
           .NAME_ID,
         this.actorModelId != 9218 ? 0 : 10000,
+        0,
         () => {
           super.OnPlayerSelect(server, client);
           client.searchedProps.push(this);

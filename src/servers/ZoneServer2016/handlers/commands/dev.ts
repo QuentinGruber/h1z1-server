@@ -47,6 +47,35 @@ const dev: any = {
       });
     }, 2000);
   },
+  ui: function (server: ZoneServer2016, client: Client, args: Array<string>) {
+    server.sendData(client, "Effect.AddUiIndicator", {
+      characterId: client.character.characterId,
+      hudElementGuid: server.generateGuid(),
+      unknownData1: {
+        hudElementId: Number(args[1])
+      },
+      hudElementData: {
+        nameId: Number(args[1]),
+        descriptionId: Number(args[2]),
+        imageSetId: Number(args[3])
+      },
+      unknownData3: {},
+      unknownData4: {},
+      unknownData5: {}
+    });
+  },
+  uioff: function (
+    server: ZoneServer2016,
+    client: Client,
+    args: Array<string>
+  ) {
+    server.sendData(client, "Effect.RemoveUiIndicators", {
+      unknownData1: {
+        unknownQword1: client.character.characterId
+      },
+      unknownData2: {}
+    });
+  },
   zombie: function (
     server: ZoneServer2016,
     client: Client,
@@ -206,30 +235,14 @@ const dev: any = {
     client: Client,
     args: Array<string>
   ) {
-    if (!args[3]) {
-      server.sendChatText(
-        client,
-        "Missing resourceId, resourceType, and value args"
-      );
+    if (!args[2]) {
+      server.sendChatText(client, "Missing resourceId, and value args");
       return;
     }
-    const resourceEvent = {
-      eventData: {
-        type: 2,
-        value: {
-          characterId: client.character.characterId,
-          resourceData: {
-            resourceId: Number(args[1]),
-            resourceType: Number(args[2]),
-            unknownArray1: [],
-            value: Number(args[3]),
-            unknownArray2: []
-          }
-        }
-      }
-    };
+
+    client.character._resources[Number(args[1])] = Number(args[2]);
+
     server.sendChatText(client, "Setting character resource");
-    server.sendData(client, "ResourceEvent", resourceEvent);
   },
   selectloadout: function (
     server: ZoneServer2016,

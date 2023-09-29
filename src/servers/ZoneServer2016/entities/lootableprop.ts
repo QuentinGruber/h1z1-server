@@ -211,6 +211,7 @@ export class LootableProp extends BaseLootableEntity {
         server.getItemDefinition(this._containers["31"].itemDefinitionId)
           .NAME_ID,
         this.searchTime,
+        0,
         () => {
           super.OnPlayerSelect(server, client);
           client.searchedProps.push(this);

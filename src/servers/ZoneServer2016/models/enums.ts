@@ -54,7 +54,8 @@ export enum ConstructionErrors {
   UNKNOWN_SLOT = "Unknown slot",
   UNKNOWN_CONSTRUCTION = "Unknown construction item",
   OUT_OF_RANGE = "Out of range",
-  STACKED = "Construction stacked"
+  STACKED = "Construction stacked",
+  TREESTACKED = "Construction tree stacked"
 }
 
 export enum ConstructionPermissionIds {
@@ -74,6 +75,8 @@ export enum StringIds {
   USE_TARGET = 1186,
   SEARCH = 1191,
   OPEN_AND_LOCK = 8944,
+  REST = 9041,
+  RESTING = 9051,
   USE_IGNITABLE = 9224,
   UNDO_PLACEMENT = 12001,
   OPEN_TARGET = 12156,
@@ -84,7 +87,7 @@ export enum StringIds {
 }
 
 export enum MovementModifiers {
-  RESTED = 1.1,
+  RESTED = 1.11,
   SWIZZLE = 1.1,
   SNARED = 0.5,
   BOOTS = 1.15
@@ -212,6 +215,7 @@ export enum ResourceIds {
   STAMINA = 6,
   VIRUS = 12,
   BLEEDING = 21,
+  ENDURANCE = 22,
   COMFORT = 68,
   FUEL = 396,
   CONDITION = 561,
@@ -225,9 +229,35 @@ export enum ResourceTypes {
   STAMINA = 6,
   VIRUS = 12,
   BLEEDING = 21,
+  ENDURANCE = 22,
   COMFORT = 68,
   FUEL = 50,
   CONDITION = 1
+}
+
+export enum TreeIds {
+  COMMONHAZEL = 0,
+  WESTERNCEDARSAPLING = 1,
+  WESTERNCEDAR = 2,
+  GREENMAPLEDEAD = 3,
+  SAPLINGMAPLE = 4,
+  REDMAPLE = 5,
+  GREENMAPLE = 6,
+  BOULDERS = 7,
+  WHITEBIRCH = 8,
+  DEVILCLUB = 9,
+  REDCEDAR = 10,
+  VINEMAPLE = 11,
+  OREGONOAK = 12,
+  BLACKBERRY = 13,
+  PAPERBIRCH = 14,
+  BIGLEAFMAPLE = 15,
+  BIGLEAFMAPLE_YOUNG01 = 16,
+  BIGLEAFMAPLE_YOUNG02 = 17,
+  DECIDUOUSSHRUB01 = 18,
+  BOULDER = 19,
+  APPLETREE01 = 20,
+  BUSHES_LARGE01 = 21
 }
 
 export enum Items {
