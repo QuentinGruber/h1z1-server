@@ -50,6 +50,7 @@ import { LoadoutContainer } from "../../classes/loadoutcontainer";
 import { BaseItem } from "../../classes/baseItem";
 import { DB_COLLECTIONS } from "../../../../utils/enums";
 import { WorldDataManager } from "../../managers/worlddatamanager";
+import { MAX_UINT32 } from "../../../../utils/constants";
 const itemDefinitions = require("./../../../../../data/2016/dataSources/ServerItemDefinitions.json");
 
 export const commands: Array<Command> = [
@@ -221,6 +222,26 @@ export const commands: Array<Command> = [
     permissionLevel: PermissionLevels.DEFAULT,
     execute: (server: ZoneServer2016, client: Client, args: Array<string>) => {
       server.combatLog(client);
+    }
+  },
+  {
+    name: "emote",
+    permissionLevel: PermissionLevels.DEFAULT,
+    execute: (server: ZoneServer2016, client: Client, args: Array<string>) => {
+      const animationId = Number(args[0]);
+      if (!animationId || animationId > MAX_UINT32) {
+        server.sendChatText(client, "[ERROR] usage /animation {number}");
+        return;
+      }
+      server.sendDataToAllWithSpawnedEntity(
+        server._characters,
+        client.character.characterId,
+        "AnimationBase",
+        {
+          characterId: client.character.characterId,
+          animationId: animationId
+        }
+      );
     }
   },
   {

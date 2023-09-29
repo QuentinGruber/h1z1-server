@@ -3466,5 +3466,14 @@ export const basePackets: PacketStructures = [
   ["WeaponLagLockParameters", 0xf5, {}],
   ["CrateOpeningBase", 0xf6, {}],
   ["PlayerHeatWarning", 0xf7, {}],
-  ["AnimationBase", 0xf8, {}]
+  [
+    "AnimationBase",
+    0xf802,
+    {
+      fields: [
+        { name: "characterId", type: "uint64string", defaultValue: "0" },
+        { name: "animationId", type: "uint32", defaultValue: 0 }
+      ]
+    }
+  ]
 ];
