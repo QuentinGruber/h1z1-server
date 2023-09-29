@@ -13,7 +13,6 @@
 
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import {
-  ClientBan,
   ClientMute,
   DamageInfo,
   EntityDictionary
@@ -27,7 +26,6 @@ import {
   toHex,
   randomIntFromInterval,
   Scheduler,
-  isPosInRadiusWithY
 } from "../../../../utils/utils";
 import { ExplosiveEntity } from "../../entities/explosiveentity";
 import { Npc } from "../../entities/npc";
@@ -55,7 +53,7 @@ import { LoadoutContainer } from "../../classes/loadoutcontainer";
 import { BaseItem } from "../../classes/baseItem";
 import { DB_COLLECTIONS } from "../../../../utils/enums";
 import { WorldDataManager } from "../../managers/worlddatamanager";
-import { BaseEntity } from "servers/ZoneServer2016/entities/baseentity";
+import { BaseEntity } from "../../entities/baseentity";
 const itemDefinitions = require("./../../../../../data/2016/dataSources/ServerItemDefinitions.json");
 
 export const commands: Array<Command> = [
