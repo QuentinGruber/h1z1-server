@@ -1387,10 +1387,9 @@ export class ZoneServer2016 extends EventEmitter {
 
   sendInitData(client: Client) {
     this.sendData(client, "InitializationParameters", {
-      ENVIRONMENT: "LIVE",// LOCAL, MAIN, QA, TEST, STAGE, LIVE, //THE_NINE, INNOVA 
-      unknownString1: "SKU_Is_JustSurvive",//JS.Environment
+      ENVIRONMENT: "LIVE", // LOCAL, MAIN, QA, TEST, STAGE, LIVE, //THE_NINE, INNOVA
+      unknownString1: "SKU_Is_JustSurvive", //JS.Environment
       rulesetDefinitions: [
-        
         {
           RULESET_ID: 1,
           RULESET_ID_: 1,
@@ -1403,7 +1402,7 @@ export class ZoneServer2016 extends EventEmitter {
                 ID: 1,
                 RULESET_ID: 1,
                 CONTENT_PACK_ID: 112,
-                CONTENT_PACK_ACTION_ID: 1,
+                CONTENT_PACK_ACTION_ID: 1
               }
             }
           ]
@@ -1434,9 +1433,9 @@ export class ZoneServer2016 extends EventEmitter {
                 ID: 3,
                 RULESET_ID: 5,
                 CONTENT_PACK_ID: 119,
-                CONTENT_PACK_ACTION_ID: 2,
+                CONTENT_PACK_ACTION_ID: 2
               }
-            },
+            }
           ]
         },
         {
@@ -1444,10 +1443,8 @@ export class ZoneServer2016 extends EventEmitter {
           RULESET_ID_: 6,
           ruleset: "BattleRoyale",
           unknownString2: "",
-          rulesets: [
-            
-          ]
-        },
+          rulesets: []
+        }
       ]
     });
 
