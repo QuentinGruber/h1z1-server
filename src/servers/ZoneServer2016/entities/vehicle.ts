@@ -737,7 +737,7 @@ export class Vehicle2016 extends BaseLootableEntity {
       client = server.getClientByCharId(driver?.characterId || "");
     if (!client) return;
 
-    server.utilizeHudTimer(client, 0, 5000, () => {
+    server.utilizeHudTimer(client, 0, 5000, 0, () => {
       this.startEngine(server);
     });
   }
