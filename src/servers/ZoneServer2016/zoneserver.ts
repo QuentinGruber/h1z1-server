@@ -58,7 +58,8 @@ import {
   DamageRecord,
   FireHint,
   HudIndicator,
-  Recipe
+  Recipe,
+  UseOption
 } from "../../types/zoneserver";
 import { h1z1PacketsType2016 } from "../../types/packets";
 import {
@@ -180,6 +181,7 @@ const spawnLocations2 = require("../../../data/2016/zoneData/Z1_gridSpawns.json"
   resourceDefinitions = require("../../../data/2016/dataSources/Resources"),
   Z1_POIs = require("../../../data/2016/zoneData/Z1_POIs"),
   hudIndicators = require("../../../data/2016/dataSources/HudIndicators"),
+  itemUseOptionsDataSource = require("../../../data/2016/dataSources/ItemUseOptions"),
   equipmentModelTexturesMapping: Record<
     string,
     Record<string, string[]>
@@ -229,6 +231,7 @@ export class ZoneServer2016 extends EventEmitter {
   _destroyables: { [characterId: string]: Destroyable } = {};
   _destroyableDTOlist: number[] = [];
   _hudIndicators: { [indicatorId: string]: HudIndicator } = {};
+  _itemUseOptions: { [optionId: number]: UseOption } = {};
   _decoys: {
     [transientId: number]: {
       characterId: string;
@@ -1378,6 +1381,7 @@ export class ZoneServer2016 extends EventEmitter {
       this.worldRoutineRate
     );
     this.initHudIndicatorDataSource();
+    this.initUseOptionsDataSource();
     this.hookManager.checkHook("OnServerReady");
   }
 
@@ -4616,6 +4620,25 @@ export class ZoneServer2016 extends EventEmitter {
     });
   }
 
+  startInteractionTimer(
+    client: Client,
+    stringId: number,
+    time: number,
+    animationId: number
+  ) {
+    this.sendDataToAllWithSpawnedEntity(
+      this._characters,
+      client.character.characterId,
+      "CharacterState.InteractionStart",
+      {
+        characterId: client.character.characterId,
+        time: time,
+        animationId: animationId,
+        stringId: stringId
+      }
+    );
+  }
+
   reloadInterrupt(client: Client, weaponItem: LoadoutItem) {
     if (!weaponItem || !weaponItem.weapon || !weaponItem.weapon.reloadTimer)
       return;
@@ -5390,7 +5413,8 @@ export class ZoneServer2016 extends EventEmitter {
   dropItem(
     character: BaseFullCharacter,
     item: BaseItem,
-    count: number = 1
+    count: number = 1,
+    animationId: number
   ): void {
     const client = this.getClientByContainerAccessor(character);
 
@@ -5415,6 +5439,7 @@ export class ZoneServer2016 extends EventEmitter {
       itemDefId: item.itemDefinitionId,
       count: count
     });
+    this.startInteractionTimer(client, 0, 0, animationId);
     if (dropItem && dropItem.weapon) {
       const ammo = this.generateItem(
         this.getWeaponAmmoId(dropItem.itemDefinitionId),
@@ -5468,7 +5493,7 @@ export class ZoneServer2016 extends EventEmitter {
     );
 
     client.character.lootItem(this, item);
-
+    this.startInteractionTimer(client, 0, 0, 9);
     if (
       item.itemDefinitionId === Items.FUEL_BIOFUEL ||
       item.itemDefinitionId === Items.FUEL_ETHANOL
@@ -5756,7 +5781,7 @@ export class ZoneServer2016 extends EventEmitter {
     }, 600000);
   }
 
-  useConsumable(client: Client, item: BaseItem) {
+  useConsumable(client: Client, item: BaseItem, animationId: number) {
     const itemDef = this.getItemDefinition(item.itemDefinitionId);
     if (!itemDef) return;
     let doReturn = true;
@@ -5798,7 +5823,7 @@ export class ZoneServer2016 extends EventEmitter {
       return;
     }
 
-    this.utilizeHudTimer(client, itemDef.NAME_ID, timeout, () => {
+    this.utilizeHudTimer(client, itemDef.NAME_ID, timeout, animationId, () => {
       this.useComsumablePass(
         client,
         item,
@@ -5854,7 +5879,7 @@ export class ZoneServer2016 extends EventEmitter {
       );
       return;
     }
-    this.utilizeHudTimer(client, itemDef.NAME_ID, timeout, () => {
+    this.utilizeHudTimer(client, itemDef.NAME_ID, timeout, 0, () => {
       this.igniteoptionPass(client);
     });
   }
@@ -5866,7 +5891,7 @@ export class ZoneServer2016 extends EventEmitter {
     removedItem: BaseItem,
     rewardItems: { itemDefinitionId: number; count: number }[]
   ) {
-    this.utilizeHudTimer(client, nameId, timeout, () => {
+    this.utilizeHudTimer(client, nameId, timeout, 0, () => {
       this.taskOptionPass(client, removedItem, rewardItems);
     });
   }
@@ -5963,7 +5988,7 @@ export class ZoneServer2016 extends EventEmitter {
     );
   }
 
-  useItem(client: Client, item: BaseItem) {
+  useItem(client: Client, item: BaseItem, animationId: number) {
     const itemDef = this.getItemDefinition(item.itemDefinitionId);
     if (!itemDef) return;
     const nameId = itemDef.NAME_ID;
@@ -5997,13 +6022,13 @@ export class ZoneServer2016 extends EventEmitter {
         timeout = 3000;
         break;
       case Items.FERTILIZER:
-        this.utilizeHudTimer(client, nameId, timeout, () => {
+        this.utilizeHudTimer(client, nameId, timeout, animationId, () => {
           this.fertilizePlants(client, item);
         });
       case Items.COLD_MEDICINE:
       case Items.VITAMINS:
       case Items.IMMUNITY_BOOSTERS:
-        this.utilizeHudTimer(client, nameId, timeout, () => {
+        this.utilizeHudTimer(client, nameId, timeout, animationId, () => {
           this.usePills(client, item);
         });
         return;
@@ -6016,12 +6041,12 @@ export class ZoneServer2016 extends EventEmitter {
     }
     switch (useoption) {
       case "fill": // empty bottle
-        this.utilizeHudTimer(client, nameId, timeout, () => {
+        this.utilizeHudTimer(client, nameId, timeout, animationId, () => {
           this.fillPass(client, item);
         });
         break;
       case "sniff": // swizzle
-        this.utilizeHudTimer(client, nameId, timeout, () => {
+        this.utilizeHudTimer(client, nameId, timeout, animationId, () => {
           this.sniffPass(client, item);
         });
         break;
@@ -6030,7 +6055,7 @@ export class ZoneServer2016 extends EventEmitter {
     }
   }
 
-  sliceItem(client: Client, item: BaseItem) {
+  sliceItem(client: Client, item: BaseItem, animationId: number) {
     const itemDef = this.getItemDefinition(item.itemDefinitionId);
     if (!itemDef) return;
     const nameId = itemDef.NAME_ID;
@@ -6054,12 +6079,17 @@ export class ZoneServer2016 extends EventEmitter {
       );
       return;
     }
-    this.utilizeHudTimer(client, nameId, timeout, () => {
+    this.utilizeHudTimer(client, nameId, timeout, animationId, () => {
       this.slicePass(client, item);
     });
   }
 
-  refuelVehicle(client: Client, item: BaseItem, vehicleGuid: string) {
+  refuelVehicle(
+    client: Client,
+    item: BaseItem,
+    vehicleGuid: string,
+    animationId: number
+  ) {
     const itemDef = this.getItemDefinition(item.itemDefinitionId);
     if (!itemDef) return;
     const nameId = itemDef.NAME_ID;
@@ -6084,12 +6114,12 @@ export class ZoneServer2016 extends EventEmitter {
       );
       return;
     }
-    this.utilizeHudTimer(client, nameId, timeout, () => {
+    this.utilizeHudTimer(client, nameId, timeout, animationId, () => {
       this.refuelVehiclePass(client, item, vehicleGuid, fuelValue);
     });
   }
 
-  shredItem(client: Client, item: BaseItem) {
+  shredItem(client: Client, item: BaseItem, animationId: number) {
     const itemDefinition = this.getItemDefinition(item.itemDefinitionId),
       nameId = itemDefinition.NAME_ID,
       itemType = itemDefinition.ITEM_TYPE;
@@ -6106,12 +6136,12 @@ export class ZoneServer2016 extends EventEmitter {
       default:
         this.sendChatText(client, "[ERROR] Unknown salvage item or count.");
     }
-    this.utilizeHudTimer(client, nameId, timeout, () => {
+    this.utilizeHudTimer(client, nameId, timeout, animationId, () => {
       this.shredItemPass(client, item, count);
     });
   }
 
-  salvageAmmo(client: Client, item: BaseItem) {
+  salvageAmmo(client: Client, item: BaseItem, animationId: number) {
     const itemDefinition = this.getItemDefinition(item.itemDefinitionId),
       nameId = itemDefinition.NAME_ID;
     const timeout = 1000;
@@ -6159,7 +6189,7 @@ export class ZoneServer2016 extends EventEmitter {
       item.itemDefinitionId == Items.AMMO_44
         ? 2
         : 1;
-    this.utilizeHudTimer(client, nameId, timeout, () => {
+    this.utilizeHudTimer(client, nameId, timeout, animationId, () => {
       this.salvageItemPass(client, item, count);
     });
   }
@@ -6375,7 +6405,12 @@ export class ZoneServer2016 extends EventEmitter {
     );
   }
 
-  repairOption(client: Client, item: BaseItem, repairItem: BaseItem) {
+  repairOption(
+    client: Client,
+    item: BaseItem,
+    repairItem: BaseItem,
+    animationId: number
+  ) {
     const durability = repairItem.currentDurability;
     if (durability >= 2000) {
       // todo: get max durability from somewhere, do not hard-code
@@ -6397,7 +6432,7 @@ export class ZoneServer2016 extends EventEmitter {
     if (!itemDef) return;
     const nameId = itemDef.NAME_ID;
 
-    this.utilizeHudTimer(client, nameId, 5000, () => {
+    this.utilizeHudTimer(client, nameId, 5000, animationId, () => {
       this.repairOptionPass(client, item, repairItem, durability);
     });
   }
@@ -6961,7 +6996,15 @@ export class ZoneServer2016 extends EventEmitter {
   pUtilizeHudTimer = promisify(this.utilizeHudTimer);
 
   stopHudTimer(client: Client) {
-    this.utilizeHudTimer(client, 0, 0, () => {
+    this.utilizeHudTimer(client, 0, 0, 0, () => {
+      this.sendDataToAllWithSpawnedEntity(
+        this._characters,
+        client.character.characterId,
+        "CharacterState.InteractionStop",
+        {
+          characterId: client.character.characterId
+        }
+      );
       /*/*/
     });
   }
@@ -6970,15 +7013,28 @@ export class ZoneServer2016 extends EventEmitter {
     client: Client,
     nameId: number,
     timeout: number,
+    animationId: number,
     callback: any
   ) {
-    this.startTimer(client, nameId, timeout);
+    if (!animationId) {
+      this.startTimer(client, nameId, timeout);
+    } else {
+      this.startInteractionTimer(client, nameId, timeout, animationId);
+    }
     if (client.hudTimer != null) {
       clearTimeout(client.hudTimer);
     }
     client.posAtTimerStart = client.character.state.position;
     client.hudTimer = setTimeout(() => {
       callback.apply(this);
+      this.sendDataToAllWithSpawnedEntity(
+        this._characters,
+        client.character.characterId,
+        "CharacterState.InteractionStop",
+        {
+          characterId: client.character.characterId
+        }
+      );
     }, timeout);
   }
 
@@ -7345,6 +7401,16 @@ export class ZoneServer2016 extends EventEmitter {
         nameId: indicator.nameId,
         descriptionId: indicator.descriptionId,
         imageSetId: indicator.imageSetId
+      };
+    });
+  }
+
+  initUseOptionsDataSource() {
+    itemUseOptionsDataSource.forEach((useOption: any) => {
+      this._itemUseOptions[useOption.ITEM_USE_OPTION_ID] = {
+        id: useOption.ITEM_USE_OPTION_ID,
+        typeName: useOption.TYPE_NAME,
+        animationId: useOption.INTERACTION_ANIMATION_ID
       };
     });
   }

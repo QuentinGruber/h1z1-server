@@ -3192,7 +3192,6 @@ export const basePackets: PacketStructures = [
       ]
     }
   ],
-  ["CharacterState", 0xd0, {}],
   [
     "AddLightweightPc",
     0xd6,
