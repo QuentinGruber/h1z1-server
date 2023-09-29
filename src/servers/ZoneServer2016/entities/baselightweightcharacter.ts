@@ -11,6 +11,7 @@
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
 
+import { AddLightweightNpc } from "types/zone2016packets";
 import { DamageInfo } from "../../../types/zoneserver";
 import { ZoneServer2016 } from "../zoneserver";
 import { BaseEntity } from "./baseentity";
@@ -127,7 +128,7 @@ export abstract class BaseLightweightCharacter extends BaseEntity {
   /**
    * Gets the lightweight npc/pc packet fields for use in sendself, addlightweightnpc, or addlightweightpc
    */
-  pGetLightweight() {
+  pGetLightweight(): AddLightweightNpc {
     return {
       characterId: this.characterId,
       transientId: this.transientId,

@@ -2460,7 +2460,7 @@ export class ZoneServer2016 extends EventEmitter {
               : 0,
             mountRelatedDword1: vehicle ? 1 : 0,
             flags1: {
-              isAdmin: client.isAdmin
+              isAdmin: client.isAdmin?1:0
             }
           }
         );
@@ -4633,7 +4633,7 @@ export class ZoneServer2016 extends EventEmitter {
     );
     client.isInAir = false;
 
-    if (seatId === "0") {
+    if (!seatId) {
       if (vehicle.engineOn) {
         vehicle.stopEngine(this);
       }
@@ -4703,7 +4703,7 @@ export class ZoneServer2016 extends EventEmitter {
       );
       vehicle.seats[oldSeatId] = "";
       vehicle.seats[packet.data.seatId] = client.character.characterId;
-      if (oldSeatId === "0" && vehicle.engineOn) {
+      if (!oldSeatId && vehicle.engineOn) {
         vehicle.stopEngine(this);
         client.character.dismountContainer(this);
       }

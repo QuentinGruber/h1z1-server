@@ -1125,7 +1125,7 @@ export const commands: Array<Command> = [
       const decoy = {
         characterId: characterId,
         transientId: client.character.transientId,
-        position: new Float32Array(mimic.position),
+        position: mimic.position as Float32Array,
         action: ""
       };
       server._decoys[client.character.transientId] = decoy;

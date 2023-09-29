@@ -939,7 +939,7 @@ export class Vehicle2016 extends BaseLootableEntity {
         characterId: client.character.characterId,
         vehicleGuid: this.characterId, // vehicle guid
         seatId: seatId,
-        isDriver: seatId === "0" ? 1 : 0, //isDriver
+        isDriver: seatId == 0 ? 1 : 0, //isDriver
         identity: {}
       });
       delete this.droppedManagedClient;

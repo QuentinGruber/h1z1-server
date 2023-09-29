@@ -64,7 +64,8 @@ function getSchemaBody(schema: PacketFields) {
         bodyInterfaceString += ":{\n";
         for (const flag of element.flags) {
           bodyInterfaceString += "     ";
-          bodyInterfaceString += `${flag.name}: boolean,\n`;
+          const isOptional = element.defaultValue !== undefined;
+          bodyInterfaceString += `${flag.name}${isOptional?"?":""}: number,\n`;
         }
         bodyInterfaceString += "}";
         bodyInterfaceString += ";\n";
