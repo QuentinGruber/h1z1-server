@@ -12,11 +12,7 @@
 // ======================================================================
 
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import {
-  ClientMute,
-  DamageInfo,
-  EntityDictionary
-} from "types/zoneserver";
+import { ClientMute, DamageInfo, EntityDictionary } from "types/zoneserver";
 
 import {
   zoneShutdown,
@@ -25,7 +21,7 @@ import {
   isPosInRadius,
   toHex,
   randomIntFromInterval,
-  Scheduler,
+  Scheduler
 } from "../../../../utils/utils";
 import { ExplosiveEntity } from "../../entities/explosiveentity";
 import { Npc } from "../../entities/npc";

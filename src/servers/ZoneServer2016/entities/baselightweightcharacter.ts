@@ -134,9 +134,11 @@ export abstract class BaseLightweightCharacter extends BaseEntity {
       transientId: this.transientId,
       actorModelId: this.actorModelId,
       // fix players / vehicles spawning in ground
-      position: new Float32Array(Array.from(this.state.position).map((pos, idx) => {
-        return idx == 1 ? pos++ : pos;
-      })),
+      position: new Float32Array(
+        Array.from(this.state.position).map((pos, idx) => {
+          return idx == 1 ? pos++ : pos;
+        })
+      ),
       rotation: this.state.rotation,
       scale: this.scale,
       positionUpdateType: this.positionUpdateType,

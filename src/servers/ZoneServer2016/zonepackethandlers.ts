@@ -485,8 +485,8 @@ export class ZonePacketHandlers {
     client: Client,
     packet: ReceivedPacket<VehicleCollision>
   ) {
-    const transientId = packet.data.transientId as number || 0,
-    characterId = server._transientIds[transientId],
+    const transientId = (packet.data.transientId as number) || 0,
+      characterId = server._transientIds[transientId],
       vehicle = characterId ? server._vehicles[characterId] : undefined,
       damage = Number((packet.data.damage || 0).toFixed(0));
 
@@ -1004,10 +1004,8 @@ export class ZonePacketHandlers {
       server._airdrop.plane.state.rotation = eul2quat(
         new Float32Array([positionUpdate.orientation, 0, 0, 0])
       );
-      server._airdrop.plane.positionUpdate.frontTilt =
-        positionUpdate.frontTile;
-      server._airdrop.plane.positionUpdate.sideTilt =
-        positionUpdate.sideTilt;
+      server._airdrop.plane.positionUpdate.frontTilt = positionUpdate.frontTile;
+      server._airdrop.plane.positionUpdate.sideTilt = positionUpdate.sideTilt;
       if (
         isPosInRadius(
           150,
@@ -1086,13 +1084,10 @@ export class ZonePacketHandlers {
       ]);
       server._airdrop.cargo.positionUpdate.orientation =
         positionUpdate.orientation;
-      server._airdrop.cargo.positionUpdate.frontTilt =
-        positionUpdate.frontTile;
-      server._airdrop.cargo.positionUpdate.sideTilt =
-        positionUpdate.sideTilt;
+      server._airdrop.cargo.positionUpdate.frontTilt = positionUpdate.frontTile;
+      server._airdrop.cargo.positionUpdate.sideTilt = positionUpdate.sideTilt;
       if (
-        positionUpdate.position[1] <=
-          server._airdrop.destinationPos[1] + 2 &&
+        positionUpdate.position[1] <= server._airdrop.destinationPos[1] + 2 &&
         !server._airdrop.containerSpawned
       ) {
         server._airdrop.containerSpawned = true;
@@ -1106,9 +1101,9 @@ export class ZonePacketHandlers {
         delete server._airdrop;
       }
     }
-    const transientId = packet.data.transientId as number || 0,
-    characterId = server._transientIds[transientId],
-    vehicle = characterId ? server._vehicles[characterId] : undefined;
+    const transientId = (packet.data.transientId as number) || 0,
+      characterId = server._transientIds[transientId],
+      vehicle = characterId ? server._vehicles[characterId] : undefined;
 
     if (!vehicle) {
       const pos = positionUpdate.position;
@@ -1158,10 +1153,8 @@ export class ZonePacketHandlers {
         kick = true;
       }
       if (
-        getDistance1d(
-          vehicle.oldPos.position[1],
-          positionUpdate.position[1]
-        ) > 100
+        getDistance1d(vehicle.oldPos.position[1], positionUpdate.position[1]) >
+        100
       ) {
         kick = true;
         server.kickPlayer(client);
@@ -1945,7 +1938,8 @@ export class ZonePacketHandlers {
       server.sendChatText(client, "Invalid character!");
       return;
     }
-    const animationId = server._itemUseOptions[itemUseOption].animationId;
+    const animationId =
+      server._itemUseOptions[itemUseOption || 0]?.animationId || 0;
     // temporarily block most use options from external containers
     switch (itemUseOption) {
       case ItemUseOptions.LOOT:
@@ -2091,7 +2085,12 @@ export class ZonePacketHandlers {
         server.useItem(client, item, animationId);
         break;
       case ItemUseOptions.REFUEL:
-        server.refuelVehicle(client, item, targetCharacterId || "", animationId);
+        server.refuelVehicle(
+          client,
+          item,
+          targetCharacterId || "",
+          animationId
+        );
         break;
       case ItemUseOptions.IGNITE:
         server.igniteOption(client, item);

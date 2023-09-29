@@ -172,9 +172,11 @@ export class DoorEntity extends BaseLightweightCharacter {
       characterId: this.characterId,
       transientId: this.transientId,
       actorModelId: this.destroyed ? this.destroyedModel : this.actorModelId,
-      position: new Float32Array(Array.from(this.state.position).map((pos, idx) => {
-        return idx == 1 ? pos++ : pos;
-      })),
+      position: new Float32Array(
+        Array.from(this.state.position).map((pos, idx) => {
+          return idx == 1 ? pos++ : pos;
+        })
+      ),
       rotation: this.state.rotation,
       scale: this.scale,
       positionUpdateType: this.positionUpdateType,
