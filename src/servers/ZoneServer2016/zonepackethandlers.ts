@@ -1492,7 +1492,12 @@ export class ZonePacketHandlers {
     }
     const modelId = server.getItemDefinition(
       packet.data.itemDefinitionId
-    ).PLACEMENT_MODEL_ID;
+    )?.PLACEMENT_MODEL_ID;
+    if(!modelId) {
+      console.log(`[ERROR] No PLACEMENT_MODEL_ID for ${packet.data.itemDefinitionId} from characterId ${client.character.characterId}`);
+      server.sendChatText(client, `[ERROR] No PLACEMENT_MODEL_ID for ${packet.data.itemDefinitionId}`);
+      return;
+    }
     server.constructionManager.placement(
       server,
       client,
@@ -1894,7 +1899,7 @@ export class ZonePacketHandlers {
     debug(packet.data);
     const modelId = server.getItemDefinition(
       packet.data.itemDefinitionId
-    ).PLACEMENT_MODEL_ID;
+    )?.PLACEMENT_MODEL_ID;
     if (!modelId) {
       server.sendChatText(
         client,
@@ -1917,7 +1922,9 @@ export class ZonePacketHandlers {
       newSlotId
     } = packet.data;
     const sourceCharacterId = characterId;
-    server.startInteractionTimer(client, 0, 0, 9);
+    if(sourceCharacterId != targetCharacterId) {
+      server.startInteractionTimer(client, 0, 0, 9);
+    }
     if (client.character.mountedContainer) {
       if (
         !isPosInRadiusWithY(

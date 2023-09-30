@@ -208,8 +208,7 @@ export class LootableProp extends BaseLootableEntity {
     if (!client.searchedProps.includes(this)) {
       server.utilizeHudTimer(
         client,
-        server.getItemDefinition(this._containers["31"].itemDefinitionId)
-          .NAME_ID,
+        server.getItemDefinition(this.getContainer()?.itemDefinitionId)?.NAME_ID ?? 0,
         this.searchTime,
         0,
         () => {

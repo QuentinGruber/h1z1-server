@@ -235,8 +235,7 @@ export class WorldObjectManager {
         server.sendCompositeEffectToAllWithSpawnedEntity(
           server._spawnedItems,
           itemObject,
-          server.getItemDefinition(itemObject.item.itemDefinitionId)
-            .PICKUP_EFFECT ?? 5151
+          server.getItemDefinition(itemObject.item.itemDefinitionId)?.PICKUP_EFFECT ?? 5151
         );
       }
     }
@@ -491,7 +490,7 @@ export class WorldObjectManager {
         server._lootableProps[characterId] = obj;
         obj.equipItem(server, server.generateItem(obj.containerId), false);
         obj._containers["31"].canAcceptItems = false;
-        obj.nameId = server.getItemDefinition(obj.containerId).NAME_ID;
+        obj.nameId = server.getItemDefinition(obj.containerId)?.NAME_ID ?? 0;
       });
     });
     Z1_taskProps.forEach((propType: any) => {

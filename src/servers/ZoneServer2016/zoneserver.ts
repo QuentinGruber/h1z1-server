@@ -58,6 +58,7 @@ import {
   DamageRecord,
   FireHint,
   HudIndicator,
+  ItemDefinition,
   Recipe,
   UseOption
 } from "../../types/zoneserver";
@@ -291,7 +292,7 @@ export class ZoneServer2016 extends EventEmitter {
   configManager: ConfigManager;
 
   _ready: boolean = false;
-  _itemDefinitions: { [itemDefinitionId: number]: any } = itemDefinitions;
+  _itemDefinitions: { [itemDefinitionId: number]: ItemDefinition } = itemDefinitions;
   _weaponDefinitions: { [weaponDefinitionId: number]: any } =
     weaponDefinitions.WEAPON_DEFINITIONS;
   _firegroupDefinitions: { [firegroupId: number]: any } =
@@ -930,34 +931,42 @@ export class ZoneServer2016 extends EventEmitter {
   pGetRecipes(): any[] {
     // todo: change to per-character recipe lists
     const recipeKeys = Object.keys(this._recipes);
-    return Object.values(this._recipes).map((recipe, idx) => {
-      const def = this.getItemDefinition(Number(recipeKeys[idx]));
-      return {
-        recipeId: def.ID,
-        itemDefinitionId: def.ID,
-        nameId: def.NAME_ID,
-        iconId: def.IMAGE_SET_ID,
+
+    const recipes: Array<any> = [];
+    let i = 0;
+    for(const recipe of Object.values(this._recipes)) {
+      const recipeDef = this.getItemDefinition(Number(recipeKeys[i]));
+      i++;
+      if(!recipeDef) continue;
+      recipes.push({
+        recipeId: recipeDef.ID,
+        itemDefinitionId: recipeDef.ID,
+        nameId: recipeDef.NAME_ID,
+        iconId: recipeDef.IMAGE_SET_ID,
         unknownDword1: 0, // idk
-        descriptionId: def.DESCRIPTION_ID,
+        descriptionId: recipeDef.DESCRIPTION_ID,
         unknownDword2: 1, // idk
         bundleCount: recipe.bundleCount || 1,
         membersOnly: false, // could be used for admin-only recipes?
         filterId: recipe.filterId,
         components: recipe.components.map((component: any) => {
-          const def = this.getItemDefinition(component.itemDefinitionId);
+          const componentDef = this.getItemDefinition(component.itemDefinitionId);
+          if(!componentDef) return true;
           return {
             unknownDword1: 0, // idk
-            nameId: def.NAME_ID,
-            iconId: def.IMAGE_SET_ID,
+            nameId: componentDef.NAME_ID,
+            iconId: componentDef.IMAGE_SET_ID,
             unknownDword2: 0, // idk
             requiredAmount: component.requiredAmount,
             unknownQword1: "0x0", // idk
             unknownDword3: 0, // idk
-            itemDefinitionId: def.ID
+            itemDefinitionId: componentDef.ID
           };
-        })
-      };
-    });
+        }).filter((component) => component !== true)
+      })
+    }
+
+    return recipes;
   }
 
   async sendCharacterData(client: Client) {
@@ -4853,7 +4862,7 @@ export class ZoneServer2016 extends EventEmitter {
    */
   getWeaponAmmoId(itemDefinitionId: number): number {
     const itemDefinition = this.getItemDefinition(itemDefinitionId),
-      weaponDefinition = this.getWeaponDefinition(itemDefinition?.PARAM1),
+      weaponDefinition = this.getWeaponDefinition(itemDefinition?.PARAM1 || 0),
       firegroupDefinition = this.getFiregroupDefinition(
         weaponDefinition?.FIRE_GROUPS[0]?.FIRE_GROUP_ID
       ),
@@ -4872,7 +4881,7 @@ export class ZoneServer2016 extends EventEmitter {
    */
   getWeaponReloadTime(itemDefinitionId: number): number {
     const itemDefinition = this.getItemDefinition(itemDefinitionId),
-      weaponDefinition = this.getWeaponDefinition(itemDefinition?.PARAM1),
+      weaponDefinition = this.getWeaponDefinition(itemDefinition?.PARAM1 || 0),
       firegroupDefinition = this.getFiregroupDefinition(
         weaponDefinition?.FIRE_GROUPS[0]?.FIRE_GROUP_ID
       ),
@@ -4891,7 +4900,7 @@ export class ZoneServer2016 extends EventEmitter {
    */
   getWeaponClipSize(itemDefinitionId: number): number {
     const itemDefinition = this.getItemDefinition(itemDefinitionId),
-      weaponDefinition = this.getWeaponDefinition(itemDefinition?.PARAM1);
+      weaponDefinition = this.getWeaponDefinition(itemDefinition?.PARAM1 || 0);
 
     return weaponDefinition.AMMO_SLOTS[0]?.CLIP_SIZE || 0;
   }
@@ -4904,7 +4913,7 @@ export class ZoneServer2016 extends EventEmitter {
    */
   getWeaponMaxAmmo(itemDefinitionId: number): number {
     const itemDefinition = this.getItemDefinition(itemDefinitionId),
-      weaponDefinition = this.getWeaponDefinition(itemDefinition?.PARAM1);
+      weaponDefinition = this.getWeaponDefinition(itemDefinition?.PARAM1 || 0);
 
     return weaponDefinition.AMMO_SLOTS[0]?.CLIP_SIZE || 0;
   }
@@ -5052,7 +5061,9 @@ export class ZoneServer2016 extends EventEmitter {
    * @returns {boolean} True if the item is stackable, false otherwise.
    */
   isStackable(itemDefinitionId: number): boolean {
-    return this.getItemDefinition(itemDefinitionId)?.MAX_STACK_SIZE > 1
+    const itemDefinition = this.getItemDefinition(itemDefinitionId);
+    if(!itemDefinition) return false;
+    return itemDefinition.MAX_STACK_SIZE > 1
       ? true
       : false;
   }
@@ -5065,12 +5076,12 @@ export class ZoneServer2016 extends EventEmitter {
    * @returns {boolean} True if the item can be equipped in the slot, false otherwise.
    */
   validateEquipmentSlot(itemDefinitionId: number, equipmentSlotId: number) {
-    // only for weapons at the moment
-    if (!this.getItemDefinition(itemDefinitionId)?.FLAG_CAN_EQUIP) return false;
+    const itemDefinition = this.getItemDefinition(itemDefinitionId);
+    if(!itemDefinition || !itemDefinition.FLAG_CAN_EQUIP) return false;
     return !!equipSlotItemClasses.find(
       (slot: any) =>
         slot.ITEM_CLASS ===
-          this.getItemDefinition(itemDefinitionId).ITEM_CLASS &&
+        itemDefinition.ITEM_CLASS &&
         equipmentSlotId === slot.EQUIP_SLOT_ID
     );
   }
@@ -5088,12 +5099,12 @@ export class ZoneServer2016 extends EventEmitter {
     loadoutSlotId: number,
     loadoutId: number
   ): boolean {
-    //return true; // debug
-    if (!this.getItemDefinition(itemDefinitionId)?.FLAG_CAN_EQUIP) return false;
+    const itemDefinition = this.getItemDefinition(itemDefinitionId);
+    if(!itemDefinition || !itemDefinition.FLAG_CAN_EQUIP) return false;
     return !!loadoutSlotItemClasses.find(
       (slot: any) =>
         slot.ITEM_CLASS ==
-          this.getItemDefinition(itemDefinitionId).ITEM_CLASS &&
+        itemDefinition.ITEM_CLASS &&
         loadoutSlotId == slot.SLOT &&
         slot.LOADOUT_ID == loadoutId
     );
@@ -5107,10 +5118,11 @@ export class ZoneServer2016 extends EventEmitter {
    * @returns {number} Returns the ID of the first loadout slot that an item can go into (occupied or not).
    */
   getLoadoutSlot(itemDefId: number, loadoutId: number = LoadoutIds.CHARACTER) {
-    const itemDef = this.getItemDefinition(itemDefId),
-      loadoutSlotItemClass = loadoutSlotItemClasses.find(
+    const itemDefinition = this.getItemDefinition(itemDefId);
+    if(!itemDefinition) return 0;
+    const loadoutSlotItemClass = loadoutSlotItemClasses.find(
         (slot: any) =>
-          slot.ITEM_CLASS == itemDef.ITEM_CLASS && loadoutId == slot.LOADOUT_ID
+          slot.ITEM_CLASS == itemDefinition.ITEM_CLASS && loadoutId == slot.LOADOUT_ID
       );
     return loadoutSlotItemClass?.SLOT || 0;
   }
@@ -5247,7 +5259,7 @@ export class ZoneServer2016 extends EventEmitter {
       );
     }
     if (client) this.checkConveys(client);
-    if (this.getItemDefinition(itemDefId).ITEM_TYPE === 34) {
+    if (this.getItemDefinition(itemDefId)?.ITEM_TYPE === 34) {
       delete character._containers[loadoutSlotId];
       if (client) this.initializeContainerList(client);
     }
@@ -5486,7 +5498,7 @@ export class ZoneServer2016 extends EventEmitter {
     this.sendCompositeEffectToAllWithSpawnedEntity(
       this._spawnedItems,
       object,
-      this.getItemDefinition(item.itemDefinitionId).PICKUP_EFFECT ?? 5151
+      this.getItemDefinition(item.itemDefinitionId)?.PICKUP_EFFECT ?? 5151
     );
 
     client.character.lootItem(this, item);
@@ -5574,7 +5586,7 @@ export class ZoneServer2016 extends EventEmitter {
     if (sendUpdate && client.character.initialized) {
       this.sendData(client, "Reward.AddNonRewardItem", {
         itemDefId: itemDefId,
-        iconId: this.getItemDefinition(itemDefId).IMAGE_SET_ID,
+        iconId: this.getItemDefinition(itemDefId)?.IMAGE_SET_ID ?? 0,
         count: item.stackCount
       });
     }
@@ -6117,8 +6129,9 @@ export class ZoneServer2016 extends EventEmitter {
   }
 
   shredItem(client: Client, item: BaseItem, animationId: number) {
-    const itemDefinition = this.getItemDefinition(item.itemDefinitionId),
-      nameId = itemDefinition.NAME_ID,
+    const itemDefinition = this.getItemDefinition(item.itemDefinitionId);
+    if(!itemDefinition) return;
+    const nameId = itemDefinition.NAME_ID,
       itemType = itemDefinition.ITEM_TYPE;
     let count = 1;
     const timeout = 3000;
@@ -6139,8 +6152,9 @@ export class ZoneServer2016 extends EventEmitter {
   }
 
   salvageAmmo(client: Client, item: BaseItem, animationId: number) {
-    const itemDefinition = this.getItemDefinition(item.itemDefinitionId),
-      nameId = itemDefinition.NAME_ID;
+    const itemDefinition = this.getItemDefinition(item.itemDefinitionId)
+    if(!itemDefinition) return;
+    const nameId = itemDefinition.NAME_ID;
     const timeout = 1000;
     const allowedItems = [
       Items.AMMO_12GA,
@@ -7176,12 +7190,13 @@ export class ZoneServer2016 extends EventEmitter {
         const item = client.character.getInventoryItem(
           character._equipment["5"].guid
         );
-        if (!item) return;
-        const itemDef = this.getItemDefinition(item.itemDefinitionId);
-        if (itemDef.DESCRIPTION_ID == 11895 && !character.hasConveys) {
+        const itemDefinition = this.getItemDefinition(item?.itemDefinitionId ?? 0);
+        if (!item || !itemDefinition) return;
+        
+        if (itemDefinition.DESCRIPTION_ID == 11895 && !character.hasConveys) {
           character.hasConveys = true;
           this.multiplyMovementModifier(client, MovementModifiers.BOOTS);
-        } else if (itemDef.DESCRIPTION_ID != 11895 && character.hasConveys) {
+        } else if (itemDefinition.DESCRIPTION_ID != 11895 && character.hasConveys) {
           character.hasConveys = false;
           this.divideMovementModifier(client, MovementModifiers.BOOTS);
         }

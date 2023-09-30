@@ -223,6 +223,7 @@ export abstract class BaseFullCharacter extends BaseLightweightCharacter {
   ) {
     if (!item || !item.isValid("equipItem")) return;
     const def = server.getItemDefinition(item.itemDefinitionId);
+    if(!def) return;
     if (loadoutSlotId) {
       if (
         !server.validateLoadoutSlot(
@@ -337,6 +338,7 @@ export abstract class BaseFullCharacter extends BaseLightweightCharacter {
     for (const slot of Object.values(this._loadout)) {
       if (!slot.itemDefinitionId) continue;
       const def = server.getItemDefinition(slot.itemDefinitionId);
+      if(!def) continue;
       let equipmentSlotId = def.PASSIVE_EQUIP_SLOT_ID; // default for any equipment
       if (server.isWeapon(slot.itemDefinitionId)) {
         if (slot.slotId == this.currentLoadoutSlot) {
@@ -381,7 +383,7 @@ export abstract class BaseFullCharacter extends BaseLightweightCharacter {
       if (client && client.character.initialized && sendUpdate) {
         server.sendData(client, "Reward.AddNonRewardItem", {
           itemDefId: itemDefId,
-          iconId: server.getItemDefinition(itemDefId).IMAGE_SET_ID,
+          iconId: server.getItemDefinition(itemDefId)?.IMAGE_SET_ID,
           count: count
         });
       }
@@ -413,7 +415,7 @@ export abstract class BaseFullCharacter extends BaseLightweightCharacter {
       if (client && client.character.initialized) {
         server.sendData(client, "Reward.AddNonRewardItem", {
           itemDefId: itemDefId,
-          iconId: server.getItemDefinition(itemDefId).IMAGE_SET_ID,
+          iconId: server.getItemDefinition(itemDefId)?.IMAGE_SET_ID,
           count: count
         });
       }
@@ -530,7 +532,7 @@ export abstract class BaseFullCharacter extends BaseLightweightCharacter {
         if (array.includes(c)) return;
         array.push(c);
         const availableSpace = c.getAvailableBulk(server),
-          itemBulk = server.getItemDefinition(item.itemDefinitionId).BULK;
+          itemBulk = server.getItemDefinition(item.itemDefinitionId)?.BULK ?? 1;
         let lootCount = Math.floor(availableSpace / itemBulk);
         if (lootCount) {
           if (lootCount > item.stackCount) {
@@ -572,7 +574,7 @@ export abstract class BaseFullCharacter extends BaseLightweightCharacter {
       if (sendUpdate && client.character.initialized) {
         server.sendData(client, "Reward.AddNonRewardItem", {
           itemDefId: itemDefId,
-          iconId: server.getItemDefinition(itemDefId).IMAGE_SET_ID,
+          iconId: server.getItemDefinition(itemDefId)?.IMAGE_SET_ID,
           count: count
         });
       }
@@ -831,12 +833,12 @@ export abstract class BaseFullCharacter extends BaseLightweightCharacter {
     const itemDef = server.getItemDefinition(itemDefId),
       loadoutSlotItemClass = loadoutSlotItemClasses.find(
         (slot: any) =>
-          slot.ITEM_CLASS == itemDef.ITEM_CLASS &&
+          slot.ITEM_CLASS == itemDef?.ITEM_CLASS &&
           this.loadoutId == slot.LOADOUT_ID
       );
     let slot = loadoutSlotItemClass?.SLOT;
     if (!slot) return 0;
-    switch (itemDef.ITEM_CLASS) {
+    switch (itemDef?.ITEM_CLASS) {
       case ItemClasses.WEAPONS_LONG:
       case ItemClasses.WEAPONS_PISTOL:
       case ItemClasses.WEAPONS_MELEES:
@@ -906,7 +908,7 @@ export abstract class BaseFullCharacter extends BaseLightweightCharacter {
       if (
         container &&
         (container.getMaxBulk(server) == 0 ||
-          container.getAvailableBulk(server) >= itemDef.BULK * count)
+          container.getAvailableBulk(server) >= (itemDef?.BULK ?? 1) * count)
       ) {
         return container;
       }
@@ -943,7 +945,7 @@ export abstract class BaseFullCharacter extends BaseLightweightCharacter {
           firegroups: [
             {
               firegroupId: server.getWeaponDefinition(
-                server.getItemDefinition(slot.itemDefinitionId).PARAM1
+                server.getItemDefinition(slot.itemDefinitionId)?.PARAM1 ?? 0
               )?.FIRE_GROUPS[0]?.FIRE_GROUP_ID,
               unknownArray1: [
                 // maybe firemodes?
@@ -1169,7 +1171,7 @@ export abstract class BaseFullCharacter extends BaseLightweightCharacter {
     return (
       slot.itemDefinitionId >= 0 &&
       itemDef.ITEM_CLASS == 25000 &&
-      itemDef.IS_ARMOR
+      !!itemDef.IS_ARMOR
     );
   }
 

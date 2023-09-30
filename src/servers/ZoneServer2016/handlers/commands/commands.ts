@@ -1386,11 +1386,17 @@ export const commands: Array<Command> = [
     execute: (server: ZoneServer2016, client: Client, args: Array<string>) => {
       server.sendChatText(client, "Disabled for now.");
       /*
+      client.character.equipItem(
+        server,
+        server.generateItem(Items.FANNY_PACK_DEV)
+      );
       server.sendChatText(client, "Adding 1x of all items to inventory.");
       for (const itemDef of Object.values(server._itemDefinitions)) {
-        server.lootItem(client, server.generateItem(itemDef.ID));
+        client.character.lootItem(server, server.generateItem(itemDef.ID));
+        Scheduler.yield();
       }
       */
+      
     }
   },
   {
@@ -1876,7 +1882,7 @@ export const commands: Array<Command> = [
       let counter = 1;
       for (const a in server._constructionFoundations) {
         const foundation = server._constructionFoundations[a];
-        const name = server.getItemDefinition(foundation.itemDefinitionId).NAME;
+        const name = server.getItemDefinition(foundation.itemDefinitionId)?.NAME;
         if (
           foundation.ownerCharacterId === targetClient.character.characterId
         ) {
@@ -1936,7 +1942,7 @@ export const commands: Array<Command> = [
       server.sendChatText(client, `LOADOUT:`);
       Object.values(targetClient.character._loadout).forEach(
         (item: LoadoutItem) => {
-          const name = server.getItemDefinition(item.itemDefinitionId).NAME;
+          const name = server.getItemDefinition(item?.itemDefinitionId)?.NAME;
           counter++;
           server.sendChatText(
             client,
@@ -1954,7 +1960,7 @@ export const commands: Array<Command> = [
           server.sendChatText(client, " ");
           const containerName = server.getItemDefinition(
             container.itemDefinitionId
-          ).NAME;
+          )?.NAME;
           server.sendChatText(
             client,
             `${
@@ -1966,8 +1972,8 @@ export const commands: Array<Command> = [
           Object.values(container.items).forEach((item: BaseItem) => {
             counter++;
             const itemName = server.getItemDefinition(
-              item.itemDefinitionId
-            ).NAME;
+              item?.itemDefinitionId
+            )?.NAME;
             server.sendChatText(
               client,
               `${counter}. ${

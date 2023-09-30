@@ -545,7 +545,7 @@ export class FairPlayManager {
           } | speed: (${speed.toFixed(
             0
           )} / ${minSpeed}:${maxSpeed}) | ${distance.toFixed(2)}m | ${
-            server.getItemDefinition(weaponItem.itemDefinitionId).NAME
+            server.getItemDefinition(weaponItem.itemDefinitionId)?.NAME
           } | ${hitReport.hitLocation}`,
           false
         );

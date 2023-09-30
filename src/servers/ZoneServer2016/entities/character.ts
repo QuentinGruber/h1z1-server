@@ -568,7 +568,7 @@ export class Character2016 extends BaseFullCharacter {
 
   pGetRemoteWeaponData(server: ZoneServer2016, item: BaseItem) {
     const itemDefinition = server.getItemDefinition(item.itemDefinitionId),
-      weaponDefinition = server.getWeaponDefinition(itemDefinition.PARAM1),
+      weaponDefinition = server.getWeaponDefinition(itemDefinition?.PARAM1 ?? 0),
       firegroups: Array<any> = weaponDefinition.FIRE_GROUPS || [];
     return {
       weaponDefinitionId: weaponDefinition.ID,
@@ -599,7 +599,7 @@ export class Character2016 extends BaseFullCharacter {
 
   pGetRemoteWeaponExtraData(server: ZoneServer2016, item: BaseItem) {
     const itemDefinition = server.getItemDefinition(item.itemDefinitionId),
-      weaponDefinition = server.getWeaponDefinition(itemDefinition.PARAM1),
+      weaponDefinition = server.getWeaponDefinition(itemDefinition?.PARAM1 ?? 0),
       firegroups = weaponDefinition.FIRE_GROUPS;
     return {
       guid: item.itemGuid,
