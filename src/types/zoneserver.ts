@@ -364,6 +364,12 @@ export interface HudIndicator {
 	imageSetId: number,
 }
 
+export interface clientEffect {
+	id: number;
+	typeName: string;
+	animationName: string
+}
+
 export interface characterIndicatorData {
 	typeName: string;
 	expirationTime: number;

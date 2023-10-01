@@ -107,6 +107,22 @@ export class AbilitiesManager {
     });
   }
   processAddEffectPacket(server: ZoneServer2016, client: Client, packet: any) {
+    const clientEffect =
+      server._clientEffectsData[packet.data.unknownData1.unknownDword3];
+    if (clientEffect.typeName == "RequestAnimation") {
+      const animationName = clientEffect.animationName;
+      server.sendDataToAllOthersWithSpawnedEntity(
+        server._characters,
+        client,
+        client.character.characterId,
+        "Character.PlayAnimation",
+        {
+          characterId: client.character.characterId,
+          animationName: animationName
+        }
+      );
+      return;
+    }
     const effectId = packet.data.unknownData1.unknownDword2;
     let vehicle: Vehicle2016 | undefined;
     switch (effectId) {

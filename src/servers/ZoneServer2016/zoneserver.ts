@@ -55,6 +55,7 @@ import { WeatherManager } from "./managers/weathermanager";
 
 import {
   ClientBan,
+  clientEffect,
   ConstructionEntity,
   DamageInfo,
   DamageRecord,
@@ -182,6 +183,7 @@ const spawnLocations2 = require("../../../data/2016/zoneData/Z1_gridSpawns.json"
   resourceDefinitions = require("../../../data/2016/dataSources/Resources"),
   Z1_POIs = require("../../../data/2016/zoneData/Z1_POIs"),
   hudIndicators = require("../../../data/2016/dataSources/HudIndicators"),
+  clientEffectsDataSource = require("../../../data/2016/dataSources/ClientEffects.json"),
   equipmentModelTexturesMapping: Record<
     string,
     Record<string, string[]>
@@ -231,6 +233,7 @@ export class ZoneServer2016 extends EventEmitter {
   _destroyables: { [characterId: string]: Destroyable } = {};
   _destroyableDTOlist: number[] = [];
   _hudIndicators: { [indicatorId: string]: HudIndicator } = {};
+  _clientEffectsData: { [effectId: number]: clientEffect } = {};
   _decoys: {
     [transientId: number]: {
       characterId: string;
@@ -1382,6 +1385,7 @@ export class ZoneServer2016 extends EventEmitter {
       this.worldRoutineRate
     );
     this.initHudIndicatorDataSource();
+    this.initClientEffectsDataSource();
     this.hookManager.checkHook("OnServerReady");
   }
 
@@ -6537,9 +6541,6 @@ export class ZoneServer2016 extends EventEmitter {
     firestate: number
   ) {
     // melee workaround
-    if (this.handleMeleeHit(client, weaponItem)) {
-      return;
-    }
 
     if (firestate == 64) {
       // empty firestate
@@ -7432,6 +7433,16 @@ export class ZoneServer2016 extends EventEmitter {
         nameId: indicator.nameId,
         descriptionId: indicator.descriptionId,
         imageSetId: indicator.imageSetId
+      };
+    });
+  }
+
+  initClientEffectsDataSource() {
+    clientEffectsDataSource.forEach((clientEffect: any) => {
+      this._clientEffectsData[clientEffect.SERVER_EFFECT_ID] = {
+        id: clientEffect.ABILITY_ID,
+        typeName: clientEffect.TYPE_NAME,
+        animationName: clientEffect.STRING1
       };
     });
   }

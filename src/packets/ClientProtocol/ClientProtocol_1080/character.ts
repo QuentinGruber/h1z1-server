@@ -10,6 +10,7 @@
 //
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
+import { pack2ByteLengthString } from "../../../packets/ClientProtocol/ClientProtocol_1080/shared";
 import { PacketStructures } from "types/packetStructure";
 
 export const characterPackets: PacketStructures = [
@@ -32,7 +33,32 @@ export const characterPackets: PacketStructures = [
   ],
   ["Character.Knockback", 0x0f02, {}],
   ["Character.UpdateHitpoints", 0x0f03, {}],
-  ["Character.PlayAnimation", 0x0f04, {}],
+  [
+    "Character.PlayAnimation",
+    0x0f04,
+    {
+      fields: [
+        {
+          name: "characterId",
+          type: "uint64string",
+          defaultValue: "0x0000000000000000"
+        },
+        {
+          name: "animationName",
+          type: "custom",
+          parser: pack2ByteLengthString,
+          packer: pack2ByteLengthString
+        },
+        { name: "unm4", type: "uint8", defaultValue: 0 },
+        { name: "unknownDword1", type: "uint32", defaultValue: 1430 },
+        { name: "unknownByte1", type: "uint8", defaultValue: 0 },
+        { name: "unknownDword2", type: "uint32", defaultValue: 1430 },
+        { name: "unkWord2", type: "uint16", defaultValue: 0 },
+        { name: "unknownByte1xda", type: "uint8", defaultValue: 0 },
+        { name: "unknownDword3", type: "uint32", defaultValue: 1430 }
+      ]
+    }
+  ],
   [
     "Character.UpdateScale",
     0x0f05,
