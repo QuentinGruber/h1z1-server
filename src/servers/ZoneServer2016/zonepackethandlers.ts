@@ -194,6 +194,10 @@ export class ZonePacketHandlers {
   ClientFinishedLoading(server: ZoneServer2016, client: Client, packet: any) {
     if (!server.hookManager.checkHook("OnClientFinishedLoading", client))
       return;
+    const abilityId = server.getItemDefinition(
+      client.character.getEquippedWeapon()?.itemDefinitionId
+    ).ACTIVATABLE_ABILITY_ID;
+    server.deactivateAbility(client, abilityId);
     server.tempGodMode(client, 15000);
     client.currentPOI = 0; // clears currentPOI for POIManager
     server.sendGameTimeSync(client);
@@ -1604,7 +1608,7 @@ export class ZonePacketHandlers {
       server.sendChatText(client, "Invalid character!");
       return;
     }
-
+    const animationId = server._itemUseOptions[itemUseOption].animationId;
     // temporarily block most use options from external containers
     switch (itemUseOption) {
       case ItemUseOptions.LOOT:
@@ -1669,14 +1673,14 @@ export class ZonePacketHandlers {
       case ItemUseOptions.DROP:
       case ItemUseOptions.DROP_BATTERY:
       case ItemUseOptions.DROP_SPARKS:
-        server.dropItem(character, item, count);
+        server.dropItem(character, item, count, animationId);
         if (character instanceof BaseLootableEntity) {
           // remount container to keep items from changing slotIds
           client.character.mountContainer(server, character);
         }
         break;
       case ItemUseOptions.SLICE:
-        server.sliceItem(client, item);
+        server.sliceItem(client, item, animationId);
         break;
       case ItemUseOptions.EQUIP:
         const activeSlotId = client.character.getActiveLoadoutSlot(itemGuid);
@@ -1736,21 +1740,21 @@ export class ZonePacketHandlers {
         }
         break;
       case ItemUseOptions.SHRED:
-        server.shredItem(client, item);
+        server.shredItem(client, item, animationId);
         break;
       case ItemUseOptions.DRINK:
       case ItemUseOptions.EAT:
       case ItemUseOptions.USE_MEDICAL:
-        server.useConsumable(client, item);
+        server.useConsumable(client, item, animationId);
         break;
       case ItemUseOptions.USE_AIRDROP:
         server.useAirdrop(client, item);
         break;
       case ItemUseOptions.USE:
-        server.useItem(client, item);
+        server.useItem(client, item, animationId);
         break;
       case ItemUseOptions.REFUEL:
-        server.refuelVehicle(client, item, targetCharacterId);
+        server.refuelVehicle(client, item, targetCharacterId, animationId);
         break;
       case ItemUseOptions.IGNITE:
         server.igniteOption(client, item);
@@ -1765,7 +1769,7 @@ export class ZonePacketHandlers {
         }
         break;
       case ItemUseOptions.SALVAGE:
-        server.salvageAmmo(client, item);
+        server.salvageAmmo(client, item, animationId);
         break;
       case ItemUseOptions.LOOT:
         const containerEnt = client.character.mountedContainer,
@@ -1811,6 +1815,7 @@ export class ZonePacketHandlers {
         }
 
         sourceContainer.transferItem(server, targetContainer, item, 0, count);
+        server.startInteractionTimer(client, 0, 0, 9);
         break;
 
       case ItemUseOptions.LOOT_BATTERY:
@@ -1873,7 +1878,7 @@ export class ZonePacketHandlers {
           server.sendChatText(client, "[ERROR] Invalid weapon");
           return;
         }
-        server.repairOption(client, item, repairItem);
+        server.repairOption(client, item, repairItem, animationId);
         break;
       default:
         server.sendChatText(
@@ -1913,6 +1918,7 @@ export class ZonePacketHandlers {
       newSlotId
     } = packet.data;
     const sourceCharacterId = characterId;
+    server.startInteractionTimer(client, 0, 0, 9);
     if (client.character.mountedContainer) {
       if (
         !isPosInRadiusWithY(

@@ -356,12 +356,24 @@ export interface ZoneSpeedTreeData {
 	position: Float32Array
 }
 
+export interface UseOption {
+	id: number;
+	typeName: string;
+	animationId: number
+}
+
 export interface HudIndicator {
 	id: number;
 	typeName: string;
 	nameId: number,
 	descriptionId: number,
 	imageSetId: number,
+}
+
+export interface clientEffect {
+	id: number;
+	typeName: string;
+	animationName: string
 }
 
 export interface characterIndicatorData {
