@@ -6536,11 +6536,6 @@ export class ZoneServer2016 extends EventEmitter {
     weaponItem: LoadoutItem,
     firestate: number
   ) {
-    // melee workaround
-    if (this.handleMeleeHit(client, weaponItem)) {
-      return;
-    }
-
     if (firestate == 64) {
       // empty firestate
       this.sendRemoteWeaponUpdateDataToAllOthers(
@@ -6820,16 +6815,18 @@ export class ZoneServer2016 extends EventEmitter {
   ): boolean {
     if (!(entity instanceof Vehicle2016)) return true;
 
-    if (client.character.meleeBlocked()) {
+    if (client.character.meleeBlocked(200)) {
       return true;
     }
 
+    /*
     this.sendCompositeEffectToAllInRange(
       15,
       client.character.characterId,
       entity.state.position,
       1605
     );
+    */
 
     if (entity._resources[ResourceIds.CONDITION] < 100000) {
       entity.damage(this, { entity: "", damage: -5000 });
@@ -6845,18 +6842,20 @@ export class ZoneServer2016 extends EventEmitter {
     entity: BaseEntity
   ): boolean {
     if (!(entity instanceof LootableProp)) return true;
-    if (client.character.meleeBlocked()) return true;
+    if (client.character.meleeBlocked(200)) return true;
 
     switch (entity.lootSpawner) {
       case "Wrecked Van":
       case "Wrecked Car":
       case "Wrecked Truck":
+        /*
         this.sendCompositeEffectToAllInRange(
           15,
           client.character.characterId,
           entity.state.position,
           1605
         );
+        */
         if (randomIntFromInterval(0, 100) <= 20) {
           client.character.lootItem(this, this.generateItem(Items.METAL_SCRAP));
           this.damageItem(client, weaponItem, 25);
@@ -6909,12 +6908,15 @@ export class ZoneServer2016 extends EventEmitter {
       return true;
     }
 
+    /*
     this.sendCompositeEffectToAllInRange(
       15,
       client.character.characterId,
       construction.state.position,
       1667
     );
+    */
+
     const damageInfo: DamageInfo = {
       entity: "Server.DemoHammer",
       damage: 250000
@@ -6956,7 +6958,7 @@ export class ZoneServer2016 extends EventEmitter {
     entity: BaseEntity
   ): boolean {
     if (!(entity instanceof Crate)) return false;
-    if (client.character.meleeBlocked(500)) return true;
+    if (client.character.meleeBlocked(350)) return true;
 
     if (
       entity.spawnTimestamp >= Date.now() ||
@@ -6964,13 +6966,6 @@ export class ZoneServer2016 extends EventEmitter {
     ) {
       return true;
     }
-
-    this.sendCompositeEffectToAllInRange(
-      15,
-      client.character.characterId,
-      entity.state.position,
-      1667
-    );
     const damageInfo: DamageInfo = {
       entity: "Server.WorkAroundMelee",
       damage: 1250
@@ -6987,7 +6982,7 @@ export class ZoneServer2016 extends EventEmitter {
     entity: BaseEntity
   ): boolean {
     if (!(entity instanceof Destroyable)) return false;
-    if (client.character.meleeBlocked(500)) return true;
+    if (client.character.meleeBlocked(350)) return true;
 
     if (
       !entity.destroyedModel ||
@@ -7001,12 +6996,16 @@ export class ZoneServer2016 extends EventEmitter {
       return true;
     }
 
+
+    /*
     this.sendCompositeEffectToAllInRange(
       15,
       client.character.characterId,
       entity.state.position,
       1663
     );
+    */
+   
     const damageInfo: DamageInfo = {
       entity: "Server.WorkAroundMelee",
       damage: 700

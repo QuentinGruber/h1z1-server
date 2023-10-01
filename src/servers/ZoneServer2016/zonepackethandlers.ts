@@ -2470,6 +2470,10 @@ export class ZonePacketHandlers {
         break;
       case "Weapon.MeleeHitMaterial":
         debug("MeleeHitMaterial");
+        // todo
+        if (server.handleMeleeHit(client, weaponItem)) {
+          return;
+        }
         break;
       case "Weapon.AimBlockedNotify":
         server.sendRemoteWeaponUpdateDataToAllOthers(
