@@ -5223,6 +5223,10 @@ export class ZoneServer2016 extends EventEmitter {
     );
     if (loadoutItem.weapon) loadoutItem.weapon.currentReloadCount = 0;
     if (this.isWeapon(loadoutItem.itemDefinitionId)) {
+      const abilityId = this.getItemDefinition(
+        loadoutItem.itemDefinitionId
+      ).ACTIVATABLE_ABILITY_ID;
+      this.deactivateAbility(client, abilityId);
       this.sendRemoteWeaponUpdateDataToAllOthers(
         client,
         client.character.transientId,
@@ -7499,7 +7503,7 @@ export class ZoneServer2016 extends EventEmitter {
         id: clientEffect.ABILITY_ID,
         typeName: clientEffect.TYPE_NAME,
         animationName: clientEffect.STRING1
-        };
+      };
     });
   }
   initUseOptionsDataSource() {

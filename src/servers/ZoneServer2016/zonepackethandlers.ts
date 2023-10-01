@@ -194,6 +194,10 @@ export class ZonePacketHandlers {
   ClientFinishedLoading(server: ZoneServer2016, client: Client, packet: any) {
     if (!server.hookManager.checkHook("OnClientFinishedLoading", client))
       return;
+    const abilityId = server.getItemDefinition(
+      client.character.getEquippedWeapon()?.itemDefinitionId
+    ).ACTIVATABLE_ABILITY_ID;
+    server.deactivateAbility(client, abilityId);
     server.tempGodMode(client, 15000);
     client.currentPOI = 0; // clears currentPOI for POIManager
     server.sendGameTimeSync(client);
