@@ -188,6 +188,52 @@ export function readAbilityInitData(data: Buffer, offset: number) {
   }
 }
 
+export function packAbilityInitData(obj: any) {
+    let data = obj["unknownByte1"] == 128 ? Buffer.allocUnsafe(62) : Buffer.allocUnsafe(2);
+    let offset = 0;
+    data.writeUint8(obj["unknownByte1"], offset)
+    offset += 1;
+    data.writeUint8(obj["unknownByte2"], offset)
+    offset += 1;
+
+    if (obj["unknownByte1"] == 128) {
+        data.writeUint32LE(obj["unknownDword8"], offset)
+        offset += 4;
+        data.writeUInt32LE(obj["unknownDword9"], offset);
+        offset += 4;
+        data.writeUInt32LE(obj["unknownDword10"], offset);
+        offset += 4;
+        data.writeUInt32LE(obj["unknownDword11"], offset);
+        offset += 4;
+        data.writeUInt32LE(obj["unknownDword12"], offset);
+        offset += 4;
+        data.writeUInt32LE(obj["unknownDword13"], offset);
+        offset += 4;
+        data.writeUInt32LE(obj["unknownDword14"], offset);
+        offset += 4;
+        data.writeFloatLE(obj["targetPosition"][0], offset)
+        offset += 4;
+        data.writeFloatLE(obj["targetPosition"][1], offset)
+        offset += 4;
+        data.writeFloatLE(obj["targetPosition"][2], offset)
+        offset += 4;
+        data.writeFloatLE(obj["targetPosition"][3], offset)
+        offset += 4;
+        data.writeUInt32LE(obj["unknownDword15"], offset);
+        offset += 4;
+        data.writeUInt32LE(obj["unknownDword16"], offset);
+        offset += 4;
+        data.writeUInt32LE(obj["stringLength"], offset);
+        offset += 4;
+        const stringBytes = Buffer.from(obj["hitLocation"], 'utf-8')
+        data = Buffer.concat([data, stringBytes]);
+        offset += obj["stringLength"];
+        return data;
+    } else {
+       return data
+    }
+}
+
 export function readAbilityUpdateData(data: Buffer, offset: number) {
   const obj: any = {},
     startOffset = offset;
