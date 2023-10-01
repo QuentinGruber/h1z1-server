@@ -961,6 +961,16 @@ export class Character2016 extends BaseFullCharacter {
     return this.lastMeleeHitTime + delay >= Date.now();
   }
 
+  checkCurrentInteractionGuid() {
+    // mainly for melee workaround (3s timeout)
+    if (
+      this.currentInteractionGuid &&
+      this.lastInteractionStringTime + 1000 <= Date.now()
+    ) {
+      this.currentInteractionGuid = "";
+    }
+  }
+
   pGetEquipmentSlotFull(slotId: number, groupId?: number) {
     const slot = this._equipment[slotId];
     return slot

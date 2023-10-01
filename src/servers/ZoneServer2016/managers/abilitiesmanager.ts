@@ -21,6 +21,7 @@ import { ZoneClient2016 as Client } from "../classes/zoneclient";
 import { ZoneServer2016 } from "../zoneserver";
 import { Vehicle2016 } from "../entities/vehicle";
 import { BaseLightweightCharacter } from "../entities/baselightweightcharacter";
+import { BaseEntity } from "../entities/baseentity";
 const //abilities = require("../../../../data/2016/dataSources/Abilities.json"),
   vehicleAbilities = require("../../../../data/2016/dataSources/VehicleAbilities.json");
 
@@ -106,6 +107,19 @@ export class AbilitiesManager {
       unknownDword1: 12
     });
   }
+
+  processAbilityUpdate(
+    server: ZoneServer2016,
+    client: Client,
+    packet: any,
+    entity: BaseEntity
+  ) {
+    client.character.checkCurrentInteractionGuid();
+    const weaponItem = client.character.getEquippedWeapon();
+    if (!weaponItem || !weaponItem.weapon) return;
+    server.handleMeleeHit(client, entity, weaponItem);
+  }
+
   processAddEffectPacket(server: ZoneServer2016, client: Client, packet: any) {
     const clientEffect =
       server._clientEffectsData[packet.data.unknownData1.unknownDword3];

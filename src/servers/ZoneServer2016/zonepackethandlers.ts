@@ -1170,14 +1170,7 @@ export class ZonePacketHandlers {
         }
       }
 
-      // mainly for melee workaround (3s timeout)
-      if (
-        client.character.currentInteractionGuid &&
-        client.character.lastInteractionStringTime + 3000 > Date.now()
-      ) {
-        client.character.currentInteractionGuid = "";
-        client.character.lastInteractionStringTime = 0;
-      }
+      client.character.checkCurrentInteractionGuid();
 
       // for door locks (1m timeout)
       if (
@@ -1421,6 +1414,7 @@ export class ZonePacketHandlers {
     if (!entity) return;
     if (entity instanceof Crate) {
       client.character.currentInteractionGuid = packet.data.guid;
+      client.character.lastInteractionStringTime = Date.now();
       return;
     }
     const isConstruction =
@@ -2477,9 +2471,12 @@ export class ZonePacketHandlers {
       case "Weapon.MeleeHitMaterial":
         debug("MeleeHitMaterial");
         // todo
+        /*
         if (server.handleMeleeHit(client, weaponItem)) {
           return;
         }
+        */
+        // maybe handle melee damage here?
         break;
       case "Weapon.AimBlockedNotify":
         server.sendRemoteWeaponUpdateDataToAllOthers(
@@ -2606,14 +2603,34 @@ export class ZonePacketHandlers {
   AbilitiesUninitAbility(server: ZoneServer2016, client: Client, packet: any) {
     if (!client.vehicle.mountedVehicle) return;
     const vehicle = server._vehicles[client.vehicle.mountedVehicle];
-    if (vehicle) {
-      server.abilitiesManager.processAbilityUninit(
-        server,
-        client,
-        vehicle,
-        packet.data
-      );
-    }
+    if (!vehicle) return;
+    server.abilitiesManager.processAbilityUninit(
+      server,
+      client,
+      vehicle,
+      packet.data
+    );
+  }
+  AbilitiesUpdateAbility(server: ZoneServer2016, client: Client, packet: any) {
+    /*
+      AbilityUpdate is sent twice for each melee hit, once as soon as you click,
+      and a second time on the actual hit. hitLocation is only in the first packet,
+      so it's ignored for now so the melee hit can be processed when the melee actually
+      collides with an object. -Meme
+    */
+    if(packet.data.abilityData.hitLocation) return;
+
+    const entity = server.getEntity(packet.data.targetCharacterId ?? "") ??
+    server.getEntity(client.character.currentInteractionGuid);
+
+    if(!entity) return;
+
+    server.abilitiesManager.processAbilityUpdate(
+      server,
+      client,
+      packet.data,
+      entity
+    );
   }
   //#endregion
 
@@ -2838,6 +2855,9 @@ export class ZonePacketHandlers {
         break;
       case "Abilities.UninitAbility":
         this.AbilitiesUninitAbility(server, client, packet);
+        break;
+      case "Abilities.UpdateAbility":
+        this.AbilitiesUpdateAbility(server, client, packet);
         break;
       default:
         debug(packet);

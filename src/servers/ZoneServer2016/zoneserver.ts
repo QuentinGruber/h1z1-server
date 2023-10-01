@@ -7060,10 +7060,7 @@ export class ZoneServer2016 extends EventEmitter {
   }
 
   // using workaround logic for now
-  handleMeleeHit(client: Client, weaponItem: LoadoutItem): boolean {
-    const entity = this.getEntity(client.character.currentInteractionGuid);
-    if (!entity) return false;
-
+  handleMeleeHit(client: Client, entity: BaseEntity, weaponItem: LoadoutItem): boolean {
     // check crate / destroyable before anything else
     if (this.handleCrateHit(client, weaponItem, entity)) {
       return true;
