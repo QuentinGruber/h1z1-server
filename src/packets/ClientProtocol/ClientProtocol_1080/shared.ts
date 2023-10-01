@@ -2794,3 +2794,18 @@ export const passengerSchema: PacketFields = [
   { name: "unknownString1", type: "string", defaultValue: "" },
   { name: "unknownByte1", type: "uint8", defaultValue: 0 }
 ];
+
+export function pack2ByteLengthString(string: string) {
+  const data = Buffer.alloc(string.length + 2);
+  data.writeUInt16LE(string.length, 0);
+  data.write(string, 2, string.length, "utf8");
+  return data;
+  /*
+    {
+      name: "string",
+      type: "custom",
+      defaultValue: "",
+      packer: pack2ByteLengthString
+    },
+  */
+}
