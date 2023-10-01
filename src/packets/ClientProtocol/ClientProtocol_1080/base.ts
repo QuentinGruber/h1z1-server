@@ -3192,7 +3192,6 @@ export const basePackets: PacketStructures = [
       ]
     }
   ],
-  ["CharacterState", 0xd0, {}],
   [
     "AddLightweightPc",
     0xd6,
@@ -3473,7 +3472,7 @@ export const basePackets: PacketStructures = [
     {
       fields: [
         { name: "characterId", type: "uint64string", defaultValue: "0" },
-        { name: "unknownDword1", type: "uint32", defaultValue: 14 }
+        { name: "animationId", type: "uint32", defaultValue: 0 }
       ]
     }
   ]

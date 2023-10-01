@@ -2283,6 +2283,25 @@ export interface RagdollStop {
   array1: unknown[];
   array2: unknown[];
 }
+export interface CharacterStateInteractionStart {
+  characterId?: string;
+  time?: number;
+  unknownDword2?: number;
+  unknownQword1?: string;
+  unknownQword2?: string;
+  unknownDword3?: number;
+  stringId?: number;
+  animationId?: number;
+  unknownDword6?: number;
+  unknownDword7?: number;
+  unknownDword8?: number;
+  unknownDword9?: number;
+  UseOptionItemId?: string;
+  useOptionString?: string;
+}
+export interface CharacterStateInteractionStop {
+  characterId?: string;
+}
 export interface NpcFoundationPermissionsManagerAddPermission {
   objectCharacterId?: string;
   characterName?: string;
@@ -2321,7 +2340,7 @@ export interface ReplicationNpcComponent {
 }
 export interface AnimationBase {
   characterId?: string;
-  unknownDword1?: number;
+  animationId?: number;
 }
 export interface ChatChat {
   unknownWord1?: number;
