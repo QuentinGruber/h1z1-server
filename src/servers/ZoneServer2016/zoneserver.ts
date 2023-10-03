@@ -178,7 +178,7 @@ const spawnLocations2 = require("../../../data/2016/zoneData/Z1_gridSpawns.json"
   loadoutSlotItemClasses = require("./../../../data/2016/dataSources/LoadoutSlotItemClasses.json"),
   equipSlotItemClasses = require("./../../../data/2016/dataSources/EquipSlotItemClasses.json"),
   weaponDefinitions = require("../../../data/2016/dataSources/ServerWeaponDefinitions"),
-  //dynamicappearance = require("../../../data/2016/sampleData/dynamicappearance"),
+  dynamicappearance = require("../../../data/2016/sampleData/dynamicappearance"),
   resourceDefinitions = require("../../../data/2016/dataSources/Resources"),
   Z1_POIs = require("../../../data/2016/zoneData/Z1_POIs"),
   hudIndicators = require("../../../data/2016/dataSources/HudIndicators"),
@@ -1481,13 +1481,19 @@ export class ZoneServer2016 extends EventEmitter {
     this.sendRawData(client, this.weaponDefinitionsCache);
 
     // used for equipment textures / skins, does nothing so far
+    
     /*
-    this.sendData(client, "ReferenceData.DynamicAppearance", {
-      array1: dynamicappearance.array1,
-      array2: dynamicappearance.array2,
-      array3: dynamicappearance.array3
-    })
+      this packet doesn't do anything for skins yet, but it's needed so that
+      the client can switch equipment slots without server input, which is the way
+      it's supposed to work (removes the delay) - Meme
     */
+   
+    this.sendData(client, "ReferenceData.DynamicAppearance", {
+      ITEM_APPEARANCE_DEFINITIONS: dynamicappearance.ITEM_APPEARANCE_DEFINITIONS,
+      SHADER_SEMANTIC_DEFINITIONS: dynamicappearance.SHADER_SEMANTIC_DEFINITIONS,
+      SHADER_PARAMETER_DEFINITIONS: dynamicappearance.SHADER_PARAMETER_DEFINITIONS
+    })
+    
 
     // packet is just broken, idk why
     /*
@@ -5133,7 +5139,7 @@ export class ZoneServer2016 extends EventEmitter {
    * @param {Client} client - The client to switch the loadout slot for.
    * @param {LoadoutItem} loadoutItem - The new loadout item.
    */
-  switchLoadoutSlot(client: Client, loadoutItem: LoadoutItem) {
+  switchLoadoutSlot(client: Client, loadoutItem: LoadoutItem, sendPacketToLocalClient = false) {
     const oldLoadoutSlot = client.character.currentLoadoutSlot;
     this.reloadInterrupt(client, client.character._loadout[oldLoadoutSlot]);
     // remove passive equip

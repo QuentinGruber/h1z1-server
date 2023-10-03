@@ -1716,7 +1716,7 @@ export class ZonePacketHandlers {
               server.containerError(client, ContainerErrors.NO_ITEM_IN_SLOT);
               return;
             }
-            server.switchLoadoutSlot(client, loadoutItem);
+            server.switchLoadoutSlot(client, loadoutItem, true);
           }
         } else {
           if (activeSlotId) {

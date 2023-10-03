@@ -760,7 +760,15 @@ export abstract class BaseFullCharacter extends BaseLightweightCharacter {
           textureAlias: slot.textureAlias || "",
           tintAlias: slot.tintAlias || "Default",
           decalAlias: slot.decalAlias || "#",
-          slotId: slot.slotId
+          slotId: slot.slotId,
+          SHADER_PARAMETER_GROUP: [
+            {
+              SHADER_SEMANTIC_ID: 1
+            },
+            {
+              SHADER_SEMANTIC_ID: 2
+            }
+          ]
         }
       : undefined;
   }

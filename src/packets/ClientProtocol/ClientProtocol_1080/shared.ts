@@ -1454,10 +1454,12 @@ export const attachmentSchema: PacketFields = [
   { name: "slotId", type: "uint32", defaultValue: 0 },
   { name: "unknownDword4", type: "uint32", defaultValue: 0 },
   {
-    name: "unknownArray1",
+    name: "SHADER_PARAMETER_GROUP",
     type: "array",
     defaultValue: [],
-    fields: [{ name: "unknownDword1", type: "uint32", defaultValue: 252 }]
+    fields: [
+      { name: "SHADER_SEMANTIC_ID", type: "uint32", defaultValue: 0 }
+    ]
   },
   { name: "unknownBool1", type: "boolean", defaultValue: false }
 ];
