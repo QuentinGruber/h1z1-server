@@ -521,6 +521,27 @@ export class Character2016 extends BaseFullCharacter {
   getCombatLog() {
     return this.combatlog;
   }
+
+  updateLoadout(server: ZoneServer2016, sendPacketToLocalClient = true) {
+    const client = server.getClientByContainerAccessor(this);
+    if (!client || !client.character.initialized) return;
+    server.checkConveys(client);
+    if(sendPacketToLocalClient) {
+      server.sendData(
+        client,
+        "Loadout.SetLoadoutSlots",
+        this.pGetLoadoutSlots()
+      );
+    }
+    server.sendDataToAllOthersWithSpawnedEntity(
+      server._characters,
+      client,
+      this.characterId,
+      "Loadout.SetLoadoutSlots",
+      this.pGetLoadoutSlots()
+    );
+  }
+
   /**
    * Gets the lightweightpc packetfields for use in sendself and addlightweightpc
    */
@@ -903,7 +924,7 @@ export class Character2016 extends BaseFullCharacter {
     });
   }
 
-  updateEquipmentSlot(server: ZoneServer2016, slotId: number) {
+  updateEquipmentSlot(server: ZoneServer2016, slotId: number, sendPacketToLocalClient = true) {
     if (!server.getClientByCharId(this.characterId)?.character.initialized)
       return;
     /*
@@ -921,14 +942,16 @@ export class Character2016 extends BaseFullCharacter {
       if (client.character != this) {
         groupId = client.character.groupId;
       }
-      server.sendData(
-        client,
-        "Equipment.SetCharacterEquipmentSlot",
-        this.pGetEquipmentSlotFull(
-          slotId,
-          groupId
-        ) as EquipmentSetCharacterEquipmentSlot
-      );
+      if(sendPacketToLocalClient || this.characterId != client.character.characterId) {
+        server.sendData(
+          client,
+          "Equipment.SetCharacterEquipmentSlot",
+          this.pGetEquipmentSlotFull(
+            slotId,
+            groupId
+          ) as EquipmentSetCharacterEquipmentSlot
+        );
+      }
     });
   }
 

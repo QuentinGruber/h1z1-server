@@ -5145,17 +5145,20 @@ export class ZoneServer2016 extends EventEmitter {
     // remove passive equip
     this.clearEquipmentSlot(
       client.character,
-      client.character.getActiveEquipmentSlot(loadoutItem)
+      client.character.getActiveEquipmentSlot(loadoutItem),
+      true,
+      sendPacketToLocalClient
     );
     client.character.currentLoadoutSlot = loadoutItem.slotId;
-    client.character.equipItem(this, loadoutItem, true, loadoutItem.slotId);
+    client.character.equipItem(this, loadoutItem, true, loadoutItem.slotId, sendPacketToLocalClient);
 
     // equip passive slot
     client.character.equipItem(
       this,
       client.character._loadout[oldLoadoutSlot],
       true,
-      oldLoadoutSlot
+      oldLoadoutSlot,
+      sendPacketToLocalClient
     );
     if (loadoutItem.weapon) loadoutItem.weapon.currentReloadCount = 0;
     if (this.isWeapon(loadoutItem.itemDefinitionId)) {
@@ -5194,7 +5197,8 @@ export class ZoneServer2016 extends EventEmitter {
   clearEquipmentSlot(
     character: BaseFullCharacter,
     equipmentSlotId: number,
-    sendPacket = true
+    sendPacket = true,
+    sendPacketToLocalClient = true
   ): boolean {
     if (!equipmentSlotId) return false;
     delete character._equipment[equipmentSlotId];
@@ -5203,16 +5207,25 @@ export class ZoneServer2016 extends EventEmitter {
     if (!client) return true;
 
     if (client.character.initialized && sendPacket) {
-      this.sendDataToAllWithSpawnedEntity(
+      const data = {
+        characterData: {
+          characterId: client.character.characterId
+        },
+        slotId: equipmentSlotId
+      };
+      if(sendPacketToLocalClient) {
+        this.sendData(
+          client,
+          "Equipment.UnsetCharacterEquipmentSlot",
+          data
+        );
+      }
+      this.sendDataToAllOthersWithSpawnedEntity(
         this._characters,
+        client,
         client.character.characterId,
         "Equipment.UnsetCharacterEquipmentSlot",
-        {
-          characterData: {
-            characterId: client.character.characterId
-          },
-          slotId: equipmentSlotId
-        }
+        data
       );
     }
     if (equipmentSlotId === EquipSlots.RHAND) {

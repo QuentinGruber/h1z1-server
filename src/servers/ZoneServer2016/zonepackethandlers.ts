@@ -2202,7 +2202,7 @@ export class ZonePacketHandlers {
       server.sendChatText(client, "[ERROR] Target slot is empty!");
       return;
     }
-    server.switchLoadoutSlot(client, slot);
+    server.switchLoadoutSlot(client, slot, false);
   }
   NpcFoundationPermissionsManagerEditPermission(
     server: ZoneServer2016,

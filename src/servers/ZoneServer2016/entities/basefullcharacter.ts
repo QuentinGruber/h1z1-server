@@ -170,7 +170,7 @@ export abstract class BaseFullCharacter extends BaseLightweightCharacter {
     return items;
   }
 
-  updateLoadout(server: ZoneServer2016) {
+  updateLoadout(server: ZoneServer2016, sendPacketToLocalClient = true) {
     const client = server.getClientByContainerAccessor(this);
     if (client) {
       if (!client.character.initialized) return;
@@ -195,7 +195,7 @@ export abstract class BaseFullCharacter extends BaseLightweightCharacter {
     );
   }
 
-  updateEquipmentSlot(server: ZoneServer2016, slotId: number) {
+  updateEquipmentSlot(server: ZoneServer2016, slotId: number, sendPacketToLocalClient = true) {
     if (!server.getClientByCharId(this.characterId)?.character.initialized)
       return;
     server.sendDataToAllWithSpawnedEntity(
@@ -219,7 +219,8 @@ export abstract class BaseFullCharacter extends BaseLightweightCharacter {
     server: ZoneServer2016,
     item?: BaseItem,
     sendPacket: boolean = true,
-    loadoutSlotId: number = 0
+    loadoutSlotId: number = 0,
+    sendPacketToLocalClient = true
   ) {
     if (!item || !item.isValid("equipItem")) return;
     const def = server.getItemDefinition(item.itemDefinitionId);
@@ -330,8 +331,8 @@ export abstract class BaseFullCharacter extends BaseLightweightCharacter {
         }
       );
     }
-    this.updateLoadout(server);
-    if (equipmentSlotId) this.updateEquipmentSlot(server, equipmentSlotId);
+    this.updateLoadout(server, sendPacketToLocalClient);
+    if (equipmentSlotId) this.updateEquipmentSlot(server, equipmentSlotId, sendPacketToLocalClient);
   }
 
   generateEquipmentFromLoadout(server: ZoneServer2016) {
