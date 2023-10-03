@@ -7039,7 +7039,6 @@ export class ZoneServer2016 extends EventEmitter {
       return true;
     }
 
-
     /*
     this.sendCompositeEffectToAllInRange(
       15,
@@ -7048,7 +7047,7 @@ export class ZoneServer2016 extends EventEmitter {
       1663
     );
     */
-   
+
     const damageInfo: DamageInfo = {
       entity: "Server.WorkAroundMelee",
       damage: 700
@@ -7060,7 +7059,11 @@ export class ZoneServer2016 extends EventEmitter {
   }
 
   // using workaround logic for now
-  handleMeleeHit(client: Client, entity: BaseEntity, weaponItem: LoadoutItem): boolean {
+  handleMeleeHit(
+    client: Client,
+    entity: BaseEntity,
+    weaponItem: LoadoutItem
+  ): boolean {
     // check crate / destroyable before anything else
     if (this.handleCrateHit(client, weaponItem, entity)) {
       return true;

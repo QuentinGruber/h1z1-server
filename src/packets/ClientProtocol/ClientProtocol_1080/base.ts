@@ -2930,15 +2930,15 @@ export const basePackets: PacketStructures = [
           parser: readUnsignedIntWith2bitLengthValue,
           packer: packUnsignedIntWith2bitLengthValue
         },
-        { name: "unknownByte1", type: "uint8", defaultValue: 50 },
+        { name: "unknownByte1", type: "uint8", defaultValue: 0 },
         { name: "position", type: "floatvector3", defaultValue: [0, 0, 0] },
         { name: "rotation", type: "floatvector3", defaultValue: [0, 0, 0] },
-        { name: "unknownDword1", type: "uint32", defaultValue: 23 },
-        { name: "unknownDword2", type: "uint32", defaultValue: 23 },
+        { name: "unknownDword1", type: "uint32", defaultValue: 0 },
+        { name: "unknownDword2", type: "uint32", defaultValue: 0 },
         { name: "modelId", type: "uint32", defaultValue: 0 },
         { name: "scale", type: "floatvector4", defaultValue: [1, 1, 1, 1] },
-        { name: "unknownDword3", type: "uint32", defaultValue: 23 },
-        { name: "showHealth", type: "boolean", defaultValue: true },
+        { name: "unknownDword3", type: "uint32", defaultValue: 0 },
+        { name: "unknownByte2", type: "uint8", defaultValue: 0 },
         { name: "health", type: "float", defaultValue: 100 }
       ]
     }

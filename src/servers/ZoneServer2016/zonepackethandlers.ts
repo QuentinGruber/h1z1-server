@@ -2590,15 +2590,14 @@ export class ZonePacketHandlers {
     server.abilitiesManager.processRemoveEffectPacket(server, client, packet);
   }
   AbilitiesInitAbility(server: ZoneServer2016, client: Client, packet: any) {
-    const vehicle = server._vehicles[packet.data.targetCharacterId];
-    if (vehicle) {
-      server.abilitiesManager.processVehicleAbilityInit(
-        server,
-        client,
-        vehicle,
-        packet.data
-      );
-    }
+    const vehicle = server._vehicles[client.vehicle.mountedVehicle ?? ""];
+    if (!vehicle) return;
+    server.abilitiesManager.processVehicleAbilityInit(
+      server,
+      client,
+      vehicle,
+      packet.data
+    );
   }
   AbilitiesUninitAbility(server: ZoneServer2016, client: Client, packet: any) {
     if (!client.vehicle.mountedVehicle) return;
@@ -2618,12 +2617,13 @@ export class ZonePacketHandlers {
       so it's ignored for now so the melee hit can be processed when the melee actually
       collides with an object. -Meme
     */
-    if(packet.data.abilityData.hitLocation) return;
+    if (packet.data.abilityData.hitLocation) return;
 
-    const entity = server.getEntity(packet.data.targetCharacterId ?? "") ??
-    server.getEntity(client.character.currentInteractionGuid);
+    const entity =
+      server.getEntity(packet.data.targetCharacterId ?? "") ??
+      server.getEntity(client.character.currentInteractionGuid);
 
-    if(!entity) return;
+    if (!entity) return;
 
     server.abilitiesManager.processAbilityUpdate(
       server,

@@ -450,7 +450,7 @@ export interface AddSimpleNpc {
   modelId?: number;
   scale?: Float32Array;
   unknownDword3?: number;
-  showHealth?: boolean;
+  unknownByte2?: number;
   health?: number;
 }
 export interface ContinentBattleInfo {
