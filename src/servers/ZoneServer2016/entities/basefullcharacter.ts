@@ -279,32 +279,37 @@ export abstract class BaseFullCharacter extends BaseLightweightCharacter {
       };
       this._equipment[equipmentSlotId] = equipmentData;
     }
-    this._loadout[loadoutSlotId] = new LoadoutItem(
+
+    const loadoutItem = new LoadoutItem(
       item,
       loadoutSlotId,
       this.characterId
     );
+
+    this._loadout[loadoutSlotId] = loadoutItem;
     const client = server.getClientByContainerAccessor(this);
-    if (this._loadout[loadoutSlotId] && sendPacket) {
-      server.deleteItem(this, this._loadout[loadoutSlotId].itemGuid);
+
+    if (sendPacket) {
+      server.deleteItem(this, loadoutItem.itemGuid);
     }
 
     if (def.ITEM_TYPE === 34) {
       this._containers[loadoutSlotId] = new LoadoutContainer(
-        this._loadout[loadoutSlotId],
+        loadoutItem,
         def.PARAM1
       );
       if (client && sendPacket) server.initializeContainerList(client, this);
     }
 
     // probably will need to replicate server for vehicles / maybe npcs
-    if (client && sendPacket)
+    if (client && sendPacket) {
       server.addItem(
         client,
-        this._loadout[loadoutSlotId],
+        loadoutItem,
         LOADOUT_CONTAINER_ID,
         this
       );
+    }
 
     if (!sendPacket) return;
     if (client && server.isWeapon(item.itemDefinitionId)) {

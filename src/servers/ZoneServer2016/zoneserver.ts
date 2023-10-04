@@ -5611,10 +5611,10 @@ export class ZoneServer2016 extends EventEmitter {
     }
   }
 
-  updateLoadoutItem(client: Client, item: LoadoutItem) {
+  updateLoadoutItem(client: Client, item: LoadoutItem, character: BaseFullCharacter = client.character) {
     this.sendData(client, "ClientUpdate.ItemUpdate", {
-      characterId: client.character.characterId,
-      data: client.character.pGetItemData(this, item, LOADOUT_CONTAINER_ID)
+      characterId: character.characterId,
+      data: character.pGetItemData(this, item, LOADOUT_CONTAINER_ID)
     });
     //this.updateLoadout(client.character);
   }
