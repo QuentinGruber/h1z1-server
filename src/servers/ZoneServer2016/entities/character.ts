@@ -526,7 +526,7 @@ export class Character2016 extends BaseFullCharacter {
     const client = server.getClientByContainerAccessor(this);
     if (!client || !client.character.initialized) return;
     server.checkConveys(client);
-    if(sendPacketToLocalClient) {
+    if (sendPacketToLocalClient) {
       server.sendData(
         client,
         "Loadout.SetLoadoutSlots",
@@ -589,7 +589,9 @@ export class Character2016 extends BaseFullCharacter {
 
   pGetRemoteWeaponData(server: ZoneServer2016, item: BaseItem) {
     const itemDefinition = server.getItemDefinition(item.itemDefinitionId),
-      weaponDefinition = server.getWeaponDefinition(itemDefinition?.PARAM1 ?? 0),
+      weaponDefinition = server.getWeaponDefinition(
+        itemDefinition?.PARAM1 ?? 0
+      ),
       firegroups: Array<any> = weaponDefinition.FIRE_GROUPS || [];
     return {
       weaponDefinitionId: weaponDefinition.ID,
@@ -620,7 +622,9 @@ export class Character2016 extends BaseFullCharacter {
 
   pGetRemoteWeaponExtraData(server: ZoneServer2016, item: BaseItem) {
     const itemDefinition = server.getItemDefinition(item.itemDefinitionId),
-      weaponDefinition = server.getWeaponDefinition(itemDefinition?.PARAM1 ?? 0),
+      weaponDefinition = server.getWeaponDefinition(
+        itemDefinition?.PARAM1 ?? 0
+      ),
       firegroups = weaponDefinition.FIRE_GROUPS;
     return {
       guid: item.itemGuid,
@@ -924,7 +928,11 @@ export class Character2016 extends BaseFullCharacter {
     });
   }
 
-  updateEquipmentSlot(server: ZoneServer2016, slotId: number, sendPacketToLocalClient = true) {
+  updateEquipmentSlot(
+    server: ZoneServer2016,
+    slotId: number,
+    sendPacketToLocalClient = true
+  ) {
     if (!server.getClientByCharId(this.characterId)?.character.initialized)
       return;
     /*
@@ -942,7 +950,10 @@ export class Character2016 extends BaseFullCharacter {
       if (client.character != this) {
         groupId = client.character.groupId;
       }
-      if(sendPacketToLocalClient || this.characterId != client.character.characterId) {
+      if (
+        sendPacketToLocalClient ||
+        this.characterId != client.character.characterId
+      ) {
         server.sendData(
           client,
           "Equipment.SetCharacterEquipmentSlot",

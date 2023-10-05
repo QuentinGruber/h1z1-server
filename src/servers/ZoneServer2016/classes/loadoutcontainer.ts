@@ -62,7 +62,8 @@ export class LoadoutContainer extends LoadoutItem {
     let bulk = 0;
     for (const item of Object.values(this.items)) {
       bulk +=
-        server.getItemDefinition(item.itemDefinitionId)?.BULK ?? 1 * item.stackCount;
+        server.getItemDefinition(item.itemDefinitionId)?.BULK ??
+        1 * item.stackCount;
     }
     return bulk;
   }
@@ -99,11 +100,10 @@ export class LoadoutContainer extends LoadoutItem {
   ): boolean {
     if (this.getMaxBulk(server) == 0) return true; // for external containers
     const itemDefinition = server.getItemDefinition(itemDefinitionId);
-    if(!itemDefinition) return false;
+    if (!itemDefinition) return false;
     return !!(
       this.getMaxBulk(server) -
-        (this.getUsedBulk(server) +
-        itemDefinition.BULK * count) >=
+        (this.getUsedBulk(server) + itemDefinition.BULK * count) >=
       0
     );
   }
@@ -127,7 +127,8 @@ export class LoadoutContainer extends LoadoutItem {
     for (const item of Object.values(this.items)) {
       if (
         item.itemDefinitionId == itemDefId &&
-        (server.getItemDefinition(item.itemDefinitionId)?.MAX_STACK_SIZE ?? 1) >=
+        (server.getItemDefinition(item.itemDefinitionId)?.MAX_STACK_SIZE ??
+          1) >=
           item.stackCount + count
       ) {
         return item.itemGuid;

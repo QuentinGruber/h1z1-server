@@ -544,9 +544,10 @@ export class FairPlayManager {
             targetClient.character.name
           } | speed: (${speed.toFixed(
             0
-          )} / ${minSpeed}:${maxSpeed}) | ${distance.toFixed(2)}m | ${
-            server.getItemDefinition(weaponItem.itemDefinitionId)?.NAME
-          } | ${hitReport.hitLocation}`,
+          )} / ${minSpeed}:${maxSpeed}) | ${distance.toFixed(
+            2
+          )}m | ${server.getItemDefinition(weaponItem.itemDefinitionId)
+            ?.NAME} | ${hitReport.hitLocation}`,
           false
         );
         server.sendConsoleText(targetClient, message);

@@ -292,7 +292,8 @@ export class ZoneServer2016 extends EventEmitter {
   configManager: ConfigManager;
 
   _ready: boolean = false;
-  _itemDefinitions: { [itemDefinitionId: number]: ItemDefinition } = itemDefinitions;
+  _itemDefinitions: { [itemDefinitionId: number]: ItemDefinition } =
+    itemDefinitions;
   _weaponDefinitions: { [weaponDefinitionId: number]: any } =
     weaponDefinitions.WEAPON_DEFINITIONS;
   _firegroupDefinitions: { [firegroupId: number]: any } =
@@ -934,10 +935,10 @@ export class ZoneServer2016 extends EventEmitter {
 
     const recipes: Array<any> = [];
     let i = 0;
-    for(const recipe of Object.values(this._recipes)) {
+    for (const recipe of Object.values(this._recipes)) {
       const recipeDef = this.getItemDefinition(Number(recipeKeys[i]));
       i++;
-      if(!recipeDef) continue;
+      if (!recipeDef) continue;
       recipes.push({
         recipeId: recipeDef.ID,
         itemDefinitionId: recipeDef.ID,
@@ -949,21 +950,25 @@ export class ZoneServer2016 extends EventEmitter {
         bundleCount: recipe.bundleCount || 1,
         membersOnly: false, // could be used for admin-only recipes?
         filterId: recipe.filterId,
-        components: recipe.components.map((component: any) => {
-          const componentDef = this.getItemDefinition(component.itemDefinitionId);
-          if(!componentDef) return true;
-          return {
-            unknownDword1: 0, // idk
-            nameId: componentDef.NAME_ID,
-            iconId: componentDef.IMAGE_SET_ID,
-            unknownDword2: 0, // idk
-            requiredAmount: component.requiredAmount,
-            unknownQword1: "0x0", // idk
-            unknownDword3: 0, // idk
-            itemDefinitionId: componentDef.ID
-          };
-        }).filter((component) => component !== true)
-      })
+        components: recipe.components
+          .map((component: any) => {
+            const componentDef = this.getItemDefinition(
+              component.itemDefinitionId
+            );
+            if (!componentDef) return true;
+            return {
+              unknownDword1: 0, // idk
+              nameId: componentDef.NAME_ID,
+              iconId: componentDef.IMAGE_SET_ID,
+              unknownDword2: 0, // idk
+              requiredAmount: component.requiredAmount,
+              unknownQword1: "0x0", // idk
+              unknownDword3: 0, // idk
+              itemDefinitionId: componentDef.ID
+            };
+          })
+          .filter((component) => component !== true)
+      });
     }
 
     return recipes;
@@ -1481,19 +1486,21 @@ export class ZoneServer2016 extends EventEmitter {
     this.sendRawData(client, this.weaponDefinitionsCache);
 
     // used for equipment textures / skins, does nothing so far
-    
+
     /*
       this packet doesn't do anything for skins yet, but it's needed so that
       the client can switch equipment slots without server input, which is the way
       it's supposed to work (removes the delay) - Meme
     */
-   
+
     this.sendData(client, "ReferenceData.DynamicAppearance", {
-      ITEM_APPEARANCE_DEFINITIONS: dynamicappearance.ITEM_APPEARANCE_DEFINITIONS,
-      SHADER_SEMANTIC_DEFINITIONS: dynamicappearance.SHADER_SEMANTIC_DEFINITIONS,
-      SHADER_PARAMETER_DEFINITIONS: dynamicappearance.SHADER_PARAMETER_DEFINITIONS
-    })
-    
+      ITEM_APPEARANCE_DEFINITIONS:
+        dynamicappearance.ITEM_APPEARANCE_DEFINITIONS,
+      SHADER_SEMANTIC_DEFINITIONS:
+        dynamicappearance.SHADER_SEMANTIC_DEFINITIONS,
+      SHADER_PARAMETER_DEFINITIONS:
+        dynamicappearance.SHADER_PARAMETER_DEFINITIONS
+    });
 
     // packet is just broken, idk why
     /*
@@ -5068,10 +5075,8 @@ export class ZoneServer2016 extends EventEmitter {
    */
   isStackable(itemDefinitionId: number): boolean {
     const itemDefinition = this.getItemDefinition(itemDefinitionId);
-    if(!itemDefinition) return false;
-    return itemDefinition.MAX_STACK_SIZE > 1
-      ? true
-      : false;
+    if (!itemDefinition) return false;
+    return itemDefinition.MAX_STACK_SIZE > 1 ? true : false;
   }
 
   /**
@@ -5083,11 +5088,10 @@ export class ZoneServer2016 extends EventEmitter {
    */
   validateEquipmentSlot(itemDefinitionId: number, equipmentSlotId: number) {
     const itemDefinition = this.getItemDefinition(itemDefinitionId);
-    if(!itemDefinition || !itemDefinition.FLAG_CAN_EQUIP) return false;
+    if (!itemDefinition || !itemDefinition.FLAG_CAN_EQUIP) return false;
     return !!equipSlotItemClasses.find(
       (slot: any) =>
-        slot.ITEM_CLASS ===
-        itemDefinition.ITEM_CLASS &&
+        slot.ITEM_CLASS === itemDefinition.ITEM_CLASS &&
         equipmentSlotId === slot.EQUIP_SLOT_ID
     );
   }
@@ -5106,11 +5110,10 @@ export class ZoneServer2016 extends EventEmitter {
     loadoutId: number
   ): boolean {
     const itemDefinition = this.getItemDefinition(itemDefinitionId);
-    if(!itemDefinition || !itemDefinition.FLAG_CAN_EQUIP) return false;
+    if (!itemDefinition || !itemDefinition.FLAG_CAN_EQUIP) return false;
     return !!loadoutSlotItemClasses.find(
       (slot: any) =>
-        slot.ITEM_CLASS ==
-        itemDefinition.ITEM_CLASS &&
+        slot.ITEM_CLASS == itemDefinition.ITEM_CLASS &&
         loadoutSlotId == slot.SLOT &&
         slot.LOADOUT_ID == loadoutId
     );
@@ -5125,11 +5128,12 @@ export class ZoneServer2016 extends EventEmitter {
    */
   getLoadoutSlot(itemDefId: number, loadoutId: number = LoadoutIds.CHARACTER) {
     const itemDefinition = this.getItemDefinition(itemDefId);
-    if(!itemDefinition) return 0;
+    if (!itemDefinition) return 0;
     const loadoutSlotItemClass = loadoutSlotItemClasses.find(
-        (slot: any) =>
-          slot.ITEM_CLASS == itemDefinition.ITEM_CLASS && loadoutId == slot.LOADOUT_ID
-      );
+      (slot: any) =>
+        slot.ITEM_CLASS == itemDefinition.ITEM_CLASS &&
+        loadoutId == slot.LOADOUT_ID
+    );
     return loadoutSlotItemClass?.SLOT || 0;
   }
 
@@ -5139,7 +5143,11 @@ export class ZoneServer2016 extends EventEmitter {
    * @param {Client} client - The client to switch the loadout slot for.
    * @param {LoadoutItem} loadoutItem - The new loadout item.
    */
-  switchLoadoutSlot(client: Client, loadoutItem: LoadoutItem, sendPacketToLocalClient = false) {
+  switchLoadoutSlot(
+    client: Client,
+    loadoutItem: LoadoutItem,
+    sendPacketToLocalClient = false
+  ) {
     const oldLoadoutSlot = client.character.currentLoadoutSlot;
     this.reloadInterrupt(client, client.character._loadout[oldLoadoutSlot]);
     // remove passive equip
@@ -5150,7 +5158,13 @@ export class ZoneServer2016 extends EventEmitter {
       sendPacketToLocalClient
     );
     client.character.currentLoadoutSlot = loadoutItem.slotId;
-    client.character.equipItem(this, loadoutItem, true, loadoutItem.slotId, sendPacketToLocalClient);
+    client.character.equipItem(
+      this,
+      loadoutItem,
+      true,
+      loadoutItem.slotId,
+      sendPacketToLocalClient
+    );
 
     // equip passive slot
     client.character.equipItem(
@@ -5213,12 +5227,8 @@ export class ZoneServer2016 extends EventEmitter {
         },
         slotId: equipmentSlotId
       };
-      if(sendPacketToLocalClient) {
-        this.sendData(
-          client,
-          "Equipment.UnsetCharacterEquipmentSlot",
-          data
-        );
+      if (sendPacketToLocalClient) {
+        this.sendData(client, "Equipment.UnsetCharacterEquipmentSlot", data);
       }
       this.sendDataToAllOthersWithSpawnedEntity(
         this._characters,
@@ -5611,7 +5621,11 @@ export class ZoneServer2016 extends EventEmitter {
     }
   }
 
-  updateLoadoutItem(client: Client, item: LoadoutItem, character: BaseFullCharacter = client.character) {
+  updateLoadoutItem(
+    client: Client,
+    item: LoadoutItem,
+    character: BaseFullCharacter = client.character
+  ) {
     this.sendData(client, "ClientUpdate.ItemUpdate", {
       characterId: character.characterId,
       data: character.pGetItemData(this, item, LOADOUT_CONTAINER_ID)
@@ -6149,7 +6163,7 @@ export class ZoneServer2016 extends EventEmitter {
 
   shredItem(client: Client, item: BaseItem, animationId: number) {
     const itemDefinition = this.getItemDefinition(item.itemDefinitionId);
-    if(!itemDefinition) return;
+    if (!itemDefinition) return;
     const nameId = itemDefinition.NAME_ID,
       itemType = itemDefinition.ITEM_TYPE;
     let count = 1;
@@ -6171,8 +6185,8 @@ export class ZoneServer2016 extends EventEmitter {
   }
 
   salvageAmmo(client: Client, item: BaseItem, animationId: number) {
-    const itemDefinition = this.getItemDefinition(item.itemDefinitionId)
-    if(!itemDefinition) return;
+    const itemDefinition = this.getItemDefinition(item.itemDefinitionId);
+    if (!itemDefinition) return;
     const nameId = itemDefinition.NAME_ID;
     const timeout = 1000;
     const allowedItems = [
@@ -7209,13 +7223,18 @@ export class ZoneServer2016 extends EventEmitter {
         const item = client.character.getInventoryItem(
           character._equipment["5"].guid
         );
-        const itemDefinition = this.getItemDefinition(item?.itemDefinitionId ?? 0);
+        const itemDefinition = this.getItemDefinition(
+          item?.itemDefinitionId ?? 0
+        );
         if (!item || !itemDefinition) return;
-        
+
         if (itemDefinition.DESCRIPTION_ID == 11895 && !character.hasConveys) {
           character.hasConveys = true;
           this.multiplyMovementModifier(client, MovementModifiers.BOOTS);
-        } else if (itemDefinition.DESCRIPTION_ID != 11895 && character.hasConveys) {
+        } else if (
+          itemDefinition.DESCRIPTION_ID != 11895 &&
+          character.hasConveys
+        ) {
           character.hasConveys = false;
           this.divideMovementModifier(client, MovementModifiers.BOOTS);
         }

@@ -195,7 +195,11 @@ export abstract class BaseFullCharacter extends BaseLightweightCharacter {
     );
   }
 
-  updateEquipmentSlot(server: ZoneServer2016, slotId: number, sendPacketToLocalClient = true) {
+  updateEquipmentSlot(
+    server: ZoneServer2016,
+    slotId: number,
+    sendPacketToLocalClient = true
+  ) {
     if (!server.getClientByCharId(this.characterId)?.character.initialized)
       return;
     server.sendDataToAllWithSpawnedEntity(
@@ -224,7 +228,7 @@ export abstract class BaseFullCharacter extends BaseLightweightCharacter {
   ) {
     if (!item || !item.isValid("equipItem")) return;
     const def = server.getItemDefinition(item.itemDefinitionId);
-    if(!def) return;
+    if (!def) return;
     if (loadoutSlotId) {
       if (
         !server.validateLoadoutSlot(
@@ -280,11 +284,7 @@ export abstract class BaseFullCharacter extends BaseLightweightCharacter {
       this._equipment[equipmentSlotId] = equipmentData;
     }
 
-    const loadoutItem = new LoadoutItem(
-      item,
-      loadoutSlotId,
-      this.characterId
-    );
+    const loadoutItem = new LoadoutItem(item, loadoutSlotId, this.characterId);
 
     this._loadout[loadoutSlotId] = loadoutItem;
     const client = server.getClientByContainerAccessor(this);
@@ -303,12 +303,7 @@ export abstract class BaseFullCharacter extends BaseLightweightCharacter {
 
     // probably will need to replicate server for vehicles / maybe npcs
     if (client && sendPacket) {
-      server.addItem(
-        client,
-        loadoutItem,
-        LOADOUT_CONTAINER_ID,
-        this
-      );
+      server.addItem(client, loadoutItem, LOADOUT_CONTAINER_ID, this);
     }
 
     if (!sendPacket) return;
@@ -337,14 +332,19 @@ export abstract class BaseFullCharacter extends BaseLightweightCharacter {
       );
     }
     this.updateLoadout(server, sendPacketToLocalClient);
-    if (equipmentSlotId) this.updateEquipmentSlot(server, equipmentSlotId, sendPacketToLocalClient);
+    if (equipmentSlotId)
+      this.updateEquipmentSlot(
+        server,
+        equipmentSlotId,
+        sendPacketToLocalClient
+      );
   }
 
   generateEquipmentFromLoadout(server: ZoneServer2016) {
     for (const slot of Object.values(this._loadout)) {
       if (!slot.itemDefinitionId) continue;
       const def = server.getItemDefinition(slot.itemDefinitionId);
-      if(!def) continue;
+      if (!def) continue;
       let equipmentSlotId = def.PASSIVE_EQUIP_SLOT_ID; // default for any equipment
       if (server.isWeapon(slot.itemDefinitionId)) {
         if (slot.slotId == this.currentLoadoutSlot) {

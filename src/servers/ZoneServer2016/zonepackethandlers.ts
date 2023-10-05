@@ -1490,12 +1490,16 @@ export class ZonePacketHandlers {
     if (Number(final[0].toFixed(2)) === 0.0) {
       final[0] = 0;
     }
-    const modelId = server.getItemDefinition(
-      packet.data.itemDefinitionId
-    )?.PLACEMENT_MODEL_ID;
-    if(!modelId) {
-      console.log(`[ERROR] No PLACEMENT_MODEL_ID for ${packet.data.itemDefinitionId} from characterId ${client.character.characterId}`);
-      server.sendChatText(client, `[ERROR] No PLACEMENT_MODEL_ID for ${packet.data.itemDefinitionId}`);
+    const modelId = server.getItemDefinition(packet.data.itemDefinitionId)
+      ?.PLACEMENT_MODEL_ID;
+    if (!modelId) {
+      console.log(
+        `[ERROR] No PLACEMENT_MODEL_ID for ${packet.data.itemDefinitionId} from characterId ${client.character.characterId}`
+      );
+      server.sendChatText(
+        client,
+        `[ERROR] No PLACEMENT_MODEL_ID for ${packet.data.itemDefinitionId}`
+      );
       return;
     }
     server.constructionManager.placement(
@@ -1897,9 +1901,8 @@ export class ZonePacketHandlers {
     packet: any
   ) {
     debug(packet.data);
-    const modelId = server.getItemDefinition(
-      packet.data.itemDefinitionId
-    )?.PLACEMENT_MODEL_ID;
+    const modelId = server.getItemDefinition(packet.data.itemDefinitionId)
+      ?.PLACEMENT_MODEL_ID;
     if (!modelId) {
       server.sendChatText(
         client,
@@ -1922,7 +1925,7 @@ export class ZonePacketHandlers {
       newSlotId
     } = packet.data;
     const sourceCharacterId = characterId;
-    if(sourceCharacterId != targetCharacterId) {
+    if (sourceCharacterId != targetCharacterId) {
       server.startInteractionTimer(client, 0, 0, 9);
     }
     if (client.character.mountedContainer) {
@@ -2591,6 +2594,11 @@ export class ZonePacketHandlers {
       packet.data.joinState == 1
     );
   }
+
+  ProjectileDebug(server: ZoneServer2016, client: Client, packet: any) {
+    console.log(`ProjectileDebug from ${client.character.characterId}`);
+    console.log(packet.data)
+  }
   //#endregion
 
   processPacket(server: ZoneServer2016, client: Client, packet: any) {
@@ -2802,6 +2810,9 @@ export class ZonePacketHandlers {
         break;
       case "Group.Join":
         this.GroupJoin(server, client, packet);
+        break;
+      case "ProjectileDebug":
+        this.ProjectileDebug(server, client, packet);
         break;
       default:
         debug(packet);

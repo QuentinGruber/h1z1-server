@@ -82,13 +82,15 @@ export class ExplosiveEntity extends BaseLightweightCharacter {
       ? server.explosionDamage(
           this.state.position,
           this.characterId,
-          server.getItemDefinition(this.itemDefinitionId)?.NAME ?? "".toLowerCase(),
+          server.getItemDefinition(this.itemDefinitionId)?.NAME ??
+            "".toLowerCase(),
           client
         )
       : server.explosionDamage(
           this.state.position,
           this.characterId,
-          server.getItemDefinition(this.itemDefinitionId)?.NAME ?? "".toLowerCase()
+          server.getItemDefinition(this.itemDefinitionId)?.NAME ??
+            "".toLowerCase()
         );
   }
 

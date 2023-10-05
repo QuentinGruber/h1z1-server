@@ -235,7 +235,8 @@ export class WorldObjectManager {
         server.sendCompositeEffectToAllWithSpawnedEntity(
           server._spawnedItems,
           itemObject,
-          server.getItemDefinition(itemObject.item.itemDefinitionId)?.PICKUP_EFFECT ?? 5151
+          server.getItemDefinition(itemObject.item.itemDefinitionId)
+            ?.PICKUP_EFFECT ?? 5151
         );
       }
     }

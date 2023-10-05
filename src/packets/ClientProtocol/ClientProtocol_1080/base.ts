@@ -2323,6 +2323,40 @@ export const basePackets: PacketStructures = [
       ]
     }
   ],
+  // gets triggered if you're on top of a vehicle, and shoot down into the windshield
+  // may also get triggered if a client is cheating but not 100% sure -Meme
+  [
+    "ProjectileDebug",
+    0x0d,
+    {
+      fields: [
+        { name: "weaponDefinitionId", type: "uint32", defaultValue: 0 },
+        { name: "unknownDword2", type: "uint32", defaultValue: 0 },
+        { name: "unknownDword3", type: "uint32", defaultValue: 0 },
+
+        // don't know if these next 6 are correct
+        { name: "unknownDword4", type: "uint32", defaultValue: 0 },
+        { name: "unknownDword5", type: "uint32", defaultValue: 0 },
+        { name: "unknownDword6", type: "uint32", defaultValue: 0 },
+        { name: "unknownByte1", type: "uint8", defaultValue: 0 },
+        { name: "unknownDword7", type: "uint32", defaultValue: 0 },
+        { name: "unknownWord1", type: "uint16", defaultValue: 0 },
+
+        { name: "unknownString1", type: "nullstring", defaultValue: "" },
+        {
+          name: "projectileLocation",
+          type: "floatvector3",
+          defaultValue: [0, 0, 0]
+        },
+        {
+          name: "playerLocation",
+          type: "floatvector3",
+          defaultValue: [0, 0, 0]
+        },
+        { name: "unknownByte5", type: "uint8", defaultValue: 0 }
+      ]
+    }
+  ],
   ["Mail", 0x0e, {}],
   ["Ability.ClientRequestStartAbility", 0x1001, {}],
   ["Ability.ClientRequestStopAbility", 0x1002, {}],
@@ -2592,6 +2626,7 @@ export const basePackets: PacketStructures = [
   ["UpdateCamera", 0x57, {}],
   [
     // name isn't in client, packet triggers when player collides with a zombie or with /run any object
+    // also happens when the player lags and triggers "Security"
     "NpcCollision",
     0x58,
     {

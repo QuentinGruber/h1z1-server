@@ -1396,7 +1396,6 @@ export const commands: Array<Command> = [
         Scheduler.yield();
       }
       */
-      
     }
   },
   {
@@ -1882,7 +1881,8 @@ export const commands: Array<Command> = [
       let counter = 1;
       for (const a in server._constructionFoundations) {
         const foundation = server._constructionFoundations[a];
-        const name = server.getItemDefinition(foundation.itemDefinitionId)?.NAME;
+        const name = server.getItemDefinition(foundation.itemDefinitionId)
+          ?.NAME;
         if (
           foundation.ownerCharacterId === targetClient.character.characterId
         ) {
@@ -1971,9 +1971,8 @@ export const commands: Array<Command> = [
           );
           Object.values(container.items).forEach((item: BaseItem) => {
             counter++;
-            const itemName = server.getItemDefinition(
-              item?.itemDefinitionId
-            )?.NAME;
+            const itemName = server.getItemDefinition(item?.itemDefinitionId)
+              ?.NAME;
             server.sendChatText(
               client,
               `${counter}. ${

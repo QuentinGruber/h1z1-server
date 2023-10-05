@@ -1457,9 +1457,7 @@ export const attachmentSchema: PacketFields = [
     name: "SHADER_PARAMETER_GROUP",
     type: "array",
     defaultValue: [],
-    fields: [
-      { name: "SHADER_SEMANTIC_ID", type: "uint32", defaultValue: 0 }
-    ]
+    fields: [{ name: "SHADER_SEMANTIC_ID", type: "uint32", defaultValue: 0 }]
   },
   { name: "unknownBool1", type: "boolean", defaultValue: false }
 ];

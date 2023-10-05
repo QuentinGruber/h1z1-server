@@ -13,7 +13,10 @@
 
 import { PacketStructures } from "types/packetStructure";
 import PacketTableBuild from "../../packettable";
-import { itemDefinitionSchema, loadoutSlotData } from "../../ClientProtocol/ClientProtocol_1080/shared";
+import {
+  itemDefinitionSchema,
+  loadoutSlotData
+} from "../../ClientProtocol/ClientProtocol_1080/shared";
 
 const serverField: any[] = [
   { name: "serverId", type: "uint32" },
@@ -296,7 +299,7 @@ const packets: PacketStructures = [
                     }
                   ]
                 },
-                { name: "lastUseDate", type: "uint64string", defaultValue: "" },
+                { name: "lastUseDate", type: "uint64string", defaultValue: "" }
               ]
             }
           ]
