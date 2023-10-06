@@ -186,6 +186,7 @@ import {
   RewardAddNonRewardItem,
   SendSelfToClient,
   SendZoneDetails,
+  UiConfirmHit,
   VehicleOccupy,
   VehicleOwner,
   WeaponWeapon,
@@ -2714,16 +2715,15 @@ export class ZoneServer2016 extends EventEmitter {
     hasHelmetBefore: boolean,
     hasArmorBefore: boolean
   ) {
-    let isHeadshot = false;
+    let isHeadshot = 0;
     switch (hitLocation) {
       case "HEAD":
       case "GLASSES":
       case "NECK":
-        isHeadshot = true;
+        isHeadshot = 1;
         break;
     }
-    // TODO: FIX BITFLAGS GENERATING INCORRECT INTERFACES - Meme
-    this.sendData</*UiConfirmHit*/ object>(client, "Ui.ConfirmHit", {
+    this.sendData<UiConfirmHit>(client, "Ui.ConfirmHit", {
       hitType: {
         isAlly: 0,
         isHeadshot: isHeadshot,
@@ -3188,7 +3188,6 @@ export class ZoneServer2016 extends EventEmitter {
     entity: BaseLightweightCharacter,
     nameId = 0
   ) {
-    // TODO: BITFLAGS FIX - Meme
     this.sendData<AddLightweightNpc>(client, "AddLightweightNpc", {
       ...entity.pGetLightweight(),
       nameId

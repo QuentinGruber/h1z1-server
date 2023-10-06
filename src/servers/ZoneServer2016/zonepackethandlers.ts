@@ -47,7 +47,6 @@ import { ConstructionDoor } from "./entities/constructiondoor";
 import { CommandHandler } from "./handlers/commands/commandhandler";
 import {
   AccessedCharacterEndCharacterAccess,
-  AddLightweightVehicle,
   CharacterCharacterStateDelta,
   CharacterFullCharacterDataRequest,
   CharacterManagedObject,
@@ -60,7 +59,6 @@ import {
   CharacterWeaponStance,
   ChatChat,
   ClientInitializationDetails,
-  ClientIsReady,
   ClientLog,
   ClientUpdateCompleteLogoutProcess,
   ClientUpdateDoneSendingPreloadCharacters,
@@ -86,7 +84,6 @@ import {
   ConstructionPlacementFinalizeRequest,
   ConstructionPlacementRequest,
   ConstructionPlacementResponse,
-  ContainerMoveItem,
   ContinentBattleInfo,
   DtoHitSpeedTreeReport,
   GetContinentBattleInfo,
@@ -104,7 +101,6 @@ import {
   NpcFoundationPermissionsManagerBaseShowPermissions,
   NpcFoundationPermissionsManagerEditPermission,
   PlayerUpdateManagedPosition,
-  PlayerUpdatePosition,
   ReplicationInteractionComponent,
   ReplicationNpcComponent,
   RewardBuffInfo,
@@ -129,8 +125,6 @@ import {
   DamageInfo,
   StanceFlags
 } from "types/zoneserver";
-import { positionUpdate } from "types/savedata";
-import { GameTimeSync } from "types/zone2016packets";
 import { Vehicle2016 } from "./entities/vehicle";
 import { Plant } from "./entities/plant";
 import { ConstructionChildEntity } from "./entities/constructionchildentity";
