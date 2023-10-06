@@ -17,6 +17,8 @@ import { FilterIds, HealTypes, Items } from "servers/ZoneServer2016/models/enums
 import { ConstructionDoor } from "servers/ZoneServer2016/entities/constructiondoor";
 import { LootableConstructionEntity } from "servers/ZoneServer2016/entities/lootableconstructionentity";
 import { LoadoutItem } from "servers/ZoneServer2016/classes/loadoutItem";
+import { ZoneServer2016 } from "servers/ZoneServer2016/zoneserver";
+import { Character2016 } from "servers/ZoneServer2016/entities/character";
 
 export interface npcData {
   guid: string;
@@ -186,8 +188,8 @@ export interface FireHint {
 export interface CharacterEffect {
   id: number;
   duration: number;
-  callback?: any;
-  endCallback?: any;
+  callback?: (server: ZoneServer2016, character: Character2016) => void;
+  endCallback?: (server: ZoneServer2016, character: Character2016) => void;
 }
 
 export interface SpawnLocation {
@@ -237,6 +239,7 @@ export interface ItemUseOption {
   givetrash?: number,
   healCount?: number,
   staminaCount?: number,
+  enduranceCount?: number
   bandagingCount?: number,
   refuelCount?: number,
   healType?: HealTypes,
@@ -346,6 +349,37 @@ export interface FairPlayValues {
 export interface SpeedTree {
   objectId: number;
   modelName: string;
+  position: Float32Array;
+}
+
+export interface ZoneSpeedTreeData {
+	objectId: number;
+	treeId: number;
+	position: Float32Array
+}
+
+export interface UseOption {
+	id: number;
+	typeName: string;
+	animationId: number
+}
+
+export interface HudIndicator {
+	id: number;
+	typeName: string;
+	nameId: number,
+	descriptionId: number,
+	imageSetId: number,
+}
+
+export interface characterIndicatorData {
+	typeName: string;
+	expirationTime: number;
+}
+
+export interface HealType {
+	healingTicks: number,
+	healingMaxTicks: number
 }
 
 export interface StanceFlags {
@@ -413,3 +447,5 @@ export interface Weather2016 {
 export interface WeatherTemplate extends Weather2016 {
   templateName: string,
 }
+
+export type EntityDictionary<Entity> = { [characterId: string]: Entity};

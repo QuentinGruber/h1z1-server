@@ -46,7 +46,8 @@ import {
   ConstructionPermissionIds,
   ItemUseOptions,
   HealTypes,
-  ConstructionErrors
+  ConstructionErrors,
+  Effects
 } from "./models/enums";
 import { healthThreadDecorator } from "../shared/workers/healthWorker";
 import { WeatherManager } from "./managers/weathermanager";
@@ -56,8 +57,11 @@ import {
   ConstructionEntity,
   DamageInfo,
   DamageRecord,
+  EntityDictionary,
   FireHint,
-  Recipe
+  HudIndicator,
+  Recipe,
+  UseOption
 } from "../../types/zoneserver";
 import { h1z1PacketsType2016 } from "../../types/packets";
 import {
@@ -131,10 +135,57 @@ import {
 } from "../../utils/enums";
 
 import {
+  AddLightweightNpc,
+  AddLightweightPc,
+  AddSimpleNpc,
+  CharacterAddEffectTagCompositeEffect,
+  CharacterDroppedItemNotification,
+  CharacterKilledBy,
+  CharacterManagedObject,
+  CharacterMovementVersion,
+  CharacterPlayWorldCompositeEffect,
+  CharacterRemovePlayer,
+  CharacterRespawnReply,
+  CharacterSeekTarget,
   CharacterSelectSessionResponse,
+  CharacterStartMultiStateDeath,
+  CharacterUpdateCharacterState,
+  CharacterWeaponStance,
+  ClientExitLaunchUrl,
+  ClientGameSettings,
   ClientUpdateDeathMetrics,
+  ClientUpdateItemAdd,
+  ClientUpdateItemDelete,
+  ClientUpdateItemUpdate,
+  ClientUpdateManagedObjectResponseControl,
+  ClientUpdateModifyMovementSpeed,
   ClientUpdateProximateItems,
+  ClientUpdateStartTimer,
   ClientUpdateTextAlert,
+  ClientUpdateUpdateLocation,
+  ClientUpdateUpdateLockoutTimes,
+  CommandPlayDialogEffect,
+  ContainerError,
+  ContainerInitEquippedContainers,
+  ContainerUpdateEquippedContainer,
+  DtoObjectInitialData,
+  EquipmentUnsetCharacterEquipmentSlot,
+  GameTimeSync,
+  H1emuPrintToConsole,
+  InitializationParameters,
+  LoginFailed,
+  MountDismountResponse,
+  MountMountResponse,
+  MountSeatChangeResponse,
+  POIChangeMessage,
+  PlayerUpdatePosition,
+  ResourceEvent,
+  RewardAddNonRewardItem,
+  SendSelfToClient,
+  SendZoneDetails,
+  VehicleOccupy,
+  VehicleOwner,
+  WeaponWeapon,
   zone2016packets
 } from "types/zone2016packets";
 import { getCharacterModelData } from "../shared/functions";
@@ -178,6 +229,8 @@ const spawnLocations2 = require("../../../data/2016/zoneData/Z1_gridSpawns.json"
   //dynamicappearance = require("../../../data/2016/sampleData/dynamicappearance"),
   resourceDefinitions = require("../../../data/2016/dataSources/Resources"),
   Z1_POIs = require("../../../data/2016/zoneData/Z1_POIs"),
+  hudIndicators = require("../../../data/2016/dataSources/HudIndicators"),
+  itemUseOptionsDataSource = require("../../../data/2016/dataSources/ItemUseOptions"),
   equipmentModelTexturesMapping: Record<
     string,
     Record<string, string[]>
@@ -202,30 +255,31 @@ export class ZoneServer2016 extends EventEmitter {
   nextSaveTime: number = Date.now() + this.saveTimeInterval;
 
   readonly _clients: { [characterId: string]: Client } = {};
-  _characters: { [characterId: string]: Character } = {};
-  _npcs: { [characterId: string]: Npc } = {};
-  _spawnedItems: { [characterId: string]: ItemObject } = {};
-  _plants: { [characterId: string]: Plant } = {};
-  _doors: { [characterId: string]: DoorEntity } = {};
-  _explosives: { [characterId: string]: ExplosiveEntity } = {};
-  _traps: { [characterId: string]: TrapEntity } = {};
-  _temporaryObjects: {
-    [characterId: string]: TemporaryEntity | PlantingDiameter;
-  } = {};
-  _vehicles: { [characterId: string]: Vehicle } = {};
-  _lootbags: { [characterId: string]: Lootbag } = {};
-  _lootableConstruction: { [characterId: string]: LootableConstructionEntity } =
-    {};
-  _constructionFoundations: {
-    [characterId: string]: ConstructionParentEntity;
-  } = {};
-  _constructionDoors: { [characterId: string]: ConstructionDoor } = {};
-  _constructionSimple: { [characterId: string]: ConstructionChildEntity } = {};
-  _lootableProps: { [characterId: string]: LootableProp } = {};
-  _taskProps: { [characterId: string]: TaskProp } = {};
-  _crates: { [characterId: string]: Crate } = {};
-  _destroyables: { [characterId: string]: Destroyable } = {};
+
+  _characters: EntityDictionary<Character> = {};
+  _npcs: EntityDictionary<Npc> = {};
+  _spawnedItems: EntityDictionary<ItemObject> = {};
+  _plants: EntityDictionary<Plant> = {};
+  _doors: EntityDictionary<DoorEntity> = {};
+  _explosives: EntityDictionary<ExplosiveEntity> = {};
+  _traps: EntityDictionary<TrapEntity> = {};
+  _temporaryObjects: EntityDictionary<TemporaryEntity | PlantingDiameter> = {};
+  _vehicles: EntityDictionary<Vehicle> = {};
+  _lootbags: EntityDictionary<Lootbag> = {};
+  _lootableConstruction: EntityDictionary<LootableConstructionEntity> = {};
+  _constructionFoundations: EntityDictionary<ConstructionParentEntity> = {};
+  _constructionDoors: EntityDictionary<ConstructionDoor> = {};
+  _constructionSimple: EntityDictionary<ConstructionChildEntity> = {};
+  _lootableProps: EntityDictionary<LootableProp> = {};
+  _taskProps: EntityDictionary<TaskProp> = {};
+  _crates: EntityDictionary<Crate> = {};
+  _destroyables: EntityDictionary<Destroyable> = {};
+  _worldLootableConstruction: EntityDictionary<LootableConstructionEntity> = {};
+  _worldSimpleConstruction: EntityDictionary<ConstructionChildEntity> = {};
+
   _destroyableDTOlist: number[] = [];
+  _hudIndicators: { [indicatorId: string]: HudIndicator } = {};
+  _itemUseOptions: { [optionId: number]: UseOption } = {};
   _decoys: {
     [transientId: number]: {
       characterId: string;
@@ -234,11 +288,7 @@ export class ZoneServer2016 extends EventEmitter {
       action: string;
     };
   } = {};
-  _worldLootableConstruction: {
-    [characterId: string]: LootableConstructionEntity;
-  } = {};
-  _worldSimpleConstruction: { [characterId: string]: ConstructionChildEntity } =
-    {};
+
   _airdrop?: {
     plane: Plane;
     cargo?: Plane;
@@ -281,7 +331,6 @@ export class ZoneServer2016 extends EventEmitter {
   constructionManager: ConstructionManager;
   fairPlayManager: FairPlayManager;
   pluginManager: PluginManager;
-
   configManager: ConfigManager;
 
   _ready: boolean = false;
@@ -292,10 +341,10 @@ export class ZoneServer2016 extends EventEmitter {
     weaponDefinitions.FIRE_GROUP_DEFINITIONS;
   _firemodeDefinitions: { [firemodeId: number]: any } =
     weaponDefinitions.FIRE_MODE_DEFINITIONS;
-  itemDefinitionsCache: any;
-  weaponDefinitionsCache: any;
-  projectileDefinitionsCache: any;
-  profileDefinitionsCache: any;
+  itemDefinitionsCache?: Buffer;
+  weaponDefinitionsCache?: Buffer;
+  projectileDefinitionsCache?: Buffer;
+  profileDefinitionsCache?: Buffer;
   _containerDefinitions: { [containerDefinitionId: number]: any } =
     containerDefinitions;
   _recipes: { [recipeId: number]: Recipe } = recipes;
@@ -386,7 +435,7 @@ export class ZoneServer2016 extends EventEmitter {
       ) => {
         if (clientProtocol !== this._clientProtocol) {
           debug(`${client.address} is using the wrong client protocol`);
-          this.sendData(client as any, "LoginFailed", {});
+          this.sendData<LoginFailed>(client as any, "LoginFailed", {});
           return;
         }
         debug(
@@ -435,7 +484,7 @@ export class ZoneServer2016 extends EventEmitter {
         }
 
         if (this._characters[characterId]) {
-          this.sendData(client as any, "LoginFailed", {});
+          this.sendData<LoginFailed>(client as any, "LoginFailed", {});
           return;
         }
         this._clients[client.sessionId] = zoneClient;
@@ -748,7 +797,7 @@ export class ZoneServer2016 extends EventEmitter {
       this.sendInitData(client);
     } catch (error) {
       debug(error);
-      this.sendData(client, "LoginFailed", {});
+      this.sendData<LoginFailed>(client, "LoginFailed", {});
     }
   }
 
@@ -964,7 +1013,7 @@ export class ZoneServer2016 extends EventEmitter {
         client.character.characterId
       );
     } catch (e) {
-      this.sendData(client, "LoginFailed", {});
+      this.sendData<LoginFailed>(client, "LoginFailed", {});
       return;
     }
     await this.loadCharacterData(
@@ -973,9 +1022,11 @@ export class ZoneServer2016 extends EventEmitter {
     );
     client.startingPos = client.character.state.position;
     // guid is sensitive for now, so don't send real one to client rn
-    this.sendData(client, "SendSelfToClient", {
-      data: client.character.pGetSendSelf(this, "0x665a2bff2b44c034", client)
-    });
+    this.sendData<SendSelfToClient>(
+      client,
+      "SendSelfToClient",
+      client.character.pGetSendSelf(this, "0x665a2bff2b44c034", client)
+    );
     client.character.initialized = true;
     this.initializeContainerList(client);
 
@@ -1059,18 +1110,23 @@ export class ZoneServer2016 extends EventEmitter {
       }
     });
 
-    this.itemDefinitionsCache = this._protocol.pack("Command.ItemDefinitions", {
-      data: {
-        itemDefinitions: defs
+    const itemDefinitionsCache = this._protocol.pack(
+      "Command.ItemDefinitions",
+      {
+        data: {
+          itemDefinitions: defs
+        }
       }
-    });
+    );
+    if (!itemDefinitionsCache) return;
+    this.itemDefinitionsCache = itemDefinitionsCache;
   }
 
   /**
    * Caches weapon definitons so they aren't packed every time a client logs in.
    */
   private packWeaponDefinitions() {
-    this.weaponDefinitionsCache = this._protocol.pack(
+    const weaponDefinitionsCache = this._protocol.pack(
       "ReferenceData.WeaponDefinitions",
       {
         data: {
@@ -1097,25 +1153,30 @@ export class ZoneServer2016 extends EventEmitter {
         }
       }
     );
+    if (!weaponDefinitionsCache) return;
+    this.weaponDefinitionsCache = weaponDefinitionsCache;
   }
 
   /**
    * Caches projectile definitons so they aren't packed every time a client logs in.
    */
   private packProjectileDefinitions() {
-    this.projectileDefinitionsCache = this._protocol.pack(
+    const projectileDefinitionsCache = this._protocol.pack(
       "ReferenceData.ProjectileDefinitions",
       {
         definitionsData: projectileDefinitons
       }
     );
+
+    if (!projectileDefinitionsCache) return;
+    this.projectileDefinitionsCache = projectileDefinitionsCache;
   }
 
   /**
    * Caches profile definitons so they aren't packed every time a client logs in.
    */
   private packProfileDefinitions() {
-    this.profileDefinitionsCache = this._protocol.pack(
+    const profileDefinitionsCache = this._protocol.pack(
       "ReferenceData.ProfileDefinitions",
       {
         data: {
@@ -1123,6 +1184,9 @@ export class ZoneServer2016 extends EventEmitter {
         }
       }
     );
+
+    if (!profileDefinitionsCache) return;
+    this.profileDefinitionsCache = profileDefinitionsCache;
   }
 
   private async initializeLoginServerConnection() {
@@ -1361,6 +1425,7 @@ export class ZoneServer2016 extends EventEmitter {
 
     this.fairPlayManager.decryptFairPlayValues();
     this._spawnGrid = this.divideMapIntoSpawnGrid(7448, 7448, 744);
+    this.speedtreeManager.initiateList();
     this.startRoutinesLoop();
     this.smeltingManager.checkSmeltables(this);
     this.smeltingManager.checkCollectors(this);
@@ -1373,15 +1438,20 @@ export class ZoneServer2016 extends EventEmitter {
       () => this.worldRoutine.bind(this)(),
       this.worldRoutineRate
     );
+    this.initHudIndicatorDataSource();
+    this.initUseOptionsDataSource();
     this.hookManager.checkHook("OnServerReady");
   }
 
   sendInitData(client: Client) {
-    this.sendData(client, "InitializationParameters", {
-      ENVIRONMENT: "LIVE",
-      unknownString1: "",
-      rulesetDefinitions: [
-        /*
+    this.sendData<InitializationParameters>(
+      client,
+      "InitializationParameters",
+      {
+        ENVIRONMENT: "LIVE",
+        unknownString1: "",
+        rulesetDefinitions: [
+          /*
         {
           unknownDword1: 1,
           unknownDword2: 1,
@@ -1439,10 +1509,11 @@ export class ZoneServer2016 extends EventEmitter {
             
           ]
         },*/
-      ]
-    });
+        ]
+      }
+    );
 
-    this.sendData(client, "SendZoneDetails", {
+    this.sendData<SendZoneDetails>(client, "SendZoneDetails", {
       zoneName: "Z1",
       zoneType: 4,
       unknownBoolean1: false,
@@ -1459,15 +1530,19 @@ export class ZoneServer2016 extends EventEmitter {
       this.packItemDefinitions();
     }
     // only sends a few needed definitions
-    this.sendRawData(client, this.itemDefinitionsCache);
+    if (this.itemDefinitionsCache) {
+      this.sendRawData(client, this.itemDefinitionsCache);
+    }
     if (!this.weaponDefinitionsCache) {
       this.packWeaponDefinitions();
     }
-    this.sendRawData(client, this.weaponDefinitionsCache);
+    if (this.weaponDefinitionsCache) {
+      this.sendRawData(client, this.weaponDefinitionsCache);
+    }
 
     // used for equipment textures / skins, does nothing so far
     /*
-    this.sendData(client, "ReferenceData.DynamicAppearance", {
+    this.sendData<>(client, "ReferenceData.DynamicAppearance", {
       array1: dynamicappearance.array1,
       array2: dynamicappearance.array2,
       array3: dynamicappearance.array3
@@ -1476,14 +1551,14 @@ export class ZoneServer2016 extends EventEmitter {
 
     // packet is just broken, idk why
     /*
-    this.sendData(client, "ClientBeginZoning", {
+    this.sendData<>(client, "ClientBeginZoning", {
       //position: Array.from(client.character.state.position),
       //rotation: Array.from(client.character.state.rotation),
       skyData: this.weather,
     });
     */
 
-    this.sendData(client, "ClientGameSettings", {
+    this.sendData<ClientGameSettings>(client, "ClientGameSettings", {
       Unknown2: 0,
       interactionCheckRadius: 16, // need it high for tampers
       unknownBoolean1: true,
@@ -1690,7 +1765,7 @@ export class ZoneServer2016 extends EventEmitter {
       );
       this.worldDataManager.saveCharacterData(characterSave, this.lastItemGuid);
       this.dismountVehicle(client);
-      client.managedObjects?.forEach((characterId: any) => {
+      client.managedObjects?.forEach((characterId: string) => {
         this.dropVehicleManager(client, characterId);
       });
       this.deleteEntity(client.character.characterId, this._characters);
@@ -1769,17 +1844,16 @@ export class ZoneServer2016 extends EventEmitter {
   }
 
   sendDeathMetrics(client: Client) {
-    const clientUpdateDeathMetricsPacket: ClientUpdateDeathMetrics = {
-      recipesDiscovered: client.character.metrics.recipesDiscovered,
-      zombiesKilled: client.character.metrics.zombiesKilled,
-      minutesSurvived:
-        (Date.now() - client.character.metrics.startedSurvivingTP) / 60000,
-      wildlifeKilled: client.character.metrics.wildlifeKilled
-    };
-    this.sendData(
+    this.sendData<ClientUpdateDeathMetrics>(
       client,
       "ClientUpdate.DeathMetrics",
-      clientUpdateDeathMetricsPacket
+      {
+        recipesDiscovered: client.character.metrics.recipesDiscovered,
+        zombiesKilled: client.character.metrics.zombiesKilled,
+        minutesSurvived:
+          (Date.now() - client.character.metrics.startedSurvivingTP) / 60000,
+        wildlifeKilled: client.character.metrics.wildlifeKilled
+      }
     );
   }
 
@@ -1871,10 +1945,14 @@ export class ZoneServer2016 extends EventEmitter {
       });
     });
 
-    this.sendData(client, "ClientUpdate.UpdateLockoutTimes", {
-      unk: gridArr,
-      bool: true
-    });
+    this.sendData<ClientUpdateUpdateLockoutTimes>(
+      client,
+      "ClientUpdate.UpdateLockoutTimes",
+      {
+        unk: gridArr,
+        bool: true
+      }
+    );
     client.character._characterEffects = {};
     client.character.isRespawning = true;
     this.sendDeathMetrics(client);
@@ -1889,7 +1967,7 @@ export class ZoneServer2016 extends EventEmitter {
       false
     );
     if (!client.isLoading) {
-      this.sendDataToAllWithSpawnedEntity(
+      this.sendDataToAllWithSpawnedEntity<CharacterStartMultiStateDeath>(
         this._characters,
         client.character.characterId,
         "Character.StartMultiStateDeath",
@@ -1898,7 +1976,7 @@ export class ZoneServer2016 extends EventEmitter {
         }
       );
     } else {
-      this.sendDataToAllOthersWithSpawnedEntity(
+      this.sendDataToAllOthersWithSpawnedEntity<CharacterStartMultiStateDeath>(
         this._characters,
         client,
         client.character.characterId,
@@ -1964,7 +2042,7 @@ export class ZoneServer2016 extends EventEmitter {
         this._clients[a].loginSessionId === client.loginSessionId
       )
         continue;
-      this.sendData(this._clients[a], "Character.KilledBy", {
+      this.sendData<CharacterKilledBy>(this._clients[a], "Character.KilledBy", {
         killer: damageInfo.entity,
         killed: client.character.characterId
       });
@@ -2241,7 +2319,7 @@ export class ZoneServer2016 extends EventEmitter {
     client.character.isRespawning = false;
     client.isInAir = false;
 
-    this.sendDataToAllWithSpawnedEntity(
+    this.sendDataToAllWithSpawnedEntity<CommandPlayDialogEffect>(
       this._characters,
       client.character.characterId,
       "Command.PlayDialogEffect",
@@ -2256,20 +2334,25 @@ export class ZoneServer2016 extends EventEmitter {
     client.character._resources[ResourceIds.HYDRATION] = 10000;
     client.character._resources[ResourceIds.STAMINA] = 600;
     client.character._resources[ResourceIds.BLEEDING] = -40;
-    client.character.healingTicks = 0;
-    client.character.healingMaxTicks = 0;
+    client.character._resources[ResourceIds.ENDURANCE] = 8000;
+    for (const a in client.character.healType) {
+      const healType = client.character.healType[a];
+      healType.healingTicks = 0;
+      healType.healingMaxTicks = 0;
+    }
+    (client.character.hudIndicators = {}), this.sendHudIndicators(client);
     client.character.resourcesUpdater?.refresh();
 
     const randomSpawnIndex = Math.floor(
       Math.random() * cell.spawnPoints.length
     );
     if (client.character.initialized) {
-      client.managedObjects?.forEach((characterId: any) => {
+      client.managedObjects?.forEach((characterId) => {
         this.dropVehicleManager(client, characterId);
       });
-      this.sendData(client, "Character.RespawnReply", {
+      this.sendData<CharacterRespawnReply>(client, "Character.RespawnReply", {
         characterId: client.character.characterId,
-        status: 1
+        status: true
       });
       const tempPos = client.character.state.position;
       const tempPos2 = new Float32Array([
@@ -2280,9 +2363,13 @@ export class ZoneServer2016 extends EventEmitter {
       ]);
       client.character.state.position = tempPos2;
       client.oldPos.position = tempPos2;
-      this.sendData(client, "ClientUpdate.UpdateLocation", {
-        position: tempPos2
-      });
+      this.sendData<ClientUpdateUpdateLocation>(
+        client,
+        "ClientUpdate.UpdateLocation",
+        {
+          position: tempPos2
+        }
+      );
       const damageInfo: DamageInfo = {
         entity: "Server.Respawn",
         damage: 99999
@@ -2358,7 +2445,7 @@ export class ZoneServer2016 extends EventEmitter {
 
     // fixes characters showing up as dead if they respawn close to other characters
     if (client.character.initialized) {
-      this.sendDataToAllOthersWithSpawnedEntity(
+      this.sendDataToAllOthersWithSpawnedEntity<CharacterRemovePlayer>(
         this._characters,
         client,
         client.character.characterId,
@@ -2371,7 +2458,7 @@ export class ZoneServer2016 extends EventEmitter {
         vehicle = vehicleId ? this._vehicles[vehicleId] : false;
       setTimeout(() => {
         if (!client?.character) return;
-        this.sendDataToAllOthersWithSpawnedEntity(
+        this.sendDataToAllOthersWithSpawnedEntity<AddLightweightPc>(
           this._characters,
           client,
           client.character.characterId,
@@ -2387,7 +2474,7 @@ export class ZoneServer2016 extends EventEmitter {
               : 0,
             mountRelatedDword1: vehicle ? 1 : 0,
             flags1: {
-              isAdmin: client.isAdmin
+              isAdmin: client.isAdmin ? 1 : 0
             }
           }
         );
@@ -2404,7 +2491,7 @@ export class ZoneServer2016 extends EventEmitter {
     resourceId: number,
     resourceType?: number // most resources have the same id and type
   ) {
-    this.sendData(client, "ResourceEvent", {
+    this.sendData<ResourceEvent>(client, "ResourceEvent", {
       eventData: {
         type: 3,
         value: {
@@ -2422,19 +2509,24 @@ export class ZoneServer2016 extends EventEmitter {
     value: number,
     resourceId: number,
     resourceType: number,
-    dictionary: any
+    dictionary: EntityDictionary<BaseEntity>
   ) {
-    this.sendDataToAllWithSpawnedEntity(dictionary, entityId, "ResourceEvent", {
-      eventData: {
-        type: 3,
-        value: {
-          characterId: entityId,
-          resourceId: resourceId,
-          resourceType: resourceType,
-          initialValue: value >= 0 ? value : 0
+    this.sendDataToAllWithSpawnedEntity<ResourceEvent>(
+      dictionary,
+      entityId,
+      "ResourceEvent",
+      {
+        eventData: {
+          type: 3,
+          value: {
+            characterId: entityId,
+            resourceId: resourceId,
+            resourceType: resourceType,
+            initialValue: value >= 0 ? value : 0
+          }
         }
       }
-    });
+    );
   }
 
   getEntityType(entityKey: string): number {
@@ -2523,7 +2615,7 @@ export class ZoneServer2016 extends EventEmitter {
     }
   }
 
-  getEntity(entityKey: string): BaseEntity | undefined {
+  getEntity(entityKey: string = ""): BaseEntity | undefined {
     return (
       this._npcs[entityKey] ||
       this._vehicles[entityKey] ||
@@ -2622,7 +2714,7 @@ export class ZoneServer2016 extends EventEmitter {
 
   checkArmor(
     characterId: string,
-    damage: any,
+    damage: number,
     kevlarDamageDivider = 4
   ): number {
     // TODO: REDO THIS
@@ -2669,7 +2761,8 @@ export class ZoneServer2016 extends EventEmitter {
         isHeadshot = true;
         break;
     }
-    this.sendData(client, "Ui.ConfirmHit", {
+    // TODO: FIX BITFLAGS GENERATING INCORRECT INTERFACES - Meme
+    this.sendData</*UiConfirmHit*/ object>(client, "Ui.ConfirmHit", {
       hitType: {
         isAlly: 0,
         isHeadshot: isHeadshot,
@@ -2944,13 +3037,13 @@ export class ZoneServer2016 extends EventEmitter {
     };
 
     if (!sendToAll) {
-      this.sendData(
+      this.sendData<CharacterUpdateCharacterState>(
         client,
         "Character.UpdateCharacterState",
         updateCharacterStateBody
       );
     } else {
-      this.sendDataToAllOthersWithSpawnedEntity(
+      this.sendDataToAllOthersWithSpawnedEntity<CharacterUpdateCharacterState>(
         this._characters,
         client,
         client.character.characterId,
@@ -3001,7 +3094,7 @@ export class ZoneServer2016 extends EventEmitter {
       };
       DTOArray.push(DTOinstance);
     });
-    this.sendData(client, "DtoObjectInitialData", {
+    this.sendData<DtoObjectInitialData>(client, "DtoObjectInitialData", {
       unknownDword1: 1,
       unknownArray1: DTOArray,
       unknownArray2: [{}]
@@ -3030,8 +3123,8 @@ export class ZoneServer2016 extends EventEmitter {
     client.spawnedEntities = client.spawnedEntities.filter((el) => {
       return !objectsToRemove.includes(el);
     });
-    objectsToRemove.forEach((object: any) => {
-      this.sendData(client, "Character.RemovePlayer", {
+    objectsToRemove.forEach((object) => {
+      this.sendData<CharacterRemovePlayer>(client, "Character.RemovePlayer", {
         characterId: object.characterId
       });
     });
@@ -3047,19 +3140,19 @@ export class ZoneServer2016 extends EventEmitter {
   }
 
   despawnEntity(characterId: string) {
-    this.sendDataToAll("Character.RemovePlayer", {
+    this.sendDataToAll<CharacterRemovePlayer>("Character.RemovePlayer", {
       characterId: characterId
     });
   }
 
   deleteEntity(
     characterId: string,
-    dictionary: any,
+    dictionary: EntityDictionary<BaseEntity>,
     effectId?: number,
     timeToDisappear?: number
   ): boolean {
     if (!dictionary[characterId]) return false;
-    this.sendDataToAllWithSpawnedEntity(
+    this.sendDataToAllWithSpawnedEntity<CharacterRemovePlayer>(
       dictionary,
       characterId,
       "Character.RemovePlayer",
@@ -3094,14 +3187,14 @@ export class ZoneServer2016 extends EventEmitter {
 
   deleteCrate(crate: Crate, effectId?: number): boolean {
     if (!this._crates[crate.characterId]) return false;
-    this.sendDataToAllWithSpawnedEntity(
+    this.sendDataToAllWithSpawnedEntity<CharacterRemovePlayer>(
       this._crates,
       crate.characterId,
       "Character.RemovePlayer",
       {
         characterId: crate.characterId,
         unknownWord1: effectId ? 1 : 0,
-        effectId: 163,
+        effectId: Effects.PFX_Damage_Crate_01m,
         timeToDisappear: 0,
         effectDelay: 0
       }
@@ -3118,8 +3211,15 @@ export class ZoneServer2016 extends EventEmitter {
     return true;
   }
 
-  sendManagedObjectResponseControlPacket(client: Client, obj: zone2016packets) {
-    this.sendData(client, "ClientUpdate.ManagedObjectResponseControl", obj);
+  sendManagedObjectResponseControlPacket(
+    client: Client,
+    obj: ClientUpdateManagedObjectResponseControl
+  ) {
+    this.sendData<ClientUpdateManagedObjectResponseControl>(
+      client,
+      "ClientUpdate.ManagedObjectResponseControl",
+      obj
+    );
   }
 
   addLightweightNpc(
@@ -3127,13 +3227,14 @@ export class ZoneServer2016 extends EventEmitter {
     entity: BaseLightweightCharacter,
     nameId = 0
   ) {
-    this.sendData(client, "AddLightweightNpc", {
+    // TODO: BITFLAGS FIX - Meme
+    this.sendData<AddLightweightNpc>(client, "AddLightweightNpc", {
       ...entity.pGetLightweight(),
       nameId
     });
   }
   addSimpleNpc(client: Client, entity: BaseSimpleNpc) {
-    this.sendData(client, "AddSimpleNpc", entity.pGetSimpleNpc());
+    this.sendData<AddSimpleNpc>(client, "AddSimpleNpc", entity.pGetSimpleNpc());
   }
 
   spawnSimpleNpcForAllInRange(entity: BaseSimpleNpc) {
@@ -3160,7 +3261,7 @@ export class ZoneServer2016 extends EventEmitter {
       headActor: ""
     };
 
-    this.sendData(client, "AddLightweightNpc", lightWeight);
+    this.sendData<object>(client, "AddLightweightNpc", lightWeight);
   }
 
   spawnCharacters(client: Client) {
@@ -3183,7 +3284,7 @@ export class ZoneServer2016 extends EventEmitter {
       ) {
         const vehicleId = this._clients[c].vehicle.mountedVehicle,
           vehicle = vehicleId ? this._vehicles[vehicleId] : false;
-        this.sendData(client, "AddLightweightPc", {
+        this.sendData<object>(client, "AddLightweightPc", {
           ...characterObj.pGetLightweight(),
           mountGuid: vehicleId || "",
           mountSeatId: vehicle
@@ -3212,7 +3313,7 @@ export class ZoneServer2016 extends EventEmitter {
         !c.spawnedEntities.includes(character) &&
         character != c.character
       ) {
-        this.sendData(c, "AddLightweightPc", {
+        this.sendData<object>(c, "AddLightweightPc", {
           ...character.pGetLightweight(),
           mountGuid: "",
           mountSeatId: 0,
@@ -3285,15 +3386,19 @@ export class ZoneServer2016 extends EventEmitter {
             this.addLightweightNpc(client, object);
             if (object instanceof DoorEntity) {
               if (object.isOpen) {
-                this.sendData(client, "PlayerUpdatePosition", {
-                  transientId: object.transientId,
-                  positionUpdate: {
-                    sequenceTime: 0,
-                    unknown3_int8: 0,
-                    position: object.state.position,
-                    orientation: object.openAngle
+                this.sendData<PlayerUpdatePosition>(
+                  client,
+                  "PlayerUpdatePosition",
+                  {
+                    transientId: object.transientId,
+                    positionUpdate: {
+                      sequenceTime: 0,
+                      unknown3_int8: 0,
+                      position: object.state.position,
+                      orientation: object.openAngle
+                    }
                   }
-                });
+                );
               }
               continue;
             }
@@ -3363,7 +3468,7 @@ export class ZoneServer2016 extends EventEmitter {
         inPOI = true;
         if (client.currentPOI != point.stringId) {
           // checks if player already was sent POIChangeMessage
-          this.sendData(client, "POIChangeMessage", {
+          this.sendData<POIChangeMessage>(client, "POIChangeMessage", {
             messageStringId: point.stringId,
             id: point.POIid
           });
@@ -3373,7 +3478,7 @@ export class ZoneServer2016 extends EventEmitter {
     });
     if (!inPOI && client.currentPOI != 0) {
       // checks if POIChangeMessage was already cleared
-      this.sendData(client, "POIChangeMessage", {
+      this.sendData<POIChangeMessage>(client, "POIChangeMessage", {
         messageStringId: 0,
         id: 115
       });
@@ -3429,7 +3534,7 @@ export class ZoneServer2016 extends EventEmitter {
     packetName: h1z1PacketsType2016,
     obj: ZonePacket
   ) {
-    this._sendData(client, packetName, obj, false);
+    this._sendData<ZonePacket>(client, packetName, obj, false);
   }
 
   /*addLightWeightNpcQueue(
@@ -3445,7 +3550,7 @@ export class ZoneServer2016 extends EventEmitter {
     packetName: weaponPacketsType,
     obj: zone2016packets
   ) {
-    this.sendData(client, "Weapon.Weapon", {
+    this.sendData<WeaponWeapon>(client, "Weapon.Weapon", {
       weaponPacket: {
         packetName: packetName,
         gameTime: this.getGameTime(),
@@ -3460,7 +3565,7 @@ export class ZoneServer2016 extends EventEmitter {
     packetName: remoteWeaponPacketsType,
     obj: zone2016packets
   ) {
-    this.sendData(client, "Weapon.Weapon", {
+    this.sendData<WeaponWeapon>(client, "Weapon.Weapon", {
       weaponPacket: {
         packetName: "Weapon.RemoteWeapon",
         gameTime: this.getGameTime(),
@@ -3479,7 +3584,7 @@ export class ZoneServer2016 extends EventEmitter {
     packetName: remoteWeaponPacketsType,
     obj: any
   ) {
-    this.sendDataToAllOthersWithSpawnedEntity(
+    this.sendDataToAllOthersWithSpawnedEntity<WeaponWeapon>(
       this._characters,
       client,
       client.character.characterId,
@@ -3505,7 +3610,7 @@ export class ZoneServer2016 extends EventEmitter {
     packetName: remoteWeaponUpdatePacketsType,
     obj: zone2016packets
   ) {
-    this.sendData(client, "Weapon.Weapon", {
+    this.sendData<WeaponWeapon>(client, "Weapon.Weapon", {
       weaponPacket: {
         packetName: "Weapon.RemoteWeapon",
         gameTime: this.getGameTime(),
@@ -3529,7 +3634,7 @@ export class ZoneServer2016 extends EventEmitter {
     packetName: remoteWeaponUpdatePacketsType,
     obj: any
   ) {
-    this.sendDataToAllOthersWithSpawnedEntity(
+    this.sendDataToAllOthersWithSpawnedEntity<WeaponWeapon>(
       this._characters,
       client,
       client.character.characterId,
@@ -3718,16 +3823,16 @@ export class ZoneServer2016 extends EventEmitter {
           return !objectsToRemove.includes(el);
         });
         objectsToRemove.forEach((object: any) => {
-          this.sendData(client, "Character.RemovePlayer", {
+          this.sendData<>(client, "Character.RemovePlayer", {
             characterId: object.characterId,
           });
         });
         break;*/
       case "rick":
-        this.sendData(client, "ClientExitLaunchUrl", {
+        this.sendData<ClientExitLaunchUrl>(client, "ClientExitLaunchUrl", {
           url: "https://www.youtube.com/watch?v=dQw4w9WgXcQ"
         });
-        this.sendData(client, "LoginFailed", {});
+        this.sendData<LoginFailed>(client, "LoginFailed", {});
         this.deleteClient(client);
         setTimeout(() => {
           if (!client) return;
@@ -3759,10 +3864,14 @@ export class ZoneServer2016 extends EventEmitter {
   }
 
   kickPlayer(client: Client) {
-    this.sendData(client, "CharacterSelectSessionResponse", {
-      status: 1,
-      sessionId: client.loginSessionId
-    });
+    this.sendData<CharacterSelectSessionResponse>(
+      client,
+      "CharacterSelectSessionResponse",
+      {
+        status: 1,
+        sessionId: client.loginSessionId
+      }
+    );
     setTimeout(() => {
       if (!client) return;
       this.deleteClient(client);
@@ -3805,16 +3914,16 @@ export class ZoneServer2016 extends EventEmitter {
   sendGameTimeSync(client: Client) {
     debug("GameTimeSync");
     if (!this.weatherManager.frozeCycle) {
-      this.sendData(client, "GameTimeSync", {
+      this.sendData<GameTimeSync>(client, "GameTimeSync", {
         time: Int64String(this.getServerTimeTest()),
         cycleSpeed: Math.round(this._timeMultiplier * 0.97222),
-        unknownBoolean: false
+        unknownBoolean1: false
       });
     } else if (this.weatherManager.frozeCycle) {
-      this.sendData(client, "GameTimeSync", {
+      this.sendData<GameTimeSync>(client, "GameTimeSync", {
         time: Int64String(this.getGameTime()),
         cycleSpeed: 0.1,
-        unknownBoolean: false
+        unknownBoolean1: false
       });
     }
   }
@@ -3822,7 +3931,7 @@ export class ZoneServer2016 extends EventEmitter {
   sendRawToAllOthersWithSpawnedCharacter(
     client: Client,
     entityCharacterId: string = "",
-    data: any
+    data: Buffer
   ) {
     for (const a in this._clients) {
       if (
@@ -3854,7 +3963,7 @@ export class ZoneServer2016 extends EventEmitter {
         flags: {},
         headActor: ""
       };
-      this.sendData(client, "AddLightweightNpc", lightWeight);
+      this.sendData<object>(client, "AddLightweightNpc", lightWeight);
       /*const lightWeight2 = {
         characterId: this._airdrop.destination,
         transientId: 0,
@@ -3881,20 +3990,24 @@ export class ZoneServer2016 extends EventEmitter {
         flags: {},
         headActor: ""
       };
-      this.sendData(client, "AddLightweightNpc", lightWeight);
-      //this.sendData(client, "AddLightweightNpc", lightWeight2);
-      this.sendData(client, "AddLightweightNpc", lightWeight3);
-      this.sendData(client, "AddLightweightVehicle", {
+      this.sendData<object>(client, "AddLightweightNpc", lightWeight);
+      //this.sendData<>(client, "AddLightweightNpc", lightWeight2);
+      this.sendData<object>(client, "AddLightweightNpc", lightWeight3);
+      this.sendData<object>(client, "AddLightweightVehicle", {
         ...this._airdrop.plane.pGetLightweightVehicle(),
         unknownGuid1: this.generateGuid()
       });
-      this.sendData(client, "Character.MovementVersion", {
-        characterId: this._airdrop.plane.characterId,
-        version: 5
-      });
+      this.sendData<CharacterMovementVersion>(
+        client,
+        "Character.MovementVersion",
+        {
+          characterId: this._airdrop.plane.characterId,
+          version: 5
+        }
+      );
       setTimeout(() => {
         if (this._airdrop) {
-          this.sendData(
+          this.sendData<object>(
             client,
             "LightweightToFullVehicle",
             this._airdrop.plane.pGetFullVehicle(this)
@@ -3902,7 +4015,7 @@ export class ZoneServer2016 extends EventEmitter {
         }
       }, 1000);
 
-      this.sendData(client, "Character.SeekTarget", {
+      this.sendData<CharacterSeekTarget>(client, "Character.SeekTarget", {
         characterId: this._airdrop.plane.characterId,
         TargetCharacterId: this._airdrop.planeTarget,
         initSpeed: -20,
@@ -3922,27 +4035,35 @@ export class ZoneServer2016 extends EventEmitter {
         this._airdrop.manager.character.characterId ==
           client.character.characterId
       ) {
-        this.sendData(client, "Character.ManagedObject", {
-          objectCharacterId: this._airdrop.plane.characterId,
-          characterId: client.character.characterId
-        });
+        this.sendData<CharacterManagedObject>(
+          client,
+          "Character.ManagedObject",
+          {
+            objectCharacterId: this._airdrop.plane.characterId,
+            characterId: client.character.characterId
+          }
+        );
       }
 
       if (this._airdrop.cargoSpawned && this._airdrop.cargo) {
-        this.sendData(client, "AddLightweightVehicle", {
+        this.sendData<object>(client, "AddLightweightVehicle", {
           ...this._airdrop.cargo.pGetLightweightVehicle(),
           unknownGuid1: this.generateGuid()
         });
-        this.sendData(client, "Character.MovementVersion", {
-          characterId: this._airdrop.cargo.characterId,
-          version: 6
-        });
-        this.sendData(
+        this.sendData<CharacterMovementVersion>(
+          client,
+          "Character.MovementVersion",
+          {
+            characterId: this._airdrop.cargo.characterId,
+            version: 6
+          }
+        );
+        this.sendData<object>(
           client,
           "LightweightToFullVehicle",
           this._airdrop.cargo.pGetFullVehicle(this)
         );
-        this.sendData(client, "Character.SeekTarget", {
+        this.sendData<CharacterSeekTarget>(client, "Character.SeekTarget", {
           characterId: this._airdrop.cargo.characterId,
           TargetCharacterId: this._airdrop.cargoTarget,
           initSpeed: -5,
@@ -3951,32 +4072,36 @@ export class ZoneServer2016 extends EventEmitter {
           turn: 5,
           yRot: 0
         });
-        this.sendData(client, "Character.ManagedObject", {
-          objectCharacterId: this._airdrop.cargo.characterId,
-          characterId: client.character.characterId
-        });
+        this.sendData<CharacterManagedObject>(
+          client,
+          "Character.ManagedObject",
+          {
+            objectCharacterId: this._airdrop.cargo.characterId,
+            characterId: client.character.characterId
+          }
+        );
       }
     } else if (!spawn) {
-      this.sendData(client, "Character.RemovePlayer", {
+      this.sendData<CharacterRemovePlayer>(client, "Character.RemovePlayer", {
         characterId: this._airdrop.plane.characterId
       });
       if (this._airdrop.cargo) {
-        this.sendData(client, "Character.RemovePlayer", {
+        this.sendData<CharacterRemovePlayer>(client, "Character.RemovePlayer", {
           characterId: this._airdrop.cargo.characterId,
           unknownWord1: 1,
-          effectId: 5328,
+          effectId: Effects.PFX_Impact_Explosion_AirdropBomb_Default_10m,
           timeToDisappear: 0,
           effectDelay: 0
         });
       }
       // removing them seems to crash the client somehow
-      /*this.sendData(client, "Character.RemovePlayer", {
+      /*this.sendData<>(client, "Character.RemovePlayer", {
         characterId: this._airdrop.destination,
       });
-      this.sendData(client, "Character.RemovePlayer", {
+      this.sendData<>(client, "Character.RemovePlayer", {
         characterId: this._airdrop.planeTarget,
       });
-      this.sendData(client, "Character.RemovePlayer", {
+      this.sendData<>(client, "Character.RemovePlayer", {
         characterId: this._airdrop.cargoTarget,
       });*/
     }
@@ -3988,30 +4113,38 @@ export class ZoneServer2016 extends EventEmitter {
     let currentDistance = 999999;
     for (const a in this._clients) {
       const client = this._clients[a];
-      this.sendData(client, "Character.RemovePlayer", {
+      this.sendData<CharacterRemovePlayer>(client, "Character.RemovePlayer", {
         characterId: this._airdrop.plane.characterId
       });
-      this.sendData(client, "AddLightweightVehicle", {
+      this.sendData<object>(client, "AddLightweightVehicle", {
         ...this._airdrop.plane.pGetLightweightVehicle(),
         unknownGuid1: this.generateGuid()
       });
-      this.sendData(client, "Character.MovementVersion", {
-        characterId: this._airdrop.plane.characterId,
-        version: 5
-      });
+      this.sendData<CharacterMovementVersion>(
+        client,
+        "Character.MovementVersion",
+        {
+          characterId: this._airdrop.plane.characterId,
+          version: 5
+        }
+      );
       if (this._airdrop.cargoSpawned && this._airdrop.cargo) {
-        this.sendData(client, "Character.RemovePlayer", {
+        this.sendData<CharacterRemovePlayer>(client, "Character.RemovePlayer", {
           characterId: this._airdrop.cargo.characterId
         });
-        this.sendData(client, "AddLightweightVehicle", {
+        this.sendData<object>(client, "AddLightweightVehicle", {
           ...this._airdrop.cargo.pGetLightweightVehicle(),
           unknownGuid1: this.generateGuid()
         });
-        this.sendData(client, "Character.MovementVersion", {
-          characterId: this._airdrop.cargo.characterId,
-          version: 6
-        });
-        this.sendData(client, "Character.SeekTarget", {
+        this.sendData<CharacterMovementVersion>(
+          client,
+          "Character.MovementVersion",
+          {
+            characterId: this._airdrop.cargo.characterId,
+            version: 6
+          }
+        );
+        this.sendData<CharacterSeekTarget>(client, "Character.SeekTarget", {
           characterId: this._airdrop.cargo.characterId,
           TargetCharacterId: this._airdrop.cargoTarget,
           initSpeed: -5,
@@ -4021,11 +4154,15 @@ export class ZoneServer2016 extends EventEmitter {
           yRot: 0,
           rotation: new Float32Array([0, 1, 0, 0])
         });
-        this.sendData(client, "Character.ManagedObject", {
-          objectCharacterId: this._airdrop.cargo.characterId,
-          characterId: client.character.characterId
-        });
-        this.sendData(
+        this.sendData<CharacterManagedObject>(
+          client,
+          "Character.ManagedObject",
+          {
+            objectCharacterId: this._airdrop.cargo.characterId,
+            characterId: client.character.characterId
+          }
+        );
+        this.sendData<object>(
           client,
           "LightweightToFullVehicle",
           this._airdrop.cargo.pGetFullVehicle(this)
@@ -4033,14 +4170,14 @@ export class ZoneServer2016 extends EventEmitter {
       }
       setTimeout(() => {
         if (this._airdrop) {
-          this.sendData(
+          this.sendData<object>(
             client,
             "LightweightToFullVehicle",
             this._airdrop.plane.pGetFullVehicle(this)
           );
         }
       }, 1000);
-      this.sendData(client, "Character.SeekTarget", {
+      this.sendData<CharacterSeekTarget>(client, "Character.SeekTarget", {
         characterId: this._airdrop.plane.characterId,
         TargetCharacterId: this._airdrop.planeTarget,
         initSpeed: -20,
@@ -4089,16 +4226,19 @@ export class ZoneServer2016 extends EventEmitter {
     }
     this._airdrop.manager = choosenClient;
     if (!this._airdrop.manager) return;
-    this.sendData(this._airdrop.manager, "Character.ManagedObject", {
-      objectCharacterId: this._airdrop.plane.characterId,
-      characterId: this._airdrop.manager.character.characterId
-    });
+    this.sendData<CharacterManagedObject>(
+      this._airdrop.manager,
+      "Character.ManagedObject",
+      {
+        objectCharacterId: this._airdrop.plane.characterId,
+        characterId: this._airdrop.manager.character.characterId
+      }
+    );
   }
 
   vehicleManager(client: Client) {
     for (const key in this._vehicles) {
       const vehicle = this._vehicles[key];
-      //if (vehicle.vehicleId == VehicleIds.SPECTATE) continue; //ignore spectator cam // shouldnt be needed anymore
       if (
         // vehicle spawning / managed object assignment logic
         isPosInRadius(
@@ -4108,27 +4248,31 @@ export class ZoneServer2016 extends EventEmitter {
         )
       ) {
         if (!client.spawnedEntities.includes(vehicle)) {
-          this.sendData(client, "AddLightweightVehicle", {
+          this.sendData<object>(client, "AddLightweightVehicle", {
             ...vehicle.pGetLightweightVehicle(),
             unknownGuid1: this.generateGuid()
           });
           vehicle.effectTags.forEach((effectTag: number) => {
-            this.sendData(client, "Character.AddEffectTagCompositeEffect", {
-              characterId: vehicle.characterId,
-              effectId: effectTag,
-              unknownDword1: effectTag,
-              unknownDword2: effectTag
-            });
+            this.sendData<CharacterAddEffectTagCompositeEffect>(
+              client,
+              "Character.AddEffectTagCompositeEffect",
+              {
+                characterId: vehicle.characterId,
+                effectId: effectTag,
+                unknownDword1: effectTag,
+                unknownDword2: effectTag
+              }
+            );
           });
           /*
           if (vehicle.engineOn) {
-            this.sendData(client, "Vehicle.Engine", {
+            this.sendData<>(client, "Vehicle.Engine", {
               vehicleCharacterId: vehicle.characterId,
               engineOn: true,
             });
           }
           */
-          /*this.sendData(client, "Vehicle.OwnerPassengerList", {
+          /*this.sendData<>(client, "Vehicle.OwnerPassengerList", {
             characterId: client.character.characterId,
             passengers: vehicle.pGetPassengers(this),
           });*/
@@ -4153,9 +4297,13 @@ export class ZoneServer2016 extends EventEmitter {
           if (vehicle.isManaged) {
             this.dropManagedObject(client, vehicle);
           }
-          this.sendData(client, "Character.RemovePlayer", {
-            characterId: vehicle.characterId
-          });
+          this.sendData<CharacterRemovePlayer>(
+            client,
+            "Character.RemovePlayer",
+            {
+              characterId: vehicle.characterId
+            }
+          );
           client.spawnedEntities.splice(index, 1);
         }
       }
@@ -4166,14 +4314,18 @@ export class ZoneServer2016 extends EventEmitter {
     // todo: vehicle seat swap managed object assignment logic
     debug("\n\n\n\n\n\n\n\n\n\n assign managed object");
 
-    this.sendData(client, "Character.ManagedObject", {
+    this.sendData<CharacterManagedObject>(client, "Character.ManagedObject", {
       objectCharacterId: vehicle.characterId,
       characterId: client.character.characterId
     });
-    this.sendData(client, "ClientUpdate.ManagedObjectResponseControl", {
-      control: true,
-      objectCharacterId: vehicle.characterId
-    });
+    this.sendData<ClientUpdateManagedObjectResponseControl>(
+      client,
+      "ClientUpdate.ManagedObjectResponseControl",
+      {
+        control: true,
+        objectCharacterId: vehicle.characterId
+      }
+    );
     client.managedObjects.push(vehicle.characterId);
     vehicle.isManaged = true;
   }
@@ -4188,23 +4340,23 @@ export class ZoneServer2016 extends EventEmitter {
       // todo: vehicle seat swap managed object drop logic
       debug("\n\n\n\n\n\n\n\n\n\n drop managed object");
 
-      /*this.sendData(client, "ClientUpdate.ManagedObjectResponseControl", {
+      /*this.sendData<>(client, "ClientUpdate.ManagedObjectResponseControl", {
         control: true,
         objectCharacterId: vehicle.characterId,
       });*/ // dont work :/
 
       // workaround for managed object issue
       if (client.vehicle.mountedVehicle == vehicle.characterId) {
-        this.sendData(client, "Mount.DismountResponse", {
+        this.sendData<MountDismountResponse>(client, "Mount.DismountResponse", {
           characterId: client.character.characterId
         });
         vehicle.droppedManagedClient = client;
       }
-      this.sendData(client, "Character.RemovePlayer", {
+      this.sendData<CharacterRemovePlayer>(client, "Character.RemovePlayer", {
         characterId: vehicle.characterId
       });
 
-      this.sendData(client, "AddLightweightVehicle", {
+      this.sendData<object>(client, "AddLightweightVehicle", {
         ...vehicle.pGetLightweightVehicle(),
         unknownGuid1: this.generateGuid()
       });
@@ -4234,7 +4386,7 @@ export class ZoneServer2016 extends EventEmitter {
   dropAllManagedObjects(client: Client) {
     client.managedObjects.forEach((characterId: string) => {
       this.sendManagedObjectResponseControlPacket(client, {
-        control: 0,
+        control: false,
         objectCharacterId: characterId
       });
       client.managedObjects.splice(
@@ -4245,11 +4397,11 @@ export class ZoneServer2016 extends EventEmitter {
   }
 
   sendCompositeEffectToAllWithSpawnedEntity(
-    dictionary: { [id: string]: any },
+    dictionary: EntityDictionary<BaseEntity>,
     object: BaseEntity,
     effectId: number
   ) {
-    this.sendDataToAllWithSpawnedEntity(
+    this.sendDataToAllWithSpawnedEntity<CharacterPlayWorldCompositeEffect>(
       dictionary,
       object.characterId,
       "Character.PlayWorldCompositeEffect",
@@ -4267,7 +4419,7 @@ export class ZoneServer2016 extends EventEmitter {
     position: Float32Array,
     effectId: number
   ) {
-    this.sendDataToAllInRange(
+    this.sendDataToAllInRange<CharacterPlayWorldCompositeEffect>(
       range,
       position,
       "Character.PlayWorldCompositeEffect",
@@ -4296,11 +4448,11 @@ export class ZoneServer2016 extends EventEmitter {
     
   }*/
 
-  sendDataToAllWithSpawnedEntity(
-    dictionary: { [id: string]: any },
+  sendDataToAllWithSpawnedEntity<ZonePacket>(
+    dictionary: EntityDictionary<BaseEntity>,
     entityCharacterId: string = "",
     packetName: h1z1PacketsType2016,
-    obj: zone2016packets
+    obj: ZonePacket
   ) {
     if (!entityCharacterId) return;
     for (const a in this._clients) {
@@ -4310,35 +4462,16 @@ export class ZoneServer2016 extends EventEmitter {
         ) ||
         this._clients[a].character.characterId == entityCharacterId
       ) {
-        this.sendData(this._clients[a], packetName, obj);
+        this.sendData<ZonePacket>(this._clients[a], packetName, obj);
       }
     }
   }
 
-  /*addNpcQueueToAllWithSpawnedEntity(
-    dictionary: { [id: string]: any },
-    entityCharacterId: string = "",
-    packetName: h1z1PacketsType2016,
-    obj: zone2016packets
-  ) {
-    if (!entityCharacterId) return;
-    for (const a in this._clients) {
-      if (
-        this._clients[a].spawnedEntities.includes(
-          dictionary[entityCharacterId]
-        ) ||
-        this._clients[a].character.characterId == entityCharacterId
-      ) {
-        this.addLightWeightNpcQueue(this._clients[a], packetName, obj);
-      }
-    }
-  }*/
-
-  sendDataToAllInRange(
+  sendDataToAllInRange<ZonePacket>(
     range: number,
     position: Float32Array,
     packetName: any,
-    obj: any
+    obj: ZonePacket
   ) {
     for (const a in this._clients) {
       if (
@@ -4348,17 +4481,17 @@ export class ZoneServer2016 extends EventEmitter {
           position
         )
       ) {
-        this.sendData(this._clients[a], packetName, obj);
+        this.sendData<ZonePacket>(this._clients[a], packetName, obj);
       }
     }
   }
 
-  sendDataToAllOthersWithSpawnedEntity(
-    dictionary: { [id: string]: any },
+  sendDataToAllOthersWithSpawnedEntity<ZonePacket>(
+    dictionary: EntityDictionary<BaseEntity>,
     client: Client,
     entityCharacterId: string = "",
     packetName: h1z1PacketsType2016,
-    obj: zone2016packets
+    obj: ZonePacket
   ) {
     if (!entityCharacterId) return;
     for (const a in this._clients) {
@@ -4366,7 +4499,7 @@ export class ZoneServer2016 extends EventEmitter {
         client != this._clients[a] &&
         this._clients[a].spawnedEntities.includes(dictionary[entityCharacterId])
       ) {
-        this.sendData(this._clients[a], packetName, obj);
+        this.sendData<ZonePacket>(this._clients[a], packetName, obj);
       }
     }
   }
@@ -4413,7 +4546,7 @@ export class ZoneServer2016 extends EventEmitter {
     if (seatId === "0") {
       this.takeoverManagedObject(client, vehicle);
       vehicle.checkEngineRequirements(this);
-      this.sendData(client, "Vehicle.Owner", {
+      this.sendData<VehicleOwner>(client, "Vehicle.Owner", {
         guid: vehicle.characterId,
         characterId: client.character.characterId,
         unknownDword1: 0,
@@ -4434,7 +4567,7 @@ export class ZoneServer2016 extends EventEmitter {
         client.character.mountContainer(this, vehicle);
       }
     }
-    this.sendDataToAllWithSpawnedEntity(
+    this.sendDataToAllWithSpawnedEntity<MountMountResponse>(
       this._vehicles,
       vehicleGuid,
       "Mount.MountResponse",
@@ -4448,7 +4581,7 @@ export class ZoneServer2016 extends EventEmitter {
       }
     );
 
-    this.sendData(client, "Vehicle.Occupy", {
+    this.sendData<VehicleOccupy>(client, "Vehicle.Occupy", {
       guid: vehicle.characterId,
       characterId: client.character.characterId,
       vehicleId: vehicle.vehicleId,
@@ -4468,7 +4601,7 @@ export class ZoneServer2016 extends EventEmitter {
         }
       ],
       unknownArray2: [{}]
-    });
+    } as any);
   }
 
   dismountVehicle(client: Client) {
@@ -4483,7 +4616,7 @@ export class ZoneServer2016 extends EventEmitter {
       console.log(
         `Error: ${client.character.name} exited non existing vehicle`
       );
-      this.sendData(client, "Mount.DismountResponse", {
+      this.sendData<MountDismountResponse>(client, "Mount.DismountResponse", {
         characterId: client.character.characterId
       });
       return;
@@ -4497,14 +4630,14 @@ export class ZoneServer2016 extends EventEmitter {
       return;
     }
     if (vehicle.vehicleId == VehicleIds.SPECTATE) {
-      this.sendData(client, "Mount.DismountResponse", {
+      this.sendData<MountDismountResponse>(client, "Mount.DismountResponse", {
         characterId: client.character.characterId
       });
       this.deleteEntity(vehicle.characterId, this._vehicles);
       return;
     }
     vehicle.seats[seatId] = "";
-    this.sendDataToAllWithSpawnedEntity(
+    this.sendDataToAllWithSpawnedEntity<MountDismountResponse>(
       this._characters,
       client.character.characterId,
       "Mount.DismountResponse",
@@ -4514,7 +4647,7 @@ export class ZoneServer2016 extends EventEmitter {
     );
     client.isInAir = false;
 
-    if (seatId === "0") {
+    if (!seatId) {
       if (vehicle.engineOn) {
         vehicle.stopEngine(this);
       }
@@ -4522,7 +4655,7 @@ export class ZoneServer2016 extends EventEmitter {
     }
 
     client.vehicle.mountedVehicle = "";
-    this.sendData(client, "Vehicle.Occupy", {
+    this.sendData<VehicleOccupy>(client, "Vehicle.Occupy", {
       guid: "",
       characterId: client.character.characterId,
       vehicleId: 0,
@@ -4535,8 +4668,8 @@ export class ZoneServer2016 extends EventEmitter {
       ],
       passengers: [],
       unknownArray2: []
-    });
-    this.sendDataToAllWithSpawnedEntity(
+    } as any);
+    this.sendDataToAllWithSpawnedEntity<VehicleOwner>(
       this._vehicles,
       vehicle.characterId,
       "Vehicle.Owner",
@@ -4570,7 +4703,7 @@ export class ZoneServer2016 extends EventEmitter {
         const client = this.getClientByCharId(passenger.characterId);
         !client || this.dismountVehicle(client);
       }
-      this.sendDataToAllWithSpawnedEntity(
+      this.sendDataToAllWithSpawnedEntity<MountSeatChangeResponse>(
         this._vehicles,
         client.vehicle.mountedVehicle,
         "Mount.SeatChangeResponse",
@@ -4584,7 +4717,7 @@ export class ZoneServer2016 extends EventEmitter {
       );
       vehicle.seats[oldSeatId] = "";
       vehicle.seats[packet.data.seatId] = client.character.characterId;
-      if (oldSeatId === "0" && vehicle.engineOn) {
+      if (!oldSeatId && vehicle.engineOn) {
         vehicle.stopEngine(this);
         client.character.dismountContainer(this);
       }
@@ -4600,10 +4733,29 @@ export class ZoneServer2016 extends EventEmitter {
   //#endregion
 
   startTimer(client: Client, stringId: number, time: number) {
-    this.sendData(client, "ClientUpdate.StartTimer", {
+    this.sendData<ClientUpdateStartTimer>(client, "ClientUpdate.StartTimer", {
       stringId: stringId,
       time: time
     });
+  }
+
+  startInteractionTimer(
+    client: Client,
+    stringId: number,
+    time: number,
+    animationId: number
+  ) {
+    this.sendDataToAllWithSpawnedEntity(
+      this._characters,
+      client.character.characterId,
+      "CharacterState.InteractionStart",
+      {
+        characterId: client.character.characterId,
+        time: time,
+        animationId: animationId,
+        stringId: stringId
+      }
+    );
   }
 
   reloadInterrupt(client: Client, weaponItem: LoadoutItem) {
@@ -4705,7 +4857,7 @@ export class ZoneServer2016 extends EventEmitter {
       !client.character.initialized
     )
       return;
-    this.sendData(client, "ClientUpdate.ItemAdd", {
+    this.sendData<ClientUpdateItemAdd>(client, "ClientUpdate.ItemAdd", {
       characterId:
         character instanceof Character || character instanceof Vehicle2016
           ? character.characterId
@@ -5122,7 +5274,7 @@ export class ZoneServer2016 extends EventEmitter {
         }
       );
 
-      this.sendDataToAllOthersWithSpawnedEntity(
+      this.sendDataToAllOthersWithSpawnedEntity<CharacterWeaponStance>(
         this._characters,
         client,
         client.character.characterId,
@@ -5155,7 +5307,7 @@ export class ZoneServer2016 extends EventEmitter {
     if (!client) return true;
 
     if (client.character.initialized && sendPacket) {
-      this.sendDataToAllWithSpawnedEntity(
+      this.sendDataToAllWithSpawnedEntity<EquipmentUnsetCharacterEquipmentSlot>(
         this._characters,
         client.character.characterId,
         "Equipment.UnsetCharacterEquipmentSlot",
@@ -5380,7 +5532,8 @@ export class ZoneServer2016 extends EventEmitter {
   dropItem(
     character: BaseFullCharacter,
     item: BaseItem,
-    count: number = 1
+    count: number = 1,
+    animationId: number
   ): void {
     const client = this.getClientByContainerAccessor(character);
 
@@ -5400,11 +5553,16 @@ export class ZoneServer2016 extends EventEmitter {
       return;
     }
     if (!this.removeInventoryItem(character, item, count)) return;
-    this.sendData(client, "Character.DroppedIemNotification", {
-      characterId: client.character.characterId,
-      itemDefId: item.itemDefinitionId,
-      count: count
-    });
+    this.sendData<CharacterDroppedItemNotification>(
+      client,
+      "Character.DroppedItemNotification",
+      {
+        characterId: client.character.characterId,
+        itemDefId: item.itemDefinitionId,
+        count: count
+      }
+    );
+    this.startInteractionTimer(client, 0, 0, animationId);
     if (dropItem && dropItem.weapon) {
       const ammo = this.generateItem(
         this.getWeaponAmmoId(dropItem.itemDefinitionId),
@@ -5458,7 +5616,7 @@ export class ZoneServer2016 extends EventEmitter {
     );
 
     client.character.lootItem(this, item);
-
+    this.startInteractionTimer(client, 0, 0, 9);
     if (
       item.itemDefinitionId === Items.FUEL_BIOFUEL ||
       item.itemDefinitionId === Items.FUEL_ETHANOL
@@ -5489,7 +5647,7 @@ export class ZoneServer2016 extends EventEmitter {
     const client = this.getClientByContainerAccessor(character);
     if (!client || !client.character.initialized) return;
 
-    this.sendData(client, "ClientUpdate.ItemDelete", {
+    this.sendData<ClientUpdateItemDelete>(client, "ClientUpdate.ItemDelete", {
       characterId:
         character instanceof Character || character instanceof Vehicle2016
           ? character.characterId
@@ -5506,11 +5664,15 @@ export class ZoneServer2016 extends EventEmitter {
       character instanceof Character || character instanceof Vehicle2016
         ? character.characterId
         : EXTERNAL_CONTAINER_GUID;
-    this.sendData(client, "Container.InitEquippedContainers", {
-      ignore: characterId,
-      characterId: characterId,
-      containers: character.pGetContainers(this)
-    });
+    this.sendData<ContainerInitEquippedContainers>(
+      client,
+      "Container.InitEquippedContainers",
+      {
+        ignore: characterId,
+        characterId: characterId,
+        containers: character.pGetContainers(this)
+      }
+    );
   }
 
   addContainerItem(
@@ -5540,7 +5702,7 @@ export class ZoneServer2016 extends EventEmitter {
     );
     this.updateContainer(character, container);
     if (sendUpdate && client.character.initialized) {
-      this.sendData(client, "Reward.AddNonRewardItem", {
+      this.sendData<RewardAddNonRewardItem>(client, "Reward.AddNonRewardItem", {
         itemDefId: itemDefId,
         iconId: this.getItemDefinition(itemDefId).IMAGE_SET_ID,
         count: item.stackCount
@@ -5549,7 +5711,7 @@ export class ZoneServer2016 extends EventEmitter {
   }
 
   updateLoadoutItem(client: Client, item: LoadoutItem) {
-    this.sendData(client, "ClientUpdate.ItemUpdate", {
+    this.sendData<ClientUpdateItemUpdate>(client, "ClientUpdate.ItemUpdate", {
       characterId: client.character.characterId,
       data: client.character.pGetItemData(this, item, LOADOUT_CONTAINER_ID)
     });
@@ -5559,11 +5721,15 @@ export class ZoneServer2016 extends EventEmitter {
   updateContainer(character: BaseFullCharacter, container: LoadoutContainer) {
     const client = this.getClientByContainerAccessor(character);
     if (!client || !client.character.initialized) return;
-    this.sendData(client, "Container.UpdateEquippedContainer", {
-      ignore: character.characterId,
-      characterId: character.characterId,
-      containerData: character.pGetContainerData(this, container)
-    });
+    this.sendData<ContainerUpdateEquippedContainer>(
+      client,
+      "Container.UpdateEquippedContainer",
+      {
+        ignore: character.characterId,
+        characterId: character.characterId,
+        containerData: character.pGetContainerData(this, container)
+      }
+    );
   }
 
   updateContainerItem(
@@ -5573,7 +5739,7 @@ export class ZoneServer2016 extends EventEmitter {
   ) {
     const client = this.getClientByContainerAccessor(character);
     if (!client || !client.character.initialized) return;
-    this.sendData(client, "ClientUpdate.ItemUpdate", {
+    this.sendData<ClientUpdateItemUpdate>(client, "ClientUpdate.ItemUpdate", {
       characterId:
         character instanceof Character || character instanceof Vehicle2016
           ? character.characterId
@@ -5746,13 +5912,14 @@ export class ZoneServer2016 extends EventEmitter {
     }, 600000);
   }
 
-  useConsumable(client: Client, item: BaseItem) {
+  useConsumable(client: Client, item: BaseItem, animationId: number) {
     const itemDef = this.getItemDefinition(item.itemDefinitionId);
     if (!itemDef) return;
     let doReturn = true;
     let drinkCount = 0;
     let eatCount = 0;
     let staminaCount = 0;
+    let enduranceCount = 0;
     let givetrash = 0;
     let healCount = 0;
     let bandagingCount = 0;
@@ -5771,6 +5938,7 @@ export class ZoneServer2016 extends EventEmitter {
         if (useOption.drinkCount) drinkCount = useOption.drinkCount;
         if (useOption.eatCount) eatCount = useOption.eatCount;
         if (useOption.staminaCount) staminaCount = useOption.staminaCount;
+        if (useOption.enduranceCount) enduranceCount = useOption.enduranceCount;
         if (useOption.givetrash) givetrash = useOption.givetrash;
         if (useOption.healCount) healCount = useOption.healCount;
         if (useOption.bandagingCount) bandagingCount = useOption.bandagingCount;
@@ -5786,7 +5954,7 @@ export class ZoneServer2016 extends EventEmitter {
       return;
     }
 
-    this.utilizeHudTimer(client, itemDef.NAME_ID, timeout, () => {
+    this.utilizeHudTimer(client, itemDef.NAME_ID, timeout, animationId, () => {
       this.useComsumablePass(
         client,
         item,
@@ -5796,6 +5964,7 @@ export class ZoneServer2016 extends EventEmitter {
         givetrash,
         healCount,
         bandagingCount,
+        enduranceCount,
         healType
       );
     });
@@ -5841,7 +6010,7 @@ export class ZoneServer2016 extends EventEmitter {
       );
       return;
     }
-    this.utilizeHudTimer(client, itemDef.NAME_ID, timeout, () => {
+    this.utilizeHudTimer(client, itemDef.NAME_ID, timeout, 0, () => {
       this.igniteoptionPass(client);
     });
   }
@@ -5853,7 +6022,7 @@ export class ZoneServer2016 extends EventEmitter {
     removedItem: BaseItem,
     rewardItems: { itemDefinitionId: number; count: number }[]
   ) {
-    this.utilizeHudTimer(client, nameId, timeout, () => {
+    this.utilizeHudTimer(client, nameId, timeout, 0, () => {
       this.taskOptionPass(client, removedItem, rewardItems);
     });
   }
@@ -5887,14 +6056,14 @@ export class ZoneServer2016 extends EventEmitter {
           plant.isFertilized = true;
           const roz = (plant.nextStateTime - new Date().getTime()) / 2;
           plant.nextStateTime = new Date().getTime() + roz;
-          this.sendDataToAllWithSpawnedEntity(
+          this.sendDataToAllWithSpawnedEntity<CommandPlayDialogEffect>(
             // play burning effect & remove it after 15s
             this._plants,
             plant.characterId,
             "Command.PlayDialogEffect",
             {
               characterId: plant.characterId,
-              effectId: 5056
+              effectId: Effects.EFX_Crop_Fertilizer
             }
           );
         });
@@ -5902,7 +6071,55 @@ export class ZoneServer2016 extends EventEmitter {
     }
   }
 
-  useItem(client: Client, item: BaseItem) {
+  usePills(client: Client, item: BaseItem) {
+    if (!this.removeInventoryItem(client.character, item)) return;
+    let hudIndicator: HudIndicator | undefined = undefined;
+    switch (item.itemDefinitionId) {
+      case Items.COLD_MEDICINE:
+        hudIndicator = this._hudIndicators["COLD_MEDICINE"];
+        break;
+      case Items.IMMUNITY_BOOSTERS:
+        hudIndicator = this._hudIndicators["IMMUNITY_BOOST_LOW"];
+        break;
+      case Items.VITAMINS:
+        hudIndicator = this._hudIndicators["IMMUNITY_BOOST_LOW"];
+        break;
+    }
+    if (!hudIndicator) return;
+    if (client.character.hudIndicators[hudIndicator.typeName]) {
+      client.character.hudIndicators[
+        hudIndicator.typeName
+      ].expirationTime += 600000;
+    } else {
+      client.character.hudIndicators[hudIndicator.typeName] = {
+        typeName: hudIndicator.typeName,
+        expirationTime: Date.now() + 600000
+      };
+      this.sendHudIndicators(client);
+    }
+  }
+
+  sleep(client: Client) {
+    client.character._resources[ResourceIds.ENDURANCE] = 8000;
+    client.character._resources[ResourceIds.STAMINA] = 600;
+    this.applyMovementModifier(client, MovementModifiers.RESTED);
+    this.updateResourceToAllWithSpawnedEntity(
+      client.character.characterId,
+      client.character._resources[ResourceIds.STAMINA],
+      ResourceIds.STAMINA,
+      ResourceTypes.STAMINA,
+      this._characters
+    );
+    this.updateResource(
+      client,
+      client.character.characterId,
+      8000,
+      ResourceIds.ENDURANCE,
+      ResourceTypes.ENDURANCE
+    );
+  }
+
+  useItem(client: Client, item: BaseItem, animationId: number) {
     const itemDef = this.getItemDefinition(item.itemDefinitionId);
     if (!itemDef) return;
     const nameId = itemDef.NAME_ID;
@@ -5936,8 +6153,14 @@ export class ZoneServer2016 extends EventEmitter {
         timeout = 3000;
         break;
       case Items.FERTILIZER:
-        this.utilizeHudTimer(client, nameId, timeout, () => {
+        this.utilizeHudTimer(client, nameId, timeout, animationId, () => {
           this.fertilizePlants(client, item);
+        });
+      case Items.COLD_MEDICINE:
+      case Items.VITAMINS:
+      case Items.IMMUNITY_BOOSTERS:
+        this.utilizeHudTimer(client, nameId, timeout, animationId, () => {
+          this.usePills(client, item);
         });
         return;
       default:
@@ -5949,12 +6172,12 @@ export class ZoneServer2016 extends EventEmitter {
     }
     switch (useoption) {
       case "fill": // empty bottle
-        this.utilizeHudTimer(client, nameId, timeout, () => {
+        this.utilizeHudTimer(client, nameId, timeout, animationId, () => {
           this.fillPass(client, item);
         });
         break;
       case "sniff": // swizzle
-        this.utilizeHudTimer(client, nameId, timeout, () => {
+        this.utilizeHudTimer(client, nameId, timeout, animationId, () => {
           this.sniffPass(client, item);
         });
         break;
@@ -5963,7 +6186,7 @@ export class ZoneServer2016 extends EventEmitter {
     }
   }
 
-  sliceItem(client: Client, item: BaseItem) {
+  sliceItem(client: Client, item: BaseItem, animationId: number) {
     const itemDef = this.getItemDefinition(item.itemDefinitionId);
     if (!itemDef) return;
     const nameId = itemDef.NAME_ID;
@@ -5987,12 +6210,17 @@ export class ZoneServer2016 extends EventEmitter {
       );
       return;
     }
-    this.utilizeHudTimer(client, nameId, timeout, () => {
+    this.utilizeHudTimer(client, nameId, timeout, animationId, () => {
       this.slicePass(client, item);
     });
   }
 
-  refuelVehicle(client: Client, item: BaseItem, vehicleGuid: string) {
+  refuelVehicle(
+    client: Client,
+    item: BaseItem,
+    vehicleGuid: string,
+    animationId: number
+  ) {
     const itemDef = this.getItemDefinition(item.itemDefinitionId);
     if (!itemDef) return;
     const nameId = itemDef.NAME_ID;
@@ -6017,12 +6245,12 @@ export class ZoneServer2016 extends EventEmitter {
       );
       return;
     }
-    this.utilizeHudTimer(client, nameId, timeout, () => {
+    this.utilizeHudTimer(client, nameId, timeout, animationId, () => {
       this.refuelVehiclePass(client, item, vehicleGuid, fuelValue);
     });
   }
 
-  shredItem(client: Client, item: BaseItem) {
+  shredItem(client: Client, item: BaseItem, animationId: number) {
     const itemDefinition = this.getItemDefinition(item.itemDefinitionId),
       nameId = itemDefinition.NAME_ID,
       itemType = itemDefinition.ITEM_TYPE;
@@ -6039,12 +6267,12 @@ export class ZoneServer2016 extends EventEmitter {
       default:
         this.sendChatText(client, "[ERROR] Unknown salvage item or count.");
     }
-    this.utilizeHudTimer(client, nameId, timeout, () => {
+    this.utilizeHudTimer(client, nameId, timeout, animationId, () => {
       this.shredItemPass(client, item, count);
     });
   }
 
-  salvageAmmo(client: Client, item: BaseItem) {
+  salvageAmmo(client: Client, item: BaseItem, animationId: number) {
     const itemDefinition = this.getItemDefinition(item.itemDefinitionId),
       nameId = itemDefinition.NAME_ID;
     const timeout = 1000;
@@ -6092,7 +6320,7 @@ export class ZoneServer2016 extends EventEmitter {
       item.itemDefinitionId == Items.AMMO_44
         ? 2
         : 1;
-    this.utilizeHudTimer(client, nameId, timeout, () => {
+    this.utilizeHudTimer(client, nameId, timeout, animationId, () => {
       this.salvageItemPass(client, item, count);
     });
   }
@@ -6106,6 +6334,7 @@ export class ZoneServer2016 extends EventEmitter {
     givetrash: number,
     healCount: number,
     bandagingCount: number,
+    enduranceCount: number,
     healType: HealTypes
   ) {
     if (!this.removeInventoryItem(client.character, item)) return;
@@ -6137,6 +6366,16 @@ export class ZoneServer2016 extends EventEmitter {
       );
     }
 
+    if (enduranceCount) {
+      client.character._resources[ResourceIds.ENDURANCE] += enduranceCount;
+      this.updateResource(
+        client,
+        client.character.characterId,
+        client.character._resources[ResourceIds.ENDURANCE],
+        ResourceIds.ENDURANCE
+      );
+    }
+
     if (item.itemDefinitionId == Items.MEAT_ROTTEN) {
       const damageInfo: DamageInfo = {
         entity: "",
@@ -6151,7 +6390,7 @@ export class ZoneServer2016 extends EventEmitter {
       if (!client.character.healingIntervals[healType]) {
         client.character.starthealingInterval(client, this, healType);
       }
-      client.character.healingMaxTicks += healCount;
+      client.character.healType[healType].healingMaxTicks += healCount;
       if (client.character._resources[ResourceIds.BLEEDING] > 0) {
         client.character._resources[ResourceIds.BLEEDING] -= bandagingCount;
         const bleeding = client.character._resources[ResourceIds.BLEEDING];
@@ -6209,7 +6448,7 @@ export class ZoneServer2016 extends EventEmitter {
               );
             this.smeltingManager._smeltingEntities[smeltable.characterId] =
               smeltable.characterId;
-            this.sendDataToAllWithSpawnedEntity(
+            this.sendDataToAllWithSpawnedEntity<CharacterPlayWorldCompositeEffect>(
               smeltable.subEntity.dictionary,
               smeltable.characterId,
               "Character.PlayWorldCompositeEffect",
@@ -6244,7 +6483,7 @@ export class ZoneServer2016 extends EventEmitter {
               );
             this.smeltingManager._smeltingEntities[smeltable.characterId] =
               smeltable.characterId;
-            this.sendDataToAllWithSpawnedEntity(
+            this.sendDataToAllWithSpawnedEntity<CharacterPlayWorldCompositeEffect>(
               smeltable.subEntity.dictionary,
               smeltable.characterId,
               "Character.PlayWorldCompositeEffect",
@@ -6297,7 +6536,12 @@ export class ZoneServer2016 extends EventEmitter {
     );
   }
 
-  repairOption(client: Client, item: BaseItem, repairItem: BaseItem) {
+  repairOption(
+    client: Client,
+    item: BaseItem,
+    repairItem: BaseItem,
+    animationId: number
+  ) {
     const durability = repairItem.currentDurability;
     if (durability >= 2000) {
       // todo: get max durability from somewhere, do not hard-code
@@ -6319,7 +6563,7 @@ export class ZoneServer2016 extends EventEmitter {
     if (!itemDef) return;
     const nameId = itemDef.NAME_ID;
 
-    this.utilizeHudTimer(client, nameId, 5000, () => {
+    this.utilizeHudTimer(client, nameId, 5000, animationId, () => {
       this.repairOptionPass(client, item, repairItem, durability);
     });
   }
@@ -6883,7 +7127,15 @@ export class ZoneServer2016 extends EventEmitter {
   pUtilizeHudTimer = promisify(this.utilizeHudTimer);
 
   stopHudTimer(client: Client) {
-    this.utilizeHudTimer(client, 0, 0, () => {
+    this.utilizeHudTimer(client, 0, 0, 0, () => {
+      this.sendDataToAllWithSpawnedEntity(
+        this._characters,
+        client.character.characterId,
+        "CharacterState.InteractionStop",
+        {
+          characterId: client.character.characterId
+        }
+      );
       /*/*/
     });
   }
@@ -6892,15 +7144,28 @@ export class ZoneServer2016 extends EventEmitter {
     client: Client,
     nameId: number,
     timeout: number,
+    animationId: number,
     callback: any
   ) {
-    this.startTimer(client, nameId, timeout);
+    if (!animationId) {
+      this.startTimer(client, nameId, timeout);
+    } else {
+      this.startInteractionTimer(client, nameId, timeout, animationId);
+    }
     if (client.hudTimer != null) {
       clearTimeout(client.hudTimer);
     }
     client.posAtTimerStart = client.character.state.position;
     client.hudTimer = setTimeout(() => {
       callback.apply(this);
+      this.sendDataToAllWithSpawnedEntity(
+        this._characters,
+        client.character.characterId,
+        "CharacterState.InteractionStop",
+        {
+          characterId: client.character.characterId
+        }
+      );
     }, timeout);
   }
 
@@ -6930,7 +7195,7 @@ export class ZoneServer2016 extends EventEmitter {
         this.sendChatText(client, "Container Error: Item not accepted");
         break;
       default:
-        this.sendData(client, "Container.Error", {
+        this.sendData<ContainerError>(client, "Container.Error", {
           characterId: client.character.characterId,
           containerError: error
         });
@@ -6948,13 +7213,25 @@ export class ZoneServer2016 extends EventEmitter {
 
   applyMovementModifier(client: Client, modifier: MovementModifiers) {
     this.multiplyMovementModifier(client, modifier);
+    let hudIndicator: HudIndicator | undefined;
     switch (modifier) {
       case MovementModifiers.SWIZZLE:
+        hudIndicator = this._hudIndicators["SWIZZLE"];
         if (client.character.timeouts["swizzle"]) {
           client.character.timeouts["swizzle"]._onTimeout();
           clearTimeout(client.character.timeouts["swizzle"]);
           delete client.character.timeouts["swizzle"];
+          if (client.character.hudIndicators[hudIndicator.typeName]) {
+            client.character.hudIndicators[
+              hudIndicator.typeName
+            ].expirationTime += 30000;
+          }
         }
+        client.character.hudIndicators[hudIndicator.typeName] = {
+          typeName: hudIndicator.typeName,
+          expirationTime: Date.now() + 30000
+        };
+        this.sendHudIndicators(client);
         client.character.timeouts["swizzle"] = setTimeout(() => {
           if (!client.character.timeouts["swizzle"]) {
             return;
@@ -6962,6 +7239,31 @@ export class ZoneServer2016 extends EventEmitter {
           this.divideMovementModifier(client, modifier);
           delete client.character.timeouts["swizzle"];
         }, 30000);
+        break;
+      case MovementModifiers.RESTED:
+        hudIndicator = this._hudIndicators["WELL_RESTED"];
+        if (client.character.timeouts["WELL_RESTED"]) {
+          client.character.timeouts["WELL_RESTED"]._onTimeout();
+          clearTimeout(client.character.timeouts["WELL_RESTED"]);
+          delete client.character.timeouts["WELL_RESTED"];
+          if (client.character.hudIndicators[hudIndicator.typeName]) {
+            client.character.hudIndicators[
+              hudIndicator.typeName
+            ].expirationTime += 120000;
+          }
+        }
+        client.character.hudIndicators[hudIndicator.typeName] = {
+          typeName: hudIndicator.typeName,
+          expirationTime: Date.now() + 120000
+        };
+        this.sendHudIndicators(client);
+        client.character.timeouts["WELL_RESTED"] = setTimeout(() => {
+          if (!client.character.timeouts["WELL_RESTED"]) {
+            return;
+          }
+          this.divideMovementModifier(client, modifier);
+          delete client.character.timeouts["WELL_RESTED"];
+        }, 120000);
         break;
       case MovementModifiers.SNARED:
         if (client.character.timeouts["snared"]) {
@@ -6984,17 +7286,25 @@ export class ZoneServer2016 extends EventEmitter {
   }
 
   multiplyMovementModifier(client: Client, modifier: number) {
-    this.sendData(client, "ClientUpdate.ModifyMovementSpeed", {
-      speed: modifier
-    });
+    this.sendData<ClientUpdateModifyMovementSpeed>(
+      client,
+      "ClientUpdate.ModifyMovementSpeed",
+      {
+        speed: modifier
+      }
+    );
   }
 
   divideMovementModifier(client: Client, modifier: number) {
     const modifierFixed = 1 / modifier;
     if (!client.character.initialized) return;
-    this.sendData(client, "ClientUpdate.ModifyMovementSpeed", {
-      speed: modifierFixed
-    });
+    this.sendData<ClientUpdateModifyMovementSpeed>(
+      client,
+      "ClientUpdate.ModifyMovementSpeed",
+      {
+        speed: modifierFixed
+      }
+    );
   }
 
   checkConveys(client: Client, character = client.character) {
@@ -7222,6 +7532,74 @@ export class ZoneServer2016 extends EventEmitter {
     }
   }
 
+  initHudIndicatorDataSource() {
+    hudIndicators.forEach((indicator: any) => {
+      this._hudIndicators[indicator.typeName] = {
+        id: indicator.ID,
+        typeName: indicator.typeName,
+        nameId: indicator.nameId,
+        descriptionId: indicator.descriptionId,
+        imageSetId: indicator.imageSetId
+      };
+    });
+  }
+
+  initUseOptionsDataSource() {
+    itemUseOptionsDataSource.forEach((useOption: any) => {
+      this._itemUseOptions[useOption.ITEM_USE_OPTION_ID] = {
+        id: useOption.ITEM_USE_OPTION_ID,
+        typeName: useOption.TYPE_NAME,
+        animationId: useOption.INTERACTION_ANIMATION_ID
+      };
+    });
+  }
+
+  sendHudIndicators(client: Client) {
+    this.sendData(client, "Effect.RemoveUiIndicators", {
+      unknownData1: {
+        unknownQword1: client.character.characterId
+      },
+      unknownData2: {}
+    });
+    client.character.resourceHudIndicators.forEach((typeName: string) => {
+      const indicator = this._hudIndicators[typeName];
+      this.sendData(client, "Effect.AddUiIndicator", {
+        characterId: client.character.characterId,
+        hudElementGuid: this.generateGuid(),
+        unknownData1: {
+          hudElementId: indicator.nameId
+        },
+        hudElementData: {
+          nameId: indicator.nameId,
+          descriptionId: indicator.descriptionId,
+          imageSetId: indicator.imageSetId
+        },
+        unknownData3: {},
+        unknownData4: {},
+        unknownData5: {}
+      });
+    });
+    for (const a in client.character.hudIndicators) {
+      const indicator =
+        this._hudIndicators[client.character.hudIndicators[a].typeName];
+      this.sendData(client, "Effect.AddUiIndicator", {
+        characterId: client.character.characterId,
+        hudElementGuid: this.generateGuid(),
+        unknownData1: {
+          hudElementId: indicator.nameId
+        },
+        hudElementData: {
+          nameId: indicator.nameId,
+          descriptionId: indicator.descriptionId,
+          imageSetId: indicator.imageSetId
+        },
+        unknownData3: {},
+        unknownData4: {},
+        unknownData5: {}
+      });
+    }
+  }
+
   private _sendDataToAll<ZonePacket>(
     packetName: h1z1PacketsType2016,
     obj: ZonePacket,
@@ -7250,7 +7628,7 @@ export class ZoneServer2016 extends EventEmitter {
   }
   dropVehicleManager(client: Client, vehicleGuid: string) {
     this.sendManagedObjectResponseControlPacket(client, {
-      control: 0,
+      control: false,
       objectCharacterId: vehicleGuid
     });
     client.managedObjects.splice(
@@ -7305,7 +7683,7 @@ export class ZoneServer2016 extends EventEmitter {
     return this._serverTime + delta;
   }
   dismissVehicle(vehicleGuid: string) {
-    this.sendDataToAll("Character.RemovePlayer", {
+    this.sendDataToAll<CharacterRemovePlayer>("Character.RemovePlayer", {
       characterId: vehicleGuid
     });
     this.deleteEntity(vehicleGuid, this._vehicles);
@@ -7366,7 +7744,7 @@ export class ZoneServer2016 extends EventEmitter {
     showConsole = false,
     clearOutput = false
   ) {
-    this.sendData(client, "H1emu.PrintToConsole", {
+    this.sendData<H1emuPrintToConsole>(client, "H1emu.PrintToConsole", {
       message,
       showConsole,
       clearOutput
@@ -7380,7 +7758,7 @@ export class ZoneServer2016 extends EventEmitter {
     for (const a in this._clients) {
       const client = this._clients[a];
       if (client.isAdmin) {
-        this.sendData(client, "H1emu.PrintToConsole", {
+        this.sendData<H1emuPrintToConsole>(client, "H1emu.PrintToConsole", {
           message,
           showConsole,
           clearOutput

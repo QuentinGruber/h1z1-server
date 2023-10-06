@@ -3182,7 +3182,7 @@ export const basePackets: PacketStructures = [
     }
   ],
   [
-    "Locks.setLock",
+    "Locks.SetLock",
     0xcd0300,
     {
       fields: [
@@ -3192,7 +3192,6 @@ export const basePackets: PacketStructures = [
       ]
     }
   ],
-  ["CharacterState", 0xd0, {}],
   [
     "AddLightweightPc",
     0xd6,
@@ -3391,7 +3390,7 @@ export const basePackets: PacketStructures = [
   ["ScreenEffectBase", 0xe2, {}],
   ["WhitelistBase", 0xe4, {}],
   [
-    "NpcFoundationPermissionsManagerBase.showPermissions",
+    "NpcFoundationPermissionsManagerBase.ShowPermissions",
     0xe505,
     {
       fields: [
@@ -3467,5 +3466,14 @@ export const basePackets: PacketStructures = [
   ["WeaponLagLockParameters", 0xf5, {}],
   ["CrateOpeningBase", 0xf6, {}],
   ["PlayerHeatWarning", 0xf7, {}],
-  ["AnimationBase", 0xf8, {}]
+  [
+    "AnimationBase",
+    0xf802,
+    {
+      fields: [
+        { name: "characterId", type: "uint64string", defaultValue: "0" },
+        { name: "animationId", type: "uint32", defaultValue: 0 }
+      ]
+    }
+  ]
 ];

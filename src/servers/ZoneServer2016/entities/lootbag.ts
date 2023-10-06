@@ -68,6 +68,7 @@ export class Lootbag extends BaseLootableEntity {
         server.getItemDefinition(this._containers["31"].itemDefinitionId)
           .NAME_ID,
         this.actorModelId != 9218 ? 0 : 10000,
+        0,
         () => {
           super.OnPlayerSelect(server, client);
           client.searchedProps.push(this);
@@ -78,7 +79,7 @@ export class Lootbag extends BaseLootableEntity {
     }
   }
 
-  destroy(server: ZoneServer2016) {
+  destroy(server: ZoneServer2016): boolean {
     return server.deleteEntity(this.characterId, server._lootbags);
   }
 }
