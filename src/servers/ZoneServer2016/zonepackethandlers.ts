@@ -1928,7 +1928,20 @@ export class ZonePacketHandlers {
       packet.data;
     const { count } = packet.data.itemSubData as any;
 
-    if (!count || count < 1) return;
+    switch(itemUseOption) {
+      case ItemUseOptions.HOTWIRE_OFFROADER:
+      case ItemUseOptions.HOTWIRE_PICKUP:
+      case ItemUseOptions.HOTWIRE_POLICE:
+      case ItemUseOptions.HOTWIRE_ATV:
+      case ItemUseOptions.HOTWIRE_ATV_NO_PARTS:
+      case ItemUseOptions.HOTWIRE_OFFROADER_NO_PARTS:
+      case ItemUseOptions.HOTWIRE_PICKUP_NO_PARTS:
+      case ItemUseOptions.HOTWIRE_POLICE_NO_PARTS:
+        break;
+      default:
+        if (!count || count < 1) return;
+    }
+    
     if (!itemGuid) {
       server.sendChatText(client, "[ERROR] ItemGuid is invalid!");
       return;
@@ -2010,6 +2023,7 @@ export class ZonePacketHandlers {
         container = mountedContainer;
       }
     }
+
     switch (itemUseOption) {
       case ItemUseOptions.DROP:
       case ItemUseOptions.DROP_BATTERY:
