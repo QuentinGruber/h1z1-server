@@ -195,7 +195,7 @@ export class ZonePacketHandlers {
     packet: ReceivedPacket<object>
   ) {
     /*
-    server.sendData<>(client, "ClientUpdate.ActivateProfile", {
+    server.sendData(client, "ClientUpdate.ActivateProfile", {
       profileData: {
           profileId: 5,
           nameId: 66,
@@ -212,6 +212,7 @@ export class ZonePacketHandlers {
       decalAlias: "#"
     });
     */
+   
     server.firstRoutine(client);
     server.setGodMode(client, true);
 
@@ -448,7 +449,7 @@ export class ZonePacketHandlers {
         }
       }
       if (objVehicle && packet.data.characterId != objVehicle.characterId) {
-        if (objVehicle.getNextSeatId(server) == "0") return;
+        if (objVehicle.getNextSeatId(server) == 0) return;
       }
     }
     const characterId = packet.data.characterId || "",

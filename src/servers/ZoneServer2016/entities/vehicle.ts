@@ -254,7 +254,7 @@ export class Vehicle2016 extends BaseLootableEntity {
       const seat = this.seats[seatId],
         passenger = seat ? server._characters[seat] : undefined;
       if (!this.seats[seatId] || !passenger?.isAlive) {
-        return seatId;
+        return Number(seatId);
       }
     }
     return -1;
@@ -265,7 +265,7 @@ export class Vehicle2016 extends BaseLootableEntity {
         return Number(seatId);
       }
     }
-    return 0;
+    return -1;
   }
 
   getPassengerList(): string[] {

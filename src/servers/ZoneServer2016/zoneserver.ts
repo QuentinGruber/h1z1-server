@@ -4512,7 +4512,7 @@ export class ZoneServer2016 extends EventEmitter {
       !client || this.dismountVehicle(client);
     }
     vehicle.seats[seatId] = client.character.characterId;
-    if (seatId === "0") {
+    if (seatId == 0) {
       this.takeoverManagedObject(client, vehicle);
       vehicle.checkEngineRequirements(this);
       this.sendData<VehicleOwner>(client, "Vehicle.Owner", {
@@ -4545,7 +4545,7 @@ export class ZoneServer2016 extends EventEmitter {
         characterId: client.character.characterId,
         vehicleGuid: vehicle.characterId, // vehicle guid
         seatId: Number(seatId),
-        isDriver: seatId === "0" ? 1 : 0, //isDriver
+        isDriver: seatId == 0 ? 1 : 0, //isDriver
         identity: {}
       }
     );
@@ -4592,7 +4592,7 @@ export class ZoneServer2016 extends EventEmitter {
     }
     const seatId = vehicle.getCharacterSeat(client.character.characterId);
     client.character.vehicleExitDate = new Date().getTime();
-    if (!seatId) {
+    if (seatId == -1) {
       console.log(
         `Error: ${client.character.name} exited vehicle with no seatId set`
       );
@@ -4616,7 +4616,7 @@ export class ZoneServer2016 extends EventEmitter {
     );
     client.isInAir = false;
 
-    if (!seatId) {
+    if (seatId == 0) {
       if (vehicle.engineOn) {
         vehicle.stopEngine(this);
       }
