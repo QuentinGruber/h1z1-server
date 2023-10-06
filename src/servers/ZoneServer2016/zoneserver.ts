@@ -2435,20 +2435,7 @@ export class ZoneServer2016 extends EventEmitter {
           client,
           client.character.characterId,
           "AddLightweightPc",
-          {
-            ...client.character.pGetLightweight(),
-            identity: {
-              characterName: client.character.name
-            },
-            mountGuid: vehicleId || "",
-            mountSeatId: vehicle
-              ? vehicle.getCharacterSeat(client.character.characterId)
-              : 0,
-            mountRelatedDword1: vehicle ? 1 : 0,
-            flags1: {
-              isAdmin: client.isAdmin ? 1 : 0
-            }
-          }
+          client.character.pGetLightweightPC(this, client)
         );
       }, 2000);
     }
@@ -3254,26 +3241,19 @@ export class ZoneServer2016 extends EventEmitter {
           client.character.isSpectator) /* &&
         client.banType != "hiddenplayers"*/
       ) {
-        const vehicleId = this._clients[c].vehicle.mountedVehicle,
-          vehicle = vehicleId ? this._vehicles[vehicleId] : false;
-        this.sendData<object>(client, "AddLightweightPc", {
-          ...characterObj.pGetLightweight(),
-          mountGuid: vehicleId || "",
-          mountSeatId: vehicle
-            ? vehicle.getCharacterSeat(characterObj.characterId)
-            : 0,
-          mountRelatedDword1: vehicle ? 1 : 0,
-          flags1: {
-            isAdmin: this.getClientByCharId(characterObj.characterId)?.isAdmin
-          }
-        });
-
+        this.sendData<AddLightweightPc>(
+          client,
+          "AddLightweightPc",
+          characterObj.pGetLightweightPC(this, this._clients[c])
+        );
         client.spawnedEntities.push(this._characters[characterObj.characterId]);
       }
     }
   }
 
   spawnCharacterToOtherClients(character: Character, isAdmin: boolean) {
+    const client = this.getClientByCharId(character.characterId);
+    if (!client) return;
     for (const a in this._clients) {
       const c = this._clients[a];
       if (
@@ -3285,15 +3265,11 @@ export class ZoneServer2016 extends EventEmitter {
         !c.spawnedEntities.includes(character) &&
         character != c.character
       ) {
-        this.sendData<object>(c, "AddLightweightPc", {
-          ...character.pGetLightweight(),
-          mountGuid: "",
-          mountSeatId: 0,
-          mountRelatedDword1: 0,
-          flags1: {
-            isAdmin: isAdmin
-          }
-        });
+        this.sendData<AddLightweightPc>(
+          c,
+          "AddLightweightPc",
+          character.pGetLightweightPC(this, client)
+        );
         c.spawnedEntities.push(character);
       }
     }

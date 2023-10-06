@@ -47,6 +47,7 @@ import { characterDefaultLoadout } from "../data/loadouts";
 import {
   AccessedCharacterBeginCharacterAccess,
   AccessedCharacterEndCharacterAccess,
+  AddLightweightPc,
   CharacterWeaponStance,
   ClientUpdateDamageInfo,
   ClientUpdateModifyMovementSpeed,
@@ -567,6 +568,23 @@ export class Character2016 extends BaseFullCharacter {
     };
   }
 
+  pGetLightweightPC(
+    server: ZoneServer2016,
+    client: ZoneClient2016
+  ): AddLightweightPc {
+    const vehicleId = client.vehicle.mountedVehicle,
+      vehicle = vehicleId ? server._vehicles[vehicleId] : false;
+    return {
+      ...this.pGetLightweight(),
+      mountGuid: vehicleId || "",
+      mountSeatId: vehicle ? vehicle.getCharacterSeat(this.characterId) : 0,
+      mountRelatedDword1: vehicle ? 1 : 0,
+      flags1: {
+        isAdmin: client.isAdmin ? 1 : 0
+      }
+    };
+  }
+
   pGetSendSelf(
     server: ZoneServer2016,
     guid = "",
@@ -746,10 +764,10 @@ export class Character2016 extends BaseFullCharacter {
       healType.healingTicks = 0;
       healType.healingMaxTicks = 0;
     }
-    this.hudIndicators = {}
+    this.hudIndicators = {};
     this.resourcesUpdater?.refresh();
     const client = server.getClientByCharId(this.characterId);
-    if(!client) return;
+    if (!client) return;
     server.sendHudIndicators(client);
     server.updateResource(
       client,
