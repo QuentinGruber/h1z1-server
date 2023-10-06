@@ -16,6 +16,7 @@ import { ZoneServer2016 } from "../zoneserver";
 import { BaseLightweightCharacter } from "./baselightweightcharacter";
 import { ZoneClient2016 } from "../classes/zoneclient";
 import { DamageInfo } from "../../../types/zoneserver";
+import { AddLightweightNpc } from "types/zone2016packets";
 
 function getDestroyedModels(actorModel: number): number[] {
   switch (actorModel) {
@@ -166,14 +167,16 @@ export class DoorEntity extends BaseLightweightCharacter {
     this.health = 2000;
   }
 
-  pGetLightweight() {
+  pGetLightweight(): AddLightweightNpc {
     return {
       characterId: this.characterId,
       transientId: this.transientId,
       actorModelId: this.destroyed ? this.destroyedModel : this.actorModelId,
-      position: Array.from(this.state.position).map((pos, idx) => {
-        return idx == 1 ? pos++ : pos;
-      }),
+      position: new Float32Array(
+        Array.from(this.state.position).map((pos, idx) => {
+          return idx == 1 ? pos++ : pos;
+        })
+      ),
       rotation: this.state.rotation,
       scale: this.scale,
       positionUpdateType: this.positionUpdateType,
@@ -184,7 +187,8 @@ export class DoorEntity extends BaseLightweightCharacter {
         flags2: this.flags,
         flags3: this.flags
       },
-      headActor: this.headActor
+      headActor: this.headActor,
+      attachedObject: {}
     };
   }
 
@@ -258,7 +262,7 @@ export class DoorEntity extends BaseLightweightCharacter {
     });
   }
 
-  destroy(server: ZoneServer2016) {
+  destroy(server: ZoneServer2016): boolean {
     return server.deleteEntity(this.characterId, server._doors);
   }
 }

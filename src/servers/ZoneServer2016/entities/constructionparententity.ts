@@ -793,7 +793,7 @@ export class ConstructionParentEntity extends ConstructionChildEntity {
     return false;
   }
 
-  destroy(server: ZoneServer2016, destructTime = 0) {
+  destroy(server: ZoneServer2016, destructTime = 0): boolean {
     const deleted = server.deleteEntity(
       this.characterId,
       server._constructionFoundations,
@@ -895,7 +895,7 @@ export class ConstructionParentEntity extends ConstructionChildEntity {
       return;
     server.sendData(
       client,
-      "NpcFoundationPermissionsManagerBase.showPermissions",
+      "NpcFoundationPermissionsManagerBase.ShowPermissions",
       {
         characterId: this.characterId,
         characterId2: this.characterId,

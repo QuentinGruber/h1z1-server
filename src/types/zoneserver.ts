@@ -17,6 +17,8 @@ import { FilterIds, HealTypes, Items } from "servers/ZoneServer2016/models/enums
 import { ConstructionDoor } from "servers/ZoneServer2016/entities/constructiondoor";
 import { LootableConstructionEntity } from "servers/ZoneServer2016/entities/lootableconstructionentity";
 import { LoadoutItem } from "servers/ZoneServer2016/classes/loadoutItem";
+import { ZoneServer2016 } from "servers/ZoneServer2016/zoneserver";
+import { Character2016 } from "servers/ZoneServer2016/entities/character";
 
 export interface npcData {
   guid: string;
@@ -186,8 +188,8 @@ export interface FireHint {
 export interface CharacterEffect {
   id: number;
   duration: number;
-  callback?: any;
-  endCallback?: any;
+  callback?: (server: ZoneServer2016, character: Character2016) => void;
+  endCallback?: (server: ZoneServer2016, character: Character2016) => void;
 }
 
 export interface SpawnLocation {
@@ -445,3 +447,5 @@ export interface Weather2016 {
 export interface WeatherTemplate extends Weather2016 {
   templateName: string,
 }
+
+export type EntityDictionary<Entity> = { [characterId: string]: Entity};

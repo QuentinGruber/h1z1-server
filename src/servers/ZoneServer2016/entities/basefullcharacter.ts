@@ -11,7 +11,10 @@
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
 
-import { EquipmentSetCharacterEquipmentSlot } from "types/zone2016packets";
+import {
+  EquipmentSetCharacterEquipment,
+  EquipmentSetCharacterEquipmentSlot
+} from "types/zone2016packets";
 import { characterEquipment, DamageInfo } from "../../../types/zoneserver";
 import { LoadoutKit } from "../data/loadouts";
 import {
@@ -745,8 +748,8 @@ export abstract class BaseFullCharacter extends BaseLightweightCharacter {
   }
 
   pGetEquipmentSlots() {
-    return Object.keys(this._equipment).map((slotId: any) => {
-      return this.pGetEquipmentSlot(slotId);
+    return Object.keys(this._equipment).map((slotId) => {
+      return this.pGetEquipmentSlot(Number(slotId));
     });
   }
 
@@ -764,8 +767,8 @@ export abstract class BaseFullCharacter extends BaseLightweightCharacter {
   }
 
   pGetAttachmentSlots() {
-    return Object.keys(this._equipment).map((slotId: any) => {
-      return this.pGetAttachmentSlot(slotId);
+    return Object.keys(this._equipment).map((slotId) => {
+      return this.pGetAttachmentSlot(Number(slotId));
     });
   }
 
@@ -782,7 +785,7 @@ export abstract class BaseFullCharacter extends BaseLightweightCharacter {
       : undefined;
   }
 
-  pGetEquipment() {
+  pGetEquipment(): EquipmentSetCharacterEquipment {
     return {
       characterData: {
         profileId: 5,
@@ -919,11 +922,9 @@ export abstract class BaseFullCharacter extends BaseLightweightCharacter {
       characterId: EXTERNAL_CONTAINER_GUID,
       loadoutId: this.loadoutId,
       loadoutData: {
-        loadoutSlots: Object.values(this.getLoadoutSlots()).map(
-          (slotId: any) => {
-            return this.pGetLoadoutSlot(slotId);
-          }
-        )
+        loadoutSlots: Object.values(this.getLoadoutSlots()).map((slotId) => {
+          return this.pGetLoadoutSlot(slotId);
+        })
       },
       currentSlotId: this.currentLoadoutSlot
     };
@@ -1019,7 +1020,7 @@ export abstract class BaseFullCharacter extends BaseLightweightCharacter {
   }
 
   pGetInventoryItems(server: ZoneServer2016) {
-    const items: any[] = Object.values(this._loadout)
+    const items = Object.values(this._loadout)
       .filter((slot) => {
         if (slot.itemDefinitionId) {
           return true;
