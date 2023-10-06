@@ -19,6 +19,7 @@ import {
   ConstructionEntity,
   dailyRepairMaterial,
   DamageInfo,
+  EntityDictionary,
   SlottedConstructionEntity
 } from "types/zoneserver";
 import {
@@ -55,6 +56,15 @@ import {
   TreeIds
 } from "../models/enums";
 import { ZoneServer2016 } from "../zoneserver";
+import {
+  CharacterRemovePlayer,
+  CharacterUpdateSimpleProxyHealth,
+  ClientUpdateUpdateLocation,
+  CommandInteractionString,
+  ConstructionPlacementFinalizeResponse,
+  ConstructionUnknown,
+  PlayerUpdatePosition
+} from "types/zone2016packets";
 
 export class ConstructionManager {
   overridePlacementItems: Array<number> = [
@@ -77,7 +87,7 @@ export class ConstructionManager {
     const unknownArray1 = [46, 45, 47, 48, 49, 50, 12, 7, 15],
       unknownArray2 = [...unknownArray1, 5, 10, 44, 57, 27, 2, 55, 56];
 
-    server.sendData(client, "Construction.Unknown", {
+    server.sendData<ConstructionUnknown>(client, "Construction.Unknown", {
       unknownArray1: unknownArray1.map((value) => {
         return { unknownDword1: value };
       }),
@@ -91,11 +101,19 @@ export class ConstructionManager {
     });
   }
 
-  sendPlacementFinalize(server: ZoneServer2016, client: Client, status: 0 | 1) {
-    server.sendData(client, "Construction.PlacementFinalizeResponse", {
-      status: status,
-      unknownString1: ""
-    });
+  sendPlacementFinalize(
+    server: ZoneServer2016,
+    client: Client,
+    status: boolean
+  ) {
+    server.sendData<ConstructionPlacementFinalizeResponse>(
+      client,
+      "Construction.PlacementFinalizeResponse",
+      {
+        status: status,
+        unknownString1: ""
+      }
+    );
   }
 
   placementError(
@@ -374,7 +392,7 @@ export class ConstructionManager {
         isInsidePermissionedFoundation
       )
     ) {
-      this.sendPlacementFinalize(server, client, 0);
+      this.sendPlacementFinalize(server, client, false);
       server.sendAlert(
         client,
         "You may not place this object this close to a spawn point"
@@ -390,7 +408,7 @@ export class ConstructionManager {
         isInsidePermissionedFoundation
       )
     ) {
-      this.sendPlacementFinalize(server, client, 0);
+      this.sendPlacementFinalize(server, client, false);
       server.sendAlert(
         client,
         "You may not place this object this close to a vehicle spawn point"
@@ -399,7 +417,7 @@ export class ConstructionManager {
     }
 
     if (this.detectOutOfBoundsPlacement(server, position)) {
-      this.sendPlacementFinalize(server, client, 0);
+      this.sendPlacementFinalize(server, client, false);
       server.sendAlert(
         client,
         "You may not place this object this close to edge of the map"
@@ -415,7 +433,7 @@ export class ConstructionManager {
         isInsidePermissionedFoundation
       )
     ) {
-      this.sendPlacementFinalize(server, client, 0);
+      this.sendPlacementFinalize(server, client, false);
       server.sendAlert(
         client,
         "You may not place this object this close to a town or point of interest."
@@ -513,7 +531,7 @@ export class ConstructionManager {
         client,
         "You may not place this object this close to another players foundation"
       );
-      this.sendPlacementFinalize(server, client, 0);
+      this.sendPlacementFinalize(server, client, false);
       return true;
     }
     return false;
@@ -552,7 +570,7 @@ export class ConstructionManager {
   ) {
     const item = client.character.getItemById(itemDefinitionId);
     if (!item) {
-      this.sendPlacementFinalize(server, client, 1);
+      this.sendPlacementFinalize(server, client, false);
       return;
     }
 
@@ -565,13 +583,13 @@ export class ConstructionManager {
         itemDefinitionId
       )
     ) {
-      this.sendPlacementFinalize(server, client, 0);
+      this.sendPlacementFinalize(server, client, false);
       this.placementError(server, client, ConstructionErrors.STACKED);
       return;
     }
 
     if (this.detectStackedTamperPlacement(server, item, position)) {
-      this.sendPlacementFinalize(server, client, 0);
+      this.sendPlacementFinalize(server, client, false);
       this.placementError(server, client, ConstructionErrors.STACKED);
       return;
     }
@@ -586,7 +604,7 @@ export class ConstructionManager {
     */
 
     if (this.detectOutOfRange(client, item, position)) {
-      this.sendPlacementFinalize(server, client, 0);
+      this.sendPlacementFinalize(server, client, false);
       this.placementError(server, client, ConstructionErrors.OUT_OF_RANGE);
       return;
     }
@@ -610,7 +628,7 @@ export class ConstructionManager {
       !client.isDebugMode
     ) {
       this.placementError(server, client, ConstructionErrors.BUILD_PERMISSION);
-      this.sendPlacementFinalize(server, client, 0);
+      this.sendPlacementFinalize(server, client, false);
       return;
     }
 
@@ -656,12 +674,12 @@ export class ConstructionManager {
         freeplaceParentCharacterId
       )
     ) {
-      this.sendPlacementFinalize(server, client, 0);
+      this.sendPlacementFinalize(server, client, false);
       return;
     }
 
     server.removeInventoryItem(client.character, item);
-    this.sendPlacementFinalize(server, client, 1);
+    this.sendPlacementFinalize(server, client, true);
     this.constructionPermissionsManager(server, client);
   }
 
@@ -1360,10 +1378,14 @@ export class ConstructionManager {
     entity: ConstructionEntity,
     client: Client
   ) {
-    server.sendData(client, "Command.InteractionString", {
-      guid: entity.characterId,
-      stringId: StringIds.UNDO_PLACEMENT
-    });
+    server.sendData<CommandInteractionString>(
+      client,
+      "Command.InteractionString",
+      {
+        guid: entity.characterId,
+        stringId: StringIds.UNDO_PLACEMENT
+      }
+    );
   }
 
   placeLootableConstruction(
@@ -1749,9 +1771,13 @@ export class ConstructionManager {
             iteratedClient.spawnedEntities.includes(client.character) &&
             iteratedClient.character.isHidden != client.character.isHidden
           ) {
-            server.sendData(iteratedClient, "Character.RemovePlayer", {
-              characterId: client.character.characterId
-            });
+            server.sendData<CharacterRemovePlayer>(
+              iteratedClient,
+              "Character.RemovePlayer",
+              {
+                characterId: client.character.characterId
+              }
+            );
             iteratedClient.spawnedEntities.splice(
               iteratedClient.spawnedEntities.indexOf(client.character),
               1
@@ -1777,15 +1803,19 @@ export class ConstructionManager {
       const foundationY = foundation.state.position[1],
         yOffset = foundation.itemDefinitionId == Items.FOUNDATION ? 2.2 : 0.1;
       client.startLoc = foundationY + yOffset;
-      server.sendData(client, "ClientUpdate.UpdateLocation", {
-        position: [
-          client.character.state.position[0],
-          foundationY + yOffset,
-          client.character.state.position[2],
-          1
-        ],
-        triggerLoadingScreen: false
-      });
+      server.sendData<ClientUpdateUpdateLocation>(
+        client,
+        "ClientUpdate.UpdateLocation",
+        {
+          position: new Float32Array([
+            client.character.state.position[0],
+            foundationY + yOffset,
+            client.character.state.position[2],
+            1
+          ]),
+          triggerLoadingScreen: false
+        }
+      );
       client.enableChecks = false;
       client.isInAir = false;
       setTimeout(() => {
@@ -1808,10 +1838,14 @@ export class ConstructionManager {
       newPos[2],
       1
     ]);
-    server.sendData(client, "ClientUpdate.UpdateLocation", {
-      position: client.character.state.position,
-      triggerLoadingScreen: false
-    });
+    server.sendData<ClientUpdateUpdateLocation>(
+      client,
+      "ClientUpdate.UpdateLocation",
+      {
+        position: client.character.state.position,
+        triggerLoadingScreen: false
+      }
+    );
     client.enableChecks = false;
 
     setTimeout(() => {
@@ -1859,10 +1893,14 @@ export class ConstructionManager {
           newPos[2],
           1
         ]);
-        server.sendData(client, "ClientUpdate.UpdateLocation", {
-          position: client.character.state.position,
-          triggerLoadingScreen: false
-        });
+        server.sendData<ClientUpdateUpdateLocation>(
+          client,
+          "ClientUpdate.UpdateLocation",
+          {
+            position: client.character.state.position,
+            triggerLoadingScreen: false
+          }
+        );
         this.recheckClientInsideShelter(client, server, tpDirection);
         return;
       }
@@ -1989,7 +2027,7 @@ export class ConstructionManager {
       ResourceTypes.CONDITION
     );
     if (entity.isOpen) {
-      server.sendData(client, "PlayerUpdatePosition", {
+      server.sendData<PlayerUpdatePosition>(client, "PlayerUpdatePosition", {
         transientId: entity.transientId,
         positionUpdate: {
           sequenceTime: 0,
@@ -2171,7 +2209,7 @@ export class ConstructionManager {
     };
     entity.damage(server, damageInfo);
     if (entity.useSimpleStruct) {
-      server.sendDataToAllWithSpawnedEntity(
+      server.sendDataToAllWithSpawnedEntity<CharacterUpdateSimpleProxyHealth>(
         server.getConstructionDictionary(entity.characterId),
         entity.characterId,
         "Character.UpdateSimpleProxyHealth",
@@ -2197,7 +2235,7 @@ export class ConstructionManager {
   ) {
     entity.health = entity.maxHealth;
     if (entity.useSimpleStruct) {
-      server.sendDataToAllWithSpawnedEntity(
+      server.sendDataToAllWithSpawnedEntity<CharacterUpdateSimpleProxyHealth>(
         server.getConstructionDictionary(entity.characterId),
         entity.characterId,
         "Character.UpdateSimpleProxyHealth",
@@ -2500,7 +2538,7 @@ export class ConstructionManager {
     server: ZoneServer2016,
     constructionCharId: string,
     damage: number,
-    dictionary: any,
+    dictionary: EntityDictionary<ConstructionEntity>,
     position: Float32Array,
     entityPosition: Float32Array,
     source: string

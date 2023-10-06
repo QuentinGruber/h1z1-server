@@ -98,8 +98,8 @@ export class CraftManager {
   constructor(
     client: Client,
     server: ZoneServer2016,
-    recipeId: number,
-    count: number
+    recipeId: number = 0,
+    count: number = 0
   ) {
     this.componentsDataSource = getCraftComponentsDataSource(client);
     this.start(client, server, recipeId, count);

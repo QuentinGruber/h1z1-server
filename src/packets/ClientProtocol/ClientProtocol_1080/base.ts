@@ -3182,7 +3182,7 @@ export const basePackets: PacketStructures = [
     }
   ],
   [
-    "Locks.setLock",
+    "Locks.SetLock",
     0xcd0300,
     {
       fields: [
@@ -3390,7 +3390,7 @@ export const basePackets: PacketStructures = [
   ["ScreenEffectBase", 0xe2, {}],
   ["WhitelistBase", 0xe4, {}],
   [
-    "NpcFoundationPermissionsManagerBase.showPermissions",
+    "NpcFoundationPermissionsManagerBase.ShowPermissions",
     0xe505,
     {
       fields: [

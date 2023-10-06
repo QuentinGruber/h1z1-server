@@ -18,7 +18,6 @@ import {
   CharacterManagedObject,
   CharacterSeekTarget
 } from "types/zone2016packets";
-import { BaseLightweightCharacter } from "../../entities/baselightweightcharacter";
 import { Npc } from "../../entities/npc";
 import { ZoneClient2016 as Client } from "../../classes/zoneclient";
 import { ZoneServer2016 } from "../../zoneserver";
@@ -28,9 +27,6 @@ import { ConstructionChildEntity } from "../../entities/constructionchildentity"
 import { ConstructionDoor } from "../../entities/constructiondoor";
 import { randomIntFromInterval } from "../../../../utils/utils";
 import { Zombie } from "../../entities/zombie";
-import { ConstructionParentEntity } from "../../entities/constructionparententity";
-
-const debug = require("debug")("zonepacketHandlers");
 
 const abilities = require("../../../../../data/2016/dataSources/Abilities.json"),
   vehicleAbilities = require("../../../../../data/2016/dataSources/VehicleAbilities.json");
@@ -614,80 +610,6 @@ const dev: any = {
       unknownBoolean1: Boolean(args[3])
     });
   },
-  proximateitems: function (
-    server: ZoneServer2016,
-    client: Client,
-    args: Array<string>
-  ) {
-    const item: any = server.generateItem(2425)?.itemGuid,
-      guid1 = server.generateGuid(),
-      guid2 = server.generateGuid(),
-      guid3 = server.generateGuid();
-    console.log(
-      `item: ${item}, guid1: ${guid1}, guid2: ${guid2}, guid3: ${guid3}`
-    );
-    server.sendData(client, "ClientUpdate.ProximateItems", {
-      items: [
-        {
-          //itemDefinitionId: server._items[item].itemDefinitionId,
-          itemData: {
-            //itemDefinitionId: server._items[item].itemDefinitionId,
-            tintId: 43,
-            guid: item,
-            count: 44,
-            itemSubData: {
-              unknownBoolean1: false /*
-                unknownDword1: 1,
-                unknownData1: {
-                  unknownQword1: guid4,
-                  unknownDword1: 99,
-                  unknownDword2: 101,
-                }*/
-            },
-            containerGuid: guid1,
-            containerDefinitionId: 45,
-            containerSlotId: 46,
-            baseDurability: 47,
-            currentDurability: 48,
-            maxDurabilityFromDefinition: 49,
-            unknownBoolean1: true,
-            unknownQword3: guid2,
-            unknownDword9: 54
-          },
-          associatedCharacterGuid: guid3
-        }
-      ]
-    });
-  },
-  /*
-    proxiedobjects: function(server: ZoneServer2016, client: Client, args: Array<string>) {
-
-      objects.runtime_object.runtime_objects.forEach((object) => {
-        if(object.actor_file === "Common_Props_Dryer.adr") {
-          object.instances.forEach((instance) => {
-            console.log("proxied object")
-            const obj = {
-              guid: instance.id,
-              transientId: server.getTransientId(client, instance.id),
-              unknownByte1: 0,
-              position: [instance.position[0], instance.position[1], instance.position[2]],
-              rotation: [instance.rotation[1], instance.rotation[0], instance.rotation[2]],
-            };
-            server.sendData(client, "AddProxiedObject", obj);
-          });
-          server.sendChatText(client, `Sent ${object.instance_count} ProxiedObject Packets`);
-        }
-      });
-    }
-    */
-  /*
-  //region norman testing
-  norman: function (server: ZoneServer2016, client: Client, args: Array<string>) {
-    NormanTest.TestEntry(server, client, args);
-  },
-  //endregion
-  */
-
   poi: function (server: ZoneServer2016, client: Client, args: Array<string>) {
     server.sendData(client, "POIChangeMessage", {
       messageStringId: Number(args[1]) || 0,

@@ -113,7 +113,7 @@ function getHeadlightEffect(vehicleId: VehicleIds) {
 
 export class Vehicle2016 extends BaseLootableEntity {
   isManaged: boolean = false;
-  manager?: any;
+  manager?: ZoneClient2016;
   destroyedEffect: number = 0;
   destroyedModel: number = 0;
   minorDamageEffect: number = 0;
@@ -262,9 +262,10 @@ export class Vehicle2016 extends BaseLootableEntity {
   getCharacterSeat(characterId: string) {
     for (const seatId in this.seats) {
       if (this.seats[seatId] === characterId) {
-        return seatId;
+        return Number(seatId);
       }
     }
+    return 0;
   }
 
   getPassengerList(): string[] {
@@ -902,11 +903,9 @@ export class Vehicle2016 extends BaseLootableEntity {
       characterId: this.characterId,
       loadoutId: this.loadoutId,
       loadoutData: {
-        loadoutSlots: Object.values(this.getLoadoutSlots()).map(
-          (slotId: any) => {
-            return this.pGetLoadoutSlot(slotId);
-          }
-        )
+        loadoutSlots: Object.values(this.getLoadoutSlots()).map((slotId) => {
+          return this.pGetLoadoutSlot(slotId);
+        })
       },
       currentSlotId: this.currentLoadoutSlot
     };
@@ -1034,7 +1033,7 @@ export class Vehicle2016 extends BaseLootableEntity {
         characterId: client.character.characterId,
         vehicleGuid: this.characterId, // vehicle guid
         seatId: seatId,
-        isDriver: seatId === "0" ? 1 : 0, //isDriver
+        isDriver: seatId == 0 ? 1 : 0, //isDriver
         identity: {}
       });
       delete this.droppedManagedClient;
@@ -1082,7 +1081,7 @@ export class Vehicle2016 extends BaseLootableEntity {
       delete this.onReadyCallback;
     }
   }
-  destroy(server: ZoneServer2016, disableExplosion = false) {
+  destroy(server: ZoneServer2016, disableExplosion = false): boolean {
     if (!server._vehicles[this.characterId]) return false;
     this._resources[ResourceIds.CONDITION] = 0;
     for (const c in server._clients) {

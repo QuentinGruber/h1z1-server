@@ -49,7 +49,9 @@ import {
   OccupiedSlotMap,
   SlottedConstructionEntity,
   CubeBounds,
-  Point3D
+  Point3D,
+  EntityDictionary,
+  ConstructionEntity
 } from "types/zoneserver";
 import {
   getConstructionSlotId,
@@ -441,7 +443,7 @@ export class ConstructionChildEntity extends BaseLightweightCharacter {
   damageSimpleNpc(
     server: ZoneServer2016,
     damageInfo: DamageInfo,
-    dictionary: any
+    dictionary: EntityDictionary<ConstructionEntity>
   ) {
     // todo: redo this
     this.health -= damageInfo.damage;
@@ -489,7 +491,7 @@ export class ConstructionChildEntity extends BaseLightweightCharacter {
     }
   }
 
-  destroy(server: ZoneServer2016, destructTime = 0) {
+  destroy(server: ZoneServer2016, destructTime = 0): boolean {
     const deleted = server.deleteEntity(
       this.characterId,
       server._constructionSimple[this.characterId]

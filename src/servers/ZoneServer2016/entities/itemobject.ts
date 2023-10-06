@@ -106,7 +106,7 @@ export class ItemObject extends BaseLightweightCharacter {
     }
   }
 
-  destroy(server: ZoneServer2016) {
+  destroy(server: ZoneServer2016): boolean {
     delete server.worldObjectManager.spawnedLootObjects[
       server._spawnedItems[this.characterId].spawnerId
     ];

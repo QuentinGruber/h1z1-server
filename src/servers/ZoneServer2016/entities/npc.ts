@@ -144,7 +144,7 @@ export class Npc extends BaseFullCharacter {
     this.damage(server, damageInfo);
   }
 
-  destroy(server: ZoneServer2016) {
+  destroy(server: ZoneServer2016): boolean {
     return server.deleteEntity(this.characterId, server._npcs);
   }
 }

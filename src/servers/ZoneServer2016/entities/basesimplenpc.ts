@@ -11,6 +11,10 @@
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
 
+import {
+  AddSimpleNpc,
+  CharacterUpdateSimpleProxyHealth
+} from "types/zone2016packets";
 import { ZoneServer2016 } from "../zoneserver";
 import { BaseEntity } from "./baseentity";
 
@@ -26,7 +30,7 @@ export abstract class BaseSimpleNpc extends BaseEntity {
   ) {
     super(characterId, transientId, actorModelId, position, rotation, server);
   }
-  pGetSimpleNpc() {
+  pGetSimpleNpc(): AddSimpleNpc {
     return {
       characterId: this.characterId,
       transientId: this.transientId,
@@ -38,7 +42,7 @@ export abstract class BaseSimpleNpc extends BaseEntity {
       health: this.health / 1000
     };
   }
-  pGetSimpleProxyHealth() {
+  pGetSimpleProxyHealth(): CharacterUpdateSimpleProxyHealth {
     return {
       characterId: this.characterId,
       healthPercentage: this.health / 1000

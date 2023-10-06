@@ -16,6 +16,7 @@ import { ZoneClient2016 } from "../classes/zoneclient";
 import { DamageInfo } from "../../../types/zoneserver";
 import { eul2quat } from "../../../utils/utils";
 import { Items } from "../models/enums";
+import { AddLightweightNpc } from "types/zone2016packets";
 
 function getDestroyedModels(actorModel: string): number[] {
   switch (actorModel) {
@@ -99,14 +100,16 @@ export class Destroyable extends BaseLightweightCharacter {
       health: (this.health / this.maxHealth) * 100
     };
   }
-  pGetLightweight() {
+  pGetLightweight(): AddLightweightNpc {
     return {
       characterId: this.characterId,
       transientId: this.transientId,
       actorModelId: this.destroyed ? this.destroyedModel : this.actorModelId,
-      position: Array.from(this.state.position).map((pos, idx) => {
-        return idx == 1 ? pos++ : pos;
-      }),
+      position: new Float32Array(
+        Array.from(this.state.position).map((pos, idx) => {
+          return idx == 1 ? pos++ : pos;
+        })
+      ),
       rotation: eul2quat(new Float32Array([this.state.rotation[1], 0, 0])),
       scale: this.scale,
       positionUpdateType: this.positionUpdateType,
@@ -117,7 +120,8 @@ export class Destroyable extends BaseLightweightCharacter {
         flags2: this.flags,
         flags3: this.flags
       },
-      headActor: this.headActor
+      headActor: this.headActor,
+      attachedObject: {}
     };
   }
 

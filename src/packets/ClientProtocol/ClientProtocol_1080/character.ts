@@ -559,7 +559,8 @@ export const characterPackets: PacketStructures = [
     }
   ],
   [
-    "Character.DroppedIemNotification",
+    // DroppedIemNotification in the client
+    "Character.DroppedItemNotification",
     0x0f4a,
     {
       fields: [
