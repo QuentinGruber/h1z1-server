@@ -972,15 +972,14 @@ export class Character2016 extends BaseFullCharacter {
 
   pGetEquipmentSlotFull(slotId: number, groupId?: number) {
     const slot = this._equipment[slotId];
-    return slot
-      ? {
-          characterData: {
-            characterId: this.characterId
-          },
-          equipmentSlot: this.pGetEquipmentSlot(slotId),
-          attachmentData: this.pGetAttachmentSlot(slotId, groupId)
-        }
-      : undefined;
+    if(!slot) return;
+    return {
+      characterData: {
+        characterId: this.characterId
+      },
+      equipmentSlot: this.pGetEquipmentSlot(slotId),
+      attachmentData: this.pGetAttachmentSlot(slotId, groupId)
+    }
   }
 
   updateEquipment(server: ZoneServer2016, groupId?: number) {

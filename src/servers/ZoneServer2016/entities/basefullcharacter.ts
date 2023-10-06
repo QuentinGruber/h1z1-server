@@ -768,12 +768,7 @@ export abstract class BaseFullCharacter extends BaseLightweightCharacter {
           decalAlias: slot.decalAlias || "#",
           slotId: slot.slotId,
           SHADER_PARAMETER_GROUP: [
-            {
-              SHADER_SEMANTIC_ID: 1
-            },
-            {
-              SHADER_SEMANTIC_ID: 2
-            }
+            // TODO
           ]
         }
       : undefined;
@@ -787,15 +782,14 @@ export abstract class BaseFullCharacter extends BaseLightweightCharacter {
 
   pGetEquipmentSlotFull(slotId: number) {
     const slot = this._equipment[slotId];
-    return slot
-      ? {
-          characterData: {
-            characterId: this.characterId
-          },
-          equipmentSlot: this.pGetEquipmentSlot(slotId),
-          attachmentData: this.pGetAttachmentSlot(slotId)
-        }
-      : undefined;
+    if(!slot) return;
+    return {
+      characterData: {
+        characterId: this.characterId
+      },
+      equipmentSlot: this.pGetEquipmentSlot(slotId),
+      attachmentData: this.pGetAttachmentSlot(slotId)
+    }
   }
 
   pGetEquipment() {
