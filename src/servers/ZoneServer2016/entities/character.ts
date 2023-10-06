@@ -734,6 +734,61 @@ export class Character2016 extends BaseFullCharacter {
     this.metrics.startedSurvivingTP = Date.now();
   }
 
+  resetResources(server: ZoneServer2016) {
+    this._resources[ResourceIds.HEALTH] = 10000;
+    this._resources[ResourceIds.HUNGER] = 10000;
+    this._resources[ResourceIds.HYDRATION] = 10000;
+    this._resources[ResourceIds.STAMINA] = 600;
+    this._resources[ResourceIds.BLEEDING] = -40;
+    this._resources[ResourceIds.ENDURANCE] = 8000;
+    for (const a in this.healType) {
+      const healType = this.healType[a];
+      healType.healingTicks = 0;
+      healType.healingMaxTicks = 0;
+    }
+    this.hudIndicators = {}
+    this.resourcesUpdater?.refresh();
+    const client = server.getClientByCharId(this.characterId);
+    if(!client) return;
+    server.sendHudIndicators(client);
+    server.updateResource(
+      client,
+      this.characterId,
+      this._resources[ResourceIds.HEALTH],
+      ResourceIds.HEALTH
+    );
+    server.updateResource(
+      client,
+      this.characterId,
+      this._resources[ResourceIds.STAMINA],
+      ResourceIds.STAMINA
+    );
+    server.updateResource(
+      client,
+      this.characterId,
+      this._resources[ResourceIds.HUNGER],
+      ResourceIds.HUNGER
+    );
+    server.updateResource(
+      client,
+      this.characterId,
+      this._resources[ResourceIds.HYDRATION],
+      ResourceIds.HYDRATION
+    );
+    server.updateResource(
+      client,
+      this.characterId,
+      this._resources[ResourceIds.BLEEDING],
+      ResourceIds.BLEEDING
+    );
+    server.updateResource(
+      client,
+      this.characterId,
+      this._resources[ResourceIds.ENDURANCE],
+      ResourceIds.ENDURANCE
+    );
+  }
+
   damage(server: ZoneServer2016, damageInfo: DamageInfo) {
     const client = server.getClientByCharId(this.characterId),
       damage = damageInfo.damage,

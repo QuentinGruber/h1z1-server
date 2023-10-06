@@ -2344,20 +2344,6 @@ export class ZoneServer2016 extends EventEmitter {
       }
     );
 
-    client.character._resources[ResourceIds.HEALTH] = 10000;
-    client.character._resources[ResourceIds.HUNGER] = 10000;
-    client.character._resources[ResourceIds.HYDRATION] = 10000;
-    client.character._resources[ResourceIds.STAMINA] = 600;
-    client.character._resources[ResourceIds.BLEEDING] = -40;
-    client.character._resources[ResourceIds.ENDURANCE] = 8000;
-    for (const a in client.character.healType) {
-      const healType = client.character.healType[a];
-      healType.healingTicks = 0;
-      healType.healingMaxTicks = 0;
-    }
-    (client.character.hudIndicators = {}), this.sendHudIndicators(client);
-    client.character.resourcesUpdater?.refresh();
-
     const randomSpawnIndex = Math.floor(
       Math.random() * cell.spawnPoints.length
     );
@@ -2421,36 +2407,7 @@ export class ZoneServer2016 extends EventEmitter {
     }
     client.character.equipLoadout(this);
     client.character.state.position = cell.spawnPoints[randomSpawnIndex];
-    this.updateResource(
-      client,
-      client.character.characterId,
-      client.character._resources[ResourceIds.HEALTH],
-      ResourceIds.HEALTH
-    );
-    this.updateResource(
-      client,
-      client.character.characterId,
-      client.character._resources[ResourceIds.STAMINA],
-      ResourceIds.STAMINA
-    );
-    this.updateResource(
-      client,
-      client.character.characterId,
-      client.character._resources[ResourceIds.HUNGER],
-      ResourceIds.HUNGER
-    );
-    this.updateResource(
-      client,
-      client.character.characterId,
-      client.character._resources[ResourceIds.HYDRATION],
-      ResourceIds.HYDRATION
-    );
-    this.updateResource(
-      client,
-      client.character.characterId,
-      client.character._resources[ResourceIds.BLEEDING],
-      ResourceIds.BLEEDING
-    );
+    client.character.resetResources(this);
     this.updateCharacterState(
       client,
       client.character.characterId,
