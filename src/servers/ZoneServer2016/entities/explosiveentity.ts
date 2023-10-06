@@ -139,7 +139,7 @@ export class ExplosiveEntity extends BaseLightweightCharacter {
     this.detonate(server, server.getClientByCharId(damageInfo.entity));
   }
 
-  destroy(server: ZoneServer2016) {
+  destroy(server: ZoneServer2016): boolean {
     return server.deleteEntity(this.characterId, server._explosives);
   }
 }

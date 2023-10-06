@@ -17,20 +17,32 @@ import { Vehicle2016 as Vehicle, Vehicle2016 } from "../../entities/vehicle";
 import { SpawnCell } from "../../classes/spawncell";
 import { ZoneClient2016 as Client } from "../../classes/zoneclient";
 import { ZoneServer2016 } from "../../zoneserver";
-import { Command, PermissionLevels } from "./types";
-import { getAngle, isPosInRadius } from "../../../../utils/utils";
+import { InternalCommand, PermissionLevels } from "./types";
+import { isPosInRadius } from "../../../../utils/utils";
 import { OBSERVER_GUID } from "../../../../utils/constants";
+import {
+  CharacterRespawn,
+  CommandRunSpeed,
+  CommandSpawnVehicle,
+  SpectatorEnable
+} from "types/zone2016packets";
 
-export const internalCommands: Array<Command> = [
+export const internalCommands: Array<InternalCommand> = [
   //#region DEFAULT PERMISSIONS
   {
     name: "respawn",
     permissionLevel: PermissionLevels.DEFAULT,
-    execute: (server: ZoneServer2016, client: Client, packetData: any) => {
+    execute: (
+      server: ZoneServer2016,
+      client: Client,
+      packetData: CharacterRespawn
+    ) => {
+      const gridPosition = packetData.gridPosition;
+      if (!gridPosition) return;
       let doReturn = false;
       server._spawnGrid.forEach((cell: SpawnCell) => {
         if (doReturn) return;
-        if (isPosInRadius(50, cell.position, packetData.gridPosition)) {
+        if (isPosInRadius(50, cell.position, gridPosition)) {
           server.respawnPlayer(client, cell);
           doReturn = true;
         }
@@ -40,7 +52,11 @@ export const internalCommands: Array<Command> = [
   {
     name: "spectate",
     permissionLevel: PermissionLevels.MODERATOR,
-    execute: (server: ZoneServer2016, client: Client, packetData: any) => {
+    execute: (
+      server: ZoneServer2016,
+      client: Client,
+      packetData: SpectatorEnable
+    ) => {
       client.character.isSpectator = !client.character.isSpectator;
       if (client.character.isSpectator) {
         const vehicle = new Vehicle(
@@ -117,8 +133,12 @@ export const internalCommands: Array<Command> = [
   {
     name: "run",
     permissionLevel: PermissionLevels.MODERATOR,
-    execute: (server: ZoneServer2016, client: Client, packetData: any) => {
-      server.sendData(client, "Command.RunSpeed", {
+    execute: (
+      server: ZoneServer2016,
+      client: Client,
+      packetData: CommandRunSpeed
+    ) => {
+      server.sendData<CommandRunSpeed>(client, "Command.RunSpeed", {
         runSpeed: packetData.runSpeed
       });
     }
@@ -126,14 +146,19 @@ export const internalCommands: Array<Command> = [
   {
     name: "vehicle",
     permissionLevel: PermissionLevels.ADMIN,
-    execute: (server: ZoneServer2016, client: Client, packetData: any) => {
+    execute: (
+      server: ZoneServer2016,
+      client: Client,
+      packetData: CommandSpawnVehicle
+    ) => {
       const allowedIds = [
         VehicleIds.POLICECAR,
         VehicleIds.PICKUP,
         VehicleIds.ATV,
         VehicleIds.OFFROADER
       ];
-      if (!allowedIds.includes(packetData.vehicleId)) {
+      const vehicleId = packetData.vehicleId;
+      if (!vehicleId || !allowedIds.includes(vehicleId)) {
         server.sendChatText(
           client,
           "[ERROR] Invalid vehicleId, please choose one of listed below:"
@@ -144,16 +169,18 @@ export const internalCommands: Array<Command> = [
         );
         return;
       }
-      const characterId = server.generateGuid();
+      const characterId = server.generateGuid(),
+        position = packetData.position;
+      if (!position) return;
       const vehicle = new Vehicle2016(
         characterId,
         server.getTransientId(characterId),
         0,
-        packetData.position,
+        position,
         client.character.state.lookAt,
         server,
         server.getGameTime(),
-        packetData.vehicleId
+        vehicleId
       );
       server.worldObjectManager.createVehicle(server, vehicle);
       client.character.ownedVehicle = vehicle.characterId;

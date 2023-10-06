@@ -106,7 +106,7 @@ export class ConstructionDoor extends DoorEntity {
     this.health -= damageInfo.damage;
   }
 
-  destroy(server: ZoneServer2016, destructTime = 0) {
+  destroy(server: ZoneServer2016, destructTime = 0): boolean {
     const deleted = server.deleteEntity(
       this.characterId,
       server._constructionDoors,

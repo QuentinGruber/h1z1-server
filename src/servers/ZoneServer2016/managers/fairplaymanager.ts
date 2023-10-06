@@ -12,7 +12,12 @@
 // ======================================================================
 
 import { Collection } from "mongodb";
-import { FairPlayValues, StanceFlags, FireHint } from "types/zoneserver";
+import {
+  FairPlayValues,
+  StanceFlags,
+  FireHint,
+  HitReport
+} from "types/zoneserver";
 import { BAN_INFO, DB_COLLECTIONS } from "../../../utils/enums";
 import {
   decrypt,
@@ -389,7 +394,7 @@ export class FairPlayManager {
     entity: BaseEntity,
     fireHint: FireHint,
     weaponItem: LoadoutItem,
-    hitReport: any,
+    hitReport: HitReport,
     gameTime: number
   ): boolean {
     if (!this.fairPlayValues) return true;
