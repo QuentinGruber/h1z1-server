@@ -785,14 +785,14 @@ export abstract class BaseFullCharacter extends BaseLightweightCharacter {
 
   pGetEquipmentSlotFull(slotId: number) {
     const slot = this._equipment[slotId];
-    if(!slot) return;
+    if (!slot) return;
     return {
       characterData: {
         characterId: this.characterId
       },
       equipmentSlot: this.pGetEquipmentSlot(slotId),
       attachmentData: this.pGetAttachmentSlot(slotId)
-    }
+    };
   }
 
   pGetEquipment(): EquipmentSetCharacterEquipment {

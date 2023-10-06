@@ -5343,7 +5343,11 @@ export class ZoneServer2016 extends EventEmitter {
         slotId: equipmentSlotId
       };
       if (sendPacketToLocalClient) {
-        this.sendData<EquipmentUnsetCharacterEquipmentSlot>(client, "Equipment.UnsetCharacterEquipmentSlot", data);
+        this.sendData<EquipmentUnsetCharacterEquipmentSlot>(
+          client,
+          "Equipment.UnsetCharacterEquipmentSlot",
+          data
+        );
       }
       this.sendDataToAllOthersWithSpawnedEntity(
         this._characters,

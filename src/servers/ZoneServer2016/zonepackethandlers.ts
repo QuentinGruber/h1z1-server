@@ -2996,7 +2996,7 @@ export class ZonePacketHandlers {
 
   ProjectileDebug(server: ZoneServer2016, client: Client, packet: any) {
     console.log(`ProjectileDebug from ${client.character.characterId}`);
-    console.log(packet.data)
+    console.log(packet.data);
   }
   //#endregion
 
