@@ -31,7 +31,8 @@ import {
   readUnsignedIntWith2bitLengthValue,
   recipeData,
   packItemWeaponData,
-  containers
+  containers,
+  passengerSchema
 } from "./shared";
 import {
   achievementSchema,
@@ -3325,37 +3326,7 @@ export const basePackets: PacketStructures = [
           name: "passengers",
           type: "array",
           defaultValue: [],
-          fields: [
-            {
-              name: "passengerData",
-              type: "schema",
-              fields: [
-                {
-                  name: "characterId",
-                  type: "uint64string",
-                  defaultValue: "0"
-                },
-                {
-                  name: "characterData",
-                  type: "schema",
-                  fields: [
-                    { name: "unknownDword1", type: "uint32", defaultValue: 0 },
-                    { name: "unknownDword2", type: "uint32", defaultValue: 0 },
-                    { name: "unknownDword3", type: "uint32", defaultValue: 0 },
-                    { name: "characterName", type: "string", defaultValue: "" },
-                    {
-                      name: "unknownString1",
-                      type: "string",
-                      defaultValue: ""
-                    }
-                  ]
-                },
-                { name: "unknownDword1", type: "uint32", defaultValue: 0 },
-                { name: "unknownString1", type: "string", defaultValue: "" }
-              ]
-            },
-            { name: "unknownByte1", type: "uint8", defaultValue: 0 }
-          ]
+          fields: passengerSchema
         },
         {
           name: "unknownArray3",

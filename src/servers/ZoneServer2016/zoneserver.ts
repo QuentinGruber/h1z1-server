@@ -138,6 +138,7 @@ import {
 import {
   AddLightweightNpc,
   AddLightweightPc,
+  AddLightweightVehicle,
   AddSimpleNpc,
   CharacterAddEffectTagCompositeEffect,
   CharacterDroppedItemNotification,
@@ -174,6 +175,7 @@ import {
   GameTimeSync,
   H1emuPrintToConsole,
   InitializationParameters,
+  LightweightToFullVehicle,
   LoginFailed,
   MountDismountResponse,
   MountMountResponse,
@@ -3205,8 +3207,14 @@ export class ZoneServer2016 extends EventEmitter {
     }, entity);
   }
 
-  spawnWorkAroundLightWeight(client: Client) {
-    const lightWeight = {
+  spawnContainerAccessNpc(client: Client) {
+    /*
+      Since all containers are now handled as SimpleNpcs instead of FullNpcs for 
+      performance reasons, this npc is needed to act as a conduit between the 
+      character and the simpleNpc's inventory so that the client thinks the target
+      container is a FullNpc.
+    */
+    this.sendData<AddLightweightNpc>(client, "AddLightweightNpc", {
       characterId: EXTERNAL_CONTAINER_GUID,
       transientId: 0,
       actorModelId: 2,
@@ -3215,12 +3223,15 @@ export class ZoneServer2016 extends EventEmitter {
       scale: new Float32Array([0.001, 0.001, 0.001, 0.001]),
       positionUpdateType: 0,
       profileId: 0,
-      isLightweight: false, //true,
-      flags: {},
-      headActor: ""
-    };
-
-    this.sendData<object>(client, "AddLightweightNpc", lightWeight);
+      isLightweight: false,
+      flags: {
+        flags1: {},
+        flags2: {},
+        flags3: {},
+      },
+      headActor: "",
+      attachedObject: {}
+    });
   }
 
   spawnCharacters(client: Client) {
@@ -3908,10 +3919,15 @@ export class ZoneServer2016 extends EventEmitter {
         positionUpdateType: 0,
         profileId: 0,
         isLightweight: true,
-        flags: {},
-        headActor: ""
+        headActor: "",
+        flags: {
+          flags1: {},
+          flags2: {},
+          flags3: {}
+        },
+        attachedObject: {}
       };
-      this.sendData<object>(client, "AddLightweightNpc", lightWeight);
+      this.sendData<AddLightweightNpc>(client, "AddLightweightNpc", lightWeight);
       /*const lightWeight2 = {
         characterId: this._airdrop.destination,
         transientId: 0,
@@ -3935,13 +3951,18 @@ export class ZoneServer2016 extends EventEmitter {
         positionUpdateType: 0,
         profileId: 0,
         isLightweight: true,
-        flags: {},
-        headActor: ""
+        headActor: "",
+        flags: {
+          flags1: {},
+          flags2: {},
+          flags3: {}
+        },
+        attachedObject: {}
       };
-      this.sendData<object>(client, "AddLightweightNpc", lightWeight);
+      this.sendData<AddLightweightNpc>(client, "AddLightweightNpc", lightWeight);
       //this.sendData<>(client, "AddLightweightNpc", lightWeight2);
-      this.sendData<object>(client, "AddLightweightNpc", lightWeight3);
-      this.sendData<object>(client, "AddLightweightVehicle", {
+      this.sendData<AddLightweightNpc>(client, "AddLightweightNpc", lightWeight3);
+      this.sendData<AddLightweightVehicle>(client, "AddLightweightVehicle", {
         ...this._airdrop.plane.pGetLightweightVehicle(),
         unknownGuid1: this.generateGuid()
       });
@@ -3955,7 +3976,7 @@ export class ZoneServer2016 extends EventEmitter {
       );
       setTimeout(() => {
         if (this._airdrop) {
-          this.sendData<object>(
+          this.sendData<LightweightToFullVehicle>(
             client,
             "LightweightToFullVehicle",
             this._airdrop.plane.pGetFullVehicle(this)
@@ -3994,7 +4015,7 @@ export class ZoneServer2016 extends EventEmitter {
       }
 
       if (this._airdrop.cargoSpawned && this._airdrop.cargo) {
-        this.sendData<object>(client, "AddLightweightVehicle", {
+        this.sendData<AddLightweightVehicle>(client, "AddLightweightVehicle", {
           ...this._airdrop.cargo.pGetLightweightVehicle(),
           unknownGuid1: this.generateGuid()
         });
@@ -4006,7 +4027,7 @@ export class ZoneServer2016 extends EventEmitter {
             version: 6
           }
         );
-        this.sendData<object>(
+        this.sendData<LightweightToFullVehicle>(
           client,
           "LightweightToFullVehicle",
           this._airdrop.cargo.pGetFullVehicle(this)
@@ -4064,7 +4085,7 @@ export class ZoneServer2016 extends EventEmitter {
       this.sendData<CharacterRemovePlayer>(client, "Character.RemovePlayer", {
         characterId: this._airdrop.plane.characterId
       });
-      this.sendData<object>(client, "AddLightweightVehicle", {
+      this.sendData<AddLightweightVehicle>(client, "AddLightweightVehicle", {
         ...this._airdrop.plane.pGetLightweightVehicle(),
         unknownGuid1: this.generateGuid()
       });
@@ -4080,7 +4101,7 @@ export class ZoneServer2016 extends EventEmitter {
         this.sendData<CharacterRemovePlayer>(client, "Character.RemovePlayer", {
           characterId: this._airdrop.cargo.characterId
         });
-        this.sendData<object>(client, "AddLightweightVehicle", {
+        this.sendData<AddLightweightVehicle>(client, "AddLightweightVehicle", {
           ...this._airdrop.cargo.pGetLightweightVehicle(),
           unknownGuid1: this.generateGuid()
         });
@@ -4110,7 +4131,7 @@ export class ZoneServer2016 extends EventEmitter {
             characterId: client.character.characterId
           }
         );
-        this.sendData<object>(
+        this.sendData<LightweightToFullVehicle>(
           client,
           "LightweightToFullVehicle",
           this._airdrop.cargo.pGetFullVehicle(this)
@@ -4118,7 +4139,7 @@ export class ZoneServer2016 extends EventEmitter {
       }
       setTimeout(() => {
         if (this._airdrop) {
-          this.sendData<object>(
+          this.sendData<LightweightToFullVehicle>(
             client,
             "LightweightToFullVehicle",
             this._airdrop.plane.pGetFullVehicle(this)
@@ -4196,7 +4217,7 @@ export class ZoneServer2016 extends EventEmitter {
         )
       ) {
         if (!client.spawnedEntities.includes(vehicle)) {
-          this.sendData<object>(client, "AddLightweightVehicle", {
+          this.sendData<AddLightweightVehicle>(client, "AddLightweightVehicle", {
             ...vehicle.pGetLightweightVehicle(),
             unknownGuid1: this.generateGuid()
           });
@@ -4304,7 +4325,7 @@ export class ZoneServer2016 extends EventEmitter {
         characterId: vehicle.characterId
       });
 
-      this.sendData<object>(client, "AddLightweightVehicle", {
+      this.sendData<AddLightweightVehicle>(client, "AddLightweightVehicle", {
         ...vehicle.pGetLightweightVehicle(),
         unknownGuid1: this.generateGuid()
       });

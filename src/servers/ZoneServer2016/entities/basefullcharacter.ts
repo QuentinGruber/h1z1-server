@@ -13,7 +13,8 @@
 
 import {
   EquipmentSetCharacterEquipment,
-  EquipmentSetCharacterEquipmentSlot
+  EquipmentSetCharacterEquipmentSlot,
+  LightweightToFullNpc
 } from "types/zone2016packets";
 import { characterEquipment, DamageInfo } from "../../../types/zoneserver";
 import { LoadoutKit } from "../data/loadouts";
@@ -1049,7 +1050,7 @@ export abstract class BaseFullCharacter extends BaseLightweightCharacter {
     return items;
   }
 
-  pGetFull(server: ZoneServer2016) {
+  pGetFull(server: ZoneServer2016): LightweightToFullNpc {
     return {
       transientId: this.transientId,
       attachmentData: this.pGetAttachmentSlots(),
@@ -1062,9 +1063,9 @@ export abstract class BaseFullCharacter extends BaseLightweightCharacter {
       targetData: {},
       unknownArray1: [],
       unknownArray2: [],
-      unknownArray3: { data: {} },
-      unknownArray4: { data: {} },
-      unknownArray5: { data: {} },
+      unknownArray3: { data: [] },
+      unknownArray4: {},
+      unknownArray5: { data: [] },
       remoteWeapons: { data: {} },
       itemsData: {
         items: this.pGetInventoryItems(server),

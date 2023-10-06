@@ -29,6 +29,7 @@ import { vehicleDefaultLoadouts } from "../data/loadouts";
 import { BaseItem } from "../classes/baseItem";
 import { LOADOUT_CONTAINER_ID } from "../../../utils/constants";
 import { Character2016 } from "./character";
+import { LightweightToFullNpc, LightweightToFullVehicle } from "types/zone2016packets";
 
 function getActorModelId(vehicleId: VehicleIds) {
   switch (vehicleId) {
@@ -299,7 +300,7 @@ export class Vehicle2016 extends BaseLootableEntity {
     };
   }
 
-  pGetFull(server: ZoneServer2016) {
+  pGetFull(server: ZoneServer2016): LightweightToFullNpc {
     return {
       transientId: this.transientId,
       attachmentData: this.pGetAttachmentSlots(),
@@ -312,9 +313,9 @@ export class Vehicle2016 extends BaseLootableEntity {
       targetData: {},
       unknownArray1: [],
       unknownArray2: [],
-      unknownArray3: { data: {} },
-      unknownArray4: { data: {} },
-      unknownArray5: { data: {} },
+      unknownArray3: { data: [] },
+      unknownArray4: {},
+      unknownArray5: { data: [] },
       remoteWeapons: {
         isVehicle: true,
         data: {}
@@ -326,34 +327,16 @@ export class Vehicle2016 extends BaseLootableEntity {
     };
   }
 
-  pGetFullVehicle(server: ZoneServer2016) {
+  pGetFullVehicle(server: ZoneServer2016): LightweightToFullVehicle {
     return {
       npcData: {
         ...this.pGetFull(server)
       },
-      positionUpdate: {
-        ...this.positionUpdate,
-        sequenceTime: server.getGameTime(),
-        position: this.state.position // trying to fix invisible characters/vehicles until they move
-      },
       unknownArray1: [],
       unknownArray2: [],
+      passengers: this.pGetPassengers(server),
       unknownArray3: [],
       unknownArray4: [],
-      unknownArray5: [
-        {
-          unknownData1: {
-            unknownData1: {}
-          }
-        }
-      ],
-      unknownArray6: [],
-      unknownArray7: [],
-      unknownArray8: [
-        {
-          unknownArray1: []
-        }
-      ]
     };
   }
 

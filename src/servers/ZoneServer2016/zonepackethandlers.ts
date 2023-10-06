@@ -362,7 +362,7 @@ export class ZonePacketHandlers {
         }
       );
     }
-    server.spawnWorkAroundLightWeight(client);
+    server.spawnContainerAccessNpc(client);
     server.setTickRate();
   }
   Security(
