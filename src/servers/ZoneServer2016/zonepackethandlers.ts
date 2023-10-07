@@ -47,7 +47,6 @@ import { ConstructionDoor } from "./entities/constructiondoor";
 import { CommandHandler } from "./handlers/commands/commandhandler";
 import {
   AccessedCharacterEndCharacterAccess,
-  AddLightweightVehicle,
   CharacterCharacterStateDelta,
   CharacterFullCharacterDataRequest,
   CharacterManagedObject,
@@ -60,7 +59,6 @@ import {
   CharacterWeaponStance,
   ChatChat,
   ClientInitializationDetails,
-  ClientIsReady,
   ClientLog,
   ClientUpdateCompleteLogoutProcess,
   ClientUpdateDoneSendingPreloadCharacters,
@@ -86,7 +84,6 @@ import {
   ConstructionPlacementFinalizeRequest,
   ConstructionPlacementRequest,
   ConstructionPlacementResponse,
-  ContainerMoveItem,
   ContinentBattleInfo,
   DtoHitSpeedTreeReport,
   GetContinentBattleInfo,
@@ -104,7 +101,6 @@ import {
   NpcFoundationPermissionsManagerBaseShowPermissions,
   NpcFoundationPermissionsManagerEditPermission,
   PlayerUpdateManagedPosition,
-  PlayerUpdatePosition,
   ReplicationInteractionComponent,
   ReplicationNpcComponent,
   RewardBuffInfo,
@@ -129,8 +125,6 @@ import {
   DamageInfo,
   StanceFlags
 } from "types/zoneserver";
-import { positionUpdate } from "types/savedata";
-import { GameTimeSync } from "types/zone2016packets";
 import { Vehicle2016 } from "./entities/vehicle";
 import { Plant } from "./entities/plant";
 import { ConstructionChildEntity } from "./entities/constructionchildentity";
@@ -195,7 +189,7 @@ export class ZonePacketHandlers {
     packet: ReceivedPacket<object>
   ) {
     /*
-    server.sendData<>(client, "ClientUpdate.ActivateProfile", {
+    server.sendData(client, "ClientUpdate.ActivateProfile", {
       profileData: {
           profileId: 5,
           nameId: 66,
@@ -212,6 +206,7 @@ export class ZonePacketHandlers {
       decalAlias: "#"
     });
     */
+
     server.firstRoutine(client);
     server.setGodMode(client, true);
 
@@ -362,7 +357,7 @@ export class ZonePacketHandlers {
         }
       );
     }
-    server.spawnWorkAroundLightWeight(client);
+    server.spawnContainerAccessNpc(client);
     server.setTickRate();
   }
   Security(
@@ -448,7 +443,7 @@ export class ZonePacketHandlers {
         }
       }
       if (objVehicle && packet.data.characterId != objVehicle.characterId) {
-        if (objVehicle.getNextSeatId(server) == "0") return;
+        if (objVehicle.getNextSeatId(server) == 0) return;
       }
     }
     const characterId = packet.data.characterId || "",
@@ -1798,9 +1793,18 @@ export class ZonePacketHandlers {
     if (Number(final[0].toFixed(2)) === 0.0) {
       final[0] = 0;
     }
-    const modelId = server.getItemDefinition(
-      packet.data.itemDefinitionId
-    ).PLACEMENT_MODEL_ID;
+    const modelId = server.getItemDefinition(packet.data.itemDefinitionId)
+      ?.PLACEMENT_MODEL_ID;
+    if (!modelId) {
+      console.log(
+        `[ERROR] No PLACEMENT_MODEL_ID for ${packet.data.itemDefinitionId} from characterId ${client.character.characterId}`
+      );
+      server.sendChatText(
+        client,
+        `[ERROR] No PLACEMENT_MODEL_ID for ${packet.data.itemDefinitionId}`
+      );
+      return;
+    }
     server.constructionManager.placement(
       server,
       client,
@@ -1918,7 +1922,20 @@ export class ZonePacketHandlers {
       packet.data;
     const { count } = packet.data.itemSubData as any;
 
-    if (!count || count < 1) return;
+    switch (itemUseOption) {
+      case ItemUseOptions.HOTWIRE_OFFROADER:
+      case ItemUseOptions.HOTWIRE_PICKUP:
+      case ItemUseOptions.HOTWIRE_POLICE:
+      case ItemUseOptions.HOTWIRE_ATV:
+      case ItemUseOptions.HOTWIRE_ATV_NO_PARTS:
+      case ItemUseOptions.HOTWIRE_OFFROADER_NO_PARTS:
+      case ItemUseOptions.HOTWIRE_PICKUP_NO_PARTS:
+      case ItemUseOptions.HOTWIRE_POLICE_NO_PARTS:
+        break;
+      default:
+        if (!count || count < 1) return;
+    }
+
     if (!itemGuid) {
       server.sendChatText(client, "[ERROR] ItemGuid is invalid!");
       return;
@@ -2000,6 +2017,7 @@ export class ZonePacketHandlers {
         container = mountedContainer;
       }
     }
+
     switch (itemUseOption) {
       case ItemUseOptions.DROP:
       case ItemUseOptions.DROP_BATTERY:
@@ -2046,7 +2064,7 @@ export class ZonePacketHandlers {
               server.containerError(client, ContainerErrors.NO_ITEM_IN_SLOT);
               return;
             }
-            server.switchLoadoutSlot(client, loadoutItem);
+            server.switchLoadoutSlot(client, loadoutItem, true);
           }
         } else {
           if (activeSlotId) {
@@ -2236,9 +2254,8 @@ export class ZonePacketHandlers {
     packet: ReceivedPacket<ConstructionPlacementRequest>
   ) {
     debug(packet.data);
-    const modelId = server.getItemDefinition(
-      packet.data.itemDefinitionId
-    ).PLACEMENT_MODEL_ID;
+    const modelId = server.getItemDefinition(packet.data.itemDefinitionId)
+      ?.PLACEMENT_MODEL_ID;
     if (!modelId) {
       server.sendChatText(
         client,
@@ -2269,7 +2286,9 @@ export class ZonePacketHandlers {
       newSlotId
     } = packet.data;
     const sourceCharacterId = characterId;
-    server.startInteractionTimer(client, 0, 0, 9);
+    if (sourceCharacterId != targetCharacterId) {
+      server.startInteractionTimer(client, 0, 0, 9);
+    }
     if (client.character.mountedContainer) {
       if (
         !isPosInRadiusWithY(
@@ -2556,7 +2575,7 @@ export class ZonePacketHandlers {
       server.sendChatText(client, "[ERROR] Target slot is empty!");
       return;
     }
-    server.switchLoadoutSlot(client, slot);
+    server.switchLoadoutSlot(client, slot, false);
   }
   NpcFoundationPermissionsManagerEditPermission(
     server: ZoneServer2016,
@@ -2983,6 +3002,11 @@ export class ZonePacketHandlers {
       packet.data.joinState == 1
     );
   }
+
+  ProjectileDebug(server: ZoneServer2016, client: Client, packet: any) {
+    console.log(`ProjectileDebug from ${client.character.characterId}`);
+    console.log(packet.data);
+  }
   //#endregion
 
   processPacket(
@@ -3198,6 +3222,9 @@ export class ZonePacketHandlers {
         break;
       case "Group.Join":
         this.GroupJoin(server, client, packet);
+        break;
+      case "ProjectileDebug":
+        this.ProjectileDebug(server, client, packet);
         break;
       default:
         debug(packet);
