@@ -784,6 +784,8 @@ export class Character2016 extends BaseFullCharacter {
     this._resources[ResourceIds.STAMINA] = 600;
     this._resources[ResourceIds.BLEEDING] = -40;
     this._resources[ResourceIds.ENDURANCE] = 8000;
+    this._resources[ResourceIds.VIRUS] = 0;
+    this._resources[ResourceIds.COMFORT] = 5000;
     for (const a in this.healType) {
       const healType = this.healType[a];
       healType.healingTicks = 0;
@@ -830,6 +832,19 @@ export class Character2016 extends BaseFullCharacter {
       this._resources[ResourceIds.ENDURANCE],
       ResourceIds.ENDURANCE
     );
+    server.updateResource(
+      client,
+      this.characterId,
+      this._resources[ResourceIds.VIRUS],
+      ResourceIds.VIRUS
+    );
+    server.updateResource(
+      client,
+      this.characterId,
+      this._resources[ResourceIds.COMFORT],
+      ResourceIds.COMFORT
+    );
+    
   }
 
   damage(server: ZoneServer2016, damageInfo: DamageInfo) {
