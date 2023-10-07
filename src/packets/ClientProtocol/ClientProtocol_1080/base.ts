@@ -31,7 +31,8 @@ import {
   readUnsignedIntWith2bitLengthValue,
   recipeData,
   packItemWeaponData,
-  containers
+  containers,
+  passengerSchema
 } from "./shared";
 import {
   achievementSchema,
@@ -105,7 +106,7 @@ export const basePackets: PacketStructures = [
             { name: "unknownTime2", type: "uint64string", defaultValue: "" },
             { name: "unknownDword24", type: "uint32", defaultValue: 0 },
             { name: "unknownBoolean5", type: "boolean", defaultValue: false },
-            { name: "unknownDword25", type: "uint32", defaultValue: 0 },
+            { name: "dailyRibbonCount", type: "uint32", defaultValue: 0 },
             {
               name: "profiles",
               type: "array",
@@ -384,18 +385,11 @@ export const basePackets: PacketStructures = [
               defaultValue: true
             },
             {
-              name: "unknownCoinStoreData",
-              type: "schema",
-              defaultValue: {},
+              name: "SHADER_PARAMETER_GROUP",
+              type: "array",
+              defaultValue: [],
               fields: [
-                {
-                  name: "unknownArray1",
-                  type: "array",
-                  defaultValue: [],
-                  fields: [
-                    { name: "unknownDword1", type: "uint32", defaultValue: 0 }
-                  ]
-                }
+                { name: "SHADER_SEMANTIC_ID", type: "uint32", defaultValue: 0 }
               ]
             },
             {
@@ -2330,6 +2324,40 @@ export const basePackets: PacketStructures = [
       ]
     }
   ],
+  // gets triggered if you're on top of a vehicle, and shoot down into the windshield
+  // may also get triggered if a client is cheating but not 100% sure -Meme
+  [
+    "ProjectileDebug",
+    0x0d,
+    {
+      fields: [
+        { name: "weaponDefinitionId", type: "uint32", defaultValue: 0 },
+        { name: "unknownDword2", type: "uint32", defaultValue: 0 },
+        { name: "unknownDword3", type: "uint32", defaultValue: 0 },
+
+        // don't know if these next 6 are correct
+        { name: "unknownDword4", type: "uint32", defaultValue: 0 },
+        { name: "unknownDword5", type: "uint32", defaultValue: 0 },
+        { name: "unknownDword6", type: "uint32", defaultValue: 0 },
+        { name: "unknownByte1", type: "uint8", defaultValue: 0 },
+        { name: "unknownDword7", type: "uint32", defaultValue: 0 },
+        { name: "unknownWord1", type: "uint16", defaultValue: 0 },
+
+        { name: "unknownString1", type: "nullstring", defaultValue: "" },
+        {
+          name: "projectileLocation",
+          type: "floatvector3",
+          defaultValue: [0, 0, 0]
+        },
+        {
+          name: "playerLocation",
+          type: "floatvector3",
+          defaultValue: [0, 0, 0]
+        },
+        { name: "unknownByte5", type: "uint8", defaultValue: 0 }
+      ]
+    }
+  ],
   ["Mail", 0x0e, {}],
   ["Ability.ClientRequestStartAbility", 0x1001, {}],
   ["Ability.ClientRequestStopAbility", 0x1002, {}],
@@ -2597,15 +2625,21 @@ export const basePackets: PacketStructures = [
   ["ZoneSafeTeleportRequest", 0x53, {}],
   ["RemoteInteractionRequest", 0x54, {}],
   ["UpdateCamera", 0x57, {}],
-
   [
-    "UnknownPacketName", // unknown name, sent from client, same dword value every time ?
+    // name isn't in client, packet triggers when player collides with a zombie or with /run any object
+    // also happens when the player lags and triggers "Security"
+    "NpcCollision",
     0x58,
     {
-      fields: [{ name: "unknownDword1", type: "uint32", defaultValue: 0 }]
+      fields: [
+        { name: "unknownDword1", type: "uint32", defaultValue: 0 },
+        { name: "unknownDword2", type: "uint32", defaultValue: 0 }, // 1 when it's an npc
+        { name: "unknownDword3", type: "uint32", defaultValue: 0 },
+        { name: "unknownDword4", type: "uint32", defaultValue: 0 },
+        { name: "unknownDword5", type: "uint32", defaultValue: 0 }
+      ]
     }
   ],
-
   ["AdminGuild", 0x5a, {}],
   ["BattleMages", 0x5b, {}],
   ["WorldToWorld", 0x5c, {}],
@@ -2717,8 +2751,8 @@ export const basePackets: PacketStructures = [
           type: "array",
           defaultValue: [],
           fields: [
-            { name: "unknownDword1", type: "uint32", defaultValue: 0 },
-            { name: "unknownDword2", type: "uint32", defaultValue: 0 },
+            { name: "RULESET_ID", type: "uint32", defaultValue: 0 },
+            { name: "RULESET_ID_", type: "uint32", defaultValue: 0 },
             { name: "ruleset", type: "string", defaultValue: "" },
             { name: "unknownString2", type: "string", defaultValue: "" },
             {
@@ -3292,37 +3326,7 @@ export const basePackets: PacketStructures = [
           name: "passengers",
           type: "array",
           defaultValue: [],
-          fields: [
-            {
-              name: "passengerData",
-              type: "schema",
-              fields: [
-                {
-                  name: "characterId",
-                  type: "uint64string",
-                  defaultValue: "0"
-                },
-                {
-                  name: "characterData",
-                  type: "schema",
-                  fields: [
-                    { name: "unknownDword1", type: "uint32", defaultValue: 0 },
-                    { name: "unknownDword2", type: "uint32", defaultValue: 0 },
-                    { name: "unknownDword3", type: "uint32", defaultValue: 0 },
-                    { name: "characterName", type: "string", defaultValue: "" },
-                    {
-                      name: "unknownString1",
-                      type: "string",
-                      defaultValue: ""
-                    }
-                  ]
-                },
-                { name: "unknownDword1", type: "uint32", defaultValue: 0 },
-                { name: "unknownString1", type: "string", defaultValue: "" }
-              ]
-            },
-            { name: "unknownByte1", type: "uint8", defaultValue: 0 }
-          ]
+          fields: passengerSchema
         },
         {
           name: "unknownArray3",

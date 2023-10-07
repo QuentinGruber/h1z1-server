@@ -143,6 +143,15 @@ export enum VehicleIds {
   SPECTATE = 1337
 }
 
+export enum NpcIds {
+  ZOMBIE = 3,
+  DEER = 13,
+  WOLF = 14,
+  BEAR = 825,
+  RABBIT = 864,
+  RAVEN = 893
+}
+
 export enum Characters {
   MALE_WHITE = 1,
   MALE_WHITE_BALD = 2,

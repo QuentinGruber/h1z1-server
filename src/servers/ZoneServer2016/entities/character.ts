@@ -47,6 +47,7 @@ import { characterDefaultLoadout } from "../data/loadouts";
 import {
   AccessedCharacterBeginCharacterAccess,
   AccessedCharacterEndCharacterAccess,
+  AddLightweightPc,
   CharacterWeaponStance,
   ClientUpdateDamageInfo,
   ClientUpdateModifyMovementSpeed,
@@ -558,6 +559,27 @@ export class Character2016 extends BaseFullCharacter {
   getCombatLog() {
     return this.combatlog;
   }
+
+  updateLoadout(server: ZoneServer2016, sendPacketToLocalClient = true) {
+    const client = server.getClientByContainerAccessor(this);
+    if (!client || !client.character.initialized) return;
+    server.checkConveys(client);
+    if (sendPacketToLocalClient) {
+      server.sendData(
+        client,
+        "Loadout.SetLoadoutSlots",
+        this.pGetLoadoutSlots()
+      );
+    }
+    server.sendDataToAllOthersWithSpawnedEntity(
+      server._characters,
+      client,
+      this.characterId,
+      "Loadout.SetLoadoutSlots",
+      this.pGetLoadoutSlots()
+    );
+  }
+
   /**
    * Gets the lightweightpc packetfields for use in sendself and addlightweightpc
    */
@@ -567,6 +589,23 @@ export class Character2016 extends BaseFullCharacter {
       rotation: this.state.lookAt,
       identity: {
         characterName: this.name
+      }
+    };
+  }
+
+  pGetLightweightPC(
+    server: ZoneServer2016,
+    client: ZoneClient2016
+  ): AddLightweightPc {
+    const vehicleId = client.vehicle.mountedVehicle,
+      vehicle = vehicleId ? server._vehicles[vehicleId] : false;
+    return {
+      ...this.pGetLightweight(),
+      mountGuid: vehicleId || "",
+      mountSeatId: vehicle ? vehicle.getCharacterSeat(this.characterId) : 0,
+      mountRelatedDword1: vehicle ? 1 : 0,
+      flags1: {
+        isAdmin: client.isAdmin ? 1 : 0
       }
     };
   }
@@ -611,7 +650,9 @@ export class Character2016 extends BaseFullCharacter {
 
   pGetRemoteWeaponData(server: ZoneServer2016, item: BaseItem) {
     const itemDefinition = server.getItemDefinition(item.itemDefinitionId),
-      weaponDefinition = server.getWeaponDefinition(itemDefinition.PARAM1),
+      weaponDefinition = server.getWeaponDefinition(
+        itemDefinition?.PARAM1 ?? 0
+      ),
       firegroups: Array<any> = weaponDefinition.FIRE_GROUPS || [];
     return {
       weaponDefinitionId: weaponDefinition.ID,
@@ -642,7 +683,9 @@ export class Character2016 extends BaseFullCharacter {
 
   pGetRemoteWeaponExtraData(server: ZoneServer2016, item: BaseItem) {
     const itemDefinition = server.getItemDefinition(item.itemDefinitionId),
-      weaponDefinition = server.getWeaponDefinition(itemDefinition.PARAM1),
+      weaponDefinition = server.getWeaponDefinition(
+        itemDefinition?.PARAM1 ?? 0
+      ),
       firegroups = weaponDefinition.FIRE_GROUPS;
     return {
       guid: item.itemGuid,
@@ -732,6 +775,61 @@ export class Character2016 extends BaseFullCharacter {
     this.metrics.wildlifeKilled = 0;
     this.metrics.recipesDiscovered = 0;
     this.metrics.startedSurvivingTP = Date.now();
+  }
+
+  resetResources(server: ZoneServer2016) {
+    this._resources[ResourceIds.HEALTH] = 10000;
+    this._resources[ResourceIds.HUNGER] = 10000;
+    this._resources[ResourceIds.HYDRATION] = 10000;
+    this._resources[ResourceIds.STAMINA] = 600;
+    this._resources[ResourceIds.BLEEDING] = -40;
+    this._resources[ResourceIds.ENDURANCE] = 8000;
+    for (const a in this.healType) {
+      const healType = this.healType[a];
+      healType.healingTicks = 0;
+      healType.healingMaxTicks = 0;
+    }
+    this.hudIndicators = {};
+    this.resourcesUpdater?.refresh();
+    const client = server.getClientByCharId(this.characterId);
+    if (!client) return;
+    server.sendHudIndicators(client);
+    server.updateResource(
+      client,
+      this.characterId,
+      this._resources[ResourceIds.HEALTH],
+      ResourceIds.HEALTH
+    );
+    server.updateResource(
+      client,
+      this.characterId,
+      this._resources[ResourceIds.STAMINA],
+      ResourceIds.STAMINA
+    );
+    server.updateResource(
+      client,
+      this.characterId,
+      this._resources[ResourceIds.HUNGER],
+      ResourceIds.HUNGER
+    );
+    server.updateResource(
+      client,
+      this.characterId,
+      this._resources[ResourceIds.HYDRATION],
+      ResourceIds.HYDRATION
+    );
+    server.updateResource(
+      client,
+      this.characterId,
+      this._resources[ResourceIds.BLEEDING],
+      ResourceIds.BLEEDING
+    );
+    server.updateResource(
+      client,
+      this.characterId,
+      this._resources[ResourceIds.ENDURANCE],
+      ResourceIds.ENDURANCE
+    );
   }
 
   damage(server: ZoneServer2016, damageInfo: DamageInfo) {
@@ -952,7 +1050,11 @@ export class Character2016 extends BaseFullCharacter {
     });
   }
 
-  updateEquipmentSlot(server: ZoneServer2016, slotId: number) {
+  updateEquipmentSlot(
+    server: ZoneServer2016,
+    slotId: number,
+    sendPacketToLocalClient = true
+  ) {
     if (!server.getClientByCharId(this.characterId)?.character.initialized)
       return;
     /*
@@ -970,14 +1072,19 @@ export class Character2016 extends BaseFullCharacter {
       if (client.character != this) {
         groupId = client.character.groupId;
       }
-      server.sendData<EquipmentSetCharacterEquipmentSlot>(
-        client,
-        "Equipment.SetCharacterEquipmentSlot",
-        this.pGetEquipmentSlotFull(
-          slotId,
-          groupId
-        ) as EquipmentSetCharacterEquipmentSlot
-      );
+      if (
+        sendPacketToLocalClient ||
+        this.characterId != client.character.characterId
+      ) {
+        server.sendData<EquipmentSetCharacterEquipmentSlot>(
+          client,
+          "Equipment.SetCharacterEquipmentSlot",
+          this.pGetEquipmentSlotFull(
+            slotId,
+            groupId
+          ) as EquipmentSetCharacterEquipmentSlot
+        );
+      }
     });
   }
 
@@ -997,15 +1104,14 @@ export class Character2016 extends BaseFullCharacter {
 
   pGetEquipmentSlotFull(slotId: number, groupId?: number) {
     const slot = this._equipment[slotId];
-    return slot
-      ? {
-          characterData: {
-            characterId: this.characterId
-          },
-          equipmentSlot: this.pGetEquipmentSlot(slotId),
-          attachmentData: this.pGetAttachmentSlot(slotId, groupId)
-        }
-      : undefined;
+    if (!slot) return;
+    return {
+      characterData: {
+        characterId: this.characterId
+      },
+      equipmentSlot: this.pGetEquipmentSlot(slotId),
+      attachmentData: this.pGetAttachmentSlot(slotId, groupId)
+    };
   }
 
   updateEquipment(server: ZoneServer2016, groupId?: number) {
@@ -1049,7 +1155,10 @@ export class Character2016 extends BaseFullCharacter {
           textureAlias: slot.textureAlias || "",
           tintAlias: slot.tintAlias || "Default",
           decalAlias: slot.decalAlias || "#",
-          slotId: slot.slotId
+          slotId: slot.slotId,
+          SHADER_PARAMETER_GROUP: [
+            // TODO
+          ]
         }
       : undefined;
   }

@@ -49,7 +49,7 @@ export interface SendSelfToClient {
   unknownTime2?: string;
   unknownDword24?: number;
   unknownBoolean5?: boolean;
-  unknownDword25?: number;
+  dailyRibbonCount?: number;
   profiles?: unknown[];
   currentProfile?: number;
   unknownArray1?: unknown[];
@@ -72,9 +72,7 @@ export interface SendSelfToClient {
   recipes?: unknown[];
   mounts?: unknown[];
   sendFirstTimeEvents?: boolean;
-  unknownCoinStoreData :{
-  unknownArray1?: unknown[];
-};
+  SHADER_PARAMETER_GROUP?: unknown[];
   unknownArray2?: unknown[];
   unknownEffectArray?: unknown[];
   stats?: unknown[];
@@ -300,6 +298,21 @@ export interface ClientBeginZoning {
   waitForZoneReady?: boolean;
   unknownBoolean3?: boolean;
 }
+export interface ProjectileDebug {
+  weaponDefinitionId?: number;
+  unknownDword2?: number;
+  unknownDword3?: number;
+  unknownDword4?: number;
+  unknownDword5?: number;
+  unknownDword6?: number;
+  unknownByte1?: number;
+  unknownDword7?: number;
+  unknownWord1?: number;
+  unknownString1?: string;
+  projectileLocation?: Float32Array;
+  playerLocation?: Float32Array;
+  unknownByte5?: number;
+}
 export interface SendZoneDetails {
   zoneName?: string;
   zoneType?: number;
@@ -397,8 +410,12 @@ export interface ClientLog {
 }
 export interface LoginFailed {
 }
-export interface UnknownPacketName {
+export interface NpcCollision {
   unknownDword1?: number;
+  unknownDword2?: number;
+  unknownDword3?: number;
+  unknownDword4?: number;
+  unknownDword5?: number;
 }
 export interface ClientGameSettings {
   Unknown2?: number;
@@ -617,7 +634,7 @@ export interface AddLightweightNpc {
      bit7?: number,
 };
   flags2:{
-     bit8?: number,
+     nonAttackable?: number,
      bit9?: number,
      bit10?: number,
      bit11?: number,
@@ -690,7 +707,7 @@ export interface AddLightweightVehicle {
      bit7?: number,
 };
   flags2:{
-     bit8?: number,
+     nonAttackable?: number,
      bit9?: number,
      bit10?: number,
      bit11?: number,
@@ -1968,7 +1985,7 @@ export interface EquipmentSetCharacterEquipmentSlot {
   effectId?: number;
   slotId?: number;
   unknownDword4?: number;
-  unknownArray1?: unknown[];
+  SHADER_PARAMETER_GROUP?: unknown[];
   unknownBool1?: boolean;
 };
 }

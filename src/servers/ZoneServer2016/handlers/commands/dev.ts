@@ -813,7 +813,7 @@ const dev: any = {
         unknownDword1: Number(args[1]),
         slotId: Number(args[2]),
         unknownDword2: Number(args[3]),
-        shaderGroupId: 665 // maybe try setting other character's shaderGroupId on spawn
+        shaderGroupId: 588 // maybe try setting other character's shaderGroupId on spawn
       });
     });
   },
