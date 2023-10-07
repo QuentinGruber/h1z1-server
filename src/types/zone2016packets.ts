@@ -2056,8 +2056,8 @@ export interface WallOfDataClientTransition {
 export interface EffectAddEffect {
   effectData :{
   unknownDword1?: number;
-  vehicleAbilityEffectId?: number;
-  abilityEffectId?: number;
+  abilityEffectId1?: number;
+  abilityEffectId2?: number;
 };
   unknownData2 :{
   unknownQword1?: string;
@@ -2072,8 +2072,8 @@ export interface EffectAddEffect {
 export interface EffectUpdateEffect {
   effectData :{
   unknownDword1?: number;
-  vehicleAbilityEffectId?: number;
-  abilityEffectId?: number;
+  abilityEffectId1?: number;
+  abilityEffectId2?: number;
 };
   unknownData2 :{
   unknownDword1?: number;
@@ -2086,10 +2086,10 @@ export interface EffectUpdateEffect {
 };
 }
 export interface EffectRemoveEffect {
-  unknownData1 :{
+  abilityEffectData :{
   unknownDword1?: number;
-  unknownDword2?: number;
-  unknownDword3?: number;
+  abilityEffectId1?: number;
+  abilityEffectId2?: number;
 };
   unknownData2 :{
   characterId?: string;

@@ -141,7 +141,7 @@ export class AbilitiesManager {
     packetData: EffectAddEffect
   ) {
     console.log(packetData);
-    const abilityEffectId: number = packetData.effectData.abilityEffectId ?? 0,
+    const abilityEffectId: number = packetData.effectData.abilityEffectId2 ?? 0,
       clientEffect = server._clientEffectsData[abilityEffectId];
     if (clientEffect.typeName == "RequestAnimation") {
       const animationName = clientEffect.animationName;
@@ -157,7 +157,7 @@ export class AbilitiesManager {
       );
       return;
     }
-    const vehicleAbilityEffectId = packetData.effectData.vehicleAbilityEffectId;
+    const vehicleAbilityEffectId = packetData.effectData.abilityEffectId1;
     let vehicle: Vehicle2016 | undefined;
     switch (vehicleAbilityEffectId) {
       case VehicleEffects.MOTOR_RUN_OFFROADER:
@@ -198,7 +198,7 @@ export class AbilitiesManager {
     client: Client,
     packetData: EffectRemoveEffect
   ) {
-    const effectId = packetData.unknownData1.unknownDword2;
+    const effectId = packetData.abilityEffectData.abilityEffectId1;
     let vehicle: Vehicle2016 | undefined;
     switch (effectId) {
       case VehicleEffects.MOTOR_RUN_OFFROADER:
@@ -296,10 +296,10 @@ export class AbilitiesManager {
       packetData.unknownData2.characterId,
       "Effect.RemoveEffect",
       {
-        unknownData1: {
+        abilityEffectData: {
           unknownDword1: 4,
-          unknownDword2: packetData.unknownData1.unknownDword2,
-          unknownDword3: packetData.unknownData1.unknownDword3
+          abilityEffectId1: packetData.abilityEffectData.abilityEffectId1,
+          abilityEffectId2: packetData.abilityEffectData.abilityEffectId2
         },
         unknownData2: {
           characterId: packetData.targetCharacterId

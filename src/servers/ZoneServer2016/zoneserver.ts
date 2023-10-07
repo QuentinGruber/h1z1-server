@@ -1570,7 +1570,7 @@ export class ZoneServer2016 extends EventEmitter {
       the client can switch equipment slots without server input, which is the way
       it's supposed to work (removes the delay) - Meme
     */
-
+    
     this.sendData(client, "ReferenceData.DynamicAppearance", {
       ITEM_APPEARANCE_DEFINITIONS:
         dynamicappearance.ITEM_APPEARANCE_DEFINITIONS,
@@ -4695,10 +4695,10 @@ export class ZoneServer2016 extends EventEmitter {
           vehicle.characterId,
           "Effect.RemoveEffect",
           {
-            unknownData1: {
+            abilityEffectData: {
               unknownDword1: 4,
-              unknownDword2: VehicleEffects.MOTOR_RUN_OFFROADER,
-              unknownDword3: 100042
+              abilityEffectId1: VehicleEffects.MOTOR_RUN_OFFROADER,
+              abilityEffectId2: 100042
             },
             unknownData2: {
               characterId: client.character.characterId
