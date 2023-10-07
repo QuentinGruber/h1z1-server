@@ -32,7 +32,8 @@ import {
   EffectAddEffect,
   EffectRemoveEffect
 } from "types/zone2016packets";
-import { EntityDictionary } from "types/zoneserver";
+import { DamageInfo, EntityDictionary } from "types/zoneserver";
+import { LootableProp } from "../entities/lootableprop";
 const //abilities = require("../../../../data/2016/dataSources/Abilities.json"),
   vehicleAbilities = require("../../../../data/2016/dataSources/VehicleAbilities.json");
 
@@ -132,6 +133,27 @@ export class AbilitiesManager {
     client.character.checkCurrentInteractionGuid();
     const weaponItem = client.character.getEquippedWeapon();
     if (!weaponItem || !weaponItem.weapon) return;
+
+    // TODO: CHECK MELEE BLOCK TIME FOR EACH WEAPON
+    // CHECK MELEE RANGE ALSO
+    
+    //if (client.character.meleeBlocked()) return true;
+    client.character.lastMeleeHitTime = Date.now();
+
+    const damageInfo: DamageInfo = {
+      entity: client.character.characterId,
+      damage: 5000 // need to figure out a good number for this
+    };
+
+    /*
+      THIS IF STATEMENT IS ONLY TEMPORARY UNTIL OnMeleeHit METHODS
+      ARE DEFINED IN ALL ENTITIES
+    */
+    if(entity instanceof LootableProp) {
+      entity.OnMeleeHit(server, damageInfo);
+      return;
+    }
+    
     server.handleMeleeHit(client, entity, weaponItem);
   }
 

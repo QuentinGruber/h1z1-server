@@ -15,6 +15,8 @@ import { ZoneServer2016 } from "../zoneserver";
 import { ZoneClient2016 } from "../classes/zoneclient";
 
 import { StringIds, Items } from "../models/enums";
+import { DamageInfo } from "types/zoneserver";
+import { randomIntFromInterval } from "../../../utils/utils";
 
 function getContainerAndTime(entity: LootableProp) {
   switch (entity.actorModelId) {
@@ -237,5 +239,30 @@ export class LootableProp extends BaseLootableEntity {
 
   destroy(server: ZoneServer2016): boolean {
     return server.deleteEntity(this.characterId, server._lootableProps);
+  }
+
+  OnMeleeHit(server: ZoneServer2016, damageInfo: DamageInfo) {
+    switch (this.lootSpawner) {
+      case "Wrecked Van":
+      case "Wrecked Car":
+      case "Wrecked Truck":
+        break;
+      default: 
+        return;
+    }
+
+    const client = server.getClientByCharId(damageInfo.entity);
+    const weapon = client?.character.getEquippedWeapon();
+
+    if(
+      !client || !weapon || 
+      weapon.itemDefinitionId != Items.WEAPON_CROWBAR) {
+      return;
+    }
+
+    if (randomIntFromInterval(0, 100) <= 20) {
+      client.character.lootItem(server, server.generateItem(Items.METAL_SCRAP));
+      server.damageItem(client, weapon, 25);
+    }
   }
 }

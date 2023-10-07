@@ -7030,35 +7030,6 @@ export class ZoneServer2016 extends EventEmitter {
     return true;
   }
 
-  handleCrowbarHit(
-    client: Client,
-    weaponItem: LoadoutItem,
-    entity: BaseEntity
-  ): boolean {
-    if (!(entity instanceof LootableProp)) return true;
-    if (client.character.meleeBlocked(200)) return true;
-
-    switch (entity.lootSpawner) {
-      case "Wrecked Van":
-      case "Wrecked Car":
-      case "Wrecked Truck":
-        /*
-        this.sendCompositeEffectToAllInRange(
-          15,
-          client.character.characterId,
-          entity.state.position,
-          1605
-        );
-        */
-        if (randomIntFromInterval(0, 100) <= 20) {
-          client.character.lootItem(this, this.generateItem(Items.METAL_SCRAP));
-          this.damageItem(client, weaponItem, 25);
-        }
-    }
-    client.character.lastMeleeHitTime = Date.now();
-    return true;
-  }
-
   handleDemolitionHit(
     client: Client,
     weaponItem: LoadoutItem,
@@ -7227,8 +7198,6 @@ export class ZoneServer2016 extends EventEmitter {
     switch (weaponItem.itemDefinitionId) {
       case Items.WEAPON_WRENCH:
         return this.handleWrenchHit(client, weaponItem, entity);
-      case Items.WEAPON_CROWBAR:
-        return this.handleCrowbarHit(client, weaponItem, entity);
       case Items.WEAPON_HAMMER_DEMOLITION:
         return this.handleDemolitionHit(client, weaponItem, entity);
       case Items.WEAPON_HAMMER:
