@@ -38,7 +38,6 @@ export abstract class BaseSimpleNpc extends BaseEntity {
       rotation: this.state.rotation,
       modelId: this.actorModelId,
       scale: this.scale,
-      showHealth: true,
       health: this.health / 1000
     };
   }

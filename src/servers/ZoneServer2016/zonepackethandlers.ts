@@ -46,6 +46,9 @@ import { ConstructionParentEntity } from "./entities/constructionparententity";
 import { ConstructionDoor } from "./entities/constructiondoor";
 import { CommandHandler } from "./handlers/commands/commandhandler";
 import {
+  AbilitiesInitAbility,
+  AbilitiesUninitAbility,
+  AbilitiesUpdateAbility,
   AccessedCharacterEndCharacterAccess,
   AddLightweightVehicle,
   CharacterCharacterStateDelta,
@@ -89,6 +92,8 @@ import {
   ContainerMoveItem,
   ContinentBattleInfo,
   DtoHitSpeedTreeReport,
+  EffectAddEffect,
+  EffectRemoveEffect,
   GetContinentBattleInfo,
   GroupInvite,
   GroupJoin,
@@ -2832,13 +2837,6 @@ export class ZonePacketHandlers {
         break;
       case "Weapon.MeleeHitMaterial":
         debug("MeleeHitMaterial");
-        // todo
-        /*
-        if (server.handleMeleeHit(client, weaponItem)) {
-          return;
-        }
-        */
-        // maybe handle melee damage here?
         break;
       case "Weapon.AimBlockedNotify":
         server.sendRemoteWeaponUpdateDataToAllOthers(
@@ -2982,13 +2980,13 @@ export class ZonePacketHandlers {
       packet.data.joinState == 1
     );
   }
-  EffectAddEffect(server: ZoneServer2016, client: Client, packet: any) {
-    server.abilitiesManager.processAddEffectPacket(server, client, packet);
+  EffectAddEffect(server: ZoneServer2016, client: Client, packet: ReceivedPacket<EffectAddEffect>) {
+    server.abilitiesManager.processAddEffectPacket(server, client, packet.data);
   }
-  EffectRemoveEffect(server: ZoneServer2016, client: Client, packet: any) {
-    server.abilitiesManager.processRemoveEffectPacket(server, client, packet);
+  EffectRemoveEffect(server: ZoneServer2016, client: Client, packet: ReceivedPacket<EffectRemoveEffect>) {
+    server.abilitiesManager.processRemoveEffectPacket(server, client, packet.data);
   }
-  AbilitiesInitAbility(server: ZoneServer2016, client: Client, packet: any) {
+  AbilitiesInitAbility(server: ZoneServer2016, client: Client, packet: ReceivedPacket<AbilitiesInitAbility>) {
     const vehicle = server._vehicles[client.vehicle.mountedVehicle ?? ""];
     if (!vehicle) return;
     server.abilitiesManager.processVehicleAbilityInit(
@@ -2998,7 +2996,7 @@ export class ZonePacketHandlers {
       packet.data
     );
   }
-  AbilitiesUninitAbility(server: ZoneServer2016, client: Client, packet: any) {
+  AbilitiesUninitAbility(server: ZoneServer2016, client: Client, packet: ReceivedPacket<AbilitiesUninitAbility>) {
     if (!client.vehicle.mountedVehicle) return;
     const vehicle = server._vehicles[client.vehicle.mountedVehicle];
     if (!vehicle) return;
@@ -3009,14 +3007,17 @@ export class ZonePacketHandlers {
       packet.data
     );
   }
-  AbilitiesUpdateAbility(server: ZoneServer2016, client: Client, packet: any) {
+  AbilitiesUpdateAbility(server: ZoneServer2016, client: Client, packet: ReceivedPacket<AbilitiesUpdateAbility>) {
     /*
       AbilityUpdate is sent twice for each melee hit, once as soon as you click,
       and a second time on the actual hit. hitLocation is only in the first packet,
       so it's ignored for now so the melee hit can be processed when the melee actually
       collides with an object. -Meme
     */
-    if (packet.data.abilityData.hitLocation) return;
+
+    const hitLocation = (packet.data.abilityData as any)?.hitLocation;
+
+    if (hitLocation) return;
 
     const entity =
       server.getEntity(packet.data.targetCharacterId ?? "") ??

@@ -21,12 +21,12 @@ export const effectsPackets: PacketStructures = [
     {
       fields: [
         {
-          name: "unknownData1",
+          name: "effectData",
           type: "schema",
           fields: [
             { name: "unknownDword1", type: "uint32", defaultValue: 0 },
-            { name: "unknownDword2", type: "uint32", defaultValue: 0 },
-            { name: "unknownDword3", type: "uint32", defaultValue: 0 }
+            { name: "vehicleAbilityEffectId", type: "uint32", defaultValue: 0 },
+            { name: "abilityEffectId", type: "uint32", defaultValue: 0 }
           ]
         },
         {
@@ -38,7 +38,7 @@ export const effectsPackets: PacketStructures = [
           ]
         },
         {
-          name: "unknownData3",
+          name: "targetData",
           type: "schema",
           fields: [
             { name: "unknownQword1", type: "uint64string", defaultValue: "0" },
@@ -63,12 +63,12 @@ export const effectsPackets: PacketStructures = [
     {
       fields: [
         {
-          name: "unknownData1",
+          name: "effectData",
           type: "schema",
           fields: [
             { name: "unknownDword1", type: "uint32", defaultValue: 0 },
-            { name: "unknownDword2", type: "uint32", defaultValue: 0 },
-            { name: "unknownDword3", type: "uint32", defaultValue: 0 }
+            { name: "vehicleAbilityEffectId", type: "uint32", defaultValue: 0 },
+            { name: "abilityEffectId", type: "uint32", defaultValue: 0 }
           ]
         },
         {
@@ -80,13 +80,17 @@ export const effectsPackets: PacketStructures = [
           ]
         },
         {
-          name: "unknownData3",
+          name: "targetData",
           type: "schema",
           fields: [
             { name: "unknownQword1", type: "uint64string", defaultValue: "0" },
-            { name: "unknownQword2", type: "uint64string", defaultValue: "0" },
             {
-              name: "unknownVector1",
+              name: "targetCharacterId",
+              type: "uint64string",
+              defaultValue: "0"
+            },
+            {
+              name: "position",
               type: "floatvector4",
               defaultValue: [0, 0, 0, 0]
             }
@@ -101,12 +105,12 @@ export const effectsPackets: PacketStructures = [
     {
       fields: [
         {
-          name: "unknownData1",
+          name: "effectData",
           type: "schema",
           fields: [
             { name: "unknownDword1", type: "uint32", defaultValue: 0 },
-            { name: "unknownDword2", type: "uint32", defaultValue: 0 },
-            { name: "unknownDword3", type: "uint32", defaultValue: 0 }
+            { name: "vehicleAbilityEffectId", type: "uint32", defaultValue: 0 },
+            { name: "abilityEffectId", type: "uint32", defaultValue: 0 }
           ]
         },
         {
@@ -117,19 +121,21 @@ export const effectsPackets: PacketStructures = [
           ]
         },
         {
-          name: "targetCharacterId",
-          type: "uint64string",
-          defaultValue: "0"
-        },
-        {
-          name: "guid2",
-          type: "uint64string",
-          defaultValue: "0"
-        },
-        {
-          name: "unknownVector1",
-          type: "floatvector4",
-          defaultValue: [0, 0, 0, 0]
+          name: "targetData",
+          type: "schema",
+          fields: [
+            { name: "unknownQword1", type: "uint64string", defaultValue: "0" },
+            {
+              name: "targetCharacterId",
+              type: "uint64string",
+              defaultValue: "0"
+            },
+            {
+              name: "position",
+              type: "floatvector4",
+              defaultValue: [0, 0, 0, 0]
+            }
+          ]
         }
       ]
     }

@@ -22,6 +22,8 @@ import { ZoneServer2016 } from "../zoneserver";
 import { Vehicle2016 } from "../entities/vehicle";
 import { BaseLightweightCharacter } from "../entities/baselightweightcharacter";
 import { BaseEntity } from "../entities/baseentity";
+import { AbilitiesInitAbility, AbilitiesSetVehicleActivatableAbilityManager, AbilitiesUninitAbility, AbilitiesUpdateAbility, AbilitiesVehicleDeactivateAbility, CharacterAddEffectTagCompositeEffect, EffectAddEffect, EffectRemoveEffect } from "types/zone2016packets";
+import { EntityDictionary } from "types/zoneserver";
 const //abilities = require("../../../../data/2016/dataSources/Abilities.json"),
   vehicleAbilities = require("../../../../data/2016/dataSources/VehicleAbilities.json");
 
@@ -55,7 +57,7 @@ export class AbilitiesManager {
         }
       ];
     }
-    server.sendData(
+    server.sendData<AbilitiesSetVehicleActivatableAbilityManager>(
       client,
       "Abilities.SetVehicleActivatableAbilityManager",
       vehicleAbilities
@@ -66,9 +68,9 @@ export class AbilitiesManager {
     server: ZoneServer2016,
     client: Client,
     vehicle: Vehicle2016,
-    packet: any
+    packetData: AbilitiesInitAbility
   ) {
-    switch (packet.abilityId) {
+    switch (packetData.abilityId) {
       case Abilities.VEHICLE_HEADLIGHTS:
         vehicle.toggleHeadlights(server, client);
         break;
@@ -87,9 +89,9 @@ export class AbilitiesManager {
     server: ZoneServer2016,
     client: Client,
     vehicle: Vehicle2016,
-    packet: any
+    packetData: AbilitiesUninitAbility
   ) {
-    switch (packet.abilityId) {
+    switch (packetData.abilityId) {
       case Abilities.VEHICLE_HEADLIGHTS:
         vehicle.toggleHeadlights(server, client);
         break;
@@ -102,8 +104,8 @@ export class AbilitiesManager {
         vehicle.toggleHorn(server, false, client);
         break;
     }
-    server.sendData(client, "Abilities.VehicleDeactivateAbility", {
-      abilityId: packet.abilityId,
+    server.sendData<AbilitiesVehicleDeactivateAbility>(client, "Abilities.VehicleDeactivateAbility", {
+      abilityId: packetData.abilityId,
       unknownDword1: 12
     });
   }
@@ -111,7 +113,7 @@ export class AbilitiesManager {
   processAbilityUpdate(
     server: ZoneServer2016,
     client: Client,
-    packet: any,
+    packetData: AbilitiesUpdateAbility,
     entity: BaseEntity
   ) {
     client.character.checkCurrentInteractionGuid();
@@ -120,9 +122,10 @@ export class AbilitiesManager {
     server.handleMeleeHit(client, entity, weaponItem);
   }
 
-  processAddEffectPacket(server: ZoneServer2016, client: Client, packet: any) {
-    const clientEffect =
-      server._clientEffectsData[packet.data.unknownData1.unknownDword3];
+  processAddEffectPacket(server: ZoneServer2016, client: Client, packetData: EffectAddEffect) {
+    console.log(packetData);
+    const abilityEffectId: number = packetData.effectData.abilityEffectId ?? 0,
+    clientEffect = server._clientEffectsData[abilityEffectId];
     if (clientEffect.typeName == "RequestAnimation") {
       const animationName = clientEffect.animationName;
       server.sendDataToAllOthersWithSpawnedEntity(
@@ -137,9 +140,9 @@ export class AbilitiesManager {
       );
       return;
     }
-    const effectId = packet.data.unknownData1.unknownDword2;
+    const vehicleAbilityEffectId = packetData.effectData.vehicleAbilityEffectId;
     let vehicle: Vehicle2016 | undefined;
-    switch (effectId) {
+    switch (vehicleAbilityEffectId) {
       case VehicleEffects.MOTOR_RUN_OFFROADER:
         if (!client.vehicle.mountedVehicle) return;
         vehicle = server._vehicles[client.vehicle.mountedVehicle];
@@ -176,15 +179,15 @@ export class AbilitiesManager {
   processRemoveEffectPacket(
     server: ZoneServer2016,
     client: Client,
-    packet: any
+    packetData: EffectRemoveEffect
   ) {
-    const effectId = packet.data.unknownData1.unknownDword2;
+    const effectId = packetData.effectData.vehicleAbilityEffectId;
     let vehicle: Vehicle2016 | undefined;
     switch (effectId) {
       case VehicleEffects.MOTOR_RUN_OFFROADER:
         if (!client.vehicle.mountedVehicle) return;
         vehicle = server._vehicles[client.vehicle.mountedVehicle];
-        this.sendRemoveEffectPacket(server, packet, server._vehicles);
+        this.sendRemoveEffectPacket(server, packetData, server._vehicles);
         vehicle.stopEngine(server);
         break;
       case VehicleEffects.TURBO_OFFROADER:
@@ -216,7 +219,7 @@ export class AbilitiesManager {
           effectId,
           server._vehicles
         );
-        this.sendRemoveEffectPacket(server, packet, server._vehicles);
+        this.sendRemoveEffectPacket(server, packetData, server._vehicles);
         vehicle.turboOn = false;
         break;
     }
@@ -227,11 +230,11 @@ export class AbilitiesManager {
     client: Client,
     entity: BaseLightweightCharacter,
     effectId: number,
-    dictionary: any
+    dictionary: EntityDictionary<BaseEntity>
   ) {
     const index = entity.effectTags.indexOf(effectId);
     if (index <= -1) {
-      server.sendDataToAllOthersWithSpawnedEntity(
+      server.sendDataToAllOthersWithSpawnedEntity<CharacterAddEffectTagCompositeEffect>(
         dictionary,
         client,
         entity.characterId,
@@ -252,7 +255,7 @@ export class AbilitiesManager {
     client: Client,
     entity: BaseLightweightCharacter,
     effectId: number,
-    dictionary: any
+    dictionary: EntityDictionary<BaseEntity>
   ) {
     const index = entity.effectTags.indexOf(effectId);
     if (index > -1)
@@ -270,23 +273,24 @@ export class AbilitiesManager {
     entity.effectTags.splice(index, 1);
   }
 
-  sendRemoveEffectPacket(server: ZoneServer2016, packet: any, dictionary: any) {
-    server.sendDataToAllWithSpawnedEntity(
+  sendRemoveEffectPacket(server: ZoneServer2016, packetData: EffectRemoveEffect, dictionary: EntityDictionary<BaseEntity>) {
+    server.sendDataToAllWithSpawnedEntity<EffectRemoveEffect>(
       dictionary,
-      packet.data.unknownData2.characterId,
+      packetData.unknownData2.characterId,
       "Effect.RemoveEffect",
       {
-        unknownData1: {
+        effectData: {
           unknownDword1: 4,
-          unknownDword2: packet.data.unknownData1.unknownDword2,
-          unknownDword3: packet.data.unknownData1.unknownDword3
+          vehicleAbilityEffectId: packetData.effectData.vehicleAbilityEffectId,
+          abilityEffectId: packetData.effectData.abilityEffectId
         },
         unknownData2: {
-          characterId: packet.data.targetCharacterId
+          characterId: packetData.targetData.targetCharacterId
         },
-        targetCharacterId: packet.data.unknownData2.characterId,
-        guid2: "0x0",
-        unknownVector1: [0, 0, 0, 0]
+        targetData: {
+          unknownQword1: "0x0",
+          targetCharacterId: packetData.unknownData2.characterId,
+        },
       }
     );
   }

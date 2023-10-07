@@ -48,7 +48,7 @@ import {
   ItemUseOptions,
   HealTypes,
   ConstructionErrors,
-  VehicleEffects
+  VehicleEffects,
   Effects
 } from "./models/enums";
 import { healthThreadDecorator } from "../shared/workers/healthWorker";

@@ -1249,4 +1249,8 @@ export abstract class BaseFullCharacter extends BaseLightweightCharacter {
   OnProjectileHit(server: ZoneServer2016, damageInfo: DamageInfo) {
     this.damage(server, damageInfo);
   }
+
+  OnMeleeHit(server: ZoneServer2016, damageInfo: DamageInfo) {
+    this.damage(server, damageInfo);
+  }
 }

@@ -103,6 +103,10 @@ export abstract class BaseEntity {
     // default: do nothing
   }
 
+  OnMeleeHit(server: ZoneServer2016, damageInfo: DamageInfo) {
+    // default: do nothing
+  }
+
   destroy(server: ZoneServer2016): boolean {
     console.log(
       `Attempted to call destroy() on an entity an undefined destroy method! actorModelId ${this.actorModelId}`
