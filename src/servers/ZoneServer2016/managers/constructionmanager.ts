@@ -2125,7 +2125,7 @@ export class ConstructionManager {
     }
     if (!hide && client.character.isHidden) {
       client.character.isHidden = "";
-      server.spawnCharacterToOtherClients(client.character, client.isAdmin);
+      server.spawnCharacterToOtherClients(client.character);
     }
   }
 

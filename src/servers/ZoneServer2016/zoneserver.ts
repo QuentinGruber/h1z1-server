@@ -3263,7 +3263,7 @@ export class ZoneServer2016 extends EventEmitter {
     }
   }
 
-  spawnCharacterToOtherClients(character: Character, isAdmin: boolean) {
+  spawnCharacterToOtherClients(character: Character) {
     const client = this.getClientByCharId(character.characterId);
     if (!client) return;
     for (const a in this._clients) {
