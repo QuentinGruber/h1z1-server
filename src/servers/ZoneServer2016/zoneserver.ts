@@ -174,6 +174,7 @@ import {
   ContainerInitEquippedContainers,
   ContainerUpdateEquippedContainer,
   DtoObjectInitialData,
+  EffectRemoveEffect,
   EquipmentUnsetCharacterEquipmentSlot,
   GameTimeSync,
   H1emuPrintToConsole,
@@ -4686,10 +4687,10 @@ export class ZoneServer2016 extends EventEmitter {
     );
     client.isInAir = false;
 
-    if (seatId == 0) {
+    if (!seatId) {
       if (vehicle.engineOn) {
         vehicle.stopEngine(this);
-        this.sendDataToAllWithSpawnedEntity(
+        this.sendDataToAllWithSpawnedEntity<EffectRemoveEffect>(
           this._vehicles,
           vehicle.characterId,
           "Effect.RemoveEffect",
@@ -4702,9 +4703,8 @@ export class ZoneServer2016 extends EventEmitter {
             unknownData2: {
               characterId: client.character.characterId
             },
-            targetCharacterId: vehicle.characterId,
-            guid2: "0x0",
-            unknownVector1: [0, 0, 0, 0]
+              guid2: "0x0",
+              targetCharacterId: vehicle.characterId,
           }
         );
       }

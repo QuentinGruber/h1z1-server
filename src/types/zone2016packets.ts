@@ -2086,19 +2086,17 @@ export interface EffectUpdateEffect {
 };
 }
 export interface EffectRemoveEffect {
-  effectData :{
+  unknownData1 :{
   unknownDword1?: number;
-  vehicleAbilityEffectId?: number;
-  abilityEffectId?: number;
+  unknownDword2?: number;
+  unknownDword3?: number;
 };
   unknownData2 :{
   characterId?: string;
 };
-  targetData :{
-  unknownQword1?: string;
   targetCharacterId?: string;
-  position?: Float32Array;
-};
+  guid2?: string;
+  unknownVector1?: Float32Array;
 }
 export interface EffectAddEffectTag {
   unknownDword1?: number;

@@ -198,7 +198,7 @@ export class AbilitiesManager {
     client: Client,
     packetData: EffectRemoveEffect
   ) {
-    const effectId = packetData.effectData.vehicleAbilityEffectId;
+    const effectId = packetData.unknownData1.unknownDword2;
     let vehicle: Vehicle2016 | undefined;
     switch (effectId) {
       case VehicleEffects.MOTOR_RUN_OFFROADER:
@@ -290,28 +290,23 @@ export class AbilitiesManager {
     entity.effectTags.splice(index, 1);
   }
 
-  sendRemoveEffectPacket(
-    server: ZoneServer2016,
-    packetData: EffectRemoveEffect,
-    dictionary: EntityDictionary<BaseEntity>
-  ) {
+  sendRemoveEffectPacket(server: ZoneServer2016, packetData: EffectRemoveEffect, dictionary: EntityDictionary<BaseEntity>) {
     server.sendDataToAllWithSpawnedEntity<EffectRemoveEffect>(
       dictionary,
       packetData.unknownData2.characterId,
       "Effect.RemoveEffect",
       {
-        effectData: {
+        unknownData1: {
           unknownDword1: 4,
-          vehicleAbilityEffectId: packetData.effectData.vehicleAbilityEffectId,
-          abilityEffectId: packetData.effectData.abilityEffectId
+          unknownDword2: packetData.unknownData1.unknownDword2,
+          unknownDword3: packetData.unknownData1.unknownDword3
         },
         unknownData2: {
-          characterId: packetData.targetData.targetCharacterId
+          characterId: packetData.targetCharacterId
         },
-        targetData: {
-          unknownQword1: "0x0",
-          targetCharacterId: packetData.unknownData2.characterId
-        }
+          guid2: "0x0",
+          targetCharacterId: packetData.unknownData2.characterId,
+          //unknownVector1: [0, 0, 0, 0]
       }
     );
   }
