@@ -1460,68 +1460,72 @@ export class ZoneServer2016 extends EventEmitter {
     this.hookManager.checkHook("OnServerReady");
   }
 
-  sendInitData<InitializationParameters>(client: Client) {
-    this.sendData(client, "InitializationParameters", {
-      ENVIRONMENT: "LIVE", // LOCAL, MAIN, QA, TEST, STAGE, LIVE, //THE_NINE, INNOVA
-      unknownString1: "SKU_Is_JustSurvive", //JS.Environment
-      rulesetDefinitions: [
-        {
-          RULESET_ID: 1,
-          RULESET_ID_: 1,
-          ruleset: "Permadeath",
-          unknownString2: "",
-          rulesets: [
-            {
-              ID: 1,
-              DATA: {
+  sendInitData(client: Client) {
+    this.sendData<InitializationParameters>(
+      client,
+      "InitializationParameters",
+      {
+        ENVIRONMENT: "LIVE", // LOCAL, MAIN, QA, TEST, STAGE, LIVE, //THE_NINE, INNOVA
+        unknownString1: "SKU_Is_JustSurvive", //JS.Environment
+        rulesetDefinitions: [
+          {
+            RULESET_ID: 1,
+            RULESET_ID_: 1,
+            ruleset: "Permadeath",
+            unknownString2: "",
+            rulesets: [
+              {
                 ID: 1,
-                RULESET_ID: 1,
-                CONTENT_PACK_ID: 112,
-                CONTENT_PACK_ACTION_ID: 1
+                DATA: {
+                  ID: 1,
+                  RULESET_ID: 1,
+                  CONTENT_PACK_ID: 112,
+                  CONTENT_PACK_ACTION_ID: 1
+                }
               }
-            }
-          ]
-        },
-        {
-          RULESET_ID: 3,
-          RULESET_ID_: 3,
-          ruleset: "Headshots",
-          unknownString2: "",
-          rulesets: []
-        },
-        {
-          RULESET_ID: 4,
-          RULESET_ID_: 4,
-          ruleset: "FirstPersonOnly",
-          unknownString2: "",
-          rulesets: []
-        },
-        {
-          RULESET_ID: 5,
-          RULESET_ID_: 5,
-          ruleset: "PvE", //  could be "Normal"
-          unknownString2: "",
-          rulesets: [
-            {
-              ID: 3,
-              DATA: {
+            ]
+          },
+          {
+            RULESET_ID: 3,
+            RULESET_ID_: 3,
+            ruleset: "Headshots",
+            unknownString2: "",
+            rulesets: []
+          },
+          {
+            RULESET_ID: 4,
+            RULESET_ID_: 4,
+            ruleset: "FirstPersonOnly",
+            unknownString2: "",
+            rulesets: []
+          },
+          {
+            RULESET_ID: 5,
+            RULESET_ID_: 5,
+            ruleset: "PvE", //  could be "Normal"
+            unknownString2: "",
+            rulesets: [
+              {
                 ID: 3,
-                RULESET_ID: 5,
-                CONTENT_PACK_ID: 119,
-                CONTENT_PACK_ACTION_ID: 2
+                DATA: {
+                  ID: 3,
+                  RULESET_ID: 5,
+                  CONTENT_PACK_ID: 119,
+                  CONTENT_PACK_ACTION_ID: 2
+                }
               }
-            }
-          ]
-        },
-        {
-          RULESET_ID: 6,
-          RULESET_ID_: 6,
-          ruleset: "BattleRoyale",
-          unknownString2: "",
-          rulesets: []
-        }
-      ]
-    });
+            ]
+          },
+          {
+            RULESET_ID: 6,
+            RULESET_ID_: 6,
+            ruleset: "BattleRoyale",
+            unknownString2: "",
+            rulesets: []
+          }
+        ]
+      }
+    );
 
     this.sendData<SendZoneDetails>(client, "SendZoneDetails", {
       zoneName: "Z1",
@@ -2429,8 +2433,6 @@ export class ZoneServer2016 extends EventEmitter {
           characterId: client.character.characterId
         }
       );
-      const vehicleId = client.vehicle.mountedVehicle,
-        vehicle = vehicleId ? this._vehicles[vehicleId] : false;
       setTimeout(() => {
         if (!client?.character) return;
         this.sendDataToAllOthersWithSpawnedEntity<AddLightweightPc>(
@@ -3226,7 +3228,7 @@ export class ZoneServer2016 extends EventEmitter {
       flags: {
         flags1: {},
         flags2: {},
-        flags3: {},
+        flags3: {}
       },
       headActor: "",
       attachedObject: {}
@@ -3926,7 +3928,11 @@ export class ZoneServer2016 extends EventEmitter {
         },
         attachedObject: {}
       };
-      this.sendData<AddLightweightNpc>(client, "AddLightweightNpc", lightWeight);
+      this.sendData<AddLightweightNpc>(
+        client,
+        "AddLightweightNpc",
+        lightWeight
+      );
       /*const lightWeight2 = {
         characterId: this._airdrop.destination,
         transientId: 0,
@@ -3958,9 +3964,17 @@ export class ZoneServer2016 extends EventEmitter {
         },
         attachedObject: {}
       };
-      this.sendData<AddLightweightNpc>(client, "AddLightweightNpc", lightWeight);
+      this.sendData<AddLightweightNpc>(
+        client,
+        "AddLightweightNpc",
+        lightWeight
+      );
       //this.sendData<>(client, "AddLightweightNpc", lightWeight2);
-      this.sendData<AddLightweightNpc>(client, "AddLightweightNpc", lightWeight3);
+      this.sendData<AddLightweightNpc>(
+        client,
+        "AddLightweightNpc",
+        lightWeight3
+      );
       this.sendData<AddLightweightVehicle>(client, "AddLightweightVehicle", {
         ...this._airdrop.plane.pGetLightweightVehicle(),
         unknownGuid1: this.generateGuid()
@@ -4216,10 +4230,14 @@ export class ZoneServer2016 extends EventEmitter {
         )
       ) {
         if (!client.spawnedEntities.includes(vehicle)) {
-          this.sendData<AddLightweightVehicle>(client, "AddLightweightVehicle", {
-            ...vehicle.pGetLightweightVehicle(),
-            unknownGuid1: this.generateGuid()
-          });
+          this.sendData<AddLightweightVehicle>(
+            client,
+            "AddLightweightVehicle",
+            {
+              ...vehicle.pGetLightweightVehicle(),
+              unknownGuid1: this.generateGuid()
+            }
+          );
           vehicle.effectTags.forEach((effectTag: number) => {
             this.sendData<CharacterAddEffectTagCompositeEffect>(
               client,

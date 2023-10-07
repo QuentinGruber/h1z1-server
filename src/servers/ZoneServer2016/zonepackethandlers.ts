@@ -206,7 +206,7 @@ export class ZonePacketHandlers {
       decalAlias: "#"
     });
     */
-   
+
     server.firstRoutine(client);
     server.setGodMode(client, true);
 
@@ -1922,7 +1922,7 @@ export class ZonePacketHandlers {
       packet.data;
     const { count } = packet.data.itemSubData as any;
 
-    switch(itemUseOption) {
+    switch (itemUseOption) {
       case ItemUseOptions.HOTWIRE_OFFROADER:
       case ItemUseOptions.HOTWIRE_PICKUP:
       case ItemUseOptions.HOTWIRE_POLICE:
@@ -1935,7 +1935,7 @@ export class ZonePacketHandlers {
       default:
         if (!count || count < 1) return;
     }
-    
+
     if (!itemGuid) {
       server.sendChatText(client, "[ERROR] ItemGuid is invalid!");
       return;

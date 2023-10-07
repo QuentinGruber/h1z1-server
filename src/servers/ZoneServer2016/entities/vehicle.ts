@@ -29,7 +29,10 @@ import { vehicleDefaultLoadouts } from "../data/loadouts";
 import { BaseItem } from "../classes/baseItem";
 import { LOADOUT_CONTAINER_ID } from "../../../utils/constants";
 import { Character2016 } from "./character";
-import { LightweightToFullNpc, LightweightToFullVehicle } from "types/zone2016packets";
+import {
+  LightweightToFullNpc,
+  LightweightToFullVehicle
+} from "types/zone2016packets";
 
 function getActorModelId(vehicleId: VehicleIds) {
   switch (vehicleId) {
@@ -336,7 +339,7 @@ export class Vehicle2016 extends BaseLootableEntity {
       unknownArray2: [],
       passengers: this.pGetPassengers(server),
       unknownArray3: [],
-      unknownArray4: [],
+      unknownArray4: []
     };
   }
 

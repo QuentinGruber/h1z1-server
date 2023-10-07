@@ -174,6 +174,7 @@ export abstract class BaseFullCharacter extends BaseLightweightCharacter {
     return items;
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   updateLoadout(server: ZoneServer2016, sendPacketToLocalClient = true) {
     const client = server.getClientByContainerAccessor(this);
     if (client) {
