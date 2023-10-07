@@ -5309,11 +5309,14 @@ export class ZoneServer2016 extends EventEmitter {
     this.reloadInterrupt(client, client.character._loadout[oldLoadoutSlot]);
 
     // disable old ability
-    const weapon = client.character.getEquippedWeapon();
-    const abilityId = this.getItemDefinition(
-      weapon?.itemDefinitionId
-    ).ACTIVATABLE_ABILITY_ID;
-    this.deactivateAbility(client, abilityId);
+    const weapon = client.character.getEquippedWeapon(),
+      currentWeaponItemDef = this.getItemDefinition(weapon?.itemDefinitionId);
+    if (currentWeaponItemDef) {
+      this.deactivateAbility(
+        client,
+        currentWeaponItemDef.ACTIVATABLE_ABILITY_ID
+      );
+    }
 
     // remove passive equip
     this.clearEquipmentSlot(
@@ -5341,10 +5344,12 @@ export class ZoneServer2016 extends EventEmitter {
     );
     if (loadoutItem.weapon) loadoutItem.weapon.currentReloadCount = 0;
     if (this.isWeapon(loadoutItem.itemDefinitionId)) {
-      const abilityId = this.getItemDefinition(
+      const itemDefinition = this.getItemDefinition(
         loadoutItem.itemDefinitionId
-      ).ACTIVATABLE_ABILITY_ID;
-      this.deactivateAbility(client, abilityId);
+      );
+      if (itemDefinition) {
+        this.deactivateAbility(client, itemDefinition.ACTIVATABLE_ABILITY_ID);
+      }
       this.sendRemoteWeaponUpdateDataToAllOthers(
         client,
         client.character.transientId,

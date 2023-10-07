@@ -22,7 +22,16 @@ import { ZoneServer2016 } from "../zoneserver";
 import { Vehicle2016 } from "../entities/vehicle";
 import { BaseLightweightCharacter } from "../entities/baselightweightcharacter";
 import { BaseEntity } from "../entities/baseentity";
-import { AbilitiesInitAbility, AbilitiesSetVehicleActivatableAbilityManager, AbilitiesUninitAbility, AbilitiesUpdateAbility, AbilitiesVehicleDeactivateAbility, CharacterAddEffectTagCompositeEffect, EffectAddEffect, EffectRemoveEffect } from "types/zone2016packets";
+import {
+  AbilitiesInitAbility,
+  AbilitiesSetVehicleActivatableAbilityManager,
+  AbilitiesUninitAbility,
+  AbilitiesUpdateAbility,
+  AbilitiesVehicleDeactivateAbility,
+  CharacterAddEffectTagCompositeEffect,
+  EffectAddEffect,
+  EffectRemoveEffect
+} from "types/zone2016packets";
 import { EntityDictionary } from "types/zoneserver";
 const //abilities = require("../../../../data/2016/dataSources/Abilities.json"),
   vehicleAbilities = require("../../../../data/2016/dataSources/VehicleAbilities.json");
@@ -104,10 +113,14 @@ export class AbilitiesManager {
         vehicle.toggleHorn(server, false, client);
         break;
     }
-    server.sendData<AbilitiesVehicleDeactivateAbility>(client, "Abilities.VehicleDeactivateAbility", {
-      abilityId: packetData.abilityId,
-      unknownDword1: 12
-    });
+    server.sendData<AbilitiesVehicleDeactivateAbility>(
+      client,
+      "Abilities.VehicleDeactivateAbility",
+      {
+        abilityId: packetData.abilityId,
+        unknownDword1: 12
+      }
+    );
   }
 
   processAbilityUpdate(
@@ -122,10 +135,14 @@ export class AbilitiesManager {
     server.handleMeleeHit(client, entity, weaponItem);
   }
 
-  processAddEffectPacket(server: ZoneServer2016, client: Client, packetData: EffectAddEffect) {
+  processAddEffectPacket(
+    server: ZoneServer2016,
+    client: Client,
+    packetData: EffectAddEffect
+  ) {
     console.log(packetData);
     const abilityEffectId: number = packetData.effectData.abilityEffectId ?? 0,
-    clientEffect = server._clientEffectsData[abilityEffectId];
+      clientEffect = server._clientEffectsData[abilityEffectId];
     if (clientEffect.typeName == "RequestAnimation") {
       const animationName = clientEffect.animationName;
       server.sendDataToAllOthersWithSpawnedEntity(
@@ -273,7 +290,11 @@ export class AbilitiesManager {
     entity.effectTags.splice(index, 1);
   }
 
-  sendRemoveEffectPacket(server: ZoneServer2016, packetData: EffectRemoveEffect, dictionary: EntityDictionary<BaseEntity>) {
+  sendRemoveEffectPacket(
+    server: ZoneServer2016,
+    packetData: EffectRemoveEffect,
+    dictionary: EntityDictionary<BaseEntity>
+  ) {
     server.sendDataToAllWithSpawnedEntity<EffectRemoveEffect>(
       dictionary,
       packetData.unknownData2.characterId,
@@ -289,8 +310,8 @@ export class AbilitiesManager {
         },
         targetData: {
           unknownQword1: "0x0",
-          targetCharacterId: packetData.unknownData2.characterId,
-        },
+          targetCharacterId: packetData.unknownData2.characterId
+        }
       }
     );
   }

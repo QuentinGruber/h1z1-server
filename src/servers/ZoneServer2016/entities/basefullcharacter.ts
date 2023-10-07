@@ -192,10 +192,9 @@ export abstract class BaseFullCharacter extends BaseLightweightCharacter {
     if (client) {
       for (const a in client.character._loadout) {
         const slot = client.character._loadout[a];
-        const abilityId = server.getItemDefinition(
-          slot.itemDefinitionId
-        ).ACTIVATABLE_ABILITY_ID;
-        if (abilityId) {
+        const itemDefinition = server.getItemDefinition(slot.itemDefinitionId);
+        if (itemDefinition) {
+          const abilityId = itemDefinition.ACTIVATABLE_ABILITY_ID;
           if (slot.itemDefinitionId == Items.WEAPON_FISTS) {
             const object = {
               slotId: slot.slotId,

@@ -292,12 +292,17 @@ export class ZonePacketHandlers {
     client: Client,
     packet: ReceivedPacket<object>
   ) {
-    if (!server.hookManager.checkHook("OnClientFinishedLoading", client))
+    if (!server.hookManager.checkHook("OnClientFinishedLoading", client)) {
       return;
-    const abilityId = server.getItemDefinition(
+    }
+
+    const itemDefinition = server.getItemDefinition(
       client.character.getEquippedWeapon()?.itemDefinitionId
-    ).ACTIVATABLE_ABILITY_ID;
-    server.deactivateAbility(client, abilityId);
+    );
+    if (itemDefinition) {
+      server.deactivateAbility(client, itemDefinition.ACTIVATABLE_ABILITY_ID);
+    }
+
     server.tempGodMode(client, 15000);
     client.currentPOI = 0; // clears currentPOI for POIManager
     server.sendGameTimeSync(client);
@@ -2999,14 +3004,30 @@ export class ZonePacketHandlers {
       packet.data.joinState == 1
     );
   }
-  
-  EffectAddEffect(server: ZoneServer2016, client: Client, packet: ReceivedPacket<EffectAddEffect>) {
+
+  EffectAddEffect(
+    server: ZoneServer2016,
+    client: Client,
+    packet: ReceivedPacket<EffectAddEffect>
+  ) {
     server.abilitiesManager.processAddEffectPacket(server, client, packet.data);
   }
-  EffectRemoveEffect(server: ZoneServer2016, client: Client, packet: ReceivedPacket<EffectRemoveEffect>) {
-    server.abilitiesManager.processRemoveEffectPacket(server, client, packet.data);
+  EffectRemoveEffect(
+    server: ZoneServer2016,
+    client: Client,
+    packet: ReceivedPacket<EffectRemoveEffect>
+  ) {
+    server.abilitiesManager.processRemoveEffectPacket(
+      server,
+      client,
+      packet.data
+    );
   }
-  AbilitiesInitAbility(server: ZoneServer2016, client: Client, packet: ReceivedPacket<AbilitiesInitAbility>) {
+  AbilitiesInitAbility(
+    server: ZoneServer2016,
+    client: Client,
+    packet: ReceivedPacket<AbilitiesInitAbility>
+  ) {
     const vehicle = server._vehicles[client.vehicle.mountedVehicle ?? ""];
     if (!vehicle) return;
     server.abilitiesManager.processVehicleAbilityInit(
@@ -3016,7 +3037,11 @@ export class ZonePacketHandlers {
       packet.data
     );
   }
-  AbilitiesUninitAbility(server: ZoneServer2016, client: Client, packet: ReceivedPacket<AbilitiesUninitAbility>) {
+  AbilitiesUninitAbility(
+    server: ZoneServer2016,
+    client: Client,
+    packet: ReceivedPacket<AbilitiesUninitAbility>
+  ) {
     if (!client.vehicle.mountedVehicle) return;
     const vehicle = server._vehicles[client.vehicle.mountedVehicle];
     if (!vehicle) return;
@@ -3027,7 +3052,11 @@ export class ZonePacketHandlers {
       packet.data
     );
   }
-  AbilitiesUpdateAbility(server: ZoneServer2016, client: Client, packet: ReceivedPacket<AbilitiesUpdateAbility>) {
+  AbilitiesUpdateAbility(
+    server: ZoneServer2016,
+    client: Client,
+    packet: ReceivedPacket<AbilitiesUpdateAbility>
+  ) {
     /*
       AbilityUpdate is sent twice for each melee hit, once as soon as you click,
       and a second time on the actual hit. hitLocation is only in the first packet,

@@ -844,7 +844,6 @@ export class Character2016 extends BaseFullCharacter {
       this._resources[ResourceIds.COMFORT],
       ResourceIds.COMFORT
     );
-    
   }
 
   damage(server: ZoneServer2016, damageInfo: DamageInfo) {
