@@ -87,6 +87,7 @@ import {
   ConstructionPlacementFinalizeRequest,
   ConstructionPlacementRequest,
   ConstructionPlacementResponse,
+  ContainerMoveItem,
   ContinentBattleInfo,
   DtoHitSpeedTreeReport,
   EffectAddEffect,
@@ -1692,9 +1693,9 @@ export class ZonePacketHandlers {
     client: Client,
     packet: ReceivedPacket<VehicleAccessType>
   ) {
-    const vehicleGuid = packet.data.vehicleGuid || "",
-      accessType = packet.data.accessType || 0;
-    server._vehicles[vehicleGuid].handleVehicleLock(server, !!accessType);
+    const vehicle = server._vehicles[packet.data.vehicleGuid ?? ""],
+      accessType = packet.data.accessType ?? 0;
+    vehicle.setLockState(server, client, !!accessType);
   }
   CommandInteractionString(
     server: ZoneServer2016,
@@ -1964,7 +1965,7 @@ export class ZonePacketHandlers {
       return;
     }
     const animationId =
-      server._itemUseOptions[itemUseOption || 0]?.animationId || 0;
+      server._itemUseOptions[itemUseOption ?? 0]?.animationId ?? 0;
     // temporarily block most use options from external containers
     switch (itemUseOption) {
       case ItemUseOptions.LOOT:
@@ -2179,7 +2180,6 @@ export class ZonePacketHandlers {
         sourceContainer.transferItem(server, targetContainer, item, 0, count);
         server.startInteractionTimer(client, 0, 0, 9);
         break;
-
       case ItemUseOptions.LOOT_BATTERY:
       case ItemUseOptions.LOOT_SPARKS:
       case ItemUseOptions.LOOT_VEHICLE_LOADOUT:
@@ -2207,6 +2207,11 @@ export class ZonePacketHandlers {
             container,
             loadoutItem
           );
+
+          if(sourceCharacter instanceof Vehicle2016) {
+            sourceCharacter.checkEngineRequirements(server);
+          }
+
           return;
         }
         break;
@@ -2280,7 +2285,7 @@ export class ZonePacketHandlers {
   ContainerMoveItem(
     server: ZoneServer2016,
     client: Client,
-    packet: ReceivedPacket</*ContainerMoveItem*/ any>
+    packet: ReceivedPacket</*ContainerMoveItem*/any>
   ) {
     const {
       containerGuid,
@@ -2314,9 +2319,9 @@ export class ZonePacketHandlers {
       // from client container
       if (sourceCharacterId == targetCharacterId) {
         // from / to client container
-        const sourceContainer = client.character.getItemContainer(itemGuid),
+        const sourceContainer = client.character.getItemContainer(itemGuid ?? ""),
           targetContainer =
-            client.character.getContainerFromGuid(containerGuid);
+            client.character.getContainerFromGuid(containerGuid ?? "");
         if (sourceContainer) {
           // from container
           const item = sourceContainer.items[itemGuid];
@@ -2371,7 +2376,7 @@ export class ZonePacketHandlers {
           // from loadout or invalid
 
           // loadout
-          const loadoutItem = sourceCharacter.getLoadoutItem(itemGuid);
+          const loadoutItem = sourceCharacter.getLoadoutItem(itemGuid ?? "");
           if (!loadoutItem) {
             server.containerError(client, ContainerErrors.NO_ITEM_IN_SLOT);
             return;
@@ -2384,7 +2389,7 @@ export class ZonePacketHandlers {
             );
           } else if (containerGuid == LOADOUT_CONTAINER_GUID) {
             // to loadout
-            const loadoutItem = client.character.getLoadoutItem(itemGuid);
+            const loadoutItem = client.character.getLoadoutItem(itemGuid ?? "");
             if (!loadoutItem) {
               server.containerError(client, ContainerErrors.NO_ITEM_IN_SLOT);
               return;
@@ -2401,7 +2406,7 @@ export class ZonePacketHandlers {
         }
       } else {
         // to external container
-        const sourceContainer = sourceCharacter.getItemContainer(itemGuid),
+        const sourceContainer = sourceCharacter.getItemContainer(itemGuid ?? ""),
           targetCharacter = sourceCharacter.mountedContainer;
 
         if (
@@ -2423,7 +2428,7 @@ export class ZonePacketHandlers {
           return;
         }
 
-        const loadoutItem = sourceCharacter.getLoadoutItem(itemGuid);
+        const loadoutItem = sourceCharacter.getLoadoutItem(itemGuid ?? "");
         if (loadoutItem) {
           sourceCharacter.transferItemFromLoadout(
             server,
@@ -2439,7 +2444,7 @@ export class ZonePacketHandlers {
           return;
         }
 
-        const item = sourceContainer.items[itemGuid];
+        const item = sourceContainer.items[itemGuid ?? ""];
         if (!item) {
           server.containerError(client, ContainerErrors.NO_ITEM_IN_SLOT);
           return;
@@ -2490,13 +2495,13 @@ export class ZonePacketHandlers {
         return;
       }
 
-      const sourceContainer = sourceCharacter.getItemContainer(itemGuid);
+      const sourceContainer = sourceCharacter.getItemContainer(itemGuid ?? "");
       if (!sourceContainer) {
         server.sendChatText(client, "Invalid source container 3!");
         return;
       }
 
-      const item = sourceContainer.items[itemGuid];
+      const item = sourceContainer.items[itemGuid ?? ""];
       if (!item) {
         server.containerError(client, ContainerErrors.NO_ITEM_IN_SLOT);
         return;
@@ -2515,7 +2520,7 @@ export class ZonePacketHandlers {
       }
 
       const targetContainer =
-        client.character.getContainerFromGuid(containerGuid);
+        client.character.getContainerFromGuid(containerGuid ?? "");
 
       if (targetContainer) {
         // to container
@@ -2556,7 +2561,7 @@ export class ZonePacketHandlers {
             sourceCharacter
           );
         }
-      } else if (sourceCharacter.getContainerFromGuid(containerGuid)) {
+      } else if (sourceCharacter.getContainerFromGuid(containerGuid ?? "")) {
         // remount container if trying to move around items in one container since slotIds aren't setup yet
         client.character.mountContainer(server, sourceCharacter);
       } else {

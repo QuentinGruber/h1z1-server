@@ -115,6 +115,36 @@ function getHeadlightEffect(vehicleId: VehicleIds) {
   }
 }
 
+function getHornEffect(vehicleId: VehicleIds) {
+  switch (vehicleId) {
+    case VehicleIds.OFFROADER:
+      return Effects.SFX_VEH_Offroader_Horn;
+    case VehicleIds.PICKUP:
+      return Effects.SFX_VEH_Pickup_Truck_Horn;
+    case VehicleIds.POLICECAR:
+      return Effects.SFX_VEH_Police_Car_Horn;
+    case VehicleIds.ATV:
+      return Effects.SFX_VEH_ATV_Horn;
+    default:
+      return Effects.SFX_VEH_Offroader_Horn;
+  }
+}
+
+function getTurboEffect(vehicleId: VehicleIds) {
+  switch (vehicleId) {
+    case VehicleIds.OFFROADER:
+      return Effects.VEH_Engine_Boost_OffRoader;
+    case VehicleIds.PICKUP:
+      return Effects.VEH_Engine_Boost_PickupTruck;
+    case VehicleIds.POLICECAR:
+      return Effects.VEH_Engine_Boost_PoliceCar;
+    case VehicleIds.ATV:
+      return Effects.VEH_Engine_Boost_ATV;
+    default:
+      return Effects.VEH_Engine_Boost_OffRoader;
+  }
+}
+
 export class Vehicle2016 extends BaseLootableEntity {
   isManaged: boolean = false;
   manager?: ZoneClient2016;
@@ -145,7 +175,6 @@ export class Vehicle2016 extends BaseLootableEntity {
   };
   droppedManagedClient?: ZoneClient2016; // for temporary fix
   isMountable: boolean = true;
-  turboOn: boolean = false;
   constructor(
     characterId: string,
     transientId: number,
@@ -215,37 +244,37 @@ export class Vehicle2016 extends BaseLootableEntity {
 
     switch (this.vehicleId) {
       case VehicleIds.PICKUP:
-        this.destroyedEffect = 326;
+        this.destroyedEffect = Effects.VEH_Death_PickupTruck;
         this.destroyedModel = 9315;
-        this.minorDamageEffect = 325;
-        this.majorDamageEffect = 324;
-        this.criticalDamageEffect = 323;
-        this.supercriticalDamageEffect = 5228;
+        this.minorDamageEffect = Effects.VEH_Damage_PickupTruck_Stage01;
+        this.majorDamageEffect = Effects.VEH_Damage_PickupTruck_Stage02;
+        this.criticalDamageEffect = Effects.VEH_Damage_PickupTruck_Stage03;
+        this.supercriticalDamageEffect = Effects.VEH_Damage_PickupTruck_Stage04;
         break;
       case VehicleIds.POLICECAR:
-        this.destroyedEffect = 286;
+        this.destroyedEffect = Effects.VEH_Death_PoliceCar;
         this.destroyedModel = 9316;
-        this.minorDamageEffect = 285;
-        this.majorDamageEffect = 284;
-        this.criticalDamageEffect = 283;
-        this.supercriticalDamageEffect = 5229;
+        this.minorDamageEffect = Effects.VEH_Damage_PoliceCar_Stage01;
+        this.majorDamageEffect = Effects.VEH_Damage_PoliceCar_Stage02;
+        this.criticalDamageEffect = Effects.VEH_Damage_PoliceCar_Stage03;
+        this.supercriticalDamageEffect = Effects.VEH_Damage_PoliceCar_Stage04;
         break;
       case VehicleIds.ATV:
-        this.destroyedEffect = 357;
+        this.destroyedEffect = Effects.VEH_Death_ATV;
         this.destroyedModel = 9593;
-        this.minorDamageEffect = 360;
-        this.majorDamageEffect = 359;
-        this.criticalDamageEffect = 358;
-        this.supercriticalDamageEffect = 5226;
+        this.minorDamageEffect = Effects.VEH_Damage_ATV_Stage01;
+        this.majorDamageEffect = Effects.VEH_Damage_ATV_Stage02;
+        this.criticalDamageEffect = Effects.VEH_Damage_ATV_Stage03;
+        this.supercriticalDamageEffect = Effects.VEH_Damage_ATV_Stage04;
         break;
       case VehicleIds.OFFROADER:
       default:
-        this.destroyedEffect = 135;
+        this.destroyedEffect = Effects.VEH_Death_OffRoader;
         this.destroyedModel = 7226;
-        this.minorDamageEffect = 182;
-        this.majorDamageEffect = 181;
-        this.criticalDamageEffect = 180;
-        this.supercriticalDamageEffect = 5227;
+        this.minorDamageEffect = Effects.VEH_Damage_OffRoader_Stage01;
+        this.majorDamageEffect = Effects.VEH_Damage_OffRoader_Stage02;
+        this.criticalDamageEffect = Effects.VEH_Damage_OffRoader_Stage03;
+        this.supercriticalDamageEffect = Effects.VEH_Damage_OffRoader_Stage04;
         break;
     }
   }
@@ -417,14 +446,6 @@ export class Vehicle2016 extends BaseLootableEntity {
     }
   }
 
-  handleVehicleLock(server: ZoneServer2016, accessType: boolean) {
-    if (!accessType) {
-      this.unlockVehicle(server);
-      return;
-    }
-    this.lockVehicle(server);
-  }
-
   startDamageDelay(server: ZoneServer2016) {
     this.damageTimeout = setTimeout(() => {
       this.damage(server, { entity: "", damage: 1000 });
@@ -577,10 +598,41 @@ export class Vehicle2016 extends BaseLootableEntity {
   }
 
   getHeadlightState() {
-    const headlightType = getHeadlightEffect(this.vehicleId),
-      index = this.effectTags.indexOf(headlightType);
-
+    const headlightEffect = getHeadlightEffect(this.vehicleId),
+    index = this.effectTags.indexOf(headlightEffect);
     return !(index <= -1);
+  }
+
+  getSirenState() {
+    const sirenEffect = Effects.VEH_SirenLight_PoliceCar,
+    index = this.effectTags.indexOf(sirenEffect);
+    return !(index <= -1);
+  }
+
+  getHornState() {
+    const hornEffect = getHornEffect(this.vehicleId),
+    index = this.effectTags.indexOf(hornEffect);
+    return !(index <= -1);
+  }
+
+  getTurboState() {
+    const turboEffect = getTurboEffect(this.vehicleId),
+    index = this.effectTags.indexOf(turboEffect);
+    return !(index <= -1);
+  }
+
+  sendNoPartsAlert(server: ZoneServer2016, client: ZoneClient2016) {
+    server.sendAlert(
+      client,
+      "Parts may be required. Open vehicle loadout."
+    );
+  }
+
+  sendNoFuelAlert(server: ZoneServer2016, client: ZoneClient2016) {
+    server.sendAlert(
+      client,
+      "This vehicle will not run without fuel.  It can be created from animal fat or from corn based ethanol."
+    );
   }
 
   toggleHeadlights(server: ZoneServer2016, client?: ZoneClient2016) {
@@ -590,13 +642,13 @@ export class Vehicle2016 extends BaseLootableEntity {
     if (index <= -1) {
       if (!this.hasBattery()) {
         if (client) {
-          server.sendChatText(client, "[ERROR] Vehicle missing battery.");
+          this.sendNoPartsAlert(server, client);
         }
         return;
       }
       if (!this.hasHeadlights()) {
         if (client) {
-          server.sendChatText(client, "[ERROR] Vehicle missing headlights.");
+          this.sendNoPartsAlert(server, client);
         }
         return;
       }
@@ -635,9 +687,7 @@ export class Vehicle2016 extends BaseLootableEntity {
 
     if (index <= -1) {
       if (!this.hasBattery()) {
-        if (client) {
-          server.sendChatText(client, "[ERROR] Vehicle missing battery.");
-        }
+        if (client) this.sendNoPartsAlert(server, client);
         return;
       }
       server.sendDataToAllWithSpawnedEntity(
@@ -668,29 +718,13 @@ export class Vehicle2016 extends BaseLootableEntity {
     this.effectTags.splice(index, 1);
   }
 
-  toggleHorn(server: ZoneServer2016, on: boolean, client?: ZoneClient2016) {
-    let headlightType = Effects.SFX_VEH_Offroader_Horn;
-    switch (this.vehicleId) {
-      case VehicleIds.PICKUP:
-        headlightType = Effects.SFX_VEH_Pickup_Truck_Horn;
-        break;
-      case VehicleIds.POLICECAR:
-        headlightType = Effects.SFX_VEH_Police_Car_Horn;
-        break;
-      case VehicleIds.OFFROADER:
-        headlightType = Effects.SFX_VEH_Offroader_Horn;
-        break;
-      case VehicleIds.ATV:
-        headlightType = Effects.SFX_VEH_ATV_Horn;
-        break;
-    }
-    const index = this.effectTags.indexOf(headlightType);
+  setHornState(server: ZoneServer2016, state: boolean, client?: ZoneClient2016) {
+    const hornEffect = getHornEffect(this.vehicleId),
+    index = this.effectTags.indexOf(hornEffect);
 
-    if (on && index <= -1) {
+    if (state && index <= -1) {
       if (!this.hasBattery()) {
-        if (client) {
-          server.sendChatText(client, "[ERROR] Vehicle missing battery.");
-        }
+        if (client) this.sendNoPartsAlert(server, client);
         return;
       }
       server.sendDataToAllWithSpawnedEntity(
@@ -699,12 +733,12 @@ export class Vehicle2016 extends BaseLootableEntity {
         "Character.AddEffectTagCompositeEffect",
         {
           characterId: this.characterId,
-          effectId: headlightType,
-          unknownDword1: headlightType,
-          unknownDword2: headlightType
+          effectId: hornEffect,
+          unknownDword1: hornEffect,
+          unknownDword2: hornEffect
         }
       );
-      this.effectTags.push(headlightType);
+      this.effectTags.push(hornEffect);
       return;
     }
 
@@ -714,11 +748,27 @@ export class Vehicle2016 extends BaseLootableEntity {
       "Character.RemoveEffectTagCompositeEffect",
       {
         characterId: this.characterId,
-        effectId: headlightType,
+        effectId: hornEffect,
         newEffectId: 0
       }
     );
     this.effectTags.splice(index, 1);
+  }
+
+  setTurboState(server: ZoneServer2016, client: ZoneClient2016, state: boolean) {
+    const turboEffect = getTurboEffect(this.vehicleId),
+    index = this.effectTags.indexOf(turboEffect);
+
+    if (state && index <= -1) {
+      if (!this.hasBattery()) {
+        if (client) this.sendNoPartsAlert(server, client);
+        return;
+      }
+      server.abilitiesManager.addEffectTag(server, client, this, turboEffect, server._vehicles);
+      return;
+    }
+
+    server.abilitiesManager.removeEffectTag(server, client, this, turboEffect, server._vehicles);
   }
 
   hasTurbo(): boolean {
@@ -782,33 +832,35 @@ export class Vehicle2016 extends BaseLootableEntity {
       this.toggleHeadlights(server);
     }
 
+    if (
+      this.getSirenState() &&
+      !this.hasBattery()
+    ) {
+      this.toggleSiren(server);
+    }
+
+    if (
+      this.getHornState() &&
+      !this.hasBattery()
+    ) {
+      this.setHornState(server, false);
+    }
+
     if (!this.hasRequiredEngineParts()) {
       if (this.engineOn) this.stopEngine(server);
-      if (client)
-        server.sendAlert(
-          client,
-          "Parts may be required. Open vehicle loadout."
-        );
+      if (client) this.sendNoPartsAlert(server, client);
       return;
     }
 
     if (!this.hasVehicleKey(server)) {
       if (this.engineOn) this.stopEngine(server);
-      if (client)
-        server.sendAlert(
-          client,
-          "You must use the hotwire option or have a key to operate this vehicle."
-        );
+      if (client) this.hotwire(server);
       return;
     }
 
     if (!this.hasFuel()) {
       if (this.engineOn) this.stopEngine(server);
-      if (client)
-        server.sendAlert(
-          client,
-          "This vehicle will not run without fuel.  It can be created from animal fat or from corn based ethanol."
-        );
+      if (client) this.sendNoFuelAlert(server, client);
       return;
     }
   }
@@ -832,7 +884,7 @@ export class Vehicle2016 extends BaseLootableEntity {
         return;
       }
       if (this.engineRPM) {
-        const fuelLoss = this.engineRPM * 0.003 * (this.turboOn ? 4 : 1);
+        const fuelLoss = this.engineRPM * 0.003 * (this.getTurboState() ? 4 : 1);
         this._resources[ResourceIds.FUEL] -= fuelLoss;
       }
       if (this._resources[ResourceIds.FUEL] < 0) {
@@ -842,12 +894,7 @@ export class Vehicle2016 extends BaseLootableEntity {
         this.stopEngine(server);
         const driver = this.getDriver(server),
           client = server.getClientByCharId(driver?.characterId || "");
-        if (client) {
-          server.sendAlert(
-            client,
-            "This vehicle will not run without fuel.  It can be created from animal fat or from corn based ethanol."
-          );
-        }
+        if (client) this.sendNoFuelAlert(server, client);
       }
       server.updateResourceToAllWithSpawnedEntity(
         this.characterId,
@@ -860,28 +907,12 @@ export class Vehicle2016 extends BaseLootableEntity {
     }, 3000);
   }
 
-  lockVehicle(server: ZoneServer2016) {
-    const driver = this.getDriver(server),
-      client = server.getClientByCharId(driver?.characterId || "");
-    if (!client) return;
-
+  setLockState(server: ZoneServer2016, client: ZoneClient2016, state: boolean) {
     server.sendData(client, "Vehicle.AccessType", {
       vehicleGuid: this.characterId,
-      accessType: 2
+      accessType: state ? 2 : 0
     });
-    this.isLocked = true;
-  }
-
-  unlockVehicle(server: ZoneServer2016) {
-    const driver = this.getDriver(server),
-      client = server.getClientByCharId(driver?.characterId || "");
-    if (!client) return;
-
-    server.sendData(client, "Vehicle.AccessType", {
-      vehicleGuid: this.characterId,
-      accessType: 0
-    });
-    this.isLocked = false;
+    this.isLocked = state;
   }
 
   pGetLoadoutSlots() {

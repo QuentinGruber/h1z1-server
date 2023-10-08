@@ -4612,11 +4612,10 @@ export class ZoneServer2016 extends EventEmitter {
       vehicleGuid,
       "Mount.MountResponse",
       {
-        // mounts character
         characterId: client.character.characterId,
-        vehicleGuid: vehicle.characterId, // vehicle guid
+        vehicleGuid: vehicle.characterId,
         seatId: Number(seatId),
-        isDriver: seatId == 0 ? 1 : 0, //isDriver
+        isDriver: seatId == 0 ? 1 : 0,
         identity: {}
       }
     );

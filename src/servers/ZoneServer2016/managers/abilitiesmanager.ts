@@ -90,7 +90,7 @@ export class AbilitiesManager {
       case Abilities.VEHICLE_TURBO:
         break;
       case Abilities.VEHICLE_HORN:
-        vehicle.toggleHorn(server, true, client);
+        vehicle.setHornState(server, true, client);
         break;
     }
   }
@@ -111,7 +111,7 @@ export class AbilitiesManager {
       case Abilities.VEHICLE_TURBO:
         break;
       case Abilities.VEHICLE_HORN:
-        vehicle.toggleHorn(server, false, client);
+        vehicle.setHornState(server, false, client);
         break;
     }
     server.sendData<AbilitiesVehicleDeactivateAbility>(
@@ -136,7 +136,7 @@ export class AbilitiesManager {
 
     // TODO: CHECK MELEE BLOCK TIME FOR EACH WEAPON
     // CHECK MELEE RANGE ALSO
-    
+
     //if (client.character.meleeBlocked()) return true;
     client.character.lastMeleeHitTime = Date.now();
 
@@ -162,7 +162,6 @@ export class AbilitiesManager {
     client: Client,
     packetData: EffectAddEffect
   ) {
-    console.log(packetData);
     const abilityEffectId: number = packetData.effectData.abilityEffectId2 ?? 0,
       clientEffect = server._clientEffectsData[abilityEffectId];
     if (clientEffect.typeName == "RequestAnimation") {
@@ -179,38 +178,19 @@ export class AbilitiesManager {
       );
       return;
     }
-    const vehicleAbilityEffectId = packetData.effectData.abilityEffectId1;
-    let vehicle: Vehicle2016 | undefined;
+    const vehicleAbilityEffectId = packetData.effectData.abilityEffectId1,
+    vehicle = server._vehicles[client.vehicle.mountedVehicle ?? ""];
+    if(!vehicle) return;
+    
     switch (vehicleAbilityEffectId) {
       case VehicleEffects.MOTOR_RUN_OFFROADER:
-        if (!client.vehicle.mountedVehicle) return;
-        vehicle = server._vehicles[client.vehicle.mountedVehicle];
         vehicle.checkEngineRequirements(server);
         break;
       case VehicleEffects.TURBO_OFFROADER:
       case VehicleEffects.TURBO_PICKUP_TRUCK:
       case VehicleEffects.TURBO_POLICE_CAR:
       case VehicleEffects.TURBO_ATV:
-        if (!client.vehicle.mountedVehicle) return;
-        vehicle = server._vehicles[client.vehicle.mountedVehicle];
-        let effectId: number | undefined;
-        switch (vehicle.vehicleId) {
-          case VehicleIds.OFFROADER:
-            effectId = 5016;
-            break;
-          case VehicleIds.PICKUP:
-            effectId = 319;
-            break;
-          case VehicleIds.POLICECAR:
-            effectId = 279;
-            break;
-          case VehicleIds.ATV:
-            effectId = 354;
-            break;
-        }
-        if (!effectId) return;
-        this.addEffectTag(server, client, vehicle, effectId, server._vehicles);
-        vehicle.turboOn = true;
+        vehicle.setTurboState(server, client, true);
         break;
     }
   }
@@ -220,12 +200,12 @@ export class AbilitiesManager {
     client: Client,
     packetData: EffectRemoveEffect
   ) {
-    const effectId = packetData.abilityEffectData.abilityEffectId1;
-    let vehicle: Vehicle2016 | undefined;
-    switch (effectId) {
+    const vehicleAbilityEffectId = packetData.abilityEffectData.abilityEffectId1,
+    vehicle = server._vehicles[client.vehicle.mountedVehicle ?? ""];
+    if(!vehicle) return;
+    
+    switch (vehicleAbilityEffectId) {
       case VehicleEffects.MOTOR_RUN_OFFROADER:
-        if (!client.vehicle.mountedVehicle) return;
-        vehicle = server._vehicles[client.vehicle.mountedVehicle];
         this.sendRemoveEffectPacket(server, packetData, server._vehicles);
         vehicle.stopEngine(server);
         break;
@@ -233,33 +213,8 @@ export class AbilitiesManager {
       case VehicleEffects.TURBO_PICKUP_TRUCK:
       case VehicleEffects.TURBO_POLICE_CAR:
       case VehicleEffects.TURBO_ATV:
-        if (!client.vehicle.mountedVehicle) return;
-        vehicle = server._vehicles[client.vehicle.mountedVehicle];
-        let effectId: number | undefined;
-        switch (vehicle.vehicleId) {
-          case VehicleIds.OFFROADER:
-            effectId = 5016;
-            break;
-          case VehicleIds.PICKUP:
-            effectId = 319;
-            break;
-          case VehicleIds.POLICECAR:
-            effectId = 279;
-            break;
-          case VehicleIds.ATV:
-            effectId = 354;
-            break;
-        }
-        if (!effectId) return;
-        this.removeEffectTag(
-          server,
-          client,
-          vehicle,
-          effectId,
-          server._vehicles
-        );
         this.sendRemoveEffectPacket(server, packetData, server._vehicles);
-        vehicle.turboOn = false;
+        vehicle.setTurboState(server, client, false);
         break;
     }
   }
