@@ -82,13 +82,15 @@ export class ExplosiveEntity extends BaseLightweightCharacter {
       ? server.explosionDamage(
           this.state.position,
           this.characterId,
-          server.getItemDefinition(this.itemDefinitionId).NAME.toLowerCase(),
+          server.getItemDefinition(this.itemDefinitionId)?.NAME ??
+            "".toLowerCase(),
           client
         )
       : server.explosionDamage(
           this.state.position,
           this.characterId,
-          server.getItemDefinition(this.itemDefinitionId).NAME.toLowerCase()
+          server.getItemDefinition(this.itemDefinitionId)?.NAME ??
+            "".toLowerCase()
         );
   }
 
@@ -137,7 +139,7 @@ export class ExplosiveEntity extends BaseLightweightCharacter {
     this.detonate(server, server.getClientByCharId(damageInfo.entity));
   }
 
-  destroy(server: ZoneServer2016) {
+  destroy(server: ZoneServer2016): boolean {
     return server.deleteEntity(this.characterId, server._explosives);
   }
 }

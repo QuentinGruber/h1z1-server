@@ -23,32 +23,6 @@ export class ItemObject extends BaseLightweightCharacter {
   npcRenderDistance = 25;
   spawnerId = 0;
   item: BaseItem;
-  flags = {
-    bit0: 0,
-    bit1: 0,
-    bit2: 0,
-    bit3: 0,
-    bit4: 0,
-    bit5: 0,
-    bit6: 0,
-    bit7: 0,
-    bit8: 0,
-    bit9: 0,
-    bit10: 0,
-    bit11: 0,
-    projectileCollision: 0,
-    bit13: 0,
-    bit14: 0,
-    bit15: 0,
-    bit16: 0,
-    bit17: 0,
-    bit18: 0,
-    bit19: 0,
-    noCollide: 1,
-    knockedOut: 0,
-    bit22: 0,
-    bit23: 0
-  };
   creationTime: number = 0;
   triggerExplosionShots = Math.floor(Math.random() * 3) + 2; // random number 2-4 neccesary shots
   constructor(
@@ -62,6 +36,7 @@ export class ItemObject extends BaseLightweightCharacter {
     item: BaseItem
   ) {
     super(characterId, transientId, actorModelId, position, rotation, server);
+    this.flags.noCollide = 1;
     (this.spawnerId = spawnerId), (this.item = item);
   }
   /* eslint-disable @typescript-eslint/no-unused-vars */
@@ -106,7 +81,7 @@ export class ItemObject extends BaseLightweightCharacter {
     }
   }
 
-  destroy(server: ZoneServer2016) {
+  destroy(server: ZoneServer2016): boolean {
     delete server.worldObjectManager.spawnedLootObjects[
       server._spawnedItems[this.characterId].spawnerId
     ];

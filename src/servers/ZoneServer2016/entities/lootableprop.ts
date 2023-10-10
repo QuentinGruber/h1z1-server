@@ -208,9 +208,10 @@ export class LootableProp extends BaseLootableEntity {
     if (!client.searchedProps.includes(this)) {
       server.utilizeHudTimer(
         client,
-        server.getItemDefinition(this._containers["31"].itemDefinitionId)
-          .NAME_ID,
+        server.getItemDefinition(this.getContainer()?.itemDefinitionId)
+          ?.NAME_ID ?? 0,
         this.searchTime,
+        0,
         () => {
           super.OnPlayerSelect(server, client);
           client.searchedProps.push(this);
@@ -234,7 +235,7 @@ export class LootableProp extends BaseLootableEntity {
     }
   }
 
-  destroy(server: ZoneServer2016) {
+  destroy(server: ZoneServer2016): boolean {
     return server.deleteEntity(this.characterId, server._lootableProps);
   }
 }

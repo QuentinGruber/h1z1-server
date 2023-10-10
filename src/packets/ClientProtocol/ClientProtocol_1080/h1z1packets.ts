@@ -20,6 +20,7 @@ import { activityManagerPackets } from "./activityManager";
 import { activityServicePackets } from "./activityService";
 import { basePackets } from "./base";
 import { chatPackets } from "./chat";
+import { characterStatePackets } from "./characterState";
 import { clientUpdatePackets } from "./clientUpdate";
 import { coinStorePackets } from "./coinStore";
 import { collisionPackets } from "./collision";
@@ -82,6 +83,7 @@ const packets: PacketStructures = [
   ...activityManagerPackets,
   ...activityServicePackets,
   ...chatPackets,
+  ...characterStatePackets,
   ...clientUpdatePackets,
   ...implantPackets,
   ...coinStorePackets,

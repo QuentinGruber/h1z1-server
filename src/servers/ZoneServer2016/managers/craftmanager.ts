@@ -98,8 +98,8 @@ export class CraftManager {
   constructor(
     client: Client,
     server: ZoneServer2016,
-    recipeId: number,
-    count: number
+    recipeId: number = 0,
+    count: number = 0
   ) {
     this.componentsDataSource = getCraftComponentsDataSource(client);
     this.start(client, server, recipeId, count);
@@ -404,8 +404,9 @@ export class CraftManager {
     //#region CRAFTING
     await server.pUtilizeHudTimer(
       client,
-      server.getItemDefinition(recipeId).NAME_ID,
-      1000 * recipeCount
+      server.getItemDefinition(recipeId)?.NAME_ID ?? 0,
+      1000 * recipeCount,
+      0
     );
     const r = server._recipes[recipeId];
     for (const component of r.components) {

@@ -29,6 +29,10 @@ import { vehicleDefaultLoadouts } from "../data/loadouts";
 import { BaseItem } from "../classes/baseItem";
 import { LOADOUT_CONTAINER_ID } from "../../../utils/constants";
 import { Character2016 } from "./character";
+import {
+  LightweightToFullNpc,
+  LightweightToFullVehicle
+} from "types/zone2016packets";
 
 function getActorModelId(vehicleId: VehicleIds) {
   switch (vehicleId) {
@@ -113,7 +117,7 @@ function getHeadlightEffect(vehicleId: VehicleIds) {
 
 export class Vehicle2016 extends BaseLootableEntity {
   isManaged: boolean = false;
-  manager?: any;
+  manager?: ZoneClient2016;
   destroyedEffect: number = 0;
   destroyedModel: number = 0;
   minorDamageEffect: number = 0;
@@ -253,7 +257,7 @@ export class Vehicle2016 extends BaseLootableEntity {
       const seat = this.seats[seatId],
         passenger = seat ? server._characters[seat] : undefined;
       if (!this.seats[seatId] || !passenger?.isAlive) {
-        return seatId;
+        return Number(seatId);
       }
     }
     return -1;
@@ -261,9 +265,10 @@ export class Vehicle2016 extends BaseLootableEntity {
   getCharacterSeat(characterId: string) {
     for (const seatId in this.seats) {
       if (this.seats[seatId] === characterId) {
-        return seatId;
+        return Number(seatId);
       }
     }
+    return -1;
   }
 
   getPassengerList(): string[] {
@@ -298,7 +303,7 @@ export class Vehicle2016 extends BaseLootableEntity {
     };
   }
 
-  pGetFull(server: ZoneServer2016) {
+  pGetFull(server: ZoneServer2016): LightweightToFullNpc {
     return {
       transientId: this.transientId,
       attachmentData: this.pGetAttachmentSlots(),
@@ -311,9 +316,9 @@ export class Vehicle2016 extends BaseLootableEntity {
       targetData: {},
       unknownArray1: [],
       unknownArray2: [],
-      unknownArray3: { data: {} },
-      unknownArray4: { data: {} },
-      unknownArray5: { data: {} },
+      unknownArray3: { data: [] },
+      unknownArray4: {},
+      unknownArray5: { data: [] },
       remoteWeapons: {
         isVehicle: true,
         data: {}
@@ -325,34 +330,16 @@ export class Vehicle2016 extends BaseLootableEntity {
     };
   }
 
-  pGetFullVehicle(server: ZoneServer2016) {
+  pGetFullVehicle(server: ZoneServer2016): LightweightToFullVehicle {
     return {
       npcData: {
         ...this.pGetFull(server)
       },
-      positionUpdate: {
-        ...this.positionUpdate,
-        sequenceTime: server.getGameTime(),
-        position: this.state.position // trying to fix invisible characters/vehicles until they move
-      },
       unknownArray1: [],
       unknownArray2: [],
+      passengers: this.pGetPassengers(server),
       unknownArray3: [],
-      unknownArray4: [],
-      unknownArray5: [
-        {
-          unknownData1: {
-            unknownData1: {}
-          }
-        }
-      ],
-      unknownArray6: [],
-      unknownArray7: [],
-      unknownArray8: [
-        {
-          unknownArray1: []
-        }
-      ]
+      unknownArray4: []
     };
   }
 
@@ -737,7 +724,7 @@ export class Vehicle2016 extends BaseLootableEntity {
       client = server.getClientByCharId(driver?.characterId || "");
     if (!client) return;
 
-    server.utilizeHudTimer(client, 0, 5000, () => {
+    server.utilizeHudTimer(client, 0, 5000, 0, () => {
       this.startEngine(server);
     });
   }
@@ -808,11 +795,9 @@ export class Vehicle2016 extends BaseLootableEntity {
       characterId: this.characterId,
       loadoutId: this.loadoutId,
       loadoutData: {
-        loadoutSlots: Object.values(this.getLoadoutSlots()).map(
-          (slotId: any) => {
-            return this.pGetLoadoutSlot(slotId);
-          }
-        )
+        loadoutSlots: Object.values(this.getLoadoutSlots()).map((slotId) => {
+          return this.pGetLoadoutSlot(slotId);
+        })
       },
       currentSlotId: this.currentLoadoutSlot
     };
@@ -940,7 +925,7 @@ export class Vehicle2016 extends BaseLootableEntity {
         characterId: client.character.characterId,
         vehicleGuid: this.characterId, // vehicle guid
         seatId: seatId,
-        isDriver: seatId === "0" ? 1 : 0, //isDriver
+        isDriver: seatId == 0 ? 1 : 0, //isDriver
         identity: {}
       });
       delete this.droppedManagedClient;
@@ -988,7 +973,7 @@ export class Vehicle2016 extends BaseLootableEntity {
       delete this.onReadyCallback;
     }
   }
-  destroy(server: ZoneServer2016, disableExplosion = false) {
+  destroy(server: ZoneServer2016, disableExplosion = false): boolean {
     if (!server._vehicles[this.characterId]) return false;
     this._resources[ResourceIds.CONDITION] = 0;
     for (const c in server._clients) {
