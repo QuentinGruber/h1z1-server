@@ -604,7 +604,7 @@ export class ZoneServer2016 extends EventEmitter {
                   return;
                 }
 
-                if(this.isLocked && !await this.getIsAdmin(loginSessionId)) {
+                if (this.isLocked && !(await this.getIsAdmin(loginSessionId))) {
                   console.log(
                     `Character (${characterId}) connection rejected due to server lock`
                   );
@@ -662,7 +662,7 @@ export class ZoneServer2016 extends EventEmitter {
                       return;
                     }
                   }
-                  const collection = (this._db as Db).collection(
+                  const collection = this._db.collection(
                     DB_COLLECTIONS.CHARACTERS
                   );
                   const charactersArray = await collection
@@ -707,7 +707,7 @@ export class ZoneServer2016 extends EventEmitter {
               case "CharacterDeleteRequest": {
                 const { characterId, reqId } = packet.data;
                 try {
-                  const collection = (this._db as Db).collection(
+                  const collection = this._db.collection(
                     DB_COLLECTIONS.CHARACTERS
                   );
                   const charactersArray = await collection
@@ -808,7 +808,7 @@ export class ZoneServer2016 extends EventEmitter {
 
   async shutdown(timeLeft: number, message: string) {
     this.shutdownStarted = true;
-    if(this.abortShutdown) {
+    if (this.abortShutdown) {
       this.abortShutdown = false;
       this.shutdownStarted = false;
       this.sendAlertToAll(`Server shutdown aborted.`);
@@ -839,9 +839,11 @@ export class ZoneServer2016 extends EventEmitter {
         process.exit(0);
       }, 30000);
     } else {
-      this.sendAlertToAll(`Server will shutdown in ${Math.ceil(
-        currentTimeLeft / 1000
-      )} seconds. Reason: ${message}`);
+      this.sendAlertToAll(
+        `Server will shutdown in ${Math.ceil(
+          currentTimeLeft / 1000
+        )} seconds. Reason: ${message}`
+      );
 
       if (currentTimeLeft / 1000 <= 60) {
         // block client connections for last minute
@@ -916,7 +918,7 @@ export class ZoneServer2016 extends EventEmitter {
         status: 1,
         worldSaveVersion: this.worldSaveVersion
       };
-      const collection = (this._db as Db).collection(DB_COLLECTIONS.CHARACTERS);
+      const collection = this._db.collection(DB_COLLECTIONS.CHARACTERS);
       const charactersArray = await collection.findOne({
         characterId: character.characterId
       });
@@ -937,7 +939,6 @@ export class ZoneServer2016 extends EventEmitter {
   async onClientIsAdminRequest(client: any, packet: any) {
     const { guid, reqId } = packet.data;
     try {
-      
       this._h1emuZoneServer.sendData(client, "ClientIsAdminReply", {
         reqId: reqId,
         status: this.getIsAdmin(guid)
@@ -2702,6 +2703,33 @@ export class ZoneServer2016 extends EventEmitter {
     }
   }
 
+  getClientByName(name: string) {
+    let similar: string = "";
+    const targetClient: Client | undefined = Object.values(this._clients).find(
+      (c) => {
+        const clientName = c.character.name?.toLowerCase().replaceAll(" ", "_");
+        if (!clientName) return;
+        if (clientName == name.toLowerCase()) {
+          return c;
+        } else if (
+          getDifference(name.toLowerCase(), clientName) <= 3 &&
+          getDifference(name.toLowerCase(), clientName) != 0
+        )
+          similar = clientName;
+      }
+    );
+    return targetClient ? targetClient : similar ? similar : undefined;
+  }
+
+  getClientByLoginSessionId(loginSessionId: string) {
+    const targetClient: Client | undefined = Object.values(this._clients).find(
+      (c) => {
+        if (c.loginSessionId == loginSessionId) return c;
+      }
+    );
+    return targetClient;
+  }
+
   getClientByNameOrLoginSession(name: string): Client | string | undefined {
     let similar: string = "";
     const targetClient: Client | undefined = Object.values(this._clients).find(
@@ -3825,24 +3853,78 @@ export class ZoneServer2016 extends EventEmitter {
     }
   }
 
+  banClientById(
+    loginSessionId: string,
+    characterName: string,
+    reason: string,
+    adminName: string,
+    timestamp: number
+  ) {
+    const client = this.getClientByLoginSessionId(loginSessionId);
+
+    const object: ClientBan = {
+      name: characterName,
+      banType: "normal",
+      banReason: reason ? reason : "no reason",
+      loginSessionId: loginSessionId,
+      IP: this.getSoeClient(client?.soeClientId ?? "")?.address ?? "",
+      HWID: client?.HWID ?? "",
+      adminName: adminName ? adminName : "",
+      expirationDate: 0,
+      active: true,
+      unBanAdminName: ""
+    };
+    this._db?.collection(DB_COLLECTIONS.BANNED).insertOne(object);
+    if (timestamp) {
+      if (client) {
+        this.sendAlert(
+          client,
+          reason
+            ? `YOU HAVE BEEN BANNED FROM THE SERVER UNTIL ${this.getDateString(
+                timestamp
+              )}. REASON: ${reason}`
+            : `YOU HAVE BEEN BANNED FROM THE SERVER UNTIL: ${this.getDateString(
+                timestamp
+              )}`
+        );
+      }
+      this.sendAlertToAll(
+        reason
+          ? `${characterName} HAS BEEN BANNED FROM THE SERVER UNTIL ${this.getDateString(
+              timestamp
+            )}. REASON: ${reason}`
+          : `${characterName} HAS BEEN BANNED FROM THE SERVER UNTIL: ${this.getDateString(
+              timestamp
+            )}`
+      );
+    } else {
+      if (client) {
+        this.sendAlert(
+          client,
+          reason
+            ? `YOU HAVE BEEN PERMANENTLY BANNED FROM THE SERVER REASON: ${reason}`
+            : "YOU HAVE BEEN BANNED FROM THE SERVER."
+        );
+      }
+
+      this.sendAlertToAll(
+        reason
+          ? `${characterName} HAS BEEN BANNED FROM THE SERVER! REASON: ${reason}`
+          : `${characterName} HAS BEEN BANNED FROM THE SERVER!`
+      );
+    }
+    if (client) {
+      setTimeout(() => {
+        this.kickPlayer(client);
+      }, 3000);
+    }
+  }
+
   enforceBan(client: Client) {
     switch (client.banType) {
       case "normal":
         this.kickPlayer(client);
         return;
-      /*case "hiddenplayers":
-        const objectsToRemove = client.spawnedEntities.filter(
-          (e) => e && !(e instanceof Vehicle2016) && !(e instanceof ItemObject)
-        );
-        client.spawnedEntities = client.spawnedEntities.filter((el) => {
-          return !objectsToRemove.includes(el);
-        });
-        objectsToRemove.forEach((object: any) => {
-          this.sendData<>(client, "Character.RemovePlayer", {
-            characterId: object.characterId,
-          });
-        });
-        break;*/
       case "rick":
         this.sendData<ClientExitLaunchUrl>(client, "ClientExitLaunchUrl", {
           url: "https://www.youtube.com/watch?v=dQw4w9WgXcQ"

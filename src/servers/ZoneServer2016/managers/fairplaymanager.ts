@@ -18,7 +18,10 @@ import {
   FireHint,
   HitReport
 } from "types/zoneserver";
-import { CONNECTION_REJECTION_FLAGS, DB_COLLECTIONS } from "../../../utils/enums";
+import {
+  CONNECTION_REJECTION_FLAGS,
+  DB_COLLECTIONS
+} from "../../../utils/enums";
 import {
   decrypt,
   getDistance,

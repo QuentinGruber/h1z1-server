@@ -51,6 +51,8 @@ import { DB_COLLECTIONS } from "../../../../utils/enums";
 import { WorldDataManager } from "../../managers/worlddatamanager";
 import { BaseEntity } from "../../entities/baseentity";
 import { MAX_UINT32 } from "../../../../utils/constants";
+import { WithId } from "mongodb";
+import { FullCharacterSaveData } from "types/savedata";
 const itemDefinitions = require("./../../../../../data/2016/dataSources/ServerItemDefinitions.json");
 
 export const commands: Array<Command> = [
@@ -686,7 +688,7 @@ export const commands: Array<Command> = [
         );
         return;
       }
-      const banTypes = ["nodamage", "hiddenplayers", "rick"];
+      const banTypes = ["nodamage", "rick"];
       const banType = args[1].toString().toLowerCase();
       if (!banTypes.includes(banType)) {
         server.sendChatText(client, `valid ban types: ${banTypes.join(", ")}`);
@@ -714,7 +716,7 @@ export const commands: Array<Command> = [
       } else {
         server.sendChatText(
           client,
-          `You have silently banned ${targetClient.character.name} permemently, banType: ${banType}`
+          `You have silently banned ${targetClient.character.name} permanently, banType: ${banType}`
         );
       }
       const reason = args.slice(3).join(" ");
@@ -730,6 +732,7 @@ export const commands: Array<Command> = [
   {
     name: "ban",
     permissionLevel: PermissionLevels.MODERATOR,
+    keepCase: true,
     execute: async (
       server: ZoneServer2016,
       client: Client,
@@ -753,7 +756,7 @@ export const commands: Array<Command> = [
         return;
       }
       let time = Number(args[1]) ? Number(args[1]) * 60000 : 0;
-      if (time > 0) {
+      if (!isNaN(time) && time > 0) {
         time += Date.now();
         server.sendChatText(
           client,
@@ -773,6 +776,74 @@ export const commands: Array<Command> = [
         reason,
         "normal",
         client.character.name ? client.character.name : "",
+        time
+      );
+    }
+  },
+  {
+    // should split ban and ban id in case someone names themselves someone else's loginSessionId
+    name: "banid",
+    permissionLevel: PermissionLevels.MODERATOR,
+    execute: async (
+      server: ZoneServer2016,
+      client: Client,
+      args: Array<string>
+    ) => {
+      if (!args[0]) {
+        server.sendChatText(
+          client,
+          `Correct usage: /banid {loginSessionId} optional: {time} {reason}`
+        );
+        return;
+      }
+
+      // check offline characters first for an exact match
+
+      const collection = server._db.collection(DB_COLLECTIONS.CHARACTERS),
+        character = (await collection.findOne({
+          ownerId: args[0],
+          serverId: server._worldId,
+          status: 1
+        })) as WithId<FullCharacterSaveData>;
+
+      let ownerId = character.ownerId,
+        characterName = character.characterName;
+
+      if (!character) {
+        const banClient = server.getClientByLoginSessionId(args[0]);
+        if (!banClient) {
+          server.sendChatText(
+            client,
+            `Character with loginSessionId ${args[0]} not found!`
+          );
+          return;
+        }
+        ownerId = banClient.loginSessionId;
+        characterName = banClient.character.name;
+      }
+
+      let time = Number(args[1]) ? Number(args[1]) * 60000 : 0;
+      if (!isNaN(time) && time > 0) {
+        time += Date.now();
+        server.sendChatText(
+          client,
+          `You have banned ${
+            character.characterName
+          } until ${server.getDateString(time)}`
+        );
+      } else {
+        server.sendChatText(
+          client,
+          `You have banned ${character.characterName} permanently`
+        );
+      }
+
+      const reason = args.slice(2).join(" ");
+      server.banClientById(
+        ownerId,
+        characterName,
+        reason,
+        client.character.name,
         time
       );
     }
@@ -2399,17 +2470,23 @@ export const commands: Array<Command> = [
       client: Client,
       args: Array<string>
     ) => {
-      if(args.length < 2) {
-        server.sendChatText(client, "Usage: /reboot <time in seconds> <message>");
+      if (args.length < 2) {
+        server.sendChatText(
+          client,
+          "Usage: /reboot <time in seconds> <message>"
+        );
         return;
       }
 
       const time = Number(args[0]),
-      message = args.slice(1, args.length).join(" ");
+        message = args.slice(1, args.length).join(" ");
 
-      if(isNaN(time)) {
+      if (isNaN(time)) {
         server.sendChatText(client, "Invalid time.");
-        server.sendChatText(client, "Usage: /reboot <time in seconds> <message>");
+        server.sendChatText(
+          client,
+          "Usage: /reboot <time in seconds> <message>"
+        );
         return;
       }
 
@@ -2425,7 +2502,7 @@ export const commands: Array<Command> = [
       client: Client,
       args: Array<string>
     ) => {
-      if(!server.shutdownStarted) {
+      if (!server.shutdownStarted) {
         server.sendChatText(client, "Server is not currently rebooting.");
         return;
       }
@@ -2443,7 +2520,10 @@ export const commands: Array<Command> = [
       args: Array<string>
     ) => {
       server.isLocked = !server.isLocked;
-      server.sendChatText(client, `Server ${server.isLocked?"Locked":"Unlocked"}`);
+      server.sendChatText(
+        client,
+        `Server ${server.isLocked ? "Locked" : "Unlocked"}`
+      );
     }
   },
   //#endregion

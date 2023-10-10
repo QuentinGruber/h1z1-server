@@ -31,7 +31,7 @@ interface FairplayConfig {
   useFairplay: boolean;
   maxPing: number;
   pingTimeoutTime: number;
-  acceptedRejectionTypes: Array<CONNECTION_REJECTION_FLAGS>
+  acceptedRejectionTypes: Array<CONNECTION_REJECTION_FLAGS>;
 }
 
 interface WeatherConfig {
