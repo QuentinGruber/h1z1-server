@@ -436,8 +436,11 @@ export class ConstructionChildEntity extends BaseLightweightCharacter {
     };
   }
   damage(server: ZoneServer2016, damageInfo: DamageInfo) {
-    // todo: redo this
-    this.health -= damageInfo.damage;
+    const dictionary = server.getEntityDictionary(this.characterId);
+    if(!dictionary) {
+      return;
+    }
+    this.damageSimpleNpc(server, damageInfo, dictionary as EntityDictionary<ConstructionEntity>); 
   }
 
   damageSimpleNpc(

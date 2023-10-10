@@ -35,7 +35,6 @@ import { DecayManager } from "./managers/decaymanager";
 import { AbilitiesManager } from "./managers/abilitiesmanager";
 import {
   ContainerErrors,
-  EntityTypes,
   EquipSlots,
   Items,
   LoadoutIds,
@@ -2502,49 +2501,6 @@ export class ZoneServer2016 extends EventEmitter {
     );
   }
 
-  getEntityType(entityKey: string): number {
-    switch (true) {
-      case !!this._npcs[entityKey]:
-        return EntityTypes.NPC;
-      case !!this._vehicles[entityKey]:
-        return EntityTypes.VEHICLE;
-      case !!this._characters[entityKey]:
-        return EntityTypes.PLAYER;
-      case !!this._spawnedItems[entityKey]:
-        return EntityTypes.OBJECT;
-      case !!this._doors[entityKey]:
-        return EntityTypes.DOOR;
-      case !!this._explosives[entityKey]:
-        return EntityTypes.EXPLOSIVE;
-      case !!this._constructionFoundations[entityKey]:
-        return EntityTypes.CONSTRUCTION_FOUNDATION;
-      case !!this._constructionDoors[entityKey]:
-        return EntityTypes.CONSTRUCTION_DOOR;
-      case !!this._constructionSimple[entityKey]:
-        return EntityTypes.CONSTRUCTION_SIMPLE;
-      case !!this._lootableConstruction[entityKey]:
-        return EntityTypes.LOOTABLE_CONSTRUCTION;
-      case !!this._lootableProps[entityKey]:
-        return EntityTypes.LOOTABLE_PROP;
-      case !!this._worldLootableConstruction[entityKey]:
-        return EntityTypes.WORLD_LOOTABLE_CONSTRUCTION;
-      case !!this._worldSimpleConstruction[entityKey]:
-        return EntityTypes.WORLD_CONSTRUCTION_SIMPLE;
-      case !!this._plants[entityKey]:
-        return EntityTypes.PLANT;
-      case !!this._traps[entityKey]:
-        return EntityTypes.TRAP;
-      case !!this._taskProps[entityKey]:
-        return EntityTypes.TASK_PROP;
-      case !!this._crates[entityKey]:
-        return EntityTypes.CRATE;
-      case !!this._destroyables[entityKey]:
-        return EntityTypes.DESTROYABLE;
-      default:
-        return EntityTypes.INVALID;
-    }
-  }
-
   getLootableEntity(
     entityKey: string
   ): BaseLootableEntity | Vehicle2016 | undefined {
@@ -2613,7 +2569,7 @@ export class ZoneServer2016 extends EventEmitter {
     );
   }
 
-  getEntityDictionary(entityKey: string): any | undefined {
+  getEntityDictionary(entityKey: string): EntityDictionary<BaseEntity> | undefined {
     switch (true) {
       case !!this._npcs[entityKey]:
         return this._npcs;
