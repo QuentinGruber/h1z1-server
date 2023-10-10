@@ -990,7 +990,7 @@ export class LoginServer extends EventEmitter {
     }
     if (!connectionAllowed.status) {
       let reason =
-        "UNDEFINED. If this is a new character, please delete and recreate it.";
+        "UNDEFINED! Server may be running an old version, please report this to the server owner!";
       switch (connectionAllowed.rejectionFlag) {
         case CONNECTION_REJECTION_FLAGS.ERROR:
           reason = "ERROR";
