@@ -12,6 +12,7 @@
 // ======================================================================
 
 import { dailyRepairMaterial } from ".../../types/zoneserver";
+import { CONNECTION_REJECTION_FLAGS } from "utils/enums";
 
 interface ServerConfig {
   proximityItemsDistance: number;
@@ -30,6 +31,7 @@ interface FairplayConfig {
   useFairplay: boolean;
   maxPing: number;
   pingTimeoutTime: number;
+  acceptedRejectionTypes: Array<CONNECTION_REJECTION_FLAGS>
 }
 
 interface WeatherConfig {

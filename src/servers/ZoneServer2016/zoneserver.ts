@@ -135,7 +135,6 @@ import {
   CharacterSelectSessionResponse,
   ClientUpdateDeathMetrics,
   ClientUpdateProximateItems,
-  ClientUpdateTextAlert,
   zone2016packets
 } from "types/zone2016packets";
 import { getCharacterModelData } from "../shared/functions";

@@ -40,18 +40,12 @@ export class FairPlayManager {
   _fairPlayDecryptKey: string = "";
   _suspiciousList: string[] = [];
   fairPlayValues?: FairPlayValues;
-  acceptedRejectionTypes: Array<CONNECTION_REJECTION_FLAGS> = [
-    // LOCAL_BAN, SERVER_LOCKED, and SERVER_REBOOT are always accepted
-    CONNECTION_REJECTION_FLAGS.GLOBAL_BAN,
-    CONNECTION_REJECTION_FLAGS.VPN,
-    CONNECTION_REJECTION_FLAGS.HWID,
-    CONNECTION_REJECTION_FLAGS.UNVERIFIED
-  ];
 
   /* MANAGED BY CONFIGMANAGER */
   useFairPlay!: boolean;
   maxPing!: number;
   pingTimeoutTime!: number;
+  acceptedRejectionTypes!: Array<CONNECTION_REJECTION_FLAGS>;
 
   decryptFairPlayValues() {
     if (this._decryptKey) {

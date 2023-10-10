@@ -55,6 +55,28 @@ const itemDefinitions = require("./../../../../../data/2016/dataSources/ServerIt
 export const commands: Array<Command> = [
   //#region DEFAULT PERMISSIONS
   {
+    name: "console",
+    permissionLevel: PermissionLevels.DEFAULT,
+    execute: async (
+      server: ZoneServer2016,
+      client: Client,
+      args: Array<string>
+    ) => {
+      /* handled clientside */
+    }
+  },
+  {
+    name: "group",
+    permissionLevel: PermissionLevels.DEFAULT,
+    execute: async (
+      server: ZoneServer2016,
+      client: Client,
+      args: Array<string>
+    ) => {
+      server.groupManager.handleGroupCommand(server, client, args);
+    }
+  },
+  {
     name: "me",
     permissionLevel: PermissionLevels.DEFAULT,
     execute: (server: ZoneServer2016, client: Client, args: Array<string>) => {
@@ -332,6 +354,26 @@ export const commands: Array<Command> = [
   //#endregion
 
   //#region MODERATOR PERMISSIONS
+  {
+    name: "players",
+    permissionLevel: PermissionLevels.MODERATOR,
+    execute: (server: ZoneServer2016, client: Client, args: Array<string>) => {
+      server.sendChatText(
+        client,
+        `Players: ${Object.values(server._clients)
+          .map((c) => {
+            return `${c.character.name}: ${c.loginSessionId} | ${server
+              .getSoeClient(c.soeClientId)
+              ?.getNetworkStats()[2]} | ${server
+              .getSoeClient(c.soeClientId)
+              ?.getNetworkStats()[0]} | ${server
+              .getSoeClient(c.soeClientId)
+              ?.getNetworkStats()[1]}`;
+          })
+          .join(",\n")}`
+      );
+    }
+  },
   {
     name: "vanish",
     permissionLevel: PermissionLevels.MODERATOR,
@@ -768,7 +810,7 @@ export const commands: Array<Command> = [
     }
   },
   {
-    name: "gm", // "god" also works
+    name: "gm", // "god" also works due to default client command mappings
     permissionLevel: PermissionLevels.MODERATOR,
     execute: (server: ZoneServer2016, client: Client, args: Array<string>) => {
       server.setGodMode(client, !client.character.godMode);
@@ -1482,26 +1524,6 @@ export const commands: Array<Command> = [
       const wep = server.generateItem(Items.WEAPON_REMOVER);
       if (wep && wep.weapon) wep.weapon.ammoCount = 1000;
       client.character.lootItem(server, wep);
-    }
-  },
-  {
-    name: "players",
-    permissionLevel: PermissionLevels.MODERATOR,
-    execute: (server: ZoneServer2016, client: Client, args: Array<string>) => {
-      server.sendChatText(
-        client,
-        `Players: ${Object.values(server._clients)
-          .map((c) => {
-            return `${c.character.name}: ${c.loginSessionId} | ${server
-              .getSoeClient(c.soeClientId)
-              ?.getNetworkStats()[2]} | ${server
-              .getSoeClient(c.soeClientId)
-              ?.getNetworkStats()[0]} | ${server
-              .getSoeClient(c.soeClientId)
-              ?.getNetworkStats()[1]}`;
-          })
-          .join(",\n")}`
-      );
     }
   },
   {
@@ -2325,28 +2347,6 @@ export const commands: Array<Command> = [
           `Cannot find any muted user with name ${name}`
         );
       }
-    }
-  },
-  {
-    name: "console",
-    permissionLevel: PermissionLevels.ADMIN,
-    execute: async (
-      server: ZoneServer2016,
-      client: Client,
-      args: Array<string>
-    ) => {
-      /* handled clientside */
-    }
-  },
-  {
-    name: "group",
-    permissionLevel: PermissionLevels.DEFAULT,
-    execute: async (
-      server: ZoneServer2016,
-      client: Client,
-      args: Array<string>
-    ) => {
-      server.groupManager.handleGroupCommand(server, client, args);
     }
   },
   {
