@@ -125,6 +125,7 @@ import {
 import { recipes } from "./data/Recipes";
 import { UseOptions } from "./data/useoptions";
 import {
+  CONNECTION_REJECTION_FLAGS,
   DB_COLLECTIONS,
   GAME_VERSIONS,
   LOGIN_KICK_REASON
@@ -530,7 +531,7 @@ export class ZoneServer2016 extends EventEmitter {
                 break;
               }
               case "CharacterAllowedRequest": {
-                const { characterId, reqId } = packet.data;
+                const { characterId, loginSessionId, reqId } = packet.data;
                 if (this.isRebooting) {
                   console.log(
                     `Character (${characterId}) connection rejected due to reboot`
@@ -538,26 +539,53 @@ export class ZoneServer2016 extends EventEmitter {
                   this._h1emuZoneServer.sendData(
                     client,
                     "CharacterAllowedReply",
-                    { status: 0, reqId: reqId }
+                    {
+                      status: 0,
+                      reqId: reqId,
+                      rejectionFlag: CONNECTION_REJECTION_FLAGS.SERVER_REBOOT
+                    }
                   );
                   return;
                 }
-                const banInfos = packet.data.banInfos ?? [];
+
+                const bannedClient = (await this._db
+                  ?.collection(DB_COLLECTIONS.BANNED)
+                  .findOne({ loginSessionId, active: true })) as unknown as
+                  | ClientBan
+                  | undefined;
+
+                if (bannedClient) {
+                  console.log(
+                    `Character (${characterId}) connection rejected due to local ban`
+                  );
+                  this._h1emuZoneServer.sendData(
+                    client,
+                    "CharacterAllowedReply",
+                    {
+                      status: 0,
+                      reqId: reqId,
+                      rejectionFlag: CONNECTION_REJECTION_FLAGS.LOCAL_BAN
+                    }
+                  );
+                }
+
+                const rejectionFlags = packet.data.rejectionFlags ?? [];
                 try {
-                  for (let i = 0; i < banInfos.length; i++) {
-                    const banInfo = banInfos[i];
+                  for (let i = 0; i < rejectionFlags.length; i++) {
+                    const rejectionFlag: number =
+                      rejectionFlags[i].rejectionFlag;
                     if (
-                      this.fairPlayManager.banInfoAcceptance.includes(
-                        banInfo.banInfo
+                      this.fairPlayManager.acceptedRejectionTypes.includes(
+                        rejectionFlag
                       )
                     ) {
                       console.log(
-                        `Character (${characterId}) connection rejected due to banInfo ${banInfo.banInfo}`
+                        `Character (${characterId}) connection rejected due to rejection type ${rejectionFlag}`
                       );
                       this._h1emuZoneServer.sendData(
                         client,
                         "CharacterAllowedReply",
-                        { status: 0, reqId: reqId }
+                        { status: 0, reqId: reqId, rejectionFlag }
                       );
                       return;
                     }
@@ -582,7 +610,12 @@ export class ZoneServer2016 extends EventEmitter {
                     this._h1emuZoneServer.sendData(
                       client,
                       "CharacterAllowedReply",
-                      { status: 0, reqId: reqId }
+                      {
+                        status: 0,
+                        reqId: reqId,
+                        rejectionFlag:
+                          CONNECTION_REJECTION_FLAGS.CHARACTER_NOT_FOUND
+                      }
                     );
                   }
                 } catch (error) {
@@ -590,7 +623,11 @@ export class ZoneServer2016 extends EventEmitter {
                   this._h1emuZoneServer.sendData(
                     client,
                     "CharacterAllowedReply",
-                    { status: 0, reqId: reqId }
+                    {
+                      status: 0,
+                      reqId: reqId,
+                      rejectionFlag: CONNECTION_REJECTION_FLAGS.ERROR
+                    }
                   );
                 }
                 break;

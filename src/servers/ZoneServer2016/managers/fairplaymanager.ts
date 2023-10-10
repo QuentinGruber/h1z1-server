@@ -13,7 +13,10 @@
 
 import { Collection } from "mongodb";
 import { FairPlayValues, StanceFlags, FireHint } from "types/zoneserver";
-import { BAN_INFO, DB_COLLECTIONS } from "../../../utils/enums";
+import {
+  CONNECTION_REJECTION_FLAGS,
+  DB_COLLECTIONS
+} from "../../../utils/enums";
 import {
   decrypt,
   getDistance,
@@ -37,12 +40,12 @@ export class FairPlayManager {
   _fairPlayDecryptKey: string = "";
   _suspiciousList: string[] = [];
   fairPlayValues?: FairPlayValues;
-  banInfoAcceptance: Array<BAN_INFO> = [
-    BAN_INFO.GLOBAL_BAN,
-    BAN_INFO.LOCAL_BAN,
-    BAN_INFO.VPN,
-    BAN_INFO.HWID,
-    BAN_INFO.UNVERIFIED
+  acceptedRejectionTypes: Array<CONNECTION_REJECTION_FLAGS> = [
+    // LOCAL_BAN, SERVER_LOCKED, and SERVER_REBOOT are always accepted
+    CONNECTION_REJECTION_FLAGS.GLOBAL_BAN,
+    CONNECTION_REJECTION_FLAGS.VPN,
+    CONNECTION_REJECTION_FLAGS.HWID,
+    CONNECTION_REJECTION_FLAGS.UNVERIFIED
   ];
 
   /* MANAGED BY CONFIGMANAGER */

@@ -116,11 +116,12 @@ const packets: PacketStructures = [
       fields: [
         { name: "reqId", type: "uint32", defaultValue: 0 },
         { name: "characterId", type: "uint64string", defaultValue: 0 },
+        { name: "loginSessionId", type: "uint64string", defaultValue: 0 },
         {
-          name: "banInfos",
+          name: "rejectionFlags",
           type: "array",
           defaultValue: [],
-          fields: [{ name: "banInfo", type: "uint8", defaultValue: 0 }]
+          fields: [{ name: "rejectionFlag", type: "uint8", defaultValue: 0 }]
         }
       ]
     }
@@ -131,7 +132,8 @@ const packets: PacketStructures = [
     {
       fields: [
         { name: "reqId", type: "uint32", defaultValue: 0 },
-        { name: "status", type: "boolean", defaultValue: 0 }
+        { name: "status", type: "boolean", defaultValue: 0 },
+        { name: "rejectionFlag", type: "uint8", defaultValue: 0 }
       ]
     }
   ],
