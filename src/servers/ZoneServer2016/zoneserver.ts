@@ -311,6 +311,8 @@ export class ZoneServer2016 extends EventEmitter {
   enablePacketInputLogging: boolean = false;
   shutdownStartedTime: number = 0;
   isRebooting: boolean = false;
+  abortShutdown: boolean = false;
+  shutdownStarted: boolean = false;
 
   /* MANAGED BY CONFIGMANAGER */
   proximityItemsDistance!: number;
@@ -735,6 +737,14 @@ export class ZoneServer2016 extends EventEmitter {
   }
 
   async shutdown(timeLeft: number, message: string) {
+    this.shutdownStarted = true;
+    if(this.abortShutdown) {
+      this.abortShutdown = false;
+      this.shutdownStarted = false;
+      this.sendAlertToAll(`Server shutdown aborted.`);
+      return;
+    }
+
     if (this.shutdownStartedTime === 0) {
       this.shutdownStartedTime = Date.now();
     }
@@ -743,9 +753,7 @@ export class ZoneServer2016 extends EventEmitter {
     const currentTimeLeft =
       timeLeftMs - (Date.now() - this.shutdownStartedTime);
     if (currentTimeLeft < 0) {
-      this.sendDataToAll<ClientUpdateTextAlert>("ClientUpdate.TextAlert", {
-        message: `Server will shutdown now`
-      });
+      this.sendAlertToAll(`Server will shutdown now`);
       await this.saveWorld();
       Object.values(this._clients).forEach((client: Client) => {
         this.sendData<CharacterSelectSessionResponse>(
@@ -761,11 +769,9 @@ export class ZoneServer2016 extends EventEmitter {
         process.exit(0);
       }, 30000);
     } else {
-      this.sendDataToAll<ClientUpdateTextAlert>("ClientUpdate.TextAlert", {
-        message: `Server will shutdown in ${Math.ceil(
-          currentTimeLeft / 1000
-        )} seconds. Reason: ${message}`
-      });
+      this.sendAlertToAll(`Server will shutdown in ${Math.ceil(
+        currentTimeLeft / 1000
+      )} seconds. Reason: ${message}`);
 
       if (currentTimeLeft / 1000 <= 60) {
         // block client connections for last minute

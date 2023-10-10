@@ -2403,6 +2403,50 @@ export const commands: Array<Command> = [
       client.character.isSpectator = !client.character.isSpectator;
     }
   },
+  {
+    name: "reboot",
+    permissionLevel: PermissionLevels.ADMIN,
+    keepCase: true,
+    execute: async (
+      server: ZoneServer2016,
+      client: Client,
+      args: Array<string>
+    ) => {
+      if(args.length < 2) {
+        server.sendChatText(client, "Usage: /reboot <time in seconds> <message>");
+        return;
+      }
+
+      const time = Number(args[0]),
+      message = args.slice(1, args.length).join(" ");
+
+      if(isNaN(time)) {
+        server.sendChatText(client, "Invalid time.");
+        server.sendChatText(client, "Usage: /reboot <time in seconds> <message>");
+        return;
+      }
+
+      server.shutdown(time, message);
+    }
+  },
+  {
+    name: "rebootcancel",
+    permissionLevel: PermissionLevels.ADMIN,
+    keepCase: true,
+    execute: async (
+      server: ZoneServer2016,
+      client: Client,
+      args: Array<string>
+    ) => {
+      if(!server.shutdownStarted) {
+        server.sendChatText(client, "Server is not currently rebooting.");
+        return;
+      }
+
+      server.abortShutdown = true;
+      server.sendChatText(client, "Aborted server shutdown.");
+    }
+  },
   //#endregion
 
   //#region DEV PERMISSIONS
