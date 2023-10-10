@@ -2447,6 +2447,18 @@ export const commands: Array<Command> = [
       server.sendChatText(client, "Aborted server shutdown.");
     }
   },
+  {
+    name: "serverlock",
+    permissionLevel: PermissionLevels.ADMIN,
+    execute: async (
+      server: ZoneServer2016,
+      client: Client,
+      args: Array<string>
+    ) => {
+      server.isLocked = !server.isLocked;
+      server.sendChatText(client, `Server ${server.isLocked?"Locked":"Unlocked"}`);
+    }
+  },
   //#endregion
 
   //#region DEV PERMISSIONS

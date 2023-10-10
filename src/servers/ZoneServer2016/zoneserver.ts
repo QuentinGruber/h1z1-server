@@ -313,6 +313,7 @@ export class ZoneServer2016 extends EventEmitter {
   isRebooting: boolean = false;
   abortShutdown: boolean = false;
   shutdownStarted: boolean = false;
+  isLocked: boolean = false;
 
   /* MANAGED BY CONFIGMANAGER */
   proximityItemsDistance!: number;
@@ -545,6 +546,22 @@ export class ZoneServer2016 extends EventEmitter {
                       status: 0,
                       reqId: reqId,
                       rejectionFlag: CONNECTION_REJECTION_FLAGS.SERVER_REBOOT
+                    }
+                  );
+                  return;
+                }
+
+                if(this.isLocked && !await this.getIsAdmin(loginSessionId)) {
+                  console.log(
+                    `Character (${characterId}) connection rejected due to server lock`
+                  );
+                  this._h1emuZoneServer.sendData(
+                    client,
+                    "CharacterAllowedReply",
+                    {
+                      status: 0,
+                      reqId: reqId,
+                      rejectionFlag: CONNECTION_REJECTION_FLAGS.SERVER_LOCKED
                     }
                   );
                   return;
@@ -817,6 +834,14 @@ export class ZoneServer2016 extends EventEmitter {
     }
   }
 
+  async getIsAdmin(loginSessionId: string) {
+    return Boolean(
+      await this._db
+        ?.collection(DB_COLLECTIONS.ADMINS)
+        .findOne({ sessionId: loginSessionId })
+    );
+  }
+
   async onCharacterCreateRequest(client: any, packet: any) {
     const { characterObjStringify, reqId } = packet.data;
     try {
@@ -859,14 +884,10 @@ export class ZoneServer2016 extends EventEmitter {
   async onClientIsAdminRequest(client: any, packet: any) {
     const { guid, reqId } = packet.data;
     try {
-      const isAdmin = Boolean(
-        await this._db
-          ?.collection(DB_COLLECTIONS.ADMINS)
-          .findOne({ sessionId: guid })
-      );
+      
       this._h1emuZoneServer.sendData(client, "ClientIsAdminReply", {
         reqId: reqId,
-        status: isAdmin
+        status: this.getIsAdmin(guid)
       });
     } catch (error) {
       this._h1emuZoneServer.sendData(client, "ClientIsAdminReply", {
