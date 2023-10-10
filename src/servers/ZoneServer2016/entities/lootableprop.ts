@@ -247,16 +247,14 @@ export class LootableProp extends BaseLootableEntity {
       case "Wrecked Car":
       case "Wrecked Truck":
         break;
-      default: 
+      default:
         return;
     }
 
     const client = server.getClientByCharId(damageInfo.entity);
     const weapon = client?.character.getEquippedWeapon();
 
-    if(
-      !client || !weapon || 
-      weapon.itemDefinitionId != Items.WEAPON_CROWBAR) {
+    if (!client || !weapon || weapon.itemDefinitionId != Items.WEAPON_CROWBAR) {
       return;
     }
 

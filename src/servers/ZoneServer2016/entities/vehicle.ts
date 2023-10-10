@@ -599,33 +599,30 @@ export class Vehicle2016 extends BaseLootableEntity {
 
   getHeadlightState() {
     const headlightEffect = getHeadlightEffect(this.vehicleId),
-    index = this.effectTags.indexOf(headlightEffect);
+      index = this.effectTags.indexOf(headlightEffect);
     return !(index <= -1);
   }
 
   getSirenState() {
     const sirenEffect = Effects.VEH_SirenLight_PoliceCar,
-    index = this.effectTags.indexOf(sirenEffect);
+      index = this.effectTags.indexOf(sirenEffect);
     return !(index <= -1);
   }
 
   getHornState() {
     const hornEffect = getHornEffect(this.vehicleId),
-    index = this.effectTags.indexOf(hornEffect);
+      index = this.effectTags.indexOf(hornEffect);
     return !(index <= -1);
   }
 
   getTurboState() {
     const turboEffect = getTurboEffect(this.vehicleId),
-    index = this.effectTags.indexOf(turboEffect);
+      index = this.effectTags.indexOf(turboEffect);
     return !(index <= -1);
   }
 
   sendNoPartsAlert(server: ZoneServer2016, client: ZoneClient2016) {
-    server.sendAlert(
-      client,
-      "Parts may be required. Open vehicle loadout."
-    );
+    server.sendAlert(client, "Parts may be required. Open vehicle loadout.");
   }
 
   sendNoFuelAlert(server: ZoneServer2016, client: ZoneClient2016) {
@@ -718,9 +715,13 @@ export class Vehicle2016 extends BaseLootableEntity {
     this.effectTags.splice(index, 1);
   }
 
-  setHornState(server: ZoneServer2016, state: boolean, client?: ZoneClient2016) {
+  setHornState(
+    server: ZoneServer2016,
+    state: boolean,
+    client?: ZoneClient2016
+  ) {
     const hornEffect = getHornEffect(this.vehicleId),
-    index = this.effectTags.indexOf(hornEffect);
+      index = this.effectTags.indexOf(hornEffect);
 
     if (state && index <= -1) {
       if (!this.hasBattery()) {
@@ -755,20 +756,36 @@ export class Vehicle2016 extends BaseLootableEntity {
     this.effectTags.splice(index, 1);
   }
 
-  setTurboState(server: ZoneServer2016, client: ZoneClient2016, state: boolean) {
+  setTurboState(
+    server: ZoneServer2016,
+    client: ZoneClient2016,
+    state: boolean
+  ) {
     const turboEffect = getTurboEffect(this.vehicleId),
-    index = this.effectTags.indexOf(turboEffect);
+      index = this.effectTags.indexOf(turboEffect);
 
     if (state && index <= -1) {
       if (!this.hasBattery()) {
         if (client) this.sendNoPartsAlert(server, client);
         return;
       }
-      server.abilitiesManager.addEffectTag(server, client, this, turboEffect, server._vehicles);
+      server.abilitiesManager.addEffectTag(
+        server,
+        client,
+        this,
+        turboEffect,
+        server._vehicles
+      );
       return;
     }
 
-    server.abilitiesManager.removeEffectTag(server, client, this, turboEffect, server._vehicles);
+    server.abilitiesManager.removeEffectTag(
+      server,
+      client,
+      this,
+      turboEffect,
+      server._vehicles
+    );
   }
 
   hasTurbo(): boolean {
@@ -832,17 +849,11 @@ export class Vehicle2016 extends BaseLootableEntity {
       this.toggleHeadlights(server);
     }
 
-    if (
-      this.getSirenState() &&
-      !this.hasBattery()
-    ) {
+    if (this.getSirenState() && !this.hasBattery()) {
       this.toggleSiren(server);
     }
 
-    if (
-      this.getHornState() &&
-      !this.hasBattery()
-    ) {
+    if (this.getHornState() && !this.hasBattery()) {
       this.setHornState(server, false);
     }
 
@@ -884,7 +895,8 @@ export class Vehicle2016 extends BaseLootableEntity {
         return;
       }
       if (this.engineRPM) {
-        const fuelLoss = this.engineRPM * 0.003 * (this.getTurboState() ? 4 : 1);
+        const fuelLoss =
+          this.engineRPM * 0.003 * (this.getTurboState() ? 4 : 1);
         this._resources[ResourceIds.FUEL] -= fuelLoss;
       }
       if (this._resources[ResourceIds.FUEL] < 0) {
@@ -1098,6 +1110,24 @@ export class Vehicle2016 extends BaseLootableEntity {
       delete this.onReadyCallback;
     }
   }
+
+  OnMeleeHit(server: ZoneServer2016, damageInfo: DamageInfo) {
+    const client = server.getClientByCharId(damageInfo.entity),
+      weapon = client?.character.getEquippedWeapon();
+    if (
+      !client ||
+      weapon?.itemDefinitionId != Items.WEAPON_WRENCH
+    ) {
+      this.damage(server, damageInfo);
+      return;
+    }
+
+    if (this._resources[ResourceIds.CONDITION] < 100000) {
+      this.damage(server, { ...damageInfo, damage: -5000 });
+      server.damageItem(client, weapon, 100);
+    }
+  }
+
   destroy(server: ZoneServer2016, disableExplosion = false): boolean {
     if (!server._vehicles[this.characterId]) return false;
     this._resources[ResourceIds.CONDITION] = 0;

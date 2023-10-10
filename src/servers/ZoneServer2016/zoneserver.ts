@@ -1569,7 +1569,7 @@ export class ZoneServer2016 extends EventEmitter {
       the client can switch equipment slots without server input, which is the way
       it's supposed to work (removes the delay) - Meme
     */
-    
+
     this.sendData(client, "ReferenceData.DynamicAppearance", {
       ITEM_APPEARANCE_DEFINITIONS:
         dynamicappearance.ITEM_APPEARANCE_DEFINITIONS,
@@ -2569,7 +2569,9 @@ export class ZoneServer2016 extends EventEmitter {
     );
   }
 
-  getEntityDictionary(entityKey: string): EntityDictionary<BaseEntity> | undefined {
+  getEntityDictionary(
+    entityKey: string
+  ): EntityDictionary<BaseEntity> | undefined {
     switch (true) {
       case !!this._npcs[entityKey]:
         return this._npcs;
@@ -4658,8 +4660,8 @@ export class ZoneServer2016 extends EventEmitter {
             unknownData2: {
               characterId: client.character.characterId
             },
-              guid2: "0x0",
-              targetCharacterId: vehicle.characterId,
+            guid2: "0x0",
+            targetCharacterId: vehicle.characterId
           }
         );
       }
@@ -5267,7 +5269,8 @@ export class ZoneServer2016 extends EventEmitter {
     const weapon = client.character.getEquippedWeapon(),
       currentWeaponItemDef = this.getItemDefinition(weapon?.itemDefinitionId);
     if (currentWeaponItemDef) {
-      this.deactivateAbility(
+      this.abilitiesManager.deactivateAbility(
+        this, 
         client,
         currentWeaponItemDef.ACTIVATABLE_ABILITY_ID
       );
@@ -5303,7 +5306,7 @@ export class ZoneServer2016 extends EventEmitter {
         loadoutItem.itemDefinitionId
       );
       if (itemDefinition) {
-        this.deactivateAbility(client, itemDefinition.ACTIVATABLE_ABILITY_ID);
+        this.abilitiesManager.deactivateAbility(this, client, itemDefinition.ACTIVATABLE_ABILITY_ID);
       }
       this.sendRemoteWeaponUpdateDataToAllOthers(
         client,
@@ -5327,18 +5330,6 @@ export class ZoneServer2016 extends EventEmitter {
         }
       );
     }
-  }
-
-  deactivateAbility(client: Client, abilityId: number) {
-    this.sendData(client, "Abilities.DeactivateAbility", {
-      abilityId: abilityId,
-      unknownDword1: 3
-    });
-    this.sendData(client, "Abilities.UninitAbility", {
-      unknownDword1: 4,
-      abilityId: abilityId,
-      unknownDword2: 3
-    });
   }
 
   /**
@@ -6957,34 +6948,6 @@ export class ZoneServer2016 extends EventEmitter {
     }, reloadTime);
   }
 
-  handleWrenchHit(
-    client: Client,
-    weaponItem: LoadoutItem,
-    entity: BaseEntity
-  ): boolean {
-    if (!(entity instanceof Vehicle2016)) return true;
-
-    if (client.character.meleeBlocked(200)) {
-      return true;
-    }
-
-    /*
-    this.sendCompositeEffectToAllInRange(
-      15,
-      client.character.characterId,
-      entity.state.position,
-      1605
-    );
-    */
-
-    if (entity._resources[ResourceIds.CONDITION] < 100000) {
-      entity.damage(this, { entity: "", damage: -5000 });
-      this.damageItem(client, weaponItem, 100);
-    }
-    client.character.lastMeleeHitTime = Date.now();
-    return true;
-  }
-
   handleDemolitionHit(
     client: Client,
     weaponItem: LoadoutItem,
@@ -7151,8 +7114,6 @@ export class ZoneServer2016 extends EventEmitter {
     }
 
     switch (weaponItem.itemDefinitionId) {
-      case Items.WEAPON_WRENCH:
-        return this.handleWrenchHit(client, weaponItem, entity);
       case Items.WEAPON_HAMMER_DEMOLITION:
         return this.handleDemolitionHit(client, weaponItem, entity);
       case Items.WEAPON_HAMMER:

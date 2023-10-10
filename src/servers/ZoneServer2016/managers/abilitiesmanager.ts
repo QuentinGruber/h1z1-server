@@ -149,11 +149,11 @@ export class AbilitiesManager {
       THIS IF STATEMENT IS ONLY TEMPORARY UNTIL OnMeleeHit METHODS
       ARE DEFINED IN ALL ENTITIES
     */
-    if(entity instanceof LootableProp) {
+    if (entity instanceof LootableProp || entity instanceof Vehicle2016) {
       entity.OnMeleeHit(server, damageInfo);
       return;
     }
-    
+
     server.handleMeleeHit(client, entity, weaponItem);
   }
 
@@ -179,9 +179,9 @@ export class AbilitiesManager {
       return;
     }
     const vehicleAbilityEffectId = packetData.effectData.abilityEffectId1,
-    vehicle = server._vehicles[client.vehicle.mountedVehicle ?? ""];
-    if(!vehicle) return;
-    
+      vehicle = server._vehicles[client.vehicle.mountedVehicle ?? ""];
+    if (!vehicle) return;
+
     switch (vehicleAbilityEffectId) {
       case VehicleEffects.MOTOR_RUN_OFFROADER:
         vehicle.checkEngineRequirements(server);
@@ -200,10 +200,11 @@ export class AbilitiesManager {
     client: Client,
     packetData: EffectRemoveEffect
   ) {
-    const vehicleAbilityEffectId = packetData.abilityEffectData.abilityEffectId1,
-    vehicle = server._vehicles[client.vehicle.mountedVehicle ?? ""];
-    if(!vehicle) return;
-    
+    const vehicleAbilityEffectId =
+        packetData.abilityEffectData.abilityEffectId1,
+      vehicle = server._vehicles[client.vehicle.mountedVehicle ?? ""];
+    if (!vehicle) return;
+
     switch (vehicleAbilityEffectId) {
       case VehicleEffects.MOTOR_RUN_OFFROADER:
         this.sendRemoveEffectPacket(server, packetData, server._vehicles);
@@ -267,7 +268,11 @@ export class AbilitiesManager {
     entity.effectTags.splice(index, 1);
   }
 
-  sendRemoveEffectPacket(server: ZoneServer2016, packetData: EffectRemoveEffect, dictionary: EntityDictionary<BaseEntity>) {
+  sendRemoveEffectPacket(
+    server: ZoneServer2016,
+    packetData: EffectRemoveEffect,
+    dictionary: EntityDictionary<BaseEntity>
+  ) {
     server.sendDataToAllWithSpawnedEntity<EffectRemoveEffect>(
       dictionary,
       packetData.unknownData2.characterId,
@@ -281,10 +286,22 @@ export class AbilitiesManager {
         unknownData2: {
           characterId: packetData.targetCharacterId
         },
-          guid2: "0x0",
-          targetCharacterId: packetData.unknownData2.characterId,
-          //unknownVector1: [0, 0, 0, 0]
+        guid2: "0x0",
+        targetCharacterId: packetData.unknownData2.characterId
+        //unknownVector1: [0, 0, 0, 0]
       }
     );
+  }
+
+  deactivateAbility(server: ZoneServer2016, client: Client, abilityId: number) {
+    server.sendData(client, "Abilities.DeactivateAbility", {
+      abilityId: abilityId,
+      unknownDword1: 3
+    });
+    server.sendData(client, "Abilities.UninitAbility", {
+      unknownDword1: 4,
+      abilityId: abilityId,
+      unknownDword2: 3
+    });
   }
 }

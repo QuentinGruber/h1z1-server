@@ -2208,7 +2208,7 @@ export class ZonePacketHandlers {
             loadoutItem
           );
 
-          if(sourceCharacter instanceof Vehicle2016) {
+          if (sourceCharacter instanceof Vehicle2016) {
             sourceCharacter.checkEngineRequirements(server);
           }
 
@@ -2285,7 +2285,7 @@ export class ZonePacketHandlers {
   ContainerMoveItem(
     server: ZoneServer2016,
     client: Client,
-    packet: ReceivedPacket</*ContainerMoveItem*/any>
+    packet: ReceivedPacket</*ContainerMoveItem*/ any>
   ) {
     const {
       containerGuid,
@@ -2319,9 +2319,12 @@ export class ZonePacketHandlers {
       // from client container
       if (sourceCharacterId == targetCharacterId) {
         // from / to client container
-        const sourceContainer = client.character.getItemContainer(itemGuid ?? ""),
-          targetContainer =
-            client.character.getContainerFromGuid(containerGuid ?? "");
+        const sourceContainer = client.character.getItemContainer(
+            itemGuid ?? ""
+          ),
+          targetContainer = client.character.getContainerFromGuid(
+            containerGuid ?? ""
+          );
         if (sourceContainer) {
           // from container
           const item = sourceContainer.items[itemGuid];
@@ -2406,7 +2409,9 @@ export class ZonePacketHandlers {
         }
       } else {
         // to external container
-        const sourceContainer = sourceCharacter.getItemContainer(itemGuid ?? ""),
+        const sourceContainer = sourceCharacter.getItemContainer(
+            itemGuid ?? ""
+          ),
           targetCharacter = sourceCharacter.mountedContainer;
 
         if (
@@ -2519,8 +2524,9 @@ export class ZonePacketHandlers {
         return;
       }
 
-      const targetContainer =
-        client.character.getContainerFromGuid(containerGuid ?? "");
+      const targetContainer = client.character.getContainerFromGuid(
+        containerGuid ?? ""
+      );
 
       if (targetContainer) {
         // to container
