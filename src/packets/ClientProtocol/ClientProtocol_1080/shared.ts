@@ -935,7 +935,7 @@ export const lightWeightNpcSchema: PacketFields = [
         type: "bitflags",
         defaultValue: [],
         flags: [
-          { bit: 0, name: "bit8", defaultValue: 0 },
+          { bit: 0, name: "nonAttackable", defaultValue: 0 },
           { bit: 1, name: "bit9", defaultValue: 0 },
           { bit: 2, name: "bit10", defaultValue: 0 },
           { bit: 3, name: "bit11", defaultValue: 0 },
@@ -1060,7 +1060,7 @@ export const itemWeaponDetailSubSchema1: PacketFields = [
   { name: "statOwnerId", type: "uint32", defaultValue: 0 },
   { name: "statData", type: "schema", fields: statSchema }
 ];
-export const itemWeaponDetailSubSchema2 = [
+export const itemWeaponDetailSubSchema2: PacketFields = [
   { name: "unknownDword1", type: "uint32", defaultValue: 0 },
   {
     name: "unknownArray1",
@@ -1454,10 +1454,10 @@ export const attachmentSchema: PacketFields = [
   { name: "slotId", type: "uint32", defaultValue: 0 },
   { name: "unknownDword4", type: "uint32", defaultValue: 0 },
   {
-    name: "unknownArray1",
+    name: "SHADER_PARAMETER_GROUP",
     type: "array",
     defaultValue: [],
-    fields: [{ name: "unknownDword1", type: "uint32", defaultValue: 252 }]
+    fields: [{ name: "SHADER_SEMANTIC_ID", type: "uint32", defaultValue: 0 }]
   },
   { name: "unknownBool1", type: "boolean", defaultValue: false }
 ];
