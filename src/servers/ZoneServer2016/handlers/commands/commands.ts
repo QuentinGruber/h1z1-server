@@ -1066,7 +1066,7 @@ export const commands: Array<Command> = [
       args: Array<string>
     ) => {
       if (!args[0]) {
-        server.sendChatText(client, `Correct usage: /unban {loginSessionId}`);
+        server.sendChatText(client, `Correct usage: /unbanid {loginSessionId}`);
         return;
       }
       const unBannedClient = await server.unbanClientId(client, args[0]);
