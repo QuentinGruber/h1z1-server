@@ -404,7 +404,7 @@ export class CraftManager {
     //#region CRAFTING
     await server.pUtilizeHudTimer(
       client,
-      server.getItemDefinition(recipeId).NAME_ID,
+      server.getItemDefinition(recipeId)?.NAME_ID ?? 0,
       1000 * recipeCount,
       0
     );

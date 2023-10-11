@@ -66,7 +66,7 @@ export class Lootbag extends BaseLootableEntity {
       server.utilizeHudTimer(
         client,
         server.getItemDefinition(this._containers["31"].itemDefinitionId)
-          .NAME_ID,
+          ?.NAME_ID ?? 0,
         this.actorModelId != 9218 ? 0 : 10000,
         0,
         () => {

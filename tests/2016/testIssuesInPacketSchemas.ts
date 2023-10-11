@@ -24,7 +24,8 @@ const allowedTypes: string[] = [
   "floatvector4",
   "byteswithlength",
   "string",
-  "boolean"
+  "boolean",
+  "nullstring"
 ];
 
 Object.values(H1Z1Packets.Packets).forEach((packet: any) => {

@@ -1368,16 +1368,41 @@ export const commands: Array<Command> = [
   {
     name: "kit",
     permissionLevel: PermissionLevels.ADMIN,
-    execute: (server: ZoneServer2016, client: Client, args: Array<string>) => {
-      client.character.equipLoadout(server, characterKitLoadout);
-    }
-  },
-  {
-    name: "vehicleparts",
-    permissionLevel: PermissionLevels.ADMIN,
-    execute: (server: ZoneServer2016, client: Client, args: Array<string>) => {
-      client.character.equipLoadout(server, characterVehicleKit);
-      server.sendChatText(client, `Vehicle Parts Given`);
+    execute: (server, client, args) => {
+      if (!args[0]) {
+        client.character.equipLoadout(server, characterKitLoadout);
+        return;
+      }
+
+      switch (args[0]) {
+        case "pvp":
+          client.character.equipLoadout(server, characterKitLoadout);
+          break;
+        case "parts":
+          client.character.equipLoadout(server, characterVehicleKit);
+          break;
+        case "skins":
+          client.character.equipItem(
+            server,
+            server.generateItem(Items.FANNY_PACK_DEV)
+          );
+          client.character.equipLoadout(server, characterSkinsLoadout);
+          break;
+        case "build":
+          client.character.equipItem(
+            server,
+            server.generateItem(Items.FANNY_PACK_DEV)
+          );
+          client.character.equipLoadout(server, characterBuildKitLoadout);
+          break;
+        default:
+          server.sendChatText(
+            client,
+            "Valid Kit Names Are pvp, parts, skins, build"
+          );
+          return;
+      }
+      server.sendChatText(client, `Equipped ${args[0]} kit`);
     }
   },
   {
@@ -1386,9 +1411,14 @@ export const commands: Array<Command> = [
     execute: (server: ZoneServer2016, client: Client, args: Array<string>) => {
       server.sendChatText(client, "Disabled for now.");
       /*
+      client.character.equipItem(
+        server,
+        server.generateItem(Items.FANNY_PACK_DEV)
+      );
       server.sendChatText(client, "Adding 1x of all items to inventory.");
       for (const itemDef of Object.values(server._itemDefinitions)) {
-        server.lootItem(client, server.generateItem(itemDef.ID));
+        client.character.lootItem(server, server.generateItem(itemDef.ID));
+        Scheduler.yield();
       }
       */
     }
@@ -1815,6 +1845,20 @@ export const commands: Array<Command> = [
       );
     }
   },
+
+  // to be removed in later version
+  {
+    name: "vehicleparts",
+    permissionLevel: PermissionLevels.ADMIN,
+    execute: async (
+      server: ZoneServer2016,
+      client: Client,
+      args: Array<string>
+    ) => {
+      server.sendChatText(client, "Usage: /kit parts");
+    }
+  },
+  // to be removed in later version
   {
     name: "build",
     permissionLevel: PermissionLevels.ADMIN,
@@ -1823,14 +1867,10 @@ export const commands: Array<Command> = [
       client: Client,
       args: Array<string>
     ) => {
-      client.character.equipItem(
-        server,
-        server.generateItem(Items.FANNY_PACK_DEV)
-      );
-      client.character.equipLoadout(server, characterBuildKitLoadout);
-      server.sendChatText(client, `Build kit given`);
+      server.sendChatText(client, "Usage: /kit build");
     }
   },
+  // to be removed in later version
   {
     name: "skins",
     permissionLevel: PermissionLevels.ADMIN,
@@ -1839,14 +1879,10 @@ export const commands: Array<Command> = [
       client: Client,
       args: Array<string>
     ) => {
-      client.character.equipItem(
-        server,
-        server.generateItem(Items.FANNY_PACK_DEV)
-      );
-      client.character.equipLoadout(server, characterSkinsLoadout);
-      server.sendChatText(client, `skins kit given`);
+      server.sendChatText(client, "Usage: /kit skins");
     }
   },
+
   {
     name: "debug",
     permissionLevel: PermissionLevels.MODERATOR,
@@ -1887,7 +1923,8 @@ export const commands: Array<Command> = [
       let counter = 1;
       for (const a in server._constructionFoundations) {
         const foundation = server._constructionFoundations[a];
-        const name = server.getItemDefinition(foundation.itemDefinitionId).NAME;
+        const name = server.getItemDefinition(foundation.itemDefinitionId)
+          ?.NAME;
         if (
           foundation.ownerCharacterId === targetClient.character.characterId
         ) {
@@ -1947,7 +1984,7 @@ export const commands: Array<Command> = [
       server.sendChatText(client, `LOADOUT:`);
       Object.values(targetClient.character._loadout).forEach(
         (item: LoadoutItem) => {
-          const name = server.getItemDefinition(item.itemDefinitionId).NAME;
+          const name = server.getItemDefinition(item?.itemDefinitionId)?.NAME;
           counter++;
           server.sendChatText(
             client,
@@ -1965,7 +2002,7 @@ export const commands: Array<Command> = [
           server.sendChatText(client, " ");
           const containerName = server.getItemDefinition(
             container.itemDefinitionId
-          ).NAME;
+          )?.NAME;
           server.sendChatText(
             client,
             `${
@@ -1976,9 +2013,8 @@ export const commands: Array<Command> = [
           );
           Object.values(container.items).forEach((item: BaseItem) => {
             counter++;
-            const itemName = server.getItemDefinition(
-              item.itemDefinitionId
-            ).NAME;
+            const itemName = server.getItemDefinition(item?.itemDefinitionId)
+              ?.NAME;
             server.sendChatText(
               client,
               `${counter}. ${
@@ -2050,57 +2086,7 @@ export const commands: Array<Command> = [
       client: Client,
       args: Array<string>
     ) => {
-      client.character._resources = {
-        [ResourceIds.HEALTH]: 10000,
-        [ResourceIds.STAMINA]: 600,
-        [ResourceIds.HUNGER]: 10000,
-        [ResourceIds.HYDRATION]: 10000,
-        [ResourceIds.VIRUS]: 0,
-        [ResourceIds.COMFORT]: 5000,
-        [ResourceIds.BLEEDING]: -40
-      };
-      client.character.updateResource(
-        server,
-        client,
-        ResourceIds.HEALTH,
-        ResourceTypes.HEALTH
-      );
-      client.character.updateResource(
-        server,
-        client,
-        ResourceIds.STAMINA,
-        ResourceTypes.STAMINA
-      );
-      client.character.updateResource(
-        server,
-        client,
-        ResourceIds.HUNGER,
-        ResourceTypes.HUNGER
-      );
-      client.character.updateResource(
-        server,
-        client,
-        ResourceIds.HYDRATION,
-        ResourceTypes.HYDRATION
-      );
-      client.character.updateResource(
-        server,
-        client,
-        ResourceIds.VIRUS,
-        ResourceTypes.VIRUS
-      );
-      client.character.updateResource(
-        server,
-        client,
-        ResourceIds.COMFORT,
-        ResourceTypes.COMFORT
-      );
-      client.character.updateResource(
-        server,
-        client,
-        ResourceIds.BLEEDING,
-        ResourceTypes.BLEEDING
-      );
+      client.character.resetResources(server);
 
       server.sendChatText(client, `Set resources to maximum values.`);
     }
