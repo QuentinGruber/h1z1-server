@@ -29,7 +29,7 @@ export class H1emuLoginServer extends H1emuServer {
           this.ping(client);
           break;
         case "CharacterAllowedReply":
-          this.emit("processInternalReq", packet, ["status", "rejectionFlag"]);
+          this.emit("processInternalReq", packet, ["status", "rejectionFlag", "message"]);
           break;
         case "CharacterCreateReply":
         case "CharacterDeleteReply":

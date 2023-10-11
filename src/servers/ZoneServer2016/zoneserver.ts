@@ -96,7 +96,7 @@ import {
   getDistance2d
 } from "../../utils/utils";
 
-import { Db } from "mongodb";
+import { Db, WithId } from "mongodb";
 import { BaseFullCharacter } from "./entities/basefullcharacter";
 import { ItemObject } from "./entities/itemobject";
 import {
@@ -531,268 +531,7 @@ export class ZoneServer2016 extends EventEmitter {
     );
 
     if (!this._soloMode) {
-      this._h1emuZoneServer = new H1emuZoneServer(
-        this._worldId,
-        internalServerPort
-      ); // opens local socket to connect to loginserver
-
-      this._h1emuZoneServer.on(
-        "session",
-        (err: string, client: H1emuClient) => {
-          if (err) {
-            debug(
-              `An error occured for LoginConnection with ${client.sessionId}`
-            );
-            console.error(err);
-          } else {
-            this.sendZonePopulationUpdate();
-            debug(`LoginConnection established for ${client.sessionId}`);
-          }
-        }
-      );
-
-      this._h1emuZoneServer.on(
-        "sessionfailed",
-        (err: string, client: H1emuClient) => {
-          console.error(`h1emuServer sessionfailed for ${client.sessionId}`);
-          console.error(err);
-          process.exitCode = 11;
-        }
-      );
-
-      this._h1emuZoneServer.on(
-        "disconnect",
-        (err: string, client: H1emuClient, reason: number) => {
-          debug(
-            `LoginConnection dropped: ${
-              reason ? "Connection Lost" : "Unknown Error"
-            }`
-          );
-        }
-      );
-
-      this._h1emuZoneServer.on(
-        "data",
-        async (err: string, client: H1emuClient, packet: any) => {
-          if (err) {
-            console.error(err);
-          } else {
-            switch (packet.name) {
-              case "CharacterCreateRequest": {
-                this.onCharacterCreateRequest(client, packet);
-                break;
-              }
-              case "ClientIsAdminRequest": {
-                this.onClientIsAdminRequest(client, packet);
-                break;
-              }
-              case "CharacterAllowedRequest": {
-                const { characterId, loginSessionId, reqId } = packet.data;
-                if (this.isRebooting) {
-                  console.log(
-                    `Character (${characterId}) connection rejected due to reboot`
-                  );
-                  this._h1emuZoneServer.sendData(
-                    client,
-                    "CharacterAllowedReply",
-                    {
-                      status: 0,
-                      reqId: reqId,
-                      rejectionFlag: CONNECTION_REJECTION_FLAGS.SERVER_REBOOT
-                    }
-                  );
-                  return;
-                }
-
-                if (this.isLocked && !(await this.getIsAdmin(loginSessionId))) {
-                  console.log(
-                    `Character (${characterId}) connection rejected due to server lock`
-                  );
-                  this._h1emuZoneServer.sendData(
-                    client,
-                    "CharacterAllowedReply",
-                    {
-                      status: 0,
-                      reqId: reqId,
-                      rejectionFlag: CONNECTION_REJECTION_FLAGS.SERVER_LOCKED
-                    }
-                  );
-                  return;
-                }
-
-                const bannedClient = (await this._db
-                  ?.collection(DB_COLLECTIONS.BANNED)
-                  .findOne({ loginSessionId, active: true })) as unknown as
-                  | ClientBan
-                  | undefined;
-
-                if (bannedClient) {
-                  console.log(
-                    `Character (${characterId}) connection rejected due to local ban`
-                  );
-                  this._h1emuZoneServer.sendData(
-                    client,
-                    "CharacterAllowedReply",
-                    {
-                      status: 0,
-                      reqId: reqId,
-                      rejectionFlag: CONNECTION_REJECTION_FLAGS.LOCAL_BAN
-                    }
-                  );
-                }
-
-                const rejectionFlags = packet.data.rejectionFlags ?? [];
-                try {
-                  for (let i = 0; i < rejectionFlags.length; i++) {
-                    const rejectionFlag: number =
-                      rejectionFlags[i].rejectionFlag;
-                    if (
-                      this.fairPlayManager.acceptedRejectionTypes.includes(
-                        rejectionFlag
-                      )
-                    ) {
-                      console.log(
-                        `Character (${characterId}) connection rejected due to rejection type ${rejectionFlag}`
-                      );
-                      this._h1emuZoneServer.sendData(
-                        client,
-                        "CharacterAllowedReply",
-                        { status: 0, reqId: reqId, rejectionFlag }
-                      );
-                      return;
-                    }
-                  }
-                  const collection = this._db.collection(
-                    DB_COLLECTIONS.CHARACTERS
-                  );
-                  const charactersArray = await collection
-                    .find({
-                      characterId: characterId,
-                      serverId: this._worldId,
-                      status: 1
-                    })
-                    .toArray();
-                  if (charactersArray.length) {
-                    this._h1emuZoneServer.sendData(
-                      client,
-                      "CharacterAllowedReply",
-                      { status: 1, reqId: reqId }
-                    );
-                  } else {
-                    this._h1emuZoneServer.sendData(
-                      client,
-                      "CharacterAllowedReply",
-                      {
-                        status: 0,
-                        reqId: reqId,
-                        rejectionFlag:
-                          CONNECTION_REJECTION_FLAGS.CHARACTER_NOT_FOUND
-                      }
-                    );
-                  }
-                } catch (error) {
-                  console.log(error);
-                  this._h1emuZoneServer.sendData(
-                    client,
-                    "CharacterAllowedReply",
-                    {
-                      status: 0,
-                      reqId: reqId,
-                      rejectionFlag: CONNECTION_REJECTION_FLAGS.ERROR
-                    }
-                  );
-                }
-                break;
-              }
-              case "CharacterDeleteRequest": {
-                const { characterId, reqId } = packet.data;
-                try {
-                  const collection = this._db.collection(
-                    DB_COLLECTIONS.CHARACTERS
-                  );
-                  const charactersArray = await collection
-                    .find({ characterId: characterId })
-                    .toArray();
-                  if (charactersArray.length === 1) {
-                    await collection.updateOne(
-                      { characterId: characterId },
-                      {
-                        $set: {
-                          status: 0
-                        }
-                      }
-                    );
-                    this._h1emuZoneServer.sendData(
-                      client,
-                      "CharacterDeleteReply",
-                      { status: 1, reqId: reqId }
-                    );
-                  } else {
-                    this._h1emuZoneServer.sendData(
-                      client,
-                      "CharacterDeleteReply",
-                      { status: 1, reqId: reqId }
-                    );
-                  }
-                } catch (error) {
-                  this._h1emuZoneServer.sendData(
-                    client,
-                    "CharacterDeleteReply",
-                    { status: 0, reqId: reqId }
-                  );
-                }
-                break;
-              }
-              case "LoginKickRequest": {
-                const { guid, reason } = packet.data;
-
-                if (!this.enableLoginServerKickRequests) {
-                  console.log(
-                    `LoginServer requested to kick client with guid ${guid} for reason: ${reason}! Ignored due to configuration setting.`
-                  );
-                  return;
-                }
-
-                let reasonString = "";
-
-                switch (reason) {
-                  case LOGIN_KICK_REASON.UNDEFINED:
-                    reasonString = "UNDEFINED";
-                    break;
-                  case LOGIN_KICK_REASON.GLOBAL_BAN:
-                    reasonString = "Global ban.";
-                    break;
-                  case LOGIN_KICK_REASON.ASSET_VALIDATION:
-                    reasonString = "Failed asset integrity check.";
-                    break;
-                  default:
-                    reasonString = "INVALID";
-                    break;
-                }
-
-                const client = this.getClientByGuid(guid);
-
-                if (!client) {
-                  console.log(
-                    "LoginServer requested to kick INVALID client with guid ${guid} for reason: ${reason}!"
-                  );
-                  return;
-                }
-
-                console.log(
-                  `LoginServer kicking ${client.character.name} for reason: ${reasonString}`
-                );
-
-                this.kickPlayerWithReason(client, reasonString);
-                break;
-              }
-              default:
-                debug(`Unhandled h1emu packet: ${packet.name}`);
-                break;
-            }
-          }
-        }
-      );
+      this.registerLoginConnectionListeners(internalServerPort);
     }
     if (this._mongoAddress && this.rebootTime) {
       console.log("Reboot time set to " + this.rebootTime + " hours");
@@ -804,6 +543,148 @@ export class ZoneServer2016 extends EventEmitter {
         this.rebootTime * 60 * 60 * 1000
       );
     }
+  }
+
+  async registerLoginConnectionListeners(internalServerPort?: number) {
+    this._h1emuZoneServer = new H1emuZoneServer(
+      this._worldId,
+      internalServerPort
+    ); // opens local socket to connect to loginserver
+
+    this._h1emuZoneServer.on("session", (err: string, client: H1emuClient) => {
+      if (err) {
+        debug(`An error occured for LoginConnection with ${client.sessionId}`);
+        console.error(err);
+      } else {
+        this.sendZonePopulationUpdate();
+        debug(`LoginConnection established for ${client.sessionId}`);
+      }
+    });
+
+    this._h1emuZoneServer.on(
+      "sessionfailed",
+      (err: string, client: H1emuClient) => {
+        console.error(`h1emuServer sessionfailed for ${client.sessionId}`);
+        console.error(err);
+        process.exitCode = 11;
+      }
+    );
+
+    this._h1emuZoneServer.on(
+      "disconnect",
+      (err: string, client: H1emuClient, reason: number) => {
+        debug(
+          `LoginConnection dropped: ${
+            reason ? "Connection Lost" : "Unknown Error"
+          }`
+        );
+      }
+    );
+
+    this._h1emuZoneServer.on(
+      "data",
+      async (err: string, client: H1emuClient, packet: any) => {
+        if (err) {
+          console.error(err);
+        } else {
+          switch (packet.name) {
+            case "CharacterCreateRequest":
+              this.onCharacterCreateRequest(client, packet);
+              break;
+            case "ClientIsAdminRequest":
+              this.onClientIsAdminRequest(client, packet);
+              break;
+            case "CharacterAllowedRequest":
+              this.onClientAllowedRequest(client, packet);
+              break;
+            case "CharacterDeleteRequest": {
+              const { characterId, reqId } = packet.data;
+              try {
+                const collection = this._db.collection(
+                  DB_COLLECTIONS.CHARACTERS
+                );
+                const charactersArray = await collection
+                  .find({ characterId: characterId })
+                  .toArray();
+                if (charactersArray.length === 1) {
+                  await collection.updateOne(
+                    { characterId: characterId },
+                    {
+                      $set: {
+                        status: 0
+                      }
+                    }
+                  );
+                  this._h1emuZoneServer.sendData(
+                    client,
+                    "CharacterDeleteReply",
+                    { status: 1, reqId: reqId }
+                  );
+                } else {
+                  this._h1emuZoneServer.sendData(
+                    client,
+                    "CharacterDeleteReply",
+                    { status: 1, reqId: reqId }
+                  );
+                }
+              } catch (error) {
+                this._h1emuZoneServer.sendData(client, "CharacterDeleteReply", {
+                  status: 0,
+                  reqId: reqId
+                });
+              }
+              break;
+            }
+            case "LoginKickRequest": {
+              const { guid, reason } = packet.data;
+
+              if (!this.enableLoginServerKickRequests) {
+                console.log(
+                  `LoginServer requested to kick client with guid ${guid} for reason: ${reason}! Ignored due to configuration setting.`
+                );
+                return;
+              }
+
+              let reasonString = "";
+
+              switch (reason) {
+                case LOGIN_KICK_REASON.UNDEFINED:
+                  reasonString = "UNDEFINED";
+                  break;
+                case LOGIN_KICK_REASON.GLOBAL_BAN:
+                  reasonString = "Global ban.";
+                  break;
+                case LOGIN_KICK_REASON.ASSET_VALIDATION:
+                  reasonString = "Failed asset integrity check.";
+                  break;
+                default:
+                  reasonString = "INVALID";
+                  break;
+              }
+
+              const client = this.getClientByGuid(guid);
+
+              if (!client) {
+                console.log(
+                  "LoginServer requested to kick INVALID client with guid ${guid} for reason: ${reason}!"
+                );
+                return;
+              }
+
+              console.log(
+                `LoginServer kicking ${client.character.name} for reason: ${reasonString}`
+              );
+
+              this.kickPlayerWithReason(client, reasonString);
+              break;
+            }
+            default:
+              debug(`Unhandled h1emu packet: ${packet.name}`);
+              break;
+          }
+        }
+      }
+    );
   }
 
   async shutdown(timeLeft: number, message: string) {
@@ -897,7 +778,7 @@ export class ZoneServer2016 extends EventEmitter {
     );
   }
 
-  async onCharacterCreateRequest(client: any, packet: any) {
+  async onCharacterCreateRequest(client: H1emuClient, packet: any) {
     const { characterObjStringify, reqId } = packet.data;
     try {
       const characterData = JSON.parse(characterObjStringify),
@@ -936,7 +817,7 @@ export class ZoneServer2016 extends EventEmitter {
       });
     }
   }
-  async onClientIsAdminRequest(client: any, packet: any) {
+  async onClientIsAdminRequest(client: H1emuClient, packet: any) {
     const { guid, reqId } = packet.data;
     try {
       this._h1emuZoneServer.sendData(client, "ClientIsAdminReply", {
@@ -947,6 +828,95 @@ export class ZoneServer2016 extends EventEmitter {
       this._h1emuZoneServer.sendData(client, "ClientIsAdminReply", {
         reqId: reqId,
         status: 0
+      });
+    }
+  }
+
+  sendCharacterAllowedReply(client: H1emuClient, reqId: number, status: number, rejectionFlag: CONNECTION_REJECTION_FLAGS) {
+    this._h1emuZoneServer.sendData(client, "CharacterAllowedReply", { reqId, status, rejectionFlag });
+  }
+
+  async onClientAllowedRequest(client: H1emuClient, packet: any) {
+    const { characterId, loginSessionId, reqId } = packet.data;
+    if (this.isRebooting) {
+      console.log(
+        `Character (${characterId}) connection rejected due to reboot`
+      );
+      this.sendCharacterAllowedReply(client, reqId, 0, CONNECTION_REJECTION_FLAGS.SERVER_REBOOT);
+      return;
+    }
+
+    if (this.isLocked && !(await this.getIsAdmin(loginSessionId))) {
+      console.log(
+        `Character (${characterId}) connection rejected due to server lock`
+      );
+      this._h1emuZoneServer.sendData(client, "CharacterAllowedReply", {
+        status: 0,
+        reqId: reqId,
+        rejectionFlag: CONNECTION_REJECTION_FLAGS.SERVER_LOCKED
+      });
+      return;
+    }
+
+    const bannedClient = await this._db
+      ?.collection(DB_COLLECTIONS.BANNED)
+      .findOne({ loginSessionId, active: true }) as WithId<ClientBan> | undefined;
+
+    if (bannedClient) {
+      console.log(
+        `Character (${characterId}) connection rejected due to local ban`
+      );
+      this._h1emuZoneServer.sendData(client, "CharacterAllowedReply", {
+        status: 0,
+        reqId: reqId,
+        rejectionFlag: CONNECTION_REJECTION_FLAGS.LOCAL_BAN
+      });
+      return;
+    }
+
+    const rejectionFlags = packet.data.rejectionFlags ?? [];
+    try {
+      for (let i = 0; i < rejectionFlags.length; i++) {
+        const rejectionFlag: number = rejectionFlags[i].rejectionFlag;
+        if (
+          this.fairPlayManager.acceptedRejectionTypes.includes(rejectionFlag)
+        ) {
+          console.log(
+            `Character (${characterId}) connection rejected due to rejection type ${rejectionFlag}`
+          );
+          this._h1emuZoneServer.sendData(client, "CharacterAllowedReply", {
+            status: 0,
+            reqId: reqId,
+            rejectionFlag
+          });
+          return;
+        }
+      }
+      const collection = this._db.collection(DB_COLLECTIONS.CHARACTERS);
+      const character = await collection
+        .findOne({
+          characterId: characterId,
+          serverId: this._worldId,
+          status: 1
+        });
+      if (!character) {
+        this._h1emuZoneServer.sendData(client, "CharacterAllowedReply", {
+          status: 0,
+          reqId: reqId,
+          rejectionFlag: CONNECTION_REJECTION_FLAGS.CHARACTER_NOT_FOUND
+        });
+      }
+
+      this._h1emuZoneServer.sendData(client, "CharacterAllowedReply", {
+        status: 1,
+        reqId: reqId
+      });
+    } catch (error) {
+      console.log(error);
+      this._h1emuZoneServer.sendData(client, "CharacterAllowedReply", {
+        status: 0,
+        reqId: reqId,
+        rejectionFlag: CONNECTION_REJECTION_FLAGS.ERROR
       });
     }
   }
@@ -3809,11 +3779,12 @@ export class ZoneServer2016 extends EventEmitter {
     timestamp: number,
     isSilent: boolean
   ) {
-    let client: Client | string | undefined = this.getClientByLoginSessionId(loginSessionId);
+    let client: Client | string | undefined =
+      this.getClientByLoginSessionId(loginSessionId);
 
-    if(!client) client = this.getClientByName(characterName);
+    if (!client) client = this.getClientByName(characterName);
 
-    if((typeof client == "string")) client = undefined;
+    if (typeof client == "string") client = undefined;
 
     const object: ClientBan = {
       name: characterName,
@@ -3867,7 +3838,7 @@ export class ZoneServer2016 extends EventEmitter {
       );
     }
     setTimeout(() => {
-      if(!(client instanceof Client)) return;
+      if (!(client instanceof Client)) return;
       this.kickPlayer(client);
     }, 3000);
   }

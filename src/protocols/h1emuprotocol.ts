@@ -122,7 +122,7 @@ const packets: PacketStructures = [
           type: "array",
           defaultValue: [],
           fields: [{ name: "rejectionFlag", type: "uint8", defaultValue: 0 }]
-        }
+        },
       ]
     }
   ],
@@ -133,7 +133,8 @@ const packets: PacketStructures = [
       fields: [
         { name: "reqId", type: "uint32", defaultValue: 0 },
         { name: "status", type: "boolean", defaultValue: 0 },
-        { name: "rejectionFlag", type: "uint8", defaultValue: 0 }
+        { name: "rejectionFlag", type: "uint8", defaultValue: 0 },
+        { name: "message", type: "string", defaultValue: "" }
       ]
     }
   ],

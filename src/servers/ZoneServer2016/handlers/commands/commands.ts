@@ -12,7 +12,12 @@
 // ======================================================================
 
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import { ClientBan, ClientMute, DamageInfo, EntityDictionary } from "types/zoneserver";
+import {
+  ClientBan,
+  ClientMute,
+  DamageInfo,
+  EntityDictionary
+} from "types/zoneserver";
 
 import {
   zoneShutdown,
@@ -841,25 +846,27 @@ export const commands: Array<Command> = [
         );
         return;
       }
-      
+
       // prevent banning yourself
 
-      if(args[0] == client.character.name) {
+      if (args[0] == client.character.name) {
         server.sendChatText(client, "You can't ban yourself!");
         return;
       }
 
       // check if client is already banned
 
-      const bannedClient = 
-        await server._db
-          ?.collection(DB_COLLECTIONS.BANNED)
-          .findOne(
-            { name: args[0], active: true },
-          ) as WithId<ClientBan> | undefined;
+      const bannedClient = (await server._db
+        ?.collection(DB_COLLECTIONS.BANNED)
+        .findOne({ name: args[0], active: true })) as
+        | WithId<ClientBan>
+        | undefined;
 
-      if(bannedClient) {
-        server.sendChatText(client, `${args[0]} (${bannedClient.loginSessionId}) is already banned!`);
+      if (bannedClient) {
+        server.sendChatText(
+          client,
+          `${args[0]} (${bannedClient.loginSessionId}) is already banned!`
+        );
         return;
       }
 
@@ -898,14 +905,18 @@ export const commands: Array<Command> = [
         time += Date.now();
         server.sendChatText(
           client,
-          `You have ${isSilent?"silently ":""}banned ${
-            character?.characterName
-          } until ${server.getDateString(time)}`
+          `You have ${
+            isSilent ? "silently " : ""
+          }banned ${character?.characterName} until ${server.getDateString(
+            time
+          )}`
         );
       } else {
         server.sendChatText(
           client,
-          `You have ${isSilent?"silently ":""}banned ${character?.characterName} permanently`
+          `You have ${
+            isSilent ? "silently " : ""
+          }banned ${character?.characterName} permanently`
         );
       }
 
@@ -938,22 +949,24 @@ export const commands: Array<Command> = [
 
       // prevent banning yourself
 
-      if(args[0] == client.loginSessionId) {
+      if (args[0] == client.loginSessionId) {
         server.sendChatText(client, "You can't ban yourself!");
         return;
       }
 
       // check if client is already banned
 
-      const bannedClient = 
-        await server._db
-          ?.collection(DB_COLLECTIONS.BANNED)
-          .findOne(
-            { loginSessionId: args[0], active: true },
-          ) as WithId<ClientBan> | undefined;
+      const bannedClient = (await server._db
+        ?.collection(DB_COLLECTIONS.BANNED)
+        .findOne({ loginSessionId: args[0], active: true })) as
+        | WithId<ClientBan>
+        | undefined;
 
-      if(bannedClient) {
-        server.sendChatText(client, `${bannedClient.name} (${args[0]}) is already banned!`);
+      if (bannedClient) {
+        server.sendChatText(
+          client,
+          `${bannedClient.name} (${args[0]}) is already banned!`
+        );
         return;
       }
 
@@ -989,14 +1002,18 @@ export const commands: Array<Command> = [
         time += Date.now();
         server.sendChatText(
           client,
-          `You have ${isSilent?"silently ":""}banned ${
-            character?.characterName
-          } until ${server.getDateString(time)}`
+          `You have ${
+            isSilent ? "silently " : ""
+          }banned ${character?.characterName} until ${server.getDateString(
+            time
+          )}`
         );
       } else {
         server.sendChatText(
           client,
-          `You have ${isSilent?"silently ":""}banned ${character?.characterName} permanently`
+          `You have ${
+            isSilent ? "silently " : ""
+          }banned ${character?.characterName} permanently`
         );
       }
 

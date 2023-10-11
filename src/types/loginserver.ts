@@ -38,6 +38,7 @@ export interface BANNED_LIGHT {
 export interface ConnectionAllowed {
   status: 0|1;
   rejectionFlag?: CONNECTION_REJECTION_FLAGS
+  message?: string;
 }
 
 export interface UserSession {

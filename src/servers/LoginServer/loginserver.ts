@@ -1020,6 +1020,10 @@ export class LoginServer extends EventEmitter {
           break;
         case CONNECTION_REJECTION_FLAGS.CHARACTER_NOT_FOUND:
           reason = "CHARACTER NOT FOUND";
+          break;
+        case CONNECTION_REJECTION_FLAGS.OTHER:
+          reason = "OTHER";
+          break;
       }
       this.sendData(client, "H1emu.PrintToConsole", {
         message: `CONNECTION REJECTED! Reason: ${reason}`,
@@ -1029,6 +1033,13 @@ export class LoginServer extends EventEmitter {
       if (reason == "UNVERIFIED") {
         this.sendData(client, "H1emu.PrintToConsole", {
           message: `Please follow the steps to verify your account using the #how-to-play channel in the discord. discord.gg/h1emu`,
+          showConsole: false,
+          clearOutput: false
+        });
+      }
+      if(connectionAllowed.message) {
+        this.sendData(client, "H1emu.PrintToConsole", {
+          message: connectionAllowed.message,
           showConsole: false,
           clearOutput: false
         });
