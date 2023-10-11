@@ -56,7 +56,11 @@ export abstract class BaseLZConnection extends EventEmitter {
   }
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  messageHandler(messageType: string, data: Buffer, client: LZConnectionClient): void {
+  messageHandler(
+    messageType: string,
+    data: Buffer,
+    client: LZConnectionClient
+  ): void {
     throw new Error("You need to implement messageHandler !");
   }
 

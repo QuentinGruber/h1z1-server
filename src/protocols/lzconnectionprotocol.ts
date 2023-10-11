@@ -122,7 +122,7 @@ const packets: PacketStructures = [
           type: "array",
           defaultValue: [],
           fields: [{ name: "rejectionFlag", type: "uint8", defaultValue: 0 }]
-        },
+        }
       ]
     }
   ],
@@ -224,7 +224,10 @@ export class LZConnectionProtocol {
         return null;
       }
     } else {
-      debug("parse()", "Unknown or unhandled LZConnection packet type: " + packetType);
+      debug(
+        "parse()",
+        "Unknown or unhandled LZConnection packet type: " + packetType
+      );
       return null;
     }
   }
@@ -249,7 +252,10 @@ export class LZConnectionProtocol {
         return null;
       }
     } else {
-      debug("pack()", "Unknown or unhandled LZConnection packet type: " + packetType);
+      debug(
+        "pack()",
+        "Unknown or unhandled LZConnection packet type: " + packetType
+      );
       return null;
     }
     return data;

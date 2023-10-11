@@ -107,7 +107,9 @@ export class LoginConnectionManager extends BaseLZConnection {
 
   start() {
     if (!this._loginServerInfo && !this._sessionData) {
-      debug("[ERROR] LoginConnectionManager started without setting login info!");
+      debug(
+        "[ERROR] LoginConnectionManager started without setting login info!"
+      );
       return;
     }
     super.start();

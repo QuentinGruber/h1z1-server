@@ -285,7 +285,9 @@ export class LoginServer extends EventEmitter {
                   break;
                 }
                 default:
-                  console.log(`Unhandled ZoneConnection packet: ${packet.name}`);
+                  console.log(
+                    `Unhandled ZoneConnection packet: ${packet.name}`
+                  );
                   break;
               }
             }
@@ -1037,7 +1039,7 @@ export class LoginServer extends EventEmitter {
           clearOutput: false
         });
       }
-      if(connectionAllowed.message) {
+      if (connectionAllowed.message) {
         this.sendData(client, "H1emu.PrintToConsole", {
           message: connectionAllowed.message,
           showConsole: false,

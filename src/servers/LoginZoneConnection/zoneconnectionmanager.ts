@@ -33,7 +33,11 @@ export class ZoneConnectionManager extends BaseLZConnection {
           this.ping(client);
           break;
         case "CharacterAllowedReply":
-          this.emit("processInternalReq", packet, ["status", "rejectionFlag", "message"]);
+          this.emit("processInternalReq", packet, [
+            "status",
+            "rejectionFlag",
+            "message"
+          ]);
           break;
         case "CharacterCreateReply":
         case "CharacterDeleteReply":

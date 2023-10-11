@@ -166,6 +166,7 @@ import {
   ClientUpdateStartTimer,
   ClientUpdateUpdateLocation,
   ClientUpdateUpdateLockoutTimes,
+  CommandItemDefinitions,
   CommandPlayDialogEffect,
   ContainerError,
   ContainerInitEquippedContainers,
@@ -179,6 +180,7 @@ import {
   LoginFailed,
   MountDismountResponse,
   MountMountResponse,
+  MountSeatChangeRequest,
   MountSeatChangeResponse,
   POIChangeMessage,
   PlayerUpdatePosition,
@@ -220,6 +222,7 @@ import { FairPlayManager } from "./managers/fairplaymanager";
 import { PluginManager } from "./managers/pluginmanager";
 import { Destroyable } from "./entities/destroyable";
 import { Plane } from "./entities/plane";
+import { ReceivedPacket } from "types/shared";
 
 const spawnLocations2 = require("../../../data/2016/zoneData/Z1_gridSpawns.json"),
   deprecatedDoors = require("../../../data/2016/sampleData/deprecatedDoors.json"),
@@ -481,7 +484,7 @@ export class ZoneServer2016 extends EventEmitter {
             ?.collection(DB_COLLECTIONS.ADMINS)
             .findOne({
               sessionId: zoneClient.loginSessionId
-            })) as unknown as { permissionLevel: number };
+            })) as WithId<{ permissionLevel: number }>;
           if (adminData) {
             zoneClient.isAdmin = true;
             zoneClient.permissionLevel = adminData.permissionLevel ?? 3;
@@ -551,15 +554,20 @@ export class ZoneServer2016 extends EventEmitter {
       internalServerPort
     ); // opens local socket to connect to loginserver
 
-    this._loginConnectionManager.on("session", (err: string, client: LZConnectionClient) => {
-      if (err) {
-        debug(`An error occured for LoginConnection with ${client.sessionId}`);
-        console.error(err);
-      } else {
-        this.sendZonePopulationUpdate();
-        debug(`LoginConnection established for ${client.sessionId}`);
+    this._loginConnectionManager.on(
+      "session",
+      (err: string, client: LZConnectionClient) => {
+        if (err) {
+          debug(
+            `An error occured for LoginConnection with ${client.sessionId}`
+          );
+          console.error(err);
+        } else {
+          this.sendZonePopulationUpdate();
+          debug(`LoginConnection established for ${client.sessionId}`);
+        }
       }
-    });
+    );
 
     this._loginConnectionManager.on(
       "sessionfailed",
@@ -628,10 +636,14 @@ export class ZoneServer2016 extends EventEmitter {
                   );
                 }
               } catch (error) {
-                this._loginConnectionManager.sendData(client, "CharacterDeleteReply", {
-                  status: 0,
-                  reqId: reqId
-                });
+                this._loginConnectionManager.sendData(
+                  client,
+                  "CharacterDeleteReply",
+                  {
+                    status: 0,
+                    reqId: reqId
+                  }
+                );
               }
               break;
             }
@@ -832,8 +844,17 @@ export class ZoneServer2016 extends EventEmitter {
     }
   }
 
-  sendCharacterAllowedReply(client: LZConnectionClient, reqId: number, status: number, rejectionFlag: CONNECTION_REJECTION_FLAGS) {
-    this._loginConnectionManager.sendData(client, "CharacterAllowedReply", { reqId, status, rejectionFlag });
+  sendCharacterAllowedReply(
+    client: LZConnectionClient,
+    reqId: number,
+    status: number,
+    rejectionFlag: CONNECTION_REJECTION_FLAGS
+  ) {
+    this._loginConnectionManager.sendData(client, "CharacterAllowedReply", {
+      reqId,
+      status,
+      rejectionFlag
+    });
   }
 
   async onClientAllowedRequest(client: LZConnectionClient, packet: any) {
@@ -842,7 +863,12 @@ export class ZoneServer2016 extends EventEmitter {
       console.log(
         `Character (${characterId}) connection rejected due to reboot`
       );
-      this.sendCharacterAllowedReply(client, reqId, 0, CONNECTION_REJECTION_FLAGS.SERVER_REBOOT);
+      this.sendCharacterAllowedReply(
+        client,
+        reqId,
+        0,
+        CONNECTION_REJECTION_FLAGS.SERVER_REBOOT
+      );
       return;
     }
 
@@ -858,9 +884,11 @@ export class ZoneServer2016 extends EventEmitter {
       return;
     }
 
-    const bannedClient = await this._db
+    const bannedClient = (await this._db
       ?.collection(DB_COLLECTIONS.BANNED)
-      .findOne({ loginSessionId, active: true }) as WithId<ClientBan> | undefined;
+      .findOne({ loginSessionId, active: true })) as
+      | WithId<ClientBan>
+      | undefined;
 
     if (bannedClient) {
       console.log(
@@ -884,21 +912,24 @@ export class ZoneServer2016 extends EventEmitter {
           console.log(
             `Character (${characterId}) connection rejected due to rejection type ${rejectionFlag}`
           );
-          this._loginConnectionManager.sendData(client, "CharacterAllowedReply", {
-            status: 0,
-            reqId: reqId,
-            rejectionFlag
-          });
+          this._loginConnectionManager.sendData(
+            client,
+            "CharacterAllowedReply",
+            {
+              status: 0,
+              reqId: reqId,
+              rejectionFlag
+            }
+          );
           return;
         }
       }
       const collection = this._db.collection(DB_COLLECTIONS.CHARACTERS);
-      const character = await collection
-        .findOne({
-          characterId: characterId,
-          serverId: this._worldId,
-          status: 1
-        });
+      const character = await collection.findOne({
+        characterId: characterId,
+        serverId: this._worldId,
+        status: 1
+      });
       if (!character) {
         this._loginConnectionManager.sendData(client, "CharacterAllowedReply", {
           status: 0,
@@ -1116,8 +1147,8 @@ export class ZoneServer2016 extends EventEmitter {
 
     // temp custom logic for items with custom itemDefintion data
 
-    const defs: any[] = [];
-    Object.values(this._itemDefinitions).forEach((itemDef: any) => {
+    const defs: Array<any> = [];
+    Object.values(this._itemDefinitions).forEach((itemDef: ItemDefinition) => {
       switch (itemDef.ID) {
         case Items.FANNY_PACK_DEV:
         case Items.HEADLIGHTS_ATV:
@@ -4646,8 +4677,10 @@ export class ZoneServer2016 extends EventEmitter {
           }
         }
       ],
-      unknownArray2: [{}]
-    } as any);
+      unknownArray2: [{}],
+      unknownBytes1: { itemData: {} },
+      unknownBytes2: { itemData: {} }
+    });
   }
 
   dismountVehicle(client: Client) {
@@ -4713,8 +4746,10 @@ export class ZoneServer2016 extends EventEmitter {
         }
       ],
       passengers: [],
-      unknownArray2: []
-    } as any);
+      unknownArray2: [],
+      unknownBytes1: { itemData: {} },
+      unknownBytes2: { itemData: {} }
+    });
     this.sendDataToAllWithSpawnedEntity<VehicleOwner>(
       this._vehicles,
       vehicle.characterId,
@@ -4730,14 +4765,14 @@ export class ZoneServer2016 extends EventEmitter {
     client.character.dismountContainer(this);
   }
 
-  changeSeat(client: Client, packet: any) {
+  changeSeat(client: Client, packet: ReceivedPacket<MountSeatChangeRequest>) {
     if (!client.vehicle.mountedVehicle) return;
     const vehicle = this._vehicles[client.vehicle.mountedVehicle];
     if (!vehicle) return;
     const seatCount = vehicle.getSeatCount(),
       oldSeatId = vehicle.getCharacterSeat(client.character.characterId);
 
-    const seatId = packet.data.seatId,
+    const seatId = packet.data.seatId ?? 0,
       seat = vehicle.seats[seatId],
       passenger = this._characters[seat];
     if (
@@ -4762,12 +4797,12 @@ export class ZoneServer2016 extends EventEmitter {
         }
       );
       vehicle.seats[oldSeatId] = "";
-      vehicle.seats[packet.data.seatId] = client.character.characterId;
+      vehicle.seats[seatId] = client.character.characterId;
       if (!oldSeatId && vehicle.engineOn) {
         vehicle.stopEngine(this);
         client.character.dismountContainer(this);
       }
-      if (packet.data.seatId === 0) {
+      if (seatId === 0) {
         this.takeoverManagedObject(client, vehicle);
         vehicle.startEngine(this);
         if (vehicle.getContainer()) {
@@ -5080,10 +5115,10 @@ export class ZoneServer2016 extends EventEmitter {
   /**
    * Gets the container definition for a given containerDefinitionId.
    *
-   * @param {any} containerDefinitionId - The id of the container definition to retrieve.
+   * @param {number} containerDefinitionId - The id of the container definition to retrieve.
    * @returns {ContainerDefinition} The container definition.
    */
-  getContainerDefinition(containerDefinitionId: any) {
+  getContainerDefinition(containerDefinitionId: number) {
     if (this._containerDefinitions[containerDefinitionId]) {
       return this._containerDefinitions[containerDefinitionId];
     } else {
@@ -7418,9 +7453,8 @@ export class ZoneServer2016 extends EventEmitter {
     //@ts-ignore
     delete this._packetHandlers;
     delete require.cache[require.resolve("./zonepackethandlers")];
-    this._packetHandlers = new (
-      require("./zonepackethandlers") as any
-    ).ZonePacketHandlers();
+    this._packetHandlers =
+      new (require("./zonepackethandlers").ZonePacketHandlers)();
     await this._packetHandlers.reloadCommandCache();
   }
   generateGuid(): string {
