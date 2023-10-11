@@ -623,10 +623,12 @@ export class LoginServer extends EventEmitter {
             }
           };
         });
-        characters = this.addDummyDataToCharacters(characterList);
+        characters = characterList;
       }
     } else {
-      characters = this.addDummyDataToCharacters(characters);
+      if (client.gameVersion === GAME_VERSIONS.H1Z1_15janv_2015) {
+        characters = this.addDummyDataToCharacters(characters);
+      }
     }
     const characterSelectInfoReply: CharacterSelectInfoReply = {
       status: 1,

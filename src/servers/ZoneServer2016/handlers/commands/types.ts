@@ -32,3 +32,11 @@ export interface Command {
     args: Array<string>
   ) => void;
 }
+
+export interface InternalCommand {
+  name: string;
+  description?: string;
+  permissionLevel: PermissionLevels;
+  keepCase?: boolean;
+  execute: (server: ZoneServer2016, client: Client, packetData: object) => void;
+}

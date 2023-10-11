@@ -12,7 +12,7 @@
 // ======================================================================
 
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import { ClientBan, ClientMute, DamageInfo } from "types/zoneserver";
+import { ClientMute, DamageInfo, EntityDictionary } from "types/zoneserver";
 
 import {
   zoneShutdown,
@@ -21,8 +21,7 @@ import {
   isPosInRadius,
   toHex,
   randomIntFromInterval,
-  Scheduler,
-  isPosInRadiusWithY
+  Scheduler
 } from "../../../../utils/utils";
 import { ExplosiveEntity } from "../../entities/explosiveentity";
 import { Npc } from "../../entities/npc";
@@ -50,6 +49,8 @@ import { LoadoutContainer } from "../../classes/loadoutcontainer";
 import { BaseItem } from "../../classes/baseItem";
 import { DB_COLLECTIONS } from "../../../../utils/enums";
 import { WorldDataManager } from "../../managers/worlddatamanager";
+import { BaseEntity } from "../../entities/baseentity";
+import { MAX_UINT32 } from "../../../../utils/constants";
 const itemDefinitions = require("./../../../../../data/2016/dataSources/ServerItemDefinitions.json");
 
 export const commands: Array<Command> = [
@@ -221,6 +222,26 @@ export const commands: Array<Command> = [
     permissionLevel: PermissionLevels.DEFAULT,
     execute: (server: ZoneServer2016, client: Client, args: Array<string>) => {
       server.combatLog(client);
+    }
+  },
+  {
+    name: "emote",
+    permissionLevel: PermissionLevels.DEFAULT,
+    execute: (server: ZoneServer2016, client: Client, args: Array<string>) => {
+      const animationId = Number(args[0]);
+      if (!animationId || animationId > MAX_UINT32) {
+        server.sendChatText(client, "[ERROR] usage /animation {number}");
+        return;
+      }
+      server.sendDataToAllWithSpawnedEntity(
+        server._characters,
+        client.character.characterId,
+        "AnimationBase",
+        {
+          characterId: client.character.characterId,
+          animationId: animationId
+        }
+      );
     }
   },
   {
@@ -512,7 +533,7 @@ export const commands: Array<Command> = [
         position
       );
       client.character.state.position = position;
-      client.managedObjects?.forEach((characterId: any) => {
+      client.managedObjects?.forEach((characterId) => {
         server.dropVehicleManager(client, characterId);
       });
       client.isLoading = true;
@@ -545,7 +566,7 @@ export const commands: Array<Command> = [
         return;
       }
       targetClient.character.state.position = client.character.state.position;
-      targetClient.managedObjects?.forEach((characterId: any) => {
+      targetClient.managedObjects?.forEach((characterId) => {
         server.dropVehicleManager(client, characterId);
       });
       targetClient.isLoading = true;
@@ -586,7 +607,7 @@ export const commands: Array<Command> = [
         return;
       }
       client.character.state.position = targetClient.character.state.position;
-      client.managedObjects?.forEach((characterId: any) => {
+      client.managedObjects?.forEach((characterId) => {
         server.dropVehicleManager(client, characterId);
       });
       client.isLoading = true;
@@ -1000,7 +1021,7 @@ export const commands: Array<Command> = [
           currentAngle += degreesPerPoint;
         }
       }
-      points.forEach((obj: any) => {
+      points.forEach((obj) => {
         server.worldObjectManager.createZombie(
           server,
           9634,
@@ -1051,7 +1072,7 @@ export const commands: Array<Command> = [
           currentAngle += degreesPerPoint;
         }
       }
-      points.forEach((obj: any) => {
+      points.forEach((obj) => {
         const characterId = server.generateGuid();
         server._explosives[characterId] = new ExplosiveEntity(
           characterId,
@@ -1119,7 +1140,7 @@ export const commands: Array<Command> = [
       const decoy = {
         characterId: characterId,
         transientId: client.character.transientId,
-        position: new Float32Array(mimic.position),
+        position: mimic.position as Float32Array,
         action: ""
       };
       server._decoys[client.character.transientId] = decoy;
@@ -1390,9 +1411,14 @@ export const commands: Array<Command> = [
     execute: (server: ZoneServer2016, client: Client, args: Array<string>) => {
       server.sendChatText(client, "Disabled for now.");
       /*
+      client.character.equipItem(
+        server,
+        server.generateItem(Items.FANNY_PACK_DEV)
+      );
       server.sendChatText(client, "Adding 1x of all items to inventory.");
       for (const itemDef of Object.values(server._itemDefinitions)) {
-        server.lootItem(client, server.generateItem(itemDef.ID));
+        client.character.lootItem(server, server.generateItem(itemDef.ID));
+        Scheduler.yield();
       }
       */
     }
@@ -1686,7 +1712,10 @@ export const commands: Array<Command> = [
         server.sendChatText(client, `Maximum range is 100`);
         return;
       }
-      const entitiesToDelete: { characterId: string; dictionary: any }[] = [];
+      const entitiesToDelete: {
+        characterId: string;
+        dictionary: EntityDictionary<BaseEntity>;
+      }[] = [];
       for (const a in server._constructionSimple) {
         const construction = server._constructionSimple[a];
         if (
@@ -1798,8 +1827,16 @@ export const commands: Array<Command> = [
       }
 
       entitiesToDelete.forEach(
-        (entity: { characterId: string; dictionary: any }) => {
-          server.deleteEntity(entity.characterId, entity.dictionary, 1875, 500);
+        (entity: {
+          characterId: string;
+          dictionary: EntityDictionary<BaseEntity>;
+        }) => {
+          server.deleteEntity(
+            entity.characterId,
+            entity.dictionary,
+            Effects.PFX_Impact_Explosion_Landmine_Dirt_10m,
+            500
+          );
         }
       );
       server.sendChatText(
@@ -1886,7 +1923,8 @@ export const commands: Array<Command> = [
       let counter = 1;
       for (const a in server._constructionFoundations) {
         const foundation = server._constructionFoundations[a];
-        const name = server.getItemDefinition(foundation.itemDefinitionId).NAME;
+        const name = server.getItemDefinition(foundation.itemDefinitionId)
+          ?.NAME;
         if (
           foundation.ownerCharacterId === targetClient.character.characterId
         ) {
@@ -1946,7 +1984,7 @@ export const commands: Array<Command> = [
       server.sendChatText(client, `LOADOUT:`);
       Object.values(targetClient.character._loadout).forEach(
         (item: LoadoutItem) => {
-          const name = server.getItemDefinition(item.itemDefinitionId).NAME;
+          const name = server.getItemDefinition(item?.itemDefinitionId)?.NAME;
           counter++;
           server.sendChatText(
             client,
@@ -1964,7 +2002,7 @@ export const commands: Array<Command> = [
           server.sendChatText(client, " ");
           const containerName = server.getItemDefinition(
             container.itemDefinitionId
-          ).NAME;
+          )?.NAME;
           server.sendChatText(
             client,
             `${
@@ -1975,9 +2013,8 @@ export const commands: Array<Command> = [
           );
           Object.values(container.items).forEach((item: BaseItem) => {
             counter++;
-            const itemName = server.getItemDefinition(
-              item.itemDefinitionId
-            ).NAME;
+            const itemName = server.getItemDefinition(item?.itemDefinitionId)
+              ?.NAME;
             server.sendChatText(
               client,
               `${counter}. ${
@@ -2008,7 +2045,7 @@ export const commands: Array<Command> = [
         client,
         `Displaying list of permissions for foundation: ${foundation.characterId}, owner: ${foundation.ownerCharacterId}`
       );
-      Object.values(foundation.permissions).forEach((permission: any) => {
+      Object.values(foundation.permissions).forEach((permission) => {
         server.sendChatText(client, JSON.stringify(permission));
       });
     }
@@ -2049,57 +2086,7 @@ export const commands: Array<Command> = [
       client: Client,
       args: Array<string>
     ) => {
-      client.character._resources = {
-        [ResourceIds.HEALTH]: 10000,
-        [ResourceIds.STAMINA]: 600,
-        [ResourceIds.HUNGER]: 10000,
-        [ResourceIds.HYDRATION]: 10000,
-        [ResourceIds.VIRUS]: 0,
-        [ResourceIds.COMFORT]: 5000,
-        [ResourceIds.BLEEDING]: -40
-      };
-      client.character.updateResource(
-        server,
-        client,
-        ResourceIds.HEALTH,
-        ResourceTypes.HEALTH
-      );
-      client.character.updateResource(
-        server,
-        client,
-        ResourceIds.STAMINA,
-        ResourceTypes.STAMINA
-      );
-      client.character.updateResource(
-        server,
-        client,
-        ResourceIds.HUNGER,
-        ResourceTypes.HUNGER
-      );
-      client.character.updateResource(
-        server,
-        client,
-        ResourceIds.HYDRATION,
-        ResourceTypes.HYDRATION
-      );
-      client.character.updateResource(
-        server,
-        client,
-        ResourceIds.VIRUS,
-        ResourceTypes.VIRUS
-      );
-      client.character.updateResource(
-        server,
-        client,
-        ResourceIds.COMFORT,
-        ResourceTypes.COMFORT
-      );
-      client.character.updateResource(
-        server,
-        client,
-        ResourceIds.BLEEDING,
-        ResourceTypes.BLEEDING
-      );
+      client.character.resetResources(server);
 
       server.sendChatText(client, `Set resources to maximum values.`);
     }

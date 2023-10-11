@@ -37,8 +37,8 @@ const typeMap: Record<PacketDataType, string> = {
 function addSimpleType(element: PacketField): String {
 
   const type = typeMap[element.type];
-  const isOptionnal = element.defaultValue !== undefined;
-  return `  ${element.name}${isOptionnal ? "?" : ""}: ${type || "any"
+  const isOptional = element.defaultValue !== undefined;
+  return `  ${element.name}${isOptional ? "?" : ""}: ${type || "any"
     };\n`;
 }
 function getSchemaBody(schema: PacketFields) {
@@ -64,7 +64,8 @@ function getSchemaBody(schema: PacketFields) {
         bodyInterfaceString += ":{\n";
         for (const flag of element.flags) {
           bodyInterfaceString += "     ";
-          bodyInterfaceString += `${flag.name}: boolean,\n`;
+          const isOptional = element.defaultValue !== undefined;
+          bodyInterfaceString += `${flag.name}${isOptional?"?":""}: number,\n`;
         }
         bodyInterfaceString += "}";
         bodyInterfaceString += ";\n";
