@@ -12,7 +12,7 @@
 // ======================================================================
 
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import { ClientMute, DamageInfo, EntityDictionary } from "types/zoneserver";
+import { ClientBan, ClientMute, DamageInfo, EntityDictionary } from "types/zoneserver";
 
 import {
   zoneShutdown,
@@ -674,62 +674,6 @@ export const commands: Array<Command> = [
     }
   },
   {
-    name: "silentban",
-    permissionLevel: PermissionLevels.MODERATOR,
-    execute: async (
-      server: ZoneServer2016,
-      client: Client,
-      args: Array<string>
-    ) => {
-      if (!args[0] || !args[1]) {
-        server.sendChatText(
-          client,
-          `Correct usage: /silentban {name|playerId} {type}  optional: {time} {reason}`
-        );
-        return;
-      }
-      const banTypes = ["nodamage", "rick"];
-      const banType = args[1].toString().toLowerCase();
-      if (!banTypes.includes(banType)) {
-        server.sendChatText(client, `valid ban types: ${banTypes.join(", ")}`);
-        return;
-      }
-      const targetClient = server.getClientByNameOrLoginSession(
-        args[0].toString()
-      );
-      if (server.playerNotFound(client, args[0].toString(), targetClient)) {
-        return;
-      }
-      if (!targetClient || !(targetClient instanceof Client)) {
-        server.sendChatText(client, "Client not found.");
-        return;
-      }
-      let time = Number(args[2]) ? Number(args[2]) * 60000 : 0;
-      if (time > 0) {
-        time += Date.now();
-        server.sendChatText(
-          client,
-          `You have silently banned ${
-            targetClient.character.name
-          } until ${server.getDateString(time)}`
-        );
-      } else {
-        server.sendChatText(
-          client,
-          `You have silently banned ${targetClient.character.name} permanently, banType: ${banType}`
-        );
-      }
-      const reason = args.slice(3).join(" ");
-      server.banClient(
-        targetClient,
-        reason,
-        banType,
-        client.character.name ? client.character.name : "",
-        time
-      );
-    }
-  },
-  {
     name: "ban",
     permissionLevel: PermissionLevels.MODERATOR,
     keepCase: true,
@@ -741,47 +685,90 @@ export const commands: Array<Command> = [
       if (!args[0]) {
         server.sendChatText(
           client,
-          `Correct usage: /ban {name|playerId} optional: {time} {reason}`
+          `Correct usage: /ban {name} optional: {time} {reason} {--silent}`
         );
         return;
       }
-      const targetClient = server.getClientByNameOrLoginSession(
-        args[0].toString()
-      );
-      if (server.playerNotFound(client, args[0].toString(), targetClient)) {
+      
+      // prevent banning yourself
+
+      if(args[0] == client.character.name) {
+        server.sendChatText(client, "You can't ban yourself!");
         return;
       }
-      if (!targetClient || !(targetClient instanceof Client)) {
-        server.sendChatText(client, "Client not found.");
+
+      // check if client is already banned
+
+      const bannedClient = 
+        await server._db
+          ?.collection(DB_COLLECTIONS.BANNED)
+          .findOne(
+            { name: args[0], active: true },
+          ) as WithId<ClientBan> | undefined;
+
+      if(bannedClient) {
+        server.sendChatText(client, `${args[0]} (${bannedClient.loginSessionId}) is already banned!`);
         return;
       }
+
+      const isSilent = args.includes("--silent");
+
+      // check offline characters first for an exact match
+
+      const collection = server._db.collection(DB_COLLECTIONS.CHARACTERS),
+        character = (await collection.findOne({
+          characterName: args[0],
+          serverId: server._worldId,
+          status: 1
+        })) as WithId<FullCharacterSaveData> | undefined;
+
+      let ownerId = character?.ownerId,
+        characterName = character?.characterName;
+
+      if (!character) {
+        const banClient = server.getClientByName(args[0]);
+        if (server.playerNotFound(client, args[0].toString(), banClient)) {
+          return;
+        }
+        if (!banClient || !(banClient instanceof Client)) {
+          server.sendChatText(
+            client,
+            `Character with name ${args[0]} not found!`
+          );
+          return;
+        }
+        ownerId = banClient.loginSessionId;
+        characterName = banClient.character.name;
+      }
+
       let time = Number(args[1]) ? Number(args[1]) * 60000 : 0;
       if (!isNaN(time) && time > 0) {
         time += Date.now();
         server.sendChatText(
           client,
-          `You have banned ${
-            targetClient.character.name
+          `You have ${isSilent?"silently ":""}banned ${
+            character?.characterName
           } until ${server.getDateString(time)}`
         );
       } else {
         server.sendChatText(
           client,
-          `You have banned ${targetClient.character.name} permanently`
+          `You have ${isSilent?"silently ":""}banned ${character?.characterName} permanently`
         );
       }
+
       const reason = args.slice(2).join(" ");
       server.banClient(
-        targetClient,
+        ownerId ?? "",
+        characterName ?? "",
         reason,
-        "normal",
-        client.character.name ? client.character.name : "",
-        time
+        client.character.name,
+        time,
+        isSilent
       );
     }
   },
   {
-    // should split ban and ban id in case someone names themselves someone else's loginSessionId
     name: "banid",
     permissionLevel: PermissionLevels.MODERATOR,
     execute: async (
@@ -792,10 +779,33 @@ export const commands: Array<Command> = [
       if (!args[0]) {
         server.sendChatText(
           client,
-          `Correct usage: /banid {loginSessionId} optional: {time} {reason}`
+          `Correct usage: /banid {loginSessionId} optional: {time} {reason} {--silent}`
         );
         return;
       }
+
+      // prevent banning yourself
+
+      if(args[0] == client.loginSessionId) {
+        server.sendChatText(client, "You can't ban yourself!");
+        return;
+      }
+
+      // check if client is already banned
+
+      const bannedClient = 
+        await server._db
+          ?.collection(DB_COLLECTIONS.BANNED)
+          .findOne(
+            { loginSessionId: args[0], active: true },
+          ) as WithId<ClientBan> | undefined;
+
+      if(bannedClient) {
+        server.sendChatText(client, `${bannedClient.name} (${args[0]}) is already banned!`);
+        return;
+      }
+
+      const isSilent = args.includes("--silent");
 
       // check offline characters first for an exact match
 
@@ -804,10 +814,10 @@ export const commands: Array<Command> = [
           ownerId: args[0],
           serverId: server._worldId,
           status: 1
-        })) as WithId<FullCharacterSaveData>;
+        })) as WithId<FullCharacterSaveData> | undefined;
 
-      let ownerId = character.ownerId,
-        characterName = character.characterName;
+      let ownerId = character?.ownerId,
+        characterName = character?.characterName;
 
       if (!character) {
         const banClient = server.getClientByLoginSessionId(args[0]);
@@ -827,25 +837,81 @@ export const commands: Array<Command> = [
         time += Date.now();
         server.sendChatText(
           client,
-          `You have banned ${
-            character.characterName
+          `You have ${isSilent?"silently ":""}banned ${
+            character?.characterName
           } until ${server.getDateString(time)}`
         );
       } else {
         server.sendChatText(
           client,
-          `You have banned ${character.characterName} permanently`
+          `You have ${isSilent?"silently ":""}banned ${character?.characterName} permanently`
         );
       }
 
       const reason = args.slice(2).join(" ");
-      server.banClientById(
-        ownerId,
-        characterName,
+      server.banClient(
+        ownerId ?? "",
+        characterName ?? "",
         reason,
         client.character.name,
-        time
+        time,
+        isSilent
       );
+    }
+  },
+  {
+    name: "unban",
+    permissionLevel: PermissionLevels.MODERATOR,
+    keepCase: true,
+    execute: async (
+      server: ZoneServer2016,
+      client: Client,
+      args: Array<string>
+    ) => {
+      if (!args[0]) {
+        server.sendChatText(client, `Correct usage: /unban {name}`);
+        return;
+      }
+      const name = args.join(" ").toString();
+      const unBannedClient = await server.unbanClient(client, name);
+      if (unBannedClient) {
+        server.sendChatText(
+          client,
+          `Removed ban on user ${unBannedClient.name}`
+        );
+      } else {
+        server.sendChatText(
+          client,
+          `Cannot find any banned user with name ${name}`
+        );
+      }
+    }
+  },
+  {
+    name: "unbanid",
+    permissionLevel: PermissionLevels.MODERATOR,
+    keepCase: true,
+    execute: async (
+      server: ZoneServer2016,
+      client: Client,
+      args: Array<string>
+    ) => {
+      if (!args[0]) {
+        server.sendChatText(client, `Correct usage: /unban {loginSessionId}`);
+        return;
+      }
+      const unBannedClient = await server.unbanClientId(client, args[0]);
+      if (unBannedClient) {
+        server.sendChatText(
+          client,
+          `Removed ban on user ${unBannedClient.name}`
+        );
+      } else {
+        server.sendChatText(
+          client,
+          `Cannot find any banned user with id ${args[0]}`
+        );
+      }
     }
   },
   {
@@ -871,34 +937,6 @@ export const commands: Array<Command> = [
       }
       const reason = args[1] ? args.slice(1).join(" ") : "Undefined";
       server.kickPlayerWithReason(targetClient, reason, true);
-    }
-  },
-  {
-    name: "unban",
-    permissionLevel: PermissionLevels.MODERATOR,
-    keepCase: true,
-    execute: async (
-      server: ZoneServer2016,
-      client: Client,
-      args: Array<string>
-    ) => {
-      if (!args[0]) {
-        server.sendChatText(client, `Correct usage: /unban {name|playerId}`);
-        return;
-      }
-      const name = args.join(" ").toString();
-      const unBannedClient = await server.unbanClient(client, name);
-      if (unBannedClient) {
-        server.sendChatText(
-          client,
-          `Removed ban on user ${unBannedClient.name}`
-        );
-      } else {
-        server.sendChatText(
-          client,
-          `Cannot find any locally banned user with name ${name} but sent the unban to the loginserver`
-        );
-      }
     }
   },
   {

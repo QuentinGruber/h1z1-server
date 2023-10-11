@@ -3786,81 +3786,34 @@ export class ZoneServer2016 extends EventEmitter {
     return unBannedClient;
   }
 
-  banClient(
+  async unbanClientId(
     client: Client,
-    reason: string,
-    banType: string,
-    adminName: string,
-    timestamp: number
-  ) {
-    const object: ClientBan = {
-      name: client.character.name || "",
-      banType: banType,
-      banReason: reason ? reason : "no reason",
-      loginSessionId: client.loginSessionId,
-      IP: this.getSoeClient(client.soeClientId)?.address || "",
-      HWID: client.HWID,
-      adminName: adminName ? adminName : "",
-      expirationDate: 0,
-      active: true,
-      unBanAdminName: ""
-    };
-    this._db?.collection(DB_COLLECTIONS.BANNED).insertOne(object);
-    if (banType === "normal") {
-      if (timestamp) {
-        this.sendAlert(
-          client,
-          reason
-            ? `YOU HAVE BEEN BANNED FROM THE SERVER UNTIL ${this.getDateString(
-                timestamp
-              )}. REASON: ${reason}`
-            : `YOU HAVE BEEN BANNED FROM THE SERVER UNTIL: ${this.getDateString(
-                timestamp
-              )}`
-        );
-        this.sendAlertToAll(
-          reason
-            ? `${
-                client.character.name
-              } HAS BEEN BANNED FROM THE SERVER UNTIL ${this.getDateString(
-                timestamp
-              )}. REASON: ${reason}`
-            : `${
-                client.character.name
-              } HAS BEEN BANNED FROM THE SERVER UNTIL: ${this.getDateString(
-                timestamp
-              )}`
-        );
-      } else {
-        this.sendAlert(
-          client,
-          reason
-            ? `YOU HAVE BEEN PERMANENTLY BANNED FROM THE SERVER REASON: ${reason}`
-            : "YOU HAVE BEEN BANNED FROM THE SERVER."
-        );
-        this.sendAlertToAll(
-          reason
-            ? `${client.character.name} HAS BEEN BANNED FROM THE SERVER! REASON: ${reason}`
-            : `${client.character.name} HAS BEEN BANNED FROM THE SERVER!`
-        );
-      }
-      setTimeout(() => {
-        this.kickPlayer(client);
-      }, 3000);
-    } else {
-      client.banType = banType;
-      this.enforceBan(client);
-    }
+    loginSessionId: string
+  ): Promise<ClientBan | undefined> {
+    const unBannedClient = (
+      await this._db
+        ?.collection(DB_COLLECTIONS.BANNED)
+        .findOneAndUpdate(
+          { loginSessionId, active: true },
+          { $set: { active: false, unBanAdminName: client.character.name } }
+        )
+    )?.value as unknown as ClientBan | undefined;
+    return unBannedClient;
   }
 
-  banClientById(
+  banClient(
     loginSessionId: string,
     characterName: string,
     reason: string,
     adminName: string,
-    timestamp: number
+    timestamp: number,
+    isSilent: boolean
   ) {
-    const client = this.getClientByLoginSessionId(loginSessionId);
+    let client: Client | string | undefined = this.getClientByLoginSessionId(loginSessionId);
+
+    if(!client) client = this.getClientByName(characterName);
+
+    if((typeof client == "string")) client = undefined;
 
     const object: ClientBan = {
       name: characterName,
@@ -3875,7 +3828,7 @@ export class ZoneServer2016 extends EventEmitter {
       unBanAdminName: ""
     };
     this._db?.collection(DB_COLLECTIONS.BANNED).insertOne(object);
-    if (timestamp) {
+    if (timestamp && !isSilent) {
       if (client) {
         this.sendAlert(
           client,
@@ -3897,7 +3850,7 @@ export class ZoneServer2016 extends EventEmitter {
               timestamp
             )}`
       );
-    } else {
+    } else if (!isSilent) {
       if (client) {
         this.sendAlert(
           client,
@@ -3913,11 +3866,10 @@ export class ZoneServer2016 extends EventEmitter {
           : `${characterName} HAS BEEN BANNED FROM THE SERVER!`
       );
     }
-    if (client) {
-      setTimeout(() => {
-        this.kickPlayer(client);
-      }, 3000);
-    }
+    setTimeout(() => {
+      if(!(client instanceof Client)) return;
+      this.kickPlayer(client);
+    }, 3000);
   }
 
   enforceBan(client: Client) {
