@@ -166,7 +166,6 @@ import {
   ClientUpdateStartTimer,
   ClientUpdateUpdateLocation,
   ClientUpdateUpdateLockoutTimes,
-  CommandItemDefinitions,
   CommandPlayDialogEffect,
   ContainerError,
   ContainerInitEquippedContainers,
