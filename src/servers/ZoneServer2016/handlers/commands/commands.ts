@@ -1348,166 +1348,40 @@ export const commands: Array<Command> = [
     name: "kit",
     permissionLevel: PermissionLevels.ADMIN,
     execute: (server, client, args) => {
-      if (args.length < 1) {
-        server.sendChatText(client, "Usage: /kit [kit name] [target client]");
+      if (!args[0]) {
+        client.character.equipLoadout(server, characterKitLoadout);
         return;
       }
-  
-      const kitName = args[0];
-      const targetClientName = args[1];
-  
-      // Check if the third argument is provided and truthy, or default to the sender (self)
-      const targetClient = args[2]
-        ? server.getClientByNameOrLoginSession(args[2])
-        : client;
-  
-      if (typeof targetClient === "string") {
-        server.sendChatText(
-          client,
-          `Could not find player ${targetClientName.toUpperCase()}, did you mean ${targetClient.toUpperCase()}`
-        );
-        return;
-      }
-      if (!targetClient) {
-        server.sendChatText(client, `Client ${targetClientName.toUpperCase()} not found.`);
-        return;
-      }
-  
-      switch (kitName) {
+
+      switch (args[0]) {
         case "pvp":
-          targetClient.character.equipLoadout(server, characterKitLoadout);
-          server.sendChatText(targetClient, "You received pvp kit");
-          server.sendChatText(client, `You sent PVP kit to ${targetClientName}`);
+          client.character.equipLoadout(server, characterKitLoadout);
           break;
         case "parts":
-          targetClient.character.equipLoadout(server, characterVehicleKit);
-          server.sendChatText(targetClient, "You received the vehicle parts kit");
-          server.sendChatText(client, `You sent vehicle parts kit to ${targetClientName}`);
+          client.character.equipLoadout(server, characterVehicleKit);
           break;
         case "skins":
-            client.character.equipItem(server,server.generateItem(Items.FANNY_PACK_DEV) );
-            targetClient.character.equipLoadout(server, characterSkinsLoadout);
-            server.sendChatText(targetClient, "You received the skin kit");
-            server.sendChatText(client, `You sent skin kit sent to ${targetClientName}`);
+          client.character.equipItem(
+            server,
+            server.generateItem(Items.FANNY_PACK_DEV)
+          );
+          client.character.equipLoadout(server, characterSkinsLoadout);
           break;
         case "build":
-            client.character.equipItem(server,server.generateItem(Items.FANNY_PACK_DEV) );
-            targetClient.character.equipLoadout(server, characterBuildKitLoadout);
-            server.sendChatText(client, `Build kit given`);
-            server.sendChatText(client, `Build kit sent to ${targetClientName}`);
+          client.character.equipItem(
+            server,
+            server.generateItem(Items.FANNY_PACK_DEV)
+          );
+          client.character.equipLoadout(server, characterBuildKitLoadout);
           break;
         default:
-          server.sendChatText(client, "Valid Kit Names Are PVP,PARTS,SKINS,BUILD");
-          break;
+          server.sendChatText(
+            client,
+            "Valid Kit Names Are pvp, parts, skins, build"
+          );
+          return;
       }
-    },
-  },
-  {
-    name: "gkit",
-    permissionLevel: PermissionLevels.ADMIN,
-    execute: (server, client, args) => {
-      if (args.length < 2) {
-        server.sendChatText(client, "Usage: /kit [kit name] [target client]");
-        return;
-      }
-  
-      const kitName = args[0];
-      const targetClientName = args[1];
-  
-      // Find the target client
-      const targetClient = server.getClientByNameOrLoginSession(targetClientName);
-      if (typeof targetClient === "string") {
-        server.sendChatText(
-          client,
-          `Could not find player ${targetClientName.toUpperCase()}, did you mean ${targetClient.toUpperCase()}`
-        );
-        return;
-      }
-      if (!targetClient) {
-        server.sendChatText(client, `Client ${targetClientName.toUpperCase()} not found.`);
-        return;
-      }
-  
-      switch (kitName) {
-        case "pvp":
-          targetClient.character.equipLoadout(server, characterKitLoadout);
-          server.sendChatText(targetClient, "You received pvp kit");
-          server.sendChatText(client, `You sent PVP kit to ${targetClientName}`);
-          break;
-        case "vehicleparts":
-          targetClient.character.equipLoadout(server, characterVehicleKit);
-          server.sendChatText(targetClient, "You received the vehicle parts kit");
-          server.sendChatText(client, `You sent vehicle parts kit to ${targetClientName}`);
-          break;
-        case "skins":
-            client.character.equipItem(server,server.generateItem(Items.FANNY_PACK_DEV) );
-            targetClient.character.equipLoadout(server, characterSkinsLoadout);
-            server.sendChatText(targetClient, "You received the vehicle parts kit");
-            server.sendChatText(client, `You sent vehicle parts kit to ${targetClientName}`);
-          break;
-        case "build":
-            client.character.equipItem(server,server.generateItem(Items.FANNY_PACK_DEV) );
-            targetClient.character.equipLoadout(server, characterBuildKitLoadout);
-            server.sendChatText(client, `Build kit given`);
-            server.sendChatText(targetClient, "You received the vehicle parts kit");
-            server.sendChatText(client, `You sent vehicle parts kit to ${targetClientName}`);
-          break;
-        default:
-          server.sendChatText(client, "Invalid kit name");
-          break;
-      }
-    },
-  },
-  {
-    name: "tpl",
-    permissionLevel: PermissionLevels.MODERATOR,
-    execute: (server: ZoneServer2016, client: Client, args: Array<string>) => {
-      // Check if the client has a valid character and lookAt vector
-      if (!client.character || !client.character.state.lookAt) {
-        server.sendChatText(client, "Unable to determine lookAt direction.");
-        return;
-      }
-  
-      // Calculate the destination position based on lookAt direction
-      const lookAtDirection = client.character.state.lookAt;
-      const currentPosition = client.character.state.position;
-      const teleportDistance = 100; // Adjust this value as needed
-      const x = lookAtDirection[0];
-      const y = lookAtDirection[1];
-      const z = lookAtDirection[2];
-  
-      // Set the new position for the client
-      const crosshairLocation = new Float32Array([x, y, z, 1]);
-      client.character.state.position = crosshairLocation;
-  
-      // Trigger loading screen and update client's location
-      client.isLoading = true;
-      client.characterReleased = false;
-      client.character.lastLoginDate = toHex(Date.now());
-      server.dropAllManagedObjects(client);
-      server.sendData(client, "ClientUpdate.UpdateLocation", {
-        position: crosshairLocation,
-        triggerLoadingScreen: false
-      });
-  
-      // Inform the player about the teleport
-      server.sendChatText(client, "You have been teleported to your crosshair position.");
-    }
-  },
-  // {
-  //   name: "kit",
-  //   permissionLevel: PermissionLevels.ADMIN,
-  //   execute: (server: ZoneServer2016, client: Client, args: Array<string>) => {
-  //     /*client.character.equipLoadout(server, characterKitLoadout);*/
-  //     server.sendChatText(client, "Usage: /kit pvp [target client]");
-  //   }
-  // },
-  {
-    name: "vehicleparts",
-    permissionLevel: PermissionLevels.ADMIN,
-    execute: (server: ZoneServer2016, client: Client, args: Array<string>) => {
-      /*client.character.equipLoadout(server, characterVehicleKit);*/
-      server.sendChatText(client, "Usage: /kit parts [target client]");
+      server.sendChatText(client, `Equipped ${args[0]} kit`);
     }
   },
   {
@@ -1934,6 +1808,20 @@ export const commands: Array<Command> = [
       );
     }
   },
+
+  // to be removed in later version
+  {
+    name: "vehicleparts",
+    permissionLevel: PermissionLevels.ADMIN,
+    execute: async (
+      server: ZoneServer2016,
+      client: Client,
+      args: Array<string>
+    ) => {
+      server.sendChatText(client, "Usage: /kit parts");
+    }
+  },
+  // to be removed in later version
   {
     name: "build",
     permissionLevel: PermissionLevels.ADMIN,
@@ -1942,15 +1830,10 @@ export const commands: Array<Command> = [
       client: Client,
       args: Array<string>
     ) => {
-      /*client.character.equipItem(
-        server,
-        server.generateItem(Items.FANNY_PACK_DEV)
-      );
-      client.character.equipLoadout(server, characterBuildKitLoadout);
-      server.sendChatText(client, `Build kit given`);*/
-      server.sendChatText(client, "Usage: /kit build [target client]");
+      server.sendChatText(client, "Usage: /kit build");
     }
   },
+  // to be removed in later version
   {
     name: "skins",
     permissionLevel: PermissionLevels.ADMIN,
@@ -1959,15 +1842,10 @@ export const commands: Array<Command> = [
       client: Client,
       args: Array<string>
     ) => {
-      /*client.character.equipItem(
-        server,
-        server.generateItem(Items.FANNY_PACK_DEV)
-      );
-      client.character.equipLoadout(server, characterSkinsLoadout);
-      server.sendChatText(client, `skins kit given`);*/
-      server.sendChatText(client, "Usage: /kit skins [target client]");
+      server.sendChatText(client, "Usage: /kit skins");
     }
   },
+
   {
     name: "debug",
     permissionLevel: PermissionLevels.MODERATOR,

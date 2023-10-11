@@ -123,7 +123,6 @@ export const characterVehicleKit = [
   { item: Items.HEADLIGHTS_OFFROADER },
   { item: Items.HEADLIGHTS_PICKUP },
   { item: Items.HEADLIGHTS_POLICE }
-  
 ];
 export const characterBuildKitLoadout = [
   { item: Items.FOUNDATION, count: 10 },
