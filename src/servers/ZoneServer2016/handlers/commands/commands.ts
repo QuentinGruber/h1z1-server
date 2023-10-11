@@ -1368,16 +1368,41 @@ export const commands: Array<Command> = [
   {
     name: "kit",
     permissionLevel: PermissionLevels.ADMIN,
-    execute: (server: ZoneServer2016, client: Client, args: Array<string>) => {
-      client.character.equipLoadout(server, characterKitLoadout);
-    }
-  },
-  {
-    name: "vehicleparts",
-    permissionLevel: PermissionLevels.ADMIN,
-    execute: (server: ZoneServer2016, client: Client, args: Array<string>) => {
-      client.character.equipLoadout(server, characterVehicleKit);
-      server.sendChatText(client, `Vehicle Parts Given`);
+    execute: (server, client, args) => {
+      if (!args[0]) {
+        client.character.equipLoadout(server, characterKitLoadout);
+        return;
+      }
+
+      switch (args[0]) {
+        case "pvp":
+          client.character.equipLoadout(server, characterKitLoadout);
+          break;
+        case "parts":
+          client.character.equipLoadout(server, characterVehicleKit);
+          break;
+        case "skins":
+          client.character.equipItem(
+            server,
+            server.generateItem(Items.FANNY_PACK_DEV)
+          );
+          client.character.equipLoadout(server, characterSkinsLoadout);
+          break;
+        case "build":
+          client.character.equipItem(
+            server,
+            server.generateItem(Items.FANNY_PACK_DEV)
+          );
+          client.character.equipLoadout(server, characterBuildKitLoadout);
+          break;
+        default:
+          server.sendChatText(
+            client,
+            "Valid Kit Names Are pvp, parts, skins, build"
+          );
+          return;
+      }
+      server.sendChatText(client, `Equipped ${args[0]} kit`);
     }
   },
   {
@@ -1820,6 +1845,20 @@ export const commands: Array<Command> = [
       );
     }
   },
+
+  // to be removed in later version
+  {
+    name: "vehicleparts",
+    permissionLevel: PermissionLevels.ADMIN,
+    execute: async (
+      server: ZoneServer2016,
+      client: Client,
+      args: Array<string>
+    ) => {
+      server.sendChatText(client, "Usage: /kit parts");
+    }
+  },
+  // to be removed in later version
   {
     name: "build",
     permissionLevel: PermissionLevels.ADMIN,
@@ -1828,14 +1867,10 @@ export const commands: Array<Command> = [
       client: Client,
       args: Array<string>
     ) => {
-      client.character.equipItem(
-        server,
-        server.generateItem(Items.FANNY_PACK_DEV)
-      );
-      client.character.equipLoadout(server, characterBuildKitLoadout);
-      server.sendChatText(client, `Build kit given`);
+      server.sendChatText(client, "Usage: /kit build");
     }
   },
+  // to be removed in later version
   {
     name: "skins",
     permissionLevel: PermissionLevels.ADMIN,
@@ -1844,14 +1879,10 @@ export const commands: Array<Command> = [
       client: Client,
       args: Array<string>
     ) => {
-      client.character.equipItem(
-        server,
-        server.generateItem(Items.FANNY_PACK_DEV)
-      );
-      client.character.equipLoadout(server, characterSkinsLoadout);
-      server.sendChatText(client, `skins kit given`);
+      server.sendChatText(client, "Usage: /kit skins");
     }
   },
+
   {
     name: "debug",
     permissionLevel: PermissionLevels.MODERATOR,
