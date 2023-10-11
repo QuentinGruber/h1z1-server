@@ -301,7 +301,11 @@ export class ZonePacketHandlers {
       client.character.getEquippedWeapon()?.itemDefinitionId
     );
     if (itemDefinition) {
-      server.abilitiesManager.deactivateAbility(server, client, itemDefinition.ACTIVATABLE_ABILITY_ID);
+      server.abilitiesManager.deactivateAbility(
+        server,
+        client,
+        itemDefinition.ACTIVATABLE_ABILITY_ID
+      );
     }
 
     server.tempGodMode(client, 15000);

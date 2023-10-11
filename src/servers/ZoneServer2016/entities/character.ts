@@ -579,60 +579,67 @@ export class Character2016 extends BaseFullCharacter {
       this.pGetLoadoutSlots()
     );
     const abilities: any = [];
-    let counter = 1;
+    let abilityLineId = 1;
     for (const a in client.character._loadout) {
       const slot = client.character._loadout[a];
       const itemDefinition = server.getItemDefinition(slot.itemDefinitionId);
-      if (itemDefinition) {
-        const abilityId = itemDefinition.ACTIVATABLE_ABILITY_ID;
-        if (slot.itemDefinitionId == Items.WEAPON_FISTS) {
-          const object = {
-            slotId: slot.slotId,
-            abilityLineId: counter,
-            unknownDword1: counter,
-            unknownDword2: 0,
-            unkArray1Length: 1,
-            unknownArray1: [
-              {
-                unknownDword1: 1111278,
-                unknownDword2: 1111278,
-                unknownDword3: 0
-              },
-              {
-                unknownDword1: abilityId,
-                unknownDword2: abilityId,
-                unknownDword3: 0
-              }
-            ],
-            unknownDword3: 2,
-            unknownDword4: slot.itemDefinitionId,
-            unknownByte: 64
-          };
-          abilities.push(object);
-        } else {
-          const object = {
-            slotId: slot.slotId,
-            abilityLineId: counter,
-            unknownDword1: slot.slotId,
-            unknownDword2: 0,
-            unknownArray1: [
-              {
-                unknownDword1: abilityId,
-                unknownDword2: abilityId,
-                unknownDword3: 0
-              }
-            ],
-            unknownDword3: 2,
-            unknownDword4: slot.itemDefinitionId,
-            unknownByte: 64
-          };
-          abilities.push(object);
-        }
-        counter++;
+      if (!itemDefinition) continue;
+
+      switch (slot.slotId) {
+        case LoadoutSlots.FISTS:
+        case LoadoutSlots.PRIMARY:
+        case LoadoutSlots.SECONDARY:
+        case LoadoutSlots.TERTIARY:
+        case LoadoutSlots.ITEM1:
+        case LoadoutSlots.ITEM2:
+          break;
+        default:
+          continue;
       }
+
+      const abilityId = itemDefinition.ACTIVATABLE_ABILITY_ID;
+      if (slot.itemDefinitionId == Items.WEAPON_FISTS) {
+        const object = {
+          loadoutSlotId: slot.slotId,
+          abilityLineId,
+          unknownArray1: [
+            {
+              unknownDword1: 1111278,
+              unknownDword2: 1111278,
+              unknownDword3: 0
+            },
+            {
+              unknownDword1: abilityId,
+              unknownDword2: abilityId,
+              unknownDword3: 0
+            }
+          ],
+          unknownDword3: 2,
+          itemDefinitionId: slot.itemDefinitionId,
+          unknownByte: 64
+        };
+        abilities.push(object);
+      } else {
+        const object = {
+          loadoutSlotId: slot.slotId,
+          abilityLineId,
+          unknownArray1: [
+            {
+              unknownDword1: abilityId,
+              unknownDword2: abilityId,
+              unknownDword3: 0
+            }
+          ],
+          unknownDword3: 2,
+          itemDefinitionId: slot.itemDefinitionId,
+          unknownByte: 64
+        };
+        abilities.push(object);
+      }
+      abilityLineId++;
     }
     server.sendData(client, "Abilities.SetActivatableAbilityManager", {
-      abilities: abilities
+      abilities
     });
   }
 

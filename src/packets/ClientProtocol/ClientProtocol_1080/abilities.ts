@@ -89,10 +89,9 @@ export const abilitiesPackets: PacketStructures = [
         {
           name: "abilities",
           type: "array",
-          defaultValue: [{}],
+          defaultValue: [],
           fields: [
-            { name: "slotId", type: "uint32", defaultValue: 0 },
-
+            { name: "loadoutSlotId", type: "uint32", defaultValue: 0 },
             { name: "abilityLineId", type: "uint32", defaultValue: 0 },
             {
               name: "unknownArray1",
@@ -105,7 +104,7 @@ export const abilitiesPackets: PacketStructures = [
               ]
             },
             { name: "unknownDword3", type: "uint32", defaultValue: 0 },
-            { name: "unknownDword4", type: "uint32", defaultValue: 0 },
+            { name: "itemDefinitionId", type: "uint32", defaultValue: 0 },
             { name: "unknownByte", type: "uint8", defaultValue: 0 }
           ]
         }
@@ -120,13 +119,11 @@ export const abilitiesPackets: PacketStructures = [
         {
           name: "abilities",
           type: "array",
-          defaultValue: [{}],
+          defaultValue: [],
           fields: [
             { name: "abilityId", type: "uint32", defaultValue: 0 },
 
             { name: "abilityId2", type: "uint32", defaultValue: 0 },
-            //{ name: "unknownDword1", type: "uint32", defaultValue: 0 },
-            //{ name: "unknownDword2", type: "uint32", defaultValue: 0 },
             {
               name: "unknownArray1",
               type: "array",

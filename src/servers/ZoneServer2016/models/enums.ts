@@ -178,6 +178,7 @@ export enum LoadoutSlots {
   VEHICLE_BATTERY = 33,
   ARMOR = 38,
   RADIO = 39,
+  ITEM1 = 40,
   ITEM2 = 41
 }
 

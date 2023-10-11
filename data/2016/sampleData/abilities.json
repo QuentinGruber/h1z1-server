@@ -19,7 +19,7 @@
             }
           ],
           "unknownDword3": 2,
-          "unknownDword4": 85,
+          "itemDefinitionId": 85,
           "unknownByte1": 64
         }
       },
@@ -37,7 +37,7 @@
             }
           ],
           "unknownDword3": 2,
-          "unknownDword4": 2423,
+          "itemDefinitionId": 2423,
           "unknownByte1": 0
         }
       },
@@ -55,7 +55,7 @@
             }
           ],
           "unknownDword3": 2,
-          "unknownDword4": 5638,
+          "itemDefinitionId": 5638,
           "unknownByte1": 0
         }
       },
@@ -73,7 +73,7 @@
             }
           ],
           "unknownDword3": 2,
-          "unknownDword4": 1542,
+          "itemDefinitionId": 1542,
           "unknownByte1": 64
         }
       },
@@ -91,7 +91,7 @@
             }
           ],
           "unknownDword3": 2,
-          "unknownDword4": 0,
+          "itemDefinitionId": 0,
           "unknownByte1": 64
         }
       },
@@ -109,7 +109,7 @@
             }
           ],
           "unknownDword3": 2,
-          "unknownDword4": 0,
+          "itemDefinitionId": 0,
           "unknownByte1": 64
         }
       },
@@ -127,7 +127,7 @@
             }
           ],
           "unknownDword3": 2,
-          "unknownDword4": 0,
+          "itemDefinitionId": 0,
           "unknownByte1": 64
         }
       },
@@ -145,7 +145,7 @@
             }
           ],
           "unknownDword3": 2,
-          "unknownDword4": 0,
+          "itemDefinitionId": 0,
           "unknownByte1": 64
         }
       },
@@ -163,7 +163,7 @@
             }
           ],
           "unknownDword3": 2,
-          "unknownDword4": 0,
+          "itemDefinitionId": 0,
           "unknownByte1": 64
         }
       },
@@ -181,7 +181,7 @@
             }
           ],
           "unknownDword3": 2,
-          "unknownDword4": 0,
+          "itemDefinitionId": 0,
           "unknownByte1": 64
         }
       },
@@ -199,7 +199,7 @@
             }
           ],
           "unknownDword3": 2,
-          "unknownDword4": 0,
+          "itemDefinitionId": 0,
           "unknownByte1": 64
         }
       },
@@ -217,7 +217,7 @@
             }
           ],
           "unknownDword3": 2,
-          "unknownDword4": 0,
+          "itemDefinitionId": 0,
           "unknownByte1": 64
         }
       },
@@ -235,7 +235,7 @@
             }
           ],
           "unknownDword3": 2,
-          "unknownDword4": 0,
+          "itemDefinitionId": 0,
           "unknownByte1": 64
         }
       },
@@ -253,7 +253,7 @@
             }
           ],
           "unknownDword3": 2,
-          "unknownDword4": 0,
+          "itemDefinitionId": 0,
           "unknownByte1": 64
         }
       },
@@ -271,7 +271,7 @@
             }
           ],
           "unknownDword3": 2,
-          "unknownDword4": 0,
+          "itemDefinitionId": 0,
           "unknownByte1": 64
         }
       },
@@ -289,7 +289,7 @@
             }
           ],
           "unknownDword3": 2,
-          "unknownDword4": 0,
+          "itemDefinitionId": 0,
           "unknownByte1": 64
         }
       },
@@ -307,7 +307,7 @@
             }
           ],
           "unknownDword3": 2,
-          "unknownDword4": 0,
+          "itemDefinitionId": 0,
           "unknownByte1": 64
         }
       },
@@ -325,7 +325,7 @@
             }
           ],
           "unknownDword3": 2,
-          "unknownDword4": 0,
+          "itemDefinitionId": 0,
           "unknownByte1": 64
         }
       },
@@ -343,7 +343,7 @@
             }
           ],
           "unknownDword3": 2,
-          "unknownDword4": 0,
+          "itemDefinitionId": 0,
           "unknownByte1": 64
         }
       },
@@ -361,7 +361,7 @@
             }
           ],
           "unknownDword3": 2,
-          "unknownDword4": 0,
+          "itemDefinitionId": 0,
           "unknownByte1": 64
         }
       },
@@ -379,7 +379,7 @@
             }
           ],
           "unknownDword3": 2,
-          "unknownDword4": 0,
+          "itemDefinitionId": 0,
           "unknownByte1": 64
         }
       },
@@ -397,7 +397,7 @@
             }
           ],
           "unknownDword3": 2,
-          "unknownDword4": 0,
+          "itemDefinitionId": 0,
           "unknownByte1": 64
         }
       },
@@ -415,7 +415,7 @@
             }
           ],
           "unknownDword3": 2,
-          "unknownDword4": 0,
+          "itemDefinitionId": 0,
           "unknownByte1": 64
         }
       },
@@ -433,7 +433,7 @@
             }
           ],
           "unknownDword3": 2,
-          "unknownDword4": 0,
+          "itemDefinitionId": 0,
           "unknownByte1": 64
         }
       },
@@ -451,7 +451,7 @@
             }
           ],
           "unknownDword3": 2,
-          "unknownDword4": 0,
+          "itemDefinitionId": 0,
           "unknownByte1": 64
         }
       },
@@ -469,7 +469,7 @@
             }
           ],
           "unknownDword3": 2,
-          "unknownDword4": 0,
+          "itemDefinitionId": 0,
           "unknownByte1": 64
         }
       },
@@ -487,7 +487,7 @@
             }
           ],
           "unknownDword3": 2,
-          "unknownDword4": 0,
+          "itemDefinitionId": 0,
           "unknownByte1": 64
         }
       },
@@ -505,7 +505,7 @@
             }
           ],
           "unknownDword3": 2,
-          "unknownDword4": 0,
+          "itemDefinitionId": 0,
           "unknownByte1": 64
         }
       },
@@ -523,7 +523,7 @@
             }
           ],
           "unknownDword3": 2,
-          "unknownDword4": 0,
+          "itemDefinitionId": 0,
           "unknownByte1": 64
         }
       },
@@ -541,7 +541,7 @@
             }
           ],
           "unknownDword3": 2,
-          "unknownDword4": 0,
+          "itemDefinitionId": 0,
           "unknownByte1": 64
         }
       },
@@ -559,7 +559,7 @@
             }
           ],
           "unknownDword3": 2,
-          "unknownDword4": 0,
+          "itemDefinitionId": 0,
           "unknownByte1": 64
         }
       },
@@ -577,7 +577,7 @@
             }
           ],
           "unknownDword3": 2,
-          "unknownDword4": 0,
+          "itemDefinitionId": 0,
           "unknownByte1": 64
         }
       },
@@ -595,7 +595,7 @@
             }
           ],
           "unknownDword3": 2,
-          "unknownDword4": 0,
+          "itemDefinitionId": 0,
           "unknownByte1": 64
         }
       },
@@ -613,7 +613,7 @@
             }
           ],
           "unknownDword3": 2,
-          "unknownDword4": 0,
+          "itemDefinitionId": 0,
           "unknownByte1": 64
         }
       },
@@ -631,7 +631,7 @@
             }
           ],
           "unknownDword3": 2,
-          "unknownDword4": 0,
+          "itemDefinitionId": 0,
           "unknownByte1": 64
         }
       },
@@ -649,7 +649,7 @@
             }
           ],
           "unknownDword3": 2,
-          "unknownDword4": 0,
+          "itemDefinitionId": 0,
           "unknownByte1": 64
         }
       },
@@ -667,7 +667,7 @@
             }
           ],
           "unknownDword3": 2,
-          "unknownDword4": 0,
+          "itemDefinitionId": 0,
           "unknownByte1": 64
         }
       },
@@ -685,7 +685,7 @@
             }
           ],
           "unknownDword3": 2,
-          "unknownDword4": 0,
+          "itemDefinitionId": 0,
           "unknownByte1": 64
         }
       },
@@ -703,7 +703,7 @@
             }
           ],
           "unknownDword3": 2,
-          "unknownDword4": 0,
+          "itemDefinitionId": 0,
           "unknownByte1": 64
         }
       },
@@ -721,7 +721,7 @@
             }
           ],
           "unknownDword3": 2,
-          "unknownDword4": 0,
+          "itemDefinitionId": 0,
           "unknownByte1": 64
         }
       },
@@ -739,7 +739,7 @@
             }
           ],
           "unknownDword3": 2,
-          "unknownDword4": 0,
+          "itemDefinitionId": 0,
           "unknownByte1": 64
         }
       },
@@ -757,7 +757,7 @@
             }
           ],
           "unknownDword3": 2,
-          "unknownDword4": 0,
+          "itemDefinitionId": 0,
           "unknownByte1": 64
         }
       },
@@ -775,7 +775,7 @@
             }
           ],
           "unknownDword3": 2,
-          "unknownDword4": 0,
+          "itemDefinitionId": 0,
           "unknownByte1": 64
         }
       },
@@ -793,7 +793,7 @@
             }
           ],
           "unknownDword3": 2,
-          "unknownDword4": 0,
+          "itemDefinitionId": 0,
           "unknownByte1": 64
         }
       },
@@ -811,7 +811,7 @@
             }
           ],
           "unknownDword3": 2,
-          "unknownDword4": 0,
+          "itemDefinitionId": 0,
           "unknownByte1": 64
         }
       },
@@ -829,7 +829,7 @@
             }
           ],
           "unknownDword3": 2,
-          "unknownDword4": 0,
+          "itemDefinitionId": 0,
           "unknownByte1": 64
         }
       },
@@ -847,7 +847,7 @@
             }
           ],
           "unknownDword3": 2,
-          "unknownDword4": 0,
+          "itemDefinitionId": 0,
           "unknownByte1": 64
         }
       },
@@ -865,7 +865,7 @@
             }
           ],
           "unknownDword3": 2,
-          "unknownDword4": 0,
+          "itemDefinitionId": 0,
           "unknownByte1": 64
         }
       },
@@ -883,7 +883,7 @@
             }
           ],
           "unknownDword3": 2,
-          "unknownDword4": 0,
+          "itemDefinitionId": 0,
           "unknownByte1": 64
         }
       },
@@ -901,7 +901,7 @@
             }
           ],
           "unknownDword3": 2,
-          "unknownDword4": 0,
+          "itemDefinitionId": 0,
           "unknownByte1": 64
         }
       },
@@ -919,7 +919,7 @@
             }
           ],
           "unknownDword3": 2,
-          "unknownDword4": 0,
+          "itemDefinitionId": 0,
           "unknownByte1": 64
         }
       },
@@ -937,7 +937,7 @@
             }
           ],
           "unknownDword3": 2,
-          "unknownDword4": 0,
+          "itemDefinitionId": 0,
           "unknownByte1": 64
         }
       },
@@ -955,7 +955,7 @@
             }
           ],
           "unknownDword3": 2,
-          "unknownDword4": 0,
+          "itemDefinitionId": 0,
           "unknownByte1": 64
         }
       },
@@ -973,7 +973,7 @@
             }
           ],
           "unknownDword3": 2,
-          "unknownDword4": 0,
+          "itemDefinitionId": 0,
           "unknownByte1": 64
         }
       },
@@ -991,7 +991,7 @@
             }
           ],
           "unknownDword3": 2,
-          "unknownDword4": 0,
+          "itemDefinitionId": 0,
           "unknownByte1": 64
         }
       },
@@ -1009,7 +1009,7 @@
             }
           ],
           "unknownDword3": 2,
-          "unknownDword4": 0,
+          "itemDefinitionId": 0,
           "unknownByte1": 64
         }
       },
@@ -1027,7 +1027,7 @@
             }
           ],
           "unknownDword3": 2,
-          "unknownDword4": 0,
+          "itemDefinitionId": 0,
           "unknownByte1": 64
         }
       },
@@ -1045,7 +1045,7 @@
             }
           ],
           "unknownDword3": 2,
-          "unknownDword4": 0,
+          "itemDefinitionId": 0,
           "unknownByte1": 64
         }
       },
@@ -1063,7 +1063,7 @@
             }
           ],
           "unknownDword3": 2,
-          "unknownDword4": 0,
+          "itemDefinitionId": 0,
           "unknownByte1": 64
         }
       },
@@ -1081,7 +1081,7 @@
             }
           ],
           "unknownDword3": 2,
-          "unknownDword4": 0,
+          "itemDefinitionId": 0,
           "unknownByte1": 64
         }
       },
@@ -1099,7 +1099,7 @@
             }
           ],
           "unknownDword3": 2,
-          "unknownDword4": 0,
+          "itemDefinitionId": 0,
           "unknownByte1": 64
         }
       },
@@ -1117,7 +1117,7 @@
             }
           ],
           "unknownDword3": 2,
-          "unknownDword4": 0,
+          "itemDefinitionId": 0,
           "unknownByte1": 64
         }
       },
@@ -1135,7 +1135,7 @@
             }
           ],
           "unknownDword3": 2,
-          "unknownDword4": 0,
+          "itemDefinitionId": 0,
           "unknownByte1": 64
         }
       },
@@ -1153,7 +1153,7 @@
             }
           ],
           "unknownDword3": 2,
-          "unknownDword4": 0,
+          "itemDefinitionId": 0,
           "unknownByte1": 64
         }
       },
@@ -1171,7 +1171,7 @@
             }
           ],
           "unknownDword3": 2,
-          "unknownDword4": 0,
+          "itemDefinitionId": 0,
           "unknownByte1": 64
         }
       },
@@ -1189,7 +1189,7 @@
             }
           ],
           "unknownDword3": 2,
-          "unknownDword4": 0,
+          "itemDefinitionId": 0,
           "unknownByte1": 64
         }
       },
@@ -1207,7 +1207,7 @@
             }
           ],
           "unknownDword3": 2,
-          "unknownDword4": 0,
+          "itemDefinitionId": 0,
           "unknownByte1": 64
         }
       },
@@ -1225,7 +1225,7 @@
             }
           ],
           "unknownDword3": 2,
-          "unknownDword4": 0,
+          "itemDefinitionId": 0,
           "unknownByte1": 64
         }
       },
@@ -1243,7 +1243,7 @@
             }
           ],
           "unknownDword3": 2,
-          "unknownDword4": 0,
+          "itemDefinitionId": 0,
           "unknownByte1": 64
         }
       },
@@ -1261,7 +1261,7 @@
             }
           ],
           "unknownDword3": 2,
-          "unknownDword4": 0,
+          "itemDefinitionId": 0,
           "unknownByte1": 64
         }
       },
@@ -1279,7 +1279,7 @@
             }
           ],
           "unknownDword3": 2,
-          "unknownDword4": 0,
+          "itemDefinitionId": 0,
           "unknownByte1": 64
         }
       },
@@ -1297,7 +1297,7 @@
             }
           ],
           "unknownDword3": 2,
-          "unknownDword4": 0,
+          "itemDefinitionId": 0,
           "unknownByte1": 64
         }
       },
@@ -1315,7 +1315,7 @@
             }
           ],
           "unknownDword3": 2,
-          "unknownDword4": 0,
+          "itemDefinitionId": 0,
           "unknownByte1": 64
         }
       },
@@ -1333,7 +1333,7 @@
             }
           ],
           "unknownDword3": 2,
-          "unknownDword4": 0,
+          "itemDefinitionId": 0,
           "unknownByte1": 64
         }
       },
@@ -1351,7 +1351,7 @@
             }
           ],
           "unknownDword3": 2,
-          "unknownDword4": 0,
+          "itemDefinitionId": 0,
           "unknownByte1": 64
         }
       },
@@ -1369,7 +1369,7 @@
             }
           ],
           "unknownDword3": 2,
-          "unknownDword4": 0,
+          "itemDefinitionId": 0,
           "unknownByte1": 64
         }
       },
@@ -1387,7 +1387,7 @@
             }
           ],
           "unknownDword3": 2,
-          "unknownDword4": 0,
+          "itemDefinitionId": 0,
           "unknownByte1": 64
         }
       },
@@ -1405,7 +1405,7 @@
             }
           ],
           "unknownDword3": 2,
-          "unknownDword4": 0,
+          "itemDefinitionId": 0,
           "unknownByte1": 64
         }
       },
@@ -1423,7 +1423,7 @@
             }
           ],
           "unknownDword3": 2,
-          "unknownDword4": 0,
+          "itemDefinitionId": 0,
           "unknownByte1": 64
         }
       },
@@ -1441,7 +1441,7 @@
             }
           ],
           "unknownDword3": 2,
-          "unknownDword4": 0,
+          "itemDefinitionId": 0,
           "unknownByte1": 64
         }
       },
@@ -1459,7 +1459,7 @@
             }
           ],
           "unknownDword3": 2,
-          "unknownDword4": 0,
+          "itemDefinitionId": 0,
           "unknownByte1": 64
         }
       },
@@ -1477,7 +1477,7 @@
             }
           ],
           "unknownDword3": 2,
-          "unknownDword4": 0,
+          "itemDefinitionId": 0,
           "unknownByte1": 64
         }
       },
@@ -1495,7 +1495,7 @@
             }
           ],
           "unknownDword3": 2,
-          "unknownDword4": 0,
+          "itemDefinitionId": 0,
           "unknownByte1": 64
         }
       },
@@ -1513,7 +1513,7 @@
             }
           ],
           "unknownDword3": 2,
-          "unknownDword4": 0,
+          "itemDefinitionId": 0,
           "unknownByte1": 64
         }
       },
@@ -1531,7 +1531,7 @@
             }
           ],
           "unknownDword3": 2,
-          "unknownDword4": 0,
+          "itemDefinitionId": 0,
           "unknownByte1": 64
         }
       },
@@ -1549,7 +1549,7 @@
             }
           ],
           "unknownDword3": 2,
-          "unknownDword4": 0,
+          "itemDefinitionId": 0,
           "unknownByte1": 64
         }
       },
@@ -1567,7 +1567,7 @@
             }
           ],
           "unknownDword3": 2,
-          "unknownDword4": 0,
+          "itemDefinitionId": 0,
           "unknownByte1": 64
         }
       },
@@ -1585,7 +1585,7 @@
             }
           ],
           "unknownDword3": 2,
-          "unknownDword4": 0,
+          "itemDefinitionId": 0,
           "unknownByte1": 64
         }
       },
@@ -1603,7 +1603,7 @@
             }
           ],
           "unknownDword3": 2,
-          "unknownDword4": 0,
+          "itemDefinitionId": 0,
           "unknownByte1": 64
         }
       },
@@ -1621,7 +1621,7 @@
             }
           ],
           "unknownDword3": 2,
-          "unknownDword4": 0,
+          "itemDefinitionId": 0,
           "unknownByte1": 64
         }
       },
@@ -1639,7 +1639,7 @@
             }
           ],
           "unknownDword3": 2,
-          "unknownDword4": 0,
+          "itemDefinitionId": 0,
           "unknownByte1": 64
         }
       },
@@ -1657,7 +1657,7 @@
             }
           ],
           "unknownDword3": 2,
-          "unknownDword4": 0,
+          "itemDefinitionId": 0,
           "unknownByte1": 64
         }
       },
@@ -1675,7 +1675,7 @@
             }
           ],
           "unknownDword3": 2,
-          "unknownDword4": 0,
+          "itemDefinitionId": 0,
           "unknownByte1": 64
         }
       },
@@ -1693,7 +1693,7 @@
             }
           ],
           "unknownDword3": 2,
-          "unknownDword4": 0,
+          "itemDefinitionId": 0,
           "unknownByte1": 64
         }
       },
@@ -1711,7 +1711,7 @@
             }
           ],
           "unknownDword3": 2,
-          "unknownDword4": 0,
+          "itemDefinitionId": 0,
           "unknownByte1": 64
         }
       },
@@ -1729,7 +1729,7 @@
             }
           ],
           "unknownDword3": 2,
-          "unknownDword4": 0,
+          "itemDefinitionId": 0,
           "unknownByte1": 64
         }
       },
@@ -1747,7 +1747,7 @@
             }
           ],
           "unknownDword3": 2,
-          "unknownDword4": 0,
+          "itemDefinitionId": 0,
           "unknownByte1": 64
         }
       },
@@ -1765,7 +1765,7 @@
             }
           ],
           "unknownDword3": 2,
-          "unknownDword4": 0,
+          "itemDefinitionId": 0,
           "unknownByte1": 64
         }
       },
@@ -1783,7 +1783,7 @@
             }
           ],
           "unknownDword3": 2,
-          "unknownDword4": 0,
+          "itemDefinitionId": 0,
           "unknownByte1": 64
         }
       },
@@ -1801,7 +1801,7 @@
             }
           ],
           "unknownDword3": 2,
-          "unknownDword4": 0,
+          "itemDefinitionId": 0,
           "unknownByte1": 64
         }
       },
@@ -1819,7 +1819,7 @@
             }
           ],
           "unknownDword3": 2,
-          "unknownDword4": 0,
+          "itemDefinitionId": 0,
           "unknownByte1": 64
         }
       },
@@ -1837,7 +1837,7 @@
             }
           ],
           "unknownDword3": 2,
-          "unknownDword4": 0,
+          "itemDefinitionId": 0,
           "unknownByte1": 64
         }
       },
@@ -1855,7 +1855,7 @@
             }
           ],
           "unknownDword3": 2,
-          "unknownDword4": 0,
+          "itemDefinitionId": 0,
           "unknownByte1": 64
         }
       },
@@ -1873,7 +1873,7 @@
             }
           ],
           "unknownDword3": 2,
-          "unknownDword4": 0,
+          "itemDefinitionId": 0,
           "unknownByte1": 0
         }
       }

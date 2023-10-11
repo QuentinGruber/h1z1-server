@@ -5270,7 +5270,7 @@ export class ZoneServer2016 extends EventEmitter {
       currentWeaponItemDef = this.getItemDefinition(weapon?.itemDefinitionId);
     if (currentWeaponItemDef) {
       this.abilitiesManager.deactivateAbility(
-        this, 
+        this,
         client,
         currentWeaponItemDef.ACTIVATABLE_ABILITY_ID
       );
@@ -5306,7 +5306,11 @@ export class ZoneServer2016 extends EventEmitter {
         loadoutItem.itemDefinitionId
       );
       if (itemDefinition) {
-        this.abilitiesManager.deactivateAbility(this, client, itemDefinition.ACTIVATABLE_ABILITY_ID);
+        this.abilitiesManager.deactivateAbility(
+          this,
+          client,
+          itemDefinition.ACTIVATABLE_ABILITY_ID
+        );
       }
       this.sendRemoteWeaponUpdateDataToAllOthers(
         client,
