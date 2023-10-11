@@ -35,7 +35,7 @@ export interface GatewayProtocolReadingFormat {
   result?: any;
 }
 
-export interface H1emuProtocolReadingFormat {
+export interface LZConnectionProtocolReadingFormat {
   type: number;
   name: string;
   data: any;

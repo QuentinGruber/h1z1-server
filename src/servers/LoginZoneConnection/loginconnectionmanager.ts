@@ -11,14 +11,18 @@
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
 
-import { H1emuClient } from "./shared/h1emuclient";
-import { H1emuServer } from "./shared/h1emuserver";
-const debug = require("debug")("H1emuServer");
+import { LZConnectionClient } from "./shared/lzconnectionclient";
+import { BaseLZConnection } from "./shared/baselzconnection";
+const debug = require("debug")("BaseLZConnection");
 
-export class H1emuZoneServer extends H1emuServer {
+/**
+ * Handles connections between the zoneserver and the loginserver
+ * Instantiated by a zoneserver only.
+ */
+export class LoginConnectionManager extends BaseLZConnection {
   _loginServerInfo: any;
   _sessionData: any;
-  _loginConnection?: H1emuClient;
+  _loginConnection?: LZConnectionClient;
   _maxConnectionRetry: number = 0;
   _hasBeenConnectedToLogin: boolean = false;
   constructor(serverId: number, serverPort?: number) {
@@ -26,7 +30,7 @@ export class H1emuZoneServer extends H1emuServer {
     this.messageHandler = (
       messageType: string,
       data: Buffer,
-      client: H1emuClient
+      client: LZConnectionClient
     ): void => {
       const packet = this._protocol.parse(data);
       debug(packet);
@@ -68,7 +72,7 @@ export class H1emuZoneServer extends H1emuServer {
           break;
       }
     };
-    this.ping = (client: H1emuClient) => {
+    this.ping = (client: LZConnectionClient) => {
       if (client?.serverId) {
         super.ping(client);
         if (Date.now() > client.lastPing + this._pingTimeout) {
@@ -84,7 +88,7 @@ export class H1emuZoneServer extends H1emuServer {
   }
   connect() {
     this.sendData(
-      this._loginServerInfo as H1emuClient,
+      this._loginServerInfo as LZConnectionClient,
       "SessionRequest",
       this._sessionData
     );
@@ -103,13 +107,13 @@ export class H1emuZoneServer extends H1emuServer {
 
   start() {
     if (!this._loginServerInfo && !this._sessionData) {
-      debug("[ERROR] H1emuZoneServer started without setting login info!");
+      debug("[ERROR] LoginConnectionManager started without setting login info!");
       return;
     }
     super.start();
     this.connect();
     this._pingTimer = setTimeout(() => {
-      this.ping(this._loginConnection as H1emuClient);
+      this.ping(this._loginConnection as LZConnectionClient);
     }, this._pingTime);
   }
 }

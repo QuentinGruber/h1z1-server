@@ -14,8 +14,8 @@
 import { EventEmitter } from "node:events";
 
 import { SOEServer } from "../SoeServer/soeserver";
-import { H1emuLoginServer as ZoneConnectionManager } from "../H1emuServer/h1emuLoginServer";
-import { H1emuClient } from "../H1emuServer/shared/h1emuclient";
+import { ZoneConnectionManager } from "../LoginZoneConnection/zoneconnectionmanager";
+import { LZConnectionClient } from "../LoginZoneConnection/shared/lzconnectionclient";
 import { LoginProtocol } from "../../protocols/loginprotocol";
 import { MongoClient } from "mongodb";
 import {
@@ -88,7 +88,7 @@ export class LoginServer extends EventEmitter {
   _enableHttpServer: boolean;
   _httpServerPort: number = 80;
   private _zoneConnectionManager!: ZoneConnectionManager;
-  private _zoneConnections: { [h1emuClientId: string]: number } = {};
+  private _zoneConnections: { [LZConnectionClientId: string]: number } = {};
   private _internalReqCount: number = 0;
   private _pendingInternalReq: { [requestId: number]: any } = {};
   private _pendingInternalReqTimeouts: { [requestId: number]: NodeJS.Timeout } =
@@ -175,7 +175,7 @@ export class LoginServer extends EventEmitter {
 
       this._zoneConnectionManager.on(
         "data",
-        async (err: string, client: H1emuClient, packet: any) => {
+        async (err: string, client: LZConnectionClient, packet: any) => {
           if (err) {
             console.error(err);
             return;
@@ -214,7 +214,7 @@ export class LoginServer extends EventEmitter {
                     await this.updateZoneServerVersion(serverId, h1emuVersion);
                     await this.updateServerStatus(serverId, true);
                   } else {
-                    this.rejectH1emuConnection(serverId, client);
+                    this.rejectZoneConnection(serverId, client);
                     return;
                   }
                   this._zoneConnectionManager.sendData(client, "SessionReply", {
@@ -285,7 +285,7 @@ export class LoginServer extends EventEmitter {
                   break;
                 }
                 default:
-                  console.log(`Unhandled h1emu packet: ${packet.name}`);
+                  console.log(`Unhandled ZoneConnection packet: ${packet.name}`);
                   break;
               }
             }
@@ -321,7 +321,7 @@ export class LoginServer extends EventEmitter {
       );
       this._zoneConnectionManager.on(
         "disconnect",
-        async (err: string, client: H1emuClient, reason: number) => {
+        async (err: string, client: LZConnectionClient, reason: number) => {
           debug(
             `ZoneConnection dropped: ${
               reason ? "Connection Lost" : "Unknown Error"
@@ -365,7 +365,7 @@ export class LoginServer extends EventEmitter {
     return client;
   }
 
-  rejectH1emuConnection(serverId: number, client: H1emuClient) {
+  rejectZoneConnection(serverId: number, client: LZConnectionClient) {
     debug(
       `rejected connection serverId : ${serverId} address: ${client.address} `
     );

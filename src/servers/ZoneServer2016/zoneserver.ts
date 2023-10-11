@@ -19,8 +19,8 @@ import { EventEmitter } from "node:events";
 import { GatewayServer } from "../GatewayServer/gatewayserver";
 import { H1Z1Protocol } from "../../protocols/h1z1protocol";
 import SOEClient from "../SoeServer/soeclient";
-import { H1emuZoneServer } from "../H1emuServer/h1emuZoneServer";
-import { H1emuClient } from "../H1emuServer/shared/h1emuclient";
+import { LoginConnectionManager } from "../LoginZoneConnection/loginconnectionmanager";
+import { LZConnectionClient } from "../LoginZoneConnection/shared/lzconnectionclient";
 import { Resolver } from "node:dns";
 
 import { promisify } from "node:util";
@@ -249,7 +249,7 @@ export class ZoneServer2016 extends EventEmitter {
   _serverName = process.env.SERVER_NAME || "";
   readonly _mongoAddress: string;
   private readonly _clientProtocol = "ClientProtocol_1080";
-  private _h1emuZoneServer!: H1emuZoneServer;
+  private _loginConnectionManager!: LoginConnectionManager;
   _worldId = 0;
   _grid: GridCell[] = [];
   _spawnGrid: SpawnCell[] = [];
@@ -450,7 +450,7 @@ export class ZoneServer2016 extends EventEmitter {
           `Client logged in from ${client.address}:${client.port} with character id: ${characterId}`
         );
         if (!this._soloMode) {
-          this._h1emuZoneServer.sendData(
+          this._loginConnectionManager.sendData(
             {
               ...this._loginServerInfo,
               // TODO: what a dirty hack
@@ -546,12 +546,12 @@ export class ZoneServer2016 extends EventEmitter {
   }
 
   async registerLoginConnectionListeners(internalServerPort?: number) {
-    this._h1emuZoneServer = new H1emuZoneServer(
+    this._loginConnectionManager = new LoginConnectionManager(
       this._worldId,
       internalServerPort
     ); // opens local socket to connect to loginserver
 
-    this._h1emuZoneServer.on("session", (err: string, client: H1emuClient) => {
+    this._loginConnectionManager.on("session", (err: string, client: LZConnectionClient) => {
       if (err) {
         debug(`An error occured for LoginConnection with ${client.sessionId}`);
         console.error(err);
@@ -561,18 +561,18 @@ export class ZoneServer2016 extends EventEmitter {
       }
     });
 
-    this._h1emuZoneServer.on(
+    this._loginConnectionManager.on(
       "sessionfailed",
-      (err: string, client: H1emuClient) => {
+      (err: string, client: LZConnectionClient) => {
         console.error(`h1emuServer sessionfailed for ${client.sessionId}`);
         console.error(err);
         process.exitCode = 11;
       }
     );
 
-    this._h1emuZoneServer.on(
+    this._loginConnectionManager.on(
       "disconnect",
-      (err: string, client: H1emuClient, reason: number) => {
+      (err: string, client: LZConnectionClient, reason: number) => {
         debug(
           `LoginConnection dropped: ${
             reason ? "Connection Lost" : "Unknown Error"
@@ -581,9 +581,9 @@ export class ZoneServer2016 extends EventEmitter {
       }
     );
 
-    this._h1emuZoneServer.on(
+    this._loginConnectionManager.on(
       "data",
-      async (err: string, client: H1emuClient, packet: any) => {
+      async (err: string, client: LZConnectionClient, packet: any) => {
         if (err) {
           console.error(err);
         } else {
@@ -615,20 +615,20 @@ export class ZoneServer2016 extends EventEmitter {
                       }
                     }
                   );
-                  this._h1emuZoneServer.sendData(
+                  this._loginConnectionManager.sendData(
                     client,
                     "CharacterDeleteReply",
                     { status: 1, reqId: reqId }
                   );
                 } else {
-                  this._h1emuZoneServer.sendData(
+                  this._loginConnectionManager.sendData(
                     client,
                     "CharacterDeleteReply",
                     { status: 1, reqId: reqId }
                   );
                 }
               } catch (error) {
-                this._h1emuZoneServer.sendData(client, "CharacterDeleteReply", {
+                this._loginConnectionManager.sendData(client, "CharacterDeleteReply", {
                   status: 0,
                   reqId: reqId
                 });
@@ -778,7 +778,7 @@ export class ZoneServer2016 extends EventEmitter {
     );
   }
 
-  async onCharacterCreateRequest(client: H1emuClient, packet: any) {
+  async onCharacterCreateRequest(client: LZConnectionClient, packet: any) {
     const { characterObjStringify, reqId } = packet.data;
     try {
       const characterData = JSON.parse(characterObjStringify),
@@ -806,37 +806,37 @@ export class ZoneServer2016 extends EventEmitter {
       if (!charactersArray) {
         await collection.insertOne(character);
       }
-      this._h1emuZoneServer.sendData(client, "CharacterCreateReply", {
+      this._loginConnectionManager.sendData(client, "CharacterCreateReply", {
         reqId: reqId,
         status: 1
       });
     } catch (error) {
-      this._h1emuZoneServer.sendData(client, "CharacterCreateReply", {
+      this._loginConnectionManager.sendData(client, "CharacterCreateReply", {
         reqId: reqId,
         status: 0
       });
     }
   }
-  async onClientIsAdminRequest(client: H1emuClient, packet: any) {
+  async onClientIsAdminRequest(client: LZConnectionClient, packet: any) {
     const { guid, reqId } = packet.data;
     try {
-      this._h1emuZoneServer.sendData(client, "ClientIsAdminReply", {
+      this._loginConnectionManager.sendData(client, "ClientIsAdminReply", {
         reqId: reqId,
         status: this.getIsAdmin(guid)
       });
     } catch (error) {
-      this._h1emuZoneServer.sendData(client, "ClientIsAdminReply", {
+      this._loginConnectionManager.sendData(client, "ClientIsAdminReply", {
         reqId: reqId,
         status: 0
       });
     }
   }
 
-  sendCharacterAllowedReply(client: H1emuClient, reqId: number, status: number, rejectionFlag: CONNECTION_REJECTION_FLAGS) {
-    this._h1emuZoneServer.sendData(client, "CharacterAllowedReply", { reqId, status, rejectionFlag });
+  sendCharacterAllowedReply(client: LZConnectionClient, reqId: number, status: number, rejectionFlag: CONNECTION_REJECTION_FLAGS) {
+    this._loginConnectionManager.sendData(client, "CharacterAllowedReply", { reqId, status, rejectionFlag });
   }
 
-  async onClientAllowedRequest(client: H1emuClient, packet: any) {
+  async onClientAllowedRequest(client: LZConnectionClient, packet: any) {
     const { characterId, loginSessionId, reqId } = packet.data;
     if (this.isRebooting) {
       console.log(
@@ -850,7 +850,7 @@ export class ZoneServer2016 extends EventEmitter {
       console.log(
         `Character (${characterId}) connection rejected due to server lock`
       );
-      this._h1emuZoneServer.sendData(client, "CharacterAllowedReply", {
+      this._loginConnectionManager.sendData(client, "CharacterAllowedReply", {
         status: 0,
         reqId: reqId,
         rejectionFlag: CONNECTION_REJECTION_FLAGS.SERVER_LOCKED
@@ -866,7 +866,7 @@ export class ZoneServer2016 extends EventEmitter {
       console.log(
         `Character (${characterId}) connection rejected due to local ban`
       );
-      this._h1emuZoneServer.sendData(client, "CharacterAllowedReply", {
+      this._loginConnectionManager.sendData(client, "CharacterAllowedReply", {
         status: 0,
         reqId: reqId,
         rejectionFlag: CONNECTION_REJECTION_FLAGS.LOCAL_BAN
@@ -884,7 +884,7 @@ export class ZoneServer2016 extends EventEmitter {
           console.log(
             `Character (${characterId}) connection rejected due to rejection type ${rejectionFlag}`
           );
-          this._h1emuZoneServer.sendData(client, "CharacterAllowedReply", {
+          this._loginConnectionManager.sendData(client, "CharacterAllowedReply", {
             status: 0,
             reqId: reqId,
             rejectionFlag
@@ -900,20 +900,20 @@ export class ZoneServer2016 extends EventEmitter {
           status: 1
         });
       if (!character) {
-        this._h1emuZoneServer.sendData(client, "CharacterAllowedReply", {
+        this._loginConnectionManager.sendData(client, "CharacterAllowedReply", {
           status: 0,
           reqId: reqId,
           rejectionFlag: CONNECTION_REJECTION_FLAGS.CHARACTER_NOT_FOUND
         });
       }
 
-      this._h1emuZoneServer.sendData(client, "CharacterAllowedReply", {
+      this._loginConnectionManager.sendData(client, "CharacterAllowedReply", {
         status: 1,
         reqId: reqId
       });
     } catch (error) {
       console.log(error);
-      this._h1emuZoneServer.sendData(client, "CharacterAllowedReply", {
+      this._loginConnectionManager.sendData(client, "CharacterAllowedReply", {
         status: 0,
         reqId: reqId,
         rejectionFlag: CONNECTION_REJECTION_FLAGS.ERROR
@@ -1245,11 +1245,11 @@ export class ZoneServer2016 extends EventEmitter {
     if (!this._loginServerInfo.address) {
       await this.fetchLoginInfo();
     }
-    this._h1emuZoneServer.setLoginInfo(this._loginServerInfo, {
+    this._loginConnectionManager.setLoginInfo(this._loginServerInfo, {
       serverId: this._worldId,
       h1emuVersion: process.env.H1Z1_SERVER_VERSION
     });
-    this._h1emuZoneServer.start();
+    this._loginConnectionManager.start();
     await this._db
       ?.collection(DB_COLLECTIONS.SERVERS)
       .findOneAndUpdate(
@@ -7720,7 +7720,7 @@ export class ZoneServer2016 extends EventEmitter {
   }
   sendZonePopulationUpdate() {
     const populationNumber = _.size(this._characters);
-    this._h1emuZoneServer.sendData(
+    this._loginConnectionManager.sendData(
       {
         ...this._loginServerInfo,
         // TODO: what a dirty hack
