@@ -79,8 +79,8 @@
         "OVERHEAT_PENALTY_MS": 0,
         "RANGE_STRING_ID": 0,
         "MELEE_DETECT": {
-          "MELEE_DETECT_WIDTH": 1041865114,
-          "MELEE_DETECT_HEIGHT": 1036831949
+          "MELEE_DETECT_WIDTH": 0.15,
+          "MELEE_DETECT_HEIGHT": 0.1
         },
         "ANIMATION_SET_NAME": "Rifle",
         "VEHICLE_FIRST_PERSON_CAMERA_ID": 0,
@@ -134,8 +134,8 @@
         "OVERHEAT_PENALTY_MS": 0,
         "RANGE_STRING_ID": 0,
         "MELEE_DETECT": {
-          "MELEE_DETECT_WIDTH": 1041865114,
-          "MELEE_DETECT_HEIGHT": 1036831949
+          "MELEE_DETECT_WIDTH": 0.15,
+          "MELEE_DETECT_HEIGHT": 0.1
         },
         "ANIMATION_SET_NAME": "Rifle",
         "VEHICLE_FIRST_PERSON_CAMERA_ID": 0,
@@ -189,8 +189,8 @@
         "OVERHEAT_PENALTY_MS": 0,
         "RANGE_STRING_ID": 0,
         "MELEE_DETECT": {
-          "MELEE_DETECT_WIDTH": 1041865114,
-          "MELEE_DETECT_HEIGHT": 1036831949
+          "MELEE_DETECT_WIDTH": 0.15,
+          "MELEE_DETECT_HEIGHT": 0.1
         },
         "ANIMATION_SET_NAME": "Rifle",
         "VEHICLE_FIRST_PERSON_CAMERA_ID": 0,
@@ -299,8 +299,8 @@
         "OVERHEAT_PENALTY_MS": 0,
         "RANGE_STRING_ID": 0,
         "MELEE_DETECT": {
-          "MELEE_DETECT_WIDTH": 1041865114,
-          "MELEE_DETECT_HEIGHT": 1036831949
+          "MELEE_DETECT_WIDTH": 0.15,
+          "MELEE_DETECT_HEIGHT": 0.1
         },
         "ANIMATION_SET_NAME": "Rifle",
         "VEHICLE_FIRST_PERSON_CAMERA_ID": 0,
@@ -354,8 +354,8 @@
         "OVERHEAT_PENALTY_MS": 0,
         "RANGE_STRING_ID": 0,
         "MELEE_DETECT": {
-          "MELEE_DETECT_WIDTH": 1041865114,
-          "MELEE_DETECT_HEIGHT": 1036831949
+          "MELEE_DETECT_WIDTH": 0.15,
+          "MELEE_DETECT_HEIGHT": 0.1
         },
         "ANIMATION_SET_NAME": "Rifle",
         "VEHICLE_FIRST_PERSON_CAMERA_ID": 0,
@@ -409,8 +409,8 @@
         "OVERHEAT_PENALTY_MS": 0,
         "RANGE_STRING_ID": 0,
         "MELEE_DETECT": {
-          "MELEE_DETECT_WIDTH": 1041865114,
-          "MELEE_DETECT_HEIGHT": 1036831949
+          "MELEE_DETECT_WIDTH": 0.15,
+          "MELEE_DETECT_HEIGHT": 0.1
         },
         "ANIMATION_SET_NAME": "Rifle",
         "VEHICLE_FIRST_PERSON_CAMERA_ID": 0,
@@ -464,8 +464,8 @@
         "OVERHEAT_PENALTY_MS": 0,
         "RANGE_STRING_ID": 0,
         "MELEE_DETECT": {
-          "MELEE_DETECT_WIDTH": 1041865114,
-          "MELEE_DETECT_HEIGHT": 1036831949
+          "MELEE_DETECT_WIDTH": 0.15,
+          "MELEE_DETECT_HEIGHT": 0.1
         },
         "ANIMATION_SET_NAME": "Rifle",
         "VEHICLE_FIRST_PERSON_CAMERA_ID": 0,
@@ -506,8 +506,8 @@
         "OVERHEAT_PENALTY_MS": 0,
         "RANGE_STRING_ID": 0,
         "MELEE_DETECT": {
-          "MELEE_DETECT_WIDTH": 1041865114,
-          "MELEE_DETECT_HEIGHT": 1036831949
+          "MELEE_DETECT_WIDTH": 0.15,
+          "MELEE_DETECT_HEIGHT": 0.1
         },
         "ANIMATION_SET_NAME": "Rifle",
         "VEHICLE_FIRST_PERSON_CAMERA_ID": 0,
@@ -561,8 +561,8 @@
         "OVERHEAT_PENALTY_MS": 0,
         "RANGE_STRING_ID": 0,
         "MELEE_DETECT": {
-          "MELEE_DETECT_WIDTH": 1041865114,
-          "MELEE_DETECT_HEIGHT": 1036831949
+          "MELEE_DETECT_WIDTH": 0.15,
+          "MELEE_DETECT_HEIGHT": 0.1
         },
         "ANIMATION_SET_NAME": "Rifle",
         "VEHICLE_FIRST_PERSON_CAMERA_ID": 0,
@@ -616,8 +616,8 @@
         "OVERHEAT_PENALTY_MS": 0,
         "RANGE_STRING_ID": 0,
         "MELEE_DETECT": {
-          "MELEE_DETECT_WIDTH": 1041865114,
-          "MELEE_DETECT_HEIGHT": 1036831949
+          "MELEE_DETECT_WIDTH": 0.15,
+          "MELEE_DETECT_HEIGHT": 0.1
         },
         "ANIMATION_SET_NAME": "Rifle",
         "VEHICLE_FIRST_PERSON_CAMERA_ID": 0,
@@ -671,8 +671,8 @@
         "OVERHEAT_PENALTY_MS": 0,
         "RANGE_STRING_ID": 0,
         "MELEE_DETECT": {
-          "MELEE_DETECT_WIDTH": 1041865114,
-          "MELEE_DETECT_HEIGHT": 1036831949
+          "MELEE_DETECT_WIDTH": 0.15,
+          "MELEE_DETECT_HEIGHT": 0.1
         },
         "ANIMATION_SET_NAME": "Rifle",
         "VEHICLE_FIRST_PERSON_CAMERA_ID": 0,
@@ -787,8 +787,8 @@
         "OVERHEAT_PENALTY_MS": 0,
         "RANGE_STRING_ID": 0,
         "MELEE_DETECT": {
-          "MELEE_DETECT_WIDTH": 1041865114,
-          "MELEE_DETECT_HEIGHT": 1036831949
+          "MELEE_DETECT_WIDTH": 0.15,
+          "MELEE_DETECT_HEIGHT": 0.1
         },
         "ANIMATION_SET_NAME": "Rifle",
         "VEHICLE_FIRST_PERSON_CAMERA_ID": 0,
@@ -1058,8 +1058,8 @@
         "OVERHEAT_PENALTY_MS": 0,
         "RANGE_STRING_ID": 0,
         "MELEE_DETECT": {
-          "MELEE_DETECT_WIDTH": 1041865114,
-          "MELEE_DETECT_HEIGHT": 1036831949
+          "MELEE_DETECT_WIDTH": 0.15,
+          "MELEE_DETECT_HEIGHT": 0.1
         },
         "ANIMATION_SET_NAME": "Rifle",
         "VEHICLE_FIRST_PERSON_CAMERA_ID": 0,
@@ -1100,8 +1100,8 @@
         "OVERHEAT_PENALTY_MS": 0,
         "RANGE_STRING_ID": 0,
         "MELEE_DETECT": {
-          "MELEE_DETECT_WIDTH": 1041865114,
-          "MELEE_DETECT_HEIGHT": 1036831949
+          "MELEE_DETECT_WIDTH": 0.15,
+          "MELEE_DETECT_HEIGHT": 0.1
         },
         "ANIMATION_SET_NAME": "Rifle",
         "VEHICLE_FIRST_PERSON_CAMERA_ID": 0,
@@ -1210,8 +1210,8 @@
         "OVERHEAT_PENALTY_MS": 0,
         "RANGE_STRING_ID": 0,
         "MELEE_DETECT": {
-          "MELEE_DETECT_WIDTH": 1041865114,
-          "MELEE_DETECT_HEIGHT": 1036831949
+          "MELEE_DETECT_WIDTH": 0.15,
+          "MELEE_DETECT_HEIGHT": 0.1
         },
         "ANIMATION_SET_NAME": "Rifle",
         "VEHICLE_FIRST_PERSON_CAMERA_ID": 0,
@@ -1252,8 +1252,8 @@
         "OVERHEAT_PENALTY_MS": 0,
         "RANGE_STRING_ID": 0,
         "MELEE_DETECT": {
-          "MELEE_DETECT_WIDTH": 1041865114,
-          "MELEE_DETECT_HEIGHT": 1036831949
+          "MELEE_DETECT_WIDTH": 0.15,
+          "MELEE_DETECT_HEIGHT": 0.1
         },
         "ANIMATION_SET_NAME": "Rifle",
         "VEHICLE_FIRST_PERSON_CAMERA_ID": 0,
@@ -1465,8 +1465,8 @@
         "OVERHEAT_PENALTY_MS": 0,
         "RANGE_STRING_ID": 0,
         "MELEE_DETECT": {
-          "MELEE_DETECT_WIDTH": 1041865114,
-          "MELEE_DETECT_HEIGHT": 1036831949
+          "MELEE_DETECT_WIDTH": 0.15,
+          "MELEE_DETECT_HEIGHT": 0.1
         },
         "ANIMATION_SET_NAME": "Rifle",
         "VEHICLE_FIRST_PERSON_CAMERA_ID": 0,
@@ -1520,8 +1520,8 @@
         "OVERHEAT_PENALTY_MS": 0,
         "RANGE_STRING_ID": 0,
         "MELEE_DETECT": {
-          "MELEE_DETECT_WIDTH": 1041865114,
-          "MELEE_DETECT_HEIGHT": 1036831949
+          "MELEE_DETECT_WIDTH": 0.15,
+          "MELEE_DETECT_HEIGHT": 0.1
         },
         "ANIMATION_SET_NAME": "Rifle",
         "VEHICLE_FIRST_PERSON_CAMERA_ID": 0,
@@ -1562,8 +1562,8 @@
         "OVERHEAT_PENALTY_MS": 0,
         "RANGE_STRING_ID": 0,
         "MELEE_DETECT": {
-          "MELEE_DETECT_WIDTH": 1041865114,
-          "MELEE_DETECT_HEIGHT": 1036831949
+          "MELEE_DETECT_WIDTH": 0.15,
+          "MELEE_DETECT_HEIGHT": 0.1
         },
         "ANIMATION_SET_NAME": "Rifle",
         "VEHICLE_FIRST_PERSON_CAMERA_ID": 0,
@@ -1604,8 +1604,8 @@
         "OVERHEAT_PENALTY_MS": 0,
         "RANGE_STRING_ID": 0,
         "MELEE_DETECT": {
-          "MELEE_DETECT_WIDTH": 1041865114,
-          "MELEE_DETECT_HEIGHT": 1036831949
+          "MELEE_DETECT_WIDTH": 0.15,
+          "MELEE_DETECT_HEIGHT": 0.1
         },
         "ANIMATION_SET_NAME": "Rifle",
         "VEHICLE_FIRST_PERSON_CAMERA_ID": 0,
@@ -1646,8 +1646,8 @@
         "OVERHEAT_PENALTY_MS": 0,
         "RANGE_STRING_ID": 0,
         "MELEE_DETECT": {
-          "MELEE_DETECT_WIDTH": 1041865114,
-          "MELEE_DETECT_HEIGHT": 1036831949
+          "MELEE_DETECT_WIDTH": 0.15,
+          "MELEE_DETECT_HEIGHT": 0.1
         },
         "ANIMATION_SET_NAME": "Rifle",
         "VEHICLE_FIRST_PERSON_CAMERA_ID": 0,
@@ -1688,8 +1688,8 @@
         "OVERHEAT_PENALTY_MS": 0,
         "RANGE_STRING_ID": 0,
         "MELEE_DETECT": {
-          "MELEE_DETECT_WIDTH": 1041865114,
-          "MELEE_DETECT_HEIGHT": 1036831949
+          "MELEE_DETECT_WIDTH": 0.15,
+          "MELEE_DETECT_HEIGHT": 0.1
         },
         "ANIMATION_SET_NAME": "Rifle",
         "VEHICLE_FIRST_PERSON_CAMERA_ID": 0,
@@ -1730,8 +1730,8 @@
         "OVERHEAT_PENALTY_MS": 0,
         "RANGE_STRING_ID": 0,
         "MELEE_DETECT": {
-          "MELEE_DETECT_WIDTH": 1041865114,
-          "MELEE_DETECT_HEIGHT": 1036831949
+          "MELEE_DETECT_WIDTH": 0.15,
+          "MELEE_DETECT_HEIGHT": 0.1
         },
         "ANIMATION_SET_NAME": "Rifle",
         "VEHICLE_FIRST_PERSON_CAMERA_ID": 0,
@@ -1827,8 +1827,8 @@
         "OVERHEAT_PENALTY_MS": 0,
         "RANGE_STRING_ID": 0,
         "MELEE_DETECT": {
-          "MELEE_DETECT_WIDTH": 1041865114,
-          "MELEE_DETECT_HEIGHT": 1036831949
+          "MELEE_DETECT_WIDTH": 0.15,
+          "MELEE_DETECT_HEIGHT": 0.1
         },
         "ANIMATION_SET_NAME": "Rifle",
         "VEHICLE_FIRST_PERSON_CAMERA_ID": 0,
@@ -2043,8 +2043,8 @@
         "OVERHEAT_PENALTY_MS": 0,
         "RANGE_STRING_ID": 0,
         "MELEE_DETECT": {
-          "MELEE_DETECT_WIDTH": 1041865114,
-          "MELEE_DETECT_HEIGHT": 1036831949
+          "MELEE_DETECT_WIDTH": 0.15,
+          "MELEE_DETECT_HEIGHT": 0.1
         },
         "ANIMATION_SET_NAME": "Rifle",
         "VEHICLE_FIRST_PERSON_CAMERA_ID": 0,
@@ -2085,8 +2085,8 @@
         "OVERHEAT_PENALTY_MS": 0,
         "RANGE_STRING_ID": 0,
         "MELEE_DETECT": {
-          "MELEE_DETECT_WIDTH": 1041865114,
-          "MELEE_DETECT_HEIGHT": 1036831949
+          "MELEE_DETECT_WIDTH": 0.15,
+          "MELEE_DETECT_HEIGHT": 0.1
         },
         "ANIMATION_SET_NAME": "Rifle",
         "VEHICLE_FIRST_PERSON_CAMERA_ID": 0,
@@ -2140,8 +2140,8 @@
         "OVERHEAT_PENALTY_MS": 0,
         "RANGE_STRING_ID": 0,
         "MELEE_DETECT": {
-          "MELEE_DETECT_WIDTH": 1041865114,
-          "MELEE_DETECT_HEIGHT": 1036831949
+          "MELEE_DETECT_WIDTH": 0.15,
+          "MELEE_DETECT_HEIGHT": 0.1
         },
         "ANIMATION_SET_NAME": "Rifle",
         "VEHICLE_FIRST_PERSON_CAMERA_ID": 0,
@@ -2419,8 +2419,8 @@
         "OVERHEAT_PENALTY_MS": 0,
         "RANGE_STRING_ID": 0,
         "MELEE_DETECT": {
-          "MELEE_DETECT_WIDTH": 1041865114,
-          "MELEE_DETECT_HEIGHT": 1036831949
+          "MELEE_DETECT_WIDTH": 0.15,
+          "MELEE_DETECT_HEIGHT": 0.1
         },
         "ANIMATION_SET_NAME": "Rifle",
         "VEHICLE_FIRST_PERSON_CAMERA_ID": 0,
@@ -2474,8 +2474,8 @@
         "OVERHEAT_PENALTY_MS": 0,
         "RANGE_STRING_ID": 0,
         "MELEE_DETECT": {
-          "MELEE_DETECT_WIDTH": 1041865114,
-          "MELEE_DETECT_HEIGHT": 1036831949
+          "MELEE_DETECT_WIDTH": 0.15,
+          "MELEE_DETECT_HEIGHT": 0.1
         },
         "ANIMATION_SET_NAME": "Rifle",
         "VEHICLE_FIRST_PERSON_CAMERA_ID": 0,
@@ -2529,8 +2529,8 @@
         "OVERHEAT_PENALTY_MS": 0,
         "RANGE_STRING_ID": 0,
         "MELEE_DETECT": {
-          "MELEE_DETECT_WIDTH": 1041865114,
-          "MELEE_DETECT_HEIGHT": 1036831949
+          "MELEE_DETECT_WIDTH": 0.15,
+          "MELEE_DETECT_HEIGHT": 0.1
         },
         "ANIMATION_SET_NAME": "Rifle",
         "VEHICLE_FIRST_PERSON_CAMERA_ID": 0,
@@ -2584,8 +2584,8 @@
         "OVERHEAT_PENALTY_MS": 0,
         "RANGE_STRING_ID": 0,
         "MELEE_DETECT": {
-          "MELEE_DETECT_WIDTH": 1041865114,
-          "MELEE_DETECT_HEIGHT": 1036831949
+          "MELEE_DETECT_WIDTH": 0.15,
+          "MELEE_DETECT_HEIGHT": 0.1
         },
         "ANIMATION_SET_NAME": "Rifle",
         "VEHICLE_FIRST_PERSON_CAMERA_ID": 0,
@@ -2700,8 +2700,8 @@
         "OVERHEAT_PENALTY_MS": 0,
         "RANGE_STRING_ID": 0,
         "MELEE_DETECT": {
-          "MELEE_DETECT_WIDTH": 1041865114,
-          "MELEE_DETECT_HEIGHT": 1036831949
+          "MELEE_DETECT_WIDTH": 0.15,
+          "MELEE_DETECT_HEIGHT": 0.1
         },
         "ANIMATION_SET_NAME": "Rifle",
         "VEHICLE_FIRST_PERSON_CAMERA_ID": 0,
@@ -2803,8 +2803,8 @@
         "OVERHEAT_PENALTY_MS": 0,
         "RANGE_STRING_ID": 0,
         "MELEE_DETECT": {
-          "MELEE_DETECT_WIDTH": 1041865114,
-          "MELEE_DETECT_HEIGHT": 1036831949
+          "MELEE_DETECT_WIDTH": 0.15,
+          "MELEE_DETECT_HEIGHT": 0.1
         },
         "ANIMATION_SET_NAME": "Rifle",
         "VEHICLE_FIRST_PERSON_CAMERA_ID": 0,
@@ -2845,8 +2845,8 @@
         "OVERHEAT_PENALTY_MS": 0,
         "RANGE_STRING_ID": 0,
         "MELEE_DETECT": {
-          "MELEE_DETECT_WIDTH": 1041865114,
-          "MELEE_DETECT_HEIGHT": 1036831949
+          "MELEE_DETECT_WIDTH": 0.15,
+          "MELEE_DETECT_HEIGHT": 0.1
         },
         "ANIMATION_SET_NAME": "Rifle",
         "VEHICLE_FIRST_PERSON_CAMERA_ID": 0,
@@ -2887,8 +2887,8 @@
         "OVERHEAT_PENALTY_MS": 0,
         "RANGE_STRING_ID": 0,
         "MELEE_DETECT": {
-          "MELEE_DETECT_WIDTH": 1041865114,
-          "MELEE_DETECT_HEIGHT": 1036831949
+          "MELEE_DETECT_WIDTH": 0.15,
+          "MELEE_DETECT_HEIGHT": 0.1
         },
         "ANIMATION_SET_NAME": "Rifle",
         "VEHICLE_FIRST_PERSON_CAMERA_ID": 0,
@@ -2929,8 +2929,8 @@
         "OVERHEAT_PENALTY_MS": 0,
         "RANGE_STRING_ID": 0,
         "MELEE_DETECT": {
-          "MELEE_DETECT_WIDTH": 1041865114,
-          "MELEE_DETECT_HEIGHT": 1036831949
+          "MELEE_DETECT_WIDTH": 0.15,
+          "MELEE_DETECT_HEIGHT": 0.1
         },
         "ANIMATION_SET_NAME": "Rifle",
         "VEHICLE_FIRST_PERSON_CAMERA_ID": 0,
@@ -2971,8 +2971,8 @@
         "OVERHEAT_PENALTY_MS": 0,
         "RANGE_STRING_ID": 0,
         "MELEE_DETECT": {
-          "MELEE_DETECT_WIDTH": 1041865114,
-          "MELEE_DETECT_HEIGHT": 1036831949
+          "MELEE_DETECT_WIDTH": 0.15,
+          "MELEE_DETECT_HEIGHT": 0.1
         },
         "ANIMATION_SET_NAME": "Rifle",
         "VEHICLE_FIRST_PERSON_CAMERA_ID": 0,
@@ -3026,8 +3026,8 @@
         "OVERHEAT_PENALTY_MS": 0,
         "RANGE_STRING_ID": 0,
         "MELEE_DETECT": {
-          "MELEE_DETECT_WIDTH": 1041865114,
-          "MELEE_DETECT_HEIGHT": 1036831949
+          "MELEE_DETECT_WIDTH": 0.15,
+          "MELEE_DETECT_HEIGHT": 0.1
         },
         "ANIMATION_SET_NAME": "Rifle",
         "VEHICLE_FIRST_PERSON_CAMERA_ID": 0,
@@ -3139,8 +3139,8 @@
         "OVERHEAT_PENALTY_MS": 0,
         "RANGE_STRING_ID": 0,
         "MELEE_DETECT": {
-          "MELEE_DETECT_WIDTH": 1041865114,
-          "MELEE_DETECT_HEIGHT": 1036831949
+          "MELEE_DETECT_WIDTH": 0.15,
+          "MELEE_DETECT_HEIGHT": 0.1
         },
         "ANIMATION_SET_NAME": "Rifle",
         "VEHICLE_FIRST_PERSON_CAMERA_ID": 0,
@@ -3194,8 +3194,8 @@
         "OVERHEAT_PENALTY_MS": 0,
         "RANGE_STRING_ID": 0,
         "MELEE_DETECT": {
-          "MELEE_DETECT_WIDTH": 1041865114,
-          "MELEE_DETECT_HEIGHT": 1036831949
+          "MELEE_DETECT_WIDTH": 0.15,
+          "MELEE_DETECT_HEIGHT": 0.1
         },
         "ANIMATION_SET_NAME": "Rifle",
         "VEHICLE_FIRST_PERSON_CAMERA_ID": 0,
@@ -3524,8 +3524,8 @@
         "OVERHEAT_PENALTY_MS": 0,
         "RANGE_STRING_ID": 0,
         "MELEE_DETECT": {
-          "MELEE_DETECT_WIDTH": 1041865114,
-          "MELEE_DETECT_HEIGHT": 1036831949
+          "MELEE_DETECT_WIDTH": 0.15,
+          "MELEE_DETECT_HEIGHT": 0.1
         },
         "ANIMATION_SET_NAME": "Rifle",
         "VEHICLE_FIRST_PERSON_CAMERA_ID": 0,
@@ -3566,8 +3566,8 @@
         "OVERHEAT_PENALTY_MS": 0,
         "RANGE_STRING_ID": 0,
         "MELEE_DETECT": {
-          "MELEE_DETECT_WIDTH": 1041865114,
-          "MELEE_DETECT_HEIGHT": 1036831949
+          "MELEE_DETECT_WIDTH": 0.15,
+          "MELEE_DETECT_HEIGHT": 0.1
         },
         "ANIMATION_SET_NAME": "Rifle",
         "VEHICLE_FIRST_PERSON_CAMERA_ID": 0,
@@ -3621,8 +3621,8 @@
         "OVERHEAT_PENALTY_MS": 0,
         "RANGE_STRING_ID": 0,
         "MELEE_DETECT": {
-          "MELEE_DETECT_WIDTH": 1041865114,
-          "MELEE_DETECT_HEIGHT": 1036831949
+          "MELEE_DETECT_WIDTH": 0.15,
+          "MELEE_DETECT_HEIGHT": 0.1
         },
         "ANIMATION_SET_NAME": "Rifle",
         "VEHICLE_FIRST_PERSON_CAMERA_ID": 0,
@@ -3676,8 +3676,8 @@
         "OVERHEAT_PENALTY_MS": 0,
         "RANGE_STRING_ID": 0,
         "MELEE_DETECT": {
-          "MELEE_DETECT_WIDTH": 1041865114,
-          "MELEE_DETECT_HEIGHT": 1036831949
+          "MELEE_DETECT_WIDTH": 0.15,
+          "MELEE_DETECT_HEIGHT": 0.1
         },
         "ANIMATION_SET_NAME": "Rifle",
         "VEHICLE_FIRST_PERSON_CAMERA_ID": 0,
@@ -3773,8 +3773,8 @@
         "OVERHEAT_PENALTY_MS": 0,
         "RANGE_STRING_ID": 0,
         "MELEE_DETECT": {
-          "MELEE_DETECT_WIDTH": 1041865114,
-          "MELEE_DETECT_HEIGHT": 1036831949
+          "MELEE_DETECT_WIDTH": 0.15,
+          "MELEE_DETECT_HEIGHT": 0.1
         },
         "ANIMATION_SET_NAME": "Rifle",
         "VEHICLE_FIRST_PERSON_CAMERA_ID": 0,
@@ -3928,8 +3928,8 @@
         "OVERHEAT_PENALTY_MS": 0,
         "RANGE_STRING_ID": 0,
         "MELEE_DETECT": {
-          "MELEE_DETECT_WIDTH": 1041865114,
-          "MELEE_DETECT_HEIGHT": 1036831949
+          "MELEE_DETECT_WIDTH": 0.15,
+          "MELEE_DETECT_HEIGHT": 0.1
         },
         "ANIMATION_SET_NAME": "Rifle",
         "VEHICLE_FIRST_PERSON_CAMERA_ID": 0,
@@ -3970,8 +3970,8 @@
         "OVERHEAT_PENALTY_MS": 0,
         "RANGE_STRING_ID": 0,
         "MELEE_DETECT": {
-          "MELEE_DETECT_WIDTH": 1041865114,
-          "MELEE_DETECT_HEIGHT": 1036831949
+          "MELEE_DETECT_WIDTH": 0.15,
+          "MELEE_DETECT_HEIGHT": 0.1
         },
         "ANIMATION_SET_NAME": "Rifle",
         "VEHICLE_FIRST_PERSON_CAMERA_ID": 0,
@@ -4083,8 +4083,8 @@
         "OVERHEAT_PENALTY_MS": 0,
         "RANGE_STRING_ID": 0,
         "MELEE_DETECT": {
-          "MELEE_DETECT_WIDTH": 1041865114,
-          "MELEE_DETECT_HEIGHT": 1036831949
+          "MELEE_DETECT_WIDTH": 0.15,
+          "MELEE_DETECT_HEIGHT": 0.1
         },
         "ANIMATION_SET_NAME": "Rifle",
         "VEHICLE_FIRST_PERSON_CAMERA_ID": 0,
@@ -4940,8 +4940,8 @@
         "OVERHEAT_PENALTY_MS": 0,
         "RANGE_STRING_ID": 0,
         "MELEE_DETECT": {
-          "MELEE_DETECT_WIDTH": 1041865114,
-          "MELEE_DETECT_HEIGHT": 1036831949
+          "MELEE_DETECT_WIDTH": 0.15,
+          "MELEE_DETECT_HEIGHT": 0.1
         },
         "ANIMATION_SET_NAME": "Rifle",
         "VEHICLE_FIRST_PERSON_CAMERA_ID": 0,
@@ -5545,8 +5545,8 @@
         "OVERHEAT_PENALTY_MS": 0,
         "RANGE_STRING_ID": 0,
         "MELEE_DETECT": {
-          "MELEE_DETECT_WIDTH": 1041865114,
-          "MELEE_DETECT_HEIGHT": 1036831949
+          "MELEE_DETECT_WIDTH": 0.15,
+          "MELEE_DETECT_HEIGHT": 0.1
         },
         "ANIMATION_SET_NAME": "Rifle",
         "VEHICLE_FIRST_PERSON_CAMERA_ID": 0,
@@ -5600,8 +5600,8 @@
         "OVERHEAT_PENALTY_MS": 0,
         "RANGE_STRING_ID": 0,
         "MELEE_DETECT": {
-          "MELEE_DETECT_WIDTH": 1041865114,
-          "MELEE_DETECT_HEIGHT": 1036831949
+          "MELEE_DETECT_WIDTH": 0.15,
+          "MELEE_DETECT_HEIGHT": 0.1
         },
         "ANIMATION_SET_NAME": "Rifle",
         "VEHICLE_FIRST_PERSON_CAMERA_ID": 0,
@@ -6211,8 +6211,8 @@
         "OVERHEAT_PENALTY_MS": 0,
         "RANGE_STRING_ID": 0,
         "MELEE_DETECT": {
-          "MELEE_DETECT_WIDTH": 1041865114,
-          "MELEE_DETECT_HEIGHT": 1036831949
+          "MELEE_DETECT_WIDTH": 0.15,
+          "MELEE_DETECT_HEIGHT": 0.1
         },
         "ANIMATION_SET_NAME": "Rifle",
         "VEHICLE_FIRST_PERSON_CAMERA_ID": 0,
@@ -6321,8 +6321,8 @@
         "OVERHEAT_PENALTY_MS": 0,
         "RANGE_STRING_ID": 0,
         "MELEE_DETECT": {
-          "MELEE_DETECT_WIDTH": 1041865114,
-          "MELEE_DETECT_HEIGHT": 1036831949
+          "MELEE_DETECT_WIDTH": 0.15,
+          "MELEE_DETECT_HEIGHT": 0.1
         },
         "ANIMATION_SET_NAME": "Rifle",
         "VEHICLE_FIRST_PERSON_CAMERA_ID": 0,
@@ -6431,8 +6431,8 @@
         "OVERHEAT_PENALTY_MS": 0,
         "RANGE_STRING_ID": 0,
         "MELEE_DETECT": {
-          "MELEE_DETECT_WIDTH": 1041865114,
-          "MELEE_DETECT_HEIGHT": 1036831949
+          "MELEE_DETECT_WIDTH": 0.15,
+          "MELEE_DETECT_HEIGHT": 0.1
         },
         "ANIMATION_SET_NAME": "Rifle",
         "VEHICLE_FIRST_PERSON_CAMERA_ID": 0,
@@ -6596,8 +6596,8 @@
         "OVERHEAT_PENALTY_MS": 0,
         "RANGE_STRING_ID": 0,
         "MELEE_DETECT": {
-          "MELEE_DETECT_WIDTH": 1041865114,
-          "MELEE_DETECT_HEIGHT": 1036831949
+          "MELEE_DETECT_WIDTH": 0.15,
+          "MELEE_DETECT_HEIGHT": 0.1
         },
         "ANIMATION_SET_NAME": "Rifle",
         "VEHICLE_FIRST_PERSON_CAMERA_ID": 0,
@@ -11353,7 +11353,7 @@
           "FIRST_PERSON_OFFSET": {
             "FIRST_PERSON_OFFSET_X": 0.005999999552965164,
             "FIRST_PERSON_OFFSET_Y": -0.00599999776482582,
-            "FIRST_PERSON_OFFSET_Z": 0.049999999776482582
+            "FIRST_PERSON_OFFSET_Z": 0.04999999977648258
           },
           "RETICLE_ID": 5,
           "FULL_SCREEN_EFFECT": 0,
@@ -23739,10 +23739,10 @@
           "COF_OVERRIDE": 1,
           "RECOIL_ANGLE_MIN": 0.45,
           "RECOIL_ANGLE_MAX": 0.45,
-          "RECOIL_HORIZONTAL_TOLERANCE": 0.20,
+          "RECOIL_HORIZONTAL_TOLERANCE": 0.2,
           "RECOIL_HORIZONTAL_MIN": 0.4,
           "RECOIL_HORIZONTAL_MAX": 0.5,
-          "RECOIL_MAGNITUDE_MIN": 1.0,
+          "RECOIL_MAGNITUDE_MIN": 1,
           "RECOIL_MAGNITUDE_MAX": 1.5,
           "RECOIL_RECOVERY_DELAY_MS": 0,
           "RECOIL_RECOVERY_RATE": 100,
@@ -23773,7 +23773,7 @@
           "FIRST_PERSON_OFFSET": {
             "FIRST_PERSON_OFFSET_X": 0.003999999552965164,
             "FIRST_PERSON_OFFSET_Y": -0.00599999776482582,
-            "FIRST_PERSON_OFFSET_Z": 0.059999999776482582
+            "FIRST_PERSON_OFFSET_Z": 0.059999999776482585
           },
           "RETICLE_ID": 5,
           "FULL_SCREEN_EFFECT": 0,
@@ -23919,10 +23919,10 @@
           "COF_OVERRIDE": 0,
           "RECOIL_ANGLE_MIN": 0.45,
           "RECOIL_ANGLE_MAX": 0.45,
-          "RECOIL_HORIZONTAL_TOLERANCE": 0.20,
+          "RECOIL_HORIZONTAL_TOLERANCE": 0.2,
           "RECOIL_HORIZONTAL_MIN": 0.4,
           "RECOIL_HORIZONTAL_MAX": 0.5,
-          "RECOIL_MAGNITUDE_MIN": 1.0,
+          "RECOIL_MAGNITUDE_MIN": 1,
           "RECOIL_MAGNITUDE_MAX": 1.5,
           "RECOIL_RECOVERY_DELAY_MS": 0,
           "RECOIL_RECOVERY_RATE": 100,
