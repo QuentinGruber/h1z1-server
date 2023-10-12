@@ -515,7 +515,7 @@ export const characterPackets: PacketStructures = [
           type: "floatvector4",
           defaultValue: [0, 0, 0, 0]
         },
-        { name: "unk3", type: "float", defaultValue: 0 }
+        { name: "effectTime", type: "float", defaultValue: 0 }
       ]
     }
   ],

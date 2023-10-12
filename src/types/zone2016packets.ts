@@ -1167,7 +1167,7 @@ export interface CharacterPlayWorldCompositeEffect {
   characterId?: string;
   effectId?: number;
   position?: Float32Array;
-  unk3?: number;
+  effectTime?: number;
 }
 export interface CharacterFullCharacterDataRequest {
   characterId?: string;

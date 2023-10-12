@@ -16,6 +16,7 @@
 import { h1z1PacketsType2016 } from "types/packets";
 import {
   CharacterManagedObject,
+  CharacterPlayWorldCompositeEffect,
   CharacterSeekTarget
 } from "types/zone2016packets";
 import { Npc } from "../../entities/npc";
@@ -919,6 +920,33 @@ const dev: any = {
       client,
       `Parent itemDefinitionId: ${parent.itemDefinitionId} characterId: ${parent.characterId}`
     );
+  },
+
+  compositeeffect: function (
+    server: ZoneServer2016,
+    client: Client,
+    args: Array<string>
+  ) {
+    if(!args[2]) {
+      server.sendChatText(client, "Missing effectId and time")
+      return;
+    }
+
+    const effectId = Number(args[1]),
+    time = Number(args[2]);
+
+    server.sendDataToAllInRange<CharacterPlayWorldCompositeEffect>(
+      100,
+      client.character.state.position,
+      "Character.PlayWorldCompositeEffect",
+      {
+        characterId: client.character.characterId,
+        effectId: effectId,
+        position: client.character.state.position,
+        effectTime: time
+      }
+    );
+    server.sendChatText(client, "Sent composite effect")
   }
 
   /*

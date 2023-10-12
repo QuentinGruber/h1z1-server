@@ -6521,7 +6521,7 @@ export class ZoneServer2016 extends EventEmitter {
                 characterId: smeltable.characterId,
                 effectId: smeltable.subEntity.workingEffect,
                 position: smeltable.state.position,
-                unk3: effectTime
+                effectTime
               }
             );
           }
@@ -6556,7 +6556,7 @@ export class ZoneServer2016 extends EventEmitter {
                 characterId: smeltable.characterId,
                 effectId: smeltable.subEntity.workingEffect,
                 position: smeltable.state.position,
-                unk3: effectTime
+                effectTime
               }
             );
           }
