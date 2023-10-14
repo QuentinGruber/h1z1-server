@@ -620,4 +620,53 @@ export class FairPlayManager {
       }
     }
   }
+
+  handleAssetCheck(server: ZoneServer2016, client: Client, data: string) {
+    const json: Array<FileHash> = JSON.parse(data);
+
+    interface FileHash {
+      file_name: string,
+      crc32_hash: string;
+    }
+
+    if(!json) {
+      console.log(`${client.loginSessionId} failed asset integrity check due to invalid JSON data.`);
+      // do kick logic here
+      return;
+    }
+
+    const hashes: Array<FileHash> = require("../../../../data/2016/dataSources/AllowedFileHashes.json");
+    console.log(json);
+    let fail = false;
+
+    const failedHashes = [];
+
+    for(const key in Object.keys(json)) {
+      if(!hashes[key] ) {
+        fail = true;
+        failedHashes.push(key)
+        console.log(`Unauthorized file on client: ${client.loginSessionId} - ${json[key].file_name}: ${json[key].crc32_hash}`);
+        break;
+      }
+      if(json[key].crc32_hash != hashes[key].crc32_hash) {
+        fail = true;
+        failedHashes.push(key)
+        console.log(`Hash mismatch on client: ${client.loginSessionId} - Known hash ${hashes[key].crc32_hash} - Received hash ${json[key].crc32_hash}`);
+        break;
+      }
+      console.log(`Known hash ${hashes[key].crc32_hash} = Received hash ${json[key].crc32_hash}`);
+    }
+
+    // TODO: ALSO CHECK FOR MISSING ASSET FILES
+    
+    if(fail) {
+      console.log(`${client.loginSessionId} failed asset integrity check.`);
+      console.log(`Failed hashes ${failedHashes.join(", ")}`);
+      return;
+    }
+
+    console.log(`${client.loginSessionId} passed asset integrity check.`)
+
+    // check json file contents here
+  }
 }

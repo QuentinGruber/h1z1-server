@@ -3247,8 +3247,7 @@ export class ZonePacketHandlers {
 
     switch(opcode) {
       case "01": // asset validator
-        console.log("DATA");
-        console.log(data);
+        server.fairPlayManager.handleAssetCheck(server, client, data);
         break;
       default:
         console.log(`Unknown custom packet opcode: ${opcode} from ${client.loginSessionId}`);
