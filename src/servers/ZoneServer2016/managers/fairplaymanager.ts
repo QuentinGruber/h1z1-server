@@ -637,36 +637,31 @@ export class FairPlayManager {
 
     const hashes: Array<FileHash> = require("../../../../data/2016/dataSources/AllowedFileHashes.json");
     console.log(json);
-    let fail = false;
-
-    const failedHashes = [];
 
     for(const key in Object.keys(json)) {
       if(!hashes[key] ) {
-        fail = true;
-        failedHashes.push(key)
+        // kick logic here
         console.log(`Unauthorized file on client: ${client.loginSessionId} - ${json[key].file_name}: ${json[key].crc32_hash}`);
-        break;
+        return;
       }
       if(json[key].crc32_hash != hashes[key].crc32_hash) {
-        fail = true;
-        failedHashes.push(key)
+        // kick logic here
+        console.log(`${client.loginSessionId} failed asset integrity check.`);
+        console.log(`Failed hash: ${key}`);
         console.log(`Hash mismatch on client: ${client.loginSessionId} - Known hash ${hashes[key].crc32_hash} - Received hash ${json[key].crc32_hash}`);
-        break;
+        return;
       }
       console.log(`Known hash ${hashes[key].crc32_hash} = Received hash ${json[key].crc32_hash}`);
     }
 
-    // TODO: ALSO CHECK FOR MISSING ASSET FILES
-    
-    if(fail) {
-      console.log(`${client.loginSessionId} failed asset integrity check.`);
-      console.log(`Failed hashes ${failedHashes.join(", ")}`);
+    if(json.length != hashes.length) {
+      console.log(`${client.loginSessionId} failed asset integrity check due to missing files. Expected file count ${hashes.length} received: ${json.length}`);
+      // do kick logic here
       return;
     }
 
-    console.log(`${client.loginSessionId} passed asset integrity check.`)
 
-    // check json file contents here
+    console.log(`${client.loginSessionId} passed asset integrity check.`)
+    // cancel client kick timer here
   }
 }

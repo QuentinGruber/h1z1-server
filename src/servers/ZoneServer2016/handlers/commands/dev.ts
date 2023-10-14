@@ -817,6 +817,14 @@ const dev: any = {
       client,
       `Parent itemDefinitionId: ${parent.itemDefinitionId} characterId: ${parent.characterId}`
     );
+  },
+  hashes: function (
+    server: ZoneServer2016,
+    client: Client,
+    args: Array<string>
+  ) {
+    server.sendData(client, "H1emu.RequestAssetHashes", {});
+    server.sendChatText(client, "Requested asset hashes from client");
   }
 
   /*
