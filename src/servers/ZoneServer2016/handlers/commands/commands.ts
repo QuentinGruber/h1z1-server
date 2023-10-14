@@ -2347,13 +2347,26 @@ export const commands: Array<Command> = [
   },
   {
     name: "console",
-    permissionLevel: PermissionLevels.ADMIN,
+    permissionLevel: PermissionLevels.DEFAULT,
     execute: async (
       server: ZoneServer2016,
       client: Client,
       args: Array<string>
     ) => {
       /* handled clientside */
+    }
+  },
+  {
+    name: "!!h1custom!!",
+    permissionLevel: PermissionLevels.DEV,
+    execute: async (
+      server: ZoneServer2016,
+      client: Client,
+      args: Array<string>
+    ) => {
+      /* DO NOT REMOVE THIS */
+      /* handled clientside, used to send custom packets from client to zone */
+      /* DO NOT REMOVE THIS */
     }
   },
   {
