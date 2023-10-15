@@ -16,8 +16,7 @@ import {
   FairPlayValues,
   StanceFlags,
   FireHint,
-  HitReport,
-  FileHash
+  HitReport
 } from "types/zoneserver";
 import {
   CONNECTION_REJECTION_FLAGS,
@@ -37,6 +36,7 @@ import { BaseEntity } from "../entities/baseentity";
 import { Vehicle2016 as Vehicle } from "../entities/vehicle";
 import { ConstructionPermissionIds, Items } from "../models/enums";
 import { ZoneServer2016 } from "../zoneserver";
+import { FileHash } from "types/shared";
 
 const encryptedData = require("../../../../data/2016/encryptedData/encryptedData.json"),
   fairPlayData = require("../../../../data/2016/encryptedData/fairPlayData.json"),
@@ -47,6 +47,7 @@ export class FairPlayManager {
   _fairPlayDecryptKey: string = "";
   _suspiciousList: string[] = [];
   fairPlayValues?: FairPlayValues;
+  defaultHashes = defaultHashes;
 
   /* MANAGED BY CONFIGMANAGER */
   useFairPlay!: boolean;
@@ -658,7 +659,7 @@ export class FairPlayManager {
       return;
     }
 
-    const hashes = defaultHashes.concat(this.requiredPacks),
+    const hashes = this.defaultHashes.concat(this.requiredPacks),
       validatedHashes: Array<FileHash> = [];
 
     // check if all default / required packs are found in game files

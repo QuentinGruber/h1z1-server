@@ -59,11 +59,11 @@ export enum DB_COLLECTIONS {
   FAIRPLAY = "fairplay-logs",
   KILLS = "kills",
   BANNED_LIGHT = "banned-light",
-  MUTED = "muted"
+  MUTED = "muted",
+  ASSET_HASHES = "asset-hashes"
 }
 
 export enum LOGIN_KICK_REASON {
   UNDEFINED = 0,
-  GLOBAL_BAN = 1,
-  ASSET_VALIDATION = 2
+  GLOBAL_BAN = 1
 }

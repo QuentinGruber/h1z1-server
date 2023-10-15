@@ -221,7 +221,7 @@ import { FairPlayManager } from "./managers/fairplaymanager";
 import { PluginManager } from "./managers/pluginmanager";
 import { Destroyable } from "./entities/destroyable";
 import { Plane } from "./entities/plane";
-import { ReceivedPacket } from "types/shared";
+import { FileHashTypeList, ReceivedPacket } from "types/shared";
 
 const spawnLocations2 = require("../../../data/2016/zoneData/Z1_gridSpawns.json"),
   deprecatedDoors = require("../../../data/2016/sampleData/deprecatedDoors.json"),
@@ -665,9 +665,6 @@ export class ZoneServer2016 extends EventEmitter {
                 case LOGIN_KICK_REASON.GLOBAL_BAN:
                   reasonString = "Global ban.";
                   break;
-                case LOGIN_KICK_REASON.ASSET_VALIDATION:
-                  reasonString = "Failed asset integrity check.";
-                  break;
                 default:
                   reasonString = "INVALID";
                   break;
@@ -677,7 +674,7 @@ export class ZoneServer2016 extends EventEmitter {
 
               if (!client) {
                 console.log(
-                  "LoginServer requested to kick INVALID client with guid ${guid} for reason: ${reason}!"
+                  `LoginServer requested to kick INVALID client with guid ${guid} for reason: ${reason}!`
                 );
                 return;
               }
@@ -689,6 +686,15 @@ export class ZoneServer2016 extends EventEmitter {
               this.kickPlayerWithReason(client, reasonString);
               break;
             }
+            case "OverrideAllowedFileHashes":
+              debug("Received OverrideAllowedFileHashes from loginserver");
+              const hashTypesList: FileHashTypeList = packet.data.types,
+              assetHashes = hashTypesList.find((entry)=>entry.type=="assets")
+              if(assetHashes) {
+                debug("Using defaultAssetHashes from loginserver");
+                this.fairPlayManager.defaultHashes = assetHashes.hashes;
+              }
+              break;
             default:
               debug(`Unhandled h1emu packet: ${packet.name}`);
               break;

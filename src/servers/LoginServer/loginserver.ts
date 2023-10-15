@@ -17,7 +17,7 @@ import { SOEServer } from "../SoeServer/soeserver";
 import { ZoneConnectionManager } from "../LoginZoneConnection/zoneconnectionmanager";
 import { LZConnectionClient } from "../LoginZoneConnection/shared/lzconnectionclient";
 import { LoginProtocol } from "../../protocols/loginprotocol";
-import { MongoClient } from "mongodb";
+import { Collection, MongoClient, WithId } from "mongodb";
 import {
   _,
   generateRandomGuid,
@@ -37,7 +37,7 @@ import Client from "servers/LoginServer/loginclient";
 import fs from "node:fs";
 import { loginPacketsType } from "types/packets";
 import { Worker } from "node:worker_threads";
-import { httpServerMessage } from "types/shared";
+import { FileHash, httpServerMessage } from "types/shared";
 import { LoginProtocol2016 } from "../../protocols/loginprotocol2016";
 import { crc_length_options } from "../../types/soeserver";
 import { DB_NAME, DEFAULT_CRYPTO_KEY } from "../../utils/constants";
@@ -71,6 +71,7 @@ import { Resolver } from "node:dns";
 const debugName = "LoginServer";
 const debug = require("debug")(debugName);
 const characterItemDefinitionsDummy = require("../../../data/2015/sampleData/characterItemDefinitionsDummy.json");
+const defaultHashes: Array<FileHash> = require("../../../data/2016/dataSources/AllowedFileHashes.json");
 
 @healthThreadDecorator
 export class LoginServer extends EventEmitter {
@@ -220,6 +221,7 @@ export class LoginServer extends EventEmitter {
                   this._zoneConnectionManager.sendData(client, "SessionReply", {
                     status: status
                   });
+                  if(status == 1) await this.sendFileHashes(serverId);
                   break;
                 }
                 case "UpdateZonePopulation": {
@@ -658,6 +660,29 @@ export class LoginServer extends EventEmitter {
     debug("CharacterSelectInfoRequest");
   }
 
+  async sendFileHashes(serverId: number) {
+    if(this._soloMode) return;
+
+    const collection: Collection = this._db.collection(DB_COLLECTIONS.ASSET_HASHES);
+    let hashes = await collection.findOne();
+
+    if(!hashes) {
+      debug("Setting default asset-hashes in mongo");
+      await collection.insertOne({
+        type: "assets",
+        hashes: defaultHashes
+      })
+      hashes = await collection.findOne({});
+    }
+
+    debug(`Sending OverrideAllowedFileHashes to zone ${serverId}`);
+    this._zoneConnectionManager.sendData(
+      this.getZoneConnectionClient(serverId),
+      "OverrideAllowedFileHashes",
+      { types: [hashes] }
+    );
+  }
+
   async updateServerStatus(serverId: number, status: boolean) {
     const server = await this._db
       .collection(DB_COLLECTIONS.SERVERS)
@@ -1058,6 +1083,23 @@ export class LoginServer extends EventEmitter {
     debug("CharacterLoginRequest");
   }
 
+  getZoneConnectionClient(serverId: number): LZConnectionClient | undefined {
+    const zoneConnectionIndex = Object.values(
+      this._zoneConnections
+    ).findIndex((e) => e === serverId);
+    const zoneConnectionString = Object.keys(this._zoneConnections)[
+      zoneConnectionIndex
+    ];
+    const [address, port] = zoneConnectionString.split(":");
+
+    return {
+      address: address,
+      port: port,
+      clientId: zoneConnectionString,
+      serverId: 1 // TODO: that's a hack
+    } as any;
+  }
+
   async askZone(
     serverId: number,
     packetName: string,
@@ -1075,12 +1117,7 @@ export class LoginServer extends EventEmitter {
         ];
         const [address, port] = zoneConnectionString.split(":");
         this._zoneConnectionManager.sendData(
-          {
-            address: address,
-            port: port,
-            clientId: zoneConnectionString,
-            serverId: 1 // TODO: that's a hack
-          } as any,
+          this.getZoneConnectionClient(serverId),
           packetName,
           { reqId: reqId, ...packetObj }
         );

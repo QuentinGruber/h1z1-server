@@ -190,6 +190,31 @@ const packets: PacketStructures = [
         { name: "reason", type: "uint32", defaultValue: 0 }
       ]
     }
+  ],
+  [
+    "OverrideAllowedFileHashes",
+    0x19,
+    {
+      fields: [
+        {
+          name: "types",
+          type: "array",
+          defaultValue: [],
+          fields: [
+            { name: "type", type: "string", defaultValue: "" },
+            {
+              name: "hashes",
+              type: "array",
+              defaultValue: [],
+              fields: [
+                { name: "file_name", type: "string", defaultValue: "" },
+                { name: "crc32_hash", type: "string", defaultValue: "" },
+              ]
+            }
+          ]
+        }
+      ]
+    }
   ]
 ];
 
