@@ -16,7 +16,8 @@ import {
   FairPlayValues,
   StanceFlags,
   FireHint,
-  HitReport
+  HitReport,
+  FileHash
 } from "types/zoneserver";
 import { BAN_INFO, DB_COLLECTIONS } from "../../../utils/enums";
 import {
@@ -35,7 +36,8 @@ import { ConstructionPermissionIds, Items } from "../models/enums";
 import { ZoneServer2016 } from "../zoneserver";
 
 const encryptedData = require("../../../../data/2016/encryptedData/encryptedData.json"),
-  fairPlayData = require("../../../../data/2016/encryptedData/fairPlayData.json");
+  fairPlayData = require("../../../../data/2016/encryptedData/fairPlayData.json"),
+  defaultHashes: Array<FileHash> = require("../../../../data/2016/dataSources/AllowedFileHashes.json");
 
 export class FairPlayManager {
   _decryptKey: string = "";
@@ -54,6 +56,10 @@ export class FairPlayManager {
   useFairPlay!: boolean;
   maxPing!: number;
   pingTimeoutTime!: number;
+  useAssetValidation!: boolean;
+  hashSubmissionTimeout!: number;
+  allowedPacks!: Array<FileHash>;
+  requiredPacks!: Array<FileHash>;
 
   decryptFairPlayValues() {
     if (this._decryptKey) {
@@ -621,47 +627,62 @@ export class FairPlayManager {
     }
   }
 
+  handleAssetValidationInit(server: ZoneServer2016, client: Client) {
+    if(!this.useAssetValidation || server._soloMode) return;
+
+    server.sendData(client, "H1emu.RequestAssetHashes", {});
+    server.sendConsoleText(client, "[SERVER] Requested asset hashes");
+
+    client.kickTimer = setTimeout(() => {
+      if(!client) return;
+      server.kickPlayerWithReason(client, "Missing asset integrity check.");
+    }, this.hashSubmissionTimeout);
+  }
+
+  validateFile(file1: FileHash, file2: FileHash) {
+    return file1.file_name == file2.file_name && file1.crc32_hash == file2.crc32_hash
+  }
+
   handleAssetCheck(server: ZoneServer2016, client: Client, data: string) {
-    const json: Array<FileHash> = JSON.parse(data);
+    if(!this.useAssetValidation || server._soloMode) return;
+    
+    const receivedHashes: Array<FileHash> = JSON.parse(data);
 
-    interface FileHash {
-      file_name: string,
-      crc32_hash: string;
-    }
-
-    if(!json) {
+    if(!receivedHashes) {
       console.log(`${client.loginSessionId} failed asset integrity check due to invalid JSON data.`);
-      // do kick logic here
+      server.kickPlayerWithReason(client, "Failed asset integrity check - Invalid JSON Received");
       return;
     }
 
-    const hashes: Array<FileHash> = require("../../../../data/2016/dataSources/AllowedFileHashes.json");
-    console.log(json);
+    const hashes = defaultHashes.concat(this.requiredPacks),
+    validatedHashes: Array<FileHash> = [];
 
-    for(const key in Object.keys(json)) {
-      if(!hashes[key] ) {
-        // kick logic here
-        console.log(`Unauthorized file on client: ${client.loginSessionId} - ${json[key].file_name}: ${json[key].crc32_hash}`);
-        return;
+    // check if all default / required packs are found in game files
+    for (const value of hashes) {
+      if(!value) continue;
+      if(receivedHashes.find((clientValue)=> this.validateFile(value, clientValue))) {
+        validatedHashes.push(value);
+        continue;
       }
-      if(json[key].crc32_hash != hashes[key].crc32_hash) {
-        // kick logic here
-        console.log(`${client.loginSessionId} failed asset integrity check.`);
-        console.log(`Failed hash: ${key}`);
-        console.log(`Hash mismatch on client: ${client.loginSessionId} - Known hash ${hashes[key].crc32_hash} - Received hash ${json[key].crc32_hash}`);
-        return;
-      }
-      console.log(`Known hash ${hashes[key].crc32_hash} = Received hash ${json[key].crc32_hash}`);
-    }
-
-    if(json.length != hashes.length) {
-      console.log(`${client.loginSessionId} failed asset integrity check due to missing files. Expected file count ${hashes.length} received: ${json.length}`);
-      // do kick logic here
+      console.log(`${client.loginSessionId} failed asset integrity check due to missing file ${value.file_name}`);
+      server.kickPlayerWithReason(client, `Failed asset integrity check - Missing file: ${value.file_name}`);
       return;
     }
 
+    for (const value of receivedHashes) {
+      if(
+        validatedHashes.find((clientValue)=> this.validateFile(value, clientValue)) || 
+        this.allowedPacks.find((clientValue)=> this.validateFile(value, clientValue))
+        ) {
+        continue;
+      }
+      console.log(`Unauthorized file on client: ${client.loginSessionId} - ${value.file_name}: ${value.crc32_hash}`);
+      server.kickPlayerWithReason(client, `Failed asset integrity check - Unauthorized file: ${value.file_name}`);
+      return;
+    }
 
     console.log(`${client.loginSessionId} passed asset integrity check.`)
-    // cancel client kick timer here
+    clearTimeout(client.kickTimer);
+    delete client.kickTimer;
   }
 }

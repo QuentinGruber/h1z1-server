@@ -11,7 +11,7 @@
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
 
-import { dailyRepairMaterial } from ".../../types/zoneserver";
+import { FileHash, dailyRepairMaterial } from ".../../types/zoneserver";
 
 interface ServerConfig {
   proximityItemsDistance: number;
@@ -30,6 +30,12 @@ interface FairplayConfig {
   useFairplay: boolean;
   maxPing: number;
   pingTimeoutTime: number;
+
+  useAssetValidation: boolean;
+  hashSubmissionTimeout: number;
+  
+  allowedPacks: Array<FileHash>;
+  requiredPacks: Array<FileHash>;
 }
 
 interface WeatherConfig {

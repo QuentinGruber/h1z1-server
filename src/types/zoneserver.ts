@@ -529,3 +529,8 @@ export interface ItemDefinition {
 }
 
 export type EntityDictionary<Entity> = { [characterId: string]: Entity};
+
+export interface FileHash {
+  file_name: string,
+  crc32_hash: string;
+}
