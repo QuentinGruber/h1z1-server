@@ -2672,7 +2672,7 @@ export const commands: Array<Command> = [
     }
   },
   {
-     name: "serverlock",
+    name: "serverlock",
     permissionLevel: PermissionLevels.ADMIN,
     execute: async (
       server: ZoneServer2016,

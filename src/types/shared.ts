@@ -38,6 +38,6 @@ export interface FileHash {
 interface FileHashList {
   type: string, 
   hashes: Array<FileHash>
-};
+}
 
 export type FileHashTypeList = Array<FileHashList>;

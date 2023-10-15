@@ -17,7 +17,7 @@ import { SOEServer } from "../SoeServer/soeserver";
 import { ZoneConnectionManager } from "../LoginZoneConnection/zoneconnectionmanager";
 import { LZConnectionClient } from "../LoginZoneConnection/shared/lzconnectionclient";
 import { LoginProtocol } from "../../protocols/loginprotocol";
-import { Collection, MongoClient, WithId } from "mongodb";
+import { Collection, MongoClient } from "mongodb";
 import {
   _,
   generateRandomGuid,
@@ -221,7 +221,7 @@ export class LoginServer extends EventEmitter {
                   this._zoneConnectionManager.sendData(client, "SessionReply", {
                     status: status
                   });
-                  if(status == 1) await this.sendFileHashes(serverId);
+                  if (status == 1) await this.sendFileHashes(serverId);
                   break;
                 }
                 case "UpdateZonePopulation": {
@@ -661,17 +661,19 @@ export class LoginServer extends EventEmitter {
   }
 
   async sendFileHashes(serverId: number) {
-    if(this._soloMode) return;
+    if (this._soloMode) return;
 
-    const collection: Collection = this._db.collection(DB_COLLECTIONS.ASSET_HASHES);
+    const collection: Collection = this._db.collection(
+      DB_COLLECTIONS.ASSET_HASHES
+    );
     let hashes = await collection.findOne();
 
-    if(!hashes) {
+    if (!hashes) {
       debug("Setting default asset-hashes in mongo");
       await collection.insertOne({
         type: "assets",
         hashes: defaultHashes
-      })
+      });
       hashes = await collection.findOne({});
     }
 
@@ -1084,9 +1086,9 @@ export class LoginServer extends EventEmitter {
   }
 
   getZoneConnectionClient(serverId: number): LZConnectionClient | undefined {
-    const zoneConnectionIndex = Object.values(
-      this._zoneConnections
-    ).findIndex((e) => e === serverId);
+    const zoneConnectionIndex = Object.values(this._zoneConnections).findIndex(
+      (e) => e === serverId
+    );
     const zoneConnectionString = Object.keys(this._zoneConnections)[
       zoneConnectionIndex
     ];
@@ -1109,13 +1111,6 @@ export class LoginServer extends EventEmitter {
       this._internalReqCount++;
       const reqId = this._internalReqCount;
       try {
-        const zoneConnectionIndex = Object.values(
-          this._zoneConnections
-        ).findIndex((e) => e === serverId);
-        const zoneConnectionString = Object.keys(this._zoneConnections)[
-          zoneConnectionIndex
-        ];
-        const [address, port] = zoneConnectionString.split(":");
         this._zoneConnectionManager.sendData(
           this.getZoneConnectionClient(serverId),
           packetName,

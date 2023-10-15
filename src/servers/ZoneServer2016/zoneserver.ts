@@ -689,8 +689,10 @@ export class ZoneServer2016 extends EventEmitter {
             case "OverrideAllowedFileHashes":
               debug("Received OverrideAllowedFileHashes from loginserver");
               const hashTypesList: FileHashTypeList = packet.data.types,
-              assetHashes = hashTypesList.find((entry)=>entry.type=="assets")
-              if(assetHashes) {
+                assetHashes = hashTypesList.find(
+                  (entry) => entry.type == "assets"
+                );
+              if (assetHashes) {
                 debug("Using defaultAssetHashes from loginserver");
                 this.fairPlayManager.defaultHashes = assetHashes.hashes;
               }

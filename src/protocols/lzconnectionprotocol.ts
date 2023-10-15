@@ -208,7 +208,7 @@ const packets: PacketStructures = [
               defaultValue: [],
               fields: [
                 { name: "file_name", type: "string", defaultValue: "" },
-                { name: "crc32_hash", type: "string", defaultValue: "" },
+                { name: "crc32_hash", type: "string", defaultValue: "" }
               ]
             }
           ]
