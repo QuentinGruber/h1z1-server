@@ -19,7 +19,10 @@ import {
   HitReport,
   FileHash
 } from "types/zoneserver";
-import { BAN_INFO, DB_COLLECTIONS } from "../../../utils/enums";
+import {
+  CONNECTION_REJECTION_FLAGS,
+  DB_COLLECTIONS
+} from "../../../utils/enums";
 import {
   decrypt,
   getDistance,
@@ -44,18 +47,12 @@ export class FairPlayManager {
   _fairPlayDecryptKey: string = "";
   _suspiciousList: string[] = [];
   fairPlayValues?: FairPlayValues;
-  banInfoAcceptance: Array<BAN_INFO> = [
-    BAN_INFO.GLOBAL_BAN,
-    BAN_INFO.LOCAL_BAN,
-    BAN_INFO.VPN,
-    BAN_INFO.HWID,
-    BAN_INFO.UNVERIFIED
-  ];
 
   /* MANAGED BY CONFIGMANAGER */
   useFairPlay!: boolean;
   maxPing!: number;
   pingTimeoutTime!: number;
+  acceptedRejectionTypes!: Array<CONNECTION_REJECTION_FLAGS>;
   useAssetValidation!: boolean;
   hashSubmissionTimeout!: number;
   allowedPacks!: Array<FileHash>;

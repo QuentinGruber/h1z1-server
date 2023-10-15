@@ -14,8 +14,8 @@
 import { EventEmitter } from "node:events";
 
 import { SOEServer } from "../SoeServer/soeserver";
-import { H1emuLoginServer as ZoneConnectionManager } from "../H1emuServer/h1emuLoginServer";
-import { H1emuClient } from "../H1emuServer/shared/h1emuclient";
+import { ZoneConnectionManager } from "../LoginZoneConnection/zoneconnectionmanager";
+import { LZConnectionClient } from "../LoginZoneConnection/shared/lzconnectionclient";
 import { LoginProtocol } from "../../protocols/loginprotocol";
 import { MongoClient } from "mongodb";
 import {
@@ -27,7 +27,12 @@ import {
   isValidCharacterName,
   resolveHostAddress
 } from "../../utils/utils";
-import { GameServer } from "../../types/loginserver";
+import {
+  BANNED_LIGHT,
+  ConnectionAllowed,
+  GameServer,
+  UserSession
+} from "../../types/loginserver";
 import Client from "servers/LoginServer/loginclient";
 import fs from "node:fs";
 import { loginPacketsType } from "types/packets";
@@ -54,7 +59,7 @@ import { LoginUdp_9packets } from "types/LoginUdp_9packets";
 import { getCharacterModelData } from "../shared/functions";
 import LoginClient from "servers/LoginServer/loginclient";
 import {
-  BAN_INFO,
+  CONNECTION_REJECTION_FLAGS,
   DB_COLLECTIONS,
   GAME_VERSIONS,
   NAME_VALIDATION_STATUS
@@ -83,7 +88,7 @@ export class LoginServer extends EventEmitter {
   _enableHttpServer: boolean;
   _httpServerPort: number = 80;
   private _zoneConnectionManager!: ZoneConnectionManager;
-  private _zoneConnections: { [h1emuClientId: string]: number } = {};
+  private _zoneConnections: { [LZConnectionClientId: string]: number } = {};
   private _internalReqCount: number = 0;
   private _pendingInternalReq: { [requestId: number]: any } = {};
   private _pendingInternalReqTimeouts: { [requestId: number]: NodeJS.Timeout } =
@@ -170,7 +175,7 @@ export class LoginServer extends EventEmitter {
 
       this._zoneConnectionManager.on(
         "data",
-        async (err: string, client: H1emuClient, packet: any) => {
+        async (err: string, client: LZConnectionClient, packet: any) => {
           if (err) {
             console.error(err);
             return;
@@ -209,7 +214,7 @@ export class LoginServer extends EventEmitter {
                     await this.updateZoneServerVersion(serverId, h1emuVersion);
                     await this.updateServerStatus(serverId, true);
                   } else {
-                    this.rejectH1emuConnection(serverId, client);
+                    this.rejectZoneConnection(serverId, client);
                     return;
                   }
                   this._zoneConnectionManager.sendData(client, "SessionReply", {
@@ -233,7 +238,12 @@ export class LoginServer extends EventEmitter {
                 }
                 case "ClientBan": {
                   const { status, loginSessionId } = packet.data;
-                  const serverId = this._zoneConnections[client.clientId];
+                  const serverId = this._zoneConnections[client.clientId],
+                    isGlobal = await this._isServerOfficial(serverId);
+
+                  // login server should not track non-global bans
+                  if (!isGlobal) return;
+
                   try {
                     const userSession = await this._db
                       .collection(DB_COLLECTIONS.USERS_SESSIONS)
@@ -247,7 +257,7 @@ export class LoginServer extends EventEmitter {
                             serverId,
                             authKey: userSession.authKey,
                             status,
-                            isGlobal: await this._isServerOfficial(serverId)
+                            isGlobal
                           }
                         },
                         { upsert: true }
@@ -275,7 +285,9 @@ export class LoginServer extends EventEmitter {
                   break;
                 }
                 default:
-                  console.log(`Unhandled h1emu packet: ${packet.name}`);
+                  console.log(
+                    `Unhandled ZoneConnection packet: ${packet.name}`
+                  );
                   break;
               }
             }
@@ -311,7 +323,7 @@ export class LoginServer extends EventEmitter {
       );
       this._zoneConnectionManager.on(
         "disconnect",
-        async (err: string, client: H1emuClient, reason: number) => {
+        async (err: string, client: LZConnectionClient, reason: number) => {
           debug(
             `ZoneConnection dropped: ${
               reason ? "Connection Lost" : "Unknown Error"
@@ -355,7 +367,7 @@ export class LoginServer extends EventEmitter {
     return client;
   }
 
-  rejectH1emuConnection(serverId: number, client: H1emuClient) {
+  rejectZoneConnection(serverId: number, client: LZConnectionClient) {
     debug(
       `rejected connection serverId : ${serverId} address: ${client.address} `
     );
@@ -904,60 +916,72 @@ export class LoginServer extends EventEmitter {
     // to implement
     return true;
   }
-  async getOwnerBanInfo(serverId: number, client: Client) {
-    const ownerBanInfos: any[] = await this._db
+  async getClientRejectionFlags(serverId: number, client: Client) {
+    const banInfo: Array<BANNED_LIGHT> = await this._db
       .collection(DB_COLLECTIONS.BANNED_LIGHT)
       .find({ authKey: client.authKey, status: true })
       .toArray();
-    const banInfos: { banInfo: BAN_INFO }[] = [];
-    for (let i = 0; i < ownerBanInfos.length; i++) {
-      const ownerBanInfo = ownerBanInfos[i];
-      if (ownerBanInfo.serverId === serverId) {
-        banInfos.push({ banInfo: BAN_INFO.LOCAL_BAN });
-      }
-      if (ownerBanInfo.isGlobal) {
-        banInfos.push({ banInfo: BAN_INFO.GLOBAL_BAN });
+    const rejectionFlags: Array<CONNECTION_REJECTION_FLAGS> = [];
+    for (let i = 0; i < banInfo.length; i++) {
+      if (banInfo[i].isGlobal) {
+        rejectionFlags.push(CONNECTION_REJECTION_FLAGS.GLOBAL_BAN);
       }
     }
 
     if (await this.isClientUsingVpn(client.address)) {
-      banInfos.push({ banInfo: BAN_INFO.VPN });
+      rejectionFlags.push(CONNECTION_REJECTION_FLAGS.VPN);
     }
 
     if (await this.isClientHWIDBanned(client, serverId)) {
-      banInfos.push({ banInfo: BAN_INFO.HWID });
+      rejectionFlags.push(CONNECTION_REJECTION_FLAGS.HWID);
     }
 
     if (!(await this.isClientVerified(client))) {
-      banInfos.push({ banInfo: BAN_INFO.UNVERIFIED });
+      rejectionFlags.push(CONNECTION_REJECTION_FLAGS.UNVERIFIED);
     }
 
-    return banInfos;
+    return rejectionFlags;
   }
 
   async CharacterLoginRequest(client: Client, packet: CharacterLoginRequest) {
-    let charactersLoginInfo: CharacterLoginReply;
     const { serverId, characterId } = packet;
-    let CharacterAllowedOnZone = 1;
-    let banInfos: Array<{ banInfo: BAN_INFO }> = [];
-    if (!this._soloMode) {
-      charactersLoginInfo = await this.getCharactersLoginInfo(
-        serverId,
-        characterId,
-        client.authKey
-      );
-      banInfos = await this.getOwnerBanInfo(serverId, client);
-      CharacterAllowedOnZone = (await this.askZone(
-        serverId,
-        "CharacterAllowedRequest",
-        { characterId: characterId, banInfos }
-      )) as number;
-    } else {
-      charactersLoginInfo = await this.getCharactersLoginInfoSolo(
+    let connectionAllowed: ConnectionAllowed = { status: 1 };
+    let rejectionFlags: Array<CONNECTION_REJECTION_FLAGS> = [];
+
+    if (this._soloMode) {
+      this.sendData(
         client,
-        characterId
+        "CharacterLoginReply",
+        await this.getCharactersLoginInfoSolo(client, characterId)
       );
+      return;
     }
+
+    const charactersLoginInfo = await this.getCharactersLoginInfo(
+      serverId,
+      characterId,
+      client.authKey
+    );
+    rejectionFlags = await this.getClientRejectionFlags(serverId, client);
+
+    const userSession = (await this._db
+      ?.collection(DB_COLLECTIONS.USERS_SESSIONS)
+      .findOne({ serverId: packet.serverId, authKey: client.authKey })) as
+      | UserSession
+      | undefined;
+
+    connectionAllowed = (await this.askZone(
+      serverId,
+      "CharacterAllowedRequest",
+      {
+        characterId,
+        loginSessionId: userSession?.guid ?? "",
+        rejectionFlags: rejectionFlags.map((flag) => {
+          return { rejectionFlag: flag };
+        })
+      }
+    )) as ConnectionAllowed;
+
     if (client.gameVersion === GAME_VERSIONS.H1Z1_KOTK_PS3) {
       // any type can be pass to a byteswithlength field but only the specified type in the table can be read
       charactersLoginInfo.applicationData = DataSchema.pack(
@@ -967,7 +991,7 @@ export class LoginServer extends EventEmitter {
     }
     debug(charactersLoginInfo);
     if (charactersLoginInfo.status) {
-      charactersLoginInfo.status = Number(CharacterAllowedOnZone);
+      charactersLoginInfo.status = Number(connectionAllowed.status);
     } else {
       this.sendData(client, "H1emu.PrintToConsole", {
         message: `Invalid character status! If this is a new character, please delete and recreate it.`,
@@ -975,49 +999,56 @@ export class LoginServer extends EventEmitter {
         clearOutput: true
       });
     }
-    if (!CharacterAllowedOnZone) {
+    if (!connectionAllowed.status) {
       let reason =
-        "UNDEFINED. If this is a new character, please delete and recreate it.";
-      switch (banInfos[0]?.banInfo) {
-        case BAN_INFO.LOCAL_BAN:
+        "UNDEFINED! Server may be running an old version, please report this to the server owner!";
+      switch (connectionAllowed.rejectionFlag) {
+        case CONNECTION_REJECTION_FLAGS.ERROR:
+          reason = "ERROR";
+          break;
+        case CONNECTION_REJECTION_FLAGS.LOCAL_BAN:
           reason = "LOCAL_BAN";
           break;
-        case BAN_INFO.GLOBAL_BAN:
+        case CONNECTION_REJECTION_FLAGS.GLOBAL_BAN:
           reason = "GLOBAL_BAN";
           break;
-        case BAN_INFO.VPN:
+        case CONNECTION_REJECTION_FLAGS.VPN:
           reason = "VPN";
           break;
-        case BAN_INFO.HWID:
+        case CONNECTION_REJECTION_FLAGS.HWID:
           reason = "HWID_BAN";
           break;
-        case BAN_INFO.UNVERIFIED:
+        case CONNECTION_REJECTION_FLAGS.UNVERIFIED:
           reason = "UNVERIFIED";
           break;
-
-        // todo
-        /*
-        case BAN_INFO.SERVER_LOCKED:
-          reason = "SERVER LOCKED";
+        case CONNECTION_REJECTION_FLAGS.SERVER_LOCKED:
+          reason = "SERVER IS LOCKED";
           break;
-        case BAN_INFO.SERVER_REBOOT:
+        case CONNECTION_REJECTION_FLAGS.SERVER_REBOOT:
           reason = "SERVER IS REBOOTING";
           break;
-          */
+        case CONNECTION_REJECTION_FLAGS.CHARACTER_NOT_FOUND:
+          reason = "CHARACTER NOT FOUND";
+          break;
+        case CONNECTION_REJECTION_FLAGS.OTHER:
+          reason = "OTHER";
+          break;
       }
       this.sendData(client, "H1emu.PrintToConsole", {
         message: `CONNECTION REJECTED! Reason: ${reason}`,
         showConsole: true,
         clearOutput: true
       });
-      this.sendData(client, "H1emu.PrintToConsole", {
-        message: `Server may be rebooting, check back later!`,
-        showConsole: true,
-        clearOutput: false
-      });
       if (reason == "UNVERIFIED") {
         this.sendData(client, "H1emu.PrintToConsole", {
           message: `Please follow the steps to verify your account using the #how-to-play channel in the discord. discord.gg/h1emu`,
+          showConsole: false,
+          clearOutput: false
+        });
+      }
+      if (connectionAllowed.message) {
+        this.sendData(client, "H1emu.PrintToConsole", {
+          message: connectionAllowed.message,
           showConsole: false,
           clearOutput: false
         });

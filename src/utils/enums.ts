@@ -17,14 +17,17 @@ export enum GAME_VERSIONS {
   H1Z1_KOTK_PS3 = 3
 }
 
-export enum BAN_INFO {
+export enum CONNECTION_REJECTION_FLAGS {
+  ERROR = 0,
   LOCAL_BAN = 1,
   GLOBAL_BAN = 2,
   VPN = 3,
   HWID = 4,
   UNVERIFIED = 5,
   SERVER_LOCKED = 6,
-  SERVER_REBOOT = 7
+  SERVER_REBOOT = 7,
+  CHARACTER_NOT_FOUND = 8,
+  OTHER = 9
 }
 
 export enum NAME_VALIDATION_STATUS {

@@ -11,16 +11,20 @@
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
 
-import { H1emuClient } from "./shared/h1emuclient";
-import { H1emuServer } from "./shared/h1emuserver";
+import { LZConnectionClient } from "./shared/lzconnectionclient";
+import { BaseLZConnection } from "./shared/baselzconnection";
 
-export class H1emuLoginServer extends H1emuServer {
+/**
+ * Handles connections between the loginserver and multiple zoneservers
+ * Instantiated by a loginserver only.
+ */
+export class ZoneConnectionManager extends BaseLZConnection {
   constructor(serverPort?: number) {
     super(serverPort);
     this.messageHandler = function (
       messageType: string,
       data: Buffer,
-      client: H1emuClient
+      client: LZConnectionClient
     ): void {
       const packet = this._protocol.parse(data);
       if (!packet) return;
@@ -28,8 +32,14 @@ export class H1emuLoginServer extends H1emuServer {
         case "Ping":
           this.ping(client);
           break;
-        case "CharacterCreateReply":
         case "CharacterAllowedReply":
+          this.emit("processInternalReq", packet, [
+            "status",
+            "rejectionFlag",
+            "message"
+          ]);
+          break;
+        case "CharacterCreateReply":
         case "CharacterDeleteReply":
         case "ClientIsAdminReply": {
           this.emit("processInternalReq", packet, ["status"]);
@@ -40,7 +50,7 @@ export class H1emuLoginServer extends H1emuServer {
           break;
       }
     };
-    this.ping = (client: H1emuClient) => {
+    this.ping = (client: LZConnectionClient) => {
       this.updateClientLastPing(client.clientId);
       super.ping(client);
     };

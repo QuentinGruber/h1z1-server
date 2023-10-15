@@ -12,7 +12,12 @@
 // ======================================================================
 
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import { ClientMute, DamageInfo, EntityDictionary } from "types/zoneserver";
+import {
+  ClientBan,
+  ClientMute,
+  DamageInfo,
+  EntityDictionary
+} from "types/zoneserver";
 
 import {
   zoneShutdown,
@@ -51,10 +56,34 @@ import { DB_COLLECTIONS } from "../../../../utils/enums";
 import { WorldDataManager } from "../../managers/worlddatamanager";
 import { BaseEntity } from "../../entities/baseentity";
 import { MAX_UINT32 } from "../../../../utils/constants";
+import { WithId } from "mongodb";
+import { FullCharacterSaveData } from "types/savedata";
 const itemDefinitions = require("./../../../../../data/2016/dataSources/ServerItemDefinitions.json");
 
 export const commands: Array<Command> = [
   //#region DEFAULT PERMISSIONS
+  {
+    name: "console",
+    permissionLevel: PermissionLevels.DEFAULT,
+    execute: async (
+      server: ZoneServer2016,
+      client: Client,
+      args: Array<string>
+    ) => {
+      /* handled clientside */
+    }
+  },
+  {
+    name: "group",
+    permissionLevel: PermissionLevels.DEFAULT,
+    execute: async (
+      server: ZoneServer2016,
+      client: Client,
+      args: Array<string>
+    ) => {
+      server.groupManager.handleGroupCommand(server, client, args);
+    }
+  },
   {
     name: "me",
     permissionLevel: PermissionLevels.DEFAULT,
@@ -350,9 +379,181 @@ export const commands: Array<Command> = [
       }
     }
   },
+  {
+    name: "whisper",
+    permissionLevel: PermissionLevels.DEFAULT,
+    keepCase: true,
+    execute: async (
+      server: ZoneServer2016,
+      client: Client,
+      args: Array<string>
+    ) => {
+      if (!args[0]) {
+        server.sendChatText(
+          client,
+          "[Whisper] You must specify a player name and message!"
+        );
+        return;
+      }
+      if (!args[1]) {
+        server.sendChatText(client, "[Whisper] The message may not be blank!");
+        return;
+      }
+
+      const targetClient = server.getClientByNameOrLoginSession(args[0]);
+      if (server.playerNotFound(client, args[0].toString(), targetClient)) {
+        return;
+      }
+      if (!targetClient || !(targetClient instanceof Client)) {
+        server.sendChatText(client, "Player not found.");
+        return;
+      }
+
+      if (await server.chatManager.checkMute(server, client)) {
+        server.sendChatText(
+          client,
+          "[Whisper] Message blocked, you are globally muted!"
+        );
+        return;
+      }
+      if (
+        targetClient.character.mutedCharacters.includes(
+          client.character.characterId
+        )
+      ) {
+        server.sendChatText(
+          client,
+          `[Whisper] Message blocked, target player has you muted!`
+        );
+        return;
+      }
+
+      args.splice(0, 1);
+      const message = args.join(" ");
+
+      server.sendChatText(
+        client,
+        `[Whisper to ${targetClient.character.name}]: ${message}`
+      );
+      server.sendChatText(
+        targetClient,
+        `[Whisper from ${client.character.name}]: ${message}`
+      );
+    }
+  },
+  {
+    name: "mute",
+    permissionLevel: PermissionLevels.DEFAULT,
+    execute: async (
+      server: ZoneServer2016,
+      client: Client,
+      args: Array<string>
+    ) => {
+      if (!args[0]) {
+        server.sendChatText(client, "You must specify a player name to mute!");
+        return;
+      }
+
+      const targetClient = server.getClientByName(args[0]);
+      if (server.playerNotFound(client, args[0].toString(), targetClient)) {
+        return;
+      }
+      if (!targetClient || !(targetClient instanceof Client)) {
+        server.sendChatText(client, "Player not found.");
+        return;
+      }
+
+      if (
+        client.character.mutedCharacters.includes(
+          targetClient.character.characterId
+        )
+      ) {
+        server.sendChatText(
+          client,
+          `${targetClient.character.name} is already muted.`
+        );
+        return;
+      }
+
+      client.character.mutedCharacters.push(targetClient.character.characterId);
+      server.sendChatText(
+        client,
+        `You have muted ${targetClient.character.name}.`
+      );
+    }
+  },
+  {
+    name: "unmute",
+    permissionLevel: PermissionLevels.DEFAULT,
+    execute: async (
+      server: ZoneServer2016,
+      client: Client,
+      args: Array<string>
+    ) => {
+      if (!args[0]) {
+        server.sendChatText(
+          client,
+          "You must specify a player name to unmute!"
+        );
+        return;
+      }
+
+      const targetClient = server.getClientByName(args[0]);
+      if (server.playerNotFound(client, args[0].toString(), targetClient)) {
+        return;
+      }
+      if (!targetClient || !(targetClient instanceof Client)) {
+        server.sendChatText(client, "Player not found.");
+        return;
+      }
+
+      if (
+        !client.character.mutedCharacters.includes(
+          targetClient.character.characterId
+        )
+      ) {
+        server.sendChatText(
+          client,
+          `${targetClient.character.name} is not muted.`
+        );
+        return;
+      }
+
+      client.character.mutedCharacters.splice(
+        client.character.mutedCharacters.indexOf(
+          targetClient.character.characterId
+        ),
+        1
+      );
+      server.sendChatText(
+        client,
+        `You have unmuted ${targetClient.character.name}.`
+      );
+    }
+  },
   //#endregion
 
   //#region MODERATOR PERMISSIONS
+  {
+    name: "players",
+    permissionLevel: PermissionLevels.MODERATOR,
+    execute: (server: ZoneServer2016, client: Client, args: Array<string>) => {
+      server.sendChatText(
+        client,
+        `Players: ${Object.values(server._clients)
+          .map((c) => {
+            return `${c.character.name}: ${c.loginSessionId} | ${server
+              .getSoeClient(c.soeClientId)
+              ?.getNetworkStats()[2]} | ${server
+              .getSoeClient(c.soeClientId)
+              ?.getNetworkStats()[0]} | ${server
+              .getSoeClient(c.soeClientId)
+              ?.getNetworkStats()[1]}`;
+          })
+          .join(",\n")}`
+      );
+    }
+  },
   {
     name: "vanish",
     permissionLevel: PermissionLevels.MODERATOR,
@@ -630,63 +831,108 @@ export const commands: Array<Command> = [
     }
   },
   {
-    name: "silentban",
+    name: "ban",
     permissionLevel: PermissionLevels.MODERATOR,
+    keepCase: true,
     execute: async (
       server: ZoneServer2016,
       client: Client,
       args: Array<string>
     ) => {
-      if (!args[0] || !args[1]) {
+      if (!args[0]) {
         server.sendChatText(
           client,
-          `Correct usage: /silentban {name|playerId} {type}  optional: {time} {reason}`
+          `Correct usage: /ban {name} optional: {time} {reason} {--silent}`
         );
         return;
       }
-      const banTypes = ["nodamage", "hiddenplayers", "rick"];
-      const banType = args[1].toString().toLowerCase();
-      if (!banTypes.includes(banType)) {
-        server.sendChatText(client, `valid ban types: ${banTypes.join(", ")}`);
+
+      // prevent banning yourself
+
+      if (args[0] == client.character.name) {
+        server.sendChatText(client, "You can't ban yourself!");
         return;
       }
-      const targetClient = server.getClientByNameOrLoginSession(
-        args[0].toString()
-      );
-      if (server.playerNotFound(client, args[0].toString(), targetClient)) {
+
+      // check if client is already banned
+
+      const bannedClient = (await server._db
+        ?.collection(DB_COLLECTIONS.BANNED)
+        .findOne({ name: args[0], active: true })) as
+        | WithId<ClientBan>
+        | undefined;
+
+      if (bannedClient) {
+        server.sendChatText(
+          client,
+          `${args[0]} (${bannedClient.loginSessionId}) is already banned!`
+        );
         return;
       }
-      if (!targetClient || !(targetClient instanceof Client)) {
-        server.sendChatText(client, "Client not found.");
-        return;
+
+      const isSilent = args.includes("--silent");
+
+      // check offline characters first for an exact match
+
+      const collection = server._db.collection(DB_COLLECTIONS.CHARACTERS),
+        character = (await collection.findOne({
+          characterName: args[0],
+          serverId: server._worldId,
+          status: 1
+        })) as WithId<FullCharacterSaveData> | undefined;
+
+      let ownerId = character?.ownerId,
+        characterName = character?.characterName;
+
+      if (!character) {
+        const banClient = server.getClientByName(args[0]);
+        if (server.playerNotFound(client, args[0].toString(), banClient)) {
+          return;
+        }
+        if (!banClient || !(banClient instanceof Client)) {
+          server.sendChatText(
+            client,
+            `Character with name ${args[0]} not found!`
+          );
+          return;
+        }
+        ownerId = banClient.loginSessionId;
+        characterName = banClient.character.name;
       }
-      let time = Number(args[2]) ? Number(args[2]) * 60000 : 0;
-      if (time > 0) {
+
+      let time = Number(args[1]) ? Number(args[1]) * 60000 : 0;
+      if (!isNaN(time) && time > 0) {
         time += Date.now();
         server.sendChatText(
           client,
-          `You have silently banned ${
-            targetClient.character.name
-          } until ${server.getDateString(time)}`
+          `You have ${
+            isSilent ? "silently " : ""
+          }banned ${character?.characterName} until ${server.getDateString(
+            time
+          )}`
         );
       } else {
         server.sendChatText(
           client,
-          `You have silently banned ${targetClient.character.name} permemently, banType: ${banType}`
+          `You have ${
+            isSilent ? "silently " : ""
+          }banned ${character?.characterName} permanently`
         );
       }
-      const reason = args.slice(3).join(" ");
+
+      const reason = args.slice(2).join(" ");
       server.banClient(
-        targetClient,
+        ownerId ?? "",
+        characterName ?? "",
         reason,
-        banType,
-        client.character.name ? client.character.name : "",
-        time
+        client.character.name,
+        time,
+        isSilent
       );
     }
   },
   {
-    name: "ban",
+    name: "banid",
     permissionLevel: PermissionLevels.MODERATOR,
     execute: async (
       server: ZoneServer2016,
@@ -696,43 +942,145 @@ export const commands: Array<Command> = [
       if (!args[0]) {
         server.sendChatText(
           client,
-          `Correct usage: /ban {name|playerId} optional: {time} {reason}`
+          `Correct usage: /banid {loginSessionId} optional: {time} {reason} {--silent}`
         );
         return;
       }
-      const targetClient = server.getClientByNameOrLoginSession(
-        args[0].toString()
-      );
-      if (server.playerNotFound(client, args[0].toString(), targetClient)) {
+
+      // prevent banning yourself
+
+      if (args[0] == client.loginSessionId) {
+        server.sendChatText(client, "You can't ban yourself!");
         return;
       }
-      if (!targetClient || !(targetClient instanceof Client)) {
-        server.sendChatText(client, "Client not found.");
+
+      // check if client is already banned
+
+      const bannedClient = (await server._db
+        ?.collection(DB_COLLECTIONS.BANNED)
+        .findOne({ loginSessionId: args[0], active: true })) as
+        | WithId<ClientBan>
+        | undefined;
+
+      if (bannedClient) {
+        server.sendChatText(
+          client,
+          `${bannedClient.name} (${args[0]}) is already banned!`
+        );
         return;
       }
+
+      const isSilent = args.includes("--silent");
+
+      // check offline characters first for an exact match
+
+      const collection = server._db.collection(DB_COLLECTIONS.CHARACTERS),
+        character = (await collection.findOne({
+          ownerId: args[0],
+          serverId: server._worldId,
+          status: 1
+        })) as WithId<FullCharacterSaveData> | undefined;
+
+      let ownerId = character?.ownerId,
+        characterName = character?.characterName;
+
+      if (!character) {
+        const banClient = server.getClientByLoginSessionId(args[0]);
+        if (!banClient) {
+          server.sendChatText(
+            client,
+            `Character with loginSessionId ${args[0]} not found!`
+          );
+          return;
+        }
+        ownerId = banClient.loginSessionId;
+        characterName = banClient.character.name;
+      }
+
       let time = Number(args[1]) ? Number(args[1]) * 60000 : 0;
-      if (time > 0) {
+      if (!isNaN(time) && time > 0) {
         time += Date.now();
         server.sendChatText(
           client,
-          `You have banned ${
-            targetClient.character.name
-          } until ${server.getDateString(time)}`
+          `You have ${
+            isSilent ? "silently " : ""
+          }banned ${character?.characterName} until ${server.getDateString(
+            time
+          )}`
         );
       } else {
         server.sendChatText(
           client,
-          `You have banned ${targetClient.character.name} permanently`
+          `You have ${
+            isSilent ? "silently " : ""
+          }banned ${character?.characterName} permanently`
         );
       }
+
       const reason = args.slice(2).join(" ");
       server.banClient(
-        targetClient,
+        ownerId ?? "",
+        characterName ?? "",
         reason,
-        "normal",
-        client.character.name ? client.character.name : "",
-        time
+        client.character.name,
+        time,
+        isSilent
       );
+    }
+  },
+  {
+    name: "unban",
+    permissionLevel: PermissionLevels.MODERATOR,
+    keepCase: true,
+    execute: async (
+      server: ZoneServer2016,
+      client: Client,
+      args: Array<string>
+    ) => {
+      if (!args[0]) {
+        server.sendChatText(client, `Correct usage: /unban {name}`);
+        return;
+      }
+      const name = args.join(" ").toString();
+      const unBannedClient = await server.unbanClient(client, name);
+      if (unBannedClient) {
+        server.sendChatText(
+          client,
+          `Removed ban on user ${unBannedClient.name}`
+        );
+      } else {
+        server.sendChatText(
+          client,
+          `Cannot find any banned user with name ${name}`
+        );
+      }
+    }
+  },
+  {
+    name: "unbanid",
+    permissionLevel: PermissionLevels.MODERATOR,
+    keepCase: true,
+    execute: async (
+      server: ZoneServer2016,
+      client: Client,
+      args: Array<string>
+    ) => {
+      if (!args[0]) {
+        server.sendChatText(client, `Correct usage: /unbanid {loginSessionId}`);
+        return;
+      }
+      const unBannedClient = await server.unbanClientId(client, args[0]);
+      if (unBannedClient) {
+        server.sendChatText(
+          client,
+          `Removed ban on user ${unBannedClient.name}`
+        );
+      } else {
+        server.sendChatText(
+          client,
+          `Cannot find any banned user with id ${args[0]}`
+        );
+      }
     }
   },
   {
@@ -761,35 +1109,7 @@ export const commands: Array<Command> = [
     }
   },
   {
-    name: "unban",
-    permissionLevel: PermissionLevels.MODERATOR,
-    keepCase: true,
-    execute: async (
-      server: ZoneServer2016,
-      client: Client,
-      args: Array<string>
-    ) => {
-      if (!args[0]) {
-        server.sendChatText(client, `Correct usage: /unban {name|playerId}`);
-        return;
-      }
-      const name = args.join(" ").toString();
-      const unBannedClient = await server.unbanClient(client, name);
-      if (unBannedClient) {
-        server.sendChatText(
-          client,
-          `Removed ban on user ${unBannedClient.name}`
-        );
-      } else {
-        server.sendChatText(
-          client,
-          `Cannot find any locally banned user with name ${name} but sent the unban to the loginserver`
-        );
-      }
-    }
-  },
-  {
-    name: "gm", // "god" also works
+    name: "gm", // "god" also works due to default client command mappings
     permissionLevel: PermissionLevels.MODERATOR,
     execute: (server: ZoneServer2016, client: Client, args: Array<string>) => {
       server.setGodMode(client, !client.character.godMode);
@@ -835,6 +1155,128 @@ export const commands: Array<Command> = [
         const element = targetClient.clientLogs[index];
         server.sendChatText(client, `${element.log}`);
       }
+    }
+  },
+  {
+    name: "globalmute",
+    permissionLevel: PermissionLevels.MODERATOR,
+    execute: async (
+      server: ZoneServer2016,
+      client: Client,
+      args: Array<string>
+    ) => {
+      if (!args[0]) {
+        server.sendChatText(
+          client,
+          `Correct usage: /globalmute {name|playerId} optional: {time} {reason}`
+        );
+        return;
+      }
+      const targetClient = server.getClientByNameOrLoginSession(
+        args[0].toString()
+      );
+      if (server.playerNotFound(client, args[0].toString(), targetClient)) {
+        return;
+      }
+      if (!targetClient || !(targetClient instanceof Client)) {
+        server.sendChatText(client, "Client not found.");
+        return;
+      }
+
+      const mutedClient = (await server._db
+        ?.collection(DB_COLLECTIONS.MUTED)
+        .findOne({
+          name: client.character.name.toLowerCase(),
+          active: true
+        })) as unknown as ClientMute;
+      if (mutedClient) {
+        server.sendChatText(client, "Client is already muted!");
+        return;
+      }
+
+      let time = Number(args[1]) ? Number(args[1]) * 60000 : 0;
+      if (time > 0) {
+        time += Date.now();
+        server.sendChatText(
+          client,
+          `You have muted ${
+            targetClient.character.name
+          } until ${server.getDateString(time)}`
+        );
+      } else {
+        server.sendChatText(
+          client,
+          `You have muted ${targetClient.character.name} permanently`
+        );
+      }
+      const reason = args.slice(2).join(" ");
+      server.chatManager.muteClient(
+        server,
+        targetClient,
+        reason,
+        client.character.name ? client.character.name : "",
+        time
+      );
+    }
+  },
+  {
+    name: "globalunmute",
+    permissionLevel: PermissionLevels.MODERATOR,
+    execute: async (
+      server: ZoneServer2016,
+      client: Client,
+      args: Array<string>
+    ) => {
+      if (!args[0]) {
+        server.sendChatText(
+          client,
+          `Correct usage: /globalunmute {name|playerId}`
+        );
+        return;
+      }
+      const name = args.join(" ").toString(),
+        mutedClient = (
+          await server._db?.collection(DB_COLLECTIONS.MUTED).findOneAndUpdate(
+            { name, active: true },
+            {
+              $set: { active: false, unmuteAdminName: client.character.name }
+            }
+          )
+        )?.value as unknown as ClientMute;
+      if (mutedClient) {
+        server.sendChatText(client, `Removed mute on user ${mutedClient.name}`);
+        const targetClient = server.getClientByNameOrLoginSession(
+          mutedClient.loginSessionId
+        );
+        if (targetClient && targetClient instanceof Client) {
+          server.sendAlert(targetClient, "You have been unmuted!");
+        }
+      } else {
+        server.sendChatText(
+          client,
+          `Cannot find any muted user with name ${name}`
+        );
+      }
+    }
+  },
+  {
+    name: "debug",
+    permissionLevel: PermissionLevels.MODERATOR,
+    execute: async (server: ZoneServer2016, client: Client) => {
+      client.isDebugMode = !client.isDebugMode;
+      server.sendAlert(client, `Set debug mode to ${client.isDebugMode}`);
+    }
+  },
+  {
+    name: "heal",
+    permissionLevel: PermissionLevels.MODERATOR,
+    execute: async (
+      server: ZoneServer2016,
+      client: Client,
+      args: Array<string>
+    ) => {
+      client.character.resetResources(server);
+      server.sendChatText(client, `Set resources to maximum values.`);
     }
   },
   //#endregion
@@ -1424,25 +1866,11 @@ export const commands: Array<Command> = [
     }
   },
   {
-    name: "shutdown",
-    permissionLevel: PermissionLevels.ADMIN,
-    execute: async (
-      server: ZoneServer2016,
-      client: Client,
-      args: Array<string>
-    ) => {
-      const timeLeft = args[0] ? args[0] : 0;
-      const message = args[1] ? args[1] : " ";
-      const startedTime = Date.now();
-      await zoneShutdown(server, startedTime, Number(timeLeft), message);
-    }
-  },
-  {
     name: "spawnloot",
     permissionLevel: PermissionLevels.ADMIN,
     execute: (server: ZoneServer2016, client: Client, args: Array<string>) => {
       server.worldObjectManager.createLoot(server);
-      server.sendChatText(client, `Respawned loot`);
+      server.sendChatText(client, `Spawned loot`);
     }
   },
   {
@@ -1531,28 +1959,8 @@ export const commands: Array<Command> = [
     permissionLevel: PermissionLevels.ADMIN,
     execute: (server: ZoneServer2016, client: Client, args: Array<string>) => {
       const wep = server.generateItem(Items.WEAPON_REMOVER);
-      if (wep && wep.weapon) wep.weapon.ammoCount = 1000;
+      if (wep?.weapon) wep.weapon.ammoCount = 1000;
       client.character.lootItem(server, wep);
-    }
-  },
-  {
-    name: "players",
-    permissionLevel: PermissionLevels.MODERATOR,
-    execute: (server: ZoneServer2016, client: Client, args: Array<string>) => {
-      server.sendChatText(
-        client,
-        `Players: ${Object.values(server._clients)
-          .map((c) => {
-            return `${c.character.name}: ${c.loginSessionId} | ${server
-              .getSoeClient(c.soeClientId)
-              ?.getNetworkStats()[2]} | ${server
-              .getSoeClient(c.soeClientId)
-              ?.getNetworkStats()[0]} | ${server
-              .getSoeClient(c.soeClientId)
-              ?.getNetworkStats()[1]}`;
-          })
-          .join(",\n")}`
-      );
     }
   },
   {
@@ -1884,14 +2292,6 @@ export const commands: Array<Command> = [
   },
 
   {
-    name: "debug",
-    permissionLevel: PermissionLevels.MODERATOR,
-    execute: async (server: ZoneServer2016, client: Client) => {
-      client.isDebugMode = !client.isDebugMode;
-      server.sendAlert(client, `Set debug mode to ${client.isDebugMode}`);
-    }
-  },
-  {
     name: "listbases",
     permissionLevel: PermissionLevels.ADMIN,
     execute: async (
@@ -2079,270 +2479,107 @@ export const commands: Array<Command> = [
     }
   },
   {
-    name: "heal",
+    name: "deepcover",
     permissionLevel: PermissionLevels.ADMIN,
     execute: async (
       server: ZoneServer2016,
       client: Client,
       args: Array<string>
     ) => {
-      client.character.resetResources(server);
+      const newCharacterName = args[0];
 
-      server.sendChatText(client, `Set resources to maximum values.`);
+      // Validate the input to ensure that it is a single word without special characters
+      const isValidInput = /^[a-zA-Z0-9_]+$/.test(newCharacterName);
+      if (!isValidInput) {
+        server.sendChatText(
+          client,
+          "Invalid input. Please enter a single word without special characters."
+        );
+        return;
+      }
+      // Send a chat message to confirm the name change
+      server.sendChatText(client, `Name changed to ${newCharacterName}`);
+      // Update the client's character name
+      client.character.name = newCharacterName;
+
+      // Wait for one second before running vanish command
+      await Scheduler.wait(1000);
+
+      // Set the client's isSpectator state
+      client.character.isSpectator = !client.character.isSpectator;
+
+      // Remove the client's character from the game if in spectate mode
+      if (client.character.isSpectator) {
+        for (const a in server._clients) {
+          const iteratedClient = server._clients[a];
+          if (iteratedClient.spawnedEntities.includes(client.character)) {
+            server.sendData(iteratedClient, "Character.RemovePlayer", {
+              characterId: client.character.characterId
+            });
+            iteratedClient.spawnedEntities.splice(
+              iteratedClient.spawnedEntities.indexOf(client.character),
+              1
+            );
+          }
+        }
+        server.sendData(client, "Spectator.Enable", {});
+      }
+
+      // Wait for an additional second before running the second vanish command
+      await Scheduler.wait(1000);
+
+      // Set the client's isSpectator state again
+      client.character.isSpectator = !client.character.isSpectator;
     }
   },
   {
-    name: "whisper",
-    permissionLevel: PermissionLevels.DEFAULT,
+    name: "reboot",
+    permissionLevel: PermissionLevels.ADMIN,
     keepCase: true,
     execute: async (
       server: ZoneServer2016,
       client: Client,
       args: Array<string>
     ) => {
-      if (!args[0]) {
+      if (args.length < 2) {
         server.sendChatText(
           client,
-          "[Whisper] You must specify a player name and message!"
-        );
-        return;
-      }
-      if (!args[1]) {
-        server.sendChatText(client, "[Whisper] The message may not be blank!");
-        return;
-      }
-
-      const targetClient = server.getClientByNameOrLoginSession(args[0]);
-      if (server.playerNotFound(client, args[0].toString(), targetClient)) {
-        return;
-      }
-      if (!targetClient || !(targetClient instanceof Client)) {
-        server.sendChatText(client, "Player not found.");
-        return;
-      }
-
-      if (await server.chatManager.checkMute(server, client)) {
-        server.sendChatText(
-          client,
-          "[Whisper] Message blocked, you are globally muted!"
-        );
-        return;
-      }
-      if (
-        targetClient.character.mutedCharacters.includes(
-          client.character.characterId
-        )
-      ) {
-        server.sendChatText(
-          client,
-          `[Whisper] Message blocked, target player has you muted!`
+          "Usage: /reboot <time in seconds> <message>"
         );
         return;
       }
 
-      args.splice(0, 1);
-      const message = args.join(" ");
+      const time = Number(args[0]),
+        message = args.slice(1, args.length).join(" ");
 
-      server.sendChatText(
-        client,
-        `[Whisper to ${targetClient.character.name}]: ${message}`
-      );
-      server.sendChatText(
-        targetClient,
-        `[Whisper from ${client.character.name}]: ${message}`
-      );
+      if (isNaN(time)) {
+        server.sendChatText(client, "Invalid time.");
+        server.sendChatText(
+          client,
+          "Usage: /reboot <time in seconds> <message>"
+        );
+        return;
+      }
+
+      server.shutdown(time, message);
     }
   },
   {
-    name: "mute",
-    permissionLevel: PermissionLevels.DEFAULT,
+    name: "rebootcancel",
+    permissionLevel: PermissionLevels.ADMIN,
+    keepCase: true,
     execute: async (
       server: ZoneServer2016,
       client: Client,
       args: Array<string>
     ) => {
-      if (!args[0]) {
-        server.sendChatText(client, "You must specify a player name to mute!");
+      if (!server.shutdownStarted) {
+        server.sendChatText(client, "Server is not currently rebooting.");
         return;
       }
 
-      const targetClient = server.getClientByNameOrLoginSession(args[0]);
-      if (server.playerNotFound(client, args[0].toString(), targetClient)) {
-        return;
-      }
-      if (!targetClient || !(targetClient instanceof Client)) {
-        server.sendChatText(client, "Player not found.");
-        return;
-      }
-
-      if (
-        client.character.mutedCharacters.includes(
-          targetClient.character.characterId
-        )
-      ) {
-        server.sendChatText(
-          client,
-          `${targetClient.character.name} is already muted.`
-        );
-        return;
-      }
-
-      client.character.mutedCharacters.push(targetClient.character.characterId);
-      server.sendChatText(
-        client,
-        `You have muted ${targetClient.character.name}.`
-      );
-    }
-  },
-  {
-    name: "unmute",
-    permissionLevel: PermissionLevels.DEFAULT,
-    execute: async (
-      server: ZoneServer2016,
-      client: Client,
-      args: Array<string>
-    ) => {
-      if (!args[0]) {
-        server.sendChatText(
-          client,
-          "You must specify a player name to unmute!"
-        );
-        return;
-      }
-
-      const targetClient = server.getClientByNameOrLoginSession(args[0]);
-      if (server.playerNotFound(client, args[0].toString(), targetClient)) {
-        return;
-      }
-      if (!targetClient || !(targetClient instanceof Client)) {
-        server.sendChatText(client, "Player not found.");
-        return;
-      }
-
-      if (
-        !client.character.mutedCharacters.includes(
-          targetClient.character.characterId
-        )
-      ) {
-        server.sendChatText(
-          client,
-          `${targetClient.character.name} is not muted.`
-        );
-        return;
-      }
-
-      client.character.mutedCharacters.splice(
-        client.character.mutedCharacters.indexOf(
-          targetClient.character.characterId
-        ),
-        1
-      );
-      server.sendChatText(
-        client,
-        `You have unmuted ${targetClient.character.name}.`
-      );
-    }
-  },
-  {
-    name: "globalmute",
-    permissionLevel: PermissionLevels.MODERATOR,
-    execute: async (
-      server: ZoneServer2016,
-      client: Client,
-      args: Array<string>
-    ) => {
-      if (!args[0]) {
-        server.sendChatText(
-          client,
-          `Correct usage: /globalmute {name|playerId} optional: {time} {reason}`
-        );
-        return;
-      }
-      const targetClient = server.getClientByNameOrLoginSession(
-        args[0].toString()
-      );
-      if (server.playerNotFound(client, args[0].toString(), targetClient)) {
-        return;
-      }
-      if (!targetClient || !(targetClient instanceof Client)) {
-        server.sendChatText(client, "Client not found.");
-        return;
-      }
-
-      const mutedClient = (await server._db
-        ?.collection(DB_COLLECTIONS.MUTED)
-        .findOne({
-          name: client.character.name.toLowerCase(),
-          active: true
-        })) as unknown as ClientMute;
-      if (mutedClient) {
-        server.sendChatText(client, "Client is already muted!");
-        return;
-      }
-
-      let time = Number(args[1]) ? Number(args[1]) * 60000 : 0;
-      if (time > 0) {
-        time += Date.now();
-        server.sendChatText(
-          client,
-          `You have muted ${
-            targetClient.character.name
-          } until ${server.getDateString(time)}`
-        );
-      } else {
-        server.sendChatText(
-          client,
-          `You have muted ${targetClient.character.name} permanently`
-        );
-      }
-      const reason = args.slice(2).join(" ");
-      server.chatManager.muteClient(
-        server,
-        targetClient,
-        reason,
-        client.character.name ? client.character.name : "",
-        time
-      );
-    }
-  },
-  {
-    name: "globalunmute",
-    permissionLevel: PermissionLevels.MODERATOR,
-    execute: async (
-      server: ZoneServer2016,
-      client: Client,
-      args: Array<string>
-    ) => {
-      if (!args[0]) {
-        server.sendChatText(
-          client,
-          `Correct usage: /globalunmute {name|playerId}`
-        );
-        return;
-      }
-      const name = args.join(" ").toString(),
-        mutedClient = (
-          await server._db?.collection(DB_COLLECTIONS.MUTED).findOneAndUpdate(
-            { name, active: true },
-            {
-              $set: { active: false, unmuteAdminName: client.character.name }
-            }
-          )
-        )?.value as unknown as ClientMute;
-      if (mutedClient) {
-        server.sendChatText(client, `Removed mute on user ${mutedClient.name}`);
-        const targetClient = server.getClientByNameOrLoginSession(
-          mutedClient.loginSessionId
-        );
-        if (targetClient && targetClient instanceof Client) {
-          server.sendAlert(targetClient, "You have been unmuted!");
-        }
-      } else {
-        server.sendChatText(
-          client,
-          `Cannot find any muted user with name ${name}`
-        );
-      }
+      server.abortShutdown = true;
+      server.sendChatText(client, "Aborted server shutdown.");
     }
   },
   {
@@ -2432,6 +2669,21 @@ export const commands: Array<Command> = [
 
       // Set the client's isSpectator state again
       client.character.isSpectator = !client.character.isSpectator;
+    }
+  },
+  {
+     name: "serverlock",
+    permissionLevel: PermissionLevels.ADMIN,
+    execute: async (
+      server: ZoneServer2016,
+      client: Client,
+      args: Array<string>
+    ) => {
+      server.isLocked = !server.isLocked;
+      server.sendChatText(
+        client,
+        `Server ${server.isLocked ? "Locked" : "Unlocked"}`
+      );
     }
   },
   //#endregion

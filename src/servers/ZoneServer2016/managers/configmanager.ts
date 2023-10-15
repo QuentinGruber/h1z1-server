@@ -163,6 +163,7 @@ export class ConfigManager {
       useFairplay,
       maxPing,
       pingTimeoutTime,
+      acceptedRejectionTypes,
       useAssetValidation,
       hashSubmissionTimeout,
       allowedPacks,
@@ -171,6 +172,7 @@ export class ConfigManager {
     server.fairPlayManager.useFairPlay = useFairplay;
     server.fairPlayManager.maxPing = maxPing;
     server.fairPlayManager.pingTimeoutTime = pingTimeoutTime;
+    server.fairPlayManager.acceptedRejectionTypes = acceptedRejectionTypes;
     server.fairPlayManager.useAssetValidation = useAssetValidation;
     server.fairPlayManager.hashSubmissionTimeout = hashSubmissionTimeout;
     server.fairPlayManager.allowedPacks = allowedPacks;
