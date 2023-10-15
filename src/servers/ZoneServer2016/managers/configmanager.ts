@@ -159,14 +159,14 @@ export class ConfigManager {
 
     //#region fairplay
     // to be moved to FairplayManager
-    const { 
-      useFairplay, 
-      maxPing, 
-      pingTimeoutTime, 
-      useAssetValidation, 
-      hashSubmissionTimeout, 
-      allowedPacks, 
-      requiredPacks 
+    const {
+      useFairplay,
+      maxPing,
+      pingTimeoutTime,
+      useAssetValidation,
+      hashSubmissionTimeout,
+      allowedPacks,
+      requiredPacks
     } = this.config.fairplay;
     server.fairPlayManager.useFairPlay = useFairplay;
     server.fairPlayManager.maxPing = maxPing;

@@ -33,7 +33,7 @@ interface FairplayConfig {
 
   useAssetValidation: boolean;
   hashSubmissionTimeout: number;
-  
+
   allowedPacks: Array<FileHash>;
   requiredPacks: Array<FileHash>;
 }

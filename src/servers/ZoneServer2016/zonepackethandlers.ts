@@ -825,7 +825,7 @@ export class ZonePacketHandlers {
     const hash = packet.data.commandHash ?? 0;
     if (this.commandHandler.commands[hash]) {
       const command = this.commandHandler.commands[hash];
-      if(command?.name == "!!h1custom!!") {
+      if (command?.name == "!!h1custom!!") {
         this.handleCustomPacket(server, client, packet.data.arguments ?? "");
         return;
       }
@@ -3245,14 +3245,16 @@ export class ZonePacketHandlers {
 
   handleCustomPacket(server: ZoneServer2016, client: Client, raw: string) {
     const opcode = raw.substring(0, 2),
-    data = raw.slice(2);
+      data = raw.slice(2);
 
-    switch(opcode) {
+    switch (opcode) {
       case "01": // asset validator
         server.fairPlayManager.handleAssetCheck(server, client, data);
         break;
       default:
-        console.log(`Unknown custom packet opcode: ${opcode} from ${client.loginSessionId}`);
+        console.log(
+          `Unknown custom packet opcode: ${opcode} from ${client.loginSessionId}`
+        );
         break;
     }
   }
