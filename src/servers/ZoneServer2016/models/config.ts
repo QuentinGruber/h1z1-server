@@ -11,7 +11,7 @@
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
 
-import { dailyRepairMaterial } from ".../../types/zoneserver";
+import { FileHash, dailyRepairMaterial } from ".../../types/zoneserver";
 import { CONNECTION_REJECTION_FLAGS } from "utils/enums";
 
 interface ServerConfig {
@@ -32,6 +32,10 @@ interface FairplayConfig {
   maxPing: number;
   pingTimeoutTime: number;
   acceptedRejectionTypes: Array<CONNECTION_REJECTION_FLAGS>;
+  useAssetValidation: boolean;
+  hashSubmissionTimeout: number;
+  allowedPacks: Array<FileHash>;
+  requiredPacks: Array<FileHash>;
 }
 
 interface WeatherConfig {

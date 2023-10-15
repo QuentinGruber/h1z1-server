@@ -102,6 +102,7 @@ export class ZoneClient2016 {
   blockedPositionUpdates: number = 0;
   flaggedShots: number = 0;
   isFairPlayFlagged: boolean = false;
+  kickTimer?: NodeJS.Timeout;
   constructor(
     sessionId: number,
     soeClientId: string,

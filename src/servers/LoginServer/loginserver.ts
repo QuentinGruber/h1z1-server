@@ -533,6 +533,13 @@ export class LoginServer extends EventEmitter {
     };
     this.clients.set(client.soeClientId, client);
     this.sendData(client, "LoginReply", loginReply);
+
+    if (client.gameVersion == GAME_VERSIONS.H1Z1_6dec_2016 && !this._soloMode) {
+      this.sendData(client, "H1emu.HadesQuery", {
+        authTicket: "-",
+        gatewayServer: "-"
+      });
+    }
   }
 
   async TunnelAppPacketClientToServer(client: Client, packet: any) {
