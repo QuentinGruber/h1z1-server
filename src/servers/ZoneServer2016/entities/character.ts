@@ -1233,9 +1233,7 @@ export class Character2016 extends BaseFullCharacter {
           tintAlias: slot.tintAlias || "Default",
           decalAlias: slot.decalAlias || "#",
           slotId: slot.slotId,
-          SHADER_PARAMETER_GROUP: [
-            // TODO
-          ]
+          SHADER_PARAMETER_GROUP: []
         }
       : undefined;
   }
