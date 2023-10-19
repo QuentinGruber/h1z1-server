@@ -29,8 +29,8 @@ fairplay:
   - 5 # UNVERIFIED
 
   useAssetValidation: true
-  # how long the client has to send it's hashes before it's kicked (2 min default)
-  hashSubmissionTimeout: 120000
+  # how long the client has to send it's hashes before it's kicked (3 min default)
+  hashSubmissionTimeout: 180000
 
   # clients with these packs are allowed to join, but they are optional (must be in numerical order)
   allowedPacks:
