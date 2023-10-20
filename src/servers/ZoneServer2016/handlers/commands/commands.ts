@@ -176,7 +176,7 @@ export const commands: Array<Command> = [
   },
   {
     name: "findlog",
-    permissionLevel: PermissionLevels.ADMIN,
+    permissionLevel: PermissionLevels.MODERATOR,
     execute: (server: ZoneServer2016, client: Client, args: Array<string>) => {
       if (!args[0]) {
         server.sendChatText(client, "[ERROR] No argument provided", true);
@@ -1849,7 +1849,7 @@ export const commands: Array<Command> = [
   },
   {
     name: "addallitems",
-    permissionLevel: PermissionLevels.ADMIN,
+    permissionLevel: PermissionLevels.DEV,
     execute: (server: ZoneServer2016, client: Client, args: Array<string>) => {
       server.sendChatText(client, "Disabled for now.");
       /*
@@ -2293,7 +2293,7 @@ export const commands: Array<Command> = [
 
   {
     name: "listbases",
-    permissionLevel: PermissionLevels.ADMIN,
+    permissionLevel: PermissionLevels.MODERATOR,
     execute: async (
       server: ZoneServer2016,
       client: Client,
@@ -2353,7 +2353,7 @@ export const commands: Array<Command> = [
   },
   {
     name: "getinventory",
-    permissionLevel: PermissionLevels.ADMIN,
+    permissionLevel: PermissionLevels.MODERATOR,
     execute: async (
       server: ZoneServer2016,
       client: Client,
@@ -2428,7 +2428,7 @@ export const commands: Array<Command> = [
   },
   {
     name: "listpermissions",
-    permissionLevel: PermissionLevels.ADMIN,
+    permissionLevel: PermissionLevels.MODERATOR,
     execute: async (server: ZoneServer2016, client: Client) => {
       if (!client.character.currentInteractionGuid) {
         server.sendChatText(client, `[ERROR] No interaction target`);
