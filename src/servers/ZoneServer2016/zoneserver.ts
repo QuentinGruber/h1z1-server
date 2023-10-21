@@ -251,7 +251,7 @@ export class ZoneServer2016 extends EventEmitter {
   _serverName = process.env.SERVER_NAME || "";
   readonly _mongoAddress: string;
   private readonly _clientProtocol = "ClientProtocol_1080";
-  private _loginConnectionManager!: LoginConnectionManager;
+  protected _loginConnectionManager!: LoginConnectionManager;
   _worldId = 0;
   _grid: GridCell[] = [];
   _spawnGrid: SpawnCell[] = [];
