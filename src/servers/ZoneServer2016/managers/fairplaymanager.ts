@@ -705,6 +705,7 @@ export class FairPlayManager {
     }
 
     console.log(`${client.loginSessionId} passed asset integrity check.`);
+    server.sendConsoleText(client, "[SERVER] Passed asset integrity check");
     clearTimeout(client.kickTimer);
     delete client.kickTimer;
   }
