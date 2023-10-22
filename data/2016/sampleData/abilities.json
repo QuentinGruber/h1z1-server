@@ -4,7 +4,7 @@
         "abilityId": 1,
         "ability": {
           "abilityId": 1,
-          "unknownDword1": 7,
+          "loadoutSlotId": 7,
           "unknownDword2": 0,
           "unknownArray1": [
             {
@@ -27,7 +27,7 @@
         "abilityId": 2,
         "ability": {
           "abilityId": 2,
-          "unknownDword1": 40,
+          "loadoutSlotId": 40,
           "unknownDword2": 0,
           "unknownArray1": [
             {
@@ -45,7 +45,7 @@
         "abilityId": 3,
         "ability": {
           "abilityId": 3,
-          "unknownDword1": 41,
+          "loadoutSlotId": 41,
           "unknownDword2": 0,
           "unknownArray1": [
             {
@@ -63,7 +63,7 @@
         "abilityId": 4,
         "ability": {
           "abilityId": 4,
-          "unknownDword1": 5,
+          "loadoutSlotId": 5,
           "unknownDword2": 0,
           "unknownArray1": [
             {
@@ -81,7 +81,7 @@
         "abilityId": 5,
         "ability": {
           "abilityId": 5,
-          "unknownDword1": 0,
+          "loadoutSlotId": 0,
           "unknownDword2": 1093574314,
           "unknownArray1": [
             {
@@ -99,7 +99,7 @@
         "abilityId": 6,
         "ability": {
           "abilityId": 6,
-          "unknownDword1": 0,
+          "loadoutSlotId": 0,
           "unknownDword2": 1948338873,
           "unknownArray1": [
             {
@@ -117,7 +117,7 @@
         "abilityId": 7,
         "ability": {
           "abilityId": 7,
-          "unknownDword1": 0,
+          "loadoutSlotId": 0,
           "unknownDword2": 831710626,
           "unknownArray1": [
             {
@@ -135,7 +135,7 @@
         "abilityId": 8,
         "ability": {
           "abilityId": 8,
-          "unknownDword1": 0,
+          "loadoutSlotId": 0,
           "unknownDword2": 427877698,
           "unknownArray1": [
             {
@@ -153,7 +153,7 @@
         "abilityId": 9,
         "ability": {
           "abilityId": 9,
-          "unknownDword1": 0,
+          "loadoutSlotId": 0,
           "unknownDword2": 3466305338,
           "unknownArray1": [
             {
@@ -171,7 +171,7 @@
         "abilityId": 10,
         "ability": {
           "abilityId": 10,
-          "unknownDword1": 0,
+          "loadoutSlotId": 0,
           "unknownDword2": 2798609446,
           "unknownArray1": [
             {
@@ -189,7 +189,7 @@
         "abilityId": 11,
         "ability": {
           "abilityId": 11,
-          "unknownDword1": 0,
+          "loadoutSlotId": 0,
           "unknownDword2": 1037467509,
           "unknownArray1": [
             {
@@ -207,7 +207,7 @@
         "abilityId": 12,
         "ability": {
           "abilityId": 12,
-          "unknownDword1": 0,
+          "loadoutSlotId": 0,
           "unknownDword2": 667439825,
           "unknownArray1": [
             {
@@ -225,7 +225,7 @@
         "abilityId": 13,
         "ability": {
           "abilityId": 13,
-          "unknownDword1": 0,
+          "loadoutSlotId": 0,
           "unknownDword2": 4052197796,
           "unknownArray1": [
             {
@@ -243,7 +243,7 @@
         "abilityId": 14,
         "ability": {
           "abilityId": 14,
-          "unknownDword1": 0,
+          "loadoutSlotId": 0,
           "unknownDword2": 2385455665,
           "unknownArray1": [
             {
@@ -261,7 +261,7 @@
         "abilityId": 15,
         "ability": {
           "abilityId": 15,
-          "unknownDword1": 0,
+          "loadoutSlotId": 0,
           "unknownDword2": 1500407905,
           "unknownArray1": [
             {
@@ -279,7 +279,7 @@
         "abilityId": 16,
         "ability": {
           "abilityId": 16,
-          "unknownDword1": 0,
+          "loadoutSlotId": 0,
           "unknownDword2": 3233306002,
           "unknownArray1": [
             {
@@ -297,7 +297,7 @@
         "abilityId": 17,
         "ability": {
           "abilityId": 17,
-          "unknownDword1": 0,
+          "loadoutSlotId": 0,
           "unknownDword2": 4256537165,
           "unknownArray1": [
             {
@@ -315,7 +315,7 @@
         "abilityId": 18,
         "ability": {
           "abilityId": 18,
-          "unknownDword1": 0,
+          "loadoutSlotId": 0,
           "unknownDword2": 3622271545,
           "unknownArray1": [
             {
@@ -333,7 +333,7 @@
         "abilityId": 19,
         "ability": {
           "abilityId": 19,
-          "unknownDword1": 0,
+          "loadoutSlotId": 0,
           "unknownDword2": 3522859495,
           "unknownArray1": [
             {
@@ -351,7 +351,7 @@
         "abilityId": 20,
         "ability": {
           "abilityId": 20,
-          "unknownDword1": 0,
+          "loadoutSlotId": 0,
           "unknownDword2": 3985319004,
           "unknownArray1": [
             {
@@ -369,7 +369,7 @@
         "abilityId": 21,
         "ability": {
           "abilityId": 21,
-          "unknownDword1": 0,
+          "loadoutSlotId": 0,
           "unknownDword2": 4087076137,
           "unknownArray1": [
             {
@@ -387,7 +387,7 @@
         "abilityId": 22,
         "ability": {
           "abilityId": 22,
-          "unknownDword1": 0,
+          "loadoutSlotId": 0,
           "unknownDword2": 3696689007,
           "unknownArray1": [
             {
@@ -405,7 +405,7 @@
         "abilityId": 23,
         "ability": {
           "abilityId": 23,
-          "unknownDword1": 0,
+          "loadoutSlotId": 0,
           "unknownDword2": 3342986474,
           "unknownArray1": [
             {
@@ -423,7 +423,7 @@
         "abilityId": 24,
         "ability": {
           "abilityId": 24,
-          "unknownDword1": 0,
+          "loadoutSlotId": 0,
           "unknownDword2": 3736727841,
           "unknownArray1": [
             {
@@ -441,7 +441,7 @@
         "abilityId": 25,
         "ability": {
           "abilityId": 25,
-          "unknownDword1": 0,
+          "loadoutSlotId": 0,
           "unknownDword2": 599522317,
           "unknownArray1": [
             {
@@ -459,7 +459,7 @@
         "abilityId": 26,
         "ability": {
           "abilityId": 26,
-          "unknownDword1": 0,
+          "loadoutSlotId": 0,
           "unknownDword2": 415590231,
           "unknownArray1": [
             {
@@ -477,7 +477,7 @@
         "abilityId": 27,
         "ability": {
           "abilityId": 27,
-          "unknownDword1": 0,
+          "loadoutSlotId": 0,
           "unknownDword2": 2919532768,
           "unknownArray1": [
             {
@@ -495,7 +495,7 @@
         "abilityId": 28,
         "ability": {
           "abilityId": 28,
-          "unknownDword1": 0,
+          "loadoutSlotId": 0,
           "unknownDword2": 2159010518,
           "unknownArray1": [
             {
@@ -513,7 +513,7 @@
         "abilityId": 29,
         "ability": {
           "abilityId": 29,
-          "unknownDword1": 0,
+          "loadoutSlotId": 0,
           "unknownDword2": 663331916,
           "unknownArray1": [
             {
@@ -531,7 +531,7 @@
         "abilityId": 30,
         "ability": {
           "abilityId": 30,
-          "unknownDword1": 0,
+          "loadoutSlotId": 0,
           "unknownDword2": 96306384,
           "unknownArray1": [
             {
@@ -549,7 +549,7 @@
         "abilityId": 31,
         "ability": {
           "abilityId": 31,
-          "unknownDword1": 0,
+          "loadoutSlotId": 0,
           "unknownDword2": 3305581284,
           "unknownArray1": [
             {
@@ -567,7 +567,7 @@
         "abilityId": 32,
         "ability": {
           "abilityId": 32,
-          "unknownDword1": 0,
+          "loadoutSlotId": 0,
           "unknownDword2": 3150896243,
           "unknownArray1": [
             {
@@ -585,7 +585,7 @@
         "abilityId": 33,
         "ability": {
           "abilityId": 33,
-          "unknownDword1": 0,
+          "loadoutSlotId": 0,
           "unknownDword2": 768910170,
           "unknownArray1": [
             {
@@ -603,7 +603,7 @@
         "abilityId": 34,
         "ability": {
           "abilityId": 34,
-          "unknownDword1": 0,
+          "loadoutSlotId": 0,
           "unknownDword2": 3075613058,
           "unknownArray1": [
             {
@@ -621,7 +621,7 @@
         "abilityId": 35,
         "ability": {
           "abilityId": 35,
-          "unknownDword1": 0,
+          "loadoutSlotId": 0,
           "unknownDword2": 2175993385,
           "unknownArray1": [
             {
@@ -639,7 +639,7 @@
         "abilityId": 36,
         "ability": {
           "abilityId": 36,
-          "unknownDword1": 0,
+          "loadoutSlotId": 0,
           "unknownDword2": 1654185182,
           "unknownArray1": [
             {
@@ -657,7 +657,7 @@
         "abilityId": 37,
         "ability": {
           "abilityId": 37,
-          "unknownDword1": 0,
+          "loadoutSlotId": 0,
           "unknownDword2": 3981375164,
           "unknownArray1": [
             {
@@ -675,7 +675,7 @@
         "abilityId": 38,
         "ability": {
           "abilityId": 38,
-          "unknownDword1": 0,
+          "loadoutSlotId": 0,
           "unknownDword2": 980326862,
           "unknownArray1": [
             {
@@ -693,7 +693,7 @@
         "abilityId": 39,
         "ability": {
           "abilityId": 39,
-          "unknownDword1": 0,
+          "loadoutSlotId": 0,
           "unknownDword2": 2876814647,
           "unknownArray1": [
             {
@@ -711,7 +711,7 @@
         "abilityId": 40,
         "ability": {
           "abilityId": 40,
-          "unknownDword1": 0,
+          "loadoutSlotId": 0,
           "unknownDword2": 798381981,
           "unknownArray1": [
             {
@@ -729,7 +729,7 @@
         "abilityId": 41,
         "ability": {
           "abilityId": 41,
-          "unknownDword1": 0,
+          "loadoutSlotId": 0,
           "unknownDword2": 838846460,
           "unknownArray1": [
             {
@@ -747,7 +747,7 @@
         "abilityId": 42,
         "ability": {
           "abilityId": 42,
-          "unknownDword1": 0,
+          "loadoutSlotId": 0,
           "unknownDword2": 4123674761,
           "unknownArray1": [
             {
@@ -765,7 +765,7 @@
         "abilityId": 43,
         "ability": {
           "abilityId": 43,
-          "unknownDword1": 0,
+          "loadoutSlotId": 0,
           "unknownDword2": 917661813,
           "unknownArray1": [
             {
@@ -783,7 +783,7 @@
         "abilityId": 44,
         "ability": {
           "abilityId": 44,
-          "unknownDword1": 0,
+          "loadoutSlotId": 0,
           "unknownDword2": 4017449161,
           "unknownArray1": [
             {
@@ -801,7 +801,7 @@
         "abilityId": 45,
         "ability": {
           "abilityId": 45,
-          "unknownDword1": 0,
+          "loadoutSlotId": 0,
           "unknownDword2": 1049018290,
           "unknownArray1": [
             {
@@ -819,7 +819,7 @@
         "abilityId": 46,
         "ability": {
           "abilityId": 46,
-          "unknownDword1": 0,
+          "loadoutSlotId": 0,
           "unknownDword2": 898242592,
           "unknownArray1": [
             {
@@ -837,7 +837,7 @@
         "abilityId": 47,
         "ability": {
           "abilityId": 47,
-          "unknownDword1": 0,
+          "loadoutSlotId": 0,
           "unknownDword2": 9521887,
           "unknownArray1": [
             {
@@ -855,7 +855,7 @@
         "abilityId": 48,
         "ability": {
           "abilityId": 48,
-          "unknownDword1": 0,
+          "loadoutSlotId": 0,
           "unknownDword2": 1126142936,
           "unknownArray1": [
             {
@@ -873,7 +873,7 @@
         "abilityId": 49,
         "ability": {
           "abilityId": 49,
-          "unknownDword1": 0,
+          "loadoutSlotId": 0,
           "unknownDword2": 2224820059,
           "unknownArray1": [
             {
@@ -891,7 +891,7 @@
         "abilityId": 50,
         "ability": {
           "abilityId": 50,
-          "unknownDword1": 0,
+          "loadoutSlotId": 0,
           "unknownDword2": 367967702,
           "unknownArray1": [
             {
@@ -909,7 +909,7 @@
         "abilityId": 51,
         "ability": {
           "abilityId": 51,
-          "unknownDword1": 0,
+          "loadoutSlotId": 0,
           "unknownDword2": 451889584,
           "unknownArray1": [
             {
@@ -927,7 +927,7 @@
         "abilityId": 52,
         "ability": {
           "abilityId": 52,
-          "unknownDword1": 0,
+          "loadoutSlotId": 0,
           "unknownDword2": 732019079,
           "unknownArray1": [
             {
@@ -945,7 +945,7 @@
         "abilityId": 53,
         "ability": {
           "abilityId": 53,
-          "unknownDword1": 0,
+          "loadoutSlotId": 0,
           "unknownDword2": 2890767681,
           "unknownArray1": [
             {
@@ -963,7 +963,7 @@
         "abilityId": 54,
         "ability": {
           "abilityId": 54,
-          "unknownDword1": 0,
+          "loadoutSlotId": 0,
           "unknownDword2": 3292318347,
           "unknownArray1": [
             {
@@ -981,7 +981,7 @@
         "abilityId": 55,
         "ability": {
           "abilityId": 55,
-          "unknownDword1": 0,
+          "loadoutSlotId": 0,
           "unknownDword2": 1763938454,
           "unknownArray1": [
             {
@@ -999,7 +999,7 @@
         "abilityId": 56,
         "ability": {
           "abilityId": 56,
-          "unknownDword1": 0,
+          "loadoutSlotId": 0,
           "unknownDword2": 137938854,
           "unknownArray1": [
             {
@@ -1017,7 +1017,7 @@
         "abilityId": 57,
         "ability": {
           "abilityId": 57,
-          "unknownDword1": 0,
+          "loadoutSlotId": 0,
           "unknownDword2": 3578378610,
           "unknownArray1": [
             {
@@ -1035,7 +1035,7 @@
         "abilityId": 58,
         "ability": {
           "abilityId": 58,
-          "unknownDword1": 0,
+          "loadoutSlotId": 0,
           "unknownDword2": 3568960682,
           "unknownArray1": [
             {
@@ -1053,7 +1053,7 @@
         "abilityId": 59,
         "ability": {
           "abilityId": 59,
-          "unknownDword1": 0,
+          "loadoutSlotId": 0,
           "unknownDword2": 1639309551,
           "unknownArray1": [
             {
@@ -1071,7 +1071,7 @@
         "abilityId": 60,
         "ability": {
           "abilityId": 60,
-          "unknownDword1": 0,
+          "loadoutSlotId": 0,
           "unknownDword2": 4006342354,
           "unknownArray1": [
             {
@@ -1089,7 +1089,7 @@
         "abilityId": 61,
         "ability": {
           "abilityId": 61,
-          "unknownDword1": 0,
+          "loadoutSlotId": 0,
           "unknownDword2": 887452464,
           "unknownArray1": [
             {
@@ -1107,7 +1107,7 @@
         "abilityId": 62,
         "ability": {
           "abilityId": 62,
-          "unknownDword1": 0,
+          "loadoutSlotId": 0,
           "unknownDword2": 1915909701,
           "unknownArray1": [
             {
@@ -1125,7 +1125,7 @@
         "abilityId": 63,
         "ability": {
           "abilityId": 63,
-          "unknownDword1": 0,
+          "loadoutSlotId": 0,
           "unknownDword2": 2771420496,
           "unknownArray1": [
             {
@@ -1143,7 +1143,7 @@
         "abilityId": 64,
         "ability": {
           "abilityId": 64,
-          "unknownDword1": 0,
+          "loadoutSlotId": 0,
           "unknownDword2": 1374435925,
           "unknownArray1": [
             {
@@ -1161,7 +1161,7 @@
         "abilityId": 65,
         "ability": {
           "abilityId": 65,
-          "unknownDword1": 0,
+          "loadoutSlotId": 0,
           "unknownDword2": 306021256,
           "unknownArray1": [
             {
@@ -1179,7 +1179,7 @@
         "abilityId": 66,
         "ability": {
           "abilityId": 66,
-          "unknownDword1": 0,
+          "loadoutSlotId": 0,
           "unknownDword2": 3538889009,
           "unknownArray1": [
             {
@@ -1197,7 +1197,7 @@
         "abilityId": 67,
         "ability": {
           "abilityId": 67,
-          "unknownDword1": 0,
+          "loadoutSlotId": 0,
           "unknownDword2": 2010957505,
           "unknownArray1": [
             {
@@ -1215,7 +1215,7 @@
         "abilityId": 68,
         "ability": {
           "abilityId": 68,
-          "unknownDword1": 0,
+          "loadoutSlotId": 0,
           "unknownDword2": 236860457,
           "unknownArray1": [
             {
@@ -1233,7 +1233,7 @@
         "abilityId": 69,
         "ability": {
           "abilityId": 69,
-          "unknownDword1": 0,
+          "loadoutSlotId": 0,
           "unknownDword2": 2551865239,
           "unknownArray1": [
             {
@@ -1251,7 +1251,7 @@
         "abilityId": 70,
         "ability": {
           "abilityId": 70,
-          "unknownDword1": 0,
+          "loadoutSlotId": 0,
           "unknownDword2": 1688622260,
           "unknownArray1": [
             {
@@ -1269,7 +1269,7 @@
         "abilityId": 71,
         "ability": {
           "abilityId": 71,
-          "unknownDword1": 0,
+          "loadoutSlotId": 0,
           "unknownDword2": 577704866,
           "unknownArray1": [
             {
@@ -1287,7 +1287,7 @@
         "abilityId": 72,
         "ability": {
           "abilityId": 72,
-          "unknownDword1": 0,
+          "loadoutSlotId": 0,
           "unknownDword2": 1899048770,
           "unknownArray1": [
             {
@@ -1305,7 +1305,7 @@
         "abilityId": 73,
         "ability": {
           "abilityId": 73,
-          "unknownDword1": 0,
+          "loadoutSlotId": 0,
           "unknownDword2": 910173125,
           "unknownArray1": [
             {
@@ -1323,7 +1323,7 @@
         "abilityId": 74,
         "ability": {
           "abilityId": 74,
-          "unknownDword1": 0,
+          "loadoutSlotId": 0,
           "unknownDword2": 3036947427,
           "unknownArray1": [
             {
@@ -1341,7 +1341,7 @@
         "abilityId": 75,
         "ability": {
           "abilityId": 75,
-          "unknownDword1": 0,
+          "loadoutSlotId": 0,
           "unknownDword2": 3229636662,
           "unknownArray1": [
             {
@@ -1359,7 +1359,7 @@
         "abilityId": 76,
         "ability": {
           "abilityId": 76,
-          "unknownDword1": 0,
+          "loadoutSlotId": 0,
           "unknownDword2": 284186234,
           "unknownArray1": [
             {
@@ -1377,7 +1377,7 @@
         "abilityId": 77,
         "ability": {
           "abilityId": 77,
-          "unknownDword1": 0,
+          "loadoutSlotId": 0,
           "unknownDword2": 3945991184,
           "unknownArray1": [
             {
@@ -1395,7 +1395,7 @@
         "abilityId": 78,
         "ability": {
           "abilityId": 78,
-          "unknownDword1": 0,
+          "loadoutSlotId": 0,
           "unknownDword2": 964783970,
           "unknownArray1": [
             {
@@ -1413,7 +1413,7 @@
         "abilityId": 79,
         "ability": {
           "abilityId": 79,
-          "unknownDword1": 0,
+          "loadoutSlotId": 0,
           "unknownDword2": 521930229,
           "unknownArray1": [
             {
@@ -1431,7 +1431,7 @@
         "abilityId": 80,
         "ability": {
           "abilityId": 80,
-          "unknownDword1": 0,
+          "loadoutSlotId": 0,
           "unknownDword2": 3847242301,
           "unknownArray1": [
             {
@@ -1449,7 +1449,7 @@
         "abilityId": 81,
         "ability": {
           "abilityId": 81,
-          "unknownDword1": 0,
+          "loadoutSlotId": 0,
           "unknownDword2": 2731803782,
           "unknownArray1": [
             {
@@ -1467,7 +1467,7 @@
         "abilityId": 82,
         "ability": {
           "abilityId": 82,
-          "unknownDword1": 0,
+          "loadoutSlotId": 0,
           "unknownDword2": 3971045364,
           "unknownArray1": [
             {
@@ -1485,7 +1485,7 @@
         "abilityId": 83,
         "ability": {
           "abilityId": 83,
-          "unknownDword1": 0,
+          "loadoutSlotId": 0,
           "unknownDword2": 3806954964,
           "unknownArray1": [
             {
@@ -1503,7 +1503,7 @@
         "abilityId": 84,
         "ability": {
           "abilityId": 84,
-          "unknownDword1": 0,
+          "loadoutSlotId": 0,
           "unknownDword2": 1782156315,
           "unknownArray1": [
             {
@@ -1521,7 +1521,7 @@
         "abilityId": 85,
         "ability": {
           "abilityId": 85,
-          "unknownDword1": 0,
+          "loadoutSlotId": 0,
           "unknownDword2": 768898489,
           "unknownArray1": [
             {
@@ -1539,7 +1539,7 @@
         "abilityId": 86,
         "ability": {
           "abilityId": 86,
-          "unknownDword1": 0,
+          "loadoutSlotId": 0,
           "unknownDword2": 562485606,
           "unknownArray1": [
             {
@@ -1557,7 +1557,7 @@
         "abilityId": 87,
         "ability": {
           "abilityId": 87,
-          "unknownDword1": 0,
+          "loadoutSlotId": 0,
           "unknownDword2": 2254666105,
           "unknownArray1": [
             {
@@ -1575,7 +1575,7 @@
         "abilityId": 88,
         "ability": {
           "abilityId": 88,
-          "unknownDword1": 0,
+          "loadoutSlotId": 0,
           "unknownDword2": 1559082015,
           "unknownArray1": [
             {
@@ -1593,7 +1593,7 @@
         "abilityId": 89,
         "ability": {
           "abilityId": 89,
-          "unknownDword1": 0,
+          "loadoutSlotId": 0,
           "unknownDword2": 2430961690,
           "unknownArray1": [
             {
@@ -1611,7 +1611,7 @@
         "abilityId": 90,
         "ability": {
           "abilityId": 90,
-          "unknownDword1": 0,
+          "loadoutSlotId": 0,
           "unknownDword2": 2024620633,
           "unknownArray1": [
             {
@@ -1629,7 +1629,7 @@
         "abilityId": 91,
         "ability": {
           "abilityId": 91,
-          "unknownDword1": 0,
+          "loadoutSlotId": 0,
           "unknownDword2": 749797674,
           "unknownArray1": [
             {
@@ -1647,7 +1647,7 @@
         "abilityId": 92,
         "ability": {
           "abilityId": 92,
-          "unknownDword1": 0,
+          "loadoutSlotId": 0,
           "unknownDword2": 842711965,
           "unknownArray1": [
             {
@@ -1665,7 +1665,7 @@
         "abilityId": 93,
         "ability": {
           "abilityId": 93,
-          "unknownDword1": 0,
+          "loadoutSlotId": 0,
           "unknownDword2": 1387962468,
           "unknownArray1": [
             {
@@ -1683,7 +1683,7 @@
         "abilityId": 94,
         "ability": {
           "abilityId": 94,
-          "unknownDword1": 0,
+          "loadoutSlotId": 0,
           "unknownDword2": 3807132526,
           "unknownArray1": [
             {
@@ -1701,7 +1701,7 @@
         "abilityId": 95,
         "ability": {
           "abilityId": 95,
-          "unknownDword1": 0,
+          "loadoutSlotId": 0,
           "unknownDword2": 3634171900,
           "unknownArray1": [
             {
@@ -1719,7 +1719,7 @@
         "abilityId": 96,
         "ability": {
           "abilityId": 96,
-          "unknownDword1": 0,
+          "loadoutSlotId": 0,
           "unknownDword2": 1865672547,
           "unknownArray1": [
             {
@@ -1737,7 +1737,7 @@
         "abilityId": 97,
         "ability": {
           "abilityId": 97,
-          "unknownDword1": 0,
+          "loadoutSlotId": 0,
           "unknownDword2": 3739988844,
           "unknownArray1": [
             {
@@ -1755,7 +1755,7 @@
         "abilityId": 98,
         "ability": {
           "abilityId": 98,
-          "unknownDword1": 0,
+          "loadoutSlotId": 0,
           "unknownDword2": 1127909046,
           "unknownArray1": [
             {
@@ -1773,7 +1773,7 @@
         "abilityId": 99,
         "ability": {
           "abilityId": 99,
-          "unknownDword1": 0,
+          "loadoutSlotId": 0,
           "unknownDword2": 3350511356,
           "unknownArray1": [
             {
@@ -1791,7 +1791,7 @@
         "abilityId": 100,
         "ability": {
           "abilityId": 100,
-          "unknownDword1": 0,
+          "loadoutSlotId": 0,
           "unknownDword2": 2847850783,
           "unknownArray1": [
             {
@@ -1809,7 +1809,7 @@
         "abilityId": 101,
         "ability": {
           "abilityId": 101,
-          "unknownDword1": 0,
+          "loadoutSlotId": 0,
           "unknownDword2": 3029393655,
           "unknownArray1": [
             {
@@ -1827,7 +1827,7 @@
         "abilityId": 102,
         "ability": {
           "abilityId": 102,
-          "unknownDword1": 0,
+          "loadoutSlotId": 0,
           "unknownDword2": 1309191893,
           "unknownArray1": [
             {
@@ -1845,7 +1845,7 @@
         "abilityId": 103,
         "ability": {
           "abilityId": 103,
-          "unknownDword1": 0,
+          "loadoutSlotId": 0,
           "unknownDword2": 3043462270,
           "unknownArray1": [
             {
@@ -1863,7 +1863,7 @@
         "abilityId": 104,
         "ability": {
           "abilityId": 104,
-          "unknownDword1": 0,
+          "loadoutSlotId": 0,
           "unknownDword2": 3527480272,
           "unknownArray1": [
             {

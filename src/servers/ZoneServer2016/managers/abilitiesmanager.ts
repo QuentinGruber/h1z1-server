@@ -37,6 +37,7 @@ import { LootableProp } from "../entities/lootableprop";
 import { LoadoutItem } from "../classes/loadoutItem";
 import { Crate } from "../entities/crate";
 import { Destroyable } from "../entities/destroyable";
+import { Npc } from "../entities/npc";
 const //abilities = require("../../../../data/2016/dataSources/Abilities.json"),
   vehicleAbilities = require("../../../../data/2016/dataSources/VehicleAbilities.json");
 
@@ -169,7 +170,8 @@ export class AbilitiesManager {
       entity instanceof LootableProp || 
       entity instanceof Vehicle2016 ||
       entity instanceof Crate ||
-      entity instanceof Destroyable
+      entity instanceof Destroyable ||
+      entity instanceof Npc
       ) {
       entity.OnMeleeHit(server, damageInfo);
       console.log("OnMeleeHit");
