@@ -842,7 +842,7 @@ export const commands: Array<Command> = [
       if (!args[0]) {
         server.sendChatText(
           client,
-          `Correct usage: /ban {name} optional: {time} {reason} {--silent}`
+          `Correct usage: /ban {name} optional: {time (minutes)} {reason} {--silent}`
         );
         return;
       }
@@ -942,7 +942,7 @@ export const commands: Array<Command> = [
       if (!args[0]) {
         server.sendChatText(
           client,
-          `Correct usage: /banid {loginSessionId} optional: {time} {reason} {--silent}`
+          `Correct usage: /banid {loginSessionId} optional: {time (minutes)} {reason} {--silent}`
         );
         return;
       }
