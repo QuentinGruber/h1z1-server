@@ -22,6 +22,7 @@ import {
   ContainerErrors,
   ItemClasses,
   Items,
+  LoadoutIds,
   LoadoutSlots,
   ResourceIds,
   ResourceTypes
@@ -432,7 +433,7 @@ export abstract class BaseFullCharacter extends BaseLightweightCharacter {
       }
       this.equipItem(server, item, true);
     } else {
-      for (const container of Object.values(this._containers)) {
+      for (const container of this.getSortedContainers()) {
         const itemDefinition = server.getItemDefinition(item.itemDefinitionId);
         if (!itemDefinition) return;
 
@@ -509,6 +510,27 @@ export abstract class BaseFullCharacter extends BaseLightweightCharacter {
     }
   }
 
+  getSortedContainers() {
+    if (this.loadoutId != LoadoutIds.CHARACTER) {
+      return Object.values(this._containers);
+    }
+    const containers = Object.values(this._containers),
+      order = [
+        LoadoutSlots.BACK,
+        LoadoutSlots.BELT,
+        LoadoutSlots.CHEST,
+        LoadoutSlots.LEGS
+      ];
+
+    containers.sort((a, b) => {
+      const aIndex = order.indexOf(a.slotId);
+      const bIndex = order.indexOf(b.slotId);
+
+      return aIndex - bIndex;
+    });
+    return containers;
+  }
+
   lootContainerItem(
     server: ZoneServer2016,
     item?: BaseItem,
@@ -538,7 +560,7 @@ export abstract class BaseFullCharacter extends BaseLightweightCharacter {
         });
       }
 
-      Object.values(this._containers).forEach((c) => {
+      this.getSortedContainers().forEach((c) => {
         if (item.stackCount <= 0) return;
         if (array.includes(c)) return;
         array.push(c);
@@ -915,7 +937,7 @@ export abstract class BaseFullCharacter extends BaseLightweightCharacter {
     count: number
   ): LoadoutContainer | undefined {
     const itemDef = server.getItemDefinition(itemDefinitionId);
-    for (const container of Object.values(this._containers)) {
+    for (const container of this.getSortedContainers()) {
       if (
         container &&
         (container.getMaxBulk(server) == 0 ||
