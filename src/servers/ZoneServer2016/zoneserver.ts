@@ -477,7 +477,13 @@ export class ZoneServer2016 extends EventEmitter {
         );
         if (!this._soloMode) {
           const address = client.address;
-          if (await this.isClientBanned(zoneClient.loginSessionId, address, zoneClient)) {
+          if (
+            await this.isClientBanned(
+              zoneClient.loginSessionId,
+              address,
+              zoneClient
+            )
+          ) {
             this.enforceBan(zoneClient);
             return;
           }
@@ -859,7 +865,7 @@ export class ZoneServer2016 extends EventEmitter {
     rejectionFlag?: CONNECTION_REJECTION_FLAGS,
     message = ""
   ) {
-    console.log(message)
+    console.log(message);
     this._loginConnectionManager.sendData(client, "CharacterAllowedReply", {
       reqId,
       status: status ? 1 : 0,
@@ -902,10 +908,16 @@ export class ZoneServer2016 extends EventEmitter {
         `Character (${characterId}) connection rejected due to local ban`
       );
 
-      const unbanTime = ban.expirationDate ? this.getDateString(ban.expirationDate) : 0,
-      reason = ban.banReason;
+      const unbanTime = ban.expirationDate
+          ? this.getDateString(ban.expirationDate)
+          : 0,
+        reason = ban.banReason;
 
-      const reasonString = `You have been ${unbanTime ? "" : "permanently "}banned from the server${unbanTime ? ` until ${unbanTime}`:""}. Reason: ${reason}.`;
+      const reasonString = `You have been ${
+        unbanTime ? "" : "permanently "
+      }banned from the server${
+        unbanTime ? ` until ${unbanTime}` : ""
+      }. Reason: ${reason}.`;
 
       this.sendCharacterAllowedReply(
         client,
@@ -927,12 +939,7 @@ export class ZoneServer2016 extends EventEmitter {
           console.log(
             `Character (${characterId}) connection rejected due to rejection type ${rejectionFlag}`
           );
-          this.sendCharacterAllowedReply(
-            client,
-            reqId,
-            false,
-            rejectionFlag
-          );
+          this.sendCharacterAllowedReply(client, reqId, false, rejectionFlag);
           return;
         }
       }
@@ -950,11 +957,7 @@ export class ZoneServer2016 extends EventEmitter {
           CONNECTION_REJECTION_FLAGS.CHARACTER_NOT_FOUND
         );
       }
-      this.sendCharacterAllowedReply(
-        client,
-        reqId,
-        true
-      );
+      this.sendCharacterAllowedReply(client, reqId, true);
     } catch (error) {
       console.log(error);
       this.sendCharacterAllowedReply(
@@ -3762,54 +3765,54 @@ export class ZoneServer2016 extends EventEmitter {
   }
 
   isBanExpired(ban?: ClientBan) {
-    if(!ban || !ban.expirationDate) return false;
-    if(ban.expirationDate < Date.now()) return true;
+    if (!ban || !ban.expirationDate) return false;
+    if (ban.expirationDate < Date.now()) return true;
     return false;
   }
 
-  async isClientBanned(loginSessionId: string, address: string, client?: Client): Promise<ClientBan | false> {
-    const addressBan: WithId<ClientBan> = await this._db
+  async isClientBanned(
+    loginSessionId: string,
+    address: string,
+    client?: Client
+  ): Promise<ClientBan | false> {
+    const addressBan: WithId<ClientBan> = (await this._db
       ?.collection(DB_COLLECTIONS.BANNED)
       .findOne({
         IP: address,
         active: true
-      }) as any;
-    const idBan: WithId<ClientBan> = await this._db?.collection(DB_COLLECTIONS.BANNED).findOne({
-      loginSessionId,
-      active: true
-    }) as any;
+      })) as any;
+    const idBan: WithId<ClientBan> = (await this._db
+      ?.collection(DB_COLLECTIONS.BANNED)
+      .findOne({
+        loginSessionId,
+        active: true
+      })) as any;
     if (addressBan || idBan) {
       if (this.isBanExpired(addressBan)) {
-        await this._db
-          ?.collection(DB_COLLECTIONS.BANNED)
-          .updateOne(
-            { IP: address, active: true },
-            {
-              $set: {
-                active: false, // Set active to false to indicate that it has expired
-              }
+        await this._db?.collection(DB_COLLECTIONS.BANNED).updateOne(
+          { IP: address, active: true },
+          {
+            $set: {
+              active: false // Set active to false to indicate that it has expired
             }
-          );
-          return false;
+          }
+        );
+        return false;
       }
       if (this.isBanExpired(idBan)) {
-        await this._db
-          ?.collection(DB_COLLECTIONS.BANNED)
-          .updateOne(
-            { loginSessionId, active: true },
-            {
-              $set: {
-                active: false, // Set active to false to indicate that it has expired
-              }
+        await this._db?.collection(DB_COLLECTIONS.BANNED).updateOne(
+          { loginSessionId, active: true },
+          {
+            $set: {
+              active: false // Set active to false to indicate that it has expired
             }
-          );
-          return false;
+          }
+        );
+        return false;
       }
 
-      if(client) {
-        client.banType = addressBan
-        ? addressBan.banType
-        : idBan?.banType;
+      if (client) {
+        client.banType = addressBan ? addressBan.banType : idBan?.banType;
       }
       return addressBan || idBan;
     }

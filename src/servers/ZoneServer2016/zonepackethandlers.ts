@@ -1930,7 +1930,8 @@ export class ZonePacketHandlers {
     debug(packet.data);
     const { itemGuid, itemUseOption, targetCharacterId, sourceCharacterId } =
       packet.data;
-    const count = (packet.data.itemSubData as any)?.count ?? packet.data.itemCount;
+    const count =
+      (packet.data.itemSubData as any)?.count ?? packet.data.itemCount;
 
     switch (itemUseOption) {
       case ItemUseOptions.HOTWIRE_OFFROADER:
