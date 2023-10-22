@@ -119,28 +119,12 @@ export class Crate extends BaseSimpleNpc {
           new Float32Array([0, 0, 0, 0])
         );
         if (!spawnedItem) return;
-        for (const a in server._clients) {
-          const c = server._clients[a];
-          if (
-            isPosInRadius(
-              spawnedItem.npcRenderDistance,
-              spawnedItem.state.position,
-              c.character.state.position
-            )
-          ) {
-            c.spawnedEntities.push(spawnedItem);
-            server.addLightweightNpc(c, spawnedItem);
-          }
-        }
+        server.executeFuncForAllReadyClientsInRange((c) => {
+          c.spawnedEntities.push(spawnedItem);
+          server.addLightweightNpc(c, spawnedItem);
+        }, spawnedItem);
       }
     }
-  }
-
-  pGetSimpleProxyHealth(): CharacterUpdateSimpleProxyHealth {
-    return {
-      characterId: this.characterId,
-      healthPercentage: (this.health / this.maxHealth) * 100
-    };
   }
 
   damage(

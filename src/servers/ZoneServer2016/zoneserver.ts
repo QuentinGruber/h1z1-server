@@ -3309,20 +3309,30 @@ export class ZoneServer2016 extends EventEmitter {
               this.charactersRenderDistance,
             position,
             object.state.position
-          )
+          ) ||
+          client.spawnedEntities.includes(object)
         ) {
           continue;
         }
-        // removed for testing
+
+        // need to re-add this soon
         /*if (object instanceof ConstructionParentEntity) {
           this.spawnConstructionParent(client, object);
           continue;
         }*/
-
-        if (client.spawnedEntities.includes(object)) continue;
-        if (object instanceof Crate) {
-          if (object.spawnTimestamp > Date.now()) continue;
+      
+        if (object instanceof BaseSimpleNpc) {
+          if (
+            object instanceof Crate &&
+            object.spawnTimestamp > Date.now()
+          ) {
+            continue;
+          }
+          client.spawnedEntities.push(object);
+          this.addSimpleNpc(client, object);
+          continue;
         }
+
         client.spawnedEntities.push(object);
         if (object instanceof BaseLightweightCharacter) {
           if (object.useSimpleStruct) {
@@ -3352,11 +3362,6 @@ export class ZoneServer2016 extends EventEmitter {
               continue;
             }
           }
-        } else if (
-          object instanceof TrapEntity ||
-          object instanceof TemporaryEntity
-        ) {
-          this.addSimpleNpc(client, object);
         }
       }
     }
@@ -3382,23 +3387,26 @@ export class ZoneServer2016 extends EventEmitter {
           continue;
         }
         if (client.spawnedEntities.includes(object)) continue;
-        if (object instanceof Crate) {
-          if (object.spawnTimestamp > Date.now()) continue;
-          this.addSimpleNpc(client, object);
-          continue;
-        }
-        if (object instanceof BaseLightweightCharacter) {
-          if (object.useSimpleStruct) {
-            this.addSimpleNpc(client, object);
+
+        if (object instanceof BaseSimpleNpc) {
+          if (
+            object instanceof Crate &&
+            object.spawnTimestamp > Date.now()
+          ) {
+            continue;
           }
+          client.spawnedEntities.push(object);
+          this.addSimpleNpc(client, object);
           continue;
-        } else if (
-          object instanceof TrapEntity ||
-          object instanceof TemporaryEntity
+        }
+
+        if (
+          object instanceof BaseLightweightCharacter &&
+          object.useSimpleStruct
         ) {
+          client.spawnedEntities.push(object);
           this.addSimpleNpc(client, object);
         }
-        client.spawnedEntities.push(object);
       }
     }
   }
@@ -5622,21 +5630,10 @@ export class ZoneServer2016 extends EventEmitter {
     );
 
     if (!obj) return;
-    for (const a in this._clients) {
-      const c = this._clients[a];
-      if (
-        isPosInRadius(
-          obj.npcRenderDistance
-            ? obj.npcRenderDistance
-            : this.charactersRenderDistance,
-          obj.state.position,
-          c.character.state.position
-        )
-      ) {
-        c.spawnedEntities.push(obj);
-        this.addLightweightNpc(c, obj);
-      }
-    }
+    this.executeFuncForAllReadyClientsInRange((c) => {
+      c.spawnedEntities.push(obj);
+      this.addLightweightNpc(c, obj);
+    }, obj);
   }
 
   pickupItem(client: Client, guid: string) {

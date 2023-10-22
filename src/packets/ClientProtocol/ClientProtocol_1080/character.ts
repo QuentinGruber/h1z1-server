@@ -251,7 +251,7 @@ export const characterPackets: PacketStructures = [
         {
           name: "characterId",
           type: "uint64string",
-          defaultValue: "0x0000000000000000"
+          defaultValue: ""
         },
         { name: "modelId", type: "uint32", defaultValue: 0 },
         { name: "effectId", type: "uint32", defaultValue: 0 }
