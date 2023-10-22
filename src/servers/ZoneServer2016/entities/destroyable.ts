@@ -88,6 +88,10 @@ export class Destroyable extends BaseLightweightCharacter {
     }
   }
 
+  OnMeleeHit(server: ZoneServer2016, damageInfo: DamageInfo) {
+    this.damage(server, damageInfo);
+  }
+
   pGetSimpleNpc() {
     return {
       characterId: this.characterId,
@@ -132,6 +136,5 @@ export class Destroyable extends BaseLightweightCharacter {
     isInstant?: boolean
     /* eslint-enable @typescript-eslint/no-unused-vars */
   ) {
-    this.destroy(server);
   }
 }

@@ -3159,32 +3159,6 @@ export class ZoneServer2016 extends EventEmitter {
     return true;
   }
 
-  deleteCrate(crate: Crate, effectId?: number): boolean {
-    if (!this._crates[crate.characterId]) return false;
-    this.sendDataToAllWithSpawnedEntity<CharacterRemovePlayer>(
-      this._crates,
-      crate.characterId,
-      "Character.RemovePlayer",
-      {
-        characterId: crate.characterId,
-        unknownWord1: effectId ? 1 : 0,
-        effectId: Effects.PFX_Damage_Crate_01m,
-        timeToDisappear: 0,
-        effectDelay: 0
-      }
-    );
-    crate.spawnTimestamp = Date.now() + 900000; // 15min respawn time
-    crate.health = 5000;
-    for (const a in this._clients) {
-      const client = this._clients[a];
-      const index = client.spawnedEntities.indexOf(crate);
-      if (index > -1) {
-        client.spawnedEntities.splice(index, 1);
-      }
-    }
-    return true;
-  }
-
   sendManagedObjectResponseControlPacket(
     client: Client,
     obj: ClientUpdateManagedObjectResponseControl
@@ -3393,8 +3367,9 @@ export class ZoneServer2016 extends EventEmitter {
     for (const gridCell of this._grid) {
       if (
         !isPosInRadius(client.chunkRenderDistance, gridCell.position, position)
-      )
+      ) {
         continue;
+      }
       for (const object of gridCell.objects) {
         if (
           !isPosInRadius(
@@ -3409,11 +3384,14 @@ export class ZoneServer2016 extends EventEmitter {
         if (client.spawnedEntities.includes(object)) continue;
         if (object instanceof Crate) {
           if (object.spawnTimestamp > Date.now()) continue;
+          this.addSimpleNpc(client, object);
+          continue;
         }
         if (object instanceof BaseLightweightCharacter) {
           if (object.useSimpleStruct) {
             this.addSimpleNpc(client, object);
-          } else continue;
+          }
+          continue;
         } else if (
           object instanceof TrapEntity ||
           object instanceof TemporaryEntity
