@@ -7014,83 +7014,12 @@ export class ZoneServer2016 extends EventEmitter {
     return true;
   }
 
-  handleCrateHit(
-    client: Client,
-    weaponItem: LoadoutItem,
-    entity: BaseEntity
-  ): boolean {
-    if (!(entity instanceof Crate)) return false;
-    if (client.character.meleeBlocked(350)) return true;
-
-    if (
-      entity.spawnTimestamp >= Date.now() ||
-      !isPosInRadius(3, entity.state.position, client.character.state.position)
-    ) {
-      return true;
-    }
-    const damageInfo: DamageInfo = {
-      entity: "Server.WorkAroundMelee",
-      damage: 1250
-    };
-    entity.OnProjectileHit(this, damageInfo);
-    this.damageItem(client, weaponItem, 10);
-    client.character.lastMeleeHitTime = Date.now();
-    return true;
-  }
-
-  handleDestroyableHit(
-    client: Client,
-    weaponItem: LoadoutItem,
-    entity: BaseEntity
-  ): boolean {
-    if (!(entity instanceof Destroyable)) return false;
-    if (client.character.meleeBlocked(350)) return true;
-
-    if (
-      !entity.destroyedModel ||
-      !isPosInRadius(
-        3,
-        entity.state.position,
-        client.character.state.position
-      ) ||
-      entity.destroyed
-    ) {
-      return true;
-    }
-
-    /*
-    this.sendCompositeEffectToAllInRange(
-      15,
-      client.character.characterId,
-      entity.state.position,
-      1663
-    );
-    */
-
-    const damageInfo: DamageInfo = {
-      entity: "Server.WorkAroundMelee",
-      damage: 700
-    };
-    entity.OnProjectileHit(this, damageInfo);
-    this.damageItem(client, weaponItem, 10);
-    client.character.lastMeleeHitTime = Date.now();
-    return true;
-  }
-
   // using workaround logic for now
   handleMeleeHit(
     client: Client,
     entity: BaseEntity,
     weaponItem: LoadoutItem
   ): boolean {
-    // check crate / destroyable before anything else
-    if (this.handleCrateHit(client, weaponItem, entity)) {
-      return true;
-    }
-
-    if (this.handleDestroyableHit(client, weaponItem, entity)) {
-      return true;
-    }
 
     switch (weaponItem.itemDefinitionId) {
       case Items.WEAPON_HAMMER_DEMOLITION:

@@ -78,6 +78,25 @@ export class AbilitiesManager {
     );
   }
 
+  processAbilityInit(
+    server: ZoneServer2016,
+    client: Client,
+    packetData: AbilitiesInitAbility
+  ) {
+    const vehicle = server._vehicles[client.vehicle.mountedVehicle ?? ""],
+    isDriver = vehicle?.getDriver(server) == client.character;
+    if (!vehicle || !isDriver) {
+      client.character.abilityInitTime = Date.now();
+      return;
+    };
+    server.abilitiesManager.processVehicleAbilityInit(
+      server,
+      client,
+      vehicle,
+      packetData
+    );
+  }
+
   processVehicleAbilityInit(
     server: ZoneServer2016,
     client: Client,
@@ -134,6 +153,12 @@ export class AbilitiesManager {
     packetData: AbilitiesUpdateAbility,
     entity: BaseEntity
   ) {
+    // todo: validate time between init and update
+    if(!client.character.abilityInitTime) {
+      console.log(`${client.character.characterId} tried to update a non-initialized ability!`);
+      return;
+    }
+    client.character.abilityInitTime = 0;
     client.character.checkCurrentInteractionGuid();
     const weaponItem = client.character.getEquippedWeapon();
     if (!weaponItem) return;

@@ -2876,6 +2876,18 @@ export class ZonePacketHandlers {
         break;
       case "Weapon.MeleeHitMaterial":
         debug("MeleeHitMaterial");
+        /* workaround melee hit logic since UpdateAbility packet isn't always sent */
+        if(client.character.abilityInitTime) {
+          // ignore melee hit if ability packet was sent 
+          return;
+        }
+
+        const entity = server.getEntity(client.character.currentInteractionGuid);
+
+        client.character.checkCurrentInteractionGuid();
+        if (!entity || !weaponItem) return;
+        server.abilitiesManager.handleMeleeHit(server, client, entity, weaponItem);
+
         break;
       case "Weapon.AimBlockedNotify":
         server.sendRemoteWeaponUpdateDataToAllOthers(
@@ -3043,12 +3055,9 @@ export class ZonePacketHandlers {
     client: Client,
     packet: ReceivedPacket<AbilitiesInitAbility>
   ) {
-    const vehicle = server._vehicles[client.vehicle.mountedVehicle ?? ""];
-    if (!vehicle) return;
-    server.abilitiesManager.processVehicleAbilityInit(
+    server.abilitiesManager.processAbilityInit(
       server,
       client,
-      vehicle,
       packet.data
     );
   }
@@ -3081,7 +3090,10 @@ export class ZonePacketHandlers {
 
     const hitLocation = (packet.data.abilityData as any)?.hitLocation;
 
-    if (hitLocation) return;
+    if (hitLocation) {
+      client.character.abilityInitTime = Date.now();
+      return;
+    };
 
     const entity =
       server.getEntity(packet.data.targetCharacterId ?? "") ??

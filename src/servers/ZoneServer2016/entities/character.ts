@@ -103,7 +103,6 @@ export class Character2016 extends BaseFullCharacter {
   public get isAlive() {
     return !this.characterStates.knockedOut;
   }
-  isSonic = false;
   isMoving = false;
   actorModelId!: number;
   headActor!: string;
@@ -174,6 +173,7 @@ export class Character2016 extends BaseFullCharacter {
   lastLockFailure: number = 0;
   resourceHudIndicators: string[] = [];
   hudIndicators: { [typeName: string]: characterIndicatorData } = {};
+  abilityInitTime: number = 0;
   constructor(
     characterId: string,
     transientId: number,
