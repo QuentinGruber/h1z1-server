@@ -927,13 +927,13 @@ const dev: any = {
     client: Client,
     args: Array<string>
   ) {
-    if(!args[2]) {
-      server.sendChatText(client, "Missing effectId and time")
+    if (!args[2]) {
+      server.sendChatText(client, "Missing effectId and time");
       return;
     }
 
     const effectId = Number(args[1]),
-    time = Number(args[2]);
+      time = Number(args[2]);
 
     server.sendDataToAllInRange<CharacterPlayWorldCompositeEffect>(
       100,
@@ -946,7 +946,7 @@ const dev: any = {
         effectTime: time
       }
     );
-    server.sendChatText(client, "Sent composite effect")
+    server.sendChatText(client, "Sent composite effect");
   }
 
   /*

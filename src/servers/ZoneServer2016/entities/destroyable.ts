@@ -60,10 +60,7 @@ export class Destroyable extends BaseSimpleNpc {
     this.health = this.maxHealth;
   }
 
-  damage(
-    server: ZoneServer2016,
-    damageInfo: DamageInfo
-  ) {
+  damage(server: ZoneServer2016, damageInfo: DamageInfo) {
     this.health -= damageInfo.damage;
     server.sendDataToAllWithSpawnedEntity(
       server._destroyables,
@@ -76,11 +73,7 @@ export class Destroyable extends BaseSimpleNpc {
   }
 
   destroy(server: ZoneServer2016, useDestroyedModel: boolean = false): boolean {
-    if (
-      !this.destroyed && 
-      this.destroyedModel && 
-      useDestroyedModel
-    ) {
+    if (!this.destroyed && this.destroyedModel && useDestroyedModel) {
       this.destroyed = true;
       server.sendDataToAllWithSpawnedEntity(
         server._destroyables,
@@ -100,7 +93,11 @@ export class Destroyable extends BaseSimpleNpc {
       );
       return true;
     }
-    server.deleteEntity(this.characterId, server._destroyables, Effects.PFX_Damage_GlassWindow_House);
+    server.deleteEntity(
+      this.characterId,
+      server._destroyables,
+      Effects.PFX_Damage_GlassWindow_House
+    );
     return true;
   }
 
@@ -141,7 +138,7 @@ export class Destroyable extends BaseSimpleNpc {
       flags: {
         flags1: {},
         flags2: {},
-        flags3: {},
+        flags3: {}
       },
       attachedObject: {}
     };

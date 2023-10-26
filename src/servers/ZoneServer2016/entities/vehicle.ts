@@ -1114,7 +1114,7 @@ export class Vehicle2016 extends BaseLootableEntity {
   OnMeleeHit(server: ZoneServer2016, damageInfo: DamageInfo) {
     const client = server.getClientByCharId(damageInfo.entity),
       weapon = client?.character.getEquippedWeapon();
-      damageInfo.damage = damageInfo.damage * 2;
+    damageInfo.damage = damageInfo.damage * 2;
     if (!client || weapon?.itemDefinitionId != Items.WEAPON_WRENCH) {
       this.damage(server, damageInfo);
       return;

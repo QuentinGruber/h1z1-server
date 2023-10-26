@@ -33,13 +33,8 @@ import {
   EffectRemoveEffect
 } from "types/zone2016packets";
 import { DamageInfo, EntityDictionary } from "types/zoneserver";
-import { LootableProp } from "../entities/lootableprop";
 import { LoadoutItem } from "../classes/loadoutItem";
-import { Crate } from "../entities/crate";
-import { Destroyable } from "../entities/destroyable";
-import { Npc } from "../entities/npc";
-const //abilities = require("../../../../data/2016/dataSources/Abilities.json"),
-  vehicleAbilities = require("../../../../data/2016/dataSources/VehicleAbilities.json");
+const vehicleAbilities = require("../../../../data/2016/dataSources/VehicleAbilities.json");
 
 export class AbilitiesManager {
   sendVehicleAbilities(
@@ -84,11 +79,11 @@ export class AbilitiesManager {
     packetData: AbilitiesInitAbility
   ) {
     const vehicle = server._vehicles[client.vehicle.mountedVehicle ?? ""],
-    isDriver = vehicle?.getDriver(server) == client.character;
+      isDriver = vehicle?.getDriver(server) == client.character;
     if (!vehicle || !isDriver) {
       client.character.abilityInitTime = Date.now();
       return;
-    };
+    }
     server.abilitiesManager.processVehicleAbilityInit(
       server,
       client,
@@ -154,8 +149,10 @@ export class AbilitiesManager {
     entity: BaseEntity
   ) {
     // todo: validate time between init and update
-    if(!client.character.abilityInitTime) {
-      console.log(`${client.character.characterId} tried to update a non-initialized ability!`);
+    if (!client.character.abilityInitTime) {
+      console.log(
+        `${client.character.characterId} tried to update a non-initialized ability!`
+      );
       return;
     }
     client.character.abilityInitTime = 0;
@@ -166,8 +163,13 @@ export class AbilitiesManager {
     this.handleMeleeHit(server, client, entity, weaponItem);
   }
 
-  handleMeleeHit(server: ZoneServer2016, client: Client, entity: BaseEntity, weaponItem: LoadoutItem) {
-    if(!weaponItem.weapon) return;
+  handleMeleeHit(
+    server: ZoneServer2016,
+    client: Client,
+    entity: BaseEntity,
+    weaponItem: LoadoutItem
+  ) {
+    if (!weaponItem.weapon) return;
 
     // TODO: CHECK MELEE BLOCK TIME FOR EACH WEAPON
     // CHECK MELEE RANGE ALSO
@@ -184,26 +186,7 @@ export class AbilitiesManager {
       damage: baseDamage // need to figure out a good number for this
     };
 
-    /*
-      THIS IF STATEMENT IS ONLY TEMPORARY UNTIL OnMeleeHit METHODS
-      ARE DEFINED IN ALL ENTITIES
-    */
-
-      console.log(entity.characterId);
-
-    if (
-      entity instanceof LootableProp || 
-      entity instanceof Vehicle2016 ||
-      entity instanceof Crate ||
-      entity instanceof Destroyable ||
-      entity instanceof Npc
-      ) {
-      entity.OnMeleeHit(server, damageInfo);
-      console.log("OnMeleeHit");
-      return;
-    }
-
-    server.handleMeleeHit(client, entity, weaponItem);
+    entity.OnMeleeHit(server, damageInfo);
   }
 
   processAddEffectPacket(

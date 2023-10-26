@@ -127,10 +127,7 @@ export class Crate extends BaseSimpleNpc {
     }
   }
 
-  damage(
-    server: ZoneServer2016,
-    damageInfo: DamageInfo
-  ) {
+  damage(server: ZoneServer2016, damageInfo: DamageInfo) {
     this.health -= damageInfo.damage;
     server.sendDataToAllWithSpawnedEntity(
       server._crates,
@@ -147,7 +144,11 @@ export class Crate extends BaseSimpleNpc {
 
     this.spawnTimestamp = Date.now() + this.respawnTime;
     this.health = this.maxHealth;
-    return server.deleteEntity(this.characterId, server._crates, Effects.PFX_Damage_Crate_01m);
+    return server.deleteEntity(
+      this.characterId,
+      server._crates,
+      Effects.PFX_Damage_Crate_01m
+    );
   }
 
   OnProjectileHit(server: ZoneServer2016, damageInfo: DamageInfo) {
@@ -156,7 +157,7 @@ export class Crate extends BaseSimpleNpc {
 
   OnMeleeHit(server: ZoneServer2016, damageInfo: DamageInfo) {
     const damage = damageInfo.damage * 2;
-    this.damage(server, {...damageInfo, damage});
+    this.damage(server, { ...damageInfo, damage });
   }
 
   /* eslint-disable @typescript-eslint/no-unused-vars */

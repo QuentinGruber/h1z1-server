@@ -3320,12 +3320,9 @@ export class ZoneServer2016 extends EventEmitter {
           this.spawnConstructionParent(client, object);
           continue;
         }*/
-      
+
         if (object instanceof BaseSimpleNpc) {
-          if (
-            object instanceof Crate &&
-            object.spawnTimestamp > Date.now()
-          ) {
+          if (object instanceof Crate && object.spawnTimestamp > Date.now()) {
             continue;
           }
           client.spawnedEntities.push(object);
@@ -3389,10 +3386,7 @@ export class ZoneServer2016 extends EventEmitter {
         if (client.spawnedEntities.includes(object)) continue;
 
         if (object instanceof BaseSimpleNpc) {
-          if (
-            object instanceof Crate &&
-            object.spawnTimestamp > Date.now()
-          ) {
+          if (object instanceof Crate && object.spawnTimestamp > Date.now()) {
             continue;
           }
           client.spawnedEntities.push(object);
@@ -6925,110 +6919,6 @@ export class ZoneServer2016 extends EventEmitter {
       );
       client.character.clearReloadTimeout();
     }, reloadTime);
-  }
-
-  handleDemolitionHit(
-    client: Client,
-    weaponItem: LoadoutItem,
-    entity: BaseEntity
-  ): boolean {
-    const construction = this.getConstructionEntity(entity.characterId);
-    if (!construction) return true;
-    if (client.character.meleeBlocked()) return true;
-
-    switch (construction.itemDefinitionId) {
-      case Items.FOUNDATION:
-      case Items.FOUNDATION_EXPANSION:
-      case Items.GROUND_TAMPER:
-      case Items.FOUNDATION_RAMP:
-      case Items.FOUNDATION_STAIRS:
-        return true;
-    }
-
-    const permission = construction.getHasPermission(
-      this,
-      client.character.characterId,
-      ConstructionPermissionIds.DEMOLISH
-    );
-
-    if (!permission) {
-      this.constructionManager.placementError(
-        this,
-        client,
-        ConstructionErrors.DEMOLISH_PERMISSION
-      );
-      return true;
-    }
-
-    if (construction.canUndoPlacement(this, client)) {
-      // give back item only if can undo
-      client.character.lootItem(
-        this,
-        this.generateItem(construction.itemDefinitionId)
-      );
-      construction.destroy(this);
-      return true;
-    }
-
-    /*
-    this.sendCompositeEffectToAllInRange(
-      15,
-      client.character.characterId,
-      construction.state.position,
-      1667
-    );
-    */
-
-    const damageInfo: DamageInfo = {
-      entity: "Server.DemoHammer",
-      damage: 250000
-    };
-    if (construction instanceof ConstructionParentEntity) {
-      construction.damageSimpleNpc(
-        this,
-        damageInfo,
-        this._constructionFoundations
-      );
-    } else if (construction instanceof ConstructionChildEntity) {
-      construction.damageSimpleNpc(this, damageInfo, this._constructionSimple);
-    } else if (construction instanceof ConstructionDoor) {
-      construction.damageSimpleNpc(this, damageInfo, this._constructionDoors);
-    } else if (construction instanceof LootableConstructionEntity) {
-      construction.damageSimpleNpc(
-        this,
-        damageInfo,
-        this._lootableConstruction
-      );
-    }
-    this.damageItem(client, weaponItem, 50);
-
-    if (construction.health > 0) return true;
-    construction.destroy(this);
-
-    client.character.lastMeleeHitTime = Date.now();
-    return true;
-  }
-
-  handleHammerHit(client: Client, weaponItem: LoadoutItem): boolean {
-    this.constructionManager.hammerConstructionEntity(this, client, weaponItem);
-    return true;
-  }
-
-  // using workaround logic for now
-  handleMeleeHit(
-    client: Client,
-    entity: BaseEntity,
-    weaponItem: LoadoutItem
-  ): boolean {
-
-    switch (weaponItem.itemDefinitionId) {
-      case Items.WEAPON_HAMMER_DEMOLITION:
-        return this.handleDemolitionHit(client, weaponItem, entity);
-      case Items.WEAPON_HAMMER:
-        return this.handleHammerHit(client, weaponItem);
-    }
-
-    return false;
   }
 
   pUtilizeHudTimer = promisify(this.utilizeHudTimer);

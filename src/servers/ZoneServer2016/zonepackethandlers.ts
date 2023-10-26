@@ -2877,16 +2877,23 @@ export class ZonePacketHandlers {
       case "Weapon.MeleeHitMaterial":
         debug("MeleeHitMaterial");
         /* workaround melee hit logic since UpdateAbility packet isn't always sent */
-        if(client.character.abilityInitTime) {
-          // ignore melee hit if ability packet was sent 
+        if (client.character.abilityInitTime) {
+          // ignore melee hit if ability packet was sent
           return;
         }
 
-        const entity = server.getEntity(client.character.currentInteractionGuid);
+        const entity = server.getEntity(
+          client.character.currentInteractionGuid
+        );
 
         client.character.checkCurrentInteractionGuid();
         if (!entity || !weaponItem) return;
-        server.abilitiesManager.handleMeleeHit(server, client, entity, weaponItem);
+        server.abilitiesManager.handleMeleeHit(
+          server,
+          client,
+          entity,
+          weaponItem
+        );
 
         break;
       case "Weapon.AimBlockedNotify":
@@ -3055,11 +3062,7 @@ export class ZonePacketHandlers {
     client: Client,
     packet: ReceivedPacket<AbilitiesInitAbility>
   ) {
-    server.abilitiesManager.processAbilityInit(
-      server,
-      client,
-      packet.data
-    );
+    server.abilitiesManager.processAbilityInit(server, client, packet.data);
   }
   AbilitiesUninitAbility(
     server: ZoneServer2016,
@@ -3093,7 +3096,7 @@ export class ZonePacketHandlers {
     if (hitLocation) {
       client.character.abilityInitTime = Date.now();
       return;
-    };
+    }
 
     const entity =
       server.getEntity(packet.data.targetCharacterId ?? "") ??

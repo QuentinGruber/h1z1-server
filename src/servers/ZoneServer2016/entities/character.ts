@@ -1466,4 +1466,9 @@ export class Character2016 extends BaseFullCharacter {
       causeBleed: !(canStopBleed && this.hasArmor(server))
     });
   }
+
+  OnMeleeHit(server: ZoneServer2016, damageInfo: DamageInfo) {
+    const damage = damageInfo.damage / 2;
+    this.damage(server, { ...damageInfo, damage });
+  }
 }
