@@ -917,7 +917,7 @@ export class Vehicle2016 extends BaseLootableEntity {
 
     const hotwireEffect = getHotwireEffect(this.vehicleId),
       index = this.effectTags.indexOf(hotwireEffect);
-    if(!hotwireEffect || index >= 0) return;
+    if (!hotwireEffect || index >= 0) return;
     server.sendDataToAllWithSpawnedEntity(
       server._vehicles,
       this.characterId,
@@ -930,7 +930,7 @@ export class Vehicle2016 extends BaseLootableEntity {
       }
     );
     this.effectTags.push(hotwireEffect);
-    
+
     server.utilizeHudTimer(client, 0, 5000, 0, () => {
       this.removeHotwireEffect(server);
       this.startEngine(server);

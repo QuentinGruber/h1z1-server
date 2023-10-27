@@ -1955,8 +1955,8 @@ export interface EquipmentSetCharacterEquipment {
   characterId?: string;
 };
   unknownDword1?: number;
-  unknownString1?: string;
-  unknownString2?: string;
+  tintAlias?: string;
+  decalAlias?: string;
   equipmentSlots?: unknown[];
   attachmentData?: unknown[];
   unknownBoolean1?: boolean;

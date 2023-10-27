@@ -46,7 +46,6 @@ import {
   ConstructionPermissionIds,
   ItemUseOptions,
   HealTypes,
-  ConstructionErrors,
   VehicleEffects,
   Effects
 } from "./models/enums";
@@ -6935,7 +6934,7 @@ export class ZoneServer2016 extends EventEmitter {
         }
       );
       const vehicle = this._vehicles[client.vehicle.mountedVehicle ?? ""];
-      if(!vehicle) return;
+      if (!vehicle) return;
       vehicle.removeHotwireEffect(this);
       /*/*/
     });

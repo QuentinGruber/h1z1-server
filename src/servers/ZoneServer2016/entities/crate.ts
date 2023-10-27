@@ -11,14 +11,12 @@
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
 import { ZoneServer2016 } from "../zoneserver";
-import { BaseLightweightCharacter } from "./baselightweightcharacter";
 import { ZoneClient2016 } from "../classes/zoneclient";
 import { DamageInfo } from "../../../types/zoneserver";
 import { randomIntFromInterval, isPosInRadius } from "../../../utils/utils";
 import { containerLootSpawners } from "../data/lootspawns";
 import { getRandomItem } from "../managers/worldobjectmanager";
 import { BaseSimpleNpc } from "./basesimplenpc";
-import { CharacterUpdateSimpleProxyHealth } from "types/zone2016packets";
 import { Effects } from "../models/enums";
 
 function getActorModelId(actorModel: string): number {

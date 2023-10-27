@@ -11,11 +11,10 @@
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
 import { ZoneServer2016 } from "../zoneserver";
-import { BaseLightweightCharacter } from "./baselightweightcharacter";
 import { ZoneClient2016 } from "../classes/zoneclient";
 import { DamageInfo } from "../../../types/zoneserver";
 import { eul2quat } from "../../../utils/utils";
-import { Effects, Items } from "../models/enums";
+import { Effects } from "../models/enums";
 import { AddLightweightNpc, AddSimpleNpc } from "types/zone2016packets";
 import { BaseSimpleNpc } from "./basesimplenpc";
 
@@ -101,6 +100,7 @@ export class Destroyable extends BaseSimpleNpc {
     return true;
   }
 
+  // eslint-disable-next-line
   OnProjectileHit(server: ZoneServer2016, damageInfo: DamageInfo) {
     if (this.destroyed) return;
     this.destroy(server, true);
