@@ -2811,59 +2811,6 @@ export class ZonePacketHandlers {
         break;
       case "Weapon.WeaponFireHint":
         debug("WeaponFireHint");
-        /*if (weaponItem.weapon.ammoCount <= 0) return;
-        if (weaponItem.weapon.ammoCount > 0) {
-          weaponItem.weapon.ammoCount -= 1;
-        }
-        const driftH = Math.abs(packet.gameTime - server.getServerTime());
-        if (driftH > server.maxPing + 200) {
-          server.sendChatText(
-            client,
-            `FairPlay: Your shots didnt register due to packet loss`
-          );
-          return;
-        }
-        const keysH = Object.keys(client.fireHints);
-        const lastFireHintH =
-          client.fireHints[Number(keysH[keysH.length - 1])];
-        if (lastFireHintH) {
-          let blockedTime = 50;
-          switch (weaponItem.itemDefinitionId) {
-            case Items.WEAPON_308:
-              blockedTime = 1300;
-              break;
-            case Items.WEAPON_SHOTGUN:
-              blockedTime = 400;
-              break;
-          }
-          if (packet.gameTime - lastFireHintH.timeStamp < blockedTime) return;
-        }
-        let hitNumberH = 0;
-        if (
-          !client.vehicle.mountedVehicle &&
-          !isPosInRadius(
-            3,
-            client.character.state.position,
-            packet.packet.position
-          )
-        )
-          hitNumberH = 1;
-        const shotProjectilesH =
-          weaponItem.itemDefinitionId == Items.WEAPON_SHOTGUN ? 12 : 1;
-        for (let x = 0; x < shotProjectilesH; x++) {
-          const fireHint: fireHint = {
-            id: packet.packet.sessionProjectileCount + x,
-            position: packet.packet.position,
-            rotation: new Float32Array([...packet.packet.rotation, 0]),
-            hitNumber: hitNumberH,
-            weaponItem: weaponItem,
-            timeStamp: packet.gameTime,
-          };
-          client.fireHints[packet.packet.sessionProjectileCount + x] = fireHint;
-          setTimeout(() => {
-            delete client.fireHints[packet.packet.sessionProjectileCount + x];
-          }, 10000);
-        }*/
         break;
       case "Weapon.ProjectileContactReport":
         debug("ProjectileContactReport");
