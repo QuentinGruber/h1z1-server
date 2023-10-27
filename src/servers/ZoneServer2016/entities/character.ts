@@ -16,6 +16,7 @@ import {
   ContainerErrors,
   Effects,
   HealTypes,
+  Items,
   LoadoutIds,
   LoadoutSlots,
   ResourceIds,
