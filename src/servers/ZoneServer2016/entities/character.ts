@@ -20,7 +20,8 @@ import {
   LoadoutIds,
   LoadoutSlots,
   ResourceIds,
-  ResourceTypes
+  ResourceTypes,
+  WeaponDefinitionIds
 } from "../models/enums";
 import { ZoneClient2016 } from "../classes/zoneclient";
 import { ZoneServer2016 } from "../zoneserver";
@@ -1229,6 +1230,11 @@ export class Character2016 extends BaseFullCharacter {
 
   OnProjectileHit(server: ZoneServer2016, damageInfo: DamageInfo) {
     if (!this.isAlive) return;
+
+    const itemDefinition = server.getItemDefinition(damageInfo.weapon);
+    if (!itemDefinition) return;
+    const weaponDefinitionId = itemDefinition.PARAM1;
+
     const client = server.getClientByCharId(damageInfo.entity), // source
       c = server.getClientByCharId(this.characterId); // target
     if (!client || !c || !damageInfo.hitReport) {
@@ -1243,21 +1249,25 @@ export class Character2016 extends BaseFullCharacter {
     );
     const hasHelmetBefore = this.hasHelmet(server);
     const hasArmorBefore = this.hasArmor(server);
+
     let damage = damageInfo.damage,
       canStopBleed,
       armorDmgModifier;
-    damageInfo.weapon == Items.WEAPON_SHOTGUN
+    weaponDefinitionId == WeaponDefinitionIds.WEAPON_SHOTGUN
       ? (armorDmgModifier = 10)
       : (armorDmgModifier = 4);
-    if (damageInfo.weapon == Items.WEAPON_308) armorDmgModifier = 2;
+    if (weaponDefinitionId == WeaponDefinitionIds.WEAPON_308)
+      armorDmgModifier = 2;
     switch (damageInfo.hitReport?.hitLocation) {
       case "HEAD":
       case "GLASSES":
       case "NECK":
-        damageInfo.weapon == Items.WEAPON_SHOTGUN
+        weaponDefinitionId == WeaponDefinitionIds.WEAPON_SHOTGUN
           ? (damage *= 2)
           : (damage *= 4);
-        damageInfo.weapon == Items.WEAPON_308 ? (damage *= 2) : damage;
+        weaponDefinitionId == WeaponDefinitionIds.WEAPON_308
+          ? (damage *= 2)
+          : damage;
         damage = server.checkHelmet(this.characterId, damage, 1);
         break;
       default:
@@ -1278,8 +1288,8 @@ export class Character2016 extends BaseFullCharacter {
     }
 
     /* eslint-disable @typescript-eslint/no-unused-vars */
-    switch (damageInfo.weapon) {
-      case Items.WEAPON_BLAZE:
+    switch (weaponDefinitionId) {
+      case WeaponDefinitionIds.WEAPON_BLAZE:
         this._characterEffects[Effects.PFX_Fire_Person_loop] = {
           id: Effects.PFX_Fire_Person_loop,
           duration: Date.now() + 10000,
@@ -1312,7 +1322,7 @@ export class Character2016 extends BaseFullCharacter {
           }
         );
         break;
-      case Items.WEAPON_FROSTBITE:
+      case WeaponDefinitionIds.WEAPON_FROSTBITE:
         if (!this._characterEffects[Effects.PFX_Seasonal_Holiday_Snow_skel]) {
           server.sendData<ClientUpdateModifyMovementSpeed>(
             c,
