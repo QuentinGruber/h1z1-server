@@ -824,8 +824,8 @@ export abstract class BaseFullCharacter extends BaseLightweightCharacter {
         characterId: this.characterId
       },
       unknownDword1: 0,
-      unknownString1: "Default",
-      unknownString2: "#",
+      tintAlias: "Default",
+      decalAlias: "#",
       equipmentSlots: this.pGetEquipmentSlots(),
       attachmentData: this.pGetAttachmentSlots(),
       unknownBoolean1: true
