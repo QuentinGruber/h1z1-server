@@ -1114,8 +1114,8 @@ export class ZoneServer2016 extends EventEmitter {
             }
           });
       }
-      if (itemDef.ID > 5000) {
-        // custom h1emu definitons start at 5001
+      if (itemDef.ID >= 3941 && itemDef.ID < 3959) {
+        // new js base stuff for fun
         defs.push({
           ID: itemDef.ID,
           definitionData: {

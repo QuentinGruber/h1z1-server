@@ -845,6 +845,7 @@ export const commands: Array<Command> = [
     permissionLevel: PermissionLevels.ADMIN,
     execute: (server: ZoneServer2016, client: Client, args: Array<string>) => {
       client.spawnedEntities.forEach((object) => {
+        if(object.characterId == client.character.characterId) return;
         server.despawnEntity(object.characterId);
       });
       client.spawnedEntities = [];
