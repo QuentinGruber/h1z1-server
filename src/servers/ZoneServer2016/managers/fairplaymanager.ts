@@ -31,7 +31,10 @@ import { LoadoutItem } from "../classes/loadoutItem";
 import { ZoneClient2016 as Client } from "../classes/zoneclient";
 import { BaseEntity } from "../entities/baseentity";
 import { Vehicle2016 as Vehicle } from "../entities/vehicle";
-import { ConstructionPermissionIds, Items } from "../models/enums";
+import {
+  ConstructionPermissionIds,
+  WeaponDefinitionIds
+} from "../models/enums";
 import { ZoneServer2016 } from "../zoneserver";
 
 const encryptedData = require("../../../../data/2016/encryptedData/encryptedData.json"),
@@ -321,12 +324,19 @@ export class FairPlayManager {
     hitLocation: string
   ) {
     const weaponItem = client.character.getEquippedWeapon();
+    if (!weaponItem) return;
+    const itemDefinition = server.getItemDefinition(
+      weaponItem.itemDefinitionId
+    );
+    if (!itemDefinition) return;
+    const weaponDefinitionId = itemDefinition.PARAM1;
     if (
       !this.useFairPlay ||
       !weaponItem ||
-      weaponItem.itemDefinitionId == Items.WEAPON_SHOTGUN
-    )
+      weaponDefinitionId == WeaponDefinitionIds.WEAPON_SHOTGUN
+    ) {
       return;
+    }
     if (hit) {
       client.pvpStats.shotsHit += 1;
       switch (hitLocation.toLowerCase()) {
@@ -405,12 +415,18 @@ export class FairPlayManager {
 
     if (targetClient) fireHint.hitNumber++;
     const checkWeapons = [
-      Items.WEAPON_BOW_MAKESHIFT,
-      Items.WEAPON_BOW_RECURVE,
-      Items.WEAPON_BOW_WOOD,
-      Items.WEAPON_CROSSBOW
+      WeaponDefinitionIds.WEAPON_BOW_MAKESHIFT,
+      WeaponDefinitionIds.WEAPON_BOW_RECURVE,
+      WeaponDefinitionIds.WEAPON_BOW_WOOD,
+      WeaponDefinitionIds.WEAPON_CROSSBOW
     ];
-    if (checkWeapons.includes(weaponItem.itemDefinitionId)) {
+    if (!weaponItem) return false;
+    const itemDefinition = server.getItemDefinition(
+      weaponItem.itemDefinitionId
+    );
+    if (!itemDefinition) return false;
+    const weaponDefinitionId = itemDefinition.PARAM1;
+    if (checkWeapons.includes(weaponDefinitionId)) {
       if (
         !fireHint.marked ||
         fireHint.marked.characterId != entity.characterId ||
@@ -434,7 +450,7 @@ export class FairPlayManager {
         Math.sin(angle) * Math.sin(fixedRot);
       if (
         dotProduct <
-        (weaponItem.itemDefinitionId == Items.WEAPON_SHOTGUN
+        (weaponDefinitionId == WeaponDefinitionIds.WEAPON_SHOTGUN
           ? this.fairPlayValues.dotProductMinShotgun
           : this.fairPlayValues.dotProductMin)
       ) {
@@ -466,7 +482,7 @@ export class FairPlayManager {
             Number(
               (
                 1 -
-                (weaponItem.itemDefinitionId == Items.WEAPON_SHOTGUN
+                (weaponDefinitionId == WeaponDefinitionIds.WEAPON_SHOTGUN
                   ? this.fairPlayValues.dotProductMinShotgun
                   : this.fairPlayValues.dotProductMin)
               ).toFixed(3)
@@ -498,35 +514,35 @@ export class FairPlayManager {
       let maxSpeed = this.fairPlayValues.defaultMaxProjectileSpeed;
       let minSpeed = this.fairPlayValues.defaultMinProjectileSpeed;
       let maxDistance = this.fairPlayValues.defaultMaxDistance;
-      switch (weaponItem.itemDefinitionId) {
-        case Items.WEAPON_308:
-        case Items.WEAPON_REAPER:
+      switch (weaponDefinitionId) {
+        case WeaponDefinitionIds.WEAPON_308:
+        case WeaponDefinitionIds.WEAPON_REAPER:
           maxSpeed = this.fairPlayValues.WEAPON_308.maxSpeed;
           minSpeed = this.fairPlayValues.WEAPON_308.minSpeed;
           maxDistance = this.fairPlayValues.WEAPON_308.maxDistance;
           break;
-        case Items.WEAPON_CROSSBOW:
+        case WeaponDefinitionIds.WEAPON_CROSSBOW:
           maxSpeed = this.fairPlayValues.WEAPON_CROSSBOW.maxSpeed;
           minSpeed = this.fairPlayValues.WEAPON_CROSSBOW.minSpeed;
           maxDistance = this.fairPlayValues.WEAPON_CROSSBOW.maxDistance;
           break;
-        case Items.WEAPON_BOW_MAKESHIFT:
+        case WeaponDefinitionIds.WEAPON_BOW_MAKESHIFT:
           maxSpeed = this.fairPlayValues.WEAPON_BOW_MAKESHIFT.maxSpeed;
           minSpeed = this.fairPlayValues.WEAPON_BOW_MAKESHIFT.minSpeed;
           maxDistance = this.fairPlayValues.WEAPON_BOW_MAKESHIFT.maxDistance;
           break;
-        case Items.WEAPON_BOW_RECURVE:
+        case WeaponDefinitionIds.WEAPON_BOW_RECURVE:
           maxSpeed = this.fairPlayValues.WEAPON_BOW_RECURVE.maxSpeed;
           minSpeed = this.fairPlayValues.WEAPON_BOW_RECURVE.minSpeed;
           maxDistance = this.fairPlayValues.WEAPON_BOW_RECURVE.maxDistance;
           break;
-        case Items.WEAPON_BOW_WOOD:
+        case WeaponDefinitionIds.WEAPON_BOW_WOOD:
           maxSpeed = this.fairPlayValues.WEAPON_BOW_WOOD.maxSpeed;
           minSpeed = this.fairPlayValues.WEAPON_BOW_WOOD.minSpeed;
           maxDistance = this.fairPlayValues.WEAPON_BOW_WOOD.maxDistance;
           break;
-        case Items.WEAPON_SHOTGUN:
-        case Items.WEAPON_NAGAFENS_RAGE:
+        case WeaponDefinitionIds.WEAPON_SHOTGUN:
+        case WeaponDefinitionIds.WEAPON_NAGAFENS_RAGE:
           maxSpeed = this.fairPlayValues.WEAPON_SHOTGUN.maxSpeed;
           minSpeed = this.fairPlayValues.WEAPON_SHOTGUN.minSpeed;
           maxDistance = this.fairPlayValues.WEAPON_SHOTGUN.maxDistance;
