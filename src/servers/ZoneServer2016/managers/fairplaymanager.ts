@@ -33,7 +33,6 @@ import { BaseEntity } from "../entities/baseentity";
 import { Vehicle2016 as Vehicle } from "../entities/vehicle";
 import {
   ConstructionPermissionIds,
-  Items,
   WeaponDefinitionIds
 } from "../models/enums";
 import { ZoneServer2016 } from "../zoneserver";
