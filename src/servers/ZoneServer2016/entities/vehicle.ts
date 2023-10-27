@@ -145,6 +145,21 @@ function getTurboEffect(vehicleId: VehicleIds) {
   }
 }
 
+function getHotwireEffect(vehicleId: VehicleIds) {
+  switch (vehicleId) {
+    case VehicleIds.OFFROADER:
+      return Effects.SFX_VEH_OffRoader_Hotwire;
+    case VehicleIds.PICKUP:
+      return Effects.SFX_VEH_Pickup_Truck_Hotwire;
+    case VehicleIds.POLICECAR:
+      return Effects.SFX_VEH_Police_Car_Hotwire;
+    case VehicleIds.ATV:
+      return Effects.SFX_VEH_ATV_Hotwire;
+    default:
+      return Effects.SFX_VEH_OffRoader_Hotwire;
+  }
+}
+
 export class Vehicle2016 extends BaseLootableEntity {
   isManaged: boolean = false;
   manager?: ZoneClient2016;
@@ -876,12 +891,48 @@ export class Vehicle2016 extends BaseLootableEntity {
     }
   }
 
+  removeHotwireEffect(server: ZoneServer2016) {
+    const hotwireEffect = getHotwireEffect(this.vehicleId),
+      index = this.effectTags.indexOf(hotwireEffect);
+
+    if (index <= -1) return;
+
+    server.sendDataToAllWithSpawnedEntity(
+      server._vehicles,
+      this.characterId,
+      "Character.RemoveEffectTagCompositeEffect",
+      {
+        characterId: this.characterId,
+        effectId: hotwireEffect,
+        newEffectId: 0
+      }
+    );
+    this.effectTags.splice(index, 1);
+  }
+
   hotwire(server: ZoneServer2016) {
     const driver = this.getDriver(server),
       client = server.getClientByCharId(driver?.characterId || "");
     if (!client) return;
 
+    const hotwireEffect = getHotwireEffect(this.vehicleId),
+      index = this.effectTags.indexOf(hotwireEffect);
+    if(!hotwireEffect || index >= 0) return;
+    server.sendDataToAllWithSpawnedEntity(
+      server._vehicles,
+      this.characterId,
+      "Character.AddEffectTagCompositeEffect",
+      {
+        characterId: this.characterId,
+        effectId: hotwireEffect,
+        unknownDword1: hotwireEffect,
+        unknownDword2: hotwireEffect
+      }
+    );
+    this.effectTags.push(hotwireEffect);
+    
     server.utilizeHudTimer(client, 0, 5000, 0, () => {
+      this.removeHotwireEffect(server);
       this.startEngine(server);
     });
   }

@@ -4598,6 +4598,7 @@ export class ZoneServer2016 extends EventEmitter {
       });
       return;
     }
+    vehicle.removeHotwireEffect(this);
     const seatId = vehicle.getCharacterSeat(client.character.characterId);
     client.character.vehicleExitDate = new Date().getTime();
     if (seatId == -1) {
@@ -6933,6 +6934,9 @@ export class ZoneServer2016 extends EventEmitter {
           characterId: client.character.characterId
         }
       );
+      const vehicle = this._vehicles[client.vehicle.mountedVehicle ?? ""];
+      if(!vehicle) return;
+      vehicle.removeHotwireEffect(this);
       /*/*/
     });
   }
