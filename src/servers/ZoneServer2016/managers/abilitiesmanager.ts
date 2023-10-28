@@ -155,7 +155,6 @@ export class AbilitiesManager {
       );
       return;
     }
-    client.character.abilityInitTime = 0;
     client.character.checkCurrentInteractionGuid();
     const weaponItem = client.character.getEquippedWeapon();
     if (!weaponItem) return;
@@ -169,6 +168,7 @@ export class AbilitiesManager {
     entity: BaseEntity,
     weaponItem: LoadoutItem
   ) {
+    client.character.abilityInitTime = 0;
     if (!weaponItem.weapon) return;
 
     // TODO: CHECK MELEE BLOCK TIME FOR EACH WEAPON

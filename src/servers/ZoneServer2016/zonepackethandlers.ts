@@ -2825,7 +2825,7 @@ export class ZonePacketHandlers {
       case "Weapon.MeleeHitMaterial":
         debug("MeleeHitMaterial");
         /* workaround melee hit logic since UpdateAbility packet isn't always sent */
-        if (client.character.abilityInitTime) {
+        if (client.character.abilityInitTime > 0) {
           // ignore melee hit if ability packet was sent
           return;
         }
