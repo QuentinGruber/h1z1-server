@@ -85,6 +85,7 @@ export class SpeedTreeManager {
     let itemDefId = 0;
     switch (treeId) {
       case TreeIds.BLACKBERRY:
+        server.startInteractionTimer(client, 0, 0, 9);
         itemDefId = Items.BLACKBERRY;
         if (Math.random() <= this.branchHarvestChance) {
           client.character.lootItem(
@@ -100,6 +101,7 @@ export class SpeedTreeManager {
         break;
       case TreeIds.DEVILCLUB:
       case TreeIds.VINEMAPLE:
+        server.startInteractionTimer(client, 0, 0, 9);
         itemDefId = Items.WOOD_STICK;
         destroy = true;
         count = randomIntFromInterval(
