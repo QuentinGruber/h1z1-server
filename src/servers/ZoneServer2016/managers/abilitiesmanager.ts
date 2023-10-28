@@ -100,10 +100,10 @@ export class AbilitiesManager {
   ) {
     switch (packetData.abilityId) {
       case Abilities.VEHICLE_HEADLIGHTS:
-        vehicle.toggleHeadlights(server, client);
+        vehicle.setHeadlightState(server, true, client);
         break;
       case Abilities.VEHICLE_SIREN:
-        vehicle.toggleSiren(server, client);
+        vehicle.setSirenState(server, true, client);
         break;
       case Abilities.VEHICLE_TURBO:
         break;
@@ -121,10 +121,10 @@ export class AbilitiesManager {
   ) {
     switch (packetData.abilityId) {
       case Abilities.VEHICLE_HEADLIGHTS:
-        vehicle.toggleHeadlights(server, client);
+        vehicle.setHeadlightState(server, false, client);
         break;
       case Abilities.VEHICLE_SIREN:
-        vehicle.toggleSiren(server, client);
+        vehicle.setSirenState(server, false, client);
         break;
       case Abilities.VEHICLE_TURBO:
         break;

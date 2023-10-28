@@ -647,57 +647,15 @@ export class Vehicle2016 extends BaseLootableEntity {
     );
   }
 
-  toggleHeadlights(server: ZoneServer2016, client?: ZoneClient2016) {
-    const headlightType = getHeadlightEffect(this.vehicleId),
-      index = this.effectTags.indexOf(headlightType);
+  setHeadlightState(
+    server: ZoneServer2016,
+    state: boolean,
+    client?: ZoneClient2016
+  ) {
+    const headlightEffect = getHeadlightEffect(this.vehicleId),
+      index = this.effectTags.indexOf(headlightEffect);
 
-    if (index <= -1) {
-      if (!this.hasBattery()) {
-        if (client) {
-          this.sendNoPartsAlert(server, client);
-        }
-        return;
-      }
-      if (!this.hasHeadlights()) {
-        if (client) {
-          this.sendNoPartsAlert(server, client);
-        }
-        return;
-      }
-      server.sendDataToAllWithSpawnedEntity(
-        server._vehicles,
-        this.characterId,
-        "Character.AddEffectTagCompositeEffect",
-        {
-          characterId: this.characterId,
-          effectId: headlightType,
-          unknownDword1: headlightType,
-          unknownDword2: headlightType
-        }
-      );
-      this.effectTags.push(headlightType);
-      return;
-    }
-
-    server.sendDataToAllWithSpawnedEntity(
-      server._vehicles,
-      this.characterId,
-      "Character.RemoveEffectTagCompositeEffect",
-      {
-        characterId: this.characterId,
-        effectId: headlightType,
-        newEffectId: 0
-      }
-    );
-    this.effectTags.splice(index, 1);
-  }
-
-  toggleSiren(server: ZoneServer2016, client?: ZoneClient2016) {
-    if (this.vehicleId != VehicleIds.POLICECAR) return;
-    const headlightType = Effects.VEH_SirenLight_PoliceCar,
-      index = this.effectTags.indexOf(headlightType);
-
-    if (index <= -1) {
+    if (state && index <= -1) {
       if (!this.hasBattery()) {
         if (client) this.sendNoPartsAlert(server, client);
         return;
@@ -708,12 +666,12 @@ export class Vehicle2016 extends BaseLootableEntity {
         "Character.AddEffectTagCompositeEffect",
         {
           characterId: this.characterId,
-          effectId: headlightType,
-          unknownDword1: headlightType,
-          unknownDword2: headlightType
+          effectId: headlightEffect,
+          unknownDword1: headlightEffect,
+          unknownDword2: headlightEffect
         }
       );
-      this.effectTags.push(headlightType);
+      this.effectTags.push(headlightEffect);
       return;
     }
 
@@ -723,7 +681,49 @@ export class Vehicle2016 extends BaseLootableEntity {
       "Character.RemoveEffectTagCompositeEffect",
       {
         characterId: this.characterId,
-        effectId: headlightType,
+        effectId: headlightEffect,
+        newEffectId: 0
+      }
+    );
+    this.effectTags.splice(index, 1);
+  }
+
+  setSirenState(
+    server: ZoneServer2016,
+    state: boolean,
+    client?: ZoneClient2016
+  ) {
+    if (this.vehicleId != VehicleIds.POLICECAR) return;
+    const sirenEffect = Effects.VEH_SirenLight_PoliceCar,
+      index = this.effectTags.indexOf(sirenEffect);
+
+    if (state && index <= -1) {
+      if (!this.hasBattery()) {
+        if (client) this.sendNoPartsAlert(server, client);
+        return;
+      }
+      server.sendDataToAllWithSpawnedEntity(
+        server._vehicles,
+        this.characterId,
+        "Character.AddEffectTagCompositeEffect",
+        {
+          characterId: this.characterId,
+          effectId: sirenEffect,
+          unknownDword1: sirenEffect,
+          unknownDword2: sirenEffect
+        }
+      );
+      this.effectTags.push(sirenEffect);
+      return;
+    }
+
+    server.sendDataToAllWithSpawnedEntity(
+      server._vehicles,
+      this.characterId,
+      "Character.RemoveEffectTagCompositeEffect",
+      {
+        characterId: this.characterId,
+        effectId: sirenEffect,
         newEffectId: 0
       }
     );
@@ -861,11 +861,11 @@ export class Vehicle2016 extends BaseLootableEntity {
       this.getHeadlightState() &&
       (!this.hasHeadlights() || !this.hasBattery())
     ) {
-      this.toggleHeadlights(server);
+      this.setHeadlightState(server, false);
     }
 
     if (this.getSirenState() && !this.hasBattery()) {
-      this.toggleSiren(server);
+      this.setSirenState(server, false);
     }
 
     if (this.getHornState() && !this.hasBattery()) {
