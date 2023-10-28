@@ -937,11 +937,12 @@ export abstract class BaseFullCharacter extends BaseLightweightCharacter {
     count: number
   ): LoadoutContainer | undefined {
     const itemDef = server.getItemDefinition(itemDefinitionId);
+    if(!itemDef) return;
     for (const container of this.getSortedContainers()) {
+      if(!container) continue;
       if (
-        container &&
-        (container.getMaxBulk(server) == 0 ||
-          container.getAvailableBulk(server) >= (itemDef?.BULK ?? 1) * count)
+        container.getMaxBulk(server) == 0 ||
+        container.getAvailableBulk(server) >= itemDef.BULK * count
       ) {
         return container;
       }
