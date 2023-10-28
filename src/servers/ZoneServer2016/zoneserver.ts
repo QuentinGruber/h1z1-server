@@ -2089,9 +2089,12 @@ export class ZoneServer2016 extends EventEmitter {
 
     // TODO: REDO THIS WITH GRID CHUNK SYSTEM
 
+    const sourceEntity = this.getEntity(source),
+    sourceIsVehicle = sourceEntity instanceof Vehicle2016;
+
     for (const characterId in this._characters) {
       const character = this._characters[characterId];
-      if (isPosInRadiusWithY(3, character.state.position, position, 1.5)) {
+      if (isPosInRadiusWithY(sourceIsVehicle ? 5 : 3, character.state.position, position, 1.5)) {
         const distance = getDistance(position, character.state.position);
         const damage = 50000 / distance;
         character.damage(this, {
