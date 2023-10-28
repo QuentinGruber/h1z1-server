@@ -6156,6 +6156,15 @@ export class ZoneServer2016 extends EventEmitter {
     client.character._resources[ResourceIds.ENDURANCE] = 8000;
     client.character._resources[ResourceIds.STAMINA] = 600;
     this.applyMovementModifier(client, MovementModifiers.RESTED);
+    this.sendDataToAllWithSpawnedEntity(
+      this._characters,
+      client.character.characterId,
+      "AnimationBase",
+      {
+        characterId: client.character.characterId,
+        animationId: 84 // yawning / waking up emote
+      }
+    );
     this.updateResourceToAllWithSpawnedEntity(
       client.character.characterId,
       client.character._resources[ResourceIds.STAMINA],

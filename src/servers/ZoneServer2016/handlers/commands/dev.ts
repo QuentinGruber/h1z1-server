@@ -947,8 +947,14 @@ const dev: any = {
       }
     );
     server.sendChatText(client, "Sent composite effect");
-  }
-
+  },
+  sleep: function (
+    server: ZoneServer2016,
+    client: Client,
+    args: Array<string>
+  ) {
+    server.sleep(client);
+  },
   /*
   shutdown: function (
     server: ZoneServer2016,
