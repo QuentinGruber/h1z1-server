@@ -1081,8 +1081,8 @@ export interface CharacterWeaponStance {
 }
 export interface CharacterUpdateTintAlias {
   characterId?: string;
-  unknownString1?: string;
-  unknownString2?: string;
+  tintAlias?: string;
+  decalAlias?: string;
 }
 export interface CharacterMoveOnRail {
   characterId?: string;
@@ -2096,7 +2096,7 @@ export interface EffectRemoveEffect {
   abilityEffectId1?: number;
   abilityEffectId2?: number;
 };
-  unknownData2 :{
+  targetCharacterData :{
   characterId?: string;
 };
   targetCharacterId?: string;

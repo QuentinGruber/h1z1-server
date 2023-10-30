@@ -239,7 +239,6 @@ export class AbilitiesManager {
 
     switch (vehicleAbilityEffectId) {
       case VehicleEffects.MOTOR_RUN_OFFROADER:
-        this.sendRemoveEffectPacket(server, packetData, server._vehicles);
         vehicle.stopEngine(server);
         break;
       case VehicleEffects.TURBO_OFFROADER:
@@ -305,9 +304,10 @@ export class AbilitiesManager {
     packetData: EffectRemoveEffect,
     dictionary: EntityDictionary<BaseEntity>
   ) {
+    console.log(packetData)
     server.sendDataToAllWithSpawnedEntity<EffectRemoveEffect>(
       dictionary,
-      packetData.unknownData2.characterId,
+      packetData.targetCharacterData.characterId,
       "Effect.RemoveEffect",
       {
         abilityEffectData: {
@@ -315,11 +315,11 @@ export class AbilitiesManager {
           abilityEffectId1: packetData.abilityEffectData.abilityEffectId1,
           abilityEffectId2: packetData.abilityEffectData.abilityEffectId2
         },
-        unknownData2: {
+        targetCharacterData: {
           characterId: packetData.targetCharacterId
         },
         guid2: "0x0",
-        targetCharacterId: packetData.unknownData2.characterId
+        targetCharacterId: packetData.targetCharacterData.characterId
         //unknownVector1: [0, 0, 0, 0]
       }
     );

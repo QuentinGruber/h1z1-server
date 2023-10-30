@@ -4646,26 +4646,7 @@ export class ZoneServer2016 extends EventEmitter {
     client.isInAir = false;
 
     if (!seatId) {
-      if (vehicle.engineOn) {
-        vehicle.stopEngine(this);
-        this.sendDataToAllWithSpawnedEntity<EffectRemoveEffect>(
-          this._vehicles,
-          vehicle.characterId,
-          "Effect.RemoveEffect",
-          {
-            abilityEffectData: {
-              unknownDword1: 4,
-              abilityEffectId1: VehicleEffects.MOTOR_RUN_OFFROADER,
-              abilityEffectId2: 100042
-            },
-            unknownData2: {
-              characterId: client.character.characterId
-            },
-            guid2: "0x0",
-            targetCharacterId: vehicle.characterId
-          }
-        );
-      }
+      if (vehicle.engineOn) vehicle.stopEngine(this);
       vehicle.isLocked = false;
     }
 

@@ -114,7 +114,7 @@ export const effectsPackets: PacketStructures = [
           ]
         },
         {
-          name: "unknownData2",
+          name: "targetCharacterData",
           type: "schema",
           fields: [
             { name: "characterId", type: "uint64string", defaultValue: "0" }

@@ -19,7 +19,8 @@ import {
   ResourceTypes,
   VehicleIds,
   StringIds,
-  Effects
+  Effects,
+  VehicleEffects
 } from "../models/enums";
 import { ZoneClient2016 } from "../classes/zoneclient";
 import { ZoneServer2016 } from "../zoneserver";
@@ -30,6 +31,7 @@ import { BaseItem } from "../classes/baseItem";
 import { LOADOUT_CONTAINER_ID } from "../../../utils/constants";
 import { Character2016 } from "./character";
 import {
+  EffectRemoveEffect,
   LightweightToFullNpc,
   LightweightToFullVehicle
 } from "types/zone2016packets";
@@ -610,6 +612,25 @@ export class Vehicle2016 extends BaseLootableEntity {
       }
     );
     this.engineOn = false;
+
+    const driver = this.getDriver(server);
+    server.sendDataToAllWithSpawnedEntity<EffectRemoveEffect>(
+      server._vehicles,
+      this.characterId,
+      "Effect.RemoveEffect",
+      {
+        abilityEffectData: {
+          unknownDword1: 4,
+          abilityEffectId1: VehicleEffects.MOTOR_RUN_OFFROADER,
+          abilityEffectId2: 100042
+        },
+        targetCharacterData: {
+          characterId: this.characterId
+        },
+        guid2: "0x0",
+        targetCharacterId: driver?.characterId ?? ""
+      }
+    );
   }
 
   getHeadlightState() {
