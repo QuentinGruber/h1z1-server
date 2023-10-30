@@ -179,6 +179,7 @@ export enum LoadoutSlots {
   BACK = 12,
   LEGS = 14,
   BELT = 25,
+  EYES = 29,
   EXTERNAL_CONTAINER = 31,
   VEHICLE_BATTERY = 33,
   ARMOR = 38,

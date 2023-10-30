@@ -593,6 +593,7 @@ export class Character2016 extends BaseFullCharacter {
         case LoadoutSlots.TERTIARY:
         case LoadoutSlots.ITEM1:
         case LoadoutSlots.ITEM2:
+        case LoadoutSlots.EYES:
           break;
         default:
           continue;
