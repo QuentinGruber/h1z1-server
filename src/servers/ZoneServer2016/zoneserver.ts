@@ -63,6 +63,7 @@ import {
   FireHint,
   HudIndicator,
   ItemDefinition,
+  modelData,
   Recipe,
   UseOption
 } from "../../types/zoneserver";
@@ -239,6 +240,7 @@ const spawnLocations2 = require("../../../data/2016/zoneData/Z1_gridSpawns.json"
   hudIndicators = require("../../../data/2016/dataSources/HudIndicators"),
   clientEffectsDataSource = require("../../../data/2016/dataSources/ClientEffects.json"),
   itemUseOptionsDataSource = require("../../../data/2016/dataSources/ItemUseOptions"),
+  models = require("../../../data/2016/dataSources/Models"),
   equipmentModelTexturesMapping: Record<
     string,
     Record<string, string[]>
@@ -288,6 +290,7 @@ export class ZoneServer2016 extends EventEmitter {
   _destroyableDTOlist: number[] = [];
   _hudIndicators: { [indicatorId: string]: HudIndicator } = {};
   _clientEffectsData: { [effectId: number]: clientEffect } = {};
+  _modelsData: { [modelId: number]: modelData } = {};
   _itemUseOptions: { [optionId: number]: UseOption } = {};
   _decoys: {
     [transientId: number]: {
@@ -1293,7 +1296,7 @@ export class ZoneServer2016 extends EventEmitter {
 
   private async setupServer() {
     this.weatherManager.init();
-
+    this.initModelsDataSource();
     this.worldDataManager = (await spawn(
       new Worker("./managers/worlddatamanagerthread")
     )) as unknown as WorldDataManagerThreaded;
@@ -7391,6 +7394,17 @@ export class ZoneServer2016 extends EventEmitter {
       };
     });
   }
+
+  initModelsDataSource() {
+    models.forEach((model: any) => {
+        this._modelsData[model.ID] = {
+        id: model.ID,
+        fileName: model.MODEL_FILE_NAME,
+        materialType: model.MATERIAL_TYPE
+      };
+    });
+  }
+
   initUseOptionsDataSource() {
     itemUseOptionsDataSource.forEach((useOption: any) => {
       this._itemUseOptions[useOption.ITEM_USE_OPTION_ID] = {

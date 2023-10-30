@@ -379,6 +379,12 @@ export interface clientEffect {
 	animationName: string
 }
 
+export interface modelData {
+	id: number;
+	fileName: string;
+	materialType: number
+}
+
 export interface characterIndicatorData {
 	typeName: string;
 	expirationTime: number;

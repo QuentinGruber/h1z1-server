@@ -215,6 +215,7 @@ export class Vehicle2016 extends BaseLootableEntity {
     };
     this.vehicleId = vehicleId;
     if (!this.actorModelId) this.actorModelId = getActorModelId(this.vehicleId);
+    this.getMaterialType(server, this.actorModelId)
     this.loadoutId = getVehicleLoadoutId(this.vehicleId);
     this.defaultLoadout = getDefaultLoadout(this.loadoutId);
     this.npcRenderDistance = 400;
