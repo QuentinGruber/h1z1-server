@@ -637,6 +637,7 @@ export class Character2016 extends BaseFullCharacter {
         };
         abilities.push(object);
       }
+      abilityLineId++;
     }
     server.sendData(client, "Abilities.SetActivatableAbilityManager", {
       abilities
@@ -1227,9 +1228,9 @@ export class Character2016 extends BaseFullCharacter {
     const slot = this._equipment[slotId];
     return slot
       ? {
-          modelName: slot.modelName,
+          modelName: slot.modelName/* == "Weapon_Empty.adr" ? slot.modelName : ""*/,
           effectId: this.groupId > 0 && this.groupId == groupId ? 3 : 0,
-          textureAlias: slot.textureAlias || "",
+          textureAlias: "",
           tintAlias: slot.tintAlias || "Default",
           decalAlias: slot.decalAlias || "#",
           slotId: slot.slotId,
