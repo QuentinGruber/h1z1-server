@@ -104,6 +104,11 @@ function traverseAndReplace(
   replaceString: string
 ): void {
   // shoutout chatGPT
+  if (process.platform === "win32") {
+    // https://stackoverflow.com/a/70560464
+    replaceString = path.resolve(replaceString).split(path.sep).join("/");
+  }
+
   const files = fs.readdirSync(directory);
   files.forEach((file) => {
     const filePath = path.join(directory, file);
@@ -145,7 +150,10 @@ export class PluginManager {
   }
   private pluginsDir =
     process.env.PLUGINS_DIR || path.join(process.cwd(), "plugins");
-  private moduleDir = searchFolder(process.cwd(), "h1z1-server") || "";
+  private moduleDir =
+    process.env.PLUGIN_MODULES_DIR ||
+    searchFolder(process.cwd(), "h1z1-server") ||
+    "";
 
   /**
    * Checks if the plugins directory exists and creates it if it doesn't.
