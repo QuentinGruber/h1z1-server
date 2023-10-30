@@ -73,7 +73,7 @@ export interface positionUpdate {
   engineRPM?: any;
 }
 
-export interface characterEquipment {
+export interface CharacterEquipment {
   modelName: string;
   slotId: number;
   guid?: string;
@@ -81,6 +81,7 @@ export interface characterEquipment {
   textureAlias?: string;
   tintAlias?: string;
   decalAlias?: string;
+  SHADER_PARAMETER_GROUP?: Array<{SHADER_SEMANTIC_ID: number}>
 }
 
 export interface Weather {

@@ -270,7 +270,17 @@ export const characterPackets: PacketStructures = [
       ]
     }
   ],
-  ["Character.UpdateTintAlias", 0x0f21, {}],
+  [
+    "Character.UpdateTintAlias", 
+    0x0f21, 
+    {
+      fields: [
+        { name: "characterId", type: "uint64string", defaultValue: "0" },
+        { name: "tintAlias", type: "string", defaultValue: "" },
+        { name: "decalAlias", type: "string", defaultValue: "" },
+      ]
+    }
+  ],
   [
     "Character.MoveOnRail",
     0x0f22,

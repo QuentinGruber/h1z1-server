@@ -7647,6 +7647,16 @@ export class ZoneServer2016 extends EventEmitter {
     }
     return false;
   }
+
+  getShaderParameterGroup(itemDefinitionId: number) {
+    return dynamicappearance.SHADER_SEMANTIC_DEFINITIONS.find((definition: {
+      SHADER_PARAMETER_GROUP_ID: number,
+      SHADER_PARAMETER_GROUP: Array<{SHADER_SEMANTIC_ID: number}>
+    })=> {
+      return definition.SHADER_PARAMETER_GROUP_ID == itemDefinitionId;
+    })?.SHADER_PARAMETER_GROUP ?? [];
+  }
+
 }
 
 if (process.env.VSCODE_DEBUG === "true") {

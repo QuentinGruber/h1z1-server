@@ -16,7 +16,7 @@ import {
   EquipmentSetCharacterEquipmentSlot,
   LightweightToFullNpc
 } from "types/zone2016packets";
-import { characterEquipment, DamageInfo } from "../../../types/zoneserver";
+import { CharacterEquipment, DamageInfo } from "../../../types/zoneserver";
 import { LoadoutKit } from "../data/loadouts";
 import {
   ContainerErrors,
@@ -64,7 +64,7 @@ export abstract class BaseFullCharacter extends BaseLightweightCharacter {
   onReadyCallback?: (clientTriggered: ZoneClient2016) => void;
   _resources: { [resourceId: number]: number } = {};
   _loadout: { [loadoutSlotId: number]: LoadoutItem } = {};
-  _equipment: { [equipmentSlotId: number]: characterEquipment } = {};
+  _equipment: { [equipmentSlotId: number]: CharacterEquipment } = {};
   _containers: { [loadoutSlotId: number]: LoadoutContainer } = {};
   loadoutId = 5;
   currentLoadoutSlot = 0; // idk if other full npcs use this
@@ -277,7 +277,7 @@ export abstract class BaseFullCharacter extends BaseLightweightCharacter {
     }
 
     if (equipmentSlotId) {
-      const equipmentData: characterEquipment = {
+      const equipmentData: CharacterEquipment = {
         modelName: def.MODEL_NAME.replace(
           "<gender>",
           this.gender == 1 ? "Male" : "Female"
@@ -285,7 +285,8 @@ export abstract class BaseFullCharacter extends BaseLightweightCharacter {
         slotId: equipmentSlotId,
         guid: item.itemGuid,
         textureAlias: def.TEXTURE_ALIAS || "default0",
-        tintAlias: ""
+        tintAlias: "",
+        SHADER_PARAMETER_GROUP: server.getShaderParameterGroup(item.itemDefinitionId)
       };
       this._equipment[equipmentSlotId] = equipmentData;
     }
@@ -363,15 +364,16 @@ export abstract class BaseFullCharacter extends BaseLightweightCharacter {
         }
       }
       if (equipmentSlotId) {
-        const equipmentData: characterEquipment = {
+        const equipmentData: CharacterEquipment = {
           modelName: def.MODEL_NAME.replace(
             "<gender>",
             this.gender == 1 ? "Male" : "Female"
           ),
           slotId: equipmentSlotId,
           guid: slot.itemGuid,
-          textureAlias: def.TEXTURE_ALIAS || "default0",
-          tintAlias: ""
+          textureAlias: def.TEXTURE_ALIAS || "",
+          tintAlias: "",
+          SHADER_PARAMETER_GROUP: server.getShaderParameterGroup(slot.itemDefinitionId)
         };
         this._equipment[equipmentSlotId] = equipmentData;
       }
@@ -794,7 +796,7 @@ export abstract class BaseFullCharacter extends BaseLightweightCharacter {
           tintAlias: slot.tintAlias || "Default",
           decalAlias: slot.decalAlias || "#",
           slotId: slot.slotId,
-          SHADER_PARAMETER_GROUP: []
+          SHADER_PARAMETER_GROUP: slot.SHADER_PARAMETER_GROUP
         }
       : undefined;
   }
