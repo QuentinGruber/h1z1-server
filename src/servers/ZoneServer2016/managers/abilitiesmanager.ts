@@ -234,7 +234,7 @@ export class AbilitiesManager {
   ) {
     const vehicleAbilityEffectId =
         packetData.abilityEffectData.abilityEffectId1,
-      vehicle = server._vehicles[client.vehicle.mountedVehicle ?? ""];
+      vehicle = server._vehicles[packetData.targetCharacterId ?? ""];
     if (!vehicle) return;
 
     switch (vehicleAbilityEffectId) {
