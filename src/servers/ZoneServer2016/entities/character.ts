@@ -1228,7 +1228,8 @@ export class Character2016 extends BaseFullCharacter {
     const slot = this._equipment[slotId];
     return slot
       ? {
-          modelName: slot.modelName/* == "Weapon_Empty.adr" ? slot.modelName : ""*/,
+          modelName:
+            slot.modelName /* == "Weapon_Empty.adr" ? slot.modelName : ""*/,
           effectId: this.groupId > 0 && this.groupId == groupId ? 3 : 0,
           textureAlias: "",
           tintAlias: slot.tintAlias || "Default",

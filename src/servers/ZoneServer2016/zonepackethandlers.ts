@@ -1933,7 +1933,7 @@ export class ZonePacketHandlers {
     debug(packet.data);
     const { itemGuid, itemUseOption, targetCharacterId, sourceCharacterId } =
       packet.data;
-      const count =
+    const count =
       (packet.data.itemSubData as any)?.count ?? packet.data.itemCount;
 
     switch (itemUseOption) {

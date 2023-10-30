@@ -2093,11 +2093,18 @@ export class ZoneServer2016 extends EventEmitter {
     // TODO: REDO THIS WITH GRID CHUNK SYSTEM
 
     const sourceEntity = this.getEntity(source),
-    sourceIsVehicle = sourceEntity instanceof Vehicle2016;
+      sourceIsVehicle = sourceEntity instanceof Vehicle2016;
 
     for (const characterId in this._characters) {
       const character = this._characters[characterId];
-      if (isPosInRadiusWithY(sourceIsVehicle ? 5 : 3, character.state.position, position, 1.5)) {
+      if (
+        isPosInRadiusWithY(
+          sourceIsVehicle ? 5 : 3,
+          character.state.position,
+          position,
+          1.5
+        )
+      ) {
         const distance = getDistance(position, character.state.position);
         const damage = 50000 / distance;
         character.damage(this, {
@@ -7397,7 +7404,7 @@ export class ZoneServer2016 extends EventEmitter {
 
   initModelsDataSource() {
     models.forEach((model: any) => {
-        this._modelsData[model.ID] = {
+      this._modelsData[model.ID] = {
         id: model.ID,
         fileName: model.MODEL_FILE_NAME,
         materialType: model.MATERIAL_TYPE
@@ -7644,14 +7651,17 @@ export class ZoneServer2016 extends EventEmitter {
   }
 
   getShaderParameterGroup(itemDefinitionId: number): Array<any> {
-    return dynamicappearance.SHADER_SEMANTIC_DEFINITIONS.find((definition: {
-      SHADER_PARAMETER_GROUP_ID: number,
-      SHADER_PARAMETER_GROUP: Array<{SHADER_SEMANTIC_ID: number}>
-    })=> {
-      return definition.SHADER_PARAMETER_GROUP_ID == itemDefinitionId;
-    })?.SHADER_PARAMETER_GROUP ?? [];
+    return (
+      dynamicappearance.SHADER_SEMANTIC_DEFINITIONS.find(
+        (definition: {
+          SHADER_PARAMETER_GROUP_ID: number;
+          SHADER_PARAMETER_GROUP: Array<{ SHADER_SEMANTIC_ID: number }>;
+        }) => {
+          return definition.SHADER_PARAMETER_GROUP_ID == itemDefinitionId;
+        }
+      )?.SHADER_PARAMETER_GROUP ?? []
+    );
   }
-
 }
 
 if (process.env.VSCODE_DEBUG === "true") {

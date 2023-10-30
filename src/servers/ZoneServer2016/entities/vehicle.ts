@@ -215,7 +215,7 @@ export class Vehicle2016 extends BaseLootableEntity {
     };
     this.vehicleId = vehicleId;
     if (!this.actorModelId) this.actorModelId = getActorModelId(this.vehicleId);
-    this.getMaterialType(server, this.actorModelId)
+    this.getMaterialType(server, this.actorModelId);
     this.loadoutId = getVehicleLoadoutId(this.vehicleId);
     this.defaultLoadout = getDefaultLoadout(this.loadoutId);
     this.npcRenderDistance = 400;
@@ -367,6 +367,7 @@ export class Vehicle2016 extends BaseLootableEntity {
       unknownArray3: { data: [] },
       unknownArray4: {},
       unknownArray5: { data: [] },
+      materialType: this.materialType,
       remoteWeapons: {
         isVehicle: true,
         data: {}

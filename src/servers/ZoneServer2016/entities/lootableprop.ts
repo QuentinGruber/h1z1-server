@@ -14,7 +14,7 @@ import { BaseLootableEntity } from "./baselootableentity";
 import { ZoneServer2016 } from "../zoneserver";
 import { ZoneClient2016 } from "../classes/zoneclient";
 
-import { StringIds, Items } from "../models/enums";
+import { StringIds, Items, MaterialTypes } from "../models/enums";
 import { DamageInfo } from "types/zoneserver";
 import { randomIntFromInterval } from "../../../utils/utils";
 
@@ -198,6 +198,9 @@ export class LootableProp extends BaseLootableEntity {
     this.spawnerId = spawnerId;
     this.npcRenderDistance = renderDistance;
     this.loadoutId = 5;
+    if (this.materialType == MaterialTypes.METAL) {
+      this.useSimpleStruct = false;
+    }
     getContainerAndTime(this);
   }
   /* eslint-disable @typescript-eslint/no-unused-vars */
