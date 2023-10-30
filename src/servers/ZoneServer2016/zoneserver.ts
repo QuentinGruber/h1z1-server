@@ -46,7 +46,6 @@ import {
   ConstructionPermissionIds,
   ItemUseOptions,
   HealTypes,
-  VehicleEffects,
   Effects,
   WeaponDefinitionIds
 } from "./models/enums";
@@ -174,7 +173,6 @@ import {
   ContainerInitEquippedContainers,
   ContainerUpdateEquippedContainer,
   DtoObjectInitialData,
-  EffectRemoveEffect,
   EquipmentUnsetCharacterEquipmentSlot,
   GameTimeSync,
   H1emuPrintToConsole,
