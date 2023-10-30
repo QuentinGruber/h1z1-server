@@ -62,7 +62,7 @@ export class LoadoutContainer extends LoadoutItem {
     let bulk = 0;
     for (const item of Object.values(this.items)) {
       const itemDefinition = server.getItemDefinition(item.itemDefinitionId);
-      if(!itemDefinition) continue;
+      if (!itemDefinition) continue;
       bulk += itemDefinition.BULK * item.stackCount;
     }
     return bulk;

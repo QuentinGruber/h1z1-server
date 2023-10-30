@@ -304,7 +304,6 @@ export class AbilitiesManager {
     packetData: EffectRemoveEffect,
     dictionary: EntityDictionary<BaseEntity>
   ) {
-    console.log(packetData)
     server.sendDataToAllWithSpawnedEntity<EffectRemoveEffect>(
       dictionary,
       packetData.targetCharacterData.characterId,

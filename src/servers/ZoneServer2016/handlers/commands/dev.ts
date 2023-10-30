@@ -954,7 +954,7 @@ const dev: any = {
     args: Array<string>
   ) {
     server.sleep(client);
-  },
+  }
   /*
   shutdown: function (
     server: ZoneServer2016,

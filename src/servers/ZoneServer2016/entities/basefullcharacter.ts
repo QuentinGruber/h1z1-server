@@ -286,7 +286,9 @@ export abstract class BaseFullCharacter extends BaseLightweightCharacter {
         guid: item.itemGuid,
         textureAlias: def.TEXTURE_ALIAS || "default0",
         tintAlias: "",
-        SHADER_PARAMETER_GROUP: server.getShaderParameterGroup(item.itemDefinitionId)
+        SHADER_PARAMETER_GROUP: server.getShaderParameterGroup(
+          item.itemDefinitionId
+        )
       };
       this._equipment[equipmentSlotId] = equipmentData;
     }
@@ -373,7 +375,9 @@ export abstract class BaseFullCharacter extends BaseLightweightCharacter {
           guid: slot.itemGuid,
           textureAlias: def.TEXTURE_ALIAS || "",
           tintAlias: "",
-          SHADER_PARAMETER_GROUP: server.getShaderParameterGroup(slot.itemDefinitionId)
+          SHADER_PARAMETER_GROUP: server.getShaderParameterGroup(
+            slot.itemDefinitionId
+          )
         };
         this._equipment[equipmentSlotId] = equipmentData;
       }
@@ -795,7 +799,7 @@ export abstract class BaseFullCharacter extends BaseLightweightCharacter {
           textureAlias: slot.textureAlias || "",
           tintAlias: slot.tintAlias || "Default",
           decalAlias: slot.decalAlias || "#",
-          slotId: slot.slotId,
+          slotId: slot.slotId
           //SHADER_PARAMETER_GROUP: slot.SHADER_PARAMETER_GROUP
         }
       : undefined;
@@ -939,9 +943,9 @@ export abstract class BaseFullCharacter extends BaseLightweightCharacter {
     count: number
   ): LoadoutContainer | undefined {
     const itemDef = server.getItemDefinition(itemDefinitionId);
-    if(!itemDef) return;
+    if (!itemDef) return;
     for (const container of this.getSortedContainers()) {
-      if(!container) continue;
+      if (!container) continue;
       if (
         container.getMaxBulk(server) == 0 ||
         container.getAvailableBulk(server) >= itemDef.BULK * count

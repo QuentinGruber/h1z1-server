@@ -580,7 +580,7 @@ export class Character2016 extends BaseFullCharacter {
       this.pGetLoadoutSlots()
     );
     const abilities: any = [];
-    let abilityLineId = 1;
+    const abilityLineId = 1;
     for (const a in client.character._loadout) {
       const slot = client.character._loadout[a];
       const itemDefinition = server.getItemDefinition(slot.itemDefinitionId);
@@ -1228,7 +1228,8 @@ export class Character2016 extends BaseFullCharacter {
     const slot = this._equipment[slotId];
     return slot
       ? {
-          modelName: slot.modelName/* == "Weapon_Empty.adr" ? slot.modelName : ""*/,
+          modelName:
+            slot.modelName /* == "Weapon_Empty.adr" ? slot.modelName : ""*/,
           effectId: this.groupId > 0 && this.groupId == groupId ? 3 : 0,
           textureAlias: "",
           tintAlias: slot.tintAlias || "Default",

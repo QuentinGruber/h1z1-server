@@ -34,6 +34,6 @@ export class Zombie extends Npc {
       server,
       spawnerId
     );
-    this.materialType = MaterialTypes.ZOMBIE
+    this.materialType = MaterialTypes.ZOMBIE;
   }
 }
