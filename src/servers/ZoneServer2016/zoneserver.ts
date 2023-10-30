@@ -46,7 +46,6 @@ import {
   ConstructionPermissionIds,
   ItemUseOptions,
   HealTypes,
-  VehicleEffects,
   Effects,
   WeaponDefinitionIds
 } from "./models/enums";
@@ -174,7 +173,6 @@ import {
   ContainerInitEquippedContainers,
   ContainerUpdateEquippedContainer,
   DtoObjectInitialData,
-  EffectRemoveEffect,
   EquipmentUnsetCharacterEquipmentSlot,
   GameTimeSync,
   H1emuPrintToConsole,
@@ -729,7 +727,7 @@ export class ZoneServer2016 extends EventEmitter {
 
                 if (!client) {
                   console.log(
-                    "LoginServer requested to kick INVALID client with guid ${guid} for reason: ${reason}!"
+                    `LoginServer requested to kick INVALID client with guid ${guid} for reason: ${reason}!`
                   );
                   return;
                 }

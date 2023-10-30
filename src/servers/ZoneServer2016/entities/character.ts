@@ -580,7 +580,7 @@ export class Character2016 extends BaseFullCharacter {
       this.pGetLoadoutSlots()
     );
     const abilities: any = [];
-    let abilityLineId = 1;
+    const abilityLineId = 1;
     for (const a in client.character._loadout) {
       const slot = client.character._loadout[a];
       const itemDefinition = server.getItemDefinition(slot.itemDefinitionId);
