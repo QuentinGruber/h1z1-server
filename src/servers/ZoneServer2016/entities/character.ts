@@ -637,7 +637,6 @@ export class Character2016 extends BaseFullCharacter {
         };
         abilities.push(object);
       }
-      abilityLineId++;
     }
     server.sendData(client, "Abilities.SetActivatableAbilityManager", {
       abilities
