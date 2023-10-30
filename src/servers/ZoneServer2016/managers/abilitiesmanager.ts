@@ -228,7 +228,7 @@ export class AbilitiesManager {
         effectString += "Fists_RightHook";
         break;
     }
-    let effectId: Effects = Effects[effectString as keyof typeof Effects];
+    const effectId: Effects = Effects[effectString as keyof typeof Effects];
     const dictionary = server.getEntityDictionary(entity.characterId);
     if (!dictionary) return;
     if (entity.effectTags.includes(effectId)) {
