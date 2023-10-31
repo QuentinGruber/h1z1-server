@@ -82,6 +82,31 @@ export class AbilitiesManager {
     client: Client,
     packetData: AbilitiesInitAbility
   ) {
+    switch (packetData.abilityId) {
+      case AbilityIds.NV_GOGGLES:
+        const index = client.character.screenEffects.indexOf("NIGHTVISION");
+        if (index <= -1) {
+          if (
+            client.character._loadout[29] &&
+            client.character._loadout[29].itemDefinitionId == Items.NV_GOGGLES
+          ) {
+            client.character.screenEffects.push("NIGHTVISION");
+            server.addScreenEffect(
+              client,
+              server._screenEffects["NIGHTVISION"]
+            );
+          }
+        } else {
+          client.character.screenEffects.splice(index, 1);
+          server.removeScreenEffect(
+            client,
+            server._screenEffects["NIGHTVISION"]
+          );
+        }
+        this.deactivateAbility(server, client, AbilityIds.NV_GOGGLES, 3, 3);
+        return;
+    }
+
     const vehicle = server._vehicles[client.vehicle.mountedVehicle ?? ""],
       isDriver = vehicle?.getDriver(server) == client.character;
     if (!vehicle || !isDriver) {
@@ -394,15 +419,17 @@ export class AbilitiesManager {
     );
   }
 
-  deactivateAbility(server: ZoneServer2016, client: Client, abilityId: number) {
-    server.sendData(client, "Abilities.DeactivateAbility", {
-      abilityId: abilityId,
-      unknownDword1: 3
-    });
+  deactivateAbility(
+    server: ZoneServer2016,
+    client: Client,
+    abilityId: number,
+    unk1?: number,
+    unk2?: number
+  ) {
     server.sendData(client, "Abilities.UninitAbility", {
-      unknownDword1: 4,
+      unknownDword1: unk1 ?? 4,
       abilityId: abilityId,
-      unknownDword2: 3
+      unknownDword2: unk2 ?? 3
     });
   }
 }

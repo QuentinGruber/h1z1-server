@@ -5424,7 +5424,10 @@ export class ZoneServer2016 extends EventEmitter {
         character.getActiveEquipmentSlot(item)
       );
     }
-    if (client) this.checkConveys(client);
+    if (client) {
+      this.checkConveys(client);
+      this.checkNightVision(client);
+    }
     if (this.getItemDefinition(itemDefId)?.ITEM_TYPE === 34) {
       delete character._containers[loadoutSlotId];
       if (client) this.initializeContainerList(client);
@@ -7179,6 +7182,19 @@ export class ZoneServer2016 extends EventEmitter {
           this.divideMovementModifier(client, MovementModifiers.BOOTS);
         }
       }
+    }
+  }
+
+  checkNightVision(client: Client, character = client.character) {
+    if (
+      character._loadout[29] &&
+      character._loadout[29].itemDefinitionId == Items.NV_GOGGLES
+    )
+      return;
+    const index = character.screenEffects.indexOf("NIGHTVISION");
+    if (index > -1) {
+      character.screenEffects.splice(index, 1);
+      this.removeScreenEffect(client, this._screenEffects["NIGHTVISION"]);
     }
   }
 
