@@ -579,25 +579,28 @@ export class Character2016 extends BaseFullCharacter {
       "Loadout.SetLoadoutSlots",
       this.pGetLoadoutSlots()
     );
-    const abilities: any = [];
+    const abilities: any = [
+      {
+        loadoutSlotId: 1,
+        abilityLineId: 1,
+        unknownArray1: [
+          {
+            unknownDword1: 1111164,
+            unknownDword2: 1111164,
+            unknownDword3: 0
+          }
+        ],
+        unknownDword3: 2,
+        itemDefinitionId: 83,
+        unknownByte: 64
+      }
+      // hardcoded one weapon ability to fix fists after respawning
+    ];
     const abilityLineId = 1;
     for (const a in client.character._loadout) {
       const slot = client.character._loadout[a];
       const itemDefinition = server.getItemDefinition(slot.itemDefinitionId);
       if (!itemDefinition) continue;
-
-      switch (slot.slotId) {
-        case LoadoutSlots.FISTS:
-        case LoadoutSlots.PRIMARY:
-        case LoadoutSlots.SECONDARY:
-        case LoadoutSlots.TERTIARY:
-        case LoadoutSlots.ITEM1:
-        case LoadoutSlots.ITEM2:
-        case LoadoutSlots.EYES:
-          break;
-        default:
-          continue;
-      }
 
       const abilityId = itemDefinition.ACTIVATABLE_ABILITY_ID;
       if (slot.itemDefinitionId == Items.WEAPON_FISTS) {
