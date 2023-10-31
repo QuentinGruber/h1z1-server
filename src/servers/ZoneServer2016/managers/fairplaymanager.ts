@@ -674,11 +674,11 @@ export class FairPlayManager {
         continue;
       }
       console.log(
-        `${client.loginSessionId} failed asset integrity check due to missing file ${value.file_name}`
+        `${client.loginSessionId} (${client.character.name}) failed asset integrity check due to missing or invalid file ${value.file_name}`
       );
       server.kickPlayerWithReason(
         client,
-        `Failed asset integrity check - Missing file: ${value.file_name}`
+        `Failed asset integrity check - Missing or invalid file: ${value.file_name}`
       );
       return;
     }
