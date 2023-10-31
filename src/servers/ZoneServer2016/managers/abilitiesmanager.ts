@@ -14,6 +14,9 @@
 import {
   Abilities,
   AbilityIds,
+  Effects,
+  Items,
+  MaterialTypes,
   VehicleEffects,
   VehicleIds
 } from "../models/enums";
@@ -29,6 +32,7 @@ import {
   AbilitiesUpdateAbility,
   AbilitiesVehicleDeactivateAbility,
   CharacterAddEffectTagCompositeEffect,
+  CharacterRemoveEffectTagCompositeEffect,
   EffectAddEffect,
   EffectRemoveEffect
 } from "types/zone2016packets";
@@ -78,6 +82,31 @@ export class AbilitiesManager {
     client: Client,
     packetData: AbilitiesInitAbility
   ) {
+    switch (packetData.abilityId) {
+      case AbilityIds.NV_GOGGLES:
+        const index = client.character.screenEffects.indexOf("NIGHTVISION");
+        if (index <= -1) {
+          if (
+            client.character._loadout[29] &&
+            client.character._loadout[29].itemDefinitionId == Items.NV_GOGGLES
+          ) {
+            client.character.screenEffects.push("NIGHTVISION");
+            server.addScreenEffect(
+              client,
+              server._screenEffects["NIGHTVISION"]
+            );
+          }
+        } else {
+          client.character.screenEffects.splice(index, 1);
+          server.removeScreenEffect(
+            client,
+            server._screenEffects["NIGHTVISION"]
+          );
+        }
+        this.deactivateAbility(server, client, AbilityIds.NV_GOGGLES, 3, 3);
+        return;
+    }
+
     const vehicle = server._vehicles[client.vehicle.mountedVehicle ?? ""],
       isDriver = vehicle?.getDriver(server) == client.character;
     if (!vehicle || !isDriver) {
@@ -185,8 +214,74 @@ export class AbilitiesManager {
       weapon: weaponItem.itemDefinitionId,
       damage: baseDamage // need to figure out a good number for this
     };
-
+    if (entity instanceof BaseLightweightCharacter && entity.flags.knockedOut)
+      return;
     entity.OnMeleeHit(server, damageInfo);
+    if (
+      entity.materialType != MaterialTypes.ZOMBIE &&
+      entity.materialType != MaterialTypes.FLESH
+    )
+      return;
+    let effectString = "MAT_";
+    switch (weaponItem.itemDefinitionId) {
+      case Items.WEAPON_MACHETE01:
+      case Items.WEAPON_AXE_FIRE:
+      case Items.WEAPON_AXE_WOOD:
+      case Items.WEAPON_HATCHET:
+      case Items.WEAPON_HATCHET_MAKESHIFT:
+      case Items.WEAPON_KATANA:
+        effectString += "Blade_ForehandSlash";
+        break;
+      case Items.WEAPON_BAT_ALUM:
+      case Items.WEAPON_BAT_WOOD:
+      case Items.WEAPON_BRANCH:
+      case Items.WEAPON_CROWBAR:
+      case Items.WEAPON_HAMMER:
+      case Items.WEAPON_HAMMER_DEMOLITION:
+      case Items.WEAPON_PIPE:
+      case Items.WEAPON_WRENCH:
+        effectString += "Blunt_ForehandChop";
+        break;
+      case Items.WEAPON_COMBATKNIFE:
+      case Items.SKINNING_KNIFE:
+        effectString += "Knife_ForehandSlash";
+        break;
+      case Items.WEAPON_GUITAR:
+        effectString += "Guitar_ForehandSlash";
+        break;
+      default:
+        effectString += "Fists_RightHook";
+        break;
+    }
+    const effectId: Effects = Effects[effectString as keyof typeof Effects];
+    const dictionary = server.getEntityDictionary(entity.characterId);
+    if (!dictionary) return;
+    if (entity.effectTags.includes(effectId)) {
+      server.sendDataToAllWithSpawnedEntity<CharacterRemoveEffectTagCompositeEffect>(
+        dictionary,
+        entity.characterId,
+        "Character.RemoveEffectTagCompositeEffect",
+        {
+          characterId: entity.characterId,
+          newEffectId: effectId,
+          effectId: effectId
+        }
+      );
+    } else {
+      entity.effectTags.push(effectId);
+    }
+    server.sendDataToAllWithSpawnedEntity<CharacterAddEffectTagCompositeEffect>(
+      dictionary,
+      entity.characterId,
+      "Character.AddEffectTagCompositeEffect",
+      {
+        characterId: entity.characterId,
+        unknownDword1: effectId,
+        effectId: effectId,
+        unknownGuid: client.character.characterId,
+        unknownDword2: 3
+      }
+    );
   }
 
   processAddEffectPacket(
@@ -324,15 +419,17 @@ export class AbilitiesManager {
     );
   }
 
-  deactivateAbility(server: ZoneServer2016, client: Client, abilityId: number) {
-    server.sendData(client, "Abilities.DeactivateAbility", {
-      abilityId: abilityId,
-      unknownDword1: 3
-    });
+  deactivateAbility(
+    server: ZoneServer2016,
+    client: Client,
+    abilityId: number,
+    unk1?: number,
+    unk2?: number
+  ) {
     server.sendData(client, "Abilities.UninitAbility", {
-      unknownDword1: 4,
+      unknownDword1: unk1 ?? 4,
       abilityId: abilityId,
-      unknownDword2: 3
+      unknownDword2: unk2 ?? 3
     });
   }
 }

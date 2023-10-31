@@ -367,6 +367,7 @@ export class Vehicle2016 extends BaseLootableEntity {
       unknownArray3: { data: [] },
       unknownArray4: {},
       unknownArray5: { data: [] },
+      materialType: this.materialType,
       remoteWeapons: {
         isVehicle: true,
         data: {}

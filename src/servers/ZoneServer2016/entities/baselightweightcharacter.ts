@@ -72,8 +72,6 @@ export abstract class BaseLightweightCharacter extends BaseEntity {
   health: number = 1000000;
   maxHealth: number = 1000000;
   useSimpleStruct: boolean = false;
-  effectTags: number[] = [];
-  materialType: number;
   constructor(
     characterId: string,
     transientId: number,
@@ -89,15 +87,6 @@ export abstract class BaseLightweightCharacter extends BaseEntity {
       lookAt: new Float32Array([0, 0, 0, 1]),
       yaw: 0
     };
-    this.materialType = this.getMaterialType(server, this.actorModelId);
-  }
-
-  getMaterialType(server: ZoneServer2016, actorModelId: number) {
-    const modelData = server._modelsData[actorModelId];
-    if (!modelData) {
-      return 0;
-    }
-    return modelData.materialType;
   }
 
   pGetSimpleNpc(): AddSimpleNpc {

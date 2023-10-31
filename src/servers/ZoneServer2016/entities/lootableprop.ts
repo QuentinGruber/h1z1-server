@@ -16,7 +16,7 @@ import { ZoneClient2016 } from "../classes/zoneclient";
 
 import { StringIds, Items } from "../models/enums";
 import { DamageInfo } from "types/zoneserver";
-import { randomIntFromInterval } from "../../../utils/utils";
+import { eul2quat, randomIntFromInterval } from "../../../utils/utils";
 
 function getContainerAndTime(entity: LootableProp) {
   switch (entity.actorModelId) {
@@ -199,6 +199,21 @@ export class LootableProp extends BaseLootableEntity {
     this.npcRenderDistance = renderDistance;
     this.loadoutId = 5;
     getContainerAndTime(this);
+    switch (this.lootSpawner) {
+      case "Wrecked Van":
+      case "Wrecked Car":
+      case "Wrecked Truck":
+        this.useSimpleStruct = false;
+        this.state.rotation = eul2quat(
+          new Float32Array([
+            this.state.rotation[1],
+            this.state.rotation[0],
+            this.state.rotation[2],
+            0
+          ])
+        );
+        break;
+    }
   }
   /* eslint-disable @typescript-eslint/no-unused-vars */
   OnPlayerSelect(
@@ -258,7 +273,7 @@ export class LootableProp extends BaseLootableEntity {
       return;
     }
 
-    if (randomIntFromInterval(0, 100) <= 20) {
+    if (randomIntFromInterval(0, 100) <= 15) {
       client.character.lootItem(server, server.generateItem(Items.METAL_SCRAP));
       server.damageItem(client, weapon, 25);
     }

@@ -19,6 +19,7 @@ import {
   Items,
   LoadoutIds,
   LoadoutSlots,
+  MaterialTypes,
   ResourceIds,
   ResourceTypes,
   WeaponDefinitionIds
@@ -174,6 +175,7 @@ export class Character2016 extends BaseFullCharacter {
   lastLockFailure: number = 0;
   resourceHudIndicators: string[] = [];
   hudIndicators: { [typeName: string]: characterIndicatorData } = {};
+  screenEffects: string[] = [];
   abilityInitTime: number = 0;
   constructor(
     characterId: string,
@@ -260,6 +262,7 @@ export class Character2016 extends BaseFullCharacter {
         }
       }, 1000);
     };
+    this.materialType = MaterialTypes.FLESH;
   }
 
   startResourceUpdater(client: ZoneClient2016, server: ZoneServer2016) {
@@ -394,6 +397,18 @@ export class Character2016 extends BaseFullCharacter {
       } else if (indicator == desiredBleedingIndicator && index <= -1) {
         this.resourceHudIndicators.push(desiredBleedingIndicator);
         server.sendHudIndicators(client);
+      }
+
+      const index2 = this.screenEffects.indexOf(indicator);
+      if (index2 > -1 && indicator != desiredBleedingIndicator) {
+        this.screenEffects.splice(index2, 1);
+        server.removeScreenEffect(client, server._screenEffects[indicator]);
+      } else if (indicator == desiredBleedingIndicator && index2 <= -1) {
+        this.screenEffects.push(desiredBleedingIndicator);
+        server.addScreenEffect(
+          client,
+          server._screenEffects[desiredBleedingIndicator]
+        );
       }
     });
     if (client.character._resources[ResourceIds.BLEEDING] > 0) {
@@ -579,24 +594,28 @@ export class Character2016 extends BaseFullCharacter {
       "Loadout.SetLoadoutSlots",
       this.pGetLoadoutSlots()
     );
-    const abilities: any = [];
+    const abilities: any = [
+      {
+        loadoutSlotId: 1,
+        abilityLineId: 1,
+        unknownArray1: [
+          {
+            unknownDword1: 1111164,
+            unknownDword2: 1111164,
+            unknownDword3: 0
+          }
+        ],
+        unknownDword3: 2,
+        itemDefinitionId: 83,
+        unknownByte: 64
+      }
+      // hardcoded one weapon ability to fix fists after respawning
+    ];
     const abilityLineId = 1;
     for (const a in client.character._loadout) {
       const slot = client.character._loadout[a];
       const itemDefinition = server.getItemDefinition(slot.itemDefinitionId);
       if (!itemDefinition) continue;
-
-      switch (slot.slotId) {
-        case LoadoutSlots.FISTS:
-        case LoadoutSlots.PRIMARY:
-        case LoadoutSlots.SECONDARY:
-        case LoadoutSlots.TERTIARY:
-        case LoadoutSlots.ITEM1:
-        case LoadoutSlots.ITEM2:
-          break;
-        default:
-          continue;
-      }
 
       const abilityId = itemDefinition.ACTIVATABLE_ABILITY_ID;
       if (slot.itemDefinitionId == Items.WEAPON_FISTS) {

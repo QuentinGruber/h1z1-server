@@ -3391,7 +3391,6 @@ export const basePackets: PacketStructures = [
   ["ChronicleBase", 0xdf, {}],
   ["GrinderBase", 0xe0, {}],
   ["RequestObject", 0xe1, {}],
-  ["ScreenEffectBase", 0xe2, {}],
   ["WhitelistBase", 0xe4, {}],
   [
     "NpcFoundationPermissionsManagerBase.ShowPermissions",

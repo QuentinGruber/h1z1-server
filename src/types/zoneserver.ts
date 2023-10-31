@@ -373,6 +373,19 @@ export interface HudIndicator {
 	imageSetId: number,
 }
 
+export interface ScreenEffect {
+	effectId: number;
+	typeName: string;
+	duration: number;
+	screenBrightness: number;
+	colorGradingFilename: string;
+	colorGrading: number;
+	screenCover: number;
+	transparency: number;
+	color: number;
+	unknownDword3: number;
+}
+
 export interface clientEffect {
 	id: number;
 	typeName: string;

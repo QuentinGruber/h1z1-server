@@ -1095,6 +1095,7 @@ export abstract class BaseFullCharacter extends BaseLightweightCharacter {
       unknownArray4: {},
       unknownArray5: { data: [] },
       remoteWeapons: { data: {} },
+      materialType: this.materialType,
       itemsData: {
         items: this.pGetInventoryItems(server),
         unknownDword1: 0
