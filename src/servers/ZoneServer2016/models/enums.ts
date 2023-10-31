@@ -1822,3 +1822,11 @@ export enum MaterialTypes {
   WATER_PUDDLE = 67,
   DEFAULT_BULLET_PENETRATION = 69
 }
+
+export enum MeleeTypes {
+  FISTS = 1,
+  BLUNT = 2,
+  BLADE = 3,
+  KNIFE = 4,
+  GUITAR = 5
+}

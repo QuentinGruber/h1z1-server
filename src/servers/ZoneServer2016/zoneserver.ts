@@ -6464,7 +6464,16 @@ export class ZoneServer2016 extends EventEmitter {
           ResourceTypes.BLEEDING,
           this._characters
         );
+        if (client.character._resources[ResourceIds.BLEEDING] < 0)
+          client.character._resources[ResourceIds.BLEEDING] = 0;
       }
+      this.updateResourceToAllWithSpawnedEntity(
+        client.character.characterId,
+        client.character._resources[ResourceIds.BLEEDING],
+        ResourceIds.BLEEDING,
+        ResourceIds.BLEEDING,
+        this._characters
+      );
     }
   }
 

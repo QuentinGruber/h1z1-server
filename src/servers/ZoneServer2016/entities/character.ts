@@ -20,6 +20,7 @@ import {
   LoadoutIds,
   LoadoutSlots,
   MaterialTypes,
+  MeleeTypes,
   ResourceIds,
   ResourceTypes,
   WeaponDefinitionIds
@@ -198,7 +199,7 @@ export class Character2016 extends BaseFullCharacter {
       [ResourceIds.HYDRATION]: 10000,
       [ResourceIds.VIRUS]: 0,
       [ResourceIds.COMFORT]: 5000,
-      [ResourceIds.BLEEDING]: -40,
+      [ResourceIds.BLEEDING]: 0,
       [ResourceIds.ENDURANCE]: 8000
     }),
       (this.characterStates = {
@@ -865,7 +866,7 @@ export class Character2016 extends BaseFullCharacter {
     this._resources[ResourceIds.HUNGER] = 10000;
     this._resources[ResourceIds.HYDRATION] = 10000;
     this._resources[ResourceIds.STAMINA] = 600;
-    this._resources[ResourceIds.BLEEDING] = -40;
+    this._resources[ResourceIds.BLEEDING] = 0;
     this._resources[ResourceIds.ENDURANCE] = 8000;
     this._resources[ResourceIds.VIRUS] = 0;
     this._resources[ResourceIds.COMFORT] = 5000;
@@ -1499,6 +1500,34 @@ export class Character2016 extends BaseFullCharacter {
 
   OnMeleeHit(server: ZoneServer2016, damageInfo: DamageInfo) {
     const damage = damageInfo.damage / 2;
+    let bleedingChance = 5;
+    switch (damageInfo.meleeType) {
+      case MeleeTypes.BLADE:
+        bleedingChance = 35;
+        break;
+      case MeleeTypes.BLUNT:
+        bleedingChance = 15;
+        break;
+      case MeleeTypes.FISTS:
+        bleedingChance = 5;
+        break;
+      case MeleeTypes.GUITAR:
+        bleedingChance = 15;
+        break;
+      case MeleeTypes.KNIFE:
+        bleedingChance = 35;
+        break;
+    }
+    if (randomIntFromInterval(0, 100) <= bleedingChance) {
+      this._resources[ResourceIds.BLEEDING] += 20;
+      server.updateResourceToAllWithSpawnedEntity(
+        this.characterId,
+        this._resources[ResourceIds.BLEEDING],
+        ResourceIds.BLEEDING,
+        ResourceIds.BLEEDING,
+        server._characters
+      );
+    }
     this.damage(server, { ...damageInfo, damage });
   }
 }

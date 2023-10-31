@@ -153,6 +153,7 @@ export interface DamageInfo {
   causeBleed?: boolean;
   hitReport?: HitReport;
   message?: string;
+  meleeType?: number;
 }
 
 export interface DamageRecord {

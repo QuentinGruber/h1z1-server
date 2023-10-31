@@ -17,6 +17,7 @@ import {
   Effects,
   Items,
   MaterialTypes,
+  MeleeTypes,
   VehicleEffects,
   VehicleIds
 } from "../models/enums";
@@ -208,22 +209,11 @@ export class AbilitiesManager {
 
     // TODO: calculate this based on melee weapondefinition
     const baseDamage = 1000;
-
-    const damageInfo: DamageInfo = {
-      entity: client.character.characterId,
-      weapon: weaponItem.itemDefinitionId,
-      damage: baseDamage // need to figure out a good number for this
-    };
     if (entity instanceof BaseLightweightCharacter && entity.flags.knockedOut)
       return;
-
-    entity.OnMeleeHit(server, damageInfo);
-    if (
-      entity.materialType != MaterialTypes.ZOMBIE &&
-      entity.materialType != MaterialTypes.FLESH
-    )
-      return;
     let effectString = "MAT_";
+    let meleeType: number;
+    let damage = baseDamage;
     switch (weaponItem.itemDefinitionId) {
       case Items.WEAPON_MACHETE01:
       case Items.WEAPON_AXE_FIRE:
@@ -232,6 +222,8 @@ export class AbilitiesManager {
       case Items.WEAPON_HATCHET_MAKESHIFT:
       case Items.WEAPON_KATANA:
         effectString += "Blade_ForehandSlash";
+        meleeType = MeleeTypes.BLADE;
+        damage *= 3;
         break;
       case Items.WEAPON_BAT_ALUM:
       case Items.WEAPON_BAT_WOOD:
@@ -242,18 +234,38 @@ export class AbilitiesManager {
       case Items.WEAPON_PIPE:
       case Items.WEAPON_WRENCH:
         effectString += "Blunt_ForehandChop";
+        meleeType = MeleeTypes.BLUNT;
+        damage *= 2;
         break;
       case Items.WEAPON_COMBATKNIFE:
       case Items.SKINNING_KNIFE:
         effectString += "Knife_ForehandSlash";
+        meleeType = MeleeTypes.KNIFE;
+        damage *= 3;
         break;
       case Items.WEAPON_GUITAR:
         effectString += "Guitar_ForehandSlash";
+        meleeType = MeleeTypes.GUITAR;
+        damage *= 2;
         break;
       default:
         effectString += "Fists_RightHook";
+        meleeType = MeleeTypes.FISTS;
         break;
     }
+    const damageInfo: DamageInfo = {
+      entity: client.character.characterId,
+      weapon: weaponItem.itemDefinitionId,
+      damage: damage, // need to figure out a good number for this
+      causeBleed: false, // another method for melees to apply bleeding
+      meleeType: meleeType
+    };
+    entity.OnMeleeHit(server, damageInfo);
+    if (
+      entity.materialType != MaterialTypes.ZOMBIE &&
+      entity.materialType != MaterialTypes.FLESH
+    )
+      return;
     const effectId: Effects = Effects[effectString as keyof typeof Effects];
     const dictionary = server.getEntityDictionary(entity.characterId);
     if (!dictionary) return;
