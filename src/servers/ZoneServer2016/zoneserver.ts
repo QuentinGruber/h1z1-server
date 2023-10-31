@@ -47,7 +47,8 @@ import {
   ItemUseOptions,
   HealTypes,
   ConstructionErrors,
-  Effects
+  Effects,
+  WeaponDefinitionIds
 } from "./models/enums";
 import { healthThreadDecorator } from "../shared/workers/healthWorker";
 import { WeatherManager } from "./managers/weathermanager";
@@ -2381,20 +2382,24 @@ export class ZoneServer2016 extends EventEmitter {
     if (!fireHint) return;
     const weaponItem = fireHint.weaponItem;
     if (!weaponItem) return;
-    const itemDefId = weaponItem.itemDefinitionId;
-    if (
-      itemDefId == Items.WEAPON_BOW_MAKESHIFT ||
-      itemDefId == Items.WEAPON_BOW_RECURVE ||
-      itemDefId == Items.WEAPON_CROSSBOW ||
-      itemDefId == Items.WEAPON_BOW_WOOD
-    ) {
-      delete client.fireHints[data.projectileId];
-      this.worldObjectManager.createLootEntity(
-        this,
-        this.generateItem(Items.AMMO_ARROW),
-        data.position,
-        data.rotation
-      );
+    const itemDefId = weaponItem.itemDefinitionId,
+      itemDef = this.getItemDefinition(itemDefId);
+    if (!itemDef) return;
+    const weaponDefId = itemDef.PARAM1;
+
+    switch (weaponDefId) {
+      case WeaponDefinitionIds.WEAPON_BOW_MAKESHIFT:
+      case WeaponDefinitionIds.WEAPON_BOW_RECURVE:
+      case WeaponDefinitionIds.WEAPON_CROSSBOW:
+      case WeaponDefinitionIds.WEAPON_BOW_WOOD:
+        delete client.fireHints[data.projectileId];
+        this.worldObjectManager.createLootEntity(
+          this,
+          this.generateItem(Items.AMMO_ARROW),
+          data.position,
+          data.rotation
+        );
+        break;
     }
   }
 
@@ -2854,10 +2859,14 @@ export class ZoneServer2016 extends EventEmitter {
   }
 
   getWeaponHitEffect(itemDefinitionId?: Items) {
-    switch (itemDefinitionId) {
-      case Items.WEAPON_SHOTGUN:
+    const itemDefinition = this.getItemDefinition(itemDefinitionId);
+    if (!itemDefinition) return;
+    const weaponDefinitionId = itemDefinition.PARAM1;
+
+    switch (weaponDefinitionId) {
+      case WeaponDefinitionIds.WEAPON_SHOTGUN:
         return 1302;
-      case Items.WEAPON_308:
+      case WeaponDefinitionIds.WEAPON_308:
         return 5414;
       default:
         return 1165;
@@ -2869,16 +2878,20 @@ export class ZoneServer2016 extends EventEmitter {
     sourcePos: Float32Array,
     targetPos: Float32Array
   ) {
-    switch (itemDefinitionId) {
-      case Items.WEAPON_AR15:
-      case Items.WEAPON_1911:
-      case Items.WEAPON_BLAZE:
+    const itemDefinition = this.getItemDefinition(itemDefinitionId);
+    if (!itemDefinition) return 1000;
+    const weaponDefinitionId = itemDefinition.PARAM1;
+
+    switch (weaponDefinitionId) {
+      case WeaponDefinitionIds.WEAPON_AR15:
+      case WeaponDefinitionIds.WEAPON_1911:
+      case WeaponDefinitionIds.WEAPON_BLAZE:
         return 2500;
-      case Items.WEAPON_M9:
+      case WeaponDefinitionIds.WEAPON_M9:
         return 1800;
-      case Items.WEAPON_R380:
+      case WeaponDefinitionIds.WEAPON_R380:
         return 1500;
-      case Items.WEAPON_SHOTGUN:
+      case WeaponDefinitionIds.WEAPON_SHOTGUN:
         return calculate_falloff(
           getDistance(sourcePos, targetPos),
           200,
@@ -2886,30 +2899,30 @@ export class ZoneServer2016 extends EventEmitter {
           1,
           12
         );
-      case Items.WEAPON_NAGAFENS_RAGE:
+      case WeaponDefinitionIds.WEAPON_NAGAFENS_RAGE:
         return calculate_falloff(
           getDistance(sourcePos, targetPos),
           200,
-          2400, //1667,
+          2000, //1667,
           3,
           20
         );
-      case Items.WEAPON_AK47:
-      case Items.WEAPON_FROSTBITE:
+      case WeaponDefinitionIds.WEAPON_AK47:
+      case WeaponDefinitionIds.WEAPON_FROSTBITE:
         return 2900;
-      case Items.WEAPON_308:
+      case WeaponDefinitionIds.WEAPON_308:
         return 6700;
-      case Items.WEAPON_REAPER:
+      case WeaponDefinitionIds.WEAPON_REAPER:
         return 14000;
-      case Items.WEAPON_MAGNUM:
+      case WeaponDefinitionIds.WEAPON_MAGNUM:
         return 3000;
-      case Items.WEAPON_BOW_MAKESHIFT:
+      case WeaponDefinitionIds.WEAPON_BOW_MAKESHIFT:
         return 2500;
-      case Items.WEAPON_BOW_RECURVE:
+      case WeaponDefinitionIds.WEAPON_BOW_RECURVE:
         return 2500;
-      case Items.WEAPON_BOW_WOOD:
+      case WeaponDefinitionIds.WEAPON_BOW_WOOD:
         return 2500;
-      case Items.WEAPON_CROSSBOW:
+      case WeaponDefinitionIds.WEAPON_CROSSBOW:
         return 2500;
       default:
         return 1000;
@@ -3020,17 +3033,22 @@ export class ZoneServer2016 extends EventEmitter {
         gameTime
       )
     ) {
-      if (
-        weaponItem.itemDefinitionId != Items.WEAPON_SHOTGUN &&
-        weaponItem.itemDefinitionId != Items.WEAPON_NAGAFENS_RAGE
-      ) {
-        client.flaggedShots++;
-        if (
-          client.flaggedShots >=
-          this.fairPlayManager.fairPlayValues.maxFlaggedShots
-        ) {
-          client.isFairPlayFlagged = true;
-        }
+      const itemDef = this.getItemDefinition(weaponItem.itemDefinitionId);
+      if (!itemDef) return;
+      const weaponDefinitionId = itemDef.PARAM1;
+
+      switch (weaponDefinitionId) {
+        case WeaponDefinitionIds.WEAPON_SHOTGUN:
+        case WeaponDefinitionIds.WEAPON_NAGAFENS_RAGE:
+          break;
+        default:
+          client.flaggedShots++;
+          if (
+            client.flaggedShots >=
+            this.fairPlayManager.fairPlayValues.maxFlaggedShots
+          ) {
+            client.isFairPlayFlagged = true;
+          }
       }
       return;
     } else {
@@ -5207,7 +5225,8 @@ export class ZoneServer2016 extends EventEmitter {
     itemDefinitionId: number,
     count: number = 1
   ): BaseItem | undefined {
-    if (!this.getItemDefinition(itemDefinitionId)) {
+    const itemDefinition = this.getItemDefinition(itemDefinitionId);
+    if (!itemDefinition) {
       debug(
         `[ERROR] GenerateItem: Invalid item definition: ${itemDefinitionId}`
       );
@@ -5226,13 +5245,15 @@ export class ZoneServer2016 extends EventEmitter {
         durability = 100;
         break;
     }
-    if (
-      itemDefinitionId == Items.WEAPON_REAPER ||
-      itemDefinitionId == Items.WEAPON_NAGAFENS_RAGE ||
-      itemDefinitionId == Items.WEAPON_FROSTBITE ||
-      itemDefinitionId == Items.WEAPON_BLAZE
-    ) {
-      durability = 1000;
+
+    const weaponDefinitionId = itemDefinition.PARAM1;
+    switch (weaponDefinitionId) {
+      case WeaponDefinitionIds.WEAPON_NAGAFENS_RAGE:
+      case WeaponDefinitionIds.WEAPON_REAPER:
+      case WeaponDefinitionIds.WEAPON_FROSTBITE:
+      case WeaponDefinitionIds.WEAPON_BLAZE:
+      case WeaponDefinitionIds.WEAPON_PURGE:
+        durability = 1000;
     }
     const itemData: BaseItem = new BaseItem(
       itemDefinitionId,
@@ -6706,12 +6727,16 @@ export class ZoneServer2016 extends EventEmitter {
       return;
     }
 
-    switch (repairItem.itemDefinitionId) {
-      case Items.WEAPON_NAGAFENS_RAGE:
-      case Items.WEAPON_REAPER:
-      case Items.WEAPON_BLAZE:
-      case Items.WEAPON_FROSTBITE:
-      case Items.WEAPON_PURGE:
+    const itemDefinition = this.getItemDefinition(repairItem.itemDefinitionId);
+    if (!itemDefinition) return;
+    const weaponDefinitionId = itemDefinition.PARAM1;
+
+    switch (weaponDefinitionId) {
+      case WeaponDefinitionIds.WEAPON_NAGAFENS_RAGE:
+      case WeaponDefinitionIds.WEAPON_REAPER:
+      case WeaponDefinitionIds.WEAPON_BLAZE:
+      case WeaponDefinitionIds.WEAPON_FROSTBITE:
+      case WeaponDefinitionIds.WEAPON_PURGE:
         this.sendChatText(client, "This weapon cannot be repaired.");
         return;
     }
@@ -6801,13 +6826,19 @@ export class ZoneServer2016 extends EventEmitter {
       );
     }
     // prevent empty weapons from entering an active firestate
-    if (
-      !weaponItem.weapon?.ammoCount &&
-      weaponItem.itemDefinitionId != Items.WEAPON_BOW_MAKESHIFT &&
-      weaponItem.itemDefinitionId != Items.WEAPON_BOW_RECURVE &&
-      weaponItem.itemDefinitionId != Items.WEAPON_BOW_WOOD
-    )
-      return;
+    const itemDefinition = this.getItemDefinition(weaponItem.itemDefinitionId);
+    if (!itemDefinition) return;
+    const weaponDefinitionId = itemDefinition.PARAM1;
+    if (!weaponItem.weapon?.ammoCount) {
+      switch (weaponDefinitionId) {
+        case WeaponDefinitionIds.WEAPON_BOW_MAKESHIFT:
+        case WeaponDefinitionIds.WEAPON_BOW_RECURVE:
+        case WeaponDefinitionIds.WEAPON_BOW_WOOD:
+          break;
+        default:
+          return;
+      }
+    }
     if (firestate > 0) {
       this.sendRemoteWeaponUpdateDataToAllOthers(
         client,
@@ -6869,17 +6900,20 @@ export class ZoneServer2016 extends EventEmitter {
       );
       return;
     }
+    const itemDefinition = this.getItemDefinition(weaponItem.itemDefinitionId);
+    if (!itemDefinition) return;
+    const weaponDefinitionId = itemDefinition.PARAM1;
     const keys = Object.keys(client.fireHints);
     const lastFireHint = client.fireHints[Number(keys[keys.length - 1])];
     if (lastFireHint) {
       let blockedTime = 50;
-      switch (weaponItem.itemDefinitionId) {
-        case Items.WEAPON_308:
-        case Items.WEAPON_REAPER:
+      switch (weaponDefinitionId) {
+        case WeaponDefinitionIds.WEAPON_308:
+        case WeaponDefinitionIds.WEAPON_REAPER:
           blockedTime = 1300;
           break;
-        case Items.WEAPON_SHOTGUN:
-        case Items.WEAPON_NAGAFENS_RAGE:
+        case WeaponDefinitionIds.WEAPON_SHOTGUN:
+        case WeaponDefinitionIds.WEAPON_NAGAFENS_RAGE:
           blockedTime = 400;
           break;
       }
@@ -6889,11 +6923,12 @@ export class ZoneServer2016 extends EventEmitter {
     if (
       !client.vehicle.mountedVehicle &&
       !isPosInRadius(3, client.character.state.position, packet.packet.position)
-    )
+    ) {
       hitNumber = 1;
+    }
     const shotProjectiles =
-      weaponItem.itemDefinitionId == Items.WEAPON_SHOTGUN ||
-      weaponItem.itemDefinitionId == Items.WEAPON_NAGAFENS_RAGE
+      weaponDefinitionId == WeaponDefinitionIds.WEAPON_SHOTGUN ||
+      weaponDefinitionId == WeaponDefinitionIds.WEAPON_NAGAFENS_RAGE
         ? 12
         : 1;
     for (let x = 0; x < shotProjectiles; x++) {
@@ -6951,10 +6986,14 @@ export class ZoneServer2016 extends EventEmitter {
     const weaponAmmoId = this.getWeaponAmmoId(weaponItem.itemDefinitionId),
       reloadTime = this.getWeaponReloadTime(weaponItem.itemDefinitionId);
 
-    switch (weaponItem.itemDefinitionId) {
-      case Items.WEAPON_BOW_MAKESHIFT:
-      case Items.WEAPON_BOW_RECURVE:
-      case Items.WEAPON_BOW_WOOD:
+    const itemDefinition = this.getItemDefinition(weaponItem.itemDefinitionId);
+    if (!itemDefinition) return;
+    const weaponDefinitionId = itemDefinition.PARAM1;
+
+    switch (weaponDefinitionId) {
+      case WeaponDefinitionIds.WEAPON_BOW_MAKESHIFT:
+      case WeaponDefinitionIds.WEAPON_BOW_RECURVE:
+      case WeaponDefinitionIds.WEAPON_BOW_WOOD:
         const currentWeapon = client.character.getEquippedWeapon();
         if (!currentWeapon || currentWeapon.itemGuid != weaponItem.itemGuid) {
           return;
