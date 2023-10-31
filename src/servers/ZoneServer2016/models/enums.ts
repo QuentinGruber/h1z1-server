@@ -1769,7 +1769,7 @@ export enum AbilityIds {
 
   ABILITY_POLICE_CAR = 1111301,
 
-  NV_GOGGLES = 1111164
+  NV_GOGGLES = 1111272
 }
 
 export enum VehicleEffects {
