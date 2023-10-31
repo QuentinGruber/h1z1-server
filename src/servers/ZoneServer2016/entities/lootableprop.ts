@@ -16,7 +16,7 @@ import { ZoneClient2016 } from "../classes/zoneclient";
 
 import { StringIds, Items, MaterialTypes } from "../models/enums";
 import { DamageInfo } from "types/zoneserver";
-import { randomIntFromInterval } from "../../../utils/utils";
+import { eul2quat, randomIntFromInterval } from "../../../utils/utils";
 
 function getContainerAndTime(entity: LootableProp) {
   switch (entity.actorModelId) {
@@ -198,10 +198,15 @@ export class LootableProp extends BaseLootableEntity {
     this.spawnerId = spawnerId;
     this.npcRenderDistance = renderDistance;
     this.loadoutId = 5;
-    if (this.materialType == MaterialTypes.METAL) {
-      this.useSimpleStruct = false;
-    }
     getContainerAndTime(this);
+    switch (this.lootSpawner) {
+          case "Wrecked Van":
+          case "Wrecked Car":
+          case "Wrecked Truck":
+            this.useSimpleStruct = false;
+            this.state.rotation = eul2quat(new Float32Array([this.state.rotation[1], this.state.rotation[0], this.state.rotation[2],0]));
+              break;
+      }
   }
   /* eslint-disable @typescript-eslint/no-unused-vars */
   OnPlayerSelect(
