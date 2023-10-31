@@ -663,7 +663,7 @@ export class FairPlayManager {
     if (!this.useAssetValidation || server._soloMode) return;
     const receivedHashes: Array<FileHash> = JSON.parse(data);
 
-    if (!receivedHashes) {
+    if (!receivedHashes || !Array.isArray(receivedHashes)) {
       console.log(
         `${client.loginSessionId} failed asset integrity check due to invalid JSON data.`
       );
