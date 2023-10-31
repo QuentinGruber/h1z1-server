@@ -19,6 +19,7 @@ import {
   Items,
   LoadoutIds,
   LoadoutSlots,
+  MaterialTypes,
   ResourceIds,
   ResourceTypes,
   WeaponDefinitionIds
@@ -261,6 +262,7 @@ export class Character2016 extends BaseFullCharacter {
         }
       }, 1000);
     };
+    this.materialType = MaterialTypes.FLESH;
   }
 
   startResourceUpdater(client: ZoneClient2016, server: ZoneServer2016) {
