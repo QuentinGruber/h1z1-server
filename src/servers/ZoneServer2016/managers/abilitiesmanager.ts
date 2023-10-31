@@ -216,6 +216,7 @@ export class AbilitiesManager {
     };
     if (entity instanceof BaseLightweightCharacter && entity.flags.knockedOut)
       return;
+
     entity.OnMeleeHit(server, damageInfo);
     if (
       entity.materialType != MaterialTypes.ZOMBIE &&
@@ -263,7 +264,7 @@ export class AbilitiesManager {
         "Character.RemoveEffectTagCompositeEffect",
         {
           characterId: entity.characterId,
-          newEffectId: effectId,
+          newEffectId: 0,
           effectId: effectId
         }
       );
