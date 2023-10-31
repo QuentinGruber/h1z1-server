@@ -174,6 +174,7 @@ export class Character2016 extends BaseFullCharacter {
   lastLockFailure: number = 0;
   resourceHudIndicators: string[] = [];
   hudIndicators: { [typeName: string]: characterIndicatorData } = {};
+  screenEffects: string[] = [];
   abilityInitTime: number = 0;
   constructor(
     characterId: string,
@@ -395,6 +396,15 @@ export class Character2016 extends BaseFullCharacter {
         this.resourceHudIndicators.push(desiredBleedingIndicator);
         server.sendHudIndicators(client);
       }
+
+        const index2 = this.screenEffects.indexOf(indicator);
+        if (index2 > -1 && indicator != desiredBleedingIndicator) {
+            this.screenEffects.splice(index2, 1);
+            server.removeScreenEffect(client, server._screenEffects[indicator]);
+        } else if (indicator == desiredBleedingIndicator && index2 <= -1) {
+            this.screenEffects.push(desiredBleedingIndicator);
+            server.addScreenEffect(client, server._screenEffects[desiredBleedingIndicator]);
+        }
     });
     if (client.character._resources[ResourceIds.BLEEDING] > 0) {
       this.damage(server, {

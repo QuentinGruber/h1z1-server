@@ -68,18 +68,18 @@ const dev: any = {
       unknownData5: {}
     });
   },
-  uioff: function (
-    server: ZoneServer2016,
-    client: Client,
-    args: Array<string>
-  ) {
+    uioff: function (
+        server: ZoneServer2016,
+        client: Client,
+        args: Array<string>
+    ) {
     server.sendData(client, "Effect.RemoveUiIndicators", {
       unknownData1: {
         unknownQword1: client.character.characterId
-      },
+    },
       unknownData2: {}
     });
-  },
+    },
   zombie: function (
     server: ZoneServer2016,
     client: Client,

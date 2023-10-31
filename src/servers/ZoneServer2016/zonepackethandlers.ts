@@ -3011,7 +3011,7 @@ export class ZonePacketHandlers {
     client: Client,
     packet: ReceivedPacket<AbilitiesInitAbility>
   ) {
-    server.abilitiesManager.processAbilityInit(server, client, packet.data);
+      server.abilitiesManager.processAbilityInit(server, client, packet.data);
   }
   AbilitiesUninitAbility(
     server: ZoneServer2016,

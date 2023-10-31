@@ -64,6 +64,7 @@ import {
   ItemDefinition,
   modelData,
   Recipe,
+  ScreenEffect,
   UseOption
 } from "../../types/zoneserver";
 import { h1z1PacketsType2016 } from "../../types/packets";
@@ -236,6 +237,7 @@ const spawnLocations2 = require("../../../data/2016/zoneData/Z1_gridSpawns.json"
   resourceDefinitions = require("../../../data/2016/dataSources/Resources"),
   Z1_POIs = require("../../../data/2016/zoneData/Z1_POIs"),
   hudIndicators = require("../../../data/2016/dataSources/HudIndicators"),
+  screenEffects = require("../../../data/2016/sampleData/screenEffects.json"),
   clientEffectsDataSource = require("../../../data/2016/dataSources/ClientEffects.json"),
   itemUseOptionsDataSource = require("../../../data/2016/dataSources/ItemUseOptions"),
   models = require("../../../data/2016/dataSources/Models"),
@@ -287,6 +289,7 @@ export class ZoneServer2016 extends EventEmitter {
 
   _destroyableDTOlist: number[] = [];
   _hudIndicators: { [indicatorId: string]: HudIndicator } = {};
+  _screenEffects: { [screenEffectName: string]: ScreenEffect } = {};
   _clientEffectsData: { [effectId: number]: clientEffect } = {};
   _modelsData: { [modelId: number]: modelData } = {};
   _itemUseOptions: { [optionId: number]: UseOption } = {};
@@ -1464,6 +1467,7 @@ export class ZoneServer2016 extends EventEmitter {
       this.worldRoutineRate
     );
     this.initHudIndicatorDataSource();
+    this.initScreenEffectDataSource();
     this.initClientEffectsDataSource();
     this.initUseOptionsDataSource();
     this.hookManager.checkHook("OnServerReady");
@@ -7072,6 +7076,7 @@ export class ZoneServer2016 extends EventEmitter {
           expirationTime: Date.now() + 30000
         };
         this.sendHudIndicators(client);
+        this.addScreenEffect(client, this._screenEffects['SWIZZLE'])
         client.character.timeouts["swizzle"] = setTimeout(() => {
           if (!client.character.timeouts["swizzle"]) {
             return;
@@ -7367,14 +7372,24 @@ export class ZoneServer2016 extends EventEmitter {
         inMapBounds = true;
       }
     });
-
-    if (!inMapBounds && !client.isAdmin) {
+    let sendEffects = false;
+    const index = client.character.screenEffects.indexOf("OUTOFMAPBOUNDS");
+    if (!inMapBounds && (!client.isAdmin || !client.isDebugMode)) {
       const damageInfo: DamageInfo = {
         entity: "Server.OutOfMapBounds",
         damage: 1000
       };
       this.sendAlert(client, `The radiation here seems to be dangerously high`);
       client.character.damage(this, damageInfo);
+        if (index <= -1) {
+            client.character.screenEffects.push("OUTOFMAPBOUNDS");
+            this.addScreenEffect(client, this._screenEffects["OUTOFMAPBOUNDS"]);
+        }
+    } else {
+        if (index > -1) {
+            client.character.screenEffects.splice(index, 1);
+            this.removeScreenEffect(client, this._screenEffects["OUTOFMAPBOUNDS"]);
+        }
     }
   }
 
@@ -7386,6 +7401,23 @@ export class ZoneServer2016 extends EventEmitter {
         nameId: indicator.nameId,
         descriptionId: indicator.descriptionId,
         imageSetId: indicator.imageSetId
+      };
+    });
+  }
+
+  initScreenEffectDataSource() {
+    screenEffects.forEach((effect: any) => {
+      this._screenEffects[effect.typeName] = {
+          effectId: effect.id,
+          typeName: effect.typeName,
+          duration: effect.duration,
+          screenBrightness: effect.screenBrightness,
+          colorGradingFilename: effect.colorGradingFilename,
+          colorGrading: effect.colorGrading,
+          screenCover: effect.screenCover,
+          transparency: effect.transparency,
+          color: parseInt(effect.color, 16),
+          unknownDword3: effect.id
       };
     });
   }
@@ -7464,6 +7496,14 @@ export class ZoneServer2016 extends EventEmitter {
         unknownData5: {}
       });
     }
+  }
+
+    addScreenEffect(client: Client, effect: ScreenEffect) {
+            this.sendData(client, "ScreenEffect.ApplyScreenEffect", effect);
+  }
+
+  removeScreenEffect(client: Client, effect: ScreenEffect) {
+      this.sendData(client, "ScreenEffect.RemoveScreenEffect", effect);
   }
 
   private _sendDataToAll<ZonePacket>(
