@@ -645,7 +645,6 @@ export class FairPlayManager {
 
   handleAssetCheck(server: ZoneServer2016, client: Client, data: string) {
     if (!this.useAssetValidation || server._soloMode) return;
-
     const receivedHashes: Array<FileHash> = JSON.parse(data);
 
     if (!receivedHashes) {
@@ -665,16 +664,18 @@ export class FairPlayManager {
     // check if all default / required packs are found in game files
     for (const value of hashes) {
       if (!value) continue;
+      let received: FileHash | undefined;
       if (
-        receivedHashes.find((clientValue) =>
-          this.validateFile(value, clientValue)
-        )
+        receivedHashes.find((clientValue) => {
+          received = clientValue;
+          return this.validateFile(value, clientValue);
+        })
       ) {
         validatedHashes.push(value);
         continue;
       }
       console.log(
-        `${client.loginSessionId} (${client.character.name}) failed asset integrity check due to missing or invalid file ${value.file_name}`
+        `${client.loginSessionId} (${client.character.name}) failed asset integrity check due to missing or invalid file ${value.file_name} received: ${received?.crc32_hash} expected: ${value.crc32_hash}`
       );
       server.kickPlayerWithReason(
         client,
