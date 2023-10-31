@@ -376,13 +376,13 @@ export class Character2016 extends BaseFullCharacter {
     ];
     let desiredBleedingIndicator = "";
     switch (true) {
-      case bleeding >= 20 && bleeding < 40:
+      case bleeding > 0 && bleeding < 30:
         desiredBleedingIndicator = "BLEEDING_LIGHT";
         break;
-      case bleeding >= 40 && bleeding < 80:
+      case bleeding >= 30 && bleeding < 60:
         desiredBleedingIndicator = "BLEEDING_MODERATE";
         break;
-      case bleeding >= 80:
+      case bleeding >= 60:
         desiredBleedingIndicator = "BLEEDING_SEVERE";
         break;
       default:
