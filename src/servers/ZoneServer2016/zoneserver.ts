@@ -7076,7 +7076,7 @@ export class ZoneServer2016 extends EventEmitter {
           expirationTime: Date.now() + 30000
         };
         this.sendHudIndicators(client);
-        this.addScreenEffect(client, this._screenEffects['SWIZZLE'])
+        this.addScreenEffect(client, this._screenEffects["SWIZZLE"]);
         client.character.timeouts["swizzle"] = setTimeout(() => {
           if (!client.character.timeouts["swizzle"]) {
             return;
@@ -7372,7 +7372,6 @@ export class ZoneServer2016 extends EventEmitter {
         inMapBounds = true;
       }
     });
-    let sendEffects = false;
     const index = client.character.screenEffects.indexOf("OUTOFMAPBOUNDS");
     if (!inMapBounds && (!client.isAdmin || !client.isDebugMode)) {
       const damageInfo: DamageInfo = {
@@ -7381,15 +7380,15 @@ export class ZoneServer2016 extends EventEmitter {
       };
       this.sendAlert(client, `The radiation here seems to be dangerously high`);
       client.character.damage(this, damageInfo);
-        if (index <= -1) {
-            client.character.screenEffects.push("OUTOFMAPBOUNDS");
-            this.addScreenEffect(client, this._screenEffects["OUTOFMAPBOUNDS"]);
-        }
+      if (index <= -1) {
+        client.character.screenEffects.push("OUTOFMAPBOUNDS");
+        this.addScreenEffect(client, this._screenEffects["OUTOFMAPBOUNDS"]);
+      }
     } else {
-        if (index > -1) {
-            client.character.screenEffects.splice(index, 1);
-            this.removeScreenEffect(client, this._screenEffects["OUTOFMAPBOUNDS"]);
-        }
+      if (index > -1) {
+        client.character.screenEffects.splice(index, 1);
+        this.removeScreenEffect(client, this._screenEffects["OUTOFMAPBOUNDS"]);
+      }
     }
   }
 
@@ -7408,16 +7407,16 @@ export class ZoneServer2016 extends EventEmitter {
   initScreenEffectDataSource() {
     screenEffects.forEach((effect: any) => {
       this._screenEffects[effect.typeName] = {
-          effectId: effect.id,
-          typeName: effect.typeName,
-          duration: effect.duration,
-          screenBrightness: effect.screenBrightness,
-          colorGradingFilename: effect.colorGradingFilename,
-          colorGrading: effect.colorGrading,
-          screenCover: effect.screenCover,
-          transparency: effect.transparency,
-          color: parseInt(effect.color, 16),
-          unknownDword3: effect.id
+        effectId: effect.id,
+        typeName: effect.typeName,
+        duration: effect.duration,
+        screenBrightness: effect.screenBrightness,
+        colorGradingFilename: effect.colorGradingFilename,
+        colorGrading: effect.colorGrading,
+        screenCover: effect.screenCover,
+        transparency: effect.transparency,
+        color: parseInt(effect.color, 16),
+        unknownDword3: effect.id
       };
     });
   }
@@ -7498,12 +7497,12 @@ export class ZoneServer2016 extends EventEmitter {
     }
   }
 
-    addScreenEffect(client: Client, effect: ScreenEffect) {
-            this.sendData(client, "ScreenEffect.ApplyScreenEffect", effect);
+  addScreenEffect(client: Client, effect: ScreenEffect) {
+    this.sendData(client, "ScreenEffect.ApplyScreenEffect", effect);
   }
 
   removeScreenEffect(client: Client, effect: ScreenEffect) {
-      this.sendData(client, "ScreenEffect.RemoveScreenEffect", effect);
+    this.sendData(client, "ScreenEffect.RemoveScreenEffect", effect);
   }
 
   private _sendDataToAll<ZonePacket>(

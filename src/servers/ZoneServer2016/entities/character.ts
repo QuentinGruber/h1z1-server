@@ -397,14 +397,17 @@ export class Character2016 extends BaseFullCharacter {
         server.sendHudIndicators(client);
       }
 
-        const index2 = this.screenEffects.indexOf(indicator);
-        if (index2 > -1 && indicator != desiredBleedingIndicator) {
-            this.screenEffects.splice(index2, 1);
-            server.removeScreenEffect(client, server._screenEffects[indicator]);
-        } else if (indicator == desiredBleedingIndicator && index2 <= -1) {
-            this.screenEffects.push(desiredBleedingIndicator);
-            server.addScreenEffect(client, server._screenEffects[desiredBleedingIndicator]);
-        }
+      const index2 = this.screenEffects.indexOf(indicator);
+      if (index2 > -1 && indicator != desiredBleedingIndicator) {
+        this.screenEffects.splice(index2, 1);
+        server.removeScreenEffect(client, server._screenEffects[indicator]);
+      } else if (indicator == desiredBleedingIndicator && index2 <= -1) {
+        this.screenEffects.push(desiredBleedingIndicator);
+        server.addScreenEffect(
+          client,
+          server._screenEffects[desiredBleedingIndicator]
+        );
+      }
     });
     if (client.character._resources[ResourceIds.BLEEDING] > 0) {
       this.damage(server, {
