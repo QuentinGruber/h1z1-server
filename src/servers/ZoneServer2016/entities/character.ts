@@ -329,7 +329,7 @@ export class Character2016 extends BaseFullCharacter {
     }
 
     client.character._resources[ResourceIds.HUNGER] -= 2;
-    client.character._resources[ResourceIds.ENDURANCE] -= 1;
+    client.character._resources[ResourceIds.ENDURANCE] -= 2;
     client.character._resources[ResourceIds.HYDRATION] -= 4;
 
     let desiredEnergyIndicator = "";
