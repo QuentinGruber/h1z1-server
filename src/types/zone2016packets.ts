@@ -467,7 +467,7 @@ export interface AddSimpleNpc {
   modelId?: number;
   scale?: Float32Array;
   unknownDword3?: number;
-  showHealth?: boolean;
+  unknownByte2?: number;
   health?: number;
 }
 export interface ContinentBattleInfo {
@@ -967,6 +967,17 @@ export interface CharacterRemovePlayer {
   stickyEffectId?: number;
   timeToDisappear?: number;
 }
+export interface CharacterPlayAnimation {
+  characterId?: string;
+  animationName: unknown;
+  unm4?: number;
+  unknownDword1?: number;
+  unknownByte1?: number;
+  unknownDword2?: number;
+  unkWord2?: number;
+  unknownByte1xda?: number;
+  unknownDword3?: number;
+}
 export interface CharacterUpdateScale {
   characterId?: string;
   scale?: Float32Array;
@@ -1068,6 +1079,11 @@ export interface CharacterWeaponStance {
   characterId?: string;
   stance?: number;
 }
+export interface CharacterUpdateTintAlias {
+  characterId?: string;
+  tintAlias?: string;
+  decalAlias?: string;
+}
 export interface CharacterMoveOnRail {
   characterId?: string;
   unknown4?: number;
@@ -1156,7 +1172,7 @@ export interface CharacterPlayWorldCompositeEffect {
   characterId?: string;
   effectId?: number;
   position?: Float32Array;
-  unk3?: number;
+  effectTime?: number;
 }
 export interface CharacterFullCharacterDataRequest {
   characterId?: string;
@@ -1944,8 +1960,8 @@ export interface EquipmentSetCharacterEquipment {
   characterId?: string;
 };
   unknownDword1?: number;
-  unknownString1?: string;
-  unknownString2?: string;
+  tintAlias?: string;
+  decalAlias?: string;
   equipmentSlots?: unknown[];
   attachmentData?: unknown[];
   unknownBoolean1?: boolean;
@@ -2045,51 +2061,49 @@ export interface WallOfDataClientTransition {
   msElapsed?: number;
 }
 export interface EffectAddEffect {
-  unknownData1 :{
+  effectData :{
   unknownDword1?: number;
-  unknownDword2?: number;
-  unknownDword3?: number;
+  abilityEffectId1?: number;
+  abilityEffectId2?: number;
 };
   unknownData2 :{
   unknownQword1?: string;
   unknownQword2?: string;
 };
-  unknownData3 :{
+  targetData :{
   unknownQword1?: string;
-  unknownQword2?: string;
-  unknownVector1?: Float32Array;
+  targetCharacterId?: string;
+  position?: Float32Array;
 };
 }
 export interface EffectUpdateEffect {
-  unknownData1 :{
+  effectData :{
   unknownDword1?: number;
-  unknownDword2?: number;
-  unknownDword3?: number;
+  abilityEffectId1?: number;
+  abilityEffectId2?: number;
 };
   unknownData2 :{
   unknownDword1?: number;
   unknownQword1?: string;
 };
-  unknownData3 :{
+  targetData :{
   unknownQword1?: string;
-  unknownQword2?: string;
-  unknownVector1?: Float32Array;
+  targetCharacterId?: string;
+  position?: Float32Array;
 };
 }
 export interface EffectRemoveEffect {
-  unknownData1 :{
+  abilityEffectData :{
   unknownDword1?: number;
-  unknownDword2?: number;
-  unknownDword3?: number;
+  abilityEffectId1?: number;
+  abilityEffectId2?: number;
 };
-  unknownData2 :{
-  unknownQword1?: string;
+  targetCharacterData :{
+  characterId?: string;
 };
-  unknownData3 :{
-  unknownQword1?: string;
-  unknownQword2?: string;
+  targetCharacterId?: string;
+  guid2?: string;
   unknownVector1?: Float32Array;
-};
 }
 export interface EffectAddEffectTag {
   unknownDword1?: number;
@@ -2167,10 +2181,84 @@ export interface EffectAddUiIndicator {
   unknownDword2?: number;
   unknownByte1?: number;
 }
+export interface AbilitiesInitAbility {
+  unknownDword1?: number;
+  unknownDword2?: number;
+  abilityId?: number;
+  unknownDword3?: number;
+  characterId?: string;
+  unknownDword4?: number;
+  unknownDword5?: number;
+  unknownDword6?: number;
+  targetCharacterId?: string;
+  unknownDword7?: number;
+  unknownDword8?: number;
+  position?: Float32Array;
+  abilityData: unknown;
+}
+export interface AbilitiesUpdateAbility {
+  unknownDword1?: number;
+  unknownDword2?: number;
+  abilityId?: number;
+  unknownDword3?: number;
+  targetCharacterId?: string;
+  unknownDword4?: number;
+  unknownDword5?: number;
+  position?: Float32Array;
+  unknownDword6?: number;
+  unknownByte1?: number;
+  unknownByte2?: number;
+  unknownDword8?: number;
+  unknownDword9?: number;
+  unknownDword10?: number;
+  abilityData: unknown;
+}
+export interface AbilitiesUninitAbility {
+  unknownDword1?: number;
+  abilityId?: number;
+  unknownDword2?: number;
+}
 export interface AbilitiesSetActivatableAbilityManager {
   abilities?: unknown[];
 }
+export interface AbilitiesSetVehicleActivatableAbilityManager {
+  abilities?: unknown[];
+}
+export interface AbilitiesActivateAbility {
+  abilityId?: number;
+  unknownDword1?: number;
+}
+export interface AbilitiesDeactivateAbility {
+  abilityId?: number;
+  unknownDword1?: number;
+}
+export interface AbilitiesVehicleDeactivateAbility {
+  abilityId?: number;
+  unknownDword1?: number;
+}
+export interface AbilitiesActivateAbilityFailed {
+  abilityId?: number;
+  unknownDword1?: number;
+}
+export interface AbilitiesClearAbilityLineManager {
+}
+export interface AbilitiesSetProfileAbilityLineMembers {
+  unknownDword1?: number;
+}
 export interface AbilitiesSetLoadoutAbilities {
+  abilities?: unknown[];
+}
+export interface AbilitiesAddLoadoutAbility {
+  abilitySlotId?: number;
+  abilityId?: number;
+  unknownDword1?: number;
+  guid1?: string;
+  guid2?: string;
+}
+export interface AbilitiesAddPersistentAbility {
+  unk?: number;
+}
+export interface AbilitiesSetProfileRankAbilities {
   abilities?: unknown[];
 }
 export interface MapRegionGlobalData {
@@ -2806,6 +2894,37 @@ export interface RagdollUnk {
   unk2?: number;
   unkArray2?: unknown[];
 }
+export interface ScreenEffectApplyScreenEffect {
+  unknownDword1?: number;
+  effectId?: number;
+  unknownDword3?: number;
+  duration?: number;
+  unknownDword5?: number;
+  screenBrightness?: number;
+  unknownDword7?: number;
+  string1?: string;
+  unknownDword8?: number;
+  string2?: string;
+  unknownDword9?: number;
+  colorGradingFilename?: string;
+  colorGrading?: number;
+  unknownDword11?: number;
+  unknownDword12?: number;
+  screenCover?: number;
+  transparency?: number;
+  color?: number;
+  unknownDword16?: number;
+  unknownDword17?: number;
+  unknownDword18?: number;
+  unknownDword19?: number;
+  unknownDword20?: number;
+  unknownDword21?: number;
+}
+export interface ScreenEffectRemoveScreenEffect {
+  unknownDword1?: number;
+  effectId?: number;
+  unknownDword3?: number;
+}
 export interface SpectatorEnable {
 }
 export interface SpectatorUnknown2 {
@@ -2841,7 +2960,7 @@ export interface AccessedCharacterBeginCharacterAccess {
 export interface AccessedCharacterEndCharacterAccess {
   characterId?: string;
 }
-export interface AccessedCharacterUnknown1 {
+export interface AccessedCharacterUpdateMutatorRights {
   characterId?: string;
   mutatorCharacterId?: string;
 }

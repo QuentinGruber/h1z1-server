@@ -70,6 +70,7 @@ import { clientPathPackets } from "./clientPath";
 import { groupPackets } from "./group";
 import { accessedCharacterPackets } from "./accessedCharacter";
 import { replicationPackets } from "./replication";
+import { screenEffectPackets } from "./screenEffect";
 import { spectatorPackets } from "./spectator";
 import { h1emuPackets } from "./h1emu";
 import { PacketStructures } from "types/packetStructure";
@@ -133,6 +134,7 @@ const packets: PacketStructures = [
   ...groupPackets,
   ...accessedCharacterPackets,
   ...replicationPackets,
+  ...screenEffectPackets,
   ...spectatorPackets,
   ...h1emuPackets
 ];

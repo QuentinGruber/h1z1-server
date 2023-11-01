@@ -132,6 +132,185 @@ export function packSignedIntWith2bitLengthValue(value: number): Buffer {
   return data.slice(0, n + 1);
 }
 
+export function readAbilityInitData(data: Buffer, offset: number) {
+  const obj: any = {},
+    startOffset = offset;
+  obj["unknownByte1"] = data.readUint8(offset);
+  offset += 1;
+  obj["unknownByte2"] = data.readUint8(offset);
+  offset += 1;
+
+  if (obj["unknownByte1"] == 128) {
+    obj["unknownDword8"] = data.readUInt32LE(offset);
+    offset += 4;
+    obj["unknownDword9"] = data.readUInt32LE(offset);
+    offset += 4;
+    obj["unknownDword10"] = data.readUInt32LE(offset);
+    offset += 4;
+    obj["unknownDword11"] = data.readUInt32LE(offset);
+    offset += 4;
+    obj["unknownDword12"] = data.readUInt32LE(offset);
+    offset += 4;
+    obj["unknownDword13"] = data.readUInt32LE(offset);
+    offset += 4;
+    obj["unknownDword14"] = data.readUInt32LE(offset);
+    offset += 4;
+    obj["targetPosition"] = [];
+    obj["targetPosition"][0] = data.readFloatLE(offset);
+    offset += 4;
+    obj["targetPosition"][1] = data.readFloatLE(offset);
+    offset += 4;
+    obj["targetPosition"][2] = data.readFloatLE(offset);
+    offset += 4;
+    obj["targetPosition"][3] = data.readFloatLE(offset);
+    offset += 4;
+    obj["unknownDword15"] = data.readUInt32LE(offset);
+    offset += 4;
+    obj["unknownDword16"] = data.readUInt32LE(offset);
+    offset += 4;
+    obj["stringLength"] = data.readUInt32LE(offset);
+    offset += 4;
+    obj["hitLocation"] = data.toString(
+      "utf8",
+      offset,
+      offset + obj["stringLength"]
+    );
+    offset += obj["stringLength"];
+    return {
+      value: obj,
+      length: offset - startOffset
+    };
+  } else {
+    return {
+      value: obj,
+      length: offset - startOffset
+    };
+  }
+}
+
+export function packAbilityInitData(obj: any) {
+  let data =
+    obj["unknownByte1"] == 128 ? Buffer.allocUnsafe(62) : Buffer.allocUnsafe(2);
+  let offset = 0;
+  data.writeUint8(obj["unknownByte1"], offset);
+  offset += 1;
+  data.writeUint8(obj["unknownByte2"], offset);
+  offset += 1;
+
+  if (obj["unknownByte1"] == 128) {
+    data.writeUint32LE(obj["unknownDword8"], offset);
+    offset += 4;
+    data.writeUInt32LE(obj["unknownDword9"], offset);
+    offset += 4;
+    data.writeUInt32LE(obj["unknownDword10"], offset);
+    offset += 4;
+    data.writeUInt32LE(obj["unknownDword11"], offset);
+    offset += 4;
+    data.writeUInt32LE(obj["unknownDword12"], offset);
+    offset += 4;
+    data.writeUInt32LE(obj["unknownDword13"], offset);
+    offset += 4;
+    data.writeUInt32LE(obj["unknownDword14"], offset);
+    offset += 4;
+    data.writeFloatLE(obj["targetPosition"][0], offset);
+    offset += 4;
+    data.writeFloatLE(obj["targetPosition"][1], offset);
+    offset += 4;
+    data.writeFloatLE(obj["targetPosition"][2], offset);
+    offset += 4;
+    data.writeFloatLE(obj["targetPosition"][3], offset);
+    offset += 4;
+    data.writeUInt32LE(obj["unknownDword15"], offset);
+    offset += 4;
+    data.writeUInt32LE(obj["unknownDword16"], offset);
+    offset += 4;
+    data.writeUInt32LE(obj["stringLength"], offset);
+    offset += 4;
+    const stringBytes = Buffer.from(obj["hitLocation"], "utf-8");
+    data = Buffer.concat([data, stringBytes]);
+    offset += obj["stringLength"];
+    return data;
+  } else {
+    return data;
+  }
+}
+
+export function readAbilityUpdateData(data: Buffer, offset: number) {
+  const obj: any = {},
+    startOffset = offset;
+  obj["unknownDword11"] = data.readUInt32LE(offset);
+  offset += 4;
+
+  if (obj["unknownDword11"] == 16) {
+    obj["unknownDword12"] = data.readUInt32LE(offset);
+    offset += 4;
+    obj["unknownDword13"] = data.readUInt32LE(offset);
+    offset += 4;
+    obj["unknownDword14"] = data.readUInt32LE(offset);
+    offset += 4;
+    obj["unknownDword15"] = data.readUInt32LE(offset);
+    offset += 4;
+    obj["unknownDword16"] = data.readUInt32LE(offset);
+    offset += 4;
+    obj["targetPosition"] = [];
+    obj["targetPosition"][0] = data.readFloatLE(offset);
+    offset += 4;
+    obj["targetPosition"][1] = data.readFloatLE(offset);
+    offset += 4;
+    obj["targetPosition"][2] = data.readFloatLE(offset);
+    offset += 4;
+    obj["targetPosition"][3] = data.readFloatLE(offset);
+    offset += 4;
+    obj["unknownDword17"] = data.readUInt32LE(offset);
+    offset += 4;
+    obj["unknownDword18"] = data.readUInt32LE(offset);
+    offset += 4;
+    obj["stringLength"] = data.readUInt32LE(offset);
+    offset += 4;
+    obj["hitLocation"] = data.toString(
+      "utf8",
+      offset,
+      offset + obj["stringLength"]
+    );
+    offset += obj["stringLength"];
+    return {
+      value: obj,
+      length: offset - startOffset
+    };
+  } else {
+    obj["unknownDword12"] = data.readUInt32LE(offset);
+    offset += 4;
+    obj["unknownDword13"] = data.readUInt32LE(offset);
+    offset += 4;
+    obj["unknownDword14"] = data.readUInt32LE(offset);
+    offset += 4;
+    obj["unknownDword15"] = data.readUInt32LE(offset);
+    offset += 4;
+    obj["unknownDword16"] = data.readUInt32LE(offset);
+    offset += 4;
+    obj["unknownDword17"] = data.readUInt32LE(offset);
+    offset += 4;
+    obj["unknownDword18"] = data.readUInt32LE(offset);
+    offset += 4;
+    obj["targetPosition"] = [];
+    obj["targetPosition"][0] = data.readFloatLE(offset);
+    offset += 4;
+    obj["targetPosition"][1] = data.readFloatLE(offset);
+    offset += 4;
+    obj["targetPosition"][2] = data.readFloatLE(offset);
+    offset += 4;
+    obj["targetPosition"][3] = data.readFloatLE(offset);
+    offset += 4;
+    obj["unknownDword19"] = data.readUInt32LE(offset);
+    offset += 4;
+
+    return {
+      value: obj,
+      length: offset - startOffset
+    };
+  }
+}
+
 export function readPositionUpdateData(data: Buffer, offset: number) {
   const obj: any = {},
     startOffset = offset;
@@ -2615,3 +2794,18 @@ export const passengerSchema: PacketFields = [
   { name: "unknownString1", type: "string", defaultValue: "" },
   { name: "unknownByte1", type: "uint8", defaultValue: 0 }
 ];
+
+export function pack2ByteLengthString(string: string) {
+  const data = Buffer.alloc(string.length + 2);
+  data.writeUInt16LE(string.length, 0);
+  data.write(string, 2, string.length, "utf8");
+  return data;
+  /*
+    {
+      name: "string",
+      type: "custom",
+      defaultValue: "",
+      packer: pack2ByteLengthString
+    },
+  */
+}

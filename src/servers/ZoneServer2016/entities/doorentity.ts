@@ -17,6 +17,7 @@ import { BaseLightweightCharacter } from "./baselightweightcharacter";
 import { ZoneClient2016 } from "../classes/zoneclient";
 import { DamageInfo } from "../../../types/zoneserver";
 import { AddLightweightNpc } from "types/zone2016packets";
+import { Effects } from "../models/enums";
 
 function getDestroyedModels(actorModel: number): number[] {
   switch (actorModel) {
@@ -168,23 +169,25 @@ export class DoorEntity extends BaseLightweightCharacter {
   }
 
   OnProjectileHit(server: ZoneServer2016, damageInfo: DamageInfo) {
-    if (this.destroyed) return;
+    if (!this.destroyedModel || this.destroyed) return;
     this.health -= damageInfo.damage;
     if (this.health > 0) return;
     this.destroyed = true;
-    if (this.destroyedModel) {
-      server.sendDataToAllWithSpawnedEntity(
-        server._doors,
-        this.characterId,
-        "Character.Destroyed",
-        {
-          characterId: this.characterId,
-          destroyedModel: this.destroyedModel,
-          disableWeirdPhysic: true,
-          destroyedEffect2: 165
-        }
-      );
-    }
+    server.sendDataToAllWithSpawnedEntity(
+      server._doors,
+      this.characterId,
+      "Character.Destroyed",
+      {
+        characterId: this.characterId,
+        destroyedModel: this.destroyedModel,
+        disableWeirdPhysic: true,
+        destroyedEffect2: Effects.PFX_Damage_GlassWindow_House
+      }
+    );
+  }
+
+  OnMeleeHit(server: ZoneServer2016, damageInfo: DamageInfo) {
+    this.OnProjectileHit(server, damageInfo);
   }
 
   /* eslint-disable @typescript-eslint/no-unused-vars */

@@ -61,6 +61,8 @@ export abstract class BaseEntity {
   scale = new Float32Array([1, 1, 1, 1]);
   npcRenderDistance: number; // when undefined, use the zoneserver._charactersRenderDistance value
   interactionDistance: number;
+  effectTags: number[] = [];
+  materialType: number;
   constructor(
     characterId: string,
     transientId: number,
@@ -79,7 +81,16 @@ export abstract class BaseEntity {
     this.npcRenderDistance =
       getRenderDistance(actorModelId) || server.charactersRenderDistance;
     this.interactionDistance = server.interactionDistance;
+    this.materialType = this.getMaterialType(server, this.actorModelId);
     server.pushToGridCell(this);
+  }
+
+  getMaterialType(server: ZoneServer2016, actorModelId: number) {
+    const modelData = server._modelsData[actorModelId];
+    if (!modelData) {
+      return 0;
+    }
+    return modelData.materialType;
   }
 
   /* eslint-disable @typescript-eslint/no-unused-vars */
@@ -100,6 +111,10 @@ export abstract class BaseEntity {
   }
 
   OnProjectileHit(server: ZoneServer2016, damageInfo: DamageInfo) {
+    // default: do nothing
+  }
+
+  OnMeleeHit(server: ZoneServer2016, damageInfo: DamageInfo) {
     // default: do nothing
   }
 

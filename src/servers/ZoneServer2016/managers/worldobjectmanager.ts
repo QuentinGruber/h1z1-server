@@ -462,7 +462,7 @@ export class WorldObjectManager {
             characterId: c.character.characterId,
             effectId: effectId,
             position: smokePos,
-            unk3: 60
+            effectTime: 60
           }
         );
       }

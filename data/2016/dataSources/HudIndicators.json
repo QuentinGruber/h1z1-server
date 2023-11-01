@@ -96,5 +96,19 @@
     "nameId": 8919,
     "descriptionId": 8920,
     "imageSetId": 243
+  },
+  {
+    "id": 15,
+    "typeName": "DEHYDRATED",
+    "nameId": 9080,
+    "descriptionId": 9081,
+    "imageSetId": 177
+  },
+  {
+    "id": 16,
+    "typeName": "STARVING",
+    "nameId": 9300,
+    "descriptionId": 9301,
+    "imageSetId": 177
   }
 ]
