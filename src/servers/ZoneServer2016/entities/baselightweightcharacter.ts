@@ -11,7 +11,7 @@
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
 
-import { AddLightweightNpc } from "types/zone2016packets";
+import { AddLightweightNpc, AddSimpleNpc } from "types/zone2016packets";
 import { DamageInfo } from "../../../types/zoneserver";
 import { ZoneServer2016 } from "../zoneserver";
 import { BaseEntity } from "./baseentity";
@@ -72,7 +72,6 @@ export abstract class BaseLightweightCharacter extends BaseEntity {
   health: number = 1000000;
   maxHealth: number = 1000000;
   useSimpleStruct: boolean = false;
-  effectTags: number[] = [];
   constructor(
     characterId: string,
     transientId: number,
@@ -90,7 +89,7 @@ export abstract class BaseLightweightCharacter extends BaseEntity {
     };
   }
 
-  pGetSimpleNpc() {
+  pGetSimpleNpc(): AddSimpleNpc {
     return {
       characterId: this.characterId,
       transientId: this.transientId,
@@ -98,7 +97,6 @@ export abstract class BaseLightweightCharacter extends BaseEntity {
       rotation: this.state.rotation,
       modelId: this.actorModelId,
       scale: this.scale,
-      showHealth: true,
       health: (this.health / this.maxHealth) * 100
     };
   }

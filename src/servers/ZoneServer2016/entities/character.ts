@@ -16,8 +16,11 @@ import {
   ContainerErrors,
   Effects,
   HealTypes,
+  Items,
   LoadoutIds,
   LoadoutSlots,
+  MaterialTypes,
+  MeleeTypes,
   ResourceIds,
   ResourceTypes,
   WeaponDefinitionIds
@@ -103,7 +106,6 @@ export class Character2016 extends BaseFullCharacter {
   public get isAlive() {
     return !this.characterStates.knockedOut;
   }
-  isSonic = false;
   isMoving = false;
   actorModelId!: number;
   headActor!: string;
@@ -174,6 +176,8 @@ export class Character2016 extends BaseFullCharacter {
   lastLockFailure: number = 0;
   resourceHudIndicators: string[] = [];
   hudIndicators: { [typeName: string]: characterIndicatorData } = {};
+  screenEffects: string[] = [];
+  abilityInitTime: number = 0;
   constructor(
     characterId: string,
     transientId: number,
@@ -195,7 +199,7 @@ export class Character2016 extends BaseFullCharacter {
       [ResourceIds.HYDRATION]: 10000,
       [ResourceIds.VIRUS]: 0,
       [ResourceIds.COMFORT]: 5000,
-      [ResourceIds.BLEEDING]: -40,
+      [ResourceIds.BLEEDING]: 0,
       [ResourceIds.ENDURANCE]: 8000
     }),
       (this.characterStates = {
@@ -259,6 +263,7 @@ export class Character2016 extends BaseFullCharacter {
         }
       }, 1000);
     };
+    this.materialType = MaterialTypes.FLESH;
   }
 
   startResourceUpdater(client: ZoneClient2016, server: ZoneServer2016) {
@@ -328,7 +333,7 @@ export class Character2016 extends BaseFullCharacter {
     }
 
     client.character._resources[ResourceIds.HUNGER] -= 2;
-    client.character._resources[ResourceIds.ENDURANCE] -= 1;
+    client.character._resources[ResourceIds.ENDURANCE] -= 2;
     client.character._resources[ResourceIds.HYDRATION] -= 4;
 
     let desiredEnergyIndicator = "";
@@ -372,13 +377,13 @@ export class Character2016 extends BaseFullCharacter {
     ];
     let desiredBleedingIndicator = "";
     switch (true) {
-      case bleeding >= 20 && bleeding < 40:
+      case bleeding > 0 && bleeding < 30:
         desiredBleedingIndicator = "BLEEDING_LIGHT";
         break;
-      case bleeding >= 40 && bleeding < 80:
+      case bleeding >= 30 && bleeding < 60:
         desiredBleedingIndicator = "BLEEDING_MODERATE";
         break;
-      case bleeding >= 80:
+      case bleeding >= 60:
         desiredBleedingIndicator = "BLEEDING_SEVERE";
         break;
       default:
@@ -394,6 +399,18 @@ export class Character2016 extends BaseFullCharacter {
         this.resourceHudIndicators.push(desiredBleedingIndicator);
         server.sendHudIndicators(client);
       }
+
+      const index2 = this.screenEffects.indexOf(indicator);
+      if (index2 > -1 && indicator != desiredBleedingIndicator) {
+        this.screenEffects.splice(index2, 1);
+        server.removeScreenEffect(client, server._screenEffects[indicator]);
+      } else if (indicator == desiredBleedingIndicator && index2 <= -1) {
+        this.screenEffects.push(desiredBleedingIndicator);
+        server.addScreenEffect(
+          client,
+          server._screenEffects[desiredBleedingIndicator]
+        );
+      }
     });
     if (client.character._resources[ResourceIds.BLEEDING] > 0) {
       this.damage(server, {
@@ -407,12 +424,36 @@ export class Character2016 extends BaseFullCharacter {
     this.checkResource(server, ResourceIds.HUNGER, () => {
       this.damage(server, { entity: "Character.Hunger", damage: 100 });
     });
+    const indexHunger = this.resourceHudIndicators.indexOf("STARVING");
+    if (hunger == 0) {
+      if (indexHunger <= -1) {
+        this.resourceHudIndicators.push("STARVING");
+        server.sendHudIndicators(client);
+      }
+    } else {
+      if (indexHunger > -1) {
+        this.resourceHudIndicators.splice(indexHunger, 1);
+        server.sendHudIndicators(client);
+      }
+    }
     this.checkResource(server, ResourceIds.HUNGER, () => {
       this.damage(server, { entity: "Character.Hunger", damage: 100 });
     });
     this.checkResource(server, ResourceIds.HYDRATION, () => {
       this.damage(server, { entity: "Character.Hydration", damage: 100 });
     });
+    const indexDehydrated = this.resourceHudIndicators.indexOf("DEHYDRATED");
+    if (hydration == 0) {
+      if (indexDehydrated <= -1) {
+        this.resourceHudIndicators.push("DEHYDRATED");
+        server.sendHudIndicators(client);
+      }
+    } else {
+      if (indexDehydrated > -1) {
+        this.resourceHudIndicators.splice(indexDehydrated, 1);
+        server.sendHudIndicators(client);
+      }
+    }
     this.checkResource(server, ResourceIds.HEALTH);
 
     this.updateResource(
@@ -478,7 +519,8 @@ export class Character2016 extends BaseFullCharacter {
     if (this._resources[resourceId] > maxValue) {
       this._resources[resourceId] = maxValue;
     } else if (this._resources[resourceId] < minValue) {
-      this._resources[resourceId] = minValue + 1;
+      this._resources[resourceId] =
+        minValue + resourceId == ResourceIds.ENDURANCE ? 1 : 0;
       if (damageCallback) {
         damageCallback();
       }
@@ -553,6 +595,73 @@ export class Character2016 extends BaseFullCharacter {
       "Loadout.SetLoadoutSlots",
       this.pGetLoadoutSlots()
     );
+    const abilities: any = [
+      {
+        loadoutSlotId: 1,
+        abilityLineId: 1,
+        unknownArray1: [
+          {
+            unknownDword1: 1111164,
+            unknownDword2: 1111164,
+            unknownDword3: 0
+          }
+        ],
+        unknownDword3: 2,
+        itemDefinitionId: 83,
+        unknownByte: 64
+      }
+      // hardcoded one weapon ability to fix fists after respawning
+    ];
+    const abilityLineId = 1;
+    for (const a in client.character._loadout) {
+      const slot = client.character._loadout[a];
+      const itemDefinition = server.getItemDefinition(slot.itemDefinitionId);
+      if (!itemDefinition) continue;
+
+      const abilityId = itemDefinition.ACTIVATABLE_ABILITY_ID;
+      if (slot.itemDefinitionId == Items.WEAPON_FISTS) {
+        const object = {
+          loadoutSlotId: slot.slotId,
+          abilityLineId,
+          unknownArray1: [
+            {
+              unknownDword1: 1111278,
+              unknownDword2: 1111278,
+              unknownDword3: 0
+            },
+            {
+              unknownDword1: abilityId,
+              unknownDword2: abilityId,
+              unknownDword3: 0
+            }
+          ],
+          unknownDword3: 2,
+          itemDefinitionId: slot.itemDefinitionId,
+          unknownByte: 64
+        };
+        abilities.push(object);
+      } else {
+        const object = {
+          loadoutSlotId: slot.slotId,
+          abilityLineId,
+          unknownArray1: [
+            {
+              unknownDword1: abilityId,
+              unknownDword2: abilityId,
+              unknownDword3: 0
+            }
+          ],
+          unknownDword3: 2,
+          itemDefinitionId: slot.itemDefinitionId,
+          unknownByte: 64
+        };
+        abilities.push(object);
+      }
+      //abilityLineId++;
+    }
+    server.sendData(client, "Abilities.SetActivatableAbilityManager", {
+      abilities
+    });
   }
 
   /**
@@ -757,8 +866,10 @@ export class Character2016 extends BaseFullCharacter {
     this._resources[ResourceIds.HUNGER] = 10000;
     this._resources[ResourceIds.HYDRATION] = 10000;
     this._resources[ResourceIds.STAMINA] = 600;
-    this._resources[ResourceIds.BLEEDING] = -40;
+    this._resources[ResourceIds.BLEEDING] = 0;
     this._resources[ResourceIds.ENDURANCE] = 8000;
+    this._resources[ResourceIds.VIRUS] = 0;
+    this._resources[ResourceIds.COMFORT] = 5000;
     for (const a in this.healType) {
       const healType = this.healType[a];
       healType.healingTicks = 0;
@@ -804,6 +915,18 @@ export class Character2016 extends BaseFullCharacter {
       this.characterId,
       this._resources[ResourceIds.ENDURANCE],
       ResourceIds.ENDURANCE
+    );
+    server.updateResource(
+      client,
+      this.characterId,
+      this._resources[ResourceIds.VIRUS],
+      ResourceIds.VIRUS
+    );
+    server.updateResource(
+      client,
+      this.characterId,
+      this._resources[ResourceIds.COMFORT],
+      ResourceIds.COMFORT
     );
   }
 
@@ -1067,6 +1190,16 @@ export class Character2016 extends BaseFullCharacter {
     return this.lastMeleeHitTime + delay >= Date.now();
   }
 
+  checkCurrentInteractionGuid() {
+    // mainly for melee workaround (3s timeout)
+    if (
+      this.currentInteractionGuid &&
+      this.lastInteractionStringTime + 1000 <= Date.now()
+    ) {
+      this.currentInteractionGuid = "";
+    }
+  }
+
   pGetEquipmentSlotFull(slotId: number, groupId?: number) {
     const slot = this._equipment[slotId];
     if (!slot) return;
@@ -1115,15 +1248,14 @@ export class Character2016 extends BaseFullCharacter {
     const slot = this._equipment[slotId];
     return slot
       ? {
-          modelName: slot.modelName,
+          modelName:
+            slot.modelName /* == "Weapon_Empty.adr" ? slot.modelName : ""*/,
           effectId: this.groupId > 0 && this.groupId == groupId ? 3 : 0,
-          textureAlias: slot.textureAlias || "",
+          textureAlias: "",
           tintAlias: slot.tintAlias || "Default",
           decalAlias: slot.decalAlias || "#",
           slotId: slot.slotId,
-          SHADER_PARAMETER_GROUP: [
-            // TODO
-          ]
+          SHADER_PARAMETER_GROUP: slot.SHADER_PARAMETER_GROUP
         }
       : undefined;
   }
@@ -1364,5 +1496,38 @@ export class Character2016 extends BaseFullCharacter {
       damage: damage,
       causeBleed: !(canStopBleed && this.hasArmor(server))
     });
+  }
+
+  OnMeleeHit(server: ZoneServer2016, damageInfo: DamageInfo) {
+    const damage = damageInfo.damage / 2;
+    let bleedingChance = 5;
+    switch (damageInfo.meleeType) {
+      case MeleeTypes.BLADE:
+        bleedingChance = 35;
+        break;
+      case MeleeTypes.BLUNT:
+        bleedingChance = 15;
+        break;
+      case MeleeTypes.FISTS:
+        bleedingChance = 5;
+        break;
+      case MeleeTypes.GUITAR:
+        bleedingChance = 15;
+        break;
+      case MeleeTypes.KNIFE:
+        bleedingChance = 35;
+        break;
+    }
+    if (randomIntFromInterval(0, 100) <= bleedingChance) {
+      this._resources[ResourceIds.BLEEDING] += 20;
+      server.updateResourceToAllWithSpawnedEntity(
+        this.characterId,
+        this._resources[ResourceIds.BLEEDING],
+        ResourceIds.BLEEDING,
+        ResourceIds.BLEEDING,
+        server._characters
+      );
+    }
+    this.damage(server, { ...damageInfo, damage });
   }
 }

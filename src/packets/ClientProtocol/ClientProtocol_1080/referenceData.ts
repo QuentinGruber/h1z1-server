@@ -54,8 +54,8 @@ const weaponDefinitionSchema: PacketFields = [
             type: "schema",
             defaultValue: {},
             fields: [
-              { name: "MELEE_DETECT_WIDTH", type: "uint32", defaultValue: 0 },
-              { name: "MELEE_DETECT_HEIGHT", type: "uint32", defaultValue: 0 }
+              { name: "MELEE_DETECT_WIDTH", type: "float", defaultValue: 0 },
+              { name: "MELEE_DETECT_HEIGHT", type: "float", defaultValue: 0 }
             ]
           },
           { name: "ANIMATION_SET_NAME", type: "string", defaultValue: "" },

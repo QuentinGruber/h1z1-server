@@ -13,6 +13,7 @@
 
 import { Npc } from "./npc";
 import { ZoneServer2016 } from "../zoneserver";
+import { MaterialTypes } from "../models/enums";
 
 export class Zombie extends Npc {
   constructor(
@@ -33,5 +34,6 @@ export class Zombie extends Npc {
       server,
       spawnerId
     );
+    this.materialType = MaterialTypes.ZOMBIE;
   }
 }

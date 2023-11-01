@@ -1,0 +1,417 @@
+[
+  {
+    "ABILITY_SET_ID": 1,
+    "ABILITY_ID": 1111157,
+    "ORDER_INDEX": 0
+  },
+  {
+    "ABILITY_SET_ID": 1,
+    "ABILITY_ID": 1111278,
+    "ORDER_INDEX": 0
+  },
+  {
+    "ABILITY_SET_ID": 2,
+    "ABILITY_ID": 1111304,
+    "ORDER_INDEX": 0
+  },
+  {
+    "ABILITY_SET_ID": 2,
+    "ABILITY_ID": 1111305,
+    "ORDER_INDEX": 0
+  },
+  {
+    "ABILITY_SET_ID": 3,
+    "ABILITY_ID": 1111306,
+    "ORDER_INDEX": 1
+  },
+  {
+    "ABILITY_SET_ID": 4,
+    "ABILITY_ID": 1111318,
+    "ORDER_INDEX": 0
+  },
+  {
+    "ABILITY_SET_ID": 4,
+    "ABILITY_ID": 1111319,
+    "ORDER_INDEX": 1
+  },
+  {
+    "ABILITY_SET_ID": 5,
+    "ABILITY_ID": 1111336,
+    "ORDER_INDEX": 0
+  },
+  {
+    "ABILITY_SET_ID": 5,
+    "ABILITY_ID": 1111436,
+    "ORDER_INDEX": 1
+  },
+  {
+    "ABILITY_SET_ID": 6,
+    "ABILITY_ID": 1111439,
+    "ORDER_INDEX": 0
+  },
+  {
+    "ABILITY_SET_ID": 6,
+    "ABILITY_ID": 1111440,
+    "ORDER_INDEX": 1
+  },
+  {
+    "ABILITY_SET_ID": 7,
+    "ABILITY_ID": 1111447,
+    "ORDER_INDEX": 0
+  },
+  {
+    "ABILITY_SET_ID": 7,
+    "ABILITY_ID": 1111420,
+    "ORDER_INDEX": 2
+  },
+  {
+    "ABILITY_SET_ID": 8,
+    "ABILITY_ID": 1111448,
+    "ORDER_INDEX": 0
+  },
+  {
+    "ABILITY_SET_ID": 8,
+    "ABILITY_ID": 1111596,
+    "ORDER_INDEX": 0
+  },
+  {
+    "ABILITY_SET_ID": 8,
+    "ABILITY_ID": 1111708,
+    "ORDER_INDEX": 0
+  },
+  {
+    "ABILITY_SET_ID": 9,
+    "ABILITY_ID": 1111457,
+    "ORDER_INDEX": 0
+  },
+  {
+    "ABILITY_SET_ID": 9,
+    "ABILITY_ID": 1111458,
+    "ORDER_INDEX": 0
+  },
+  {
+    "ABILITY_SET_ID": 9,
+    "ABILITY_ID": 1111455,
+    "ORDER_INDEX": 1
+  },
+  {
+    "ABILITY_SET_ID": 9,
+    "ABILITY_ID": 1111456,
+    "ORDER_INDEX": 1
+  },
+  {
+    "ABILITY_SET_ID": 10,
+    "ABILITY_ID": 1111462,
+    "ORDER_INDEX": 0
+  },
+  {
+    "ABILITY_SET_ID": 10,
+    "ABILITY_ID": 1111463,
+    "ORDER_INDEX": 0
+  },
+  {
+    "ABILITY_SET_ID": 10,
+    "ABILITY_ID": 1111460,
+    "ORDER_INDEX": 1
+  },
+  {
+    "ABILITY_SET_ID": 10,
+    "ABILITY_ID": 1111461,
+    "ORDER_INDEX": 1
+  },
+  {
+    "ABILITY_SET_ID": 10,
+    "ABILITY_ID": 1111464,
+    "ORDER_INDEX": 3
+  },
+  {
+    "ABILITY_SET_ID": 11,
+    "ABILITY_ID": 1111466,
+    "ORDER_INDEX": 0
+  },
+  {
+    "ABILITY_SET_ID": 11,
+    "ABILITY_ID": 1111467,
+    "ORDER_INDEX": 0
+  },
+  {
+    "ABILITY_SET_ID": 12,
+    "ABILITY_ID": 1111420,
+    "ORDER_INDEX": 0
+  },
+  {
+    "ABILITY_SET_ID": 12,
+    "ABILITY_ID": 1111447,
+    "ORDER_INDEX": 0
+  },
+  {
+    "ABILITY_SET_ID": 12,
+    "ABILITY_ID": 1111490,
+    "ORDER_INDEX": 1
+  },
+  {
+    "ABILITY_SET_ID": 13,
+    "ABILITY_ID": 1111439,
+    "ORDER_INDEX": 0
+  },
+  {
+    "ABILITY_SET_ID": 13,
+    "ABILITY_ID": 1111466,
+    "ORDER_INDEX": 0
+  },
+  {
+    "ABILITY_SET_ID": 13,
+    "ABILITY_ID": 1111467,
+    "ORDER_INDEX": 0
+  },
+  {
+    "ABILITY_SET_ID": 14,
+    "ABILITY_ID": 1111438,
+    "ORDER_INDEX": 0
+  },
+  {
+    "ABILITY_SET_ID": 14,
+    "ABILITY_ID": 1111466,
+    "ORDER_INDEX": 0
+  },
+  {
+    "ABILITY_SET_ID": 14,
+    "ABILITY_ID": 1111467,
+    "ORDER_INDEX": 0
+  },
+  {
+    "ABILITY_SET_ID": 15,
+    "ABILITY_ID": 1111499,
+    "ORDER_INDEX": 0
+  },
+  {
+    "ABILITY_SET_ID": 15,
+    "ABILITY_ID": 1111336,
+    "ORDER_INDEX": 1
+  },
+  {
+    "ABILITY_SET_ID": 16,
+    "ABILITY_ID": 1111466,
+    "ORDER_INDEX": 0
+  },
+  {
+    "ABILITY_SET_ID": 16,
+    "ABILITY_ID": 1111467,
+    "ORDER_INDEX": 0
+  },
+  {
+    "ABILITY_SET_ID": 16,
+    "ABILITY_ID": 1111500,
+    "ORDER_INDEX": 0
+  },
+  {
+    "ABILITY_SET_ID": 17,
+    "ABILITY_ID": 1111420,
+    "ORDER_INDEX": 0
+  },
+  {
+    "ABILITY_SET_ID": 17,
+    "ABILITY_ID": 1111447,
+    "ORDER_INDEX": 0
+  },
+  {
+    "ABILITY_SET_ID": 18,
+    "ABILITY_ID": 1111514,
+    "ORDER_INDEX": 0
+  },
+  {
+    "ABILITY_SET_ID": 18,
+    "ABILITY_ID": 1111531,
+    "ORDER_INDEX": 1
+  },
+  {
+    "ABILITY_SET_ID": 19,
+    "ABILITY_ID": 1111532,
+    "ORDER_INDEX": 0
+  },
+  {
+    "ABILITY_SET_ID": 19,
+    "ABILITY_ID": 1111272,
+    "ORDER_INDEX": 1
+  },
+  {
+    "ABILITY_SET_ID": 20,
+    "ABILITY_ID": 1111504,
+    "ORDER_INDEX": 0
+  },
+  {
+    "ABILITY_SET_ID": 20,
+    "ABILITY_ID": 1111534,
+    "ORDER_INDEX": 1
+  },
+  {
+    "ABILITY_SET_ID": 21,
+    "ABILITY_ID": 1111570,
+    "ORDER_INDEX": 0
+  },
+  {
+    "ABILITY_SET_ID": 21,
+    "ABILITY_ID": 1111574,
+    "ORDER_INDEX": 0
+  },
+  {
+    "ABILITY_SET_ID": 22,
+    "ABILITY_ID": 1111129,
+    "ORDER_INDEX": 0
+  },
+  {
+    "ABILITY_SET_ID": 23,
+    "ABILITY_ID": 1111503,
+    "ORDER_INDEX": 0
+  },
+  {
+    "ABILITY_SET_ID": 23,
+    "ABILITY_ID": 1111576,
+    "ORDER_INDEX": 0
+  },
+  {
+    "ABILITY_SET_ID": 24,
+    "ABILITY_ID": 1111137,
+    "ORDER_INDEX": 0
+  },
+  {
+    "ABILITY_SET_ID": 24,
+    "ABILITY_ID": 1111577,
+    "ORDER_INDEX": 0
+  },
+  {
+    "ABILITY_SET_ID": 25,
+    "ABILITY_ID": 1111587,
+    "ORDER_INDEX": 0
+  },
+  {
+    "ABILITY_SET_ID": 26,
+    "ABILITY_ID": 1111603,
+    "ORDER_INDEX": 0
+  },
+  {
+    "ABILITY_SET_ID": 26,
+    "ABILITY_ID": 1111604,
+    "ORDER_INDEX": 0
+  },
+  {
+    "ABILITY_SET_ID": 27,
+    "ABILITY_ID": 1111165,
+    "ORDER_INDEX": 0
+  },
+  {
+    "ABILITY_SET_ID": 27,
+    "ABILITY_ID": 1111610,
+    "ORDER_INDEX": 0
+  },
+  {
+    "ABILITY_SET_ID": 29,
+    "ABILITY_ID": 1111630,
+    "ORDER_INDEX": 0
+  },
+  {
+    "ABILITY_SET_ID": 29,
+    "ABILITY_ID": 1111632,
+    "ORDER_INDEX": 0
+  },
+  {
+    "ABILITY_SET_ID": 30,
+    "ABILITY_ID": 1111630,
+    "ORDER_INDEX": 0
+  },
+  {
+    "ABILITY_SET_ID": 30,
+    "ABILITY_ID": 1111632,
+    "ORDER_INDEX": 0
+  },
+  {
+    "ABILITY_SET_ID": 31,
+    "ABILITY_ID": 1111630,
+    "ORDER_INDEX": 0
+  },
+  {
+    "ABILITY_SET_ID": 31,
+    "ABILITY_ID": 1111632,
+    "ORDER_INDEX": 0
+  },
+  {
+    "ABILITY_SET_ID": 32,
+    "ABILITY_ID": 1111675,
+    "ORDER_INDEX": 0
+  },
+  {
+    "ABILITY_SET_ID": 32,
+    "ABILITY_ID": 1111676,
+    "ORDER_INDEX": 0
+  },
+  {
+    "ABILITY_SET_ID": 32,
+    "ABILITY_ID": 1111677,
+    "ORDER_INDEX": 1
+  },
+  {
+    "ABILITY_SET_ID": 33,
+    "ABILITY_ID": 1111674,
+    "ORDER_INDEX": 0
+  },
+  {
+    "ABILITY_SET_ID": 33,
+    "ABILITY_ID": 1111685,
+    "ORDER_INDEX": 0
+  },
+  {
+    "ABILITY_SET_ID": 33,
+    "ABILITY_ID": 1111697,
+    "ORDER_INDEX": 0
+  },
+  {
+    "ABILITY_SET_ID": 34,
+    "ABILITY_ID": 1111687,
+    "ORDER_INDEX": 0
+  },
+  {
+    "ABILITY_SET_ID": 34,
+    "ABILITY_ID": 1111688,
+    "ORDER_INDEX": 0
+  },
+  {
+    "ABILITY_SET_ID": 35,
+    "ABILITY_ID": 1111451,
+    "ORDER_INDEX": 0
+  },
+  {
+    "ABILITY_SET_ID": 35,
+    "ABILITY_ID": 1111708,
+    "ORDER_INDEX": 0
+  },
+  {
+    "ABILITY_SET_ID": 36,
+    "ABILITY_ID": 1111452,
+    "ORDER_INDEX": 0
+  },
+  {
+    "ABILITY_SET_ID": 36,
+    "ABILITY_ID": 1111708,
+    "ORDER_INDEX": 0
+  },
+  {
+    "ABILITY_SET_ID": 37,
+    "ABILITY_ID": 1111453,
+    "ORDER_INDEX": 0
+  },
+  {
+    "ABILITY_SET_ID": 37,
+    "ABILITY_ID": 1111708,
+    "ORDER_INDEX": 0
+  },
+  {
+    "ABILITY_SET_ID": 38,
+    "ABILITY_ID": 1111454,
+    "ORDER_INDEX": 0
+  },
+  {
+    "ABILITY_SET_ID": 38,
+    "ABILITY_ID": 1111708,
+    "ORDER_INDEX": 0
+  }
+]

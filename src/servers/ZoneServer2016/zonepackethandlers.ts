@@ -46,6 +46,9 @@ import { ConstructionParentEntity } from "./entities/constructionparententity";
 import { ConstructionDoor } from "./entities/constructiondoor";
 import { CommandHandler } from "./handlers/commands/commandhandler";
 import {
+  AbilitiesInitAbility,
+  AbilitiesUninitAbility,
+  AbilitiesUpdateAbility,
   AccessedCharacterEndCharacterAccess,
   CharacterCharacterStateDelta,
   CharacterFullCharacterDataRequest,
@@ -84,8 +87,11 @@ import {
   ConstructionPlacementFinalizeRequest,
   ConstructionPlacementRequest,
   ConstructionPlacementResponse,
+  ContainerMoveItem,
   ContinentBattleInfo,
   DtoHitSpeedTreeReport,
+  EffectAddEffect,
+  EffectRemoveEffect,
   GetContinentBattleInfo,
   GroupInvite,
   GroupJoin,
@@ -287,8 +293,21 @@ export class ZonePacketHandlers {
     client: Client,
     packet: ReceivedPacket<object>
   ) {
-    if (!server.hookManager.checkHook("OnClientFinishedLoading", client))
+    if (!server.hookManager.checkHook("OnClientFinishedLoading", client)) {
       return;
+    }
+
+    const itemDefinition = server.getItemDefinition(
+      client.character.getEquippedWeapon()?.itemDefinitionId
+    );
+    if (itemDefinition) {
+      server.abilitiesManager.deactivateAbility(
+        server,
+        client,
+        itemDefinition.ACTIVATABLE_ABILITY_ID
+      );
+    }
+
     server.tempGodMode(client, 15000);
     client.currentPOI = 0; // clears currentPOI for POIManager
     server.sendGameTimeSync(client);
@@ -1410,14 +1429,7 @@ export class ZonePacketHandlers {
         }
       }
 
-      // mainly for melee workaround (3s timeout)
-      if (
-        client.character.currentInteractionGuid &&
-        client.character.lastInteractionStringTime + 3000 > Date.now()
-      ) {
-        client.character.currentInteractionGuid = "";
-        client.character.lastInteractionStringTime = 0;
-      }
+      client.character.checkCurrentInteractionGuid();
 
       // for door locks (1m timeout)
       if (
@@ -1685,9 +1697,9 @@ export class ZonePacketHandlers {
     client: Client,
     packet: ReceivedPacket<VehicleAccessType>
   ) {
-    const vehicleGuid = packet.data.vehicleGuid || "",
-      accessType = packet.data.accessType || 0;
-    server._vehicles[vehicleGuid].handleVehicleLock(server, !!accessType);
+    const vehicle = server._vehicles[packet.data.vehicleGuid ?? ""],
+      accessType = packet.data.accessType ?? 0;
+    vehicle.setLockState(server, client, !!accessType);
   }
   CommandInteractionString(
     server: ZoneServer2016,
@@ -1700,6 +1712,7 @@ export class ZonePacketHandlers {
     if (!entity) return;
     if (entity instanceof Crate) {
       client.character.currentInteractionGuid = guid;
+      client.character.lastInteractionStringTime = Date.now();
       return;
     }
     const isConstruction =
@@ -1920,7 +1933,8 @@ export class ZonePacketHandlers {
     debug(packet.data);
     const { itemGuid, itemUseOption, targetCharacterId, sourceCharacterId } =
       packet.data;
-    const { count } = packet.data.itemSubData as any;
+    const count =
+      (packet.data.itemSubData as any)?.count ?? packet.data.itemCount;
 
     switch (itemUseOption) {
       case ItemUseOptions.HOTWIRE_OFFROADER:
@@ -1956,7 +1970,7 @@ export class ZonePacketHandlers {
       return;
     }
     const animationId =
-      server._itemUseOptions[itemUseOption || 0]?.animationId || 0;
+      server._itemUseOptions[itemUseOption ?? 0]?.animationId ?? 0;
     // temporarily block most use options from external containers
     switch (itemUseOption) {
       case ItemUseOptions.LOOT:
@@ -2171,7 +2185,6 @@ export class ZonePacketHandlers {
         sourceContainer.transferItem(server, targetContainer, item, 0, count);
         server.startInteractionTimer(client, 0, 0, 9);
         break;
-
       case ItemUseOptions.LOOT_BATTERY:
       case ItemUseOptions.LOOT_SPARKS:
       case ItemUseOptions.LOOT_VEHICLE_LOADOUT:
@@ -2199,9 +2212,11 @@ export class ZonePacketHandlers {
             container,
             loadoutItem
           );
+
           if (sourceCharacter instanceof Vehicle2016) {
             sourceCharacter.checkEngineRequirements(server);
           }
+
           return;
         }
         break;
@@ -2309,9 +2324,12 @@ export class ZonePacketHandlers {
       // from client container
       if (sourceCharacterId == targetCharacterId) {
         // from / to client container
-        const sourceContainer = client.character.getItemContainer(itemGuid),
-          targetContainer =
-            client.character.getContainerFromGuid(containerGuid);
+        const sourceContainer = client.character.getItemContainer(
+            itemGuid ?? ""
+          ),
+          targetContainer = client.character.getContainerFromGuid(
+            containerGuid ?? ""
+          );
         if (sourceContainer) {
           // from container
           const item = sourceContainer.items[itemGuid];
@@ -2366,7 +2384,7 @@ export class ZonePacketHandlers {
           // from loadout or invalid
 
           // loadout
-          const loadoutItem = sourceCharacter.getLoadoutItem(itemGuid);
+          const loadoutItem = sourceCharacter.getLoadoutItem(itemGuid ?? "");
           if (!loadoutItem) {
             server.containerError(client, ContainerErrors.NO_ITEM_IN_SLOT);
             return;
@@ -2379,7 +2397,7 @@ export class ZonePacketHandlers {
             );
           } else if (containerGuid == LOADOUT_CONTAINER_GUID) {
             // to loadout
-            const loadoutItem = client.character.getLoadoutItem(itemGuid);
+            const loadoutItem = client.character.getLoadoutItem(itemGuid ?? "");
             if (!loadoutItem) {
               server.containerError(client, ContainerErrors.NO_ITEM_IN_SLOT);
               return;
@@ -2396,7 +2414,9 @@ export class ZonePacketHandlers {
         }
       } else {
         // to external container
-        const sourceContainer = sourceCharacter.getItemContainer(itemGuid),
+        const sourceContainer = sourceCharacter.getItemContainer(
+            itemGuid ?? ""
+          ),
           targetCharacter = sourceCharacter.mountedContainer;
 
         if (
@@ -2418,7 +2438,7 @@ export class ZonePacketHandlers {
           return;
         }
 
-        const loadoutItem = sourceCharacter.getLoadoutItem(itemGuid);
+        const loadoutItem = sourceCharacter.getLoadoutItem(itemGuid ?? "");
         if (loadoutItem) {
           sourceCharacter.transferItemFromLoadout(
             server,
@@ -2434,7 +2454,7 @@ export class ZonePacketHandlers {
           return;
         }
 
-        const item = sourceContainer.items[itemGuid];
+        const item = sourceContainer.items[itemGuid ?? ""];
         if (!item) {
           server.containerError(client, ContainerErrors.NO_ITEM_IN_SLOT);
           return;
@@ -2458,9 +2478,6 @@ export class ZonePacketHandlers {
             newSlotId,
             sourceCharacter
           );
-          if (targetCharacter instanceof Vehicle2016) {
-            targetCharacter.checkEngineRequirements(server);
-          }
           return;
         }
 
@@ -2488,13 +2505,13 @@ export class ZonePacketHandlers {
         return;
       }
 
-      const sourceContainer = sourceCharacter.getItemContainer(itemGuid);
+      const sourceContainer = sourceCharacter.getItemContainer(itemGuid ?? "");
       if (!sourceContainer) {
         server.sendChatText(client, "Invalid source container 3!");
         return;
       }
 
-      const item = sourceContainer.items[itemGuid];
+      const item = sourceContainer.items[itemGuid ?? ""];
       if (!item) {
         server.containerError(client, ContainerErrors.NO_ITEM_IN_SLOT);
         return;
@@ -2512,8 +2529,9 @@ export class ZonePacketHandlers {
         return;
       }
 
-      const targetContainer =
-        client.character.getContainerFromGuid(containerGuid);
+      const targetContainer = client.character.getContainerFromGuid(
+        containerGuid ?? ""
+      );
 
       if (targetContainer) {
         // to container
@@ -2554,7 +2572,7 @@ export class ZonePacketHandlers {
             sourceCharacter
           );
         }
-      } else if (sourceCharacter.getContainerFromGuid(containerGuid)) {
+      } else if (sourceCharacter.getContainerFromGuid(containerGuid ?? "")) {
         // remount container if trying to move around items in one container since slotIds aren't setup yet
         client.character.mountContainer(server, sourceCharacter);
       } else {
@@ -2806,6 +2824,26 @@ export class ZonePacketHandlers {
         break;
       case "Weapon.MeleeHitMaterial":
         debug("MeleeHitMaterial");
+        /* workaround melee hit logic since UpdateAbility packet isn't always sent */
+        /*
+        if (client.character.abilityInitTime > 0) {
+          // ignore melee hit if ability packet was sent
+          return;
+        }
+
+        const entity = server.getEntity(
+          client.character.currentInteractionGuid
+        );
+
+        client.character.checkCurrentInteractionGuid();
+        if (!entity || !weaponItem) return;
+        server.abilitiesManager.handleMeleeHit(
+          server,
+          client,
+          entity,
+          weaponItem
+        );
+        */
         break;
       case "Weapon.AimBlockedNotify":
         server.sendRemoteWeaponUpdateDataToAllOthers(
@@ -2947,6 +2985,79 @@ export class ZonePacketHandlers {
       source,
       client,
       packet.data.joinState == 1
+    );
+  }
+
+  EffectAddEffect(
+    server: ZoneServer2016,
+    client: Client,
+    packet: ReceivedPacket<EffectAddEffect>
+  ) {
+    server.abilitiesManager.processAddEffectPacket(server, client, packet.data);
+  }
+  EffectRemoveEffect(
+    server: ZoneServer2016,
+    client: Client,
+    packet: ReceivedPacket<EffectRemoveEffect>
+  ) {
+    server.abilitiesManager.processRemoveEffectPacket(
+      server,
+      client,
+      packet.data
+    );
+  }
+  AbilitiesInitAbility(
+    server: ZoneServer2016,
+    client: Client,
+    packet: ReceivedPacket<AbilitiesInitAbility>
+  ) {
+    server.abilitiesManager.processAbilityInit(server, client, packet.data);
+  }
+  AbilitiesUninitAbility(
+    server: ZoneServer2016,
+    client: Client,
+    packet: ReceivedPacket<AbilitiesUninitAbility>
+  ) {
+    if (!client.vehicle.mountedVehicle) return;
+    const vehicle = server._vehicles[client.vehicle.mountedVehicle];
+    if (!vehicle) return;
+    server.abilitiesManager.processAbilityUninit(
+      server,
+      client,
+      vehicle,
+      packet.data
+    );
+  }
+  AbilitiesUpdateAbility(
+    server: ZoneServer2016,
+    client: Client,
+    packet: ReceivedPacket<AbilitiesUpdateAbility>
+  ) {
+    /*
+      AbilityUpdate is sent twice for each melee hit, once as soon as you click,
+      and a second time on the actual hit. hitLocation is only in the first packet,
+      so it's ignored for now so the melee hit can be processed when the melee actually
+      collides with an object. -Meme
+    */
+
+    const hitLocation = (packet.data.abilityData as any)?.hitLocation;
+
+    if (hitLocation) {
+      client.character.abilityInitTime = Date.now();
+      return;
+    }
+
+    const entity =
+      server.getEntity(packet.data.targetCharacterId ?? "") ??
+      server.getEntity(client.character.currentInteractionGuid);
+
+    if (!entity) return;
+
+    server.abilitiesManager.processAbilityUpdate(
+      server,
+      client,
+      packet.data,
+      entity
     );
   }
 
@@ -3169,6 +3280,21 @@ export class ZonePacketHandlers {
         break;
       case "Group.Join":
         this.GroupJoin(server, client, packet);
+        break;
+      case "Effect.AddEffect":
+        this.EffectAddEffect(server, client, packet);
+        break;
+      case "Effect.RemoveEffect":
+        this.EffectRemoveEffect(server, client, packet);
+        break;
+      case "Abilities.InitAbility":
+        this.AbilitiesInitAbility(server, client, packet);
+        break;
+      case "Abilities.UninitAbility":
+        this.AbilitiesUninitAbility(server, client, packet);
+        break;
+      case "Abilities.UpdateAbility":
+        this.AbilitiesUpdateAbility(server, client, packet);
         break;
       case "ProjectileDebug":
         this.ProjectileDebug(server, client, packet);

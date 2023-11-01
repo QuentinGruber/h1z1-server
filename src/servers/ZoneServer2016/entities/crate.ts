@@ -11,12 +11,13 @@
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
 import { ZoneServer2016 } from "../zoneserver";
-import { BaseLightweightCharacter } from "./baselightweightcharacter";
 import { ZoneClient2016 } from "../classes/zoneclient";
 import { DamageInfo } from "../../../types/zoneserver";
 import { randomIntFromInterval, isPosInRadius } from "../../../utils/utils";
 import { containerLootSpawners } from "../data/lootspawns";
 import { getRandomItem } from "../managers/worldobjectmanager";
+import { BaseSimpleNpc } from "./basesimplenpc";
+import { Effects } from "../models/enums";
 
 function getActorModelId(actorModel: string): number {
   switch (actorModel) {
@@ -62,15 +63,15 @@ function isBuffedCrate(position: Float32Array): boolean {
   return result;
 }
 
-export class Crate extends BaseLightweightCharacter {
-  detonated = false;
+export class Crate extends BaseSimpleNpc {
   spawnerId: number;
   requiredItemId: number = 0;
   rewardItems: number[] = [];
-  health: number = 5000;
   maxHealth: number = 5000;
+  health: number = this.maxHealth;
   spawnTimestamp: number = 0;
   isBuffed: boolean;
+  respawnTime = 900000; // 15min respawn time
   constructor(
     characterId: string,
     transientId: number,
@@ -89,7 +90,6 @@ export class Crate extends BaseLightweightCharacter {
     this.npcRenderDistance = renderDistance;
     this.actorModelId = getActorModelId(actorModel);
     this.isBuffed = isBuffedCrate(this.state.position);
-    this.useSimpleStruct = true;
   }
 
   spawnLoot(server: ZoneServer2016) {
@@ -117,28 +117,45 @@ export class Crate extends BaseLightweightCharacter {
           new Float32Array([0, 0, 0, 0])
         );
         if (!spawnedItem) return;
-        for (const a in server._clients) {
-          const c = server._clients[a];
-          if (
-            isPosInRadius(
-              spawnedItem.npcRenderDistance,
-              spawnedItem.state.position,
-              c.character.state.position
-            )
-          ) {
-            c.spawnedEntities.push(spawnedItem);
-            server.addLightweightNpc(c, spawnedItem);
-          }
-        }
+        server.executeFuncForAllReadyClientsInRange((c) => {
+          c.spawnedEntities.push(spawnedItem);
+          server.addLightweightNpc(c, spawnedItem);
+        }, spawnedItem);
       }
     }
   }
 
-  OnProjectileHit(server: ZoneServer2016, damageInfo: DamageInfo) {
-    this.damageSimpleNpc(server, damageInfo, server._crates);
+  damage(server: ZoneServer2016, damageInfo: DamageInfo) {
+    this.health -= damageInfo.damage;
+    server.sendDataToAllWithSpawnedEntity(
+      server._crates,
+      this.characterId,
+      "Character.UpdateSimpleProxyHealth",
+      this.pGetSimpleProxyHealth()
+    );
     if (this.health > 0) return;
+    this.destroy(server);
+  }
+
+  destroy(server: ZoneServer2016): boolean {
     this.spawnLoot(server);
-    server.deleteCrate(this, 255);
+
+    this.spawnTimestamp = Date.now() + this.respawnTime;
+    this.health = this.maxHealth;
+    return server.deleteEntity(
+      this.characterId,
+      server._crates,
+      Effects.PFX_Damage_Crate_01m
+    );
+  }
+
+  OnProjectileHit(server: ZoneServer2016, damageInfo: DamageInfo) {
+    this.damage(server, damageInfo);
+  }
+
+  OnMeleeHit(server: ZoneServer2016, damageInfo: DamageInfo) {
+    const damage = damageInfo.damage * 2;
+    this.damage(server, { ...damageInfo, damage });
   }
 
   /* eslint-disable @typescript-eslint/no-unused-vars */
@@ -147,7 +164,5 @@ export class Crate extends BaseLightweightCharacter {
     client: ZoneClient2016,
     isInstant?: boolean
     /* eslint-enable @typescript-eslint/no-unused-vars */
-  ) {
-    this.destroy(server);
-  }
+  ) {}
 }

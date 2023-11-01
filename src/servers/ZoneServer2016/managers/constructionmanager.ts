@@ -49,6 +49,7 @@ import { TrapEntity } from "../entities/trapentity";
 import {
   ConstructionErrors,
   ConstructionPermissionIds,
+  Effects,
   Items,
   ResourceIds,
   ResourceTypes,
@@ -2203,10 +2204,14 @@ export class ConstructionManager {
       | LootableConstructionEntity,
     amount: number
   ) {
-    const damageInfo = {
-      entity: "",
-      damage: (amount *= -1)
-    };
+    const damage =
+        entity.health + amount > entity.maxHealth
+          ? (entity.maxHealth - entity.health) * -1
+          : (amount *= -1),
+      damageInfo = {
+        entity: "Server.RepairConstruction",
+        damage
+      };
     entity.damage(server, damageInfo);
     if (entity.useSimpleStruct) {
       server.sendDataToAllWithSpawnedEntity<CharacterUpdateSimpleProxyHealth>(
@@ -2334,23 +2339,80 @@ export class ConstructionManager {
     return accumulatedItemDamage;
   }
 
+  demolishConstructionEntity(
+    server: ZoneServer2016,
+    client: Client,
+    entity: ConstructionEntity,
+    weaponItem: LoadoutItem
+  ) {
+    switch (entity.itemDefinitionId) {
+      case Items.FOUNDATION:
+      case Items.FOUNDATION_EXPANSION:
+      case Items.GROUND_TAMPER:
+      case Items.FOUNDATION_RAMP:
+      case Items.FOUNDATION_STAIRS:
+        return true;
+    }
+
+    const permission = entity.getHasPermission(
+      server,
+      client.character.characterId,
+      ConstructionPermissionIds.DEMOLISH
+    );
+
+    if (!permission) {
+      this.placementError(
+        server,
+        client,
+        ConstructionErrors.DEMOLISH_PERMISSION
+      );
+      return true;
+    }
+
+    if (entity.canUndoPlacement(server, client)) {
+      // give back item only if can undo
+      client.character.lootItem(
+        server,
+        server.generateItem(entity.itemDefinitionId)
+      );
+      entity.destroy(server);
+    }
+
+    const damageInfo: DamageInfo = {
+      entity: "Server.DemoHammer",
+      damage: entity.maxHealth / 3 + 10
+    };
+    if (entity instanceof ConstructionParentEntity) {
+      entity.damageSimpleNpc(
+        server,
+        damageInfo,
+        server._constructionFoundations
+      );
+    } else if (entity instanceof ConstructionChildEntity) {
+      entity.damageSimpleNpc(server, damageInfo, server._constructionSimple);
+    } else if (entity instanceof ConstructionDoor) {
+      entity.damageSimpleNpc(server, damageInfo, server._constructionDoors);
+    } else if (entity instanceof LootableConstructionEntity) {
+      entity.damageSimpleNpc(server, damageInfo, server._lootableConstruction);
+    }
+    server.damageItem(client, weaponItem, 50);
+
+    if (entity.health > 0) return true;
+    entity.destroy(server);
+  }
+
   hammerConstructionEntity(
     server: ZoneServer2016,
     client: Client,
+    entity: ConstructionEntity,
     weaponItem: LoadoutItem
   ) {
-    const entity = server.getConstructionEntity(
-      client.character.currentInteractionGuid || ""
-    );
-    if (!entity) return;
-    if (client.character.meleeBlocked()) return;
-
     let accumulatedItemDamage = 0;
     server.sendCompositeEffectToAllInRange(
       15,
       client.character.characterId,
       entity.state.position,
-      1605
+      Effects.PFX_Impact_Blade_Wood
     );
     if (entity instanceof ConstructionParentEntity) {
       Object.values(entity.occupiedExpansionSlots).forEach(

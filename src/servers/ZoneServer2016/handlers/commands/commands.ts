@@ -245,86 +245,6 @@ export const commands: Array<Command> = [
     }
   },
   {
-    name: "headlights",
-    permissionLevel: PermissionLevels.DEFAULT,
-    execute: (server: ZoneServer2016, client: Client, args: Array<string>) => {
-      if (!client.vehicle.mountedVehicle) {
-        server.sendChatText(client, "[ERROR] You are not in a vehicle");
-        return;
-      }
-      const vehicle = server._vehicles[client.vehicle.mountedVehicle];
-      if (!vehicle) {
-        server.sendChatText(
-          client,
-          "[ERROR] Vehicle doesnt exist? contact a dev"
-        );
-        return;
-      }
-
-      vehicle.toggleHeadlights(server, client);
-    }
-  },
-  {
-    name: "siren",
-    permissionLevel: PermissionLevels.DEFAULT,
-    execute: (server: ZoneServer2016, client: Client, args: Array<string>) => {
-      if (!client.vehicle.mountedVehicle) {
-        server.sendChatText(client, "[ERROR] You are not in a vehicle");
-        return;
-      }
-      const vehicle = server._vehicles[client.vehicle.mountedVehicle];
-      if (!vehicle) {
-        server.sendChatText(
-          client,
-          "[ERROR] Vehicle doesnt exist? contact a dev"
-        );
-        return;
-      }
-
-      if (vehicle.vehicleId != VehicleIds.POLICECAR) {
-        server.sendChatText(client, "[ERROR] vehicle is not a police car");
-        return;
-      }
-
-      const effectId = Effects.VEH_SirenLight_PoliceCar;
-
-      const index = vehicle.effectTags.indexOf(effectId);
-      if (index <= -1) {
-        if (!vehicle._loadout["33"]) {
-          server.sendChatText(
-            client,
-            "[ERROR] Vehicle does not have a battery"
-          );
-          return;
-        }
-        server.sendDataToAllWithSpawnedEntity(
-          server._vehicles,
-          vehicle.characterId,
-          "Character.AddEffectTagCompositeEffect",
-          {
-            characterId: client.vehicle.mountedVehicle,
-            effectId: effectId,
-            unknownDword1: effectId,
-            unknownDword2: effectId
-          }
-        );
-        vehicle.effectTags.push(effectId);
-      } else {
-        server.sendDataToAllWithSpawnedEntity(
-          server._vehicles,
-          vehicle.characterId,
-          "Character.RemoveEffectTagCompositeEffect",
-          {
-            characterId: client.vehicle.mountedVehicle,
-            effectId: effectId,
-            newEffectId: 0
-          }
-        );
-        vehicle.effectTags.splice(index, 1);
-      }
-    }
-  },
-  {
     name: "hood",
     permissionLevel: PermissionLevels.DEFAULT,
     execute: (server: ZoneServer2016, client: Client, args: Array<string>) => {
@@ -925,6 +845,7 @@ export const commands: Array<Command> = [
     permissionLevel: PermissionLevels.ADMIN,
     execute: (server: ZoneServer2016, client: Client, args: Array<string>) => {
       client.spawnedEntities.forEach((object) => {
+        if (object.characterId == client.character.characterId) return;
         server.despawnEntity(object.characterId);
       });
       client.spawnedEntities = [];

@@ -73,7 +73,7 @@ export interface positionUpdate {
   engineRPM?: any;
 }
 
-export interface characterEquipment {
+export interface CharacterEquipment {
   modelName: string;
   slotId: number;
   guid?: string;
@@ -81,6 +81,7 @@ export interface characterEquipment {
   textureAlias?: string;
   tintAlias?: string;
   decalAlias?: string;
+  SHADER_PARAMETER_GROUP?: Array<{SHADER_SEMANTIC_ID: number}>
 }
 
 export interface Weather {
@@ -152,6 +153,7 @@ export interface DamageInfo {
   causeBleed?: boolean;
   hitReport?: HitReport;
   message?: string;
+  meleeType?: number;
 }
 
 export interface DamageRecord {
@@ -370,6 +372,31 @@ export interface HudIndicator {
 	nameId: number,
 	descriptionId: number,
 	imageSetId: number,
+}
+
+export interface ScreenEffect {
+	effectId: number;
+	typeName: string;
+	duration: number;
+	screenBrightness: number;
+	colorGradingFilename: string;
+	colorGrading: number;
+	screenCover: number;
+	transparency: number;
+	color: number;
+	unknownDword3: number;
+}
+
+export interface clientEffect {
+	id: number;
+	typeName: string;
+	animationName: string
+}
+
+export interface modelData {
+	id: number;
+	fileName: string;
+	materialType: number
 }
 
 export interface characterIndicatorData {
