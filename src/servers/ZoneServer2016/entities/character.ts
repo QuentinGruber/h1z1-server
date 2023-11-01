@@ -178,6 +178,10 @@ export class Character2016 extends BaseFullCharacter {
   hudIndicators: { [typeName: string]: characterIndicatorData } = {};
   screenEffects: string[] = [];
   abilityInitTime: number = 0;
+  meleeHit: any = {
+    abilityHitLocation: "",
+    characterId: ""
+  };
   constructor(
     characterId: string,
     transientId: number,
@@ -1499,7 +1503,7 @@ export class Character2016 extends BaseFullCharacter {
   }
 
   OnMeleeHit(server: ZoneServer2016, damageInfo: DamageInfo) {
-    const damage = damageInfo.damage / 2;
+    let damage = damageInfo.damage / 2;
     let bleedingChance = 5;
     switch (damageInfo.meleeType) {
       case MeleeTypes.BLADE:
@@ -1516,6 +1520,16 @@ export class Character2016 extends BaseFullCharacter {
         break;
       case MeleeTypes.KNIFE:
         bleedingChance = 35;
+        break;
+    }
+    switch (damageInfo.hitReport?.hitLocation) {
+      case "HEAD":
+      case "GLASSES":
+      case "NECK":
+        damage = server.checkHelmet(this.characterId, damage, 1);
+        break;
+      default:
+        damage = server.checkArmor(this.characterId, damage, 4);
         break;
     }
     if (randomIntFromInterval(0, 100) <= bleedingChance) {

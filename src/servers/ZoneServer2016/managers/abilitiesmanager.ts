@@ -83,6 +83,20 @@ export class AbilitiesManager {
     client: Client,
     packetData: AbilitiesInitAbility
   ) {
+    const hitLocation = (packetData.abilityData as any)?.hitLocation;
+    client.character.checkCurrentInteractionGuid();
+    const characterId =
+      (packetData.abilityData as any)?.hitLocation ??
+      client.character.currentInteractionGuid;
+
+    if (hitLocation) {
+      client.character.abilityInitTime = Date.now();
+      client.character.meleeHit = {
+        abilityHitLocation: hitLocation,
+        characterId: characterId
+      };
+      return;
+    }
     switch (packetData.abilityId) {
       case AbilityIds.NV_GOGGLES:
         const index = client.character.screenEffects.indexOf("NIGHTVISION");
@@ -190,6 +204,7 @@ export class AbilitiesManager {
     if (!weaponItem) return;
 
     this.handleMeleeHit(server, client, entity, weaponItem);
+    client.character.meleeHit = {};
   }
 
   handleMeleeHit(
@@ -253,12 +268,28 @@ export class AbilitiesManager {
         meleeType = MeleeTypes.FISTS;
         break;
     }
+    switch (client.character.meleeHit.abilityHitLocation) {
+      case "HEAD":
+      case "GLASSES":
+      case "NECK":
+        damage *= 2;
+        break;
+    }
     const damageInfo: DamageInfo = {
       entity: client.character.characterId,
       weapon: weaponItem.itemDefinitionId,
       damage: damage, // need to figure out a good number for this
       causeBleed: false, // another method for melees to apply bleeding
-      meleeType: meleeType
+      meleeType: meleeType,
+      hitReport: {
+        sessionProjectileCount: 0,
+        characterId: client.character.characterId,
+        position: client.character.state.position,
+        unknownFlag1: 0,
+        unknownByte2: 0,
+        totalShotCount: 0,
+        hitLocation: client.character.meleeHit.abilityHitLocation
+      }
     };
     entity.OnMeleeHit(server, damageInfo);
     if (
