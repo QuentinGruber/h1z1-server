@@ -81,6 +81,11 @@ interface CharacterMetrics {
   recipesDiscovered: number;
   startedSurvivingTP: number; // timestamp
 }
+
+interface MeleeHit {
+  abilityHitLocation: string;
+  characterId: string;
+}
 export class Character2016 extends BaseFullCharacter {
   name!: string;
   spawnLocation?: string;
@@ -178,7 +183,7 @@ export class Character2016 extends BaseFullCharacter {
   hudIndicators: { [typeName: string]: characterIndicatorData } = {};
   screenEffects: string[] = [];
   abilityInitTime: number = 0;
-  meleeHit: any = {
+  meleeHit: MeleeHit = {
     abilityHitLocation: "",
     characterId: ""
   };

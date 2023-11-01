@@ -204,7 +204,10 @@ export class AbilitiesManager {
     if (!weaponItem) return;
 
     this.handleMeleeHit(server, client, entity, weaponItem);
-    client.character.meleeHit = {};
+    client.character.meleeHit = {
+      abilityHitLocation: "",
+      characterId: ""
+    };
   }
 
   handleMeleeHit(
