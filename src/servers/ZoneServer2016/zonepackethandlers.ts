@@ -3049,11 +3049,17 @@ export class ZonePacketHandlers {
       so it's ignored for now so the melee hit can be processed when the melee actually
       collides with an object. -Meme
     */
-
     const hitLocation = (packet.data.abilityData as any)?.hitLocation;
+    const characterId =
+      (packet.data.abilityData as any)?.hitLocation ??
+      client.character.currentInteractionGuid;
 
     if (hitLocation) {
       client.character.abilityInitTime = Date.now();
+      client.character.meleeHit = {
+        abilityHitLocation: hitLocation,
+        characterId: characterId
+      };
       return;
     }
 
