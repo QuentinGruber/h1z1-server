@@ -144,6 +144,11 @@ export class Npc extends BaseFullCharacter {
     this.damage(server, damageInfo);
   }
 
+  OnMeleeHit(server: ZoneServer2016, damageInfo: DamageInfo) {
+    damageInfo.damage = damageInfo.damage / 1.5;
+    this.damage(server, damageInfo);
+  }
+
   destroy(server: ZoneServer2016): boolean {
     return server.deleteEntity(this.characterId, server._npcs);
   }

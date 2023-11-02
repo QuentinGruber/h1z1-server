@@ -436,8 +436,15 @@ export class ConstructionChildEntity extends BaseLightweightCharacter {
     };
   }
   damage(server: ZoneServer2016, damageInfo: DamageInfo) {
-    // todo: redo this
-    this.health -= damageInfo.damage;
+    const dictionary = server.getEntityDictionary(this.characterId);
+    if (!dictionary) {
+      return;
+    }
+    this.damageSimpleNpc(
+      server,
+      damageInfo,
+      dictionary as EntityDictionary<ConstructionEntity>
+    );
   }
 
   damageSimpleNpc(
@@ -660,5 +667,30 @@ export class ConstructionChildEntity extends BaseLightweightCharacter {
 
   OnProjectileHit() {
     // do nothing for now
+  }
+
+  OnMeleeHit(server: ZoneServer2016, damageInfo: DamageInfo) {
+    const client = server.getClientByCharId(damageInfo.entity),
+      weapon = client?.character.getEquippedWeapon();
+    if (!client || !weapon) return;
+
+    switch (weapon.itemDefinitionId) {
+      case Items.WEAPON_HAMMER_DEMOLITION:
+        server.constructionManager.demolishConstructionEntity(
+          server,
+          client,
+          this,
+          weapon
+        );
+        return;
+      case Items.WEAPON_HAMMER:
+        server.constructionManager.hammerConstructionEntity(
+          server,
+          client,
+          this,
+          weapon
+        );
+        return;
+    }
   }
 }

@@ -1275,11 +1275,11 @@ export const basePackets: PacketStructures = [
               ]
             },
             {
-              name: "equipmentSlots", // equipment probably
+              name: "equipment",
               type: "array",
               defaultValue: [],
               fields: [
-                { name: "unknownDword1", type: "uint32", defaultValue: 0 },
+                { name: "profileId", type: "uint32", defaultValue: 0 },
                 {
                   name: "unknownData1",
                   type: "schema",
@@ -1287,19 +1287,15 @@ export const basePackets: PacketStructures = [
                   fields: [
                     { name: "unknownDword1", type: "uint32", defaultValue: 0 },
                     {
-                      name: "unknownString1",
+                      name: "tintAlias",
                       type: "string",
-                      defaultValue: ""
+                      defaultValue: "Default"
                     },
+                    { name: "decalAlias", type: "string", defaultValue: "#" },
                     {
-                      name: "unknownString1",
-                      type: "string",
-                      defaultValue: ""
-                    },
-                    {
-                      name: "equipmentSlot",
-                      type: "schema",
-                      defaultValue: {},
+                      name: "equipmentSlots",
+                      type: "array",
+                      defaultValue: [],
                       fields: equipmentSlotSchema
                     }
                   ]
@@ -2951,7 +2947,6 @@ export const basePackets: PacketStructures = [
       ]
     }
   ],
-
   [
     "AddSimpleNpc",
     0x92,
@@ -2964,21 +2959,20 @@ export const basePackets: PacketStructures = [
           parser: readUnsignedIntWith2bitLengthValue,
           packer: packUnsignedIntWith2bitLengthValue
         },
-        { name: "unknownByte1", type: "uint8", defaultValue: 50 },
+        { name: "unknownByte1", type: "uint8", defaultValue: 0 },
         { name: "position", type: "floatvector3", defaultValue: [0, 0, 0] },
         { name: "rotation", type: "floatvector3", defaultValue: [0, 0, 0] },
-        { name: "unknownDword1", type: "uint32", defaultValue: 23 },
-        { name: "unknownDword2", type: "uint32", defaultValue: 23 },
+        { name: "unknownDword1", type: "uint32", defaultValue: 0 },
+        { name: "unknownDword2", type: "uint32", defaultValue: 0 },
         { name: "modelId", type: "uint32", defaultValue: 0 },
         { name: "scale", type: "floatvector4", defaultValue: [1, 1, 1, 1] },
-        { name: "unknownDword3", type: "uint32", defaultValue: 23 },
-        { name: "showHealth", type: "boolean", defaultValue: true },
+        { name: "unknownDword3", type: "uint32", defaultValue: 0 },
+        { name: "unknownByte2", type: "uint8", defaultValue: 0 },
         { name: "health", type: "float", defaultValue: 100 }
       ]
     }
   ],
   ["PlayerUpdateUpdateVehicleWeapon", 0x93, {}],
-
   [
     "ContinentBattleInfo",
     0x97,
@@ -3045,7 +3039,6 @@ export const basePackets: PacketStructures = [
       fields: []
     }
   ],
-
   ["ClientInGamePurchase", 0x9d, {}],
 
   [
@@ -3391,7 +3384,6 @@ export const basePackets: PacketStructures = [
   ["ChronicleBase", 0xdf, {}],
   ["GrinderBase", 0xe0, {}],
   ["RequestObject", 0xe1, {}],
-  ["ScreenEffectBase", 0xe2, {}],
   ["WhitelistBase", 0xe4, {}],
   [
     "NpcFoundationPermissionsManagerBase.ShowPermissions",

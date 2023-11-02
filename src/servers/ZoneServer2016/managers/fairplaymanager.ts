@@ -18,7 +18,10 @@ import {
   FireHint,
   HitReport
 } from "types/zoneserver";
-import { BAN_INFO, DB_COLLECTIONS } from "../../../utils/enums";
+import {
+  CONNECTION_REJECTION_FLAGS,
+  DB_COLLECTIONS
+} from "../../../utils/enums";
 import {
   decrypt,
   getDistance,
@@ -31,29 +34,33 @@ import { LoadoutItem } from "../classes/loadoutItem";
 import { ZoneClient2016 as Client } from "../classes/zoneclient";
 import { BaseEntity } from "../entities/baseentity";
 import { Vehicle2016 as Vehicle } from "../entities/vehicle";
-import { ConstructionPermissionIds, Items } from "../models/enums";
+import {
+  ConstructionPermissionIds,
+  WeaponDefinitionIds
+} from "../models/enums";
 import { ZoneServer2016 } from "../zoneserver";
+import { FileHash } from "types/shared";
 
 const encryptedData = require("../../../../data/2016/encryptedData/encryptedData.json"),
-  fairPlayData = require("../../../../data/2016/encryptedData/fairPlayData.json");
+  fairPlayData = require("../../../../data/2016/encryptedData/fairPlayData.json"),
+  defaultHashes: Array<FileHash> = require("../../../../data/2016/dataSources/AllowedFileHashes.json");
 
 export class FairPlayManager {
   _decryptKey: string = "";
   _fairPlayDecryptKey: string = "";
   _suspiciousList: string[] = [];
   fairPlayValues?: FairPlayValues;
-  banInfoAcceptance: Array<BAN_INFO> = [
-    BAN_INFO.GLOBAL_BAN,
-    BAN_INFO.LOCAL_BAN,
-    BAN_INFO.VPN,
-    BAN_INFO.HWID,
-    BAN_INFO.UNVERIFIED
-  ];
+  defaultHashes = defaultHashes;
 
   /* MANAGED BY CONFIGMANAGER */
   useFairPlay!: boolean;
   maxPing!: number;
   pingTimeoutTime!: number;
+  acceptedRejectionTypes!: Array<CONNECTION_REJECTION_FLAGS>;
+  useAssetValidation!: boolean;
+  hashSubmissionTimeout!: number;
+  allowedPacks!: Array<FileHash>;
+  requiredPacks!: Array<FileHash>;
 
   decryptFairPlayValues() {
     if (this._decryptKey) {
@@ -321,12 +328,19 @@ export class FairPlayManager {
     hitLocation: string
   ) {
     const weaponItem = client.character.getEquippedWeapon();
+    if (!weaponItem) return;
+    const itemDefinition = server.getItemDefinition(
+      weaponItem.itemDefinitionId
+    );
+    if (!itemDefinition) return;
+    const weaponDefinitionId = itemDefinition.PARAM1;
     if (
       !this.useFairPlay ||
       !weaponItem ||
-      weaponItem.itemDefinitionId == Items.WEAPON_SHOTGUN
-    )
+      weaponDefinitionId == WeaponDefinitionIds.WEAPON_SHOTGUN
+    ) {
       return;
+    }
     if (hit) {
       client.pvpStats.shotsHit += 1;
       switch (hitLocation.toLowerCase()) {
@@ -405,12 +419,18 @@ export class FairPlayManager {
 
     if (targetClient) fireHint.hitNumber++;
     const checkWeapons = [
-      Items.WEAPON_BOW_MAKESHIFT,
-      Items.WEAPON_BOW_RECURVE,
-      Items.WEAPON_BOW_WOOD,
-      Items.WEAPON_CROSSBOW
+      WeaponDefinitionIds.WEAPON_BOW_MAKESHIFT,
+      WeaponDefinitionIds.WEAPON_BOW_RECURVE,
+      WeaponDefinitionIds.WEAPON_BOW_WOOD,
+      WeaponDefinitionIds.WEAPON_CROSSBOW
     ];
-    if (checkWeapons.includes(weaponItem.itemDefinitionId)) {
+    if (!weaponItem) return false;
+    const itemDefinition = server.getItemDefinition(
+      weaponItem.itemDefinitionId
+    );
+    if (!itemDefinition) return false;
+    const weaponDefinitionId = itemDefinition.PARAM1;
+    if (checkWeapons.includes(weaponDefinitionId)) {
       if (
         !fireHint.marked ||
         fireHint.marked.characterId != entity.characterId ||
@@ -434,7 +454,7 @@ export class FairPlayManager {
         Math.sin(angle) * Math.sin(fixedRot);
       if (
         dotProduct <
-        (weaponItem.itemDefinitionId == Items.WEAPON_SHOTGUN
+        (weaponDefinitionId == WeaponDefinitionIds.WEAPON_SHOTGUN
           ? this.fairPlayValues.dotProductMinShotgun
           : this.fairPlayValues.dotProductMin)
       ) {
@@ -466,7 +486,7 @@ export class FairPlayManager {
             Number(
               (
                 1 -
-                (weaponItem.itemDefinitionId == Items.WEAPON_SHOTGUN
+                (weaponDefinitionId == WeaponDefinitionIds.WEAPON_SHOTGUN
                   ? this.fairPlayValues.dotProductMinShotgun
                   : this.fairPlayValues.dotProductMin)
               ).toFixed(3)
@@ -498,35 +518,35 @@ export class FairPlayManager {
       let maxSpeed = this.fairPlayValues.defaultMaxProjectileSpeed;
       let minSpeed = this.fairPlayValues.defaultMinProjectileSpeed;
       let maxDistance = this.fairPlayValues.defaultMaxDistance;
-      switch (weaponItem.itemDefinitionId) {
-        case Items.WEAPON_308:
-        case Items.WEAPON_REAPER:
+      switch (weaponDefinitionId) {
+        case WeaponDefinitionIds.WEAPON_308:
+        case WeaponDefinitionIds.WEAPON_REAPER:
           maxSpeed = this.fairPlayValues.WEAPON_308.maxSpeed;
           minSpeed = this.fairPlayValues.WEAPON_308.minSpeed;
           maxDistance = this.fairPlayValues.WEAPON_308.maxDistance;
           break;
-        case Items.WEAPON_CROSSBOW:
+        case WeaponDefinitionIds.WEAPON_CROSSBOW:
           maxSpeed = this.fairPlayValues.WEAPON_CROSSBOW.maxSpeed;
           minSpeed = this.fairPlayValues.WEAPON_CROSSBOW.minSpeed;
           maxDistance = this.fairPlayValues.WEAPON_CROSSBOW.maxDistance;
           break;
-        case Items.WEAPON_BOW_MAKESHIFT:
+        case WeaponDefinitionIds.WEAPON_BOW_MAKESHIFT:
           maxSpeed = this.fairPlayValues.WEAPON_BOW_MAKESHIFT.maxSpeed;
           minSpeed = this.fairPlayValues.WEAPON_BOW_MAKESHIFT.minSpeed;
           maxDistance = this.fairPlayValues.WEAPON_BOW_MAKESHIFT.maxDistance;
           break;
-        case Items.WEAPON_BOW_RECURVE:
+        case WeaponDefinitionIds.WEAPON_BOW_RECURVE:
           maxSpeed = this.fairPlayValues.WEAPON_BOW_RECURVE.maxSpeed;
           minSpeed = this.fairPlayValues.WEAPON_BOW_RECURVE.minSpeed;
           maxDistance = this.fairPlayValues.WEAPON_BOW_RECURVE.maxDistance;
           break;
-        case Items.WEAPON_BOW_WOOD:
+        case WeaponDefinitionIds.WEAPON_BOW_WOOD:
           maxSpeed = this.fairPlayValues.WEAPON_BOW_WOOD.maxSpeed;
           minSpeed = this.fairPlayValues.WEAPON_BOW_WOOD.minSpeed;
           maxDistance = this.fairPlayValues.WEAPON_BOW_WOOD.maxDistance;
           break;
-        case Items.WEAPON_SHOTGUN:
-        case Items.WEAPON_NAGAFENS_RAGE:
+        case WeaponDefinitionIds.WEAPON_SHOTGUN:
+        case WeaponDefinitionIds.WEAPON_NAGAFENS_RAGE:
           maxSpeed = this.fairPlayValues.WEAPON_SHOTGUN.maxSpeed;
           minSpeed = this.fairPlayValues.WEAPON_SHOTGUN.minSpeed;
           maxDistance = this.fairPlayValues.WEAPON_SHOTGUN.maxDistance;
@@ -619,5 +639,91 @@ export class FairPlayManager {
         client.character.sitCount = 0;
       }
     }
+  }
+
+  handleAssetValidationInit(server: ZoneServer2016, client: Client) {
+    if (!this.useAssetValidation || server._soloMode) return;
+
+    server.sendData(client, "H1emu.RequestAssetHashes", {});
+    server.sendConsoleText(client, "[SERVER] Requested asset hashes");
+
+    client.kickTimer = setTimeout(() => {
+      if (!client) return;
+      server.kickPlayerWithReason(client, "Missing asset integrity check.");
+    }, this.hashSubmissionTimeout);
+  }
+
+  validateFile(file1: FileHash, file2: FileHash) {
+    return (
+      file1.file_name == file2.file_name && file1.crc32_hash == file2.crc32_hash
+    );
+  }
+
+  handleAssetCheck(server: ZoneServer2016, client: Client, data: string) {
+    if (!this.useAssetValidation || server._soloMode) return;
+    const receivedHashes: Array<FileHash> = JSON.parse(data);
+
+    if (!receivedHashes || !Array.isArray(receivedHashes)) {
+      console.log(
+        `${client.loginSessionId} failed asset integrity check due to invalid JSON data.`
+      );
+      server.kickPlayerWithReason(
+        client,
+        "Failed asset integrity check - Invalid JSON Received"
+      );
+      return;
+    }
+
+    const hashes = this.defaultHashes.concat(this.requiredPacks),
+      validatedHashes: Array<FileHash> = [];
+
+    // check if all default / required packs are found in game files
+    for (const value of hashes) {
+      if (!value) continue;
+      let received: FileHash | undefined;
+      if (
+        receivedHashes.find((clientValue) => {
+          received = clientValue;
+          return this.validateFile(value, clientValue);
+        })
+      ) {
+        validatedHashes.push(value);
+        continue;
+      }
+      console.log(
+        `${client.loginSessionId} (${client.character.name}) failed asset integrity check due to missing or invalid file ${value.file_name} received: ${received?.crc32_hash} expected: ${value.crc32_hash}`
+      );
+      server.kickPlayerWithReason(
+        client,
+        `Failed asset integrity check - Missing or invalid file: ${value.file_name}`
+      );
+      return;
+    }
+
+    for (const value of receivedHashes) {
+      if (
+        validatedHashes.find((clientValue) =>
+          this.validateFile(value, clientValue)
+        ) ||
+        this.allowedPacks.find((clientValue) =>
+          this.validateFile(value, clientValue)
+        )
+      ) {
+        continue;
+      }
+      console.log(
+        `Unauthorized file on client: ${client.loginSessionId} - ${value.file_name}: ${value.crc32_hash}`
+      );
+      server.kickPlayerWithReason(
+        client,
+        `Failed asset integrity check - Unauthorized file: ${value.file_name}`
+      );
+      return;
+    }
+
+    console.log(`${client.loginSessionId} passed asset integrity check.`);
+    server.sendConsoleText(client, "[SERVER] Passed asset integrity check");
+    clearTimeout(client.kickTimer);
+    delete client.kickTimer;
   }
 }

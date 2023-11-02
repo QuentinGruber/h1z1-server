@@ -16,12 +16,13 @@ import {
   EquipmentSetCharacterEquipmentSlot,
   LightweightToFullNpc
 } from "types/zone2016packets";
-import { characterEquipment, DamageInfo } from "../../../types/zoneserver";
+import { CharacterEquipment, DamageInfo } from "../../../types/zoneserver";
 import { LoadoutKit } from "../data/loadouts";
 import {
   ContainerErrors,
   ItemClasses,
   Items,
+  LoadoutIds,
   LoadoutSlots,
   ResourceIds,
   ResourceTypes
@@ -63,7 +64,7 @@ export abstract class BaseFullCharacter extends BaseLightweightCharacter {
   onReadyCallback?: (clientTriggered: ZoneClient2016) => void;
   _resources: { [resourceId: number]: number } = {};
   _loadout: { [loadoutSlotId: number]: LoadoutItem } = {};
-  _equipment: { [equipmentSlotId: number]: characterEquipment } = {};
+  _equipment: { [equipmentSlotId: number]: CharacterEquipment } = {};
   _containers: { [loadoutSlotId: number]: LoadoutContainer } = {};
   loadoutId = 5;
   currentLoadoutSlot = 0; // idk if other full npcs use this
@@ -276,7 +277,7 @@ export abstract class BaseFullCharacter extends BaseLightweightCharacter {
     }
 
     if (equipmentSlotId) {
-      const equipmentData: characterEquipment = {
+      const equipmentData: CharacterEquipment = {
         modelName: def.MODEL_NAME.replace(
           "<gender>",
           this.gender == 1 ? "Male" : "Female"
@@ -284,7 +285,10 @@ export abstract class BaseFullCharacter extends BaseLightweightCharacter {
         slotId: equipmentSlotId,
         guid: item.itemGuid,
         textureAlias: def.TEXTURE_ALIAS || "default0",
-        tintAlias: ""
+        tintAlias: "",
+        SHADER_PARAMETER_GROUP: server.getShaderParameterGroup(
+          item.itemDefinitionId
+        )
       };
       this._equipment[equipmentSlotId] = equipmentData;
     }
@@ -362,15 +366,18 @@ export abstract class BaseFullCharacter extends BaseLightweightCharacter {
         }
       }
       if (equipmentSlotId) {
-        const equipmentData: characterEquipment = {
+        const equipmentData: CharacterEquipment = {
           modelName: def.MODEL_NAME.replace(
             "<gender>",
             this.gender == 1 ? "Male" : "Female"
           ),
           slotId: equipmentSlotId,
           guid: slot.itemGuid,
-          textureAlias: def.TEXTURE_ALIAS || "default0",
-          tintAlias: ""
+          textureAlias: def.TEXTURE_ALIAS || "",
+          tintAlias: "",
+          SHADER_PARAMETER_GROUP: server.getShaderParameterGroup(
+            slot.itemDefinitionId
+          )
         };
         this._equipment[equipmentSlotId] = equipmentData;
       }
@@ -432,7 +439,7 @@ export abstract class BaseFullCharacter extends BaseLightweightCharacter {
       }
       this.equipItem(server, item, true);
     } else {
-      for (const container of Object.values(this._containers)) {
+      for (const container of this.getSortedContainers()) {
         const itemDefinition = server.getItemDefinition(item.itemDefinitionId);
         if (!itemDefinition) return;
 
@@ -509,6 +516,27 @@ export abstract class BaseFullCharacter extends BaseLightweightCharacter {
     }
   }
 
+  getSortedContainers() {
+    if (this.loadoutId != LoadoutIds.CHARACTER) {
+      return Object.values(this._containers);
+    }
+    const containers = Object.values(this._containers),
+      order = [
+        LoadoutSlots.BACK,
+        LoadoutSlots.BELT,
+        LoadoutSlots.CHEST,
+        LoadoutSlots.LEGS
+      ];
+
+    containers.sort((a, b) => {
+      const aIndex = order.indexOf(a.slotId);
+      const bIndex = order.indexOf(b.slotId);
+
+      return aIndex - bIndex;
+    });
+    return containers;
+  }
+
   lootContainerItem(
     server: ZoneServer2016,
     item?: BaseItem,
@@ -538,7 +566,7 @@ export abstract class BaseFullCharacter extends BaseLightweightCharacter {
         });
       }
 
-      Object.values(this._containers).forEach((c) => {
+      this.getSortedContainers().forEach((c) => {
         if (item.stackCount <= 0) return;
         if (array.includes(c)) return;
         array.push(c);
@@ -771,10 +799,8 @@ export abstract class BaseFullCharacter extends BaseLightweightCharacter {
           textureAlias: slot.textureAlias || "",
           tintAlias: slot.tintAlias || "Default",
           decalAlias: slot.decalAlias || "#",
-          slotId: slot.slotId,
-          SHADER_PARAMETER_GROUP: [
-            // TODO
-          ]
+          slotId: slot.slotId
+          //SHADER_PARAMETER_GROUP: slot.SHADER_PARAMETER_GROUP
         }
       : undefined;
   }
@@ -804,8 +830,8 @@ export abstract class BaseFullCharacter extends BaseLightweightCharacter {
         characterId: this.characterId
       },
       unknownDword1: 0,
-      unknownString1: "Default",
-      unknownString2: "#",
+      tintAlias: "Default",
+      decalAlias: "#",
       equipmentSlots: this.pGetEquipmentSlots(),
       attachmentData: this.pGetAttachmentSlots(),
       unknownBoolean1: true
@@ -917,11 +943,12 @@ export abstract class BaseFullCharacter extends BaseLightweightCharacter {
     count: number
   ): LoadoutContainer | undefined {
     const itemDef = server.getItemDefinition(itemDefinitionId);
-    for (const container of Object.values(this._containers)) {
+    if (!itemDef) return;
+    for (const container of this.getSortedContainers()) {
+      if (!container) continue;
       if (
-        container &&
-        (container.getMaxBulk(server) == 0 ||
-          container.getAvailableBulk(server) >= (itemDef?.BULK ?? 1) * count)
+        container.getMaxBulk(server) == 0 ||
+        container.getAvailableBulk(server) >= itemDef.BULK * count
       ) {
         return container;
       }
@@ -1068,6 +1095,7 @@ export abstract class BaseFullCharacter extends BaseLightweightCharacter {
       unknownArray4: {},
       unknownArray5: { data: [] },
       remoteWeapons: { data: {} },
+      materialType: this.materialType,
       itemsData: {
         items: this.pGetInventoryItems(server),
         unknownDword1: 0
@@ -1200,6 +1228,10 @@ export abstract class BaseFullCharacter extends BaseLightweightCharacter {
   }
 
   OnProjectileHit(server: ZoneServer2016, damageInfo: DamageInfo) {
+    this.damage(server, damageInfo);
+  }
+
+  OnMeleeHit(server: ZoneServer2016, damageInfo: DamageInfo) {
     this.damage(server, damageInfo);
   }
 }

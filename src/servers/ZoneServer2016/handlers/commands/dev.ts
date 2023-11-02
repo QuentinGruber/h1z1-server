@@ -16,6 +16,7 @@
 import { h1z1PacketsType2016 } from "types/packets";
 import {
   CharacterManagedObject,
+  CharacterPlayWorldCompositeEffect,
   CharacterSeekTarget
 } from "types/zone2016packets";
 import { Npc } from "../../entities/npc";
@@ -27,6 +28,9 @@ import { ConstructionChildEntity } from "../../entities/constructionchildentity"
 import { ConstructionDoor } from "../../entities/constructiondoor";
 import { randomIntFromInterval } from "../../../../utils/utils";
 import { Zombie } from "../../entities/zombie";
+
+const abilities = require("../../../../../data/2016/dataSources/Abilities.json"),
+  vehicleAbilities = require("../../../../../data/2016/dataSources/VehicleAbilities.json");
 
 const dev: any = {
   path: function (server: ZoneServer2016, client: Client, args: Array<string>) {
@@ -93,6 +97,105 @@ const dev: any = {
       server
     );
     server._npcs[characterId] = zombie;
+  },
+  abilities: function (
+    server: ZoneServer2016,
+    client: Client,
+    args: Array<string>
+  ) {
+    /*server.sendData(client, "Abilities.ClearAbilityLineManager", {});
+
+    server.sendData(client, "Abilities.SetProfileAbilityLineMembers", {});
+    server.sendData(client, "Abilities.SetProfileRankAbilities", {
+      abilities: [
+        {
+          abilityId: 1111157,
+          abilityId2: 1111157
+        },
+        {
+          abilityId: 1111272,
+          abilityId2: 1111272
+        },
+        {
+          abilityId: 1111278,
+          abilityId2: 1111278
+        }
+      ]
+    });
+
+    server.sendData(client, "Abilities.SetProfileRankAbilities", {
+      abilities: [
+        {
+          abilitySlotId: 8,
+          abilityData: {
+            abilitySlotId: 8,
+            abilityId: 1111278,
+            guid1: client.character.characterId,
+            guid2: client.character.characterId
+          }
+        }
+      ]
+    });
+
+      server.sendData(client, "Abilities.AddLoadoutAbility", {
+          abilitySlotId: 12,
+          abilityId: 1111278,
+          unknownDword1: 0,
+          guid1: client.character.characterId,
+          guid2: client.character.characterId
+      });
+
+      server.sendData(client, "Abilities.AddLoadoutAbility", {
+          abilitySlotId: 11,
+          abilityId: 1111157,
+          unknownDword1: 0,
+          guid1: client.character.characterId,
+          guid2: client.character.characterId
+      });
+
+      server.sendData(client, "Abilities.AddPersistentAbility", {
+          unk: 1111278
+      });*/
+
+    server.sendData(
+      client,
+      "Abilities.SetActivatableAbilityManager",
+      abilities
+    );
+
+    server.sendData(
+      client,
+      "Abilities.SetVehicleActivatableAbilityManager",
+      vehicleAbilities
+    );
+  },
+  abilitiesoff: function (
+    server: ZoneServer2016,
+    client: Client,
+    args: Array<string>
+  ) {
+    server.sendData(client, "Abilities.SetActivatableAbilityManager", {
+      abilities: []
+    });
+
+    server.sendData(client, "Abilities.SetVehicleActivatableAbilityManager", {
+      abilities: []
+    });
+  },
+  animation: function (
+    server: ZoneServer2016,
+    client: Client,
+    args: Array<string>
+  ) {
+    server.sendDataToAllWithSpawnedEntity(
+      server._characters,
+      client.character.characterId,
+      "AnimationBase",
+      {
+        characterId: client.character.characterId,
+        unknownDword1: args[1]
+      }
+    );
   },
   deletesmallshacks: function (server: ZoneServer2016, client: Client) {
     let counter = 0;
@@ -818,69 +921,46 @@ const dev: any = {
       `Parent itemDefinitionId: ${parent.itemDefinitionId} characterId: ${parent.characterId}`
     );
   },
-  /*
-  weathervalue: function (
+  hashes: function (
     server: ZoneServer2016,
     client: Client,
     args: Array<string>
   ) {
-    if(!args[2]) {
-      server.sendChatText(client, "Missing 2 args");
+    server.sendData(client, "H1emu.RequestAssetHashes", {});
+    server.sendChatText(client, "Requested asset hashes from client");
+  },
+  compositeeffect: function (
+    server: ZoneServer2016,
+    client: Client,
+    args: Array<string>
+  ) {
+    if (!args[2]) {
+      server.sendChatText(client, "Missing effectId and time");
       return;
     }
 
-    if(Object.is(NaN, Number(args[2]))) {
-      server.sendChatText(client, "args[2] is not a number");
-      return;
-    }
-
-    switch(args[1]) {
-      case "overcast":
-      case "fogDensity":
-      case "fogFloor":
-      case "fogGradient":
-      case "globalPrecipitation":
-      case "temperature":
-      case "skyClarity":
-      case "cloudWeight0":
-      case "cloudWeight1":
-      case "cloudWeight2":
-      case "cloudWeight3":
-      case "transitionTime":
-      case "sunAxisX":
-      case "sunAxisY":
-      case "sunAxisZ":
-      case "windDirectionX":
-      case "windDirectionY":
-      case "windDirectionZ":
-      case "wind":
-      case "rainminStrength":
-      case "rainRampupTimeSeconds":
-      case "stratusCloudTiling":
-      case "stratusCloudScrollU":
-      case "stratusCloudScrollV":
-      case "stratusCloudHeight":
-      case "cumulusCloudTiling":
-      case "cumulusCloudScrollU":
-      case "cumulusCloudScrollV":
-      case "cumulusCloudHeight":
-      case "cloudAnimationSpeed":
-      case "cloudSilverLiningThickness":
-      case "cloudSilverLiningBrightness":
-      case "cloudShadows":
-        break;
-      default:
-        server.sendChatText(client, "Invalid args[1]");
-        return;
-    }
-
-    server.weatherManager.weather[args[1]] = Number(args[2]);
-    server.weatherManager.sendUpdateToAll(server, client, false);
-    server.sendChatText(client, `Set weather ${args[1]} to ${args[2]}`);
+    const effectId = Number(args[1]),
+      time = Number(args[2]);
+    server.sendDataToAllInRange<CharacterPlayWorldCompositeEffect>(
+      100,
+      client.character.state.position,
+      "Character.PlayWorldCompositeEffect",
+      {
+        characterId: client.character.characterId,
+        effectId: effectId,
+        position: client.character.state.position,
+        effectTime: time
+      }
+    );
+    server.sendChatText(client, "Sent composite effect");
+  },
+  sleep: function (
+    server: ZoneServer2016,
+    client: Client,
+    args: Array<string>
+  ) {
+    server.sleep(client);
   }
-
-  */
-
   /*
   shutdown: function (
     server: ZoneServer2016,

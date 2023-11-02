@@ -15,6 +15,32 @@ fairplay:
   useFairplay: true
   maxPing: 250
   pingTimeoutTime: 30000
+  
+  # Removing an entry below will allow clients with a certain rejectionFlag to join
+  # ex. Removing "5 # UNVERIFIED" will allow users with an unverified h1emu status to join
+
+  # by default, globally banned, hwid banned, vpn detected, and unverified clients will have their
+  # connections rejected
+  acceptedRejectionTypes:
+  # LOCAL_BAN, SERVER_LOCKED, and SERVER_REBOOT are always accepted
+  - 2 # GLOBAL_BAN
+  - 3 # VPN
+  - 4 # HWID
+  - 5 # UNVERIFIED
+
+  useAssetValidation: true
+  # how long the client has to send it's hashes before it's kicked (3 min default)
+  hashSubmissionTimeout: 180000
+
+  # clients with these packs are allowed to join, but they are optional (must be in numerical order)
+  allowedPacks:
+  #- file_name: ""
+  #  crc32_hash: ""
+
+  # clients without these packs will be kicked (must be in numerical order)
+  requiredPacks:
+  #- file_name: ""
+  #  crc32_hash: ""
 
 weather:
   cycleSpeed: 100

@@ -158,7 +158,7 @@ export interface SendSelfToClient {
   unknownArray21?: unknown[];
   unknownArray22?: unknown[];
   unknownArray23?: unknown[];
-  equipmentSlots?: unknown[];
+  equipment?: unknown[];
   unknownArray25?: unknown[];
   unknownData5 :{
   unknownDword1?: number;
@@ -467,7 +467,7 @@ export interface AddSimpleNpc {
   modelId?: number;
   scale?: Float32Array;
   unknownDword3?: number;
-  showHealth?: boolean;
+  unknownByte2?: number;
   health?: number;
 }
 export interface ContinentBattleInfo {
@@ -967,6 +967,17 @@ export interface CharacterRemovePlayer {
   stickyEffectId?: number;
   timeToDisappear?: number;
 }
+export interface CharacterPlayAnimation {
+  characterId?: string;
+  animationName: unknown;
+  unm4?: number;
+  unknownDword1?: number;
+  unknownByte1?: number;
+  unknownDword2?: number;
+  unkWord2?: number;
+  unknownByte1xda?: number;
+  unknownDword3?: number;
+}
 export interface CharacterUpdateScale {
   characterId?: string;
   scale?: Float32Array;
@@ -1068,6 +1079,11 @@ export interface CharacterWeaponStance {
   characterId?: string;
   stance?: number;
 }
+export interface CharacterUpdateTintAlias {
+  characterId?: string;
+  tintAlias?: string;
+  decalAlias?: string;
+}
 export interface CharacterMoveOnRail {
   characterId?: string;
   unknown4?: number;
@@ -1156,7 +1172,7 @@ export interface CharacterPlayWorldCompositeEffect {
   characterId?: string;
   effectId?: number;
   position?: Float32Array;
-  unk3?: number;
+  effectTime?: number;
 }
 export interface CharacterFullCharacterDataRequest {
   characterId?: string;
@@ -1851,7 +1867,7 @@ export interface VehicleOccupy {
   maxDurabilityFromDefinition?: number;
   unknownBoolean1?: boolean;
   ownerCharacterId?: string;
-  unknownDword9?: number;
+  effectId?: number;
 };
 };
   unknownBytes2 :{
@@ -1869,7 +1885,7 @@ export interface VehicleOccupy {
   maxDurabilityFromDefinition?: number;
   unknownBoolean1?: boolean;
   ownerCharacterId?: string;
-  unknownDword9?: number;
+  effectId?: number;
 };
 };
 }
@@ -1944,8 +1960,8 @@ export interface EquipmentSetCharacterEquipment {
   characterId?: string;
 };
   unknownDword1?: number;
-  unknownString1?: string;
-  unknownString2?: string;
+  tintAlias?: string;
+  decalAlias?: string;
   equipmentSlots?: unknown[];
   attachmentData?: unknown[];
   unknownBoolean1?: boolean;
@@ -1969,8 +1985,8 @@ export interface EquipmentSetCharacterEquipmentSlot {
   textureAlias?: string;
   tintAlias?: string;
   decalAlias?: string;
-  unknownDword1?: number;
-  unknownDword2?: number;
+  tintId?: number;
+  compositeEffectId?: number;
   effectId?: number;
   slotId?: number;
   unknownDword4?: number;
@@ -2029,6 +2045,8 @@ export interface H1emuMessageBox {
   title?: string;
   message?: string;
 }
+export interface H1emuRequestAssetHashes {
+}
 export interface WallOfDataUIEvent {
   object?: string;
   function?: string;
@@ -2043,51 +2061,49 @@ export interface WallOfDataClientTransition {
   msElapsed?: number;
 }
 export interface EffectAddEffect {
-  unknownData1 :{
+  effectData :{
   unknownDword1?: number;
-  unknownDword2?: number;
-  unknownDword3?: number;
+  abilityEffectId1?: number;
+  abilityEffectId2?: number;
 };
   unknownData2 :{
   unknownQword1?: string;
   unknownQword2?: string;
 };
-  unknownData3 :{
+  targetData :{
   unknownQword1?: string;
-  unknownQword2?: string;
-  unknownVector1?: Float32Array;
+  targetCharacterId?: string;
+  position?: Float32Array;
 };
 }
 export interface EffectUpdateEffect {
-  unknownData1 :{
+  effectData :{
   unknownDword1?: number;
-  unknownDword2?: number;
-  unknownDword3?: number;
+  abilityEffectId1?: number;
+  abilityEffectId2?: number;
 };
   unknownData2 :{
   unknownDword1?: number;
   unknownQword1?: string;
 };
-  unknownData3 :{
+  targetData :{
   unknownQword1?: string;
-  unknownQword2?: string;
-  unknownVector1?: Float32Array;
+  targetCharacterId?: string;
+  position?: Float32Array;
 };
 }
 export interface EffectRemoveEffect {
-  unknownData1 :{
+  abilityEffectData :{
   unknownDword1?: number;
-  unknownDword2?: number;
-  unknownDword3?: number;
+  abilityEffectId1?: number;
+  abilityEffectId2?: number;
 };
-  unknownData2 :{
-  unknownQword1?: string;
+  targetCharacterData :{
+  characterId?: string;
 };
-  unknownData3 :{
-  unknownQword1?: string;
-  unknownQword2?: string;
+  targetCharacterId?: string;
+  guid2?: string;
   unknownVector1?: Float32Array;
-};
 }
 export interface EffectAddEffectTag {
   unknownDword1?: number;
@@ -2165,10 +2181,84 @@ export interface EffectAddUiIndicator {
   unknownDword2?: number;
   unknownByte1?: number;
 }
+export interface AbilitiesInitAbility {
+  unknownDword1?: number;
+  unknownDword2?: number;
+  abilityId?: number;
+  unknownDword3?: number;
+  characterId?: string;
+  unknownDword4?: number;
+  unknownDword5?: number;
+  unknownDword6?: number;
+  targetCharacterId?: string;
+  unknownDword7?: number;
+  unknownDword8?: number;
+  position?: Float32Array;
+  abilityData: unknown;
+}
+export interface AbilitiesUpdateAbility {
+  unknownDword1?: number;
+  unknownDword2?: number;
+  abilityId?: number;
+  unknownDword3?: number;
+  targetCharacterId?: string;
+  unknownDword4?: number;
+  unknownDword5?: number;
+  position?: Float32Array;
+  unknownDword6?: number;
+  unknownByte1?: number;
+  unknownByte2?: number;
+  unknownDword8?: number;
+  unknownDword9?: number;
+  unknownDword10?: number;
+  abilityData: unknown;
+}
+export interface AbilitiesUninitAbility {
+  unknownDword1?: number;
+  abilityId?: number;
+  unknownDword2?: number;
+}
 export interface AbilitiesSetActivatableAbilityManager {
   abilities?: unknown[];
 }
+export interface AbilitiesSetVehicleActivatableAbilityManager {
+  abilities?: unknown[];
+}
+export interface AbilitiesActivateAbility {
+  abilityId?: number;
+  unknownDword1?: number;
+}
+export interface AbilitiesDeactivateAbility {
+  abilityId?: number;
+  unknownDword1?: number;
+}
+export interface AbilitiesVehicleDeactivateAbility {
+  abilityId?: number;
+  unknownDword1?: number;
+}
+export interface AbilitiesActivateAbilityFailed {
+  abilityId?: number;
+  unknownDword1?: number;
+}
+export interface AbilitiesClearAbilityLineManager {
+}
+export interface AbilitiesSetProfileAbilityLineMembers {
+  unknownDword1?: number;
+}
 export interface AbilitiesSetLoadoutAbilities {
+  abilities?: unknown[];
+}
+export interface AbilitiesAddLoadoutAbility {
+  abilitySlotId?: number;
+  abilityId?: number;
+  unknownDword1?: number;
+  guid1?: string;
+  guid2?: string;
+}
+export interface AbilitiesAddPersistentAbility {
+  unk?: number;
+}
+export interface AbilitiesSetProfileRankAbilities {
   abilities?: unknown[];
 }
 export interface MapRegionGlobalData {
@@ -2460,7 +2550,7 @@ export interface ClientUpdateItemAdd {
   maxDurabilityFromDefinition?: number;
   unknownBoolean1?: boolean;
   ownerCharacterId?: string;
-  unknownDword9?: number;
+  effectId?: number;
   weaponData?: unknown;
 };
 }
@@ -2480,7 +2570,7 @@ export interface ClientUpdateItemUpdate {
   maxDurabilityFromDefinition?: number;
   unknownBoolean1?: boolean;
   ownerCharacterId?: string;
-  unknownDword9?: number;
+  effectId?: number;
 };
 }
 export interface ClientUpdateItemDelete {
@@ -2804,6 +2894,37 @@ export interface RagdollUnk {
   unk2?: number;
   unkArray2?: unknown[];
 }
+export interface ScreenEffectApplyScreenEffect {
+  unknownDword1?: number;
+  effectId?: number;
+  unknownDword3?: number;
+  duration?: number;
+  unknownDword5?: number;
+  screenBrightness?: number;
+  unknownDword7?: number;
+  string1?: string;
+  unknownDword8?: number;
+  string2?: string;
+  unknownDword9?: number;
+  colorGradingFilename?: string;
+  colorGrading?: number;
+  unknownDword11?: number;
+  unknownDword12?: number;
+  screenCover?: number;
+  transparency?: number;
+  color?: number;
+  unknownDword16?: number;
+  unknownDword17?: number;
+  unknownDword18?: number;
+  unknownDword19?: number;
+  unknownDword20?: number;
+  unknownDword21?: number;
+}
+export interface ScreenEffectRemoveScreenEffect {
+  unknownDword1?: number;
+  effectId?: number;
+  unknownDword3?: number;
+}
 export interface SpectatorEnable {
 }
 export interface SpectatorUnknown2 {
@@ -2839,7 +2960,7 @@ export interface AccessedCharacterBeginCharacterAccess {
 export interface AccessedCharacterEndCharacterAccess {
   characterId?: string;
 }
-export interface AccessedCharacterUnknown1 {
+export interface AccessedCharacterUpdateMutatorRights {
   characterId?: string;
   mutatorCharacterId?: string;
 }
@@ -2869,4 +2990,4 @@ export interface InGamePurchaseStoreBundles {
 };
   storeBundles?: unknown[];
 }
-export type zone2016packets = SendSelfToClient | ClientIsReady | ZoneDoneSendingInitialData | ClientBeginZoning | ProjectileDebug | SendZoneDetails | GameTimeSync | UpdateClientSessionData | WorldDisplayInfo | SetLocale | WorldShutdownNotice | KeepAlive | ClientExitLaunchUrl | MembershipActivation | ShowSystemMessage | POIChangeMessage | ClientLog | LoginFailed | NpcCollision | ClientGameSettings | PlayerTitle | InitializationParameters | ClientInitializationDetails | PlayerUpdatePosition | Synchronization | PlayerUpdateManagedPosition | AddSimpleNpc | ContinentBattleInfo | GetContinentBattleInfo | SendSecurityPacketAndSelfDestruct | GetRespawnLocations | Security | ServerPopulationInfo | GetServerPopulationInfo | VehicleCollision | PlayerStop | ClientSettings | RewardBuffInfo | GetRewardBuffInfo | CharacterSelectSessionResponse | UpdateWeatherData | AddLightweightPc | AddLightweightNpc | AddLightweightVehicle | AddProxiedObject | LightweightToFullPc | LightweightToFullNpc | LightweightToFullVehicle | ReplicationInteractionComponent | CharacterRemovePlayer | CharacterUpdateScale | CharacterUpdateCharacterState | CharacterAddEffectTagCompositeEffect | CharacterRemoveEffectTagCompositeEffect | CharacterReplaceBaseModel | CharacterWeaponStance | CharacterMoveOnRail | CharacterClearMovementRail | CharacterMoveOnRelativeRail | CharacterDestroyed | CharacterSeekTarget | CharacterSeekTargetUpdate | CharacterUpdateActiveWieldType | CharacterKnockedOut | CharacterRespawn | CharacterRespawnReply | CharacterJet | CharacterSetFaction | CharacterSetBattleRank | CharacterManagedObject | CharacterCharacterStateDelta | CharacterPlayWorldCompositeEffect | CharacterFullCharacterDataRequest | CharacterKilledBy | CharacterMotorRunning | CharacterDroppedItemNotification | CharacterNoSpaceNotification | CharacterStartMultiStateDeath | CharacterDoorState | CharacterMovementVersion | CharacterDailyRepairMaterials | CharacterUpdateSimpleProxyHealth | GroupInvite | GroupJoin | GroupAutoGroup | GroupLeave | GroupKick | GroupDisband | GroupSetGroupFlags | GroupSetGroupOwner | GroupSetGroupDescription | GroupUnknownA | GroupMapPingRelated | GroupUnknownC | GroupGetGroup | GroupUnknownF | GroupJoinLookingForMore | GroupToggleSquadLeaderChat | GroupUnknown12 | GroupPlayerJoined | GroupUnknown14 | GroupRemoveGroup | GroupRemoveMember | GroupRemoveInvitation | GroupUnknown19 | GroupUnknown1a | GroupRaidCreate | ReferenceDataProfileDefinitions | ReferenceDataWeaponDefinitions | ReferenceDataProjectileDefinitions | ReferenceDataDynamicAppearance | UiExecuteScript | UiWeaponHitFeedback | UiConfirmHit | RewardAddNonRewardItem | RecipeAdd | RecipeRemove | RecipeDiscovery | RecipeDiscoveries | RecipeList | FriendList | FriendMessage | ClientPathRequest | ClientPathReply | FirstTimeEventUnknown1 | FirstTimeEventState | FirstTimeEventUnknown2 | FirstTimeEventUnknown3 | FirstTimeEventScript | AchievementAdd | AchievementInitialize | MountMountResponse | MountDismountRequest | MountDismountResponse | MountSeatChangeRequest | MountSeatChangeResponse | VoiceLogin | VoiceJoinChannel | VoiceLeaveChannel | VoiceRadioChannel | VoiceLeaveRadio | WeaponWeapon | FacilityReferenceData | FacilityFacilityData | FacilitySpawnCollisionChanged | SkillSetSkillPointProgress | LoadoutSelectLoadout | LoadoutUnk1 | LoadoutSetLoadoutSlots | LoadoutSetLoadoutSlot | LoadoutSelectSlot | LoadoutCreateCustomLoadout | ExperienceSetExperienceRanks | ExperienceSetExperienceRateTier | VehicleOwner | VehicleOccupy | VehicleStateData | VehicleSpawn | VehicleUpdateQueuePosition | VehicleSetAutoDrive | VehicleLoadVehicleDefinitionManager | VehicleAutoMount | VehicleEngine | VehicleAccessType | VehicleOwnerPassengerList | VehicleExpiration | VehicleCurrentMoveMode | VehicleInventoryItems | ResourceEvent | CollisionDamage | EquipmentSetCharacterEquipment | EquipmentSetCharacterEquipmentSlot | EquipmentUnsetCharacterEquipmentSlot | EquipmentSetCharacterEquipmentSlots | DefinitionFilterSetDefinitionVariable | DefinitionFilterSetDefinitionIntSet | DefinitionFilterUnknownWithVariable1 | DefinitionFilterUnknownWithVariable2 | H1emuPrintToConsole | H1emuMessageBox | WallOfDataUIEvent | WallOfDataClientSystemInfo | WallOfDataClientTransition | EffectAddEffect | EffectUpdateEffect | EffectRemoveEffect | EffectAddEffectTag | EffectRemoveUiIndicators | EffectAddUiIndicator | AbilitiesSetActivatableAbilityManager | AbilitiesSetLoadoutAbilities | MapRegionGlobalData | MapRegionData | MapRegionMapOutOfBounds | MapRegionRequestContinentData | ItemsRequestUseItem | CurrencySetCurrencyDiscount | ZoneSettingData | WordFilterData | StaticFacilityInfoAllZones | OperationClientClearMissions | WordFilterData | LocksShowMenu | RagdollStop | CharacterStateInteractionStart | CharacterStateInteractionStop | NpcFoundationPermissionsManagerAddPermission | NpcFoundationPermissionsManagerEditPermission | NpcFoundationPermissionsManagerBaseShowPermissions | ReplicationNpcComponent | AnimationBase | ChatChat | ChatChatText | CommandPlaySoundAtLocation | CommandInteractRequest | CommandInteractCancel | CommandInteractDebug | CommandInteractionList | CommandInteractionSelect | CommandSetProfile | CommandPlayerSelect | CommandFreeInteractionNpc | CommandRecipeStart | CommandPlayDialogEffect | CommandPlaySoundIdOnTarget | CommandInteractionString | CommandAddWorldCommand | CommandAddZoneCommand | CommandExecuteCommand | CommandZoneExecuteCommand | CommandItemDefinitionRequest | CommandItemDefinitionReply | CommandItemDefinitions | CommandEnableCompositeEffects | CommandRequestWeaponFireStateUpdate | CommandReportLastDeath | CommandPointAndReport | CommandSpawnVehicle | CommandRunSpeed | CommandAddItem | ClientUpdateItemAdd | ClientUpdateItemUpdate | ClientUpdateItemDelete | ClientUpdateUpdateStat | ClientUpdateUpdateLocation | ClientUpdateActivateProfile | ClientUpdateDoneSendingPreloadCharacters | ClientUpdateDamageInfo | ClientUpdateRespawnLocations | ClientUpdateModifyMovementSpeed | ClientUpdateModifyTurnRate | ClientUpdateModifyStrafeSpeed | ClientUpdateUpdateManagedLocation | ClientUpdateManagedMovementVersion | ClientUpdateUpdateWeaponAddClips | ClientUpdateStartTimer | ClientUpdateCompleteLogoutProcess | ClientUpdateProximateItems | ClientUpdateTextAlert | ClientUpdateNetworkProximityUpdatesComplete | ClientUpdateDeathMetrics | ClientUpdateManagedObjectResponseControl | ClientUpdateMonitorTimeDrift | ClientUpdateUpdateLockoutTimes | InGamePurchaseStoreBundleCategories | InGamePurchaseWalletInfoResponse | InGamePurchaseEnableMarketplace | InGamePurchaseAcccountInfoRequest | InGamePurchaseItemOfTheDay | InGamePurchaseActiveSchedules | QuickChatSendData | LobbyGameDefinitionDefinitionsRequest | LobbyGameDefinitionDefinitionsResponse | CoinStoreItemList | CoinStoreSellToClientRequest | CoinStoreTransactionComplete | ProfileStatsGetPlayerProfileStats | DtoHitReportPacket | DtoStateChange | DtoObjectInitialData | DtoHitSpeedTreeReport | ContainerMoveItem | ContainerInitEquippedContainers | ContainerError | ContainerListAll | ContainerUpdateEquippedContainer | ConstructionPlacementRequest | ConstructionPlacementResponse | ConstructionPlacementFinalizeRequest | ConstructionPlacementFinalizeResponse | ConstructionUnknown | LocksSetLock | RagdollStart | RagdollUpdatePose | RagdollUnk2 | RagdollUnk | SpectatorEnable | SpectatorUnknown2 | SpectatorUnknown3 | SpectatorTeleport | SpectatorUnknown5 | SpectatorSetUnknownFlag1 | SpectatorSetUnknownFlag2 | SpectatorMatchResults | AccessedCharacterBeginCharacterAccess | AccessedCharacterEndCharacterAccess | AccessedCharacterUnknown1 | AccessedCharacterUnknown2 | ShaderParameterOverrideBase | InGamePurchaseStoreBundles;
+export type zone2016packets = SendSelfToClient | ClientIsReady | ZoneDoneSendingInitialData | ClientBeginZoning | ProjectileDebug | SendZoneDetails | GameTimeSync | UpdateClientSessionData | WorldDisplayInfo | SetLocale | WorldShutdownNotice | KeepAlive | ClientExitLaunchUrl | MembershipActivation | ShowSystemMessage | POIChangeMessage | ClientLog | LoginFailed | NpcCollision | ClientGameSettings | PlayerTitle | InitializationParameters | ClientInitializationDetails | PlayerUpdatePosition | Synchronization | PlayerUpdateManagedPosition | AddSimpleNpc | ContinentBattleInfo | GetContinentBattleInfo | SendSecurityPacketAndSelfDestruct | GetRespawnLocations | Security | ServerPopulationInfo | GetServerPopulationInfo | VehicleCollision | PlayerStop | ClientSettings | RewardBuffInfo | GetRewardBuffInfo | CharacterSelectSessionResponse | UpdateWeatherData | AddLightweightPc | AddLightweightNpc | AddLightweightVehicle | AddProxiedObject | LightweightToFullPc | LightweightToFullNpc | LightweightToFullVehicle | ReplicationInteractionComponent | CharacterRemovePlayer | CharacterPlayAnimation | CharacterUpdateScale | CharacterUpdateCharacterState | CharacterAddEffectTagCompositeEffect | CharacterRemoveEffectTagCompositeEffect | CharacterReplaceBaseModel | CharacterWeaponStance | CharacterUpdateTintAlias | CharacterMoveOnRail | CharacterClearMovementRail | CharacterMoveOnRelativeRail | CharacterDestroyed | CharacterSeekTarget | CharacterSeekTargetUpdate | CharacterUpdateActiveWieldType | CharacterKnockedOut | CharacterRespawn | CharacterRespawnReply | CharacterJet | CharacterSetFaction | CharacterSetBattleRank | CharacterManagedObject | CharacterCharacterStateDelta | CharacterPlayWorldCompositeEffect | CharacterFullCharacterDataRequest | CharacterKilledBy | CharacterMotorRunning | CharacterDroppedItemNotification | CharacterNoSpaceNotification | CharacterStartMultiStateDeath | CharacterDoorState | CharacterMovementVersion | CharacterDailyRepairMaterials | CharacterUpdateSimpleProxyHealth | GroupInvite | GroupJoin | GroupAutoGroup | GroupLeave | GroupKick | GroupDisband | GroupSetGroupFlags | GroupSetGroupOwner | GroupSetGroupDescription | GroupUnknownA | GroupMapPingRelated | GroupUnknownC | GroupGetGroup | GroupUnknownF | GroupJoinLookingForMore | GroupToggleSquadLeaderChat | GroupUnknown12 | GroupPlayerJoined | GroupUnknown14 | GroupRemoveGroup | GroupRemoveMember | GroupRemoveInvitation | GroupUnknown19 | GroupUnknown1a | GroupRaidCreate | ReferenceDataProfileDefinitions | ReferenceDataWeaponDefinitions | ReferenceDataProjectileDefinitions | ReferenceDataDynamicAppearance | UiExecuteScript | UiWeaponHitFeedback | UiConfirmHit | RewardAddNonRewardItem | RecipeAdd | RecipeRemove | RecipeDiscovery | RecipeDiscoveries | RecipeList | FriendList | FriendMessage | ClientPathRequest | ClientPathReply | FirstTimeEventUnknown1 | FirstTimeEventState | FirstTimeEventUnknown2 | FirstTimeEventUnknown3 | FirstTimeEventScript | AchievementAdd | AchievementInitialize | MountMountResponse | MountDismountRequest | MountDismountResponse | MountSeatChangeRequest | MountSeatChangeResponse | VoiceLogin | VoiceJoinChannel | VoiceLeaveChannel | VoiceRadioChannel | VoiceLeaveRadio | WeaponWeapon | FacilityReferenceData | FacilityFacilityData | FacilitySpawnCollisionChanged | SkillSetSkillPointProgress | LoadoutSelectLoadout | LoadoutUnk1 | LoadoutSetLoadoutSlots | LoadoutSetLoadoutSlot | LoadoutSelectSlot | LoadoutCreateCustomLoadout | ExperienceSetExperienceRanks | ExperienceSetExperienceRateTier | VehicleOwner | VehicleOccupy | VehicleStateData | VehicleSpawn | VehicleUpdateQueuePosition | VehicleSetAutoDrive | VehicleLoadVehicleDefinitionManager | VehicleAutoMount | VehicleEngine | VehicleAccessType | VehicleOwnerPassengerList | VehicleExpiration | VehicleCurrentMoveMode | VehicleInventoryItems | ResourceEvent | CollisionDamage | EquipmentSetCharacterEquipment | EquipmentSetCharacterEquipmentSlot | EquipmentUnsetCharacterEquipmentSlot | EquipmentSetCharacterEquipmentSlots | DefinitionFilterSetDefinitionVariable | DefinitionFilterSetDefinitionIntSet | DefinitionFilterUnknownWithVariable1 | DefinitionFilterUnknownWithVariable2 | H1emuPrintToConsole | H1emuMessageBox | H1emuRequestAssetHashes | WallOfDataUIEvent | WallOfDataClientSystemInfo | WallOfDataClientTransition | EffectAddEffect | EffectUpdateEffect | EffectRemoveEffect | EffectAddEffectTag | EffectRemoveUiIndicators | EffectAddUiIndicator | AbilitiesInitAbility | AbilitiesUpdateAbility | AbilitiesUninitAbility | AbilitiesSetActivatableAbilityManager | AbilitiesSetVehicleActivatableAbilityManager | AbilitiesActivateAbility | AbilitiesDeactivateAbility | AbilitiesVehicleDeactivateAbility | AbilitiesActivateAbilityFailed | AbilitiesClearAbilityLineManager | AbilitiesSetProfileAbilityLineMembers | AbilitiesSetLoadoutAbilities | AbilitiesAddLoadoutAbility | AbilitiesAddPersistentAbility | AbilitiesSetProfileRankAbilities | MapRegionGlobalData | MapRegionData | MapRegionMapOutOfBounds | MapRegionRequestContinentData | ItemsRequestUseItem | CurrencySetCurrencyDiscount | ZoneSettingData | WordFilterData | StaticFacilityInfoAllZones | OperationClientClearMissions | WordFilterData | LocksShowMenu | RagdollStop | CharacterStateInteractionStart | CharacterStateInteractionStop | NpcFoundationPermissionsManagerAddPermission | NpcFoundationPermissionsManagerEditPermission | NpcFoundationPermissionsManagerBaseShowPermissions | ReplicationNpcComponent | AnimationBase | ChatChat | ChatChatText | CommandPlaySoundAtLocation | CommandInteractRequest | CommandInteractCancel | CommandInteractDebug | CommandInteractionList | CommandInteractionSelect | CommandSetProfile | CommandPlayerSelect | CommandFreeInteractionNpc | CommandRecipeStart | CommandPlayDialogEffect | CommandPlaySoundIdOnTarget | CommandInteractionString | CommandAddWorldCommand | CommandAddZoneCommand | CommandExecuteCommand | CommandZoneExecuteCommand | CommandItemDefinitionRequest | CommandItemDefinitionReply | CommandItemDefinitions | CommandEnableCompositeEffects | CommandRequestWeaponFireStateUpdate | CommandReportLastDeath | CommandPointAndReport | CommandSpawnVehicle | CommandRunSpeed | CommandAddItem | ClientUpdateItemAdd | ClientUpdateItemUpdate | ClientUpdateItemDelete | ClientUpdateUpdateStat | ClientUpdateUpdateLocation | ClientUpdateActivateProfile | ClientUpdateDoneSendingPreloadCharacters | ClientUpdateDamageInfo | ClientUpdateRespawnLocations | ClientUpdateModifyMovementSpeed | ClientUpdateModifyTurnRate | ClientUpdateModifyStrafeSpeed | ClientUpdateUpdateManagedLocation | ClientUpdateManagedMovementVersion | ClientUpdateUpdateWeaponAddClips | ClientUpdateStartTimer | ClientUpdateCompleteLogoutProcess | ClientUpdateProximateItems | ClientUpdateTextAlert | ClientUpdateNetworkProximityUpdatesComplete | ClientUpdateDeathMetrics | ClientUpdateManagedObjectResponseControl | ClientUpdateMonitorTimeDrift | ClientUpdateUpdateLockoutTimes | InGamePurchaseStoreBundleCategories | InGamePurchaseWalletInfoResponse | InGamePurchaseEnableMarketplace | InGamePurchaseAcccountInfoRequest | InGamePurchaseItemOfTheDay | InGamePurchaseActiveSchedules | QuickChatSendData | LobbyGameDefinitionDefinitionsRequest | LobbyGameDefinitionDefinitionsResponse | CoinStoreItemList | CoinStoreSellToClientRequest | CoinStoreTransactionComplete | ProfileStatsGetPlayerProfileStats | DtoHitReportPacket | DtoStateChange | DtoObjectInitialData | DtoHitSpeedTreeReport | ContainerMoveItem | ContainerInitEquippedContainers | ContainerError | ContainerListAll | ContainerUpdateEquippedContainer | ConstructionPlacementRequest | ConstructionPlacementResponse | ConstructionPlacementFinalizeRequest | ConstructionPlacementFinalizeResponse | ConstructionUnknown | LocksSetLock | RagdollStart | RagdollUpdatePose | RagdollUnk2 | RagdollUnk | ScreenEffectApplyScreenEffect | ScreenEffectRemoveScreenEffect | SpectatorEnable | SpectatorUnknown2 | SpectatorUnknown3 | SpectatorTeleport | SpectatorUnknown5 | SpectatorSetUnknownFlag1 | SpectatorSetUnknownFlag2 | SpectatorMatchResults | AccessedCharacterBeginCharacterAccess | AccessedCharacterEndCharacterAccess | AccessedCharacterUpdateMutatorRights | AccessedCharacterUnknown2 | ShaderParameterOverrideBase | InGamePurchaseStoreBundles;

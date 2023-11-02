@@ -68,7 +68,7 @@ export const vehiclePackets: PacketStructures = [
         {
           name: "unknownBytes1",
           type: "byteswithlength",
-          defaultValue: null,
+          defaultValue: {},
           fields: [
             { name: "itemData", type: "schema", fields: itemSchema }
             // unfinished
@@ -77,7 +77,7 @@ export const vehiclePackets: PacketStructures = [
         {
           name: "unknownBytes2",
           type: "byteswithlength",
-          defaultValue: null,
+          defaultValue: {},
           fields: [
             { name: "itemData", type: "schema", fields: itemSchema }
             // unfinished
