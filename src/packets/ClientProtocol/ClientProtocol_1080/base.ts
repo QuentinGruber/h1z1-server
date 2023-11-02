@@ -2947,7 +2947,6 @@ export const basePackets: PacketStructures = [
       ]
     }
   ],
-
   [
     "AddSimpleNpc",
     0x92,
@@ -2974,7 +2973,6 @@ export const basePackets: PacketStructures = [
     }
   ],
   ["PlayerUpdateUpdateVehicleWeapon", 0x93, {}],
-
   [
     "ContinentBattleInfo",
     0x97,
@@ -3041,7 +3039,6 @@ export const basePackets: PacketStructures = [
       fields: []
     }
   ],
-
   ["ClientInGamePurchase", 0x9d, {}],
 
   [

@@ -11,6 +11,8 @@
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
 
+import { CONNECTION_REJECTION_FLAGS } from "../utils/enums";
+
 export interface GameServer {
   serverId: number;
   serverState: number;
@@ -24,4 +26,23 @@ export interface GameServer {
   populationLevel: number;
   populationData: string;
   allowedAccess: boolean;
+}
+
+export interface BANNED_LIGHT {
+  serverId: number;
+  authKey: string;
+  isGlobal: boolean;
+  status: boolean;
+}
+
+export interface ConnectionAllowed {
+  status: 0|1;
+  rejectionFlag?: CONNECTION_REJECTION_FLAGS
+  message?: string;
+}
+
+export interface UserSession {
+  serverId: number;
+  authKey: string;
+  guid: string;
 }

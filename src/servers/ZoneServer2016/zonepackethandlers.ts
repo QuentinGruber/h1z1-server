@@ -365,6 +365,8 @@ export class ZonePacketHandlers {
       });
       client.character.isReady = true;
       server.airdropManager(client, true);
+
+      server.fairPlayManager.handleAssetValidationInit(server, client);
     }
     if (!client.character.isAlive || client.character.isRespawning) {
       // try to fix stuck on death screen
@@ -839,6 +841,14 @@ export class ZonePacketHandlers {
     client: Client,
     packet: ReceivedPacket<CommandExecuteCommand>
   ) {
+    const hash = packet.data.commandHash ?? 0;
+    if (this.commandHandler.commands[hash]) {
+      const command = this.commandHandler.commands[hash];
+      if (command?.name == "!!h1custom!!") {
+        this.handleCustomPacket(server, client, packet.data.arguments ?? "");
+        return;
+      }
+    }
     this.commandHandler.executeCommand(server, client, packet);
   }
   CommandInteractRequest(
@@ -3311,6 +3321,23 @@ export class ZonePacketHandlers {
         break;
     }
   }
+
+  handleCustomPacket(server: ZoneServer2016, client: Client, raw: string) {
+    const opcode = raw.substring(0, 2),
+      data = raw.slice(2);
+
+    switch (opcode) {
+      case "01": // asset validator
+        server.fairPlayManager.handleAssetCheck(server, client, data);
+        break;
+      default:
+        console.log(
+          `Unknown custom packet opcode: ${opcode} from ${client.loginSessionId}`
+        );
+        break;
+    }
+  }
+
   async reloadCommandCache() {
     delete require.cache[require.resolve("./handlers/commands/commandhandler")];
     const CommandHandler = (

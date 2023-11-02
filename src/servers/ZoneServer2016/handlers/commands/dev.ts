@@ -921,7 +921,14 @@ const dev: any = {
       `Parent itemDefinitionId: ${parent.itemDefinitionId} characterId: ${parent.characterId}`
     );
   },
-
+  hashes: function (
+    server: ZoneServer2016,
+    client: Client,
+    args: Array<string>
+  ) {
+    server.sendData(client, "H1emu.RequestAssetHashes", {});
+    server.sendChatText(client, "Requested asset hashes from client");
+  },
   compositeeffect: function (
     server: ZoneServer2016,
     client: Client,
@@ -934,7 +941,6 @@ const dev: any = {
 
     const effectId = Number(args[1]),
       time = Number(args[2]);
-
     server.sendDataToAllInRange<CharacterPlayWorldCompositeEffect>(
       100,
       client.character.state.position,

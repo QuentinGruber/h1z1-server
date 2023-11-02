@@ -11,9 +11,9 @@
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
 
-const debug = require("debug")("H1emuProtocol");
+const debug = require("debug")("LZConnectionProtocol");
 import DataSchema from "h1z1-dataschema";
-import { H1emuProtocolReadingFormat } from "types/protocols";
+import { LZConnectionProtocolReadingFormat } from "types/protocols";
 import PacketTableBuild from "../packets/packettable";
 import { PacketStructures } from "types/packetStructure";
 const packets: PacketStructures = [
@@ -116,11 +116,12 @@ const packets: PacketStructures = [
       fields: [
         { name: "reqId", type: "uint32", defaultValue: 0 },
         { name: "characterId", type: "uint64string", defaultValue: 0 },
+        { name: "loginSessionId", type: "uint64string", defaultValue: 0 },
         {
-          name: "banInfos",
+          name: "rejectionFlags",
           type: "array",
           defaultValue: [],
-          fields: [{ name: "banInfo", type: "uint8", defaultValue: 0 }]
+          fields: [{ name: "rejectionFlag", type: "uint8", defaultValue: 0 }]
         }
       ]
     }
@@ -131,7 +132,9 @@ const packets: PacketStructures = [
     {
       fields: [
         { name: "reqId", type: "uint32", defaultValue: 0 },
-        { name: "status", type: "boolean", defaultValue: 0 }
+        { name: "status", type: "boolean", defaultValue: 0 },
+        { name: "rejectionFlag", type: "uint8", defaultValue: 0 },
+        { name: "message", type: "string", defaultValue: "" }
       ]
     }
   ],
@@ -187,22 +190,47 @@ const packets: PacketStructures = [
         { name: "reason", type: "uint32", defaultValue: 0 }
       ]
     }
+  ],
+  [
+    "OverrideAllowedFileHashes",
+    0x19,
+    {
+      fields: [
+        {
+          name: "types",
+          type: "array",
+          defaultValue: [],
+          fields: [
+            { name: "type", type: "string", defaultValue: "" },
+            {
+              name: "hashes",
+              type: "array",
+              defaultValue: [],
+              fields: [
+                { name: "file_name", type: "string", defaultValue: "" },
+                { name: "crc32_hash", type: "string", defaultValue: "" }
+              ]
+            }
+          ]
+        }
+      ]
+    }
   ]
 ];
 
-export const [H1emuPacketsPacketTypes, H1emuPacketsPackets] =
+export const [LZConnectionPacketTypes, LZConnectionPacketDescriptors] =
   PacketTableBuild(packets);
 
-const H1emuPackets = {
-  PacketTypes: H1emuPacketsPacketTypes,
-  Packets: H1emuPacketsPackets
+const LZConnectionPackets = {
+  PacketTypes: LZConnectionPacketTypes,
+  Packets: LZConnectionPacketDescriptors
 };
 
-export class H1emuProtocol {
-  parse(data: Buffer): H1emuProtocolReadingFormat | null {
+export class LZConnectionProtocol {
+  parse(data: Buffer): LZConnectionProtocolReadingFormat | null {
     const packetType = data.readUInt8(0);
     let result;
-    const packet = H1emuPackets.Packets[packetType];
+    const packet = LZConnectionPackets.Packets[packetType];
     if (packet) {
       if (packet.schema) {
         try {
@@ -221,14 +249,17 @@ export class H1emuProtocol {
         return null;
       }
     } else {
-      debug("parse()", "Unknown or unhandled H1emu packet type: " + packetType);
+      debug(
+        "parse()",
+        "Unknown or unhandled LZConnection packet type: " + packetType
+      );
       return null;
     }
   }
 
   pack(packetName: string, object: any): Buffer | null {
-    const packetType = H1emuPackets.PacketTypes[packetName],
-      packet = H1emuPackets.Packets[packetType];
+    const packetType = LZConnectionPackets.PacketTypes[packetName],
+      packet = LZConnectionPackets.Packets[packetType];
     let data;
     if (packet) {
       if (packet.schema) {
@@ -246,11 +277,14 @@ export class H1emuProtocol {
         return null;
       }
     } else {
-      debug("pack()", "Unknown or unhandled H1emu packet type: " + packetType);
+      debug(
+        "pack()",
+        "Unknown or unhandled LZConnection packet type: " + packetType
+      );
       return null;
     }
     return data;
   }
 }
 
-exports.H1emuPackets = H1emuPackets as any;
+exports.LZConnectionPackets = LZConnectionPackets as any;
