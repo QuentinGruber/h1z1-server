@@ -29,3 +29,15 @@ export interface httpServerMessage {
 }
 
 export type json = any;
+
+export interface FileHash {
+  file_name: string,
+  crc32_hash: string;
+}
+
+interface FileHashList {
+  type: string, 
+  hashes: Array<FileHash>
+}
+
+export type FileHashTypeList = Array<FileHashList>;

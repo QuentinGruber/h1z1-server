@@ -120,4 +120,14 @@ export interface H1emuMessageBox {
   title?: string;
   message?: string;
 }
-export type LoginUdp_11packets = LoginRequest | LoginReply | Logout | ForceDisconnect | CharacterCreateRequest | CharacterCreateReply | CharacterLoginRequest | CharacterLoginReply | CharacterDeleteRequest | CharacterDeleteReply | CharacterSelectInfoRequest | CharacterSelectInfoReply | ServerListRequest | ServerListReply | ServerUpdate | TunnelAppPacketClientToServer | TunnelAppPacketServerToClient | H1emuPrintToConsole | H1emuMessageBox;
+export interface H1emuHadesInit {
+  __opcode__?: number;
+  authTicket?: string;
+  gatewayServer?: string;
+}
+export interface H1emuHadesQuery {
+  __opcode__?: number;
+  authTicket?: string;
+  gatewayServer?: string;
+}
+export type LoginUdp_11packets = LoginRequest | LoginReply | Logout | ForceDisconnect | CharacterCreateRequest | CharacterCreateReply | CharacterLoginRequest | CharacterLoginReply | CharacterDeleteRequest | CharacterDeleteReply | CharacterSelectInfoRequest | CharacterSelectInfoReply | ServerListRequest | ServerListReply | ServerUpdate | TunnelAppPacketClientToServer | TunnelAppPacketServerToClient | H1emuPrintToConsole | H1emuMessageBox | H1emuHadesInit | H1emuHadesQuery;
