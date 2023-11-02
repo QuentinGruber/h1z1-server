@@ -1275,11 +1275,11 @@ export const basePackets: PacketStructures = [
               ]
             },
             {
-              name: "equipmentSlots", // equipment probably
+              name: "equipment",
               type: "array",
               defaultValue: [],
               fields: [
-                { name: "unknownDword1", type: "uint32", defaultValue: 0 },
+                { name: "profileId", type: "uint32", defaultValue: 0 },
                 {
                   name: "unknownData1",
                   type: "schema",
@@ -1287,19 +1287,15 @@ export const basePackets: PacketStructures = [
                   fields: [
                     { name: "unknownDword1", type: "uint32", defaultValue: 0 },
                     {
-                      name: "unknownString1",
+                      name: "tintAlias",
                       type: "string",
-                      defaultValue: ""
+                      defaultValue: "Default"
                     },
+                    { name: "decalAlias", type: "string", defaultValue: "#" },
                     {
-                      name: "unknownString1",
-                      type: "string",
-                      defaultValue: ""
-                    },
-                    {
-                      name: "equipmentSlot",
-                      type: "schema",
-                      defaultValue: {},
+                      name: "equipmentSlots",
+                      type: "array",
+                      defaultValue: [],
                       fields: equipmentSlotSchema
                     }
                   ]

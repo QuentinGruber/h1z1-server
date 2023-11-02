@@ -158,7 +158,7 @@ export interface SendSelfToClient {
   unknownArray21?: unknown[];
   unknownArray22?: unknown[];
   unknownArray23?: unknown[];
-  equipmentSlots?: unknown[];
+  equipment?: unknown[];
   unknownArray25?: unknown[];
   unknownData5 :{
   unknownDword1?: number;
