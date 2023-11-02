@@ -158,7 +158,7 @@ export interface SendSelfToClient {
   unknownArray21?: unknown[];
   unknownArray22?: unknown[];
   unknownArray23?: unknown[];
-  equipmentSlots?: unknown[];
+  equipment?: unknown[];
   unknownArray25?: unknown[];
   unknownData5 :{
   unknownDword1?: number;
@@ -1867,7 +1867,7 @@ export interface VehicleOccupy {
   maxDurabilityFromDefinition?: number;
   unknownBoolean1?: boolean;
   ownerCharacterId?: string;
-  unknownDword9?: number;
+  effectId?: number;
 };
 };
   unknownBytes2 :{
@@ -1885,7 +1885,7 @@ export interface VehicleOccupy {
   maxDurabilityFromDefinition?: number;
   unknownBoolean1?: boolean;
   ownerCharacterId?: string;
-  unknownDword9?: number;
+  effectId?: number;
 };
 };
 }
@@ -1985,8 +1985,8 @@ export interface EquipmentSetCharacterEquipmentSlot {
   textureAlias?: string;
   tintAlias?: string;
   decalAlias?: string;
-  unknownDword1?: number;
-  unknownDword2?: number;
+  tintId?: number;
+  compositeEffectId?: number;
   effectId?: number;
   slotId?: number;
   unknownDword4?: number;
@@ -2550,7 +2550,7 @@ export interface ClientUpdateItemAdd {
   maxDurabilityFromDefinition?: number;
   unknownBoolean1?: boolean;
   ownerCharacterId?: string;
-  unknownDword9?: number;
+  effectId?: number;
   weaponData?: unknown;
 };
 }
@@ -2570,7 +2570,7 @@ export interface ClientUpdateItemUpdate {
   maxDurabilityFromDefinition?: number;
   unknownBoolean1?: boolean;
   ownerCharacterId?: string;
-  unknownDword9?: number;
+  effectId?: number;
 };
 }
 export interface ClientUpdateItemDelete {
