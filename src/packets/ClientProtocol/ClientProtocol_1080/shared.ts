@@ -1628,7 +1628,7 @@ export const attachmentSchema: PacketFields = [
   { name: "tintAlias", type: "string", defaultValue: "Default" },
   { name: "decalAlias", type: "string", defaultValue: "#" },
   { name: "tintId", type: "uint32", defaultValue: 0 }, // confirmed in client dump
-  { name: "unknownDword2", type: "uint32", defaultValue: 0 },
+  { name: "compositeEffectId", type: "uint32", defaultValue: 0 },
   { name: "effectId", type: "uint32", defaultValue: 0 },
   { name: "slotId", type: "uint32", defaultValue: 0 },
   { name: "unknownDword4", type: "uint32", defaultValue: 0 },

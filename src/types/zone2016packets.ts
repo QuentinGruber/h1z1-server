@@ -1986,7 +1986,7 @@ export interface EquipmentSetCharacterEquipmentSlot {
   tintAlias?: string;
   decalAlias?: string;
   tintId?: number;
-  unknownDword2?: number;
+  compositeEffectId?: number;
   effectId?: number;
   slotId?: number;
   unknownDword4?: number;
