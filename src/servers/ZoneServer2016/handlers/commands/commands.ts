@@ -2635,6 +2635,69 @@ export const commands: Array<Command> = [
         );
       }
     }
+  },
+  {
+    name: "weathervalue",
+    permissionLevel: PermissionLevels.DEV,
+    keepCase: true,
+    execute: (server: ZoneServer2016, client: Client, args: Array<string>) => {
+      if (!args[1]) {
+        server.sendChatText(client, "Missing 2 args");
+        return;
+      }
+
+      if (Object.is(NaN, Number(args[1]))) {
+        server.sendChatText(client, "args[1] is not a number");
+        return;
+      }
+
+      switch (args[0]) {
+        case "overcast":
+        case "fogDensity":
+        case "fogFloor":
+        case "fogGradient":
+        case "globalPrecipitation":
+        case "temperature":
+        case "skyClarity":
+        case "cloudWeight0":
+        case "cloudWeight1":
+        case "cloudWeight2":
+        case "cloudWeight3":
+        case "transitionTime":
+        case "sunAxisX":
+        case "sunAxisY":
+        case "sunAxisZ":
+        case "windDirectionX":
+        case "windDirectionY":
+        case "windDirectionZ":
+        case "wind":
+        case "rainMinStrength":
+        case "rainRampupTimeSeconds":
+        case "stratusCloudTiling":
+        case "stratusCloudScrollU":
+        case "stratusCloudScrollV":
+        case "stratusCloudHeight":
+        case "cumulusCloudTiling":
+        case "cumulusCloudScrollU":
+        case "cumulusCloudScrollV":
+        case "cumulusCloudHeight":
+        case "cloudAnimationSpeed":
+        case "cloudSilverLiningThickness":
+        case "cloudSilverLiningBrightness":
+        case "cloudShadows":
+          break;
+        default:
+          server.sendChatText(client, "Invalid args[0]");
+          return;
+      }
+
+      server.weatherManager.weather[args[0]] = Number(args[1]);
+      server.weatherManager.sendUpdateToAll(server, client, false);
+      server.sendChatText(client, `Set weather ${args[0]} to ${args[1]}`);
+      console.log(server.weatherManager.weather);
+      server.weatherManager.sendUpdateToAll(server, client, false);
+    }
   }
+
   //#endregion
 ];
