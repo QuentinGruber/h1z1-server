@@ -1955,6 +1955,13 @@ export class ConstructionManager {
 
     if (!parent) return false;
 
+    // foundations and expansions should never hide entities
+    switch (parent.itemDefinitionId) {
+      case Items.FOUNDATION:
+      case Items.FOUNDATION_EXPANSION:
+        return false;
+    }
+
     const parentSecured = parent.isSecured,
       hasVisitPermission = parent.getHasPermission(
         server,
