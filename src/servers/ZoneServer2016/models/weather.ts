@@ -1,5 +1,3 @@
-
-
 export const GLOBAL_PRECIPITATION_MIN = 0;
 export const GLOBAL_PRECIPITATION_MAX = 5;
 

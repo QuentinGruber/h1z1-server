@@ -2641,17 +2641,17 @@ export const commands: Array<Command> = [
     permissionLevel: PermissionLevels.DEV,
     keepCase: true,
     execute: (server: ZoneServer2016, client: Client, args: Array<string>) => {
-      if(!args[1]) {
+      if (!args[1]) {
         server.sendChatText(client, "Missing 2 args");
         return;
       }
-    
-      if(Object.is(NaN, Number(args[1]))) {
+
+      if (Object.is(NaN, Number(args[1]))) {
         server.sendChatText(client, "args[1] is not a number");
         return;
       }
-    
-      switch(args[0]) {
+
+      switch (args[0]) {
         case "overcast":
         case "fogDensity":
         case "fogFloor":
@@ -2690,11 +2690,11 @@ export const commands: Array<Command> = [
           server.sendChatText(client, "Invalid args[0]");
           return;
       }
-    
+
       server.weatherManager.weather[args[0]] = Number(args[1]);
       server.weatherManager.sendUpdateToAll(server, client, false);
       server.sendChatText(client, `Set weather ${args[0]} to ${args[1]}`);
-      console.log(server.weatherManager.weather)
+      console.log(server.weatherManager.weather);
       server.weatherManager.sendUpdateToAll(server, client, false);
     }
   }
