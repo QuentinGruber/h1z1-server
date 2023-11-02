@@ -986,7 +986,7 @@ export const itemSchema: PacketFields = [
   { name: "maxDurabilityFromDefinition", type: "uint32", defaultValue: 0 },
   { name: "unknownBoolean1", type: "boolean", defaultValue: false },
   { name: "ownerCharacterId", type: "uint64string", defaultValue: "" },
-  { name: "unknownDword9", type: "uint32", defaultValue: 0 }
+  { name: "effectId", type: "uint32", defaultValue: 0 } // same as equipment effectId, only works with weapons
 ];
 
 export const identitySchema: PacketFields = [
@@ -1627,7 +1627,7 @@ export const attachmentSchema: PacketFields = [
   { name: "textureAlias", type: "string", defaultValue: "" },
   { name: "tintAlias", type: "string", defaultValue: "Default" },
   { name: "decalAlias", type: "string", defaultValue: "#" },
-  { name: "unknownDword1", type: "uint32", defaultValue: 0 },
+  { name: "tintId", type: "uint32", defaultValue: 0 }, // confirmed in client dump
   { name: "unknownDword2", type: "uint32", defaultValue: 0 },
   { name: "effectId", type: "uint32", defaultValue: 0 },
   { name: "slotId", type: "uint32", defaultValue: 0 },

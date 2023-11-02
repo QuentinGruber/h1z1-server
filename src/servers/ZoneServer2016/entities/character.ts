@@ -1258,13 +1258,13 @@ export class Character2016 extends BaseFullCharacter {
     return slot
       ? {
           modelName:
-            slot.modelName /* == "Weapon_Empty.adr" ? slot.modelName : ""*/,
+            slot.modelName/* == "Weapon_Empty.adr" ? slot.modelName : ""*/,
           effectId: this.groupId > 0 && this.groupId == groupId ? 3 : 0,
-          textureAlias: "",
+          textureAlias: slot.textureAlias || "",
           tintAlias: slot.tintAlias || "Default",
           decalAlias: slot.decalAlias || "#",
           slotId: slot.slotId,
-          SHADER_PARAMETER_GROUP: slot.SHADER_PARAMETER_GROUP
+          //SHADER_PARAMETER_GROUP: slot.SHADER_PARAMETER_GROUP
         }
       : undefined;
   }
