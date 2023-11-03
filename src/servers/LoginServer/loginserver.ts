@@ -1064,7 +1064,7 @@ export class LoginServer extends EventEmitter {
           this.sendData(client, "H1emu.PrintToConsole", {
             message: "Server may be running an old version, please report this to the server owner!",
             showConsole: true,
-            clearOutput: false
+            clearOutput: true
           });
           this.sendData(client, "CharacterLoginReply", charactersLoginInfo);
           return;
