@@ -679,7 +679,7 @@ export class Vehicle2016 extends BaseLootableEntity {
       index = this.effectTags.indexOf(headlightEffect);
 
     if (state && index <= -1) {
-      if (!this.hasBattery()) {
+      if (!this.hasBattery() || !this.hasHeadlights()) {
         if (client) this.sendNoPartsAlert(server, client);
         return;
       }
@@ -871,8 +871,8 @@ export class Vehicle2016 extends BaseLootableEntity {
     );
   }
 
-  checkEngineRequirements(server: ZoneServer2016) {
-    if (this.hasRequiredComponents(server) && !this.engineOn) {
+  checkEngineRequirements(server: ZoneServer2016, runEngine = true) {
+    if (this.hasRequiredComponents(server) && !this.engineOn && runEngine) {
       this.startEngine(server);
       return;
     }
