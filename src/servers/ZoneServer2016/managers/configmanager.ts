@@ -90,7 +90,8 @@ export class ConfigManager {
       worldobjects,
       speedtree,
       construction,
-      decay
+      decay,
+      smelting
     } = this.defaultConfig;
     return {
       ...this.defaultConfig,
@@ -122,6 +123,10 @@ export class ConfigManager {
       decay: {
         ...decay,
         ...config.decay
+      },
+      smelting: {
+        ...smelting,
+        ...config.smelting
       }
     };
   }
@@ -136,7 +141,9 @@ export class ConfigManager {
       worldRoutineRate,
       welcomeMessage,
       adminMessage,
-      enableLoginServerKickRequests
+      enableLoginServerKickRequests,
+      rebootTime,
+      rebootWarnTime
     } = this.config.server;
     server.proximityItemsDistance = proximityItemsDistance;
     server.interactionDistance = interactionDistance;
@@ -146,14 +153,30 @@ export class ConfigManager {
     server.welcomeMessage = welcomeMessage;
     server.adminMessage = adminMessage;
     server.enableLoginServerKickRequests = enableLoginServerKickRequests;
+    server.rebootTime = rebootTime;
+    server.rebootWarnTime = rebootWarnTime;
     //#endregion
 
     //#region fairplay
     // to be moved to FairplayManager
-    const { useFairplay, maxPing, pingTimeoutTime } = this.config.fairplay;
+    const {
+      useFairplay,
+      maxPing,
+      pingTimeoutTime,
+      acceptedRejectionTypes,
+      useAssetValidation,
+      hashSubmissionTimeout,
+      allowedPacks,
+      requiredPacks
+    } = this.config.fairplay;
     server.fairPlayManager.useFairPlay = useFairplay;
     server.fairPlayManager.maxPing = maxPing;
     server.fairPlayManager.pingTimeoutTime = pingTimeoutTime;
+    server.fairPlayManager.acceptedRejectionTypes = acceptedRejectionTypes;
+    server.fairPlayManager.useAssetValidation = useAssetValidation;
+    server.fairPlayManager.hashSubmissionTimeout = hashSubmissionTimeout;
+    server.fairPlayManager.allowedPacks = allowedPacks;
+    server.fairPlayManager.requiredPacks = requiredPacks;
     //#endregion
 
     //#region weather
@@ -254,21 +277,26 @@ export class ConfigManager {
     const {
       decayTickInterval,
       constructionDamageTicks,
-      baseConstructionDamage,
+      ticksToFullDecay,
+      worldFreeplaceDecayMultiplier,
       vehicleDamageTicks,
       vacantFoundationTicks,
       baseVehicleDamage,
       maxVehiclesPerArea,
-      vehicleDamageRange
+      vehicleDamageRange,
+      dailyRepairMaterials
     } = this.config.decay;
     server.decayManager.decayTickInterval = decayTickInterval;
     server.decayManager.constructionDamageTicks = constructionDamageTicks;
-    server.decayManager.baseConstructionDamage = baseConstructionDamage;
-    server.decayManager.vehicleDamageTicks = vehicleDamageTicks;
+    server.decayManager.ticksToFullDecay = ticksToFullDecay;
+    (server.decayManager.worldFreeplaceDecayMultiplier =
+      worldFreeplaceDecayMultiplier),
+      (server.decayManager.vehicleDamageTicks = vehicleDamageTicks);
     server.decayManager.vacantFoundationTicks = vacantFoundationTicks;
     server.decayManager.baseVehicleDamage = baseVehicleDamage;
     server.decayManager.maxVehiclesPerArea = maxVehiclesPerArea;
     server.decayManager.vehicleDamageRange = vehicleDamageRange;
+    server.decayManager.dailyRepairMaterials = dailyRepairMaterials;
     //#endregion
 
     //#region smelting

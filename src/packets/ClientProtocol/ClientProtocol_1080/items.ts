@@ -25,32 +25,36 @@ export function parseItemRequestSubData(data: h1z1Buffer, offset: number) {
     offset += 4;
     obj["unknownDword2"] = data.readUInt32LE(offset);
     offset += 4;
+    obj["subType"] = data.readUInt32LE(offset);
+    offset += 4;
+
+    if (obj["subType"] == 1) {
+      obj["count"] = data.readUInt32LE(offset);
+      offset += 4;
+      obj["unknownQword1"] = data.readUInt64String(offset);
+      offset += 8;
+      obj["unknownByte1"] = data.readUInt8(offset);
+      offset += 1;
+      return {
+        value: obj,
+        length: offset - startOffset
+      };
+    }
+
     obj["unknownDword3"] = data.readUInt32LE(offset);
     offset += 4;
-    obj["count"] = data.readUInt32LE(offset);
+    obj["unknownDword4"] = data.readUInt32LE(offset);
     offset += 4;
+    obj["targetItemGuid"] = data.readUInt64String(offset);
+    offset += 8;
+    obj["unknownDword5"] = data.readUInt32LE(offset);
+    offset += 4;
+    obj["unknownDword6"] = data.readUInt32LE(offset);
+    offset += 4;
+    obj["characterId"] = data.readUInt64String(offset);
+    offset += 8;
     obj["unknownQword1"] = data.readUInt64String(offset);
     offset += 8;
-    obj["unknownByte1"] = data.readUInt8(offset);
-    offset += 1;
-
-    // TODO: FIX THIS
-    if (obj["itemUseOption"] == 16) {
-      // this is the correct amount of bytes for this exact packet but
-      // may be in a different order
-      obj["unknownQword2"] = data.readUInt64String(offset);
-      offset += 8;
-      obj["unknownByte2"] = data.readUInt8(offset);
-      offset += 1;
-      obj["unknownByte3"] = data.readUInt8(offset);
-      offset += 1;
-      obj["unknownByte4"] = data.readUInt8(offset);
-      offset += 1;
-      obj["characterId"] = data.readUInt64String(offset);
-      offset += 8;
-      obj["unknownQword3"] = data.readUInt64String(offset);
-      offset += 8;
-    }
   }
 
   return {

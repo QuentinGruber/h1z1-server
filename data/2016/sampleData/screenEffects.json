@@ -1,0 +1,68 @@
+[
+  {
+    "id": 1,
+    "typeName": "BLEEDING_LIGHT",
+    "duration": 4294967295,
+    "screenBrightness": 0,
+    "colorGradingFilename": "",
+    "colorGrading": 1,
+    "screenCover": 0.25,
+    "transparency": 0.75,
+    "color": "880808"
+  },
+  {
+    "id": 2,
+    "typeName": "BLEEDING_MODERATE",
+    "duration": 4294967295,
+    "screenBrightness": 0,
+    "colorGradingFilename": "",
+    "colorGrading": 1,
+    "screenCover": 0.22,
+    "transparency": 0.75,
+    "color": "880808"
+  },
+  {
+    "id": 3,
+    "typeName": "BLEEDING_SEVERE",
+    "duration": 4294967295,
+    "screenBrightness": 0,
+    "colorGradingFilename": "",
+    "colorGrading": 1,
+    "screenCover": 0.18,
+    "transparency": 0.75,
+    "color": "880808"
+  },
+  {
+    "id": 4,
+    "typeName": "SWIZZLE",
+    "duration": 30000,
+    "screenBrightness": 0,
+    "colorGradingFilename": "",
+    "colorGrading": 1,
+    "screenCover": 0.30,
+    "transparency": 0.75,
+    "color": "30ff10"
+  },
+  {
+    "id": 5,
+    "typeName": "NIGHTVISION",
+    "duration": 4294967295,
+    "screenBrightness": 5,
+    "colorGradingFilename": "colorkey_nightvision.tga",
+    "colorGrading": 0.8,
+    "screenCover": 0.0001,
+    "transparency": 0.4,
+    "color": "000000"
+  },
+  {
+    "id": 6,
+    "typeName": "OUTOFMAPBOUNDS",
+    "duration": 4294967295,
+    "screenBrightness": -1,
+    "colorGradingFilename": "colorkey_blackandwhite.tga",
+    "colorGrading": 1,
+    "screenCover": 0,
+    "transparency": 0,
+    "color": "000000"
+  }
+]

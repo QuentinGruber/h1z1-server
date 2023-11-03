@@ -17,16 +17,17 @@ import { ConstructionPermissionIds, Items, StringIds } from "../models/enums";
 import { ZoneServer2016 } from "../zoneserver";
 import {
   getConstructionSlotId,
-  isInsideSquare,
-  isInsideCube,
   registerConstructionSlots,
-  getRectangleCorners
+  getCubeBounds,
+  isInsideCube
 } from "../../../utils/utils";
 import { ZoneClient2016 } from "../classes/zoneclient";
 import {
   ConstructionPermissions,
   ConstructionSlotPositionMap,
+  CubeBounds,
   OccupiedSlotMap,
+  Point3D,
   SquareBounds
 } from "types/zoneserver";
 import {
@@ -62,7 +63,10 @@ export class ConstructionParentEntity extends ConstructionChildEntity {
   readonly itemDefinitionId: number;
   readonly slot: string;
   readonly damageRange: number;
-  readonly bounds?: SquareBounds;
+  readonly cubebounds?: CubeBounds;
+
+  // for detecting players / objects underneath a foundation
+  readonly boundsUnder?: CubeBounds;
 
   constructor(
     characterId: string,
@@ -110,43 +114,77 @@ export class ConstructionParentEntity extends ConstructionChildEntity {
     this.damageRange = getDamageRange(this.itemDefinitionId);
     switch (this.itemDefinitionId) {
       case Items.GROUND_TAMPER:
-        this.bounds = this.getSquareBounds([1, 5, 9, 13]);
+        this.cubebounds = this.getCubeBoundsFromWallSlots(
+          server,
+          [1, 5, 9, 13],
+          0,
+          10
+        );
         this.interactionDistance = 16; // fix tamper interact distance if deck is placed on it
         break;
       case Items.FOUNDATION:
-        this.bounds = this.getSquareBounds([1, 4, 7, 10]);
+        this.cubebounds = this.getCubeBoundsFromWallSlots(
+          server,
+          [1, 4, 7, 10],
+          -4,
+          11
+        );
+        this.boundsUnder = this.getCubeBoundsFromWallSlots(
+          server,
+          [1, 4, 7, 10],
+          -4,
+          2.1
+        );
+
         this.interactionDistance = 10;
         break;
-      case Items.FOUNDATION_EXPANSION: // 1, 2, 5, 3RD dependent foundation wall
-        const bounds = this.getSquareBounds([1, 2, 5, 0]),
-          parent = this.getParentFoundation(server);
-        if (parent) {
-          const dependentWallPos = parent.getSlotPosition(
-            this.getExpansion4thBoundWall(),
-            parent.wallSlots
-          );
-          if (dependentWallPos) {
-            bounds[3] = [dependentWallPos[0], dependentWallPos[2]];
-            this.bounds = bounds;
-          }
-        }
+      case Items.FOUNDATION_EXPANSION:
+        this.cubebounds = this.getCubeBoundsFromWallSlots(
+          server,
+          [1, 2, 5, 0],
+          -6,
+          9
+        );
+        this.boundsUnder = this.getCubeBoundsFromWallSlots(
+          server,
+          [1, 2, 5, 0],
+          -6,
+          -0.1
+        );
+
         this.interactionDistance = 8;
         break;
       case Items.SHACK:
-        this.bounds = getRectangleCorners(position, 4.7, 5, -this.eulerAngle);
+        this.cubebounds = getCubeBounds(
+          position,
+          4.7,
+          5,
+          -this.eulerAngle,
+          position[1] + 0.7,
+          position[1] + 2.8
+        );
         this.interactionDistance = 4;
         break;
       case Items.SHACK_SMALL:
-        this.bounds = getRectangleCorners(
-          this.state.position,
+        this.cubebounds = getCubeBounds(
+          position,
           3.5,
           2.5,
-          -this.eulerAngle
+          -this.eulerAngle,
+          position[1] + 0.7,
+          position[1] + 2.8
         );
         this.interactionDistance = 4;
         break;
       case Items.SHACK_BASIC:
-        this.bounds = getRectangleCorners(position, 1.6, 1.6, -this.eulerAngle);
+        this.cubebounds = getCubeBounds(
+          position,
+          1.6,
+          1.6,
+          -this.eulerAngle,
+          position[1],
+          position[1] + 1.7
+        );
         this.interactionDistance = 4;
         break;
     }
@@ -192,6 +230,65 @@ export class ConstructionParentEntity extends ConstructionChildEntity {
       const pos = this.getSlotPosition(slot, this.wallSlots);
       if (pos) bounds[idx] = [pos[0], pos[2]];
     });
+    return bounds;
+  }
+
+  private getExpansionDependentWallPos(server: ZoneServer2016) {
+    const parent = this.getParentFoundation(server);
+    if (!parent) return;
+
+    return parent.getSlotPosition(
+      this.getExpansion4thBoundWall(),
+      parent.wallSlots
+    );
+  }
+
+  private getExpansionSquareBounds(
+    server: ZoneServer2016
+  ): SquareBounds | undefined {
+    // 1, 2, 5, 3RD dependent foundation wall
+    const bounds = this.getSquareBounds([1, 2, 5, 0]),
+      pos = this.getExpansionDependentWallPos(server);
+    if (!pos) return;
+
+    bounds[3] = [pos[0], pos[2]];
+    return bounds;
+  }
+
+  private getCubeBoundsFromWallSlots(
+    server: ZoneServer2016,
+    slots: [number, number, number, number],
+    lowerYOffset: number,
+    upperYOffset: number
+  ): CubeBounds | undefined {
+    const bounds: CubeBounds = [
+        [0, 0, 0],
+        [0, 0, 0],
+        [0, 0, 0],
+        [0, 0, 0],
+        [0, 0, 0],
+        [0, 0, 0],
+        [0, 0, 0],
+        [0, 0, 0]
+      ],
+      lowerY = this.state.position[1] + lowerYOffset,
+      upperY = this.state.position[1] + upperYOffset;
+
+    for (let i = 0; i < 4; i++) {
+      const adjustedIdx = i >= 4 ? i - 4 : i;
+      let pos = this.getSlotPosition(slots[adjustedIdx], this.wallSlots);
+
+      if (slots[adjustedIdx] == 0) {
+        // for expansion slot #4
+        pos = this.getExpansionDependentWallPos(server);
+      }
+
+      if (!pos) return;
+
+      bounds[i] = [pos[0], lowerY, pos[2]];
+      bounds[i + 4] = [pos[0], upperY, pos[2]];
+    }
+
     return bounds;
   }
 
@@ -420,6 +517,8 @@ export class ConstructionParentEntity extends ConstructionChildEntity {
         }
         this.occupiedExpansionSlots[a].isSecured = allowSecured;
       }
+
+      // if it ain't broke, don't fix it.
       let side01 = false;
       let side02 = false;
       let side03 = false;
@@ -660,68 +759,41 @@ export class ConstructionParentEntity extends ConstructionChildEntity {
       case Items.SHACK:
       case Items.SHACK_BASIC:
       case Items.SHACK_SMALL:
-        if (!this.bounds) {
+        if (!this.cubebounds) {
           console.error(
-            `ERROR: CONSTRUCTION BOUNDS IS NOT DEFINED FOR ${this.itemDefinitionId} ${this.characterId}`
+            `ERROR: CONSTRUCTION CUBE BOUNDS IS NOT DEFINED FOR ${this.itemDefinitionId} ${this.characterId}`
           );
           return false; // this should never occur
         }
-    }
-
-    const bounds = this.bounds as SquareBounds;
-
-    switch (this.itemDefinitionId) {
-      case Items.FOUNDATION:
-      case Items.FOUNDATION_EXPANSION:
-      case Items.GROUND_TAMPER:
-        return isInsideSquare([position[0], position[2]], bounds);
-      case Items.SHACK:
-        return isInsideCube(
-          [position[0], position[2]],
-          bounds,
-          position[1],
-          this.state.position[1],
-          2.1
-        );
-      case Items.SHACK_BASIC:
-        return isInsideCube(
-          [position[0], position[2]],
-          bounds,
-          position[1],
-          this.state.position[1],
-          1.7
-        );
-      case Items.SHACK_SMALL:
-        return isInsideCube(
-          [position[0], position[2]],
-          bounds,
-          position[1],
-          this.state.position[1],
-          2.1
-        );
+        return isInsideCube(Array.from(position) as Point3D, this.cubebounds);
       default:
         return false;
     }
   }
 
   isUnder(position: Float32Array) {
-    if (!this.bounds) {
-      console.error(
-        `ERROR: CONSTRUCTION BOUNDS IS NOT DEFINED FOR ${this.itemDefinitionId} ${this.characterId}`
-      );
-      return false; // this should never occur
+    switch (this.itemDefinitionId) {
+      case Items.FOUNDATION:
+      case Items.FOUNDATION_EXPANSION:
+        if (!this.boundsUnder) {
+          console.error(
+            `ERROR: CONSTRUCTION BOUNDS UNDER IS NOT DEFINED FOR ${this.itemDefinitionId} ${this.characterId}`
+          );
+          return false; // this should never occur
+        }
+        return isInsideCube(Array.from(position) as Point3D, this.boundsUnder);
+      default:
+        return false;
     }
-    const fixY = this.itemDefinitionId == Items.FOUNDATION ? 1 : 0;
-    return isInsideCube(
-      [position[0], position[2]],
-      this.bounds,
-      position[1],
-      this.state.position[1] - 50 + fixY,
-      49 + fixY
-    );
   }
 
-  destroy(server: ZoneServer2016, destructTime = 0) {
+  isOn() {
+    // prevents isOn not defined messages if deck is checked by mistake
+    // only used for ConstructionChildEntity
+    return false;
+  }
+
+  destroy(server: ZoneServer2016, destructTime = 0): boolean {
     const deleted = server.deleteEntity(
       this.characterId,
       server._constructionFoundations,
@@ -787,6 +859,8 @@ export class ConstructionParentEntity extends ConstructionChildEntity {
     permission: ConstructionPermissionIds
   ) {
     if (characterId == this.ownerCharacterId) return true;
+    if (!this.permissions[characterId]) return false;
+
     switch (permission) {
       case ConstructionPermissionIds.BUILD:
         return this.permissions[characterId]?.build;
@@ -821,7 +895,7 @@ export class ConstructionParentEntity extends ConstructionChildEntity {
       return;
     server.sendData(
       client,
-      "NpcFoundationPermissionsManagerBase.showPermissions",
+      "NpcFoundationPermissionsManagerBase.ShowPermissions",
       {
         characterId: this.characterId,
         characterId2: this.characterId,

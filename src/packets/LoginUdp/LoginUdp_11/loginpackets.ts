@@ -13,6 +13,10 @@
 
 import { PacketStructures } from "types/packetStructure";
 import PacketTableBuild from "../../packettable";
+import {
+  itemDefinitionSchema,
+  loadoutSlotData
+} from "../../ClientProtocol/ClientProtocol_1080/shared";
 
 const serverField: any[] = [
   { name: "serverId", type: "uint32" },
@@ -256,106 +260,26 @@ const packets: PacketStructures = [
               type: "byteswithlength",
               fields: [
                 { name: "name", type: "string" },
-                { name: "empireId", type: "uint8", defaultValue: 2 },
-                { name: "battleRank", type: "uint32", defaultValue: 100 },
+                { name: "empireId", type: "uint8", defaultValue: 0 },
+                { name: "battleRank", type: "uint32", defaultValue: 0 },
                 {
                   name: "nextBattleRankPercent",
                   type: "uint32",
                   defaultValue: 0
                 },
-                { name: "headId", type: "uint32", defaultValue: 1 },
-                { name: "modelId", type: "uint32", defaultValue: 9240 },
-                { name: "gender", type: "uint32", defaultValue: 1 },
-                { name: "profileId", type: "uint32", defaultValue: 4 },
-                { name: "unknownDword1", type: "uint32", defaultValue: 1 },
+                { name: "headId", type: "uint32", defaultValue: 0 },
+                { name: "modelId", type: "uint32", defaultValue: 0 },
+                { name: "gender", type: "uint32", defaultValue: 0 },
+                { name: "profileId", type: "uint32", defaultValue: 0 },
+                { name: "unknownDword1", type: "uint32", defaultValue: 0 },
+                { name: "unknownDword2", type: "uint32", defaultValue: 0 },
                 {
-                  name: "loadoutData",
-                  type: "schema",
-                  defaultValue: {},
+                  name: "loadoutSlots",
+                  type: "array",
+                  defaultValue: [],
                   fields: [
-                    { name: "loadoutId", type: "uint32", defaultValue: 3 },
-                    {
-                      name: "unknownData1",
-                      type: "schema",
-                      defaultValue: {},
-                      fields: [
-                        {
-                          name: "unknownDword1",
-                          type: "uint32",
-                          defaultValue: 22
-                        },
-                        {
-                          name: "unknownByte1",
-                          type: "uint8",
-                          defaultValue: 1
-                        }
-                      ]
-                    },
-                    { name: "unknownDword1", type: "uint32", defaultValue: 0 },
-                    {
-                      name: "unknownData2",
-                      type: "schema",
-                      defaultValue: {},
-                      fields: [
-                        {
-                          name: "unknownDword1",
-                          type: "uint32",
-                          defaultValue: 0
-                        },
-                        {
-                          name: "loadoutName",
-                          type: "string",
-                          defaultValue: ""
-                        }
-                      ]
-                    },
-                    { name: "tintItemId", type: "uint32", defaultValue: 0 },
-                    { name: "unknownDword2", type: "uint32", defaultValue: 0 },
-                    { name: "decalItemId", type: "uint32", defaultValue: 0 },
-                    {
-                      name: "loadoutSlots",
-                      type: "array",
-                      defaultValue: [],
-                      fields: [
-                        { name: "slotId", type: "uint32" },
-                        {
-                          name: "loadoutSlotData",
-                          type: "schema",
-                          defaultValue: {},
-                          fields: [
-                            { name: "index", type: "uint32" },
-                            {
-                              name: "unknownData1",
-                              type: "schema",
-                              defaultValue: {},
-                              fields: [
-                                { name: "itemLineId", type: "uint32" },
-                                { name: "flags", type: "uint8" },
-                                {
-                                  name: "attachments",
-                                  type: "array",
-                                  defaultValue: [],
-                                  fields: [
-                                    { name: "attachmentId", type: "uint32" }
-                                  ]
-                                },
-                                {
-                                  name: "attachmentClasses",
-                                  type: "array",
-                                  defaultValue: [],
-                                  fields: [
-                                    { name: "classId", type: "uint32" },
-                                    { name: "attachmentId", type: "uint32" }
-                                  ]
-                                }
-                              ]
-                            },
-                            { name: "tintItemId", type: "uint32" },
-                            { name: "itemSlot", type: "uint32" }
-                          ]
-                        }
-                      ]
-                    }
+                    { name: "hotbarSlotId", type: "uint32", defaultValue: 0 },
+                    ...loadoutSlotData
                   ]
                 },
                 {
@@ -363,100 +287,14 @@ const packets: PacketStructures = [
                   type: "array",
                   defaultValue: [],
                   fields: [
-                    { name: "itemId", type: "uint32" },
+                    { name: "ID", type: "uint32", defaultValue: "" },
                     {
                       name: "itemDefinitionData",
                       type: "schema",
                       defaultValue: {},
                       fields: [
-                        { name: "itemId", type: "uint32" },
-                        { name: "flags", type: "uint16" },
-                        { name: "nameId", type: "uint32" },
-                        { name: "descriptionId", type: "uint32" },
-                        { name: "unknownDword1", type: "uint32" },
-                        { name: "iconId", type: "uint32" },
-                        { name: "unknownDword2", type: "uint32" },
-                        { name: "hudImageSetId", type: "uint32" },
-                        { name: "unknownDword3", type: "uint32" },
-                        { name: "unknownDword4", type: "uint32" },
-                        { name: "cost", type: "uint32" },
-                        { name: "itemClass", type: "uint32" },
-                        { name: "unknownDword5", type: "uint32" },
-                        { name: "itemSlot", type: "uint32" },
-                        { name: "slotOverrideKey", type: "uint32" },
-                        { name: "unknownDword6", type: "uint8" },
-                        { name: "modelName", type: "string" },
-                        { name: "unknownString1", type: "string" },
-                        { name: "unknownByte1", type: "uint8" },
-                        { name: "itemType", type: "uint32" },
-                        { name: "categoryId", type: "uint32" },
-                        { name: "unknownDword7", type: "uint32" },
-                        { name: "unknownDword8", type: "uint32" },
-                        { name: "unknownDword9", type: "uint32" },
-                        { name: "unknownDword10", type: "uint32" },
-                        { name: "unknownDword11", type: "uint32" },
-                        { name: "activatableAbilityId", type: "uint32" },
-                        { name: "passiveAbilityId", type: "uint32" },
-                        { name: "unknownDword12", type: "uint32" },
-                        { name: "maxStackSize", type: "uint32" },
-                        { name: "tintName", type: "string" },
-                        { name: "unknownDword13", type: "uint32" },
-                        { name: "unknownDword14", type: "uint32" },
-                        { name: "unknownDword15", type: "uint32" },
-                        { name: "unknownDword16", type: "uint32" },
-                        { name: "uiModelCamera", type: "uint32" },
-                        { name: "equipCountMax", type: "uint32" },
-                        { name: "currencyType", type: "uint32" },
-                        { name: "unknownDword17", type: "uint32" },
-                        { name: "clientItemType", type: "uint32" },
-                        { name: "skillSetId", type: "uint32" },
-                        { name: "overlayTexture", type: "string" },
-                        { name: "decalSlot", type: "string" },
-                        { name: "unknownDword18", type: "uint32" },
-                        { name: "trialDurationSec", type: "uint32" },
-                        { name: "trialExclusionSec", type: "uint32" },
-                        { name: "clientUseRequirementId", type: "uint32" },
-                        { name: "overrideAppearance", type: "string" },
-                        { name: "unknownDword19", type: "uint32" },
-                        { name: "clientUseRequirementId2", type: "uint32" }
-                      ]
-                    }
-                  ]
-                },
-                {
-                  name: "attachmentDefinitions",
-                  type: "array",
-                  defaultValue: [],
-                  fields: [
-                    { name: "attachmentId", type: "uint32" },
-                    {
-                      name: "attachmentData",
-                      type: "schema",
-                      defaultValue: {},
-                      fields: [
-                        { name: "attachmentId", type: "uint32" },
-                        { name: "groupId", type: "uint32" },
-                        { name: "itemLineId", type: "uint32" },
-                        {
-                          name: "flags",
-                          type: "bitflags",
-                          flags: [
-                            { bit: 0, name: "bit0" },
-                            { bit: 1, name: "bit1" },
-                            { bit: 2, name: "bit2" },
-                            { bit: 3, name: "bit3" },
-                            { bit: 4, name: "bit4" },
-                            { bit: 5, name: "bit5" },
-                            { bit: 6, name: "bit6" },
-                            { bit: 7, name: "required" }
-                          ]
-                        },
-                        {
-                          name: "classes",
-                          type: "array",
-                          defaultValue: [],
-                          elementType: "uint32"
-                        }
+                        { name: "ID", type: "uint32", defaultValue: "" },
+                        ...itemDefinitionSchema
                       ]
                     }
                   ]
@@ -537,6 +375,28 @@ const packets: PacketStructures = [
         { name: "__opcode__", type: "uint8", defaultValue: 2 },
         { name: "title", type: "string", defaultValue: "" },
         { name: "message", type: "string", defaultValue: "" }
+      ]
+    }
+  ],
+  [
+    "H1emu.HadesInit",
+    0x22,
+    {
+      fields: [
+        { name: "__opcode__", type: "uint8", defaultValue: 3 },
+        { name: "authTicket", type: "string", defaultValue: "" },
+        { name: "gatewayServer", type: "string", defaultValue: "" }
+      ]
+    }
+  ],
+  [
+    "H1emu.HadesQuery",
+    0x23,
+    {
+      fields: [
+        { name: "__opcode__", type: "uint8", defaultValue: 4 },
+        { name: "authTicket", type: "string", defaultValue: "" },
+        { name: "gatewayServer", type: "string", defaultValue: "" }
       ]
     }
   ]

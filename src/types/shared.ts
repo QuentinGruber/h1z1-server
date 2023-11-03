@@ -17,6 +17,11 @@ export interface Packet {
   tunnelData: any;
   flags: any;
 }
+export interface ReceivedPacket<PacketType> {
+  name: string;
+  data: PacketType;
+}
+
 export interface httpServerMessage {
   type: string;
   requestId: number;
@@ -24,3 +29,15 @@ export interface httpServerMessage {
 }
 
 export type json = any;
+
+export interface FileHash {
+  file_name: string,
+  crc32_hash: string;
+}
+
+interface FileHashList {
+  type: string, 
+  hashes: Array<FileHash>
+}
+
+export type FileHashTypeList = Array<FileHashList>;

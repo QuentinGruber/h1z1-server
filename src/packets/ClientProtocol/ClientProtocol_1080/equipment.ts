@@ -29,9 +29,9 @@ export const equipmentPackets: PacketStructures = [
           type: "schema",
           fields: equipmentCharacterSchema
         },
-        { name: "unknownDword1", type: "uint32", defaultValue: 0 },
-        { name: "unknownString1", type: "string", defaultValue: "" },
-        { name: "unknownString2", type: "string", defaultValue: "#" },
+        { name: "unknownDword1", type: "uint32", defaultValue: 0 }, // 0 on z1br
+        { name: "tintAlias", type: "string", defaultValue: "Default" },
+        { name: "decalAlias", type: "string", defaultValue: "#" },
         {
           name: "equipmentSlots",
           type: "array",
@@ -44,7 +44,7 @@ export const equipmentPackets: PacketStructures = [
           defaultValue: [],
           fields: attachmentSchema
         },
-        { name: "unknownBoolean1", type: "boolean", defaultValue: false }
+        { name: "unknownBoolean1", type: "boolean", defaultValue: true } // this is true on z1br
       ]
     }
   ],

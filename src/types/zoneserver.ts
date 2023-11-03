@@ -17,6 +17,8 @@ import { FilterIds, HealTypes, Items } from "servers/ZoneServer2016/models/enums
 import { ConstructionDoor } from "servers/ZoneServer2016/entities/constructiondoor";
 import { LootableConstructionEntity } from "servers/ZoneServer2016/entities/lootableconstructionentity";
 import { LoadoutItem } from "servers/ZoneServer2016/classes/loadoutItem";
+import { ZoneServer2016 } from "servers/ZoneServer2016/zoneserver";
+import { Character2016 } from "servers/ZoneServer2016/entities/character";
 
 export interface npcData {
   guid: string;
@@ -71,7 +73,7 @@ export interface positionUpdate {
   engineRPM?: any;
 }
 
-export interface characterEquipment {
+export interface CharacterEquipment {
   modelName: string;
   slotId: number;
   guid?: string;
@@ -79,6 +81,7 @@ export interface characterEquipment {
   textureAlias?: string;
   tintAlias?: string;
   decalAlias?: string;
+  SHADER_PARAMETER_GROUP?: Array<{SHADER_SEMANTIC_ID: number}>
 }
 
 export interface Weather {
@@ -133,44 +136,6 @@ export interface skyData {
   wind: number;
 }
 
-export interface Weather2016 {
-  templateName?: string;
-  name: string;
-  unknownDword1: number;
-  fogDensity: number;
-  fogFloor: number;
-  fogGradient: number;
-  rain: number;
-  temp: number;
-  colorGradient: number;
-  unknownDword8: number;
-  unknownDword9: number;
-  unknownDword10: number;
-  unknownDword11: number;
-  unknownDword12: number;
-  sunAxisX: number;
-  sunAxisY: number;
-  unknownDword15: number;
-  windDirectionX: number;
-  windDirectionY: number;
-  windDirectionZ: number;
-  wind: number;
-  unknownDword20: number;
-  unknownDword21: number;
-  unknownDword22: number;
-  unknownDword23: number;
-  unknownDword24: number;
-  unknownDword25: number;
-  unknownDword26: number;
-  unknownDword27: number;
-  unknownDword28: number;
-  unknownDword29: number;
-  AOSize: number;
-  AOGamma: number;
-  AOBlackpoint: number;
-  unknownDword33: number;
-}
-
 export interface HitReport {
   sessionProjectileCount: number;
   characterId: string;
@@ -188,6 +153,7 @@ export interface DamageInfo {
   causeBleed?: boolean;
   hitReport?: HitReport;
   message?: string;
+  meleeType?: number;
 }
 
 export interface DamageRecord {
@@ -211,7 +177,7 @@ export interface DamageRecord {
   };
 }
 
-export interface fireHint {
+export interface FireHint {
   id: number;
   position: Float32Array;
   rotation: number;
@@ -221,11 +187,11 @@ export interface fireHint {
   marked?: { characterId: string, position: Float32Array, rotation: Float32Array, gameTime: number }
 }
 
-export interface characterEffect {
+export interface CharacterEffect {
   id: number;
   duration: number;
-  callback?: any;
-  endCallback?: any;
+  callback?: (server: ZoneServer2016, character: Character2016) => void;
+  endCallback?: (server: ZoneServer2016, character: Character2016) => void;
 }
 
 export interface SpawnLocation {
@@ -275,6 +241,7 @@ export interface ItemUseOption {
   givetrash?: number,
   healCount?: number,
   staminaCount?: number,
+  enduranceCount?: number
   bandagingCount?: number,
   refuelCount?: number,
   healType?: HealTypes,
@@ -284,6 +251,11 @@ export interface smeltRecipe {
   filterId: FilterIds;
   rewardId: number;
   components: Array<RecipeComponent>;
+}
+
+export interface dailyRepairMaterial {
+    itemDefinitionId: number;
+    requiredCount: number;
 }
 
 export type SlottedConstructionEntity = ConstructionChildEntity | ConstructionParentEntity | ConstructionDoor;
@@ -306,6 +278,10 @@ export type OccupiedSlotMap = { [slot: string]: SlottedConstructionEntity };
 type Point2D = [number, number];
 
 export type SquareBounds = [Point2D, Point2D, Point2D, Point2D];
+
+export type Point3D = [...Point2D, number];
+
+export type CubeBounds = [Point3D, Point3D, Point3D, Point3D, Point3D, Point3D, Point3D, Point3D];
 
 export interface ClientBan {
   name: string;
@@ -375,6 +351,62 @@ export interface FairPlayValues {
 export interface SpeedTree {
   objectId: number;
   modelName: string;
+  position: Float32Array;
+}
+
+export interface ZoneSpeedTreeData {
+	objectId: number;
+	treeId: number;
+	position: Float32Array
+}
+
+export interface UseOption {
+	id: number;
+	typeName: string;
+	animationId: number
+}
+
+export interface HudIndicator {
+	id: number;
+	typeName: string;
+	nameId: number,
+	descriptionId: number,
+	imageSetId: number,
+}
+
+export interface ScreenEffect {
+	effectId: number;
+	typeName: string;
+	duration: number;
+	screenBrightness: number;
+	colorGradingFilename: string;
+	colorGrading: number;
+	screenCover: number;
+	transparency: number;
+	color: number;
+	unknownDword3: number;
+}
+
+export interface clientEffect {
+	id: number;
+	typeName: string;
+	animationName: string
+}
+
+export interface modelData {
+	id: number;
+	fileName: string;
+	materialType: number
+}
+
+export interface characterIndicatorData {
+	typeName: string;
+	expirationTime: number;
+}
+
+export interface HealType {
+	healingTicks: number,
+	healingMaxTicks: number
 }
 
 export interface StanceFlags {
@@ -401,3 +433,126 @@ export interface StanceFlags {
   CROUCHING: boolean,
   FLAG21: boolean,
 }
+
+export interface Weather2016 {
+  overcast: number,
+	fogDensity: number,
+	fogFloor: number,
+	fogGradient: number,
+	globalPrecipitation: number,
+	temperature: number,
+	skyClarity: number,
+	cloudWeight0: number,
+	cloudWeight1: number,
+	cloudWeight2: number,
+	cloudWeight3: number,
+	transitionTime: number,
+	sunAxisX: number,
+	sunAxisY: number,
+	sunAxisZ: number,
+	windDirectionX: number,
+	windDirectionY: number,
+	windDirectionZ: number,
+	wind: number,
+	rainMinStrength: number,
+	rainRampupTimeSeconds: number,
+	cloudFile: string,
+	stratusCloudTiling: number,
+	stratusCloudScrollU: number,
+	stratusCloudScrollV: number,
+	stratusCloudHeight: number,
+	cumulusCloudTiling: number,
+	cumulusCloudScrollU: number,
+	cumulusCloudScrollV: number,
+	cumulusCloudHeight: number,
+	cloudAnimationSpeed: number,
+	cloudSilverLiningThickness: number,
+	cloudSilverLiningBrightness: number,
+	cloudShadows: number
+}
+
+export interface WeatherTemplate extends Weather2016 {
+  templateName: string,
+}
+
+export interface ItemDefinition {
+  NAME: string,
+  ID: number,
+  CODE_FACTORY_NAME: string,
+  NAME_ID: number,
+  DESCRIPTION_ID: number,
+  IMAGE_SET_ID: number,
+  ACTIVATABLE_ABILITY_ID: number,
+  PASSIVE_ABILITY_ID: number,
+  COST: number,
+  ITEM_CLASS: number,
+  MAX_STACK_SIZE: number,
+  MIN_STACK_SIZE: number,
+  PROFILE_OVERRIDE: number,
+  NO_TRADE: 0|1,
+  SINGLE_USE: 0|1,
+  MODEL_NAME: string,
+  GENDER_USAGE: number,
+  TEXTURE_ALIAS: string,
+  SHADER_PARAMETER_GROUP_ID: number,
+  CATEGORY_ID: number,
+  MEMBERS_ONLY: 0|1,
+  NON_MINI_GAME: 0|1,
+  PARAM1: number,
+  PARAM2: number,
+  PARAM3: number,
+  NO_SALE: 0|1,
+  WEAPON_TRAIL_EFFECT_ID: number,
+  USE_REQUIREMENT_ID: number,
+  CLIENT_USE_REQUIREMENT_ID: number,
+  COMPOSITE_EFFECT_ID: number,
+  POWER_RATING: number,
+  MIN_PROFILE_RANK: number,
+  RARITY: number,
+  CONTENT_ID: number,
+  NO_LIVE_GAMER: 0|1,
+  COMBAT_ONLY: 0|1,
+  FORCE_DISABLE_PREVIEW: 0|1,
+  MEMBER_DISCOUNT: number,
+  RACE_SET_ID: number,
+  VIP_RANK_REQUIRED: number,
+  PERSIST_PROFILE_SWITCH: number,
+  FLAG_QUICK_USE: 0|1,
+  FLAG_CAN_EQUIP: 0|1,
+  FLAG_ACCOUNT_SCOPE: 0|1,
+  UI_MODEL_CAMERA_ID: number,
+  EQUIP_COUNT_MAX: number,
+  CURRENCY_TYPE: number,
+  DATASHEET_ID: number,
+  ITEM_TYPE: number,
+  SKILL_SET_ID: number,
+  OVERLAY_TEXTURE: string,
+  DECAL_SLOT: string,
+  OVERLAY_ADJUSTMENT: number,
+  TRIAL_DURATION_SEC: number,
+  NEXT_TRIAL_DELAY_SEC: number,
+  PASSIVE_ABILITY_SET_ID: number,
+  HUD_IMAGE_SET_ID: number,
+  OVERRIDE_APPEARANCE: string,
+  OVERRIDE_CAMERA_ID: number,
+  PLAYER_STUDIO_DISPLAY_NAME: string,
+  STRING_PARAM1: string,
+  BULK: number,
+  ACTIVE_EQUIP_SLOT_ID: number,
+  PASSIVE_EQUIP_SLOT_ID: number,
+  USE_ITEM_RETICLE_ID: number,
+  GRINDER_REWARD_SET_ID: number,
+  BUILD_BAR_GROUP_ID: number,
+  FLAG_NO_DRAG_DROP: 0|1,
+  INTERACTION_ANIMATION_ID: number,
+  IS_ARMOR: 0|1,
+  PASSIVE_EQUIP_SLOT_GROUP_ID: number,
+  SCRAP_VALUE_OVERRIDE: number,
+
+  // server-side only, added by h1emu
+  WORLD_MODEL_ID?: number,
+  PICKUP_EFFECT?: number,
+  PLACEMENT_MODEL_ID?: number,
+}
+
+export type EntityDictionary<Entity> = { [characterId: string]: Entity};

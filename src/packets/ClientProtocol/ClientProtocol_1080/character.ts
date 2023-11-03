@@ -10,6 +10,7 @@
 //
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
+import { pack2ByteLengthString } from "../../../packets/ClientProtocol/ClientProtocol_1080/shared";
 import { PacketStructures } from "types/packetStructure";
 
 export const characterPackets: PacketStructures = [
@@ -32,7 +33,32 @@ export const characterPackets: PacketStructures = [
   ],
   ["Character.Knockback", 0x0f02, {}],
   ["Character.UpdateHitpoints", 0x0f03, {}],
-  ["Character.PlayAnimation", 0x0f04, {}],
+  [
+    "Character.PlayAnimation",
+    0x0f04,
+    {
+      fields: [
+        {
+          name: "characterId",
+          type: "uint64string",
+          defaultValue: "0x0000000000000000"
+        },
+        {
+          name: "animationName",
+          type: "custom",
+          parser: pack2ByteLengthString,
+          packer: pack2ByteLengthString
+        },
+        { name: "unm4", type: "uint8", defaultValue: 0 },
+        { name: "unknownDword1", type: "uint32", defaultValue: 1430 },
+        { name: "unknownByte1", type: "uint8", defaultValue: 0 },
+        { name: "unknownDword2", type: "uint32", defaultValue: 1430 },
+        { name: "unkWord2", type: "uint16", defaultValue: 0 },
+        { name: "unknownByte1xda", type: "uint8", defaultValue: 0 },
+        { name: "unknownDword3", type: "uint32", defaultValue: 1430 }
+      ]
+    }
+  ],
   [
     "Character.UpdateScale",
     0x0f05,
@@ -225,7 +251,7 @@ export const characterPackets: PacketStructures = [
         {
           name: "characterId",
           type: "uint64string",
-          defaultValue: "0x0000000000000000"
+          defaultValue: ""
         },
         { name: "modelId", type: "uint32", defaultValue: 0 },
         { name: "effectId", type: "uint32", defaultValue: 0 }
@@ -244,7 +270,17 @@ export const characterPackets: PacketStructures = [
       ]
     }
   ],
-  ["Character.UpdateTintAlias", 0x0f21, {}],
+  [
+    "Character.UpdateTintAlias",
+    0x0f21,
+    {
+      fields: [
+        { name: "characterId", type: "uint64string", defaultValue: "0" },
+        { name: "tintAlias", type: "string", defaultValue: "" },
+        { name: "decalAlias", type: "string", defaultValue: "" }
+      ]
+    }
+  ],
   [
     "Character.MoveOnRail",
     0x0f22,
@@ -489,7 +525,7 @@ export const characterPackets: PacketStructures = [
           type: "floatvector4",
           defaultValue: [0, 0, 0, 0]
         },
-        { name: "unk3", type: "float", defaultValue: 0 }
+        { name: "effectTime", type: "float", defaultValue: 0 }
       ]
     }
   ],
@@ -533,7 +569,8 @@ export const characterPackets: PacketStructures = [
     }
   ],
   [
-    "Character.DroppedIemNotification",
+    // DroppedIemNotification in the client
+    "Character.DroppedItemNotification",
     0x0f4a,
     {
       fields: [
@@ -600,7 +637,25 @@ export const characterPackets: PacketStructures = [
     }
   ],
   ["Character.RequestMovementVersion", 0x0f57, {}],
-  ["Character.DailyRepairMaterials", 0x0f58, {}],
+  [
+    "Character.DailyRepairMaterials",
+    0x0f58,
+    {
+      fields: [
+        { name: "characterId", type: "uint64string", defaultValue: "0" },
+        { name: "containerId", type: "uint64string", defaultValue: "0" },
+        {
+          name: "materials",
+          type: "array",
+          defaultValue: [{}],
+          fields: [
+            { name: "itemDefinitionId", type: "uint32", defaultValue: 0 },
+            { name: "requiredCount", type: "uint32", defaultValue: 0 }
+          ]
+        }
+      ]
+    }
+  ],
   ["Character.BeginPreviewInteraction", 0x0f59, {}],
   ["Character.TransportPlayerToFactionHub", 0x0f5a, {}],
   ["Character.EnterCache", 0x0f5b, {}],

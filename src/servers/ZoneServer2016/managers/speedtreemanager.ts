@@ -11,15 +11,17 @@
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
 
-import { SpeedTree } from "types/zoneserver";
-import { randomIntFromInterval } from "../../../utils/utils";
+import { SpeedTree, ZoneSpeedTreeData } from "types/zoneserver";
+import { isPosInRadius, randomIntFromInterval } from "../../../utils/utils";
 import { ZoneClient2016 as Client } from "../classes/zoneclient";
-import { Items } from "../models/enums";
+import { Items, TreeIds } from "../models/enums";
 import { ZoneServer2016 } from "../zoneserver";
+const Z1_speedTrees = require("../../../../data/2016/zoneData/Z1_speedTrees.json");
 
 export class SpeedTreeManager {
   _speedTrees: { [objectId: number]: SpeedTree } = {};
   _speedTreesCounter: any = {};
+  _speedTreesList: { [objectId: number]: ZoneSpeedTreeData } = {};
 
   /* MANAGED BY CONFIGMANAGER */
   minBlackberryHarvest!: number;
@@ -33,6 +35,16 @@ export class SpeedTreeManager {
   minTreeHits!: number;
   maxTreeHits!: number;
 
+  initiateList() {
+    Z1_speedTrees.forEach((tree: any) => {
+      this._speedTreesList[tree.uniqueId] = {
+        objectId: tree.uniqueId,
+        treeId: tree.id,
+        position: tree.position
+      };
+    });
+  }
+
   customize(DTOArray: Array<any>) {
     for (const object in this._speedTrees) {
       const DTO = this._speedTrees[object];
@@ -44,14 +56,36 @@ export class SpeedTreeManager {
     }
   }
 
-  use(server: ZoneServer2016, client: Client, objectId: number, name: string) {
+  use(
+    server: ZoneServer2016,
+    client: Client,
+    objectId: number,
+    treeId: number,
+    name: string
+  ) {
+    const zoneSpeedTree = this._speedTreesList[objectId];
+    if (!zoneSpeedTree || zoneSpeedTree.treeId != treeId) {
+      server.sendChatText(
+        client,
+        `[Server] Invalid tree, please report this! ${treeId}`
+      );
+      return;
+    }
+
+    if (
+      !isPosInRadius(3, zoneSpeedTree.position, client.character.state.position)
+    ) {
+      server.sendConsoleText(client, `[Server] Tree is too far.`);
+      return;
+    }
     const speedtreeDestroyed = this._speedTrees[objectId];
     let destroy = false;
     let count = 1;
     if (speedtreeDestroyed) return;
     let itemDefId = 0;
-    switch (name) {
-      case "SpeedTree.Blackberry":
+    switch (treeId) {
+      case TreeIds.BLACKBERRY:
+        server.startInteractionTimer(client, 0, 0, 9);
         itemDefId = Items.BLACKBERRY;
         if (Math.random() <= this.branchHarvestChance) {
           client.character.lootItem(
@@ -65,8 +99,9 @@ export class SpeedTreeManager {
           this.maxBlackberryHarvest
         );
         break;
-      case "SpeedTree.DevilClub":
-      case "SpeedTree.VineMaple":
+      case TreeIds.DEVILCLUB:
+      case TreeIds.VINEMAPLE:
+        server.startInteractionTimer(client, 0, 0, 9);
         itemDefId = Items.WOOD_STICK;
         destroy = true;
         count = randomIntFromInterval(
@@ -74,16 +109,33 @@ export class SpeedTreeManager {
           this.maxStickHarvest
         );
         break;
-      case "SpeedTree.RedMaple":
-      case "SpeedTree.WesternRedCedar":
-      case "SpeedTree.GreenMaple":
-      case "SpeedTree.GreenMapleDead":
-      case "SpeedTree.WesternCedarSapling":
-      case "SpeedTree.SaplingMaple":
-      case "SpeedTree.WhiteBirch":
-      case "SpeedTree.RedCedar":
-      case "SpeedTree.PaperBirch":
-      case "SpeedTree.OregonOak":
+      case TreeIds.REDMAPLE:
+      case TreeIds.WESTERNCEDAR:
+      case TreeIds.GREENMAPLE:
+      case TreeIds.GREENMAPLEDEAD:
+      case TreeIds.WESTERNCEDARSAPLING:
+      case TreeIds.SAPLINGMAPLE:
+      case TreeIds.WHITEBIRCH:
+      case TreeIds.REDCEDAR:
+      case TreeIds.PAPERBIRCH:
+      case TreeIds.OREGONOAK:
+        const wep = client.character.getEquippedWeapon();
+        if (!wep) return;
+
+        switch (wep.itemDefinitionId) {
+          case Items.WEAPON_HATCHET:
+          case Items.WEAPON_HATCHET_MAKESHIFT:
+          case Items.WEAPON_AXE_FIRE:
+          case Items.WEAPON_AXE_WOOD:
+          case Items.WEAPON_MACHETE01:
+            break;
+          default:
+            server.sendAlert(client, "This tool is not sharp enough for this!");
+            return;
+        }
+
+        server.damageItem(client, wep, 5);
+
         if (!this._speedTreesCounter[objectId]) {
           this._speedTreesCounter[objectId] = {
             hitPoints: randomIntFromInterval(
@@ -112,31 +164,37 @@ export class SpeedTreeManager {
       );
     }
     if (destroy) {
-      this.destroy(server, objectId, name);
+      this.destroy(server, zoneSpeedTree, name);
     }
   }
 
-  destroy(server: ZoneServer2016, objectId: number, name: string) {
+  destroy(
+    server: ZoneServer2016,
+    zoneSpeedTree: ZoneSpeedTreeData,
+    name: string
+  ) {
     server.sendDataToAll("DtoStateChange", {
-      objectId: objectId,
+      objectId: zoneSpeedTree.objectId,
       modelName: name.concat(".Stump"),
       effectId: 0,
       unk3: 0,
       unk4: true
     });
-    this._speedTrees[objectId] = {
-      objectId: objectId,
-      modelName: name
+
+    this._speedTrees[zoneSpeedTree.objectId] = {
+      objectId: zoneSpeedTree.objectId,
+      modelName: name,
+      position: zoneSpeedTree.position
     };
     setTimeout(() => {
       server.sendDataToAll("DtoStateChange", {
-        objectId: objectId,
-        modelName: this._speedTrees[objectId].modelName,
+        objectId: zoneSpeedTree.objectId,
+        modelName: this._speedTrees[zoneSpeedTree.objectId].modelName,
         effectId: 0,
         unk3: 0,
         unk4: true
       });
-      delete this._speedTrees[objectId];
+      delete this._speedTrees[zoneSpeedTree.objectId];
     }, this.treeRespawnTimeMS);
   }
 }

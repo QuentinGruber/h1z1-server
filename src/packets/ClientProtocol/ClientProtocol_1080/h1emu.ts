@@ -34,5 +34,12 @@ export const h1emuPackets: PacketStructures = [
         { name: "message", type: "string", defaultValue: "" }
       ]
     }
+  ],
+  [
+    "H1emu.RequestAssetHashes",
+    0x9903,
+    {
+      fields: []
+    }
   ]
 ];

@@ -23,6 +23,7 @@ export enum PermissionLevels {
 
 export interface Command {
   name: string;
+  description?: string;
   permissionLevel: PermissionLevels;
   keepCase?: boolean;
   execute: (
@@ -30,4 +31,12 @@ export interface Command {
     client: Client,
     args: Array<string>
   ) => void;
+}
+
+export interface InternalCommand {
+  name: string;
+  description?: string;
+  permissionLevel: PermissionLevels;
+  keepCase?: boolean;
+  execute: (server: ZoneServer2016, client: Client, packetData: object) => void;
 }

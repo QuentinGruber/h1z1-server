@@ -16,6 +16,8 @@ import { ZoneServer2016 } from "../zoneserver";
 import { BaseLightweightCharacter } from "./baselightweightcharacter";
 import { ZoneClient2016 } from "../classes/zoneclient";
 import { DamageInfo } from "../../../types/zoneserver";
+import { AddLightweightNpc } from "types/zone2016packets";
+import { Effects } from "../models/enums";
 
 function getDestroyedModels(actorModel: number): number[] {
   switch (actorModel) {
@@ -97,32 +99,6 @@ function getDoorSound(actorModelId: number) {
 }
 
 export class DoorEntity extends BaseLightweightCharacter {
-  flags = {
-    bit0: 0,
-    bit1: 0,
-    bit2: 0,
-    bit3: 0,
-    bit4: 0,
-    bit5: 0,
-    bit6: 0,
-    bit7: 0,
-    bit8: 0,
-    bit9: 0,
-    bit10: 0,
-    bit11: 0,
-    projectileCollision: 1,
-    bit13: 0,
-    bit14: 0,
-    bit15: 0,
-    bit16: 0,
-    bit17: 0,
-    bit18: 0,
-    bit19: 0,
-    noCollide: 0,
-    knockedOut: 0,
-    bit22: 0,
-    bit23: 0
-  };
   spawnerId: number;
   npcRenderDistance = 150;
   openAngle: number;
@@ -147,6 +123,7 @@ export class DoorEntity extends BaseLightweightCharacter {
     spawnerId: number
   ) {
     super(characterId, transientId, actorModelId, position, rotation, server);
+    this.flags.projectileCollision = 1;
     this.scale = new Float32Array(scale);
     this.spawnerId = spawnerId;
     this.startRot = rotation;
@@ -166,14 +143,16 @@ export class DoorEntity extends BaseLightweightCharacter {
     this.health = 2000;
   }
 
-  pGetLightweight() {
+  pGetLightweight(): AddLightweightNpc {
     return {
       characterId: this.characterId,
       transientId: this.transientId,
       actorModelId: this.destroyed ? this.destroyedModel : this.actorModelId,
-      position: Array.from(this.state.position).map((pos, idx) => {
-        return idx == 1 ? pos++ : pos;
-      }),
+      position: new Float32Array(
+        Array.from(this.state.position).map((pos, idx) => {
+          return idx == 1 ? pos++ : pos;
+        })
+      ),
       rotation: this.state.rotation,
       scale: this.scale,
       positionUpdateType: this.positionUpdateType,
@@ -184,28 +163,31 @@ export class DoorEntity extends BaseLightweightCharacter {
         flags2: this.flags,
         flags3: this.flags
       },
-      headActor: this.headActor
+      headActor: this.headActor,
+      attachedObject: {}
     };
   }
 
   OnProjectileHit(server: ZoneServer2016, damageInfo: DamageInfo) {
-    if (this.destroyed) return;
+    if (!this.destroyedModel || this.destroyed) return;
     this.health -= damageInfo.damage;
     if (this.health > 0) return;
     this.destroyed = true;
-    if (this.destroyedModel) {
-      server.sendDataToAllWithSpawnedEntity(
-        server._doors,
-        this.characterId,
-        "Character.Destroyed",
-        {
-          characterId: this.characterId,
-          destroyedModel: this.destroyedModel,
-          disableWeirdPhysic: true,
-          destroyedEffect2: 165
-        }
-      );
-    }
+    server.sendDataToAllWithSpawnedEntity(
+      server._doors,
+      this.characterId,
+      "Character.Destroyed",
+      {
+        characterId: this.characterId,
+        destroyedModel: this.destroyedModel,
+        disableWeirdPhysic: true,
+        destroyedEffect2: Effects.PFX_Damage_GlassWindow_House
+      }
+    );
+  }
+
+  OnMeleeHit(server: ZoneServer2016, damageInfo: DamageInfo) {
+    this.OnProjectileHit(server, damageInfo);
   }
 
   /* eslint-disable @typescript-eslint/no-unused-vars */
@@ -258,7 +240,7 @@ export class DoorEntity extends BaseLightweightCharacter {
     });
   }
 
-  destroy(server: ZoneServer2016) {
+  destroy(server: ZoneServer2016): boolean {
     return server.deleteEntity(this.characterId, server._doors);
   }
 }

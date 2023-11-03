@@ -61,8 +61,9 @@ export class LoadoutContainer extends LoadoutItem {
   getUsedBulk(server: ZoneServer2016): number {
     let bulk = 0;
     for (const item of Object.values(this.items)) {
-      bulk +=
-        server.getItemDefinition(item.itemDefinitionId).BULK * item.stackCount;
+      const itemDefinition = server.getItemDefinition(item.itemDefinitionId);
+      if (!itemDefinition) continue;
+      bulk += itemDefinition.BULK * item.stackCount;
     }
     return bulk;
   }
@@ -98,10 +99,11 @@ export class LoadoutContainer extends LoadoutItem {
     count: number
   ): boolean {
     if (this.getMaxBulk(server) == 0) return true; // for external containers
+    const itemDefinition = server.getItemDefinition(itemDefinitionId);
+    if (!itemDefinition) return false;
     return !!(
       this.getMaxBulk(server) -
-        (this.getUsedBulk(server) +
-          server.getItemDefinition(itemDefinitionId).BULK * count) >=
+        (this.getUsedBulk(server) + itemDefinition.BULK * count) >=
       0
     );
   }
@@ -121,11 +123,12 @@ export class LoadoutContainer extends LoadoutItem {
   ): string {
     //
     // if slotId is defined, then only an item with the same slotId will be returned
-    if (server.getItemDefinition(itemDefId).MAX_STACK_SIZE == 1) return "";
+    if (server.getItemDefinition(itemDefId)?.MAX_STACK_SIZE == 1) return "";
     for (const item of Object.values(this.items)) {
       if (
         item.itemDefinitionId == itemDefId &&
-        server.getItemDefinition(item.itemDefinitionId).MAX_STACK_SIZE >=
+        (server.getItemDefinition(item.itemDefinitionId)?.MAX_STACK_SIZE ??
+          1) >=
           item.stackCount + count
       ) {
         return item.itemGuid;
@@ -198,7 +201,7 @@ export class LoadoutContainer extends LoadoutItem {
     }
     if (targetContainer.getMaxBulk(server) > 0) {
       const availableSpace = targetContainer.getAvailableBulk(server),
-        itemBulk = server.getItemDefinition(item.itemDefinitionId).BULK;
+        itemBulk = server.getItemDefinition(item.itemDefinitionId)?.BULK ?? 1;
       let lootCount = Math.floor(availableSpace / itemBulk);
       if (lootCount) {
         if (lootCount > item.stackCount) {

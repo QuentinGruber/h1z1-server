@@ -11,6 +11,7 @@
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
 
+import { AddLightweightNpc, AddSimpleNpc } from "types/zone2016packets";
 import { DamageInfo } from "../../../types/zoneserver";
 import { ZoneServer2016 } from "../zoneserver";
 import { BaseEntity } from "./baseentity";
@@ -46,19 +47,19 @@ export abstract class BaseLightweightCharacter extends BaseEntity {
     bit5: 0,
     bit6: 0,
     bit7: 0,
-    bit8: 0,
+    nonAttackable: 0, // disables melee flinch
     bit9: 0,
     bit10: 0,
     bit11: 0,
     projectileCollision: 0,
-    bit13: 0,
+    bit13: 0, // causes a crash if 1 with noCollide 1
     bit14: 0,
     bit15: 0,
     bit16: 0,
     bit17: 0,
     bit18: 0,
     bit19: 0,
-    noCollide: 0,
+    noCollide: 0, // determines if NpcCollision packet gets sent on player collide
     knockedOut: 0,
     bit22: 0,
     bit23: 0
@@ -71,7 +72,6 @@ export abstract class BaseLightweightCharacter extends BaseEntity {
   health: number = 1000000;
   maxHealth: number = 1000000;
   useSimpleStruct: boolean = false;
-  effectTags: number[] = [];
   constructor(
     characterId: string,
     transientId: number,
@@ -89,7 +89,7 @@ export abstract class BaseLightweightCharacter extends BaseEntity {
     };
   }
 
-  pGetSimpleNpc() {
+  pGetSimpleNpc(): AddSimpleNpc {
     return {
       characterId: this.characterId,
       transientId: this.transientId,
@@ -97,7 +97,6 @@ export abstract class BaseLightweightCharacter extends BaseEntity {
       rotation: this.state.rotation,
       modelId: this.actorModelId,
       scale: this.scale,
-      showHealth: true,
       health: (this.health / this.maxHealth) * 100
     };
   }
@@ -127,15 +126,17 @@ export abstract class BaseLightweightCharacter extends BaseEntity {
   /**
    * Gets the lightweight npc/pc packet fields for use in sendself, addlightweightnpc, or addlightweightpc
    */
-  pGetLightweight() {
+  pGetLightweight(): AddLightweightNpc {
     return {
       characterId: this.characterId,
       transientId: this.transientId,
       actorModelId: this.actorModelId,
       // fix players / vehicles spawning in ground
-      position: Array.from(this.state.position).map((pos, idx) => {
-        return idx == 1 ? pos++ : pos;
-      }),
+      position: new Float32Array(
+        Array.from(this.state.position).map((pos, idx) => {
+          return idx == 1 ? pos++ : pos;
+        })
+      ),
       rotation: this.state.rotation,
       scale: this.scale,
       positionUpdateType: this.positionUpdateType,
@@ -146,7 +147,8 @@ export abstract class BaseLightweightCharacter extends BaseEntity {
         flags2: this.flags,
         flags3: this.flags
       },
-      headActor: this.headActor
+      headActor: this.headActor,
+      attachedObject: {}
     };
   }
 }

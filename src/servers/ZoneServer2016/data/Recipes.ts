@@ -1450,7 +1450,17 @@ export const recipes: { [recipeId: number]: Recipe } = {
     ]
   },
 
-  // TODO GUN PARTS
+  // probably subject to change in the future
+  [Items.GUN_PART]: {
+    filterId: FilterIds.WEAPONS,
+    bundleCount: 4,
+    components: [
+      {
+        itemDefinitionId: Items.WEAPON_AR15,
+        requiredAmount: 1
+      }
+    ]
+  },
 
   [Items.REPAIR_KIT_GUN]: {
     filterId: FilterIds.WEAPONS,
@@ -2537,10 +2547,10 @@ export const recipes: { [recipeId: number]: Recipe } = {
         requiredAmount: 1
       }
     ]
-  }
+  },
 
   /* CUSTOM */
-  /*
+
   [Items.WEAPON_REPAIR_KIT]: {
     filterId: FilterIds.SURVIVAL,
     components: [
@@ -2557,5 +2567,5 @@ export const recipes: { [recipeId: number]: Recipe } = {
         requiredAmount: 8
       }
     ]
-  },*/
+  }
 };

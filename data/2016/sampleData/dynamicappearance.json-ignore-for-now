@@ -1,0 +1,338 @@
+{
+  "ITEM_APPEARANCE_DEFINITIONS": [
+    {
+      "ID": 493,
+      "ITEM_APPEARANCE_DATA": {
+        "ID": 493,
+        "ITEM_ID": 1373,
+        "MODEL_ID": 9674,
+        "GENDER_ID": 1,
+        "SHADER_PARAMETER_GROUP_ID": 1885
+      }
+    },
+    {
+      "ID": 494,
+      "ITEM_APPEARANCE_DATA": {
+        "ID": 494,
+        "ITEM_ID": 1373,
+        "MODEL_ID": 9674,
+        "GENDER_ID": 2,
+        "SHADER_PARAMETER_GROUP_ID": 1885
+      }
+    }
+  ],
+  "SHADER_SEMANTIC_DEFINITIONS": [
+    {
+      "SHADER_PARAMETER_GROUP_ID": 1373,
+      "SHADER_PARAMETER_GROUP": [
+        {
+          "SHADER_SEMANTIC_ID": 493
+        },
+        {
+          "SHADER_SEMANTIC_ID": 494
+        }
+      ]
+    }
+  ],
+  "SHADER_PARAMETER_DEFINITIONS": [
+    {
+      "SHADER_PARAMETER_GROUP_ID": 1885,
+      "SHADER_PARAMETER_GROUPS": [
+        {
+          "ID": 21,
+          "SHADER_PARAMETER_DATA": {
+            "SEMANTIC": "DecalTintShadow",
+            "FLOAT1_DEFAULT": 0,
+            "FLOAT2_DEFAULT": 0,
+            "FLOAT3_DEFAULT": 0,
+            "FLOAT4_DEFAULT": 0.5,
+            "unknownDword1": 0,
+            "BOOLEAN_DEFAULT": false,
+            "TEXTURE_DEFAULT": "",
+            "SHADER_VALUE_TYPE_ID": 2
+          }
+        },
+        {
+          "ID": 21,
+          "SHADER_PARAMETER_DATA": {
+            "SEMANTIC": "DecalTintMidtone",
+            "FLOAT1_DEFAULT": 0.5,
+            "FLOAT2_DEFAULT": 0.5,
+            "FLOAT3_DEFAULT": 0.5,
+            "FLOAT4_DEFAULT": 0.5,
+            "unknownDword1": 0,
+            "BOOLEAN_DEFAULT": false,
+            "TEXTURE_DEFAULT": "",
+            "SHADER_VALUE_TYPE_ID": 2
+          }
+        },
+        {
+          "ID": 20,
+          "SHADER_PARAMETER_DATA": {
+            "SEMANTIC": "DecalTintHighlight",
+            "FLOAT1_DEFAULT": 1,
+            "FLOAT2_DEFAULT": 1,
+            "FLOAT3_DEFAULT": 1,
+            "FLOAT4_DEFAULT": 0.5,
+            "unknownDword1": 0,
+            "BOOLEAN_DEFAULT": false,
+            "TEXTURE_DEFAULT": "",
+            "SHADER_VALUE_TYPE_ID": 2
+          }
+        },
+        {
+          "ID": 19,
+          "SHADER_PARAMETER_DATA": {
+            "SEMANTIC": "DecalTintRotation",
+            "FLOAT1_DEFAULT": 0,
+            "FLOAT2_DEFAULT": 0,
+            "FLOAT3_DEFAULT": 0,
+            "FLOAT4_DEFAULT": 0,
+            "unknownDword1": 0,
+            "BOOLEAN_DEFAULT": false,
+            "TEXTURE_DEFAULT": "",
+            "SHADER_VALUE_TYPE_ID": 4
+          }
+        },
+        {
+          "ID": 18,
+          "SHADER_PARAMETER_DATA": {
+            "SEMANTIC": "DecalTintScale",
+            "FLOAT1_DEFAULT": 1,
+            "FLOAT2_DEFAULT": 1,
+            "FLOAT3_DEFAULT": 0,
+            "FLOAT4_DEFAULT": 0,
+            "unknownDword1": 0,
+            "BOOLEAN_DEFAULT": false,
+            "TEXTURE_DEFAULT": "",
+            "SHADER_VALUE_TYPE_ID": 6
+          }
+        },
+        {
+          "ID": 17,
+          "SHADER_PARAMETER_DATA": {
+            "SEMANTIC": "DecalTintTranslation",
+            "FLOAT1_DEFAULT": 0,
+            "FLOAT2_DEFAULT": 0,
+            "FLOAT3_DEFAULT": 0,
+            "FLOAT4_DEFAULT": 0,
+            "unknownDword1": 0,
+            "BOOLEAN_DEFAULT": false,
+            "TEXTURE_DEFAULT": "",
+            "SHADER_VALUE_TYPE_ID": 6
+          }
+        },
+        {
+          "ID": 16,
+          "SHADER_PARAMETER_DATA": {
+            "SEMANTIC": "PunchThroughDecal",
+            "FLOAT1_DEFAULT": 0,
+            "FLOAT2_DEFAULT": 0,
+            "FLOAT3_DEFAULT": 0,
+            "FLOAT4_DEFAULT": 0,
+            "unknownDword1": 0,
+            "BOOLEAN_DEFAULT": false,
+            "TEXTURE_DEFAULT": "",
+            "SHADER_VALUE_TYPE_ID": 3
+          }
+        },
+        {
+          "ID": 15,
+          "SHADER_PARAMETER_DATA": {
+            "SEMANTIC": "DecalTint",
+            "FLOAT1_DEFAULT": 0,
+            "FLOAT2_DEFAULT": 0,
+            "FLOAT3_DEFAULT": 0,
+            "FLOAT4_DEFAULT": 0,
+            "unknownDword1": 0,
+            "BOOLEAN_DEFAULT": false,
+            "TEXTURE_DEFAULT": "white.dds",
+            "SHADER_VALUE_TYPE_ID": 5
+          }
+        },
+        {
+          "ID": 14,
+          "SHADER_PARAMETER_DATA": {
+            "SEMANTIC": "ShowDecalTint",
+            "FLOAT1_DEFAULT": 0,
+            "FLOAT2_DEFAULT": 0,
+            "FLOAT3_DEFAULT": 0,
+            "FLOAT4_DEFAULT": 0,
+            "unknownDword1": 0,
+            "BOOLEAN_DEFAULT": false,
+            "TEXTURE_DEFAULT": "",
+            "SHADER_VALUE_TYPE_ID": 3
+          }
+        },
+        {
+          "ID": 12,
+          "SHADER_PARAMETER_DATA": {
+            "SEMANTIC": "TilingTintShadow",
+            "FLOAT1_DEFAULT": 0,
+            "FLOAT2_DEFAULT": 0,
+            "FLOAT3_DEFAULT": 0,
+            "FLOAT4_DEFAULT": 0.5,
+            "unknownDword1": 0,
+            "BOOLEAN_DEFAULT": false,
+            "TEXTURE_DEFAULT": "",
+            "SHADER_VALUE_TYPE_ID": 2
+          }
+        },
+        {
+          "ID": 11,
+          "SHADER_PARAMETER_DATA": {
+            "SEMANTIC": "TilingTintMidtone",
+            "FLOAT1_DEFAULT": 0.5,
+            "FLOAT2_DEFAULT": 0.5,
+            "FLOAT3_DEFAULT": 0.5,
+            "FLOAT4_DEFAULT": 0.5,
+            "unknownDword1": 0,
+            "BOOLEAN_DEFAULT": false,
+            "TEXTURE_DEFAULT": "",
+            "SHADER_VALUE_TYPE_ID": 2
+          }
+        },
+        {
+          "ID": 10,
+          "SHADER_PARAMETER_DATA": {
+            "SEMANTIC": "TilingTintHighlight",
+            "FLOAT1_DEFAULT": 1,
+            "FLOAT2_DEFAULT": 1,
+            "FLOAT3_DEFAULT": 1,
+            "FLOAT4_DEFAULT": 0.5,
+            "unknownDword1": 0,
+            "BOOLEAN_DEFAULT": false,
+            "TEXTURE_DEFAULT": "",
+            "SHADER_VALUE_TYPE_ID": 2
+          }
+        },
+        {
+          "ID": 9,
+          "SHADER_PARAMETER_DATA": {
+            "SEMANTIC": "TilingTintScale",
+            "FLOAT1_DEFAULT": 16,
+            "FLOAT2_DEFAULT": 0,
+            "FLOAT3_DEFAULT": 0,
+            "FLOAT4_DEFAULT": 0,
+            "unknownDword1": 0,
+            "BOOLEAN_DEFAULT": false,
+            "TEXTURE_DEFAULT": "",
+            "SHADER_VALUE_TYPE_ID": 4
+          }
+        },
+        {
+          "ID": 8,
+          "SHADER_PARAMETER_DATA": {
+            "SEMANTIC": "TilingTint",
+            "FLOAT1_DEFAULT": 0,
+            "FLOAT2_DEFAULT": 0,
+            "FLOAT3_DEFAULT": 0,
+            "FLOAT4_DEFAULT": 0,
+            "unknownDword1": 0,
+            "BOOLEAN_DEFAULT": false,
+            "TEXTURE_DEFAULT": "norm.dds",
+            "SHADER_VALUE_TYPE_ID": 5
+          }
+        },
+        {
+          "ID": 7,
+          "SHADER_PARAMETER_DATA": {
+            "SEMANTIC": "ShowTilingTint",
+            "FLOAT1_DEFAULT": 0,
+            "FLOAT2_DEFAULT": 0,
+            "FLOAT3_DEFAULT": 0,
+            "FLOAT4_DEFAULT": 0,
+            "unknownDword1": 0,
+            "BOOLEAN_DEFAULT": false,
+            "TEXTURE_DEFAULT": "",
+            "SHADER_VALUE_TYPE_ID": 3
+          }
+        },
+        {
+          "ID": 6,
+          "SHADER_PARAMETER_DATA": {
+            "SEMANTIC": "BaseTintShadowB",
+            "FLOAT1_DEFAULT": 0.19249260425567627,
+            "FLOAT2_DEFAULT": 0.19249260425567627,
+            "FLOAT3_DEFAULT": 0.19249260425567627,
+            "FLOAT4_DEFAULT": 0.5,
+            "unknownDword1": 0,
+            "BOOLEAN_DEFAULT": false,
+            "TEXTURE_DEFAULT": "",
+            "SHADER_VALUE_TYPE_ID": 2
+          }
+        },
+        {
+          "ID": 5,
+          "SHADER_PARAMETER_DATA": {
+            "SEMANTIC": "BaseTintMidtoneB",
+            "FLOAT1_DEFAULT": 0,
+            "FLOAT2_DEFAULT": 0,
+            "FLOAT3_DEFAULT": 0,
+            "FLOAT4_DEFAULT": 0.5,
+            "unknownDword1": 0,
+            "BOOLEAN_DEFAULT": false,
+            "TEXTURE_DEFAULT": "",
+            "SHADER_VALUE_TYPE_ID": 2
+          }
+        },
+        {
+          "ID": 4,
+          "SHADER_PARAMETER_DATA": {
+            "SEMANTIC": "BaseTintHighlightB",
+            "FLOAT1_DEFAULT": 0,
+            "FLOAT2_DEFAULT": 0,
+            "FLOAT3_DEFAULT": 0,
+            "FLOAT4_DEFAULT": 0.5,
+            "unknownDword1": 0,
+            "BOOLEAN_DEFAULT": false,
+            "TEXTURE_DEFAULT": "",
+            "SHADER_VALUE_TYPE_ID": 2
+          }
+        },
+        {
+          "ID": 3,
+          "SHADER_PARAMETER_DATA": {
+            "SEMANTIC": "BaseTintShadowA",
+            "FLOAT1_DEFAULT": 0.13500000536441803,
+            "FLOAT2_DEFAULT": 0.13406279683113098,
+            "FLOAT3_DEFAULT": 0.09328500181436539,
+            "FLOAT4_DEFAULT": 0.5,
+            "unknownDword1": 0,
+            "BOOLEAN_DEFAULT": false,
+            "TEXTURE_DEFAULT": "",
+            "SHADER_VALUE_TYPE_ID": 2
+          }
+        },
+        {
+          "ID": 2,
+          "SHADER_PARAMETER_DATA": {
+            "SEMANTIC": "BaseTintMidtoneA",
+            "FLOAT1_DEFAULT": 0,
+            "FLOAT2_DEFAULT": 0,
+            "FLOAT3_DEFAULT": 0,
+            "FLOAT4_DEFAULT": 0.5,
+            "unknownDword1": 0,
+            "BOOLEAN_DEFAULT": false,
+            "TEXTURE_DEFAULT": "",
+            "SHADER_VALUE_TYPE_ID": 2
+          }
+        },
+        {
+          "ID": 1,
+          "SHADER_PARAMETER_DATA": {
+            "SEMANTIC": "BaseTintHighlightA",
+            "FLOAT1_DEFAULT": 0.10310690104961395,
+            "FLOAT2_DEFAULT": 0.12399999797344208,
+            "FLOAT3_DEFAULT": 0.08357600122690201,
+            "FLOAT4_DEFAULT": 0.5,
+            "unknownDword1": 0,
+            "BOOLEAN_DEFAULT": false,
+            "TEXTURE_DEFAULT": "",
+            "SHADER_VALUE_TYPE_ID": 2
+          }
+        }
+      ]
+    }
+  ]
+}

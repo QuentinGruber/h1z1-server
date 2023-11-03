@@ -31,7 +31,8 @@ import {
   readUnsignedIntWith2bitLengthValue,
   recipeData,
   packItemWeaponData,
-  containers
+  containers,
+  passengerSchema
 } from "./shared";
 import {
   achievementSchema,
@@ -105,7 +106,7 @@ export const basePackets: PacketStructures = [
             { name: "unknownTime2", type: "uint64string", defaultValue: "" },
             { name: "unknownDword24", type: "uint32", defaultValue: 0 },
             { name: "unknownBoolean5", type: "boolean", defaultValue: false },
-            { name: "unknownDword25", type: "uint32", defaultValue: 0 },
+            { name: "dailyRibbonCount", type: "uint32", defaultValue: 0 },
             {
               name: "profiles",
               type: "array",
@@ -384,18 +385,11 @@ export const basePackets: PacketStructures = [
               defaultValue: true
             },
             {
-              name: "unknownCoinStoreData",
-              type: "schema",
-              defaultValue: {},
+              name: "SHADER_PARAMETER_GROUP",
+              type: "array",
+              defaultValue: [],
               fields: [
-                {
-                  name: "unknownArray1",
-                  type: "array",
-                  defaultValue: [],
-                  fields: [
-                    { name: "unknownDword1", type: "uint32", defaultValue: 0 }
-                  ]
-                }
+                { name: "SHADER_SEMANTIC_ID", type: "uint32", defaultValue: 0 }
               ]
             },
             {
@@ -947,7 +941,7 @@ export const basePackets: PacketStructures = [
                   ]
                 },
                 {
-                  name: "unknownData1",
+                  name: "unknownData11",
                   type: "schema",
                   defaultValue: {},
                   fields: [
@@ -1281,11 +1275,11 @@ export const basePackets: PacketStructures = [
               ]
             },
             {
-              name: "equipmentSlots", // equipment probably
+              name: "equipment",
               type: "array",
               defaultValue: [],
               fields: [
-                { name: "unknownDword1", type: "uint32", defaultValue: 0 },
+                { name: "profileId", type: "uint32", defaultValue: 0 },
                 {
                   name: "unknownData1",
                   type: "schema",
@@ -1293,19 +1287,15 @@ export const basePackets: PacketStructures = [
                   fields: [
                     { name: "unknownDword1", type: "uint32", defaultValue: 0 },
                     {
-                      name: "unknownString1",
+                      name: "tintAlias",
                       type: "string",
-                      defaultValue: ""
+                      defaultValue: "Default"
                     },
+                    { name: "decalAlias", type: "string", defaultValue: "#" },
                     {
-                      name: "unknownString1",
-                      type: "string",
-                      defaultValue: ""
-                    },
-                    {
-                      name: "equipmentSlot",
-                      type: "schema",
-                      defaultValue: {},
+                      name: "equipmentSlots",
+                      type: "array",
+                      defaultValue: [],
                       fields: equipmentSlotSchema
                     }
                   ]
@@ -2330,6 +2320,40 @@ export const basePackets: PacketStructures = [
       ]
     }
   ],
+  // gets triggered if you're on top of a vehicle, and shoot down into the windshield
+  // may also get triggered if a client is cheating but not 100% sure -Meme
+  [
+    "ProjectileDebug",
+    0x0d,
+    {
+      fields: [
+        { name: "weaponDefinitionId", type: "uint32", defaultValue: 0 },
+        { name: "unknownDword2", type: "uint32", defaultValue: 0 },
+        { name: "unknownDword3", type: "uint32", defaultValue: 0 },
+
+        // don't know if these next 6 are correct
+        { name: "unknownDword4", type: "uint32", defaultValue: 0 },
+        { name: "unknownDword5", type: "uint32", defaultValue: 0 },
+        { name: "unknownDword6", type: "uint32", defaultValue: 0 },
+        { name: "unknownByte1", type: "uint8", defaultValue: 0 },
+        { name: "unknownDword7", type: "uint32", defaultValue: 0 },
+        { name: "unknownWord1", type: "uint16", defaultValue: 0 },
+
+        { name: "unknownString1", type: "nullstring", defaultValue: "" },
+        {
+          name: "projectileLocation",
+          type: "floatvector3",
+          defaultValue: [0, 0, 0]
+        },
+        {
+          name: "playerLocation",
+          type: "floatvector3",
+          defaultValue: [0, 0, 0]
+        },
+        { name: "unknownByte5", type: "uint8", defaultValue: 0 }
+      ]
+    }
+  ],
   ["Mail", 0x0e, {}],
   ["Ability.ClientRequestStartAbility", 0x1001, {}],
   ["Ability.ClientRequestStopAbility", 0x1002, {}],
@@ -2597,15 +2621,21 @@ export const basePackets: PacketStructures = [
   ["ZoneSafeTeleportRequest", 0x53, {}],
   ["RemoteInteractionRequest", 0x54, {}],
   ["UpdateCamera", 0x57, {}],
-
   [
-    "UnknownPacketName", // unknown name, sent from client, same dword value every time ?
+    // name isn't in client, packet triggers when player collides with a zombie or with /run any object
+    // also happens when the player lags and triggers "Security"
+    "NpcCollision",
     0x58,
     {
-      fields: [{ name: "unknownDword1", type: "uint32", defaultValue: 0 }]
+      fields: [
+        { name: "unknownDword1", type: "uint32", defaultValue: 0 },
+        { name: "unknownDword2", type: "uint32", defaultValue: 0 }, // 1 when it's an npc
+        { name: "unknownDword3", type: "uint32", defaultValue: 0 },
+        { name: "unknownDword4", type: "uint32", defaultValue: 0 },
+        { name: "unknownDword5", type: "uint32", defaultValue: 0 }
+      ]
     }
   ],
-
   ["AdminGuild", 0x5a, {}],
   ["BattleMages", 0x5b, {}],
   ["WorldToWorld", 0x5c, {}],
@@ -2619,14 +2649,22 @@ export const basePackets: PacketStructures = [
     {
       fields: [
         { name: "Unknown2", type: "uint32", defaultValue: 0 },
-        { name: "interactGlowAndDist", type: "uint32", defaultValue: 3 }, // client doesnt send interactionstring by distance but still sends interactrequest
+        { name: "interactionCheckRadius", type: "uint32", defaultValue: 3 }, // client doesnt send interactionstring by distance but still sends interactrequest
         { name: "unknownBoolean1", type: "boolean", defaultValue: false },
         { name: "timescale", type: "float", defaultValue: 1.0 },
         { name: "enableWeapons", type: "uint32", defaultValue: 0 },
         { name: "Unknown5", type: "uint32", defaultValue: 0 },
         { name: "unknownFloat1", type: "float", defaultValue: 0.0 },
-        { name: "unknownFloat2", type: "float", defaultValue: 0.0 },
-        { name: "damageMultiplier", type: "float", defaultValue: 1.0 } // 0 = crash
+        {
+          name: "fallDamageVelocityThreshold",
+          type: "float",
+          defaultValue: 0.0
+        },
+        {
+          name: "fallDamageVelocityMultiplier",
+          type: "float",
+          defaultValue: 1.0
+        } // 0 = crash
       ]
     }
   ],
@@ -2709,8 +2747,8 @@ export const basePackets: PacketStructures = [
           type: "array",
           defaultValue: [],
           fields: [
-            { name: "unknownDword1", type: "uint32", defaultValue: 0 },
-            { name: "unknownDword2", type: "uint32", defaultValue: 0 },
+            { name: "RULESET_ID", type: "uint32", defaultValue: 0 },
+            { name: "RULESET_ID_", type: "uint32", defaultValue: 0 },
             { name: "ruleset", type: "string", defaultValue: "" },
             { name: "unknownString2", type: "string", defaultValue: "" },
             {
@@ -2909,7 +2947,6 @@ export const basePackets: PacketStructures = [
       ]
     }
   ],
-
   [
     "AddSimpleNpc",
     0x92,
@@ -2922,21 +2959,20 @@ export const basePackets: PacketStructures = [
           parser: readUnsignedIntWith2bitLengthValue,
           packer: packUnsignedIntWith2bitLengthValue
         },
-        { name: "unknownByte1", type: "uint8", defaultValue: 50 },
+        { name: "unknownByte1", type: "uint8", defaultValue: 0 },
         { name: "position", type: "floatvector3", defaultValue: [0, 0, 0] },
         { name: "rotation", type: "floatvector3", defaultValue: [0, 0, 0] },
-        { name: "unknownDword1", type: "uint32", defaultValue: 23 },
-        { name: "unknownDword2", type: "uint32", defaultValue: 23 },
+        { name: "unknownDword1", type: "uint32", defaultValue: 0 },
+        { name: "unknownDword2", type: "uint32", defaultValue: 0 },
         { name: "modelId", type: "uint32", defaultValue: 0 },
         { name: "scale", type: "floatvector4", defaultValue: [1, 1, 1, 1] },
-        { name: "unknownDword3", type: "uint32", defaultValue: 23 },
-        { name: "showHealth", type: "boolean", defaultValue: true },
+        { name: "unknownDword3", type: "uint32", defaultValue: 0 },
+        { name: "unknownByte2", type: "uint8", defaultValue: 0 },
         { name: "health", type: "float", defaultValue: 100 }
       ]
     }
   ],
   ["PlayerUpdateUpdateVehicleWeapon", 0x93, {}],
-
   [
     "ContinentBattleInfo",
     0x97,
@@ -3003,7 +3039,6 @@ export const basePackets: PacketStructures = [
       fields: []
     }
   ],
-
   ["ClientInGamePurchase", 0x9d, {}],
 
   [
@@ -3174,7 +3209,7 @@ export const basePackets: PacketStructures = [
     }
   ],
   [
-    "Locks.setLock",
+    "Locks.SetLock",
     0xcd0300,
     {
       fields: [
@@ -3184,7 +3219,6 @@ export const basePackets: PacketStructures = [
       ]
     }
   ],
-  ["CharacterState", 0xd0, {}],
   [
     "AddLightweightPc",
     0xd6,
@@ -3285,37 +3319,7 @@ export const basePackets: PacketStructures = [
           name: "passengers",
           type: "array",
           defaultValue: [],
-          fields: [
-            {
-              name: "passengerData",
-              type: "schema",
-              fields: [
-                {
-                  name: "characterId",
-                  type: "uint64string",
-                  defaultValue: "0"
-                },
-                {
-                  name: "characterData",
-                  type: "schema",
-                  fields: [
-                    { name: "unknownDword1", type: "uint32", defaultValue: 0 },
-                    { name: "unknownDword2", type: "uint32", defaultValue: 0 },
-                    { name: "unknownDword3", type: "uint32", defaultValue: 0 },
-                    { name: "characterName", type: "string", defaultValue: "" },
-                    {
-                      name: "unknownString1",
-                      type: "string",
-                      defaultValue: ""
-                    }
-                  ]
-                },
-                { name: "unknownDword1", type: "uint32", defaultValue: 0 },
-                { name: "unknownString1", type: "string", defaultValue: "" }
-              ]
-            },
-            { name: "unknownByte1", type: "uint8", defaultValue: 0 }
-          ]
+          fields: passengerSchema
         },
         {
           name: "unknownArray3",
@@ -3380,10 +3384,9 @@ export const basePackets: PacketStructures = [
   ["ChronicleBase", 0xdf, {}],
   ["GrinderBase", 0xe0, {}],
   ["RequestObject", 0xe1, {}],
-  ["ScreenEffectBase", 0xe2, {}],
   ["WhitelistBase", 0xe4, {}],
   [
-    "NpcFoundationPermissionsManagerBase.showPermissions",
+    "NpcFoundationPermissionsManagerBase.ShowPermissions",
     0xe505,
     {
       fields: [
@@ -3459,5 +3462,14 @@ export const basePackets: PacketStructures = [
   ["WeaponLagLockParameters", 0xf5, {}],
   ["CrateOpeningBase", 0xf6, {}],
   ["PlayerHeatWarning", 0xf7, {}],
-  ["AnimationBase", 0xf8, {}]
+  [
+    "AnimationBase",
+    0xf802,
+    {
+      fields: [
+        { name: "characterId", type: "uint64string", defaultValue: "0" },
+        { name: "animationId", type: "uint32", defaultValue: 0 }
+      ]
+    }
+  ]
 ];

@@ -1,0 +1,1762 @@
+{
+  "opcode": 1423,
+  "abilitiesLength": 103,
+  "abilities": [
+    {
+      "abilityId": 1,
+      "unknownDword1": 7,
+      "unknownDword2": 0,
+      "unkArray1Length": 2,
+      "unknownArray1": [
+        {
+          "unknownDword1": 1111278,
+          "unknownDword2": 1111278,
+          "unknownDword3": 0
+        },
+        {
+          "unknownDword1": 1111157,
+          "unknownDword2": 1111157,
+          "unknownDword3": 0
+        }
+      ],
+      "unknownDword3": 2,
+      "unknownDword4": 85,
+      "unknownByte": 64,
+      "slotId": 7
+    },
+    {
+      "abilityId": 2,
+      "unknownDword1": 40,
+      "unknownDword2": 0,
+      "unkArray1Length": 1,
+      "unknownArray1": [
+        {
+          "unknownDword1": 1111593,
+          "unknownDword2": 1111593,
+          "unknownDword3": 0
+        }
+      ],
+      "unknownDword3": 2,
+      "unknownDword4": 2423,
+      "unknownByte": 0,
+      "slotId": 40
+    },
+    {
+      "abilityId": 3,
+      "unknownDword1": 5,
+      "unknownDword2": 0,
+      "unkArray1Length": 1,
+      "unknownArray1": [
+        {
+          "unknownDword1": 1111157,
+          "unknownDword2": 1111157,
+          "unknownDword3": 0
+        }
+      ],
+      "unknownDword3": 2,
+      "unknownDword4": 1542,
+      "unknownByte": 64,
+      "slotId": 5
+    },
+    {
+      "abilityId": 4,
+      "unknownDword1": 0,
+      "unknownDword2": 1093574314,
+      "unkArray1Length": 1,
+      "unknownArray1": [
+        {
+          "unknownDword1": 1111845,
+          "unknownDword2": 1111845,
+          "unknownDword3": 0
+        }
+      ],
+      "unknownDword3": 2,
+      "unknownDword4": 0,
+      "unknownByte": 64,
+      "slotId": 0
+    },
+    {
+      "abilityId": 5,
+      "unknownDword1": 0,
+      "unknownDword2": 1948338873,
+      "unkArray1Length": 1,
+      "unknownArray1": [
+        {
+          "unknownDword1": 1111782,
+          "unknownDword2": 1111782,
+          "unknownDword3": 0
+        }
+      ],
+      "unknownDword3": 2,
+      "unknownDword4": 0,
+      "unknownByte": 64,
+      "slotId": 0
+    },
+    {
+      "abilityId": 6,
+      "unknownDword1": 0,
+      "unknownDword2": 831710626,
+      "unkArray1Length": 1,
+      "unknownArray1": [
+        {
+          "unknownDword1": 1111781,
+          "unknownDword2": 1111781,
+          "unknownDword3": 0
+        }
+      ],
+      "unknownDword3": 2,
+      "unknownDword4": 0,
+      "unknownByte": 64,
+      "slotId": 0
+    },
+    {
+      "abilityId": 7,
+      "unknownDword1": 0,
+      "unknownDword2": 427877698,
+      "unkArray1Length": 1,
+      "unknownArray1": [
+        {
+          "unknownDword1": 1111780,
+          "unknownDword2": 1111780,
+          "unknownDword3": 0
+        }
+      ],
+      "unknownDword3": 2,
+      "unknownDword4": 0,
+      "unknownByte": 64,
+      "slotId": 0
+    },
+    {
+      "abilityId": 8,
+      "unknownDword1": 0,
+      "unknownDword2": 3466305338,
+      "unkArray1Length": 1,
+      "unknownArray1": [
+        {
+          "unknownDword1": 1111779,
+          "unknownDword2": 1111779,
+          "unknownDword3": 0
+        }
+      ],
+      "unknownDword3": 2,
+      "unknownDword4": 0,
+      "unknownByte": 64,
+      "slotId": 0
+    },
+    {
+      "abilityId": 9,
+      "unknownDword1": 0,
+      "unknownDword2": 2798609446,
+      "unkArray1Length": 1,
+      "unknownArray1": [
+        {
+          "unknownDword1": 1111778,
+          "unknownDword2": 1111778,
+          "unknownDword3": 0
+        }
+      ],
+      "unknownDword3": 2,
+      "unknownDword4": 0,
+      "unknownByte": 64,
+      "slotId": 0
+    },
+    {
+      "abilityId": 10,
+      "unknownDword1": 0,
+      "unknownDword2": 1037467509,
+      "unkArray1Length": 1,
+      "unknownArray1": [
+        {
+          "unknownDword1": 1111777,
+          "unknownDword2": 1111777,
+          "unknownDword3": 0
+        }
+      ],
+      "unknownDword3": 2,
+      "unknownDword4": 0,
+      "unknownByte": 64,
+      "slotId": 0
+    },
+    {
+      "abilityId": 11,
+      "unknownDword1": 0,
+      "unknownDword2": 667439825,
+      "unkArray1Length": 1,
+      "unknownArray1": [
+        {
+          "unknownDword1": 1111776,
+          "unknownDword2": 1111776,
+          "unknownDword3": 0
+        }
+      ],
+      "unknownDword3": 2,
+      "unknownDword4": 0,
+      "unknownByte": 64,
+      "slotId": 0
+    },
+    {
+      "abilityId": 12,
+      "unknownDword1": 0,
+      "unknownDword2": 4052197796,
+      "unkArray1Length": 1,
+      "unknownArray1": [
+        {
+          "unknownDword1": 1111775,
+          "unknownDword2": 1111775,
+          "unknownDword3": 0
+        }
+      ],
+      "unknownDword3": 2,
+      "unknownDword4": 0,
+      "unknownByte": 64,
+      "slotId": 0
+    },
+    {
+      "abilityId": 13,
+      "unknownDword1": 0,
+      "unknownDword2": 2385455665,
+      "unkArray1Length": 1,
+      "unknownArray1": [
+        {
+          "unknownDword1": 1111774,
+          "unknownDword2": 1111774,
+          "unknownDword3": 0
+        }
+      ],
+      "unknownDword3": 2,
+      "unknownDword4": 0,
+      "unknownByte": 64,
+      "slotId": 0
+    },
+    {
+      "abilityId": 14,
+      "unknownDword1": 0,
+      "unknownDword2": 1500407905,
+      "unkArray1Length": 1,
+      "unknownArray1": [
+        {
+          "unknownDword1": 1111773,
+          "unknownDword2": 1111773,
+          "unknownDword3": 0
+        }
+      ],
+      "unknownDword3": 2,
+      "unknownDword4": 0,
+      "unknownByte": 64,
+      "slotId": 0
+    },
+    {
+      "abilityId": 15,
+      "unknownDword1": 0,
+      "unknownDword2": 3233306002,
+      "unkArray1Length": 1,
+      "unknownArray1": [
+        {
+          "unknownDword1": 1111772,
+          "unknownDword2": 1111772,
+          "unknownDword3": 0
+        }
+      ],
+      "unknownDword3": 2,
+      "unknownDword4": 0,
+      "unknownByte": 64,
+      "slotId": 0
+    },
+    {
+      "abilityId": 16,
+      "unknownDword1": 0,
+      "unknownDword2": 4256537165,
+      "unkArray1Length": 1,
+      "unknownArray1": [
+        {
+          "unknownDword1": 1111771,
+          "unknownDword2": 1111771,
+          "unknownDword3": 0
+        }
+      ],
+      "unknownDword3": 2,
+      "unknownDword4": 0,
+      "unknownByte": 64,
+      "slotId": 0
+    },
+    {
+      "abilityId": 17,
+      "unknownDword1": 0,
+      "unknownDword2": 3622271545,
+      "unkArray1Length": 1,
+      "unknownArray1": [
+        {
+          "unknownDword1": 1111770,
+          "unknownDword2": 1111770,
+          "unknownDword3": 0
+        }
+      ],
+      "unknownDword3": 2,
+      "unknownDword4": 0,
+      "unknownByte": 64,
+      "slotId": 0
+    },
+    {
+      "abilityId": 18,
+      "unknownDword1": 0,
+      "unknownDword2": 3522859495,
+      "unkArray1Length": 1,
+      "unknownArray1": [
+        {
+          "unknownDword1": 1111769,
+          "unknownDword2": 1111769,
+          "unknownDword3": 0
+        }
+      ],
+      "unknownDword3": 2,
+      "unknownDword4": 0,
+      "unknownByte": 64,
+      "slotId": 0
+    },
+    {
+      "abilityId": 19,
+      "unknownDword1": 0,
+      "unknownDword2": 3985319004,
+      "unkArray1Length": 1,
+      "unknownArray1": [
+        {
+          "unknownDword1": 1111768,
+          "unknownDword2": 1111768,
+          "unknownDword3": 0
+        }
+      ],
+      "unknownDword3": 2,
+      "unknownDword4": 0,
+      "unknownByte": 64,
+      "slotId": 0
+    },
+    {
+      "abilityId": 20,
+      "unknownDword1": 0,
+      "unknownDword2": 4087076137,
+      "unkArray1Length": 1,
+      "unknownArray1": [
+        {
+          "unknownDword1": 1111767,
+          "unknownDword2": 1111767,
+          "unknownDword3": 0
+        }
+      ],
+      "unknownDword3": 2,
+      "unknownDword4": 0,
+      "unknownByte": 64,
+      "slotId": 0
+    },
+    {
+      "abilityId": 21,
+      "unknownDword1": 0,
+      "unknownDword2": 3696689007,
+      "unkArray1Length": 1,
+      "unknownArray1": [
+        {
+          "unknownDword1": 1111766,
+          "unknownDword2": 1111766,
+          "unknownDword3": 0
+        }
+      ],
+      "unknownDword3": 2,
+      "unknownDword4": 0,
+      "unknownByte": 64,
+      "slotId": 0
+    },
+    {
+      "abilityId": 22,
+      "unknownDword1": 0,
+      "unknownDword2": 3342986474,
+      "unkArray1Length": 1,
+      "unknownArray1": [
+        {
+          "unknownDword1": 1111765,
+          "unknownDword2": 1111765,
+          "unknownDword3": 0
+        }
+      ],
+      "unknownDword3": 2,
+      "unknownDword4": 0,
+      "unknownByte": 64,
+      "slotId": 0
+    },
+    {
+      "abilityId": 23,
+      "unknownDword1": 0,
+      "unknownDword2": 3736727841,
+      "unkArray1Length": 1,
+      "unknownArray1": [
+        {
+          "unknownDword1": 1111764,
+          "unknownDword2": 1111764,
+          "unknownDword3": 0
+        }
+      ],
+      "unknownDword3": 2,
+      "unknownDword4": 0,
+      "unknownByte": 64,
+      "slotId": 0
+    },
+    {
+      "abilityId": 24,
+      "unknownDword1": 0,
+      "unknownDword2": 599522317,
+      "unkArray1Length": 1,
+      "unknownArray1": [
+        {
+          "unknownDword1": 1111763,
+          "unknownDword2": 1111763,
+          "unknownDword3": 0
+        }
+      ],
+      "unknownDword3": 2,
+      "unknownDword4": 0,
+      "unknownByte": 64,
+      "slotId": 0
+    },
+    {
+      "abilityId": 25,
+      "unknownDword1": 0,
+      "unknownDword2": 415590231,
+      "unkArray1Length": 1,
+      "unknownArray1": [
+        {
+          "unknownDword1": 1111762,
+          "unknownDword2": 1111762,
+          "unknownDword3": 0
+        }
+      ],
+      "unknownDword3": 2,
+      "unknownDword4": 0,
+      "unknownByte": 64,
+      "slotId": 0
+    },
+    {
+      "abilityId": 26,
+      "unknownDword1": 0,
+      "unknownDword2": 2919532768,
+      "unkArray1Length": 1,
+      "unknownArray1": [
+        {
+          "unknownDword1": 1111761,
+          "unknownDword2": 1111761,
+          "unknownDword3": 0
+        }
+      ],
+      "unknownDword3": 2,
+      "unknownDword4": 0,
+      "unknownByte": 64,
+      "slotId": 0
+    },
+    {
+      "abilityId": 27,
+      "unknownDword1": 0,
+      "unknownDword2": 2159010518,
+      "unkArray1Length": 1,
+      "unknownArray1": [
+        {
+          "unknownDword1": 1111760,
+          "unknownDword2": 1111760,
+          "unknownDword3": 0
+        }
+      ],
+      "unknownDword3": 2,
+      "unknownDword4": 0,
+      "unknownByte": 64,
+      "slotId": 0
+    },
+    {
+      "abilityId": 28,
+      "unknownDword1": 0,
+      "unknownDword2": 663331916,
+      "unkArray1Length": 1,
+      "unknownArray1": [
+        {
+          "unknownDword1": 1111759,
+          "unknownDword2": 1111759,
+          "unknownDword3": 0
+        }
+      ],
+      "unknownDword3": 2,
+      "unknownDword4": 0,
+      "unknownByte": 64,
+      "slotId": 0
+    },
+    {
+      "abilityId": 29,
+      "unknownDword1": 0,
+      "unknownDword2": 96306384,
+      "unkArray1Length": 1,
+      "unknownArray1": [
+        {
+          "unknownDword1": 1111758,
+          "unknownDword2": 1111758,
+          "unknownDword3": 0
+        }
+      ],
+      "unknownDword3": 2,
+      "unknownDword4": 0,
+      "unknownByte": 64,
+      "slotId": 0
+    },
+    {
+      "abilityId": 30,
+      "unknownDword1": 0,
+      "unknownDword2": 3305581284,
+      "unkArray1Length": 1,
+      "unknownArray1": [
+        {
+          "unknownDword1": 1111757,
+          "unknownDword2": 1111757,
+          "unknownDword3": 0
+        }
+      ],
+      "unknownDword3": 2,
+      "unknownDword4": 0,
+      "unknownByte": 64,
+      "slotId": 0
+    },
+    {
+      "abilityId": 31,
+      "unknownDword1": 0,
+      "unknownDword2": 3150896243,
+      "unkArray1Length": 1,
+      "unknownArray1": [
+        {
+          "unknownDword1": 1111756,
+          "unknownDword2": 1111756,
+          "unknownDword3": 0
+        }
+      ],
+      "unknownDword3": 2,
+      "unknownDword4": 0,
+      "unknownByte": 64,
+      "slotId": 0
+    },
+    {
+      "abilityId": 32,
+      "unknownDword1": 0,
+      "unknownDword2": 768910170,
+      "unkArray1Length": 1,
+      "unknownArray1": [
+        {
+          "unknownDword1": 1111755,
+          "unknownDword2": 1111755,
+          "unknownDword3": 0
+        }
+      ],
+      "unknownDword3": 2,
+      "unknownDword4": 0,
+      "unknownByte": 64,
+      "slotId": 0
+    },
+    {
+      "abilityId": 33,
+      "unknownDword1": 0,
+      "unknownDword2": 3075613058,
+      "unkArray1Length": 1,
+      "unknownArray1": [
+        {
+          "unknownDword1": 1111754,
+          "unknownDword2": 1111754,
+          "unknownDword3": 0
+        }
+      ],
+      "unknownDword3": 2,
+      "unknownDword4": 0,
+      "unknownByte": 64,
+      "slotId": 0
+    },
+    {
+      "abilityId": 34,
+      "unknownDword1": 0,
+      "unknownDword2": 2175993385,
+      "unkArray1Length": 1,
+      "unknownArray1": [
+        {
+          "unknownDword1": 1111753,
+          "unknownDword2": 1111753,
+          "unknownDword3": 0
+        }
+      ],
+      "unknownDword3": 2,
+      "unknownDword4": 0,
+      "unknownByte": 64,
+      "slotId": 0
+    },
+    {
+      "abilityId": 35,
+      "unknownDword1": 0,
+      "unknownDword2": 1654185182,
+      "unkArray1Length": 1,
+      "unknownArray1": [
+        {
+          "unknownDword1": 1111752,
+          "unknownDword2": 1111752,
+          "unknownDword3": 0
+        }
+      ],
+      "unknownDword3": 2,
+      "unknownDword4": 0,
+      "unknownByte": 64,
+      "slotId": 0
+    },
+    {
+      "abilityId": 36,
+      "unknownDword1": 0,
+      "unknownDword2": 3981375164,
+      "unkArray1Length": 1,
+      "unknownArray1": [
+        {
+          "unknownDword1": 1111751,
+          "unknownDword2": 1111751,
+          "unknownDword3": 0
+        }
+      ],
+      "unknownDword3": 2,
+      "unknownDword4": 0,
+      "unknownByte": 64,
+      "slotId": 0
+    },
+    {
+      "abilityId": 37,
+      "unknownDword1": 0,
+      "unknownDword2": 980326862,
+      "unkArray1Length": 1,
+      "unknownArray1": [
+        {
+          "unknownDword1": 1111750,
+          "unknownDword2": 1111750,
+          "unknownDword3": 0
+        }
+      ],
+      "unknownDword3": 2,
+      "unknownDword4": 0,
+      "unknownByte": 64,
+      "slotId": 0
+    },
+    {
+      "abilityId": 38,
+      "unknownDword1": 0,
+      "unknownDword2": 2876814647,
+      "unkArray1Length": 1,
+      "unknownArray1": [
+        {
+          "unknownDword1": 1111749,
+          "unknownDword2": 1111749,
+          "unknownDword3": 0
+        }
+      ],
+      "unknownDword3": 2,
+      "unknownDword4": 0,
+      "unknownByte": 64,
+      "slotId": 0
+    },
+    {
+      "abilityId": 39,
+      "unknownDword1": 0,
+      "unknownDword2": 798381981,
+      "unkArray1Length": 1,
+      "unknownArray1": [
+        {
+          "unknownDword1": 1111748,
+          "unknownDword2": 1111748,
+          "unknownDword3": 0
+        }
+      ],
+      "unknownDword3": 2,
+      "unknownDword4": 0,
+      "unknownByte": 64,
+      "slotId": 0
+    },
+    {
+      "abilityId": 40,
+      "unknownDword1": 0,
+      "unknownDword2": 838846460,
+      "unkArray1Length": 1,
+      "unknownArray1": [
+        {
+          "unknownDword1": 1111747,
+          "unknownDword2": 1111747,
+          "unknownDword3": 0
+        }
+      ],
+      "unknownDword3": 2,
+      "unknownDword4": 0,
+      "unknownByte": 64,
+      "slotId": 0
+    },
+    {
+      "abilityId": 41,
+      "unknownDword1": 0,
+      "unknownDword2": 4123674761,
+      "unkArray1Length": 1,
+      "unknownArray1": [
+        {
+          "unknownDword1": 1111746,
+          "unknownDword2": 1111746,
+          "unknownDword3": 0
+        }
+      ],
+      "unknownDword3": 2,
+      "unknownDword4": 0,
+      "unknownByte": 64,
+      "slotId": 0
+    },
+    {
+      "abilityId": 42,
+      "unknownDword1": 0,
+      "unknownDword2": 917661813,
+      "unkArray1Length": 1,
+      "unknownArray1": [
+        {
+          "unknownDword1": 1111745,
+          "unknownDword2": 1111745,
+          "unknownDword3": 0
+        }
+      ],
+      "unknownDword3": 2,
+      "unknownDword4": 0,
+      "unknownByte": 64,
+      "slotId": 0
+    },
+    {
+      "abilityId": 43,
+      "unknownDword1": 0,
+      "unknownDword2": 4017449161,
+      "unkArray1Length": 1,
+      "unknownArray1": [
+        {
+          "unknownDword1": 1111744,
+          "unknownDword2": 1111744,
+          "unknownDword3": 0
+        }
+      ],
+      "unknownDword3": 2,
+      "unknownDword4": 0,
+      "unknownByte": 64,
+      "slotId": 0
+    },
+    {
+      "abilityId": 44,
+      "unknownDword1": 0,
+      "unknownDword2": 1049018290,
+      "unkArray1Length": 1,
+      "unknownArray1": [
+        {
+          "unknownDword1": 1111743,
+          "unknownDword2": 1111743,
+          "unknownDword3": 0
+        }
+      ],
+      "unknownDword3": 2,
+      "unknownDword4": 0,
+      "unknownByte": 64,
+      "slotId": 0
+    },
+    {
+      "abilityId": 45,
+      "unknownDword1": 0,
+      "unknownDword2": 898242592,
+      "unkArray1Length": 1,
+      "unknownArray1": [
+        {
+          "unknownDword1": 1111742,
+          "unknownDword2": 1111742,
+          "unknownDword3": 0
+        }
+      ],
+      "unknownDword3": 2,
+      "unknownDword4": 0,
+      "unknownByte": 64,
+      "slotId": 0
+    },
+    {
+      "abilityId": 46,
+      "unknownDword1": 0,
+      "unknownDword2": 9521887,
+      "unkArray1Length": 1,
+      "unknownArray1": [
+        {
+          "unknownDword1": 1111741,
+          "unknownDword2": 1111741,
+          "unknownDword3": 0
+        }
+      ],
+      "unknownDword3": 2,
+      "unknownDword4": 0,
+      "unknownByte": 64,
+      "slotId": 0
+    },
+    {
+      "abilityId": 47,
+      "unknownDword1": 0,
+      "unknownDword2": 1126142936,
+      "unkArray1Length": 1,
+      "unknownArray1": [
+        {
+          "unknownDword1": 1111740,
+          "unknownDword2": 1111740,
+          "unknownDword3": 0
+        }
+      ],
+      "unknownDword3": 2,
+      "unknownDword4": 0,
+      "unknownByte": 64,
+      "slotId": 0
+    },
+    {
+      "abilityId": 48,
+      "unknownDword1": 0,
+      "unknownDword2": 2224820059,
+      "unkArray1Length": 1,
+      "unknownArray1": [
+        {
+          "unknownDword1": 1111739,
+          "unknownDword2": 1111739,
+          "unknownDword3": 0
+        }
+      ],
+      "unknownDword3": 2,
+      "unknownDword4": 0,
+      "unknownByte": 64,
+      "slotId": 0
+    },
+    {
+      "abilityId": 49,
+      "unknownDword1": 0,
+      "unknownDword2": 367967702,
+      "unkArray1Length": 1,
+      "unknownArray1": [
+        {
+          "unknownDword1": 1111738,
+          "unknownDword2": 1111738,
+          "unknownDword3": 0
+        }
+      ],
+      "unknownDword3": 2,
+      "unknownDword4": 0,
+      "unknownByte": 64,
+      "slotId": 0
+    },
+    {
+      "abilityId": 50,
+      "unknownDword1": 0,
+      "unknownDword2": 451889584,
+      "unkArray1Length": 1,
+      "unknownArray1": [
+        {
+          "unknownDword1": 1111737,
+          "unknownDword2": 1111737,
+          "unknownDword3": 0
+        }
+      ],
+      "unknownDword3": 2,
+      "unknownDword4": 0,
+      "unknownByte": 64,
+      "slotId": 0
+    },
+    {
+      "abilityId": 51,
+      "unknownDword1": 0,
+      "unknownDword2": 732019079,
+      "unkArray1Length": 1,
+      "unknownArray1": [
+        {
+          "unknownDword1": 1111736,
+          "unknownDword2": 1111736,
+          "unknownDword3": 0
+        }
+      ],
+      "unknownDword3": 2,
+      "unknownDword4": 0,
+      "unknownByte": 64,
+      "slotId": 0
+    },
+    {
+      "abilityId": 52,
+      "unknownDword1": 0,
+      "unknownDword2": 2890767681,
+      "unkArray1Length": 1,
+      "unknownArray1": [
+        {
+          "unknownDword1": 1111735,
+          "unknownDword2": 1111735,
+          "unknownDword3": 0
+        }
+      ],
+      "unknownDword3": 2,
+      "unknownDword4": 0,
+      "unknownByte": 64,
+      "slotId": 0
+    },
+    {
+      "abilityId": 53,
+      "unknownDword1": 0,
+      "unknownDword2": 3292318347,
+      "unkArray1Length": 1,
+      "unknownArray1": [
+        {
+          "unknownDword1": 1111734,
+          "unknownDword2": 1111734,
+          "unknownDword3": 0
+        }
+      ],
+      "unknownDword3": 2,
+      "unknownDword4": 0,
+      "unknownByte": 64,
+      "slotId": 0
+    },
+    {
+      "abilityId": 54,
+      "unknownDword1": 0,
+      "unknownDword2": 1763938454,
+      "unkArray1Length": 1,
+      "unknownArray1": [
+        {
+          "unknownDword1": 1111733,
+          "unknownDword2": 1111733,
+          "unknownDword3": 0
+        }
+      ],
+      "unknownDword3": 2,
+      "unknownDword4": 0,
+      "unknownByte": 64,
+      "slotId": 0
+    },
+    {
+      "abilityId": 55,
+      "unknownDword1": 0,
+      "unknownDword2": 137938854,
+      "unkArray1Length": 1,
+      "unknownArray1": [
+        {
+          "unknownDword1": 1111732,
+          "unknownDword2": 1111732,
+          "unknownDword3": 0
+        }
+      ],
+      "unknownDword3": 2,
+      "unknownDword4": 0,
+      "unknownByte": 64,
+      "slotId": 0
+    },
+    {
+      "abilityId": 56,
+      "unknownDword1": 0,
+      "unknownDword2": 3578378610,
+      "unkArray1Length": 1,
+      "unknownArray1": [
+        {
+          "unknownDword1": 1111731,
+          "unknownDword2": 1111731,
+          "unknownDword3": 0
+        }
+      ],
+      "unknownDword3": 2,
+      "unknownDword4": 0,
+      "unknownByte": 64,
+      "slotId": 0
+    },
+    {
+      "abilityId": 57,
+      "unknownDword1": 0,
+      "unknownDword2": 3568960682,
+      "unkArray1Length": 1,
+      "unknownArray1": [
+        {
+          "unknownDword1": 1111730,
+          "unknownDword2": 1111730,
+          "unknownDword3": 0
+        }
+      ],
+      "unknownDword3": 2,
+      "unknownDword4": 0,
+      "unknownByte": 64,
+      "slotId": 0
+    },
+    {
+      "abilityId": 58,
+      "unknownDword1": 0,
+      "unknownDword2": 1639309551,
+      "unkArray1Length": 1,
+      "unknownArray1": [
+        {
+          "unknownDword1": 1111729,
+          "unknownDword2": 1111729,
+          "unknownDword3": 0
+        }
+      ],
+      "unknownDword3": 2,
+      "unknownDword4": 0,
+      "unknownByte": 64,
+      "slotId": 0
+    },
+    {
+      "abilityId": 59,
+      "unknownDword1": 0,
+      "unknownDword2": 4006342354,
+      "unkArray1Length": 1,
+      "unknownArray1": [
+        {
+          "unknownDword1": 1111728,
+          "unknownDword2": 1111728,
+          "unknownDword3": 0
+        }
+      ],
+      "unknownDword3": 2,
+      "unknownDword4": 0,
+      "unknownByte": 64,
+      "slotId": 0
+    },
+    {
+      "abilityId": 60,
+      "unknownDword1": 0,
+      "unknownDword2": 887452464,
+      "unkArray1Length": 1,
+      "unknownArray1": [
+        {
+          "unknownDword1": 1111727,
+          "unknownDword2": 1111727,
+          "unknownDword3": 0
+        }
+      ],
+      "unknownDword3": 2,
+      "unknownDword4": 0,
+      "unknownByte": 64,
+      "slotId": 0
+    },
+    {
+      "abilityId": 61,
+      "unknownDword1": 0,
+      "unknownDword2": 1915909701,
+      "unkArray1Length": 1,
+      "unknownArray1": [
+        {
+          "unknownDword1": 1111726,
+          "unknownDword2": 1111726,
+          "unknownDword3": 0
+        }
+      ],
+      "unknownDword3": 2,
+      "unknownDword4": 0,
+      "unknownByte": 64,
+      "slotId": 0
+    },
+    {
+      "abilityId": 62,
+      "unknownDword1": 0,
+      "unknownDword2": 2771420496,
+      "unkArray1Length": 1,
+      "unknownArray1": [
+        {
+          "unknownDword1": 1111725,
+          "unknownDword2": 1111725,
+          "unknownDword3": 0
+        }
+      ],
+      "unknownDword3": 2,
+      "unknownDword4": 0,
+      "unknownByte": 64,
+      "slotId": 0
+    },
+    {
+      "abilityId": 63,
+      "unknownDword1": 0,
+      "unknownDword2": 1374435925,
+      "unkArray1Length": 1,
+      "unknownArray1": [
+        {
+          "unknownDword1": 1111724,
+          "unknownDword2": 1111724,
+          "unknownDword3": 0
+        }
+      ],
+      "unknownDword3": 2,
+      "unknownDword4": 0,
+      "unknownByte": 64,
+      "slotId": 0
+    },
+    {
+      "abilityId": 64,
+      "unknownDword1": 0,
+      "unknownDword2": 306021256,
+      "unkArray1Length": 1,
+      "unknownArray1": [
+        {
+          "unknownDword1": 1111723,
+          "unknownDword2": 1111723,
+          "unknownDword3": 0
+        }
+      ],
+      "unknownDword3": 2,
+      "unknownDword4": 0,
+      "unknownByte": 64,
+      "slotId": 0
+    },
+    {
+      "abilityId": 65,
+      "unknownDword1": 0,
+      "unknownDword2": 3538889009,
+      "unkArray1Length": 1,
+      "unknownArray1": [
+        {
+          "unknownDword1": 1111722,
+          "unknownDword2": 1111722,
+          "unknownDword3": 0
+        }
+      ],
+      "unknownDword3": 2,
+      "unknownDword4": 0,
+      "unknownByte": 64,
+      "slotId": 0
+    },
+    {
+      "abilityId": 66,
+      "unknownDword1": 0,
+      "unknownDword2": 2010957505,
+      "unkArray1Length": 1,
+      "unknownArray1": [
+        {
+          "unknownDword1": 1111721,
+          "unknownDword2": 1111721,
+          "unknownDword3": 0
+        }
+      ],
+      "unknownDword3": 2,
+      "unknownDword4": 0,
+      "unknownByte": 64,
+      "slotId": 0
+    },
+    {
+      "abilityId": 67,
+      "unknownDword1": 0,
+      "unknownDword2": 236860457,
+      "unkArray1Length": 1,
+      "unknownArray1": [
+        {
+          "unknownDword1": 1111720,
+          "unknownDword2": 1111720,
+          "unknownDword3": 0
+        }
+      ],
+      "unknownDword3": 2,
+      "unknownDword4": 0,
+      "unknownByte": 64,
+      "slotId": 0
+    },
+    {
+      "abilityId": 68,
+      "unknownDword1": 0,
+      "unknownDword2": 2551865239,
+      "unkArray1Length": 1,
+      "unknownArray1": [
+        {
+          "unknownDword1": 1111719,
+          "unknownDword2": 1111719,
+          "unknownDword3": 0
+        }
+      ],
+      "unknownDword3": 2,
+      "unknownDword4": 0,
+      "unknownByte": 64,
+      "slotId": 0
+    },
+    {
+      "abilityId": 69,
+      "unknownDword1": 0,
+      "unknownDword2": 1688622260,
+      "unkArray1Length": 1,
+      "unknownArray1": [
+        {
+          "unknownDword1": 1111718,
+          "unknownDword2": 1111718,
+          "unknownDword3": 0
+        }
+      ],
+      "unknownDword3": 2,
+      "unknownDword4": 0,
+      "unknownByte": 64,
+      "slotId": 0
+    },
+    {
+      "abilityId": 70,
+      "unknownDword1": 0,
+      "unknownDword2": 577704866,
+      "unkArray1Length": 1,
+      "unknownArray1": [
+        {
+          "unknownDword1": 1111700,
+          "unknownDword2": 1111700,
+          "unknownDword3": 0
+        }
+      ],
+      "unknownDword3": 2,
+      "unknownDword4": 0,
+      "unknownByte": 64,
+      "slotId": 0
+    },
+    {
+      "abilityId": 71,
+      "unknownDword1": 0,
+      "unknownDword2": 1899048770,
+      "unkArray1Length": 1,
+      "unknownArray1": [
+        {
+          "unknownDword1": 1111699,
+          "unknownDword2": 1111699,
+          "unknownDword3": 0
+        }
+      ],
+      "unknownDword3": 2,
+      "unknownDword4": 0,
+      "unknownByte": 64,
+      "slotId": 0
+    },
+    {
+      "abilityId": 72,
+      "unknownDword1": 0,
+      "unknownDword2": 910173125,
+      "unkArray1Length": 1,
+      "unknownArray1": [
+        {
+          "unknownDword1": 1111600,
+          "unknownDword2": 1111600,
+          "unknownDword3": 0
+        }
+      ],
+      "unknownDword3": 2,
+      "unknownDword4": 0,
+      "unknownByte": 64,
+      "slotId": 0
+    },
+    {
+      "abilityId": 73,
+      "unknownDword1": 0,
+      "unknownDword2": 3036947427,
+      "unkArray1Length": 1,
+      "unknownArray1": [
+        {
+          "unknownDword1": 1111599,
+          "unknownDword2": 1111599,
+          "unknownDword3": 0
+        }
+      ],
+      "unknownDword3": 2,
+      "unknownDword4": 0,
+      "unknownByte": 64,
+      "slotId": 0
+    },
+    {
+      "abilityId": 74,
+      "unknownDword1": 0,
+      "unknownDword2": 3229636662,
+      "unkArray1Length": 1,
+      "unknownArray1": [
+        {
+          "unknownDword1": 1111598,
+          "unknownDword2": 1111598,
+          "unknownDword3": 0
+        }
+      ],
+      "unknownDword3": 2,
+      "unknownDword4": 0,
+      "unknownByte": 64,
+      "slotId": 0
+    },
+    {
+      "abilityId": 75,
+      "unknownDword1": 0,
+      "unknownDword2": 284186234,
+      "unkArray1Length": 1,
+      "unknownArray1": [
+        {
+          "unknownDword1": 1111597,
+          "unknownDword2": 1111597,
+          "unknownDword3": 0
+        }
+      ],
+      "unknownDword3": 2,
+      "unknownDword4": 0,
+      "unknownByte": 64,
+      "slotId": 0
+    },
+    {
+      "abilityId": 76,
+      "unknownDword1": 0,
+      "unknownDword2": 3945991184,
+      "unkArray1Length": 1,
+      "unknownArray1": [
+        {
+          "unknownDword1": 1111484,
+          "unknownDword2": 1111484,
+          "unknownDword3": 0
+        }
+      ],
+      "unknownDword3": 2,
+      "unknownDword4": 0,
+      "unknownByte": 64,
+      "slotId": 0
+    },
+    {
+      "abilityId": 77,
+      "unknownDword1": 0,
+      "unknownDword2": 964783970,
+      "unkArray1Length": 1,
+      "unknownArray1": [
+        {
+          "unknownDword1": 1111483,
+          "unknownDword2": 1111483,
+          "unknownDword3": 0
+        }
+      ],
+      "unknownDword3": 2,
+      "unknownDword4": 0,
+      "unknownByte": 64,
+      "slotId": 0
+    },
+    {
+      "abilityId": 78,
+      "unknownDword1": 0,
+      "unknownDword2": 521930229,
+      "unkArray1Length": 1,
+      "unknownArray1": [
+        {
+          "unknownDword1": 1111482,
+          "unknownDword2": 1111482,
+          "unknownDword3": 0
+        }
+      ],
+      "unknownDword3": 2,
+      "unknownDword4": 0,
+      "unknownByte": 64,
+      "slotId": 0
+    },
+    {
+      "abilityId": 79,
+      "unknownDword1": 0,
+      "unknownDword2": 3847242301,
+      "unkArray1Length": 1,
+      "unknownArray1": [
+        {
+          "unknownDword1": 1111481,
+          "unknownDword2": 1111481,
+          "unknownDword3": 0
+        }
+      ],
+      "unknownDword3": 2,
+      "unknownDword4": 0,
+      "unknownByte": 64,
+      "slotId": 0
+    },
+    {
+      "abilityId": 80,
+      "unknownDword1": 0,
+      "unknownDword2": 2731803782,
+      "unkArray1Length": 1,
+      "unknownArray1": [
+        {
+          "unknownDword1": 1111480,
+          "unknownDword2": 1111480,
+          "unknownDword3": 0
+        }
+      ],
+      "unknownDword3": 2,
+      "unknownDword4": 0,
+      "unknownByte": 64,
+      "slotId": 0
+    },
+    {
+      "abilityId": 81,
+      "unknownDword1": 0,
+      "unknownDword2": 3971045364,
+      "unkArray1Length": 1,
+      "unknownArray1": [
+        {
+          "unknownDword1": 1111479,
+          "unknownDword2": 1111479,
+          "unknownDword3": 0
+        }
+      ],
+      "unknownDword3": 2,
+      "unknownDword4": 0,
+      "unknownByte": 64,
+      "slotId": 0
+    },
+    {
+      "abilityId": 82,
+      "unknownDword1": 0,
+      "unknownDword2": 3806954964,
+      "unkArray1Length": 1,
+      "unknownArray1": [
+        {
+          "unknownDword1": 1111478,
+          "unknownDword2": 1111478,
+          "unknownDword3": 0
+        }
+      ],
+      "unknownDword3": 2,
+      "unknownDword4": 0,
+      "unknownByte": 64,
+      "slotId": 0
+    },
+    {
+      "abilityId": 83,
+      "unknownDword1": 0,
+      "unknownDword2": 1782156315,
+      "unkArray1Length": 1,
+      "unknownArray1": [
+        {
+          "unknownDword1": 1111477,
+          "unknownDword2": 1111477,
+          "unknownDword3": 0
+        }
+      ],
+      "unknownDword3": 2,
+      "unknownDword4": 0,
+      "unknownByte": 64,
+      "slotId": 0
+    },
+    {
+      "abilityId": 84,
+      "unknownDword1": 0,
+      "unknownDword2": 768898489,
+      "unkArray1Length": 1,
+      "unknownArray1": [
+        {
+          "unknownDword1": 1111476,
+          "unknownDword2": 1111476,
+          "unknownDword3": 0
+        }
+      ],
+      "unknownDword3": 2,
+      "unknownDword4": 0,
+      "unknownByte": 64,
+      "slotId": 0
+    },
+    {
+      "abilityId": 85,
+      "unknownDword1": 0,
+      "unknownDword2": 562485606,
+      "unkArray1Length": 1,
+      "unknownArray1": [
+        {
+          "unknownDword1": 1111475,
+          "unknownDword2": 1111475,
+          "unknownDword3": 0
+        }
+      ],
+      "unknownDword3": 2,
+      "unknownDword4": 0,
+      "unknownByte": 64,
+      "slotId": 0
+    },
+    {
+      "abilityId": 86,
+      "unknownDword1": 0,
+      "unknownDword2": 2254666105,
+      "unkArray1Length": 1,
+      "unknownArray1": [
+        {
+          "unknownDword1": 1111427,
+          "unknownDword2": 1111427,
+          "unknownDword3": 0
+        }
+      ],
+      "unknownDword3": 2,
+      "unknownDword4": 0,
+      "unknownByte": 64,
+      "slotId": 0
+    },
+    {
+      "abilityId": 87,
+      "unknownDword1": 0,
+      "unknownDword2": 1559082015,
+      "unkArray1Length": 1,
+      "unknownArray1": [
+        {
+          "unknownDword1": 1111423,
+          "unknownDword2": 1111423,
+          "unknownDword3": 0
+        }
+      ],
+      "unknownDword3": 2,
+      "unknownDword4": 0,
+      "unknownByte": 64,
+      "slotId": 0
+    },
+    {
+      "abilityId": 88,
+      "unknownDword1": 0,
+      "unknownDword2": 2430961690,
+      "unkArray1Length": 1,
+      "unknownArray1": [
+        {
+          "unknownDword1": 1111422,
+          "unknownDword2": 1111422,
+          "unknownDword3": 0
+        }
+      ],
+      "unknownDword3": 2,
+      "unknownDword4": 0,
+      "unknownByte": 64,
+      "slotId": 0
+    },
+    {
+      "abilityId": 89,
+      "unknownDword1": 0,
+      "unknownDword2": 2024620633,
+      "unkArray1Length": 1,
+      "unknownArray1": [
+        {
+          "unknownDword1": 1111419,
+          "unknownDword2": 1111419,
+          "unknownDword3": 0
+        }
+      ],
+      "unknownDword3": 2,
+      "unknownDword4": 0,
+      "unknownByte": 64,
+      "slotId": 0
+    },
+    {
+      "abilityId": 90,
+      "unknownDword1": 0,
+      "unknownDword2": 749797674,
+      "unkArray1Length": 1,
+      "unknownArray1": [
+        {
+          "unknownDword1": 1111418,
+          "unknownDword2": 1111418,
+          "unknownDword3": 0
+        }
+      ],
+      "unknownDword3": 2,
+      "unknownDword4": 0,
+      "unknownByte": 64,
+      "slotId": 0
+    },
+    {
+      "abilityId": 91,
+      "unknownDword1": 0,
+      "unknownDword2": 842711965,
+      "unkArray1Length": 1,
+      "unknownArray1": [
+        {
+          "unknownDword1": 1111417,
+          "unknownDword2": 1111417,
+          "unknownDword3": 0
+        }
+      ],
+      "unknownDword3": 2,
+      "unknownDword4": 0,
+      "unknownByte": 64,
+      "slotId": 0
+    },
+    {
+      "abilityId": 92,
+      "unknownDword1": 0,
+      "unknownDword2": 1387962468,
+      "unkArray1Length": 1,
+      "unknownArray1": [
+        {
+          "unknownDword1": 1111416,
+          "unknownDword2": 1111416,
+          "unknownDword3": 0
+        }
+      ],
+      "unknownDword3": 2,
+      "unknownDword4": 0,
+      "unknownByte": 64,
+      "slotId": 0
+    },
+    {
+      "abilityId": 93,
+      "unknownDword1": 0,
+      "unknownDword2": 3807132526,
+      "unkArray1Length": 1,
+      "unknownArray1": [
+        {
+          "unknownDword1": 1111399,
+          "unknownDword2": 1111399,
+          "unknownDword3": 0
+        }
+      ],
+      "unknownDword3": 2,
+      "unknownDword4": 0,
+      "unknownByte": 64,
+      "slotId": 0
+    },
+    {
+      "abilityId": 94,
+      "unknownDword1": 0,
+      "unknownDword2": 3634171900,
+      "unkArray1Length": 1,
+      "unknownArray1": [
+        {
+          "unknownDword1": 1111398,
+          "unknownDword2": 1111398,
+          "unknownDword3": 0
+        }
+      ],
+      "unknownDword3": 2,
+      "unknownDword4": 0,
+      "unknownByte": 64,
+      "slotId": 0
+    },
+    {
+      "abilityId": 95,
+      "unknownDword1": 0,
+      "unknownDword2": 1865672547,
+      "unkArray1Length": 1,
+      "unknownArray1": [
+        {
+          "unknownDword1": 1111397,
+          "unknownDword2": 1111397,
+          "unknownDword3": 0
+        }
+      ],
+      "unknownDword3": 2,
+      "unknownDword4": 0,
+      "unknownByte": 64,
+      "slotId": 0
+    },
+    {
+      "abilityId": 96,
+      "unknownDword1": 0,
+      "unknownDword2": 3739988844,
+      "unkArray1Length": 1,
+      "unknownArray1": [
+        {
+          "unknownDword1": 1111396,
+          "unknownDword2": 1111396,
+          "unknownDword3": 0
+        }
+      ],
+      "unknownDword3": 2,
+      "unknownDword4": 0,
+      "unknownByte": 64,
+      "slotId": 0
+    },
+    {
+      "abilityId": 97,
+      "unknownDword1": 0,
+      "unknownDword2": 1127909046,
+      "unkArray1Length": 1,
+      "unknownArray1": [
+        {
+          "unknownDword1": 1111395,
+          "unknownDword2": 1111395,
+          "unknownDword3": 0
+        }
+      ],
+      "unknownDword3": 2,
+      "unknownDword4": 0,
+      "unknownByte": 64,
+      "slotId": 0
+    },
+    {
+      "abilityId": 98,
+      "unknownDword1": 0,
+      "unknownDword2": 3350511356,
+      "unkArray1Length": 1,
+      "unknownArray1": [
+        {
+          "unknownDword1": 1111394,
+          "unknownDword2": 1111394,
+          "unknownDword3": 0
+        }
+      ],
+      "unknownDword3": 2,
+      "unknownDword4": 0,
+      "unknownByte": 64,
+      "slotId": 0
+    },
+    {
+      "abilityId": 99,
+      "unknownDword1": 0,
+      "unknownDword2": 2847850783,
+      "unkArray1Length": 1,
+      "unknownArray1": [
+        {
+          "unknownDword1": 1111393,
+          "unknownDword2": 1111393,
+          "unknownDword3": 0
+        }
+      ],
+      "unknownDword3": 2,
+      "unknownDword4": 0,
+      "unknownByte": 64,
+      "slotId": 0
+    },
+    {
+      "abilityId": 100,
+      "unknownDword1": 0,
+      "unknownDword2": 3029393655,
+      "unkArray1Length": 1,
+      "unknownArray1": [
+        {
+          "unknownDword1": 1111392,
+          "unknownDword2": 1111392,
+          "unknownDword3": 0
+        }
+      ],
+      "unknownDword3": 2,
+      "unknownDword4": 0,
+      "unknownByte": 64,
+      "slotId": 0
+    },
+    {
+      "abilityId": 101,
+      "unknownDword1": 0,
+      "unknownDword2": 1309191893,
+      "unkArray1Length": 1,
+      "unknownArray1": [
+        {
+          "unknownDword1": 1111391,
+          "unknownDword2": 1111391,
+          "unknownDword3": 0
+        }
+      ],
+      "unknownDword3": 2,
+      "unknownDword4": 0,
+      "unknownByte": 64,
+      "slotId": 0
+    },
+    {
+      "abilityId": 102,
+      "unknownDword1": 0,
+      "unknownDword2": 3043462270,
+      "unkArray1Length": 1,
+      "unknownArray1": [
+        {
+          "unknownDword1": 1111389,
+          "unknownDword2": 1111389,
+          "unknownDword3": 0
+        }
+      ],
+      "unknownDword3": 2,
+      "unknownDword4": 0,
+      "unknownByte": 64,
+      "slotId": 0
+    },
+    {
+      "abilityId": 103,
+      "unknownDword1": 0,
+      "unknownDword2": 3527480272,
+      "unkArray1Length": 1,
+      "unknownArray1": [
+        {
+          "unknownDword1": 1111226,
+          "unknownDword2": 1111226,
+          "unknownDword3": 0
+        }
+      ],
+      "unknownDword3": 2,
+      "unknownDword4": 0,
+      "unknownByte": 0,
+      "slotId": 0
+    }
+  ]
+}

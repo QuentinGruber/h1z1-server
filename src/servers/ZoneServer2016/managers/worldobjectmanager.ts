@@ -58,6 +58,7 @@ import { ZoneClient2016 } from "../classes/zoneclient";
 import { TaskProp } from "../entities/taskprop";
 import { Crate } from "../entities/crate";
 import { Destroyable } from "../entities/destroyable";
+import { CharacterPlayWorldCompositeEffect } from "types/zone2016packets";
 const debug = require("debug")("ZoneServer");
 
 function getRandomSkin(itemDefinitionId: number) {
@@ -106,9 +107,6 @@ export function getRandomItem(items: Array<LootDefinition>) {
       return items[i];
     }
   }
-
-  // This line should never be reached, but is included for type safety
-  return;
 }
 
 export class WorldObjectManager {
@@ -224,13 +222,19 @@ export class WorldObjectManager {
           : this.lootDespawnTimer;
       if (Date.now() - itemObject.creationTime >= despawnTime) {
         server.deleteEntity(itemObject.characterId, server._spawnedItems);
+        switch (itemObject.item.itemDefinitionId) {
+          case Items.FUEL_ETHANOL:
+          case Items.FUEL_BIOFUEL:
+            server.deleteEntity(itemObject.characterId, server._explosives);
+            break;
+        }
         if (itemObject.spawnerId != -1)
           delete this.spawnedLootObjects[itemObject.spawnerId];
         server.sendCompositeEffectToAllWithSpawnedEntity(
           server._spawnedItems,
           itemObject,
           server.getItemDefinition(itemObject.item.itemDefinitionId)
-            .PICKUP_EFFECT ?? 5151
+            ?.PICKUP_EFFECT ?? 5151
         );
       }
     }
@@ -291,36 +295,38 @@ export class WorldObjectManager {
       return;
     }
     const characterId = generateRandomGuid(),
-      modelId = itemDef.WORLD_MODEL_ID || 9;
-    server._spawnedItems[characterId] = new ItemObject(
-      characterId,
-      server.getTransientId(characterId),
-      modelId,
-      position,
-      rotation,
-      server,
-      itemSpawnerId || 0,
-      item
-    );
-    server._spawnedItems[characterId].nameId = itemDef.NAME_ID;
-    if (
-      item.itemDefinitionId === Items.FUEL_ETHANOL ||
-      item.itemDefinitionId === Items.FUEL_BIOFUEL
-    ) {
-      server._spawnedItems[characterId].flags.projectileCollision = 1;
-      server._explosives[characterId] = new ExplosiveEntity(
+      modelId = itemDef.WORLD_MODEL_ID || 9,
+      lootObj = new ItemObject(
         characterId,
         server.getTransientId(characterId),
         modelId,
         position,
         rotation,
         server,
-        item.itemDefinitionId
+        itemSpawnerId || 0,
+        item
       );
+    server._spawnedItems[characterId] = lootObj;
+    server._spawnedItems[characterId].nameId = itemDef.NAME_ID;
+
+    switch (item.itemDefinitionId) {
+      case Items.FUEL_ETHANOL:
+      case Items.FUEL_BIOFUEL:
+        lootObj.flags.projectileCollision = 1;
+        server._explosives[characterId] = new ExplosiveEntity(
+          characterId,
+          server.getTransientId(characterId),
+          modelId,
+          position,
+          rotation,
+          server,
+          item.itemDefinitionId
+        );
+        break;
     }
     if (itemSpawnerId) this.spawnedLootObjects[itemSpawnerId] = characterId;
-    server._spawnedItems[characterId].creationTime = Date.now();
-    return server._spawnedItems[characterId];
+    lootObj.creationTime = Date.now();
+    return lootObj;
   }
 
   createLootbag(server: ZoneServer2016, entity: BaseFullCharacter) {
@@ -345,6 +351,7 @@ export class WorldObjectManager {
     }
 
     server._lootbags[characterId] = lootbag;
+    server.spawnSimpleNpcForAllInRange(lootbag);
   }
 
   createAirdropContainer(server: ZoneServer2016, pos: Float32Array) {
@@ -448,12 +455,16 @@ export class WorldObjectManager {
       ]);
       for (const a in server._clients) {
         const c = server._clients[a];
-        server.sendData(c, "Character.PlayWorldCompositeEffect", {
-          characterId: c.character.characterId,
-          effectId: effectId,
-          position: smokePos,
-          unk3: 60
-        });
+        server.sendData<CharacterPlayWorldCompositeEffect>(
+          c,
+          "Character.PlayWorldCompositeEffect",
+          {
+            characterId: c.character.characterId,
+            effectId: effectId,
+            position: smokePos,
+            effectTime: 60
+          }
+        );
       }
     }
     server._lootbags[characterId] = lootbag;
@@ -482,7 +493,7 @@ export class WorldObjectManager {
         server._lootableProps[characterId] = obj;
         obj.equipItem(server, server.generateItem(obj.containerId), false);
         obj._containers["31"].canAcceptItems = false;
-        obj.nameId = server.getItemDefinition(obj.containerId).NAME_ID;
+        obj.nameId = server.getItemDefinition(obj.containerId)?.NAME_ID ?? 0;
       });
     });
     Z1_taskProps.forEach((propType: any) => {
@@ -616,17 +627,12 @@ export class WorldObjectManager {
   createVehicle(server: ZoneServer2016, vehicle: Vehicle2016) {
     vehicle.equipLoadout(server);
 
-    /*
-    vehicle.equipItem(server, server.generateItem(vehicle.getTurboItemId()));
-    vehicle.equipItem(
-      server,
-      server.generateItem(vehicle.getHeadlightsItemId())
-    );*/
-
     this.setSpawnchance(server, vehicle, 50, Items.BATTERY);
     this.setSpawnchance(server, vehicle, 50, Items.SPARKPLUGS);
     this.setSpawnchance(server, vehicle, 30, Items.VEHICLE_KEY);
     this.setSpawnchance(server, vehicle, 20, Items.FUEL_BIOFUEL);
+    this.setSpawnchance(server, vehicle, 30, vehicle.getHeadlightsItemId());
+    this.setSpawnchance(server, vehicle, 30, vehicle.getTurboItemId());
 
     server._vehicles[vehicle.characterId] = vehicle;
   }

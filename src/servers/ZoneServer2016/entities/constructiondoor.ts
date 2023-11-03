@@ -36,7 +36,7 @@ export class ConstructionDoor extends DoorEntity {
   ownerCharacterId: string;
   passwordHash: number = 0;
   grantedAccess: Array<string> = [];
-  health: number = 1000000;
+
   parentObjectCharacterId: string;
   readonly itemDefinitionId: number;
   readonly slot: string;
@@ -44,6 +44,7 @@ export class ConstructionDoor extends DoorEntity {
   readonly fixedPosition: Float32Array;
   placementTime = Date.now();
   isSecured = true;
+  isDecayProtected: boolean = false;
   constructor(
     characterId: string,
     transientId: number,
@@ -71,6 +72,10 @@ export class ConstructionDoor extends DoorEntity {
     this.parentObjectCharacterId = parentObjectCharacterId;
     this.slot = slot;
     this.profileId = 999; /// mark as construction
+
+    this.maxHealth = 1000000;
+    this.health = this.maxHealth;
+
     this.damageRange = getDamageRange(this.itemDefinitionId);
     this.fixedPosition = movePoint(
       this.state.position,
@@ -101,7 +106,7 @@ export class ConstructionDoor extends DoorEntity {
     this.health -= damageInfo.damage;
   }
 
-  destroy(server: ZoneServer2016, destructTime = 0) {
+  destroy(server: ZoneServer2016, destructTime = 0): boolean {
     const deleted = server.deleteEntity(
       this.characterId,
       server._constructionDoors,
@@ -203,6 +208,11 @@ export class ConstructionDoor extends DoorEntity {
         this.passwordHash == 0 ||
         this.grantedAccess.includes(client.character.characterId) ||
         client.character.characterId === this.ownerCharacterId ||
+        this.getHasPermission(
+          server,
+          client.character.characterId,
+          ConstructionPermissionIds.DEMOLISH
+        ) ||
         (client.isAdmin && client.isDebugMode) // debug mode open all doors/gates
       ) {
         if (this.moving) {
@@ -277,7 +287,14 @@ export class ConstructionDoor extends DoorEntity {
         return;
       }
     } else if (!isInstant) {
-      if (client.character.characterId === this.ownerCharacterId) {
+      if (
+        client.character.characterId === this.ownerCharacterId ||
+        this.getHasPermission(
+          server,
+          client.character.characterId,
+          ConstructionPermissionIds.DEMOLISH
+        )
+      ) {
         server.sendData(client, "Locks.ShowMenu", {
           characterId: client.character.characterId,
           unknownDword1: 2,
@@ -307,6 +324,11 @@ export class ConstructionDoor extends DoorEntity {
     }
     if (
       client.character.characterId === this.ownerCharacterId ||
+      this.getHasPermission(
+        server,
+        client.character.characterId,
+        ConstructionPermissionIds.DEMOLISH
+      ) ||
       !this.grantedAccess.includes(client.character.characterId)
     ) {
       server.sendData(client, "Command.InteractionString", {
@@ -323,5 +345,30 @@ export class ConstructionDoor extends DoorEntity {
 
   OnProjectileHit() {
     // do nothing for now
+  }
+
+  OnMeleeHit(server: ZoneServer2016, damageInfo: DamageInfo) {
+    const client = server.getClientByCharId(damageInfo.entity),
+      weapon = client?.character.getEquippedWeapon();
+    if (!client || !weapon) return;
+
+    switch (weapon.itemDefinitionId) {
+      case Items.WEAPON_HAMMER_DEMOLITION:
+        server.constructionManager.demolishConstructionEntity(
+          server,
+          client,
+          this,
+          weapon
+        );
+        return;
+      case Items.WEAPON_HAMMER:
+        server.constructionManager.hammerConstructionEntity(
+          server,
+          client,
+          this,
+          weapon
+        );
+        return;
+    }
   }
 }
