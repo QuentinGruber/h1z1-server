@@ -2224,7 +2224,7 @@ export class ZonePacketHandlers {
           );
 
           if (sourceCharacter instanceof Vehicle2016) {
-            sourceCharacter.checkEngineRequirements(server);
+            sourceCharacter.checkEngineRequirements(server, false);
           }
 
           return;
