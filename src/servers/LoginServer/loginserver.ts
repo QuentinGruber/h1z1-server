@@ -1060,6 +1060,14 @@ export class LoginServer extends EventEmitter {
         case CONNECTION_REJECTION_FLAGS.OTHER:
           reason = "OTHER";
           break;
+        default:
+          this.sendData(client, "H1emu.PrintToConsole", {
+            message: "Server may be running an old version, please report this to the server owner!",
+            showConsole: true,
+            clearOutput: false
+          });
+          this.sendData(client, "CharacterLoginReply", charactersLoginInfo);
+          return;
       }
       this.sendData(client, "H1emu.PrintToConsole", {
         message: `CONNECTION REJECTED! Reason: ${reason}`,
