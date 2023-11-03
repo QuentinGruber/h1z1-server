@@ -2256,6 +2256,10 @@ export class ZonePacketHandlers {
           "Parts may be required. Open vehicle loadout."
         );
         break;
+      case ItemUseOptions.UNPACK:
+        server.useAmmoBox(client, item);
+        //TODO: Use a timer maybe?
+        break;
       case ItemUseOptions.REPAIR:
         const repairItem = character.getInventoryItem(
           (packet.data.itemSubData as any)?.targetItemGuid
