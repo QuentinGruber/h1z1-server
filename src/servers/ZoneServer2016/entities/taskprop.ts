@@ -129,6 +129,8 @@ export class TaskProp extends BaseLightweightCharacter {
 
   OnInteractionString(server: ZoneServer2016, client: ZoneClient2016) {
     switch (this.actorModel) {
+      case "Common_Props_Cabinets_BathroomSink.adr":
+      case "Common_Props_Bathroom_Toilet01.adr":
       case "Common_Props_Well.adr":
         server.sendData(client, "Command.InteractionString", {
           guid: this.characterId,
@@ -160,12 +162,15 @@ export class TaskProp extends BaseLightweightCharacter {
     /* eslint-enable @typescript-eslint/no-unused-vars */
   ) {
     switch (this.actorModel) {
+      case "Common_Props_Cabinets_BathroomSink.adr":
+      case "Common_Props_Bathroom_Toilet01.adr":
       case "Common_Props_Well.adr":
         Object.values(client.character._containers).forEach((container: LoadoutContainer) => {
           Object.values(container.items).forEach((item) => {
             if (item.itemDefinitionId == Items.WATER_EMPTY) {
               server.utilizeHudTimer(client, StringIds.WATER_WELL, 1000, 0, () => {
                 server.fillPass(client, item, true);
+                // TODO: Limit refilling in toilets and sinks to x amount in x amount of time.
               });
               return;
             }
