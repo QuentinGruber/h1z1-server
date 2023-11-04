@@ -58,7 +58,6 @@ jobs:
   test-mongo-linux:
     name: mongo-linux
     runs-on: ubuntu-latest
-    env:
     strategy:
       matrix:
         node-version: [20.9.0, 20.x, 21.x]
@@ -76,7 +75,6 @@ jobs:
   test-linux-local:
     name: linux-local
     runs-on: ubuntu-latest
-    env:
     strategy:
       matrix:
         node-version: [20.9.0, 20.x, 21.x]
@@ -91,7 +89,6 @@ jobs:
   test-win-local:
     name: win-local
     runs-on: windows-latest
-    env:
     strategy:
       matrix:
         node-version: [20.9.0, 20.x, 21.x]
