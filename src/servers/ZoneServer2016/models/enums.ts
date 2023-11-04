@@ -68,6 +68,8 @@ export enum ConstructionPermissionIds {
 export enum StringIds {
   ENTER_VEHICLE = 15,
   OFFROADER = 16,
+  WATER_WELL = 1006,
+  COLLECT_WATER = 1008,
   TAKE_ITEM = 29,
   OPEN = 31,
   CORN = 628,

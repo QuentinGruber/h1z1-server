@@ -16,6 +16,7 @@ import { ZoneServer2016 } from "../zoneserver";
 import { BaseLightweightCharacter } from "./baselightweightcharacter";
 import { ZoneClient2016 } from "../classes/zoneclient";
 import { randomIntFromInterval } from "../../../utils/utils";
+import { LoadoutContainer } from "../classes/loadoutcontainer";
 
 export class TaskProp extends BaseLightweightCharacter {
   detonated = false;
@@ -128,6 +129,12 @@ export class TaskProp extends BaseLightweightCharacter {
 
   OnInteractionString(server: ZoneServer2016, client: ZoneClient2016) {
     switch (this.actorModel) {
+      case "Common_Props_Well.adr":
+        server.sendData(client, "Command.InteractionString", {
+          guid: this.characterId,
+          stringId: StringIds.COLLECT_WATER
+        });
+        break;
       case "Common_Props_Bedroom_Mattress01.adr":
       case "Common_Props_MilitaryBase_BunkBed.adr":
         server.sendData(client, "Command.InteractionString", {
@@ -153,6 +160,18 @@ export class TaskProp extends BaseLightweightCharacter {
     /* eslint-enable @typescript-eslint/no-unused-vars */
   ) {
     switch (this.actorModel) {
+      case "Common_Props_Well.adr":
+        Object.values(client.character._containers).forEach((container: LoadoutContainer) => {
+          Object.values(container.items).forEach((item) => {
+            if (item.itemDefinitionId == Items.WATER_EMPTY) {
+              server.utilizeHudTimer(client, StringIds.WATER_WELL, 1000, 0, () => {
+                server.fillPass(client, item, true);
+              });
+              return;
+            }
+          });
+        });
+        break;
       case "Common_Props_Bedroom_Mattress01.adr":
       case "Common_Props_MilitaryBase_BunkBed.adr":
         if (client.character._resources[ResourceIds.ENDURANCE] <= 3501) {
