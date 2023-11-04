@@ -3219,7 +3219,7 @@ export class ZonePacketHandlers {
       case "Vehicle.AccessType":
         this.VehicleAccessType(server, client, packet);
         break;
-      case "PlayerUpdateUpdatePositionClientToZone":
+      case "PlayerUpdatePosition":
         this.PlayerUpdateUpdatePositionClientToZone(server, client, packet);
         break;
       case "Character.Respawn":
