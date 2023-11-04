@@ -785,14 +785,14 @@ export class ZoneServer2016 extends EventEmitter {
     }
   }
 
-  onZoneDataEvent(client: Client, packet: any) {
+  onZoneDataEvent(client: Client, packet: ReceivedPacket<any>) {
     if (!client) {
       return;
     }
     client.pingTimer?.refresh();
     if (
       packet.name != "KeepAlive" &&
-      packet.name != "PlayerUpdateUpdatePositionClientToZone" &&
+      packet.name != "PlayerUpdatePosition" &&
       packet.name != "PlayerUpdateManagedPosition" &&
       packet.name != "ClientUpdate.MonitorTimeDrift"
     ) {

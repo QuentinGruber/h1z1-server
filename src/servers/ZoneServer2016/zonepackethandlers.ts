@@ -1288,7 +1288,7 @@ export class ZonePacketHandlers {
       }
     );
   }
-  PlayerUpdateUpdatePositionClientToZone(
+  PlayerUpdatePosition(
     server: ZoneServer2016,
     client: Client,
     packet: ReceivedPacket<any> // todo: remove any - Meme
@@ -3220,7 +3220,7 @@ export class ZonePacketHandlers {
         this.VehicleAccessType(server, client, packet);
         break;
       case "PlayerUpdatePosition":
-        this.PlayerUpdateUpdatePositionClientToZone(server, client, packet);
+        this.PlayerUpdatePosition(server, client, packet);
         break;
       case "Character.Respawn":
         this.CharacterRespawn(server, client, packet);
