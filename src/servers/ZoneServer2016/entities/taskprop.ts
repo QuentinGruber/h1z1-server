@@ -11,7 +11,7 @@
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
 
-import { Items, StringIds } from "../models/enums";
+import { Items, ResourceIds, StringIds } from "../models/enums";
 import { ZoneServer2016 } from "../zoneserver";
 import { BaseLightweightCharacter } from "./baselightweightcharacter";
 import { ZoneClient2016 } from "../classes/zoneclient";
@@ -127,10 +127,23 @@ export class TaskProp extends BaseLightweightCharacter {
   }
 
   OnInteractionString(server: ZoneServer2016, client: ZoneClient2016) {
-    server.sendData(client, "Command.InteractionString", {
-      guid: this.characterId,
-      stringId: StringIds.OPEN
-    });
+    switch (this.actorModel) {
+      case "Common_Props_Bedroom_Mattress01.adr":
+      case "Common_Props_MilitaryBase_BunkBed.adr":
+        server.sendData(client, "Command.InteractionString", {
+          guid: this.characterId,
+          stringId: StringIds.REST
+        });
+        break;
+
+      default:
+        server.sendData(client, "Command.InteractionString", {
+          guid: this.characterId,
+          stringId: StringIds.OPEN
+        });
+        break;
+    }
+
   }
   /* eslint-disable @typescript-eslint/no-unused-vars */
   OnPlayerSelect(
@@ -139,23 +152,35 @@ export class TaskProp extends BaseLightweightCharacter {
     isInstant?: boolean
     /* eslint-enable @typescript-eslint/no-unused-vars */
   ) {
-    if (!this.requiredItemId) return;
-    // return empty ones, need more info and time to get other quests working
-    const removedItem = client.character.getItemById(this.requiredItemId);
-    if (!removedItem) {
-      server.sendAlert(client, "This locker is locked.");
-      return;
+    switch (this.actorModel) {
+      case "Common_Props_Bedroom_Mattress01.adr":
+      case "Common_Props_MilitaryBase_BunkBed.adr":
+        if (client.character._resources[ResourceIds.ENDURANCE] <= 3501) {
+          server.utilizeHudTimer(client, StringIds.RESTING, 30000, 0, () => {
+            server.sleep(client);
+          });
+        }
+        break;
+      default:
+        if (!this.requiredItemId) return;
+        // return empty ones, need more info and time to get other quests working
+        const removedItem = client.character.getItemById(this.requiredItemId);
+        if (!removedItem) {
+          server.sendAlert(client, "This locker is locked.");
+          return;
+        }
+        const itemsPassed: { itemDefinitionId: number; count: number }[] = [];
+        const itemCount = randomIntFromInterval(2, 4);
+        for (let x = 0; x < itemCount; x++) {
+          const item =
+            this.rewardItems[randomIntFromInterval(0, this.rewardItems.length - 1)];
+          itemsPassed.push({
+            itemDefinitionId: item,
+            count: this.getRewardItemCount(item)
+          });
+        }
+        server.taskOption(client, 1000, this.nameId, removedItem, itemsPassed);
+        break;
     }
-    const itemsPassed: { itemDefinitionId: number; count: number }[] = [];
-    const itemCount = randomIntFromInterval(2, 4);
-    for (let x = 0; x < itemCount; x++) {
-      const item =
-        this.rewardItems[randomIntFromInterval(0, this.rewardItems.length - 1)];
-      itemsPassed.push({
-        itemDefinitionId: item,
-        count: this.getRewardItemCount(item)
-      });
-    }
-    server.taskOption(client, 1000, this.nameId, removedItem, itemsPassed);
   }
 }
