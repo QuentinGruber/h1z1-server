@@ -95,17 +95,22 @@ export abstract class BaseLZConnection extends EventEmitter {
       return;
     const data = this._protocol.pack(packetName, obj);
     if (data) {
-      this._connection.postMessage(
-        {
-          type: "sendPacket",
-          data: {
-            packetData: data,
-            port: client.port,
-            address: client.address
-          }
-        },
-        [data.buffer]
-      );
+      const message = {
+        type: "sendPacket",
+        data: {
+          packetData: data,
+          port: client.port,
+          address: client.address
+        }
+      };
+      // FIXME: this stopped working after upgrading to node 21
+      // This allow to send a buffer to the worker without copying it
+      // https://nodejs.org/api/worker_threads.html#worker_threads_port_postmessage_value_transferlist
+      // this._connection.postMessage(
+      //   message,
+      //   [message.data.packetData.buffer],
+      // );
+      this._connection.postMessage(message);
     }
   }
 

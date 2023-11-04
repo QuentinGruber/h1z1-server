@@ -11,10 +11,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - name: Use Node.js 18.12.1
+      - name: Use Node.js 20.9.0
         uses: actions/setup-node@v3
         with:
-          node-version: 18.12.1
+          node-version: 20.9.0
       - run: npm i
       - run: npm run lint-quiet
   prettier:
@@ -22,10 +22,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - name: Use Node.js 18.12.1
+      - name: Use Node.js 20.9.0
         uses: actions/setup-node@v3
         with:
-          node-version: 18.12.1
+          node-version: 20.9.0
       - run: npm i
       - run: npm run check_prettier
   interfaces-up-to-date:
@@ -33,10 +33,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - name: Use Node.js 18.12.1
+      - name: Use Node.js 20.9.0
         uses: actions/setup-node@v3
         with:
-          node-version: 18.12.1
+          node-version: 20.9.0
       - run: npm i
       - run: npm run gen-packets-types
       - run: npm run gen-packets-interfaces
@@ -46,7 +46,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        node-version: [18.x, 20.x]
+        node-version: [20.x, 21.x]
     steps:
       - uses: actions/checkout@v3
       - name: Use Node.js ${{ matrix.node-version }}
@@ -58,11 +58,9 @@ jobs:
   test-mongo-linux:
     name: mongo-linux
     runs-on: ubuntu-latest
-    env:
-     FORCE_REDUCE_CPU_USAGE: "true"
     strategy:
       matrix:
-        node-version: [18.12.1, 18.x, 20.x]
+        node-version: [20.9.0, 20.x, 21.x]
     steps:
       - uses: actions/checkout@v3
       - name: Use Node.js ${{ matrix.node-version }}
@@ -77,11 +75,9 @@ jobs:
   test-linux-local:
     name: linux-local
     runs-on: ubuntu-latest
-    env:
-     FORCE_REDUCE_CPU_USAGE: "true"
     strategy:
       matrix:
-        node-version: [18.12.1, 18.x, 20.x]
+        node-version: [20.9.0, 20.x, 21.x]
     steps:
       - uses: actions/checkout@v3
       - name: Use Node.js ${{ matrix.node-version }}
@@ -93,11 +89,9 @@ jobs:
   test-win-local:
     name: win-local
     runs-on: windows-latest
-    env:
-     FORCE_REDUCE_CPU_USAGE: "true"
     strategy:
       matrix:
-        node-version: [18.12.1, 18.x, 20.x]
+        node-version: [20.9.0, 20.x, 21.x]
     steps:
       - uses: actions/checkout@v3
       - name: Use Node.js ${{ matrix.node-version }}
@@ -111,10 +105,10 @@ jobs:
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v3
-      - name: Use Node.js 18.12.1
+      - name: Use Node.js 20.9.0
         uses: actions/setup-node@v3
         with:
-          node-version: 18.12.1
+          node-version: 20.9.0
       - run: npm i --omit=dev
       - run: npm i -g pkg@5.8.0
       - run: pkg --compress GZip -t node18-win-x64 ./bin/2015/h1emuServer.js --output ./bin/h1emuServer-2015-${{ github.ref }}.exe
