@@ -6111,7 +6111,7 @@ export class ZoneServer2016 extends EventEmitter {
 
     // Configure amount of ammo? Should be 60 by default.
 
-    switch(item.itemDefinitionId) {
+    switch (item.itemDefinitionId) {
       case Items.AMMO_BOX_223:
         client.character.lootItem(this, this.generateItem(Items.AMMO_223, 60));
         break;
