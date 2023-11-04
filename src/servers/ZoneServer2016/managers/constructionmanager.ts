@@ -71,7 +71,9 @@ export class ConstructionManager {
   overridePlacementItems: Array<number> = [
     Items.IED,
     Items.LANDMINE,
-    Items.SNARE
+    Items.SNARE,
+    Items.SEED_CORN,
+    Items.SEED_WHEAT
   ];
 
   /* MANAGED BY CONFIGMANAGER */
@@ -626,7 +628,8 @@ export class ConstructionManager {
       (!!Number(parentObjectCharacterId) ||
         !!Number(freeplaceParentCharacterId)) &&
       !isOnPermissionedFoundation &&
-      !client.isDebugMode
+      !client.isDebugMode &&
+      !this.overridePlacementItems.includes(itemDefinitionId)
     ) {
       this.placementError(server, client, ConstructionErrors.BUILD_PERMISSION);
       this.sendPlacementFinalize(server, client, false);

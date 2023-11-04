@@ -71,7 +71,8 @@ export default class SOEClient {
     this._statsResetTimer = setInterval(() => this._resetStats(), 60000);
   }
   closeTimers() {
-    clearInterval(this._statsResetTimer);
+    // wierd stuff with the new global Symbol used with the using keyword, skipping that headache for now
+    clearInterval(this._statsResetTimer as unknown as number);
   }
   private _resetStats() {
     this.stats.totalPacketSent = 0;
