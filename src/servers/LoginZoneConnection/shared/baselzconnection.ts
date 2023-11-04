@@ -95,6 +95,7 @@ export abstract class BaseLZConnection extends EventEmitter {
       return;
     const data = this._protocol.pack(packetName, obj);
     if (data) {
+      console.log(data)// TODO: remove
       this._connection.postMessage(
         {
           type: "sendPacket",
