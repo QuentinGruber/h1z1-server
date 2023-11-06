@@ -133,10 +133,12 @@ export class TaskProp extends BaseLightweightCharacter {
       case "Common_Props_Bedroom_BedCombined01.adr":
       case "Common_Props_Bedroom_BedCombined02.adr":
       case "Common_Props_Bedroom_BedCombined03.adr":
-        server.sendData(client, "Command.InteractionString", {
-          guid: this.characterId,
-          stringId: StringIds.REST
-        });
+        if (client.character._resources[ResourceIds.ENDURANCE] <= 3501) {
+          server.sendData(client, "Command.InteractionString", {
+            guid: this.characterId,
+            stringId: StringIds.REST
+          });
+        }
         break;
 
       default:
