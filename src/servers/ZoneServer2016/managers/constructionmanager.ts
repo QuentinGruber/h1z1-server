@@ -2020,8 +2020,6 @@ export class ConstructionManager {
     client: Client,
     entity: ConstructionDoor
   ) {
-    console.log("spawnConstructionDoor")
-    console.log(client.spawnedEntities.has(entity))
     if (client.spawnedEntities.has(entity) || !client.isSynced) return;
     server.addLightweightNpc(
       client,
