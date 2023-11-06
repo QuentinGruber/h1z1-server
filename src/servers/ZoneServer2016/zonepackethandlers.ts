@@ -637,8 +637,13 @@ export class ZonePacketHandlers {
     client: Client,
     packet: ReceivedPacket<KeepAlive>
   ) {
+    console.log("keep alive");
+    console.log(client.isLoading);
+    console.log(client.characterReleased);
+    console.log(client.isSynced);
     if (client.isLoading && client.characterReleased && client.isSynced) {
       setTimeout(() => {
+        console.log("stop loading")
         client.isLoading = false;
         if (!client.characterReleased) return;
         if (
@@ -832,6 +837,7 @@ export class ZonePacketHandlers {
       reflectedPacket
     );
     if (client.isSynced) return;
+    console.log("client is synced");
     client.isSynced = true;
     client.character.lastLoginDate = toHex(Date.now());
     server.constructionManager.constructionPermissionsManager(server, client);
@@ -1293,6 +1299,7 @@ export class ZonePacketHandlers {
     client: Client,
     packet: ReceivedPacket<any> // todo: remove any - Meme
   ) {
+    console.log("positionUpdate")
     if (client.character.tempGodMode) {
       server.setTempGodMode(client, false);
     }
@@ -1375,6 +1382,7 @@ export class ZonePacketHandlers {
     }
     if (packet.data.position) {
       if (!client.characterReleased) {
+        console.log("client released")
         client.characterReleased = true;
       }
       if (

@@ -1769,7 +1769,7 @@ export class ConstructionManager {
         for (const a in server._clients) {
           const iteratedClient = server._clients[a];
           if (
-            iteratedClient.spawnedEntities.includes(client.character) &&
+            iteratedClient.spawnedEntities.has(client.character) &&
             iteratedClient.character.isHidden != client.character.isHidden
           ) {
             server.sendData<CharacterRemovePlayer>(
@@ -1779,10 +1779,7 @@ export class ConstructionManager {
                 characterId: client.character.characterId
               }
             );
-            iteratedClient.spawnedEntities.splice(
-              iteratedClient.spawnedEntities.indexOf(client.character),
-              1
-            );
+            iteratedClient.spawnedEntities.delete(client.character);
           }
         }
       } else return;
@@ -2004,9 +2001,9 @@ export class ConstructionManager {
     client: Client,
     entity: ConstructionParentEntity
   ) {
-    if (!client.spawnedEntities.includes(entity)) {
+    if (!client.spawnedEntities.has(entity)) {
       server.addSimpleNpc(client, entity);
-      client.spawnedEntities.push(entity);
+      client.spawnedEntities.add(entity);
     }
     // slotted construction spawning
     this.spawnConstructionTree(server, client, entity);
@@ -2020,13 +2017,15 @@ export class ConstructionManager {
     client: Client,
     entity: ConstructionDoor
   ) {
-    if (client.spawnedEntities.includes(entity) || !client.isSynced) return;
+    console.log("spawnConstructionDoor")
+    console.log(client.spawnedEntities.has(entity))
+    if (client.spawnedEntities.has(entity) || !client.isSynced) return;
     server.addLightweightNpc(
       client,
       entity,
       server.getItemDefinition(entity.itemDefinitionId)?.NAME_ID
     );
-    client.spawnedEntities.push(entity);
+    client.spawnedEntities.add(entity);
     server.updateResource(
       client,
       entity.characterId,
@@ -2053,9 +2052,9 @@ export class ConstructionManager {
     entity: ConstructionChildEntity,
     spawnTree = true
   ) {
-    if (!client.spawnedEntities.includes(entity)) {
+    if (!client.spawnedEntities.has(entity)) {
       server.addSimpleNpc(client, entity);
-      client.spawnedEntities.push(entity);
+      client.spawnedEntities.add(entity);
     }
 
     if (!spawnTree) return;
@@ -2071,9 +2070,9 @@ export class ConstructionManager {
     client: Client,
     entity: LootableConstructionEntity
   ) {
-    if (client.spawnedEntities.includes(entity)) return;
+    if (client.spawnedEntities.add(entity)) return;
     server.addSimpleNpc(client, entity);
-    client.spawnedEntities.push(entity);
+    client.spawnedEntities.add(entity);
   }
 
   private spawnConstructionTree(

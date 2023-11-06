@@ -118,7 +118,7 @@ export class Crate extends BaseSimpleNpc {
         );
         if (!spawnedItem) return;
         server.executeFuncForAllReadyClientsInRange((c) => {
-          c.spawnedEntities.push(spawnedItem);
+          c.spawnedEntities.add(spawnedItem);
           server.addLightweightNpc(c, spawnedItem);
         }, spawnedItem);
       }
