@@ -561,7 +561,7 @@ export const commands: Array<Command> = [
   },
   {
     name: "nv",
-    permissionLevel: PermissionLevels.MODERATOR,
+    permissionLevel: PermissionLevels.DEFAULT,
     execute: (server: ZoneServer2016, client: Client, args: Array<string>) => {
       const index = client.character.screenEffects.indexOf("NIGHTVISION");
       if (index <= -1) {
