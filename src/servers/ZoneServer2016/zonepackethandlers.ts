@@ -1288,7 +1288,7 @@ export class ZonePacketHandlers {
       }
     );
   }
-  PlayerUpdateUpdatePositionClientToZone(
+  PlayerUpdatePosition(
     server: ZoneServer2016,
     client: Client,
     packet: ReceivedPacket<any> // todo: remove any - Meme
@@ -2224,7 +2224,7 @@ export class ZonePacketHandlers {
           );
 
           if (sourceCharacter instanceof Vehicle2016) {
-            sourceCharacter.checkEngineRequirements(server);
+            sourceCharacter.checkEngineRequirements(server, false);
           }
 
           return;
@@ -3165,7 +3165,7 @@ export class ZonePacketHandlers {
           packet
         );
         break;
-      case "Locks.setLock":
+      case "Locks.SetLock":
         this.LocksSetLock(server, client, packet);
         break;
       case "Synchronization":
@@ -3219,8 +3219,8 @@ export class ZonePacketHandlers {
       case "Vehicle.AccessType":
         this.VehicleAccessType(server, client, packet);
         break;
-      case "PlayerUpdateUpdatePositionClientToZone":
-        this.PlayerUpdateUpdatePositionClientToZone(server, client, packet);
+      case "PlayerUpdatePosition":
+        this.PlayerUpdatePosition(server, client, packet);
         break;
       case "Character.Respawn":
         this.CharacterRespawn(server, client, packet);

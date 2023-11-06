@@ -11,6 +11,9 @@
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
 
+import { h1z1PacketsType2016 } from "./packets";
+
+
 export interface Packet {
   result: any;
   name: string;
@@ -18,7 +21,7 @@ export interface Packet {
   flags: any;
 }
 export interface ReceivedPacket<PacketType> {
-  name: string;
+  name: h1z1PacketsType2016;
   data: PacketType;
 }
 
@@ -36,7 +39,7 @@ export interface FileHash {
 }
 
 interface FileHashList {
-  type: string, 
+  type: string,
   hashes: Array<FileHash>
 }
 

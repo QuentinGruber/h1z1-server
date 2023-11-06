@@ -785,14 +785,14 @@ export class ZoneServer2016 extends EventEmitter {
     }
   }
 
-  onZoneDataEvent(client: Client, packet: any) {
+  onZoneDataEvent(client: Client, packet: ReceivedPacket<any>) {
     if (!client) {
       return;
     }
     client.pingTimer?.refresh();
     if (
       packet.name != "KeepAlive" &&
-      packet.name != "PlayerUpdateUpdatePositionClientToZone" &&
+      packet.name != "PlayerUpdatePosition" &&
       packet.name != "PlayerUpdateManagedPosition" &&
       packet.name != "ClientUpdate.MonitorTimeDrift"
     ) {
@@ -3971,17 +3971,15 @@ export class ZoneServer2016 extends EventEmitter {
       );
     }
 
-    setTimeout(() => {
-      if (!client) {
-        return;
-      }
-      if (sendGlobal) {
-        this.sendGlobalChatText(
-          `${client.character.name} has been kicked from the server!`
-        );
-      }
-      this.kickPlayer(client);
-    }, 2000);
+    if (!client) {
+      return;
+    }
+    if (sendGlobal) {
+      this.sendGlobalChatText(
+        `${client.character.name} has been kicked from the server!`
+      );
+    }
+    this.kickPlayer(client);
   }
 
   kickPlayer(client: Client) {
@@ -3993,10 +3991,8 @@ export class ZoneServer2016 extends EventEmitter {
         sessionId: client.loginSessionId
       }
     );
-    setTimeout(() => {
-      if (!client) return;
-      this.deleteClient(client);
-    }, 2000);
+    if (!client) return;
+    this.deleteClient(client);
   }
 
   getDateString(timestamp: number) {
