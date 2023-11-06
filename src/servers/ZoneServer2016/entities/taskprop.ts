@@ -129,14 +129,6 @@ export class TaskProp extends BaseLightweightCharacter {
 
   OnInteractionString(server: ZoneServer2016, client: ZoneClient2016) {
     switch (this.actorModel) {
-      case "Common_Props_Cabinets_BathroomSink.adr":
-      case "Common_Props_Bathroom_Toilet01.adr":
-      case "Common_Props_Well.adr":
-        server.sendData(client, "Command.InteractionString", {
-          guid: this.characterId,
-          stringId: StringIds.COLLECT_WATER
-        });
-        break;
       case "Common_Props_Bedroom_Mattress01.adr":
       case "Common_Props_MilitaryBase_BunkBed.adr":
         server.sendData(client, "Command.InteractionString", {

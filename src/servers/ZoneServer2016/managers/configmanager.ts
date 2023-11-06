@@ -193,6 +193,8 @@ export class ConfigManager {
       hasCustomLootRespawnTime,
       lootRespawnTimer,
       vehicleRespawnTimer,
+      waterSourceRefillAmount,
+      waterSourceReplenishTimer,
       npcRespawnTimer,
       itemDespawnTimer,
       lootDespawnTimer,
@@ -220,6 +222,9 @@ export class ConfigManager {
     server.worldObjectManager.npcSpawnRadius = npcSpawnRadius;
     server.worldObjectManager.chanceNpc = chanceNpc;
     server.worldObjectManager.chanceScreamer = chanceScreamer;
+
+    server.worldObjectManager.waterSourceReplenishTimer = waterSourceReplenishTimer;
+    server.worldObjectManager.waterSourceRefillAmount = waterSourceRefillAmount;
     //#endregion
 
     //#region speedtree
