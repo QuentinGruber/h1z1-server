@@ -876,7 +876,6 @@ export class ZoneServer2016 extends EventEmitter {
     rejectionFlag?: CONNECTION_REJECTION_FLAGS,
     message = ""
   ) {
-    console.log(message);
     this._loginConnectionManager.sendData(client, "CharacterAllowedReply", {
       reqId,
       status: status ? 1 : 0,
@@ -4381,8 +4380,6 @@ export class ZoneServer2016 extends EventEmitter {
           vehicle.state.position
         )
       ) {
-        console.log("vehicleManager", vehicle.characterId)
-        console.log(!client.spawnedEntities.has(vehicle))
         if (!client.spawnedEntities.has(vehicle)) {
           this.sendData<AddLightweightVehicle>(
             client,
@@ -7437,12 +7434,9 @@ export class ZoneServer2016 extends EventEmitter {
       this.startRoutinesLoop();
       return;
     }
-    console.log("Starting routines loop")
     for (const a in this._clients) {
-      console.log("Starting routine for client")
       const client = this._clients[a];
       if (!client.isLoading) {
-        console.log("Client is not loading")
         client.routineCounter++;
         this.constructionManager.constructionPermissionsManager(this, client);
         this.checkInMapBounds(client);
