@@ -557,6 +557,27 @@ export const commands: Array<Command> = [
     }
   },
   {
+    name: "nv",
+    permissionLevel: PermissionLevels.DEFAULT,
+    execute: (server: ZoneServer2016, client: Client, args: Array<string>) => {
+      const index = client.character.screenEffects.indexOf("NIGHTVISION");
+      if (index <= -1) {
+        if (
+          client.character._loadout[29] &&
+          client.character._loadout[29].itemDefinitionId == Items.NV_GOGGLES
+        ) {
+          client.character.screenEffects.push("NIGHTVISION");
+          server.addScreenEffect(client, server._screenEffects["NIGHTVISION"]);
+        } else {
+          server.sendChatText(client, `You dont have a NV Goggles equipped!`);
+        }
+      } else {
+        client.character.screenEffects.splice(index, 1);
+        server.removeScreenEffect(client, server._screenEffects["NIGHTVISION"]);
+      }
+    }
+  },
+  {
     name: "tp",
     permissionLevel: PermissionLevels.MODERATOR,
     execute: (server: ZoneServer2016, client: Client, args: Array<string>) => {

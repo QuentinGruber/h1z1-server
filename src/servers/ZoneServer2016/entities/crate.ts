@@ -18,6 +18,7 @@ import { containerLootSpawners } from "../data/lootspawns";
 import { getRandomItem } from "../managers/worldobjectmanager";
 import { BaseSimpleNpc } from "./basesimplenpc";
 import { Effects } from "../models/enums";
+import { CharacterRemovePlayer } from "../../../types/zone2016packets";
 
 function getActorModelId(actorModel: string): number {
   switch (actorModel) {
@@ -142,11 +143,30 @@ export class Crate extends BaseSimpleNpc {
 
     this.spawnTimestamp = Date.now() + this.respawnTime;
     this.health = this.maxHealth;
-    return server.deleteEntity(
-      this.characterId,
+    server.sendDataToAllWithSpawnedEntity<CharacterRemovePlayer>(
       server._crates,
-      Effects.PFX_Damage_Crate_01m
+      this.characterId,
+      "Character.RemovePlayer",
+      {
+        characterId: this.characterId,
+        unknownWord1: 1,
+        effectId: Effects.PFX_Damage_Crate_01m,
+        timeToDisappear: 0,
+        effectDelay: 0
+      }
     );
+
+    for (const a in server._clients) {
+      const client = server._clients[a];
+      const index = client.spawnedEntities.indexOf(
+        server._crates[this.characterId]
+      );
+      if (index > -1) {
+        client.spawnedEntities.splice(index, 1);
+      }
+    }
+    return true;
+    // crates cannot get deleted from dictionarries, need separate function to despawn
   }
 
   OnProjectileHit(server: ZoneServer2016, damageInfo: DamageInfo) {
