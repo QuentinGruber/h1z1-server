@@ -1273,7 +1273,7 @@ export const commands: Array<Command> = [
   },
   {
     name: "normalsize",
-    permissionLevel: PermissionLevels.ADMIN,
+    permissionLevel: PermissionLevels.DEFAULT,
     execute: (server: ZoneServer2016, client: Client, args: Array<string>) => {
       server.sendDataToAll("Character.UpdateScale", {
         characterId: client.character.characterId,
