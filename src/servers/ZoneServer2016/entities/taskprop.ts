@@ -16,7 +16,6 @@ import { ZoneServer2016 } from "../zoneserver";
 import { BaseLightweightCharacter } from "./baselightweightcharacter";
 import { ZoneClient2016 } from "../classes/zoneclient";
 import { randomIntFromInterval } from "../../../utils/utils";
-import { LoadoutContainer } from "../classes/loadoutcontainer";
 
 export class TaskProp extends BaseLightweightCharacter {
   detonated = false;
@@ -131,6 +130,9 @@ export class TaskProp extends BaseLightweightCharacter {
     switch (this.actorModel) {
       case "Common_Props_Bedroom_Mattress01.adr":
       case "Common_Props_MilitaryBase_BunkBed.adr":
+      case "Common_Props_Bedroom_BedCombined01.adr":
+      case "Common_Props_Bedroom_BedCombined02.adr":
+      case "Common_Props_Bedroom_BedCombined03.adr":
         server.sendData(client, "Command.InteractionString", {
           guid: this.characterId,
           stringId: StringIds.REST
@@ -156,6 +158,9 @@ export class TaskProp extends BaseLightweightCharacter {
     switch (this.actorModel) {
       case "Common_Props_Bedroom_Mattress01.adr":
       case "Common_Props_MilitaryBase_BunkBed.adr":
+      case "Common_Props_Bedroom_BedCombined01.adr":
+      case "Common_Props_Bedroom_BedCombined02.adr":
+      case "Common_Props_Bedroom_BedCombined03.adr":
         if (client.character._resources[ResourceIds.ENDURANCE] <= 3501) {
           server.utilizeHudTimer(client, StringIds.RESTING, 30000, 0, () => {
             server.sleep(client);
