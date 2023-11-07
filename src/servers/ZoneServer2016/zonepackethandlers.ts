@@ -3082,8 +3082,12 @@ export class ZonePacketHandlers {
     console.log(packet.data);
   }
 
-  VehicleItemDefinitionRequest(server: ZoneServer2016, client: Client, packet: any) {
-    debug(`VehicleItemDefinitionRequest: ${packet.data.itemDefinitionId}`)
+  VehicleItemDefinitionRequest(
+    server: ZoneServer2016,
+    client: Client,
+    packet: any
+  ) {
+    debug(`VehicleItemDefinitionRequest: ${packet.data.itemDefinitionId}`);
   }
   //#endregion
 
