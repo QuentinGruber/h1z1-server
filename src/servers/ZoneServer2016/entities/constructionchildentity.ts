@@ -430,7 +430,7 @@ export class ConstructionChildEntity extends BaseLightweightCharacter {
   }
 
   damage(server: ZoneServer2016, damageInfo: DamageInfo) {
-    switch(this.itemDefinitionId) {
+    switch (this.itemDefinitionId) {
       case Items.FOUNDATION_RAMP:
       case Items.FOUNDATION_STAIRS:
         return;
@@ -448,7 +448,7 @@ export class ConstructionChildEntity extends BaseLightweightCharacter {
       "Character.UpdateSimpleProxyHealth",
       this.pGetSimpleProxyHealth()
     );
-    
+
     if (this.health > 0) return;
     this.destroy(server, 3000);
   }

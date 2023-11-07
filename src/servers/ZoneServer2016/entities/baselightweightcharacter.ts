@@ -12,7 +12,6 @@
 // ======================================================================
 
 import { AddLightweightNpc, AddSimpleNpc } from "types/zone2016packets";
-import { DamageInfo } from "../../../types/zoneserver";
 import { ZoneServer2016 } from "../zoneserver";
 import { BaseEntity } from "./baseentity";
 

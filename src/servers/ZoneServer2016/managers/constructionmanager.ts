@@ -623,7 +623,7 @@ export class ConstructionManager {
         parentObjectCharacterId,
         freeplaceParentCharacterId
       );
-      
+
     if (
       (!!Number(parentObjectCharacterId) ||
         !!Number(freeplaceParentCharacterId)) &&
@@ -2033,7 +2033,7 @@ export class ConstructionManager {
     server.updateResource(
       client,
       entity.characterId,
-      entity.maxHealth / entity.health * 1000000,
+      (entity.maxHealth / entity.health) * 1000000,
       ResourceIds.CONSTRUCTION_CONDITION,
       ResourceTypes.CONDITION
     );
@@ -2237,7 +2237,7 @@ export class ConstructionManager {
       server.getConstructionDictionary(entity.characterId),
       entity.characterId,
       "Character.UpdateSimpleProxyHealth",
-       entity.pGetSimpleProxyHealth()
+      entity.pGetSimpleProxyHealth()
     );
     entity.isDecayProtected = true;
   }
@@ -2361,7 +2361,7 @@ export class ConstructionManager {
       );
       entity.destroy(server);
     }
-    
+
     entity.damage(server, {
       entity: "Server.DemoHammer",
       damage: entity.maxHealth / 3 + 10
@@ -2589,7 +2589,7 @@ export class ConstructionManager {
     }
 
     const constructionObject = dictionary[constructionCharId],
-    distance = getDistance(entityPosition, position);
+      distance = getDistance(entityPosition, position);
 
     constructionObject.damage(server, {
       entity: "",

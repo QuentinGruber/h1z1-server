@@ -83,7 +83,7 @@ export class ExplosiveEntity extends BaseLightweightCharacter {
       this.characterId,
       this.itemDefinitionId,
       client
-    )
+    );
   }
 
   arm(server: ZoneServer2016) {

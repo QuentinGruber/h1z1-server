@@ -91,7 +91,7 @@ export class LootableConstructionEntity extends BaseLootableEntity {
       "Character.UpdateSimpleProxyHealth",
       this.pGetSimpleProxyHealth()
     );
-    
+
     if (this.health > 0) return;
     this.destroy(server, 3000);
   }

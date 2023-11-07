@@ -944,7 +944,7 @@ export class ConstructionParentEntity extends ConstructionChildEntity {
   }
 
   damage(server: ZoneServer2016, damageInfo: DamageInfo) {
-    switch(this.itemDefinitionId) {
+    switch (this.itemDefinitionId) {
       case Items.FOUNDATION:
       case Items.FOUNDATION_EXPANSION:
       case Items.GROUND_TAMPER:

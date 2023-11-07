@@ -12,7 +12,13 @@
 // ======================================================================
 
 import { DoorEntity } from "./doorentity";
-import { ConstructionPermissionIds, Items, ResourceIds, ResourceTypes, StringIds } from "../models/enums";
+import {
+  ConstructionPermissionIds,
+  Items,
+  ResourceIds,
+  ResourceTypes,
+  StringIds
+} from "../models/enums";
 import { ZoneServer2016 } from "../zoneserver";
 import { ZoneClient2016 } from "../classes/zoneclient";
 import { DamageInfo, OccupiedSlotMap } from "types/zoneserver";
@@ -114,7 +120,7 @@ export class ConstructionDoor extends DoorEntity {
     this.health -= damageInfo.damage;
     server.updateResourceToAllWithSpawnedEntity(
       this.characterId,
-      this.health / this.maxHealth * 1000000,
+      (this.health / this.maxHealth) * 1000000,
       ResourceIds.CONSTRUCTION_CONDITION,
       ResourceTypes.CONDITION,
       server._constructionDoors
