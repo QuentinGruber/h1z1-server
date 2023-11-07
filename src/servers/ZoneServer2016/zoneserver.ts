@@ -3221,23 +3221,7 @@ export class ZoneServer2016 extends EventEmitter {
     this.speedtreeManager.customize(speedtreeDTOs);
     this.sendData<DtoObjectInitialData>(client, "DtoObjectInitialData", {
       unknownDword1: 1,
-      unknownArray1: speedtreeDTOs,
-      unknownArray2: [{}]
-    });
-
-    // split in half to fix some dtos not being updated
-    const middleIndex = Math.floor(this.staticDTOs.length / 2),
-      firstHalf = this.staticDTOs.slice(0, middleIndex),
-      secondHalf = this.staticDTOs.slice(middleIndex);
-
-    this.sendData<DtoObjectInitialData>(client, "DtoObjectInitialData", {
-      unknownDword1: 1,
-      unknownArray1: firstHalf,
-      unknownArray2: [{}]
-    });
-    this.sendData<DtoObjectInitialData>(client, "DtoObjectInitialData", {
-      unknownDword1: 1,
-      unknownArray1: secondHalf,
+      unknownArray1: [...speedtreeDTOs, this.staticDTOs],
       unknownArray2: [{}]
     });
   }
