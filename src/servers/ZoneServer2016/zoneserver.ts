@@ -6217,9 +6217,8 @@ export class ZoneServer2016 extends EventEmitter {
     });
   }
 
-  fillPass(client: Client, item: BaseItem, force = false) {
-    // TODO: implement a lookup for wells / sinks
-    if (client.character.characterStates.inWater || force) {
+  fillPass(client: Client, item: BaseItem) {
+    if (client.character.characterStates.inWater) {
       if (!this.removeInventoryItem(client.character, item)) return;
       client.character.lootContainerItem(this, this.generateItem(1368)); // give dirty water
     } else {

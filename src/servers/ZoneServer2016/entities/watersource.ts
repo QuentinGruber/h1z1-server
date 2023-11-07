@@ -11,9 +11,8 @@
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
 
-import { LoadoutContainer } from "../classes/loadoutcontainer";
 import { ZoneClient2016 } from "../classes/zoneclient";
-import { Items, StringIds } from "../models/enums";
+import { Items, ResourceIds, StringIds } from "../models/enums";
 import { ZoneServer2016 } from "../zoneserver";
 import { TaskProp } from "./taskprop";
 
@@ -44,23 +43,9 @@ export class WaterSource extends TaskProp {
                 this.usesLeft = this.refillAmount;
                 break;
             case "Common_Props_Well.adr":
-                this.usesLeft = -1;
+                this.usesLeft = 9999999;
                 break;
         }
-    }
-
-    refill(server: ZoneServer2016, client: ZoneClient2016) {
-        Object.values(client.character._containers).forEach((container: LoadoutContainer) => {
-            Object.values(container.items).forEach((item) => {
-                if (item.itemDefinitionId == Items.WATER_EMPTY) {
-                    server.utilizeHudTimer(client, StringIds.WATER_WELL, 1000, 0, () => {
-                        server.fillPass(client, item, true);
-                        if (this.usesLeft && this.usesLeft > 0) this.usesLeft--;
-                    });
-                    return;
-                }
-            });
-        });
     }
 
     OnInteractionString(server: ZoneServer2016, client: ZoneClient2016) {
@@ -70,14 +55,14 @@ export class WaterSource extends TaskProp {
                 if (this.usesLeft && this.usesLeft > 0) {
                     server.sendData(client, "Command.InteractionString", {
                         guid: this.characterId,
-                        stringId: StringIds.COLLECT_WATER
+                        stringId: client.character.hasItem(Items.WATER_EMPTY) ? StringIds.COLLECT_WATER : StringIds.DRINK_DIRTY_WATER
                     });
                 }
                 break;
             case "Common_Props_Well.adr":
                 server.sendData(client, "Command.InteractionString", {
                     guid: this.characterId,
-                    stringId: StringIds.COLLECT_WATER
+                    stringId: client.character.hasItem(Items.WATER_EMPTY) ? StringIds.COLLECT_WATER : StringIds.DRINK_STAGNANT_WATER
                 });
                 break;
         }
@@ -92,12 +77,29 @@ export class WaterSource extends TaskProp {
         switch (this.actorModel) {
             case "Common_Props_Cabinets_BathroomSink.adr":
             case "Common_Props_Bathroom_Toilet01.adr":
-                if (this.usesLeft && this.usesLeft > 0) {
-                    this.refill(server, client);
-                }
-                break;
             case "Common_Props_Well.adr":
-                this.refill(server, client);
+                const bottle = client.character.getItemById(Items.WATER_EMPTY);
+                if (this.actorModel == "Common_Props_Well.adr" || this.usesLeft && this.usesLeft > 0) {
+                    if (!bottle) {
+                        server.utilizeHudTimer(client, this.actorModel == "Common_Props_Well.adr" ? StringIds.WATER_WELL : StringIds.DIRTY_WATER, 1000, 0, () => {
+                            client.character._resources[ResourceIds.HYDRATION] += 1000;
+                            client.character.damage(server, { entity: "", damage: 1000 })
+                            server.updateResource(
+                                client,
+                                client.character.characterId,
+                                client.character._resources[ResourceIds.HYDRATION],
+                                ResourceIds.HYDRATION
+                            );
+                            if (this.usesLeft) this.usesLeft--;
+                        });
+                        return;
+                    }
+                    server.utilizeHudTimer(client, this.actorModel == "Common_Props_Well.adr" ? StringIds.WATER_WELL : StringIds.DIRTY_WATER, 1000, 0, () => {
+                        if (server.removeInventoryItem(client.character, bottle))
+                            client.character.lootContainerItem(server, server.generateItem(this.actorModel == "Common_Props_Well.adr" ? Items.WATER_STAGNANT : Items.WATER_DIRTY));
+                        if (this.usesLeft) this.usesLeft--;
+                    });
+                }
                 break;
         }
     }
