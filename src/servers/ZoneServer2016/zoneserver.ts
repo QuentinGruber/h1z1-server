@@ -3227,8 +3227,8 @@ export class ZoneServer2016 extends EventEmitter {
 
     // split in half to fix some dtos not being updated
     const middleIndex = Math.floor(this.staticDTOs.length / 2),
-    firstHalf = this.staticDTOs.slice(0, middleIndex),
-    secondHalf = this.staticDTOs.slice(middleIndex);
+      firstHalf = this.staticDTOs.slice(0, middleIndex),
+      secondHalf = this.staticDTOs.slice(middleIndex);
 
     this.sendData<DtoObjectInitialData>(client, "DtoObjectInitialData", {
       unknownDword1: 1,
