@@ -49,9 +49,7 @@ import {
   OccupiedSlotMap,
   SlottedConstructionEntity,
   CubeBounds,
-  Point3D,
-  EntityDictionary,
-  ConstructionEntity
+  Point3D
 } from "types/zoneserver";
 import {
   getConstructionSlotId,
@@ -97,6 +95,8 @@ function getMaxHealth(itemDefinitionId: Items): number {
     case Items.METAL_WALL:
     case Items.METAL_WALL_UPPER:
     case Items.METAL_DOORWAY:
+    case Items.FOUNDATION_RAMP:
+    case Items.FOUNDATION_STAIRS:
       return 1000000;
     case Items.WORKBENCH:
     case Items.WORKBENCH_WEAPON:
@@ -429,30 +429,18 @@ export class ConstructionChildEntity extends BaseLightweightCharacter {
     this.freeplaceEntities[entity.characterId] = entity;
   }
 
-  pGetConstructionHealth() {
-    return {
-      characterId: this.characterId,
-      health: this.health / 10000
-    };
-  }
   damage(server: ZoneServer2016, damageInfo: DamageInfo) {
+    switch(this.itemDefinitionId) {
+      case Items.FOUNDATION_RAMP:
+      case Items.FOUNDATION_STAIRS:
+        return;
+    }
+
     const dictionary = server.getEntityDictionary(this.characterId);
     if (!dictionary) {
       return;
     }
-    this.damageSimpleNpc(
-      server,
-      damageInfo,
-      dictionary as EntityDictionary<ConstructionEntity>
-    );
-  }
 
-  damageSimpleNpc(
-    server: ZoneServer2016,
-    damageInfo: DamageInfo,
-    dictionary: EntityDictionary<ConstructionEntity>
-  ) {
-    // todo: redo this
     this.health -= damageInfo.damage;
     server.sendDataToAllWithSpawnedEntity(
       dictionary,
@@ -460,6 +448,9 @@ export class ConstructionChildEntity extends BaseLightweightCharacter {
       "Character.UpdateSimpleProxyHealth",
       this.pGetSimpleProxyHealth()
     );
+    
+    if (this.health > 0) return;
+    this.destroy(server, 3000);
   }
 
   isInside(position: Float32Array) {

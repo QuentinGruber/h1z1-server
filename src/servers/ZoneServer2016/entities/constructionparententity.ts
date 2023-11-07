@@ -26,6 +26,7 @@ import {
   ConstructionPermissions,
   ConstructionSlotPositionMap,
   CubeBounds,
+  DamageInfo,
   OccupiedSlotMap,
   Point3D,
   SquareBounds
@@ -47,6 +48,18 @@ function getDamageRange(definitionId: number): number {
       return 3;
     default:
       return 4.5;
+  }
+}
+
+function getMaxHealth(itemDefinitionId: Items): number {
+  switch (itemDefinitionId) {
+    case Items.SHACK:
+    case Items.SHACK_SMALL:
+      return 1000000;
+    case Items.SHACK_BASIC:
+      return 250000;
+    default:
+      return 1000000;
   }
 }
 
@@ -94,7 +107,9 @@ export class ConstructionParentEntity extends ConstructionChildEntity {
       "",
       overrideEulerAngle
     );
-    this.health = 1000000;
+    this.maxHealth = getMaxHealth(itemDefinitionId);
+    this.health = this.maxHealth;
+
     this.ownerCharacterId = ownerCharacterId;
     this.useSimpleStruct = true;
     if (itemDefinitionId != Items.FOUNDATION_EXPANSION) {
@@ -926,5 +941,25 @@ export class ConstructionParentEntity extends ConstructionChildEntity {
       guid: this.characterId,
       stringId: StringIds.PERMISSIONS_TARGET
     });
+  }
+
+  damage(server: ZoneServer2016, damageInfo: DamageInfo) {
+    switch(this.itemDefinitionId) {
+      case Items.FOUNDATION:
+      case Items.FOUNDATION_EXPANSION:
+      case Items.GROUND_TAMPER:
+        return;
+    }
+
+    this.health -= damageInfo.damage;
+    server.sendDataToAllWithSpawnedEntity(
+      server._constructionFoundations,
+      this.characterId,
+      "Character.UpdateSimpleProxyHealth",
+      this.pGetSimpleProxyHealth()
+    );
+
+    if (this.health > 0) return;
+    this.destroy(server, 3000);
   }
 }

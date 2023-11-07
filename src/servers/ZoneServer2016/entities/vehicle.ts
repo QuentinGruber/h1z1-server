@@ -1222,7 +1222,7 @@ export class Vehicle2016 extends BaseLootableEntity {
     );
     const deleted = server.deleteEntity(this.characterId, server._vehicles);
     if (!disableExplosion) {
-      server.explosionDamage(this.state.position, this.characterId, "vehicle");
+      server.explosionDamage(this.state.position, this.characterId, 0);
     }
     this.state.position[1] -= 0.4;
     // fix floating vehicle lootbags

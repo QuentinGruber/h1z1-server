@@ -108,21 +108,6 @@ export abstract class BaseLightweightCharacter extends BaseEntity {
     };
   }
 
-  damageSimpleNpc(
-    server: ZoneServer2016,
-    damageInfo: DamageInfo,
-    dictionary: any
-  ) {
-    // todo: redo this
-    this.health -= damageInfo.damage;
-    server.sendDataToAllWithSpawnedEntity(
-      dictionary,
-      this.characterId,
-      "Character.UpdateSimpleProxyHealth",
-      this.pGetSimpleProxyHealth()
-    );
-  }
-
   /**
    * Gets the lightweight npc/pc packet fields for use in sendself, addlightweightnpc, or addlightweightpc
    */

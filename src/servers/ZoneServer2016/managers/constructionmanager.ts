@@ -623,7 +623,7 @@ export class ConstructionManager {
         parentObjectCharacterId,
         freeplaceParentCharacterId
       );
-
+      
     if (
       (!!Number(parentObjectCharacterId) ||
         !!Number(freeplaceParentCharacterId)) &&
@@ -859,7 +859,7 @@ export class ConstructionManager {
           modelId,
           position,
           rotation,
-          parentObjectCharacterId,
+          freeplaceParentCharacterId ?? "",
           itemDefinitionId
         );
     }
@@ -2033,7 +2033,7 @@ export class ConstructionManager {
     server.updateResource(
       client,
       entity.characterId,
-      entity.health,
+      entity.maxHealth / entity.health * 1000000,
       ResourceIds.CONSTRUCTION_CONDITION,
       ResourceTypes.CONDITION
     );
@@ -2223,22 +2223,6 @@ export class ConstructionManager {
         damage
       };
     entity.damage(server, damageInfo);
-    if (entity.useSimpleStruct) {
-      server.sendDataToAllWithSpawnedEntity<CharacterUpdateSimpleProxyHealth>(
-        server.getConstructionDictionary(entity.characterId),
-        entity.characterId,
-        "Character.UpdateSimpleProxyHealth",
-        entity.pGetSimpleProxyHealth()
-      );
-    } else {
-      server.updateResourceToAllWithSpawnedEntity(
-        entity.characterId,
-        entity.health,
-        ResourceIds.CONSTRUCTION_CONDITION,
-        ResourceTypes.CONDITION,
-        server.getConstructionDictionary(entity.characterId)
-      );
-    }
   }
 
   public fullyRepairConstruction(
@@ -2249,22 +2233,12 @@ export class ConstructionManager {
       | LootableConstructionEntity
   ) {
     entity.health = entity.maxHealth;
-    if (entity.useSimpleStruct) {
-      server.sendDataToAllWithSpawnedEntity<CharacterUpdateSimpleProxyHealth>(
-        server.getConstructionDictionary(entity.characterId),
-        entity.characterId,
-        "Character.UpdateSimpleProxyHealth",
-        entity.pGetSimpleProxyHealth()
-      );
-    } else {
-      server.updateResourceToAllWithSpawnedEntity(
-        entity.characterId,
-        entity.health,
-        ResourceIds.CONSTRUCTION_CONDITION,
-        ResourceTypes.CONDITION,
-        server.getConstructionDictionary(entity.characterId)
-      );
-    }
+    server.sendDataToAllWithSpawnedEntity<CharacterUpdateSimpleProxyHealth>(
+      server.getConstructionDictionary(entity.characterId),
+      entity.characterId,
+      "Character.UpdateSimpleProxyHealth",
+       entity.pGetSimpleProxyHealth()
+    );
     entity.isDecayProtected = true;
   }
 
@@ -2361,7 +2335,7 @@ export class ConstructionManager {
       case Items.GROUND_TAMPER:
       case Items.FOUNDATION_RAMP:
       case Items.FOUNDATION_STAIRS:
-        return true;
+        return;
     }
 
     const permission = entity.getHasPermission(
@@ -2376,7 +2350,7 @@ export class ConstructionManager {
         client,
         ConstructionErrors.DEMOLISH_PERMISSION
       );
-      return true;
+      return;
     }
 
     if (entity.canUndoPlacement(server, client)) {
@@ -2387,28 +2361,12 @@ export class ConstructionManager {
       );
       entity.destroy(server);
     }
-
-    const damageInfo: DamageInfo = {
+    
+    entity.damage(server, {
       entity: "Server.DemoHammer",
       damage: entity.maxHealth / 3 + 10
-    };
-    if (entity instanceof ConstructionParentEntity) {
-      entity.damageSimpleNpc(
-        server,
-        damageInfo,
-        server._constructionFoundations
-      );
-    } else if (entity instanceof ConstructionChildEntity) {
-      entity.damageSimpleNpc(server, damageInfo, server._constructionSimple);
-    } else if (entity instanceof ConstructionDoor) {
-      entity.damageSimpleNpc(server, damageInfo, server._constructionDoors);
-    } else if (entity instanceof LootableConstructionEntity) {
-      entity.damageSimpleNpc(server, damageInfo, server._lootableConstruction);
-    }
+    });
     server.damageItem(client, weaponItem, 50);
-
-    if (entity.health > 0) return true;
-    entity.destroy(server);
   }
 
   hammerConstructionEntity(
@@ -2613,69 +2571,32 @@ export class ConstructionManager {
     dictionary: EntityDictionary<ConstructionEntity>,
     position: Float32Array,
     entityPosition: Float32Array,
-    source: string
+    itemDefinitionId: number
   ) {
-    switch (source) {
-      case "vehicle":
+    switch (itemDefinitionId) {
+      case Items.IED:
+      case Items.LANDMINE:
+        break; // use base damage
+      case Items.FUEL_ETHANOL:
+        damage /= 2.7;
+        break;
+      case Items.FUEL_BIOFUEL:
+        damage /= 3;
+        break;
+      default: // vehicles
         damage /= 12;
         break;
-      case "ethanol":
-        damage /= 3.2;
-        break;
-      case "fuel":
-        damage /= 6;
-        break;
     }
-    const constructionObject: ConstructionEntity =
-      dictionary[constructionCharId];
 
-    // todo: move this to construction classes
-    switch (constructionObject.itemDefinitionId) {
-      case Items.DOOR_METAL:
-        damage *= 1.45;
-        break;
-      case Items.DOOR_WOOD:
-        damage *= 2;
-        break;
-      case Items.SHACK_BASIC:
-      case Items.DOOR_BASIC:
-        damage *= 4;
-        break;
-      default:
-        damage *= 0.8;
-        break;
-    }
-    const distance = getDistance(entityPosition, position);
-    if (constructionObject.useSimpleStruct) {
-      constructionObject.damageSimpleNpc(
-        server,
-        {
-          entity: "",
-          damage:
-            distance < constructionObject.damageRange
-              ? damage
-              : damage / Math.sqrt(distance)
-        },
-        dictionary
-      );
-    } else {
-      constructionObject.damage(server, {
-        entity: "",
-        damage:
-          distance < constructionObject.damageRange
-            ? damage
-            : damage / Math.sqrt(distance)
-      });
-      server.updateResourceToAllWithSpawnedEntity(
-        constructionObject.characterId,
-        constructionObject.health,
-        ResourceIds.CONSTRUCTION_CONDITION,
-        ResourceTypes.CONDITION,
-        dictionary
-      );
-    }
-    if (constructionObject.health > 0) return;
+    const constructionObject = dictionary[constructionCharId],
+    distance = getDistance(entityPosition, position);
 
-    constructionObject.destroy(server, 3000);
+    constructionObject.damage(server, {
+      entity: "",
+      damage:
+        distance < constructionObject.damageRange
+          ? damage
+          : damage / Math.sqrt(distance)
+    });
   }
 }

@@ -2169,14 +2169,14 @@ export class ZoneServer2016 extends EventEmitter {
   async explosionDamage(
     position: Float32Array,
     npcTriggered: string,
-    source: string,
+    itemDefinitionId: number,
     client?: Client
   ) {
     // TODO: REDO THIS WITH AN OnExplosiveDamage method per class
 
     // TODO: REDO THIS WITH GRID CHUNK SYSTEM
 
-    const sourceEntity = this.getEntity(source),
+    const sourceEntity = this.getEntity(npcTriggered),
       sourceIsVehicle = sourceEntity instanceof Vehicle2016;
 
     for (const characterId in this._characters) {
@@ -2217,6 +2217,8 @@ export class ZoneServer2016 extends EventEmitter {
       }
     }
 
+    const baseConstructionDamage = 34000;
+
     for (const construction in this._constructionSimple) {
       const constructionObject = this._constructionSimple[construction];
       if (
@@ -2246,13 +2248,13 @@ export class ZoneServer2016 extends EventEmitter {
           this.constructionManager.checkConstructionDamage(
             this,
             constructionObject.characterId,
-            50000,
+            baseConstructionDamage,
             this._constructionSimple,
             position,
             constructionObject.fixedPosition
               ? constructionObject.fixedPosition
               : constructionObject.state.position,
-            source
+            itemDefinitionId
           );
         }
       }
@@ -2284,13 +2286,13 @@ export class ZoneServer2016 extends EventEmitter {
           this.constructionManager.checkConstructionDamage(
             this,
             constructionObject.characterId,
-            50000,
+            baseConstructionDamage,
             this._constructionDoors,
             position,
             constructionObject.fixedPosition
               ? constructionObject.fixedPosition
               : constructionObject.state.position,
-            source
+            itemDefinitionId
           );
         }
       }
@@ -2314,11 +2316,11 @@ export class ZoneServer2016 extends EventEmitter {
             this.constructionManager.checkConstructionDamage(
               this,
               constructionObject.characterId,
-              50000,
+              baseConstructionDamage,
               this._constructionFoundations,
               position,
               constructionObject.state.position,
-              source
+              itemDefinitionId
             );
             break;
         }
@@ -2340,11 +2342,11 @@ export class ZoneServer2016 extends EventEmitter {
         this.constructionManager.checkConstructionDamage(
           this,
           constructionObject.characterId,
-          50000,
+          baseConstructionDamage,
           this._lootableConstruction,
           position,
           constructionObject.state.position,
-          source
+          itemDefinitionId
         );
       }
     }
@@ -2357,11 +2359,11 @@ export class ZoneServer2016 extends EventEmitter {
         this.constructionManager.checkConstructionDamage(
           this,
           constructionObject.characterId,
-          50000,
+          baseConstructionDamage,
           this._worldLootableConstruction,
           position,
           constructionObject.state.position,
-          source
+          itemDefinitionId
         );
       }
     }
@@ -2374,11 +2376,11 @@ export class ZoneServer2016 extends EventEmitter {
         this.constructionManager.checkConstructionDamage(
           this,
           constructionObject.characterId,
-          50000,
+          baseConstructionDamage,
           this._worldSimpleConstruction,
           position,
           constructionObject.state.position,
-          source
+          itemDefinitionId
         );
       }
     }
