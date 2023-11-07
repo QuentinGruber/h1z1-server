@@ -249,7 +249,15 @@ export const vehiclePackets: PacketStructures = [
       ]
     }
   ],
-  ["Vehicle.ItemDefinitionRequest", 0x8928, {}],
+  [
+    "Vehicle.ItemDefinitionRequest", 
+    0x8928, 
+    {
+      fields: [
+        { name: "itemDefinitionId", type: "uint32", defaultValue: 0 },
+      ]
+    }
+  ],
   ["Vehicle.ItemDefinitionReply", 0x8929, {}],
   [
     "Vehicle.InventoryItems",

@@ -3081,6 +3081,10 @@ export class ZonePacketHandlers {
     console.log(`ProjectileDebug from ${client.character.characterId}`);
     console.log(packet.data);
   }
+
+  VehicleItemDefinitionRequest(server: ZoneServer2016, client: Client, packet: any) {
+    debug(`VehicleItemDefinitionRequest: ${packet.data.itemDefinitionId}`)
+  }
   //#endregion
 
   processPacket(
@@ -3314,6 +3318,9 @@ export class ZonePacketHandlers {
         break;
       case "ProjectileDebug":
         this.ProjectileDebug(server, client, packet);
+        break;
+      case "Vehicle.ItemDefinitionRequest":
+        this.VehicleItemDefinitionRequest(server, client, packet);
         break;
       default:
         debug(packet);
