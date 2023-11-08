@@ -63,6 +63,7 @@ import {
   HudIndicator,
   ItemDefinition,
   modelData,
+  PropInstance,
   Recipe,
   ScreenEffect,
   UseOption
@@ -379,6 +380,7 @@ export class ZoneServer2016 extends EventEmitter {
   abortShutdown: boolean = false;
   shutdownStarted: boolean = false;
   isLocked: boolean = false;
+  staticDTOs: Array<PropInstance> = [];
 
   /* MANAGED BY CONFIGMANAGER */
   proximityItemsDistance!: number;
@@ -876,7 +878,6 @@ export class ZoneServer2016 extends EventEmitter {
     rejectionFlag?: CONNECTION_REJECTION_FLAGS,
     message = ""
   ) {
-    console.log(message);
     this._loginConnectionManager.sendData(client, "CharacterAllowedReply", {
       reqId,
       status: status ? 1 : 0,
@@ -1440,6 +1441,8 @@ export class ZoneServer2016 extends EventEmitter {
     this.worldObjectManager.createProps(this);
 
     await this.pluginManager.initializePlugins(this);
+
+    this.customizeStaticDTOs();
 
     this._ready = true;
     console.log(
@@ -2973,7 +2976,7 @@ export class ZoneServer2016 extends EventEmitter {
         message: "ProjectileDistance"
       };
     }
-    if (!client.spawnedEntities.includes(entity)) {
+    if (!client.spawnedEntities.has(entity)) {
       return {
         isValid: false,
         message: "InvalidTarget"
@@ -2982,7 +2985,7 @@ export class ZoneServer2016 extends EventEmitter {
 
     const target = this.getClientByCharId(entity.characterId);
     if (target) {
-      if (!target.spawnedEntities.includes(client.character)) {
+      if (!target.spawnedEntities.has(client.character)) {
         return {
           isValid: false,
           message: "InvalidTarget"
@@ -3170,50 +3173,56 @@ export class ZoneServer2016 extends EventEmitter {
     }
   }
 
-  customizeDTO(client: Client) {
-    const DTOArray: Array<any> = [];
+  customizeStaticDTOs() {
+    console.time("customizeStaticDTOs");
+    // caches DTOs that should always be removed
     for (const object in this._lootableProps) {
       const prop = this._lootableProps[object];
       const propInstance = {
         objectId: prop.spawnerId,
-        unknownString1: "Weapon_Empty.adr"
+        replacementModel: "Weapon_Empty.adr"
       };
-      DTOArray.push(propInstance);
+      this.staticDTOs.push(propInstance);
     }
     for (const object in this._taskProps) {
       const prop = this._taskProps[object];
       const propInstance = {
         objectId: prop.spawnerId,
-        unknownString1: "Weapon_Empty.adr"
+        replacementModel: "Weapon_Empty.adr"
       };
-      DTOArray.push(propInstance);
+      this.staticDTOs.push(propInstance);
     }
     for (const object in this._crates) {
       const prop = this._crates[object];
       const propInstance = {
         objectId: prop.spawnerId,
-        unknownString1: "Weapon_Empty.adr"
+        replacementModel: "Weapon_Empty.adr"
       };
-      DTOArray.push(propInstance);
+      this.staticDTOs.push(propInstance);
     }
     for (let x = 0; x < this._destroyableDTOlist.length; x++) {
       const propInstance = {
         objectId: this._destroyableDTOlist[x],
-        unknownString1: "Weapon_Empty.adr"
+        replacementModel: "Weapon_Empty.adr"
       };
-      DTOArray.push(propInstance);
+      this.staticDTOs.push(propInstance);
     }
-    this.speedtreeManager.customize(DTOArray);
     deprecatedDoors.forEach((door: number) => {
       const DTOinstance = {
         objectId: door,
-        unknownString1: "Weapon_Empty.adr"
+        replacementModel: "Weapon_Empty.adr"
       };
-      DTOArray.push(DTOinstance);
+      this.staticDTOs.push(DTOinstance);
     });
+    console.timeEnd("customizeStaticDTOs");
+  }
+
+  customizeDTO(client: Client) {
+    const speedtreeDTOs: Array<PropInstance> = [];
+    this.speedtreeManager.customize(speedtreeDTOs);
     this.sendData<DtoObjectInitialData>(client, "DtoObjectInitialData", {
       unknownDword1: 1,
-      unknownArray1: DTOArray,
+      unknownArray1: [...speedtreeDTOs, ...this.staticDTOs],
       unknownArray2: [{}]
     });
   }
@@ -3234,17 +3243,14 @@ export class ZoneServer2016 extends EventEmitter {
 
   private removeOutOfDistanceEntities(client: Client) {
     // does not include vehicles
-    const objectsToRemove = client.spawnedEntities.filter((e) =>
-      this.shouldRemoveEntity(client, e)
-    );
-    client.spawnedEntities = client.spawnedEntities.filter((el) => {
-      return !objectsToRemove.includes(el);
-    });
-    objectsToRemove.forEach((object) => {
-      this.sendData<CharacterRemovePlayer>(client, "Character.RemovePlayer", {
-        characterId: object.characterId
-      });
-    });
+    for (const entity of client.spawnedEntities) {
+      if (this.shouldRemoveEntity(client, entity)) {
+        this.sendData<CharacterRemovePlayer>(client, "Character.RemovePlayer", {
+          characterId: entity.characterId
+        });
+        client.spawnedEntities.delete(entity);
+      }
+    }
   }
 
   private removeOODInteractionData(client: Client) {
@@ -3291,10 +3297,7 @@ export class ZoneServer2016 extends EventEmitter {
 
     for (const a in this._clients) {
       const client = this._clients[a];
-      const index = client.spawnedEntities.indexOf(dictionary[characterId]);
-      if (index > -1) {
-        client.spawnedEntities.splice(index, 1);
-      }
+      client.spawnedEntities.delete(dictionary[characterId]);
     }
     delete dictionary[characterId];
     delete this._transientIds[this._characterIds[characterId]];
@@ -3329,9 +3332,9 @@ export class ZoneServer2016 extends EventEmitter {
 
   spawnSimpleNpcForAllInRange(entity: BaseSimpleNpc) {
     this.executeFuncForAllReadyClientsInRange((client) => {
-      if (!client.spawnedEntities.includes(entity)) {
+      if (!client.spawnedEntities.has(entity)) {
         this.addSimpleNpc(client, entity);
-        client.spawnedEntities.push(entity);
+        client.spawnedEntities.add(entity);
       }
     }, entity);
   }
@@ -3374,7 +3377,7 @@ export class ZoneServer2016 extends EventEmitter {
           client.character.state.position,
           characterObj.state.position
         ) &&
-        !client.spawnedEntities.includes(characterObj) &&
+        !client.spawnedEntities.has(characterObj) &&
         characterObj.isAlive &&
         !characterObj.isSpectator &&
         (characterObj.isHidden == client.character.isHidden ||
@@ -3386,7 +3389,7 @@ export class ZoneServer2016 extends EventEmitter {
           "AddLightweightPc",
           characterObj.pGetLightweightPC(this, this._clients[c])
         );
-        client.spawnedEntities.push(this._characters[characterObj.characterId]);
+        client.spawnedEntities.add(this._characters[characterObj.characterId]);
       }
     }
   }
@@ -3402,7 +3405,7 @@ export class ZoneServer2016 extends EventEmitter {
           character.state.position,
           c.character.state.position
         ) &&
-        !c.spawnedEntities.includes(character) &&
+        !c.spawnedEntities.has(character) &&
         character != c.character
       ) {
         this.sendData<AddLightweightPc>(
@@ -3410,7 +3413,7 @@ export class ZoneServer2016 extends EventEmitter {
           "AddLightweightPc",
           character.pGetLightweightPC(this, client)
         );
-        c.spawnedEntities.push(character);
+        c.spawnedEntities.add(character);
       }
     }
   }
@@ -3453,7 +3456,7 @@ export class ZoneServer2016 extends EventEmitter {
             position,
             object.state.position
           ) ||
-          client.spawnedEntities.includes(object)
+          client.spawnedEntities.has(object)
         ) {
           continue;
         }
@@ -3468,12 +3471,12 @@ export class ZoneServer2016 extends EventEmitter {
           if (object instanceof Crate && object.spawnTimestamp > Date.now()) {
             continue;
           }
-          client.spawnedEntities.push(object);
+          client.spawnedEntities.add(object);
           this.addSimpleNpc(client, object);
           continue;
         }
 
-        client.spawnedEntities.push(object);
+        client.spawnedEntities.add(object);
         if (object instanceof BaseLightweightCharacter) {
           if (object.useSimpleStruct) {
             this.addSimpleNpc(client, object);
@@ -3526,13 +3529,14 @@ export class ZoneServer2016 extends EventEmitter {
         ) {
           continue;
         }
-        if (client.spawnedEntities.includes(object)) continue;
+
+        if (client.spawnedEntities.has(object)) continue;
 
         if (object instanceof BaseSimpleNpc) {
           if (object instanceof Crate && object.spawnTimestamp > Date.now()) {
             continue;
           }
-          client.spawnedEntities.push(object);
+          client.spawnedEntities.add(object);
           this.addSimpleNpc(client, object);
           continue;
         }
@@ -3541,7 +3545,7 @@ export class ZoneServer2016 extends EventEmitter {
           object instanceof BaseLightweightCharacter &&
           object.useSimpleStruct
         ) {
-          client.spawnedEntities.push(object);
+          client.spawnedEntities.add(object);
           this.addSimpleNpc(client, object);
         }
       }
@@ -4055,7 +4059,7 @@ export class ZoneServer2016 extends EventEmitter {
     for (const a in this._clients) {
       if (
         client != this._clients[a] &&
-        this._clients[a].spawnedEntities.includes(
+        this._clients[a].spawnedEntities.has(
           this._characters[entityCharacterId]
         )
       ) {
@@ -4388,7 +4392,7 @@ export class ZoneServer2016 extends EventEmitter {
           vehicle.state.position
         )
       ) {
-        if (!client.spawnedEntities.includes(vehicle)) {
+        if (!client.spawnedEntities.has(vehicle)) {
           this.sendData<AddLightweightVehicle>(
             client,
             "AddLightweightVehicle",
@@ -4421,7 +4425,7 @@ export class ZoneServer2016 extends EventEmitter {
             characterId: client.character.characterId,
             passengers: vehicle.pGetPassengers(this),
           });*/
-          client.spawnedEntities.push(vehicle);
+          client.spawnedEntities.add(vehicle);
         }
         // disable managing vehicles with routine, leaving only managed when entering it
         /*if (!vehicle.isManaged) {
@@ -4437,8 +4441,8 @@ export class ZoneServer2016 extends EventEmitter {
       ) {
         // vehicle despawning / managed object drop logic
 
-        const index = client.spawnedEntities.indexOf(vehicle);
-        if (index > -1) {
+        const vehicleExist = client.spawnedEntities.has(vehicle);
+        if (vehicleExist) {
           if (vehicle.isManaged) {
             this.dropManagedObject(client, vehicle);
           }
@@ -4449,7 +4453,7 @@ export class ZoneServer2016 extends EventEmitter {
               characterId: vehicle.characterId
             }
           );
-          client.spawnedEntities.splice(index, 1);
+          client.spawnedEntities.delete(vehicle);
         }
       }
     }
@@ -4602,9 +4606,7 @@ export class ZoneServer2016 extends EventEmitter {
     if (!entityCharacterId) return;
     for (const a in this._clients) {
       if (
-        this._clients[a].spawnedEntities.includes(
-          dictionary[entityCharacterId]
-        ) ||
+        this._clients[a].spawnedEntities.has(dictionary[entityCharacterId]) ||
         this._clients[a].character.characterId == entityCharacterId
       ) {
         this.sendData<ZonePacket>(this._clients[a], packetName, obj);
@@ -4642,7 +4644,7 @@ export class ZoneServer2016 extends EventEmitter {
     for (const a in this._clients) {
       if (
         client != this._clients[a] &&
-        this._clients[a].spawnedEntities.includes(dictionary[entityCharacterId])
+        this._clients[a].spawnedEntities.has(dictionary[entityCharacterId])
       ) {
         this.sendData<ZonePacket>(this._clients[a], packetName, obj);
       }
@@ -5785,7 +5787,7 @@ export class ZoneServer2016 extends EventEmitter {
 
     if (!obj) return;
     this.executeFuncForAllReadyClientsInRange((c) => {
-      c.spawnedEntities.push(obj);
+      c.spawnedEntities.add(obj);
       this.addLightweightNpc(c, obj);
     }, obj);
   }

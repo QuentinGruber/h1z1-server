@@ -51,6 +51,8 @@ interface WorldObjectsConfig {
   hasCustomLootRespawnTime: boolean;
   lootRespawnTimer: number;
   vehicleRespawnTimer: number;
+  waterSourceReplenishTimer: number;
+  waterSourceRefillAmount: number;
   npcRespawnTimer: number;
 
   itemDespawnTimer: number;

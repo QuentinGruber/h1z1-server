@@ -107,7 +107,7 @@ export const commands: Array<Command> = [
     execute: (server: ZoneServer2016, client: Client, args: Array<string>) => {
       server.sendChatText(
         client,
-        `Spawned entities count : ${client.spawnedEntities.length}`
+        `Spawned entities count : ${client.spawnedEntities.size}`
       );
     }
   },
@@ -498,14 +498,11 @@ export const commands: Array<Command> = [
       }
       for (const a in server._clients) {
         const iteratedClient = server._clients[a];
-        if (iteratedClient.spawnedEntities.includes(client.character)) {
+        if (iteratedClient.spawnedEntities.has(client.character)) {
           server.sendData(iteratedClient, "Character.RemovePlayer", {
             characterId: client.character.characterId
           });
-          iteratedClient.spawnedEntities.splice(
-            iteratedClient.spawnedEntities.indexOf(client.character),
-            1
-          );
+          iteratedClient.spawnedEntities.delete(client.character);
         }
       }
       server.sendData(client, "Spectator.Enable", {});
@@ -1311,7 +1308,7 @@ export const commands: Array<Command> = [
         if (object.characterId == client.character.characterId) return;
         server.despawnEntity(object.characterId);
       });
-      client.spawnedEntities = [];
+      client.spawnedEntities = new Set();
       server._lootableProps = {};
       server._npcs = {};
       server._spawnedItems = {};
@@ -2454,14 +2451,11 @@ export const commands: Array<Command> = [
       if (client.character.isSpectator) {
         for (const a in server._clients) {
           const iteratedClient = server._clients[a];
-          if (iteratedClient.spawnedEntities.includes(client.character)) {
+          if (iteratedClient.spawnedEntities.has(client.character)) {
             server.sendData(iteratedClient, "Character.RemovePlayer", {
               characterId: client.character.characterId
             });
-            iteratedClient.spawnedEntities.splice(
-              iteratedClient.spawnedEntities.indexOf(client.character),
-              1
-            );
+            iteratedClient.spawnedEntities.delete(client.character);
           }
         }
         server.sendData(client, "Spectator.Enable", {});
@@ -2593,14 +2587,11 @@ export const commands: Array<Command> = [
       if (client.character.isSpectator) {
         for (const a in server._clients) {
           const iteratedClient = server._clients[a];
-          if (iteratedClient.spawnedEntities.includes(client.character)) {
+          if (iteratedClient.spawnedEntities.has(client.character)) {
             server.sendData(iteratedClient, "Character.RemovePlayer", {
               characterId: client.character.characterId
             });
-            iteratedClient.spawnedEntities.splice(
-              iteratedClient.spawnedEntities.indexOf(client.character),
-              1
-            );
+            iteratedClient.spawnedEntities.delete(client.character);
           }
         }
         server.sendData(client, "Spectator.Enable", {});

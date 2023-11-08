@@ -75,6 +75,9 @@ worldobjects:
   chanceNpc: 100 # To be reworked: 100 max
   chanceScreamer: 5 # To be reworked: 1000 max
 
+  waterSourceRefillAmount: 2
+  waterSourceReplenishTimer: 300000 # 5 minutes
+
 # Trees, blackberry bushes, and sticks
 speedtree:
   minBlackberryHarvest: 1

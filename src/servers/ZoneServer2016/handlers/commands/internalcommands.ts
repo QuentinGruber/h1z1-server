@@ -71,14 +71,11 @@ export const internalCommands: Array<InternalCommand> = [
         );
         for (const a in server._clients) {
           const iteratedClient = server._clients[a];
-          if (iteratedClient.spawnedEntities.includes(client.character)) {
+          if (iteratedClient.spawnedEntities.has(client.character)) {
             server.sendData(iteratedClient, "Character.RemovePlayer", {
               characterId: client.character.characterId
             });
-            iteratedClient.spawnedEntities.splice(
-              iteratedClient.spawnedEntities.indexOf(client.character),
-              1
-            );
+            iteratedClient.spawnedEntities.delete(client.character);
           }
         }
         server.sendData(client, "Spectator.Enable", {});
