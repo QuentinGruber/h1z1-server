@@ -1840,6 +1840,7 @@ export class ZoneServer2016 extends EventEmitter {
   }
 
   private worldRoutine() {
+    const startTime = Date.now();
     if (!this.hookManager.checkHook("OnWorldRoutine")) return;
     else {
       if (this._ready) {
@@ -1856,6 +1857,13 @@ export class ZoneServer2016 extends EventEmitter {
           this.saveWorld();
         }
       }
+    }
+    const endTime = Date.now();
+    const timeTaken = endTime - startTime;
+    if (timeTaken > this.worldRoutineRate) {
+      console.log(
+        `World routine took ${timeTaken}ms, expected max ${this.worldRoutineRate}ms.`
+      );
     }
     this.worldRoutineTimer.refresh();
   }
@@ -7466,6 +7474,7 @@ export class ZoneServer2016 extends EventEmitter {
       return;
     }
     for (const a in this._clients) {
+      const startTime = Date.now();
       const client = this._clients[a];
       if (!client.isLoading) {
         client.routineCounter++;
@@ -7485,6 +7494,13 @@ export class ZoneServer2016 extends EventEmitter {
         this.spawnGridObjects(client);
         this.constructionManager.worldConstructionManager(this, client);
         client.posAtLastRoutine = client.character.state.position;
+      }
+      const endTime = Date.now();
+      const timeTaken = endTime - startTime;
+      if (timeTaken > this.tickRate) {
+        console.log(
+          `Routine took ${timeTaken}ms to execute, which is more than the tickRate ${this.tickRate}`
+        );
       }
       await Scheduler.wait(this.tickRate);
     }
