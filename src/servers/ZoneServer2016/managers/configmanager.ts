@@ -223,7 +223,8 @@ export class ConfigManager {
     server.worldObjectManager.chanceNpc = chanceNpc;
     server.worldObjectManager.chanceScreamer = chanceScreamer;
 
-    server.worldObjectManager.waterSourceReplenishTimer = waterSourceReplenishTimer;
+    server.worldObjectManager.waterSourceReplenishTimer =
+      waterSourceReplenishTimer;
     server.worldObjectManager.waterSourceRefillAmount = waterSourceRefillAmount;
     //#endregion
 

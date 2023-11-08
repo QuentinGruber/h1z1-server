@@ -17,90 +17,138 @@ import { ZoneServer2016 } from "../zoneserver";
 import { TaskProp } from "./taskprop";
 
 export class WaterSource extends TaskProp {
-    usesLeft?: number;
-    refillAmount!: number;
-    constructor(
-        characterId: string,
-        transientId: number,
-        actorModelId: number,
-        position: Float32Array,
-        rotation: Float32Array,
-        server: ZoneServer2016,
-        scale: Float32Array,
-        zoneId: number,
-        renderDistance: number,
-        actorModel: string,
-        refillAmount: number
-    ) {
-        super(characterId, transientId, actorModelId, position, rotation, server, scale, zoneId, renderDistance, actorModel);
-        this.refillAmount = refillAmount;
+  usesLeft?: number;
+  refillAmount!: number;
+  constructor(
+    characterId: string,
+    transientId: number,
+    actorModelId: number,
+    position: Float32Array,
+    rotation: Float32Array,
+    server: ZoneServer2016,
+    scale: Float32Array,
+    zoneId: number,
+    renderDistance: number,
+    actorModel: string,
+    refillAmount: number
+  ) {
+    super(
+      characterId,
+      transientId,
+      actorModelId,
+      position,
+      rotation,
+      server,
+      scale,
+      zoneId,
+      renderDistance,
+      actorModel
+    );
+    this.refillAmount = refillAmount;
+  }
+
+  replenish() {
+    switch (this.actorModel) {
+      case "Common_Props_Cabinets_BathroomSink.adr":
+      case "Common_Props_Bathroom_Toilet01.adr":
+        this.usesLeft = this.refillAmount;
+        break;
+      case "Common_Props_Well.adr":
+        this.usesLeft = 9999999;
+        break;
+    }
+  }
+
+  OnInteractionString(server: ZoneServer2016, client: ZoneClient2016) {
+    switch (this.actorModel) {
+      case "Common_Props_Cabinets_BathroomSink.adr":
+      case "Common_Props_Bathroom_Toilet01.adr":
+        if (this.usesLeft && this.usesLeft > 0) {
+          server.sendData(client, "Command.InteractionString", {
+            guid: this.characterId,
+            stringId: client.character.hasItem(Items.WATER_EMPTY)
+              ? StringIds.COLLECT_WATER
+              : StringIds.DRINK_DIRTY_WATER
+          });
+        }
+        break;
+      case "Common_Props_Well.adr":
+        server.sendData(client, "Command.InteractionString", {
+          guid: this.characterId,
+          stringId: client.character.hasItem(Items.WATER_EMPTY)
+            ? StringIds.COLLECT_WATER
+            : StringIds.DRINK_STAGNANT_WATER
+        });
+        break;
+    }
+  }
+
+  /* eslint-disable @typescript-eslint/no-unused-vars */
+  OnPlayerSelect(
+    server: ZoneServer2016,
+    client: ZoneClient2016
+    /* eslint-enable @typescript-eslint/no-unused-vars */
+  ) {
+    switch (this.actorModel) {
+      case "Common_Props_Cabinets_BathroomSink.adr":
+      case "Common_Props_Bathroom_Toilet01.adr":
+      case "Common_Props_Well.adr":
+        break;
+      default:
+        return;
+    }
+    const bottle = client.character.getItemById(Items.WATER_EMPTY),
+      hasUses =
+        this.actorModel == "Common_Props_Well.adr" ||
+        (this.usesLeft && this.usesLeft > 0);
+    if (!hasUses) {
+      server.utilizeHudTimer(client, StringIds.DIRTY_WATER, 250, 0, () => {
+        server.sendAlert(client, "This water source is dry.");
+      });
+      return;
     }
 
-    replenish() {
-        switch (this.actorModel) {
-            case "Common_Props_Cabinets_BathroomSink.adr":
-            case "Common_Props_Bathroom_Toilet01.adr":
-                this.usesLeft = this.refillAmount;
-                break;
-            case "Common_Props_Well.adr":
-                this.usesLeft = 9999999;
-                break;
+    if (!bottle) {
+      server.utilizeHudTimer(
+        client,
+        this.actorModel == "Common_Props_Well.adr"
+          ? StringIds.WATER_WELL
+          : StringIds.DIRTY_WATER,
+        1000,
+        0,
+        () => {
+          client.character._resources[ResourceIds.HYDRATION] += 1000;
+          client.character.damage(server, { entity: "", damage: 1000 });
+          server.updateResource(
+            client,
+            client.character.characterId,
+            client.character._resources[ResourceIds.HYDRATION],
+            ResourceIds.HYDRATION
+          );
+          if (this.usesLeft) this.usesLeft--;
         }
+      );
+      return;
     }
-
-    OnInteractionString(server: ZoneServer2016, client: ZoneClient2016) {
-        switch (this.actorModel) {
-            case "Common_Props_Cabinets_BathroomSink.adr":
-            case "Common_Props_Bathroom_Toilet01.adr":
-                if (this.usesLeft && this.usesLeft > 0) {
-                    server.sendData(client, "Command.InteractionString", {
-                        guid: this.characterId,
-                        stringId: client.character.hasItem(Items.WATER_EMPTY) ? StringIds.COLLECT_WATER : StringIds.DRINK_DIRTY_WATER
-                    });
-                }
-                break;
-            case "Common_Props_Well.adr":
-                server.sendData(client, "Command.InteractionString", {
-                    guid: this.characterId,
-                    stringId: client.character.hasItem(Items.WATER_EMPTY) ? StringIds.COLLECT_WATER : StringIds.DRINK_STAGNANT_WATER
-                });
-                break;
-        }
-    }
-
-    /* eslint-disable @typescript-eslint/no-unused-vars */
-    OnPlayerSelect(
-        server: ZoneServer2016,
-        client: ZoneClient2016,
-        /* eslint-enable @typescript-eslint/no-unused-vars */
-    ) {
-        switch (this.actorModel) {
-            case "Common_Props_Cabinets_BathroomSink.adr":
-            case "Common_Props_Bathroom_Toilet01.adr":
-            case "Common_Props_Well.adr":
-                const bottle = client.character.getItemById(Items.WATER_EMPTY);
-                if (this.actorModel == "Common_Props_Well.adr" || this.usesLeft && this.usesLeft > 0) {
-                    if (!bottle) {
-                        server.utilizeHudTimer(client, this.actorModel == "Common_Props_Well.adr" ? StringIds.WATER_WELL : StringIds.DIRTY_WATER, 1000, 0, () => {
-                            client.character._resources[ResourceIds.HYDRATION] += 1000;
-                            client.character.damage(server, { entity: "", damage: 1000 })
-                            server.updateResource(
-                                client,
-                                client.character.characterId,
-                                client.character._resources[ResourceIds.HYDRATION],
-                                ResourceIds.HYDRATION
-                            );
-                            if (this.usesLeft) this.usesLeft--;
-                        });
-                        return;
-                    }
-                    server.utilizeHudTimer(client, this.actorModel == "Common_Props_Well.adr" ? StringIds.WATER_WELL : StringIds.DIRTY_WATER, 1000, 0, () => {
-                        if (server.removeInventoryItem(client.character, bottle))
-                            client.character.lootContainerItem(server, server.generateItem(this.actorModel == "Common_Props_Well.adr" ? Items.WATER_STAGNANT : Items.WATER_DIRTY));
-                        if (this.usesLeft) this.usesLeft--;
-                    });
-                }
-                break;
-        }
-    }
+    server.utilizeHudTimer(
+      client,
+      this.actorModel == "Common_Props_Well.adr"
+        ? StringIds.WATER_WELL
+        : StringIds.DIRTY_WATER,
+      1000,
+      0,
+      () => {
+        if (!server.removeInventoryItem(client.character, bottle)) return;
+        client.character.lootContainerItem(
+          server,
+          server.generateItem(
+            this.actorModel == "Common_Props_Well.adr"
+              ? Items.WATER_STAGNANT
+              : Items.WATER_DIRTY
+          )
+        );
+        if (this.usesLeft) this.usesLeft--;
+      }
+    );
+  }
 }

@@ -189,7 +189,10 @@ export class WorldObjectManager {
       this.createVehicles(server);
       this._lastVehicleRespawnTime = Date.now();
     }
-    if (this._lastWaterSourceReplenishTime + this.waterSourceReplenishTimer <= Date.now()) {
+    if (
+      this._lastWaterSourceReplenishTime + this.waterSourceReplenishTimer <=
+      Date.now()
+    ) {
       this.replenishWaterSources(server);
       this._lastWaterSourceReplenishTime = Date.now();
     }

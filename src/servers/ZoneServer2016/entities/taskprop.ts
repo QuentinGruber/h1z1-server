@@ -148,7 +148,6 @@ export class TaskProp extends BaseLightweightCharacter {
         });
         break;
     }
-
   }
   /* eslint-disable @typescript-eslint/no-unused-vars */
   OnPlayerSelect(
@@ -181,7 +180,9 @@ export class TaskProp extends BaseLightweightCharacter {
         const itemCount = randomIntFromInterval(2, 4);
         for (let x = 0; x < itemCount; x++) {
           const item =
-            this.rewardItems[randomIntFromInterval(0, this.rewardItems.length - 1)];
+            this.rewardItems[
+              randomIntFromInterval(0, this.rewardItems.length - 1)
+            ];
           itemsPassed.push({
             itemDefinitionId: item,
             count: this.getRewardItemCount(item)
