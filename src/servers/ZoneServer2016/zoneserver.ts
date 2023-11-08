@@ -3221,7 +3221,7 @@ export class ZoneServer2016 extends EventEmitter {
     this.speedtreeManager.customize(speedtreeDTOs);
     this.sendData<DtoObjectInitialData>(client, "DtoObjectInitialData", {
       unknownDword1: 1,
-      unknownArray1: [...speedtreeDTOs, this.staticDTOs],
+      unknownArray1: [...speedtreeDTOs, ...this.staticDTOs],
       unknownArray2: [{}]
     });
   }
