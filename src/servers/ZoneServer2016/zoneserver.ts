@@ -63,6 +63,7 @@ import {
   HudIndicator,
   ItemDefinition,
   modelData,
+  PropInstance,
   Recipe,
   ScreenEffect,
   UseOption
@@ -379,6 +380,7 @@ export class ZoneServer2016 extends EventEmitter {
   abortShutdown: boolean = false;
   shutdownStarted: boolean = false;
   isLocked: boolean = false;
+  staticDTOs: Array<PropInstance> = [];
 
   /* MANAGED BY CONFIGMANAGER */
   proximityItemsDistance!: number;
@@ -1439,6 +1441,8 @@ export class ZoneServer2016 extends EventEmitter {
     this.worldObjectManager.createProps(this);
 
     await this.pluginManager.initializePlugins(this);
+
+    this.customizeStaticDTOs();
 
     this._ready = true;
     console.log(
@@ -3167,50 +3171,56 @@ export class ZoneServer2016 extends EventEmitter {
     }
   }
 
-  customizeDTO(client: Client) {
-    const DTOArray: Array<any> = [];
+  customizeStaticDTOs() {
+    console.time("customizeStaticDTOs");
+    // caches DTOs that should always be removed
     for (const object in this._lootableProps) {
       const prop = this._lootableProps[object];
       const propInstance = {
         objectId: prop.spawnerId,
-        unknownString1: "Weapon_Empty.adr"
+        replacementModel: "Weapon_Empty.adr"
       };
-      DTOArray.push(propInstance);
+      this.staticDTOs.push(propInstance);
     }
     for (const object in this._taskProps) {
       const prop = this._taskProps[object];
       const propInstance = {
         objectId: prop.spawnerId,
-        unknownString1: "Weapon_Empty.adr"
+        replacementModel: "Weapon_Empty.adr"
       };
-      DTOArray.push(propInstance);
+      this.staticDTOs.push(propInstance);
     }
     for (const object in this._crates) {
       const prop = this._crates[object];
       const propInstance = {
         objectId: prop.spawnerId,
-        unknownString1: "Weapon_Empty.adr"
+        replacementModel: "Weapon_Empty.adr"
       };
-      DTOArray.push(propInstance);
+      this.staticDTOs.push(propInstance);
     }
     for (let x = 0; x < this._destroyableDTOlist.length; x++) {
       const propInstance = {
         objectId: this._destroyableDTOlist[x],
-        unknownString1: "Weapon_Empty.adr"
+        replacementModel: "Weapon_Empty.adr"
       };
-      DTOArray.push(propInstance);
+      this.staticDTOs.push(propInstance);
     }
-    this.speedtreeManager.customize(DTOArray);
     deprecatedDoors.forEach((door: number) => {
       const DTOinstance = {
         objectId: door,
-        unknownString1: "Weapon_Empty.adr"
+        replacementModel: "Weapon_Empty.adr"
       };
-      DTOArray.push(DTOinstance);
+      this.staticDTOs.push(DTOinstance);
     });
+    console.timeEnd("customizeStaticDTOs");
+  }
+
+  customizeDTO(client: Client) {
+    const speedtreeDTOs: Array<PropInstance> = [];
+    this.speedtreeManager.customize(speedtreeDTOs);
     this.sendData<DtoObjectInitialData>(client, "DtoObjectInitialData", {
       unknownDword1: 1,
-      unknownArray1: DTOArray,
+      unknownArray1: [...speedtreeDTOs, this.staticDTOs],
       unknownArray2: [{}]
     });
   }
