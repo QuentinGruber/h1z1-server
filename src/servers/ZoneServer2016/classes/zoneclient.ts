@@ -62,7 +62,7 @@ export class ZoneClient2016 {
   };
   hudTimer?: NodeJS.Timeout | null;
   spawnedDTOs: any[] = [];
-  spawnedEntities: BaseEntity[] = [];
+  spawnedEntities: Set<BaseEntity> = new Set();
   sentInteractionData: BaseEntity[] = [];
   searchedProps: (LootableProp | Lootbag)[] = [];
   managedObjects: string[] = [];
@@ -117,7 +117,7 @@ export class ZoneClient2016 {
     this.isLoading = true;
     this.firstLoading = true;
     this.loginSessionId = loginSessionId;
-    this.spawnedEntities = [];
+    this.spawnedEntities = new Set();
     this.managedObjects = [];
     this.clearTimers = () => {
       clearTimeout(this.npcsToSpawnTimer);

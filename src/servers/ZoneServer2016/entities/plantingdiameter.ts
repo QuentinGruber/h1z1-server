@@ -32,7 +32,7 @@ export class PlantingDiameter extends TemporaryEntity {
     this.npcRenderDistance = 30;
   }
 
-  destroy(server: ZoneServer2016) {
+  destroy(server: ZoneServer2016): boolean {
     for (const plant of Object.values(this.seedSlots)) {
       plant.destroy(server);
     }
