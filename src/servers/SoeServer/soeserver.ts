@@ -120,6 +120,7 @@ export class SOEServer extends EventEmitter {
   }
 
   private soeRoutine(): void {
+    const startTime = Date.now();
     for (const client of this._clients.values()) {
       this.soeClientRoutine(client);
     }
@@ -127,6 +128,13 @@ export class SOEServer extends EventEmitter {
       () => this.soeRoutine(),
       this._routineTiming
     );
+    const endTime = Date.now();
+    const timeTaken = endTime - startTime;
+    if (timeTaken > this._routineTiming) {
+      console.log(
+        `SOE routine took ${timeTaken}ms to execute, which is more than the routine timing of ${this._routineTiming}ms`
+      );
+    }
   }
 
   // Executed at the same rate for every client
