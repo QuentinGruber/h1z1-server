@@ -2071,7 +2071,7 @@ export class ConstructionManager {
     client: Client,
     entity: LootableConstructionEntity
   ) {
-    if (client.spawnedEntities.add(entity)) return;
+    if (client.spawnedEntities.has(entity)) return;
     server.addSimpleNpc(client, entity);
     client.spawnedEntities.add(entity);
   }
