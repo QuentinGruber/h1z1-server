@@ -691,11 +691,12 @@ export class Character2016 extends BaseFullCharacter {
     client: ZoneClient2016
   ): AddLightweightPc {
     const vehicleId = client.vehicle.mountedVehicle,
-      vehicle = vehicleId ? server._vehicles[vehicleId] : false;
+      vehicle = server._vehicles[vehicleId ?? ""],
+      mountSeatId = vehicle?.getCharacterSeat(this.characterId);
     return {
       ...this.pGetLightweight(),
       mountGuid: vehicleId || "",
-      mountSeatId: vehicle ? vehicle.getCharacterSeat(this.characterId) : 0,
+      mountSeatId: mountSeatId == -1 ? 0 : mountSeatId,
       mountRelatedDword1: vehicle ? 1 : 0,
       flags1: {
         isAdmin: client.isAdmin ? 1 : 0

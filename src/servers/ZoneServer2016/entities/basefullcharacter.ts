@@ -1221,6 +1221,10 @@ export abstract class BaseFullCharacter extends BaseLightweightCharacter {
     return slot.itemDefinitionId >= 0 && itemDef.ITEM_CLASS == 25041;
   }
 
+  hasItem(item: Items): boolean {
+    return this.getItemById(item) != undefined;
+  }
+
   OnFullCharacterDataRequest(server: ZoneServer2016, client: ZoneClient2016) {
     console.log(
       `[ERROR] Unhandled FullCharacterDataRequest from client ${client.guid}!`
