@@ -18,7 +18,6 @@ import { ZoneClient2016 } from "../classes/zoneclient";
 import { randomIntFromInterval } from "../../../utils/utils";
 
 export class TaskProp extends BaseLightweightCharacter {
-  detonated = false;
   actorModel: string;
   spawnerId: number;
   requiredItemId: number = 0;
