@@ -20,6 +20,7 @@ export enum ItemUseOptions {
   DROP = 4,
   SHRED = 6,
   UNLOAD = 7,
+  UNPACK = 10,
   IGNITE = 11,
   REPAIR = 16,
   REFUEL = 17,
@@ -324,6 +325,11 @@ export enum Items {
   AMMO_ARROW = 112,
   AMMO_ARROW_EXPLOSIVE = 138,
   AMMO_ARROW_FLAMING = 1434,
+  //#endregion
+
+  //#region AMMO_BOX
+  AMMO_BOX_223 = 1430,
+  AMMO_BOX_45 = 8,
   //#endregion
 
   //#region PERISHABLE
