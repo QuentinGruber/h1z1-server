@@ -556,3 +556,8 @@ export interface ItemDefinition {
 }
 
 export type EntityDictionary<Entity> = { [characterId: string]: Entity};
+
+export interface PropInstance {
+  objectId: number,
+  replacementModel: string
+}
