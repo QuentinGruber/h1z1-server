@@ -13,10 +13,11 @@
 
 import { DamageInfo } from "types/zoneserver";
 import { getDistance, randomIntFromInterval } from "../../../utils/utils";
-import { Items } from "../models/enums";
+import { Effects, Items } from "../models/enums";
 import { ZoneServer2016 } from "../zoneserver";
 import { BaseLightweightCharacter } from "./baselightweightcharacter";
 import { ZoneClient2016 } from "../classes/zoneclient";
+import { CharacterPlayWorldCompositeEffect } from "types/zone2016packets";
 
 export class ExplosiveEntity extends BaseLightweightCharacter {
   itemDefinitionId: number;
@@ -50,22 +51,28 @@ export class ExplosiveEntity extends BaseLightweightCharacter {
     if (!this.isIED()) {
       return;
     }
-    server.sendDataToAllWithSpawnedEntity(
+    const pos = this.state.position;
+    server.sendDataToAllWithSpawnedEntity<CharacterPlayWorldCompositeEffect>(
       server._explosives,
       this.characterId,
-      "Command.PlayDialogEffect",
+      "Character.PlayWorldCompositeEffect",
       {
         characterId: this.characterId,
-        effectId: 5034
+        effectId: Effects.PFX_Fire_Lighter,
+        position: new Float32Array([pos[0], pos[1] + 0.1, pos[2], 1]),
+        effectTime: 8
       }
     );
-    server.sendDataToAllWithSpawnedEntity(
+
+    server.sendDataToAllWithSpawnedEntity<CharacterPlayWorldCompositeEffect>(
       server._explosives,
       this.characterId,
-      "Command.PlayDialogEffect",
+      "Character.PlayWorldCompositeEffect",
       {
         characterId: this.characterId,
-        effectId: 185
+        effectId: Effects.EFX_Candle_Flame_01,
+        position: new Float32Array([pos[0], pos[1] + 0.1, pos[2], 1]),
+        effectTime: 8
       }
     );
     setTimeout(() => {
@@ -78,20 +85,12 @@ export class ExplosiveEntity extends BaseLightweightCharacter {
     this.detonated = true;
     server.sendCompositeEffectToAllInRange(600, "", this.state.position, 1875);
     server.deleteEntity(this.characterId, server._explosives);
-    client
-      ? server.explosionDamage(
-          this.state.position,
-          this.characterId,
-          server.getItemDefinition(this.itemDefinitionId)?.NAME ??
-            "".toLowerCase(),
-          client
-        )
-      : server.explosionDamage(
-          this.state.position,
-          this.characterId,
-          server.getItemDefinition(this.itemDefinitionId)?.NAME ??
-            "".toLowerCase()
-        );
+    server.explosionDamage(
+      this.state.position,
+      this.characterId,
+      this.itemDefinitionId,
+      client
+    );
   }
 
   arm(server: ZoneServer2016) {

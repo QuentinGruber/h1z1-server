@@ -518,12 +518,12 @@ export const characterPackets: PacketStructures = [
     0x0f43,
     {
       fields: [
-        { name: "characterId", type: "uint64string", defaultValue: 0 },
+        { name: "characterId", type: "uint64string", defaultValue: "" },
         { name: "effectId", type: "uint32", defaultValue: 0 },
         {
           name: "position",
           type: "floatvector4",
-          defaultValue: [0, 0, 0, 0]
+          defaultValue: [0, 0, 0, 1]
         },
         { name: "effectTime", type: "float", defaultValue: 0 }
       ]

@@ -12,7 +12,6 @@
 // ======================================================================
 
 import { AddLightweightNpc, AddSimpleNpc } from "types/zone2016packets";
-import { DamageInfo } from "../../../types/zoneserver";
 import { ZoneServer2016 } from "../zoneserver";
 import { BaseEntity } from "./baseentity";
 
@@ -106,21 +105,6 @@ export abstract class BaseLightweightCharacter extends BaseEntity {
       characterId: this.characterId,
       healthPercentage: (this.health / this.maxHealth) * 100
     };
-  }
-
-  damageSimpleNpc(
-    server: ZoneServer2016,
-    damageInfo: DamageInfo,
-    dictionary: any
-  ) {
-    // todo: redo this
-    this.health -= damageInfo.damage;
-    server.sendDataToAllWithSpawnedEntity(
-      dictionary,
-      this.characterId,
-      "Character.UpdateSimpleProxyHealth",
-      this.pGetSimpleProxyHealth()
-    );
   }
 
   /**

@@ -132,32 +132,10 @@ export class DecayManager {
       return;
     }
 
-    const dictionary = server.getConstructionDictionary(entity.characterId);
-    if (!dictionary[entity.characterId]) return;
-    if (entity.useSimpleStruct) {
-      entity.damageSimpleNpc(
-        server,
-        {
-          entity: "Server.DecayManager",
-          damage: entity.maxHealth / this.ticksToFullDecay
-        },
-        dictionary
-      );
-    } else {
-      entity.damage(server, {
-        entity: "Server.DecayManager",
-        damage: entity.maxHealth / this.ticksToFullDecay
-      });
-    }
-    server.updateResourceToAllWithSpawnedEntity(
-      entity.characterId,
-      entity.health,
-      ResourceIds.CONSTRUCTION_CONDITION,
-      ResourceTypes.CONDITION,
-      dictionary
-    );
-    if (entity.health > 0) return;
-    entity.destroy(server);
+    entity.damage(server, {
+      entity: "Server.DecayManager",
+      damage: entity.maxHealth / this.ticksToFullDecay
+    });
   }
 
   // uses repair box if one is detected on the base and it has the required materials
