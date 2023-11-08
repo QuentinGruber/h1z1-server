@@ -45,7 +45,7 @@ export class GroupManager {
       const client = server.getClientByCharId(a);
       if (
         !client ||
-        !client.spawnedEntities.includes(excludedClient.character) ||
+        !client.spawnedEntities.has(excludedClient.character) ||
         client == excludedClient
       )
         continue;
@@ -68,7 +68,7 @@ export class GroupManager {
       const target = server.getClientByCharId(a);
       if (
         !target ||
-        !client.spawnedEntities.includes(target.character) ||
+        !client.spawnedEntities.has(target.character) ||
         client == target
       )
         continue;
@@ -104,7 +104,7 @@ export class GroupManager {
         const target = server.getClientByCharId(a);
         if (
           !target ||
-          !client.spawnedEntities.includes(target.character) ||
+          !client.spawnedEntities.has(target.character) ||
           client == target
         )
           continue;
