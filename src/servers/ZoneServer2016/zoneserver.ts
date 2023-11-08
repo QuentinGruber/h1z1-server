@@ -2342,17 +2342,33 @@ export class ZoneServer2016 extends EventEmitter {
                 constructionObject.state.position,
                 itemDefinitionId
               );
+              break;
           }
         }
-        this.constructionManager.checkConstructionDamage(
-          this,
-          constructionObject.characterId,
-          baseConstructionDamage,
-          this._lootableConstruction,
-          position,
-          constructionObject.state.position,
-          itemDefinitionId
-        );
+      }
+
+      for (const construction in this._lootableConstruction) {
+        const constructionObject = this._lootableConstruction[
+          construction
+        ] as LootableConstructionEntity;
+        if (isPosInRadius(2, constructionObject.state.position, position)) {
+          const parent = constructionObject.getParent(this);
+          if (parent && parent.isSecured) {
+            if (client) {
+              this.constructionManager.sendBaseSecuredMessage(this, client);
+            }
+            continue;
+          }
+          this.constructionManager.checkConstructionDamage(
+            this,
+            constructionObject.characterId,
+            baseConstructionDamage,
+            this._lootableConstruction,
+            position,
+            constructionObject.state.position,
+            itemDefinitionId
+          );
+        }
       }
 
       for (const construction in this._worldLootableConstruction) {
@@ -2370,44 +2386,40 @@ export class ZoneServer2016 extends EventEmitter {
             itemDefinitionId
           );
         }
+      }
 
-        for (const construction in this._worldSimpleConstruction) {
-          const constructionObject = this._worldSimpleConstruction[
-            construction
-          ] as ConstructionChildEntity;
-          if (isPosInRadius(4, constructionObject.state.position, position)) {
-            this.constructionManager.checkConstructionDamage(
-              this,
-              constructionObject.characterId,
-              baseConstructionDamage,
-              this._worldSimpleConstruction,
-              position,
-              constructionObject.state.position,
-              itemDefinitionId
-            );
-          }
+      for (const construction in this._worldSimpleConstruction) {
+        const constructionObject = this._worldSimpleConstruction[
+          construction
+        ] as ConstructionChildEntity;
+        if (isPosInRadius(4, constructionObject.state.position, position)) {
+          this.constructionManager.checkConstructionDamage(
+            this,
+            constructionObject.characterId,
+            baseConstructionDamage,
+            this._worldSimpleConstruction,
+            position,
+            constructionObject.state.position,
+            itemDefinitionId
+          );
         }
-
-        for (const explosive in this._explosives) {
-          const explosiveObj = this._explosives[explosive];
-          if (explosiveObj.characterId != npcTriggered) {
-            if (getDistance(position, explosiveObj.state.position) < 2) {
-              await Scheduler.wait(100);
-              if (this._spawnedItems[explosiveObj.characterId]) {
-                const object = this._spawnedItems[explosiveObj.characterId];
-                this.deleteEntity(explosiveObj.characterId, this._spawnedItems);
-                delete this.worldObjectManager.spawnedLootObjects[
-                  object.spawnerId
-                ];
-              }
-              if (!explosiveObj.detonated) explosiveObj.detonate(this, client);
-            }
+      }
+    }
+    for (const explosive in this._explosives) {
+      const explosiveObj = this._explosives[explosive];
+      if (explosiveObj.characterId != npcTriggered) {
+        if (getDistance(position, explosiveObj.state.position) < 2) {
+          await Scheduler.wait(100);
+          if (this._spawnedItems[explosiveObj.characterId]) {
+            const object = this._spawnedItems[explosiveObj.characterId];
+            this.deleteEntity(explosiveObj.characterId, this._spawnedItems);
+            delete this.worldObjectManager.spawnedLootObjects[object.spawnerId];
           }
+          if (!explosiveObj.detonated) explosiveObj.detonate(this, client);
         }
       }
     }
   }
-
   createProjectileNpc(client: Client, data: any) {
     const fireHint = client.fireHints[data.projectileId];
     if (!fireHint) return;
