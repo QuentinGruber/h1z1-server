@@ -2258,7 +2258,6 @@ export class ZonePacketHandlers {
         break;
       case ItemUseOptions.UNPACK:
         server.useAmmoBox(client, item);
-        //TODO: Use a timer maybe?
         break;
       case ItemUseOptions.REPAIR:
         const repairItem = character.getInventoryItem(
