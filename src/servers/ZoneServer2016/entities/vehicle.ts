@@ -484,6 +484,7 @@ export class Vehicle2016 extends BaseLootableEntity {
   }
 
   damage(server: ZoneServer2016, damageInfo: DamageInfo) {
+    if (server.isPvE && damageInfo.hitReport?.characterId) return;
     if (this.isInvulnerable) return;
     const oldHealth = this._resources[ResourceIds.CONDITION];
     this._resources[ResourceIds.CONDITION] -= damageInfo.damage;

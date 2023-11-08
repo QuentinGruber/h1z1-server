@@ -941,6 +941,12 @@ export class Character2016 extends BaseFullCharacter {
   }
 
   damage(server: ZoneServer2016, damageInfo: DamageInfo) {
+    if (
+      server.isPvE &&
+      damageInfo.hitReport?.characterId &&
+      server._characters[damageInfo.hitReport?.characterId]
+    )
+      return;
     const client = server.getClientByCharId(this.characterId),
       damage = damageInfo.damage,
       oldHealth = this._resources[ResourceIds.HEALTH];
