@@ -393,6 +393,7 @@ export class ZoneServer2016 extends EventEmitter {
   enableLoginServerKickRequests!: boolean;
   rebootTime!: number; // in hours
   rebootWarnTime!: number; // in seconds
+  isPvE: boolean = true; // TODO: make this configurable
   /*                          */
 
   constructor(
@@ -2192,6 +2193,13 @@ export class ZoneServer2016 extends EventEmitter {
 
     for (const characterId in this._characters) {
       const character = this._characters[characterId];
+      // If PvE, only damage the character that triggered the explosion
+      if (
+        this.isPvE &&
+        client &&
+        character.characterId !== client.character.characterId
+      )
+        continue;
       if (
         isPosInRadiusWithY(
           sourceIsVehicle ? 5 : 3,
@@ -2406,7 +2414,7 @@ export class ZoneServer2016 extends EventEmitter {
             this.deleteEntity(explosiveObj.characterId, this._spawnedItems);
             delete this.worldObjectManager.spawnedLootObjects[object.spawnerId];
           }
-          if (!explosiveObj.detonated) explosiveObj.detonate(this);
+          if (!explosiveObj.detonated) explosiveObj.detonate(this, client);
         }
       }
     }
