@@ -6106,6 +6106,25 @@ export class ZoneServer2016 extends EventEmitter {
     }, 600000);
   }
 
+  useAmmoBox(client: Client, item: BaseItem) {
+    const itemDef = this.getItemDefinition(item.itemDefinitionId);
+    if (!this.removeInventoryItem(client.character, item) || !itemDef) return;
+
+    this.utilizeHudTimer(client, itemDef.NAME_ID, 5000, 0, () => {
+      switch (item.itemDefinitionId) {
+        case Items.AMMO_BOX_223:
+          client.character.lootItem(
+            this,
+            this.generateItem(Items.AMMO_223, 60)
+          );
+          break;
+        case Items.AMMO_BOX_45:
+          client.character.lootItem(this, this.generateItem(Items.AMMO_45, 60));
+          break;
+      }
+    });
+  }
+
   useConsumable(client: Client, item: BaseItem, animationId: number) {
     const itemDef = this.getItemDefinition(item.itemDefinitionId);
     if (!itemDef) return;
