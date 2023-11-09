@@ -1536,8 +1536,8 @@ export class ZoneServer2016 extends EventEmitter {
     if (!(await this.hookManager.checkAsyncHook("OnServerInit"))) return;
 
     await this.setupServer();
-    if(this.isPvE){
-      console.log("Server in PvE mode")
+    if (this.isPvE) {
+      console.log("Server in PvE mode");
     }
 
     this.fairPlayManager.decryptFairPlayValues();
