@@ -393,7 +393,7 @@ export class ZoneServer2016 extends EventEmitter {
   enableLoginServerKickRequests!: boolean;
   rebootTime!: number; // in hours
   rebootWarnTime!: number; // in seconds
-  isPvE: boolean = true; // TODO: make this configurable
+  isPvE!: boolean;
   /*                          */
 
   constructor(
@@ -1536,6 +1536,9 @@ export class ZoneServer2016 extends EventEmitter {
     if (!(await this.hookManager.checkAsyncHook("OnServerInit"))) return;
 
     await this.setupServer();
+    if(this.isPvE){
+      console.log("Server in PvE mode")
+    }
 
     this.fairPlayManager.decryptFairPlayValues();
     this._spawnGrid = this.divideMapIntoSpawnGrid(7448, 7448, 744);

@@ -26,6 +26,7 @@ interface ServerConfig {
   enableLoginServerKickRequests: boolean;
   rebootTime: number;
   rebootWarnTime: number;
+  isPvE: boolean;
 }
 
 interface FairplayConfig {

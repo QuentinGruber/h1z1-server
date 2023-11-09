@@ -143,7 +143,8 @@ export class ConfigManager {
       adminMessage,
       enableLoginServerKickRequests,
       rebootTime,
-      rebootWarnTime
+      rebootWarnTime,
+      isPvE
     } = this.config.server;
     server.proximityItemsDistance = proximityItemsDistance;
     server.interactionDistance = interactionDistance;
@@ -155,6 +156,7 @@ export class ConfigManager {
     server.enableLoginServerKickRequests = enableLoginServerKickRequests;
     server.rebootTime = rebootTime;
     server.rebootWarnTime = rebootWarnTime;
+    server.isPvE = isPvE;
     //#endregion
 
     //#region fairplay
