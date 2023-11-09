@@ -9,6 +9,7 @@ server:
   enableLoginServerKickRequests: true
   rebootTime: 72 # hours (0 to disable)
   rebootWarnTime: 600 # seconds
+  isPvE: false 
 
 # Fairplay / anticheat config
 fairplay:
