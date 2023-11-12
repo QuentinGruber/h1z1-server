@@ -60,6 +60,7 @@ import { Crate } from "../entities/crate";
 import { Destroyable } from "../entities/destroyable";
 import { CharacterPlayWorldCompositeEffect } from "types/zone2016packets";
 import { WaterSource } from "../entities/watersource";
+import { TreasureChest } from "../entities/treasurechest";
 const debug = require("debug")("ZoneServer");
 
 function getRandomSkin(itemDefinitionId: number) {
@@ -136,6 +137,8 @@ export class WorldObjectManager {
   npcSpawnRadius!: number;
   chanceNpc!: number;
   chanceScreamer!: number;
+
+  chanceWornLetter!: number;
 
   waterSourceReplenishTimer!: number;
   waterSourceRefillAmount!: number;
@@ -342,6 +345,28 @@ export class WorldObjectManager {
   }
 
   createLootbag(server: ZoneServer2016, entity: BaseFullCharacter) {
+    if (entity instanceof Zombie) {
+      //TODO: Probably should rework this?
+      const wornLetters = [
+        Items.WORN_LETTER_CHURCH_PV,
+        Items.WORN_LETTER_LJ_PV,
+        Items.WORN_LETTER_MISTY_DAM,
+        Items.WORN_LETTER_RADIO,
+        Items.WORN_LETTER_RUBY_LAKE,
+        Items.WORN_LETTER_TOXIC_LAKE,
+        Items.WORN_LETTER_VILLAS,
+        Items.WORN_LETTER_WATER_TOWER
+      ];
+
+      const shouldGenerateWornLetter = Math.floor(Math.random() * 100) + 1 <= this.chanceWornLetter;
+      if (shouldGenerateWornLetter) {
+        const randomIndex = randomIntFromInterval(0, wornLetters.length - 1);
+        const randomWornLetter = wornLetters[randomIndex];
+        const newItem = server.generateItem(randomWornLetter, 1);
+        entity.lootItem(server, newItem);
+      }
+    }
+
     const characterId = generateRandomGuid(),
       isCharacter = !!server._characters[entity.characterId],
       items = entity.getDeathItems(server);
@@ -425,7 +450,7 @@ export class WorldObjectManager {
         if (container) {
           const experimental =
             experimentalWeapons[
-              Math.floor(Math.random() * experimentalWeapons.length)
+            Math.floor(Math.random() * experimentalWeapons.length)
             ];
           server.addContainerItem(
             lootbag,
@@ -444,7 +469,7 @@ export class WorldObjectManager {
         if (container) {
           const experimental =
             experimentalWeapons[
-              Math.floor(Math.random() * experimentalWeapons.length)
+            Math.floor(Math.random() * experimentalWeapons.length)
             ];
           server.addContainerItem(
             lootbag,
@@ -513,6 +538,21 @@ export class WorldObjectManager {
         const characterId = generateRandomGuid();
         let obj;
         switch (propType.actor_file) {
+          case "Common_Props_TreasureChest.adr":
+            obj = new TreasureChest(
+              characterId,
+              server.getTransientId(characterId), // need transient generated for Interaction Replication
+              propType.modelId,
+              propInstance.position,
+              fixEulerOrder(propInstance.rotation),
+              server,
+              propInstance.scale,
+              propInstance.id,
+              propType.renderDistance,
+              propType.actor_file,
+              propInstance.chestId
+            );
+            break;
           case "Common_Props_Cabinets_BathroomSink.adr":
           case "Common_Props_Bathroom_Toilet01.adr":
           case "Common_Props_Well.adr":
@@ -762,7 +802,7 @@ export class WorldObjectManager {
           this.createZombie(
             server,
             authorizedModelId[
-              Math.floor(Math.random() * authorizedModelId.length)
+            Math.floor(Math.random() * authorizedModelId.length)
             ],
             npcInstance.position,
             new Float32Array(eul2quat(npcInstance.rotation)),
@@ -824,8 +864,8 @@ export class WorldObjectManager {
             if (chance <= item.weight) {
               const count = Math.floor(
                 Math.random() *
-                  (item.spawnCount.max - item.spawnCount.min + 1) +
-                  item.spawnCount.min
+                (item.spawnCount.max - item.spawnCount.min + 1) +
+                item.spawnCount.min
               );
               // temporary spawnchance
               server.addContainerItem(
