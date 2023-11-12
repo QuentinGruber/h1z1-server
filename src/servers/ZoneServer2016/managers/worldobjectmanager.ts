@@ -358,7 +358,8 @@ export class WorldObjectManager {
         Items.WORN_LETTER_WATER_TOWER
       ];
 
-      const shouldGenerateWornLetter = Math.floor(Math.random() * 100) + 1 <= this.chanceWornLetter;
+      const shouldGenerateWornLetter =
+        Math.floor(Math.random() * 100) + 1 <= this.chanceWornLetter;
       if (shouldGenerateWornLetter) {
         const randomIndex = randomIntFromInterval(0, wornLetters.length - 1);
         const randomWornLetter = wornLetters[randomIndex];
@@ -450,7 +451,7 @@ export class WorldObjectManager {
         if (container) {
           const experimental =
             experimentalWeapons[
-            Math.floor(Math.random() * experimentalWeapons.length)
+              Math.floor(Math.random() * experimentalWeapons.length)
             ];
           server.addContainerItem(
             lootbag,
@@ -469,7 +470,7 @@ export class WorldObjectManager {
         if (container) {
           const experimental =
             experimentalWeapons[
-            Math.floor(Math.random() * experimentalWeapons.length)
+              Math.floor(Math.random() * experimentalWeapons.length)
             ];
           server.addContainerItem(
             lootbag,
@@ -802,7 +803,7 @@ export class WorldObjectManager {
           this.createZombie(
             server,
             authorizedModelId[
-            Math.floor(Math.random() * authorizedModelId.length)
+              Math.floor(Math.random() * authorizedModelId.length)
             ],
             npcInstance.position,
             new Float32Array(eul2quat(npcInstance.rotation)),
@@ -864,8 +865,8 @@ export class WorldObjectManager {
             if (chance <= item.weight) {
               const count = Math.floor(
                 Math.random() *
-                (item.spawnCount.max - item.spawnCount.min + 1) +
-                item.spawnCount.min
+                  (item.spawnCount.max - item.spawnCount.min + 1) +
+                  item.spawnCount.min
               );
               // temporary spawnchance
               server.addContainerItem(
