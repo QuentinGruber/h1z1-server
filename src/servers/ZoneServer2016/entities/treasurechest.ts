@@ -105,12 +105,10 @@ export class TreasureChest extends TaskProp {
       });
     }
   }
-  /* eslint-disable @typescript-eslint/no-unused-vars */
+
   OnPlayerSelect(
     server: ZoneServer2016,
-    client: ZoneClient2016,
-    isInstant?: boolean
-    /* eslint-enable @typescript-eslint/no-unused-vars */
+    client: ZoneClient2016
   ) {
     if (!this.requiredItemId) return;
     const removedItem = client.character.getItemById(this.requiredItemId);
