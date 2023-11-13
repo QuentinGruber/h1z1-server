@@ -22,7 +22,7 @@ services:
         - '1115:1115/udp'
         - '1117:1117/udp'
         - '27017:27017/tcp'
-    image: mongo:latest
+    image: mongo:7.0.0
     restart: unless-stopped
     volumes:
       - mongodb-data:/data/db
