@@ -106,10 +106,7 @@ export class TreasureChest extends TaskProp {
     }
   }
 
-  OnPlayerSelect(
-    server: ZoneServer2016,
-    client: ZoneClient2016
-  ) {
+  OnPlayerSelect(server: ZoneServer2016, client: ZoneClient2016) {
     if (!this.requiredItemId) return;
     const removedItem = client.character.getItemById(this.requiredItemId);
     if (!removedItem) return;
