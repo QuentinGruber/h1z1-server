@@ -1885,8 +1885,8 @@ export class ZonePacketHandlers {
     client: Client,
     packet: ReceivedPacket<CharacterWeaponStance>
   ) {
-    const stance = packet.data.stance || -1;
-    if (stance == -1) return;
+    const stance = packet.data.stance;
+    if (typeof stance !== "number") return;
     if (client.character.positionUpdate) {
       client.character.weaponStance = stance;
     }
