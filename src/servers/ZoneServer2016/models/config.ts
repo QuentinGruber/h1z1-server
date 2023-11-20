@@ -27,6 +27,7 @@ interface ServerConfig {
   rebootTime: number;
   rebootWarnTime: number;
   isPvE: boolean;
+  baseConstructionDamage: number;
 }
 
 interface FairplayConfig {

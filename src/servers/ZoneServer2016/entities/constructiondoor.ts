@@ -25,6 +25,7 @@ import { DamageInfo, OccupiedSlotMap } from "types/zoneserver";
 import { getConstructionSlotId, movePoint } from "../../../utils/utils";
 import { ConstructionParentEntity } from "./constructionparententity";
 import { ConstructionChildEntity } from "./constructionchildentity";
+import { CUSTOM_PROFILES_IDS } from "../../../utils/enums";
 function getDamageRange(definitionId: number): number {
   switch (definitionId) {
     case Items.METAL_GATE:
@@ -92,7 +93,7 @@ export class ConstructionDoor extends DoorEntity {
     this.itemDefinitionId = itemDefinitionId;
     this.parentObjectCharacterId = parentObjectCharacterId;
     this.slot = slot;
-    this.profileId = 999; /// mark as construction
+    this.profileId = CUSTOM_PROFILES_IDS.CONSTRUCTION; /// mark as construction
 
     this.maxHealth = getMaxHealth(itemDefinitionId);
     this.health = this.maxHealth;
