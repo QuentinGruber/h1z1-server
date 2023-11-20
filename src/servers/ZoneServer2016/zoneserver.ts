@@ -3871,14 +3871,12 @@ export class ZoneServer2016 extends EventEmitter {
     client: Client,
     name: string
   ): Promise<ClientBan | undefined> {
-    const unBannedClient = (
-      await this._db
-        ?.collection(DB_COLLECTIONS.BANNED)
-        .findOneAndUpdate(
-          { name, active: true },
-          { $set: { active: false, unBanAdminName: client.character.name } }
-        )
-    )?.value as unknown as ClientBan | undefined;
+    const unBannedClient = (await this._db
+      ?.collection(DB_COLLECTIONS.BANNED)
+      .findOneAndUpdate(
+        { name, active: true },
+        { $set: { active: false, unBanAdminName: client.character.name } }
+      )) as unknown as ClientBan | undefined;
     return unBannedClient;
   }
 
