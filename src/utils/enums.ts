@@ -38,6 +38,10 @@ export enum NAME_VALIDATION_STATUS {
   RESERVED = 5
 }
 
+export enum CUSTOM_PROFILES_IDS {
+  CONSTRUCTION = 999
+}
+
 export enum DB_COLLECTIONS {
   ADMINS = "admins",
   BANNED = "banned",
