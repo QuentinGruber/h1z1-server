@@ -394,6 +394,7 @@ export class ZoneServer2016 extends EventEmitter {
   rebootTime!: number; // in hours
   rebootWarnTime!: number; // in seconds
   isPvE!: boolean;
+  baseConstructionDamage!: number;
   /*                          */
 
   constructor(
@@ -2240,8 +2241,6 @@ export class ZoneServer2016 extends EventEmitter {
         }
       }
 
-      const baseConstructionDamage = 34000;
-
       for (const construction in this._constructionSimple) {
         const constructionObject = this._constructionSimple[construction];
         if (
@@ -2271,7 +2270,7 @@ export class ZoneServer2016 extends EventEmitter {
             this.constructionManager.checkConstructionDamage(
               this,
               constructionObject.characterId,
-              baseConstructionDamage,
+              this.baseConstructionDamage,
               this._constructionSimple,
               position,
               constructionObject.fixedPosition
@@ -2309,7 +2308,7 @@ export class ZoneServer2016 extends EventEmitter {
             this.constructionManager.checkConstructionDamage(
               this,
               constructionObject.characterId,
-              baseConstructionDamage,
+              this.baseConstructionDamage,
               this._constructionDoors,
               position,
               constructionObject.fixedPosition
@@ -2339,7 +2338,7 @@ export class ZoneServer2016 extends EventEmitter {
               this.constructionManager.checkConstructionDamage(
                 this,
                 constructionObject.characterId,
-                baseConstructionDamage,
+                this.baseConstructionDamage,
                 this._constructionFoundations,
                 position,
                 constructionObject.state.position,
@@ -2365,7 +2364,7 @@ export class ZoneServer2016 extends EventEmitter {
           this.constructionManager.checkConstructionDamage(
             this,
             constructionObject.characterId,
-            baseConstructionDamage,
+            this.baseConstructionDamage,
             this._lootableConstruction,
             position,
             constructionObject.state.position,
@@ -2382,7 +2381,7 @@ export class ZoneServer2016 extends EventEmitter {
           this.constructionManager.checkConstructionDamage(
             this,
             constructionObject.characterId,
-            baseConstructionDamage,
+            this.baseConstructionDamage,
             this._worldLootableConstruction,
             position,
             constructionObject.state.position,
@@ -2399,7 +2398,7 @@ export class ZoneServer2016 extends EventEmitter {
           this.constructionManager.checkConstructionDamage(
             this,
             constructionObject.characterId,
-            baseConstructionDamage,
+            this.baseConstructionDamage,
             this._worldSimpleConstruction,
             position,
             constructionObject.state.position,
