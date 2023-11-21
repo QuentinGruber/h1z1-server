@@ -56,7 +56,7 @@ export const accessedCharacterPackets: PacketStructures = [
     }
   ],
   [
-    "AccessedCharacter.Unknown1",
+    "AccessedCharacter.UpdateMutatorRights",
     0xf10400,
     {
       fields: [

@@ -143,7 +143,9 @@ export class ConfigManager {
       adminMessage,
       enableLoginServerKickRequests,
       rebootTime,
-      rebootWarnTime
+      rebootWarnTime,
+      isPvE,
+      baseConstructionDamage
     } = this.config.server;
     server.proximityItemsDistance = proximityItemsDistance;
     server.interactionDistance = interactionDistance;
@@ -155,14 +157,30 @@ export class ConfigManager {
     server.enableLoginServerKickRequests = enableLoginServerKickRequests;
     server.rebootTime = rebootTime;
     server.rebootWarnTime = rebootWarnTime;
+    server.isPvE = isPvE;
+    server.baseConstructionDamage = baseConstructionDamage;
     //#endregion
 
     //#region fairplay
     // to be moved to FairplayManager
-    const { useFairplay, maxPing, pingTimeoutTime } = this.config.fairplay;
+    const {
+      useFairplay,
+      maxPing,
+      pingTimeoutTime,
+      acceptedRejectionTypes,
+      useAssetValidation,
+      hashSubmissionTimeout,
+      allowedPacks,
+      requiredPacks
+    } = this.config.fairplay;
     server.fairPlayManager.useFairPlay = useFairplay;
     server.fairPlayManager.maxPing = maxPing;
     server.fairPlayManager.pingTimeoutTime = pingTimeoutTime;
+    server.fairPlayManager.acceptedRejectionTypes = acceptedRejectionTypes;
+    server.fairPlayManager.useAssetValidation = useAssetValidation;
+    server.fairPlayManager.hashSubmissionTimeout = hashSubmissionTimeout;
+    server.fairPlayManager.allowedPacks = allowedPacks ?? [];
+    server.fairPlayManager.requiredPacks = requiredPacks ?? [];
     //#endregion
 
     //#region weather
@@ -179,6 +197,8 @@ export class ConfigManager {
       hasCustomLootRespawnTime,
       lootRespawnTimer,
       vehicleRespawnTimer,
+      waterSourceRefillAmount,
+      waterSourceReplenishTimer,
       npcRespawnTimer,
       itemDespawnTimer,
       lootDespawnTimer,
@@ -206,6 +226,10 @@ export class ConfigManager {
     server.worldObjectManager.npcSpawnRadius = npcSpawnRadius;
     server.worldObjectManager.chanceNpc = chanceNpc;
     server.worldObjectManager.chanceScreamer = chanceScreamer;
+
+    server.worldObjectManager.waterSourceReplenishTimer =
+      waterSourceReplenishTimer;
+    server.worldObjectManager.waterSourceRefillAmount = waterSourceRefillAmount;
     //#endregion
 
     //#region speedtree

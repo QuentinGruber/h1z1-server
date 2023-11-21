@@ -13,7 +13,7 @@
 
 import { RemoteInfo } from "node:dgram";
 
-export class H1emuClient {
+export class LZConnectionClient {
   sessionId: number = 0;
   address: string;
   port: number;

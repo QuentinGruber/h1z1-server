@@ -61,9 +61,9 @@ export class LoadoutContainer extends LoadoutItem {
   getUsedBulk(server: ZoneServer2016): number {
     let bulk = 0;
     for (const item of Object.values(this.items)) {
-      bulk +=
-        server.getItemDefinition(item.itemDefinitionId)?.BULK ??
-        1 * item.stackCount;
+      const itemDefinition = server.getItemDefinition(item.itemDefinitionId);
+      if (!itemDefinition) continue;
+      bulk += itemDefinition.BULK * item.stackCount;
     }
     return bulk;
   }

@@ -20,6 +20,7 @@ export enum ItemUseOptions {
   DROP = 4,
   SHRED = 6,
   UNLOAD = 7,
+  UNPACK = 10,
   IGNITE = 11,
   REPAIR = 16,
   REFUEL = 17,
@@ -68,6 +69,11 @@ export enum ConstructionPermissionIds {
 export enum StringIds {
   ENTER_VEHICLE = 15,
   OFFROADER = 16,
+  WATER_WELL = 1006,
+  COLLECT_WATER = 1008,
+  DRINK_DIRTY_WATER = 1331,
+  DRINK_STAGNANT_WATER = 1461,
+  DIRTY_WATER = 1099,
   TAKE_ITEM = 29,
   OPEN = 31,
   CORN = 628,
@@ -179,10 +185,12 @@ export enum LoadoutSlots {
   BACK = 12,
   LEGS = 14,
   BELT = 25,
+  EYES = 29,
   EXTERNAL_CONTAINER = 31,
   VEHICLE_BATTERY = 33,
   ARMOR = 38,
   RADIO = 39,
+  ITEM1 = 40,
   ITEM2 = 41
 }
 
@@ -198,28 +206,6 @@ export enum EquipSlots {
   FACE = 28,
   EYES = 29,
   ARMOR = 100
-}
-
-export enum EntityTypes {
-  INVALID,
-  NPC,
-  VEHICLE,
-  PLAYER,
-  OBJECT,
-  DOOR,
-  EXPLOSIVE,
-  CONSTRUCTION_FOUNDATION,
-  CONSTRUCTION_DOOR,
-  CONSTRUCTION_SIMPLE,
-  LOOTABLE_CONSTRUCTION,
-  LOOTABLE_PROP,
-  WORLD_LOOTABLE_CONSTRUCTION,
-  WORLD_CONSTRUCTION_SIMPLE,
-  PLANT,
-  TRAP,
-  TASK_PROP,
-  CRATE,
-  DESTROYABLE
 }
 
 export enum ResourceIds {
@@ -247,6 +233,13 @@ export enum ResourceTypes {
   COMFORT = 68,
   FUEL = 50,
   CONDITION = 1
+}
+
+export enum Abilities {
+  VEHICLE_HEADLIGHTS = 99998,
+  VEHICLE_TURBO = 1111141,
+  VEHICLE_SIREN = 1111295,
+  VEHICLE_HORN = 1111301
 }
 
 export enum TreeIds {
@@ -332,6 +325,11 @@ export enum Items {
   AMMO_ARROW = 112,
   AMMO_ARROW_EXPLOSIVE = 138,
   AMMO_ARROW_FLAMING = 1434,
+  //#endregion
+
+  //#region AMMO_BOX
+  AMMO_BOX_223 = 1430,
+  AMMO_BOX_45 = 8,
   //#endregion
 
   //#region PERISHABLE
@@ -1768,4 +1766,78 @@ export enum HealTypes {
   OTHER = 1,
   BANDAGE = 2,
   MEDKIT = 3
+}
+
+export enum AbilityIds {
+  HEADLIGHTS_OFFROADER = 99998,
+
+  MOTOR_OFFROADER = 1111153,
+
+  TURBO_OFFROADER = 1111141,
+  TURBO_PICKP_TRUCK = 1111292,
+  TURBO_POLICE_CAR = 1111294,
+  TURBO_ATV = 1111611,
+
+  ABILITY_POLICE_CAR = 1111301,
+
+  NV_GOGGLES = 1111272
+}
+
+export enum VehicleEffects {
+  MOTOR_RUN_OFFROADER = 90001,
+
+  TURBO_PICKUP_TRUCK = 90068,
+  TURBO_OFFROADER = 90000,
+  TURBO_POLICE_CAR = 90069,
+  TURBO_ATV = 90193
+}
+
+export enum MaterialTypes {
+  DEFAULT = 0,
+  METAL = 2,
+  FLESH = 3,
+  METAL_HARD = 4,
+  WOOD = 5,
+  GLASS = 6,
+  GRASS = 7,
+  CONCRETE = 10,
+  ICE = 12,
+  SNOW = 15,
+  WATER = 17,
+  VEHICLE_GROUND = 25,
+  VEHICLE_AIR = 26,
+  ASPHALT = 27,
+  CERAMIC = 44,
+  DIRTLIGHTBROWN = 45,
+  DIRTDARKBROWN = 46,
+  ROCKBROWN = 47,
+  ROCKGREY = 48,
+  SANDBROWN = 49,
+  SANDRED = 50,
+  WATERSHALLOW = 51,
+  CHAINLINK = 52,
+  RUBBER = 53,
+  METAL_GRATE = 54,
+  PLASTIC = 55,
+  PLASTIC_SOFT = 56,
+  CARPET = 57,
+  ZOMBIE = 58,
+  WOODBURNT = 59,
+  CARDBOARD = 60,
+  LEATHER = 61,
+  KEVLAR = 62,
+  METAL_HOLLOW = 63,
+  CHAINLINK_FENCE = 64,
+  BARBED_WIRE = 65,
+  BULLET_PENETRATION_NO_FX = 66,
+  WATER_PUDDLE = 67,
+  DEFAULT_BULLET_PENETRATION = 69
+}
+
+export enum MeleeTypes {
+  FISTS = 1,
+  BLUNT = 2,
+  BLADE = 3,
+  KNIFE = 4,
+  GUITAR = 5
 }

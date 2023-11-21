@@ -11,7 +11,7 @@
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
 
-import { SpeedTree, ZoneSpeedTreeData } from "types/zoneserver";
+import { PropInstance, SpeedTree, ZoneSpeedTreeData } from "types/zoneserver";
 import { isPosInRadius, randomIntFromInterval } from "../../../utils/utils";
 import { ZoneClient2016 as Client } from "../classes/zoneclient";
 import { Items, TreeIds } from "../models/enums";
@@ -45,12 +45,12 @@ export class SpeedTreeManager {
     });
   }
 
-  customize(DTOArray: Array<any>) {
+  customize(DTOArray: Array<PropInstance>) {
     for (const object in this._speedTrees) {
       const DTO = this._speedTrees[object];
       const DTOinstance = {
         objectId: DTO.objectId,
-        unknownString1: DTO.modelName.concat(".Stump")
+        replacementModel: DTO.modelName.concat(".Stump")
       };
       DTOArray.push(DTOinstance);
     }
@@ -85,6 +85,7 @@ export class SpeedTreeManager {
     let itemDefId = 0;
     switch (treeId) {
       case TreeIds.BLACKBERRY:
+        server.startInteractionTimer(client, 0, 0, 9);
         itemDefId = Items.BLACKBERRY;
         if (Math.random() <= this.branchHarvestChance) {
           client.character.lootItem(
@@ -100,6 +101,7 @@ export class SpeedTreeManager {
         break;
       case TreeIds.DEVILCLUB:
       case TreeIds.VINEMAPLE:
+        server.startInteractionTimer(client, 0, 0, 9);
         itemDefId = Items.WOOD_STICK;
         destroy = true;
         count = randomIntFromInterval(

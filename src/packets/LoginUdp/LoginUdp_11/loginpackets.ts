@@ -377,6 +377,28 @@ const packets: PacketStructures = [
         { name: "message", type: "string", defaultValue: "" }
       ]
     }
+  ],
+  [
+    "H1emu.HadesInit",
+    0x22,
+    {
+      fields: [
+        { name: "__opcode__", type: "uint8", defaultValue: 3 },
+        { name: "authTicket", type: "string", defaultValue: "" },
+        { name: "gatewayServer", type: "string", defaultValue: "" }
+      ]
+    }
+  ],
+  [
+    "H1emu.HadesQuery",
+    0x23,
+    {
+      fields: [
+        { name: "__opcode__", type: "uint8", defaultValue: 4 },
+        { name: "authTicket", type: "string", defaultValue: "" },
+        { name: "gatewayServer", type: "string", defaultValue: "" }
+      ]
+    }
   ]
 ];
 

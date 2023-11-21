@@ -12,19 +12,19 @@
 // ======================================================================
 
 import { EventEmitter } from "node:events";
-import { H1emuProtocol } from "../../../protocols/h1emuprotocol";
-import { H1emuClient as H1emuClient } from "./h1emuclient";
+import { LZConnectionProtocol } from "../../../protocols/lzconnectionprotocol";
+import { LZConnectionClient } from "./lzconnectionclient";
 import { Worker } from "node:worker_threads";
 import { RemoteInfo } from "node:dgram";
 
-const debug = require("debug")("H1emuServer");
+const debug = require("debug")("LZConnection");
 process.env.isBin && require("../../shared/workers/udpServerWorker.js");
 
-export abstract class H1emuServer extends EventEmitter {
+export abstract class BaseLZConnection extends EventEmitter {
   _serverPort?: number;
-  _protocol: H1emuProtocol;
+  _protocol: LZConnectionProtocol;
   _udpLength: number = 512;
-  _clients: { [clientId: string]: H1emuClient } = {};
+  _clients: { [clientId: string]: LZConnectionClient } = {};
   _connection: Worker;
   _pingTime: number = 5000; // ms
   _pingTimeout: number = 12000;
@@ -32,7 +32,7 @@ export abstract class H1emuServer extends EventEmitter {
   protected constructor(serverPort?: number) {
     super();
     this._serverPort = serverPort;
-    this._protocol = new H1emuProtocol();
+    this._protocol = new LZConnectionProtocol();
     this._connection = new Worker(
       `${__dirname}/../../shared/workers/udpServerWorker.js`,
       {
@@ -41,13 +41,13 @@ export abstract class H1emuServer extends EventEmitter {
     );
   }
 
-  clientHandler(remote: RemoteInfo, opcode: number): H1emuClient | void {
-    let client: H1emuClient;
+  clientHandler(remote: RemoteInfo, opcode: number): LZConnectionClient | void {
+    let client: LZConnectionClient;
     const clientId: string = `${remote.address}:${remote.port}`;
     if (!this._clients[clientId]) {
       // if client doesn't exist yet, only accept sessionrequest or sessionreply
       if (opcode !== 0x01 && opcode !== 0x02) return;
-      client = this._clients[clientId] = new H1emuClient(remote);
+      client = this._clients[clientId] = new LZConnectionClient(remote);
       this.updateClientLastPing(clientId);
     } else {
       client = this._clients[clientId];
@@ -55,10 +55,15 @@ export abstract class H1emuServer extends EventEmitter {
     return client;
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  messageHandler(messageType: string, data: Buffer, client: H1emuClient): void {
+  /* eslint-disable @typescript-eslint/no-unused-vars */
+  messageHandler(
+    messageType: string,
+    data: Buffer,
+    client: LZConnectionClient
+  ): void {
     throw new Error("You need to implement messageHandler !");
   }
+  /* eslint-enable @typescript-eslint/no-unused-vars */
 
   connectionHandler(message: any): void {
     const { data: dataUint8, remote } = message;
@@ -84,27 +89,32 @@ export abstract class H1emuServer extends EventEmitter {
     process.exitCode = 0;
   }
 
-  sendData(client: H1emuClient | undefined, packetName: any, obj: any) {
+  sendData(client: LZConnectionClient | undefined, packetName: any, obj: any) {
     // blocks zone from sending packet without open session
     if (!client || (!client.serverId && packetName !== "SessionRequest"))
       return;
     const data = this._protocol.pack(packetName, obj);
     if (data) {
-      this._connection.postMessage(
-        {
-          type: "sendPacket",
-          data: {
-            packetData: data,
-            port: client.port,
-            address: client.address
-          }
-        },
-        [data.buffer]
-      );
+      const message = {
+        type: "sendPacket",
+        data: {
+          packetData: data,
+          port: client.port,
+          address: client.address
+        }
+      };
+      // FIXME: this stopped working after upgrading to node 21
+      // This allow to send a buffer to the worker without copying it
+      // https://nodejs.org/api/worker_threads.html#worker_threads_port_postmessage_value_transferlist
+      // this._connection.postMessage(
+      //   message,
+      //   [message.data.packetData.buffer],
+      // );
+      this._connection.postMessage(message);
     }
   }
 
-  ping(client: H1emuClient) {
+  ping(client: LZConnectionClient) {
     this.sendData(client, "Ping", {});
   }
 
@@ -113,4 +123,4 @@ export abstract class H1emuServer extends EventEmitter {
   }
 }
 
-exports.H1emuServer = H1emuServer;
+exports.BaseLZConnection = BaseLZConnection;

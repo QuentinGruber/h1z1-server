@@ -11,8 +11,7 @@
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
 
-import { AddLightweightNpc } from "types/zone2016packets";
-import { DamageInfo } from "../../../types/zoneserver";
+import { AddLightweightNpc, AddSimpleNpc } from "types/zone2016packets";
 import { ZoneServer2016 } from "../zoneserver";
 import { BaseEntity } from "./baseentity";
 
@@ -72,7 +71,6 @@ export abstract class BaseLightweightCharacter extends BaseEntity {
   health: number = 1000000;
   maxHealth: number = 1000000;
   useSimpleStruct: boolean = false;
-  effectTags: number[] = [];
   constructor(
     characterId: string,
     transientId: number,
@@ -90,7 +88,7 @@ export abstract class BaseLightweightCharacter extends BaseEntity {
     };
   }
 
-  pGetSimpleNpc() {
+  pGetSimpleNpc(): AddSimpleNpc {
     return {
       characterId: this.characterId,
       transientId: this.transientId,
@@ -98,7 +96,6 @@ export abstract class BaseLightweightCharacter extends BaseEntity {
       rotation: this.state.rotation,
       modelId: this.actorModelId,
       scale: this.scale,
-      showHealth: true,
       health: (this.health / this.maxHealth) * 100
     };
   }
@@ -108,21 +105,6 @@ export abstract class BaseLightweightCharacter extends BaseEntity {
       characterId: this.characterId,
       healthPercentage: (this.health / this.maxHealth) * 100
     };
-  }
-
-  damageSimpleNpc(
-    server: ZoneServer2016,
-    damageInfo: DamageInfo,
-    dictionary: any
-  ) {
-    // todo: redo this
-    this.health -= damageInfo.damage;
-    server.sendDataToAllWithSpawnedEntity(
-      dictionary,
-      this.characterId,
-      "Character.UpdateSimpleProxyHealth",
-      this.pGetSimpleProxyHealth()
-    );
   }
 
   /**

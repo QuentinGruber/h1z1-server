@@ -14,8 +14,8 @@
 import { EventEmitter } from "node:events";
 import { GatewayServer } from "../GatewayServer/gatewayserver";
 import { H1Z1Protocol as ZoneProtocol } from "../../protocols/h1z1protocol";
-import { H1emuZoneServer } from "../H1emuServer/h1emuZoneServer";
-import { H1emuClient } from "../H1emuServer/shared/h1emuclient";
+import { LoginConnectionManager } from "../LoginZoneConnection/loginconnectionmanager";
+import { LZConnectionClient } from "../LoginZoneConnection/shared/lzconnectionclient";
 import {
   _,
   generateRandomGuid,
@@ -98,7 +98,7 @@ export class ZoneServer2015 extends EventEmitter {
   _worldRoutineRadiusPercentage: number = 0.4;
   worldRoutineTimer: any;
   tickRate: number = 500;
-  _h1emuZoneServer!: H1emuZoneServer;
+  _h1emuZoneServer!: LoginConnectionManager;
   _loginServerInfo: { address?: string; port: number } = {
     address: process.env.LOGINSERVER_IP,
     port: 1110
@@ -200,14 +200,14 @@ export class ZoneServer2015 extends EventEmitter {
     );
 
     if (!this._soloMode) {
-      this._h1emuZoneServer = new H1emuZoneServer(
+      this._h1emuZoneServer = new LoginConnectionManager(
         this._worldId,
         internalServerPort
       ); // opens local socket to connect to loginserver
 
       this._h1emuZoneServer.on(
         "session",
-        (err: string, client: H1emuClient) => {
+        (err: string, client: LZConnectionClient) => {
           if (err) {
             debug(
               `An error occured for LoginConnection with ${client.sessionId}`
@@ -221,7 +221,7 @@ export class ZoneServer2015 extends EventEmitter {
 
       this._h1emuZoneServer.on(
         "sessionfailed",
-        (err: string, client: H1emuClient) => {
+        (err: string, client: LZConnectionClient) => {
           console.error(`h1emuServer sessionfailed for ${client.sessionId}`);
           console.error(err);
           process.exitCode = 1;
@@ -230,7 +230,7 @@ export class ZoneServer2015 extends EventEmitter {
 
       this._h1emuZoneServer.on(
         "disconnect",
-        (err: string, client: H1emuClient, reason: number) => {
+        (err: string, client: LZConnectionClient, reason: number) => {
           debug(
             `LoginConnection dropped: ${
               reason ? "Connection Lost" : "Unknown Error"
@@ -241,7 +241,7 @@ export class ZoneServer2015 extends EventEmitter {
 
       this._h1emuZoneServer.on(
         "data",
-        async (err: string, client: H1emuClient, packet: any) => {
+        async (err: string, client: LZConnectionClient, packet: any) => {
           if (err) {
             console.error(err);
           } else {
@@ -503,7 +503,7 @@ export class ZoneServer2015 extends EventEmitter {
       await this.saveWorld();
     }
     if (!this._soloMode) {
-      debug("Starting H1emuZoneServer");
+      debug("Starting LoginConnectionManager");
       if (!this._loginServerInfo.address) {
         await this.fetchLoginInfo();
       }

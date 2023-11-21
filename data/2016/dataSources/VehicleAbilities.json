@@ -1,0 +1,91 @@
+{
+  "opcode": 1679,
+  "abilitiesLength": 3,
+  "abilities": [
+    {
+      "abilityId": 10,
+      "abilityId2": 10,
+      "unknownDword1": 18,
+      "unknownDword2": 800087981,
+      "unkArray1Length": 1,
+      "unknownArray1": [
+        {
+          "unknownDword1": 99998,
+          "unknownDword2": 99998,
+          "unknownDword3": 0
+        }
+      ],
+      "unknownDword3": 2,
+      "unknownDword4": 2194,
+      "unknownByte": 192
+    },
+    {
+      "abilityId": 11,
+      "abilityId2": 11,
+      "unknownDword1": 19,
+      "unknownDword2": 2046848399,
+      "unkArray1Length": 1,
+      "unknownArray1": [
+        {
+          "unknownDword1": 1111153,
+          "unknownDword2": 1111153,
+          "unknownDword3": 0
+        }
+      ],
+      "unknownDword3": 2,
+      "unknownDword4": 1344,
+      "unknownByte": 192
+    },
+    {
+      "abilityId": 12,
+      "abilityId2": 12,
+      "unknownDword1": 17,
+      "unknownDword2": 4073872653,
+      "unkArray1Length": 1,
+      "unknownArray1": [
+        {
+          "unknownDword1": 1111141,
+          "unknownDword2": 1111141,
+          "unknownDword3": 0
+        }
+      ],
+      "unknownDword3": 2,
+      "unknownDword4": 2195,
+      "unknownByte": 192
+    },
+    {
+      "abilityId": 13,
+      "abilityId2": 13,
+      "unknownDword1": 17,
+      "unknownDword2": 4073872654,
+      "unkArray1Length": 1,
+      "unknownArray1": [
+        {
+          "unknownDword1": 1111301,
+          "unknownDword2": 1111301,
+          "unknownDword3": 0
+        }
+      ],
+      "unknownDword3": 2,
+      "unknownDword4": 0,
+      "unknownByte": 192
+    },
+    {
+      "abilityId": 14,
+      "abilityId2": 14,
+      "unknownDword1": 17,
+      "unknownDword2": 4073872655,
+      "unkArray1Length": 1,
+      "unknownArray1": [
+        {
+          "unknownDword1": 1111295,
+          "unknownDword2": 1111295,
+          "unknownDword3": 0
+        }
+      ],
+      "unknownDword3": 2,
+      "unknownDword4": 0,
+      "unknownByte": 192
+    }
+  ]
+}
