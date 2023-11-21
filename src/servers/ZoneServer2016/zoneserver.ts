@@ -1637,11 +1637,11 @@ export class ZoneServer2016 extends EventEmitter {
       unknownBoolean1: false,
       skyData: this.weatherManager.weather,
       zoneId1: 5,
-      zoneId2: 5,
+      geometryId: 5,
       nameId: 7699,
       unknownBoolean2: true,
       lighting: "Lighting_JustSurvive.txt",
-      unknownBoolean3: false
+      isInvitational: false
     });
 
     if (!this.itemDefinitionsCache) {
