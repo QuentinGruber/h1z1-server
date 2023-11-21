@@ -66,6 +66,13 @@ export const accessedCharacterPackets: PacketStructures = [
     }
   ],
   [
+    "AccessedCharacter.Unknown3",
+    0xf10500,
+    {
+      fields: []
+    }
+  ],
+  [
     "AccessedCharacter.Unknown2",
     0xf10600,
     {

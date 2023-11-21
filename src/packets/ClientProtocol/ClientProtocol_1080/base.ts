@@ -2312,15 +2312,14 @@ export const basePackets: PacketStructures = [
         { name: "position", type: "floatvector4", defaultValue: [0, 0, 0, 1] },
         { name: "rotation", type: "floatvector4", defaultValue: [0, 0, 0, 1] },
         { name: "skyData", type: "schema", fields: skyData },
-        // this byte breaks it for some reason (TODO)
         { name: "movementVersion", type: "uint8", defaultValue: 5 },
         { name: "zoneId1", type: "uint32", defaultValue: 5 },
         { name: "zoneId2", type: "uint32", defaultValue: 0 },
-        { name: "geometryId", type: "uint32", defaultValue: 7699 },
-        { name: "unknownDword10", type: "uint32", defaultValue: 674234378 },
+        { name: "geometryId", type: "uint32", defaultValue: 0 },
+        { name: "nameId", type: "uint32", defaultValue: 0 },
         { name: "unknownBoolean1", type: "boolean", defaultValue: true },
         { name: "waitForZoneReady", type: "boolean", defaultValue: false },
-        { name: "unknownBoolean3", type: "boolean", defaultValue: true }
+        { name: "unknownBoolean3", type: "boolean", defaultValue: false }
       ]
     }
   ],
@@ -2359,29 +2358,6 @@ export const basePackets: PacketStructures = [
     }
   ],
   ["Mail", 0x0e, {}],
-  ["Ability.ClientRequestStartAbility", 0x1001, {}],
-  ["Ability.ClientRequestStopAbility", 0x1002, {}],
-  ["Ability.ClientMoveAndCast", 0x1003, {}],
-  ["Ability.Failed", 0x1004, {}],
-  ["Ability.StartCasting", 0x1005, {}],
-  ["Ability.Launch", 0x1006, {}],
-  ["Ability.Land", 0x1007, {}],
-  ["Ability.StartChanneling", 0x1008, {}],
-  ["Ability.StopCasting", 0x1009, {}],
-  ["Ability.StopAura", 0x100a, {}],
-  ["Ability.MeleeRefresh", 0x100b, {}],
-  ["Ability.AbilityDetails", 0x100c, {}],
-  ["Ability.PurchaseAbility", 0x100d, {}],
-  ["Ability.UpdateAbilityExperience", 0x100e, {}],
-  ["Ability.SetDefinition", 0x100f, {}],
-  ["Ability.RequestAbilityDefinition", 0x1010, {}],
-  ["Ability.AddAbilityDefinition", 0x1011, {}],
-  ["Ability.PulseLocationTargeting", 0x1012, {}],
-  ["Ability.ReceivePulseLocation", 0x1013, {}],
-  ["Ability.ActivateItemAbility", 0x1014, {}],
-  ["Ability.ActivateVehicleAbility", 0x1015, {}],
-  ["Ability.DeactivateItemAbility", 0x1016, {}],
-  ["Ability.DeactivateVehicleAbility", 0x1017, {}],
   ["MiniGame", 0x12, {}],
   ["Encounter", 0x14, {}],
   ["Inventory", 0x15, {}],
@@ -2399,13 +2375,12 @@ export const basePackets: PacketStructures = [
         { name: "nameId", type: "uint32", defaultValue: 0 },
         { name: "unknownBoolean2", type: "boolean", defaultValue: false },
         { name: "lighting", type: "string", defaultValue: "" },
-        { name: "unknownBoolean3", type: "boolean", defaultValue: false }
+        { name: "isInvitational", type: "boolean", defaultValue: false }
       ]
     }
   ],
   ["Objective", 0x18, {}],
   ["Debug", 0x19, {}],
-
   ["Quest", 0x1b, {}],
   ["Reward", 0x1c, {}],
   [
@@ -2581,6 +2556,23 @@ export const basePackets: PacketStructures = [
   [
     "FirstTimeEvent.Script",
     0x4605,
+    {
+      fields: [
+        { name: "unknownString1", type: "string", defaultValue: "" },
+        {
+          name: "unknownArray1",
+          type: "array",
+          defaultValue: [],
+          fields: [{ name: "unknownDword1", type: "uint32", defaultValue: 0 }]
+        },
+        { name: "unknownDword1", type: "uint32", defaultValue: 0 },
+        { name: "unknownBoolean1", type: "boolean", defaultValue: false }
+      ]
+    }
+  ],
+  [
+    "FirstTimeEvent.Unknown4",
+    0x4607,
     {
       fields: [
         { name: "unknownString1", type: "string", defaultValue: "" },

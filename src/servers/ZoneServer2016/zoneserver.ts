@@ -154,6 +154,7 @@ import {
   CharacterStartMultiStateDeath,
   CharacterUpdateCharacterState,
   CharacterWeaponStance,
+  ClientBeginZoning,
   ClientExitLaunchUrl,
   ClientGameSettings,
   ClientUpdateDeathMetrics,
@@ -1572,15 +1573,6 @@ export class ZoneServer2016 extends EventEmitter {
         dynamicappearance.SHADER_PARAMETER_DEFINITIONS
     });
 
-    // packet is just broken, idk why
-    /*
-    this.sendData<>(client, "ClientBeginZoning", {
-      //position: Array.from(client.character.state.position),
-      //rotation: Array.from(client.character.state.rotation),
-      skyData: this.weather,
-    });
-    */
-
     this.sendData<ClientGameSettings>(client, "ClientGameSettings", {
       Unknown2: 0,
       interactionCheckRadius: 16, // need it high for tampers
@@ -1591,6 +1583,14 @@ export class ZoneServer2016 extends EventEmitter {
       unknownFloat1: 0.0,
       fallDamageVelocityThreshold: 15,
       fallDamageVelocityMultiplier: 11
+    });
+
+    // packet is just broken, idk why
+
+    this.sendData<ClientBeginZoning>(client, "ClientBeginZoning", {
+      //position: client.character.state.position,
+      //rotation: client.character.state.rotation,
+      skyData: this.weatherManager.weather
     });
 
     this.sendCharacterData(client);
