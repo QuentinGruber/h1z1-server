@@ -1688,12 +1688,13 @@ export class ZoneServer2016 extends EventEmitter {
     });
 
     // packet is just broken, idk why
-
+    /*
     this.sendData<ClientBeginZoning>(client, "ClientBeginZoning", {
-      //position: client.character.state.position,
-      //rotation: client.character.state.rotation,
+      position: client.character.state.position,
+      rotation: client.character.state.rotation,
       skyData: this.weatherManager.weather
     });
+    */
 
     this.sendCharacterData(client);
   }

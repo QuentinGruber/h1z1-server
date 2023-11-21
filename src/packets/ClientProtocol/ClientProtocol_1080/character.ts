@@ -512,6 +512,7 @@ export const characterPackets: PacketStructures = [
     }
   ],
   ["Character.UpdateStat", 0x0f40, {}],
+  ["Character.AnimationRequest", 0x0f41, {}],
   ["Character.NonPriorityCharacters", 0x0f42, {}],
   [
     "Character.PlayWorldCompositeEffect",
