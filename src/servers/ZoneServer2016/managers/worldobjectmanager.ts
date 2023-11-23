@@ -365,6 +365,11 @@ export class WorldObjectManager {
         const randomWornLetter = wornLetters[randomIndex];
         const newItem = server.generateItem(randomWornLetter, 1);
         entity.lootItem(server, newItem);
+        setTimeout(() => {
+          // despawn entity immediately or loot bag will not be lootable (this is temporary).
+          // A proper solution would be to spawn the bad at an ofset?
+          server.despawnEntity(entity.characterId);
+        }, 5000);
       }
     }
 
