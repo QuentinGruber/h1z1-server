@@ -2955,7 +2955,7 @@ export const basePackets: PacketStructures = [
         { name: "position", type: "floatvector3", defaultValue: [0, 0, 0] },
         { name: "rotation", type: "floatvector3", defaultValue: [0, 0, 0] },
         { name: "unknownDword1", type: "uint32", defaultValue: 0 },
-        { name: "unknownDword2", type: "uint32", defaultValue: 0 },
+        { name: "terrainObjectId", type: "uint32", defaultValue: 0 },
         { name: "modelId", type: "uint32", defaultValue: 0 },
         { name: "scale", type: "floatvector4", defaultValue: [1, 1, 1, 1] },
         { name: "unknownDword3", type: "uint32", defaultValue: 0 },
