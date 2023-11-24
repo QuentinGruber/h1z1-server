@@ -166,7 +166,7 @@ export class SOEServer extends EventEmitter {
         client.unAckData.delete(sequence);
         resendedPackets++;
         // So we don't loose our time with dead connections
-        if(resendedPackets > 50){
+        if (resendedPackets > 50) {
           break;
         }
       }
