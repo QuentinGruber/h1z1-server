@@ -463,7 +463,7 @@ export interface AddSimpleNpc {
   position?: Float32Array;
   rotation?: Float32Array;
   unknownDword1?: number;
-  unknownDword2?: number;
+  terrainObjectId?: number;
   modelId?: number;
   scale?: Float32Array;
   unknownDword3?: number;
@@ -2938,6 +2938,8 @@ export interface SpectatorEnable {
 }
 export interface SpectatorUnknown2 {
   unknownDword1?: number;
+  unknownArray1?: unknown[];
+  unknownArray2?: unknown[];
 }
 export interface SpectatorUnknown3 {
 }

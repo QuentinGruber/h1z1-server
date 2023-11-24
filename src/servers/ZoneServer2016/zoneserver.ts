@@ -3195,6 +3195,7 @@ export class ZoneServer2016 extends EventEmitter {
   customizeStaticDTOs() {
     console.time("customizeStaticDTOs");
     // caches DTOs that should always be removed
+    
     for (const object in this._lootableProps) {
       const prop = this._lootableProps[object];
       const propInstance = {
@@ -3203,6 +3204,7 @@ export class ZoneServer2016 extends EventEmitter {
       };
       this.staticDTOs.push(propInstance);
     }
+    
     for (const object in this._taskProps) {
       const prop = this._taskProps[object];
       const propInstance = {
