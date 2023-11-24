@@ -155,7 +155,7 @@ export class SOEServer extends EventEmitter {
     const currentTime = Date.now();
     for (const [sequence, time] of client.unAckData) {
       if (
-        time + this._resendTimeout < currentTime &&
+        time + this._resendTimeout + client.avgPing < currentTime &&
         sequence <=
           wrappedUint16.wrap(
             client.outputStream.lastAck.get() + this._maxSeqResendRange
