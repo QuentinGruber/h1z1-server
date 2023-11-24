@@ -79,8 +79,21 @@ export class LootableConstructionEntity extends BaseLootableEntity {
     }
   }
   damage(server: ZoneServer2016, damageInfo: DamageInfo) {
-    // todo: redo this
+    const dictionary = server.getEntityDictionary(this.characterId);
+    if (!dictionary) {
+      return;
+    }
+
     this.health -= damageInfo.damage;
+    server.sendDataToAllWithSpawnedEntity(
+      dictionary,
+      this.characterId,
+      "Character.UpdateSimpleProxyHealth",
+      this.pGetSimpleProxyHealth()
+    );
+
+    if (this.health > 0) return;
+    this.destroy(server, 3000);
   }
   getParent(
     server: ZoneServer2016

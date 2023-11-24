@@ -51,7 +51,7 @@ export const dtoPackets: PacketStructures = [
           defaultValue: [],
           fields: [
             { name: "objectId", type: "uint32", defaultValue: 0 },
-            { name: "unknownString1", type: "string", defaultValue: "0" },
+            { name: "replacementModel", type: "string", defaultValue: "0" },
             { name: "unknownDword1", type: "uint32", defaultValue: 0 },
             { name: "unknownBool1", type: "boolean", defaultValue: true },
             { name: "unknownBool2", type: "boolean", defaultValue: true },

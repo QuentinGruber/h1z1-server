@@ -63,6 +63,7 @@ import {
   HudIndicator,
   ItemDefinition,
   modelData,
+  PropInstance,
   Recipe,
   ScreenEffect,
   UseOption
@@ -379,6 +380,7 @@ export class ZoneServer2016 extends EventEmitter {
   abortShutdown: boolean = false;
   shutdownStarted: boolean = false;
   isLocked: boolean = false;
+  staticDTOs: Array<PropInstance> = [];
 
   /* MANAGED BY CONFIGMANAGER */
   proximityItemsDistance!: number;
@@ -391,6 +393,8 @@ export class ZoneServer2016 extends EventEmitter {
   enableLoginServerKickRequests!: boolean;
   rebootTime!: number; // in hours
   rebootWarnTime!: number; // in seconds
+  isPvE!: boolean;
+  baseConstructionDamage!: number;
   /*                          */
 
   constructor(
@@ -876,7 +880,6 @@ export class ZoneServer2016 extends EventEmitter {
     rejectionFlag?: CONNECTION_REJECTION_FLAGS,
     message = ""
   ) {
-    console.log(message);
     this._loginConnectionManager.sendData(client, "CharacterAllowedReply", {
       reqId,
       status: status ? 1 : 0,
@@ -1441,6 +1444,8 @@ export class ZoneServer2016 extends EventEmitter {
 
     await this.pluginManager.initializePlugins(this);
 
+    this.customizeStaticDTOs();
+
     this._ready = true;
     console.log(
       `Server saving ${this.enableWorldSaves ? "enabled" : "disabled"}.`
@@ -1532,6 +1537,9 @@ export class ZoneServer2016 extends EventEmitter {
     if (!(await this.hookManager.checkAsyncHook("OnServerInit"))) return;
 
     await this.setupServer();
+    if (this.isPvE) {
+      console.log("Server in PvE mode");
+    }
 
     this.fairPlayManager.decryptFairPlayValues();
     this._spawnGrid = this.divideMapIntoSpawnGrid(7448, 7448, 744);
@@ -1837,6 +1845,7 @@ export class ZoneServer2016 extends EventEmitter {
   }
 
   private worldRoutine() {
+    const startTime = Date.now();
     if (!this.hookManager.checkHook("OnWorldRoutine")) return;
     else {
       if (this._ready) {
@@ -1853,6 +1862,13 @@ export class ZoneServer2016 extends EventEmitter {
           this.saveWorld();
         }
       }
+    }
+    const endTime = Date.now();
+    const timeTaken = endTime - startTime;
+    if (timeTaken > this.worldRoutineRate) {
+      console.log(
+        `World routine took ${timeTaken}ms, expected max ${this.worldRoutineRate}ms.`
+      );
     }
     this.worldRoutineTimer.refresh();
   }
@@ -2169,18 +2185,25 @@ export class ZoneServer2016 extends EventEmitter {
   async explosionDamage(
     position: Float32Array,
     npcTriggered: string,
-    source: string,
+    itemDefinitionId: number,
     client?: Client
   ) {
     // TODO: REDO THIS WITH AN OnExplosiveDamage method per class
 
     // TODO: REDO THIS WITH GRID CHUNK SYSTEM
 
-    const sourceEntity = this.getEntity(source),
+    const sourceEntity = this.getEntity(npcTriggered),
       sourceIsVehicle = sourceEntity instanceof Vehicle2016;
 
     for (const characterId in this._characters) {
       const character = this._characters[characterId];
+      // If PvE, only damage the character that triggered the explosion
+      if (
+        this.isPvE &&
+        client &&
+        character.characterId !== client.character.characterId
+      )
+        continue;
       if (
         isPosInRadiusWithY(
           sourceIsVehicle ? 5 : 3,
@@ -2197,192 +2220,193 @@ export class ZoneServer2016 extends EventEmitter {
         });
       }
     }
-    for (const vehicleKey in this._vehicles) {
-      const vehicle = this._vehicles[vehicleKey];
-      if (vehicle.characterId != npcTriggered) {
-        if (isPosInRadius(5, vehicle.state.position, position)) {
-          const distance = getDistance(position, vehicle.state.position);
-          const damage = 250000 / distance;
-          await Scheduler.wait(150);
-          vehicle.damage(this, { entity: npcTriggered, damage: damage });
+    if (!this.isPvE) {
+      for (const vehicleKey in this._vehicles) {
+        const vehicle = this._vehicles[vehicleKey];
+        if (vehicle.characterId != npcTriggered) {
+          if (isPosInRadius(5, vehicle.state.position, position)) {
+            const distance = getDistance(position, vehicle.state.position);
+            const damage = 250000 / distance;
+            await Scheduler.wait(150);
+            vehicle.damage(this, { entity: npcTriggered, damage: damage });
+          }
         }
       }
-    }
 
-    for (const trapKey in this._traps) {
-      const trap = this._traps[trapKey];
-      if (!trap) continue;
-      if (isPosInRadius(5, trap.state.position, position)) {
-        trap.destroy(this);
+      for (const trapKey in this._traps) {
+        const trap = this._traps[trapKey];
+        if (!trap) continue;
+        if (isPosInRadius(5, trap.state.position, position)) {
+          trap.destroy(this);
+        }
       }
-    }
 
-    for (const construction in this._constructionSimple) {
-      const constructionObject = this._constructionSimple[construction];
-      if (
-        constructionObject.itemDefinitionId == Items.FOUNDATION_RAMP ||
-        constructionObject.itemDefinitionId == Items.FOUNDATION_STAIRS
-      )
-        continue;
-      if (
-        isPosInRadius(
-          constructionObject.damageRange * 1.5,
-          constructionObject.fixedPosition
-            ? constructionObject.fixedPosition
-            : constructionObject.state.position,
-          position
-        )
-      ) {
+      for (const construction in this._constructionSimple) {
+        const constructionObject = this._constructionSimple[construction];
         if (
-          this.constructionManager.isConstructionInSecuredArea(
-            this,
-            constructionObject
-          )
-        ) {
-          if (client) {
-            this.constructionManager.sendBaseSecuredMessage(this, client);
-          }
-        } else {
-          this.constructionManager.checkConstructionDamage(
-            this,
-            constructionObject.characterId,
-            50000,
-            this._constructionSimple,
-            position,
+          constructionObject.itemDefinitionId == Items.FOUNDATION_RAMP ||
+          constructionObject.itemDefinitionId == Items.FOUNDATION_STAIRS
+        )
+          continue;
+        if (
+          isPosInRadius(
+            constructionObject.damageRange * 1.5,
             constructionObject.fixedPosition
               ? constructionObject.fixedPosition
               : constructionObject.state.position,
-            source
-          );
-        }
-      }
-    }
-
-    for (const construction in this._constructionDoors) {
-      const constructionObject = this._constructionDoors[
-        construction
-      ] as ConstructionDoor;
-      if (
-        isPosInRadius(
-          constructionObject.damageRange,
-          constructionObject.fixedPosition
-            ? constructionObject.fixedPosition
-            : constructionObject.state.position,
-          position
-        )
-      ) {
-        if (
-          this.constructionManager.isConstructionInSecuredArea(
-            this,
-            constructionObject
+            position
           )
         ) {
-          if (client) {
-            this.constructionManager.sendBaseSecuredMessage(this, client);
-          }
-        } else {
-          this.constructionManager.checkConstructionDamage(
-            this,
-            constructionObject.characterId,
-            50000,
-            this._constructionDoors,
-            position,
-            constructionObject.fixedPosition
-              ? constructionObject.fixedPosition
-              : constructionObject.state.position,
-            source
-          );
-        }
-      }
-    }
-
-    for (const construction in this._constructionFoundations) {
-      const constructionObject = this._constructionFoundations[
-        construction
-      ] as ConstructionParentEntity;
-      if (
-        isPosInRadius(
-          constructionObject.damageRange * 1.5,
-          constructionObject.state.position,
-          position
-        )
-      ) {
-        switch (constructionObject.itemDefinitionId) {
-          case Items.SHACK:
-          case Items.SHACK_SMALL:
-          case Items.SHACK_BASIC:
+          if (
+            this.constructionManager.isConstructionInSecuredArea(
+              this,
+              constructionObject
+            )
+          ) {
+            if (client) {
+              this.constructionManager.sendBaseSecuredMessage(this, client);
+            }
+          } else {
             this.constructionManager.checkConstructionDamage(
               this,
               constructionObject.characterId,
-              50000,
-              this._constructionFoundations,
+              this.baseConstructionDamage,
+              this._constructionSimple,
               position,
-              constructionObject.state.position,
-              source
+              constructionObject.fixedPosition
+                ? constructionObject.fixedPosition
+                : constructionObject.state.position,
+              itemDefinitionId
             );
-            break;
-        }
-      }
-    }
-
-    for (const construction in this._lootableConstruction) {
-      const constructionObject = this._lootableConstruction[
-        construction
-      ] as LootableConstructionEntity;
-      if (isPosInRadius(2, constructionObject.state.position, position)) {
-        const parent = constructionObject.getParent(this);
-        if (parent && parent.isSecured) {
-          if (client) {
-            this.constructionManager.sendBaseSecuredMessage(this, client);
           }
-          continue;
         }
-        this.constructionManager.checkConstructionDamage(
-          this,
-          constructionObject.characterId,
-          50000,
-          this._lootableConstruction,
-          position,
-          constructionObject.state.position,
-          source
-        );
+      }
+
+      for (const construction in this._constructionDoors) {
+        const constructionObject = this._constructionDoors[
+          construction
+        ] as ConstructionDoor;
+        if (
+          isPosInRadius(
+            constructionObject.damageRange,
+            constructionObject.fixedPosition
+              ? constructionObject.fixedPosition
+              : constructionObject.state.position,
+            position
+          )
+        ) {
+          if (
+            this.constructionManager.isConstructionInSecuredArea(
+              this,
+              constructionObject
+            )
+          ) {
+            if (client) {
+              this.constructionManager.sendBaseSecuredMessage(this, client);
+            }
+          } else {
+            this.constructionManager.checkConstructionDamage(
+              this,
+              constructionObject.characterId,
+              this.baseConstructionDamage,
+              this._constructionDoors,
+              position,
+              constructionObject.fixedPosition
+                ? constructionObject.fixedPosition
+                : constructionObject.state.position,
+              itemDefinitionId
+            );
+          }
+        }
+      }
+
+      for (const construction in this._constructionFoundations) {
+        const constructionObject = this._constructionFoundations[
+          construction
+        ] as ConstructionParentEntity;
+        if (
+          isPosInRadius(
+            constructionObject.damageRange * 1.5,
+            constructionObject.state.position,
+            position
+          )
+        ) {
+          switch (constructionObject.itemDefinitionId) {
+            case Items.SHACK:
+            case Items.SHACK_SMALL:
+            case Items.SHACK_BASIC:
+              this.constructionManager.checkConstructionDamage(
+                this,
+                constructionObject.characterId,
+                this.baseConstructionDamage,
+                this._constructionFoundations,
+                position,
+                constructionObject.state.position,
+                itemDefinitionId
+              );
+              break;
+          }
+        }
+      }
+
+      for (const construction in this._lootableConstruction) {
+        const constructionObject = this._lootableConstruction[
+          construction
+        ] as LootableConstructionEntity;
+        if (isPosInRadius(2, constructionObject.state.position, position)) {
+          const parent = constructionObject.getParent(this);
+          if (parent && parent.isSecured) {
+            if (client) {
+              this.constructionManager.sendBaseSecuredMessage(this, client);
+            }
+            continue;
+          }
+          this.constructionManager.checkConstructionDamage(
+            this,
+            constructionObject.characterId,
+            this.baseConstructionDamage,
+            this._lootableConstruction,
+            position,
+            constructionObject.state.position,
+            itemDefinitionId
+          );
+        }
+      }
+
+      for (const construction in this._worldLootableConstruction) {
+        const constructionObject = this._worldLootableConstruction[
+          construction
+        ] as LootableConstructionEntity;
+        if (isPosInRadius(2, constructionObject.state.position, position)) {
+          this.constructionManager.checkConstructionDamage(
+            this,
+            constructionObject.characterId,
+            this.baseConstructionDamage,
+            this._worldLootableConstruction,
+            position,
+            constructionObject.state.position,
+            itemDefinitionId
+          );
+        }
+      }
+
+      for (const construction in this._worldSimpleConstruction) {
+        const constructionObject = this._worldSimpleConstruction[
+          construction
+        ] as ConstructionChildEntity;
+        if (isPosInRadius(4, constructionObject.state.position, position)) {
+          this.constructionManager.checkConstructionDamage(
+            this,
+            constructionObject.characterId,
+            this.baseConstructionDamage,
+            this._worldSimpleConstruction,
+            position,
+            constructionObject.state.position,
+            itemDefinitionId
+          );
+        }
       }
     }
-
-    for (const construction in this._worldLootableConstruction) {
-      const constructionObject = this._worldLootableConstruction[
-        construction
-      ] as LootableConstructionEntity;
-      if (isPosInRadius(2, constructionObject.state.position, position)) {
-        this.constructionManager.checkConstructionDamage(
-          this,
-          constructionObject.characterId,
-          50000,
-          this._worldLootableConstruction,
-          position,
-          constructionObject.state.position,
-          source
-        );
-      }
-    }
-
-    for (const construction in this._worldSimpleConstruction) {
-      const constructionObject = this._worldSimpleConstruction[
-        construction
-      ] as ConstructionChildEntity;
-      if (isPosInRadius(4, constructionObject.state.position, position)) {
-        this.constructionManager.checkConstructionDamage(
-          this,
-          constructionObject.characterId,
-          50000,
-          this._worldSimpleConstruction,
-          position,
-          constructionObject.state.position,
-          source
-        );
-      }
-    }
-
     for (const explosive in this._explosives) {
       const explosiveObj = this._explosives[explosive];
       if (explosiveObj.characterId != npcTriggered) {
@@ -2393,12 +2417,11 @@ export class ZoneServer2016 extends EventEmitter {
             this.deleteEntity(explosiveObj.characterId, this._spawnedItems);
             delete this.worldObjectManager.spawnedLootObjects[object.spawnerId];
           }
-          if (!explosiveObj.detonated) explosiveObj.detonate(this);
+          if (!explosiveObj.detonated) explosiveObj.detonate(this, client);
         }
       }
     }
   }
-
   createProjectileNpc(client: Client, data: any) {
     const fireHint = client.fireHints[data.projectileId];
     if (!fireHint) return;
@@ -2971,7 +2994,7 @@ export class ZoneServer2016 extends EventEmitter {
         message: "ProjectileDistance"
       };
     }
-    if (!client.spawnedEntities.includes(entity)) {
+    if (!client.spawnedEntities.has(entity)) {
       return {
         isValid: false,
         message: "InvalidTarget"
@@ -2980,7 +3003,7 @@ export class ZoneServer2016 extends EventEmitter {
 
     const target = this.getClientByCharId(entity.characterId);
     if (target) {
-      if (!target.spawnedEntities.includes(client.character)) {
+      if (!target.spawnedEntities.has(client.character)) {
         return {
           isValid: false,
           message: "InvalidTarget"
@@ -3168,50 +3191,56 @@ export class ZoneServer2016 extends EventEmitter {
     }
   }
 
-  customizeDTO(client: Client) {
-    const DTOArray: Array<any> = [];
+  customizeStaticDTOs() {
+    console.time("customizeStaticDTOs");
+    // caches DTOs that should always be removed
     for (const object in this._lootableProps) {
       const prop = this._lootableProps[object];
       const propInstance = {
         objectId: prop.spawnerId,
-        unknownString1: "Weapon_Empty.adr"
+        replacementModel: "Weapon_Empty.adr"
       };
-      DTOArray.push(propInstance);
+      this.staticDTOs.push(propInstance);
     }
     for (const object in this._taskProps) {
       const prop = this._taskProps[object];
       const propInstance = {
         objectId: prop.spawnerId,
-        unknownString1: "Weapon_Empty.adr"
+        replacementModel: "Weapon_Empty.adr"
       };
-      DTOArray.push(propInstance);
+      this.staticDTOs.push(propInstance);
     }
     for (const object in this._crates) {
       const prop = this._crates[object];
       const propInstance = {
         objectId: prop.spawnerId,
-        unknownString1: "Weapon_Empty.adr"
+        replacementModel: "Weapon_Empty.adr"
       };
-      DTOArray.push(propInstance);
+      this.staticDTOs.push(propInstance);
     }
     for (let x = 0; x < this._destroyableDTOlist.length; x++) {
       const propInstance = {
         objectId: this._destroyableDTOlist[x],
-        unknownString1: "Weapon_Empty.adr"
+        replacementModel: "Weapon_Empty.adr"
       };
-      DTOArray.push(propInstance);
+      this.staticDTOs.push(propInstance);
     }
-    this.speedtreeManager.customize(DTOArray);
     deprecatedDoors.forEach((door: number) => {
       const DTOinstance = {
         objectId: door,
-        unknownString1: "Weapon_Empty.adr"
+        replacementModel: "Weapon_Empty.adr"
       };
-      DTOArray.push(DTOinstance);
+      this.staticDTOs.push(DTOinstance);
     });
+    console.timeEnd("customizeStaticDTOs");
+  }
+
+  customizeDTO(client: Client) {
+    const speedtreeDTOs: Array<PropInstance> = [];
+    this.speedtreeManager.customize(speedtreeDTOs);
     this.sendData<DtoObjectInitialData>(client, "DtoObjectInitialData", {
       unknownDword1: 1,
-      unknownArray1: DTOArray,
+      unknownArray1: [...speedtreeDTOs, ...this.staticDTOs],
       unknownArray2: [{}]
     });
   }
@@ -3232,17 +3261,14 @@ export class ZoneServer2016 extends EventEmitter {
 
   private removeOutOfDistanceEntities(client: Client) {
     // does not include vehicles
-    const objectsToRemove = client.spawnedEntities.filter((e) =>
-      this.shouldRemoveEntity(client, e)
-    );
-    client.spawnedEntities = client.spawnedEntities.filter((el) => {
-      return !objectsToRemove.includes(el);
-    });
-    objectsToRemove.forEach((object) => {
-      this.sendData<CharacterRemovePlayer>(client, "Character.RemovePlayer", {
-        characterId: object.characterId
-      });
-    });
+    for (const entity of client.spawnedEntities) {
+      if (this.shouldRemoveEntity(client, entity)) {
+        this.sendData<CharacterRemovePlayer>(client, "Character.RemovePlayer", {
+          characterId: entity.characterId
+        });
+        client.spawnedEntities.delete(entity);
+      }
+    }
   }
 
   private removeOODInteractionData(client: Client) {
@@ -3289,10 +3315,7 @@ export class ZoneServer2016 extends EventEmitter {
 
     for (const a in this._clients) {
       const client = this._clients[a];
-      const index = client.spawnedEntities.indexOf(dictionary[characterId]);
-      if (index > -1) {
-        client.spawnedEntities.splice(index, 1);
-      }
+      client.spawnedEntities.delete(dictionary[characterId]);
     }
     delete dictionary[characterId];
     delete this._transientIds[this._characterIds[characterId]];
@@ -3327,9 +3350,9 @@ export class ZoneServer2016 extends EventEmitter {
 
   spawnSimpleNpcForAllInRange(entity: BaseSimpleNpc) {
     this.executeFuncForAllReadyClientsInRange((client) => {
-      if (!client.spawnedEntities.includes(entity)) {
+      if (!client.spawnedEntities.has(entity)) {
         this.addSimpleNpc(client, entity);
-        client.spawnedEntities.push(entity);
+        client.spawnedEntities.add(entity);
       }
     }, entity);
   }
@@ -3372,7 +3395,7 @@ export class ZoneServer2016 extends EventEmitter {
           client.character.state.position,
           characterObj.state.position
         ) &&
-        !client.spawnedEntities.includes(characterObj) &&
+        !client.spawnedEntities.has(characterObj) &&
         characterObj.isAlive &&
         !characterObj.isSpectator &&
         (characterObj.isHidden == client.character.isHidden ||
@@ -3384,7 +3407,7 @@ export class ZoneServer2016 extends EventEmitter {
           "AddLightweightPc",
           characterObj.pGetLightweightPC(this, this._clients[c])
         );
-        client.spawnedEntities.push(this._characters[characterObj.characterId]);
+        client.spawnedEntities.add(this._characters[characterObj.characterId]);
       }
     }
   }
@@ -3400,7 +3423,7 @@ export class ZoneServer2016 extends EventEmitter {
           character.state.position,
           c.character.state.position
         ) &&
-        !c.spawnedEntities.includes(character) &&
+        !c.spawnedEntities.has(character) &&
         character != c.character
       ) {
         this.sendData<AddLightweightPc>(
@@ -3408,7 +3431,7 @@ export class ZoneServer2016 extends EventEmitter {
           "AddLightweightPc",
           character.pGetLightweightPC(this, client)
         );
-        c.spawnedEntities.push(character);
+        c.spawnedEntities.add(character);
       }
     }
   }
@@ -3451,7 +3474,7 @@ export class ZoneServer2016 extends EventEmitter {
             position,
             object.state.position
           ) ||
-          client.spawnedEntities.includes(object)
+          client.spawnedEntities.has(object)
         ) {
           continue;
         }
@@ -3466,12 +3489,12 @@ export class ZoneServer2016 extends EventEmitter {
           if (object instanceof Crate && object.spawnTimestamp > Date.now()) {
             continue;
           }
-          client.spawnedEntities.push(object);
+          client.spawnedEntities.add(object);
           this.addSimpleNpc(client, object);
           continue;
         }
 
-        client.spawnedEntities.push(object);
+        client.spawnedEntities.add(object);
         if (object instanceof BaseLightweightCharacter) {
           if (object.useSimpleStruct) {
             this.addSimpleNpc(client, object);
@@ -3524,13 +3547,14 @@ export class ZoneServer2016 extends EventEmitter {
         ) {
           continue;
         }
-        if (client.spawnedEntities.includes(object)) continue;
+
+        if (client.spawnedEntities.has(object)) continue;
 
         if (object instanceof BaseSimpleNpc) {
           if (object instanceof Crate && object.spawnTimestamp > Date.now()) {
             continue;
           }
-          client.spawnedEntities.push(object);
+          client.spawnedEntities.add(object);
           this.addSimpleNpc(client, object);
           continue;
         }
@@ -3539,7 +3563,7 @@ export class ZoneServer2016 extends EventEmitter {
           object instanceof BaseLightweightCharacter &&
           object.useSimpleStruct
         ) {
-          client.spawnedEntities.push(object);
+          client.spawnedEntities.add(object);
           this.addSimpleNpc(client, object);
         }
       }
@@ -3846,14 +3870,12 @@ export class ZoneServer2016 extends EventEmitter {
     client: Client,
     name: string
   ): Promise<ClientBan | undefined> {
-    const unBannedClient = (
-      await this._db
-        ?.collection(DB_COLLECTIONS.BANNED)
-        .findOneAndUpdate(
-          { name, active: true },
-          { $set: { active: false, unBanAdminName: client.character.name } }
-        )
-    )?.value as unknown as ClientBan | undefined;
+    const unBannedClient = (await this._db
+      ?.collection(DB_COLLECTIONS.BANNED)
+      .findOneAndUpdate(
+        { name, active: true },
+        { $set: { active: false, unBanAdminName: client.character.name } }
+      )) as unknown as ClientBan | undefined;
     return unBannedClient;
   }
 
@@ -4053,7 +4075,7 @@ export class ZoneServer2016 extends EventEmitter {
     for (const a in this._clients) {
       if (
         client != this._clients[a] &&
-        this._clients[a].spawnedEntities.includes(
+        this._clients[a].spawnedEntities.has(
           this._characters[entityCharacterId]
         )
       ) {
@@ -4386,7 +4408,7 @@ export class ZoneServer2016 extends EventEmitter {
           vehicle.state.position
         )
       ) {
-        if (!client.spawnedEntities.includes(vehicle)) {
+        if (!client.spawnedEntities.has(vehicle)) {
           this.sendData<AddLightweightVehicle>(
             client,
             "AddLightweightVehicle",
@@ -4419,7 +4441,7 @@ export class ZoneServer2016 extends EventEmitter {
             characterId: client.character.characterId,
             passengers: vehicle.pGetPassengers(this),
           });*/
-          client.spawnedEntities.push(vehicle);
+          client.spawnedEntities.add(vehicle);
         }
         // disable managing vehicles with routine, leaving only managed when entering it
         /*if (!vehicle.isManaged) {
@@ -4435,8 +4457,8 @@ export class ZoneServer2016 extends EventEmitter {
       ) {
         // vehicle despawning / managed object drop logic
 
-        const index = client.spawnedEntities.indexOf(vehicle);
-        if (index > -1) {
+        const vehicleExist = client.spawnedEntities.has(vehicle);
+        if (vehicleExist) {
           if (vehicle.isManaged) {
             this.dropManagedObject(client, vehicle);
           }
@@ -4447,7 +4469,7 @@ export class ZoneServer2016 extends EventEmitter {
               characterId: vehicle.characterId
             }
           );
-          client.spawnedEntities.splice(index, 1);
+          client.spawnedEntities.delete(vehicle);
         }
       }
     }
@@ -4600,9 +4622,7 @@ export class ZoneServer2016 extends EventEmitter {
     if (!entityCharacterId) return;
     for (const a in this._clients) {
       if (
-        this._clients[a].spawnedEntities.includes(
-          dictionary[entityCharacterId]
-        ) ||
+        this._clients[a].spawnedEntities.has(dictionary[entityCharacterId]) ||
         this._clients[a].character.characterId == entityCharacterId
       ) {
         this.sendData<ZonePacket>(this._clients[a], packetName, obj);
@@ -4640,7 +4660,7 @@ export class ZoneServer2016 extends EventEmitter {
     for (const a in this._clients) {
       if (
         client != this._clients[a] &&
-        this._clients[a].spawnedEntities.includes(dictionary[entityCharacterId])
+        this._clients[a].spawnedEntities.has(dictionary[entityCharacterId])
       ) {
         this.sendData<ZonePacket>(this._clients[a], packetName, obj);
       }
@@ -5783,7 +5803,7 @@ export class ZoneServer2016 extends EventEmitter {
 
     if (!obj) return;
     this.executeFuncForAllReadyClientsInRange((c) => {
-      c.spawnedEntities.push(obj);
+      c.spawnedEntities.add(obj);
       this.addLightweightNpc(c, obj);
     }, obj);
   }
@@ -6100,6 +6120,25 @@ export class ZoneServer2016 extends EventEmitter {
         delete this._airdrop;
       }
     }, 600000);
+  }
+
+  useAmmoBox(client: Client, item: BaseItem) {
+    const itemDef = this.getItemDefinition(item.itemDefinitionId);
+    if (!this.removeInventoryItem(client.character, item) || !itemDef) return;
+
+    this.utilizeHudTimer(client, itemDef.NAME_ID, 5000, 0, () => {
+      switch (item.itemDefinitionId) {
+        case Items.AMMO_BOX_223:
+          client.character.lootItem(
+            this,
+            this.generateItem(Items.AMMO_223, 60)
+          );
+          break;
+        case Items.AMMO_BOX_45:
+          client.character.lootItem(this, this.generateItem(Items.AMMO_45, 60));
+          break;
+      }
+    });
   }
 
   useConsumable(client: Client, item: BaseItem, animationId: number) {
@@ -7443,6 +7482,7 @@ export class ZoneServer2016 extends EventEmitter {
       return;
     }
     for (const a in this._clients) {
+      const startTime = Date.now();
       const client = this._clients[a];
       if (!client.isLoading) {
         client.routineCounter++;
@@ -7462,6 +7502,13 @@ export class ZoneServer2016 extends EventEmitter {
         this.spawnGridObjects(client);
         this.constructionManager.worldConstructionManager(this, client);
         client.posAtLastRoutine = client.character.state.position;
+      }
+      const endTime = Date.now();
+      const timeTaken = endTime - startTime;
+      if (timeTaken > this.tickRate) {
+        console.log(
+          `Routine took ${timeTaken}ms to execute, which is more than the tickRate ${this.tickRate}`
+        );
       }
       await Scheduler.wait(this.tickRate);
     }

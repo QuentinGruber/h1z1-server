@@ -26,6 +26,8 @@ interface ServerConfig {
   enableLoginServerKickRequests: boolean;
   rebootTime: number;
   rebootWarnTime: number;
+  isPvE: boolean;
+  baseConstructionDamage: number;
 }
 
 interface FairplayConfig {
@@ -51,6 +53,8 @@ interface WorldObjectsConfig {
   hasCustomLootRespawnTime: boolean;
   lootRespawnTimer: number;
   vehicleRespawnTimer: number;
+  waterSourceReplenishTimer: number;
+  waterSourceRefillAmount: number;
   npcRespawnTimer: number;
 
   itemDespawnTimer: number;

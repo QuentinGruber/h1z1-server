@@ -9,6 +9,8 @@ server:
   enableLoginServerKickRequests: true
   rebootTime: 72 # hours (0 to disable)
   rebootWarnTime: 600 # seconds
+  isPvE: false 
+  baseConstructionDamage: 34000
 
 # Fairplay / anticheat config
 fairplay:
@@ -74,6 +76,9 @@ worldobjects:
   npcSpawnRadius: 3
   chanceNpc: 100 # To be reworked: 100 max
   chanceScreamer: 5 # To be reworked: 1000 max
+
+  waterSourceRefillAmount: 2
+  waterSourceReplenishTimer: 300000 # 5 minutes
 
 # Trees, blackberry bushes, and sticks
 speedtree:

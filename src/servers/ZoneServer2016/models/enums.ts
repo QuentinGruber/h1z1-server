@@ -20,6 +20,7 @@ export enum ItemUseOptions {
   DROP = 4,
   SHRED = 6,
   UNLOAD = 7,
+  UNPACK = 10,
   IGNITE = 11,
   REPAIR = 16,
   REFUEL = 17,
@@ -68,6 +69,11 @@ export enum ConstructionPermissionIds {
 export enum StringIds {
   ENTER_VEHICLE = 15,
   OFFROADER = 16,
+  WATER_WELL = 1006,
+  COLLECT_WATER = 1008,
+  DRINK_DIRTY_WATER = 1331,
+  DRINK_STAGNANT_WATER = 1461,
+  DIRTY_WATER = 1099,
   TAKE_ITEM = 29,
   OPEN = 31,
   CORN = 628,
@@ -319,6 +325,11 @@ export enum Items {
   AMMO_ARROW = 112,
   AMMO_ARROW_EXPLOSIVE = 138,
   AMMO_ARROW_FLAMING = 1434,
+  //#endregion
+
+  //#region AMMO_BOX
+  AMMO_BOX_223 = 1430,
+  AMMO_BOX_45 = 8,
   //#endregion
 
   //#region PERISHABLE

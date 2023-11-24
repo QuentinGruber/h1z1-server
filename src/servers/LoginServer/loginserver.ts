@@ -700,10 +700,10 @@ export class LoginServer extends EventEmitter {
         }
       );
     this.clients.forEach((client: Client) => {
-      if (client.gameVersion === server.value.gameVersion) {
+      if (client.gameVersion === server.gameVersion) {
         this.sendData(client, "ServerUpdate", {
-          ...server.value,
-          allowedAccess: !server.value.locked ? status : false
+          ...server,
+          allowedAccess: !server.locked ? status : false
         });
       }
     });

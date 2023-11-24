@@ -59,6 +59,7 @@ import { TaskProp } from "../entities/taskprop";
 import { Crate } from "../entities/crate";
 import { Destroyable } from "../entities/destroyable";
 import { CharacterPlayWorldCompositeEffect } from "types/zone2016packets";
+import { WaterSource } from "../entities/watersource";
 const debug = require("debug")("ZoneServer");
 
 function getRandomSkin(itemDefinitionId: number) {
@@ -116,6 +117,7 @@ export class WorldObjectManager {
   private _lastLootRespawnTime: number = 0;
   private _lastVehicleRespawnTime: number = 0;
   private _lastNpcRespawnTime: number = 0;
+  private _lastWaterSourceReplenishTime: number = 0;
 
   /* MANAGED BY CONFIGMANAGER */
   vehicleSpawnCap!: number;
@@ -134,6 +136,9 @@ export class WorldObjectManager {
   npcSpawnRadius!: number;
   chanceNpc!: number;
   chanceScreamer!: number;
+
+  waterSourceReplenishTimer!: number;
+  waterSourceRefillAmount!: number;
 
   private zombieSlots = [
     EquipSlots.HEAD,
@@ -183,6 +188,13 @@ export class WorldObjectManager {
     if (this._lastVehicleRespawnTime + this.vehicleRespawnTimer <= Date.now()) {
       this.createVehicles(server);
       this._lastVehicleRespawnTime = Date.now();
+    }
+    if (
+      this._lastWaterSourceReplenishTime + this.waterSourceReplenishTimer <=
+      Date.now()
+    ) {
+      this.replenishWaterSources(server);
+      this._lastWaterSourceReplenishTime = Date.now();
     }
 
     this.despawnEntities(server);
@@ -499,19 +511,40 @@ export class WorldObjectManager {
     Z1_taskProps.forEach((propType: any) => {
       propType.instances.forEach((propInstance: any) => {
         const characterId = generateRandomGuid();
-        const obj = new TaskProp(
-          characterId,
-          server.getTransientId(characterId), // need transient generated for Interaction Replication
-          propType.modelId,
-          propInstance.position,
-          fixEulerOrder(propInstance.rotation),
-          server,
-          propInstance.scale,
-          propInstance.id,
-          propType.renderDistance,
-          propType.actor_file
-        );
-        server._taskProps[characterId] = obj;
+        let obj;
+        switch (propType.actor_file) {
+          case "Common_Props_Cabinets_BathroomSink.adr":
+          case "Common_Props_Bathroom_Toilet01.adr":
+          case "Common_Props_Well.adr":
+            obj = new WaterSource(
+              characterId,
+              server.getTransientId(characterId), // need transient generated for Interaction Replication
+              propType.modelId,
+              propInstance.position,
+              fixEulerOrder(propInstance.rotation),
+              server,
+              propInstance.scale,
+              propInstance.id,
+              propType.renderDistance,
+              propType.actor_file,
+              this.waterSourceRefillAmount
+            );
+            break;
+          default:
+            obj = new TaskProp(
+              characterId,
+              server.getTransientId(characterId), // need transient generated for Interaction Replication
+              propType.modelId,
+              propInstance.position,
+              fixEulerOrder(propInstance.rotation),
+              server,
+              propInstance.scale,
+              propInstance.id,
+              propType.renderDistance,
+              propType.actor_file
+            );
+        }
+        if (obj) server._taskProps[characterId] = obj;
       });
     });
     Z1_crates.forEach((propType: any) => {
@@ -564,6 +597,12 @@ export class WorldObjectManager {
       });
     });
     debug("All props created");
+  }
+
+  replenishWaterSources(server: ZoneServer2016) {
+    Object.values(server._taskProps).forEach((propInstance: any) => {
+      if (propInstance instanceof WaterSource) propInstance.replenish();
+    });
   }
 
   private createDoor(

@@ -12,13 +12,20 @@
 // ======================================================================
 
 import { DoorEntity } from "./doorentity";
-import { ConstructionPermissionIds, Items, StringIds } from "../models/enums";
+import {
+  ConstructionPermissionIds,
+  Items,
+  ResourceIds,
+  ResourceTypes,
+  StringIds
+} from "../models/enums";
 import { ZoneServer2016 } from "../zoneserver";
 import { ZoneClient2016 } from "../classes/zoneclient";
 import { DamageInfo, OccupiedSlotMap } from "types/zoneserver";
 import { getConstructionSlotId, movePoint } from "../../../utils/utils";
 import { ConstructionParentEntity } from "./constructionparententity";
 import { ConstructionChildEntity } from "./constructionchildentity";
+import { CUSTOM_PROFILES_IDS } from "../../../utils/enums";
 function getDamageRange(definitionId: number): number {
   switch (definitionId) {
     case Items.METAL_GATE:
@@ -26,9 +33,24 @@ function getDamageRange(definitionId: number): number {
     case Items.DOOR_WOOD:
     case Items.DOOR_METAL:
     case Items.DOOR_BASIC:
-      return 2;
+      return 2.5;
     default:
       return 2;
+  }
+}
+
+function getMaxHealth(itemDefinitionId: Items): number {
+  switch (itemDefinitionId) {
+    case Items.METAL_GATE:
+      return 1000000;
+    case Items.DOOR_METAL:
+      return 500000;
+    case Items.DOOR_WOOD:
+      return 250000;
+    case Items.DOOR_BASIC:
+      return 150000;
+    default:
+      return 1000000;
   }
 }
 
@@ -71,9 +93,9 @@ export class ConstructionDoor extends DoorEntity {
     this.itemDefinitionId = itemDefinitionId;
     this.parentObjectCharacterId = parentObjectCharacterId;
     this.slot = slot;
-    this.profileId = 999; /// mark as construction
+    this.profileId = CUSTOM_PROFILES_IDS.CONSTRUCTION; /// mark as construction
 
-    this.maxHealth = 1000000;
+    this.maxHealth = getMaxHealth(itemDefinitionId);
     this.health = this.maxHealth;
 
     this.damageRange = getDamageRange(this.itemDefinitionId);
@@ -95,15 +117,18 @@ export class ConstructionDoor extends DoorEntity {
     }
   }
 
-  pGetConstructionHealth() {
-    return {
-      characterId: this.characterId,
-      health: this.health / 10000
-    };
-  }
   damage(server: ZoneServer2016, damageInfo: DamageInfo) {
-    // todo: redo this
     this.health -= damageInfo.damage;
+    server.updateResourceToAllWithSpawnedEntity(
+      this.characterId,
+      (this.health / this.maxHealth) * 1000000,
+      ResourceIds.CONSTRUCTION_CONDITION,
+      ResourceTypes.CONDITION,
+      server._constructionDoors
+    );
+
+    if (this.health > 0) return;
+    this.destroy(server, 3000);
   }
 
   destroy(server: ZoneServer2016, destructTime = 0): boolean {
