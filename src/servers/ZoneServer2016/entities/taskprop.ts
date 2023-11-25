@@ -48,6 +48,7 @@ export class TaskProp extends BaseLightweightCharacter {
       case Items.AMMO_45:
       case Items.AMMO_9MM:
       case Items.AMMO_12GA:
+      case Items.AMMO_223:
         return randomIntFromInterval(6, 8);
       case Items.FIRST_AID:
       case Items.ANTIBIOTICS:
@@ -56,8 +57,26 @@ export class TaskProp extends BaseLightweightCharacter {
     return 1;
   }
 
+  getRequiredItemCount(itemId: number): number {
+    switch (itemId) {
+      case Items.BRAIN_TREATED:
+        return 10;
+    }
+    return 1;
+  }
+
   getTaskPropData(): void {
     switch (this.actorModel) {
+      case "Task_Hospital_Researcher_TreasureChest.adr":
+        this.nameId = 12771;
+        this.requiredItemId = Items.BRAIN_TREATED;
+        this.rewardItems = [
+          Items.CODED_MESSAGE,
+          Items.AMMO_9MM,
+          Items.AMMO_223,
+          Items.FIRST_AID
+        ];
+        break;
       case "Task_Hospital_Researcher_Locker.adr":
         this.nameId = 12781;
         this.requiredItemId = 2645;
@@ -127,6 +146,12 @@ export class TaskProp extends BaseLightweightCharacter {
 
   OnInteractionString(server: ZoneServer2016, client: ZoneClient2016) {
     switch (this.actorModel) {
+      case "Task_Hospital_Researcher_Radio.adr":
+        server.sendData(client, "Command.InteractionString", {
+          guid: this.characterId,
+          stringId: StringIds.USE_TARGET
+        });
+        break;
       case "Common_Props_Bedroom_Mattress01.adr":
       case "Common_Props_MilitaryBase_BunkBed.adr":
       case "Common_Props_Bedroom_BedCombined01.adr":
@@ -157,6 +182,15 @@ export class TaskProp extends BaseLightweightCharacter {
     /* eslint-enable @typescript-eslint/no-unused-vars */
   ) {
     switch (this.actorModel) {
+      case "Task_Hospital_Researcher_Radio.adr":
+        if (!client.character.hasItem(Items.AIRDROP_CODE)) return;
+        const item = client.character.getItemById(Items.AIRDROP_CODE);
+        if (!item || item.hasAirdropClearance) return;
+        server.utilizeHudTimer(client, StringIds.LONG_RANGE_RADIO, 1000, 0, () => {
+          item.hasAirdropClearance = true;
+          server.sendAlert(client, "You hear an automated message requesting a code to call in an airdrop.");
+        });
+        break;
       case "Common_Props_Bedroom_Mattress01.adr":
       case "Common_Props_MilitaryBase_BunkBed.adr":
       case "Common_Props_Bedroom_BedCombined01.adr":
@@ -169,8 +203,9 @@ export class TaskProp extends BaseLightweightCharacter {
         }
         break;
       default:
-        if (!this.requiredItemId) return;
+        if (!this.requiredItemId && this.getRequiredItemCount(this.requiredItemId)) return;
         // return empty ones, need more info and time to get other quests working
+        //TODO: only stacked items currently work
         const removedItem = client.character.getItemById(this.requiredItemId);
         if (!removedItem) {
           server.sendAlert(client, "This locker is locked.");
@@ -188,7 +223,7 @@ export class TaskProp extends BaseLightweightCharacter {
             count: this.getRewardItemCount(item)
           });
         }
-        server.taskOption(client, 1000, this.nameId, removedItem, itemsPassed);
+        server.taskOption(client, 1000, this.nameId, { itemDefinitionId: removedItem, count: this.getRequiredItemCount(this.requiredItemId) }, itemsPassed);
         break;
     }
   }

@@ -144,7 +144,7 @@ function getContainerAndTime(entity: LootableProp) {
       break;
     case 9563:
       entity.containerId = Items.CONTAINER_MEDICAL_STATION;
-      entity.searchTime = 1000;
+      entity.searchTime = 0;
       entity.lootSpawner = "Medical Station";
       break;
     case 9551:
@@ -239,6 +239,14 @@ export class LootableProp extends BaseLootableEntity {
     }
   }
   OnInteractionString(server: ZoneServer2016, client: ZoneClient2016) {
+    if(this.actorModelId == 9563) {
+      //TODO: Probably make a switch if I want to put worn letter chests here
+      server.sendData(client, "Command.InteractionString", {
+        guid: this.characterId,
+        stringId: StringIds.USE_TARGET
+      });
+      return;
+    }
     if (client.searchedProps.includes(this)) {
       server.sendData(client, "Command.InteractionString", {
         guid: this.characterId,

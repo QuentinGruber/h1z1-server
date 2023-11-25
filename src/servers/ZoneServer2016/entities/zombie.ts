@@ -13,7 +13,9 @@
 
 import { Npc } from "./npc";
 import { ZoneServer2016 } from "../zoneserver";
-import { MaterialTypes } from "../models/enums";
+import { Items, MaterialTypes, StringIds } from "../models/enums";
+import { ZoneClient2016 } from "../classes/zoneclient";
+import { CommandInteractionString } from "types/zone2016packets";
 
 export class Zombie extends Npc {
   constructor(
@@ -35,5 +37,46 @@ export class Zombie extends Npc {
       spawnerId
     );
     this.materialType = MaterialTypes.ZOMBIE;
+  }
+
+  OnInteractionString(server: ZoneServer2016, client: ZoneClient2016) {
+    if (!this.isAlive) {
+      if (!client.character.hasItem(Items.SYRINGE_EMPTY)) {
+        server.sendData<CommandInteractionString>(
+          client,
+          "Command.InteractionString",
+          {
+            guid: this.characterId,
+            stringId: StringIds.HARVEST
+          }
+        );
+        return;
+      }
+      server.sendData<CommandInteractionString>(
+        client,
+        "Command.InteractionString",
+        {
+          guid: this.characterId,
+          stringId: StringIds.EXTRACT_BLOOD
+        }
+      );
+    }
+  }
+
+  OnPlayerSelect(
+    server: ZoneServer2016,
+    client: ZoneClient2016,
+  ) {
+    server.utilizeHudTimer(client, 60, 5000, 0, () => {
+      const item = client.character.getItemById(Items.SYRINGE_EMPTY);
+      if (!item) {
+        if (server.deleteEntity(this.characterId, server._npcs)) {
+          client.character.lootContainerItem(server, server.generateItem(Items.BRAIN_INFECTED));
+        }
+        return;
+      }
+      if (!server.removeInventoryItem(client.character, item)) return;
+      client.character.lootContainerItem(server, server.generateItem(Items.SYRINGE_INFECTED_BLOOD));
+    });
   }
 }
