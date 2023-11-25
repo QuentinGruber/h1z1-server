@@ -79,7 +79,7 @@ export class TaskProp extends BaseLightweightCharacter {
         break;
       case "Task_Hospital_Researcher_Locker.adr":
         this.nameId = 12781;
-        this.requiredItemId = 2645;
+        this.requiredItemId = Items.LOCKER_KEY_F1;
         this.rewardItems = [
           Items.AMMO_45,
           Items.AMMO_9MM,
@@ -94,7 +94,7 @@ export class TaskProp extends BaseLightweightCharacter {
         break;
       case "Task_Hospital_Researcher_Locker02.adr":
         this.nameId = 12785;
-        this.requiredItemId = 2646;
+        this.requiredItemId = Items.LOCKER_KEY_F2;
         this.rewardItems = [
           Items.AMMO_45,
           Items.AMMO_9MM,
@@ -109,7 +109,7 @@ export class TaskProp extends BaseLightweightCharacter {
         break;
       case "Task_Hospital_Researcher_Locker03.adr":
         this.nameId = 12787;
-        this.requiredItemId = 2647;
+        this.requiredItemId = Items.LOCKER_KEY_F3;
         this.rewardItems = [
           Items.AMMO_45,
           Items.AMMO_9MM,
@@ -124,7 +124,7 @@ export class TaskProp extends BaseLightweightCharacter {
         break;
       case "Task_Hospital_Researcher_Locker04.adr":
         this.nameId = 12790;
-        this.requiredItemId = 2648;
+        this.requiredItemId = Items.LOCKER_KEY_F4;
         this.rewardItems = [
           Items.AMMO_45,
           Items.AMMO_9MM,
@@ -203,27 +203,40 @@ export class TaskProp extends BaseLightweightCharacter {
         }
         break;
       default:
-        if (!this.requiredItemId && this.getRequiredItemCount(this.requiredItemId)) return;
-        // return empty ones, need more info and time to get other quests working
-        //TODO: only stacked items currently work
-        const removedItem = client.character.getItemById(this.requiredItemId);
-        if (!removedItem) {
-          server.sendAlert(client, "This locker is locked.");
+        const requiredItemCount = this.getRequiredItemCount(this.requiredItemId);
+        const inventoryItemCount = client.character.getInventoryItemAmount(this.requiredItemId);
+
+        if (requiredItemCount > inventoryItemCount) {
+          switch (this.requiredItemId) {
+            case Items.LOCKER_KEY_F1:
+              server.sendAlert(client, "This locker requires key 207.") //String ID #12782
+              break;
+            case Items.LOCKER_KEY_F2:
+              server.sendAlert(client, "This locker requires key 122.") //String ID #12786
+              break;
+            case Items.LOCKER_KEY_F3:
+              server.sendAlert(client, "This locker requires key 591.") //String ID #12788
+              break;
+            case Items.LOCKER_KEY_F4:
+              server.sendAlert(client, "This locker requires key 301.") //String ID #12791
+              break;
+          }
           return;
         }
+
         const itemsPassed: { itemDefinitionId: number; count: number }[] = [];
         const itemCount = randomIntFromInterval(2, 4);
+
         for (let x = 0; x < itemCount; x++) {
-          const item =
-            this.rewardItems[
-              randomIntFromInterval(0, this.rewardItems.length - 1)
-            ];
+          const randomIndex = randomIntFromInterval(0, this.rewardItems.length - 1);
+          const item = this.rewardItems[randomIndex];
           itemsPassed.push({
             itemDefinitionId: item,
             count: this.getRewardItemCount(item)
           });
         }
-        server.taskOption(client, 1000, this.nameId, { itemDefinitionId: removedItem, count: this.getRequiredItemCount(this.requiredItemId) }, itemsPassed);
+        const requiredItemInfo = { itemDefinitionId: this.requiredItemId, count: requiredItemCount };
+        server.taskOption(client, 1000, this.nameId, requiredItemInfo, itemsPassed);
         break;
     }
   }

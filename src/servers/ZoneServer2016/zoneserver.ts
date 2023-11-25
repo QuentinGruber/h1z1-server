@@ -6208,10 +6208,10 @@ export class ZoneServer2016 extends EventEmitter {
 
   taskOptionPass(
     client: Client,
-    removedItem: { itemDefinitionId: BaseItem; count: number },
+    removedItem: { itemDefinitionId: number; count: number },
     rewardItems: { itemDefinitionId: number; count: number }[]
   ) {
-    if (!this.removeInventoryItem(client.character, removedItem.itemDefinitionId, removedItem.count)) return;
+    if (!this.removeInventoryItems(client, removedItem.itemDefinitionId, removedItem.count)) return;
     rewardItems.forEach(
       (itemInstance: { itemDefinitionId: number; count: number }) => {
         const item = this.generateItem(
@@ -6255,7 +6255,7 @@ export class ZoneServer2016 extends EventEmitter {
     client: Client,
     timeout: number,
     nameId: number,
-    removedItem: { itemDefinitionId: BaseItem; count: number },
+    removedItem: { itemDefinitionId: number; count: number },
     rewardItems: { itemDefinitionId: number; count: number }[]
   ) {
     this.utilizeHudTimer(client, nameId, timeout, 0, () => {
