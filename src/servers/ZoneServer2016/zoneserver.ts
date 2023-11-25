@@ -3811,13 +3811,6 @@ export class ZoneServer2016 extends EventEmitter {
     return client;
   }
 
-<<<<<<< HEAD
-  async isClientBanned(client: Client): Promise<boolean> {
-    const address: string | undefined = this.getSoeClient(
-      client.soeClientId
-    )?.address;
-    const addressBanned = await this._db
-=======
   isBanExpired(ban?: ClientBan) {
     if (!ban || !ban.expirationDate) return false;
     if (ban.expirationDate < Date.now()) return true;
@@ -3830,7 +3823,6 @@ export class ZoneServer2016 extends EventEmitter {
     client?: Client
   ): Promise<ClientBan | false> {
     const addressBan: WithId<ClientBan> = (await this._db
->>>>>>> upstream/master
       ?.collection(DB_COLLECTIONS.BANNED)
       .findOne({
         IP: address,
