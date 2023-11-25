@@ -12,13 +12,20 @@
 // ======================================================================
 
 import { DoorEntity } from "./doorentity";
-import { ConstructionPermissionIds, Items, StringIds } from "../models/enums";
+import {
+  ConstructionPermissionIds,
+  Items,
+  ResourceIds,
+  ResourceTypes,
+  StringIds
+} from "../models/enums";
 import { ZoneServer2016 } from "../zoneserver";
 import { ZoneClient2016 } from "../classes/zoneclient";
 import { DamageInfo, OccupiedSlotMap } from "types/zoneserver";
 import { getConstructionSlotId, movePoint } from "../../../utils/utils";
 import { ConstructionParentEntity } from "./constructionparententity";
 import { ConstructionChildEntity } from "./constructionchildentity";
+import { CUSTOM_PROFILES_IDS } from "../../../utils/enums";
 function getDamageRange(definitionId: number): number {
   switch (definitionId) {
     case Items.METAL_GATE:
@@ -26,9 +33,24 @@ function getDamageRange(definitionId: number): number {
     case Items.DOOR_WOOD:
     case Items.DOOR_METAL:
     case Items.DOOR_BASIC:
-      return 2;
+      return 2.5;
     default:
       return 2;
+  }
+}
+
+function getMaxHealth(itemDefinitionId: Items): number {
+  switch (itemDefinitionId) {
+    case Items.METAL_GATE:
+      return 1000000;
+    case Items.DOOR_METAL:
+      return 500000;
+    case Items.DOOR_WOOD:
+      return 250000;
+    case Items.DOOR_BASIC:
+      return 150000;
+    default:
+      return 1000000;
   }
 }
 
@@ -36,7 +58,7 @@ export class ConstructionDoor extends DoorEntity {
   ownerCharacterId: string;
   passwordHash: number = 0;
   grantedAccess: Array<string> = [];
-  health: number = 1000000;
+
   parentObjectCharacterId: string;
   readonly itemDefinitionId: number;
   readonly slot: string;
@@ -44,6 +66,7 @@ export class ConstructionDoor extends DoorEntity {
   readonly fixedPosition: Float32Array;
   placementTime = Date.now();
   isSecured = true;
+  isDecayProtected: boolean = false;
   constructor(
     characterId: string,
     transientId: number,
@@ -70,7 +93,11 @@ export class ConstructionDoor extends DoorEntity {
     this.itemDefinitionId = itemDefinitionId;
     this.parentObjectCharacterId = parentObjectCharacterId;
     this.slot = slot;
-    this.profileId = 999; /// mark as construction
+    this.profileId = CUSTOM_PROFILES_IDS.CONSTRUCTION; /// mark as construction
+
+    this.maxHealth = getMaxHealth(itemDefinitionId);
+    this.health = this.maxHealth;
+
     this.damageRange = getDamageRange(this.itemDefinitionId);
     this.fixedPosition = movePoint(
       this.state.position,
@@ -90,18 +117,21 @@ export class ConstructionDoor extends DoorEntity {
     }
   }
 
-  pGetConstructionHealth() {
-    return {
-      characterId: this.characterId,
-      health: this.health / 10000
-    };
-  }
   damage(server: ZoneServer2016, damageInfo: DamageInfo) {
-    // todo: redo this
     this.health -= damageInfo.damage;
+    server.updateResourceToAllWithSpawnedEntity(
+      this.characterId,
+      (this.health / this.maxHealth) * 1000000,
+      ResourceIds.CONSTRUCTION_CONDITION,
+      ResourceTypes.CONDITION,
+      server._constructionDoors
+    );
+
+    if (this.health > 0) return;
+    this.destroy(server, 3000);
   }
 
-  destroy(server: ZoneServer2016, destructTime = 0) {
+  destroy(server: ZoneServer2016, destructTime = 0): boolean {
     const deleted = server.deleteEntity(
       this.characterId,
       server._constructionDoors,
@@ -203,6 +233,11 @@ export class ConstructionDoor extends DoorEntity {
         this.passwordHash == 0 ||
         this.grantedAccess.includes(client.character.characterId) ||
         client.character.characterId === this.ownerCharacterId ||
+        this.getHasPermission(
+          server,
+          client.character.characterId,
+          ConstructionPermissionIds.DEMOLISH
+        ) ||
         (client.isAdmin && client.isDebugMode) // debug mode open all doors/gates
       ) {
         if (this.moving) {
@@ -277,7 +312,14 @@ export class ConstructionDoor extends DoorEntity {
         return;
       }
     } else if (!isInstant) {
-      if (client.character.characterId === this.ownerCharacterId) {
+      if (
+        client.character.characterId === this.ownerCharacterId ||
+        this.getHasPermission(
+          server,
+          client.character.characterId,
+          ConstructionPermissionIds.DEMOLISH
+        )
+      ) {
         server.sendData(client, "Locks.ShowMenu", {
           characterId: client.character.characterId,
           unknownDword1: 2,
@@ -307,6 +349,11 @@ export class ConstructionDoor extends DoorEntity {
     }
     if (
       client.character.characterId === this.ownerCharacterId ||
+      this.getHasPermission(
+        server,
+        client.character.characterId,
+        ConstructionPermissionIds.DEMOLISH
+      ) ||
       !this.grantedAccess.includes(client.character.characterId)
     ) {
       server.sendData(client, "Command.InteractionString", {
@@ -323,5 +370,30 @@ export class ConstructionDoor extends DoorEntity {
 
   OnProjectileHit() {
     // do nothing for now
+  }
+
+  OnMeleeHit(server: ZoneServer2016, damageInfo: DamageInfo) {
+    const client = server.getClientByCharId(damageInfo.entity),
+      weapon = client?.character.getEquippedWeapon();
+    if (!client || !weapon) return;
+
+    switch (weapon.itemDefinitionId) {
+      case Items.WEAPON_HAMMER_DEMOLITION:
+        server.constructionManager.demolishConstructionEntity(
+          server,
+          client,
+          this,
+          weapon
+        );
+        return;
+      case Items.WEAPON_HAMMER:
+        server.constructionManager.hammerConstructionEntity(
+          server,
+          client,
+          this,
+          weapon
+        );
+        return;
+    }
   }
 }

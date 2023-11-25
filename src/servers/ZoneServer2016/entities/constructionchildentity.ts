@@ -9,12 +9,12 @@
 function getRenderDistance(itemDefinitionId: number) {
   let range: number = 0;
   switch (itemDefinitionId) {
-    case Items.SHACK: // metal shack
-    case Items.SHACK_SMALL: // small shack
-    case Items.SHACK_BASIC: // wood shack
-    case Items.FOUNDATION: // foundation,
-    case Items.FOUNDATION_EXPANSION: // expansion
-    case Items.GROUND_TAMPER: // tamper
+    case Items.SHACK:
+    case Items.SHACK_SMALL:
+    case Items.SHACK_BASIC:
+    case Items.FOUNDATION:
+    case Items.FOUNDATION_EXPANSION:
+    case Items.GROUND_TAMPER:
       range = 350;
       break;
     case Items.FURNACE:
@@ -37,17 +37,23 @@ function getRenderDistance(itemDefinitionId: number) {
 
 import { BaseLightweightCharacter } from "./baselightweightcharacter";
 import { ZoneServer2016 } from "../zoneserver";
-import { ConstructionPermissionIds, Items } from "../models/enums";
+import {
+  ConstructionPermissionIds,
+  Items,
+  ResourceIds,
+  StringIds
+} from "../models/enums";
 import {
   ConstructionSlotPositionMap,
   DamageInfo,
   OccupiedSlotMap,
   SlottedConstructionEntity,
-  SquareBounds
+  CubeBounds,
+  Point3D
 } from "types/zoneserver";
 import {
   getConstructionSlotId,
-  getRectangleCorners,
+  getCubeBounds,
   isInsideCube,
   movePoint,
   registerConstructionSlots
@@ -62,7 +68,7 @@ import {
 } from "../data/constructionslots";
 import { ConstructionDoor } from "./constructiondoor";
 import { LootableConstructionEntity } from "./lootableconstructionentity";
-function getDamageRange(definitionId: number): number {
+function getDamageRange(definitionId: Items): number {
   switch (definitionId) {
     case Items.METAL_WALL:
     case Items.METAL_WALL_UPPER:
@@ -77,9 +83,30 @@ function getDamageRange(definitionId: number): number {
   }
 }
 
+function getMaxHealth(itemDefinitionId: Items): number {
+  switch (itemDefinitionId) {
+    case Items.SHELTER:
+    case Items.SHELTER_LARGE:
+    case Items.SHELTER_UPPER:
+    case Items.SHELTER_UPPER_LARGE:
+    case Items.STRUCTURE_STAIRS:
+    case Items.STRUCTURE_STAIRS_UPPER:
+    case Items.LOOKOUT_TOWER:
+    case Items.METAL_WALL:
+    case Items.METAL_WALL_UPPER:
+    case Items.METAL_DOORWAY:
+    case Items.FOUNDATION_RAMP:
+    case Items.FOUNDATION_STAIRS:
+      return 1000000;
+    case Items.WORKBENCH:
+    case Items.WORKBENCH_WEAPON:
+      return 500000;
+    default:
+      return 10000;
+  }
+}
+
 export class ConstructionChildEntity extends BaseLightweightCharacter {
-  health: number = 1000000;
-  maxHealth: number = 1000000;
   readonly itemDefinitionId: number;
   parentObjectCharacterId: string;
   eulerAngle: number;
@@ -88,10 +115,14 @@ export class ConstructionChildEntity extends BaseLightweightCharacter {
   readonly damageRange: number;
   readonly fixedPosition?: Float32Array;
   placementTime = Date.now();
-  readonly bounds?: SquareBounds;
+  readonly cubebounds?: CubeBounds;
+
+  readonly boundsOn?: CubeBounds;
+
   undoPlacementTime = 600000;
   interactionDistance = 4;
   destroyedEffect: number = 242;
+  isDecayProtected: boolean = false;
 
   // FOR DOORS ON SHELTERS / DOORWAYS / LOOKOUT
   readonly wallSlots: ConstructionSlotPositionMap = {};
@@ -142,11 +173,8 @@ export class ConstructionChildEntity extends BaseLightweightCharacter {
     this.npcRenderDistance = getRenderDistance(this.itemDefinitionId);
     this.useSimpleStruct = true;
 
-    if (this.itemDefinitionId == Items.SLEEPING_MAT) {
-      this.maxHealth = 10000;
-      this.health = 10000;
-      this.destroyedEffect = 0;
-    }
+    this.maxHealth = getMaxHealth(this.itemDefinitionId);
+    this.health = this.maxHealth;
 
     registerConstructionSlots(this, this.wallSlots, wallSlotDefinitions);
     Object.seal(this.wallSlots);
@@ -169,11 +197,41 @@ export class ConstructionChildEntity extends BaseLightweightCharacter {
           2.5
         );
         this.fixedPosition = centerPoint;
-        this.bounds = getRectangleCorners(centerPoint, 10, 5, angle);
+
+        this.cubebounds = getCubeBounds(
+          centerPoint,
+          10,
+          5,
+          angle,
+          position[1],
+          position[1] + 1.8
+        );
+
+        const pos = position[1] + 2.4;
+        this.boundsOn = getCubeBounds(
+          centerPoint,
+          10,
+          5,
+          angle,
+          pos,
+          pos + 1.8
+        );
+
         break;
       case Items.SHELTER:
       case Items.SHELTER_UPPER:
-        this.bounds = getRectangleCorners(position, 5, 5, angle);
+        this.cubebounds = getCubeBounds(
+          position,
+          5,
+          5,
+          angle,
+          position[1],
+          position[1] + 1.8
+        );
+
+        const p = position[1] + 2.4;
+        this.boundsOn = getCubeBounds(position, 5, 5, angle, p, p + 1.8);
+
         break;
     }
 
@@ -371,23 +429,18 @@ export class ConstructionChildEntity extends BaseLightweightCharacter {
     this.freeplaceEntities[entity.characterId] = entity;
   }
 
-  pGetConstructionHealth() {
-    return {
-      characterId: this.characterId,
-      health: this.health / 10000
-    };
-  }
   damage(server: ZoneServer2016, damageInfo: DamageInfo) {
-    // todo: redo this
-    this.health -= damageInfo.damage;
-  }
+    switch (this.itemDefinitionId) {
+      case Items.FOUNDATION_RAMP:
+      case Items.FOUNDATION_STAIRS:
+        return;
+    }
 
-  damageSimpleNpc(
-    server: ZoneServer2016,
-    damageInfo: DamageInfo,
-    dictionary: any
-  ) {
-    // todo: redo this
+    const dictionary = server.getEntityDictionary(this.characterId);
+    if (!dictionary) {
+      return;
+    }
+
     this.health -= damageInfo.damage;
     server.sendDataToAllWithSpawnedEntity(
       dictionary,
@@ -395,71 +448,48 @@ export class ConstructionChildEntity extends BaseLightweightCharacter {
       "Character.UpdateSimpleProxyHealth",
       this.pGetSimpleProxyHealth()
     );
+
+    if (this.health > 0) return;
+    this.destroy(server, 3000);
   }
 
   isInside(position: Float32Array) {
-    if (!this.bounds) {
-      switch (this.itemDefinitionId) {
-        case Items.STRUCTURE_STAIRS:
-        case Items.STRUCTURE_STAIRS_UPPER:
-        case Items.LOOKOUT_TOWER:
-          return false;
-      }
-      console.error(
-        `ERROR: CONSTRUCTION BOUNDS IS NOT DEFINED FOR ${this.itemDefinitionId} ${this.characterId}`
-      );
-      return false; // this should never occur
-    }
-
     switch (this.itemDefinitionId) {
-      case Items.SHELTER_LARGE:
-      case Items.SHELTER_UPPER_LARGE:
       case Items.SHELTER:
+      case Items.SHELTER_LARGE:
       case Items.SHELTER_UPPER:
-        return isInsideCube(
-          [position[0], position[2]],
-          this.bounds,
-          position[1],
-          this.state.position[1],
-          1.8
-        );
+      case Items.SHELTER_UPPER_LARGE:
+        if (!this.cubebounds) {
+          console.error(
+            `ERROR: CONSTRUCTION CUBEBOUNDS IS NOT DEFINED FOR ${this.itemDefinitionId} ${this.characterId}`
+          );
+          return false; // this should never occur
+        }
+        return isInsideCube(Array.from(position) as Point3D, this.cubebounds);
       default:
         return false;
     }
   }
 
   isOn(position: Float32Array) {
-    if (!this.bounds) {
-      switch (this.itemDefinitionId) {
-        case Items.STRUCTURE_STAIRS:
-        case Items.STRUCTURE_STAIRS_UPPER:
-        case Items.LOOKOUT_TOWER:
-          return false;
-      }
-      console.error(
-        `ERROR: CONSTRUCTION BOUNDS IS NOT DEFINED FOR ${this.itemDefinitionId} ${this.characterId}`
-      );
-      return false; // this should never occur
-    }
-
     switch (this.itemDefinitionId) {
-      case Items.SHELTER_LARGE:
-      case Items.SHELTER_UPPER_LARGE:
       case Items.SHELTER:
+      case Items.SHELTER_LARGE:
       case Items.SHELTER_UPPER:
-        return isInsideCube(
-          [position[0], position[2]],
-          this.bounds,
-          position[1],
-          this.state.position[1] + 2.4,
-          1.8
-        );
+      case Items.SHELTER_UPPER_LARGE:
+        if (!this.boundsOn) {
+          console.error(
+            `ERROR: CONSTRUCTION boundsOn IS NOT DEFINED FOR ${this.itemDefinitionId} ${this.characterId}`
+          );
+          return false; // this should never occur
+        }
+        return isInsideCube(Array.from(position) as Point3D, this.boundsOn);
       default:
         return false;
     }
   }
 
-  destroy(server: ZoneServer2016, destructTime = 0) {
+  destroy(server: ZoneServer2016, destructTime = 0): boolean {
     const deleted = server.deleteEntity(
       this.characterId,
       server._constructionSimple[this.characterId]
@@ -596,6 +626,14 @@ export class ConstructionChildEntity extends BaseLightweightCharacter {
       );
       return;
     }
+    if (
+      client.character._resources[ResourceIds.ENDURANCE] <= 3501 &&
+      this.itemDefinitionId == Items.SLEEPING_MAT
+    ) {
+      server.utilizeHudTimer(client, StringIds.RESTING, 30000, 0, () => {
+        server.sleep(client);
+      });
+    }
   }
 
   OnInteractionString(server: ZoneServer2016, client: ZoneClient2016) {
@@ -607,9 +645,43 @@ export class ConstructionChildEntity extends BaseLightweightCharacter {
       );
       return;
     }
+    if (
+      client.character._resources[ResourceIds.ENDURANCE] <= 3501 &&
+      this.itemDefinitionId == Items.SLEEPING_MAT
+    ) {
+      server.sendData(client, "Command.InteractionString", {
+        guid: this.characterId,
+        stringId: StringIds.REST
+      });
+    }
   }
 
   OnProjectileHit() {
     // do nothing for now
+  }
+
+  OnMeleeHit(server: ZoneServer2016, damageInfo: DamageInfo) {
+    const client = server.getClientByCharId(damageInfo.entity),
+      weapon = client?.character.getEquippedWeapon();
+    if (!client || !weapon) return;
+
+    switch (weapon.itemDefinitionId) {
+      case Items.WEAPON_HAMMER_DEMOLITION:
+        server.constructionManager.demolishConstructionEntity(
+          server,
+          client,
+          this,
+          weapon
+        );
+        return;
+      case Items.WEAPON_HAMMER:
+        server.constructionManager.hammerConstructionEntity(
+          server,
+          client,
+          this,
+          weapon
+        );
+        return;
+    }
   }
 }

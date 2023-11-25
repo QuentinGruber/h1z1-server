@@ -11,11 +11,12 @@
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
 import { ZoneServer2016 } from "../zoneserver";
-import { BaseLightweightCharacter } from "./baselightweightcharacter";
 import { ZoneClient2016 } from "../classes/zoneclient";
 import { DamageInfo } from "../../../types/zoneserver";
 import { eul2quat } from "../../../utils/utils";
-import { Items } from "../models/enums";
+import { Effects } from "../models/enums";
+import { AddLightweightNpc, AddSimpleNpc } from "types/zone2016packets";
+import { BaseSimpleNpc } from "./basesimplenpc";
 
 function getDestroyedModels(actorModel: string): number[] {
   switch (actorModel) {
@@ -28,7 +29,7 @@ function getDestroyedModels(actorModel: string): number[] {
   }
 }
 
-export class Destroyable extends BaseLightweightCharacter {
+export class Destroyable extends BaseSimpleNpc {
   spawnerId: number;
   maxHealth: number;
   health: number;
@@ -56,16 +57,23 @@ export class Destroyable extends BaseLightweightCharacter {
       this.destroyedModels[(this.destroyedModels.length * Math.random()) | 0];
     this.maxHealth = actorModel.toLowerCase().includes("fence") ? 30000 : 2000;
     this.health = this.maxHealth;
-    this.useSimpleStruct = true;
   }
 
-  OnProjectileHit(server: ZoneServer2016, damageInfo: DamageInfo) {
-    if (this.destroyed) return;
-    if (damageInfo.weapon == Items.WEAPON_SHOTGUN) damageInfo.damage *= 2.5;
-    this.damageSimpleNpc(server, damageInfo, server._crates);
+  damage(server: ZoneServer2016, damageInfo: DamageInfo) {
+    this.health -= damageInfo.damage;
+    server.sendDataToAllWithSpawnedEntity(
+      server._destroyables,
+      this.characterId,
+      "Character.UpdateSimpleProxyHealth",
+      this.pGetSimpleProxyHealth()
+    );
     if (this.health > 0) return;
-    this.destroyed = true;
-    if (this.destroyedModel) {
+    this.destroy(server, true);
+  }
+
+  destroy(server: ZoneServer2016, useDestroyedModel: boolean = false): boolean {
+    if (!this.destroyed && this.destroyedModel && useDestroyedModel) {
+      this.destroyed = true;
       server.sendDataToAllWithSpawnedEntity(
         server._destroyables,
         this.characterId,
@@ -73,7 +81,7 @@ export class Destroyable extends BaseLightweightCharacter {
         {
           characterId: this.characterId,
           unknownWord1: 1,
-          effectId: 165
+          effectId: Effects.PFX_Damage_GlassWindow_House
         }
       );
       server.sendDataToAllWithSpawnedEntity(
@@ -82,12 +90,28 @@ export class Destroyable extends BaseLightweightCharacter {
         "AddLightweightNpc",
         this.pGetLightweight()
       );
-    } else {
-      server.deleteEntity(this.characterId, server._destroyables, 242);
+      return true;
     }
+    server.deleteEntity(
+      this.characterId,
+      server._destroyables,
+      Effects.PFX_Damage_GlassWindow_House
+    );
+    return true;
   }
 
-  pGetSimpleNpc() {
+  // eslint-disable-next-line
+  OnProjectileHit(server: ZoneServer2016, damageInfo: DamageInfo) {
+    if (this.destroyed) return;
+    this.destroy(server, true);
+  }
+
+  OnMeleeHit(server: ZoneServer2016, damageInfo: DamageInfo) {
+    if (this.destroyed) return;
+    this.damage(server, damageInfo);
+  }
+
+  pGetSimpleNpc(): AddSimpleNpc {
     return {
       characterId: this.characterId,
       transientId: this.transientId,
@@ -95,29 +119,28 @@ export class Destroyable extends BaseLightweightCharacter {
       rotation: this.state.rotation,
       modelId: this.destroyed ? this.destroyedModel : this.actorModelId,
       scale: this.scale,
-      showHealth: true,
       health: (this.health / this.maxHealth) * 100
     };
   }
-  pGetLightweight() {
+  pGetLightweight(): AddLightweightNpc {
     return {
       characterId: this.characterId,
       transientId: this.transientId,
       actorModelId: this.destroyed ? this.destroyedModel : this.actorModelId,
-      position: Array.from(this.state.position).map((pos, idx) => {
-        return idx == 1 ? pos++ : pos;
-      }),
+      position: new Float32Array(
+        Array.from(this.state.position).map((pos, idx) => {
+          return idx == 1 ? pos++ : pos;
+        })
+      ),
       rotation: eul2quat(new Float32Array([this.state.rotation[1], 0, 0])),
       scale: this.scale,
-      positionUpdateType: this.positionUpdateType,
-      profileId: this.profileId,
-      isLightweight: this.isLightweight,
+      isLightweight: true,
       flags: {
-        flags1: this.flags,
-        flags2: this.flags,
-        flags3: this.flags
+        flags1: {},
+        flags2: {},
+        flags3: {}
       },
-      headActor: this.headActor
+      attachedObject: {}
     };
   }
 
@@ -127,7 +150,5 @@ export class Destroyable extends BaseLightweightCharacter {
     client: ZoneClient2016,
     isInstant?: boolean
     /* eslint-enable @typescript-eslint/no-unused-vars */
-  ) {
-    this.destroy(server);
-  }
+  ) {}
 }

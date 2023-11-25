@@ -114,7 +114,15 @@ export const characterSkinsLoadout = [
 export const characterVehicleKit = [
   { item: Items.SPARKPLUGS },
   { item: Items.VEHICLE_KEY },
-  { item: Items.BATTERY }
+  { item: Items.BATTERY },
+  { item: Items.BATTERY },
+  { item: Items.TURBO_OFFROADER },
+  { item: Items.TURBO_ATV },
+  { item: Items.TURBO_PICKUP },
+  { item: Items.HEADLIGHTS_ATV },
+  { item: Items.HEADLIGHTS_OFFROADER },
+  { item: Items.HEADLIGHTS_PICKUP },
+  { item: Items.HEADLIGHTS_POLICE }
 ];
 export const characterBuildKitLoadout = [
   { item: Items.FOUNDATION, count: 10 },
@@ -181,5 +189,6 @@ export const lootableContainerDefaultLoadouts = {
   military_crate: [{ item: Items.CONTAINER_MILITARY_CRATE }],
   bee_box: [{ item: Items.CONTAINER_BEE_BOX }],
   dew_collector: [{ item: Items.CONTAINER_DEW_COLLECTOR }],
-  animal_trap: [{ item: Items.CONTAINER_ANIMAL_TRAP }]
+  animal_trap: [{ item: Items.CONTAINER_ANIMAL_TRAP }],
+  repair_box: [{ item: Items.CONTAINER_REPAIR_BOX }]
 };

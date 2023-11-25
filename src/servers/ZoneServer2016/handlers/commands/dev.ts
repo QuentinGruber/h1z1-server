@@ -16,9 +16,9 @@
 import { h1z1PacketsType2016 } from "types/packets";
 import {
   CharacterManagedObject,
+  CharacterPlayWorldCompositeEffect,
   CharacterSeekTarget
 } from "types/zone2016packets";
-import { BaseLightweightCharacter } from "../../entities/baselightweightcharacter";
 import { Npc } from "../../entities/npc";
 import { ZoneClient2016 as Client } from "../../classes/zoneclient";
 import { ZoneServer2016 } from "../../zoneserver";
@@ -29,7 +29,8 @@ import { ConstructionDoor } from "../../entities/constructiondoor";
 import { randomIntFromInterval } from "../../../../utils/utils";
 import { Zombie } from "../../entities/zombie";
 
-const debug = require("debug")("zonepacketHandlers");
+const abilities = require("../../../../../data/2016/dataSources/Abilities.json"),
+  vehicleAbilities = require("../../../../../data/2016/dataSources/VehicleAbilities.json");
 
 const dev: any = {
   path: function (server: ZoneServer2016, client: Client, args: Array<string>) {
@@ -50,6 +51,35 @@ const dev: any = {
       });
     }, 2000);
   },
+  ui: function (server: ZoneServer2016, client: Client, args: Array<string>) {
+    server.sendData(client, "Effect.AddUiIndicator", {
+      characterId: client.character.characterId,
+      hudElementGuid: server.generateGuid(),
+      unknownData1: {
+        hudElementId: Number(args[1])
+      },
+      hudElementData: {
+        nameId: Number(args[1]),
+        descriptionId: Number(args[2]),
+        imageSetId: Number(args[3])
+      },
+      unknownData3: {},
+      unknownData4: {},
+      unknownData5: {}
+    });
+  },
+  uioff: function (
+    server: ZoneServer2016,
+    client: Client,
+    args: Array<string>
+  ) {
+    server.sendData(client, "Effect.RemoveUiIndicators", {
+      unknownData1: {
+        unknownQword1: client.character.characterId
+      },
+      unknownData2: {}
+    });
+  },
   zombie: function (
     server: ZoneServer2016,
     client: Client,
@@ -67,6 +97,105 @@ const dev: any = {
       server
     );
     server._npcs[characterId] = zombie;
+  },
+  abilities: function (
+    server: ZoneServer2016,
+    client: Client,
+    args: Array<string>
+  ) {
+    /*server.sendData(client, "Abilities.ClearAbilityLineManager", {});
+
+    server.sendData(client, "Abilities.SetProfileAbilityLineMembers", {});
+    server.sendData(client, "Abilities.SetProfileRankAbilities", {
+      abilities: [
+        {
+          abilityId: 1111157,
+          abilityId2: 1111157
+        },
+        {
+          abilityId: 1111272,
+          abilityId2: 1111272
+        },
+        {
+          abilityId: 1111278,
+          abilityId2: 1111278
+        }
+      ]
+    });
+
+    server.sendData(client, "Abilities.SetProfileRankAbilities", {
+      abilities: [
+        {
+          abilitySlotId: 8,
+          abilityData: {
+            abilitySlotId: 8,
+            abilityId: 1111278,
+            guid1: client.character.characterId,
+            guid2: client.character.characterId
+          }
+        }
+      ]
+    });
+
+      server.sendData(client, "Abilities.AddLoadoutAbility", {
+          abilitySlotId: 12,
+          abilityId: 1111278,
+          unknownDword1: 0,
+          guid1: client.character.characterId,
+          guid2: client.character.characterId
+      });
+
+      server.sendData(client, "Abilities.AddLoadoutAbility", {
+          abilitySlotId: 11,
+          abilityId: 1111157,
+          unknownDword1: 0,
+          guid1: client.character.characterId,
+          guid2: client.character.characterId
+      });
+
+      server.sendData(client, "Abilities.AddPersistentAbility", {
+          unk: 1111278
+      });*/
+
+    server.sendData(
+      client,
+      "Abilities.SetActivatableAbilityManager",
+      abilities
+    );
+
+    server.sendData(
+      client,
+      "Abilities.SetVehicleActivatableAbilityManager",
+      vehicleAbilities
+    );
+  },
+  abilitiesoff: function (
+    server: ZoneServer2016,
+    client: Client,
+    args: Array<string>
+  ) {
+    server.sendData(client, "Abilities.SetActivatableAbilityManager", {
+      abilities: []
+    });
+
+    server.sendData(client, "Abilities.SetVehicleActivatableAbilityManager", {
+      abilities: []
+    });
+  },
+  animation: function (
+    server: ZoneServer2016,
+    client: Client,
+    args: Array<string>
+  ) {
+    server.sendDataToAllWithSpawnedEntity(
+      server._characters,
+      client.character.characterId,
+      "AnimationBase",
+      {
+        characterId: client.character.characterId,
+        unknownDword1: args[1]
+      }
+    );
   },
   deletesmallshacks: function (server: ZoneServer2016, client: Client) {
     let counter = 0;
@@ -206,30 +335,14 @@ const dev: any = {
     client: Client,
     args: Array<string>
   ) {
-    if (!args[3]) {
-      server.sendChatText(
-        client,
-        "Missing resourceId, resourceType, and value args"
-      );
+    if (!args[2]) {
+      server.sendChatText(client, "Missing resourceId, and value args");
       return;
     }
-    const resourceEvent = {
-      eventData: {
-        type: 2,
-        value: {
-          characterId: client.character.characterId,
-          resourceData: {
-            resourceId: Number(args[1]),
-            resourceType: Number(args[2]),
-            unknownArray1: [],
-            value: Number(args[3]),
-            unknownArray2: []
-          }
-        }
-      }
-    };
+
+    client.character._resources[Number(args[1])] = Number(args[2]);
+
     server.sendChatText(client, "Setting character resource");
-    server.sendData(client, "ResourceEvent", resourceEvent);
   },
   selectloadout: function (
     server: ZoneServer2016,
@@ -484,16 +597,6 @@ const dev: any = {
       containers: client.character.pGetContainers(server)
     });
   },
-  shutdown: function (
-    server: ZoneServer2016,
-    client: Client,
-    args: Array<string>
-  ) {
-    server.sendData(client, "WorldShutdownNotice", {
-      timeLeft: 0,
-      message: " "
-    });
-  },
   fte: function (server: ZoneServer2016, client: Client, args: Array<string>) {
     if (!args[3]) {
       server.sendChatText(client, "Missing 3 args");
@@ -505,80 +608,6 @@ const dev: any = {
       unknownBoolean1: Boolean(args[3])
     });
   },
-  proximateitems: function (
-    server: ZoneServer2016,
-    client: Client,
-    args: Array<string>
-  ) {
-    const item: any = server.generateItem(2425)?.itemGuid,
-      guid1 = server.generateGuid(),
-      guid2 = server.generateGuid(),
-      guid3 = server.generateGuid();
-    console.log(
-      `item: ${item}, guid1: ${guid1}, guid2: ${guid2}, guid3: ${guid3}`
-    );
-    server.sendData(client, "ClientUpdate.ProximateItems", {
-      items: [
-        {
-          //itemDefinitionId: server._items[item].itemDefinitionId,
-          itemData: {
-            //itemDefinitionId: server._items[item].itemDefinitionId,
-            tintId: 43,
-            guid: item,
-            count: 44,
-            itemSubData: {
-              unknownBoolean1: false /*
-                unknownDword1: 1,
-                unknownData1: {
-                  unknownQword1: guid4,
-                  unknownDword1: 99,
-                  unknownDword2: 101,
-                }*/
-            },
-            containerGuid: guid1,
-            containerDefinitionId: 45,
-            containerSlotId: 46,
-            baseDurability: 47,
-            currentDurability: 48,
-            maxDurabilityFromDefinition: 49,
-            unknownBoolean1: true,
-            unknownQword3: guid2,
-            unknownDword9: 54
-          },
-          associatedCharacterGuid: guid3
-        }
-      ]
-    });
-  },
-  /*
-    proxiedobjects: function(server: ZoneServer2016, client: Client, args: Array<string>) {
-
-      objects.runtime_object.runtime_objects.forEach((object) => {
-        if(object.actor_file === "Common_Props_Dryer.adr") {
-          object.instances.forEach((instance) => {
-            console.log("proxied object")
-            const obj = {
-              guid: instance.id,
-              transientId: server.getTransientId(client, instance.id),
-              unknownByte1: 0,
-              position: [instance.position[0], instance.position[1], instance.position[2]],
-              rotation: [instance.rotation[1], instance.rotation[0], instance.rotation[2]],
-            };
-            server.sendData(client, "AddProxiedObject", obj);
-          });
-          server.sendChatText(client, `Sent ${object.instance_count} ProxiedObject Packets`);
-        }
-      });
-    }
-    */
-  /*
-  //region norman testing
-  norman: function (server: ZoneServer2016, client: Client, args: Array<string>) {
-    NormanTest.TestEntry(server, client, args);
-  },
-  //endregion
-  */
-
   poi: function (server: ZoneServer2016, client: Client, args: Array<string>) {
     server.sendData(client, "POIChangeMessage", {
       messageStringId: Number(args[1]) || 0,
@@ -700,6 +729,15 @@ const dev: any = {
     server.decayManager.vehicleDecayDamage(server);
   },
 
+  basedecay: function (
+    server: ZoneServer2016,
+    client: Client,
+    args: Array<string>
+  ) {
+    server.sendChatText(client, "Decaying all bases");
+    server.decayManager.contructionDecayDamage(server);
+  },
+
   script: function (
     server: ZoneServer2016,
     client: Client,
@@ -773,7 +811,7 @@ const dev: any = {
         unknownDword1: Number(args[1]),
         slotId: Number(args[2]),
         unknownDword2: Number(args[3]),
-        shaderGroupId: 665 // maybe try setting other character's shaderGroupId on spawn
+        shaderGroupId: 588 // maybe try setting other character's shaderGroupId on spawn
       });
     });
   },
@@ -801,25 +839,134 @@ const dev: any = {
       return;
     }
 
-    const bounds = entity.bounds;
-    if (!bounds) {
+    const cubebounds = entity.cubebounds;
+    if (!cubebounds) {
       server.sendChatText(client, "Bounds not defined!");
       return;
     }
 
-    for (const point of bounds) {
+    for (const point of cubebounds) {
       server.constructionManager.placeTemporaryEntity(
         server,
         1,
-        new Float32Array([
-          point[0],
-          client.character.state.position[1],
-          point[1]
-        ]),
+        new Float32Array(point),
         new Float32Array([0, 0, 0, 1]),
         30000
       );
     }
+
+    server.sendChatText(client, "Displaying 3d bounds");
+  },
+
+  boundson: function (
+    server: ZoneServer2016,
+    client: Client,
+    args: Array<string>
+  ) {
+    const entityId = client.character.currentInteractionGuid,
+      entity = server.getEntity(entityId || "");
+    if (!entity || !(entity instanceof ConstructionChildEntity)) {
+      server.sendChatText(client, "Invalid entity!");
+      return;
+    }
+
+    const boundsOn = entity.boundsOn;
+    if (!boundsOn) {
+      server.sendChatText(client, "BoundsOn not defined!");
+      return;
+    }
+
+    for (const point of boundsOn) {
+      server.constructionManager.placeTemporaryEntity(
+        server,
+        1,
+        new Float32Array(point),
+        new Float32Array([0, 0, 0, 1]),
+        30000
+      );
+    }
+    server.sendChatText(client, "Displaying 3d bounds");
+  },
+
+  getparent: function (
+    server: ZoneServer2016,
+    client: Client,
+    args: Array<string>
+  ) {
+    const entityId = client.character.currentInteractionGuid,
+      entity = server.getEntity(entityId || "");
+    if (
+      !entity ||
+      (!(entity instanceof ConstructionChildEntity) &&
+        !(entity instanceof LootableConstructionEntity))
+    ) {
+      server.sendChatText(client, "Invalid entity!");
+      return;
+    }
+
+    const parent = entity.getParent(server);
+    if (!parent) {
+      server.sendChatText(
+        client,
+        `No parent found for ${entity.itemDefinitionId}`
+      );
+      return;
+    }
+
+    server.sendChatText(
+      client,
+      `Parent itemDefinitionId: ${parent.itemDefinitionId} characterId: ${parent.characterId}`
+    );
+  },
+  hashes: function (
+    server: ZoneServer2016,
+    client: Client,
+    args: Array<string>
+  ) {
+    server.sendData(client, "H1emu.RequestAssetHashes", {});
+    server.sendChatText(client, "Requested asset hashes from client");
+  },
+  compositeeffect: function (
+    server: ZoneServer2016,
+    client: Client,
+    args: Array<string>
+  ) {
+    if (!args[2]) {
+      server.sendChatText(client, "Missing effectId and time");
+      return;
+    }
+
+    const effectId = Number(args[1]),
+      time = Number(args[2]);
+    server.sendDataToAllInRange<CharacterPlayWorldCompositeEffect>(
+      100,
+      client.character.state.position,
+      "Character.PlayWorldCompositeEffect",
+      {
+        characterId: client.character.characterId,
+        effectId: effectId,
+        position: client.character.state.position,
+        effectTime: time
+      }
+    );
+    server.sendChatText(client, "Sent composite effect");
+  },
+  sleep: function (
+    server: ZoneServer2016,
+    client: Client,
+    args: Array<string>
+  ) {
+    server.sleep(client);
   }
+  /*
+  shutdown: function (
+    server: ZoneServer2016,
+    client: Client,
+    args: Array<string>
+  ) {
+    server.isRebooting = true;
+    server.shutdown(300, "test")
+  }
+  */
 };
 export default dev;

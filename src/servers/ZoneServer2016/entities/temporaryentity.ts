@@ -35,7 +35,7 @@ export class TemporaryEntity extends BaseSimpleNpc {
     }, time);
   }
 
-  destroy(server: ZoneServer2016) {
+  destroy(server: ZoneServer2016): boolean {
     return server.deleteEntity(this.characterId, server._temporaryObjects);
   }
 }

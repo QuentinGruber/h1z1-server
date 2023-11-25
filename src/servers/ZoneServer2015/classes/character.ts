@@ -11,7 +11,7 @@
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
 
-import { characterEquipment } from "../../../types/zoneserver";
+import { CharacterEquipment } from "../../../types/zoneserver";
 import { ZoneServer2015 } from "../zoneserver";
 import { ZoneClient } from "./zoneclient";
 
@@ -25,7 +25,7 @@ export class Character {
   healingInterval?: any;
   healingTicks: number;
   healingMaxTicks: number;
-  equipment: characterEquipment[];
+  equipment: CharacterEquipment[];
   resources: {
     health: number;
     stamina: number;

@@ -317,7 +317,7 @@ export class H1Z1Protocol {
     }
   }
 
-  parseUpdatePositionClientToZone(data: Buffer, offset: number) {
+  parsePlayerUpdatePosition(data: Buffer, offset: number) {
     return {
       result: parseUpdatePositionData(data, offset)
     };
@@ -430,8 +430,8 @@ export class H1Z1Protocol {
       case GatewayChannels.UpdatePosition: {
         try {
           packet = {
-            name: "PlayerUpdateUpdatePositionClientToZone",
-            fn: this.parseUpdatePositionClientToZone
+            name: "PlayerUpdatePosition",
+            fn: this.parsePlayerUpdatePosition
           };
         } catch (e) {
           console.error(e);
@@ -496,7 +496,7 @@ export class H1Z1Protocol {
             break;
         }
       } else if (packet.fn) {
-        if (packet.name != "PlayerUpdateUpdatePositionClientToZone") {
+        if (packet.name != "PlayerUpdatePosition") {
           debug(packet.name);
         }
         result = packet.fn(data, offset).result;

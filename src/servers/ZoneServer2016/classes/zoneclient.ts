@@ -17,7 +17,7 @@ import { ZoneClient2016 as Client } from "./zoneclient";
 import { LootableProp } from "../entities/lootableprop";
 import { ZoneServer2016 } from "../zoneserver";
 import { BaseEntity } from "../entities/baseentity";
-import { fireHint } from "../../../types/zoneserver";
+import { FireHint } from "../../../types/zoneserver";
 import { Lootbag } from "../entities/lootbag";
 //import { h1z1PacketsType2016 } from "../../../types/packets";
 //import { zone2016packets } from "../../../types/zone2016packets";
@@ -62,7 +62,7 @@ export class ZoneClient2016 {
   };
   hudTimer?: NodeJS.Timeout | null;
   spawnedDTOs: any[] = [];
-  spawnedEntities: BaseEntity[] = [];
+  spawnedEntities: Set<BaseEntity> = new Set();
   sentInteractionData: BaseEntity[] = [];
   searchedProps: (LootableProp | Lootbag)[] = [];
   managedObjects: string[] = [];
@@ -89,7 +89,7 @@ export class ZoneClient2016 {
   zonePings: number[] = [];
   properlyLogout: boolean = false;
   permissionLevel: number = 0;
-  fireHints: { [id: number]: fireHint } = {};
+  fireHints: { [id: number]: FireHint } = {};
   isInAir: boolean = false;
   startLoc: number = 0;
   startingPos?: Float32Array;
@@ -102,6 +102,7 @@ export class ZoneClient2016 {
   blockedPositionUpdates: number = 0;
   flaggedShots: number = 0;
   isFairPlayFlagged: boolean = false;
+  kickTimer?: NodeJS.Timeout;
   constructor(
     sessionId: number,
     soeClientId: string,
@@ -116,7 +117,7 @@ export class ZoneClient2016 {
     this.isLoading = true;
     this.firstLoading = true;
     this.loginSessionId = loginSessionId;
-    this.spawnedEntities = [];
+    this.spawnedEntities = new Set();
     this.managedObjects = [];
     this.clearTimers = () => {
       clearTimeout(this.npcsToSpawnTimer);

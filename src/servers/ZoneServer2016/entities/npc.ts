@@ -32,19 +32,19 @@ export class Npc extends BaseFullCharacter {
     bit5: 0,
     bit6: 0,
     bit7: 0,
-    bit8: 0,
+    nonAttackable: 0, // disables melee flinch
     bit9: 0,
     bit10: 0,
     bit11: 0,
     projectileCollision: 1,
-    bit13: 0,
+    bit13: 0, // causes a crash if 1 with noCollide 1
     bit14: 0,
     bit15: 0,
     bit16: 0,
     bit17: 0,
     bit18: 0,
     bit19: 0,
-    noCollide: 0,
+    noCollide: 0, // determines if NpcCollision packet gets sent on player collide
     knockedOut: 0,
     bit22: 0,
     bit23: 0
@@ -144,7 +144,12 @@ export class Npc extends BaseFullCharacter {
     this.damage(server, damageInfo);
   }
 
-  destroy(server: ZoneServer2016) {
+  OnMeleeHit(server: ZoneServer2016, damageInfo: DamageInfo) {
+    damageInfo.damage = damageInfo.damage / 1.5;
+    this.damage(server, damageInfo);
+  }
+
+  destroy(server: ZoneServer2016): boolean {
     return server.deleteEntity(this.characterId, server._npcs);
   }
 }

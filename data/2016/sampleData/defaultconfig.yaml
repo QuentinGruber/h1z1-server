@@ -7,12 +7,42 @@ server:
   tickRate: 2000
   worldRoutineRate: 10000
   enableLoginServerKickRequests: true
+  rebootTime: 72 # hours (0 to disable)
+  rebootWarnTime: 600 # seconds
+  isPvE: false 
+  baseConstructionDamage: 34000
 
 # Fairplay / anticheat config
 fairplay:
   useFairplay: true
   maxPing: 250
   pingTimeoutTime: 30000
+  
+  # Removing an entry below will allow clients with a certain rejectionFlag to join
+  # ex. Removing "5 # UNVERIFIED" will allow users with an unverified h1emu status to join
+
+  # by default, globally banned, hwid banned, vpn detected, and unverified clients will have their
+  # connections rejected
+  acceptedRejectionTypes:
+  # LOCAL_BAN, SERVER_LOCKED, and SERVER_REBOOT are always accepted
+  - 2 # GLOBAL_BAN
+  - 3 # VPN
+  - 4 # HWID
+  - 5 # UNVERIFIED
+
+  useAssetValidation: true
+  # how long the client has to send it's hashes before it's kicked (3 min default)
+  hashSubmissionTimeout: 180000
+
+  # clients with these packs are allowed to join, but they are optional (must be in numerical order)
+  allowedPacks:
+  #- file_name: ""
+  #  crc32_hash: ""
+
+  # clients without these packs will be kicked (must be in numerical order)
+  requiredPacks:
+  #- file_name: ""
+  #  crc32_hash: ""
 
 weather:
   cycleSpeed: 100
@@ -47,6 +77,9 @@ worldobjects:
   chanceNpc: 100 # To be reworked: 100 max
   chanceScreamer: 5 # To be reworked: 1000 max
 
+  waterSourceRefillAmount: 2
+  waterSourceReplenishTimer: 300000 # 5 minutes
+
 # Trees, blackberry bushes, and sticks
 speedtree:
   minBlackberryHarvest: 1
@@ -75,16 +108,40 @@ construction:
 
 decay:
   decayTickInterval: 1200000 # 20 minutes per decay tick
-  constructionDamageTicks: 36 # damage structures every 12 hours
-  baseConstructionDamage: 62500 # construction damage per 36 ticks
+  constructionDamageTicks: 72 # damage structures every 24 hours
+
+  # with default values it'll take 14 days for a base to fully decay
+  ticksToFullDecay: 14 # how many decay ticks * constructionDamageTicks it takes to fully decay any construction entity.
+
+  # unused for now but is planned
+  worldFreeplaceDecayMultiplier: 2 # used to multiply decay damage for freeplace constuction with no parent
+
+  ##### DEPRECATED - NO LONGER DOES ANYTHING #####
+  baseConstructionDamage: 125000 # construction damage per required ticks
+  repairBoxHealValue: 1000000 # heals base to full condition
+  #####                                      #####
+
   vehicleDamageTicks: 3 # damage vehicles every hour
   vacantFoundationTicks: 3 # destroy empty foundations after 1 hour
   baseVehicleDamage: 6000 # 6% damage per 3 ticks
   maxVehiclesPerArea: 2 # the max amount of vehicles that can be in an area before they start taking more damage
   vehicleDamageRange: 25 # how large of a range to detect maxVehiclesPerArea
+  dailyRepairMaterials:
+  - itemDefinitionId: 16 # wood log
+    requiredCount: 5
+  - itemDefinitionId: 109 # wood plank
+    requiredCount: 79
+  - itemDefinitionId: 135 # nail
+    requiredCount: 28
+  - itemDefinitionId: 141 # metal bracket
+    requiredCount: 16
+  - itemDefinitionId: 46 # metal sheet
+    requiredCount: 20
+  - itemDefinitionId: 114 # metal shard
+    requiredCount: 44
+  - itemDefinitionId: 111 # wood stick
+    requiredCount: 2
   
 smelting:
   burnTime: 120000 # consume fuel every 120 seconds
   smeltTime: 40000 # smelt 1 item every 40 seconds
-
-misc:

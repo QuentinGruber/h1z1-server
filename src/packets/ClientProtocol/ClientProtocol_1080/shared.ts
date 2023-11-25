@@ -132,6 +132,185 @@ export function packSignedIntWith2bitLengthValue(value: number): Buffer {
   return data.slice(0, n + 1);
 }
 
+export function readAbilityInitData(data: Buffer, offset: number) {
+  const obj: any = {},
+    startOffset = offset;
+  obj["unknownByte1"] = data.readUint8(offset);
+  offset += 1;
+  obj["unknownByte2"] = data.readUint8(offset);
+  offset += 1;
+
+  if (obj["unknownByte1"] == 128) {
+    obj["unknownDword8"] = data.readUInt32LE(offset);
+    offset += 4;
+    obj["unknownDword9"] = data.readUInt32LE(offset);
+    offset += 4;
+    obj["unknownDword10"] = data.readUInt32LE(offset);
+    offset += 4;
+    obj["unknownDword11"] = data.readUInt32LE(offset);
+    offset += 4;
+    obj["unknownDword12"] = data.readUInt32LE(offset);
+    offset += 4;
+    obj["unknownDword13"] = data.readUInt32LE(offset);
+    offset += 4;
+    obj["unknownDword14"] = data.readUInt32LE(offset);
+    offset += 4;
+    obj["targetPosition"] = [];
+    obj["targetPosition"][0] = data.readFloatLE(offset);
+    offset += 4;
+    obj["targetPosition"][1] = data.readFloatLE(offset);
+    offset += 4;
+    obj["targetPosition"][2] = data.readFloatLE(offset);
+    offset += 4;
+    obj["targetPosition"][3] = data.readFloatLE(offset);
+    offset += 4;
+    obj["unknownDword15"] = data.readUInt32LE(offset);
+    offset += 4;
+    obj["unknownDword16"] = data.readUInt32LE(offset);
+    offset += 4;
+    obj["stringLength"] = data.readUInt32LE(offset);
+    offset += 4;
+    obj["hitLocation"] = data.toString(
+      "utf8",
+      offset,
+      offset + obj["stringLength"]
+    );
+    offset += obj["stringLength"];
+    return {
+      value: obj,
+      length: offset - startOffset
+    };
+  } else {
+    return {
+      value: obj,
+      length: offset - startOffset
+    };
+  }
+}
+
+export function packAbilityInitData(obj: any) {
+  let data =
+    obj["unknownByte1"] == 128 ? Buffer.allocUnsafe(62) : Buffer.allocUnsafe(2);
+  let offset = 0;
+  data.writeUint8(obj["unknownByte1"], offset);
+  offset += 1;
+  data.writeUint8(obj["unknownByte2"], offset);
+  offset += 1;
+
+  if (obj["unknownByte1"] == 128) {
+    data.writeUint32LE(obj["unknownDword8"], offset);
+    offset += 4;
+    data.writeUInt32LE(obj["unknownDword9"], offset);
+    offset += 4;
+    data.writeUInt32LE(obj["unknownDword10"], offset);
+    offset += 4;
+    data.writeUInt32LE(obj["unknownDword11"], offset);
+    offset += 4;
+    data.writeUInt32LE(obj["unknownDword12"], offset);
+    offset += 4;
+    data.writeUInt32LE(obj["unknownDword13"], offset);
+    offset += 4;
+    data.writeUInt32LE(obj["unknownDword14"], offset);
+    offset += 4;
+    data.writeFloatLE(obj["targetPosition"][0], offset);
+    offset += 4;
+    data.writeFloatLE(obj["targetPosition"][1], offset);
+    offset += 4;
+    data.writeFloatLE(obj["targetPosition"][2], offset);
+    offset += 4;
+    data.writeFloatLE(obj["targetPosition"][3], offset);
+    offset += 4;
+    data.writeUInt32LE(obj["unknownDword15"], offset);
+    offset += 4;
+    data.writeUInt32LE(obj["unknownDword16"], offset);
+    offset += 4;
+    data.writeUInt32LE(obj["stringLength"], offset);
+    offset += 4;
+    const stringBytes = Buffer.from(obj["hitLocation"], "utf-8");
+    data = Buffer.concat([data, stringBytes]);
+    offset += obj["stringLength"];
+    return data;
+  } else {
+    return data;
+  }
+}
+
+export function readAbilityUpdateData(data: Buffer, offset: number) {
+  const obj: any = {},
+    startOffset = offset;
+  obj["unknownDword11"] = data.readUInt32LE(offset);
+  offset += 4;
+
+  if (obj["unknownDword11"] == 16) {
+    obj["unknownDword12"] = data.readUInt32LE(offset);
+    offset += 4;
+    obj["unknownDword13"] = data.readUInt32LE(offset);
+    offset += 4;
+    obj["unknownDword14"] = data.readUInt32LE(offset);
+    offset += 4;
+    obj["unknownDword15"] = data.readUInt32LE(offset);
+    offset += 4;
+    obj["unknownDword16"] = data.readUInt32LE(offset);
+    offset += 4;
+    obj["targetPosition"] = [];
+    obj["targetPosition"][0] = data.readFloatLE(offset);
+    offset += 4;
+    obj["targetPosition"][1] = data.readFloatLE(offset);
+    offset += 4;
+    obj["targetPosition"][2] = data.readFloatLE(offset);
+    offset += 4;
+    obj["targetPosition"][3] = data.readFloatLE(offset);
+    offset += 4;
+    obj["unknownDword17"] = data.readUInt32LE(offset);
+    offset += 4;
+    obj["unknownDword18"] = data.readUInt32LE(offset);
+    offset += 4;
+    obj["stringLength"] = data.readUInt32LE(offset);
+    offset += 4;
+    obj["hitLocation"] = data.toString(
+      "utf8",
+      offset,
+      offset + obj["stringLength"]
+    );
+    offset += obj["stringLength"];
+    return {
+      value: obj,
+      length: offset - startOffset
+    };
+  } else {
+    obj["unknownDword12"] = data.readUInt32LE(offset);
+    offset += 4;
+    obj["unknownDword13"] = data.readUInt32LE(offset);
+    offset += 4;
+    obj["unknownDword14"] = data.readUInt32LE(offset);
+    offset += 4;
+    obj["unknownDword15"] = data.readUInt32LE(offset);
+    offset += 4;
+    obj["unknownDword16"] = data.readUInt32LE(offset);
+    offset += 4;
+    obj["unknownDword17"] = data.readUInt32LE(offset);
+    offset += 4;
+    obj["unknownDword18"] = data.readUInt32LE(offset);
+    offset += 4;
+    obj["targetPosition"] = [];
+    obj["targetPosition"][0] = data.readFloatLE(offset);
+    offset += 4;
+    obj["targetPosition"][1] = data.readFloatLE(offset);
+    offset += 4;
+    obj["targetPosition"][2] = data.readFloatLE(offset);
+    offset += 4;
+    obj["targetPosition"][3] = data.readFloatLE(offset);
+    offset += 4;
+    obj["unknownDword19"] = data.readUInt32LE(offset);
+    offset += 4;
+
+    return {
+      value: obj,
+      length: offset - startOffset
+    };
+  }
+}
+
 export function readPositionUpdateData(data: Buffer, offset: number) {
   const obj: any = {},
     startOffset = offset;
@@ -807,7 +986,7 @@ export const itemSchema: PacketFields = [
   { name: "maxDurabilityFromDefinition", type: "uint32", defaultValue: 0 },
   { name: "unknownBoolean1", type: "boolean", defaultValue: false },
   { name: "ownerCharacterId", type: "uint64string", defaultValue: "" },
-  { name: "unknownDword9", type: "uint32", defaultValue: 0 }
+  { name: "effectId", type: "uint32", defaultValue: 0 } // same as equipment effectId, only works with weapons
 ];
 
 export const identitySchema: PacketFields = [
@@ -935,7 +1114,7 @@ export const lightWeightNpcSchema: PacketFields = [
         type: "bitflags",
         defaultValue: [],
         flags: [
-          { bit: 0, name: "bit8", defaultValue: 0 },
+          { bit: 0, name: "nonAttackable", defaultValue: 0 },
           { bit: 1, name: "bit9", defaultValue: 0 },
           { bit: 2, name: "bit10", defaultValue: 0 },
           { bit: 3, name: "bit11", defaultValue: 0 },
@@ -1060,7 +1239,7 @@ export const itemWeaponDetailSubSchema1: PacketFields = [
   { name: "statOwnerId", type: "uint32", defaultValue: 0 },
   { name: "statData", type: "schema", fields: statSchema }
 ];
-export const itemWeaponDetailSubSchema2 = [
+export const itemWeaponDetailSubSchema2: PacketFields = [
   { name: "unknownDword1", type: "uint32", defaultValue: 0 },
   {
     name: "unknownArray1",
@@ -1448,16 +1627,16 @@ export const attachmentSchema: PacketFields = [
   { name: "textureAlias", type: "string", defaultValue: "" },
   { name: "tintAlias", type: "string", defaultValue: "Default" },
   { name: "decalAlias", type: "string", defaultValue: "#" },
-  { name: "unknownDword1", type: "uint32", defaultValue: 0 },
-  { name: "unknownDword2", type: "uint32", defaultValue: 0 },
+  { name: "tintId", type: "uint32", defaultValue: 0 }, // confirmed in client dump
+  { name: "compositeEffectId", type: "uint32", defaultValue: 0 },
   { name: "effectId", type: "uint32", defaultValue: 0 },
   { name: "slotId", type: "uint32", defaultValue: 0 },
   { name: "unknownDword4", type: "uint32", defaultValue: 0 },
   {
-    name: "unknownArray1",
+    name: "SHADER_PARAMETER_GROUP",
     type: "array",
     defaultValue: [],
-    fields: [{ name: "unknownDword1", type: "uint32", defaultValue: 252 }]
+    fields: [{ name: "SHADER_SEMANTIC_ID", type: "uint32", defaultValue: 0 }]
   },
   { name: "unknownBool1", type: "boolean", defaultValue: false }
 ];
@@ -2342,40 +2521,40 @@ export const containers: PacketFields = [
 ];
 
 export const skyData: PacketFields = [
-  { name: "unknownDword1", type: "float", defaultValue: 0 },
+  { name: "overcast", type: "float", defaultValue: 0 },
   { name: "fogDensity", type: "float", defaultValue: 0 },
   { name: "fogFloor", type: "float", defaultValue: 1 },
   { name: "fogGradient", type: "float", defaultValue: 1 },
-  { name: "rain", type: "float", defaultValue: 0 },
-  { name: "temp", type: "float", defaultValue: 0 },
-  { name: "colorGradient", type: "float", defaultValue: 0 },
-  { name: "unknownDword8", type: "float", defaultValue: 0 },
-  { name: "unknownDword9", type: "float", defaultValue: 0 },
-  { name: "unknownDword10", type: "float", defaultValue: 0 },
-  { name: "unknownDword11", type: "float", defaultValue: 0 },
-  { name: "unknownDword12", type: "float", defaultValue: 0 },
+  { name: "globalPrecipitation", type: "float", defaultValue: 0 },
+  { name: "temperature", type: "float", defaultValue: 0 },
+  { name: "skyClarity", type: "float", defaultValue: 0 },
+  { name: "cloudWeight0", type: "float", defaultValue: 0 },
+  { name: "cloudWeight1", type: "float", defaultValue: 0 },
+  { name: "cloudWeight2", type: "float", defaultValue: 0 },
+  { name: "cloudWeight3", type: "float", defaultValue: 0 },
+  { name: "transitionTime", type: "float", defaultValue: 0 },
   { name: "sunAxisX", type: "float", defaultValue: 0 },
   { name: "sunAxisY", type: "float", defaultValue: 0 },
-  { name: "unknownDword15", type: "float", defaultValue: 0 },
-  { name: "disableTrees", type: "float", defaultValue: 0 },
-  { name: "disableTrees1", type: "float", defaultValue: 0 },
-  { name: "disableTrees2", type: "float", defaultValue: 0 },
+  { name: "sunAxisZ", type: "float", defaultValue: 0 },
+  { name: "windDirectionX", type: "float", defaultValue: 0 },
+  { name: "windDirectionY", type: "float", defaultValue: 0 },
+  { name: "windDirectionZ", type: "float", defaultValue: 0 },
   { name: "wind", type: "float", defaultValue: 0 },
-  { name: "unknownDword20", type: "float", defaultValue: 0 },
-  { name: "unknownDword21", type: "float", defaultValue: 0 },
-  { name: "name", type: "string", defaultValue: "" },
-  { name: "unknownDword22", type: "float", defaultValue: 0 },
-  { name: "unknownDword23", type: "float", defaultValue: 0 },
-  { name: "unknownDword24", type: "float", defaultValue: 0 },
-  { name: "unknownDword25", type: "float", defaultValue: 0 },
-  { name: "unknownDword26", type: "float", defaultValue: 0 },
-  { name: "unknownDword27", type: "float", defaultValue: 0 },
-  { name: "unknownDword28", type: "float", defaultValue: 0 },
-  { name: "unknownDword29", type: "float", defaultValue: 0 },
-  { name: "AOSize", type: "float", defaultValue: 0 },
-  { name: "AOGamma", type: "float", defaultValue: 0 },
-  { name: "AOBlackpoint", type: "float", defaultValue: 0 },
-  { name: "unknownDword33", type: "float", defaultValue: 0 }
+  { name: "rainminStrength", type: "float", defaultValue: 0 },
+  { name: "rainRampupTimeSeconds", type: "float", defaultValue: 0 },
+  { name: "cloudFile", type: "string", defaultValue: "" },
+  { name: "stratusCloudTiling", type: "float", defaultValue: 0 },
+  { name: "stratusCloudScrollU", type: "float", defaultValue: 0 },
+  { name: "stratusCloudScrollV", type: "float", defaultValue: 0 },
+  { name: "stratusCloudHeight", type: "float", defaultValue: 0 },
+  { name: "cumulusCloudTiling", type: "float", defaultValue: 0 },
+  { name: "cumulusCloudScrollU", type: "float", defaultValue: 0 },
+  { name: "cumulusCloudScrollV", type: "float", defaultValue: 0 },
+  { name: "cumulusCloudHeight", type: "float", defaultValue: 0 },
+  { name: "cloudAnimationSpeed", type: "float", defaultValue: 0 },
+  { name: "cloudSilverLiningThickness", type: "float", defaultValue: 0 },
+  { name: "cloudSilverLiningBrightness", type: "float", defaultValue: 0 },
+  { name: "cloudShadows", type: "float", defaultValue: 0 }
 ];
 
 export const recipeData: PacketFields = [
@@ -2615,3 +2794,18 @@ export const passengerSchema: PacketFields = [
   { name: "unknownString1", type: "string", defaultValue: "" },
   { name: "unknownByte1", type: "uint8", defaultValue: 0 }
 ];
+
+export function pack2ByteLengthString(string: string) {
+  const data = Buffer.alloc(string.length + 2);
+  data.writeUInt16LE(string.length, 0);
+  data.write(string, 2, string.length, "utf8");
+  return data;
+  /*
+    {
+      name: "string",
+      type: "custom",
+      defaultValue: "",
+      packer: pack2ByteLengthString
+    },
+  */
+}

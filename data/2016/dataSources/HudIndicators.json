@@ -1,0 +1,114 @@
+[
+  {
+    "id": 1,
+    "typeName": "BLEEDING_LIGHT",
+    "nameId": 9034,
+    "descriptionId": 1349,
+    "imageSetId": 180
+  },
+  {
+    "id": 2,
+    "typeName": "BLEEDING_MODERATE",
+    "nameId": 1110,
+    "descriptionId": 9876,
+    "imageSetId": 180
+  },
+  {
+    "id": 3,
+    "typeName": "BLEEDING_SEVERE",
+    "nameId": 9035,
+    "descriptionId": 9878,
+    "imageSetId": 180
+  },
+  {
+    "id": 4,
+    "typeName": "TIRED",
+    "nameId": 9053,
+    "descriptionId": 11872,
+    "imageSetId": 177
+  },
+  {
+    "id": 5,
+    "typeName": "VERY_TIRED",
+    "nameId": 11871,
+    "descriptionId": 9054,
+    "imageSetId": 177
+  },
+  {
+    "id": 6,
+    "typeName": "EXHAUSTED",
+    "nameId": 9055,
+    "descriptionId": 9056,
+    "imageSetId": 177
+  },
+  {
+    "id": 7,
+    "typeName": "WELL_RESTED",
+    "nameId": 9042,
+    "descriptionId": 9043,
+    "imageSetId": 135
+  },
+  {
+    "id": 8,
+    "typeName": "HEALING_BANDAGE",
+    "nameId": 8886,
+    "descriptionId": 12275,
+    "imageSetId": 21
+  },
+  {
+    "id": 9,
+    "typeName": "HEALING_BANDAGE_DRESSED",
+    "nameId": 12274,
+    "descriptionId": 12275,
+    "imageSetId": 21
+  },
+  {
+    "id": 10,
+    "typeName": "HEALING_FIRST_AID",
+    "nameId": 8887,
+    "descriptionId": 12275,
+    "imageSetId": 171
+  },
+  {
+    "id": 11,
+    "typeName": "IMMUNITY_BOOST_LOW",
+    "nameId": 1481,
+    "descriptionId": 1379,
+    "imageSetId": 135
+  },
+  {
+    "id": 12,
+    "typeName": "IMMUNITY_BOOST_MEDIUM",
+    "nameId": 1380,
+    "descriptionId": 1379,
+    "imageSetId": 135
+  },
+  {
+    "id": 13,
+    "typeName": "COLD_MEDICINE",
+    "nameId": 9018,
+    "descriptionId": 9019,
+    "imageSetId": 251
+  },
+  {
+    "id": 14,
+    "typeName": "SWIZZLE",
+    "nameId": 8919,
+    "descriptionId": 8920,
+    "imageSetId": 243
+  },
+  {
+    "id": 15,
+    "typeName": "DEHYDRATED",
+    "nameId": 9080,
+    "descriptionId": 9081,
+    "imageSetId": 177
+  },
+  {
+    "id": 16,
+    "typeName": "STARVING",
+    "nameId": 9300,
+    "descriptionId": 9301,
+    "imageSetId": 177
+  }
+]

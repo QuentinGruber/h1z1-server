@@ -20,6 +20,7 @@ import { activityManagerPackets } from "./activityManager";
 import { activityServicePackets } from "./activityService";
 import { basePackets } from "./base";
 import { chatPackets } from "./chat";
+import { characterStatePackets } from "./characterState";
 import { clientUpdatePackets } from "./clientUpdate";
 import { coinStorePackets } from "./coinStore";
 import { collisionPackets } from "./collision";
@@ -69,6 +70,7 @@ import { clientPathPackets } from "./clientPath";
 import { groupPackets } from "./group";
 import { accessedCharacterPackets } from "./accessedCharacter";
 import { replicationPackets } from "./replication";
+import { screenEffectPackets } from "./screenEffect";
 import { spectatorPackets } from "./spectator";
 import { h1emuPackets } from "./h1emu";
 import { PacketStructures } from "types/packetStructure";
@@ -82,6 +84,7 @@ const packets: PacketStructures = [
   ...activityManagerPackets,
   ...activityServicePackets,
   ...chatPackets,
+  ...characterStatePackets,
   ...clientUpdatePackets,
   ...implantPackets,
   ...coinStorePackets,
@@ -131,6 +134,7 @@ const packets: PacketStructures = [
   ...groupPackets,
   ...accessedCharacterPackets,
   ...replicationPackets,
+  ...screenEffectPackets,
   ...spectatorPackets,
   ...h1emuPackets
 ];

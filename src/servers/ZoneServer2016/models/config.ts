@@ -11,6 +11,10 @@
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
 
+import { dailyRepairMaterial } from ".../../types/zoneserver";
+import { FileHash } from ".../../types/shared";
+import { CONNECTION_REJECTION_FLAGS } from "utils/enums";
+
 interface ServerConfig {
   proximityItemsDistance: number;
   interactionDistance: number;
@@ -20,12 +24,21 @@ interface ServerConfig {
   welcomeMessage: string;
   adminMessage: string;
   enableLoginServerKickRequests: boolean;
+  rebootTime: number;
+  rebootWarnTime: number;
+  isPvE: boolean;
+  baseConstructionDamage: number;
 }
 
 interface FairplayConfig {
   useFairplay: boolean;
   maxPing: number;
   pingTimeoutTime: number;
+  acceptedRejectionTypes: Array<CONNECTION_REJECTION_FLAGS>;
+  useAssetValidation: boolean;
+  hashSubmissionTimeout: number;
+  allowedPacks: Array<FileHash>;
+  requiredPacks: Array<FileHash>;
 }
 
 interface WeatherConfig {
@@ -40,6 +53,8 @@ interface WorldObjectsConfig {
   hasCustomLootRespawnTime: boolean;
   lootRespawnTimer: number;
   vehicleRespawnTimer: number;
+  waterSourceReplenishTimer: number;
+  waterSourceRefillAmount: number;
   npcRespawnTimer: number;
 
   itemDespawnTimer: number;
@@ -80,12 +95,14 @@ interface ConstructionConfig {
 interface DecayConfig {
   decayTickInterval: number;
   constructionDamageTicks: number;
-  baseConstructionDamage: number;
+  ticksToFullDecay: number;
+  worldFreeplaceDecayMultiplier: number;
   vehicleDamageTicks: number;
   vacantFoundationTicks: number;
   baseVehicleDamage: number;
   maxVehiclesPerArea: number;
   vehicleDamageRange: number;
+  dailyRepairMaterials: dailyRepairMaterial[];
 }
 
 interface SmeltingConfig {
