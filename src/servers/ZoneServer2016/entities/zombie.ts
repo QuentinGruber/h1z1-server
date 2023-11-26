@@ -37,30 +37,17 @@ export class Zombie extends Npc {
       spawnerId
     );
     this.materialType = MaterialTypes.ZOMBIE;
-    this.nameId = StringIds.ZOMBIE_WALKER;
   }
 
   OnInteractionString(server: ZoneServer2016, client: ZoneClient2016) {
-    if (!this.isAlive && this.actorModelId != 9667) { // Don't harvest screamers since this was not possible anyway
-      if (!client.character.hasItem(Items.SYRINGE_EMPTY)) {
-        server.sendData<CommandInteractionString>(
-          client,
-          "Command.InteractionString",
-          {
-            guid: this.characterId,
-            stringId: StringIds.HARVEST
-          }
-        );
-        return;
+    if (!this.isAlive) {
+      switch (this.actorModelId) {
+        case 9510:
+        case 9634:
+          this.sendInteractionString(server, client, client.character.hasItem(Items.SYRINGE_EMPTY) ?
+            StringIds.EXTRACT_BLOOD : StringIds.HARVEST);
+          break;
       }
-      server.sendData<CommandInteractionString>(
-        client,
-        "Command.InteractionString",
-        {
-          guid: this.characterId,
-          stringId: StringIds.EXTRACT_BLOOD
-        }
-      );
     }
   }
 
@@ -68,17 +55,24 @@ export class Zombie extends Npc {
     server: ZoneServer2016,
     client: ZoneClient2016,
   ) {
-    if(this.actorModelId == 9667) return;
-    server.utilizeHudTimer(client, 60, 5000, 0, () => {
-      const item = client.character.getItemById(Items.SYRINGE_EMPTY);
-      if (!item) {
-        if (server.deleteEntity(this.characterId, server._npcs)) {
-          client.character.lootContainerItem(server, server.generateItem(Items.BRAIN_INFECTED));
-        }
-        return;
-      }
-      if (!server.removeInventoryItem(client.character, item)) return;
-      client.character.lootContainerItem(server, server.generateItem(Items.SYRINGE_INFECTED_BLOOD));
-    });
+    switch (this.actorModelId) {
+      case 9510:
+      case 9634:
+        server.utilizeHudTimer(client, 60, 5000, 0, () => {
+          const item = client.character.getItemById(Items.SYRINGE_EMPTY);
+          
+          if (!item) {
+            if (server.deleteEntity(this.characterId, server._npcs)) {
+              client.character.lootContainerItem(server, server.generateItem(Items.BRAIN_INFECTED));
+            }
+            return;
+          }
+
+          if (server.removeInventoryItem(client.character, item)) {
+            client.character.lootContainerItem(server, server.generateItem(Items.SYRINGE_INFECTED_BLOOD));
+          }
+        });
+        break;
+    }
   }
 }

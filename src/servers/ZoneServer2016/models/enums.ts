@@ -94,7 +94,10 @@ export enum StringIds {
   HARVEST = 1009,
   LONG_RANGE_RADIO = 12809,
   AIRDROP_CODE = 12795,
-  ZOMBIE_WALKER = 60
+  ZOMBIE_WALKER = 60,
+  DEER = 1245,
+  BEAR = 1246,
+  WOLF = 1213
 }
 
 export enum MovementModifiers {
