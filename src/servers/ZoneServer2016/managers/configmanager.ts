@@ -203,6 +203,7 @@ export class ConfigManager {
       itemDespawnTimer,
       lootDespawnTimer,
       deadNpcDespawnTimer,
+      chanceWornLetter,
       vehicleSpawnRadius,
       npcSpawnRadius,
       chanceNpc,
@@ -226,6 +227,8 @@ export class ConfigManager {
     server.worldObjectManager.npcSpawnRadius = npcSpawnRadius;
     server.worldObjectManager.chanceNpc = chanceNpc;
     server.worldObjectManager.chanceScreamer = chanceScreamer;
+
+    server.worldObjectManager.chanceWornLetter = chanceWornLetter;
 
     server.worldObjectManager.waterSourceReplenishTimer =
       waterSourceReplenishTimer;
