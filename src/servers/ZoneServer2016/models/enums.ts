@@ -93,7 +93,8 @@ export enum StringIds {
   EXTRACT_BLOOD = 1453,
   HARVEST = 1009,
   LONG_RANGE_RADIO = 12809,
-  AIRDROP_CODE = 12795
+  AIRDROP_CODE = 12795,
+  ZOMBIE_WALKER = 60
 }
 
 export enum MovementModifiers {

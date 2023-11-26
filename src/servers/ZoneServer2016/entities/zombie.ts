@@ -37,10 +37,11 @@ export class Zombie extends Npc {
       spawnerId
     );
     this.materialType = MaterialTypes.ZOMBIE;
+    this.nameId = StringIds.ZOMBIE_WALKER;
   }
 
   OnInteractionString(server: ZoneServer2016, client: ZoneClient2016) {
-    if (!this.isAlive) {
+    if (!this.isAlive && this.actorModelId != 9667) { // Don't harvest screamers since this was not possible anyway
       if (!client.character.hasItem(Items.SYRINGE_EMPTY)) {
         server.sendData<CommandInteractionString>(
           client,
@@ -67,6 +68,7 @@ export class Zombie extends Npc {
     server: ZoneServer2016,
     client: ZoneClient2016,
   ) {
+    if(this.actorModelId == 9667) return;
     server.utilizeHudTimer(client, 60, 5000, 0, () => {
       const item = client.character.getItemById(Items.SYRINGE_EMPTY);
       if (!item) {

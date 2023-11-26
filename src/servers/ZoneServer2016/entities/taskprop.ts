@@ -67,6 +67,9 @@ export class TaskProp extends BaseLightweightCharacter {
 
   getTaskPropData(): void {
     switch (this.actorModel) {
+      case "Task_Hospital_Researcher_Radio.adr":
+        this.nameId = StringIds.LONG_RANGE_RADIO;
+        break;
       case "Task_Hospital_Researcher_TreasureChest.adr":
         this.nameId = 12771;
         this.requiredItemId = Items.BRAIN_TREATED;
