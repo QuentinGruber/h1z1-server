@@ -67,6 +67,77 @@ export class TaskProp extends BaseLightweightCharacter {
 
   getTaskPropData(): void {
     switch (this.actorModel) {
+      case "Task_Patient_Safe_FileCabinet01.adr":
+        this.nameId = StringIds.LOCKED_CABINET;
+        this.requiredItemId = Items.WEICHS_WALLET;
+        this.rewardItems = [
+          Items.AMMO_9MM,
+          Items.WEAPON_M9
+        ];
+        break;
+      case "Task_Patient_Hospital_Props_Desk01.adr":
+        this.nameId = StringIds.MORGUE_DESK;
+        this.requiredItemId = Items.WEICHS_REPORT;
+        this.rewardItems = [
+          Items.WEICHS_WALLET
+        ];
+        break;
+      case "Task_Patient_Quarantine_FileCabinet01.adr":
+        this.nameId = StringIds.EXAMINATION_CABINET;
+        this.requiredItemId = Items.KLAVISK_NOTE;
+        this.rewardItems = [
+          Items.WEICHS_REPORT
+        ];
+        break;
+      case "Task_Patient_Records_FileCabinet01.adr":
+        this.nameId = StringIds.RECORDS_CABINET;
+        this.requiredItemId = Items.DOCTORS_FILE;
+        this.rewardItems = [
+          Items.KLAVISK_NOTE
+        ];
+        break;
+      case "Task_Nurse_Hospital_Props_DrugCabinet.adr":
+        this.nameId = StringIds.SMALL_PHARMACY_CABINET;
+        this.requiredItemId = Items.HANDWRITTEN_NOTE_CAROLINE;
+        this.rewardItems = [
+          Items.FIRST_AID,
+          Items.ANTIBIOTICS,
+          Items.VIAL_H1Z1_REDUCER,
+          Items.CAP_SCRUBS_GRAY,
+          Items.PANTS_SCRUBS_GRAY,
+          Items.SHIRT_SCRUBS_GRAY
+        ];
+        break;
+      case "Task_Nurse_Hospital_Props_Desk01.adr":
+        this.nameId = StringIds.ICU_DESK;
+        this.requiredItemId = Items.CRACKED_CLIPBOARD;
+        this.rewardItems = [
+          Items.HANDWRITTEN_NOTE_CAROLINE
+        ];
+        break;
+      case "Task_Hospital_Orderly_ToolCabinet01.adr":
+        this.nameId = StringIds.MAINTENANCE_TOOLBOX;
+        this.requiredItemId = Items.SMALL_KEY;
+        this.rewardItems = [
+          Items.FIRST_AID,
+          Items.WEAPON_MACHETE01
+        ];
+        break;
+      case "Task_Orderly_Hospital_PaperDebris.adr":
+        this.nameId = StringIds.BATTERED_TRASHCAN;
+        this.requiredItemId = Items.TORN_LETTERHEAD;
+        this.rewardItems = [
+          //Items.CRUMPLED_NOTE // TODO: This should spawn the nurse Zombie to retreive the small key
+          Items.SMALL_KEY
+        ];
+        break;
+      case "Task_Orderly_Hospital_Props_Desk01.adr":
+        this.nameId = StringIds.RADIOLOGY_DESK;
+        this.requiredItemId = Items.PHONE_CHARGED;
+        this.rewardItems = [
+          Items.TORN_LETTERHEAD
+        ];
+        break;
       case "Task_Hospital_Researcher_Radio.adr":
         this.nameId = StringIds.LONG_RANGE_RADIO;
         break;
@@ -149,6 +220,45 @@ export class TaskProp extends BaseLightweightCharacter {
 
   OnInteractionString(server: ZoneServer2016, client: ZoneClient2016) {
     switch (this.actorModel) {
+      case "Task_Patient_Safe_FileCabinet01.adr":
+        server.sendData(client, "Command.InteractionString", {
+          guid: this.characterId,
+          stringId: StringIds.OPEN_LOCKED_CABINET
+        });
+        break;
+      case "Task_Patient_Records_FileCabinet01.adr":
+        server.sendData(client, "Command.InteractionString", {
+          guid: this.characterId,
+          stringId: StringIds.SEARCH_RECORDS
+        });
+        break;
+      case "Task_Nurse_Hospital_Props_DrugCabinet.adr":
+        server.sendData(client, "Command.InteractionString", {
+          guid: this.characterId,
+          stringId: StringIds.OPEN_CABINET
+        });
+        break;
+      case "Task_Hospital_Orderly_ToolCabinet01.adr":
+        server.sendData(client, "Command.InteractionString", {
+          guid: this.characterId,
+          stringId: StringIds.OPEN_TOOLBOX
+        });
+        break;
+      case "Task_Orderly_Hospital_PaperDebris.adr":
+        server.sendData(client, "Command.InteractionString", {
+          guid: this.characterId,
+          stringId: StringIds.BATTERED_TRASHCAN
+        });
+        break;
+      case "Task_Patient_Hospital_Props_Desk01.adr":
+      case "Task_Patient_Quarantine_FileCabinet01.adr":
+      case "Task_Nurse_Hospital_Props_Desk01.adr":
+      case "Task_Orderly_Hospital_Props_Desk01.adr":
+        server.sendData(client, "Command.InteractionString", {
+          guid: this.characterId,
+          stringId: StringIds.SEARCH
+        });
+        break;
       case "Task_Hospital_Researcher_Radio.adr":
         server.sendData(client, "Command.InteractionString", {
           guid: this.characterId,
@@ -228,16 +338,18 @@ export class TaskProp extends BaseLightweightCharacter {
         }
 
         const itemsPassed: { itemDefinitionId: number; count: number }[] = [];
-        const itemCount = randomIntFromInterval(2, 4);
+        const itemCount = this.rewardItems.length === 1 ? 1 : randomIntFromInterval(2, 4);
 
         for (let x = 0; x < itemCount; x++) {
           const randomIndex = randomIntFromInterval(0, this.rewardItems.length - 1);
           const item = this.rewardItems[randomIndex];
+          if (itemsPassed.map(sItem => sItem.itemDefinitionId).includes(item)) continue; //TODO: Check if there's already a scrub received
           itemsPassed.push({
             itemDefinitionId: item,
             count: this.getRewardItemCount(item)
           });
         }
+
         const requiredItemInfo = { itemDefinitionId: this.requiredItemId, count: requiredItemCount };
         server.taskOption(client, 1000, this.nameId, requiredItemInfo, itemsPassed);
         break;
