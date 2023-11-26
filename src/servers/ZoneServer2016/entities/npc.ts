@@ -17,6 +17,8 @@ import { BaseFullCharacter } from "./basefullcharacter";
 import { ZoneClient2016 } from "../classes/zoneclient";
 import { logClientActionToMongo } from "../../../utils/utils";
 import { DB_COLLECTIONS } from "../../../utils/enums";
+import { StringIds } from "../models/enums";
+import { CommandInteractionString } from "types/zone2016packets";
 
 export class Npc extends BaseFullCharacter {
   health: number;
@@ -68,6 +70,7 @@ export class Npc extends BaseFullCharacter {
     super(characterId, transientId, actorModelId, position, rotation, server);
     this.spawnerId = spawnerId;
     this.health = 10000;
+    this.getNpcData();
   }
 
   damage(server: ZoneServer2016, damageInfo: DamageInfo) {
@@ -151,5 +154,37 @@ export class Npc extends BaseFullCharacter {
 
   destroy(server: ZoneServer2016): boolean {
     return server.deleteEntity(this.characterId, server._npcs);
+  }
+
+  getNpcData() {
+    switch (this.actorModelId) {
+      case 9667:
+        //Screamer
+        break;
+      case 9510:
+      case 9634:
+        this.nameId = StringIds.ZOMBIE_WALKER;
+        break;
+      case 9002:
+        this.nameId = StringIds.DEER;
+        break;
+      case 9003:
+        this.nameId = StringIds.WOLF;
+        break;
+      case 9187:
+        this.nameId = StringIds.BEAR;
+        break;
+    }
+  }
+
+  sendInteractionString(server: ZoneServer2016, client: ZoneClient2016, stringId: number) {
+    server.sendData<CommandInteractionString>(
+      client,
+      "Command.InteractionString",
+      {
+        guid: this.characterId,
+        stringId: stringId
+      }
+    );
   }
 }

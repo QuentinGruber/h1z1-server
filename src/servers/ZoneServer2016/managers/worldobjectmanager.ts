@@ -200,6 +200,8 @@ export class WorldObjectManager {
       this._lastWaterSourceReplenishTime = Date.now();
     }
 
+    this.updateQuestContainers(server);
+
     this.despawnEntities(server);
   }
 
@@ -397,7 +399,7 @@ export class WorldObjectManager {
     server.spawnSimpleNpcForAllInRange(lootbag);
   }
 
-  createAirdropContainer(server: ZoneServer2016, pos: Float32Array) {
+  createAirdropContainer(server: ZoneServer2016, pos: Float32Array, forceAirdrop: string = "") {
     const airdropTypes: string[] = [
       "Farmer",
       "Demolitioner",
@@ -413,9 +415,32 @@ export class WorldObjectManager {
       { weapon: Items.WEAPON_NAGAFENS_RAGE, ammo: Items.AMMO_12GA }
     ];
 
+    const experimentalSrubs: number[] = [
+      Items.HAPPY_SKULL_SCRUBS_CAP,
+      Items.HAPPY_SKULL_SCRUBS_SHIRT,
+      Items.HAPPY_SKULL_SCRUBS_PANTS,
+      
+      2806,
+      2803,
+      2809,
+
+      2804,
+      2801,
+      2807,
+
+      2799,
+      2798,
+      2800,
+    ];
+
     const index = Math.floor(Math.random() * airdropTypes.length);
-    const airdropType = airdropTypes[index];
-    const lootSpawner = containerLootSpawners[airdropType];
+    let airdropType = airdropTypes[index];
+    let lootSpawner = containerLootSpawners[airdropType];
+
+    if (forceAirdrop.length > 0) {
+      airdropType = forceAirdrop;
+      lootSpawner = containerLootSpawners[forceAirdrop];
+    }
 
     const characterId = generateRandomGuid();
 
@@ -488,6 +513,13 @@ export class WorldObjectManager {
             container
           );
         }
+      case "Hospital":
+        effectId = Effects.Smoke_Orange;
+        if (container) {
+          const randomIndex = Math.floor(Math.random() * experimentalSrubs.length);
+          server.addContainerItem(lootbag, server.generateItem(experimentalSrubs[randomIndex], 1), container);
+        }
+        break;
     }
     if (server._airdrop) {
       const smokePos = new Float32Array([
@@ -535,7 +567,9 @@ export class WorldObjectManager {
         );
         server._lootableProps[characterId] = obj;
         obj.equipItem(server, server.generateItem(obj.containerId), false);
-        obj._containers["31"].canAcceptItems = false;
+        if (propInstance.modelId != 9563) {
+          obj._containers["31"].canAcceptItems = false;
+        }
         obj.nameId = server.getItemDefinition(obj.containerId)?.NAME_ID ?? 0;
       });
     });
@@ -850,12 +884,45 @@ export class WorldObjectManager {
       }
     });
   }
+  updateQuestContainers(server: ZoneServer2016) {
+    for (const a in server._lootableProps) {
+      const prop = server._lootableProps[a] as BaseFullCharacter;
+      if (prop.actorModelId != 9563) continue;
+
+      if (
+        prop.hasItem(Items.SYRINGE_INFECTED_BLOOD) &&
+        prop.hasItem(Items.EMPTY_SPECIMEN_BAG) &&
+        prop.hasItem(Items.BRAIN_INFECTED) &&
+        prop.hasItem(Items.VIAL_H1Z1_REDUCER)
+      ) {
+        const req1 = prop.getItemById(Items.SYRINGE_INFECTED_BLOOD),
+          req2 = prop.getItemById(Items.EMPTY_SPECIMEN_BAG),
+          req3 = prop.getItemById(Items.BRAIN_INFECTED),
+          req4 = prop.getItemById(Items.VIAL_H1Z1_REDUCER);
+
+        if (!req1 || !req2 || !req3 || !req4) return;
+
+        if (
+          !server.removeInventoryItem(prop, req1) ||
+          !server.removeInventoryItem(prop, req2) ||
+          !server.removeInventoryItem(prop, req3) ||
+          !server.removeInventoryItem(prop, req4)
+        ) {
+          return;
+        }
+
+        const obj = server.generateItem(Items.BRAIN_TREATED, 1);
+        prop.lootItem(server, obj, 1, false);
+      }
+    }
+  }
   createContainerLoot(server: ZoneServer2016) {
     for (const a in server._lootableProps) {
       const prop = server._lootableProps[a] as LootableProp;
       const container = prop.getContainer();
       if (!container) continue;
       if (!!Object.keys(container.items).length) continue; // skip if container is not empty
+      if (container.itemDefinitionId == 9563) continue; // skip medical stations
       const lootTable = containerLootSpawners[prop.lootSpawner];
       if (lootTable) {
         for (let x = 0; x < lootTable.maxItems; x++) {

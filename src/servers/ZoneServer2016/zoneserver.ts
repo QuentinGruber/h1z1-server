@@ -316,6 +316,7 @@ export class ZoneServer2016 extends EventEmitter {
     destinationPos: Float32Array;
     cargoSpawned: boolean;
     containerSpawned: boolean;
+    hospitalCrate: boolean;
     manager?: Client;
   };
   _gameTime: number = 0;
@@ -6029,7 +6030,7 @@ export class ZoneServer2016 extends EventEmitter {
       !this.removeInventoryItem(client.character, item)
     )
       return;
-    this.sendAlert(client, "You have called an airdrop.");
+    this.sendAlert(client, "Your delivery is on the way!");
     const pos = new Float32Array([
       client.character.state.position[0],
       400,
@@ -6083,7 +6084,8 @@ export class ZoneServer2016 extends EventEmitter {
       destination: characterId3,
       destinationPos: client.character.state.position,
       cargoSpawned: false,
-      containerSpawned: false
+      containerSpawned: false,
+      hospitalCrate: item.hasAirdropClearance
     };
     let choosenClient: Client | undefined;
     let currentDistance = 999999;
@@ -6110,6 +6112,11 @@ export class ZoneServer2016 extends EventEmitter {
         this.airdropManager(this._clients[a], true);
       }
     }
+
+    if (item.hasAirdropClearance) {
+      item.hasAirdropClearance = false;
+    }
+
     setTimeout(() => {
       if (this._airdrop && this._airdrop.plane.characterId == characterId) {
         for (const a in this._clients) {
@@ -6201,10 +6208,10 @@ export class ZoneServer2016 extends EventEmitter {
 
   taskOptionPass(
     client: Client,
-    removedItem: BaseItem,
+    removedItem: { itemDefinitionId: number; count: number },
     rewardItems: { itemDefinitionId: number; count: number }[]
   ) {
-    if (!this.removeInventoryItem(client.character, removedItem)) return;
+    if (!this.removeInventoryItems(client, removedItem.itemDefinitionId, removedItem.count)) return;
     rewardItems.forEach(
       (itemInstance: { itemDefinitionId: number; count: number }) => {
         const item = this.generateItem(
@@ -6248,7 +6255,7 @@ export class ZoneServer2016 extends EventEmitter {
     client: Client,
     timeout: number,
     nameId: number,
-    removedItem: BaseItem,
+    removedItem: { itemDefinitionId: number; count: number },
     rewardItems: { itemDefinitionId: number; count: number }[]
   ) {
     this.utilizeHudTimer(client, nameId, timeout, 0, () => {

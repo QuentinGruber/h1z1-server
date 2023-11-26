@@ -3533,5 +3533,51 @@ export const containerLootSpawners: {
         }
       }
     ]
+  },
+  Hospital: {
+    spawnChance: 0,
+    maxItems: 1,
+    items: [
+      {
+        item: Items.BANDAGE,
+        weight: 1,
+        spawnCount: {
+          min: 1,
+          max: 1
+        }
+      },
+      {
+        item: Items.AMMO_45,
+        weight: 1,
+        spawnCount: {
+          min: 6,
+          max: 12
+        }
+      },
+      {
+        item: Items.AMMO_12GA,
+        weight: 1,
+        spawnCount: {
+          min: 4,
+          max: 8
+        }
+      },
+      {
+        item: Items.PAINKILLERS,
+        weight: 1,
+        spawnCount: {
+          min: 2,
+          max: 2
+        }
+      },
+      {
+        item: Items.ADRENALINE_SHOT,
+        weight: 1,
+        spawnCount: {
+          min: 2,
+          max: 2
+        }
+      }
+    ]
   }
 };

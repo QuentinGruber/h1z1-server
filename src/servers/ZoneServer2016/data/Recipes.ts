@@ -2265,27 +2265,6 @@ export const recipes: { [recipeId: number]: Recipe } = {
       }
     ]
   },
-  [Items.BRAIN_TREATED]: {
-    filterId: FilterIds.COMPONENT,
-    components: [
-      {
-        itemDefinitionId: Items.SYRINGE_INFECTED_BLOOD,
-        requiredAmount: 1
-      },
-      {
-        itemDefinitionId: Items.VIAL_H1Z1_REDUCER,
-        requiredAmount: 1
-      },
-      {
-        itemDefinitionId: Items.EMPTY_SPECIMEN_BAG,
-        requiredAmount: 1
-      },
-      {
-        itemDefinitionId: Items.BRAIN_INFECTED,
-        requiredAmount: 1
-      }
-    ]
-  },
   [Items.SHELTER_UPPER_LARGE]: {
     filterId: FilterIds.HOUSING,
     components: [
