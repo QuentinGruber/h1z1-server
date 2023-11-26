@@ -1474,6 +1474,7 @@ export class ZoneServer2016 extends EventEmitter {
       );
       const worldConstructions: LootableConstructionSaveData[] = [];
       Object.values(this._worldLootableConstruction).forEach((entity) => {
+        if (!entity.parentObjectCharacterId) return; // Don't save world spawned campfires / barbeques
         const lootableConstructionSaveData =
           WorldDataManager.getLootableConstructionSaveData(
             entity,

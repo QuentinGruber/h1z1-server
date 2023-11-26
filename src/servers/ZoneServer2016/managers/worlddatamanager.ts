@@ -683,6 +683,7 @@ export class WorldDataManager {
         new Float32Array(entityData.position),
         new Float32Array(entityData.rotation),
         server,
+        new Float32Array([1, 1, 1, 1]),
         entityData.itemDefinitionId,
         entityData.parentObjectCharacterId,
         entityData.subEntityType

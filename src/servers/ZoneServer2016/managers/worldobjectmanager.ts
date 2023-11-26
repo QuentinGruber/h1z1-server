@@ -578,6 +578,26 @@ export class WorldObjectManager {
         const characterId = generateRandomGuid();
         let obj;
         switch (propType.actor_file) {
+          case "Common_Props_Campfire.adr":
+            server.constructionManager.placeSmeltingEntity(
+              server,
+              15,
+              propType.modelId,
+              propInstance.position,
+              fixEulerOrder(propInstance.rotation),
+              propInstance.scale
+            );
+            break;
+          case "Common_Props_Barbeque01.adr":
+            server.constructionManager.placeSmeltingEntity(
+              server,
+              9205,
+              propType.modelId,
+              propInstance.position,
+              fixEulerOrder(propInstance.rotation),
+              propInstance.scale
+            );
+            break;
           case "Common_Props_TreasureChest.adr":
             obj = new TreasureChest(
               characterId,

@@ -793,6 +793,7 @@ export class ConstructionManager {
           modelId,
           position,
           fixEulerOrder(rotation),
+          new Float32Array([1, 1, 1, 1]),
           freeplaceParentCharacterId
         );
       case Items.BEE_BOX:
@@ -1409,6 +1410,7 @@ export class ConstructionManager {
       position,
       rotation,
       server,
+      new Float32Array([1, 1, 1, 1]),
       itemDefinitionId,
       parentObjectCharacterId || "",
       ""
@@ -1451,6 +1453,7 @@ export class ConstructionManager {
     modelId: number,
     position: Float32Array,
     rotation: Float32Array,
+    scale: Float32Array,
     parentObjectCharacterId?: string
   ): boolean {
     const characterId = server.generateGuid(),
@@ -1462,6 +1465,7 @@ export class ConstructionManager {
       position,
       rotation,
       server,
+      scale,
       itemDefinitionId,
       parentObjectCharacterId || "",
       "SmeltingEntity"
@@ -1504,6 +1508,7 @@ export class ConstructionManager {
       position,
       rotation,
       server,
+      new Float32Array([1, 1, 1, 1]),
       itemDefinitionId,
       parentObjectCharacterId || "",
       "CollectingEntity"
