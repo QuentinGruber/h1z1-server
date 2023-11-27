@@ -11,15 +11,14 @@
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
 
-import { Items, StringIds } from "../models/enums";
+import { Items } from "../models/enums";
 import { ZoneServer2016 } from "../zoneserver";
-import { ZoneClient2016 } from "../classes/zoneclient";
-import { TaskProp } from "./taskprop";
+import { LootableProp } from "./lootableprop";
 
-export class TreasureChest extends TaskProp {
+export class TreasureChest extends LootableProp {
   requiredItemId: number = 0;
-  rewardChest: Items;
   rewardItems: number[] = [];
+  uniqueId: number;
   constructor(
     characterId: string,
     transientId: number,
@@ -28,24 +27,11 @@ export class TreasureChest extends TaskProp {
     rotation: Float32Array,
     server: ZoneServer2016,
     scale: Float32Array,
-    zoneId: number,
-    renderDistance: number,
-    actorModel: string,
-    rewardChest: number
+    spawnerId: number,
+    renderDistance: number
   ) {
-    super(
-      characterId,
-      transientId,
-      actorModelId,
-      position,
-      rotation,
-      server,
-      scale,
-      zoneId,
-      renderDistance,
-      actorModel
-    );
-    this.rewardChest = rewardChest;
+    super(characterId, transientId, actorModelId, position, rotation, server, new Float32Array([1, 1, 1, 1]), 0, renderDistance);
+    this.uniqueId = Math.floor(Array.from(position).reduce((n, v) => n + v, 0));
     this.getTaskPropData();
   }
 
@@ -60,29 +46,29 @@ export class TreasureChest extends TaskProp {
   }
 
   getTaskPropData(): void {
-    switch (this.rewardChest) {
-      case Items.CHEST_CHURCH_PV:
+    switch (this.uniqueId) {
+      case -1357:
         this.requiredItemId = Items.WORN_LETTER_CHURCH_PV;
         break;
-      case Items.CHEST_MISTY_DAM:
+      case 581:
         this.requiredItemId = Items.WORN_LETTER_MISTY_DAM;
         break;
-      case Items.CHEST_RUBY_LAKE:
+      case -297:
         this.requiredItemId = Items.WORN_LETTER_RUBY_LAKE;
         break;
-      case Items.CHEST_WATER_TOWER:
+      case -3822:
         this.requiredItemId = Items.WORN_LETTER_WATER_TOWER;
         break;
-      case Items.CHEST_TOXIC_LAKE:
+      case -5337:
         this.requiredItemId = Items.WORN_LETTER_TOXIC_LAKE;
         break;
-      case Items.CHEST_RADIO:
+      case -1988:
         this.requiredItemId = Items.WORN_LETTER_RADIO;
         break;
-      case Items.CHEST_LJ_PV:
+      case -930:
         this.requiredItemId = Items.WORN_LETTER_LJ_PV;
         break;
-      case Items.CHEST_VILLAS:
+      case 3894:
         this.requiredItemId = Items.WORN_LETTER_VILLAS;
         break;
     }
@@ -97,18 +83,9 @@ export class TreasureChest extends TaskProp {
     ];
   }
 
-  OnInteractionString(server: ZoneServer2016, client: ZoneClient2016) {
-    if (client.character.hasItem(this.requiredItemId)) {
-      server.sendData(client, "Command.InteractionString", {
-        guid: this.characterId,
-        stringId: StringIds.OPEN
-      });
-    }
-  }
-
-  OnPlayerSelect(server: ZoneServer2016, client: ZoneClient2016) {
+  triggerRewards(server: ZoneServer2016) {
     if (!this.requiredItemId) return;
-    const removedItem = client.character.getItemById(this.requiredItemId);
+    const removedItem = this.getItemById(this.requiredItemId);
     if (!removedItem) return;
 
     const rewardItems = this.rewardItems;
@@ -122,6 +99,16 @@ export class TreasureChest extends TaskProp {
       itemDefinitionId: item,
       count: this.getRewardItemCount(item)
     }));
-    server.taskOption(client, 1000, this.nameId, removedItem, itemsPassed);
+
+    if (!server.removeInventoryItem(this, removedItem, 1)) return;
+    itemsPassed.forEach(
+      (itemInstance: { itemDefinitionId: number; count: number }) => {
+        const item = server.generateItem(
+          itemInstance.itemDefinitionId,
+          itemInstance.count
+        );
+        this.lootContainerItem(server, item, itemInstance.count, false);
+      }
+    );
   }
 }

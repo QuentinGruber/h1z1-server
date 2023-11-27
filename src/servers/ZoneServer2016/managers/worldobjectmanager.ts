@@ -549,7 +549,7 @@ export class WorldObjectManager {
     Z1_lootableProps.forEach((propType: any) => {
       propType.instances.forEach((propInstance: any) => {
         const characterId = generateRandomGuid();
-        const obj = new LootableProp(
+        const obj = new (propInstance.modelId == 9347 ? TreasureChest : LootableProp)(
           characterId,
           server.getTransientId(characterId), // need transient generated for Interaction Replication
           propInstance.modelId,
@@ -567,10 +567,10 @@ export class WorldObjectManager {
         );
         server._lootableProps[characterId] = obj;
         obj.equipItem(server, server.generateItem(obj.containerId), false);
-        if (propInstance.modelId != 9563) {
+        if (propInstance.modelId != 9563 && propInstance.modelId != 9347) {
           obj._containers["31"].canAcceptItems = false;
+          obj.nameId = server.getItemDefinition(obj.containerId)?.NAME_ID ?? 0;
         }
-        obj.nameId = server.getItemDefinition(obj.containerId)?.NAME_ID ?? 0;
       });
     });
     Z1_taskProps.forEach((propType: any) => {
@@ -605,21 +605,6 @@ export class WorldObjectManager {
               propInstance.position,
               fixEulerOrder(propInstance.rotation),
               propInstance.scale
-            );
-            break;
-          case "Common_Props_TreasureChest.adr":
-            obj = new TreasureChest(
-              characterId,
-              server.getTransientId(characterId), // need transient generated for Interaction Replication
-              propType.modelId,
-              propInstance.position,
-              fixEulerOrder(propInstance.rotation),
-              server,
-              propInstance.scale,
-              propInstance.id,
-              propType.renderDistance,
-              propType.actor_file,
-              propInstance.chestId
             );
             break;
           case "Common_Props_Cabinets_BathroomSink.adr":
@@ -915,36 +900,42 @@ export class WorldObjectManager {
     });
   }
   updateQuestContainers(server: ZoneServer2016) {
-    for (const a in server._lootableProps) {
-      const prop = server._lootableProps[a] as BaseFullCharacter;
-      if (prop.actorModelId != 9563) continue;
-
-      if (
-        prop.hasItem(Items.SYRINGE_INFECTED_BLOOD) &&
-        prop.hasItem(Items.EMPTY_SPECIMEN_BAG) &&
-        prop.hasItem(Items.BRAIN_INFECTED) &&
-        prop.hasItem(Items.VIAL_H1Z1_REDUCER)
-      ) {
-        const req1 = prop.getItemById(Items.SYRINGE_INFECTED_BLOOD),
-          req2 = prop.getItemById(Items.EMPTY_SPECIMEN_BAG),
-          req3 = prop.getItemById(Items.BRAIN_INFECTED),
-          req4 = prop.getItemById(Items.VIAL_H1Z1_REDUCER);
-
-        if (!req1 || !req2 || !req3 || !req4) return;
-
-        if (
-          !server.removeInventoryItem(prop, req1) ||
-          !server.removeInventoryItem(prop, req2) ||
-          !server.removeInventoryItem(prop, req3) ||
-          !server.removeInventoryItem(prop, req4)
-        ) {
-          return;
-        }
-
-        const obj = server.generateItem(Items.BRAIN_TREATED, 1);
-        prop.lootItem(server, obj, 1, false);
+    Object.values(server._lootableProps).forEach(a => {
+      const prop = a as BaseFullCharacter;
+      switch(prop.actorModelId) {
+        case 9563:
+          if (
+            prop.hasItem(Items.SYRINGE_INFECTED_BLOOD) &&
+            prop.hasItem(Items.EMPTY_SPECIMEN_BAG) &&
+            prop.hasItem(Items.BRAIN_INFECTED) &&
+            prop.hasItem(Items.VIAL_H1Z1_REDUCER)
+          ) {
+            const req1 = prop.getItemById(Items.SYRINGE_INFECTED_BLOOD),
+              req2 = prop.getItemById(Items.EMPTY_SPECIMEN_BAG),
+              req3 = prop.getItemById(Items.BRAIN_INFECTED),
+              req4 = prop.getItemById(Items.VIAL_H1Z1_REDUCER);
+    
+            if (!req1 || !req2 || !req3 || !req4) return;
+    
+            if (
+              !server.removeInventoryItem(prop, req1) ||
+              !server.removeInventoryItem(prop, req2) ||
+              !server.removeInventoryItem(prop, req3) ||
+              !server.removeInventoryItem(prop, req4)
+            ) {
+              return;
+            }
+    
+            const obj = server.generateItem(Items.BRAIN_TREATED, 1);
+            prop.lootItem(server, obj, 1, false);
+          }
+          break;
+        case 9347:
+          const rewardChest = a as TreasureChest;
+          if (rewardChest) rewardChest.triggerRewards(server);
+          break;
       }
-    }
+    });
   }
   createContainerLoot(server: ZoneServer2016) {
     for (const a in server._lootableProps) {
@@ -952,7 +943,7 @@ export class WorldObjectManager {
       const container = prop.getContainer();
       if (!container) continue;
       if (!!Object.keys(container.items).length) continue; // skip if container is not empty
-      if (container.itemDefinitionId == 9563) continue; // skip medical stations
+      if (prop.isTreasureChest) continue; // skip medical stations and treasure chests
       const lootTable = containerLootSpawners[prop.lootSpawner];
       if (lootTable) {
         for (let x = 0; x < lootTable.maxItems; x++) {

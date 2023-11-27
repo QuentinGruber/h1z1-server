@@ -168,6 +168,10 @@ function getContainerAndTime(entity: LootableProp) {
       entity.searchTime = 1000;
       entity.lootSpawner = "Hospital Cabinets";
       break;
+    case 9347:
+      entity.containerId = Items.CONTAINER_LOOT_CACHE;
+      entity.nameId = Items.CONTAINER_LOOT_CACHE;
+      entity.searchTime = 1000;
     default:
       entity.containerId = Items.CONTAINER_STORAGE;
       entity.searchTime = 500;
@@ -240,7 +244,6 @@ export class LootableProp extends BaseLootableEntity {
   }
   OnInteractionString(server: ZoneServer2016, client: ZoneClient2016) {
     if(this.actorModelId == 9563) {
-      //TODO: Probably make a switch if I want to put worn letter chests here
       server.sendData(client, "Command.InteractionString", {
         guid: this.characterId,
         stringId: StringIds.USE_TARGET
