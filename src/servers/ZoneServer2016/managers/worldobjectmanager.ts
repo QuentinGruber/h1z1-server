@@ -578,6 +578,15 @@ export class WorldObjectManager {
         const characterId = generateRandomGuid();
         let obj;
         switch (propType.actor_file) {
+          case "Common_Props_SpikeTrap.adr":
+            server.constructionManager.placeTrap(
+              server,
+              Items.PUNJI_STICKS,
+              propType.modelId,
+              propInstance.position,
+              fixEulerOrder(propInstance.rotation)
+            );
+            break;
           case "Common_Props_Campfire.adr":
             server.constructionManager.placeSmeltingEntity(
               server,
@@ -615,6 +624,7 @@ export class WorldObjectManager {
             break;
           case "Common_Props_Cabinets_BathroomSink.adr":
           case "Common_Props_Bathroom_Toilet01.adr":
+          case "Common_Props_Dam_WaterValve01.adr":
           case "Common_Props_Well.adr":
             obj = new WaterSource(
               characterId,
