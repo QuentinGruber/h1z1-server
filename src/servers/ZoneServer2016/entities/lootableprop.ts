@@ -172,6 +172,11 @@ function getContainerAndTime(entity: LootableProp) {
       entity.containerId = Items.CONTAINER_LOOT_CACHE;
       entity.nameId = Items.CONTAINER_LOOT_CACHE;
       entity.searchTime = 1000;
+    case 57:
+      entity.containerId = Items.CONTAINER_STORAGE;
+      entity.searchTime = 1000;
+      entity.lootSpawner = "Cabinets";
+      break;
     default:
       entity.containerId = Items.CONTAINER_STORAGE;
       entity.searchTime = 500;
