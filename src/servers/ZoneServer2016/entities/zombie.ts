@@ -15,7 +15,6 @@ import { Npc } from "./npc";
 import { ZoneServer2016 } from "../zoneserver";
 import { Items, MaterialTypes, StringIds } from "../models/enums";
 import { ZoneClient2016 } from "../classes/zoneclient";
-import { CommandInteractionString } from "types/zone2016packets";
 
 export class Zombie extends Npc {
   constructor(
