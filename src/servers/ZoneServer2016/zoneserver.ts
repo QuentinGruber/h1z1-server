@@ -6686,7 +6686,8 @@ export class ZoneServer2016 extends EventEmitter {
       }
     }
     for (const a in this._lootableConstruction) {
-      let smeltable = this._lootableConstruction[a];
+      const smeltable = this._lootableConstruction[a],
+        position = smeltable.state.position;
       if (
         isPosInRadius(
           1.5,
@@ -6707,7 +6708,7 @@ export class ZoneServer2016 extends EventEmitter {
               smeltable.characterId;
 
               if(smeltable.actorModelId == 9205) {
-                smeltable.state.position[1] += 0.42;
+                position[1] += 0.42;
               }
 
             this.sendDataToAllWithSpawnedEntity<CharacterPlayWorldCompositeEffect>(
@@ -6717,7 +6718,7 @@ export class ZoneServer2016 extends EventEmitter {
               {
                 characterId: smeltable.characterId,
                 effectId: smeltable.subEntity.workingEffect,
-                position: smeltable.state.position,
+                position: position,
                 effectTime
               }
             );
@@ -6726,7 +6727,8 @@ export class ZoneServer2016 extends EventEmitter {
       }
     }
     for (const a in this._worldLootableConstruction) {
-      let smeltable = this._worldLootableConstruction[a];
+      const smeltable = this._worldLootableConstruction[a],
+        position = smeltable.state.position;
       if (
         isPosInRadius(
           1.5,
@@ -6747,7 +6749,7 @@ export class ZoneServer2016 extends EventEmitter {
               smeltable.characterId;
 
               if (smeltable.actorModelId == 9205) {
-                smeltable.state.position[1] += 0.42;
+                position[1] += 0.42;
               }
             this.sendDataToAllWithSpawnedEntity<CharacterPlayWorldCompositeEffect>(
               smeltable.subEntity.dictionary,
@@ -6756,7 +6758,7 @@ export class ZoneServer2016 extends EventEmitter {
               {
                 characterId: smeltable.characterId,
                 effectId: smeltable.subEntity.workingEffect,
-                position: smeltable.state.position,
+                position: position,
                 effectTime
               }
             );
