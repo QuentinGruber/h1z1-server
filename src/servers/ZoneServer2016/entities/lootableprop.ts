@@ -177,6 +177,16 @@ function getContainerAndTime(entity: LootableProp) {
       entity.searchTime = 1000;
       entity.lootSpawner = "Cabinets";
       break;
+    case 9396:
+      entity.containerId = Items.CONTAINER_WASHING_MACHINE;
+      entity.searchTime = 1000;
+      entity.lootSpawner = "Armoire";
+      break;
+    case 9395:
+      entity.containerId = Items.CONTAINER_DRYER;
+      entity.searchTime = 1000;
+      entity.lootSpawner = "Armoire";
+      break;
     default:
       entity.containerId = Items.CONTAINER_STORAGE;
       entity.searchTime = 500;
