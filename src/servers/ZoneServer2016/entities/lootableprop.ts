@@ -291,7 +291,8 @@ export class LootableProp extends BaseLootableEntity {
 
     if (randomIntFromInterval(0, 100) <= 15) {
       client.character.lootItem(server, server.generateItem(Items.METAL_SCRAP));
-      server.damageItem(client, weapon, 25);
     }
+
+    server.damageItem(client, weapon, 25);
   }
 }
