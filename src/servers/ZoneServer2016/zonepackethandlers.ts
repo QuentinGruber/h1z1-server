@@ -2583,12 +2583,14 @@ export class ZonePacketHandlers {
             client.character.loadoutId
           )
         ) {
-          client.character.equipContainerItem(
-            server,
-            item,
-            newSlotId,
-            sourceCharacter
-          );
+          if (!client.character._containers[newSlotId].items) {
+            client.character.equipContainerItem(
+              server,
+              item,
+              newSlotId,
+              sourceCharacter
+            );
+          }
         }
       } else if (sourceCharacter.getContainerFromGuid(containerGuid ?? "")) {
         // remount container if trying to move around items in one container since slotIds aren't setup yet
