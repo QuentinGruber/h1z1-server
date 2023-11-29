@@ -54,7 +54,7 @@ export class Zombie extends Npc {
     server: ZoneServer2016,
     client: ZoneClient2016,
   ) {
-    if (this.isAlive) {
+    if (!this.isAlive) { // isAlive is reversed?
       switch (this.actorModelId) {
         case 9510:
         case 9634:
