@@ -564,7 +564,7 @@ export enum Items {
   BACKPACK_MILITARY_GREEN_CAMO = 2121,
   BACKPACK_BLUE_ORANGE = 2038,
   HELMET_MOTORCYCLE = 2170, // TODO = expand with other default helmet colors
-  HAT_CAP = 12, // TODO = expand with other cap colors
+  HAT_CAP = 2102, // TODO = expand with other cap colors
   SHIRT_DEFAULT = 2088, // TODO = expand with other default shirts
   PANTS_DEFAULT = 2177, // TODO = expand with other default pants
   SHIRT_SCRUBS_BLUE = 2553,
@@ -835,7 +835,7 @@ export enum Skins_Cap {
   CAMO_GREEN_OUTBACK_HAT = 2046,
   TAN_CANVAS_OUTBACK_HAT = 2066,
   BROWN_LEATHER_OUTBACK_HAT = 2067,
-  HAT_CAP = 12
+  HAT_CAP = 2102
 }
 
 export enum Skins_MotorHelmet {
