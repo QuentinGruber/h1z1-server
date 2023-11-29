@@ -192,6 +192,20 @@ export const smeltingData: { [recipeId: number]: smeltRecipe } = {
       }
     ]
   },
+  14: {
+    filterId: FilterIds.COOKING,
+    rewardId: Items.FUEL_BIOFUEL,
+    components: [
+      {
+        itemDefinitionId: Items.WATER_EMPTY,
+        requiredAmount: 1
+      },
+      {
+        itemDefinitionId: Items.ANIMAL_FAT,
+        requiredAmount: 1
+      }
+    ]
+  },
   // disabled for now, need to fix requiredAmount for smelting - Meme
   /*
   14: {
@@ -890,19 +904,6 @@ export const recipes: { [recipeId: number]: Recipe } = {
       },
       {
         itemDefinitionId: Items.TARP,
-        requiredAmount: 1
-      }
-    ]
-  },
-  [Items.FUEL_BIOFUEL]: {
-    filterId: FilterIds.WEAPONS,
-    components: [
-      {
-        itemDefinitionId: Items.ANIMAL_FAT,
-        requiredAmount: 1
-      },
-      {
-        itemDefinitionId: Items.WATER_EMPTY,
         requiredAmount: 1
       }
     ]
