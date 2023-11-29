@@ -6686,7 +6686,7 @@ export class ZoneServer2016 extends EventEmitter {
       }
     }
     for (const a in this._lootableConstruction) {
-      const smeltable = this._lootableConstruction[a];
+      let smeltable = this._lootableConstruction[a];
       if (
         isPosInRadius(
           1.5,
@@ -6705,6 +6705,11 @@ export class ZoneServer2016 extends EventEmitter {
               );
             this.smeltingManager._smeltingEntities[smeltable.characterId] =
               smeltable.characterId;
+
+              if(smeltable.actorModelId == 9205) {
+                smeltable.state.position[1] += 0.42;
+              }
+
             this.sendDataToAllWithSpawnedEntity<CharacterPlayWorldCompositeEffect>(
               smeltable.subEntity.dictionary,
               smeltable.characterId,
@@ -6721,7 +6726,7 @@ export class ZoneServer2016 extends EventEmitter {
       }
     }
     for (const a in this._worldLootableConstruction) {
-      const smeltable = this._worldLootableConstruction[a];
+      let smeltable = this._worldLootableConstruction[a];
       if (
         isPosInRadius(
           1.5,
@@ -6740,6 +6745,10 @@ export class ZoneServer2016 extends EventEmitter {
               );
             this.smeltingManager._smeltingEntities[smeltable.characterId] =
               smeltable.characterId;
+
+              if (smeltable.actorModelId == 9205) {
+                smeltable.state.position[1] += 0.42;
+              }
             this.sendDataToAllWithSpawnedEntity<CharacterPlayWorldCompositeEffect>(
               smeltable.subEntity.dictionary,
               smeltable.characterId,
