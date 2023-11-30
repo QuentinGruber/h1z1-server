@@ -3216,9 +3216,9 @@ export class ZonePacketHandlers {
       case "DtoHitSpeedTreeReport":
         this.DtoHitSpeedTreeReport(server, client, packet);
         break;
-  /*  case "Command.PointAndReport":
+      case "Command.PointAndReport":
         this.CommandPointAndReport(server, client, packet);
-        break; */ 
+        break; 
       case "Command.ReportLastDeath":
         this.CommandReportLastDeath(server, client, packet);
         break;

@@ -735,7 +735,6 @@ export class FairPlayManager {
     if (client.isInAir && (itemGuid == "0x3000000000246bc6" || "0x3000000000246bfa")) {
       
       const pos = client.character.state.position;
-      const resetExploitTimer = 900000; // 15 mins in milliseconds
       client.character.ethExploitCount++;
 
       if (!server._soloMode) {
@@ -752,7 +751,7 @@ export class FairPlayManager {
 
       setTimeout(() => {
         client.character.ethExploitCount = 0;
-      }, resetExploitTimer)
+      }, 900000) // 15 mins
 
       if(client.character.ethExploitCount >= 5){
         server.sendData(client, "ClientUpdate.UpdateLocation", {
