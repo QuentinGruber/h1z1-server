@@ -74,7 +74,7 @@ export interface SendSelfToClient {
   sendFirstTimeEvents?: boolean;
   SHADER_PARAMETER_GROUP?: unknown[];
   unknownArray2?: unknown[];
-  unknownEffectArray?: unknown[];
+  effectTags?: unknown[];
   stats?: unknown[];
   playerTitles?: unknown[];
   currentPlayerTitle?: number;

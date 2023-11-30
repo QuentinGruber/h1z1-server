@@ -401,12 +401,12 @@ export const basePackets: PacketStructures = [
               ]
             },
             {
-              name: "unknownEffectArray",
+              name: "effectTags",
               type: "array",
               defaultValue: [],
               fields: [
                 {
-                  name: "effectTag",
+                  name: "effectTagData",
                   type: "schema",
                   defaultValue: {},
                   fields: effectTagsSchema
@@ -454,7 +454,6 @@ export const basePackets: PacketStructures = [
               ]
             },
             { name: "currentPlayerTitle", type: "uint32", defaultValue: 0 },
-
             {
               name: "unknownArray13",
               type: "array",
@@ -2640,7 +2639,7 @@ export const basePackets: PacketStructures = [
     0x61,
     {
       fields: [
-        { name: "Unknown2", type: "uint32", defaultValue: 0 },
+        { name: "deprecated", type: "uint32", defaultValue: 0 }, // not used anywhere in client
         { name: "interactionCheckRadius", type: "uint32", defaultValue: 3 }, // client doesnt send interactionstring by distance but still sends interactrequest
         { name: "unknownBoolean1", type: "boolean", defaultValue: false },
         { name: "timescale", type: "float", defaultValue: 1.0 },
