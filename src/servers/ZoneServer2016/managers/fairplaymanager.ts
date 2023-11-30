@@ -726,4 +726,42 @@ export class FairPlayManager {
     clearTimeout(client.kickTimer);
     delete client.kickTimer;
   }
+
+  detectFloatingEthanol(
+    server: ZoneServer2016,
+    client: Client,
+    itemGuid: String
+  ) {
+    if (client.isInAir && (itemGuid == "0x3000000000246bc6" || "0x3000000000246bfa")) {
+      
+      const pos = client.character.state.position;
+      const resetExploitTimer = 900000; // 15 mins in milliseconds
+      client.character.ethExploitCount++;
+
+      if (!server._soloMode) {
+        logClientActionToMongo(
+          server._db?.collection(DB_COLLECTIONS.FAIRPLAY) as Collection,
+          client,
+          server._worldId,
+          { type: "Floating Ethanol Exploit", pos }
+        );
+      }
+      server.sendChatTextToAdmins(
+        `FairPlay: Possible Floating Ethanol exploit detected by ${client.character.name} at position [${pos[0]} ${pos[1]} ${pos[2]}]`
+      );
+
+      setTimeout(() => {
+        client.character.ethExploitCount = 0;
+      }, resetExploitTimer)
+
+      if(client.character.ethExploitCount >= 5){
+        server.sendData(client, "ClientUpdate.UpdateLocation", {
+          position: pos,
+          triggerLoadingScreen: true
+        });
+        client.character.ethExploitCount = 3; // let player try twice, if they do trigger loading screen again
+      }
+    }
+  }
+
 }

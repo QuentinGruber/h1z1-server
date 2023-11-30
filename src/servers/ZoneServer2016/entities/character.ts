@@ -156,6 +156,7 @@ export class Character2016 extends BaseFullCharacter {
   lastJumpTime: number = 0;
   lastSitTime: number = 0;
   sitCount: number = 0;
+  ethExploitCount: number = 0;
   weaponStance: number = 1;
   stance?: StanceFlags;
   readonly metrics: CharacterMetrics = {

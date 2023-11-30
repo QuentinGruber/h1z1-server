@@ -2047,6 +2047,7 @@ export class ZonePacketHandlers {
       case ItemUseOptions.DROP_BATTERY:
       case ItemUseOptions.DROP_SPARKS:
         server.dropItem(character, item, count, animationId);
+        server.fairPlayManager.detectFloatingEthanol(server, client, itemGuid)
         if (character instanceof BaseLootableEntity) {
           // remount container to keep items from changing slotIds
           client.character.mountContainer(server, character);
@@ -3215,9 +3216,9 @@ export class ZonePacketHandlers {
       case "DtoHitSpeedTreeReport":
         this.DtoHitSpeedTreeReport(server, client, packet);
         break;
-      case "Command.PointAndReport":
+  /*  case "Command.PointAndReport":
         this.CommandPointAndReport(server, client, packet);
-        break;
+        break; */ 
       case "Command.ReportLastDeath":
         this.CommandReportLastDeath(server, client, packet);
         break;
