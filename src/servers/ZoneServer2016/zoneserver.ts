@@ -1069,6 +1069,60 @@ export class ZoneServer2016 extends EventEmitter {
         }
       }
     }
+    for (const a in this._lootableProps) {
+      const lootableProp = this._lootableProps[a];
+      if (
+        isPosInRadiusWithY(
+          2,
+          character.state.position,
+          lootableProp.state.position,
+          1
+        )
+      ) {
+        const container = lootableProp.getContainer();
+        if (container) {
+          Object.values(container.items).forEach((item: BaseItem) => {
+            const proximityItem = {
+              itemDefinitionId: item.itemDefinitionId,
+              associatedCharacterGuid: character.characterId,
+              itemData: lootableProp.pGetItemData(
+                this,
+                item,
+                container.containerDefinitionId
+              )
+            };
+            (proximityItems.items as any[]).push(proximityItem);
+          });
+        }
+      }
+    }
+    for (const a in this._lootbags) {
+      const lootableBag = this._lootbags[a];
+      if (
+        isPosInRadiusWithY(
+          2,
+          character.state.position,
+          lootableBag.state.position,
+          1
+        )
+      ) {
+        const container = lootableBag.getContainer();
+        if (container) {
+          Object.values(container.items).forEach((item: BaseItem) => {
+            const proximityItem = {
+              itemDefinitionId: item.itemDefinitionId,
+              associatedCharacterGuid: character.characterId,
+              itemData: lootableBag.pGetItemData(
+                this,
+                item,
+                container.containerDefinitionId
+              )
+            };
+            (proximityItems.items as any[]).push(proximityItem);
+          });
+        }
+      }
+    }
     return proximityItems;
   }
 
