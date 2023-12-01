@@ -548,6 +548,22 @@ export class WorldObjectManager {
   createProps(server: ZoneServer2016) {
     Z1_lootableProps.forEach((propType: any) => {
       propType.instances.forEach((propInstance: any) => {
+        const itemMap: {[modelId: number]: number } = {
+          36: Items.FURNACE,
+          9205: Items.BARBEQUE,
+          9041: Items.CAMPFIRE,
+        };
+        if(Object.keys(itemMap).includes(propInstance.modelId.toString())) {
+          server.constructionManager.placeSmeltingEntity(
+            server,
+            itemMap[propInstance.modelId],
+            propInstance.modelId,
+            propInstance.position,
+            fixEulerOrder(propInstance.rotation),
+            propInstance.scale
+          );
+          return;
+        }
         const characterId = generateRandomGuid();
         const obj = new (propInstance.modelId == 9347 ? TreasureChest : LootableProp)(
           characterId,
@@ -567,7 +583,7 @@ export class WorldObjectManager {
         );
         server._lootableProps[characterId] = obj;
         obj.equipItem(server, server.generateItem(obj.containerId), false);
-        if (propInstance.modelId != 9563 && propInstance.modelId != 9347) {
+        if (propInstance.modelId != 9563 && propInstance.modelId != 9347 && propInstance.modelId != 9205 && propInstance.modelId != 9041 && propInstance.modelId != 36) {
           obj._containers["31"].canAcceptItems = false;
           obj.nameId = server.getItemDefinition(obj.containerId)?.NAME_ID ?? 0;
         }
@@ -585,26 +601,6 @@ export class WorldObjectManager {
               propType.modelId,
               propInstance.position,
               fixEulerOrder(propInstance.rotation)
-            );
-            break;
-          case "Common_Props_Campfire.adr":
-            server.constructionManager.placeSmeltingEntity(
-              server,
-              15,
-              propType.modelId,
-              propInstance.position,
-              fixEulerOrder(propInstance.rotation),
-              propInstance.scale
-            );
-            break;
-          case "Common_Props_Barbeque01.adr":
-            server.constructionManager.placeSmeltingEntity(
-              server,
-              9205,
-              propType.modelId,
-              propInstance.position,
-              fixEulerOrder(propInstance.rotation),
-              propInstance.scale
             );
             break;
           case "Common_Props_Cabinets_BathroomSink.adr":
@@ -902,7 +898,7 @@ export class WorldObjectManager {
   updateQuestContainers(server: ZoneServer2016) {
     Object.values(server._lootableProps).forEach(a => {
       const prop = a as BaseFullCharacter;
-      switch(prop.actorModelId) {
+      switch (prop.actorModelId) {
         case 9563:
           if (
             prop.hasItem(Items.SYRINGE_INFECTED_BLOOD) &&
@@ -914,9 +910,9 @@ export class WorldObjectManager {
               req2 = prop.getItemById(Items.EMPTY_SPECIMEN_BAG),
               req3 = prop.getItemById(Items.BRAIN_INFECTED),
               req4 = prop.getItemById(Items.VIAL_H1Z1_REDUCER);
-    
+
             if (!req1 || !req2 || !req3 || !req4) return;
-    
+
             if (
               !server.removeInventoryItem(prop, req1) ||
               !server.removeInventoryItem(prop, req2) ||
@@ -925,7 +921,7 @@ export class WorldObjectManager {
             ) {
               return;
             }
-    
+
             const obj = server.generateItem(Items.BRAIN_TREATED, 1);
             prop.lootItem(server, obj, 1, false);
           }
@@ -943,7 +939,7 @@ export class WorldObjectManager {
       const container = prop.getContainer();
       if (!container) continue;
       if (!!Object.keys(container.items).length) continue; // skip if container is not empty
-      if (prop.isTreasureChest) continue; // skip medical stations and treasure chests
+      if (!prop.shouldSpawnLoot) continue; // skip medical stations and treasure chests
       const lootTable = containerLootSpawners[prop.lootSpawner];
       if (lootTable) {
         for (let x = 0; x < lootTable.maxItems; x++) {

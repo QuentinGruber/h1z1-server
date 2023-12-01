@@ -21,7 +21,7 @@ export abstract class BaseLootableEntity extends BaseFullCharacter {
   mountedCharacter?: string;
   interactionDistance = 4;
   isLootbag: boolean;
-  isTreasureChest: boolean;
+  shouldSpawnLoot: boolean;
   constructor(
     characterId: string,
     transientId: number,
@@ -33,7 +33,7 @@ export abstract class BaseLootableEntity extends BaseFullCharacter {
     super(characterId, transientId, actorModelId, position, rotation, server);
     this.isLootbag = actorModelId == 9581 || actorModelId == 9391;
     this.useSimpleStruct = true;
-    this.isTreasureChest = actorModelId == 9563 || actorModelId == 9347;
+    this.shouldSpawnLoot = actorModelId != 9563 && actorModelId != 9347 && actorModelId != 9041 && actorModelId != 36;
   }
 
   getContainer(): LoadoutContainer | undefined {
