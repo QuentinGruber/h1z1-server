@@ -262,6 +262,12 @@ export const commands: Array<Command> = [
         server.sendChatText(client, "[ERROR] usage /animation {number}");
         return;
       }
+
+      if(animationId == 35){
+        server.sendChatText(client, "[ERROR] Unable to use this emote")
+        return;
+      }
+
       server.sendDataToAllWithSpawnedEntity(
         server._characters,
         client.character.characterId,
