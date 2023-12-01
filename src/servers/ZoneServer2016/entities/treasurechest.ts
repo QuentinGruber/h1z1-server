@@ -18,7 +18,7 @@ import { LootableProp } from "./lootableprop";
 export class TreasureChest extends LootableProp {
   requiredItemId: number = 0;
   rewardItems: number[] = [];
-  uniqueId: number;
+  spawnerId: number;
   constructor(
     characterId: string,
     transientId: number,
@@ -31,7 +31,7 @@ export class TreasureChest extends LootableProp {
     renderDistance: number
   ) {
     super(characterId, transientId, actorModelId, position, rotation, server, new Float32Array([1, 1, 1, 1]), 0, renderDistance);
-    this.uniqueId = Math.floor(Array.from(position).reduce((n, v) => n + v, 0));
+    this.spawnerId = spawnerId;
     this.getTaskPropData();
   }
 
@@ -46,29 +46,29 @@ export class TreasureChest extends LootableProp {
   }
 
   getTaskPropData(): void {
-    switch (this.uniqueId) {
-      case -1357:
+    switch (this.spawnerId) {
+      case Items.CHEST_CHURCH_PV:
         this.requiredItemId = Items.WORN_LETTER_CHURCH_PV;
         break;
-      case 581:
+      case Items.CHEST_MISTY_DAM:
         this.requiredItemId = Items.WORN_LETTER_MISTY_DAM;
         break;
-      case -297:
+      case Items.CHEST_RUBY_LAKE:
         this.requiredItemId = Items.WORN_LETTER_RUBY_LAKE;
         break;
-      case -3822:
+      case Items.CHEST_WATER_TOWER:
         this.requiredItemId = Items.WORN_LETTER_WATER_TOWER;
         break;
-      case -5337:
+      case Items.CHEST_TOXIC_LAKE:
         this.requiredItemId = Items.WORN_LETTER_TOXIC_LAKE;
         break;
-      case -1988:
+      case Items.CHEST_RADIO:
         this.requiredItemId = Items.WORN_LETTER_RADIO;
         break;
-      case -930:
+      case Items.CHEST_LJ_PV:
         this.requiredItemId = Items.WORN_LETTER_LJ_PV;
         break;
-      case 3894:
+      case Items.CHEST_VILLAS:
         this.requiredItemId = Items.WORN_LETTER_VILLAS;
         break;
     }
