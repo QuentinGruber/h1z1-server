@@ -263,8 +263,8 @@ export const commands: Array<Command> = [
         return;
       }
 
-      if(animationId == 35){
-        server.sendChatText(client, "[ERROR] Unable to use this emote")
+      if (animationId == 35) {
+        server.sendChatText(client, "[ERROR] Unable to use this emote");
         return;
       }
 
