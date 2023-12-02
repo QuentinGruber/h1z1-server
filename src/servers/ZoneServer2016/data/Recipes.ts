@@ -908,6 +908,19 @@ export const recipes: { [recipeId: number]: Recipe } = {
       }
     ]
   },
+  [Items.FUEL_BIOFUEL]: {
+    filterId: FilterIds.COOKING,
+    components: [
+      {
+        itemDefinitionId: Items.WATER_EMPTY,
+        requiredAmount: 1
+      },
+      {
+        itemDefinitionId: Items.ANIMAL_FAT,
+        requiredAmount: 1
+      }
+    ]
+  },
   [Items.BLACKBERRY_JUICE]: {
     filterId: FilterIds.SURVIVAL,
     components: [
