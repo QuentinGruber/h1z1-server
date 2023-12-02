@@ -418,7 +418,7 @@ export interface NpcCollision {
   unknownDword5?: number;
 }
 export interface ClientGameSettings {
-  Unknown2?: number;
+  deprecated?: number;
   interactionCheckRadius?: number;
   unknownBoolean1?: boolean;
   timescale?: number;

@@ -225,7 +225,7 @@ export class LootableProp extends BaseLootableEntity {
       rotation: this.state.rotation,
       modelId: this.actorModelId,
       scale: this.scale,
-      health: (this.health / this.maxHealth) * 100,
+      health: (this.health / this.maxHealth) * 100
       //terrainObjectId: this.spawnerId
     };
   }

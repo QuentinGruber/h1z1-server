@@ -50,9 +50,21 @@ export const spectatorPackets: PacketStructures = [
               type: "array",
               defaultValue: [],
               fields: [
-                { name: "unknownQword1", type: "uint64string", defaultValue: "" },
-                { name: "unknownQword2", type: "uint64string", defaultValue: "" },
-                { name: "unknownQword3", type: "uint64string", defaultValue: "" }
+                {
+                  name: "unknownQword1",
+                  type: "uint64string",
+                  defaultValue: ""
+                },
+                {
+                  name: "unknownQword2",
+                  type: "uint64string",
+                  defaultValue: ""
+                },
+                {
+                  name: "unknownQword3",
+                  type: "uint64string",
+                  defaultValue: ""
+                }
               ]
             }
           ]

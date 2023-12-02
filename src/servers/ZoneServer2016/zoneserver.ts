@@ -158,7 +158,6 @@ import {
   CharacterStartMultiStateDeath,
   CharacterUpdateCharacterState,
   CharacterWeaponStance,
-  ClientBeginZoning,
   ClientExitLaunchUrl,
   ClientGameSettings,
   ClientUpdateDeathMetrics,
@@ -1676,7 +1675,6 @@ export class ZoneServer2016 extends EventEmitter {
     });
 
     this.sendData<ClientGameSettings>(client, "ClientGameSettings", {
-      Unknown2: 0,
       interactionCheckRadius: 16, // need it high for tampers
       unknownBoolean1: true,
       timescale: 1.0,
@@ -3195,7 +3193,7 @@ export class ZoneServer2016 extends EventEmitter {
   customizeStaticDTOs() {
     console.time("customizeStaticDTOs");
     // caches DTOs that should always be removed
-    
+
     for (const object in this._lootableProps) {
       const prop = this._lootableProps[object];
       const propInstance = {
@@ -3204,7 +3202,7 @@ export class ZoneServer2016 extends EventEmitter {
       };
       this.staticDTOs.push(propInstance);
     }
-    
+
     for (const object in this._taskProps) {
       const prop = this._taskProps[object];
       const propInstance = {
