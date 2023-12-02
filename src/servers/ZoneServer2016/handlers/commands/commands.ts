@@ -259,7 +259,7 @@ export const commands: Array<Command> = [
     execute: (server: ZoneServer2016, client: Client, args: Array<string>) => {
       const animationId = Number(args[0]);
       if (!animationId || animationId > MAX_UINT32) {
-        server.sendChatText(client, "[] usage /animation {number}");
+        server.sendChatText(client, "Usage /emote <id>");
         return;
       }
 
