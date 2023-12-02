@@ -263,9 +263,14 @@ export const commands: Array<Command> = [
         return;
       }
 
-      if (animationId == 35) {
-        server.sendChatText(client, "[ERROR] This emote has been disabled due to abuse.");
-        return;
+      // may need to disable more
+      switch (animationId) {
+        case 35:
+          server.sendChatText(
+            client,
+            "[ERROR] This emote has been disabled due to abuse."
+          );
+          return;
       }
 
       server.sendDataToAllWithSpawnedEntity(
