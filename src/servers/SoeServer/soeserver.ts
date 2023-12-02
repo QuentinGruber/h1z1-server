@@ -13,7 +13,7 @@
 
 import { EventEmitter } from "node:events";
 import { RemoteInfo } from "node:dgram";
-import { append_crc_legacy, Soeprotocol } from "h1emu-core";
+import { append_crc_legacy, SoeOpcode, Soeprotocol } from "h1emu-core";
 import Client, { packetsQueue } from "./soeclient";
 import SOEClient from "./soeclient";
 import { Worker } from "node:worker_threads";
@@ -153,9 +153,10 @@ export class SOEServer extends EventEmitter {
   // If a packet hasn't been acknowledge in the timeout time, then resend it via the priority queue
   checkResendQueue(client: Client) {
     const currentTime = Date.now();
+    let resendedPackets = 0;
     for (const [sequence, time] of client.unAckData) {
       if (
-        time + this._resendTimeout < currentTime &&
+        time + this._resendTimeout + client.avgPing < currentTime &&
         sequence <=
           wrappedUint16.wrap(
             client.outputStream.lastAck.get() + this._maxSeqResendRange
@@ -163,6 +164,11 @@ export class SOEServer extends EventEmitter {
       ) {
         client.outputStream.resendData(sequence);
         client.unAckData.delete(sequence);
+        resendedPackets++;
+        // So we don't loose our time with dead connections
+        if (resendedPackets > 50) {
+          break;
+        }
       }
     }
   }
@@ -172,7 +178,7 @@ export class SOEServer extends EventEmitter {
   private checkAck(client: Client) {
     if (client.lastAck.get() != client.nextAck.get()) {
       client.lastAck.set(client.nextAck.get());
-      this._sendLogicalPacket(client, "Ack", {
+      this._sendLogicalPacket(client, SoeOpcode.Ack, {
         sequence: client.nextAck.get()
       });
     }
@@ -202,7 +208,7 @@ export class SOEServer extends EventEmitter {
       queue.timer = undefined;
     }
     if (queue.packets.length) {
-      this._sendLogicalPacket(client, "MultiPacket", {
+      this._sendLogicalPacket(client, SoeOpcode.MultiPacket, {
         sub_packets: queue.packets.map((packet) => {
           return Array.from(packet.data);
         })
@@ -218,7 +224,7 @@ export class SOEServer extends EventEmitter {
       for (let i = 0; i < client.outOfOrderPackets.length; i++) {
         const sequence = client.outOfOrderPackets.shift();
         if (sequence > client.lastAck.get()) {
-          this._sendLogicalPacket(client, "OutOfOrder", {
+          this._sendLogicalPacket(client, SoeOpcode.OutOfOrder, {
             sequence: sequence
           });
         }
@@ -255,7 +261,7 @@ export class SOEServer extends EventEmitter {
 
         this._sendLogicalPacket(
           client,
-          "SessionReply",
+          SoeOpcode.SessionReply,
           {
             session_id: client.sessionId,
             crc_seed: client.crcSeed,
@@ -283,7 +289,7 @@ export class SOEServer extends EventEmitter {
         if (this._usePingTimeout) {
           client.lastPingTimer.refresh();
         }
-        this._sendLogicalPacket(client, "Ping", {}, true);
+        this._sendLogicalPacket(client, SoeOpcode.Ping, {}, true);
         break;
       case "NetStatusRequest":
         debug("Received net status request from client");
@@ -382,7 +388,7 @@ export class SOEServer extends EventEmitter {
             ) => {
               this._sendLogicalPacket(
                 client,
-                fragment ? "DataFragment" : "Data",
+                fragment ? SoeOpcode.DataFragment : SoeOpcode.Data,
                 {
                   sequence: sequence,
                   data: data
@@ -399,7 +405,7 @@ export class SOEServer extends EventEmitter {
               client.stats.packetResend++;
               this._sendLogicalPacket(
                 client,
-                fragment ? "DataFragment" : "Data",
+                fragment ? SoeOpcode.DataFragment : SoeOpcode.Data,
                 {
                   sequence: sequence,
                   data: data
@@ -448,10 +454,10 @@ export class SOEServer extends EventEmitter {
     process.exitCode = 0;
   }
 
-  private packLogicalData(packetName: string, packet: json): Buffer {
+  private packLogicalData(packetOpcode: SoeOpcode, packet: json): Buffer {
     let logicalData;
-    switch (packetName) {
-      case "SessionRequest":
+    switch (packetOpcode) {
+      case SoeOpcode.SessionRequest:
         logicalData = this._protocol.pack_session_request_packet(
           packet.session_id,
           packet.crc_length,
@@ -459,7 +465,7 @@ export class SOEServer extends EventEmitter {
           packet.protocol
         );
         break;
-      case "SessionReply":
+      case SoeOpcode.SessionReply:
         logicalData = this._protocol.pack_session_reply_packet(
           packet.session_id,
           packet.crc_seed,
@@ -468,44 +474,47 @@ export class SOEServer extends EventEmitter {
           packet.udp_length
         );
         break;
-      case "MultiPacket":
+      case SoeOpcode.MultiPacket:
         logicalData = this._protocol.pack_multi_fromjs(packet);
         break;
-      case "Ack":
+      case SoeOpcode.Ack:
         logicalData = this._protocol.pack_ack_packet(packet.sequence);
         break;
-      case "OutOfOrder":
+      case SoeOpcode.OutOfOrder:
         logicalData = this._protocol.pack_out_of_order_packet(packet.sequence);
         break;
-      case "Data":
+      case SoeOpcode.Data:
         logicalData = this._protocol.pack_data_packet(
           packet.data,
           packet.sequence
         );
         break;
-      case "DataFragment":
+      case SoeOpcode.DataFragment:
         logicalData = this._protocol.pack_fragment_data_packet(
           packet.data,
           packet.sequence
         );
         break;
       default:
-        logicalData = this._protocol.pack(packetName, JSON.stringify(packet));
+        logicalData = this._protocol.pack(packetOpcode, JSON.stringify(packet));
         break;
     }
     return Buffer.from(logicalData);
   }
   // Build the logical packet via the soeprotocol
-  private createLogicalPacket(packetName: string, packet: json): LogicalPacket {
+  private createLogicalPacket(
+    packetOpcode: SoeOpcode,
+    packet: json
+  ): LogicalPacket {
     try {
       const logicalPacket = new LogicalPacket(
-        this.packLogicalData(packetName, packet),
+        this.packLogicalData(packetOpcode, packet),
         packet.sequence
       );
       return logicalPacket;
     } catch (e) {
       console.error(
-        `Failed to create packet ${packetName} packet data : ${JSON.stringify(
+        `Failed to create packet ${packetOpcode} packet data : ${JSON.stringify(
           packet,
           null,
           4
@@ -555,19 +564,19 @@ export class SOEServer extends EventEmitter {
   // The packets is builded from schema and added to one of the queues
   private _sendLogicalPacket(
     client: Client,
-    packetName: string,
+    packetOpcode: SoeOpcode,
     packet: json,
     unbuffered = false
   ): void {
-    const logicalPacket = this.createLogicalPacket(packetName, packet);
+    const logicalPacket = this.createLogicalPacket(packetOpcode, packet);
     if (
       !unbuffered &&
-      packetName !== "MultiPacket" &&
+      packetOpcode !== SoeOpcode.MultiPacket &&
       this._canBeBuffered(logicalPacket, client.waitingQueue)
     ) {
       this._addPacketToBuffer(client, logicalPacket, client.waitingQueue);
     } else {
-      if (packetName !== "MultiPacket") {
+      if (packetOpcode !== SoeOpcode.MultiPacket) {
         this.sendClientWaitQueue(client, client.waitingQueue);
       }
       client.outQueue.push(logicalPacket);
