@@ -1971,7 +1971,9 @@ export class ConstructionManager {
       ),
       isInside = parent.isInside(entity.state.position);
 
-    return !client.isDebugMode && parentSecured && isInside && !hasVisitPermission;
+    return (
+      !client.isDebugMode && parentSecured && isInside && !hasVisitPermission
+    );
     // TODO: check if character is in secured shelter / shack
   }
 
