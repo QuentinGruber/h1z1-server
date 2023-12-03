@@ -1436,7 +1436,7 @@ export class ConstructionManager {
     }
 
     server.executeFuncForAllReadyClientsInRange((client) => {
-      if (this.constructionShouldHideEntity(server, client, obj)) {
+      if (this.shouldHideEntity(server, client, obj)) {
         return;
       }
       this.spawnLootableConstruction(server, client, obj);
@@ -1478,7 +1478,7 @@ export class ConstructionManager {
     obj.equipLoadout(server);
 
     server.executeFuncForAllReadyClientsInRange((client) => {
-      if (this.constructionShouldHideEntity(server, client, obj)) {
+      if (this.shouldHideEntity(server, client, obj)) {
         return;
       }
       this.spawnLootableConstruction(server, client, obj);
@@ -1530,7 +1530,7 @@ export class ConstructionManager {
       }
     }
     server.executeFuncForAllReadyClientsInRange((client) => {
-      if (this.constructionShouldHideEntity(server, client, obj)) {
+      if (this.shouldHideEntity(server, client, obj)) {
         return;
       }
       this.spawnLootableConstruction(server, client, obj);
@@ -1629,7 +1629,7 @@ export class ConstructionManager {
       server._worldSimpleConstruction[characterId] = construction;
     }
     server.executeFuncForAllReadyClientsInRange((client) => {
-      if (this.constructionShouldHideEntity(server, client, construction)) {
+      if (this.shouldHideEntity(server, client, construction)) {
         return;
       }
       this.spawnSimpleConstruction(server, client, construction);
@@ -1928,7 +1928,7 @@ export class ConstructionManager {
     }
   }
 
-  constructionShouldHideEntity(
+  shouldHideEntity(
     server: ZoneServer2016,
     client: Client,
     entity: BaseEntity
@@ -1955,10 +1955,11 @@ export class ConstructionManager {
 
     if (!parent) return false;
 
-    // foundations and expansions should never hide entities
+    // foundations, expansions, and tampers should never hide entities
     switch (parent.itemDefinitionId) {
       case Items.FOUNDATION:
       case Items.FOUNDATION_EXPANSION:
+      case Items.GROUND_TAMPER:
         return false;
     }
 
@@ -1970,7 +1971,9 @@ export class ConstructionManager {
       ),
       isInside = parent.isInside(entity.state.position);
 
-    return parentSecured && isInside && !hasVisitPermission;
+    return (
+      !client.isDebugMode && parentSecured && isInside && !hasVisitPermission
+    );
     // TODO: check if character is in secured shelter / shack
   }
 
@@ -1986,7 +1989,7 @@ export class ConstructionManager {
           entity.state.position,
           client.character.state.position
         ) ||
-        this.constructionShouldHideEntity(server, client, entity)
+        this.shouldHideEntity(server, client, entity)
       )
         continue;
       if (entity instanceof ConstructionChildEntity) {
