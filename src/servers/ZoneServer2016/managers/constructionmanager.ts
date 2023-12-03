@@ -453,25 +453,25 @@ export class ConstructionManager {
   ): string {
     // for construction entities that don't have a parentObjectCharacterId from the client
     let freeplaceParentCharacterId = "";
+    // TODO: SEARCH FOUNDATIONS IN GRID RANGE INSTEAD OF ALL OF THEM
+    // TODO: CHECK DECKS BEFORE TAMPERS SO OBJECTS PLACED ON A DECK DON'T GET INCORRECTLY
+    // PARENTED TO THE TAMPER A DECK IS ON
     for (const a in server._constructionFoundations) {
       const foundation = server._constructionFoundations[a];
       // check if inside a shelter even if not inside foundation (large shelters can extend it)
       Object.values(foundation.occupiedShelterSlots).forEach((shelter) => {
-        if (shelter.isInside(position) || shelter.isOn(position)) {
+        // check uppers first so entity is not incorrectly parented to top of a lower (isOn)
+        Object.values(shelter.occupiedShelterSlots).forEach((upperShelter) => {
+          if (upperShelter.isInside(position) || upperShelter.isOn(position)) {
+            freeplaceParentCharacterId = upperShelter.characterId;
+          }
+        });
+
+        if (
+          !freeplaceParentCharacterId &&
+          (shelter.isInside(position) || shelter.isOn(position))
+        ) {
           freeplaceParentCharacterId = shelter.characterId;
-        }
-        if (!Number(freeplaceParentCharacterId)) {
-          // check upper shelters if its not in lower ones
-          Object.values(shelter.occupiedShelterSlots).forEach(
-            (upperShelter) => {
-              if (
-                upperShelter.isInside(position) ||
-                upperShelter.isOn(position)
-              ) {
-                freeplaceParentCharacterId = upperShelter.characterId;
-              }
-            }
-          );
         }
       });
 
@@ -2447,114 +2447,115 @@ export class ConstructionManager {
     if (entity.health >= entity.maxHealth) return;
     this.fullyRepairConstruction(server, entity);
   }
+
   isConstructionInSecuredArea(
     server: ZoneServer2016,
     construction: SlottedConstructionEntity
-  ) {
-    const gates: number[] = [
+  ): boolean {
+    const gates: Array<Items> = [
       Items.METAL_GATE,
       Items.METAL_WALL,
       Items.METAL_WALL_UPPER,
       Items.METAL_DOORWAY
     ];
-    const doors: number[] = [
+    const doors: Array<Items> = [
       Items.DOOR_BASIC,
       Items.DOOR_METAL,
       Items.DOOR_WOOD
     ];
     const parent = construction.getParent(server);
     const parentFoundation = construction.getParentFoundation(server);
-    if (!parent && !parentFoundation) return false;
-    if (parent?.isSecured || parentFoundation?.isSecured) {
+    if (!parent || !parentFoundation || !parent.isSecured) return false;
+    if (
+      !gates.includes(construction.itemDefinitionId) &&
+      !doors.includes(construction.itemDefinitionId)
+    ) {
+      return true;
+    }
+    if (
+      ((parentFoundation.itemDefinitionId == Items.FOUNDATION_EXPANSION ||
+        parentFoundation.itemDefinitionId == Items.GROUND_TAMPER) &&
+        !doors.includes(construction.itemDefinitionId)) ||
+      parentFoundation.itemDefinitionId == Items.SHACK ||
+      parentFoundation.itemDefinitionId == Items.SHACK_BASIC ||
+      parentFoundation.itemDefinitionId == Items.SHACK_SMALL
+    )
+      return false;
+    if (
+      parentFoundation.itemDefinitionId == Items.FOUNDATION ||
+      parentFoundation.itemDefinitionId == Items.GROUND_TAMPER
+    ) {
       if (
-        gates.includes(construction.itemDefinitionId) ||
-        doors.includes(construction.itemDefinitionId)
+        doors.includes(construction.itemDefinitionId) &&
+        parent &&
+        (parent.itemDefinitionId == Items.SHELTER ||
+          parent.itemDefinitionId == Items.SHELTER_LARGE)
       ) {
-        if (
-          ((parentFoundation?.itemDefinitionId == Items.FOUNDATION_EXPANSION ||
-            parentFoundation?.itemDefinitionId == Items.GROUND_TAMPER) &&
-            !doors.includes(construction.itemDefinitionId)) ||
-          parentFoundation?.itemDefinitionId == Items.SHACK ||
-          parentFoundation?.itemDefinitionId == Items.SHACK_BASIC ||
-          parentFoundation?.itemDefinitionId == Items.SHACK_SMALL
-        )
+        if (parentFoundation.isSecured) {
+          return true;
+        } else {
           return false;
-        if (
-          parentFoundation?.itemDefinitionId == Items.FOUNDATION ||
-          parentFoundation?.itemDefinitionId == Items.GROUND_TAMPER
-        ) {
-          if (
-            doors.includes(construction.itemDefinitionId) &&
-            parent &&
-            (parent.itemDefinitionId == Items.SHELTER || Items.SHELTER_LARGE)
-          ) {
-            if (parentFoundation.isSecured) {
-              return true;
-            } else {
-              return false;
-            }
-          }
-          switch (construction.getSlotNumber()) {
-            case 4:
-            case 5:
-            case 6:
-              if (
-                parentFoundation.occupiedExpansionSlots["1"] &&
-                parentFoundation.occupiedExpansionSlots["1"].isSecured
-              ) {
-                return true;
-              }
-              break;
-            case 1:
-            case 2:
-            case 3:
-              if (
-                parentFoundation.occupiedExpansionSlots["2"] &&
-                parentFoundation.occupiedExpansionSlots["2"].isSecured
-              ) {
-                return true;
-              }
-              break;
-            case 10:
-            case 11:
-            case 12:
-              if (
-                parentFoundation.occupiedExpansionSlots["3"] &&
-                parentFoundation.occupiedExpansionSlots["3"].isSecured
-              ) {
-                return true;
-              }
-              break;
-            case 7:
-            case 8:
-            case 9:
-              if (
-                parentFoundation.occupiedExpansionSlots["4"] &&
-                parentFoundation.occupiedExpansionSlots["4"].isSecured
-              ) {
-                return true;
-              }
-              break;
-          }
-          return false;
-        } else if (
-          parentFoundation?.itemDefinitionId == Items.FOUNDATION_EXPANSION
-        ) {
-          if (
-            doors.includes(construction.itemDefinitionId) &&
-            parent &&
-            (parent.itemDefinitionId == Items.SHELTER || Items.SHELTER_LARGE)
-          ) {
-            if (parentFoundation.isSecured) {
-              return true;
-            } else {
-              return false;
-            }
-          }
         }
       }
-      return true;
-    } else return false;
+      switch (construction.getSlotNumber()) {
+        case 4:
+        case 5:
+        case 6:
+          if (
+            parentFoundation.occupiedExpansionSlots["1"] &&
+            parentFoundation.occupiedExpansionSlots["1"].isSecured
+          ) {
+            return true;
+          }
+          break;
+        case 1:
+        case 2:
+        case 3:
+          if (
+            parentFoundation.occupiedExpansionSlots["2"] &&
+            parentFoundation.occupiedExpansionSlots["2"].isSecured
+          ) {
+            return true;
+          }
+          break;
+        case 10:
+        case 11:
+        case 12:
+          if (
+            parentFoundation.occupiedExpansionSlots["3"] &&
+            parentFoundation.occupiedExpansionSlots["3"].isSecured
+          ) {
+            return true;
+          }
+          break;
+        case 7:
+        case 8:
+        case 9:
+          if (
+            parentFoundation.occupiedExpansionSlots["4"] &&
+            parentFoundation.occupiedExpansionSlots["4"].isSecured
+          ) {
+            return true;
+          }
+          break;
+      }
+      return false;
+    } else if (
+      parentFoundation.itemDefinitionId == Items.FOUNDATION_EXPANSION
+    ) {
+      if (
+        doors.includes(construction.itemDefinitionId) &&
+        parent &&
+        (parent.itemDefinitionId == Items.SHELTER || Items.SHELTER_LARGE)
+      ) {
+        if (parentFoundation.isSecured) {
+          return true;
+        } else {
+          return false;
+        }
+      }
+    }
+    return false;
   }
 
   sendBaseSecuredMessage(server: ZoneServer2016, client: Client) {
