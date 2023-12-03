@@ -3252,7 +3252,7 @@ export class ZoneServer2016 extends EventEmitter {
       !(entity instanceof ConstructionParentEntity) &&
       !(entity instanceof Vehicle2016) &&
       (this.filterOutOfDistance(entity, client.character.state.position) ||
-        this.constructionManager.constructionShouldHideEntity(
+        this.constructionManager.shouldHideEntity(
           this,
           client,
           entity
