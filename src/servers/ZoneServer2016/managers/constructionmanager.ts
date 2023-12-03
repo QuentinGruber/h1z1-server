@@ -2464,14 +2464,15 @@ export class ConstructionManager {
       Items.DOOR_WOOD
     ];
     const parent = construction.getParent(server);
-    const parentFoundation = construction.getParentFoundation(server);
-    if (!parent || !parentFoundation || !parent.isSecured) return false;
+    if (!parent || !parent.isSecured) return false;
     if (
       !gates.includes(construction.itemDefinitionId) &&
       !doors.includes(construction.itemDefinitionId)
     ) {
       return true;
     }
+    const parentFoundation = construction.getParentFoundation(server);
+    if(!parentFoundation) return false;
     if (
       ((parentFoundation.itemDefinitionId == Items.FOUNDATION_EXPANSION ||
         parentFoundation.itemDefinitionId == Items.GROUND_TAMPER) &&
@@ -2502,8 +2503,7 @@ export class ConstructionManager {
         case 5:
         case 6:
           if (
-            parentFoundation.occupiedExpansionSlots["1"] &&
-            parentFoundation.occupiedExpansionSlots["1"].isSecured
+            parentFoundation.occupiedExpansionSlots["1"]?.isSecured
           ) {
             return true;
           }
@@ -2512,8 +2512,7 @@ export class ConstructionManager {
         case 2:
         case 3:
           if (
-            parentFoundation.occupiedExpansionSlots["2"] &&
-            parentFoundation.occupiedExpansionSlots["2"].isSecured
+            parentFoundation.occupiedExpansionSlots["2"]?.isSecured
           ) {
             return true;
           }
@@ -2522,8 +2521,7 @@ export class ConstructionManager {
         case 11:
         case 12:
           if (
-            parentFoundation.occupiedExpansionSlots["3"] &&
-            parentFoundation.occupiedExpansionSlots["3"].isSecured
+            parentFoundation.occupiedExpansionSlots["3"]?.isSecured
           ) {
             return true;
           }
@@ -2532,8 +2530,7 @@ export class ConstructionManager {
         case 8:
         case 9:
           if (
-            parentFoundation.occupiedExpansionSlots["4"] &&
-            parentFoundation.occupiedExpansionSlots["4"].isSecured
+            parentFoundation.occupiedExpansionSlots["4"]?.isSecured
           ) {
             return true;
           }
