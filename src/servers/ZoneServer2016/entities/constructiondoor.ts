@@ -395,5 +395,16 @@ export class ConstructionDoor extends DoorEntity {
         );
         return;
     }
+
+    if (
+      server.constructionManager.isConstructionInSecuredArea(
+        server,
+        this
+      )
+    ) {
+      if (client) {
+        server.constructionManager.sendBaseSecuredMessage(server, client);
+      }
+    }
   }
 }

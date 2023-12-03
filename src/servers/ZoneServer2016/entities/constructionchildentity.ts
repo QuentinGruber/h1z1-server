@@ -106,6 +106,19 @@ function getMaxHealth(itemDefinitionId: Items): number {
   }
 }
 
+function getInteractionDistance(itemDefinitionId: Items): number {
+  switch (itemDefinitionId) {
+    case Items.SHELTER_LARGE:
+    case Items.SHELTER_UPPER_LARGE:
+    case Items.LOOKOUT_TOWER:
+    case Items.FOUNDATION_RAMP:
+    case Items.FOUNDATION_STAIRS:
+    return 6;
+    default:
+      return 4;
+  }
+}
+
 export class ConstructionChildEntity extends BaseLightweightCharacter {
   readonly itemDefinitionId: number;
   parentObjectCharacterId: string;
@@ -120,7 +133,6 @@ export class ConstructionChildEntity extends BaseLightweightCharacter {
   readonly boundsOn?: CubeBounds;
 
   undoPlacementTime = 600000;
-  interactionDistance = 4;
   destroyedEffect: number = 242;
   isDecayProtected: boolean = false;
 
@@ -171,6 +183,7 @@ export class ConstructionChildEntity extends BaseLightweightCharacter {
     this.damageRange = getDamageRange(this.itemDefinitionId);
     this.isSecured = this.itemDefinitionId == Items.METAL_WALL ? true : false;
     this.npcRenderDistance = getRenderDistance(this.itemDefinitionId);
+    this.interactionDistance = getInteractionDistance(this.itemDefinitionId);
     this.useSimpleStruct = true;
 
     this.maxHealth = getMaxHealth(this.itemDefinitionId);
@@ -682,6 +695,17 @@ export class ConstructionChildEntity extends BaseLightweightCharacter {
           weapon
         );
         return;
+    }
+
+    if (
+      server.constructionManager.isConstructionInSecuredArea(
+        server,
+        this
+      )
+    ) {
+      if (client) {
+        server.constructionManager.sendBaseSecuredMessage(server, client);
+      }
     }
   }
 }
