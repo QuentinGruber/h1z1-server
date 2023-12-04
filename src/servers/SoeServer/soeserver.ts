@@ -44,7 +44,6 @@ export class SOEServer extends EventEmitter {
   ) => void;
   private _resendTimeout: number = 500;
   packetRatePerClient: number = 500;
-  private _ackTiming: number = 80;
   private _routineTiming: number = 3;
   _allowRawDataReception: boolean = false;
   private _maxSeqResendRange: number = 50;
@@ -139,12 +138,9 @@ export class SOEServer extends EventEmitter {
 
   // Executed at the same rate for every client
   private soeClientRoutine(client: Client) {
-    if (client.lastAckTime + this._ackTiming < Date.now()) {
-      // Acknowledge received packets
-      this.checkAck(client);
-      this.checkOutOfOrderQueue(client);
-      client.lastAckTime = Date.now();
-    }
+    // Acknowledge received packets
+    this.checkAck(client);
+    this.checkOutOfOrderQueue(client);
     // Send pending packets
     this.checkResendQueue(client);
     this.checkClientOutQueues(client);

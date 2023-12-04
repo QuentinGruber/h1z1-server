@@ -56,7 +56,6 @@ export default class SOEClient {
     packetsOutOfOrder: 0,
     packetResend: 0
   };
-  lastAckTime: number = 0;
   avgPing: number = 0;
   pings: number[] = [];
   avgPingLen: number = 6;
