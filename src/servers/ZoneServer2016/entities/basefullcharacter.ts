@@ -675,9 +675,11 @@ export abstract class BaseFullCharacter extends BaseLightweightCharacter {
       return;
     }
 
-    const oldLoadoutItem = sourceCharacter._loadout[slotId],
+    const externalContainer = sourceCharacter.characterId !== this.characterId,
+      loadout = externalContainer ? this._loadout : sourceCharacter._loadout,
+      oldLoadoutItem = loadout[slotId],
       container = sourceCharacter.getItemContainer(item.itemGuid);
-    if ((!oldLoadoutItem || !oldLoadoutItem.itemDefinitionId) && !container) {
+    if (!oldLoadoutItem?.itemDefinitionId && !container) {
       if (client)
         server.containerError(client, ContainerErrors.UNKNOWN_CONTAINER);
       return;
@@ -694,12 +696,12 @@ export abstract class BaseFullCharacter extends BaseLightweightCharacter {
           server.sendChatText(client, "[ERROR] Item is already equipped!");
         return;
       }
-      if (!server.removeLoadoutItem(sourceCharacter, oldLoadoutItem.slotId)) {
+      if (!server.removeLoadoutItem(this, oldLoadoutItem.slotId)) {
         if (client)
           server.containerError(client, ContainerErrors.NO_ITEM_IN_SLOT);
         return;
       }
-      this.lootContainerItem(server, oldLoadoutItem, undefined, false);
+      sourceCharacter.lootContainerItem(server, oldLoadoutItem, undefined, false);
     }
     if (item.weapon) {
       clearTimeout(item.weapon.reloadTimer);
