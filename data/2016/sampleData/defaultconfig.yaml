@@ -10,6 +10,7 @@ server:
   rebootTime: 72 # hours (0 to disable)
   rebootWarnTime: 600 # seconds
   isPvE: false 
+  isHeadshotOnly: false
   baseConstructionDamage: 34000
 
 # Fairplay / anticheat config

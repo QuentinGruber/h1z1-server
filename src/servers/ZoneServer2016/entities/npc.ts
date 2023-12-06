@@ -122,6 +122,7 @@ export class Npc extends BaseFullCharacter {
   }
 
   OnProjectileHit(server: ZoneServer2016, damageInfo: DamageInfo) {
+    if (server.isHeadshotOnly && damageInfo.hitReport?.hitLocation != "HEAD") return;
     const client = server.getClientByCharId(damageInfo.entity);
     if (client && this.isAlive) {
       const hasHelmetBefore = this.hasHelmet(server);

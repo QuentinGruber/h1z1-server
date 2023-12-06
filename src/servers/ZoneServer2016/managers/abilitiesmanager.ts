@@ -219,6 +219,8 @@ export class AbilitiesManager {
     client.character.abilityInitTime = 0;
     if (!weaponItem.weapon) return;
 
+    if (server.isHeadshotOnly && client.character.meleeHit.abilityHitLocation != "HEAD") return;
+
     // TODO: CHECK MELEE BLOCK TIME FOR EACH WEAPON
     // CHECK MELEE RANGE ALSO
 
@@ -375,7 +377,7 @@ export class AbilitiesManager {
     packetData: EffectRemoveEffect
   ) {
     const vehicleAbilityEffectId =
-        packetData.abilityEffectData.abilityEffectId1,
+      packetData.abilityEffectData.abilityEffectId1,
       vehicle = server._vehicles[packetData.targetCharacterId ?? ""];
     if (!vehicle) return;
 
