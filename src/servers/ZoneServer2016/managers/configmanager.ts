@@ -146,6 +146,7 @@ export class ConfigManager {
       rebootWarnTime,
       isPvE,
       isHeadshotOnly,
+      isFirstPersonOnly,
       baseConstructionDamage
     } = this.config.server;
     server.proximityItemsDistance = proximityItemsDistance;
@@ -160,6 +161,7 @@ export class ConfigManager {
     server.rebootWarnTime = rebootWarnTime;
     server.isPvE = isPvE;
     server.isHeadshotOnly = isHeadshotOnly;
+    server.isFirstPersonOnly = isFirstPersonOnly;
     server.baseConstructionDamage = baseConstructionDamage;
     //#endregion
 

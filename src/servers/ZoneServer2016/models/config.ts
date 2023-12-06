@@ -28,6 +28,7 @@ interface ServerConfig {
   rebootWarnTime: number;
   isPvE: boolean;
   isHeadshotOnly: boolean;
+  isFirstPersonOnly: boolean;
   baseConstructionDamage: number;
 }
 

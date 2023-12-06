@@ -737,7 +737,8 @@ export class Character2016 extends BaseFullCharacter {
         //unknownQword3: this.characterId,
         //vehicleLoadoutRelatedDword: 1,
         //unknownDword40: 1
-        isAdmin: client.isAdmin
+        isAdmin: client.isAdmin,
+        firstPersonOnly: server.isFirstPersonOnly
       } as any
     };
   }

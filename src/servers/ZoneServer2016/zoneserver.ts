@@ -396,6 +396,7 @@ export class ZoneServer2016 extends EventEmitter {
   rebootWarnTime!: number; // in seconds
   isPvE!: boolean;
   isHeadshotOnly!: boolean;
+  isFirstPersonOnly!: boolean;
   baseConstructionDamage!: number;
   /*                          */
 
