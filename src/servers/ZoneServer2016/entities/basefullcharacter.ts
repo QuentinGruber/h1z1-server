@@ -696,12 +696,12 @@ export abstract class BaseFullCharacter extends BaseLightweightCharacter {
           server.sendChatText(client, "[ERROR] Item is already equipped!");
         return;
       }
-      if (!server.removeLoadoutItem(this, oldLoadoutItem.slotId)) {
+      if (!server.removeLoadoutItem((externalContainer ? this: sourceCharacter), oldLoadoutItem.slotId)) {
         if (client)
           server.containerError(client, ContainerErrors.NO_ITEM_IN_SLOT);
         return;
       }
-      sourceCharacter.lootContainerItem(server, oldLoadoutItem, undefined, false);
+      (externalContainer ? sourceCharacter: this).lootContainerItem(server, oldLoadoutItem, undefined, false);
     }
     if (item.weapon) {
       clearTimeout(item.weapon.reloadTimer);
