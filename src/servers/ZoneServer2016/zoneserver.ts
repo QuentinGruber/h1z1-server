@@ -382,6 +382,7 @@ export class ZoneServer2016 extends EventEmitter {
   shutdownStarted: boolean = false;
   isLocked: boolean = false;
   staticDTOs: Array<PropInstance> = [];
+  serverGameRules: string;
 
   /* MANAGED BY CONFIGMANAGER */
   proximityItemsDistance!: number;
@@ -430,6 +431,12 @@ export class ZoneServer2016 extends EventEmitter {
     this.configManager = new ConfigManager(this, process.env.CONFIG_PATH);
     this.enableWorldSaves =
       process.env.ENABLE_SAVES?.toLowerCase() == "false" ? false : true;
+
+    const serverGameRules = [];
+    serverGameRules.push(this.isPvE ? "PvE" : "PvP");
+    if (this.isFirstPersonOnly) serverGameRules.push("FirstPersonOnly");
+    if (this.isHeadshotOnly) serverGameRules.push("Headshots");
+    this.serverGameRules = serverGameRules.join(',');
 
     this._soloMode = false;
 
@@ -1366,6 +1373,7 @@ export class ZoneServer2016 extends EventEmitter {
     }
     this._loginConnectionManager.setLoginInfo(this._loginServerInfo, {
       serverId: this._worldId,
+      serverRuleSets: this.serverGameRules,
       h1emuVersion: process.env.H1Z1_SERVER_VERSION
     });
     this._loginConnectionManager.start();
