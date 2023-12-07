@@ -26,6 +26,7 @@ export class Npc extends BaseFullCharacter {
   spawnerId: number;
   deathTime: number = 0;
   rewardItems: { itemDefId: number; weight: number; }[] = [];
+  requiredHarvestItems: number[] = [];
   flags = {
     bit0: 0,
     bit1: 0,
@@ -157,10 +158,9 @@ export class Npc extends BaseFullCharacter {
 
   OnMeleeHit(server: ZoneServer2016, damageInfo: DamageInfo) {
     if (damageInfo.meleeType && !this.isAlive) {
-      const validMeleeTypes = [MeleeTypes.BLADE, MeleeTypes.BLUNT, MeleeTypes.KNIFE],
-        client = server.getClientByCharId(damageInfo.entity);
+      const client = server.getClientByCharId(damageInfo.entity);
 
-      if (validMeleeTypes.includes(damageInfo.meleeType) && client && this.rewardItems.length > 0) {
+      if (this.requiredHarvestItems.includes(damageInfo.meleeType) && client && this.rewardItems.length > 0) {
         const totalWeight = this.rewardItems.reduce((sum, item) => sum + item.weight, 0);
         const randomValue = Math.random() * totalWeight;
 
@@ -194,6 +194,7 @@ export class Npc extends BaseFullCharacter {
       case 9510:
       case 9634:
         this.nameId = StringIds.ZOMBIE_WALKER;
+        this.requiredHarvestItems = [MeleeTypes.BLADE, MeleeTypes.BLUNT, MeleeTypes.KNIFE];
         this.rewardItems = [
           {
             itemDefId: 0,
@@ -209,14 +210,68 @@ export class Npc extends BaseFullCharacter {
           }
         ]
         break;
+      case 9253:
       case 9002:
         this.nameId = StringIds.DEER;
+        this.requiredHarvestItems = [MeleeTypes.KNIFE];
+        this.rewardItems = [
+          {
+            itemDefId: 0,
+            weight: 40
+          },
+          {
+            itemDefId: Items.MEAT_VENISON,
+            weight: 30
+          },
+          {
+            itemDefId: Items.ANIMAL_FAT,
+            weight: 15
+          },
+          {
+            itemDefId: Items.DEER_SCENT,
+            weight: 5
+          },
+          {
+            itemDefId: Items.DEER_BLADDER,
+            weight: 10
+          }
+        ]
         break;
       case 9003:
         this.nameId = StringIds.WOLF;
+        this.requiredHarvestItems = [MeleeTypes.KNIFE];
+        this.rewardItems = [
+          {
+            itemDefId: 0,
+            weight: 45
+          },
+          {
+            itemDefId: Items.MEAT_WOLF,
+            weight: 40
+          },
+          {
+            itemDefId: Items.ANIMAL_FAT,
+            weight: 15
+          },
+        ]
         break;
       case 9187:
         this.nameId = StringIds.BEAR;
+        this.requiredHarvestItems = [MeleeTypes.KNIFE];
+        this.rewardItems = [
+          {
+            itemDefId: 0,
+            weight: 45
+          },
+          {
+            itemDefId: Items.MEAT_BEAR,
+            weight: 40
+          },
+          {
+            itemDefId: Items.ANIMAL_FAT,
+            weight: 15
+          },
+        ]
         break;
     }
   }

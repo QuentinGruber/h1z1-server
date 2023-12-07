@@ -818,6 +818,13 @@ export class WorldObjectManager {
           break;
         case "NPCSpawner_Deer001.adr":
           authorizedModelId.push(9002);
+          authorizedModelId.push(9253);
+          break;
+        case "NPCSpawner_Wolf001.adr":
+          authorizedModelId.push(9003);
+          break;
+        case "Bear_Brown.adr":
+          authorizedModelId.push(9187);
           break;
         default:
           break;
