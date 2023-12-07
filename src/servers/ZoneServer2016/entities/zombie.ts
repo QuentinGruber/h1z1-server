@@ -39,12 +39,11 @@ export class Zombie extends Npc {
   }
 
   OnInteractionString(server: ZoneServer2016, client: ZoneClient2016) {
-    if (!this.isAlive) {
+    if (this.isAlive && client.character.hasItem(Items.SYRINGE_EMPTY)) {
       switch (this.actorModelId) {
         case 9510:
         case 9634:
-          this.sendInteractionString(server, client, client.character.hasItem(Items.SYRINGE_EMPTY) ?
-            StringIds.EXTRACT_BLOOD : StringIds.HARVEST);
+          this.sendInteractionString(server, client, StringIds.EXTRACT_BLOOD);
           break;
       }
     }
@@ -54,21 +53,13 @@ export class Zombie extends Npc {
     server: ZoneServer2016,
     client: ZoneClient2016,
   ) {
-    if (!this.isAlive) { // isAlive is reversed?
+    if (this.isAlive) {
       switch (this.actorModelId) {
         case 9510:
         case 9634:
           server.utilizeHudTimer(client, 60, 5000, 0, () => {
             const item = client.character.getItemById(Items.SYRINGE_EMPTY);
-            
-            if (!item) {
-              if (server.deleteEntity(this.characterId, server._npcs)) {
-                client.character.lootContainerItem(server, server.generateItem(Items.BRAIN_INFECTED));
-              }
-              return;
-            }
-  
-            if (server.removeInventoryItem(client.character, item)) {
+            if (item && server.removeInventoryItem(client.character, item)) {
               client.character.lootContainerItem(server, server.generateItem(Items.SYRINGE_INFECTED_BLOOD));
             }
           });

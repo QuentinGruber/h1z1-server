@@ -17,7 +17,7 @@ import { BaseFullCharacter } from "./basefullcharacter";
 import { ZoneClient2016 } from "../classes/zoneclient";
 import { logClientActionToMongo } from "../../../utils/utils";
 import { DB_COLLECTIONS } from "../../../utils/enums";
-import { StringIds } from "../models/enums";
+import { Items, MeleeTypes, StringIds } from "../models/enums";
 import { CommandInteractionString } from "types/zone2016packets";
 
 export class Npc extends BaseFullCharacter {
@@ -25,6 +25,7 @@ export class Npc extends BaseFullCharacter {
   npcRenderDistance = 80;
   spawnerId: number;
   deathTime: number = 0;
+  rewardItems: { itemDefId: number; weight: number; }[] = [];
   flags = {
     bit0: 0,
     bit1: 0,
@@ -47,16 +48,12 @@ export class Npc extends BaseFullCharacter {
     bit18: 0,
     bit19: 0,
     noCollide: 0, // determines if NpcCollision packet gets sent on player collide
-    knockedOut: 0,
+    knockedOut: 0, // knockedOut = 1 will not show the entity if the value is sent immediatly at 1
     bit22: 0,
     bit23: 0
   };
-  static isAlive = true;
-  public set isAlive(state) {
-    this.flags.knockedOut = state ? 0 : 1;
-  }
-  public get isAlive() {
-    return this.flags.knockedOut ? 0 : 1;
+  public get isAlive(): boolean {
+    return this.deathTime == 0;
   }
   constructor(
     characterId: string,
@@ -76,9 +73,17 @@ export class Npc extends BaseFullCharacter {
   damage(server: ZoneServer2016, damageInfo: DamageInfo) {
     const client = server.getClientByCharId(damageInfo.entity),
       oldHealth = this.health;
+
+    if (!this.isAlive) {
+      if ((this.health -= damageInfo.damage) <= 0) {
+        this.flags.knockedOut = 1;
+        if (client) {
+          server.deleteEntity(this.characterId, server._npcs);
+        }
+      }
+    }
+
     if ((this.health -= damageInfo.damage) <= 0 && this.isAlive) {
-      this.flags.knockedOut = 1;
-      this.isAlive = 0;
       this.deathTime = Date.now();
       server.worldObjectManager.createLootbag(server, this);
       if (client) {
@@ -100,6 +105,8 @@ export class Npc extends BaseFullCharacter {
           characterId: this.characterId
         }
       );
+
+      this.health = 10000;
     }
 
     if (client) {
@@ -122,7 +129,7 @@ export class Npc extends BaseFullCharacter {
   }
 
   OnProjectileHit(server: ZoneServer2016, damageInfo: DamageInfo) {
-    if (server.isHeadshotOnly && damageInfo.hitReport?.hitLocation != "HEAD") return;
+    if (server.isHeadshotOnly && damageInfo.hitReport?.hitLocation != "HEAD" && this.isAlive) return;
     const client = server.getClientByCharId(damageInfo.entity);
     if (client && this.isAlive) {
       const hasHelmetBefore = this.hasHelmet(server);
@@ -149,6 +156,28 @@ export class Npc extends BaseFullCharacter {
   }
 
   OnMeleeHit(server: ZoneServer2016, damageInfo: DamageInfo) {
+    if (damageInfo.meleeType && !this.isAlive) {
+      const validMeleeTypes = [MeleeTypes.BLADE, MeleeTypes.BLUNT, MeleeTypes.KNIFE],
+        client = server.getClientByCharId(damageInfo.entity);
+
+      if (validMeleeTypes.includes(damageInfo.meleeType) && client && this.rewardItems.length > 0) {
+        const totalWeight = this.rewardItems.reduce((sum, item) => sum + item.weight, 0);
+        const randomValue = Math.random() * totalWeight;
+
+        let cumulativeWeight = 0;
+        for (const reward of this.rewardItems) {
+          cumulativeWeight += reward.weight;
+          if (randomValue <= cumulativeWeight) {
+            if(reward.itemDefId == 0) break; // Don't always give a reward
+            //TODO: Keep track if the brain was already harvested.
+            const rewardItem = server.generateItem(reward.itemDefId, 1);
+            if (rewardItem) client.character.lootItem(server, rewardItem);
+            break;
+          }
+        }
+      }
+    }
+
     damageInfo.damage = damageInfo.damage / 1.5;
     this.damage(server, damageInfo);
   }
@@ -165,6 +194,20 @@ export class Npc extends BaseFullCharacter {
       case 9510:
       case 9634:
         this.nameId = StringIds.ZOMBIE_WALKER;
+        this.rewardItems = [
+          {
+            itemDefId: 0,
+            weight: 60
+          },
+          {
+            itemDefId: Items.CLOTH,
+            weight: 40
+          },
+          {
+            itemDefId: Items.BRAIN_INFECTED,
+            weight: 10
+          }
+        ]
         break;
       case 9002:
         this.nameId = StringIds.DEER;
