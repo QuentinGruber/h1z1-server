@@ -368,7 +368,6 @@ export class ZoneServer2016 extends EventEmitter {
   _recipes: { [recipeId: number]: Recipe } = recipes;
   lastItemGuid: bigint = 0x3000000000000000n;
   private readonly _transientIdGenerator = generateTransientId();
-  _packetsStats: Record<string, number> = {};
   enableWorldSaves: boolean;
   readonly gameVersion: GAME_VERSIONS = GAME_VERSIONS.H1Z1_6dec_2016;
   isSaving: boolean = false;
@@ -3599,9 +3598,6 @@ export class ZoneServer2016 extends EventEmitter {
     }
   }
 
-  logStats() {
-    console.log(JSON.stringify(this._packetsStats));
-  }
 
   private _sendData<ZonePacket>(
     client: Client,
@@ -3609,8 +3605,6 @@ export class ZoneServer2016 extends EventEmitter {
     obj: ZonePacket,
     unbuffered: boolean
   ) {
-    if (this._packetsStats[packetName]) this._packetsStats[packetName]++;
-    else this._packetsStats[packetName] = 1;
     switch (packetName) {
       case "KeepAlive":
       case "PlayerUpdatePosition":
