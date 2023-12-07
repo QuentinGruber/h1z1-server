@@ -254,7 +254,7 @@ export class SOEServer extends EventEmitter {
         client.outputStream.setFragmentSize(client.clientUdpLength - 7); // TODO: 7? calculate this based on crc enabled / compression etc
         client.lastKeepAliveTimer = this.keepAliveTimeoutTime
           ? setTimeout(() => {
-              console.log("Client keep alive timeout");
+              debug("Client keep alive timeout");
               this.emit("disconnect", client);
             }, this.keepAliveTimeoutTime)
           : null;
