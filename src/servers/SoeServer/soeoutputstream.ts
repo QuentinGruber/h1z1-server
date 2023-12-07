@@ -54,7 +54,13 @@ export class SOEOutputStream extends EventEmitter {
     if (data.length <= this._fragmentSize) {
       this._reliable_sequence.increment();
       this.addToCache(this._reliable_sequence.get(), data, false);
-      this.emit("data", data, this._reliable_sequence.get(), false, unbuffered);
+      this.emit(
+        SOEOutputChannels.Reliable,
+        data,
+        this._reliable_sequence.get(),
+        false,
+        unbuffered
+      );
     } else {
       const header = Buffer.allocUnsafe(4);
       header.writeUInt32BE(data.length, 0);
