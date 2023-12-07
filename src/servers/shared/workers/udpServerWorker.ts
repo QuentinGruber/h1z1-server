@@ -25,7 +25,10 @@ interface Message {
 export interface UdpServerWorkerData {
   serverPort: number;
   disableAntiDdos: boolean;
+  logRate: boolean;
 }
+let received: number = 0;
+let sent: number = 0;
 if (workerData) {
   const { serverPort } = workerData;
   const remoteRate = workerData.disableAntiDdos ? Infinity : 1000;
@@ -49,6 +52,7 @@ if (workerData) {
   const remotesRate: { [address: string]: number } = {};
 
   connection.on("message", (data, remote) => {
+    received++;
     if (remotesRate[remote.address]) {
       remotesRate[remote.address]++;
       if (remotesRate[remote.address] > remoteRate) {
@@ -68,6 +72,7 @@ if (workerData) {
     switch (message.type) {
       case "sendPacket":
         const { packetData, port, address } = message.data;
+        sent++;
         connection.send(packetData, port, address);
         break;
       case "bind":
@@ -75,6 +80,7 @@ if (workerData) {
         break;
       case "close":
         connection.close();
+        break;
       default:
         break;
     }
@@ -84,5 +90,10 @@ if (workerData) {
     for (const index in remotesRate) {
       remotesRate[index] = 0;
     }
+    if (workerData.logRate || true) {
+      console.log(`UdpServerWorker: received ${received} packets, sent ${sent} packets this sec`)
+    }
+    received = 0;
+    sent = 0;
   }, 1000);
 }
