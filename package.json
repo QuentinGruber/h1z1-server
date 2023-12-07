@@ -16,7 +16,7 @@
     "@types/js-yaml": "4.0.5",
     "@types/node": "20.8.10",
     "debug": "4.3.4",
-    "h1emu-core": "1.2.6",
+    "h1emu-core": "^1.2.8",
     "h1z1-dataschema": "1.7.0",
     "js-yaml": "4.1.0",
     "mongodb": "6.2.0",
@@ -69,7 +69,7 @@
     "publish_release-next": "npm version prerelease && git add * && git commit -m 'publish-a-next-version' && npm publish --tag next && git push origin dev",
     "check_prettier": "prettier --check ./src && prettier --check ./tests && prettier --check ./benchmarks",
     "prettier_sources": "prettier --write ./src && prettier --write ./tests && prettier --write ./benchmarks",
-    "tests" : "npm run gen-packets-types && npm run gen-packets-interfaces && npm run prettier_sources"
+    "tests": "npm run gen-packets-types && npm run gen-packets-interfaces && npm run prettier_sources"
   },
   "repository": {
     "type": "git",

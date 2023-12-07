@@ -18,15 +18,20 @@ import { dataCache } from "types/soeserver";
 
 const debug = require("debug")("SOEOutputStream");
 
+export enum SOEOutputChannels {
+  Reliable = "Reliable",
+  Raw = "Raw",
+  Ordered = "Ordered"
+}
+
 export class SOEOutputStream extends EventEmitter {
   private _useEncryption: boolean = false;
   private _fragmentSize: number = 0;
-  private _sequence: wrappedUint16 = new wrappedUint16(-1);
+  private _reliable_sequence: wrappedUint16 = new wrappedUint16(-1);
+  private _order_sequence: wrappedUint16 = new wrappedUint16(-1);
   lastAck: wrappedUint16 = new wrappedUint16(-1);
   private _cache: dataCache = {};
-
   private _rc4: RC4;
-  private _hadCacheError: boolean = false;
   constructor(cryptoKey: Uint8Array) {
     super();
     this._rc4 = new RC4(cryptoKey);
@@ -45,7 +50,50 @@ export class SOEOutputStream extends EventEmitter {
     }
   }
 
-  write(data: Uint8Array, unbuffered: boolean = false): void {
+  writeReliable(data: Uint8Array, unbuffered: boolean): void {
+    if (data.length <= this._fragmentSize) {
+      this._reliable_sequence.increment();
+      this.addToCache(this._reliable_sequence.get(), data, false);
+      this.emit("data", data, this._reliable_sequence.get(), false, unbuffered);
+    } else {
+      const header = Buffer.allocUnsafe(4);
+      header.writeUInt32BE(data.length, 0);
+      data = Buffer.concat([header, data]);
+      for (let i = 0; i < data.length; i += this._fragmentSize) {
+        this._reliable_sequence.increment();
+        const fragmentData = data.slice(i, i + this._fragmentSize);
+        this.addToCache(this._reliable_sequence.get(), fragmentData, true);
+
+        this.emit(
+          SOEOutputChannels.Reliable,
+          fragmentData,
+          this._reliable_sequence.get(),
+          true,
+          unbuffered
+        );
+      }
+    }
+  }
+
+  writeOrdered(data: Uint8Array, unbuffered: boolean): void {
+    if (data.length <= this._fragmentSize) {
+      this._order_sequence.increment();
+      this.emit(
+        SOEOutputChannels.Ordered,
+        data,
+        this._order_sequence.get(),
+        unbuffered
+      );
+    } else {
+      console.error("writeOrdered: data.length > this._fragmentSize");
+    }
+  }
+
+  write(
+    data: Uint8Array,
+    channel: SOEOutputChannels,
+    unbuffered: boolean = false
+  ): void {
     if (this._useEncryption) {
       data = Buffer.from(this._rc4.encrypt(data));
 
@@ -55,21 +103,16 @@ export class SOEOutputStream extends EventEmitter {
         data = Buffer.concat([tmp, data]);
       }
     }
-    if (data.length <= this._fragmentSize) {
-      this._sequence.increment();
-      this.addToCache(this._sequence.get(), data, false);
-      this.emit("data", data, this._sequence.get(), false, unbuffered);
-    } else {
-      const header = Buffer.allocUnsafe(4);
-      header.writeUInt32BE(data.length, 0);
-      data = Buffer.concat([header, data]);
-      for (let i = 0; i < data.length; i += this._fragmentSize) {
-        this._sequence.increment();
-        const fragmentData = data.slice(i, i + this._fragmentSize);
-        this.addToCache(this._sequence.get(), fragmentData, true);
-
-        this.emit("data", fragmentData, this._sequence.get(), true, unbuffered);
-      }
+    switch (channel) {
+      case SOEOutputChannels.Reliable:
+        this.writeReliable(data, unbuffered);
+        break;
+      case SOEOutputChannels.Raw:
+        this.emit(SOEOutputChannels.Raw, data);
+        break;
+      case SOEOutputChannels.Ordered:
+        this.writeOrdered(data, unbuffered);
+        break;
     }
   }
 

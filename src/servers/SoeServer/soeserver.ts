@@ -21,6 +21,7 @@ import { crc_length_options } from "../../types/soeserver";
 import { LogicalPacket } from "./logicalPacket";
 import { json } from "types/shared";
 import { wrappedUint16 } from "../../utils/utils";
+import { SOEOutputChannels } from "./soeoutputstream";
 const debug = require("debug")("SOEServer");
 process.env.isBin && require("../shared/workers/udpServerWorker.js");
 
@@ -375,7 +376,7 @@ export class SOEServer extends EventEmitter {
           });
 
           client.outputStream.on(
-            "data",
+            SOEOutputChannels.Reliable,
             (
               data: Buffer,
               sequence: number,
@@ -393,6 +394,25 @@ export class SOEServer extends EventEmitter {
               );
             }
           );
+
+          client.outputStream.on(
+            SOEOutputChannels.Ordered,
+            (data: Buffer, sequence: number, unbuffered: boolean) => {
+              this._sendLogicalPacket(
+                client,
+                SoeOpcode.Ordered,
+                {
+                  sequence: sequence,
+                  data: data
+                },
+                unbuffered
+              );
+            }
+          );
+
+          client.outputStream.on(SOEOutputChannels.Raw, (data: Buffer) => {
+            this.sendUnbufferedAppData(client, data);
+          });
 
           // the only difference with the event "data" is that resended data is send via the priority queue
           client.outputStream.on(
@@ -586,7 +606,7 @@ export class SOEServer extends EventEmitter {
     } else {
       debug("Sending app data: " + data.length + " bytes");
     }
-    client.outputStream.write(data);
+    client.outputStream.write(data, SOEOutputChannels.Reliable);
   }
 
   sendUnbufferedAppData(client: Client, data: Uint8Array): void {
@@ -597,7 +617,7 @@ export class SOEServer extends EventEmitter {
     } else {
       debug("Sending unbuffered app data: " + data.length + " bytes");
     }
-    client.outputStream.write(data, true);
+    client.outputStream.write(data, SOEOutputChannels.Reliable, true);
   }
 
   setEncryption(client: Client, value: boolean): void {
