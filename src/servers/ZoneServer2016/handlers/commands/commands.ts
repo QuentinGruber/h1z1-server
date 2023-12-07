@@ -179,7 +179,7 @@ export const commands: Array<Command> = [
     permissionLevel: PermissionLevels.MODERATOR,
     execute: (server: ZoneServer2016, client: Client, args: Array<string>) => {
       if (!args[0]) {
-        server.sendChatText(client, "[ERROR] No argument provided", true);
+        server.sendChatText(client, "[] No argument provided", true);
         return;
       }
       const listNames: string[] = [];
@@ -259,9 +259,20 @@ export const commands: Array<Command> = [
     execute: (server: ZoneServer2016, client: Client, args: Array<string>) => {
       const animationId = Number(args[0]);
       if (!animationId || animationId > MAX_UINT32) {
-        server.sendChatText(client, "[ERROR] usage /animation {number}");
+        server.sendChatText(client, "Usage /emote <id>");
         return;
       }
+
+      // may need to disable more
+      switch (animationId) {
+        case 35:
+          server.sendChatText(
+            client,
+            "[ERROR] This emote has been disabled due to abuse."
+          );
+          return;
+      }
+
       server.sendDataToAllWithSpawnedEntity(
         server._characters,
         client.character.characterId,
