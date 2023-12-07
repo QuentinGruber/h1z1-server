@@ -35,7 +35,7 @@ export class SOEServer extends EventEmitter {
   private _connection: Worker;
   _crcSeed: number = Math.floor(Math.random() * 256);
   _crcLength: crc_length_options = 2;
-  _waitQueueTimeMs: number = 0;
+  _waitQueueTimeMs: number = 50;
   _pingTimeoutTime: number = 60000;
   _usePingTimeout: boolean = false;
   private readonly _maxMultiBufferSize: number;
