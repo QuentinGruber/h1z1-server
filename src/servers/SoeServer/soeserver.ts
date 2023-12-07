@@ -35,7 +35,7 @@ export class SOEServer extends EventEmitter {
   private _connection: Worker;
   _crcSeed: number = Math.floor(Math.random() * 256);
   _crcLength: crc_length_options = 2;
-  _waitQueueTimeMs: number = 50;
+  _waitQueueTimeMs: number = 0;
   _pingTimeoutTime: number = 60000;
   _usePingTimeout: boolean = false;
   private readonly _maxMultiBufferSize: number;
@@ -398,6 +398,7 @@ export class SOEServer extends EventEmitter {
           client.outputStream.on(
             SOEOutputChannels.Ordered,
             (data: Buffer, sequence: number, unbuffered: boolean) => {
+              console.log("ordered")
               this._sendLogicalPacket(
                 client,
                 SoeOpcode.Ordered,
@@ -411,7 +412,7 @@ export class SOEServer extends EventEmitter {
           );
 
           client.outputStream.on(SOEOutputChannels.Raw, (data: Buffer) => {
-            this.sendUnbufferedAppData(client, data);
+            // TODO:
           });
 
           // the only difference with the event "data" is that resended data is send via the priority queue
@@ -498,6 +499,9 @@ export class SOEServer extends EventEmitter {
         break;
       case SoeOpcode.OutOfOrder:
         logicalData = this._protocol.pack_out_of_order_packet(packet.sequence);
+        break;
+      case SoeOpcode.Ordered:
+        logicalData = this._protocol.pack_ordered_packet(packet.data,packet.sequence);
         break;
       case SoeOpcode.Data:
         logicalData = this._protocol.pack_data_packet(
@@ -600,24 +604,13 @@ export class SOEServer extends EventEmitter {
   }
 
   // Called by the application to send data to a client
-  sendAppData(client: Client, data: Uint8Array): void {
+  sendAppData(client: Client, data: Uint8Array, channel= SOEOutputChannels.Reliable, unbuffered:boolean = false): void {
     if (client.outputStream.isUsingEncryption()) {
       debug("Sending app data: " + data.length + " bytes with encryption");
     } else {
       debug("Sending app data: " + data.length + " bytes");
     }
-    client.outputStream.write(data, SOEOutputChannels.Reliable);
-  }
-
-  sendUnbufferedAppData(client: Client, data: Uint8Array): void {
-    if (client.outputStream.isUsingEncryption()) {
-      debug(
-        "Sending unbuffered app data: " + data.length + " bytes with encryption"
-      );
-    } else {
-      debug("Sending unbuffered app data: " + data.length + " bytes");
-    }
-    client.outputStream.write(data, SOEOutputChannels.Reliable, true);
+    client.outputStream.write(data, channel,unbuffered);
   }
 
   setEncryption(client: Client, value: boolean): void {

@@ -91,7 +91,8 @@ export class SOEOutputStream extends EventEmitter {
         unbuffered
       );
     } else {
-      console.error("writeOrdered: data.length > this._fragmentSize");
+      console.log("ordered packets can't be too large, this packet will be upgraded as a reliable one");
+        this.writeReliable(data, unbuffered);
     }
   }
 
