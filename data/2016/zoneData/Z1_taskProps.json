@@ -46061,7 +46061,7 @@
         ]
     },
     {
-        "actorDefinition": "Common_Props_SpikeTrap.adr",
+        "actor_file": "Common_Props_SpikeTrap.adr",
         "modelId": 56,
         "renderDistance": 75,
         "instances": [{
@@ -46121,7 +46121,7 @@
         ]
     },
     {
-        "actorDefinition": "Common_Props_Dam_WaterValve01.adr",
+        "actor_file": "Common_Props_Dam_WaterValve01.adr",
         "modelId": 9394,
         "renderDistance": 400,
         "instances": [{
@@ -46263,7 +46263,7 @@
         ]
     },
     {
-        "actorDefinition": "Common_Props_Well.adr",
+        "actor_file": "Common_Props_Well.adr",
         "modelId": 9121,
         "renderDistance": 150,
         "instances": [{
