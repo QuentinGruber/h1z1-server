@@ -55,7 +55,6 @@ export class FairPlayManager {
   /* MANAGED BY CONFIGMANAGER */
   useFairPlay!: boolean;
   maxPing!: number;
-  pingTimeoutTime!: number;
   acceptedRejectionTypes!: Array<CONNECTION_REJECTION_FLAGS>;
   useAssetValidation!: boolean;
   hashSubmissionTimeout!: number;

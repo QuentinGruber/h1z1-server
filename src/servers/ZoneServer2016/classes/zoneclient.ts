@@ -72,7 +72,6 @@ export class ZoneClient2016 {
   radio: boolean = false;
   npcsToSpawnTimer!: NodeJS.Timeout;
   loginSessionId: string;
-  pingTimer: NodeJS.Timeout | undefined;
   clearHudTimer: () => void;
   clearTimers: () => void;
   sessionId: number;

@@ -522,17 +522,12 @@ export class ZoneServer2016 extends EventEmitter {
         }
         this._clients[client.sessionId] = zoneClient;
         this._characters[characterId] = zoneClient.character;
-        zoneClient.pingTimer = setTimeout(() => {
-          this.timeoutClient(zoneClient);
-        }, this.fairPlayManager.pingTimeoutTime);
         this.emit("login", zoneClient);
       }
     );
     this._gatewayServer.on("disconnect", (client: SOEClient) => {
       // this happen when the connection is close without a regular logout
-      setTimeout(() => {
-        this.deleteClient(this._clients[client.sessionId]);
-      }, 10000);
+      this.deleteClient(this._clients[client.sessionId]);
     });
 
     this._gatewayServer.on(
@@ -793,7 +788,6 @@ export class ZoneServer2016 extends EventEmitter {
     if (!client) {
       return;
     }
-    client.pingTimer?.refresh();
     if (
       packet.name != "KeepAlive" &&
       packet.name != "PlayerUpdatePosition" &&
