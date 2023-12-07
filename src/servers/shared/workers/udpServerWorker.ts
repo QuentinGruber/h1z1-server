@@ -91,7 +91,9 @@ if (workerData) {
       remotesRate[index] = 0;
     }
     if (workerData.logRate || true) {
-      console.log(`UdpServerWorker: received ${received} packets, sent ${sent} packets this sec`)
+      console.log(
+        `UdpServerWorker: received ${received} packets, sent ${sent} packets this sec`
+      );
     }
     received = 0;
     sent = 0;

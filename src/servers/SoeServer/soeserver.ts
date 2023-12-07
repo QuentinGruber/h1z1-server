@@ -36,8 +36,7 @@ export class SOEServer extends EventEmitter {
   _crcSeed: number = Math.floor(Math.random() * 256);
   _crcLength: crc_length_options = 2;
   _waitQueueTimeMs: number = 50;
-  _pingTimeoutTime: number = 60000;
-  _usePingTimeout: boolean = false;
+  _pingTimeoutTime: number = 20000;
   private readonly _maxMultiBufferSize: number;
   private _soeClientRoutineLoopMethod!: (
     arg0: () => void,
@@ -236,6 +235,9 @@ export class SOEServer extends EventEmitter {
   }
 
   private handlePacket(client: SOEClient, packet: any) {
+    if (client.lastPingTimer) {
+      client.lastPingTimer.refresh();
+    }
     switch (packet.name) {
       case "SessionRequest":
         debug(
@@ -250,11 +252,9 @@ export class SOEServer extends EventEmitter {
         client.inputStream.setEncryption(this._useEncryption);
         client.outputStream.setEncryption(this._useEncryption);
         client.outputStream.setFragmentSize(client.clientUdpLength - 7); // TODO: 7? calculate this based on crc enabled / compression etc
-        if (this._usePingTimeout) {
-          client.lastPingTimer = setTimeout(() => {
-            this.emit("disconnect", client);
-          }, this._pingTimeoutTime);
-        }
+        client.lastPingTimer = setTimeout(() => {
+          this.emit("disconnect", client);
+        }, this._pingTimeoutTime);
 
         this._sendLogicalPacket(
           client,
@@ -283,9 +283,6 @@ export class SOEServer extends EventEmitter {
       }
       case "Ping":
         debug("Received ping from client");
-        if (this._usePingTimeout) {
-          client.lastPingTimer.refresh();
-        }
         this._sendLogicalPacket(client, SoeOpcode.Ping, {}, true);
         break;
       case "NetStatusRequest":
@@ -398,7 +395,7 @@ export class SOEServer extends EventEmitter {
           client.outputStream.on(
             SOEOutputChannels.Ordered,
             (data: Buffer, sequence: number, unbuffered: boolean) => {
-              console.log("ordered")
+              console.log("ordered");
               this._sendLogicalPacket(
                 client,
                 SoeOpcode.Ordered,
@@ -501,7 +498,10 @@ export class SOEServer extends EventEmitter {
         logicalData = this._protocol.pack_out_of_order_packet(packet.sequence);
         break;
       case SoeOpcode.Ordered:
-        logicalData = this._protocol.pack_ordered_packet(packet.data,packet.sequence);
+        logicalData = this._protocol.pack_ordered_packet(
+          packet.data,
+          packet.sequence
+        );
         break;
       case SoeOpcode.Data:
         logicalData = this._protocol.pack_data_packet(
@@ -604,13 +604,18 @@ export class SOEServer extends EventEmitter {
   }
 
   // Called by the application to send data to a client
-  sendAppData(client: Client, data: Uint8Array, channel= SOEOutputChannels.Reliable, unbuffered:boolean = false): void {
+  sendAppData(
+    client: Client,
+    data: Uint8Array,
+    channel = SOEOutputChannels.Reliable,
+    unbuffered: boolean = false
+  ): void {
     if (client.outputStream.isUsingEncryption()) {
       debug("Sending app data: " + data.length + " bytes with encryption");
     } else {
       debug("Sending app data: " + data.length + " bytes");
     }
-    client.outputStream.write(data, channel,unbuffered);
+    client.outputStream.write(data, channel, unbuffered);
   }
 
   setEncryption(client: Client, value: boolean): void {

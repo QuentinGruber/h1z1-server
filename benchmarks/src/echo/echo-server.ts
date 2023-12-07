@@ -5,6 +5,9 @@ export class EchoServer extends SOEServer {
     super(serverPort, cryptoKey, true);
     this._crcLength = 0;
     this.packetRatePerClient = Infinity;
+    this.on("disconnect", (client: any) => {
+      this.deleteClient(client);
+    });
     this.on("appdata", (client: any, data: Buffer) => {
       this.sendAppData(client, data);
     });

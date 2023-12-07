@@ -109,7 +109,7 @@ export class GatewayServer extends EventEmitter {
       0
     );
     if (data) {
-        this._soeServer.sendAppData(client, data,channel,unbuffered);
+      this._soeServer.sendAppData(client, data, channel, unbuffered);
     }
   }
 
