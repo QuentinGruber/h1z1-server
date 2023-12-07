@@ -17,6 +17,7 @@ import { ZoneClient2016 } from "../classes/zoneclient";
 import { StringIds, Items } from "../models/enums";
 import { DamageInfo } from "types/zoneserver";
 import { eul2quat, randomIntFromInterval } from "../../../utils/utils";
+import { AddSimpleNpc } from "types/zone2016packets";
 
 function getContainerAndTime(entity: LootableProp) {
   switch (entity.actorModelId) {
@@ -215,6 +216,20 @@ export class LootableProp extends BaseLootableEntity {
         break;
     }
   }
+
+  pGetSimpleNpc(): AddSimpleNpc {
+    return {
+      characterId: this.characterId,
+      transientId: this.transientId,
+      position: this.state.position,
+      rotation: this.state.rotation,
+      modelId: this.actorModelId,
+      scale: this.scale,
+      health: (this.health / this.maxHealth) * 100
+      //terrainObjectId: this.spawnerId
+    };
+  }
+
   /* eslint-disable @typescript-eslint/no-unused-vars */
   OnPlayerSelect(
     server: ZoneServer2016,
