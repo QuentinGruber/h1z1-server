@@ -250,10 +250,10 @@ export class ZonePacketHandlers {
     );
 
     if (server.projectileDefinitionsCache) {
-      server.sendRawData(client, server.projectileDefinitionsCache);
+      server.sendRawDataReliable(client, server.projectileDefinitionsCache);
     }
     if (server.profileDefinitionsCache) {
-      server.sendRawData(client, server.profileDefinitionsCache);
+      server.sendRawDataReliable(client, server.profileDefinitionsCache);
     }
 
     // for melees / emotes / vehicle boost / etc (needs more work)

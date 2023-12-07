@@ -16,6 +16,7 @@ import { SOEServer } from "../SoeServer/soeserver";
 import { GatewayProtocol } from "h1emu-core";
 import SOEClient from "../SoeServer/soeclient";
 import { crc_length_options } from "../../types/soeserver";
+import { SOEOutputChannels } from "servers/SoeServer/soeoutputstream";
 
 const debug = require("debug")("GatewayServer");
 
@@ -96,9 +97,10 @@ export class GatewayServer extends EventEmitter {
     this._soeServer.start(this._crcLength, this._udpLength);
   }
 
-  private _sentTunnelData(
+  sendTunnelData(
     client: SOEClient,
     tunnelData: Buffer,
+    channel: SOEOutputChannels,
     unbuffered: boolean
   ) {
     debug("Sending tunnel data to client");
@@ -107,20 +109,13 @@ export class GatewayServer extends EventEmitter {
       0
     );
     if (data) {
+      // TODO:
       if (unbuffered) {
         this._soeServer.sendUnbufferedAppData(client, data);
       } else {
         this._soeServer.sendAppData(client, data);
       }
     }
-  }
-
-  sendTunnelData(client: SOEClient, tunnelData: Buffer) {
-    this._sentTunnelData(client, tunnelData, false);
-  }
-
-  sendUnbufferedTunnelData(client: SOEClient, tunnelData: Buffer) {
-    this._sentTunnelData(client, tunnelData, true);
   }
 
   stop() {

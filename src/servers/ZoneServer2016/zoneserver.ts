@@ -226,6 +226,7 @@ import { PluginManager } from "./managers/pluginmanager";
 import { Destroyable } from "./entities/destroyable";
 import { Plane } from "./entities/plane";
 import { FileHashTypeList, ReceivedPacket } from "types/shared";
+import { SOEOutputChannels } from "../../servers/SoeServer/soeoutputstream";
 
 const spawnLocations2 = require("../../../data/2016/zoneData/Z1_gridSpawns.json"),
   deprecatedDoors = require("../../../data/2016/sampleData/deprecatedDoors.json"),
@@ -1647,13 +1648,13 @@ export class ZoneServer2016 extends EventEmitter {
     }
     // only sends a few needed definitions
     if (this.itemDefinitionsCache) {
-      this.sendRawData(client, this.itemDefinitionsCache);
+      this.sendRawDataReliable(client, this.itemDefinitionsCache);
     }
     if (!this.weaponDefinitionsCache) {
       this.packWeaponDefinitions();
     }
     if (this.weaponDefinitionsCache) {
-      this.sendRawData(client, this.weaponDefinitionsCache);
+      this.sendRawDataReliable(client, this.weaponDefinitionsCache);
     }
 
     // used for equipment textures / skins, does nothing so far
@@ -3598,11 +3599,11 @@ export class ZoneServer2016 extends EventEmitter {
     }
   }
 
-
   private _sendData<ZonePacket>(
     client: Client,
     packetName: h1z1PacketsType2016,
     obj: ZonePacket,
+    channel: SOEOutputChannels,
     unbuffered: boolean
   ) {
     switch (packetName) {
@@ -3619,11 +3620,12 @@ export class ZoneServer2016 extends EventEmitter {
     if (data) {
       const soeClient = this.getSoeClient(client.soeClientId);
       if (soeClient) {
-        if (unbuffered) {
-          this._gatewayServer.sendUnbufferedTunnelData(soeClient, data);
-        } else {
-          this._gatewayServer.sendTunnelData(soeClient, data);
-        }
+        this._gatewayServer.sendTunnelData(
+          soeClient,
+          data,
+          channel,
+          unbuffered
+        );
       }
     }
   }
@@ -3633,7 +3635,21 @@ export class ZoneServer2016 extends EventEmitter {
     packetName: h1z1PacketsType2016,
     obj: zone2016packets
   ) {
-    this._sendData(client, packetName, obj, true);
+    this._sendData(client, packetName, obj, SOEOutputChannels.Reliable, true);
+  }
+
+  sendOrderedData<ZonePacket>(
+    client: Client,
+    packetName: h1z1PacketsType2016,
+    obj: ZonePacket
+  ) {
+    this._sendData<ZonePacket>(
+      client,
+      packetName,
+      obj,
+      SOEOutputChannels.Ordered,
+      false
+    );
   }
 
   sendData<ZonePacket>(
@@ -3641,7 +3657,13 @@ export class ZoneServer2016 extends EventEmitter {
     packetName: h1z1PacketsType2016,
     obj: ZonePacket
   ) {
-    this._sendData<ZonePacket>(client, packetName, obj, false);
+    this._sendData<ZonePacket>(
+      client,
+      packetName,
+      obj,
+      SOEOutputChannels.Reliable,
+      false
+    );
   }
 
   /*addLightWeightNpcQueue(
@@ -3771,6 +3793,7 @@ export class ZoneServer2016 extends EventEmitter {
       {
         message: message
       },
+      SOEOutputChannels.Reliable,
       false
     );
   }
@@ -4070,7 +4093,7 @@ export class ZoneServer2016 extends EventEmitter {
           this._characters[entityCharacterId]
         )
       ) {
-        this.sendRawData(this._clients[a], data);
+        this.sendRawDataReliable(this._clients[a], data);
       }
     }
   }
@@ -7391,21 +7414,26 @@ export class ZoneServer2016 extends EventEmitter {
   getSoeClient(soeClientId: string): SOEClient | undefined {
     return this._gatewayServer._soeServer.getSoeClient(soeClientId);
   }
-  private _sendRawData(client: Client, data: Buffer, unbuffered: boolean) {
+  private _sendRawDataReliable(
+    client: Client,
+    data: Buffer,
+    unbuffered: boolean
+  ) {
     const soeClient = this.getSoeClient(client.soeClientId);
     if (soeClient) {
-      if (unbuffered) {
-        this._gatewayServer.sendUnbufferedTunnelData(soeClient, data);
-      } else {
-        this._gatewayServer.sendTunnelData(soeClient, data);
-      }
+      this._gatewayServer.sendTunnelData(
+        soeClient,
+        data,
+        SOEOutputChannels.Reliable,
+        unbuffered
+      );
     }
   }
-  sendRawData(client: Client, data: Buffer) {
-    this._sendRawData(client, data, false);
+  sendRawDataReliable(client: Client, data: Buffer) {
+    this._sendRawDataReliable(client, data, false);
   }
-  sendUnbufferedRawData(client: Client, data: Buffer) {
-    this._sendRawData(client, data, true);
+  sendUnbufferedRawDataReliable(client: Client, data: Buffer) {
+    this._sendRawDataReliable(client, data, true);
   }
   getAllCurrentUsedTransientId() {
     const allTransient: any = {};
@@ -7714,9 +7742,9 @@ export class ZoneServer2016 extends EventEmitter {
     if (data) {
       for (const a in this._clients) {
         if (unbuffered) {
-          this.sendUnbufferedRawData(this._clients[a], data);
+          this.sendUnbufferedRawDataReliable(this._clients[a], data);
         } else {
-          this.sendRawData(this._clients[a], data);
+          this.sendRawDataReliable(this._clients[a], data);
         }
       }
     }

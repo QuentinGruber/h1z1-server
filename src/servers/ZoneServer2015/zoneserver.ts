@@ -44,6 +44,7 @@ import { zonePacketHandlers } from "./zonepackethandlers";
 import { healthThreadDecorator } from "../shared/workers/healthWorker";
 import { zone2015packets } from "types/zone2015packets";
 import { GAME_VERSIONS } from "../../utils/enums";
+import { SOEOutputChannels } from "../SoeServer/soeoutputstream";
 const localSpawnList = require("../../../data/2015/sampleData/spawnLocations.json");
 
 const debugName = "ZoneServer";
@@ -2513,7 +2514,12 @@ export class ZoneServer2015 extends EventEmitter {
     if (data) {
       const soeClient = this.getSoeClient(client.soeClientId);
       if (soeClient) {
-        this._gatewayServer.sendTunnelData(soeClient, data);
+        this._gatewayServer.sendTunnelData(
+          soeClient,
+          data,
+          SOEOutputChannels.Reliable,
+          false
+        );
       }
     }
   }
@@ -2567,7 +2573,12 @@ export class ZoneServer2015 extends EventEmitter {
   sendRawData(client: Client, data: Buffer): void {
     const soeClient = this.getSoeClient(client.soeClientId);
     if (soeClient) {
-      this._gatewayServer.sendTunnelData(soeClient, data);
+      this._gatewayServer.sendTunnelData(
+        soeClient,
+        data,
+        SOEOutputChannels.Reliable,
+        false
+      );
     }
   }
 

@@ -17,7 +17,8 @@ import { h1z1PacketsType2016 } from "types/packets";
 import {
   CharacterManagedObject,
   CharacterPlayWorldCompositeEffect,
-  CharacterSeekTarget
+  CharacterSeekTarget,
+  ClientUpdateTextAlert
 } from "types/zone2016packets";
 import { Npc } from "../../entities/npc";
 import { ZoneClient2016 as Client } from "../../classes/zoneclient";
@@ -33,6 +34,11 @@ const abilities = require("../../../../../data/2016/dataSources/Abilities.json")
   vehicleAbilities = require("../../../../../data/2016/dataSources/VehicleAbilities.json");
 
 const dev: any = {
+  o: function (server: ZoneServer2016, client: Client, args: Array<string>) {
+    server.sendOrderedData(client, "ClientUpdate.TextAlert", {
+      message: "hello ordered !"
+    } as ClientUpdateTextAlert);
+  },
   path: function (server: ZoneServer2016, client: Client, args: Array<string>) {
     const characterId = server.generateGuid();
     const npc = new Zombie(
@@ -250,13 +256,6 @@ const dev: any = {
         TargetCharacterId: client.character.characterId
       } as CharacterSeekTarget);
     }, 5000);
-  },
-  stats: function (
-    server: ZoneServer2016,
-    client: Client,
-    args: Array<string>
-  ) {
-    server.logStats();
   },
   spam: function (server: ZoneServer2016, client: Client, args: Array<string>) {
     const spamNb = Number(args[1]) || 1;
