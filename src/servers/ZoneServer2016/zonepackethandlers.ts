@@ -333,7 +333,6 @@ export class ZonePacketHandlers {
         );
       }
       client.firstLoading = false;
-      client.pingTimer?.refresh();
 
       server.sendData<CommandAddWorldCommand>(
         client,

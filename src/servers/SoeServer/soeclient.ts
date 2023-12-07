@@ -49,7 +49,7 @@ export default class SOEClient {
   inputStream: SOEInputStream;
   outputStream: SOEOutputStream;
   soeClientId: string;
-  lastPingTimer!: NodeJS.Timeout;
+  lastKeepAliveTimer: NodeJS.Timeout | null = null;
   isDeleted: boolean = false;
   stats: SOEClientStats = {
     totalPacketSent: 0,

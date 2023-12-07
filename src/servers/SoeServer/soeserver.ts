@@ -36,7 +36,7 @@ export class SOEServer extends EventEmitter {
   _crcSeed: number = Math.floor(Math.random() * 256);
   _crcLength: crc_length_options = 2;
   _waitQueueTimeMs: number = 50;
-  _pingTimeoutTime: number = 20000;
+  keepAliveTimeoutTime: number = 40000;
   private readonly _maxMultiBufferSize: number;
   private _soeClientRoutineLoopMethod!: (
     arg0: () => void,
@@ -235,8 +235,8 @@ export class SOEServer extends EventEmitter {
   }
 
   private handlePacket(client: SOEClient, packet: any) {
-    if (client.lastPingTimer) {
-      client.lastPingTimer.refresh();
+    if (client.lastKeepAliveTimer) {
+      client.lastKeepAliveTimer.refresh();
     }
     switch (packet.name) {
       case "SessionRequest":
@@ -252,9 +252,12 @@ export class SOEServer extends EventEmitter {
         client.inputStream.setEncryption(this._useEncryption);
         client.outputStream.setEncryption(this._useEncryption);
         client.outputStream.setFragmentSize(client.clientUdpLength - 7); // TODO: 7? calculate this based on crc enabled / compression etc
-        client.lastPingTimer = setTimeout(() => {
-          this.emit("disconnect", client);
-        }, this._pingTimeoutTime);
+        client.lastKeepAliveTimer = this.keepAliveTimeoutTime
+          ? setTimeout(() => {
+              console.log("Client keep alive timeout");
+              this.emit("disconnect", client);
+            }, this.keepAliveTimeoutTime)
+          : null;
 
         this._sendLogicalPacket(
           client,
@@ -408,9 +411,9 @@ export class SOEServer extends EventEmitter {
             }
           );
 
-          client.outputStream.on(SOEOutputChannels.Raw, (data: Buffer) => {
-            // TODO:
-          });
+          // client.outputStream.on(SOEOutputChannels.Raw, (data: Buffer) => {
+          // TODO:
+          // });
 
           // the only difference with the event "data" is that resended data is send via the priority queue
           client.outputStream.on(

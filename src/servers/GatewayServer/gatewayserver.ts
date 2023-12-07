@@ -33,6 +33,7 @@ export class GatewayServer extends EventEmitter {
 
     this._soeServer = new SOEServer(serverPort, gatewayKey);
     this._soeServer._useEncryption = false; // communication is encrypted only after loginRequest
+    this._soeServer.keepAliveTimeoutTime = 20000; // On zone a client expire after 20s without activity
     this._protocol = new GatewayProtocol();
     this._soeServer.on("disconnect", (client: SOEClient) => {
       debug("Client disconnected from " + client.address + ":" + client.port);
