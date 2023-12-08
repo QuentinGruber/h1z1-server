@@ -16,12 +16,12 @@ import { RemoteInfo } from "node:dgram";
 import { append_crc_legacy, SoeOpcode, Soeprotocol } from "h1emu-core";
 import Client, { packetsQueue } from "./soeclient";
 import SOEClient from "./soeclient";
-import { Worker } from "node:worker_threads";
 import { crc_length_options } from "../../types/soeserver";
 import { LogicalPacket } from "./logicalPacket";
 import { json } from "types/shared";
 import { wrappedUint16 } from "../../utils/utils";
 import { SOEOutputChannels } from "./soeoutputstream";
+import dgram from "node:dgram";
 const debug = require("debug")("SOEServer");
 process.env.isBin && require("../shared/workers/udpServerWorker.js");
 
@@ -32,7 +32,7 @@ export class SOEServer extends EventEmitter {
   _udpLength: number = 512;
   _useEncryption: boolean = true;
   private _clients: Map<string, SOEClient> = new Map();
-  private _connection: Worker;
+  private _connection: dgram.Socket;
   _crcSeed: number = Math.floor(Math.random() * 256);
   _crcLength: crc_length_options = 2;
   _waitQueueTimeMs: number = 50;
@@ -47,22 +47,13 @@ export class SOEServer extends EventEmitter {
   private _routineTiming: number = 3;
   _allowRawDataReception: boolean = false;
   private _maxSeqResendRange: number = 50;
-  constructor(
-    serverPort: number,
-    cryptoKey: Uint8Array,
-    disableAntiDdos?: boolean
-  ) {
+  constructor(serverPort: number, cryptoKey: Uint8Array) {
     super();
     Buffer.poolSize = 8192 * 4;
     this._serverPort = serverPort;
     this._cryptoKey = cryptoKey;
     this._maxMultiBufferSize = this._udpLength - 4 - this._crcLength;
-    this._connection = new Worker(
-      `${__dirname}/../shared/workers/udpServerWorker.js`,
-      {
-        workerData: { serverPort: serverPort, disableAntiDdos }
-      }
-    );
+    this._connection = dgram.createSocket("udp4");
     setInterval(() => {
       this.resetPacketsSent();
     }, 1000);
@@ -81,14 +72,7 @@ export class SOEServer extends EventEmitter {
   private _sendPhysicalPacket(client: Client, packet: Uint8Array): void {
     client.packetsSentThisSec++;
     client.stats.totalPacketSent++;
-    this._connection.postMessage({
-      type: "sendPacket",
-      data: {
-        packetData: packet,
-        port: client.port,
-        address: client.address
-      }
-    });
+    this._connection.send(packet, client.port, client.address);
   }
 
   private sendOutQueue(client: Client): void {
@@ -344,18 +328,17 @@ export class SOEServer extends EventEmitter {
       () => this.soeRoutine(),
       this._routineTiming
     );
-    this._connection.on("message", (message) => {
-      const data = Buffer.from(message.data);
+    this._connection.on("message", (data, remote) => {
       try {
         let client: SOEClient;
-        const clientId = message.remote.address + ":" + message.remote.port;
+        const clientId = remote.address + ":" + remote.port;
         debug(data.length + " bytes from ", clientId);
         // if doesn't know the client
         if (!this._clients.has(clientId)) {
           if (data[1] !== 1) {
             return;
           }
-          client = this._createClient(clientId, message.remote);
+          client = this._createClient(clientId, remote);
 
           client.inputStream.on("appdata", (data: Buffer) => {
             this.emit("appdata", client, data);
@@ -463,11 +446,11 @@ export class SOEServer extends EventEmitter {
         process.exitCode = 1;
       }
     });
-    this._connection.postMessage({ type: "bind" });
+    this._connection.bind(this._serverPort);
   }
 
   stop(): void {
-    this._connection.postMessage({ type: "close" });
+    this._connection.close();
     process.exitCode = 0;
   }
 
