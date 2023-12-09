@@ -2885,6 +2885,31 @@ export class ZoneServer2016 extends EventEmitter {
     return targetClient ? targetClient : similar ? similar : undefined;
   }
 
+  async getOfflineClientByName(name: string): Promise<string | Client | undefined> {
+    const characters = await this._db
+      .collection(DB_COLLECTIONS.CHARACTERS)
+      .find({
+        characterName: { $regex: `.*${name}.*`, $options: 'i' }
+      })
+      .toArray();
+
+    for (const c of characters) {
+      const clientName = c.characterName?.toLowerCase().replaceAll(" ", "_");
+      if (!clientName) return;
+      if (clientName == name.toLowerCase()) {
+        const client = this.createClient(-1, '', clientName, c.characterId, this.getTransientId(c.characterId));
+        client.character.name = c.characterName;
+        client.character.mutedCharacters = c.mutedCharacters;
+        return client;
+      } else if (
+        getDifference(name.toLowerCase(), clientName) <= 3 &&
+        getDifference(name.toLowerCase(), clientName) != 0
+      ) return c.characterName;
+    };
+
+    return undefined;
+  }
+
   checkHelmet(
     characterId: string,
     damage: number,

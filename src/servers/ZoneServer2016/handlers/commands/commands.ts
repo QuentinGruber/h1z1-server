@@ -320,12 +320,21 @@ export const commands: Array<Command> = [
         return;
       }
 
-      const targetClient = server.getClientByNameOrLoginSession(args[0]);
+      let targetClient = server.getClientByNameOrLoginSession(args[0]);
+
+      if(!targetClient) {
+        targetClient = await server.getOfflineClientByName(args[0]);
+      }
+
       if (server.playerNotFound(client, args[0].toString(), targetClient)) {
         return;
       }
       if (!targetClient || !(targetClient instanceof Client)) {
         server.sendChatText(client, "Player not found.");
+        return;
+      }
+      if(targetClient.character.characterId == client.character.characterId) {
+        server.sendChatText(client, "Don't be ridiculous.");
         return;
       }
 
@@ -355,10 +364,12 @@ export const commands: Array<Command> = [
         client,
         `[Whisper to ${targetClient.character.name}]: ${message}`
       );
-      server.sendChatText(
-        targetClient,
-        `[Whisper from ${client.character.name}]: ${message}`
-      );
+      if(targetClient.sessionId != -1) {
+        server.sendChatText(
+          targetClient,
+          `[Whisper from ${client.character.name}]: ${message}`
+        );
+      }
     }
   },
   {
@@ -374,12 +385,21 @@ export const commands: Array<Command> = [
         return;
       }
 
-      const targetClient = server.getClientByName(args[0]);
+      let targetClient = server.getClientByName(args[0]);
+
+      if(!targetClient) {
+        targetClient = await server.getOfflineClientByName(args[0]);
+      }
+
       if (server.playerNotFound(client, args[0].toString(), targetClient)) {
         return;
       }
       if (!targetClient || !(targetClient instanceof Client)) {
         server.sendChatText(client, "Player not found.");
+        return;
+      }
+      if(targetClient.character.characterId == client.character.characterId) {
+        server.sendChatText(client, "Don't be ridiculous.");
         return;
       }
 
@@ -418,12 +438,21 @@ export const commands: Array<Command> = [
         return;
       }
 
-      const targetClient = server.getClientByName(args[0]);
+      let targetClient = server.getClientByName(args[0]);
+
+      if(!targetClient) {
+        targetClient = await server.getOfflineClientByName(args[0]);
+      }
+
       if (server.playerNotFound(client, args[0].toString(), targetClient)) {
         return;
       }
       if (!targetClient || !(targetClient instanceof Client)) {
         server.sendChatText(client, "Player not found.");
+        return;
+      }
+      if(targetClient.character.characterId == client.character.characterId) {
+        server.sendChatText(client, "Don't be ridiculous.");
         return;
       }
 
