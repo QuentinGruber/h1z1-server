@@ -1,6 +1,6 @@
 {
   "name": "h1z1-server",
-  "version": "0.29.3-0",
+  "version": "0.29.4-0",
   "description": "Library for emulating h1z1 servers",
   "author": "Quentin Gruber <quentingruber@gmail.com> (http://github.com/quentingruber)",
   "license": "GPL-3.0-only",
@@ -69,7 +69,7 @@
     "publish_release-next": "npm version prerelease && git add * && git commit -m 'publish-a-next-version' && npm publish --tag next && git push origin dev",
     "check_prettier": "prettier --check ./src && prettier --check ./tests && prettier --check ./benchmarks",
     "prettier_sources": "prettier --write ./src && prettier --write ./tests && prettier --write ./benchmarks",
-    "tests" : "npm run gen-packets-types && npm run gen-packets-interfaces && npm run prettier_sources"
+    "tests": "npm run gen-packets-types && npm run gen-packets-interfaces && npm run prettier_sources"
   },
   "repository": {
     "type": "git",
