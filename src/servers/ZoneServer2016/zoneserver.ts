@@ -6221,10 +6221,21 @@ export class ZoneServer2016 extends EventEmitter {
 
   useAmmoBox(client: Client, item: BaseItem) {
     const itemDef = this.getItemDefinition(item.itemDefinitionId);
-    if (!this.removeInventoryItem(client.character, item) || !itemDef) return;
-
+    if (!itemDef) return;
     this.utilizeHudTimer(client, itemDef.NAME_ID, 5000, 0, () => {
+      if(!this.removeInventoryItem(client.character, item)) return;
       switch (item.itemDefinitionId) {
+        case Items.BUNDLE_GAUZE:
+        case Items.BUNDLE_EXPLOSIVE_ARROWS:
+        case Items.BUNDLE_FLAMING_ARROWS:
+        case Items.BUNDLE_WOODEN_ARROWS_1:
+        case Items.BUNDLE_WOODEN_ARROWS_2:
+        case Items.BUNDLE_WOODEN_ARROWS:
+          client.character.lootItem(
+            this,
+            this.generateItem(itemDef.PARAM1, itemDef.PARAM2)
+          );
+          break;
         case Items.AMMO_BOX_223:
           client.character.lootItem(
             this,

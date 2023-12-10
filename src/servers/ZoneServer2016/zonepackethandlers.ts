@@ -2262,6 +2262,7 @@ export class ZonePacketHandlers {
         );
         break;
       case ItemUseOptions.UNPACK:
+      case ItemUseOptions.UNPACK_BUNDLE:
         server.useAmmoBox(client, item);
         break;
       case ItemUseOptions.REPAIR:
