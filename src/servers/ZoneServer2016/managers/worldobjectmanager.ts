@@ -590,14 +590,11 @@ export class WorldObjectManager {
         );
         server._lootableProps[characterId] = obj;
         obj.equipItem(server, server.generateItem(obj.containerId), false);
-        if (
-          propInstance.modelId != 9563 &&
-          propInstance.modelId != 9347 &&
-          propInstance.modelId != 9205 &&
-          propInstance.modelId != 9041 &&
-          propInstance.modelId != 36
-        ) {
-          obj._containers["31"].canAcceptItems = false;
+        if (![9563, 9347, 9205, 9041, 36].includes(propInstance.modelId)) {
+          const container = obj.getContainer();
+          if (container) {
+            container.canAcceptItems = false;
+          }
           obj.nameId = server.getItemDefinition(obj.containerId)?.NAME_ID ?? 0;
         }
       });

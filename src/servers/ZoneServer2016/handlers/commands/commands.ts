@@ -344,7 +344,9 @@ export const commands: Array<Command> = [
         server.sendChatText(client, "Player not found.");
         return;
       }
-      if (targetClient?.character?.characterId == client.character.characterId) {
+      if (
+        targetClient?.character?.characterId == client.character.characterId
+      ) {
         server.sendChatText(client, "Don't be ridiculous.");
         return;
       }
@@ -409,7 +411,9 @@ export const commands: Array<Command> = [
         server.sendChatText(client, "Player not found.");
         return;
       }
-      if (targetClient?.character?.characterId == client.character.characterId) {
+      if (
+        targetClient?.character?.characterId == client.character.characterId
+      ) {
         server.sendChatText(client, "Don't be ridiculous.");
         return;
       }
