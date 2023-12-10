@@ -344,7 +344,7 @@ export const commands: Array<Command> = [
         server.sendChatText(client, "Player not found.");
         return;
       }
-      if (targetClient.character.characterId == client.character.characterId) {
+      if (targetClient?.character?.characterId == client.character.characterId) {
         server.sendChatText(client, "Don't be ridiculous.");
         return;
       }
@@ -357,7 +357,7 @@ export const commands: Array<Command> = [
         return;
       }
       if (
-        targetClient.character.mutedCharacters.includes(
+        targetClient?.character?.mutedCharacters?.includes(
           client.character.characterId
         )
       ) {
@@ -409,13 +409,13 @@ export const commands: Array<Command> = [
         server.sendChatText(client, "Player not found.");
         return;
       }
-      if (targetClient.character.characterId == client.character.characterId) {
+      if (targetClient?.character?.characterId == client.character.characterId) {
         server.sendChatText(client, "Don't be ridiculous.");
         return;
       }
 
       if (
-        client.character.mutedCharacters.includes(
+        client?.character?.mutedCharacters?.includes(
           targetClient.character.characterId
         )
       ) {
@@ -468,7 +468,7 @@ export const commands: Array<Command> = [
       }
 
       if (
-        !client.character.mutedCharacters.includes(
+        !client?.character?.mutedCharacters?.includes(
           targetClient.character.characterId
         )
       ) {
