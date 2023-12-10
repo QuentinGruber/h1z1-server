@@ -23,8 +23,8 @@ const packets: PacketStructures = [
     {
       fields: [
         { name: "serverId", type: "uint32", defaultValue: 0 },
-        { name: "serverRuleSets", type: "string", defaultValue: "PVP" },
-        { name: "h1emuVersion", type: "string", defaultValue: "" }
+        { name: "h1emuVersion", type: "string", defaultValue: "" },
+        { name: "serverRuleSets", type: "string", defaultValue: "PVP" }
       ]
     }
   ],

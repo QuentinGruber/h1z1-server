@@ -187,7 +187,7 @@ export class LoginServer extends EventEmitter {
             if (connectionEstablished || packet.name === "SessionRequest") {
               switch (packet.name) {
                 case "SessionRequest": {
-                  const { serverId, serverRuleSets, h1emuVersion } =
+                  const { serverId, h1emuVersion, serverRuleSets } =
                     packet.data;
                   debug(
                     `Received session request from ${client.address}:${client.port}`

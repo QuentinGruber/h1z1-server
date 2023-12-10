@@ -1373,8 +1373,8 @@ export class ZoneServer2016 extends EventEmitter {
     }
     this._loginConnectionManager.setLoginInfo(this._loginServerInfo, {
       serverId: this._worldId,
-      serverRuleSets: this.serverGameRules,
-      h1emuVersion: process.env.H1Z1_SERVER_VERSION
+      h1emuVersion: process.env.H1Z1_SERVER_VERSION,
+      serverRuleSets: this.serverGameRules
     });
     this._loginConnectionManager.start();
     await this._db
