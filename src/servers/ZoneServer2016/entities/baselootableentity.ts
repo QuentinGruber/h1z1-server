@@ -31,13 +31,9 @@ export abstract class BaseLootableEntity extends BaseFullCharacter {
     server: ZoneServer2016
   ) {
     super(characterId, transientId, actorModelId, position, rotation, server);
-    this.isLootbag = actorModelId == 9581 || actorModelId == 9391;
+    this.isLootbag = ![9581, 9391].includes(actorModelId);
     this.useSimpleStruct = true;
-    this.shouldSpawnLoot =
-      actorModelId != 9563 &&
-      actorModelId != 9347 &&
-      actorModelId != 9041 &&
-      actorModelId != 36;
+    this.shouldSpawnLoot = ![9563, 9347, 9041, 36].includes(actorModelId);
   }
 
   getContainer(): LoadoutContainer | undefined {
