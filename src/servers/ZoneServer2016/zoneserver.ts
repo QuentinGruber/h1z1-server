@@ -6502,6 +6502,7 @@ export class ZoneServer2016 extends EventEmitter {
         this.utilizeHudTimer(client, nameId, timeout, animationId, () => {
           this.fertilizePlants(client, item);
         });
+        return;
       case Items.COLD_MEDICINE:
       case Items.VITAMINS:
       case Items.IMMUNITY_BOOSTERS:
