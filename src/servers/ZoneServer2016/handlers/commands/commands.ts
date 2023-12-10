@@ -375,7 +375,7 @@ export const commands: Array<Command> = [
         client,
         `[Whisper to ${targetClient.character.name}]: ${message}`
       );
-      if (targetClient.sessionId != -1) {
+      if (!targetClient.sessionId) {
         server.sendChatText(
           targetClient,
           `[Whisper from ${client.character.name}]: ${message}`

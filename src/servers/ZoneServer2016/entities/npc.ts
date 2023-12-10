@@ -68,7 +68,7 @@ export class Npc extends BaseFullCharacter {
     super(characterId, transientId, actorModelId, position, rotation, server);
     this.spawnerId = spawnerId;
     this.health = 10000;
-    this.getNpcData();
+    this.initNpcData();
   }
 
   damage(server: ZoneServer2016, damageInfo: DamageInfo) {
@@ -198,7 +198,7 @@ export class Npc extends BaseFullCharacter {
     return server.deleteEntity(this.characterId, server._npcs);
   }
 
-  getNpcData() {
+  initNpcData() {
     switch (this.actorModelId) {
       case 9667:
         //Screamer
