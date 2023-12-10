@@ -373,38 +373,6 @@ export class ConstructionDoor extends DoorEntity {
   }
 
   OnMeleeHit(server: ZoneServer2016, damageInfo: DamageInfo) {
-    const client = server.getClientByCharId(damageInfo.entity),
-      weapon = client?.character.getEquippedWeapon();
-    if (!client || !weapon) return;
-
-    switch (weapon.itemDefinitionId) {
-      case Items.WEAPON_HAMMER_DEMOLITION:
-        server.constructionManager.demolishConstructionEntity(
-          server,
-          client,
-          this,
-          weapon
-        );
-        return;
-      case Items.WEAPON_HAMMER:
-        server.constructionManager.hammerConstructionEntity(
-          server,
-          client,
-          this,
-          weapon
-        );
-        return;
-    }
-
-    if (
-      server.constructionManager.isConstructionInSecuredArea(
-        server,
-        this
-      )
-    ) {
-      if (client) {
-        server.constructionManager.sendBaseSecuredMessage(server, client);
-      }
-    }
+    server.constructionManager.OnMeleeHit(server, damageInfo, this);
   }
 }

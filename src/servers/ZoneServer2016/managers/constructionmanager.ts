@@ -19,8 +19,7 @@ import {
   ConstructionEntity,
   dailyRepairMaterial,
   DamageInfo,
-  EntityDictionary,
-  SlottedConstructionEntity
+  EntityDictionary
 } from "types/zoneserver";
 import {
   eul2quat,
@@ -2450,7 +2449,7 @@ export class ConstructionManager {
 
   isConstructionInSecuredArea(
     server: ZoneServer2016,
-    construction: SlottedConstructionEntity
+    construction: ConstructionEntity
   ): boolean {
     const gates: Array<Items> = [
       Items.METAL_GATE,
@@ -2463,16 +2462,14 @@ export class ConstructionManager {
       Items.DOOR_METAL,
       Items.DOOR_WOOD
     ];
-    const parent = construction.getParent(server);
-    if (!parent || !parent.isSecured) return false;
+    const parentFoundation = construction.getParentFoundation(server);
+    if (!parentFoundation || !parentFoundation.isSecured) return false;
     if (
       !gates.includes(construction.itemDefinitionId) &&
       !doors.includes(construction.itemDefinitionId)
     ) {
       return true;
     }
-    const parentFoundation = construction.getParentFoundation(server);
-    if(!parentFoundation) return false;
     if (
       ((parentFoundation.itemDefinitionId == Items.FOUNDATION_EXPANSION ||
         parentFoundation.itemDefinitionId == Items.GROUND_TAMPER) &&
@@ -2483,55 +2480,36 @@ export class ConstructionManager {
     )
       return false;
     if (
-      parentFoundation.itemDefinitionId == Items.FOUNDATION ||
-      parentFoundation.itemDefinitionId == Items.GROUND_TAMPER
+      !(construction instanceof LootableConstructionEntity) &&
+      (parentFoundation.itemDefinitionId == Items.FOUNDATION ||
+        parentFoundation.itemDefinitionId == Items.GROUND_TAMPER)
     ) {
-      if (
-        doors.includes(construction.itemDefinitionId) &&
-        parent &&
-        (parent.itemDefinitionId == Items.SHELTER ||
-          parent.itemDefinitionId == Items.SHELTER_LARGE)
-      ) {
-        if (parentFoundation.isSecured) {
-          return true;
-        } else {
-          return false;
-        }
-      }
       switch (construction.getSlotNumber()) {
         case 4:
         case 5:
         case 6:
-          if (
-            parentFoundation.occupiedExpansionSlots["1"]?.isSecured
-          ) {
+          if (parentFoundation.occupiedExpansionSlots["1"]?.isSecured) {
             return true;
           }
           break;
         case 1:
         case 2:
         case 3:
-          if (
-            parentFoundation.occupiedExpansionSlots["2"]?.isSecured
-          ) {
+          if (parentFoundation.occupiedExpansionSlots["2"]?.isSecured) {
             return true;
           }
           break;
         case 10:
         case 11:
         case 12:
-          if (
-            parentFoundation.occupiedExpansionSlots["3"]?.isSecured
-          ) {
+          if (parentFoundation.occupiedExpansionSlots["3"]?.isSecured) {
             return true;
           }
           break;
         case 7:
         case 8:
         case 9:
-          if (
-            parentFoundation.occupiedExpansionSlots["4"]?.isSecured
-          ) {
+          if (parentFoundation.occupiedExpansionSlots["4"]?.isSecured) {
             return true;
           }
           break;
@@ -2540,11 +2518,7 @@ export class ConstructionManager {
     } else if (
       parentFoundation.itemDefinitionId == Items.FOUNDATION_EXPANSION
     ) {
-      if (
-        doors.includes(construction.itemDefinitionId) &&
-        parent &&
-        (parent.itemDefinitionId == Items.SHELTER || Items.SHELTER_LARGE)
-      ) {
+      if (doors.includes(construction.itemDefinitionId)) {
         if (parentFoundation.isSecured) {
           return true;
         } else {
@@ -2553,6 +2527,31 @@ export class ConstructionManager {
       }
     }
     return false;
+  }
+
+  OnMeleeHit(
+    server: ZoneServer2016,
+    damageInfo: DamageInfo,
+    construction: ConstructionEntity
+  ) {
+    const client = server.getClientByCharId(damageInfo.entity),
+      weapon = client?.character.getEquippedWeapon();
+    if (!client || !weapon) return;
+
+    switch (weapon.itemDefinitionId) {
+      case Items.WEAPON_HAMMER_DEMOLITION:
+        this.demolishConstructionEntity(server, client, construction, weapon);
+        return;
+      case Items.WEAPON_HAMMER:
+        this.hammerConstructionEntity(server, client, construction, weapon);
+        return;
+    }
+
+    if (this.isConstructionInSecuredArea(server, construction)) {
+      if (client) {
+        server.constructionManager.sendBaseSecuredMessage(server, client);
+      }
+    }
   }
 
   sendBaseSecuredMessage(server: ZoneServer2016, client: Client) {
