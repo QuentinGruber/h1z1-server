@@ -26,8 +26,58 @@ export const spectatorPackets: PacketStructures = [
     0xe30200,
     {
       fields: [
-        { name: "unknownDword1", type: "uint32", defaultValue: 0 }
-        // requires pack func
+        { name: "unknownDword1", type: "uint32", defaultValue: 0 },
+        {
+          name: "unknownArray1",
+          type: "array",
+          defaultValue: [],
+          fields: [
+            { name: "unknownQword1", type: "uint64string", defaultValue: "" },
+            { name: "unknownString1", type: "string", defaultValue: "" },
+            { name: "unknownString2", type: "string", defaultValue: "" },
+            { name: "unknownByte1", type: "uint8", defaultValue: 0 },
+            { name: "unknownByte2", type: "uint8", defaultValue: 0 },
+            { name: "unknownDword1", type: "uint32", defaultValue: 0 },
+            { name: "unknownWord1", type: "uint16", defaultValue: 0 },
+            { name: "unknownByte3", type: "uint8", defaultValue: 0 },
+            { name: "unknownByte4", type: "uint8", defaultValue: 0 },
+            { name: "unknownWord2", type: "uint16", defaultValue: 0 },
+            { name: "unknownWord3", type: "uint16", defaultValue: 0 },
+            { name: "unknownByte5", type: "uint8", defaultValue: 0 },
+            { name: "unknownByte6", type: "uint8", defaultValue: 0 },
+            {
+              name: "unknownArray2",
+              type: "array",
+              defaultValue: [],
+              fields: [
+                {
+                  name: "unknownQword1",
+                  type: "uint64string",
+                  defaultValue: ""
+                },
+                {
+                  name: "unknownQword2",
+                  type: "uint64string",
+                  defaultValue: ""
+                },
+                {
+                  name: "unknownQword3",
+                  type: "uint64string",
+                  defaultValue: ""
+                }
+              ]
+            }
+          ]
+        },
+        {
+          name: "unknownArray2",
+          type: "array",
+          defaultValue: [],
+          fields: [
+            { name: "unknownQword1", type: "uint64string", defaultValue: "" },
+            { name: "unknownDword1", type: "uint32", defaultValue: 0 }
+          ]
+        }
       ]
     }
   ],

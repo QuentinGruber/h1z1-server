@@ -1702,11 +1702,11 @@ export class ZoneServer2016 extends EventEmitter {
       unknownBoolean1: false,
       skyData: this.weatherManager.weather,
       zoneId1: 5,
-      zoneId2: 5,
+      geometryId: 5,
       nameId: 7699,
       unknownBoolean2: true,
       lighting: "Lighting_JustSurvive.txt",
-      unknownBoolean3: false
+      isInvitational: false
     });
 
     if (!this.itemDefinitionsCache) {
@@ -1740,17 +1740,7 @@ export class ZoneServer2016 extends EventEmitter {
         dynamicappearance.SHADER_PARAMETER_DEFINITIONS
     });
 
-    // packet is just broken, idk why
-    /*
-    this.sendData<>(client, "ClientBeginZoning", {
-      //position: Array.from(client.character.state.position),
-      //rotation: Array.from(client.character.state.rotation),
-      skyData: this.weather,
-    });
-    */
-
     this.sendData<ClientGameSettings>(client, "ClientGameSettings", {
-      Unknown2: 0,
       interactionCheckRadius: 16, // need it high for tampers
       unknownBoolean1: true,
       timescale: 1.0,
@@ -1760,6 +1750,15 @@ export class ZoneServer2016 extends EventEmitter {
       fallDamageVelocityThreshold: 15,
       fallDamageVelocityMultiplier: 11
     });
+
+    // packet is just broken, idk why
+    /*
+    this.sendData<ClientBeginZoning>(client, "ClientBeginZoning", {
+      position: client.character.state.position,
+      rotation: client.character.state.rotation,
+      skyData: this.weatherManager.weather
+    });
+    */
 
     this.sendCharacterData(client);
   }
@@ -3294,6 +3293,7 @@ export class ZoneServer2016 extends EventEmitter {
   customizeStaticDTOs() {
     console.time("customizeStaticDTOs");
     // caches DTOs that should always be removed
+
     for (const object in this._lootableProps) {
       const prop = this._lootableProps[object];
       const propInstance = {
@@ -3302,6 +3302,7 @@ export class ZoneServer2016 extends EventEmitter {
       };
       this.staticDTOs.push(propInstance);
     }
+
     for (const object in this._taskProps) {
       const prop = this._taskProps[object];
       const propInstance = {
@@ -3351,11 +3352,7 @@ export class ZoneServer2016 extends EventEmitter {
       !(entity instanceof ConstructionParentEntity) &&
       !(entity instanceof Vehicle2016) &&
       (this.filterOutOfDistance(entity, client.character.state.position) ||
-        this.constructionManager.constructionShouldHideEntity(
-          this,
-          client,
-          entity
-        ))
+        this.constructionManager.shouldHideEntity(this, client, entity))
     );
   }
 
