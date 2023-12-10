@@ -307,18 +307,27 @@ export abstract class BaseFullCharacter extends BaseLightweightCharacter {
         itemDefId = loadoutContainer?.itemDefinitionId,
         items = loadoutContainer?.items;
 
-      this._containers[loadoutSlotId] = new LoadoutContainer(loadoutItem, def.PARAM1);
+      this._containers[loadoutSlotId] = new LoadoutContainer(
+        loadoutItem,
+        def.PARAM1
+      );
       if (loadoutContainer && _.size(items) !== 0) {
         if (items && client) {
-          Object.values(items).forEach(item => {
-            server.addContainerItem(this, item, this._containers[loadoutSlotId], false);
+          Object.values(items).forEach((item) => {
+            server.addContainerItem(
+              this,
+              item,
+              this._containers[loadoutSlotId],
+              false
+            );
           });
         }
       }
 
       if (itemDefId) {
         const generatedItem = server.generateItem(itemDefId, 1);
-        if (generatedItem) this.lootItem(server, generatedItem, undefined, false);
+        if (generatedItem)
+          this.lootItem(server, generatedItem, undefined, false);
       }
 
       if (client && sendPacket) server.initializeContainerList(client, this);
@@ -694,27 +703,37 @@ export abstract class BaseFullCharacter extends BaseLightweightCharacter {
     if (oldLoadoutItem?.itemDefinitionId) {
       //TODO: Probably have to rework this? This makes backpack swapping possible.
       const def = server.getItemDefinition(oldLoadoutItem.itemDefinitionId);
-      if(def?.ITEM_TYPE == 34) {
-        if(this.getAvailableLoadoutSlot(server, item.itemDefinitionId)) {
+      if (def?.ITEM_TYPE == 34) {
+        if (this.getAvailableLoadoutSlot(server, item.itemDefinitionId)) {
           this.equipItem(server, item, true, slotId);
         } else {
           sourceCharacter.lootItem(server, item, 1, false);
         }
         return;
       }
-      
+
       // if target loadoutSlot is occupied
       if (oldLoadoutItem.itemGuid == item.itemGuid) {
         if (client)
           server.sendChatText(client, "[ERROR] Item is already equipped!");
         return;
       }
-      if (!server.removeLoadoutItem((externalContainer ? this: sourceCharacter), oldLoadoutItem.slotId)) {
+      if (
+        !server.removeLoadoutItem(
+          externalContainer ? this : sourceCharacter,
+          oldLoadoutItem.slotId
+        )
+      ) {
         if (client)
           server.containerError(client, ContainerErrors.NO_ITEM_IN_SLOT);
         return;
       }
-      (externalContainer ? sourceCharacter: this).lootContainerItem(server, oldLoadoutItem, undefined, false);
+      (externalContainer ? sourceCharacter : this).lootContainerItem(
+        server,
+        oldLoadoutItem,
+        undefined,
+        false
+      );
     }
     if (item.weapon) {
       clearTimeout(item.weapon.reloadTimer);
@@ -917,10 +936,15 @@ export abstract class BaseFullCharacter extends BaseLightweightCharacter {
         }
         break;
       case ItemClasses.BACKPACKS:
-        const currentItemBulk = server.getContainerDefinition(itemDef?.PARAM1)?.MAX_BULK,
-          loadOutItemDef = server.getItemDefinition(this._loadout[slot]?.itemDefinitionId),
-          loadOutItemBulk = loadOutItemDef?.PARAM1 ? server.getContainerDefinition(loadOutItemDef.PARAM1)?.MAX_BULK : 0;
-        if(currentItemBulk > loadOutItemBulk) return slot;
+        const currentItemBulk = server.getContainerDefinition(itemDef?.PARAM1)
+            ?.MAX_BULK,
+          loadOutItemDef = server.getItemDefinition(
+            this._loadout[slot]?.itemDefinitionId
+          ),
+          loadOutItemBulk = loadOutItemDef?.PARAM1
+            ? server.getContainerDefinition(loadOutItemDef.PARAM1)?.MAX_BULK
+            : 0;
+        if (currentItemBulk > loadOutItemBulk) return slot;
         break;
     }
     if (this._loadout[slot]?.itemDefinitionId) return 0;

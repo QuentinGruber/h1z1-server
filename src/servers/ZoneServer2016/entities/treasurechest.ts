@@ -30,7 +30,17 @@ export class TreasureChest extends LootableProp {
     spawnerId: number,
     renderDistance: number
   ) {
-    super(characterId, transientId, actorModelId, position, rotation, server, new Float32Array([1, 1, 1, 1]), 0, renderDistance);
+    super(
+      characterId,
+      transientId,
+      actorModelId,
+      position,
+      rotation,
+      server,
+      new Float32Array([1, 1, 1, 1]),
+      0,
+      renderDistance
+    );
     this.spawnerId = spawnerId;
     this.getTaskPropData();
   }

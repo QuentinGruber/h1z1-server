@@ -1041,7 +1041,10 @@ export class ZonePacketHandlers {
         server._airdrop.cargo
       ) {
         server._airdrop.cargoSpawned = true;
-        server.sendAlert(server._airdrop.manager, "Air drop released. The package is delivered.");
+        server.sendAlert(
+          server._airdrop.manager,
+          "Air drop released. The package is delivered."
+        );
         setTimeout(() => {
           if (server._airdrop && server._airdrop.cargo) {
             for (const a in server._clients) {

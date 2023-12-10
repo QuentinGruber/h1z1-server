@@ -322,7 +322,7 @@ export const commands: Array<Command> = [
 
       let targetClient = server.getClientByNameOrLoginSession(args[0]);
 
-      if(!targetClient) {
+      if (!targetClient) {
         targetClient = await server.getOfflineClientByName(args[0]);
       }
 
@@ -333,7 +333,7 @@ export const commands: Array<Command> = [
         server.sendChatText(client, "Player not found.");
         return;
       }
-      if(targetClient.character.characterId == client.character.characterId) {
+      if (targetClient.character.characterId == client.character.characterId) {
         server.sendChatText(client, "Don't be ridiculous.");
         return;
       }
@@ -364,7 +364,7 @@ export const commands: Array<Command> = [
         client,
         `[Whisper to ${targetClient.character.name}]: ${message}`
       );
-      if(targetClient.sessionId != -1) {
+      if (targetClient.sessionId != -1) {
         server.sendChatText(
           targetClient,
           `[Whisper from ${client.character.name}]: ${message}`
@@ -387,7 +387,7 @@ export const commands: Array<Command> = [
 
       let targetClient = server.getClientByName(args[0]);
 
-      if(!targetClient) {
+      if (!targetClient) {
         targetClient = await server.getOfflineClientByName(args[0]);
       }
 
@@ -398,7 +398,7 @@ export const commands: Array<Command> = [
         server.sendChatText(client, "Player not found.");
         return;
       }
-      if(targetClient.character.characterId == client.character.characterId) {
+      if (targetClient.character.characterId == client.character.characterId) {
         server.sendChatText(client, "Don't be ridiculous.");
         return;
       }
@@ -440,7 +440,7 @@ export const commands: Array<Command> = [
 
       let targetClient = server.getClientByName(args[0]);
 
-      if(!targetClient) {
+      if (!targetClient) {
         targetClient = await server.getOfflineClientByName(args[0]);
       }
 
@@ -451,7 +451,7 @@ export const commands: Array<Command> = [
         server.sendChatText(client, "Player not found.");
         return;
       }
-      if(targetClient.character.characterId == client.character.characterId) {
+      if (targetClient.character.characterId == client.character.characterId) {
         server.sendChatText(client, "Don't be ridiculous.");
         return;
       }

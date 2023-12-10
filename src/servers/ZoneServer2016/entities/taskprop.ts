@@ -70,31 +70,22 @@ export class TaskProp extends BaseLightweightCharacter {
       case "Task_Patient_Safe_FileCabinet01.adr":
         this.nameId = StringIds.LOCKED_CABINET;
         this.requiredItemId = Items.WEICHS_WALLET;
-        this.rewardItems = [
-          Items.AMMO_9MM,
-          Items.WEAPON_M9
-        ];
+        this.rewardItems = [Items.AMMO_9MM, Items.WEAPON_M9];
         break;
       case "Task_Patient_Hospital_Props_Desk01.adr":
         this.nameId = StringIds.MORGUE_DESK;
         this.requiredItemId = Items.WEICHS_REPORT;
-        this.rewardItems = [
-          Items.WEICHS_WALLET
-        ];
+        this.rewardItems = [Items.WEICHS_WALLET];
         break;
       case "Task_Patient_Quarantine_FileCabinet01.adr":
         this.nameId = StringIds.EXAMINATION_CABINET;
         this.requiredItemId = Items.KLAVISK_NOTE;
-        this.rewardItems = [
-          Items.WEICHS_REPORT
-        ];
+        this.rewardItems = [Items.WEICHS_REPORT];
         break;
       case "Task_Patient_Records_FileCabinet01.adr":
         this.nameId = StringIds.RECORDS_CABINET;
         this.requiredItemId = Items.DOCTORS_FILE;
-        this.rewardItems = [
-          Items.KLAVISK_NOTE
-        ];
+        this.rewardItems = [Items.KLAVISK_NOTE];
         break;
       case "Task_Nurse_Hospital_Props_DrugCabinet.adr":
         this.nameId = StringIds.SMALL_PHARMACY_CABINET;
@@ -111,17 +102,12 @@ export class TaskProp extends BaseLightweightCharacter {
       case "Task_Nurse_Hospital_Props_Desk01.adr":
         this.nameId = StringIds.ICU_DESK;
         this.requiredItemId = Items.CRACKED_CLIPBOARD;
-        this.rewardItems = [
-          Items.HANDWRITTEN_NOTE_CAROLINE
-        ];
+        this.rewardItems = [Items.HANDWRITTEN_NOTE_CAROLINE];
         break;
       case "Task_Hospital_Orderly_ToolCabinet01.adr":
         this.nameId = StringIds.MAINTENANCE_TOOLBOX;
         this.requiredItemId = Items.SMALL_KEY;
-        this.rewardItems = [
-          Items.FIRST_AID,
-          Items.WEAPON_MACHETE01
-        ];
+        this.rewardItems = [Items.FIRST_AID, Items.WEAPON_MACHETE01];
         break;
       case "Task_Orderly_Hospital_PaperDebris.adr":
         this.nameId = StringIds.BATTERED_TRASHCAN;
@@ -134,9 +120,7 @@ export class TaskProp extends BaseLightweightCharacter {
       case "Task_Orderly_Hospital_Props_Desk01.adr":
         this.nameId = StringIds.RADIOLOGY_DESK;
         this.requiredItemId = Items.PHONE_CHARGED;
-        this.rewardItems = [
-          Items.TORN_LETTERHEAD
-        ];
+        this.rewardItems = [Items.TORN_LETTERHEAD];
         break;
       case "Task_Hospital_Researcher_Radio.adr":
         this.nameId = StringIds.LONG_RANGE_RADIO;
@@ -299,10 +283,19 @@ export class TaskProp extends BaseLightweightCharacter {
         if (!client.character.hasItem(Items.AIRDROP_CODE)) return;
         const item = client.character.getItemById(Items.AIRDROP_CODE);
         if (!item || item.hasAirdropClearance) return;
-        server.utilizeHudTimer(client, StringIds.LONG_RANGE_RADIO, 1000, 0, () => {
-          item.hasAirdropClearance = true;
-          server.sendAlert(client, "You hear an automated message requesting a code to call in an airdrop.");
-        });
+        server.utilizeHudTimer(
+          client,
+          StringIds.LONG_RANGE_RADIO,
+          1000,
+          0,
+          () => {
+            item.hasAirdropClearance = true;
+            server.sendAlert(
+              client,
+              "You hear an automated message requesting a code to call in an airdrop."
+            );
+          }
+        );
         break;
       case "Common_Props_Bedroom_Mattress01.adr":
       case "Common_Props_MilitaryBase_BunkBed.adr":
@@ -316,42 +309,60 @@ export class TaskProp extends BaseLightweightCharacter {
         }
         break;
       default:
-        const requiredItemCount = this.getRequiredItemCount(this.requiredItemId);
-        const inventoryItemCount = client.character.getInventoryItemAmount(this.requiredItemId);
+        const requiredItemCount = this.getRequiredItemCount(
+          this.requiredItemId
+        );
+        const inventoryItemCount = client.character.getInventoryItemAmount(
+          this.requiredItemId
+        );
 
         if (requiredItemCount > inventoryItemCount) {
           switch (this.requiredItemId) {
             case Items.LOCKER_KEY_F1:
-              server.sendAlert(client, "This locker requires key 207.") //String ID #12782
+              server.sendAlert(client, "This locker requires key 207."); //String ID #12782
               break;
             case Items.LOCKER_KEY_F2:
-              server.sendAlert(client, "This locker requires key 122.") //String ID #12786
+              server.sendAlert(client, "This locker requires key 122."); //String ID #12786
               break;
             case Items.LOCKER_KEY_F3:
-              server.sendAlert(client, "This locker requires key 591.") //String ID #12788
+              server.sendAlert(client, "This locker requires key 591."); //String ID #12788
               break;
             case Items.LOCKER_KEY_F4:
-              server.sendAlert(client, "This locker requires key 301.") //String ID #12791
+              server.sendAlert(client, "This locker requires key 301."); //String ID #12791
               break;
           }
           return;
         }
 
         const itemsPassed: { itemDefinitionId: number; count: number }[] = [];
-        const itemCount = this.rewardItems.length === 1 ? 1 : randomIntFromInterval(2, 4);
+        const itemCount =
+          this.rewardItems.length === 1 ? 1 : randomIntFromInterval(2, 4);
 
         for (let x = 0; x < itemCount; x++) {
-          const randomIndex = randomIntFromInterval(0, this.rewardItems.length - 1);
+          const randomIndex = randomIntFromInterval(
+            0,
+            this.rewardItems.length - 1
+          );
           const item = this.rewardItems[randomIndex];
-          if (itemsPassed.map(sItem => sItem.itemDefinitionId).includes(item)) continue; //TODO: Check if there's already a scrub received
+          if (itemsPassed.map((sItem) => sItem.itemDefinitionId).includes(item))
+            continue; //TODO: Check if there's already a scrub received
           itemsPassed.push({
             itemDefinitionId: item,
             count: this.getRewardItemCount(item)
           });
         }
 
-        const requiredItemInfo = { itemDefinitionId: this.requiredItemId, count: requiredItemCount };
-        server.taskOption(client, 1000, this.nameId, requiredItemInfo, itemsPassed);
+        const requiredItemInfo = {
+          itemDefinitionId: this.requiredItemId,
+          count: requiredItemCount
+        };
+        server.taskOption(
+          client,
+          1000,
+          this.nameId,
+          requiredItemInfo,
+          itemsPassed
+        );
         break;
     }
   }

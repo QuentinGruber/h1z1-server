@@ -92,7 +92,10 @@ export class WaterSource extends TaskProp {
     /* eslint-enable @typescript-eslint/no-unused-vars */
   ) {
     const bottle = client.character.getItemById(Items.WATER_EMPTY),
-      infiniteSources = ["Common_Props_Well.adr", "Common_Props_Dam_WaterValve01.adr"],
+      infiniteSources = [
+        "Common_Props_Well.adr",
+        "Common_Props_Dam_WaterValve01.adr"
+      ],
       hasUses =
         infiniteSources.includes(this.actorModel) ||
         (this.usesLeft && this.usesLeft > 0);

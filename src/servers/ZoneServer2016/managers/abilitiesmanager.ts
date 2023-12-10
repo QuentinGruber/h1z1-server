@@ -221,12 +221,12 @@ export class AbilitiesManager {
     if (!weaponItem.weapon) return;
 
     if (
-      (
-        entity instanceof Npc &&
-        entity.isAlive
-      ) && server.isHeadshotOnly && 
+      entity instanceof Npc &&
+      entity.isAlive &&
+      server.isHeadshotOnly &&
       client.character.meleeHit.abilityHitLocation != "HEAD"
-    ) return;
+    )
+      return;
     // Zombies should be able to get hit anywhere when they're dead even if the gamerule is headshot only.
 
     // TODO: CHECK MELEE BLOCK TIME FOR EACH WEAPON
@@ -385,7 +385,7 @@ export class AbilitiesManager {
     packetData: EffectRemoveEffect
   ) {
     const vehicleAbilityEffectId =
-      packetData.abilityEffectData.abilityEffectId1,
+        packetData.abilityEffectData.abilityEffectId1,
       vehicle = server._vehicles[packetData.targetCharacterId ?? ""];
     if (!vehicle) return;
 

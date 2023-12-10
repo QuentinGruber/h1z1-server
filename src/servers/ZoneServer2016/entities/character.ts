@@ -1396,7 +1396,8 @@ export class Character2016 extends BaseFullCharacter {
       damageInfo.hitReport?.hitLocation || ""
     );
 
-    if (server.isHeadshotOnly && damageInfo.hitReport?.hitLocation != "HEAD") return;
+    if (server.isHeadshotOnly && damageInfo.hitReport?.hitLocation != "HEAD")
+      return;
 
     const hasHelmetBefore = this.hasHelmet(server);
     const hasArmorBefore = this.hasArmor(server);

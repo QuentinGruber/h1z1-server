@@ -271,7 +271,7 @@ export class LootableProp extends BaseLootableEntity {
     }
   }
   OnInteractionString(server: ZoneServer2016, client: ZoneClient2016) {
-    if(this.actorModelId == 9563) {
+    if (this.actorModelId == 9563) {
       server.sendData(client, "Command.InteractionString", {
         guid: this.characterId,
         stringId: StringIds.USE_TARGET

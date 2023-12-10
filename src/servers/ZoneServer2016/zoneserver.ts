@@ -436,7 +436,7 @@ export class ZoneServer2016 extends EventEmitter {
     serverGameRules.push(this.isPvE ? "PvE" : "PvP");
     if (this.isFirstPersonOnly) serverGameRules.push("FirstPersonOnly");
     if (this.isHeadshotOnly) serverGameRules.push("Headshots");
-    this.serverGameRules = serverGameRules.join(',');
+    this.serverGameRules = serverGameRules.join(",");
 
     this._soloMode = false;
 
@@ -2885,11 +2885,13 @@ export class ZoneServer2016 extends EventEmitter {
     return targetClient ? targetClient : similar ? similar : undefined;
   }
 
-  async getOfflineClientByName(name: string): Promise<string | Client | undefined> {
+  async getOfflineClientByName(
+    name: string
+  ): Promise<string | Client | undefined> {
     const characters = await this._db
       .collection(DB_COLLECTIONS.CHARACTERS)
       .find({
-        characterName: { $regex: `.*${name}.*`, $options: 'i' }
+        characterName: { $regex: `.*${name}.*`, $options: "i" }
       })
       .toArray();
 
@@ -2897,15 +2899,22 @@ export class ZoneServer2016 extends EventEmitter {
       const clientName = c.characterName?.toLowerCase().replaceAll(" ", "_");
       if (!clientName) return;
       if (clientName == name.toLowerCase()) {
-        const client = this.createClient(-1, '', clientName, c.characterId, this.getTransientId(c.characterId));
+        const client = this.createClient(
+          -1,
+          "",
+          clientName,
+          c.characterId,
+          this.getTransientId(c.characterId)
+        );
         client.character.name = c.characterName;
         client.character.mutedCharacters = c.mutedCharacters;
         return client;
       } else if (
         getDifference(name.toLowerCase(), clientName) <= 3 &&
         getDifference(name.toLowerCase(), clientName) != 0
-      ) return c.characterName;
-    };
+      )
+        return c.characterName;
+    }
 
     return undefined;
   }
@@ -6223,7 +6232,7 @@ export class ZoneServer2016 extends EventEmitter {
     const itemDef = this.getItemDefinition(item.itemDefinitionId);
     if (!itemDef) return;
     this.utilizeHudTimer(client, itemDef.NAME_ID, 5000, 0, () => {
-      if(!this.removeInventoryItem(client.character, item)) return;
+      if (!this.removeInventoryItem(client.character, item)) return;
       switch (item.itemDefinitionId) {
         case Items.BUNDLE_GAUZE:
         case Items.BUNDLE_EXPLOSIVE_ARROWS:
@@ -6312,7 +6321,14 @@ export class ZoneServer2016 extends EventEmitter {
     removedItem: { itemDefinitionId: number; count: number },
     rewardItems: { itemDefinitionId: number; count: number }[]
   ) {
-    if (!this.removeInventoryItems(client, removedItem.itemDefinitionId, removedItem.count)) return;
+    if (
+      !this.removeInventoryItems(
+        client,
+        removedItem.itemDefinitionId,
+        removedItem.count
+      )
+    )
+      return;
     rewardItems.forEach(
       (itemInstance: { itemDefinitionId: number; count: number }) => {
         const item = this.generateItem(

@@ -394,7 +394,11 @@ export class WorldObjectManager {
     server.spawnSimpleNpcForAllInRange(lootbag);
   }
 
-  createAirdropContainer(server: ZoneServer2016, pos: Float32Array, forceAirdrop: string = "") {
+  createAirdropContainer(
+    server: ZoneServer2016,
+    pos: Float32Array,
+    forceAirdrop: string = ""
+  ) {
     const airdropTypes: string[] = [
       "Farmer",
       "Demolitioner",
@@ -414,7 +418,7 @@ export class WorldObjectManager {
       Items.HAPPY_SKULL_SCRUBS_CAP,
       Items.HAPPY_SKULL_SCRUBS_SHIRT,
       Items.HAPPY_SKULL_SCRUBS_PANTS,
-      
+
       2806,
       2803,
       2809,
@@ -425,7 +429,7 @@ export class WorldObjectManager {
 
       2799,
       2798,
-      2800,
+      2800
     ];
 
     const index = Math.floor(Math.random() * airdropTypes.length);
@@ -511,8 +515,14 @@ export class WorldObjectManager {
       case "Hospital":
         effectId = Effects.Smoke_Orange;
         if (container) {
-          const randomIndex = Math.floor(Math.random() * experimentalSrubs.length);
-          server.addContainerItem(lootbag, server.generateItem(experimentalSrubs[randomIndex], 1), container);
+          const randomIndex = Math.floor(
+            Math.random() * experimentalSrubs.length
+          );
+          server.addContainerItem(
+            lootbag,
+            server.generateItem(experimentalSrubs[randomIndex], 1),
+            container
+          );
         }
         break;
     }
@@ -543,12 +553,12 @@ export class WorldObjectManager {
   createProps(server: ZoneServer2016) {
     Z1_lootableProps.forEach((propType: any) => {
       propType.instances.forEach((propInstance: any) => {
-        const itemMap: {[modelId: number]: number } = {
+        const itemMap: { [modelId: number]: number } = {
           36: Items.FURNACE,
           9205: Items.BARBEQUE,
-          9041: Items.CAMPFIRE,
+          9041: Items.CAMPFIRE
         };
-        if(Object.keys(itemMap).includes(propInstance.modelId.toString())) {
+        if (Object.keys(itemMap).includes(propInstance.modelId.toString())) {
           server.constructionManager.placeSmeltingEntity(
             server,
             itemMap[propInstance.modelId],
@@ -560,7 +570,9 @@ export class WorldObjectManager {
           return;
         }
         const characterId = generateRandomGuid();
-        const obj = new (propInstance.modelId == 9347 ? TreasureChest : LootableProp)(
+        const obj = new (
+          propInstance.modelId == 9347 ? TreasureChest : LootableProp
+        )(
           characterId,
           server.getTransientId(characterId), // need transient generated for Interaction Replication
           propInstance.modelId,
@@ -578,7 +590,13 @@ export class WorldObjectManager {
         );
         server._lootableProps[characterId] = obj;
         obj.equipItem(server, server.generateItem(obj.containerId), false);
-        if (propInstance.modelId != 9563 && propInstance.modelId != 9347 && propInstance.modelId != 9205 && propInstance.modelId != 9041 && propInstance.modelId != 36) {
+        if (
+          propInstance.modelId != 9563 &&
+          propInstance.modelId != 9347 &&
+          propInstance.modelId != 9205 &&
+          propInstance.modelId != 9041 &&
+          propInstance.modelId != 36
+        ) {
           obj._containers["31"].canAcceptItems = false;
           obj.nameId = server.getItemDefinition(obj.containerId)?.NAME_ID ?? 0;
         }
@@ -898,7 +916,7 @@ export class WorldObjectManager {
     });
   }
   updateQuestContainers(server: ZoneServer2016) {
-    Object.values(server._lootableProps).forEach(a => {
+    Object.values(server._lootableProps).forEach((a) => {
       const prop = a as BaseFullCharacter;
       switch (prop.actorModelId) {
         case 9563:

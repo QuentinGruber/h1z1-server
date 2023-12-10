@@ -25,7 +25,7 @@ export class Npc extends BaseFullCharacter {
   npcRenderDistance = 80;
   spawnerId: number;
   deathTime: number = 0;
-  rewardItems: { itemDefId: number; weight: number; }[] = [];
+  rewardItems: { itemDefId: number; weight: number }[] = [];
   requiredHarvestItems: number[] = [];
   flags = {
     bit0: 0,
@@ -130,7 +130,12 @@ export class Npc extends BaseFullCharacter {
   }
 
   OnProjectileHit(server: ZoneServer2016, damageInfo: DamageInfo) {
-    if (server.isHeadshotOnly && damageInfo.hitReport?.hitLocation != "HEAD" && this.isAlive) return;
+    if (
+      server.isHeadshotOnly &&
+      damageInfo.hitReport?.hitLocation != "HEAD" &&
+      this.isAlive
+    )
+      return;
     const client = server.getClientByCharId(damageInfo.entity);
     if (client && this.isAlive) {
       const hasHelmetBefore = this.hasHelmet(server);
@@ -160,15 +165,22 @@ export class Npc extends BaseFullCharacter {
     if (damageInfo.meleeType && !this.isAlive) {
       const client = server.getClientByCharId(damageInfo.entity);
 
-      if (this.requiredHarvestItems.includes(damageInfo.meleeType) && client && this.rewardItems.length > 0) {
-        const totalWeight = this.rewardItems.reduce((sum, item) => sum + item.weight, 0);
+      if (
+        this.requiredHarvestItems.includes(damageInfo.meleeType) &&
+        client &&
+        this.rewardItems.length > 0
+      ) {
+        const totalWeight = this.rewardItems.reduce(
+          (sum, item) => sum + item.weight,
+          0
+        );
         const randomValue = Math.random() * totalWeight;
 
         let cumulativeWeight = 0;
         for (const reward of this.rewardItems) {
           cumulativeWeight += reward.weight;
           if (randomValue <= cumulativeWeight) {
-            if(reward.itemDefId == 0) break; // Don't always give a reward
+            if (reward.itemDefId == 0) break; // Don't always give a reward
             //TODO: Keep track if the brain was already harvested.
             const rewardItem = server.generateItem(reward.itemDefId, 1);
             if (rewardItem) client.character.lootItem(server, rewardItem);
@@ -194,7 +206,11 @@ export class Npc extends BaseFullCharacter {
       case 9510:
       case 9634:
         this.nameId = StringIds.ZOMBIE_WALKER;
-        this.requiredHarvestItems = [MeleeTypes.BLADE, MeleeTypes.BLUNT, MeleeTypes.KNIFE];
+        this.requiredHarvestItems = [
+          MeleeTypes.BLADE,
+          MeleeTypes.BLUNT,
+          MeleeTypes.KNIFE
+        ];
         this.rewardItems = [
           {
             itemDefId: 0,
@@ -208,7 +224,7 @@ export class Npc extends BaseFullCharacter {
             itemDefId: Items.BRAIN_INFECTED,
             weight: 10
           }
-        ]
+        ];
         break;
       case 9253:
       case 9002:
@@ -235,7 +251,7 @@ export class Npc extends BaseFullCharacter {
             itemDefId: Items.DEER_BLADDER,
             weight: 10
           }
-        ]
+        ];
         break;
       case 9003:
         this.nameId = StringIds.WOLF;
@@ -252,8 +268,8 @@ export class Npc extends BaseFullCharacter {
           {
             itemDefId: Items.ANIMAL_FAT,
             weight: 15
-          },
-        ]
+          }
+        ];
         break;
       case 9187:
         this.nameId = StringIds.BEAR;
@@ -270,13 +286,17 @@ export class Npc extends BaseFullCharacter {
           {
             itemDefId: Items.ANIMAL_FAT,
             weight: 15
-          },
-        ]
+          }
+        ];
         break;
     }
   }
 
-  sendInteractionString(server: ZoneServer2016, client: ZoneClient2016, stringId: number) {
+  sendInteractionString(
+    server: ZoneServer2016,
+    client: ZoneClient2016,
+    stringId: number
+  ) {
     server.sendData<CommandInteractionString>(
       client,
       "Command.InteractionString",
