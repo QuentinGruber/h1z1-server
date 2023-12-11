@@ -38,7 +38,8 @@ import {
   ResourceIds,
   ResourceTypes,
   ItemUseOptions,
-  LoadoutSlots
+  LoadoutSlots,
+  StringIds
 } from "./models/enums";
 import { BaseFullCharacter } from "./entities/basefullcharacter";
 import { BaseLightweightCharacter } from "./entities/baselightweightcharacter";
@@ -1040,6 +1041,10 @@ export class ZonePacketHandlers {
         server._airdrop.cargo
       ) {
         server._airdrop.cargoSpawned = true;
+        server.sendAlert(
+          server._airdrop.manager,
+          "Air drop released. The package is delivered."
+        );
         setTimeout(() => {
           if (server._airdrop && server._airdrop.cargo) {
             for (const a in server._clients) {
@@ -1117,7 +1122,8 @@ export class ZonePacketHandlers {
         server._airdrop.containerSpawned = true;
         server.worldObjectManager.createAirdropContainer(
           server,
-          server._airdrop.destinationPos
+          server._airdrop.destinationPos,
+          server._airdrop.hospitalCrate ? "Hospital" : ""
         );
         for (const a in server._clients) {
           server.airdropManager(server._clients[a], false);
@@ -2121,7 +2127,9 @@ export class ZonePacketHandlers {
         server.useConsumable(client, item, animationId);
         break;
       case ItemUseOptions.USE_AIRDROP:
-        server.useAirdrop(client, item);
+        server.utilizeHudTimer(client, StringIds.AIRDROP_CODE, 3000, 0, () => {
+          server.useAirdrop(client, item);
+        });
         break;
       case ItemUseOptions.USE:
         server.useItem(client, item, animationId);
@@ -2257,6 +2265,7 @@ export class ZonePacketHandlers {
         );
         break;
       case ItemUseOptions.UNPACK:
+      case ItemUseOptions.UNPACK_BUNDLE:
         server.useAmmoBox(client, item);
         break;
       case ItemUseOptions.REPAIR:

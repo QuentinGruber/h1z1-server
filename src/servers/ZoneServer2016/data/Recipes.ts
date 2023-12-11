@@ -192,6 +192,20 @@ export const smeltingData: { [recipeId: number]: smeltRecipe } = {
       }
     ]
   },
+  14: {
+    filterId: FilterIds.COOKING,
+    rewardId: Items.FUEL_BIOFUEL,
+    components: [
+      {
+        itemDefinitionId: Items.WATER_EMPTY,
+        requiredAmount: 1
+      },
+      {
+        itemDefinitionId: Items.ANIMAL_FAT,
+        requiredAmount: 1
+      }
+    ]
+  },
   // disabled for now, need to fix requiredAmount for smelting - Meme
   /*
   14: {
@@ -895,14 +909,14 @@ export const recipes: { [recipeId: number]: Recipe } = {
     ]
   },
   [Items.FUEL_BIOFUEL]: {
-    filterId: FilterIds.WEAPONS,
+    filterId: FilterIds.COOKING,
     components: [
       {
-        itemDefinitionId: Items.ANIMAL_FAT,
+        itemDefinitionId: Items.WATER_EMPTY,
         requiredAmount: 1
       },
       {
-        itemDefinitionId: Items.WATER_EMPTY,
+        itemDefinitionId: Items.ANIMAL_FAT,
         requiredAmount: 1
       }
     ]
@@ -2262,27 +2276,6 @@ export const recipes: { [recipeId: number]: Recipe } = {
       {
         itemDefinitionId: Items.TWINE,
         requiredAmount: 2
-      }
-    ]
-  },
-  [Items.BRAIN_TREATED]: {
-    filterId: FilterIds.COMPONENT,
-    components: [
-      {
-        itemDefinitionId: Items.SYRINGE_INFECTED_BLOOD,
-        requiredAmount: 1
-      },
-      {
-        itemDefinitionId: Items.VIAL_H1Z1_REDUCER,
-        requiredAmount: 1
-      },
-      {
-        itemDefinitionId: Items.EMPTY_SPECIMEN_BAG,
-        requiredAmount: 1
-      },
-      {
-        itemDefinitionId: Items.BRAIN_INFECTED,
-        requiredAmount: 1
       }
     ]
   },
