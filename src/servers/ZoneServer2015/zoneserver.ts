@@ -114,7 +114,7 @@ export class ZoneServer2015 extends EventEmitter {
   readonly gameVersion: GAME_VERSIONS = GAME_VERSIONS.H1Z1_15janv_2015;
   constructor(
     serverPort: number,
-    gatewayKey: Uint8Array,
+    gatewayKey: Uint8Array = Buffer.from(DEFAULT_CRYPTO_KEY),
     mongoAddress = "",
     worldId = 0,
     internalServerPort = 1118

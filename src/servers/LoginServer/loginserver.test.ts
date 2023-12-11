@@ -1,6 +1,5 @@
 import test from "node:test";
 import { LoginServer } from "./loginserver";
-import assert from "node:assert";
 
 test("LoginServer", async (t) => {
   const loginServer = new LoginServer(1115);
@@ -8,8 +7,6 @@ test("LoginServer", async (t) => {
     await loginServer.start();
   });
   setImmediate(() => {
-    process.exit(0)
-  })
+    process.exit(0);
+  });
 });
-
-

@@ -399,7 +399,7 @@ export class ZoneServer2016 extends EventEmitter {
 
   constructor(
     serverPort: number,
-    gatewayKey: Uint8Array,
+    gatewayKey: Uint8Array = Buffer.from(DEFAULT_CRYPTO_KEY),
     mongoAddress = "",
     worldId?: number,
     internalServerPort?: number
