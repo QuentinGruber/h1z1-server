@@ -176,7 +176,7 @@ export class SmeltingManager {
             server,
             server.generateItem(Items.CHARCOAL),
             1,
-            true
+            false
           );
         }
         return true;
@@ -231,7 +231,7 @@ export class SmeltingManager {
                     server,
                     server.generateItem(recipe.rewardId),
                     1,
-                    true
+                    false
                   );
                   this.smelt(server, entity);
                   return;
@@ -274,7 +274,7 @@ export class SmeltingManager {
               server,
               server.generateItem(Items.WAX),
               1,
-              true
+              false
             );
             server.sendDataToAllWithSpawnedEntity(
               subEntity.dictionary,
@@ -290,7 +290,7 @@ export class SmeltingManager {
             server,
             server.generateItem(reward),
             1,
-            true
+            false
           );
         }
         return;
@@ -320,7 +320,7 @@ export class SmeltingManager {
         server,
         server.generateItem(Items.HONEYCOMB),
         1,
-        true
+        false
       );
       server.sendDataToAllWithSpawnedEntity(
         subEntity.dictionary,
@@ -354,7 +354,7 @@ export class SmeltingManager {
           server,
           server.generateItem(Items.MEAT_RABBIT),
           1,
-          true
+          false
         );
         entity.actorModelId = 35;
         server.sendDataToAllWithSpawnedEntity(
