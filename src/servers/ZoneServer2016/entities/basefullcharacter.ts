@@ -303,10 +303,33 @@ export abstract class BaseFullCharacter extends BaseLightweightCharacter {
     }
 
     if (def.ITEM_TYPE === 34) {
+      const loadoutContainer = this._containers[loadoutSlotId],
+        itemDefId = loadoutContainer?.itemDefinitionId,
+        items = loadoutContainer?.items;
+
       this._containers[loadoutSlotId] = new LoadoutContainer(
         loadoutItem,
         def.PARAM1
       );
+      if (loadoutContainer && _.size(items) !== 0) {
+        if (items && client) {
+          Object.values(items).forEach((item) => {
+            server.addContainerItem(
+              this,
+              item,
+              this._containers[loadoutSlotId],
+              false
+            );
+          });
+        }
+      }
+
+      if (itemDefId) {
+        const generatedItem = server.generateItem(itemDefId, 1);
+        if (generatedItem)
+          this.lootItem(server, generatedItem, undefined, false);
+      }
+
       if (client && sendPacket) server.initializeContainerList(client, this);
     }
 
@@ -663,21 +686,11 @@ export abstract class BaseFullCharacter extends BaseLightweightCharacter {
 
     const client = server.getClientByContainerAccessor(sourceCharacter);
 
-    if (
-      this._containers[slotId] &&
-      _.size(this._containers[slotId].items) != 0
-    ) {
-      if (client)
-        server.sendChatText(
-          client,
-          "[ERROR] Container must be empty to unequip!"
-        );
-      return;
-    }
-
-    const oldLoadoutItem = sourceCharacter._loadout[slotId],
+    const externalContainer = sourceCharacter.characterId !== this.characterId,
+      loadout = externalContainer ? this._loadout : sourceCharacter._loadout,
+      oldLoadoutItem = loadout[slotId],
       container = sourceCharacter.getItemContainer(item.itemGuid);
-    if ((!oldLoadoutItem || !oldLoadoutItem.itemDefinitionId) && !container) {
+    if (!oldLoadoutItem?.itemDefinitionId && !container) {
       if (client)
         server.containerError(client, ContainerErrors.UNKNOWN_CONTAINER);
       return;
@@ -688,18 +701,39 @@ export abstract class BaseFullCharacter extends BaseLightweightCharacter {
       return;
     }
     if (oldLoadoutItem?.itemDefinitionId) {
+      //TODO: Probably have to rework this? This makes backpack swapping possible.
+      const def = server.getItemDefinition(oldLoadoutItem.itemDefinitionId);
+      if (def?.ITEM_TYPE == 34) {
+        if (this.getAvailableLoadoutSlot(server, item.itemDefinitionId)) {
+          this.equipItem(server, item, true, slotId);
+        } else {
+          sourceCharacter.lootItem(server, item, 1, false);
+        }
+        return;
+      }
+
       // if target loadoutSlot is occupied
       if (oldLoadoutItem.itemGuid == item.itemGuid) {
         if (client)
           server.sendChatText(client, "[ERROR] Item is already equipped!");
         return;
       }
-      if (!server.removeLoadoutItem(sourceCharacter, oldLoadoutItem.slotId)) {
+      if (
+        !server.removeLoadoutItem(
+          externalContainer ? this : sourceCharacter,
+          oldLoadoutItem.slotId
+        )
+      ) {
         if (client)
           server.containerError(client, ContainerErrors.NO_ITEM_IN_SLOT);
         return;
       }
-      this.lootContainerItem(server, oldLoadoutItem, undefined, false);
+      (externalContainer ? sourceCharacter : this).lootContainerItem(
+        server,
+        oldLoadoutItem,
+        undefined,
+        false
+      );
     }
     if (item.weapon) {
       clearTimeout(item.weapon.reloadTimer);
@@ -900,6 +934,17 @@ export abstract class BaseFullCharacter extends BaseLightweightCharacter {
         if (this._loadout[slot]?.itemDefinitionId) {
           slot = LoadoutSlots.ITEM2;
         }
+        break;
+      case ItemClasses.BACKPACKS:
+        const currentItemBulk = server.getContainerDefinition(itemDef?.PARAM1)
+            ?.MAX_BULK,
+          loadOutItemDef = server.getItemDefinition(
+            this._loadout[slot]?.itemDefinitionId
+          ),
+          loadOutItemBulk = loadOutItemDef?.PARAM1
+            ? server.getContainerDefinition(loadOutItemDef.PARAM1)?.MAX_BULK
+            : 0;
+        if (currentItemBulk > loadOutItemBulk) return slot;
         break;
     }
     if (this._loadout[slot]?.itemDefinitionId) return 0;

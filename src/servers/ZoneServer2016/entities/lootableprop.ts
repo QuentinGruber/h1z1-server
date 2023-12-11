@@ -145,7 +145,7 @@ function getContainerAndTime(entity: LootableProp) {
       break;
     case 9563:
       entity.containerId = Items.CONTAINER_MEDICAL_STATION;
-      entity.searchTime = 1000;
+      entity.searchTime = 0;
       entity.lootSpawner = "Medical Station";
       break;
     case 9551:
@@ -168,6 +168,38 @@ function getContainerAndTime(entity: LootableProp) {
       entity.containerId = Items.CONTAINER_HOSPITAL_CABINET;
       entity.searchTime = 1000;
       entity.lootSpawner = "Hospital Cabinets";
+      break;
+    case 9347:
+      entity.containerId = Items.CONTAINER_LOOT_CACHE;
+      entity.nameId = Items.CONTAINER_LOOT_CACHE;
+      entity.searchTime = 1000;
+    case 57:
+      entity.containerId = Items.CONTAINER_STORAGE;
+      entity.searchTime = 1000;
+      entity.lootSpawner = "Cabinets";
+      break;
+    case 9396:
+      entity.containerId = Items.CONTAINER_WASHING_MACHINE;
+      entity.searchTime = 1000;
+      entity.lootSpawner = "Armoire";
+      break;
+    case 9395:
+      entity.containerId = Items.CONTAINER_DRYER;
+      entity.searchTime = 1000;
+      entity.lootSpawner = "Armoire";
+      break;
+    case 36:
+      entity.containerId = Items.CONTAINER_FURNACE;
+      entity.searchTime = 0;
+      break;
+    case 9041:
+      entity.containerId = Items.CONTAINER_CAMPFIRE;
+      entity.searchTime = 0;
+      break;
+    case 9205:
+      entity.containerId = Items.BARBEQUE;
+      entity.searchTime = 0;
+      entity.lootSpawner = "Fridge";
       break;
     default:
       entity.containerId = Items.CONTAINER_STORAGE;
@@ -254,6 +286,13 @@ export class LootableProp extends BaseLootableEntity {
     }
   }
   OnInteractionString(server: ZoneServer2016, client: ZoneClient2016) {
+    if (this.actorModelId == 9563) {
+      server.sendData(client, "Command.InteractionString", {
+        guid: this.characterId,
+        stringId: StringIds.USE_TARGET
+      });
+      return;
+    }
     if (client.searchedProps.includes(this)) {
       server.sendData(client, "Command.InteractionString", {
         guid: this.characterId,
@@ -290,7 +329,8 @@ export class LootableProp extends BaseLootableEntity {
 
     if (randomIntFromInterval(0, 100) <= 15) {
       client.character.lootItem(server, server.generateItem(Items.METAL_SCRAP));
-      server.damageItem(client, weapon, 25);
     }
+
+    server.damageItem(client, weapon, 25);
   }
 }

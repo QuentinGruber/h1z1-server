@@ -53,14 +53,16 @@ export class WaterSource extends TaskProp {
       case "Common_Props_Bathroom_Toilet01.adr":
         this.usesLeft = this.refillAmount;
         break;
+      case "Common_Props_Dam_WaterValve01.adr":
       case "Common_Props_Well.adr":
-        this.usesLeft = 9999999;
+        this.usesLeft = Number.MAX_SAFE_INTEGER;
         break;
     }
   }
 
   OnInteractionString(server: ZoneServer2016, client: ZoneClient2016) {
     switch (this.actorModel) {
+      case "Common_Props_Dam_WaterValve01.adr":
       case "Common_Props_Cabinets_BathroomSink.adr":
       case "Common_Props_Bathroom_Toilet01.adr":
         if (this.usesLeft && this.usesLeft > 0) {
@@ -89,17 +91,13 @@ export class WaterSource extends TaskProp {
     client: ZoneClient2016
     /* eslint-enable @typescript-eslint/no-unused-vars */
   ) {
-    switch (this.actorModel) {
-      case "Common_Props_Cabinets_BathroomSink.adr":
-      case "Common_Props_Bathroom_Toilet01.adr":
-      case "Common_Props_Well.adr":
-        break;
-      default:
-        return;
-    }
     const bottle = client.character.getItemById(Items.WATER_EMPTY),
+      infiniteSources = [
+        "Common_Props_Well.adr",
+        "Common_Props_Dam_WaterValve01.adr"
+      ],
       hasUses =
-        this.actorModel == "Common_Props_Well.adr" ||
+        infiniteSources.includes(this.actorModel) ||
         (this.usesLeft && this.usesLeft > 0);
     if (!hasUses) {
       server.utilizeHudTimer(client, StringIds.DIRTY_WATER, 250, 0, () => {
@@ -111,7 +109,7 @@ export class WaterSource extends TaskProp {
     if (!bottle) {
       server.utilizeHudTimer(
         client,
-        this.actorModel == "Common_Props_Well.adr"
+        infiniteSources.includes(this.actorModel)
           ? StringIds.WATER_WELL
           : StringIds.DIRTY_WATER,
         1000,
@@ -132,7 +130,7 @@ export class WaterSource extends TaskProp {
     }
     server.utilizeHudTimer(
       client,
-      this.actorModel == "Common_Props_Well.adr"
+      infiniteSources.includes(this.actorModel)
         ? StringIds.WATER_WELL
         : StringIds.DIRTY_WATER,
       1000,
@@ -142,7 +140,7 @@ export class WaterSource extends TaskProp {
         client.character.lootContainerItem(
           server,
           server.generateItem(
-            this.actorModel == "Common_Props_Well.adr"
+            infiniteSources.includes(this.actorModel)
               ? Items.WATER_STAGNANT
               : Items.WATER_DIRTY
           )
