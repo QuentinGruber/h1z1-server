@@ -106,6 +106,19 @@ function getMaxHealth(itemDefinitionId: Items): number {
   }
 }
 
+function getInteractionDistance(itemDefinitionId: Items): number {
+  switch (itemDefinitionId) {
+    case Items.SHELTER_LARGE:
+    case Items.SHELTER_UPPER_LARGE:
+    case Items.LOOKOUT_TOWER:
+    case Items.FOUNDATION_RAMP:
+    case Items.FOUNDATION_STAIRS:
+      return 6;
+    default:
+      return 4;
+  }
+}
+
 export class ConstructionChildEntity extends BaseLightweightCharacter {
   readonly itemDefinitionId: number;
   parentObjectCharacterId: string;
@@ -120,7 +133,6 @@ export class ConstructionChildEntity extends BaseLightweightCharacter {
   readonly boundsOn?: CubeBounds;
 
   undoPlacementTime = 600000;
-  interactionDistance = 4;
   destroyedEffect: number = 242;
   isDecayProtected: boolean = false;
 
@@ -171,6 +183,7 @@ export class ConstructionChildEntity extends BaseLightweightCharacter {
     this.damageRange = getDamageRange(this.itemDefinitionId);
     this.isSecured = this.itemDefinitionId == Items.METAL_WALL ? true : false;
     this.npcRenderDistance = getRenderDistance(this.itemDefinitionId);
+    this.interactionDistance = getInteractionDistance(this.itemDefinitionId);
     this.useSimpleStruct = true;
 
     this.maxHealth = getMaxHealth(this.itemDefinitionId);
@@ -661,27 +674,6 @@ export class ConstructionChildEntity extends BaseLightweightCharacter {
   }
 
   OnMeleeHit(server: ZoneServer2016, damageInfo: DamageInfo) {
-    const client = server.getClientByCharId(damageInfo.entity),
-      weapon = client?.character.getEquippedWeapon();
-    if (!client || !weapon) return;
-
-    switch (weapon.itemDefinitionId) {
-      case Items.WEAPON_HAMMER_DEMOLITION:
-        server.constructionManager.demolishConstructionEntity(
-          server,
-          client,
-          this,
-          weapon
-        );
-        return;
-      case Items.WEAPON_HAMMER:
-        server.constructionManager.hammerConstructionEntity(
-          server,
-          client,
-          this,
-          weapon
-        );
-        return;
-    }
+    server.constructionManager.OnMeleeHit(server, damageInfo, this);
   }
 }
