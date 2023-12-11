@@ -454,8 +454,8 @@ export abstract class BaseFullCharacter extends BaseLightweightCharacter {
           count < lootableItemsCount
             ? count
             : lootableItemsCount > item.stackCount
-            ? item.stackCount
-            : lootableItemsCount;
+              ? item.stackCount
+              : lootableItemsCount;
 
         sourceContainer.transferItem(server, container, item, 0, lootCount);
         return;
