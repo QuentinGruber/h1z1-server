@@ -1344,10 +1344,9 @@ export class LoginServer extends EventEmitter {
       fs.unlinkSync(`${this._appDataFolder}/single_player_characters.json`);
     }
   }
-  stop(): void {
+  async stop(): Promise<void> {
     debug("Shutting down");
-    this._soeServer.stop();
-    process.exitCode = 0;
+    await this._soeServer.stop();
   }
 }
 

@@ -22,6 +22,7 @@ import { json } from "types/shared";
 import { wrappedUint16 } from "../../utils/utils";
 import { SOEOutputChannels } from "./soeoutputstream";
 import dgram from "node:dgram";
+import { promisify } from "node:util";
 const debug = require("debug")("SOEServer");
 process.env.isBin && require("../shared/workers/udpServerWorker.js");
 
@@ -449,9 +450,13 @@ export class SOEServer extends EventEmitter {
     this._connection.bind(this._serverPort);
   }
 
-  stop(): void {
-    this._connection.close();
-    process.exitCode = 0;
+  async stop(): Promise<void> {
+    await new Promise<void>((resolve) => {
+      this._connection.close(() => {
+        resolve();
+      });
+    }
+    );
   }
 
   private packLogicalData(packetOpcode: SoeOpcode, packet: json): Buffer {

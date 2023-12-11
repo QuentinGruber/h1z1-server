@@ -723,6 +723,11 @@ export class ZoneServer2016 extends EventEmitter {
     );
   }
 
+  async stop(){
+    await this._gatewayServer.stop();
+    process.exit(0);
+  }
+
   async shutdown(timeLeft: number, message: string) {
     this.shutdownStarted = true;
     if (this.abortShutdown) {
@@ -752,7 +757,8 @@ export class ZoneServer2016 extends EventEmitter {
           }
         );
       });
-      setTimeout(() => {
+      setTimeout(async () => {
+        await this.stop();
         process.exit(0);
       }, 30000);
     } else {

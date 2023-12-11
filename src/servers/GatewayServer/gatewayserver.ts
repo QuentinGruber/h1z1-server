@@ -114,8 +114,8 @@ export class GatewayServer extends EventEmitter {
     }
   }
 
-  stop() {
-    debug("Shutting down");
-    process.exitCode = 0;
+  async stop() {
+    debug("Stopping server");
+    await this._soeServer.stop();
   }
 }
