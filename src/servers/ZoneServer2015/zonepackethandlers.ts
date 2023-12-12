@@ -902,12 +902,12 @@ export class zonePacketHandlers {
         entityType = server._objects[guid]
           ? 1
           : 0 || server._vehicles[guid]
-          ? 2
-          : 0 || server._doors[guid]
-          ? 3
-          : 0 || server._props[guid]
-          ? 4
-          : 0;
+            ? 2
+            : 0 || server._doors[guid]
+              ? 3
+              : 0 || server._props[guid]
+                ? 4
+                : 0;
 
       if (
         !entityData ||
@@ -1819,12 +1819,12 @@ export class zonePacketHandlers {
         entityType = server._objects[guid]
           ? 1
           : 0 || server._vehicles[guid]
-          ? 2
-          : 0 || server._doors[guid]
-          ? 3
-          : 0 || server._props[guid]
-          ? 4
-          : 0;
+            ? 2
+            : 0 || server._doors[guid]
+              ? 3
+              : 0 || server._props[guid]
+                ? 4
+                : 0;
 
       if (
         !entityData ||

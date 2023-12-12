@@ -2893,8 +2893,8 @@ export class ZoneServer2016 extends EventEmitter {
           isHeadshot && hasHelmetBefore && !hasHelmet
             ? 1
             : 0 || (!isHeadshot && hasArmorBefore && !hasArmor)
-            ? 1
-            : 0
+              ? 1
+              : 0
       }
     });
   }
@@ -6324,9 +6324,8 @@ export class ZoneServer2016 extends EventEmitter {
     }
     if (!hudIndicator) return;
     if (client.character.hudIndicators[hudIndicator.typeName]) {
-      client.character.hudIndicators[
-        hudIndicator.typeName
-      ].expirationTime += 600000;
+      client.character.hudIndicators[hudIndicator.typeName].expirationTime +=
+        600000;
     } else {
       client.character.hudIndicators[hudIndicator.typeName] = {
         typeName: hudIndicator.typeName,

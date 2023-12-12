@@ -46,7 +46,7 @@ export class SOEServer extends EventEmitter {
   packetRatePerClient: number = 500;
   private _routineTiming: number = 3;
   _allowRawDataReception: boolean = false;
-  private _maxSeqResendRange: number = 50;
+  private _maxSeqResendRange: number = 25;
   constructor(serverPort: number, cryptoKey: Uint8Array) {
     super();
     Buffer.poolSize = 8192 * 4;
@@ -133,23 +133,18 @@ export class SOEServer extends EventEmitter {
   // If a packet hasn't been acknowledge in the timeout time, then resend it via the priority queue
   checkResendQueue(client: Client) {
     const currentTime = Date.now();
-    let resendedPackets = 0;
+    let iteration = 0;
+    // First added packets are the first to be resend
     for (const [sequence, time] of client.unAckData) {
-      if (
-        time + this._resendTimeout + client.avgPing < currentTime &&
-        sequence <=
-          wrappedUint16.wrap(
-            client.outputStream.lastAck.get() + this._maxSeqResendRange
-          )
-      ) {
+      // So we don't loose our time with dead connections
+      if (iteration > this._maxSeqResendRange) {
+        break;
+      }
+      if (time + this._resendTimeout + client.avgPing < currentTime) {
         client.outputStream.resendData(sequence);
         client.unAckData.delete(sequence);
-        resendedPackets++;
-        // So we don't loose our time with dead connections
-        if (resendedPackets > 50) {
-          break;
-        }
       }
+      iteration++;
     }
   }
 
