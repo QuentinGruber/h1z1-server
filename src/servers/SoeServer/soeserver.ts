@@ -22,9 +22,7 @@ import { json } from "types/shared";
 import { wrappedUint16 } from "../../utils/utils";
 import { SOEOutputChannels } from "./soeoutputstream";
 import dgram from "node:dgram";
-import { promisify } from "node:util";
 const debug = require("debug")("SOEServer");
-process.env.isBin && require("../shared/workers/udpServerWorker.js");
 
 export class SOEServer extends EventEmitter {
   _serverPort: number;
@@ -48,6 +46,7 @@ export class SOEServer extends EventEmitter {
   private _routineTiming: number = 3;
   _allowRawDataReception: boolean = false;
   private _maxSeqResendRange: number = 50;
+  private _packetResetInterval: NodeJS.Timeout | undefined;
   constructor(serverPort: number, cryptoKey: Uint8Array) {
     super();
     Buffer.poolSize = 8192 * 4;
@@ -55,7 +54,7 @@ export class SOEServer extends EventEmitter {
     this._cryptoKey = cryptoKey;
     this._maxMultiBufferSize = this._udpLength - 4 - this._crcLength;
     this._connection = dgram.createSocket("udp4");
-    setInterval(() => {
+    this._packetResetInterval = setInterval(() => {
       this.resetPacketsSent();
     }, 1000);
   }
@@ -139,9 +138,9 @@ export class SOEServer extends EventEmitter {
       if (
         time + this._resendTimeout + client.avgPing < currentTime &&
         sequence <=
-          wrappedUint16.wrap(
-            client.outputStream.lastAck.get() + this._maxSeqResendRange
-          )
+        wrappedUint16.wrap(
+          client.outputStream.lastAck.get() + this._maxSeqResendRange
+        )
       ) {
         client.outputStream.resendData(sequence);
         client.unAckData.delete(sequence);
@@ -239,9 +238,9 @@ export class SOEServer extends EventEmitter {
         client.outputStream.setFragmentSize(client.clientUdpLength - 7); // TODO: 7? calculate this based on crc enabled / compression etc
         client.lastKeepAliveTimer = this.keepAliveTimeoutTime
           ? setTimeout(() => {
-              debug("Client keep alive timeout");
-              this.emit("disconnect", client);
-            }, this.keepAliveTimeoutTime)
+            debug("Client keep alive timeout");
+            this.emit("disconnect", client);
+          }, this.keepAliveTimeoutTime)
           : null;
 
         this._sendLogicalPacket(
@@ -293,8 +292,8 @@ export class SOEServer extends EventEmitter {
       case "OutOfOrder":
         client.addPing(
           Date.now() +
-            this._waitQueueTimeMs -
-            (client.unAckData.get(packet.sequence) as number)
+          this._waitQueueTimeMs -
+          (client.unAckData.get(packet.sequence) as number)
         );
         client.outputStream.removeFromCache(packet.sequence);
         client.unAckData.delete(packet.sequence);
@@ -451,6 +450,12 @@ export class SOEServer extends EventEmitter {
   }
 
   async stop(): Promise<void> {
+    this._soeClientRoutineLoopMethod = () => { };
+    clearInterval(this._packetResetInterval);
+    // delete all _clients
+    for (const client of this._clients.values()) {
+      client.closeTimers();
+    }
     await new Promise<void>((resolve) => {
       this._connection.close(() => {
         resolve();
@@ -555,7 +560,7 @@ export class SOEServer extends EventEmitter {
       this._waitQueueTimeMs > 0 &&
       logicalPacket.data.length < 255 &&
       queue.CurrentByteLength + logicalPacket.data.length <=
-        this._maxMultiBufferSize
+      this._maxMultiBufferSize
     );
   }
 

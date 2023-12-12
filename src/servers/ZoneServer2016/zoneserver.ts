@@ -49,7 +49,6 @@ import {
   Effects,
   WeaponDefinitionIds
 } from "./models/enums";
-import { healthThreadDecorator } from "../shared/workers/healthWorker";
 import { WeatherManager } from "./managers/weathermanager";
 
 import {
@@ -250,7 +249,6 @@ const spawnLocations2 = require("../../../data/2016/zoneData/Z1_gridSpawns.json"
     Record<string, string[]>
   > = require("../../../data/2016/sampleData/equipmentModelTexturesMapping.json");
 
-@healthThreadDecorator
 export class ZoneServer2016 extends EventEmitter {
   private _gatewayServer: GatewayServer;
   readonly _protocol: H1Z1Protocol;
@@ -598,8 +596,7 @@ export class ZoneServer2016 extends EventEmitter {
       "disconnect",
       (err: string, client: LZConnectionClient, reason: number) => {
         debug(
-          `LoginConnection dropped: ${
-            reason ? "Connection Lost" : "Unknown Error"
+          `LoginConnection dropped: ${reason ? "Connection Lost" : "Unknown Error"
           }`
         );
       }
@@ -723,7 +720,7 @@ export class ZoneServer2016 extends EventEmitter {
     );
   }
 
-  async stop(){
+  async stop() {
     await this._gatewayServer.stop();
     process.exit(0);
   }
@@ -923,15 +920,13 @@ export class ZoneServer2016 extends EventEmitter {
       );
 
       const unbanTime = ban.expirationDate
-          ? this.getDateString(ban.expirationDate)
-          : 0,
+        ? this.getDateString(ban.expirationDate)
+        : 0,
         reason = ban.banReason;
 
-      const reasonString = `You have been ${
-        unbanTime ? "" : "permanently "
-      }banned from the server${
-        unbanTime ? ` until ${unbanTime}` : ""
-      }. Reason: ${reason}.`;
+      const reasonString = `You have been ${unbanTime ? "" : "permanently "
+        }banned from the server${unbanTime ? ` until ${unbanTime}` : ""
+        }. Reason: ${reason}.`;
 
       this.sendCharacterAllowedReply(
         client,
@@ -1960,9 +1955,9 @@ export class ZoneServer2016 extends EventEmitter {
         distance:
           sourceEntity && targetEntity
             ? getDistance(
-                sourceEntity.state.position,
-                targetEntity.state.position
-              ).toFixed(1)
+              sourceEntity.state.position,
+              targetEntity.state.position
+            ).toFixed(1)
             : "0",
         hitLocation: damageInfo.hitReport?.hitLocation || "Unknown",
         hitPosition:
@@ -2892,7 +2887,7 @@ export class ZoneServer2016 extends EventEmitter {
         isHeadshot: isHeadshot,
         damagedArmor:
           (isHeadshot && hasHelmetBefore && hasHelmet) ||
-          (!isHeadshot && hasArmorBefore && hasArmor)
+            (!isHeadshot && hasArmorBefore && hasArmor)
             ? 1
             : 0,
         crackedArmor:
@@ -3032,8 +3027,7 @@ export class ZoneServer2016 extends EventEmitter {
       const decoy = this._decoys[a];
       if (decoy.characterId === hitReport.characterId) {
         this.sendChatTextToAdmins(
-          `FairPlay: ${
-            client.character.name
+          `FairPlay: ${client.character.name
           } hit a decoy entity at: [${decoy.position[0].toFixed(
             2
           )} ${decoy.position[1].toFixed(2)} ${decoy.position[2].toFixed(2)}]`,
@@ -3108,10 +3102,10 @@ export class ZoneServer2016 extends EventEmitter {
       weapon: weaponItem.itemDefinitionId,
       damage: hitValidation.isValid
         ? this.getProjectileDamage(
-            weaponItem.itemDefinitionId,
-            client.character.state.position,
-            entity.state.position
-          )
+          weaponItem.itemDefinitionId,
+          client.character.state.position,
+          entity.state.position
+        )
         : 0,
       hitReport: packet.hitReport,
       message: hitValidation.message
@@ -3467,7 +3461,7 @@ export class ZoneServer2016 extends EventEmitter {
         if (
           !isPosInRadius(
             (object.npcRenderDistance as number) ||
-              this.charactersRenderDistance,
+            this.charactersRenderDistance,
             position,
             object.state.position
           ) ||
@@ -3537,7 +3531,7 @@ export class ZoneServer2016 extends EventEmitter {
         if (
           !isPosInRadius(
             (object.npcRenderDistance as number) ||
-              this.charactersRenderDistance,
+            this.charactersRenderDistance,
             position,
             object.state.position
           )
@@ -3942,21 +3936,21 @@ export class ZoneServer2016 extends EventEmitter {
           client,
           reason
             ? `YOU HAVE BEEN BANNED FROM THE SERVER UNTIL ${this.getDateString(
-                timestamp
-              )}. REASON: ${reason}`
+              timestamp
+            )}. REASON: ${reason}`
             : `YOU HAVE BEEN BANNED FROM THE SERVER UNTIL: ${this.getDateString(
-                timestamp
-              )}`
+              timestamp
+            )}`
         );
       }
       this.sendAlertToAll(
         reason
           ? `${characterName} HAS BEEN BANNED FROM THE SERVER UNTIL ${this.getDateString(
-              timestamp
-            )}. REASON: ${reason}`
+            timestamp
+          )}. REASON: ${reason}`
           : `${characterName} HAS BEEN BANNED FROM THE SERVER UNTIL: ${this.getDateString(
-              timestamp
-            )}`
+            timestamp
+          )}`
       );
     } else if (!isSilent) {
       if (client) {
@@ -4047,9 +4041,8 @@ export class ZoneServer2016 extends EventEmitter {
       "DEC"
     ];
     const date = new Date(timestamp);
-    return `${date.getDate()} ${
-      months[date.getMonth()]
-    } ${date.getFullYear()} ${date.getHours()}:${date.getMinutes()}`;
+    return `${date.getDate()} ${months[date.getMonth()]
+      } ${date.getFullYear()} ${date.getHours()}:${date.getMinutes()}`;
   }
 
   getCurrentTime(): number {
@@ -4208,7 +4201,7 @@ export class ZoneServer2016 extends EventEmitter {
       if (
         this._airdrop.manager &&
         this._airdrop.manager.character.characterId ==
-          client.character.characterId
+        client.character.characterId
       ) {
         this.sendData<CharacterManagedObject>(
           client,
@@ -4993,20 +4986,15 @@ export class ZoneServer2016 extends EventEmitter {
         )}, ${e.hitInfo.hitPosition[2].toFixed(0)}]`,
         oldHp = (e.hitInfo.oldHP / 100).toFixed(1),
         newHp = (e.hitInfo.newHP / 100).toFixed(1),
-        ping = `${
-          e.source.name == client.character.name ? e.source.ping : e.target.ping
-        }ms`,
-        enemyPing = `${
-          e.source.name == client.character.name ? e.target.ping : e.source.ping
-        }ms`;
+        ping = `${e.source.name == client.character.name ? e.source.ping : e.target.ping
+          }ms`,
+        enemyPing = `${e.source.name == client.character.name ? e.target.ping : e.source.ping
+          }ms`;
       this.sendChatText(
         client,
-        `${time} ${source} ${target} ${
-          this.getItemDefinition(e.hitInfo.weapon || 0)?.MODEL_NAME || "N/A"
-        } ${e.hitInfo.distance}m ${
-          e.hitInfo.hitLocation
-        } ${hitPosition} ${oldHp} ${newHp} ${ping} ${enemyPing} ${
-          e.hitInfo.message
+        `${time} ${source} ${target} ${this.getItemDefinition(e.hitInfo.weapon || 0)?.MODEL_NAME || "N/A"
+        } ${e.hitInfo.distance}m ${e.hitInfo.hitLocation
+        } ${hitPosition} ${oldHp} ${newHp} ${ping} ${enemyPing} ${e.hitInfo.message
         }`
       );
     });
@@ -6106,10 +6094,10 @@ export class ZoneServer2016 extends EventEmitter {
       if (
         !choosenClient ||
         currentDistance >
-          getDistance2d(
-            client.character.state.position,
-            this._airdrop.plane.state.position
-          )
+        getDistance2d(
+          client.character.state.position,
+          this._airdrop.plane.state.position
+        )
       ) {
         choosenClient = client;
         currentDistance = getDistance2d(
@@ -6192,7 +6180,7 @@ export class ZoneServer2016 extends EventEmitter {
       this.sendChatText(
         client,
         "[ERROR] consumable not mapped to item Definition " +
-          item.itemDefinitionId
+        item.itemDefinitionId
       );
       return;
     }
@@ -6249,7 +6237,7 @@ export class ZoneServer2016 extends EventEmitter {
       this.sendChatText(
         client,
         "[ERROR] use option not mapped to item Definition " +
-          item.itemDefinitionId
+        item.itemDefinitionId
       );
       return;
     }
@@ -6391,7 +6379,7 @@ export class ZoneServer2016 extends EventEmitter {
       this.sendChatText(
         client,
         "[ERROR] use option not mapped to item Definition " +
-          item.itemDefinitionId
+        item.itemDefinitionId
       );
       return;
     }
@@ -6418,7 +6406,7 @@ export class ZoneServer2016 extends EventEmitter {
         this.sendChatText(
           client,
           "[ERROR] No use option mapped to item Definition " +
-            item.itemDefinitionId
+          item.itemDefinitionId
         );
     }
     switch (useoption) {
@@ -6457,7 +6445,7 @@ export class ZoneServer2016 extends EventEmitter {
       this.sendChatText(
         client,
         "[ERROR] use option not mapped to item Definition " +
-          item.itemDefinitionId
+        item.itemDefinitionId
       );
       return;
     }
@@ -6568,9 +6556,9 @@ export class ZoneServer2016 extends EventEmitter {
     }
     const count =
       item.itemDefinitionId == Items.AMMO_12GA ||
-      item.itemDefinitionId == Items.AMMO_762 ||
-      item.itemDefinitionId == Items.AMMO_308 ||
-      item.itemDefinitionId == Items.AMMO_44
+        item.itemDefinitionId == Items.AMMO_762 ||
+        item.itemDefinitionId == Items.AMMO_308 ||
+        item.itemDefinitionId == Items.AMMO_44
         ? 2
         : 1;
     this.utilizeHudTimer(client, nameId, timeout, animationId, () => {
@@ -6959,8 +6947,7 @@ export class ZoneServer2016 extends EventEmitter {
           `FairPlay: Your shot didnt register due to position desync`
         );
         this.sendChatTextToAdmins(
-          `FairPlay: ${
-            client.character.name
+          `FairPlay: ${client.character.name
           }'s shot didnt register due to position desync by ${getDistance(
             client.character.state.position,
             packet.packet.position
@@ -7007,7 +6994,7 @@ export class ZoneServer2016 extends EventEmitter {
     }
     const shotProjectiles =
       weaponDefinitionId == WeaponDefinitionIds.WEAPON_SHOTGUN ||
-      weaponDefinitionId == WeaponDefinitionIds.WEAPON_NAGAFENS_RAGE
+        weaponDefinitionId == WeaponDefinitionIds.WEAPON_NAGAFENS_RAGE
         ? 12
         : 1;
     for (let x = 0; x < shotProjectiles; x++) {

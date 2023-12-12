@@ -41,7 +41,6 @@ import { FileHash, httpServerMessage } from "types/shared";
 import { LoginProtocol2016 } from "../../protocols/loginprotocol2016";
 import { crc_length_options } from "../../types/soeserver";
 import { DB_NAME, DEFAULT_CRYPTO_KEY } from "../../utils/constants";
-import { healthThreadDecorator } from "../../servers/shared/workers/healthWorker";
 import {
   LoginReply,
   CharacterSelectInfoReply,
@@ -73,7 +72,6 @@ const debug = require("debug")(debugName);
 const characterItemDefinitionsDummy = require("../../../data/2015/sampleData/characterItemDefinitionsDummy.json");
 const defaultHashes: Array<FileHash> = require("../../../data/2016/dataSources/AllowedFileHashes.json");
 
-@healthThreadDecorator
 export class LoginServer extends EventEmitter {
   _soeServer: SOEServer;
   _protocol: LoginProtocol;
@@ -323,8 +321,7 @@ export class LoginServer extends EventEmitter {
         "disconnect",
         async (err: string, client: LZConnectionClient, reason: number) => {
           debug(
-            `ZoneConnection dropped: ${
-              reason ? "Connection Lost" : "Unknown Error"
+            `ZoneConnection dropped: ${reason ? "Connection Lost" : "Unknown Error"
             }`
           );
           delete this._zoneConnections[client.clientId];

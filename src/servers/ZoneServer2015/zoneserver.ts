@@ -41,7 +41,6 @@ import { DB_NAME, DEFAULT_CRYPTO_KEY } from "../../utils/constants";
 process.env.isBin && require("./workers/dynamicWeather");
 
 import { zonePacketHandlers } from "./zonepackethandlers";
-import { healthThreadDecorator } from "../shared/workers/healthWorker";
 import { zone2015packets } from "types/zone2015packets";
 import { GAME_VERSIONS } from "../../utils/enums";
 import { SOEOutputChannels } from "../SoeServer/soeoutputstream";
@@ -54,7 +53,6 @@ const stats = require("../../../data/2015/sampleData/stats.json");
 const recipes = require("../../../data/2015/sampleData/recipes.json");
 const Z1_POIs = require("../../../data/2015/zoneData/Z1_POIs");
 
-@healthThreadDecorator
 export class ZoneServer2015 extends EventEmitter {
   _gatewayServer: GatewayServer;
   _protocol: ZoneProtocol;
@@ -233,8 +231,7 @@ export class ZoneServer2015 extends EventEmitter {
         "disconnect",
         (err: string, client: LZConnectionClient, reason: number) => {
           debug(
-            `LoginConnection dropped: ${
-              reason ? "Connection Lost" : "Unknown Error"
+            `LoginConnection dropped: ${reason ? "Connection Lost" : "Unknown Error"
             }`
           );
         }
@@ -2367,8 +2364,8 @@ export class ZoneServer2015 extends EventEmitter {
     const weather = this._soloMode
       ? localSpawnList[weatherTemplate]
       : await this._db
-          ?.collection("weathers")
-          .findOne({ templateName: weatherTemplate });
+        ?.collection("weathers")
+        .findOne({ templateName: weatherTemplate });
     if (weather) {
       this._weather = weather;
       this.SendSkyChangedPacket(client, weather, !this._soloMode);
