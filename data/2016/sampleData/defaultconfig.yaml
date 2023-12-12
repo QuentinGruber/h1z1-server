@@ -10,6 +10,8 @@ server:
   rebootTime: 72 # hours (0 to disable)
   rebootWarnTime: 600 # seconds
   isPvE: false 
+  isHeadshotOnly: false
+  isFirstPersonOnly: false
   baseConstructionDamage: 34000
 
 # Fairplay / anticheat config
@@ -76,8 +78,13 @@ worldobjects:
   chanceNpc: 100 # To be reworked: 100 max
   chanceScreamer: 5 # To be reworked: 1000 max
 
+  chanceWornLetter: 1 # 100 max
+
   waterSourceRefillAmount: 2
   waterSourceReplenishTimer: 300000 # 5 minutes
+
+  crowbarHitRewardChance: 15 # 100 max
+  crowbarHitDamage: 25 # Default 25
 
 # Trees, blackberry bushes, and sticks
 speedtree:

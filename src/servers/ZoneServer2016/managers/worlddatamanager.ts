@@ -687,6 +687,7 @@ export class WorldDataManager {
         new Float32Array(entityData.position),
         new Float32Array(entityData.rotation),
         server,
+        new Float32Array([1, 1, 1, 1]),
         entityData.itemDefinitionId,
         entityData.parentObjectCharacterId,
         entityData.subEntityType
@@ -702,13 +703,14 @@ export class WorldDataManager {
     if (entityData.subEntityType === "CollectingEntity") {
       server.smeltingManager._collectingEntities[entityData.characterId] =
         entityData.characterId;
+      const container = entity.getContainer();
       switch (entityData.itemDefinitionId) {
         case Items.ANIMAL_TRAP:
-          entity._containers["31"].canAcceptItems = false;
+          if (container) container.canAcceptItems = false;
           break;
         case Items.DEW_COLLECTOR:
         case Items.BEE_BOX:
-          entity._containers["31"].acceptedItems = [Items.WATER_EMPTY];
+          if (container) container.acceptedItems = [Items.WATER_EMPTY];
       }
     }
     if (isWorldConstruction) {

@@ -49,6 +49,7 @@ export class LootableConstructionEntity extends BaseLootableEntity {
     position: Float32Array,
     rotation: Float32Array,
     server: ZoneServer2016,
+    scale: Float32Array,
     itemDefinitionId: number,
     parentObjectCharacterId: string,
     subEntityType: string
@@ -77,6 +78,8 @@ export class LootableConstructionEntity extends BaseLootableEntity {
     } else {
       this.npcRenderDistance = 20;
     }
+
+    this.scale = scale;
   }
   damage(server: ZoneServer2016, damageInfo: DamageInfo) {
     const dictionary = server.getEntityDictionary(this.characterId);

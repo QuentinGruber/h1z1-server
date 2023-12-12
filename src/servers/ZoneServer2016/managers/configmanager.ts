@@ -145,6 +145,8 @@ export class ConfigManager {
       rebootTime,
       rebootWarnTime,
       isPvE,
+      isHeadshotOnly,
+      isFirstPersonOnly,
       baseConstructionDamage
     } = this.config.server;
     server.proximityItemsDistance = proximityItemsDistance;
@@ -158,6 +160,8 @@ export class ConfigManager {
     server.rebootTime = rebootTime;
     server.rebootWarnTime = rebootWarnTime;
     server.isPvE = isPvE;
+    server.isHeadshotOnly = isHeadshotOnly;
+    server.isFirstPersonOnly = isFirstPersonOnly;
     server.baseConstructionDamage = baseConstructionDamage;
     //#endregion
 
@@ -201,11 +205,14 @@ export class ConfigManager {
       itemDespawnTimer,
       lootDespawnTimer,
       deadNpcDespawnTimer,
+      chanceWornLetter,
       vehicleSpawnRadius,
       npcSpawnRadius,
       chanceNpc,
       chanceScreamer,
-      lootbagDespawnTimer
+      lootbagDespawnTimer,
+      crowbarHitRewardChance,
+      crowbarHitDamage
     } = this.config.worldobjects;
     server.worldObjectManager.vehicleSpawnCap = vehicleSpawnCap;
     server.worldObjectManager.minAirdropSurvivors = minAirdropSurvivors;
@@ -225,9 +232,14 @@ export class ConfigManager {
     server.worldObjectManager.chanceNpc = chanceNpc;
     server.worldObjectManager.chanceScreamer = chanceScreamer;
 
+    server.worldObjectManager.chanceWornLetter = chanceWornLetter;
+
     server.worldObjectManager.waterSourceReplenishTimer =
       waterSourceReplenishTimer;
     server.worldObjectManager.waterSourceRefillAmount = waterSourceRefillAmount;
+
+    server.crowbarHitRewardChance = crowbarHitRewardChance;
+    server.crowbarHitDamage = crowbarHitDamage;
     //#endregion
 
     //#region speedtree
