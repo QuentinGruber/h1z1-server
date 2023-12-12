@@ -19,7 +19,6 @@ import SOEClient from "./soeclient";
 import { crc_length_options } from "../../types/soeserver";
 import { LogicalPacket } from "./logicalPacket";
 import { json } from "types/shared";
-import { wrappedUint16 } from "../../utils/utils";
 import { SOEOutputChannels } from "./soeoutputstream";
 import dgram from "node:dgram";
 const debug = require("debug")("SOEServer");
@@ -144,7 +143,7 @@ export class SOEServer extends EventEmitter {
         // if a packet is lost then we increase the ping
         // this will auto-fix when the connection goes well again
         client.avgPing += 100;
-        if(client.avgPing > 5000){
+        if (client.avgPing > 5000) {
           client.avgPing = 5000;
         }
 
@@ -358,14 +357,18 @@ export class SOEServer extends EventEmitter {
           client.inputStream.on("outoforder", (outOfOrderSequence: number) => {
             client.stats.packetsOutOfOrder++;
             client.outOfOrderPackets.push(outOfOrderSequence);
-            // resend every packets between the last ack and the out of order packet 
+            // resend every packets between the last ack and the out of order packet
             let iteration = 0;
-            for (let i = client.outputStream.lastAck.get(); i < outOfOrderSequence; i++) {
-              if(iteration > this._maxSeqResendRange){
+            for (
+              let i = client.outputStream.lastAck.get();
+              i < outOfOrderSequence;
+              i++
+            ) {
+              if (iteration > this._maxSeqResendRange) {
                 break;
               }
               client.outputStream.resendData(i);
-              client.unAckData.delete(i)
+              client.unAckData.delete(i);
               iteration++;
             }
           });
