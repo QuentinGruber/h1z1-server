@@ -1344,12 +1344,12 @@ export class LoginServer extends EventEmitter {
   }
   async stop(): Promise<void> {
     debug("Shutting down");
+    // close zoneloginconnections
+    if (this._zoneConnectionManager) {
+      await this._zoneConnectionManager.stop();
+    }
     if (this._mongoClient) {
       await this._mongoClient.close();
-    }
-    if (this._db) {
-      console.log(this._db)
-      await this._db.client.close();
     }
     if (this._httpServer) {
       await this._httpServer.terminate();
