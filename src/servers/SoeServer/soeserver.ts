@@ -141,6 +141,13 @@ export class SOEServer extends EventEmitter {
         break;
       }
       if (time + this._resendTimeout + client.avgPing < currentTime) {
+        // if a packet is lost then we increase the ping
+        // this will auto-fix when the connection goes well again
+        client.avgPing += 100;
+        if(client.avgPing > 5000){
+          client.avgPing = 5000;
+        }
+
         client.outputStream.resendData(sequence);
         client.unAckData.delete(sequence);
       }
