@@ -44,7 +44,7 @@ export class SOEServer extends EventEmitter {
   ) => void;
   private _resendTimeout: number = 500;
   packetRatePerClient: number = 500;
-  private _routineTiming: number = 3;
+  private _routineTiming: number = 15.625;
   _allowRawDataReception: boolean = false;
   private _maxSeqResendRange: number = 25;
   constructor(serverPort: number, cryptoKey: Uint8Array) {
