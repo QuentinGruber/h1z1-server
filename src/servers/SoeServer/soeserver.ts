@@ -352,9 +352,14 @@ export class SOEServer extends EventEmitter {
             client.stats.packetsOutOfOrder++;
             client.outOfOrderPackets.push(outOfOrderSequence);
             // resend every packets between the last ack and the out of order packet 
+            let iteration = 0;
             for (let i = client.outputStream.lastAck.get(); i < outOfOrderSequence; i++) {
+              if(iteration > this._maxSeqResendRange){
+                break;
+              }
               client.outputStream.resendData(i);
               client.unAckData.delete(i)
+              iteration++;
             }
           });
 
