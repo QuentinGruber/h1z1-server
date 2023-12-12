@@ -12,7 +12,7 @@ test("LoginServer", { timeout: 5000 }, async (t) => {
   );
 });
 
-test("LoginServer-mongo", { timeout: 5000, skip: true}, async (t) => {
+test("LoginServer-mongo", { timeout: 5000, skip: false }, async (t) => {
   const loginServer = new LoginServer(1115, "mongodb://localhost:27017");
   await t.test("start", async (t) => {
     await loginServer.start();

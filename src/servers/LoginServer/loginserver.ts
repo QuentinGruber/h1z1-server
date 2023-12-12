@@ -95,6 +95,7 @@ export class LoginServer extends EventEmitter {
   private _soloPlayIp: string = process.env.SOLO_PLAY_IP || "127.0.0.1";
   private clients: Map<string, LoginClient>;
   private _resolver = new Resolver();
+  private _mongoClient?: MongoClient;
   constructor(serverPort: number, mongoAddress = "") {
     super();
     this._crcLength = 2;
@@ -1273,11 +1274,11 @@ export class LoginServer extends EventEmitter {
   async start(): Promise<void> {
     debug("Starting server");
     if (this._mongoAddress) {
-      const mongoClient = new MongoClient(this._mongoAddress, {
+      this._mongoClient = new MongoClient(this._mongoAddress, {
         maxPoolSize: 100
       });
       try {
-        await mongoClient.connect();
+        await this._mongoClient.connect();
       } catch (e) {
         throw debug(
           "[ERROR]Unable to connect to mongo server " + this._mongoAddress
@@ -1286,11 +1287,11 @@ export class LoginServer extends EventEmitter {
       debug("connected to mongo !");
       // if no collections exist on h1server database , fill it with samples
       const dbIsEmpty =
-        (await mongoClient.db(DB_NAME).collections()).length < 1;
+        (await this._mongoClient.db(DB_NAME).collections()).length < 1;
       if (dbIsEmpty) {
-        await initMongo(mongoClient, debugName);
+        await initMongo(this._mongoClient, debugName);
       }
-      this._db = mongoClient.db(DB_NAME);
+      this._db = this._mongoClient.db(DB_NAME);
       this.updateServersStatus();
     }
 
@@ -1343,7 +1344,20 @@ export class LoginServer extends EventEmitter {
   }
   async stop(): Promise<void> {
     debug("Shutting down");
+    if (this._mongoClient) {
+      await this._mongoClient.close();
+    }
+    if (this._db) {
+      console.log(this._db)
+      await this._db.client.close();
+    }
+    if (this._httpServer) {
+      await this._httpServer.terminate();
+    }
     await this._soeServer.stop();
+    // log open handles
+    // @ts-ignore
+    console.log(process._getActiveHandles());
   }
 }
 
