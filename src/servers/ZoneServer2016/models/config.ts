@@ -70,6 +70,9 @@ interface WorldObjectsConfig {
   npcSpawnRadius: number;
   chanceNpc: number;
   chanceScreamer: number;
+
+  crowbarHitRewardChance: number;
+  crowbarHitDamage: number;
 }
 
 interface SpeedTreeConfig {

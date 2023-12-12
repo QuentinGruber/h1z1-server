@@ -50,19 +50,19 @@ export class Zombie extends Npc {
   }
 
   OnPlayerSelect(server: ZoneServer2016, client: ZoneClient2016) {
-    if (this.isAlive) {
+    if (!this.isAlive) {
       switch (this.actorModelId) {
         case 9510:
         case 9634:
-          server.utilizeHudTimer(client, 60, 5000, 0, () => {
-            const item = client.character.getItemById(Items.SYRINGE_EMPTY);
-            if (item && server.removeInventoryItem(client.character, item)) {
+          const item = client.character.getItemById(Items.SYRINGE_EMPTY);
+          if (item && server.removeInventoryItem(client.character, item)) {
+            server.utilizeHudTimer(client, 60, 5000, 0, () => {
               client.character.lootContainerItem(
                 server,
                 server.generateItem(Items.SYRINGE_INFECTED_BLOOD)
               );
-            }
-          });
+            });
+          }
           break;
       }
     }

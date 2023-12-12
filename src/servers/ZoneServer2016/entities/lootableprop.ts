@@ -327,10 +327,10 @@ export class LootableProp extends BaseLootableEntity {
       return;
     }
 
-    if (randomIntFromInterval(0, 100) <= 15) {
+    if (randomIntFromInterval(0, 100) <= server.crowbarHitRewardChance) {
       client.character.lootItem(server, server.generateItem(Items.METAL_SCRAP));
     }
 
-    server.damageItem(client, weapon, 25);
+    server.damageItem(client, weapon, server.crowbarHitDamage);
   }
 }

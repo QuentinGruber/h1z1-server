@@ -399,6 +399,8 @@ export class ZoneServer2016 extends EventEmitter {
   isHeadshotOnly!: boolean;
   isFirstPersonOnly!: boolean;
   baseConstructionDamage!: number;
+  crowbarHitRewardChance!: number;
+  crowbarHitDamage!: number;
   /*                          */
 
   constructor(
