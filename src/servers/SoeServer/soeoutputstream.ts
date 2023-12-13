@@ -30,6 +30,7 @@ export class SOEOutputStream extends EventEmitter {
   private _reliable_sequence: wrappedUint16 = new wrappedUint16(-1);
   private _order_sequence: wrappedUint16 = new wrappedUint16(-1);
   lastAck: wrappedUint16 = new wrappedUint16(-1);
+  lastOutOfOrder: number = -1;
   private _cache: dataCache = {};
   private _rc4: RC4;
   constructor(cryptoKey: Uint8Array) {

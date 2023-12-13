@@ -21,6 +21,7 @@ import { LogicalPacket } from "./logicalPacket";
 import { json } from "types/shared";
 import { SOEOutputChannels } from "./soeoutputstream";
 import dgram from "node:dgram";
+import { wrappedUint16 } from "utils/utils";
 const debug = require("debug")("SOEServer");
 process.env.isBin && require("../shared/workers/udpServerWorker.js");
 
@@ -45,7 +46,7 @@ export class SOEServer extends EventEmitter {
   packetRatePerClient: number = 500;
   private _routineTiming: number = 15.625;
   _allowRawDataReception: boolean = false;
-  private _maxSeqResendRange: number = 25;
+  private _maxSeqResendRange: number = 50;
   constructor(serverPort: number, cryptoKey: Uint8Array) {
     super();
     Buffer.poolSize = 8192 * 4;
@@ -133,6 +134,21 @@ export class SOEServer extends EventEmitter {
   checkResendQueue(client: Client) {
     const currentTime = Date.now();
     let iteration = 0;
+    // resend every packets between the last ack and the out of order packet
+    for (
+      let sequence = client.outputStream.lastOutOfOrder;
+      sequence > client.outputStream.lastAck.get();
+      sequence++
+    ) {
+      if (iteration > this._maxSeqResendRange) {
+        break;
+      }
+      client.outputStream.resendData(sequence);
+      client.unAckData.delete(sequence);
+      iteration++;
+    }
+    // reset lastOutOfOrder resend acceleration
+    client.outputStream.lastOutOfOrder = -1;
     // First added packets are the first to be resend
     for (const [sequence, time] of client.unAckData) {
       // So we don't loose our time with dead connections
@@ -202,6 +218,7 @@ export class SOEServer extends EventEmitter {
   // If some packets are received out of order then we Acknowledge then one by one
   private checkOutOfOrderQueue(client: Client) {
     if (client.outOfOrderPackets.length) {
+      // TODO: check if the client doesn't send dupes due to this
       for (let i = 0; i < client.outOfOrderPackets.length; i++) {
         const sequence = client.outOfOrderPackets.shift();
         if (sequence > client.lastAck.get()) {
@@ -297,6 +314,7 @@ export class SOEServer extends EventEmitter {
             (client.unAckData.get(packet.sequence) as number)
         );
         client.outputStream.removeFromCache(packet.sequence);
+        client.outputStream.lastOutOfOrder = packet.sequence;
         client.unAckData.delete(packet.sequence);
         break;
       case "Ack":
@@ -357,20 +375,6 @@ export class SOEServer extends EventEmitter {
           client.inputStream.on("outoforder", (outOfOrderSequence: number) => {
             client.stats.packetsOutOfOrder++;
             client.outOfOrderPackets.push(outOfOrderSequence);
-            // resend every packets between the last ack and the out of order packet
-            let iteration = 0;
-            for (
-              let i = client.outputStream.lastAck.get();
-              i < outOfOrderSequence;
-              i++
-            ) {
-              if (iteration > this._maxSeqResendRange) {
-                break;
-              }
-              client.outputStream.resendData(i);
-              client.unAckData.delete(i);
-              iteration++;
-            }
           });
 
           client.outputStream.on(
@@ -424,7 +428,9 @@ export class SOEServer extends EventEmitter {
                 {
                   sequence: sequence,
                   data: data
-                }
+                },
+                true,
+                true
               );
             }
           );
@@ -587,7 +593,8 @@ export class SOEServer extends EventEmitter {
     client: Client,
     packetOpcode: SoeOpcode,
     packet: json,
-    unbuffered = false
+    unbuffered = false,
+    priority = false
   ): void {
     const logicalPacket = this.createLogicalPacket(packetOpcode, packet);
     if (
@@ -600,7 +607,11 @@ export class SOEServer extends EventEmitter {
       if (packetOpcode !== SoeOpcode.MultiPacket) {
         this.sendClientWaitQueue(client, client.waitingQueue);
       }
-      client.outQueue.push(logicalPacket);
+      if (priority) {
+        client.outQueue.unshift(logicalPacket);
+      } else {
+        client.outQueue.push(logicalPacket);
+      }
     }
   }
 

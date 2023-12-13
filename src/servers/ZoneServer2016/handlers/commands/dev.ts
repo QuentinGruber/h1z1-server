@@ -34,8 +34,12 @@ const abilities = require("../../../../../data/2016/dataSources/Abilities.json")
   vehicleAbilities = require("../../../../../data/2016/dataSources/VehicleAbilities.json");
 
 const dev: any = {
-  netstats: function (server: ZoneServer2016, client: Client, args: Array<string>) {
-    setInterval(()=>{
+  netstats: function (
+    server: ZoneServer2016,
+    client: Client,
+    args: Array<string>
+  ) {
+    setInterval(() => {
       const soeClient = server.getSoeClient(client.soeClientId);
       if (soeClient) {
         const stats = soeClient.getNetworkStats();
@@ -44,7 +48,7 @@ const dev: any = {
           server.sendChatText(client, stat, index == 0);
         }
       }
-    },500)
+    }, 500);
   },
   o: function (server: ZoneServer2016, client: Client, args: Array<string>) {
     server.sendOrderedData(client, "ClientUpdate.TextAlert", {
