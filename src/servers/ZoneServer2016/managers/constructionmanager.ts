@@ -19,8 +19,7 @@ import {
   ConstructionEntity,
   dailyRepairMaterial,
   DamageInfo,
-  EntityDictionary,
-  SlottedConstructionEntity
+  EntityDictionary
 } from "types/zoneserver";
 import {
   eul2quat,
@@ -453,25 +452,25 @@ export class ConstructionManager {
   ): string {
     // for construction entities that don't have a parentObjectCharacterId from the client
     let freeplaceParentCharacterId = "";
+    // TODO: SEARCH FOUNDATIONS IN GRID RANGE INSTEAD OF ALL OF THEM
+    // TODO: CHECK DECKS BEFORE TAMPERS SO OBJECTS PLACED ON A DECK DON'T GET INCORRECTLY
+    // PARENTED TO THE TAMPER A DECK IS ON
     for (const a in server._constructionFoundations) {
       const foundation = server._constructionFoundations[a];
       // check if inside a shelter even if not inside foundation (large shelters can extend it)
       Object.values(foundation.occupiedShelterSlots).forEach((shelter) => {
-        if (shelter.isInside(position) || shelter.isOn(position)) {
+        // check uppers first so entity is not incorrectly parented to top of a lower (isOn)
+        Object.values(shelter.occupiedShelterSlots).forEach((upperShelter) => {
+          if (upperShelter.isInside(position) || upperShelter.isOn(position)) {
+            freeplaceParentCharacterId = upperShelter.characterId;
+          }
+        });
+
+        if (
+          !freeplaceParentCharacterId &&
+          (shelter.isInside(position) || shelter.isOn(position))
+        ) {
           freeplaceParentCharacterId = shelter.characterId;
-        }
-        if (!Number(freeplaceParentCharacterId)) {
-          // check upper shelters if its not in lower ones
-          Object.values(shelter.occupiedShelterSlots).forEach(
-            (upperShelter) => {
-              if (
-                upperShelter.isInside(position) ||
-                upperShelter.isOn(position)
-              ) {
-                freeplaceParentCharacterId = upperShelter.characterId;
-              }
-            }
-          );
         }
       });
 
@@ -793,6 +792,7 @@ export class ConstructionManager {
           modelId,
           position,
           fixEulerOrder(rotation),
+          new Float32Array([1, 1, 1, 1]),
           freeplaceParentCharacterId
         );
       case Items.BEE_BOX:
@@ -1409,6 +1409,7 @@ export class ConstructionManager {
       position,
       rotation,
       server,
+      new Float32Array([1, 1, 1, 1]),
       itemDefinitionId,
       parentObjectCharacterId || "",
       ""
@@ -1436,7 +1437,7 @@ export class ConstructionManager {
     }
 
     server.executeFuncForAllReadyClientsInRange((client) => {
-      if (this.constructionShouldHideEntity(server, client, obj)) {
+      if (this.shouldHideEntity(server, client, obj)) {
         return;
       }
       this.spawnLootableConstruction(server, client, obj);
@@ -1451,6 +1452,7 @@ export class ConstructionManager {
     modelId: number,
     position: Float32Array,
     rotation: Float32Array,
+    scale: Float32Array,
     parentObjectCharacterId?: string
   ): boolean {
     const characterId = server.generateGuid(),
@@ -1462,6 +1464,7 @@ export class ConstructionManager {
       position,
       rotation,
       server,
+      scale,
       itemDefinitionId,
       parentObjectCharacterId || "",
       "SmeltingEntity"
@@ -1478,7 +1481,7 @@ export class ConstructionManager {
     obj.equipLoadout(server);
 
     server.executeFuncForAllReadyClientsInRange((client) => {
-      if (this.constructionShouldHideEntity(server, client, obj)) {
+      if (this.shouldHideEntity(server, client, obj)) {
         return;
       }
       this.spawnLootableConstruction(server, client, obj);
@@ -1504,6 +1507,7 @@ export class ConstructionManager {
       position,
       rotation,
       server,
+      new Float32Array([1, 1, 1, 1]),
       itemDefinitionId,
       parentObjectCharacterId || "",
       "CollectingEntity"
@@ -1530,7 +1534,7 @@ export class ConstructionManager {
       }
     }
     server.executeFuncForAllReadyClientsInRange((client) => {
-      if (this.constructionShouldHideEntity(server, client, obj)) {
+      if (this.shouldHideEntity(server, client, obj)) {
         return;
       }
       this.spawnLootableConstruction(server, client, obj);
@@ -1629,7 +1633,7 @@ export class ConstructionManager {
       server._worldSimpleConstruction[characterId] = construction;
     }
     server.executeFuncForAllReadyClientsInRange((client) => {
-      if (this.constructionShouldHideEntity(server, client, construction)) {
+      if (this.shouldHideEntity(server, client, construction)) {
         return;
       }
       this.spawnSimpleConstruction(server, client, construction);
@@ -1928,7 +1932,7 @@ export class ConstructionManager {
     }
   }
 
-  constructionShouldHideEntity(
+  shouldHideEntity(
     server: ZoneServer2016,
     client: Client,
     entity: BaseEntity
@@ -1955,10 +1959,11 @@ export class ConstructionManager {
 
     if (!parent) return false;
 
-    // foundations and expansions should never hide entities
+    // foundations, expansions, and tampers should never hide entities
     switch (parent.itemDefinitionId) {
       case Items.FOUNDATION:
       case Items.FOUNDATION_EXPANSION:
+      case Items.GROUND_TAMPER:
         return false;
     }
 
@@ -1970,7 +1975,9 @@ export class ConstructionManager {
       ),
       isInside = parent.isInside(entity.state.position);
 
-    return parentSecured && isInside && !hasVisitPermission;
+    return (
+      !client.isDebugMode && parentSecured && isInside && !hasVisitPermission
+    );
     // TODO: check if character is in secured shelter / shack
   }
 
@@ -1986,7 +1993,7 @@ export class ConstructionManager {
           entity.state.position,
           client.character.state.position
         ) ||
-        this.constructionShouldHideEntity(server, client, entity)
+        this.shouldHideEntity(server, client, entity)
       )
         continue;
       if (entity instanceof ConstructionChildEntity) {
@@ -2444,114 +2451,112 @@ export class ConstructionManager {
     if (entity.health >= entity.maxHealth) return;
     this.fullyRepairConstruction(server, entity);
   }
+
   isConstructionInSecuredArea(
     server: ZoneServer2016,
-    construction: SlottedConstructionEntity
-  ) {
-    const gates: number[] = [
+    construction: ConstructionEntity
+  ): boolean {
+    const gates: Array<Items> = [
       Items.METAL_GATE,
       Items.METAL_WALL,
       Items.METAL_WALL_UPPER,
       Items.METAL_DOORWAY
     ];
-    const doors: number[] = [
+    const doors: Array<Items> = [
       Items.DOOR_BASIC,
       Items.DOOR_METAL,
       Items.DOOR_WOOD
     ];
-    const parent = construction.getParent(server);
     const parentFoundation = construction.getParentFoundation(server);
-    if (!parent && !parentFoundation) return false;
-    if (parent?.isSecured || parentFoundation?.isSecured) {
-      if (
-        gates.includes(construction.itemDefinitionId) ||
-        doors.includes(construction.itemDefinitionId)
-      ) {
-        if (
-          ((parentFoundation?.itemDefinitionId == Items.FOUNDATION_EXPANSION ||
-            parentFoundation?.itemDefinitionId == Items.GROUND_TAMPER) &&
-            !doors.includes(construction.itemDefinitionId)) ||
-          parentFoundation?.itemDefinitionId == Items.SHACK ||
-          parentFoundation?.itemDefinitionId == Items.SHACK_BASIC ||
-          parentFoundation?.itemDefinitionId == Items.SHACK_SMALL
-        )
+    if (!parentFoundation || !parentFoundation.isSecured) return false;
+    if (
+      !gates.includes(construction.itemDefinitionId) &&
+      !doors.includes(construction.itemDefinitionId)
+    ) {
+      return true;
+    }
+    if (
+      ((parentFoundation.itemDefinitionId == Items.FOUNDATION_EXPANSION ||
+        parentFoundation.itemDefinitionId == Items.GROUND_TAMPER) &&
+        !doors.includes(construction.itemDefinitionId)) ||
+      parentFoundation.itemDefinitionId == Items.SHACK ||
+      parentFoundation.itemDefinitionId == Items.SHACK_BASIC ||
+      parentFoundation.itemDefinitionId == Items.SHACK_SMALL
+    )
+      return false;
+    if (
+      !(construction instanceof LootableConstructionEntity) &&
+      (parentFoundation.itemDefinitionId == Items.FOUNDATION ||
+        parentFoundation.itemDefinitionId == Items.GROUND_TAMPER)
+    ) {
+      switch (construction.getSlotNumber()) {
+        case 4:
+        case 5:
+        case 6:
+          if (parentFoundation.occupiedExpansionSlots["1"]?.isSecured) {
+            return true;
+          }
+          break;
+        case 1:
+        case 2:
+        case 3:
+          if (parentFoundation.occupiedExpansionSlots["2"]?.isSecured) {
+            return true;
+          }
+          break;
+        case 10:
+        case 11:
+        case 12:
+          if (parentFoundation.occupiedExpansionSlots["3"]?.isSecured) {
+            return true;
+          }
+          break;
+        case 7:
+        case 8:
+        case 9:
+          if (parentFoundation.occupiedExpansionSlots["4"]?.isSecured) {
+            return true;
+          }
+          break;
+      }
+      return false;
+    } else if (
+      parentFoundation.itemDefinitionId == Items.FOUNDATION_EXPANSION
+    ) {
+      if (doors.includes(construction.itemDefinitionId)) {
+        if (parentFoundation.isSecured) {
+          return true;
+        } else {
           return false;
-        if (
-          parentFoundation?.itemDefinitionId == Items.FOUNDATION ||
-          parentFoundation?.itemDefinitionId == Items.GROUND_TAMPER
-        ) {
-          if (
-            doors.includes(construction.itemDefinitionId) &&
-            parent &&
-            (parent.itemDefinitionId == Items.SHELTER || Items.SHELTER_LARGE)
-          ) {
-            if (parentFoundation.isSecured) {
-              return true;
-            } else {
-              return false;
-            }
-          }
-          switch (construction.getSlotNumber()) {
-            case 4:
-            case 5:
-            case 6:
-              if (
-                parentFoundation.occupiedExpansionSlots["1"] &&
-                parentFoundation.occupiedExpansionSlots["1"].isSecured
-              ) {
-                return true;
-              }
-              break;
-            case 1:
-            case 2:
-            case 3:
-              if (
-                parentFoundation.occupiedExpansionSlots["2"] &&
-                parentFoundation.occupiedExpansionSlots["2"].isSecured
-              ) {
-                return true;
-              }
-              break;
-            case 10:
-            case 11:
-            case 12:
-              if (
-                parentFoundation.occupiedExpansionSlots["3"] &&
-                parentFoundation.occupiedExpansionSlots["3"].isSecured
-              ) {
-                return true;
-              }
-              break;
-            case 7:
-            case 8:
-            case 9:
-              if (
-                parentFoundation.occupiedExpansionSlots["4"] &&
-                parentFoundation.occupiedExpansionSlots["4"].isSecured
-              ) {
-                return true;
-              }
-              break;
-          }
-          return false;
-        } else if (
-          parentFoundation?.itemDefinitionId == Items.FOUNDATION_EXPANSION
-        ) {
-          if (
-            doors.includes(construction.itemDefinitionId) &&
-            parent &&
-            (parent.itemDefinitionId == Items.SHELTER || Items.SHELTER_LARGE)
-          ) {
-            if (parentFoundation.isSecured) {
-              return true;
-            } else {
-              return false;
-            }
-          }
         }
       }
-      return true;
-    } else return false;
+    }
+    return false;
+  }
+
+  OnMeleeHit(
+    server: ZoneServer2016,
+    damageInfo: DamageInfo,
+    construction: ConstructionEntity
+  ) {
+    const client = server.getClientByCharId(damageInfo.entity),
+      weapon = client?.character.getEquippedWeapon();
+    if (!client || !weapon) return;
+
+    switch (weapon.itemDefinitionId) {
+      case Items.WEAPON_HAMMER_DEMOLITION:
+        this.demolishConstructionEntity(server, client, construction, weapon);
+        return;
+      case Items.WEAPON_HAMMER:
+        this.hammerConstructionEntity(server, client, construction, weapon);
+        return;
+    }
+
+    if (this.isConstructionInSecuredArea(server, construction)) {
+      if (client) {
+        server.constructionManager.sendBaseSecuredMessage(server, client);
+      }
+    }
   }
 
   sendBaseSecuredMessage(server: ZoneServer2016, client: Client) {

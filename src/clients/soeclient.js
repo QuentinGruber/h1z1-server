@@ -18,7 +18,7 @@ const EventEmitter = require("node:events").EventEmitter,
     require("../servers/SoeServer/soeinputstream").SOEInputStream,
   SOEOutputStream =
     require("../servers/SoeServer/soeoutputstream").SOEOutputStream,
-  { Soeprotocol, append_crc_legacy } = require("h1emu-core"),
+  { Soeprotocol, append_crc_legacy, SoeOpcode } = require("h1emu-core"),
   util = require("node:util"),
   fs = require("node:fs"),
   dgram = require("node:dgram"),
@@ -70,12 +70,12 @@ class SOEClient {
 
     outputStream.on("data", function (data, sequence, fragment) {
       if (fragment) {
-        me._sendPacket("DataFragment", {
+        me._sendPacket(SoeOpcode.DataFragment, {
           sequence: sequence,
           data: data
         });
       } else {
-        me._sendPacket("Data", {
+        me._sendPacket(SoeOpcode.Data, {
           sequence: sequence,
           data: data
         });
@@ -89,7 +89,7 @@ class SOEClient {
     function checkAck() {
       if (lastAck !== nextAck) {
         lastAck = nextAck;
-        me._sendPacket("Ack", {
+        me._sendPacket(SoeOpcode.Ack, {
           channel: 0,
           sequence: nextAck
         });
@@ -106,7 +106,7 @@ class SOEClient {
         for (let i = 0; i < 20; i++) {
           const sequence = outOfOrderPackets.shift();
           packets.push({
-            name: "OutOfOrder",
+            name: SoeOpcode.OutOfOrder,
             soePacket: {
               channel: 0,
               sequence: sequence
@@ -118,7 +118,7 @@ class SOEClient {
         }
         debug("Sending " + packets.length + " OutOfOrder packets");
         me._sendPacket(
-          "MultiPacket",
+          SoeOpcode.MultiPacket,
           {
             subPackets: packets
           },
@@ -256,7 +256,7 @@ class SOEClient {
     this._sessionId = createSessionId();
     const me = this;
     this._connection.bind(this._localPort, function () {
-      me._sendPacket("SessionRequest", {
+      me._sendPacket(SoeOpcode.SessionRequest, {
         protocol: me._protocolName,
         crc_length: 3,
         session_id: me._sessionId,
@@ -270,7 +270,7 @@ class SOEClient {
     clearTimeout(this._ackTimer);
     clearTimeout(this._outOfOrderTimer);
     try {
-      this._sendPacket("Disconnect", {});
+      this._sendPacket(SoeOpcode.Disconnect, {});
       this._connection.close();
     } catch (e) {}
   }
@@ -287,14 +287,14 @@ class SOEClient {
     this._dumpData = value;
   }
 
-  _sendPacket(packetName, packet, prioritize) {
+  _sendPacket(packetOpcode, packet, prioritize) {
     if (packet.data) {
       packet.data = [...packet.data];
     }
     const data = Buffer.from(
-      this._protocol.pack(packetName, JSON.stringify(packet))
+      this._protocol.pack(packetOpcode, JSON.stringify(packet))
     );
-    debug(this._guid, "Sending " + packetName + " packet to server");
+    debug(this._guid, "Sending " + packetOpcode + " packet to server");
     if (this._dumpData) {
       fs.writeFileSync(
         "debug/soeclient_" + this._guid + "_outpacket_" + q++ + ".dat",

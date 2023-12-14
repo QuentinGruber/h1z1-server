@@ -17,6 +17,7 @@ import { ZoneClient2016 } from "../classes/zoneclient";
 import { StringIds, Items } from "../models/enums";
 import { DamageInfo } from "types/zoneserver";
 import { eul2quat, randomIntFromInterval } from "../../../utils/utils";
+import { AddSimpleNpc } from "types/zone2016packets";
 
 function getContainerAndTime(entity: LootableProp) {
   switch (entity.actorModelId) {
@@ -144,7 +145,7 @@ function getContainerAndTime(entity: LootableProp) {
       break;
     case 9563:
       entity.containerId = Items.CONTAINER_MEDICAL_STATION;
-      entity.searchTime = 1000;
+      entity.searchTime = 0;
       entity.lootSpawner = "Medical Station";
       break;
     case 9551:
@@ -167,6 +168,38 @@ function getContainerAndTime(entity: LootableProp) {
       entity.containerId = Items.CONTAINER_HOSPITAL_CABINET;
       entity.searchTime = 1000;
       entity.lootSpawner = "Hospital Cabinets";
+      break;
+    case 9347:
+      entity.containerId = Items.CONTAINER_LOOT_CACHE;
+      entity.nameId = Items.CONTAINER_LOOT_CACHE;
+      entity.searchTime = 1000;
+    case 57:
+      entity.containerId = Items.CONTAINER_STORAGE;
+      entity.searchTime = 1000;
+      entity.lootSpawner = "Cabinets";
+      break;
+    case 9396:
+      entity.containerId = Items.CONTAINER_WASHING_MACHINE;
+      entity.searchTime = 1000;
+      entity.lootSpawner = "Armoire";
+      break;
+    case 9395:
+      entity.containerId = Items.CONTAINER_DRYER;
+      entity.searchTime = 1000;
+      entity.lootSpawner = "Armoire";
+      break;
+    case 36:
+      entity.containerId = Items.CONTAINER_FURNACE;
+      entity.searchTime = 0;
+      break;
+    case 9041:
+      entity.containerId = Items.CONTAINER_CAMPFIRE;
+      entity.searchTime = 0;
+      break;
+    case 9205:
+      entity.containerId = Items.BARBEQUE;
+      entity.searchTime = 0;
+      entity.lootSpawner = "Fridge";
       break;
     default:
       entity.containerId = Items.CONTAINER_STORAGE;
@@ -215,6 +248,20 @@ export class LootableProp extends BaseLootableEntity {
         break;
     }
   }
+
+  pGetSimpleNpc(): AddSimpleNpc {
+    return {
+      characterId: this.characterId,
+      transientId: this.transientId,
+      position: this.state.position,
+      rotation: this.state.rotation,
+      modelId: this.actorModelId,
+      scale: this.scale,
+      health: (this.health / this.maxHealth) * 100
+      //terrainObjectId: this.spawnerId
+    };
+  }
+
   /* eslint-disable @typescript-eslint/no-unused-vars */
   OnPlayerSelect(
     server: ZoneServer2016,
@@ -239,6 +286,13 @@ export class LootableProp extends BaseLootableEntity {
     }
   }
   OnInteractionString(server: ZoneServer2016, client: ZoneClient2016) {
+    if (this.actorModelId == 9563) {
+      server.sendData(client, "Command.InteractionString", {
+        guid: this.characterId,
+        stringId: StringIds.USE_TARGET
+      });
+      return;
+    }
     if (client.searchedProps.includes(this)) {
       server.sendData(client, "Command.InteractionString", {
         guid: this.characterId,
@@ -273,9 +327,10 @@ export class LootableProp extends BaseLootableEntity {
       return;
     }
 
-    if (randomIntFromInterval(0, 100) <= 15) {
+    if (randomIntFromInterval(0, 100) <= server.crowbarHitRewardChance) {
       client.character.lootItem(server, server.generateItem(Items.METAL_SCRAP));
-      server.damageItem(client, weapon, 25);
     }
+
+    server.damageItem(client, weapon, server.crowbarHitDamage);
   }
 }

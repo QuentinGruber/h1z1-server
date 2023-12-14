@@ -737,7 +737,8 @@ export class Character2016 extends BaseFullCharacter {
         //unknownQword3: this.characterId,
         //vehicleLoadoutRelatedDword: 1,
         //unknownDword40: 1
-        isAdmin: client.isAdmin
+        isAdmin: client.isAdmin,
+        firstPersonOnly: server.isFirstPersonOnly
       } as any
     };
   }
@@ -1394,6 +1395,10 @@ export class Character2016 extends BaseFullCharacter {
       true,
       damageInfo.hitReport?.hitLocation || ""
     );
+
+    if (server.isHeadshotOnly && damageInfo.hitReport?.hitLocation != "HEAD")
+      return;
+
     const hasHelmetBefore = this.hasHelmet(server);
     const hasArmorBefore = this.hasArmor(server);
 
