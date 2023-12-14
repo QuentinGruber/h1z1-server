@@ -27,6 +27,7 @@ export class Npc extends BaseFullCharacter {
   deathTime: number = 0;
   rewardItems: { itemDefId: number; weight: number }[] = [];
   requiredHarvestItems: number[] = [];
+  canReceiveDamage = true;
   flags = {
     bit0: 0,
     bit1: 0,
@@ -75,7 +76,7 @@ export class Npc extends BaseFullCharacter {
     const client = server.getClientByCharId(damageInfo.entity),
       oldHealth = this.health;
 
-    if (!this.isAlive) {
+    if (!this.isAlive && this.canReceiveDamage) {
       if ((this.health -= damageInfo.damage) <= 0) {
         this.flags.knockedOut = 1;
         if (client) {
@@ -108,6 +109,12 @@ export class Npc extends BaseFullCharacter {
       );
 
       this.health = 10000;
+      // This is temporary fix so shotguns won't despawn the entity since the pellets will hit after entity is knocked out.
+      // TODO: Revisit this
+      this.canReceiveDamage = false;
+      setTimeout(() => {
+        this.canReceiveDamage = true;
+      }, 1000);
     }
 
     if (client) {

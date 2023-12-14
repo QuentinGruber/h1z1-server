@@ -212,7 +212,9 @@ export class ConfigManager {
       npcSpawnRadius,
       chanceNpc,
       chanceScreamer,
-      lootbagDespawnTimer
+      lootbagDespawnTimer,
+      crowbarHitRewardChance,
+      crowbarHitDamage
     } = this.config.worldobjects;
     server.worldObjectManager.vehicleSpawnCap = vehicleSpawnCap;
     server.worldObjectManager.minAirdropSurvivors = minAirdropSurvivors;
@@ -237,6 +239,9 @@ export class ConfigManager {
     server.worldObjectManager.waterSourceReplenishTimer =
       waterSourceReplenishTimer;
     server.worldObjectManager.waterSourceRefillAmount = waterSourceRefillAmount;
+
+    server.crowbarHitRewardChance = crowbarHitRewardChance;
+    server.crowbarHitDamage = crowbarHitDamage;
     //#endregion
 
     //#region speedtree
