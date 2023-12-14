@@ -27,6 +27,8 @@ interface ServerConfig {
   rebootTime: number;
   rebootWarnTime: number;
   isPvE: boolean;
+  isHeadshotOnly: boolean;
+  isFirstPersonOnly: boolean;
   baseConstructionDamage: number;
 }
 
@@ -62,10 +64,15 @@ interface WorldObjectsConfig {
   deadNpcDespawnTimer: number;
   lootbagDespawnTimer: number;
 
+  chanceWornLetter: number;
+
   vehicleSpawnRadius: number;
   npcSpawnRadius: number;
   chanceNpc: number;
   chanceScreamer: number;
+
+  crowbarHitRewardChance: number;
+  crowbarHitDamage: number;
 }
 
 interface SpeedTreeConfig {

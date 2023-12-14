@@ -29,7 +29,7 @@ export const characterDefaultLoadout = [
 
   { item: Items.MAP },
   { item: Items.COMPASS },
-  { item: Items.GAUZE, count: 5 }
+  { item: Items.BUNDLE_GAUZE, count: 1 }
 ];
 
 export const characterKitLoadout = [

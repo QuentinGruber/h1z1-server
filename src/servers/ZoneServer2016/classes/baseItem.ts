@@ -22,6 +22,7 @@ export class BaseItem {
   debugFlag: string = "unset";
   stackCount: number;
   weapon?: Weapon;
+  hasAirdropClearance: boolean = false;
   constructor(
     itemDefinitionId: number,
     guid: string,

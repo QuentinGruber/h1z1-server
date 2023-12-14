@@ -60,6 +60,7 @@ import { Crate } from "../entities/crate";
 import { Destroyable } from "../entities/destroyable";
 import { CharacterPlayWorldCompositeEffect } from "types/zone2016packets";
 import { WaterSource } from "../entities/watersource";
+import { TreasureChest } from "../entities/treasurechest";
 const debug = require("debug")("ZoneServer");
 
 function getRandomSkin(itemDefinitionId: number) {
@@ -137,6 +138,8 @@ export class WorldObjectManager {
   chanceNpc!: number;
   chanceScreamer!: number;
 
+  chanceWornLetter!: number;
+
   waterSourceReplenishTimer!: number;
   waterSourceRefillAmount!: number;
 
@@ -196,6 +199,8 @@ export class WorldObjectManager {
       this.replenishWaterSources(server);
       this._lastWaterSourceReplenishTime = Date.now();
     }
+
+    this.updateQuestContainers(server);
 
     this.despawnEntities(server);
   }
@@ -342,6 +347,29 @@ export class WorldObjectManager {
   }
 
   createLootbag(server: ZoneServer2016, entity: BaseFullCharacter) {
+    if (entity instanceof Zombie) {
+      //TODO: Probably should rework this?
+      const wornLetters = [
+        Items.WORN_LETTER_CHURCH_PV,
+        Items.WORN_LETTER_LJ_PV,
+        Items.WORN_LETTER_MISTY_DAM,
+        Items.WORN_LETTER_RADIO,
+        Items.WORN_LETTER_RUBY_LAKE,
+        Items.WORN_LETTER_TOXIC_LAKE,
+        Items.WORN_LETTER_VILLAS,
+        Items.WORN_LETTER_WATER_TOWER
+      ];
+
+      const shouldGenerateWornLetter =
+        Math.floor(Math.random() * 100) + 1 <= this.chanceWornLetter;
+      if (shouldGenerateWornLetter) {
+        const randomIndex = randomIntFromInterval(0, wornLetters.length - 1);
+        const randomWornLetter = wornLetters[randomIndex];
+        const newItem = server.generateItem(randomWornLetter, 1);
+        entity.lootItem(server, newItem);
+      }
+    }
+
     const characterId = generateRandomGuid(),
       isCharacter = !!server._characters[entity.characterId],
       items = entity.getDeathItems(server);
@@ -366,7 +394,11 @@ export class WorldObjectManager {
     server.spawnSimpleNpcForAllInRange(lootbag);
   }
 
-  createAirdropContainer(server: ZoneServer2016, pos: Float32Array) {
+  createAirdropContainer(
+    server: ZoneServer2016,
+    pos: Float32Array,
+    forceAirdrop: string = ""
+  ) {
     const airdropTypes: string[] = [
       "Farmer",
       "Demolitioner",
@@ -382,9 +414,32 @@ export class WorldObjectManager {
       { weapon: Items.WEAPON_NAGAFENS_RAGE, ammo: Items.AMMO_12GA }
     ];
 
+    const experimentalSrubs: number[] = [
+      Items.HAPPY_SKULL_SCRUBS_CAP,
+      Items.HAPPY_SKULL_SCRUBS_SHIRT,
+      Items.HAPPY_SKULL_SCRUBS_PANTS,
+
+      2806,
+      2803,
+      2809,
+
+      2804,
+      2801,
+      2807,
+
+      2799,
+      2798,
+      2800
+    ];
+
     const index = Math.floor(Math.random() * airdropTypes.length);
-    const airdropType = airdropTypes[index];
-    const lootSpawner = containerLootSpawners[airdropType];
+    let airdropType = airdropTypes[index];
+    let lootSpawner = containerLootSpawners[airdropType];
+
+    if (forceAirdrop.length > 0) {
+      airdropType = forceAirdrop;
+      lootSpawner = containerLootSpawners[forceAirdrop];
+    }
 
     const characterId = generateRandomGuid();
 
@@ -457,6 +512,19 @@ export class WorldObjectManager {
             container
           );
         }
+      case "Hospital":
+        effectId = Effects.Smoke_Orange;
+        if (container) {
+          const randomIndex = Math.floor(
+            Math.random() * experimentalSrubs.length
+          );
+          server.addContainerItem(
+            lootbag,
+            server.generateItem(experimentalSrubs[randomIndex], 1),
+            container
+          );
+        }
+        break;
     }
     if (server._airdrop) {
       const smokePos = new Float32Array([
@@ -485,8 +553,26 @@ export class WorldObjectManager {
   createProps(server: ZoneServer2016) {
     Z1_lootableProps.forEach((propType: any) => {
       propType.instances.forEach((propInstance: any) => {
+        const itemMap: { [modelId: number]: number } = {
+          36: Items.FURNACE,
+          9205: Items.BARBEQUE,
+          9041: Items.CAMPFIRE
+        };
+        if (Object.keys(itemMap).includes(propInstance.modelId.toString())) {
+          server.constructionManager.placeSmeltingEntity(
+            server,
+            itemMap[propInstance.modelId],
+            propInstance.modelId,
+            propInstance.position,
+            fixEulerOrder(propInstance.rotation),
+            propInstance.scale
+          );
+          return;
+        }
         const characterId = generateRandomGuid();
-        const obj = new LootableProp(
+        const obj = new (
+          propInstance.modelId == 9347 ? TreasureChest : LootableProp
+        )(
           characterId,
           server.getTransientId(characterId), // need transient generated for Interaction Replication
           propInstance.modelId,
@@ -504,8 +590,13 @@ export class WorldObjectManager {
         );
         server._lootableProps[characterId] = obj;
         obj.equipItem(server, server.generateItem(obj.containerId), false);
-        obj._containers["31"].canAcceptItems = false;
-        obj.nameId = server.getItemDefinition(obj.containerId)?.NAME_ID ?? 0;
+        if (![9563, 9347, 9205, 9041, 36].includes(propInstance.modelId)) {
+          const container = obj.getContainer();
+          if (container) {
+            container.canAcceptItems = false;
+          }
+          obj.nameId = server.getItemDefinition(obj.containerId)?.NAME_ID ?? 0;
+        }
       });
     });
     Z1_taskProps.forEach((propType: any) => {
@@ -513,8 +604,18 @@ export class WorldObjectManager {
         const characterId = generateRandomGuid();
         let obj;
         switch (propType.actor_file) {
+          case "Common_Props_SpikeTrap.adr":
+            server.constructionManager.placeTrap(
+              server,
+              Items.PUNJI_STICKS,
+              propType.modelId,
+              propInstance.position,
+              fixEulerOrder(propInstance.rotation)
+            );
+            break;
           case "Common_Props_Cabinets_BathroomSink.adr":
           case "Common_Props_Bathroom_Toilet01.adr":
+          case "Common_Props_Dam_WaterValve01.adr":
           case "Common_Props_Well.adr":
             obj = new WaterSource(
               characterId,
@@ -732,6 +833,13 @@ export class WorldObjectManager {
           break;
         case "NPCSpawner_Deer001.adr":
           authorizedModelId.push(9002);
+          authorizedModelId.push(9253);
+          break;
+        case "NPCSpawner_Wolf001.adr":
+          authorizedModelId.push(9003);
+          break;
+        case "Bear_Brown.adr":
+          authorizedModelId.push(9187);
           break;
         default:
           break;
@@ -804,12 +912,51 @@ export class WorldObjectManager {
       }
     });
   }
+  updateQuestContainers(server: ZoneServer2016) {
+    Object.values(server._lootableProps).forEach((a) => {
+      const prop = a as BaseFullCharacter;
+      switch (prop.actorModelId) {
+        case 9563:
+          if (
+            prop.hasItem(Items.SYRINGE_INFECTED_BLOOD) &&
+            prop.hasItem(Items.EMPTY_SPECIMEN_BAG) &&
+            prop.hasItem(Items.BRAIN_INFECTED) &&
+            prop.hasItem(Items.VIAL_H1Z1_REDUCER)
+          ) {
+            const req1 = prop.getItemById(Items.SYRINGE_INFECTED_BLOOD),
+              req2 = prop.getItemById(Items.EMPTY_SPECIMEN_BAG),
+              req3 = prop.getItemById(Items.BRAIN_INFECTED),
+              req4 = prop.getItemById(Items.VIAL_H1Z1_REDUCER);
+
+            if (!req1 || !req2 || !req3 || !req4) return;
+
+            if (
+              !server.removeInventoryItem(prop, req1) ||
+              !server.removeInventoryItem(prop, req2) ||
+              !server.removeInventoryItem(prop, req3) ||
+              !server.removeInventoryItem(prop, req4)
+            ) {
+              return;
+            }
+
+            const obj = server.generateItem(Items.BRAIN_TREATED, 1);
+            prop.lootItem(server, obj, 1, false);
+          }
+          break;
+        case 9347:
+          const rewardChest = a as TreasureChest;
+          if (rewardChest) rewardChest.triggerRewards(server);
+          break;
+      }
+    });
+  }
   createContainerLoot(server: ZoneServer2016) {
     for (const a in server._lootableProps) {
       const prop = server._lootableProps[a] as LootableProp;
       const container = prop.getContainer();
       if (!container) continue;
       if (!!Object.keys(container.items).length) continue; // skip if container is not empty
+      if (!prop.shouldSpawnLoot) continue; // skip medical stations and treasure chests
       const lootTable = containerLootSpawners[prop.lootSpawner];
       if (lootTable) {
         for (let x = 0; x < lootTable.maxItems; x++) {

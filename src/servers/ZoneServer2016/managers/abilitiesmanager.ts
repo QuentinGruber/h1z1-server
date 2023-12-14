@@ -39,6 +39,7 @@ import {
 } from "types/zone2016packets";
 import { DamageInfo, EntityDictionary } from "types/zoneserver";
 import { LoadoutItem } from "../classes/loadoutItem";
+import { Npc } from "../entities/npc";
 const vehicleAbilities = require("../../../../data/2016/dataSources/VehicleAbilities.json");
 
 export class AbilitiesManager {
@@ -218,6 +219,15 @@ export class AbilitiesManager {
   ) {
     client.character.abilityInitTime = 0;
     if (!weaponItem.weapon) return;
+
+    if (
+      entity instanceof Npc &&
+      entity.isAlive &&
+      server.isHeadshotOnly &&
+      client.character.meleeHit.abilityHitLocation != "HEAD"
+    )
+      return;
+    // Zombies should be able to get hit anywhere when they're dead even if the gamerule is headshot only.
 
     // TODO: CHECK MELEE BLOCK TIME FOR EACH WEAPON
     // CHECK MELEE RANGE ALSO

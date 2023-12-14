@@ -15,33 +15,6 @@ import { PacketStructures } from "types/packetStructure";
 import { recipeData } from "./shared";
 
 export const recipePackets: PacketStructures = [
-  ["Recipe.Add", 0x2601, { fields: recipeData }],
-  ["Recipe.ComponentUpdate", 0x2602, {}],
-  [
-    "Recipe.Remove",
-    0x2603,
-    {
-      fields: [
-        { name: "recipeId", type: "uint32", defaultValue: 1 },
-        { name: "bool", type: "boolean", defaultValue: false }
-      ]
-    }
-  ],
-  ["Recipe.Discovery", 0x2604, { fields: [] }],
-  [
-    "Recipe.List",
-    0x2609,
-    {
-      fields: [
-        {
-          name: "recipes",
-          type: "array",
-          defaultValue: [{}],
-          fields: recipeData
-        }
-      ]
-    }
-  ],
   [
     "Recipe.Add",
     0x2601,
@@ -56,6 +29,18 @@ export const recipePackets: PacketStructures = [
       ]
     }
   ],
+  ["Recipe.ComponentUpdate", 0x2602, {}],
+  [
+    "Recipe.Remove",
+    0x2603,
+    {
+      fields: [
+        { name: "recipeId", type: "uint32", defaultValue: 1 },
+        { name: "bool", type: "boolean", defaultValue: false }
+      ]
+    }
+  ],
+  ["Recipe.Discovery", 0x2604, { fields: [] }],
   [
     "Recipe.Discoveries",
     0x2605,
@@ -110,6 +95,20 @@ export const recipePackets: PacketStructures = [
           type: "array",
           defaultValue: [{}],
           fields: []
+        }
+      ]
+    }
+  ],
+  [
+    "Recipe.List",
+    0x2609,
+    {
+      fields: [
+        {
+          name: "recipes",
+          type: "array",
+          defaultValue: [{}],
+          fields: recipeData
         }
       ]
     }
