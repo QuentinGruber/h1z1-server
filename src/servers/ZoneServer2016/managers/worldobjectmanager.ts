@@ -164,7 +164,7 @@ export class WorldObjectManager {
       case playerCount > 40 && playerCount <= 60:
         this.lootRespawnTimer = 1200000; // 20 min
         break;
-      case playerCount > 60 && playerCount < 40:
+      case playerCount > 60:
         this.lootRespawnTimer = 600000; // 10 min
         break;
       default:
