@@ -31,9 +31,17 @@ export abstract class BaseLootableEntity extends BaseFullCharacter {
     server: ZoneServer2016
   ) {
     super(characterId, transientId, actorModelId, position, rotation, server);
-    this.isLootbag = [ModelIds.LOOT_BAG_LARGE, ModelIds.BURLAP_BAG_LARGE].includes(actorModelId);
+    this.isLootbag = [
+      ModelIds.LOOT_BAG_LARGE,
+      ModelIds.BURLAP_BAG_LARGE
+    ].includes(actorModelId);
     this.useSimpleStruct = true;
-    this.shouldSpawnLoot = ![ModelIds.HOSPITAL_LAB_WORKBENCH, ModelIds.TREASURE_CHEST, ModelIds.CAMPFIRE, ModelIds.FURNACE].includes(actorModelId);
+    this.shouldSpawnLoot = ![
+      ModelIds.HOSPITAL_LAB_WORKBENCH,
+      ModelIds.TREASURE_CHEST,
+      ModelIds.CAMPFIRE,
+      ModelIds.FURNACE
+    ].includes(actorModelId);
   }
 
   getContainer(): LoadoutContainer | undefined {

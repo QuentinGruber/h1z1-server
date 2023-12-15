@@ -591,7 +591,14 @@ export class WorldObjectManager {
         );
         server._lootableProps[characterId] = obj;
         obj.equipItem(server, server.generateItem(obj.containerId), false);
-        if (![ModelIds.HOSPITAL_LAB_WORKBENCH, ModelIds.TREASURE_CHEST, ModelIds.CAMPFIRE, ModelIds.FURNACE].includes(propInstance.modelId)) {
+        if (
+          ![
+            ModelIds.HOSPITAL_LAB_WORKBENCH,
+            ModelIds.TREASURE_CHEST,
+            ModelIds.CAMPFIRE,
+            ModelIds.FURNACE
+          ].includes(propInstance.modelId)
+        ) {
           const container = obj.getContainer();
           if (container) {
             container.canAcceptItems = false;
