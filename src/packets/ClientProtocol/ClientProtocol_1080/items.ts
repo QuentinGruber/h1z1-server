@@ -79,12 +79,12 @@ export const itemsPackets: PacketStructures = [
   ["Items.ExpireItemRentalTimer", 0xad0e, {}],
   ["Items.UseClientItem", 0xad0f, {}],
   ["Items.SetAccountItemManager", 0xad10, {}],
-  ["Items.AddAccountItem", 0xad11, {
+  ["Items.AddAccountItem", 0xad1100, {
     fields: [
-      { name: "unknowWord", type: "uint8", defaultValue: 0 },
+      { name: "itemId", type: "uint64", defaultValue: 2734n },
       { name: "unknowWord2", type: "uint32", defaultValue: 0 },
-      { name: "unknowWord3", type: "uint32", defaultValue: 0 },
-      { name: "unknowWord4", type: "uint32", defaultValue: 0 },
+      { name: "unknowWord3", type: "uint32", defaultValue: 1 },
+      { name: "unknowWord4", type: "uint32", defaultValue: 3 }, // count ?
     ]
   }],
   ["Items.RemoveAccountItem", 0xad12, {}],

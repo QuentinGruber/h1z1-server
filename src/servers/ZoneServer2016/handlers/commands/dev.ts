@@ -54,10 +54,6 @@ const dev: any = {
   },
   acc: function (server: ZoneServer2016, client: Client, args: Array<string>) {
     server.sendData<ItemsAddAccountItem>(client, "Items.AddAccountItem", {
-      unknowWord:1,
-      unknowWord2:2,
-      unknowWord3:3,
-      unknowWord4:4
     });
   },
   ui: function (server: ZoneServer2016, client: Client, args: Array<string>) {
