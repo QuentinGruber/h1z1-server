@@ -688,6 +688,7 @@ export enum Items {
   GRENADE_GAS = 2237,
   GRENADE_HE = 65,
   GRENADE_SCREAM = 3022,
+  MAP_DRAWN = 1984,
   MAP = 1985,
   COMPASS = 1441,
   FLARE = 1804,
