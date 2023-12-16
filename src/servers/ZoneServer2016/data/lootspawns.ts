@@ -1872,7 +1872,7 @@ export const containerLootSpawners: {
         }
       },
       {
-        item: Items.METAL_PIPE,
+        item: Items.REPAIR_KIT_GUN,
         weight: 15,
         spawnCount: {
           min: 1,
@@ -1902,7 +1902,7 @@ export const containerLootSpawners: {
         }
       },
       {
-        item: Items.METAL_PIPE,
+        item: Items.REPAIR_KIT_GUN,
         weight: 15,
         spawnCount: {
           min: 1,
@@ -1940,7 +1940,7 @@ export const containerLootSpawners: {
         }
       },
       {
-        item: Items.METAL_PIPE,
+        item: Items.REPAIR_KIT_GUN,
         weight: 15,
         spawnCount: {
           min: 1,
@@ -2022,7 +2022,7 @@ export const containerLootSpawners: {
         }
       },
       {
-        item: Items.HAT_CAP,
+        item: Items.COMPASS,
         weight: 50,
         spawnCount: {
           min: 1,
@@ -2030,7 +2030,7 @@ export const containerLootSpawners: {
         }
       },
       {
-        item: Items.CODED_MESSAGE,
+        item: Items.MAP,
         weight: 5,
         spawnCount: {
           min: 1,
@@ -2084,7 +2084,7 @@ export const containerLootSpawners: {
         }
       },
       {
-        item: Items.CODED_MESSAGE,
+        item: Items.COMPASS,
         weight: 2,
         spawnCount: {
           min: 1,
@@ -2130,7 +2130,7 @@ export const containerLootSpawners: {
         }
       },
       {
-        item: Items.CODED_MESSAGE,
+        item: Items.COMPASS,
         weight: 2,
         spawnCount: {
           min: 1,
@@ -2858,7 +2858,15 @@ export const containerLootSpawners: {
         }
       },
       {
-        item: Items.CODED_MESSAGE,
+        item: Items.COMPASS,
+        weight: 2,
+        spawnCount: {
+          min: 1,
+          max: 1
+        }
+      },
+      {
+        item: Items.MAP,
         weight: 2,
         spawnCount: {
           min: 1,
