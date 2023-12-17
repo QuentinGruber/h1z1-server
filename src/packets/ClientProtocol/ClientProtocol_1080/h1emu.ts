@@ -41,5 +41,19 @@ export const h1emuPackets: PacketStructures = [
     {
       fields: []
     }
+  ],
+  [
+    "H1emu.VoiceState",
+    0x9904,
+    {
+      fields: []
+    }
+  ],
+  [
+    "H1emu.RequestModules",
+    0x9905,
+    {
+      fields: []
+    }
   ]
 ];

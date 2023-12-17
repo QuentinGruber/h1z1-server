@@ -3353,6 +3353,11 @@ export class ZonePacketHandlers {
       case "01": // asset validator
         server.fairPlayManager.handleAssetCheck(server, client, data);
         break;
+      case "02": // modules
+        server.sendChatTextToAdmins(
+          `Module Loaded on ${client.character.name}: ${data}`
+        );
+        break;
       default:
         console.log(
           `Unknown custom packet opcode: ${opcode} from ${client.loginSessionId}`
