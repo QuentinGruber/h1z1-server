@@ -15,11 +15,12 @@ import { Items, ResourceIds, ResourceTypes } from "../models/enums";
 import { LootableConstructionEntity } from "../entities/lootableconstructionentity";
 import { ConstructionDoor } from "../entities/constructiondoor";
 import { ConstructionChildEntity } from "../entities/constructionchildentity";
-import { getDistance, Scheduler } from "../../../utils/utils";
+import { getDistance } from "../../../utils/utils";
 import { ConstructionParentEntity } from "../entities/constructionparententity";
 import { Vehicle2016 } from "../entities/vehicle";
 import { dailyRepairMaterial } from "types/zoneserver";
 import { BaseItem } from "../classes/baseItem";
+import { scheduler } from "node:timers/promises";
 
 export class DecayManager {
   constructionDamageTickCount = 0; // used to run structure damaging once every x loops
@@ -51,7 +52,9 @@ export class DecayManager {
     }
     this.vehicleDamageTickCount++;
 
-    await Scheduler.wait(this.decayTickInterval);
+    await scheduler.wait(this.decayTickInterval, {
+      signal: server.shutdownController.signal
+    });
     this.run(server);
   }
 

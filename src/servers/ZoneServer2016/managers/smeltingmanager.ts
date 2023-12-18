@@ -30,7 +30,7 @@ import { LootableConstructionEntity } from "../entities/lootableconstructionenti
 import { BaseItem } from "../classes/baseItem";
 import { LoadoutContainer } from "../classes/loadoutcontainer";
 import { smeltingData } from "../data/Recipes";
-import { Scheduler } from "../../../utils/utils";
+import { scheduler } from "timers/promises";
 
 export class SmeltingManager {
   _smeltingEntities: { [characterId: string]: string } = {};
@@ -85,7 +85,9 @@ export class SmeltingManager {
         }
       );
     }
-    await Scheduler.wait(this.burnTime);
+    await scheduler.wait(this.burnTime, {
+      signal: server.shutdownController.signal
+    });
     this.checkSmeltables(server);
   }
 
@@ -119,7 +121,9 @@ export class SmeltingManager {
           break;
       }
     }
-    await Scheduler.wait(this.collectingTickTime);
+    await scheduler.wait(this.collectingTickTime, {
+      signal: server.shutdownController.signal
+    });
     this.checkCollectors(server);
   }
 
@@ -189,7 +193,9 @@ export class SmeltingManager {
     server: ZoneServer2016,
     entity: LootableConstructionEntity
   ) {
-    await Scheduler.wait(this.smeltTime);
+    await scheduler.wait(this.smeltTime, {
+      signal: server.shutdownController.signal
+    });
     if (!entity.subEntity?.isWorking) {
       entity.subEntity!.isSmelting = false;
       return;

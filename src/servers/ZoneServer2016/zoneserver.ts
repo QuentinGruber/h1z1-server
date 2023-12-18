@@ -82,7 +82,6 @@ import {
   isPosInRadiusWithY,
   getDistance,
   randomIntFromInterval,
-  Scheduler,
   generateTransientId,
   getRandomFromArray,
   getRandomKeyFromAnObject,
@@ -226,6 +225,7 @@ import { Destroyable } from "./entities/destroyable";
 import { Plane } from "./entities/plane";
 import { FileHashTypeList, ReceivedPacket } from "types/shared";
 import { SOEOutputChannels } from "../../servers/SoeServer/soeoutputstream";
+import { scheduler } from "node:timers/promises";
 
 const spawnLocations2 = require("../../../data/2016/zoneData/Z1_gridSpawns.json"),
   deprecatedDoors = require("../../../data/2016/sampleData/deprecatedDoors.json"),
@@ -381,6 +381,7 @@ export class ZoneServer2016 extends EventEmitter {
   isLocked: boolean = false;
   staticDTOs: Array<PropInstance> = [];
   serverGameRules: string;
+  shutdownController: AbortController = new AbortController();
 
   /* MANAGED BY CONFIGMANAGER */
   proximityItemsDistance!: number;
@@ -734,8 +735,11 @@ export class ZoneServer2016 extends EventEmitter {
   }
 
   async stop() {
+    this.shutdownController.abort();
+    this.worldDataManager.kill();
+    clearTimeout(this.worldRoutineTimer);
+    clearTimeout(this.weatherManager.dynamicWorker);
     await this._gatewayServer.stop();
-    process.exit(0);
   }
 
   async shutdown(timeLeft: number, message: string) {
@@ -2292,7 +2296,7 @@ export class ZoneServer2016 extends EventEmitter {
           if (isPosInRadius(5, vehicle.state.position, position)) {
             const distance = getDistance(position, vehicle.state.position);
             const damage = 250000 / distance;
-            await Scheduler.wait(150);
+            await scheduler.wait(150);
             vehicle.damage(this, { entity: npcTriggered, damage: damage });
           }
         }
@@ -2476,7 +2480,7 @@ export class ZoneServer2016 extends EventEmitter {
       const explosiveObj = this._explosives[explosive];
       if (explosiveObj.characterId != npcTriggered) {
         if (getDistance(position, explosiveObj.state.position) < 2) {
-          await Scheduler.wait(100);
+          await scheduler.wait(100);
           if (this._spawnedItems[explosiveObj.characterId]) {
             const object = this._spawnedItems[explosiveObj.characterId];
             this.deleteEntity(explosiveObj.characterId, this._spawnedItems);
@@ -7621,7 +7625,7 @@ export class ZoneServer2016 extends EventEmitter {
   }
   async startRoutinesLoop() {
     if (_.size(this._clients) <= 0) {
-      await Scheduler.wait(3000);
+      await scheduler.wait(3000, { signal: this.shutdownController.signal });
       this.startRoutinesLoop();
       return;
     }
@@ -7654,7 +7658,9 @@ export class ZoneServer2016 extends EventEmitter {
           `Routine took ${timeTaken}ms to execute, which is more than the tickRate ${this.tickRate}`
         );
       }
-      await Scheduler.wait(this.tickRate);
+      await scheduler.wait(this.tickRate, {
+        signal: this.shutdownController.signal
+      });
     }
     this.startRoutinesLoop();
   }
