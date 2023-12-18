@@ -1225,7 +1225,8 @@ export class Vehicle2016 extends BaseLootableEntity {
     if (!disableExplosion) {
       server.explosionDamage(this.state.position, this.characterId, 0);
     }
-    this.state.position[1] -= 0.4;
+    //this.state.position[1] -= 0.4; // makes bags spawn under the map sometimes.
+    // TODO: Have to revisit when the heightmap is implemented server side.
     // fix floating vehicle lootbags
     server.worldObjectManager.createLootbag(server, this);
     return deleted;

@@ -338,8 +338,8 @@ export class PluginManager {
 
     for (const plugin of this.plugins) {
       try {
-        await plugin.init(server);
         await this.loadPluginConfig(server, plugin);
+        await plugin.init(server);
         this.registerPluginCommands(server, plugin);
         console.log(`[PluginManager] ${plugin.name} initialized!`);
       } catch (e: any) {

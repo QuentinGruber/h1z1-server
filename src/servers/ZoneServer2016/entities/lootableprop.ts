@@ -14,160 +14,192 @@ import { BaseLootableEntity } from "./baselootableentity";
 import { ZoneServer2016 } from "../zoneserver";
 import { ZoneClient2016 } from "../classes/zoneclient";
 
-import { StringIds, Items } from "../models/enums";
+import { StringIds, Items, ModelIds } from "../models/enums";
 import { DamageInfo } from "types/zoneserver";
 import { eul2quat, randomIntFromInterval } from "../../../utils/utils";
 import { AddSimpleNpc } from "types/zone2016packets";
 
 function getContainerAndTime(entity: LootableProp) {
   switch (entity.actorModelId) {
-    case 9110:
+    case ModelIds.WRECKED_VAN:
       entity.containerId = Items.CONTAINER_WRECKED_VAN;
       entity.searchTime = 2500;
       entity.lootSpawner = "Wrecked Van";
       break;
-    case 9105:
-    case 9179:
+    case ModelIds.WRECKED_CAR:
+    case ModelIds.WRECKED_CAR_OD_01:
       entity.containerId = Items.CONTAINER_WRECKED_CAR;
       entity.searchTime = 2500;
       entity.lootSpawner = "Wrecked Car";
       break;
-    case 9108:
-    case 9178:
+    case ModelIds.WRECKED_TRUCK_01:
+    case ModelIds.WRECKED_TRUCK_OD_01:
       entity.containerId = Items.CONTAINER_WRECKED_TRUCK;
       entity.searchTime = 2500;
       entity.lootSpawner = "Wrecked Truck";
       break;
-    case 9255:
+    case ModelIds.LOCKERS_LOCKER_WEAPONS:
       entity.containerId = Items.CONTAINER_WEAPONS_LOCKER;
       entity.searchTime = 1000;
       entity.lootSpawner = "Weapons Locker";
       break;
-    case 9254:
+    case ModelIds.LOCKERS_LOCKER_POLICE:
       entity.containerId = Items.CONTAINER_LOCKER;
       entity.searchTime = 1000;
       entity.lootSpawner = "Locker";
       break;
-    case 9038:
+    case ModelIds.DESK:
       entity.containerId = Items.CONTAINER_DESK;
       entity.searchTime = 1000;
       entity.lootSpawner = "Desk";
       break;
-    case 9226:
-    case 9225:
-    case 9227:
-    case 9228:
-    case 9256: // glass lab cabinets
+    case ModelIds.OFFICE_CABINETS_01:
+    case ModelIds.OFFICE_FILING_CABINET:
+    case ModelIds.OFFICE_CABINETS_02:
+    case ModelIds.OFFICE_CABINETS_03:
+    case ModelIds.LAB_GLASS_CABINET:
       entity.containerId = Items.CONTAINER_CABINETS;
       entity.searchTime = 700;
       entity.lootSpawner = "Cabinets";
       break;
-    case 9229:
+    case ModelIds.OFFICE_CUBE_CABINET:
       entity.containerId = Items.CONTAINER_CABINETS_CUBE;
       entity.searchTime = 300;
       entity.lootSpawner = "Cabinets Cube";
       break;
-    case 9012:
-    case 9026:
-    case 9028:
-    case 9027:
-    case 9011:
-    case 9365:
-    case 9363:
-    case 9239:
-    case 9353:
-    case 9364:
-    case 9362:
-    case 9352:
-    case 9369:
-    case 9367:
-    case 9366:
-    case 9368:
-    case 9370:
+    case ModelIds.CABINETS_KITCHEN_02:
+    case ModelIds.CABINETS_KITCHEN_03:
+    case ModelIds.CABINETS_KITCHEN_05:
+    case ModelIds.CABINETS_KITCHEN_04:
+    case ModelIds.CABINETS_KITCHEN_01:
+    case ModelIds.CABINET_SET_06:
+    case ModelIds.CABINET_SET_04:
+    case ModelIds.CABINETS_KITCHEN_06:
+    case ModelIds.CABINET_SET_02:
+    case ModelIds.CABINET_SET_05:
+    case ModelIds.CABINET_SET_03:
+    case ModelIds.CABINET_SET_01:
+    case ModelIds.CABINET_SET_10:
+    case ModelIds.CABINET_SET_08:
+    case ModelIds.CABINET_SET_07:
+    case ModelIds.CABINET_SET_09:
+    case ModelIds.CABINET_SET_11:
       entity.containerId = Items.CONTAINER_CABINETS_KITCHEN;
       entity.searchTime = 1000;
       entity.lootSpawner = "Cabinets Kitchen";
       break;
-    case 9031:
-    case 9032:
-    case 9237:
+    case ModelIds.CABINETS_BATHROOM_01:
+    case ModelIds.CABINETS_BATHROOM_SINK:
+    case ModelIds.CABINETS_BATHROOM_02:
       entity.containerId = Items.CONTAINER_CABINETS_BATHROOM;
       entity.searchTime = 1000;
       entity.lootSpawner = "Cabinets Bathroom";
       break;
-    case 9074:
+    case ModelIds.TOOL_CABINET_01:
       entity.containerId = Items.CONTAINER_TOOL_CABINETS;
       entity.searchTime = 1000;
       entity.lootSpawner = "Tool Cabinet";
       break;
-    case 9037:
+    case ModelIds.DUMPSTER:
       entity.containerId = Items.CONTAINER_DUMPSTER;
       entity.searchTime = 1000;
       entity.lootSpawner = "Dumpster";
       break;
-    case 9034:
+    case ModelIds.FILE_CABINETS:
       entity.containerId = Items.CONTAINER_FILE_CABINET;
       entity.searchTime = 200;
       entity.lootSpawner = "File Cabinet";
       break;
-    case 9030:
+    case ModelIds.KITCHEN_FRIDGE:
       entity.containerId = Items.CONTAINER_FRIDGE;
       entity.searchTime = 1000;
       entity.lootSpawner = "Fridge";
       break;
-    case 9149:
-    case 9150:
+    case ModelIds.OTTOMAN_01:
+    case ModelIds.OTTOMAN_02:
       entity.containerId = Items.CONTAINER_OTTOMAN;
       entity.searchTime = 300;
       entity.lootSpawner = "Ottoman";
       break;
-    case 9005:
-    case 9125:
+    case ModelIds.DRESSER_01:
+    case ModelIds.DRESSER_02:
       entity.containerId = Items.CONTAINER_DRESSER;
       entity.searchTime = 700;
       entity.lootSpawner = "Dresser";
       break;
-    case 9124:
-    case 9006:
+    case ModelIds.ARMOIRE_02:
+    case ModelIds.ARMOIRE_01:
       entity.containerId = Items.CONTAINER_ARMOIRE;
       entity.searchTime = 700;
       entity.lootSpawner = "Armoire";
       break;
-    case 9007:
+    case ModelIds.GARBAGE_CAN_01:
       entity.containerId = Items.CONTAINER_GARBAGE_CAN;
       entity.searchTime = 1000;
       entity.lootSpawner = "Garbage Can";
       break;
-    case 9552:
+    case ModelIds.HOSPITAL_DRUG_CABNINET:
       entity.containerId = Items.CONTAINER_DRUG_CABINET;
       entity.searchTime = 1000;
       entity.lootSpawner = "Drug Cabinets";
       break;
-    case 9563:
+    case ModelIds.HOSPITAL_LAB_WORKBENCH:
       entity.containerId = Items.CONTAINER_MEDICAL_STATION;
-      entity.searchTime = 1000;
+      entity.searchTime = 0;
       entity.lootSpawner = "Medical Station";
       break;
-    case 9551:
-    case 9553:
+    case ModelIds.HOSPITAL_DESK:
+    case ModelIds.HOSPITAL_LAB_COUNTERTOP:
       entity.containerId = Items.CONTAINER_HOSPITAL_DESK;
       entity.searchTime = 1000;
       entity.lootSpawner = "Hospital Desk";
       break;
-    case 9556:
+    case ModelIds.HOSPITAL_GROSSING_STATION:
       entity.containerId = Items.CONTAINER_GROSSING_STATION;
       entity.searchTime = 1000;
       entity.lootSpawner = "Grossing Station";
       break;
-    case 9555:
+    case ModelIds.HOSPITAL_REFRIGERATOR:
       entity.containerId = Items.CONTAINER_HOSPITAL_REFRIGERATOR;
       entity.searchTime = 1000;
       entity.lootSpawner = "Hospital Refrigerator";
       break;
-    case 9554:
+    case ModelIds.HOSPITAL_SINK_COUNTERTOP:
       entity.containerId = Items.CONTAINER_HOSPITAL_CABINET;
       entity.searchTime = 1000;
       entity.lootSpawner = "Hospital Cabinets";
+      break;
+    case ModelIds.TREASURE_CHEST:
+      entity.containerId = Items.CONTAINER_LOOT_CACHE;
+      entity.nameId = Items.CONTAINER_LOOT_CACHE;
+      entity.searchTime = 1000;
+    case ModelIds.METAL_STORAGE_CHEST:
+      entity.containerId = Items.CONTAINER_STORAGE;
+      entity.searchTime = 1000;
+      entity.lootSpawner = "Cabinets";
+      break;
+    case ModelIds.WASHER:
+      entity.containerId = Items.CONTAINER_WASHING_MACHINE;
+      entity.searchTime = 1000;
+      entity.lootSpawner = "Armoire";
+      break;
+    case ModelIds.DRYER:
+      entity.containerId = Items.CONTAINER_DRYER;
+      entity.searchTime = 1000;
+      entity.lootSpawner = "Armoire";
+      break;
+    case ModelIds.FURNACE:
+      entity.containerId = Items.CONTAINER_FURNACE;
+      entity.searchTime = 0;
+      break;
+    case ModelIds.CAMPFIRE:
+      entity.containerId = Items.CONTAINER_CAMPFIRE;
+      entity.searchTime = 0;
+      break;
+    case ModelIds.BARBEQUE:
+      entity.containerId = Items.BARBEQUE;
+      entity.searchTime = 0;
+      entity.lootSpawner = "Fridge";
       break;
     default:
       entity.containerId = Items.CONTAINER_STORAGE;
@@ -254,6 +286,13 @@ export class LootableProp extends BaseLootableEntity {
     }
   }
   OnInteractionString(server: ZoneServer2016, client: ZoneClient2016) {
+    if (this.actorModelId == ModelIds.HOSPITAL_LAB_WORKBENCH) {
+      server.sendData(client, "Command.InteractionString", {
+        guid: this.characterId,
+        stringId: StringIds.USE_TARGET
+      });
+      return;
+    }
     if (client.searchedProps.includes(this)) {
       server.sendData(client, "Command.InteractionString", {
         guid: this.characterId,
@@ -288,9 +327,10 @@ export class LootableProp extends BaseLootableEntity {
       return;
     }
 
-    if (randomIntFromInterval(0, 100) <= 15) {
+    if (randomIntFromInterval(0, 100) <= server.crowbarHitRewardChance) {
       client.character.lootItem(server, server.generateItem(Items.METAL_SCRAP));
-      server.damageItem(client, weapon, 25);
     }
+
+    server.damageItem(client, weapon, server.crowbarHitDamage);
   }
 }
