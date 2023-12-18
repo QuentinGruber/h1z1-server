@@ -41,7 +41,8 @@ import {
   Skins_Kevlar,
   Skins_Military,
   Skins_Glasses,
-  Effects
+  Effects,
+  ModelIds
 } from "../models/enums";
 import { Vehicle2016 } from "../entities/vehicle";
 import { LootDefinition } from "types/zoneserver";
@@ -167,7 +168,7 @@ export class WorldObjectManager {
       case playerCount > 40 && playerCount <= 60:
         this.lootRespawnTimer = 1200000; // 20 min
         break;
-      case playerCount > 60 && playerCount < 40:
+      case playerCount > 60:
         this.lootRespawnTimer = 600000; // 10 min
         break;
       default:
@@ -590,7 +591,14 @@ export class WorldObjectManager {
         );
         server._lootableProps[characterId] = obj;
         obj.equipItem(server, server.generateItem(obj.containerId), false);
-        if (![9563, 9347, 9205, 9041, 36].includes(propInstance.modelId)) {
+        if (
+          ![
+            ModelIds.HOSPITAL_LAB_WORKBENCH,
+            ModelIds.TREASURE_CHEST,
+            ModelIds.CAMPFIRE,
+            ModelIds.FURNACE
+          ].includes(propInstance.modelId)
+        ) {
           const container = obj.getContainer();
           if (container) {
             container.canAcceptItems = false;
@@ -916,7 +924,7 @@ export class WorldObjectManager {
     Object.values(server._lootableProps).forEach((a) => {
       const prop = a as BaseFullCharacter;
       switch (prop.actorModelId) {
-        case 9563:
+        case ModelIds.HOSPITAL_LAB_WORKBENCH:
           if (
             prop.hasItem(Items.SYRINGE_INFECTED_BLOOD) &&
             prop.hasItem(Items.EMPTY_SPECIMEN_BAG) &&
