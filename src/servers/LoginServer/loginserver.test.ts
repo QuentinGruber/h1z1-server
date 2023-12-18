@@ -9,8 +9,7 @@ test("LoginServer", { timeout: 5000 }, async (t) => {
   });
   await t.test("stop", async (t) => {
     await loginServer.stop();
-  }
-  );
+  });
 });
 
 test("LoginServer-mongo", { timeout: 5000, skip: false }, async (t) => {
@@ -22,7 +21,5 @@ test("LoginServer-mongo", { timeout: 5000, skip: false }, async (t) => {
   await scheduler.yield();
   await t.test("stop", async (t) => {
     await loginServer.stop();
-  }
-  );
-}
-);
+  });
+});

@@ -86,8 +86,7 @@ export abstract class BaseLZConnection extends EventEmitter {
       this._connection.close(() => {
         resolve(true);
       });
-    }
-    );
+    });
   }
 
   sendData(client: LZConnectionClient | undefined, packetName: any, obj: any) {

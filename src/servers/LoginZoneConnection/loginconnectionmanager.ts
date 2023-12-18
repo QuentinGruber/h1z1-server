@@ -105,6 +105,13 @@ export class LoginConnectionManager extends BaseLZConnection {
     this._sessionData = obj;
   }
 
+  async stop() {
+    if (this._pingTimer) {
+      clearTimeout(this._pingTimer);
+    }
+    super.stop();
+  }
+
   start() {
     if (!this._loginServerInfo && !this._sessionData) {
       debug(

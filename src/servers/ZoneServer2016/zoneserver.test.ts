@@ -8,6 +8,5 @@ test("ZoneServer2016", { timeout: 10000 }, async (t) => {
   });
   await t.test("stop", async (t) => {
     await ZoneServer.stop();
-  }
-  );
+  });
 });

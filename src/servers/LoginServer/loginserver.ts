@@ -327,7 +327,8 @@ export class LoginServer extends EventEmitter {
         "disconnect",
         async (err: string, client: LZConnectionClient, reason: number) => {
           debug(
-            `ZoneConnection dropped: ${reason ? "Connection Lost" : "Unknown Error"
+            `ZoneConnection dropped: ${
+              reason ? "Connection Lost" : "Unknown Error"
             }`
           );
           delete this._zoneConnections[client.clientId];
@@ -1380,9 +1381,6 @@ export class LoginServer extends EventEmitter {
       await this._httpServer.terminate();
     }
     await this._soeServer.stop();
-    // log open handles
-    // @ts-ignore
-    console.log(process._getActiveHandles());
   }
 }
 

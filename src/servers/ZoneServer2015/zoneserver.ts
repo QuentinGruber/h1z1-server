@@ -231,7 +231,8 @@ export class ZoneServer2015 extends EventEmitter {
         "disconnect",
         (err: string, client: LZConnectionClient, reason: number) => {
           debug(
-            `LoginConnection dropped: ${reason ? "Connection Lost" : "Unknown Error"
+            `LoginConnection dropped: ${
+              reason ? "Connection Lost" : "Unknown Error"
             }`
           );
         }
@@ -2364,8 +2365,8 @@ export class ZoneServer2015 extends EventEmitter {
     const weather = this._soloMode
       ? localSpawnList[weatherTemplate]
       : await this._db
-        ?.collection("weathers")
-        .findOne({ templateName: weatherTemplate });
+          ?.collection("weathers")
+          .findOne({ templateName: weatherTemplate });
     if (weather) {
       this._weather = weather;
       this.SendSkyChangedPacket(client, weather, !this._soloMode);
