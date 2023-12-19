@@ -57,7 +57,7 @@
     "build-binaries-win": "cd ./bin/ && build.bat",
     "build-binaries-unix": "chmod +x ./bin/build.sh && ./bin/build.sh",
     "test-login-client": "node tests_out/2015/loginClientTest.js",
-    "test-mongo": "npm run build && npm run build-tests && npm run test-mongo-2015",
+    "test-mongo": "npm run build && npm run build-tests && MONGO_TESTS='true' node --test",
     "test": "npm run build && npm run build-tests && node --test",
     "postinstall": "npm run build",
     "publish_release": "git push --tags && git push origin dev && git push origin master && git checkout dev && npm run publish_release-next",
