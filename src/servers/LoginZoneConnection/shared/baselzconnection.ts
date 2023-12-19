@@ -68,7 +68,6 @@ export abstract class BaseLZConnection extends EventEmitter {
   }
 
   async start(): Promise<void> {
-
     this._connection.on("message", (message, remoteInfo) =>
       this.connectionHandler(message, remoteInfo)
     );

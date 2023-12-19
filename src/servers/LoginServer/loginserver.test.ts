@@ -4,8 +4,7 @@ import { scheduler } from "node:timers/promises";
 
 const isMongoTests = process.env.MONGO_TESTS === "true";
 
-
-test("LoginServer", { timeout: 5000, }, async (t) => {
+test("LoginServer", { timeout: 5000 }, async (t) => {
   const loginServer = new LoginServer(1115);
   await t.test("start", async (t) => {
     await loginServer.start();
