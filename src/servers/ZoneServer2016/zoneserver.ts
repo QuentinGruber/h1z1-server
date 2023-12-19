@@ -49,7 +49,6 @@ import {
   Effects,
   WeaponDefinitionIds
 } from "./models/enums";
-import { healthThreadDecorator } from "../shared/workers/healthWorker";
 import { WeatherManager } from "./managers/weathermanager";
 
 import {
@@ -83,7 +82,6 @@ import {
   isPosInRadiusWithY,
   getDistance,
   randomIntFromInterval,
-  Scheduler,
   generateTransientId,
   getRandomFromArray,
   getRandomKeyFromAnObject,
@@ -100,7 +98,7 @@ import {
   getDistance2d
 } from "../../utils/utils";
 
-import { Db, WithId } from "mongodb";
+import { Db, MongoClient, WithId } from "mongodb";
 import { BaseFullCharacter } from "./entities/basefullcharacter";
 import { ItemObject } from "./entities/itemobject";
 import {
@@ -227,6 +225,7 @@ import { Destroyable } from "./entities/destroyable";
 import { Plane } from "./entities/plane";
 import { FileHashTypeList, ReceivedPacket } from "types/shared";
 import { SOEOutputChannels } from "../../servers/SoeServer/soeoutputstream";
+import { scheduler } from "node:timers/promises";
 
 const spawnLocations2 = require("../../../data/2016/zoneData/Z1_gridSpawns.json"),
   deprecatedDoors = require("../../../data/2016/sampleData/deprecatedDoors.json"),
@@ -250,7 +249,6 @@ const spawnLocations2 = require("../../../data/2016/zoneData/Z1_gridSpawns.json"
     Record<string, string[]>
   > = require("../../../data/2016/sampleData/equipmentModelTexturesMapping.json");
 
-@healthThreadDecorator
 export class ZoneServer2016 extends EventEmitter {
   private _gatewayServer: GatewayServer;
   readonly _protocol: H1Z1Protocol;
@@ -383,6 +381,9 @@ export class ZoneServer2016 extends EventEmitter {
   isLocked: boolean = false;
   staticDTOs: Array<PropInstance> = [];
   serverGameRules: string;
+  routinesLoopTimer?: NodeJS.Timeout;
+  private _mongoClient?: MongoClient;
+  rebootTimeTimer?: NodeJS.Timeout;
 
   /* MANAGED BY CONFIGMANAGER */
   proximityItemsDistance!: number;
@@ -405,7 +406,7 @@ export class ZoneServer2016 extends EventEmitter {
 
   constructor(
     serverPort: number,
-    gatewayKey: Uint8Array,
+    gatewayKey: Uint8Array = Buffer.from(DEFAULT_CRYPTO_KEY),
     mongoAddress = "",
     worldId?: number,
     internalServerPort?: number
@@ -566,7 +567,7 @@ export class ZoneServer2016 extends EventEmitter {
     }
     if (this._mongoAddress && this.rebootTime) {
       console.log("Reboot time set to " + this.rebootTime + " hours");
-      setTimeout(
+      this.rebootTimeTimer = setTimeout(
         () => {
           console.log("Rebooting server due to reboot time set");
           this.shutdown(this.rebootWarnTime, "Server rebooting");
@@ -735,6 +736,24 @@ export class ZoneServer2016 extends EventEmitter {
     );
   }
 
+  async stop() {
+    this.emit("shutdown");
+    this.worldDataManager.kill();
+    this.smeltingManager.clearTimers();
+    this.decayManager.clearTimers();
+    clearTimeout(this.worldRoutineTimer);
+    clearTimeout(this.weatherManager.dynamicWorker);
+    clearTimeout(this.routinesLoopTimer);
+    clearTimeout(this.rebootTimeTimer);
+    if (this._loginConnectionManager) {
+      await this._loginConnectionManager.stop();
+    }
+    if (this._mongoClient) {
+      await this._mongoClient.close();
+    }
+    await this._gatewayServer.stop();
+  }
+
   async shutdown(timeLeft: number, message: string) {
     this.shutdownStarted = true;
     if (this.abortShutdown) {
@@ -764,7 +783,8 @@ export class ZoneServer2016 extends EventEmitter {
           }
         );
       });
-      setTimeout(() => {
+      setTimeout(async () => {
+        await this.stop();
         process.exit(0);
       }, 30000);
     } else {
@@ -1369,7 +1389,7 @@ export class ZoneServer2016 extends EventEmitter {
     }
     this._loginConnectionManager.setLoginInfo(this._loginServerInfo, {
       serverId: this._worldId,
-      h1emuVersion: process.env.H1Z1_SERVER_VERSION,
+      h1emuVersion: process.env.H1Z1_SERVER_VERSION || "unknown",
       serverRuleSets: this.serverGameRules
     });
     this._loginConnectionManager.start();
@@ -1449,7 +1469,9 @@ export class ZoneServer2016 extends EventEmitter {
     )) as unknown as WorldDataManagerThreaded;
     await this.worldDataManager.initialize(this._worldId, this._mongoAddress);
     if (!this._soloMode) {
-      this._db = await WorldDataManager.getDatabase(this._mongoAddress);
+      [this._db, this._mongoClient] = await WorldDataManager.getDatabase(
+        this._mongoAddress
+      );
     }
     if (this.enableWorldSaves) {
       const loadedWorld = await this.worldDataManager.getServerData(
@@ -1491,7 +1513,7 @@ export class ZoneServer2016 extends EventEmitter {
       console.timeEnd("fetch world data");
     }
     if (!this._soloMode) {
-      this.initializeLoginServerConnection();
+      await this.initializeLoginServerConnection();
     }
 
     // !!ANYTHING THAT USES / GENERATES ITEMS MUST BE CALLED AFTER WORLD DATA IS LOADED!!
@@ -2288,7 +2310,7 @@ export class ZoneServer2016 extends EventEmitter {
           if (isPosInRadius(5, vehicle.state.position, position)) {
             const distance = getDistance(position, vehicle.state.position);
             const damage = 250000 / distance;
-            await Scheduler.wait(150);
+            await scheduler.wait(150);
             vehicle.damage(this, { entity: npcTriggered, damage: damage });
           }
         }
@@ -2472,7 +2494,7 @@ export class ZoneServer2016 extends EventEmitter {
       const explosiveObj = this._explosives[explosive];
       if (explosiveObj.characterId != npcTriggered) {
         if (getDistance(position, explosiveObj.state.position) < 2) {
-          await Scheduler.wait(100);
+          await scheduler.wait(100);
           if (this._spawnedItems[explosiveObj.characterId]) {
             const object = this._spawnedItems[explosiveObj.characterId];
             this.deleteEntity(explosiveObj.characterId, this._spawnedItems);
@@ -7615,10 +7637,12 @@ export class ZoneServer2016 extends EventEmitter {
       }
     }
   }
+  clientRoutineLoop() {}
   async startRoutinesLoop() {
     if (_.size(this._clients) <= 0) {
-      await Scheduler.wait(3000);
-      this.startRoutinesLoop();
+      this.routinesLoopTimer = setTimeout(() => {
+        this.startRoutinesLoop();
+      }, 3000);
       return;
     }
     for (const a in this._clients) {
@@ -7650,7 +7674,7 @@ export class ZoneServer2016 extends EventEmitter {
           `Routine took ${timeTaken}ms to execute, which is more than the tickRate ${this.tickRate}`
         );
       }
-      await Scheduler.wait(this.tickRate);
+      await scheduler.wait(this.tickRate, {});
     }
     this.startRoutinesLoop();
   }

@@ -101,14 +101,21 @@ export class LoginConnectionManager extends BaseLZConnection {
     this._sessionData = obj;
   }
 
-  start() {
-    if (!this._loginServerInfo && !this._sessionData) {
-      debug(
+  async stop() {
+    if (this._pingTimer) {
+      clearTimeout(this._pingTimer);
+    }
+    super.stop();
+  }
+
+  async start() {
+    if (!this._loginServerInfo || !this._sessionData) {
+      console.log(
         "[ERROR] LoginConnectionManager started without setting login info!"
       );
       return;
     }
-    super.start();
+    await super.start();
     this.connect();
     this._pingTimer = setTimeout(() => {
       this.ping(this._loginConnection as LZConnectionClient);

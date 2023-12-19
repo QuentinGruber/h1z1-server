@@ -21,9 +21,7 @@ import { LogicalPacket } from "./logicalPacket";
 import { json } from "types/shared";
 import { SOEOutputChannels } from "./soeoutputstream";
 import dgram from "node:dgram";
-import { wrappedUint16 } from "utils/utils";
 const debug = require("debug")("SOEServer");
-process.env.isBin && require("../shared/workers/udpServerWorker.js");
 
 export class SOEServer extends EventEmitter {
   _serverPort: number;
@@ -47,6 +45,7 @@ export class SOEServer extends EventEmitter {
   private _routineTiming: number = 15.625;
   _allowRawDataReception: boolean = false;
   private _maxSeqResendRange: number = 50;
+  private _packetResetInterval: NodeJS.Timeout | undefined;
   constructor(serverPort: number, cryptoKey: Uint8Array) {
     super();
     Buffer.poolSize = 8192 * 4;
@@ -54,7 +53,7 @@ export class SOEServer extends EventEmitter {
     this._cryptoKey = cryptoKey;
     this._maxMultiBufferSize = this._udpLength - 4 - this._crcLength;
     this._connection = dgram.createSocket("udp4");
-    setInterval(() => {
+    this._packetResetInterval = setInterval(() => {
       this.resetPacketsSent();
     }, 1000);
   }
@@ -136,8 +135,8 @@ export class SOEServer extends EventEmitter {
     let iteration = 0;
     // resend every packets between the last ack and the out of order packet
     for (
-      let sequence = client.outputStream.lastOutOfOrder;
-      sequence > client.outputStream.lastAck.get();
+      let sequence = client.outputStream.lastAck.get();
+      sequence < client.outputStream.lastOutOfOrder;
       sequence++
     ) {
       if (iteration > this._maxSeqResendRange) {
@@ -470,9 +469,18 @@ export class SOEServer extends EventEmitter {
     this._connection.bind(this._serverPort);
   }
 
-  stop(): void {
-    this._connection.close();
-    process.exitCode = 0;
+  async stop(): Promise<void> {
+    this._soeClientRoutineLoopMethod = () => {};
+    clearInterval(this._packetResetInterval);
+    // delete all _clients
+    for (const client of this._clients.values()) {
+      client.closeTimers();
+    }
+    await new Promise<void>((resolve) => {
+      this._connection.close(() => {
+        resolve();
+      });
+    });
   }
 
   private packLogicalData(packetOpcode: SoeOpcode, packet: json): Buffer {

@@ -64,4 +64,10 @@ export class ZoneConnectionManager extends BaseLZConnection {
       this._pingTimer.refresh();
     }, this._pingTime);
   }
+  async stop() {
+    if (this._pingTimer) {
+      clearTimeout(this._pingTimer);
+    }
+    super.stop();
+  }
 }
