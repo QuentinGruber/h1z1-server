@@ -21,7 +21,6 @@ import { LogicalPacket } from "./logicalPacket";
 import { json } from "types/shared";
 import { SOEOutputChannels } from "./soeoutputstream";
 import dgram from "node:dgram";
-import { wrappedUint16 } from "utils/utils";
 const debug = require("debug")("SOEServer");
 
 export class SOEServer extends EventEmitter {
@@ -136,8 +135,8 @@ export class SOEServer extends EventEmitter {
     let iteration = 0;
     // resend every packets between the last ack and the out of order packet
     for (
-      let sequence = client.outputStream.lastOutOfOrder;
-      sequence > client.outputStream.lastAck.get();
+      let sequence = client.outputStream.lastAck.get();
+      sequence < client.outputStream.lastOutOfOrder;
       sequence++
     ) {
       if (iteration > this._maxSeqResendRange) {
