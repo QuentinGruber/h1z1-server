@@ -19,9 +19,9 @@ import SOEClient from "./soeclient";
 import { crc_length_options } from "../../types/soeserver";
 import { LogicalPacket } from "./logicalPacket";
 import { json } from "types/shared";
-import { wrappedUint16 } from "../../utils/utils";
 import { SOEOutputChannels } from "./soeoutputstream";
 import dgram from "node:dgram";
+import { wrappedUint16 } from "utils/utils";
 const debug = require("debug")("SOEServer");
 
 export class SOEServer extends EventEmitter {
@@ -43,7 +43,7 @@ export class SOEServer extends EventEmitter {
   ) => void;
   private _resendTimeout: number = 500;
   packetRatePerClient: number = 500;
-  private _routineTiming: number = 3;
+  private _routineTiming: number = 15.625;
   _allowRawDataReception: boolean = false;
   private _maxSeqResendRange: number = 50;
   private _packetResetInterval: NodeJS.Timeout | undefined;
@@ -133,23 +133,40 @@ export class SOEServer extends EventEmitter {
   // If a packet hasn't been acknowledge in the timeout time, then resend it via the priority queue
   checkResendQueue(client: Client) {
     const currentTime = Date.now();
-    let resendedPackets = 0;
+    let iteration = 0;
+    // resend every packets between the last ack and the out of order packet
+    for (
+      let sequence = client.outputStream.lastOutOfOrder;
+      sequence > client.outputStream.lastAck.get();
+      sequence++
+    ) {
+      if (iteration > this._maxSeqResendRange) {
+        break;
+      }
+      client.outputStream.resendData(sequence);
+      client.unAckData.delete(sequence);
+      iteration++;
+    }
+    // reset lastOutOfOrder resend acceleration
+    client.outputStream.lastOutOfOrder = -1;
+    // First added packets are the first to be resend
     for (const [sequence, time] of client.unAckData) {
-      if (
-        time + this._resendTimeout + client.avgPing < currentTime &&
-        sequence <=
-          wrappedUint16.wrap(
-            client.outputStream.lastAck.get() + this._maxSeqResendRange
-          )
-      ) {
+      // So we don't loose our time with dead connections
+      if (iteration > this._maxSeqResendRange) {
+        break;
+      }
+      if (time + this._resendTimeout + client.avgPing < currentTime) {
+        // if a packet is lost then we increase the ping
+        // this will auto-fix when the connection goes well again
+        client.avgPing += 100;
+        if (client.avgPing > 5000) {
+          client.avgPing = 5000;
+        }
+
         client.outputStream.resendData(sequence);
         client.unAckData.delete(sequence);
-        resendedPackets++;
-        // So we don't loose our time with dead connections
-        if (resendedPackets > 50) {
-          break;
-        }
       }
+      iteration++;
     }
   }
 
@@ -201,6 +218,7 @@ export class SOEServer extends EventEmitter {
   // If some packets are received out of order then we Acknowledge then one by one
   private checkOutOfOrderQueue(client: Client) {
     if (client.outOfOrderPackets.length) {
+      // TODO: check if the client doesn't send dupes due to this
       for (let i = 0; i < client.outOfOrderPackets.length; i++) {
         const sequence = client.outOfOrderPackets.shift();
         if (sequence > client.lastAck.get()) {
@@ -296,6 +314,7 @@ export class SOEServer extends EventEmitter {
             (client.unAckData.get(packet.sequence) as number)
         );
         client.outputStream.removeFromCache(packet.sequence);
+        client.outputStream.lastOutOfOrder = packet.sequence;
         client.unAckData.delete(packet.sequence);
         break;
       case "Ack":
@@ -409,7 +428,9 @@ export class SOEServer extends EventEmitter {
                 {
                   sequence: sequence,
                   data: data
-                }
+                },
+                true,
+                true
               );
             }
           );
@@ -581,7 +602,8 @@ export class SOEServer extends EventEmitter {
     client: Client,
     packetOpcode: SoeOpcode,
     packet: json,
-    unbuffered = false
+    unbuffered = false,
+    priority = false
   ): void {
     const logicalPacket = this.createLogicalPacket(packetOpcode, packet);
     if (
@@ -594,7 +616,11 @@ export class SOEServer extends EventEmitter {
       if (packetOpcode !== SoeOpcode.MultiPacket) {
         this.sendClientWaitQueue(client, client.waitingQueue);
       }
-      client.outQueue.push(logicalPacket);
+      if (priority) {
+        client.outQueue.unshift(logicalPacket);
+      } else {
+        client.outQueue.push(logicalPacket);
+      }
     }
   }
 

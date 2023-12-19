@@ -14,7 +14,7 @@
 import { EventEmitter } from "node:events";
 import { LZConnectionProtocol } from "../../../protocols/lzconnectionprotocol";
 import { LZConnectionClient } from "./lzconnectionclient";
-import dgram from "node:dgram";
+import dgram, { RemoteInfo } from "node:dgram";
 
 const debug = require("debug")("LZConnection");
 process.env.isBin && require("../../shared/workers/udpServerWorker.js");
@@ -53,29 +53,24 @@ export abstract class BaseLZConnection extends EventEmitter {
   }
 
   /* eslint-disable @typescript-eslint/no-unused-vars */
-  messageHandler(
-    messageType: string,
-    data: Buffer,
-    client: LZConnectionClient
-  ): void {
+  messageHandler(data: Buffer, client: LZConnectionClient): void {
     throw new Error("You need to implement messageHandler !");
   }
   /* eslint-enable @typescript-eslint/no-unused-vars */
 
-  connectionHandler(message: any): void {
-    const { data: dataUint8, remote } = message;
-    const data = Buffer.from(dataUint8);
-    const client = this.clientHandler(remote, dataUint8[0]);
+  connectionHandler(data: Buffer, remote: RemoteInfo): void {
+    const client = this.clientHandler(remote, data[0]);
     if (client) {
-      this.messageHandler(message.type, data, client);
+      this.messageHandler(data, client);
     } else {
       debug(`Connection rejected from remote ${remote.address}:${remote.port}`);
     }
   }
 
   async start(): Promise<void> {
-    this._connection.on("message", (message) =>
-      this.connectionHandler(message)
+
+    this._connection.on("message", (message, remoteInfo) =>
+      this.connectionHandler(message, remoteInfo)
     );
 
     return await new Promise((resolve) => {

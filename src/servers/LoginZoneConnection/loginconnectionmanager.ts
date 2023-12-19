@@ -27,11 +27,7 @@ export class LoginConnectionManager extends BaseLZConnection {
   _hasBeenConnectedToLogin: boolean = false;
   constructor(serverId: number, serverPort?: number) {
     super(serverPort);
-    this.messageHandler = (
-      messageType: string,
-      data: Buffer,
-      client: LZConnectionClient
-    ): void => {
+    this.messageHandler = (data: Buffer, client: LZConnectionClient): void => {
       const packet = this._protocol.parse(data);
       debug(packet);
       if (!packet) return;

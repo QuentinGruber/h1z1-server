@@ -22,7 +22,6 @@ export class ZoneConnectionManager extends BaseLZConnection {
   constructor(serverPort?: number) {
     super(serverPort);
     this.messageHandler = function (
-      messageType: string,
       data: Buffer,
       client: LZConnectionClient
     ): void {
