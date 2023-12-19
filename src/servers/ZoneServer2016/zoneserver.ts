@@ -98,7 +98,7 @@ import {
   getDistance2d
 } from "../../utils/utils";
 
-import { Db, WithId } from "mongodb";
+import { Db, MongoClient, WithId } from "mongodb";
 import { BaseFullCharacter } from "./entities/basefullcharacter";
 import { ItemObject } from "./entities/itemobject";
 import {
@@ -381,7 +381,9 @@ export class ZoneServer2016 extends EventEmitter {
   isLocked: boolean = false;
   staticDTOs: Array<PropInstance> = [];
   serverGameRules: string;
-  shutdownController: AbortController = new AbortController();
+  routinesLoopTimer?: NodeJS.Timeout;
+  private _mongoClient?: MongoClient;
+  rebootTimeTimer?: NodeJS.Timeout;
 
   /* MANAGED BY CONFIGMANAGER */
   proximityItemsDistance!: number;
@@ -565,7 +567,7 @@ export class ZoneServer2016 extends EventEmitter {
     }
     if (this._mongoAddress && this.rebootTime) {
       console.log("Reboot time set to " + this.rebootTime + " hours");
-      setTimeout(
+      this.rebootTimeTimer = setTimeout(
         () => {
           console.log("Rebooting server due to reboot time set");
           this.shutdown(this.rebootWarnTime, "Server rebooting");
@@ -735,10 +737,20 @@ export class ZoneServer2016 extends EventEmitter {
   }
 
   async stop() {
-    this.shutdownController.abort();
+    this.emit("shutdown");
     this.worldDataManager.kill();
+    this.smeltingManager.clearTimers();
+    this.decayManager.clearTimers();
     clearTimeout(this.worldRoutineTimer);
     clearTimeout(this.weatherManager.dynamicWorker);
+    clearTimeout(this.routinesLoopTimer);
+    clearTimeout(this.rebootTimeTimer);
+    if (this._loginConnectionManager) {
+      await this._loginConnectionManager.stop();
+    }
+    if (this._mongoClient) {
+      await this._mongoClient.close();
+    }
     await this._gatewayServer.stop();
   }
 
@@ -1377,7 +1389,7 @@ export class ZoneServer2016 extends EventEmitter {
     }
     this._loginConnectionManager.setLoginInfo(this._loginServerInfo, {
       serverId: this._worldId,
-      h1emuVersion: process.env.H1Z1_SERVER_VERSION,
+      h1emuVersion: process.env.H1Z1_SERVER_VERSION || "unknown",
       serverRuleSets: this.serverGameRules
     });
     this._loginConnectionManager.start();
@@ -1457,7 +1469,9 @@ export class ZoneServer2016 extends EventEmitter {
     )) as unknown as WorldDataManagerThreaded;
     await this.worldDataManager.initialize(this._worldId, this._mongoAddress);
     if (!this._soloMode) {
-      this._db = await WorldDataManager.getDatabase(this._mongoAddress);
+      [this._db, this._mongoClient] = await WorldDataManager.getDatabase(
+        this._mongoAddress
+      );
     }
     if (this.enableWorldSaves) {
       const loadedWorld = await this.worldDataManager.getServerData(
@@ -1499,7 +1513,7 @@ export class ZoneServer2016 extends EventEmitter {
       console.timeEnd("fetch world data");
     }
     if (!this._soloMode) {
-      this.initializeLoginServerConnection();
+      await this.initializeLoginServerConnection();
     }
 
     // !!ANYTHING THAT USES / GENERATES ITEMS MUST BE CALLED AFTER WORLD DATA IS LOADED!!
@@ -7623,10 +7637,12 @@ export class ZoneServer2016 extends EventEmitter {
       }
     }
   }
+  clientRoutineLoop() {}
   async startRoutinesLoop() {
     if (_.size(this._clients) <= 0) {
-      await scheduler.wait(3000, { signal: this.shutdownController.signal });
-      this.startRoutinesLoop();
+      this.routinesLoopTimer = setTimeout(() => {
+        this.startRoutinesLoop();
+      }, 3000);
       return;
     }
     for (const a in this._clients) {
@@ -7658,9 +7674,7 @@ export class ZoneServer2016 extends EventEmitter {
           `Routine took ${timeTaken}ms to execute, which is more than the tickRate ${this.tickRate}`
         );
       }
-      await scheduler.wait(this.tickRate, {
-        signal: this.shutdownController.signal
-      });
+      await scheduler.wait(this.tickRate, {});
     }
     this.startRoutinesLoop();
   }

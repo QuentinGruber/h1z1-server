@@ -159,7 +159,7 @@ export class TrapEntity extends BaseSimpleNpc {
         }, 200);
         break;
     }
-    server.shutdownController.signal.addEventListener("abort", () => {
+    server.on("shutdown", () => {
       clearTimeout(this.trapTimer);
     });
   }

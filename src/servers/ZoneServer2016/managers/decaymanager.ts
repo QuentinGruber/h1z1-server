@@ -20,11 +20,11 @@ import { ConstructionParentEntity } from "../entities/constructionparententity";
 import { Vehicle2016 } from "../entities/vehicle";
 import { dailyRepairMaterial } from "types/zoneserver";
 import { BaseItem } from "../classes/baseItem";
-import { scheduler } from "node:timers/promises";
 
 export class DecayManager {
   constructionDamageTickCount = 0; // used to run structure damaging once every x loops
   vehicleDamageTickCount = 0; // used to run vehicle damaging once every x loops
+  runTimer?: NodeJS.Timeout;
 
   /* MANAGED BY CONFIGMANAGER */
   decayTickInterval!: number;
@@ -38,7 +38,11 @@ export class DecayManager {
   vehicleDamageRange!: number;
   dailyRepairMaterials!: dailyRepairMaterial[];
 
-  public async run(server: ZoneServer2016) {
+  public clearTimers() {
+    if (this.runTimer) clearTimeout(this.runTimer);
+  }
+
+  public run(server: ZoneServer2016) {
     this.contructionExpirationCheck(server);
     if (this.constructionDamageTickCount >= this.constructionDamageTicks) {
       this.contructionDecayDamage(server);
@@ -52,10 +56,9 @@ export class DecayManager {
     }
     this.vehicleDamageTickCount++;
 
-    await scheduler.wait(this.decayTickInterval, {
-      signal: server.shutdownController.signal
-    });
-    this.run(server);
+    this.runTimer = setTimeout(() => {
+      this.run(server);
+    }, this.decayTickInterval);
   }
 
   private contructionExpirationCheck(server: ZoneServer2016) {

@@ -73,12 +73,16 @@ export abstract class BaseLZConnection extends EventEmitter {
     }
   }
 
-  start(): void {
+  async start(): Promise<void> {
     this._connection.on("message", (message) =>
       this.connectionHandler(message)
     );
 
-    this._connection.bind(this._serverPort);
+    return await new Promise((resolve) => {
+      this._connection.bind(this._serverPort, undefined, () => {
+        resolve();
+      });
+    });
   }
 
   async stop(): Promise<void> {

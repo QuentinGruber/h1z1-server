@@ -11,7 +11,7 @@
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
 
-import { Collection, MongoClient } from "mongodb";
+import { Collection, Db, MongoClient } from "mongodb";
 import {
   BaseConstructionSaveData,
   BaseEntityUpdateSaveData,
@@ -152,7 +152,7 @@ export class WorldDataManager {
 
   nextSaveTime: number = Date.now() + this.saveTimeInterval;*/
 
-  static async getDatabase(mongoAddress: string) {
+  static async getDatabase(mongoAddress: string): Promise<[Db, MongoClient]> {
     const mongoClient = new MongoClient(mongoAddress, {
       maxPoolSize: 100
     });
@@ -165,14 +165,14 @@ export class WorldDataManager {
     // if no collections exist on h1server database , fill it with samples
     (await mongoClient.db(DB_NAME).collections()).length ||
       (await initMongo(mongoClient, "ZoneServer"));
-    return mongoClient.db(DB_NAME);
+    return [mongoClient.db(DB_NAME), mongoClient];
   }
 
   async initialize(worldId: number, mongoAddress: string) {
     this._soloMode = !mongoAddress;
     this._worldId = worldId;
     if (!this._soloMode) {
-      this._db = await WorldDataManager.getDatabase(mongoAddress);
+      [this._db] = await WorldDataManager.getDatabase(mongoAddress);
     }
   }
 
