@@ -36,6 +36,10 @@ export class LogicalPacket {
         this.isReliable = false;
         this.canCrc = true;
         break;
+      case 27:
+        this.isReliable = false;
+        this.canCrc = true;
+        break;
       case 13:
         this.isReliable = true;
         this.canCrc = true;
