@@ -172,10 +172,10 @@ export class SOEServer extends EventEmitter {
   // Use the lastAck value to acknowlege multiple packets as a time
   // This function could be called less often but rn it will stick that way
   private checkAck(client: Client) {
-    if (client.lastAck.get() != client.nextAck.get()) {
-      client.lastAck.set(client.nextAck.get());
+    if (client.lastAckSend.get() != client.inputStream._lastAck.get()) {
+      client.lastAckSend.set(client.inputStream._lastAck.get());
       this._sendLogicalPacket(client, SoeOpcode.Ack, {
-        sequence: client.nextAck.get()
+        sequence: client.inputStream._lastAck.get()
       });
     }
   }
@@ -216,11 +216,12 @@ export class SOEServer extends EventEmitter {
   }
   // If some packets are received out of order then we Acknowledge then one by one
   private checkOutOfOrderQueue(client: Client) {
-    if (client.outOfOrderPackets.length) {
+    const outOfOrderPackets = client.inputStream.outOfOrderPackets;
+    if (outOfOrderPackets.length) {
       // TODO: check if the client doesn't send dupes due to this
-      for (let i = 0; i < client.outOfOrderPackets.length; i++) {
-        const sequence = client.outOfOrderPackets.shift();
-        if (sequence > client.lastAck.get()) {
+      for (let i = 0; i < outOfOrderPackets.length; i++) {
+        const sequence = outOfOrderPackets.shift();
+        if (sequence > client.lastAckSend.get()) {
           this._sendLogicalPacket(client, SoeOpcode.OutOfOrder, {
             sequence: sequence
           });
@@ -307,6 +308,7 @@ export class SOEServer extends EventEmitter {
         );
         break;
       case "OutOfOrder":
+        client.stats.packetsOutOfOrder++;
         client.addPing(
           Date.now() +
             this._waitQueueTimeMs -
@@ -365,15 +367,6 @@ export class SOEServer extends EventEmitter {
           client.inputStream.on("error", (err: Error) => {
             console.error(err);
             this.emit("disconnect", client);
-          });
-
-          client.inputStream.on("ack", (sequence: number) => {
-            client.nextAck.set(sequence);
-          });
-
-          client.inputStream.on("outoforder", (outOfOrderSequence: number) => {
-            client.stats.packetsOutOfOrder++;
-            client.outOfOrderPackets.push(outOfOrderSequence);
           });
 
           client.outputStream.on(

@@ -19,12 +19,14 @@ import {
   MAX_SEQUENCE,
   MAX_UINT8
 } from "../../utils/constants";
+import { soePacket } from "types/soeserver";
 
 const debug = require("debug")("SOEInputStream");
 type Fragment = { payload: Buffer; isFragment: boolean };
 export class SOEInputStream extends EventEmitter {
   _nextSequence: wrappedUint16 = new wrappedUint16(0);
   _lastAck: wrappedUint16 = new wrappedUint16(-1);
+  outOfOrderPackets: soePacket[] = [];
   _fragments: Map<number, Fragment> = new Map();
   _useEncryption: boolean = false;
   _lastProcessedSequence: number = -1;
@@ -164,7 +166,7 @@ export class SOEInputStream extends EventEmitter {
       );
       // acknowledge that we receive this sequence but do not process it
       // until we're back in order
-      this.emit("outoforder", sequence);
+      this.outOfOrderPackets.push(sequence);
       return false;
     } else {
       let ack = sequence;
@@ -177,9 +179,8 @@ export class SOEInputStream extends EventEmitter {
           break;
         }
       }
-      this._lastAck.set(ack);
       // all sequences behind lastAck are acknowledged
-      this.emit("ack", ack);
+      this._lastAck.set(ack);
       return true;
     }
   }

@@ -13,7 +13,6 @@
 
 import { RemoteInfo } from "node:dgram";
 import { toInt, wrappedUint16, _ } from "../../utils/utils";
-import { soePacket } from "../../types/soeserver";
 import { SOEInputStream } from "./soeinputstream";
 import { SOEOutputStream } from "./soeoutputstream";
 import { LogicalPacket } from "./logicalPacket";
@@ -43,9 +42,7 @@ export default class SOEClient {
   outQueue: LogicalPacket[] = [];
   protocolName: string = "unset";
   unAckData: Map<number, number> = new Map();
-  outOfOrderPackets: soePacket[] = [];
-  nextAck: wrappedUint16 = new wrappedUint16(-1);
-  lastAck: wrappedUint16 = new wrappedUint16(-1);
+  lastAckSend: wrappedUint16 = new wrappedUint16(-1);
   inputStream: SOEInputStream;
   outputStream: SOEOutputStream;
   soeClientId: string;
