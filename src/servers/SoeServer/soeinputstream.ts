@@ -179,6 +179,7 @@ export class SOEInputStream extends EventEmitter {
       }
       // all sequences behind lastAck are acknowledged
       this._lastAck.set(ack);
+      this.emit("ack", sequence);
       return true;
     }
   }

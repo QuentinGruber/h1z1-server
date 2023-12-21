@@ -34,7 +34,7 @@ export class SOEServer extends EventEmitter {
   private _connection: dgram.Socket;
   _crcSeed: number = Math.floor(Math.random() * 256);
   _crcLength: crc_length_options = 2;
-  _waitQueueTimeMs: number = 50;
+  _waitQueueTimeMs: number = 0;
   keepAliveTimeoutTime: number = 40000;
   private readonly _maxMultiBufferSize: number;
   private _resendTimeout: number = 500;
@@ -116,7 +116,6 @@ export class SOEServer extends EventEmitter {
       const currentTime = Date.now();
 
       if (time + this._resendTimeout + client.avgPing < currentTime) {
-        console.log("prepare sending due to resend timeout");
         this.prepareSending(client);
       }
     }
@@ -350,6 +349,11 @@ export class SOEServer extends EventEmitter {
               sequence: sequence
             });
           });
+          client.inputStream.on("ack", (sequence: number) => {
+            this._sendAndBuildLogicalPacket(client, SoeOpcode.Ack, {
+              sequence: sequence
+            });
+          });
 
           client.inputStream.on("error", (err: Error) => {
             console.error(err);
@@ -498,11 +502,10 @@ export class SOEServer extends EventEmitter {
     return Buffer.from(logicalData);
   }
   private prepareSending(client: Client, packet?: LogicalPacket) {
-    console.log("Preparing sending");
+    // TODO: cleaning acks in waiting queued packets
+
     if (packet) {
-      console.log("initial packet");
       if (this._canBeBufferedIntoQueue(packet, client.waitingQueue)) {
-        console.log("Adding initial packet to buffer");
         this._addPacketToBuffer(client, packet, client.waitingQueue);
       } else {
         // sends the already buffered packets
@@ -511,15 +514,12 @@ export class SOEServer extends EventEmitter {
           client.waitingQueue
         );
         if (waitingQueuePacket) {
-          console.log("Sending already buffered packets");
           this._sendAndBuildPhysicalPacket(client, waitingQueuePacket);
         }
         if (this._canBeBufferedIntoQueue(packet, client.waitingQueue)) {
-          console.log("Adding initial packet to new buffer");
           this._addPacketToBuffer(client, packet, client.waitingQueue);
         } else {
           // if it still can't be buffered it means that the packet is too big so we send it directly
-          console.log("Sending initial packet directly");
           this._sendAndBuildPhysicalPacket(client, packet);
         }
       }
@@ -527,9 +527,7 @@ export class SOEServer extends EventEmitter {
     const ackPacket = this.getAck(client);
     if (ackPacket) {
       client.stats.totalLogicalPacketSent++;
-      console.log("ack packet");
       if (this._canBeBufferedIntoQueue(ackPacket, client.waitingQueue)) {
-        console.log("Adding ack packet to buffer");
         this._addPacketToBuffer(client, ackPacket, client.waitingQueue);
       } else {
         const waitingQueuePacket = this.getClientWaitQueuePacket(
@@ -537,16 +535,13 @@ export class SOEServer extends EventEmitter {
           client.waitingQueue
         );
         if (waitingQueuePacket) {
-          console.log("Sending already buffered packets");
           this._sendAndBuildPhysicalPacket(client, waitingQueuePacket);
         }
         // no additionnal check needed here because ack packets have a fixed size
-        console.log("Sending ack packet directly");
         this._addPacketToBuffer(client, ackPacket, client.waitingQueue);
       }
     }
     const resends = this.getResends(client);
-    console.log("resends", resends.length);
     for (const resend of resends) {
       client.stats.totalLogicalPacketSent++;
       if (this._canBeBufferedIntoQueue(resend, client.waitingQueue)) {
@@ -572,11 +567,8 @@ export class SOEServer extends EventEmitter {
       client.waitingQueue
     );
     if (waitingQueuePacket) {
-      console.log("Sending buffered packets during prepare sending");
       this._sendAndBuildPhysicalPacket(client, waitingQueuePacket);
     }
-    console.log(client.stats);
-    console.log(client.avgPing);
     // FIXME: to refactor this run too often
     if (client.resendTimer) {
       clearTimeout(client.resendTimer);
@@ -634,7 +626,6 @@ export class SOEServer extends EventEmitter {
     queue.addPacket(logicalPacket);
     if (!queue.timer) {
       queue.timer = setTimeout(() => {
-        console.log("prepare sending due to timeout");
         this.prepareSending(client);
       }, this._waitQueueTimeMs);
     }
