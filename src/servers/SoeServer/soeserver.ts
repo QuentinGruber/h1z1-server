@@ -68,8 +68,11 @@ export class SOEServer extends EventEmitter {
     client: Client,
     logicalPacket: LogicalPacket
   ): void {
-    const data = logicalPacket.canCrc && this._crcLength ? append_crc_legacy(logicalPacket.data, this._crcSeed) : logicalPacket.data;
-    this._sendPhysicalPacket(client, data)
+    const data =
+      logicalPacket.canCrc && this._crcLength
+        ? append_crc_legacy(logicalPacket.data, this._crcSeed)
+        : logicalPacket.data;
+    this._sendPhysicalPacket(client, data);
   }
 
   private _sendPhysicalPacket(client: Client, packet: Uint8Array): void {
@@ -98,9 +101,28 @@ export class SOEServer extends EventEmitter {
   //     }
   //   }
   // }
+  //
+  //
+  private checkResends(client: Client): void {
+    if (client.unAckData.size > 0) {
+      // Convert the Set to an array (ES2020+)
+      const unAckDataArr = [...client.unAckData];
 
+      // Get the last element from the array
+      const lastElement = unAckDataArr[unAckDataArr.length - 1];
+      const [sequence, time] = lastElement;
+      // so eslint doesn't complain
+      sequence;
+      const currentTime = Date.now();
 
-  // If a packet hasn't been acknowledge in the timeout time, then resend it 
+      if (time + this._resendTimeout + client.avgPing < currentTime) {
+        console.log("prepare sending due to resend timeout");
+        this.prepareSending(client);
+      }
+    }
+  }
+
+  // If a packet hasn't been acknowledge in the timeout time, then resend it
   getResends(client: Client): LogicalPacket[] {
     const currentTime = Date.now();
     let iteration = 0;
@@ -123,12 +145,14 @@ export class SOEServer extends EventEmitter {
           //
           client.stats.packetResend++;
 
-          const logicalPacket = this.createLogicalPacket(dataCache.fragment ? SoeOpcode.DataFragment : SoeOpcode.Data, { sequence: sequence, data: dataCache.data });
+          const logicalPacket = this.createLogicalPacket(
+            dataCache.fragment ? SoeOpcode.DataFragment : SoeOpcode.Data,
+            { sequence: sequence, data: dataCache.data }
+          );
           if (logicalPacket) {
             resends.push(logicalPacket);
           }
-        }
-        else {
+        } else {
           console.log("Data cache not found for sequence " + sequence);
         }
         client.unAckData.delete(sequence);
@@ -162,28 +186,33 @@ export class SOEServer extends EventEmitter {
   }
 
   // send the queued packets
-  private getClientWaitQueuePacket(client: Client, queue: PacketsQueue): LogicalPacket | null {
+  private getClientWaitQueuePacket(
+    client: Client,
+    queue: PacketsQueue
+  ): LogicalPacket | null {
     if (queue.timer) {
       clearTimeout(queue.timer);
       queue.timer = undefined;
     }
     if (queue.packets.length > 1) {
       this.setupResendForQueuedPackets(client, queue);
-      const multiPacket = this.createLogicalPacket(SoeOpcode.MultiPacket, {
-        sub_packets: queue.packets.map((packet) => {
-          return Array.from(packet.data);
-        })
-      }, true);
+      const multiPacket = this.createLogicalPacket(
+        SoeOpcode.MultiPacket,
+        {
+          sub_packets: queue.packets.map((packet) => {
+            return Array.from(packet.data);
+          })
+        },
+        true
+      );
       queue.clear();
       return multiPacket;
       // if a packet in the waiting queue is a reliable packet, then we need to set the timeout
-    }
-    else if (queue.packets.length === 1) {
+    } else if (queue.packets.length === 1) {
       const singlePacketCopy = structuredClone(queue.packets[0]);
       queue.clear();
-      return singlePacketCopy
-    }
-    else {
+      return singlePacketCopy;
+    } else {
       return null;
     }
   }
@@ -214,9 +243,9 @@ export class SOEServer extends EventEmitter {
         client.outputStream.setFragmentSize(client.clientUdpLength - 7); // TODO: 7? calculate this based on crc enabled / compression etc
         client.lastKeepAliveTimer = this.keepAliveTimeoutTime
           ? setTimeout(() => {
-            debug("Client keep alive timeout");
-            this.emit("disconnect", client);
-          }, this.keepAliveTimeoutTime)
+              debug("Client keep alive timeout");
+              this.emit("disconnect", client);
+            }, this.keepAliveTimeoutTime)
           : null;
 
         this._sendAndBuildLogicalPacket(
@@ -269,8 +298,8 @@ export class SOEServer extends EventEmitter {
         client.stats.packetsOutOfOrder++;
         client.addPing(
           Date.now() +
-          this._waitQueueTimeMs -
-          (client.unAckData.get(packet.sequence) as number)
+            this._waitQueueTimeMs -
+            (client.unAckData.get(packet.sequence) as number)
         );
         client.outputStream.removeFromCache(packet.sequence);
         client.unAckData.delete(packet.sequence);
@@ -320,8 +349,7 @@ export class SOEServer extends EventEmitter {
             this._sendAndBuildLogicalPacket(client, SoeOpcode.OutOfOrder, {
               sequence: sequence
             });
-          }
-          );
+          });
 
           client.inputStream.on("error", (err: Error) => {
             console.error(err);
@@ -367,7 +395,6 @@ export class SOEServer extends EventEmitter {
           // client.outputStream.on(SOEOutputChannels.Raw, (data: Buffer) => {
           // TODO:
           // });
-
         } else {
           client = this._clients.get(clientId) as SOEClient;
         }
@@ -473,77 +500,91 @@ export class SOEServer extends EventEmitter {
   private prepareSending(client: Client, packet?: LogicalPacket) {
     console.log("Preparing sending");
     if (packet) {
-      console.log("initial packet" );
+      console.log("initial packet");
       if (this._canBeBufferedIntoQueue(packet, client.waitingQueue)) {
-        console.log("Adding initial packet to buffer")
+        console.log("Adding initial packet to buffer");
         this._addPacketToBuffer(client, packet, client.waitingQueue);
-      }
-      else {
+      } else {
         // sends the already buffered packets
-        const waitingQueuePacket = this.getClientWaitQueuePacket(client, client.waitingQueue);
+        const waitingQueuePacket = this.getClientWaitQueuePacket(
+          client,
+          client.waitingQueue
+        );
         if (waitingQueuePacket) {
-        console.log("Sending already buffered packets")
+          console.log("Sending already buffered packets");
           this._sendAndBuildPhysicalPacket(client, waitingQueuePacket);
         }
-        if(this._canBeBufferedIntoQueue(packet, client.waitingQueue)){
-        console.log("Adding initial packet to new buffer")
+        if (this._canBeBufferedIntoQueue(packet, client.waitingQueue)) {
+          console.log("Adding initial packet to new buffer");
           this._addPacketToBuffer(client, packet, client.waitingQueue);
-        }
-        else {
+        } else {
           // if it still can't be buffered it means that the packet is too big so we send it directly
-          console.log("Sending initial packet directly")
-          this._sendAndBuildPhysicalPacket(client, packet)
+          console.log("Sending initial packet directly");
+          this._sendAndBuildPhysicalPacket(client, packet);
         }
-
       }
     }
     const ackPacket = this.getAck(client);
     if (ackPacket) {
-    client.stats.totalLogicalPacketSent++;
-      console.log("ack packet")
+      client.stats.totalLogicalPacketSent++;
+      console.log("ack packet");
       if (this._canBeBufferedIntoQueue(ackPacket, client.waitingQueue)) {
-        console.log("Adding ack packet to buffer")
+        console.log("Adding ack packet to buffer");
         this._addPacketToBuffer(client, ackPacket, client.waitingQueue);
-      }
-      else {
-        const waitingQueuePacket = this.getClientWaitQueuePacket(client, client.waitingQueue);
+      } else {
+        const waitingQueuePacket = this.getClientWaitQueuePacket(
+          client,
+          client.waitingQueue
+        );
         if (waitingQueuePacket) {
-          console.log("Sending already buffered packets")
+          console.log("Sending already buffered packets");
           this._sendAndBuildPhysicalPacket(client, waitingQueuePacket);
         }
         // no additionnal check needed here because ack packets have a fixed size
-        console.log("Sending ack packet directly")
+        console.log("Sending ack packet directly");
         this._addPacketToBuffer(client, ackPacket, client.waitingQueue);
       }
     }
     const resends = this.getResends(client);
     console.log("resends", resends.length);
     for (const resend of resends) {
-    client.stats.totalLogicalPacketSent++;
+      client.stats.totalLogicalPacketSent++;
       if (this._canBeBufferedIntoQueue(resend, client.waitingQueue)) {
         this._addPacketToBuffer(client, resend, client.waitingQueue);
-      }
-      else {
-        const waitingQueuePacket = this.getClientWaitQueuePacket(client, client.waitingQueue);
+      } else {
+        const waitingQueuePacket = this.getClientWaitQueuePacket(
+          client,
+          client.waitingQueue
+        );
         if (waitingQueuePacket) {
           this._sendAndBuildPhysicalPacket(client, waitingQueuePacket);
         }
-        if(this._canBeBufferedIntoQueue(resend, client.waitingQueue)){
+        if (this._canBeBufferedIntoQueue(resend, client.waitingQueue)) {
           this._addPacketToBuffer(client, resend, client.waitingQueue);
-        }
-        else {
+        } else {
           // if it still can't be buffered it means that the packet is too big so we send it directly
-          this._sendAndBuildPhysicalPacket(client, resend)
+          this._sendAndBuildPhysicalPacket(client, resend);
         }
       }
     }
-    const waitingQueuePacket = this.getClientWaitQueuePacket(client, client.waitingQueue);
+    const waitingQueuePacket = this.getClientWaitQueuePacket(
+      client,
+      client.waitingQueue
+    );
     if (waitingQueuePacket) {
-      console.log("Sending buffered packets during prepare sending")
+      console.log("Sending buffered packets during prepare sending");
       this._sendAndBuildPhysicalPacket(client, waitingQueuePacket);
     }
-    console.log(client.stats)
-    console.log(client.avgPing)
+    console.log(client.stats);
+    console.log(client.avgPing);
+    // FIXME: to refactor this run too often
+    if (client.resendTimer) {
+      clearTimeout(client.resendTimer);
+      client.resendTimer = null;
+    }
+    client.resendTimer = setTimeout(() => {
+      this.checkResends(client);
+    }, this._resendTimeout);
   }
   // Build the logical packet via the soeprotocol
   private createLogicalPacket(
@@ -573,7 +614,6 @@ export class SOEServer extends EventEmitter {
     }
   }
 
-
   private _canBeBufferedIntoQueue(
     logicalPacket: LogicalPacket,
     queue: PacketsQueue
@@ -582,7 +622,7 @@ export class SOEServer extends EventEmitter {
       this._waitQueueTimeMs > 0 &&
       logicalPacket.canBeBuffered &&
       queue.CurrentByteLength + logicalPacket.data.length <=
-      this._maxMultiBufferSize
+        this._maxMultiBufferSize
     );
   }
 
@@ -595,7 +635,7 @@ export class SOEServer extends EventEmitter {
     if (!queue.timer) {
       queue.timer = setTimeout(() => {
         console.log("prepare sending due to timeout");
-        this.prepareSending(client)
+        this.prepareSending(client);
       }, this._waitQueueTimeMs);
     }
   }
@@ -608,7 +648,7 @@ export class SOEServer extends EventEmitter {
     if (this._canBeBufferedIntoQueue(logicalPacket, client.waitingQueue)) {
       this._addPacketToBuffer(client, logicalPacket, client.waitingQueue);
     } else {
-      this.prepareSending(client,logicalPacket);
+      this.prepareSending(client, logicalPacket);
     }
   }
 

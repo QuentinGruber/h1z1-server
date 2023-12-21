@@ -42,6 +42,7 @@ export default class SOEClient {
   outputStream: SOEOutputStream;
   soeClientId: string;
   lastKeepAliveTimer: NodeJS.Timeout | null = null;
+  resendTimer: NodeJS.Timeout | null = null;
   isDeleted: boolean = false;
   stats: SOEClientStats = {
     totalPhysicalPacketSent: 0,
@@ -73,7 +74,11 @@ export default class SOEClient {
     this.stats.totalLogicalPacketSent = 0;
   }
   getNetworkStats(): string[] {
-    const { totalPhysicalPacketSent: totalPacketSent, packetResend, packetsOutOfOrder } = this.stats;
+    const {
+      totalPhysicalPacketSent: totalPacketSent,
+      packetResend,
+      packetsOutOfOrder
+    } = this.stats;
     const packetLossRate =
       Number((packetResend / totalPacketSent).toFixed(3)) * 100;
     const packetOutOfOrderRate =
