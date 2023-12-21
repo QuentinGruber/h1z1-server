@@ -34,12 +34,12 @@ export class SOEServer extends EventEmitter {
   private _connection: dgram.Socket;
   _crcSeed: number = Math.floor(Math.random() * 256);
   _crcLength: crc_length_options = 2;
-  _waitQueueTimeMs: number = 0;
+  _waitQueueTimeMs: number = 50;
   keepAliveTimeoutTime: number = 40000;
   private readonly _maxMultiBufferSize: number;
   private _resendTimeout: number = 500;
   _allowRawDataReception: boolean = false;
-  private _maxSeqResendRange: number = 50;
+  private _maxSeqResendRange: number = 100;
   private _packetResetInterval: NodeJS.Timeout | undefined;
   constructor(serverPort: number, cryptoKey: Uint8Array) {
     super();
@@ -48,21 +48,12 @@ export class SOEServer extends EventEmitter {
     this._cryptoKey = cryptoKey;
     this._maxMultiBufferSize = this._udpLength - 4 - this._crcLength;
     this._connection = dgram.createSocket("udp4");
-    this._packetResetInterval = setInterval(() => {
-      this.resetPacketsSent();
-    }, 1000);
   }
 
   getSoeClient(soeClientId: string): SOEClient | undefined {
     return this._clients.get(soeClientId);
   }
 
-  private resetPacketsSent(): void {
-    // FIXME: remove this
-    for (const client of this._clients.values()) {
-      client.packetsSentThisSec = 0;
-    }
-  }
 
   private _sendAndBuildPhysicalPacket(
     client: Client,
@@ -72,6 +63,10 @@ export class SOEServer extends EventEmitter {
       logicalPacket.canCrc && this._crcLength
         ? append_crc_legacy(logicalPacket.data, this._crcSeed)
         : logicalPacket.data;
+    //FIXME: that's shit 
+    if (logicalPacket.isReliable) {
+      client.unAckData.set(logicalPacket.sequence as number, Date.now())
+    }
     this._sendPhysicalPacket(client, data);
   }
 
@@ -82,41 +77,17 @@ export class SOEServer extends EventEmitter {
     this._connection.send(packet, client.port, client.address);
   }
 
-  // private sendOutQueue(client: Client): void {
-  //   debug("Sending out queue");
-  //   while (client.packetsSentThisSec < this.packetRatePerClient) {
-  //     const logicalPacket = client.outQueue.shift();
-  //     if (logicalPacket) {
-  //       // if is a reliable packet
-  //       if (logicalPacket.isReliable && logicalPacket.sequence) {
-  //         client.unAckData.set(logicalPacket.sequence, Date.now());
-  //       }
-  //       const data =
-  //         logicalPacket.canCrc && this._crcLength
-  //           ? append_crc_legacy(logicalPacket.data, this._crcSeed)
-  //           : logicalPacket.data;
-  //       this._sendPhysicalPacket(client, data);
-  //     } else {
-  //       break;
-  //     }
-  //   }
-  // }
-  //
-  //
   private checkResends(client: Client): void {
+    console.log("checkResends")
+    const currentTime = Date.now()
     if (client.unAckData.size > 0) {
-      // Convert the Set to an array (ES2020+)
-      const unAckDataArr = [...client.unAckData];
+      // check first element of unAckData
+      for (const time of client.unAckData.values()) {
+        if (time + this._resendTimeout + client.avgPing < currentTime) {
+          this.prepareSending(client);
 
-      // Get the last element from the array
-      const lastElement = unAckDataArr[unAckDataArr.length - 1];
-      const [sequence, time] = lastElement;
-      // so eslint doesn't complain
-      sequence;
-      const currentTime = Date.now();
-
-      if (time + this._resendTimeout + client.avgPing < currentTime) {
-        this.prepareSending(client);
+        }
+        break
       }
     }
   }
@@ -242,9 +213,9 @@ export class SOEServer extends EventEmitter {
         client.outputStream.setFragmentSize(client.clientUdpLength - 7); // TODO: 7? calculate this based on crc enabled / compression etc
         client.lastKeepAliveTimer = this.keepAliveTimeoutTime
           ? setTimeout(() => {
-              debug("Client keep alive timeout");
-              this.emit("disconnect", client);
-            }, this.keepAliveTimeoutTime)
+            debug("Client keep alive timeout");
+            this.emit("disconnect", client);
+          }, this.keepAliveTimeoutTime)
           : null;
 
         this._sendAndBuildLogicalPacket(
@@ -297,8 +268,8 @@ export class SOEServer extends EventEmitter {
         client.stats.packetsOutOfOrder++;
         client.addPing(
           Date.now() +
-            this._waitQueueTimeMs -
-            (client.unAckData.get(packet.sequence) as number)
+          this._waitQueueTimeMs -
+          (client.unAckData.get(packet.sequence) as number)
         );
         client.outputStream.removeFromCache(packet.sequence);
         client.unAckData.delete(packet.sequence);
@@ -524,23 +495,23 @@ export class SOEServer extends EventEmitter {
         }
       }
     }
-    const ackPacket = this.getAck(client);
-    if (ackPacket) {
-      client.stats.totalLogicalPacketSent++;
-      if (this._canBeBufferedIntoQueue(ackPacket, client.waitingQueue)) {
-        this._addPacketToBuffer(client, ackPacket, client.waitingQueue);
-      } else {
-        const waitingQueuePacket = this.getClientWaitQueuePacket(
-          client,
-          client.waitingQueue
-        );
-        if (waitingQueuePacket) {
-          this._sendAndBuildPhysicalPacket(client, waitingQueuePacket);
-        }
-        // no additionnal check needed here because ack packets have a fixed size
-        this._addPacketToBuffer(client, ackPacket, client.waitingQueue);
-      }
-    }
+    // const ackPacket = this.getAck(client);
+    // if (ackPacket) {
+    //   client.stats.totalLogicalPacketSent++;
+    //   if (this._canBeBufferedIntoQueue(ackPacket, client.waitingQueue)) {
+    //     this._addPacketToBuffer(client, ackPacket, client.waitingQueue);
+    //   } else {
+    //     const waitingQueuePacket = this.getClientWaitQueuePacket(
+    //       client,
+    //       client.waitingQueue
+    //     );
+    //     if (waitingQueuePacket) {
+    //       this._sendAndBuildPhysicalPacket(client, waitingQueuePacket);
+    //     }
+    //     // no additionnal check needed here because ack packets have a fixed size
+    //     this._addPacketToBuffer(client, ackPacket, client.waitingQueue);
+    //   }
+    // }
     const resends = this.getResends(client);
     for (const resend of resends) {
       client.stats.totalLogicalPacketSent++;
@@ -614,7 +585,7 @@ export class SOEServer extends EventEmitter {
       this._waitQueueTimeMs > 0 &&
       logicalPacket.canBeBuffered &&
       queue.CurrentByteLength + logicalPacket.data.length <=
-        this._maxMultiBufferSize
+      this._maxMultiBufferSize
     );
   }
 

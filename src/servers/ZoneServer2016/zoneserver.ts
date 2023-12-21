@@ -817,7 +817,6 @@ export class ZoneServer2016 extends EventEmitter {
   }
 
   onZoneDataEvent(client: Client, packet: ReceivedPacket<any>) {
-    console.log("received " + packet.name);
     if (!client) {
       return;
     }
@@ -3725,7 +3724,6 @@ export class ZoneServer2016 extends EventEmitter {
     channel: SOEOutputChannels,
     unbuffered: boolean
   ) {
-    console.log("send " + packetName);
     switch (packetName) {
       case "KeepAlive":
       case "PlayerUpdatePosition":
