@@ -15,7 +15,7 @@ import { RemoteInfo } from "node:dgram";
 import { toInt, wrappedUint16, _ } from "../../utils/utils";
 import { SOEInputStream } from "./soeinputstream";
 import { SOEOutputStream } from "./soeoutputstream";
-import { LogicalPacket } from "./logicalPacket";
+import { PacketsQueue } from "./PacketsQueue";
 
 interface SOEClientStats {
   totalPacketSent: number;
@@ -23,11 +23,6 @@ interface SOEClientStats {
   packetsOutOfOrder: number;
 }
 
-export interface packetsQueue {
-  packets: LogicalPacket[];
-  CurrentByteLength: number;
-  timer?: NodeJS.Timeout;
-}
 export default class SOEClient {
   sessionId: number = 0;
   address: string;
@@ -38,8 +33,7 @@ export default class SOEClient {
   serverUdpLength: number = 512;
   packetsSentThisSec: number = 0;
   useEncryption: boolean = true;
-  waitingQueue: packetsQueue = { packets: [], CurrentByteLength: 0 };
-  outQueue: LogicalPacket[] = [];
+  waitingQueue: PacketsQueue = new PacketsQueue();
   protocolName: string = "unset";
   unAckData: Map<number, number> = new Map();
   lastAckSend: wrappedUint16 = new wrappedUint16(-1);

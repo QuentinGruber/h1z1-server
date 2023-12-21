@@ -14,39 +14,45 @@
 export class LogicalPacket {
   sequence?: number;
   data: Uint8Array;
-  isReliable: boolean;
-  canCrc: boolean;
-  constructor(data: Uint8Array, sequence?: number) {
+  isReliable: boolean = false;
+  canCrc: boolean = false;
+  canBeBuffered: boolean = true;
+  constructor(
+    data: Uint8Array,
+    sequence?: number,
+    forceUnbufferable?: boolean
+  ) {
     this.sequence = sequence;
     this.data = data;
+    if (forceUnbufferable) {
+      this.canBeBuffered = false;
+    }
     switch (data[1]) {
       case 3:
-        this.isReliable = false;
         this.canCrc = true;
+        this.canBeBuffered = false;
         break;
       case 9:
         this.isReliable = true;
         this.canCrc = true;
+        this.canBeBuffered = this.data.length < 255;
         break;
       case 11:
-        this.isReliable = false;
         this.canCrc = true;
         break;
       case 21:
-        this.isReliable = false;
         this.canCrc = true;
         break;
       case 27:
-        this.isReliable = false;
+        this.canBeBuffered = this.data.length < 255;
         this.canCrc = true;
         break;
       case 13:
         this.isReliable = true;
         this.canCrc = true;
+        this.canBeBuffered = this.data.length < 255;
         break;
       default:
-        this.isReliable = false;
-        this.canCrc = false;
         break;
     }
   }

@@ -19,14 +19,12 @@ import {
   MAX_SEQUENCE,
   MAX_UINT8
 } from "../../utils/constants";
-import { soePacket } from "types/soeserver";
 
 const debug = require("debug")("SOEInputStream");
 type Fragment = { payload: Buffer; isFragment: boolean };
 export class SOEInputStream extends EventEmitter {
   _nextSequence: wrappedUint16 = new wrappedUint16(0);
   _lastAck: wrappedUint16 = new wrappedUint16(-1);
-  outOfOrderPackets: soePacket[] = [];
   _fragments: Map<number, Fragment> = new Map();
   _useEncryption: boolean = false;
   _lastProcessedSequence: number = -1;
@@ -88,14 +86,14 @@ export class SOEInputStream extends EventEmitter {
             "error",
             new Error(
               "processDataFragments: offset > totalSize: " +
-                this.cpf_dataSize +
-                " > " +
-                this.cpf_totalSize +
-                " (sequence " +
-                fragmentSequence +
-                ") (fragment length " +
-                fragment.payload.length +
-                ")"
+              this.cpf_dataSize +
+              " > " +
+              this.cpf_totalSize +
+              " (sequence " +
+              fragmentSequence +
+              ") (fragment length " +
+              fragment.payload.length +
+              ")"
             )
           );
         }
@@ -160,13 +158,13 @@ export class SOEInputStream extends EventEmitter {
     if (sequence > this._nextSequence.get()) {
       debug(
         "Sequence out of order, expected " +
-          this._nextSequence.get() +
-          " but received " +
-          sequence
+        this._nextSequence.get() +
+        " but received " +
+        sequence
       );
       // acknowledge that we receive this sequence but do not process it
       // until we're back in order
-      this.outOfOrderPackets.push(sequence);
+      this.emit("outOfOrder", sequence)
       return false;
     } else {
       let ack = sequence;

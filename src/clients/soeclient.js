@@ -54,24 +54,24 @@ class SOEClient {
     let n1 = 0,
       n2 = 0;
 
-    inputStream.on("appdata", function (data) {
+    inputStream.on("appdata", function(data) {
       if (me._dumpData) {
         fs.writeFileSync("soeclient_apppacket_" + n2++ + ".dat", data);
       }
       me.emit("appdata", null, data);
     });
 
-    inputStream.on("ack", function (sequence) {
+    inputStream.on("ack", function(sequence) {
       nextAck = sequence;
     });
 
-    inputStream.on("outoforder", function (sequence) {
+    inputStream.on("outoforder", function(sequence) {
       outOfOrderPackets.push(sequence);
     });
 
     outputStream.on(
       SOEOutputChannels.Reliable,
-      function (data, sequence, fragment) {
+      function(data, sequence, fragment) {
         if (fragment) {
           me._sendPacket(SoeOpcode.DataFragment, {
             sequence: sequence,
@@ -149,7 +149,7 @@ class SOEClient {
           data.length,
           me._serverPort,
           me._serverAddress,
-          function (err, bytes) {}
+          function(err, bytes) { }
         );
       }
       me._outQueueTimer = setTimeout(checkOutQueue, 0);
@@ -195,11 +195,11 @@ class SOEClient {
           if (lastOutOfOrder > 0) {
             debug(
               "Received multiple out-order-packet packet on channel " +
-                channel +
-                ", sequence " +
-                lastOutOfOrder
+              channel +
+              ", sequence " +
+              lastOutOfOrder
             );
-            outputStream.resendData(lastOutOfOrder);
+            outputStream.getDataCache(lastOutOfOrder);
           }
           break;
         case "Ping":
@@ -219,9 +219,9 @@ class SOEClient {
         case "OutOfOrder":
           debug(
             "Received out-order-packet packet on channel " +
-              packet.channel +
-              ", sequence " +
-              packet.sequence
+            packet.channel +
+            ", sequence " +
+            packet.sequence
           );
           //outputStream.resendData(result.sequence);
           break;
@@ -236,7 +236,7 @@ class SOEClient {
       }
     }
 
-    connection.on("message", function (data, remote) {
+    connection.on("message", function(data, remote) {
       if (me._dumpData) {
         fs.writeFileSync("debug/soeclient_" + n1++ + "_in.dat", data);
       }
@@ -244,7 +244,7 @@ class SOEClient {
       handlePacket(result);
     });
 
-    connection.on("listening", function () {
+    connection.on("listening", function() {
       const address = this.address();
       debug("Listening on " + address.address + ":" + address.port);
     });
@@ -253,13 +253,13 @@ class SOEClient {
   connect() {
     debug(
       "Setting up connection for " +
-        this._serverAddress +
-        ":" +
-        this._serverPort
+      this._serverAddress +
+      ":" +
+      this._serverPort
     );
     this._sessionId = createSessionId();
     const me = this;
-    this._connection.bind(this._localPort, function () {
+    this._connection.bind(this._localPort, function() {
       me._sendPacket(SoeOpcode.SessionRequest, {
         protocol: me._protocolName,
         crc_length: 3,
@@ -276,7 +276,7 @@ class SOEClient {
     try {
       this._sendPacket(SoeOpcode.Disconnect, {});
       this._connection.close();
-    } catch (e) {}
+    } catch (e) { }
   }
 
   toggleEncryption(value) {

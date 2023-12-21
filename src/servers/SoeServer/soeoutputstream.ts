@@ -14,7 +14,7 @@
 import { EventEmitter } from "node:events";
 import { RC4 } from "h1emu-core";
 import { wrappedUint16 } from "../../utils/utils";
-import { dataCache } from "types/soeserver";
+import { dataCache, dataCacheMap } from "types/soeserver";
 
 const debug = require("debug")("SOEOutputStream");
 
@@ -31,7 +31,7 @@ export class SOEOutputStream extends EventEmitter {
   private _order_sequence: wrappedUint16 = new wrappedUint16(-1);
   lastAck: wrappedUint16 = new wrappedUint16(-1);
   lastOutOfOrder: number = -1;
-  private _cache: dataCache = {};
+  private _cache: dataCacheMap = {};
   private _rc4: RC4;
   constructor(cryptoKey: Uint8Array) {
     super();
@@ -136,18 +136,8 @@ export class SOEOutputStream extends EventEmitter {
     }
   }
 
-  resendData(sequence: number): void {
-    if (this._cache[sequence]) {
-      this.emit(
-        "dataResend",
-        this._cache[sequence].data,
-        sequence,
-        this._cache[sequence].fragment
-      );
-    } else {
-      // already deleted from cache so already acknowledged by the client not a real issue
-      debug(`Cache error, could not resend data for sequence ${sequence}! `);
-    }
+  getDataCache(sequence: number): dataCache {
+    return this._cache[sequence];
   }
 
   isUsingEncryption(): boolean {
