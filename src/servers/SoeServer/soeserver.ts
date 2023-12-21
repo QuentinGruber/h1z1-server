@@ -74,7 +74,7 @@ export class SOEServer extends EventEmitter {
 
   private _sendPhysicalPacket(client: Client, packet: Uint8Array): void {
     client.packetsSentThisSec++;
-    client.stats.totalPacketSent++;
+    client.stats.totalPhysicalPacketSent++;
     debug("Sending physical packet", packet);
     this._connection.send(packet, client.port, client.address);
   }
@@ -273,7 +273,6 @@ export class SOEServer extends EventEmitter {
           (client.unAckData.get(packet.sequence) as number)
         );
         client.outputStream.removeFromCache(packet.sequence);
-        client.outputStream.lastOutOfOrder = packet.sequence;
         client.unAckData.delete(packet.sequence);
         break;
       case "Ack":
@@ -500,6 +499,7 @@ export class SOEServer extends EventEmitter {
     }
     const ackPacket = this.getAck(client);
     if (ackPacket) {
+    client.stats.totalLogicalPacketSent++;
       console.log("ack packet")
       if (this._canBeBufferedIntoQueue(ackPacket, client.waitingQueue)) {
         console.log("Adding ack packet to buffer")
@@ -519,6 +519,7 @@ export class SOEServer extends EventEmitter {
     const resends = this.getResends(client);
     console.log("resends", resends.length);
     for (const resend of resends) {
+    client.stats.totalLogicalPacketSent++;
       if (this._canBeBufferedIntoQueue(resend, client.waitingQueue)) {
         this._addPacketToBuffer(client, resend, client.waitingQueue);
       }
@@ -541,6 +542,8 @@ export class SOEServer extends EventEmitter {
       console.log("Sending buffered packets during prepare sending")
       this._sendAndBuildPhysicalPacket(client, waitingQueuePacket);
     }
+    console.log(client.stats)
+    console.log(client.avgPing)
   }
   // Build the logical packet via the soeprotocol
   private createLogicalPacket(
@@ -591,7 +594,7 @@ export class SOEServer extends EventEmitter {
     queue.addPacket(logicalPacket);
     if (!queue.timer) {
       queue.timer = setTimeout(() => {
-        debug("prepare sending due to timeout");
+        console.log("prepare sending due to timeout");
         this.prepareSending(client)
       }, this._waitQueueTimeMs);
     }
@@ -601,6 +604,7 @@ export class SOEServer extends EventEmitter {
     client: Client,
     logicalPacket: LogicalPacket
   ): void {
+    client.stats.totalLogicalPacketSent++;
     if (this._canBeBufferedIntoQueue(logicalPacket, client.waitingQueue)) {
       this._addPacketToBuffer(client, logicalPacket, client.waitingQueue);
     } else {
