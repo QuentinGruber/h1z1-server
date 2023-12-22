@@ -139,10 +139,10 @@ const packets: any[] = [
             { name: "serverTicket", type: "string" },
             { name: "encryptionKey", type: "byteswithlength" },
             { name: "guid", type: "int64string" },
-            { name: "unknownQword2", type: "int64string" },
+            { name: "unknownQword2", type: "int64string", defaultValue: "" },
             { name: "stationName", type: "string", defaultValue: "" },
-            { name: "characterName", type: "string" },
-            { name: "unknownString", type: "string" }
+            { name: "characterName", type: "string", defaultValue: "" },
+            { name: "unknownString", type: "string", defaultValue: "" }
           ]
         }
       ]

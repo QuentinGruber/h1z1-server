@@ -55,10 +55,10 @@ export interface CharacterLoginReply {
   serverTicket: string;
   encryptionKey: unknown;
   guid: string;
-  unknownQword2: string;
+  unknownQword2?: string;
   stationName?: string;
-  characterName: string;
-  unknownString: string;
+  characterName?: string;
+  unknownString?: string;
 };
 }
 export interface CharacterDeleteRequest {
