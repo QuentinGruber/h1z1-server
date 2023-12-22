@@ -1317,7 +1317,7 @@ export class ZoneServer2016 extends EventEmitter {
   }
 
   private packDynamicAppearance() {
-    this.dynamicAppearanceCache = this._protocol.pack(
+    const dynamicAppearanceCache = this._protocol.pack(
       "ReferenceData.DynamicAppearance",
       {
         ITEM_APPEARANCE_DEFINITIONS:
@@ -1328,6 +1328,8 @@ export class ZoneServer2016 extends EventEmitter {
           dynamicappearance.SHADER_PARAMETER_DEFINITIONS
       }
     );
+    if(!dynamicAppearanceCache) return;
+    this.dynamicAppearanceCache = dynamicAppearanceCache;
   }
   /**
    * Caches weapon definitons so they aren't packed every time a client logs in.
