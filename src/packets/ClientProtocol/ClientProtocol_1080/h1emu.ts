@@ -55,5 +55,12 @@ export const h1emuPackets: PacketStructures = [
     {
       fields: []
     }
+  ],
+  [
+    "H1emu.RequestWindows",
+    0x9906,
+    {
+      fields: []
+    }
   ]
 ];

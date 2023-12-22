@@ -1170,6 +1170,38 @@ export const commands: Array<Command> = [
     }
   },
   {
+    name: "listwindows",
+    permissionLevel: PermissionLevels.MODERATOR,
+    execute: async (
+      server: ZoneServer2016,
+      client: Client,
+      args: Array<string>
+    ) => {
+      if (!args[0]) {
+        server.sendChatText(
+          client,
+          `Correct usage: /listwindows {name | ZoneClientId}`
+        );
+        return;
+      }
+      const targetClient = server.getClientByNameOrLoginSession(
+        args[0].toString()
+      );
+      if (server.playerNotFound(client, args[0].toString(), targetClient)) {
+        return;
+      }
+      if (!targetClient || !(targetClient instanceof Client)) {
+        server.sendChatText(client, "Client not found.");
+        return;
+      }
+      server.sendChatText(
+        client,
+        `Requesting windows from: ${targetClient.character.name}`
+      );
+      server.sendData(client, "H1emu.RequestWindows", {});
+    }
+  },
+  {
     name: "globalmute",
     permissionLevel: PermissionLevels.MODERATOR,
     execute: async (

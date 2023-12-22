@@ -3353,9 +3353,9 @@ export class ZonePacketHandlers {
       case "01": // asset validator
         server.fairPlayManager.handleAssetCheck(server, client, data);
         break;
-      case "02": // modules
+      case "02": // client messages
         server.sendChatTextToAdmins(
-          `Module Loaded on ${client.character.name}: ${data}`
+          `${client.character.name}: ${data}`
         );
         break;
       default:
