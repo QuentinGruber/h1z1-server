@@ -1166,7 +1166,7 @@ export const commands: Array<Command> = [
         client,
         `Requesting modules from: ${targetClient.character.name}`
       );
-      server.sendData(client, "H1emu.RequestModules", {});
+      server.sendData(targetClient, "H1emu.RequestModules", {});
     }
   },
   {
@@ -1198,7 +1198,7 @@ export const commands: Array<Command> = [
         client,
         `Requesting windows from: ${targetClient.character.name}`
       );
-      server.sendData(client, "H1emu.RequestWindows", {});
+      server.sendData(targetClient, "H1emu.RequestWindows", {});
     }
   },
   {
