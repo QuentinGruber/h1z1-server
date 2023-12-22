@@ -360,6 +360,7 @@ export class ZoneServer2016 extends EventEmitter {
   _firemodeDefinitions: { [firemodeId: number]: any } =
     weaponDefinitions.FIRE_MODE_DEFINITIONS;
   itemDefinitionsCache?: Buffer;
+  dynamicAppearanceCache?: Buffer;
   weaponDefinitionsCache?: Buffer;
   projectileDefinitionsCache?: Buffer;
   profileDefinitionsCache?: Buffer;
@@ -451,11 +452,11 @@ export class ZoneServer2016 extends EventEmitter {
 
     this.on("data", this.onZoneDataEvent);
 
-    this.on("login", (client) => {
+    this.on("login", async (client) => {
       if (!this._soloMode) {
         this.sendZonePopulationUpdate();
       }
-      this.onZoneLoginEvent(client);
+      await this.onZoneLoginEvent(client);
     });
 
     this._gatewayServer._soeServer.on("fatalError", (soeClient: SOEClient) => {
@@ -806,10 +807,10 @@ export class ZoneServer2016 extends EventEmitter {
     }
   }
 
-  onZoneLoginEvent(client: Client) {
+  async onZoneLoginEvent(client: Client) {
     debug("zone login");
     try {
-      this.sendInitData(client);
+      await this.sendInitData(client);
     } catch (error) {
       debug(error);
       this.sendData<LoginFailed>(client, "LoginFailed", {});
@@ -1315,6 +1316,19 @@ export class ZoneServer2016 extends EventEmitter {
     this.itemDefinitionsCache = itemDefinitionsCache;
   }
 
+  private packDynamicAppearance() {
+    this.dynamicAppearanceCache = this._protocol.pack(
+      "ReferenceData.DynamicAppearance",
+      {
+        ITEM_APPEARANCE_DEFINITIONS:
+          dynamicappearance.ITEM_APPEARANCE_DEFINITIONS,
+        SHADER_SEMANTIC_DEFINITIONS:
+          dynamicappearance.SHADER_SEMANTIC_DEFINITIONS,
+        SHADER_PARAMETER_DEFINITIONS:
+          dynamicappearance.SHADER_PARAMETER_DEFINITIONS
+      }
+    );
+  }
   /**
    * Caches weapon definitons so they aren't packed every time a client logs in.
    */
@@ -1522,6 +1536,7 @@ export class ZoneServer2016 extends EventEmitter {
     this.packWeaponDefinitions();
     this.packProjectileDefinitions();
     this.packProfileDefinitions();
+    this.packDynamicAppearance();
     this.worldObjectManager.createDoors(this);
     this.worldObjectManager.createProps(this);
 
@@ -1647,7 +1662,7 @@ export class ZoneServer2016 extends EventEmitter {
     this.hookManager.checkHook("OnServerReady");
   }
 
-  sendInitData(client: Client) {
+  async sendInitData(client: Client) {
     this.sendData<InitializationParameters>(
       client,
       "InitializationParameters",
@@ -1749,6 +1764,12 @@ export class ZoneServer2016 extends EventEmitter {
       it's supposed to work (removes the delay) - Meme
     */
 
+    if (!this.dynamicAppearanceCache) {
+      this.packDynamicAppearance();
+    }
+    if (this.dynamicAppearanceCache) {
+      this.sendRawDataReliable(client, this.dynamicAppearanceCache);
+    }
     this.sendData(client, "ReferenceData.DynamicAppearance", {
       ITEM_APPEARANCE_DEFINITIONS:
         dynamicappearance.ITEM_APPEARANCE_DEFINITIONS,
@@ -1778,7 +1799,7 @@ export class ZoneServer2016 extends EventEmitter {
     });
     */
 
-    this.sendCharacterData(client);
+    await this.sendCharacterData(client);
   }
 
   private divideMapIntoSpawnGrid(
