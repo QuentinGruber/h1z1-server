@@ -56,7 +56,7 @@ export interface CharacterLoginReply {
   encryptionKey: unknown;
   guid: string;
   unknownQword2: string;
-  stationName: string;
+  stationName?: string;
   characterName: string;
   unknownString: string;
 };

@@ -140,7 +140,7 @@ const packets: any[] = [
             { name: "encryptionKey", type: "byteswithlength" },
             { name: "guid", type: "int64string" },
             { name: "unknownQword2", type: "int64string" },
-            { name: "stationName", type: "string" },
+            { name: "stationName", type: "string", defaultValue: "" },
             { name: "characterName", type: "string" },
             { name: "unknownString", type: "string" }
           ]
