@@ -3354,9 +3354,7 @@ export class ZonePacketHandlers {
         server.fairPlayManager.handleAssetCheck(server, client, data);
         break;
       case "02": // client messages
-        server.sendChatTextToAdmins(
-          `${client.character.name}: ${data}`
-        );
+        server.sendChatTextToAdmins(`${client.character.name}: ${data}`);
         break;
       default:
         console.log(
