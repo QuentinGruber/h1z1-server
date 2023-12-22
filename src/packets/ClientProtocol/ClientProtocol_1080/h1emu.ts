@@ -43,7 +43,7 @@ export const h1emuPackets: PacketStructures = [
     }
   ],
   [
-    "H1emu.VoiceState",
+    "H1emu.VoiceInit",
     0x9904,
     {
       fields: []
@@ -62,5 +62,14 @@ export const h1emuPackets: PacketStructures = [
     {
       fields: []
     }
-  ]
+  ],
+  [
+    "H1emu.VoiceState",
+    0x9907,
+    {
+      fields: [
+        { name: "message", type: "string", defaultValue: "" }
+      ]
+    }
+  ],
 ];
