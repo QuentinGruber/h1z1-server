@@ -16,7 +16,6 @@ import { LogicalPacket } from "./logicalPacket";
 export class PacketsQueue {
   packets: LogicalPacket[] = [];
   CurrentByteLength: number = 0;
-  timer?: NodeJS.Timeout;
 
   clear(): void {
     this.packets = [];

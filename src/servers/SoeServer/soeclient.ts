@@ -42,7 +42,6 @@ export default class SOEClient {
   outputStream: SOEOutputStream;
   soeClientId: string;
   lastKeepAliveTimer: NodeJS.Timeout | null = null;
-  resendTimer: NodeJS.Timeout | null = null;
   isDeleted: boolean = false;
   stats: SOEClientStats = {
     totalPhysicalPacketSent: 0,
@@ -53,6 +52,7 @@ export default class SOEClient {
   avgPing: number = 0;
   pings: number[] = [];
   avgPingLen: number = 6;
+  sendingTimer: NodeJS.Timeout | null = null;
   private _statsResetTimer: NodeJS.Timer;
   constructor(remote: RemoteInfo, crcSeed: number, cryptoKey: Uint8Array) {
     this.soeClientId = remote.address + ":" + remote.port;
