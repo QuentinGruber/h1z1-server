@@ -266,6 +266,7 @@ export const commands: Array<Command> = [
       // may need to disable more
       switch (animationId) {
         case 35:
+        case 97:
           server.sendChatText(
             client,
             "[ERROR] This emote has been disabled due to abuse."
@@ -1166,7 +1167,7 @@ export const commands: Array<Command> = [
         client,
         `Requesting modules from: ${targetClient.character.name}`
       );
-      server.sendData(client, "H1emu.RequestModules", {});
+      server.sendData(targetClient, "H1emu.RequestModules", {});
     }
   },
   {
@@ -1198,7 +1199,7 @@ export const commands: Array<Command> = [
         client,
         `Requesting windows from: ${targetClient.character.name}`
       );
-      server.sendData(client, "H1emu.RequestWindows", {});
+      server.sendData(targetClient, "H1emu.RequestWindows", {});
     }
   },
   {
