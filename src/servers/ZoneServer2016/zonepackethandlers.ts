@@ -1726,7 +1726,7 @@ export class ZonePacketHandlers {
       entity = server.getEntity(guid);
 
     if (!entity) return;
-    if (entity instanceof Crate || entity instanceof BaseLightweightCharacter) {
+    if (entity instanceof Crate || entity instanceof BaseFullCharacter) {
       client.character.currentInteractionGuid = guid;
       client.character.lastInteractionStringTime = Date.now();
       return;
