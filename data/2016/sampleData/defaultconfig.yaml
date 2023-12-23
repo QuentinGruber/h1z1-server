@@ -84,8 +84,8 @@ worldobjects:
   waterSourceRefillAmount: 2
   waterSourceReplenishTimer: 300000 # 5 minutes
 
-  crowbarHitRewardChance: 15 # 100 max
-  crowbarHitDamage: 25 # Default 25
+  crowbarHitRewardChance: 20 # 100 max
+  crowbarHitDamage: 10 # Default 25
 
 # Trees, blackberry bushes, and sticks
 speedtree:
