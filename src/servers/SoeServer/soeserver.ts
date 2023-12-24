@@ -43,11 +43,17 @@ export class SOEServer extends EventEmitter {
   private _packetResetInterval: NodeJS.Timeout | undefined;
   constructor(serverPort: number, cryptoKey: Uint8Array) {
     super();
-    Buffer.poolSize = 8192 * 4;
+    const oneMb = 1024 * 1024;
+    Buffer.poolSize = oneMb;
     this._serverPort = serverPort;
     this._cryptoKey = cryptoKey;
     this._maxMultiBufferSize = this._udpLength - 4 - this._crcLength;
     this._connection = dgram.createSocket("udp4");
+    // set recv buffer size to 1mb and send buffer size to 1mb
+    this._connection.on("listening", () => {
+      this._connection.setRecvBufferSize(oneMb);
+      this._connection.setSendBufferSize(oneMb);
+    });
   }
 
   getSoeClient(soeClientId: string): SOEClient | undefined {
