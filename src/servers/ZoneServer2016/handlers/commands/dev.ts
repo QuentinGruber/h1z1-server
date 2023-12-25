@@ -53,7 +53,8 @@ const dev: any = {
     }, 2000);
   },
   acc: function (server: ZoneServer2016, client: Client, args: Array<string>) {
-    server.sendData<ItemsAddAccountItem>(client, "Items.AddAccountItem", {});
+    server.sendData<ItemsAddAccountItem>(client, "Items.AddAccountItem", {
+    });
   },
   ui: function (server: ZoneServer2016, client: Client, args: Array<string>) {
     server.sendData(client, "Effect.AddUiIndicator", {
