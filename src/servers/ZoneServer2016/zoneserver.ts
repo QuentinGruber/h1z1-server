@@ -1328,7 +1328,7 @@ export class ZoneServer2016 extends EventEmitter {
           dynamicappearance.SHADER_PARAMETER_DEFINITIONS
       }
     );
-    if(!dynamicAppearanceCache) return;
+    if (!dynamicAppearanceCache) return;
     this.dynamicAppearanceCache = dynamicAppearanceCache;
   }
   /**
@@ -1772,14 +1772,6 @@ export class ZoneServer2016 extends EventEmitter {
     if (this.dynamicAppearanceCache) {
       this.sendRawDataReliable(client, this.dynamicAppearanceCache);
     }
-    this.sendData(client, "ReferenceData.DynamicAppearance", {
-      ITEM_APPEARANCE_DEFINITIONS:
-        dynamicappearance.ITEM_APPEARANCE_DEFINITIONS,
-      SHADER_SEMANTIC_DEFINITIONS:
-        dynamicappearance.SHADER_SEMANTIC_DEFINITIONS,
-      SHADER_PARAMETER_DEFINITIONS:
-        dynamicappearance.SHADER_PARAMETER_DEFINITIONS
-    });
 
     this.sendData<ClientGameSettings>(client, "ClientGameSettings", {
       interactionCheckRadius: 16, // need it high for tampers

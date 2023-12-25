@@ -16,6 +16,8 @@ import { toInt, wrappedUint16, _ } from "../../utils/utils";
 import { SOEInputStream } from "./soeinputstream";
 import { SOEOutputStream } from "./soeoutputstream";
 import { PacketsQueue } from "./PacketsQueue";
+import { clearInterval } from "node:timers";
+import { LogicalPacket } from "./logicalPacket";
 
 interface SOEClientStats {
   totalPhysicalPacketSent: number;
@@ -54,6 +56,10 @@ export default class SOEClient {
   avgPingLen: number = 6;
   sendingTimer: NodeJS.Timeout | null = null;
   private _statsResetTimer: NodeJS.Timer;
+  bytesSentThisSec = 0;
+  delayedLogicalPackets: LogicalPacket[] = [];
+  private _resetBytesSentThisSecTimer: NodeJS.Timeout;
+  sendSinceLastAck = 0;
   constructor(remote: RemoteInfo, crcSeed: number, cryptoKey: Uint8Array) {
     this.soeClientId = remote.address + ":" + remote.port;
     this.address = remote.address;
@@ -62,16 +68,22 @@ export default class SOEClient {
     this.inputStream = new SOEInputStream(cryptoKey);
     this.outputStream = new SOEOutputStream(cryptoKey);
     this._statsResetTimer = setInterval(() => this._resetStats(), 60000);
+    this._resetBytesSentThisSecTimer = setInterval(
+      () => (this.bytesSentThisSec = 0),
+      1000
+    );
   }
   closeTimers() {
     // wierd stuff with the new global Symbol used with the using keyword, skipping that headache for now
     clearInterval(this._statsResetTimer as unknown as number);
+    clearInterval(this._resetBytesSentThisSecTimer as unknown as number);
   }
   private _resetStats() {
     this.stats.totalPhysicalPacketSent = 0;
     this.stats.packetsOutOfOrder = 0;
     this.stats.packetResend = 0;
     this.stats.totalLogicalPacketSent = 0;
+    this.bytesSentThisSec = 0;
   }
   getNetworkStats(): string[] {
     const {

@@ -39,7 +39,7 @@ export class SOEServer extends EventEmitter {
   private readonly _maxMultiBufferSize: number;
   private _resendTimeout: number = 500;
   _allowRawDataReception: boolean = false;
-  private _maxSeqResendRange: number = 100;
+  private _maxSeqResendRange: number = 500;
   private _packetResetInterval: NodeJS.Timeout | undefined;
   constructor(serverPort: number, cryptoKey: Uint8Array) {
     super();
@@ -72,13 +72,23 @@ export class SOEServer extends EventEmitter {
     if (logicalPacket.isReliable) {
       client.unAckData.set(logicalPacket.sequence as number, Date.now());
     }
+    client.sendSinceLastAck++;
     this._sendPhysicalPacket(client, data);
   }
 
   private _sendPhysicalPacket(client: Client, packet: Uint8Array): void {
     client.packetsSentThisSec++;
+    client.bytesSentThisSec += packet.byteLength;
     client.stats.totalPhysicalPacketSent++;
     debug("Sending physical packet", packet);
+
+    // const packetopcode = SoeOpcode[packet[1]];
+    // console.log("sends : ", packetopcode);
+    // 10% chances to drop the packet
+    // const rnd = Math.random() * 100
+    // if (rnd < 10) {
+    //   return
+    // }
     this._connection.send(packet, client.port, client.address);
   }
 
@@ -115,10 +125,10 @@ export class SOEServer extends EventEmitter {
         } else {
           console.log("Data cache not found for sequence " + sequence);
         }
-        client.unAckData.delete(sequence);
       }
       iteration++;
     }
+    // console.log("resends ", resends.length);
     return resends;
   }
 
@@ -179,17 +189,17 @@ export class SOEServer extends EventEmitter {
     return client;
   }
 
-  private handlePacket(client: SOEClient, packet: any) {
-    if (client.lastKeepAliveTimer) {
-      client.lastKeepAliveTimer.refresh();
-    }
+  private _activateSendingTimer(client: SOEClient, additonalTime: number = 0) {
     if (!client.sendingTimer) {
       client.sendingTimer = setTimeout(() => {
-        console.log("sending timer triggered");
         client.sendingTimer = null;
         this.sendingProcess(client);
-      }, this._waitTimeMs);
+      }, this._waitTimeMs + additonalTime);
     }
+  }
+
+  private handlePacket(client: SOEClient, packet: any) {
+    console.log("recieved : ", packet.name);
     switch (packet.name) {
       case "SessionRequest":
         debug(
@@ -227,6 +237,7 @@ export class SOEServer extends EventEmitter {
       case "FatalError":
       case "Disconnect":
         debug("Received disconnect from client");
+        this._clearSendingTimer(client);
         this.emit("disconnect", client);
         break;
       case "MultiPacket": {
@@ -258,6 +269,8 @@ export class SOEServer extends EventEmitter {
         );
         break;
       case "OutOfOrder":
+        console.log(`Got oor sequence ${packet.sequence} }`);
+        process.exit(1);
         client.stats.packetsOutOfOrder++;
         client.addPing(
           Date.now() +
@@ -268,6 +281,7 @@ export class SOEServer extends EventEmitter {
         client.unAckData.delete(packet.sequence);
         break;
       case "Ack":
+        console.log(`Got ack sequence ${packet.sequence} }`);
         const mostWaitedPacketTime = client.unAckData.get(
           client.outputStream.lastAck.get()
         ) as number;
@@ -367,6 +381,11 @@ export class SOEServer extends EventEmitter {
               console.error("parsing error " + parsed_data.error);
               console.error(parsed_data);
             } else {
+              client.sendSinceLastAck = 0;
+              if (client.lastKeepAliveTimer) {
+                client.lastKeepAliveTimer.refresh();
+              }
+              this._activateSendingTimer(client);
               this.handlePacket(client, parsed_data);
             }
           } else {
@@ -458,31 +477,68 @@ export class SOEServer extends EventEmitter {
     }
     return Buffer.from(logicalData);
   }
-  private sendingProcess(client: Client, packet?: LogicalPacket) {
+  private _clearSendingTimer(client: Client) {
     if (client.sendingTimer) {
-      console.log("an awaiting sending timer was removed");
+      // console.log("an awaiting sending timer was removed");
       // Idk maybe it create and delete too much timers :/
       clearTimeout(client.sendingTimer);
       client.sendingTimer = null;
     }
+  }
+  private isClientAvailable(client: Client): boolean {
+    if (client.sendSinceLastAck > 50) {
+      return false;
+    } else {
+      return true;
+    }
+  }
+  private sendingProcess(client: Client) {
+    // console.log("sending process");
 
-    if (packet) {
-      if (this._canBeBufferedIntoQueue(packet, client.waitingQueue)) {
-        client.waitingQueue.addPacket(packet);
-      } else {
-        // sends the already buffered packets
-        const waitingQueuePacket = this.getClientWaitQueuePacket(
-          client,
-          client.waitingQueue
-        );
-        if (waitingQueuePacket) {
-          this._sendAndBuildPhysicalPacket(client, waitingQueuePacket);
+    this._clearSendingTimer(client);
+
+    if (!this.isClientAvailable(client)) {
+      this._activateSendingTimer(client, 200);
+      return;
+    }
+
+    if (client.unAckData.size > 0) {
+      // console.log("unack data size", client.unAckData.size);
+      // console.log("next sending scheduled in", 100 * client.sendingVsHandleRate);
+      this._activateSendingTimer(client);
+    }
+
+    if (client.delayedLogicalPackets.length > 0) {
+      for (
+        let index = 0;
+        index < client.delayedLogicalPackets.length;
+        index++
+      ) {
+        if (!this.isClientAvailable(client)) {
+          this._activateSendingTimer(client, 200);
+          return;
+        }
+        const packet = client.delayedLogicalPackets.shift();
+        if (!packet) {
+          break;
         }
         if (this._canBeBufferedIntoQueue(packet, client.waitingQueue)) {
           client.waitingQueue.addPacket(packet);
         } else {
-          // if it still can't be buffered it means that the packet is too big so we send it directly
-          this._sendAndBuildPhysicalPacket(client, packet);
+          // sends the already buffered packets
+          const waitingQueuePacket = this.getClientWaitQueuePacket(
+            client,
+            client.waitingQueue
+          );
+          if (waitingQueuePacket) {
+            this._sendAndBuildPhysicalPacket(client, waitingQueuePacket);
+          }
+          if (this._canBeBufferedIntoQueue(packet, client.waitingQueue)) {
+            client.waitingQueue.addPacket(packet);
+          } else {
+            // if it still can't be buffered it means that the packet is too big so we send it directly
+            this._sendAndBuildPhysicalPacket(client, packet);
+          }
         }
       }
     }
@@ -505,6 +561,10 @@ export class SOEServer extends EventEmitter {
     }
     const resends = this.getResends(client);
     for (const resend of resends) {
+      if (!this.isClientAvailable(client)) {
+        this._activateSendingTimer(client, 200);
+        return;
+      }
       client.stats.totalLogicalPacketSent++;
       if (this._canBeBufferedIntoQueue(resend, client.waitingQueue)) {
         client.waitingQueue.addPacket(resend);
@@ -523,6 +583,7 @@ export class SOEServer extends EventEmitter {
           this._sendAndBuildPhysicalPacket(client, resend);
         }
       }
+      client.unAckData.delete(resend.sequence as number);
     }
     const waitingQueuePacket = this.getClientWaitQueuePacket(
       client,
@@ -579,14 +640,10 @@ export class SOEServer extends EventEmitter {
     client.stats.totalLogicalPacketSent++;
     if (this._canBeBufferedIntoQueue(logicalPacket, client.waitingQueue)) {
       client.waitingQueue.addPacket(logicalPacket);
-      if (!client.sendingTimer) {
-        client.sendingTimer = setTimeout(() => {
-          client.sendingTimer = null;
-          this.sendingProcess(client);
-        }, this._waitTimeMs);
-      }
+      this._activateSendingTimer(client);
     } else {
-      this.sendingProcess(client, logicalPacket);
+      client.delayedLogicalPackets.push(logicalPacket);
+      this.sendingProcess(client);
     }
   }
 
