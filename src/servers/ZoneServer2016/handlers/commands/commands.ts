@@ -277,6 +277,7 @@ export const commands: Array<Command> = [
       // may need to disable more
       switch (animationId) {
         case 35:
+        case 97:
           server.sendChatText(
             client,
             "[ERROR] This emote has been disabled due to abuse."
