@@ -17,24 +17,20 @@ import { Group } from "types/zoneserver";
 import { ZoneClient2016 as Client } from "../classes/zoneclient";
 import { ZoneServer2016 } from "../zoneserver";
 
-
 export class VoiceChatManager {
   /* MANAGED BY CONFIGMANAGER */
   useVoiceChatV2!: boolean;
   joinVoiceChatOnConnect!: boolean;
   serverId!: number;
   serverAccessToken!: string;
- 
+
   sendVoiceChatError(server: ZoneServer2016, client: Client, error: string) {
     server.sendChatText(client, `[Voicechat Error] ${error}`);
   }
-  handleVoiceChatInit(
-    server: ZoneServer2016,
-    client: Client,
-  ) {
+  handleVoiceChatInit(server: ZoneServer2016, client: Client) {
     if (!this.useVoiceChatV2) {
       server.sendChatText(client, `voicechat is disabled in the configuration`);
-    };
+    }
     server.sendChatText(client, `connecting to voice chat`);
     if (!client.isInVoiceChat) {
       server.sendData(client, "H1emu.VoiceInit", {});
@@ -47,7 +43,7 @@ export class VoiceChatManager {
               name: client.character.name,
               world: this.serverId,
               instance: 1, // somebody else can implement radio logic using this. It's implemented serverside already
-                          // +10 to make it a radio channel, so radio chan 1 is instance: 11, chan 2 instance 12 etc etc
+              // +10 to make it a radio channel, so radio chan 1 is instance: 11, chan 2 instance 12 etc etc
               loc: [
                 position[0].toFixed(2),
                 position[1].toFixed(2),
@@ -66,13 +62,10 @@ export class VoiceChatManager {
       );
     }
   }
-  handleVoiceChatDisconnect(
-    server: ZoneServer2016,
-    client: Client,
-  ) {
+  handleVoiceChatDisconnect(server: ZoneServer2016, client: Client) {
     server.sendChatText(client, `disconnecting from voicechat`);
     client.isInVoiceChat = false;
-          //client.voiceChatTimer = null;
+    //client.voiceChatTimer = null;
     clearInterval(client.voiceChatTimer);
   }
 
@@ -94,7 +87,10 @@ export class VoiceChatManager {
     }
     switch (args[0]) {
       case "status":
-        server.sendChatText(client, `isInVoiceChat: ${client.isInVoiceChat ? "allegedly" : "no"}`);
+        server.sendChatText(
+          client,
+          `isInVoiceChat: ${client.isInVoiceChat ? "allegedly" : "no"}`
+        );
         break;
       case "join":
         this.handleVoiceChatInit(server, client);
