@@ -219,6 +219,7 @@ import { Crate } from "./entities/crate";
 import { ConfigManager } from "./managers/configmanager";
 import { RConManager } from "./managers/rconmanager";
 import { GroupManager } from "./managers/groupmanager";
+import { VoiceChatManager } from "./managers/voicechatmanager";
 import { SpeedTreeManager } from "./managers/speedtreemanager";
 import { ConstructionManager } from "./managers/constructionmanager";
 import { FairPlayManager } from "./managers/fairplaymanager";
@@ -345,6 +346,7 @@ export class ZoneServer2016 extends EventEmitter {
   chatManager: ChatManager;
   rconManager: RConManager;
   groupManager: GroupManager;
+  voiceChatManager: VoiceChatManager;
   speedtreeManager: SpeedTreeManager;
   constructionManager: ConstructionManager;
   fairPlayManager: FairPlayManager;
@@ -425,6 +427,7 @@ export class ZoneServer2016 extends EventEmitter {
     this.chatManager = new ChatManager();
     this.rconManager = new RConManager();
     this.groupManager = new GroupManager();
+    this.voiceChatManager = new VoiceChatManager();
     this.speedtreeManager = new SpeedTreeManager();
     this.constructionManager = new ConstructionManager();
     this.fairPlayManager = new FairPlayManager();
@@ -1971,6 +1974,8 @@ export class ZoneServer2016 extends EventEmitter {
       this.deleteEntity(client.character.characterId, this._characters);
 
       this.groupManager.handlePlayerDisconnect(this, client);
+      this.voiceChatManager.handleVoicechatDisconnect(this, client);
+
     }
     delete this._clients[client.sessionId];
     const soeClient = this.getSoeClient(client.soeClientId);
@@ -3713,6 +3718,7 @@ export class ZoneServer2016 extends EventEmitter {
   ) {
     if (this._packetsStats[packetName]) this._packetsStats[packetName]++;
     else this._packetsStats[packetName] = 1;
+    console.log(packetName)
     switch (packetName) {
       case "KeepAlive":
       case "PlayerUpdatePosition":

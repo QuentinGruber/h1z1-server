@@ -85,6 +85,17 @@ export const commands: Array<Command> = [
     }
   },
   {
+    name: "vc",
+    permissionLevel: PermissionLevels.DEFAULT,
+    execute: async (
+      server: ZoneServer2016,
+      client: Client,
+      args: Array<string>
+    ) => {
+      server.voiceChatManager.handleVoiceChatCommand(server, client, args);
+    }
+  },
+  {
     name: "me",
     permissionLevel: PermissionLevels.DEFAULT,
     execute: (server: ZoneServer2016, client: Client, args: Array<string>) => {

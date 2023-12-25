@@ -45,6 +45,11 @@ fairplay:
   requiredPacks:
   #- file_name: ""
   #  crc32_hash: ""
+voicechatv2:
+  useVoiceChatV2: false
+  joinVoiceChatOnConnect: true
+  serverId: 66
+  serverAccessToken: "34589348593845"
 
 weather:
   cycleSpeed: 100

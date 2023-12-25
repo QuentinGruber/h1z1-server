@@ -42,7 +42,12 @@ interface FairplayConfig {
   allowedPacks: Array<FileHash>;
   requiredPacks: Array<FileHash>;
 }
-
+interface VoiceChatV2Config {
+  useVoiceChatV2: boolean;
+  joinVoiceChatOnConnect: boolean;
+  serverId: number;
+  serverAccessToken: string;
+}
 interface WeatherConfig {
   cycleSpeed: number;
   frozeCycle: boolean;
@@ -120,6 +125,7 @@ interface SmeltingConfig {
 export interface Config {
   server: ServerConfig;
   fairplay: FairplayConfig;
+  voicechatv2: VoiceChatV2Config;
   weather: WeatherConfig;
   worldobjects: WorldObjectsConfig;
   speedtree: SpeedTreeConfig;

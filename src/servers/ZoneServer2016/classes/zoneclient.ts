@@ -31,6 +31,8 @@ export class ZoneClient2016 {
   characterReleased: boolean = false;
   isSynced: boolean = false;
   isInteracting: boolean = false;
+  isInVoiceChat: boolean = false;
+  voiceChatTimer?: NodeJS.Timeout;
   isAdmin: boolean = false;
   isDebugMode: boolean = false;
   isDecoy: boolean = false;

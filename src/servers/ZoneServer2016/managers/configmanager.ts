@@ -86,6 +86,7 @@ export class ConfigManager {
     const {
       server,
       fairplay,
+      voicechatv2,
       weather,
       worldobjects,
       speedtree,
@@ -103,6 +104,10 @@ export class ConfigManager {
       fairplay: {
         ...fairplay,
         ...config.fairplay
+      },
+      voicechatv2: {
+        ...voicechatv2,
+        ...config.voicechatv2
       },
       weather: {
         ...weather,
@@ -185,6 +190,20 @@ export class ConfigManager {
     server.fairPlayManager.hashSubmissionTimeout = hashSubmissionTimeout;
     server.fairPlayManager.allowedPacks = allowedPacks ?? [];
     server.fairPlayManager.requiredPacks = requiredPacks ?? [];
+    //#endregion
+
+    //#region voicechatv2
+    // to be moved to VoiceChatManager
+    const {
+      useVoiceChatV2,
+      joinVoiceChatOnConnect,
+      serverId,
+      serverAccessToken
+    } = this.config.voicechatv2;
+    server.voiceChatManager.useVoiceChatV2 = useVoiceChatV2;
+    server.voiceChatManager.joinVoiceChatOnConnect = joinVoiceChatOnConnect;
+    server.voiceChatManager.serverId = serverId;
+    server.voiceChatManager.serverAccessToken = serverAccessToken;
     //#endregion
 
     //#region weather
