@@ -21,11 +21,11 @@ import {
 } from "../../utils/constants";
 
 const debug = require("debug")("SOEInputStream");
-type Fragment = { payload: Buffer; isFragment: boolean };
+type appData = { payload: Buffer; isFragment: boolean };
 export class SOEInputStream extends EventEmitter {
   _nextSequence: wrappedUint16 = new wrappedUint16(0);
   _lastAck: wrappedUint16 = new wrappedUint16(-1);
-  _fragments: Map<number, Fragment> = new Map();
+  _appDataMap: Map<number, appData> = new Map();
   _useEncryption: boolean = false;
   _lastProcessedSequence: number = -1;
   _rc4: RC4;
@@ -41,10 +41,10 @@ export class SOEInputStream extends EventEmitter {
   }
 
   private processSingleData(
-    dataToProcess: Fragment,
+    dataToProcess: appData,
     sequence: number
   ): Array<Buffer> {
-    this._fragments.delete(sequence);
+    this._appDataMap.delete(sequence);
     this._lastProcessedSequence = sequence;
     return parseChannelPacketData(dataToProcess.payload);
   }
@@ -52,7 +52,7 @@ export class SOEInputStream extends EventEmitter {
   private processFragmentedData(firstPacketSequence: number): Array<Buffer> {
     // cpf == current processed fragment
     if (!this.has_cpf) {
-      const firstPacket = this._fragments.get(firstPacketSequence) as Fragment; // should be always defined
+      const firstPacket = this._appDataMap.get(firstPacketSequence) as appData; // should be always defined
       // the total size is written has a uint32 at the first packet of a fragmented data
       this.cpf_totalSize = firstPacket.payload.readUInt32BE(0);
       this.cpf_dataSize = 0;
@@ -63,11 +63,11 @@ export class SOEInputStream extends EventEmitter {
     }
     for (
       let i = this.cpf_processedFragmentsSequences.length;
-      i < this._fragments.size;
+      i < this._appDataMap.size;
       i++
     ) {
       const fragmentSequence = (firstPacketSequence + i) % MAX_SEQUENCE;
-      const fragment = this._fragments.get(fragmentSequence);
+      const fragment = this._appDataMap.get(fragmentSequence);
       if (fragment) {
         const isFirstPacket = fragmentSequence === firstPacketSequence;
         this.cpf_processedFragmentsSequences.push(fragmentSequence);
@@ -104,7 +104,7 @@ export class SOEInputStream extends EventEmitter {
             k < this.cpf_processedFragmentsSequences.length;
             k++
           ) {
-            this._fragments.delete(this.cpf_processedFragmentsSequences[k]);
+            this._appDataMap.delete(this.cpf_processedFragmentsSequences[k]);
           }
           this._lastProcessedSequence = fragmentSequence;
           this.has_cpf = false;
@@ -121,7 +121,7 @@ export class SOEInputStream extends EventEmitter {
   private _processData(): void {
     const nextFragmentSequence =
       (this._lastProcessedSequence + 1) & MAX_SEQUENCE;
-    const dataToProcess = this._fragments.get(nextFragmentSequence);
+    const dataToProcess = this._appDataMap.get(nextFragmentSequence);
     let appData: Array<Buffer> = [];
     if (dataToProcess) {
       if (dataToProcess.isFragment) {
@@ -131,8 +131,8 @@ export class SOEInputStream extends EventEmitter {
       }
 
       if (appData.length) {
-        if (this._fragments.has(this._lastProcessedSequence + 1)) {
-          setImmediate(() => this._processData());
+        if (this._appDataMap.has(this._lastProcessedSequence + 1)) {
+          this._processData();
         }
         this.processAppData(appData);
       }
@@ -171,7 +171,7 @@ export class SOEInputStream extends EventEmitter {
       for (let i = 1; i < MAX_SEQUENCE; i++) {
         // TODO: check if MAX_SEQUENCE + 1 is the right value
         const fragmentIndex = (this._lastAck.get() + i) & MAX_SEQUENCE;
-        if (this._fragments.has(fragmentIndex)) {
+        if (this._appDataMap.has(fragmentIndex)) {
           ack = fragmentIndex;
         } else {
           break;
@@ -190,7 +190,7 @@ export class SOEInputStream extends EventEmitter {
       " fragment=" + isFragment + ", lastAck: " + this._lastAck.get()
     );
     if (sequence >= this._nextSequence.get()) {
-      this._fragments.set(sequence, { payload: data, isFragment: isFragment });
+      this._appDataMap.set(sequence, { payload: data, isFragment: isFragment });
       const wasInOrder = this.acknowledgeInputData(sequence);
       if (wasInOrder) {
         this._nextSequence.set(this._lastAck.get() + 1);
@@ -236,6 +236,7 @@ function readDataLength(
   };
 }
 
+// FIXME: returning an array of buffers ? wtf
 function parseChannelPacketData(data: Buffer): Array<Buffer> {
   let appData: Array<Buffer> = [],
     offset,
