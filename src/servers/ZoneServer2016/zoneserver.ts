@@ -6790,15 +6790,15 @@ export class ZoneServer2016 extends EventEmitter {
 
   igniteoptionPass(client: Client) {
     for (const a in this._explosives) {
+      const explosive = this._explosives[a];
       if (
         isPosInRadius(
-          1,
+          1.5,
           client.character.state.position,
-          this._explosives[a].state.position
+          explosive.state.position
         )
       ) {
-        this._explosives[a].ignite(this, client);
-        return;
+        explosive.ignite(this, client);
       }
     }
     for (const a in this._lootableConstruction) {
