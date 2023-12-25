@@ -28,11 +28,13 @@ export class VoiceChatManager {
   sendVoiceChatError(server: ZoneServer2016, client: Client, error: string) {
     server.sendChatText(client, `[Voicechat Error] ${error}`);
   }
-  handleInitVoicechat(
+  handleVoicechatInit(
     server: ZoneServer2016,
     client: Client,
   ) {
-    if (!this.useVoiceChatV2) return;
+    if (!this.useVoiceChatV2) {
+      server.sendChatText(client, `voicechat is disabled in the configuration`);
+    };
     server.sendChatText(client, `connecting to voice chat`);
     if (!client.isInVoiceChat) {
       server.sendData(client, "H1emu.VoiceInit", {});
@@ -95,7 +97,7 @@ export class VoiceChatManager {
         server.sendChatText(client, `isInVoiceChat: ${client.isInVoiceChat ? "allegedly" : "no"}`);
         break;
       case "join":
-        this.handleInitVoicechat(server, client);
+        this.handleVoicechatInit(server, client);
         break;
       case "leave":
         this.handleVoicechatDisconnect(server, client);

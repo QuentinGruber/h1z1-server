@@ -366,8 +366,9 @@ export class ZonePacketHandlers {
       });
       client.character.isReady = true;
       server.airdropManager(client, true);
-
-      server.voiceChatManager.handleInitVoicechat(server, client);
+      if(server.voiceChatManager.useVoiceChatV2 && server.voiceChatManager.joinVoiceChatOnConnect) { 
+        server.voiceChatManager.handleVoicechatInit(server, client);
+      }
       server.fairPlayManager.handleAssetValidationInit(server, client);
     }
     if (!client.character.isAlive || client.character.isRespawning) {

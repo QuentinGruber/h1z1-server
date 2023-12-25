@@ -1334,6 +1334,17 @@ export const commands: Array<Command> = [
       server.sendChatText(client, `Set resources to maximum values.`);
     }
   },
+  {
+    name: "vcadmin",
+    permissionLevel: PermissionLevels.MODERATOR,
+    execute: async (
+      server: ZoneServer2016,
+      client: Client,
+      args: Array<string>
+    ) => {
+      server.voiceChatManager.handleVoiceChatAdminCommand(server, client, args);
+    }
+  },
   //#endregion
 
   //#region ADMIN PERMISSIONS
