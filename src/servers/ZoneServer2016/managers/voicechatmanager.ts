@@ -28,7 +28,7 @@ export class VoiceChatManager {
   sendVoiceChatError(server: ZoneServer2016, client: Client, error: string) {
     server.sendChatText(client, `[Voicechat Error] ${error}`);
   }
-  handleVoicechatInit(
+  handleVoiceChatInit(
     server: ZoneServer2016,
     client: Client,
   ) {
@@ -66,7 +66,7 @@ export class VoiceChatManager {
       );
     }
   }
-  handleVoicechatDisconnect(
+  handleVoiceChatDisconnect(
     server: ZoneServer2016,
     client: Client,
   ) {
@@ -97,10 +97,10 @@ export class VoiceChatManager {
         server.sendChatText(client, `isInVoiceChat: ${client.isInVoiceChat ? "allegedly" : "no"}`);
         break;
       case "join":
-        this.handleVoicechatInit(server, client);
+        this.handleVoiceChatInit(server, client);
         break;
       case "leave":
-        this.handleVoicechatDisconnect(server, client);
+        this.handleVoiceChatDisconnect(server, client);
         break;
       default:
         server.sendChatText(
@@ -128,16 +128,16 @@ export class VoiceChatManager {
     }
     switch (args[0]) {
       case "status":
-        server.sendChatText(client, `isInVoiceChat: ${client.isInVoiceChat ? "allegedly" : "no"}`);
+        server.sendChatText(client, `not implemented yet`);
         break;
       case "list":
-        server.sendChatText(client, `useVoiceChatV2: ${this.useVoiceChatV2}`);
+        server.sendChatText(client, `not implemented yet`);
         break;
       case "mute":
-        server.sendChatText(client, `useVoiceChatV2: ${this.useVoiceChatV2}`);
+        server.sendChatText(client, `not implemented yet`);
         break;
       case "unmute":
-        server.sendChatText(client, `useVoiceChatV2: ${this.useVoiceChatV2}`);
+        server.sendChatText(client, `not implemented yet`);
         break;
       default:
         server.sendChatText(

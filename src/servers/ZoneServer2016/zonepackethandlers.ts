@@ -367,7 +367,7 @@ export class ZonePacketHandlers {
       client.character.isReady = true;
       server.airdropManager(client, true);
       if(server.voiceChatManager.useVoiceChatV2 && server.voiceChatManager.joinVoiceChatOnConnect) { 
-        server.voiceChatManager.handleVoicechatInit(server, client);
+        server.voiceChatManager.handleVoiceChatInit(server, client);
       }
       server.fairPlayManager.handleAssetValidationInit(server, client);
     }
