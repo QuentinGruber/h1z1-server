@@ -6793,12 +6793,13 @@ export class ZoneServer2016 extends EventEmitter {
       const explosive = this._explosives[a];
       if (
         isPosInRadius(
-          1.5,
+          2.0,
           client.character.state.position,
           explosive.state.position
         )
       ) {
         explosive.ignite(this, client);
+        Scheduler.wait(750);
       }
     }
     for (const a in this._lootableConstruction) {
