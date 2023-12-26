@@ -257,6 +257,11 @@ export const commands: Array<Command> = [
     name: "emote",
     permissionLevel: PermissionLevels.DEFAULT,
     execute: (server: ZoneServer2016, client: Client, args: Array<string>) => {
+      server.sendChatText(
+        client,
+        "[ERROR] This emote has been disabled due to abuse."
+      );
+      return;
       const animationId = Number(args[0]);
       if (!animationId || animationId > MAX_UINT32) {
         server.sendChatText(client, "Usage /emote <id>");
