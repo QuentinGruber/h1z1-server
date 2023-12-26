@@ -28,9 +28,7 @@ export class SOEOutputStream extends EventEmitter {
   private _useEncryption: boolean = false;
   private _fragmentSize: number = 0;
   _reliable_sequence: wrappedUint16 = new wrappedUint16(-1);
-  _last_available_reliable_sequence: wrappedUint16 = new wrappedUint16(
-    -1
-  );
+  _last_available_reliable_sequence: wrappedUint16 = new wrappedUint16(-1);
   private _order_sequence: wrappedUint16 = new wrappedUint16(-1);
   lastAck: wrappedUint16 = new wrappedUint16(-1);
   private _cache: dataCacheMap = {};
@@ -59,20 +57,18 @@ export class SOEOutputStream extends EventEmitter {
   isReliableAvailable(): boolean {
     console.log(
       "last_ack: " +
-      this.lastAck.get() +
-      " last_available_reliable_sequence: " +
-      this._last_available_reliable_sequence.get()
+        this.lastAck.get() +
+        " last_available_reliable_sequence: " +
+        this._last_available_reliable_sequence.get()
     );
     const sequenceAreEqual =
-      this.lastAck.get() ===
-      this._reliable_sequence.get();
+      this.lastAck.get() === this._reliable_sequence.get();
     if (sequenceAreEqual) {
       return false;
     }
 
     const difference =
-      this._last_available_reliable_sequence.get() -
-      this.lastAck.get()
+      this._last_available_reliable_sequence.get() - this.lastAck.get();
     console.log("difference: " + difference);
     const differenceIsNotTooBig = difference < this.maxSequenceAvailable;
     return differenceIsNotTooBig;

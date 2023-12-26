@@ -216,9 +216,9 @@ export class SOEServer extends EventEmitter {
         client.outputStream.setFragmentSize(client.clientUdpLength - 7); // TODO: 7? calculate this based on crc enabled / compression etc
         client.lastKeepAliveTimer = this.keepAliveTimeoutTime
           ? setTimeout(() => {
-            debug("Client keep alive timeout");
-            this.emit("disconnect", client);
-          }, this.keepAliveTimeoutTime)
+              debug("Client keep alive timeout");
+              this.emit("disconnect", client);
+            }, this.keepAliveTimeoutTime)
           : null;
 
         this._sendAndBuildLogicalPacket(
@@ -272,20 +272,16 @@ export class SOEServer extends EventEmitter {
         console.log(`Got oor sequence ${packet.sequence} }`);
         client.stats.packetsOutOfOrder++;
         client.addPing(
-          Date.now() +
-          this._waitTimeMs -
-          (client.unAckData.get(packet.sequence) as number)
+          Date.now() + (client.unAckData.get(packet.sequence) as number)
         );
         client.outputStream.removeFromCache(packet.sequence);
         client.unAckData.delete(packet.sequence);
         break;
       case "Ack":
         console.log(`Got ack sequence ${packet.sequence} }`);
-        const mostWaitedPacketTime = client.unAckData.get(
-          client.outputStream.lastAck.get()
-        ) as number;
+        const mostWaitedPacketTime = client.unAckData.get(packet.sequence);
         if (mostWaitedPacketTime) {
-          client.addPing(Date.now() + this._waitTimeMs - mostWaitedPacketTime);
+          client.addPing(Date.now() - mostWaitedPacketTime);
         }
         client.outputStream.ack(packet.sequence, client.unAckData);
         this.sendingProcess(client);
@@ -488,7 +484,11 @@ export class SOEServer extends EventEmitter {
   private sendingProcess(client: Client) {
     // console.log("sending process");
     //
-    console.log(`process stats : unack data size ${client.unAckData.size} , last ack ${client.outputStream.lastAck.get()} , last reliable send ${client.outputStream._last_available_reliable_sequence.get()} , current reliable ${client.outputStream._reliable_sequence.get()}`);
+    console.log(
+      `process stats : unack data size ${
+        client.unAckData.size
+      } , last ack ${client.outputStream.lastAck.get()} , last reliable send ${client.outputStream._last_available_reliable_sequence.get()} , current reliable ${client.outputStream._reliable_sequence.get()}`
+    );
 
     this._clearSendingTimer(client);
 
@@ -616,7 +616,7 @@ export class SOEServer extends EventEmitter {
       this._waitTimeMs > 0 &&
       logicalPacket.canBeBuffered &&
       queue.CurrentByteLength + logicalPacket.data.length <=
-      this._maxMultiBufferSize
+        this._maxMultiBufferSize
     );
   }
 
