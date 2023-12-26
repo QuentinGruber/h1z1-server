@@ -34,7 +34,7 @@ export class SOEServer extends EventEmitter {
   private _connection: dgram.Socket;
   _crcSeed: number = Math.floor(Math.random() * 256);
   _crcLength: crc_length_options = 2;
-  _waitTimeMs: number = 50;
+  _waitTimeMs: number = 0;
   keepAliveTimeoutTime: number = 40000;
   private readonly _maxMultiBufferSize: number;
   private _resendTimeout: number = 500;
@@ -216,9 +216,9 @@ export class SOEServer extends EventEmitter {
         client.outputStream.setFragmentSize(client.clientUdpLength - 7); // TODO: 7? calculate this based on crc enabled / compression etc
         client.lastKeepAliveTimer = this.keepAliveTimeoutTime
           ? setTimeout(() => {
-              debug("Client keep alive timeout");
-              this.emit("disconnect", client);
-            }, this.keepAliveTimeoutTime)
+            debug("Client keep alive timeout");
+            this.emit("disconnect", client);
+          }, this.keepAliveTimeoutTime)
           : null;
 
         this._sendAndBuildLogicalPacket(
@@ -273,8 +273,8 @@ export class SOEServer extends EventEmitter {
         client.stats.packetsOutOfOrder++;
         client.addPing(
           Date.now() +
-            this._waitTimeMs -
-            (client.unAckData.get(packet.sequence) as number)
+          this._waitTimeMs -
+          (client.unAckData.get(packet.sequence) as number)
         );
         client.outputStream.removeFromCache(packet.sequence);
         client.unAckData.delete(packet.sequence);
@@ -487,11 +487,15 @@ export class SOEServer extends EventEmitter {
   }
   private sendingProcess(client: Client) {
     // console.log("sending process");
+    //
+    console.log(`process stats : unack data size ${client.unAckData.size} , last ack ${client.outputStream.lastAck.get()} , last reliable send ${client.outputStream._last_available_reliable_sequence.get()} , current reliable ${client.outputStream._reliable_sequence.get()}`);
 
     this._clearSendingTimer(client);
 
-    const appPackets = this.getAvailableAppPackets(client);
-    client.delayedLogicalPackets.push(...appPackets);
+    if (client.outputStream.isReliableAvailable()) {
+      const appPackets = this.getAvailableAppPackets(client);
+      client.delayedLogicalPackets.push(...appPackets);
+    }
 
     if (client.delayedLogicalPackets.length > 0) {
       for (
@@ -612,7 +616,7 @@ export class SOEServer extends EventEmitter {
       this._waitTimeMs > 0 &&
       logicalPacket.canBeBuffered &&
       queue.CurrentByteLength + logicalPacket.data.length <=
-        this._maxMultiBufferSize
+      this._maxMultiBufferSize
     );
   }
 

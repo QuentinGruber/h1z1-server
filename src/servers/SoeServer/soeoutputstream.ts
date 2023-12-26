@@ -27,8 +27,8 @@ export enum SOEOutputChannels {
 export class SOEOutputStream extends EventEmitter {
   private _useEncryption: boolean = false;
   private _fragmentSize: number = 0;
-  private _reliable_sequence: wrappedUint16 = new wrappedUint16(-1);
-  private _last_available_reliable_sequence: wrappedUint16 = new wrappedUint16(
+  _reliable_sequence: wrappedUint16 = new wrappedUint16(-1);
+  _last_available_reliable_sequence: wrappedUint16 = new wrappedUint16(
     -1
   );
   private _order_sequence: wrappedUint16 = new wrappedUint16(-1);
@@ -57,15 +57,23 @@ export class SOEOutputStream extends EventEmitter {
   }
 
   isReliableAvailable(): boolean {
+    console.log(
+      "last_ack: " +
+      this.lastAck.get() +
+      " last_available_reliable_sequence: " +
+      this._last_available_reliable_sequence.get()
+    );
     const sequenceAreEqual =
-      this._reliable_sequence.get() ===
-      this._last_available_reliable_sequence.get();
+      this.lastAck.get() ===
+      this._reliable_sequence.get();
     if (sequenceAreEqual) {
       return false;
     }
+
     const difference =
-      this._reliable_sequence.get() -
-      this._last_available_reliable_sequence.get();
+      this._last_available_reliable_sequence.get() -
+      this.lastAck.get()
+    console.log("difference: " + difference);
     const differenceIsNotTooBig = difference < this.maxSequenceAvailable;
     return differenceIsNotTooBig;
   }
@@ -81,7 +89,7 @@ export class SOEOutputStream extends EventEmitter {
       const sequence = wrappedUint16.wrap(LA_sequence + 1);
       if (!!this._cache[sequence]) {
         data.push(this._cache[sequence]);
-        this._last_available_reliable_sequence.increment();
+        this._last_available_reliable_sequence.set(sequence);
       } else {
         break;
       }
@@ -160,7 +168,7 @@ export class SOEOutputStream extends EventEmitter {
 
   ack(sequence: number, unAckData: Map<number, number>): void {
     // delete all data / timers cached for the sequences behind the given ack sequence
-    while (this.lastAck.get() !== wrappedUint16.wrap(sequence + 1)) {
+    while (this.lastAck.get() !== wrappedUint16.wrap(sequence)) {
       const lastAck = this.lastAck.get();
       this.removeFromCache(lastAck);
       unAckData.delete(lastAck);
