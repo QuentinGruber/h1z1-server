@@ -199,7 +199,7 @@ export class SOEServer extends EventEmitter {
   }
 
   private handlePacket(client: SOEClient, packet: any) {
-    console.log("recieved : ", packet.name);
+    // console.log("recieved : ", packet.name);
     switch (packet.name) {
       case "SessionRequest":
         debug(
@@ -270,7 +270,6 @@ export class SOEServer extends EventEmitter {
         break;
       case "OutOfOrder":
         console.log(`Got oor sequence ${packet.sequence} }`);
-        process.exit(1);
         client.stats.packetsOutOfOrder++;
         client.addPing(
           Date.now() +
@@ -289,6 +288,7 @@ export class SOEServer extends EventEmitter {
           client.addPing(Date.now() + this._waitTimeMs - mostWaitedPacketTime);
         }
         client.outputStream.ack(packet.sequence, client.unAckData);
+        this.sendingProcess(client);
         break;
       default:
         console.log(`Unknown SOE packet received from ${client.sessionId}`);
@@ -331,25 +331,10 @@ export class SOEServer extends EventEmitter {
             this.emit("disconnect", client);
           });
 
-          client.outputStream.on(
-            SOEOutputChannels.Reliable,
-            (
-              data: Buffer,
-              sequence: number,
-              fragment: boolean,
-              unbuffered: boolean
-            ) => {
-              this._sendAndBuildLogicalPacket(
-                client,
-                fragment ? SoeOpcode.DataFragment : SoeOpcode.Data,
-                {
-                  sequence: sequence,
-                  data: data
-                },
-                unbuffered
-              );
-            }
-          );
+          client.outputStream.on(SOEOutputChannels.Reliable, () => {
+            // some reliables are available, we send them
+            this.sendingProcess(client);
+          });
 
           client.outputStream.on(
             SOEOutputChannels.Ordered,
@@ -485,28 +470,28 @@ export class SOEServer extends EventEmitter {
       client.sendingTimer = null;
     }
   }
-  private isClientAvailable(client: Client): boolean {
-    if (client.sendSinceLastAck > 50) {
-      return false;
-    } else {
-      return true;
+
+  private getAvailableAppPackets(client: Client): LogicalPacket[] {
+    const dataCaches = client.outputStream.getAvailableReliableData();
+    const appPackets: LogicalPacket[] = [];
+    for (const dataCache of dataCaches) {
+      const logicalPacket = this.createLogicalPacket(
+        dataCache.fragment ? SoeOpcode.DataFragment : SoeOpcode.Data,
+        { sequence: dataCache.sequence, data: dataCache.data }
+      );
+      if (logicalPacket) {
+        appPackets.push(logicalPacket);
+      }
     }
+    return appPackets;
   }
   private sendingProcess(client: Client) {
     // console.log("sending process");
 
     this._clearSendingTimer(client);
 
-    if (!this.isClientAvailable(client)) {
-      this._activateSendingTimer(client, 200);
-      return;
-    }
-
-    if (client.unAckData.size > 0) {
-      // console.log("unack data size", client.unAckData.size);
-      // console.log("next sending scheduled in", 100 * client.sendingVsHandleRate);
-      this._activateSendingTimer(client);
-    }
+    const appPackets = this.getAvailableAppPackets(client);
+    client.delayedLogicalPackets.push(...appPackets);
 
     if (client.delayedLogicalPackets.length > 0) {
       for (
@@ -514,10 +499,6 @@ export class SOEServer extends EventEmitter {
         index < client.delayedLogicalPackets.length;
         index++
       ) {
-        if (!this.isClientAvailable(client)) {
-          this._activateSendingTimer(client, 200);
-          return;
-        }
         const packet = client.delayedLogicalPackets.shift();
         if (!packet) {
           break;
@@ -561,10 +542,6 @@ export class SOEServer extends EventEmitter {
     }
     const resends = this.getResends(client);
     for (const resend of resends) {
-      if (!this.isClientAvailable(client)) {
-        this._activateSendingTimer(client, 200);
-        return;
-      }
       client.stats.totalLogicalPacketSent++;
       if (this._canBeBufferedIntoQueue(resend, client.waitingQueue)) {
         client.waitingQueue.addPacket(resend);
@@ -591,6 +568,12 @@ export class SOEServer extends EventEmitter {
     );
     if (waitingQueuePacket) {
       this._sendAndBuildPhysicalPacket(client, waitingQueuePacket);
+    }
+
+    if (client.unAckData.size > 0) {
+      // console.log("unack data size", client.unAckData.size);
+      // console.log("next sending scheduled in", 100 * client.sendingVsHandleRate);
+      this._activateSendingTimer(client);
     }
   }
   // Build the logical packet via the soeprotocol

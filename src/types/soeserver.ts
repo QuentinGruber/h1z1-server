@@ -16,6 +16,7 @@ export type crc_length_options = 0 | 2;
 export type dataCache = {
   data: Uint8Array;
   fragment: boolean;
+  sequence: number;
 }
 export type dataCacheMap = {
   [sequence: number]: dataCache;

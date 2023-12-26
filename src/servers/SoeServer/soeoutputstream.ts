@@ -28,10 +28,15 @@ export class SOEOutputStream extends EventEmitter {
   private _useEncryption: boolean = false;
   private _fragmentSize: number = 0;
   private _reliable_sequence: wrappedUint16 = new wrappedUint16(-1);
+  private _last_available_reliable_sequence: wrappedUint16 = new wrappedUint16(
+    -1
+  );
   private _order_sequence: wrappedUint16 = new wrappedUint16(-1);
   lastAck: wrappedUint16 = new wrappedUint16(-1);
   private _cache: dataCacheMap = {};
   private _rc4: RC4;
+  private hasPendingEmit: boolean = false;
+  maxSequenceAvailable: number = 50;
   constructor(cryptoKey: Uint8Array) {
     super();
     this._rc4 = new RC4(cryptoKey);
@@ -40,7 +45,8 @@ export class SOEOutputStream extends EventEmitter {
   addToCache(sequence: number, data: Uint8Array, isFragment: boolean) {
     this._cache[sequence] = {
       data: data,
-      fragment: isFragment
+      fragment: isFragment,
+      sequence: sequence
     };
   }
 
@@ -50,17 +56,44 @@ export class SOEOutputStream extends EventEmitter {
     }
   }
 
+  isReliableAvailable(): boolean {
+    const sequenceAreEqual =
+      this._reliable_sequence.get() ===
+      this._last_available_reliable_sequence.get();
+    if (sequenceAreEqual) {
+      return false;
+    }
+    const difference =
+      this._reliable_sequence.get() -
+      this._last_available_reliable_sequence.get();
+    const differenceIsNotTooBig = difference < this.maxSequenceAvailable;
+    return differenceIsNotTooBig;
+  }
+
+  getAvailableReliableData(): dataCache[] {
+    const data: dataCache[] = [];
+    const first_LA_sequence = this._last_available_reliable_sequence.get();
+    const targetSequence = wrappedUint16.wrap(
+      first_LA_sequence + this.maxSequenceAvailable
+    );
+    let LA_sequence = first_LA_sequence;
+    while (LA_sequence !== targetSequence) {
+      const sequence = wrappedUint16.wrap(LA_sequence + 1);
+      if (!!this._cache[sequence]) {
+        data.push(this._cache[sequence]);
+        this._last_available_reliable_sequence.increment();
+      } else {
+        break;
+      }
+      LA_sequence = sequence;
+    }
+    return data;
+  }
+
   writeReliable(data: Uint8Array, unbuffered: boolean): void {
     if (data.length <= this._fragmentSize) {
       this._reliable_sequence.increment();
       this.addToCache(this._reliable_sequence.get(), data, false);
-      this.emit(
-        SOEOutputChannels.Reliable,
-        data,
-        this._reliable_sequence.get(),
-        false,
-        unbuffered
-      );
     } else {
       const header = Buffer.allocUnsafe(4);
       header.writeUInt32BE(data.length, 0);
@@ -69,15 +102,15 @@ export class SOEOutputStream extends EventEmitter {
         this._reliable_sequence.increment();
         const fragmentData = data.slice(i, i + this._fragmentSize);
         this.addToCache(this._reliable_sequence.get(), fragmentData, true);
-
-        this.emit(
-          SOEOutputChannels.Reliable,
-          fragmentData,
-          this._reliable_sequence.get(),
-          true,
-          unbuffered
-        );
       }
+    }
+    if (!this.hasPendingEmit && this.isReliableAvailable()) {
+      // So we emit the event only at the end of the current stack
+      // it's useful for app functions that send multiple packets
+      queueMicrotask(() => {
+        this.emit(SOEOutputChannels.Reliable);
+        this.hasPendingEmit = false;
+      });
     }
   }
 
@@ -133,6 +166,7 @@ export class SOEOutputStream extends EventEmitter {
       unAckData.delete(lastAck);
       this.lastAck.increment();
     }
+    this.emit(SOEOutputChannels.Reliable);
   }
 
   getDataCache(sequence: number): dataCache {
