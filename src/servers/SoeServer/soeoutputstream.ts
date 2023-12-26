@@ -173,6 +173,12 @@ export class SOEOutputStream extends EventEmitter {
       this.removeFromCache(lastAck);
       unAckData.delete(lastAck);
       this.lastAck.increment();
+      // So we clear the last ack at the end of the loop without incrementing it
+      if (this.lastAck.get() === wrappedUint16.wrap(sequence)) {
+        const lastAck = this.lastAck.get();
+        this.removeFromCache(lastAck);
+        unAckData.delete(lastAck);
+      }
     }
     this.emit(SOEOutputChannels.Reliable);
   }

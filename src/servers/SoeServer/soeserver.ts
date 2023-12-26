@@ -34,7 +34,7 @@ export class SOEServer extends EventEmitter {
   private _connection: dgram.Socket;
   _crcSeed: number = Math.floor(Math.random() * 256);
   _crcLength: crc_length_options = 2;
-  _waitTimeMs: number = 0;
+  _waitTimeMs: number = 50;
   keepAliveTimeoutTime: number = 40000;
   private readonly _maxMultiBufferSize: number;
   private _resendTimeout: number = 500;
@@ -128,7 +128,7 @@ export class SOEServer extends EventEmitter {
       }
       iteration++;
     }
-    // console.log("resends ", resends.length);
+    console.log("resends ", resends);
     return resends;
   }
 
