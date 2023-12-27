@@ -18,7 +18,8 @@ import {
   CharacterManagedObject,
   CharacterPlayWorldCompositeEffect,
   CharacterSeekTarget,
-  ClientUpdateTextAlert
+  ClientUpdateTextAlert,
+  ItemsAddAccountItem
 } from "types/zone2016packets";
 import { Npc } from "../../entities/npc";
 import { ZoneClient2016 as Client } from "../../classes/zoneclient";
@@ -72,6 +73,9 @@ const dev: any = {
         nodes: [{ node: client.character.state.position }]
       });
     }, 2000);
+  },
+  acc: function (server: ZoneServer2016, client: Client, args: Array<string>) {
+    server.sendData<ItemsAddAccountItem>(client, "Items.AddAccountItem", {});
   },
   ui: function (server: ZoneServer2016, client: Client, args: Array<string>) {
     server.sendData(client, "Effect.AddUiIndicator", {

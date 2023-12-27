@@ -257,6 +257,11 @@ export const commands: Array<Command> = [
     name: "emote",
     permissionLevel: PermissionLevels.DEFAULT,
     execute: (server: ZoneServer2016, client: Client, args: Array<string>) => {
+      server.sendChatText(
+        client,
+        "[ERROR] This emote has been disabled due to abuse."
+      );
+      return;
       const animationId = Number(args[0]);
       if (!animationId || animationId > MAX_UINT32) {
         server.sendChatText(client, "Usage /emote <id>");
@@ -266,6 +271,7 @@ export const commands: Array<Command> = [
       // may need to disable more
       switch (animationId) {
         case 35:
+        case 97:
           server.sendChatText(
             client,
             "[ERROR] This emote has been disabled due to abuse."
@@ -1135,6 +1141,70 @@ export const commands: Array<Command> = [
         const element = targetClient.clientLogs[index];
         server.sendChatText(client, `${element.log}`);
       }
+    }
+  },
+  {
+    name: "listmodules",
+    permissionLevel: PermissionLevels.MODERATOR,
+    execute: async (
+      server: ZoneServer2016,
+      client: Client,
+      args: Array<string>
+    ) => {
+      if (!args[0]) {
+        server.sendChatText(
+          client,
+          `Correct usage: /listmodules {name | ZoneClientId}`
+        );
+        return;
+      }
+      const targetClient = server.getClientByNameOrLoginSession(
+        args[0].toString()
+      );
+      if (server.playerNotFound(client, args[0].toString(), targetClient)) {
+        return;
+      }
+      if (!targetClient || !(targetClient instanceof Client)) {
+        server.sendChatText(client, "Client not found.");
+        return;
+      }
+      server.sendChatText(
+        client,
+        `Requesting modules from: ${targetClient.character.name}`
+      );
+      server.sendData(targetClient, "H1emu.RequestModules", {});
+    }
+  },
+  {
+    name: "listwindows",
+    permissionLevel: PermissionLevels.MODERATOR,
+    execute: async (
+      server: ZoneServer2016,
+      client: Client,
+      args: Array<string>
+    ) => {
+      if (!args[0]) {
+        server.sendChatText(
+          client,
+          `Correct usage: /listwindows {name | ZoneClientId}`
+        );
+        return;
+      }
+      const targetClient = server.getClientByNameOrLoginSession(
+        args[0].toString()
+      );
+      if (server.playerNotFound(client, args[0].toString(), targetClient)) {
+        return;
+      }
+      if (!targetClient || !(targetClient instanceof Client)) {
+        server.sendChatText(client, "Client not found.");
+        return;
+      }
+      server.sendChatText(
+        client,
+        `Requesting windows from: ${targetClient.character.name}`
+      );
+      server.sendData(targetClient, "H1emu.RequestWindows", {});
     }
   },
   {
