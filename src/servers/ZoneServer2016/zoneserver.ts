@@ -1942,16 +1942,19 @@ export class ZoneServer2016 extends EventEmitter {
     client.chunkRenderDistance = lowerRenderDistance ? 350 : 500;
   }
 
-  private worldRoutine() {
-    const startTime = Date.now();
+  private async worldRoutine() {
     if (!this.hookManager.checkHook("OnWorldRoutine")) return;
     else {
       if (this._ready) {
         this.constructionManager.plantManager(this);
+        await scheduler.yield();
         this.worldObjectManager.run(this);
+        await scheduler.yield();
         this.checkVehiclesInMapBounds();
+        await scheduler.yield();
         this.setTickRate();
         this.syncAirdrop();
+        await scheduler.yield();
         if (
           this.enableWorldSaves &&
           !this.isSaving &&
@@ -1960,13 +1963,6 @@ export class ZoneServer2016 extends EventEmitter {
           this.saveWorld();
         }
       }
-    }
-    const endTime = Date.now();
-    const timeTaken = endTime - startTime;
-    if (timeTaken > this.worldRoutineRate) {
-      console.log(
-        `World routine took ${timeTaken}ms, expected max ${this.worldRoutineRate}ms.`
-      );
     }
     this.worldRoutineTimer.refresh();
   }
