@@ -615,6 +615,12 @@ export class FairPlayManager {
         continue;
       }
 
+      const fixedCharPos = movePoint(
+        char.state.position,
+        char.positionUpdate?.orientation * -1 + 1.570795,
+        -1
+      );
+
       const startpoint = movePoint(
         client.character.state.position,
         orientation * -1 + 1.570795,
@@ -627,14 +633,14 @@ export class FairPlayManager {
       );
       if (
         isPointNearLine(
-          new Float32Array([char.state.position[0], char.state.position[2]]),
+          new Float32Array([fixedCharPos[0], fixedCharPos[2]]),
           new Float32Array([startpoint[0], startpoint[2]]),
           new Float32Array([nextpoint[0], nextpoint[2]]),
-          1
+          0.3
         )
       ) {
         client.character.aimVectorWarns += 1;
-        if (client.character.aimVectorWarns >= 3) {
+        if (client.character.aimVectorWarns >= 4) {
           server.sendChatTextToAdmins(
             `[FairPlay] ${client.character.name} possible aimlock with ${client.character.aimVectorWarns} warns`
           );
