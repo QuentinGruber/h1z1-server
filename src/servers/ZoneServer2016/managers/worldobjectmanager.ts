@@ -42,7 +42,9 @@ import {
   Skins_Military,
   Skins_Glasses,
   Effects,
-  ModelIds
+  ModelIds,
+  Skins_Conveys,
+  Skins_Backpack
 } from "../models/enums";
 import { Vehicle2016 } from "../entities/vehicle";
 import { LootDefinition } from "types/zoneserver";
@@ -89,8 +91,14 @@ function getRandomSkin(itemDefinitionId: number) {
     case Items.BACKPACK_MILITARY_TAN:
       arr = Object.keys(Skins_Military);
       break;
+    case Items.BACKPACK_BLUE_ORANGE:
+      arr = Object.keys(Skins_Backpack);
+      break;
     case Items.ALL_PURPOSE_GOGGLES:
       arr = Object.keys(Skins_Glasses);
+      break;
+    case Items.CONVEYS_BLUE:
+      arr = Object.keys(Skins_Conveys);
       break;
     default:
       return itemDefinitionId;
