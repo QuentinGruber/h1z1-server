@@ -272,6 +272,35 @@ export function movePoint(
   ]);
 }
 
+export function isPointNearLine(point: Float32Array, lineStart: Float32Array, lineEnd: Float32Array, threshold: number) {
+    // Calculate vectors
+    const lineVector = [lineEnd[0] - lineStart[0], lineEnd[1] - lineStart[1]];
+    const pointVector = [point[0] - lineStart[0], point[1] - lineStart[1]];
+
+    // Calculate the length of the line segment
+    const lineLength = Math.sqrt(lineVector[0] * lineVector[0] + lineVector[1] * lineVector[1]);
+
+    // Calculate the projection of pointVector onto lineVector
+    const projection = (
+        (pointVector[0] * lineVector[0] + pointVector[1] * lineVector[1]) /
+        (lineLength * lineLength)
+    );
+
+    // Calculate the closest point on the line segment
+    const closestPoint = [
+        lineStart[0] + projection * lineVector[0],
+        lineStart[1] + projection * lineVector[1]
+    ];
+
+    // Calculate the distance between the point and the closest point on the line
+    const distance = Math.sqrt(
+        (point[0] - closestPoint[0]) * (point[0] - closestPoint[0]) +
+        (point[1] - closestPoint[1]) * (point[1] - closestPoint[1])
+    );
+
+    // Check if the distance is within the threshold
+    return distance <= threshold;
+}
 /**
  * Calculates the angle between two points in a 2D space.
  *

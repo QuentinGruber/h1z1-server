@@ -27,7 +27,9 @@ import {
   eul2quat,
   getDistance,
   getDistance1d,
-  isPosInRadiusWithY
+  isPosInRadiusWithY,
+  movePoint,
+  isPointNearLine
 } from "../../utils/utils";
 
 import { CraftManager } from "./managers/craftmanager";
@@ -1301,12 +1303,41 @@ export class ZonePacketHandlers {
   ) {
     if (client.character.tempGodMode) {
       server.setTempGodMode(client, false);
-    }
-    client.character.positionUpdate = packet.data;
+      }
+          Object.assign(client.character.positionUpdate as any, packet.data)
+      
     if (packet.data.flags === 513) {
       // head rotation when in vehicle, client spams this packet every 1ms even if you dont move, disabled for now(it doesnt work anyway)
       return;
-    }
+      }
+
+      if (packet.data.orientation) {
+
+          if (client.character.name != "dsa") return;
+
+          for (const a in server._characters) {
+              const char = server._characters[a];
+              if (client.character.name == char.name) continue
+              const fixedOrientation = packet.data.orientation < 0 ? packet.data.orientation * (180.0 / Math.PI) + 360 : packet.data.orientation * (180.0 / Math.PI);
+              const fixedPosUpdOrientation = char.positionUpdate?.orientation > 0 ? char.positionUpdate?.orientation * (180.0 / Math.PI) + 360 : char.positionUpdate?.orientation * (180.0 / Math.PI);
+              if (!isPosInRadius(char.npcRenderDistance, client.character.state.position, char.state.position)) continue
+              if (Math.abs(fixedOrientation - fixedPosUpdOrientation) < 15 || Math.abs(fixedOrientation - fixedPosUpdOrientation) > 345 || (Math.abs(fixedOrientation - fixedPosUpdOrientation) > 165 && Math.abs(fixedOrientation - fixedPosUpdOrientation) < 195)) {
+                      continue
+                  }
+              
+              
+              const startpoint = movePoint(client.character.state.position, packet.data.orientation * -1 + 1.570795, 5)
+              const nextpoint = movePoint(client.character.state.position, packet.data.orientation * -1 + 1.570795, 200)
+              if (isPointNearLine(new Float32Array([char.state.position[0], char.state.position[2]]), new Float32Array([startpoint[0], startpoint[2]]), new Float32Array([nextpoint[0], nextpoint[2]]), 1)) {
+                  client.character.warns += 1
+                  if (client.character.warns > 5) {
+                      server.sendChatTextToAdmins(`[FairPlay] ${client.character.name} possible aimlock with ${client.character.warns} warns`);
+                  }
+              } else {
+                  client.character.warns = 0
+              }
+          }
+      }
     if (!client.character.isAlive) {
       client.blockedPositionUpdates += 1;
       if (client.blockedPositionUpdates >= 30) {

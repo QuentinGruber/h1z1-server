@@ -90,17 +90,17 @@ const dev: any = {
     args: Array<string>
   ) {
     // spawn a zombie
-    const characterId = server.generateGuid();
-    const transient = server.getTransientId(characterId);
-    const zombie = new Npc(
-      characterId,
-      transient,
+      const characterId = server.generateGuid();
+      const transient = server.getTransientId(characterId);
+      const zombie = new Npc(
+          characterId,
+          transient,
       9510,
-      client.character.state.position,
-      client.character.state.rotation,
-      server
-    );
-    server._npcs[characterId] = zombie;
+          client.character.state.position,
+          client.character.state.rotation,
+          server
+      );
+      server._npcs[characterId] = zombie;
   },
   abilities: function (
     server: ZoneServer2016,
