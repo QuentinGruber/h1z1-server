@@ -39,7 +39,6 @@ export class SOEServer extends EventEmitter {
   private readonly _maxMultiBufferSize: number;
   private _resendTimeout: number = 500;
   _allowRawDataReception: boolean = false;
-  private _maxSeqResendRange: number = 500;
   private _packetResetInterval: NodeJS.Timeout | undefined;
   constructor(serverPort: number, cryptoKey: Uint8Array) {
     super();
@@ -85,9 +84,9 @@ export class SOEServer extends EventEmitter {
     // const packetopcode = SoeOpcode[packet[1]];
     // console.log("sends : ", packetopcode);
     // 10% chances to drop the packet
-    // const rnd = Math.random() * 100
+    // const rnd = Math.random() * 100;
     // if (rnd < 10) {
-    //   return
+    //   return;
     // }
     this._connection.send(packet, client.port, client.address);
   }
@@ -95,24 +94,14 @@ export class SOEServer extends EventEmitter {
   // If a packet hasn't been acknowledge in the timeout time, then resend it
   getResends(client: Client): LogicalPacket[] {
     const currentTime = Date.now();
-    let iteration = 0;
     const resends: LogicalPacket[] = [];
+    const resendedSequence: Set<number> = new Set();
     // First added packets are the first to be resend
     for (const [sequence, time] of client.unAckData) {
       // So we don't loose our time with dead connections
-      if (iteration > this._maxSeqResendRange) {
-        break;
-      }
       if (time + this._resendTimeout + client.avgPing < currentTime) {
         const dataCache = client.outputStream.getDataCache(sequence);
         if (dataCache) {
-          // if a packet is lost then we increase the ping
-          // this will auto-fix when the connection goes well again
-          // client.avgPing += 100;
-          // if (client.avgPing > 5000) {
-          //   client.avgPing = 5000;
-          // }
-          //
           client.stats.packetResend++;
 
           const logicalPacket = this.createLogicalPacket(
@@ -120,14 +109,62 @@ export class SOEServer extends EventEmitter {
             { sequence: sequence, data: dataCache.data }
           );
           if (logicalPacket) {
+            resendedSequence.add(sequence);
             resends.push(logicalPacket);
           }
         } else {
           console.log("Data cache not found for sequence " + sequence);
         }
       }
-      iteration++;
     }
+    // check for possible accerated resends
+    for (const sequence of client.outputStream.outOfOrder) {
+      if (sequence < client.outputStream.lastAck.get()) {
+        continue;
+      }
+
+      // resend every packets between the last ack and the out of order packet
+      for (
+        let index = client.outputStream.lastAck.get();
+        index < sequence;
+        index++
+      ) {
+        // If that sequence has been out of order acked or resended then we don't resend it again
+        if (
+          client.outputStream.outOfOrder.has(index) ||
+          resendedSequence.has(index)
+        ) {
+          continue;
+        }
+        const dataCache = client.outputStream.getDataCache(index);
+        if (dataCache) {
+          client.stats.packetResend++;
+
+          const logicalPacket = this.createLogicalPacket(
+            dataCache.fragment ? SoeOpcode.DataFragment : SoeOpcode.Data,
+            { sequence: index, data: dataCache.data }
+          );
+          if (logicalPacket) {
+            resendedSequence.add(index);
+            resends.push(logicalPacket);
+          }
+        } else {
+          console.log("Data cache not found for sequence " + sequence);
+        }
+      }
+    }
+
+    client.outputStream.outOfOrder.clear();
+
+    // if a packet is lost then we increase the ping
+    // this will auto-fix when the connection goes well again
+    for (let index = 0; index < resends.length; index++) {
+      client.avgPing += 50;
+      if (client.avgPing > 5000) {
+        client.avgPing = 5000;
+      }
+    }
+    console.log("avg ping ", client.avgPing);
     console.log("resends ", resends);
     return resends;
   }
@@ -237,7 +274,7 @@ export class SOEServer extends EventEmitter {
       case "FatalError":
       case "Disconnect":
         debug("Received disconnect from client");
-        this._clearSendingTimer(client);
+        this.deleteClient(client);
         this.emit("disconnect", client);
         break;
       case "MultiPacket": {
@@ -271,9 +308,7 @@ export class SOEServer extends EventEmitter {
       case "OutOfOrder":
         console.log(`Got oor sequence ${packet.sequence} }`);
         client.stats.packetsOutOfOrder++;
-        client.addPing(
-          Date.now() + (client.unAckData.get(packet.sequence) as number)
-        );
+        client.outputStream.outOfOrder.add(packet.sequence);
         client.outputStream.removeFromCache(packet.sequence);
         client.unAckData.delete(packet.sequence);
         break;
@@ -307,6 +342,7 @@ export class SOEServer extends EventEmitter {
         debug(data.length + " bytes from ", clientId);
         // if doesn't know the client
         if (!this._clients.has(clientId)) {
+          // if it's not a session request then we ignore it
           if (data[1] !== 1) {
             return;
           }
@@ -656,11 +692,6 @@ export class SOEServer extends EventEmitter {
     channel = SOEOutputChannels.Reliable,
     unbuffered: boolean = false
   ): void {
-    if (client.outputStream.isUsingEncryption()) {
-      debug("Sending app data: " + data.length + " bytes with encryption");
-    } else {
-      debug("Sending app data: " + data.length + " bytes");
-    }
     client.outputStream.write(data, channel, unbuffered);
   }
 
@@ -675,7 +706,9 @@ export class SOEServer extends EventEmitter {
   }
 
   deleteClient(client: SOEClient): void {
+    console.log("deleting client");
     client.closeTimers();
+    this._clearSendingTimer(client);
     this._clients.delete(client.address + ":" + client.port);
     debug("client connection from port : ", client.port, " deleted");
   }

@@ -35,6 +35,7 @@ export class SOEOutputStream extends EventEmitter {
   private _rc4: RC4;
   private hasPendingEmit: boolean = false;
   maxSequenceAvailable: number = 50;
+  outOfOrder: Set<number> = new Set();
   constructor(cryptoKey: Uint8Array) {
     super();
     this._rc4 = new RC4(cryptoKey);
