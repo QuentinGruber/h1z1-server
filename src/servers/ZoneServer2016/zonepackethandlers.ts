@@ -28,8 +28,6 @@ import {
   getDistance,
   getDistance1d,
   isPosInRadiusWithY,
-  movePoint,
-  isPointNearLine
 } from "../../utils/utils";
 
 import { CraftManager } from "./managers/craftmanager";
