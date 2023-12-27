@@ -250,7 +250,9 @@ export class SOEServer extends EventEmitter {
         client.inputStream.setEncryption(this._useEncryption);
         client.outputStream.setEncryption(this._useEncryption);
         // 4 since we don't count the opcode and it's an uint16
-        client.outputStream.setFragmentSize(client.clientUdpLength - (4 + this._crcLength)); 
+        client.outputStream.setFragmentSize(
+          client.clientUdpLength - (4 + this._crcLength)
+        );
         client.lastKeepAliveTimer = this.keepAliveTimeoutTime
           ? setTimeout(() => {
               debug("Client keep alive timeout");
