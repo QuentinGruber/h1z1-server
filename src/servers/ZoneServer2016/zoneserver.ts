@@ -226,6 +226,7 @@ import { Plane } from "./entities/plane";
 import { FileHashTypeList, ReceivedPacket } from "types/shared";
 import { SOEOutputChannels } from "../../servers/SoeServer/soeoutputstream";
 import { scheduler } from "node:timers/promises";
+import { GatewayChannels } from "h1emu-core";
 
 const spawnLocations2 = require("../../../data/2016/zoneData/Z1_gridSpawns.json"),
   deprecatedDoors = require("../../../data/2016/sampleData/deprecatedDoors.json"),
@@ -546,13 +547,18 @@ export class ZoneServer2016 extends EventEmitter {
 
     this._gatewayServer.on(
       "tunneldata",
-      (client: SOEClient, data: Buffer, flags: number) => {
+      async (client: SOEClient, data: Buffer, flags: number) => {
         if (!this._soloMode && this.enablePacketInputLogging) {
           this._db.collection("packets").insertOne({
             data,
             flags,
             loginSessionId: this._clients[client.sessionId].loginSessionId
           });
+        }
+        if (flags < GatewayChannels.UpdatePosition) {
+          // if the packet isn't a high priority one, we can wait for the next tick to process it
+          // If there is a lot of packet to process, it's better, if there is none then we only add like some µsec
+          await scheduler.yield();
         }
         const packet = this._protocol.parse(data, flags);
         if (packet) {
