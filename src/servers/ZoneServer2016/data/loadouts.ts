@@ -26,8 +26,9 @@ export const characterDefaultLoadout = [
   { item: Items.SHIRT_DEFAULT },
   { item: Items.WAIST_PACK },
   { item: Items.PANTS_DEFAULT },
-  { item: Items.MAP_DRAWN },
-  { item: Items.COMPASS },
+  { item: Items.SKINNING_KNIFE },
+  { item: Items.MAP },
+  { item: Items.COMPASS_IMPROVISED },
   { item: Items.BUNDLE_GAUZE },
   { item: Items.FLARE }
 ];
