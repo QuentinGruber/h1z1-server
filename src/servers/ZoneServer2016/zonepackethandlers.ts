@@ -27,7 +27,7 @@ import {
   eul2quat,
   getDistance,
   getDistance1d,
-  isPosInRadiusWithY,
+  isPosInRadiusWithY
 } from "../../utils/utils";
 
 import { CraftManager } from "./managers/craftmanager";
