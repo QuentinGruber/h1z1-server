@@ -319,7 +319,6 @@ export class SOEServer extends EventEmitter {
           client.addPing(Date.now() - mostWaitedPacketTime);
         }
         client.outputStream.ack(packet.sequence, client.unAckData);
-        this.sendingProcess(client);
         break;
       default:
         console.log(`Unknown SOE packet received from ${client.sessionId}`);
@@ -365,7 +364,7 @@ export class SOEServer extends EventEmitter {
 
           client.outputStream.on(SOEOutputChannels.Reliable, () => {
             // some reliables are available, we send them
-            this.sendingProcess(client);
+            this._activateSendingTimer(client);
           });
 
           client.outputStream.on(
