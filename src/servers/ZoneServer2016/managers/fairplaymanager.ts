@@ -598,12 +598,17 @@ export class FairPlayManager {
         char.positionUpdate?.orientation < 0
           ? char.positionUpdate?.orientation * (180.0 / Math.PI) + 360
           : char.positionUpdate?.orientation * (180.0 / Math.PI);
+      const distance = getDistance(
+        char.state.position,
+        client.character.state.position
+      );
       if (
         !isPosInRadius(
           char.npcRenderDistance,
           client.character.state.position,
           char.state.position
-        )
+        ) ||
+        distance <= 4
       )
         continue;
       if (
@@ -640,9 +645,9 @@ export class FairPlayManager {
         )
       ) {
         client.character.aimVectorWarns += 1;
-        if (client.character.aimVectorWarns >= 4) {
+        if (client.character.aimVectorWarns >= 3) {
           server.sendChatTextToAdmins(
-            `[FairPlay] ${client.character.name} possible aimlock with ${client.character.aimVectorWarns} warns`
+            `[FairPlay] ${client.character.name} possible aimlock [warns: ${client.character.aimVectorWarns}, distance: ${distance}`
           );
         }
       } else {
