@@ -56,12 +56,6 @@ export class SOEOutputStream extends EventEmitter {
   }
 
   isReliableAvailable(): boolean {
-    console.log(
-      "last_ack: " +
-        this.lastAck.get() +
-        " last_available_reliable_sequence: " +
-        this._last_available_reliable_sequence.get()
-    );
     const sequenceAreEqual =
       this.lastAck.get() === this._reliable_sequence.get();
     if (sequenceAreEqual) {
@@ -70,7 +64,6 @@ export class SOEOutputStream extends EventEmitter {
 
     const difference =
       this._last_available_reliable_sequence.get() - this.lastAck.get();
-    console.log("difference: " + difference);
     const differenceIsNotTooBig = difference < this.maxSequenceAvailable;
     return differenceIsNotTooBig;
   }

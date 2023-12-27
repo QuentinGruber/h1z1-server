@@ -113,7 +113,7 @@ export class SOEServer extends EventEmitter {
             resends.push(logicalPacket);
           }
         } else {
-          console.log("Data cache not found for sequence " + sequence);
+          console.log("(timeout)Data cache not found for sequence " + sequence);
         }
       }
     }
@@ -149,7 +149,8 @@ export class SOEServer extends EventEmitter {
             resends.push(logicalPacket);
           }
         } else {
-          console.log("Data cache not found for sequence " + sequence);
+          // well if it's not in the cache then it means that it has been acked
+          // console.log("(accelerated)Data cache not found for sequence " + sequence);
         }
       }
     }
@@ -164,8 +165,6 @@ export class SOEServer extends EventEmitter {
         client.avgPing = 5000;
       }
     }
-    console.log("avg ping ", client.avgPing);
-    console.log("resends ", resends);
     return resends;
   }
 
@@ -306,14 +305,12 @@ export class SOEServer extends EventEmitter {
         );
         break;
       case "OutOfOrder":
-        console.log(`Got oor sequence ${packet.sequence} }`);
         client.stats.packetsOutOfOrder++;
         client.outputStream.outOfOrder.add(packet.sequence);
         client.outputStream.removeFromCache(packet.sequence);
         client.unAckData.delete(packet.sequence);
         break;
       case "Ack":
-        console.log(`Got ack sequence ${packet.sequence} }`);
         const mostWaitedPacketTime = client.unAckData.get(packet.sequence);
         if (mostWaitedPacketTime) {
           client.addPing(Date.now() - mostWaitedPacketTime);
@@ -520,11 +517,6 @@ export class SOEServer extends EventEmitter {
   private sendingProcess(client: Client) {
     // console.log("sending process");
     //
-    console.log(
-      `process stats : unack data size ${
-        client.unAckData.size
-      } , last ack ${client.outputStream.lastAck.get()} , last reliable send ${client.outputStream._last_available_reliable_sequence.get()} , current reliable ${client.outputStream._reliable_sequence.get()}`
-    );
 
     this._clearSendingTimer(client);
 
@@ -706,7 +698,6 @@ export class SOEServer extends EventEmitter {
   }
 
   deleteClient(client: SOEClient): void {
-    console.log("deleting client");
     client.closeTimers();
     this._clearSendingTimer(client);
     this._clients.delete(client.address + ":" + client.port);
