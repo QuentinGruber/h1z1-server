@@ -1313,8 +1313,6 @@ export class ZonePacketHandlers {
 
       if (packet.data.orientation) {
 
-          if (client.character.name != "dsa") return;
-
           for (const a in server._characters) {
               const char = server._characters[a];
               if (client.character.name == char.name) continue
