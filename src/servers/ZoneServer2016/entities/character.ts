@@ -104,7 +104,7 @@ export class Character2016 extends BaseFullCharacter {
   isBandaged = false;
   isExhausted = false;
   lastMeleeHitTime: number = 0;
-  warns: number = 0;
+  aimVectorWarns: number = 0;
   static isAlive = true;
   public set isAlive(state) {
     this.characterStates.knockedOut = !state;

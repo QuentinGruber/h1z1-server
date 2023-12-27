@@ -27,8 +27,11 @@ import {
   getDistance,
   getDistance1d,
   getDistance2d,
+  isPointNearLine,
+  isPosInRadius,
   isPosInRadiusWithY,
-  logClientActionToMongo
+  logClientActionToMongo,
+  movePoint
 } from "../../../utils/utils";
 import { LoadoutItem } from "../classes/loadoutItem";
 import { ZoneClient2016 as Client } from "../classes/zoneclient";
@@ -580,6 +583,66 @@ export class FairPlayManager {
       }
     }
     return true;
+  }
+
+  checkAimVector(server: ZoneServer2016, client: Client, orientation: number) {
+    if (!this.useFairPlay || client.character.weaponStance != 2) return;
+    for (const a in server._characters) {
+      const char = server._characters[a];
+      if (client.character.name == char.name) continue;
+      const fixedOrientation =
+        orientation < 0
+          ? orientation * (180.0 / Math.PI) + 360
+          : orientation * (180.0 / Math.PI);
+      const fixedPosUpdOrientation =
+        char.positionUpdate?.orientation < 0
+          ? char.positionUpdate?.orientation * (180.0 / Math.PI) + 360
+          : char.positionUpdate?.orientation * (180.0 / Math.PI);
+      if (
+        !isPosInRadius(
+          char.npcRenderDistance,
+          client.character.state.position,
+          char.state.position
+        )
+      )
+        continue;
+      if (
+        Math.abs(fixedOrientation - fixedPosUpdOrientation) < 15 ||
+        Math.abs(fixedOrientation - fixedPosUpdOrientation) > 345 ||
+        (Math.abs(fixedOrientation - fixedPosUpdOrientation) > 165 &&
+          Math.abs(fixedOrientation - fixedPosUpdOrientation) < 195)
+      ) {
+        continue;
+      }
+
+      const startpoint = movePoint(
+        client.character.state.position,
+        orientation * -1 + 1.570795,
+        1
+      );
+      const nextpoint = movePoint(
+        client.character.state.position,
+        orientation * -1 + 1.570795,
+        200
+      );
+      if (
+        isPointNearLine(
+          new Float32Array([char.state.position[0], char.state.position[2]]),
+          new Float32Array([startpoint[0], startpoint[2]]),
+          new Float32Array([nextpoint[0], nextpoint[2]]),
+          1
+        )
+      ) {
+        client.character.aimVectorWarns += 1;
+        if (client.character.aimVectorWarns >= 3) {
+          server.sendChatTextToAdmins(
+            `[FairPlay] ${client.character.name} possible aimlock with ${client.character.aimVectorWarns} warns`
+          );
+        }
+      } else {
+        client.character.aimVectorWarns = 0;
+      }
+    }
   }
 
   detectJumpXSMovement(
