@@ -586,7 +586,7 @@ export class FairPlayManager {
   }
 
   checkAimVector(server: ZoneServer2016, client: Client, orientation: number) {
-    if (!this.useFairPlay || client.character.weaponStance != 2) return;
+    if (client.character.weaponStance != 2) return;
     for (const a in server._characters) {
       const char = server._characters[a];
       if (client.character.name == char.name) continue;
