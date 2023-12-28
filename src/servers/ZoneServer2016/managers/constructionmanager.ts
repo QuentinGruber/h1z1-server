@@ -1673,7 +1673,6 @@ export class ConstructionManager {
       parentObjectCharacterId || "",
       ""
     );
-    console.log(obj);
 
     const parent = obj.getParent(server);
     if (parent) {
