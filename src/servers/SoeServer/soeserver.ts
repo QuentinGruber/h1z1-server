@@ -211,7 +211,8 @@ export class SOEServer extends EventEmitter {
       return multiPacket;
       // if a packet in the waiting queue is a reliable packet, then we need to set the timeout
     } else if (queue.packets.length === 1) {
-      const singlePacketCopy = structuredClone(queue.packets[0]);
+      // no need for a structuredClone , the variable hold the ref
+      const singlePacketCopy = queue.packets[0];
       queue.clear();
       return singlePacketCopy;
     } else {
