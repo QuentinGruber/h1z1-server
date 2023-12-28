@@ -931,7 +931,7 @@ export class ZonePacketHandlers {
       client,
       "CharacterSelectSessionResponse",
       {
-        status: 1,
+        status: 0,
         sessionId: client.loginSessionId
       }
     );
