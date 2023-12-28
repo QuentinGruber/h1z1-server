@@ -190,5 +190,6 @@ export const lootableContainerDefaultLoadouts = {
   bee_box: [{ item: Items.CONTAINER_BEE_BOX }],
   dew_collector: [{ item: Items.CONTAINER_DEW_COLLECTOR }],
   animal_trap: [{ item: Items.CONTAINER_ANIMAL_TRAP }],
-  repair_box: [{ item: Items.CONTAINER_REPAIR_BOX }]
+  repair_box: [{ item: Items.CONTAINER_REPAIR_BOX }],
+  stash: [{ item: Items.CONTAINER_STASH }]
 };

@@ -851,6 +851,16 @@ export class ConstructionManager {
           parentObjectCharacterId,
           itemDefinitionId
         );
+      case Items.HAND_SHOVEL:
+        return this.placeStashEntity(
+          server,
+          itemDefinitionId,
+          modelId,
+          position,
+          fixEulerOrder(rotation),
+          new Float32Array([1, 1, 1, 1]),
+          freeplaceParentCharacterId
+        );
       default:
         //this.placementError(client, ConstructionErrors.UNKNOWN_CONSTRUCTION);
 
@@ -1638,6 +1648,49 @@ export class ConstructionManager {
       }
       this.spawnSimpleConstruction(server, client, construction);
     }, construction);
+    return true;
+  }
+  placeStashEntity(
+    server: ZoneServer2016,
+    itemDefinitionId: number,
+    modelId: number,
+    position: Float32Array,
+    rotation: Float32Array,
+    scale: Float32Array,
+    parentObjectCharacterId?: string
+  ): boolean {
+    const characterId = server.generateGuid(),
+      transientId = server.getTransientId(characterId);
+    const obj = new LootableConstructionEntity(
+      characterId,
+      transientId,
+      modelId,
+      position,
+      rotation,
+      server,
+      scale,
+      itemDefinitionId,
+      parentObjectCharacterId || "",
+      ""
+    );
+
+    const parent = obj.getParent(server);
+    if (parent) {
+      server._lootableConstruction[characterId] = obj;
+      parent.addFreeplaceConstruction(obj);
+    } else {
+      server._worldLootableConstruction[characterId] = obj;
+    }
+
+    obj.equipLoadout(server);
+
+    server.executeFuncForAllReadyClientsInRange((client) => {
+      if (this.shouldHideEntity(server, client, obj)) {
+        return;
+      }
+      this.spawnLootableConstruction(server, client, obj);
+    }, obj);
+
     return true;
   }
 

@@ -40,7 +40,8 @@ export abstract class BaseLootableEntity extends BaseFullCharacter {
       ModelIds.HOSPITAL_LAB_WORKBENCH,
       ModelIds.TREASURE_CHEST,
       ModelIds.CAMPFIRE,
-      ModelIds.FURNACE
+      ModelIds.FURNACE,
+      ModelIds.HAND_SHOVEL
     ].includes(actorModelId);
   }
 
