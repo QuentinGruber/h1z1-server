@@ -206,6 +206,16 @@ export const smeltingData: { [recipeId: number]: smeltRecipe } = {
       }
     ]
   },
+  42: {
+    filterId: FilterIds.COOKING,
+    rewardId: Items.STEAK_BEAR,
+    components: [
+      {
+        itemDefinitionId: Items.MEAT_BEAR,
+        requiredAmount: 1
+      }
+    ]
+  },
   // disabled for now, need to fix requiredAmount for smelting - Meme
   /*
   14: {
@@ -879,7 +889,7 @@ export const recipes: { [recipeId: number]: Recipe } = {
     ]
   },
   [Items.STEAK_BEAR]: {
-    filterId: FilterIds.SURVIVAL,
+    filterId: FilterIds.COOKING,
     components: [
       {
         itemDefinitionId: Items.MEAT_BEAR,
