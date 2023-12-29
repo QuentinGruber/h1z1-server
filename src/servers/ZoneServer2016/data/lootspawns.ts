@@ -1410,7 +1410,7 @@ export const lootTables: { [lootSpawner: string]: LootSpawner } = {
         }
       },
       {
-        item: Items.WEAPON_FLASHLIGHT,
+        item: Items.COMPASS,
         weight: 100,
         spawnCount: {
           min: 1,
@@ -3062,7 +3062,7 @@ export const containerLootSpawners: {
         }
       },
       {
-        item: Items.WEAPON_FLASHLIGHT,
+        item: Items.WEAPON_COMPASS,
         weight: 50,
         spawnCount: {
           min: 1,
