@@ -260,6 +260,11 @@ export class TaskProp extends BaseLightweightCharacter {
             guid: this.characterId,
             stringId: StringIds.REST
           });
+        } else {
+          server.sendData(client, "Command.InteractionString", {
+            guid: this.characterId,
+            stringId: StringIds.NOT_TIRED
+          })
         }
         break;
 
