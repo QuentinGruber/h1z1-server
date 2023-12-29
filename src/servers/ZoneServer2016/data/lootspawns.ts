@@ -3062,7 +3062,7 @@ export const containerLootSpawners: {
         }
       },
       {
-        item: Items.WEAPON_COMPASS,
+        item: Items.COMPASS,
         weight: 50,
         spawnCount: {
           min: 1,
