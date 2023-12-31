@@ -1749,11 +1749,10 @@ export class ZonePacketHandlers {
     client.character.currentInteractionGuid = guid;
     client.character.lastInteractionStringTime = Date.now();
     const isNonReplicatable =
-      entity instanceof Destroyable ||
-      entity instanceof Character2016
+      entity instanceof Destroyable || entity instanceof Character2016;
     if (
       entity instanceof BaseLightweightCharacter &&
-      !(isNonReplicatable) &&
+      !isNonReplicatable &&
       !client.sentInteractionData.includes(entity)
     ) {
       server.sendData<ReplicationNpcComponent>(
