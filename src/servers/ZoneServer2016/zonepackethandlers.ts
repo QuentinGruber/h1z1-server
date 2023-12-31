@@ -1737,7 +1737,7 @@ export class ZonePacketHandlers {
       entity = server.getEntity(guid);
 
     if (!entity) return;
-    if (entity instanceof Crate || entity instanceof BaseFullCharacter) {
+    if (entity instanceof Crate) {
       client.character.currentInteractionGuid = guid;
       client.character.lastInteractionStringTime = Date.now();
       return;
@@ -1759,9 +1759,11 @@ export class ZonePacketHandlers {
     }
     client.character.currentInteractionGuid = guid;
     client.character.lastInteractionStringTime = Date.now();
+    const isNonReplicatable =
+      entity instanceof Destroyable || entity instanceof Character2016;
     if (
       entity instanceof BaseLightweightCharacter &&
-      !(entity instanceof Destroyable) &&
+      !isNonReplicatable &&
       !client.sentInteractionData.includes(entity)
     ) {
       server.sendData<ReplicationNpcComponent>(
