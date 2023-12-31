@@ -1410,7 +1410,7 @@ export const lootTables: { [lootSpawner: string]: LootSpawner } = {
         }
       },
       {
-        item: Items.WEAPON_FLASHLIGHT,
+        item: Items.COMPASS,
         weight: 100,
         spawnCount: {
           min: 1,
@@ -1872,7 +1872,7 @@ export const containerLootSpawners: {
         }
       },
       {
-        item: Items.METAL_PIPE,
+        item: Items.REPAIR_KIT_GUN,
         weight: 15,
         spawnCount: {
           min: 1,
@@ -1902,7 +1902,7 @@ export const containerLootSpawners: {
         }
       },
       {
-        item: Items.METAL_PIPE,
+        item: Items.REPAIR_KIT_GUN,
         weight: 15,
         spawnCount: {
           min: 1,
@@ -1940,7 +1940,7 @@ export const containerLootSpawners: {
         }
       },
       {
-        item: Items.METAL_PIPE,
+        item: Items.REPAIR_KIT_GUN,
         weight: 15,
         spawnCount: {
           min: 1,
@@ -2022,7 +2022,7 @@ export const containerLootSpawners: {
         }
       },
       {
-        item: Items.HAT_CAP,
+        item: Items.COMPASS,
         weight: 50,
         spawnCount: {
           min: 1,
@@ -2030,7 +2030,7 @@ export const containerLootSpawners: {
         }
       },
       {
-        item: Items.CODED_MESSAGE,
+        item: Items.MAP,
         weight: 5,
         spawnCount: {
           min: 1,
@@ -2084,7 +2084,7 @@ export const containerLootSpawners: {
         }
       },
       {
-        item: Items.CODED_MESSAGE,
+        item: Items.COMPASS,
         weight: 2,
         spawnCount: {
           min: 1,
@@ -2130,7 +2130,7 @@ export const containerLootSpawners: {
         }
       },
       {
-        item: Items.CODED_MESSAGE,
+        item: Items.COMPASS,
         weight: 2,
         spawnCount: {
           min: 1,
@@ -2170,6 +2170,110 @@ export const containerLootSpawners: {
       {
         item: Items.CANNED_FOOD01,
         weight: 30,
+        spawnCount: {
+          min: 1,
+          max: 1
+        }
+      },
+      {
+        item: Items.CANNED_FOOD02,
+        weight: 25,
+        spawnCount: {
+          min: 1,
+          max: 1
+        }
+      },
+      {
+        item: Items.CANNED_FOOD03,
+        weight: 25,
+        spawnCount: {
+          min: 1,
+          max: 1
+        }
+      },
+      {
+        item: Items.CANNED_FOOD04,
+        weight: 30,
+        spawnCount: {
+          min: 1,
+          max: 1
+        }
+      },
+      {
+        item: Items.CANNED_FOOD05,
+        weight: 25,
+        spawnCount: {
+          min: 1,
+          max: 1
+        }
+      },
+      {
+        item: Items.CANNED_FOOD06,
+        weight: 25,
+        spawnCount: {
+          min: 1,
+          max: 1
+        }
+      },
+      {
+        item: Items.CANNED_FOOD07,
+        weight: 30,
+        spawnCount: {
+          min: 1,
+          max: 1
+        }
+      },
+      {
+        item: Items.CANNED_FOOD08,
+        weight: 25,
+        spawnCount: {
+          min: 1,
+          max: 1
+        }
+      },
+      {
+        item: Items.CANNED_FOOD09,
+        weight: 25,
+        spawnCount: {
+          min: 1,
+          max: 1
+        }
+      },
+      {
+        item: Items.CANNED_FOOD10,
+        weight: 30,
+        spawnCount: {
+          min: 1,
+          max: 1
+        }
+      },
+      {
+        item: Items.CANNED_FOOD11,
+        weight: 25,
+        spawnCount: {
+          min: 1,
+          max: 1
+        }
+      },
+      {
+        item: Items.CANNED_FOOD21,
+        weight: 25,
+        spawnCount: {
+          min: 1,
+          max: 1
+        }
+      },
+      {
+        item: Items.CANNED_FOOD25,
+        weight: 30,
+        spawnCount: {
+          min: 1,
+          max: 1
+        }
+      },
+      {
+        item: Items.CANNED_FOOD26,
+        weight: 25,
         spawnCount: {
           min: 1,
           max: 1
@@ -2858,7 +2962,15 @@ export const containerLootSpawners: {
         }
       },
       {
-        item: Items.CODED_MESSAGE,
+        item: Items.COMPASS,
+        weight: 2,
+        spawnCount: {
+          min: 1,
+          max: 1
+        }
+      },
+      {
+        item: Items.MAP,
         weight: 2,
         spawnCount: {
           min: 1,
@@ -2950,7 +3062,7 @@ export const containerLootSpawners: {
         }
       },
       {
-        item: Items.WEAPON_FLASHLIGHT,
+        item: Items.COMPASS,
         weight: 50,
         spawnCount: {
           min: 1,

@@ -377,7 +377,7 @@ export enum Items {
   WEAPON_BOW_RECURVE = 1986,
   WEAPON_1911 = 2,
   WEAPON_M9 = 1997,
-  WEAPON_308 = 1373,
+  WEAPON_308 = 1899, // 1373 allows no scope, please check before merge
   WEAPON_BINOCULARS = 1542,
   WEAPON_CROSSBOW = 2246,
   WEAPON_R380 = 1991,
@@ -689,6 +689,7 @@ export enum Items {
   GRENADE_GAS = 2237,
   GRENADE_HE = 65,
   GRENADE_SCREAM = 3022,
+  MAP_DRAWN = 1984,
   MAP = 1985,
   COMPASS = 1441,
   FLARE = 1804,
