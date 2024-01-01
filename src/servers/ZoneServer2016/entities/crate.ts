@@ -28,6 +28,8 @@ function getActorModelId(actorModel: string): number {
       return 8013;
     case "Common_Props_Crate_Box02.adr":
       return 9088;
+    case "Common_Props_Barell01.adr":
+      return 9387;
     default:
       console.log(`crate adr file not mapped to modelId: ${actorModel}`);
       return 0;
@@ -140,7 +142,7 @@ export class Crate extends BaseSimpleNpc {
 
   destroy(server: ZoneServer2016): boolean {
     this.spawnLoot(server);
-
+    console.log(server._crates[this.characterId]);
     this.spawnTimestamp = Date.now() + this.respawnTime;
     this.health = this.maxHealth;
     server.sendDataToAllWithSpawnedEntity<CharacterRemovePlayer>(
