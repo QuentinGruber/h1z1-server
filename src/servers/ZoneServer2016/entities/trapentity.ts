@@ -11,7 +11,8 @@
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
 
-import { getDistance } from "../../../utils/utils";
+import { CubeBounds, Point3D } from "types/zoneserver";
+import { getCubeBounds, getDistance, isInsideCube } from "../../../utils/utils";
 import {
   Items,
   MovementModifiers,
@@ -26,6 +27,7 @@ export class TrapEntity extends BaseSimpleNpc {
   isTriggered = false;
   npcRenderDistance = 75;
   itemDefinitionId: number;
+  readonly cubebounds!: CubeBounds;
   constructor(
     characterId: string,
     transientId: number,
@@ -37,6 +39,19 @@ export class TrapEntity extends BaseSimpleNpc {
   ) {
     super(characterId, transientId, actorModelId, position, rotation, server);
     this.itemDefinitionId = itemDefinitionId;
+
+    const angle = -this.state.rotation[1];
+    switch(itemDefinitionId) {
+      case Items.BARBED_WIRE:
+        this.cubebounds = getCubeBounds(
+          position,
+          8.05,
+          2.15,
+          angle,
+          position[1] - 0.9,
+          position[1] + 1.8
+        );
+    }
   }
 
   arm(server: ZoneServer2016) {
@@ -158,9 +173,75 @@ export class TrapEntity extends BaseSimpleNpc {
           }
         }, 200);
         break;
+      case Items.BARBED_WIRE:
+        this.trapTimer = setTimeout(() => {
+          if (!server._traps[this.characterId]) {
+            return;
+          }
+          for (const a in server._clients) {
+            const client = server._clients[a];
+            if (
+              this.isInside(
+                client.character.state.position
+              ) &&
+              client.character.isAlive &&
+              !client.vehicle.mountedVehicle
+            ) {
+              client.character.damage(server, {
+                entity: this.characterId,
+                causeBleed: true,
+                damage: 501
+              });
+              server.sendDataToAllWithSpawnedEntity(
+                server._traps,
+                this.characterId,
+                "Character.PlayWorldCompositeEffect",
+                {
+                  characterId: "0x0",
+                  effectId: 5116,
+                  position: server._clients[a].character.state.position
+                }
+              );
+
+              server.sendDataToAllWithSpawnedEntity(
+                server._traps,
+                this.characterId,
+                "Character.UpdateSimpleProxyHealth",
+                this.pGetSimpleProxyHealth()
+              );
+              this.health -= 1000;
+            }
+          }
+
+          if (this.health > 0) {
+            this.trapTimer?.refresh();
+          } else {
+            server.sendDataToAllWithSpawnedEntity(
+              server._traps,
+              this.characterId,
+              "Character.PlayWorldCompositeEffect",
+              {
+                characterId: "0x0",
+                effectId: 163,
+                position: this.state.position
+              }
+            );
+            this.destroy(server);
+            return;
+          }
+        }, 500);
+        break;
     }
   }
   destroy(server: ZoneServer2016): boolean {
     return server.deleteEntity(this.characterId, server._traps);
   }
+
+  isInside(position: Float32Array) {
+    switch(this.itemDefinitionId) {
+      case Items.BARBED_WIRE:
+        return isInsideCube(Array.from(position) as Point3D, this.cubebounds);
+    }
+  }
+
 }

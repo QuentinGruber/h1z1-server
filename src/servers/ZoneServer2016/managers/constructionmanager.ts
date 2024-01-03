@@ -698,6 +698,7 @@ export class ConstructionManager {
     freeplaceParentCharacterId?: string
   ): boolean {
     switch (itemDefinitionId) {
+      case Items.BARBED_WIRE:
       case Items.SNARE:
       case Items.PUNJI_STICKS:
       case Items.PUNJI_STICK_ROW:
@@ -1346,6 +1347,7 @@ export class ConstructionManager {
       );
     npc.arm(server);
     server._traps[characterId] = npc;
+    console.log(server._traps[characterId])
     server.spawnSimpleNpcForAllInRange(npc);
     return true;
   }
