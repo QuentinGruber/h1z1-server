@@ -621,15 +621,15 @@ export class WorldObjectManager {
               fixEulerOrder(propInstance.rotation)
             );
             break;
-          case "Common_Props_BarbedWire.adr": 
-              server.constructionManager.placeTrap(
-                server,
-                Items.BARBED_WIRE,
-                propType.modelId,
-                propInstance.position,
-                fixEulerOrder(propInstance.rotation)
-              );
-              break;
+          case "Common_Props_BarbedWire.adr":
+            server.constructionManager.placeTrap(
+              server,
+              Items.BARBED_WIRE,
+              propType.modelId,
+              propInstance.position,
+              fixEulerOrder(propInstance.rotation)
+            );
+            break;
           case "Common_Props_Cabinets_BathroomSink.adr":
           case "Common_Props_Bathroom_Toilet01.adr":
           case "Common_Props_Dam_WaterValve01.adr":

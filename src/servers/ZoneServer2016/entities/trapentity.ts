@@ -41,7 +41,7 @@ export class TrapEntity extends BaseSimpleNpc {
     this.itemDefinitionId = itemDefinitionId;
 
     const angle = -this.state.rotation[1];
-    switch(itemDefinitionId) {
+    switch (itemDefinitionId) {
       case Items.BARBED_WIRE:
         this.cubebounds = getCubeBounds(
           position,
@@ -181,9 +181,7 @@ export class TrapEntity extends BaseSimpleNpc {
           for (const a in server._clients) {
             const client = server._clients[a];
             if (
-              this.isInside(
-                client.character.state.position
-              ) &&
+              this.isInside(client.character.state.position) &&
               client.character.isAlive &&
               !client.vehicle.mountedVehicle
             ) {
@@ -238,10 +236,9 @@ export class TrapEntity extends BaseSimpleNpc {
   }
 
   isInside(position: Float32Array) {
-    switch(this.itemDefinitionId) {
+    switch (this.itemDefinitionId) {
       case Items.BARBED_WIRE:
         return isInsideCube(Array.from(position) as Point3D, this.cubebounds);
     }
   }
-
 }
