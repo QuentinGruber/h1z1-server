@@ -1520,7 +1520,6 @@ export class Character2016 extends BaseFullCharacter {
   }
 
   OnMeleeHit(server: ZoneServer2016, damageInfo: DamageInfo) {
-    if (server.isPvE) return;
     let damage = damageInfo.damage / 2;
     let bleedingChance = 5;
     switch (damageInfo.meleeType) {
@@ -1550,15 +1549,17 @@ export class Character2016 extends BaseFullCharacter {
         damage = server.checkArmor(this.characterId, damage, 4);
         break;
     }
-    if (randomIntFromInterval(0, 100) <= bleedingChance) {
-      this._resources[ResourceIds.BLEEDING] += 20;
-      server.updateResourceToAllWithSpawnedEntity(
-        this.characterId,
-        this._resources[ResourceIds.BLEEDING],
-        ResourceIds.BLEEDING,
-        ResourceIds.BLEEDING,
-        server._characters
-      );
+    if (!server.isPvE) {
+      if (randomIntFromInterval(0, 100) <= bleedingChance) {
+        this._resources[ResourceIds.BLEEDING] += 20;
+        server.updateResourceToAllWithSpawnedEntity(
+          this.characterId,
+          this._resources[ResourceIds.BLEEDING],
+          ResourceIds.BLEEDING,
+          ResourceIds.BLEEDING,
+          server._characters
+        );
+      }
     }
     this.damage(server, { ...damageInfo, damage });
   }
