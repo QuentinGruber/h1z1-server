@@ -403,7 +403,7 @@ export const UseOptions: { [itemDefinitionIds: number]: ItemUseOption } = {
   9: {
     itemDef: Items.LIGHTER,
     type: ItemUseOptions.IGNITE,
-    timeout: 100
+    timeout: 500
   },
   10: {
     itemDef: Items.BOW_DRILL,

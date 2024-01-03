@@ -6788,7 +6788,7 @@ export class ZoneServer2016 extends EventEmitter {
     }
   }
 
-  igniteoptionPass(client: Client) {
+  async igniteoptionPass(client: Client) {
     for (const a in this._explosives) {
       const explosive = this._explosives[a];
       if (
@@ -6798,9 +6798,9 @@ export class ZoneServer2016 extends EventEmitter {
           explosive.state.position
         )
       ) {
+        await Scheduler.wait(35); 
         explosive.ignite(this, client);
-        Scheduler.wait(750);
-      }
+      } 
     }
     for (const a in this._lootableConstruction) {
       const smeltable = this._lootableConstruction[a];
