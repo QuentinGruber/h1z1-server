@@ -698,6 +698,7 @@ export class ConstructionManager {
     freeplaceParentCharacterId?: string
   ): boolean {
     switch (itemDefinitionId) {
+      case Items.BARBED_WIRE:
       case Items.SNARE:
       case Items.PUNJI_STICKS:
       case Items.PUNJI_STICK_ROW:
