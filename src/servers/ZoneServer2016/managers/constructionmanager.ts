@@ -1347,7 +1347,6 @@ export class ConstructionManager {
       );
     npc.arm(server);
     server._traps[characterId] = npc;
-    console.log(server._traps[characterId]);
     server.spawnSimpleNpcForAllInRange(npc);
     return true;
   }
