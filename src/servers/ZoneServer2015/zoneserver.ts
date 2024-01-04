@@ -2517,8 +2517,7 @@ export class ZoneServer2015 extends EventEmitter {
         this._gatewayServer.sendTunnelData(
           soeClient,
           data,
-          SOEOutputChannels.Reliable,
-          false
+          SOEOutputChannels.Reliable
         );
       }
     }
@@ -2576,8 +2575,7 @@ export class ZoneServer2015 extends EventEmitter {
       this._gatewayServer.sendTunnelData(
         soeClient,
         data,
-        SOEOutputChannels.Reliable,
-        false
+        SOEOutputChannels.Reliable
       );
     }
   }

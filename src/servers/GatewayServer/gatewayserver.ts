@@ -101,8 +101,7 @@ export class GatewayServer extends EventEmitter {
   sendTunnelData(
     client: SOEClient,
     tunnelData: Buffer,
-    channel: SOEOutputChannels,
-    unbuffered: boolean
+    channel: SOEOutputChannels
   ) {
     debug("Sending tunnel data to client");
     const data = this._protocol.pack_tunnel_data_packet_for_client(
@@ -110,7 +109,7 @@ export class GatewayServer extends EventEmitter {
       0
     );
     if (data) {
-      this._soeServer.sendAppData(client, data, channel, unbuffered);
+      this._soeServer.sendAppData(client, data, channel);
     }
   }
 

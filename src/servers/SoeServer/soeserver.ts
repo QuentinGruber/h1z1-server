@@ -32,8 +32,8 @@ export class SOEServer extends EventEmitter {
   _useEncryption: boolean = true;
   private _clients: Map<string, SOEClient> = new Map();
   private _connection: dgram.Socket;
-  _crcSeed: number = Math.floor(Math.random() * 256);
-  _crcLength: crc_length_options = 2;
+  private readonly _crcSeed: number = Math.floor(Math.random() * 256);
+  private _crcLength: crc_length_options = 2;
   _waitTimeMs: number = 50;
   keepAliveTimeoutTime: number = 40000;
   private readonly _maxMultiBufferSize: number;
@@ -55,10 +55,12 @@ export class SOEServer extends EventEmitter {
     });
   }
 
+  // return the client if found
   getSoeClient(soeClientId: string): SOEClient | undefined {
     return this._clients.get(soeClientId);
   }
 
+  // create a physical packet and send it
   private _sendAndBuildPhysicalPacket(
     client: Client,
     logicalPacket: LogicalPacket
@@ -71,13 +73,12 @@ export class SOEServer extends EventEmitter {
     if (logicalPacket.isReliable) {
       client.unAckData.set(logicalPacket.sequence as number, Date.now());
     }
-    client.sendSinceLastAck++;
     this._sendPhysicalPacket(client, data);
   }
 
+  // Send a physical packet
   private _sendPhysicalPacket(client: Client, packet: Uint8Array): void {
     client.packetsSentThisSec++;
-    client.bytesSentThisSec += packet.byteLength;
     client.stats.totalPhysicalPacketSent++;
     debug("Sending physical packet", packet);
 
@@ -91,14 +92,13 @@ export class SOEServer extends EventEmitter {
     this._connection.send(packet, client.port, client.address);
   }
 
-  // If a packet hasn't been acknowledge in the timeout time, then resend it
+  // Get an array of packet that we need to resend
   getResends(client: Client): LogicalPacket[] {
     const currentTime = Date.now();
     const resends: LogicalPacket[] = [];
-    const resendedSequence: Set<number> = new Set();
-    // First added packets are the first to be resend
+    const resendedSequences: Set<number> = new Set();
     for (const [sequence, time] of client.unAckData) {
-      // So we don't loose our time with dead connections
+      // if the packet is too old then we resend it
       if (time + this._resendTimeout + client.avgPing < currentTime) {
         const dataCache = client.outputStream.getDataCache(sequence);
         if (dataCache) {
@@ -109,14 +109,23 @@ export class SOEServer extends EventEmitter {
             { sequence: sequence, data: dataCache.data }
           );
           if (logicalPacket) {
-            resendedSequence.add(sequence);
+            resendedSequences.add(sequence);
             resends.push(logicalPacket);
           }
         } else {
-          console.log("(timeout)Data cache not found for sequence " + sequence);
+          // If the data cache is not found it means that the packet has been acked
         }
       }
     }
+    // if a packet is lost due to timeout then we increase the ping
+    // this will auto-fix when the connection goes well again
+    for (let index = 0; index < resends.length; index++) {
+      client.avgPing += 100;
+      if (client.avgPing > 5000) {
+        client.avgPing = 5000;
+      }
+    }
+
     // check for possible accerated resends
     for (const sequence of client.outputStream.outOfOrder) {
       if (sequence < client.outputStream.lastAck.get()) {
@@ -132,7 +141,7 @@ export class SOEServer extends EventEmitter {
         // If that sequence has been out of order acked or resended then we don't resend it again
         if (
           client.outputStream.outOfOrder.has(index) ||
-          resendedSequence.has(index)
+          resendedSequences.has(index)
         ) {
           continue;
         }
@@ -145,36 +154,29 @@ export class SOEServer extends EventEmitter {
             { sequence: index, data: dataCache.data }
           );
           if (logicalPacket) {
-            resendedSequence.add(index);
+            resendedSequences.add(index);
             resends.push(logicalPacket);
           }
         } else {
           // well if it's not in the cache then it means that it has been acked
-          // console.log("(accelerated)Data cache not found for sequence " + sequence);
         }
       }
     }
 
+    // clear out of order array
     client.outputStream.outOfOrder.clear();
 
-    // if a packet is lost then we increase the ping
-    // this will auto-fix when the connection goes well again
-    for (let index = 0; index < resends.length; index++) {
-      client.avgPing += 50;
-      if (client.avgPing > 5000) {
-        client.avgPing = 5000;
-      }
-    }
     return resends;
   }
 
   // Use the lastAck value to acknowlege multiple packets as a time
-  // This function could be called less often but rn it will stick that way
   private getAck(client: Client): LogicalPacket | undefined {
-    if (client.lastAckSend.get() != client.inputStream._lastAck.get()) {
-      client.lastAckSend.set(client.inputStream._lastAck.get());
+    const lastAck = client.inputStream._lastAck.get();
+    // If we already sent an ack for that lastAck then we don't send another one
+    if (client.lastAckSend.get() != lastAck) {
+      client.lastAckSend.set(lastAck);
       return this.createLogicalPacket(SoeOpcode.Ack, {
-        sequence: client.inputStream._lastAck.get()
+        sequence: lastAck
       });
     }
   }
@@ -191,7 +193,8 @@ export class SOEServer extends EventEmitter {
     }
   }
 
-  // send the queued packets
+  // Get buffered queued packets if any and build a multipacket
+  // The queue is cleared after that
   private getClientWaitQueuePacket(
     client: Client,
     queue: PacketsQueue
@@ -209,7 +212,7 @@ export class SOEServer extends EventEmitter {
       );
       queue.clear();
       return multiPacket;
-      // if a packet in the waiting queue is a reliable packet, then we need to set the timeout
+      // if there is only one packet then we don't need to build a multipacket
     } else if (queue.packets.length === 1) {
       // no need for a structuredClone , the variable hold the ref
       const singlePacketCopy = queue.packets[0];
@@ -226,6 +229,7 @@ export class SOEServer extends EventEmitter {
     return client;
   }
 
+  // activate the sending timer if it's not already activated
   private _activateSendingTimer(client: SOEClient, additonalTime: number = 0) {
     if (!client.sendingTimer) {
       client.sendingTimer = setTimeout(() => {
@@ -235,6 +239,7 @@ export class SOEServer extends EventEmitter {
     }
   }
 
+  // Handle the packet received from the client
   private handlePacket(client: SOEClient, packet: any) {
     // console.log("recieved : ", packet.name);
     switch (packet.name) {
@@ -254,6 +259,7 @@ export class SOEServer extends EventEmitter {
         client.outputStream.setFragmentSize(
           client.clientUdpLength - (4 + this._crcLength)
         );
+        // setup the keep alive timer
         client.lastKeepAliveTimer = this.keepAliveTimeoutTime
           ? setTimeout(() => {
               debug("Client keep alive timeout");
@@ -261,18 +267,15 @@ export class SOEServer extends EventEmitter {
             }, this.keepAliveTimeoutTime)
           : null;
 
-        this._sendAndBuildLogicalPacket(
-          client,
-          SoeOpcode.SessionReply,
-          {
-            session_id: client.sessionId,
-            crc_seed: client.crcSeed,
-            crc_length: client.crcLength,
-            encrypt_method: 0,
-            udp_length: client.serverUdpLength
-          },
-          true
-        );
+        const sessionReply = this.createLogicalPacket(SoeOpcode.SessionReply, {
+          session_id: client.sessionId,
+          crc_seed: client.crcSeed,
+          crc_length: client.crcLength,
+          encrypt_method: 0,
+          udp_length: client.serverUdpLength
+        });
+        // We send the session reply packet directly because it's a special case
+        this._sendAndBuildPhysicalPacket(client, sessionReply);
         break;
       case "FatalError":
       case "Disconnect":
@@ -289,7 +292,9 @@ export class SOEServer extends EventEmitter {
       }
       case "Ping":
         debug("Received ping from client");
-        this._sendAndBuildLogicalPacket(client, SoeOpcode.Ping, {}, true);
+        const ping = this.createLogicalPacket(SoeOpcode.Ping, {});
+        // Same as session reply, we send the ping directly
+        this._sendAndBuildPhysicalPacket(client, ping);
         break;
       case "NetStatusRequest":
         debug("Received net status request from client");
@@ -370,17 +375,12 @@ export class SOEServer extends EventEmitter {
 
           client.outputStream.on(
             SOEOutputChannels.Ordered,
-            (data: Buffer, sequence: number, unbuffered: boolean) => {
+            (data: Buffer, sequence: number) => {
               console.log("ordered");
-              this._sendAndBuildLogicalPacket(
-                client,
-                SoeOpcode.Ordered,
-                {
-                  sequence: sequence,
-                  data: data
-                },
-                unbuffered
-              );
+              this._sendAndBuildLogicalPacket(client, SoeOpcode.Ordered, {
+                sequence: sequence,
+                data: data
+              });
             }
           );
 
@@ -398,11 +398,11 @@ export class SOEServer extends EventEmitter {
               console.error("parsing error " + parsed_data.error);
               console.error(parsed_data);
             } else {
-              client.sendSinceLastAck = 0;
               if (client.lastKeepAliveTimer) {
                 client.lastKeepAliveTimer.refresh();
               }
-              this._activateSendingTimer(client);
+              // TODO: necessary?
+              // this._activateSendingTimer(client);
               this.handlePacket(client, parsed_data);
             }
           } else {
@@ -496,13 +496,12 @@ export class SOEServer extends EventEmitter {
   }
   private _clearSendingTimer(client: Client) {
     if (client.sendingTimer) {
-      // console.log("an awaiting sending timer was removed");
-      // Idk maybe it create and delete too much timers :/
       clearTimeout(client.sendingTimer);
       client.sendingTimer = null;
     }
   }
 
+  // Get an array of logical app packets that can be sent
   private getAvailableAppPackets(client: Client): LogicalPacket[] {
     const dataCaches = client.outputStream.getAvailableReliableData();
     const appPackets: LogicalPacket[] = [];
@@ -518,9 +517,7 @@ export class SOEServer extends EventEmitter {
     return appPackets;
   }
   private sendingProcess(client: Client) {
-    // console.log("sending process");
-    //
-
+    // If there is a pending sending timer then we clear it
     this._clearSendingTimer(client);
 
     if (client.outputStream.isReliableAvailable()) {
@@ -597,6 +594,7 @@ export class SOEServer extends EventEmitter {
       }
       client.unAckData.delete(resend.sequence as number);
     }
+    // if there is still some packets in the queue then we send them
     const waitingQueuePacket = this.getClientWaitQueuePacket(
       client,
       client.waitingQueue
@@ -669,14 +667,9 @@ export class SOEServer extends EventEmitter {
   private _sendAndBuildLogicalPacket(
     client: Client,
     packetOpcode: SoeOpcode,
-    packet: json,
-    unbuffered = false
+    packet: json
   ): void {
-    const logicalPacket = this.createLogicalPacket(
-      packetOpcode,
-      packet,
-      unbuffered
-    );
+    const logicalPacket = this.createLogicalPacket(packetOpcode, packet);
     this._sendLogicalPacket(client, logicalPacket);
   }
 
@@ -684,10 +677,9 @@ export class SOEServer extends EventEmitter {
   sendAppData(
     client: Client,
     data: Uint8Array,
-    channel = SOEOutputChannels.Reliable,
-    unbuffered: boolean = false
+    channel = SOEOutputChannels.Reliable
   ): void {
-    client.outputStream.write(data, channel, unbuffered);
+    client.outputStream.write(data, channel);
   }
 
   setEncryption(client: Client, value: boolean): void {

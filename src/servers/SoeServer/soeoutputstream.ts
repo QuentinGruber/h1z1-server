@@ -88,7 +88,7 @@ export class SOEOutputStream extends EventEmitter {
     return data;
   }
 
-  writeReliable(data: Uint8Array, unbuffered: boolean): void {
+  writeReliable(data: Uint8Array): void {
     if (data.length <= this._fragmentSize) {
       this._reliable_sequence.increment();
       this.addToCache(this._reliable_sequence.get(), data, false);
@@ -112,28 +112,19 @@ export class SOEOutputStream extends EventEmitter {
     }
   }
 
-  writeOrdered(data: Uint8Array, unbuffered: boolean): void {
+  writeOrdered(data: Uint8Array): void {
     if (data.length <= this._fragmentSize) {
       this._order_sequence.increment();
-      this.emit(
-        SOEOutputChannels.Ordered,
-        data,
-        this._order_sequence.get(),
-        unbuffered
-      );
+      this.emit(SOEOutputChannels.Ordered, data, this._order_sequence.get());
     } else {
       console.log(
         "ordered packets can't be too large, this packet will be upgraded as a reliable one"
       );
-      this.writeReliable(data, unbuffered);
+      this.writeReliable(data);
     }
   }
 
-  write(
-    data: Uint8Array,
-    channel: SOEOutputChannels,
-    unbuffered: boolean = false
-  ): void {
+  write(data: Uint8Array, channel: SOEOutputChannels): void {
     if (this._useEncryption) {
       data = Buffer.from(this._rc4.encrypt(data));
 
@@ -145,13 +136,13 @@ export class SOEOutputStream extends EventEmitter {
     }
     switch (channel) {
       case SOEOutputChannels.Reliable:
-        this.writeReliable(data, unbuffered);
+        this.writeReliable(data);
         break;
       case SOEOutputChannels.Raw:
         this.emit(SOEOutputChannels.Raw, data);
         break;
       case SOEOutputChannels.Ordered:
-        this.writeOrdered(data, unbuffered);
+        this.writeOrdered(data);
         break;
     }
   }
@@ -170,6 +161,7 @@ export class SOEOutputStream extends EventEmitter {
         unAckData.delete(lastAck);
       }
     }
+    // FIXME: ???
     this.emit(SOEOutputChannels.Reliable);
   }
 
