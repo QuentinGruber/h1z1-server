@@ -161,7 +161,7 @@ export class SOEOutputStream extends EventEmitter {
         unAckData.delete(lastAck);
       }
     }
-    // FIXME: ???
+    // When we receive an ack, we can emit the event Reliable so the application can send more data
     this.emit(SOEOutputChannels.Reliable);
   }
 
