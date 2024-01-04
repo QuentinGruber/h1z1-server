@@ -230,9 +230,6 @@ export class TrapEntity extends BaseSimpleNpc {
         }, 500);
         break;
     }
-    server.on("shutdown", () => {
-      clearTimeout(this.trapTimer);
-    });
   }
   destroy(server: ZoneServer2016): boolean {
     return server.deleteEntity(this.characterId, server._traps);

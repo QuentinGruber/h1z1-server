@@ -744,7 +744,9 @@ export class ZoneServer2016 extends EventEmitter {
   }
 
   async stop() {
-    this.emit("shutdown");
+    for (const trap of Object.values(this._traps)) {
+      clearTimeout(trap.trapTimer);
+    }
     this.worldDataManager.kill();
     this.smeltingManager.clearTimers();
     this.decayManager.clearTimers();
