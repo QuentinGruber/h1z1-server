@@ -6798,9 +6798,9 @@ export class ZoneServer2016 extends EventEmitter {
           explosive.state.position
         )
       ) {
-        await Scheduler.wait(35); 
+        await Scheduler.wait(35);
         explosive.ignite(this, client);
-      } 
+      }
     }
     for (const a in this._lootableConstruction) {
       const smeltable = this._lootableConstruction[a];
