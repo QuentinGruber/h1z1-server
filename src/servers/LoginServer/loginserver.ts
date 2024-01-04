@@ -502,14 +502,7 @@ export class LoginServer extends EventEmitter {
       //  "Your session id is not a valid json string, please update your launcher to avoid this warning"
       //);
     }
-    if (this._soloMode) {
-      client.authKey = String(authKey);
-    } else {
-      const realSession = await this._db
-        .collection(DB_COLLECTIONS.USERS_SESSIONS)
-        .findOne({ guid: authKey });
-      client.authKey = realSession ? realSession.authKey : authKey;
-    }
+    client.authKey = String(authKey);
     client.gameVersion = gameVersion;
     const loginReply: LoginReply = {
       loggedIn: true,

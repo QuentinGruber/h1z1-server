@@ -930,7 +930,7 @@ export class ZonePacketHandlers {
       client,
       "CharacterSelectSessionResponse",
       {
-        status: 1,
+        status: 0,
         sessionId: client.loginSessionId
       }
     );
@@ -1301,10 +1301,21 @@ export class ZonePacketHandlers {
     if (client.character.tempGodMode) {
       server.setTempGodMode(client, false);
     }
-    client.character.positionUpdate = packet.data;
+    client.character.positionUpdate = {
+      ...client.character.positionUpdate,
+      ...packet.data
+    };
     if (packet.data.flags === 513) {
       // head rotation when in vehicle, client spams this packet every 1ms even if you dont move, disabled for now(it doesnt work anyway)
       return;
+    }
+
+    if (packet.data.orientation) {
+      server.fairPlayManager.checkAimVector(
+        server,
+        client,
+        packet.data.orientation
+      );
     }
     if (!client.character.isAlive) {
       client.blockedPositionUpdates += 1;
@@ -1725,7 +1736,7 @@ export class ZonePacketHandlers {
       entity = server.getEntity(guid);
 
     if (!entity) return;
-    if (entity instanceof Crate || entity instanceof BaseFullCharacter) {
+    if (entity instanceof Crate) {
       client.character.currentInteractionGuid = guid;
       client.character.lastInteractionStringTime = Date.now();
       return;
@@ -1747,9 +1758,11 @@ export class ZonePacketHandlers {
     }
     client.character.currentInteractionGuid = guid;
     client.character.lastInteractionStringTime = Date.now();
+    const isNonReplicatable =
+      entity instanceof Destroyable || entity instanceof Character2016;
     if (
       entity instanceof BaseLightweightCharacter &&
-      !(entity instanceof Destroyable) &&
+      !isNonReplicatable &&
       !client.sentInteractionData.includes(entity)
     ) {
       server.sendData<ReplicationNpcComponent>(

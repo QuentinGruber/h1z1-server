@@ -42,7 +42,13 @@ import {
   Skins_Military,
   Skins_Glasses,
   Effects,
-  ModelIds
+  ModelIds,
+  Skins_Conveys,
+  Skins_Backpack,
+  Skins_Sniper,
+  Skins_Shotgun,
+  Skins_AK47,
+  Skins_AR15
 } from "../models/enums";
 import { Vehicle2016 } from "../entities/vehicle";
 import { LootDefinition } from "types/zoneserver";
@@ -89,8 +95,26 @@ function getRandomSkin(itemDefinitionId: number) {
     case Items.BACKPACK_MILITARY_TAN:
       arr = Object.keys(Skins_Military);
       break;
+    case Items.BACKPACK_BLUE_ORANGE:
+      arr = Object.keys(Skins_Backpack);
+      break;
     case Items.ALL_PURPOSE_GOGGLES:
       arr = Object.keys(Skins_Glasses);
+      break;
+    case Items.CONVEYS_BLUE:
+      arr = Object.keys(Skins_Conveys);
+      break;
+    case Items.WEAPON_308:
+      arr = Object.keys(Skins_Sniper);
+      break;
+    case Items.WEAPON_SHOTGUN:
+      arr = Object.keys(Skins_Shotgun);
+      break;
+    case Items.WEAPON_AK47:
+      arr = Object.keys(Skins_AK47);
+      break;
+    case Items.WEAPON_AR15:
+      arr = Object.keys(Skins_AR15);
       break;
     default:
       return itemDefinitionId;
@@ -616,6 +640,15 @@ export class WorldObjectManager {
             server.constructionManager.placeTrap(
               server,
               Items.PUNJI_STICKS,
+              propType.modelId,
+              propInstance.position,
+              fixEulerOrder(propInstance.rotation)
+            );
+            break;
+          case "Common_Props_BarbedWire.adr":
+            server.constructionManager.placeTrap(
+              server,
+              Items.BARBED_WIRE,
               propType.modelId,
               propInstance.position,
               fixEulerOrder(propInstance.rotation)

@@ -63,11 +63,17 @@ export class LootableConstructionEntity extends BaseLootableEntity {
 
     this.maxHealth = getMaxHealth(this.itemDefinitionId);
     this.health = this.maxHealth;
-
-    this.defaultLoadout =
-      this.itemDefinitionId == Items.REPAIR_BOX
-        ? lootableContainerDefaultLoadouts.repair_box
-        : lootableContainerDefaultLoadouts.storage;
+    switch (this.itemDefinitionId) {
+      case Items.REPAIR_BOX:
+        this.defaultLoadout = lootableContainerDefaultLoadouts.repair_box;
+        break;
+      case Items.HAND_SHOVEL:
+        this.defaultLoadout = lootableContainerDefaultLoadouts.stash;
+        break;
+      default:
+        this.defaultLoadout = lootableContainerDefaultLoadouts.storage;
+        break;
+    }
     if (subEntityType === "SmeltingEntity") {
       this.subEntity = new SmeltingEntity(this, server);
       this.npcRenderDistance = 250;
