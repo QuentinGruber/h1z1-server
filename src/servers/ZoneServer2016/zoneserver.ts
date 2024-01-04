@@ -6847,7 +6847,7 @@ export class ZoneServer2016 extends EventEmitter {
           explosive.state.position
         )
       ) {
-        await Scheduler.wait(35);
+        await scheduler.wait(35);
         explosive.ignite(this, client);
       }
     }
