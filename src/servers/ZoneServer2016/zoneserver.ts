@@ -821,7 +821,7 @@ export class ZoneServer2016 extends EventEmitter {
       await this.sendInitData(client);
     } catch (error) {
       debug(error);
-      console.log(error)
+      console.log(error);
       this.sendData<LoginFailed>(client, "LoginFailed", {});
     }
   }
@@ -1216,7 +1216,7 @@ export class ZoneServer2016 extends EventEmitter {
         client.character.characterId
       );
     } catch (e) {
-      console.log(e)
+      console.log(e);
       this.sendData<LoginFailed>(client, "LoginFailed", {});
       return;
     }
