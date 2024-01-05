@@ -235,7 +235,6 @@ function readDataLength(
   };
 }
 
-// FIXME: returning an array of buffers ? wtf
 function parseChannelPacketData(data: Buffer): Array<Buffer> {
   let appData: Array<Buffer> = [],
     offset,

@@ -81,14 +81,6 @@ export class SOEServer extends EventEmitter {
     client.packetsSentThisSec++;
     client.stats.totalPhysicalPacketSent++;
     debug("Sending physical packet", packet);
-
-    // const packetopcode = SoeOpcode[packet[1]];
-    // console.log("sends : ", packetopcode);
-    // 10% chances to drop the packet
-    // const rnd = Math.random() * 100;
-    // if (rnd < 10) {
-    //   return;
-    // }
     this._connection.send(packet, client.port, client.address);
   }
 
@@ -237,7 +229,6 @@ export class SOEServer extends EventEmitter {
 
   // Handle the packet received from the client
   private handlePacket(client: SOEClient, packet: any) {
-    // console.log("recieved : ", packet.name);
     switch (packet.name) {
       case "SessionRequest":
         debug(
@@ -397,8 +388,6 @@ export class SOEServer extends EventEmitter {
               if (client.lastKeepAliveTimer) {
                 client.lastKeepAliveTimer.refresh();
               }
-              // TODO: necessary?
-              // this._activateSendingTimer(client);
               this.handlePacket(client, parsed_data);
             }
           } else {
@@ -600,8 +589,6 @@ export class SOEServer extends EventEmitter {
     }
 
     if (client.unAckData.size > 0) {
-      // console.log("unack data size", client.unAckData.size);
-      // console.log("next sending scheduled in", 100 * client.sendingVsHandleRate);
       this._activateSendingTimer(client);
     }
   }
