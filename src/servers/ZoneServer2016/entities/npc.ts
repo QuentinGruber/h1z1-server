@@ -171,27 +171,28 @@ export class Npc extends BaseFullCharacter {
   OnMeleeHit(server: ZoneServer2016, damageInfo: DamageInfo) {
     if (damageInfo.meleeType && !this.isAlive) {
       const client = server.getClientByCharId(damageInfo.entity);
-
       if (
         this.requiredHarvestItems.includes(damageInfo.meleeType) &&
         client &&
         this.rewardItems.length > 0
       ) {
-        const totalWeight = this.rewardItems.reduce(
-          (sum, item) => sum + item.weight,
-          0
-        );
-        const randomValue = Math.random() * totalWeight;
-
-        let cumulativeWeight = 0;
-        for (const reward of this.rewardItems) {
-          cumulativeWeight += reward.weight;
-          if (randomValue <= cumulativeWeight) {
-            if (reward.itemDefId == 0) break; // Don't always give a reward
-            //TODO: Keep track if the brain was already harvested.
-            const rewardItem = server.generateItem(reward.itemDefId, 1);
-            if (rewardItem) client.character.lootItem(server, rewardItem);
-            break;
+        if (client.character.getItemById(Items.SKINNING_KNIFE)) {
+          const totalWeight = this.rewardItems.reduce(
+            (sum, item) => sum + item.weight,
+            0
+          );
+          const randomValue = Math.random() * totalWeight;
+  
+          let cumulativeWeight = 0;
+          for (const reward of this.rewardItems) {
+            cumulativeWeight += reward.weight;
+            if (randomValue <= cumulativeWeight) {
+              if (reward.itemDefId == 0) break; // Don't always give a reward
+              //TODO: Keep track if the brain was already harvested.
+              const rewardItem = server.generateItem(reward.itemDefId, 1);
+              if (rewardItem) client.character.lootItem(server, rewardItem);
+              break;
+            }
           }
         }
       }
