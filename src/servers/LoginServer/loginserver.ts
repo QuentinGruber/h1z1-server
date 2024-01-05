@@ -41,7 +41,6 @@ import { FileHash, httpServerMessage } from "types/shared";
 import { LoginProtocol2016 } from "../../protocols/loginprotocol2016";
 import { crc_length_options } from "../../types/soeserver";
 import { DB_NAME, DEFAULT_CRYPTO_KEY } from "../../utils/constants";
-import { healthThreadDecorator } from "../../servers/shared/workers/healthWorker";
 import {
   LoginReply,
   CharacterSelectInfoReply,
@@ -73,7 +72,6 @@ const debug = require("debug")(debugName);
 const characterItemDefinitionsDummy = require("../../../data/2015/sampleData/characterItemDefinitionsDummy.json");
 const defaultHashes: Array<FileHash> = require("../../../data/2016/dataSources/AllowedFileHashes.json");
 
-@healthThreadDecorator
 export class LoginServer extends EventEmitter {
   _soeServer: SOEServer;
   _protocol: LoginProtocol;
@@ -97,6 +95,7 @@ export class LoginServer extends EventEmitter {
   private _soloPlayIp: string = process.env.SOLO_PLAY_IP || "127.0.0.1";
   private clients: Map<string, LoginClient>;
   private _resolver = new Resolver();
+  private _mongoClient?: MongoClient;
   constructor(serverPort: number, mongoAddress = "") {
     super();
     this._crcLength = 2;
@@ -115,10 +114,6 @@ export class LoginServer extends EventEmitter {
     }
 
     this._soeServer = new SOEServer(serverPort, this._cryptoKey);
-    // 2016 client doesn't send a disconnect packet so we've to use that
-    // But that can't be enabled on zoneserver
-    this._soeServer._usePingTimeout = true;
-
     this._protocol = new LoginProtocol();
     this._protocol2016 = new LoginProtocol2016();
 
@@ -436,7 +431,9 @@ export class LoginServer extends EventEmitter {
           } catch (e) {
             console.error(e);
           }
-          return require(`${this._appDataFolder}/single_player_characters.json`);
+          return require(
+            `${this._appDataFolder}/single_player_characters.json`
+          );
         }
         case GAME_VERSIONS.H1Z1_6dec_2016: {
           try {
@@ -449,7 +446,9 @@ export class LoginServer extends EventEmitter {
           } catch (e) {
             console.error(e);
           }
-          return require(`${this._appDataFolder}/single_player_characters2016.json`);
+          return require(
+            `${this._appDataFolder}/single_player_characters2016.json`
+          );
         }
         case GAME_VERSIONS.H1Z1_KOTK_PS3: {
           try {
@@ -462,7 +461,9 @@ export class LoginServer extends EventEmitter {
           } catch (e) {
             console.error(e);
           }
-          return require(`${this._appDataFolder}/single_player_charactersKOTK.json`);
+          return require(
+            `${this._appDataFolder}/single_player_charactersKOTK.json`
+          );
         }
       }
     } else {
@@ -501,14 +502,7 @@ export class LoginServer extends EventEmitter {
       //  "Your session id is not a valid json string, please update your launcher to avoid this warning"
       //);
     }
-    if (this._soloMode) {
-      client.authKey = String(authKey);
-    } else {
-      const realSession = await this._db
-        .collection(DB_COLLECTIONS.USERS_SESSIONS)
-        .findOne({ guid: authKey });
-      client.authKey = realSession ? realSession.authKey : authKey;
-    }
+    client.authKey = String(authKey);
     client.gameVersion = gameVersion;
     const loginReply: LoginReply = {
       loggedIn: true,
@@ -1299,11 +1293,11 @@ export class LoginServer extends EventEmitter {
   async start(): Promise<void> {
     debug("Starting server");
     if (this._mongoAddress) {
-      const mongoClient = new MongoClient(this._mongoAddress, {
+      this._mongoClient = new MongoClient(this._mongoAddress, {
         maxPoolSize: 100
       });
       try {
-        await mongoClient.connect();
+        await this._mongoClient.connect();
       } catch (e) {
         throw debug(
           "[ERROR]Unable to connect to mongo server " + this._mongoAddress
@@ -1312,11 +1306,11 @@ export class LoginServer extends EventEmitter {
       debug("connected to mongo !");
       // if no collections exist on h1server database , fill it with samples
       const dbIsEmpty =
-        (await mongoClient.db(DB_NAME).collections()).length < 1;
+        (await this._mongoClient.db(DB_NAME).collections()).length < 1;
       if (dbIsEmpty) {
-        await initMongo(mongoClient, debugName);
+        await initMongo(this._mongoClient, debugName);
       }
-      this._db = mongoClient.db(DB_NAME);
+      this._db = this._mongoClient.db(DB_NAME);
       this.updateServersStatus();
     }
 
@@ -1367,9 +1361,19 @@ export class LoginServer extends EventEmitter {
       fs.unlinkSync(`${this._appDataFolder}/single_player_characters.json`);
     }
   }
-  stop(): void {
+  async stop(): Promise<void> {
     debug("Shutting down");
-    process.exitCode = 0;
+    // close zoneloginconnections
+    if (this._zoneConnectionManager) {
+      await this._zoneConnectionManager.stop();
+    }
+    if (this._mongoClient) {
+      await this._mongoClient.close();
+    }
+    if (this._httpServer) {
+      await this._httpServer.terminate();
+    }
+    await this._soeServer.stop();
   }
 }
 

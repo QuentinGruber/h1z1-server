@@ -65,6 +65,7 @@ import {
   ConstructionUnknown,
   PlayerUpdatePosition
 } from "types/zone2016packets";
+import { scheduler } from "node:timers/promises";
 
 export class ConstructionManager {
   overridePlacementItems: Array<number> = [
@@ -698,6 +699,7 @@ export class ConstructionManager {
     freeplaceParentCharacterId?: string
   ): boolean {
     switch (itemDefinitionId) {
+      case Items.BARBED_WIRE:
       case Items.SNARE:
       case Items.PUNJI_STICKS:
       case Items.PUNJI_STICK_ROW:
@@ -850,6 +852,16 @@ export class ConstructionManager {
           BuildingSlot,
           parentObjectCharacterId,
           itemDefinitionId
+        );
+      case Items.HAND_SHOVEL:
+        return this.placeStashEntity(
+          server,
+          itemDefinitionId,
+          modelId,
+          position,
+          fixEulerOrder(rotation),
+          new Float32Array([1, 1, 1, 1]),
+          freeplaceParentCharacterId
         );
       default:
         //this.placementError(client, ConstructionErrors.UNKNOWN_CONSTRUCTION);
@@ -1640,6 +1652,49 @@ export class ConstructionManager {
     }, construction);
     return true;
   }
+  placeStashEntity(
+    server: ZoneServer2016,
+    itemDefinitionId: number,
+    modelId: number,
+    position: Float32Array,
+    rotation: Float32Array,
+    scale: Float32Array,
+    parentObjectCharacterId?: string
+  ): boolean {
+    const characterId = server.generateGuid(),
+      transientId = server.getTransientId(characterId);
+    const obj = new LootableConstructionEntity(
+      characterId,
+      transientId,
+      modelId,
+      position,
+      rotation,
+      server,
+      scale,
+      itemDefinitionId,
+      parentObjectCharacterId || "",
+      ""
+    );
+
+    const parent = obj.getParent(server);
+    if (parent) {
+      server._lootableConstruction[characterId] = obj;
+      parent.addFreeplaceConstruction(obj);
+    } else {
+      server._worldLootableConstruction[characterId] = obj;
+    }
+
+    obj.equipLoadout(server);
+
+    server.executeFuncForAllReadyClientsInRange((client) => {
+      if (this.shouldHideEntity(server, client, obj)) {
+        return;
+      }
+      this.spawnLootableConstruction(server, client, obj);
+    }, obj);
+
+    return true;
+  }
 
   checkFoundationPermission(
     server: ZoneServer2016,
@@ -2124,16 +2179,18 @@ export class ConstructionManager {
     }
   }
 
-  public constructionPermissionsManager(
+  public async constructionPermissionsManager(
     server: ZoneServer2016,
     client: Client
   ) {
     let hide = false;
     for (const characterId in server._constructionFoundations) {
+      await scheduler.yield();
       const npc = server._constructionFoundations[characterId];
       if (this.checkFoundationPermission(server, client, npc)) hide = true;
     }
     for (const characterId in server._constructionSimple) {
+      await scheduler.yield();
       const npc = server._constructionSimple[characterId];
       if (this.checkConstructionChildEntityPermission(server, client, npc))
         hide = true;

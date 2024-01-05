@@ -16,6 +16,7 @@ import { SOEServer } from "../SoeServer/soeserver";
 import { GatewayProtocol } from "h1emu-core";
 import SOEClient from "../SoeServer/soeclient";
 import { crc_length_options } from "../../types/soeserver";
+import { SOEOutputChannels } from "servers/SoeServer/soeoutputstream";
 
 const debug = require("debug")("GatewayServer");
 
@@ -32,6 +33,7 @@ export class GatewayServer extends EventEmitter {
 
     this._soeServer = new SOEServer(serverPort, gatewayKey);
     this._soeServer._useEncryption = false; // communication is encrypted only after loginRequest
+    this._soeServer.keepAliveTimeoutTime = 20000; // On zone a client expire after 20s without activity
     this._protocol = new GatewayProtocol();
     this._soeServer.on("disconnect", (client: SOEClient) => {
       debug("Client disconnected from " + client.address + ":" + client.port);
@@ -96,10 +98,10 @@ export class GatewayServer extends EventEmitter {
     this._soeServer.start(this._crcLength, this._udpLength);
   }
 
-  private _sentTunnelData(
+  sendTunnelData(
     client: SOEClient,
     tunnelData: Buffer,
-    unbuffered: boolean
+    channel: SOEOutputChannels
   ) {
     debug("Sending tunnel data to client");
     const data = this._protocol.pack_tunnel_data_packet_for_client(
@@ -107,24 +109,12 @@ export class GatewayServer extends EventEmitter {
       0
     );
     if (data) {
-      if (unbuffered) {
-        this._soeServer.sendUnbufferedAppData(client, data);
-      } else {
-        this._soeServer.sendAppData(client, data);
-      }
+      this._soeServer.sendAppData(client, data, channel);
     }
   }
 
-  sendTunnelData(client: SOEClient, tunnelData: Buffer) {
-    this._sentTunnelData(client, tunnelData, false);
-  }
-
-  sendUnbufferedTunnelData(client: SOEClient, tunnelData: Buffer) {
-    this._sentTunnelData(client, tunnelData, true);
-  }
-
-  stop() {
-    debug("Shutting down");
-    process.exitCode = 0;
+  async stop() {
+    debug("Stopping server");
+    await this._soeServer.stop();
   }
 }
