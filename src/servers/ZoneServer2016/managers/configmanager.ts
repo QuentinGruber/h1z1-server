@@ -170,6 +170,7 @@ export class ConfigManager {
     const {
       useFairplay,
       maxPing,
+      pingTimeoutTime,
       acceptedRejectionTypes,
       useAssetValidation,
       hashSubmissionTimeout,
@@ -178,6 +179,7 @@ export class ConfigManager {
     } = this.config.fairplay;
     server.fairPlayManager.useFairPlay = useFairplay;
     server.fairPlayManager.maxPing = maxPing;
+    server.fairPlayManager.pingTimeoutTime = pingTimeoutTime;
     server.fairPlayManager.acceptedRejectionTypes = acceptedRejectionTypes;
     server.fairPlayManager.useAssetValidation = useAssetValidation;
     server.fairPlayManager.hashSubmissionTimeout = hashSubmissionTimeout;

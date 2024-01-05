@@ -41,9 +41,9 @@ import { DB_NAME, DEFAULT_CRYPTO_KEY } from "../../utils/constants";
 process.env.isBin && require("./workers/dynamicWeather");
 
 import { zonePacketHandlers } from "./zonepackethandlers";
+import { healthThreadDecorator } from "../shared/workers/healthWorker";
 import { zone2015packets } from "types/zone2015packets";
 import { GAME_VERSIONS } from "../../utils/enums";
-import { SOEOutputChannels } from "../SoeServer/soeoutputstream";
 const localSpawnList = require("../../../data/2015/sampleData/spawnLocations.json");
 
 const debugName = "ZoneServer";
@@ -53,6 +53,7 @@ const stats = require("../../../data/2015/sampleData/stats.json");
 const recipes = require("../../../data/2015/sampleData/recipes.json");
 const Z1_POIs = require("../../../data/2015/zoneData/Z1_POIs");
 
+@healthThreadDecorator
 export class ZoneServer2015 extends EventEmitter {
   _gatewayServer: GatewayServer;
   _protocol: ZoneProtocol;
@@ -112,7 +113,7 @@ export class ZoneServer2015 extends EventEmitter {
   readonly gameVersion: GAME_VERSIONS = GAME_VERSIONS.H1Z1_15janv_2015;
   constructor(
     serverPort: number,
-    gatewayKey: Uint8Array = Buffer.from(DEFAULT_CRYPTO_KEY),
+    gatewayKey: Uint8Array,
     mongoAddress = "",
     worldId = 0,
     internalServerPort = 1118
@@ -508,7 +509,7 @@ export class ZoneServer2015 extends EventEmitter {
       }
       this._h1emuZoneServer.setLoginInfo(this._loginServerInfo, {
         serverId: this._worldId,
-        h1emuVersion: process.env.H1Z1_SERVER_VERSION || "unknown"
+        h1emuVersion: process.env.H1Z1_SERVER_VERSION
       });
       this._h1emuZoneServer.start();
       this.sendZonePopulationUpdate();
@@ -765,9 +766,7 @@ export class ZoneServer2015 extends EventEmitter {
       delete require.cache[
         require.resolve(`${this._appDataFolder}/single_player_characters.json`)
       ];
-      const SinglePlayerCharacters = require(
-        `${this._appDataFolder}/single_player_characters.json`
-      );
+      const SinglePlayerCharacters = require(`${this._appDataFolder}/single_player_characters.json`);
       character = SinglePlayerCharacters.find(
         (character: any) =>
           character.characterId === client.character.characterId
@@ -2514,11 +2513,7 @@ export class ZoneServer2015 extends EventEmitter {
     if (data) {
       const soeClient = this.getSoeClient(client.soeClientId);
       if (soeClient) {
-        this._gatewayServer.sendTunnelData(
-          soeClient,
-          data,
-          SOEOutputChannels.Reliable
-        );
+        this._gatewayServer.sendTunnelData(soeClient, data);
       }
     }
   }
@@ -2572,11 +2567,7 @@ export class ZoneServer2015 extends EventEmitter {
   sendRawData(client: Client, data: Buffer): void {
     const soeClient = this.getSoeClient(client.soeClientId);
     if (soeClient) {
-      this._gatewayServer.sendTunnelData(
-        soeClient,
-        data,
-        SOEOutputChannels.Reliable
-      );
+      this._gatewayServer.sendTunnelData(soeClient, data);
     }
   }
 

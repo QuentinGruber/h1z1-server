@@ -14,28 +14,19 @@
 import { EventEmitter } from "node:events";
 import { RC4 } from "h1emu-core";
 import { wrappedUint16 } from "../../utils/utils";
-import { dataCache, dataCacheMap } from "types/soeserver";
+import { dataCache } from "types/soeserver";
 
 const debug = require("debug")("SOEOutputStream");
-
-export enum SOEOutputChannels {
-  Reliable = "Reliable",
-  Raw = "Raw",
-  Ordered = "Ordered"
-}
 
 export class SOEOutputStream extends EventEmitter {
   private _useEncryption: boolean = false;
   private _fragmentSize: number = 0;
-  _reliable_sequence: wrappedUint16 = new wrappedUint16(-1);
-  _last_available_reliable_sequence: wrappedUint16 = new wrappedUint16(-1);
-  private _order_sequence: wrappedUint16 = new wrappedUint16(-1);
+  private _sequence: wrappedUint16 = new wrappedUint16(-1);
   lastAck: wrappedUint16 = new wrappedUint16(-1);
-  private _cache: dataCacheMap = {};
+  private _cache: dataCache = {};
+
   private _rc4: RC4;
-  private hasPendingEmit: boolean = false;
-  maxSequenceAvailable: number = 50;
-  outOfOrder: Set<number> = new Set();
+  private _hadCacheError: boolean = false;
   constructor(cryptoKey: Uint8Array) {
     super();
     this._rc4 = new RC4(cryptoKey);
@@ -44,8 +35,7 @@ export class SOEOutputStream extends EventEmitter {
   addToCache(sequence: number, data: Uint8Array, isFragment: boolean) {
     this._cache[sequence] = {
       data: data,
-      fragment: isFragment,
-      sequence: sequence
+      fragment: isFragment
     };
   }
 
@@ -55,76 +45,7 @@ export class SOEOutputStream extends EventEmitter {
     }
   }
 
-  isReliableAvailable(): boolean {
-    const sequenceAreEqual =
-      this.lastAck.get() === this._reliable_sequence.get();
-    if (sequenceAreEqual) {
-      return false;
-    }
-
-    const difference =
-      this._last_available_reliable_sequence.get() - this.lastAck.get();
-    const differenceIsNotTooBig = difference < this.maxSequenceAvailable;
-    return differenceIsNotTooBig;
-  }
-
-  getAvailableReliableData(): dataCache[] {
-    const data: dataCache[] = [];
-    const first_LA_sequence = this._last_available_reliable_sequence.get();
-    const targetSequence = wrappedUint16.wrap(
-      first_LA_sequence + this.maxSequenceAvailable
-    );
-    let LA_sequence = first_LA_sequence;
-    while (LA_sequence !== targetSequence) {
-      const sequence = wrappedUint16.wrap(LA_sequence + 1);
-      if (!!this._cache[sequence]) {
-        data.push(this._cache[sequence]);
-        this._last_available_reliable_sequence.set(sequence);
-      } else {
-        break;
-      }
-      LA_sequence = sequence;
-    }
-    return data;
-  }
-
-  writeReliable(data: Uint8Array): void {
-    if (data.length <= this._fragmentSize) {
-      this._reliable_sequence.increment();
-      this.addToCache(this._reliable_sequence.get(), data, false);
-    } else {
-      const header = Buffer.allocUnsafe(4);
-      header.writeUInt32BE(data.length, 0);
-      data = Buffer.concat([header, data]);
-      for (let i = 0; i < data.length; i += this._fragmentSize) {
-        this._reliable_sequence.increment();
-        const fragmentData = data.slice(i, i + this._fragmentSize);
-        this.addToCache(this._reliable_sequence.get(), fragmentData, true);
-      }
-    }
-    if (!this.hasPendingEmit && this.isReliableAvailable()) {
-      // So we emit the event only at the end of the current stack
-      // it's useful for app functions that send multiple packets
-      queueMicrotask(() => {
-        this.emit(SOEOutputChannels.Reliable);
-        this.hasPendingEmit = false;
-      });
-    }
-  }
-
-  writeOrdered(data: Uint8Array): void {
-    if (data.length <= this._fragmentSize) {
-      this._order_sequence.increment();
-      this.emit(SOEOutputChannels.Ordered, data, this._order_sequence.get());
-    } else {
-      console.log(
-        "ordered packets can't be too large, this packet will be upgraded as a reliable one"
-      );
-      this.writeReliable(data);
-    }
-  }
-
-  write(data: Uint8Array, channel: SOEOutputChannels): void {
+  write(data: Uint8Array, unbuffered: boolean = false): void {
     if (this._useEncryption) {
       data = Buffer.from(this._rc4.encrypt(data));
 
@@ -134,39 +55,46 @@ export class SOEOutputStream extends EventEmitter {
         data = Buffer.concat([tmp, data]);
       }
     }
-    switch (channel) {
-      case SOEOutputChannels.Reliable:
-        this.writeReliable(data);
-        break;
-      case SOEOutputChannels.Raw:
-        this.emit(SOEOutputChannels.Raw, data);
-        break;
-      case SOEOutputChannels.Ordered:
-        this.writeOrdered(data);
-        break;
+    if (data.length <= this._fragmentSize) {
+      this._sequence.increment();
+      this.addToCache(this._sequence.get(), data, false);
+      this.emit("data", data, this._sequence.get(), false, unbuffered);
+    } else {
+      const header = Buffer.allocUnsafe(4);
+      header.writeUInt32BE(data.length, 0);
+      data = Buffer.concat([header, data]);
+      for (let i = 0; i < data.length; i += this._fragmentSize) {
+        this._sequence.increment();
+        const fragmentData = data.slice(i, i + this._fragmentSize);
+        this.addToCache(this._sequence.get(), fragmentData, true);
+
+        this.emit("data", fragmentData, this._sequence.get(), true, unbuffered);
+      }
     }
   }
 
   ack(sequence: number, unAckData: Map<number, number>): void {
     // delete all data / timers cached for the sequences behind the given ack sequence
-    while (this.lastAck.get() !== wrappedUint16.wrap(sequence)) {
+    while (this.lastAck.get() !== wrappedUint16.wrap(sequence + 1)) {
       const lastAck = this.lastAck.get();
       this.removeFromCache(lastAck);
       unAckData.delete(lastAck);
       this.lastAck.increment();
-      // So we clear the last ack at the end of the loop without incrementing it
-      if (this.lastAck.get() === wrappedUint16.wrap(sequence)) {
-        const lastAck = this.lastAck.get();
-        this.removeFromCache(lastAck);
-        unAckData.delete(lastAck);
-      }
     }
-    // When we receive an ack, we can emit the event Reliable so the application can send more data
-    this.emit(SOEOutputChannels.Reliable);
   }
 
-  getDataCache(sequence: number): dataCache {
-    return this._cache[sequence];
+  resendData(sequence: number): void {
+    if (this._cache[sequence]) {
+      this.emit(
+        "dataResend",
+        this._cache[sequence].data,
+        sequence,
+        this._cache[sequence].fragment
+      );
+    } else {
+      // already deleted from cache so already acknowledged by the client not a real issue
+      debug(`Cache error, could not resend data for sequence ${sequence}! `);
+    }
   }
 
   isUsingEncryption(): boolean {

@@ -49,6 +49,7 @@ import {
   Effects,
   WeaponDefinitionIds
 } from "./models/enums";
+import { healthThreadDecorator } from "../shared/workers/healthWorker";
 import { WeatherManager } from "./managers/weathermanager";
 
 import {
@@ -82,6 +83,7 @@ import {
   isPosInRadiusWithY,
   getDistance,
   randomIntFromInterval,
+  Scheduler,
   generateTransientId,
   getRandomFromArray,
   getRandomKeyFromAnObject,
@@ -98,7 +100,7 @@ import {
   getDistance2d
 } from "../../utils/utils";
 
-import { Db, MongoClient, WithId } from "mongodb";
+import { Db, WithId } from "mongodb";
 import { BaseFullCharacter } from "./entities/basefullcharacter";
 import { ItemObject } from "./entities/itemobject";
 import {
@@ -224,9 +226,6 @@ import { PluginManager } from "./managers/pluginmanager";
 import { Destroyable } from "./entities/destroyable";
 import { Plane } from "./entities/plane";
 import { FileHashTypeList, ReceivedPacket } from "types/shared";
-import { SOEOutputChannels } from "../../servers/SoeServer/soeoutputstream";
-import { scheduler } from "node:timers/promises";
-import { GatewayChannels } from "h1emu-core";
 
 const spawnLocations2 = require("../../../data/2016/zoneData/Z1_gridSpawns.json"),
   deprecatedDoors = require("../../../data/2016/sampleData/deprecatedDoors.json"),
@@ -250,6 +249,7 @@ const spawnLocations2 = require("../../../data/2016/zoneData/Z1_gridSpawns.json"
     Record<string, string[]>
   > = require("../../../data/2016/sampleData/equipmentModelTexturesMapping.json");
 
+@healthThreadDecorator
 export class ZoneServer2016 extends EventEmitter {
   private _gatewayServer: GatewayServer;
   readonly _protocol: H1Z1Protocol;
@@ -361,7 +361,6 @@ export class ZoneServer2016 extends EventEmitter {
   _firemodeDefinitions: { [firemodeId: number]: any } =
     weaponDefinitions.FIRE_MODE_DEFINITIONS;
   itemDefinitionsCache?: Buffer;
-  dynamicAppearanceCache?: Buffer;
   weaponDefinitionsCache?: Buffer;
   projectileDefinitionsCache?: Buffer;
   profileDefinitionsCache?: Buffer;
@@ -370,6 +369,7 @@ export class ZoneServer2016 extends EventEmitter {
   _recipes: { [recipeId: number]: Recipe } = recipes;
   lastItemGuid: bigint = 0x3000000000000000n;
   private readonly _transientIdGenerator = generateTransientId();
+  _packetsStats: Record<string, number> = {};
   enableWorldSaves: boolean;
   readonly gameVersion: GAME_VERSIONS = GAME_VERSIONS.H1Z1_6dec_2016;
   isSaving: boolean = false;
@@ -383,9 +383,6 @@ export class ZoneServer2016 extends EventEmitter {
   isLocked: boolean = false;
   staticDTOs: Array<PropInstance> = [];
   serverGameRules: string;
-  routinesLoopTimer?: NodeJS.Timeout;
-  private _mongoClient?: MongoClient;
-  rebootTimeTimer?: NodeJS.Timeout;
 
   /* MANAGED BY CONFIGMANAGER */
   proximityItemsDistance!: number;
@@ -408,7 +405,7 @@ export class ZoneServer2016 extends EventEmitter {
 
   constructor(
     serverPort: number,
-    gatewayKey: Uint8Array = Buffer.from(DEFAULT_CRYPTO_KEY),
+    gatewayKey: Uint8Array,
     mongoAddress = "",
     worldId?: number,
     internalServerPort?: number
@@ -453,11 +450,11 @@ export class ZoneServer2016 extends EventEmitter {
 
     this.on("data", this.onZoneDataEvent);
 
-    this.on("login", async (client) => {
+    this.on("login", (client) => {
       if (!this._soloMode) {
         this.sendZonePopulationUpdate();
       }
-      await this.onZoneLoginEvent(client);
+      this.onZoneLoginEvent(client);
     });
 
     this._gatewayServer._soeServer.on("fatalError", (soeClient: SOEClient) => {
@@ -537,28 +534,28 @@ export class ZoneServer2016 extends EventEmitter {
         }
         this._clients[client.sessionId] = zoneClient;
         this._characters[characterId] = zoneClient.character;
+        zoneClient.pingTimer = setTimeout(() => {
+          this.timeoutClient(zoneClient);
+        }, this.fairPlayManager.pingTimeoutTime);
         this.emit("login", zoneClient);
       }
     );
     this._gatewayServer.on("disconnect", (client: SOEClient) => {
       // this happen when the connection is close without a regular logout
-      this.deleteClient(this._clients[client.sessionId]);
+      setTimeout(() => {
+        this.deleteClient(this._clients[client.sessionId]);
+      }, 10000);
     });
 
     this._gatewayServer.on(
       "tunneldata",
-      async (client: SOEClient, data: Buffer, flags: number) => {
+      (client: SOEClient, data: Buffer, flags: number) => {
         if (!this._soloMode && this.enablePacketInputLogging) {
           this._db.collection("packets").insertOne({
             data,
             flags,
             loginSessionId: this._clients[client.sessionId].loginSessionId
           });
-        }
-        if (flags < GatewayChannels.UpdatePosition) {
-          // if the packet isn't a high priority one, we can wait for the next tick to process it
-          // If there is a lot of packet to process, it's better, if there is none then we only add like some µsec
-          await scheduler.yield();
         }
         const packet = this._protocol.parse(data, flags);
         if (packet) {
@@ -574,7 +571,7 @@ export class ZoneServer2016 extends EventEmitter {
     }
     if (this._mongoAddress && this.rebootTime) {
       console.log("Reboot time set to " + this.rebootTime + " hours");
-      this.rebootTimeTimer = setTimeout(
+      setTimeout(
         () => {
           console.log("Rebooting server due to reboot time set");
           this.shutdown(this.rebootWarnTime, "Server rebooting");
@@ -743,26 +740,6 @@ export class ZoneServer2016 extends EventEmitter {
     );
   }
 
-  async stop() {
-    for (const trap of Object.values(this._traps)) {
-      clearTimeout(trap.trapTimer);
-    }
-    this.worldDataManager.kill();
-    this.smeltingManager.clearTimers();
-    this.decayManager.clearTimers();
-    clearTimeout(this.worldRoutineTimer);
-    clearTimeout(this.weatherManager.dynamicWorker);
-    clearTimeout(this.routinesLoopTimer);
-    clearTimeout(this.rebootTimeTimer);
-    if (this._loginConnectionManager) {
-      await this._loginConnectionManager.stop();
-    }
-    if (this._mongoClient) {
-      await this._mongoClient.close();
-    }
-    await this._gatewayServer.stop();
-  }
-
   async shutdown(timeLeft: number, message: string) {
     this.shutdownStarted = true;
     if (this.abortShutdown) {
@@ -787,13 +764,12 @@ export class ZoneServer2016 extends EventEmitter {
           client,
           "CharacterSelectSessionResponse",
           {
-            status: 0,
+            status: 1,
             sessionId: client.loginSessionId
           }
         );
       });
-      setTimeout(async () => {
-        await this.stop();
+      setTimeout(() => {
         process.exit(0);
       }, 30000);
     } else {
@@ -815,13 +791,12 @@ export class ZoneServer2016 extends EventEmitter {
     }
   }
 
-  async onZoneLoginEvent(client: Client) {
+  onZoneLoginEvent(client: Client) {
     debug("zone login");
     try {
-      await this.sendInitData(client);
+      this.sendInitData(client);
     } catch (error) {
       debug(error);
-      console.log(error);
       this.sendData<LoginFailed>(client, "LoginFailed", {});
     }
   }
@@ -830,6 +805,7 @@ export class ZoneServer2016 extends EventEmitter {
     if (!client) {
       return;
     }
+    client.pingTimer?.refresh();
     if (
       packet.name != "KeepAlive" &&
       packet.name != "PlayerUpdatePosition" &&
@@ -1216,7 +1192,6 @@ export class ZoneServer2016 extends EventEmitter {
         client.character.characterId
       );
     } catch (e) {
-      console.log(e);
       this.sendData<LoginFailed>(client, "LoginFailed", {});
       return;
     }
@@ -1326,21 +1301,6 @@ export class ZoneServer2016 extends EventEmitter {
     this.itemDefinitionsCache = itemDefinitionsCache;
   }
 
-  private packDynamicAppearance() {
-    const dynamicAppearanceCache = this._protocol.pack(
-      "ReferenceData.DynamicAppearance",
-      {
-        ITEM_APPEARANCE_DEFINITIONS:
-          dynamicappearance.ITEM_APPEARANCE_DEFINITIONS,
-        SHADER_SEMANTIC_DEFINITIONS:
-          dynamicappearance.SHADER_SEMANTIC_DEFINITIONS,
-        SHADER_PARAMETER_DEFINITIONS:
-          dynamicappearance.SHADER_PARAMETER_DEFINITIONS
-      }
-    );
-    if (!dynamicAppearanceCache) return;
-    this.dynamicAppearanceCache = dynamicAppearanceCache;
-  }
   /**
    * Caches weapon definitons so they aren't packed every time a client logs in.
    */
@@ -1415,7 +1375,7 @@ export class ZoneServer2016 extends EventEmitter {
     }
     this._loginConnectionManager.setLoginInfo(this._loginServerInfo, {
       serverId: this._worldId,
-      h1emuVersion: process.env.H1Z1_SERVER_VERSION || "unknown",
+      h1emuVersion: process.env.H1Z1_SERVER_VERSION,
       serverRuleSets: this.serverGameRules
     });
     this._loginConnectionManager.start();
@@ -1495,9 +1455,7 @@ export class ZoneServer2016 extends EventEmitter {
     )) as unknown as WorldDataManagerThreaded;
     await this.worldDataManager.initialize(this._worldId, this._mongoAddress);
     if (!this._soloMode) {
-      [this._db, this._mongoClient] = await WorldDataManager.getDatabase(
-        this._mongoAddress
-      );
+      this._db = await WorldDataManager.getDatabase(this._mongoAddress);
     }
     if (this.enableWorldSaves) {
       const loadedWorld = await this.worldDataManager.getServerData(
@@ -1539,7 +1497,7 @@ export class ZoneServer2016 extends EventEmitter {
       console.timeEnd("fetch world data");
     }
     if (!this._soloMode) {
-      await this.initializeLoginServerConnection();
+      this.initializeLoginServerConnection();
     }
 
     // !!ANYTHING THAT USES / GENERATES ITEMS MUST BE CALLED AFTER WORLD DATA IS LOADED!!
@@ -1548,7 +1506,6 @@ export class ZoneServer2016 extends EventEmitter {
     this.packWeaponDefinitions();
     this.packProjectileDefinitions();
     this.packProfileDefinitions();
-    this.packDynamicAppearance();
     this.worldObjectManager.createDoors(this);
     this.worldObjectManager.createProps(this);
 
@@ -1674,7 +1631,7 @@ export class ZoneServer2016 extends EventEmitter {
     this.hookManager.checkHook("OnServerReady");
   }
 
-  async sendInitData(client: Client) {
+  sendInitData(client: Client) {
     this.sendData<InitializationParameters>(
       client,
       "InitializationParameters",
@@ -1759,13 +1716,13 @@ export class ZoneServer2016 extends EventEmitter {
     }
     // only sends a few needed definitions
     if (this.itemDefinitionsCache) {
-      this.sendRawDataReliable(client, this.itemDefinitionsCache);
+      this.sendRawData(client, this.itemDefinitionsCache);
     }
     if (!this.weaponDefinitionsCache) {
       this.packWeaponDefinitions();
     }
     if (this.weaponDefinitionsCache) {
-      this.sendRawDataReliable(client, this.weaponDefinitionsCache);
+      this.sendRawData(client, this.weaponDefinitionsCache);
     }
 
     // used for equipment textures / skins, does nothing so far
@@ -1776,12 +1733,14 @@ export class ZoneServer2016 extends EventEmitter {
       it's supposed to work (removes the delay) - Meme
     */
 
-    if (!this.dynamicAppearanceCache) {
-      this.packDynamicAppearance();
-    }
-    if (this.dynamicAppearanceCache) {
-      this.sendRawDataReliable(client, this.dynamicAppearanceCache);
-    }
+    this.sendData(client, "ReferenceData.DynamicAppearance", {
+      ITEM_APPEARANCE_DEFINITIONS:
+        dynamicappearance.ITEM_APPEARANCE_DEFINITIONS,
+      SHADER_SEMANTIC_DEFINITIONS:
+        dynamicappearance.SHADER_SEMANTIC_DEFINITIONS,
+      SHADER_PARAMETER_DEFINITIONS:
+        dynamicappearance.SHADER_PARAMETER_DEFINITIONS
+    });
 
     this.sendData<ClientGameSettings>(client, "ClientGameSettings", {
       interactionCheckRadius: 16, // need it high for tampers
@@ -1803,7 +1762,7 @@ export class ZoneServer2016 extends EventEmitter {
     });
     */
 
-    await this.sendCharacterData(client);
+    this.sendCharacterData(client);
   }
 
   private divideMapIntoSpawnGrid(
@@ -1952,18 +1911,16 @@ export class ZoneServer2016 extends EventEmitter {
     client.chunkRenderDistance = lowerRenderDistance ? 350 : 500;
   }
 
-  private async worldRoutine() {
+  private worldRoutine() {
+    const startTime = Date.now();
     if (!this.hookManager.checkHook("OnWorldRoutine")) return;
     else {
       if (this._ready) {
         this.constructionManager.plantManager(this);
-        await scheduler.yield();
         this.worldObjectManager.run(this);
-        await scheduler.yield();
         this.checkVehiclesInMapBounds();
-        await scheduler.yield();
+        this.setTickRate();
         this.syncAirdrop();
-        await scheduler.yield();
         if (
           this.enableWorldSaves &&
           !this.isSaving &&
@@ -1973,11 +1930,28 @@ export class ZoneServer2016 extends EventEmitter {
         }
       }
     }
+    const endTime = Date.now();
+    const timeTaken = endTime - startTime;
+    if (timeTaken > this.worldRoutineRate) {
+      console.log(
+        `World routine took ${timeTaken}ms, expected max ${this.worldRoutineRate}ms.`
+      );
+    }
     this.worldRoutineTimer.refresh();
+  }
+
+  setTickRate() {
+    const size = _.size(this._clients);
+    if (size <= 0) {
+      this.tickRate = 3000;
+      return;
+    }
+    this.tickRate = 3000 / size;
   }
 
   deleteClient(client: Client) {
     if (!client) {
+      this.setTickRate();
       return;
     }
 
@@ -2006,6 +1980,7 @@ export class ZoneServer2016 extends EventEmitter {
     if (!this._soloMode) {
       this.sendZonePopulationUpdate();
     }
+    this.setTickRate();
   }
 
   generateDamageRecord(
@@ -2319,7 +2294,7 @@ export class ZoneServer2016 extends EventEmitter {
           if (isPosInRadius(5, vehicle.state.position, position)) {
             const distance = getDistance(position, vehicle.state.position);
             const damage = 250000 / distance;
-            await scheduler.wait(150);
+            await Scheduler.wait(150);
             vehicle.damage(this, { entity: npcTriggered, damage: damage });
           }
         }
@@ -2503,7 +2478,7 @@ export class ZoneServer2016 extends EventEmitter {
       const explosiveObj = this._explosives[explosive];
       if (explosiveObj.characterId != npcTriggered) {
         if (getDistance(position, explosiveObj.state.position) < 2) {
-          await scheduler.wait(100);
+          await Scheduler.wait(100);
           if (this._spawnedItems[explosiveObj.characterId]) {
             const object = this._spawnedItems[explosiveObj.characterId];
             this.deleteEntity(explosiveObj.characterId, this._spawnedItems);
@@ -3026,8 +3001,8 @@ export class ZoneServer2016 extends EventEmitter {
           isHeadshot && hasHelmetBefore && !hasHelmet
             ? 1
             : 0 || (!isHeadshot && hasArmorBefore && !hasArmor)
-              ? 1
-              : 0
+            ? 1
+            : 0
       }
     });
   }
@@ -3582,7 +3557,7 @@ export class ZoneServer2016 extends EventEmitter {
     }
   }
 
-  private async spawnGridObjects(client: Client) {
+  private spawnGridObjects(client: Client) {
     const position = client.character.state.position;
     for (const gridCell of this._grid) {
       if (
@@ -3602,8 +3577,6 @@ export class ZoneServer2016 extends EventEmitter {
         ) {
           continue;
         }
-
-        await scheduler.yield();
 
         // need to re-add this soon
         /*if (object instanceof ConstructionParentEntity) {
@@ -3728,12 +3701,18 @@ export class ZoneServer2016 extends EventEmitter {
     }
   }
 
+  logStats() {
+    console.log(JSON.stringify(this._packetsStats));
+  }
+
   private _sendData<ZonePacket>(
     client: Client,
     packetName: h1z1PacketsType2016,
     obj: ZonePacket,
-    channel: SOEOutputChannels
+    unbuffered: boolean
   ) {
+    if (this._packetsStats[packetName]) this._packetsStats[packetName]++;
+    else this._packetsStats[packetName] = 1;
     switch (packetName) {
       case "KeepAlive":
       case "PlayerUpdatePosition":
@@ -3748,7 +3727,11 @@ export class ZoneServer2016 extends EventEmitter {
     if (data) {
       const soeClient = this.getSoeClient(client.soeClientId);
       if (soeClient) {
-        this._gatewayServer.sendTunnelData(soeClient, data, channel);
+        if (unbuffered) {
+          this._gatewayServer.sendUnbufferedTunnelData(soeClient, data);
+        } else {
+          this._gatewayServer.sendTunnelData(soeClient, data);
+        }
       }
     }
   }
@@ -3758,20 +3741,7 @@ export class ZoneServer2016 extends EventEmitter {
     packetName: h1z1PacketsType2016,
     obj: zone2016packets
   ) {
-    this._sendData(client, packetName, obj, SOEOutputChannels.Reliable);
-  }
-
-  sendOrderedData<ZonePacket>(
-    client: Client,
-    packetName: h1z1PacketsType2016,
-    obj: ZonePacket
-  ) {
-    this._sendData<ZonePacket>(
-      client,
-      packetName,
-      obj,
-      SOEOutputChannels.Ordered
-    );
+    this._sendData(client, packetName, obj, true);
   }
 
   sendData<ZonePacket>(
@@ -3779,12 +3749,7 @@ export class ZoneServer2016 extends EventEmitter {
     packetName: h1z1PacketsType2016,
     obj: ZonePacket
   ) {
-    this._sendData<ZonePacket>(
-      client,
-      packetName,
-      obj,
-      SOEOutputChannels.Reliable
-    );
+    this._sendData<ZonePacket>(client, packetName, obj, false);
   }
 
   /*addLightWeightNpcQueue(
@@ -3914,13 +3879,17 @@ export class ZoneServer2016 extends EventEmitter {
       {
         message: message
       },
-      SOEOutputChannels.Reliable
+      false
     );
   }
   sendAlertToAll(message: string) {
-    this._sendDataToAll("ClientUpdate.TextAlert", {
-      message: message
-    });
+    this._sendDataToAll(
+      "ClientUpdate.TextAlert",
+      {
+        message: message
+      },
+      false
+    );
   }
 
   createClient(
@@ -4139,7 +4108,7 @@ export class ZoneServer2016 extends EventEmitter {
       client,
       "CharacterSelectSessionResponse",
       {
-        status: 0,
+        status: 1,
         sessionId: client.loginSessionId
       }
     );
@@ -4209,7 +4178,7 @@ export class ZoneServer2016 extends EventEmitter {
           this._characters[entityCharacterId]
         )
       ) {
-        this.sendRawDataReliable(this._clients[a], data);
+        this.sendRawData(this._clients[a], data);
       }
     }
   }
@@ -6470,8 +6439,9 @@ export class ZoneServer2016 extends EventEmitter {
     }
     if (!hudIndicator) return;
     if (client.character.hudIndicators[hudIndicator.typeName]) {
-      client.character.hudIndicators[hudIndicator.typeName].expirationTime +=
-        600000;
+      client.character.hudIndicators[
+        hudIndicator.typeName
+      ].expirationTime += 600000;
     } else {
       client.character.hudIndicators[hudIndicator.typeName] = {
         typeName: hudIndicator.typeName,
@@ -6828,7 +6798,7 @@ export class ZoneServer2016 extends EventEmitter {
           explosive.state.position
         )
       ) {
-        await scheduler.wait(35);
+        await Scheduler.wait(35);
         explosive.ignite(this, client);
       }
     }
@@ -7556,21 +7526,21 @@ export class ZoneServer2016 extends EventEmitter {
   getSoeClient(soeClientId: string): SOEClient | undefined {
     return this._gatewayServer._soeServer.getSoeClient(soeClientId);
   }
-  private _sendRawDataReliable(client: Client, data: Buffer) {
+  private _sendRawData(client: Client, data: Buffer, unbuffered: boolean) {
     const soeClient = this.getSoeClient(client.soeClientId);
     if (soeClient) {
-      this._gatewayServer.sendTunnelData(
-        soeClient,
-        data,
-        SOEOutputChannels.Reliable
-      );
+      if (unbuffered) {
+        this._gatewayServer.sendUnbufferedTunnelData(soeClient, data);
+      } else {
+        this._gatewayServer.sendTunnelData(soeClient, data);
+      }
     }
   }
-  sendRawDataReliable(client: Client, data: Buffer) {
-    this._sendRawDataReliable(client, data);
+  sendRawData(client: Client, data: Buffer) {
+    this._sendRawData(client, data, false);
   }
-  sendUnbufferedRawDataReliable(client: Client, data: Buffer) {
-    this._sendRawDataReliable(client, data);
+  sendUnbufferedRawData(client: Client, data: Buffer) {
+    this._sendRawData(client, data, true);
   }
   getAllCurrentUsedTransientId() {
     const allTransient: any = {};
@@ -7632,14 +7602,17 @@ export class ZoneServer2016 extends EventEmitter {
     }
   }
   async startRoutinesLoop() {
+    if (_.size(this._clients) <= 0) {
+      await Scheduler.wait(3000);
+      this.startRoutinesLoop();
+      return;
+    }
     for (const a in this._clients) {
+      const startTime = Date.now();
       const client = this._clients[a];
       if (!client.isLoading) {
         client.routineCounter++;
-        await this.constructionManager.constructionPermissionsManager(
-          this,
-          client
-        );
+        this.constructionManager.constructionPermissionsManager(this, client);
         this.checkInMapBounds(client);
         this.checkZonePing(client);
         if (client.routineCounter >= 3) {
@@ -7652,16 +7625,20 @@ export class ZoneServer2016 extends EventEmitter {
         this.constructionManager.spawnConstructionParentsInRange(this, client);
         this.vehicleManager(client);
         this.spawnCharacters(client);
-        await this.spawnGridObjects(client);
+        this.spawnGridObjects(client);
         this.constructionManager.worldConstructionManager(this, client);
         client.posAtLastRoutine = client.character.state.position;
       }
-      await scheduler.yield();
+      const endTime = Date.now();
+      const timeTaken = endTime - startTime;
+      if (timeTaken > this.tickRate) {
+        console.log(
+          `Routine took ${timeTaken}ms to execute, which is more than the tickRate ${this.tickRate}`
+        );
+      }
+      await Scheduler.wait(this.tickRate);
     }
-
-    this.routinesLoopTimer = setTimeout(() => {
-      this.startRoutinesLoop();
-    }, this.tickRate);
+    this.startRoutinesLoop();
   }
 
   executeRoutine(client: Client) {
@@ -7865,18 +7842,29 @@ export class ZoneServer2016 extends EventEmitter {
 
   private _sendDataToAll<ZonePacket>(
     packetName: h1z1PacketsType2016,
-    obj: ZonePacket
+    obj: ZonePacket,
+    unbuffered: boolean
   ) {
     const data = this._protocol.pack(packetName, obj);
     if (data) {
       for (const a in this._clients) {
-        this.sendRawDataReliable(this._clients[a], data);
+        if (unbuffered) {
+          this.sendUnbufferedRawData(this._clients[a], data);
+        } else {
+          this.sendRawData(this._clients[a], data);
+        }
       }
     }
   }
 
   sendDataToAll<ZonePacket>(packetName: h1z1PacketsType2016, obj: ZonePacket) {
-    this._sendDataToAll(packetName, obj);
+    this._sendDataToAll(packetName, obj, false);
+  }
+  sendUnbufferedDataToAll(
+    packetName: h1z1PacketsType2016,
+    obj: zone2016packets
+  ) {
+    this._sendDataToAll(packetName, obj, true);
   }
   dropVehicleManager(client: Client, vehicleGuid: string) {
     this.sendManagedObjectResponseControlPacket(client, {

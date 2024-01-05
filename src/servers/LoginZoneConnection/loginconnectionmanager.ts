@@ -27,7 +27,11 @@ export class LoginConnectionManager extends BaseLZConnection {
   _hasBeenConnectedToLogin: boolean = false;
   constructor(serverId: number, serverPort?: number) {
     super(serverPort);
-    this.messageHandler = (data: Buffer, client: LZConnectionClient): void => {
+    this.messageHandler = (
+      messageType: string,
+      data: Buffer,
+      client: LZConnectionClient
+    ): void => {
       const packet = this._protocol.parse(data);
       debug(packet);
       if (!packet) return;
@@ -101,21 +105,14 @@ export class LoginConnectionManager extends BaseLZConnection {
     this._sessionData = obj;
   }
 
-  async stop() {
-    if (this._pingTimer) {
-      clearTimeout(this._pingTimer);
-    }
-    super.stop();
-  }
-
-  async start() {
-    if (!this._loginServerInfo || !this._sessionData) {
-      console.log(
+  start() {
+    if (!this._loginServerInfo && !this._sessionData) {
+      debug(
         "[ERROR] LoginConnectionManager started without setting login info!"
       );
       return;
     }
-    await super.start();
+    super.start();
     this.connect();
     this._pingTimer = setTimeout(() => {
       this.ping(this._loginConnection as LZConnectionClient);

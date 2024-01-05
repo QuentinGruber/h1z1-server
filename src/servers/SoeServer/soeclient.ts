@@ -13,19 +13,22 @@
 
 import { RemoteInfo } from "node:dgram";
 import { toInt, wrappedUint16, _ } from "../../utils/utils";
+import { soePacket } from "../../types/soeserver";
 import { SOEInputStream } from "./soeinputstream";
 import { SOEOutputStream } from "./soeoutputstream";
-import { PacketsQueue } from "./PacketsQueue";
-import { clearInterval } from "node:timers";
 import { LogicalPacket } from "./logicalPacket";
 
 interface SOEClientStats {
-  totalPhysicalPacketSent: number;
-  totalLogicalPacketSent: number;
+  totalPacketSent: number;
   packetResend: number;
   packetsOutOfOrder: number;
 }
 
+export interface packetsQueue {
+  packets: LogicalPacket[];
+  CurrentByteLength: number;
+  timer?: NodeJS.Timeout;
+}
 export default class SOEClient {
   sessionId: number = 0;
   address: string;
@@ -36,27 +39,28 @@ export default class SOEClient {
   serverUdpLength: number = 512;
   packetsSentThisSec: number = 0;
   useEncryption: boolean = true;
-  waitingQueue: PacketsQueue = new PacketsQueue();
+  waitingQueue: packetsQueue = { packets: [], CurrentByteLength: 0 };
+  outQueue: LogicalPacket[] = [];
   protocolName: string = "unset";
   unAckData: Map<number, number> = new Map();
-  lastAckSend: wrappedUint16 = new wrappedUint16(-1);
+  outOfOrderPackets: soePacket[] = [];
+  nextAck: wrappedUint16 = new wrappedUint16(-1);
+  lastAck: wrappedUint16 = new wrappedUint16(-1);
   inputStream: SOEInputStream;
   outputStream: SOEOutputStream;
   soeClientId: string;
-  lastKeepAliveTimer: NodeJS.Timeout | null = null;
+  lastPingTimer!: NodeJS.Timeout;
   isDeleted: boolean = false;
   stats: SOEClientStats = {
-    totalPhysicalPacketSent: 0,
-    totalLogicalPacketSent: 0,
+    totalPacketSent: 0,
     packetsOutOfOrder: 0,
     packetResend: 0
   };
+  lastAckTime: number = 0;
   avgPing: number = 0;
   pings: number[] = [];
   avgPingLen: number = 6;
-  sendingTimer: NodeJS.Timeout | null = null;
   private _statsResetTimer: NodeJS.Timer;
-  delayedLogicalPackets: LogicalPacket[] = [];
   constructor(remote: RemoteInfo, crcSeed: number, cryptoKey: Uint8Array) {
     this.soeClientId = remote.address + ":" + remote.port;
     this.address = remote.address;
@@ -71,17 +75,12 @@ export default class SOEClient {
     clearInterval(this._statsResetTimer as unknown as number);
   }
   private _resetStats() {
-    this.stats.totalPhysicalPacketSent = 0;
+    this.stats.totalPacketSent = 0;
     this.stats.packetsOutOfOrder = 0;
     this.stats.packetResend = 0;
-    this.stats.totalLogicalPacketSent = 0;
   }
   getNetworkStats(): string[] {
-    const {
-      totalPhysicalPacketSent: totalPacketSent,
-      packetResend,
-      packetsOutOfOrder
-    } = this.stats;
+    const { totalPacketSent, packetResend, packetsOutOfOrder } = this.stats;
     const packetLossRate =
       Number((packetResend / totalPacketSent).toFixed(3)) * 100;
     const packetOutOfOrderRate =

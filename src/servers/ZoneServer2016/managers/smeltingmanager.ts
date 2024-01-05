@@ -30,31 +30,20 @@ import { LootableConstructionEntity } from "../entities/lootableconstructionenti
 import { BaseItem } from "../classes/baseItem";
 import { LoadoutContainer } from "../classes/loadoutcontainer";
 import { smeltingData } from "../data/Recipes";
-import { scheduler } from "timers/promises";
+import { Scheduler } from "../../../utils/utils";
 
 export class SmeltingManager {
   _smeltingEntities: { [characterId: string]: string } = {};
   _collectingEntities: { [characterId: string]: string } = {};
   collectingTickTime: number = 300000; // 5 min x 4 ticks = 20 min to fill water/honey
   lastBurnTime: number = 0;
-  checkSmeltablesTimer?: NodeJS.Timeout;
-  checkCollectorsTimer?: NodeJS.Timeout;
   // 5 min x 144 ticks = 12 hours for honeycomb
 
   /* MANAGED BY CONFIGMANAGER */
   burnTime!: number;
   smeltTime!: number;
 
-  public clearTimers() {
-    if (this.checkSmeltablesTimer) {
-      clearTimeout(this.checkSmeltablesTimer);
-    }
-    if (this.checkCollectorsTimer) {
-      clearTimeout(this.checkCollectorsTimer);
-    }
-  }
-
-  public checkSmeltables(server: ZoneServer2016) {
+  public async checkSmeltables(server: ZoneServer2016) {
     this.lastBurnTime = Date.now();
     for (const a in this._smeltingEntities) {
       const entity = this.getTrueEntity(server, this._smeltingEntities[a]);
@@ -96,12 +85,11 @@ export class SmeltingManager {
         }
       );
     }
-    this.checkSmeltablesTimer = setTimeout(() => {
-      this.checkSmeltables(server);
-    }, this.burnTime);
+    await Scheduler.wait(this.burnTime);
+    this.checkSmeltables(server);
   }
 
-  public checkCollectors(server: ZoneServer2016) {
+  public async checkCollectors(server: ZoneServer2016) {
     for (const a in this._collectingEntities) {
       const entity = this.getTrueEntity(server, this._collectingEntities[a]);
       if (!entity) {
@@ -131,9 +119,8 @@ export class SmeltingManager {
           break;
       }
     }
-    this.checkCollectorsTimer = setTimeout(() => {
-      this.checkCollectors(server);
-    }, this.collectingTickTime);
+    await Scheduler.wait(this.collectingTickTime);
+    this.checkCollectors(server);
   }
 
   private getTrueEntity(
@@ -202,7 +189,7 @@ export class SmeltingManager {
     server: ZoneServer2016,
     entity: LootableConstructionEntity
   ) {
-    await scheduler.wait(this.smeltTime, {});
+    await Scheduler.wait(this.smeltTime);
     if (!entity.subEntity?.isWorking) {
       entity.subEntity!.isSmelting = false;
       return;

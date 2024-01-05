@@ -7,18 +7,6 @@
         {
             "type": "node",
             "request": "launch",
-            "name": "Launch echo",
-            "skipFiles": [
-                "<node_internals>/**"
-            ],
-            "program": "${workspaceFolder}/benchmarks/out/echo/echo-server-start.js",
-            "outFiles": [
-                "${workspaceFolder}/benchmarks/out/**/*.js"
-            ]
-        },
-        {
-            "type": "node",
-            "request": "launch",
             "name": "Launch ZoneServer",
             "env":{
                 "VSCODE_DEBUG":"true",

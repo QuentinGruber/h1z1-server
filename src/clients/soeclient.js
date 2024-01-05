@@ -12,7 +12,6 @@
 // ======================================================================
 
 const { LogicalPacket } = require("../servers/SoeServer/logicalPacket");
-const { SOEOutputChannels } = require("../servers/SoeServer/soeoutputstream");
 
 const EventEmitter = require("node:events").EventEmitter,
   SOEInputStream =
@@ -69,22 +68,19 @@ class SOEClient {
       outOfOrderPackets.push(sequence);
     });
 
-    outputStream.on(
-      SOEOutputChannels.Reliable,
-      function (data, sequence, fragment) {
-        if (fragment) {
-          me._sendPacket(SoeOpcode.DataFragment, {
-            sequence: sequence,
-            data: data
-          });
-        } else {
-          me._sendPacket(SoeOpcode.Data, {
-            sequence: sequence,
-            data: data
-          });
-        }
+    outputStream.on("data", function (data, sequence, fragment) {
+      if (fragment) {
+        me._sendPacket(SoeOpcode.DataFragment, {
+          sequence: sequence,
+          data: data
+        });
+      } else {
+        me._sendPacket(SoeOpcode.Data, {
+          sequence: sequence,
+          data: data
+        });
       }
-    );
+    });
 
     var lastAck = -1,
       nextAck = -1,
@@ -199,7 +195,7 @@ class SOEClient {
                 ", sequence " +
                 lastOutOfOrder
             );
-            outputStream.getDataCache(lastOutOfOrder);
+            outputStream.resendData(lastOutOfOrder);
           }
           break;
         case "Ping":
@@ -314,7 +310,7 @@ class SOEClient {
 
   sendAppData(data, overrideEncryption) {
     debug(this._guid, "Sending app data: " + data.length + " bytes");
-    this._outputStream.write(data, SOEOutputChannels.Reliable);
+    this._outputStream.write(data, overrideEncryption);
   }
 }
 

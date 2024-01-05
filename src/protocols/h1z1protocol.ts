@@ -484,7 +484,7 @@ export class H1Z1Protocol {
         } catch (e) {
           console.error(`${packet.name} : ${e}`);
         }
-        // FIXME: this is shit
+
         switch (packet.name) {
           case "FacilityBase.ReferenceData":
             result = this.parseFacilityReferenceData((result as any).data);
@@ -503,6 +503,7 @@ export class H1Z1Protocol {
       } else {
         debug("No schema for packet " + packet.name);
       }
+
       return {
         name: packet.name,
         data: result
@@ -510,7 +511,16 @@ export class H1Z1Protocol {
     } else {
       debug("Unhandled zone packet:", data[0], data[1], data[2]);
       return null;
+      //fs.writeFileSync("zone_failed_" + Date.now() + "_" + Math.random() + ".dat", data);
     }
+    /*
+              var op =  BasePackets.getName(opCode);
+              if (PacketHandlers[op]) {
+                  result = PacketHandlers[op](data);
+              } else {
+                  debug("Unhandled zone packet:", data[1] & 0x1F, data[1] >> 5, opCode, op);
+              }
+          */
   }
 
   reloadPacketDefinitions() {

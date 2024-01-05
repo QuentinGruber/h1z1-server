@@ -18,6 +18,7 @@ server:
 fairplay:
   useFairplay: true
   maxPing: 250
+  pingTimeoutTime: 30000
   
   # Removing an entry below will allow clients with a certain rejectionFlag to join
   # ex. Removing "5 # UNVERIFIED" will allow users with an unverified h1emu status to join

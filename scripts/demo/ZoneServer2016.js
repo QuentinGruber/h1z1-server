@@ -3,6 +3,6 @@ var Zone = new H1Z1servers.ZoneServer2016(
   1117,
   new Buffer.from("F70IaxuU8C/w7FPXY1ibXw==", "base64"),
   process.env.MONGO_URL,
-  Number(process.env.WORLD_ID) || 2
+  2
 );
 Zone.start();

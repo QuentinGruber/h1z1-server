@@ -22,6 +22,7 @@ export class ZoneConnectionManager extends BaseLZConnection {
   constructor(serverPort?: number) {
     super(serverPort);
     this.messageHandler = function (
+      messageType: string,
       data: Buffer,
       client: LZConnectionClient
     ): void {
@@ -63,11 +64,5 @@ export class ZoneConnectionManager extends BaseLZConnection {
       }
       this._pingTimer.refresh();
     }, this._pingTime);
-  }
-  async stop() {
-    if (this._pingTimer) {
-      clearTimeout(this._pingTimer);
-    }
-    super.stop();
   }
 }

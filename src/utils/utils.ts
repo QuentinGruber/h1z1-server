@@ -15,6 +15,10 @@ import { generate_random_guid } from "h1emu-core";
 import { compress, compressBound } from "./lz4/lz4";
 import fs, { readdirSync } from "node:fs";
 import { normalize, resolve } from "node:path";
+import {
+  setImmediate as setImmediatePromise,
+  setTimeout as setTimeoutPromise
+} from "node:timers/promises";
 import { Collection, MongoClient } from "mongodb";
 import { DB_NAME, MAX_TRANSIENT_ID, MAX_UINT16 } from "./constants";
 import { ZoneServer2016 } from "servers/ZoneServer2016/zoneserver";
@@ -1042,6 +1046,34 @@ export const clearFolderCache = (
     }
   });
 };
+
+/**
+ * Experimental custom implementation of the scheduler API.
+ */
+export class Scheduler {
+  /**
+   * Yields execution to the event loop.
+   *
+   * @returns A promise that resolves immediately after the next event loop iteration.
+   */
+  static async yield() {
+    return await setImmediatePromise();
+  }
+
+  /**
+   * Pauses execution for a specified duration.
+   *
+   * @param delay - The delay in milliseconds.
+   * @param options - Optional options for the wait operation.
+   * @returns A promise that resolves after the specified delay.
+   */
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  static async wait(delay: number, options?: any) {
+    return await setTimeoutPromise(delay, undefined, {
+      signal: options?.signal
+    });
+  }
+}
 
 /**
  * A wrapped Uint16 class that ensures the value stays within the range of 0 to 65535.

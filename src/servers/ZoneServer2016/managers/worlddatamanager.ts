@@ -11,7 +11,7 @@
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
 
-import { Collection, Db, MongoClient } from "mongodb";
+import { Collection, MongoClient } from "mongodb";
 import {
   BaseConstructionSaveData,
   BaseEntityUpdateSaveData,
@@ -152,7 +152,7 @@ export class WorldDataManager {
 
   nextSaveTime: number = Date.now() + this.saveTimeInterval;*/
 
-  static async getDatabase(mongoAddress: string): Promise<[Db, MongoClient]> {
+  static async getDatabase(mongoAddress: string) {
     const mongoClient = new MongoClient(mongoAddress, {
       maxPoolSize: 100
     });
@@ -165,14 +165,14 @@ export class WorldDataManager {
     // if no collections exist on h1server database , fill it with samples
     (await mongoClient.db(DB_NAME).collections()).length ||
       (await initMongo(mongoClient, "ZoneServer"));
-    return [mongoClient.db(DB_NAME), mongoClient];
+    return mongoClient.db(DB_NAME);
   }
 
   async initialize(worldId: number, mongoAddress: string) {
     this._soloMode = !mongoAddress;
     this._worldId = worldId;
     if (!this._soloMode) {
-      [this._db] = await WorldDataManager.getDatabase(mongoAddress);
+      this._db = await WorldDataManager.getDatabase(mongoAddress);
     }
   }
 
@@ -424,9 +424,7 @@ export class WorldDataManager {
           `${this._appDataFolder}/single_player_characters2016.json`
         )
       ];
-      const SinglePlayerCharacters = require(
-        `${this._appDataFolder}/single_player_characters2016.json`
-      );
+      const SinglePlayerCharacters = require(`${this._appDataFolder}/single_player_characters2016.json`);
       savedCharacter = SinglePlayerCharacters.find(
         (character: any) => character.characterId === characterId
       );
@@ -533,9 +531,7 @@ export class WorldDataManager {
     */
     if (lastItemGuid) this.saveServerData(lastItemGuid);
     if (this._soloMode) {
-      const singlePlayerCharacters = require(
-        `${this._appDataFolder}/single_player_characters2016.json`
-      );
+      const singlePlayerCharacters = require(`${this._appDataFolder}/single_player_characters2016.json`);
       let singlePlayerCharacter = singlePlayerCharacters.find(
         (character: any) => character.characterId === character.characterId
       );
@@ -852,9 +848,7 @@ export class WorldDataManager {
   async loadConstructionData() {
     let constructionParents: Array<ConstructionParentSaveData> = [];
     if (this._soloMode) {
-      constructionParents = require(
-        `${this._appDataFolder}/worlddata/construction.json`
-      );
+      constructionParents = require(`${this._appDataFolder}/worlddata/construction.json`);
       if (!constructionParents) {
         debug("Construction data not found in file, aborting.");
         return;
@@ -1261,9 +1255,7 @@ export class WorldDataManager {
     //worldconstruction
     let freeplace: Array<LootableConstructionSaveData> = [];
     if (this._soloMode) {
-      freeplace = require(
-        `${this._appDataFolder}/worlddata/worldconstruction.json`
-      );
+      freeplace = require(`${this._appDataFolder}/worlddata/worldconstruction.json`);
       if (!freeplace) {
         debug("World construction data not found in file, aborting.");
         return;
