@@ -1,7 +1,9 @@
+import test from "node:test";
 import { H1Z1Protocol } from "../../h1z1-server";
-const { H1Z1Packets } = new H1Z1Protocol("ClientProtocol_860");
+const { H1Z1Packets } = new H1Z1Protocol("ClientProtocol_1080");
+const { H1Z1Packets: H1Z1Packets2015 } = new H1Z1Protocol("ClientProtocol_860");
+
 const allowedTypes: string[] = [
-  "placeholder",
   "uint8",
   "int8",
   "uint16",
@@ -24,15 +26,22 @@ const allowedTypes: string[] = [
   "floatvector4",
   "byteswithlength",
   "string",
-  "boolean"
+  "boolean",
+  "nullstring"
 ];
 
-Object.values(H1Z1Packets.Packets).forEach((packet: any) => {
-  const { schema } = packet;
-  checkFields(schema);
+test("Check for issues in packet schemas 2016", async () => {
+  Object.values(H1Z1Packets.Packets).forEach((packet: any) => {
+    const { schema } = packet;
+    checkFields(schema);
+  });
 });
-
-process.stdout.write("No issue detected in H1Z1 packets schemas");
+test("Check for issues in packet schemas 2015", async () => {
+  Object.values(H1Z1Packets2015.Packets).forEach((packet: any) => {
+    const { schema } = packet;
+    checkFields(schema);
+  });
+});
 
 function checkFields(schema: any) {
   const schemaNames: any[] = [];

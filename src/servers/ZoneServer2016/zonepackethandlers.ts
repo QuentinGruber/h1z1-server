@@ -251,10 +251,10 @@ export class ZonePacketHandlers {
     );
 
     if (server.projectileDefinitionsCache) {
-      server.sendRawData(client, server.projectileDefinitionsCache);
+      server.sendRawDataReliable(client, server.projectileDefinitionsCache);
     }
     if (server.profileDefinitionsCache) {
-      server.sendRawData(client, server.profileDefinitionsCache);
+      server.sendRawDataReliable(client, server.profileDefinitionsCache);
     }
 
     // for melees / emotes / vehicle boost / etc (needs more work)
@@ -334,7 +334,6 @@ export class ZonePacketHandlers {
         );
       }
       client.firstLoading = false;
-      client.pingTimer?.refresh();
 
       server.sendData<CommandAddWorldCommand>(
         client,
@@ -380,7 +379,6 @@ export class ZonePacketHandlers {
       );
     }
     server.spawnContainerAccessNpc(client);
-    server.setTickRate();
   }
   Security(
     server: ZoneServer2016,

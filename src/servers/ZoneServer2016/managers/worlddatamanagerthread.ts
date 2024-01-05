@@ -27,6 +27,7 @@ export interface WorldDataManagerThreaded {
     arg0: CharacterUpdateSaveData,
     arg1?: bigint
   ) => Promise<void>;
+  kill: () => void;
 }
 expose({
   initialize(worldId: number, mongoAddress: string) {
@@ -55,5 +56,8 @@ expose({
   },
   saveCharacterData(character: CharacterUpdateSaveData, lastItemGuid?: bigint) {
     return worldDataManager.saveCharacterData(character, lastItemGuid);
+  },
+  kill() {
+    process.exit(0);
   }
 });

@@ -25,8 +25,7 @@ import {
   getDifference,
   isPosInRadius,
   toHex,
-  randomIntFromInterval,
-  Scheduler
+  randomIntFromInterval
 } from "../../../../utils/utils";
 import { ExplosiveEntity } from "../../entities/explosiveentity";
 import { Npc } from "../../entities/npc";
@@ -58,6 +57,7 @@ import { BaseEntity } from "../../entities/baseentity";
 import { MAX_UINT32 } from "../../../../utils/constants";
 import { WithId } from "mongodb";
 import { FullCharacterSaveData } from "types/savedata";
+import { scheduler } from "node:timers/promises";
 const itemDefinitions = require("./../../../../../data/2016/dataSources/ServerItemDefinitions.json");
 
 export const commands: Array<Command> = [
@@ -696,20 +696,20 @@ export const commands: Array<Command> = [
               args[0] == "~"
                 ? pos[0]
                 : Object.is(NaN, Number(args[0]))
-                ? pos[0]
-                : Number(args[0]),
+                  ? pos[0]
+                  : Number(args[0]),
             y =
               args[1] == "~"
                 ? pos[1]
                 : Object.is(NaN, Number(args[1]))
-                ? pos[1]
-                : Number(args[1]),
+                  ? pos[1]
+                  : Number(args[1]),
             z =
               args[2] == "~"
                 ? pos[2]
                 : Object.is(NaN, Number(args[2]))
-                ? pos[2]
-                : Number(args[2]);
+                  ? pos[2]
+                  : Number(args[2]);
           position = new Float32Array([x, y, z, 1]);
           break;
       }
@@ -2554,7 +2554,7 @@ export const commands: Array<Command> = [
       client.character.name = newCharacterName;
 
       // Wait for one second before running vanish command
-      await Scheduler.wait(1000);
+      await scheduler.wait(1000);
 
       // Set the client's isSpectator state
       client.character.isSpectator = !client.character.isSpectator;
@@ -2574,7 +2574,7 @@ export const commands: Array<Command> = [
       }
 
       // Wait for an additional second before running the second vanish command
-      await Scheduler.wait(1000);
+      await scheduler.wait(1000);
 
       // Set the client's isSpectator state again
       client.character.isSpectator = !client.character.isSpectator;
@@ -2690,7 +2690,7 @@ export const commands: Array<Command> = [
       client.character.name = newCharacterName;
 
       // Wait for one second before running vanish command
-      await Scheduler.wait(1000);
+      await scheduler.wait(1000);
 
       // Set the client's isSpectator state
       client.character.isSpectator = !client.character.isSpectator;
@@ -2710,7 +2710,7 @@ export const commands: Array<Command> = [
       }
 
       // Wait for an additional second before running the second vanish command
-      await Scheduler.wait(1000);
+      await scheduler.wait(1000);
 
       // Set the client's isSpectator state again
       client.character.isSpectator = !client.character.isSpectator;

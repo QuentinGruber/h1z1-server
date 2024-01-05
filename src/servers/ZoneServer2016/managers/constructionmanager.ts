@@ -65,6 +65,7 @@ import {
   ConstructionUnknown,
   PlayerUpdatePosition
 } from "types/zone2016packets";
+import { scheduler } from "node:timers/promises";
 
 export class ConstructionManager {
   overridePlacementItems: Array<number> = [
@@ -2178,16 +2179,18 @@ export class ConstructionManager {
     }
   }
 
-  public constructionPermissionsManager(
+  public async constructionPermissionsManager(
     server: ZoneServer2016,
     client: Client
   ) {
     let hide = false;
     for (const characterId in server._constructionFoundations) {
+      await scheduler.yield();
       const npc = server._constructionFoundations[characterId];
       if (this.checkFoundationPermission(server, client, npc)) hide = true;
     }
     for (const characterId in server._constructionSimple) {
+      await scheduler.yield();
       const npc = server._constructionSimple[characterId];
       if (this.checkConstructionChildEntityPermission(server, client, npc))
         hide = true;

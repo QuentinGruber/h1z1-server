@@ -18,6 +18,7 @@ import {
   CharacterManagedObject,
   CharacterPlayWorldCompositeEffect,
   CharacterSeekTarget,
+  ClientUpdateTextAlert,
   ItemsAddAccountItem
 } from "types/zone2016packets";
 import { Npc } from "../../entities/npc";
@@ -34,6 +35,27 @@ const abilities = require("../../../../../data/2016/dataSources/Abilities.json")
   vehicleAbilities = require("../../../../../data/2016/dataSources/VehicleAbilities.json");
 
 const dev: any = {
+  netstats: function (
+    server: ZoneServer2016,
+    client: Client,
+    args: Array<string>
+  ) {
+    setInterval(() => {
+      const soeClient = server.getSoeClient(client.soeClientId);
+      if (soeClient) {
+        const stats = soeClient.getNetworkStats();
+        for (let index = 0; index < stats.length; index++) {
+          const stat = stats[index];
+          server.sendChatText(client, stat, index == 0);
+        }
+      }
+    }, 500);
+  },
+  o: function (server: ZoneServer2016, client: Client, args: Array<string>) {
+    server.sendOrderedData(client, "ClientUpdate.TextAlert", {
+      message: "hello ordered !"
+    } as ClientUpdateTextAlert);
+  },
   path: function (server: ZoneServer2016, client: Client, args: Array<string>) {
     const characterId = server.generateGuid();
     const npc = new Zombie(
@@ -254,13 +276,6 @@ const dev: any = {
         TargetCharacterId: client.character.characterId
       } as CharacterSeekTarget);
     }, 5000);
-  },
-  stats: function (
-    server: ZoneServer2016,
-    client: Client,
-    args: Array<string>
-  ) {
-    server.logStats();
   },
   spam: function (server: ZoneServer2016, client: Client, args: Array<string>) {
     const spamNb = Number(args[1]) || 1;
