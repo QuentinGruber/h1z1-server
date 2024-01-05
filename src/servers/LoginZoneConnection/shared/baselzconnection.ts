@@ -14,8 +14,7 @@
 import { EventEmitter } from "node:events";
 import { LZConnectionProtocol } from "../../../protocols/lzconnectionprotocol";
 import { LZConnectionClient } from "./lzconnectionclient";
-import { Worker } from "node:worker_threads";
-import { RemoteInfo } from "node:dgram";
+import dgram, { RemoteInfo } from "node:dgram";
 
 const debug = require("debug")("LZConnection");
 process.env.isBin && require("../../shared/workers/udpServerWorker.js");
@@ -25,7 +24,7 @@ export abstract class BaseLZConnection extends EventEmitter {
   _protocol: LZConnectionProtocol;
   _udpLength: number = 512;
   _clients: { [clientId: string]: LZConnectionClient } = {};
-  _connection: Worker;
+  _connection: dgram.Socket;
   _pingTime: number = 5000; // ms
   _pingTimeout: number = 12000;
   _pingTimer!: NodeJS.Timeout;
@@ -33,15 +32,13 @@ export abstract class BaseLZConnection extends EventEmitter {
     super();
     this._serverPort = serverPort;
     this._protocol = new LZConnectionProtocol();
-    this._connection = new Worker(
-      `${__dirname}/../../shared/workers/udpServerWorker.js`,
-      {
-        workerData: { serverPort: serverPort }
-      }
-    );
+    this._connection = dgram.createSocket("udp4");
   }
 
-  clientHandler(remote: RemoteInfo, opcode: number): LZConnectionClient | void {
+  clientHandler(
+    remote: dgram.RemoteInfo,
+    opcode: number
+  ): LZConnectionClient | void {
     let client: LZConnectionClient;
     const clientId: string = `${remote.address}:${remote.port}`;
     if (!this._clients[clientId]) {
@@ -56,37 +53,38 @@ export abstract class BaseLZConnection extends EventEmitter {
   }
 
   /* eslint-disable @typescript-eslint/no-unused-vars */
-  messageHandler(
-    messageType: string,
-    data: Buffer,
-    client: LZConnectionClient
-  ): void {
+  messageHandler(data: Buffer, client: LZConnectionClient): void {
     throw new Error("You need to implement messageHandler !");
   }
   /* eslint-enable @typescript-eslint/no-unused-vars */
 
-  connectionHandler(message: any): void {
-    const { data: dataUint8, remote } = message;
-    const data = Buffer.from(dataUint8);
-    const client = this.clientHandler(remote, dataUint8[0]);
+  connectionHandler(data: Buffer, remote: RemoteInfo): void {
+    const client = this.clientHandler(remote, data[0]);
     if (client) {
-      this.messageHandler(message.type, data, client);
+      this.messageHandler(data, client);
     } else {
       debug(`Connection rejected from remote ${remote.address}:${remote.port}`);
     }
   }
 
-  start(): void {
-    this._connection.on("message", (message) =>
-      this.connectionHandler(message)
+  async start(): Promise<void> {
+    this._connection.on("message", (message, remoteInfo) =>
+      this.connectionHandler(message, remoteInfo)
     );
 
-    this._connection.postMessage({ type: "bind" });
+    return await new Promise((resolve) => {
+      this._connection.bind(this._serverPort, undefined, () => {
+        resolve();
+      });
+    });
   }
 
-  stop(): void {
-    this._connection.postMessage({ type: "close" });
-    process.exitCode = 0;
+  async stop(): Promise<void> {
+    await new Promise((resolve) => {
+      this._connection.close(() => {
+        resolve(true);
+      });
+    });
   }
 
   sendData(client: LZConnectionClient | undefined, packetName: any, obj: any) {
@@ -95,22 +93,7 @@ export abstract class BaseLZConnection extends EventEmitter {
       return;
     const data = this._protocol.pack(packetName, obj);
     if (data) {
-      const message = {
-        type: "sendPacket",
-        data: {
-          packetData: data,
-          port: client.port,
-          address: client.address
-        }
-      };
-      // FIXME: this stopped working after upgrading to node 21
-      // This allow to send a buffer to the worker without copying it
-      // https://nodejs.org/api/worker_threads.html#worker_threads_port_postmessage_value_transferlist
-      // this._connection.postMessage(
-      //   message,
-      //   [message.data.packetData.buffer],
-      // );
-      this._connection.postMessage(message);
+      this._connection.send(data, client.port, client.address);
     }
   }
 

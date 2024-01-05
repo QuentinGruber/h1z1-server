@@ -1,6 +1,6 @@
 import { Worker } from "worker_threads";
 import { Soeprotocol } from "h1emu-core";
-import { Scheduler } from "../../../out/utils/utils";
+import { scheduler } from "node:timers/promises";
 interface ServerTarger {
   address: string;
   port: number;
@@ -104,7 +104,7 @@ export class EchoClient {
 
   async getFinalTime() {
     while (!this._finalTime) {
-      await Scheduler.yield();
+      await scheduler.yield();
     }
     return this._finalTime;
   }
