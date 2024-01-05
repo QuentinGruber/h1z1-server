@@ -201,15 +201,11 @@ export class SOEServer extends EventEmitter {
   ): LogicalPacket | null {
     if (queue.packets.length > 1) {
       this.setupResendForQueuedPackets(client, queue);
-      const multiPacket = this.createLogicalPacket(
-        SoeOpcode.MultiPacket,
-        {
-          sub_packets: queue.packets.map((packet) => {
-            return Array.from(packet.data);
-          })
-        },
-        true
-      );
+      const multiPacket = this.createLogicalPacket(SoeOpcode.MultiPacket, {
+        sub_packets: queue.packets.map((packet) => {
+          return Array.from(packet.data);
+        })
+      });
       queue.clear();
       return multiPacket;
       // if there is only one packet then we don't need to build a multipacket
@@ -612,14 +608,12 @@ export class SOEServer extends EventEmitter {
   // Build the logical packet via the soeprotocol
   private createLogicalPacket(
     packetOpcode: SoeOpcode,
-    packet: json,
-    unbuffered: boolean = false
+    packet: json
   ): LogicalPacket {
     try {
       const logicalPacket = new LogicalPacket(
         this.packLogicalData(packetOpcode, packet),
-        packet.sequence,
-        unbuffered
+        packet.sequence
       );
       return logicalPacket;
     } catch (e) {

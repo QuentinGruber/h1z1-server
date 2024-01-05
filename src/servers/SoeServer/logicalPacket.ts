@@ -17,16 +17,9 @@ export class LogicalPacket {
   isReliable: boolean = false;
   canCrc: boolean = false;
   canBeBuffered: boolean = true;
-  constructor(
-    data: Uint8Array,
-    sequence?: number,
-    forceUnbufferable?: boolean
-  ) {
+  constructor(data: Uint8Array, sequence?: number) {
     this.sequence = sequence;
     this.data = data;
-    if (forceUnbufferable) {
-      this.canBeBuffered = false;
-    }
     switch (data[1]) {
       case 3:
         this.canCrc = true;
