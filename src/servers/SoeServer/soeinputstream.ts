@@ -122,19 +122,19 @@ export class SOEInputStream extends EventEmitter {
     const nextFragmentSequence =
       (this._lastProcessedSequence + 1) & MAX_SEQUENCE;
     const dataToProcess = this._appDataMap.get(nextFragmentSequence);
-    let appData: Array<Buffer> = [];
     if (dataToProcess) {
+      let appData: Array<Buffer> = [];
+
       if (dataToProcess.isFragment) {
         appData = this.processFragmentedData(nextFragmentSequence);
       } else {
         appData = this.processSingleData(dataToProcess, nextFragmentSequence);
       }
-
       if (appData.length) {
-        if (this._appDataMap.has(this._lastProcessedSequence + 1)) {
-          this._processData();
-        }
         this.processAppData(appData);
+        // In case there is more data to process
+        // It can happen when packets are received out of order
+        this._processData();
       }
     }
   }
