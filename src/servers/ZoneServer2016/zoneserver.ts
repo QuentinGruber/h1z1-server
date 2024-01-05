@@ -1960,7 +1960,6 @@ export class ZoneServer2016 extends EventEmitter {
         await scheduler.yield();
         this.checkVehiclesInMapBounds();
         await scheduler.yield();
-        this.setTickRate();
         this.syncAirdrop();
         await scheduler.yield();
         if (
@@ -1975,18 +1974,8 @@ export class ZoneServer2016 extends EventEmitter {
     this.worldRoutineTimer.refresh();
   }
 
-  setTickRate() {
-    const size = _.size(this._clients);
-    if (size <= 0) {
-      this.tickRate = 3000;
-      return;
-    }
-    this.tickRate = 3000 / size;
-  }
-
   deleteClient(client: Client) {
     if (!client) {
-      this.setTickRate();
       return;
     }
 
@@ -2015,7 +2004,6 @@ export class ZoneServer2016 extends EventEmitter {
     if (!this._soloMode) {
       this.sendZonePopulationUpdate();
     }
-    this.setTickRate();
   }
 
   generateDamageRecord(
@@ -3592,7 +3580,7 @@ export class ZoneServer2016 extends EventEmitter {
     }
   }
 
-  private spawnGridObjects(client: Client) {
+  private async spawnGridObjects(client: Client) {
     const position = client.character.state.position;
     for (const gridCell of this._grid) {
       if (
@@ -3612,6 +3600,8 @@ export class ZoneServer2016 extends EventEmitter {
         ) {
           continue;
         }
+
+        await scheduler.yield();
 
         // need to re-add this soon
         /*if (object instanceof ConstructionParentEntity) {
@@ -7641,18 +7631,14 @@ export class ZoneServer2016 extends EventEmitter {
   }
   clientRoutineLoop() {}
   async startRoutinesLoop() {
-    if (_.size(this._clients) <= 0) {
-      this.routinesLoopTimer = setTimeout(() => {
-        this.startRoutinesLoop();
-      }, 3000);
-      return;
-    }
     for (const a in this._clients) {
-      const startTime = Date.now();
       const client = this._clients[a];
       if (!client.isLoading) {
         client.routineCounter++;
-        this.constructionManager.constructionPermissionsManager(this, client);
+        await this.constructionManager.constructionPermissionsManager(
+          this,
+          client
+        );
         this.checkInMapBounds(client);
         this.checkZonePing(client);
         if (client.routineCounter >= 3) {
@@ -7665,20 +7651,16 @@ export class ZoneServer2016 extends EventEmitter {
         this.constructionManager.spawnConstructionParentsInRange(this, client);
         this.vehicleManager(client);
         this.spawnCharacters(client);
-        this.spawnGridObjects(client);
+        await this.spawnGridObjects(client);
         this.constructionManager.worldConstructionManager(this, client);
         client.posAtLastRoutine = client.character.state.position;
       }
-      const endTime = Date.now();
-      const timeTaken = endTime - startTime;
-      if (timeTaken > this.tickRate) {
-        console.log(
-          `Routine took ${timeTaken}ms to execute, which is more than the tickRate ${this.tickRate}`
-        );
-      }
-      await scheduler.wait(this.tickRate, {});
+      await scheduler.yield();
     }
-    this.startRoutinesLoop();
+
+    this.routinesLoopTimer = setTimeout(() => {
+      this.startRoutinesLoop();
+    }, this.tickRate);
   }
 
   executeRoutine(client: Client) {
