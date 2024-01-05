@@ -182,7 +182,7 @@ export class Npc extends BaseFullCharacter {
             0
           );
           const randomValue = Math.random() * totalWeight;
-  
+
           let cumulativeWeight = 0;
           for (const reward of this.rewardItems) {
             cumulativeWeight += reward.weight;
