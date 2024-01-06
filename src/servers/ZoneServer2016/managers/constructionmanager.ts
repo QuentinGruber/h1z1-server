@@ -709,6 +709,14 @@ export class ConstructionManager {
           position,
           fixEulerOrder(rotation)
         );
+      case Items.RIGGED_LIGHT:
+        return this.placeTemporaryEntity(
+          server,
+          modelId,
+          position,
+          fixEulerOrder(rotation),
+          86400000
+        )
       case Items.FLARE:
         return this.placeTemporaryEntity(
           server,
