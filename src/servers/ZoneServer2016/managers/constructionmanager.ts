@@ -716,7 +716,7 @@ export class ConstructionManager {
           position,
           fixEulerOrder(rotation),
           86400000
-        )
+        );
       case Items.FLARE:
         return this.placeTemporaryEntity(
           server,
