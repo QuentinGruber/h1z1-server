@@ -34,7 +34,7 @@ export class SOEServer extends EventEmitter {
   private _connection: dgram.Socket;
   private readonly _crcSeed: number = Math.floor(Math.random() * 256);
   private _crcLength: crc_length_options = 2;
-  _waitTimeMs: number = 40;
+  _waitTimeMs: number = 24;
   keepAliveTimeoutTime: number = 40000;
   private readonly _maxMultiBufferSize: number;
   private _resendTimeout: number = 400;
