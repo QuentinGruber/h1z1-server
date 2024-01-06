@@ -37,7 +37,7 @@ export class SOEServer extends EventEmitter {
   _waitTimeMs: number = 50;
   keepAliveTimeoutTime: number = 40000;
   private readonly _maxMultiBufferSize: number;
-  private _resendTimeout: number = 200;
+  private _resendTimeout: number = 400;
   _allowRawDataReception: boolean = false;
   private _packetResetInterval: NodeJS.Timeout | undefined;
   constructor(serverPort: number, cryptoKey: Uint8Array) {
