@@ -1962,6 +1962,7 @@ export class ZoneServer2016 extends EventEmitter {
         await scheduler.yield();
         this.checkVehiclesInMapBounds();
         await scheduler.yield();
+        this.setTickRate();
         this.syncAirdrop();
         await scheduler.yield();
         if (
@@ -1976,8 +1977,18 @@ export class ZoneServer2016 extends EventEmitter {
     this.worldRoutineTimer.refresh();
   }
 
+  setTickRate() {
+    const size = _.size(this._clients);
+    if (size <= 0) {
+      this.tickRate = 3000;
+      return;
+    }
+    this.tickRate = 3000 / size;
+  }
+
   deleteClient(client: Client) {
     if (!client) {
+      this.setTickRate();
       return;
     }
 
@@ -2006,6 +2017,7 @@ export class ZoneServer2016 extends EventEmitter {
     if (!this._soloMode) {
       this.sendZonePopulationUpdate();
     }
+    this.setTickRate();
   }
 
   generateDamageRecord(
@@ -3582,7 +3594,7 @@ export class ZoneServer2016 extends EventEmitter {
     }
   }
 
-  private async spawnGridObjects(client: Client) {
+  private spawnGridObjects(client: Client) {
     const position = client.character.state.position;
     for (const gridCell of this._grid) {
       if (
@@ -3602,8 +3614,6 @@ export class ZoneServer2016 extends EventEmitter {
         ) {
           continue;
         }
-
-        await scheduler.yield();
 
         // need to re-add this soon
         /*if (object instanceof ConstructionParentEntity) {
@@ -5462,7 +5472,8 @@ export class ZoneServer2016 extends EventEmitter {
       this.getItemDefinition(itemDefinitionId)?.DESCRIPTION_ID == 9945 ||
       this.getItemDefinition(itemDefinitionId)?.DESCRIPTION_ID == 12994 ||
       this.getItemDefinition(itemDefinitionId)?.DESCRIPTION_ID == 9114 ||
-      this.getItemDefinition(itemDefinitionId)?.DESCRIPTION_ID == 9945
+      this.getItemDefinition(itemDefinitionId)?.DESCRIPTION_ID == 9945 ||
+      this.getItemDefinition(itemDefinitionId)?.DESCRIPTION_ID == 12898
     );
   }
 
@@ -7632,14 +7643,18 @@ export class ZoneServer2016 extends EventEmitter {
     }
   }
   async startRoutinesLoop() {
+    if (_.size(this._clients) <= 0) {
+      this.routinesLoopTimer = setTimeout(() => {
+        this.startRoutinesLoop();
+      }, 3000);
+      return;
+    }
     for (const a in this._clients) {
+      const startTime = Date.now();
       const client = this._clients[a];
       if (!client.isLoading) {
         client.routineCounter++;
-        await this.constructionManager.constructionPermissionsManager(
-          this,
-          client
-        );
+        this.constructionManager.constructionPermissionsManager(this, client);
         this.checkInMapBounds(client);
         this.checkZonePing(client);
         if (client.routineCounter >= 3) {
@@ -7652,16 +7667,20 @@ export class ZoneServer2016 extends EventEmitter {
         this.constructionManager.spawnConstructionParentsInRange(this, client);
         this.vehicleManager(client);
         this.spawnCharacters(client);
-        await this.spawnGridObjects(client);
+        this.spawnGridObjects(client);
         this.constructionManager.worldConstructionManager(this, client);
         client.posAtLastRoutine = client.character.state.position;
       }
-      await scheduler.yield();
+      const endTime = Date.now();
+      const timeTaken = endTime - startTime;
+      if (timeTaken > this.tickRate) {
+        console.log(
+          `Routine took ${timeTaken}ms to execute, which is more than the tickRate ${this.tickRate}`
+        );
+      }
+      await scheduler.wait(this.tickRate, {});
     }
-
-    this.routinesLoopTimer = setTimeout(() => {
-      this.startRoutinesLoop();
-    }, this.tickRate);
+    this.startRoutinesLoop();
   }
 
   executeRoutine(client: Client) {

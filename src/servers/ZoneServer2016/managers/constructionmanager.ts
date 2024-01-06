@@ -65,7 +65,6 @@ import {
   ConstructionUnknown,
   PlayerUpdatePosition
 } from "types/zone2016packets";
-import { scheduler } from "node:timers/promises";
 
 export class ConstructionManager {
   overridePlacementItems: Array<number> = [
@@ -709,6 +708,14 @@ export class ConstructionManager {
           modelId,
           position,
           fixEulerOrder(rotation)
+        );
+      case Items.RIGGED_LIGHT:
+        return this.placeTemporaryEntity(
+          server,
+          modelId,
+          position,
+          fixEulerOrder(rotation),
+          86400000
         );
       case Items.FLARE:
         return this.placeTemporaryEntity(
@@ -2179,18 +2186,16 @@ export class ConstructionManager {
     }
   }
 
-  public async constructionPermissionsManager(
+  public constructionPermissionsManager(
     server: ZoneServer2016,
     client: Client
   ) {
     let hide = false;
     for (const characterId in server._constructionFoundations) {
-      await scheduler.yield();
       const npc = server._constructionFoundations[characterId];
       if (this.checkFoundationPermission(server, client, npc)) hide = true;
     }
     for (const characterId in server._constructionSimple) {
-      await scheduler.yield();
       const npc = server._constructionSimple[characterId];
       if (this.checkConstructionChildEntityPermission(server, client, npc))
         hide = true;
