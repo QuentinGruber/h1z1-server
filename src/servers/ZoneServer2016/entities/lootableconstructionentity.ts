@@ -243,8 +243,6 @@ export class LootableConstructionEntity extends BaseLootableEntity {
       );
       return;
     }
-    console.log(this)
-    console.log(this.itemDefinitionId)
     if (this.subEntity) {
       this.subEntity.OnInteractionString(server, client);
       return;
