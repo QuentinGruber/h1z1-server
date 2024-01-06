@@ -48,7 +48,10 @@ import {
   Skins_Sniper,
   Skins_Shotgun,
   Skins_AK47,
-  Skins_AR15
+  Skins_AR15,
+  Skins_TacticalHelmet,
+  Skins_Respirator,
+  Skins_Bandana
 } from "../models/enums";
 import { Vehicle2016 } from "../entities/vehicle";
 import { LootDefinition } from "types/zoneserver";
@@ -115,6 +118,15 @@ function getRandomSkin(itemDefinitionId: number) {
       break;
     case Items.WEAPON_AR15:
       arr = Object.keys(Skins_AR15);
+      break;
+    case Items.HELMET_TACTICAL:
+      arr = Object.keys(Skins_TacticalHelmet);
+      break;
+    case Items.RESPIRATOR:
+      arr = Object.keys(Skins_Respirator);
+      break;
+    case Items.BANDANA_BASIC:
+      arr = Object.keys(Skins_Bandana);
       break;
     default:
       return itemDefinitionId;

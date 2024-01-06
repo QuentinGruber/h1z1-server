@@ -5448,7 +5448,8 @@ export class ZoneServer2016 extends EventEmitter {
       this.getItemDefinition(itemDefinitionId)?.DESCRIPTION_ID == 9945 ||
       this.getItemDefinition(itemDefinitionId)?.DESCRIPTION_ID == 12994 ||
       this.getItemDefinition(itemDefinitionId)?.DESCRIPTION_ID == 9114 ||
-      this.getItemDefinition(itemDefinitionId)?.DESCRIPTION_ID == 9945
+      this.getItemDefinition(itemDefinitionId)?.DESCRIPTION_ID == 9945 ||
+      this.getItemDefinition(itemDefinitionId)?.DESCRIPTION_ID == 12898
     );
   }
 
