@@ -1885,12 +1885,11 @@ export class ZoneServer2016 extends EventEmitter {
       this._grid = this.divideMapIntoGrid(8196, 8196, 250);
     if (
       obj instanceof Vehicle ||
-      obj instanceof Character ||
-      (obj instanceof ConstructionChildEntity && !obj.getParent(this)) ||
-      (obj instanceof LootableConstructionEntity && !obj.getParent(this))
+      obj instanceof Character // ||
+      //(obj instanceof ConstructionChildEntity && !obj.getParent(this)) ||
+      //(obj instanceof LootableConstructionEntity && !obj.getParent(this))
     ) {
-      // dont push objects that can change its position or are
-      // handled by the construction system
+      // dont push objects that can change its position
       return;
     }
     for (let i = 0; i < this._grid.length; i++) {
@@ -3591,11 +3590,32 @@ export class ZoneServer2016 extends EventEmitter {
           continue;
         }
 
-        // need to re-add this soon
-        /*if (object instanceof ConstructionParentEntity) {
-          this.spawnConstructionParent(client, object);
+        if (object instanceof ConstructionParentEntity) {
+          this.constructionManager.spawnConstructionParent(
+            this,
+            client,
+            object
+          );
           continue;
-        }*/
+        }
+
+        if (object instanceof ConstructionChildEntity) {
+          this.constructionManager.spawnSimpleConstruction(
+            this,
+            client,
+            object
+          );
+          continue;
+        }
+
+        if (object instanceof LootableConstructionEntity) {
+          this.constructionManager.spawnLootableConstruction(
+            this,
+            client,
+            object
+          );
+          continue;
+        }
 
         if (object instanceof BaseSimpleNpc) {
           if (object instanceof Crate && object.spawnTimestamp > Date.now()) {
@@ -7640,11 +7660,11 @@ export class ZoneServer2016 extends EventEmitter {
           this.POIManager(client);
           client.routineCounter = 0;
         }
-        this.constructionManager.spawnConstructionParentsInRange(this, client);
+        //this.constructionManager.spawnConstructionParentsInRange(this, client); // put back into grid for now
         this.vehicleManager(client);
         this.spawnCharacters(client);
         this.spawnGridObjects(client);
-        this.constructionManager.worldConstructionManager(this, client);
+        //this.constructionManager.worldConstructionManager(this, client); // put into grid
         client.posAtLastRoutine = client.character.state.position;
       }
       const endTime = Date.now();
@@ -7661,21 +7681,21 @@ export class ZoneServer2016 extends EventEmitter {
 
   executeRoutine(client: Client) {
     this.constructionManager.constructionPermissionsManager(this, client);
-    this.constructionManager.spawnConstructionParentsInRange(this, client);
+    //this.constructionManager.spawnConstructionParentsInRange(this, client); // put into grid
     this.vehicleManager(client);
     this.removeOutOfDistanceEntities(client);
     this.spawnCharacters(client);
     this.spawnGridObjects(client);
-    this.constructionManager.worldConstructionManager(this, client);
+    //this.constructionManager.worldConstructionManager(this, client);
     this.POIManager(client);
     client.posAtLastRoutine = client.character.state.position;
   }
 
   firstRoutine(client: Client) {
-    this.constructionManager.spawnConstructionParentsInRange(this, client);
+    //this.constructionManager.spawnConstructionParentsInRange(this, client); // put into grid
     this.spawnLoadingGridObjects(client);
     this.spawnCharacters(client);
-    this.constructionManager.worldConstructionManager(this, client);
+    //this.constructionManager.worldConstructionManager(this, client);
     this.POIManager(client);
     client.posAtLastRoutine = client.character.state.position;
   }
