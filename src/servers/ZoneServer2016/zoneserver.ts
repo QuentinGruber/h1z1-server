@@ -3579,13 +3579,13 @@ export class ZoneServer2016 extends EventEmitter {
 
       for (const object of gridCell.objects) {
         if (
+          client.spawnedEntities.has(object) ||
           !isPosInRadius(
             (object.npcRenderDistance as number) ||
               this.charactersRenderDistance,
             position,
             object.state.position
-          ) ||
-          client.spawnedEntities.has(object)
+          )
         ) {
           continue;
         }
