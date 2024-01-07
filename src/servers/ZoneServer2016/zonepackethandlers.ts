@@ -1935,7 +1935,7 @@ export class ZonePacketHandlers {
     client: Client,
     packet: ReceivedPacket<object>
   ) {
-    const proximityItems = server.getProximityItems(client.character);
+    const proximityItems = server.getProximityItems(client);
     server.sendData<ClientUpdateProximateItems>(
       client,
       "ClientUpdate.ProximateItems",

@@ -1019,145 +1019,121 @@ export class ZoneServer2016 extends EventEmitter {
     }
   }
 
-  getProximityItems(character: Character): ClientUpdateProximateItems {
-    const items = Object.values(this._spawnedItems);
+  getProximityItems(client: Client): ClientUpdateProximateItems {
     const proximityItems: ClientUpdateProximateItems = { items: [] };
-    for (let i = 0; i < items.length; i++) {
-      const item = items[i];
-      if (
-        isPosInRadiusWithY(
-          this.proximityItemsDistance,
-          character.state.position,
-          item.state.position,
-          1
-        )
-      ) {
-        const proximityItem = {
-          itemDefinitionId: item.item.itemDefinitionId,
-          associatedCharacterGuid: character.characterId,
-          itemData: item.item // should change to it use getItemData method later
-        };
-        (proximityItems.items as any[]).push(proximityItem);
+
+    for (const object of client.spawnedEntities) {
+      if (object instanceof ItemObject) {
+        if (
+          isPosInRadiusWithY(
+            this.proximityItemsDistance,
+            client.character.state.position,
+            object.state.position,
+            1
+          )
+        ) {
+          const proximityItem = {
+            itemDefinitionId: object.item.itemDefinitionId,
+            associatedCharacterGuid: client.character.characterId,
+            itemData: object.item // should change to it use getItemData method later
+          };
+          (proximityItems.items as any[]).push(proximityItem);
+        }
       }
-    }
-    for (const a in this._lootableConstruction) {
-      const construction = this._lootableConstruction[a];
-      if (
-        isPosInRadiusWithY(
-          2,
-          character.state.position,
-          construction.state.position,
-          1
-        )
-      ) {
-        if (construction && construction.parentObjectCharacterId) {
-          const parent = construction.getParent(this);
-          if (
-            parent &&
-            parent.isSecured &&
-            character.isHidden != parent.characterId
-          ) {
-            continue;
+
+      if (object instanceof LootableConstructionEntity) {
+        if (
+          isPosInRadiusWithY(
+            2,
+            client.character.state.position,
+            object.state.position,
+            1
+          )
+        ) {
+          if (object.parentObjectCharacterId) {
+            const parent = object.getParent(this);
+            if (
+              parent &&
+              parent.isSecured &&
+              client.character.isHidden != parent.characterId
+            ) {
+              continue;
+            }
+          }
+          const container = object.getContainer();
+          if (container) {
+            Object.values(container.items).forEach((item: BaseItem) => {
+              const proximityItem = {
+                itemDefinitionId: item.itemDefinitionId,
+                associatedCharacterGuid: client.character.characterId,
+                itemData: object.pGetItemData(
+                  this,
+                  item,
+                  container.containerDefinitionId
+                )
+              };
+              (proximityItems.items as any[]).push(proximityItem);
+            });
           }
         }
-        const container = construction.getContainer();
-        if (container) {
-          Object.values(container.items).forEach((item: BaseItem) => {
-            const proximityItem = {
-              itemDefinitionId: item.itemDefinitionId,
-              associatedCharacterGuid: character.characterId,
-              itemData: construction.pGetItemData(
-                this,
-                item,
-                container.containerDefinitionId
-              )
-            };
-            (proximityItems.items as any[]).push(proximityItem);
-          });
+      }
+
+      if (object instanceof LootableProp) {
+        if (
+          isPosInRadiusWithY(
+            2,
+            client.character.state.position,
+            object.state.position,
+            1
+          ) &&
+          client.searchedProps.includes(object)
+        ) {
+          const container = object.getContainer();
+          if (container) {
+            Object.values(container.items).forEach((item: BaseItem) => {
+              const proximityItem = {
+                itemDefinitionId: item.itemDefinitionId,
+                associatedCharacterGuid: client.character.characterId,
+                itemData: object.pGetItemData(
+                  this,
+                  item,
+                  container.containerDefinitionId
+                )
+              };
+              (proximityItems.items as any[]).push(proximityItem);
+            });
+          }
+        }
+      }
+
+      if (object instanceof Lootbag) {
+        if (
+          isPosInRadiusWithY(
+            2,
+            client.character.state.position,
+            object.state.position,
+            1
+          )
+        ) {
+          const container = object.getContainer();
+          if (container) {
+            Object.values(container.items).forEach((item: BaseItem) => {
+              const proximityItem = {
+                itemDefinitionId: item.itemDefinitionId,
+                associatedCharacterGuid: client.character.characterId,
+                itemData: object.pGetItemData(
+                  this,
+                  item,
+                  container.containerDefinitionId
+                )
+              };
+              (proximityItems.items as any[]).push(proximityItem);
+            });
+          }
         }
       }
     }
-    for (const a in this._worldLootableConstruction) {
-      const construction = this._worldLootableConstruction[a];
-      if (
-        isPosInRadiusWithY(
-          2,
-          character.state.position,
-          construction.state.position,
-          1
-        )
-      ) {
-        const container = construction.getContainer();
-        if (container) {
-          Object.values(container.items).forEach((item: BaseItem) => {
-            const proximityItem = {
-              itemDefinitionId: item.itemDefinitionId,
-              associatedCharacterGuid: character.characterId,
-              itemData: construction.pGetItemData(
-                this,
-                item,
-                container.containerDefinitionId
-              )
-            };
-            (proximityItems.items as any[]).push(proximityItem);
-          });
-        }
-      }
-    }
-    for (const a in this._lootableProps) {
-      const lootableProp = this._lootableProps[a];
-      if (
-        isPosInRadiusWithY(
-          2,
-          character.state.position,
-          lootableProp.state.position,
-          1
-        )
-      ) {
-        const container = lootableProp.getContainer();
-        if (container) {
-          Object.values(container.items).forEach((item: BaseItem) => {
-            const proximityItem = {
-              itemDefinitionId: item.itemDefinitionId,
-              associatedCharacterGuid: character.characterId,
-              itemData: lootableProp.pGetItemData(
-                this,
-                item,
-                container.containerDefinitionId
-              )
-            };
-            (proximityItems.items as any[]).push(proximityItem);
-          });
-        }
-      }
-    }
-    for (const a in this._lootbags) {
-      const lootableBag = this._lootbags[a];
-      if (
-        isPosInRadiusWithY(
-          2,
-          character.state.position,
-          lootableBag.state.position,
-          1
-        )
-      ) {
-        const container = lootableBag.getContainer();
-        if (container) {
-          Object.values(container.items).forEach((item: BaseItem) => {
-            const proximityItem = {
-              itemDefinitionId: item.itemDefinitionId,
-              associatedCharacterGuid: character.characterId,
-              itemData: lootableBag.pGetItemData(
-                this,
-                item,
-                container.containerDefinitionId
-              )
-            };
-            (proximityItems.items as any[]).push(proximityItem);
-          });
-        }
-      }
-    }
+
     return proximityItems;
   }
 
@@ -1909,12 +1885,11 @@ export class ZoneServer2016 extends EventEmitter {
       this._grid = this.divideMapIntoGrid(8196, 8196, 250);
     if (
       obj instanceof Vehicle ||
-      obj instanceof Character ||
-      (obj instanceof ConstructionChildEntity && !obj.getParent(this)) ||
-      (obj instanceof LootableConstructionEntity && !obj.getParent(this))
+      obj instanceof Character // ||
+      //(obj instanceof ConstructionChildEntity && !obj.getParent(this)) ||
+      //(obj instanceof LootableConstructionEntity && !obj.getParent(this))
     ) {
-      // dont push objects that can change its position or are
-      // handled by the construction system
+      // dont push objects that can change its position
       return;
     }
     for (let i = 0; i < this._grid.length; i++) {
@@ -1949,7 +1924,7 @@ export class ZoneServer2016 extends EventEmitter {
         lowerRenderDistance = true;
       }
     }
-    client.chunkRenderDistance = lowerRenderDistance ? 350 : 500;
+    client.chunkRenderDistance = lowerRenderDistance ? 250 : 300;
   }
 
   private async worldRoutine() {
@@ -3604,22 +3579,43 @@ export class ZoneServer2016 extends EventEmitter {
 
       for (const object of gridCell.objects) {
         if (
+          client.spawnedEntities.has(object) ||
           !isPosInRadius(
             (object.npcRenderDistance as number) ||
               this.charactersRenderDistance,
             position,
             object.state.position
-          ) ||
-          client.spawnedEntities.has(object)
+          )
         ) {
           continue;
         }
 
-        // need to re-add this soon
-        /*if (object instanceof ConstructionParentEntity) {
-          this.spawnConstructionParent(client, object);
+        if (object instanceof ConstructionParentEntity) {
+          this.constructionManager.spawnConstructionParent(
+            this,
+            client,
+            object
+          );
           continue;
-        }*/
+        }
+
+        if (object instanceof ConstructionChildEntity) {
+          this.constructionManager.spawnSimpleConstruction(
+            this,
+            client,
+            object
+          );
+          continue;
+        }
+
+        if (object instanceof LootableConstructionEntity) {
+          this.constructionManager.spawnLootableConstruction(
+            this,
+            client,
+            object
+          );
+          continue;
+        }
 
         if (object instanceof BaseSimpleNpc) {
           if (object instanceof Crate && object.spawnTimestamp > Date.now()) {
@@ -7664,11 +7660,11 @@ export class ZoneServer2016 extends EventEmitter {
           this.POIManager(client);
           client.routineCounter = 0;
         }
-        this.constructionManager.spawnConstructionParentsInRange(this, client);
+        //this.constructionManager.spawnConstructionParentsInRange(this, client); // put back into grid for now
         this.vehicleManager(client);
         this.spawnCharacters(client);
         this.spawnGridObjects(client);
-        this.constructionManager.worldConstructionManager(this, client);
+        //this.constructionManager.worldConstructionManager(this, client); // put into grid
         client.posAtLastRoutine = client.character.state.position;
       }
       const endTime = Date.now();
@@ -7685,21 +7681,21 @@ export class ZoneServer2016 extends EventEmitter {
 
   executeRoutine(client: Client) {
     this.constructionManager.constructionPermissionsManager(this, client);
-    this.constructionManager.spawnConstructionParentsInRange(this, client);
+    //this.constructionManager.spawnConstructionParentsInRange(this, client); // put into grid
     this.vehicleManager(client);
     this.removeOutOfDistanceEntities(client);
     this.spawnCharacters(client);
     this.spawnGridObjects(client);
-    this.constructionManager.worldConstructionManager(this, client);
+    //this.constructionManager.worldConstructionManager(this, client);
     this.POIManager(client);
     client.posAtLastRoutine = client.character.state.position;
   }
 
   firstRoutine(client: Client) {
-    this.constructionManager.spawnConstructionParentsInRange(this, client);
+    //this.constructionManager.spawnConstructionParentsInRange(this, client); // put into grid
     this.spawnLoadingGridObjects(client);
     this.spawnCharacters(client);
-    this.constructionManager.worldConstructionManager(this, client);
+    //this.constructionManager.worldConstructionManager(this, client);
     this.POIManager(client);
     client.posAtLastRoutine = client.character.state.position;
   }
