@@ -2191,15 +2191,25 @@ export class ConstructionManager {
     client: Client
   ) {
     let hide = false;
-    for (const characterId in server._constructionFoundations) {
-      const npc = server._constructionFoundations[characterId];
-      if (this.checkFoundationPermission(server, client, npc)) hide = true;
+
+    for (const object of client.spawnedEntities) {
+      if (object instanceof ConstructionParentEntity) {
+        if (this.checkFoundationPermission(server, client, object)) {
+          hide = true;
+          continue;
+        }
+      }
+
+      if (object instanceof ConstructionChildEntity) {
+        if (
+          this.checkConstructionChildEntityPermission(server, client, object)
+        ) {
+          hide = true;
+          continue;
+        }
+      }
     }
-    for (const characterId in server._constructionSimple) {
-      const npc = server._constructionSimple[characterId];
-      if (this.checkConstructionChildEntityPermission(server, client, npc))
-        hide = true;
-    }
+
     if (!hide && client.character.isHidden) {
       client.character.isHidden = "";
       server.spawnCharacterToOtherClients(client.character);
