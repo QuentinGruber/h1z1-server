@@ -194,7 +194,6 @@ export class WeatherManager {
           server._timeMultiplier
         );
         this.sendUpdateToAll(server);
-        this.sendUpdateToAll(server);
         this.dynamicWorker.refresh();
       }, 360000 / server._timeMultiplier);
     }
