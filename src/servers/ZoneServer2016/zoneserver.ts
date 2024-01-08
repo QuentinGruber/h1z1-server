@@ -531,9 +531,11 @@ export class ZoneServer2016 extends EventEmitter {
           zoneClient.permissionLevel = 3;
         }
 
-        if (this._characters[characterId]) {
-          this.sendData<LoginFailed>(client as any, "LoginFailed", {});
-          return;
+        // If the client is already connected, we kick the old one
+        const oldClient = this.getClientByGuid(guid);
+        if (oldClient) {
+          this.sendData<LoginFailed>(oldClient, "LoginFailed", {});
+          this.deleteClient(oldClient);
         }
         this._clients[client.sessionId] = zoneClient;
         this._characters[characterId] = zoneClient.character;
