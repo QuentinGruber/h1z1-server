@@ -86,6 +86,13 @@ interface MeleeHit {
   abilityHitLocation: string;
   characterId: string;
 }
+
+export enum SpectatorState {
+  NONE = 0,
+  VANISHED = 1,
+  SPECTATING = 2,
+  BOTH = 3
+}
 export class Character2016 extends BaseFullCharacter {
   name!: string;
   spawnLocation?: string;
@@ -151,7 +158,7 @@ export class Character2016 extends BaseFullCharacter {
   hasConveys: boolean = false;
   positionUpdate?: positionUpdate;
   tempGodMode = false;
-  isSpectator = false;
+  spectatorState: SpectatorState = SpectatorState.NONE;
   initialized = false; // if sendself has been sent
   spawnGridData: number[] = [];
   lastJumpTime: number = 0;

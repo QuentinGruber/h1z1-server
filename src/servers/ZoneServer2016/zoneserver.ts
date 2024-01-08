@@ -3508,9 +3508,9 @@ export class ZoneServer2016 extends EventEmitter {
         ) &&
         !client.spawnedEntities.has(characterObj) &&
         characterObj.isAlive &&
-        !characterObj.isSpectator &&
+        !characterObj.spectatorState &&
         (characterObj.isHidden == client.character.isHidden ||
-          client.character.isSpectator) /* &&
+          client.character.spectatorState) /* &&
         client.banType != "hiddenplayers"*/
       ) {
         this.sendData<AddLightweightPc>(

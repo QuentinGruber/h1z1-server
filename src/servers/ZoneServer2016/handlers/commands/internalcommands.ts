@@ -26,6 +26,7 @@ import {
   CommandSpawnVehicle,
   SpectatorEnable
 } from "types/zone2016packets";
+import { SpectatorState } from "../../entities/character";
 
 export const internalCommands: Array<InternalCommand> = [
   //#region DEFAULT PERMISSIONS
@@ -57,8 +58,21 @@ export const internalCommands: Array<InternalCommand> = [
       client: Client,
       packetData: SpectatorEnable
     ) => {
-      client.character.isSpectator = !client.character.isSpectator;
-      if (client.character.isSpectator) {
+      switch (client.character.spectatorState) {
+        case SpectatorState.VANISHED:
+          client.character.spectatorState = SpectatorState.BOTH;
+          break;
+        case SpectatorState.SPECTATING:
+          client.character.spectatorState = SpectatorState.NONE;
+          break;
+        case SpectatorState.BOTH:
+          client.character.spectatorState = SpectatorState.VANISHED;
+          break;
+        case SpectatorState.NONE:
+          client.character.spectatorState = SpectatorState.SPECTATING;
+          break;
+      }
+      if (client.character.spectatorState) {
         const vehicle = new Vehicle(
           OBSERVER_GUID,
           1,
@@ -123,7 +137,7 @@ export const internalCommands: Array<InternalCommand> = [
       }
       server.sendAlert(
         client,
-        `Set spectate/vanish state to ${client.character.isSpectator}`
+        `Set spectate/vanish state to ${client.character.spectatorState}`
       );
     }
   },

@@ -1136,7 +1136,7 @@ export class ZonePacketHandlers {
 
     if (!vehicle) {
       const pos = positionUpdate.position;
-      if (client.character.isSpectator && pos)
+      if (client.character.spectatorState && pos)
         client.character.state.position = pos;
       return;
     }
@@ -1491,7 +1491,7 @@ export class ZonePacketHandlers {
       ]);
     }
     if (
-      client.character.isSpectator &&
+      client.character.spectatorState &&
       _.size(server._decoys) > 0 &&
       client.isDecoy
     ) {

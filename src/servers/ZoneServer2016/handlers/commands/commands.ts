@@ -58,6 +58,7 @@ import { MAX_UINT32 } from "../../../../utils/constants";
 import { WithId } from "mongodb";
 import { FullCharacterSaveData } from "types/savedata";
 import { scheduler } from "node:timers/promises";
+import { SpectatorState } from "../../entities/character";
 const itemDefinitions = require("./../../../../../data/2016/dataSources/ServerItemDefinitions.json");
 
 export const commands: Array<Command> = [
@@ -526,12 +527,26 @@ export const commands: Array<Command> = [
     name: "vanish",
     permissionLevel: PermissionLevels.MODERATOR,
     execute: (server: ZoneServer2016, client: Client) => {
-      client.character.isSpectator = !client.character.isSpectator;
+      switch (client.character.spectatorState) {
+        case SpectatorState.VANISHED:
+          client.character.spectatorState = SpectatorState.NONE;
+          break;
+        case SpectatorState.SPECTATING:
+          client.character.spectatorState = SpectatorState.BOTH;
+          break;
+        case SpectatorState.BOTH:
+          client.character.spectatorState = SpectatorState.SPECTATING;
+          break;
+        case SpectatorState.NONE:
+          client.character.spectatorState = SpectatorState.VANISHED;
+          break;
+      }
+
       server.sendAlert(
         client,
-        `Set spectate/vanish state to ${client.character.isSpectator}`
+        `Set spectate/vanish state to ${client.character.spectatorState}`
       );
-      if (!client.character.isSpectator) {
+      if (!client.character.spectatorState) {
         for (const a in server._decoys) {
           const decoy = server._decoys[a];
           if (decoy.transientId == client.character.transientId) {
@@ -1624,7 +1639,7 @@ export const commands: Array<Command> = [
         }
         return;
       }
-      if (!client.character.isSpectator) {
+      if (!client.character.spectatorState) {
         server.sendChatText(client, "You must be in vanish mode to use this");
         return;
       }
@@ -2557,10 +2572,10 @@ export const commands: Array<Command> = [
       await scheduler.wait(1000);
 
       // Set the client's isSpectator state
-      client.character.isSpectator = !client.character.isSpectator;
+      client.character.spectatorState = SpectatorState.SPECTATING;
 
       // Remove the client's character from the game if in spectate mode
-      if (client.character.isSpectator) {
+      if (client.character.spectatorState) {
         for (const a in server._clients) {
           const iteratedClient = server._clients[a];
           if (iteratedClient.spawnedEntities.has(client.character)) {
@@ -2577,7 +2592,7 @@ export const commands: Array<Command> = [
       await scheduler.wait(1000);
 
       // Set the client's isSpectator state again
-      client.character.isSpectator = !client.character.isSpectator;
+      client.character.spectatorState = SpectatorState.NONE;
     }
   },
   {
@@ -2693,10 +2708,10 @@ export const commands: Array<Command> = [
       await scheduler.wait(1000);
 
       // Set the client's isSpectator state
-      client.character.isSpectator = !client.character.isSpectator;
+      client.character.spectatorState = SpectatorState.SPECTATING;
 
       // Remove the client's character from the game if in spectate mode
-      if (client.character.isSpectator) {
+      if (client.character.spectatorState) {
         for (const a in server._clients) {
           const iteratedClient = server._clients[a];
           if (iteratedClient.spawnedEntities.has(client.character)) {
@@ -2713,7 +2728,7 @@ export const commands: Array<Command> = [
       await scheduler.wait(1000);
 
       // Set the client's isSpectator state again
-      client.character.isSpectator = !client.character.isSpectator;
+      client.character.spectatorState = SpectatorState.NONE;
     }
   },
   {
