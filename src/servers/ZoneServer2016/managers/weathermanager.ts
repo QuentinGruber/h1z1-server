@@ -189,8 +189,8 @@ export class WeatherManager {
       this.dynamicWorker = setTimeout(() => {
         if (!this.dynamicEnabled) return;
         this.weather = this.dynamicWeather(
-          server._serverTime,
-          server._startTime,
+          server._serverBaseTime,
+          server._startTimeMs,
           server._timeMultiplier
         );
         this.sendUpdateToAll(server);
@@ -215,13 +215,15 @@ export class WeatherManager {
   forceTime(server: ZoneServer2016, time: number) {
     this.cycleSpeed = 0.1;
     this.frozeCycle = true;
-    server._gameTime = time;
+    // TODO: implement
+    // server._gameTime = time;
   }
 
   removeForcedTime(server: ZoneServer2016) {
     this.cycleSpeed = 100;
     this.frozeCycle = false;
-    server._gameTime = Date.now();
+    // TODO: implement
+    // server._gameTime = Date.now();
   }
 
   seasonstart() {

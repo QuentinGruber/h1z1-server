@@ -862,7 +862,7 @@ export class WorldObjectManager {
           new Float32Array(dataVehicle.position),
           new Float32Array(dataVehicle.rotation),
           server,
-          server.getGameTime(),
+          server.getGameTimeSec(),
           dataVehicle.vehicleId
         );
       vehicleData.positionUpdate.orientation = dataVehicle.orientation;

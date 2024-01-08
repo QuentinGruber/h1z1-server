@@ -246,7 +246,7 @@ export class ZonePacketHandlers {
         guid2: "0x0000000000000000",
         guid3: "0x0000000040000000",
         guid4: "0x0000000000000000",
-        gameTime: (server.getServerTime() & 0xffffffff) >>> 0
+        gameTime: (server.getServerTimeMs() & 0xffffffff) >>> 0
       }
     );
 
@@ -819,7 +819,7 @@ export class ZonePacketHandlers {
     client: Client,
     packet: ReceivedPacket<Synchronization>
   ) {
-    const serverTime = Int64String(server.getServerTime());
+    const serverTime = Int64String(server.getServerTimeMs());
     const reflectedPacket: Synchronization = {
       ...packet.data,
       serverTime: serverTime,

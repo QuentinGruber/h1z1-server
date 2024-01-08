@@ -194,7 +194,7 @@ export class FairPlayManager {
           this.fairPlayValues.lastLoginDateAddVal <
         new Date().getTime()
       ) {
-        const drift = Math.abs(sequenceTime - server.getServerTime());
+        const drift = Math.abs(sequenceTime - server.getGameTimeSec());
         if (drift > this.fairPlayValues.maxTimeDrift) {
           server.kickPlayer(client);
           server.sendAlertToAll(`FairPlay: kicking ${client.character.name}`);
@@ -273,7 +273,7 @@ export class FairPlayManager {
   ): boolean {
     if (client.isAdmin || !this.useFairPlay) return false;
     if (!server.isSaving) {
-      const drift = Math.abs(sequenceTime - server.getServerTime());
+      const drift = Math.abs(sequenceTime - server.getGameTimeSec());
       if (drift > 10000) {
         server.kickPlayer(client);
         server.sendAlertToAll(`FairPlay: kicking ${client.character.name}`);

@@ -1137,7 +1137,7 @@ export class WorldDataManager {
         new Float32Array(entityData.position),
         new Float32Array(entityData.rotation),
         server,
-        server.getGameTime(),
+        server.getGameTimeSec(),
         entityData.vehicleId
       );
     vehicle._resources = entityData._resources;

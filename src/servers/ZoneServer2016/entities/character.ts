@@ -1325,7 +1325,7 @@ export class Character2016 extends BaseFullCharacter {
       },
       positionUpdate: {
         ...this.positionUpdate,
-        sequenceTime: server.getGameTime(),
+        sequenceTime: server.getGameTimeSec(),
         position: this.state.position, // trying to fix invisible characters/vehicles until they move
         stance: 66561
       },

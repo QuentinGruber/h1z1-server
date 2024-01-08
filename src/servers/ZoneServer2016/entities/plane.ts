@@ -118,7 +118,7 @@ export class Plane extends Vehicle2016 {
       },
       positionUpdate: {
         ...this.positionUpdate,
-        sequenceTime: server.getGameTime(),
+        sequenceTime: server.getGameTimeSec(),
         position: this.state.position // trying to fix invisible characters/vehicles until they move
       },
       unknownArray1: [],

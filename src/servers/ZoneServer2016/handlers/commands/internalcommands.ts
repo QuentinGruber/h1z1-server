@@ -66,7 +66,7 @@ export const internalCommands: Array<InternalCommand> = [
           client.character.state.position,
           client.character.state.lookAt,
           server,
-          server.getGameTime(),
+          server.getGameTimeSec(),
           VehicleIds.SPECTATE
         );
         for (const a in server._clients) {
@@ -176,7 +176,7 @@ export const internalCommands: Array<InternalCommand> = [
         position,
         client.character.state.lookAt,
         server,
-        server.getGameTime(),
+        server.getGameTimeSec(),
         vehicleId
       );
       server.worldObjectManager.createVehicle(server, vehicle);
