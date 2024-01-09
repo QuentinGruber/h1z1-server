@@ -511,26 +511,10 @@ export class LoginServer extends EventEmitter {
       isMember: true,
       isInternal: true,
       namespace: "soe",
-      accountFeatures: [
-        {
-          key: 2,
-          accountFeature: {
-            id: 2,
-            active: true,
-            remainingCount: 2,
-            rawData: "test"
-          }
-        }
-      ],
-      errorDetails: [
-        {
-          unknownDword1: 0,
-          name: "None",
-          value: "None"
-        }
-      ],
+      accountFeatures: [],
+      errorDetails: [],
       ipCountryCode: "US",
-      applicationPayload: "US"
+      applicationPayload: ""
     };
     this.clients.set(client.soeClientId, client);
     this.sendData(client, "LoginReply", loginReply);
