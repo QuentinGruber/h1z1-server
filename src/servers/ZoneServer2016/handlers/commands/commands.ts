@@ -696,20 +696,20 @@ export const commands: Array<Command> = [
               args[0] == "~"
                 ? pos[0]
                 : Object.is(NaN, Number(args[0]))
-                  ? pos[0]
-                  : Number(args[0]),
+                ? pos[0]
+                : Number(args[0]),
             y =
               args[1] == "~"
                 ? pos[1]
                 : Object.is(NaN, Number(args[1]))
-                  ? pos[1]
-                  : Number(args[1]),
+                ? pos[1]
+                : Number(args[1]),
             z =
               args[2] == "~"
                 ? pos[2]
                 : Object.is(NaN, Number(args[2]))
-                  ? pos[2]
-                  : Number(args[2]);
+                ? pos[2]
+                : Number(args[2]);
           position = new Float32Array([x, y, z, 1]);
           break;
       }

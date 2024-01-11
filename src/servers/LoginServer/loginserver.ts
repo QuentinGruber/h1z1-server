@@ -431,9 +431,7 @@ export class LoginServer extends EventEmitter {
           } catch (e) {
             console.error(e);
           }
-          return require(
-            `${this._appDataFolder}/single_player_characters.json`
-          );
+          return require(`${this._appDataFolder}/single_player_characters.json`);
         }
         case GAME_VERSIONS.H1Z1_6dec_2016: {
           try {
@@ -446,9 +444,7 @@ export class LoginServer extends EventEmitter {
           } catch (e) {
             console.error(e);
           }
-          return require(
-            `${this._appDataFolder}/single_player_characters2016.json`
-          );
+          return require(`${this._appDataFolder}/single_player_characters2016.json`);
         }
         case GAME_VERSIONS.H1Z1_KOTK_PS3: {
           try {
@@ -461,9 +457,7 @@ export class LoginServer extends EventEmitter {
           } catch (e) {
             console.error(e);
           }
-          return require(
-            `${this._appDataFolder}/single_player_charactersKOTK.json`
-          );
+          return require(`${this._appDataFolder}/single_player_charactersKOTK.json`);
         }
       }
     } else {

@@ -346,13 +346,13 @@ export class Character2016 extends BaseFullCharacter {
     }
 
     if (
-      client.character.isSitting &&
-      checkConstructionInRange(
-        server._lootableConstruction,
-        client.character.state.position,
-        4,
-        Items.CAMPFIRE
-      ) ||
+      (client.character.isSitting &&
+        checkConstructionInRange(
+          server._lootableConstruction,
+          client.character.state.position,
+          4,
+          Items.CAMPFIRE
+        )) ||
       checkConstructionInRange(
         server._worldLootableConstruction,
         client.character.state.position,
@@ -395,12 +395,12 @@ export class Character2016 extends BaseFullCharacter {
     switch (true) {
       case comfort > 2001:
         desiredComfortIndicator = "COMFORT ++";
-        client.character._resources[ResourceIds.HEALTH] += 100; 
+        client.character._resources[ResourceIds.HEALTH] += 100;
         client.character._resources[ResourceIds.STAMINA] += 2;
         break;
       case comfort >= 751 && comfort <= 2001:
         desiredComfortIndicator = "COMFORT +";
-        client.character._resources[ResourceIds.HEALTH] += 50; 
+        client.character._resources[ResourceIds.HEALTH] += 50;
         client.character._resources[ResourceIds.STAMINA] += 1;
         break;
       case comfort < 751:
@@ -577,7 +577,7 @@ export class Character2016 extends BaseFullCharacter {
       ResourceIds.COMFORT,
       ResourceTypes.COMFORT,
       comfort
-    )
+    );
 
     client.character.resourcesUpdater.refresh();
   }

@@ -339,7 +339,7 @@ export const UseOptions: { [itemDefinitionIds: number]: ItemUseOption } = {
     type: ItemUseOptions.EAT,
     timeout: 2000,
     eatCount: 4000,
-    comfortCount: 500,
+    comfortCount: 500
   },
   40: {
     itemDef: Items.HONEY,
@@ -364,7 +364,7 @@ export const UseOptions: { [itemDefinitionIds: number]: ItemUseOption } = {
     timeout: 1000,
     eatCount: 2000,
     drinkCount: 6000,
-    comfortCount: 500,
+    comfortCount: 500
   },
   48: {
     itemDef: Items.BLACKBERRY_PIE_SLICE,
@@ -372,7 +372,7 @@ export const UseOptions: { [itemDefinitionIds: number]: ItemUseOption } = {
     timeout: 2000,
     eatCount: 2500,
     drinkCount: 1000,
-    comfortCount: 250,
+    comfortCount: 250
   },
 
   //----------Use Medical-------------//
