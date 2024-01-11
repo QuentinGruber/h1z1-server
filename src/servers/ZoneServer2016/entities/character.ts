@@ -944,7 +944,7 @@ export class Character2016 extends BaseFullCharacter {
     this._resources[ResourceIds.BLEEDING] = 0;
     this._resources[ResourceIds.ENDURANCE] = 8000;
     this._resources[ResourceIds.VIRUS] = 0;
-    this._resources[ResourceIds.COMFORT] = 750;
+    this._resources[ResourceIds.COMFORT] = 5000;
     for (const a in this.healType) {
       const healType = this.healType[a];
       healType.healingTicks = 0;
