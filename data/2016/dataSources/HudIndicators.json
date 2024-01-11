@@ -110,5 +110,19 @@
     "nameId": 9300,
     "descriptionId": 9301,
     "imageSetId": 177
+  },
+  {
+    "id": 17,
+    "typeName": "COMFORT +",
+    "nameId": 13094,
+    "descriptionId": 0,
+    "imageSetId": 0
+  },
+  {
+    "id": 18,
+    "typeName": "COMFORT ++",
+    "nameId": 13093,
+    "descriptionId": 0,
+    "imageSetId": 0
   }
 ]

@@ -6303,6 +6303,7 @@ export class ZoneServer2016 extends EventEmitter {
     let doReturn = true;
     let drinkCount = 0;
     let eatCount = 0;
+    let comfortCount = 0;
     let staminaCount = 0;
     let enduranceCount = 0;
     let givetrash = 0;
@@ -6322,6 +6323,7 @@ export class ZoneServer2016 extends EventEmitter {
         timeout = useOption.timeout;
         if (useOption.drinkCount) drinkCount = useOption.drinkCount;
         if (useOption.eatCount) eatCount = useOption.eatCount;
+        if (useOption.comfortCount) comfortCount = useOption.comfortCount;
         if (useOption.staminaCount) staminaCount = useOption.staminaCount;
         if (useOption.enduranceCount) enduranceCount = useOption.enduranceCount;
         if (useOption.givetrash) givetrash = useOption.givetrash;
@@ -6345,6 +6347,7 @@ export class ZoneServer2016 extends EventEmitter {
         item,
         eatCount,
         drinkCount,
+        comfortCount,
         staminaCount,
         givetrash,
         healCount,
@@ -6733,6 +6736,7 @@ export class ZoneServer2016 extends EventEmitter {
     item: BaseItem,
     eatCount: number,
     drinkCount: number,
+    comfortCount: number,
     staminaCount: number,
     givetrash: number,
     healCount: number,
@@ -6776,6 +6780,16 @@ export class ZoneServer2016 extends EventEmitter {
         client.character.characterId,
         client.character._resources[ResourceIds.ENDURANCE],
         ResourceIds.ENDURANCE
+      );
+    }
+
+    if (comfortCount) {
+      client.character._resources[ResourceIds.COMFORT] += comfortCount;
+      this.updateResource(
+        client,
+        client.character.characterId,
+        client.character._resources[ResourceIds.COMFORT],
+        ResourceIds.COMFORT
       );
     }
 

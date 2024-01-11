@@ -27,7 +27,8 @@ import {
   eul2quat,
   getDistance,
   getDistance1d,
-  isPosInRadiusWithY
+  isPosInRadiusWithY,
+  checkConstructionInRange
 } from "../../utils/utils";
 
 import { CraftManager } from "./managers/craftmanager";
@@ -1355,6 +1356,17 @@ export class ZonePacketHandlers {
         client.startLoc = client.character.state.position[1];
       } else if (!stanceFlags.FLOATING && client.isInAir) {
         client.isInAir = false;
+      }
+
+      if (
+        stanceFlags.SITTING &&
+        stanceFlags.ON_GROUND &&
+        !client.character.isSitting &&
+        !client.vehicle.mountedVehicle
+      ) {
+        client.character.isSitting = true;
+      } else if (!stanceFlags.STATIONARY || stanceFlags.SPRINTING) {
+        client.character.isSitting = false;
       }
       client.character.isRunning = stanceFlags.SPRINTING;
       if (

@@ -42,7 +42,8 @@ import {
   isFloat,
   isPosInRadius,
   randomIntFromInterval,
-  _
+  _,
+  checkConstructionInRange
 } from "../../../utils/utils";
 import { BaseItem } from "../classes/baseItem";
 import { BaseLootableEntity } from "./baselootableentity";
@@ -99,6 +100,7 @@ export class Character2016 extends BaseFullCharacter {
   }
   characterStates: CharacterStates;
   isRunning = false;
+  isSitting = false;
   isHidden: string = "";
   isBleeding = false;
   isBandaged = false;
@@ -329,7 +331,8 @@ export class Character2016 extends BaseFullCharacter {
       virus = this._resources[ResourceIds.VIRUS],
       stamina = this._resources[ResourceIds.STAMINA],
       bleeding = this._resources[ResourceIds.BLEEDING],
-      energy = this._resources[ResourceIds.ENDURANCE];
+      energy = this._resources[ResourceIds.ENDURANCE],
+      comfort = this._resources[ResourceIds.COMFORT];
 
     if (
       client.character.isRunning &&
@@ -342,8 +345,27 @@ export class Character2016 extends BaseFullCharacter {
       client.character._resources[ResourceIds.STAMINA] += 12;
     }
 
+    if (
+      client.character.isSitting &&
+      checkConstructionInRange(
+        server._lootableConstruction,
+        client.character.state.position,
+        4,
+        Items.CAMPFIRE
+      ) ||
+      checkConstructionInRange(
+        server._worldLootableConstruction,
+        client.character.state.position,
+        4,
+        Items.CAMPFIRE
+      )
+    ) {
+      client.character._resources[ResourceIds.COMFORT] += 150;
+    }
+
     client.character._resources[ResourceIds.HUNGER] -= 2;
     client.character._resources[ResourceIds.ENDURANCE] -= 2;
+    client.character._resources[ResourceIds.COMFORT] -= 3;
     client.character._resources[ResourceIds.HYDRATION] -= 4;
 
     let desiredEnergyIndicator = "";
@@ -367,8 +389,31 @@ export class Character2016 extends BaseFullCharacter {
         desiredEnergyIndicator = "";
         break;
     }
+
+    let desiredComfortIndicator = "";
+    const comfortIndicators = ["COMFORT +", "COMFORT ++"];
+    switch (true) {
+      case comfort > 2001:
+        desiredComfortIndicator = "COMFORT ++";
+        client.character._resources[ResourceIds.HEALTH] += 100; 
+        client.character._resources[ResourceIds.STAMINA] += 2;
+        break;
+      case comfort >= 751 && comfort <= 2001:
+        desiredComfortIndicator = "COMFORT +";
+        client.character._resources[ResourceIds.HEALTH] += 50; 
+        client.character._resources[ResourceIds.STAMINA] += 1;
+        break;
+      case comfort < 751:
+        desiredComfortIndicator = "";
+        break;
+      default:
+        desiredComfortIndicator = "";
+        break;
+    }
+
     this.checkResource(server, ResourceIds.ENDURANCE);
     this.checkResource(server, ResourceIds.STAMINA);
+    this.checkResource(server, ResourceIds.COMFORT);
     energyIndicators.forEach((indicator: string) => {
       const index = this.resourceHudIndicators.indexOf(indicator);
       if (index > -1 && indicator != desiredEnergyIndicator) {
@@ -376,6 +421,17 @@ export class Character2016 extends BaseFullCharacter {
         server.sendHudIndicators(client);
       } else if (indicator == desiredEnergyIndicator && index <= -1) {
         this.resourceHudIndicators.push(desiredEnergyIndicator);
+        server.sendHudIndicators(client);
+      }
+    });
+
+    comfortIndicators.forEach((indicator: string) => {
+      const index = this.resourceHudIndicators.indexOf(indicator);
+      if (index > -1 && indicator != desiredComfortIndicator) {
+        this.resourceHudIndicators.splice(index, 1);
+        server.sendHudIndicators(client);
+      } else if (indicator == desiredComfortIndicator && index <= -1) {
+        this.resourceHudIndicators.push(desiredComfortIndicator);
         server.sendHudIndicators(client);
       }
     });
@@ -515,6 +571,13 @@ export class Character2016 extends BaseFullCharacter {
       ResourceTypes.ENDURANCE,
       energy
     );
+    this.updateResource(
+      server,
+      client,
+      ResourceIds.COMFORT,
+      ResourceTypes.COMFORT,
+      comfort
+    )
 
     client.character.resourcesUpdater.refresh();
   }
@@ -881,7 +944,7 @@ export class Character2016 extends BaseFullCharacter {
     this._resources[ResourceIds.BLEEDING] = 0;
     this._resources[ResourceIds.ENDURANCE] = 8000;
     this._resources[ResourceIds.VIRUS] = 0;
-    this._resources[ResourceIds.COMFORT] = 5000;
+    this._resources[ResourceIds.COMFORT] = 750;
     for (const a in this.healType) {
       const healType = this.healType[a];
       healType.healingTicks = 0;
