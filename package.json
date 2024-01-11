@@ -27,9 +27,9 @@
     "src": "./src"
   },
   "devDependencies": {
-    "@typescript-eslint/eslint-plugin": "^6.13.2",
-    "@typescript-eslint/parser": "^6.13.2",
-    "eslint": "^8.55.0",
+    "@typescript-eslint/eslint-plugin": "^6.18.1",
+    "@typescript-eslint/parser": "^6.18.1",
+    "eslint": "^8.56.0",
     "glob": "8.1.0",
     "prettier": "^3.1.1",
     "ts-node": "10.9.1",
