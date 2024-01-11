@@ -765,7 +765,9 @@ export class ZoneServer2015 extends EventEmitter {
       delete require.cache[
         require.resolve(`${this._appDataFolder}/single_player_characters.json`)
       ];
-      const SinglePlayerCharacters = require(`${this._appDataFolder}/single_player_characters.json`);
+      const SinglePlayerCharacters = require(
+        `${this._appDataFolder}/single_player_characters.json`
+      );
       character = SinglePlayerCharacters.find(
         (character: any) =>
           character.characterId === client.character.characterId
