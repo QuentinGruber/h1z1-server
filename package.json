@@ -14,7 +14,7 @@
   },
   "dependencies": {
     "@types/js-yaml": "4.0.9",
-    "@types/node": "20.10.4",
+    "@types/node": "^20.10.8",
     "debug": "4.3.4",
     "h1emu-core": "1.2.8",
     "h1z1-dataschema": "1.7.1",
@@ -31,7 +31,7 @@
     "@typescript-eslint/parser": "^6.18.1",
     "eslint": "^8.56.0",
     "prettier": "^3.1.1",
-    "ts-node": "10.9.1",
+    "ts-node": "^10.9.2",
     "typedoc": "^0.25.7"
   },
   "scripts": {
