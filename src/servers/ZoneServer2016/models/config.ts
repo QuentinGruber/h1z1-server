@@ -106,6 +106,8 @@ interface DecayConfig {
   worldFreeplaceDecayMultiplier: number;
   vehicleDamageTicks: number;
   vacantFoundationTicks: number;
+  griefFoundationTicks: number;
+  griefCheckSlotAmount: number;
   baseVehicleDamage: number;
   maxVehiclesPerArea: number;
   vehicleDamageRange: number;

@@ -33,6 +33,8 @@ export class DecayManager {
   worldFreeplaceDecayMultiplier!: number;
   vehicleDamageTicks!: number;
   vacantFoundationTicks!: number;
+  griefFoundationTicks!: number;
+  griefCheckSlotAmount!: number;
   baseVehicleDamage!: number;
   maxVehiclesPerArea!: number;
   vehicleDamageRange!: number;
@@ -44,6 +46,7 @@ export class DecayManager {
 
   public run(server: ZoneServer2016) {
     this.contructionExpirationCheck(server);
+    this.constructionGriefCheck(server);
     if (this.constructionDamageTickCount >= this.constructionDamageTicks) {
       this.contructionDecayDamage(server);
       this.constructionDamageTickCount = -1;
@@ -59,6 +62,36 @@ export class DecayManager {
     this.runTimer = setTimeout(() => {
       this.run(server);
     }, this.decayTickInterval);
+  }
+
+  private constructionGriefCheck(server: ZoneServer2016) {
+    for (const a in server._constructionFoundations) {
+      const foundation = server._constructionFoundations[a];
+      if (
+        foundation.itemDefinitionId == Items.FOUNDATION ||
+        foundation.itemDefinitionId == Items.GROUND_TAMPER
+      ) {
+        if (
+          Object.keys(foundation.occupiedWallSlots).length <= this.griefCheckSlotAmount &&
+          Object.keys(foundation.occupiedShelterSlots).length == 0 && 
+          Object.keys(foundation.occupiedExpansionSlots).length == 0
+        ) {
+          if (foundation.ticksWithGrief >= this.griefFoundationTicks) {
+            for (const a in foundation.occupiedWallSlots) {
+              foundation.occupiedWallSlots[a].destroy(server);
+            }
+            // clear floating shelters / other entities 
+            for (const a in foundation.freeplaceEntities) {
+              foundation.freeplaceEntities[a].destroy(server);
+            }
+            foundation.destroy(server);
+          }
+          foundation.ticksWithGrief++;
+        } else {
+          foundation.ticksWithGrief = 0;
+        }
+      }
+    }
   }
 
   private contructionExpirationCheck(server: ZoneServer2016) {

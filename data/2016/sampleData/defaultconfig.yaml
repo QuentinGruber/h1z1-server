@@ -129,6 +129,8 @@ decay:
 
   vehicleDamageTicks: 3 # damage vehicles every hour
   vacantFoundationTicks: 3 # destroy empty foundations after 1 hour
+  griefFoundationTicks: 216 # destroy grief foundations after 3 days
+  griefCheckSlotAmount: 3 # must have a minimum of 3 wall slots to avoid anti-grief
   baseVehicleDamage: 6000 # 6% damage per 3 ticks
   maxVehiclesPerArea: 2 # the max amount of vehicles that can be in an area before they start taking more damage
   vehicleDamageRange: 25 # how large of a range to detect maxVehiclesPerArea

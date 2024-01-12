@@ -67,6 +67,7 @@ export class ConstructionParentEntity extends ConstructionChildEntity {
   permissions: { [characterId: string]: ConstructionPermissions } = {};
   ownerCharacterId: string;
   ticksWithoutObjects: number = 0;
+  ticksWithGrief: number = 0;
   readonly expansionSlots: ConstructionSlotPositionMap = {};
   occupiedExpansionSlots: { [slot: number]: ConstructionParentEntity } = {};
   readonly rampSlots: ConstructionSlotPositionMap = {};
