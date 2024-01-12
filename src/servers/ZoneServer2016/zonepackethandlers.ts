@@ -1491,7 +1491,7 @@ export class ZonePacketHandlers {
       ]);
     }
     if (
-      client.character.isSpectator &&
+      (client.character.isSpectator || client.character.isVanished) &&
       _.size(server._decoys) > 0 &&
       client.isDecoy
     ) {

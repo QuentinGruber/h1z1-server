@@ -526,12 +526,13 @@ export const commands: Array<Command> = [
     name: "vanish",
     permissionLevel: PermissionLevels.MODERATOR,
     execute: (server: ZoneServer2016, client: Client) => {
-      client.character.isSpectator = !client.character.isSpectator;
+      // Set the client's isVanished state
+      client.character.isVanished = !client.character.isVanished;
       server.sendAlert(
         client,
-        `Set spectate/vanish state to ${client.character.isSpectator}`
+        `Set vanish state to ${client.character.isVanished}`
       );
-      if (!client.character.isSpectator) {
+      if (!client.character.isVanished) {
         for (const a in server._decoys) {
           const decoy = server._decoys[a];
           if (decoy.transientId == client.character.transientId) {
@@ -1624,7 +1625,7 @@ export const commands: Array<Command> = [
         }
         return;
       }
-      if (!client.character.isSpectator) {
+      if (!client.character.isVanished) {
         server.sendChatText(client, "You must be in vanish mode to use this");
         return;
       }
@@ -2556,11 +2557,10 @@ export const commands: Array<Command> = [
       // Wait for one second before running vanish command
       await scheduler.wait(1000);
 
-      // Set the client's isSpectator state
-      client.character.isSpectator = !client.character.isSpectator;
+      client.character.isVanished = !client.character.isVanished;
 
       // Remove the client's character from the game if in spectate mode
-      if (client.character.isSpectator) {
+      if (client.character.isVanished) {
         for (const a in server._clients) {
           const iteratedClient = server._clients[a];
           if (iteratedClient.spawnedEntities.has(client.character)) {
@@ -2576,8 +2576,8 @@ export const commands: Array<Command> = [
       // Wait for an additional second before running the second vanish command
       await scheduler.wait(1000);
 
-      // Set the client's isSpectator state again
-      client.character.isSpectator = !client.character.isSpectator;
+      // Set the client's isVanished state again
+      client.character.isVanished = !client.character.isVanished;
     }
   },
   {
@@ -2692,11 +2692,11 @@ export const commands: Array<Command> = [
       // Wait for one second before running vanish command
       await scheduler.wait(1000);
 
-      // Set the client's isSpectator state
-      client.character.isSpectator = !client.character.isSpectator;
+      // Set the client's isVanished state
+      client.character.isVanished = !client.character.isVanished;
 
       // Remove the client's character from the game if in spectate mode
-      if (client.character.isSpectator) {
+      if (client.character.isVanished) {
         for (const a in server._clients) {
           const iteratedClient = server._clients[a];
           if (iteratedClient.spawnedEntities.has(client.character)) {
@@ -2712,8 +2712,8 @@ export const commands: Array<Command> = [
       // Wait for an additional second before running the second vanish command
       await scheduler.wait(1000);
 
-      // Set the client's isSpectator state again
-      client.character.isSpectator = !client.character.isSpectator;
+      // Set the client's isVanished state again
+      client.character.isVanished = !client.character.isVanished;
     }
   },
   {

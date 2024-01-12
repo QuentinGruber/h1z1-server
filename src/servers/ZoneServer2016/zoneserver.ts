@@ -3511,6 +3511,7 @@ export class ZoneServer2016 extends EventEmitter {
         !client.spawnedEntities.has(characterObj) &&
         characterObj.isAlive &&
         !characterObj.isSpectator &&
+        !characterObj.isVanished &&
         (characterObj.isHidden == client.character.isHidden ||
           client.character.isSpectator) /* &&
         client.banType != "hiddenplayers"*/
