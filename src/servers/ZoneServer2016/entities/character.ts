@@ -348,17 +348,17 @@ export class Character2016 extends BaseFullCharacter {
     if (
       client.character.isSitting &&
       (checkConstructionInRange(
-          server._lootableConstruction,
-          client.character.state.position,
-          4,
-          Items.CAMPFIRE
-      ) ||
-      checkConstructionInRange(
-        server._worldLootableConstruction,
+        server._lootableConstruction,
         client.character.state.position,
         4,
         Items.CAMPFIRE
-      ))
+      ) ||
+        checkConstructionInRange(
+          server._worldLootableConstruction,
+          client.character.state.position,
+          4,
+          Items.CAMPFIRE
+        ))
     ) {
       client.character._resources[ResourceIds.COMFORT] += 6;
     }
@@ -369,7 +369,11 @@ export class Character2016 extends BaseFullCharacter {
     client.character._resources[ResourceIds.HYDRATION] -= 4;
 
     let desiredEnergyIndicator = "";
-    const energyIndicators = [ResourceIndicators.EXHAUSTED, ResourceIndicators.VERY_TIRED, ResourceIndicators.TIRED];
+    const energyIndicators = [
+      ResourceIndicators.EXHAUSTED,
+      ResourceIndicators.VERY_TIRED,
+      ResourceIndicators.TIRED
+    ];
     switch (true) {
       case energy <= 801:
         desiredEnergyIndicator = ResourceIndicators.EXHAUSTED;
@@ -391,7 +395,10 @@ export class Character2016 extends BaseFullCharacter {
     }
 
     let desiredComfortIndicator = "";
-    const comfortIndicators = [ResourceIndicators.COMFORT_PLUS, ResourceIndicators.COMFORT_PLUSPLUS];
+    const comfortIndicators = [
+      ResourceIndicators.COMFORT_PLUS,
+      ResourceIndicators.COMFORT_PLUSPLUS
+    ];
     switch (true) {
       case comfort > 2001:
         desiredComfortIndicator = ResourceIndicators.COMFORT_PLUSPLUS;
@@ -416,12 +423,12 @@ export class Character2016 extends BaseFullCharacter {
     this.checkResource(server, ResourceIds.COMFORT);
     [...energyIndicators, ...comfortIndicators].forEach((indicator: string) => {
       const index = this.resourceHudIndicators.indexOf(indicator);
-      const desiredIndicator = 
-        indicator === desiredEnergyIndicator 
-        ? desiredEnergyIndicator 
-        : indicator === desiredComfortIndicator 
-        ? desiredComfortIndicator 
-        : null;
+      const desiredIndicator =
+        indicator === desiredEnergyIndicator
+          ? desiredEnergyIndicator
+          : indicator === desiredComfortIndicator
+            ? desiredComfortIndicator
+            : null;
 
       if (index > -1 && indicator != desiredIndicator) {
         this.resourceHudIndicators.splice(index, 1);
@@ -433,7 +440,11 @@ export class Character2016 extends BaseFullCharacter {
     });
 
     let desiredBleedingIndicator = "";
-    const bleedingIndicators = [ResourceIndicators.BLEEDING_LIGHT, ResourceIndicators.BLEEDING_MODERATE, ResourceIndicators.BLEEDING_SEVERE];
+    const bleedingIndicators = [
+      ResourceIndicators.BLEEDING_LIGHT,
+      ResourceIndicators.BLEEDING_MODERATE,
+      ResourceIndicators.BLEEDING_SEVERE
+    ];
     switch (true) {
       case bleeding > 0 && bleeding < 30:
         desiredBleedingIndicator = ResourceIndicators.BLEEDING_LIGHT;
