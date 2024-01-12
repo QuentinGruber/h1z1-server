@@ -151,6 +151,7 @@ export class Character2016 extends BaseFullCharacter {
   hasConveys: boolean = false;
   positionUpdate?: positionUpdate;
   tempGodMode = false;
+  isVanished = false;
   isSpectator = false;
   initialized = false; // if sendself has been sent
   spawnGridData: number[] = [];

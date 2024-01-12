@@ -123,7 +123,7 @@ export const internalCommands: Array<InternalCommand> = [
       }
       server.sendAlert(
         client,
-        `Set spectate/vanish state to ${client.character.isSpectator}`
+        `Set spectate state to ${client.character.isSpectator}`
       );
     }
   },
