@@ -22,6 +22,7 @@ import {
   MaterialTypes,
   MeleeTypes,
   ResourceIds,
+  ResourceIndicators,
   ResourceTypes,
   WeaponDefinitionIds
 } from "../models/enums";
@@ -344,23 +345,22 @@ export class Character2016 extends BaseFullCharacter {
     } else if (!client.character.isBleeding || !client.character.isMoving) {
       client.character._resources[ResourceIds.STAMINA] += 12;
     }
-
     if (
-      (client.character.isSitting &&
-        checkConstructionInRange(
+      client.character.isSitting &&
+      (checkConstructionInRange(
           server._lootableConstruction,
           client.character.state.position,
           4,
           Items.CAMPFIRE
-        )) ||
+      ) ||
       checkConstructionInRange(
         server._worldLootableConstruction,
         client.character.state.position,
         4,
         Items.CAMPFIRE
-      )
+      ))
     ) {
-      client.character._resources[ResourceIds.COMFORT] += 150;
+      client.character._resources[ResourceIds.COMFORT] += 6;
     }
 
     client.character._resources[ResourceIds.HUNGER] -= 2;
@@ -369,18 +369,18 @@ export class Character2016 extends BaseFullCharacter {
     client.character._resources[ResourceIds.HYDRATION] -= 4;
 
     let desiredEnergyIndicator = "";
-    const energyIndicators = ["VERY_TIRED", "TIRED", "EXHAUSTED"];
+    const energyIndicators = [ResourceIndicators.EXHAUSTED, ResourceIndicators.VERY_TIRED, ResourceIndicators.TIRED];
     switch (true) {
       case energy <= 801:
-        desiredEnergyIndicator = "EXHAUSTED";
+        desiredEnergyIndicator = ResourceIndicators.EXHAUSTED;
         client.character._resources[ResourceIds.STAMINA] -= 20;
         break;
       case energy <= 2601 && energy > 801:
-        desiredEnergyIndicator = "VERY_TIRED";
+        desiredEnergyIndicator = ResourceIndicators.VERY_TIRED;
         client.character._resources[ResourceIds.STAMINA] -= 14;
         break;
       case energy <= 3501 && energy > 2601:
-        desiredEnergyIndicator = "TIRED";
+        desiredEnergyIndicator = ResourceIndicators.TIRED;
         break;
       case energy > 3501:
         desiredEnergyIndicator = "";
@@ -391,16 +391,16 @@ export class Character2016 extends BaseFullCharacter {
     }
 
     let desiredComfortIndicator = "";
-    const comfortIndicators = ["COMFORT +", "COMFORT ++"];
+    const comfortIndicators = [ResourceIndicators.COMFORT_PLUS, ResourceIndicators.COMFORT_PLUSPLUS];
     switch (true) {
       case comfort > 2001:
-        desiredComfortIndicator = "COMFORT ++";
-        client.character._resources[ResourceIds.HEALTH] += 100;
+        desiredComfortIndicator = ResourceIndicators.COMFORT_PLUSPLUS;
+        client.character._resources[ResourceIds.HEALTH] += 10;
         client.character._resources[ResourceIds.STAMINA] += 2;
         break;
       case comfort >= 751 && comfort <= 2001:
-        desiredComfortIndicator = "COMFORT +";
-        client.character._resources[ResourceIds.HEALTH] += 50;
+        desiredComfortIndicator = ResourceIndicators.COMFORT_PLUS;
+        client.character._resources[ResourceIds.HEALTH] += 5;
         client.character._resources[ResourceIds.STAMINA] += 1;
         break;
       case comfort < 751:
@@ -414,43 +414,35 @@ export class Character2016 extends BaseFullCharacter {
     this.checkResource(server, ResourceIds.ENDURANCE);
     this.checkResource(server, ResourceIds.STAMINA);
     this.checkResource(server, ResourceIds.COMFORT);
-    energyIndicators.forEach((indicator: string) => {
+    [...energyIndicators, ...comfortIndicators].forEach((indicator: string) => {
       const index = this.resourceHudIndicators.indexOf(indicator);
-      if (index > -1 && indicator != desiredEnergyIndicator) {
+      const desiredIndicator = 
+        indicator === desiredEnergyIndicator 
+        ? desiredEnergyIndicator 
+        : indicator === desiredComfortIndicator 
+        ? desiredComfortIndicator 
+        : null;
+
+      if (index > -1 && indicator != desiredIndicator) {
         this.resourceHudIndicators.splice(index, 1);
         server.sendHudIndicators(client);
-      } else if (indicator == desiredEnergyIndicator && index <= -1) {
-        this.resourceHudIndicators.push(desiredEnergyIndicator);
+      } else if (indicator == desiredIndicator && index <= -1) {
+        this.resourceHudIndicators.push(desiredIndicator);
         server.sendHudIndicators(client);
       }
     });
 
-    comfortIndicators.forEach((indicator: string) => {
-      const index = this.resourceHudIndicators.indexOf(indicator);
-      if (index > -1 && indicator != desiredComfortIndicator) {
-        this.resourceHudIndicators.splice(index, 1);
-        server.sendHudIndicators(client);
-      } else if (indicator == desiredComfortIndicator && index <= -1) {
-        this.resourceHudIndicators.push(desiredComfortIndicator);
-        server.sendHudIndicators(client);
-      }
-    });
-
-    const bleedingIndicators = [
-      "BLEEDING_LIGHT",
-      "BLEEDING_MODERATE",
-      "BLEEDING_SEVERE"
-    ];
     let desiredBleedingIndicator = "";
+    const bleedingIndicators = [ResourceIndicators.BLEEDING_LIGHT, ResourceIndicators.BLEEDING_MODERATE, ResourceIndicators.BLEEDING_SEVERE];
     switch (true) {
       case bleeding > 0 && bleeding < 30:
-        desiredBleedingIndicator = "BLEEDING_LIGHT";
+        desiredBleedingIndicator = ResourceIndicators.BLEEDING_LIGHT;
         break;
       case bleeding >= 30 && bleeding < 60:
-        desiredBleedingIndicator = "BLEEDING_MODERATE";
+        desiredBleedingIndicator = ResourceIndicators.BLEEDING_MODERATE;
         break;
       case bleeding >= 60:
-        desiredBleedingIndicator = "BLEEDING_SEVERE";
+        desiredBleedingIndicator = ResourceIndicators.BLEEDING_SEVERE;
         break;
       default:
         desiredBleedingIndicator = "";

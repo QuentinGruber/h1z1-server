@@ -1365,7 +1365,7 @@ export class ZonePacketHandlers {
         !client.vehicle.mountedVehicle
       ) {
         client.character.isSitting = true;
-      } else if (!stanceFlags.STATIONARY || stanceFlags.SPRINTING) {
+      } else if (!stanceFlags.SITTING || client.character.isSitting) {
         client.character.isSitting = false;
       }
       client.character.isRunning = stanceFlags.SPRINTING;
