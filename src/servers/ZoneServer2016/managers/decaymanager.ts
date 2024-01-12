@@ -72,15 +72,16 @@ export class DecayManager {
         foundation.itemDefinitionId == Items.GROUND_TAMPER
       ) {
         if (
-          Object.keys(foundation.occupiedWallSlots).length <= this.griefCheckSlotAmount &&
-          Object.keys(foundation.occupiedShelterSlots).length == 0 && 
+          Object.keys(foundation.occupiedWallSlots).length <=
+            this.griefCheckSlotAmount &&
+          Object.keys(foundation.occupiedShelterSlots).length == 0 &&
           Object.keys(foundation.occupiedExpansionSlots).length == 0
         ) {
           if (foundation.ticksWithGrief >= this.griefFoundationTicks) {
             for (const a in foundation.occupiedWallSlots) {
               foundation.occupiedWallSlots[a].destroy(server);
             }
-            // clear floating shelters / other entities 
+            // clear floating shelters / other entities
             for (const a in foundation.freeplaceEntities) {
               foundation.freeplaceEntities[a].destroy(server);
             }
