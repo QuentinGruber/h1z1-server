@@ -194,6 +194,8 @@ export class WeatherManager {
           server._timeMultiplier
         );
         this.sendUpdateToAll(server);
+        // FIXME: Needed to avoid black screen issue ? Why ? No idea.
+        this.sendUpdateToAll(server);
         this.dynamicWorker.refresh();
       }, 360000 / server._timeMultiplier);
     }
