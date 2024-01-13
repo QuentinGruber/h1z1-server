@@ -1777,7 +1777,8 @@ export class ZonePacketHandlers {
       if (
         !(
           entity instanceof ConstructionParentEntity ||
-          entity instanceof ConstructionChildEntity
+          entity instanceof ConstructionChildEntity ||
+          entity instanceof LootableConstructionEntity
         )
       ) {
         server.sendData<ReplicationInteractionComponent>(
