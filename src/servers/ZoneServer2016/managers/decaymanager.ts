@@ -33,7 +33,7 @@ export class DecayManager {
   worldFreeplaceDecayMultiplier!: number;
   vehicleDamageTicks!: number;
   vacantFoundationTicks!: number;
-  griefFoundationTicks!: number;
+  griefFoundationTimer!: number;
   griefCheckSlotAmount!: number;
   baseVehicleDamage!: number;
   maxVehiclesPerArea!: number;
@@ -77,7 +77,7 @@ export class DecayManager {
           Object.keys(foundation.occupiedShelterSlots).length == 0 &&
           Object.keys(foundation.occupiedExpansionSlots).length == 0
         ) {
-          if (foundation.ticksWithGrief >= this.griefFoundationTicks) {
+          if (Date.now() - foundation.creationTime >= this.griefFoundationTimer) {
             for (const a in foundation.occupiedWallSlots) {
               foundation.occupiedWallSlots[a].destroy(server);
             }
@@ -87,10 +87,7 @@ export class DecayManager {
             }
             foundation.destroy(server);
           }
-          foundation.ticksWithGrief++;
-        } else {
-          foundation.ticksWithGrief = 0;
-        }
+        } 
       }
     }
   }
