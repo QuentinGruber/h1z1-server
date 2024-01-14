@@ -229,6 +229,7 @@ import { FileHashTypeList, ReceivedPacket } from "types/shared";
 import { SOEOutputChannels } from "../../servers/SoeServer/soeoutputstream";
 import { scheduler } from "node:timers/promises";
 import { GatewayChannels } from "h1emu-core";
+import { IngameTimeManager } from "./managers/gametimemanager";
 
 const spawnLocations2 = require("../../../data/2016/zoneData/Z1_gridSpawns.json"),
   deprecatedDoors = require("../../../data/2016/sampleData/deprecatedDoors.json"),
@@ -321,9 +322,7 @@ export class ZoneServer2016 extends EventEmitter {
     hospitalCrate: boolean;
     manager?: Client;
   };
-  _gameTime: number = 0;
   _serverStartTime: TimeWrapper = new TimeWrapper(0);
-  _timeMultiplier = 72;
   _transientIds: { [transientId: number]: string } = {};
   _characterIds: { [characterId: string]: number } = {};
   readonly _loginServerInfo: { address?: string; port: number } = {
@@ -386,6 +385,8 @@ export class ZoneServer2016 extends EventEmitter {
   routinesLoopTimer?: NodeJS.Timeout;
   private _mongoClient?: MongoClient;
   rebootTimeTimer?: NodeJS.Timeout;
+  // 3600 * 5 = 5 hours so server always starts at 5am
+  inGameTimeManager: IngameTimeManager = new IngameTimeManager(3600 * 5);
 
   /* MANAGED BY CONFIGMANAGER */
   proximityItemsDistance!: number;
@@ -750,6 +751,7 @@ export class ZoneServer2016 extends EventEmitter {
       clearTimeout(trap.trapTimer);
     }
     this.worldDataManager.kill();
+    this.inGameTimeManager.stop();
     this.smeltingManager.clearTimers();
     this.decayManager.clearTimers();
     clearTimeout(this.worldRoutineTimer);
@@ -1639,6 +1641,7 @@ export class ZoneServer2016 extends EventEmitter {
     this.decayManager.run(this);
     this._serverStartTime = getCurrentTimeWrapper();
     this.weatherManager.startWeatherWorker(this);
+    this.inGameTimeManager.start();
     this._gatewayServer.start();
     this.worldRoutineTimer = setTimeout(
       () => this.worldRoutine.bind(this)(),
@@ -4155,6 +4158,7 @@ export class ZoneServer2016 extends EventEmitter {
     this.deleteClient(client);
   }
 
+  // TODO: this should be a util function
   getDateString(timestamp: number) {
     const months = [
       "JAN",
@@ -4178,21 +4182,15 @@ export class ZoneServer2016 extends EventEmitter {
 
   sendGameTimeSync(client: Client) {
     debug("GameTimeSync");
-    if (!this.weatherManager.frozeCycle) {
-      this.sendData<GameTimeSync>(client, "GameTimeSync", {
-        time: Int64String(this.getIngameTime()),
-        cycleSpeed: Math.round(this._timeMultiplier * 0.97222),
-        unknownBoolean1: false
-      });
-    } else if (this.weatherManager.frozeCycle) {
-      // TODO: implement this back
-      // this.sendData<GameTimeSync>(client, "GameTimeSync", {
-      //   time: Int64String(this.getGameTime()),
-      //   time: currentGameTime,
-      //   cycleSpeed: 0.1,
-      //   unknownBoolean1: false
-      // });
-    }
+    const cycleSpeed = this.inGameTimeManager.timeFrozen
+      ? 0
+      : // 0.97222 is the multiplier to make the game time sync with real time
+        this.inGameTimeManager.timeMultiplier * 0.97222;
+    this.sendData<GameTimeSync>(client, "GameTimeSync", {
+      time: Int64String(this.inGameTimeManager.time),
+      cycleSpeed,
+      unknownBoolean1: false
+    });
   }
 
   sendRawToAllOthersWithSpawnedCharacter(
@@ -7919,17 +7917,6 @@ export class ZoneServer2016 extends EventEmitter {
       element.npcRenderDistance || this.charactersRenderDistance,
       playerPosition,
       element.state.position
-    );
-  }
-  getIngameTime(): number {
-    debug("get server time");
-    const currentTime = getCurrentTimeWrapper();
-    const delta = currentTime.getFull() - this._serverStartTime.getFull();
-    return Number(
-      (
-        ((this._serverStartTime.getSeconds() + delta) * this._timeMultiplier) /
-        1000
-      ).toFixed(0)
     );
   }
   dismissVehicle(vehicleGuid: string) {

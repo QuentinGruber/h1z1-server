@@ -1462,6 +1462,9 @@ export class TimeWrapper {
   getFull() {
     return this.fullTimeMs;
   }
+  getFullBigint() {
+    return BigInt(this.fullTimeMs);
+  }
   getFullString() {
     return Int64String(this.fullTimeMs);
   }
