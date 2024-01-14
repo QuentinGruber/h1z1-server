@@ -667,32 +667,32 @@ const parseUpdatePositionData = function (data: Buffer, offset: number) {
       offset += v.length;
     }
     if (obj.flags & 0x1000) {
-        const rotationEul = [];
-        v = readSignedIntWith2bitLengthValue(data, offset);
-        rotationEul[0] = v.value / 10000;
-        offset += v.length;
-        v = readSignedIntWith2bitLengthValue(data, offset);
-        rotationEul[1] = v.value / 10000;
-        offset += v.length;
-        v = readSignedIntWith2bitLengthValue(data, offset);
-        rotationEul[2] = v.value / 10000;
-        offset += v.length;
-        v = readSignedIntWith2bitLengthValue(data, offset);
-        rotationEul[3] = v.value / 10000;
+      const rotationEul = [];
+      v = readSignedIntWith2bitLengthValue(data, offset);
+      rotationEul[0] = v.value / 10000;
+      offset += v.length;
+      v = readSignedIntWith2bitLengthValue(data, offset);
+      rotationEul[1] = v.value / 10000;
+      offset += v.length;
+      v = readSignedIntWith2bitLengthValue(data, offset);
+      rotationEul[2] = v.value / 10000;
+      offset += v.length;
+      v = readSignedIntWith2bitLengthValue(data, offset);
+      rotationEul[3] = v.value / 10000;
 
-        v = readSignedIntWith2bitLengthValue(data, offset);
-        rotationEul[4] = v.value / 10000;
-        offset += v.length;
-        v = readSignedIntWith2bitLengthValue(data, offset);
-        rotationEul[5] = v.value / 10000;
-        offset += v.length;
-        v = readSignedIntWith2bitLengthValue(data, offset);
-        rotationEul[6] = v.value / 10000;
-        offset += v.length;
-        v = readSignedIntWith2bitLengthValue(data, offset);
-        rotationEul[7] = v.value / 10000;
-        obj["PosAndRot"] = rotationEul;
-        offset += v.length;
+      v = readSignedIntWith2bitLengthValue(data, offset);
+      rotationEul[4] = v.value / 10000;
+      offset += v.length;
+      v = readSignedIntWith2bitLengthValue(data, offset);
+      rotationEul[5] = v.value / 10000;
+      offset += v.length;
+      v = readSignedIntWith2bitLengthValue(data, offset);
+      rotationEul[6] = v.value / 10000;
+      offset += v.length;
+      v = readSignedIntWith2bitLengthValue(data, offset);
+      rotationEul[7] = v.value / 10000;
+      obj["PosAndRot"] = rotationEul;
+      offset += v.length;
     }
   } catch (e) {
     debug(e);

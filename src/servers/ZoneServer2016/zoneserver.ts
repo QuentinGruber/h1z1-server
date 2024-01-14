@@ -4646,8 +4646,8 @@ export class ZoneServer2016 extends EventEmitter {
       debug("\n\n\n\n\n\n\n\n\n\n drop managed object");
       this.sendData(client, "ClientUpdate.ManagedObjectResponseControl", {
         control: false,
-        objectCharacterId: vehicle.characterId,
-      })
+        objectCharacterId: vehicle.characterId
+      });
       client.managedObjects.splice(index, 1);
       // blocks vehicleManager from taking over management during a takeover
       if (!keepManaged) vehicle.isManaged = false;
