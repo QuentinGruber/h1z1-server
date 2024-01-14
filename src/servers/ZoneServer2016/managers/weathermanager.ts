@@ -194,7 +194,7 @@ export class WeatherManager {
         if (!this.dynamicEnabled) return;
         this.weather = this.dynamicWeather(
           getCurrentTimeWrapper().getFull(),
-          server._startTime.getFull(),
+          server._serverStartTime.getFull(),
           server._timeMultiplier
         );
         this.sendUpdateToAll(server);

@@ -36,6 +36,7 @@ import {
 } from "types/savedata";
 import {
   getAppDataFolderPath,
+  getCurrentTimeWrapper,
   initMongo,
   removeUntransferableFields,
   toBigHex
@@ -1137,7 +1138,7 @@ export class WorldDataManager {
         new Float32Array(entityData.position),
         new Float32Array(entityData.rotation),
         server,
-        server.getGameTime(),
+        getCurrentTimeWrapper().getTruncatedU32(),
         entityData.vehicleId
       );
     vehicle._resources = entityData._resources;
