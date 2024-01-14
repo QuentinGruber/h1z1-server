@@ -3,7 +3,7 @@
 //   GNU GENERAL PUBLIC LICENSE
 //   Version 3, 29 June 2007
 //   copyright (C) 2020 - 2021 Quentin Gruber
-//   copyright (C) 2021 - 2023 H1emu community
+//   copyright (C) 2021 - 2024 H1emu community
 //
 //   https://github.com/QuentinGruber/h1z1-server
 //   https://www.npmjs.com/package/h1z1-server
@@ -1491,7 +1491,7 @@ export class ZonePacketHandlers {
       ]);
     }
     if (
-      client.character.isSpectator &&
+      (client.character.isSpectator || client.character.isVanished) &&
       _.size(server._decoys) > 0 &&
       client.isDecoy
     ) {
@@ -1777,7 +1777,8 @@ export class ZonePacketHandlers {
       if (
         !(
           entity instanceof ConstructionParentEntity ||
-          entity instanceof ConstructionChildEntity
+          entity instanceof ConstructionChildEntity ||
+          entity instanceof LootableConstructionEntity
         )
       ) {
         server.sendData<ReplicationInteractionComponent>(
@@ -1935,7 +1936,7 @@ export class ZonePacketHandlers {
     client: Client,
     packet: ReceivedPacket<object>
   ) {
-    const proximityItems = server.getProximityItems(client.character);
+    const proximityItems = server.getProximityItems(client);
     server.sendData<ClientUpdateProximateItems>(
       client,
       "ClientUpdate.ProximateItems",
