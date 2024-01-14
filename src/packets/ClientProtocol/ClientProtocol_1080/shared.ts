@@ -312,223 +312,269 @@ export function readAbilityUpdateData(data: Buffer, offset: number) {
 }
 
 export function readPositionUpdateData(data: Buffer, offset: number) {
-  const obj: any = {},
-    startOffset = offset;
-  obj["flags"] = data.readUInt16LE(offset);
-  offset += 2;
+    const obj: any = {},
+        startOffset = offset;
+    obj["flags"] = data.readUInt16LE(offset);
+    offset += 2;
 
-  obj["sequenceTime"] = data.readUInt32LE(offset);
-  offset += 4;
-
-  obj["unknown3_int8"] = data.readUInt8(offset);
-  offset += 1;
-  let v;
-  if (obj.flags & 1) {
-    v = readUnsignedIntWith2bitLengthValue(data, offset);
-    obj["stance"] = v.value;
-    offset += v.length;
-  }
-
-  if (obj.flags & 2) {
-    obj["position"] = [];
-    v = readSignedIntWith2bitLengthValue(data, offset);
-    obj["position"][0] = v.value / 100;
-    offset += v.length;
-    v = readSignedIntWith2bitLengthValue(data, offset);
-    obj["position"][1] = v.value / 100;
-    offset += v.length;
-    v = readSignedIntWith2bitLengthValue(data, offset);
-    obj["position"][2] = v.value / 100;
-    offset += v.length;
-  }
-
-  if (obj.flags & 0x20) {
-    obj["orientation"] = data.readFloatLE(offset);
+    obj["sequenceTime"] = data.readUInt32LE(offset);
     offset += 4;
-  }
 
-  if (obj.flags & 0x40) {
-    v = readSignedIntWith2bitLengthValue(data, offset);
-    obj["frontTilt"] = v.value / 100; // not 100% sure about name
-    offset += v.length;
-  }
+    obj["unknown3_int8"] = data.readUInt8(offset);
+    offset += 1;
+    let v;
+    if (obj.flags & 1) {
+        v = readUnsignedIntWith2bitLengthValue(data, offset);
+        obj["stance"] = v.value;
+        offset += v.length;
+    }
 
-  if (obj.flags & 0x80) {
-    v = readSignedIntWith2bitLengthValue(data, offset);
-    obj["sideTilt"] = v.value / 100; // not 100% sure
-    offset += v.length;
-  }
+    if (obj.flags & 2) {
+        obj["position"] = [];
+        v = readSignedIntWith2bitLengthValue(data, offset);
+        obj["position"][0] = v.value / 100;
+        offset += v.length;
+        v = readSignedIntWith2bitLengthValue(data, offset);
+        obj["position"][1] = v.value / 100;
+        offset += v.length;
+        v = readSignedIntWith2bitLengthValue(data, offset);
+        obj["position"][2] = v.value / 100;
+        offset += v.length;
+    }
 
-  if (obj.flags & 4) {
-    v = readSignedIntWith2bitLengthValue(data, offset);
-    obj["angleChange"] = v.value / 100; // maybe
-    offset += v.length;
-  }
+    if (obj.flags & 0x20) {
+        obj["orientation"] = data.readFloatLE(offset);
+        offset += 4;
+    }
 
-  if (obj.flags & 0x8) {
-    v = readSignedIntWith2bitLengthValue(data, offset);
-    obj["verticalSpeed"] = v.value / 100;
-    offset += v.length;
-  }
+    if (obj.flags & 0x40) {
+        v = readSignedIntWith2bitLengthValue(data, offset);
+        obj["frontTilt"] = v.value / 100; // not 100% sure about name
+        offset += v.length;
+    }
 
-  if (obj.flags & 0x10) {
-    v = readSignedIntWith2bitLengthValue(data, offset);
-    obj["horizontalSpeed"] = v.value / 10;
-    offset += v.length;
-  }
+    if (obj.flags & 0x80) {
+        v = readSignedIntWith2bitLengthValue(data, offset);
+        obj["sideTilt"] = v.value / 100; // not 100% sure
+        offset += v.length;
+    }
 
-  if (obj.flags & 0x100) {
-    // either the previous one i meantioned is rotation delta or this one cause rotation is almost neved sent by client
-    obj["unknown12_float"] = [];
-    v = readSignedIntWith2bitLengthValue(data, offset);
-    obj["unknown12_float"][0] = v.value / 100;
-    offset += v.length;
-    v = readSignedIntWith2bitLengthValue(data, offset);
-    obj["unknown12_float"][1] = v.value / 100;
-    offset += v.length;
-    v = readSignedIntWith2bitLengthValue(data, offset);
-    obj["unknown12_float"][2] = v.value / 100;
-    offset += v.length;
-  }
+    if (obj.flags & 4) {
+        v = readSignedIntWith2bitLengthValue(data, offset);
+        obj["angleChange"] = v.value / 100; // maybe
+        offset += v.length;
+    }
 
-  if (obj.flags & 0x200) {
-    const rotationEul = [];
-    v = readSignedIntWith2bitLengthValue(data, offset);
-    rotationEul[0] = v.value / 100;
-    offset += v.length;
-    v = readSignedIntWith2bitLengthValue(data, offset);
-    rotationEul[1] = v.value / 100;
-    offset += v.length;
-    v = readSignedIntWith2bitLengthValue(data, offset);
-    rotationEul[2] = v.value / 100;
-    offset += v.length;
-    v = readSignedIntWith2bitLengthValue(data, offset);
-    rotationEul[3] = v.value / 100;
-    obj["rotation"] = eul2quat(new Float32Array(rotationEul));
-    obj["rotationRaw"] = rotationEul;
-    obj["lookAt"] = eul2quat(new Float32Array([rotationEul[0], 0, 0, 0]));
-    offset += v.length;
-  }
+    if (obj.flags & 0x8) {
+        v = readSignedIntWith2bitLengthValue(data, offset);
+        obj["verticalSpeed"] = v.value / 100;
+        offset += v.length;
+    }
 
-  if (obj.flags & 0x400) {
-    v = readSignedIntWith2bitLengthValue(data, offset);
-    obj["direction"] = v.value / 10;
-    offset += v.length;
-  }
+    if (obj.flags & 0x10) {
+        v = readSignedIntWith2bitLengthValue(data, offset);
+        obj["horizontalSpeed"] = v.value / 10;
+        offset += v.length;
+    }
 
-  if (obj.flags & 0x800) {
-    v = readSignedIntWith2bitLengthValue(data, offset);
-    obj["engineRPM"] = v.value / 10;
-    offset += v.length;
-  }
-  /*
-  if (obj.flags && 0xe0) {
-  }
-  */
-  return {
-    value: obj,
-    length: offset - startOffset
-  };
+    if (obj.flags & 0x100) {
+        // either the previous one i meantioned is rotation delta or this one cause rotation is almost neved sent by client
+        obj["unknown12_float"] = [];
+        v = readSignedIntWith2bitLengthValue(data, offset);
+        obj["unknown12_float"][0] = v.value / 100;
+        offset += v.length;
+        v = readSignedIntWith2bitLengthValue(data, offset);
+        obj["unknown12_float"][1] = v.value / 100;
+        offset += v.length;
+        v = readSignedIntWith2bitLengthValue(data, offset);
+        obj["unknown12_float"][2] = v.value / 100;
+        offset += v.length;
+    }
+
+    if (obj.flags & 0x200) {
+        const rotationEul = [];
+        v = readSignedIntWith2bitLengthValue(data, offset);
+        rotationEul[0] = v.value / 100;
+        offset += v.length;
+        v = readSignedIntWith2bitLengthValue(data, offset);
+        rotationEul[1] = v.value / 100;
+        offset += v.length;
+        v = readSignedIntWith2bitLengthValue(data, offset);
+        rotationEul[2] = v.value / 100;
+        offset += v.length;
+        v = readSignedIntWith2bitLengthValue(data, offset);
+        rotationEul[3] = v.value / 100;
+        obj["rotation"] = eul2quat(new Float32Array(rotationEul));
+        obj["rotationRaw"] = rotationEul;
+        obj["lookAt"] = eul2quat(new Float32Array([rotationEul[0], 0, 0, 0]));
+        offset += v.length;
+    }
+
+    if (obj.flags & 0x400) {
+        v = readSignedIntWith2bitLengthValue(data, offset);
+        obj["direction"] = v.value / 10;
+        offset += v.length;
+    }
+
+    if (obj.flags & 0x800) {
+        v = readSignedIntWith2bitLengthValue(data, offset);
+        obj["engineRPM"] = v.value / 10;
+        offset += v.length;
+    }
+    if (obj.flags & 0x1000) {
+        const rotationEul = [];
+        v = readSignedIntWith2bitLengthValue(data, offset);
+        rotationEul[0] = v.value / 10000;
+        offset += v.length;
+        v = readSignedIntWith2bitLengthValue(data, offset);
+        rotationEul[1] = v.value / 10000;
+        offset += v.length;
+        v = readSignedIntWith2bitLengthValue(data, offset);
+        rotationEul[2] = v.value / 10000;
+        offset += v.length;
+        v = readSignedIntWith2bitLengthValue(data, offset);
+        rotationEul[3] = v.value / 10000;
+
+        v = readSignedIntWith2bitLengthValue(data, offset);
+        rotationEul[4] = v.value / 10000;
+        offset += v.length;
+        v = readSignedIntWith2bitLengthValue(data, offset);
+        rotationEul[5] = v.value / 10000;
+        offset += v.length;
+        v = readSignedIntWith2bitLengthValue(data, offset);
+        rotationEul[6] = v.value / 10000;
+        offset += v.length;
+        v = readSignedIntWith2bitLengthValue(data, offset);
+        rotationEul[7] = v.value / 10000;
+        obj["PosAndRot"] = rotationEul;
+        offset += v.length;
+        console.log(rotationEul)
+    }
+    return {
+        value: obj,
+        length: offset - startOffset
+    };
 }
 
 export function packPositionUpdateData(obj: any) {
-  let data = Buffer.allocUnsafe(7),
-    flags = 0,
-    v;
+    let data = Buffer.allocUnsafe(7),
+        flags = 0,
+        v;
 
-  data.writeUInt32LE(obj["sequenceTime"], 2);
-  data.writeUInt8(obj["unknown3_int8"], 6);
+    data.writeUInt32LE(obj["sequenceTime"], 2);
+    data.writeUInt8(obj["unknown3_int8"], 6);
 
-  if ("stance" in obj) {
-    flags |= 1;
-    v = packUnsignedIntWith2bitLengthValue(obj["stance"]);
-    data = Buffer.concat([data, v]);
-  }
+    if ("stance" in obj) {
+        flags |= 1;
+        v = packUnsignedIntWith2bitLengthValue(obj["stance"]);
+        data = Buffer.concat([data, v]);
+    }
 
-  if ("position" in obj) {
-    flags |= 2;
-    v = packSignedIntWith2bitLengthValue(obj["position"][0] * 100);
-    data = Buffer.concat([data, v]);
-    v = packSignedIntWith2bitLengthValue(obj["position"][1] * 100);
-    data = Buffer.concat([data, v]);
-    v = packSignedIntWith2bitLengthValue(obj["position"][2] * 100);
-    data = Buffer.concat([data, v]);
-  }
+    if ("position" in obj) {
+        flags |= 2;
+        v = packSignedIntWith2bitLengthValue(obj["position"][0] * 100);
+        data = Buffer.concat([data, v]);
+        v = packSignedIntWith2bitLengthValue(obj["position"][1] * 100);
+        data = Buffer.concat([data, v]);
+        v = packSignedIntWith2bitLengthValue(obj["position"][2] * 100);
+        data = Buffer.concat([data, v]);
+    }
 
-  if ("orientation" in obj) {
-    flags |= 0x20;
-    v = Buffer.allocUnsafe(4);
-    v.writeFloatLE(obj["orientation"], 0);
-    data = Buffer.concat([data, v]);
-  }
+    if ("orientation" in obj) {
+        flags |= 0x20;
+        v = Buffer.allocUnsafe(4);
+        v.writeFloatLE(obj["orientation"], 0);
+        data = Buffer.concat([data, v]);
+    }
 
-  if ("frontTilt" in obj) {
-    flags |= 0x40;
-    v = packSignedIntWith2bitLengthValue(obj["frontTilt"] * 100);
-    data = Buffer.concat([data, v]);
-  }
+    if ("frontTilt" in obj) {
+        flags |= 0x40;
+        v = packSignedIntWith2bitLengthValue(obj["frontTilt"] * 100);
+        data = Buffer.concat([data, v]);
+    }
 
-  if ("sideTilt" in obj) {
-    flags |= 0x80;
-    v = packSignedIntWith2bitLengthValue(obj["sideTilt"] * 100);
-    data = Buffer.concat([data, v]);
-  }
+    if ("sideTilt" in obj) {
+        flags |= 0x80;
+        v = packSignedIntWith2bitLengthValue(obj["sideTilt"] * 100);
+        data = Buffer.concat([data, v]);
+    }
 
-  if ("angleChange" in obj) {
-    flags |= 4;
-    v = packSignedIntWith2bitLengthValue(obj["angleChange"] * 100);
-    data = Buffer.concat([data, v]);
-  }
+    if ("angleChange" in obj) {
+        flags |= 4;
+        v = packSignedIntWith2bitLengthValue(obj["angleChange"] * 100);
+        data = Buffer.concat([data, v]);
+    }
 
-  if ("verticalSpeed" in obj) {
-    flags |= 8;
-    v = packSignedIntWith2bitLengthValue(obj["verticalSpeed"] * 100);
-    data = Buffer.concat([data, v]);
-  }
+    if ("verticalSpeed" in obj) {
+        flags |= 8;
+        v = packSignedIntWith2bitLengthValue(obj["verticalSpeed"] * 100);
+        data = Buffer.concat([data, v]);
+    }
 
-  if ("horizontalSpeed" in obj) {
-    flags |= 0x10;
-    v = packSignedIntWith2bitLengthValue(obj["horizontalSpeed"] * 10);
-    data = Buffer.concat([data, v]);
-  }
+    if ("horizontalSpeed" in obj) {
+        flags |= 0x10;
+        v = packSignedIntWith2bitLengthValue(obj["horizontalSpeed"] * 10);
+        data = Buffer.concat([data, v]);
+    }
 
-  if ("unknown12_float" in obj) {
-    flags |= 0x100;
-    v = packSignedIntWith2bitLengthValue(obj["unknown12_float"][0] * 100);
-    data = Buffer.concat([data, v]);
-    v = packSignedIntWith2bitLengthValue(obj["unknown12_float"][1] * 100);
-    data = Buffer.concat([data, v]);
-    v = packSignedIntWith2bitLengthValue(obj["unknown12_float"][2] * 100);
-    data = Buffer.concat([data, v]);
-  }
+    if ("unknown12_float" in obj) {
+        flags |= 0x100;
+        v = packSignedIntWith2bitLengthValue(obj["unknown12_float"][0] * 100);
+        data = Buffer.concat([data, v]);
+        v = packSignedIntWith2bitLengthValue(obj["unknown12_float"][1] * 100);
+        data = Buffer.concat([data, v]);
+        v = packSignedIntWith2bitLengthValue(obj["unknown12_float"][2] * 100);
+        data = Buffer.concat([data, v]);
+    }
 
-  if ("rotationRaw" in obj) {
-    flags |= 0x200;
-    v = packSignedIntWith2bitLengthValue(obj["rotationRaw"][0] * 100);
-    data = Buffer.concat([data, v]);
-    v = packSignedIntWith2bitLengthValue(obj["rotationRaw"][1] * 100);
-    data = Buffer.concat([data, v]);
-    v = packSignedIntWith2bitLengthValue(obj["rotationRaw"][2] * 100);
-    data = Buffer.concat([data, v]);
-    v = packSignedIntWith2bitLengthValue(obj["rotationRaw"][3] * 100);
-    data = Buffer.concat([data, v]);
-  }
+    if ("rotationRaw" in obj) {
+        flags |= 0x200;
+        v = packSignedIntWith2bitLengthValue(obj["rotationRaw"][0] * 100);
+        data = Buffer.concat([data, v]);
+        v = packSignedIntWith2bitLengthValue(obj["rotationRaw"][1] * 100);
+        data = Buffer.concat([data, v]);
+        v = packSignedIntWith2bitLengthValue(obj["rotationRaw"][2] * 100);
+        data = Buffer.concat([data, v]);
+        v = packSignedIntWith2bitLengthValue(obj["rotationRaw"][3] * 100);
+        data = Buffer.concat([data, v]);
+    }
 
-  if ("direction" in obj) {
-    flags |= 0x400;
-    v = packSignedIntWith2bitLengthValue(obj["direction"] * 10);
-    data = Buffer.concat([data, v]);
-  }
+    if ("direction" in obj) {
+        flags |= 0x400;
+        v = packSignedIntWith2bitLengthValue(obj["direction"] * 10);
+        data = Buffer.concat([data, v]);
+    }
 
-  if ("engineRPM" in obj) {
-    flags |= 0x800;
-    v = packSignedIntWith2bitLengthValue(obj["engineRPM"] * 10);
-    data = Buffer.concat([data, v]);
-  }
+    if ("engineRPM" in obj) {
+        flags |= 0x800;
+        v = packSignedIntWith2bitLengthValue(obj["engineRPM"] * 10);
+        data = Buffer.concat([data, v]);
+    }
 
-  data.writeUInt16LE(flags, 0);
+    if ("PosAndRot" in obj) {
+        flags |= 0x1000;
+        v = packSignedIntWith2bitLengthValue(obj["PosAndRot"][0] * 10000);
+        data = Buffer.concat([data, v]);
+        v = packSignedIntWith2bitLengthValue(obj["PosAndRot"][1] * 10000);
+        data = Buffer.concat([data, v]);
+        v = packSignedIntWith2bitLengthValue(obj["PosAndRot"][2] * 10000);
+        data = Buffer.concat([data, v]);
+        v = packSignedIntWith2bitLengthValue(obj["PosAndRot"][3] * 10000);
+        data = Buffer.concat([data, v]);
+        v = packSignedIntWith2bitLengthValue(obj["PosAndRot"][4] * 10000);
+        data = Buffer.concat([data, v]);
+        v = packSignedIntWith2bitLengthValue(obj["PosAndRot"][5] * 10000);
+        data = Buffer.concat([data, v]);
+        v = packSignedIntWith2bitLengthValue(obj["PosAndRot"][6] * 10000);
+        data = Buffer.concat([data, v]);
+        v = packSignedIntWith2bitLengthValue(obj["PosAndRot"][7] * 10000);
+        data = Buffer.concat([data, v]);
 
-  return data;
+    }
+
+    data.writeUInt16LE(flags, 0);
+
+    return data;
 }
 
 /*

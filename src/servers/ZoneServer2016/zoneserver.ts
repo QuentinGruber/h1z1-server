@@ -4644,27 +4644,10 @@ export class ZoneServer2016 extends EventEmitter {
     if (index > -1) {
       // todo: vehicle seat swap managed object drop logic
       debug("\n\n\n\n\n\n\n\n\n\n drop managed object");
-
-      /*this.sendData<>(client, "ClientUpdate.ManagedObjectResponseControl", {
-        control: true,
+      this.sendData(client, "ClientUpdate.ManagedObjectResponseControl", {
+        control: false,
         objectCharacterId: vehicle.characterId,
-      });*/ // dont work :/
-
-      // workaround for managed object issue
-      if (client.vehicle.mountedVehicle == vehicle.characterId) {
-        this.sendData<MountDismountResponse>(client, "Mount.DismountResponse", {
-          characterId: client.character.characterId
-        });
-        vehicle.droppedManagedClient = client;
-      }
-      this.sendData<CharacterRemovePlayer>(client, "Character.RemovePlayer", {
-        characterId: vehicle.characterId
-      });
-
-      this.sendData<AddLightweightVehicle>(client, "AddLightweightVehicle", {
-        ...vehicle.pGetLightweightVehicle(),
-        unknownGuid1: this.generateGuid()
-      });
+      })
       client.managedObjects.splice(index, 1);
       // blocks vehicleManager from taking over management during a takeover
       if (!keepManaged) vehicle.isManaged = false;
@@ -6139,13 +6122,13 @@ export class ZoneServer2016 extends EventEmitter {
       return;
     }
 
-    if (
+    /*if (
       _.size(this._clients) < this.worldObjectManager.minAirdropSurvivors &&
       !this._soloMode
     ) {
       this.sendAlert(client, "No planes ready. Not enough survivors.");
       return;
-    }
+    }*/ //remove for testing purposes
     let blockedArea = false;
     for (const a in this._constructionFoundations) {
       if (
