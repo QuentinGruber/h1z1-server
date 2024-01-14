@@ -77,7 +77,10 @@ export class DecayManager {
           Object.keys(foundation.occupiedShelterSlots).length == 0 &&
           Object.keys(foundation.occupiedExpansionSlots).length == 0
         ) {
-          if (Date.now() - foundation.creationTime >= this.griefFoundationTimer) {
+          if (
+            Date.now() - foundation.creationTime >=
+            this.griefFoundationTimer
+          ) {
             for (const a in foundation.occupiedWallSlots) {
               foundation.occupiedWallSlots[a].destroy(server);
             }
@@ -87,7 +90,7 @@ export class DecayManager {
             }
             foundation.destroy(server);
           }
-        } 
+        }
       }
     }
   }
