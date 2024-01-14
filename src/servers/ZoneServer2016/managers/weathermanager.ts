@@ -14,7 +14,11 @@
 import fs from "node:fs";
 
 import { Weather2016, WeatherTemplate } from "types/zoneserver";
-import { randomIntFromInterval, _ } from "../../../utils/utils";
+import {
+  randomIntFromInterval,
+  _,
+  getCurrentTimeWrapper
+} from "../../../utils/utils";
 import { ZoneClient2016 as Client } from "../classes/zoneclient";
 import { ZoneServer2016 } from "../zoneserver";
 //const debug = require("debug")("dynamicWeather");
@@ -189,8 +193,8 @@ export class WeatherManager {
       this.dynamicWorker = setTimeout(() => {
         if (!this.dynamicEnabled) return;
         this.weather = this.dynamicWeather(
-          server._serverTime,
-          server._startTime,
+          getCurrentTimeWrapper().getFull(),
+          server._startTime.getFull(),
           server._timeMultiplier
         );
         this.sendUpdateToAll(server);

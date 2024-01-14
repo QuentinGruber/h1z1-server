@@ -25,7 +25,8 @@ import {
   getDifference,
   isPosInRadius,
   toHex,
-  randomIntFromInterval
+  randomIntFromInterval,
+  getCurrentTimeWrapper
 } from "../../../../utils/utils";
 import { ExplosiveEntity } from "../../entities/explosiveentity";
 import { Npc } from "../../entities/npc";
@@ -130,7 +131,9 @@ export const commands: Array<Command> = [
         } = server;
         const serverVersion = require("../../../../../package.json").version;
         server.sendChatText(client, `h1z1-server V${serverVersion}`, true);
-        const uptimeMin = (Date.now() - server._startTime) / 60000;
+        const uptimeMin =
+          (getCurrentTimeWrapper().getFull() - server._startTime.getFull()) /
+          60000;
         server.sendChatText(
           client,
           `Uptime: ${
