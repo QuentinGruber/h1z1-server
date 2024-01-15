@@ -421,10 +421,34 @@ export function readPositionUpdateData(data: Buffer, offset: number) {
     obj["engineRPM"] = v.value / 10;
     offset += v.length;
   }
-  /*
-  if (obj.flags && 0xe0) {
+  if (obj.flags & 0x1000) {
+    const rotationEul = [];
+    v = readSignedIntWith2bitLengthValue(data, offset);
+    rotationEul[0] = v.value / 10000;
+    offset += v.length;
+    v = readSignedIntWith2bitLengthValue(data, offset);
+    rotationEul[1] = v.value / 10000;
+    offset += v.length;
+    v = readSignedIntWith2bitLengthValue(data, offset);
+    rotationEul[2] = v.value / 10000;
+    offset += v.length;
+    v = readSignedIntWith2bitLengthValue(data, offset);
+    rotationEul[3] = v.value / 10000;
+
+    v = readSignedIntWith2bitLengthValue(data, offset);
+    rotationEul[4] = v.value / 10000;
+    offset += v.length;
+    v = readSignedIntWith2bitLengthValue(data, offset);
+    rotationEul[5] = v.value / 10000;
+    offset += v.length;
+    v = readSignedIntWith2bitLengthValue(data, offset);
+    rotationEul[6] = v.value / 10000;
+    offset += v.length;
+    v = readSignedIntWith2bitLengthValue(data, offset);
+    rotationEul[7] = v.value / 10000;
+    obj["PosAndRot"] = rotationEul;
+    offset += v.length;
   }
-  */
   return {
     value: obj,
     length: offset - startOffset
@@ -523,6 +547,26 @@ export function packPositionUpdateData(obj: any) {
   if ("engineRPM" in obj) {
     flags |= 0x800;
     v = packSignedIntWith2bitLengthValue(obj["engineRPM"] * 10);
+    data = Buffer.concat([data, v]);
+  }
+
+  if ("PosAndRot" in obj) {
+    flags |= 0x1000;
+    v = packSignedIntWith2bitLengthValue(obj["PosAndRot"][0] * 10000);
+    data = Buffer.concat([data, v]);
+    v = packSignedIntWith2bitLengthValue(obj["PosAndRot"][1] * 10000);
+    data = Buffer.concat([data, v]);
+    v = packSignedIntWith2bitLengthValue(obj["PosAndRot"][2] * 10000);
+    data = Buffer.concat([data, v]);
+    v = packSignedIntWith2bitLengthValue(obj["PosAndRot"][3] * 10000);
+    data = Buffer.concat([data, v]);
+    v = packSignedIntWith2bitLengthValue(obj["PosAndRot"][4] * 10000);
+    data = Buffer.concat([data, v]);
+    v = packSignedIntWith2bitLengthValue(obj["PosAndRot"][5] * 10000);
+    data = Buffer.concat([data, v]);
+    v = packSignedIntWith2bitLengthValue(obj["PosAndRot"][6] * 10000);
+    data = Buffer.concat([data, v]);
+    v = packSignedIntWith2bitLengthValue(obj["PosAndRot"][7] * 10000);
     data = Buffer.concat([data, v]);
   }
 
