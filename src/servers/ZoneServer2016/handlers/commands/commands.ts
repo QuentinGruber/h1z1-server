@@ -1427,7 +1427,8 @@ export const commands: Array<Command> = [
         server.sendChatText(client, "You need to specify an hour to set !");
         return;
       }
-      server.weatherManager.forceTime(server, choosenHour * 3600 * 1000);
+      const time = choosenHour * 3600;
+      server.inGameTimeManager.time = time;
       server.sendChatText(
         client,
         `Will force time to be ${
@@ -1444,11 +1445,28 @@ export const commands: Array<Command> = [
     }
   },
   {
-    name: "realtime",
+    name: "speedtime",
     permissionLevel: PermissionLevels.ADMIN,
     execute: (server: ZoneServer2016, client: Client, args: Array<string>) => {
-      server.weatherManager.removeForcedTime(server);
-      server.sendChatText(client, "Game time is now based on real time", true);
+      server.inGameTimeManager.timeMultiplier = Number(args[0]);
+      server.sendChatText(
+        client,
+        `Will force time to be ${server.inGameTimeManager.timeMultiplier}x faster on next sync...`,
+        true
+      );
+    }
+  },
+  {
+    name: "freezetime",
+    permissionLevel: PermissionLevels.ADMIN,
+    execute: (server: ZoneServer2016, client: Client, args: Array<string>) => {
+      if (server.inGameTimeManager.timeFrozen) {
+        server.inGameTimeManager.start();
+        server.sendChatText(client, "Game time is now unfroze", true);
+      } else {
+        server.inGameTimeManager.stop();
+        server.sendChatText(client, "Game time is now froze", true);
+      }
     }
   },
   {

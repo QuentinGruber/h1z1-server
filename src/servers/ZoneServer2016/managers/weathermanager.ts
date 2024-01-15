@@ -45,8 +45,6 @@ export class WeatherManager {
   dynamicWorker: any;
   dynamicEnabled = true;
 
-  cycleSpeed = 100;
-  frozeCycle = false;
   defaultTemplate = "z1br";
 
   init() {
@@ -195,13 +193,13 @@ export class WeatherManager {
         this.weather = this.dynamicWeather(
           getCurrentTimeWrapper().getFull(),
           server._serverStartTime.getFull(),
-          server._timeMultiplier
+          server.inGameTimeManager.timeMultiplier
         );
         this.sendUpdateToAll(server);
         // FIXME: Needed to avoid black screen issue ? Why ? No idea.
         this.sendUpdateToAll(server);
         this.dynamicWorker.refresh();
-      }, 360000 / server._timeMultiplier);
+      }, 360000 / server.inGameTimeManager.timeMultiplier);
     }
   }
 
@@ -216,18 +214,6 @@ export class WeatherManager {
         `User "${client.character.name}" has changed weather.`
       );
     }
-  }
-
-  forceTime(server: ZoneServer2016, time: number) {
-    this.cycleSpeed = 0.1;
-    this.frozeCycle = true;
-    server._gameTime = time;
-  }
-
-  removeForcedTime(server: ZoneServer2016) {
-    this.cycleSpeed = 100;
-    this.frozeCycle = false;
-    server._gameTime = Date.now();
   }
 
   seasonstart() {

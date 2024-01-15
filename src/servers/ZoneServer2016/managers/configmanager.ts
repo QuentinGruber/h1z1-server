@@ -186,9 +186,7 @@ export class ConfigManager {
     //#endregion
 
     //#region weather
-    const { cycleSpeed, frozeCycle, defaultTemplate } = this.config.weather;
-    server.weatherManager.cycleSpeed = cycleSpeed;
-    server.weatherManager.frozeCycle = frozeCycle;
+    const { defaultTemplate } = this.config.weather;
     server.weatherManager.defaultTemplate = defaultTemplate;
     //#endregion
 
