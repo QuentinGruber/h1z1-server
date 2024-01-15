@@ -4626,26 +4626,9 @@ export class ZoneServer2016 extends EventEmitter {
     if (index > -1) {
       // todo: vehicle seat swap managed object drop logic
       debug("\n\n\n\n\n\n\n\n\n\n drop managed object");
-
-      /*this.sendData<>(client, "ClientUpdate.ManagedObjectResponseControl", {
-        control: true,
-        objectCharacterId: vehicle.characterId,
-      });*/ // dont work :/
-
-      // workaround for managed object issue
-      if (client.vehicle.mountedVehicle == vehicle.characterId) {
-        this.sendData<MountDismountResponse>(client, "Mount.DismountResponse", {
-          characterId: client.character.characterId
-        });
-        vehicle.droppedManagedClient = client;
-      }
-      this.sendData<CharacterRemovePlayer>(client, "Character.RemovePlayer", {
-        characterId: vehicle.characterId
-      });
-
-      this.sendData<AddLightweightVehicle>(client, "AddLightweightVehicle", {
-        ...vehicle.pGetLightweightVehicle(),
-        unknownGuid1: this.generateGuid()
+      this.sendData(client, "ClientUpdate.ManagedObjectResponseControl", {
+        control: false,
+        objectCharacterId: vehicle.characterId
       });
       client.managedObjects.splice(index, 1);
       // blocks vehicleManager from taking over management during a takeover
