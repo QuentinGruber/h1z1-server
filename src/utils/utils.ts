@@ -32,6 +32,7 @@ import { DB_COLLECTIONS, NAME_VALIDATION_STATUS } from "./enums";
 import { Resolver } from "node:dns";
 import { ZoneClient2016 } from "servers/ZoneServer2016/classes/zoneclient";
 import * as crypto from "crypto";
+import { ZoneClient } from "servers/ZoneServer2015/classes/zoneclient";
 
 /**
  * Represents a custom implementation of lodash library.
@@ -179,7 +180,7 @@ export function eul2quat(angle: Float32Array): Float32Array {
  * @param angle - The quaternion to convert, represented as a Float32Array.
  * @returns The matrix representation of the quaternion.
  */
-export function quat2matrix(angle: Float32Array): any {
+export function quat2matrix(angle: Float32Array): number[] {
   //  may not work for other things than construction
   const x = angle[0];
   const y = angle[1];
@@ -338,14 +339,14 @@ export async function zoneShutdown(
       timeLeft: 0,
       message: message
     });
-    Object.values(server._clients).forEach((client: ZoneClient2016) => {
-      // weird issue with typescript union type system
-      //@ts-ignore
-      server.sendData(client as any, "CharacterSelectSessionResponse", {
-        status: 1,
-        sessionId: client.loginSessionId
-      });
-    });
+    Object.values(server._clients).forEach(
+      (client: ZoneClient2016 & ZoneClient) => {
+        server.sendData(client, "CharacterSelectSessionResponse", {
+          status: 1,
+          sessionId: client.loginSessionId
+        });
+      }
+    );
     setTimeout(() => {
       process.exit(0);
     }, 5000);
@@ -371,7 +372,7 @@ export async function zoneShutdown(
 export function getDifference(s1: string, s2: string) {
   s1 = s1.toLowerCase();
   s2 = s2.toLowerCase();
-  const costs: any[] = [];
+  const costs: number[] = [];
   for (let i = 0; i <= s1.length; i++) {
     let lastValue = i;
     for (let j = 0; j <= s2.length; j++) {
@@ -907,7 +908,12 @@ export class LZ4 {
    * @param eIdx - The ending index in the source data.
    * @returns The size of the compressed block.
    */
-  static encodeBlock: (src: any, dst: any, sIdx?: any, eIdx?: any) => number;
+  static encodeBlock: (
+    src: any,
+    dst: any,
+    sIdx?: number,
+    eIdx?: number
+  ) => number;
   /**
    * Calculates the size of the encoded block given the input size.
    *
