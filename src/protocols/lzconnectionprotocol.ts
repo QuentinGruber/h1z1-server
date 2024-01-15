@@ -159,17 +159,17 @@ const packets: PacketStructures = [
       ]
     }
   ],
-  // Doesn't have a req/rep sys
-  [
-    "ClientBan",
-    0x16,
-    {
-      fields: [
-        { name: "loginSessionId", type: "uint64string", defaultValue: "" },
-        { name: "status", type: "boolean", defaultValue: 0 }
-      ]
-    }
-  ],
+  // removed
+  // [
+  //   "ClientBan",
+  //   0x16,
+  //   {
+  //     fields: [
+  //       { name: "loginSessionId", type: "uint64string", defaultValue: "" },
+  //       { name: "status", type: "boolean", defaultValue: 0 }
+  //     ]
+  //   }
+  // ],
   [
     "ClientMessage",
     0x17,
