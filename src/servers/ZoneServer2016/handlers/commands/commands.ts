@@ -959,30 +959,16 @@ export const commands: Array<Command> = [
 
       const isSilent = args.includes("--silent");
 
-      // check offline characters first for an exact match
+      const ownerId = args[0];
 
       const collection = server._db.collection(DB_COLLECTIONS.CHARACTERS),
         character = (await collection.findOne({
-          ownerId: args[0],
+          ownerId,
           serverId: server._worldId,
           status: 1
         })) as WithId<FullCharacterSaveData> | undefined;
 
-      let ownerId = character?.ownerId,
-        characterName = character?.characterName;
-
-      if (!character) {
-        const banClient = server.getClientByLoginSessionId(args[0]);
-        if (!banClient) {
-          server.sendChatText(
-            client,
-            `Character with loginSessionId ${args[0]} not found!`
-          );
-          return;
-        }
-        ownerId = banClient.loginSessionId;
-        characterName = banClient.character.name;
-      }
+      const characterName = character?.characterName ?? "unknownCharacterName";
 
       let time = Number(args[1]) ? Number(args[1]) * 60000 : 0;
       if (!isNaN(time) && time > 0) {
