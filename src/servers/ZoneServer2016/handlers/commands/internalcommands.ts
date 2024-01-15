@@ -18,7 +18,7 @@ import { SpawnCell } from "../../classes/spawncell";
 import { ZoneClient2016 as Client } from "../../classes/zoneclient";
 import { ZoneServer2016 } from "../../zoneserver";
 import { InternalCommand, PermissionLevels } from "./types";
-import { isPosInRadius } from "../../../../utils/utils";
+import { getCurrentTimeWrapper, isPosInRadius } from "../../../../utils/utils";
 import { OBSERVER_GUID } from "../../../../utils/constants";
 import {
   CharacterRespawn,
@@ -66,7 +66,7 @@ export const internalCommands: Array<InternalCommand> = [
           client.character.state.position,
           client.character.state.lookAt,
           server,
-          server.getGameTime(),
+          getCurrentTimeWrapper().getTruncatedU32(),
           VehicleIds.SPECTATE
         );
         for (const a in server._clients) {
@@ -176,7 +176,7 @@ export const internalCommands: Array<InternalCommand> = [
         position,
         client.character.state.lookAt,
         server,
-        server.getGameTime(),
+        getCurrentTimeWrapper().getTruncatedU32(),
         vehicleId
       );
       server.worldObjectManager.createVehicle(server, vehicle);

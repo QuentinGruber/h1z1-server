@@ -28,7 +28,8 @@ import {
   generateRandomGuid,
   isPosInRadius,
   randomIntFromInterval,
-  fixEulerOrder
+  fixEulerOrder,
+  getCurrentTimeWrapper
 } from "../../../utils/utils";
 import {
   EquipSlots,
@@ -862,7 +863,7 @@ export class WorldObjectManager {
           new Float32Array(dataVehicle.position),
           new Float32Array(dataVehicle.rotation),
           server,
-          server.getGameTime(),
+          getCurrentTimeWrapper().getTruncatedU32(),
           dataVehicle.vehicleId
         );
       vehicleData.positionUpdate.orientation = dataVehicle.orientation;

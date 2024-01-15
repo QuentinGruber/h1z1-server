@@ -132,8 +132,9 @@ export const commands: Array<Command> = [
         const serverVersion = require("../../../../../package.json").version;
         server.sendChatText(client, `h1z1-server V${serverVersion}`, true);
         const uptimeMin =
-          (getCurrentTimeWrapper().getFull() - server._startTime.getFull()) /
-          60000;
+          getCurrentTimeWrapper().getMinutes() -
+          server._serverStartTime.getMinutes();
+
         server.sendChatText(
           client,
           `Uptime: ${
@@ -1669,7 +1670,7 @@ export const commands: Array<Command> = [
             },
             positionUpdate: {
               ...client.character.positionUpdate,
-              sequenceTime: server.getGameTime(),
+              sequenceTime: getCurrentTimeWrapper().getTruncatedU32(),
               position: client.character.state.position,
               stance: client.character.stance
             },

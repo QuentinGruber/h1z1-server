@@ -42,7 +42,8 @@ import {
   isFloat,
   isPosInRadius,
   randomIntFromInterval,
-  _
+  _,
+  getCurrentTimeWrapper
 } from "../../../utils/utils";
 import { BaseItem } from "../classes/baseItem";
 import { BaseLootableEntity } from "./baselootableentity";
@@ -1326,7 +1327,7 @@ export class Character2016 extends BaseFullCharacter {
       },
       positionUpdate: {
         ...this.positionUpdate,
-        sequenceTime: server.getGameTime(),
+        sequenceTime: getCurrentTimeWrapper().getTruncatedU32(),
         position: this.state.position, // trying to fix invisible characters/vehicles until they move
         stance: 66561
       },

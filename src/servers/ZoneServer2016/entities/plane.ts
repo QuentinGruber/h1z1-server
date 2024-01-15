@@ -11,7 +11,10 @@
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
 
-import { createPositionUpdate } from "../../../utils/utils";
+import {
+  createPositionUpdate,
+  getCurrentTimeWrapper
+} from "../../../utils/utils";
 import { VehicleIds } from "../models/enums";
 import { ZoneServer2016 } from "../zoneserver";
 import { Vehicle2016 } from "../entities/vehicle";
@@ -118,7 +121,7 @@ export class Plane extends Vehicle2016 {
       },
       positionUpdate: {
         ...this.positionUpdate,
-        sequenceTime: server.getGameTime(),
+        sequenceTime: getCurrentTimeWrapper().getTruncatedU32(),
         position: this.state.position // trying to fix invisible characters/vehicles until they move
       },
       unknownArray1: [],
