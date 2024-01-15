@@ -62,7 +62,6 @@ export enum DB_COLLECTIONS {
   COMMAND_USED = "commands-used",
   FAIRPLAY = "fairplay-logs",
   KILLS = "kills",
-  BANNED_LIGHT = "banned-light",
   MUTED = "muted",
   ASSET_HASHES = "asset-hashes"
 }

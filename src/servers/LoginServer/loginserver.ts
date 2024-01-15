@@ -28,7 +28,6 @@ import {
   resolveHostAddress
 } from "../../utils/utils";
 import {
-  BANNED_LIGHT,
   ConnectionAllowed,
   GameServer,
   UserSession
@@ -929,17 +928,7 @@ export class LoginServer extends EventEmitter {
     return true;
   }
   async getClientRejectionFlags(serverId: number, client: Client) {
-    const banInfo: Array<BANNED_LIGHT> = await this._db
-      .collection(DB_COLLECTIONS.BANNED_LIGHT)
-      .find({ authKey: client.authKey, status: true })
-      .toArray();
     const rejectionFlags: Array<CONNECTION_REJECTION_FLAGS> = [];
-    for (let i = 0; i < banInfo.length; i++) {
-      if (banInfo[i].isGlobal) {
-        rejectionFlags.push(CONNECTION_REJECTION_FLAGS.GLOBAL_BAN);
-      }
-    }
-
     if (await this.isClientUsingVpn(client.address)) {
       rejectionFlags.push(CONNECTION_REJECTION_FLAGS.VPN);
     }

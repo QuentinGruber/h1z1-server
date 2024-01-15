@@ -28,12 +28,6 @@ export interface GameServer {
   allowedAccess: boolean;
 }
 
-export interface BANNED_LIGHT {
-  serverId: number;
-  authKey: string;
-  isGlobal: boolean;
-  status: boolean;
-}
 
 export interface ConnectionAllowed {
   status: 0|1;
