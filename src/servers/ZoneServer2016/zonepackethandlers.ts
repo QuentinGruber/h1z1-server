@@ -1835,8 +1835,9 @@ export class ZonePacketHandlers {
     if (Number(final[0].toFixed(2)) === 0.0) {
       final[0] = 0;
     }
-    const modelId = server.getItemDefinition(packet.data.itemDefinitionId)
-      ?.PLACEMENT_MODEL_ID;
+    const modelId = server.getItemDefinition(
+      packet.data.itemDefinitionId
+    )?.PLACEMENT_MODEL_ID;
     if (!modelId) {
       console.log(
         `[ERROR] No PLACEMENT_MODEL_ID for ${packet.data.itemDefinitionId} from characterId ${client.character.characterId}`
@@ -2304,8 +2305,9 @@ export class ZonePacketHandlers {
     packet: ReceivedPacket<ConstructionPlacementRequest>
   ) {
     debug(packet.data);
-    const modelId = server.getItemDefinition(packet.data.itemDefinitionId)
-      ?.PLACEMENT_MODEL_ID;
+    const modelId = server.getItemDefinition(
+      packet.data.itemDefinitionId
+    )?.PLACEMENT_MODEL_ID;
     if (!modelId) {
       server.sendChatText(
         client,
