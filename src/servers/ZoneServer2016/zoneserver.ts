@@ -6121,13 +6121,13 @@ export class ZoneServer2016 extends EventEmitter {
       return;
     }
 
-    /*if (
+    if (
       _.size(this._clients) < this.worldObjectManager.minAirdropSurvivors &&
       !this._soloMode
     ) {
       this.sendAlert(client, "No planes ready. Not enough survivors.");
       return;
-    }*/ //remove for testing purposes
+    }
     let blockedArea = false;
     for (const a in this._constructionFoundations) {
       if (
