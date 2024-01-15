@@ -27,7 +27,8 @@ import {
   eul2quat,
   getDistance,
   getDistance1d,
-  isPosInRadiusWithY
+  isPosInRadiusWithY,
+  getCurrentTimeWrapper
 } from "../../utils/utils";
 
 import { CraftManager } from "./managers/craftmanager";
@@ -246,7 +247,7 @@ export class ZonePacketHandlers {
         guid2: "0x0000000000000000",
         guid3: "0x0000000040000000",
         guid4: "0x0000000000000000",
-        gameTime: (server.getServerTime() & 0xffffffff) >>> 0
+        gameTime: getCurrentTimeWrapper().getTruncatedU32()
       }
     );
 
@@ -819,12 +820,13 @@ export class ZonePacketHandlers {
     client: Client,
     packet: ReceivedPacket<Synchronization>
   ) {
-    const serverTime = Int64String(server.getServerTime());
+    const currentTime = getCurrentTimeWrapper();
+    const serverTime = currentTime.getFullString();
     const reflectedPacket: Synchronization = {
       ...packet.data,
       serverTime: serverTime,
       serverTime2: serverTime,
-      time3: Int64String(Number(packet.data.clientTime)) + 2
+      time3: currentTime.getTruncatedU32String()
     };
     server.sendData<Synchronization>(
       client,

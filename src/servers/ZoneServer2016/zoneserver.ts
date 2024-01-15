@@ -95,7 +95,9 @@ import {
   removeUntransferableFields,
   movePoint,
   getAngle,
-  getDistance2d
+  getDistance2d,
+  TimeWrapper,
+  getCurrentTimeWrapper
 } from "../../utils/utils";
 
 import { Db, MongoClient, WithId } from "mongodb";
@@ -320,9 +322,7 @@ export class ZoneServer2016 extends EventEmitter {
     manager?: Client;
   };
   _gameTime: number = 0;
-  readonly _serverTime = this.getCurrentTime();
-  _startTime = 0;
-  _startGameTime = 0;
+  _startTime: TimeWrapper = new TimeWrapper(0);
   _timeMultiplier = 72;
   _transientIds: { [transientId: number]: string } = {};
   _characterIds: { [characterId: string]: number } = {};
@@ -1637,8 +1637,7 @@ export class ZoneServer2016 extends EventEmitter {
     this.smeltingManager.checkSmeltables(this);
     this.smeltingManager.checkCollectors(this);
     this.decayManager.run(this);
-    this._startTime += Date.now();
-    this._startGameTime += Date.now();
+    this._startTime = getCurrentTimeWrapper();
     this.weatherManager.startWeatherWorker(this);
     this._gatewayServer.start();
     this.worldRoutineTimer = setTimeout(
@@ -4177,13 +4176,9 @@ export class ZoneServer2016 extends EventEmitter {
     } ${date.getFullYear()} ${date.getHours()}:${date.getMinutes()}`;
   }
 
-  getCurrentTime(): number {
-    return Number((Date.now() / 1000).toFixed(0));
-  }
-
   getGameTime(): number {
-    //debug("get server time");
-    const delta = Date.now() - this._startGameTime;
+    const currentTime = getCurrentTimeWrapper();
+    const delta = currentTime.getFull() - this._startTime.getFull();
     return this.weatherManager.frozeCycle
       ? Number(((this._gameTime + delta) / 1000).toFixed(0))
       : Number((this._gameTime / 1000).toFixed(0));
@@ -4193,7 +4188,7 @@ export class ZoneServer2016 extends EventEmitter {
     debug("GameTimeSync");
     if (!this.weatherManager.frozeCycle) {
       this.sendData<GameTimeSync>(client, "GameTimeSync", {
-        time: Int64String(this.getServerTimeTest()),
+        time: Int64String(this.getIngameTime()),
         cycleSpeed: Math.round(this._timeMultiplier * 0.97222),
         unknownBoolean1: false
       });
@@ -7121,7 +7116,9 @@ export class ZoneServer2016 extends EventEmitter {
         );
       }
     }
-    const drift = Math.abs(packet.gameTime - this.getServerTime());
+    const drift = Math.abs(
+      packet.gameTime - getCurrentTimeWrapper().getTruncatedU32()
+    );
     if (drift > this.fairPlayManager.maxPing + 200) {
       this.sendChatText(
         client,
@@ -7930,16 +7927,16 @@ export class ZoneServer2016 extends EventEmitter {
       element.state.position
     );
   }
-  getServerTimeTest(): number {
+  getIngameTime(): number {
     debug("get server time");
-    const delta = Date.now() - this._startTime;
+    const currentTime = getCurrentTimeWrapper();
+    const delta = currentTime.getFull() - this._startTime.getFull();
     return Number(
-      (((this._serverTime + delta) * this._timeMultiplier) / 1000).toFixed(0)
+      (
+        ((this._startTime.getSeconds() + delta) * this._timeMultiplier) /
+        1000
+      ).toFixed(0)
     );
-  }
-  getServerTime(): number {
-    const delta = Date.now() - this._startTime;
-    return this._serverTime + delta;
   }
   dismissVehicle(vehicleGuid: string) {
     this.sendDataToAll<CharacterRemovePlayer>("Character.RemovePlayer", {

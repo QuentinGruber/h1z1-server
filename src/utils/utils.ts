@@ -15,7 +15,7 @@ import { compress, compressBound } from "./lz4/lz4";
 import fs, { readdirSync } from "node:fs";
 import { normalize, resolve } from "node:path";
 import { Collection, MongoClient } from "mongodb";
-import { DB_NAME, MAX_TRANSIENT_ID, MAX_UINT16 } from "./constants";
+import { DB_NAME, MAX_TRANSIENT_ID, MAX_UINT16, MAX_UINT32 } from "./constants";
 import { ZoneServer2016 } from "servers/ZoneServer2016/zoneserver";
 import { ZoneServer2015 } from "servers/ZoneServer2015/zoneserver";
 import {
@@ -1446,4 +1446,35 @@ export async function copyFile(
       reject(err);
     });
   });
+}
+
+export class TimeWrapper {
+  constructor(private fullTimeMs: number) {}
+  getSeconds() {
+    return toInt(this.fullTimeMs / 1000);
+  }
+  getMinutes() {
+    return toInt(this.fullTimeMs / 60000);
+  }
+  getHours() {
+    return toInt(this.fullTimeMs / 3600000);
+  }
+  getFull() {
+    return this.fullTimeMs;
+  }
+  getFullString() {
+    return Int64String(this.fullTimeMs);
+  }
+
+  getTruncatedU32() {
+    return this.fullTimeMs & MAX_UINT32;
+  }
+
+  getTruncatedU32String() {
+    return Int64String(this.fullTimeMs & MAX_UINT32);
+  }
+}
+
+export function getCurrentTimeWrapper() {
+  return new TimeWrapper(Date.now());
 }
