@@ -16,6 +16,9 @@ import { CONNECTION_REJECTION_FLAGS } from "../utils/enums";
 export interface GameServer {
   serverId: number;
   serverState: number;
+  serverAddress: string;
+  populationNumber: number;
+  maxPopulationNumber: number;
   locked: boolean;
   name: string;
   nameId: number;
@@ -26,6 +29,14 @@ export interface GameServer {
   populationLevel: number;
   populationData: string;
   allowedAccess: boolean;
+  isDisabled: boolean;
+}
+
+export interface BannedUser {
+  name: string;
+  loginSessionId: string;
+  IP : string;
+  active: boolean;
 }
 
 

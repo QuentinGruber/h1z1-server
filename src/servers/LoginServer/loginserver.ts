@@ -17,7 +17,7 @@ import { SOEServer } from "../SoeServer/soeserver";
 import { ZoneConnectionManager } from "../LoginZoneConnection/zoneconnectionmanager";
 import { LZConnectionClient } from "../LoginZoneConnection/shared/lzconnectionclient";
 import { LoginProtocol } from "../../protocols/loginprotocol";
-import { Collection, MongoClient } from "mongodb";
+import { Collection, Db, MongoClient, WithId } from "mongodb";
 import {
   _,
   generateRandomGuid,
@@ -28,6 +28,7 @@ import {
   resolveHostAddress
 } from "../../utils/utils";
 import {
+  BannedUser,
   ConnectionAllowed,
   GameServer,
   UserSession
@@ -75,7 +76,7 @@ export class LoginServer extends EventEmitter {
   _soeServer: SOEServer;
   _protocol: LoginProtocol;
   _protocol2016: LoginProtocol2016;
-  _db: any;
+  _db!: Db;
   _crcLength: crc_length_options;
   _udpLength: number;
   private readonly _cryptoKey: Uint8Array;
@@ -339,12 +340,6 @@ export class LoginServer extends EventEmitter {
       `rejected connection serverId : ${serverId} address: ${client.address} `
     );
     delete this._zoneConnectionManager._clients[client.clientId];
-  }
-  private async _isServerOfficial(serverId: number): Promise<boolean> {
-    const server = await this._db
-      .collection(DB_COLLECTIONS.SERVERS)
-      .findOne({ serverId });
-    return !!server.IsOfficial;
   }
 
   parseData(clientProtocol: string, data: Buffer) {
@@ -663,14 +658,16 @@ export class LoginServer extends EventEmitter {
           }
         }
       );
-    this.clients.forEach((client: Client) => {
-      if (client.gameVersion === server.gameVersion) {
-        this.sendData(client, "ServerUpdate", {
-          ...server,
-          allowedAccess: !server.locked ? status : false
-        });
-      }
-    });
+    if (server) {
+      this.clients.forEach((client: Client) => {
+        if (client.gameVersion === server.gameVersion) {
+          this.sendData(client, "ServerUpdate", {
+            ...server,
+            allowedAccess: !server.locked ? status : false
+          });
+        }
+      });
+    }
   }
 
   async updateZoneServerVersion(serverId: number, version: string) {
@@ -706,7 +703,7 @@ export class LoginServer extends EventEmitter {
 
   async updateServersStatus(): Promise<void> {
     const servers = await this._db
-      .collection(DB_COLLECTIONS.SERVERS)
+      .collection<GameServer>(DB_COLLECTIONS.SERVERS)
       .find()
       .toArray();
 
@@ -722,16 +719,16 @@ export class LoginServer extends EventEmitter {
   }
 
   async ServerListRequest(client: Client) {
-    let servers: any[];
+    let servers: GameServer[];
     if (!this._soloMode) {
       servers = await this._db
-        .collection(DB_COLLECTIONS.SERVERS)
+        .collection<GameServer>(DB_COLLECTIONS.SERVERS)
         .find({
           gameVersion: client.gameVersion
         })
         .toArray();
       servers = servers
-        .map((server: any) => {
+        .map((server: GameServer) => {
           if (server.locked) {
             server.allowedAccess = false;
           }
@@ -833,11 +830,16 @@ export class LoginServer extends EventEmitter {
     serverId: number,
     characterId: string,
     authKey: string | undefined
-  ): Promise<CharacterLoginReply> {
-    const { serverAddress, populationNumber, maxPopulationNumber } =
-      await this._db
-        .collection(DB_COLLECTIONS.SERVERS)
-        .findOne({ serverId: serverId });
+  ): Promise<CharacterLoginReply | null> {
+    const gameServer = await this._db
+      .collection<GameServer>(DB_COLLECTIONS.SERVERS)
+      .findOne({ serverId: serverId });
+    if (!gameServer) {
+      console.error(`ServerId "${serverId}" unfound`);
+      return null;
+    }
+
+    const { serverAddress, populationNumber, maxPopulationNumber } = gameServer;
     const character = await this._db
       .collection(DB_COLLECTIONS.CHARACTERS_LIGHT)
       .findOne({ characterId: characterId });
@@ -928,7 +930,21 @@ export class LoginServer extends EventEmitter {
     return true;
   }
   async getClientRejectionFlags(serverId: number, client: Client) {
+    const ip = client.address;
+
+    const loginSessionId = await this.getGuidByAuthkey(client.authKey);
+    const bannedUser: WithId<BannedUser> | null = await this._db
+      .collection<BannedUser>(DB_COLLECTIONS.BANNED)
+      .findOne({
+        $or: [{ IP: ip }, { loginSessionId }],
+        // We don't take into account temporary bans as global bans
+        $and: [{ status: true }, { expirationDate: 0 }]
+      });
     const rejectionFlags: Array<CONNECTION_REJECTION_FLAGS> = [];
+    if (bannedUser) {
+      rejectionFlags.push(CONNECTION_REJECTION_FLAGS.GLOBAL_BAN);
+    }
+
     if (await this.isClientUsingVpn(client.address)) {
       rejectionFlags.push(CONNECTION_REJECTION_FLAGS.VPN);
     }
@@ -963,10 +979,13 @@ export class LoginServer extends EventEmitter {
       characterId,
       client.authKey
     );
+    if (charactersLoginInfo === null) {
+      return;
+    }
     rejectionFlags = await this.getClientRejectionFlags(serverId, client);
 
     const userSession = (await this._db
-      ?.collection(DB_COLLECTIONS.USERS_SESSIONS)
+      ?.collection<UserSession>(DB_COLLECTIONS.USERS_SESSIONS)
       .findOne({ serverId: packet.serverId, authKey: client.authKey })) as
       | UserSession
       | undefined;
