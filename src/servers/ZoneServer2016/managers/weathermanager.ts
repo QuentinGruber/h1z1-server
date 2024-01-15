@@ -3,7 +3,7 @@
 //   GNU GENERAL PUBLIC LICENSE
 //   Version 3, 29 June 2007
 //   copyright (C) 2020 - 2021 Quentin Gruber
-//   copyright (C) 2021 - 2023 H1emu community
+//   copyright (C) 2021 - 2024 H1emu community
 //
 //   https://github.com/QuentinGruber/h1z1-server
 //   https://www.npmjs.com/package/h1z1-server
@@ -14,7 +14,11 @@
 import fs from "node:fs";
 
 import { Weather2016, WeatherTemplate } from "types/zoneserver";
-import { randomIntFromInterval, _ } from "../../../utils/utils";
+import {
+  randomIntFromInterval,
+  _,
+  getCurrentTimeWrapper
+} from "../../../utils/utils";
 import { ZoneClient2016 as Client } from "../classes/zoneclient";
 import { ZoneServer2016 } from "../zoneserver";
 //const debug = require("debug")("dynamicWeather");
@@ -41,8 +45,6 @@ export class WeatherManager {
   dynamicWorker: any;
   dynamicEnabled = true;
 
-  cycleSpeed = 100;
-  frozeCycle = false;
   defaultTemplate = "z1br";
 
   init() {
@@ -189,13 +191,15 @@ export class WeatherManager {
       this.dynamicWorker = setTimeout(() => {
         if (!this.dynamicEnabled) return;
         this.weather = this.dynamicWeather(
-          server._serverTime,
-          server._startTime,
-          server._timeMultiplier
+          getCurrentTimeWrapper().getFull(),
+          server._serverStartTime.getFull(),
+          server.inGameTimeManager.timeMultiplier
         );
         this.sendUpdateToAll(server);
+        // FIXME: Needed to avoid black screen issue ? Why ? No idea.
+        this.sendUpdateToAll(server);
         this.dynamicWorker.refresh();
-      }, 360000 / server._timeMultiplier);
+      }, 360000 / server.inGameTimeManager.timeMultiplier);
     }
   }
 
@@ -210,18 +214,6 @@ export class WeatherManager {
         `User "${client.character.name}" has changed weather.`
       );
     }
-  }
-
-  forceTime(server: ZoneServer2016, time: number) {
-    this.cycleSpeed = 0.1;
-    this.frozeCycle = true;
-    server._gameTime = time;
-  }
-
-  removeForcedTime(server: ZoneServer2016) {
-    this.cycleSpeed = 100;
-    this.frozeCycle = false;
-    server._gameTime = Date.now();
   }
 
   seasonstart() {

@@ -3,7 +3,7 @@
 //   GNU GENERAL PUBLIC LICENSE
 //   Version 3, 29 June 2007
 //   copyright (C) 2020 - 2021 Quentin Gruber
-//   copyright (C) 2021 - 2023 H1emu community
+//   copyright (C) 2021 - 2024 H1emu community
 //
 //   https://github.com/QuentinGruber/h1z1-server
 //   https://www.npmjs.com/package/h1z1-server
@@ -95,7 +95,9 @@ import {
   removeUntransferableFields,
   movePoint,
   getAngle,
-  getDistance2d
+  getDistance2d,
+  TimeWrapper,
+  getCurrentTimeWrapper
 } from "../../utils/utils";
 
 import { Db, MongoClient, WithId } from "mongodb";
@@ -227,6 +229,7 @@ import { FileHashTypeList, ReceivedPacket } from "types/shared";
 import { SOEOutputChannels } from "../../servers/SoeServer/soeoutputstream";
 import { scheduler } from "node:timers/promises";
 import { GatewayChannels } from "h1emu-core";
+import { IngameTimeManager } from "./managers/gametimemanager";
 
 const spawnLocations2 = require("../../../data/2016/zoneData/Z1_gridSpawns.json"),
   deprecatedDoors = require("../../../data/2016/sampleData/deprecatedDoors.json"),
@@ -319,11 +322,7 @@ export class ZoneServer2016 extends EventEmitter {
     hospitalCrate: boolean;
     manager?: Client;
   };
-  _gameTime: number = 0;
-  readonly _serverTime = this.getCurrentTime();
-  _startTime = 0;
-  _startGameTime = 0;
-  _timeMultiplier = 72;
+  _serverStartTime: TimeWrapper = new TimeWrapper(0);
   _transientIds: { [transientId: number]: string } = {};
   _characterIds: { [characterId: string]: number } = {};
   readonly _loginServerInfo: { address?: string; port: number } = {
@@ -386,6 +385,8 @@ export class ZoneServer2016 extends EventEmitter {
   routinesLoopTimer?: NodeJS.Timeout;
   private _mongoClient?: MongoClient;
   rebootTimeTimer?: NodeJS.Timeout;
+  // 3600 * 6 = 6 hours so server always starts at 6am
+  inGameTimeManager: IngameTimeManager = new IngameTimeManager(3600 * 6);
 
   /* MANAGED BY CONFIGMANAGER */
   proximityItemsDistance!: number;
@@ -750,6 +751,7 @@ export class ZoneServer2016 extends EventEmitter {
       clearTimeout(trap.trapTimer);
     }
     this.worldDataManager.kill();
+    this.inGameTimeManager.stop();
     this.smeltingManager.clearTimers();
     this.decayManager.clearTimers();
     clearTimeout(this.worldRoutineTimer);
@@ -1637,9 +1639,9 @@ export class ZoneServer2016 extends EventEmitter {
     this.smeltingManager.checkSmeltables(this);
     this.smeltingManager.checkCollectors(this);
     this.decayManager.run(this);
-    this._startTime += Date.now();
-    this._startGameTime += Date.now();
+    this._serverStartTime = getCurrentTimeWrapper();
     this.weatherManager.startWeatherWorker(this);
+    this.inGameTimeManager.start();
     this._gatewayServer.start();
     this.worldRoutineTimer = setTimeout(
       () => this.worldRoutine.bind(this)(),
@@ -3511,6 +3513,7 @@ export class ZoneServer2016 extends EventEmitter {
         !client.spawnedEntities.has(characterObj) &&
         characterObj.isAlive &&
         !characterObj.isSpectator &&
+        !characterObj.isVanished &&
         (characterObj.isHidden == client.character.isHidden ||
           client.character.isSpectator) /* &&
         client.banType != "hiddenplayers"*/
@@ -3811,7 +3814,7 @@ export class ZoneServer2016 extends EventEmitter {
     this.sendData<WeaponWeapon>(client, "Weapon.Weapon", {
       weaponPacket: {
         packetName: packetName,
-        gameTime: this.getGameTime(),
+        gameTime: getCurrentTimeWrapper().getTruncatedU32(),
         packet: obj
       }
     });
@@ -3826,7 +3829,7 @@ export class ZoneServer2016 extends EventEmitter {
     this.sendData<WeaponWeapon>(client, "Weapon.Weapon", {
       weaponPacket: {
         packetName: "Weapon.RemoteWeapon",
-        gameTime: this.getGameTime(),
+        gameTime: getCurrentTimeWrapper().getTruncatedU32(),
         remoteWeaponPacket: {
           packetName: packetName,
           transientId: transientId,
@@ -3850,7 +3853,7 @@ export class ZoneServer2016 extends EventEmitter {
       {
         weaponPacket: {
           packetName: "Weapon.RemoteWeapon",
-          gameTime: this.getGameTime(),
+          gameTime: getCurrentTimeWrapper().getTruncatedU32(),
           remoteWeaponPacket: {
             packetName: packetName,
             transientId: transientId,
@@ -3871,7 +3874,7 @@ export class ZoneServer2016 extends EventEmitter {
     this.sendData<WeaponWeapon>(client, "Weapon.Weapon", {
       weaponPacket: {
         packetName: "Weapon.RemoteWeapon",
-        gameTime: this.getGameTime(),
+        gameTime: getCurrentTimeWrapper().getTruncatedU32(),
         remoteWeaponPacket: {
           packetName: "RemoteWeapon.Update",
           transientId: transientId,
@@ -3900,7 +3903,7 @@ export class ZoneServer2016 extends EventEmitter {
       {
         weaponPacket: {
           packetName: "Weapon.RemoteWeapon",
-          gameTime: this.getGameTime(),
+          gameTime: getCurrentTimeWrapper().getTruncatedU32(),
           remoteWeaponPacket: {
             packetName: "RemoteWeapon.Update",
             transientId: transientId,
@@ -4155,6 +4158,7 @@ export class ZoneServer2016 extends EventEmitter {
     this.deleteClient(client);
   }
 
+  // TODO: this should be a util function
   getDateString(timestamp: number) {
     const months = [
       "JAN",
@@ -4176,33 +4180,13 @@ export class ZoneServer2016 extends EventEmitter {
     } ${date.getFullYear()} ${date.getHours()}:${date.getMinutes()}`;
   }
 
-  getCurrentTime(): number {
-    return Number((Date.now() / 1000).toFixed(0));
-  }
-
-  getGameTime(): number {
-    //debug("get server time");
-    const delta = Date.now() - this._startGameTime;
-    return this.weatherManager.frozeCycle
-      ? Number(((this._gameTime + delta) / 1000).toFixed(0))
-      : Number((this._gameTime / 1000).toFixed(0));
-  }
-
   sendGameTimeSync(client: Client) {
     debug("GameTimeSync");
-    if (!this.weatherManager.frozeCycle) {
-      this.sendData<GameTimeSync>(client, "GameTimeSync", {
-        time: Int64String(this.getServerTimeTest()),
-        cycleSpeed: Math.round(this._timeMultiplier * 0.97222),
-        unknownBoolean1: false
-      });
-    } else if (this.weatherManager.frozeCycle) {
-      this.sendData<GameTimeSync>(client, "GameTimeSync", {
-        time: Int64String(this.getGameTime()),
-        cycleSpeed: 0.1,
-        unknownBoolean1: false
-      });
-    }
+    this.sendData<GameTimeSync>(client, "GameTimeSync", {
+      time: Int64String(this.inGameTimeManager.time),
+      cycleSpeed: this.inGameTimeManager.getCycleSpeed(),
+      unknownBoolean1: false
+    });
   }
 
   sendRawToAllOthersWithSpawnedCharacter(
@@ -4642,26 +4626,9 @@ export class ZoneServer2016 extends EventEmitter {
     if (index > -1) {
       // todo: vehicle seat swap managed object drop logic
       debug("\n\n\n\n\n\n\n\n\n\n drop managed object");
-
-      /*this.sendData<>(client, "ClientUpdate.ManagedObjectResponseControl", {
-        control: true,
-        objectCharacterId: vehicle.characterId,
-      });*/ // dont work :/
-
-      // workaround for managed object issue
-      if (client.vehicle.mountedVehicle == vehicle.characterId) {
-        this.sendData<MountDismountResponse>(client, "Mount.DismountResponse", {
-          characterId: client.character.characterId
-        });
-        vehicle.droppedManagedClient = client;
-      }
-      this.sendData<CharacterRemovePlayer>(client, "Character.RemovePlayer", {
-        characterId: vehicle.characterId
-      });
-
-      this.sendData<AddLightweightVehicle>(client, "AddLightweightVehicle", {
-        ...vehicle.pGetLightweightVehicle(),
-        unknownGuid1: this.generateGuid()
+      this.sendData(client, "ClientUpdate.ManagedObjectResponseControl", {
+        control: false,
+        objectCharacterId: vehicle.characterId
       });
       client.managedObjects.splice(index, 1);
       // blocks vehicleManager from taking over management during a takeover
@@ -6199,7 +6166,7 @@ export class ZoneServer2016 extends EventEmitter {
       moved,
       client.character.state.lookAt,
       this,
-      this.getGameTime(),
+      getCurrentTimeWrapper().getTruncatedU32(),
       VehicleIds.OFFROADER
     );
     const cargo = new Plane(
@@ -6209,7 +6176,7 @@ export class ZoneServer2016 extends EventEmitter {
       new Float32Array([pos[0], pos[1] - 20, pos[2], 1]),
       client.character.state.lookAt,
       this,
-      this.getGameTime(),
+      getCurrentTimeWrapper().getTruncatedU32(),
       VehicleIds.PICKUP
     );
     this._airdrop = {
@@ -7120,7 +7087,9 @@ export class ZoneServer2016 extends EventEmitter {
         );
       }
     }
-    const drift = Math.abs(packet.gameTime - this.getServerTime());
+    const drift = Math.abs(
+      packet.gameTime - getCurrentTimeWrapper().getTruncatedU32()
+    );
     if (drift > this.fairPlayManager.maxPing + 200) {
       this.sendChatText(
         client,
@@ -7928,17 +7897,6 @@ export class ZoneServer2016 extends EventEmitter {
       playerPosition,
       element.state.position
     );
-  }
-  getServerTimeTest(): number {
-    debug("get server time");
-    const delta = Date.now() - this._startTime;
-    return Number(
-      (((this._serverTime + delta) * this._timeMultiplier) / 1000).toFixed(0)
-    );
-  }
-  getServerTime(): number {
-    const delta = Date.now() - this._startTime;
-    return this._serverTime + delta;
   }
   dismissVehicle(vehicleGuid: string) {
     this.sendDataToAll<CharacterRemovePlayer>("Character.RemovePlayer", {

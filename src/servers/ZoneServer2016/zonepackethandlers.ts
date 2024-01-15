@@ -3,7 +3,7 @@
 //   GNU GENERAL PUBLIC LICENSE
 //   Version 3, 29 June 2007
 //   copyright (C) 2020 - 2021 Quentin Gruber
-//   copyright (C) 2021 - 2023 H1emu community
+//   copyright (C) 2021 - 2024 H1emu community
 //
 //   https://github.com/QuentinGruber/h1z1-server
 //   https://www.npmjs.com/package/h1z1-server
@@ -27,7 +27,8 @@ import {
   eul2quat,
   getDistance,
   getDistance1d,
-  isPosInRadiusWithY
+  isPosInRadiusWithY,
+  getCurrentTimeWrapper
 } from "../../utils/utils";
 
 import { CraftManager } from "./managers/craftmanager";
@@ -246,7 +247,7 @@ export class ZonePacketHandlers {
         guid2: "0x0000000000000000",
         guid3: "0x0000000040000000",
         guid4: "0x0000000000000000",
-        gameTime: (server.getServerTime() & 0xffffffff) >>> 0
+        gameTime: getCurrentTimeWrapper().getTruncatedU32()
       }
     );
 
@@ -819,12 +820,13 @@ export class ZonePacketHandlers {
     client: Client,
     packet: ReceivedPacket<Synchronization>
   ) {
-    const serverTime = Int64String(server.getServerTime());
+    const currentTime = getCurrentTimeWrapper();
+    const serverTime = currentTime.getFullString();
     const reflectedPacket: Synchronization = {
       ...packet.data,
       serverTime: serverTime,
       serverTime2: serverTime,
-      time3: Int64String(Number(packet.data.clientTime)) + 2
+      time3: currentTime.getTruncatedU32String()
     };
     server.sendData<Synchronization>(
       client,
@@ -1491,7 +1493,7 @@ export class ZonePacketHandlers {
       ]);
     }
     if (
-      client.character.isSpectator &&
+      (client.character.isSpectator || client.character.isVanished) &&
       _.size(server._decoys) > 0 &&
       client.isDecoy
     ) {
@@ -1777,7 +1779,8 @@ export class ZonePacketHandlers {
       if (
         !(
           entity instanceof ConstructionParentEntity ||
-          entity instanceof ConstructionChildEntity
+          entity instanceof ConstructionChildEntity ||
+          entity instanceof LootableConstructionEntity
         )
       ) {
         server.sendData<ReplicationInteractionComponent>(
@@ -1834,8 +1837,9 @@ export class ZonePacketHandlers {
     if (Number(final[0].toFixed(2)) === 0.0) {
       final[0] = 0;
     }
-    const modelId = server.getItemDefinition(packet.data.itemDefinitionId)
-      ?.PLACEMENT_MODEL_ID;
+    const modelId = server.getItemDefinition(
+      packet.data.itemDefinitionId
+    )?.PLACEMENT_MODEL_ID;
     if (!modelId) {
       console.log(
         `[ERROR] No PLACEMENT_MODEL_ID for ${packet.data.itemDefinitionId} from characterId ${client.character.characterId}`
@@ -2303,8 +2307,9 @@ export class ZonePacketHandlers {
     packet: ReceivedPacket<ConstructionPlacementRequest>
   ) {
     debug(packet.data);
-    const modelId = server.getItemDefinition(packet.data.itemDefinitionId)
-      ?.PLACEMENT_MODEL_ID;
+    const modelId = server.getItemDefinition(
+      packet.data.itemDefinitionId
+    )?.PLACEMENT_MODEL_ID;
     if (!modelId) {
       server.sendChatText(
         client,

@@ -3,7 +3,7 @@
 //   GNU GENERAL PUBLIC LICENSE
 //   Version 3, 29 June 2007
 //   copyright (C) 2020 - 2021 Quentin Gruber
-//   copyright (C) 2021 - 2023 H1emu community
+//   copyright (C) 2021 - 2024 H1emu community
 //
 //   https://github.com/QuentinGruber/h1z1-server
 //   https://www.npmjs.com/package/h1z1-server
@@ -16,6 +16,9 @@ import { CONNECTION_REJECTION_FLAGS } from "../utils/enums";
 export interface GameServer {
   serverId: number;
   serverState: number;
+  serverAddress: string;
+  populationNumber: number;
+  maxPopulationNumber: number;
   locked: boolean;
   name: string;
   nameId: number;
@@ -26,14 +29,16 @@ export interface GameServer {
   populationLevel: number;
   populationData: string;
   allowedAccess: boolean;
+  isDisabled: boolean;
 }
 
-export interface BANNED_LIGHT {
-  serverId: number;
-  authKey: string;
-  isGlobal: boolean;
-  status: boolean;
+export interface BannedUser {
+  name: string;
+  loginSessionId: string;
+  IP : string;
+  active: boolean;
 }
+
 
 export interface ConnectionAllowed {
   status: 0|1;
