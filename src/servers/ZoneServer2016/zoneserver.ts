@@ -385,8 +385,8 @@ export class ZoneServer2016 extends EventEmitter {
   routinesLoopTimer?: NodeJS.Timeout;
   private _mongoClient?: MongoClient;
   rebootTimeTimer?: NodeJS.Timeout;
-  // 3600 * 5 = 5 hours so server always starts at 5am
-  inGameTimeManager: IngameTimeManager = new IngameTimeManager(3600 * 5);
+  // 3600 * 6 = 6 hours so server always starts at 6am
+  inGameTimeManager: IngameTimeManager = new IngameTimeManager(3600 * 6);
 
   /* MANAGED BY CONFIGMANAGER */
   proximityItemsDistance!: number;
@@ -4182,13 +4182,9 @@ export class ZoneServer2016 extends EventEmitter {
 
   sendGameTimeSync(client: Client) {
     debug("GameTimeSync");
-    const cycleSpeed = this.inGameTimeManager.timeFrozen
-      ? 0
-      : // 0.97222 is the multiplier to make the game time sync with real time
-        this.inGameTimeManager.timeMultiplier * 0.97222;
     this.sendData<GameTimeSync>(client, "GameTimeSync", {
       time: Int64String(this.inGameTimeManager.time),
-      cycleSpeed,
+      cycleSpeed: this.inGameTimeManager.getCycleSpeed(),
       unknownBoolean1: false
     });
   }
