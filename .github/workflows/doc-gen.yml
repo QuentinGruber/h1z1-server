@@ -35,8 +35,6 @@ jobs:
           node-version: 20.9.0
       - run: npm i
       - run: npm run gen-doc
-      - name: Checkout
-        uses: actions/checkout@v4
       - name: Setup Pages
         uses: actions/configure-pages@v4
       - name: Upload artifact
@@ -47,4 +45,3 @@ jobs:
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
-
