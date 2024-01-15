@@ -71,26 +71,26 @@ export class DecayManager {
         foundation.itemDefinitionId == Items.FOUNDATION ||
         foundation.itemDefinitionId == Items.GROUND_TAMPER
       ) {
+        if (
+          Date.now() - foundation.placementTime >=
+          this.griefFoundationTimer
+        ) {
           if (
-            Date.now() - foundation.placementTime >=
-            this.griefFoundationTimer
+            Object.keys(foundation.occupiedWallSlots).length <=
+              this.griefCheckSlotAmount &&
+            Object.keys(foundation.occupiedShelterSlots).length == 0 &&
+            Object.keys(foundation.occupiedExpansionSlots).length == 0
           ) {
-            if (
-              Object.keys(foundation.occupiedWallSlots).length <=
-                this.griefCheckSlotAmount &&
-              Object.keys(foundation.occupiedShelterSlots).length == 0 &&
-              Object.keys(foundation.occupiedExpansionSlots).length == 0
-            ) {
-              for (const a in foundation.occupiedWallSlots) {
-                foundation.occupiedWallSlots[a].destroy(server);
-              }
-              // clear floating entities
-              for (const a in foundation.freeplaceEntities) {
-                foundation.freeplaceEntities[a].destroy(server);
-              }
-              foundation.destroy(server);
+            for (const a in foundation.occupiedWallSlots) {
+              foundation.occupiedWallSlots[a].destroy(server);
             }
-          }    
+            // clear floating entities
+            for (const a in foundation.freeplaceEntities) {
+              foundation.freeplaceEntities[a].destroy(server);
+            }
+            foundation.destroy(server);
+          }
+        }
       }
     }
   }
