@@ -72,7 +72,6 @@ export class ConstructionParentEntity extends ConstructionChildEntity {
   readonly rampSlots: ConstructionSlotPositionMap = {};
   occupiedRampSlots: { [slot: number]: ConstructionChildEntity } = {};
   lastDamagedTimestamp: number = 0;
-  creationTime = Date.now();
 
   readonly itemDefinitionId: number;
   readonly slot: string;
