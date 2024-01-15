@@ -448,7 +448,6 @@ export function readPositionUpdateData(data: Buffer, offset: number) {
     rotationEul[7] = v.value / 10000;
     obj["PosAndRot"] = rotationEul;
     offset += v.length;
-    console.log(rotationEul);
   }
   return {
     value: obj,
