@@ -238,40 +238,6 @@ export class LoginServer extends EventEmitter {
                   );
                   break;
                 }
-                case "ClientBan": {
-                  const { status, loginSessionId } = packet.data;
-                  const serverId = this._zoneConnections[client.clientId],
-                    isGlobal = await this._isServerOfficial(serverId);
-
-                  // login server should not track non-global bans
-                  if (!isGlobal) return;
-
-                  try {
-                    const userSession = await this._db
-                      .collection(DB_COLLECTIONS.USERS_SESSIONS)
-                      .findOne({ guid: loginSessionId });
-                    this._db
-                      ?.collection(DB_COLLECTIONS.BANNED_LIGHT)
-                      .findOneAndUpdate(
-                        { serverId: serverId },
-                        {
-                          $set: {
-                            serverId,
-                            authKey: userSession.authKey,
-                            status,
-                            isGlobal
-                          }
-                        },
-                        { upsert: true }
-                      );
-                  } catch (e) {
-                    console.log(e);
-                    console.log(
-                      `Failed to register clientBan serverId:${serverId} loginSessionId:${loginSessionId}`
-                    );
-                  }
-                  break;
-                }
                 case "ClientMessage": {
                   const { guid, message, showConsole, clearOutput } =
                     packet.data;
