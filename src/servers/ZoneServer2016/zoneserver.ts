@@ -6273,7 +6273,7 @@ export class ZoneServer2016 extends EventEmitter {
     });
   }
 
-  useConsumable(client: Client, item: BaseItem, animationId: number) {
+  useConsumable(client: Client, character: Character | BaseLootableEntity, item: BaseItem, animationId: number) {
     const itemDef = this.getItemDefinition(item.itemDefinitionId);
     if (!itemDef) return;
     let doReturn = true;
@@ -6318,6 +6318,7 @@ export class ZoneServer2016 extends EventEmitter {
     this.utilizeHudTimer(client, itemDef.NAME_ID, timeout, animationId, () => {
       this.useComsumablePass(
         client,
+        character,
         item,
         eatCount,
         drinkCount,
@@ -6712,6 +6713,7 @@ export class ZoneServer2016 extends EventEmitter {
 
   useComsumablePass(
     client: Client,
+    character: Character | BaseLootableEntity,
     item: BaseItem,
     eatCount: number,
     drinkCount: number,
@@ -6722,7 +6724,7 @@ export class ZoneServer2016 extends EventEmitter {
     enduranceCount: number,
     healType: HealTypes
   ) {
-    if (!this.removeInventoryItem(client.character, item)) return;
+    if (!this.removeInventoryItem(character, item)) return;
     if (eatCount) {
       client.character._resources[ResourceIds.HUNGER] += eatCount;
       this.updateResource(
@@ -6769,7 +6771,7 @@ export class ZoneServer2016 extends EventEmitter {
       client.character.damage(this, damageInfo);
     }
     if (givetrash) {
-      client.character.lootContainerItem(this, this.generateItem(givetrash));
+      character.lootContainerItem(this, this.generateItem(givetrash), undefined, character instanceof Character);
     }
     if (bandagingCount && healCount) {
       if (!client.character.healingIntervals[healType]) {

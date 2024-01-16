@@ -2010,6 +2010,9 @@ export class ZonePacketHandlers {
       case ItemUseOptions.SHRED:
       case ItemUseOptions.UNPACK:
       case ItemUseOptions.UNPACK_BUNDLE:
+      case ItemUseOptions.DRINK:
+      case ItemUseOptions.EAT:
+      case ItemUseOptions.USE_MEDICAL:
       case ItemUseOptions.LOOT:
       case ItemUseOptions.LOOT_BATTERY:
       case ItemUseOptions.LOOT_SPARKS:
@@ -2145,7 +2148,7 @@ export class ZonePacketHandlers {
       case ItemUseOptions.DRINK:
       case ItemUseOptions.EAT:
       case ItemUseOptions.USE_MEDICAL:
-        server.useConsumable(client, item, animationId);
+        server.useConsumable(client, character, item, animationId);
         break;
       case ItemUseOptions.USE_AIRDROP:
         server.utilizeHudTimer(client, StringIds.AIRDROP_CODE, 3000, 0, () => {
