@@ -6098,7 +6098,7 @@ export class ZoneServer2016 extends EventEmitter {
     }
   }
 
-  useAirdrop(client: Client, item: BaseItem) {
+  useAirdrop(client: Client, character: Character | BaseLootableEntity, item: BaseItem) {
     if (this._airdrop) {
       this.sendAlert(client, "All planes are busy.");
       return;
@@ -6132,7 +6132,7 @@ export class ZoneServer2016 extends EventEmitter {
 
     if (
       item.itemDefinitionId != Items.AIRDROP_CODE ||
-      !this.removeInventoryItem(client.character, item)
+      !this.removeInventoryItem(character, item)
     )
       return;
     this.sendAlert(client, "Your delivery is on the way!");

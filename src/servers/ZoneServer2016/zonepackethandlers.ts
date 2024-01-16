@@ -2013,6 +2013,7 @@ export class ZonePacketHandlers {
       case ItemUseOptions.DRINK:
       case ItemUseOptions.EAT:
       case ItemUseOptions.USE_MEDICAL:
+      case ItemUseOptions.USE_AIRDROP:
       case ItemUseOptions.LOOT:
       case ItemUseOptions.LOOT_BATTERY:
       case ItemUseOptions.LOOT_SPARKS:
@@ -2151,8 +2152,9 @@ export class ZonePacketHandlers {
         server.useConsumable(client, character, item, animationId);
         break;
       case ItemUseOptions.USE_AIRDROP:
+        const localCharacter = character;
         server.utilizeHudTimer(client, StringIds.AIRDROP_CODE, 3000, 0, () => {
-          server.useAirdrop(client, item);
+          server.useAirdrop(client, localCharacter, item);
         });
         break;
       case ItemUseOptions.USE:
