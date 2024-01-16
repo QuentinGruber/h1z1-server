@@ -150,6 +150,8 @@ import { BaseLootableEntity } from "./entities/baselootableentity";
 import { Destroyable } from "./entities/destroyable";
 import { Lootbag } from "./entities/lootbag";
 import { ReceivedPacket } from "types/shared";
+import { LoadoutItem } from "./classes/loadoutItem";
+import { BaseItem } from "./classes/baseItem";
 
 function getStanceFlags(num: number): StanceFlags {
   function getBit(bin: string, bit: number) {
@@ -2235,7 +2237,7 @@ export class ZonePacketHandlers {
       case ItemUseOptions.LOOT_VEHICLE_LOADOUT:
         const sourceCharacter = client.character.mountedContainer;
         if (!sourceCharacter) return;
-        const loadoutItem = sourceCharacter.getLoadoutItem(itemGuid);
+        const loadoutItem = sourceCharacter.getLoadoutItem(itemGuid) || sourceCharacter.getInventoryItem(itemGuid);
         if (loadoutItem) {
           const container = client.character.getAvailableContainer(
             server,
@@ -2252,12 +2254,19 @@ export class ZonePacketHandlers {
             );
             return;
           }
-          sourceCharacter.transferItemFromLoadout(
-            server,
-            container,
-            loadoutItem
-          );
-
+          if(loadoutItem instanceof LoadoutItem) {
+            sourceCharacter.transferItemFromLoadout(
+              server,
+              container,
+              loadoutItem
+            );
+          }
+          if(loadoutItem instanceof BaseItem) {
+            const sourceContainer = sourceCharacter.getContainerFromGuid(loadoutItem.containerGuid);
+            if(sourceContainer) {
+              sourceContainer.transferItem(server, container, loadoutItem, 0, count);
+            }
+          }
           if (sourceCharacter instanceof Vehicle2016) {
             sourceCharacter.checkEngineRequirements(server, false);
           }
