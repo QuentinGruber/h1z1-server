@@ -6585,6 +6585,7 @@ export class ZoneServer2016 extends EventEmitter {
 
   refuelVehicle(
     client: Client,
+    character: Character | BaseLootableEntity,
     item: BaseItem,
     vehicleGuid: string,
     animationId: number
@@ -6614,7 +6615,7 @@ export class ZoneServer2016 extends EventEmitter {
       return;
     }
     this.utilizeHudTimer(client, nameId, timeout, animationId, () => {
-      this.refuelVehiclePass(client, item, vehicleGuid, fuelValue);
+      this.refuelVehiclePass(client, character, item, vehicleGuid, fuelValue);
     });
   }
 
@@ -6883,12 +6884,13 @@ export class ZoneServer2016 extends EventEmitter {
 
   refuelVehiclePass(
     client: Client,
+    character: Character | BaseLootableEntity,
     item: BaseItem,
     vehicleGuid: string,
     fuelValue: number
   ) {
     // Also check if the vehicle is dismounted, jumping out of the car won't cancel the interaction
-    if (!client.vehicle.mountedVehicle || !this.removeInventoryItem(client.character, item)) return;
+    if (!client.vehicle.mountedVehicle || !this.removeInventoryItem(character, item)) return;
     const vehicle = this._vehicles[vehicleGuid];
     vehicle._resources[ResourceIds.FUEL] += fuelValue;
     if (vehicle._resources[ResourceIds.FUEL] > 10000) {

@@ -2005,6 +2005,7 @@ export class ZonePacketHandlers {
       server._itemUseOptions[itemUseOption ?? 0]?.animationId ?? 0;
     // temporarily block most use options from external containers
     switch (itemUseOption) {
+      case ItemUseOptions.REFUEL:
       case ItemUseOptions.LOOT:
       case ItemUseOptions.LOOT_BATTERY:
       case ItemUseOptions.LOOT_SPARKS:
@@ -2153,6 +2154,7 @@ export class ZonePacketHandlers {
       case ItemUseOptions.REFUEL:
         server.refuelVehicle(
           client,
+          character,
           item,
           targetCharacterId || "",
           animationId
