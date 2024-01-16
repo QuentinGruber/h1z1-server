@@ -2008,6 +2008,8 @@ export class ZonePacketHandlers {
       case ItemUseOptions.REFUEL:
       case ItemUseOptions.EQUIP:
       case ItemUseOptions.SHRED:
+      case ItemUseOptions.UNPACK:
+      case ItemUseOptions.UNPACK_BUNDLE:
       case ItemUseOptions.LOOT:
       case ItemUseOptions.LOOT_BATTERY:
       case ItemUseOptions.LOOT_SPARKS:
@@ -2286,7 +2288,7 @@ export class ZonePacketHandlers {
         break;
       case ItemUseOptions.UNPACK:
       case ItemUseOptions.UNPACK_BUNDLE:
-        server.useAmmoBox(client, item);
+        server.useAmmoBox(client, character, item);
         break;
       case ItemUseOptions.REPAIR:
         const repairItem = character.getInventoryItem(

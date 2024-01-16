@@ -73,7 +73,7 @@ import {
   remoteWeaponUpdatePacketsType,
   weaponPacketsType
 } from "../../types/weaponPackets";
-import { Character2016 as Character } from "./entities/character";
+import { Character2016 as Character, Character2016 } from "./entities/character";
 import {
   _,
   generateRandomGuid,
@@ -6234,11 +6234,11 @@ export class ZoneServer2016 extends EventEmitter {
     }, 600000);
   }
 
-  useAmmoBox(client: Client, item: BaseItem) {
+  useAmmoBox(client: Client, character: Character | BaseLootableEntity, item: BaseItem) {
     const itemDef = this.getItemDefinition(item.itemDefinitionId);
     if (!itemDef) return;
     this.utilizeHudTimer(client, itemDef.NAME_ID, 5000, 0, () => {
-      if (!this.removeInventoryItem(client.character, item)) return;
+      if (!this.removeInventoryItem(character, item)) return;
       switch (item.itemDefinitionId) {
         case Items.BUNDLE_GAUZE:
         case Items.BUNDLE_EXPLOSIVE_ARROWS:
@@ -6246,19 +6246,28 @@ export class ZoneServer2016 extends EventEmitter {
         case Items.BUNDLE_WOODEN_ARROWS_1:
         case Items.BUNDLE_WOODEN_ARROWS_2:
         case Items.BUNDLE_WOODEN_ARROWS:
-          client.character.lootItem(
+          character.lootItem(
             this,
-            this.generateItem(itemDef.PARAM1, itemDef.PARAM2)
+            this.generateItem(itemDef.PARAM1, itemDef.PARAM2), 
+            undefined,
+            character instanceof Character
           );
           break;
         case Items.AMMO_BOX_223:
-          client.character.lootItem(
+          character.lootItem(
             this,
-            this.generateItem(Items.AMMO_223, 60)
+            this.generateItem(Items.AMMO_223, 60), 
+            undefined,
+            character instanceof Character
           );
           break;
         case Items.AMMO_BOX_45:
-          client.character.lootItem(this, this.generateItem(Items.AMMO_45, 60));
+          character.lootItem(
+            this,
+            this.generateItem(Items.AMMO_45, 60),
+            undefined,
+            character instanceof Character
+          );
           break;
       }
     });
