@@ -6887,7 +6887,8 @@ export class ZoneServer2016 extends EventEmitter {
     vehicleGuid: string,
     fuelValue: number
   ) {
-    if (!this.removeInventoryItem(client.character, item)) return;
+    // Also check if the vehicle is dismounted, jumping out of the car won't cancel the interaction
+    if (!client.vehicle.mountedVehicle || !this.removeInventoryItem(client.character, item)) return;
     const vehicle = this._vehicles[vehicleGuid];
     vehicle._resources[ResourceIds.FUEL] += fuelValue;
     if (vehicle._resources[ResourceIds.FUEL] > 10000) {
