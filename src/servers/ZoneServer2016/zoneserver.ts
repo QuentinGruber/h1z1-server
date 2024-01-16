@@ -6624,7 +6624,7 @@ export class ZoneServer2016 extends EventEmitter {
     });
   }
 
-  shredItem(client: Client, item: BaseItem, animationId: number) {
+  shredItem(client: Client, character: Character | BaseLootableEntity, item: BaseItem, animationId: number) {
     const itemDefinition = this.getItemDefinition(item.itemDefinitionId);
     if (!itemDefinition) return;
     const nameId = itemDefinition.NAME_ID,
@@ -6643,7 +6643,7 @@ export class ZoneServer2016 extends EventEmitter {
         this.sendChatText(client, "[ERROR] Unknown salvage item or count.");
     }
     this.utilizeHudTimer(client, nameId, timeout, animationId, () => {
-      this.shredItemPass(client, item, count);
+      this.shredItemPass(character, item, count);
     });
   }
 
@@ -6910,9 +6910,9 @@ export class ZoneServer2016 extends EventEmitter {
     );
   }
 
-  shredItemPass(client: Client, item: BaseItem, count: number) {
-    if (!this.removeInventoryItem(client.character, item)) return;
-    client.character.lootItem(this, this.generateItem(Items.CLOTH, count));
+  shredItemPass(character: Character | BaseLootableEntity, item: BaseItem, count: number) {
+    if (!this.removeInventoryItem(character, item)) return;
+    character.lootItem(this, this.generateItem(Items.CLOTH, count), undefined, character instanceof Character);
   }
 
   salvageItemPass(client: Client, item: BaseItem, count: number) {

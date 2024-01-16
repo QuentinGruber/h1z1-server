@@ -2006,6 +2006,8 @@ export class ZonePacketHandlers {
     // temporarily block most use options from external containers
     switch (itemUseOption) {
       case ItemUseOptions.REFUEL:
+      case ItemUseOptions.EQUIP:
+      case ItemUseOptions.SHRED:
       case ItemUseOptions.LOOT:
       case ItemUseOptions.LOOT_BATTERY:
       case ItemUseOptions.LOOT_SPARKS:
@@ -2136,7 +2138,7 @@ export class ZonePacketHandlers {
         }
         break;
       case ItemUseOptions.SHRED:
-        server.shredItem(client, item, animationId);
+        server.shredItem(client, character, item, animationId);
         break;
       case ItemUseOptions.DRINK:
       case ItemUseOptions.EAT:
