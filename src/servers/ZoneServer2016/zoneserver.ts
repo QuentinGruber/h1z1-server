@@ -361,6 +361,7 @@ export class ZoneServer2016 extends EventEmitter {
   itemDefinitionsCache?: Buffer;
   dynamicAppearanceCache?: Buffer;
   weaponDefinitionsCache?: Buffer;
+  initialDataStaticDtoCache?: Buffer;
   projectileDefinitionsCache?: Buffer;
   profileDefinitionsCache?: Buffer;
   _containerDefinitions: { [containerDefinitionId: number]: any } =
@@ -3308,7 +3309,6 @@ export class ZoneServer2016 extends EventEmitter {
   }
 
   customizeStaticDTOs() {
-    console.time("customizeStaticDTOs");
     // caches DTOs that should always be removed
 
     for (const object in this._lootableProps) {
@@ -3350,7 +3350,14 @@ export class ZoneServer2016 extends EventEmitter {
       };
       this.staticDTOs.push(DTOinstance);
     });
-    console.timeEnd("customizeStaticDTOs");
+    const cache = this._protocol.pack("DtoObjectInitialData", {
+      unknownDword1: 1,
+      unknownArray1: this.staticDTOs,
+      unknownArray2: [{}]
+    });
+    if (cache) {
+      this.initialDataStaticDtoCache = cache;
+    }
   }
 
   customizeDTO(client: Client) {
@@ -3358,9 +3365,12 @@ export class ZoneServer2016 extends EventEmitter {
     this.speedtreeManager.customize(speedtreeDTOs);
     this.sendData<DtoObjectInitialData>(client, "DtoObjectInitialData", {
       unknownDword1: 1,
-      unknownArray1: [...speedtreeDTOs, ...this.staticDTOs],
+      unknownArray1: speedtreeDTOs,
       unknownArray2: [{}]
     });
+    if (this.initialDataStaticDtoCache) {
+      this.sendRawDataReliable(client, this.initialDataStaticDtoCache);
+    }
   }
 
   private shouldRemoveEntity(client: Client, entity: BaseEntity): boolean {
