@@ -2017,6 +2017,9 @@ export class ZonePacketHandlers {
       case ItemUseOptions.USE_MEDICAL:
       case ItemUseOptions.USE_AIRDROP:
       case ItemUseOptions.LOOT:
+      case ItemUseOptions.MOVE_VEHICLE_PARTS:
+      case ItemUseOptions.MOVE_BATTERY:
+      case ItemUseOptions.MOVE_SPARKS:
       case ItemUseOptions.LOOT_BATTERY:
       case ItemUseOptions.LOOT_SPARKS:
       case ItemUseOptions.LOOT_VEHICLE_LOADOUT:
@@ -2200,6 +2203,9 @@ export class ZonePacketHandlers {
         // remount container to keep items from changing slotIds
         client.character.mountContainer(server, containerEnt);
         break;
+      case ItemUseOptions.MOVE_VEHICLE_PARTS:
+      case ItemUseOptions.MOVE_BATTERY:
+      case ItemUseOptions.MOVE_SPARKS:
       case ItemUseOptions.MOVE:
         const sourceContainer = client.character.getItemContainer(itemGuid),
           targetCharacter = client.character.mountedContainer;
@@ -2227,6 +2233,15 @@ export class ZonePacketHandlers {
         if (!targetContainer) {
           server.sendChatText(client, "Invalid target container 1!");
           return;
+        }
+
+        if(targetCharacter instanceof Vehicle2016) {
+          const loadOutSlot = targetCharacter.getAvailableLoadoutSlot(server, item.itemDefinitionId);
+          if(loadOutSlot) {
+            targetCharacter.equipItem(server, item, true, loadOutSlot, false);
+            server.deleteItem(character, item.itemGuid);
+            return;
+          }
         }
 
         sourceContainer.transferItem(server, targetContainer, item, 0, count);
