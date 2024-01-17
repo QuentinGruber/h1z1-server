@@ -6098,7 +6098,11 @@ export class ZoneServer2016 extends EventEmitter {
     }
   }
 
-  useAirdrop(client: Client, character: Character | BaseLootableEntity, item: BaseItem) {
+  useAirdrop(
+    client: Client,
+    character: Character | BaseLootableEntity,
+    item: BaseItem
+  ) {
     if (this._airdrop) {
       this.sendAlert(client, "All planes are busy.");
       return;
@@ -6234,7 +6238,11 @@ export class ZoneServer2016 extends EventEmitter {
     }, 600000);
   }
 
-  useAmmoBox(client: Client, character: Character | BaseLootableEntity, item: BaseItem) {
+  useAmmoBox(
+    client: Client,
+    character: Character | BaseLootableEntity,
+    item: BaseItem
+  ) {
     const itemDef = this.getItemDefinition(item.itemDefinitionId);
     if (!itemDef) return;
     this.utilizeHudTimer(client, itemDef.NAME_ID, 5000, 0, () => {
@@ -6248,7 +6256,7 @@ export class ZoneServer2016 extends EventEmitter {
         case Items.BUNDLE_WOODEN_ARROWS:
           character.lootItem(
             this,
-            this.generateItem(itemDef.PARAM1, itemDef.PARAM2), 
+            this.generateItem(itemDef.PARAM1, itemDef.PARAM2),
             undefined,
             character instanceof Character
           );
@@ -6256,7 +6264,7 @@ export class ZoneServer2016 extends EventEmitter {
         case Items.AMMO_BOX_223:
           character.lootItem(
             this,
-            this.generateItem(Items.AMMO_223, 60), 
+            this.generateItem(Items.AMMO_223, 60),
             undefined,
             character instanceof Character
           );
@@ -6273,7 +6281,12 @@ export class ZoneServer2016 extends EventEmitter {
     });
   }
 
-  useConsumable(client: Client, character: Character | BaseLootableEntity, item: BaseItem, animationId: number) {
+  useConsumable(
+    client: Client,
+    character: Character | BaseLootableEntity,
+    item: BaseItem,
+    animationId: number
+  ) {
     const itemDef = this.getItemDefinition(item.itemDefinitionId);
     if (!itemDef) return;
     let doReturn = true;
@@ -6634,7 +6647,12 @@ export class ZoneServer2016 extends EventEmitter {
     });
   }
 
-  shredItem(client: Client, character: Character | BaseLootableEntity, item: BaseItem, animationId: number) {
+  shredItem(
+    client: Client,
+    character: Character | BaseLootableEntity,
+    item: BaseItem,
+    animationId: number
+  ) {
     const itemDefinition = this.getItemDefinition(item.itemDefinitionId);
     if (!itemDefinition) return;
     const nameId = itemDefinition.NAME_ID,
@@ -6771,7 +6789,12 @@ export class ZoneServer2016 extends EventEmitter {
       client.character.damage(this, damageInfo);
     }
     if (givetrash) {
-      character.lootContainerItem(this, this.generateItem(givetrash), undefined, character instanceof Character);
+      character.lootContainerItem(
+        this,
+        this.generateItem(givetrash),
+        undefined,
+        character instanceof Character
+      );
     }
     if (bandagingCount && healCount) {
       if (!client.character.healingIntervals[healType]) {
@@ -6906,7 +6929,11 @@ export class ZoneServer2016 extends EventEmitter {
     fuelValue: number
   ) {
     // Also check if the vehicle is dismounted, jumping out of the car won't cancel the interaction
-    if (!client.vehicle.mountedVehicle || !this.removeInventoryItem(character, item)) return;
+    if (
+      !client.vehicle.mountedVehicle ||
+      !this.removeInventoryItem(character, item)
+    )
+      return;
     const vehicle = this._vehicles[vehicleGuid];
     vehicle._resources[ResourceIds.FUEL] += fuelValue;
     if (vehicle._resources[ResourceIds.FUEL] > 10000) {
@@ -6921,9 +6948,18 @@ export class ZoneServer2016 extends EventEmitter {
     );
   }
 
-  shredItemPass(character: Character | BaseLootableEntity, item: BaseItem, count: number) {
+  shredItemPass(
+    character: Character | BaseLootableEntity,
+    item: BaseItem,
+    count: number
+  ) {
     if (!this.removeInventoryItem(character, item)) return;
-    character.lootItem(this, this.generateItem(Items.CLOTH, count), undefined, character instanceof Character);
+    character.lootItem(
+      this,
+      this.generateItem(Items.CLOTH, count),
+      undefined,
+      character instanceof Character
+    );
   }
 
   salvageItemPass(client: Client, item: BaseItem, count: number) {

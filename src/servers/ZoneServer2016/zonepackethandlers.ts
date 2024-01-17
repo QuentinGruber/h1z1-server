@@ -2235,9 +2235,12 @@ export class ZonePacketHandlers {
           return;
         }
 
-        if(targetCharacter instanceof Vehicle2016) {
-          const loadOutSlot = targetCharacter.getAvailableLoadoutSlot(server, item.itemDefinitionId);
-          if(loadOutSlot) {
+        if (targetCharacter instanceof Vehicle2016) {
+          const loadOutSlot = targetCharacter.getAvailableLoadoutSlot(
+            server,
+            item.itemDefinitionId
+          );
+          if (loadOutSlot) {
             targetCharacter.equipItem(server, item, true, loadOutSlot, false);
             server.deleteItem(character, item.itemGuid);
             return;
@@ -2252,7 +2255,9 @@ export class ZonePacketHandlers {
       case ItemUseOptions.LOOT_VEHICLE_LOADOUT:
         const sourceCharacter = client.character.mountedContainer;
         if (!sourceCharacter) return;
-        const loadoutItem = sourceCharacter.getLoadoutItem(itemGuid) || sourceCharacter.getInventoryItem(itemGuid);
+        const loadoutItem =
+          sourceCharacter.getLoadoutItem(itemGuid) ||
+          sourceCharacter.getInventoryItem(itemGuid);
         if (loadoutItem) {
           const container = client.character.getAvailableContainer(
             server,
@@ -2269,17 +2274,25 @@ export class ZonePacketHandlers {
             );
             return;
           }
-          if(loadoutItem instanceof LoadoutItem) {
+          if (loadoutItem instanceof LoadoutItem) {
             sourceCharacter.transferItemFromLoadout(
               server,
               container,
               loadoutItem
             );
           }
-          if(loadoutItem instanceof BaseItem) {
-            const sourceContainer = sourceCharacter.getContainerFromGuid(loadoutItem.containerGuid);
-            if(sourceContainer) {
-              sourceContainer.transferItem(server, container, loadoutItem, 0, count);
+          if (loadoutItem instanceof BaseItem) {
+            const sourceContainer = sourceCharacter.getContainerFromGuid(
+              loadoutItem.containerGuid
+            );
+            if (sourceContainer) {
+              sourceContainer.transferItem(
+                server,
+                container,
+                loadoutItem,
+                0,
+                count
+              );
             }
           }
           if (sourceCharacter instanceof Vehicle2016) {
@@ -2591,10 +2604,18 @@ export class ZonePacketHandlers {
         return;
       }
 
-      if(sourceCharacter instanceof Vehicle2016 && newSlotId) {
-        const loadOutSlot = sourceCharacter.getAvailableLoadoutSlot(server, item.itemDefinitionId);
-        if(loadOutSlot && loadOutSlot == newSlotId) {
-          sourceCharacter.equipContainerItem(server, item, newSlotId, sourceCharacter);
+      if (sourceCharacter instanceof Vehicle2016 && newSlotId) {
+        const loadOutSlot = sourceCharacter.getAvailableLoadoutSlot(
+          server,
+          item.itemDefinitionId
+        );
+        if (loadOutSlot && loadOutSlot == newSlotId) {
+          sourceCharacter.equipContainerItem(
+            server,
+            item,
+            newSlotId,
+            sourceCharacter
+          );
           return;
         }
       }
