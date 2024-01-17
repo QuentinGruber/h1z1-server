@@ -2591,6 +2591,14 @@ export class ZonePacketHandlers {
         return;
       }
 
+      if(sourceCharacter instanceof Vehicle2016 && newSlotId) {
+        const loadOutSlot = sourceCharacter.getAvailableLoadoutSlot(server, item.itemDefinitionId);
+        if(loadOutSlot && loadOutSlot == newSlotId) {
+          sourceCharacter.equipContainerItem(server, item, newSlotId, sourceCharacter);
+          return;
+        }
+      }
+
       if (!Number(containerGuid)) {
         client.character.lootItemFromContainer(
           server,
