@@ -229,6 +229,7 @@ export interface Recipe {
   bundleCount?: number;
   components: Array<RecipeComponent>;
   requireWorkbench?: boolean
+  requireWeaponWorkbench?: boolean
   leftOverItems?: number[]
 }
 
