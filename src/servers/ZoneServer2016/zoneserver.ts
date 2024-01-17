@@ -73,7 +73,7 @@ import {
   remoteWeaponUpdatePacketsType,
   weaponPacketsType
 } from "../../types/weaponPackets";
-import { Character2016 as Character, Character2016 } from "./entities/character";
+import { Character2016 as Character } from "./entities/character";
 import {
   _,
   generateRandomGuid,
