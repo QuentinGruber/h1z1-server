@@ -229,7 +229,6 @@ import { SOEOutputChannels } from "../../servers/SoeServer/soeoutputstream";
 import { scheduler } from "node:timers/promises";
 import { GatewayChannels } from "h1emu-core";
 import { IngameTimeManager } from "./managers/gametimemanager";
-import { server } from "typescript";
 
 const spawnLocations2 = require("../../../data/2016/zoneData/Z1_gridSpawns.json"),
   deprecatedDoors = require("../../../data/2016/sampleData/deprecatedDoors.json"),
@@ -6423,7 +6422,11 @@ export class ZoneServer2016 extends EventEmitter {
     this.applyMovementModifier(client, MovementModifiers.SWIZZLE);
   }
 
-  fertilizePlants(client: Client, character: BaseFullCharacter, item: BaseItem) {
+  fertilizePlants(
+    client: Client,
+    character: BaseFullCharacter,
+    item: BaseItem
+  ) {
     if (!this.removeInventoryItem(character, item)) return;
     for (const characterId in this._temporaryObjects) {
       const object = this._temporaryObjects[characterId];
@@ -6509,7 +6512,12 @@ export class ZoneServer2016 extends EventEmitter {
     );
   }
 
-  useItem(client: Client, character: BaseFullCharacter, item: BaseItem, animationId: number) {
+  useItem(
+    client: Client,
+    character: BaseFullCharacter,
+    item: BaseItem,
+    animationId: number
+  ) {
     const itemDef = this.getItemDefinition(item.itemDefinitionId);
     if (!itemDef) return;
     const nameId = itemDef.NAME_ID;
@@ -6681,7 +6689,12 @@ export class ZoneServer2016 extends EventEmitter {
     });
   }
 
-  salvageAmmo(client: Client, character: BaseFullCharacter, item: BaseItem, animationId: number) {
+  salvageAmmo(
+    client: Client,
+    character: BaseFullCharacter,
+    item: BaseItem,
+    animationId: number
+  ) {
     const itemDefinition = this.getItemDefinition(item.itemDefinitionId);
     if (!itemDefinition) return;
     const nameId = itemDefinition.NAME_ID;
@@ -6951,17 +6964,11 @@ export class ZoneServer2016 extends EventEmitter {
   salvageItemPass(character: BaseFullCharacter, item: BaseItem, count: number) {
     if (!this.removeInventoryItem(character, item)) return;
     if (item.itemDefinitionId == Items.AMMO_12GA) {
-      character.lootItem(
-        this,
-        this.generateItem(Items.SHARD_PLASTIC, 1)
-      );
+      character.lootItem(this, this.generateItem(Items.SHARD_PLASTIC, 1));
     }
     character.lootItem(this, this.generateItem(Items.ALLOY_LEAD, count));
     character.lootItem(this, this.generateItem(Items.SHARD_BRASS, 1));
-    character.lootItem(
-      this,
-      this.generateItem(Items.GUNPOWDER_REFINED, 1)
-    );
+    character.lootItem(this, this.generateItem(Items.GUNPOWDER_REFINED, 1));
   }
 
   repairOption(
