@@ -17,7 +17,7 @@ import { BaseFullCharacter } from "./basefullcharacter";
 import { ZoneClient2016 } from "../classes/zoneclient";
 import { logClientActionToMongo } from "../../../utils/utils";
 import { DB_COLLECTIONS } from "../../../utils/enums";
-import { Items, MeleeTypes, StringIds } from "../models/enums";
+import { Items, StringIds } from "../models/enums";
 import { CommandInteractionString } from "types/zone2016packets";
 
 export class Npc extends BaseFullCharacter {
@@ -25,8 +25,9 @@ export class Npc extends BaseFullCharacter {
   npcRenderDistance = 80;
   spawnerId: number;
   deathTime: number = 0;
+  isZombie = false;
+  isWildlife = false;
   rewardItems: { itemDefId: number; weight: number }[] = [];
-  requiredHarvestItems: number[] = [];
   canReceiveDamage = true;
   flags = {
     bit0: 0,
@@ -89,15 +90,19 @@ export class Npc extends BaseFullCharacter {
       this.deathTime = Date.now();
       server.worldObjectManager.createLootbag(server, this);
       if (client) {
-        if (!server._soloMode) {
-          logClientActionToMongo(
-            server._db.collection(DB_COLLECTIONS.KILLS),
-            client,
-            server._worldId,
-            { type: "zombie" }
-          );
+        if (this.isZombie || this.isWildlife) {
+          const killType = this.isZombie ? "zombies" : "wildlife";
+
+          if (!server._soloMode) {
+            logClientActionToMongo(
+              server._db.collection(DB_COLLECTIONS.KILLS),
+              client,
+              server._worldId,
+              { type: killType }
+            );
+          }
+          (client.character.metrics as any)[killType + "Killed"]++;
         }
-        client.character.metrics.zombiesKilled++;
       }
       server.sendDataToAllWithSpawnedEntity(
         server._npcs,
@@ -169,33 +174,7 @@ export class Npc extends BaseFullCharacter {
   }
 
   OnMeleeHit(server: ZoneServer2016, damageInfo: DamageInfo) {
-    if (damageInfo.meleeType && !this.isAlive) {
-      const client = server.getClientByCharId(damageInfo.entity);
-
-      if (
-        this.requiredHarvestItems.includes(damageInfo.meleeType) &&
-        client &&
-        this.rewardItems.length > 0
-      ) {
-        const totalWeight = this.rewardItems.reduce(
-          (sum, item) => sum + item.weight,
-          0
-        );
-        const randomValue = Math.random() * totalWeight;
-
-        let cumulativeWeight = 0;
-        for (const reward of this.rewardItems) {
-          cumulativeWeight += reward.weight;
-          if (randomValue <= cumulativeWeight) {
-            if (reward.itemDefId == 0) break; // Don't always give a reward
-            //TODO: Keep track if the brain was already harvested.
-            const rewardItem = server.generateItem(reward.itemDefId, 1);
-            if (rewardItem) client.character.lootItem(server, rewardItem);
-            break;
-          }
-        }
-      }
-    }
+    if (!this.isAlive) return; // prevent dead npc despawning from melee dmg
 
     damageInfo.damage = damageInfo.damage / 1.5;
     this.damage(server, damageInfo);
@@ -213,16 +192,7 @@ export class Npc extends BaseFullCharacter {
       case 9510:
       case 9634:
         this.nameId = StringIds.ZOMBIE_WALKER;
-        this.requiredHarvestItems = [
-          MeleeTypes.BLADE,
-          MeleeTypes.BLUNT,
-          MeleeTypes.KNIFE
-        ];
         this.rewardItems = [
-          {
-            itemDefId: 0,
-            weight: 60
-          },
           {
             itemDefId: Items.CLOTH,
             weight: 40
@@ -232,70 +202,135 @@ export class Npc extends BaseFullCharacter {
             weight: 10
           }
         ];
+        this.isZombie = true;
         break;
       case 9253:
       case 9002:
         this.nameId = StringIds.DEER;
-        this.requiredHarvestItems = [MeleeTypes.KNIFE];
         this.rewardItems = [
-          {
-            itemDefId: 0,
-            weight: 40
-          },
           {
             itemDefId: Items.MEAT_VENISON,
             weight: 30
           },
           {
             itemDefId: Items.ANIMAL_FAT,
-            weight: 15
-          },
-          {
-            itemDefId: Items.DEER_SCENT,
-            weight: 5
+            weight: 20
           },
           {
             itemDefId: Items.DEER_BLADDER,
             weight: 10
           }
         ];
+        this.isWildlife = true;
         break;
       case 9003:
         this.nameId = StringIds.WOLF;
-        this.requiredHarvestItems = [MeleeTypes.KNIFE];
         this.rewardItems = [
           {
-            itemDefId: 0,
-            weight: 45
-          },
-          {
             itemDefId: Items.MEAT_WOLF,
-            weight: 40
+            weight: 30
           },
           {
             itemDefId: Items.ANIMAL_FAT,
-            weight: 15
+            weight: 20
           }
         ];
+        this.isWildlife = true;
         break;
       case 9187:
         this.nameId = StringIds.BEAR;
-        this.requiredHarvestItems = [MeleeTypes.KNIFE];
         this.rewardItems = [
-          {
-            itemDefId: 0,
-            weight: 45
-          },
           {
             itemDefId: Items.MEAT_BEAR,
             weight: 40
           },
           {
             itemDefId: Items.ANIMAL_FAT,
-            weight: 15
+            weight: 20
           }
         ];
+        this.isWildlife = true;
         break;
+    }
+  }
+
+  OnPlayerSelect(server: ZoneServer2016, client: ZoneClient2016) {
+    if (!this.isAlive && client.character.hasItem(Items.SKINNING_KNIFE)) {
+      server.utilizeHudTimer(client, this.nameId, 5000, 0, () => {
+        switch (this.actorModelId) {
+          case 9510:
+          case 9634:
+            const emptySyringe = client.character.getItemById(Items.SYRINGE_EMPTY);
+            if (emptySyringe) {
+              client.character.lootContainerItem(
+                server,
+                server.generateItem(Items.SYRINGE_INFECTED_BLOOD)
+              );
+              server.removeInventoryItem(client.character, emptySyringe)
+              return;
+            }
+            this.triggerAwards(server, client, this.rewardItems)
+            break;
+          case 9253:
+          case 9002:
+            this.triggerAwards(server, client, this.rewardItems)
+            break;
+          case 9187:
+            this.triggerAwards(server, client, this.rewardItems)
+            break;
+          case 9003:
+            this.triggerAwards(server, client, this.rewardItems)
+            break;
+        }
+        server.deleteEntity(this.characterId, server._npcs);
+      });
+    }
+  }
+
+  triggerAwards(server: ZoneServer2016, client: ZoneClient2016, rewardItems: { itemDefId: number; weight: number}[]) { 
+    let totalWeight = 0;
+    let count = 1;
+    rewardItems.forEach(
+      (itemInstance: { itemDefId: number; weight: number}) => {
+        const randomChance = Math.random() * totalWeight;
+        
+        if (randomChance <= itemInstance.weight) {
+          totalWeight += itemInstance.weight;
+
+          if (Math.random() <= 0.4) { // 40% chance to spawn double rewards
+            count = 2;
+          }
+
+          const item = server.generateItem(
+            itemInstance.itemDefId,
+            count
+          );
+          client.character.lootContainerItem(server, item);
+        } else {
+          totalWeight += itemInstance.weight;
+        } 
+      }
+    );
+  }
+
+  OnInteractionString(server: ZoneServer2016, client: ZoneClient2016) {
+    if (!this.isAlive && client.character.hasItem(Items.SKINNING_KNIFE)) {
+      switch (this.actorModelId) {
+        case 9510:
+        case 9634:
+          if (client.character.hasItem(Items.SYRINGE_EMPTY)) {
+            this.sendInteractionString(server, client, StringIds.EXTRACT_BLOOD);
+            return;
+          }
+          this.sendInteractionString(server, client, StringIds.HARVEST);
+          break;
+        case 9253:
+        case 9003:
+        case 9187:
+        case 9002:
+          this.sendInteractionString(server, client, StringIds.HARVEST);
+          break;
+      }
     }
   }
 
