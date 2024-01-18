@@ -260,26 +260,28 @@ export class Npc extends BaseFullCharacter {
         switch (this.actorModelId) {
           case 9510:
           case 9634:
-            const emptySyringe = client.character.getItemById(Items.SYRINGE_EMPTY);
+            const emptySyringe = client.character.getItemById(
+              Items.SYRINGE_EMPTY
+            );
             if (emptySyringe) {
               client.character.lootContainerItem(
                 server,
                 server.generateItem(Items.SYRINGE_INFECTED_BLOOD)
               );
-              server.removeInventoryItem(client.character, emptySyringe)
+              server.removeInventoryItem(client.character, emptySyringe);
               return;
             }
-            this.triggerAwards(server, client, this.rewardItems)
+            this.triggerAwards(server, client, this.rewardItems);
             break;
           case 9253:
           case 9002:
-            this.triggerAwards(server, client, this.rewardItems)
+            this.triggerAwards(server, client, this.rewardItems);
             break;
           case 9187:
-            this.triggerAwards(server, client, this.rewardItems)
+            this.triggerAwards(server, client, this.rewardItems);
             break;
           case 9003:
-            this.triggerAwards(server, client, this.rewardItems)
+            this.triggerAwards(server, client, this.rewardItems);
             break;
         }
         server.deleteEntity(this.characterId, server._npcs);
@@ -287,28 +289,30 @@ export class Npc extends BaseFullCharacter {
     }
   }
 
-  triggerAwards(server: ZoneServer2016, client: ZoneClient2016, rewardItems: { itemDefId: number; weight: number}[]) { 
+  triggerAwards(
+    server: ZoneServer2016,
+    client: ZoneClient2016,
+    rewardItems: { itemDefId: number; weight: number }[]
+  ) {
     let totalWeight = 0;
     let count = 1;
     rewardItems.forEach(
-      (itemInstance: { itemDefId: number; weight: number}) => {
+      (itemInstance: { itemDefId: number; weight: number }) => {
         const randomChance = Math.random() * totalWeight;
-        
+
         if (randomChance <= itemInstance.weight) {
           totalWeight += itemInstance.weight;
 
-          if (Math.random() <= 0.4) { // 40% chance to spawn double rewards
+          if (Math.random() <= 0.4) {
+            // 40% chance to spawn double rewards
             count = 2;
           }
 
-          const item = server.generateItem(
-            itemInstance.itemDefId,
-            count
-          );
+          const item = server.generateItem(itemInstance.itemDefId, count);
           client.character.lootContainerItem(server, item);
         } else {
           totalWeight += itemInstance.weight;
-        } 
+        }
       }
     );
   }
