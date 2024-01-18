@@ -6974,6 +6974,7 @@ export class ZoneServer2016 extends EventEmitter {
 
   repairOption(
     client: Client,
+    character: Character | BaseLootableEntity,
     item: BaseItem,
     repairItem: BaseItem,
     animationId: number
@@ -7004,12 +7005,13 @@ export class ZoneServer2016 extends EventEmitter {
     const nameId = itemDef.NAME_ID;
 
     this.utilizeHudTimer(client, nameId, 5000, animationId, () => {
-      this.repairOptionPass(client, item, repairItem, durability);
+      this.repairOptionPass(client, character, item, repairItem, durability);
     });
   }
 
   repairOptionPass(
     client: Client,
+    character: Character | BaseLootableEntity,
     item: BaseItem,
     repairItem: BaseItem,
     durability: number
@@ -7018,7 +7020,7 @@ export class ZoneServer2016 extends EventEmitter {
       isGunKit = item.itemDefinitionId == Items.GUN_REPAIR_KIT,
       repairAmount = diff < 500 ? diff : 500;
 
-    if (!this.removeInventoryItem(client.character, item)) return;
+    if (!this.removeInventoryItem(character, item)) return;
     if (isGunKit) {
       repairItem.currentDurability = 2000;
     } else {

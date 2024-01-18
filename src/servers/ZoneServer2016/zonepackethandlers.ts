@@ -2022,6 +2022,7 @@ export class ZonePacketHandlers {
       case ItemUseOptions.LOOT_BATTERY:
       case ItemUseOptions.LOOT_SPARKS:
       case ItemUseOptions.LOOT_VEHICLE_LOADOUT:
+      case ItemUseOptions.REPAIR:
       case ItemUseOptions.DROP:
       case ItemUseOptions.DROP_BATTERY:
       case ItemUseOptions.DROP_SPARKS:
@@ -2340,14 +2341,14 @@ export class ZonePacketHandlers {
         server.useAmmoBox(client, character, item);
         break;
       case ItemUseOptions.REPAIR:
-        const repairItem = character.getInventoryItem(
+        const repairItem = client.character.getInventoryItem(
           (packet.data.itemSubData as any)?.targetItemGuid
         );
         if (!repairItem) {
           server.sendChatText(client, "[ERROR] Invalid weapon");
           return;
         }
-        server.repairOption(client, item, repairItem, animationId);
+        server.repairOption(client, character, item, repairItem, animationId);
         break;
       default:
         server.sendChatText(
