@@ -229,6 +229,7 @@ import { SOEOutputChannels } from "../../servers/SoeServer/soeoutputstream";
 import { scheduler } from "node:timers/promises";
 import { GatewayChannels } from "h1emu-core";
 import { IngameTimeManager } from "./managers/gametimemanager";
+import { server } from "typescript";
 
 const spawnLocations2 = require("../../../data/2016/zoneData/Z1_gridSpawns.json"),
   deprecatedDoors = require("../../../data/2016/sampleData/deprecatedDoors.json"),
@@ -6129,7 +6130,7 @@ export class ZoneServer2016 extends EventEmitter {
     }
 
     if (client.currentPOI || blockedArea) {
-      this.sendAlert(client, "You are too close to the restricted area.");
+      this.sendAlert(client, "You are too close to a restricted area.");
       return;
     }
 
@@ -6644,6 +6645,7 @@ export class ZoneServer2016 extends EventEmitter {
     const vehicle = this._vehicles[vehicleGuid];
     if (vehicle._resources[ResourceIds.FUEL] + fuelValue > 10000) {
       // Prevent players from overfilling their car to reserve fuel.
+      this.sendAlert(client, "Fuel level is not low enough to refuel");
       return;
     }
     this.utilizeHudTimer(client, nameId, timeout, animationId, () => {
