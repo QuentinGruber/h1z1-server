@@ -88,7 +88,6 @@ import {
   toBigHex,
   toHex,
   calculate_falloff,
-  checkConstructionInRange,
   resolveHostAddress,
   getDifference,
   logClientActionToMongo,
@@ -6702,26 +6701,6 @@ export class ZoneServer2016 extends EventEmitter {
       );
       return;
     }
-    if (
-      !checkConstructionInRange(
-        this._constructionSimple,
-        client.character.state.position,
-        3,
-        Items.WORKBENCH_WEAPON
-      ) &&
-      !checkConstructionInRange(
-        this._worldSimpleConstruction,
-        client.character.state.position,
-        3,
-        Items.WORKBENCH_WEAPON
-      )
-    ) {
-      this.sendAlert(
-        client,
-        "You must be near a weapon workbench to complete this recipe"
-      );
-      return;
-    }
     const count =
       item.itemDefinitionId == Items.AMMO_12GA ||
       item.itemDefinitionId == Items.AMMO_762 ||
@@ -6969,6 +6948,12 @@ export class ZoneServer2016 extends EventEmitter {
 
   salvageItemPass(client: Client, item: BaseItem, count: number) {
     if (!this.removeInventoryItem(client.character, item)) return;
+    if (item.itemDefinitionId == Items.AMMO_12GA) {
+      client.character.lootItem(
+        this,
+        this.generateItem(Items.SHARD_PLASTIC, 1)
+      );
+    }
     client.character.lootItem(this, this.generateItem(Items.ALLOY_LEAD, count));
     client.character.lootItem(this, this.generateItem(Items.SHARD_BRASS, 1));
     client.character.lootItem(
