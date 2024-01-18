@@ -2004,48 +2004,6 @@ export class ZonePacketHandlers {
     }
     const animationId =
       server._itemUseOptions[itemUseOption ?? 0]?.animationId ?? 0;
-    // temporarily block most use options from external containers
-    switch (itemUseOption) {
-      case ItemUseOptions.REFUEL:
-      case ItemUseOptions.EQUIP:
-      case ItemUseOptions.SHRED:
-      case ItemUseOptions.UNPACK:
-      case ItemUseOptions.UNPACK_BUNDLE:
-      case ItemUseOptions.DRINK:
-      case ItemUseOptions.EAT:
-      case ItemUseOptions.USE_MEDICAL:
-      case ItemUseOptions.USE_AIRDROP:
-      case ItemUseOptions.LOOT:
-      case ItemUseOptions.MOVE_VEHICLE_PARTS:
-      case ItemUseOptions.MOVE_BATTERY:
-      case ItemUseOptions.MOVE_SPARKS:
-      case ItemUseOptions.LOOT_BATTERY:
-      case ItemUseOptions.LOOT_SPARKS:
-      case ItemUseOptions.LOOT_VEHICLE_LOADOUT:
-      case ItemUseOptions.REPAIR:
-      case ItemUseOptions.IGNITE:
-      case ItemUseOptions.SLICE:
-      case ItemUseOptions.DROP:
-      case ItemUseOptions.DROP_BATTERY:
-      case ItemUseOptions.DROP_SPARKS:
-      case ItemUseOptions.HOTWIRE_OFFROADER:
-      case ItemUseOptions.HOTWIRE_PICKUP:
-      case ItemUseOptions.HOTWIRE_POLICE:
-      case ItemUseOptions.HOTWIRE_ATV:
-      case ItemUseOptions.HOTWIRE_ATV_NO_PARTS:
-      case ItemUseOptions.HOTWIRE_OFFROADER_NO_PARTS:
-      case ItemUseOptions.HOTWIRE_PICKUP_NO_PARTS:
-      case ItemUseOptions.HOTWIRE_POLICE_NO_PARTS:
-        break;
-      default:
-        if (!(character instanceof Character2016)) {
-          server.sendAlert(
-            client,
-            "This use option is temporarily disabled from use in containers."
-          );
-          return;
-        }
-    }
 
     const item = character.getInventoryItem(itemGuid);
     if (!item) {
@@ -2165,7 +2123,7 @@ export class ZonePacketHandlers {
         });
         break;
       case ItemUseOptions.USE:
-        server.useItem(client, item, animationId);
+        server.useItem(client, character, item, animationId);
         break;
       case ItemUseOptions.REFUEL:
         server.refuelVehicle(
@@ -2189,7 +2147,7 @@ export class ZonePacketHandlers {
         }
         break;
       case ItemUseOptions.SALVAGE:
-        server.salvageAmmo(client, item, animationId);
+        server.salvageAmmo(client, character, item, animationId);
         break;
       case ItemUseOptions.LOOT:
         const containerEnt = client.character.mountedContainer,

@@ -6409,22 +6409,22 @@ export class ZoneServer2016 extends EventEmitter {
     });
   }
 
-  fillPass(client: Client, item: BaseItem) {
+  fillPass(client: Client, character: BaseFullCharacter, item: BaseItem) {
     if (client.character.characterStates.inWater) {
-      if (!this.removeInventoryItem(client.character, item)) return;
-      client.character.lootContainerItem(this, this.generateItem(1368)); // give dirty water
+      if (!this.removeInventoryItem(character, item)) return;
+      character.lootContainerItem(this, this.generateItem(1368)); // give dirty water
     } else {
       this.sendAlert(client, "There is no water source nearby");
     }
   }
 
-  sniffPass(client: Client, item: BaseItem) {
-    if (!this.removeInventoryItem(client.character, item)) return;
+  sniffPass(client: Client, character: BaseFullCharacter, item: BaseItem) {
+    if (!this.removeInventoryItem(character, item)) return;
     this.applyMovementModifier(client, MovementModifiers.SWIZZLE);
   }
 
-  fertilizePlants(client: Client, item: BaseItem) {
-    if (!this.removeInventoryItem(client.character, item)) return;
+  fertilizePlants(client: Client, character: BaseFullCharacter, item: BaseItem) {
+    if (!this.removeInventoryItem(character, item)) return;
     for (const characterId in this._temporaryObjects) {
       const object = this._temporaryObjects[characterId];
       if (
@@ -6453,8 +6453,8 @@ export class ZoneServer2016 extends EventEmitter {
     }
   }
 
-  usePills(client: Client, item: BaseItem) {
-    if (!this.removeInventoryItem(client.character, item)) return;
+  usePills(client: Client, character: BaseFullCharacter, item: BaseItem) {
+    if (!this.removeInventoryItem(character, item)) return;
     let hudIndicator: HudIndicator | undefined = undefined;
     switch (item.itemDefinitionId) {
       case Items.COLD_MEDICINE:
@@ -6509,7 +6509,7 @@ export class ZoneServer2016 extends EventEmitter {
     );
   }
 
-  useItem(client: Client, item: BaseItem, animationId: number) {
+  useItem(client: Client, character: BaseFullCharacter, item: BaseItem, animationId: number) {
     const itemDef = this.getItemDefinition(item.itemDefinitionId);
     if (!itemDef) return;
     const nameId = itemDef.NAME_ID;
@@ -6544,14 +6544,14 @@ export class ZoneServer2016 extends EventEmitter {
         break;
       case Items.FERTILIZER:
         this.utilizeHudTimer(client, nameId, timeout, animationId, () => {
-          this.fertilizePlants(client, item);
+          this.fertilizePlants(client, character, item);
         });
         return;
       case Items.COLD_MEDICINE:
       case Items.VITAMINS:
       case Items.IMMUNITY_BOOSTERS:
         this.utilizeHudTimer(client, nameId, timeout, animationId, () => {
-          this.usePills(client, item);
+          this.usePills(client, character, item);
         });
         return;
       default:
@@ -6564,12 +6564,12 @@ export class ZoneServer2016 extends EventEmitter {
     switch (useoption) {
       case "fill": // empty bottle
         this.utilizeHudTimer(client, nameId, timeout, animationId, () => {
-          this.fillPass(client, item);
+          this.fillPass(client, character, item);
         });
         break;
       case "sniff": // swizzle
         this.utilizeHudTimer(client, nameId, timeout, animationId, () => {
-          this.sniffPass(client, item);
+          this.sniffPass(client, character, item);
         });
         break;
       default:
@@ -6681,7 +6681,7 @@ export class ZoneServer2016 extends EventEmitter {
     });
   }
 
-  salvageAmmo(client: Client, item: BaseItem, animationId: number) {
+  salvageAmmo(client: Client, character: BaseFullCharacter, item: BaseItem, animationId: number) {
     const itemDefinition = this.getItemDefinition(item.itemDefinitionId);
     if (!itemDefinition) return;
     const nameId = itemDefinition.NAME_ID;
@@ -6711,7 +6711,7 @@ export class ZoneServer2016 extends EventEmitter {
         ? 2
         : 1;
     this.utilizeHudTimer(client, nameId, timeout, animationId, () => {
-      this.salvageItemPass(client, item, count);
+      this.salvageItemPass(character, item, count);
     });
   }
 
@@ -6948,17 +6948,17 @@ export class ZoneServer2016 extends EventEmitter {
     );
   }
 
-  salvageItemPass(client: Client, item: BaseItem, count: number) {
-    if (!this.removeInventoryItem(client.character, item)) return;
+  salvageItemPass(character: BaseFullCharacter, item: BaseItem, count: number) {
+    if (!this.removeInventoryItem(character, item)) return;
     if (item.itemDefinitionId == Items.AMMO_12GA) {
-      client.character.lootItem(
+      character.lootItem(
         this,
         this.generateItem(Items.SHARD_PLASTIC, 1)
       );
     }
-    client.character.lootItem(this, this.generateItem(Items.ALLOY_LEAD, count));
-    client.character.lootItem(this, this.generateItem(Items.SHARD_BRASS, 1));
-    client.character.lootItem(
+    character.lootItem(this, this.generateItem(Items.ALLOY_LEAD, count));
+    character.lootItem(this, this.generateItem(Items.SHARD_BRASS, 1));
+    character.lootItem(
       this,
       this.generateItem(Items.GUNPOWDER_REFINED, 1)
     );
