@@ -13,8 +13,7 @@
 
 import { Npc } from "./npc";
 import { ZoneServer2016 } from "../zoneserver";
-import { Items, MaterialTypes, StringIds } from "../models/enums";
-import { ZoneClient2016 } from "../classes/zoneclient";
+import { MaterialTypes } from "../models/enums";
 
 export class Zombie extends Npc {
   constructor(
