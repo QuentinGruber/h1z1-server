@@ -1015,7 +1015,7 @@ export class Vehicle2016 extends BaseLootableEntity {
   }
 
   isFlipped(): boolean {
-    return Math.abs(this.positionUpdate.sideTilt) > 2;
+    return Math.abs(this.positionUpdate.sideTilt) > 1.75;
   }
 
   flipVehicle(server: ZoneServer2016) {
