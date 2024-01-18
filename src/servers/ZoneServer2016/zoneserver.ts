@@ -6577,7 +6577,12 @@ export class ZoneServer2016 extends EventEmitter {
     }
   }
 
-  sliceItem(client: Client, item: BaseItem, animationId: number) {
+  sliceItem(
+    client: Client,
+    character: Character | BaseLootableEntity,
+    item: BaseItem,
+    animationId: number
+  ) {
     const itemDef = this.getItemDefinition(item.itemDefinitionId);
     if (!itemDef) return;
     const nameId = itemDef.NAME_ID;
@@ -6602,7 +6607,7 @@ export class ZoneServer2016 extends EventEmitter {
       return;
     }
     this.utilizeHudTimer(client, nameId, timeout, animationId, () => {
-      this.slicePass(client, item);
+      this.slicePass(character, item);
     });
   }
 
@@ -6824,10 +6829,10 @@ export class ZoneServer2016 extends EventEmitter {
     }
   }
 
-  slicePass(client: Client, item: BaseItem) {
-    if (!this.removeInventoryItem(client.character, item)) return;
+  slicePass(character: Character | BaseLootableEntity, item: BaseItem) {
+    if (!this.removeInventoryItem(character, item)) return;
     if (item.itemDefinitionId == Items.BLACKBERRY_PIE) {
-      client.character.lootContainerItem(
+      character.lootContainerItem(
         this,
         this.generateItem(Items.BLACKBERRY_PIE_SLICE, 4)
       );

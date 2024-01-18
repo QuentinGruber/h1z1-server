@@ -2023,6 +2023,8 @@ export class ZonePacketHandlers {
       case ItemUseOptions.LOOT_SPARKS:
       case ItemUseOptions.LOOT_VEHICLE_LOADOUT:
       case ItemUseOptions.REPAIR:
+      case ItemUseOptions.IGNITE:
+      case ItemUseOptions.SLICE:
       case ItemUseOptions.DROP:
       case ItemUseOptions.DROP_BATTERY:
       case ItemUseOptions.DROP_SPARKS:
@@ -2089,7 +2091,7 @@ export class ZonePacketHandlers {
         }
         break;
       case ItemUseOptions.SLICE:
-        server.sliceItem(client, item, animationId);
+        server.sliceItem(client, character, item, animationId);
         break;
       case ItemUseOptions.EQUIP:
         const activeSlotId = client.character.getActiveLoadoutSlot(itemGuid);
