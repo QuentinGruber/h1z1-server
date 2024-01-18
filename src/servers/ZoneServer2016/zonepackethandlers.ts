@@ -151,7 +151,6 @@ import { Destroyable } from "./entities/destroyable";
 import { Lootbag } from "./entities/lootbag";
 import { ReceivedPacket } from "types/shared";
 import { LoadoutItem } from "./classes/loadoutItem";
-import { BaseItem } from "./classes/baseItem";
 
 function getStanceFlags(num: number): StanceFlags {
   function getBit(bin: string, bit: number) {
@@ -2241,8 +2240,12 @@ export class ZonePacketHandlers {
             item.itemDefinitionId
           );
           if (loadOutSlot) {
-            targetCharacter.equipItem(server, item, true, loadOutSlot, false);
-            server.deleteItem(character, item.itemGuid);
+            targetCharacter.equipContainerItem(
+              server,
+              item,
+              loadOutSlot,
+              character
+            );
             return;
           }
         }
@@ -2274,32 +2277,36 @@ export class ZonePacketHandlers {
             );
             return;
           }
-          if (loadoutItem instanceof LoadoutItem) {
+
+          if (
+            loadoutItem instanceof LoadoutItem &&
+            character._loadout[item.slotId]
+          ) {
             sourceCharacter.transferItemFromLoadout(
               server,
               container,
               loadoutItem
             );
-          }
-          if (loadoutItem instanceof BaseItem) {
-            const sourceContainer = sourceCharacter.getContainerFromGuid(
-              loadoutItem.containerGuid
-            );
-            if (sourceContainer) {
-              sourceContainer.transferItem(
-                server,
-                container,
-                loadoutItem,
-                0,
-                count
-              );
+
+            if (sourceCharacter instanceof Vehicle2016) {
+              sourceCharacter.checkEngineRequirements(server, false);
             }
-          }
-          if (sourceCharacter instanceof Vehicle2016) {
-            sourceCharacter.checkEngineRequirements(server, false);
+
+            return;
           }
 
-          return;
+          const sourceContainer = sourceCharacter.getContainerFromGuid(
+            loadoutItem.containerGuid
+          );
+          if (sourceContainer) {
+            sourceContainer.transferItem(
+              server,
+              container,
+              loadoutItem,
+              0,
+              count
+            );
+          }
         }
         break;
       case ItemUseOptions.HOTWIRE_OFFROADER:
