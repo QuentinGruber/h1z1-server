@@ -88,7 +88,6 @@ import {
   toBigHex,
   toHex,
   calculate_falloff,
-  checkConstructionInRange,
   resolveHostAddress,
   getDifference,
   logClientActionToMongo,
