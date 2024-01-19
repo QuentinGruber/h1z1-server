@@ -514,11 +514,13 @@ export const commands: Array<Command> = [
         client,
         `Players: ${Object.values(server._clients)
           .map((c) => {
-            return `${c.character.name}: ${c.loginSessionId} | ${
-              server.getSoeClient(c.soeClientId)?.getNetworkStats()[2]
-            } | ${server.getSoeClient(c.soeClientId)?.getNetworkStats()[0]} | ${
-              server.getSoeClient(c.soeClientId)?.getNetworkStats()[1]
-            }`;
+            return `${c.character.name}: ${c.loginSessionId} | ${server
+              .getSoeClient(c.soeClientId)
+              ?.getNetworkStats()[2]} | ${server
+              .getSoeClient(c.soeClientId)
+              ?.getNetworkStats()[0]} | ${server
+              .getSoeClient(c.soeClientId)
+              ?.getNetworkStats()[1]}`;
           })
           .join(",\n")}`
       );
@@ -2381,9 +2383,8 @@ export const commands: Array<Command> = [
       let counter = 1;
       for (const a in server._constructionFoundations) {
         const foundation = server._constructionFoundations[a];
-        const name = server.getItemDefinition(
-          foundation.itemDefinitionId
-        )?.NAME;
+        const name = server.getItemDefinition(foundation.itemDefinitionId)
+          ?.NAME;
         if (
           foundation.ownerCharacterId === targetClient.character.characterId
         ) {
@@ -2472,9 +2473,8 @@ export const commands: Array<Command> = [
           );
           Object.values(container.items).forEach((item: BaseItem) => {
             counter++;
-            const itemName = server.getItemDefinition(
-              item?.itemDefinitionId
-            )?.NAME;
+            const itemName = server.getItemDefinition(item?.itemDefinitionId)
+              ?.NAME;
             server.sendChatText(
               client,
               `${counter}. ${

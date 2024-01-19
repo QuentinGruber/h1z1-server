@@ -936,9 +936,8 @@ export abstract class BaseFullCharacter extends BaseLightweightCharacter {
         }
         break;
       case ItemClasses.BACKPACKS:
-        const currentItemBulk = server.getContainerDefinition(
-            itemDef?.PARAM1
-          )?.MAX_BULK,
+        const currentItemBulk = server.getContainerDefinition(itemDef?.PARAM1)
+            ?.MAX_BULK,
           loadOutItemDef = server.getItemDefinition(
             this._loadout[slot]?.itemDefinitionId
           ),
