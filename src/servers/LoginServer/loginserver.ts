@@ -35,7 +35,6 @@ import {
 } from "../../types/loginserver";
 import Client from "servers/LoginServer/loginclient";
 import fs from "node:fs";
-import path from "node:path";
 import { loginPacketsType } from "types/packets";
 import { Worker } from "node:worker_threads";
 import { FileHash, httpServerMessage } from "types/shared";
