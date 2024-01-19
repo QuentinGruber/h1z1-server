@@ -72,9 +72,8 @@ const debugName = "LoginServer";
 const debug = require("debug")(debugName);
 const characterItemDefinitionsDummy = require("../../../data/2015/sampleData/characterItemDefinitionsDummy.json");
 const defaultHashes: Array<FileHash> = require("../../../data/2016/dataSources/AllowedFileHashes.json");
-const loginReply = fs.readFileSync(
-  path.resolve(__dirname, "../../../data/2016/rawData/loginReply.bin")
-);
+const loginReply = require("../../../data/2016/rawData/loginReply.json");
+const loginReplyData2016 = Buffer.from(loginReply.data, "base64");
 
 export class LoginServer extends EventEmitter {
   _soeServer: SOEServer;
@@ -543,7 +542,7 @@ export class LoginServer extends EventEmitter {
       };
       this.sendData(client, "LoginReply", loginReply);
     } else if (client.gameVersion == GAME_VERSIONS.H1Z1_6dec_2016) {
-      this._soeServer.sendAppData(client, loginReply);
+      this._soeServer.sendAppData(client, loginReplyData2016);
     }
     if (client.gameVersion == GAME_VERSIONS.H1Z1_6dec_2016 && !this._soloMode) {
       this.sendData(client, "H1emu.HadesQuery", {
