@@ -1,22 +1,21 @@
-﻿// ======================================================================
+// ======================================================================
 //
 //   GNU GENERAL PUBLIC LICENSE
 //   Version 3, 29 June 2007
 //   copyright (C) 2020 - 2021 Quentin Gruber
-//   copyright (C) 2021 - 2023 H1emu community
+//   copyright (C) 2021 - 2024 H1emu community
 //
 //   https://github.com/QuentinGruber/h1z1-server
 //   https://www.npmjs.com/package/h1z1-server
 //
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
-
 import { generate_random_guid } from "h1emu-core";
 import { compress, compressBound } from "./lz4/lz4";
 import fs, { readdirSync } from "node:fs";
 import { normalize, resolve } from "node:path";
 import { Collection, MongoClient } from "mongodb";
-import { DB_NAME, MAX_TRANSIENT_ID, MAX_UINT16 } from "./constants";
+import { DB_NAME, MAX_TRANSIENT_ID, MAX_UINT16, MAX_UINT32 } from "./constants";
 import { ZoneServer2016 } from "servers/ZoneServer2016/zoneserver";
 import { ZoneServer2015 } from "servers/ZoneServer2015/zoneserver";
 import {
@@ -33,6 +32,7 @@ import { DB_COLLECTIONS, NAME_VALIDATION_STATUS } from "./enums";
 import { Resolver } from "node:dns";
 import { ZoneClient2016 } from "servers/ZoneServer2016/classes/zoneclient";
 import * as crypto from "crypto";
+import { ZoneClient } from "servers/ZoneServer2015/classes/zoneclient";
 
 /**
  * Represents a custom implementation of lodash library.
@@ -180,7 +180,7 @@ export function eul2quat(angle: Float32Array): Float32Array {
  * @param angle - The quaternion to convert, represented as a Float32Array.
  * @returns The matrix representation of the quaternion.
  */
-export function quat2matrix(angle: Float32Array): any {
+export function quat2matrix(angle: Float32Array): number[] {
   //  may not work for other things than construction
   const x = angle[0];
   const y = angle[1];
@@ -339,14 +339,14 @@ export async function zoneShutdown(
       timeLeft: 0,
       message: message
     });
-    Object.values(server._clients).forEach((client: ZoneClient2016) => {
-      // weird issue with typescript union type system
-      //@ts-ignore
-      server.sendData(client as any, "CharacterSelectSessionResponse", {
-        status: 1,
-        sessionId: client.loginSessionId
-      });
-    });
+    Object.values(server._clients).forEach(
+      (client: ZoneClient2016 & ZoneClient) => {
+        server.sendData(client, "CharacterSelectSessionResponse", {
+          status: 1,
+          sessionId: client.loginSessionId
+        });
+      }
+    );
     setTimeout(() => {
       process.exit(0);
     }, 5000);
@@ -372,7 +372,7 @@ export async function zoneShutdown(
 export function getDifference(s1: string, s2: string) {
   s1 = s1.toLowerCase();
   s2 = s2.toLowerCase();
-  const costs: any[] = [];
+  const costs: number[] = [];
   for (let i = 0; i <= s1.length; i++) {
     let lastValue = i;
     for (let j = 0; j <= s2.length; j++) {
@@ -908,7 +908,12 @@ export class LZ4 {
    * @param eIdx - The ending index in the source data.
    * @returns The size of the compressed block.
    */
-  static encodeBlock: (src: any, dst: any, sIdx?: any, eIdx?: any) => number;
+  static encodeBlock: (
+    src: any,
+    dst: any,
+    sIdx?: number,
+    eIdx?: number
+  ) => number;
   /**
    * Calculates the size of the encoded block given the input size.
    *
@@ -1441,4 +1446,38 @@ export async function copyFile(
       reject(err);
     });
   });
+}
+
+export class TimeWrapper {
+  constructor(private fullTimeMs: number) {}
+  getSeconds() {
+    return toInt(this.fullTimeMs / 1000);
+  }
+  getMinutes() {
+    return toInt(this.fullTimeMs / 60000);
+  }
+  getHours() {
+    return toInt(this.fullTimeMs / 3600000);
+  }
+  getFull() {
+    return this.fullTimeMs;
+  }
+  getFullBigint() {
+    return BigInt(this.fullTimeMs);
+  }
+  getFullString() {
+    return Int64String(this.fullTimeMs);
+  }
+
+  getTruncatedU32() {
+    return this.fullTimeMs & MAX_UINT32;
+  }
+
+  getTruncatedU32String() {
+    return Int64String(this.fullTimeMs & MAX_UINT32);
+  }
+}
+
+export function getCurrentTimeWrapper() {
+  return new TimeWrapper(Date.now());
 }

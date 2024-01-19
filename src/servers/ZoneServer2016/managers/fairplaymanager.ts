@@ -3,7 +3,7 @@
 //   GNU GENERAL PUBLIC LICENSE
 //   Version 3, 29 June 2007
 //   copyright (C) 2020 - 2021 Quentin Gruber
-//   copyright (C) 2021 - 2023 H1emu community
+//   copyright (C) 2021 - 2024 H1emu community
 //
 //   https://github.com/QuentinGruber/h1z1-server
 //   https://www.npmjs.com/package/h1z1-server
@@ -24,6 +24,7 @@ import {
 } from "../../../utils/enums";
 import {
   decrypt,
+  getCurrentTimeWrapper,
   getDistance,
   getDistance1d,
   getDistance2d,
@@ -194,7 +195,9 @@ export class FairPlayManager {
           this.fairPlayValues.lastLoginDateAddVal <
         new Date().getTime()
       ) {
-        const drift = Math.abs(sequenceTime - server.getServerTime());
+        const drift = Math.abs(
+          sequenceTime - getCurrentTimeWrapper().getTruncatedU32()
+        );
         if (drift > this.fairPlayValues.maxTimeDrift) {
           server.kickPlayer(client);
           server.sendAlertToAll(`FairPlay: kicking ${client.character.name}`);
@@ -273,7 +276,9 @@ export class FairPlayManager {
   ): boolean {
     if (client.isAdmin || !this.useFairPlay) return false;
     if (!server.isSaving) {
-      const drift = Math.abs(sequenceTime - server.getServerTime());
+      const drift = Math.abs(
+        sequenceTime - getCurrentTimeWrapper().getTruncatedU32()
+      );
       if (drift > 10000) {
         server.kickPlayer(client);
         server.sendAlertToAll(`FairPlay: kicking ${client.character.name}`);
@@ -571,10 +576,9 @@ export class FairPlayManager {
             targetClient.character.name
           } | speed: (${speed.toFixed(
             0
-          )} / ${minSpeed}:${maxSpeed}) | ${distance.toFixed(
-            2
-          )}m | ${server.getItemDefinition(weaponItem.itemDefinitionId)
-            ?.NAME} | ${hitReport.hitLocation}`,
+          )} / ${minSpeed}:${maxSpeed}) | ${distance.toFixed(2)}m | ${
+            server.getItemDefinition(weaponItem.itemDefinitionId)?.NAME
+          } | ${hitReport.hitLocation}`,
           false
         );
         server.sendConsoleText(targetClient, message);

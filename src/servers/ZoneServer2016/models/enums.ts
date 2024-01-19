@@ -5,7 +5,7 @@
 //   GNU GENERAL PUBLIC LICENSE
 //   Version 3, 29 June 2007
 //   copyright (C) 2020 - 2021 Quentin Gruber
-//   copyright (C) 2021 - 2023 H1emu community
+//   copyright (C) 2021 - 2024 H1emu community
 //
 //   https://github.com/QuentinGruber/h1z1-server
 //   https://www.npmjs.com/package/h1z1-server
@@ -33,13 +33,16 @@ export enum ItemUseOptions {
   MOVE = 61,
   HOTWIRE_ATV = 62,
   LOOT_VEHICLE_LOADOUT = 66,
+  MOVE_VEHICLE_PARTS = 67,
   HOTWIRE_OFFROADER = 70,
   HOTWIRE_PICKUP = 71,
   HOTWIRE_POLICE = 72,
   DROP_BATTERY = 73,
   LOOT_BATTERY = 75,
+  MOVE_BATTERY = 76,
   DROP_SPARKS = 79,
   LOOT_SPARKS = 81,
+  MOVE_SPARKS = 82,
   SALVAGE = 87,
   HOTWIRE_ATV_NO_PARTS = 90,
   HOTWIRE_OFFROADER_NO_PARTS = 91,
