@@ -2,11 +2,9 @@
 
 [![Discord](https://img.shields.io/discord/707525351357677610.svg?label=&logo=discord&logoColor=ffffff&color=7389D8&labelColor=6A7EC2)](https://discord.gg/RM6jNkj)
 
-
-
 ## Description
 
-Based on the work of @jseidelin on [soe-network](https://github.com/psemu/soe-network),
+Based on the work of [jseidelin](https://github.com/jseidelin) on [soe-network](https://github.com/psemu/soe-network),
 h1z1-server is a library that emulates an H1Z1: Just Survive server.
 
 ## Motivation
@@ -15,7 +13,6 @@ A redditor said : "It's just matter of effort and to have enough people of with 
 I highly doubt that H1Z1 (Just Survive) is one of those."
 
 So we will see :)
-
 
 ## Thanks list
 
@@ -91,19 +88,19 @@ Since v0.2.3 of h1z1-server the npm package [debug](https://www.npmjs.com/packag
 
 ##### examples :
 
-* `set DEBUG=* & node loginserver.js`
-* `set DEBUG=ZoneServer & node zoneserver.js`
+- `set DEBUG=* & node loginserver.js`
+- `set DEBUG=ZoneServer & node zoneserver.js`
+
 ## Documentations
 
-* https://quentingruber.github.io/h1z1-server/
-
+- https://quentingruber.github.io/h1z1-server/
 
 ## Demo
 
-* https://github.com/H1emu/h1emu-launcher/releases/latest
+- https://github.com/H1emu/h1emu-launcher/releases/latest
 
-* [h1z1-server-QuickStart](https://github.com/H1emu/h1z1-server-QuickStart) and follow the instructions written in its README
+- [h1z1-server-QuickStart](https://github.com/H1emu/h1z1-server-QuickStart) and follow the instructions written in its README
 
-* `npx -p h1z1-server h1z1-server-demo` to try the 2015 server via npx.
+- `npx -p h1z1-server h1z1-server-demo` to try the 2015 server via npx.
 
-* `npx -p h1z1-server h1z1-server-demo-2016` to try the 2016 server via npx.
+- `npx -p h1z1-server h1z1-server-demo-2016` to try the 2016 server via npx.

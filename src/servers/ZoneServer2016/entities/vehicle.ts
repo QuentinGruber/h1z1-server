@@ -3,7 +3,7 @@
 //   GNU GENERAL PUBLIC LICENSE
 //   Version 3, 29 June 2007
 //   copyright (C) 2020 - 2021 Quentin Gruber
-//   copyright (C) 2021 - 2023 H1emu community
+//   copyright (C) 2021 - 2024 H1emu community
 //
 //   https://github.com/QuentinGruber/h1z1-server
 //   https://www.npmjs.com/package/h1z1-server
@@ -484,7 +484,6 @@ export class Vehicle2016 extends BaseLootableEntity {
   }
 
   damage(server: ZoneServer2016, damageInfo: DamageInfo) {
-    if (server.isPvE && damageInfo.hitReport?.characterId) return;
     if (this.isInvulnerable) return;
     const oldHealth = this._resources[ResourceIds.CONDITION];
     this._resources[ResourceIds.CONDITION] -= damageInfo.damage;
@@ -1191,7 +1190,9 @@ export class Vehicle2016 extends BaseLootableEntity {
       weapon = client?.character.getEquippedWeapon();
     damageInfo.damage = damageInfo.damage * 2;
     if (!client || weapon?.itemDefinitionId != Items.WEAPON_WRENCH) {
-      this.damage(server, damageInfo);
+      if (!server.isPvE) {
+        this.damage(server, damageInfo);
+      }
       return;
     }
 

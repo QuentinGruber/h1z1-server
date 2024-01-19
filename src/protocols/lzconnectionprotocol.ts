@@ -3,7 +3,7 @@
 //   GNU GENERAL PUBLIC LICENSE
 //   Version 3, 29 June 2007
 //   copyright (C) 2020 - 2021 Quentin Gruber
-//   copyright (C) 2021 - 2023 H1emu community
+//   copyright (C) 2021 - 2024 H1emu community
 //
 //   https://github.com/QuentinGruber/h1z1-server
 //   https://www.npmjs.com/package/h1z1-server
@@ -159,17 +159,17 @@ const packets: PacketStructures = [
       ]
     }
   ],
-  // Doesn't have a req/rep sys
-  [
-    "ClientBan",
-    0x16,
-    {
-      fields: [
-        { name: "loginSessionId", type: "uint64string", defaultValue: "" },
-        { name: "status", type: "boolean", defaultValue: 0 }
-      ]
-    }
-  ],
+  // removed
+  // [
+  //   "ClientBan",
+  //   0x16,
+  //   {
+  //     fields: [
+  //       { name: "loginSessionId", type: "uint64string", defaultValue: "" },
+  //       { name: "status", type: "boolean", defaultValue: 0 }
+  //     ]
+  //   }
+  // ],
   [
     "ClientMessage",
     0x17,
