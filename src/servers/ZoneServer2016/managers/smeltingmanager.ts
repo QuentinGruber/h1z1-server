@@ -177,9 +177,9 @@ export class SmeltingManager {
 
   getBurnTime(item: BaseItem): number {
     if (item.itemDefinitionId == Items.CHARCOAL) {
-      return this.burnTime = 2400000
+      return (this.burnTime = 2400000);
     } else {
-      return this.burnTime = 120000
+      return (this.burnTime = 120000);
     }
   }
 
@@ -191,7 +191,7 @@ export class SmeltingManager {
     for (const a in container!.items) {
       const item = container!.items[a];
       if (entity.subEntity!.allowedFuel.includes(item.itemDefinitionId)) {
-        this.getBurnTime(item)
+        this.getBurnTime(item);
         server.removeContainerItem(entity, item, entity.getContainer(), 1);
         if (item.itemDefinitionId == Items.WOOD_LOG) {
           // give charcoal if wood log was burned
