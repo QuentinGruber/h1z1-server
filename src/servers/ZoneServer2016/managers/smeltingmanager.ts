@@ -175,8 +175,8 @@ export class SmeltingManager {
     );
   }*/
 
-  getBurnTime(entity: BaseItem): number {
-    if (entity.itemDefinitionId == Items.CHARCOAL) {
+  getBurnTime(item: BaseItem): number {
+    if (item.itemDefinitionId == Items.CHARCOAL) {
       return this.burnTime = 2400000
     } else {
       return this.burnTime = 120000
