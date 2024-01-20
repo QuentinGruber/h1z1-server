@@ -131,6 +131,17 @@ export class SmeltingManager {
           this.checkAnimalTrap(server, entity, subEntity, container);
           break;
       }
+      server.sendDataToAllWithSpawnedEntity<CharacterPlayWorldCompositeEffect>(
+        subEntity!.dictionary,
+        entity.characterId,
+        "Character.PlayWorldCompositeEffect",
+        {
+          characterId: entity.characterId,
+          effectId: entity.subEntity!.workingEffect,
+          position: entity.state.position,
+          effectTime: Math.ceil(this.collectingTickTime / 1000)
+        }
+      );
     }
     this.checkCollectorsTimer = setTimeout(() => {
       this.checkCollectors(server);
