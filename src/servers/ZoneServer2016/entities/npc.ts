@@ -294,11 +294,7 @@ export class Npc extends BaseFullCharacter {
     client: ZoneClient2016,
     rewardItems: { itemDefId: number; weight: number }[]
   ) {
-    
-    const totalWeight = rewardItems.reduce(
-      (sum, item) => sum + item.weight,
-      0
-    )
+    const totalWeight = rewardItems.reduce((sum, item) => sum + item.weight, 0);
     const randomValue = Math.random() * totalWeight;
     let count = 1;
     let cumulativeWeight = 0;
@@ -310,7 +306,7 @@ export class Npc extends BaseFullCharacter {
           count = 2;
         }
         const rewardItem = server.generateItem(reward.itemDefId, count);
-        if(rewardItem) client.character.lootContainerItem(server, rewardItem);
+        if (rewardItem) client.character.lootContainerItem(server, rewardItem);
       }
     }
   }

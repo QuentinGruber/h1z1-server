@@ -449,7 +449,8 @@ export class Character2016 extends BaseFullCharacter {
         server.sendHudIndicators(client);
       }
     }
-    const indexFoodPoison = this.resourceHudIndicators.indexOf("FOOD POISONING");
+    const indexFoodPoison =
+      this.resourceHudIndicators.indexOf("FOOD POISONING");
     if (this.isPoisoned) {
       if (indexFoodPoison <= -1) {
         this.resourceHudIndicators.push("FOOD POISONING");
