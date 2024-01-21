@@ -294,27 +294,25 @@ export class Npc extends BaseFullCharacter {
     client: ZoneClient2016,
     rewardItems: { itemDefId: number; weight: number }[]
   ) {
-    let totalWeight = 0;
+    
+    const totalWeight = rewardItems.reduce(
+      (sum, item) => sum + item.weight,
+      0
+    )
+    const randomValue = Math.random() * totalWeight;
     let count = 1;
-    rewardItems.forEach(
-      (itemInstance: { itemDefId: number; weight: number }) => {
-        const randomChance = Math.random() * totalWeight;
-
-        if (randomChance <= itemInstance.weight) {
-          totalWeight += itemInstance.weight;
-
-          if (Math.random() <= 0.4) {
-            // 40% chance to spawn double rewards
-            count = 2;
-          }
-
-          const item = server.generateItem(itemInstance.itemDefId, count);
-          client.character.lootContainerItem(server, item);
-        } else {
-          totalWeight += itemInstance.weight;
+    let cumulativeWeight = 0;
+    for (const reward of rewardItems) {
+      cumulativeWeight += reward.weight;
+      if (randomValue <= cumulativeWeight) {
+        if (Math.random() <= 0.4) {
+          // 40% chance to spawn double rewards
+          count = 2;
         }
+        const rewardItem = server.generateItem(reward.itemDefId, count);
+        if(rewardItem) client.character.lootContainerItem(server, rewardItem);
       }
-    );
+    }
   }
 
   OnInteractionString(server: ZoneServer2016, client: ZoneClient2016) {
