@@ -104,6 +104,7 @@ export class Character2016 extends BaseFullCharacter {
   isBleeding = false;
   isBandaged = false;
   isExhausted = false;
+  isPoisoned = false;
   lastMeleeHitTime: number = 0;
   aimVectorWarns: number = 0;
   static isAlive = true;
@@ -445,6 +446,18 @@ export class Character2016 extends BaseFullCharacter {
     } else {
       if (indexHunger > -1) {
         this.resourceHudIndicators.splice(indexHunger, 1);
+        server.sendHudIndicators(client);
+      }
+    }
+    const indexFoodPoison = this.resourceHudIndicators.indexOf("FOOD POISONING");
+    if (this.isPoisoned) {
+      if (indexFoodPoison <= -1) {
+        this.resourceHudIndicators.push("FOOD POISONING");
+        server.sendHudIndicators(client);
+      }
+    } else {
+      if (indexFoodPoison > -1) {
+        this.resourceHudIndicators.splice(indexFoodPoison);
         server.sendHudIndicators(client);
       }
     }
@@ -956,7 +969,7 @@ export class Character2016 extends BaseFullCharacter {
       oldHealth = this._resources[ResourceIds.HEALTH];
     if (!client) return;
 
-    if (this.isGodMode() || !this.isAlive || damage < 100) return;
+    if (this.isGodMode() || !this.isAlive || damage < 25) return;
     if (damageInfo.causeBleed) {
       if (randomIntFromInterval(0, 100) < damage / 100 && damage > 500) {
         this._resources[ResourceIds.BLEEDING] += 41;
