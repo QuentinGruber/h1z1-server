@@ -16,7 +16,6 @@ const debugName = "ZoneServer",
 
 process.env.isBin && require("./managers/worlddatamanagerthread");
 import { EventEmitter } from "node:events";
-import { GatewayServer } from "../GatewayServer/gatewayserver";
 import { H1Z1Protocol } from "../../protocols/h1z1protocol";
 import SOEClient from "../SoeServer/soeclient";
 import { LoginConnectionManager } from "../LoginZoneConnection/loginconnectionmanager";
@@ -229,6 +228,7 @@ import { SOEOutputChannels } from "../../servers/SoeServer/soeoutputstream";
 import { scheduler } from "node:timers/promises";
 import { GatewayChannels } from "h1emu-core";
 import { IngameTimeManager } from "./managers/gametimemanager";
+import { GatewayServer } from "../GatewayServer/gatewayserver";
 
 const spawnLocations2 = require("../../../data/2016/zoneData/Z1_gridSpawns.json"),
   deprecatedDoors = require("../../../data/2016/sampleData/deprecatedDoors.json"),
@@ -461,11 +461,6 @@ export class ZoneServer2016 extends EventEmitter {
       await this.onZoneLoginEvent(client);
     });
 
-    this._gatewayServer._soeServer.on("fatalError", (soeClient: SOEClient) => {
-      const client = this._clients[soeClient.sessionId];
-      this.deleteClient(client);
-      // TODO: force crash the client
-    });
     this._gatewayServer.on(
       "login",
       async (
@@ -1991,7 +1986,7 @@ export class ZoneServer2016 extends EventEmitter {
     delete this._clients[client.sessionId];
     const soeClient = this.getSoeClient(client.soeClientId);
     if (soeClient) {
-      this._gatewayServer._soeServer.deleteClient(soeClient);
+      this._gatewayServer.deleteSoeClient(soeClient);
     }
     if (!this._soloMode) {
       this.sendZonePopulationUpdate();
@@ -7598,7 +7593,7 @@ export class ZoneServer2016 extends EventEmitter {
     return generateRandomGuid();
   }
   getSoeClient(soeClientId: string): SOEClient | undefined {
-    return this._gatewayServer._soeServer.getSoeClient(soeClientId);
+    return this._gatewayServer.getSoeClient(soeClientId);
   }
   private _sendRawDataReliable(client: Client, data: Buffer) {
     const soeClient = this.getSoeClient(client.soeClientId);

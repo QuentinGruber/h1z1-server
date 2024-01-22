@@ -15,6 +15,7 @@ import { EventEmitter } from "node:events";
 import SOEClient from "../SoeServer/soeclient";
 import { SOEOutputChannels } from "servers/SoeServer/soeoutputstream";
 import { Worker, MessageChannel } from "node:worker_threads";
+import { scheduler } from "node:timers/promises";
 
 export enum GatewayServerThreadedInternalEvents {
   START,
@@ -90,8 +91,20 @@ export class GatewayServerThreaded extends EventEmitter {
     this.internalChannel.port2.postMessage(
       GatewayServerThreadedInternalEvents.STOP
     );
-    setTimeout(() => {
-      this.worker.terminate();
-    }, 1000);
+    await scheduler.wait(1000);
+    this.worker.terminate();
+  }
+
+  getSoeClient(soeClientId: string): SOEClient | undefined {
+    soeClientId;
+    // TODO: implement
+    // return this._soeServer.getSoeClient(soeClientId);
+    return undefined;
+  }
+
+  deleteSoeClient(soeClient: SOEClient) {
+    soeClient;
+    // TODO: implement
+    // this._soeServer.deleteClient(soeClient);
   }
 }

@@ -21,8 +21,8 @@ import { SOEOutputChannels } from "servers/SoeServer/soeoutputstream";
 const debug = require("debug")("GatewayServer");
 
 export class GatewayServer extends EventEmitter {
-  _soeServer: SOEServer;
-  _protocol: GatewayProtocol;
+  private _soeServer: SOEServer;
+  private _protocol: GatewayProtocol;
   private _crcLength: crc_length_options;
   private _udpLength: number;
 
@@ -91,6 +91,14 @@ export class GatewayServer extends EventEmitter {
         }
       }
     );
+  }
+
+  getSoeClient(soeClientId: string): SOEClient | undefined {
+    return this._soeServer.getSoeClient(soeClientId);
+  }
+
+  deleteSoeClient(soeClient: SOEClient) {
+    this._soeServer.deleteClient(soeClient);
   }
 
   start() {
