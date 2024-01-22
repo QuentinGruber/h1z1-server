@@ -22,6 +22,7 @@ const {
   appDataChannel,
   disconnectChannel,
   loginChannel,
+  clientInfoChannel,
   internalChannel
 } = workerData;
 
@@ -42,20 +43,43 @@ gatewayServer.on("disconnect", (sessionId: number) => {
   disconnectChannel.postMessage(sessionId);
 });
 
-gatewayServer.on("login", (client, characterId, ticket, client_protocol) => {
-  loginChannel.postMessage({ client, characterId, ticket, client_protocol });
-});
+gatewayServer.on(
+  "login",
+  (soeClientId, characterId, ticket, client_protocol) => {
+    loginChannel.postMessage({
+      soeClientId,
+      characterId,
+      ticket,
+      client_protocol
+    });
+  }
+);
 
-gatewayServer.on("tunneldata", (client, data, channel) => {
-  appDataChannel.postMessage({ client, data, channel }, [data.buffer]);
+gatewayServer.on("tunneldata", (sessionId, data, channel) => {
+  appDataChannel.postMessage({ sessionId, data, channel }, [data.buffer]);
 });
 
 interface appDataMessage {
-  client: any;
+  soeClientId: string;
   data: Buffer;
   channel: SOEOutputChannels;
 }
 
 appDataChannel.on("message", (msg: appDataMessage) => {
-  gatewayServer.sendTunnelData(msg.client, msg.data, msg.channel);
+  gatewayServer.sendTunnelData(msg.soeClientId, msg.data, msg.channel);
+});
+
+export interface ClientInfoMessage {
+  soeClientId: string;
+  requestId: number;
+  fnName: keyof GatewayServer;
+}
+clientInfoChannel.on("message", (msg: ClientInfoMessage) => {
+  const fn = gatewayServer[msg.fnName];
+  if (fn) {
+    // FIXME: idk how to type this
+    // @ts-ignore
+    const result = fn.call(gatewayServer, msg.soeClientId);
+    clientInfoChannel.postMessage({ requestId: msg.requestId, result });
+  }
 });
