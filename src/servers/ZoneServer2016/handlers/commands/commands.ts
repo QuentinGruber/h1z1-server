@@ -379,6 +379,8 @@ export const commands: Array<Command> = [
         );
         return;
       }
+      client.character.lastWhisperedPlayer = targetClient.character.name;
+      targetClient.character.lastWhisperedPlayer = client.character.name;
 
       args.splice(0, 1);
       const message = args.join(" ");
@@ -391,7 +393,75 @@ export const commands: Array<Command> = [
         targetClient,
         `[Whisper from ${client.character.name}]: ${message}`
       );
+      
     }
+  },
+  {
+    name: "r",
+    permissionLevel: PermissionLevels.DEFAULT,
+    keepCase: true,
+    execute: async (
+      server: ZoneServer2016,
+      client: Client,
+      args: Array<string>
+    ) => {
+      if (!args[0]) {
+        server.sendChatText(client, "[Reply] The message may not be blank!");
+        return;
+      }
+
+      let targetClient = server.getClientByNameOrLoginSession(client.character.lastWhisperedPlayer);
+
+      if (!targetClient) {
+        targetClient = await server.getOfflineClientByName(client.character.lastWhisperedPlayer);
+      }
+
+      if (server.playerNotFound(client, client.character.lastWhisperedPlayer.toString(), targetClient)) {
+        return;
+      }
+      if (!targetClient || !(targetClient instanceof Client)) {
+        server.sendChatText(client, "Player not found.");
+        return;
+      }
+      if (
+        targetClient?.character?.characterId == client.character.characterId
+      ) {
+        server.sendChatText(client, "Don't be ridiculous.");
+        return;
+      }
+
+      if (await server.chatManager.checkMute(server, client)) {
+        server.sendChatText(
+          client,
+          "[Reply] Message blocked, you are globally muted!"
+        );
+        return;
+      }
+      if (
+        targetClient?.character?.mutedCharacters?.includes(
+          client.character.characterId
+        )
+      ) {
+        server.sendChatText(
+          client,
+          `[Reply] Message blocked, target player has you muted!`
+        );
+        return;
+      }
+      client.character.lastWhisperedPlayer = targetClient.character.name;
+      targetClient.character.lastWhisperedPlayer = client.character.name;
+
+      const message = args.join(" ");
+
+      server.sendChatText(
+        client,
+        `[Reply to ${targetClient.character.name}]: ${message}`
+      );
+      server.sendChatText(
+        targetClient,
+        `[Reply from ${client.character.name}]: ${message}`
+      );
+    },
   },
   {
     name: "mute",
