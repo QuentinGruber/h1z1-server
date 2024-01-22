@@ -520,7 +520,8 @@ export const recipes: { [recipeId: number]: Recipe } = {
         itemDefinitionId: Items.GUNPOWDER_REFINED,
         requiredAmount: 2
       }
-    ]
+    ],
+    requireWeaponWorkbench: true
   },
   [Items.AMMO_308]: {
     filterId: FilterIds.WEAPONS,
@@ -541,7 +542,8 @@ export const recipes: { [recipeId: number]: Recipe } = {
         itemDefinitionId: Items.GUNPOWDER_REFINED,
         requiredAmount: 4
       }
-    ]
+    ],
+    requireWeaponWorkbench: true
   },
   [Items.AMMO_380]: {
     filterId: FilterIds.WEAPONS,
@@ -558,7 +560,8 @@ export const recipes: { [recipeId: number]: Recipe } = {
         itemDefinitionId: Items.GUNPOWDER_REFINED,
         requiredAmount: 1
       }
-    ]
+    ],
+    requireWeaponWorkbench: true
   },
   [Items.AMMO_44]: {
     filterId: FilterIds.WEAPONS,
@@ -579,7 +582,8 @@ export const recipes: { [recipeId: number]: Recipe } = {
         itemDefinitionId: Items.GUNPOWDER_REFINED,
         requiredAmount: 2
       }
-    ]
+    ],
+    requireWeaponWorkbench: true
   },
   [Items.AMMO_45]: {
     filterId: FilterIds.WEAPONS,
@@ -596,7 +600,8 @@ export const recipes: { [recipeId: number]: Recipe } = {
         itemDefinitionId: Items.GUNPOWDER_REFINED,
         requiredAmount: 2
       }
-    ]
+    ],
+    requireWeaponWorkbench: true
   },
   [Items.AMMO_12GA]: {
     filterId: FilterIds.WEAPONS,
@@ -617,7 +622,8 @@ export const recipes: { [recipeId: number]: Recipe } = {
         itemDefinitionId: Items.GUNPOWDER_REFINED,
         requiredAmount: 4
       }
-    ]
+    ],
+    requireWeaponWorkbench: true
   },
   [Items.AMMO_762]: {
     filterId: FilterIds.WEAPONS,
@@ -638,7 +644,8 @@ export const recipes: { [recipeId: number]: Recipe } = {
         itemDefinitionId: Items.GUNPOWDER_REFINED,
         requiredAmount: 2
       }
-    ]
+    ],
+    requireWeaponWorkbench: true
   },
   [Items.AMMO_9MM]: {
     filterId: FilterIds.WEAPONS,
@@ -655,7 +662,8 @@ export const recipes: { [recipeId: number]: Recipe } = {
         itemDefinitionId: Items.GUNPOWDER_REFINED,
         requiredAmount: 1
       }
-    ]
+    ],
+    requireWeaponWorkbench: true
   },
   [Items.WEAPON_BLAZE]: {
     filterId: FilterIds.WEAPONS,

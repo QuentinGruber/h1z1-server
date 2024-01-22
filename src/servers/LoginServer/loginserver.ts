@@ -71,6 +71,8 @@ const debugName = "LoginServer";
 const debug = require("debug")(debugName);
 const characterItemDefinitionsDummy = require("../../../data/2015/sampleData/characterItemDefinitionsDummy.json");
 const defaultHashes: Array<FileHash> = require("../../../data/2016/dataSources/AllowedFileHashes.json");
+const loginReply = require("../../../data/2016/rawData/loginReply.json");
+const loginReplyData2016 = Buffer.from(loginReply.data, "base64");
 
 export class LoginServer extends EventEmitter {
   _soeServer: SOEServer;
@@ -464,37 +466,43 @@ export class LoginServer extends EventEmitter {
     }
     client.authKey = String(authKey);
     client.gameVersion = gameVersion;
-    const loginReply: LoginReply = {
-      loggedIn: true,
-      status: 1,
-      resultCode: 1,
-      isMember: true,
-      isInternal: true,
-      namespace: "soe",
-      accountFeatures: [
-        {
-          key: 2,
-          accountFeature: {
-            id: 2,
-            active: true,
-            remainingCount: 2,
-            rawData: "test"
-          }
-        }
-      ],
-      errorDetails: [
-        {
-          unknownDword1: 0,
-          name: "None",
-          value: "None"
-        }
-      ],
-      ipCountryCode: "US",
-      applicationPayload: "US"
-    };
     this.clients.set(client.soeClientId, client);
-    this.sendData(client, "LoginReply", loginReply);
-
+    if (
+      client.gameVersion == GAME_VERSIONS.H1Z1_15janv_2015 ||
+      client.gameVersion == GAME_VERSIONS.H1Z1_KOTK_PS3
+    ) {
+      const loginReply: LoginReply = {
+        loggedIn: true,
+        status: 1,
+        resultCode: 1,
+        isMember: true,
+        isInternal: true,
+        namespace: "soe",
+        accountFeatures: [
+          {
+            key: 2,
+            accountFeature: {
+              id: 2,
+              active: true,
+              remainingCount: 2,
+              rawData: "test"
+            }
+          }
+        ],
+        errorDetails: [
+          {
+            unknownDword1: 0,
+            name: "None",
+            value: "None"
+          }
+        ],
+        ipCountryCode: "US",
+        applicationPayload: "US"
+      };
+      this.sendData(client, "LoginReply", loginReply);
+    } else if (client.gameVersion == GAME_VERSIONS.H1Z1_6dec_2016) {
+      this._soeServer.sendAppData(client, loginReplyData2016);
+    }
     if (client.gameVersion == GAME_VERSIONS.H1Z1_6dec_2016 && !this._soloMode) {
       this.sendData(client, "H1emu.HadesQuery", {
         authTicket: "-",
