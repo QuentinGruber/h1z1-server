@@ -393,7 +393,6 @@ export const commands: Array<Command> = [
         targetClient,
         `[Whisper from ${client.character.name}]: ${message}`
       );
-      
     }
   },
   {
@@ -410,13 +409,23 @@ export const commands: Array<Command> = [
         return;
       }
 
-      let targetClient = server.getClientByNameOrLoginSession(client.character.lastWhisperedPlayer);
+      let targetClient = server.getClientByNameOrLoginSession(
+        client.character.lastWhisperedPlayer
+      );
 
       if (!targetClient) {
-        targetClient = await server.getOfflineClientByName(client.character.lastWhisperedPlayer);
+        targetClient = await server.getOfflineClientByName(
+          client.character.lastWhisperedPlayer
+        );
       }
 
-      if (server.playerNotFound(client, client.character.lastWhisperedPlayer.toString(), targetClient)) {
+      if (
+        server.playerNotFound(
+          client,
+          client.character.lastWhisperedPlayer.toString(),
+          targetClient
+        )
+      ) {
         return;
       }
       if (!targetClient || !(targetClient instanceof Client)) {
@@ -461,7 +470,7 @@ export const commands: Array<Command> = [
         targetClient,
         `[Reply from ${client.character.name}]: ${message}`
       );
-    },
+    }
   },
   {
     name: "mute",
