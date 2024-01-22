@@ -40,8 +40,8 @@ const dev: any = {
     client: Client,
     args: Array<string>
   ) {
-    setInterval(() => {
-      const stats = server._gatewayServer.getSoeClientNetworkStats(
+    setInterval(async () => {
+      const stats = await server._gatewayServer.getSoeClientNetworkStats(
         client.soeClientId
       );
       if (stats) {

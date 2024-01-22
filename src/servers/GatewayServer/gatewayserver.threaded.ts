@@ -100,8 +100,9 @@ export class GatewayServerThreaded extends EventEmitter {
         soeClientId,
         data,
         channel
-      },
-      [data.buffer]
+      }
+      // FIXME:  transfering the buffer create weird behavior need to investigate
+      // [data.buffer]
     );
   }
 
