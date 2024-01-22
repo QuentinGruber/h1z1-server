@@ -210,9 +210,10 @@ export const commands: Array<Command> = [
     name: "netstats",
     permissionLevel: PermissionLevels.DEFAULT,
     execute: (server: ZoneServer2016, client: Client, args: Array<string>) => {
-      const soeClient = server.getSoeClient(client.soeClientId);
-      if (soeClient) {
-        const stats = soeClient.getNetworkStats();
+      const stats = server._gatewayServer.getSoeClientNetworkStats(
+        client.soeClientId
+      );
+      if (stats) {
         for (let index = 0; index < stats.length; index++) {
           const stat = stats[index];
           server.sendChatText(client, stat, index == 0);
@@ -224,9 +225,10 @@ export const commands: Array<Command> = [
     name: "ping",
     permissionLevel: PermissionLevels.DEFAULT,
     execute: (server: ZoneServer2016, client: Client, args: Array<string>) => {
-      const soeClient = server.getSoeClient(client.soeClientId);
-      if (soeClient) {
-        const stats = soeClient.getNetworkStats();
+      const stats = server._gatewayServer.getSoeClientNetworkStats(
+        client.soeClientId
+      );
+      if (stats) {
         server.sendChatText(client, stats[2], true);
       }
     }
@@ -593,11 +595,10 @@ export const commands: Array<Command> = [
         client,
         `Players: ${Object.values(server._clients)
           .map((c) => {
-            return `${c.character.name}: ${c.loginSessionId} | ${
-              server.getSoeClient(c.soeClientId)?.getNetworkStats()[2]
-            } | ${server.getSoeClient(c.soeClientId)?.getNetworkStats()[0]} | ${
-              server.getSoeClient(c.soeClientId)?.getNetworkStats()[1]
-            }`;
+            const stats =
+              server._gatewayServer.getSoeClientNetworkStats(c.soeClientId) ??
+              [];
+            return `${c.character.name}: ${c.loginSessionId} | ${stats[2]} | ${stats[0]} | ${stats[1]}`;
           })
           .join(",\n")}`
       );
@@ -660,9 +661,10 @@ export const commands: Array<Command> = [
         server.sendChatText(client, "Client not found.");
         return;
       }
-      const soeClient = server.getSoeClient(targetClient.soeClientId);
-      if (soeClient) {
-        const stats = soeClient.getNetworkStats();
+      const stats = server._gatewayServer.getSoeClientNetworkStats(
+        targetClient.soeClientId
+      );
+      if (stats) {
         server.sendChatText(
           client,
           `Displaying net statistics of player ${targetClient.character.name}`,
