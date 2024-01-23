@@ -228,6 +228,7 @@ import { scheduler } from "node:timers/promises";
 import { GatewayChannels } from "h1emu-core";
 import { IngameTimeManager } from "./managers/gametimemanager";
 import { GatewayServerThreaded } from "../GatewayServer/gatewayserver.threaded";
+import { H1z1ProtocolReadingFormat } from "types/protocols";
 
 const spawnLocations2 = require("../../../data/2016/zoneData/Z1_gridSpawns.json"),
   deprecatedDoors = require("../../../data/2016/sampleData/deprecatedDoors.json"),
@@ -451,8 +452,6 @@ export class ZoneServer2016 extends EventEmitter {
       debug("Server in solo mode !");
     }
 
-    this.on("data", this.onZoneDataEvent);
-
     this.on("login", async (client) => {
       if (!this._soloMode) {
         this.sendZonePopulationUpdate();
@@ -563,14 +562,15 @@ export class ZoneServer2016 extends EventEmitter {
             loginSessionId: this._clients[soeClientSessionId].loginSessionId
           });
         }
-        if (flags < GatewayChannels.UpdatePosition) {
-          // if the packet isn't a high priority one, we can wait for the next tick to process it
-          // If there is a lot of packet to process, it's better, if there is none then we only add like some µsec
-          await scheduler.yield();
-        }
+        // Idk if this is really efficient , we may loose too much time on context switching
+        // if (flags < GatewayChannels.UpdatePosition) {
+        //   // if the packet isn't a high priority one, we can wait for the next tick to process it
+        //   // If there is a lot of packet to process, it's better, if there is none then we only add like some µsec
+        //   await scheduler.yield();
+        // }
         const packet = this._protocol.parse(data, flags);
         if (packet) {
-          this.emit("data", this._clients[soeClientSessionId], packet);
+          this.onZoneDataEvent(this._clients[soeClientSessionId], packet);
         } else {
           debug("zonefailed : ", data);
         }
@@ -835,7 +835,7 @@ export class ZoneServer2016 extends EventEmitter {
     }
   }
 
-  onZoneDataEvent(client: Client, packet: ReceivedPacket<any>) {
+  onZoneDataEvent(client: Client, packet: H1z1ProtocolReadingFormat) {
     if (!client) {
       return;
     }
@@ -847,8 +847,26 @@ export class ZoneServer2016 extends EventEmitter {
     ) {
       debug(`Receive Data ${[packet.name]}`);
     }
+    if (packet.flag === GatewayChannels.UpdatePosition) {
+      const movingCharacter = this._characters[client.character.characterId];
+      if (movingCharacter) {
+        this.sendRawToAllOthersWithSpawnedCharacter(
+          client,
+          movingCharacter.characterId,
+          this._protocol.createPositionBroadcast2016(
+            packet.data.raw,
+            movingCharacter.transientId
+          )
+        );
+      }
+    }
+
     try {
-      this._packetHandlers.processPacket(this, client, packet);
+      this._packetHandlers.processPacket(
+        this,
+        client,
+        packet as ReceivedPacket<any>
+      );
     } catch (error) {
       console.error(error);
       console.error(`An error occurred while processing a packet : `, packet);
