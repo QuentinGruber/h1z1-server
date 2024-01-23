@@ -1206,7 +1206,7 @@ export const lootTables: { [lootSpawner: string]: LootSpawner } = {
 
   // #region FARM
   "ItemSpawnerFarm.adr": {
-    spawnChance: 35,
+    spawnChance: 40,
     items: [
       {
         item: Items.FERTILIZER,
@@ -1239,23 +1239,23 @@ export const lootTables: { [lootSpawner: string]: LootSpawner } = {
           min: 1,
           max: 1
         }
-      },
-      {
-        item: Items.WEAPON_HATCHET,
-        weight: 10,
-        spawnCount: {
-          min: 1,
-          max: 1
-        }
-      },
-      {
-        item: Items.WATER_EMPTY,
-        weight: 15,
-        spawnCount: {
-          min: 1,
-          max: 1
-        }
       }
+      // {
+      //   item: Items.WEAPON_HATCHET,
+      //   weight: 10,
+      //   spawnCount: {
+      //     min: 1,
+      //     max: 1
+      //   }
+      // },
+      // {
+      //   item: Items.WATER_EMPTY,
+      //   weight: 15,
+      //   spawnCount: {
+      //     min: 1,
+      //     max: 1
+      //   }
+      // }
     ]
   },
   // #endregion
