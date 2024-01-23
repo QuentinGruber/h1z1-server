@@ -82,7 +82,7 @@ function getSmeltingEntityData(
 }
 
 export class SmeltingEntity {
-  parentObject: LootableConstructionEntity;
+  parentObjectCharacterId: string;
   allowedFuel: number[];
   filterId: number = FilterIds.FURNACE;
   workingEffect: number = 5028;
@@ -95,7 +95,7 @@ export class SmeltingEntity {
     parentObject: LootableConstructionEntity,
     server: ZoneServer2016
   ) {
-    this.parentObject = parentObject;
+    this.parentObjectCharacterId = parentObject.characterId;
     this.allowedFuel = getAllowedFuel(parentObject.itemDefinitionId);
     getSmeltingEntityData(parentObject, this);
     if (!parentObject.getParent(server)) {
@@ -105,7 +105,7 @@ export class SmeltingEntity {
 
   OnInteractionString(server: ZoneServer2016, client: ZoneClient2016) {
     server.sendData(client, "Command.InteractionString", {
-      guid: this.parentObject.characterId,
+      guid: this.parentObjectCharacterId,
       stringId: StringIds.USE_IGNITABLE
     });
   }
@@ -113,7 +113,7 @@ export class SmeltingEntity {
   OnFullCharacterDataRequest(server: ZoneServer2016, client: ZoneClient2016) {
     if (!this.isWorking) return;
     server.sendData(client, "Command.PlayDialogEffect", {
-      characterId: this.parentObject.characterId,
+      characterId: this.parentObjectCharacterId,
       effectId: this.workingEffect
     });
   }
