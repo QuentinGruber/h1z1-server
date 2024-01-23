@@ -3139,8 +3139,8 @@ export class ZonePacketHandlers {
   }
 
   ProjectileDebug(server: ZoneServer2016, client: Client, packet: any) {
-    console.log(`ProjectileDebug from ${client.character.characterId}`);
-    console.log(packet.data);
+    debug(`ProjectileDebug from ${client.character.characterId}`);
+    debug(packet.data);
   }
 
   VehicleItemDefinitionRequest(
