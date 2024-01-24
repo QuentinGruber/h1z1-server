@@ -195,21 +195,12 @@ export class WorldObjectManager {
 
     const playerCount = _.size(server._characters);
 
-    switch (true) {
-      case playerCount <= 20:
-        this.lootRespawnTimer = 2400000; // 40 min
-        break;
-      case playerCount > 20 && playerCount <= 40:
-        this.lootRespawnTimer = 1800000; // 30 min
-        break;
-      case playerCount > 40 && playerCount <= 60:
-        this.lootRespawnTimer = 1200000; // 20 min
-        break;
-      case playerCount > 60:
-        this.lootRespawnTimer = 600000; // 10 min
-        break;
-      default:
-        this.lootRespawnTimer = 1200000;
+    if (playerCount >= 60) {
+      this.lootRespawnTimer = 600_000; // 10 min
+    } else if (playerCount >= 30) {
+      this.lootRespawnTimer = 900_000; // 15 min
+    } else {
+      this.lootRespawnTimer = 1_500_000; // 25 min
     }
   }
 
