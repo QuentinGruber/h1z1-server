@@ -38,8 +38,8 @@ internalChannel.on("message", (msg: GatewayServerThreadedInternalEvents) => {
   }
 });
 
-gatewayServer.on("disconnect", (client) => {
-  disconnectChannel.postMessage({ client });
+gatewayServer.on("disconnect", (sessionId: number) => {
+  disconnectChannel.postMessage(sessionId);
 });
 
 gatewayServer.on("login", (client, characterId, ticket, client_protocol) => {

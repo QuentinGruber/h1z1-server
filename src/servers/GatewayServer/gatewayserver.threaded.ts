@@ -52,8 +52,8 @@ export class GatewayServerThreaded extends EventEmitter {
     this.appDataChannel.port2.on("message", (msg) => {
       this.emit("tunneldata", msg.client, msg.data, msg.channel);
     });
-    this.disconnectChannel.port2.on("message", (msg) => {
-      this.emit("disconnect", msg.client);
+    this.disconnectChannel.port2.on("message", (sessionId: number) => {
+      this.emit("disconnect", sessionId);
     });
     this.loginChannel.port2.on("message", (msg) => {
       this.emit(

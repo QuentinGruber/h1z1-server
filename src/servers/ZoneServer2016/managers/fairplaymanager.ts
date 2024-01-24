@@ -236,9 +236,11 @@ export class FairPlayManager {
         speed > this.fairPlayValues.maxSpeed &&
         verticalSpeed < this.fairPlayValues.maxVerticalSpeed
       ) {
-        const soeClient = server.getSoeClient(client.soeClientId);
-        if (soeClient) {
-          if (soeClient.avgPing >= 250) return false;
+        const avgPing = server._gatewayServer.getSoeClientAvgPing(
+          client.soeClientId
+        );
+        if (avgPing) {
+          if (avgPing >= 250) return false;
         }
         client.speedWarnsNumber += 1;
       } else if (client.speedWarnsNumber > 0) {
@@ -297,9 +299,11 @@ export class FairPlayManager {
           (sequenceTime - vehicle.oldPos.time)) *
         3600000;
       if (speed > 130 && verticalSpeed < 20) {
-        const soeClient = server.getSoeClient(client.soeClientId);
-        if (soeClient) {
-          if (soeClient.avgPing >= 250) return false;
+        const avgPing = server._gatewayServer.getSoeClientAvgPing(
+          client.soeClientId
+        );
+        if (avgPing) {
+          if (avgPing >= 250) return false;
         }
         client.speedWarnsNumber += 1;
       } else if (client.speedWarnsNumber > 0) {
