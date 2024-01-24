@@ -88,7 +88,6 @@ import {
   toBigHex,
   toHex,
   calculate_falloff,
-  checkConstructionInRange,
   resolveHostAddress,
   getDifference,
   logClientActionToMongo,
@@ -362,6 +361,7 @@ export class ZoneServer2016 extends EventEmitter {
   itemDefinitionsCache?: Buffer;
   dynamicAppearanceCache?: Buffer;
   weaponDefinitionsCache?: Buffer;
+  initialDataStaticDtoCache?: Buffer;
   projectileDefinitionsCache?: Buffer;
   profileDefinitionsCache?: Buffer;
   _containerDefinitions: { [containerDefinitionId: number]: any } =
@@ -3309,7 +3309,6 @@ export class ZoneServer2016 extends EventEmitter {
   }
 
   customizeStaticDTOs() {
-    console.time("customizeStaticDTOs");
     // caches DTOs that should always be removed
 
     for (const object in this._lootableProps) {
@@ -3351,7 +3350,14 @@ export class ZoneServer2016 extends EventEmitter {
       };
       this.staticDTOs.push(DTOinstance);
     });
-    console.timeEnd("customizeStaticDTOs");
+    const cache = this._protocol.pack("DtoObjectInitialData", {
+      unknownDword1: 1,
+      unknownArray1: this.staticDTOs,
+      unknownArray2: [{}]
+    });
+    if (cache) {
+      this.initialDataStaticDtoCache = cache;
+    }
   }
 
   customizeDTO(client: Client) {
@@ -3359,9 +3365,12 @@ export class ZoneServer2016 extends EventEmitter {
     this.speedtreeManager.customize(speedtreeDTOs);
     this.sendData<DtoObjectInitialData>(client, "DtoObjectInitialData", {
       unknownDword1: 1,
-      unknownArray1: [...speedtreeDTOs, ...this.staticDTOs],
+      unknownArray1: speedtreeDTOs,
       unknownArray2: [{}]
     });
+    if (this.initialDataStaticDtoCache) {
+      this.sendRawDataReliable(client, this.initialDataStaticDtoCache);
+    }
   }
 
   private shouldRemoveEntity(client: Client, entity: BaseEntity): boolean {
@@ -6098,7 +6107,11 @@ export class ZoneServer2016 extends EventEmitter {
     }
   }
 
-  useAirdrop(client: Client, item: BaseItem) {
+  useAirdrop(
+    client: Client,
+    character: Character | BaseLootableEntity,
+    item: BaseItem
+  ) {
     if (this._airdrop) {
       this.sendAlert(client, "All planes are busy.");
       return;
@@ -6126,13 +6139,13 @@ export class ZoneServer2016 extends EventEmitter {
     }
 
     if (client.currentPOI || blockedArea) {
-      this.sendAlert(client, "You are too close to the restricted area.");
+      this.sendAlert(client, "You are too close to a restricted area.");
       return;
     }
 
     if (
       item.itemDefinitionId != Items.AIRDROP_CODE ||
-      !this.removeInventoryItem(client.character, item)
+      !this.removeInventoryItem(character, item)
     )
       return;
     this.sendAlert(client, "Your delivery is on the way!");
@@ -6234,11 +6247,15 @@ export class ZoneServer2016 extends EventEmitter {
     }, 600000);
   }
 
-  useAmmoBox(client: Client, item: BaseItem) {
+  useAmmoBox(
+    client: Client,
+    character: Character | BaseLootableEntity,
+    item: BaseItem
+  ) {
     const itemDef = this.getItemDefinition(item.itemDefinitionId);
     if (!itemDef) return;
     this.utilizeHudTimer(client, itemDef.NAME_ID, 5000, 0, () => {
-      if (!this.removeInventoryItem(client.character, item)) return;
+      if (!this.removeInventoryItem(character, item)) return;
       switch (item.itemDefinitionId) {
         case Items.BUNDLE_GAUZE:
         case Items.BUNDLE_EXPLOSIVE_ARROWS:
@@ -6246,25 +6263,39 @@ export class ZoneServer2016 extends EventEmitter {
         case Items.BUNDLE_WOODEN_ARROWS_1:
         case Items.BUNDLE_WOODEN_ARROWS_2:
         case Items.BUNDLE_WOODEN_ARROWS:
-          client.character.lootItem(
+          character.lootItem(
             this,
-            this.generateItem(itemDef.PARAM1, itemDef.PARAM2)
+            this.generateItem(itemDef.PARAM1, itemDef.PARAM2),
+            undefined,
+            character instanceof Character
           );
           break;
         case Items.AMMO_BOX_223:
-          client.character.lootItem(
+          character.lootItem(
             this,
-            this.generateItem(Items.AMMO_223, 60)
+            this.generateItem(Items.AMMO_223, 60),
+            undefined,
+            character instanceof Character
           );
           break;
         case Items.AMMO_BOX_45:
-          client.character.lootItem(this, this.generateItem(Items.AMMO_45, 60));
+          character.lootItem(
+            this,
+            this.generateItem(Items.AMMO_45, 60),
+            undefined,
+            character instanceof Character
+          );
           break;
       }
     });
   }
 
-  useConsumable(client: Client, item: BaseItem, animationId: number) {
+  useConsumable(
+    client: Client,
+    character: Character | BaseLootableEntity,
+    item: BaseItem,
+    animationId: number
+  ) {
     const itemDef = this.getItemDefinition(item.itemDefinitionId);
     if (!itemDef) return;
     let doReturn = true;
@@ -6309,6 +6340,7 @@ export class ZoneServer2016 extends EventEmitter {
     this.utilizeHudTimer(client, itemDef.NAME_ID, timeout, animationId, () => {
       this.useComsumablePass(
         client,
+        character,
         item,
         eatCount,
         drinkCount,
@@ -6386,22 +6418,26 @@ export class ZoneServer2016 extends EventEmitter {
     });
   }
 
-  fillPass(client: Client, item: BaseItem) {
+  fillPass(client: Client, character: BaseFullCharacter, item: BaseItem) {
     if (client.character.characterStates.inWater) {
-      if (!this.removeInventoryItem(client.character, item)) return;
-      client.character.lootContainerItem(this, this.generateItem(1368)); // give dirty water
+      if (!this.removeInventoryItem(character, item)) return;
+      character.lootContainerItem(this, this.generateItem(1368)); // give dirty water
     } else {
       this.sendAlert(client, "There is no water source nearby");
     }
   }
 
-  sniffPass(client: Client, item: BaseItem) {
-    if (!this.removeInventoryItem(client.character, item)) return;
+  sniffPass(client: Client, character: BaseFullCharacter, item: BaseItem) {
+    if (!this.removeInventoryItem(character, item)) return;
     this.applyMovementModifier(client, MovementModifiers.SWIZZLE);
   }
 
-  fertilizePlants(client: Client, item: BaseItem) {
-    if (!this.removeInventoryItem(client.character, item)) return;
+  fertilizePlants(
+    client: Client,
+    character: BaseFullCharacter,
+    item: BaseItem
+  ) {
+    if (!this.removeInventoryItem(character, item)) return;
     for (const characterId in this._temporaryObjects) {
       const object = this._temporaryObjects[characterId];
       if (
@@ -6430,8 +6466,8 @@ export class ZoneServer2016 extends EventEmitter {
     }
   }
 
-  usePills(client: Client, item: BaseItem) {
-    if (!this.removeInventoryItem(client.character, item)) return;
+  usePills(client: Client, character: BaseFullCharacter, item: BaseItem) {
+    if (!this.removeInventoryItem(character, item)) return;
     let hudIndicator: HudIndicator | undefined = undefined;
     switch (item.itemDefinitionId) {
       case Items.COLD_MEDICINE:
@@ -6486,7 +6522,12 @@ export class ZoneServer2016 extends EventEmitter {
     );
   }
 
-  useItem(client: Client, item: BaseItem, animationId: number) {
+  useItem(
+    client: Client,
+    character: BaseFullCharacter,
+    item: BaseItem,
+    animationId: number
+  ) {
     const itemDef = this.getItemDefinition(item.itemDefinitionId);
     if (!itemDef) return;
     const nameId = itemDef.NAME_ID;
@@ -6521,14 +6562,14 @@ export class ZoneServer2016 extends EventEmitter {
         break;
       case Items.FERTILIZER:
         this.utilizeHudTimer(client, nameId, timeout, animationId, () => {
-          this.fertilizePlants(client, item);
+          this.fertilizePlants(client, character, item);
         });
         return;
       case Items.COLD_MEDICINE:
       case Items.VITAMINS:
       case Items.IMMUNITY_BOOSTERS:
         this.utilizeHudTimer(client, nameId, timeout, animationId, () => {
-          this.usePills(client, item);
+          this.usePills(client, character, item);
         });
         return;
       default:
@@ -6541,12 +6582,12 @@ export class ZoneServer2016 extends EventEmitter {
     switch (useoption) {
       case "fill": // empty bottle
         this.utilizeHudTimer(client, nameId, timeout, animationId, () => {
-          this.fillPass(client, item);
+          this.fillPass(client, character, item);
         });
         break;
       case "sniff": // swizzle
         this.utilizeHudTimer(client, nameId, timeout, animationId, () => {
-          this.sniffPass(client, item);
+          this.sniffPass(client, character, item);
         });
         break;
       default:
@@ -6554,7 +6595,12 @@ export class ZoneServer2016 extends EventEmitter {
     }
   }
 
-  sliceItem(client: Client, item: BaseItem, animationId: number) {
+  sliceItem(
+    client: Client,
+    character: Character | BaseLootableEntity,
+    item: BaseItem,
+    animationId: number
+  ) {
     const itemDef = this.getItemDefinition(item.itemDefinitionId);
     if (!itemDef) return;
     const nameId = itemDef.NAME_ID;
@@ -6579,12 +6625,13 @@ export class ZoneServer2016 extends EventEmitter {
       return;
     }
     this.utilizeHudTimer(client, nameId, timeout, animationId, () => {
-      this.slicePass(client, item);
+      this.slicePass(character, item);
     });
   }
 
   refuelVehicle(
     client: Client,
+    character: Character | BaseLootableEntity,
     item: BaseItem,
     vehicleGuid: string,
     animationId: number
@@ -6613,12 +6660,23 @@ export class ZoneServer2016 extends EventEmitter {
       );
       return;
     }
+    const vehicle = this._vehicles[vehicleGuid];
+    if (vehicle._resources[ResourceIds.FUEL] + fuelValue > 10000) {
+      // Prevent players from overfilling their car to reserve fuel.
+      this.sendAlert(client, "Fuel level is not low enough to refuel");
+      return;
+    }
     this.utilizeHudTimer(client, nameId, timeout, animationId, () => {
-      this.refuelVehiclePass(client, item, vehicleGuid, fuelValue);
+      this.refuelVehiclePass(client, character, item, vehicleGuid, fuelValue);
     });
   }
 
-  shredItem(client: Client, item: BaseItem, animationId: number) {
+  shredItem(
+    client: Client,
+    character: Character | BaseLootableEntity,
+    item: BaseItem,
+    animationId: number
+  ) {
     const itemDefinition = this.getItemDefinition(item.itemDefinitionId);
     if (!itemDefinition) return;
     const nameId = itemDefinition.NAME_ID,
@@ -6637,11 +6695,16 @@ export class ZoneServer2016 extends EventEmitter {
         this.sendChatText(client, "[ERROR] Unknown salvage item or count.");
     }
     this.utilizeHudTimer(client, nameId, timeout, animationId, () => {
-      this.shredItemPass(client, item, count);
+      this.shredItemPass(character, item, count);
     });
   }
 
-  salvageAmmo(client: Client, item: BaseItem, animationId: number) {
+  salvageAmmo(
+    client: Client,
+    character: BaseFullCharacter,
+    item: BaseItem,
+    animationId: number
+  ) {
     const itemDefinition = this.getItemDefinition(item.itemDefinitionId);
     if (!itemDefinition) return;
     const nameId = itemDefinition.NAME_ID;
@@ -6663,26 +6726,6 @@ export class ZoneServer2016 extends EventEmitter {
       );
       return;
     }
-    if (
-      !checkConstructionInRange(
-        this._constructionSimple,
-        client.character.state.position,
-        3,
-        Items.WORKBENCH_WEAPON
-      ) &&
-      !checkConstructionInRange(
-        this._worldSimpleConstruction,
-        client.character.state.position,
-        3,
-        Items.WORKBENCH_WEAPON
-      )
-    ) {
-      this.sendAlert(
-        client,
-        "You must be near a weapon workbench to complete this recipe"
-      );
-      return;
-    }
     const count =
       item.itemDefinitionId == Items.AMMO_12GA ||
       item.itemDefinitionId == Items.AMMO_762 ||
@@ -6691,12 +6734,13 @@ export class ZoneServer2016 extends EventEmitter {
         ? 2
         : 1;
     this.utilizeHudTimer(client, nameId, timeout, animationId, () => {
-      this.salvageItemPass(client, item, count);
+      this.salvageItemPass(character, item, count);
     });
   }
 
   useComsumablePass(
     client: Client,
+    character: Character | BaseLootableEntity,
     item: BaseItem,
     eatCount: number,
     drinkCount: number,
@@ -6707,7 +6751,7 @@ export class ZoneServer2016 extends EventEmitter {
     enduranceCount: number,
     healType: HealTypes
   ) {
-    if (!this.removeInventoryItem(client.character, item)) return;
+    if (!this.removeInventoryItem(character, item)) return;
     if (eatCount) {
       client.character._resources[ResourceIds.HUNGER] += eatCount;
       this.updateResource(
@@ -6754,7 +6798,12 @@ export class ZoneServer2016 extends EventEmitter {
       client.character.damage(this, damageInfo);
     }
     if (givetrash) {
-      client.character.lootContainerItem(this, this.generateItem(givetrash));
+      character.lootContainerItem(
+        this,
+        this.generateItem(givetrash),
+        undefined,
+        character instanceof Character
+      );
     }
     if (bandagingCount && healCount) {
       if (!client.character.healingIntervals[healType]) {
@@ -6784,10 +6833,10 @@ export class ZoneServer2016 extends EventEmitter {
     }
   }
 
-  slicePass(client: Client, item: BaseItem) {
-    if (!this.removeInventoryItem(client.character, item)) return;
+  slicePass(character: Character | BaseLootableEntity, item: BaseItem) {
+    if (!this.removeInventoryItem(character, item)) return;
     if (item.itemDefinitionId == Items.BLACKBERRY_PIE) {
-      client.character.lootContainerItem(
+      character.lootContainerItem(
         this,
         this.generateItem(Items.BLACKBERRY_PIE_SLICE, 4)
       );
@@ -6883,11 +6932,17 @@ export class ZoneServer2016 extends EventEmitter {
 
   refuelVehiclePass(
     client: Client,
+    character: Character | BaseLootableEntity,
     item: BaseItem,
     vehicleGuid: string,
     fuelValue: number
   ) {
-    if (!this.removeInventoryItem(client.character, item)) return;
+    // Also check if the vehicle is dismounted, jumping out of the car won't cancel the interaction
+    if (
+      !client.vehicle.mountedVehicle ||
+      !this.removeInventoryItem(character, item)
+    )
+      return;
     const vehicle = this._vehicles[vehicleGuid];
     vehicle._resources[ResourceIds.FUEL] += fuelValue;
     if (vehicle._resources[ResourceIds.FUEL] > 10000) {
@@ -6902,23 +6957,33 @@ export class ZoneServer2016 extends EventEmitter {
     );
   }
 
-  shredItemPass(client: Client, item: BaseItem, count: number) {
-    if (!this.removeInventoryItem(client.character, item)) return;
-    client.character.lootItem(this, this.generateItem(Items.CLOTH, count));
+  shredItemPass(
+    character: Character | BaseLootableEntity,
+    item: BaseItem,
+    count: number
+  ) {
+    if (!this.removeInventoryItem(character, item)) return;
+    character.lootItem(
+      this,
+      this.generateItem(Items.CLOTH, count),
+      undefined,
+      character instanceof Character
+    );
   }
 
-  salvageItemPass(client: Client, item: BaseItem, count: number) {
-    if (!this.removeInventoryItem(client.character, item)) return;
-    client.character.lootItem(this, this.generateItem(Items.ALLOY_LEAD, count));
-    client.character.lootItem(this, this.generateItem(Items.SHARD_BRASS, 1));
-    client.character.lootItem(
-      this,
-      this.generateItem(Items.GUNPOWDER_REFINED, 1)
-    );
+  salvageItemPass(character: BaseFullCharacter, item: BaseItem, count: number) {
+    if (!this.removeInventoryItem(character, item)) return;
+    if (item.itemDefinitionId == Items.AMMO_12GA) {
+      character.lootItem(this, this.generateItem(Items.SHARD_PLASTIC, 1));
+    }
+    character.lootItem(this, this.generateItem(Items.ALLOY_LEAD, count));
+    character.lootItem(this, this.generateItem(Items.SHARD_BRASS, 1));
+    character.lootItem(this, this.generateItem(Items.GUNPOWDER_REFINED, 1));
   }
 
   repairOption(
     client: Client,
+    character: Character | BaseLootableEntity,
     item: BaseItem,
     repairItem: BaseItem,
     animationId: number
@@ -6949,12 +7014,13 @@ export class ZoneServer2016 extends EventEmitter {
     const nameId = itemDef.NAME_ID;
 
     this.utilizeHudTimer(client, nameId, 5000, animationId, () => {
-      this.repairOptionPass(client, item, repairItem, durability);
+      this.repairOptionPass(client, character, item, repairItem, durability);
     });
   }
 
   repairOptionPass(
     client: Client,
+    character: Character | BaseLootableEntity,
     item: BaseItem,
     repairItem: BaseItem,
     durability: number
@@ -6963,7 +7029,7 @@ export class ZoneServer2016 extends EventEmitter {
       isGunKit = item.itemDefinitionId == Items.GUN_REPAIR_KIT,
       repairAmount = diff < 500 ? diff : 500;
 
-    if (!this.removeInventoryItem(client.character, item)) return;
+    if (!this.removeInventoryItem(character, item)) return;
     if (isGunKit) {
       repairItem.currentDurability = 2000;
     } else {
