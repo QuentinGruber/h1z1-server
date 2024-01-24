@@ -196,8 +196,7 @@ import {
   VehicleOccupy,
   VehicleOwner,
   WeaponWeapon,
-  zone2016packets,
-  CharacterRemoveEffectTagCompositeEffect
+  zone2016packets
 } from "types/zone2016packets";
 import { getCharacterModelData } from "../shared/functions";
 import { HookManager } from "./managers/hookmanager";
@@ -1741,8 +1740,7 @@ export class ZoneServer2016 extends EventEmitter {
         Math.round(canvasY)
       ),
       //const grayscaleValue = this.getAdjustedGrayscaleValue(canvasX, canvasY),
-      adjusted = grayscaleValue * 2 + 0.8,
-      y = pos[1];
+      adjusted = grayscaleValue * 2 + 0.8;
 
     return new Float32Array([pos[0], adjusted, pos[2], 0]);
   }
@@ -2010,7 +2008,6 @@ export class ZoneServer2016 extends EventEmitter {
     for (let i = 0; i < this._grid.length; i++) {
       const gridCell = this._grid[i];
       const index = gridCell.objects.indexOf(obj);
-      const oldLength = gridCell.objects.length;
       if (index > -1) {
         gridCell.objects.splice(index, 1);
       }

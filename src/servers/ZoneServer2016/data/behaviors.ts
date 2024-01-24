@@ -10,8 +10,7 @@ import { DamageInfo } from "../../../types/zoneserver";
 import {
   getCurrentTimeWrapper,
   getDistance,
-  movePoint3D,
-  movePoint3DByAngles
+  movePoint3D
 } from "../../../utils/utils";
 
 export const behavior_Zombie = (
