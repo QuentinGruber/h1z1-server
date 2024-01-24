@@ -44,9 +44,8 @@ interface FairplayConfig {
 }
 
 interface WeatherConfig {
-  cycleSpeed: number;
-  frozeCycle: boolean;
   defaultTemplate: string;
+  dynamicEnabled: boolean;
 }
 
 interface WorldObjectsConfig {

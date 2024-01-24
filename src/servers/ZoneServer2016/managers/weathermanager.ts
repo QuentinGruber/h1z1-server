@@ -43,9 +43,10 @@ export class WeatherManager {
   weather!: Weather2016;
   templates: { [name: string]: WeatherTemplate } = localWeatherTemplates;
   dynamicWorker: any;
-  dynamicEnabled = true;
 
-  defaultTemplate = "z1br";
+  // setup by config file
+  dynamicEnabled = false;
+  defaultTemplate = "donotusethat";
 
   init() {
     this.weather = this.templates[this.defaultTemplate];
