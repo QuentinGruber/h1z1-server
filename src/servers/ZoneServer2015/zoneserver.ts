@@ -160,12 +160,6 @@ export class ZoneServer2015 extends EventEmitter {
       this.onZoneLoginEvent(client);
     });
 
-    this._gatewayServer._soeServer.on("fatalError", (soeClient: SOEClient) => {
-      const client = this._clients[soeClient.sessionId];
-      this.deleteClient(client);
-      // TODO: force crash the client
-    });
-
     this._gatewayServer.on(
       "login",
       (
@@ -451,7 +445,7 @@ export class ZoneServer2015 extends EventEmitter {
   }
 
   getSoeClient(soeClientId: string): SOEClient | undefined {
-    return this._gatewayServer._soeServer.getSoeClient(soeClientId);
+    return this._gatewayServer.getSoeClient(soeClientId);
   }
 
   deleteClient(client: Client) {
@@ -467,7 +461,7 @@ export class ZoneServer2015 extends EventEmitter {
       delete this._clients[client.sessionId];
       const soeClient = this.getSoeClient(client.soeClientId);
       if (soeClient) {
-        this._gatewayServer._soeServer.deleteClient(soeClient);
+        this._gatewayServer.deleteSoeClient(soeClient);
       }
       if (!this._soloMode) {
         this.sendZonePopulationUpdate();
