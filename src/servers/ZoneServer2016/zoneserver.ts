@@ -1933,7 +1933,7 @@ export class ZoneServer2016 extends EventEmitter {
         lowerRenderDistance = true;
       }
     }
-    client.chunkRenderDistance = lowerRenderDistance ? 250 : 300;
+    client.chunkRenderDistance = lowerRenderDistance ? 350 : 400;
   }
 
   private async worldRoutine() {
@@ -4223,6 +4223,22 @@ export class ZoneServer2016 extends EventEmitter {
     }
   }
 
+  sendRawToAllOthersWithSpawnedEntity(
+    client: Client,
+    dictionary: any,
+    entityCharacterId: string = "",
+    data: Buffer
+  ) {
+    for (const a in this._clients) {
+      if (
+        client != this._clients[a] &&
+        this._clients[a].spawnedEntities.has(dictionary[entityCharacterId])
+      ) {
+        this.sendRawDataReliable(this._clients[a], data);
+      }
+    }
+  }
+
   //#region ********************VEHICLE********************
 
   airdropManager(client: Client, spawn: boolean) {
@@ -4735,6 +4751,18 @@ export class ZoneServer2016 extends EventEmitter {
       );
     
   }*/
+  debugSendData(packetName: h1z1PacketsType2016) {
+    switch (packetName) {
+      case "KeepAlive":
+      case "PlayerUpdatePosition":
+      case "GameTimeSync":
+      case "Synchronization":
+      case "Vehicle.StateData":
+        break;
+      default:
+        debug("send data", packetName);
+    }
+  }
 
   sendDataToAllWithSpawnedEntity<ZonePacket>(
     dictionary: EntityDictionary<BaseEntity>,
@@ -4743,12 +4771,15 @@ export class ZoneServer2016 extends EventEmitter {
     obj: ZonePacket
   ) {
     if (!entityCharacterId) return;
+    const data = this._protocol.pack(packetName, obj);
+    if (!data) return;
+    this.debugSendData(packetName);
     for (const a in this._clients) {
       if (
         this._clients[a].spawnedEntities.has(dictionary[entityCharacterId]) ||
         this._clients[a].character.characterId == entityCharacterId
       ) {
-        this.sendData<ZonePacket>(this._clients[a], packetName, obj);
+        this.sendRawDataReliable(this._clients[a], data);
       }
     }
   }
@@ -4759,6 +4790,9 @@ export class ZoneServer2016 extends EventEmitter {
     packetName: any,
     obj: ZonePacket
   ) {
+    const data = this._protocol.pack(packetName, obj);
+    if (!data) return;
+    this.debugSendData(packetName);
     for (const a in this._clients) {
       if (
         isPosInRadius(
@@ -4767,7 +4801,7 @@ export class ZoneServer2016 extends EventEmitter {
           position
         )
       ) {
-        this.sendData<ZonePacket>(this._clients[a], packetName, obj);
+        this.sendRawDataReliable(this._clients[a], data);
       }
     }
   }
@@ -4780,12 +4814,15 @@ export class ZoneServer2016 extends EventEmitter {
     obj: ZonePacket
   ) {
     if (!entityCharacterId) return;
+    const data = this._protocol.pack(packetName, obj);
+    if (!data) return;
+    this.debugSendData(packetName);
     for (const a in this._clients) {
       if (
         client != this._clients[a] &&
         this._clients[a].spawnedEntities.has(dictionary[entityCharacterId])
       ) {
-        this.sendData<ZonePacket>(this._clients[a], packetName, obj);
+        this.sendRawDataReliable(this._clients[a], data);
       }
     }
   }

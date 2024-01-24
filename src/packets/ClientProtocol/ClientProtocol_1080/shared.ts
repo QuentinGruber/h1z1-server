@@ -314,6 +314,7 @@ export function readAbilityUpdateData(data: Buffer, offset: number) {
 export function readPositionUpdateData(data: Buffer, offset: number) {
   const obj: any = {},
     startOffset = offset;
+  obj.raw = data.slice(1);
   obj["flags"] = data.readUInt16LE(offset);
   offset += 2;
 

@@ -1253,15 +1253,11 @@ export class ZonePacketHandlers {
       }*/
     }
     //if (!server._soloMode) {
-    server.sendDataToAllOthersWithSpawnedEntity(
-      server._vehicles,
+    server.sendRawToAllOthersWithSpawnedEntity(
       client,
+      server._vehicles,
       characterId,
-      "PlayerUpdatePosition",
-      {
-        transientId: packet.data.transientId,
-        positionUpdate: positionUpdate
-      }
+      server._protocol.createManagedPositionBroadcast2016(positionUpdate.raw)
     );
     //}
     if (positionUpdate.engineRPM) {
