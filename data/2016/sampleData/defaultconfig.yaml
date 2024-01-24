@@ -148,4 +148,4 @@ decay:
 
 smelting:
   burnTime: 120000 # consume fuel every 120 seconds
-  smeltTime: 40000 # smelt 1 item every 40 seconds
+  smeltTime: 7000 # smelt 1 item every 7 seconds
