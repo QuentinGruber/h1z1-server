@@ -46,7 +46,8 @@ fairplay:
   #  crc32_hash: ""
 
 weather:
-  defaultTemplate: "z1br"
+  defaultTemplate: "h1emubaseweather"
+  dynamicEnabled: false
 
 # Anything to do with loot, vehicle, and npc spawning / despawning
 worldobjects:

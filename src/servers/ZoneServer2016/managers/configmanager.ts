@@ -186,8 +186,9 @@ export class ConfigManager {
     //#endregion
 
     //#region weather
-    const { defaultTemplate } = this.config.weather;
+    const { defaultTemplate, dynamicEnabled } = this.config.weather;
     server.weatherManager.defaultTemplate = defaultTemplate;
+    server.weatherManager.dynamicEnabled = dynamicEnabled;
     //#endregion
 
     //#region worldobjects
