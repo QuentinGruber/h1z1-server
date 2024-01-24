@@ -16,9 +16,7 @@ const debugName = "ZoneServer",
 
 process.env.isBin && require("./managers/worlddatamanagerthread");
 import { EventEmitter } from "node:events";
-import { GatewayServer } from "../GatewayServer/gatewayserver";
 import { H1Z1Protocol } from "../../protocols/h1z1protocol";
-import SOEClient from "../SoeServer/soeclient";
 import { LoginConnectionManager } from "../LoginZoneConnection/loginconnectionmanager";
 import { LZConnectionClient } from "../LoginZoneConnection/shared/lzconnectionclient";
 import { Resolver } from "node:dns";
@@ -229,6 +227,7 @@ import { SOEOutputChannels } from "../../servers/SoeServer/soeoutputstream";
 import { scheduler } from "node:timers/promises";
 import { GatewayChannels } from "h1emu-core";
 import { IngameTimeManager } from "./managers/gametimemanager";
+import { GatewayServerThreaded } from "../GatewayServer/gatewayserver.threaded";
 
 const spawnLocations2 = require("../../../data/2016/zoneData/Z1_gridSpawns.json"),
   deprecatedDoors = require("../../../data/2016/sampleData/deprecatedDoors.json"),
@@ -253,7 +252,7 @@ const spawnLocations2 = require("../../../data/2016/zoneData/Z1_gridSpawns.json"
   > = require("../../../data/2016/sampleData/equipmentModelTexturesMapping.json");
 
 export class ZoneServer2016 extends EventEmitter {
-  private _gatewayServer: GatewayServer;
+  _gatewayServer: GatewayServerThreaded;
   readonly _protocol: H1Z1Protocol;
   _db!: Db;
   readonly _soloMode: boolean;
@@ -361,6 +360,7 @@ export class ZoneServer2016 extends EventEmitter {
   itemDefinitionsCache?: Buffer;
   dynamicAppearanceCache?: Buffer;
   weaponDefinitionsCache?: Buffer;
+  initialDataStaticDtoCache?: Buffer;
   projectileDefinitionsCache?: Buffer;
   profileDefinitionsCache?: Buffer;
   _containerDefinitions: { [containerDefinitionId: number]: any } =
@@ -414,7 +414,7 @@ export class ZoneServer2016 extends EventEmitter {
     internalServerPort?: number
   ) {
     super();
-    this._gatewayServer = new GatewayServer(serverPort, gatewayKey);
+    this._gatewayServer = new GatewayServerThreaded(serverPort, gatewayKey);
     this._packetHandlers = new ZonePacketHandlers();
     this._mongoAddress = mongoAddress;
     this._worldId = worldId || 0;
@@ -460,26 +460,16 @@ export class ZoneServer2016 extends EventEmitter {
       await this.onZoneLoginEvent(client);
     });
 
-    this._gatewayServer._soeServer.on("fatalError", (soeClient: SOEClient) => {
-      const client = this._clients[soeClient.sessionId];
-      this.deleteClient(client);
-      // TODO: force crash the client
-    });
     this._gatewayServer.on(
       "login",
       async (
-        client: SOEClient,
+        soeClientId: string,
         characterId: string,
         guid: string,
         clientProtocol: string
       ) => {
-        if (clientProtocol !== this._clientProtocol) {
-          debug(`${client.address} is using the wrong client protocol`);
-          this.sendData<LoginFailed>(client as any, "LoginFailed", {});
-          return;
-        }
         debug(
-          `Client logged in from ${client.address}:${client.port} with character id: ${characterId}`
+          `Client logged in from ${soeClientId} with character id: ${characterId}`
         );
         if (!this._soloMode) {
           this._loginConnectionManager.sendData(
@@ -498,15 +488,31 @@ export class ZoneServer2016 extends EventEmitter {
           );
         }
         const generatedTransient = this.getTransientId(characterId);
+        const sessionId =
+          await this._gatewayServer.getSoeClientSessionId(soeClientId);
+        if (!sessionId) {
+          return;
+        }
         const zoneClient = this.createClient(
-          client.sessionId,
-          client.soeClientId,
+          sessionId,
+          soeClientId,
           guid,
           characterId,
           generatedTransient
         );
+        if (clientProtocol !== this._clientProtocol) {
+          debug(`${soeClientId} is using the wrong client protocol`);
+          debug(`Protocol ${clientProtocol}`);
+          this.sendData<LoginFailed>(zoneClient, "LoginFailed", {});
+          return;
+        }
         if (!this._soloMode) {
-          const address = client.address;
+          const address = (
+            await this._gatewayServer.getSoeClientNetworkInfos(soeClientId)
+          )?.address;
+          if (!address) {
+            return;
+          }
           if (
             await this.isClientBanned(
               zoneClient.loginSessionId,
@@ -537,24 +543,24 @@ export class ZoneServer2016 extends EventEmitter {
           this.sendData<LoginFailed>(oldClient, "LoginFailed", {});
           this.deleteClient(oldClient);
         }
-        this._clients[client.sessionId] = zoneClient;
+        this._clients[sessionId] = zoneClient;
         this._characters[characterId] = zoneClient.character;
         this.emit("login", zoneClient);
       }
     );
-    this._gatewayServer.on("disconnect", (client: SOEClient) => {
+    this._gatewayServer.on("disconnect", (sessionId: number) => {
       // this happen when the connection is close without a regular logout
-      this.deleteClient(this._clients[client.sessionId]);
+      this.deleteClient(this._clients[sessionId]);
     });
 
     this._gatewayServer.on(
       "tunneldata",
-      async (client: SOEClient, data: Buffer, flags: number) => {
+      async (soeClientSessionId: string, data: Buffer, flags: number) => {
         if (!this._soloMode && this.enablePacketInputLogging) {
           this._db.collection("packets").insertOne({
             data,
             flags,
-            loginSessionId: this._clients[client.sessionId].loginSessionId
+            loginSessionId: this._clients[soeClientSessionId].loginSessionId
           });
         }
         if (flags < GatewayChannels.UpdatePosition) {
@@ -564,7 +570,7 @@ export class ZoneServer2016 extends EventEmitter {
         }
         const packet = this._protocol.parse(data, flags);
         if (packet) {
-          this.emit("data", this._clients[client.sessionId], packet);
+          this.emit("data", this._clients[soeClientSessionId], packet);
         } else {
           debug("zonefailed : ", data);
         }
@@ -1988,21 +1994,18 @@ export class ZoneServer2016 extends EventEmitter {
       this.groupManager.handlePlayerDisconnect(this, client);
     }
     delete this._clients[client.sessionId];
-    const soeClient = this.getSoeClient(client.soeClientId);
-    if (soeClient) {
-      this._gatewayServer._soeServer.deleteClient(soeClient);
-    }
+    this._gatewayServer.deleteSoeClient(client.soeClientId);
     if (!this._soloMode) {
       this.sendZonePopulationUpdate();
     }
     this.setTickRate();
   }
 
-  generateDamageRecord(
+  async generateDamageRecord(
     targetCharacterId: string,
     damageInfo: DamageInfo,
     oldHealth: number
-  ): DamageRecord {
+  ): Promise<DamageRecord> {
     const targetEntity = this.getEntity(targetCharacterId),
       sourceEntity = this.getEntity(damageInfo.entity),
       targetClient = this.getClientByCharId(targetCharacterId),
@@ -2014,19 +2017,23 @@ export class ZoneServer2016 extends EventEmitter {
       targetPing = 0;
     if (sourceClient && !targetClient) {
       sourceName = sourceClient.character.name || "Unknown";
-      const sourceSOEClient = this.getSoeClient(sourceClient.soeClientId);
-      sourcePing = sourceSOEClient ? sourceSOEClient.avgPing : 0;
+      const sourceSOEClientAvgPing =
+        await this._gatewayServer.getSoeClientAvgPing(sourceClient.soeClientId);
+      sourcePing = sourceSOEClientAvgPing ?? 0;
     } else if (!sourceClient && targetClient) {
       targetName = targetClient.character.name || "Unknown";
-      const targetSOEClient = this.getSoeClient(targetClient.soeClientId);
-      targetPing = targetSOEClient ? targetSOEClient.avgPing : 0;
+      const targetSOEClientAvgPing =
+        await this._gatewayServer.getSoeClientAvgPing(targetClient.soeClientId);
+      targetPing = targetSOEClientAvgPing ?? 0;
     } else if (sourceClient && targetClient) {
-      const sourceSOEClient = this.getSoeClient(sourceClient.soeClientId),
-        targetSOEClient = this.getSoeClient(targetClient.soeClientId);
+      const sourceSOEClientAvgPing =
+        await this._gatewayServer.getSoeClientAvgPing(sourceClient.soeClientId);
+      const targetSOEClientAvgPing =
+        await this._gatewayServer.getSoeClientAvgPing(targetClient.soeClientId);
+      sourcePing = sourceSOEClientAvgPing ?? 0;
       sourceName = sourceClient.character.name || "Unknown";
-      sourcePing = sourceSOEClient ? sourceSOEClient.avgPing : 0;
       targetName = targetClient.character.name || "Unknown";
-      targetPing = targetSOEClient ? targetSOEClient.avgPing : 0;
+      targetPing = targetSOEClientAvgPing ?? 0;
     }
     return {
       source: {
@@ -3308,7 +3315,6 @@ export class ZoneServer2016 extends EventEmitter {
   }
 
   customizeStaticDTOs() {
-    console.time("customizeStaticDTOs");
     // caches DTOs that should always be removed
 
     for (const object in this._lootableProps) {
@@ -3350,7 +3356,14 @@ export class ZoneServer2016 extends EventEmitter {
       };
       this.staticDTOs.push(DTOinstance);
     });
-    console.timeEnd("customizeStaticDTOs");
+    const cache = this._protocol.pack("DtoObjectInitialData", {
+      unknownDword1: 1,
+      unknownArray1: this.staticDTOs,
+      unknownArray2: [{}]
+    });
+    if (cache) {
+      this.initialDataStaticDtoCache = cache;
+    }
   }
 
   customizeDTO(client: Client) {
@@ -3358,9 +3371,12 @@ export class ZoneServer2016 extends EventEmitter {
     this.speedtreeManager.customize(speedtreeDTOs);
     this.sendData<DtoObjectInitialData>(client, "DtoObjectInitialData", {
       unknownDword1: 1,
-      unknownArray1: [...speedtreeDTOs, ...this.staticDTOs],
+      unknownArray1: speedtreeDTOs,
       unknownArray2: [{}]
     });
+    if (this.initialDataStaticDtoCache) {
+      this.sendRawDataReliable(client, this.initialDataStaticDtoCache);
+    }
   }
 
   private shouldRemoveEntity(client: Client, entity: BaseEntity): boolean {
@@ -3756,10 +3772,7 @@ export class ZoneServer2016 extends EventEmitter {
     }
     const data = this._protocol.pack(packetName, obj);
     if (data) {
-      const soeClient = this.getSoeClient(client.soeClientId);
-      if (soeClient) {
-        this._gatewayServer.sendTunnelData(soeClient, data, channel);
-      }
+      this._gatewayServer.sendTunnelData(client.soeClientId, data, channel);
     }
   }
 
@@ -4034,7 +4047,7 @@ export class ZoneServer2016 extends EventEmitter {
     return unBannedClient;
   }
 
-  banClient(
+  async banClient(
     loginSessionId: string,
     characterName: string,
     reason: string,
@@ -4054,7 +4067,12 @@ export class ZoneServer2016 extends EventEmitter {
       banType: "normal",
       banReason: reason ? reason : "no reason",
       loginSessionId: loginSessionId,
-      IP: this.getSoeClient(client?.soeClientId ?? "")?.address ?? "",
+      IP:
+        (
+          await this._gatewayServer.getSoeClientNetworkInfos(
+            client?.soeClientId ?? ""
+          )
+        )?.address ?? "",
       HWID: client?.HWID ?? "",
       adminName: adminName ? adminName : "",
       expirationDate: timestamp,
@@ -4405,7 +4423,7 @@ export class ZoneServer2016 extends EventEmitter {
     }
   }
 
-  syncAirdrop() {
+  async syncAirdrop() {
     if (!this._airdrop) return;
     let choosenClient: Client | undefined;
     let currentDistance = 999999;
@@ -4508,11 +4526,12 @@ export class ZoneServer2016 extends EventEmitter {
             : this._airdrop.plane.state.position
         )
       ) {
-        const soeClient = this.getSoeClient(client.soeClientId);
+        const avgPing = await this._gatewayServer.getSoeClientAvgPing(
+          client.soeClientId
+        );
         choosenClient = client;
-        if (soeClient) {
-          const ping = soeClient.avgPing;
-          if (ping < 130) {
+        if (avgPing) {
+          if (avgPing < 130) {
             choosenClient = client;
             currentDistance = getDistance2d(
               client.character.state.position,
@@ -7624,18 +7643,12 @@ export class ZoneServer2016 extends EventEmitter {
   generateGuid(): string {
     return generateRandomGuid();
   }
-  getSoeClient(soeClientId: string): SOEClient | undefined {
-    return this._gatewayServer._soeServer.getSoeClient(soeClientId);
-  }
   private _sendRawDataReliable(client: Client, data: Buffer) {
-    const soeClient = this.getSoeClient(client.soeClientId);
-    if (soeClient) {
-      this._gatewayServer.sendTunnelData(
-        soeClient,
-        data,
-        SOEOutputChannels.Reliable
-      );
-    }
+    this._gatewayServer.sendTunnelData(
+      client.soeClientId,
+      data,
+      SOEOutputChannels.Reliable
+    );
   }
   sendRawDataReliable(client: Client, data: Buffer) {
     this._sendRawDataReliable(client, data);
@@ -7764,17 +7777,18 @@ export class ZoneServer2016 extends EventEmitter {
     client.posAtLastRoutine = client.character.state.position;
   }
 
-  checkZonePing(client: Client) {
-    const soeClient = this.getSoeClient(client.soeClientId);
+  async checkZonePing(client: Client) {
+    const ping = await this._gatewayServer.getSoeClientAvgPing(
+      client.soeClientId
+    );
     if (
       client.isAdmin ||
       Number(client.character.lastLoginDate) + 30000 > new Date().getTime() ||
-      !soeClient
+      !ping
     ) {
       return;
     }
 
-    const ping = soeClient.avgPing;
     client.zonePings.push(ping > 600 ? 600 : ping); // dont push values higher than 600, that would increase average value drasticaly
     if (ping >= this.fairPlayManager.maxPing) {
       this.sendAlert(

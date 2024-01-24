@@ -72,7 +72,7 @@ export class Npc extends BaseFullCharacter {
     this.initNpcData();
   }
 
-  damage(server: ZoneServer2016, damageInfo: DamageInfo) {
+  async damage(server: ZoneServer2016, damageInfo: DamageInfo) {
     const client = server.getClientByCharId(damageInfo.entity),
       oldHealth = this.health;
 
@@ -118,7 +118,7 @@ export class Npc extends BaseFullCharacter {
     }
 
     if (client) {
-      const damageRecord = server.generateDamageRecord(
+      const damageRecord = await server.generateDamageRecord(
         this.characterId,
         damageInfo,
         oldHealth
