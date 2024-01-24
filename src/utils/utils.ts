@@ -1,4 +1,4 @@
-// ======================================================================
+﻿// ======================================================================
 //
 //   GNU GENERAL PUBLIC LICENSE
 //   Version 3, 29 June 2007
@@ -265,6 +265,49 @@ export function movePoint(
     position[0] + Math.cos(angle) * distance,
     position[1],
     position[2] + Math.sin(angle) * distance
+  ]);
+}
+
+export function movePoint3DByAngles(
+  position: Float32Array,
+  angle1: number,
+  angle2: number,
+  distance: number
+) {
+  // Rotate angle2 by 90 degrees to the left
+  angle2 += Math.PI / 2;
+
+  // Calculate the movement components
+  const fixedAngle = angle2 + Math.PI * 2;
+  if (fixedAngle > Math.PI) angle2 = (angle2 - Math.PI) * -1;
+  else if (angle2 < Math.PI) angle2 = (angle2 - Math.PI) * -1;
+
+  const deltaX = distance * Math.cos(angle1) * Math.cos(angle2);
+  const deltaY = distance * Math.sin(angle1);
+  const deltaZ = distance * Math.cos(angle1) * Math.sin(angle2);
+
+  // Update the position
+  position[0] += deltaX;
+  position[1] += deltaY;
+  position[2] += deltaZ;
+}
+
+export function movePoint3D(
+  position: Float32Array,
+  angle: number,
+  distance: number
+): Float32Array {
+  // Rotate angle2 by 90 degrees to the left
+  angle += Math.PI / 2;
+  const fixedAngle = angle + Math.PI * 2;
+  if (fixedAngle > Math.PI) angle = (angle - Math.PI) * -1;
+  else if (angle < Math.PI) angle = (angle - Math.PI) * -1;
+
+  return new Float32Array([
+    position[0] + Math.cos(angle) * distance,
+    position[1],
+    position[2] + Math.sin(angle) * distance,
+    0
   ]);
 }
 

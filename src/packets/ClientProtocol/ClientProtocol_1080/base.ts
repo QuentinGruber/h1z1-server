@@ -2813,6 +2813,25 @@ export const basePackets: PacketStructures = [
   ["PlayerUpdate.PositionOnPlatform", 0x7c, {}],
   ["ClientMembershipVipInfo", 0x7d, {}],
   ["Target", 0x7e, {}],
+  [
+    "Unk",
+    0x7f00,
+    // only sent if one of serverFeatureBits is set in CharacterLoginReply
+    {
+      fields: [
+        {
+          name: "unknownArray1",
+          type: "array",
+          defaultValue: [],
+          fields: [
+            { name: "unknownDword1", type: "int32", defaultValue: 0 },
+            { name: "unknownDword2", type: "int32", defaultValue: 0 },
+            { name: "unknownDword3", type: "int32", defaultValue: 0 }
+          ]
+        }
+      ]
+    }
+  ],
   ["GuideStone", 0x80, {}],
   ["Raid", 0x81, {}],
   [

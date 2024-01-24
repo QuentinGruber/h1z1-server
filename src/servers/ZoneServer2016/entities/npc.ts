@@ -15,19 +15,23 @@ import { DamageInfo } from "types/zoneserver";
 import { ZoneServer2016 } from "../zoneserver";
 import { BaseFullCharacter } from "./basefullcharacter";
 import { ZoneClient2016 } from "../classes/zoneclient";
-import { logClientActionToMongo } from "../../../utils/utils";
+import {
+  getCurrentTimeWrapper,
+  logClientActionToMongo
+} from "../../../utils/utils";
 import { DB_COLLECTIONS } from "../../../utils/enums";
 import { Items, MeleeTypes, StringIds } from "../models/enums";
 import { CommandInteractionString } from "types/zone2016packets";
 
 export class Npc extends BaseFullCharacter {
   health: number;
-  npcRenderDistance = 80;
+  npcRenderDistance = 150;
   spawnerId: number;
   deathTime: number = 0;
   rewardItems: { itemDefId: number; weight: number }[] = [];
   requiredHarvestItems: number[] = [];
   canReceiveDamage = true;
+  positionUpdateType = 10;
   flags = {
     bit0: 0,
     bit1: 0,
@@ -54,6 +58,8 @@ export class Npc extends BaseFullCharacter {
     bit22: 0,
     bit23: 0
   };
+  isAttacking: boolean = false;
+  behaviorInterval: NodeJS.Timeout | undefined;
   public get isAlive(): boolean {
     return this.deathTime == 0;
   }
@@ -70,6 +76,14 @@ export class Npc extends BaseFullCharacter {
     this.spawnerId = spawnerId;
     this.health = 10000;
     this.initNpcData();
+  }
+
+  setAttackingState(server: ZoneServer2016) {
+    this.isAttacking = true;
+    setTimeout(() => {
+      if (!server._npcs[this.characterId]) return;
+      this.isAttacking = false;
+    }, 2000);
   }
 
   damage(server: ZoneServer2016, damageInfo: DamageInfo) {
@@ -128,8 +142,22 @@ export class Npc extends BaseFullCharacter {
   }
 
   OnFullCharacterDataRequest(server: ZoneServer2016, client: ZoneClient2016) {
-    server.sendData(client, "LightweightToFullNpc", this.pGetFull(server));
-
+    server.sendData(client, "LightweightToFullPc", {
+      useCompression: false,
+      fullPcData: {
+        transientId: this.transientId,
+        attachmentData: [],
+        headActor: this.headActor,
+        resources: { data: this.pGetResources() },
+        remoteWeapons: { data: [] }
+      },
+      positionUpdate: {
+        sequenceTime: getCurrentTimeWrapper().getTruncatedU32(),
+        position: this.state.position
+      },
+      stats: [],
+      remoteWeaponsExtra: []
+    });
     if (this.onReadyCallback) {
       this.onReadyCallback(client);
       delete this.onReadyCallback;

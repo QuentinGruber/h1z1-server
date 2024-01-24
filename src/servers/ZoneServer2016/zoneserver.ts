@@ -22,7 +22,7 @@ import SOEClient from "../SoeServer/soeclient";
 import { LoginConnectionManager } from "../LoginZoneConnection/loginconnectionmanager";
 import { LZConnectionClient } from "../LoginZoneConnection/shared/lzconnectionclient";
 import { Resolver } from "node:dns";
-
+import { join } from "node:path";
 import { promisify } from "node:util";
 import { ZonePacketHandlers } from "./zonepackethandlers";
 import { ZoneClient2016 as Client } from "./classes/zoneclient";
@@ -96,10 +96,12 @@ import {
   getAngle,
   getDistance2d,
   TimeWrapper,
-  getCurrentTimeWrapper
+  getCurrentTimeWrapper,
+  movePoint3D
 } from "../../utils/utils";
 
 import { Db, MongoClient, WithId } from "mongodb";
+import { createCanvas, loadImage } from "@napi-rs/canvas";
 import { BaseFullCharacter } from "./entities/basefullcharacter";
 import { ItemObject } from "./entities/itemobject";
 import {
@@ -194,7 +196,8 @@ import {
   VehicleOccupy,
   VehicleOwner,
   WeaponWeapon,
-  zone2016packets
+  zone2016packets,
+  CharacterRemoveEffectTagCompositeEffect
 } from "types/zone2016packets";
 import { getCharacterModelData } from "../shared/functions";
 import { HookManager } from "./managers/hookmanager";
@@ -229,6 +232,16 @@ import { SOEOutputChannels } from "../../servers/SoeServer/soeoutputstream";
 import { scheduler } from "node:timers/promises";
 import { GatewayChannels } from "h1emu-core";
 import { IngameTimeManager } from "./managers/gametimemanager";
+import {
+  behavior_Bear,
+  behavior_Deer,
+  behavior_Wolf,
+  behavior_Zombie
+} from "./data/behaviors";
+import { Zombie } from "./entities/zombie";
+import { Wolf } from "./entities/wolf";
+import { Bear } from "./entities/bear";
+import { Deer } from "./entities/deer";
 
 const spawnLocations2 = require("../../../data/2016/zoneData/Z1_gridSpawns.json"),
   deprecatedDoors = require("../../../data/2016/sampleData/deprecatedDoors.json"),
@@ -291,6 +304,7 @@ export class ZoneServer2016 extends EventEmitter {
   _destroyables: EntityDictionary<Destroyable> = {};
   _worldLootableConstruction: EntityDictionary<LootableConstructionEntity> = {};
   _worldSimpleConstruction: EntityDictionary<ConstructionChildEntity> = {};
+  _canvasCtx!: any;
 
   _destroyableDTOlist: number[] = [];
   _hudIndicators: { [indicatorId: string]: HudIndicator } = {};
@@ -321,6 +335,7 @@ export class ZoneServer2016 extends EventEmitter {
     hospitalCrate: boolean;
     manager?: Client;
   };
+  _gowno: number = 0;
   _serverStartTime: TimeWrapper = new TimeWrapper(0);
   _transientIds: { [transientId: number]: string } = {};
   _characterIds: { [characterId: string]: number } = {};
@@ -568,6 +583,8 @@ export class ZoneServer2016 extends EventEmitter {
           this.emit("data", this._clients[client.sessionId], packet);
         } else {
           debug("zonefailed : ", data);
+          const fs = require("fs");
+          fs.writeFileSync(`zonefailed(${data[0]})_${Date.now()}.bin`, data);
         }
       }
     );
@@ -1651,7 +1668,83 @@ export class ZoneServer2016 extends EventEmitter {
     this.initScreenEffectDataSource();
     this.initClientEffectsDataSource();
     this.initUseOptionsDataSource();
+    this.initHeightmap();
     this.hookManager.checkHook("OnServerReady");
+  }
+
+  private async initHeightmap(): Promise<void> {
+    debug("[Heightmap] Loading canvas data...");
+    this._canvasCtx = await this.getCanvasCtx();
+    debug("[Heightmap] Canvas data loaded!");
+  }
+
+  private async getCanvasCtx() {
+    const imagePath = join(
+      __dirname,
+      "..",
+      "..",
+      "..",
+      "data",
+      "2016",
+      "zoneData",
+      "heightmap.png"
+    );
+    const image = await loadImage(imagePath),
+      canvas = createCanvas(image.width, image.height),
+      ctx = canvas.getContext("2d");
+
+    ctx.drawImage(image, 0, 0);
+
+    return ctx;
+  }
+
+  private OOB(point: number) {
+    return point > 4096 || point < -4096;
+  }
+
+  private ingameToCanvasPoint(point: Float32Array) {
+    const x = point[0],
+      y = point[2];
+
+    return {
+      canvasX: y + 4096,
+      canvasY: -(x - 4096)
+    };
+  }
+
+  private getGrayscaleValue(x: number, y: number) {
+    const pixelColor = this._canvasCtx.getImageData(x, y, 1, 1).data;
+    const grayscaleValue = (pixelColor[0] + pixelColor[1] + pixelColor[2]) / 3; // Calculate average
+    return grayscaleValue;
+  }
+
+  public getHeight(pos: Float32Array) {
+    if (this.OOB(pos[0]) || this.OOB(pos[2])) {
+      console.log("Out of bounds");
+      return new Float32Array([0, 0, 0, 0]);
+    }
+
+    const { canvasX, canvasY } = this.ingameToCanvasPoint(pos);
+
+    // TODO:
+    /*
+          - use the average between 2 points grayscale value
+          ex:
+            player is at x 1555.5, y 1400.5, so use average of gray values at x 1555, 1556 and y 1400, 1401
+    
+        */
+
+    // get second canvasX and Y, either +1 or minus 1 based on decimal
+
+    const grayscaleValue = this.getGrayscaleValue(
+        Math.round(canvasX),
+        Math.round(canvasY)
+      ),
+      //const grayscaleValue = this.getAdjustedGrayscaleValue(canvasX, canvasY),
+      adjusted = grayscaleValue * 2 + 0.8,
+      y = pos[1];
+
+    return new Float32Array([pos[0], adjusted, pos[2], 0]);
   }
 
   async sendInitData(client: Client) {
@@ -1889,7 +1982,8 @@ export class ZoneServer2016 extends EventEmitter {
       this._grid = this.divideMapIntoGrid(8196, 8196, 250);
     if (
       obj instanceof Vehicle ||
-      obj instanceof Character // ||
+      obj instanceof Character ||
+      obj instanceof Npc // ||
       //(obj instanceof ConstructionChildEntity && !obj.getParent(this)) ||
       //(obj instanceof LootableConstructionEntity && !obj.getParent(this))
     ) {
@@ -1912,6 +2006,25 @@ export class ZoneServer2016 extends EventEmitter {
     }
   }
 
+  updateObjectInGrid(obj: BaseEntity) {
+    for (let i = 0; i < this._grid.length; i++) {
+      const gridCell = this._grid[i];
+      const index = gridCell.objects.indexOf(obj);
+      const oldLength = gridCell.objects.length;
+      if (index > -1) {
+        gridCell.objects.splice(index, 1);
+      }
+      if (
+        obj.state.position[0] >= gridCell.position[0] &&
+        obj.state.position[0] <= gridCell.position[0] + gridCell.width &&
+        obj.state.position[2] >= gridCell.position[2] &&
+        obj.state.position[2] <= gridCell.position[2] + gridCell.height
+      ) {
+        gridCell.objects.push(obj);
+      }
+    }
+  }
+
   assignChunkRenderDistance(client: Client) {
     let lowerRenderDistance = false;
     const character = client.character;
@@ -1928,7 +2041,7 @@ export class ZoneServer2016 extends EventEmitter {
         lowerRenderDistance = true;
       }
     }
-    client.chunkRenderDistance = lowerRenderDistance ? 250 : 300;
+    client.chunkRenderDistance = lowerRenderDistance ? 400 : 600;
   }
 
   private async worldRoutine() {
@@ -1943,6 +2056,7 @@ export class ZoneServer2016 extends EventEmitter {
         await scheduler.yield();
         this.setTickRate();
         this.syncAirdrop();
+        this.startNpcBehavior();
         await scheduler.yield();
         if (
           this.enableWorldSaves &&
@@ -3663,10 +3777,18 @@ export class ZoneServer2016 extends EventEmitter {
                 );
               }
               continue;
-            }
-            if (object instanceof Npc) {
+            } else if (object instanceof Npc) {
+              this.addLightweightNpc(client, object);
               object.updateEquipment(this);
-              continue;
+              this.sendData<CharacterMovementVersion>(
+                client,
+                "Character.MovementVersion",
+                {
+                  characterId: object.characterId,
+                  version: 0
+                }
+              );
+              client.spawnedEntities.add(object);
             }
           }
         }
@@ -7700,8 +7822,10 @@ export class ZoneServer2016 extends EventEmitter {
         //this.constructionManager.spawnConstructionParentsInRange(this, client); // put back into grid for now
         this.vehicleManager(client);
         this.spawnCharacters(client);
+        //this.spawnNpcs(client);
         this.spawnGridObjects(client);
         //this.constructionManager.worldConstructionManager(this, client); // put into grid
+        this.npcBehaviorScan(client);
         client.posAtLastRoutine = client.character.state.position;
       }
       const endTime = Date.now();
@@ -7716,12 +7840,75 @@ export class ZoneServer2016 extends EventEmitter {
     this.startRoutinesLoop();
   }
 
+  async startNpcBehavior() {
+    let tickRate = this.worldRoutineRate;
+    const size = _.size(this._npcs);
+    if (size <= 0) return;
+    tickRate = this.worldRoutineRate / size;
+    for (const a in this._npcs) {
+      const npc = this._npcs[a];
+      if (npc.behaviorInterval) return;
+      const angleInRadians2 = Math.random() * (2 * Math.PI) - Math.PI;
+      const newPos = movePoint3D(npc.state.position, angleInRadians2, 10);
+      const newPosFixed = this.getHeight(newPos);
+      const angleInRadians = Math.atan2(
+        newPosFixed[1] - npc.state.position[1],
+        getDistance(npc.state.position, newPosFixed)
+      );
+      npc.state.position = newPosFixed;
+      this.sendDataToAllWithSpawnedEntity(
+        this._npcs,
+        npc.characterId,
+        "PlayerUpdatePosition",
+        {
+          transientId: npc.transientId,
+          positionUpdate: {
+            sequenceTime: getCurrentTimeWrapper().getTruncatedU32(),
+            unknown3_int8: 0,
+            stance: 66565,
+            engineRPM: 0,
+            orientation: angleInRadians2,
+            frontTilt: 0,
+            sideTilt: 0,
+            angleChange: 0,
+            verticalSpeed: angleInRadians,
+            horizontalSpeed: 0.5
+          }
+        }
+      );
+      this.sendDataToAllWithSpawnedEntity(
+        this._npcs,
+        npc.characterId,
+        "PlayerUpdatePosition",
+        {
+          transientId: npc.transientId,
+          positionUpdate: {
+            sequenceTime: getCurrentTimeWrapper().getTruncatedU32() + 20000,
+            position: npc.state.position,
+            unknown3_int8: 0,
+            stance: 66565,
+            engineRPM: 2,
+            orientation: angleInRadians2,
+            frontTilt: 0,
+            sideTilt: 0,
+            angleChange: 0,
+            verticalSpeed: angleInRadians,
+            horizontalSpeed: 0
+          }
+        }
+      );
+      this.updateObjectInGrid(npc);
+      await new Promise((resolve) => setTimeout(resolve, Math.floor(tickRate)));
+    }
+  }
+
   executeRoutine(client: Client) {
     this.constructionManager.constructionPermissionsManager(this, client);
     //this.constructionManager.spawnConstructionParentsInRange(this, client); // put into grid
     this.vehicleManager(client);
     this.removeOutOfDistanceEntities(client);
     this.spawnCharacters(client);
+    //this.spawnNpcs(client)
     this.spawnGridObjects(client);
     //this.constructionManager.worldConstructionManager(this, client);
     this.POIManager(client);
@@ -7732,6 +7919,7 @@ export class ZoneServer2016 extends EventEmitter {
     //this.constructionManager.spawnConstructionParentsInRange(this, client); // put into grid
     this.spawnLoadingGridObjects(client);
     this.spawnCharacters(client);
+    //this.spawnNpcs(client)
     //this.constructionManager.worldConstructionManager(this, client);
     this.POIManager(client);
     client.posAtLastRoutine = client.character.state.position;
@@ -8045,6 +8233,76 @@ export class ZoneServer2016 extends EventEmitter {
           showConsole,
           clearOutput
         });
+      }
+    }
+  }
+
+  npcBehaviorScan(client: Client) {
+    if (!client.character.isAlive) return;
+    for (const a in this._npcs) {
+      const npc = this._npcs[a];
+      if (!npc.isAlive || npc.behaviorInterval) continue;
+
+      if (npc instanceof Zombie) {
+        if (
+          isPosInRadius(20, npc.state.position, client.character.state.position)
+        ) {
+          npc.behaviorInterval = setInterval(
+            () => behavior_Zombie(client, this, npc),
+            500
+          );
+        }
+      } else if (npc instanceof Wolf) {
+        if (
+          isPosInRadius(30, npc.state.position, client.character.state.position)
+        ) {
+          this.sendDataToAllWithSpawnedEntity(
+            this._npcs,
+            npc.characterId,
+            "Character.PlayAnimation",
+            {
+              characterId: npc.characterId,
+              animationName: "WolfHowl"
+            }
+          );
+          npc.behaviorInterval = setInterval(() => {}, 1);
+          setTimeout(() => {
+            npc.behaviorInterval = setInterval(
+              () => behavior_Wolf(client, this, npc),
+              500
+            );
+          }, 2500);
+        }
+      } else if (npc instanceof Bear) {
+        if (
+          isPosInRadius(20, npc.state.position, client.character.state.position)
+        ) {
+          this.sendDataToAllWithSpawnedEntity(
+            this._npcs,
+            npc.characterId,
+            "Character.PlayAnimation",
+            {
+              characterId: npc.characterId,
+              animationName: "StandUp"
+            }
+          );
+          npc.behaviorInterval = setInterval(() => {}, 1);
+          setTimeout(() => {
+            npc.behaviorInterval = setInterval(
+              () => behavior_Bear(client, this, npc),
+              500
+            );
+          }, 3000);
+        }
+      } else if (npc instanceof Deer) {
+        if (
+          isPosInRadius(15, npc.state.position, client.character.state.position)
+        ) {
+          npc.behaviorInterval = setInterval(
+            () => behavior_Deer(client, this, npc),
+            500
+          );
+        }
       }
     }
   }
