@@ -16,6 +16,7 @@ import { SOEOutputChannels } from "servers/SoeServer/soeoutputstream";
 import { Worker, MessageChannel } from "node:worker_threads";
 import { scheduler } from "node:timers/promises";
 import { ClientInfoMessage } from "./gatewayserver.worker";
+import path from "node:path";
 
 export enum GatewayServerThreadedInternalEvents {
   START,
@@ -33,27 +34,25 @@ export class GatewayServerThreaded extends EventEmitter {
   requestQueue: Map<number, any> = new Map();
   constructor(serverPort: number, gatewayKey: Uint8Array) {
     super();
-    this.worker = new Worker(
-      "./out/servers/GatewayServer/gatewayserver.worker.js",
-      {
-        workerData: {
-          serverPort,
-          gatewayKey,
-          appDataChannel: this.appDataChannel.port1,
-          disconnectChannel: this.disconnectChannel.port1,
-          loginChannel: this.loginChannel.port1,
-          internalChannel: this.internalChannel.port1,
-          clientInfoChannel: this.clientInfoChannel.port1
-        },
-        transferList: [
-          this.appDataChannel.port1,
-          this.disconnectChannel.port1,
-          this.loginChannel.port1,
-          this.internalChannel.port1,
-          this.clientInfoChannel.port1
-        ]
-      }
-    );
+    const workerPath = path.join(__dirname, "gatewayserver.worker.js");
+    this.worker = new Worker(workerPath, {
+      workerData: {
+        serverPort,
+        gatewayKey,
+        appDataChannel: this.appDataChannel.port1,
+        disconnectChannel: this.disconnectChannel.port1,
+        loginChannel: this.loginChannel.port1,
+        internalChannel: this.internalChannel.port1,
+        clientInfoChannel: this.clientInfoChannel.port1
+      },
+      transferList: [
+        this.appDataChannel.port1,
+        this.disconnectChannel.port1,
+        this.loginChannel.port1,
+        this.internalChannel.port1,
+        this.clientInfoChannel.port1
+      ]
+    });
     this.clientInfoChannel.port2.on("message", (msg) => {
       // Resolve the promise with the result
       this.requestQueue.get(msg.requestId)(msg.result);
