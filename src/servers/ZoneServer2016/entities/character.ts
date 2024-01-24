@@ -945,7 +945,7 @@ export class Character2016 extends BaseFullCharacter {
     );
   }
 
-  damage(server: ZoneServer2016, damageInfo: DamageInfo) {
+  async damage(server: ZoneServer2016, damageInfo: DamageInfo) {
     if (
       server.isPvE &&
       damageInfo.hitReport?.characterId &&
@@ -997,7 +997,7 @@ export class Character2016 extends BaseFullCharacter {
     });
     server.sendChatText(client, `Received ${damage} damage`);
 
-    const damageRecord = server.generateDamageRecord(
+    const damageRecord = await server.generateDamageRecord(
       this.characterId,
       damageInfo,
       oldHealth

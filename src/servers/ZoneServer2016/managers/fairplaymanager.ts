@@ -133,12 +133,12 @@ export class FairPlayManager {
     }
   }
 
-  checkPlayerSpeed(
+  async checkPlayerSpeed(
     server: ZoneServer2016,
     client: Client,
     sequenceTime: number,
     position: Float32Array
-  ): boolean {
+  ): Promise<boolean> {
     if (client.isAdmin || !this.fairPlayValues || !client.isSynced)
       return false;
     if (!server.isSaving) {
@@ -236,7 +236,7 @@ export class FairPlayManager {
         speed > this.fairPlayValues.maxSpeed &&
         verticalSpeed < this.fairPlayValues.maxVerticalSpeed
       ) {
-        const avgPing = server._gatewayServer.getSoeClientAvgPing(
+        const avgPing = await server._gatewayServer.getSoeClientAvgPing(
           client.soeClientId
         );
         if (avgPing) {
@@ -269,13 +269,13 @@ export class FairPlayManager {
     return false;
   }
 
-  checkVehicleSpeed(
+  async checkVehicleSpeed(
     server: ZoneServer2016,
     client: Client,
     sequenceTime: number,
     position: Float32Array,
     vehicle: Vehicle
-  ): boolean {
+  ): Promise<boolean> {
     if (client.isAdmin || !this.useFairPlay) return false;
     if (!server.isSaving) {
       const drift = Math.abs(
@@ -299,7 +299,7 @@ export class FairPlayManager {
           (sequenceTime - vehicle.oldPos.time)) *
         3600000;
       if (speed > 130 && verticalSpeed < 20) {
-        const avgPing = server._gatewayServer.getSoeClientAvgPing(
+        const avgPing = await server._gatewayServer.getSoeClientAvgPing(
           client.soeClientId
         );
         if (avgPing) {

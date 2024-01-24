@@ -56,7 +56,11 @@ gatewayServer.on(
 );
 
 gatewayServer.on("tunneldata", (sessionId, data, channel) => {
-  appDataChannel.postMessage({ sessionId, data, channel }, [data.buffer]);
+  appDataChannel.postMessage(
+    { sessionId, data, channel }
+    // FIXME:  transfering the buffer create weird behavior need to investigate
+    // , [data.buffer]
+  );
 });
 
 interface appDataMessage {

@@ -227,7 +227,7 @@ import { SOEOutputChannels } from "../../servers/SoeServer/soeoutputstream";
 import { scheduler } from "node:timers/promises";
 import { GatewayChannels } from "h1emu-core";
 import { IngameTimeManager } from "./managers/gametimemanager";
-import { GatewayServer } from "../GatewayServer/gatewayserver";
+import { GatewayServerThreaded } from "../GatewayServer/gatewayserver.threaded";
 
 const spawnLocations2 = require("../../../data/2016/zoneData/Z1_gridSpawns.json"),
   deprecatedDoors = require("../../../data/2016/sampleData/deprecatedDoors.json"),
@@ -252,7 +252,7 @@ const spawnLocations2 = require("../../../data/2016/zoneData/Z1_gridSpawns.json"
   > = require("../../../data/2016/sampleData/equipmentModelTexturesMapping.json");
 
 export class ZoneServer2016 extends EventEmitter {
-  _gatewayServer: GatewayServer;
+  _gatewayServer: GatewayServerThreaded;
   readonly _protocol: H1Z1Protocol;
   _db!: Db;
   readonly _soloMode: boolean;
@@ -414,7 +414,7 @@ export class ZoneServer2016 extends EventEmitter {
     internalServerPort?: number
   ) {
     super();
-    this._gatewayServer = new GatewayServer(serverPort, gatewayKey);
+    this._gatewayServer = new GatewayServerThreaded(serverPort, gatewayKey);
     this._packetHandlers = new ZonePacketHandlers();
     this._mongoAddress = mongoAddress;
     this._worldId = worldId || 0;
@@ -489,7 +489,7 @@ export class ZoneServer2016 extends EventEmitter {
         }
         const generatedTransient = this.getTransientId(characterId);
         const sessionId =
-          this._gatewayServer.getSoeClientSessionId(soeClientId);
+          await this._gatewayServer.getSoeClientSessionId(soeClientId);
         if (!sessionId) {
           return;
         }
@@ -507,8 +507,9 @@ export class ZoneServer2016 extends EventEmitter {
           return;
         }
         if (!this._soloMode) {
-          const address =
-            this._gatewayServer.getSoeClientNetworkInfos(soeClientId)?.address;
+          const address = (
+            await this._gatewayServer.getSoeClientNetworkInfos(soeClientId)
+          )?.address;
           if (!address) {
             return;
           }
@@ -2000,11 +2001,11 @@ export class ZoneServer2016 extends EventEmitter {
     this.setTickRate();
   }
 
-  generateDamageRecord(
+  async generateDamageRecord(
     targetCharacterId: string,
     damageInfo: DamageInfo,
     oldHealth: number
-  ): DamageRecord {
+  ): Promise<DamageRecord> {
     const targetEntity = this.getEntity(targetCharacterId),
       sourceEntity = this.getEntity(damageInfo.entity),
       targetClient = this.getClientByCharId(targetCharacterId),
@@ -2016,23 +2017,19 @@ export class ZoneServer2016 extends EventEmitter {
       targetPing = 0;
     if (sourceClient && !targetClient) {
       sourceName = sourceClient.character.name || "Unknown";
-      const sourceSOEClientAvgPing = this._gatewayServer.getSoeClientAvgPing(
-        sourceClient.soeClientId
-      );
+      const sourceSOEClientAvgPing =
+        await this._gatewayServer.getSoeClientAvgPing(sourceClient.soeClientId);
       sourcePing = sourceSOEClientAvgPing ?? 0;
     } else if (!sourceClient && targetClient) {
       targetName = targetClient.character.name || "Unknown";
-      const targetSOEClientAvgPing = this._gatewayServer.getSoeClientAvgPing(
-        targetClient.soeClientId
-      );
+      const targetSOEClientAvgPing =
+        await this._gatewayServer.getSoeClientAvgPing(targetClient.soeClientId);
       targetPing = targetSOEClientAvgPing ?? 0;
     } else if (sourceClient && targetClient) {
-      const sourceSOEClientAvgPing = this._gatewayServer.getSoeClientAvgPing(
-        sourceClient.soeClientId
-      );
-      const targetSOEClientAvgPing = this._gatewayServer.getSoeClientAvgPing(
-        targetClient.soeClientId
-      );
+      const sourceSOEClientAvgPing =
+        await this._gatewayServer.getSoeClientAvgPing(sourceClient.soeClientId);
+      const targetSOEClientAvgPing =
+        await this._gatewayServer.getSoeClientAvgPing(targetClient.soeClientId);
       sourcePing = sourceSOEClientAvgPing ?? 0;
       sourceName = sourceClient.character.name || "Unknown";
       targetName = targetClient.character.name || "Unknown";
@@ -4050,7 +4047,7 @@ export class ZoneServer2016 extends EventEmitter {
     return unBannedClient;
   }
 
-  banClient(
+  async banClient(
     loginSessionId: string,
     characterName: string,
     reason: string,
@@ -4071,8 +4068,11 @@ export class ZoneServer2016 extends EventEmitter {
       banReason: reason ? reason : "no reason",
       loginSessionId: loginSessionId,
       IP:
-        this._gatewayServer.getSoeClientNetworkInfos(client?.soeClientId ?? "")
-          ?.address ?? "",
+        (
+          await this._gatewayServer.getSoeClientNetworkInfos(
+            client?.soeClientId ?? ""
+          )
+        )?.address ?? "",
       HWID: client?.HWID ?? "",
       adminName: adminName ? adminName : "",
       expirationDate: timestamp,
@@ -4407,7 +4407,7 @@ export class ZoneServer2016 extends EventEmitter {
     }
   }
 
-  syncAirdrop() {
+  async syncAirdrop() {
     if (!this._airdrop) return;
     let choosenClient: Client | undefined;
     let currentDistance = 999999;
@@ -4510,7 +4510,7 @@ export class ZoneServer2016 extends EventEmitter {
             : this._airdrop.plane.state.position
         )
       ) {
-        const avgPing = this._gatewayServer.getSoeClientAvgPing(
+        const avgPing = await this._gatewayServer.getSoeClientAvgPing(
           client.soeClientId
         );
         choosenClient = client;
@@ -7740,8 +7740,10 @@ export class ZoneServer2016 extends EventEmitter {
     client.posAtLastRoutine = client.character.state.position;
   }
 
-  checkZonePing(client: Client) {
-    const ping = this._gatewayServer.getSoeClientAvgPing(client.soeClientId);
+  async checkZonePing(client: Client) {
+    const ping = await this._gatewayServer.getSoeClientAvgPing(
+      client.soeClientId
+    );
     if (
       client.isAdmin ||
       Number(client.character.lastLoginDate) + 30000 > new Date().getTime() ||
