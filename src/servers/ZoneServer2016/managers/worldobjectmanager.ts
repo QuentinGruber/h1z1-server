@@ -189,6 +189,7 @@ export class WorldObjectManager {
     EquipSlots.FEET,
     EquipSlots.HAIR
   ];
+  static itemSpawnersChances: Record<string, number> = {};
 
   private getItemRespawnTimer(server: ZoneServer2016): void {
     if (this.hasCustomLootRespawnTime) return;
@@ -935,6 +936,15 @@ export class WorldObjectManager {
           if (this.spawnedLootObjects[itemInstance.id]) return;
           const chance = Math.floor(Math.random() * 100) + 1; // temporary spawnchance
           if (chance <= lootTable.spawnChance) {
+            if (!WorldObjectManager.itemSpawnersChances[itemInstance.id]) {
+              const realSpawnChance =
+                ((lootTable.spawnChance / lootTable.items.length) *
+                  spawnerType.instances.length) /
+                100;
+              WorldObjectManager.itemSpawnersChances[
+                spawnerType.actorDefinition
+              ] = realSpawnChance;
+            }
             // temporary spawnchance
             const item = getRandomItem(lootTable.items);
             if (item) {

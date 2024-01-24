@@ -30,6 +30,7 @@ import { ConstructionChildEntity } from "../../entities/constructionchildentity"
 import { ConstructionDoor } from "../../entities/constructiondoor";
 import { randomIntFromInterval } from "../../../../utils/utils";
 import { Zombie } from "../../entities/zombie";
+import { WorldObjectManager } from "../../managers/worldobjectmanager";
 
 const abilities = require("../../../../../data/2016/dataSources/Abilities.json"),
   vehicleAbilities = require("../../../../../data/2016/dataSources/VehicleAbilities.json");
@@ -51,6 +52,9 @@ const dev: any = {
         }
       }
     }, 500);
+  },
+  sc: function (server: ZoneServer2016, client: Client, args: Array<string>) {
+    console.log(WorldObjectManager.itemSpawnersChances);
   },
   o: function (server: ZoneServer2016, client: Client, args: Array<string>) {
     server.sendOrderedData(client, "ClientUpdate.TextAlert", {
