@@ -334,7 +334,6 @@ export class ZoneServer2016 extends EventEmitter {
     hospitalCrate: boolean;
     manager?: Client;
   };
-  _gowno: number = 0;
   _serverStartTime: TimeWrapper = new TimeWrapper(0);
   _transientIds: { [transientId: number]: string } = {};
   _characterIds: { [characterId: string]: number } = {};
@@ -1980,8 +1979,7 @@ export class ZoneServer2016 extends EventEmitter {
       this._grid = this.divideMapIntoGrid(8196, 8196, 250);
     if (
       obj instanceof Vehicle ||
-      obj instanceof Character ||
-      obj instanceof Npc // ||
+      obj instanceof Character // ||
       //(obj instanceof ConstructionChildEntity && !obj.getParent(this)) ||
       //(obj instanceof LootableConstructionEntity && !obj.getParent(this))
     ) {
