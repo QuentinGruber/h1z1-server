@@ -209,7 +209,7 @@ export class Npc extends BaseFullCharacter {
             weight: 10
           }
         ];
-        this.npcId = NpcIds.ZOMBIE
+        this.npcId = NpcIds.ZOMBIE;
         break;
       case ModelIds.DEER_BUCK:
       case ModelIds.DEER:
@@ -228,7 +228,7 @@ export class Npc extends BaseFullCharacter {
             weight: 10
           }
         ];
-        this.npcId = NpcIds.DEER
+        this.npcId = NpcIds.DEER;
         break;
       case ModelIds.WOLF:
         this.nameId = StringIds.WOLF;
@@ -242,7 +242,7 @@ export class Npc extends BaseFullCharacter {
             weight: 20
           }
         ];
-        this.npcId = NpcIds.WOLF
+        this.npcId = NpcIds.WOLF;
         break;
       case ModelIds.BEAR:
         this.nameId = StringIds.BEAR;
@@ -256,7 +256,7 @@ export class Npc extends BaseFullCharacter {
             weight: 20
           }
         ];
-        this.npcId = NpcIds.BEAR
+        this.npcId = NpcIds.BEAR;
         break;
     }
   }
