@@ -28,7 +28,7 @@ function getRenderDistance(actorModelId: number) {
     case 55: // dew collector
     case 9223: // wood shack
     case 63: // wood shack door
-      range = 500;
+      range = 1000;
       break;
     case 9487: // ramp
       range = 450;
@@ -44,7 +44,7 @@ function getRenderDistance(actorModelId: number) {
     case 53: // structure stairs
     case 9493: // tower
     case 9130: // foundation, lod distance is 2250, tho i dont think we need it to be that high
-      range = 750;
+      range = 1000;
       break;
   }
   return range ? range : undefined;
