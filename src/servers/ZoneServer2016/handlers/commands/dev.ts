@@ -309,7 +309,7 @@ const dev: any = {
     client: Client,
     args: Array<string>
   ) {
-    const models = require("../../../../data/2016/dataSources/Models.json");
+    const models = require("../../../../../data/2016/dataSources/Models.json");
     const wordFilter = args[1];
     if (wordFilter) {
       const result = models.filter((word: any) =>
