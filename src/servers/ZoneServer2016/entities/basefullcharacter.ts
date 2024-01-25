@@ -935,6 +935,7 @@ export abstract class BaseFullCharacter extends BaseLightweightCharacter {
           slot = LoadoutSlots.ITEM2;
         }
         break;
+      case ItemClasses.POUCHES:
       case ItemClasses.BACKPACKS:
         const currentItemBulk = server.getContainerDefinition(
             itemDef?.PARAM1
