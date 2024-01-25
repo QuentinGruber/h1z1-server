@@ -265,8 +265,8 @@ export class Npc extends BaseFullCharacter {
     if (!this.isAlive && client.character.hasItem(Items.SKINNING_KNIFE)) {
       server.utilizeHudTimer(client, this.nameId, 5000, 0, () => {
         switch (this.actorModelId) {
-          case 9510:
-          case 9634:
+          case ModelIds.ZOMBIE_FEMALE_WALKER:
+          case ModelIds.ZOMBIE_MALE_WALKER:
             const emptySyringe = client.character.getItemById(
               Items.SYRINGE_EMPTY
             );
@@ -280,14 +280,14 @@ export class Npc extends BaseFullCharacter {
             }
             this.triggerAwards(server, client, this.rewardItems);
             break;
-          case 9253:
-          case 9002:
+          case ModelIds.DEER_BUCK:
+          case ModelIds.DEER:
             this.triggerAwards(server, client, this.rewardItems);
             break;
-          case 9187:
+          case ModelIds.BEAR:
             this.triggerAwards(server, client, this.rewardItems);
             break;
-          case 9003:
+          case ModelIds.WOLF:
             this.triggerAwards(server, client, this.rewardItems);
             break;
         }
@@ -321,18 +321,18 @@ export class Npc extends BaseFullCharacter {
   OnInteractionString(server: ZoneServer2016, client: ZoneClient2016) {
     if (!this.isAlive && client.character.hasItem(Items.SKINNING_KNIFE)) {
       switch (this.actorModelId) {
-        case 9510:
-        case 9634:
+        case ModelIds.ZOMBIE_FEMALE_WALKER:
+        case ModelIds.ZOMBIE_MALE_WALKER:
           if (client.character.hasItem(Items.SYRINGE_EMPTY)) {
             this.sendInteractionString(server, client, StringIds.EXTRACT_BLOOD);
             return;
           }
           this.sendInteractionString(server, client, StringIds.HARVEST);
           break;
-        case 9253:
-        case 9003:
-        case 9187:
-        case 9002:
+        case ModelIds.DEER_BUCK:
+        case ModelIds.DEER:
+        case ModelIds.WOLF:
+        case ModelIds.BEAR:
           this.sendInteractionString(server, client, StringIds.HARVEST);
           break;
       }
