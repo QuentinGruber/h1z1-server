@@ -24,12 +24,12 @@ export const characterDefaultLoadout = [
   { item: Items.WEAPON_FISTS },
   { item: Items.WEAPON_FLASHLIGHT },
   { item: Items.SHIRT_DEFAULT },
-  { item: Items.WAIST_PACK },
+  { item: Items.BELT_POUCH },
   { item: Items.PANTS_DEFAULT },
 
   { item: Items.MAP },
-  { item: Items.COMPASS },
-  { item: Items.BUNDLE_GAUZE, count: 1 }
+  { item: Items.COMPASS_IMPROVISED },
+  { item: Items.GAUZE, count: 5 }
 ];
 
 export const characterKitLoadout = [

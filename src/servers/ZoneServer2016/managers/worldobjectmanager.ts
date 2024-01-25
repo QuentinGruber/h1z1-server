@@ -189,27 +189,19 @@ export class WorldObjectManager {
     EquipSlots.FEET,
     EquipSlots.HAIR
   ];
+  static itemSpawnersChances: Record<string, number> = {};
 
   private getItemRespawnTimer(server: ZoneServer2016): void {
     if (this.hasCustomLootRespawnTime) return;
 
     const playerCount = _.size(server._characters);
 
-    switch (true) {
-      case playerCount <= 20:
-        this.lootRespawnTimer = 2400000; // 40 min
-        break;
-      case playerCount > 20 && playerCount <= 40:
-        this.lootRespawnTimer = 1800000; // 30 min
-        break;
-      case playerCount > 40 && playerCount <= 60:
-        this.lootRespawnTimer = 1200000; // 20 min
-        break;
-      case playerCount > 60:
-        this.lootRespawnTimer = 600000; // 10 min
-        break;
-      default:
-        this.lootRespawnTimer = 1200000;
+    if (playerCount >= 60) {
+      this.lootRespawnTimer = 600_000; // 10 min
+    } else if (playerCount >= 30) {
+      this.lootRespawnTimer = 900_000; // 15 min
+    } else {
+      this.lootRespawnTimer = 1_500_000; // 25 min
     }
   }
 
@@ -944,6 +936,15 @@ export class WorldObjectManager {
           if (this.spawnedLootObjects[itemInstance.id]) return;
           const chance = Math.floor(Math.random() * 100) + 1; // temporary spawnchance
           if (chance <= lootTable.spawnChance) {
+            if (!WorldObjectManager.itemSpawnersChances[itemInstance.id]) {
+              const realSpawnChance =
+                ((lootTable.spawnChance / lootTable.items.length) *
+                  spawnerType.instances.length) /
+                100;
+              WorldObjectManager.itemSpawnersChances[
+                spawnerType.actorDefinition
+              ] = realSpawnChance;
+            }
             // temporary spawnchance
             const item = getRandomItem(lootTable.items);
             if (item) {

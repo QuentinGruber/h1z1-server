@@ -121,6 +121,7 @@ export class Character2016 extends BaseFullCharacter {
   isReady = false;
   creationDate!: string;
   lastLoginDate!: string;
+  lastWhisperedPlayer!: string;
   vehicleExitDate: number = new Date().getTime();
   currentLoadoutSlot = LoadoutSlots.FISTS;
   readonly loadoutId = LoadoutIds.CHARACTER;
@@ -944,7 +945,7 @@ export class Character2016 extends BaseFullCharacter {
     );
   }
 
-  damage(server: ZoneServer2016, damageInfo: DamageInfo) {
+  async damage(server: ZoneServer2016, damageInfo: DamageInfo) {
     if (
       server.isPvE &&
       damageInfo.hitReport?.characterId &&
@@ -996,7 +997,7 @@ export class Character2016 extends BaseFullCharacter {
     });
     server.sendChatText(client, `Received ${damage} damage`);
 
-    const damageRecord = server.generateDamageRecord(
+    const damageRecord = await server.generateDamageRecord(
       this.characterId,
       damageInfo,
       oldHealth

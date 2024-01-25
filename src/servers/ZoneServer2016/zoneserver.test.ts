@@ -1,4 +1,4 @@
-import test from "node:test";
+import test, { after } from "node:test";
 import { ZoneServer2016 } from "./zoneserver";
 import { scheduler } from "node:timers/promises";
 
@@ -31,3 +31,9 @@ test(
     });
   }
 );
+
+after(() => {
+  setImmediate(() => {
+    process.exit(0);
+  });
+});

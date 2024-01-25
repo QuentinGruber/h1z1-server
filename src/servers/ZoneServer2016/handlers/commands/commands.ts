@@ -209,10 +209,15 @@ export const commands: Array<Command> = [
   {
     name: "netstats",
     permissionLevel: PermissionLevels.DEFAULT,
-    execute: (server: ZoneServer2016, client: Client, args: Array<string>) => {
-      const soeClient = server.getSoeClient(client.soeClientId);
-      if (soeClient) {
-        const stats = soeClient.getNetworkStats();
+    execute: async (
+      server: ZoneServer2016,
+      client: Client,
+      args: Array<string>
+    ) => {
+      const stats = await server._gatewayServer.getSoeClientNetworkStats(
+        client.soeClientId
+      );
+      if (stats) {
         for (let index = 0; index < stats.length; index++) {
           const stat = stats[index];
           server.sendChatText(client, stat, index == 0);
@@ -223,10 +228,15 @@ export const commands: Array<Command> = [
   {
     name: "ping",
     permissionLevel: PermissionLevels.DEFAULT,
-    execute: (server: ZoneServer2016, client: Client, args: Array<string>) => {
-      const soeClient = server.getSoeClient(client.soeClientId);
-      if (soeClient) {
-        const stats = soeClient.getNetworkStats();
+    execute: async (
+      server: ZoneServer2016,
+      client: Client,
+      args: Array<string>
+    ) => {
+      const stats = await server._gatewayServer.getSoeClientNetworkStats(
+        client.soeClientId
+      );
+      if (stats) {
         server.sendChatText(client, stats[2], true);
       }
     }
@@ -379,6 +389,8 @@ export const commands: Array<Command> = [
         );
         return;
       }
+      client.character.lastWhisperedPlayer = targetClient.character.name;
+      targetClient.character.lastWhisperedPlayer = client.character.name;
 
       args.splice(0, 1);
       const message = args.join(" ");
@@ -390,6 +402,83 @@ export const commands: Array<Command> = [
       server.sendChatText(
         targetClient,
         `[Whisper from ${client.character.name}]: ${message}`
+      );
+    }
+  },
+  {
+    name: "r",
+    permissionLevel: PermissionLevels.DEFAULT,
+    keepCase: true,
+    execute: async (
+      server: ZoneServer2016,
+      client: Client,
+      args: Array<string>
+    ) => {
+      if (!args[0]) {
+        server.sendChatText(client, "[Reply] The message may not be blank!");
+        return;
+      }
+
+      let targetClient = server.getClientByNameOrLoginSession(
+        client.character.lastWhisperedPlayer
+      );
+
+      if (!targetClient) {
+        targetClient = await server.getOfflineClientByName(
+          client.character.lastWhisperedPlayer
+        );
+      }
+
+      if (
+        server.playerNotFound(
+          client,
+          client.character.lastWhisperedPlayer.toString(),
+          targetClient
+        )
+      ) {
+        return;
+      }
+      if (!targetClient || !(targetClient instanceof Client)) {
+        server.sendChatText(client, "Player not found.");
+        return;
+      }
+      if (
+        targetClient?.character?.characterId == client.character.characterId
+      ) {
+        server.sendChatText(client, "Don't be ridiculous.");
+        return;
+      }
+
+      if (await server.chatManager.checkMute(server, client)) {
+        server.sendChatText(
+          client,
+          "[Reply] Message blocked, you are globally muted!"
+        );
+        return;
+      }
+      if (
+        targetClient?.character?.mutedCharacters?.includes(
+          client.character.characterId
+        )
+      ) {
+        server.sendChatText(
+          client,
+          `[Reply] Message blocked, target player has you muted!`
+        );
+        return;
+      }
+      client.character.lastWhisperedPlayer = targetClient.character.name;
+      targetClient.character.lastWhisperedPlayer = client.character.name;
+
+      const message = args.join(" ");
+
+      server.sendChatText(
+        client,
+        `[Reply to ${targetClient.character.name}]: ${message}`
+      );
+      server.sendChatText(
+        targetClient,
+        `[Reply from ${client.character.name}]: ${message}`
       );
     }
   },
@@ -509,19 +598,21 @@ export const commands: Array<Command> = [
   {
     name: "players",
     permissionLevel: PermissionLevels.MODERATOR,
-    execute: (server: ZoneServer2016, client: Client, args: Array<string>) => {
-      server.sendChatText(
-        client,
-        `Players: ${Object.values(server._clients)
-          .map((c) => {
-            return `${c.character.name}: ${c.loginSessionId} | ${
-              server.getSoeClient(c.soeClientId)?.getNetworkStats()[2]
-            } | ${server.getSoeClient(c.soeClientId)?.getNetworkStats()[0]} | ${
-              server.getSoeClient(c.soeClientId)?.getNetworkStats()[1]
-            }`;
-          })
-          .join(",\n")}`
-      );
+    execute: async (
+      server: ZoneServer2016,
+      client: Client,
+      args: Array<string>
+    ) => {
+      let msg: string = "Players:\n";
+      for (const a in server._clients) {
+        const c = server._clients[a];
+        const clientStats =
+          (await server._gatewayServer.getSoeClientNetworkStats(
+            c.soeClientId
+          )) ?? [];
+        msg += `${c.character.name}: ${c.loginSessionId} | ${clientStats[2]} | ${clientStats[0]} | ${clientStats[1]}\n`;
+      }
+      server.sendChatText(client, msg);
     }
   },
   {
@@ -562,7 +653,11 @@ export const commands: Array<Command> = [
   {
     name: "getnetstats",
     permissionLevel: PermissionLevels.MODERATOR,
-    execute: (server: ZoneServer2016, client: Client, args: Array<string>) => {
+    execute: async (
+      server: ZoneServer2016,
+      client: Client,
+      args: Array<string>
+    ) => {
       if (!args[0]) {
         server.sendChatText(
           client,
@@ -581,9 +676,10 @@ export const commands: Array<Command> = [
         server.sendChatText(client, "Client not found.");
         return;
       }
-      const soeClient = server.getSoeClient(targetClient.soeClientId);
-      if (soeClient) {
-        const stats = soeClient.getNetworkStats();
+      const stats = await server._gatewayServer.getSoeClientNetworkStats(
+        targetClient.soeClientId
+      );
+      if (stats) {
         server.sendChatText(
           client,
           `Displaying net statistics of player ${targetClient.character.name}`,
