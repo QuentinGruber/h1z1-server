@@ -1,4 +1,4 @@
-import test from "node:test";
+import test, { after } from "node:test";
 import { LoginServer } from "./loginserver";
 import { scheduler } from "node:timers/promises";
 
@@ -23,5 +23,11 @@ test("LoginServer-mongo", { timeout: 5000, skip: !isMongoTests }, async (t) => {
   await scheduler.yield();
   await t.test("stop", async () => {
     await loginServer.stop();
+  });
+});
+
+after(() => {
+  setImmediate(() => {
+    process.exit(0);
   });
 });

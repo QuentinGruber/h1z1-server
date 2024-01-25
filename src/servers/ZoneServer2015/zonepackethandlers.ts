@@ -611,9 +611,10 @@ export class zonePacketHandlers {
           break;
         case joaat("NETSTATS"):
         case 265037938: // /netstats
-          const soeClient = server.getSoeClient(client.soeClientId);
-          if (soeClient) {
-            const stats = soeClient.getNetworkStats();
+          const stats = server._gatewayServer.getSoeClientNetworkStats(
+            client.soeClientId
+          );
+          if (stats) {
             for (let index = 0; index < stats.length; index++) {
               const stat = stats[index];
               server.sendChatText(client, stat, index == 0);

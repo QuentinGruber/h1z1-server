@@ -1239,23 +1239,23 @@ export const lootTables: { [lootSpawner: string]: LootSpawner } = {
           min: 1,
           max: 1
         }
-      },
-      {
-        item: Items.WEAPON_HATCHET,
-        weight: 10,
-        spawnCount: {
-          min: 1,
-          max: 1
-        }
-      },
-      {
-        item: Items.WATER_EMPTY,
-        weight: 15,
-        spawnCount: {
-          min: 1,
-          max: 1
-        }
       }
+      // {
+      //   item: Items.WEAPON_HATCHET,
+      //   weight: 10,
+      //   spawnCount: {
+      //     min: 1,
+      //     max: 1
+      //   }
+      // },
+      // {
+      //   item: Items.WATER_EMPTY,
+      //   weight: 15,
+      //   spawnCount: {
+      //     min: 1,
+      //     max: 1
+      //   }
+      // }
     ]
   },
   // #endregion
