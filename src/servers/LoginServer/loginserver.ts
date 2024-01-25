@@ -946,7 +946,7 @@ export class LoginServer extends EventEmitter {
       .findOne({
         $or: [{ IP: ip }, { loginSessionId }],
         // We don't take into account temporary bans as global bans
-        $and: [{ status: true }, { expirationDate: 0 }]
+        $and: [{ active: true }, { expirationDate: 0 }]
       });
     const rejectionFlags: Array<CONNECTION_REJECTION_FLAGS> = [];
     if (bannedUser) {
