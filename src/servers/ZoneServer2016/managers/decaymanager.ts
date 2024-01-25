@@ -46,7 +46,6 @@ export class DecayManager {
 
   public run(server: ZoneServer2016) {
     this.contructionExpirationCheck(server);
-    this.constructionGriefCheck(server);
     if (this.constructionDamageTickCount >= this.constructionDamageTicks) {
       this.contructionDecayDamage(server);
       this.constructionDamageTickCount = -1;
@@ -64,7 +63,7 @@ export class DecayManager {
     }, this.decayTickInterval);
   }
 
-  private constructionGriefCheck(server: ZoneServer2016) {
+  private contructionExpirationCheck(server: ZoneServer2016) {
     for (const a in server._constructionFoundations) {
       const foundation = server._constructionFoundations[a];
       if (
@@ -73,10 +72,10 @@ export class DecayManager {
       ) {
         if (
           Date.now() - foundation.placementTime >=
-          this.griefFoundationTimer
+          this.griefFoundationTimer * 3600000
         ) {
           if (
-            Object.keys(foundation.occupiedWallSlots).length <=
+            Object.keys(foundation.occupiedWallSlots).length <
               this.griefCheckSlotAmount &&
             Object.keys(foundation.occupiedShelterSlots).length == 0 &&
             Object.keys(foundation.occupiedExpansionSlots).length == 0
@@ -92,12 +91,7 @@ export class DecayManager {
           }
         }
       }
-    }
-  }
-
-  private contructionExpirationCheck(server: ZoneServer2016) {
-    for (const a in server._constructionFoundations) {
-      const foundation = server._constructionFoundations[a];
+      
       if (
         foundation.itemDefinitionId != Items.FOUNDATION &&
         foundation.itemDefinitionId != Items.GROUND_TAMPER
