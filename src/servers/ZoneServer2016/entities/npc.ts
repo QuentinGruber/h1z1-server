@@ -17,7 +17,7 @@ import { BaseFullCharacter } from "./basefullcharacter";
 import { ZoneClient2016 } from "../classes/zoneclient";
 import { logClientActionToMongo } from "../../../utils/utils";
 import { DB_COLLECTIONS } from "../../../utils/enums";
-import { Items, StringIds } from "../models/enums";
+import { Items, ModelIds, NpcIds, StringIds } from "../models/enums";
 import { CommandInteractionString } from "types/zone2016packets";
 
 export class Npc extends BaseFullCharacter {
@@ -25,8 +25,7 @@ export class Npc extends BaseFullCharacter {
   npcRenderDistance = 80;
   spawnerId: number;
   deathTime: number = 0;
-  isZombie = false;
-  isWildlife = false;
+  npcId: number = 0;
   rewardItems: { itemDefId: number; weight: number }[] = [];
   canReceiveDamage = true;
   flags = {
@@ -76,7 +75,7 @@ export class Npc extends BaseFullCharacter {
   damage(server: ZoneServer2016, damageInfo: DamageInfo) {
     const client = server.getClientByCharId(damageInfo.entity),
       oldHealth = this.health;
-
+    console.log(client);
     if (!this.isAlive && this.canReceiveDamage) {
       if ((this.health -= damageInfo.damage) <= 0) {
         this.flags.knockedOut = 1;
@@ -90,18 +89,26 @@ export class Npc extends BaseFullCharacter {
       this.deathTime = Date.now();
       server.worldObjectManager.createLootbag(server, this);
       if (client) {
-        if (this.isZombie || this.isWildlife) {
-          const killType = this.isZombie ? "zombies" : "wildlife";
-
+        if (this.npcId == NpcIds.ZOMBIE) {
           if (!server._soloMode) {
             logClientActionToMongo(
               server._db.collection(DB_COLLECTIONS.KILLS),
               client,
               server._worldId,
-              { type: killType }
+              { type: "zombie" }
             );
           }
-          (client.character.metrics as any)[killType + "Killed"]++;
+          client.character.metrics.zombiesKilled++;
+        } else {
+          if (!server._soloMode) {
+            logClientActionToMongo(
+              server._db.collection(DB_COLLECTIONS.KILLS),
+              client,
+              server._worldId,
+              { type: "wildlife" }
+            );
+          }
+          client.character.metrics.wildlifeKilled++;
         }
       }
       server.sendDataToAllWithSpawnedEntity(
@@ -186,11 +193,11 @@ export class Npc extends BaseFullCharacter {
 
   initNpcData() {
     switch (this.actorModelId) {
-      case 9667:
+      case ModelIds.ZOMBIE_SCREAMER:
         //Screamer
         break;
-      case 9510:
-      case 9634:
+      case ModelIds.ZOMBIE_FEMALE_WALKER:
+      case ModelIds.ZOMBIE_MALE_WALKER:
         this.nameId = StringIds.ZOMBIE_WALKER;
         this.rewardItems = [
           {
@@ -202,10 +209,10 @@ export class Npc extends BaseFullCharacter {
             weight: 10
           }
         ];
-        this.isZombie = true;
+        this.npcId = NpcIds.ZOMBIE
         break;
-      case 9253:
-      case 9002:
+      case ModelIds.DEER_BUCK:
+      case ModelIds.DEER:
         this.nameId = StringIds.DEER;
         this.rewardItems = [
           {
@@ -221,9 +228,9 @@ export class Npc extends BaseFullCharacter {
             weight: 10
           }
         ];
-        this.isWildlife = true;
+        this.npcId = NpcIds.DEER
         break;
-      case 9003:
+      case ModelIds.WOLF:
         this.nameId = StringIds.WOLF;
         this.rewardItems = [
           {
@@ -235,9 +242,9 @@ export class Npc extends BaseFullCharacter {
             weight: 20
           }
         ];
-        this.isWildlife = true;
+        this.npcId = NpcIds.WOLF
         break;
-      case 9187:
+      case ModelIds.BEAR:
         this.nameId = StringIds.BEAR;
         this.rewardItems = [
           {
@@ -249,7 +256,7 @@ export class Npc extends BaseFullCharacter {
             weight: 20
           }
         ];
-        this.isWildlife = true;
+        this.npcId = NpcIds.BEAR
         break;
     }
   }
