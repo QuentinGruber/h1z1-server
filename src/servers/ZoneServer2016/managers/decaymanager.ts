@@ -91,7 +91,7 @@ export class DecayManager {
           }
         }
       }
-      
+
       if (
         foundation.itemDefinitionId != Items.FOUNDATION &&
         foundation.itemDefinitionId != Items.GROUND_TAMPER
