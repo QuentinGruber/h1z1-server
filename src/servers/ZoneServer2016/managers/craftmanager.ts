@@ -387,6 +387,28 @@ export class CraftManager {
         return false;
       }
     }
+    if (recipe.requireWeaponWorkbench) {
+      if (
+        !checkConstructionInRange(
+          server._constructionSimple,
+          client.character.state.position,
+          3,
+          Items.WORKBENCH_WEAPON
+        ) &&
+        !checkConstructionInRange(
+          server._worldSimpleConstruction,
+          client.character.state.position,
+          3,
+          Items.WORKBENCH_WEAPON
+        )
+      ) {
+        server.sendAlert(
+          client,
+          "You must be near a weapon workbench to complete this recipe"
+        );
+        return false;
+      }
+    }
 
     if (
       !(await this.generateCraftQueue(

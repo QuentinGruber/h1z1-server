@@ -150,6 +150,7 @@ import { BaseLootableEntity } from "./entities/baselootableentity";
 import { Destroyable } from "./entities/destroyable";
 import { Lootbag } from "./entities/lootbag";
 import { ReceivedPacket } from "types/shared";
+import { LoadoutItem } from "./classes/loadoutItem";
 
 function getStanceFlags(num: number): StanceFlags {
   function getBit(bin: string, bit: number) {
@@ -2003,33 +2004,6 @@ export class ZonePacketHandlers {
     }
     const animationId =
       server._itemUseOptions[itemUseOption ?? 0]?.animationId ?? 0;
-    // temporarily block most use options from external containers
-    switch (itemUseOption) {
-      case ItemUseOptions.LOOT:
-      case ItemUseOptions.LOOT_BATTERY:
-      case ItemUseOptions.LOOT_SPARKS:
-      case ItemUseOptions.LOOT_VEHICLE_LOADOUT:
-      case ItemUseOptions.DROP:
-      case ItemUseOptions.DROP_BATTERY:
-      case ItemUseOptions.DROP_SPARKS:
-      case ItemUseOptions.HOTWIRE_OFFROADER:
-      case ItemUseOptions.HOTWIRE_PICKUP:
-      case ItemUseOptions.HOTWIRE_POLICE:
-      case ItemUseOptions.HOTWIRE_ATV:
-      case ItemUseOptions.HOTWIRE_ATV_NO_PARTS:
-      case ItemUseOptions.HOTWIRE_OFFROADER_NO_PARTS:
-      case ItemUseOptions.HOTWIRE_PICKUP_NO_PARTS:
-      case ItemUseOptions.HOTWIRE_POLICE_NO_PARTS:
-        break;
-      default:
-        if (!(character instanceof Character2016)) {
-          server.sendAlert(
-            client,
-            "This use option is temporarily disabled from use in containers."
-          );
-          return;
-        }
-    }
 
     const item = character.getInventoryItem(itemGuid);
     if (!item) {
@@ -2075,7 +2049,7 @@ export class ZonePacketHandlers {
         }
         break;
       case ItemUseOptions.SLICE:
-        server.sliceItem(client, item, animationId);
+        server.sliceItem(client, character, item, animationId);
         break;
       case ItemUseOptions.EQUIP:
         const activeSlotId = client.character.getActiveLoadoutSlot(itemGuid);
@@ -2135,24 +2109,26 @@ export class ZonePacketHandlers {
         }
         break;
       case ItemUseOptions.SHRED:
-        server.shredItem(client, item, animationId);
+        server.shredItem(client, character, item, animationId);
         break;
       case ItemUseOptions.DRINK:
       case ItemUseOptions.EAT:
       case ItemUseOptions.USE_MEDICAL:
-        server.useConsumable(client, item, animationId);
+        server.useConsumable(client, character, item, animationId);
         break;
       case ItemUseOptions.USE_AIRDROP:
+        const localCharacter = character;
         server.utilizeHudTimer(client, StringIds.AIRDROP_CODE, 3000, 0, () => {
-          server.useAirdrop(client, item);
+          server.useAirdrop(client, localCharacter, item);
         });
         break;
       case ItemUseOptions.USE:
-        server.useItem(client, item, animationId);
+        server.useItem(client, character, item, animationId);
         break;
       case ItemUseOptions.REFUEL:
         server.refuelVehicle(
           client,
+          character,
           item,
           targetCharacterId || "",
           animationId
@@ -2171,7 +2147,7 @@ export class ZonePacketHandlers {
         }
         break;
       case ItemUseOptions.SALVAGE:
-        server.salvageAmmo(client, item, animationId);
+        server.salvageAmmo(client, character, item, animationId);
         break;
       case ItemUseOptions.LOOT:
         const containerEnt = client.character.mountedContainer,
@@ -2187,6 +2163,9 @@ export class ZonePacketHandlers {
         // remount container to keep items from changing slotIds
         client.character.mountContainer(server, containerEnt);
         break;
+      case ItemUseOptions.MOVE_VEHICLE_PARTS:
+      case ItemUseOptions.MOVE_BATTERY:
+      case ItemUseOptions.MOVE_SPARKS:
       case ItemUseOptions.MOVE:
         const sourceContainer = client.character.getItemContainer(itemGuid),
           targetCharacter = client.character.mountedContainer;
@@ -2216,6 +2195,22 @@ export class ZonePacketHandlers {
           return;
         }
 
+        if (targetCharacter instanceof Vehicle2016) {
+          const loadOutSlot = targetCharacter.getAvailableLoadoutSlot(
+            server,
+            item.itemDefinitionId
+          );
+          if (loadOutSlot) {
+            targetCharacter.equipContainerItem(
+              server,
+              item,
+              loadOutSlot,
+              character
+            );
+            return;
+          }
+        }
+
         sourceContainer.transferItem(server, targetContainer, item, 0, count);
         server.startInteractionTimer(client, 0, 0, 9);
         break;
@@ -2224,7 +2219,9 @@ export class ZonePacketHandlers {
       case ItemUseOptions.LOOT_VEHICLE_LOADOUT:
         const sourceCharacter = client.character.mountedContainer;
         if (!sourceCharacter) return;
-        const loadoutItem = sourceCharacter.getLoadoutItem(itemGuid);
+        const loadoutItem =
+          sourceCharacter.getLoadoutItem(itemGuid) ||
+          sourceCharacter.getInventoryItem(itemGuid);
         if (loadoutItem) {
           const container = client.character.getAvailableContainer(
             server,
@@ -2241,17 +2238,36 @@ export class ZonePacketHandlers {
             );
             return;
           }
-          sourceCharacter.transferItemFromLoadout(
-            server,
-            container,
-            loadoutItem
-          );
 
-          if (sourceCharacter instanceof Vehicle2016) {
-            sourceCharacter.checkEngineRequirements(server, false);
+          if (
+            loadoutItem instanceof LoadoutItem &&
+            character._loadout[item.slotId]
+          ) {
+            sourceCharacter.transferItemFromLoadout(
+              server,
+              container,
+              loadoutItem
+            );
+
+            if (sourceCharacter instanceof Vehicle2016) {
+              sourceCharacter.checkEngineRequirements(server, false);
+            }
+
+            return;
           }
 
-          return;
+          const sourceContainer = sourceCharacter.getContainerFromGuid(
+            loadoutItem.containerGuid
+          );
+          if (sourceContainer) {
+            sourceContainer.transferItem(
+              server,
+              container,
+              loadoutItem,
+              0,
+              count
+            );
+          }
         }
         break;
       case ItemUseOptions.HOTWIRE_OFFROADER:
@@ -2282,17 +2298,17 @@ export class ZonePacketHandlers {
         break;
       case ItemUseOptions.UNPACK:
       case ItemUseOptions.UNPACK_BUNDLE:
-        server.useAmmoBox(client, item);
+        server.useAmmoBox(client, character, item);
         break;
       case ItemUseOptions.REPAIR:
-        const repairItem = character.getInventoryItem(
+        const repairItem = client.character.getInventoryItem(
           (packet.data.itemSubData as any)?.targetItemGuid
         );
         if (!repairItem) {
           server.sendChatText(client, "[ERROR] Invalid weapon");
           return;
         }
-        server.repairOption(client, item, repairItem, animationId);
+        server.repairOption(client, character, item, repairItem, animationId);
         break;
       default:
         server.sendChatText(
@@ -2554,6 +2570,22 @@ export class ZonePacketHandlers {
       if (!item) {
         server.containerError(client, ContainerErrors.NO_ITEM_IN_SLOT);
         return;
+      }
+
+      if (sourceCharacter instanceof Vehicle2016 && newSlotId) {
+        const loadOutSlot = sourceCharacter.getAvailableLoadoutSlot(
+          server,
+          item.itemDefinitionId
+        );
+        if (loadOutSlot && loadOutSlot == newSlotId) {
+          sourceCharacter.equipContainerItem(
+            server,
+            item,
+            newSlotId,
+            sourceCharacter
+          );
+          return;
+        }
       }
 
       if (!Number(containerGuid)) {
