@@ -986,7 +986,7 @@ export const lootTables: { [lootSpawner: string]: LootSpawner } = {
       },
       {
         item: Items.METAL_SHEET,
-        weight: 20,
+        weight: 30,
         spawnCount: {
           min: 1,
           max: 3
@@ -1001,8 +1001,8 @@ export const lootTables: { [lootSpawner: string]: LootSpawner } = {
         }
       },
       {
-        item: Items.WEAPON_PIPE,
-        weight: 30,
+        item: Items.METAL_PIPE,
+        weight: 20,
         spawnCount: {
           min: 1,
           max: 2
@@ -1206,11 +1206,11 @@ export const lootTables: { [lootSpawner: string]: LootSpawner } = {
 
   // #region FARM
   "ItemSpawnerFarm.adr": {
-    spawnChance: 40,
+    spawnChance: 70,
     items: [
       {
         item: Items.FERTILIZER,
-        weight: 20,
+        weight: 25,
         spawnCount: {
           min: 1,
           max: 1
@@ -1872,7 +1872,7 @@ export const containerLootSpawners: {
         }
       },
       {
-        item: Items.METAL_PIPE,
+        item: Items.GUN_REPAIR_KIT,
         weight: 15,
         spawnCount: {
           min: 1,
@@ -1902,7 +1902,7 @@ export const containerLootSpawners: {
         }
       },
       {
-        item: Items.METAL_PIPE,
+        item: Items.WEAPON_REPAIR_KIT,
         weight: 15,
         spawnCount: {
           min: 1,
@@ -2030,7 +2030,7 @@ export const containerLootSpawners: {
         }
       },
       {
-        item: Items.CODED_MESSAGE,
+        item: Items.COMPASS,
         weight: 5,
         spawnCount: {
           min: 1,
@@ -2084,8 +2084,112 @@ export const containerLootSpawners: {
         }
       },
       {
-        item: Items.CODED_MESSAGE,
-        weight: 2,
+        item: Items.CANNED_FOOD01,
+        weight: 30,
+        spawnCount: {
+          min: 1,
+          max: 1
+        }
+      },
+      {
+        item: Items.CANNED_FOOD02,
+        weight: 30,
+        spawnCount: {
+          min: 1,
+          max: 1
+        }
+      },
+      {
+        item: Items.CANNED_FOOD03,
+        weight: 30,
+        spawnCount: {
+          min: 1,
+          max: 1
+        }
+      },
+      {
+        item: Items.CANNED_FOOD04,
+        weight: 30,
+        spawnCount: {
+          min: 1,
+          max: 1
+        }
+      },
+      {
+        item: Items.CANNED_FOOD05,
+        weight: 30,
+        spawnCount: {
+          min: 1,
+          max: 1
+        }
+      },
+      {
+        item: Items.CANNED_FOOD06,
+        weight: 30,
+        spawnCount: {
+          min: 1,
+          max: 1
+        }
+      },
+      {
+        item: Items.CANNED_FOOD07,
+        weight: 30,
+        spawnCount: {
+          min: 1,
+          max: 1
+        }
+      },
+      {
+        item: Items.CANNED_FOOD08,
+        weight: 30,
+        spawnCount: {
+          min: 1,
+          max: 1
+        }
+      },
+      {
+        item: Items.CANNED_FOOD09,
+        weight: 30,
+        spawnCount: {
+          min: 1,
+          max: 1
+        }
+      },
+      {
+        item: Items.CANNED_FOOD10,
+        weight: 30,
+        spawnCount: {
+          min: 1,
+          max: 1
+        }
+      },
+      {
+        item: Items.CANNED_FOOD11,
+        weight: 30,
+        spawnCount: {
+          min: 1,
+          max: 1
+        }
+      },
+      {
+        item: Items.CANNED_FOOD21,
+        weight: 30,
+        spawnCount: {
+          min: 1,
+          max: 1
+        }
+      },
+      {
+        item: Items.CANNED_FOOD25,
+        weight: 30,
+        spawnCount: {
+          min: 1,
+          max: 1
+        }
+      },
+      {
+        item: Items.CANNED_FOOD26,
+        weight: 30,
         spawnCount: {
           min: 1,
           max: 1
@@ -2130,8 +2234,112 @@ export const containerLootSpawners: {
         }
       },
       {
-        item: Items.CODED_MESSAGE,
-        weight: 2,
+        item: Items.CANNED_FOOD01,
+        weight: 30,
+        spawnCount: {
+          min: 1,
+          max: 1
+        }
+      },
+      {
+        item: Items.CANNED_FOOD02,
+        weight: 30,
+        spawnCount: {
+          min: 1,
+          max: 1
+        }
+      },
+      {
+        item: Items.CANNED_FOOD03,
+        weight: 30,
+        spawnCount: {
+          min: 1,
+          max: 1
+        }
+      },
+      {
+        item: Items.CANNED_FOOD04,
+        weight: 30,
+        spawnCount: {
+          min: 1,
+          max: 1
+        }
+      },
+      {
+        item: Items.CANNED_FOOD05,
+        weight: 30,
+        spawnCount: {
+          min: 1,
+          max: 1
+        }
+      },
+      {
+        item: Items.CANNED_FOOD06,
+        weight: 30,
+        spawnCount: {
+          min: 1,
+          max: 1
+        }
+      },
+      {
+        item: Items.CANNED_FOOD07,
+        weight: 30,
+        spawnCount: {
+          min: 1,
+          max: 1
+        }
+      },
+      {
+        item: Items.CANNED_FOOD08,
+        weight: 30,
+        spawnCount: {
+          min: 1,
+          max: 1
+        }
+      },
+      {
+        item: Items.CANNED_FOOD09,
+        weight: 30,
+        spawnCount: {
+          min: 1,
+          max: 1
+        }
+      },
+      {
+        item: Items.CANNED_FOOD10,
+        weight: 30,
+        spawnCount: {
+          min: 1,
+          max: 1
+        }
+      },
+      {
+        item: Items.CANNED_FOOD11,
+        weight: 30,
+        spawnCount: {
+          min: 1,
+          max: 1
+        }
+      },
+      {
+        item: Items.CANNED_FOOD21,
+        weight: 30,
+        spawnCount: {
+          min: 1,
+          max: 1
+        }
+      },
+      {
+        item: Items.CANNED_FOOD25,
+        weight: 30,
+        spawnCount: {
+          min: 1,
+          max: 1
+        }
+      },
+      {
+        item: Items.CANNED_FOOD26,
+        weight: 30,
         spawnCount: {
           min: 1,
           max: 1
@@ -2169,6 +2377,110 @@ export const containerLootSpawners: {
       },
       {
         item: Items.CANNED_FOOD01,
+        weight: 30,
+        spawnCount: {
+          min: 1,
+          max: 1
+        }
+      },
+      {
+        item: Items.CANNED_FOOD02,
+        weight: 30,
+        spawnCount: {
+          min: 1,
+          max: 1
+        }
+      },
+      {
+        item: Items.CANNED_FOOD03,
+        weight: 30,
+        spawnCount: {
+          min: 1,
+          max: 1
+        }
+      },
+      {
+        item: Items.CANNED_FOOD04,
+        weight: 30,
+        spawnCount: {
+          min: 1,
+          max: 1
+        }
+      },
+      {
+        item: Items.CANNED_FOOD05,
+        weight: 30,
+        spawnCount: {
+          min: 1,
+          max: 1
+        }
+      },
+      {
+        item: Items.CANNED_FOOD06,
+        weight: 30,
+        spawnCount: {
+          min: 1,
+          max: 1
+        }
+      },
+      {
+        item: Items.CANNED_FOOD07,
+        weight: 30,
+        spawnCount: {
+          min: 1,
+          max: 1
+        }
+      },
+      {
+        item: Items.CANNED_FOOD08,
+        weight: 30,
+        spawnCount: {
+          min: 1,
+          max: 1
+        }
+      },
+      {
+        item: Items.CANNED_FOOD09,
+        weight: 30,
+        spawnCount: {
+          min: 1,
+          max: 1
+        }
+      },
+      {
+        item: Items.CANNED_FOOD10,
+        weight: 30,
+        spawnCount: {
+          min: 1,
+          max: 1
+        }
+      },
+      {
+        item: Items.CANNED_FOOD11,
+        weight: 30,
+        spawnCount: {
+          min: 1,
+          max: 1
+        }
+      },
+      {
+        item: Items.CANNED_FOOD21,
+        weight: 30,
+        spawnCount: {
+          min: 1,
+          max: 1
+        }
+      },
+      {
+        item: Items.CANNED_FOOD25,
+        weight: 30,
+        spawnCount: {
+          min: 1,
+          max: 1
+        }
+      },
+      {
+        item: Items.CANNED_FOOD26,
         weight: 30,
         spawnCount: {
           min: 1,
@@ -2703,7 +3015,7 @@ export const containerLootSpawners: {
       },
       {
         item: Items.FERTILIZER,
-        weight: 6,
+        weight: 10,
         spawnCount: {
           min: 1,
           max: 1
@@ -2757,7 +3069,7 @@ export const containerLootSpawners: {
       },
       {
         item: Items.FERTILIZER,
-        weight: 6,
+        weight: 10,
         spawnCount: {
           min: 1,
           max: 1
@@ -2852,14 +3164,6 @@ export const containerLootSpawners: {
       {
         item: Items.LOCKER_KEY_F4,
         weight: 3,
-        spawnCount: {
-          min: 1,
-          max: 1
-        }
-      },
-      {
-        item: Items.CODED_MESSAGE,
-        weight: 2,
         spawnCount: {
           min: 1,
           max: 1
@@ -3026,6 +3330,14 @@ export const containerLootSpawners: {
           min: 1,
           max: 1
         }
+      },
+      {
+        item: Items.COMPASS,
+        weight: 5,
+        spawnCount: {
+          min: 1,
+          max: 1
+        }
       }
     ]
   },
@@ -3103,6 +3415,14 @@ export const containerLootSpawners: {
         spawnCount: {
           min: 2,
           max: 3
+        }
+      },
+      {
+        item: Items.WAIST_PACK,
+        weight: 60,
+        spawnCount: {
+          min: 1,
+          max: 1
         }
       }
     ]
@@ -3192,7 +3512,7 @@ export const containerLootSpawners: {
       },
       {
         item: Items.FERTILIZER,
-        weight: 2,
+        weight: 5,
         spawnCount: {
           min: 1,
           max: 1
@@ -3269,6 +3589,14 @@ export const containerLootSpawners: {
           min: 15,
           max: 15
         }
+      },
+      {
+        item: Items.COMPASS,
+        weight: 1,
+        spawnCount: {
+          min: 1,
+          max: 1
+        }
       }
     ]
   },
@@ -3302,6 +3630,14 @@ export const containerLootSpawners: {
       },
       {
         item: Items.LIGHTER,
+        weight: 1,
+        spawnCount: {
+          min: 1,
+          max: 1
+        }
+      },
+      {
+        item: Items.COMPASS,
         weight: 1,
         spawnCount: {
           min: 1,
@@ -3369,6 +3705,14 @@ export const containerLootSpawners: {
           min: 5,
           max: 5
         }
+      },
+      {
+        item: Items.COMPASS,
+        weight: 1,
+        spawnCount: {
+          min: 1,
+          max: 1
+        }
       }
     ]
   },
@@ -3431,6 +3775,14 @@ export const containerLootSpawners: {
           min: 1,
           max: 1
         }
+      },
+      {
+        item: Items.COMPASS,
+        weight: 1,
+        spawnCount: {
+          min: 1,
+          max: 1
+        }
       }
     ]
   },
@@ -3468,6 +3820,14 @@ export const containerLootSpawners: {
         spawnCount: {
           min: 15,
           max: 15
+        }
+      },
+      {
+        item: Items.COMPASS,
+        weight: 1,
+        spawnCount: {
+          min: 1,
+          max: 1
         }
       }
     ]
@@ -3526,6 +3886,14 @@ export const containerLootSpawners: {
       },
       {
         item: Items.SKINNING_KNIFE,
+        weight: 1,
+        spawnCount: {
+          min: 1,
+          max: 1
+        }
+      },
+      {
+        item: Items.COMPASS,
         weight: 1,
         spawnCount: {
           min: 1,
