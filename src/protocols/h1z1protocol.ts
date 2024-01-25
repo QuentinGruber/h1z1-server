@@ -510,6 +510,7 @@ export class H1Z1Protocol {
       }
       return {
         name: packet.name,
+        flag,
         data: result
       };
     } else {

@@ -1379,16 +1379,6 @@ export class ZonePacketHandlers {
       client.character.stance = packet.data.stance;
     }
     const movingCharacter = server._characters[client.character.characterId];
-    if (movingCharacter) {
-      server.sendRawToAllOthersWithSpawnedCharacter(
-        client,
-        movingCharacter.characterId,
-        server._protocol.createPositionBroadcast2016(
-          packet.data.raw,
-          movingCharacter.transientId
-        )
-      );
-    }
     if (packet.data.position) {
       if (!client.characterReleased) {
         client.characterReleased = true;
