@@ -75,7 +75,6 @@ export class Npc extends BaseFullCharacter {
   damage(server: ZoneServer2016, damageInfo: DamageInfo) {
     const client = server.getClientByCharId(damageInfo.entity),
       oldHealth = this.health;
-    console.log(client);
     if (!this.isAlive && this.canReceiveDamage) {
       if ((this.health -= damageInfo.damage) <= 0) {
         this.flags.knockedOut = 1;
