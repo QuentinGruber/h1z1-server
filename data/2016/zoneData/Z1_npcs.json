@@ -10634,8 +10634,9 @@
         "actorDefinition": "NPCSpawner_Wolf001.adr",
         "instances": [{
                 "position": [
-                    54.49,
-                    23.29, -1104,
+                    655.08,
+                    73.79,
+                    -1389.51,
                     1
                 ],
                 "rotation": [
@@ -10696,8 +10697,9 @@
         "actorDefinition": "Bear_Brown.adr",
         "instances": [{
                 "position": [
-                    51.29,
-                    23.29, -1104,
+                    110.62,
+                    106.81,
+                    -1637.70,
                     1
                 ],
                 "rotation": [
