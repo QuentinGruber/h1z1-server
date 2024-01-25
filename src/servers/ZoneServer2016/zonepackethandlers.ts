@@ -368,7 +368,6 @@ export class ZonePacketHandlers {
       client.character.isReady = true;
       server.airdropManager(client, true);
 
-      server.fairPlayManager.handleAssetValidationInit(server, client);
     }
     if (!client.character.isAlive || client.character.isRespawning) {
       // try to fix stuck on death screen
@@ -657,6 +656,8 @@ export class ZonePacketHandlers {
               triggerLoadingScreen: false
             }
           );
+          // Do not send too early
+          server.fairPlayManager.handleAssetValidationInit(server, client);
           client.character.state.position = client.startingPos;
         }
         client.firstReleased = false;
