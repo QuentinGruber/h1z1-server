@@ -88,26 +88,18 @@ export class Npc extends BaseFullCharacter {
       this.deathTime = Date.now();
       server.worldObjectManager.createLootbag(server, this);
       if (client) {
-        if (this.npcId == NpcIds.ZOMBIE) {
-          if (!server._soloMode) {
-            logClientActionToMongo(
-              server._db.collection(DB_COLLECTIONS.KILLS),
-              client,
-              server._worldId,
-              { type: "zombie" }
-            );
-          }
-          client.character.metrics.zombiesKilled++;
-        } else {
-          if (!server._soloMode) {
-            logClientActionToMongo(
-              server._db.collection(DB_COLLECTIONS.KILLS),
-              client,
-              server._worldId,
-              { type: "wildlife" }
-            );
-          }
+        if (!server._soloMode) {
+          logClientActionToMongo(
+            server._db.collection(DB_COLLECTIONS.KILLS),
+            client,
+            server._worldId,
+            { type: this.npcId == NpcIds.ZOMBIE ? "zombie" : "wildlife" }
+          );
+
           client.character.metrics.wildlifeKilled++;
+          if (this.npcId == NpcIds.ZOMBIE)
+            client.character.metrics.zombiesKilled++;
+          else client.character.metrics.wildlifeKilled++;
         }
       }
       server.sendDataToAllWithSpawnedEntity(
