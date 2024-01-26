@@ -421,7 +421,12 @@ export class WorldObjectManager {
     }
 
     server._lootbags[characterId] = lootbag;
-    server.spawnSimpleNpcForAllInRange(lootbag);
+    server.executeFuncForAllReadyClientsInRange((client) => {
+      if (!client.spawnedEntities.has(entity)) {
+        server.addLightweightNpc(client, entity);
+        client.spawnedEntities.add(entity);
+      }
+    }, entity);
   }
 
   createAirdropContainer(
