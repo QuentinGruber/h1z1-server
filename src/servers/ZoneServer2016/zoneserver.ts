@@ -1158,9 +1158,6 @@ export class ZoneServer2016 extends EventEmitter {
           }
         }
       }
-
-      
-
     }
 
     return proximityItems;
