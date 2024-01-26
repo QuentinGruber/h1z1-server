@@ -205,7 +205,7 @@ export class SmeltingManager {
           );
           this.burnTime = 120000
         } else if (item.itemDefinitionId == Items.CHARCOAL) {
-          this.burnTime = 6000
+          this.burnTime = 2400000
         } else {
           this.burnTime = 120000
         }
