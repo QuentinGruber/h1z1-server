@@ -3,7 +3,7 @@
 //   GNU GENERAL PUBLIC LICENSE
 //   Version 3, 29 June 2007
 //   copyright (C) 2020 - 2021 Quentin Gruber
-//   copyright (C) 2021 - 2023 H1emu community
+//   copyright (C) 2021 - 2024 H1emu community
 //
 //   https://github.com/QuentinGruber/h1z1-server
 //   https://www.npmjs.com/package/h1z1-server
@@ -27,7 +27,8 @@ import {
   eul2quat,
   getDistance,
   getDistance1d,
-  isPosInRadiusWithY
+  isPosInRadiusWithY,
+  getCurrentTimeWrapper
 } from "../../utils/utils";
 
 import { CraftManager } from "./managers/craftmanager";
@@ -149,6 +150,7 @@ import { BaseLootableEntity } from "./entities/baselootableentity";
 import { Destroyable } from "./entities/destroyable";
 import { Lootbag } from "./entities/lootbag";
 import { ReceivedPacket } from "types/shared";
+import { LoadoutItem } from "./classes/loadoutItem";
 
 function getStanceFlags(num: number): StanceFlags {
   function getBit(bin: string, bit: number) {
@@ -246,7 +248,7 @@ export class ZonePacketHandlers {
         guid2: "0x0000000000000000",
         guid3: "0x0000000040000000",
         guid4: "0x0000000000000000",
-        gameTime: (server.getServerTime() & 0xffffffff) >>> 0
+        gameTime: getCurrentTimeWrapper().getTruncatedU32()
       }
     );
 
@@ -366,7 +368,6 @@ export class ZonePacketHandlers {
       client.character.isReady = true;
       server.airdropManager(client, true);
 
-      server.fairPlayManager.handleAssetValidationInit(server, client);
     }
     if (!client.character.isAlive || client.character.isRespawning) {
       // try to fix stuck on death screen
@@ -655,6 +656,8 @@ export class ZonePacketHandlers {
               triggerLoadingScreen: false
             }
           );
+          // Do not send too early
+          server.fairPlayManager.handleAssetValidationInit(server, client);
           client.character.state.position = client.startingPos;
         }
         client.firstReleased = false;
@@ -819,12 +822,13 @@ export class ZonePacketHandlers {
     client: Client,
     packet: ReceivedPacket<Synchronization>
   ) {
-    const serverTime = Int64String(server.getServerTime());
+    const currentTime = getCurrentTimeWrapper();
+    const serverTime = currentTime.getFullString();
     const reflectedPacket: Synchronization = {
       ...packet.data,
       serverTime: serverTime,
       serverTime2: serverTime,
-      time3: Int64String(Number(packet.data.clientTime)) + 2
+      time3: currentTime.getTruncatedU32String()
     };
     server.sendData<Synchronization>(
       client,
@@ -997,7 +1001,7 @@ export class ZonePacketHandlers {
       unknownFloat12: 12
     });
   }
-  PlayerUpdateManagedPosition(
+  async PlayerUpdateManagedPosition(
     server: ZoneServer2016,
     client: Client,
     packet: ReceivedPacket<PlayerUpdateManagedPosition>
@@ -1164,7 +1168,7 @@ export class ZonePacketHandlers {
     } else client.blockedPositionUpdates = 0;
     if (positionUpdate.position) {
       if (
-        server.fairPlayManager.checkVehicleSpeed(
+        await server.fairPlayManager.checkVehicleSpeed(
           server,
           client,
           positionUpdate.sequenceTime,
@@ -1250,15 +1254,11 @@ export class ZonePacketHandlers {
       }*/
     }
     //if (!server._soloMode) {
-    server.sendDataToAllOthersWithSpawnedEntity(
-      server._vehicles,
+    server.sendRawToAllOthersWithSpawnedEntity(
       client,
+      server._vehicles,
       characterId,
-      "PlayerUpdatePosition",
-      {
-        transientId: packet.data.transientId,
-        positionUpdate: positionUpdate
-      }
+      server._protocol.createManagedPositionBroadcast2016(positionUpdate.raw)
     );
     //}
     if (positionUpdate.engineRPM) {
@@ -1293,7 +1293,7 @@ export class ZonePacketHandlers {
       }
     );
   }
-  PlayerUpdatePosition(
+  async PlayerUpdatePosition(
     server: ZoneServer2016,
     client: Client,
     packet: ReceivedPacket<any> // todo: remove any - Meme
@@ -1305,6 +1305,7 @@ export class ZonePacketHandlers {
       ...client.character.positionUpdate,
       ...packet.data
     };
+    // TODO: whats up ?
     if (packet.data.flags === 513) {
       // head rotation when in vehicle, client spams this packet every 1ms even if you dont move, disabled for now(it doesnt work anyway)
       return;
@@ -1379,22 +1380,12 @@ export class ZonePacketHandlers {
       client.character.stance = packet.data.stance;
     }
     const movingCharacter = server._characters[client.character.characterId];
-    if (movingCharacter) {
-      server.sendRawToAllOthersWithSpawnedCharacter(
-        client,
-        movingCharacter.characterId,
-        server._protocol.createPositionBroadcast2016(
-          packet.data.raw,
-          movingCharacter.transientId
-        )
-      );
-    }
     if (packet.data.position) {
       if (!client.characterReleased) {
         client.characterReleased = true;
       }
       if (
-        server.fairPlayManager.checkPlayerSpeed(
+        await server.fairPlayManager.checkPlayerSpeed(
           server,
           client,
           packet.data.sequenceTime,
@@ -1491,7 +1482,7 @@ export class ZonePacketHandlers {
       ]);
     }
     if (
-      client.character.isSpectator &&
+      (client.character.isSpectator || client.character.isVanished) &&
       _.size(server._decoys) > 0 &&
       client.isDecoy
     ) {
@@ -1777,7 +1768,8 @@ export class ZonePacketHandlers {
       if (
         !(
           entity instanceof ConstructionParentEntity ||
-          entity instanceof ConstructionChildEntity
+          entity instanceof ConstructionChildEntity ||
+          entity instanceof LootableConstructionEntity
         )
       ) {
         server.sendData<ReplicationInteractionComponent>(
@@ -1834,8 +1826,9 @@ export class ZonePacketHandlers {
     if (Number(final[0].toFixed(2)) === 0.0) {
       final[0] = 0;
     }
-    const modelId = server.getItemDefinition(packet.data.itemDefinitionId)
-      ?.PLACEMENT_MODEL_ID;
+    const modelId = server.getItemDefinition(
+      packet.data.itemDefinitionId
+    )?.PLACEMENT_MODEL_ID;
     if (!modelId) {
       console.log(
         `[ERROR] No PLACEMENT_MODEL_ID for ${packet.data.itemDefinitionId} from characterId ${client.character.characterId}`
@@ -1999,33 +1992,6 @@ export class ZonePacketHandlers {
     }
     const animationId =
       server._itemUseOptions[itemUseOption ?? 0]?.animationId ?? 0;
-    // temporarily block most use options from external containers
-    switch (itemUseOption) {
-      case ItemUseOptions.LOOT:
-      case ItemUseOptions.LOOT_BATTERY:
-      case ItemUseOptions.LOOT_SPARKS:
-      case ItemUseOptions.LOOT_VEHICLE_LOADOUT:
-      case ItemUseOptions.DROP:
-      case ItemUseOptions.DROP_BATTERY:
-      case ItemUseOptions.DROP_SPARKS:
-      case ItemUseOptions.HOTWIRE_OFFROADER:
-      case ItemUseOptions.HOTWIRE_PICKUP:
-      case ItemUseOptions.HOTWIRE_POLICE:
-      case ItemUseOptions.HOTWIRE_ATV:
-      case ItemUseOptions.HOTWIRE_ATV_NO_PARTS:
-      case ItemUseOptions.HOTWIRE_OFFROADER_NO_PARTS:
-      case ItemUseOptions.HOTWIRE_PICKUP_NO_PARTS:
-      case ItemUseOptions.HOTWIRE_POLICE_NO_PARTS:
-        break;
-      default:
-        if (!(character instanceof Character2016)) {
-          server.sendAlert(
-            client,
-            "This use option is temporarily disabled from use in containers."
-          );
-          return;
-        }
-    }
 
     const item = character.getInventoryItem(itemGuid);
     if (!item) {
@@ -2071,7 +2037,7 @@ export class ZonePacketHandlers {
         }
         break;
       case ItemUseOptions.SLICE:
-        server.sliceItem(client, item, animationId);
+        server.sliceItem(client, character, item, animationId);
         break;
       case ItemUseOptions.EQUIP:
         const activeSlotId = client.character.getActiveLoadoutSlot(itemGuid);
@@ -2131,24 +2097,26 @@ export class ZonePacketHandlers {
         }
         break;
       case ItemUseOptions.SHRED:
-        server.shredItem(client, item, animationId);
+        server.shredItem(client, character, item, animationId);
         break;
       case ItemUseOptions.DRINK:
       case ItemUseOptions.EAT:
       case ItemUseOptions.USE_MEDICAL:
-        server.useConsumable(client, item, animationId);
+        server.useConsumable(client, character, item, animationId);
         break;
       case ItemUseOptions.USE_AIRDROP:
+        const localCharacter = character;
         server.utilizeHudTimer(client, StringIds.AIRDROP_CODE, 3000, 0, () => {
-          server.useAirdrop(client, item);
+          server.useAirdrop(client, localCharacter, item);
         });
         break;
       case ItemUseOptions.USE:
-        server.useItem(client, item, animationId);
+        server.useItem(client, character, item, animationId);
         break;
       case ItemUseOptions.REFUEL:
         server.refuelVehicle(
           client,
+          character,
           item,
           targetCharacterId || "",
           animationId
@@ -2167,7 +2135,7 @@ export class ZonePacketHandlers {
         }
         break;
       case ItemUseOptions.SALVAGE:
-        server.salvageAmmo(client, item, animationId);
+        server.salvageAmmo(client, character, item, animationId);
         break;
       case ItemUseOptions.LOOT:
         const containerEnt = client.character.mountedContainer,
@@ -2183,6 +2151,9 @@ export class ZonePacketHandlers {
         // remount container to keep items from changing slotIds
         client.character.mountContainer(server, containerEnt);
         break;
+      case ItemUseOptions.MOVE_VEHICLE_PARTS:
+      case ItemUseOptions.MOVE_BATTERY:
+      case ItemUseOptions.MOVE_SPARKS:
       case ItemUseOptions.MOVE:
         const sourceContainer = client.character.getItemContainer(itemGuid),
           targetCharacter = client.character.mountedContainer;
@@ -2212,6 +2183,22 @@ export class ZonePacketHandlers {
           return;
         }
 
+        if (targetCharacter instanceof Vehicle2016) {
+          const loadOutSlot = targetCharacter.getAvailableLoadoutSlot(
+            server,
+            item.itemDefinitionId
+          );
+          if (loadOutSlot) {
+            targetCharacter.equipContainerItem(
+              server,
+              item,
+              loadOutSlot,
+              character
+            );
+            return;
+          }
+        }
+
         sourceContainer.transferItem(server, targetContainer, item, 0, count);
         server.startInteractionTimer(client, 0, 0, 9);
         break;
@@ -2220,7 +2207,9 @@ export class ZonePacketHandlers {
       case ItemUseOptions.LOOT_VEHICLE_LOADOUT:
         const sourceCharacter = client.character.mountedContainer;
         if (!sourceCharacter) return;
-        const loadoutItem = sourceCharacter.getLoadoutItem(itemGuid);
+        const loadoutItem =
+          sourceCharacter.getLoadoutItem(itemGuid) ||
+          sourceCharacter.getInventoryItem(itemGuid);
         if (loadoutItem) {
           const container = client.character.getAvailableContainer(
             server,
@@ -2237,17 +2226,36 @@ export class ZonePacketHandlers {
             );
             return;
           }
-          sourceCharacter.transferItemFromLoadout(
-            server,
-            container,
-            loadoutItem
-          );
 
-          if (sourceCharacter instanceof Vehicle2016) {
-            sourceCharacter.checkEngineRequirements(server, false);
+          if (
+            loadoutItem instanceof LoadoutItem &&
+            character._loadout[item.slotId]
+          ) {
+            sourceCharacter.transferItemFromLoadout(
+              server,
+              container,
+              loadoutItem
+            );
+
+            if (sourceCharacter instanceof Vehicle2016) {
+              sourceCharacter.checkEngineRequirements(server, false);
+            }
+
+            return;
           }
 
-          return;
+          const sourceContainer = sourceCharacter.getContainerFromGuid(
+            loadoutItem.containerGuid
+          );
+          if (sourceContainer) {
+            sourceContainer.transferItem(
+              server,
+              container,
+              loadoutItem,
+              0,
+              count
+            );
+          }
         }
         break;
       case ItemUseOptions.HOTWIRE_OFFROADER:
@@ -2278,17 +2286,17 @@ export class ZonePacketHandlers {
         break;
       case ItemUseOptions.UNPACK:
       case ItemUseOptions.UNPACK_BUNDLE:
-        server.useAmmoBox(client, item);
+        server.useAmmoBox(client, character, item);
         break;
       case ItemUseOptions.REPAIR:
-        const repairItem = character.getInventoryItem(
+        const repairItem = client.character.getInventoryItem(
           (packet.data.itemSubData as any)?.targetItemGuid
         );
         if (!repairItem) {
           server.sendChatText(client, "[ERROR] Invalid weapon");
           return;
         }
-        server.repairOption(client, item, repairItem, animationId);
+        server.repairOption(client, character, item, repairItem, animationId);
         break;
       default:
         server.sendChatText(
@@ -2303,8 +2311,9 @@ export class ZonePacketHandlers {
     packet: ReceivedPacket<ConstructionPlacementRequest>
   ) {
     debug(packet.data);
-    const modelId = server.getItemDefinition(packet.data.itemDefinitionId)
-      ?.PLACEMENT_MODEL_ID;
+    const modelId = server.getItemDefinition(
+      packet.data.itemDefinitionId
+    )?.PLACEMENT_MODEL_ID;
     if (!modelId) {
       server.sendChatText(
         client,
@@ -2549,6 +2558,22 @@ export class ZonePacketHandlers {
       if (!item) {
         server.containerError(client, ContainerErrors.NO_ITEM_IN_SLOT);
         return;
+      }
+
+      if (sourceCharacter instanceof Vehicle2016 && newSlotId) {
+        const loadOutSlot = sourceCharacter.getAvailableLoadoutSlot(
+          server,
+          item.itemDefinitionId
+        );
+        if (loadOutSlot && loadOutSlot == newSlotId) {
+          sourceCharacter.equipContainerItem(
+            server,
+            item,
+            newSlotId,
+            sourceCharacter
+          );
+          return;
+        }
       }
 
       if (!Number(containerGuid)) {
@@ -3102,8 +3127,8 @@ export class ZonePacketHandlers {
   }
 
   ProjectileDebug(server: ZoneServer2016, client: Client, packet: any) {
-    console.log(`ProjectileDebug from ${client.character.characterId}`);
-    console.log(packet.data);
+    debug(`ProjectileDebug from ${client.character.characterId}`);
+    debug(packet.data);
   }
 
   VehicleItemDefinitionRequest(

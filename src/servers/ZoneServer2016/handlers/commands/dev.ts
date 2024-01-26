@@ -3,7 +3,7 @@
 //   GNU GENERAL PUBLIC LICENSE
 //   Version 3, 29 June 2007
 //   copyright (C) 2020 - 2021 Quentin Gruber
-//   copyright (C) 2021 - 2023 H1emu community
+//   copyright (C) 2021 - 2024 H1emu community
 //
 //   https://github.com/QuentinGruber/h1z1-server
 //   https://www.npmjs.com/package/h1z1-server
@@ -30,6 +30,7 @@ import { ConstructionChildEntity } from "../../entities/constructionchildentity"
 import { ConstructionDoor } from "../../entities/constructiondoor";
 import { randomIntFromInterval } from "../../../../utils/utils";
 import { Zombie } from "../../entities/zombie";
+import { WorldObjectManager } from "../../managers/worldobjectmanager";
 
 const abilities = require("../../../../../data/2016/dataSources/Abilities.json"),
   vehicleAbilities = require("../../../../../data/2016/dataSources/VehicleAbilities.json");
@@ -40,16 +41,20 @@ const dev: any = {
     client: Client,
     args: Array<string>
   ) {
-    setInterval(() => {
-      const soeClient = server.getSoeClient(client.soeClientId);
-      if (soeClient) {
-        const stats = soeClient.getNetworkStats();
+    setInterval(async () => {
+      const stats = await server._gatewayServer.getSoeClientNetworkStats(
+        client.soeClientId
+      );
+      if (stats) {
         for (let index = 0; index < stats.length; index++) {
           const stat = stats[index];
           server.sendChatText(client, stat, index == 0);
         }
       }
     }, 500);
+  },
+  sc: function (server: ZoneServer2016, client: Client, args: Array<string>) {
+    console.log(WorldObjectManager.itemSpawnersChances);
   },
   o: function (server: ZoneServer2016, client: Client, args: Array<string>) {
     server.sendOrderedData(client, "ClientUpdate.TextAlert", {
@@ -309,14 +314,11 @@ const dev: any = {
     client: Client,
     args: Array<string>
   ) {
-    const models = require("../../../../data/2016/dataSources/Models.json");
+    const models = require("../../../../../data/2016/dataSources/Models.json");
     const wordFilter = args[1];
     if (wordFilter) {
-      const result = models.filter(
-        (word: any) =>
-          word?.MODEL_FILE_NAME?.toLowerCase().includes(
-            wordFilter.toLowerCase()
-          )
+      const result = models.filter((word: any) =>
+        word?.MODEL_FILE_NAME?.toLowerCase().includes(wordFilter.toLowerCase())
       );
       server.sendChatText(client, `Found models for ${wordFilter}:`);
       for (let index = 0; index < result.length; index++) {

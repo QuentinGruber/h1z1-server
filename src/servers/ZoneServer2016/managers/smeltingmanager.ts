@@ -3,7 +3,7 @@
 //   GNU GENERAL PUBLIC LICENSE
 //   Version 3, 29 June 2007
 //   copyright (C) 2020 - 2021 Quentin Gruber
-//   copyright (C) 2021 - 2023 H1emu community
+//   copyright (C) 2021 - 2024 H1emu community
 //
 //   https://github.com/QuentinGruber/h1z1-server
 //   https://www.npmjs.com/package/h1z1-server
@@ -31,6 +31,7 @@ import { BaseItem } from "../classes/baseItem";
 import { LoadoutContainer } from "../classes/loadoutcontainer";
 import { smeltingData } from "../data/Recipes";
 import { scheduler } from "timers/promises";
+import { CharacterPlayWorldCompositeEffect } from "types/zone2016packets";
 
 export class SmeltingManager {
   _smeltingEntities: { [characterId: string]: string } = {};
@@ -84,7 +85,7 @@ export class SmeltingManager {
           this.smelt(server, entity);
         }
       }
-      server.sendDataToAllWithSpawnedEntity(
+      server.sendDataToAllWithSpawnedEntity<CharacterPlayWorldCompositeEffect>(
         subEntity!.dictionary,
         entity.characterId,
         "Character.PlayWorldCompositeEffect",
@@ -92,7 +93,7 @@ export class SmeltingManager {
           characterId: entity.characterId,
           effectId: entity.subEntity!.workingEffect,
           position: entity.state.position,
-          unk3: Math.ceil(this.burnTime / 1000)
+          effectTime: Math.ceil(this.burnTime / 1000)
         }
       );
     }
@@ -130,6 +131,17 @@ export class SmeltingManager {
           this.checkAnimalTrap(server, entity, subEntity, container);
           break;
       }
+      server.sendDataToAllWithSpawnedEntity<CharacterPlayWorldCompositeEffect>(
+        subEntity!.dictionary,
+        entity.characterId,
+        "Character.PlayWorldCompositeEffect",
+        {
+          characterId: entity.characterId,
+          effectId: entity.subEntity!.workingEffect,
+          position: entity.state.position,
+          effectTime: Math.ceil(this.collectingTickTime / 1000)
+        }
+      );
     }
     this.checkCollectorsTimer = setTimeout(() => {
       this.checkCollectors(server);
@@ -174,6 +186,14 @@ export class SmeltingManager {
     );
   }*/
 
+  getBurnTime(item: BaseItem): number {
+    if (item.itemDefinitionId == Items.CHARCOAL) {
+      return (this.burnTime = 2400000);
+    } else {
+      return (this.burnTime = 120000);
+    }
+  }
+
   private checkFuel(
     server: ZoneServer2016,
     entity: LootableConstructionEntity
@@ -182,6 +202,7 @@ export class SmeltingManager {
     for (const a in container!.items) {
       const item = container!.items[a];
       if (entity.subEntity!.allowedFuel.includes(item.itemDefinitionId)) {
+        this.getBurnTime(item);
         server.removeContainerItem(entity, item, entity.getContainer(), 1);
         if (item.itemDefinitionId == Items.WOOD_LOG) {
           // give charcoal if wood log was burned
