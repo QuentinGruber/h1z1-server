@@ -3,7 +3,7 @@
 //   GNU GENERAL PUBLIC LICENSE
 //   Version 3, 29 June 2007
 //   copyright (C) 2020 - 2021 Quentin Gruber
-//   copyright (C) 2021 - 2023 H1emu community
+//   copyright (C) 2021 - 2024 H1emu community
 //
 //   https://github.com/QuentinGruber/h1z1-server
 //   https://www.npmjs.com/package/h1z1-server
@@ -698,6 +698,7 @@ export class ConstructionManager {
     freeplaceParentCharacterId?: string
   ): boolean {
     switch (itemDefinitionId) {
+      case Items.BARBED_WIRE:
       case Items.SNARE:
       case Items.PUNJI_STICKS:
       case Items.PUNJI_STICK_ROW:
@@ -707,6 +708,14 @@ export class ConstructionManager {
           modelId,
           position,
           fixEulerOrder(rotation)
+        );
+      case Items.RIGGED_LIGHT:
+        return this.placeTemporaryEntity(
+          server,
+          modelId,
+          position,
+          fixEulerOrder(rotation),
+          86400000
         );
       case Items.FLARE:
         return this.placeTemporaryEntity(
@@ -850,6 +859,16 @@ export class ConstructionManager {
           BuildingSlot,
           parentObjectCharacterId,
           itemDefinitionId
+        );
+      case Items.HAND_SHOVEL:
+        return this.placeStashEntity(
+          server,
+          itemDefinitionId,
+          modelId,
+          position,
+          fixEulerOrder(rotation),
+          new Float32Array([1, 1, 1, 1]),
+          freeplaceParentCharacterId
         );
       default:
         //this.placementError(client, ConstructionErrors.UNKNOWN_CONSTRUCTION);
@@ -1640,6 +1659,49 @@ export class ConstructionManager {
     }, construction);
     return true;
   }
+  placeStashEntity(
+    server: ZoneServer2016,
+    itemDefinitionId: number,
+    modelId: number,
+    position: Float32Array,
+    rotation: Float32Array,
+    scale: Float32Array,
+    parentObjectCharacterId?: string
+  ): boolean {
+    const characterId = server.generateGuid(),
+      transientId = server.getTransientId(characterId);
+    const obj = new LootableConstructionEntity(
+      characterId,
+      transientId,
+      modelId,
+      position,
+      rotation,
+      server,
+      scale,
+      itemDefinitionId,
+      parentObjectCharacterId || "",
+      ""
+    );
+
+    const parent = obj.getParent(server);
+    if (parent) {
+      server._lootableConstruction[characterId] = obj;
+      parent.addFreeplaceConstruction(obj);
+    } else {
+      server._worldLootableConstruction[characterId] = obj;
+    }
+
+    obj.equipLoadout(server);
+
+    server.executeFuncForAllReadyClientsInRange((client) => {
+      if (this.shouldHideEntity(server, client, obj)) {
+        return;
+      }
+      this.spawnLootableConstruction(server, client, obj);
+    }, obj);
+
+    return true;
+  }
 
   checkFoundationPermission(
     server: ZoneServer2016,
@@ -2109,7 +2171,7 @@ export class ConstructionManager {
     }
   }
 
-  spawnConstructionParentsInRange(server: ZoneServer2016, client: Client) {
+  /*spawnConstructionParentsInRange(server: ZoneServer2016, client: Client) { // put back into grid
     for (const a in server._constructionFoundations) {
       const foundation = server._constructionFoundations[a];
       if (
@@ -2122,22 +2184,32 @@ export class ConstructionManager {
         this.spawnConstructionParent(server, client, foundation);
       }
     }
-  }
+  }*/
 
   public constructionPermissionsManager(
     server: ZoneServer2016,
     client: Client
   ) {
     let hide = false;
-    for (const characterId in server._constructionFoundations) {
-      const npc = server._constructionFoundations[characterId];
-      if (this.checkFoundationPermission(server, client, npc)) hide = true;
+
+    for (const object of client.spawnedEntities) {
+      if (object instanceof ConstructionParentEntity) {
+        if (this.checkFoundationPermission(server, client, object)) {
+          hide = true;
+          continue;
+        }
+      }
+
+      if (object instanceof ConstructionChildEntity) {
+        if (
+          this.checkConstructionChildEntityPermission(server, client, object)
+        ) {
+          hide = true;
+          continue;
+        }
+      }
     }
-    for (const characterId in server._constructionSimple) {
-      const npc = server._constructionSimple[characterId];
-      if (this.checkConstructionChildEntityPermission(server, client, npc))
-        hide = true;
-    }
+
     if (!hide && client.character.isHidden) {
       client.character.isHidden = "";
       server.spawnCharacterToOtherClients(client.character);
@@ -2250,7 +2322,7 @@ export class ConstructionManager {
    * Manages the spawning of WORLD parented free-place construction entities, such as storage containers placed directly on the ground.
    *
    */
-  worldConstructionManager(server: ZoneServer2016, client: Client) {
+  /*worldConstructionManager(server: ZoneServer2016, client: Client) {
     for (const characterId in server._worldSimpleConstruction) {
       const entity = server._worldSimpleConstruction[characterId];
       if (
@@ -2277,7 +2349,9 @@ export class ConstructionManager {
         this.spawnLootableConstruction(server, client, entity);
       }
     }
-  }
+  }*/
+
+  // put into grid
 
   private repairFreeplaceEntities(
     server: ZoneServer2016,

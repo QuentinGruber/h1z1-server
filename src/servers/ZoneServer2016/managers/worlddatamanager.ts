@@ -3,7 +3,7 @@
 //   GNU GENERAL PUBLIC LICENSE
 //   Version 3, 29 June 2007
 //   copyright (C) 2020 - 2021 Quentin Gruber
-//   copyright (C) 2021 - 2023 H1emu community
+//   copyright (C) 2021 - 2024 H1emu community
 //
 //   https://github.com/QuentinGruber/h1z1-server
 //   https://www.npmjs.com/package/h1z1-server
@@ -11,7 +11,7 @@
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
 
-import { Collection, MongoClient } from "mongodb";
+import { Collection, Db, MongoClient } from "mongodb";
 import {
   BaseConstructionSaveData,
   BaseEntityUpdateSaveData,
@@ -36,6 +36,7 @@ import {
 } from "types/savedata";
 import {
   getAppDataFolderPath,
+  getCurrentTimeWrapper,
   initMongo,
   removeUntransferableFields,
   toBigHex
@@ -152,7 +153,7 @@ export class WorldDataManager {
 
   nextSaveTime: number = Date.now() + this.saveTimeInterval;*/
 
-  static async getDatabase(mongoAddress: string) {
+  static async getDatabase(mongoAddress: string): Promise<[Db, MongoClient]> {
     const mongoClient = new MongoClient(mongoAddress, {
       maxPoolSize: 100
     });
@@ -165,14 +166,14 @@ export class WorldDataManager {
     // if no collections exist on h1server database , fill it with samples
     (await mongoClient.db(DB_NAME).collections()).length ||
       (await initMongo(mongoClient, "ZoneServer"));
-    return mongoClient.db(DB_NAME);
+    return [mongoClient.db(DB_NAME), mongoClient];
   }
 
   async initialize(worldId: number, mongoAddress: string) {
     this._soloMode = !mongoAddress;
     this._worldId = worldId;
     if (!this._soloMode) {
-      this._db = await WorldDataManager.getDatabase(mongoAddress);
+      [this._db] = await WorldDataManager.getDatabase(mongoAddress);
     }
   }
 
@@ -424,7 +425,9 @@ export class WorldDataManager {
           `${this._appDataFolder}/single_player_characters2016.json`
         )
       ];
-      const SinglePlayerCharacters = require(`${this._appDataFolder}/single_player_characters2016.json`);
+      const SinglePlayerCharacters = require(
+        `${this._appDataFolder}/single_player_characters2016.json`
+      );
       savedCharacter = SinglePlayerCharacters.find(
         (character: any) => character.characterId === characterId
       );
@@ -531,7 +534,9 @@ export class WorldDataManager {
     */
     if (lastItemGuid) this.saveServerData(lastItemGuid);
     if (this._soloMode) {
-      const singlePlayerCharacters = require(`${this._appDataFolder}/single_player_characters2016.json`);
+      const singlePlayerCharacters = require(
+        `${this._appDataFolder}/single_player_characters2016.json`
+      );
       let singlePlayerCharacter = singlePlayerCharacters.find(
         (character: any) => character.characterId === character.characterId
       );
@@ -848,7 +853,9 @@ export class WorldDataManager {
   async loadConstructionData() {
     let constructionParents: Array<ConstructionParentSaveData> = [];
     if (this._soloMode) {
-      constructionParents = require(`${this._appDataFolder}/worlddata/construction.json`);
+      constructionParents = require(
+        `${this._appDataFolder}/worlddata/construction.json`
+      );
       if (!constructionParents) {
         debug("Construction data not found in file, aborting.");
         return;
@@ -1131,7 +1138,7 @@ export class WorldDataManager {
         new Float32Array(entityData.position),
         new Float32Array(entityData.rotation),
         server,
-        server.getGameTime(),
+        getCurrentTimeWrapper().getTruncatedU32(),
         entityData.vehicleId
       );
     vehicle._resources = entityData._resources;
@@ -1255,7 +1262,9 @@ export class WorldDataManager {
     //worldconstruction
     let freeplace: Array<LootableConstructionSaveData> = [];
     if (this._soloMode) {
-      freeplace = require(`${this._appDataFolder}/worlddata/worldconstruction.json`);
+      freeplace = require(
+        `${this._appDataFolder}/worlddata/worldconstruction.json`
+      );
       if (!freeplace) {
         debug("World construction data not found in file, aborting.");
         return;

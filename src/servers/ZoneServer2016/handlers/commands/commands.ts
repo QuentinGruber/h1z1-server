@@ -3,7 +3,7 @@
 //   GNU GENERAL PUBLIC LICENSE
 //   Version 3, 29 June 2007
 //   copyright (C) 2020 - 2021 Quentin Gruber
-//   copyright (C) 2021 - 2023 H1emu community
+//   copyright (C) 2021 - 2024 H1emu community
 //
 //   https://github.com/QuentinGruber/h1z1-server
 //   https://www.npmjs.com/package/h1z1-server
@@ -26,7 +26,7 @@ import {
   isPosInRadius,
   toHex,
   randomIntFromInterval,
-  Scheduler
+  getCurrentTimeWrapper
 } from "../../../../utils/utils";
 import { ExplosiveEntity } from "../../entities/explosiveentity";
 import { Npc } from "../../entities/npc";
@@ -58,6 +58,7 @@ import { BaseEntity } from "../../entities/baseentity";
 import { MAX_UINT32 } from "../../../../utils/constants";
 import { WithId } from "mongodb";
 import { FullCharacterSaveData } from "types/savedata";
+import { scheduler } from "node:timers/promises";
 const itemDefinitions = require("./../../../../../data/2016/dataSources/ServerItemDefinitions.json");
 
 export const commands: Array<Command> = [
@@ -130,7 +131,10 @@ export const commands: Array<Command> = [
         } = server;
         const serverVersion = require("../../../../../package.json").version;
         server.sendChatText(client, `h1z1-server V${serverVersion}`, true);
-        const uptimeMin = (Date.now() - server._startTime) / 60000;
+        const uptimeMin =
+          getCurrentTimeWrapper().getMinutes() -
+          server._serverStartTime.getMinutes();
+
         server.sendChatText(
           client,
           `Uptime: ${
@@ -205,10 +209,15 @@ export const commands: Array<Command> = [
   {
     name: "netstats",
     permissionLevel: PermissionLevels.DEFAULT,
-    execute: (server: ZoneServer2016, client: Client, args: Array<string>) => {
-      const soeClient = server.getSoeClient(client.soeClientId);
-      if (soeClient) {
-        const stats = soeClient.getNetworkStats();
+    execute: async (
+      server: ZoneServer2016,
+      client: Client,
+      args: Array<string>
+    ) => {
+      const stats = await server._gatewayServer.getSoeClientNetworkStats(
+        client.soeClientId
+      );
+      if (stats) {
         for (let index = 0; index < stats.length; index++) {
           const stat = stats[index];
           server.sendChatText(client, stat, index == 0);
@@ -219,10 +228,15 @@ export const commands: Array<Command> = [
   {
     name: "ping",
     permissionLevel: PermissionLevels.DEFAULT,
-    execute: (server: ZoneServer2016, client: Client, args: Array<string>) => {
-      const soeClient = server.getSoeClient(client.soeClientId);
-      if (soeClient) {
-        const stats = soeClient.getNetworkStats();
+    execute: async (
+      server: ZoneServer2016,
+      client: Client,
+      args: Array<string>
+    ) => {
+      const stats = await server._gatewayServer.getSoeClientNetworkStats(
+        client.soeClientId
+      );
+      if (stats) {
         server.sendChatText(client, stats[2], true);
       }
     }
@@ -257,6 +271,11 @@ export const commands: Array<Command> = [
     name: "emote",
     permissionLevel: PermissionLevels.DEFAULT,
     execute: (server: ZoneServer2016, client: Client, args: Array<string>) => {
+      server.sendChatText(
+        client,
+        "[ERROR] This emote has been disabled due to abuse."
+      );
+      return;
       const animationId = Number(args[0]);
       if (!animationId || animationId > MAX_UINT32) {
         server.sendChatText(client, "Usage /emote <id>");
@@ -370,6 +389,8 @@ export const commands: Array<Command> = [
         );
         return;
       }
+      client.character.lastWhisperedPlayer = targetClient.character.name;
+      targetClient.character.lastWhisperedPlayer = client.character.name;
 
       args.splice(0, 1);
       const message = args.join(" ");
@@ -381,6 +402,83 @@ export const commands: Array<Command> = [
       server.sendChatText(
         targetClient,
         `[Whisper from ${client.character.name}]: ${message}`
+      );
+    }
+  },
+  {
+    name: "r",
+    permissionLevel: PermissionLevels.DEFAULT,
+    keepCase: true,
+    execute: async (
+      server: ZoneServer2016,
+      client: Client,
+      args: Array<string>
+    ) => {
+      if (!args[0]) {
+        server.sendChatText(client, "[Reply] The message may not be blank!");
+        return;
+      }
+
+      let targetClient = server.getClientByNameOrLoginSession(
+        client.character.lastWhisperedPlayer
+      );
+
+      if (!targetClient) {
+        targetClient = await server.getOfflineClientByName(
+          client.character.lastWhisperedPlayer
+        );
+      }
+
+      if (
+        server.playerNotFound(
+          client,
+          client.character.lastWhisperedPlayer.toString(),
+          targetClient
+        )
+      ) {
+        return;
+      }
+      if (!targetClient || !(targetClient instanceof Client)) {
+        server.sendChatText(client, "Player not found.");
+        return;
+      }
+      if (
+        targetClient?.character?.characterId == client.character.characterId
+      ) {
+        server.sendChatText(client, "Don't be ridiculous.");
+        return;
+      }
+
+      if (await server.chatManager.checkMute(server, client)) {
+        server.sendChatText(
+          client,
+          "[Reply] Message blocked, you are globally muted!"
+        );
+        return;
+      }
+      if (
+        targetClient?.character?.mutedCharacters?.includes(
+          client.character.characterId
+        )
+      ) {
+        server.sendChatText(
+          client,
+          `[Reply] Message blocked, target player has you muted!`
+        );
+        return;
+      }
+      client.character.lastWhisperedPlayer = targetClient.character.name;
+      targetClient.character.lastWhisperedPlayer = client.character.name;
+
+      const message = args.join(" ");
+
+      server.sendChatText(
+        client,
+        `[Reply to ${targetClient.character.name}]: ${message}`
+      );
+      server.sendChatText(
+        targetClient,
+        `[Reply from ${client.character.name}]: ${message}`
       );
     }
   },
@@ -500,33 +598,34 @@ export const commands: Array<Command> = [
   {
     name: "players",
     permissionLevel: PermissionLevels.MODERATOR,
-    execute: (server: ZoneServer2016, client: Client, args: Array<string>) => {
-      server.sendChatText(
-        client,
-        `Players: ${Object.values(server._clients)
-          .map((c) => {
-            return `${c.character.name}: ${c.loginSessionId} | ${server
-              .getSoeClient(c.soeClientId)
-              ?.getNetworkStats()[2]} | ${server
-              .getSoeClient(c.soeClientId)
-              ?.getNetworkStats()[0]} | ${server
-              .getSoeClient(c.soeClientId)
-              ?.getNetworkStats()[1]}`;
-          })
-          .join(",\n")}`
-      );
+    execute: async (
+      server: ZoneServer2016,
+      client: Client,
+      args: Array<string>
+    ) => {
+      let msg: string = "Players:\n";
+      for (const a in server._clients) {
+        const c = server._clients[a];
+        const clientStats =
+          (await server._gatewayServer.getSoeClientNetworkStats(
+            c.soeClientId
+          )) ?? [];
+        msg += `${c.character.name}: ${c.loginSessionId} | ${clientStats[2]} | ${clientStats[0]} | ${clientStats[1]}\n`;
+      }
+      server.sendChatText(client, msg);
     }
   },
   {
     name: "vanish",
     permissionLevel: PermissionLevels.MODERATOR,
     execute: (server: ZoneServer2016, client: Client) => {
-      client.character.isSpectator = !client.character.isSpectator;
+      // Set the client's isVanished state
+      client.character.isVanished = !client.character.isVanished;
       server.sendAlert(
         client,
-        `Set spectate/vanish state to ${client.character.isSpectator}`
+        `Set vanish state to ${client.character.isVanished}`
       );
-      if (!client.character.isSpectator) {
+      if (!client.character.isVanished) {
         for (const a in server._decoys) {
           const decoy = server._decoys[a];
           if (decoy.transientId == client.character.transientId) {
@@ -554,7 +653,11 @@ export const commands: Array<Command> = [
   {
     name: "getnetstats",
     permissionLevel: PermissionLevels.MODERATOR,
-    execute: (server: ZoneServer2016, client: Client, args: Array<string>) => {
+    execute: async (
+      server: ZoneServer2016,
+      client: Client,
+      args: Array<string>
+    ) => {
       if (!args[0]) {
         server.sendChatText(
           client,
@@ -573,9 +676,10 @@ export const commands: Array<Command> = [
         server.sendChatText(client, "Client not found.");
         return;
       }
-      const soeClient = server.getSoeClient(targetClient.soeClientId);
-      if (soeClient) {
-        const stats = soeClient.getNetworkStats();
+      const stats = await server._gatewayServer.getSoeClientNetworkStats(
+        targetClient.soeClientId
+      );
+      if (stats) {
         server.sendChatText(
           client,
           `Displaying net statistics of player ${targetClient.character.name}`,
@@ -691,20 +795,20 @@ export const commands: Array<Command> = [
               args[0] == "~"
                 ? pos[0]
                 : Object.is(NaN, Number(args[0]))
-                ? pos[0]
-                : Number(args[0]),
+                  ? pos[0]
+                  : Number(args[0]),
             y =
               args[1] == "~"
                 ? pos[1]
                 : Object.is(NaN, Number(args[1]))
-                ? pos[1]
-                : Number(args[1]),
+                  ? pos[1]
+                  : Number(args[1]),
             z =
               args[2] == "~"
                 ? pos[2]
                 : Object.is(NaN, Number(args[2]))
-                ? pos[2]
-                : Number(args[2]);
+                  ? pos[2]
+                  : Number(args[2]);
           position = new Float32Array([x, y, z, 1]);
           break;
       }
@@ -953,30 +1057,16 @@ export const commands: Array<Command> = [
 
       const isSilent = args.includes("--silent");
 
-      // check offline characters first for an exact match
+      const ownerId = args[0];
 
       const collection = server._db.collection(DB_COLLECTIONS.CHARACTERS),
         character = (await collection.findOne({
-          ownerId: args[0],
+          ownerId,
           serverId: server._worldId,
           status: 1
         })) as WithId<FullCharacterSaveData> | undefined;
 
-      let ownerId = character?.ownerId,
-        characterName = character?.characterName;
-
-      if (!character) {
-        const banClient = server.getClientByLoginSessionId(args[0]);
-        if (!banClient) {
-          server.sendChatText(
-            client,
-            `Character with loginSessionId ${args[0]} not found!`
-          );
-          return;
-        }
-        ownerId = banClient.loginSessionId;
-        characterName = banClient.character.name;
-      }
+      const characterName = character?.characterName ?? "unknownCharacterName";
 
       let time = Number(args[1]) ? Number(args[1]) * 60000 : 0;
       if (!isNaN(time) && time > 0) {
@@ -1433,7 +1523,8 @@ export const commands: Array<Command> = [
         server.sendChatText(client, "You need to specify an hour to set !");
         return;
       }
-      server.weatherManager.forceTime(server, choosenHour * 3600 * 1000);
+      const time = choosenHour * 3600;
+      server.inGameTimeManager.time = time;
       server.sendChatText(
         client,
         `Will force time to be ${
@@ -1450,11 +1541,28 @@ export const commands: Array<Command> = [
     }
   },
   {
-    name: "realtime",
+    name: "speedtime",
     permissionLevel: PermissionLevels.ADMIN,
     execute: (server: ZoneServer2016, client: Client, args: Array<string>) => {
-      server.weatherManager.removeForcedTime(server);
-      server.sendChatText(client, "Game time is now based on real time", true);
+      server.inGameTimeManager.timeMultiplier = Number(args[0]);
+      server.sendChatText(
+        client,
+        `Will force time to be ${server.inGameTimeManager.timeMultiplier}x faster on next sync...`,
+        true
+      );
+    }
+  },
+  {
+    name: "freezetime",
+    permissionLevel: PermissionLevels.ADMIN,
+    execute: (server: ZoneServer2016, client: Client, args: Array<string>) => {
+      if (server.inGameTimeManager.timeFrozen) {
+        server.inGameTimeManager.start();
+        server.sendChatText(client, "Game time is now unfroze", true);
+      } else {
+        server.inGameTimeManager.stop();
+        server.sendChatText(client, "Game time is now froze", true);
+      }
     }
   },
   {
@@ -1619,7 +1727,7 @@ export const commands: Array<Command> = [
         }
         return;
       }
-      if (!client.character.isSpectator) {
+      if (!client.character.isVanished) {
         server.sendChatText(client, "You must be in vanish mode to use this");
         return;
       }
@@ -1676,7 +1784,7 @@ export const commands: Array<Command> = [
             },
             positionUpdate: {
               ...client.character.positionUpdate,
-              sequenceTime: server.getGameTime(),
+              sequenceTime: getCurrentTimeWrapper().getTruncatedU32(),
               position: client.character.state.position,
               stance: client.character.stance
             },
@@ -2369,8 +2477,9 @@ export const commands: Array<Command> = [
       let counter = 1;
       for (const a in server._constructionFoundations) {
         const foundation = server._constructionFoundations[a];
-        const name = server.getItemDefinition(foundation.itemDefinitionId)
-          ?.NAME;
+        const name = server.getItemDefinition(
+          foundation.itemDefinitionId
+        )?.NAME;
         if (
           foundation.ownerCharacterId === targetClient.character.characterId
         ) {
@@ -2459,8 +2568,9 @@ export const commands: Array<Command> = [
           );
           Object.values(container.items).forEach((item: BaseItem) => {
             counter++;
-            const itemName = server.getItemDefinition(item?.itemDefinitionId)
-              ?.NAME;
+            const itemName = server.getItemDefinition(
+              item?.itemDefinitionId
+            )?.NAME;
             server.sendChatText(
               client,
               `${counter}. ${
@@ -2549,13 +2659,12 @@ export const commands: Array<Command> = [
       client.character.name = newCharacterName;
 
       // Wait for one second before running vanish command
-      await Scheduler.wait(1000);
+      await scheduler.wait(1000);
 
-      // Set the client's isSpectator state
-      client.character.isSpectator = !client.character.isSpectator;
+      client.character.isVanished = !client.character.isVanished;
 
       // Remove the client's character from the game if in spectate mode
-      if (client.character.isSpectator) {
+      if (client.character.isVanished) {
         for (const a in server._clients) {
           const iteratedClient = server._clients[a];
           if (iteratedClient.spawnedEntities.has(client.character)) {
@@ -2569,10 +2678,10 @@ export const commands: Array<Command> = [
       }
 
       // Wait for an additional second before running the second vanish command
-      await Scheduler.wait(1000);
+      await scheduler.wait(1000);
 
-      // Set the client's isSpectator state again
-      client.character.isSpectator = !client.character.isSpectator;
+      // Set the client's isVanished state again
+      client.character.isVanished = !client.character.isVanished;
     }
   },
   {
@@ -2685,13 +2794,13 @@ export const commands: Array<Command> = [
       client.character.name = newCharacterName;
 
       // Wait for one second before running vanish command
-      await Scheduler.wait(1000);
+      await scheduler.wait(1000);
 
-      // Set the client's isSpectator state
-      client.character.isSpectator = !client.character.isSpectator;
+      // Set the client's isVanished state
+      client.character.isVanished = !client.character.isVanished;
 
       // Remove the client's character from the game if in spectate mode
-      if (client.character.isSpectator) {
+      if (client.character.isVanished) {
         for (const a in server._clients) {
           const iteratedClient = server._clients[a];
           if (iteratedClient.spawnedEntities.has(client.character)) {
@@ -2705,10 +2814,10 @@ export const commands: Array<Command> = [
       }
 
       // Wait for an additional second before running the second vanish command
-      await Scheduler.wait(1000);
+      await scheduler.wait(1000);
 
-      // Set the client's isSpectator state again
-      client.character.isSpectator = !client.character.isSpectator;
+      // Set the client's isVanished state again
+      client.character.isVanished = !client.character.isVanished;
     }
   },
   {

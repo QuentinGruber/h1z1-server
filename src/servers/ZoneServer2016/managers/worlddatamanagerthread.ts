@@ -1,3 +1,16 @@
+// ======================================================================
+//
+//   GNU GENERAL PUBLIC LICENSE
+//   Version 3, 29 June 2007
+//   copyright (C) 2020 - 2021 Quentin Gruber
+//   copyright (C) 2021 - 2024 H1emu community
+//
+//   https://github.com/QuentinGruber/h1z1-server
+//   https://www.npmjs.com/package/h1z1-server
+//
+//   Based on https://github.com/psemu/soe-network
+// ======================================================================
+
 import { expose } from "threads/worker";
 import {
   CharacterUpdateSaveData,
@@ -27,6 +40,7 @@ export interface WorldDataManagerThreaded {
     arg0: CharacterUpdateSaveData,
     arg1?: bigint
   ) => Promise<void>;
+  kill: () => void;
 }
 expose({
   initialize(worldId: number, mongoAddress: string) {
@@ -55,5 +69,8 @@ expose({
   },
   saveCharacterData(character: CharacterUpdateSaveData, lastItemGuid?: bigint) {
     return worldDataManager.saveCharacterData(character, lastItemGuid);
+  },
+  kill() {
+    process.exit(0);
   }
 });

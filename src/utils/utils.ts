@@ -1,26 +1,21 @@
-﻿// ======================================================================
+// ======================================================================
 //
 //   GNU GENERAL PUBLIC LICENSE
 //   Version 3, 29 June 2007
 //   copyright (C) 2020 - 2021 Quentin Gruber
-//   copyright (C) 2021 - 2023 H1emu community
+//   copyright (C) 2021 - 2024 H1emu community
 //
 //   https://github.com/QuentinGruber/h1z1-server
 //   https://www.npmjs.com/package/h1z1-server
 //
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
-
 import { generate_random_guid } from "h1emu-core";
 import { compress, compressBound } from "./lz4/lz4";
 import fs, { readdirSync } from "node:fs";
 import { normalize, resolve } from "node:path";
-import {
-  setImmediate as setImmediatePromise,
-  setTimeout as setTimeoutPromise
-} from "node:timers/promises";
 import { Collection, MongoClient } from "mongodb";
-import { DB_NAME, MAX_TRANSIENT_ID, MAX_UINT16 } from "./constants";
+import { DB_NAME, MAX_TRANSIENT_ID, MAX_UINT16, MAX_UINT32 } from "./constants";
 import { ZoneServer2016 } from "servers/ZoneServer2016/zoneserver";
 import { ZoneServer2015 } from "servers/ZoneServer2015/zoneserver";
 import {
@@ -37,6 +32,7 @@ import { DB_COLLECTIONS, NAME_VALIDATION_STATUS } from "./enums";
 import { Resolver } from "node:dns";
 import { ZoneClient2016 } from "servers/ZoneServer2016/classes/zoneclient";
 import * as crypto from "crypto";
+import { ZoneClient } from "servers/ZoneServer2015/classes/zoneclient";
 
 /**
  * Represents a custom implementation of lodash library.
@@ -184,7 +180,7 @@ export function eul2quat(angle: Float32Array): Float32Array {
  * @param angle - The quaternion to convert, represented as a Float32Array.
  * @returns The matrix representation of the quaternion.
  */
-export function quat2matrix(angle: Float32Array): any {
+export function quat2matrix(angle: Float32Array): number[] {
   //  may not work for other things than construction
   const x = angle[0];
   const y = angle[1];
@@ -272,6 +268,41 @@ export function movePoint(
   ]);
 }
 
+export function isPointNearLine(
+  point: Float32Array,
+  lineStart: Float32Array,
+  lineEnd: Float32Array,
+  threshold: number
+) {
+  // Calculate vectors
+  const lineVector = [lineEnd[0] - lineStart[0], lineEnd[1] - lineStart[1]];
+  const pointVector = [point[0] - lineStart[0], point[1] - lineStart[1]];
+
+  // Calculate the length of the line segment
+  const lineLength = Math.sqrt(
+    lineVector[0] * lineVector[0] + lineVector[1] * lineVector[1]
+  );
+
+  // Calculate the projection of pointVector onto lineVector
+  const projection =
+    (pointVector[0] * lineVector[0] + pointVector[1] * lineVector[1]) /
+    (lineLength * lineLength);
+
+  // Calculate the closest point on the line segment
+  const closestPoint = [
+    lineStart[0] + projection * lineVector[0],
+    lineStart[1] + projection * lineVector[1]
+  ];
+
+  // Calculate the distance between the point and the closest point on the line
+  const distance = Math.sqrt(
+    (point[0] - closestPoint[0]) * (point[0] - closestPoint[0]) +
+      (point[1] - closestPoint[1]) * (point[1] - closestPoint[1])
+  );
+
+  // Check if the distance is within the threshold
+  return distance <= threshold;
+}
 /**
  * Calculates the angle between two points in a 2D space.
  *
@@ -308,14 +339,14 @@ export async function zoneShutdown(
       timeLeft: 0,
       message: message
     });
-    Object.values(server._clients).forEach((client: ZoneClient2016) => {
-      // weird issue with typescript union type system
-      //@ts-ignore
-      server.sendData(client as any, "CharacterSelectSessionResponse", {
-        status: 1,
-        sessionId: client.loginSessionId
-      });
-    });
+    Object.values(server._clients).forEach(
+      (client: ZoneClient2016 & ZoneClient) => {
+        server.sendData(client, "CharacterSelectSessionResponse", {
+          status: 1,
+          sessionId: client.loginSessionId
+        });
+      }
+    );
     setTimeout(() => {
       process.exit(0);
     }, 5000);
@@ -341,7 +372,7 @@ export async function zoneShutdown(
 export function getDifference(s1: string, s2: string) {
   s1 = s1.toLowerCase();
   s2 = s2.toLowerCase();
-  const costs: any[] = [];
+  const costs: number[] = [];
   for (let i = 0; i <= s1.length; i++) {
     let lastValue = i;
     for (let j = 0; j <= s2.length; j++) {
@@ -877,7 +908,12 @@ export class LZ4 {
    * @param eIdx - The ending index in the source data.
    * @returns The size of the compressed block.
    */
-  static encodeBlock: (src: any, dst: any, sIdx?: any, eIdx?: any) => number;
+  static encodeBlock: (
+    src: any,
+    dst: any,
+    sIdx?: number,
+    eIdx?: number
+  ) => number;
   /**
    * Calculates the size of the encoded block given the input size.
    *
@@ -1011,34 +1047,6 @@ export const clearFolderCache = (
     }
   });
 };
-
-/**
- * Experimental custom implementation of the scheduler API.
- */
-export class Scheduler {
-  /**
-   * Yields execution to the event loop.
-   *
-   * @returns A promise that resolves immediately after the next event loop iteration.
-   */
-  static async yield() {
-    return await setImmediatePromise();
-  }
-
-  /**
-   * Pauses execution for a specified duration.
-   *
-   * @param delay - The delay in milliseconds.
-   * @param options - Optional options for the wait operation.
-   * @returns A promise that resolves after the specified delay.
-   */
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  static async wait(delay: number, options?: any) {
-    return await setTimeoutPromise(delay, undefined, {
-      signal: options?.signal
-    });
-  }
-}
 
 /**
  * A wrapped Uint16 class that ensures the value stays within the range of 0 to 65535.
@@ -1438,4 +1446,38 @@ export async function copyFile(
       reject(err);
     });
   });
+}
+
+export class TimeWrapper {
+  constructor(private fullTimeMs: number) {}
+  getSeconds() {
+    return toInt(this.fullTimeMs / 1000);
+  }
+  getMinutes() {
+    return toInt(this.fullTimeMs / 60000);
+  }
+  getHours() {
+    return toInt(this.fullTimeMs / 3600000);
+  }
+  getFull() {
+    return this.fullTimeMs;
+  }
+  getFullBigint() {
+    return BigInt(this.fullTimeMs);
+  }
+  getFullString() {
+    return Int64String(this.fullTimeMs);
+  }
+
+  getTruncatedU32() {
+    return this.fullTimeMs & MAX_UINT32;
+  }
+
+  getTruncatedU32String() {
+    return Int64String(this.fullTimeMs & MAX_UINT32);
+  }
+}
+
+export function getCurrentTimeWrapper() {
+  return new TimeWrapper(Date.now());
 }

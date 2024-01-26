@@ -3,7 +3,7 @@
 //   GNU GENERAL PUBLIC LICENSE
 //   Version 3, 29 June 2007
 //   copyright (C) 2020 - 2021 Quentin Gruber
-//   copyright (C) 2021 - 2023 H1emu community
+//   copyright (C) 2021 - 2024 H1emu community
 //
 //   https://github.com/QuentinGruber/h1z1-server
 //   https://www.npmjs.com/package/h1z1-server
@@ -22,7 +22,6 @@ export class ZoneConnectionManager extends BaseLZConnection {
   constructor(serverPort?: number) {
     super(serverPort);
     this.messageHandler = function (
-      messageType: string,
       data: Buffer,
       client: LZConnectionClient
     ): void {
@@ -64,5 +63,11 @@ export class ZoneConnectionManager extends BaseLZConnection {
       }
       this._pingTimer.refresh();
     }, this._pingTime);
+  }
+  async stop() {
+    if (this._pingTimer) {
+      clearTimeout(this._pingTimer);
+    }
+    super.stop();
   }
 }

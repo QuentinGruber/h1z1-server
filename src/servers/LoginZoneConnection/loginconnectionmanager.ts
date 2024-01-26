@@ -3,7 +3,7 @@
 //   GNU GENERAL PUBLIC LICENSE
 //   Version 3, 29 June 2007
 //   copyright (C) 2020 - 2021 Quentin Gruber
-//   copyright (C) 2021 - 2023 H1emu community
+//   copyright (C) 2021 - 2024 H1emu community
 //
 //   https://github.com/QuentinGruber/h1z1-server
 //   https://www.npmjs.com/package/h1z1-server
@@ -27,11 +27,7 @@ export class LoginConnectionManager extends BaseLZConnection {
   _hasBeenConnectedToLogin: boolean = false;
   constructor(serverId: number, serverPort?: number) {
     super(serverPort);
-    this.messageHandler = (
-      messageType: string,
-      data: Buffer,
-      client: LZConnectionClient
-    ): void => {
+    this.messageHandler = (data: Buffer, client: LZConnectionClient): void => {
       const packet = this._protocol.parse(data);
       debug(packet);
       if (!packet) return;
@@ -105,14 +101,21 @@ export class LoginConnectionManager extends BaseLZConnection {
     this._sessionData = obj;
   }
 
-  start() {
-    if (!this._loginServerInfo && !this._sessionData) {
-      debug(
+  async stop() {
+    if (this._pingTimer) {
+      clearTimeout(this._pingTimer);
+    }
+    super.stop();
+  }
+
+  async start() {
+    if (!this._loginServerInfo || !this._sessionData) {
+      console.log(
         "[ERROR] LoginConnectionManager started without setting login info!"
       );
       return;
     }
-    super.start();
+    await super.start();
     this.connect();
     this._pingTimer = setTimeout(() => {
       this.ping(this._loginConnection as LZConnectionClient);

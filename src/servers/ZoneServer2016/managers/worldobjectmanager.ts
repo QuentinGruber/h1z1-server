@@ -3,7 +3,7 @@
 //   GNU GENERAL PUBLIC LICENSE
 //   Version 3, 29 June 2007
 //   copyright (C) 2020 - 2021 Quentin Gruber
-//   copyright (C) 2021 - 2023 H1emu community
+//   copyright (C) 2021 - 2024 H1emu community
 //
 //   https://github.com/QuentinGruber/h1z1-server
 //   https://www.npmjs.com/package/h1z1-server
@@ -28,7 +28,8 @@ import {
   generateRandomGuid,
   isPosInRadius,
   randomIntFromInterval,
-  fixEulerOrder
+  fixEulerOrder,
+  getCurrentTimeWrapper
 } from "../../../utils/utils";
 import {
   EquipSlots,
@@ -42,7 +43,16 @@ import {
   Skins_Military,
   Skins_Glasses,
   Effects,
-  ModelIds
+  ModelIds,
+  Skins_Conveys,
+  Skins_Backpack,
+  Skins_Sniper,
+  Skins_Shotgun,
+  Skins_AK47,
+  Skins_AR15,
+  Skins_TacticalHelmet,
+  Skins_Respirator,
+  Skins_Bandana
 } from "../models/enums";
 import { Vehicle2016 } from "../entities/vehicle";
 import { LootDefinition } from "types/zoneserver";
@@ -89,8 +99,35 @@ function getRandomSkin(itemDefinitionId: number) {
     case Items.BACKPACK_MILITARY_TAN:
       arr = Object.keys(Skins_Military);
       break;
+    case Items.BACKPACK_BLUE_ORANGE:
+      arr = Object.keys(Skins_Backpack);
+      break;
     case Items.ALL_PURPOSE_GOGGLES:
       arr = Object.keys(Skins_Glasses);
+      break;
+    case Items.CONVEYS_BLUE:
+      arr = Object.keys(Skins_Conveys);
+      break;
+    case Items.WEAPON_308:
+      arr = Object.keys(Skins_Sniper);
+      break;
+    case Items.WEAPON_SHOTGUN:
+      arr = Object.keys(Skins_Shotgun);
+      break;
+    case Items.WEAPON_AK47:
+      arr = Object.keys(Skins_AK47);
+      break;
+    case Items.WEAPON_AR15:
+      arr = Object.keys(Skins_AR15);
+      break;
+    case Items.HELMET_TACTICAL:
+      arr = Object.keys(Skins_TacticalHelmet);
+      break;
+    case Items.RESPIRATOR:
+      arr = Object.keys(Skins_Respirator);
+      break;
+    case Items.BANDANA_BASIC:
+      arr = Object.keys(Skins_Bandana);
       break;
     default:
       return itemDefinitionId;
@@ -152,27 +189,19 @@ export class WorldObjectManager {
     EquipSlots.FEET,
     EquipSlots.HAIR
   ];
+  static itemSpawnersChances: Record<string, number> = {};
 
   private getItemRespawnTimer(server: ZoneServer2016): void {
     if (this.hasCustomLootRespawnTime) return;
 
     const playerCount = _.size(server._characters);
 
-    switch (true) {
-      case playerCount <= 20:
-        this.lootRespawnTimer = 2400000; // 40 min
-        break;
-      case playerCount > 20 && playerCount <= 40:
-        this.lootRespawnTimer = 1800000; // 30 min
-        break;
-      case playerCount > 40 && playerCount <= 60:
-        this.lootRespawnTimer = 1200000; // 20 min
-        break;
-      case playerCount > 60:
-        this.lootRespawnTimer = 600000; // 10 min
-        break;
-      default:
-        this.lootRespawnTimer = 1200000;
+    if (playerCount >= 60) {
+      this.lootRespawnTimer = 600_000; // 10 min
+    } else if (playerCount >= 30) {
+      this.lootRespawnTimer = 900_000; // 15 min
+    } else {
+      this.lootRespawnTimer = 1_500_000; // 25 min
     }
   }
 
@@ -621,6 +650,15 @@ export class WorldObjectManager {
               fixEulerOrder(propInstance.rotation)
             );
             break;
+          case "Common_Props_BarbedWire.adr":
+            server.constructionManager.placeTrap(
+              server,
+              Items.BARBED_WIRE,
+              propType.modelId,
+              propInstance.position,
+              fixEulerOrder(propInstance.rotation)
+            );
+            break;
           case "Common_Props_Cabinets_BathroomSink.adr":
           case "Common_Props_Bathroom_Toilet01.adr":
           case "Common_Props_Dam_WaterValve01.adr":
@@ -817,7 +855,7 @@ export class WorldObjectManager {
           new Float32Array(dataVehicle.position),
           new Float32Array(dataVehicle.rotation),
           server,
-          server.getGameTime(),
+          getCurrentTimeWrapper().getTruncatedU32(),
           dataVehicle.vehicleId
         );
       vehicleData.positionUpdate.orientation = dataVehicle.orientation;
@@ -898,6 +936,15 @@ export class WorldObjectManager {
           if (this.spawnedLootObjects[itemInstance.id]) return;
           const chance = Math.floor(Math.random() * 100) + 1; // temporary spawnchance
           if (chance <= lootTable.spawnChance) {
+            if (!WorldObjectManager.itemSpawnersChances[itemInstance.id]) {
+              const realSpawnChance =
+                ((lootTable.spawnChance / lootTable.items.length) *
+                  spawnerType.instances.length) /
+                100;
+              WorldObjectManager.itemSpawnersChances[
+                spawnerType.actorDefinition
+              ] = realSpawnChance;
+            }
             // temporary spawnchance
             const item = getRandomItem(lootTable.items);
             if (item) {

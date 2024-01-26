@@ -3,7 +3,7 @@
 //   GNU GENERAL PUBLIC LICENSE
 //   Version 3, 29 June 2007
 //   copyright (C) 2020 - 2021 Quentin Gruber
-//   copyright (C) 2021 - 2023 H1emu community
+//   copyright (C) 2021 - 2024 H1emu community
 //
 //   https://github.com/QuentinGruber/h1z1-server
 //   https://www.npmjs.com/package/h1z1-server
@@ -16,12 +16,13 @@ import { SOEServer } from "../SoeServer/soeserver";
 import { GatewayProtocol } from "h1emu-core";
 import SOEClient from "../SoeServer/soeclient";
 import { crc_length_options } from "../../types/soeserver";
+import { SOEOutputChannels } from "servers/SoeServer/soeoutputstream";
 
 const debug = require("debug")("GatewayServer");
 
 export class GatewayServer extends EventEmitter {
-  _soeServer: SOEServer;
-  _protocol: GatewayProtocol;
+  private _soeServer: SOEServer;
+  private _protocol: GatewayProtocol;
   private _crcLength: crc_length_options;
   private _udpLength: number;
 
@@ -32,10 +33,11 @@ export class GatewayServer extends EventEmitter {
 
     this._soeServer = new SOEServer(serverPort, gatewayKey);
     this._soeServer._useEncryption = false; // communication is encrypted only after loginRequest
+    this._soeServer.keepAliveTimeoutTime = 20000; // On zone a client expire after 20s without activity
     this._protocol = new GatewayProtocol();
     this._soeServer.on("disconnect", (client: SOEClient) => {
       debug("Client disconnected from " + client.address + ":" + client.port);
-      this.emit("disconnect", client);
+      this.emit("disconnect", client.sessionId);
     });
 
     this._soeServer.on(
@@ -58,7 +60,7 @@ export class GatewayServer extends EventEmitter {
                   }
                   this.emit(
                     "login",
-                    client,
+                    client.soeClientId,
                     packet.character_id,
                     packet.ticket,
                     packet.client_protocol
@@ -67,12 +69,12 @@ export class GatewayServer extends EventEmitter {
                 break;
               case "Logout":
                 debug("Logout gateway");
-                this.emit("disconnect", client);
+                this.emit("disconnect", client.sessionId);
                 break;
               case "TunnelPacket":
                 this.emit(
                   "tunneldata",
-                  client,
+                  client.sessionId,
                   Buffer.from(packet.tunnel_data),
                   packet.channel
                 );
@@ -91,15 +93,43 @@ export class GatewayServer extends EventEmitter {
     );
   }
 
+  getSoeClientAvgPing(soeClientId: string): number | undefined {
+    return this._soeServer.getSoeClient(soeClientId)?.avgPing;
+  }
+
+  getSoeClientNetworkStats(soeClientId: string): string[] | undefined {
+    return this._soeServer.getSoeClient(soeClientId)?.getNetworkStats();
+  }
+
+  getSoeClientSessionId(soeClientId: string): number | undefined {
+    return this._soeServer.getSoeClient(soeClientId)?.sessionId;
+  }
+
+  getSoeClientNetworkInfos(
+    soeClientId: string
+  ): { address: string; port: number } | undefined {
+    const client = this._soeServer.getSoeClient(soeClientId);
+    if (client) {
+      return { address: client.address, port: client.port };
+    }
+  }
+
+  deleteSoeClient(soeClientId: string) {
+    const soeClient = this._soeServer.getSoeClient(soeClientId);
+    if (soeClient) {
+      this._soeServer.deleteClient(soeClient);
+    }
+  }
+
   start() {
     debug("Starting server");
     this._soeServer.start(this._crcLength, this._udpLength);
   }
 
-  private _sentTunnelData(
-    client: SOEClient,
+  sendTunnelData(
+    soeClientId: string,
     tunnelData: Buffer,
-    unbuffered: boolean
+    channel: SOEOutputChannels
   ) {
     debug("Sending tunnel data to client");
     const data = this._protocol.pack_tunnel_data_packet_for_client(
@@ -107,24 +137,15 @@ export class GatewayServer extends EventEmitter {
       0
     );
     if (data) {
-      if (unbuffered) {
-        this._soeServer.sendUnbufferedAppData(client, data);
-      } else {
-        this._soeServer.sendAppData(client, data);
+      const client = this._soeServer.getSoeClient(soeClientId);
+      if (client) {
+        this._soeServer.sendAppData(client, data, channel);
       }
     }
   }
 
-  sendTunnelData(client: SOEClient, tunnelData: Buffer) {
-    this._sentTunnelData(client, tunnelData, false);
-  }
-
-  sendUnbufferedTunnelData(client: SOEClient, tunnelData: Buffer) {
-    this._sentTunnelData(client, tunnelData, true);
-  }
-
-  stop() {
-    debug("Shutting down");
-    process.exitCode = 0;
+  async stop() {
+    debug("Stopping server");
+    await this._soeServer.stop();
   }
 }

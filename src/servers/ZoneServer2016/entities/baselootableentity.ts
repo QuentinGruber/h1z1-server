@@ -3,7 +3,7 @@
 //   GNU GENERAL PUBLIC LICENSE
 //   Version 3, 29 June 2007
 //   copyright (C) 2020 - 2021 Quentin Gruber
-//   copyright (C) 2021 - 2023 H1emu community
+//   copyright (C) 2021 - 2024 H1emu community
 //
 //   https://github.com/QuentinGruber/h1z1-server
 //   https://www.npmjs.com/package/h1z1-server
@@ -40,7 +40,8 @@ export abstract class BaseLootableEntity extends BaseFullCharacter {
       ModelIds.HOSPITAL_LAB_WORKBENCH,
       ModelIds.TREASURE_CHEST,
       ModelIds.CAMPFIRE,
-      ModelIds.FURNACE
+      ModelIds.FURNACE,
+      ModelIds.HAND_SHOVEL
     ].includes(actorModelId);
   }
 

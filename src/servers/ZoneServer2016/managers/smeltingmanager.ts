@@ -3,7 +3,7 @@
 //   GNU GENERAL PUBLIC LICENSE
 //   Version 3, 29 June 2007
 //   copyright (C) 2020 - 2021 Quentin Gruber
-//   copyright (C) 2021 - 2023 H1emu community
+//   copyright (C) 2021 - 2024 H1emu community
 //
 //   https://github.com/QuentinGruber/h1z1-server
 //   https://www.npmjs.com/package/h1z1-server
@@ -30,20 +30,32 @@ import { LootableConstructionEntity } from "../entities/lootableconstructionenti
 import { BaseItem } from "../classes/baseItem";
 import { LoadoutContainer } from "../classes/loadoutcontainer";
 import { smeltingData } from "../data/Recipes";
-import { Scheduler } from "../../../utils/utils";
+import { scheduler } from "timers/promises";
+import { CharacterPlayWorldCompositeEffect } from "types/zone2016packets";
 
 export class SmeltingManager {
   _smeltingEntities: { [characterId: string]: string } = {};
   _collectingEntities: { [characterId: string]: string } = {};
   collectingTickTime: number = 300000; // 5 min x 4 ticks = 20 min to fill water/honey
   lastBurnTime: number = 0;
+  checkSmeltablesTimer?: NodeJS.Timeout;
+  checkCollectorsTimer?: NodeJS.Timeout;
   // 5 min x 144 ticks = 12 hours for honeycomb
 
   /* MANAGED BY CONFIGMANAGER */
   burnTime!: number;
   smeltTime!: number;
 
-  public async checkSmeltables(server: ZoneServer2016) {
+  public clearTimers() {
+    if (this.checkSmeltablesTimer) {
+      clearTimeout(this.checkSmeltablesTimer);
+    }
+    if (this.checkCollectorsTimer) {
+      clearTimeout(this.checkCollectorsTimer);
+    }
+  }
+
+  public checkSmeltables(server: ZoneServer2016) {
     this.lastBurnTime = Date.now();
     for (const a in this._smeltingEntities) {
       const entity = this.getTrueEntity(server, this._smeltingEntities[a]);
@@ -73,7 +85,7 @@ export class SmeltingManager {
           this.smelt(server, entity);
         }
       }
-      server.sendDataToAllWithSpawnedEntity(
+      server.sendDataToAllWithSpawnedEntity<CharacterPlayWorldCompositeEffect>(
         subEntity!.dictionary,
         entity.characterId,
         "Character.PlayWorldCompositeEffect",
@@ -81,15 +93,16 @@ export class SmeltingManager {
           characterId: entity.characterId,
           effectId: entity.subEntity!.workingEffect,
           position: entity.state.position,
-          unk3: Math.ceil(this.burnTime / 1000)
+          effectTime: Math.ceil(this.burnTime / 1000)
         }
       );
     }
-    await Scheduler.wait(this.burnTime);
-    this.checkSmeltables(server);
+    this.checkSmeltablesTimer = setTimeout(() => {
+      this.checkSmeltables(server);
+    }, this.burnTime);
   }
 
-  public async checkCollectors(server: ZoneServer2016) {
+  public checkCollectors(server: ZoneServer2016) {
     for (const a in this._collectingEntities) {
       const entity = this.getTrueEntity(server, this._collectingEntities[a]);
       if (!entity) {
@@ -118,9 +131,21 @@ export class SmeltingManager {
           this.checkAnimalTrap(server, entity, subEntity, container);
           break;
       }
+      server.sendDataToAllWithSpawnedEntity<CharacterPlayWorldCompositeEffect>(
+        subEntity!.dictionary,
+        entity.characterId,
+        "Character.PlayWorldCompositeEffect",
+        {
+          characterId: entity.characterId,
+          effectId: entity.subEntity!.workingEffect,
+          position: entity.state.position,
+          effectTime: Math.ceil(this.collectingTickTime / 1000)
+        }
+      );
     }
-    await Scheduler.wait(this.collectingTickTime);
-    this.checkCollectors(server);
+    this.checkCollectorsTimer = setTimeout(() => {
+      this.checkCollectors(server);
+    }, this.collectingTickTime);
   }
 
   private getTrueEntity(
@@ -161,6 +186,14 @@ export class SmeltingManager {
     );
   }*/
 
+  getBurnTime(item: BaseItem): number {
+    if (item.itemDefinitionId == Items.CHARCOAL) {
+      return (this.burnTime = 2400000);
+    } else {
+      return (this.burnTime = 120000);
+    }
+  }
+
   private checkFuel(
     server: ZoneServer2016,
     entity: LootableConstructionEntity
@@ -169,6 +202,7 @@ export class SmeltingManager {
     for (const a in container!.items) {
       const item = container!.items[a];
       if (entity.subEntity!.allowedFuel.includes(item.itemDefinitionId)) {
+        this.getBurnTime(item);
         server.removeContainerItem(entity, item, entity.getContainer(), 1);
         if (item.itemDefinitionId == Items.WOOD_LOG) {
           // give charcoal if wood log was burned
@@ -189,7 +223,7 @@ export class SmeltingManager {
     server: ZoneServer2016,
     entity: LootableConstructionEntity
   ) {
-    await Scheduler.wait(this.smeltTime);
+    await scheduler.wait(this.smeltTime, {});
     if (!entity.subEntity?.isWorking) {
       entity.subEntity!.isSmelting = false;
       return;

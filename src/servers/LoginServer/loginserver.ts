@@ -3,7 +3,7 @@
 //   GNU GENERAL PUBLIC LICENSE
 //   Version 3, 29 June 2007
 //   copyright (C) 2020 - 2021 Quentin Gruber
-//   copyright (C) 2021 - 2023 H1emu community
+//   copyright (C) 2021 - 2024 H1emu community
 //
 //   https://github.com/QuentinGruber/h1z1-server
 //   https://www.npmjs.com/package/h1z1-server
@@ -17,7 +17,7 @@ import { SOEServer } from "../SoeServer/soeserver";
 import { ZoneConnectionManager } from "../LoginZoneConnection/zoneconnectionmanager";
 import { LZConnectionClient } from "../LoginZoneConnection/shared/lzconnectionclient";
 import { LoginProtocol } from "../../protocols/loginprotocol";
-import { Collection, MongoClient } from "mongodb";
+import { Collection, Db, MongoClient, WithId } from "mongodb";
 import {
   _,
   generateRandomGuid,
@@ -28,7 +28,7 @@ import {
   resolveHostAddress
 } from "../../utils/utils";
 import {
-  BANNED_LIGHT,
+  BannedUser,
   ConnectionAllowed,
   GameServer,
   UserSession
@@ -41,7 +41,6 @@ import { FileHash, httpServerMessage } from "types/shared";
 import { LoginProtocol2016 } from "../../protocols/loginprotocol2016";
 import { crc_length_options } from "../../types/soeserver";
 import { DB_NAME, DEFAULT_CRYPTO_KEY } from "../../utils/constants";
-import { healthThreadDecorator } from "../../servers/shared/workers/healthWorker";
 import {
   LoginReply,
   CharacterSelectInfoReply,
@@ -72,13 +71,14 @@ const debugName = "LoginServer";
 const debug = require("debug")(debugName);
 const characterItemDefinitionsDummy = require("../../../data/2015/sampleData/characterItemDefinitionsDummy.json");
 const defaultHashes: Array<FileHash> = require("../../../data/2016/dataSources/AllowedFileHashes.json");
+const loginReply = require("../../../data/2016/rawData/loginReply.json");
+const loginReplyData2016 = Buffer.from(loginReply.data, "base64");
 
-@healthThreadDecorator
 export class LoginServer extends EventEmitter {
   _soeServer: SOEServer;
   _protocol: LoginProtocol;
   _protocol2016: LoginProtocol2016;
-  _db: any;
+  _db!: Db;
   _crcLength: crc_length_options;
   _udpLength: number;
   private readonly _cryptoKey: Uint8Array;
@@ -97,6 +97,7 @@ export class LoginServer extends EventEmitter {
   private _soloPlayIp: string = process.env.SOLO_PLAY_IP || "127.0.0.1";
   private clients: Map<string, LoginClient>;
   private _resolver = new Resolver();
+  private _mongoClient?: MongoClient;
   constructor(serverPort: number, mongoAddress = "") {
     super();
     this._crcLength = 2;
@@ -115,10 +116,6 @@ export class LoginServer extends EventEmitter {
     }
 
     this._soeServer = new SOEServer(serverPort, this._cryptoKey);
-    // 2016 client doesn't send a disconnect packet so we've to use that
-    // But that can't be enabled on zoneserver
-    this._soeServer._usePingTimeout = true;
-
     this._protocol = new LoginProtocol();
     this._protocol2016 = new LoginProtocol2016();
 
@@ -243,40 +240,6 @@ export class LoginServer extends EventEmitter {
                   );
                   break;
                 }
-                case "ClientBan": {
-                  const { status, loginSessionId } = packet.data;
-                  const serverId = this._zoneConnections[client.clientId],
-                    isGlobal = await this._isServerOfficial(serverId);
-
-                  // login server should not track non-global bans
-                  if (!isGlobal) return;
-
-                  try {
-                    const userSession = await this._db
-                      .collection(DB_COLLECTIONS.USERS_SESSIONS)
-                      .findOne({ guid: loginSessionId });
-                    this._db
-                      ?.collection(DB_COLLECTIONS.BANNED_LIGHT)
-                      .findOneAndUpdate(
-                        { serverId: serverId },
-                        {
-                          $set: {
-                            serverId,
-                            authKey: userSession.authKey,
-                            status,
-                            isGlobal
-                          }
-                        },
-                        { upsert: true }
-                      );
-                  } catch (e) {
-                    console.log(e);
-                    console.log(
-                      `Failed to register clientBan serverId:${serverId} loginSessionId:${loginSessionId}`
-                    );
-                  }
-                  break;
-                }
                 case "ClientMessage": {
                   const { guid, message, showConsole, clearOutput } =
                     packet.data;
@@ -380,12 +343,6 @@ export class LoginServer extends EventEmitter {
     );
     delete this._zoneConnectionManager._clients[client.clientId];
   }
-  private async _isServerOfficial(serverId: number): Promise<boolean> {
-    const server = await this._db
-      .collection(DB_COLLECTIONS.SERVERS)
-      .findOne({ serverId });
-    return !!server.IsOfficial;
-  }
 
   parseData(clientProtocol: string, data: Buffer) {
     switch (clientProtocol) {
@@ -436,7 +393,9 @@ export class LoginServer extends EventEmitter {
           } catch (e) {
             console.error(e);
           }
-          return require(`${this._appDataFolder}/single_player_characters.json`);
+          return require(
+            `${this._appDataFolder}/single_player_characters.json`
+          );
         }
         case GAME_VERSIONS.H1Z1_6dec_2016: {
           try {
@@ -449,7 +408,9 @@ export class LoginServer extends EventEmitter {
           } catch (e) {
             console.error(e);
           }
-          return require(`${this._appDataFolder}/single_player_characters2016.json`);
+          return require(
+            `${this._appDataFolder}/single_player_characters2016.json`
+          );
         }
         case GAME_VERSIONS.H1Z1_KOTK_PS3: {
           try {
@@ -462,7 +423,9 @@ export class LoginServer extends EventEmitter {
           } catch (e) {
             console.error(e);
           }
-          return require(`${this._appDataFolder}/single_player_charactersKOTK.json`);
+          return require(
+            `${this._appDataFolder}/single_player_charactersKOTK.json`
+          );
         }
       }
     } else {
@@ -501,46 +464,45 @@ export class LoginServer extends EventEmitter {
       //  "Your session id is not a valid json string, please update your launcher to avoid this warning"
       //);
     }
-    if (this._soloMode) {
-      client.authKey = String(authKey);
-    } else {
-      const realSession = await this._db
-        .collection(DB_COLLECTIONS.USERS_SESSIONS)
-        .findOne({ guid: authKey });
-      client.authKey = realSession ? realSession.authKey : authKey;
-    }
+    client.authKey = String(authKey);
     client.gameVersion = gameVersion;
-    const loginReply: LoginReply = {
-      loggedIn: true,
-      status: 1,
-      resultCode: 1,
-      isMember: true,
-      isInternal: true,
-      namespace: "soe",
-      accountFeatures: [
-        {
-          key: 2,
-          accountFeature: {
-            id: 2,
-            active: true,
-            remainingCount: 2,
-            rawData: "test"
-          }
-        }
-      ],
-      errorDetails: [
-        {
-          unknownDword1: 0,
-          name: "None",
-          value: "None"
-        }
-      ],
-      ipCountryCode: "US",
-      applicationPayload: "US"
-    };
     this.clients.set(client.soeClientId, client);
-    this.sendData(client, "LoginReply", loginReply);
-
+    if (
+      client.gameVersion == GAME_VERSIONS.H1Z1_15janv_2015 ||
+      client.gameVersion == GAME_VERSIONS.H1Z1_KOTK_PS3
+    ) {
+      const loginReply: LoginReply = {
+        loggedIn: true,
+        status: 1,
+        resultCode: 1,
+        isMember: true,
+        isInternal: true,
+        namespace: "soe",
+        accountFeatures: [
+          {
+            key: 2,
+            accountFeature: {
+              id: 2,
+              active: true,
+              remainingCount: 2,
+              rawData: "test"
+            }
+          }
+        ],
+        errorDetails: [
+          {
+            unknownDword1: 0,
+            name: "None",
+            value: "None"
+          }
+        ],
+        ipCountryCode: "US",
+        applicationPayload: "US"
+      };
+      this.sendData(client, "LoginReply", loginReply);
+    } else if (client.gameVersion == GAME_VERSIONS.H1Z1_6dec_2016) {
+      this._soeServer.sendAppData(client, loginReplyData2016);
+    }
     if (client.gameVersion == GAME_VERSIONS.H1Z1_6dec_2016 && !this._soloMode) {
       this.sendData(client, "H1emu.HadesQuery", {
         authTicket: "-",
@@ -704,14 +666,16 @@ export class LoginServer extends EventEmitter {
           }
         }
       );
-    this.clients.forEach((client: Client) => {
-      if (client.gameVersion === server.gameVersion) {
-        this.sendData(client, "ServerUpdate", {
-          ...server,
-          allowedAccess: !server.locked ? status : false
-        });
-      }
-    });
+    if (server) {
+      this.clients.forEach((client: Client) => {
+        if (client.gameVersion === server.gameVersion) {
+          this.sendData(client, "ServerUpdate", {
+            ...server,
+            allowedAccess: !server.locked ? status : false
+          });
+        }
+      });
+    }
   }
 
   async updateZoneServerVersion(serverId: number, version: string) {
@@ -747,7 +711,7 @@ export class LoginServer extends EventEmitter {
 
   async updateServersStatus(): Promise<void> {
     const servers = await this._db
-      .collection(DB_COLLECTIONS.SERVERS)
+      .collection<GameServer>(DB_COLLECTIONS.SERVERS)
       .find()
       .toArray();
 
@@ -763,16 +727,16 @@ export class LoginServer extends EventEmitter {
   }
 
   async ServerListRequest(client: Client) {
-    let servers: any[];
+    let servers: GameServer[];
     if (!this._soloMode) {
       servers = await this._db
-        .collection(DB_COLLECTIONS.SERVERS)
+        .collection<GameServer>(DB_COLLECTIONS.SERVERS)
         .find({
           gameVersion: client.gameVersion
         })
         .toArray();
       servers = servers
-        .map((server: any) => {
+        .map((server: GameServer) => {
           if (server.locked) {
             server.allowedAccess = false;
           }
@@ -874,11 +838,16 @@ export class LoginServer extends EventEmitter {
     serverId: number,
     characterId: string,
     authKey: string | undefined
-  ): Promise<CharacterLoginReply> {
-    const { serverAddress, populationNumber, maxPopulationNumber } =
-      await this._db
-        .collection(DB_COLLECTIONS.SERVERS)
-        .findOne({ serverId: serverId });
+  ): Promise<CharacterLoginReply | null> {
+    const gameServer = await this._db
+      .collection<GameServer>(DB_COLLECTIONS.SERVERS)
+      .findOne({ serverId: serverId });
+    if (!gameServer) {
+      console.error(`ServerId "${serverId}" unfound`);
+      return null;
+    }
+
+    const { serverAddress, populationNumber, maxPopulationNumber } = gameServer;
     const character = await this._db
       .collection(DB_COLLECTIONS.CHARACTERS_LIGHT)
       .findOne({ characterId: characterId });
@@ -969,15 +938,19 @@ export class LoginServer extends EventEmitter {
     return true;
   }
   async getClientRejectionFlags(serverId: number, client: Client) {
-    const banInfo: Array<BANNED_LIGHT> = await this._db
-      .collection(DB_COLLECTIONS.BANNED_LIGHT)
-      .find({ authKey: client.authKey, status: true })
-      .toArray();
+    const ip = client.address;
+
+    const loginSessionId = await this.getGuidByAuthkey(client.authKey);
+    const bannedUser: WithId<BannedUser> | null = await this._db
+      .collection<BannedUser>(DB_COLLECTIONS.BANNED)
+      .findOne({
+        $or: [{ IP: ip }, { loginSessionId }],
+        // We don't take into account temporary bans as global bans
+        $and: [{ active: true }, { expirationDate: 0 }]
+      });
     const rejectionFlags: Array<CONNECTION_REJECTION_FLAGS> = [];
-    for (let i = 0; i < banInfo.length; i++) {
-      if (banInfo[i].isGlobal) {
-        rejectionFlags.push(CONNECTION_REJECTION_FLAGS.GLOBAL_BAN);
-      }
+    if (bannedUser) {
+      rejectionFlags.push(CONNECTION_REJECTION_FLAGS.GLOBAL_BAN);
     }
 
     if (await this.isClientUsingVpn(client.address)) {
@@ -1014,10 +987,13 @@ export class LoginServer extends EventEmitter {
       characterId,
       client.authKey
     );
+    if (charactersLoginInfo === null) {
+      return;
+    }
     rejectionFlags = await this.getClientRejectionFlags(serverId, client);
 
     const userSession = (await this._db
-      ?.collection(DB_COLLECTIONS.USERS_SESSIONS)
+      ?.collection<UserSession>(DB_COLLECTIONS.USERS_SESSIONS)
       .findOne({ serverId: packet.serverId, authKey: client.authKey })) as
       | UserSession
       | undefined;
@@ -1299,11 +1275,11 @@ export class LoginServer extends EventEmitter {
   async start(): Promise<void> {
     debug("Starting server");
     if (this._mongoAddress) {
-      const mongoClient = new MongoClient(this._mongoAddress, {
+      this._mongoClient = new MongoClient(this._mongoAddress, {
         maxPoolSize: 100
       });
       try {
-        await mongoClient.connect();
+        await this._mongoClient.connect();
       } catch (e) {
         throw debug(
           "[ERROR]Unable to connect to mongo server " + this._mongoAddress
@@ -1312,11 +1288,11 @@ export class LoginServer extends EventEmitter {
       debug("connected to mongo !");
       // if no collections exist on h1server database , fill it with samples
       const dbIsEmpty =
-        (await mongoClient.db(DB_NAME).collections()).length < 1;
+        (await this._mongoClient.db(DB_NAME).collections()).length < 1;
       if (dbIsEmpty) {
-        await initMongo(mongoClient, debugName);
+        await initMongo(this._mongoClient, debugName);
       }
-      this._db = mongoClient.db(DB_NAME);
+      this._db = this._mongoClient.db(DB_NAME);
       this.updateServersStatus();
     }
 
@@ -1367,9 +1343,19 @@ export class LoginServer extends EventEmitter {
       fs.unlinkSync(`${this._appDataFolder}/single_player_characters.json`);
     }
   }
-  stop(): void {
+  async stop(): Promise<void> {
     debug("Shutting down");
-    process.exitCode = 0;
+    // close zoneloginconnections
+    if (this._zoneConnectionManager) {
+      await this._zoneConnectionManager.stop();
+    }
+    if (this._mongoClient) {
+      await this._mongoClient.close();
+    }
+    if (this._httpServer) {
+      await this._httpServer.terminate();
+    }
+    await this._soeServer.stop();
   }
 }
 

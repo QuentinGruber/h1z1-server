@@ -3,7 +3,7 @@
 //   GNU GENERAL PUBLIC LICENSE
 //   Version 3, 29 June 2007
 //   copyright (C) 2020 - 2021 Quentin Gruber
-//   copyright (C) 2021 - 2023 H1emu community
+//   copyright (C) 2021 - 2024 H1emu community
 //
 //   https://github.com/QuentinGruber/h1z1-server
 //   https://www.npmjs.com/package/h1z1-server
@@ -28,6 +28,8 @@ function getActorModelId(actorModel: string): number {
       return 8013;
     case "Common_Props_Crate_Box02.adr":
       return 9088;
+    case "Common_Props_Barell01.adr":
+      return 9387;
     default:
       console.log(`crate adr file not mapped to modelId: ${actorModel}`);
       return 0;

@@ -3,7 +3,7 @@
 //   GNU GENERAL PUBLIC LICENSE
 //   Version 3, 29 June 2007
 //   copyright (C) 2020 - 2021 Quentin Gruber
-//   copyright (C) 2021 - 2023 H1emu community
+//   copyright (C) 2021 - 2024 H1emu community
 //
 //   https://github.com/QuentinGruber/h1z1-server
 //   https://www.npmjs.com/package/h1z1-server
@@ -42,6 +42,7 @@ export interface UpdatePositionObject {
   rotation: any;
   direction: any; // send when pressing of the WSAD keys to provide direction for movement
   engineRPM: any;
+  PosAndRot: any;
 }
 
 interface PositionZoneToClient {
@@ -89,6 +90,10 @@ export class H1Z1Protocol {
   createPositionBroadcast2016(rawData: Buffer, transientId: number): Buffer {
     const tId = packUnsignedIntWith2bitLengthValue(transientId);
     return Buffer.concat([Buffer.from([0x79]), tId, rawData]); //0x79 = opcode
+  }
+
+  createManagedPositionBroadcast2016(rawData: Buffer): Buffer {
+    return Buffer.concat([Buffer.from([0x79]), rawData]); //0x79 = opcode
   }
 
   createVehiclePositionBroadcast(rawData: Buffer): Buffer {
@@ -484,7 +489,7 @@ export class H1Z1Protocol {
         } catch (e) {
           console.error(`${packet.name} : ${e}`);
         }
-
+        // FIXME: this is shit
         switch (packet.name) {
           case "FacilityBase.ReferenceData":
             result = this.parseFacilityReferenceData((result as any).data);
@@ -503,24 +508,15 @@ export class H1Z1Protocol {
       } else {
         debug("No schema for packet " + packet.name);
       }
-
       return {
         name: packet.name,
+        flag,
         data: result
       };
     } else {
       debug("Unhandled zone packet:", data[0], data[1], data[2]);
       return null;
-      //fs.writeFileSync("zone_failed_" + Date.now() + "_" + Math.random() + ".dat", data);
     }
-    /*
-              var op =  BasePackets.getName(opCode);
-              if (PacketHandlers[op]) {
-                  result = PacketHandlers[op](data);
-              } else {
-                  debug("Unhandled zone packet:", data[1] & 0x1F, data[1] >> 5, opCode, op);
-              }
-          */
   }
 
   reloadPacketDefinitions() {
@@ -675,11 +671,34 @@ const parseUpdatePositionData = function (data: Buffer, offset: number) {
       obj["engineRPM"] = v.value / 10;
       offset += v.length;
     }
-    /*
-            if (obj.flags & 0xe0) {
+    if (obj.flags & 0x1000) {
+      const rotationEul = [];
+      v = readSignedIntWith2bitLengthValue(data, offset);
+      rotationEul[0] = v.value / 10000;
+      offset += v.length;
+      v = readSignedIntWith2bitLengthValue(data, offset);
+      rotationEul[1] = v.value / 10000;
+      offset += v.length;
+      v = readSignedIntWith2bitLengthValue(data, offset);
+      rotationEul[2] = v.value / 10000;
+      offset += v.length;
+      v = readSignedIntWith2bitLengthValue(data, offset);
+      rotationEul[3] = v.value / 10000;
 
-            }
-            */
+      v = readSignedIntWith2bitLengthValue(data, offset);
+      rotationEul[4] = v.value / 10000;
+      offset += v.length;
+      v = readSignedIntWith2bitLengthValue(data, offset);
+      rotationEul[5] = v.value / 10000;
+      offset += v.length;
+      v = readSignedIntWith2bitLengthValue(data, offset);
+      rotationEul[6] = v.value / 10000;
+      offset += v.length;
+      v = readSignedIntWith2bitLengthValue(data, offset);
+      rotationEul[7] = v.value / 10000;
+      obj["PosAndRot"] = rotationEul;
+      offset += v.length;
+    }
   } catch (e) {
     debug(e);
   }

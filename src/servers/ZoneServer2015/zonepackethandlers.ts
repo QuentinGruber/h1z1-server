@@ -611,9 +611,10 @@ export class zonePacketHandlers {
           break;
         case joaat("NETSTATS"):
         case 265037938: // /netstats
-          const soeClient = server.getSoeClient(client.soeClientId);
-          if (soeClient) {
-            const stats = soeClient.getNetworkStats();
+          const stats = server._gatewayServer.getSoeClientNetworkStats(
+            client.soeClientId
+          );
+          if (stats) {
             for (let index = 0; index < stats.length; index++) {
               const stat = stats[index];
               server.sendChatText(client, stat, index == 0);
@@ -902,12 +903,12 @@ export class zonePacketHandlers {
         entityType = server._objects[guid]
           ? 1
           : 0 || server._vehicles[guid]
-          ? 2
-          : 0 || server._doors[guid]
-          ? 3
-          : 0 || server._props[guid]
-          ? 4
-          : 0;
+            ? 2
+            : 0 || server._doors[guid]
+              ? 3
+              : 0 || server._props[guid]
+                ? 4
+                : 0;
 
       if (
         !entityData ||
@@ -1819,12 +1820,12 @@ export class zonePacketHandlers {
         entityType = server._objects[guid]
           ? 1
           : 0 || server._vehicles[guid]
-          ? 2
-          : 0 || server._doors[guid]
-          ? 3
-          : 0 || server._props[guid]
-          ? 4
-          : 0;
+            ? 2
+            : 0 || server._doors[guid]
+              ? 3
+              : 0 || server._props[guid]
+                ? 4
+                : 0;
 
       if (
         !entityData ||
