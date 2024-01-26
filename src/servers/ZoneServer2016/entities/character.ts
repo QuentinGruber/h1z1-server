@@ -44,7 +44,7 @@ import {
   isPosInRadius,
   randomIntFromInterval,
   _,
-  checkConstructionInRange
+  checkConstructionInRange,
   getCurrentTimeWrapper
 } from "../../../utils/utils";
 import { BaseItem } from "../classes/baseItem";
