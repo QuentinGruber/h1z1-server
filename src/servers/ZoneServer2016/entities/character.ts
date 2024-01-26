@@ -3,7 +3,7 @@
 //   GNU GENERAL PUBLIC LICENSE
 //   Version 3, 29 June 2007
 //   copyright (C) 2020 - 2021 Quentin Gruber
-//   copyright (C) 2021 - 2023 H1emu community
+//   copyright (C) 2021 - 2024 H1emu community
 //
 //   https://github.com/QuentinGruber/h1z1-server
 //   https://www.npmjs.com/package/h1z1-server
@@ -42,7 +42,8 @@ import {
   isFloat,
   isPosInRadius,
   randomIntFromInterval,
-  _
+  _,
+  getCurrentTimeWrapper
 } from "../../../utils/utils";
 import { BaseItem } from "../classes/baseItem";
 import { BaseLootableEntity } from "./baselootableentity";
@@ -120,6 +121,7 @@ export class Character2016 extends BaseFullCharacter {
   isReady = false;
   creationDate!: string;
   lastLoginDate!: string;
+  lastWhisperedPlayer!: string;
   vehicleExitDate: number = new Date().getTime();
   currentLoadoutSlot = LoadoutSlots.FISTS;
   readonly loadoutId = LoadoutIds.CHARACTER;
@@ -151,6 +153,7 @@ export class Character2016 extends BaseFullCharacter {
   hasConveys: boolean = false;
   positionUpdate?: positionUpdate;
   tempGodMode = false;
+  isVanished = false;
   isSpectator = false;
   initialized = false; // if sendself has been sent
   spawnGridData: number[] = [];
@@ -942,7 +945,7 @@ export class Character2016 extends BaseFullCharacter {
     );
   }
 
-  damage(server: ZoneServer2016, damageInfo: DamageInfo) {
+  async damage(server: ZoneServer2016, damageInfo: DamageInfo) {
     if (
       server.isPvE &&
       damageInfo.hitReport?.characterId &&
@@ -994,7 +997,7 @@ export class Character2016 extends BaseFullCharacter {
     });
     server.sendChatText(client, `Received ${damage} damage`);
 
-    const damageRecord = server.generateDamageRecord(
+    const damageRecord = await server.generateDamageRecord(
       this.characterId,
       damageInfo,
       oldHealth
@@ -1325,7 +1328,7 @@ export class Character2016 extends BaseFullCharacter {
       },
       positionUpdate: {
         ...this.positionUpdate,
-        sequenceTime: server.getGameTime(),
+        sequenceTime: getCurrentTimeWrapper().getTruncatedU32(),
         position: this.state.position, // trying to fix invisible characters/vehicles until they move
         stance: 66561
       },
@@ -1550,15 +1553,17 @@ export class Character2016 extends BaseFullCharacter {
         damage = server.checkArmor(this.characterId, damage, 4);
         break;
     }
-    if (randomIntFromInterval(0, 100) <= bleedingChance) {
-      this._resources[ResourceIds.BLEEDING] += 20;
-      server.updateResourceToAllWithSpawnedEntity(
-        this.characterId,
-        this._resources[ResourceIds.BLEEDING],
-        ResourceIds.BLEEDING,
-        ResourceIds.BLEEDING,
-        server._characters
-      );
+    if (!server.isPvE) {
+      if (randomIntFromInterval(0, 100) <= bleedingChance) {
+        this._resources[ResourceIds.BLEEDING] += 20;
+        server.updateResourceToAllWithSpawnedEntity(
+          this.characterId,
+          this._resources[ResourceIds.BLEEDING],
+          ResourceIds.BLEEDING,
+          ResourceIds.BLEEDING,
+          server._characters
+        );
+      }
     }
     this.damage(server, { ...damageInfo, damage });
   }

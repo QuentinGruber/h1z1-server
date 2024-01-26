@@ -1,10 +1,6 @@
 name: Development tests
 on:
   push:
-    branches: [master, dev]
-  pull_request:
-    branches: [master, dev]
-
 jobs:
   eslint:
     name: eslint

@@ -3,7 +3,7 @@
 //   GNU GENERAL PUBLIC LICENSE
 //   Version 3, 29 June 2007
 //   copyright (C) 2020 - 2021 Quentin Gruber
-//   copyright (C) 2021 - 2023 H1emu community
+//   copyright (C) 2021 - 2024 H1emu community
 //
 //   https://github.com/QuentinGruber/h1z1-server
 //   https://www.npmjs.com/package/h1z1-server
@@ -383,6 +383,28 @@ export class CraftManager {
         server.sendAlert(
           client,
           "You must be near a workbench to complete this recipe"
+        );
+        return false;
+      }
+    }
+    if (recipe.requireWeaponWorkbench) {
+      if (
+        !checkConstructionInRange(
+          server._constructionSimple,
+          client.character.state.position,
+          3,
+          Items.WORKBENCH_WEAPON
+        ) &&
+        !checkConstructionInRange(
+          server._worldSimpleConstruction,
+          client.character.state.position,
+          3,
+          Items.WORKBENCH_WEAPON
+        )
+      ) {
+        server.sendAlert(
+          client,
+          "You must be near a weapon workbench to complete this recipe"
         );
         return false;
       }
