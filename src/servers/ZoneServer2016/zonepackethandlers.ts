@@ -28,7 +28,7 @@ import {
   getDistance,
   getDistance1d,
   isPosInRadiusWithY,
-  checkConstructionInRange
+  checkConstructionInRange,
   getCurrentTimeWrapper
 } from "../../utils/utils";
 
