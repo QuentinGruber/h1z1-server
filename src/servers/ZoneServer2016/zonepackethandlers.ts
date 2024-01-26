@@ -258,7 +258,7 @@ export class ZonePacketHandlers {
     if (server.profileDefinitionsCache) {
       server.sendRawDataReliable(client, server.profileDefinitionsCache);
     }
-
+    server.fairPlayManager.handleAssetValidationInit(server, client);
     // for melees / emotes / vehicle boost / etc (needs more work)
     /*
     server.sendData<>(client, "Abilities.SetActivatableAbilityManager", abilities);
@@ -367,8 +367,6 @@ export class ZonePacketHandlers {
       });
       client.character.isReady = true;
       server.airdropManager(client, true);
-
-      server.fairPlayManager.handleAssetValidationInit(server, client);
     }
     if (!client.character.isAlive || client.character.isRespawning) {
       // try to fix stuck on death screen

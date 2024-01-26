@@ -3774,6 +3774,22 @@ export class ZoneServer2016 extends EventEmitter {
               continue;
             } else if (object instanceof Npc) {
               this.addLightweightNpc(client, object);
+                this.sendData(client, "LightweightToFullPc", {
+                    useCompression: false,
+                    fullPcData: {
+                        transientId: object.transientId,
+                        attachmentData: [],
+                        headActor: object.headActor,
+                        resources: { data: object.pGetResources() },
+                        remoteWeapons: { data: [] }
+                    },
+                    positionUpdate: {
+                        sequenceTime: getCurrentTimeWrapper().getTruncatedU32(),
+                        position: object.state.position
+                    },
+                    stats: [],
+                    remoteWeaponsExtra: []
+                });
               object.updateEquipment(this);
               this.sendData<CharacterMovementVersion>(
                 client,

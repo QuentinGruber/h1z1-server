@@ -76,6 +76,7 @@ export class Npc extends BaseFullCharacter {
     this.spawnerId = spawnerId;
     this.health = 10000;
     this.initNpcData();
+    this.isLightweight = true;
   }
 
   setAttackingState(server: ZoneServer2016) {
@@ -142,7 +143,7 @@ export class Npc extends BaseFullCharacter {
   }
 
   OnFullCharacterDataRequest(server: ZoneServer2016, client: ZoneClient2016) {
-    server.sendData(client, "LightweightToFullPc", {
+    /*server.sendData(client, "LightweightToFullPc", {
       useCompression: false,
       fullPcData: {
         transientId: this.transientId,
@@ -161,7 +162,7 @@ export class Npc extends BaseFullCharacter {
     if (this.onReadyCallback) {
       this.onReadyCallback(client);
       delete this.onReadyCallback;
-    }
+    }*/
   }
 
   OnProjectileHit(server: ZoneServer2016, damageInfo: DamageInfo) {
