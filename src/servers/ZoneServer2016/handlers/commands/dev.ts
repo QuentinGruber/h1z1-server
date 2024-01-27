@@ -214,8 +214,6 @@ const dev: any = {
       server
     );
     server._npcs[characterId] = zombie;
-    server.addLightweightNpc(client, zombie);
-    client.spawnedEntities.add(zombie);
   },
   wolf: function (server: ZoneServer2016, client: Client, args: Array<string>) {
     // spawn a zombie
@@ -230,8 +228,6 @@ const dev: any = {
       server
     );
     server._npcs[characterId] = wolf;
-    server.addLightweightNpc(client, wolf);
-    client.spawnedEntities.add(wolf);
   },
   bear: function (server: ZoneServer2016, client: Client, args: Array<string>) {
     // spawn a zombie
@@ -246,8 +242,6 @@ const dev: any = {
       server
     );
     server._npcs[characterId] = bear;
-    server.addLightweightNpc(client, bear);
-    client.spawnedEntities.add(bear);
   },
   deer: function (server: ZoneServer2016, client: Client, args: Array<string>) {
     // spawn a zombie
@@ -262,8 +256,6 @@ const dev: any = {
       server
     );
     server._npcs[characterId] = deer;
-    server.addLightweightNpc(client, deer);
-    client.spawnedEntities.add(deer);
   },
   abilities: function (
     server: ZoneServer2016,

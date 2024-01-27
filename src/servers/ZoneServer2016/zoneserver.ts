@@ -1710,12 +1710,6 @@ export class ZoneServer2016 extends EventEmitter {
     };
   }
 
-  private getGrayscaleValue(x: number, y: number) {
-    const pixelColor = this._canvasCtx.getImageData(x, y, 1, 1).data;
-    const grayscaleValue = (pixelColor[0] + pixelColor[1] + pixelColor[2]) / 3; // Calculate average
-    return grayscaleValue;
-  }
-
   public getHeight(pos: Float32Array) {
     if (this.OOB(pos[0]) || this.OOB(pos[2])) {
       console.log("Out of bounds");
@@ -1733,15 +1727,10 @@ export class ZoneServer2016 extends EventEmitter {
         */
 
     // get second canvasX and Y, either +1 or minus 1 based on decimal
+    const pixelData = this._canvasCtx.getImageData(canvasX, canvasY, 1, 1).data;
+    const height = (pixelData[0] - 16) * 8 + pixelData[1] / 31.7
 
-    const grayscaleValue = this.getGrayscaleValue(
-        Math.round(canvasX),
-        Math.round(canvasY)
-      ),
-      //const grayscaleValue = this.getAdjustedGrayscaleValue(canvasX, canvasY),
-      adjusted = grayscaleValue * 2 + 0.8;
-
-    return new Float32Array([pos[0], adjusted, pos[2], 0]);
+    return new Float32Array([pos[0], height, pos[2], 0]);
   }
 
   async sendInitData(client: Client) {
@@ -3774,7 +3763,17 @@ export class ZoneServer2016 extends EventEmitter {
               continue;
             } else if (object instanceof Npc) {
               this.addLightweightNpc(client, object);
-                this.sendData(client, "LightweightToFullPc", {
+              object.updateEquipment(this);
+              this.sendData<CharacterMovementVersion>(
+                client,
+                "Character.MovementVersion",
+                {
+                  characterId: object.characterId,
+                  version: 0
+                }
+              );
+              client.spawnedEntities.add(object);
+              this.sendData(client, "LightweightToFullPc", {
                     useCompression: false,
                     fullPcData: {
                         transientId: object.transientId,
@@ -3790,16 +3789,6 @@ export class ZoneServer2016 extends EventEmitter {
                     stats: [],
                     remoteWeaponsExtra: []
                 });
-              object.updateEquipment(this);
-              this.sendData<CharacterMovementVersion>(
-                client,
-                "Character.MovementVersion",
-                {
-                  characterId: object.characterId,
-                  version: 0
-                }
-              );
-              client.spawnedEntities.add(object);
             }
           }
         }
