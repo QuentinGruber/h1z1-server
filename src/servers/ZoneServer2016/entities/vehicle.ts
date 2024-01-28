@@ -20,7 +20,8 @@ import {
   VehicleIds,
   StringIds,
   Effects,
-  VehicleEffects
+  VehicleEffects,
+  ModelIds
 } from "../models/enums";
 import { ZoneClient2016 } from "../classes/zoneclient";
 import { ZoneServer2016 } from "../zoneserver";
@@ -39,31 +40,31 @@ import {
 function getActorModelId(vehicleId: VehicleIds) {
   switch (vehicleId) {
     case VehicleIds.OFFROADER:
-      return 7225;
+      return ModelIds.OFFROADER;
     case VehicleIds.PICKUP:
-      return 9258;
+      return ModelIds.PICKUP_TRUCK;
     case VehicleIds.POLICECAR:
-      return 9301;
+      return ModelIds.POLICE_CAR;
     case VehicleIds.ATV:
-      return 9588;
+      return ModelIds.ATV;
     case VehicleIds.PARACHUTE:
-      return 9374;
+      return ModelIds.PARACHUTE;
     case VehicleIds.SPECTATE:
-      return 9371;
+      return ModelIds.SPECTATE;
     default:
-      return 7225;
+      return ModelIds.OFFROADER;
   }
 }
 
 function getVehicleName(ModelId: number) {
   switch (ModelId) {
-    case 7225:
+    case ModelIds.OFFROADER:
       return StringIds.OFFROADER;
-    case 9258: // pickup
+    case ModelIds.PICKUP_TRUCK: // pickup
       return StringIds.PICKUP_TRUCK;
-    case 9301: // policecar
+    case ModelIds.POLICE_CAR: // policecar
       return StringIds.POLICE_CAR;
-    case 9588: // atv
+    case ModelIds.ATV: // atv
       return StringIds.ATV;
     default:
       return StringIds.OFFROADER;
@@ -263,7 +264,7 @@ export class Vehicle2016 extends BaseLootableEntity {
     switch (this.vehicleId) {
       case VehicleIds.PICKUP:
         this.destroyedEffect = Effects.VEH_Death_PickupTruck;
-        this.destroyedModel = 9315;
+        this.destroyedModel = ModelIds.PICKUP_DESTROYED;
         this.minorDamageEffect = Effects.VEH_Damage_PickupTruck_Stage01;
         this.majorDamageEffect = Effects.VEH_Damage_PickupTruck_Stage02;
         this.criticalDamageEffect = Effects.VEH_Damage_PickupTruck_Stage03;
@@ -271,7 +272,7 @@ export class Vehicle2016 extends BaseLootableEntity {
         break;
       case VehicleIds.POLICECAR:
         this.destroyedEffect = Effects.VEH_Death_PoliceCar;
-        this.destroyedModel = 9316;
+        this.destroyedModel = ModelIds.POLICE_CAR_DESTROYED;
         this.minorDamageEffect = Effects.VEH_Damage_PoliceCar_Stage01;
         this.majorDamageEffect = Effects.VEH_Damage_PoliceCar_Stage02;
         this.criticalDamageEffect = Effects.VEH_Damage_PoliceCar_Stage03;
@@ -279,7 +280,7 @@ export class Vehicle2016 extends BaseLootableEntity {
         break;
       case VehicleIds.ATV:
         this.destroyedEffect = Effects.VEH_Death_ATV;
-        this.destroyedModel = 9593;
+        this.destroyedModel = ModelIds.ATV_DESTROYED;
         this.minorDamageEffect = Effects.VEH_Damage_ATV_Stage01;
         this.majorDamageEffect = Effects.VEH_Damage_ATV_Stage02;
         this.criticalDamageEffect = Effects.VEH_Damage_ATV_Stage03;
@@ -288,7 +289,7 @@ export class Vehicle2016 extends BaseLootableEntity {
       case VehicleIds.OFFROADER:
       default:
         this.destroyedEffect = Effects.VEH_Death_OffRoader;
-        this.destroyedModel = 7226;
+        this.destroyedModel = ModelIds.OFFROADER_DESTROYED;
         this.minorDamageEffect = Effects.VEH_Damage_OffRoader_Stage01;
         this.majorDamageEffect = Effects.VEH_Damage_OffRoader_Stage02;
         this.criticalDamageEffect = Effects.VEH_Damage_OffRoader_Stage03;
@@ -627,8 +628,8 @@ export class Vehicle2016 extends BaseLootableEntity {
       {
         abilityEffectData: {
           unknownDword1: 4,
-          abilityEffectId1: VehicleEffects.MOTOR_RUN_OFFROADER,
-          abilityEffectId2: 100042
+          abilityEffectId1: VehicleEffects.MOTOR_RUN_OFFROADER_1,
+          abilityEffectId2: VehicleEffects.MOTOR_RUN_OFFROADER_2
         },
         targetCharacterData: {
           characterId: this.characterId

@@ -45,7 +45,10 @@ import {
   ItemUseOptions,
   HealTypes,
   Effects,
-  WeaponDefinitionIds
+  WeaponDefinitionIds,
+  StringIds,
+  ModelIds,
+  ItemTypes
 } from "./models/enums";
 import { WeatherManager } from "./managers/weathermanager";
 
@@ -4264,7 +4267,7 @@ export class ZoneServer2016 extends EventEmitter {
       const lightWeight = {
         characterId: this._airdrop.planeTarget,
         transientId: 0,
-        actorModelId: 9770,
+        actorModelId: ModelIds.AIRDROP_PLANE,
         position: this._airdrop.planeTargetPos,
         rotation: new Float32Array([0, 0, 0, 0]),
         scale: new Float32Array([0.001, 0.001, 0.001, 0.001]),
@@ -4300,7 +4303,7 @@ export class ZoneServer2016 extends EventEmitter {
       const lightWeight3 = {
         characterId: this._airdrop.cargoTarget,
         transientId: 0,
-        actorModelId: 9770,
+        actorModelId: ModelIds.AIRDROP_PLANE,
         position: this._airdrop.cargoTargetPos,
         rotation: new Float32Array([0, 0, 0, 0]),
         scale: new Float32Array([0.001, 0.001, 0.001, 0.001]),
@@ -5471,7 +5474,7 @@ export class ZoneServer2016 extends EventEmitter {
    * @returns {boolean} True if the item is a weapon, false otherwise.
    */
   isWeapon(itemDefinitionId: number): boolean {
-    return this.getItemDefinition(itemDefinitionId)?.ITEM_TYPE == 20;
+    return this.getItemDefinition(itemDefinitionId)?.ITEM_TYPE == ItemTypes.WEAPON;
   }
 
   /**
@@ -5481,7 +5484,7 @@ export class ZoneServer2016 extends EventEmitter {
    * @returns {boolean} True if the item is a container, false otherwise.
    */
   isContainer(itemDefinitionId: number): boolean {
-    return this.getItemDefinition(itemDefinitionId)?.ITEM_TYPE == 34;
+    return this.getItemDefinition(itemDefinitionId)?.ITEM_TYPE == ItemTypes.CONTAINER;
   }
 
   /**
@@ -5492,9 +5495,9 @@ export class ZoneServer2016 extends EventEmitter {
    */
   isArmor(itemDefinitionId: number): boolean {
     return (
-      this.getItemDefinition(itemDefinitionId)?.DESCRIPTION_ID == 12073 ||
-      this.getItemDefinition(itemDefinitionId)?.DESCRIPTION_ID == 11151 ||
-      this.getItemDefinition(itemDefinitionId)?.DESCRIPTION_ID == 11153
+      this.getItemDefinition(itemDefinitionId)?.DESCRIPTION_ID == StringIds.TACTICAL_ARMOR ||
+      this.getItemDefinition(itemDefinitionId)?.DESCRIPTION_ID == StringIds.WOODEN_ARMOR ||
+      this.getItemDefinition(itemDefinitionId)?.DESCRIPTION_ID == StringIds.PLATED_ARMOR
     );
   }
 
@@ -5506,11 +5509,12 @@ export class ZoneServer2016 extends EventEmitter {
    */
   isHelmet(itemDefinitionId: number): boolean {
     return (
-      this.getItemDefinition(itemDefinitionId)?.DESCRIPTION_ID == 9945 ||
-      this.getItemDefinition(itemDefinitionId)?.DESCRIPTION_ID == 12994 ||
-      this.getItemDefinition(itemDefinitionId)?.DESCRIPTION_ID == 9114 ||
-      this.getItemDefinition(itemDefinitionId)?.DESCRIPTION_ID == 9945 ||
-      this.getItemDefinition(itemDefinitionId)?.DESCRIPTION_ID == 12898
+      this.getItemDefinition(itemDefinitionId)?.DESCRIPTION_ID == StringIds.TACTICAL_HELMET ||
+      this.getItemDefinition(itemDefinitionId)?.DESCRIPTION_ID == StringIds.SLEIGH_HELMET ||
+      this.getItemDefinition(itemDefinitionId)?.DESCRIPTION_ID == StringIds.GENERAL_HELMET_1 ||
+      this.getItemDefinition(itemDefinitionId)?.DESCRIPTION_ID == StringIds.CREEPY_MASK ||
+      this.getItemDefinition(itemDefinitionId)?.DESCRIPTION_ID == StringIds.SCRAY_HALLOWEEN_MASK ||
+      this.getItemDefinition(itemDefinitionId)?.DESCRIPTION_ID == StringIds.UNCLE_SAM_MASK
     );
   }
 
@@ -5764,7 +5768,7 @@ export class ZoneServer2016 extends EventEmitter {
       this.checkConveys(client);
       this.checkNightVision(client);
     }
-    if (this.getItemDefinition(itemDefId)?.ITEM_TYPE === 34) {
+    if (this.getItemDefinition(itemDefId)?.ITEM_TYPE === ItemTypes.CONTAINER) {
       delete character._containers[loadoutSlotId];
       if (client) this.initializeContainerList(client);
     }

@@ -15,7 +15,7 @@ import {
   createPositionUpdate,
   getCurrentTimeWrapper
 } from "../../../utils/utils";
-import { VehicleIds } from "../models/enums";
+import { ModelIds, VehicleIds } from "../models/enums";
 import { ZoneServer2016 } from "../zoneserver";
 import { Vehicle2016 } from "../entities/vehicle";
 import { ZoneClient2016 } from "../classes/zoneclient";
@@ -23,11 +23,11 @@ import { ZoneClient2016 } from "../classes/zoneclient";
 function getActorModelId(vehicleId: number) {
   switch (vehicleId) {
     case VehicleIds.OFFROADER:
-      return 9215;
+      return ModelIds.OFFROADER;
     case VehicleIds.PICKUP:
-      return 9384;
+      return ModelIds.PICKUP_TRUCK;
     case VehicleIds.POLICECAR:
-      return 9219;
+      return ModelIds.POLICE_CAR;
     default:
       return 0;
   }
