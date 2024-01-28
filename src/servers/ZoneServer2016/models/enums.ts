@@ -1058,7 +1058,7 @@ export enum Skins_Conveys {
   CONVEYS_DRAGON = 2398,
   CONVEYS_CDN = 2975,
   CONVEYS_NEKOCHAN = 3404,
-  CONVEYS_ELLOHIME = 3574,
+  CONVEYS_ELLOHIME = 3574
 }
 export enum Skins_Sniper {
   DEFAULT_SNIPER = 1373
