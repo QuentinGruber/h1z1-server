@@ -40,7 +40,7 @@ function getSubEntityData(
 }
 
 export class CollectingEntity {
-  parentObject: LootableConstructionEntity;
+  parentObjectCharacterId: string;
   workingEffect: number = 0; // bee box
   dictionary: { [characterId: string]: BaseEntity };
   requiredTicks: number = 4; // 20 min to fill
@@ -58,11 +58,10 @@ export class CollectingEntity {
     parentObject: LootableConstructionEntity,
     server: ZoneServer2016
   ) {
-    this.parentObject = parentObject;
+    this.parentObjectCharacterId = parentObject.characterId;
     if (!parentObject.getParent(server)) {
       this.dictionary = server._worldLootableConstruction;
     } else this.dictionary = server._lootableConstruction;
-    getSubEntityData(parentObject, this);
   }
 
   OnInteractionString(server: ZoneServer2016, client: ZoneClient2016) {
@@ -70,15 +69,18 @@ export class CollectingEntity {
       client,
       "Command.InteractionString",
       {
-        guid: this.parentObject.characterId,
+        guid: this.parentObjectCharacterId,
         stringId: StringIds.OPEN
       }
     );
   }
 
   OnFullCharacterDataRequest(server: ZoneServer2016, client: ZoneClient2016) {
-    if (this.parentObject.itemDefinitionId != Items.BEE_BOX) return;
-    const container = this.parentObject.getContainer();
+    const parentObject =
+      server._lootableConstruction[this.parentObjectCharacterId];
+    getSubEntityData(parentObject, this);
+    if (parentObject.itemDefinitionId != Items.BEE_BOX) return;
+    const container = parentObject.getContainer();
     if (!container) return;
     for (const a in container.items) {
       const item = container.items[a];
@@ -87,7 +89,7 @@ export class CollectingEntity {
         item.itemDefinitionId == Items.WAX
       ) {
         server.sendData(client, "Command.PlayDialogEffect", {
-          characterId: this.parentObject.characterId,
+          characterId: parentObject.characterId,
           effectId: this.workingEffect
         });
         return;
