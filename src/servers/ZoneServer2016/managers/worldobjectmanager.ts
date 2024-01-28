@@ -677,6 +677,16 @@ export class WorldObjectManager {
               this.waterSourceRefillAmount
             );
             break;
+          case "Common_Props_WorkBench01.adr":
+            server.constructionManager.placeSimpleConstruction(
+              server,
+              propType.modelId,
+              propInstance.position,
+              fixEulerOrder(propInstance.rotation),
+              "",
+              Items.WORKBENCH
+            );
+            break;
           default:
             obj = new TaskProp(
               characterId,
