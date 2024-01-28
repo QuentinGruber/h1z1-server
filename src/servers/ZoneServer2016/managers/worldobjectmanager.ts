@@ -880,78 +880,85 @@ export class WorldObjectManager {
     const size = _.size(server._clients);
     if (size <= 0) return;
     tickRate = this.npcRespawnTimer / size;
-      for (const a in server._clients) {
-          const client = server._clients[a]
-          const zombieSpawnChance = Math.floor(Math.random() * 100) + 1 * (client.currentPOI ? 2 : 1)
-          const wolfSpawnChance = client.currentPOI ? 0 : Math.floor(Math.random() * 100) + 1
-          const bearSpawnChance = client.currentPOI ? 0 : Math.floor(Math.random() * 100) + 1
-          const deerSpawnChance = client.currentPOI ? 0 : Math.floor(Math.random() * 100) + 1
-          const pos = client.character.state.position;
-          if (zombieSpawnChance >= 60) {
-              const characterId = server.generateGuid()
-              const randomAngle = Math.random() * (2 * Math.PI) - Math.PI;
-              const newPos = movePoint3D(pos, randomAngle, 30);
-              const newPosFixed = server.getHeight(newPos);
-              const npc = new Zombie(
-                  characterId,
-                  server.getTransientId(characterId),
-                  9510,
-                  newPosFixed,
-                  new Float32Array([0, 0, 0, 0]),
-                  server
-              );
-              server._npcs[characterId] = npc;
-          }
-
-          if (wolfSpawnChance >= 70) {
-              const characterId = server.generateGuid()
-              const randomAngle = Math.random() * (2 * Math.PI) - Math.PI;
-              const newPos = movePoint3D(pos, randomAngle, 50);
-              const newPosFixed = server.getHeight(newPos);
-              const npc = new Wolf(
-                  characterId,
-                  server.getTransientId(characterId),
-                  9003,
-                  newPosFixed,
-                  new Float32Array([0, 0, 0, 0]),
-                  server
-              );
-              server._npcs[characterId] = npc;
-          }
-
-          if (bearSpawnChance >= 80) {
-              const characterId = server.generateGuid()
-              const randomAngle = Math.random() * (2 * Math.PI) - Math.PI;
-              const newPos = movePoint3D(pos, randomAngle, 50);
-              const newPosFixed = server.getHeight(newPos);
-              const npc = new Bear(
-                  characterId,
-                  server.getTransientId(characterId),
-                  9187,
-                  newPosFixed,
-                  new Float32Array([0, 0, 0, 0]),
-                  server
-              );
-              server._npcs[characterId] = npc;
-          }
-
-          if (deerSpawnChance >= 70) {
-              const characterId = server.generateGuid()
-              const randomAngle = Math.random() * (2 * Math.PI) - Math.PI;
-              const newPos = movePoint3D(pos, randomAngle, 50);
-              const newPosFixed = server.getHeight(newPos);
-              const npc = new Deer(
-                  characterId,
-                  server.getTransientId(characterId),
-                  Math.floor(newPos[0]) % 2 == 1 ? 9253 : 9002, // randomize model
-                  newPosFixed,
-                  new Float32Array([0, 0, 0, 0]),
-                  server
-              );
-              server._npcs[characterId] = npc;
-          }
-          await new Promise((resolve) => setTimeout(resolve, Math.floor(tickRate)));
+    for (const a in server._clients) {
+      const client = server._clients[a];
+      const zombieSpawnChance =
+        Math.floor(Math.random() * 100) + 1 * (client.currentPOI ? 2 : 1);
+      const wolfSpawnChance = client.currentPOI
+        ? 0
+        : Math.floor(Math.random() * 100) + 1;
+      const bearSpawnChance = client.currentPOI
+        ? 0
+        : Math.floor(Math.random() * 100) + 1;
+      const deerSpawnChance = client.currentPOI
+        ? 0
+        : Math.floor(Math.random() * 100) + 1;
+      const pos = client.character.state.position;
+      if (zombieSpawnChance >= 60) {
+        const characterId = server.generateGuid();
+        const randomAngle = Math.random() * (2 * Math.PI) - Math.PI;
+        const newPos = movePoint3D(pos, randomAngle, 30);
+        const newPosFixed = server.getHeight(newPos);
+        const npc = new Zombie(
+          characterId,
+          server.getTransientId(characterId),
+          9510,
+          newPosFixed,
+          new Float32Array([0, 0, 0, 0]),
+          server
+        );
+        server._npcs[characterId] = npc;
       }
+
+      if (wolfSpawnChance >= 70) {
+        const characterId = server.generateGuid();
+        const randomAngle = Math.random() * (2 * Math.PI) - Math.PI;
+        const newPos = movePoint3D(pos, randomAngle, 50);
+        const newPosFixed = server.getHeight(newPos);
+        const npc = new Wolf(
+          characterId,
+          server.getTransientId(characterId),
+          9003,
+          newPosFixed,
+          new Float32Array([0, 0, 0, 0]),
+          server
+        );
+        server._npcs[characterId] = npc;
+      }
+
+      if (bearSpawnChance >= 80) {
+        const characterId = server.generateGuid();
+        const randomAngle = Math.random() * (2 * Math.PI) - Math.PI;
+        const newPos = movePoint3D(pos, randomAngle, 50);
+        const newPosFixed = server.getHeight(newPos);
+        const npc = new Bear(
+          characterId,
+          server.getTransientId(characterId),
+          9187,
+          newPosFixed,
+          new Float32Array([0, 0, 0, 0]),
+          server
+        );
+        server._npcs[characterId] = npc;
+      }
+
+      if (deerSpawnChance >= 70) {
+        const characterId = server.generateGuid();
+        const randomAngle = Math.random() * (2 * Math.PI) - Math.PI;
+        const newPos = movePoint3D(pos, randomAngle, 50);
+        const newPosFixed = server.getHeight(newPos);
+        const npc = new Deer(
+          characterId,
+          server.getTransientId(characterId),
+          Math.floor(newPos[0]) % 2 == 1 ? 9253 : 9002, // randomize model
+          newPosFixed,
+          new Float32Array([0, 0, 0, 0]),
+          server
+        );
+        server._npcs[characterId] = npc;
+      }
+      await new Promise((resolve) => setTimeout(resolve, Math.floor(tickRate)));
+    }
   }
 
   createLoot(server: ZoneServer2016, lTables = lootTables) {

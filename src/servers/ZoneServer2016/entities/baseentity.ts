@@ -63,6 +63,7 @@ export abstract class BaseEntity {
   interactionDistance: number;
   effectTags: number[] = [];
   materialType: number;
+  gridIndex?: number;
   constructor(
     characterId: string,
     transientId: number,

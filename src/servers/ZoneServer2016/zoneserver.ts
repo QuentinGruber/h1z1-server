@@ -1728,7 +1728,7 @@ export class ZoneServer2016 extends EventEmitter {
 
     // get second canvasX and Y, either +1 or minus 1 based on decimal
     const pixelData = this._canvasCtx.getImageData(canvasX, canvasY, 1, 1).data;
-    const height = (pixelData[0] - 16) * 8 + pixelData[1] / 31.7
+    const height = (pixelData[0] - 16) * 8 + pixelData[1] / 31.7;
 
     return new Float32Array([pos[0], height, pos[2], 0]);
   }
@@ -1987,6 +1987,7 @@ export class ZoneServer2016 extends EventEmitter {
           return;
         }
         gridCell.objects.push(obj);
+        obj.gridIndex = i;
       }
     }
   }
@@ -2005,6 +2006,7 @@ export class ZoneServer2016 extends EventEmitter {
         obj.state.position[2] <= gridCell.position[2] + gridCell.height
       ) {
         gridCell.objects.push(obj);
+        obj.gridIndex = i;
       }
     }
   }
@@ -2411,6 +2413,18 @@ export class ZoneServer2016 extends EventEmitter {
             await scheduler.wait(150);
             vehicle.damage(this, { entity: npcTriggered, damage: damage });
           }
+        }
+      }
+
+      for (const npcKey in this._npcs) {
+        const npc = this._npcs[npcKey];
+        const distance = getDistance(position, npc.state.position);
+        if (sourceIsVehicle ? distance <= 5 : distance <= 3) {
+          const damage = 50000 / distance;
+          npc.damage(this, {
+            entity: npcTriggered,
+            damage: damage
+          });
         }
       }
 
@@ -3774,21 +3788,21 @@ export class ZoneServer2016 extends EventEmitter {
               );
               client.spawnedEntities.add(object);
               this.sendData(client, "LightweightToFullPc", {
-                    useCompression: false,
-                    fullPcData: {
-                        transientId: object.transientId,
-                        attachmentData: [],
-                        headActor: object.headActor,
-                        resources: { data: object.pGetResources() },
-                        remoteWeapons: { data: [] }
-                    },
-                    positionUpdate: {
-                        sequenceTime: getCurrentTimeWrapper().getTruncatedU32(),
-                        position: object.state.position
-                    },
-                    stats: [],
-                    remoteWeaponsExtra: []
-                });
+                useCompression: false,
+                fullPcData: {
+                  transientId: object.transientId,
+                  attachmentData: [],
+                  headActor: object.headActor,
+                  resources: { data: object.pGetResources() },
+                  remoteWeapons: { data: [] }
+                },
+                positionUpdate: {
+                  sequenceTime: getCurrentTimeWrapper().getTruncatedU32(),
+                  position: object.state.position
+                },
+                stats: [],
+                remoteWeaponsExtra: []
+              });
             }
           }
         }
@@ -7847,7 +7861,7 @@ export class ZoneServer2016 extends EventEmitter {
     tickRate = this.worldRoutineRate / size;
     for (const a in this._npcs) {
       const npc = this._npcs[a];
-      if (npc.behaviorInterval) return;
+      if (npc.behaviorInterval || npc.inBarbedWire) return;
       const angleInRadians2 = Math.random() * (2 * Math.PI) - Math.PI;
       const newPos = movePoint3D(npc.state.position, angleInRadians2, 10);
       const newPosFixed = this.getHeight(newPos);
@@ -8241,8 +8255,7 @@ export class ZoneServer2016 extends EventEmitter {
     if (!client.character.isAlive) return;
     for (const a in this._npcs) {
       const npc = this._npcs[a];
-      if (!npc.isAlive || npc.behaviorInterval) continue;
-
+      if (!npc.isAlive || npc.behaviorInterval || npc.inBarbedWire) continue;
       if (npc instanceof Zombie) {
         if (
           isPosInRadius(20, npc.state.position, client.character.state.position)

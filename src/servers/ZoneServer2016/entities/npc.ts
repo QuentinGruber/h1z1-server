@@ -32,6 +32,7 @@ export class Npc extends BaseFullCharacter {
   requiredHarvestItems: number[] = [];
   canReceiveDamage = true;
   positionUpdateType = 10;
+  inBarbedWire?: string;
   flags = {
     bit0: 0,
     bit1: 0,
@@ -122,6 +123,7 @@ export class Npc extends BaseFullCharacter {
           characterId: this.characterId
         }
       );
+      this.flags.knockedOut = 1;
 
       this.health = 10000;
       // This is temporary fix so shotguns won't despawn the entity since the pellets will hit after entity is knocked out.
