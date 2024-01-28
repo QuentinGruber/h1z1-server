@@ -17,7 +17,8 @@ import { BaseItem } from "../classes/baseItem";
 import { ZoneClient2016 } from "../classes/zoneclient";
 import { PlantingDiameter } from "./plantingdiameter";
 
-import { ConstructionPermissionIds, Items, StringIds } from "../models/enums";
+import { ConstructionPermissionIds, Effects, Items, ModelIds, StringIds } from "../models/enums";
+import { CharacterPlayWorldCompositeEffect } from "types/zone2016packets";
 
 export class Plant extends ItemObject {
   growState: number = 0;
@@ -70,26 +71,26 @@ export class Plant extends ItemObject {
       case Items.SEED_CORN:
         switch (this.growState) {
           case 1:
-            this.actorModelId = 59;
+            this.actorModelId = ModelIds.CORN_CROPSTATE_1;
             break;
           case 2:
-            this.actorModelId = 60;
+            this.actorModelId = ModelIds.CORN_CROPSTATE_2;
             break;
           case 3:
-            this.actorModelId = 61;
+            this.actorModelId = ModelIds.CORN_CROPSTATE_3;
             break;
         }
         break;
       case Items.SEED_WHEAT:
         switch (this.growState) {
           case 1:
-            this.actorModelId = 9191;
+            this.actorModelId = ModelIds.WHEAT_CROPSTATE_1;
             break;
           case 2:
-            this.actorModelId = 9190;
+            this.actorModelId = ModelIds.WEHAT_CROPSTATE_2;
             break;
           case 3:
-            this.actorModelId = 9189;
+            this.actorModelId = ModelIds.WHEAT_CROPSTATE_3;
             break;
         }
     }
@@ -103,13 +104,17 @@ export class Plant extends ItemObject {
       }
     );
     if (this.isFertilized) {
-      server.sendDataToAllWithSpawnedEntity(
+      const pos = this.state.position
+      server.sendDataToAllWithSpawnedEntity<CharacterPlayWorldCompositeEffect>(
+        // play burning effect & remove it after 15s
         server._plants,
         this.characterId,
-        "Command.PlayDialogEffect",
+        "Character.PlayWorldCompositeEffect",
         {
           characterId: this.characterId,
-          effectId: 5056
+          effectId: Effects.EFX_Crop_Fertilizer,
+          position: new Float32Array([pos[0], pos[1], pos[2], 1]),
+          effectTime: 15
         }
       );
     }
@@ -189,7 +194,7 @@ export class Plant extends ItemObject {
     if (!this.isFertilized) return;
     server.sendData(client, "Command.PlayDialogEffect", {
       characterId: this.characterId,
-      effectId: 5056
+      effectId: Effects.EFX_Crop_Fertilizer
     });
   }
 
