@@ -2300,33 +2300,25 @@ export class ZoneServer2016 extends EventEmitter {
 
     const sourceEntity = this.getEntity(npcTriggered),
       sourceIsVehicle = sourceEntity instanceof Vehicle2016;
-
-    for (const characterId in this._characters) {
-      const character = this._characters[characterId];
-      // If PvE, only damage the character that triggered the explosion
-      if (
-        this.isPvE &&
-        client &&
-        character.characterId !== client.character.characterId
-      )
-        continue;
-      if (
-        isPosInRadiusWithY(
-          sourceIsVehicle ? 5 : 3,
-          character.state.position,
-          position,
-          1.5
-        )
-      ) {
-        const distance = getDistance(position, character.state.position);
-        const damage = 50000 / distance;
-        character.damage(this, {
-          entity: npcTriggered,
-          damage: damage
-        });
-      }
-    }
     if (!this.isPvE) {
+      for (const characterId in this._characters) {
+        const character = this._characters[characterId];
+        if (
+          isPosInRadiusWithY(
+            sourceIsVehicle ? 5 : 3,
+            character.state.position,
+            position,
+            1.5
+          )
+        ) {
+          const distance = getDistance(position, character.state.position);
+          const damage = 50000 / distance;
+          character.damage(this, {
+            entity: npcTriggered,
+            damage: damage
+          });
+        }
+      }
       for (const vehicleKey in this._vehicles) {
         const vehicle = this._vehicles[vehicleKey];
         if (vehicle.characterId != npcTriggered) {
