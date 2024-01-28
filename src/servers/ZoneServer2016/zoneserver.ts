@@ -6522,7 +6522,12 @@ export class ZoneServer2016 extends EventEmitter {
             {
               characterId: plant.characterId,
               effectId: Effects.EFX_Crop_Fertilizer,
-              position: new Float32Array([plant.state.position[0], plant.state.position[1], plant.state.position[2], 1]),
+              position: new Float32Array([
+                plant.state.position[0],
+                plant.state.position[1],
+                plant.state.position[2],
+                1
+              ]),
               effectTime: 15
             }
           );

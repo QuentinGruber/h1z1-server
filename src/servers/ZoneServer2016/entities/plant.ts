@@ -17,7 +17,13 @@ import { BaseItem } from "../classes/baseItem";
 import { ZoneClient2016 } from "../classes/zoneclient";
 import { PlantingDiameter } from "./plantingdiameter";
 
-import { ConstructionPermissionIds, Effects, Items, ModelIds, StringIds } from "../models/enums";
+import {
+  ConstructionPermissionIds,
+  Effects,
+  Items,
+  ModelIds,
+  StringIds
+} from "../models/enums";
 import { CharacterPlayWorldCompositeEffect } from "types/zone2016packets";
 
 export class Plant extends ItemObject {
@@ -104,7 +110,7 @@ export class Plant extends ItemObject {
       }
     );
     if (this.isFertilized) {
-      const pos = this.state.position
+      const pos = this.state.position;
       server.sendDataToAllWithSpawnedEntity<CharacterPlayWorldCompositeEffect>(
         // play burning effect & remove it after 15s
         server._plants,
