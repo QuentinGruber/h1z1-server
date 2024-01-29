@@ -227,8 +227,8 @@ import { SOEOutputChannels } from "../../servers/SoeServer/soeoutputstream";
 import { scheduler } from "node:timers/promises";
 import { GatewayChannels } from "h1emu-core";
 import { IngameTimeManager } from "./managers/gametimemanager";
-import { GatewayServerThreaded } from "../GatewayServer/gatewayserver.threaded";
 import { H1z1ProtocolReadingFormat } from "types/protocols";
+import { GatewayServer } from "../GatewayServer/gatewayserver";
 
 const spawnLocations2 = require("../../../data/2016/zoneData/Z1_gridSpawns.json"),
   deprecatedDoors = require("../../../data/2016/sampleData/deprecatedDoors.json"),
@@ -253,7 +253,7 @@ const spawnLocations2 = require("../../../data/2016/zoneData/Z1_gridSpawns.json"
   > = require("../../../data/2016/sampleData/equipmentModelTexturesMapping.json");
 
 export class ZoneServer2016 extends EventEmitter {
-  _gatewayServer: GatewayServerThreaded;
+  _gatewayServer: GatewayServer;
   readonly _protocol: H1Z1Protocol;
   _db!: Db;
   readonly _soloMode: boolean;
@@ -415,7 +415,7 @@ export class ZoneServer2016 extends EventEmitter {
     internalServerPort?: number
   ) {
     super();
-    this._gatewayServer = new GatewayServerThreaded(serverPort, gatewayKey);
+    this._gatewayServer = new GatewayServer(serverPort, gatewayKey);
     this._packetHandlers = new ZonePacketHandlers();
     this._mongoAddress = mongoAddress;
     this._worldId = worldId || 0;
@@ -1112,8 +1112,7 @@ export class ZoneServer2016 extends EventEmitter {
             client.character.state.position,
             object.state.position,
             1
-          ) &&
-          client.searchedProps.includes(object)
+          )
         ) {
           const container = object.getContainer();
           if (container) {
@@ -2301,33 +2300,25 @@ export class ZoneServer2016 extends EventEmitter {
 
     const sourceEntity = this.getEntity(npcTriggered),
       sourceIsVehicle = sourceEntity instanceof Vehicle2016;
-
-    for (const characterId in this._characters) {
-      const character = this._characters[characterId];
-      // If PvE, only damage the character that triggered the explosion
-      if (
-        this.isPvE &&
-        client &&
-        character.characterId !== client.character.characterId
-      )
-        continue;
-      if (
-        isPosInRadiusWithY(
-          sourceIsVehicle ? 5 : 3,
-          character.state.position,
-          position,
-          1.5
-        )
-      ) {
-        const distance = getDistance(position, character.state.position);
-        const damage = 50000 / distance;
-        character.damage(this, {
-          entity: npcTriggered,
-          damage: damage
-        });
-      }
-    }
     if (!this.isPvE) {
+      for (const characterId in this._characters) {
+        const character = this._characters[characterId];
+        if (
+          isPosInRadiusWithY(
+            sourceIsVehicle ? 5 : 3,
+            character.state.position,
+            position,
+            1.5
+          )
+        ) {
+          const distance = getDistance(position, character.state.position);
+          const damage = 50000 / distance;
+          character.damage(this, {
+            entity: npcTriggered,
+            damage: damage
+          });
+        }
+      }
       for (const vehicleKey in this._vehicles) {
         const vehicle = this._vehicles[vehicleKey];
         if (vehicle.characterId != npcTriggered) {
@@ -5511,7 +5502,9 @@ export class ZoneServer2016 extends EventEmitter {
       this.getItemDefinition(itemDefinitionId)?.DESCRIPTION_ID == 12994 ||
       this.getItemDefinition(itemDefinitionId)?.DESCRIPTION_ID == 9114 ||
       this.getItemDefinition(itemDefinitionId)?.DESCRIPTION_ID == 9945 ||
-      this.getItemDefinition(itemDefinitionId)?.DESCRIPTION_ID == 12898
+      this.getItemDefinition(itemDefinitionId)?.DESCRIPTION_ID == 12898 ||
+      this.getItemDefinition(itemDefinitionId)?.DESCRIPTION_ID == 12858 ||
+      this.getItemDefinition(itemDefinitionId)?.DESCRIPTION_ID == 14171
     );
   }
 

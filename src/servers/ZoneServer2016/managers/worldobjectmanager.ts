@@ -421,7 +421,12 @@ export class WorldObjectManager {
     }
 
     server._lootbags[characterId] = lootbag;
-    server.spawnSimpleNpcForAllInRange(lootbag);
+    server.executeFuncForAllReadyClientsInRange((client) => {
+      if (!client.spawnedEntities.has(entity)) {
+        server.addLightweightNpc(client, entity);
+        client.spawnedEntities.add(entity);
+      }
+    }, entity);
   }
 
   createAirdropContainer(
@@ -675,6 +680,16 @@ export class WorldObjectManager {
               propType.renderDistance,
               propType.actor_file,
               this.waterSourceRefillAmount
+            );
+            break;
+          case "Common_Props_WorkBench01.adr":
+            server.constructionManager.placeSimpleConstruction(
+              server,
+              propType.modelId,
+              propInstance.position,
+              fixEulerOrder(propInstance.rotation),
+              "",
+              Items.WORKBENCH
             );
             break;
           default:

@@ -368,7 +368,6 @@ export class ZonePacketHandlers {
       });
       client.character.isReady = true;
       server.airdropManager(client, true);
-
     }
     if (!client.character.isAlive || client.character.isRespawning) {
       // try to fix stuck on death screen
