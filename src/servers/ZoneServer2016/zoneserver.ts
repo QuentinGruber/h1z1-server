@@ -6508,14 +6508,21 @@ export class ZoneServer2016 extends EventEmitter {
           plant.isFertilized = true;
           const roz = (plant.nextStateTime - new Date().getTime()) / 2;
           plant.nextStateTime = new Date().getTime() + roz;
-          this.sendDataToAllWithSpawnedEntity<CommandPlayDialogEffect>(
+          this.sendDataToAllWithSpawnedEntity<CharacterPlayWorldCompositeEffect>(
             // play burning effect & remove it after 15s
             this._plants,
             plant.characterId,
-            "Command.PlayDialogEffect",
+            "Character.PlayWorldCompositeEffect",
             {
               characterId: plant.characterId,
-              effectId: Effects.EFX_Crop_Fertilizer
+              effectId: Effects.EFX_Crop_Fertilizer,
+              position: new Float32Array([
+                plant.state.position[0],
+                plant.state.position[1],
+                plant.state.position[2],
+                1
+              ]),
+              effectTime: 15
             }
           );
         });
