@@ -131,17 +131,6 @@ export class SmeltingManager {
           this.checkAnimalTrap(server, entity, subEntity, container);
           break;
       }
-      server.sendDataToAllWithSpawnedEntity<CharacterPlayWorldCompositeEffect>(
-        subEntity!.dictionary,
-        entity.characterId,
-        "Character.PlayWorldCompositeEffect",
-        {
-          characterId: entity.characterId,
-          effectId: entity.subEntity!.workingEffect,
-          position: entity.state.position,
-          effectTime: Math.ceil(this.collectingTickTime / 1000)
-        }
-      );
     }
     this.checkCollectorsTimer = setTimeout(() => {
       this.checkCollectors(server);
@@ -344,6 +333,18 @@ export class SmeltingManager {
       const item = container.items[a];
       if (item.itemDefinitionId == Items.HONEYCOMB) {
         isEmpty = false;
+
+        server.sendDataToAllWithSpawnedEntity<CharacterPlayWorldCompositeEffect>(
+          subEntity!.dictionary,
+          entity.characterId,
+          "Character.PlayWorldCompositeEffect",
+          {
+            characterId: entity.characterId,
+            effectId: entity.subEntity!.workingEffect,
+            position: entity.state.position,
+            effectTime: Math.ceil(this.collectingTickTime / 1000)
+          }
+        );
       }
     }
     if (!isEmpty) return;
@@ -356,13 +357,15 @@ export class SmeltingManager {
         1,
         false
       );
-      server.sendDataToAllWithSpawnedEntity(
-        subEntity.dictionary,
+      server.sendDataToAllWithSpawnedEntity<CharacterPlayWorldCompositeEffect>(
+        subEntity!.dictionary,
         entity.characterId,
-        "Command.PlayDialogEffect",
+        "Character.PlayWorldCompositeEffect",
         {
           characterId: entity.characterId,
-          effectId: subEntity.workingEffect
+          effectId: entity.subEntity!.workingEffect,
+          position: entity.state.position,
+          effectTime: Math.ceil(this.collectingTickTime / 1000)
         }
       );
       return;

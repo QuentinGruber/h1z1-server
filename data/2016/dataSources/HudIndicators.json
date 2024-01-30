@@ -110,5 +110,12 @@
     "nameId": 9300,
     "descriptionId": 9301,
     "imageSetId": 177
+  },
+  {
+    "id": 20,
+    "typeName": "BEES!",
+    "nameId": 11884,
+    "descriptionId": 11885,
+    "imageSetId": 552
   }
 ]

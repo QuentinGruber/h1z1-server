@@ -11,7 +11,7 @@
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
 
-import { Items, StringIds } from "../models/enums";
+import { Effects, Items, StringIds } from "../models/enums";
 import { ZoneServer2016 } from "../zoneserver";
 import { LootableConstructionEntity } from "../entities/lootableconstructionentity";
 import { lootableContainerDefaultLoadouts } from "../data/loadouts";
@@ -26,7 +26,7 @@ function getSubEntityData(
   switch (entity.itemDefinitionId) {
     case Items.BEE_BOX:
       entity.defaultLoadout = lootableContainerDefaultLoadouts.bee_box;
-      child.workingEffect = 188;
+      child.workingEffect = Effects.EFX_Bees_BeeHiveBox;
       break;
     case Items.DEW_COLLECTOR:
       entity.defaultLoadout = lootableContainerDefaultLoadouts.dew_collector;
