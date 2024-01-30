@@ -11,7 +11,12 @@
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
 
-import { ConstructionPermissionIds, Effects, Items, StringIds } from "../models/enums";
+import {
+  ConstructionPermissionIds,
+  Effects,
+  Items,
+  StringIds
+} from "../models/enums";
 import { DamageInfo, HudIndicator } from "types/zoneserver";
 import { ZoneServer2016 } from "../zoneserver";
 import { BaseLootableEntity } from "./baselootableentity";
@@ -262,9 +267,8 @@ export class LootableConstructionEntity extends BaseLootableEntity {
   }
 
   async OnMeleeHit(server: ZoneServer2016, damageInfo: DamageInfo) {
-    
     if (this.itemDefinitionId == Items.BEE_BOX) {
-      const client = server.getClientByCharId(damageInfo.entity)
+      const client = server.getClientByCharId(damageInfo.entity);
       const dictionary = server.getEntityDictionary(this.characterId);
 
       if (!client) return;
@@ -282,13 +286,13 @@ export class LootableConstructionEntity extends BaseLootableEntity {
         }
       );
 
-      for (let i = 0; i < 3; i++){
+      for (let i = 0; i < 3; i++) {
         const dmgInfo: DamageInfo = {
           entity: "",
           damage: 100
         };
         client.character.damage(server, dmgInfo);
-        await scheduler.wait(500)
+        await scheduler.wait(500);
       }
 
       let hudIndicator: HudIndicator | undefined = undefined;
@@ -297,13 +301,14 @@ export class LootableConstructionEntity extends BaseLootableEntity {
       if (!hudIndicator) return;
 
       if (client.character.hudIndicators[hudIndicator.typeName]) {
-        client.character.hudIndicators[hudIndicator.typeName].expirationTime += 5000;
+        client.character.hudIndicators[hudIndicator.typeName].expirationTime +=
+          5000;
       } else {
         client.character.hudIndicators[hudIndicator.typeName] = {
           typeName: hudIndicator.typeName,
           expirationTime: Date.now() + 5000
         };
-        server.sendHudIndicators(client)
+        server.sendHudIndicators(client);
       }
     }
 
