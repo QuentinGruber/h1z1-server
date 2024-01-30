@@ -333,7 +333,7 @@ export class SmeltingManager {
       const item = container.items[a];
       if (item.itemDefinitionId == Items.HONEYCOMB) {
         isEmpty = false;
-        
+
         server.sendDataToAllWithSpawnedEntity<CharacterPlayWorldCompositeEffect>(
           subEntity!.dictionary,
           entity.characterId,
