@@ -122,6 +122,7 @@ export class Character2016 extends BaseFullCharacter {
   creationDate!: string;
   lastLoginDate!: string;
   lastWhisperedPlayer!: string;
+  hasAlertedBees = false;
   vehicleExitDate: number = new Date().getTime();
   currentLoadoutSlot = LoadoutSlots.FISTS;
   readonly loadoutId = LoadoutIds.CHARACTER;
