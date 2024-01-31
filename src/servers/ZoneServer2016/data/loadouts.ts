@@ -27,6 +27,7 @@ export const characterDefaultLoadout = [
   { item: Items.BELT_POUCH },
   { item: Items.PANTS_DEFAULT },
 
+  { item: Items.BOOTS_GRAY_BLUE },
   { item: Items.MAP },
   { item: Items.COMPASS_IMPROVISED },
   { item: Items.GAUZE, count: 5 }
