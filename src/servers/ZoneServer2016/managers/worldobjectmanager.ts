@@ -67,7 +67,7 @@ import { Lootbag } from "../entities/lootbag";
 import { LootableProp } from "../entities/lootableprop";
 import { ZoneClient2016 } from "../classes/zoneclient";
 import { TaskProp } from "../entities/taskprop";
-import { Crate } from "../entities/crate";
+import { Crate, getActorModelId } from "../entities/crate";
 import { Destroyable } from "../entities/destroyable";
 import { CharacterPlayWorldCompositeEffect } from "types/zone2016packets";
 import { WaterSource } from "../entities/watersource";
@@ -715,8 +715,8 @@ export class WorldObjectManager {
         const obj = new Crate(
           characterId,
           1, // need transient generated for Interaction Replication
-          propType.modelId,
-          propInstance.position,
+          getActorModelId(propType.actorDefinition),
+          new Float32Array(propInstance.position),
           new Float32Array([
             propInstance.rotation[1],
             propInstance.rotation[0],
@@ -726,8 +726,7 @@ export class WorldObjectManager {
           server,
           propInstance.scale,
           propInstance.zoneId,
-          propType.renderDistance,
-          propType.actorDefinition
+          Number(propType.renderDistance)
         );
         server._crates[characterId] = obj;
       });
@@ -800,10 +799,12 @@ export class WorldObjectManager {
         this.createDoor(
           server,
           modelId ? modelId : 9183,
-          doorInstance.position,
-          doorInstance.rotation,
-          doorInstance.scale ?? [1, 1, 1, 1],
-          doorInstance.id
+          new Float32Array(doorInstance.position),
+          new Float32Array(doorInstance.rotation),
+          new Float32Array(doorInstance.scale) ??
+            new Float32Array([1, 1, 1, 1]),
+          // doorInstance.id doesn't exist
+          0
         );
       });
     });
