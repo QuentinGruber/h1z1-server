@@ -1061,7 +1061,7 @@ export enum Skins_Conveys {
   CONVEYS_CDN = 2375
 }
 export enum Skins_Boots {
-  BOOTS_TAN = 2207,
+  BOOTS_TAN = 2207
   /*BOOTS_BROWN = 2206,
   BOOTS_GRAY = 2208,
   BOOTS_GRAY_BLUE = 2209,

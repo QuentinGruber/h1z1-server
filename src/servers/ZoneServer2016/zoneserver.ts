@@ -7644,9 +7644,12 @@ export class ZoneServer2016 extends EventEmitter {
         if (itemDefinition.DESCRIPTION_ID == 11895 && !character.hasConveys) {
           character.hasConveys = true;
           this.multiplyMovementModifier(client, MovementModifiers.CONVEYS);
-        } else if (itemDefinition.DESCRIPTION_ID == 11155 && !character.hasBoots)  {
+        } else if (
+          itemDefinition.DESCRIPTION_ID == 11155 &&
+          !character.hasBoots
+        ) {
           character.hasBoots = true;
-          this.multiplyMovementModifier(client, MovementModifiers.BOOTS)
+          this.multiplyMovementModifier(client, MovementModifiers.BOOTS);
         } else {
           character.hasConveys = false;
           character.hasBoots = false;
