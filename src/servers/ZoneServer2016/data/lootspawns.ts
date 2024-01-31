@@ -2206,7 +2206,7 @@ export const containerLootSpawners: {
     ]
   },
   "Cabinets Cube": {
-    spawnChance: 100,
+    spawnChance: 80,
     maxItems: 1,
     items: [
       {
@@ -2243,102 +2243,6 @@ export const containerLootSpawners: {
       },
       {
         item: Items.CANNED_FOOD02,
-        weight: 30,
-        spawnCount: {
-          min: 1,
-          max: 1
-        }
-      },
-      {
-        item: Items.CANNED_FOOD03,
-        weight: 30,
-        spawnCount: {
-          min: 1,
-          max: 1
-        }
-      },
-      {
-        item: Items.CANNED_FOOD04,
-        weight: 30,
-        spawnCount: {
-          min: 1,
-          max: 1
-        }
-      },
-      {
-        item: Items.CANNED_FOOD05,
-        weight: 30,
-        spawnCount: {
-          min: 1,
-          max: 1
-        }
-      },
-      {
-        item: Items.CANNED_FOOD06,
-        weight: 30,
-        spawnCount: {
-          min: 1,
-          max: 1
-        }
-      },
-      {
-        item: Items.CANNED_FOOD07,
-        weight: 30,
-        spawnCount: {
-          min: 1,
-          max: 1
-        }
-      },
-      {
-        item: Items.CANNED_FOOD08,
-        weight: 30,
-        spawnCount: {
-          min: 1,
-          max: 1
-        }
-      },
-      {
-        item: Items.CANNED_FOOD09,
-        weight: 30,
-        spawnCount: {
-          min: 1,
-          max: 1
-        }
-      },
-      {
-        item: Items.CANNED_FOOD10,
-        weight: 30,
-        spawnCount: {
-          min: 1,
-          max: 1
-        }
-      },
-      {
-        item: Items.CANNED_FOOD11,
-        weight: 30,
-        spawnCount: {
-          min: 1,
-          max: 1
-        }
-      },
-      {
-        item: Items.CANNED_FOOD21,
-        weight: 30,
-        spawnCount: {
-          min: 1,
-          max: 1
-        }
-      },
-      {
-        item: Items.CANNED_FOOD25,
-        weight: 30,
-        spawnCount: {
-          min: 1,
-          max: 1
-        }
-      },
-      {
-        item: Items.CANNED_FOOD26,
         weight: 30,
         spawnCount: {
           min: 1,
