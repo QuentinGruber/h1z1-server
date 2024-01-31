@@ -908,21 +908,14 @@ export class ZonePacketHandlers {
     server.dismountVehicle(client);
     client.character.dismountContainer(server);
     const timerTime = 10000;
-    server.sendData<ClientUpdateStartTimer>(client, "ClientUpdate.StartTimer", {
-      stringId: 0,
-      time: timerTime
-    });
-    if (client.hudTimer != null) {
-      clearTimeout(client.hudTimer);
-    }
-    client.hudTimer = setTimeout(() => {
+    server.utilizeHudTimer(client, 0, timerTime, 0, () => {
       client.properlyLogout = true;
       server.sendData<ClientUpdateCompleteLogoutProcess>(
         client,
         "ClientUpdate.CompleteLogoutProcess",
         {}
       );
-    }, timerTime);
+    });
   }
   CharacterSelectSessionRequest(
     server: ZoneServer2016,
