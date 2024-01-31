@@ -5434,7 +5434,7 @@ export class ZoneServer2016 extends EventEmitter {
     switch (true) {
       case this.isWeapon(itemDefinitionId):
         if (itemDefinitionId == Items.WEAPON_CROWBAR) {
-          durability = Math.floor(Math.random() * 2001);;
+          durability = Math.floor(Math.random() * 2001);
           break;
         }
         durability = 2000;
@@ -5528,9 +5528,7 @@ export class ZoneServer2016 extends EventEmitter {
    * @returns {boolean} True if the item is a convey, false otherwise.
    */
   isConvey(itemDefinitionId: number): boolean {
-    return (
-      this.getItemDefinition(itemDefinitionId)?.DESCRIPTION_ID == 11895
-    );
+    return this.getItemDefinition(itemDefinitionId)?.DESCRIPTION_ID == 11895;
   }
 
   /**
