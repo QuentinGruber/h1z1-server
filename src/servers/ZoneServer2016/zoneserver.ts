@@ -5434,7 +5434,7 @@ export class ZoneServer2016 extends EventEmitter {
     switch (true) {
       case this.isWeapon(itemDefinitionId):
         if (itemDefinitionId == Items.WEAPON_CROWBAR) {
-          durability = Math.floor(Math.random() * 2001);
+          durability = Math.floor(Math.random() * 2000);
           break;
         }
         durability = 2000;
@@ -5446,7 +5446,7 @@ export class ZoneServer2016 extends EventEmitter {
         durability = 100;
         break;
       case this.isConvey(itemDefinitionId):
-        durability = Math.floor(Math.random() * 5401);
+        durability = Math.floor(Math.random() * 5400);
         break;
     }
 
