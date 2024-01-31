@@ -6802,7 +6802,7 @@ export class ZoneServer2016 extends EventEmitter {
     });
   }
 
-  useComsumablePass(
+  async useComsumablePass(
     client: Client,
     character: Character | BaseLootableEntity,
     item: BaseItem,
@@ -6853,13 +6853,24 @@ export class ZoneServer2016 extends EventEmitter {
         ResourceIds.ENDURANCE
       );
     }
-
-    if (item.itemDefinitionId == Items.MEAT_ROTTEN) {
-      const damageInfo: DamageInfo = {
-        entity: "",
-        damage: 1000
-      };
-      client.character.damage(this, damageInfo);
+    const poisonousFoods = [
+      Items.MEAT_ROTTEN,
+      Items.MEAT_BEAR,
+      Items.MEAT_VENISON,
+      Items.MEAT_RABBIT,
+      Items.MEAT_WOLF
+    ];
+    if (poisonousFoods.includes(item.itemDefinitionId)) {
+      client.character.isPoisoned = true;
+      for (let i = 0; i < 12; i++) {
+        const damageInfo: DamageInfo = {
+          entity: "",
+          damage: 25
+        };
+        client.character.damage(this, damageInfo);
+        await scheduler.wait(500);
+      }
+      client.character.isPoisoned = false;
     }
     if (givetrash) {
       character.lootContainerItem(
