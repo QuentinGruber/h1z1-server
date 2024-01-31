@@ -7432,7 +7432,12 @@ export class ZoneServer2016 extends EventEmitter {
   pUtilizeHudTimer = promisify(this.utilizeHudTimer);
 
   stopHudTimer(client: Client) {
+    if (client.hudTimer === null) {
+      // No timer running so nothing to do
+      return;
+    }
     this.utilizeHudTimer(client, 0, 0, 0, () => {
+      client.hudTimer = null;
       this.sendDataToAllWithSpawnedEntity(
         this._characters,
         client.character.characterId,
@@ -7441,10 +7446,10 @@ export class ZoneServer2016 extends EventEmitter {
           characterId: client.character.characterId
         }
       );
+      // TODO: this should be somewhere else
       const vehicle = this._vehicles[client.vehicle.mountedVehicle ?? ""];
       if (!vehicle) return;
       vehicle.removeHotwireEffect(this);
-      /*/*/
     });
   }
 
@@ -7466,6 +7471,7 @@ export class ZoneServer2016 extends EventEmitter {
     client.posAtTimerStart = client.character.state.position;
     client.hudTimer = setTimeout(() => {
       callback.apply(this);
+      client.hudTimer = null;
       this.sendDataToAllWithSpawnedEntity(
         this._characters,
         client.character.characterId,
