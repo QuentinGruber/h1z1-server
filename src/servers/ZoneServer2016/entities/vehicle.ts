@@ -1092,6 +1092,9 @@ export class Vehicle2016 extends BaseLootableEntity {
       case server.isHelmet(item.itemDefinitionId):
         durability = 100;
         break;
+      case server.isConvey(item.itemDefinitionId):
+        durability = 5400;
+        break;
     }
     return {
       itemDefinitionId: item.itemDefinitionId,

@@ -5433,6 +5433,10 @@ export class ZoneServer2016 extends EventEmitter {
     let durability: number = 2000;
     switch (true) {
       case this.isWeapon(itemDefinitionId):
+        if (itemDefinitionId == Items.WEAPON_CROWBAR) {
+          durability = Math.floor(Math.random() * 2001);;
+          break;
+        }
         durability = 2000;
         break;
       case this.isArmor(itemDefinitionId):
@@ -5440,6 +5444,9 @@ export class ZoneServer2016 extends EventEmitter {
         break;
       case this.isHelmet(itemDefinitionId):
         durability = 100;
+        break;
+      case this.isConvey(itemDefinitionId):
+        durability = Math.floor(Math.random() * 5401);
         break;
     }
 
@@ -5511,6 +5518,18 @@ export class ZoneServer2016 extends EventEmitter {
       this.getItemDefinition(itemDefinitionId)?.DESCRIPTION_ID == 9114 ||
       this.getItemDefinition(itemDefinitionId)?.DESCRIPTION_ID == 9945 ||
       this.getItemDefinition(itemDefinitionId)?.DESCRIPTION_ID == 12898
+    );
+  }
+
+  /**
+   * Checks if an item with the specified itemDefinitionId is a convey.
+   *
+   * @param {number} itemDefinitionId - The itemDefinitionId to check.
+   * @returns {boolean} True if the item is a convey, false otherwise.
+   */
+  isConvey(itemDefinitionId: number): boolean {
+    return (
+      this.getItemDefinition(itemDefinitionId)?.DESCRIPTION_ID == 11895
     );
   }
 
