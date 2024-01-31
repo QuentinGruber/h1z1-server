@@ -367,8 +367,6 @@ export class ZonePacketHandlers {
       });
       client.character.isReady = true;
       server.airdropManager(client, true);
-
-      server.fairPlayManager.handleAssetValidationInit(server, client);
     }
     if (!client.character.isAlive || client.character.isRespawning) {
       // try to fix stuck on death screen
@@ -657,6 +655,8 @@ export class ZonePacketHandlers {
               triggerLoadingScreen: false
             }
           );
+          // Do not send too early
+          server.fairPlayManager.handleAssetValidationInit(server, client);
           client.character.state.position = client.startingPos;
         }
         client.firstReleased = false;
@@ -1000,7 +1000,7 @@ export class ZonePacketHandlers {
       unknownFloat12: 12
     });
   }
-  PlayerUpdateManagedPosition(
+  async PlayerUpdateManagedPosition(
     server: ZoneServer2016,
     client: Client,
     packet: ReceivedPacket<PlayerUpdateManagedPosition>
@@ -1167,7 +1167,7 @@ export class ZonePacketHandlers {
     } else client.blockedPositionUpdates = 0;
     if (positionUpdate.position) {
       if (
-        server.fairPlayManager.checkVehicleSpeed(
+        await server.fairPlayManager.checkVehicleSpeed(
           server,
           client,
           positionUpdate.sequenceTime,
@@ -1253,15 +1253,11 @@ export class ZonePacketHandlers {
       }*/
     }
     //if (!server._soloMode) {
-    server.sendDataToAllOthersWithSpawnedEntity(
-      server._vehicles,
+    server.sendRawToAllOthersWithSpawnedEntity(
       client,
+      server._vehicles,
       characterId,
-      "PlayerUpdatePosition",
-      {
-        transientId: packet.data.transientId,
-        positionUpdate: positionUpdate
-      }
+      server._protocol.createManagedPositionBroadcast2016(positionUpdate.raw)
     );
     //}
     if (positionUpdate.engineRPM) {
@@ -1296,7 +1292,7 @@ export class ZonePacketHandlers {
       }
     );
   }
-  PlayerUpdatePosition(
+  async PlayerUpdatePosition(
     server: ZoneServer2016,
     client: Client,
     packet: ReceivedPacket<any> // todo: remove any - Meme
@@ -1308,6 +1304,7 @@ export class ZonePacketHandlers {
       ...client.character.positionUpdate,
       ...packet.data
     };
+    // TODO: whats up ?
     if (packet.data.flags === 513) {
       // head rotation when in vehicle, client spams this packet every 1ms even if you dont move, disabled for now(it doesnt work anyway)
       return;
@@ -1382,22 +1379,12 @@ export class ZonePacketHandlers {
       client.character.stance = packet.data.stance;
     }
     const movingCharacter = server._characters[client.character.characterId];
-    if (movingCharacter) {
-      server.sendRawToAllOthersWithSpawnedCharacter(
-        client,
-        movingCharacter.characterId,
-        server._protocol.createPositionBroadcast2016(
-          packet.data.raw,
-          movingCharacter.transientId
-        )
-      );
-    }
     if (packet.data.position) {
       if (!client.characterReleased) {
         client.characterReleased = true;
       }
       if (
-        server.fairPlayManager.checkPlayerSpeed(
+        await server.fairPlayManager.checkPlayerSpeed(
           server,
           client,
           packet.data.sequenceTime,
@@ -3139,8 +3126,8 @@ export class ZonePacketHandlers {
   }
 
   ProjectileDebug(server: ZoneServer2016, client: Client, packet: any) {
-    console.log(`ProjectileDebug from ${client.character.characterId}`);
-    console.log(packet.data);
+    debug(`ProjectileDebug from ${client.character.characterId}`);
+    debug(packet.data);
   }
 
   VehicleItemDefinitionRequest(

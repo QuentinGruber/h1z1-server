@@ -1,4 +1,4 @@
-﻿import test from "node:test";
+﻿import test, { after } from "node:test";
 import { customLodash, isFloat, isValidCharacterName } from "./utils";
 import assert from "node:assert";
 import { NAME_VALIDATION_STATUS } from "./enums";
@@ -20,4 +20,10 @@ test("isValidCharacterName", async () => {
   assert.equal(result, NAME_VALIDATION_STATUS.AVAILABLE);
   const invalidResult = isValidCharacterName("test@");
   assert.equal(invalidResult, NAME_VALIDATION_STATUS.INVALID);
+});
+
+after(() => {
+  setImmediate(() => {
+    process.exit(0);
+  });
 });

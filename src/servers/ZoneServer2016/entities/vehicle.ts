@@ -483,14 +483,18 @@ export class Vehicle2016 extends BaseLootableEntity {
     return this._resources[ResourceIds.CONDITION];
   }
 
-  damage(server: ZoneServer2016, damageInfo: DamageInfo) {
+  async damage(server: ZoneServer2016, damageInfo: DamageInfo) {
     if (this.isInvulnerable) return;
     const oldHealth = this._resources[ResourceIds.CONDITION];
     this._resources[ResourceIds.CONDITION] -= damageInfo.damage;
     const client = server.getClientByCharId(damageInfo.entity);
     if (client) {
       client.character.addCombatlogEntry(
-        server.generateDamageRecord(this.characterId, damageInfo, oldHealth)
+        await server.generateDamageRecord(
+          this.characterId,
+          damageInfo,
+          oldHealth
+        )
       );
     }
 
@@ -1015,7 +1019,7 @@ export class Vehicle2016 extends BaseLootableEntity {
   }
 
   isFlipped(): boolean {
-    return Math.abs(this.positionUpdate.sideTilt) > 2;
+    return Math.abs(this.positionUpdate.sideTilt) > 1.75;
   }
 
   flipVehicle(server: ZoneServer2016) {

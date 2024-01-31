@@ -7,7 +7,7 @@ server:
   tickRate: 2000
   worldRoutineRate: 10000
   enableLoginServerKickRequests: true
-  rebootTime: 72 # hours (0 to disable)
+  rebootTime: 48 # hours (0 to disable)
   rebootWarnTime: 600 # seconds
   isPvE: false
   isHeadshotOnly: false
@@ -46,7 +46,8 @@ fairplay:
   #  crc32_hash: ""
 
 weather:
-  defaultTemplate: "z1br"
+  defaultTemplate: "h1emubaseweather"
+  dynamicEnabled: false
 
 # Anything to do with loot, vehicle, and npc spawning / despawning
 worldobjects:
@@ -148,4 +149,4 @@ decay:
 
 smelting:
   burnTime: 120000 # consume fuel every 120 seconds
-  smeltTime: 40000 # smelt 1 item every 40 seconds
+  smeltTime: 7000 # smelt 1 item every 7 seconds

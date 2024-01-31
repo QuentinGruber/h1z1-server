@@ -209,10 +209,15 @@ export const commands: Array<Command> = [
   {
     name: "netstats",
     permissionLevel: PermissionLevels.DEFAULT,
-    execute: (server: ZoneServer2016, client: Client, args: Array<string>) => {
-      const soeClient = server.getSoeClient(client.soeClientId);
-      if (soeClient) {
-        const stats = soeClient.getNetworkStats();
+    execute: async (
+      server: ZoneServer2016,
+      client: Client,
+      args: Array<string>
+    ) => {
+      const stats = await server._gatewayServer.getSoeClientNetworkStats(
+        client.soeClientId
+      );
+      if (stats) {
         for (let index = 0; index < stats.length; index++) {
           const stat = stats[index];
           server.sendChatText(client, stat, index == 0);
@@ -223,10 +228,15 @@ export const commands: Array<Command> = [
   {
     name: "ping",
     permissionLevel: PermissionLevels.DEFAULT,
-    execute: (server: ZoneServer2016, client: Client, args: Array<string>) => {
-      const soeClient = server.getSoeClient(client.soeClientId);
-      if (soeClient) {
-        const stats = soeClient.getNetworkStats();
+    execute: async (
+      server: ZoneServer2016,
+      client: Client,
+      args: Array<string>
+    ) => {
+      const stats = await server._gatewayServer.getSoeClientNetworkStats(
+        client.soeClientId
+      );
+      if (stats) {
         server.sendChatText(client, stats[2], true);
       }
     }
@@ -588,19 +598,21 @@ export const commands: Array<Command> = [
   {
     name: "players",
     permissionLevel: PermissionLevels.MODERATOR,
-    execute: (server: ZoneServer2016, client: Client, args: Array<string>) => {
-      server.sendChatText(
-        client,
-        `Players: ${Object.values(server._clients)
-          .map((c) => {
-            return `${c.character.name}: ${c.loginSessionId} | ${
-              server.getSoeClient(c.soeClientId)?.getNetworkStats()[2]
-            } | ${server.getSoeClient(c.soeClientId)?.getNetworkStats()[0]} | ${
-              server.getSoeClient(c.soeClientId)?.getNetworkStats()[1]
-            }`;
-          })
-          .join(",\n")}`
-      );
+    execute: async (
+      server: ZoneServer2016,
+      client: Client,
+      args: Array<string>
+    ) => {
+      let msg: string = "Players:\n";
+      for (const a in server._clients) {
+        const c = server._clients[a];
+        const clientStats =
+          (await server._gatewayServer.getSoeClientNetworkStats(
+            c.soeClientId
+          )) ?? [];
+        msg += `${c.character.name}: ${c.loginSessionId} | ${clientStats[2]} | ${clientStats[0]} | ${clientStats[1]}\n`;
+      }
+      server.sendChatText(client, msg);
     }
   },
   {
@@ -641,7 +653,11 @@ export const commands: Array<Command> = [
   {
     name: "getnetstats",
     permissionLevel: PermissionLevels.MODERATOR,
-    execute: (server: ZoneServer2016, client: Client, args: Array<string>) => {
+    execute: async (
+      server: ZoneServer2016,
+      client: Client,
+      args: Array<string>
+    ) => {
       if (!args[0]) {
         server.sendChatText(
           client,
@@ -660,9 +676,10 @@ export const commands: Array<Command> = [
         server.sendChatText(client, "Client not found.");
         return;
       }
-      const soeClient = server.getSoeClient(targetClient.soeClientId);
-      if (soeClient) {
-        const stats = soeClient.getNetworkStats();
+      const stats = await server._gatewayServer.getSoeClientNetworkStats(
+        targetClient.soeClientId
+      );
+      if (stats) {
         server.sendChatText(
           client,
           `Displaying net statistics of player ${targetClient.character.name}`,

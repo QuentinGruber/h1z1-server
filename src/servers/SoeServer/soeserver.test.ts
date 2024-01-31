@@ -1,4 +1,4 @@
-import test from "node:test";
+import test, { after } from "node:test";
 import { SOEServer } from "./soeserver";
 import { LogicalPacket } from "./logicalPacket";
 import { PacketsQueue } from "./PacketsQueue";
@@ -27,5 +27,11 @@ test("SoeServer", { timeout: 5000 }, async (t) => {
 
   await t.test("stop", async () => {
     await soeServer.stop();
+  });
+});
+
+after(() => {
+  setImmediate(() => {
+    process.exit(0);
   });
 });
