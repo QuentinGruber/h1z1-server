@@ -5778,7 +5778,7 @@ export class ZoneServer2016 extends EventEmitter {
       );
     }
     if (client) {
-      this.checkConveys(client);
+      this.checkShoes(client);
       this.checkNightVision(client);
     }
     if (this.getItemDefinition(itemDefId)?.ITEM_TYPE === 34) {
@@ -7621,10 +7621,14 @@ export class ZoneServer2016 extends EventEmitter {
     );
   }
 
-  checkConveys(client: Client, character = client.character) {
+  checkShoes(client: Client, character = client.character) {
     if (!character._equipment["5"]) {
       if (character.hasConveys) {
         character.hasConveys = false;
+        this.divideMovementModifier(client, MovementModifiers.CONVEYS);
+      }
+      if (character.hasBoots) {
+        character.hasBoots = false;
         this.divideMovementModifier(client, MovementModifiers.BOOTS);
       }
     } else {
@@ -7639,13 +7643,14 @@ export class ZoneServer2016 extends EventEmitter {
 
         if (itemDefinition.DESCRIPTION_ID == 11895 && !character.hasConveys) {
           character.hasConveys = true;
-          this.multiplyMovementModifier(client, MovementModifiers.BOOTS);
-        } else if (
-          itemDefinition.DESCRIPTION_ID != 11895 &&
-          character.hasConveys
-        ) {
+          this.multiplyMovementModifier(client, MovementModifiers.CONVEYS);
+        } else if (itemDefinition.DESCRIPTION_ID == 11155 && !character.hasBoots)  {
+          character.hasBoots = true;
+          this.multiplyMovementModifier(client, MovementModifiers.BOOTS)
+        } else {
           character.hasConveys = false;
-          this.divideMovementModifier(client, MovementModifiers.BOOTS);
+          character.hasBoots = false;
+          this.divideMovementModifier(client, MovementModifiers.RESTED);
         }
       }
     }

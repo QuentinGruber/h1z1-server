@@ -180,7 +180,7 @@ export abstract class BaseFullCharacter extends BaseLightweightCharacter {
     const client = server.getClientByContainerAccessor(this);
     if (client) {
       if (!client.character.initialized) return;
-      server.checkConveys(client);
+      server.checkShoes(client);
     }
     server.sendDataToAllWithSpawnedEntity(
       server._characters,

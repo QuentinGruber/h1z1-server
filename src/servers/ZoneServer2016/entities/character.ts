@@ -151,6 +151,7 @@ export class Character2016 extends BaseFullCharacter {
   ) => void;
   timeouts: any;
   hasConveys: boolean = false;
+  hasBoots: boolean = false;
   positionUpdate?: positionUpdate;
   tempGodMode = false;
   isVanished = false;
@@ -593,7 +594,7 @@ export class Character2016 extends BaseFullCharacter {
   updateLoadout(server: ZoneServer2016, sendPacketToLocalClient = true) {
     const client = server.getClientByContainerAccessor(this);
     if (!client || !client.character.initialized) return;
-    server.checkConveys(client);
+    server.checkShoes(client);
     if (sendPacketToLocalClient) {
       server.sendData(
         client,
