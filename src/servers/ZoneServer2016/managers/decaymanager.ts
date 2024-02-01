@@ -20,6 +20,7 @@ import { ConstructionParentEntity } from "../entities/constructionparententity";
 import { Vehicle2016 } from "../entities/vehicle";
 import { dailyRepairMaterial } from "types/zoneserver";
 import { BaseItem } from "../classes/baseItem";
+debug = require("debug")("SOEClient");
 
 export class DecayManager {
   constructionDamageTickCount = 0; // used to run structure damaging once every x loops
@@ -88,6 +89,7 @@ export class DecayManager {
               foundation.freeplaceEntities[a].destroy(server);
             }
             foundation.destroy(server);
+            debug("")
           }
         }
       }
