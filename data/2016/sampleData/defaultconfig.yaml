@@ -7,9 +7,9 @@ server:
   tickRate: 2000
   worldRoutineRate: 10000
   enableLoginServerKickRequests: true
-  rebootTime: 72 # hours (0 to disable)
+  rebootTime: 48 # hours (0 to disable)
   rebootWarnTime: 600 # seconds
-  isPvE: false 
+  isPvE: false
   isHeadshotOnly: false
   isFirstPersonOnly: false
   baseConstructionDamage: 34000
@@ -18,18 +18,18 @@ server:
 fairplay:
   useFairplay: true
   maxPing: 250
-  
+
   # Removing an entry below will allow clients with a certain rejectionFlag to join
   # ex. Removing "5 # UNVERIFIED" will allow users with an unverified h1emu status to join
 
   # by default, globally banned, hwid banned, vpn detected, and unverified clients will have their
   # connections rejected
   acceptedRejectionTypes:
-  # LOCAL_BAN, SERVER_LOCKED, and SERVER_REBOOT are always accepted
-  - 2 # GLOBAL_BAN
-  - 3 # VPN
-  - 4 # HWID
-  - 5 # UNVERIFIED
+    # LOCAL_BAN, SERVER_LOCKED, and SERVER_REBOOT are always accepted
+    - 2 # GLOBAL_BAN
+    - 3 # VPN
+    - 4 # HWID
+    - 5 # UNVERIFIED
 
   useAssetValidation: true
   # how long the client has to send it's hashes before it's kicked (3 min default)
@@ -46,9 +46,8 @@ fairplay:
   #  crc32_hash: ""
 
 weather:
-  cycleSpeed: 100
-  frozeCycle: false
-  defaultTemplate: "z1br"
+  defaultTemplate: "h1emubaseweather"
+  dynamicEnabled: false
 
 # Anything to do with loot, vehicle, and npc spawning / despawning
 worldobjects:
@@ -135,21 +134,21 @@ decay:
   maxVehiclesPerArea: 2 # the max amount of vehicles that can be in an area before they start taking more damage
   vehicleDamageRange: 25 # how large of a range to detect maxVehiclesPerArea
   dailyRepairMaterials:
-  - itemDefinitionId: 16 # wood log
-    requiredCount: 5
-  - itemDefinitionId: 109 # wood plank
-    requiredCount: 79
-  - itemDefinitionId: 135 # nail
-    requiredCount: 28
-  - itemDefinitionId: 141 # metal bracket
-    requiredCount: 16
-  - itemDefinitionId: 46 # metal sheet
-    requiredCount: 20
-  - itemDefinitionId: 114 # metal shard
-    requiredCount: 44
-  - itemDefinitionId: 111 # wood stick
-    requiredCount: 2
-  
+    - itemDefinitionId: 16 # wood log
+      requiredCount: 5
+    - itemDefinitionId: 109 # wood plank
+      requiredCount: 79
+    - itemDefinitionId: 135 # nail
+      requiredCount: 28
+    - itemDefinitionId: 141 # metal bracket
+      requiredCount: 16
+    - itemDefinitionId: 46 # metal sheet
+      requiredCount: 20
+    - itemDefinitionId: 114 # metal shard
+      requiredCount: 44
+    - itemDefinitionId: 111 # wood stick
+      requiredCount: 2
+
 smelting:
   burnTime: 120000 # consume fuel every 120 seconds
-  smeltTime: 40000 # smelt 1 item every 40 seconds
+  smeltTime: 7000 # smelt 1 item every 7 seconds

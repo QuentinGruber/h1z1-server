@@ -3,7 +3,7 @@
 //   GNU GENERAL PUBLIC LICENSE
 //   Version 3, 29 June 2007
 //   copyright (C) 2020 - 2021 Quentin Gruber
-//   copyright (C) 2021 - 2023 H1emu community
+//   copyright (C) 2021 - 2024 H1emu community
 //
 //   https://github.com/QuentinGruber/h1z1-server
 //   https://www.npmjs.com/package/h1z1-server
@@ -24,6 +24,7 @@ import {
 } from "../../../utils/enums";
 import {
   decrypt,
+  getCurrentTimeWrapper,
   getDistance,
   getDistance1d,
   getDistance2d,
@@ -132,12 +133,12 @@ export class FairPlayManager {
     }
   }
 
-  checkPlayerSpeed(
+  async checkPlayerSpeed(
     server: ZoneServer2016,
     client: Client,
     sequenceTime: number,
     position: Float32Array
-  ): boolean {
+  ): Promise<boolean> {
     if (client.isAdmin || !this.fairPlayValues || !client.isSynced)
       return false;
     if (!server.isSaving) {
@@ -194,7 +195,9 @@ export class FairPlayManager {
           this.fairPlayValues.lastLoginDateAddVal <
         new Date().getTime()
       ) {
-        const drift = Math.abs(sequenceTime - server.getServerTime());
+        const drift = Math.abs(
+          sequenceTime - getCurrentTimeWrapper().getTruncatedU32()
+        );
         if (drift > this.fairPlayValues.maxTimeDrift) {
           server.kickPlayer(client);
           server.sendAlertToAll(`FairPlay: kicking ${client.character.name}`);
@@ -233,9 +236,11 @@ export class FairPlayManager {
         speed > this.fairPlayValues.maxSpeed &&
         verticalSpeed < this.fairPlayValues.maxVerticalSpeed
       ) {
-        const soeClient = server.getSoeClient(client.soeClientId);
-        if (soeClient) {
-          if (soeClient.avgPing >= 250) return false;
+        const avgPing = await server._gatewayServer.getSoeClientAvgPing(
+          client.soeClientId
+        );
+        if (avgPing) {
+          if (avgPing >= 250) return false;
         }
         client.speedWarnsNumber += 1;
       } else if (client.speedWarnsNumber > 0) {
@@ -264,16 +269,18 @@ export class FairPlayManager {
     return false;
   }
 
-  checkVehicleSpeed(
+  async checkVehicleSpeed(
     server: ZoneServer2016,
     client: Client,
     sequenceTime: number,
     position: Float32Array,
     vehicle: Vehicle
-  ): boolean {
+  ): Promise<boolean> {
     if (client.isAdmin || !this.useFairPlay) return false;
     if (!server.isSaving) {
-      const drift = Math.abs(sequenceTime - server.getServerTime());
+      const drift = Math.abs(
+        sequenceTime - getCurrentTimeWrapper().getTruncatedU32()
+      );
       if (drift > 10000) {
         server.kickPlayer(client);
         server.sendAlertToAll(`FairPlay: kicking ${client.character.name}`);
@@ -292,9 +299,11 @@ export class FairPlayManager {
           (sequenceTime - vehicle.oldPos.time)) *
         3600000;
       if (speed > 130 && verticalSpeed < 20) {
-        const soeClient = server.getSoeClient(client.soeClientId);
-        if (soeClient) {
-          if (soeClient.avgPing >= 250) return false;
+        const avgPing = await server._gatewayServer.getSoeClientAvgPing(
+          client.soeClientId
+        );
+        if (avgPing) {
+          if (avgPing >= 250) return false;
         }
         client.speedWarnsNumber += 1;
       } else if (client.speedWarnsNumber > 0) {
