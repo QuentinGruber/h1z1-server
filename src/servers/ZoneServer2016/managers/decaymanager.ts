@@ -20,6 +20,7 @@ import { ConstructionParentEntity } from "../entities/constructionparententity";
 import { Vehicle2016 } from "../entities/vehicle";
 import { dailyRepairMaterial } from "types/zoneserver";
 import { BaseItem } from "../classes/baseItem";
+const debug = require("debug")("SOEClient");
 
 export class DecayManager {
   constructionDamageTickCount = 0; // used to run structure damaging once every x loops
@@ -33,6 +34,8 @@ export class DecayManager {
   worldFreeplaceDecayMultiplier!: number;
   vehicleDamageTicks!: number;
   vacantFoundationTicks!: number;
+  griefFoundationTimer!: number;
+  griefCheckSlotAmount!: number;
   baseVehicleDamage!: number;
   maxVehiclesPerArea!: number;
   vehicleDamageRange!: number;
@@ -64,6 +67,33 @@ export class DecayManager {
   private contructionExpirationCheck(server: ZoneServer2016) {
     for (const a in server._constructionFoundations) {
       const foundation = server._constructionFoundations[a];
+      if (
+        foundation.itemDefinitionId == Items.FOUNDATION ||
+        foundation.itemDefinitionId == Items.GROUND_TAMPER
+      ) {
+        if (
+          Date.now() - foundation.placementTime >=
+          this.griefFoundationTimer * 3600000
+        ) {
+          if (
+            Object.keys(foundation.occupiedWallSlots).length <
+              this.griefCheckSlotAmount &&
+            Object.keys(foundation.occupiedShelterSlots).length == 0 &&
+            Object.keys(foundation.occupiedExpansionSlots).length == 0
+          ) {
+            for (const a in foundation.occupiedWallSlots) {
+              foundation.occupiedWallSlots[a].destroy(server);
+            }
+            // clear floating entities
+            for (const a in foundation.freeplaceEntities) {
+              foundation.freeplaceEntities[a].destroy(server);
+            }
+            foundation.destroy(server);
+            debug("Destroyed grief foundation");
+          }
+        }
+      }
+
       if (
         foundation.itemDefinitionId != Items.FOUNDATION &&
         foundation.itemDefinitionId != Items.GROUND_TAMPER
