@@ -28,6 +28,7 @@ export const characterDefaultLoadout = [
   { item: Items.PANTS_DEFAULT },
   { item: Items.SKINNING_KNIFE },
 
+  { item: Items.BOOTS_GRAY_BLUE },
   { item: Items.MAP },
   { item: Items.COMPASS_IMPROVISED },
   { item: Items.GAUZE, count: 5 }

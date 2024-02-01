@@ -578,7 +578,7 @@ export class Vehicle2016 extends BaseLootableEntity {
     const client = server.getClientByCharId(this.characterId);
     if (client) {
       if (!client.character.initialized) return;
-      server.checkConveys(client);
+      server.checkShoes(client);
     }
     server.sendDataToAllWithSpawnedEntity(
       server._vehicles,
@@ -1091,6 +1091,9 @@ export class Vehicle2016 extends BaseLootableEntity {
         break;
       case server.isHelmet(item.itemDefinitionId):
         durability = 100;
+        break;
+      case server.isConvey(item.itemDefinitionId):
+        durability = 5400;
         break;
     }
     return {
