@@ -70,7 +70,6 @@ export class ConstructionManager {
   overridePlacementItems: Array<number> = [
     Items.IED,
     Items.LANDMINE,
-    Items.SNARE,
     Items.SEED_CORN,
     Items.SEED_WHEAT
   ];
