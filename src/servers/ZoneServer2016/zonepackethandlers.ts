@@ -259,6 +259,9 @@ export class ZonePacketHandlers {
       server.sendRawDataReliable(client, server.profileDefinitionsCache);
     }
 
+    // Do not send too early
+    server.fairPlayManager.handleAssetValidationInit(server, client);
+
     // for melees / emotes / vehicle boost / etc (needs more work)
     /*
     server.sendData<>(client, "Abilities.SetActivatableAbilityManager", abilities);
@@ -655,8 +658,6 @@ export class ZonePacketHandlers {
               triggerLoadingScreen: false
             }
           );
-          // Do not send too early
-          server.fairPlayManager.handleAssetValidationInit(server, client);
           client.character.state.position = client.startingPos;
         }
         client.firstReleased = false;
