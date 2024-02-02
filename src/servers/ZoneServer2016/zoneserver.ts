@@ -405,6 +405,7 @@ export class ZoneServer2016 extends EventEmitter {
   baseConstructionDamage!: number;
   crowbarHitRewardChance!: number;
   crowbarHitDamage!: number;
+  wipeInterval!: number; // in days
   /*                          */
 
   constructor(
@@ -1674,6 +1675,40 @@ export class ZoneServer2016 extends EventEmitter {
     this.initClientEffectsDataSource();
     this.initUseOptionsDataSource();
     this.hookManager.checkHook("OnServerReady");
+  }
+
+  async getLastWipeTime(): Promise<number> {
+    // TODO: get the mongo db world object
+    // TODO: read when the object was created from mongodb id
+    // TODO: add creationTime field to world object and only check for the id timestamp if creationTime is not present
+  }
+
+  async wipeWorld() {
+    this.sendAlertToAll("World wipe started.");
+    // TODO: disconnect all players and lock the server
+    // TODO: wipe the world
+    // TODO: restart the server
+    await this.worldDataManager.deleteWorld();
+    this.sendChatTextToAdmins("World wiped!");
+  }
+
+  async checkWipeInterval() {
+    if (this.enableWorldSaves && this.wipeInterval > 0) {
+      const lastWipeTime = await this.getLastWipeTime();
+      const nextWipeTime = lastWipeTime + this.wipeInterval;
+      if (nextWipeTime < Date.now()) {
+        await this.wipeWorld();
+      } else {
+        // Log local date time of next wipe
+        console.log(
+          `Next wipe scheduled for ${new Date(nextWipeTime).toLocaleString()}`
+        );
+        // Execute a timer to check when the next wipe should happen
+        setTimeout(() => this.checkWipeInterval(), nextWipeTime - Date.now());
+      }
+    } else {
+      console.log("World wipes are disabled.");
+    }
   }
 
   async sendInitData(client: Client) {

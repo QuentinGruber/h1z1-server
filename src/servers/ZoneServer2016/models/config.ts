@@ -30,6 +30,7 @@ interface ServerConfig {
   isHeadshotOnly: boolean;
   isFirstPersonOnly: boolean;
   baseConstructionDamage: number;
+  wipeInterval: number; // in days
 }
 
 interface FairplayConfig {

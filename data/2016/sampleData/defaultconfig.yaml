@@ -13,6 +13,7 @@ server:
   isHeadshotOnly: false
   isFirstPersonOnly: false
   baseConstructionDamage: 34000
+  wipeInterval: 0 # days (0 to disable)
 
 # Fairplay / anticheat config
 fairplay:
