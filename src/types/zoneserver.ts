@@ -239,6 +239,7 @@ export interface ItemUseOption {
   timeout: number,
   eatCount?: number,
   drinkCount?: number,
+  comfortCount?: number,
   givetrash?: number,
   healCount?: number,
   staminaCount?: number,

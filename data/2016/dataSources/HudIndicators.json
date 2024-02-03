@@ -112,6 +112,20 @@
     "imageSetId": 177
   },
   {
+    "id": 17,
+    "typeName": "COMFORT +",
+    "nameId": 13094,
+    "descriptionId": 0,
+    "imageSetId": 0
+  },
+  {
+    "id": 18,
+    "typeName": "COMFORT ++",
+    "nameId": 13093,
+    "descriptionId": 0,
+    "imageSetId": 0
+  },
+  {
     "id": 19,
     "typeName": "FOOD POISONING",
     "nameId": 8913,
