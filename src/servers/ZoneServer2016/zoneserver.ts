@@ -7659,9 +7659,8 @@ export class ZoneServer2016 extends EventEmitter {
 
       if (character.hasBoots) {
         character.hasBoots = false;
-        this.divideMovementModifier(client, MovementModifiers.BOOTS)
+        this.divideMovementModifier(client, MovementModifiers.BOOTS);
       }
-      
     } else {
       if (character._equipment["5"].guid) {
         const item = client.character.getInventoryItem(
@@ -7693,7 +7692,6 @@ export class ZoneServer2016 extends EventEmitter {
           character.hasBoots = false;
           this.divideMovementModifier(client, MovementModifiers.BOOTS);
         }
-
       }
     }
   }
