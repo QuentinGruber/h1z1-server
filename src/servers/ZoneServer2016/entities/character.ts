@@ -1027,6 +1027,9 @@ export class Character2016 extends BaseFullCharacter {
     );
   }
 
+  getHealth() {
+    return this._resources[ResourceIds.HEALTH];
+  }
   async damage(server: ZoneServer2016, damageInfo: DamageInfo) {
     if (
       server.isPvE &&
