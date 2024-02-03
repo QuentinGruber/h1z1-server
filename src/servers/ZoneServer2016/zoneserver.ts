@@ -7690,7 +7690,7 @@ export class ZoneServer2016 extends EventEmitter {
           character.hasBoots = true;
           this.multiplyMovementModifier(client, MovementModifiers.BOOTS);
         } else if (
-          itemDefinition.DESCRIPTION_ID != 11895 &&
+          itemDefinition.DESCRIPTION_ID != 11155 &&
           character.hasBoots
         ) {
           character.hasBoots = false;
