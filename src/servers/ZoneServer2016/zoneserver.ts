@@ -2309,7 +2309,8 @@ export class ZoneServer2016 extends EventEmitter {
             character.state.position,
             position,
             1.5
-          ) && !client?.character.isHidden
+          ) &&
+          !client?.character.isHidden
         ) {
           const distance = getDistance(position, character.state.position);
           const damage = 50000 / distance;
