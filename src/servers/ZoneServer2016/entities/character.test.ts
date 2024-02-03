@@ -45,7 +45,6 @@ test("Damage-pvp", { timeout: 10000 }, async (t) => {
   createFakeZoneClient(zone, character);
   const damager = createFakeCharacter(zone);
   createFakeZoneClient(zone, damager);
-  // console.log(zone.getClientByCharId(character.characterId));
   await t.test("Damage from entity", async () => {
     const oldHealth = character.getHealth();
     const dmg = 26;
