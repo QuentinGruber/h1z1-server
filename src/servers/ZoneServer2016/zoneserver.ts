@@ -7633,7 +7633,7 @@ export class ZoneServer2016 extends EventEmitter {
   }
 
   multiplyMovementModifier(client: Client, modifier: number) {
-    console.log(modifier)
+    console.log(modifier);
     this.sendData<ClientUpdateModifyMovementSpeed>(
       client,
       "ClientUpdate.ModifyMovementSpeed",
@@ -7696,7 +7696,6 @@ export class ZoneServer2016 extends EventEmitter {
           character.hasBoots = false;
           this.divideMovementModifier(client, MovementModifiers.BOOTS);
         }
-
       }
     }
   }
