@@ -1207,7 +1207,7 @@ export class Vehicle2016 extends BaseLootableEntity {
   }
 
   OnProjectileHit(server: ZoneServer2016, damageInfo: DamageInfo) {
-    if (!server.isPvE){
+    if (!server.isPvE) {
       this.damage(server, damageInfo);
     }
   }
