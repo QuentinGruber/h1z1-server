@@ -131,17 +131,6 @@ export class SmeltingManager {
           this.checkAnimalTrap(server, entity, subEntity, container);
           break;
       }
-      server.sendDataToAllWithSpawnedEntity<CharacterPlayWorldCompositeEffect>(
-        subEntity!.dictionary,
-        entity.characterId,
-        "Character.PlayWorldCompositeEffect",
-        {
-          characterId: entity.characterId,
-          effectId: entity.subEntity!.workingEffect,
-          position: entity.state.position,
-          effectTime: Math.ceil(this.collectingTickTime / 1000)
-        }
-      );
     }
     this.checkCollectorsTimer = setTimeout(() => {
       this.checkCollectors(server);
@@ -186,14 +175,6 @@ export class SmeltingManager {
     );
   }*/
 
-  getBurnTime(item: BaseItem): number {
-    if (item.itemDefinitionId == Items.CHARCOAL) {
-      return (this.burnTime = 2400000);
-    } else {
-      return (this.burnTime = 120000);
-    }
-  }
-
   private checkFuel(
     server: ZoneServer2016,
     entity: LootableConstructionEntity
@@ -202,7 +183,6 @@ export class SmeltingManager {
     for (const a in container!.items) {
       const item = container!.items[a];
       if (entity.subEntity!.allowedFuel.includes(item.itemDefinitionId)) {
-        this.getBurnTime(item);
         server.removeContainerItem(entity, item, entity.getContainer(), 1);
         if (item.itemDefinitionId == Items.WOOD_LOG) {
           // give charcoal if wood log was burned
@@ -344,6 +324,18 @@ export class SmeltingManager {
       const item = container.items[a];
       if (item.itemDefinitionId == Items.HONEYCOMB) {
         isEmpty = false;
+
+        server.sendDataToAllWithSpawnedEntity<CharacterPlayWorldCompositeEffect>(
+          subEntity!.dictionary,
+          entity.characterId,
+          "Character.PlayWorldCompositeEffect",
+          {
+            characterId: entity.characterId,
+            effectId: entity.subEntity!.workingEffect,
+            position: entity.state.position,
+            effectTime: Math.ceil(this.collectingTickTime / 1000)
+          }
+        );
       }
     }
     if (!isEmpty) return;
@@ -356,13 +348,15 @@ export class SmeltingManager {
         1,
         false
       );
-      server.sendDataToAllWithSpawnedEntity(
-        subEntity.dictionary,
+      server.sendDataToAllWithSpawnedEntity<CharacterPlayWorldCompositeEffect>(
+        subEntity!.dictionary,
         entity.characterId,
-        "Command.PlayDialogEffect",
+        "Character.PlayWorldCompositeEffect",
         {
           characterId: entity.characterId,
-          effectId: subEntity.workingEffect
+          effectId: entity.subEntity!.workingEffect,
+          position: entity.state.position,
+          effectTime: Math.ceil(this.collectingTickTime / 1000)
         }
       );
       return;

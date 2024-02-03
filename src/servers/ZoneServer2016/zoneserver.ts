@@ -5425,6 +5425,10 @@ export class ZoneServer2016 extends EventEmitter {
     let durability: number = 2000;
     switch (true) {
       case this.isWeapon(itemDefinitionId):
+        if (itemDefinitionId == Items.WEAPON_CROWBAR) {
+          durability = Math.floor(Math.random() * 2000);
+          break;
+        }
         durability = 2000;
         break;
       case this.isArmor(itemDefinitionId):
@@ -5432,6 +5436,9 @@ export class ZoneServer2016 extends EventEmitter {
         break;
       case this.isHelmet(itemDefinitionId):
         durability = 100;
+        break;
+      case this.isConvey(itemDefinitionId):
+        durability = Math.floor(Math.random() * 5400);
         break;
     }
 
@@ -5506,6 +5513,16 @@ export class ZoneServer2016 extends EventEmitter {
       this.getItemDefinition(itemDefinitionId)?.DESCRIPTION_ID == 12858 ||
       this.getItemDefinition(itemDefinitionId)?.DESCRIPTION_ID == 14171
     );
+  }
+
+  /**
+   * Checks if an item with the specified itemDefinitionId is a convey.
+   *
+   * @param {number} itemDefinitionId - The itemDefinitionId to check.
+   * @returns {boolean} True if the item is a convey, false otherwise.
+   */
+  isConvey(itemDefinitionId: number): boolean {
+    return this.getItemDefinition(itemDefinitionId)?.DESCRIPTION_ID == 11895;
   }
 
   /**
@@ -5755,7 +5772,7 @@ export class ZoneServer2016 extends EventEmitter {
       );
     }
     if (client) {
-      this.checkConveys(client);
+      this.checkShoes(client);
       this.checkNightVision(client);
     }
     if (this.getItemDefinition(itemDefId)?.ITEM_TYPE === 34) {
@@ -6511,14 +6528,21 @@ export class ZoneServer2016 extends EventEmitter {
           plant.isFertilized = true;
           const roz = (plant.nextStateTime - new Date().getTime()) / 2;
           plant.nextStateTime = new Date().getTime() + roz;
-          this.sendDataToAllWithSpawnedEntity<CommandPlayDialogEffect>(
+          this.sendDataToAllWithSpawnedEntity<CharacterPlayWorldCompositeEffect>(
             // play burning effect & remove it after 15s
             this._plants,
             plant.characterId,
-            "Command.PlayDialogEffect",
+            "Character.PlayWorldCompositeEffect",
             {
               characterId: plant.characterId,
-              effectId: Effects.EFX_Crop_Fertilizer
+              effectId: Effects.EFX_Crop_Fertilizer,
+              position: new Float32Array([
+                plant.state.position[0],
+                plant.state.position[1],
+                plant.state.position[2],
+                1
+              ]),
+              effectTime: 15
             }
           );
         });
@@ -6798,7 +6822,7 @@ export class ZoneServer2016 extends EventEmitter {
     });
   }
 
-  useComsumablePass(
+  async useComsumablePass(
     client: Client,
     character: Character | BaseLootableEntity,
     item: BaseItem,
@@ -6861,12 +6885,24 @@ export class ZoneServer2016 extends EventEmitter {
       );
     }
 
-    if (item.itemDefinitionId == Items.MEAT_ROTTEN) {
-      const damageInfo: DamageInfo = {
-        entity: "",
-        damage: 1000
-      };
-      client.character.damage(this, damageInfo);
+    const poisonousFoods = [
+      Items.MEAT_ROTTEN,
+      Items.MEAT_BEAR,
+      Items.MEAT_VENISON,
+      Items.MEAT_RABBIT,
+      Items.MEAT_WOLF
+    ];
+    if (poisonousFoods.includes(item.itemDefinitionId)) {
+      client.character.isPoisoned = true;
+      for (let i = 0; i < 12; i++) {
+        const damageInfo: DamageInfo = {
+          entity: "",
+          damage: 25
+        };
+        client.character.damage(this, damageInfo);
+        await scheduler.wait(500);
+      }
+      client.character.isPoisoned = false;
     }
     if (givetrash) {
       character.lootContainerItem(
@@ -7428,7 +7464,12 @@ export class ZoneServer2016 extends EventEmitter {
   pUtilizeHudTimer = promisify(this.utilizeHudTimer);
 
   stopHudTimer(client: Client) {
+    if (client.hudTimer === null) {
+      // No timer running so nothing to do
+      return;
+    }
     this.utilizeHudTimer(client, 0, 0, 0, () => {
+      client.hudTimer = null;
       this.sendDataToAllWithSpawnedEntity(
         this._characters,
         client.character.characterId,
@@ -7437,10 +7478,10 @@ export class ZoneServer2016 extends EventEmitter {
           characterId: client.character.characterId
         }
       );
+      // TODO: this should be somewhere else
       const vehicle = this._vehicles[client.vehicle.mountedVehicle ?? ""];
       if (!vehicle) return;
       vehicle.removeHotwireEffect(this);
-      /*/*/
     });
   }
 
@@ -7462,6 +7503,7 @@ export class ZoneServer2016 extends EventEmitter {
     client.posAtTimerStart = client.character.state.position;
     client.hudTimer = setTimeout(() => {
       callback.apply(this);
+      client.hudTimer = null;
       this.sendDataToAllWithSpawnedEntity(
         this._characters,
         client.character.characterId,
@@ -7612,10 +7654,14 @@ export class ZoneServer2016 extends EventEmitter {
     );
   }
 
-  checkConveys(client: Client, character = client.character) {
+  checkShoes(client: Client, character = client.character) {
     if (!character._equipment["5"]) {
       if (character.hasConveys) {
         character.hasConveys = false;
+        this.divideMovementModifier(client, MovementModifiers.CONVEYS);
+      }
+      if (character.hasBoots) {
+        character.hasBoots = false;
         this.divideMovementModifier(client, MovementModifiers.BOOTS);
       }
     } else {
@@ -7630,13 +7676,17 @@ export class ZoneServer2016 extends EventEmitter {
 
         if (itemDefinition.DESCRIPTION_ID == 11895 && !character.hasConveys) {
           character.hasConveys = true;
-          this.multiplyMovementModifier(client, MovementModifiers.BOOTS);
+          this.multiplyMovementModifier(client, MovementModifiers.CONVEYS);
         } else if (
-          itemDefinition.DESCRIPTION_ID != 11895 &&
-          character.hasConveys
+          itemDefinition.DESCRIPTION_ID == 11155 &&
+          !character.hasBoots
         ) {
+          character.hasBoots = true;
+          this.multiplyMovementModifier(client, MovementModifiers.BOOTS);
+        } else {
           character.hasConveys = false;
-          this.divideMovementModifier(client, MovementModifiers.BOOTS);
+          character.hasBoots = false;
+          this.divideMovementModifier(client, MovementModifiers.RESTED);
         }
       }
     }

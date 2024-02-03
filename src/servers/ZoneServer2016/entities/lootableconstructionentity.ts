@@ -11,8 +11,13 @@
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
 
-import { ConstructionPermissionIds, Items, StringIds } from "../models/enums";
-import { DamageInfo } from "types/zoneserver";
+import {
+  ConstructionPermissionIds,
+  Effects,
+  Items,
+  StringIds
+} from "../models/enums";
+import { DamageInfo, HudIndicator } from "types/zoneserver";
 import { ZoneServer2016 } from "../zoneserver";
 import { BaseLootableEntity } from "./baselootableentity";
 import { ConstructionChildEntity } from "./constructionchildentity";
@@ -22,6 +27,8 @@ import { SmeltingEntity } from "../classes/smeltingentity";
 import { lootableContainerDefaultLoadouts } from "../data/loadouts";
 import { CollectingEntity } from "../classes/collectingentity";
 import { EXTERNAL_CONTAINER_GUID } from "../../../utils/constants";
+import { CharacterPlayWorldCompositeEffect } from "types/zone2016packets";
+import { scheduler } from "timers/promises";
 
 function getMaxHealth(itemDefinitionId: Items): number {
   switch (itemDefinitionId) {
@@ -259,7 +266,52 @@ export class LootableConstructionEntity extends BaseLootableEntity {
     }
   }
 
-  OnMeleeHit(server: ZoneServer2016, damageInfo: DamageInfo) {
+  async OnMeleeHit(server: ZoneServer2016, damageInfo: DamageInfo) {
+    if (this.itemDefinitionId == Items.BEE_BOX) {
+      const client = server.getClientByCharId(damageInfo.entity);
+      const dictionary = server.getEntityDictionary(this.characterId);
+
+      if (!client) return;
+      if (!dictionary) return;
+
+      server.sendDataToAllWithSpawnedEntity<CharacterPlayWorldCompositeEffect>(
+        dictionary,
+        this.characterId,
+        "Character.PlayWorldCompositeEffect",
+        {
+          characterId: this.characterId,
+          effectId: Effects.PFX_Bee_Swarm_Attack,
+          position: client.character.state.position,
+          effectTime: 5
+        }
+      );
+
+      for (let i = 0; i < 3; i++) {
+        const dmgInfo: DamageInfo = {
+          entity: "",
+          damage: 100
+        };
+        client.character.damage(server, dmgInfo);
+        await scheduler.wait(500);
+      }
+
+      let hudIndicator: HudIndicator | undefined = undefined;
+      hudIndicator = server._hudIndicators["BEES!"];
+
+      if (!hudIndicator) return;
+
+      if (client.character.hudIndicators[hudIndicator.typeName]) {
+        client.character.hudIndicators[hudIndicator.typeName].expirationTime +=
+          5000;
+      } else {
+        client.character.hudIndicators[hudIndicator.typeName] = {
+          typeName: hudIndicator.typeName,
+          expirationTime: Date.now() + 5000
+        };
+        server.sendHudIndicators(client);
+      }
+    }
+
     server.constructionManager.OnMeleeHit(server, damageInfo, this);
   }
 }

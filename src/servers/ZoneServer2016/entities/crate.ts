@@ -20,7 +20,7 @@ import { BaseSimpleNpc } from "./basesimplenpc";
 import { Effects } from "../models/enums";
 import { CharacterRemovePlayer } from "../../../types/zone2016packets";
 
-function getActorModelId(actorModel: string): number {
+export function getActorModelId(actorModel: string): number {
   switch (actorModel) {
     case "Common_Props_Crate_Long01.adr":
       return 8014;
@@ -84,14 +84,12 @@ export class Crate extends BaseSimpleNpc {
     server: ZoneServer2016,
     scale: Float32Array,
     zoneId: number,
-    renderDistance: number,
-    actorModel: string
+    renderDistance: number
   ) {
     super(characterId, transientId, actorModelId, position, rotation, server);
     this.spawnerId = zoneId;
     this.scale = scale;
     this.npcRenderDistance = renderDistance;
-    this.actorModelId = getActorModelId(actorModel);
     this.isBuffed = isBuffedCrate(this.state.position);
   }
 

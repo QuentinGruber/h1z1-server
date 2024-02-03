@@ -107,6 +107,7 @@ export class Character2016 extends BaseFullCharacter {
   isBleeding = false;
   isBandaged = false;
   isExhausted = false;
+  isPoisoned = false;
   lastMeleeHitTime: number = 0;
   aimVectorWarns: number = 0;
   static isAlive = true;
@@ -125,6 +126,7 @@ export class Character2016 extends BaseFullCharacter {
   creationDate!: string;
   lastLoginDate!: string;
   lastWhisperedPlayer!: string;
+  hasAlertedBees = false;
   vehicleExitDate: number = new Date().getTime();
   currentLoadoutSlot = LoadoutSlots.FISTS;
   readonly loadoutId = LoadoutIds.CHARACTER;
@@ -154,6 +156,7 @@ export class Character2016 extends BaseFullCharacter {
   ) => void;
   timeouts: any;
   hasConveys: boolean = false;
+  hasBoots: boolean = false;
   positionUpdate?: positionUpdate;
   tempGodMode = false;
   isVanished = false;
@@ -508,6 +511,19 @@ export class Character2016 extends BaseFullCharacter {
         server.sendHudIndicators(client);
       }
     }
+    const indexFoodPoison =
+      this.resourceHudIndicators.indexOf("FOOD POISONING");
+    if (this.isPoisoned) {
+      if (indexFoodPoison <= -1) {
+        this.resourceHudIndicators.push("FOOD POISONING");
+        server.sendHudIndicators(client);
+      }
+    } else {
+      if (indexFoodPoison > -1) {
+        this.resourceHudIndicators.splice(indexFoodPoison);
+        server.sendHudIndicators(client);
+      }
+    }
     this.checkResource(server, ResourceIds.HUNGER, () => {
       this.damage(server, { entity: "Character.Hunger", damage: 100 });
     });
@@ -659,7 +675,7 @@ export class Character2016 extends BaseFullCharacter {
   updateLoadout(server: ZoneServer2016, sendPacketToLocalClient = true) {
     const client = server.getClientByContainerAccessor(this);
     if (!client || !client.character.initialized) return;
-    server.checkConveys(client);
+    server.checkShoes(client);
     if (sendPacketToLocalClient) {
       server.sendData(
         client,
@@ -1023,7 +1039,7 @@ export class Character2016 extends BaseFullCharacter {
       oldHealth = this._resources[ResourceIds.HEALTH];
     if (!client) return;
 
-    if (this.isGodMode() || !this.isAlive || damage < 100) return;
+    if (this.isGodMode() || !this.isAlive || damage <= 25) return;
     if (damageInfo.causeBleed) {
       if (randomIntFromInterval(0, 100) < damage / 100 && damage > 500) {
         this._resources[ResourceIds.BLEEDING] += 41;
@@ -1358,6 +1374,9 @@ export class Character2016 extends BaseFullCharacter {
         break;
       case server.isHelmet(item.itemDefinitionId):
         durability = 100;
+        break;
+      case server.isConvey(item.itemDefinitionId):
+        durability = 5400;
         break;
     }
     return {
