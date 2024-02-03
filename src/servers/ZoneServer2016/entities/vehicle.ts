@@ -485,7 +485,6 @@ export class Vehicle2016 extends BaseLootableEntity {
 
   async damage(server: ZoneServer2016, damageInfo: DamageInfo) {
     if (this.isInvulnerable) return;
-    if (server.isPvE && damageInfo.entity) return;
     const oldHealth = this._resources[ResourceIds.CONDITION];
     this._resources[ResourceIds.CONDITION] -= damageInfo.damage;
     const client = server.getClientByCharId(damageInfo.entity);
@@ -1204,6 +1203,12 @@ export class Vehicle2016 extends BaseLootableEntity {
     if (this._resources[ResourceIds.CONDITION] < 100000) {
       this.damage(server, { ...damageInfo, damage: -5000 });
       server.damageItem(client, weapon, 100);
+    }
+  }
+
+  OnProjectileHit(server: ZoneServer2016, damageInfo: DamageInfo) {
+    if (!server.isPvE){
+      this.damage(server, damageInfo);
     }
   }
 
