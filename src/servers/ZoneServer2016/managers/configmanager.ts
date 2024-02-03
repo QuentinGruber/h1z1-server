@@ -300,6 +300,8 @@ export class ConfigManager {
       worldFreeplaceDecayMultiplier,
       vehicleDamageTicks,
       vacantFoundationTicks,
+      griefFoundationTimer,
+      griefCheckSlotAmount,
       baseVehicleDamage,
       maxVehiclesPerArea,
       vehicleDamageRange,
@@ -312,6 +314,8 @@ export class ConfigManager {
       worldFreeplaceDecayMultiplier),
       (server.decayManager.vehicleDamageTicks = vehicleDamageTicks);
     server.decayManager.vacantFoundationTicks = vacantFoundationTicks;
+    server.decayManager.griefFoundationTimer = griefFoundationTimer;
+    server.decayManager.griefCheckSlotAmount = griefCheckSlotAmount;
     server.decayManager.baseVehicleDamage = baseVehicleDamage;
     server.decayManager.maxVehiclesPerArea = maxVehiclesPerArea;
     server.decayManager.vehicleDamageRange = vehicleDamageRange;

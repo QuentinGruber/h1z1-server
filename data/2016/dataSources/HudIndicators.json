@@ -110,5 +110,33 @@
     "nameId": 9300,
     "descriptionId": 9301,
     "imageSetId": 177
+  },
+  {
+    "id": 17,
+    "typeName": "COMFORT +",
+    "nameId": 13094,
+    "descriptionId": 0,
+    "imageSetId": 0
+  },
+  {
+    "id": 18,
+    "typeName": "COMFORT ++",
+    "nameId": 13093,
+    "descriptionId": 0,
+    "imageSetId": 0
+  },
+  {
+    "id": 19,
+    "typeName": "FOOD POISONING",
+    "nameId": 8913,
+    "descriptionId": 8938,
+    "imageSetId": 177
+   },
+   {
+    "id": 20,
+    "typeName": "BEES!",
+    "nameId": 11884,
+    "descriptionId": 11885,
+    "imageSetId": 552
   }
 ]

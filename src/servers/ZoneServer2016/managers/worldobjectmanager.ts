@@ -52,7 +52,8 @@ import {
   Skins_AR15,
   Skins_TacticalHelmet,
   Skins_Respirator,
-  Skins_Bandana
+  Skins_Bandana,
+  Skins_Boots
 } from "../models/enums";
 import { Vehicle2016 } from "../entities/vehicle";
 import { LootDefinition } from "types/zoneserver";
@@ -67,7 +68,7 @@ import { Lootbag } from "../entities/lootbag";
 import { LootableProp } from "../entities/lootableprop";
 import { ZoneClient2016 } from "../classes/zoneclient";
 import { TaskProp } from "../entities/taskprop";
-import { Crate } from "../entities/crate";
+import { Crate, getActorModelId } from "../entities/crate";
 import { Destroyable } from "../entities/destroyable";
 import { CharacterPlayWorldCompositeEffect } from "types/zone2016packets";
 import { WaterSource } from "../entities/watersource";
@@ -107,6 +108,9 @@ function getRandomSkin(itemDefinitionId: number) {
       break;
     case Items.CONVEYS_BLUE:
       arr = Object.keys(Skins_Conveys);
+      break;
+    case Items.BOOTS_TAN:
+      arr = Object.keys(Skins_Boots);
       break;
     case Items.WEAPON_308:
       arr = Object.keys(Skins_Sniper);
@@ -421,7 +425,12 @@ export class WorldObjectManager {
     }
 
     server._lootbags[characterId] = lootbag;
-    server.spawnSimpleNpcForAllInRange(lootbag);
+    server.executeFuncForAllReadyClientsInRange((client) => {
+      if (!client.spawnedEntities.has(entity)) {
+        server.addLightweightNpc(client, entity);
+        client.spawnedEntities.add(entity);
+      }
+    }, entity);
   }
 
   createAirdropContainer(
@@ -593,9 +602,9 @@ export class WorldObjectManager {
             server,
             itemMap[propInstance.modelId],
             propInstance.modelId,
-            propInstance.position,
-            fixEulerOrder(propInstance.rotation),
-            propInstance.scale
+            new Float32Array(propInstance.position),
+            new Float32Array(fixEulerOrder(propInstance.rotation)),
+            new Float32Array(propInstance.scale)
           );
           return;
         }
@@ -606,7 +615,7 @@ export class WorldObjectManager {
           characterId,
           server.getTransientId(characterId), // need transient generated for Interaction Replication
           propInstance.modelId,
-          propInstance.position,
+          new Float32Array(propInstance.position),
           new Float32Array([
             propInstance.rotation[1],
             propInstance.rotation[0],
@@ -614,9 +623,9 @@ export class WorldObjectManager {
             0
           ]),
           server,
-          propInstance.scale,
+          new Float32Array(propInstance.scale),
           propInstance.id,
-          propType.renderDistance
+          Number(propType.renderDistance)
         );
         server._lootableProps[characterId] = obj;
         obj.equipItem(server, server.generateItem(obj.containerId), false);
@@ -646,7 +655,7 @@ export class WorldObjectManager {
               server,
               Items.PUNJI_STICKS,
               propType.modelId,
-              propInstance.position,
+              new Float32Array(propInstance.position),
               fixEulerOrder(propInstance.rotation)
             );
             break;
@@ -655,7 +664,7 @@ export class WorldObjectManager {
               server,
               Items.BARBED_WIRE,
               propType.modelId,
-              propInstance.position,
+              new Float32Array(propInstance.position),
               fixEulerOrder(propInstance.rotation)
             );
             break;
@@ -667,14 +676,24 @@ export class WorldObjectManager {
               characterId,
               server.getTransientId(characterId), // need transient generated for Interaction Replication
               propType.modelId,
-              propInstance.position,
-              fixEulerOrder(propInstance.rotation),
+              new Float32Array(propInstance.position),
+              new Float32Array(fixEulerOrder(propInstance.rotation)),
               server,
-              propInstance.scale,
+              new Float32Array(propInstance.scale),
               propInstance.id,
               propType.renderDistance,
               propType.actor_file,
               this.waterSourceRefillAmount
+            );
+            break;
+          case "Common_Props_WorkBench01.adr":
+            server.constructionManager.placeSimpleConstruction(
+              server,
+              propType.modelId,
+              new Float32Array(propInstance.position),
+              new Float32Array(fixEulerOrder(propInstance.rotation)),
+              "",
+              Items.WORKBENCH
             );
             break;
           default:
@@ -682,10 +701,10 @@ export class WorldObjectManager {
               characterId,
               server.getTransientId(characterId), // need transient generated for Interaction Replication
               propType.modelId,
-              propInstance.position,
-              fixEulerOrder(propInstance.rotation),
+              new Float32Array(propInstance.position),
+              new Float32Array(fixEulerOrder(propInstance.rotation)),
               server,
-              propInstance.scale,
+              new Float32Array(propInstance.scale),
               propInstance.id,
               propType.renderDistance,
               propType.actor_file
@@ -700,8 +719,8 @@ export class WorldObjectManager {
         const obj = new Crate(
           characterId,
           1, // need transient generated for Interaction Replication
-          propType.modelId,
-          propInstance.position,
+          getActorModelId(propType.actorDefinition),
+          new Float32Array(propInstance.position),
           new Float32Array([
             propInstance.rotation[1],
             propInstance.rotation[0],
@@ -709,10 +728,9 @@ export class WorldObjectManager {
             0
           ]),
           server,
-          propInstance.scale,
+          new Float32Array(propInstance.scale),
           propInstance.zoneId,
-          propType.renderDistance,
-          propType.actorDefinition
+          Number(propType.renderDistance)
         );
         server._crates[characterId] = obj;
       });
@@ -726,7 +744,7 @@ export class WorldObjectManager {
           characterId,
           1, // need transient generated for Interaction Replication
           propInstance.modelId,
-          propInstance.position,
+          new Float32Array(propInstance.position),
           new Float32Array([
             propInstance.rotation[1],
             propInstance.rotation[0],
@@ -734,9 +752,9 @@ export class WorldObjectManager {
             0
           ]),
           server,
-          propInstance.scale,
+          new Float32Array(propInstance.scale),
           propInstance.id,
-          propType.renderDistance,
+          Number(propType.renderDistance),
           propType.actor_file
         );
         server._destroyables[characterId] = obj;
@@ -785,10 +803,12 @@ export class WorldObjectManager {
         this.createDoor(
           server,
           modelId ? modelId : 9183,
-          doorInstance.position,
-          doorInstance.rotation,
-          doorInstance.scale ?? [1, 1, 1, 1],
-          doorInstance.id
+          new Float32Array(doorInstance.position),
+          new Float32Array(doorInstance.rotation),
+          new Float32Array(doorInstance.scale) ??
+            new Float32Array([1, 1, 1, 1]),
+          // doorInstance.id doesn't exist
+          0
         );
       });
     });
@@ -918,7 +938,7 @@ export class WorldObjectManager {
             authorizedModelId[
               Math.floor(Math.random() * authorizedModelId.length)
             ],
-            npcInstance.position,
+            new Float32Array(npcInstance.position),
             new Float32Array(eul2quat(npcInstance.rotation)),
             npcInstance.id
           );
@@ -957,8 +977,8 @@ export class WorldObjectManager {
                     item.spawnCount.max
                   )
                 ),
-                itemInstance.position,
-                itemInstance.rotation,
+                new Float32Array(itemInstance.position),
+                new Float32Array(itemInstance.rotation),
                 itemInstance.id
               );
             }

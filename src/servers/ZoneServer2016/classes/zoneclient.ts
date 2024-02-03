@@ -60,7 +60,7 @@ export class ZoneClient2016 {
     distance: number;
     attacker: Client;
   };
-  hudTimer?: NodeJS.Timeout | null;
+  hudTimer?: NodeJS.Timeout | null = null;
   spawnedDTOs: any[] = [];
   spawnedEntities: Set<BaseEntity> = new Set();
   sentInteractionData: BaseEntity[] = [];

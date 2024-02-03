@@ -28,6 +28,7 @@ import {
   getDistance,
   getDistance1d,
   isPosInRadiusWithY,
+  checkConstructionInRange,
   getCurrentTimeWrapper
 } from "../../utils/utils";
 
@@ -258,6 +259,9 @@ export class ZonePacketHandlers {
     if (server.profileDefinitionsCache) {
       server.sendRawDataReliable(client, server.profileDefinitionsCache);
     }
+
+    // Do not send too early
+    server.fairPlayManager.handleAssetValidationInit(server, client);
 
     // for melees / emotes / vehicle boost / etc (needs more work)
     /*
@@ -655,8 +659,6 @@ export class ZonePacketHandlers {
               triggerLoadingScreen: false
             }
           );
-          // Do not send too early
-          server.fairPlayManager.handleAssetValidationInit(server, client);
           client.character.state.position = client.startingPos;
         }
         client.firstReleased = false;
@@ -908,21 +910,14 @@ export class ZonePacketHandlers {
     server.dismountVehicle(client);
     client.character.dismountContainer(server);
     const timerTime = 10000;
-    server.sendData<ClientUpdateStartTimer>(client, "ClientUpdate.StartTimer", {
-      stringId: 0,
-      time: timerTime
-    });
-    if (client.hudTimer != null) {
-      clearTimeout(client.hudTimer);
-    }
-    client.hudTimer = setTimeout(() => {
+    server.utilizeHudTimer(client, 0, timerTime, 0, () => {
       client.properlyLogout = true;
       server.sendData<ClientUpdateCompleteLogoutProcess>(
         client,
         "ClientUpdate.CompleteLogoutProcess",
         {}
       );
-    }, timerTime);
+    });
   }
   CharacterSelectSessionRequest(
     server: ZoneServer2016,
@@ -1355,6 +1350,17 @@ export class ZonePacketHandlers {
         client.startLoc = client.character.state.position[1];
       } else if (!stanceFlags.FLOATING && client.isInAir) {
         client.isInAir = false;
+      }
+
+      if (
+        stanceFlags.SITTING &&
+        stanceFlags.ON_GROUND &&
+        !client.character.isSitting &&
+        !client.vehicle.mountedVehicle
+      ) {
+        client.character.isSitting = true;
+      } else if (!stanceFlags.SITTING || client.character.isSitting) {
+        client.character.isSitting = false;
       }
       client.character.isRunning = stanceFlags.SPRINTING;
       if (

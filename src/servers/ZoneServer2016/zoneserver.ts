@@ -227,8 +227,8 @@ import { SOEOutputChannels } from "../../servers/SoeServer/soeoutputstream";
 import { scheduler } from "node:timers/promises";
 import { GatewayChannels } from "h1emu-core";
 import { IngameTimeManager } from "./managers/gametimemanager";
-import { GatewayServerThreaded } from "../GatewayServer/gatewayserver.threaded";
 import { H1z1ProtocolReadingFormat } from "types/protocols";
+import { GatewayServer } from "../GatewayServer/gatewayserver";
 
 const spawnLocations2 = require("../../../data/2016/zoneData/Z1_gridSpawns.json"),
   deprecatedDoors = require("../../../data/2016/sampleData/deprecatedDoors.json"),
@@ -253,7 +253,7 @@ const spawnLocations2 = require("../../../data/2016/zoneData/Z1_gridSpawns.json"
   > = require("../../../data/2016/sampleData/equipmentModelTexturesMapping.json");
 
 export class ZoneServer2016 extends EventEmitter {
-  _gatewayServer: GatewayServerThreaded;
+  _gatewayServer: GatewayServer;
   readonly _protocol: H1Z1Protocol;
   _db!: Db;
   readonly _soloMode: boolean;
@@ -415,7 +415,7 @@ export class ZoneServer2016 extends EventEmitter {
     internalServerPort?: number
   ) {
     super();
-    this._gatewayServer = new GatewayServerThreaded(serverPort, gatewayKey);
+    this._gatewayServer = new GatewayServer(serverPort, gatewayKey);
     this._packetHandlers = new ZonePacketHandlers();
     this._mongoAddress = mongoAddress;
     this._worldId = worldId || 0;
@@ -2300,33 +2300,25 @@ export class ZoneServer2016 extends EventEmitter {
 
     const sourceEntity = this.getEntity(npcTriggered),
       sourceIsVehicle = sourceEntity instanceof Vehicle2016;
-
-    for (const characterId in this._characters) {
-      const character = this._characters[characterId];
-      // If PvE, only damage the character that triggered the explosion
-      if (
-        this.isPvE &&
-        client &&
-        character.characterId !== client.character.characterId
-      )
-        continue;
-      if (
-        isPosInRadiusWithY(
-          sourceIsVehicle ? 5 : 3,
-          character.state.position,
-          position,
-          1.5
-        )
-      ) {
-        const distance = getDistance(position, character.state.position);
-        const damage = 50000 / distance;
-        character.damage(this, {
-          entity: npcTriggered,
-          damage: damage
-        });
-      }
-    }
     if (!this.isPvE) {
+      for (const characterId in this._characters) {
+        const character = this._characters[characterId];
+        if (
+          isPosInRadiusWithY(
+            sourceIsVehicle ? 5 : 3,
+            character.state.position,
+            position,
+            1.5
+          )
+        ) {
+          const distance = getDistance(position, character.state.position);
+          const damage = 50000 / distance;
+          character.damage(this, {
+            entity: npcTriggered,
+            damage: damage
+          });
+        }
+      }
       for (const vehicleKey in this._vehicles) {
         const vehicle = this._vehicles[vehicleKey];
         if (vehicle.characterId != npcTriggered) {
@@ -5433,6 +5425,10 @@ export class ZoneServer2016 extends EventEmitter {
     let durability: number = 2000;
     switch (true) {
       case this.isWeapon(itemDefinitionId):
+        if (itemDefinitionId == Items.WEAPON_CROWBAR) {
+          durability = Math.floor(Math.random() * 2000);
+          break;
+        }
         durability = 2000;
         break;
       case this.isArmor(itemDefinitionId):
@@ -5440,6 +5436,9 @@ export class ZoneServer2016 extends EventEmitter {
         break;
       case this.isHelmet(itemDefinitionId):
         durability = 100;
+        break;
+      case this.isConvey(itemDefinitionId):
+        durability = Math.floor(Math.random() * 5400);
         break;
     }
 
@@ -5510,8 +5509,20 @@ export class ZoneServer2016 extends EventEmitter {
       this.getItemDefinition(itemDefinitionId)?.DESCRIPTION_ID == 12994 ||
       this.getItemDefinition(itemDefinitionId)?.DESCRIPTION_ID == 9114 ||
       this.getItemDefinition(itemDefinitionId)?.DESCRIPTION_ID == 9945 ||
-      this.getItemDefinition(itemDefinitionId)?.DESCRIPTION_ID == 12898
+      this.getItemDefinition(itemDefinitionId)?.DESCRIPTION_ID == 12898 ||
+      this.getItemDefinition(itemDefinitionId)?.DESCRIPTION_ID == 12858 ||
+      this.getItemDefinition(itemDefinitionId)?.DESCRIPTION_ID == 14171
     );
+  }
+
+  /**
+   * Checks if an item with the specified itemDefinitionId is a convey.
+   *
+   * @param {number} itemDefinitionId - The itemDefinitionId to check.
+   * @returns {boolean} True if the item is a convey, false otherwise.
+   */
+  isConvey(itemDefinitionId: number): boolean {
+    return this.getItemDefinition(itemDefinitionId)?.DESCRIPTION_ID == 11895;
   }
 
   /**
@@ -5761,7 +5772,7 @@ export class ZoneServer2016 extends EventEmitter {
       );
     }
     if (client) {
-      this.checkConveys(client);
+      this.checkShoes(client);
       this.checkNightVision(client);
     }
     if (this.getItemDefinition(itemDefId)?.ITEM_TYPE === 34) {
@@ -6364,6 +6375,7 @@ export class ZoneServer2016 extends EventEmitter {
     let doReturn = true;
     let drinkCount = 0;
     let eatCount = 0;
+    let comfortCount = 0;
     let staminaCount = 0;
     let enduranceCount = 0;
     let givetrash = 0;
@@ -6383,6 +6395,7 @@ export class ZoneServer2016 extends EventEmitter {
         timeout = useOption.timeout;
         if (useOption.drinkCount) drinkCount = useOption.drinkCount;
         if (useOption.eatCount) eatCount = useOption.eatCount;
+        if (useOption.comfortCount) comfortCount = useOption.comfortCount;
         if (useOption.staminaCount) staminaCount = useOption.staminaCount;
         if (useOption.enduranceCount) enduranceCount = useOption.enduranceCount;
         if (useOption.givetrash) givetrash = useOption.givetrash;
@@ -6407,6 +6420,7 @@ export class ZoneServer2016 extends EventEmitter {
         item,
         eatCount,
         drinkCount,
+        comfortCount,
         staminaCount,
         givetrash,
         healCount,
@@ -6514,14 +6528,21 @@ export class ZoneServer2016 extends EventEmitter {
           plant.isFertilized = true;
           const roz = (plant.nextStateTime - new Date().getTime()) / 2;
           plant.nextStateTime = new Date().getTime() + roz;
-          this.sendDataToAllWithSpawnedEntity<CommandPlayDialogEffect>(
+          this.sendDataToAllWithSpawnedEntity<CharacterPlayWorldCompositeEffect>(
             // play burning effect & remove it after 15s
             this._plants,
             plant.characterId,
-            "Command.PlayDialogEffect",
+            "Character.PlayWorldCompositeEffect",
             {
               characterId: plant.characterId,
-              effectId: Effects.EFX_Crop_Fertilizer
+              effectId: Effects.EFX_Crop_Fertilizer,
+              position: new Float32Array([
+                plant.state.position[0],
+                plant.state.position[1],
+                plant.state.position[2],
+                1
+              ]),
+              effectTime: 15
             }
           );
         });
@@ -6801,12 +6822,13 @@ export class ZoneServer2016 extends EventEmitter {
     });
   }
 
-  useComsumablePass(
+  async useComsumablePass(
     client: Client,
     character: Character | BaseLootableEntity,
     item: BaseItem,
     eatCount: number,
     drinkCount: number,
+    comfortCount: number,
     staminaCount: number,
     givetrash: number,
     healCount: number,
@@ -6853,12 +6875,34 @@ export class ZoneServer2016 extends EventEmitter {
       );
     }
 
-    if (item.itemDefinitionId == Items.MEAT_ROTTEN) {
-      const damageInfo: DamageInfo = {
-        entity: "",
-        damage: 1000
-      };
-      client.character.damage(this, damageInfo);
+    if (comfortCount) {
+      client.character._resources[ResourceIds.COMFORT] += comfortCount;
+      this.updateResource(
+        client,
+        client.character.characterId,
+        client.character._resources[ResourceIds.COMFORT],
+        ResourceIds.COMFORT
+      );
+    }
+
+    const poisonousFoods = [
+      Items.MEAT_ROTTEN,
+      Items.MEAT_BEAR,
+      Items.MEAT_VENISON,
+      Items.MEAT_RABBIT,
+      Items.MEAT_WOLF
+    ];
+    if (poisonousFoods.includes(item.itemDefinitionId)) {
+      client.character.isPoisoned = true;
+      for (let i = 0; i < 12; i++) {
+        const damageInfo: DamageInfo = {
+          entity: "",
+          damage: 25
+        };
+        client.character.damage(this, damageInfo);
+        await scheduler.wait(500);
+      }
+      client.character.isPoisoned = false;
     }
     if (givetrash) {
       character.lootContainerItem(
@@ -7420,7 +7464,12 @@ export class ZoneServer2016 extends EventEmitter {
   pUtilizeHudTimer = promisify(this.utilizeHudTimer);
 
   stopHudTimer(client: Client) {
+    if (client.hudTimer === null) {
+      // No timer running so nothing to do
+      return;
+    }
     this.utilizeHudTimer(client, 0, 0, 0, () => {
+      client.hudTimer = null;
       this.sendDataToAllWithSpawnedEntity(
         this._characters,
         client.character.characterId,
@@ -7429,10 +7478,10 @@ export class ZoneServer2016 extends EventEmitter {
           characterId: client.character.characterId
         }
       );
+      // TODO: this should be somewhere else
       const vehicle = this._vehicles[client.vehicle.mountedVehicle ?? ""];
       if (!vehicle) return;
       vehicle.removeHotwireEffect(this);
-      /*/*/
     });
   }
 
@@ -7454,6 +7503,7 @@ export class ZoneServer2016 extends EventEmitter {
     client.posAtTimerStart = client.character.state.position;
     client.hudTimer = setTimeout(() => {
       callback.apply(this);
+      client.hudTimer = null;
       this.sendDataToAllWithSpawnedEntity(
         this._characters,
         client.character.characterId,
@@ -7604,10 +7654,14 @@ export class ZoneServer2016 extends EventEmitter {
     );
   }
 
-  checkConveys(client: Client, character = client.character) {
+  checkShoes(client: Client, character = client.character) {
     if (!character._equipment["5"]) {
       if (character.hasConveys) {
         character.hasConveys = false;
+        this.divideMovementModifier(client, MovementModifiers.CONVEYS);
+      }
+      if (character.hasBoots) {
+        character.hasBoots = false;
         this.divideMovementModifier(client, MovementModifiers.BOOTS);
       }
     } else {
@@ -7622,13 +7676,17 @@ export class ZoneServer2016 extends EventEmitter {
 
         if (itemDefinition.DESCRIPTION_ID == 11895 && !character.hasConveys) {
           character.hasConveys = true;
-          this.multiplyMovementModifier(client, MovementModifiers.BOOTS);
+          this.multiplyMovementModifier(client, MovementModifiers.CONVEYS);
         } else if (
-          itemDefinition.DESCRIPTION_ID != 11895 &&
-          character.hasConveys
+          itemDefinition.DESCRIPTION_ID == 11155 &&
+          !character.hasBoots
         ) {
+          character.hasBoots = true;
+          this.multiplyMovementModifier(client, MovementModifiers.BOOTS);
+        } else {
           character.hasConveys = false;
-          this.divideMovementModifier(client, MovementModifiers.BOOTS);
+          character.hasBoots = false;
+          this.divideMovementModifier(client, MovementModifiers.RESTED);
         }
       }
     }
