@@ -26,7 +26,8 @@ test("Damage-pve", { timeout: 10000 }, async (t) => {
     const oldHealth = vehicle.getHealth();
     const dmg = 10;
     const damageInfo: DamageInfo = { entity: "idk", damage: dmg };
-    vehicle.damage(zone, damageInfo);
+    vehicle.OnProjectileHit(zone, damageInfo);
+    vehicle.OnMeleeHit(zone, damageInfo);
     assert.equal(vehicle.getHealth(), oldHealth);
   });
   await t.test("Damage from collisions", async () => {
@@ -55,11 +56,15 @@ test("Damage-pvp", { timeout: 10000 }, async (t) => {
     3
   );
   await t.test("Damage from entity", async () => {
-    const oldHealth = vehicle.getHealth();
+    let oldHealth = vehicle.getHealth();
     const dmg = 10;
     const damageInfo: DamageInfo = { entity: "idk", damage: dmg };
-    vehicle.damage(zone, damageInfo);
+    vehicle.OnProjectileHit(zone, damageInfo);
     assert.equal(vehicle.getHealth(), oldHealth - dmg);
+    oldHealth = vehicle.getHealth();
+    vehicle.OnMeleeHit(zone, damageInfo);
+    // don't ask me why it's *2
+    assert.equal(vehicle.getHealth(), oldHealth - dmg * 2);
   });
   await t.test("Damage from collisions", async () => {
     const oldHealth = vehicle.getHealth();

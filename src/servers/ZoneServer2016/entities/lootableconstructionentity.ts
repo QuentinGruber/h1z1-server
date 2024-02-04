@@ -267,7 +267,10 @@ export class LootableConstructionEntity extends BaseLootableEntity {
   }
 
   async OnMeleeHit(server: ZoneServer2016, damageInfo: DamageInfo) {
-    if (this.itemDefinitionId == Items.BEE_BOX) {
+    if (
+      this.itemDefinitionId == Items.BEE_BOX &&
+      damageInfo.weapon != Items.WEAPON_HAMMER_DEMOLITION
+    ) {
       const client = server.getClientByCharId(damageInfo.entity);
       const dictionary = server.getEntityDictionary(this.characterId);
 
