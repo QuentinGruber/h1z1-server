@@ -7988,24 +7988,32 @@ export class ZoneServer2016 extends EventEmitter {
       },
       unknownData2: {}
     });
-    client.character.resourceHudIndicators.forEach((typeName: string) => {
-      const indicator = this._hudIndicators[typeName];
-      this.sendData(client, "Effect.AddUiIndicator", {
-        characterId: client.character.characterId,
-        hudElementGuid: this.generateGuid(),
-        unknownData1: {
-          hudElementId: indicator.nameId
-        },
-        hudElementData: {
-          nameId: indicator.nameId,
-          descriptionId: indicator.descriptionId,
-          imageSetId: indicator.imageSetId
-        },
-        unknownData3: {},
-        unknownData4: {},
-        unknownData5: {}
-      });
-    });
+    client.character.resourceHudIndicators.forEach(
+      (typeName: string, index) => {
+        const indicator = this._hudIndicators[typeName];
+        if (!indicator) {
+          // to help identifying the issue
+          console.log(`Unknown hud indicator: ${typeName} removing it`);
+          client.character.resourceHudIndicators.splice(index, 1);
+          return;
+        }
+        this.sendData(client, "Effect.AddUiIndicator", {
+          characterId: client.character.characterId,
+          hudElementGuid: this.generateGuid(),
+          unknownData1: {
+            hudElementId: indicator.nameId
+          },
+          hudElementData: {
+            nameId: indicator.nameId,
+            descriptionId: indicator.descriptionId,
+            imageSetId: indicator.imageSetId
+          },
+          unknownData3: {},
+          unknownData4: {},
+          unknownData5: {}
+        });
+      }
+    );
     for (const a in client.character.hudIndicators) {
       const indicator =
         this._hudIndicators[client.character.hudIndicators[a].typeName];
