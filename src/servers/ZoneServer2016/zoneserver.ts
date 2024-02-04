@@ -5425,7 +5425,11 @@ export class ZoneServer2016 extends EventEmitter {
     let durability: number = 2000;
     switch (true) {
       case this.isWeapon(itemDefinitionId):
-        durability = Math.floor(Math.random() * 2000);
+        if (itemDefinitionId == Items.WEAPON_CROWBAR) {
+          durability = Math.floor(Math.random() * 2000);
+          break;
+        }
+        durability = 2000;
         break;
       case this.isArmor(itemDefinitionId):
         durability = 1000;
