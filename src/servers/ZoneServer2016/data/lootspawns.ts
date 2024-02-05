@@ -3550,8 +3550,8 @@ export const containerLootSpawners: {
     ]
   },
   "File Cabinet": {
-    spawnChance: 100,
-    maxItems: 5,
+    spawnChance: 75,
+    maxItems: 3,
     items: [
       {
         item: Items.LIGHTER,

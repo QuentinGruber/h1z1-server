@@ -1046,8 +1046,8 @@ export class WorldObjectManager {
                 server.generateItem(
                   getRandomSkin(item.item), 
                   randomIntFromInterval(item.spawnCount.min, item.spawnCount.max)),
-                  container
-                );
+                container
+              );
             }
           } else {
             x--;
