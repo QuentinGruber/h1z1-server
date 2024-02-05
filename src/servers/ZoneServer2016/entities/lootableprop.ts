@@ -48,14 +48,12 @@ function getContainerAndTime(entity: LootableProp) {
       entity.searchTime = 1000;
       entity.lootSpawner = "Locker";
       break;
+    case ModelIds.OFFICE_CABINETS_02:
     case ModelIds.DESK:
       entity.containerId = Items.CONTAINER_DESK;
       entity.searchTime = 1000;
       entity.lootSpawner = "Desk";
       break;
-    case ModelIds.OFFICE_CABINETS_01:
-    case ModelIds.OFFICE_FILING_CABINET:
-    case ModelIds.OFFICE_CABINETS_02:
     case ModelIds.OFFICE_CABINETS_03:
     case ModelIds.LAB_GLASS_CABINET:
       entity.containerId = Items.CONTAINER_CABINETS;
@@ -65,7 +63,7 @@ function getContainerAndTime(entity: LootableProp) {
     case ModelIds.OFFICE_CUBE_CABINET:
       entity.containerId = Items.CONTAINER_CABINETS_CUBE;
       entity.searchTime = 300;
-      entity.lootSpawner = "Cabinets Cube";
+      entity.lootSpawner = "File Cabinet";
       break;
     case ModelIds.CABINETS_KITCHEN_02:
     case ModelIds.CABINETS_KITCHEN_03:
@@ -105,6 +103,8 @@ function getContainerAndTime(entity: LootableProp) {
       entity.searchTime = 1000;
       entity.lootSpawner = "Dumpster";
       break;
+    case ModelIds.OFFICE_CABINETS_01:
+    case ModelIds.OFFICE_FILING_CABINET:
     case ModelIds.FILE_CABINETS:
       entity.containerId = Items.CONTAINER_FILE_CABINET;
       entity.searchTime = 200;
@@ -199,7 +199,6 @@ function getContainerAndTime(entity: LootableProp) {
     case ModelIds.BARBEQUE:
       entity.containerId = Items.BARBEQUE;
       entity.searchTime = 0;
-      entity.lootSpawner = "Fridge";
       break;
     default:
       entity.containerId = Items.CONTAINER_STORAGE;

@@ -1039,18 +1039,15 @@ export class WorldObjectManager {
             if (item.item == spawnedItem.itemDefinitionId) allow = false; // dont allow the same item to be added twice
           });
           if (allow) {
-            if (chance <= item.weight) {
-              const count = Math.floor(
-                Math.random() *
-                  (item.spawnCount.max - item.spawnCount.min + 1) +
-                  item.spawnCount.min
-              );
+            if (chance <= lootTable.spawnChance) {
               // temporary spawnchance
               server.addContainerItem(
                 prop,
-                server.generateItem(getRandomSkin(item.item), count),
-                container
-              );
+                server.generateItem(
+                  getRandomSkin(item.item), 
+                  randomIntFromInterval(item.spawnCount.min, item.spawnCount.max)),
+                  container
+                );
             }
           } else {
             x--;
