@@ -306,7 +306,6 @@ export class Npc extends BaseFullCharacter {
       cumulativeWeight = range.end;
     }
 
-    console.log(ranges)
     const totalWeight = rewardItems.reduce((sum, item) => sum + item.weight, 0);
     let count = 1;
 
@@ -327,9 +326,12 @@ export class Npc extends BaseFullCharacter {
           // 40% chance to spawn double rewards
           count = 2;
         }
-    
-        const rewardItem = server.generateItem(selectedRange.item.itemDefId, count);
-        if (rewardItem) client.character.lootContainerItem(server, rewardItem);  
+
+        const rewardItem = server.generateItem(
+          selectedRange.item.itemDefId,
+          count
+        );
+        if (rewardItem) client.character.lootContainerItem(server, rewardItem);
       }
     }
   }
