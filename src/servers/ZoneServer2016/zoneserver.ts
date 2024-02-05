@@ -5425,10 +5425,6 @@ export class ZoneServer2016 extends EventEmitter {
     let durability: number = 2000;
     switch (true) {
       case this.isWeapon(itemDefinitionId):
-        if (itemDefinitionId == Items.WEAPON_CROWBAR) {
-          durability = Math.floor(Math.random() * 2000);
-          break;
-        }
         durability = 2000;
         break;
       case this.isArmor(itemDefinitionId):
@@ -5450,6 +5446,19 @@ export class ZoneServer2016 extends EventEmitter {
       case WeaponDefinitionIds.WEAPON_BLAZE:
       case WeaponDefinitionIds.WEAPON_PURGE:
         durability = 1000;
+        break;
+      case WeaponDefinitionIds.WEAPON_CROWBAR:
+      case WeaponDefinitionIds.WEAPON_HAMMER:
+      case WeaponDefinitionIds.WEAPON_308:
+      case WeaponDefinitionIds.WEAPON_SHOTGUN:
+      case WeaponDefinitionIds.WEAPON_AK47:
+      case WeaponDefinitionIds.WEAPON_AR15:
+      case WeaponDefinitionIds.WEAPON_1911:
+      case WeaponDefinitionIds.WEAPON_M9:
+      case WeaponDefinitionIds.WEAPON_MAGNUM:
+      case WeaponDefinitionIds.WEAPON_R380:
+        durability = Math.floor(Math.random() * 2000);
+        break;
     }
     const itemData: BaseItem = new BaseItem(
       itemDefinitionId,
