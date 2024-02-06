@@ -499,10 +499,10 @@ export class Character2016 extends BaseFullCharacter {
     this.checkResource(server, ResourceIds.HUNGER, () => {
       this.damage(server, { entity: "Character.Hunger", damage: 100 });
     });
-    const indexHunger = this.resourceHudIndicators.indexOf("STARVING");
+    const indexHunger = this.resourceHudIndicators.indexOf(ResourceIndicators.STARVING);
     if (hunger == 0) {
       if (indexHunger <= -1) {
-        this.resourceHudIndicators.push("STARVING");
+        this.resourceHudIndicators.push(ResourceIndicators.STARVING);
         server.sendHudIndicators(client);
       }
     } else {
@@ -512,10 +512,10 @@ export class Character2016 extends BaseFullCharacter {
       }
     }
     const indexFoodPoison =
-      this.resourceHudIndicators.indexOf("FOOD POISONING");
+      this.resourceHudIndicators.indexOf(ResourceIndicators.FOOD_POISONING);
     if (this.isPoisoned) {
       if (indexFoodPoison <= -1) {
-        this.resourceHudIndicators.push("FOOD POISONING");
+        this.resourceHudIndicators.push(ResourceIndicators.FOOD_POISONING);
         server.sendHudIndicators(client);
       }
     } else {
@@ -530,10 +530,10 @@ export class Character2016 extends BaseFullCharacter {
     this.checkResource(server, ResourceIds.HYDRATION, () => {
       this.damage(server, { entity: "Character.Hydration", damage: 100 });
     });
-    const indexDehydrated = this.resourceHudIndicators.indexOf("DEHYDRATED");
+    const indexDehydrated = this.resourceHudIndicators.indexOf(ResourceIndicators.DEHYDRATED);
     if (hydration == 0) {
       if (indexDehydrated <= -1) {
-        this.resourceHudIndicators.push("DEHYDRATED");
+        this.resourceHudIndicators.push(ResourceIndicators.DEHYDRATED);
         server.sendHudIndicators(client);
       }
     } else {

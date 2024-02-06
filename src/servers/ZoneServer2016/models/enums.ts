@@ -361,7 +361,9 @@ export enum ResourceIndicators {
   DEHYDRATED = "DEHYDRATED",
   STARVING = "STARVING",
   COMFORT_PLUS = "COMFORT +",
-  COMFORT_PLUSPLUS = "COMFORT ++"
+  COMFORT_PLUSPLUS = "COMFORT ++",
+  FOOD_POISONING = "FOOD POISONING",
+  BEES = "BEES!"
 }
 
 export enum Abilities {
