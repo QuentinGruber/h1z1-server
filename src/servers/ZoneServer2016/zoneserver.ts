@@ -5438,7 +5438,7 @@ export class ZoneServer2016 extends EventEmitter {
       case this.isConvey(itemDefinitionId):
         durability = Math.floor(Math.random() * 5400);
         break;
-      default: 
+      default:
         durability = 2000;
         break;
     }
