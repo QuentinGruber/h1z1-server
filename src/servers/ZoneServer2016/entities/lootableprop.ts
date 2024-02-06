@@ -40,18 +40,18 @@ function getContainerAndTime(entity: LootableProp) {
       break;
     case ModelIds.LOCKERS_LOCKER_WEAPONS:
       entity.containerId = Items.CONTAINER_WEAPONS_LOCKER;
-      entity.searchTime = 1000;
+      entity.searchTime = 500;
       entity.lootSpawner = "Weapons Locker";
       break;
     case ModelIds.LOCKERS_LOCKER_POLICE:
       entity.containerId = Items.CONTAINER_LOCKER;
-      entity.searchTime = 1000;
+      entity.searchTime = 500;
       entity.lootSpawner = "Locker";
       break;
     case ModelIds.OFFICE_CABINETS_02:
     case ModelIds.DESK:
       entity.containerId = Items.CONTAINER_DESK;
-      entity.searchTime = 1000;
+      entity.searchTime = 500;
       entity.lootSpawner = "Desk";
       break;
     case ModelIds.LAB_GLASS_CABINET:
@@ -61,7 +61,7 @@ function getContainerAndTime(entity: LootableProp) {
       break;
     case ModelIds.OFFICE_CUBE_CABINET:
       entity.containerId = Items.CONTAINER_CABINETS_CUBE;
-      entity.searchTime = 300;
+      entity.searchTime = 500;
       entity.lootSpawner = "Cabinets Cube";
       break;
     case ModelIds.CABINETS_KITCHEN_02:
@@ -107,7 +107,7 @@ function getContainerAndTime(entity: LootableProp) {
     case ModelIds.OFFICE_FILING_CABINET:
     case ModelIds.FILE_CABINETS:
       entity.containerId = Items.CONTAINER_FILE_CABINET;
-      entity.searchTime = 200;
+      entity.searchTime = 500;
       entity.lootSpawner = "File Cabinet";
       break;
     case ModelIds.KITCHEN_FRIDGE:

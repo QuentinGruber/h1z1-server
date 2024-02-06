@@ -2206,12 +2206,12 @@ export const containerLootSpawners: {
     ]
   },
   "Weapons Locker": {
-    spawnChance: 100,
+    spawnChance: 45,
     maxItems: 2,
     items: [
       {
         item: Items.WEAPON_AR15,
-        weight: 10,
+        weight: 3,
         spawnCount: {
           min: 1,
           max: 1
@@ -2219,7 +2219,7 @@ export const containerLootSpawners: {
       },
       {
         item: Items.KEVLAR_DEFAULT,
-        weight: 25,
+        weight: 10,
         spawnCount: {
           min: 1,
           max: 1
@@ -2227,7 +2227,7 @@ export const containerLootSpawners: {
       },
       {
         item: Items.AMMO_223,
-        weight: 10,
+        weight: 5,
         spawnCount: {
           min: 2,
           max: 7
@@ -2235,7 +2235,7 @@ export const containerLootSpawners: {
       },
       {
         item: Items.AMMO_762,
-        weight: 10,
+        weight: 5,
         spawnCount: {
           min: 2,
           max: 7
@@ -2243,7 +2243,7 @@ export const containerLootSpawners: {
       },
       {
         item: Items.GRENADE_HE,
-        weight: 10,
+        weight: 20,
         spawnCount: {
           min: 1,
           max: 1
@@ -2251,7 +2251,7 @@ export const containerLootSpawners: {
       },
       {
         item: Items.GRENADE_SMOKE,
-        weight: 10,
+        weight: 20,
         spawnCount: {
           min: 1,
           max: 1
@@ -2259,7 +2259,7 @@ export const containerLootSpawners: {
       },
       {
         item: Items.GRENADE_GAS,
-        weight: 10,
+        weight: 20,
         spawnCount: {
           min: 1,
           max: 1
@@ -2268,7 +2268,7 @@ export const containerLootSpawners: {
     ]
   },
   Locker: {
-    spawnChance: 100,
+    spawnChance: 85,
     maxItems: 1,
     items: [
       {
@@ -2359,7 +2359,7 @@ export const containerLootSpawners: {
     items: [
       {
         item: Items.CLOTH,
-        weight: 50,
+        weight: 30,
         spawnCount: {
           min: 1,
           max: 2
@@ -2367,7 +2367,7 @@ export const containerLootSpawners: {
       },
       {
         item: Items.HAT_CAP,
-        weight: 50,
+        weight: 3,
         spawnCount: {
           min: 1,
           max: 1
@@ -2375,7 +2375,7 @@ export const containerLootSpawners: {
       },
       {
         item: Items.COMPASS,
-        weight: 5,
+        weight: 50,
         spawnCount: {
           min: 1,
           max: 1
@@ -2383,7 +2383,7 @@ export const containerLootSpawners: {
       },
       {
         item: Items.SUGAR,
-        weight: 25,
+        weight: 20,
         spawnCount: {
           min: 1,
           max: 2
@@ -2391,7 +2391,7 @@ export const containerLootSpawners: {
       },
       {
         item: Items.EMERGENCY_RADIO,
-        weight: 25,
+        weight: 15,
         spawnCount: {
           min: 1,
           max: 1
@@ -2399,7 +2399,7 @@ export const containerLootSpawners: {
       },
       {
         item: Items.GROUND_COFFEE,
-        weight: 25,
+        weight: 15,
         spawnCount: {
           min: 1,
           max: 2
@@ -2407,7 +2407,7 @@ export const containerLootSpawners: {
       },
       {
         item: Items.GLOVES_FINGERLESS,
-        weight: 25,
+        weight: 15,
         spawnCount: {
           min: 1,
           max: 1
@@ -2415,15 +2415,15 @@ export const containerLootSpawners: {
       },
       {
         item: Items.IMMUNITY_BOOSTERS,
-        weight: 25,
+        weight: 15,
         spawnCount: {
           min: 1,
-          max: 1
+          max: 2
         }
       },
       {
         item: Items.VITAMINS,
-        weight: 25,
+        weight: 15,
         spawnCount: {
           min: 1,
           max: 1
@@ -2431,7 +2431,7 @@ export const containerLootSpawners: {
       },
       {
         item: Items.BATTERIES_AA,
-        weight: 25,
+        weight: 3,
         spawnCount: {
           min: 1,
           max: 1
@@ -2439,7 +2439,7 @@ export const containerLootSpawners: {
       },
       {
         item: Items.HELMET_MOTORCYCLE,
-        weight: 25,
+        weight: 3,
         spawnCount: {
           min: 1,
           max: 1
@@ -2721,7 +2721,7 @@ export const containerLootSpawners: {
       },
       {
         item: Items.SUGAR,
-        weight: 10,
+        weight: 15,
         spawnCount: {
           min: 1,
           max: 1
@@ -2729,7 +2729,7 @@ export const containerLootSpawners: {
       },
       {
         item: Items.GROUND_COFFEE,
-        weight: 30,
+        weight: 15,
         spawnCount: {
           min: 1,
           max: 1
@@ -2737,7 +2737,7 @@ export const containerLootSpawners: {
       },
       {
         item: Items.CANNED_FOOD01,
-        weight: 30,
+        weight: 3,
         spawnCount: {
           min: 1,
           max: 1
@@ -2753,7 +2753,7 @@ export const containerLootSpawners: {
       },
       {
         item: Items.CANNED_FOOD03,
-        weight: 30,
+        weight: 3,
         spawnCount: {
           min: 1,
           max: 1
@@ -2761,7 +2761,7 @@ export const containerLootSpawners: {
       },
       {
         item: Items.CANNED_FOOD04,
-        weight: 30,
+        weight: 3,
         spawnCount: {
           min: 1,
           max: 1
@@ -2769,7 +2769,7 @@ export const containerLootSpawners: {
       },
       {
         item: Items.CANNED_FOOD05,
-        weight: 30,
+        weight: 3,
         spawnCount: {
           min: 1,
           max: 1
@@ -2777,7 +2777,7 @@ export const containerLootSpawners: {
       },
       {
         item: Items.CANNED_FOOD06,
-        weight: 30,
+        weight: 3,
         spawnCount: {
           min: 1,
           max: 1
@@ -2785,7 +2785,7 @@ export const containerLootSpawners: {
       },
       {
         item: Items.CANNED_FOOD07,
-        weight: 30,
+        weight: 3,
         spawnCount: {
           min: 1,
           max: 1
@@ -2793,7 +2793,7 @@ export const containerLootSpawners: {
       },
       {
         item: Items.CANNED_FOOD08,
-        weight: 30,
+        weight: 3,
         spawnCount: {
           min: 1,
           max: 1
@@ -2801,7 +2801,7 @@ export const containerLootSpawners: {
       },
       {
         item: Items.CANNED_FOOD09,
-        weight: 30,
+        weight: 3,
         spawnCount: {
           min: 1,
           max: 1
@@ -2809,7 +2809,7 @@ export const containerLootSpawners: {
       },
       {
         item: Items.CANNED_FOOD10,
-        weight: 30,
+        weight: 3,
         spawnCount: {
           min: 1,
           max: 1
@@ -2817,7 +2817,7 @@ export const containerLootSpawners: {
       },
       {
         item: Items.CANNED_FOOD11,
-        weight: 30,
+        weight: 3,
         spawnCount: {
           min: 1,
           max: 1
@@ -2825,7 +2825,7 @@ export const containerLootSpawners: {
       },
       {
         item: Items.CANNED_FOOD21,
-        weight: 30,
+        weight: 3,
         spawnCount: {
           min: 1,
           max: 1
@@ -2833,7 +2833,7 @@ export const containerLootSpawners: {
       },
       {
         item: Items.CANNED_FOOD25,
-        weight: 30,
+        weight: 3,
         spawnCount: {
           min: 1,
           max: 1
@@ -2841,7 +2841,7 @@ export const containerLootSpawners: {
       },
       {
         item: Items.CANNED_FOOD26,
-        weight: 30,
+        weight: 3,
         spawnCount: {
           min: 1,
           max: 1
@@ -2849,7 +2849,7 @@ export const containerLootSpawners: {
       },
       {
         item: Items.SEED_CORN,
-        weight: 25,
+        weight: 20,
         spawnCount: {
           min: 1,
           max: 1
@@ -2857,7 +2857,7 @@ export const containerLootSpawners: {
       },
       {
         item: Items.SEED_WHEAT,
-        weight: 25,
+        weight: 20,
         spawnCount: {
           min: 1,
           max: 1
