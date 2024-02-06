@@ -5453,7 +5453,6 @@ export class ZoneServer2016 extends EventEmitter {
         durability = 1000;
         break;
       case WeaponDefinitionIds.WEAPON_HAMMER:
-        if (Date.now() - lastGeneratedTime <= 200) break;
       case WeaponDefinitionIds.WEAPON_CROWBAR:
       case WeaponDefinitionIds.WEAPON_308:
       case WeaponDefinitionIds.WEAPON_SHOTGUN:
@@ -5463,6 +5462,7 @@ export class ZoneServer2016 extends EventEmitter {
       case WeaponDefinitionIds.WEAPON_M9:
       case WeaponDefinitionIds.WEAPON_MAGNUM:
       case WeaponDefinitionIds.WEAPON_R380:
+        if (Date.now() - lastGeneratedTime <= 200) break;
         do {
           durability = Math.floor(Math.random() * 2000);
         } while (durability < 250);
