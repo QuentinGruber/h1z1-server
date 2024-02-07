@@ -134,6 +134,7 @@ export class ConfigManager {
   applyConfig(server: ZoneServer2016) {
     //#region server
     const {
+      map,
       proximityItemsDistance,
       interactionDistance,
       charactersRenderDistance,
@@ -149,6 +150,7 @@ export class ConfigManager {
       isFirstPersonOnly,
       baseConstructionDamage
     } = this.config.server;
+    server.map = map;
     server.proximityItemsDistance = proximityItemsDistance;
     server.interactionDistance = interactionDistance;
     server.charactersRenderDistance = charactersRenderDistance;
@@ -254,6 +256,7 @@ export class ConfigManager {
       minTreeHits,
       maxTreeHits
     } = this.config.speedtree;
+    server.speedtreeManager.map = map;
     server.speedtreeManager.minBlackberryHarvest = minBlackberryHarvest;
     server.speedtreeManager.maxBlackberryHarvest = maxBlackberryHarvest;
     server.speedtreeManager.branchHarvestChance = branchHarvestChance;

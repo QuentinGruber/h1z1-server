@@ -389,6 +389,7 @@ export class ZoneServer2016 extends EventEmitter {
   inGameTimeManager: IngameTimeManager = new IngameTimeManager(3600 * 6);
 
   /* MANAGED BY CONFIGMANAGER */
+  map!: string;
   proximityItemsDistance!: number;
   interactionDistance!: number;
   charactersRenderDistance!: number;
@@ -1744,7 +1745,7 @@ export class ZoneServer2016 extends EventEmitter {
     );
 
     this.sendData<SendZoneDetails>(client, "SendZoneDetails", {
-      zoneName: "Z1",
+      zoneName: this.map,
       zoneType: 4,
       unknownBoolean1: false,
       skyData: this.weatherManager.weather,

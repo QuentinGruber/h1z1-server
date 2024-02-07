@@ -16,7 +16,6 @@ import { isPosInRadius, randomIntFromInterval } from "../../../utils/utils";
 import { ZoneClient2016 as Client } from "../classes/zoneclient";
 import { Items, TreeIds } from "../models/enums";
 import { ZoneServer2016 } from "../zoneserver";
-const Z1_speedTrees = require("../../../../data/2016/zoneData/Z1_speedTrees.json");
 
 export class SpeedTreeManager {
   _speedTrees: { [objectId: number]: SpeedTree } = {};
@@ -24,6 +23,7 @@ export class SpeedTreeManager {
   _speedTreesList: { [objectId: number]: ZoneSpeedTreeData } = {};
 
   /* MANAGED BY CONFIGMANAGER */
+  map!: string;
   minBlackberryHarvest!: number;
   maxBlackberryHarvest!: number;
   branchHarvestChance!: number;
@@ -36,7 +36,12 @@ export class SpeedTreeManager {
   maxTreeHits!: number;
 
   initiateList() {
-    Z1_speedTrees.forEach((tree: any) => {
+    const treesArray =
+      this.map === "Z1"
+        ? require("../../../../data/2016/zoneData/Z1_speedTrees.json")
+        : require("../../../../data/2016/zoneData/BWC/BWC_speedTrees.json");
+
+    treesArray.forEach((tree: any) => {
       this._speedTreesList[tree.uniqueId] = {
         objectId: tree.uniqueId,
         treeId: tree.id,
@@ -82,9 +87,11 @@ export class SpeedTreeManager {
     let destroy = false;
     let count = 1;
     if (speedtreeDestroyed) return;
+    const wep = client.character.getEquippedWeapon();
     let itemDefId = 0;
     switch (treeId) {
       case TreeIds.BLACKBERRY:
+      case TreeIds.ELDERBERRY:
         server.startInteractionTimer(client, 0, 0, 9);
         itemDefId = Items.BLACKBERRY;
         if (Math.random() <= this.branchHarvestChance) {
@@ -119,7 +126,7 @@ export class SpeedTreeManager {
       case TreeIds.REDCEDAR:
       case TreeIds.PAPERBIRCH:
       case TreeIds.OREGONOAK:
-        const wep = client.character.getEquippedWeapon();
+      case TreeIds.BLACK_COTTONWOOD:
         if (!wep) return;
 
         switch (wep.itemDefinitionId) {
@@ -152,6 +159,74 @@ export class SpeedTreeManager {
             this.minWoodLogHarvest,
             this.maxWoodLogHarvest
           );
+        }
+        break;
+      case TreeIds.BLACK_COTTONWOOD_SAPLING:
+        if (!wep) return;
+
+        switch (wep.itemDefinitionId) {
+          case Items.WEAPON_HATCHET:
+          case Items.WEAPON_HATCHET_MAKESHIFT:
+          case Items.WEAPON_AXE_FIRE:
+          case Items.WEAPON_AXE_WOOD:
+          case Items.WEAPON_MACHETE01:
+            break;
+          default:
+            server.sendAlert(client, "This tool is not sharp enough for this!");
+            return;
+        }
+
+        server.damageItem(client, wep, 5);
+
+        if (!this._speedTreesCounter[objectId]) {
+          this._speedTreesCounter[objectId] = {
+            hitPoints: randomIntFromInterval(
+              this.minTreeHits - 1,
+              this.maxTreeHits - 1
+            )
+          }; // add a new tree key with random level of hitpoints
+        }
+        if (this._speedTreesCounter[objectId].hitPoints-- == 0) {
+          destroy = true;
+          delete this._speedTreesCounter[objectId]; // If out of health destroy tree and delete its key
+          itemDefId = Items.WOOD_STICK;
+          count = randomIntFromInterval(
+            this.minWoodLogHarvest,
+            this.maxWoodLogHarvest
+          );
+        }
+        break;
+      case TreeIds.BOULDER02:
+        const weapon = client.character.getEquippedWeapon();
+        if (!weapon) return;
+
+        switch (weapon.itemDefinitionId) {
+          case Items.WEAPON_HATCHET:
+          case Items.WEAPON_HATCHET_MAKESHIFT:
+          case Items.WEAPON_AXE_FIRE:
+          case Items.WEAPON_AXE_WOOD:
+          case Items.WEAPON_MACHETE01:
+            break;
+          default:
+            server.sendAlert(client, "This tool is not sharp enough for this!");
+            return;
+        }
+
+        server.damageItem(client, weapon, 5);
+
+        if (!this._speedTreesCounter[objectId]) {
+          this._speedTreesCounter[objectId] = {
+            hitPoints: randomIntFromInterval(
+              this.minTreeHits - 1,
+              this.maxTreeHits - 1
+            )
+          }; // add a new tree key with random level of hitpoints
+        }
+        if (this._speedTreesCounter[objectId].hitPoints-- == 0) {
+          destroy = true;
+          delete this._speedTreesCounter[objectId]; // If out of health destroy tree and delete its key
+          itemDefId = Items.METAL_SCRAP;
+          count = this.minWoodLogHarvest;
         }
         break;
       default: // boulders (do nothing);
