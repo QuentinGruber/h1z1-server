@@ -34,6 +34,8 @@ import { ZoneClient2016 } from "servers/ZoneServer2016/classes/zoneclient";
 import * as crypto from "crypto";
 import { ZoneClient } from "servers/ZoneServer2015/classes/zoneclient";
 
+const startTime = Date.now();
+
 /**
  * Represents a custom implementation of lodash library.
  */
@@ -1483,5 +1485,5 @@ export class TimeWrapper {
 }
 
 export function getCurrentTimeWrapper() {
-  return new TimeWrapper(Date.now());
+  return new TimeWrapper(Date.now() - startTime);
 }
