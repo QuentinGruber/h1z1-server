@@ -215,6 +215,7 @@ export class ConfigManager {
       crowbarHitRewardChance,
       crowbarHitDamage
     } = this.config.worldobjects;
+    server.worldObjectManager.map = map;
     server.worldObjectManager.vehicleSpawnCap = vehicleSpawnCap;
     server.worldObjectManager.minAirdropSurvivors = minAirdropSurvivors;
     server.worldObjectManager.hasCustomLootRespawnTime =

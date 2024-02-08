@@ -124,6 +124,7 @@ export class SpeedTreeManager {
       case TreeIds.SAPLINGMAPLE:
       case TreeIds.WHITEBIRCH:
       case TreeIds.REDCEDAR:
+      case TreeIds.REDCEDAR2:
       case TreeIds.PAPERBIRCH:
       case TreeIds.OREGONOAK:
       case TreeIds.BLACK_COTTONWOOD:

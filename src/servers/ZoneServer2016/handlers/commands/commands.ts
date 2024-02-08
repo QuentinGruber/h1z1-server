@@ -2629,7 +2629,11 @@ export const commands: Array<Command> = [
       }
 
       delete require.cache[require.resolve("../../data/lootspawns")];
-      const loottables = require("../../data/lootspawns").lootTables;
+      delete require.cache[require.resolve("../../data/BWC/BWC_lootspawns")];
+      const loottables =
+        server.map == "Z1"
+          ? require("../../data/lootspawns").lootTables
+          : require("../../data/BWC/BWC_lootspawns").lootTables;
       server.worldObjectManager.createLoot(server, loottables);
       server.sendChatText(client, `Respawned loot`);
     }

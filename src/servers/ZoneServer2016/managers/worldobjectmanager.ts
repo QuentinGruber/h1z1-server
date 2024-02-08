@@ -14,6 +14,7 @@
 import { ZoneServer2016 } from "../zoneserver";
 const Z1_doors = require("../../../../data/2016/zoneData/Z1_doors.json");
 const Z1_items = require("../../../../data/2016/zoneData/Z1_items.json");
+const BWC_items = require("../../../../data/2016/zoneData/BWC/BWC_items.json");
 const Z1_vehicles = require("../../../../data/2016/zoneData/Z1_vehicleLocations.json");
 const Z1_npcs = require("../../../../data/2016/zoneData/Z1_npcs.json");
 const Z1_lootableProps = require("../../../../data/2016/zoneData/Z1_lootableProps.json");
@@ -63,6 +64,10 @@ import { Zombie } from "../entities/zombie";
 import { BaseFullCharacter } from "../entities/basefullcharacter";
 import { ExplosiveEntity } from "../entities/explosiveentity";
 import { lootTables, containerLootSpawners } from "../data/lootspawns";
+import {
+  lootTablesBWC,
+  containerLootSpawnersBWC
+} from "../data/BWC/BWC_lootspawns";
 import { BaseItem } from "../classes/baseItem";
 import { Lootbag } from "../entities/lootbag";
 import { LootableProp } from "../entities/lootableprop";
@@ -163,6 +168,7 @@ export class WorldObjectManager {
   private _lastWaterSourceReplenishTime: number = 0;
 
   /* MANAGED BY CONFIGMANAGER */
+  map!: string;
   vehicleSpawnCap!: number;
   minAirdropSurvivors!: number;
   lootRespawnTimer!: number;
@@ -948,8 +954,12 @@ export class WorldObjectManager {
     debug("All npcs objects created");
   }
 
-  createLoot(server: ZoneServer2016, lTables = lootTables) {
-    Z1_items.forEach((spawnerType: any) => {
+  createLoot(
+    server: ZoneServer2016,
+    lTables = this.map == "Z1" ? lootTables : lootTablesBWC
+  ) {
+    const items = this.map == "Z1" ? Z1_items : BWC_items;
+    items.forEach((spawnerType: any) => {
       const lootTable = lTables[spawnerType.actorDefinition];
       if (lootTable) {
         spawnerType.instances.forEach((itemInstance: any) => {
