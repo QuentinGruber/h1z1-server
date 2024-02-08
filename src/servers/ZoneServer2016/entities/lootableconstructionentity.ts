@@ -15,6 +15,7 @@ import {
   ConstructionPermissionIds,
   Effects,
   Items,
+  ResourceIndicators,
   StringIds
 } from "../models/enums";
 import { DamageInfo, HudIndicator } from "types/zoneserver";
@@ -299,7 +300,7 @@ export class LootableConstructionEntity extends BaseLootableEntity {
       }
 
       let hudIndicator: HudIndicator | undefined = undefined;
-      hudIndicator = server._hudIndicators["BEES!"];
+      hudIndicator = server._hudIndicators[ResourceIndicators.BEES];
 
       if (!hudIndicator) return;
 

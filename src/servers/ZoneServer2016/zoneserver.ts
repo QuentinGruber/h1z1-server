@@ -94,7 +94,7 @@ import {
   getAngle,
   getDistance2d,
   TimeWrapper,
-  getCurrentTimeWrapper
+  getCurrentServerTimeWrapper
 } from "../../utils/utils";
 
 import { Db, MongoClient, WithId } from "mongodb";
@@ -1661,7 +1661,7 @@ export class ZoneServer2016 extends EventEmitter {
     this.smeltingManager.checkSmeltables(this);
     this.smeltingManager.checkCollectors(this);
     this.decayManager.run(this);
-    this._serverStartTime = getCurrentTimeWrapper();
+    this._serverStartTime = getCurrentServerTimeWrapper();
     this.weatherManager.startWeatherWorker(this);
     this.inGameTimeManager.start();
     this._gatewayServer.start();
@@ -3835,7 +3835,7 @@ export class ZoneServer2016 extends EventEmitter {
     this.sendData<WeaponWeapon>(client, "Weapon.Weapon", {
       weaponPacket: {
         packetName: packetName,
-        gameTime: getCurrentTimeWrapper().getTruncatedU32(),
+        gameTime: getCurrentServerTimeWrapper().getTruncatedU32(),
         packet: obj
       }
     });
@@ -3850,7 +3850,7 @@ export class ZoneServer2016 extends EventEmitter {
     this.sendData<WeaponWeapon>(client, "Weapon.Weapon", {
       weaponPacket: {
         packetName: "Weapon.RemoteWeapon",
-        gameTime: getCurrentTimeWrapper().getTruncatedU32(),
+        gameTime: getCurrentServerTimeWrapper().getTruncatedU32(),
         remoteWeaponPacket: {
           packetName: packetName,
           transientId: transientId,
@@ -3874,7 +3874,7 @@ export class ZoneServer2016 extends EventEmitter {
       {
         weaponPacket: {
           packetName: "Weapon.RemoteWeapon",
-          gameTime: getCurrentTimeWrapper().getTruncatedU32(),
+          gameTime: getCurrentServerTimeWrapper().getTruncatedU32(),
           remoteWeaponPacket: {
             packetName: packetName,
             transientId: transientId,
@@ -3895,7 +3895,7 @@ export class ZoneServer2016 extends EventEmitter {
     this.sendData<WeaponWeapon>(client, "Weapon.Weapon", {
       weaponPacket: {
         packetName: "Weapon.RemoteWeapon",
-        gameTime: getCurrentTimeWrapper().getTruncatedU32(),
+        gameTime: getCurrentServerTimeWrapper().getTruncatedU32(),
         remoteWeaponPacket: {
           packetName: "RemoteWeapon.Update",
           transientId: transientId,
@@ -3924,7 +3924,7 @@ export class ZoneServer2016 extends EventEmitter {
       {
         weaponPacket: {
           packetName: "Weapon.RemoteWeapon",
-          gameTime: getCurrentTimeWrapper().getTruncatedU32(),
+          gameTime: getCurrentServerTimeWrapper().getTruncatedU32(),
           remoteWeaponPacket: {
             packetName: "RemoteWeapon.Update",
             transientId: transientId,
@@ -6270,7 +6270,7 @@ export class ZoneServer2016 extends EventEmitter {
       moved,
       client.character.state.lookAt,
       this,
-      getCurrentTimeWrapper().getTruncatedU32(),
+      getCurrentServerTimeWrapper().getTruncatedU32(),
       VehicleIds.OFFROADER
     );
     const cargo = new Plane(
@@ -6280,7 +6280,7 @@ export class ZoneServer2016 extends EventEmitter {
       new Float32Array([pos[0], pos[1] - 20, pos[2], 1]),
       client.character.state.lookAt,
       this,
-      getCurrentTimeWrapper().getTruncatedU32(),
+      getCurrentServerTimeWrapper().getTruncatedU32(),
       VehicleIds.PICKUP
     );
     this._airdrop = {
@@ -7278,7 +7278,7 @@ export class ZoneServer2016 extends EventEmitter {
       }
     }
     const drift = Math.abs(
-      packet.gameTime - getCurrentTimeWrapper().getTruncatedU32()
+      packet.gameTime - getCurrentServerTimeWrapper().getTruncatedU32()
     );
     if (drift > this.fairPlayManager.maxPing + 200) {
       this.sendChatText(
