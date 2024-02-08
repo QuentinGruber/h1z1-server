@@ -26,7 +26,7 @@ import {
   isPosInRadius,
   toHex,
   randomIntFromInterval,
-  getCurrentTimeWrapper
+  getCurrentServerTimeWrapper
 } from "../../../../utils/utils";
 import { ExplosiveEntity } from "../../entities/explosiveentity";
 import { Npc } from "../../entities/npc";
@@ -131,9 +131,7 @@ export const commands: Array<Command> = [
         } = server;
         const serverVersion = require("../../../../../package.json").version;
         server.sendChatText(client, `h1z1-server V${serverVersion}`, true);
-        const uptimeMin =
-          getCurrentTimeWrapper().getMinutes() -
-          server._serverStartTime.getMinutes();
+        const uptimeMin = getCurrentServerTimeWrapper().getMinutes();
 
         server.sendChatText(
           client,
@@ -1784,7 +1782,7 @@ export const commands: Array<Command> = [
             },
             positionUpdate: {
               ...client.character.positionUpdate,
-              sequenceTime: getCurrentTimeWrapper().getTruncatedU32(),
+              sequenceTime: getCurrentServerTimeWrapper().getTruncatedU32(),
               position: client.character.state.position,
               stance: client.character.stance
             },
