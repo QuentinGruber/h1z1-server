@@ -345,7 +345,7 @@ export enum ResourceTypes {
 
 export enum ResourceIndicators {
   BLEEDING_LIGHT = "BLEEDING_LIGHT",
-  BLEEDING_MODERATE = "BLEEDING_MODERATOR",
+  BLEEDING_MODERATE = "BLEEDING_MODERATE",
   BLEEDING_SEVERE = "BLEEDING_SEVERE",
   TIRED = "TIRED",
   VERY_TIRED = "VERY_TIRED",
@@ -361,7 +361,9 @@ export enum ResourceIndicators {
   DEHYDRATED = "DEHYDRATED",
   STARVING = "STARVING",
   COMFORT_PLUS = "COMFORT +",
-  COMFORT_PLUSPLUS = "COMFORT ++"
+  COMFORT_PLUSPLUS = "COMFORT ++",
+  FOOD_POISONING = "FOOD POISONING",
+  BEES = "BEES!"
 }
 
 export enum Abilities {
@@ -917,7 +919,9 @@ export enum WeaponDefinitionIds {
   WEAPON_MAGNUM = 1388,
   WEAPON_R380 = 1400,
   WEAPON_M9 = 1401,
-  WEAPON_1911 = 2
+  WEAPON_1911 = 2,
+  WEAPON_CROWBAR = 9,
+  WEAPON_HAMMER = 1396
 }
 
 export enum Skins_Shirt {
