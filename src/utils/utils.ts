@@ -34,6 +34,8 @@ import { ZoneClient2016 } from "servers/ZoneServer2016/classes/zoneclient";
 import * as crypto from "crypto";
 import { ZoneClient } from "servers/ZoneServer2015/classes/zoneclient";
 
+const startTime = Date.now();
+
 /**
  * Represents a custom implementation of lodash library.
  */
@@ -1470,14 +1472,22 @@ export class TimeWrapper {
   }
 
   getTruncatedU32() {
-    return this.fullTimeMs & MAX_UINT32;
+    const truncated = this.fullTimeMs & MAX_UINT32;
+    return truncated >= 0 ? truncated : truncated >>> 0;
   }
 
   getTruncatedU32String() {
-    return Int64String(this.fullTimeMs & MAX_UINT32);
+    const truncated = this.fullTimeMs & MAX_UINT32;
+    return truncated >= 0
+      ? Int64String(truncated)
+      : Int64String(truncated >>> 0);
   }
 }
 
-export function getCurrentTimeWrapper() {
+export function getCurrentServerTimeWrapper() {
+  return new TimeWrapper(Date.now() - startTime);
+}
+
+export function getCurrentRealTimeWrapper() {
   return new TimeWrapper(Date.now());
 }

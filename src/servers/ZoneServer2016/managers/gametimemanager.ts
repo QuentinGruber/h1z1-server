@@ -13,7 +13,7 @@
 
 import {
   TimeWrapper,
-  getCurrentTimeWrapper,
+  getCurrentServerTimeWrapper,
   toInt
 } from "../../../utils/utils";
 
@@ -44,7 +44,7 @@ export class IngameTimeManager {
   }
 
   updateTime() {
-    const currentTime = getCurrentTimeWrapper();
+    const currentTime = getCurrentServerTimeWrapper();
     if (!this.lastIngameTimeUpdate) {
       this.lastIngameTimeUpdate = currentTime;
     }
