@@ -1484,6 +1484,10 @@ export class TimeWrapper {
   }
 }
 
-export function getCurrentTimeWrapper() {
+export function getCurrentServerTimeWrapper() {
   return new TimeWrapper(Date.now() - startTime);
+}
+
+export function getCurrentRealTimeWrapper() {
+  return new TimeWrapper(Date.now());
 }
