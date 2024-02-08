@@ -5408,11 +5408,13 @@ export class ZoneServer2016 extends EventEmitter {
    *
    * @param {number} itemDefinitionId - The itemDefinitionId of the item to generate.
    * @param {number} [count=1] - The count of the item.
+   * @param {number} [lastGeneratedTime=0] - The last generated time of the item.
    * @returns {BaseItem|undefined} The generated item, or undefined if the item definition is invalid.
    */
   generateItem(
     itemDefinitionId: number,
-    count: number = 1
+    count: number = 1,
+    lastGeneratedTime: number = 0
   ): BaseItem | undefined {
     const itemDefinition = this.getItemDefinition(itemDefinitionId);
     if (!itemDefinition) {
@@ -5422,10 +5424,10 @@ export class ZoneServer2016 extends EventEmitter {
       return;
     }
     const generatedGuid = toBigHex(this.generateItemGuid());
-    let durability: number = 2000;
+    let durability: number;
     switch (true) {
       case this.isWeapon(itemDefinitionId):
-        durability = Math.floor(Math.random() * 2000);
+        durability = 2000;
         break;
       case this.isArmor(itemDefinitionId):
         durability = 1000;
@@ -5435,6 +5437,9 @@ export class ZoneServer2016 extends EventEmitter {
         break;
       case this.isConvey(itemDefinitionId):
         durability = Math.floor(Math.random() * 5400);
+        break;
+      default:
+        durability = 2000;
         break;
     }
 
@@ -5446,6 +5451,22 @@ export class ZoneServer2016 extends EventEmitter {
       case WeaponDefinitionIds.WEAPON_BLAZE:
       case WeaponDefinitionIds.WEAPON_PURGE:
         durability = 1000;
+        break;
+      case WeaponDefinitionIds.WEAPON_HAMMER:
+      case WeaponDefinitionIds.WEAPON_CROWBAR:
+      case WeaponDefinitionIds.WEAPON_308:
+      case WeaponDefinitionIds.WEAPON_SHOTGUN:
+      case WeaponDefinitionIds.WEAPON_AK47:
+      case WeaponDefinitionIds.WEAPON_AR15:
+      case WeaponDefinitionIds.WEAPON_1911:
+      case WeaponDefinitionIds.WEAPON_M9:
+      case WeaponDefinitionIds.WEAPON_MAGNUM:
+      case WeaponDefinitionIds.WEAPON_R380:
+        if (Date.now() - lastGeneratedTime <= 200) break;
+        do {
+          durability = Math.floor(Math.random() * 2000);
+        } while (durability < 250);
+        break;
     }
     const itemData: BaseItem = new BaseItem(
       itemDefinitionId,
