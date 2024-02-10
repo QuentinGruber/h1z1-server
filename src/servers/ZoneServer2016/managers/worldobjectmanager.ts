@@ -29,7 +29,7 @@ import {
   isPosInRadius,
   randomIntFromInterval,
   fixEulerOrder,
-  getCurrentTimeWrapper
+  getCurrentServerTimeWrapper
 } from "../../../utils/utils";
 import {
   EquipSlots,
@@ -52,7 +52,8 @@ import {
   Skins_AR15,
   Skins_TacticalHelmet,
   Skins_Respirator,
-  Skins_Bandana
+  Skins_Bandana,
+  Skins_Boots
 } from "../models/enums";
 import { Vehicle2016 } from "../entities/vehicle";
 import { LootDefinition } from "types/zoneserver";
@@ -107,6 +108,9 @@ function getRandomSkin(itemDefinitionId: number) {
       break;
     case Items.CONVEYS_BLUE:
       arr = Object.keys(Skins_Conveys);
+      break;
+    case Items.BOOTS_TAN:
+      arr = Object.keys(Skins_Boots);
       break;
     case Items.WEAPON_308:
       arr = Object.keys(Skins_Sniper);
@@ -871,7 +875,7 @@ export class WorldObjectManager {
           new Float32Array(dataVehicle.position),
           new Float32Array(dataVehicle.rotation),
           server,
-          getCurrentTimeWrapper().getTruncatedU32(),
+          getCurrentServerTimeWrapper().getTruncatedU32(),
           dataVehicle.vehicleId
         );
       vehicleData.positionUpdate.orientation = dataVehicle.orientation;
@@ -1042,12 +1046,15 @@ export class WorldObjectManager {
           });
           if (allow) {
             if (chance <= lootTable.spawnChance) {
+              const count = Math.floor(
+                Math.random() *
+                  (item.spawnCount.max - item.spawnCount.min + 1) +
+                  item.spawnCount.min
+              );
               // temporary spawnchance
               server.addContainerItem(
                 prop,
-                server.generateItem(
-                  getRandomSkin(item.item), 
-                  randomIntFromInterval(item.spawnCount.min, item.spawnCount.max)),
+                server.generateItem(getRandomSkin(item.item), count),
                 container
               );
             }

@@ -180,7 +180,7 @@ export abstract class BaseFullCharacter extends BaseLightweightCharacter {
     const client = server.getClientByContainerAccessor(this);
     if (client) {
       if (!client.character.initialized) return;
-      server.checkConveys(client);
+      server.checkShoes(client);
     }
     server.sendDataToAllWithSpawnedEntity(
       server._characters,
@@ -1082,6 +1082,9 @@ export abstract class BaseFullCharacter extends BaseLightweightCharacter {
         break;
       case server.isHelmet(item.itemDefinitionId):
         durability = 100;
+        break;
+      case server.isConvey(item.itemDefinitionId):
+        durability = 5400;
         break;
     }
     return {

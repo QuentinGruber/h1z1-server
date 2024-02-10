@@ -29,7 +29,7 @@ import {
   getDistance1d,
   isPosInRadiusWithY,
   checkConstructionInRange,
-  getCurrentTimeWrapper
+  getCurrentServerTimeWrapper
 } from "../../utils/utils";
 
 import { CraftManager } from "./managers/craftmanager";
@@ -249,7 +249,7 @@ export class ZonePacketHandlers {
         guid2: "0x0000000000000000",
         guid3: "0x0000000040000000",
         guid4: "0x0000000000000000",
-        gameTime: getCurrentTimeWrapper().getTruncatedU32()
+        gameTime: getCurrentServerTimeWrapper().getTruncatedU32()
       }
     );
 
@@ -823,7 +823,7 @@ export class ZonePacketHandlers {
     client: Client,
     packet: ReceivedPacket<Synchronization>
   ) {
-    const currentTime = getCurrentTimeWrapper();
+    const currentTime = getCurrentServerTimeWrapper();
     const serverTime = currentTime.getFullString();
     const reflectedPacket: Synchronization = {
       ...packet.data,

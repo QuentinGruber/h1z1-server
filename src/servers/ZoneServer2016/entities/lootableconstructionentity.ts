@@ -15,6 +15,7 @@ import {
   ConstructionPermissionIds,
   Effects,
   Items,
+  ResourceIndicators,
   StringIds
 } from "../models/enums";
 import { DamageInfo, HudIndicator } from "types/zoneserver";
@@ -267,7 +268,10 @@ export class LootableConstructionEntity extends BaseLootableEntity {
   }
 
   async OnMeleeHit(server: ZoneServer2016, damageInfo: DamageInfo) {
-    if (this.itemDefinitionId == Items.BEE_BOX) {
+    if (
+      this.itemDefinitionId == Items.BEE_BOX &&
+      damageInfo.weapon != Items.WEAPON_HAMMER_DEMOLITION
+    ) {
       const client = server.getClientByCharId(damageInfo.entity);
       const dictionary = server.getEntityDictionary(this.characterId);
 
@@ -296,7 +300,7 @@ export class LootableConstructionEntity extends BaseLootableEntity {
       }
 
       let hudIndicator: HudIndicator | undefined = undefined;
-      hudIndicator = server._hudIndicators["BEES!"];
+      hudIndicator = server._hudIndicators[ResourceIndicators.BEES];
 
       if (!hudIndicator) return;
 

@@ -204,7 +204,8 @@ export enum MovementModifiers {
   RESTED = 1.11,
   SWIZZLE = 1.1,
   SNARED = 0.5,
-  BOOTS = 1.15
+  CONVEYS = 1.15,
+  BOOTS = 1.07
 }
 
 export enum ContainerErrors {
@@ -347,7 +348,7 @@ export enum ResourceTypes {
 
 export enum ResourceIndicators {
   BLEEDING_LIGHT = "BLEEDING_LIGHT",
-  BLEEDING_MODERATE = "BLEEDING_MODERATOR",
+  BLEEDING_MODERATE = "BLEEDING_MODERATE",
   BLEEDING_SEVERE = "BLEEDING_SEVERE",
   TIRED = "TIRED",
   VERY_TIRED = "VERY_TIRED",
@@ -363,7 +364,9 @@ export enum ResourceIndicators {
   DEHYDRATED = "DEHYDRATED",
   STARVING = "STARVING",
   COMFORT_PLUS = "COMFORT +",
-  COMFORT_PLUSPLUS = "COMFORT ++"
+  COMFORT_PLUSPLUS = "COMFORT ++",
+  FOOD_POISONING = "FOOD POISONING",
+  BEES = "BEES!"
 }
 
 export enum Abilities {
@@ -700,6 +703,8 @@ export enum Items {
   CONVEYS_NEKOCHAN = 3404,
   CONVEYS_ELLOHIME = 3574,
   HAT_BEANIE = 2162,
+  BOOTS_TAN = 2207,
+  BOOTS_GRAY_BLUE = 2209,
   SUGAR = 57,
   BATTERY = 1696,
   SPARKPLUGS = 1701,
@@ -919,7 +924,9 @@ export enum WeaponDefinitionIds {
   WEAPON_MAGNUM = 1388,
   WEAPON_R380 = 1400,
   WEAPON_M9 = 1401,
-  WEAPON_1911 = 2
+  WEAPON_1911 = 2,
+  WEAPON_CROWBAR = 9,
+  WEAPON_HAMMER = 1396
 }
 
 export enum Skins_Shirt {
@@ -1100,6 +1107,21 @@ export enum Skins_Conveys {
   CONVEYS_CDN = 2975,
   CONVEYS_NEKOCHAN = 3404,
   CONVEYS_ELLOHIME = 3574
+}
+export enum Skins_Boots {
+  BOOTS_TAN = 2207
+  /*BOOTS_BROWN = 2206,
+  BOOTS_GRAY = 2208,
+  BOOTS_GRAY_BLUE = 2209,
+  BOOTS_GREEN_SPLATTER = 2281,
+  BOOTS_CHEETAH_CAMO = 2282,
+  BOOTS_TAN_GHILLE = 2613,
+  BOOTS_WOODLAND_GHILLE = 2616,
+  BOOTS_TEAL_COMBAT = 2618,
+  BOOTS_HAPPY_FACE = 2619,
+  BOOTS_PATRIOTIC = 2620,
+  BOOTS_PURPLE = 2621,
+  BOOTS_HEAVY_ASSAULT = 3180*/
 }
 export enum Skins_Sniper {
   DEFAULT_SNIPER = 1373

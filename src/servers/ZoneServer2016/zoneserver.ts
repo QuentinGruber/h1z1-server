@@ -94,7 +94,7 @@ import {
   getAngle,
   getDistance2d,
   TimeWrapper,
-  getCurrentTimeWrapper
+  getCurrentServerTimeWrapper
 } from "../../utils/utils";
 
 import { Db, MongoClient, WithId } from "mongodb";
@@ -1661,7 +1661,7 @@ export class ZoneServer2016 extends EventEmitter {
     this.smeltingManager.checkSmeltables(this);
     this.smeltingManager.checkCollectors(this);
     this.decayManager.run(this);
-    this._serverStartTime = getCurrentTimeWrapper();
+    this._serverStartTime = getCurrentServerTimeWrapper();
     this.weatherManager.startWeatherWorker(this);
     this.inGameTimeManager.start();
     this._gatewayServer.start();
@@ -3835,7 +3835,7 @@ export class ZoneServer2016 extends EventEmitter {
     this.sendData<WeaponWeapon>(client, "Weapon.Weapon", {
       weaponPacket: {
         packetName: packetName,
-        gameTime: getCurrentTimeWrapper().getTruncatedU32(),
+        gameTime: getCurrentServerTimeWrapper().getTruncatedU32(),
         packet: obj
       }
     });
@@ -3850,7 +3850,7 @@ export class ZoneServer2016 extends EventEmitter {
     this.sendData<WeaponWeapon>(client, "Weapon.Weapon", {
       weaponPacket: {
         packetName: "Weapon.RemoteWeapon",
-        gameTime: getCurrentTimeWrapper().getTruncatedU32(),
+        gameTime: getCurrentServerTimeWrapper().getTruncatedU32(),
         remoteWeaponPacket: {
           packetName: packetName,
           transientId: transientId,
@@ -3874,7 +3874,7 @@ export class ZoneServer2016 extends EventEmitter {
       {
         weaponPacket: {
           packetName: "Weapon.RemoteWeapon",
-          gameTime: getCurrentTimeWrapper().getTruncatedU32(),
+          gameTime: getCurrentServerTimeWrapper().getTruncatedU32(),
           remoteWeaponPacket: {
             packetName: packetName,
             transientId: transientId,
@@ -3895,7 +3895,7 @@ export class ZoneServer2016 extends EventEmitter {
     this.sendData<WeaponWeapon>(client, "Weapon.Weapon", {
       weaponPacket: {
         packetName: "Weapon.RemoteWeapon",
-        gameTime: getCurrentTimeWrapper().getTruncatedU32(),
+        gameTime: getCurrentServerTimeWrapper().getTruncatedU32(),
         remoteWeaponPacket: {
           packetName: "RemoteWeapon.Update",
           transientId: transientId,
@@ -3924,7 +3924,7 @@ export class ZoneServer2016 extends EventEmitter {
       {
         weaponPacket: {
           packetName: "Weapon.RemoteWeapon",
-          gameTime: getCurrentTimeWrapper().getTruncatedU32(),
+          gameTime: getCurrentServerTimeWrapper().getTruncatedU32(),
           remoteWeaponPacket: {
             packetName: "RemoteWeapon.Update",
             transientId: transientId,
@@ -5408,11 +5408,13 @@ export class ZoneServer2016 extends EventEmitter {
    *
    * @param {number} itemDefinitionId - The itemDefinitionId of the item to generate.
    * @param {number} [count=1] - The count of the item.
+   * @param {number} [lastGeneratedTime=0] - The last generated time of the item.
    * @returns {BaseItem|undefined} The generated item, or undefined if the item definition is invalid.
    */
   generateItem(
     itemDefinitionId: number,
-    count: number = 1
+    count: number = 1,
+    lastGeneratedTime: number = 0
   ): BaseItem | undefined {
     const itemDefinition = this.getItemDefinition(itemDefinitionId);
     if (!itemDefinition) {
@@ -5422,7 +5424,7 @@ export class ZoneServer2016 extends EventEmitter {
       return;
     }
     const generatedGuid = toBigHex(this.generateItemGuid());
-    let durability: number = 2000;
+    let durability: number;
     switch (true) {
       case this.isWeapon(itemDefinitionId):
         durability = 2000;
@@ -5432,6 +5434,12 @@ export class ZoneServer2016 extends EventEmitter {
         break;
       case this.isHelmet(itemDefinitionId):
         durability = 100;
+        break;
+      case this.isConvey(itemDefinitionId):
+        durability = Math.floor(Math.random() * 5400);
+        break;
+      default:
+        durability = 2000;
         break;
     }
 
@@ -5443,6 +5451,22 @@ export class ZoneServer2016 extends EventEmitter {
       case WeaponDefinitionIds.WEAPON_BLAZE:
       case WeaponDefinitionIds.WEAPON_PURGE:
         durability = 1000;
+        break;
+      case WeaponDefinitionIds.WEAPON_HAMMER:
+      case WeaponDefinitionIds.WEAPON_CROWBAR:
+      case WeaponDefinitionIds.WEAPON_308:
+      case WeaponDefinitionIds.WEAPON_SHOTGUN:
+      case WeaponDefinitionIds.WEAPON_AK47:
+      case WeaponDefinitionIds.WEAPON_AR15:
+      case WeaponDefinitionIds.WEAPON_1911:
+      case WeaponDefinitionIds.WEAPON_M9:
+      case WeaponDefinitionIds.WEAPON_MAGNUM:
+      case WeaponDefinitionIds.WEAPON_R380:
+        if (Date.now() - lastGeneratedTime <= 200) break;
+        do {
+          durability = Math.floor(Math.random() * 2000);
+        } while (durability < 250);
+        break;
     }
     const itemData: BaseItem = new BaseItem(
       itemDefinitionId,
@@ -5506,6 +5530,16 @@ export class ZoneServer2016 extends EventEmitter {
       this.getItemDefinition(itemDefinitionId)?.DESCRIPTION_ID == 12858 ||
       this.getItemDefinition(itemDefinitionId)?.DESCRIPTION_ID == 14171
     );
+  }
+
+  /**
+   * Checks if an item with the specified itemDefinitionId is a convey.
+   *
+   * @param {number} itemDefinitionId - The itemDefinitionId to check.
+   * @returns {boolean} True if the item is a convey, false otherwise.
+   */
+  isConvey(itemDefinitionId: number): boolean {
+    return this.getItemDefinition(itemDefinitionId)?.DESCRIPTION_ID == 11895;
   }
 
   /**
@@ -5755,7 +5789,7 @@ export class ZoneServer2016 extends EventEmitter {
       );
     }
     if (client) {
-      this.checkConveys(client);
+      this.checkShoes(client);
       this.checkNightVision(client);
     }
     if (this.getItemDefinition(itemDefId)?.ITEM_TYPE === 34) {
@@ -6236,7 +6270,7 @@ export class ZoneServer2016 extends EventEmitter {
       moved,
       client.character.state.lookAt,
       this,
-      getCurrentTimeWrapper().getTruncatedU32(),
+      getCurrentServerTimeWrapper().getTruncatedU32(),
       VehicleIds.OFFROADER
     );
     const cargo = new Plane(
@@ -6246,7 +6280,7 @@ export class ZoneServer2016 extends EventEmitter {
       new Float32Array([pos[0], pos[1] - 20, pos[2], 1]),
       client.character.state.lookAt,
       this,
-      getCurrentTimeWrapper().getTruncatedU32(),
+      getCurrentServerTimeWrapper().getTruncatedU32(),
       VehicleIds.PICKUP
     );
     this._airdrop = {
@@ -7244,7 +7278,7 @@ export class ZoneServer2016 extends EventEmitter {
       }
     }
     const drift = Math.abs(
-      packet.gameTime - getCurrentTimeWrapper().getTruncatedU32()
+      packet.gameTime - getCurrentServerTimeWrapper().getTruncatedU32()
     );
     if (drift > this.fairPlayManager.maxPing + 200) {
       this.sendChatText(
@@ -7637,10 +7671,15 @@ export class ZoneServer2016 extends EventEmitter {
     );
   }
 
-  checkConveys(client: Client, character = client.character) {
+  checkShoes(client: Client, character = client.character) {
     if (!character._equipment["5"]) {
       if (character.hasConveys) {
         character.hasConveys = false;
+        this.divideMovementModifier(client, MovementModifiers.CONVEYS);
+      }
+
+      if (character.hasBoots) {
+        character.hasBoots = false;
         this.divideMovementModifier(client, MovementModifiers.BOOTS);
       }
     } else {
@@ -7655,12 +7694,23 @@ export class ZoneServer2016 extends EventEmitter {
 
         if (itemDefinition.DESCRIPTION_ID == 11895 && !character.hasConveys) {
           character.hasConveys = true;
-          this.multiplyMovementModifier(client, MovementModifiers.BOOTS);
+          this.multiplyMovementModifier(client, MovementModifiers.CONVEYS);
         } else if (
           itemDefinition.DESCRIPTION_ID != 11895 &&
           character.hasConveys
         ) {
           character.hasConveys = false;
+          this.divideMovementModifier(client, MovementModifiers.CONVEYS);
+        }
+
+        if (itemDefinition.DESCRIPTION_ID == 11155 && !character.hasBoots) {
+          character.hasBoots = true;
+          this.multiplyMovementModifier(client, MovementModifiers.BOOTS);
+        } else if (
+          itemDefinition.DESCRIPTION_ID != 11895 &&
+          character.hasBoots
+        ) {
+          character.hasBoots = false;
           this.divideMovementModifier(client, MovementModifiers.BOOTS);
         }
       }
@@ -7959,24 +8009,32 @@ export class ZoneServer2016 extends EventEmitter {
       },
       unknownData2: {}
     });
-    client.character.resourceHudIndicators.forEach((typeName: string) => {
-      const indicator = this._hudIndicators[typeName];
-      this.sendData(client, "Effect.AddUiIndicator", {
-        characterId: client.character.characterId,
-        hudElementGuid: this.generateGuid(),
-        unknownData1: {
-          hudElementId: indicator.nameId
-        },
-        hudElementData: {
-          nameId: indicator.nameId,
-          descriptionId: indicator.descriptionId,
-          imageSetId: indicator.imageSetId
-        },
-        unknownData3: {},
-        unknownData4: {},
-        unknownData5: {}
-      });
-    });
+    client.character.resourceHudIndicators.forEach(
+      (typeName: string, index) => {
+        const indicator = this._hudIndicators[typeName];
+        if (!indicator) {
+          // to help identifying the issue
+          console.log(`Unknown hud indicator: ${typeName} removing it`);
+          client.character.resourceHudIndicators.splice(index, 1);
+          return;
+        }
+        this.sendData(client, "Effect.AddUiIndicator", {
+          characterId: client.character.characterId,
+          hudElementGuid: this.generateGuid(),
+          unknownData1: {
+            hudElementId: indicator.nameId
+          },
+          hudElementData: {
+            nameId: indicator.nameId,
+            descriptionId: indicator.descriptionId,
+            imageSetId: indicator.imageSetId
+          },
+          unknownData3: {},
+          unknownData4: {},
+          unknownData5: {}
+        });
+      }
+    );
     for (const a in client.character.hudIndicators) {
       const indicator =
         this._hudIndicators[client.character.hudIndicators[a].typeName];

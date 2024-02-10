@@ -2,7 +2,7 @@ import test, { after } from "node:test";
 import { ZoneServer2016 } from "../zoneserver";
 import { Vehicle2016 } from "./vehicle";
 import { DamageInfo } from "types/zoneserver";
-import { getCurrentTimeWrapper } from "../../../utils/utils";
+import { getCurrentServerTimeWrapper } from "../../../utils/utils";
 import assert from "node:assert";
 
 test("Damage-pve", { timeout: 10000 }, async (t) => {
@@ -19,14 +19,15 @@ test("Damage-pve", { timeout: 10000 }, async (t) => {
     new Float32Array([0, 0, 0]),
     new Float32Array([0, 0, 0]),
     zone,
-    getCurrentTimeWrapper().getTruncatedU32(),
+    getCurrentServerTimeWrapper().getTruncatedU32(),
     3
   );
   await t.test("Damage from entity", async () => {
     const oldHealth = vehicle.getHealth();
     const dmg = 10;
     const damageInfo: DamageInfo = { entity: "idk", damage: dmg };
-    vehicle.damage(zone, damageInfo);
+    vehicle.OnProjectileHit(zone, damageInfo);
+    vehicle.OnMeleeHit(zone, damageInfo);
     assert.equal(vehicle.getHealth(), oldHealth);
   });
   await t.test("Damage from collisions", async () => {
@@ -51,15 +52,19 @@ test("Damage-pvp", { timeout: 10000 }, async (t) => {
     new Float32Array([0, 0, 0]),
     new Float32Array([0, 0, 0]),
     zone,
-    getCurrentTimeWrapper().getTruncatedU32(),
+    getCurrentServerTimeWrapper().getTruncatedU32(),
     3
   );
   await t.test("Damage from entity", async () => {
-    const oldHealth = vehicle.getHealth();
+    let oldHealth = vehicle.getHealth();
     const dmg = 10;
     const damageInfo: DamageInfo = { entity: "idk", damage: dmg };
-    vehicle.damage(zone, damageInfo);
+    vehicle.OnProjectileHit(zone, damageInfo);
     assert.equal(vehicle.getHealth(), oldHealth - dmg);
+    oldHealth = vehicle.getHealth();
+    vehicle.OnMeleeHit(zone, damageInfo);
+    // don't ask me why it's *2
+    assert.equal(vehicle.getHealth(), oldHealth - dmg * 2);
   });
   await t.test("Damage from collisions", async () => {
     const oldHealth = vehicle.getHealth();

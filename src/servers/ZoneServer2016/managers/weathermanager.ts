@@ -17,7 +17,7 @@ import { Weather2016, WeatherTemplate } from "types/zoneserver";
 import {
   randomIntFromInterval,
   _,
-  getCurrentTimeWrapper
+  getCurrentServerTimeWrapper
 } from "../../../utils/utils";
 import { ZoneClient2016 as Client } from "../classes/zoneclient";
 import { ZoneServer2016 } from "../zoneserver";
@@ -192,7 +192,7 @@ export class WeatherManager {
       this.dynamicWorker = setTimeout(() => {
         if (!this.dynamicEnabled) return;
         this.weather = this.dynamicWeather(
-          getCurrentTimeWrapper().getFull(),
+          getCurrentServerTimeWrapper().getFull(),
           server._serverStartTime.getFull(),
           server.inGameTimeManager.timeMultiplier
         );
