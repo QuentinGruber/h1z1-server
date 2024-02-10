@@ -98,7 +98,9 @@ export class GatewayServer extends EventEmitter {
   }
 
   isSoeClientFlooded(soeClientId: string): boolean {
-    return !this._soeServer.getSoeClient(soeClientId)?.outputStream.isFlooded();
+    return !!this._soeServer
+      .getSoeClient(soeClientId)
+      ?.outputStream.isFlooded();
   }
 
   getSoeClientNetworkStats(soeClientId: string): string[] | undefined {

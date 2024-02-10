@@ -7823,24 +7823,35 @@ export class ZoneServer2016 extends EventEmitter {
       return;
     }
     for (const a in this._clients) {
+      await scheduler.wait(this.tickRate, {});
       const startTime = Date.now();
       const client = this._clients[a];
       if (!client.isLoading) {
+        const isFlooded = () =>
+          this._gatewayServer.isSoeClientFlooded(client.soeClientId);
         client.routineCounter++;
+        if (isFlooded()) continue;
         this.constructionManager.constructionPermissionsManager(this, client);
+        if (isFlooded()) continue;
         this.checkInMapBounds(client);
+        if (isFlooded()) continue;
         this.checkZonePing(client);
         if (client.routineCounter >= 3) {
           this.assignChunkRenderDistance(client);
           this.removeOutOfDistanceEntities(client);
+          if (isFlooded()) continue;
           this.removeOODInteractionData(client);
+          if (isFlooded()) continue;
           this.POIManager(client);
           client.routineCounter = 0;
         }
         //this.constructionManager.spawnConstructionParentsInRange(this, client); // put back into grid for now
         this.vehicleManager(client);
+        if (isFlooded()) continue;
         this.spawnCharacters(client);
+        if (isFlooded()) continue;
         this.spawnGridObjects(client);
+        if (isFlooded()) continue;
         //this.constructionManager.worldConstructionManager(this, client); // put into grid
         client.posAtLastRoutine = client.character.state.position;
       }
@@ -7851,7 +7862,6 @@ export class ZoneServer2016 extends EventEmitter {
           `Routine took ${timeTaken}ms to execute, which is more than the tickRate ${this.tickRate}`
         );
       }
-      await scheduler.wait(this.tickRate, {});
     }
     this.startRoutinesLoop();
   }
