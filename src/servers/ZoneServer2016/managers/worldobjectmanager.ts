@@ -18,6 +18,7 @@ const BWC_items = require("../../../../data/2016/zoneData/BWC/BWC_items.json");
 const Z1_vehicles = require("../../../../data/2016/zoneData/Z1_vehicleLocations.json");
 const Z1_npcs = require("../../../../data/2016/zoneData/Z1_npcs.json");
 const Z1_lootableProps = require("../../../../data/2016/zoneData/Z1_lootableProps.json");
+const BWC_harvestableProps = require("../../../../data/2016/zoneData/BWC/BWC_harvestableProps.json");
 const Z1_taskProps = require("../../../../data/2016/zoneData/Z1_taskProps.json");
 const Z1_crates = require("../../../../data/2016/zoneData/Z1_crates.json");
 const Z1_destroyables = require("../../../../data/2016/zoneData/Z1_destroyables.json");
@@ -78,6 +79,7 @@ import { Destroyable } from "../entities/destroyable";
 import { CharacterPlayWorldCompositeEffect } from "types/zone2016packets";
 import { WaterSource } from "../entities/watersource";
 import { TreasureChest } from "../entities/treasurechest";
+import { HarvestableProp } from "../entities/harvestableprop";
 const debug = require("debug")("ZoneServer");
 
 function getRandomSkin(itemDefinitionId: number) {
@@ -596,6 +598,26 @@ export class WorldObjectManager {
   }
 
   createProps(server: ZoneServer2016) {
+    if (this.map == "JustSurvive") {
+        BWC_harvestableProps.forEach((propType: any) => {
+            propType.instances.forEach((propInstance: any) => {
+                const characterId = generateRandomGuid();
+                const obj = new HarvestableProp(
+                    characterId,
+                    server.getTransientId(characterId), // need transient generated for Interaction Replication
+                    0,
+                    new Float32Array(propInstance.position),
+                    new Float32Array(eul2quat(propInstance.rotation)),
+                    server,
+                    new Float32Array(propInstance.scale),
+                    propInstance.id,
+                    propType.renderDistance,
+                    propType.actorDefinition,
+                );
+                server._lootableProps[characterId] = obj
+            })
+        })
+    }
     Z1_lootableProps.forEach((propType: any) => {
       propType.instances.forEach((propInstance: any) => {
         const itemMap: { [modelId: number]: number } = {
@@ -1037,6 +1059,15 @@ export class WorldObjectManager {
   }
   createContainerLoot(server: ZoneServer2016) {
     for (const a in server._lootableProps) {
+      if (server._lootableProps[a] instanceof HarvestableProp) {
+          const harvestableProp = server._lootableProps[a] as HarvestableProp;
+          const lootSpawner = containerLootSpawnersBWC;
+          const resetChance = randomIntFromInterval(0, 100);
+          if (resetChance <= lootSpawner[harvestableProp.lootSpawner].spawnChance) {
+              harvestableProp.stage = 0;
+              harvestableProp.updateStage(server, 0)
+          }
+      }
       const prop = server._lootableProps[a] as LootableProp;
       const container = prop.getContainer();
       if (!container) continue;

@@ -229,6 +229,7 @@ import { GatewayChannels } from "h1emu-core";
 import { IngameTimeManager } from "./managers/gametimemanager";
 import { H1z1ProtocolReadingFormat } from "types/protocols";
 import { GatewayServer } from "../GatewayServer/gatewayserver";
+import { HarvestableProp } from "./entities/harvestableprop";
 
 const spawnLocations2 = require("../../../data/2016/zoneData/Z1_gridSpawns.json"),
   deprecatedDoors = require("../../../data/2016/sampleData/deprecatedDoors.json"),
@@ -285,7 +286,7 @@ export class ZoneServer2016 extends EventEmitter {
   _constructionFoundations: EntityDictionary<ConstructionParentEntity> = {};
   _constructionDoors: EntityDictionary<ConstructionDoor> = {};
   _constructionSimple: EntityDictionary<ConstructionChildEntity> = {};
-  _lootableProps: EntityDictionary<LootableProp> = {};
+  _lootableProps: EntityDictionary<LootableProp | HarvestableProp> = {};
   _taskProps: EntityDictionary<TaskProp> = {};
   _crates: EntityDictionary<Crate> = {};
   _destroyables: EntityDictionary<Destroyable> = {};

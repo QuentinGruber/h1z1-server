@@ -146,7 +146,19 @@ export enum ModelIds {
   CORN_CROPSTATE_3 = 61,
   WHEAT_CROPSTATE_1 = 9191,
   WEHAT_CROPSTATE_2 = 9190,
-  WHEAT_CROPSTATE_3 = 9189
+  WHEAT_CROPSTATE_3 = 9189,
+  Common_Props_AbandonedSedan_Harvestable = 10187,
+  Common_Props_AbandonedSedan_Harvestable_Stage01 = 10188,
+  Common_Props_AbandonedSedan_Harvestable_Stage02 = 10189,
+  Common_Props_AbandonedTruck_Harvestable = 10308,
+  Common_Props_AbandonedTruck_Harvestable_Stage01 = 10309,
+  Common_Props_AbandonedTruck_Harvestable_Stage02 = 10310,
+  Common_Props_AbandonedSUV_Harvestable = 10311,
+  Common_Props_AbandonedSUV_Harvestable_Stage01 = 10312,
+  Common_Props_AbandonedSUV_Harvestable_Stage02 = 10313,
+  Common_Props_Harvestable_PickupTruck_proxy = 10314,
+  Common_Props_Harvestable_Sedan_proxy = 10315,
+  Common_Props_Harvestable_SUV_proxy = 10316,
 }
 
 export enum StringIds {
@@ -176,6 +188,7 @@ export enum StringIds {
   PERMISSIONS_TARGET = 12982,
   EXTRACT_BLOOD = 1453,
   HARVEST = 1009,
+  HARVEST_NO_NAME = 582,
   LONG_RANGE_RADIO = 12809,
   RADIOLOGY_DESK = 12752,
   BATTERED_TRASHCAN = 12835,
@@ -194,7 +207,10 @@ export enum StringIds {
   ZOMBIE_WALKER = 60,
   DEER = 1245,
   BEAR = 1246,
-  WOLF = 1213
+  WOLF = 1213,
+  WRECKED_SEDAN = 1081,
+  WRECKED_VAN = 1082,
+  WRECKED_TRUCK = 1083,
 }
 
 export enum MovementModifiers {
@@ -2103,7 +2119,13 @@ export enum Effects {
   PFX_Damage_Fence_ChainLink_Industrial_Straight = 5664,
   PFX_Damage_Fence_ChainLink_Industrial_Post = 5665,
   PFX_CrateItem_Helmet_DemonMask_Green = 5668,
-  PFX_CrateItem_Helmet_DemonMask_Orange = 5669
+  PFX_CrateItem_Helmet_DemonMask_Orange = 5669,
+  PFX_Harvest_Abandoned_Sedan_Stage1 = 5807,
+  PFX_Harvest_Abandoned_Sedan_Stage2 = 5928,
+  PFX_Harvest_Abandoned_Truck_Stage1 = 5959,
+  PFX_Harvest_Abandoned_Truck_Stage2 = 5960,
+  PFX_Harvest_Abandoned_SUV_Stage1 = 5961,
+  PFX_Harvest_Abandoned_SUV_Stage2 = 5962
 }
 
 export enum HealTypes {

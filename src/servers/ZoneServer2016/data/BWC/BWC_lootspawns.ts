@@ -1952,64 +1952,176 @@ export const containerLootSpawnersBWC: {
   [lootSpawner: string]: ContainerLootSpawner;
 } = {
   // TODO WHEN CONTAINERS WORK
-  "Wrecked Car": {
-    spawnChance: 100,
+  "Harvestable Vehicle": {
+    spawnChance: 40,
     maxItems: 3, // cant be higher than length of items array below
     items: [
       {
         item: Items.METAL_SCRAP,
-        weight: 33,
+        weight: 60,
         spawnCount: {
-          min: 1,
-          max: 2
+          min: 3,
+          max: 7
         }
       },
       {
         item: Items.METAL_SHEET,
-        weight: 33,
+        weight: 65,
+        spawnCount: {
+          min: 2,
+          max: 3
+        }
+      },
+      {
+        item: Items.METAL_PIPE,
+        weight: 30,
         spawnCount: {
           min: 1,
-          max: 2
+          max: 1
+        }
+      },
+      {
+        item: Items.NAIL,
+        weight: 40,
+        spawnCount: {
+          min: 1,
+          max: 8
+        }
+      },
+      {
+        item: Items.SHARD_METAL,
+        weight: 40,
+        spawnCount: {
+          min: 1,
+          max: 7
         }
       },
       {
         item: Items.GUN_REPAIR_KIT,
-        weight: 15,
+        weight: 10,
         spawnCount: {
           min: 1,
           max: 1
         }
-      }
+      },
     ]
   },
-  "Wrecked Van": {
-    spawnChance: 100,
-    maxItems: 3,
+  "Harvestable Truck": {
+    spawnChance: 40,
+    maxItems: 3, // cant be higher than length of items array below
     items: [
       {
         item: Items.METAL_SCRAP,
-        weight: 33,
+        weight: 60,
         spawnCount: {
-          min: 1,
-          max: 2
+          min: 3,
+          max: 7
         }
       },
       {
         item: Items.METAL_SHEET,
-        weight: 33,
+        weight: 65,
         spawnCount: {
-          min: 1,
-          max: 2
+          min: 2,
+          max: 3
         }
       },
       {
-        item: Items.WEAPON_REPAIR_KIT,
-        weight: 15,
+        item: Items.METAL_PIPE,
+        weight: 30,
         spawnCount: {
           min: 1,
           max: 1
         }
-      }
+      },
+      {
+        item: Items.NAIL,
+        weight: 40,
+        spawnCount: {
+          min: 1,
+          max: 8
+        }
+      },
+      {
+        item: Items.SHARD_METAL,
+        weight: 40,
+        spawnCount: {
+          min: 1,
+          max: 7
+        }
+      },
+      {
+        item: Items.TARP,
+        weight: 40,
+        spawnCount: {
+          min: 1,
+          max: 1
+        }
+      },
+      {
+        item: Items.GUN_REPAIR_KIT,
+        weight: 10,
+        spawnCount: {
+          min: 1,
+          max: 1
+        }
+      },
+      {
+        item: Items.WEAPON_CROWBAR,
+        weight: 10,
+        spawnCount: {
+          min: 1,
+          max: 1
+        }
+      },
+      {
+        item: Items.WEAPON_AXE_WOOD,
+        weight: 10,
+        spawnCount: {
+          min: 1,
+          max: 1
+        }
+      },
+      {
+        item: Items.WEAPON_WRENCH,
+        weight: 10,
+        spawnCount: {
+          min: 1,
+          max: 1
+        }
+      },
+      {
+        item: Items.WEAPON_AR15,
+        weight: 8,
+        spawnCount: {
+          min: 1,
+          max: 1
+        }
+      },
+      {
+        item: Items.WEAPON_HAMMER,
+        weight: 10,
+        spawnCount: {
+          min: 1,
+          max: 1
+        }
+      },
+      {
+        item: Items.WEAPON_SHOTGUN,
+        weight: 8,
+        spawnCount: {
+          min: 1,
+          max: 1
+        }
+      },
+      {
+        item: Items.WEAPON_M9,
+        weight: 10,
+        spawnCount: {
+          min: 1,
+          max: 1
+        }
+      },
     ]
   },
   "Wrecked Truck": {
