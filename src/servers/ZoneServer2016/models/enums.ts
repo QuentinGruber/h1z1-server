@@ -158,7 +158,7 @@ export enum ModelIds {
   Common_Props_AbandonedSUV_Harvestable_Stage02 = 10313,
   Common_Props_Harvestable_PickupTruck_proxy = 10314,
   Common_Props_Harvestable_Sedan_proxy = 10315,
-  Common_Props_Harvestable_SUV_proxy = 10316,
+  Common_Props_Harvestable_SUV_proxy = 10316
 }
 
 export enum StringIds {
@@ -210,7 +210,7 @@ export enum StringIds {
   WOLF = 1213,
   WRECKED_SEDAN = 1081,
   WRECKED_VAN = 1082,
-  WRECKED_TRUCK = 1083,
+  WRECKED_TRUCK = 1083
 }
 
 export enum MovementModifiers {

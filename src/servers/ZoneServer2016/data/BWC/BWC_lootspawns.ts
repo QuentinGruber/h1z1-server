@@ -2003,7 +2003,7 @@ export const containerLootSpawnersBWC: {
           min: 1,
           max: 1
         }
-      },
+      }
     ]
   },
   "Harvestable Truck": {
@@ -2121,7 +2121,7 @@ export const containerLootSpawnersBWC: {
           min: 1,
           max: 1
         }
-      },
+      }
     ]
   },
   "Wrecked Truck": {

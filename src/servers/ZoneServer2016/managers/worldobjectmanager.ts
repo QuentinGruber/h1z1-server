@@ -599,24 +599,24 @@ export class WorldObjectManager {
 
   createProps(server: ZoneServer2016) {
     if (this.map == "JustSurvive") {
-        BWC_harvestableProps.forEach((propType: any) => {
-            propType.instances.forEach((propInstance: any) => {
-                const characterId = generateRandomGuid();
-                const obj = new HarvestableProp(
-                    characterId,
-                    server.getTransientId(characterId), // need transient generated for Interaction Replication
-                    0,
-                    new Float32Array(propInstance.position),
-                    new Float32Array(eul2quat(propInstance.rotation)),
-                    server,
-                    new Float32Array(propInstance.scale),
-                    propInstance.id,
-                    propType.renderDistance,
-                    propType.actorDefinition,
-                );
-                server._lootableProps[characterId] = obj
-            })
-        })
+      BWC_harvestableProps.forEach((propType: any) => {
+        propType.instances.forEach((propInstance: any) => {
+          const characterId = generateRandomGuid();
+          const obj = new HarvestableProp(
+            characterId,
+            server.getTransientId(characterId), // need transient generated for Interaction Replication
+            0,
+            new Float32Array(propInstance.position),
+            new Float32Array(eul2quat(propInstance.rotation)),
+            server,
+            new Float32Array(propInstance.scale),
+            propInstance.id,
+            propType.renderDistance,
+            propType.actorDefinition
+          );
+          server._lootableProps[characterId] = obj;
+        });
+      });
     }
     Z1_lootableProps.forEach((propType: any) => {
       propType.instances.forEach((propInstance: any) => {
@@ -1060,13 +1060,15 @@ export class WorldObjectManager {
   createContainerLoot(server: ZoneServer2016) {
     for (const a in server._lootableProps) {
       if (server._lootableProps[a] instanceof HarvestableProp) {
-          const harvestableProp = server._lootableProps[a] as HarvestableProp;
-          const lootSpawner = containerLootSpawnersBWC;
-          const resetChance = randomIntFromInterval(0, 100);
-          if (resetChance <= lootSpawner[harvestableProp.lootSpawner].spawnChance) {
-              harvestableProp.stage = 0;
-              harvestableProp.updateStage(server, 0)
-          }
+        const harvestableProp = server._lootableProps[a] as HarvestableProp;
+        const lootSpawner = containerLootSpawnersBWC;
+        const resetChance = randomIntFromInterval(0, 100);
+        if (
+          resetChance <= lootSpawner[harvestableProp.lootSpawner].spawnChance
+        ) {
+          harvestableProp.stage = 0;
+          harvestableProp.updateStage(server, 0);
+        }
       }
       const prop = server._lootableProps[a] as LootableProp;
       const container = prop.getContainer();
