@@ -23,19 +23,19 @@ function getContainerAndTime(entity: LootableProp) {
   switch (entity.actorModelId) {
     case ModelIds.WRECKED_VAN:
       entity.containerId = Items.CONTAINER_WRECKED_VAN;
-      entity.searchTime = 2500;
+      entity.searchTime = 1500;
       entity.lootSpawner = "Wrecked Van";
       break;
     case ModelIds.WRECKED_CAR:
     case ModelIds.WRECKED_CAR_OD_01:
       entity.containerId = Items.CONTAINER_WRECKED_CAR;
-      entity.searchTime = 2500;
+      entity.searchTime = 1500;
       entity.lootSpawner = "Wrecked Car";
       break;
     case ModelIds.WRECKED_TRUCK_01:
     case ModelIds.WRECKED_TRUCK_OD_01:
       entity.containerId = Items.CONTAINER_WRECKED_TRUCK;
-      entity.searchTime = 2500;
+      entity.searchTime = 1500;
       entity.lootSpawner = "Wrecked Truck";
       break;
     case ModelIds.LOCKERS_LOCKER_WEAPONS:
