@@ -940,7 +940,9 @@ export enum WeaponDefinitionIds {
   WEAPON_MAGNUM = 1388,
   WEAPON_R380 = 1400,
   WEAPON_M9 = 1401,
-  WEAPON_1911 = 2
+  WEAPON_1911 = 2,
+  WEAPON_CROWBAR = 9,
+  WEAPON_HAMMER = 1396
 }
 
 export enum Skins_Shirt {

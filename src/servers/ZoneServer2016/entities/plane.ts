@@ -13,7 +13,7 @@
 
 import {
   createPositionUpdate,
-  getCurrentTimeWrapper
+  getCurrentServerTimeWrapper
 } from "../../../utils/utils";
 import { VehicleIds } from "../models/enums";
 import { ZoneServer2016 } from "../zoneserver";
@@ -121,7 +121,7 @@ export class Plane extends Vehicle2016 {
       },
       positionUpdate: {
         ...this.positionUpdate,
-        sequenceTime: getCurrentTimeWrapper().getTruncatedU32(),
+        sequenceTime: getCurrentServerTimeWrapper().getTruncatedU32(),
         position: this.state.position // trying to fix invisible characters/vehicles until they move
       },
       unknownArray1: [],

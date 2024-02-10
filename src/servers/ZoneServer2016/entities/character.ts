@@ -45,7 +45,7 @@ import {
   randomIntFromInterval,
   _,
   checkConstructionInRange,
-  getCurrentTimeWrapper
+  getCurrentServerTimeWrapper
 } from "../../../utils/utils";
 import { BaseItem } from "../classes/baseItem";
 import { BaseLootableEntity } from "./baselootableentity";
@@ -165,6 +165,7 @@ export class Character2016 extends BaseFullCharacter {
   spawnGridData: number[] = [];
   lastJumpTime: number = 0;
   lastSitTime: number = 0;
+  lastCraftTime: number = 0;
   sitCount: number = 0;
   weaponStance: number = 1;
   stance?: StanceFlags;
@@ -1421,7 +1422,7 @@ export class Character2016 extends BaseFullCharacter {
       },
       positionUpdate: {
         ...this.positionUpdate,
-        sequenceTime: getCurrentTimeWrapper().getTruncatedU32(),
+        sequenceTime: getCurrentServerTimeWrapper().getTruncatedU32(),
         position: this.state.position, // trying to fix invisible characters/vehicles until they move
         stance: 66561
       },

@@ -292,18 +292,45 @@ export class Npc extends BaseFullCharacter {
     client: ZoneClient2016,
     rewardItems: { itemDefId: number; weight: number }[]
   ) {
-    const totalWeight = rewardItems.reduce((sum, item) => sum + item.weight, 0);
-    const randomValue = Math.random() * totalWeight;
-    let count = 1;
+    const ranges = [];
+    const preRewardedItems: number[] = [];
+
     let cumulativeWeight = 0;
     for (const reward of rewardItems) {
-      cumulativeWeight += reward.weight;
-      if (randomValue <= cumulativeWeight) {
+      const range = {
+        start: cumulativeWeight,
+        end: cumulativeWeight + reward.weight,
+        item: reward
+      };
+      ranges.push(range);
+      cumulativeWeight = range.end;
+    }
+
+    const totalWeight = rewardItems.reduce((sum, item) => sum + item.weight, 0);
+    let count = 1;
+
+    let selectedRange = ranges[0];
+    for (let i = 0; i < rewardItems.length; i++) {
+      const randomValue = Math.random() * totalWeight;
+      for (const range of ranges) {
+        if (randomValue >= range.start && randomValue < range.end) {
+          selectedRange = range;
+          break; // Break out of the loop once a range is chosen
+        }
+      }
+
+      if (!preRewardedItems.includes(selectedRange.item.itemDefId)) {
+        preRewardedItems.push(selectedRange.item.itemDefId);
+
         if (Math.random() <= 0.4) {
           // 40% chance to spawn double rewards
           count = 2;
         }
-        const rewardItem = server.generateItem(reward.itemDefId, count);
+
+        const rewardItem = server.generateItem(
+          selectedRange.item.itemDefId,
+          count
+        );
         if (rewardItem) client.character.lootContainerItem(server, rewardItem);
       }
     }

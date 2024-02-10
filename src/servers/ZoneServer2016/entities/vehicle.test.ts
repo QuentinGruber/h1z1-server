@@ -2,7 +2,7 @@ import test, { after } from "node:test";
 import { ZoneServer2016 } from "../zoneserver";
 import { Vehicle2016 } from "./vehicle";
 import { DamageInfo } from "types/zoneserver";
-import { getCurrentTimeWrapper } from "../../../utils/utils";
+import { getCurrentServerTimeWrapper } from "../../../utils/utils";
 import assert from "node:assert";
 
 test("Damage-pve", { timeout: 10000 }, async (t) => {
@@ -19,7 +19,7 @@ test("Damage-pve", { timeout: 10000 }, async (t) => {
     new Float32Array([0, 0, 0]),
     new Float32Array([0, 0, 0]),
     zone,
-    getCurrentTimeWrapper().getTruncatedU32(),
+    getCurrentServerTimeWrapper().getTruncatedU32(),
     3
   );
   await t.test("Damage from entity", async () => {
@@ -52,7 +52,7 @@ test("Damage-pvp", { timeout: 10000 }, async (t) => {
     new Float32Array([0, 0, 0]),
     new Float32Array([0, 0, 0]),
     zone,
-    getCurrentTimeWrapper().getTruncatedU32(),
+    getCurrentServerTimeWrapper().getTruncatedU32(),
     3
   );
   await t.test("Damage from entity", async () => {

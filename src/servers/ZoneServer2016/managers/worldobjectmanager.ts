@@ -31,7 +31,7 @@ import {
   isPosInRadius,
   randomIntFromInterval,
   fixEulerOrder,
-  getCurrentTimeWrapper
+  getCurrentServerTimeWrapper
 } from "../../../utils/utils";
 import {
   EquipSlots,
@@ -903,7 +903,7 @@ export class WorldObjectManager {
           new Float32Array(dataVehicle.position),
           new Float32Array(dataVehicle.rotation),
           server,
-          getCurrentTimeWrapper().getTruncatedU32(),
+          getCurrentServerTimeWrapper().getTruncatedU32(),
           dataVehicle.vehicleId
         );
       vehicleData.positionUpdate.orientation = dataVehicle.orientation;
@@ -1084,7 +1084,7 @@ export class WorldObjectManager {
             if (item.item == spawnedItem.itemDefinitionId) allow = false; // dont allow the same item to be added twice
           });
           if (allow) {
-            if (chance <= item.weight) {
+            if (chance <= lootTable.spawnChance) {
               const count = Math.floor(
                 Math.random() *
                   (item.spawnCount.max - item.spawnCount.min + 1) +
