@@ -24,7 +24,7 @@ import {
 } from "../../../utils/enums";
 import {
   decrypt,
-  getCurrentTimeWrapper,
+  getCurrentServerTimeWrapper,
   getDistance,
   getDistance1d,
   getDistance2d,
@@ -196,7 +196,7 @@ export class FairPlayManager {
         new Date().getTime()
       ) {
         const drift = Math.abs(
-          sequenceTime - getCurrentTimeWrapper().getTruncatedU32()
+          sequenceTime - getCurrentServerTimeWrapper().getTruncatedU32()
         );
         if (drift > this.fairPlayValues.maxTimeDrift) {
           server.kickPlayer(client);
@@ -279,7 +279,7 @@ export class FairPlayManager {
     if (client.isAdmin || !this.useFairPlay) return false;
     if (!server.isSaving) {
       const drift = Math.abs(
-        sequenceTime - getCurrentTimeWrapper().getTruncatedU32()
+        sequenceTime - getCurrentServerTimeWrapper().getTruncatedU32()
       );
       if (drift > 10000) {
         server.kickPlayer(client);
