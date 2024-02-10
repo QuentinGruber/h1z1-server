@@ -1206,7 +1206,7 @@ export const lootTables: { [lootSpawner: string]: LootSpawner } = {
 
   // #region FARM
   "ItemSpawnerFarm.adr": {
-    spawnChance: 70,
+    spawnChance: 75,
     items: [
       {
         item: Items.FERTILIZER,
@@ -1218,7 +1218,7 @@ export const lootTables: { [lootSpawner: string]: LootSpawner } = {
       },
       {
         item: Items.SEED_CORN,
-        weight: 18,
+        weight: 12,
         spawnCount: {
           min: 1,
           max: 2
@@ -1226,7 +1226,7 @@ export const lootTables: { [lootSpawner: string]: LootSpawner } = {
       },
       {
         item: Items.SEED_WHEAT,
-        weight: 18,
+        weight: 12,
         spawnCount: {
           min: 1,
           max: 2
@@ -1234,7 +1234,7 @@ export const lootTables: { [lootSpawner: string]: LootSpawner } = {
       },
       {
         item: Items.WEAPON_HATCHET,
-        weight: 12,
+        weight: 8,
         spawnCount: {
           min: 1,
           max: 1
@@ -1242,7 +1242,7 @@ export const lootTables: { [lootSpawner: string]: LootSpawner } = {
       },
       {
         item: Items.WATER_EMPTY,
-        weight: 7,
+        weight: 4,
         spawnCount: {
           min: 1,
           max: 1
@@ -1250,7 +1250,7 @@ export const lootTables: { [lootSpawner: string]: LootSpawner } = {
       },
       {
         item: Items.WATER_STAGNANT,
-        weight: 7,
+        weight: 4,
         spawnCount: {
           min: 1,
           max: 1
@@ -1258,7 +1258,7 @@ export const lootTables: { [lootSpawner: string]: LootSpawner } = {
       },
       {
         item: Items.WATER_PURE,
-        weight: 7,
+        weight: 4,
         spawnCount: {
           min: 1,
           max: 1
