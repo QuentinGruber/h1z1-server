@@ -20,7 +20,7 @@ import {
   DamageInfo,
   LootDefinition
 } from "types/zoneserver";
-import { eul2quat, randomIntFromInterval } from "../../../utils/utils";
+import { randomIntFromInterval } from "../../../utils/utils";
 import { AddSimpleNpc } from "types/zone2016packets";
 import { containerLootSpawnersBWC } from "../data/BWC/BWC_lootspawns";
 
