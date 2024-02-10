@@ -16,7 +16,7 @@ import { ZoneClient2016 } from "../classes/zoneclient";
 
 import { StringIds, Items, ModelIds } from "../models/enums";
 import { DamageInfo } from "types/zoneserver";
-import { eul2quat, randomIntFromInterval } from "../../../utils/utils";
+import { eul2quat, isPosInRadius, randomIntFromInterval } from "../../../utils/utils";
 import { AddSimpleNpc } from "types/zone2016packets";
 
 function getContainerAndTime(entity: LootableProp) {
@@ -92,7 +92,10 @@ function getContainerAndTime(entity: LootableProp) {
       entity.searchTime = 1000;
       entity.lootSpawner = "Cabinets Bathroom";
       break;
+    case ModelIds.BLUE_TOOL_CABINET:
+    case ModelIds.RED_SILVER_TOOL_CABINET:
     case ModelIds.TOOL_CABINET_01:
+    case ModelIds.TOOL_CABINET_02:
       entity.containerId = Items.CONTAINER_TOOL_CABINETS;
       entity.searchTime = 1000;
       entity.lootSpawner = "Tool Cabinet";
@@ -207,6 +210,19 @@ function getContainerAndTime(entity: LootableProp) {
   }
 }
 
+function isBuffedWeaponLocker(position: Float32Array): boolean {
+  const buffedPositions: [number, number, number, number][] = [
+    [877.44, 14.00, -2699.94, 1],
+    [958.05, 14.74, -2649.64, 1],
+    [669.90, 14.74, -2678.39, 1]
+  ];
+  let result = false;
+  for (const a of buffedPositions) {
+    if (isPosInRadius(40, position, new Float32Array(a))) result = true;
+  }
+  return result;
+}
+
 export class LootableProp extends BaseLootableEntity {
   spawnerId: number;
   npcRenderDistance = 150;
@@ -214,6 +230,7 @@ export class LootableProp extends BaseLootableEntity {
   containerId: number = Items.CONTAINER_STORAGE;
   lootSpawner: string = "Wrecked Car";
   searchTime: number = 1000;
+  isBuffedWeaponLocker: boolean;
   constructor(
     characterId: string,
     transientId: number,
@@ -246,6 +263,7 @@ export class LootableProp extends BaseLootableEntity {
         );
         break;
     }
+    this.isBuffedWeaponLocker = isBuffedWeaponLocker(this.state.position);
   }
 
   pGetSimpleNpc(): AddSimpleNpc {
