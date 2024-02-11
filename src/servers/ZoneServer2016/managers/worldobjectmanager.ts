@@ -17,8 +17,6 @@ const Z1_items = require("../../../../data/2016/zoneData/Z1_items.json");
 const BWC_items = require("../../../../data/2016/zoneData/BWC/BWC_items.json");
 const Z1_vehicles = require("../../../../data/2016/zoneData/Z1_vehicleLocations.json");
 const Z1_npcs = require("../../../../data/2016/zoneData/Z1_npcs.json");
-const Z1_lootableProps = require("../../../../data/2016/zoneData/Z1_lootableProps.json");
-const BWC_harvestableProps = require("../../../../data/2016/zoneData/BWC/BWC_harvestableProps.json");
 const Z1_taskProps = require("../../../../data/2016/zoneData/Z1_taskProps.json");
 const Z1_crates = require("../../../../data/2016/zoneData/Z1_crates.json");
 const Z1_destroyables = require("../../../../data/2016/zoneData/Z1_destroyables.json");
@@ -599,6 +597,7 @@ export class WorldObjectManager {
 
   createProps(server: ZoneServer2016) {
     if (this.map == "JustSurvive") {
+      const BWC_harvestableProps = require("../../../../data/2016/zoneData/BWC/BWC_harvestableProps.json");
       BWC_harvestableProps.forEach((propType: any) => {
         propType.instances.forEach((propInstance: any) => {
           const characterId = generateRandomGuid();
@@ -617,178 +616,238 @@ export class WorldObjectManager {
           server._lootableProps[characterId] = obj;
         });
       });
-    }
-    Z1_lootableProps.forEach((propType: any) => {
-      propType.instances.forEach((propInstance: any) => {
-        const itemMap: { [modelId: number]: number } = {
-          36: Items.FURNACE,
-          9205: Items.BARBEQUE,
-          9041: Items.CAMPFIRE
-        };
-        if (Object.keys(itemMap).includes(propInstance.modelId.toString())) {
-          server.constructionManager.placeSmeltingEntity(
+      const BWC_lootableProps = require("../../../../data/2016/zoneData/BWC/BWC_lootableProps.json");
+      BWC_lootableProps.forEach((propType: any) => {
+        propType.instances.forEach((propInstance: any) => {
+          const itemMap: { [modelId: number]: number } = {
+            36: Items.FURNACE,
+            9205: Items.BARBEQUE,
+            9041: Items.CAMPFIRE
+          };
+          if (Object.keys(itemMap).includes(propType.modelId.toString())) {
+            server.constructionManager.placeSmeltingEntity(
+              server,
+              itemMap[propInstance.modelId],
+              propInstance.modelId,
+              new Float32Array(propInstance.position),
+              new Float32Array(fixEulerOrder(propInstance.rotation)),
+              new Float32Array(propInstance.scale)
+            );
+            return;
+          }
+          const characterId = generateRandomGuid();
+          const obj = new (
+            propInstance.modelId == 9347 ? TreasureChest : LootableProp
+          )(
+            characterId,
+            server.getTransientId(characterId), // need transient generated for Interaction Replication
+            propType.modelId,
+            new Float32Array(propInstance.position),
+            new Float32Array([
+              propInstance.rotation[1],
+              propInstance.rotation[0],
+              propInstance.rotation[2],
+              0
+            ]),
             server,
-            itemMap[propInstance.modelId],
+            new Float32Array(propInstance.scale),
+            propInstance.id,
+            Number(propType.renderDistance)
+          );
+          server._lootableProps[characterId] = obj;
+          obj.equipItem(server, server.generateItem(obj.containerId), false);
+          if (
+            ![
+              ModelIds.HOSPITAL_LAB_WORKBENCH,
+              ModelIds.TREASURE_CHEST,
+              ModelIds.CAMPFIRE,
+              ModelIds.FURNACE
+            ].includes(propInstance.modelId)
+          ) {
+            const container = obj.getContainer();
+            if (container) {
+              container.canAcceptItems = false;
+            }
+            obj.nameId =
+              server.getItemDefinition(obj.containerId)?.NAME_ID ?? 0;
+          }
+        });
+      });
+    } else if (this.map == "Z1") {
+      const Z1_lootableProps = require("../../../../data/2016/zoneData/Z1_lootableProps.json");
+      Z1_lootableProps.forEach((propType: any) => {
+        propType.instances.forEach((propInstance: any) => {
+          const itemMap: { [modelId: number]: number } = {
+            36: Items.FURNACE,
+            9205: Items.BARBEQUE,
+            9041: Items.CAMPFIRE
+          };
+          if (Object.keys(itemMap).includes(propInstance.modelId.toString())) {
+            server.constructionManager.placeSmeltingEntity(
+              server,
+              itemMap[propInstance.modelId],
+              propInstance.modelId,
+              new Float32Array(propInstance.position),
+              new Float32Array(fixEulerOrder(propInstance.rotation)),
+              new Float32Array(propInstance.scale)
+            );
+            return;
+          }
+          const characterId = generateRandomGuid();
+          const obj = new (
+            propInstance.modelId == 9347 ? TreasureChest : LootableProp
+          )(
+            characterId,
+            server.getTransientId(characterId), // need transient generated for Interaction Replication
             propInstance.modelId,
             new Float32Array(propInstance.position),
-            new Float32Array(fixEulerOrder(propInstance.rotation)),
-            new Float32Array(propInstance.scale)
+            new Float32Array([
+              propInstance.rotation[1],
+              propInstance.rotation[0],
+              propInstance.rotation[2],
+              0
+            ]),
+            server,
+            new Float32Array(propInstance.scale),
+            propInstance.id,
+            Number(propType.renderDistance)
           );
-          return;
-        }
-        const characterId = generateRandomGuid();
-        const obj = new (
-          propInstance.modelId == 9347 ? TreasureChest : LootableProp
-        )(
-          characterId,
-          server.getTransientId(characterId), // need transient generated for Interaction Replication
-          propInstance.modelId,
-          new Float32Array(propInstance.position),
-          new Float32Array([
-            propInstance.rotation[1],
-            propInstance.rotation[0],
-            propInstance.rotation[2],
-            0
-          ]),
-          server,
-          new Float32Array(propInstance.scale),
-          propInstance.id,
-          Number(propType.renderDistance)
-        );
-        server._lootableProps[characterId] = obj;
-        obj.equipItem(server, server.generateItem(obj.containerId), false);
-        if (
-          ![
-            ModelIds.HOSPITAL_LAB_WORKBENCH,
-            ModelIds.TREASURE_CHEST,
-            ModelIds.CAMPFIRE,
-            ModelIds.FURNACE
-          ].includes(propInstance.modelId)
-        ) {
-          const container = obj.getContainer();
-          if (container) {
-            container.canAcceptItems = false;
+          server._lootableProps[characterId] = obj;
+          obj.equipItem(server, server.generateItem(obj.containerId), false);
+          if (
+            ![
+              ModelIds.HOSPITAL_LAB_WORKBENCH,
+              ModelIds.TREASURE_CHEST,
+              ModelIds.CAMPFIRE,
+              ModelIds.FURNACE
+            ].includes(propInstance.modelId)
+          ) {
+            const container = obj.getContainer();
+            if (container) {
+              container.canAcceptItems = false;
+            }
+            obj.nameId =
+              server.getItemDefinition(obj.containerId)?.NAME_ID ?? 0;
           }
-          obj.nameId = server.getItemDefinition(obj.containerId)?.NAME_ID ?? 0;
-        }
+        });
       });
-    });
-    Z1_taskProps.forEach((propType: any) => {
-      propType.instances.forEach((propInstance: any) => {
-        const characterId = generateRandomGuid();
-        let obj;
-        switch (propType.actor_file) {
-          case "Common_Props_SpikeTrap.adr":
-            server.constructionManager.placeTrap(
-              server,
-              Items.PUNJI_STICKS,
-              propType.modelId,
-              new Float32Array(propInstance.position),
-              fixEulerOrder(propInstance.rotation)
-            );
-            break;
-          case "Common_Props_BarbedWire.adr":
-            server.constructionManager.placeTrap(
-              server,
-              Items.BARBED_WIRE,
-              propType.modelId,
-              new Float32Array(propInstance.position),
-              fixEulerOrder(propInstance.rotation)
-            );
-            break;
-          case "Common_Props_Cabinets_BathroomSink.adr":
-          case "Common_Props_Bathroom_Toilet01.adr":
-          case "Common_Props_Dam_WaterValve01.adr":
-          case "Common_Props_Well.adr":
-            obj = new WaterSource(
-              characterId,
-              server.getTransientId(characterId), // need transient generated for Interaction Replication
-              propType.modelId,
-              new Float32Array(propInstance.position),
-              new Float32Array(fixEulerOrder(propInstance.rotation)),
-              server,
-              new Float32Array(propInstance.scale),
-              propInstance.id,
-              propType.renderDistance,
-              propType.actor_file,
-              this.waterSourceRefillAmount
-            );
-            break;
-          case "Common_Props_WorkBench01.adr":
-            server.constructionManager.placeSimpleConstruction(
-              server,
-              propType.modelId,
-              new Float32Array(propInstance.position),
-              new Float32Array(fixEulerOrder(propInstance.rotation)),
-              "",
-              Items.WORKBENCH
-            );
-            break;
-          default:
-            obj = new TaskProp(
-              characterId,
-              server.getTransientId(characterId), // need transient generated for Interaction Replication
-              propType.modelId,
-              new Float32Array(propInstance.position),
-              new Float32Array(fixEulerOrder(propInstance.rotation)),
-              server,
-              new Float32Array(propInstance.scale),
-              propInstance.id,
-              propType.renderDistance,
-              propType.actor_file
-            );
-        }
-        if (obj) server._taskProps[characterId] = obj;
+      Z1_taskProps.forEach((propType: any) => {
+        propType.instances.forEach((propInstance: any) => {
+          const characterId = generateRandomGuid();
+          let obj;
+          switch (propType.actor_file) {
+            case "Common_Props_SpikeTrap.adr":
+              server.constructionManager.placeTrap(
+                server,
+                Items.PUNJI_STICKS,
+                propType.modelId,
+                new Float32Array(propInstance.position),
+                fixEulerOrder(propInstance.rotation)
+              );
+              break;
+            case "Common_Props_BarbedWire.adr":
+              server.constructionManager.placeTrap(
+                server,
+                Items.BARBED_WIRE,
+                propType.modelId,
+                new Float32Array(propInstance.position),
+                fixEulerOrder(propInstance.rotation)
+              );
+              break;
+            case "Common_Props_Cabinets_BathroomSink.adr":
+            case "Common_Props_Bathroom_Toilet01.adr":
+            case "Common_Props_Dam_WaterValve01.adr":
+            case "Common_Props_Well.adr":
+              obj = new WaterSource(
+                characterId,
+                server.getTransientId(characterId), // need transient generated for Interaction Replication
+                propType.modelId,
+                new Float32Array(propInstance.position),
+                new Float32Array(fixEulerOrder(propInstance.rotation)),
+                server,
+                new Float32Array(propInstance.scale),
+                propInstance.id,
+                propType.renderDistance,
+                propType.actor_file,
+                this.waterSourceRefillAmount
+              );
+              break;
+            case "Common_Props_WorkBench01.adr":
+              server.constructionManager.placeSimpleConstruction(
+                server,
+                propType.modelId,
+                new Float32Array(propInstance.position),
+                new Float32Array(fixEulerOrder(propInstance.rotation)),
+                "",
+                Items.WORKBENCH
+              );
+              break;
+            default:
+              obj = new TaskProp(
+                characterId,
+                server.getTransientId(characterId), // need transient generated for Interaction Replication
+                propType.modelId,
+                new Float32Array(propInstance.position),
+                new Float32Array(fixEulerOrder(propInstance.rotation)),
+                server,
+                new Float32Array(propInstance.scale),
+                propInstance.id,
+                propType.renderDistance,
+                propType.actor_file
+              );
+          }
+          if (obj) server._taskProps[characterId] = obj;
+        });
       });
-    });
-    Z1_crates.forEach((propType: any) => {
-      propType.instances.forEach((propInstance: any) => {
-        const characterId = generateRandomGuid();
-        const obj = new Crate(
-          characterId,
-          1, // need transient generated for Interaction Replication
-          getActorModelId(propType.actorDefinition),
-          new Float32Array(propInstance.position),
-          new Float32Array([
-            propInstance.rotation[1],
-            propInstance.rotation[0],
-            propInstance.rotation[2],
-            0
-          ]),
-          server,
-          new Float32Array(propInstance.scale),
-          propInstance.zoneId,
-          Number(propType.renderDistance)
-        );
-        server._crates[characterId] = obj;
+      Z1_crates.forEach((propType: any) => {
+        propType.instances.forEach((propInstance: any) => {
+          const characterId = generateRandomGuid();
+          const obj = new Crate(
+            characterId,
+            1, // need transient generated for Interaction Replication
+            getActorModelId(propType.actorDefinition),
+            new Float32Array(propInstance.position),
+            new Float32Array([
+              propInstance.rotation[1],
+              propInstance.rotation[0],
+              propInstance.rotation[2],
+              0
+            ]),
+            server,
+            new Float32Array(propInstance.scale),
+            propInstance.zoneId,
+            Number(propType.renderDistance)
+          );
+          server._crates[characterId] = obj;
+        });
       });
-    });
-    Z1_destroyables.forEach((propType: any) => {
-      // disable fences until we find a fix for glitching graphics
-      if (propType.actor_file.toLowerCase().includes("fence")) return;
-      propType.instances.forEach((propInstance: any) => {
-        const characterId = generateRandomGuid();
-        const obj = new Destroyable(
-          characterId,
-          1, // need transient generated for Interaction Replication
-          propInstance.modelId,
-          new Float32Array(propInstance.position),
-          new Float32Array([
-            propInstance.rotation[1],
-            propInstance.rotation[0],
-            propInstance.rotation[2],
-            0
-          ]),
-          server,
-          new Float32Array(propInstance.scale),
-          propInstance.id,
-          Number(propType.renderDistance),
-          propType.actor_file
-        );
-        server._destroyables[characterId] = obj;
-        server._destroyableDTOlist.push(propInstance.id);
+      Z1_destroyables.forEach((propType: any) => {
+        // disable fences until we find a fix for glitching graphics
+        if (propType.actor_file.toLowerCase().includes("fence")) return;
+        propType.instances.forEach((propInstance: any) => {
+          const characterId = generateRandomGuid();
+          const obj = new Destroyable(
+            characterId,
+            1, // need transient generated for Interaction Replication
+            propInstance.modelId,
+            new Float32Array(propInstance.position),
+            new Float32Array([
+              propInstance.rotation[1],
+              propInstance.rotation[0],
+              propInstance.rotation[2],
+              0
+            ]),
+            server,
+            new Float32Array(propInstance.scale),
+            propInstance.id,
+            Number(propType.renderDistance),
+            propType.actor_file
+          );
+          server._destroyables[characterId] = obj;
+          server._destroyableDTOlist.push(propInstance.id);
+        });
       });
-    });
+    }
     debug("All props created");
   }
 
