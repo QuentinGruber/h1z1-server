@@ -158,7 +158,41 @@ export enum ModelIds {
   Common_Props_AbandonedSUV_Harvestable_Stage02 = 10313,
   Common_Props_Harvestable_PickupTruck_proxy = 10314,
   Common_Props_Harvestable_Sedan_proxy = 10315,
-  Common_Props_Harvestable_SUV_proxy = 10316
+  Common_Props_Harvestable_SUV_proxy = 10316,
+
+  // BWC
+
+  Residential_Props_Bedroom_SideTableLarge = 10363,
+  Residential_Props_Bedroom_SideTableSmall = 10364,
+  Residential_Props_MedicineCabinet = 10359,
+  Commercial_Props_Desks01 = 10354,
+  Residential_Props_Kitchen_Cabinet01 = 10353,
+  Residential_Props_Kitchen_Fridge = 10356,
+  Residential_Props_Seating_Ottoman01 = 10373,
+  Residential_Props_LivingRoom_EntertainmentCenter = 10379,
+  Residential_Props_Bedroom_Dresser = 10361,
+  Industrial_Props_MetalCabinet = 10346,
+  Residential_Props_WasherDryerCombo = 10357,
+  Residential_Props_Suitcase = 10365,
+  Farm_Props_CordsofWood = 10368,
+  Residential_Props_DuffelBag = 10366,
+  Hospital_Props_AmbulanceWrecked = 10367,
+  Industrial_Props_Cabinets_ToolCabinet01 = 10350,
+  Industrial_Props_Cabinets_ToolCabinet02 = 10351,
+  Industrial_Props_Cabinets_ToolCabinet03 = 10352,
+  City_Props_GarbageCan01 = 10375,
+  City_Props_GarbageCan02 = 10376,
+  Residential_Props_Bedroom_Armoire = 10362,
+  Commercial_Props_Cooler = 10345,
+  Commercial_Props_GasPump = 10372,
+  Office_Props_FilingCabinets = 10355,
+  Commercial_Props_ModularServiceCounter = 10360,
+  Cabins_Props_Counters_Kitchen01 = 10374,
+  Cabins_Props_Stoves_Square01 = 10371,
+  Cabins_Props_Stoves_Round01 = 10370,
+  Restaurant_Props_CommercialFridge_01 = 10378,
+  Commercial_Props_SodaMachine = 10369,
+  City_Props_Dumpster = 9738
 }
 
 export enum StringIds {
