@@ -1,0 +1,542 @@
+[
+    {
+      "id": 0,
+      "name": "Bridge-C5(Offroader)",
+      "vehicleId": 1,
+      "position": [
+        326.66,
+        76.26,
+        -1833.71,
+        1
+      ],
+      "rotation": [
+        -0.03,
+        -0.49,
+        -0.05,
+        1
+      ],
+      "orientation": -0.8532879948616028 
+    },
+    {
+        "id": 1,
+        "name": "POI parking-E7(Police)",
+        "vehicleId": 3,
+        "position": [
+          -1525.80,
+          55.91,
+          -563.42,
+          1
+        ],
+        "rotation": [
+          -0.05,
+          -0.76,
+          -0.09,
+          1
+        ],
+        "orientation": -0.8532879948616028 
+      },
+    {
+        "id": 2,
+        "name": "Safezone-G2(Offroader)",
+        "vehicleId": 1,
+        "position": [
+          2787.82,
+          136.66,
+          985.39,
+          1
+        ],
+        "rotation": [
+          -0.05,
+          -0.94,
+          -0.17,
+          1
+        ],
+        "orientation": -0.8532879948616028 
+      }, 
+    {
+        "id": 3,
+        "name": "POI parking-E4(Pickup)",
+        "vehicleId": 2,
+        "position": [
+          952.94,
+          97.22,
+          -490.19,
+          1
+        ],
+        "rotation": [
+          -0.06,
+          -0.44,
+          -0.01,
+          1
+        ],
+        "orientation": -0.8532879948616028 
+      }, 
+    {
+        "id": 4,
+        "name": "Trailers-E3(ATV)",
+        "vehicleId": 5,
+        "position": [
+          1595.24,
+          144.97,
+          -476.33,
+          1
+        ],
+        "rotation": [
+          0.05,
+          0.99,
+          0.15,
+          1
+        ],
+        "orientation": -0.8532879948616028 
+      }, 
+    {
+        "id": 5,
+        "name": "Houses-B7(Pickup)",
+        "vehicleId": 2,
+        "position": [
+          -1090.80,
+          43.72,
+          -3084.93,
+          1
+        ],
+        "rotation": [
+          -0.07,
+          0.06,
+          0.03,
+          1
+        ],
+        "orientation": -0.8532879948616028 
+      }, 
+    {
+        "id": 6,
+        "name": "Farm-B9(Pickup)",
+        "vehicleId": 2,
+        "position": [
+          -2503.99,
+          67.56,
+          -2997.93,
+          1
+        ],
+        "rotation": [
+          -0.10,
+          0.24,
+          0.07,
+          1
+        ],
+        "orientation": -0.8532879948616028 
+      }, 
+    {
+        "id": 7,
+        "name": "Gas station-B9(Police)",
+        "vehicleId": 3,
+        "position": [
+          -2583.22,
+          66.56,
+          -2813.44,
+          1
+        ],
+        "rotation": [
+          -0.09,
+          -0.51,
+          0.03,
+          1
+        ],
+        "orientation": -0.8532879948616028 
+      }, 
+    {
+        "id": 8,
+        "name": "Farm warehouse-B3(Pickup)",
+        "vehicleId": 2,
+        "position": [
+          1610.82,
+          202.00,
+          -2730.26,
+          1
+        ],
+        "rotation": [
+          -0.04,
+          0.78,
+          0.10,
+          1
+        ],
+        "orientation": -0.8532879948616028 
+      }, 
+    {
+        "id": 9,
+        "name": "Wooden houses-C3(Offroader)",
+        "vehicleId": 1,
+        "position": [
+          1856.50,
+          194.44,
+          -2075.04,
+          1
+        ],
+        "rotation": [
+          -0.07,
+          -0.24,
+          0.00,
+          1
+        ],
+        "orientation": -0.8532879948616028 
+      }, 
+    {
+        "id": 10,
+        "name": "Water treatment-C6(Police)",
+        "vehicleId": 3,
+        "position": [
+          -236.17,
+          47.53,
+          -2068.30,
+          1
+        ],
+        "rotation": [
+          -0.07,
+          -0.83,
+          0.14,
+          1
+        ],
+        "orientation": -0.8532879948616028 
+      }, 
+    {
+        "id": 11,
+        "name": "PV PD-D6(Police)",
+        "vehicleId": 3,
+        "position": [
+          -625.61,
+          109.92,
+          -1323.19,
+          1
+        ],
+        "rotation": [
+          0.00,
+          0.96,
+          0.14,
+          1
+        ],
+        "orientation": -0.8532879948616028 
+      }, 
+    {
+        "id": 12,
+        "name": "PV Resi-D6(Offroader)",
+        "vehicleId": 1,
+        "position": [
+          -770.45,
+          119.00,
+          -1220.01,
+          1
+        ],
+        "rotation": [
+          0.04,
+          0.89,
+          0.12,
+          1
+        ],
+        "orientation": -0.8532879948616028 
+      }, 
+    {
+        "id": 13,
+        "name": "Building-E7(ATV)",
+        "vehicleId": 5,
+        "position": [
+          -9.66,
+          118.03,
+          -582.55,
+          1
+        ],
+        "rotation": [
+          -0.12,
+          0.54,
+          0.06,
+          1
+        ],
+        "orientation": -0.8532879948616028 
+      }, 
+    {
+        "id": 14,
+        "name": "Yeatts Motel-E2(Police)",
+        "vehicleId": 3,
+        "position": [
+          2575.32,
+          213.50,
+          -500.01,
+          1
+        ],
+        "rotation": [
+          0.02,
+          0.88,
+          0.15,
+          1
+        ],
+        "orientation": -0.8532879948616028 
+      }, 
+    {
+        "id": 15,
+        "name": "Dam Bridge-F3(Offroader)",
+        "vehicleId": 1,
+        "position": [
+          1569.44,
+          118.05,
+          742.98,
+          1
+        ],
+        "rotation": [
+          -0.14,
+          -0.21,
+          0.07,
+          1
+        ],
+        "orientation": -0.8532879948616028 
+      },
+    {
+        "id": 16,
+        "name": "Dam Buildings-F4(Pickup)",
+        "vehicleId": 2,
+        "position": [
+          1056.83,
+          83,72,
+          681.79,
+          1
+        ],
+        "rotation": [
+          0.04,
+          0.95,
+          0.14,
+          1
+        ],
+        "orientation": -0.8532879948616028 
+      }, 
+    {
+        "id": 17,
+        "name": "Dirt roads-Zimms Cargo-G6(Offroader)",
+        "vehicleId": 1,
+        "position": [
+          -208.07,
+          223.03,
+          1508.60,
+          1
+        ],
+        "rotation": [
+          -0.08,
+          0.52,
+          -0.04,
+          1
+        ],
+        "orientation": -0.8532879948616028 
+      },
+    {
+        "id": 18,
+        "name": "Resting/Camping area-H2(ATV)",
+        "vehicleId": 5,
+        "position": [
+          2989.91,
+          89.19,
+          2146.20,
+          1
+        ],
+        "rotation": [
+          -0.08,
+          -0.58,
+          -0.08,
+          1
+        ],
+        "orientation": -0.8532879948616028 
+      },
+    {
+        "id": 19,
+        "name": "House in the woods-H5(Pickup)",
+        "vehicleId": 2,
+        "position": [
+          205.30,
+          222.09,
+          1919.30,
+          1
+        ],
+        "rotation": [
+          -0.18,
+          -0.24,
+          -0.02,
+          1
+        ],
+        "orientation": -0.8532879948616028 
+      },	  
+    {
+        "id": 20,
+        "name": "Farm-I2(Pickup)",
+        "vehicleId": 2,
+        "position": [
+          2764.28,
+          100.88,
+          3030.22,
+          1
+        ],
+        "rotation": [
+          -0.06,
+          -0.83,
+          -0.09,
+          1
+        ],
+        "orientation": -0.8532879948616028 
+      },	
+    {
+        "id": 21,
+        "name": "Farm House-I2(Offroader)",
+        "vehicleId": 1,
+        "position": [
+          2559.10,
+          98.75,
+          3090.04,
+          1
+        ],
+        "rotation": [
+          -0.03,
+          -0.97,
+          0.13,
+          1
+        ],
+        "orientation": -0.8532879948616028 
+      },
+    {
+        "id": 22,
+        "name": "Farm House-I4(ATV)",
+        "vehicleId": 5,
+        "position": [
+          785.35,
+          194.59,
+          2891.07,
+          1
+        ],
+        "rotation": [
+          -0.01,
+          0.96,
+          0.12,
+          1
+        ],
+        "orientation": -0.8532879948616028 
+      },
+    {
+        "id": 23,
+        "name": "Wood warehouses-I6(Pickup)",
+        "vehicleId": 2,
+        "position": [
+          -54.30,
+          217.75,
+          2790.97,
+          1
+        ],
+        "rotation": [
+          -0.08,
+          0.70,
+          0.05,
+          1
+        ],
+        "orientation": -0.8532879948616028 
+      },
+    {
+        "id": 24,
+        "name": "Farm warehouse-J2(Pickup)",
+        "vehicleId": 2,
+        "position": [
+          2580.05,
+          98.59,
+          3107.32,
+          1
+        ],
+        "rotation": [
+          -0.05,
+          -0.97,
+          -0.05,
+          1
+        ],
+        "orientation": -0.8532879948616028 
+      },
+    {
+        "id": 25,
+        "name": "Resting area-D9(Police)",
+        "vehicleId": 3,
+        "position": [
+          -2589.20,
+          54.44,
+          -1037.88,
+          1
+        ],
+        "rotation": [
+          -0.12,
+          0.63,
+          0.10,
+          1
+        ],
+        "orientation": -0.8532879948616028 
+      },
+    {
+        "id": 26,
+        "name": "Evac Zone-C2(Police)",
+        "vehicleId": 3,
+        "position": [
+          2515.03,
+          165.38,
+          -1624.23,
+          1
+        ],
+        "rotation": [
+          -0.11,
+          0.27,
+          0.16,
+          1
+        ],
+        "orientation": -0.8532879948616028 
+      },
+    {
+        "id": 27,
+        "name": "Small camp-F5(ATV)",
+        "vehicleId": 6,
+        "position": [
+          -2589.20,
+          54.44,
+          -1037.88,
+          1
+        ],
+        "rotation": [
+          -0.12,
+          0.63,
+          0.10,
+          1
+        ],
+        "orientation": -0.8532879948616028 
+      },	  
+    {
+        "id": 28,
+        "name": "Avcio's Dry Lake-D8(Offroader)",
+        "vehicleId": 1,
+        "position": [
+          -1943.32,
+          52.19,
+          -996.48,
+          1
+        ],
+        "rotation": [
+          -0.10,
+          -0.71,
+          -0.10,
+          1
+        ],
+        "orientation": -0.8532879948616028 
+      },	  
+    {
+        "id": 29,
+        "name": "Jonah's Church-B2(Pickup)",
+        "vehicleId": 2,
+        "position": [
+          2539.69,
+          183.34,
+          -2950.83,
+          1
+        ],
+        "rotation": [
+          -0.03,
+          0.53,
+          0.09,
+          1
+        ],
+        "orientation": -0.8532879948616028 
+      }	  
+  ]
