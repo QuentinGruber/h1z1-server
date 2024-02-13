@@ -16,7 +16,11 @@ import { ZoneClient2016 } from "../classes/zoneclient";
 
 import { StringIds, Items, ModelIds } from "../models/enums";
 import { DamageInfo } from "types/zoneserver";
-import { eul2quat, isPosInRadius, randomIntFromInterval } from "../../../utils/utils";
+import {
+  eul2quat,
+  isPosInRadius,
+  randomIntFromInterval
+} from "../../../utils/utils";
 import { AddSimpleNpc } from "types/zone2016packets";
 
 function getContainerAndTime(entity: LootableProp) {
@@ -212,9 +216,9 @@ function getContainerAndTime(entity: LootableProp) {
 
 function isBuffedWeaponLocker(position: Float32Array): boolean {
   const buffedPositions: [number, number, number, number][] = [
-    [877.44, 14.00, -2699.94, 1],
+    [877.44, 14.0, -2699.94, 1],
     [958.05, 14.74, -2649.64, 1],
-    [669.90, 14.74, -2678.39, 1]
+    [669.9, 14.74, -2678.39, 1]
   ];
   let result = false;
   for (const a of buffedPositions) {

@@ -999,7 +999,7 @@ export const lootTables: { [lootSpawner: string]: LootSpawner } = {
           min: 1,
           max: 1
         }
-      },
+      }
     ]
   },
   // #endregion
@@ -1271,7 +1271,7 @@ export const lootTables: { [lootSpawner: string]: LootSpawner } = {
           min: 1,
           max: 3
         }
-      },
+      }
     ]
   },
   // #endregion
@@ -2514,7 +2514,7 @@ export const containerLootSpawners: {
           min: 1,
           max: 1
         }
-      },
+      }
     ]
   },
   Cabinets: {
@@ -2970,7 +2970,7 @@ export const containerLootSpawners: {
           min: 1,
           max: 3
         }
-      },
+      }
     ]
   },
   "Drug Cabinets": {
@@ -3444,7 +3444,7 @@ export const containerLootSpawners: {
           min: 1,
           max: 1
         }
-      },
+      }
     ]
   },
   "Garbage Can": {
@@ -3530,7 +3530,7 @@ export const containerLootSpawners: {
           min: 1,
           max: 1
         }
-      },
+      }
     ]
   },
   "File Cabinet": {
@@ -3996,7 +3996,7 @@ export const containerLootSpawners: {
           min: 1,
           max: 1
         }
-      },
+      }
     ]
   },
   Dresser: {
@@ -4158,7 +4158,7 @@ export const containerLootSpawners: {
           min: 1,
           max: 1
         }
-      },
+      }
     ]
   },
   // used for crate props
@@ -4229,7 +4229,7 @@ export const containerLootSpawners: {
           min: 1,
           max: 1
         }
-      },
+      }
     ]
   },
   Crate: {

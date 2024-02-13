@@ -2625,7 +2625,7 @@ export const commands: Array<Command> = [
           delete server.worldObjectManager.spawnedLootObjects[item.spawnerId];
         }
       }
-      
+
       for (const characterId in server._lootableProps) {
         const item = server._lootableProps[characterId];
         if (item.spawnerId > 0) {
