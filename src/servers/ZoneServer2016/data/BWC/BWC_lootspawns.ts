@@ -3616,24 +3616,24 @@ export const containerLootSpawnersBWC: {
         item: Items.WEAPON_1911,
         weight: 7,
         spawnCount: {
-          min: 4,
-          max: 8
+          min: 1,
+          max: 1
         }
       },
       {
         item: Items.WEAPON_R380,
         weight: 7,
         spawnCount: {
-          min: 4,
-          max: 12
+          min: 1,
+          max: 1
         }
       },
       {
         item: Items.WEAPON_COMBATKNIFE,
         weight: 15,
         spawnCount: {
-          min: 4,
-          max: 16
+          min: 1,
+          max: 1
         }
       },
       {
@@ -3657,7 +3657,7 @@ export const containerLootSpawnersBWC: {
         weight: 20,
         spawnCount: {
           min: 1,
-          max: 3
+          max: 1
         }
       },
       {
