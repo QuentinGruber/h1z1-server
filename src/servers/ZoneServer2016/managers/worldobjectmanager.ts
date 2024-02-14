@@ -15,7 +15,6 @@ import { ZoneServer2016 } from "../zoneserver";
 const Z1_doors = require("../../../../data/2016/zoneData/Z1_doors.json");
 const Z1_items = require("../../../../data/2016/zoneData/Z1_items.json");
 const BWC_items = require("../../../../data/2016/zoneData/BWC/BWC_items.json");
-const Z1_vehicles = require("../../../../data/2016/zoneData/Z1_vehicleLocations.json");
 const Z1_npcs = require("../../../../data/2016/zoneData/Z1_npcs.json");
 const Z1_taskProps = require("../../../../data/2016/zoneData/Z1_taskProps.json");
 const Z1_crates = require("../../../../data/2016/zoneData/Z1_crates.json");
@@ -936,8 +935,12 @@ export class WorldObjectManager {
       (this.vehicleSpawnCap - _.size(server._vehicles)) / 8
     );
     for (let x = 0; x < respawnAmount; x++) {
+      const vehicles =
+        this.map == "Z1"
+          ? require("../../../../data/2016/zoneData/Z1_vehicleLocations.json")
+          : require("../../../../data/2016/zoneData/BWC/BWC_vehicleLocations.json");
       const dataVehicle =
-        Z1_vehicles[randomIntFromInterval(0, Z1_vehicles.length - 1)];
+        vehicles[randomIntFromInterval(0, vehicles.length - 1)];
       let spawn = true;
       Object.values(server._vehicles).forEach((spawnedVehicle: Vehicle2016) => {
         if (!spawn) return;

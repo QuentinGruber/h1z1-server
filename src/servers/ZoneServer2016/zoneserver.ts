@@ -2185,15 +2185,16 @@ export class ZoneServer2016 extends EventEmitter {
         unk: number ? Math.floor((number - new Date().getTime()) / 1000) : 0
       });
     });
-
-    this.sendData<ClientUpdateUpdateLockoutTimes>(
-      client,
-      "ClientUpdate.UpdateLockoutTimes",
-      {
-        unk: gridArr,
-        bool: true
-      }
-    );
+    if (this.map == "Z1") {
+      this.sendData<ClientUpdateUpdateLockoutTimes>(
+        client,
+        "ClientUpdate.UpdateLockoutTimes",
+        {
+          unk: gridArr,
+          bool: true
+        }
+      );
+    }
     client.character._characterEffects = {};
     client.character.isRespawning = true;
     this.sendDeathMetrics(client);
@@ -2550,7 +2551,7 @@ export class ZoneServer2016 extends EventEmitter {
 
   respawnPlayer(
     client: Client,
-    cell: SpawnCell,
+    cell: SpawnCell | any,
     clearEquipment: boolean = true
   ) {
     if (!this.hookManager.checkHook("OnPlayerRespawn", client)) return;
@@ -2646,6 +2647,134 @@ export class ZoneServer2016 extends EventEmitter {
     }
     client.character.equipLoadout(this);
     client.character.state.position = cell.spawnPoints[randomSpawnIndex];
+    client.character.resetResources(this);
+    this.updateCharacterState(
+      client,
+      client.character.characterId,
+      client.character.characterStates,
+      true
+    );
+
+    // fixes characters showing up as dead if they respawn close to other characters
+    if (client.character.initialized) {
+      this.sendDataToAllOthersWithSpawnedEntity<CharacterRemovePlayer>(
+        this._characters,
+        client,
+        client.character.characterId,
+        "Character.RemovePlayer",
+        {
+          characterId: client.character.characterId
+        }
+      );
+      setTimeout(() => {
+        if (!client?.character) return;
+        this.sendDataToAllOthersWithSpawnedEntity<AddLightweightPc>(
+          this._characters,
+          client,
+          client.character.characterId,
+          "AddLightweightPc",
+          client.character.pGetLightweightPC(this, client)
+        );
+      }, 2000);
+    }
+    client.character.updateEquipment(this);
+    this.hookManager.checkHook("OnPlayerRespawned", client);
+  }
+
+  respawnPlayerBWC(
+    client: Client,
+    position: Float32Array,
+    clearEquipment: boolean = true
+  ) {
+    if (!this.hookManager.checkHook("OnPlayerRespawn", client)) return;
+
+    if (!client.character.isRespawning) return;
+
+    if (client.vehicle.mountedVehicle) {
+      this.dismountVehicle(client);
+    }
+
+    this.dropAllManagedObjects(client);
+
+    client.isLoading = true;
+    client.characterReleased = false;
+    client.blockedPositionUpdates = 0;
+    client.character.lastLoginDate = toHex(Date.now());
+    client.character.resetMetrics();
+    client.character.isAlive = true;
+    client.character.isRunning = false;
+    client.character.isRespawning = false;
+    client.isInAir = false;
+
+    this.sendDataToAllWithSpawnedEntity<CommandPlayDialogEffect>(
+      this._characters,
+      client.character.characterId,
+      "Command.PlayDialogEffect",
+      {
+        characterId: client.character.characterId,
+        effectId: 0
+      }
+    );
+    if (client.character.initialized) {
+      client.managedObjects?.forEach((characterId) => {
+        this.dropVehicleManager(client, characterId);
+      });
+      this.sendData<CharacterRespawnReply>(client, "Character.RespawnReply", {
+        characterId: client.character.characterId,
+        status: true
+      });
+      const tempPos = client.character.state.position;
+      const tempPos2 = new Float32Array([
+        position[0],
+        position[1] + 1,
+        position[2],
+        1
+      ]);
+      client.character.state.position = tempPos2;
+      client.oldPos.position = tempPos2;
+      this.sendData<ClientUpdateUpdateLocation>(
+        client,
+        "ClientUpdate.UpdateLocation",
+        {
+          position: tempPos2
+        }
+      );
+      const damageInfo: DamageInfo = {
+        entity: "Server.Respawn",
+        damage: 99999
+      };
+      if (this.fairPlayManager.fairPlayValues && !client.isAdmin) {
+        for (
+          let x = 1;
+          x < this.fairPlayManager.fairPlayValues.respawnCheckIterations;
+          x++
+        ) {
+          setTimeout(() => {
+            if (
+              isPosInRadius(
+                this.fairPlayManager.fairPlayValues?.respawnCheckRange || 100,
+                tempPos,
+                client.character.state.position
+              ) ||
+              !isPosInRadius(
+                this.fairPlayManager.fairPlayValues?.respawnCheckRange || 300,
+                tempPos2,
+                client.character.state.position
+              )
+            )
+              this.killCharacter(client, damageInfo);
+          }, x * this.fairPlayManager.fairPlayValues.respawnCheckTime);
+        }
+      }
+    }
+    if (clearEquipment) {
+      Object.values(client.character._equipment).forEach((equipmentSlot) => {
+        this.clearEquipmentSlot(client.character, equipmentSlot.slotId, false);
+      });
+      client.character.updateEquipment(this);
+    }
+    client.character.equipLoadout(this);
+    client.character.state.position = position;
     client.character.resetResources(this);
     this.updateCharacterState(
       client,
