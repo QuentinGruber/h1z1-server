@@ -253,7 +253,8 @@ export class Npc extends BaseFullCharacter {
   }
 
   OnPlayerSelect(server: ZoneServer2016, client: ZoneClient2016) {
-    if (!this.isAlive && client.character.hasItem(Items.SKINNING_KNIFE)) {
+    const skinningKnife = client.character.getItemById(Items.SKINNING_KNIFE)
+    if (!this.isAlive && skinningKnife) {
       server.utilizeHudTimer(client, this.nameId, 5000, 0, () => {
         switch (this.actorModelId) {
           case ModelIds.ZOMBIE_FEMALE_WALKER:
@@ -281,6 +282,9 @@ export class Npc extends BaseFullCharacter {
           case ModelIds.WOLF:
             this.triggerAwards(server, client, this.rewardItems);
             break;
+        }
+        if (Math.random() <= 0.15) { // 15% chance for knife to break upon harvest
+          server.removeInventoryItem(client.character, skinningKnife);
         }
         server.deleteEntity(this.characterId, server._npcs);
       });
