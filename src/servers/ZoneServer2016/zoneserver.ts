@@ -243,6 +243,7 @@ const spawnLocations2 = require("../../../data/2016/zoneData/Z1_gridSpawns.json"
   dynamicappearance = require("../../../data/2016/sampleData/dynamicappearance"),
   resourceDefinitions = require("../../../data/2016/dataSources/Resources"),
   Z1_POIs = require("../../../data/2016/zoneData/Z1_POIs"),
+  BWC_POIs = require("../../../data/2016/zoneData/BWC/BWC_POIs"),
   hudIndicators = require("../../../data/2016/dataSources/HudIndicators"),
   screenEffects = require("../../../data/2016/sampleData/screenEffects.json"),
   clientEffectsDataSource = require("../../../data/2016/dataSources/ClientEffects.json"),
@@ -3865,7 +3866,8 @@ export class ZoneServer2016 extends EventEmitter {
   private POIManager(client: Client) {
     // sends POIChangeMessage or clears it based on player location
     let inPOI = false;
-    Z1_POIs.forEach((point: any) => {
+    const pois = this.map == "Z1" ? Z1_POIs : BWC_POIs;
+    pois.forEach((point: any) => {
       if (
         isPosInRadius(
           point.range,
