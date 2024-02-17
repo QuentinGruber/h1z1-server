@@ -8,6 +8,9 @@ test("ZoneServer2016", { timeout: 10000 }, async (t) => {
   await t.test("start", async () => {
     await ZoneServer.start();
   });
+  await t.test("save", async () => {
+    await ZoneServer.saveWorld();
+  });
   await t.test("stop", async () => {
     await ZoneServer.stop();
   });
@@ -24,6 +27,9 @@ test(
     );
     await t.test("start", async () => {
       await ZoneServer.start();
+    });
+    await t.test("save", async () => {
+      await ZoneServer.saveWorld();
     });
     await scheduler.yield();
     await t.test("stop", async () => {
