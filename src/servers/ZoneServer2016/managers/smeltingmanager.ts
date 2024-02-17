@@ -352,7 +352,7 @@ export class SmeltingManager {
           effectTime: Math.ceil(this.collectingTickTime / 1000)
         }
       );
-      
+
       entity.lootContainerItem(
         server,
         server.generateItem(Items.HONEYCOMB),
