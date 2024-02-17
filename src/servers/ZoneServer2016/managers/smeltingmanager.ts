@@ -340,6 +340,19 @@ export class SmeltingManager {
 
     if (subEntity.currentHoneycombTicks >= subEntity.requiredHoneycombTicks) {
       subEntity.currentHoneycombTicks = 0;
+
+      server.sendDataToAllWithSpawnedEntity<CharacterPlayWorldCompositeEffect>(
+        subEntity!.dictionary,
+        entity.characterId,
+        "Character.PlayWorldCompositeEffect",
+        {
+          characterId: entity.characterId,
+          effectId: entity.subEntity!.workingEffect,
+          position: entity.state.position,
+          effectTime: Math.ceil(this.collectingTickTime / 1000)
+        }
+      );
+      
       entity.lootContainerItem(
         server,
         server.generateItem(Items.HONEYCOMB),
