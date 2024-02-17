@@ -40,7 +40,7 @@ export class SmeltingManager {
   lastBurnTime: number = 0;
   checkSmeltablesTimer?: NodeJS.Timeout;
   checkCollectorsTimer?: NodeJS.Timeout;
-  // 5 min x 144 ticks = 12 hours for honeycomb
+  // 5 min x 72 ticks = 6 hours for honeycomb
 
   /* MANAGED BY CONFIGMANAGER */
   burnTime!: number;
@@ -277,6 +277,7 @@ export class SmeltingManager {
         const reward = getRewardId(entity.itemDefinitionId);
         if (reward) {
           if (reward == Items.HONEY) {
+            if (item.stackCount >= 10) return;
             const honeycombItem = entity.getItemById(Items.HONEYCOMB);
             if (
               !honeycombItem ||
@@ -319,12 +320,10 @@ export class SmeltingManager {
     subEntity: CollectingEntity,
     container: LoadoutContainer
   ) {
-    let isEmpty = true;
     for (const a in container.items) {
       const item = container.items[a];
       if (item.itemDefinitionId == Items.HONEYCOMB) {
-        isEmpty = false;
-
+        if (item.stackCount >= 5) return;
         server.sendDataToAllWithSpawnedEntity<CharacterPlayWorldCompositeEffect>(
           subEntity!.dictionary,
           entity.characterId,
@@ -338,7 +337,6 @@ export class SmeltingManager {
         );
       }
     }
-    if (!isEmpty) return;
 
     if (subEntity.currentHoneycombTicks >= subEntity.requiredHoneycombTicks) {
       subEntity.currentHoneycombTicks = 0;
@@ -347,17 +345,6 @@ export class SmeltingManager {
         server.generateItem(Items.HONEYCOMB),
         1,
         false
-      );
-      server.sendDataToAllWithSpawnedEntity<CharacterPlayWorldCompositeEffect>(
-        subEntity!.dictionary,
-        entity.characterId,
-        "Character.PlayWorldCompositeEffect",
-        {
-          characterId: entity.characterId,
-          effectId: entity.subEntity!.workingEffect,
-          position: entity.state.position,
-          effectTime: Math.ceil(this.collectingTickTime / 1000)
-        }
       );
       return;
     }
