@@ -110,7 +110,8 @@ export class Plane extends Vehicle2016 {
         vehicleId: this.vehicleId
       },
       positionUpdate: {
-        ...this.positionUpdate
+        ...this.positionUpdate,
+        vehicle: undefined // To fix #1915
       }
     };
   }

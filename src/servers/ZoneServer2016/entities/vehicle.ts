@@ -346,7 +346,8 @@ export class Vehicle2016 extends BaseLootableEntity {
         vehicleId: this.vehicleId
       },
       positionUpdate: {
-        ...this.positionUpdate
+        ...this.positionUpdate,
+        vehicle: undefined // To fix #1915
       }
     };
   }
