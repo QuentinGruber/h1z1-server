@@ -1964,30 +1964,30 @@ export const commands: Array<Command> = [
     permissionLevel: PermissionLevels.ADMIN,
     execute: (server, client, args) => {
       if (!args[0]) {
-        client.character.equipLoadout(server, characterKitLoadout);
+        client.character.equipLoadout(server, characterKitLoadout, true);
         return;
       }
 
       switch (args[0]) {
         case "pvp":
-          client.character.equipLoadout(server, characterKitLoadout);
+          client.character.equipLoadout(server, characterKitLoadout, true);
           break;
         case "parts":
-          client.character.equipLoadout(server, characterVehicleKit);
+          client.character.equipLoadout(server, characterVehicleKit, true);
           break;
         case "skins":
           client.character.equipItem(
             server,
             server.generateItem(Items.FANNY_PACK_DEV)
           );
-          client.character.equipLoadout(server, characterSkinsLoadout);
+          client.character.equipLoadout(server, characterSkinsLoadout, true);
           break;
         case "build":
           client.character.equipItem(
             server,
             server.generateItem(Items.FANNY_PACK_DEV)
           );
-          client.character.equipLoadout(server, characterBuildKitLoadout);
+          client.character.equipLoadout(server, characterBuildKitLoadout, true);
           break;
         default:
           server.sendChatText(

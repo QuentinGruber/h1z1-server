@@ -5541,13 +5541,13 @@ export class ZoneServer2016 extends EventEmitter {
    *
    * @param {number} itemDefinitionId - The itemDefinitionId of the item to generate.
    * @param {number} [count=1] - The count of the item.
-   * @param {number} [lastGeneratedTime=0] - The last generated time of the item.
+   * @param {boolean} [forceMaxDurability =false] - force the item to have his max durability.
    * @returns {BaseItem|undefined} The generated item, or undefined if the item definition is invalid.
    */
   generateItem(
     itemDefinitionId: number,
     count: number = 1,
-    lastGeneratedTime: number = 0
+    forceMaxDurability: boolean = false
   ): BaseItem | undefined {
     const itemDefinition = this.getItemDefinition(itemDefinitionId);
     if (!itemDefinition) {
@@ -5595,11 +5595,12 @@ export class ZoneServer2016 extends EventEmitter {
       case WeaponDefinitionIds.WEAPON_M9:
       case WeaponDefinitionIds.WEAPON_MAGNUM:
       case WeaponDefinitionIds.WEAPON_R380:
-        if (Date.now() - lastGeneratedTime <= 200) break;
-        do {
-          durability = Math.floor(Math.random() * 2000);
-        } while (durability < 250);
-        break;
+        if (!forceMaxDurability) {
+          do {
+            durability = Math.floor(Math.random() * 2000);
+          } while (durability < 250);
+          break;
+        }
     }
     const itemData: BaseItem = new BaseItem(
       itemDefinitionId,
