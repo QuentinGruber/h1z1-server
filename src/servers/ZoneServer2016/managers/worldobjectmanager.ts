@@ -12,7 +12,6 @@
 // ======================================================================
 
 import { ZoneServer2016 } from "../zoneserver";
-const Z1_doors = require("../../../../data/2016/zoneData/Z1_doors.json");
 const Z1_items = require("../../../../data/2016/zoneData/Z1_items.json");
 const BWC_items = require("../../../../data/2016/zoneData/BWC/BWC_items.json");
 const Z1_npcs = require("../../../../data/2016/zoneData/Z1_npcs.json");
