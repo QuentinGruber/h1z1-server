@@ -34,12 +34,12 @@ export class SOEServer extends EventEmitter {
   private _connection: dgram.Socket;
   private readonly _crcSeed: number = Math.floor(Math.random() * 256);
   private _crcLength: crc_length_options = 2;
-  _waitTimeMs: number = 24;
+  _tickRate: number = 1000 / 32;
   keepAliveTimeoutTime: number = 40000;
   private readonly _maxMultiBufferSize: number;
   private _resendTimeout: number = 400;
   _allowRawDataReception: boolean = false;
-  private _packetResetInterval: NodeJS.Timeout | undefined;
+  private _sendingProcessTimer!: NodeJS.Timeout;
   constructor(serverPort: number, cryptoKey: Uint8Array) {
     super();
     const oneMb = 1024 * 1024;
@@ -179,7 +179,7 @@ export class SOEServer extends EventEmitter {
       if (packet.isReliable) {
         client.unAckData.set(
           packet.sequence as number,
-          Date.now() + this._waitTimeMs
+          Date.now() + this._tickRate
         );
       }
     }
@@ -215,16 +215,6 @@ export class SOEServer extends EventEmitter {
     const client = new SOEClient(remote, this._crcSeed, this._cryptoKey);
     this._clients.set(clientId, client);
     return client;
-  }
-
-  // activate the sending timer if it's not already activated
-  private _activateSendingTimer(client: SOEClient, additonalTime: number = 0) {
-    if (!client.sendingTimer) {
-      client.sendingTimer = setTimeout(() => {
-        client.sendingTimer = null;
-        this.sendingProcess(client);
-      }, this._waitTimeMs + additonalTime);
-    }
   }
 
   // Handle the packet received from the client
@@ -327,6 +317,9 @@ export class SOEServer extends EventEmitter {
     if (udpLength !== undefined) {
       this._udpLength = udpLength;
     }
+    this._sendingProcessTimer = setInterval(() => {
+      this.sendingProcessLoop();
+    }, this._tickRate);
     this._connection.on("message", (data, remote) => {
       try {
         let client: SOEClient;
@@ -353,11 +346,6 @@ export class SOEServer extends EventEmitter {
           client.inputStream.on("error", (err: Error) => {
             console.error(err);
             this.emit("disconnect", client);
-          });
-
-          client.outputStream.on(SOEOutputChannels.Reliable, () => {
-            // some reliables are available, we send them
-            this._activateSendingTimer(client);
           });
 
           client.outputStream.on(
@@ -414,7 +402,7 @@ export class SOEServer extends EventEmitter {
   }
 
   async stop(): Promise<void> {
-    clearInterval(this._packetResetInterval);
+    clearInterval(this._sendingProcessTimer);
     // delete all _clients
     for (const client of this._clients.values()) {
       client.closeTimers();
@@ -501,6 +489,13 @@ export class SOEServer extends EventEmitter {
     }
     return appPackets;
   }
+
+  private sendingProcessLoop() {
+    for (const client of this._clients.values()) {
+      this.sendingProcess(client);
+    }
+  }
+
   private sendingProcess(client: Client) {
     // If there is a pending sending timer then we clear it
     this._clearSendingTimer(client);
@@ -587,10 +582,6 @@ export class SOEServer extends EventEmitter {
     if (waitingQueuePacket) {
       this._sendAndBuildPhysicalPacket(client, waitingQueuePacket);
     }
-
-    if (client.unAckData.size > 0) {
-      this._activateSendingTimer(client);
-    }
   }
   // Build the logical packet via the soeprotocol
   private createLogicalPacket(
@@ -623,7 +614,6 @@ export class SOEServer extends EventEmitter {
     queue: PacketsQueue
   ): boolean {
     return (
-      this._waitTimeMs > 0 &&
       logicalPacket.canBeBuffered &&
       queue.CurrentByteLength + logicalPacket.data.length <=
         this._maxMultiBufferSize
@@ -637,10 +627,8 @@ export class SOEServer extends EventEmitter {
     client.stats.totalLogicalPacketSent++;
     if (this._canBeBufferedIntoQueue(logicalPacket, client.waitingQueue)) {
       client.waitingQueue.addPacket(logicalPacket);
-      this._activateSendingTimer(client);
     } else {
       client.delayedLogicalPackets.push(logicalPacket);
-      this.sendingProcess(client);
     }
   }
 
