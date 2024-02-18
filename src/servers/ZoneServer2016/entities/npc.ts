@@ -86,6 +86,7 @@ export class Npc extends BaseFullCharacter {
 
     if ((this.health -= damageInfo.damage) <= 0 && this.isAlive) {
       this.deathTime = Date.now();
+      this.flags.knockedOut = 1;
       server.worldObjectManager.createLootbag(server, this);
       if (client) {
         if (!server._soloMode) {
