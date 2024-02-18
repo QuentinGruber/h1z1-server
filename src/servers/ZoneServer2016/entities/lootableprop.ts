@@ -49,8 +49,6 @@ function getContainerAndTime(entity: LootableProp) {
       entity.lootSpawner = "Locker";
       break;
     case ModelIds.DESK:
-    case ModelIds.Residential_Props_Bedroom_SideTableLarge:
-    case ModelIds.Residential_Props_Bedroom_SideTableSmall:
     case ModelIds.Commercial_Props_Desks01:
       entity.containerId = Items.CONTAINER_DESK;
       entity.searchTime = 1000;
