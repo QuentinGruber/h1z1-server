@@ -773,6 +773,63 @@ export const commands: Array<Command> = [
         case "hospital":
           position = new Float32Array([1895.4, 93.69, -2914.39, 1]);
           break;
+        case "bwc_pv":
+          position = new Float32Array([-533.59, 106.72, -1218.04, 1]);
+          break;
+        case "bwc_dam":
+          position = new Float32Array([1094.86, 72.74, 587.49, 1]);
+          break;
+        case "bwc_lumber":
+          position = new Float32Array([8.38, 218.64, 2762.99, 1]);
+          break;
+        case "bwc_prc":
+          position = new Float32Array([1974.13, 107.56, 1693.05, 1]);
+          break;
+        case "bwc_ranch":
+          position = new Float32Array([2775.35, 99.88, 2904.33, 1]);
+          break;
+        case "bwc_farm":
+          position = new Float32Array([-2459.58, 60.72, -2568.69, 1]);
+          break;
+        case "bwc_pml":
+          position = new Float32Array([1331.71, 166.0, 2421.86, 1]);
+          break;
+        case "bwc_rvpark":
+          position = new Float32Array([2929.54, 89.57, 2024.7, 1]);
+          break;
+        case "bwc_motel":
+          position = new Float32Array([2600.7, 213.5, -532.03, 1]);
+          break;
+        case "bwc_visitor":
+          position = new Float32Array([1768.7, 132.24, -1255.41, 1]);
+          break;
+        case "bwc_church":
+          position = new Float32Array([2516.34, 183.34, -2884.25, 1]);
+          break;
+        case "bwc_stables":
+          position = new Float32Array([1726.32, 201.69, -2596.52, 1]);
+          break;
+        case "bwc_grove":
+          position = new Float32Array([891.17, 188.0, -2481.9, 1]);
+          break;
+        case "bwc_safe1":
+          position = new Float32Array([2776.63, 136.66, 953.9, 1]);
+          break;
+        case "bwc_safe2":
+          position = new Float32Array([876.48, 70.38, -821.71, 1]);
+          break;
+        case "bwc_docks":
+          position = new Float32Array([-1843.01, 45.52, -850.23, 1]);
+          break;
+        case "bwc_tunnel":
+          position = new Float32Array([-2794.55, 54.78, -1022.45, 1]);
+          break;
+        case "bwc_motersports":
+          position = new Float32Array([-2252.65, 102.31, -324.24, 1]);
+          break;
+        case "bwc_evac":
+          position = new Float32Array([2505.3, 163.96, -1611.11, 1]);
+          break;
         default:
           if (args.length < 3) {
             server.sendChatText(

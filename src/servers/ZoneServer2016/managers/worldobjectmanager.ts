@@ -878,26 +878,82 @@ export class WorldObjectManager {
   }
 
   createDoors(server: ZoneServer2016) {
-    Z1_doors.forEach((doorType: any) => {
-      const modelId: number = _.find(models, (model: any) => {
-        return (
-          model.MODEL_FILE_NAME ===
-          doorType.actorDefinition.replace("_Placer", "")
-        );
-      })?.ID;
-      doorType.instances.forEach((doorInstance: any) => {
-        this.createDoor(
-          server,
-          modelId ? modelId : 9183,
-          new Float32Array(doorInstance.position),
-          new Float32Array(doorInstance.rotation),
-          new Float32Array(doorInstance.scale) ??
-            new Float32Array([1, 1, 1, 1]),
-          // doorInstance.id doesn't exist
-          0
-        );
-      });
-    });
+    const doors =
+      this.map == "Z1"
+        ? require("../../../../data/2016/zoneData/Z1_doors.json")
+        : require("../../../../data/2016/zoneData/BWC/BWC_doors.json");
+    switch (this.map) {
+      case "Z1":
+        doors.forEach((doorType: any) => {
+          const modelId: number = _.find(models, (model: any) => {
+            return (
+              model.MODEL_FILE_NAME ===
+              doorType.actorDefinition.replace("_Placer", "")
+            );
+          })?.ID;
+          doorType.instances.forEach((doorInstance: any) => {
+            this.createDoor(
+              server,
+              modelId ? modelId : 9183,
+              new Float32Array(doorInstance.position),
+              new Float32Array(doorInstance.rotation),
+              new Float32Array(doorInstance.scale) ??
+                new Float32Array([1, 1, 1, 1]),
+              // doorInstance.id doesn't exist
+              0
+            );
+          });
+        });
+        break;
+      case "JustSurvive":
+        doors.forEach((doorType: any) => {
+          let modelId: number = 9904;
+          switch (doorType.actorDefinition) {
+            case "Common_DPO_DoorProxy_ResidentialFront.adr":
+              modelId = 9904;
+              break;
+            case "Common_DPO_DoorProxy_Residential.adr":
+              modelId = 9905;
+              break;
+            case "Common_DPO_DoorProxy_Cabin.adr":
+              modelId = 9901;
+              break;
+            case "Common_DPO_DoorProxy_Camper.adr":
+              modelId = 9333;
+              break;
+            case "Common_DPO_DoorProxy_Industrial.adr":
+              modelId = 9003;
+              break;
+            case "Common_DPO_DoorProxy_Office.adr":
+              modelId = 9905; // change for proper model later
+              break;
+            case "Common_DPO_DoorProxy_BathroomStall.adr":
+              modelId = 9884;
+              break;
+            case "Common_DPO_DoorProxy_CommercialGlass.adr":
+              modelId = 9897;
+              break;
+            default:
+              modelId = 9232;
+              break;
+          }
+
+          doorType.instances.forEach((doorInstance: any) => {
+            this.createDoor(
+              server,
+              modelId ? modelId : 9183,
+              new Float32Array(doorInstance.position),
+              new Float32Array(doorInstance.rotation),
+              new Float32Array(doorInstance.scale) ??
+                new Float32Array([1, 1, 1, 1]),
+              // doorInstance.id doesn't exist
+              0
+            );
+          });
+        });
+        break;
+    }
+
     debug("All doors objects created");
   }
 

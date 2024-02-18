@@ -63,6 +63,7 @@ function getDoorSound(actorModelId: number) {
       closeSound = 5092;
       break;
     case 9224:
+    case 9231:
     case 9232:
     case 9233:
       openSound = 5089;
