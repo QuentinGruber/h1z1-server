@@ -94,11 +94,7 @@ export class Plane extends Vehicle2016 {
         this.state.position,
         this.state.rotation,
         gameTime
-      ),
-      vehicle: this,
-      get position() {
-        return this.vehicle.state.position;
-      }
+      )
     };
   }
 
