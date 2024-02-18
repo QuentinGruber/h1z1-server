@@ -203,9 +203,20 @@ export class HarvestableProp extends BaseLootableEntity {
   }
 
   OnInteractionString(server: ZoneServer2016, client: ZoneClient2016) {
-    if (this.stage >= 2) return;
     const weapon = client.character.getEquippedWeapon();
-    if (!weapon || weapon.itemDefinitionId != Items.WEAPON_CROWBAR) return;
+    if (!weapon || weapon.itemDefinitionId != Items.WEAPON_CROWBAR) {
+      server.sendData(client, "Command.InteractionString", {
+        guid: this.characterId,
+        stringId: StringIds.YOU_NEED_A_CROWBAR_TO_HARVEST_THIS_VEHICLE_
+      });
+      return;
+    } else if (this.stage >= 2) {
+      server.sendData(client, "Command.InteractionString", {
+        guid: this.characterId,
+        stringId: StringIds.THERE_IS_NOTHING_TO_HARVEST
+      });
+      return;
+    }
     server.sendData(client, "Command.InteractionString", {
       guid: this.characterId,
       stringId: StringIds.HARVEST

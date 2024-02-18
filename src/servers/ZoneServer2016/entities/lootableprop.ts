@@ -56,6 +56,12 @@ function getContainerAndTime(entity: LootableProp) {
       entity.searchTime = 1000;
       entity.lootSpawner = "Desk";
       break;
+    case ModelIds.Residential_Props_Bedroom_SideTableLarge:
+    case ModelIds.Residential_Props_Bedroom_SideTableSmall:
+      entity.containerId = Items.CONTAINER_SIDE_TABLE;
+      entity.searchTime = 1000;
+      entity.lootSpawner = "Desk";
+      break;
     case ModelIds.OFFICE_CABINETS_01:
     case ModelIds.OFFICE_FILING_CABINET:
     case ModelIds.OFFICE_CABINETS_02:
@@ -135,23 +141,28 @@ function getContainerAndTime(entity: LootableProp) {
     case ModelIds.OTTOMAN_01:
     case ModelIds.OTTOMAN_02:
     case ModelIds.Residential_Props_Seating_Ottoman01:
-    case ModelIds.Residential_Props_Suitcase:
       entity.containerId = Items.CONTAINER_OTTOMAN;
       entity.searchTime = 300;
       entity.lootSpawner = "Ottoman";
       break;
+    case ModelIds.Residential_Props_Suitcase:
+      entity.containerId = Items.CONTAINER_SUITCASE;
+      entity.searchTime = 300;
+      entity.lootSpawner = "Ottoman";
+      break;
     case ModelIds.Industrial_Props_MetalCabinet:
-      entity.containerId = Items.CONTAINER_TOOL_CABINETS;
+      entity.containerId = Items.CONTAINER_METAL_CABINET;
       entity.searchTime = 1000;
       entity.lootSpawner = "Metal Cabinet";
       break;
     case ModelIds.Farm_Props_CordsofWood:
-      entity.containerId = Items.CONTAINER_CAMPFIRE;
+      entity.containerId = Items.CONTAINER_CORDS_OF_WOOD;
       entity.searchTime = 1000;
       entity.lootSpawner = "Wood";
       break;
     case ModelIds.Residential_Props_DuffelBag:
-      entity.containerId = Items.CONTAINER_OTTOMAN;
+      entity.nameId = StringIds.DUFFEL_BAG_;
+      entity.containerId = Items.CONTAINER_DUFFEL_BAG;
       entity.searchTime = 1000;
       entity.lootSpawner = "Duffel Bag";
       break;
@@ -166,10 +177,14 @@ function getContainerAndTime(entity: LootableProp) {
     case ModelIds.ARMOIRE_02:
     case ModelIds.ARMOIRE_01:
     case ModelIds.Residential_Props_Bedroom_Armoire:
-    case ModelIds.Commercial_Props_ModularServiceCounter:
       entity.containerId = Items.CONTAINER_ARMOIRE;
       entity.searchTime = 700;
       entity.lootSpawner = "Armoire";
+      break;
+    case ModelIds.Commercial_Props_ModularServiceCounter:
+      entity.containerId = Items.CONTAINER_COUNTER;
+      entity.searchTime = 700;
+      entity.lootSpawner = "Desk";
       break;
     case ModelIds.GARBAGE_CAN_01:
     case ModelIds.City_Props_GarbageCan01:
@@ -180,22 +195,32 @@ function getContainerAndTime(entity: LootableProp) {
       entity.lootSpawner = "Garbage Can";
       break;
     case ModelIds.Commercial_Props_GasPump:
-      entity.containerId = Items.CONTAINER_GROSSING_STATION;
+      entity.containerId = Items.CONTAINER_GAS_PUMP;
       entity.searchTime = 1000;
       entity.lootSpawner = "Gas Pump";
+      entity.nameId = StringIds.GAS_PUMP_;
       break;
     case ModelIds.Commercial_Props_Cooler:
-    case ModelIds.Commercial_Props_SodaMachine:
-      entity.containerId = Items.CONTAINER_FRIDGE;
+      entity.containerId = Items.CONTAINER_COOLER;
       entity.searchTime = 1000;
       entity.lootSpawner = "Cooler";
       break;
+    case ModelIds.Commercial_Props_SodaMachine:
+      entity.containerId = Items.CONTAINER_SODA_MACHINE;
+      entity.searchTime = 1000;
+      entity.lootSpawner = "Cooler";
+      entity.nameId = StringIds.SODA_MACHINE_;
+      break;
     case ModelIds.HOSPITAL_DRUG_CABNINET:
     case ModelIds.Residential_Props_MedicineCabinet:
-    case ModelIds.Hospital_Props_AmbulanceWrecked:
       entity.containerId = Items.CONTAINER_DRUG_CABINET;
       entity.searchTime = 1000;
       entity.lootSpawner = "Drug Cabinets";
+      break;
+    case ModelIds.Hospital_Props_AmbulanceWrecked:
+      entity.containerId = Items.CONTAINER_AMBULANCE;
+      entity.searchTime = 2000;
+      entity.lootSpawner = "Ambulance";
       break;
     case ModelIds.HOSPITAL_LAB_WORKBENCH:
       entity.containerId = Items.CONTAINER_MEDICAL_STATION;

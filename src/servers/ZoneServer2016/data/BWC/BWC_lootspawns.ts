@@ -100,7 +100,7 @@ const carparts = [
 
 export const lootTablesBWC: { [lootSpawner: string]: LootSpawner } = {
   "ItemSpawner_JS_Suburban_All.adr": {
-    spawnChance: 25,
+    spawnChance: 20,
     items: [
       {
         item: Items.WEAPON_308,
@@ -370,7 +370,7 @@ export const lootTablesBWC: { [lootSpawner: string]: LootSpawner } = {
   },
 
   "ItemSpawner_JS_Suburban_Small.adr": {
-    spawnChance: 25,
+    spawnChance: 20,
     items: [
       {
         item: Items.WEAPON_308,
@@ -640,7 +640,7 @@ export const lootTablesBWC: { [lootSpawner: string]: LootSpawner } = {
   },
 
   "ItemSpawner_JS_Rural_Small.adr": {
-    spawnChance: 25,
+    spawnChance: 20,
     items: [
       {
         item: Items.WEAPON_308,
@@ -756,6 +756,38 @@ export const lootTablesBWC: { [lootSpawner: string]: LootSpawner } = {
       },
       {
         item: Items.CANNED_FOOD01,
+        weight: 30,
+        spawnCount: {
+          min: 1,
+          max: 1
+        }
+      },
+      {
+        item: Items.CANNED_FOOD02,
+        weight: 30,
+        spawnCount: {
+          min: 1,
+          max: 1
+        }
+      },
+      {
+        item: Items.CANNED_FOOD03,
+        weight: 30,
+        spawnCount: {
+          min: 1,
+          max: 1
+        }
+      },
+      {
+        item: Items.CANNED_FOOD04,
+        weight: 30,
+        spawnCount: {
+          min: 1,
+          max: 1
+        }
+      },
+      {
+        item: Items.CANNED_FOOD05,
         weight: 30,
         spawnCount: {
           min: 1,
@@ -910,7 +942,7 @@ export const lootTablesBWC: { [lootSpawner: string]: LootSpawner } = {
   },
 
   "ItemSpawner_JS_Rural_All.adr": {
-    spawnChance: 25,
+    spawnChance: 20,
     items: [
       {
         item: Items.WEAPON_308,
@@ -1026,6 +1058,38 @@ export const lootTablesBWC: { [lootSpawner: string]: LootSpawner } = {
       },
       {
         item: Items.CANNED_FOOD01,
+        weight: 30,
+        spawnCount: {
+          min: 1,
+          max: 1
+        }
+      },
+      {
+        item: Items.CANNED_FOOD02,
+        weight: 30,
+        spawnCount: {
+          min: 1,
+          max: 1
+        }
+      },
+      {
+        item: Items.CANNED_FOOD03,
+        weight: 30,
+        spawnCount: {
+          min: 1,
+          max: 1
+        }
+      },
+      {
+        item: Items.CANNED_FOOD04,
+        weight: 30,
+        spawnCount: {
+          min: 1,
+          max: 1
+        }
+      },
+      {
+        item: Items.CANNED_FOOD05,
         weight: 30,
         spawnCount: {
           min: 1,
@@ -1182,7 +1246,7 @@ export const lootTablesBWC: { [lootSpawner: string]: LootSpawner } = {
 
   // #region INDUSTRIAL
   "ItemSpawner_JS_Industrial_All.adr": {
-    spawnChance: 25,
+    spawnChance: 20,
     items: [
       ...carparts,
       {
@@ -1195,6 +1259,14 @@ export const lootTablesBWC: { [lootSpawner: string]: LootSpawner } = {
       },
       {
         item: Items.WEAPON_CROWBAR,
+        weight: 10,
+        spawnCount: {
+          min: 1,
+          max: 1
+        }
+      },
+      {
+        item: Items.WEAPON_PICKAXE,
         weight: 10,
         spawnCount: {
           min: 1,
@@ -1277,7 +1349,7 @@ export const lootTablesBWC: { [lootSpawner: string]: LootSpawner } = {
   },
 
   "ItemSpawner_JS_Industrial_Small.adr": {
-    spawnChance: 25,
+    spawnChance: 20,
     items: [
       ...carparts,
       {
@@ -1290,6 +1362,14 @@ export const lootTablesBWC: { [lootSpawner: string]: LootSpawner } = {
       },
       {
         item: Items.WEAPON_CROWBAR,
+        weight: 10,
+        spawnCount: {
+          min: 1,
+          max: 1
+        }
+      },
+      {
+        item: Items.WEAPON_PICKAXE,
         weight: 10,
         spawnCount: {
           min: 1,
@@ -1374,7 +1454,7 @@ export const lootTablesBWC: { [lootSpawner: string]: LootSpawner } = {
 
   // #region COMMERCIAL
   "ItemSpawner_JS_Commercial_All.adr": {
-    spawnChance: 25,
+    spawnChance: 20,
     items: [
       {
         item: Items.DUCT_TAPE,
@@ -1394,6 +1474,14 @@ export const lootTablesBWC: { [lootSpawner: string]: LootSpawner } = {
       },
       {
         item: Items.SPARKPLUGS,
+        weight: 5,
+        spawnCount: {
+          min: 1,
+          max: 1
+        }
+      },
+      {
+        item: Items.BATTERY,
         weight: 5,
         spawnCount: {
           min: 1,
@@ -1425,8 +1513,189 @@ export const lootTablesBWC: { [lootSpawner: string]: LootSpawner } = {
         }
       },
       {
+        item: Items.CANNED_FOOD02,
+        weight: 20,
+        spawnCount: {
+          min: 1,
+          max: 1
+        }
+      },
+      {
+        item: Items.CANNED_FOOD03,
+        weight: 20,
+        spawnCount: {
+          min: 1,
+          max: 1
+        }
+      },
+      {
+        item: Items.CANNED_FOOD04,
+        weight: 20,
+        spawnCount: {
+          min: 1,
+          max: 1
+        }
+      },
+      {
+        item: Items.CANNED_FOOD05,
+        weight: 20,
+        spawnCount: {
+          min: 1,
+          max: 1
+        }
+      },
+      {
         item: Items.EMERGENCY_RADIO,
         weight: 5,
+        spawnCount: {
+          min: 1,
+          max: 1
+        }
+      },
+      {
+        item: Items.EMERGENCY_RADIO,
+        weight: 5,
+        spawnCount: {
+          min: 1,
+          max: 1
+        }
+      },
+      {
+        item: Items.MAP,
+        weight: 15,
+        spawnCount: {
+          min: 1,
+          max: 1
+        }
+      },
+      {
+        item: Items.COMPASS,
+        weight: 15,
+        spawnCount: {
+          min: 1,
+          max: 1
+        }
+      }
+    ]
+  },
+  "ItemSpawner_JS_Commercial_Small.adr": {
+    spawnChance: 20,
+    items: [
+      {
+        item: Items.DUCT_TAPE,
+        weight: 5,
+        spawnCount: {
+          min: 1,
+          max: 1
+        }
+      },
+      {
+        item: Items.BATTERY,
+        weight: 5,
+        spawnCount: {
+          min: 1,
+          max: 1
+        }
+      },
+      {
+        item: Items.SPARKPLUGS,
+        weight: 5,
+        spawnCount: {
+          min: 1,
+          max: 1
+        }
+      },
+      {
+        item: Items.BATTERY,
+        weight: 5,
+        spawnCount: {
+          min: 1,
+          max: 1
+        }
+      },
+      {
+        item: Items.WATER_EMPTY,
+        weight: 15,
+        spawnCount: {
+          min: 1,
+          max: 1
+        }
+      },
+      {
+        item: Items.WATER_STAGNANT,
+        weight: 10,
+        spawnCount: {
+          min: 1,
+          max: 1
+        }
+      },
+      {
+        item: Items.CANNED_FOOD01,
+        weight: 20,
+        spawnCount: {
+          min: 1,
+          max: 1
+        }
+      },
+      {
+        item: Items.CANNED_FOOD02,
+        weight: 20,
+        spawnCount: {
+          min: 1,
+          max: 1
+        }
+      },
+      {
+        item: Items.CANNED_FOOD03,
+        weight: 20,
+        spawnCount: {
+          min: 1,
+          max: 1
+        }
+      },
+      {
+        item: Items.CANNED_FOOD04,
+        weight: 20,
+        spawnCount: {
+          min: 1,
+          max: 1
+        }
+      },
+      {
+        item: Items.CANNED_FOOD05,
+        weight: 20,
+        spawnCount: {
+          min: 1,
+          max: 1
+        }
+      },
+      {
+        item: Items.EMERGENCY_RADIO,
+        weight: 5,
+        spawnCount: {
+          min: 1,
+          max: 1
+        }
+      },
+      {
+        item: Items.EMERGENCY_RADIO,
+        weight: 5,
+        spawnCount: {
+          min: 1,
+          max: 1
+        }
+      },
+      {
+        item: Items.MAP,
+        weight: 15,
+        spawnCount: {
+          min: 1,
+          max: 1
+        }
+      },
+      {
+        item: Items.COMPASS,
+        weight: 15,
         spawnCount: {
           min: 1,
           max: 1
@@ -1439,7 +1708,7 @@ export const lootTablesBWC: { [lootSpawner: string]: LootSpawner } = {
 
   // #region FARM
   "ItemSpawner_JS_Agricultural_All.adr": {
-    spawnChance: 25,
+    spawnChance: 20,
     items: [
       {
         item: Items.FERTILIZER,
@@ -1525,7 +1794,7 @@ export const lootTablesBWC: { [lootSpawner: string]: LootSpawner } = {
   },
 
   "ItemSpawner_JS_Agricultural_Small.adr": {
-    spawnChance: 25,
+    spawnChance: 20,
     items: [
       {
         item: Items.FERTILIZER,
@@ -2038,7 +2307,7 @@ export const containerLootSpawnersBWC: {
   },
   "Harvestable Truck": {
     spawnChance: 40,
-    maxItems: 3, // cant be higher than length of items array below
+    maxItems: 4, // cant be higher than length of items array below
     items: [
       {
         item: Items.METAL_SCRAP,
@@ -2090,7 +2359,7 @@ export const containerLootSpawnersBWC: {
       },
       {
         item: Items.GUN_REPAIR_KIT,
-        weight: 10,
+        weight: 15,
         spawnCount: {
           min: 1,
           max: 1
@@ -2098,7 +2367,15 @@ export const containerLootSpawnersBWC: {
       },
       {
         item: Items.WEAPON_CROWBAR,
-        weight: 10,
+        weight: 15,
+        spawnCount: {
+          min: 1,
+          max: 1
+        }
+      },
+      {
+        item: Items.WEAPON_PICKAXE,
+        weight: 15,
         spawnCount: {
           min: 1,
           max: 1
@@ -2106,7 +2383,7 @@ export const containerLootSpawnersBWC: {
       },
       {
         item: Items.WEAPON_AXE_WOOD,
-        weight: 10,
+        weight: 15,
         spawnCount: {
           min: 1,
           max: 1
@@ -2114,7 +2391,7 @@ export const containerLootSpawnersBWC: {
       },
       {
         item: Items.WEAPON_WRENCH,
-        weight: 10,
+        weight: 15,
         spawnCount: {
           min: 1,
           max: 1
@@ -2122,14 +2399,6 @@ export const containerLootSpawnersBWC: {
       },
       {
         item: Items.WEAPON_AR15,
-        weight: 8,
-        spawnCount: {
-          min: 1,
-          max: 1
-        }
-      },
-      {
-        item: Items.WEAPON_HAMMER,
         weight: 10,
         spawnCount: {
           min: 1,
@@ -2137,8 +2406,16 @@ export const containerLootSpawnersBWC: {
         }
       },
       {
+        item: Items.WEAPON_HAMMER,
+        weight: 15,
+        spawnCount: {
+          min: 1,
+          max: 1
+        }
+      },
+      {
         item: Items.WEAPON_SHOTGUN,
-        weight: 8,
+        weight: 10,
         spawnCount: {
           min: 1,
           max: 1
@@ -2193,7 +2470,7 @@ export const containerLootSpawnersBWC: {
     ]
   },
   "Weapons Locker": {
-    spawnChance: 15,
+    spawnChance: 20,
     maxItems: 1,
     items: [
       {
@@ -2231,7 +2508,7 @@ export const containerLootSpawnersBWC: {
     ]
   },
   Locker: {
-    spawnChance: 15,
+    spawnChance: 20,
     maxItems: 1,
     items: [
       {
@@ -2291,6 +2568,22 @@ export const containerLootSpawnersBWC: {
       {
         item: Items.VEHICLE_KEY,
         weight: 5,
+        spawnCount: {
+          min: 1,
+          max: 1
+        }
+      },
+      {
+        item: Items.MAP,
+        weight: 15,
+        spawnCount: {
+          min: 1,
+          max: 1
+        }
+      },
+      {
+        item: Items.COMPASS,
+        weight: 15,
         spawnCount: {
           min: 1,
           max: 1
@@ -2729,7 +3022,7 @@ export const containerLootSpawnersBWC: {
     ]
   },
   "Metal Cabinet": {
-    spawnChance: 40,
+    spawnChance: 45,
     maxItems: 3,
     items: [
       {
@@ -2799,11 +3092,19 @@ export const containerLootSpawnersBWC: {
     ]
   },
   "Tool Cabinet": {
-    spawnChance: 40,
+    spawnChance: 50,
     maxItems: 3,
     items: [
       {
         item: Items.WEAPON_CROWBAR,
+        weight: 30,
+        spawnCount: {
+          min: 1,
+          max: 1
+        }
+      },
+      {
+        item: Items.WEAPON_PICKAXE,
         weight: 30,
         spawnCount: {
           min: 1,
@@ -2923,6 +3224,52 @@ export const containerLootSpawnersBWC: {
       {
         item: Items.IMMUNITY_BOOSTERS,
         weight: 30,
+        spawnCount: {
+          min: 1,
+          max: 2
+        }
+      }
+    ]
+  },
+  Ambulance: {
+    spawnChance: 50,
+    maxItems: 4,
+    items: [
+      {
+        item: Items.FIRST_AID,
+        weight: 20,
+        spawnCount: {
+          min: 1,
+          max: 2
+        }
+      },
+      {
+        item: Items.GAUZE,
+        weight: 50,
+        spawnCount: {
+          min: 1,
+          max: 3
+        }
+      },
+      {
+        item: Items.BANDAGE_DRESSED,
+        weight: 30,
+        spawnCount: {
+          min: 1,
+          max: 1
+        }
+      },
+      {
+        item: Items.BANDAGE,
+        weight: 50,
+        spawnCount: {
+          min: 1,
+          max: 3
+        }
+      },
+      {
+        item: Items.SALINE,
+        weight: 20,
         spawnCount: {
           min: 1,
           max: 2
@@ -3609,7 +3956,7 @@ export const containerLootSpawnersBWC: {
     ]
   },
   "Duffel Bag": {
-    spawnChance: 40,
+    spawnChance: 44,
     maxItems: 3,
     items: [
       {
@@ -3670,7 +4017,7 @@ export const containerLootSpawnersBWC: {
       },
       {
         item: Items.MAP,
-        weight: 10,
+        weight: 15,
         spawnCount: {
           min: 1,
           max: 3
@@ -3678,7 +4025,7 @@ export const containerLootSpawnersBWC: {
       },
       {
         item: Items.COMPASS,
-        weight: 10,
+        weight: 15,
         spawnCount: {
           min: 1,
           max: 1
@@ -3692,7 +4039,7 @@ export const containerLootSpawnersBWC: {
     items: [
       {
         item: Items.MAP,
-        weight: 10,
+        weight: 15,
         spawnCount: {
           min: 1,
           max: 1
@@ -3756,7 +4103,7 @@ export const containerLootSpawnersBWC: {
       },
       {
         item: Items.COMPASS,
-        weight: 5,
+        weight: 10,
         spawnCount: {
           min: 1,
           max: 1
@@ -3850,7 +4197,7 @@ export const containerLootSpawnersBWC: {
       },
       {
         item: Items.MAP,
-        weight: 10,
+        weight: 15,
         spawnCount: {
           min: 1,
           max: 1
@@ -3858,7 +4205,7 @@ export const containerLootSpawnersBWC: {
       },
       {
         item: Items.COMPASS,
-        weight: 10,
+        weight: 15,
         spawnCount: {
           min: 1,
           max: 1

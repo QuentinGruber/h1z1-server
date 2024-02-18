@@ -2,7 +2,7 @@
   {
     "POIid": 1,
     "POIname": "Jonas Fellowship Church",
-    "stringId": 20000,
+    "stringId": 100000001,
     "range": 130,
     "position": [
       2518.19,
@@ -14,7 +14,7 @@
   {
     "POIid": 3,
     "POIname": "Evac Zone",
-    "stringId": 20001,
+    "stringId": 100000002,
     "range": 150,
     "position": [
       2488.14,
@@ -26,7 +26,7 @@
   {
     "POIid": 4,
     "POIname": "Yeatts Motel",
-    "stringId": 20014,
+    "stringId": 100000015,
     "range": 150,
     "position": [
       2584.77,
@@ -38,7 +38,7 @@
   {
     "POIid": 5,
     "POIname": "Safe Zone",
-    "stringId": 20005,
+    "stringId": 100000006,
     "range": 250,
     "position": [
       2820.54,
@@ -50,7 +50,7 @@
   {
     "POIid": 6,
     "POIname": "Blue Heron R.V Park",
-    "stringId": 20007,
+    "stringId": 100000008,
     "range": 150,
     "position": [
       2915.80,
@@ -62,7 +62,7 @@
   {
     "POIid": 7,
     "POIname": "Benson Ranch",
-    "stringId": 20008,
+    "stringId": 100000009,
     "range": 200,
     "position": [
       2691.74,
@@ -74,7 +74,7 @@
   {
     "POIid": 8,
     "POIname": "Pine Hill Lookout",
-    "stringId": 20009,
+    "stringId": 100000010,
     "range": 200,
     "position": [
       1279.21,
@@ -86,7 +86,7 @@
   {
     "POIid": 9,
     "POIname": "Pixie Ridge Campground",
-    "stringId": 20015,
+    "stringId": 100000016,
     "range": 50,
     "position": [
       2166.62,
@@ -98,7 +98,7 @@
   {
     "POIid": 10,
     "POIname": "Harrison Dam",
-    "stringId": 20006,
+    "stringId": 100000007,
     "range": 300,
     "position": [
       1311.91,
@@ -110,7 +110,7 @@
   {
     "POIid": 11,
     "POIname": "Kendall's Lumber",
-    "stringId": 20010,
+    "stringId": 100000011,
     "range": 100,
     "position": [
       -17.59,
@@ -122,7 +122,7 @@
   {
     "POIid": 12,
     "POIname": "Safe Zone 2",
-    "stringId": 20005,
+    "stringId": 100000006,
     "range": 70,
     "position": [
       860.49,
@@ -134,7 +134,7 @@
   {
     "POIid": 13,
     "POIname": "Visitor Center",
-    "stringId": 20004,
+    "stringId": 100000005,
     "range": 150,
     "position": [
       1765.82,
@@ -146,7 +146,7 @@
   {
     "POIid": 14,
     "POIname": "Hidden Groove",
-    "stringId": 20003,
+    "stringId": 100000004,
     "range": 200,
     "position": [
       879.56,
@@ -158,7 +158,7 @@
   {
     "POIid": 15,
     "POIname": "Andrew's Water Treatment",
-    "stringId": 20011,
+    "stringId": 100000012,
     "range": 100,
     "position": [
       197.77,
@@ -170,7 +170,7 @@
   {
     "POIid": 16,
     "POIname": "Doggo's Trailer Heavenn",
-    "stringId": 20012,
+    "stringId": 100000013,
     "range": 100,
     "position": [
       -1087.40,
@@ -182,7 +182,7 @@
   {
     "POIid": 17,
     "POIname": "Kronic's Resting Resort",
-    "stringId": 20017,
+    "stringId": 100000018,
     "range": 75,
     "position": [
       -1917.40,
@@ -194,7 +194,7 @@
   {
     "POIid": 18,
     "POIname": "Avcio's Dry Lake Serenity",
-    "stringId": 20018,
+    "stringId": 100000019,
     "range": 250,
     "position": [
       -1763.17,
@@ -206,7 +206,7 @@
   {
     "POIid": 19,
     "POIname": "Kentin's Baguette Valee",
-    "stringId": 20019,
+    "stringId": 100000020,
     "range": 200,
     "position": [
       -1506.11,
@@ -218,7 +218,7 @@
   {
     "POIid": 20,
     "POIname": "Meme's Rusty Haven",
-    "stringId": 20020,
+    "stringId": 100000021,
     "range": 150,
     "position": [
       -2227.39,
@@ -228,9 +228,9 @@
     ]
   },
   {
-    "POIid": 20,
+    "POIid": 21,
     "POIname": "Jason's Transit Hub",
-    "stringId": 20022,
+    "stringId": 100000023,
     "range": 150,
     "position": [
       -2678.23,
@@ -240,13 +240,13 @@
     ]
   },
   {
-    "POIid": 20,
+    "POIid": 22,
     "POIname": "Legend's Golden Fields",
-    "stringId": 20021,
+    "stringId": 100000022,
     "range": 250,
     "position": [
       -2426.18,
-      217.09,
+      217,
       -2765.10,
       1
     ]
@@ -254,7 +254,7 @@
   {
     "POIid": 21,
     "POIname": "Ghost's Testing Range",
-    "stringId": 20012,
+    "stringId": 100000017,
     "range": 100,
     "position": [
       -1433.80,

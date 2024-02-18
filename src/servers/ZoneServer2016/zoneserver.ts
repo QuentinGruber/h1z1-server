@@ -1299,8 +1299,8 @@ export class ZoneServer2016 extends EventEmitter {
             }
           });
       }
-      if (itemDef.ID >= 3941 && itemDef.ID < 3959) {
-        // new js base stuff for fun
+      if ((itemDef.ID >= 3941 && itemDef.ID < 3959) || itemDef.ID >= 6000) {
+        // new js base stuff and custom 2016 BWC
         defs.push({
           ID: itemDef.ID,
           definitionData: {
