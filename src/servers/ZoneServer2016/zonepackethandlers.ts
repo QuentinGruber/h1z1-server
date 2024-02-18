@@ -1730,7 +1730,7 @@ export class ZonePacketHandlers {
   ) {
     const guid = packet.data.guid || "",
       entity = server.getEntity(guid);
-    console.log(entity?.actorModelId);
+
     if (!entity) return;
     if (entity instanceof Crate) {
       client.character.currentInteractionGuid = guid;
