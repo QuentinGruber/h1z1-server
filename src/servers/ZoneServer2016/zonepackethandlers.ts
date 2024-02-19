@@ -1233,6 +1233,11 @@ export class ZonePacketHandlers {
         positionUpdate.position[2],
         1
       ]);
+      vehicle.oldPos = {
+        position: positionUpdate.position,
+        time: getCurrentServerTimeWrapper().getTruncatedU32()
+      };
+      vehicle.positionUpdate.position = positionUpdate.position;
       // disabled, dont think we need it and wastes alot of resources
       /*if (client.vehicle.mountedVehicle === characterId) {
         if (
