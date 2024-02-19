@@ -385,8 +385,7 @@ export class ZoneServer2016 extends EventEmitter {
   routinesLoopTimer?: NodeJS.Timeout;
   private _mongoClient?: MongoClient;
   rebootTimeTimer?: NodeJS.Timeout;
-  // 3600 * 6 = 6 hours so server always starts at 6am
-  inGameTimeManager: IngameTimeManager = new IngameTimeManager(3600 * 6);
+  inGameTimeManager: IngameTimeManager = new IngameTimeManager();
 
   /* MANAGED BY CONFIGMANAGER */
   proximityItemsDistance!: number;
