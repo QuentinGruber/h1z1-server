@@ -15,6 +15,7 @@ import { EventEmitter } from "node:events";
 import { LZConnectionProtocol } from "../../../protocols/lzconnectionprotocol";
 import { LZConnectionClient } from "./lzconnectionclient";
 import dgram, { RemoteInfo } from "node:dgram";
+require("dotenv").config();
 
 const debug = require("debug")("LZConnection");
 process.env.isBin && require("../../shared/workers/udpServerWorker.js");

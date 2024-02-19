@@ -361,6 +361,7 @@ export class GroupManager {
   }
 
   handleGroupLeave(server: ZoneServer2016, client: Client, group: Group) {
+    if (client.character.autoGroup) return;
     server.sendAlert(client, "You have left the group.");
     this.sendAlertToAllOthersInGroup(
       server,
@@ -402,6 +403,12 @@ export class GroupManager {
 
     this.disbandGroup(server, group.groupId);
   }
+  
+  handleAutoGroup(server: ZoneServer2016, client: Client, group: Group) {
+    client.character.autoGroup = !client.character.autoGroup;
+    const message = client.character.autoGroup ? "You will auto re-join the group upon disconnecting." : "Auto re-join group disabled.";
+    server.sendChatText(client, message);
+  }
 
   handleGroupCommand(
     server: ZoneServer2016,
@@ -411,7 +418,7 @@ export class GroupManager {
     if (!args[0]) {
       server.sendChatText(
         client,
-        "Missing command, valid commands are: invite, kick, leave, view, disband"
+        "Missing command, valid commands are: invite, kick, leave, view, disband, auto"
       );
       return;
     }
@@ -450,6 +457,9 @@ export class GroupManager {
       case "disband":
         this.handleGroupDisband(server, client, group);
         break;
+      case "auto":
+        this.handleAutoGroup(server, client, group);
+        break;
       case "invite":
         if (!args[1]) {
           server.sendChatText(
@@ -474,7 +484,7 @@ export class GroupManager {
       default:
         server.sendChatText(
           client,
-          "Unknown command, valid commands are: invite, kick, leave, view, disband"
+          "Unknown command, valid commands are: invite, kick, leave, view, disband, auto"
         );
         break;
     }

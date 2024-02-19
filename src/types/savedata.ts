@@ -78,6 +78,8 @@ export interface FullCharacterSaveData
   hairModel: string;
   gender: number;
   status: number;
+  groupId: number;
+  autoGroup: boolean;
 }
 
 export interface positionUpdate {

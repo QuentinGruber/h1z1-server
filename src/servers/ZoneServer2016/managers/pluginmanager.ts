@@ -11,6 +11,7 @@
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
 
+require("dotenv").config();
 import * as fs from "fs";
 import * as path from "path";
 import { ZoneServer2016 } from "../zoneserver";

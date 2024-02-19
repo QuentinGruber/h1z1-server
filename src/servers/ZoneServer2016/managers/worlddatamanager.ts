@@ -443,6 +443,7 @@ export class WorldDataManager {
       if (!loadedCharacter) {
         throw `[ERROR] Mongo character not found! characterId: ${characterId}`;
       }
+      console.log(loadedCharacter)
       savedCharacter = {
         serverId: loadedCharacter.serverId,
         creationDate: loadedCharacter.creationDate,
@@ -463,7 +464,9 @@ export class WorldDataManager {
         _resources: loadedCharacter._resources || {},
         mutedCharacters: loadedCharacter.mutedCharacters || [],
         status: 1,
-        worldSaveVersion: this.worldSaveVersion
+        worldSaveVersion: this.worldSaveVersion,
+        groupId: loadedCharacter.autoGroup ? loadedCharacter.groupId : 0,
+        autoGroup: loadedCharacter.autoGroup ? loadedCharacter.autoGroup : false
       };
     }
     return savedCharacter;

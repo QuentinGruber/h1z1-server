@@ -186,6 +186,7 @@ export class Character2016 extends BaseFullCharacter {
   defaultLoadout = characterDefaultLoadout;
   mutedCharacters: Array<string> = [];
   groupId: number = 0;
+  autoGroup: boolean = false;
   _characterEffects: {
     [effectId: number]: CharacterEffect;
   } = {};
