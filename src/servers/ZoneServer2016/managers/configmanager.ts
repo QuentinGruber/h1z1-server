@@ -327,5 +327,14 @@ export class ConfigManager {
     server.smeltingManager.burnTime = burnTime;
     server.smeltingManager.smeltTime = smeltTime;
     //#endregion
+    //
+    //#region gameTime
+    const { timeFrozen, timeMultiplier, nightTimeMultiplier, baseTime } =
+      this.config.gametime;
+    server.inGameTimeManager.time = baseTime * 3600;
+    server.inGameTimeManager.timeFrozenByConfig = timeFrozen;
+    server.inGameTimeManager.baseTimeMultiplier = timeMultiplier;
+    server.inGameTimeManager.nightTimeMultiplierValue = nightTimeMultiplier;
+    //#endregion
   }
 }
