@@ -283,10 +283,7 @@ export class Npc extends BaseFullCharacter {
             this.triggerAwards(server, client, this.rewardItems);
             break;
         }
-        if (Math.random() <= 0.15) {
-          // 15% chance for knife to break upon harvest
-          server.removeInventoryItem(client.character, skinningKnife);
-        }
+        server.damageItem(client, skinningKnife, 50);
         server.deleteEntity(this.characterId, server._npcs);
       });
     }

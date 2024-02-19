@@ -2837,7 +2837,7 @@ export class ZoneServer2016 extends EventEmitter {
     }
   }
 
-  damageItem(client: Client, item: LoadoutItem, damage: number) {
+  damageItem(client: Client, item: LoadoutItem | BaseItem, damage: number) {
     if (item.itemDefinitionId == Items.WEAPON_FISTS) return;
 
     item.currentDurability -= damage;
@@ -2851,7 +2851,13 @@ export class ZoneServer2016 extends EventEmitter {
       }
       return;
     }
-    this.updateLoadoutItem(client, item);
+    if (item instanceof LoadoutItem) {
+      this.updateLoadoutItem(client, item);
+    } else if (item instanceof BaseItem) {
+      const container = client.character.getItemContainer(item.itemGuid);
+      if (!container) return;
+      this.updateContainerItem(client.character, item, container);
+    }
   }
 
   getClientByCharId(characterId: string) {
