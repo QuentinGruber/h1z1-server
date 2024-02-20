@@ -6,7 +6,7 @@ import { getCurrentServerTimeWrapper } from "../../../utils/utils";
 import assert from "node:assert";
 
 test("Damage-pve", { timeout: 10000 }, async (t) => {
-  const zone = new ZoneServer2016(1117);
+  const zone = new ZoneServer2016(0);
   zone.isPvE = true;
   await zone.start();
   assert.equal(zone.isPvE, true);
@@ -40,7 +40,7 @@ test("Damage-pve", { timeout: 10000 }, async (t) => {
 });
 
 test("Damage-pvp", { timeout: 10000 }, async (t) => {
-  const zone = new ZoneServer2016(1118);
+  const zone = new ZoneServer2016(0);
   await zone.start();
   assert.equal(zone.isPvE, false);
   const characterId = zone.generateGuid();
