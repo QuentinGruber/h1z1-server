@@ -918,7 +918,7 @@ export class WorldObjectManager {
               modelId = 9901;
               break;
             case "Common_DPO_DoorProxy_Camper.adr":
-              modelId = 9333;
+              modelId = 10055;
               break;
             case "Common_DPO_DoorProxy_Industrial.adr":
               modelId = 9003;

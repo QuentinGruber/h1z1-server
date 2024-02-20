@@ -31,6 +31,10 @@ function getDestroyedModels(actorModel: number): number[] {
       return [9184, 9185, 9186];
     case 9333:
       return [9334, 9335];
+    case 9897:
+      return [9898, 9899, 9900];
+    case 9901:
+      return [9902];
     default:
       return [];
   }
