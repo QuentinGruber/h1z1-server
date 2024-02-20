@@ -1252,14 +1252,15 @@ export class ZonePacketHandlers {
         }
       }*/
     }
-    //if (!server._soloMode) {
-    server.sendRawToAllOthersWithSpawnedEntity(
-      client,
-      server._vehicles,
-      characterId,
-      server._protocol.createManagedPositionBroadcast2016(positionUpdate.raw)
-    );
-    //}
+    // doesn't replicate the observer position to other clients
+    if (packet.data.transientId !== server._characterIds[OBSERVER_GUID]) {
+      server.sendRawToAllOthersWithSpawnedEntity(
+        client,
+        server._vehicles,
+        characterId,
+        server._protocol.createManagedPositionBroadcast2016(positionUpdate.raw)
+      );
+    }
     if (positionUpdate.engineRPM) {
       vehicle.engineRPM = positionUpdate.engineRPM;
     }
