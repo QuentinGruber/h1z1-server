@@ -65,6 +65,8 @@ export interface CharacterUpdateSaveData
   isRespawning: boolean;
   spawnGridData: number[];
   mutedCharacters: string[];
+  autoGroup: boolean;
+  groupId: number;
 }
 
 export interface FullCharacterSaveData

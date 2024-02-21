@@ -443,7 +443,6 @@ export class WorldDataManager {
       if (!loadedCharacter) {
         throw `[ERROR] Mongo character not found! characterId: ${characterId}`;
       }
-      console.log(loadedCharacter)
       savedCharacter = {
         serverId: loadedCharacter.serverId,
         creationDate: loadedCharacter.creationDate,
@@ -465,8 +464,8 @@ export class WorldDataManager {
         mutedCharacters: loadedCharacter.mutedCharacters || [],
         status: 1,
         worldSaveVersion: this.worldSaveVersion,
-        groupId: loadedCharacter.autoGroup ? loadedCharacter.groupId : 0,
-        autoGroup: loadedCharacter.autoGroup ? loadedCharacter.autoGroup : false
+        autoGroup: loadedCharacter.autoGroup,
+        groupId: loadedCharacter.autoGroup ? loadedCharacter.groupId : 0
       };
     }
     return savedCharacter;
@@ -522,7 +521,9 @@ export class WorldDataManager {
       rotation: Array.from(character.state.lookAt),
       isRespawning: character.isRespawning,
       spawnGridData: character.spawnGridData,
-      mutedCharacters: character.mutedCharacters
+      mutedCharacters: character.mutedCharacters,
+      autoGroup: character.autoGroup,
+      groupId: character.autoGroup ? character.groupId : 0
     };
     return saveData;
   }

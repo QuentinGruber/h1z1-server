@@ -406,7 +406,7 @@ export class GroupManager {
   
   handleAutoGroup(server: ZoneServer2016, client: Client, group: Group) {
     client.character.autoGroup = !client.character.autoGroup;
-    const message = client.character.autoGroup ? "You will auto re-join the group upon disconnecting." : "Auto re-join group disabled.";
+    const message = client.character.autoGroup ? "You will automatically re-join the group upon disconnecting." : "Automatic re-join group disabled.";
     server.sendChatText(client, message);
   }
 
