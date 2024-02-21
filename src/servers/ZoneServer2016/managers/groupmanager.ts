@@ -404,7 +404,7 @@ export class GroupManager {
     this.disbandGroup(server, group.groupId);
   }
 
-  handleAutoGroup(server: ZoneServer2016, client: Client, group: Group) {
+  handleAutoGroup(server: ZoneServer2016, client: Client) {
     client.character.autoGroup = !client.character.autoGroup;
     const message = client.character.autoGroup
       ? "You will automatically re-join the group upon disconnecting."

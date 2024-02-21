@@ -11,7 +11,6 @@
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
 
-
 export function logVersion() {
   console.error(`h1z1-server version : ${process.env.H1Z1_SERVER_VERSION}`);
 }

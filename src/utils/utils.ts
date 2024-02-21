@@ -10,7 +10,6 @@
 //
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
-
 import { generate_random_guid } from "h1emu-core";
 import { compress, compressBound } from "./lz4/lz4";
 import fs, { readdirSync } from "node:fs";
