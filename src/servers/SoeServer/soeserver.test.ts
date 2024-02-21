@@ -5,7 +5,7 @@ import { PacketsQueue } from "./PacketsQueue";
 import assert from "node:assert";
 
 test("SoeServer", { timeout: 5000 }, async (t) => {
-  const soeServer = new SOEServer(1115, Buffer.from("1"));
+  const soeServer = new SOEServer(0, Buffer.from("1"));
   await t.test("start", async () => {
     soeServer.start();
   });
