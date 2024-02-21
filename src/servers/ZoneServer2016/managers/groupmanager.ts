@@ -361,7 +361,6 @@ export class GroupManager {
   }
 
   handleGroupLeave(server: ZoneServer2016, client: Client, group: Group) {
-    if (client.character.autoGroup) return;
     server.sendAlert(client, "You have left the group.");
     this.sendAlertToAllOthersInGroup(
       server,
@@ -460,7 +459,7 @@ export class GroupManager {
         this.handleGroupDisband(server, client, group);
         break;
       case "auto":
-        this.handleAutoGroup(server, client, group);
+        this.handleAutoGroup(server, client);
         break;
       case "invite":
         if (!args[1]) {
