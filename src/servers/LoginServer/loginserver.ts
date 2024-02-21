@@ -66,7 +66,6 @@ import {
 import DataSchema from "h1z1-dataschema";
 import { applicationDataKOTK } from "../../packets/LoginUdp/LoginUdp_11/loginpackets";
 import { Resolver } from "node:dns";
-require("dotenv").config();
 
 const debugName = "LoginServer";
 const debug = require("debug")(debugName);

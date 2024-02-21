@@ -18,7 +18,6 @@ import { ZoneServer2016 } from "../zoneserver";
 import * as path from "node:path";
 import { copyFile } from "../../../utils/utils";
 
-require("dotenv").config();
 process.env.isBin &&
   require("js-yaml") &&
   path.join(__dirname, "../../../../data/2016/sampleData/defaultconfig.yaml");
