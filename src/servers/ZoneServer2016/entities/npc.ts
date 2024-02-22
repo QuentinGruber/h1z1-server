@@ -283,7 +283,7 @@ export class Npc extends BaseFullCharacter {
             this.triggerAwards(server, client, this.rewardItems);
             break;
         }
-        server.damageItem(client, skinningKnife, 50);
+        server.damageItem(client, skinningKnife, 100);
         server.deleteEntity(this.characterId, server._npcs);
       });
     }
