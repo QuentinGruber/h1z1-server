@@ -118,6 +118,16 @@ export class ExplosiveEntity extends BaseLightweightCharacter {
           return;
         }
       }
+      for (const a in server._npcs) {
+        const npc = server._npcs[a];
+        if (this.gridIndex != npc.gridIndex) return;
+        if (getDistance(npc.state.position, this.state.position) < 1.8) {
+          setTimeout(() => {
+            this.detonate(server);
+          }, 500);
+          return;
+        }
+      }
       if (server._explosives[this.characterId]) {
         this.mineTimer?.refresh();
       }

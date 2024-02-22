@@ -30,6 +30,9 @@ import { ConstructionChildEntity } from "../../entities/constructionchildentity"
 import { ConstructionDoor } from "../../entities/constructiondoor";
 import { randomIntFromInterval } from "../../../../utils/utils";
 import { Zombie } from "../../entities/zombie";
+import { Wolf } from "../../entities/wolf";
+import { Bear } from "../../entities/bear";
+import { Deer } from "../../entities/deer";
 import { WorldObjectManager } from "../../managers/worldobjectmanager";
 
 const abilities = require("../../../../../data/2016/dataSources/Abilities.json"),
@@ -119,7 +122,7 @@ const dev: any = {
     // spawn a zombie
     const characterId = server.generateGuid();
     const transient = server.getTransientId(characterId);
-    const zombie = new Npc(
+      const zombie = new Zombie(
       characterId,
       transient,
       9510,
@@ -128,6 +131,48 @@ const dev: any = {
       server
     );
     server._npcs[characterId] = zombie;
+  },
+  wolf: function (server: ZoneServer2016, client: Client, args: Array<string>) {
+    // spawn a zombie
+    const characterId = server.generateGuid();
+    const transient = server.getTransientId(characterId);
+    const wolf = new Wolf(
+      characterId,
+      transient,
+      9003,
+      client.character.state.position,
+      client.character.state.rotation,
+      server
+    );
+    server._npcs[characterId] = wolf;
+  },
+  bear: function (server: ZoneServer2016, client: Client, args: Array<string>) {
+    // spawn a zombie
+    const characterId = server.generateGuid();
+    const transient = server.getTransientId(characterId);
+    const bear = new Bear(
+      characterId,
+      transient,
+      9187,
+      client.character.state.position,
+      client.character.state.rotation,
+      server
+    );
+    server._npcs[characterId] = bear;
+  },
+  deer: function (server: ZoneServer2016, client: Client, args: Array<string>) {
+    // spawn a zombie
+    const characterId = server.generateGuid();
+    const transient = server.getTransientId(characterId);
+    const deer = new Deer(
+      characterId,
+      transient,
+      9253,
+      client.character.state.position,
+      client.character.state.rotation,
+      server
+    );
+    server._npcs[characterId] = deer;
   },
   abilities: function (
     server: ZoneServer2016,

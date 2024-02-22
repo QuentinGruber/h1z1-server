@@ -22,12 +22,14 @@ import { CommandInteractionString } from "types/zone2016packets";
 
 export class Npc extends BaseFullCharacter {
   health: number;
-  npcRenderDistance = 80;
+  npcRenderDistance = 150;
   spawnerId: number;
   deathTime: number = 0;
   npcId: number = 0;
   rewardItems: { itemDefId: number; weight: number }[] = [];
   canReceiveDamage = true;
+  positionUpdateType = 10;
+  inBarbedWire?: string;
   flags = {
     bit0: 0,
     bit1: 0,
@@ -54,6 +56,8 @@ export class Npc extends BaseFullCharacter {
     bit22: 0,
     bit23: 0
   };
+  isAttacking: boolean = false;
+  behaviorInterval: NodeJS.Timeout | undefined;
   public get isAlive(): boolean {
     return this.deathTime == 0;
   }
@@ -71,6 +75,14 @@ export class Npc extends BaseFullCharacter {
     this.health = 10000;
     this.initNpcData();
   }
+
+    setAttackingState(server: ZoneServer2016) {
+        this.isAttacking = true;
+        setTimeout(() => {
+            if (!server._npcs[this.characterId]) return;
+            this.isAttacking = false;
+        }, 2000);
+    }
 
   async damage(server: ZoneServer2016, damageInfo: DamageInfo) {
     const client = server.getClientByCharId(damageInfo.entity),
@@ -103,7 +115,7 @@ export class Npc extends BaseFullCharacter {
           characterId: this.characterId
         }
       );
-
+      this.flags.knockedOut = 1;
       this.health = 10000;
       // This is temporary fix so shotguns won't despawn the entity since the pellets will hit after entity is knocked out.
       // TODO: Revisit this
@@ -124,12 +136,26 @@ export class Npc extends BaseFullCharacter {
   }
 
   OnFullCharacterDataRequest(server: ZoneServer2016, client: ZoneClient2016) {
-    server.sendData(client, "LightweightToFullNpc", this.pGetFull(server));
-
+    /*server.sendData(client, "LightweightToFullPc", {
+      useCompression: false,
+      fullPcData: {
+        transientId: this.transientId,
+        attachmentData: [],
+        headActor: this.headActor,
+        resources: { data: this.pGetResources() },
+        remoteWeapons: { data: [] }
+      },
+      positionUpdate: {
+        sequenceTime: getCurrentTimeWrapper().getTruncatedU32(),
+        position: this.state.position
+      },
+      stats: [],
+      remoteWeaponsExtra: []
+    });
     if (this.onReadyCallback) {
       this.onReadyCallback(client);
       delete this.onReadyCallback;
-    }
+    }*/
   }
 
   OnProjectileHit(server: ZoneServer2016, damageInfo: DamageInfo) {

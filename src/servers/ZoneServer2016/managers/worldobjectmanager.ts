@@ -27,7 +27,8 @@ import {
   isPosInRadius,
   randomIntFromInterval,
   fixEulerOrder,
-  getCurrentServerTimeWrapper
+  getCurrentServerTimeWrapper,
+  movePoint3D
 } from "../../../utils/utils";
 import {
   EquipSlots,
@@ -58,6 +59,9 @@ import { LootDefinition } from "types/zoneserver";
 import { ItemObject } from "../entities/itemobject";
 import { DoorEntity } from "../entities/doorentity";
 import { Zombie } from "../entities/zombie";
+import { Wolf } from "../entities/wolf";
+import { Deer } from "../entities/deer";
+import { Bear } from "../entities/bear";
 import { BaseFullCharacter } from "../entities/basefullcharacter";
 import { ExplosiveEntity } from "../entities/explosiveentity";
 import { lootTables, containerLootSpawners } from "../data/lootspawns";
@@ -1029,68 +1033,90 @@ export class WorldObjectManager {
     debug("All vehicles created");
   }
 
-  createNpcs(server: ZoneServer2016) {
-    // This is only for giving the world some life
-    Z1_npcs.forEach((spawnerType: any) => {
-      const authorizedModelId: number[] = [];
-      switch (spawnerType.actorDefinition) {
-        case "NPCSpawner_ZombieLazy.adr":
-          authorizedModelId.push(9510);
-          authorizedModelId.push(9634);
-          break;
-        case "NPCSpawner_ZombieWalker.adr":
-          authorizedModelId.push(9510);
-          authorizedModelId.push(9634);
-          break;
-        case "NPCSpawner_Deer001.adr":
-          authorizedModelId.push(9002);
-          authorizedModelId.push(9253);
-          break;
-        case "NPCSpawner_Wolf001.adr":
-          authorizedModelId.push(9003);
-          break;
-        case "Bear_Brown.adr":
-          authorizedModelId.push(9187);
-          break;
-        default:
-          break;
+  async createNpcs(server: ZoneServer2016) {
+    let tickRate = this.npcRespawnTimer;
+    const size = _.size(server._clients);
+    if (size <= 0) return;
+    tickRate = this.npcRespawnTimer / size;
+    for (const a in server._clients) {
+      const client = server._clients[a];
+      const zombieSpawnChance =
+        Math.floor(Math.random() * 100) + 1 * (client.currentPOI ? 2 : 1);
+      const wolfSpawnChance = client.currentPOI
+        ? 0
+        : Math.floor(Math.random() * 100) + 1;
+      const bearSpawnChance = client.currentPOI
+        ? 0
+        : Math.floor(Math.random() * 100) + 1;
+      const deerSpawnChance = client.currentPOI
+        ? 0
+        : Math.floor(Math.random() * 100) + 1;
+      const pos = client.character.state.position;
+      if (zombieSpawnChance >= 60) {
+        const characterId = server.generateGuid();
+        const randomAngle = Math.random() * (2 * Math.PI) - Math.PI;
+        const newPos = movePoint3D(pos, randomAngle, 30);
+        const newPosFixed = server.getHeight(newPos);
+        const npc = new Zombie(
+          characterId,
+          server.getTransientId(characterId),
+          9510,
+          newPosFixed,
+          new Float32Array([0, 0, 0, 0]),
+          server
+        );
+        server._npcs[characterId] = npc;
       }
-      if (!authorizedModelId.length) return;
-      spawnerType.instances.forEach((npcInstance: any) => {
-        let spawn = true;
-        Object.values(server._npcs).every((spawnedNpc: Zombie) => {
-          if (
-            isPosInRadius(
-              this.npcSpawnRadius,
-              npcInstance.position,
-              spawnedNpc.state.position
-            )
-          ) {
-            spawn = false;
-            return false;
-          }
-          return true;
-        });
-        if (!spawn) return;
-        const spawnchance = Math.floor(Math.random() * 100) + 1; // temporary spawnchance
-        if (spawnchance <= this.chanceNpc) {
-          const screamerChance = Math.floor(Math.random() * 1000) + 1; // temporary spawnchance
-          if (screamerChance <= this.chanceScreamer) {
-            authorizedModelId.push(9667);
-          }
-          this.createZombie(
-            server,
-            authorizedModelId[
-              Math.floor(Math.random() * authorizedModelId.length)
-            ],
-            new Float32Array(npcInstance.position),
-            new Float32Array(eul2quat(npcInstance.rotation)),
-            npcInstance.id
-          );
-        }
-      });
-    });
-    debug("All npcs objects created");
+
+      if (wolfSpawnChance >= 70) {
+        const characterId = server.generateGuid();
+        const randomAngle = Math.random() * (2 * Math.PI) - Math.PI;
+        const newPos = movePoint3D(pos, randomAngle, 50);
+        const newPosFixed = server.getHeight(newPos);
+        const npc = new Wolf(
+          characterId,
+          server.getTransientId(characterId),
+          9003,
+          newPosFixed,
+          new Float32Array([0, 0, 0, 0]),
+          server
+        );
+        server._npcs[characterId] = npc;
+      }
+
+      if (bearSpawnChance >= 80) {
+        const characterId = server.generateGuid();
+        const randomAngle = Math.random() * (2 * Math.PI) - Math.PI;
+        const newPos = movePoint3D(pos, randomAngle, 50);
+        const newPosFixed = server.getHeight(newPos);
+        const npc = new Bear(
+          characterId,
+          server.getTransientId(characterId),
+          9187,
+          newPosFixed,
+          new Float32Array([0, 0, 0, 0]),
+          server
+        );
+        server._npcs[characterId] = npc;
+      }
+
+      if (deerSpawnChance >= 70) {
+        const characterId = server.generateGuid();
+        const randomAngle = Math.random() * (2 * Math.PI) - Math.PI;
+        const newPos = movePoint3D(pos, randomAngle, 50);
+        const newPosFixed = server.getHeight(newPos);
+        const npc = new Deer(
+          characterId,
+          server.getTransientId(characterId),
+          Math.floor(newPos[0]) % 2 == 1 ? 9253 : 9002, // randomize model
+          newPosFixed,
+          new Float32Array([0, 0, 0, 0]),
+          server
+        );
+        server._npcs[characterId] = npc;
+      }
+      await new Promise((resolve) => setTimeout(resolve, Math.floor(tickRate)));
+    }
   }
 
   createLoot(
