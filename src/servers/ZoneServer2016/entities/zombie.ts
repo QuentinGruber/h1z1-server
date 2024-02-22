@@ -35,5 +35,6 @@ export class Zombie extends Npc {
       spawnerId
     );
     this.materialType = MaterialTypes.ZOMBIE;
+    server.generateRandomEquipmentsFromAnEntity(this, [1,3,4,5])
   }
 }

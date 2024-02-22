@@ -3941,7 +3941,6 @@ export class ZoneServer2016 extends EventEmitter {
               continue;
             } else if (object instanceof Npc) {
               this.addLightweightNpc(client, object);
-              object.updateEquipment(this);
               this.sendData<CharacterMovementVersion>(
                 client,
                 "Character.MovementVersion",
@@ -3955,7 +3954,7 @@ export class ZoneServer2016 extends EventEmitter {
                 useCompression: false,
                 fullPcData: {
                   transientId: object.transientId,
-                  attachmentData: [],
+                  attachmentData: object.pGetAttachmentSlots(),
                   headActor: object.headActor,
                   resources: { data: object.pGetResources() },
                   remoteWeapons: { data: [] }
@@ -5501,6 +5500,8 @@ export class ZoneServer2016 extends EventEmitter {
     excludedModels: string[] = []
   ) {
     slots.forEach((slot) => {
+      const chance = randomIntFromInterval(0, 100)
+      if (chance > 50) return
       entity._equipment[slot] = this.generateRandomEquipmentForSlot(
         slot,
         entity.gender,
