@@ -76,13 +76,13 @@ export class Npc extends BaseFullCharacter {
     this.initNpcData();
   }
 
-    setAttackingState(server: ZoneServer2016) {
-        this.isAttacking = true;
-        setTimeout(() => {
-            if (!server._npcs[this.characterId]) return;
-            this.isAttacking = false;
-        }, 2000);
-    }
+  setAttackingState(server: ZoneServer2016) {
+    this.isAttacking = true;
+    setTimeout(() => {
+      if (!server._npcs[this.characterId]) return;
+      this.isAttacking = false;
+    }, 2000);
+  }
 
   async damage(server: ZoneServer2016, damageInfo: DamageInfo) {
     const client = server.getClientByCharId(damageInfo.entity),
@@ -134,7 +134,7 @@ export class Npc extends BaseFullCharacter {
       client.character.addCombatlogEntry(damageRecord);
     }
   }
-
+  /* eslint-disable @typescript-eslint/no-unused-vars */
   OnFullCharacterDataRequest(server: ZoneServer2016, client: ZoneClient2016) {
     /*server.sendData(client, "LightweightToFullPc", {
       useCompression: false,
@@ -157,6 +157,7 @@ export class Npc extends BaseFullCharacter {
       delete this.onReadyCallback;
     }*/
   }
+  /* eslint-enable @typescript-eslint/no-unused-vars */
 
   OnProjectileHit(server: ZoneServer2016, damageInfo: DamageInfo) {
     if (

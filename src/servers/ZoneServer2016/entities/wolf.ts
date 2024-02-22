@@ -16,28 +16,28 @@ import { ZoneServer2016 } from "../zoneserver";
 import { MaterialTypes } from "../models/enums";
 
 export class Wolf extends Npc {
-    constructor(
-        characterId: string,
-        transientId: number,
-        actorModelId: number,
-        position: Float32Array,
-        rotation: Float32Array,
-        server: ZoneServer2016,
-        spawnerId: number = 0
-    ) {
-        super(
-            characterId,
-            transientId,
-            actorModelId,
-            position,
-            rotation,
-            server,
-            spawnerId
-        );
-        this.materialType = MaterialTypes.FLESH;
-    }
+  constructor(
+    characterId: string,
+    transientId: number,
+    actorModelId: number,
+    position: Float32Array,
+    rotation: Float32Array,
+    server: ZoneServer2016,
+    spawnerId: number = 0
+  ) {
+    super(
+      characterId,
+      transientId,
+      actorModelId,
+      position,
+      rotation,
+      server,
+      spawnerId
+    );
+    this.materialType = MaterialTypes.FLESH;
+  }
 
-    OnInteractionString() { }
+  OnInteractionString() {}
 
-    OnPlayerSelect() { }
+  OnPlayerSelect() {}
 }

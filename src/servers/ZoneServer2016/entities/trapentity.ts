@@ -13,10 +13,10 @@
 
 import { CubeBounds, Point3D } from "types/zoneserver";
 import {
-    getCubeBounds,
-    getCurrentServerTimeWrapper,
-    getDistance,
-    isInsideCube
+  getCubeBounds,
+  getCurrentServerTimeWrapper,
+  getDistance,
+  isInsideCube
 } from "../../../utils/utils";
 import {
   Items,
@@ -260,7 +260,8 @@ export class TrapEntity extends BaseSimpleNpc {
                 {
                   transientId: npc.transientId,
                   positionUpdate: {
-                    sequenceTime: getCurrentServerTimeWrapper().getTruncatedU32(),
+                    sequenceTime:
+                      getCurrentServerTimeWrapper().getTruncatedU32(),
                     position: npc.state.position,
                     unknown3_int8: 0,
                     stance: 66565,

@@ -122,7 +122,7 @@ const dev: any = {
     // spawn a zombie
     const characterId = server.generateGuid();
     const transient = server.getTransientId(characterId);
-      const zombie = new Zombie(
+    const zombie = new Zombie(
       characterId,
       transient,
       9510,

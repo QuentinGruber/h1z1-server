@@ -231,10 +231,10 @@ import { GatewayChannels } from "h1emu-core";
 import { IngameTimeManager } from "./managers/gametimemanager";
 import { H1z1ProtocolReadingFormat } from "types/protocols";
 import {
-    behavior_Bear,
-    behavior_Deer,
-    behavior_Wolf,
-    behavior_Zombie
+  behavior_Bear,
+  behavior_Deer,
+  behavior_Wolf,
+  behavior_Zombie
 } from "./data/behaviors";
 import { Zombie } from "./entities/zombie";
 import { Wolf } from "./entities/wolf";
@@ -1698,26 +1698,29 @@ export class ZoneServer2016 extends EventEmitter {
   }
 
   private async getCanvasCtx() {
-      const imagePath = this.map == "Z1" ? join(
-          __dirname,
-          "..",
-          "..",
-          "..",
-          "data",
-          "2016",
-          "zoneData",
-          "heightmap.png"
-      ) : join(
-          __dirname,
-          "..",
-          "..",
-          "..",
-          "data",
-          "2016",
-          "zoneData",
-          "BWC",
-          "BWC_heightmap.png"
-      );
+    const imagePath =
+      this.map == "Z1"
+        ? join(
+            __dirname,
+            "..",
+            "..",
+            "..",
+            "data",
+            "2016",
+            "zoneData",
+            "heightmap.png"
+          )
+        : join(
+            __dirname,
+            "..",
+            "..",
+            "..",
+            "data",
+            "2016",
+            "zoneData",
+            "BWC",
+            "BWC_heightmap.png"
+          );
     const image = await loadImage(imagePath),
       canvas = createCanvas(image.width, image.height),
       ctx = canvas.getContext("2d");
@@ -1758,17 +1761,22 @@ export class ZoneServer2016 extends EventEmitter {
         */
 
     // get second canvasX and Y, either +1 or minus 1 based on decimal
-    
-    let h = 0, total = 0;
-      for (let a = -2; a < 2; a++) {
-          for (let b = -2; b < 2; b++) {
-              const pixelData = this._canvasCtx.getImageData(canvasX + a, canvasY + b, 1, 1).data;
-              h += (pixelData[0] - 16) * 8 + pixelData[1] / 32;
-              total++;
-          }
+
+    let h = 0,
+      total = 0;
+    for (let a = -2; a < 2; a++) {
+      for (let b = -2; b < 2; b++) {
+        const pixelData = this._canvasCtx.getImageData(
+          canvasX + a,
+          canvasY + b,
+          1,
+          1
+        ).data;
+        h += (pixelData[0] - 16) * 8 + pixelData[1] / 32;
+        total++;
       }
-      const height = h /total
-    
+    }
+    const height = h / total;
 
     return new Float32Array([pos[0], height, pos[2], 0]);
   }
@@ -8180,7 +8188,8 @@ export class ZoneServer2016 extends EventEmitter {
         {
           transientId: npc.transientId,
           positionUpdate: {
-            sequenceTime: getCurrentServerTimeWrapper().getTruncatedU32() + 20000,
+            sequenceTime:
+              getCurrentServerTimeWrapper().getTruncatedU32() + 20000,
             position: npc.state.position,
             unknown3_int8: 0,
             stance: 66565,

@@ -14,7 +14,6 @@
 import { ZoneServer2016 } from "../zoneserver";
 const Z1_items = require("../../../../data/2016/zoneData/Z1_items.json");
 const BWC_items = require("../../../../data/2016/zoneData/BWC/BWC_items.json");
-const Z1_npcs = require("../../../../data/2016/zoneData/Z1_npcs.json");
 const Z1_taskProps = require("../../../../data/2016/zoneData/Z1_taskProps.json");
 const Z1_crates = require("../../../../data/2016/zoneData/Z1_crates.json");
 const Z1_destroyables = require("../../../../data/2016/zoneData/Z1_destroyables.json");
