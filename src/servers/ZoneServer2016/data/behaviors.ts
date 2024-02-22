@@ -23,6 +23,11 @@ export const behavior_Zombie = (
     npc.behaviorInterval = undefined;
     return;
   }
+  if (getDistance(client.character.state.position, npc.state.position) > 30) {
+    clearInterval(npc.behaviorInterval);
+    npc.behaviorInterval = undefined;
+    return;
+  }
   if (!client.character.isAlive) {
     const angleInRadians2 = Math.atan2(
       client.character.state.position[0] - npc.state.position[0],
@@ -162,11 +167,7 @@ export const behavior_Zombie = (
     }
     return;
   }
-  if (getDistance(client.character.state.position, npc.state.position) > 30) {
-    clearInterval(npc.behaviorInterval);
-    npc.behaviorInterval = undefined;
-    return;
-  }
+
   const angleInRadians2 = Math.atan2(
     client.character.state.position[0] - npc.state.position[0],
     client.character.state.position[2] - npc.state.position[2]
@@ -227,6 +228,11 @@ export const behavior_Wolf = (
   npc: Npc
 ) => {
   if (!npc.isAlive || !client || !client.character) {
+    clearInterval(npc.behaviorInterval);
+    npc.behaviorInterval = undefined;
+    return;
+  }
+  if (getDistance(client.character.state.position, npc.state.position) > 40) {
     clearInterval(npc.behaviorInterval);
     npc.behaviorInterval = undefined;
     return;
@@ -348,11 +354,6 @@ export const behavior_Wolf = (
     }
     return;
   }
-  if (getDistance(client.character.state.position, npc.state.position) > 40) {
-    clearInterval(npc.behaviorInterval);
-    npc.behaviorInterval = undefined;
-    return;
-  }
   const angleInRadians2 = Math.atan2(
     client.character.state.position[0] - npc.state.position[0],
     client.character.state.position[2] - npc.state.position[2]
@@ -413,6 +414,11 @@ export const behavior_Bear = (
   npc: Npc
 ) => {
   if (!npc.isAlive || !client || !client.character) {
+    clearInterval(npc.behaviorInterval);
+    npc.behaviorInterval = undefined;
+    return;
+  }
+  if (getDistance(client.character.state.position, npc.state.position) > 30) {
     clearInterval(npc.behaviorInterval);
     npc.behaviorInterval = undefined;
     return;
@@ -532,11 +538,6 @@ export const behavior_Bear = (
         );
       }, 500);
     }
-    return;
-  }
-  if (getDistance(client.character.state.position, npc.state.position) > 30) {
-    clearInterval(npc.behaviorInterval);
-    npc.behaviorInterval = undefined;
     return;
   }
   const angleInRadians2 = Math.atan2(
