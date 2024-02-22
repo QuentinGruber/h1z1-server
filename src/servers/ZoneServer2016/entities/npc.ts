@@ -75,14 +75,6 @@ export class Npc extends BaseFullCharacter {
   async damage(server: ZoneServer2016, damageInfo: DamageInfo) {
     const client = server.getClientByCharId(damageInfo.entity),
       oldHealth = this.health;
-    if (!this.isAlive && this.canReceiveDamage) {
-      if ((this.health -= damageInfo.damage) <= 0) {
-        this.flags.knockedOut = 1;
-        if (client) {
-          server.deleteEntity(this.characterId, server._npcs);
-        }
-      }
-    }
 
     if ((this.health -= damageInfo.damage) <= 0 && this.isAlive) {
       this.deathTime = Date.now();

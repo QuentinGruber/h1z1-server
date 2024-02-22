@@ -153,3 +153,8 @@ decay:
 smelting:
   burnTime: 120000 # consume fuel every 120 seconds
   smeltTime: 7000 # smelt 1 item every 7 seconds
+gametime:
+  timeFrozen: false # Froze ingameTime
+  nightTimeMultiplier: 2 # This way night time pass 2 times faster than daytime
+  timeMultiplier: 36 # 1 hour IRL = 36 hours ingame, so 20 min for a full day
+  baseTime: 6 # server ingameTime start at 6 AM, 18 = 6PM

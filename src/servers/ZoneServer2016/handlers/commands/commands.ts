@@ -1599,10 +1599,10 @@ export const commands: Array<Command> = [
     name: "speedtime",
     permissionLevel: PermissionLevels.ADMIN,
     execute: (server: ZoneServer2016, client: Client, args: Array<string>) => {
-      server.inGameTimeManager.timeMultiplier = Number(args[0]);
+      server.inGameTimeManager.baseTimeMultiplier = Number(args[0]);
       server.sendChatText(
         client,
-        `Will force time to be ${server.inGameTimeManager.timeMultiplier}x faster on next sync...`,
+        `Will force time to be ${server.inGameTimeManager.baseTimeMultiplier}x faster on next sync...`,
         true
       );
     }

@@ -49,6 +49,13 @@ interface WeatherConfig {
   dynamicEnabled: boolean;
 }
 
+interface GameTimeConfig {
+  timeFrozen: boolean;
+  nightTimeMultiplier: number;
+  baseTime: number;
+  timeMultiplier: number;
+}
+
 interface WorldObjectsConfig {
   vehicleSpawnCap: number;
   minAirdropSurvivors: number;
@@ -123,6 +130,7 @@ export interface Config {
   server: ServerConfig;
   fairplay: FairplayConfig;
   weather: WeatherConfig;
+  gametime: GameTimeConfig;
   worldobjects: WorldObjectsConfig;
   speedtree: SpeedTreeConfig;
   construction: ConstructionConfig;

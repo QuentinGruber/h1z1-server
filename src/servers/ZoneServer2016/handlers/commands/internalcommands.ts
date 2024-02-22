@@ -73,7 +73,7 @@ export const internalCommands: Array<InternalCommand> = [
       if (client.character.isSpectator) {
         const vehicle = new Vehicle(
           OBSERVER_GUID,
-          1,
+          server.getTransientId(OBSERVER_GUID),
           9371,
           client.character.state.position,
           client.character.state.lookAt,
