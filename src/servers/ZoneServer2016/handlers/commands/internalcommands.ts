@@ -29,6 +29,7 @@ import {
   CommandSpawnVehicle,
   SpectatorEnable
 } from "types/zone2016packets";
+const spawnLocationsBWC = require("../../../../../data/2016/zoneData/BWC/BWC_spawnLocations.json");
 
 export const internalCommands: Array<InternalCommand> = [
   //#region DEFAULT PERMISSIONS
@@ -40,16 +41,24 @@ export const internalCommands: Array<InternalCommand> = [
       client: Client,
       packetData: CharacterRespawn
     ) => {
-      const gridPosition = packetData.gridPosition;
-      if (!gridPosition) return;
-      let doReturn = false;
-      server._spawnGrid.forEach((cell: SpawnCell) => {
-        if (doReturn) return;
-        if (isPosInRadius(50, cell.position, gridPosition)) {
-          server.respawnPlayer(client, cell);
-          doReturn = true;
-        }
-      });
+      if (server.map == "Z1") {
+        const gridPosition = packetData.gridPosition;
+        if (!gridPosition) return;
+        let doReturn = false;
+        server._spawnGrid.forEach((cell: SpawnCell) => {
+          if (doReturn) return;
+          if (isPosInRadius(50, cell.position, gridPosition)) {
+            server.respawnPlayer(client, cell);
+            doReturn = true;
+          }
+        });
+      } else {
+        const randomIndex = Math.floor(
+          Math.random() * spawnLocationsBWC.length
+        );
+        const spawn = spawnLocationsBWC[randomIndex];
+        server.respawnPlayerBWC(client, new Float32Array(spawn.position));
+      }
     }
   },
   {

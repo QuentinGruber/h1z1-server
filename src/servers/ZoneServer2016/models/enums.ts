@@ -146,7 +146,53 @@ export enum ModelIds {
   CORN_CROPSTATE_3 = 61,
   WHEAT_CROPSTATE_1 = 9191,
   WEHAT_CROPSTATE_2 = 9190,
-  WHEAT_CROPSTATE_3 = 9189
+  WHEAT_CROPSTATE_3 = 9189,
+  Common_Props_AbandonedSedan_Harvestable = 10187,
+  Common_Props_AbandonedSedan_Harvestable_Stage01 = 10188,
+  Common_Props_AbandonedSedan_Harvestable_Stage02 = 10189,
+  Common_Props_AbandonedTruck_Harvestable = 10308,
+  Common_Props_AbandonedTruck_Harvestable_Stage01 = 10309,
+  Common_Props_AbandonedTruck_Harvestable_Stage02 = 10310,
+  Common_Props_AbandonedSUV_Harvestable = 10311,
+  Common_Props_AbandonedSUV_Harvestable_Stage01 = 10312,
+  Common_Props_AbandonedSUV_Harvestable_Stage02 = 10313,
+  Common_Props_Harvestable_PickupTruck_proxy = 10314,
+  Common_Props_Harvestable_Sedan_proxy = 10315,
+  Common_Props_Harvestable_SUV_proxy = 10316,
+
+  // BWC
+
+  Residential_Props_Bedroom_SideTableLarge = 10363,
+  Residential_Props_Bedroom_SideTableSmall = 10364,
+  Residential_Props_MedicineCabinet = 10359,
+  Commercial_Props_Desks01 = 10354,
+  Residential_Props_Kitchen_Cabinet01 = 10353,
+  Residential_Props_Kitchen_Fridge = 10356,
+  Residential_Props_Seating_Ottoman01 = 10373,
+  Residential_Props_LivingRoom_EntertainmentCenter = 10379,
+  Residential_Props_Bedroom_Dresser = 10361,
+  Industrial_Props_MetalCabinet = 10346,
+  Residential_Props_WasherDryerCombo = 10357,
+  Residential_Props_Suitcase = 10365,
+  Farm_Props_CordsofWood = 10368,
+  Residential_Props_DuffelBag = 10366,
+  Hospital_Props_AmbulanceWrecked = 10367,
+  Industrial_Props_Cabinets_ToolCabinet01 = 10350,
+  Industrial_Props_Cabinets_ToolCabinet02 = 10351,
+  Industrial_Props_Cabinets_ToolCabinet03 = 10352,
+  City_Props_GarbageCan01 = 10375,
+  City_Props_GarbageCan02 = 10376,
+  Residential_Props_Bedroom_Armoire = 10362,
+  Commercial_Props_Cooler = 10345,
+  Commercial_Props_GasPump = 10372,
+  Office_Props_FilingCabinets = 10355,
+  Commercial_Props_ModularServiceCounter = 10360,
+  Cabins_Props_Counters_Kitchen01 = 10374,
+  Cabins_Props_Stoves_Square01 = 10371,
+  Cabins_Props_Stoves_Round01 = 10370,
+  Restaurant_Props_CommercialFridge_01 = 10378,
+  Commercial_Props_SodaMachine = 10369,
+  City_Props_Dumpster = 9738
 }
 
 export enum StringIds {
@@ -176,6 +222,7 @@ export enum StringIds {
   PERMISSIONS_TARGET = 12982,
   EXTRACT_BLOOD = 1453,
   HARVEST = 1009,
+  HARVEST_NO_NAME = 582,
   LONG_RANGE_RADIO = 12809,
   RADIOLOGY_DESK = 12752,
   BATTERED_TRASHCAN = 12835,
@@ -194,7 +241,52 @@ export enum StringIds {
   ZOMBIE_WALKER = 60,
   DEER = 1245,
   BEAR = 1246,
-  WOLF = 1213
+  WOLF = 1213,
+  WRECKED_SEDAN = 1081,
+  WRECKED_VAN = 1082,
+  WRECKED_TRUCK = 1083,
+
+  JONAS_FELLOWSHIP_CHURCH_ = 100000001,
+  EVAC_ZONE_ = 100000002,
+  PETERSON_STABLES_ = 100000003,
+  HIDDEN_GROVE_ = 100000004,
+  VISITOR_CENTER_ = 100000005,
+  SAFE_ZONE_ = 100000006,
+  HARRISON_DAM_ = 100000007,
+  BLUE_HERON_RV_PARK_ = 100000008,
+  BENSON_RANCH_ = 100000009,
+  PINE_HILL_LOOKOUT_ = 100000010,
+  KENDALLS_LUMBER_ = 100000011,
+  ANDREWS_WATER_TREATMENT_ = 100000012,
+  DOGGOS_TRAILER_HEAVEN_ = 100000013,
+  PLEASANT_VALLEY_ = 100000014,
+  YEATTS_MOTEL_ = 100000015,
+  PIXIE_RIDGE_CAMPGROUND_ = 100000016,
+  GHOSTS_TESTING_RANGE_ = 100000017,
+  KRONICS_RESTING_RESORT_ = 100000018,
+  AVCIOS_DRY_LAKE_SERENITY_ = 100000019,
+  KENTINS_BAGUETTE_VALLEE_ = 100000020,
+  MEMES_RUSTY_HAVEN_ = 100000021,
+  LEGENDS_GOLDEN_FIELDS_ = 100000022,
+  JASONS_TRANSIT_HUB_ = 100000023,
+  BADWATER_CANYON_TEST_SERVER_ = 100000024,
+  BADWATER_CANYON_ = 100000025,
+  YOU_NEED_A_CROWBAR_TO_HARVEST_THIS_VEHICLE_ = 100000026,
+  PICKAXE_ = 100000027,
+  DUFFEL_BAG_ = 100000028,
+  GAS_PUMP_ = 100000029,
+  JOIN_INHUMANITY_WITH_X3_LOOT_BIWEEKLY_WIPES_AND_MORE_ = 100000030,
+  INHUMANITY_EU_ = 100000031,
+  A_HEAVY_PICKAXE_CAN_BE_USED_TO_MINE_FROM_ROCKS_AND_BOULERS_OR_AS_A_CRUTE_MELEE_WEAPON_ = 100000032,
+  THERE_IS_NOTHING_TO_HARVEST = 100000033,
+  SODA_MACHINE_ = 100000034,
+  COOLER = 100000035,
+  AMBULANCE_ = 100000036,
+  COUNTER_ = 100000037,
+  SUITCASE_ = 100000038,
+  CORDS_OF_WOOD_ = 100000039,
+  SIDE_TABLE_ = 100000040,
+  METAL_CABINET_ = 100000041
 }
 
 export enum MovementModifiers {
@@ -395,7 +487,12 @@ export enum TreeIds {
   DECIDUOUSSHRUB01 = 18,
   BOULDER = 19,
   APPLETREE01 = 20,
-  BUSHES_LARGE01 = 21
+  BUSHES_LARGE01 = 21,
+  BOULDER02 = 22,
+  REDCEDAR2 = 26,
+  BLACK_COTTONWOOD = 29,
+  BLACK_COTTONWOOD_SAPLING = 30,
+  ELDERBERRY = 32
 }
 
 export enum Items {
@@ -442,6 +539,7 @@ export enum Items {
   WEAPON_AK47_MODIFIED = 2399,
   WEAPON_SPEAR = 1382,
   WEAPON_REMOVER = 1776,
+  WEAPON_PICKAXE = 6000,
   //#endregion
 
   //#region AMMO
@@ -836,6 +934,16 @@ export enum Items {
 
   CONTAINER_WASHING_MACHINE = 1887,
   CONTAINER_DRYER = 1888,
+  CONTAINER_DUFFEL_BAG = 6003,
+  CONTAINER_GAS_PUMP = 6002,
+  CONTAINER_SODA_MACHINE = 6001,
+  CONTAINER_COOLER = 6004,
+  CONTAINER_AMBULANCE = 6005,
+  CONTAINER_COUNTER = 6006,
+  CONTAINER_SUITCASE = 6007,
+  CONTAINER_CORDS_OF_WOOD = 6008,
+  CONTAINER_SIDE_TABLE = 6009,
+  CONTAINER_METAL_CABINET = 6010,
 
   // Skin ref
   CAMO_TAN_FLANNEL_SHIRT = 2030,
@@ -2100,7 +2208,13 @@ export enum Effects {
   PFX_Damage_Fence_ChainLink_Industrial_Straight = 5664,
   PFX_Damage_Fence_ChainLink_Industrial_Post = 5665,
   PFX_CrateItem_Helmet_DemonMask_Green = 5668,
-  PFX_CrateItem_Helmet_DemonMask_Orange = 5669
+  PFX_CrateItem_Helmet_DemonMask_Orange = 5669,
+  PFX_Harvest_Abandoned_Sedan_Stage1 = 5807,
+  PFX_Harvest_Abandoned_Sedan_Stage2 = 5928,
+  PFX_Harvest_Abandoned_Truck_Stage1 = 5959,
+  PFX_Harvest_Abandoned_Truck_Stage2 = 5960,
+  PFX_Harvest_Abandoned_SUV_Stage1 = 5961,
+  PFX_Harvest_Abandoned_SUV_Stage2 = 5962
 }
 
 export enum HealTypes {

@@ -34,6 +34,16 @@ export const characterDefaultLoadout = [
   { item: Items.GAUZE, count: 5 }
 ];
 
+export const characterDefaultLoadoutBWC = [
+  { item: Items.WEAPON_FISTS },
+  { item: Items.WEAPON_FLASHLIGHT },
+  { item: Items.SHIRT_DEFAULT },
+  { item: Items.BELT_POUCH },
+  { item: Items.PANTS_DEFAULT },
+  { item: Items.BOOTS_GRAY_BLUE },
+  { item: Items.GAUZE, count: 5 }
+];
+
 export const characterKitLoadout = [
   { item: Items.BACKPACK_RASTA },
   { item: Items.WEAPON_308 },

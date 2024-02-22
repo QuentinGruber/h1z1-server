@@ -1,4 +1,5 @@
 server:
+  map: "Z1"
   welcomeMessage: "Welcome to H1emu! :D"
   adminMessage: "You are an Admin!"
   proximityItemsDistance: 2
