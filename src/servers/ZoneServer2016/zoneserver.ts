@@ -229,6 +229,7 @@ import { GatewayChannels } from "h1emu-core";
 import { IngameTimeManager } from "./managers/gametimemanager";
 import { H1z1ProtocolReadingFormat } from "types/protocols";
 import { GatewayServer } from "../GatewayServer/gatewayserver";
+import { WaterSource } from "./entities/watersource";
 
 const spawnLocations2 = require("../../../data/2016/zoneData/Z1_gridSpawns.json"),
   deprecatedDoors = require("../../../data/2016/sampleData/deprecatedDoors.json"),
@@ -261,6 +262,7 @@ export class ZoneServer2016 extends EventEmitter {
   readonly _mongoAddress: string;
   private readonly _clientProtocol = "ClientProtocol_1080";
   protected _loginConnectionManager!: LoginConnectionManager;
+  _serverGuid = generateRandomGuid();
   _worldId = 0;
   _grid: GridCell[] = [];
   _spawnGrid: SpawnCell[] = [];
@@ -1230,7 +1232,7 @@ export class ZoneServer2016 extends EventEmitter {
     this.sendData<SendSelfToClient>(
       client,
       "SendSelfToClient",
-      client.character.pGetSendSelf(this, "0x665a2bff2b44c034", client)
+      client.character.pGetSendSelf(this, this._serverGuid, client)
     );
     client.character.initialized = true;
     this.initializeContainerList(client);
@@ -1584,7 +1586,12 @@ export class ZoneServer2016 extends EventEmitter {
       );
       const worldConstructions: LootableConstructionSaveData[] = [];
       Object.values(this._worldLootableConstruction).forEach((entity) => {
-        if (!entity.parentObjectCharacterId) return; // Don't save world spawned campfires / barbeques
+        if (
+          entity.parentObjectCharacterId == this._serverGuid ||
+          entity instanceof WaterSource ||
+          (entity instanceof TrapEntity && entity?.worldOwned)
+        )
+          return; // Don't save world spawned campfires / barbeques
         const lootableConstructionSaveData =
           WorldDataManager.getLootableConstructionSaveData(
             entity,
