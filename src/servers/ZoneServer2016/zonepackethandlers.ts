@@ -3116,7 +3116,7 @@ export class ZonePacketHandlers {
       };
       return;
     }
-
+    console.log(packet.data)
     const entity =
       server.getEntity(packet.data.targetCharacterId ?? "") ??
       server.getEntity(client.character.currentInteractionGuid);

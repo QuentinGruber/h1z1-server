@@ -11,10 +11,12 @@
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
 
-import { CubeBounds, Point3D } from "types/zoneserver";
+import { CubeBounds, DamageInfo, Point3D } from "types/zoneserver";
 import { getCubeBounds, getDistance, isInsideCube } from "../../../utils/utils";
 import {
+  Effects,
   Items,
+  ModelIds,
   MovementModifiers,
   ResourceIds,
   ResourceTypes
@@ -45,7 +47,7 @@ export class TrapEntity extends BaseSimpleNpc {
       case Items.BARBED_WIRE:
         this.cubebounds = getCubeBounds(
           position,
-          8.05,
+          7.05,
           2.15,
           angle,
           position[1] - 0.9,
@@ -83,7 +85,7 @@ export class TrapEntity extends BaseSimpleNpc {
                 "Character.PlayWorldCompositeEffect",
                 {
                   characterId: "0x0",
-                  effectId: 5116,
+                  effectId: Effects.PFX_Impact_PunjiSticks_Blood,
                   position: server._clients[a].character.state.position
                 }
               );
@@ -107,7 +109,7 @@ export class TrapEntity extends BaseSimpleNpc {
               "Character.PlayWorldCompositeEffect",
               {
                 characterId: "0x0",
-                effectId: 163,
+                effectId: Effects.PFX_Damage_Crate_01m,
                 position: this.state.position
               }
             );
@@ -149,7 +151,7 @@ export class TrapEntity extends BaseSimpleNpc {
                 "Character.PlayWorldCompositeEffect",
                 {
                   characterId: this.characterId,
-                  effectId: 1630,
+                  effectId: Effects.PFX_Impact_Knife_Metal_Vehicle,
                   position: server._traps[this.characterId].state.position
                 }
               );
@@ -162,10 +164,10 @@ export class TrapEntity extends BaseSimpleNpc {
             this.trapTimer?.refresh();
           } else {
             this.destroy(server);
-            this.actorModelId = 1974;
+            this.actorModelId = ModelIds.SNARE;
             server.worldObjectManager.createLootEntity(
               server,
-              server.generateItem(1415),
+              server.generateItem(Items.SNARE),
               this.state.position,
               this.state.rotation,
               15
@@ -195,7 +197,7 @@ export class TrapEntity extends BaseSimpleNpc {
                 "Character.PlayWorldCompositeEffect",
                 {
                   characterId: "0x0",
-                  effectId: 5116,
+                  effectId: Effects.PFX_Impact_PunjiSticks_Blood,
                   position: server._clients[a].character.state.position
                 }
               );
@@ -219,7 +221,7 @@ export class TrapEntity extends BaseSimpleNpc {
               "Character.PlayWorldCompositeEffect",
               {
                 characterId: "0x0",
-                effectId: 163,
+                effectId: Effects.PFX_Damage_Crate_01m,
                 position: this.state.position
               }
             );
@@ -239,5 +241,10 @@ export class TrapEntity extends BaseSimpleNpc {
       case Items.BARBED_WIRE:
         return isInsideCube(Array.from(position) as Point3D, this.cubebounds);
     }
+  }
+
+  OnMeleeHit(server: ZoneServer2016, damageInfo: DamageInfo) {
+    const damage = damageInfo.damage * 4;
+    this.damage(server, { ...damageInfo, damage });
   }
 }
