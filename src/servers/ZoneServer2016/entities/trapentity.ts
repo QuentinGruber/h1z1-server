@@ -29,6 +29,7 @@ export class TrapEntity extends BaseSimpleNpc {
   isTriggered = false;
   npcRenderDistance = 75;
   itemDefinitionId: number;
+  worldOwned: boolean = false;
   readonly cubebounds!: CubeBounds;
   constructor(
     characterId: string,
@@ -37,10 +38,12 @@ export class TrapEntity extends BaseSimpleNpc {
     position: Float32Array,
     rotation: Float32Array,
     server: ZoneServer2016,
-    itemDefinitionId: Items
+    itemDefinitionId: Items,
+    worldOwned = false
   ) {
     super(characterId, transientId, actorModelId, position, rotation, server);
     this.itemDefinitionId = itemDefinitionId;
+    this.worldOwned = worldOwned;
 
     const angle = -this.state.rotation[1];
     switch (itemDefinitionId) {

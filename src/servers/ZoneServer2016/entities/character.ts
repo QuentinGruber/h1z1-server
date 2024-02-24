@@ -165,7 +165,6 @@ export class Character2016 extends BaseFullCharacter {
   spawnGridData: number[] = [];
   lastJumpTime: number = 0;
   lastSitTime: number = 0;
-  lastCraftTime: number = 0;
   sitCount: number = 0;
   weaponStance: number = 1;
   stance?: StanceFlags;
@@ -367,7 +366,7 @@ export class Character2016 extends BaseFullCharacter {
           Items.CAMPFIRE
         ))
     ) {
-      client.character._resources[ResourceIds.COMFORT] += 6;
+      client.character._resources[ResourceIds.COMFORT] += 30;
     }
 
     client.character._resources[ResourceIds.HUNGER] -= 2;

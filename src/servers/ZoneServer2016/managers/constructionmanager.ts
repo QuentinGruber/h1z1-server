@@ -1349,7 +1349,8 @@ export class ConstructionManager {
     itemDefinitionId: number,
     modelId: number,
     position: Float32Array,
-    rotation: Float32Array
+    rotation: Float32Array,
+    worldOwned: boolean = false
   ): boolean {
     const characterId = server.generateGuid(),
       transientId = 1, // dont think its needed here
@@ -1360,7 +1361,8 @@ export class ConstructionManager {
         position,
         rotation,
         server,
-        itemDefinitionId
+        itemDefinitionId,
+        worldOwned
       );
     npc.arm(server);
     server._traps[characterId] = npc;

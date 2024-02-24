@@ -229,6 +229,7 @@ import { GatewayChannels } from "h1emu-core";
 import { IngameTimeManager } from "./managers/gametimemanager";
 import { H1z1ProtocolReadingFormat } from "types/protocols";
 import { GatewayServer } from "../GatewayServer/gatewayserver";
+import { WaterSource } from "./entities/watersource";
 
 const spawnLocations2 = require("../../../data/2016/zoneData/Z1_gridSpawns.json"),
   deprecatedDoors = require("../../../data/2016/sampleData/deprecatedDoors.json"),
@@ -261,6 +262,7 @@ export class ZoneServer2016 extends EventEmitter {
   readonly _mongoAddress: string;
   private readonly _clientProtocol = "ClientProtocol_1080";
   protected _loginConnectionManager!: LoginConnectionManager;
+  _serverGuid = generateRandomGuid();
   _worldId = 0;
   _grid: GridCell[] = [];
   _spawnGrid: SpawnCell[] = [];
@@ -385,8 +387,7 @@ export class ZoneServer2016 extends EventEmitter {
   routinesLoopTimer?: NodeJS.Timeout;
   private _mongoClient?: MongoClient;
   rebootTimeTimer?: NodeJS.Timeout;
-  // 3600 * 6 = 6 hours so server always starts at 6am
-  inGameTimeManager: IngameTimeManager = new IngameTimeManager(3600 * 6);
+  inGameTimeManager: IngameTimeManager = new IngameTimeManager();
 
   /* MANAGED BY CONFIGMANAGER */
   proximityItemsDistance!: number;
@@ -1231,7 +1232,7 @@ export class ZoneServer2016 extends EventEmitter {
     this.sendData<SendSelfToClient>(
       client,
       "SendSelfToClient",
-      client.character.pGetSendSelf(this, "0x665a2bff2b44c034", client)
+      client.character.pGetSendSelf(this, this._serverGuid, client)
     );
     client.character.initialized = true;
     this.initializeContainerList(client);
@@ -1585,7 +1586,12 @@ export class ZoneServer2016 extends EventEmitter {
       );
       const worldConstructions: LootableConstructionSaveData[] = [];
       Object.values(this._worldLootableConstruction).forEach((entity) => {
-        if (!entity.parentObjectCharacterId) return; // Don't save world spawned campfires / barbeques
+        if (
+          entity.parentObjectCharacterId == this._serverGuid ||
+          entity instanceof WaterSource ||
+          (entity instanceof TrapEntity && entity?.worldOwned)
+        )
+          return; // Don't save world spawned campfires / barbeques
         const lootableConstructionSaveData =
           WorldDataManager.getLootableConstructionSaveData(
             entity,
@@ -5408,13 +5414,13 @@ export class ZoneServer2016 extends EventEmitter {
    *
    * @param {number} itemDefinitionId - The itemDefinitionId of the item to generate.
    * @param {number} [count=1] - The count of the item.
-   * @param {number} [lastGeneratedTime=0] - The last generated time of the item.
+   * @param {boolean} [forceMaxDurability =false] - force the item to have his max durability.
    * @returns {BaseItem|undefined} The generated item, or undefined if the item definition is invalid.
    */
   generateItem(
     itemDefinitionId: number,
     count: number = 1,
-    lastGeneratedTime: number = 0
+    forceMaxDurability: boolean = false
   ): BaseItem | undefined {
     const itemDefinition = this.getItemDefinition(itemDefinitionId);
     if (!itemDefinition) {
@@ -5462,11 +5468,12 @@ export class ZoneServer2016 extends EventEmitter {
       case WeaponDefinitionIds.WEAPON_M9:
       case WeaponDefinitionIds.WEAPON_MAGNUM:
       case WeaponDefinitionIds.WEAPON_R380:
-        if (Date.now() - lastGeneratedTime <= 200) break;
-        do {
-          durability = Math.floor(Math.random() * 2000);
-        } while (durability < 250);
-        break;
+        if (!forceMaxDurability) {
+          do {
+            durability = Math.floor(Math.random() * 2000);
+          } while (durability < 250);
+          break;
+        }
     }
     const itemData: BaseItem = new BaseItem(
       itemDefinitionId,
