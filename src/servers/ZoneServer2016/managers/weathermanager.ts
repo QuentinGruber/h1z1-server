@@ -194,13 +194,13 @@ export class WeatherManager {
         this.weather = this.dynamicWeather(
           getCurrentServerTimeWrapper().getFull(),
           server._serverStartTime.getFull(),
-          server.inGameTimeManager.timeMultiplier
+          server.inGameTimeManager.baseTimeMultiplier
         );
         this.sendUpdateToAll(server);
         // FIXME: Needed to avoid black screen issue ? Why ? No idea.
         this.sendUpdateToAll(server);
         this.dynamicWorker.refresh();
-      }, 360000 / server.inGameTimeManager.timeMultiplier);
+      }, 360000 / server.inGameTimeManager.baseTimeMultiplier);
     }
   }
 

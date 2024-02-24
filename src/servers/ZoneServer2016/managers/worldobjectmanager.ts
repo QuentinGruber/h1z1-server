@@ -604,7 +604,8 @@ export class WorldObjectManager {
             propInstance.modelId,
             new Float32Array(propInstance.position),
             new Float32Array(fixEulerOrder(propInstance.rotation)),
-            new Float32Array(propInstance.scale)
+            new Float32Array(propInstance.scale),
+            server._serverGuid
           );
           return;
         }
@@ -656,7 +657,8 @@ export class WorldObjectManager {
               Items.PUNJI_STICKS,
               propType.modelId,
               new Float32Array(propInstance.position),
-              fixEulerOrder(propInstance.rotation)
+              fixEulerOrder(propInstance.rotation),
+              true
             );
             break;
           case "Common_Props_BarbedWire.adr":
@@ -665,7 +667,8 @@ export class WorldObjectManager {
               Items.BARBED_WIRE,
               propType.modelId,
               new Float32Array(propInstance.position),
-              fixEulerOrder(propInstance.rotation)
+              fixEulerOrder(propInstance.rotation),
+              true
             );
             break;
           case "Common_Props_Cabinets_BathroomSink.adr":
@@ -692,7 +695,7 @@ export class WorldObjectManager {
               propType.modelId,
               new Float32Array(propInstance.position),
               new Float32Array(fixEulerOrder(propInstance.rotation)),
-              "",
+              server._serverGuid,
               Items.WORKBENCH
             );
             break;
@@ -1043,7 +1046,7 @@ export class WorldObjectManager {
             if (item.item == spawnedItem.itemDefinitionId) allow = false; // dont allow the same item to be added twice
           });
           if (allow) {
-            if (chance <= lootTable.spawnChance) {
+            if (chance <= item.weight) {
               const count = Math.floor(
                 Math.random() *
                   (item.spawnCount.max - item.spawnCount.min + 1) +

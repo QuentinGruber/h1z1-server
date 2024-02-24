@@ -252,11 +252,7 @@ export class Vehicle2016 extends BaseLootableEntity {
         this.state.position,
         this.state.rotation,
         gameTime
-      ),
-      vehicle: this,
-      get position() {
-        return this.vehicle.state.position;
-      }
+      )
     };
     this.nameId = getVehicleName(this.actorModelId);
 
@@ -345,9 +341,7 @@ export class Vehicle2016 extends BaseLootableEntity {
         position: this.state.position,
         vehicleId: this.vehicleId
       },
-      positionUpdate: {
-        ...this.positionUpdate
-      }
+      positionUpdate: this.positionUpdate
     };
   }
 
