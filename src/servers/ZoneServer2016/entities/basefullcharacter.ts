@@ -658,7 +658,7 @@ export abstract class BaseFullCharacter extends BaseLightweightCharacter {
   equipLoadout(
     server: ZoneServer2016,
     loadout?: LoadoutKit,
-    sendPacket = true
+    forceMaxDurability = false
   ) {
     const l = loadout ? loadout : this.defaultLoadout;
     l.forEach((entry) => {
@@ -668,9 +668,9 @@ export abstract class BaseFullCharacter extends BaseLightweightCharacter {
       ) {
         this.lootItem(
           server,
-          server.generateItem(entry.item, entry.count),
+          server.generateItem(entry.item, entry.count, forceMaxDurability),
           entry.count,
-          sendPacket
+          true
         );
       }
     });

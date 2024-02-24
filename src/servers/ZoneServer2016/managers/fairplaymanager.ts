@@ -328,7 +328,6 @@ export class FairPlayManager {
         return true;
       }
     }
-    vehicle.oldPos = { position: position, time: sequenceTime };
     return false;
   }
 

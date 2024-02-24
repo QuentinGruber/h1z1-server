@@ -32,7 +32,7 @@ export class SOEServer extends EventEmitter {
   _useEncryption: boolean = true;
   private _clients: Map<string, SOEClient> = new Map();
   private _connection: dgram.Socket;
-  private readonly _crcSeed: number = Math.floor(Math.random() * 256);
+  private readonly _crcSeed: number = Math.floor(Math.random() * 255);
   private _crcLength: crc_length_options = 2;
   _waitTimeMs: number = 24;
   keepAliveTimeoutTime: number = 40000;
