@@ -55,6 +55,12 @@ export class SOEOutputStream extends EventEmitter {
     }
   }
 
+  isFlooded(): boolean {
+    const difference =
+      this._last_available_reliable_sequence.get() - this.lastAck.get();
+    return difference >= this.maxSequenceAvailable;
+  }
+
   isReliableAvailable(): boolean {
     const sequenceAreEqual =
       this.lastAck.get() === this._reliable_sequence.get();
@@ -62,10 +68,7 @@ export class SOEOutputStream extends EventEmitter {
       return false;
     }
 
-    const difference =
-      this._last_available_reliable_sequence.get() - this.lastAck.get();
-    const differenceIsNotTooBig = difference < this.maxSequenceAvailable;
-    return differenceIsNotTooBig;
+    return !this.isFlooded();
   }
 
   getAvailableReliableData(): dataCache[] {

@@ -466,10 +466,9 @@ export class CraftManager {
         if (!remainingItems) break;
       }
     }
-    client.character.lastCraftTime = Date.now();
     client.character.lootItem(
       server,
-      server.generateItem(recipeId, craftCount, client.character.lastCraftTime)
+      server.generateItem(recipeId, craftCount, true)
     );
     if (recipe.leftOverItems) {
       recipe.leftOverItems.forEach((id: number) => {
