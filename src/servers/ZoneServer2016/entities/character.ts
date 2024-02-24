@@ -366,7 +366,7 @@ export class Character2016 extends BaseFullCharacter {
           Items.CAMPFIRE
         ))
     ) {
-      client.character._resources[ResourceIds.COMFORT] += 6;
+      client.character._resources[ResourceIds.COMFORT] += 30;
     }
 
     client.character._resources[ResourceIds.HUNGER] -= 2;
