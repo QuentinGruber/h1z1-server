@@ -1235,7 +1235,7 @@ export class ZonePacketHandlers {
       ]);
       vehicle.oldPos = {
         position: positionUpdate.position,
-        time: getCurrentServerTimeWrapper().getTruncatedU32()
+        time: positionUpdate.sequenceTime
       };
       vehicle.positionUpdate.position = positionUpdate.position;
       // disabled, dont think we need it and wastes alot of resources
