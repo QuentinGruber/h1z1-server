@@ -246,8 +246,32 @@ export class TrapEntity extends BaseSimpleNpc {
     }
   }
 
-  OnMeleeHit(server: ZoneServer2016, damageInfo: DamageInfo) {
-    const damage = damageInfo.damage * 4;
+  OnProjectileHit(server: ZoneServer2016, damageInfo: DamageInfo) {
+    const damage = damageInfo.damage * 6; // bullets do more to damage traps
     this.damage(server, { ...damageInfo, damage });
   }
+
+  OnMeleeHit(server: ZoneServer2016, damageInfo: DamageInfo) {
+    const client = server.getClientByCharId(damageInfo.entity),
+      weapon = client?.character.getEquippedWeapon();
+    if (!client || !weapon) return;
+
+    const damage = damageInfo.damage * 3;
+    this.damage(server, { ...damageInfo, damage });
+    server.damageItem(client, weapon, 50);
+
+  }
+
+  damage(server: ZoneServer2016, damageInfo: DamageInfo) {
+    this.health -= damageInfo.damage;
+    server.sendDataToAllWithSpawnedEntity(
+      server._traps,
+      this.characterId,
+      "Character.UpdateSimpleProxyHealth",
+      this.pGetSimpleProxyHealth()
+    );
+    if (this.health > 0) return;
+    this.destroy(server);
+  }
+
 }

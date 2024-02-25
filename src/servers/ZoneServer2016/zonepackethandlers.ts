@@ -152,6 +152,7 @@ import { Destroyable } from "./entities/destroyable";
 import { Lootbag } from "./entities/lootbag";
 import { ReceivedPacket } from "types/shared";
 import { LoadoutItem } from "./classes/loadoutItem";
+import { TrapEntity } from "./entities/trapentity";
 
 function getStanceFlags(num: number): StanceFlags {
   function getBit(bin: string, bit: number) {
@@ -3122,7 +3123,7 @@ export class ZonePacketHandlers {
       };
       return;
     }
-    console.log(packet.data)
+
     const entity =
       server.getEntity(packet.data.targetCharacterId ?? "") ??
       server.getEntity(client.character.currentInteractionGuid);

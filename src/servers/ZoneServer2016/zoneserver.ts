@@ -2793,6 +2793,7 @@ export class ZoneServer2016 extends EventEmitter {
       this._crates[entityKey] ||
       this._destroyables[entityKey] ||
       this._temporaryObjects[entityKey] ||
+      this._traps[entityKey] ||
       undefined
     );
   }
