@@ -74,6 +74,12 @@ export class ConstructionManager {
     Items.SEED_WHEAT
   ];
 
+  shackItems: Array<number> = [
+    Items.SHACK,
+    Items.SHACK_SMALL,
+    Items.SHACK_BASIC
+  ]
+
   /* MANAGED BY CONFIGMANAGER */
   allowPOIPlacement!: boolean;
   allowStackedPlacement!: boolean;
