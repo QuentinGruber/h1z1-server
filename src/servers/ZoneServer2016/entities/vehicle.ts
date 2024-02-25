@@ -591,7 +591,7 @@ export class Vehicle2016 extends BaseLootableEntity {
     for (const seatId in this.seats) {
       const seat = this.seats[seatId],
         passenger = seat ? server._characters[seat] : undefined;
-      
+
       if (passenger?.getItemById(Items.VEHICLE_KEY)) {
         return true;
       }
