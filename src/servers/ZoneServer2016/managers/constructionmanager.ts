@@ -78,7 +78,7 @@ export class ConstructionManager {
     Items.SHACK,
     Items.SHACK_SMALL,
     Items.SHACK_BASIC
-  ]
+  ];
 
   /* MANAGED BY CONFIGMANAGER */
   allowPOIPlacement!: boolean;
