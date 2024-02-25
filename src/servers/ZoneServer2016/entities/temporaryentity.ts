@@ -11,8 +11,6 @@
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
 
-import { CharacterPlayWorldCompositeEffect } from "types/zone2016packets";
-import { Effects, ModelIds } from "../models/enums";
 import { ZoneServer2016 } from "../zoneserver";
 import { BaseSimpleNpc } from "./basesimplenpc";
 
