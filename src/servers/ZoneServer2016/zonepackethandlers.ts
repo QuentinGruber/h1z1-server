@@ -2752,13 +2752,13 @@ export class ZonePacketHandlers {
       (!client.isAdmin || !client.isDebugMode)
     )
       return;
-      
+
     let targetClient = server.getClientByNameOrLoginSession(characterName);
 
     if (!targetClient) {
       targetClient = await server.getOfflineClientByName(characterName);
     }
-    
+
     if (!targetClient || !(targetClient instanceof Client)) {
       server.sendChatText(client, "Player not found.");
       return;
