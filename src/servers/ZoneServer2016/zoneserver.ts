@@ -810,6 +810,7 @@ export class ZoneServer2016 extends EventEmitter {
       await this._mongoClient.close();
     }
     await this._gatewayServer.stop();
+    await this.rconManager.stop();
   }
 
   async shutdown(timeLeft: number, message: string) {
@@ -1685,6 +1686,7 @@ export class ZoneServer2016 extends EventEmitter {
     this.initScreenEffectDataSource();
     this.initClientEffectsDataSource();
     this.initUseOptionsDataSource();
+    this.rconManager.start();
     this.hookManager.checkHook("OnServerReady");
   }
 
