@@ -163,9 +163,15 @@ async function worldSaveUnitTests(t: any, mongoAddress: string) {
 
     assert.deepStrictEqual(loadedConstructions?.length, constructionNb);
     removeMongoDbId(loadedConstructions);
+    // sort per characterId since mongo mangle the order
+    loadedConstructions.sort((a, b) => {
+      return a.characterId.localeCompare(b.characterId);
+    });
+    world.constructions.sort((a, b) => {
+      return a.characterId.localeCompare(b.characterId);
+    });
 
-    // FIXME: this could be the resolution of #1467
-    // assert.deepStrictEqual(loadedConstructions, world.constructions);
+    assert.deepStrictEqual(loadedConstructions, world.constructions);
   });
   await t.test("load world constructions", async () => {
     const loadedWorldConstructions =
