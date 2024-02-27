@@ -5458,6 +5458,9 @@ export class ZoneServer2016 extends EventEmitter {
       case WeaponDefinitionIds.WEAPON_PURGE:
         durability = 1000;
         break;
+      case WeaponDefinitionIds.WEAPON_WRENCH:
+        durability = 2500;
+        break;
       case WeaponDefinitionIds.WEAPON_HAMMER:
       case WeaponDefinitionIds.WEAPON_CROWBAR:
       case WeaponDefinitionIds.WEAPON_308:
@@ -6768,12 +6771,6 @@ export class ZoneServer2016 extends EventEmitter {
       );
       return;
     }
-    const vehicle = this._vehicles[vehicleGuid];
-    if (vehicle._resources[ResourceIds.FUEL] + fuelValue > 10000) {
-      // Prevent players from overfilling their car to reserve fuel.
-      this.sendAlert(client, "Fuel level is not low enough to refuel");
-      return;
-    }
     this.utilizeHudTimer(client, nameId, timeout, animationId, () => {
       this.refuelVehiclePass(client, character, item, vehicleGuid, fuelValue);
     });
@@ -7076,6 +7073,7 @@ export class ZoneServer2016 extends EventEmitter {
       return;
     const vehicle = this._vehicles[vehicleGuid];
     vehicle._resources[ResourceIds.FUEL] += fuelValue;
+    // check if refuel amount is over 100, if so adjust to 100 to prevent over-fueling.
     if (vehicle._resources[ResourceIds.FUEL] > 10000) {
       vehicle._resources[ResourceIds.FUEL] = 10000;
     }
