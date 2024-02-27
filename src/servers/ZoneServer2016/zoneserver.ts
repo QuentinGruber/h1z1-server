@@ -1753,7 +1753,7 @@ export class ZoneServer2016 extends EventEmitter {
             ruleset: "NoBuildNearPois",
             unknownString2: "",
             rulesets: []
-          },
+          }
         ]
       }
     );
