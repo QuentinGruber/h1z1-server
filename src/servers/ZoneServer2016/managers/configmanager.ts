@@ -147,6 +147,7 @@ export class ConfigManager {
       isPvE,
       isHeadshotOnly,
       isFirstPersonOnly,
+      isNoBuildInPois,
       baseConstructionDamage
     } = this.config.server;
     server.proximityItemsDistance = proximityItemsDistance;
@@ -162,6 +163,7 @@ export class ConfigManager {
     server.isPvE = isPvE;
     server.isHeadshotOnly = isHeadshotOnly;
     server.isFirstPersonOnly = isFirstPersonOnly;
+    server.isNoBuildInPois = isNoBuildInPois;
     server.baseConstructionDamage = baseConstructionDamage;
     //#endregion
 
@@ -268,7 +270,6 @@ export class ConfigManager {
 
     //#region construction
     const {
-      allowPOIPlacement,
       allowStackedPlacement,
       allowOutOfBoundsPlacement,
       placementRange,
@@ -277,7 +278,6 @@ export class ConfigManager {
       playerFoundationBlockedPlacementRange,
       playerShackBlockedPlacementRange
     } = this.config.construction;
-    server.constructionManager.allowPOIPlacement = allowPOIPlacement;
     server.constructionManager.allowStackedPlacement = allowStackedPlacement;
     server.constructionManager.allowOutOfBoundsPlacement =
       allowOutOfBoundsPlacement;
