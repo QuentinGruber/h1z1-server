@@ -353,7 +353,7 @@ export class ConstructionManager {
     isInsidePermissionedFoundation: boolean
   ): boolean {
     if (client.isDebugMode) return false;
-    if (!server.isNoBuildInPois) return false;
+    if (server.isNoBuildInPois) return false;
     if (this.overridePlacementItems.includes(itemDefinitionId)) return false;
     let useRange = true;
     let isInPoi = false;
