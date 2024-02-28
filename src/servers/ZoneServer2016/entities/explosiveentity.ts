@@ -21,11 +21,15 @@ import { CharacterPlayWorldCompositeEffect } from "types/zone2016packets";
 
 export class ExplosiveEntity extends BaseLightweightCharacter {
   itemDefinitionId: number;
+
+  /** The delay for which it takes the landmine to be armed */
   mineTimer?: NodeJS.Timeout;
   npcRenderDistance = 300;
   detonated = false;
+
+  /** Used for shooting explosion with projectiles, 1 for IEDS and a coinflip between 1 and 2 for biofuel/ethanol */
   triggerExplosionShots =
-    this.isLandmine() || this.isIED() ? 1 : Math.floor(Math.random() * 2) + 1; // random number 1-2 neccesary shots if fuel
+    this.isLandmine() || this.isIED() ? 1 : Math.floor(Math.random() * 2) + 1;
   constructor(
     characterId: string,
     transientId: number,
@@ -93,6 +97,7 @@ export class ExplosiveEntity extends BaseLightweightCharacter {
     );
   }
 
+  /** Used by landmines to arm their explosivenss */
   arm(server: ZoneServer2016) {
     this.mineTimer = setTimeout(() => {
       if (!server._explosives[this.characterId]) {
@@ -124,6 +129,7 @@ export class ExplosiveEntity extends BaseLightweightCharacter {
     }, 90);
   }
 
+  /** Called when the explosive gets hit by a projectile (bullet, arrow, etc.) */
   OnProjectileHit(server: ZoneServer2016, damageInfo: DamageInfo) {
     this.triggerExplosionShots -= 1;
     if (

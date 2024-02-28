@@ -90,8 +90,12 @@ interface MeleeHit {
   characterId: string;
 }
 export class Character2016 extends BaseFullCharacter {
+  /** The players in-game name */
   name!: string;
+
+  /** The location the player spawned at */
   spawnLocation?: string;
+
   resourcesUpdater?: any;
   factionId = 2;
   set godMode(state: boolean) {
@@ -103,38 +107,69 @@ export class Character2016 extends BaseFullCharacter {
   characterStates: CharacterStates;
   isRunning = false;
   isSitting = false;
+
+  /** The guid of the secured shelter the player is inside */
   isHidden: string = "";
+  
+  /** Used for resources */
   isBleeding = false;
   isBandaged = false;
   isExhausted = false;
   isPoisoned = false;
+  
+  /** Last time (milliseconds) the player melee'd */
   lastMeleeHitTime: number = 0;
+
+  /** Used to determine if a player has aimlock */
   aimVectorWarns: number = 0;
+
+  /** Set by isAlive(state), determines whether the player is alive */
   static isAlive = true;
+
+  /** Sets the knocked out state of the character to determine aliveness */
   public set isAlive(state) {
     this.characterStates.knockedOut = !state;
   }
+  /** Checks whether the player is alive */
   public get isAlive() {
     return !this.characterStates.knockedOut;
   }
+  /** Determines if a player is currently moving */
   isMoving = false;
+
+  /** Values used upon character creation */
   actorModelId!: number;
   headActor!: string;
   hairModel!: string;
   isRespawning = false;
   isReady = false;
   creationDate!: string;
+
+  /** Last login date for the player */
   lastLoginDate!: string;
+
+  /** Last player that the user has whispered to */
   lastWhisperedPlayer!: string;
+
+  /** Used for tracking if a player has melee'd a bee box */
   hasAlertedBees = false;
+
+  /** Time (milliseconds) at which the player last exited a vehicle */
   vehicleExitDate: number = new Date().getTime();
+
+  /** Current selected slot inside the player's hotbar */
   currentLoadoutSlot = LoadoutSlots.FISTS;
+
+  /** Current player/vehicle loadout */
   readonly loadoutId = LoadoutIds.CHARACTER;
+
+  /** Used for applying the interval of healing to be applied for any heal type */
   healingIntervals: Record<HealTypes, NodeJS.Timeout | null> = {
     1: null,
     2: null,
     3: null
   };
+  /** Used for applying multiple healing types at once */
   healType: { [healType: number]: HealType } = {
     1: {
       healingTicks: 0,
@@ -149,50 +184,96 @@ export class Character2016 extends BaseFullCharacter {
       healingMaxTicks: 0
     }
   };
+
+  /** Used for applying the interval of healing to be applied for any heal type */
   starthealingInterval: (
     client: ZoneClient2016,
     server: ZoneServer2016,
     healType: HealTypes
   ) => void;
   timeouts: any;
+
+  /** Determines what ShoeType the player is wearing */
   hasConveys: boolean = false;
   hasBoots: boolean = false;
+  /** Handles the current position of the player */
   positionUpdate?: positionUpdate;
+
+  /** Admin tools */
   tempGodMode = false;
   isVanished = false;
   isSpectator = false;
-  initialized = false; // if sendself has been sent
+
+  /** Called once SendSelfToClient has been sent */
+  initialized = false; 
+
+  /** Data for the spawn grid map, keeps track of which grids to block out */
   spawnGridData: number[] = [];
+
+  /** Values used by Fairplay */
   lastJumpTime: number = 0;
   lastSitTime: number = 0;
   sitCount: number = 0;
+
+  /** Current stance of the player while holding a weapon */
   weaponStance: number = 1;
+
+  /** Current stance of the player: jumping, running etc. (See getStanceFlags for all possible stances) */
   stance?: StanceFlags;
+
+  /** Metrics of miscellaneous attributes */
   readonly metrics: CharacterMetrics = {
     recipesDiscovered: 0,
     zombiesKilled: 0,
     wildlifeKilled: 0,
     startedSurvivingTP: Date.now()
   };
+
+  /** Tracks combat with other players/entities */
   private combatlog: DamageRecord[] = [];
-  // characterId of vehicle spawned by /hax drive or spawnvehicle
+  
+  /** CharacterId of the vehicle spawned by /hax drive or spawnVehicle */
   ownedVehicle?: string;
+
+  /** Values determined by what entity the player is looking at and in range of */
   currentInteractionGuid: string = "";
   lastInteractionRequestGuid?: string;
   lastInteractionStringTime = 0;
   lastInteractionTime = 0;
+
+  /** The current container attached in the top left of the player's inventory  */
   mountedContainer?: BaseLootableEntity;
+
+  /** Default loadout the player will spawn with */
   defaultLoadout = characterDefaultLoadout;
+
+  /** List of ignored players */
   mutedCharacters: Array<string> = [];
+
+  /** Id of the player's group */
   groupId: number = 0;
+
+  /** Used for applied effects to a player - burning, movement speed etc. */
   _characterEffects: {
     [effectId: number]: CharacterEffect;
   } = {};
+
+  /** The time at which the most recent unlock attempt, failed */
   lastLockFailure: number = 0;
+
+  /** Array of the player's applied HUD indicators */
   resourceHudIndicators: string[] = [];
+
+  /** Indicator's for the bottom right HUD: bleeding, bandage, BEES! etc. */
   hudIndicators: { [typeName: string]: characterIndicatorData } = {};
+
+  /** Screen effects applied to a player: bleeding, night vision, etc. (see ScreenEffects.json) */
   screenEffects: string[] = [];
+
+  /** The time (milliseconds) at which a user has sent a second melee hit */
   abilityInitTime: number = 0;
+
+  /** Used for keeping track of the location and characterId of the first registered melee hit */
   meleeHit: MeleeHit = {
     abilityHitLocation: "",
     characterId: ""
@@ -210,7 +291,11 @@ export class Character2016 extends BaseFullCharacter {
       new Float32Array([0, 0, 0, 1]),
       server
     );
+
+    /** The distance at which the character will render, exceeding the renderDistance and the object renders away */
     this.npcRenderDistance = 400;
+
+    /** Default resource amounts applied after respawning */
     (this._resources = {
       [ResourceIds.HEALTH]: 10000,
       [ResourceIds.STAMINA]: 600,
@@ -765,7 +850,7 @@ export class Character2016 extends BaseFullCharacter {
   }
 
   /**
-   * Gets the lightweightpc packetfields for use in sendself and addlightweightpc
+   * Gets the LightweightPC packet fields for use in SelfSendToClient and AddLightweightPC
    */
   pGetLightweight() {
     return {
@@ -1101,6 +1186,12 @@ export class Character2016 extends BaseFullCharacter {
     //server.combatLog(sourceClient);
   }
 
+  /**
+   * 
+   * @param {ZoneServer2016} server - The current server
+   * @param {BaseLootableEntity} lootableEntity - The lootable entity the player will mount to
+   * @returns 
+   */
   mountContainer(server: ZoneServer2016, lootableEntity: BaseLootableEntity) {
     const client = server.getClientByCharId(this.characterId);
     if (!client) return;

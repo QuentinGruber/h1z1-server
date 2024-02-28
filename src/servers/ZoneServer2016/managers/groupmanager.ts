@@ -23,8 +23,13 @@ enum GroupErrors {
 }
 
 export class GroupManager {
+  /** Id that is generated upon a new group creation. */
   nextGroupId = 1;
+
+  /** The array of groups. */
   groups: { [groupId: number]: Group } = {};
+
+  /** "Limbo" for an invite that awaits acceptance or denial. */
   pendingInvites: { [characterId: string]: number } = {};
 
   sendGroupError(server: ZoneServer2016, client: Client, error: GroupErrors) {

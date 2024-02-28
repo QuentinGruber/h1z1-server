@@ -154,9 +154,11 @@ export function getRandomItem(items: Array<LootDefinition>) {
 }
 
 export class WorldObjectManager {
+  /** Array of current spawned NPCs */
   spawnedNpcs: { [spawnerId: number]: string } = {};
   spawnedLootObjects: { [spawnerId: number]: string } = {};
 
+  /** Global respawn timers */
   private _lastLootRespawnTime: number = 0;
   private _lastVehicleRespawnTime: number = 0;
   private _lastNpcRespawnTime: number = 0;
@@ -170,6 +172,7 @@ export class WorldObjectManager {
   npcRespawnTimer!: number;
   hasCustomLootRespawnTime!: boolean;
 
+  /** Player despawn timers */
   itemDespawnTimer!: number;
   lootDespawnTimer!: number;
   deadNpcDespawnTimer!: number;
@@ -177,9 +180,10 @@ export class WorldObjectManager {
 
   vehicleSpawnRadius!: number;
   npcSpawnRadius!: number;
+
+  /** Probability timers */
   chanceNpc!: number;
   chanceScreamer!: number;
-
   chanceWornLetter!: number;
 
   waterSourceReplenishTimer!: number;

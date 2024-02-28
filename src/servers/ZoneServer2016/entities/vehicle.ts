@@ -186,10 +186,13 @@ export class Vehicle2016 extends BaseLootableEntity {
   destroyedState = 0;
   positionUpdateType = 1;
   currentDamageEffect: number = 0;
+
+  /** The previous position of the vehicle that was last transmitted to the server, used to determine FairPlay. */
   oldPos: { position: Float32Array; time: number } = {
     position: new Float32Array(),
     time: 0
   };
+  
   droppedManagedClient?: ZoneClient2016; // for temporary fix
   isMountable: boolean = true;
   constructor(

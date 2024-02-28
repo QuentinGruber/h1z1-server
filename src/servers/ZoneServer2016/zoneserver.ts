@@ -254,6 +254,7 @@ const spawnLocations2 = require("../../../data/2016/zoneData/Z1_gridSpawns.json"
   > = require("../../../data/2016/sampleData/equipmentModelTexturesMapping.json");
 
 export class ZoneServer2016 extends EventEmitter {
+  /** Networking/Protocol related */
   _gatewayServer: GatewayServer;
   readonly _protocol: H1Z1Protocol;
   _db!: Db;
@@ -271,8 +272,10 @@ export class ZoneServer2016 extends EventEmitter {
 
   nextSaveTime: number = Date.now() + this.saveTimeInterval;
 
+  /** Total amount of clients on the server */
   readonly _clients: { [characterId: string]: Client } = {};
 
+  /** Global dictionaries for all entities */
   _characters: EntityDictionary<Character> = {};
   _npcs: EntityDictionary<Npc> = {};
   _spawnedItems: EntityDictionary<ItemObject> = {};
@@ -309,6 +312,7 @@ export class ZoneServer2016 extends EventEmitter {
     };
   } = {};
 
+  /** Information related to Airdrops/Plane */
   _airdrop?: {
     plane: Plane;
     cargo?: Plane;
@@ -326,6 +330,8 @@ export class ZoneServer2016 extends EventEmitter {
   _serverStartTime: TimeWrapper = new TimeWrapper(0);
   _transientIds: { [transientId: number]: string } = {};
   _characterIds: { [characterId: string]: number } = {};
+
+  /** Determines which login server is used. Localhost by default. */
   readonly _loginServerInfo: { address?: string; port: number } = {
     address: process.env.LOGINSERVER_IP,
     port: 1110
@@ -334,7 +340,11 @@ export class ZoneServer2016 extends EventEmitter {
   _allowedCommands: string[] = process.env.ALLOWED_COMMANDS
     ? JSON.parse(process.env.ALLOWED_COMMANDS)
     : [];
+
+  /** Handles all packets for H1Z1 */
   _packetHandlers: ZonePacketHandlers;
+
+  /** Managers used for handling core functions */
   worldObjectManager: WorldObjectManager;
   smeltingManager: SmeltingManager;
   decayManager: DecayManager;
@@ -352,6 +362,8 @@ export class ZoneServer2016 extends EventEmitter {
   configManager: ConfigManager;
 
   _ready: boolean = false;
+
+  /** Information from ServerItemDefinitions */
   _itemDefinitions: { [itemDefinitionId: number]: ItemDefinition } =
     itemDefinitions;
   _weaponDefinitions: { [weaponDefinitionId: number]: any } =
@@ -368,6 +380,7 @@ export class ZoneServer2016 extends EventEmitter {
   profileDefinitionsCache?: Buffer;
   _containerDefinitions: { [containerDefinitionId: number]: any } =
     containerDefinitions;
+
   _recipes: { [recipeId: number]: Recipe } = recipes;
   lastItemGuid: bigint = 0x3000000000000000n;
   private readonly _transientIdGenerator = generateTransientId();
@@ -389,7 +402,7 @@ export class ZoneServer2016 extends EventEmitter {
   rebootTimeTimer?: NodeJS.Timeout;
   inGameTimeManager: IngameTimeManager = new IngameTimeManager();
 
-  /* MANAGED BY CONFIGMANAGER */
+ /** Handled by ConfigManager */
   proximityItemsDistance!: number;
   interactionDistance!: number;
   charactersRenderDistance!: number;
@@ -439,6 +452,7 @@ export class ZoneServer2016 extends EventEmitter {
     this.enableWorldSaves =
       process.env.ENABLE_SAVES?.toLowerCase() == "false" ? false : true;
 
+    /** Determines what rulesets are used. */
     const serverGameRules = [];
     serverGameRules.push(this.isPvE ? "PvE" : "PvP");
     if (this.isFirstPersonOnly) serverGameRules.push("FirstPersonOnly");
