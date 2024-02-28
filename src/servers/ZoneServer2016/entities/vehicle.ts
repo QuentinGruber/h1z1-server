@@ -587,7 +587,7 @@ export class Vehicle2016 extends BaseLootableEntity {
     if (seat) return server._characters[seat];
   }
 
-  doesPassengersHaveKey(server: ZoneServer2016): boolean | undefined {
+  doesPassengersHaveKey(server: ZoneServer2016): boolean {
     for (const seatId in this.seats) {
       const seat = this.seats[seatId],
         passenger = seat ? server._characters[seat] : undefined;
