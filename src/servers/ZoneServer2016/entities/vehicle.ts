@@ -866,7 +866,7 @@ export class Vehicle2016 extends BaseLootableEntity {
     return (
       !!this.getItemById(Items.VEHICLE_KEY) ||
       !!this.getDriver(server)?.getItemById(Items.VEHICLE_KEY) ||
-      !!this.doesPassengersHaveKey(server)
+      this.doesPassengersHaveKey(server)
     );
   }
 
