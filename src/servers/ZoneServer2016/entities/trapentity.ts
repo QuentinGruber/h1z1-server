@@ -25,9 +25,16 @@ import { ZoneServer2016 } from "../zoneserver";
 import { BaseSimpleNpc } from "./basesimplenpc";
 
 export class TrapEntity extends BaseSimpleNpc {
+  /** Damage delay for the TrapEntity */
   trapTimer?: NodeJS.Timeout;
+
+  /** Returns true if a snare has been stepped on */
   isTriggered = false;
+  
+  /** Distance (H1Z1 meters) where the TrapEntity will render */
   npcRenderDistance = 75;
+
+  /** Id of the TrapEntity - See ServerItemDefinitions.json for more information */
   itemDefinitionId: number;
   worldOwned: boolean = false;
   readonly cubebounds!: CubeBounds;

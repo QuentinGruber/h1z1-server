@@ -52,7 +52,7 @@ export class SmeltingManager {
   /** The timer to check for honeycomb inside of all collectable entities - 5 min x 72 ticks = 6 hours for honeycomb */
   checkCollectorsTimer?: NodeJS.Timeout;
   
-  /* MANAGED BY CONFIGMANAGER */
+  /** MANAGED BY CONFIGMANAGER - See defaultConfig.yaml */
   /** The time (milliseconds) it takes for a fuel entity to burn - 2 minutes seconds by default */
   burnTime!: number;
   /** The time (milliseconds) it takes for a non-fuel entity to smelt - 7 seconds by default */

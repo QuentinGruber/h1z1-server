@@ -34,6 +34,7 @@ function getActorModelId(vehicleId: number) {
 }
 
 export class Plane extends Vehicle2016 {
+  /** See Vehicle2016 */
   isManaged: boolean = false;
   manager?: any;
   destroyedEffect: number = 0;

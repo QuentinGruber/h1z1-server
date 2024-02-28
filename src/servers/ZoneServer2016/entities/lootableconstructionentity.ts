@@ -45,7 +45,10 @@ export class LootableConstructionEntity extends BaseLootableEntity {
   placementTime = Date.now();
   parentObjectCharacterId: string;
   loadoutId = 5;
+
+  /** Id of the LootableConstructionId - See ServerItemDefinitions.json for more information */
   itemDefinitionId: number;
+  
   damageRange: number = 1.5;
   interactionDistance = 3;
   subEntity?: SmeltingEntity | CollectingEntity;

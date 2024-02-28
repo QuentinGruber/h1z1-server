@@ -154,8 +154,10 @@ export function getRandomItem(items: Array<LootDefinition>) {
 }
 
 export class WorldObjectManager {
-  /** Array of current spawned NPCs */
+  /** JsonObject of all spawned NPCs in the world - uses spawnerId (number) for indexing */
   spawnedNpcs: { [spawnerId: number]: string } = {};
+
+  /** JsonObject of all spawned objects in the world - uses spawnerId (number) for indexing */
   spawnedLootObjects: { [spawnerId: number]: string } = {};
 
   /** Global respawn timers */
@@ -164,28 +166,22 @@ export class WorldObjectManager {
   private _lastNpcRespawnTime: number = 0;
   private _lastWaterSourceReplenishTime: number = 0;
 
-  /* MANAGED BY CONFIGMANAGER */
+  /** MANAGED BY CONFIGMANAGER - See defaultConfig.yaml */
   vehicleSpawnCap!: number;
   minAirdropSurvivors!: number;
   lootRespawnTimer!: number;
   vehicleRespawnTimer!: number;
   npcRespawnTimer!: number;
   hasCustomLootRespawnTime!: boolean;
-
-  /** Player despawn timers */
   itemDespawnTimer!: number;
   lootDespawnTimer!: number;
   deadNpcDespawnTimer!: number;
   lootbagDespawnTimer!: number;
-
   vehicleSpawnRadius!: number;
   npcSpawnRadius!: number;
-
-  /** Probability timers */
   chanceNpc!: number;
   chanceScreamer!: number;
   chanceWornLetter!: number;
-
   waterSourceReplenishTimer!: number;
   waterSourceRefillAmount!: number;
 

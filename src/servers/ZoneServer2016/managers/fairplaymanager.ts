@@ -56,7 +56,7 @@ export class FairPlayManager {
   fairPlayValues?: FairPlayValues;
   defaultHashes = defaultHashes;
 
-  /* MANAGED BY CONFIGMANAGER */
+  /** MANAGED BY CONFIGMANAGER - See defaultConfig.yaml */
   useFairPlay!: boolean;
   maxPing!: number;
   acceptedRejectionTypes!: Array<CONNECTION_REJECTION_FLAGS>;

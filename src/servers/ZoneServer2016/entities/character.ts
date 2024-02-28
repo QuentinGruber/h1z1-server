@@ -196,6 +196,7 @@ export class Character2016 extends BaseFullCharacter {
   /** Determines what ShoeType the player is wearing */
   hasConveys: boolean = false;
   hasBoots: boolean = false;
+  
   /** Handles the current position of the player */
   positionUpdate?: positionUpdate;
 

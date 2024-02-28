@@ -18,7 +18,10 @@ import { ZoneClient2016 } from "../classes/zoneclient";
 import { ModelIds, StringIds } from "../models/enums";
 
 export class Lootbag extends BaseLootableEntity {
+  /** Time (milliseconds) when the lootbag is created */
   creationTime = Date.now();
+
+  /** Returns true if the player can transfer items to the lootbag */
   canAcceptItems = false;
   loadoutId = 5;
   constructor(

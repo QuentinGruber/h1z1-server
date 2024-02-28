@@ -73,7 +73,9 @@ export class Crate extends BaseSimpleNpc {
   maxHealth: number = 5000;
   health: number = this.maxHealth;
   spawnTimestamp: number = 0;
+  /** Returns true if the crate is in the radius of a buffed position (hunter drive, car camps etc.) */
   isBuffed: boolean;
+  /** Time (milliseconds) for the crate to respawn in the world */
   respawnTime = 900000; // 15min respawn time
   constructor(
     characterId: string,

@@ -100,15 +100,20 @@ function getDoorSound(actorModelId: number) {
 
 export class DoorEntity extends BaseLightweightCharacter {
   spawnerId: number;
+  /** Distance (H1Z1 meters) where the DoorEntity will spawn for the player */
   npcRenderDistance = 150;
   openAngle: number;
   closedAngle: number;
+  /** Default rotation for the  */
   startRot: Float32Array;
   positionUpdateType = 1;
+  /** Returns true while the door is the process of closing/opening */
   moving = false;
+  /** Returns true if the player opens the door */
   isOpen = false;
   openSound: number;
   closeSound: number;
+  /** Returns true when a window is broken  */
   destroyed: boolean = false;
   destroyedModel: number;
   destroyedModels: number[];

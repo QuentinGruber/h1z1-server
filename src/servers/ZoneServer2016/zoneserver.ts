@@ -305,7 +305,10 @@ export class ZoneServer2016 extends EventEmitter {
   _screenEffects: { [screenEffectName: string]: ScreenEffect } = {};
   _clientEffectsData: { [effectId: number]: clientEffect } = {};
   _modelsData: { [modelId: number]: modelData } = {};
+
+  /** Interactible options for items - See (ZonePacketHandlers.ts or datasources/ItemUseOptions) */
   _itemUseOptions: { [optionId: number]: UseOption } = {};
+
   _decoys: {
     [transientId: number]: {
       characterId: string;
@@ -315,7 +318,12 @@ export class ZoneServer2016 extends EventEmitter {
     };
   } = {};
 
-  /** Information related to Airdrops/Plane */
+  /** Airdrop information - includes:
+   * plane (Plane), cargo (Plane), planeTarget (string),
+   * planeTargetPos (Float32Array), cargoTarget (string), cargoTargetPos(Float32Array),
+   * destination (string), destinationPos (Float32Array), cargoSpawned (boolean),
+   * hospitalCrate (boolean), manager (Client)
+   */
   _airdrop?: {
     plane: Plane;
     cargo?: Plane;
@@ -330,6 +338,7 @@ export class ZoneServer2016 extends EventEmitter {
     hospitalCrate: boolean;
     manager?: Client;
   };
+
   _serverStartTime: TimeWrapper = new TimeWrapper(0);
   _transientIds: { [transientId: number]: string } = {};
   _characterIds: { [characterId: string]: number } = {};
@@ -5562,7 +5571,7 @@ export class ZoneServer2016 extends EventEmitter {
    * @returns {boolean} True if the item is a convey, false otherwise.
    */
   isConvey(itemDefinitionId: number): boolean {
-    return this.getItemDefinition(itemDefinitionId)?.DESCRIPTION_ID == 11895;
+    return this.getItemDefinition(itemDefinitionId)?.DESCRIPTION_ID == StringIds.CONVEYS;
   }
 
   /**
@@ -6047,7 +6056,7 @@ export class ZoneServer2016 extends EventEmitter {
     this.sendCompositeEffectToAllWithSpawnedEntity(
       this._spawnedItems,
       object,
-      this.getItemDefinition(item.itemDefinitionId)?.PICKUP_EFFECT ?? 5151
+      this.getItemDefinition(item.itemDefinitionId)?.PICKUP_EFFECT ?? Effects.SFX_Item_PickUp_Generic
     );
 
     client.character.lootItem(this, item);

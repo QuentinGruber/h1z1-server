@@ -28,7 +28,7 @@ export class SpeedTreeManager {
   /** Array of all spawned trees in the world */
   _speedTreesList: { [objectId: number]: ZoneSpeedTreeData } = {};
 
-  /* MANAGED BY CONFIGMANAGER */
+  /** MANAGED BY CONFIGMANAGER - See defaultConfig.yaml */
   minBlackberryHarvest!: number;
   maxBlackberryHarvest!: number;
   branchHarvestChance!: number;

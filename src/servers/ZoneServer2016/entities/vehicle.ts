@@ -164,22 +164,46 @@ function getHotwireEffect(vehicleId: VehicleIds) {
 }
 
 export class Vehicle2016 extends BaseLootableEntity {
+  /** Used for determining seat swap logic*/
   isManaged: boolean = false;
   manager?: ZoneClient2016;
+
+  /** Effect Id upon a car explosion */
   destroyedEffect: number = 0;
+
+  /** Model Id to spawn after a car explosion */
   destroyedModel: number = 0;
+
+  /** Effect Id of the vehicle when it collides with the world */
   minorDamageEffect: number = 0;
   majorDamageEffect: number = 0;
   criticalDamageEffect: number = 0;
   supercriticalDamageEffect: number = 0;
+
+  /** Returns true when the engine is turned on */
   engineOn: boolean = false;
+
+  /** Returns true when the player locks the vehicle */
   isLocked: boolean = false;
+
+  /** Used to determine the position of the vehicle to transmit to the server */
   positionUpdate: any /*positionUpdate*/;
+
+  /** Speed (H1Z1 rpms) of the vehicle */
   engineRPM: number = 0;
+
+  /** Used by resources to determine the fuel level */
   fuelUpdater: any;
+
+  /** Returns true if the player is spectating or is parachuting 
+   * (spectating is treated as being inside a vehicle) */
   isInvulnerable: boolean = false;
   onDismount?: any;
+
+  /** Used to update the health of the vehicle */
   resourcesUpdater?: any;
+
+  /** */
   damageTimeout?: any;
   vehicleManager?: string;
   seats: { [seatId: string]: string } = {};
@@ -188,7 +212,8 @@ export class Vehicle2016 extends BaseLootableEntity {
   positionUpdateType = 1;
   currentDamageEffect: number = 0;
 
-  /** The previous position of the vehicle that was last transmitted to the server, used to determine FairPlay. */
+  /** The previous position of the vehicle that was last transmitted to the server, 
+   * used to determine FairPlay. */
   oldPos: { position: Float32Array; time: number } = {
     position: new Float32Array(),
     time: 0
