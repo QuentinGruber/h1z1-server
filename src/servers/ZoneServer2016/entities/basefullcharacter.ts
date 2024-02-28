@@ -21,6 +21,7 @@ import { LoadoutKit } from "../data/loadouts";
 import {
   ContainerErrors,
   ItemClasses,
+  ItemTypes,
   Items,
   LoadoutIds,
   LoadoutSlots,
@@ -305,7 +306,7 @@ export abstract class BaseFullCharacter extends BaseLightweightCharacter {
       server.deleteItem(this, loadoutItem.itemGuid);
     }
 
-    if (def.ITEM_TYPE === 34) {
+    if (def.ITEM_TYPE === ItemTypes.CONTAINER) {
       const loadoutContainer = this._containers[loadoutSlotId],
         itemDefId = loadoutContainer?.itemDefinitionId,
         items = loadoutContainer?.items;
@@ -706,7 +707,7 @@ export abstract class BaseFullCharacter extends BaseLightweightCharacter {
     if (oldLoadoutItem?.itemDefinitionId) {
       //TODO: Probably have to rework this? This makes backpack swapping possible.
       const def = server.getItemDefinition(oldLoadoutItem.itemDefinitionId);
-      if (def?.ITEM_TYPE == 34) {
+      if (def?.ITEM_TYPE == ItemTypes.CONTAINER) {
         if (this.getAvailableLoadoutSlot(server, item.itemDefinitionId)) {
           this.equipItem(server, item, true, slotId);
         } else {
