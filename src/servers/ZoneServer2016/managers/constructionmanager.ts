@@ -363,7 +363,6 @@ export class ConstructionManager {
     if (this.overridePlacementItems.includes(itemDefinitionId)) return false;
     let useRange = true;
     let isInPoi = false;
-    let isShackInRange = false;
     Z1_POIs.forEach((point: any) => {
       if (point.bounds) {
         useRange = false;
@@ -373,20 +372,13 @@ export class ConstructionManager {
             return;
           }
         });
-        if (point.shackBounds && this.shackItems.includes(itemDefinitionId)) {
-          point.shackBounds.forEach((bound: any) => {
-            if (isInsideSquare([position[0], position[2]], bound)) {
-              isShackInRange = true;
-            }
-          });
-        }
       }
       if (useRange && isPosInRadius(point.range, position, point.position)) {
         isInPoi = true;
       }
     });
     // allow placement in poi if object is parented to a foundation
-    if (isInPoi && !isInsidePermissionedFoundation && !isShackInRange) {
+    if (isInPoi && !isInsidePermissionedFoundation) {
       return true;
     }
     return false;
