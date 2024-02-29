@@ -81,7 +81,6 @@ export class ConstructionManager {
   ];
 
   /* MANAGED BY CONFIGMANAGER */
-  allowPOIPlacement!: boolean;
   allowStackedPlacement!: boolean;
   allowOutOfBoundsPlacement!: boolean;
   placementRange!: number;
@@ -359,7 +358,6 @@ export class ConstructionManager {
     isInsidePermissionedFoundation: boolean
   ): boolean {
     if (client.isDebugMode) return false;
-    if (this.allowPOIPlacement) return false;
     if (this.overridePlacementItems.includes(itemDefinitionId)) return false;
     let useRange = true;
     let isInPoi = false;
@@ -440,6 +438,7 @@ export class ConstructionManager {
       return true;
     }
 
+    if (server.isNoBuildInPois) return false;
     if (
       this.detectPOIPlacement(
         itemDefinitionId,

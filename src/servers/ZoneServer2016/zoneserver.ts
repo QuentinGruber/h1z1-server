@@ -403,6 +403,7 @@ export class ZoneServer2016 extends EventEmitter {
   isPvE!: boolean;
   isHeadshotOnly!: boolean;
   isFirstPersonOnly!: boolean;
+  isNoBuildInPois!: boolean;
   baseConstructionDamage!: number;
   crowbarHitRewardChance!: number;
   crowbarHitDamage!: number;
@@ -443,6 +444,7 @@ export class ZoneServer2016 extends EventEmitter {
     serverGameRules.push(this.isPvE ? "PvE" : "PvP");
     if (this.isFirstPersonOnly) serverGameRules.push("FirstPersonOnly");
     if (this.isHeadshotOnly) serverGameRules.push("Headshots");
+    if (this.isNoBuildInPois) serverGameRules.push("NoBuildNearPois");
     this.serverGameRules = serverGameRules.join(",");
 
     this._soloMode = false;
@@ -1742,6 +1744,13 @@ export class ZoneServer2016 extends EventEmitter {
             RULESET_ID: 6,
             RULESET_ID_: 6,
             ruleset: "BattleRoyale",
+            unknownString2: "",
+            rulesets: []
+          },
+          {
+            RULESET_ID: 7,
+            RULESET_ID_: 7,
+            ruleset: "NoBuildNearPois",
             unknownString2: "",
             rulesets: []
           }
