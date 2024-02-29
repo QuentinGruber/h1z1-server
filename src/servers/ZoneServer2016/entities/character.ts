@@ -95,7 +95,7 @@ export class Character2016 extends BaseFullCharacter {
 
   /** The location the player spawned at */
   spawnLocation?: string;
-  
+
   /** Used to update the status of the players resources */
   resourcesUpdater?: any;
   factionId = 2;
@@ -114,13 +114,13 @@ export class Character2016 extends BaseFullCharacter {
 
   /** The guid of the secured shelter the player is inside */
   isHidden: string = "";
-  
+
   /** Used for resources */
   isBleeding = false;
   isBandaged = false;
   isExhausted = false;
   isPoisoned = false;
-  
+
   /** Last time (milliseconds) the player melee'd */
   lastMeleeHitTime: number = 0;
 
@@ -210,7 +210,7 @@ export class Character2016 extends BaseFullCharacter {
   isSpectator = false;
 
   /** Called once SendSelfToClient has been sent */
-  initialized = false; 
+  initialized = false;
 
   /** Data for the spawn grid map, keeps track of which grids to block out */
   spawnGridData: number[] = [];
@@ -236,7 +236,7 @@ export class Character2016 extends BaseFullCharacter {
 
   /** Tracks combat with other players/entities */
   private combatlog: DamageRecord[] = [];
-  
+
   /** CharacterId of the vehicle spawned by /hax drive or spawnVehicle */
   ownedVehicle?: string;
 
@@ -1192,10 +1192,10 @@ export class Character2016 extends BaseFullCharacter {
   }
 
   /**
-   * 
+   *
    * @param {ZoneServer2016} server - The current server
    * @param {BaseLootableEntity} lootableEntity - The lootable entity the player will mount to
-   * @returns 
+   * @returns
    */
   mountContainer(server: ZoneServer2016, lootableEntity: BaseLootableEntity) {
     const client = server.getClientByCharId(this.characterId);

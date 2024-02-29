@@ -31,7 +31,7 @@ export class Weapon {
 
   /** Required for the reload packet to work every time */
   currentReloadCount = 0;
-  
+
   constructor(item: BaseItem, ammoCount?: number) {
     this.itemGuid = item.itemGuid;
     this.itemDefinitionId = item.itemDefinitionId;

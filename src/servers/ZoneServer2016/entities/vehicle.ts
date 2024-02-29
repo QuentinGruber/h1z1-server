@@ -195,7 +195,7 @@ export class Vehicle2016 extends BaseLootableEntity {
   /** Used by resources to determine the fuel level */
   fuelUpdater: any;
 
-  /** Returns true if the player is spectating or is parachuting 
+  /** Returns true if the player is spectating or is parachuting
    * (spectating is treated as being inside a vehicle) */
   isInvulnerable: boolean = false;
   onDismount?: any;
@@ -212,13 +212,13 @@ export class Vehicle2016 extends BaseLootableEntity {
   positionUpdateType = 1;
   currentDamageEffect: number = 0;
 
-  /** The previous position of the vehicle that was last transmitted to the server, 
+  /** The previous position of the vehicle that was last transmitted to the server,
    * used to determine FairPlay. */
   oldPos: { position: Float32Array; time: number } = {
     position: new Float32Array(),
     time: 0
   };
-  
+
   droppedManagedClient?: ZoneClient2016; // for temporary fix
   isMountable: boolean = true;
   constructor(

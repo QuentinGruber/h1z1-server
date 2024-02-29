@@ -19,7 +19,7 @@ import { ZoneServer2016 } from "../zoneserver";
 const Z1_speedTrees = require("../../../../data/2016/zoneData/Z1_speedTrees.json");
 
 export class SpeedTreeManager {
-  /** JsonObject of destroyed trees, 
+  /** JsonObject of destroyed trees,
    * uses ObjectId (number) for indexing
    */
   _speedTrees: { [objectId: number]: SpeedTree } = {};
@@ -29,7 +29,7 @@ export class SpeedTreeManager {
 
   /** JsonObject of all spawned trees in the world,
    * uses ObjectId (number) for indexing
-    */
+   */
   _speedTreesList: { [objectId: number]: ZoneSpeedTreeData } = {};
 
   /** MANAGED BY CONFIGMANAGER - See defaultConfig.yaml for more information */

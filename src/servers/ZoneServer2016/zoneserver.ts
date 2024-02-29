@@ -415,7 +415,7 @@ export class ZoneServer2016 extends EventEmitter {
   rebootTimeTimer?: NodeJS.Timeout;
   inGameTimeManager: IngameTimeManager = new IngameTimeManager();
 
- /** MANAGED BY CONFIGMANAGER - See defaultConfig.yaml for more information */
+  /** MANAGED BY CONFIGMANAGER - See defaultConfig.yaml for more information */
   proximityItemsDistance!: number;
   interactionDistance!: number;
   charactersRenderDistance!: number;
@@ -5521,7 +5521,9 @@ export class ZoneServer2016 extends EventEmitter {
    * @returns {boolean} True if the item is a weapon, false otherwise.
    */
   isWeapon(itemDefinitionId: number): boolean {
-    return this.getItemDefinition(itemDefinitionId)?.ITEM_TYPE == ItemTypes.WEAPON;
+    return (
+      this.getItemDefinition(itemDefinitionId)?.ITEM_TYPE == ItemTypes.WEAPON
+    );
   }
 
   /**
@@ -5531,7 +5533,9 @@ export class ZoneServer2016 extends EventEmitter {
    * @returns {boolean} True if the item is a container, false otherwise.
    */
   isContainer(itemDefinitionId: number): boolean {
-    return this.getItemDefinition(itemDefinitionId)?.ITEM_TYPE == ItemTypes.CONTAINER;
+    return (
+      this.getItemDefinition(itemDefinitionId)?.ITEM_TYPE == ItemTypes.CONTAINER
+    );
   }
 
   /**
@@ -5542,9 +5546,12 @@ export class ZoneServer2016 extends EventEmitter {
    */
   isArmor(itemDefinitionId: number): boolean {
     return (
-      this.getItemDefinition(itemDefinitionId)?.DESCRIPTION_ID == StringIds.TACTICAL_ARMOR ||
-      this.getItemDefinition(itemDefinitionId)?.DESCRIPTION_ID == StringIds.WOODEN_ARMOR ||
-      this.getItemDefinition(itemDefinitionId)?.DESCRIPTION_ID == StringIds.PLATED_ARMOR
+      this.getItemDefinition(itemDefinitionId)?.DESCRIPTION_ID ==
+        StringIds.TACTICAL_ARMOR ||
+      this.getItemDefinition(itemDefinitionId)?.DESCRIPTION_ID ==
+        StringIds.WOODEN_ARMOR ||
+      this.getItemDefinition(itemDefinitionId)?.DESCRIPTION_ID ==
+        StringIds.PLATED_ARMOR
     );
   }
 
@@ -5556,12 +5563,18 @@ export class ZoneServer2016 extends EventEmitter {
    */
   isHelmet(itemDefinitionId: number): boolean {
     return (
-      this.getItemDefinition(itemDefinitionId)?.DESCRIPTION_ID == StringIds.TACTICAL_HELMET ||
-      this.getItemDefinition(itemDefinitionId)?.DESCRIPTION_ID == StringIds.SLEIGH_HELMET ||
-      this.getItemDefinition(itemDefinitionId)?.DESCRIPTION_ID == StringIds.GENERAL_HELMET_1 ||
-      this.getItemDefinition(itemDefinitionId)?.DESCRIPTION_ID == StringIds.CREEPY_MASK ||
-      this.getItemDefinition(itemDefinitionId)?.DESCRIPTION_ID == StringIds.SCRAY_HALLOWEEN_MASK ||
-      this.getItemDefinition(itemDefinitionId)?.DESCRIPTION_ID == StringIds.UNCLE_SAM_MASK
+      this.getItemDefinition(itemDefinitionId)?.DESCRIPTION_ID ==
+        StringIds.TACTICAL_HELMET ||
+      this.getItemDefinition(itemDefinitionId)?.DESCRIPTION_ID ==
+        StringIds.SLEIGH_HELMET ||
+      this.getItemDefinition(itemDefinitionId)?.DESCRIPTION_ID ==
+        StringIds.GENERAL_HELMET_1 ||
+      this.getItemDefinition(itemDefinitionId)?.DESCRIPTION_ID ==
+        StringIds.CREEPY_MASK ||
+      this.getItemDefinition(itemDefinitionId)?.DESCRIPTION_ID ==
+        StringIds.SCRAY_HALLOWEEN_MASK ||
+      this.getItemDefinition(itemDefinitionId)?.DESCRIPTION_ID ==
+        StringIds.UNCLE_SAM_MASK
     );
   }
 
@@ -5572,7 +5585,10 @@ export class ZoneServer2016 extends EventEmitter {
    * @returns {boolean} True if the item is a convey, false otherwise.
    */
   isConvey(itemDefinitionId: number): boolean {
-    return this.getItemDefinition(itemDefinitionId)?.DESCRIPTION_ID == StringIds.CONVEYS;
+    return (
+      this.getItemDefinition(itemDefinitionId)?.DESCRIPTION_ID ==
+      StringIds.CONVEYS
+    );
   }
 
   /**
@@ -6057,7 +6073,8 @@ export class ZoneServer2016 extends EventEmitter {
     this.sendCompositeEffectToAllWithSpawnedEntity(
       this._spawnedItems,
       object,
-      this.getItemDefinition(item.itemDefinitionId)?.PICKUP_EFFECT ?? Effects.SFX_Item_PickUp_Generic
+      this.getItemDefinition(item.itemDefinitionId)?.PICKUP_EFFECT ??
+        Effects.SFX_Item_PickUp_Generic
     );
 
     client.character.lootItem(this, item);

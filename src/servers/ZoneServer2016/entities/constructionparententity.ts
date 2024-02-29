@@ -64,8 +64,7 @@ function getMaxHealth(itemDefinitionId: Items): number {
 }
 
 export class ConstructionParentEntity extends ConstructionChildEntity {
-
-  /** Allowed permissions for players on the ConstructionParentEntity, 
+  /** Allowed permissions for players on the ConstructionParentEntity,
    * determines if a player can visit, use containers, build or demolish*/
   permissions: { [characterId: string]: ConstructionPermissions } = {};
 

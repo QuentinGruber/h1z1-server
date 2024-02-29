@@ -48,7 +48,7 @@ export class Plant extends ItemObject {
 
   /** Distance (H1Z1 meters) where the crop will render */
   npcRenderDistance = 30;
-  
+
   constructor(
     characterId: string,
     transientId: number,

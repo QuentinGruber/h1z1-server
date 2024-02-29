@@ -20,14 +20,14 @@ export class PlantingDiameter extends TemporaryEntity {
   seedSlots: { [id: string]: Plant } = {};
 
   /** Time (milliseconds) at which the PlantingDiameter will disappear if unoccupied - Default: 1 day */
-  disappearTimestamp: number = new Date().getTime() + 86400000; 
+  disappearTimestamp: number = new Date().getTime() + 86400000;
 
   /** Returns true if the player uses a fertilizer nearby */
   isFertilized: boolean = false;
 
   /** Time (milliseconds) when a fertilizer was applied to a PlantingDiameter */
   fertilizedTimestamp: number = 0;
-  
+
   constructor(
     characterId: string,
     transientId: number,

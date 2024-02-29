@@ -30,7 +30,7 @@ export class TrapEntity extends BaseSimpleNpc {
 
   /** Returns true if a snare has been stepped on */
   isTriggered = false;
-  
+
   /** Distance (H1Z1 meters) where the TrapEntity will render */
   npcRenderDistance = 75;
 

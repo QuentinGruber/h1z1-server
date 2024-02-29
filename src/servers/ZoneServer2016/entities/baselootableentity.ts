@@ -18,13 +18,12 @@ import { LoadoutContainer } from "../classes/loadoutcontainer";
 import { ZoneClient2016 } from "../classes/zoneclient";
 
 export abstract class BaseLootableEntity extends BaseFullCharacter {
-  
   /** The current character interacting with the BaseLootableEntity */
   mountedCharacter?: string;
 
   /** Distance (H1Z1 meters) at which the player can interact with the BaseLootableEntity */
   interactionDistance = 4;
-  
+
   /** Determines if the entity BaseLootableEntity should be a lootbag,
    * Returns true if the modelId is included in the array below
    */

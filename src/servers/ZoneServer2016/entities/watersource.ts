@@ -22,7 +22,7 @@ export class WaterSource extends TaskProp {
 
   /** Amount to be refilled in a water bottle */
   refillAmount!: number;
-  
+
   constructor(
     characterId: string,
     transientId: number,

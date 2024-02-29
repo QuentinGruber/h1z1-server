@@ -22,15 +22,30 @@ import { Effects, ModelIds, StringIds } from "../models/enums";
 function getDestroyedModels(actorModel: number): number[] {
   switch (actorModel) {
     case ModelIds.RESTAURANT_DOOR_1:
-      return [ModelIds.RESTAURANT_DOOR_GLASS_BROKEN_1, ModelIds.RESTAURANT_DOOR_GLASS_BROKEN_2, ModelIds.RESTAURANT_DOOR_GLASS_BROKEN_3];
+      return [
+        ModelIds.RESTAURANT_DOOR_GLASS_BROKEN_1,
+        ModelIds.RESTAURANT_DOOR_GLASS_BROKEN_2,
+        ModelIds.RESTAURANT_DOOR_GLASS_BROKEN_3
+      ];
     case ModelIds.BUISNESS_DOORS_GLASS:
-      return [ModelIds.BUISNESS_DOORS_GLASS_BROKEN_1, ModelIds.BUISNESS_DOORS_GLASS_BROKEN_2, ModelIds.BUISNESS_DOORS_GLASS_BROKEN_3];
+      return [
+        ModelIds.BUISNESS_DOORS_GLASS_BROKEN_1,
+        ModelIds.BUISNESS_DOORS_GLASS_BROKEN_2,
+        ModelIds.BUISNESS_DOORS_GLASS_BROKEN_3
+      ];
     case ModelIds.CABIN_DOOR:
       return [ModelIds.CABIN_DOOR_BROKEN];
     case ModelIds.BUISNESS_DOOR_GLASS:
-      return [ModelIds.BUISNESS_DOOR_GLASS_BROKEN_1, ModelIds.BUISNESS_DOOR_GLASS_BROKEN_2, ModelIds.BUISNESS_DOOR_GLASS_BROKEN_3];
+      return [
+        ModelIds.BUISNESS_DOOR_GLASS_BROKEN_1,
+        ModelIds.BUISNESS_DOOR_GLASS_BROKEN_2,
+        ModelIds.BUISNESS_DOOR_GLASS_BROKEN_3
+      ];
     case ModelIds.CAMPER_DOOR_1:
-      return [ModelIds.CAMPER_DOOR_GLASS_BROKEN_1, ModelIds.CAMPER_DOOR_GLASS_BROKEN_2];
+      return [
+        ModelIds.CAMPER_DOOR_GLASS_BROKEN_1,
+        ModelIds.CAMPER_DOOR_GLASS_BROKEN_2
+      ];
     default:
       return [];
   }

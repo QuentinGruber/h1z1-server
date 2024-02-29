@@ -24,7 +24,7 @@ export abstract class BaseSimpleNpc extends BaseEntity {
 
   /** Health initialized by maxHealth to determine the health percentage in pGetSimpleProxyHealth */
   health: number = this.maxHealth;
-  
+
   constructor(
     characterId: string,
     transientId: number,

@@ -21,9 +21,17 @@ import { BaseSimpleNpc } from "./basesimplenpc";
 function getDestroyedModels(actorModel: string): number[] {
   switch (actorModel) {
     case "Common_Props_GlassWindow01.adr":
-      return [ModelIds.GLASS_WINDOW_DESTROYED_1, ModelIds.GLASS_WINDOW_DESTROYED_2, ModelIds.GLASS_WINDOW_DESTROYED_3];
+      return [
+        ModelIds.GLASS_WINDOW_DESTROYED_1,
+        ModelIds.GLASS_WINDOW_DESTROYED_2,
+        ModelIds.GLASS_WINDOW_DESTROYED_3
+      ];
     case "Common_Props_TintedWindow01.adr":
-      return [ModelIds.TINTED_WINDOW_DESTROYED_1, ModelIds.TINTED_WINDOW_DESTROYED_2, ModelIds.TINTED_WINDOW_DESTROYED_3];
+      return [
+        ModelIds.TINTED_WINDOW_DESTROYED_1,
+        ModelIds.TINTED_WINDOW_DESTROYED_2,
+        ModelIds.TINTED_WINDOW_DESTROYED_3
+      ];
     default:
       return [];
   }

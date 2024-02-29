@@ -91,8 +91,8 @@ export class SmeltingEntity {
   /** Determines if a smelting entity is for cooking or smelting - Default: smelting */
   filterId: number = FilterIds.FURNACE;
 
-  /** Id of the effect the smelting entity will have, Default: Furance EFX 
-   * - See Effects enum for more information */ 
+  /** Id of the effect the smelting entity will have, Default: Furance EFX
+   * - See Effects enum for more information */
   workingEffect: number = Effects.EFX_Fire_Furnace;
 
   /** Returns true when the smelting entity has been ignited */
@@ -106,7 +106,7 @@ export class SmeltingEntity {
 
   /** For identification upon saving */
   subType: string = "SmeltingEntity";
-  
+
   constructor(
     parentObject: LootableConstructionEntity,
     server: ZoneServer2016

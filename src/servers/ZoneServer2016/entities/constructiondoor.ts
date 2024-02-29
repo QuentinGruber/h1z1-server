@@ -87,7 +87,7 @@ export class ConstructionDoor extends DoorEntity {
 
   /** Used by DecayManager, determines if the entity will be damaged the next decay tick */
   isDecayProtected: boolean = false;
-  
+
   constructor(
     characterId: string,
     transientId: number,

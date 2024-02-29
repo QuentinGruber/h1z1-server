@@ -61,7 +61,7 @@ export abstract class BaseEntity {
   /** Id of the model that corresponds to the entity */
   actorModelId!: number;
 
-  /** State of the BaseLightweightCharacter, includes: state (Float32Array), 
+  /** State of the BaseLightweightCharacter, includes: state (Float32Array),
    * rotation(Float32Array), lookAt(Float32Array), and yaw (number) */
   state: {
     position: Float32Array;
@@ -74,7 +74,7 @@ export abstract class BaseEntity {
   /** Distance (H1Z1 meters) where the entity will render,
    * when undefined, uses the zoneserver._charactersRenderDistance value instad
    */
-  npcRenderDistance: number; 
+  npcRenderDistance: number;
 
   /** Distance (H1Z1 meters) at which the player can interact with the entity */
   interactionDistance: number;

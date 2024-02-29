@@ -26,7 +26,7 @@ export class GroupManager {
   /** Id that is generated upon a new group creation */
   nextGroupId = 1;
 
-  /** JsonObject of all groups in the world, 
+  /** JsonObject of all groups in the world,
    * uses groupId (number) for indexing
    */
   groups: { [groupId: number]: Group } = {};

@@ -36,7 +36,7 @@ export class BaseItem {
 
   /** Returns true if the airdrop has passed all the checks to land safely */
   hasAirdropClearance: boolean = false;
-  
+
   constructor(
     itemDefinitionId: number,
     guid: string,

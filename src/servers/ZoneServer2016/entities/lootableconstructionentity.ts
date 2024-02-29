@@ -56,7 +56,7 @@ export class LootableConstructionEntity extends BaseLootableEntity {
 
   /** Distance (H1Z1 meters) at which the player can interact with the LootableConstructionEntity */
   interactionDistance = 3;
-  
+
   /** Determines if the LootableConstructionEntity is a SmeltingEntity or CollectingEntity */
   subEntity?: SmeltingEntity | CollectingEntity;
 

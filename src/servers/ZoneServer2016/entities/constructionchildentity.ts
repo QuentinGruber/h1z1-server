@@ -144,7 +144,7 @@ export class ConstructionChildEntity extends BaseLightweightCharacter {
 
   /** Time (milliseconds) the ConstructionChildEntity was placed */
   placementTime = Date.now();
-  
+
   /** 3d boundaries of the space the ConstructionParentEntity occupies (8 vertice points) */
   readonly cubebounds?: CubeBounds;
   readonly boundsOn?: CubeBounds;
@@ -168,7 +168,7 @@ export class ConstructionChildEntity extends BaseLightweightCharacter {
   readonly shelterSlots: ConstructionSlotPositionMap = {};
   occupiedShelterSlots: { [slot: number]: ConstructionChildEntity } = {};
 
-  /** Objects that don't occupy any sockets inside of the ConstructionChildEntity, 
+  /** Objects that don't occupy any sockets inside of the ConstructionChildEntity,
    * uses CharacterId (string) for indexing */
   freeplaceEntities: {
     [characterId: string]:

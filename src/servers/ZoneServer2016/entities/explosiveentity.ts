@@ -35,7 +35,7 @@ export class ExplosiveEntity extends BaseLightweightCharacter {
   /** Used for shooting explosion with projectiles, 1 for IEDS and a coinflip between 1 and 2 for biofuel/ethanol */
   triggerExplosionShots =
     this.isLandmine() || this.isIED() ? 1 : Math.floor(Math.random() * 2) + 1;
-  
+
   constructor(
     characterId: string,
     transientId: number,
