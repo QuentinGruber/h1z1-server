@@ -865,7 +865,6 @@ export class Vehicle2016 extends BaseLootableEntity {
   hasVehicleKey(server: ZoneServer2016): boolean {
     return (
       !!this.getItemById(Items.VEHICLE_KEY) ||
-      !!this.getDriver(server)?.getItemById(Items.VEHICLE_KEY) ||
       this.doesPassengersHaveKey(server)
     );
   }
