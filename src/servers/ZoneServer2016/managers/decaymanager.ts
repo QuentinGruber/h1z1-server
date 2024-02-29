@@ -31,7 +31,7 @@ export class DecayManager {
   /** Timer used for determining the interval for decay ticks */
   runTimer?: NodeJS.Timeout;
 
-  /** MANAGED BY CONFIGMANAGER - See defaultConfig.yaml */
+  /** MANAGED BY CONFIGMANAGER - See defaultConfig.yaml for more information */
   decayTickInterval!: number;
   constructionDamageTicks!: number;
   ticksToFullDecay!: number;

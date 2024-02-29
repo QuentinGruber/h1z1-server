@@ -25,6 +25,7 @@ import {
   Items,
   LoadoutIds,
   LoadoutSlots,
+  ModelIds,
   ResourceIds,
   ResourceTypes
 } from "../models/enums";
@@ -50,11 +51,11 @@ const loadoutSlots = require("./../../../../data/2016/dataSources/LoadoutSlots.j
 
 function getGender(actorModelId: number): number {
   switch (actorModelId) {
-    case 9510: // zombiemale
-    case 9240: // male character
+    case ModelIds.ZOMBIE_FEMALE_WALKER: // zombiemale
+    case ModelIds.SURVIVOR_MALE_HEAD_01: // male character
       return 1;
-    case 9634: // zombiefemale
-    case 9474: // female character
+    case ModelIds.ZOMBIE_MALE_HEAD: // zombiefemale
+    case ModelIds.SURVIVAL_FEMALE_HEAD_01: // female character
       return 2;
     default:
       return 0;
@@ -64,6 +65,7 @@ function getGender(actorModelId: number): number {
 export abstract class BaseFullCharacter extends BaseLightweightCharacter {
   /** Callback for OnFullCharacterDataRequest */
   onReadyCallback?: (clientTriggered: ZoneClient2016) => void;
+  
   /** BaseFullCharacter loadout values */
   _resources: { [resourceId: number]: number } = {};
   _loadout: { [loadoutSlotId: number]: LoadoutItem } = {};
@@ -73,6 +75,7 @@ export abstract class BaseFullCharacter extends BaseLightweightCharacter {
   currentLoadoutSlot = 0; // idk if other full npcs use this
   isLightweight = false;
   gender: number;
+  
   /** The default items that will spawn on and with the BaseFullCharacter */
   defaultLoadout: LoadoutKit = [];
   constructor(

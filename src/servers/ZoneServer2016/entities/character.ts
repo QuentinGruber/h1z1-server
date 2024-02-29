@@ -95,7 +95,8 @@ export class Character2016 extends BaseFullCharacter {
 
   /** The location the player spawned at */
   spawnLocation?: string;
-
+  
+  /** Used to update the status of the players resources */
   resourcesUpdater?: any;
   factionId = 2;
   set godMode(state: boolean) {
@@ -104,7 +105,10 @@ export class Character2016 extends BaseFullCharacter {
   get godMode() {
     return this.characterStates.invincibility;
   }
+  /** Determines several states of the player such as being in water or knocked out */
   characterStates: CharacterStates;
+
+  /** States set by StanceFlags */
   isRunning = false;
   isSitting = false;
 
@@ -196,7 +200,7 @@ export class Character2016 extends BaseFullCharacter {
   /** Determines what ShoeType the player is wearing */
   hasConveys: boolean = false;
   hasBoots: boolean = false;
-  
+
   /** Handles the current position of the player */
   positionUpdate?: positionUpdate;
 

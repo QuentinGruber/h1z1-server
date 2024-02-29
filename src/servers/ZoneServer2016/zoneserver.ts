@@ -308,7 +308,6 @@ export class ZoneServer2016 extends EventEmitter {
 
   /** Interactible options for items - See (ZonePacketHandlers.ts or datasources/ItemUseOptions) */
   _itemUseOptions: { [optionId: number]: UseOption } = {};
-
   _decoys: {
     [transientId: number]: {
       characterId: string;
@@ -343,7 +342,7 @@ export class ZoneServer2016 extends EventEmitter {
   _transientIds: { [transientId: number]: string } = {};
   _characterIds: { [characterId: string]: number } = {};
 
-  /** Determines which login server is used. Localhost by default. */
+  /** Determines which login server is used, Localhost by default. */
   readonly _loginServerInfo: { address?: string; port: number } = {
     address: process.env.LOGINSERVER_IP,
     port: 1110
@@ -356,7 +355,7 @@ export class ZoneServer2016 extends EventEmitter {
   /** Handles all packets for H1Z1 */
   _packetHandlers: ZonePacketHandlers;
 
-  /** Managers used for handling core functions */
+  /** Managers used for handling core functionalities */
   worldObjectManager: WorldObjectManager;
   smeltingManager: SmeltingManager;
   decayManager: DecayManager;
@@ -375,7 +374,7 @@ export class ZoneServer2016 extends EventEmitter {
 
   _ready: boolean = false;
 
-  /** Information from ServerItemDefinitions */
+  /** Information from ServerItemDefinitions.json */
   _itemDefinitions: { [itemDefinitionId: number]: ItemDefinition } =
     itemDefinitions;
   _weaponDefinitions: { [weaponDefinitionId: number]: any } =
@@ -392,7 +391,9 @@ export class ZoneServer2016 extends EventEmitter {
   profileDefinitionsCache?: Buffer;
   _containerDefinitions: { [containerDefinitionId: number]: any } =
     containerDefinitions;
-
+  /** JsonObject of all recipes on a server - To be moved to players soon,
+   * uses recipeId (number) for indexing
+   */
   _recipes: { [recipeId: number]: Recipe } = recipes;
   lastItemGuid: bigint = 0x3000000000000000n;
   private readonly _transientIdGenerator = generateTransientId();
@@ -414,7 +415,7 @@ export class ZoneServer2016 extends EventEmitter {
   rebootTimeTimer?: NodeJS.Timeout;
   inGameTimeManager: IngameTimeManager = new IngameTimeManager();
 
- /** Handled by ConfigManager */
+ /** MANAGED BY CONFIGMANAGER - See defaultConfig.yaml for more information */
   proximityItemsDistance!: number;
   interactionDistance!: number;
   charactersRenderDistance!: number;

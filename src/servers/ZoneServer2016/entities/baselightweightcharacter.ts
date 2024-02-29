@@ -14,16 +14,17 @@
 import { AddLightweightNpc, AddSimpleNpc } from "types/zone2016packets";
 import { ZoneServer2016 } from "../zoneserver";
 import { BaseEntity } from "./baseentity";
+import { ModelIds } from "../models/enums";
 
 function getHeadActor(modelId: number): string {
   switch (modelId) {
-    case 9240:
+    case ModelIds.SURVIVOR_MALE_HEAD_01:
       return "SurvivorMale_Head_01.adr";
-    case 9474:
+    case ModelIds.SURVIVAL_FEMALE_HEAD_01:
       return "SurvivorFemale_Head_01.adr";
-    case 9510:
+    case ModelIds.ZOMBIE_FEMALE_HEAD:
       return `ZombieFemale_Head_0${Math.floor(Math.random() * 2) + 1}.adr`;
-    case 9634:
+    case ModelIds.ZOMBIE_MALE_HEAD:
       return `ZombieMale_Head_0${Math.floor(Math.random() * 3) + 1}.adr`;
     default:
       return "";
@@ -98,7 +99,7 @@ export abstract class BaseLightweightCharacter extends BaseEntity {
 
   /** Determines if the lightweight should be used as a SimpleNpc (non-moving) */
   useSimpleStruct: boolean = false;
-  
+
   constructor(
     characterId: string,
     transientId: number,

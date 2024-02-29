@@ -166,7 +166,7 @@ export class WorldObjectManager {
   private _lastNpcRespawnTime: number = 0;
   private _lastWaterSourceReplenishTime: number = 0;
 
-  /** MANAGED BY CONFIGMANAGER - See defaultConfig.yaml */
+  /** MANAGED BY CONFIGMANAGER - See defaultConfig.yaml for more information */
   vehicleSpawnCap!: number;
   minAirdropSurvivors!: number;
   lootRespawnTimer!: number;

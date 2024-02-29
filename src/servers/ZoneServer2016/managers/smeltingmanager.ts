@@ -34,10 +34,14 @@ import { scheduler } from "timers/promises";
 import { CharacterPlayWorldCompositeEffect } from "types/zone2016packets";
 
 export class SmeltingManager {
-  /** Array of all SmeltingEntities */
+  /** Array of all SmeltingEntities,
+   * uses CharacterId (string) for indexing
+   */
   _smeltingEntities: { [characterId: string]: string } = {};
 
-  /** Array of all CollectingEntities */
+  /** JsonObject of all CollectingEntities,
+   * uses CharacterId (string) for indexing
+   */
   _collectingEntities: { [characterId: string]: string } = {};
 
   /** The time (milliseconds) it takes for a CollectingEntity to fill water/honey - 5 min x 4 ticks = 20 mins */
@@ -52,7 +56,7 @@ export class SmeltingManager {
   /** The timer to check for honeycomb inside of all collectable entities - 5 min x 72 ticks = 6 hours for honeycomb */
   checkCollectorsTimer?: NodeJS.Timeout;
   
-  /** MANAGED BY CONFIGMANAGER - See defaultConfig.yaml */
+  /** MANAGED BY CONFIGMANAGER - See defaultConfig.yaml for more information */
   /** The time (milliseconds) it takes for a fuel entity to burn - 2 minutes seconds by default */
   burnTime!: number;
   /** The time (milliseconds) it takes for a non-fuel entity to smelt - 7 seconds by default */

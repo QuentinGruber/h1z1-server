@@ -85,7 +85,7 @@ export class ConstructionDoor extends DoorEntity {
   /** Used to determine whether the parent object is secured - having the door open makes the parent object unsecured */
   isSecured = true;
 
-  /** Used by DecayManager */
+  /** Used by DecayManager, determines if the entity will be damaged the next decay tick */
   isDecayProtected: boolean = false;
   
   constructor(

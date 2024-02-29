@@ -80,7 +80,7 @@ export class ConstructionManager {
     Items.SHACK_BASIC
   ];
 
-  /** MANAGED BY CONFIGMANAGER - See defaultConfig.yaml */
+  /** MANAGED BY CONFIGMANAGER - See defaultConfig.yaml for more information */
   allowPOIPlacement!: boolean;
   allowStackedPlacement!: boolean;
   allowOutOfBoundsPlacement!: boolean;

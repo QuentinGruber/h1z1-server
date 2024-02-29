@@ -64,7 +64,7 @@ function getMaxHealth(itemDefinitionId: Items): number {
 }
 
 export class ConstructionParentEntity extends ConstructionChildEntity {
-  
+
   /** Allowed permissions for players on the ConstructionParentEntity, 
    * determines if a player can visit, use containers, build or demolish*/
   permissions: { [characterId: string]: ConstructionPermissions } = {};
@@ -78,13 +78,17 @@ export class ConstructionParentEntity extends ConstructionChildEntity {
   /** Data on deck expansions - includes [slot: number] of position (Float32Array) and rotation (Float32Array)  */
   readonly expansionSlots: ConstructionSlotPositionMap = {};
 
-  /** Array of occupied expansion slots for a deck foundation (1 per side - 4 total) */
+  /** JsonObject of occupied expansion slots for a deck foundation (1 per side - 4 total),
+   * uses slot (number) for indexing
+   */
   occupiedExpansionSlots: { [slot: number]: ConstructionParentEntity } = {};
 
   /** Data on a ramp - includes: [slot: number] of position (Float32Array) and rotation (Float32Array) */
   readonly rampSlots: ConstructionSlotPositionMap = {};
 
-  /** Array of occupied ramp slots for a deck foundation (3 per side - 12 total) */
+  /** JsonObject of occupied ramp slots for a deck foundation (3 per side - 12 total),
+   * uses slot (number) for indexing
+   */
   occupiedRampSlots: { [slot: number]: ConstructionChildEntity } = {};
 
   /** Last time the ConstructionParentEntity was damaged */
