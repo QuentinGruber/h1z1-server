@@ -1016,6 +1016,16 @@ export class ZoneServer2016 extends EventEmitter {
         if (
           this.fairPlayManager.acceptedRejectionTypes.includes(rejectionFlag)
         ) {
+          if (rejectionFlag === CONNECTION_REJECTION_FLAGS.VPN) {
+            const userIsAllowedToUseVPN = await this._db
+              .collection(DB_COLLECTIONS.VPN_WHITELIST)
+              .findOne({
+                zoneSessionId: loginSessionId
+              });
+            if (userIsAllowedToUseVPN) {
+              continue;
+            }
+          }
           console.log(
             `Character (${characterId}) connection rejected due to rejection type ${rejectionFlag}`
           );
