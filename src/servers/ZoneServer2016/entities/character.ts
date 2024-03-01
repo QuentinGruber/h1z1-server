@@ -197,6 +197,7 @@ export class Character2016 extends BaseFullCharacter {
     abilityHitLocation: "",
     characterId: ""
   };
+  lastRepairTime: number = 0;
   constructor(
     characterId: string,
     transientId: number,
