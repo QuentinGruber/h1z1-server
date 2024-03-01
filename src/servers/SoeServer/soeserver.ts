@@ -91,7 +91,10 @@ export class SOEServer extends EventEmitter {
     const resendedSequences: Set<number> = new Set();
     for (const [sequence, time] of client.unAckData) {
       // if the packet is too old then we resend it
-      if (time + this._resendTimeout + client.avgPing < currentTime) {
+      if (
+        time + this._resendTimeout + this._waitTimeMs + client.avgPing <
+        currentTime
+      ) {
         const dataCache = client.outputStream.getDataCache(sequence);
         if (dataCache) {
           client.stats.packetResend++;
@@ -177,10 +180,7 @@ export class SOEServer extends EventEmitter {
     for (let index = 0; index < queue.packets.length; index++) {
       const packet = queue.packets[index];
       if (packet.isReliable) {
-        client.unAckData.set(
-          packet.sequence as number,
-          Date.now() + this._waitTimeMs
-        );
+        client.unAckData.set(packet.sequence as number, Date.now());
       }
     }
   }
