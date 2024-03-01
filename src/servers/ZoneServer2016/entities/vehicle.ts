@@ -1210,7 +1210,7 @@ export class Vehicle2016 extends BaseLootableEntity {
     }
 
     if (this._resources[ResourceIds.CONDITION] < 100000) {
-      this.damage(server, { ...damageInfo, damage: -5000 });
+      this.damage(server, { ...damageInfo, damage: -2000 });
       server.damageItem(client, weapon, 100);
     }
   }
