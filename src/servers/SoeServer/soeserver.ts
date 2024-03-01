@@ -40,6 +40,9 @@ export class SOEServer extends EventEmitter {
   private _resendTimeout: number = 400;
   _allowRawDataReception: boolean = false;
   private _packetResetInterval: NodeJS.Timeout | undefined;
+  avgEventLoopLag: number = 0;
+  eventLoopLagValues: number[] = [];
+  currentEventLoopLag: number = 0;
   constructor(serverPort: number, cryptoKey: Uint8Array) {
     super();
     const oneMb = 1024 * 1024;
@@ -53,6 +56,37 @@ export class SOEServer extends EventEmitter {
       this._connection.setRecvBufferSize(oneMb);
       this._connection.setSendBufferSize(oneMb);
     });
+    // To support node 18 that we use for h1z1-server binaries
+    try {
+      const obs = new PerformanceObserver((list) => {
+        const entry = list.getEntries()[0];
+        this.currentEventLoopLag = Math.floor(entry.duration * 0.98);
+        // calculate the average of the last 100 values
+        // if the array is full then we remove the first value
+        if (this.eventLoopLagValues.length > 100) {
+          this.eventLoopLagValues.shift();
+        }
+        this.eventLoopLagValues.push(this.currentEventLoopLag);
+        this.avgEventLoopLag =
+          this.eventLoopLagValues.reduce((a, b) => a + b, 0) /
+          this.eventLoopLagValues.length;
+      });
+      obs.observe({ entryTypes: ["measure"], buffered: true });
+      performance.mark("A");
+      setInterval(() => {
+        performance.mark("B");
+        performance.measure("A to B", "A", "B");
+        performance.mark("A");
+      }, 0);
+    } catch (e) {
+      console.log("PerformanceObserver not available");
+    }
+  }
+
+  getNetworkStats() {
+    return [
+      `Avg Server lag : ${Number(this.avgEventLoopLag.toFixed(1)) - 1}ms`
+    ];
   }
 
   // return the client if found
@@ -309,7 +343,9 @@ export class SOEServer extends EventEmitter {
       case "Ack":
         const mostWaitedPacketTime = client.unAckData.get(packet.sequence);
         if (mostWaitedPacketTime) {
-          client.addPing(Date.now() - mostWaitedPacketTime);
+          client.addPing(
+            Date.now() - mostWaitedPacketTime - this.currentEventLoopLag
+          );
         }
         client.outputStream.ack(packet.sequence, client.unAckData);
         break;
