@@ -6771,6 +6771,12 @@ export class ZoneServer2016 extends EventEmitter {
       );
       return;
     }
+    const vehicle = this._vehicles[vehicleGuid];
+    if (vehicle._resources[ResourceIds.FUEL] + fuelValue > 10000) {
+      // Prevent players from overfilling their car to reserve fuel.
+      this.sendAlert(client, "Fuel level is not low enough to refuel");
+      return;
+    }
     this.utilizeHudTimer(client, nameId, timeout, animationId, () => {
       this.refuelVehiclePass(client, character, item, vehicleGuid, fuelValue);
     });
