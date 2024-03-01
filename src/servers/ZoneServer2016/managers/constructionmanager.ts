@@ -2454,8 +2454,10 @@ export class ConstructionManager {
     entity: ConstructionEntity,
     weaponItem: LoadoutItem
   ) {
-
-    if (client.character.lastRepairTime && Date.now() - client.character.lastRepairTime < 1000) {
+    if (
+      client.character.lastRepairTime &&
+      Date.now() - client.character.lastRepairTime < 1000
+    ) {
       server.sendChatText(client, "Cooldown on repairing.");
       return;
     }
