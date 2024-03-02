@@ -246,8 +246,7 @@ export class Npc extends BaseFullCharacter {
   }
 
   OnPlayerSelect(server: ZoneServer2016, client: ZoneClient2016) {
-    const skinningKnife = client.character.getItemById(Items.SKINNING_KNIFE);
-    if (!this.isAlive && skinningKnife) {
+    if (!this.isAlive && client.character.hasItem(Items.SKINNING_KNIFE)) {
       server.utilizeHudTimer(client, this.nameId, 5000, 0, () => {
         switch (this.actorModelId) {
           case ModelIds.ZOMBIE_FEMALE_WALKER:
@@ -276,7 +275,6 @@ export class Npc extends BaseFullCharacter {
             this.triggerAwards(server, client, this.rewardItems);
             break;
         }
-        server.damageItem(client, skinningKnife, 100);
         server.deleteEntity(this.characterId, server._npcs);
       });
     }
