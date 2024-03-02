@@ -2863,7 +2863,7 @@ export class ZoneServer2016 extends EventEmitter {
     }
   }
 
-  damageItem(client: Client, item: LoadoutItem, damage: number) {
+  damageItem(client: Client, item: LoadoutItem | BaseItem, damage: number) {
     if (item.itemDefinitionId == Items.WEAPON_FISTS) return;
 
     item.currentDurability -= damage;
@@ -2877,7 +2877,13 @@ export class ZoneServer2016 extends EventEmitter {
       }
       return;
     }
-    this.updateLoadoutItem(client, item);
+    if (item instanceof LoadoutItem) {
+      this.updateLoadoutItem(client, item);
+    } else if (item instanceof BaseItem) {
+      const container = client.character.getItemContainer(item.itemGuid);
+      if (!container) return;
+      this.updateContainerItem(client.character, item, container);
+    }
   }
 
   getClientByCharId(characterId: string) {
@@ -5464,6 +5470,9 @@ export class ZoneServer2016 extends EventEmitter {
       case this.isConvey(itemDefinitionId):
         durability = Math.floor(Math.random() * 5400);
         break;
+      case this.isGeneric(itemDefinitionId):
+        durability = 2000;
+        break;
       default:
         durability = 2000;
         break;
@@ -5570,6 +5579,16 @@ export class ZoneServer2016 extends EventEmitter {
    */
   isConvey(itemDefinitionId: number): boolean {
     return this.getItemDefinition(itemDefinitionId)?.DESCRIPTION_ID == 11895;
+  }
+
+  /**
+   * Checks if an item with the specified itemDefinitionId is a generic item type.
+   *
+   * @param {number} itemDefinitionId - The itemDefinitionId to check.
+   * @returns {boolean} True if the item is a generic type, false otherwise.
+   */
+  isGeneric(itemDefinitionId: number): boolean {
+    return this.getItemDefinition(itemDefinitionId)?.ITEM_TYPE == 1;
   }
 
   /**
