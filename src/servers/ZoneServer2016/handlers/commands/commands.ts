@@ -416,6 +416,10 @@ export const commands: Array<Command> = [
         server.sendChatText(client, "[Reply] The message may not be blank!");
         return;
       }
+      if (!client.character.lastWhisperedPlayer) {
+        server.sendChatText(client, "[Reply] No one has whispered you yet.");
+        return;
+      }
 
       let targetClient = server.getClientByNameOrLoginSession(
         client.character.lastWhisperedPlayer
