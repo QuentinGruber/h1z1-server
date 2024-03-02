@@ -56,6 +56,19 @@ const dev: any = {
   sc: function (server: ZoneServer2016, client: Client, args: Array<string>) {
     console.log(WorldObjectManager.itemSpawnersChances);
   },
+  lag: function (server: ZoneServer2016, client: Client, args: Array<string>) {
+    const startTime = Date.now();
+    const interval = setInterval(() => {
+      if (Date.now() - startTime > 20000) {
+        clearInterval(interval);
+      }
+      for (let i = 0; i < 1_000_000_000; i++) {
+        // do nothing but hold the event loop
+        const a = i;
+        a;
+      }
+    }, 0);
+  },
   o: function (server: ZoneServer2016, client: Client, args: Array<string>) {
     server.sendOrderedData(client, "ClientUpdate.TextAlert", {
       message: "hello ordered !"

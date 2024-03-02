@@ -74,8 +74,13 @@ export class ConstructionManager {
     Items.SEED_WHEAT
   ];
 
+  shackItems: Array<number> = [
+    Items.SHACK,
+    Items.SHACK_SMALL,
+    Items.SHACK_BASIC
+  ];
+
   /* MANAGED BY CONFIGMANAGER */
-  allowPOIPlacement!: boolean;
   allowStackedPlacement!: boolean;
   allowOutOfBoundsPlacement!: boolean;
   placementRange!: number;
@@ -353,10 +358,10 @@ export class ConstructionManager {
     isInsidePermissionedFoundation: boolean
   ): boolean {
     if (client.isDebugMode) return false;
-    if (this.allowPOIPlacement) return false;
     if (this.overridePlacementItems.includes(itemDefinitionId)) return false;
     let useRange = true;
     let isInPoi = false;
+    let isShackInRange = false;
     Z1_POIs.forEach((point: any) => {
       if (point.bounds) {
         useRange = false;
@@ -366,13 +371,20 @@ export class ConstructionManager {
             return;
           }
         });
+        if (point.shackBounds && this.shackItems.includes(itemDefinitionId)) {
+          point.shackBounds.forEach((bound: any) => {
+            if (isInsideSquare([position[0], position[2]], bound)) {
+              isShackInRange = true;
+            }
+          });
+        }
       }
       if (useRange && isPosInRadius(point.range, position, point.position)) {
         isInPoi = true;
       }
     });
     // allow placement in poi if object is parented to a foundation
-    if (isInPoi && !isInsidePermissionedFoundation) {
+    if (isInPoi && !isInsidePermissionedFoundation && !isShackInRange) {
       return true;
     }
     return false;
@@ -426,6 +438,7 @@ export class ConstructionManager {
       return true;
     }
 
+    if (server.isNoBuildInPois) return false;
     if (
       this.detectPOIPlacement(
         itemDefinitionId,

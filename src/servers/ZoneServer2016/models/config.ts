@@ -29,6 +29,7 @@ interface ServerConfig {
   isPvE: boolean;
   isHeadshotOnly: boolean;
   isFirstPersonOnly: boolean;
+  isNoBuildInPois: boolean;
   baseConstructionDamage: number;
 }
 
@@ -95,7 +96,6 @@ interface SpeedTreeConfig {
 }
 
 interface ConstructionConfig {
-  allowPOIPlacement: boolean;
   allowStackedPlacement: boolean;
   allowOutOfBoundsPlacement: boolean;
   placementRange: number;

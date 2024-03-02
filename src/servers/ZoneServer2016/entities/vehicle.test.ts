@@ -37,6 +37,7 @@ test("Damage-pve", { timeout: 10000 }, async (t) => {
     vehicle.damage(zone, damageInfo);
     assert.equal(vehicle.getHealth(), oldHealth - dmg);
   });
+  await zone.stop();
 });
 
 test("Damage-pvp", { timeout: 10000 }, async (t) => {
@@ -73,6 +74,7 @@ test("Damage-pvp", { timeout: 10000 }, async (t) => {
     vehicle.damage(zone, damageInfo);
     assert.equal(vehicle.getHealth(), oldHealth - dmg);
   });
+  await zone.stop();
 });
 after(() => {
   setImmediate(() => {

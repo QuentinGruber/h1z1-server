@@ -152,6 +152,7 @@ import { Destroyable } from "./entities/destroyable";
 import { Lootbag } from "./entities/lootbag";
 import { ReceivedPacket } from "types/shared";
 import { LoadoutItem } from "./classes/loadoutItem";
+import { TrapEntity } from "./entities/trapentity";
 
 function getStanceFlags(num: number): StanceFlags {
   function getBit(bin: string, bit: number) {
@@ -2737,7 +2738,7 @@ export class ZonePacketHandlers {
       }
     );
   }
-  NpcFoundationPermissionsManagerAddPermission(
+  async NpcFoundationPermissionsManagerAddPermission(
     server: ZoneServer2016,
     client: Client,
     packet: ReceivedPacket<NpcFoundationPermissionsManagerAddPermission>
@@ -2752,19 +2753,25 @@ export class ZonePacketHandlers {
       (!client.isAdmin || !client.isDebugMode)
     )
       return;
-    let characterId = "";
-    for (const a in server._characters) {
-      const character = server._characters[a];
-      if (character.name === packet.data.characterName) {
-        characterId = character.characterId;
-      }
+
+    let targetClient = server.getClientByNameOrLoginSession(characterName);
+
+    if (!targetClient) {
+      targetClient = await server.getOfflineClientByName(characterName);
     }
+
+    if (!targetClient || !(targetClient instanceof Client)) {
+      server.sendChatText(client, "Player not found.");
+      return;
+    }
+
+    let characterId = targetClient.character.characterId;
 
     // check existing characters in foundation permissions
     if (!characterId) {
       for (const a in foundation.permissions) {
         const permissions = foundation.permissions[a];
-        if (permissions.characterName === packet.data.characterName) {
+        if (permissions.characterName === characterName) {
           characterId = permissions.characterId;
         }
       }

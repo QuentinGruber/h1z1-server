@@ -146,7 +146,11 @@ export enum ModelIds {
   CORN_CROPSTATE_3 = 61,
   WHEAT_CROPSTATE_1 = 9191,
   WEHAT_CROPSTATE_2 = 9190,
-  WHEAT_CROPSTATE_3 = 9189
+  WHEAT_CROPSTATE_3 = 9189,
+  BARBED_WIRE = 28,
+  BARBED_WIRE_POSTS = 43,
+  SNARE = 1974,
+  BATTERY = 70
 }
 
 export enum StringIds {
@@ -921,7 +925,8 @@ export enum WeaponDefinitionIds {
   WEAPON_M9 = 1401,
   WEAPON_1911 = 2,
   WEAPON_CROWBAR = 9,
-  WEAPON_HAMMER = 1396
+  WEAPON_HAMMER = 1396,
+  WEAPON_WRENCH = 1415
 }
 
 export enum Skins_Shirt {
