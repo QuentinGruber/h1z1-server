@@ -57,7 +57,11 @@ const dev: any = {
     console.log(WorldObjectManager.itemSpawnersChances);
   },
   lag: function (server: ZoneServer2016, client: Client, args: Array<string>) {
-    setInterval(() => {
+    const startTime = Date.now();
+    const interval = setInterval(() => {
+      if (Date.now() - startTime > 20000) {
+        clearInterval(interval);
+      }
       for (let i = 0; i < 1_000_000_000; i++) {
         // do nothing but hold the event loop
         const a = i;
