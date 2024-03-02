@@ -662,6 +662,7 @@ export class WorldObjectManager {
             );
             break;
           case "Common_Props_BarbedWire.adr":
+          case "Common_Props_BarbedWire_Posts.adr":
             server.constructionManager.placeTrap(
               server,
               Items.BARBED_WIRE,
