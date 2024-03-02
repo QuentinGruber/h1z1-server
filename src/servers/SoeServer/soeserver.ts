@@ -84,9 +84,11 @@ export class SOEServer extends EventEmitter {
   }
 
   getNetworkStats() {
-    return [
-      `Avg Server lag : ${Number(this.avgEventLoopLag.toFixed(1)) - 1}ms`
-    ];
+    const avgServerLag =
+      this.avgEventLoopLag > 1
+        ? Number(this.avgEventLoopLag.toFixed(1)) - 1
+        : 0;
+    return [`Avg Server lag : ${avgServerLag}ms`];
   }
 
   // return the client if found
@@ -343,9 +345,8 @@ export class SOEServer extends EventEmitter {
       case "Ack":
         const mostWaitedPacketTime = client.unAckData.get(packet.sequence);
         if (mostWaitedPacketTime) {
-          client.addPing(
-            Date.now() - mostWaitedPacketTime - this.currentEventLoopLag
-          );
+          const currentLag = this.currentEventLoopLag || 0;
+          client.addPing(Date.now() - mostWaitedPacketTime - currentLag);
         }
         client.outputStream.ack(packet.sequence, client.unAckData);
         break;
