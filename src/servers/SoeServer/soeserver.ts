@@ -58,9 +58,10 @@ export class SOEServer extends EventEmitter {
     });
     // To support node 18 that we use for h1z1-server binaries
     try {
+      const intervalTime = 100;
       const obs = new PerformanceObserver((list) => {
         const entry = list.getEntries()[0];
-        this.currentEventLoopLag = Math.floor(entry.duration * 0.98);
+        this.currentEventLoopLag = Math.floor(entry.duration) - intervalTime;
         // calculate the average of the last 100 values
         // if the array is full then we remove the first value
         if (this.eventLoopLagValues.length > 100) {
@@ -77,7 +78,7 @@ export class SOEServer extends EventEmitter {
         performance.mark("B");
         performance.measure("A to B", "A", "B");
         performance.mark("A");
-      }, 0);
+      }, intervalTime);
     } catch (e) {
       console.log("PerformanceObserver not available");
     }
