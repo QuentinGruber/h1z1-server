@@ -6791,6 +6791,12 @@ export class ZoneServer2016 extends EventEmitter {
       );
       return;
     }
+    const vehicle = this._vehicles[vehicleGuid];
+    if (vehicle._resources[ResourceIds.FUEL] >= 10000) {
+      // prevent players from wasting fuel while being at 100%
+      this.sendAlert(client, "Fuel tank is full!");
+      return;
+    }
     this.utilizeHudTimer(client, nameId, timeout, animationId, () => {
       this.refuelVehiclePass(client, character, item, vehicleGuid, fuelValue);
     });
