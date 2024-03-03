@@ -85,7 +85,7 @@ export class SmeltingEntity {
   /** The CharacterId of the parent that the entity sits on */
   parentObjectCharacterId: string;
 
-  /** Array of items that can be used as fuel */
+  /** Array of item id's that can be used as fuel */
   allowedFuel: number[];
 
   /** Determines if a smelting entity is for cooking or smelting - Default: smelting */
@@ -101,7 +101,7 @@ export class SmeltingEntity {
   /** Returns true when the item is smelted */
   isSmelting: boolean = false;
 
-  /** Global dictionary of SmeltingEntities - uses CharacterId (string) for indexing */
+  /** Global HashMap of SmeltingEntities - uses CharacterId (string) for indexing */
   dictionary: { [characterId: string]: BaseEntity };
 
   /** For identification upon saving */

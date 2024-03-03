@@ -76,7 +76,7 @@ export class ConstructionDoor extends DoorEntity {
   /** Range at which the door entity will receive damage from explosions */
   damageRange: number;
 
-  /** Fixed position the door remains at whilst closed */
+  /** Fixed position the door remains at while it's closed */
   readonly fixedPosition: Float32Array;
 
   /** Time (milliseconds) the door was placed at */

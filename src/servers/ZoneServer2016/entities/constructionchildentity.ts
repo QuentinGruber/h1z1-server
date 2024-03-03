@@ -121,7 +121,7 @@ function getInteractionDistance(itemDefinitionId: Items): number {
 }
 
 export class ConstructionChildEntity extends BaseLightweightCharacter {
-  /** Id of the ConstructionParentEntity - See ServerItemDefinitions.json for more information */
+  /** Id of the ConstructionChildEntity - See ServerItemDefinitions.json for more information */
   readonly itemDefinitionId: number;
 
   /** The parent object the ConstructionChildEntity is attached to */

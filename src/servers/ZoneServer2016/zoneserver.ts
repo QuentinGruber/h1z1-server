@@ -257,7 +257,9 @@ const spawnLocations2 = require("../../../data/2016/zoneData/Z1_gridSpawns.json"
   > = require("../../../data/2016/sampleData/equipmentModelTexturesMapping.json");
 
 export class ZoneServer2016 extends EventEmitter {
-  /** Networking/Protocol related */
+  /** Networking layer - allows sending game data to the game client,
+   * lays on top of the H1Z1 protocol (on top of the actual H1Z1 packets)
+   */
   _gatewayServer: GatewayServer;
   readonly _protocol: H1Z1Protocol;
   _db!: Db;

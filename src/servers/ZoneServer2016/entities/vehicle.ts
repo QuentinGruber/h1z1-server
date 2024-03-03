@@ -164,7 +164,7 @@ function getHotwireEffect(vehicleId: VehicleIds) {
 }
 
 export class Vehicle2016 extends BaseLootableEntity {
-  /** Used for determining seat swap logic*/
+  /** Used to determine if the vehicle physics are currently managed by a client */
   isManaged: boolean = false;
   manager?: ZoneClient2016;
 
@@ -189,24 +189,26 @@ export class Vehicle2016 extends BaseLootableEntity {
   /** Used to determine the position of the vehicle to transmit to the server */
   positionUpdate: any /*positionUpdate*/;
 
-  /** Speed (H1Z1 rpms) of the vehicle */
+  /** Speed (H1Z1 RPMs) of the vehicle */
   engineRPM: number = 0;
 
   /** Used by resources to determine the fuel level */
   fuelUpdater: any;
 
-  /** Returns true if the player is spectating or is parachuting
-   * (spectating is treated as being inside a vehicle) */
+  /** Returns true if the player is spectating or is parachuting -
+   * spectating is treated as being inside a vehicle - a "hacky aircraft" if you will */
   isInvulnerable: boolean = false;
   onDismount?: any;
 
   /** Used to update the health of the vehicle */
   resourcesUpdater?: any;
-
-  /** */
   damageTimeout?: any;
   vehicleManager?: string;
+
+  /** HashMap of seats - uses seatId (string) for indexing */
   seats: { [seatId: string]: string } = {};
+
+  /** Id of a vehicle - See VehicleIds in enums.ts for more information */
   vehicleId: number;
   destroyedState = 0;
   positionUpdateType = 1;

@@ -29,7 +29,7 @@ export class Weapon {
   /** Time it takes for a weapon to reload */
   reloadTimer?: NodeJS.Timeout;
 
-  /** Required for the reload packet to work every time */
+  /** Required for the reload packet to work every time (especially shotgun) */
   currentReloadCount = 0;
 
   constructor(item: BaseItem, ammoCount?: number) {
