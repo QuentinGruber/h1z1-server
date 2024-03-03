@@ -152,7 +152,6 @@ export class Character2016 extends BaseFullCharacter {
   /** Last login date for the player */
   lastLoginDate!: string;
 
-
   /** Last player that the user has whispered to */
   lastWhisperedPlayer!: string;
 
