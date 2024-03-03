@@ -212,10 +212,12 @@ export const commands: Array<Command> = [
       client: Client,
       args: Array<string>
     ) => {
-      const stats = await server._gatewayServer.getSoeClientNetworkStats(
+      const stats = server._gatewayServer.getSoeClientNetworkStats(
         client.soeClientId
       );
       if (stats) {
+        const serverStats = server._gatewayServer.getServerNetworkStats();
+        stats.push(serverStats[0]);
         for (let index = 0; index < stats.length; index++) {
           const stat = stats[index];
           server.sendChatText(client, stat, index == 0);
@@ -231,11 +233,13 @@ export const commands: Array<Command> = [
       client: Client,
       args: Array<string>
     ) => {
-      const stats = await server._gatewayServer.getSoeClientNetworkStats(
+      const stats = server._gatewayServer.getSoeClientNetworkStats(
         client.soeClientId
       );
+      const serverStats = server._gatewayServer.getServerNetworkStats();
       if (stats) {
         server.sendChatText(client, stats[2], true);
+        server.sendChatText(client, serverStats[0], false);
       }
     }
   },
@@ -414,6 +418,10 @@ export const commands: Array<Command> = [
     ) => {
       if (!args[0]) {
         server.sendChatText(client, "[Reply] The message may not be blank!");
+        return;
+      }
+      if (!client.character.lastWhisperedPlayer) {
+        server.sendChatText(client, "[Reply] No one has whispered you yet.");
         return;
       }
 

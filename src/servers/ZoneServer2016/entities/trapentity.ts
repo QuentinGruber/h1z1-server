@@ -11,7 +11,7 @@
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
 
-import { CubeBounds, Point3D } from "types/zoneserver";
+import { CubeBounds, DamageInfo, Point3D } from "types/zoneserver";
 import { getCubeBounds, getDistance, isInsideCube } from "../../../utils/utils";
 import {
   Effects,
@@ -57,7 +57,7 @@ export class TrapEntity extends BaseSimpleNpc {
       case Items.BARBED_WIRE:
         this.cubebounds = getCubeBounds(
           position,
-          8.05,
+          7.05,
           2.15,
           angle,
           position[1] - 0.9,
@@ -106,7 +106,7 @@ export class TrapEntity extends BaseSimpleNpc {
                 "Character.UpdateSimpleProxyHealth",
                 this.pGetSimpleProxyHealth()
               );
-              this.health -= 1000;
+              if (!this.worldOwned) this.health -= 1000;
             }
           }
 
@@ -177,7 +177,7 @@ export class TrapEntity extends BaseSimpleNpc {
             this.actorModelId = ModelIds.SNARE;
             server.worldObjectManager.createLootEntity(
               server,
-              server.generateItem(1415),
+              server.generateItem(Items.SNARE),
               this.state.position,
               this.state.rotation,
               15
@@ -218,7 +218,7 @@ export class TrapEntity extends BaseSimpleNpc {
                 "Character.UpdateSimpleProxyHealth",
                 this.pGetSimpleProxyHealth()
               );
-              this.health -= 1000;
+              if (!this.worldOwned) this.health -= 1000;
             }
           }
 
@@ -251,5 +251,33 @@ export class TrapEntity extends BaseSimpleNpc {
       case Items.BARBED_WIRE:
         return isInsideCube(Array.from(position) as Point3D, this.cubebounds);
     }
+  }
+
+  OnProjectileHit(server: ZoneServer2016, damageInfo: DamageInfo) {
+    const damage = damageInfo.damage * 6; // bullets do more to damage traps
+    this.damage(server, { ...damageInfo, damage });
+  }
+
+  OnMeleeHit(server: ZoneServer2016, damageInfo: DamageInfo) {
+    const client = server.getClientByCharId(damageInfo.entity),
+      weapon = client?.character.getEquippedWeapon();
+    if (!client || !weapon) return;
+
+    const damage = damageInfo.damage * 3;
+    this.damage(server, { ...damageInfo, damage });
+    server.damageItem(client, weapon, 50);
+  }
+
+  damage(server: ZoneServer2016, damageInfo: DamageInfo) {
+    if (this.worldOwned) return;
+    this.health -= damageInfo.damage;
+    server.sendDataToAllWithSpawnedEntity(
+      server._traps,
+      this.characterId,
+      "Character.UpdateSimpleProxyHealth",
+      this.pGetSimpleProxyHealth()
+    );
+    if (this.health > 0) return;
+    this.destroy(server);
   }
 }

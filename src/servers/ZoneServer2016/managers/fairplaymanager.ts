@@ -298,6 +298,7 @@ export class FairPlayManager {
           1000 /
           (sequenceTime - vehicle.oldPos.time)) *
         3600000;
+
       if (speed > 130 && verticalSpeed < 20) {
         const avgPing = await server._gatewayServer.getSoeClientAvgPing(
           client.soeClientId

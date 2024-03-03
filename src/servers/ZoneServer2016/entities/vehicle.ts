@@ -618,6 +618,18 @@ export class Vehicle2016 extends BaseLootableEntity {
     if (seat) return server._characters[seat];
   }
 
+  doesPassengersHaveKey(server: ZoneServer2016): boolean {
+    for (const seatId in this.seats) {
+      const seat = this.seats[seatId],
+        passenger = seat ? server._characters[seat] : undefined;
+
+      if (passenger?.getItemById(Items.VEHICLE_KEY)) {
+        return true;
+      }
+    }
+    return false;
+  }
+
   startEngine(server: ZoneServer2016) {
     server.sendDataToAllWithSpawnedEntity(
       server._vehicles,
@@ -884,7 +896,7 @@ export class Vehicle2016 extends BaseLootableEntity {
   hasVehicleKey(server: ZoneServer2016): boolean {
     return (
       !!this.getItemById(Items.VEHICLE_KEY) ||
-      !!this.getDriver(server)?.getItemById(Items.VEHICLE_KEY)
+      this.doesPassengersHaveKey(server)
     );
   }
 
@@ -1229,7 +1241,7 @@ export class Vehicle2016 extends BaseLootableEntity {
     }
 
     if (this._resources[ResourceIds.CONDITION] < 100000) {
-      this.damage(server, { ...damageInfo, damage: -5000 });
+      this.damage(server, { ...damageInfo, damage: -2000 });
       server.damageItem(client, weapon, 100);
     }
   }

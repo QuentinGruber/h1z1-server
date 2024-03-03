@@ -359,7 +359,6 @@ export class ConstructionManager {
     isInsidePermissionedFoundation: boolean
   ): boolean {
     if (client.isDebugMode) return false;
-    if (this.allowPOIPlacement) return false;
     if (this.overridePlacementItems.includes(itemDefinitionId)) return false;
     let useRange = true;
     let isInPoi = false;
@@ -432,6 +431,7 @@ export class ConstructionManager {
       return true;
     }
 
+    if (server.isNoBuildInPois) return false;
     if (
       this.detectPOIPlacement(
         itemDefinitionId,
@@ -2106,7 +2106,7 @@ export class ConstructionManager {
     server.updateResource(
       client,
       entity.characterId,
-      (entity.maxHealth / entity.health) * 1000000,
+      (entity.health / entity.maxHealth) * 1000000,
       ResourceIds.CONSTRUCTION_CONDITION,
       ResourceTypes.CONDITION
     );

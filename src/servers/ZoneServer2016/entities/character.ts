@@ -152,10 +152,11 @@ export class Character2016 extends BaseFullCharacter {
   /** Last login date for the player */
   lastLoginDate!: string;
 
+
   /** Last player that the user has whispered to */
   lastWhisperedPlayer!: string;
 
-  /** Used for tracking if a player has melee'd a bee box */
+  /** Returns true if a player has recently melee'd a bee box */
   hasAlertedBees = false;
 
   /** Time (milliseconds) at which the player last exited a vehicle */

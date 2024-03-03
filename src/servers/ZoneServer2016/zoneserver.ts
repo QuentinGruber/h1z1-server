@@ -431,6 +431,7 @@ export class ZoneServer2016 extends EventEmitter {
   isPvE!: boolean;
   isHeadshotOnly!: boolean;
   isFirstPersonOnly!: boolean;
+  isNoBuildInPois!: boolean;
   baseConstructionDamage!: number;
   crowbarHitRewardChance!: number;
   crowbarHitDamage!: number;
@@ -472,6 +473,7 @@ export class ZoneServer2016 extends EventEmitter {
     serverGameRules.push(this.isPvE ? "PvE" : "PvP");
     if (this.isFirstPersonOnly) serverGameRules.push("FirstPersonOnly");
     if (this.isHeadshotOnly) serverGameRules.push("Headshots");
+    if (this.isNoBuildInPois) serverGameRules.push("NoBuildNearPois");
     this.serverGameRules = serverGameRules.join(",");
 
     this._soloMode = false;
@@ -1043,6 +1045,16 @@ export class ZoneServer2016 extends EventEmitter {
         if (
           this.fairPlayManager.acceptedRejectionTypes.includes(rejectionFlag)
         ) {
+          if (rejectionFlag === CONNECTION_REJECTION_FLAGS.VPN) {
+            const userIsAllowedToUseVPN = await this._db
+              .collection(DB_COLLECTIONS.VPN_WHITELIST)
+              .findOne({
+                zoneSessionId: loginSessionId
+              });
+            if (userIsAllowedToUseVPN) {
+              continue;
+            }
+          }
           console.log(
             `Character (${characterId}) connection rejected due to rejection type ${rejectionFlag}`
           );
@@ -1771,6 +1783,13 @@ export class ZoneServer2016 extends EventEmitter {
             RULESET_ID: 6,
             RULESET_ID_: 6,
             ruleset: "BattleRoyale",
+            unknownString2: "",
+            rulesets: []
+          },
+          {
+            RULESET_ID: 7,
+            RULESET_ID_: 7,
+            ruleset: "NoBuildNearPois",
             unknownString2: "",
             rulesets: []
           }
@@ -2822,6 +2841,7 @@ export class ZoneServer2016 extends EventEmitter {
       this._crates[entityKey] ||
       this._destroyables[entityKey] ||
       this._temporaryObjects[entityKey] ||
+      this._traps[entityKey] ||
       undefined
     );
   }
@@ -5487,6 +5507,9 @@ export class ZoneServer2016 extends EventEmitter {
       case WeaponDefinitionIds.WEAPON_PURGE:
         durability = 1000;
         break;
+      case WeaponDefinitionIds.WEAPON_WRENCH:
+        durability = 2500;
+        break;
       case WeaponDefinitionIds.WEAPON_HAMMER:
       case WeaponDefinitionIds.WEAPON_CROWBAR:
       case WeaponDefinitionIds.WEAPON_308:
@@ -7121,6 +7144,7 @@ export class ZoneServer2016 extends EventEmitter {
       return;
     const vehicle = this._vehicles[vehicleGuid];
     vehicle._resources[ResourceIds.FUEL] += fuelValue;
+    // check if refuel amount is over 100, if so adjust to 100 to prevent over-fueling.
     if (vehicle._resources[ResourceIds.FUEL] > 10000) {
       vehicle._resources[ResourceIds.FUEL] = 10000;
     }
