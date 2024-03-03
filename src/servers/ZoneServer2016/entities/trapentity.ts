@@ -99,7 +99,7 @@ export class TrapEntity extends BaseSimpleNpc {
                 "Character.UpdateSimpleProxyHealth",
                 this.pGetSimpleProxyHealth()
               );
-              this.health -= 1000;
+              if (!this.worldOwned) this.health -= 1000;
             }
           }
 
@@ -211,7 +211,7 @@ export class TrapEntity extends BaseSimpleNpc {
                 "Character.UpdateSimpleProxyHealth",
                 this.pGetSimpleProxyHealth()
               );
-              this.health -= 1000;
+              if (!this.worldOwned) this.health -= 1000;
             }
           }
 
@@ -262,6 +262,7 @@ export class TrapEntity extends BaseSimpleNpc {
   }
 
   damage(server: ZoneServer2016, damageInfo: DamageInfo) {
+    if (this.worldOwned) return;
     this.health -= damageInfo.damage;
     server.sendDataToAllWithSpawnedEntity(
       server._traps,
