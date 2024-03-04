@@ -333,7 +333,7 @@ export class LootableConstructionEntity extends BaseLootableEntity {
     if (dictionary == server._worldLootableConstruction || server._worldSimpleConstruction && !this.parentObjectCharacterId) {
       freePlaceDmgMultiplier = 2;
     }
-    // 26 shots for freeplaced objects, 13 for parented objects
+    // 26 308 shots for freeplaced objects, 13 for parented objects
     const damage = damageInfo.damage * (3 * freePlaceDmgMultiplier);
     this.damage(server, { ...damageInfo, damage });
   }
