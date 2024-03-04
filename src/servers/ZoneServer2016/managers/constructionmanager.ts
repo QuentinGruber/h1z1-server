@@ -1486,7 +1486,8 @@ export class ConstructionManager {
     position: Float32Array,
     rotation: Float32Array,
     scale: Float32Array,
-    parentObjectCharacterId?: string
+    parentObjectCharacterId?: string,
+    isProp: boolean = false 
   ): boolean {
     const characterId = server.generateGuid(),
       transientId = server.getTransientId(characterId);
@@ -1500,7 +1501,8 @@ export class ConstructionManager {
       scale,
       itemDefinitionId,
       parentObjectCharacterId || "",
-      "SmeltingEntity"
+      "SmeltingEntity",
+      isProp
     );
 
     const parent = obj.getParent(server);

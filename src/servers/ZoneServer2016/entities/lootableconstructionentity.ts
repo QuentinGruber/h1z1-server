@@ -50,6 +50,7 @@ export class LootableConstructionEntity extends BaseLootableEntity {
   interactionDistance = 3;
   subEntity?: SmeltingEntity | CollectingEntity;
   isDecayProtected: boolean = false;
+  isProp: boolean = false;
   constructor(
     characterId: string,
     transientId: number,
@@ -60,7 +61,8 @@ export class LootableConstructionEntity extends BaseLootableEntity {
     scale: Float32Array,
     itemDefinitionId: number,
     parentObjectCharacterId: string,
-    subEntityType: string
+    subEntityType: string,
+    isProp = false
   ) {
     super(characterId, transientId, actorModelId, position, rotation, server);
     this.parentObjectCharacterId = parentObjectCharacterId || "";
@@ -68,6 +70,7 @@ export class LootableConstructionEntity extends BaseLootableEntity {
     const itemDefinition = server.getItemDefinition(itemDefinitionId);
     if (itemDefinition) this.nameId = itemDefinition.NAME_ID;
     this.profileId = 999; /// mark as construction
+    this.isProp = isProp;
 
     this.maxHealth = getMaxHealth(this.itemDefinitionId);
     this.health = this.maxHealth;
@@ -311,6 +314,7 @@ export class LootableConstructionEntity extends BaseLootableEntity {
   }
 
   OnMeleeHit(server: ZoneServer2016, damageInfo: DamageInfo) {
+    if (this.isProp) return;
     if (
       this.itemDefinitionId == Items.BEE_BOX &&
       damageInfo.weapon != Items.WEAPON_HAMMER_DEMOLITION
