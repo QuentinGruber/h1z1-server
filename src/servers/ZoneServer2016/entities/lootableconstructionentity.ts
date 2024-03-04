@@ -18,7 +18,7 @@ import {
   ResourceIndicators,
   StringIds
 } from "../models/enums";
-import { DamageInfo, EntityDictionary, HudIndicator } from "types/zoneserver";
+import { DamageInfo, HudIndicator } from "types/zoneserver";
 import { ZoneServer2016 } from "../zoneserver";
 import { BaseLootableEntity } from "./baselootableentity";
 import { ConstructionChildEntity } from "./constructionchildentity";
@@ -30,7 +30,6 @@ import { CollectingEntity } from "../classes/collectingentity";
 import { EXTERNAL_CONTAINER_GUID } from "../../../utils/constants";
 import { CharacterPlayWorldCompositeEffect } from "types/zone2016packets";
 import { scheduler } from "timers/promises";
-import { BaseEntity } from "./baseentity";
 
 function getMaxHealth(itemDefinitionId: Items): number {
   switch (itemDefinitionId) {
