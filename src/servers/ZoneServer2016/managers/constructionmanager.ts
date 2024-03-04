@@ -1487,7 +1487,7 @@ export class ConstructionManager {
     rotation: Float32Array,
     scale: Float32Array,
     parentObjectCharacterId?: string,
-    isProp: boolean = false 
+    isProp: boolean = false
   ): boolean {
     const characterId = server.generateGuid(),
       transientId = server.getTransientId(characterId);
