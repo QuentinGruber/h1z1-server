@@ -272,7 +272,7 @@ export class LootableConstructionEntity extends BaseLootableEntity {
     const client = server.getClientByCharId(damageInfo.entity);
     const dictionary = server.getEntityDictionary(this.characterId);
     if (!client || !dictionary) return;
-    
+
     server.sendDataToAllWithSpawnedEntity<CharacterPlayWorldCompositeEffect>(
       dictionary,
       this.characterId,
@@ -308,7 +308,7 @@ export class LootableConstructionEntity extends BaseLootableEntity {
         expirationTime: Date.now() + 5000
       };
       server.sendHudIndicators(client);
-    }  
+    }
   }
 
   OnMeleeHit(server: ZoneServer2016, damageInfo: DamageInfo) {
@@ -318,7 +318,7 @@ export class LootableConstructionEntity extends BaseLootableEntity {
     ) {
       this.handleBeeboxSwarm(server, damageInfo);
     }
-     
+
     server.constructionManager.OnMeleeHit(server, damageInfo, this);
   }
 }

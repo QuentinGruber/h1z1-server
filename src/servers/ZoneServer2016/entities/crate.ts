@@ -149,8 +149,9 @@ export class Crate extends BaseSimpleNpc {
 
     // 20% chance to spawn wood planks, 60% if it's a crowbar
     const woodPlanksChance = Math.floor(Math.random() * 100) + 1;
-    const spawnChanceWoodPlank = weapon.itemDefinitionId == Items.WEAPON_CROWBAR ? 60: 20; 
-    
+    const spawnChanceWoodPlank =
+      weapon.itemDefinitionId == Items.WEAPON_CROWBAR ? 60 : 20;
+
     if (woodPlanksChance < spawnChanceWoodPlank) {
       const woodPlankItem = server.worldObjectManager.createLootEntity(
         server,

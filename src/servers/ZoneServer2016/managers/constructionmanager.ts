@@ -2536,7 +2536,10 @@ export class ConstructionManager {
     let worldFreeplaceMultiplier = 1;
     const dictionary = server.getEntityDictionary(entity.characterId);
 
-    if (dictionary == server._worldSimpleConstruction || server._worldLootableConstruction && !entity.parentObjectCharacterId) {
+    if (
+      dictionary == server._worldSimpleConstruction ||
+      (server._worldLootableConstruction && !entity.parentObjectCharacterId)
+    ) {
       worldFreeplaceMultiplier = 2;
     }
 
