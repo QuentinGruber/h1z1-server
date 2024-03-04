@@ -18,7 +18,7 @@ import {
   ResourceIndicators,
   StringIds
 } from "../models/enums";
-import { DamageInfo, HudIndicator } from "types/zoneserver";
+import { DamageInfo, EntityDictionary, HudIndicator } from "types/zoneserver";
 import { ZoneServer2016 } from "../zoneserver";
 import { BaseLootableEntity } from "./baselootableentity";
 import { ConstructionChildEntity } from "./constructionchildentity";
@@ -30,6 +30,7 @@ import { CollectingEntity } from "../classes/collectingentity";
 import { EXTERNAL_CONTAINER_GUID } from "../../../utils/constants";
 import { CharacterPlayWorldCompositeEffect } from "types/zone2016packets";
 import { scheduler } from "timers/promises";
+import { BaseEntity } from "./baseentity";
 
 function getMaxHealth(itemDefinitionId: Items): number {
   switch (itemDefinitionId) {
@@ -267,55 +268,63 @@ export class LootableConstructionEntity extends BaseLootableEntity {
     }
   }
 
-  async OnMeleeHit(server: ZoneServer2016, damageInfo: DamageInfo) {
+  async handleBeeboxSwarm(server: ZoneServer2016, client: ZoneClient2016, dictionary: EntityDictionary<BaseEntity>, damageInfo: DamageInfo) {
+    server.sendDataToAllWithSpawnedEntity<CharacterPlayWorldCompositeEffect>(
+      dictionary,
+      this.characterId,
+      "Character.PlayWorldCompositeEffect",
+      {
+        characterId: this.characterId,
+        effectId: Effects.PFX_Bee_Swarm_Attack,
+        position: client.character.state.position,
+        effectTime: 5
+      }
+    );
+
+    for (let i = 0; i < 12; i++) {
+      const dmgInfo: DamageInfo = {
+        entity: "",
+        damage: 25
+      };
+      client.character.damage(server, dmgInfo);
+      await scheduler.wait(500);
+    }
+
+    let hudIndicator: HudIndicator | undefined = undefined;
+    hudIndicator = server._hudIndicators[ResourceIndicators.BEES];
+
+    if (!hudIndicator) return;
+
+    if (client.character.hudIndicators[hudIndicator.typeName]) {
+      client.character.hudIndicators[hudIndicator.typeName].expirationTime +=
+        5000;
+    } else {
+      client.character.hudIndicators[hudIndicator.typeName] = {
+        typeName: hudIndicator.typeName,
+        expirationTime: Date.now() + 5000
+      };
+      server.sendHudIndicators(client);
+    }  
+  }
+
+  OnMeleeHit(server: ZoneServer2016, damageInfo: DamageInfo) {
+    const client = server.getClientByCharId(damageInfo.entity);
+    const dictionary = server.getEntityDictionary(this.characterId);
+    if (!client || !dictionary) return;
+
     if (
       this.itemDefinitionId == Items.BEE_BOX &&
       damageInfo.weapon != Items.WEAPON_HAMMER_DEMOLITION
     ) {
-      const client = server.getClientByCharId(damageInfo.entity);
-      const dictionary = server.getEntityDictionary(this.characterId);
-
-      if (!client) return;
-      if (!dictionary) return;
-
-      server.sendDataToAllWithSpawnedEntity<CharacterPlayWorldCompositeEffect>(
-        dictionary,
-        this.characterId,
-        "Character.PlayWorldCompositeEffect",
-        {
-          characterId: this.characterId,
-          effectId: Effects.PFX_Bee_Swarm_Attack,
-          position: client.character.state.position,
-          effectTime: 5
-        }
-      );
-
-      for (let i = 0; i < 3; i++) {
-        const dmgInfo: DamageInfo = {
-          entity: "",
-          damage: 100
-        };
-        client.character.damage(server, dmgInfo);
-        await scheduler.wait(500);
-      }
-
-      let hudIndicator: HudIndicator | undefined = undefined;
-      hudIndicator = server._hudIndicators[ResourceIndicators.BEES];
-
-      if (!hudIndicator) return;
-
-      if (client.character.hudIndicators[hudIndicator.typeName]) {
-        client.character.hudIndicators[hudIndicator.typeName].expirationTime +=
-          5000;
-      } else {
-        client.character.hudIndicators[hudIndicator.typeName] = {
-          typeName: hudIndicator.typeName,
-          expirationTime: Date.now() + 5000
-        };
-        server.sendHudIndicators(client);
-      }
+      this.handleBeeboxSwarm(server, client, dictionary, damageInfo);
     }
 
+    if (dictionary == server._worldLootableConstruction || server._worldSimpleConstruction) {
+      if (this.itemDefinitionId == Items.FURNACE || Items.BARBEQUE) {
+        
+      }
+    }
+     
     server.constructionManager.OnMeleeHit(server, damageInfo, this);
   }
 }

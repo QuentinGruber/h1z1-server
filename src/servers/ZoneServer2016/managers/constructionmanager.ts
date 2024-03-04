@@ -2520,6 +2520,52 @@ export class ConstructionManager {
     );
   }
 
+  crowbarConstructionEntity(
+    server: ZoneServer2016,
+    client: Client,
+    entity: ConstructionEntity,
+    weaponItem: LoadoutItem
+  ) {
+    switch (entity.itemDefinitionId) {
+      case Items.FURNACE:
+      case Items.BARBEQUE:
+      case Items.STORAGE_BOX:
+      case Items.WEAPON_WRENCH:
+      case Items.FOUNDATION_STAIRS:
+        return;
+    }
+
+    const permission = entity.getHasPermission(
+      server,
+      client.character.characterId,
+      ConstructionPermissionIds.DEMOLISH
+    );
+
+    if (!permission) {
+      this.placementError(
+        server,
+        client,
+        ConstructionErrors.DEMOLISH_PERMISSION
+      );
+      return;
+    }
+
+    if (entity.canUndoPlacement(server, client)) {
+      // give back item only if can undo
+      client.character.lootItem(
+        server,
+        server.generateItem(entity.itemDefinitionId)
+      );
+      entity.destroy(server);
+    }
+
+    entity.damage(server, {
+      entity: "Server.DemoHammer",
+      damage: entity.maxHealth / 3 + 10
+    });
+    server.damageItem(client, weaponItem, 50);
+  }
+
   fullyRepairFoundation(
     server: ZoneServer2016,
     entity: ConstructionParentEntity
@@ -2637,6 +2683,9 @@ export class ConstructionManager {
         return;
       case Items.WEAPON_HAMMER:
         this.hammerConstructionEntity(server, client, construction, weapon);
+        return;
+      case Items.WEAPON_CROWBAR:
+        this.crowbarConstructionEntity(server, client, construction, weapon);
         return;
     }
 

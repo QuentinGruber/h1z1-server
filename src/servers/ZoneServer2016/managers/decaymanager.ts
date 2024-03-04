@@ -164,7 +164,8 @@ export class DecayManager {
     entity:
       | LootableConstructionEntity
       | ConstructionDoor
-      | ConstructionChildEntity
+      | ConstructionChildEntity,
+    freeplaceDecayMultiplier: number = 1
   ) {
     if (entity.isDecayProtected) {
       entity.isDecayProtected = false;
@@ -173,7 +174,7 @@ export class DecayManager {
 
     entity.damage(server, {
       entity: "Server.DecayManager",
-      damage: entity.maxHealth / this.ticksToFullDecay
+      damage: entity.maxHealth / (this.ticksToFullDecay / freeplaceDecayMultiplier)
     });
   }
 
@@ -243,10 +244,10 @@ export class DecayManager {
     }
 
     for (const a in server._worldLootableConstruction) {
-      this.decayDamage(server, server._worldLootableConstruction[a]);
+      this.decayDamage(server, server._worldLootableConstruction[a], this.worldFreeplaceDecayMultiplier);
     }
     for (const a in server._worldSimpleConstruction) {
-      this.decayDamage(server, server._worldSimpleConstruction[a]);
+      this.decayDamage(server, server._worldSimpleConstruction[a], this.worldFreeplaceDecayMultiplier);
     }
     for (const a in server._constructionSimple) {
       const simple = server._constructionSimple[a];
