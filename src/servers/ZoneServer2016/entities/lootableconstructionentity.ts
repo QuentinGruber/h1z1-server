@@ -268,7 +268,11 @@ export class LootableConstructionEntity extends BaseLootableEntity {
     }
   }
 
-  async handleBeeboxSwarm(server: ZoneServer2016, client: ZoneClient2016, dictionary: EntityDictionary<BaseEntity>, damageInfo: DamageInfo) {
+  async handleBeeboxSwarm(server: ZoneServer2016, damageInfo: DamageInfo) {
+    const client = server.getClientByCharId(damageInfo.entity);
+    const dictionary = server.getEntityDictionary(this.characterId);
+    if (!client || !dictionary) return;
+    
     server.sendDataToAllWithSpawnedEntity<CharacterPlayWorldCompositeEffect>(
       dictionary,
       this.characterId,
@@ -308,21 +312,11 @@ export class LootableConstructionEntity extends BaseLootableEntity {
   }
 
   OnMeleeHit(server: ZoneServer2016, damageInfo: DamageInfo) {
-    const client = server.getClientByCharId(damageInfo.entity);
-    const dictionary = server.getEntityDictionary(this.characterId);
-    if (!client || !dictionary) return;
-
     if (
       this.itemDefinitionId == Items.BEE_BOX &&
       damageInfo.weapon != Items.WEAPON_HAMMER_DEMOLITION
     ) {
-      this.handleBeeboxSwarm(server, client, dictionary, damageInfo);
-    }
-
-    if (dictionary == server._worldLootableConstruction || server._worldSimpleConstruction) {
-      if (this.itemDefinitionId == Items.FURNACE || Items.BARBEQUE) {
-        
-      }
+      this.handleBeeboxSwarm(server, damageInfo);
     }
      
     server.constructionManager.OnMeleeHit(server, damageInfo, this);

@@ -3345,14 +3345,6 @@ export const containerLootSpawners: {
         }
       },
       {
-        item: Items.WOOD_PLANK,
-        weight: 20,
-        spawnCount: {
-          min: 1,
-          max: 1
-        }
-      },
-      {
         item: Items.CLOTH,
         weight: 15,
         spawnCount: {
@@ -3382,14 +3374,6 @@ export const containerLootSpawners: {
     spawnChance: 50,
     maxItems: 1,
     items: [
-      {
-        item: Items.WOOD_PLANK,
-        weight: 50,
-        spawnCount: {
-          min: 1,
-          max: 1
-        }
-      },
       {
         item: Items.CANNED_FOOD01,
         weight: 10,

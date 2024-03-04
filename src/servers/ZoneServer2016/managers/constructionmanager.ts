@@ -2527,41 +2527,23 @@ export class ConstructionManager {
     weaponItem: LoadoutItem
   ) {
     switch (entity.itemDefinitionId) {
-      case Items.FURNACE:
-      case Items.BARBEQUE:
-      case Items.STORAGE_BOX:
-      case Items.WEAPON_WRENCH:
-      case Items.FOUNDATION_STAIRS:
+      case Items.CAMPFIRE:
+      case Items.DEW_COLLECTOR:
+      case Items.BEE_BOX:
+      case Items.ANIMAL_TRAP:
         return;
     }
+    let worldFreeplaceMultiplier = 1;
+    const dictionary = server.getEntityDictionary(entity.characterId);
 
-    const permission = entity.getHasPermission(
-      server,
-      client.character.characterId,
-      ConstructionPermissionIds.DEMOLISH
-    );
-
-    if (!permission) {
-      this.placementError(
-        server,
-        client,
-        ConstructionErrors.DEMOLISH_PERMISSION
-      );
-      return;
+    if (dictionary == server._worldSimpleConstruction || server._worldLootableConstruction && !entity.parentObjectCharacterId) {
+      worldFreeplaceMultiplier = 2;
     }
 
-    if (entity.canUndoPlacement(server, client)) {
-      // give back item only if can undo
-      client.character.lootItem(
-        server,
-        server.generateItem(entity.itemDefinitionId)
-      );
-      entity.destroy(server);
-    }
-
+    // 8 melee hits for entities with parents, 4 for freeplace world entities
     entity.damage(server, {
-      entity: "Server.DemoHammer",
-      damage: entity.maxHealth / 3 + 10
+      entity: "",
+      damage: entity.maxHealth / (8 / worldFreeplaceMultiplier)
     });
     server.damageItem(client, weaponItem, 50);
   }
