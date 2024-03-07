@@ -737,6 +737,14 @@ export class ConstructionManager {
           eul2quat(rotation),
           120000
         );
+      case Items.CANDLE:
+        return this.placeTemporaryEntity(
+          server,
+          modelId,
+          position,
+          eul2quat(rotation),
+          3600000
+        );
       case Items.IED:
       case Items.LANDMINE:
         return this.placeExplosiveEntity(
