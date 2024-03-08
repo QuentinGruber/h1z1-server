@@ -261,9 +261,6 @@ export class ZonePacketHandlers {
       server.sendRawDataReliable(client, server.profileDefinitionsCache);
     }
 
-    // Do not send too early
-    server.fairPlayManager.handleAssetValidationInit(server, client);
-
     // for melees / emotes / vehicle boost / etc (needs more work)
     /*
     server.sendData<>(client, "Abilities.SetActivatableAbilityManager", abilities);
@@ -353,6 +350,7 @@ export class ZonePacketHandlers {
       }, 10000);
       setTimeout(() => {
         client.startingModulesRequested = false;
+        server.fairPlayManager.handleAssetValidationInit(server, client);
       }, 11000);
       server.sendData(
         client,
