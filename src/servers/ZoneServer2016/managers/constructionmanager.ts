@@ -352,14 +352,12 @@ export class ConstructionManager {
     return false;
   }
   detectPOIPlacement(
-    server: ZoneServer2016,
     itemDefinitionId: number,
     position: Float32Array,
     client: Client,
     isInsidePermissionedFoundation: boolean
   ): boolean {
     if (client.isDebugMode) return false;
-    if (!server.isNoBuildInPois) return false;
     if (this.overridePlacementItems.includes(itemDefinitionId)) return false;
 
     let useRange = true;
@@ -442,8 +440,8 @@ export class ConstructionManager {
     }
 
     if (
+      server.isNoBuildInPois &&
       this.detectPOIPlacement(
-        server,
         itemDefinitionId,
         position,
         client,
