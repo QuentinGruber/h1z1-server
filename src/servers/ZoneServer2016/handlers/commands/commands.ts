@@ -205,6 +205,32 @@ export const commands: Array<Command> = [
     }
   },
   {
+    name: "findmodule",
+    permissionLevel: PermissionLevels.MODERATOR,
+    execute: (server: ZoneServer2016, client: Client, args: Array<string>) => {
+      if (!args[0]) {
+        server.sendChatText(client, "[] No argument provided", true);
+        return;
+      }
+      const listNames: string[] = [];
+      for (const a in server._clients) {
+        const c = server._clients[a];
+        c.modules.forEach((module: string) => {
+          if (module.toLowerCase().includes(args[0].toString().toLowerCase())) {
+            listNames.push(`${c.character.name} ${module}`);
+          }
+        });
+      }
+      server.sendChatText(
+        client,
+        `Displaying list of modules matching criteria: ${listNames.join(
+          ",\n"
+        )}`,
+        true
+      );
+    }
+  },
+  {
     name: "netstats",
     permissionLevel: PermissionLevels.DEFAULT,
     execute: async (
