@@ -832,11 +832,15 @@ export const commands: Array<Command> = [
       client.characterReleased = false;
       client.character.lastLoginDate = toHex(Date.now());
       server.dropAllManagedObjects(client);
-
       server.sendData(client, "ClientUpdate.UpdateLocation", {
         position,
         triggerLoadingScreen
       });
+      server.sendData(
+        client,
+        "UpdateWeatherData",
+        server.weatherManager.weather
+      );
     }
   },
   {
@@ -1261,9 +1265,11 @@ export const commands: Array<Command> = [
       }
       server.sendChatText(
         client,
-        `Requesting modules from: ${targetClient.character.name}`
+        `Listing modules of: ${targetClient.character.name}`
       );
-      server.sendData(targetClient, "H1emu.RequestModules", {});
+      targetClient.modules.forEach((module: string) => {
+        server.sendChatText(client, module);
+      });
     }
   },
   {

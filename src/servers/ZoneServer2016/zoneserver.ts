@@ -843,6 +843,8 @@ export class ZoneServer2016 extends EventEmitter {
       return;
     }
     if (
+      packet.name != "Command.ExecuteCommand" &&
+      packet.name != "H1emu.RequestModules" &&
       packet.name != "KeepAlive" &&
       packet.name != "PlayerUpdatePosition" &&
       packet.name != "PlayerUpdateManagedPosition" &&
@@ -2633,6 +2635,7 @@ export class ZoneServer2016 extends EventEmitter {
           position: tempPos2
         }
       );
+      this.sendData(client, "UpdateWeatherData", this.weatherManager.weather);
       const damageInfo: DamageInfo = {
         entity: "Server.Respawn",
         damage: 99999
@@ -2701,6 +2704,12 @@ export class ZoneServer2016 extends EventEmitter {
     }
     client.character.updateEquipment(this);
     this.hookManager.checkHook("OnPlayerRespawned", client);
+  }
+
+  requestModules(client: Client) {
+    if (!client.isLoading && client.characterReleased && client.isSynced) {
+      this.sendData(client, "H1emu.RequestModules", {});
+    }
   }
 
   updateResource(
@@ -3796,6 +3805,8 @@ export class ZoneServer2016 extends EventEmitter {
     channel: SOEOutputChannels
   ) {
     switch (packetName) {
+      case "H1emu.RequestModules":
+      case "Command.ExecuteCommand":
       case "KeepAlive":
       case "PlayerUpdatePosition":
       case "GameTimeSync":

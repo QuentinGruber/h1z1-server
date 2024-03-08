@@ -321,6 +321,44 @@ export class ZonePacketHandlers {
     server.sendGameTimeSync(client);
     server.constructionManager.sendConstructionData(server, client);
     if (client.firstLoading) {
+      setTimeout(() => {
+        server.requestModules(client);
+      }, 1000);
+      setTimeout(() => {
+        server.requestModules(client);
+      }, 2000);
+      setTimeout(() => {
+        server.requestModules(client);
+      }, 3000);
+      setTimeout(() => {
+        server.requestModules(client);
+      }, 4000);
+      setTimeout(() => {
+        server.requestModules(client);
+      }, 5000);
+      setTimeout(() => {
+        server.requestModules(client);
+      }, 6000);
+      setTimeout(() => {
+        server.requestModules(client);
+      }, 7000);
+      setTimeout(() => {
+        server.requestModules(client);
+      }, 8000);
+      setTimeout(() => {
+        server.requestModules(client);
+      }, 9000);
+      setTimeout(() => {
+        server.requestModules(client);
+      }, 10000);
+      setTimeout(() => {
+        client.startingModulesRequested = false;
+      }, 11000);
+      server.sendData(
+        client,
+        "UpdateWeatherData",
+        server.weatherManager.weather
+      );
       client.character.lastLoginDate = toHex(Date.now());
       server.setGodMode(client, false);
       setTimeout(() => {
@@ -642,6 +680,7 @@ export class ZonePacketHandlers {
     client: Client,
     packet: ReceivedPacket<KeepAlive>
   ) {
+    server.requestModules(client);
     if (client.isLoading && client.characterReleased && client.isSynced) {
       setTimeout(() => {
         client.isLoading = false;
@@ -3409,7 +3448,21 @@ export class ZonePacketHandlers {
         server.fairPlayManager.handleAssetCheck(server, client, data);
         break;
       case "02": // client messages
-        server.sendChatTextToAdmins(`${client.character.name}: ${data}`);
+        if (client.startingModulesRequested) {
+          setTimeout(() => {
+            client.startingModulesRequested = false;
+          }, 500);
+        }
+        if (client.startingModulesRequested && !client.modules.includes(data)) {
+          client.modules.push(data);
+          return;
+        }
+        if (!client.modules.includes(data)) {
+          server.sendChatTextToAdmins(
+            `[FairPlay] kicking ${client.character.name} for ${data}`
+          );
+          server.kickPlayer(client);
+        }
         break;
       default:
         console.log(
