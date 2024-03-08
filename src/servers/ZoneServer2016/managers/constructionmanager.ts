@@ -359,6 +359,7 @@ export class ConstructionManager {
   ): boolean {
     if (client.isDebugMode) return false;
     if (this.overridePlacementItems.includes(itemDefinitionId)) return false;
+
     let useRange = true;
     let isInPoi = false;
     let isShackInRange = false;
@@ -438,8 +439,8 @@ export class ConstructionManager {
       return true;
     }
 
-    if (server.isNoBuildInPois) return false;
     if (
+      server.isNoBuildInPois &&
       this.detectPOIPlacement(
         itemDefinitionId,
         position,
