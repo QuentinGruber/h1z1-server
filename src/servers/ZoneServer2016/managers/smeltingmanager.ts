@@ -268,6 +268,9 @@ export class SmeltingManager {
   ) {
     for (const a in container.items) {
       const item = container.items[a];
+      if (item.itemDefinitionId == Items.WATER_EMPTY 
+        && Object.keys(container.items).length == 1) 
+        continue;
       if (item.itemDefinitionId != Items.WATER_EMPTY) continue;
       if (subEntity.currentTicks >= subEntity.requiredTicks) {
         subEntity.currentTicks = 0;
