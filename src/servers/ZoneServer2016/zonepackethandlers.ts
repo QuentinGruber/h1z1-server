@@ -318,36 +318,11 @@ export class ZonePacketHandlers {
     server.sendGameTimeSync(client);
     server.constructionManager.sendConstructionData(server, client);
     if (client.firstLoading) {
-      setTimeout(() => {
-        server.requestModules(client);
-      }, 1000);
-      setTimeout(() => {
-        server.requestModules(client);
-      }, 2000);
-      setTimeout(() => {
-        server.requestModules(client);
-      }, 3000);
-      setTimeout(() => {
-        server.requestModules(client);
-      }, 4000);
-      setTimeout(() => {
-        server.requestModules(client);
-      }, 5000);
-      setTimeout(() => {
-        server.requestModules(client);
-      }, 6000);
-      setTimeout(() => {
-        server.requestModules(client);
-      }, 7000);
-      setTimeout(() => {
-        server.requestModules(client);
-      }, 8000);
-      setTimeout(() => {
-        server.requestModules(client);
-      }, 9000);
-      setTimeout(() => {
-        server.requestModules(client);
-      }, 10000);
+      for (let i = 1; i <= 10; i++) {
+        setTimeout(() => {
+          server.requestModules(client);
+        }, i * 1000);
+      }
       setTimeout(() => {
         client.startingModulesRequested = false;
         server.fairPlayManager.handleAssetValidationInit(server, client);
