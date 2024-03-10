@@ -1038,6 +1038,7 @@ export class Character2016 extends BaseFullCharacter {
   async damage(server: ZoneServer2016, damageInfo: DamageInfo) {
     if (
       server.isPvE &&
+      this.isRespawning &&
       damageInfo.hitReport?.characterId &&
       server._characters[damageInfo.hitReport?.characterId]
     )
@@ -1618,7 +1619,7 @@ export class Character2016 extends BaseFullCharacter {
   }
 
   OnMeleeHit(server: ZoneServer2016, damageInfo: DamageInfo) {
-    if (server.isPvE) return;
+    if (server.isPvE || this.isRespawning) return;
     let damage = damageInfo.damage / 2;
     let bleedingChance = 5;
     switch (damageInfo.meleeType) {
