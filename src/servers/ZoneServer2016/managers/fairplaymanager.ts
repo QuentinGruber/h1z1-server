@@ -723,7 +723,7 @@ export class FairPlayManager {
   }
 
   handleAssetValidationInit(server: ZoneServer2016, client: Client) {
-    if (!this.useAssetValidation || server._soloMode) return;
+    if (!this.useAssetValidation || server._soloMode || client.isAdmin) return;
 
     server.sendData(client, "H1emu.RequestAssetHashes", {});
     server.sendConsoleText(client, "[SERVER] Requested asset hashes");
