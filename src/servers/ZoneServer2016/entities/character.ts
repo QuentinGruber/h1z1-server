@@ -1038,7 +1038,6 @@ export class Character2016 extends BaseFullCharacter {
   async damage(server: ZoneServer2016, damageInfo: DamageInfo) {
     if (
       server.isPvE &&
-      this.isRespawning &&
       damageInfo.hitReport?.characterId &&
       server._characters[damageInfo.hitReport?.characterId]
     )
@@ -1048,7 +1047,7 @@ export class Character2016 extends BaseFullCharacter {
       oldHealth = this._resources[ResourceIds.HEALTH];
     if (!client) return;
 
-    if (this.isGodMode() || !this.isAlive || damage <= 25) return;
+    if (this.isGodMode() || !this.isAlive || this.isRespawning || damage <= 25) return;
     if (damageInfo.causeBleed) {
       if (randomIntFromInterval(0, 100) < damage / 100 && damage > 500) {
         this._resources[ResourceIds.BLEEDING] += 41;
