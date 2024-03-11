@@ -205,32 +205,6 @@ export const commands: Array<Command> = [
     }
   },
   {
-    name: "findmodule",
-    permissionLevel: PermissionLevels.MODERATOR,
-    execute: (server: ZoneServer2016, client: Client, args: Array<string>) => {
-      if (!args[0]) {
-        server.sendChatText(client, "[] No argument provided", true);
-        return;
-      }
-      const listNames: string[] = [];
-      for (const a in server._clients) {
-        const c = server._clients[a];
-        c.modules.forEach((module: string) => {
-          if (module.toLowerCase().includes(args[0].toString().toLowerCase())) {
-            listNames.push(`${c.character.name} ${module}`);
-          }
-        });
-      }
-      server.sendChatText(
-        client,
-        `Displaying list of modules matching criteria: ${listNames.join(
-          ",\n"
-        )}`,
-        true
-      );
-    }
-  },
-  {
     name: "netstats",
     permissionLevel: PermissionLevels.DEFAULT,
     execute: async (
@@ -862,11 +836,6 @@ export const commands: Array<Command> = [
         position,
         triggerLoadingScreen
       });
-      server.sendData(
-        client,
-        "UpdateWeatherData",
-        server.weatherManager.weather
-      );
     }
   },
   {
@@ -1289,13 +1258,19 @@ export const commands: Array<Command> = [
         server.sendChatText(client, "Client not found.");
         return;
       }
+
+      if (targetClient.isAdmin) {
+        server.sendChatText(
+          client,
+          `${targetClient.character.name} is an admin!`
+        );
+      }
+
       server.sendChatText(
         client,
-        `Listing modules of: ${targetClient.character.name}`
+        `Requesting modules from: ${targetClient.character.name}`
       );
-      targetClient.modules.forEach((module: string) => {
-        server.sendChatText(client, module);
-      });
+      server.sendData(targetClient, "H1emu.RequestModules", {});
     }
   },
   {

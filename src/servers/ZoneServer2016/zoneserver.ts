@@ -2635,7 +2635,6 @@ export class ZoneServer2016 extends EventEmitter {
           position: tempPos2
         }
       );
-      this.sendData(client, "UpdateWeatherData", this.weatherManager.weather);
       const damageInfo: DamageInfo = {
         entity: "Server.Respawn",
         damage: 99999
