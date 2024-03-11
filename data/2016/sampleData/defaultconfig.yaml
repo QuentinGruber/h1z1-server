@@ -15,7 +15,16 @@ server:
   isNoBuildInPois: true
   baseConstructionDamage: 34000
 
+# VoiceChat
+
+voicechat:
+    useVoiceChatV2: true
+    joinVoiceChatOnConnect: true
+    serverId: 0
+    serverAccessToken: ""
+
 # Fairplay / anticheat config
+
 fairplay:
   useFairplay: true
   maxPing: 250

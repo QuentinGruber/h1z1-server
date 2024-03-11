@@ -1271,6 +1271,11 @@ export const commands: Array<Command> = [
         `Requesting modules from: ${targetClient.character.name}`
       );
       server.sendData(targetClient, "H1emu.RequestModules", {});
+      server.sendData(
+        targetClient,
+        "UpdateWeatherData",
+        server.weatherManager.weather
+      );
     }
   },
   {
@@ -1303,6 +1308,11 @@ export const commands: Array<Command> = [
         `Requesting windows from: ${targetClient.character.name}`
       );
       server.sendData(targetClient, "H1emu.RequestWindows", {});
+      server.sendData(
+        targetClient,
+        "UpdateWeatherData",
+        server.weatherManager.weather
+      );
     }
   },
   {

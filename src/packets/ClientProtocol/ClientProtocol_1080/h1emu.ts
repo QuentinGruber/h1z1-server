@@ -80,5 +80,12 @@ export const h1emuPackets: PacketStructures = [
         { name: "data2", type: "string", defaultValue: "" }
       ]
     }
+  ],
+  [
+    "H1emu.HeartBeat",
+    0x9909,
+    {
+      fields: [{ name: "data", type: "string", defaultValue: 0 }]
+    }
   ]
 ];

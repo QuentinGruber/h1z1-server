@@ -125,8 +125,16 @@ interface SmeltingConfig {
   smeltTime: number;
 }
 
+interface VoiceChatConfig {
+  useVoiceChatV2: boolean;
+  joinVoiceChatOnConnect: boolean;
+  serverId: number;
+  serverAccessToken: string;
+}
+
 export interface Config {
   server: ServerConfig;
+  voicechat: VoiceChatConfig;
   fairplay: FairplayConfig;
   weather: WeatherConfig;
   gametime: GameTimeConfig;

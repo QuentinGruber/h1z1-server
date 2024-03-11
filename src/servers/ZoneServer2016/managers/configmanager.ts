@@ -86,6 +86,7 @@ export class ConfigManager {
     const {
       server,
       fairplay,
+      voicechat,
       weather,
       worldobjects,
       speedtree,
@@ -99,6 +100,10 @@ export class ConfigManager {
       server: {
         ...server,
         ...config.server
+      },
+      voicechat: {
+        ...voicechat,
+        ...config.voicechat
       },
       fairplay: {
         ...fairplay,
@@ -165,6 +170,19 @@ export class ConfigManager {
     server.isFirstPersonOnly = isFirstPersonOnly;
     server.isNoBuildInPois = isNoBuildInPois;
     server.baseConstructionDamage = baseConstructionDamage;
+    //#endregion
+
+    //#region voicechat
+    const {
+      useVoiceChatV2,
+      joinVoiceChatOnConnect,
+      serverId,
+      serverAccessToken
+    } = this.config.voicechat;
+    server.voiceChatManager.useVoiceChatV2 = useVoiceChatV2;
+    server.voiceChatManager.joinVoiceChatOnConnect = joinVoiceChatOnConnect;
+    server.voiceChatManager.serverId = serverId;
+    server.voiceChatManager.serverAccessToken = serverAccessToken;
     //#endregion
 
     //#region fairplay
