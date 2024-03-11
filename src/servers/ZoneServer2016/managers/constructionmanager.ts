@@ -2476,6 +2476,14 @@ export class ConstructionManager {
     entity: ConstructionEntity,
     weaponItem: LoadoutItem
   ) {
+    if (
+      client.character.lastRepairTime &&
+      Date.now() - client.character.lastRepairTime < 1000
+    ) {
+      server.sendChatText(client, "Cooldown on repairing.");
+      return;
+    }
+
     let accumulatedItemDamage = 0;
     server.sendCompositeEffectToAllInRange(
       15,
@@ -2509,6 +2517,7 @@ export class ConstructionManager {
     }
     server.damageItem(client, weaponItem, Math.ceil(accumulatedItemDamage / 4));
     client.character.lastMeleeHitTime = Date.now();
+    client.character.lastRepairTime = Date.now();
   }
 
   private fullyRepairFreeplaceEntities(
