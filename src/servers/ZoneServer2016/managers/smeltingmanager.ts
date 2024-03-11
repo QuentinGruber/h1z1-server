@@ -268,6 +268,16 @@ export class SmeltingManager {
   ) {
     for (const a in container.items) {
       const item = container.items[a];
+      // check if the current item is an empty water bottle and that the container is either empty
+      // or currently not containing honeycomb, in that case then to exit the scope of the for loop
+      if (
+        item.itemDefinitionId == Items.WATER_EMPTY &&
+        (Object.keys(container.items).length == 1 ||
+          !Object.values(container.items).some(
+            (item) => item.itemDefinitionId == Items.HONEYCOMB
+          ))
+      )
+        continue;
       if (item.itemDefinitionId != Items.WATER_EMPTY) continue;
       if (subEntity.currentTicks >= subEntity.requiredTicks) {
         subEntity.currentTicks = 0;
