@@ -6818,9 +6818,9 @@ export class ZoneServer2016 extends EventEmitter {
       return;
     }
     const vehicle = this._vehicles[vehicleGuid];
-    if (vehicle._resources[ResourceIds.FUEL] + fuelValue > 10000) {
-      // Prevent players from overfilling their car to reserve fuel.
-      this.sendAlert(client, "Fuel level is not low enough to refuel");
+    if (vehicle._resources[ResourceIds.FUEL] >= 10000) {
+      // prevent players from wasting fuel while being at 100%
+      this.sendAlert(client, "Fuel tank is full!");
       return;
     }
     this.utilizeHudTimer(client, nameId, timeout, animationId, () => {
@@ -7126,7 +7126,7 @@ export class ZoneServer2016 extends EventEmitter {
     const vehicle = this._vehicles[vehicleGuid];
     vehicle._resources[ResourceIds.FUEL] += fuelValue;
     // check if refuel amount is over 100, if so adjust to 100 to prevent over-fueling.
-    if (vehicle._resources[ResourceIds.FUEL] > 10000) {
+    if (vehicle._resources[ResourceIds.FUEL] >= 10000) {
       vehicle._resources[ResourceIds.FUEL] = 10000;
     }
     this.updateResourceToAllWithSpawnedEntity(
