@@ -68,7 +68,7 @@ export abstract class BaseEntity {
     rotation: Float32Array;
   };
 
-  /** Physical size of the entity */
+  /** Physical size of the entity based on the entity model */
   scale = new Float32Array([1, 1, 1, 1]);
 
   /** Distance (H1Z1 meters) where the entity will render,
