@@ -45,7 +45,7 @@ export abstract class BaseLightweightCharacter extends BaseEntity {
    * nonAttackable - disables melee flinch
    * noCollide - determines if NpcCollision packet gets sent on player collide
    * bit13 - causes a crash if 1 with noCollide 1
-   * knockedOut - currently used for determining if a player is dead
+   * knockedOut - currently used for determining if a character is dead
    */
   flags = {
     bit0: 0,
