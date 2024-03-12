@@ -393,7 +393,7 @@ export class ZoneServer2016 extends EventEmitter {
   profileDefinitionsCache?: Buffer;
   _containerDefinitions: { [containerDefinitionId: number]: any } =
     containerDefinitions;
-  /** JsonObject of all recipes on a server - To be moved to players soon,
+  /** HashMap of all recipes on a server - To be moved to players soon,
    * uses recipeId (number) for indexing
    */
   _recipes: { [recipeId: number]: Recipe } = recipes;

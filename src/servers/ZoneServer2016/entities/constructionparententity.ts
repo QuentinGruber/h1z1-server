@@ -77,7 +77,7 @@ export class ConstructionParentEntity extends ConstructionChildEntity {
   /** Data on deck expansions - includes [slot: number] of position (Float32Array) and rotation (Float32Array)  */
   readonly expansionSlots: ConstructionSlotPositionMap = {};
 
-  /** JsonObject of occupied expansion slots for a deck foundation (1 per side - 4 total),
+  /** HashMap of occupied expansion slots for a deck foundation (1 per side - 4 total),
    * uses slot (number) for indexing
    */
   occupiedExpansionSlots: { [slot: number]: ConstructionParentEntity } = {};
@@ -85,7 +85,7 @@ export class ConstructionParentEntity extends ConstructionChildEntity {
   /** Data on a ramp - includes: [slot: number] of position (Float32Array) and rotation (Float32Array) */
   readonly rampSlots: ConstructionSlotPositionMap = {};
 
-  /** JsonObject of occupied ramp slots for a deck foundation (3 per side - 12 total),
+  /** HashMap of occupied ramp slots for a deck foundation (3 per side - 12 total),
    * uses slot (number) for indexing
    */
   occupiedRampSlots: { [slot: number]: ConstructionChildEntity } = {};

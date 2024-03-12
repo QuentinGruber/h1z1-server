@@ -154,10 +154,10 @@ export function getRandomItem(items: Array<LootDefinition>) {
 }
 
 export class WorldObjectManager {
-  /** JsonObject of all spawned NPCs in the world - uses spawnerId (number) for indexing */
+  /** HashMap of all spawned NPCs in the world - uses spawnerId (number) for indexing */
   spawnedNpcs: { [spawnerId: number]: string } = {};
 
-  /** JsonObject of all spawned objects in the world - uses spawnerId (number) for indexing */
+  /** HashMap of all spawned objects in the world - uses spawnerId (number) for indexing */
   spawnedLootObjects: { [spawnerId: number]: string } = {};
 
   /** Global respawn timers */

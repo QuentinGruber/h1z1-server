@@ -16,7 +16,7 @@ import { ZoneServer2016 } from "../zoneserver";
 import { Plant } from "./plant";
 
 export class PlantingDiameter extends TemporaryEntity {
-  /** JsonObject of the Plant occupying the seed slot */
+  /** HashMap of the Plant occupying the seed slot */
   seedSlots: { [id: string]: Plant } = {};
 
   /** Time (milliseconds) at which the PlantingDiameter will disappear if unoccupied - Default: 1 day */

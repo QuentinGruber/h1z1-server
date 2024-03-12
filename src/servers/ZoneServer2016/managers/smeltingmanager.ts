@@ -39,7 +39,7 @@ export class SmeltingManager {
    */
   _smeltingEntities: { [characterId: string]: string } = {};
 
-  /** JsonObject of all CollectingEntities,
+  /** HashMap of all CollectingEntities,
    * uses CharacterId (string) for indexing
    */
   _collectingEntities: { [characterId: string]: string } = {};

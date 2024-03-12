@@ -85,7 +85,7 @@ export class CraftManager {
   /** Iterated count of craft actions in a loop */
   private craftLoopCount: number = 0;
   private maxCraftLoopCount: number = 500;
-  /** JsonObject of item components that make-up the parent item,
+  /** HashMap of item components that make-up the parent item,
    * uses itemDefinitionId (number) for indexing
    */
   private componentsDataSource: {
