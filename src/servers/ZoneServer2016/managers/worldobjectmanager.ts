@@ -721,7 +721,7 @@ export class WorldObjectManager {
         const characterId = generateRandomGuid();
         const obj = new Crate(
           characterId,
-          1, // need transient generated for Interaction Replication
+          server.getTransientId(characterId), // need transient generated for Interaction Replication
           getActorModelId(propType.actorDefinition),
           new Float32Array(propInstance.position),
           new Float32Array([
@@ -743,7 +743,7 @@ export class WorldObjectManager {
         const characterId = generateRandomGuid();
         const obj = new Destroyable(
           characterId,
-          1, // need transient generated for Interaction Replication
+          server.getTransientId(characterId), // need transient generated for Interaction Replication
           propInstance.modelId,
           new Float32Array(propInstance.position),
           new Float32Array([
