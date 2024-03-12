@@ -755,8 +755,7 @@ export class WorldObjectManager {
           server,
           new Float32Array(propInstance.scale),
           propInstance.id,
-          Number(propType.renderDistance),
-          propType.actor_file
+          Number(propType.renderDistance)
         );
         server._destroyables[characterId] = obj;
         server._destroyableDTOlist.push(propInstance.id);
