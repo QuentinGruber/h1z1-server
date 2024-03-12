@@ -17,7 +17,7 @@ import { randomIntFromInterval, isPosInRadius } from "../../../utils/utils";
 import { containerLootSpawners } from "../data/lootspawns";
 import { getRandomItem } from "../managers/worldobjectmanager";
 import { BaseSimpleNpc } from "./basesimplenpc";
-import { Effects, ModelIds } from "../models/enums";
+import { Effects, Items, ModelIds } from "../models/enums";
 import { CharacterRemovePlayer } from "../../../types/zone2016packets";
 
 export function getActorModelId(actorModel: string): number {
