@@ -15,7 +15,9 @@ import { ZoneServer2016 } from "../zoneserver";
 import { BaseSimpleNpc } from "./basesimplenpc";
 
 export class TemporaryEntity extends BaseSimpleNpc {
+  /** Distance where the TemporaryEntity will render for the player */
   npcRenderDistance = 40;
+  /** Time alloted for the entity to remain in the world */
   disappearTimer?: NodeJS.Timeout;
   constructor(
     characterId: string,

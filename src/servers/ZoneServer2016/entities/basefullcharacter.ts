@@ -21,9 +21,11 @@ import { LoadoutKit } from "../data/loadouts";
 import {
   ContainerErrors,
   ItemClasses,
+  ItemTypes,
   Items,
   LoadoutIds,
   LoadoutSlots,
+  ModelIds,
   ResourceIds,
   ResourceTypes
 } from "../models/enums";
@@ -49,11 +51,11 @@ const loadoutSlots = require("./../../../../data/2016/dataSources/LoadoutSlots.j
 
 function getGender(actorModelId: number): number {
   switch (actorModelId) {
-    case 9510: // zombiemale
-    case 9240: // male character
+    case ModelIds.ZOMBIE_FEMALE_WALKER:
+    case ModelIds.SURVIVOR_MALE_HEAD_01:
       return 1;
-    case 9634: // zombiefemale
-    case 9474: // female character
+    case ModelIds.ZOMBIE_MALE_HEAD:
+    case ModelIds.SURVIVAL_FEMALE_HEAD_01:
       return 2;
     default:
       return 0;
@@ -61,7 +63,10 @@ function getGender(actorModelId: number): number {
 }
 
 export abstract class BaseFullCharacter extends BaseLightweightCharacter {
+  /** Callback for OnFullCharacterDataRequest */
   onReadyCallback?: (clientTriggered: ZoneClient2016) => void;
+
+  /** BaseFullCharacter loadout values */
   _resources: { [resourceId: number]: number } = {};
   _loadout: { [loadoutSlotId: number]: LoadoutItem } = {};
   _equipment: { [equipmentSlotId: number]: CharacterEquipment } = {};
@@ -70,6 +75,8 @@ export abstract class BaseFullCharacter extends BaseLightweightCharacter {
   currentLoadoutSlot = 0; // idk if other full npcs use this
   isLightweight = false;
   gender: number;
+
+  /** The default items that will spawn on and with the BaseFullCharacter */
   defaultLoadout: LoadoutKit = [];
   constructor(
     characterId: string,
@@ -302,7 +309,7 @@ export abstract class BaseFullCharacter extends BaseLightweightCharacter {
       server.deleteItem(this, loadoutItem.itemGuid);
     }
 
-    if (def.ITEM_TYPE === 34) {
+    if (def.ITEM_TYPE === ItemTypes.CONTAINER) {
       const loadoutContainer = this._containers[loadoutSlotId],
         itemDefId = loadoutContainer?.itemDefinitionId,
         items = loadoutContainer?.items;
@@ -703,7 +710,7 @@ export abstract class BaseFullCharacter extends BaseLightweightCharacter {
     if (oldLoadoutItem?.itemDefinitionId) {
       //TODO: Probably have to rework this? This makes backpack swapping possible.
       const def = server.getItemDefinition(oldLoadoutItem.itemDefinitionId);
-      if (def?.ITEM_TYPE == 34) {
+      if (def?.ITEM_TYPE == ItemTypes.CONTAINER) {
         if (this.getAvailableLoadoutSlot(server, item.itemDefinitionId)) {
           this.equipItem(server, item, true, slotId);
         } else {

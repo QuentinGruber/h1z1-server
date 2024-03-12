@@ -17,8 +17,12 @@ import { ZoneServer2016 } from "../zoneserver";
 import { TaskProp } from "./taskprop";
 
 export class WaterSource extends TaskProp {
+  /** The amount of interactions left on the WaterSource */
   usesLeft?: number;
+
+  /** Amount to be refilled in a water bottle */
   refillAmount!: number;
+
   constructor(
     characterId: string,
     transientId: number,
