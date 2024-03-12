@@ -42,13 +42,25 @@ function getMaxHealth(itemDefinitionId: Items): number {
 }
 
 export class LootableConstructionEntity extends BaseLootableEntity {
+  /** Time (milliseconds) when the LootableConstructionEntity was placed */
   placementTime = Date.now();
+  /** Parent foundation that the LootableConstructionEntity is on top of */
   parentObjectCharacterId: string;
   loadoutId = 5;
+
+  /** Id of the LootableConstructionId - See ServerItemDefinitions.json for more information */
   itemDefinitionId: number;
+
+  /** Range at which the LootableConstructionEntity will receive damage from explosions */
   damageRange: number = 1.5;
+
+  /** Distance (H1Z1 meters) at which the player can interact with the LootableConstructionEntity */
   interactionDistance = 3;
+
+  /** Determines if the LootableConstructionEntity is a SmeltingEntity or CollectingEntity */
   subEntity?: SmeltingEntity | CollectingEntity;
+
+  /** Used by DecayManager, determines if the entity will be damaged the next decay tick */
   isDecayProtected: boolean = false;
   isProp: boolean = false;
   constructor(

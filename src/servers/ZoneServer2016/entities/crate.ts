@@ -17,19 +17,19 @@ import { randomIntFromInterval, isPosInRadius } from "../../../utils/utils";
 import { containerLootSpawners } from "../data/lootspawns";
 import { getRandomItem } from "../managers/worldobjectmanager";
 import { BaseSimpleNpc } from "./basesimplenpc";
-import { Effects, Items, ModelIds } from "../models/enums";
+import { Effects, ModelIds } from "../models/enums";
 import { CharacterRemovePlayer } from "../../../types/zone2016packets";
 
 export function getActorModelId(actorModel: string): number {
   switch (actorModel) {
     case "Common_Props_Crate_Long01.adr":
-      return 8014;
+      return ModelIds.CRATE_LONG;
     case "Common_Props_Crate_Box01.adr":
-      return 8013;
+      return ModelIds.CRATE_BOX_1;
     case "Common_Props_Crate_Box02.adr":
-      return 9088;
+      return ModelIds.CRATE_BOX_2;
     case "Common_Props_Barell01.adr":
-      return 9387;
+      return ModelIds.BARELL_1;
     default:
       console.log(`crate adr file not mapped to modelId: ${actorModel}`);
       return 0;
@@ -73,7 +73,9 @@ export class Crate extends BaseSimpleNpc {
   maxHealth: number = 5000;
   health: number = this.maxHealth;
   spawnTimestamp: number = 0;
+  /** Returns true if the crate is in the radius of a buffed position (hunter drive, car camps etc.) */
   isBuffed: boolean;
+  /** Time (milliseconds) for the crate to respawn in the world */
   respawnTime = 900000; // 15min respawn time
   constructor(
     characterId: string,

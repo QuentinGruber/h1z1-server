@@ -14,16 +14,24 @@ import { ZoneServer2016 } from "../zoneserver";
 import { ZoneClient2016 } from "../classes/zoneclient";
 import { DamageInfo } from "../../../types/zoneserver";
 import { eul2quat } from "../../../utils/utils";
-import { Effects } from "../models/enums";
+import { Effects, ModelIds } from "../models/enums";
 import { AddLightweightNpc, AddSimpleNpc } from "types/zone2016packets";
 import { BaseSimpleNpc } from "./basesimplenpc";
 
 function getDestroyedModels(actorModel: string): number[] {
   switch (actorModel) {
     case "Common_Props_GlassWindow01.adr":
-      return [8027, 8028, 8029];
+      return [
+        ModelIds.GLASS_WINDOW_DESTROYED_1,
+        ModelIds.GLASS_WINDOW_DESTROYED_2,
+        ModelIds.GLASS_WINDOW_DESTROYED_3
+      ];
     case "Common_Props_TintedWindow01.adr":
-      return [9433, 9434, 9435];
+      return [
+        ModelIds.TINTED_WINDOW_DESTROYED_1,
+        ModelIds.TINTED_WINDOW_DESTROYED_2,
+        ModelIds.TINTED_WINDOW_DESTROYED_3
+      ];
     default:
       return [];
   }

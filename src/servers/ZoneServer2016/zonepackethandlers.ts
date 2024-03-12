@@ -261,9 +261,6 @@ export class ZonePacketHandlers {
       server.sendRawDataReliable(client, server.profileDefinitionsCache);
     }
 
-    // Do not send too early
-    server.fairPlayManager.handleAssetValidationInit(server, client);
-
     // for melees / emotes / vehicle boost / etc (needs more work)
     /*
     server.sendData<>(client, "Abilities.SetActivatableAbilityManager", abilities);
@@ -321,6 +318,20 @@ export class ZonePacketHandlers {
     server.sendGameTimeSync(client);
     server.constructionManager.sendConstructionData(server, client);
     if (client.firstLoading) {
+      for (let i = 1; i <= 10; i++) {
+        setTimeout(() => {
+          server.requestModules(client);
+        }, i * 1000);
+      }
+      setTimeout(() => {
+        client.startingModulesRequested = false;
+        server.fairPlayManager.handleAssetValidationInit(server, client);
+      }, 11000);
+      server.sendData(
+        client,
+        "UpdateWeatherData",
+        server.weatherManager.weather
+      );
       client.character.lastLoginDate = toHex(Date.now());
       server.setGodMode(client, false);
       setTimeout(() => {
@@ -642,6 +653,7 @@ export class ZonePacketHandlers {
     client: Client,
     packet: ReceivedPacket<KeepAlive>
   ) {
+    server.requestModules(client);
     if (client.isLoading && client.characterReleased && client.isSynced) {
       setTimeout(() => {
         client.isLoading = false;
@@ -3409,7 +3421,21 @@ export class ZonePacketHandlers {
         server.fairPlayManager.handleAssetCheck(server, client, data);
         break;
       case "02": // client messages
-        server.sendChatTextToAdmins(`${client.character.name}: ${data}`);
+        if (client.startingModulesRequested) {
+          setTimeout(() => {
+            client.startingModulesRequested = false;
+          }, 500);
+        }
+        if (client.startingModulesRequested && !client.modules.includes(data)) {
+          client.modules.push(data);
+          return;
+        }
+        if (!client.modules.includes(data)) {
+          server.sendChatTextToAdmins(
+            `[FairPlay] kicking ${client.character.name} for ${data}`
+          );
+          server.kickPlayer(client);
+        }
         break;
       default:
         console.log(
