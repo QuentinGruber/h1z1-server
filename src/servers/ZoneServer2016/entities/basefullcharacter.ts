@@ -51,11 +51,11 @@ const loadoutSlots = require("./../../../../data/2016/dataSources/LoadoutSlots.j
 
 function getGender(actorModelId: number): number {
   switch (actorModelId) {
-    case ModelIds.ZOMBIE_FEMALE_WALKER: // zombiemale
-    case ModelIds.SURVIVOR_MALE_HEAD_01: // male character
+    case ModelIds.ZOMBIE_FEMALE_WALKER:
+    case ModelIds.SURVIVOR_MALE_HEAD_01:
       return 1;
-    case ModelIds.ZOMBIE_MALE_HEAD: // zombiefemale
-    case ModelIds.SURVIVAL_FEMALE_HEAD_01: // female character
+    case ModelIds.ZOMBIE_MALE_HEAD:
+    case ModelIds.SURVIVAL_FEMALE_HEAD_01:
       return 2;
     default:
       return 0;
