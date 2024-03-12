@@ -252,7 +252,7 @@ export class Character2016 extends BaseFullCharacter {
   /** Default loadout the player will spawn with */
   defaultLoadout = characterDefaultLoadout;
 
-  /** List of ignored players */
+  /** List of ignored players's characterIds */
   mutedCharacters: Array<string> = [];
 
   /** Id of the player's group */
