@@ -72,7 +72,7 @@ export abstract class BaseEntity {
   scale = new Float32Array([1, 1, 1, 1]);
 
   /** Distance (H1Z1 meters) where the entity will render,
-   * when undefined, uses the zoneserver._charactersRenderDistance value instad
+   * when undefined, uses the zoneserver._charactersRenderDistance value instead
    */
   npcRenderDistance: number;
 
