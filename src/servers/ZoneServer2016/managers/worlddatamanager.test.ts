@@ -8,6 +8,7 @@ import { ConstructionChildEntity } from "../entities/constructionchildentity";
 import { ConstructionDoor } from "../entities/constructiondoor";
 
 const isMongoTests = process.env.MONGO_TESTS === "true";
+process.env.FORCE_DISABLE_WS = "true";
 
 function removeUndefinedKeys(obj: any) {
   for (const key in obj) {

@@ -97,7 +97,8 @@ import {
   getAngle,
   getDistance2d,
   TimeWrapper,
-  getCurrentServerTimeWrapper
+  getCurrentServerTimeWrapper,
+  flhash
 } from "../../utils/utils";
 
 import { Db, MongoClient, WithId } from "mongodb";
@@ -216,7 +217,11 @@ import { TaskProp } from "./entities/taskprop";
 import { ChatManager } from "./managers/chatmanager";
 import { Crate } from "./entities/crate";
 import { ConfigManager } from "./managers/configmanager";
-import { RConManager } from "./managers/rconmanager";
+import {
+  RConManager,
+  RconMessage,
+  RconMessageType
+} from "./managers/rconmanager";
 import { GroupManager } from "./managers/groupmanager";
 import { SpeedTreeManager } from "./managers/speedtreemanager";
 import { ConstructionManager } from "./managers/constructionmanager";
@@ -232,6 +237,7 @@ import { IngameTimeManager } from "./managers/gametimemanager";
 import { H1z1ProtocolReadingFormat } from "types/protocols";
 import { GatewayServer } from "../GatewayServer/gatewayserver";
 import { WaterSource } from "./entities/watersource";
+import { WebSocket } from "ws";
 import { CommandHandler } from "./handlers/commands/commandhandler";
 
 const spawnLocations2 = require("../../../data/2016/zoneData/Z1_gridSpawns.json"),
@@ -1656,6 +1662,32 @@ export class ZoneServer2016 extends EventEmitter {
     console.timeEnd("ZONE: saveWorld");
   }
 
+  executeRconCommand(ws: WebSocket, payload: string) {
+    payload = payload.replaceAll("/", "");
+    const splitMessage = payload.split(" ");
+    const commandName = splitMessage[0];
+    console.log(`[RCON]Execute command "${commandName}"`);
+    const commandHash: number = flhash(commandName.toUpperCase());
+    const args: string = payload.replace(commandName, "").trim();
+    const fakeClient = this.createClient(0, "", "", "", 0);
+    // Admin rights for the Rcon client but we should add that as an option in the config
+    fakeClient.permissionLevel = 2;
+    this.commandHandler.executeCommand(this, fakeClient, {
+      name: "Command.ExecuteCommand",
+      data: { commandHash, arguments: args }
+    });
+    ws.send(`Execute ${payload}`);
+  }
+
+  handleRconMessage(ws: WebSocket, message: RconMessage) {
+    switch (message.type) {
+      case RconMessageType.ExecCommand:
+        if (typeof message.payload === "string") {
+          this.executeRconCommand(ws, message.payload);
+        }
+    }
+  }
+
   async start(): Promise<void> {
     debug("Starting server");
     debug(`Protocol used : ${this._protocol.protocolName}`);
@@ -1687,6 +1719,7 @@ export class ZoneServer2016 extends EventEmitter {
     this.initClientEffectsDataSource();
     this.initUseOptionsDataSource();
     this.rconManager.start();
+    this.rconManager.on("message", this.handleRconMessage.bind(this));
     this.hookManager.checkHook("OnServerReady");
   }
 

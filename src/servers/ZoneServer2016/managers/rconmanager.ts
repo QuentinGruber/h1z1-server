@@ -11,45 +11,55 @@
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
 import { WebSocketServer } from "ws";
-import crypto from "crypto";
-import { promisify } from "util";
-export class RConManager {
+import { EventEmitter } from "node:events";
+import { Server, createServer } from "node:http";
+
+export interface RconMessage {
+  type: RconMessageType;
+  payload: unknown;
+  protocolVersion: number;
+}
+export enum RconMessageType {
+  ExecCommand = 1
+}
+export class RConManager extends EventEmitter {
+  server: Server;
   wss!: WebSocketServer;
-  // TODO: move to config
-  wssPort: number = Math.floor(Math.random() * 65535);
-  password: string = "password";
+  // Managed by config
+  wssPort: number = 0;
+  password: string = "";
 
-  constructor() {}
-
-  decipherMessage(messageRaw: string) {
-    const decipher = crypto.createDecipher("aes-256-cbc", this.password);
-    let decrypted = decipher.update(messageRaw, "hex", "utf8");
-    decrypted += decipher.final("utf8");
-    return decrypted;
-  }
-
-  cipherMessage(messageRaw: string) {
-    const cipher = crypto.createCipher("aes-256-cbc", this.password);
-    let encrypted = cipher.update(messageRaw, "utf8", "hex");
-    encrypted += cipher.final("hex");
-    return encrypted;
-  }
-
-  handleMessage(ws: WebSocket, messageRaw: string) {
-    const messageObj = JSON.parse(this.decipherMessage(messageRaw));
-    console.log("messageObj", messageObj);
-    ws.send(this.cipherMessage(JSON.stringify({ message: "ok" })));
+  constructor() {
+    super();
+    this.server = createServer();
   }
 
   start() {
+    if (process.env.FORCE_DISABLE_WS || !this.wssPort || !this.password) {
+      console.log("RConManager disabled");
+      return;
+    }
     console.log("RConManager start");
-    this.wss = new WebSocketServer({ port: this.wssPort });
+
+    this.wss = new WebSocketServer({ noServer: true });
     this.wss.on("connection", (ws) => {
       ws.on("message", (message) => {
-        console.log("received: %s", message);
+        this.emit("message", ws, JSON.parse(message.toString()));
       });
-      ws.send("something");
     });
+
+    this.server.on("upgrade", (req, socket, head) => {
+      socket.on("error", console.error);
+      if (req.headers.authorization?.replace("Bearer ", "") !== this.password) {
+        socket.write("HTTP/1.1 401 Unauthorized\r\n\r\n");
+        socket.destroy();
+        return;
+      }
+      this.wss.handleUpgrade(req, socket, head, (ws) => {
+        this.wss.emit("connection", ws);
+      });
+    });
+    this.server.listen(this.wssPort);
   }
 
   async stop() {
