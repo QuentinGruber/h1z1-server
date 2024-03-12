@@ -649,7 +649,7 @@ export class WorldObjectManager {
       propType.instances.forEach((propInstance: any) => {
         const characterId = generateRandomGuid();
         let obj;
-        switch (propType.actor_file) {
+        switch (propType.actorDefinition) {
           case "Common_Props_SpikeTrap.adr":
             server.constructionManager.placeTrap(
               server,
@@ -685,7 +685,7 @@ export class WorldObjectManager {
               new Float32Array(propInstance.scale),
               propInstance.id,
               propType.renderDistance,
-              propType.actor_file,
+              propType.actorDefinition,
               this.waterSourceRefillAmount
             );
             break;
@@ -710,7 +710,7 @@ export class WorldObjectManager {
               new Float32Array(propInstance.scale),
               propInstance.id,
               propType.renderDistance,
-              propType.actor_file
+              propType.actorDefinition
             );
         }
         if (obj) server._taskProps[characterId] = obj;
