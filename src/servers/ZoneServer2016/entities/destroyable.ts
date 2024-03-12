@@ -53,6 +53,21 @@ function getMaxHealth(actorModelId: ModelIds): number {
   }
 }
 
+function getDestroyedEffectId(actorModelId: ModelIds): Effects {
+  switch (actorModelId) {
+    case ModelIds.GLASS_WINDOW_01:
+    case ModelIds.TINTED_WINDOW_01:
+      return Effects.PFX_Damage_GlassWindow_House;
+    case ModelIds.FENCES_WOOD_PLANKS_GREY_PLANK:
+    case ModelIds.FENCES_WOOD_PLANKS_GREY_POSTS_1X1:
+    case ModelIds.FENCES_WOOD_PLANKS_GREY_1X1:
+    case ModelIds.FENCES_WOOD_PLANKS_GREY_POSTS_1X2:
+    case ModelIds.FENCES_WOOD_PLANKS_GREY_GAP_1X1:
+      return Effects.PFX_Damage_Fence_ResidTall01;
+    default:
+      return Effects.PFX_Damage_GlassWindow_House;
+  }
+}
 export class Destroyable extends BaseSimpleNpc {
   spawnerId: number;
   maxHealth: number;
@@ -60,6 +75,7 @@ export class Destroyable extends BaseSimpleNpc {
   destroyedModel: number;
   destroyedModels: number[] = [];
   destroyed: boolean = false;
+  destroyedEffectId: Effects;
   constructor(
     characterId: string,
     transientId: number,
@@ -75,6 +91,7 @@ export class Destroyable extends BaseSimpleNpc {
     this.spawnerId = zoneId;
     this.scale = scale;
     this.npcRenderDistance = renderDistance;
+    this.destroyedEffectId = getDestroyedEffectId(this.actorModelId);
     this.destroyedModels = getDestroyedModels(this.actorModelId);
     this.destroyedModel =
       this.destroyedModels[(this.destroyedModels.length * Math.random()) | 0];
@@ -95,7 +112,7 @@ export class Destroyable extends BaseSimpleNpc {
   }
 
   destroy(server: ZoneServer2016, useDestroyedModel: boolean = false): boolean {
-    if (!this.destroyed && this.destroyedModel && useDestroyedModel) {
+    if (!this.destroyed) {
       this.destroyed = true;
       server.sendDataToAllWithSpawnedEntity(
         server._destroyables,
@@ -104,15 +121,17 @@ export class Destroyable extends BaseSimpleNpc {
         {
           characterId: this.characterId,
           unknownWord1: 1,
-          effectId: Effects.PFX_Damage_GlassWindow_House
+          effectId: this.destroyedEffectId
         }
       );
-      server.sendDataToAllWithSpawnedEntity(
-        server._destroyables,
-        this.characterId,
-        "AddLightweightNpc",
-        this.pGetLightweight()
-      );
+      if (this.destroyedModel && useDestroyedModel) {
+        server.sendDataToAllWithSpawnedEntity(
+          server._destroyables,
+          this.characterId,
+          "AddLightweightNpc",
+          this.pGetLightweight()
+        );
+      }
       return true;
     }
     server.deleteEntity(
