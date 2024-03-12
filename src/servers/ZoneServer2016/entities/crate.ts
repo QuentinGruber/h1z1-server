@@ -17,7 +17,7 @@ import { randomIntFromInterval, isPosInRadius } from "../../../utils/utils";
 import { containerLootSpawners } from "../data/lootspawns";
 import { getRandomItem } from "../managers/worldobjectmanager";
 import { BaseSimpleNpc } from "./basesimplenpc";
-import { Effects, ModelIds } from "../models/enums";
+import { Effects, Items, ModelIds } from "../models/enums";
 import { CharacterRemovePlayer } from "../../../types/zone2016packets";
 
 export function getActorModelId(actorModel: string): number {
@@ -137,7 +137,43 @@ export class Crate extends BaseSimpleNpc {
       this.pGetSimpleProxyHealth()
     );
     if (this.health > 0) return;
+
+    this.generateWoodPlanks(server, damageInfo);
     this.destroy(server);
+  }
+
+  generateWoodPlanks(server: ZoneServer2016, damageInfo: DamageInfo) {
+    const client = server.getClientByCharId(damageInfo.entity);
+    if (!client) return;
+
+    const weapon = client.character.getEquippedWeapon();
+    if (!weapon) return;
+
+    // 20% chance to spawn wood planks, 60% if it's a crowbar
+    const woodPlanksChance = Math.floor(Math.random() * 100) + 1;
+    const spawnChanceWoodPlank =
+      weapon.itemDefinitionId == Items.WEAPON_CROWBAR ? 60 : 20;
+
+    if (woodPlanksChance < spawnChanceWoodPlank) {
+      const woodPlankItem = server.worldObjectManager.createLootEntity(
+        server,
+        server.generateItem(Items.WOOD_PLANK),
+        new Float32Array([
+          this.state.position[0],
+          this.actorModelId == ModelIds.CRATE_BOX_2
+            ? this.state.position[1] + 0.1
+            : this.state.position[1],
+          this.state.position[2],
+          1
+        ]),
+        new Float32Array([0, 0, 0, 0])
+      );
+      if (!woodPlankItem) return;
+      server.executeFuncForAllReadyClientsInRange((c) => {
+        c.spawnedEntities.add(woodPlankItem);
+        server.addLightweightNpc(c, woodPlankItem);
+      }, woodPlankItem);
+    }
   }
 
   destroy(server: ZoneServer2016): boolean {

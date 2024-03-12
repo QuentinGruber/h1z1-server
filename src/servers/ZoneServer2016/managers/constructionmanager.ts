@@ -1488,7 +1488,8 @@ export class ConstructionManager {
     position: Float32Array,
     rotation: Float32Array,
     scale: Float32Array,
-    parentObjectCharacterId?: string
+    parentObjectCharacterId?: string,
+    isProp: boolean = false
   ): boolean {
     const characterId = server.generateGuid(),
       transientId = server.getTransientId(characterId);
@@ -1502,7 +1503,8 @@ export class ConstructionManager {
       scale,
       itemDefinitionId,
       parentObjectCharacterId || "",
-      "SmeltingEntity"
+      "SmeltingEntity",
+      isProp
     );
 
     const parent = obj.getParent(server);
@@ -2531,6 +2533,37 @@ export class ConstructionManager {
     );
   }
 
+  crowbarConstructionEntity(
+    server: ZoneServer2016,
+    client: Client,
+    entity: ConstructionEntity,
+    weaponItem: LoadoutItem
+  ) {
+    switch (entity.itemDefinitionId) {
+      case Items.CAMPFIRE:
+      case Items.DEW_COLLECTOR:
+      case Items.BEE_BOX:
+      case Items.ANIMAL_TRAP:
+        return;
+    }
+    let worldFreeplaceMultiplier = 1;
+    const dictionary = server.getEntityDictionary(entity.characterId);
+
+    if (
+      dictionary == server._worldSimpleConstruction ||
+      (server._worldLootableConstruction && !entity.parentObjectCharacterId)
+    ) {
+      worldFreeplaceMultiplier = 2;
+    }
+
+    // 8 melee hits for entities with parents, 4 for freeplace world entities
+    entity.damage(server, {
+      entity: "",
+      damage: entity.maxHealth / (8 / worldFreeplaceMultiplier)
+    });
+    server.damageItem(client, weaponItem, 50);
+  }
+
   fullyRepairFoundation(
     server: ZoneServer2016,
     entity: ConstructionParentEntity
@@ -2648,6 +2681,9 @@ export class ConstructionManager {
         return;
       case Items.WEAPON_HAMMER:
         this.hammerConstructionEntity(server, client, construction, weapon);
+        return;
+      case Items.WEAPON_CROWBAR:
+        this.crowbarConstructionEntity(server, client, construction, weapon);
         return;
     }
 

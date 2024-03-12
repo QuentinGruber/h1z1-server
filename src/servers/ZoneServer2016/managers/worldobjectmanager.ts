@@ -605,7 +605,8 @@ export class WorldObjectManager {
             new Float32Array(propInstance.position),
             new Float32Array(fixEulerOrder(propInstance.rotation)),
             new Float32Array(propInstance.scale),
-            server._serverGuid
+            server._serverGuid,
+            true
           );
           return;
         }
