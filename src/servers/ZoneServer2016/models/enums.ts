@@ -150,7 +150,8 @@ export enum ModelIds {
   BARBED_WIRE = 28,
   BARBED_WIRE_POSTS = 43,
   SNARE = 1974,
-  BATTERY = 70
+  BATTERY = 70,
+  CRATE_BOX_2 = 9088,
 }
 
 export enum StringIds {
