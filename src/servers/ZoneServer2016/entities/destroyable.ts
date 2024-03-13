@@ -49,14 +49,20 @@ function getMaxHealth(actorModelId: ModelIds): number {
     case ModelIds.FENCES_WOOD_PLANKS_GREY_GAP_1X1:
       return 7500;
     default:
-      return 2000;
+      return 5000;
   }
 }
 
 function getDestroyedEffectId(actorModelId: ModelIds): Effects {
   switch (actorModelId) {
     case ModelIds.GLASS_WINDOW_01:
+    case ModelIds.GLASS_WINDOW_DESTROYED_1:
+    case ModelIds.GLASS_WINDOW_DESTROYED_2:
+    case ModelIds.GLASS_WINDOW_DESTROYED_3:
     case ModelIds.TINTED_WINDOW_01:
+    case ModelIds.TINTED_WINDOW_DESTROYED_1:
+    case ModelIds.TINTED_WINDOW_DESTROYED_2:
+    case ModelIds.TINTED_WINDOW_DESTROYED_3:
       return Effects.PFX_Damage_GlassWindow_House;
     case ModelIds.FENCES_WOOD_PLANKS_GREY_PLANK:
     case ModelIds.FENCES_WOOD_PLANKS_GREY_POSTS_1X1:
@@ -64,8 +70,43 @@ function getDestroyedEffectId(actorModelId: ModelIds): Effects {
     case ModelIds.FENCES_WOOD_PLANKS_GREY_POSTS_1X2:
     case ModelIds.FENCES_WOOD_PLANKS_GREY_GAP_1X1:
       return Effects.PFX_Damage_Fence_ResidTall01;
+    case ModelIds.CHAIN_LINK_FENCE_1X1:
+    case ModelIds.CHAIN_LINK_FENCE_1X2:
+      return Effects.PFX_Damage_Fence_ChainLink_01;
+    case ModelIds.BARBED_WIRE_FENCE_1X1:
+      return Effects.PFX_Damage_Z1_BarbedWireFence1x1;
+    case ModelIds.BARBED_WIRE_FENCE_1X2:
+      return Effects.PFX_Damage_Z1_BarbedWireFence1x2;
+    case ModelIds.FENCE_RANCH_1X1:
+    case ModelIds.FENCE_RANCH_1X2:
+      return Effects.PFX_Damage_Fence_Farm01_Post;
+    case ModelIds.TRAFFIC_SIGNS_STOP_SIGN:
+      return Effects.PFX_Damage_TrafficSigns_StopSign;
+    case ModelIds.SIGNS_STOP_SIGN_01:
+    case ModelIds.SIGNS_STOP_SIGN_01_DESTROYED:
+      return Effects.PFX_Damage_Sign_Stop;
+    case ModelIds.TRAFFIC_SIGN_POLE:
+    case ModelIds.TRAFFIC_SIGN_POLE_DOUBLE:
+      return Effects.PFX_Damage_TrafficSigns_StreetSign;
+    case ModelIds.TRAFFIC_SIGNS_TOWN:
+      return Effects.PFX_Damage_TrafficSigns_Town;
+    case ModelIds.TRAFFIC_SIGNS_HIGHWAY:
+      return Effects.PFX_Damage_TrafficSigns_Highway;
+    case ModelIds.TRAFFIC_SIGNS_HIGHWAY_LARGE_SIGNS_ROAD_TWO_POST_01:
+      return Effects.PFX_Damage_TrafficSigns_Highway_TwoPosts;
+    case ModelIds.TRAFFIC_SIGNS_HIGHWAY_LARGE_SIGNS_WOOD_TWO_POST_01:
+      return Effects.PFX_Damage_TrafficSigns_Highway_Wood_TwoPosts;
+    case ModelIds.TRAFFIC_SIGN_HIGHWAY_WOOD_BASE:
+      return Effects.PFX_Damage_TrafficSigns_Highway_Wood_TwoPosts;
+    case ModelIds.STREET_SIGNS_STREET_NAMES_SIGN:
+      return Effects.PFX_Damage_TrafficSigns_StreetSign;
+    case ModelIds.STREET_SIGN_POLE:
+      return Effects.PFX_Damage_TrafficSigns_StreetSign;
+    case ModelIds.STREET_SIGNS_STREET_NAMES_SIGN_POST:
+      return Effects.PFX_Damage_TrafficSigns_StreetSign_StreetName;
     default:
-      return Effects.PFX_Damage_GlassWindow_House;
+      console.log(`[WARN] No destroyed effect for modelId: ${actorModelId}`);
+      return Effects.TEST_Null;
   }
 }
 export class Destroyable extends BaseSimpleNpc {
