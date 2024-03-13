@@ -1,5 +1,6 @@
 import { BaseEntity } from "../entities/baseentity";
 
+/** Used in splitting the map into the appropriate grids based upon the image */
 export class GridCell {
   position: Float32Array;
   objects: Array<BaseEntity> = [];
