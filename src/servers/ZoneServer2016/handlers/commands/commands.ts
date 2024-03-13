@@ -131,7 +131,7 @@ export const commands: Array<Command> = [
         } = server;
         const serverVersion = require("../../../../../package.json").version;
         server.sendChatText(client, `h1z1-server V${serverVersion}`, true);
-        const uptimeMin = getCurrentServerTimeWrapper().getMinutes();
+        const uptimeMin = process.uptime() / 60;
 
         server.sendChatText(
           client,
