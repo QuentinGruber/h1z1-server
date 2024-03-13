@@ -384,7 +384,6 @@ export class Character2016 extends BaseFullCharacter {
   }
 
   pGetRecipes(server: ZoneServer2016): any[] {
-    // todo: change to per-character recipe lists
     const recipeKeys = Object.keys(this.recipes);
 
     const recipes: Array<any> = [];
