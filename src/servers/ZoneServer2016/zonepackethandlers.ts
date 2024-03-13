@@ -325,7 +325,8 @@ export class ZonePacketHandlers {
           server.voiceChatManager.useVoiceChatV2 &&
           server.voiceChatManager.joinVoiceChatOnConnect
         ) {
-          server.voiceChatManager.handleVoiceChatInit(server, client);
+          // disabled for now
+          //server.voiceChatManager.handleVoiceChatInit(server, client);
         }
         server.sendData(
           client,
