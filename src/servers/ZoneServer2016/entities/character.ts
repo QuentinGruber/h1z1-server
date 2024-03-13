@@ -36,6 +36,7 @@ import {
   DamageRecord,
   HealType,
   positionUpdate,
+  Recipe,
   StanceFlags
 } from "../../../types/zoneserver";
 import {
@@ -68,6 +69,7 @@ import {
   EXTERNAL_CONTAINER_GUID,
   LOADOUT_CONTAINER_ID
 } from "../../../utils/constants";
+import { recipes } from "../data/Recipes";
 const stats = require("../../../../data/2016/sampleData/stats.json");
 
 interface CharacterStates {
@@ -284,6 +286,11 @@ export class Character2016 extends BaseFullCharacter {
     characterId: ""
   };
   lastRepairTime: number = 0;
+  /** HashMap of all recipes on a server
+   * uses recipeId (number) for indexing
+   */
+  recipes: { [recipeId: number]: Recipe } = recipes;
+
   constructor(
     characterId: string,
     transientId: number,
@@ -374,6 +381,50 @@ export class Character2016 extends BaseFullCharacter {
       }, 1000);
     };
     this.materialType = MaterialTypes.FLESH;
+  }
+
+  pGetRecipes(server: ZoneServer2016): any[] {
+    const recipeKeys = Object.keys(this.recipes);
+
+    const recipes: Array<any> = [];
+    let i = 0;
+    for (const recipe of Object.values(this.recipes)) {
+      const recipeDef = server.getItemDefinition(Number(recipeKeys[i]));
+      i++;
+      if (!recipeDef) continue;
+      recipes.push({
+        recipeId: recipeDef.ID,
+        itemDefinitionId: recipeDef.ID,
+        nameId: recipeDef.NAME_ID,
+        iconId: recipeDef.IMAGE_SET_ID,
+        unknownDword1: 0, // idk
+        descriptionId: recipeDef.DESCRIPTION_ID,
+        unknownDword2: 1, // idk
+        bundleCount: recipe.bundleCount || 1,
+        membersOnly: false, // could be used for admin-only recipes?
+        filterId: recipe.filterId,
+        components: recipe.components
+          .map((component: any) => {
+            const componentDef = server.getItemDefinition(
+              component.itemDefinitionId
+            );
+            if (!componentDef) return true;
+            return {
+              unknownDword1: 0, // idk
+              nameId: componentDef.NAME_ID,
+              iconId: componentDef.IMAGE_SET_ID,
+              unknownDword2: 0, // idk
+              requiredAmount: component.requiredAmount,
+              unknownQword1: "0x0", // idk
+              unknownDword3: 0, // idk
+              itemDefinitionId: componentDef.ID
+            };
+          })
+          .filter((component) => component !== true)
+      });
+    }
+
+    return recipes;
   }
 
   startResourceUpdater(client: ZoneClient2016, server: ZoneServer2016) {
@@ -907,7 +958,7 @@ export class Character2016 extends BaseFullCharacter {
           items: this.pGetInventoryItems(server)
           //unknownDword1: 2355
         },
-        recipes: server.pGetRecipes(), // todo: change to per-character recipe lists
+        recipes: this.pGetRecipes(server),
         stats: this.getStats(),
         loadoutSlots: this.pGetLoadoutSlots(),
         equipmentSlots: this.pGetEquipment() as any,

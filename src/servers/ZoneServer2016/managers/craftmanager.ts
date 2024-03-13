@@ -170,7 +170,8 @@ export class CraftManager {
       const remainingItems = component.requiredAmount * recipeCount;
       // if component isn't found at all
       if (!this.componentsDataSource[component.itemDefinitionId]) {
-        const componentRecipe = server._recipes[component.itemDefinitionId],
+        const componentRecipe =
+            client.character.recipes[component.itemDefinitionId],
           componentBundleCount = componentRecipe?.bundleCount || 1;
         if (!componentRecipe) {
           debug(
@@ -212,7 +213,8 @@ export class CraftManager {
         this.componentsDataSource[component.itemDefinitionId].stackCount <
         remainingItems
       ) {
-        const componentRecipe = server._recipes[component.itemDefinitionId],
+        const componentRecipe =
+            client.character.recipes[component.itemDefinitionId],
           componentBundleCount = componentRecipe?.bundleCount || 1;
         if (!componentRecipe) {
           debug(
@@ -356,7 +358,7 @@ export class CraftManager {
     if (this.craftLoopCount > this.maxCraftLoopCount) {
       return false;
     }
-    const recipe = server._recipes[recipeId],
+    const recipe = client.character.recipes[recipeId],
       bundleCount = recipe?.bundleCount || 1, // the amount of an item crafted from 1 recipe (ex. crafting 1 stick recipe gives you 2)
       craftCount = recipeCount * bundleCount; // the actual amount of items to craft
     if (!recipe) return false;
@@ -434,7 +436,7 @@ export class CraftManager {
       1000 * recipeCount,
       0
     );
-    const r = server._recipes[recipeId];
+    const r = client.character.recipes[recipeId];
     for (const component of r.components) {
       const inventory = this.getInventoryDataSource(client.character);
       let remainingItems = component.requiredAmount * recipeCount,

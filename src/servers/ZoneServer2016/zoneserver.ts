@@ -64,7 +64,6 @@ import {
   ItemDefinition,
   modelData,
   PropInstance,
-  Recipe,
   ScreenEffect,
   UseOption
 } from "../../types/zoneserver";
@@ -131,7 +130,6 @@ import {
   FetchedWorldData,
   WorldDataManager
 } from "./managers/worlddatamanager";
-import { recipes } from "./data/Recipes";
 import { UseOptions } from "./data/useoptions";
 import {
   CONNECTION_REJECTION_FLAGS,
@@ -393,10 +391,6 @@ export class ZoneServer2016 extends EventEmitter {
   profileDefinitionsCache?: Buffer;
   _containerDefinitions: { [containerDefinitionId: number]: any } =
     containerDefinitions;
-  /** HashMap of all recipes on a server - To be moved to players soon,
-   * uses recipeId (number) for indexing
-   */
-  _recipes: { [recipeId: number]: Recipe } = recipes;
   lastItemGuid: bigint = 0x3000000000000000n;
   private readonly _transientIdGenerator = generateTransientId();
   enableWorldSaves: boolean;
@@ -1205,51 +1199,6 @@ export class ZoneServer2016 extends EventEmitter {
     }
 
     return proximityItems;
-  }
-
-  pGetRecipes(): any[] {
-    // todo: change to per-character recipe lists
-    const recipeKeys = Object.keys(this._recipes);
-
-    const recipes: Array<any> = [];
-    let i = 0;
-    for (const recipe of Object.values(this._recipes)) {
-      const recipeDef = this.getItemDefinition(Number(recipeKeys[i]));
-      i++;
-      if (!recipeDef) continue;
-      recipes.push({
-        recipeId: recipeDef.ID,
-        itemDefinitionId: recipeDef.ID,
-        nameId: recipeDef.NAME_ID,
-        iconId: recipeDef.IMAGE_SET_ID,
-        unknownDword1: 0, // idk
-        descriptionId: recipeDef.DESCRIPTION_ID,
-        unknownDword2: 1, // idk
-        bundleCount: recipe.bundleCount || 1,
-        membersOnly: false, // could be used for admin-only recipes?
-        filterId: recipe.filterId,
-        components: recipe.components
-          .map((component: any) => {
-            const componentDef = this.getItemDefinition(
-              component.itemDefinitionId
-            );
-            if (!componentDef) return true;
-            return {
-              unknownDword1: 0, // idk
-              nameId: componentDef.NAME_ID,
-              iconId: componentDef.IMAGE_SET_ID,
-              unknownDword2: 0, // idk
-              requiredAmount: component.requiredAmount,
-              unknownQword1: "0x0", // idk
-              unknownDword3: 0, // idk
-              itemDefinitionId: componentDef.ID
-            };
-          })
-          .filter((component) => component !== true)
-      });
-    }
-
-    return recipes;
   }
 
   async sendCharacterData(client: Client) {
