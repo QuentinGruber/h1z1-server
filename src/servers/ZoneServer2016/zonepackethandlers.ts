@@ -217,7 +217,6 @@ export class ZonePacketHandlers {
       decalAlias: "#"
     });
     */
-
     server.firstRoutine(client);
     server.setGodMode(client, true);
 
@@ -316,25 +315,24 @@ export class ZonePacketHandlers {
     server.tempGodMode(client, 15000);
     client.currentPOI = 0; // clears currentPOI for POIManager
     server.sendGameTimeSync(client);
+    server.sendData(client, "UpdateWeatherData", server.weatherManager.weather);
     server.constructionManager.sendConstructionData(server, client);
     if (client.firstLoading) {
-      for (let i = 1; i <= 10; i++) {
-        setTimeout(() => {
-          server.requestModules(client);
-        }, i * 1000);
-      }
-      setTimeout(() => {
-        client.startingModulesRequested = false;
-        server.fairPlayManager.handleAssetValidationInit(server, client);
-      }, 11000);
-      server.sendData(
-        client,
-        "UpdateWeatherData",
-        server.weatherManager.weather
-      );
       client.character.lastLoginDate = toHex(Date.now());
       server.setGodMode(client, false);
       setTimeout(() => {
+        if (
+          server.voiceChatManager.useVoiceChatV2 &&
+          server.voiceChatManager.joinVoiceChatOnConnect
+        ) {
+          // disabled for now
+          //server.voiceChatManager.handleVoiceChatInit(server, client);
+        }
+        server.sendData(
+          client,
+          "UpdateWeatherData",
+          server.weatherManager.weather
+        );
         if (server.welcomeMessage)
           server.sendAlert(client, server.welcomeMessage);
         server.sendChatText(
@@ -653,7 +651,6 @@ export class ZonePacketHandlers {
     client: Client,
     packet: ReceivedPacket<KeepAlive>
   ) {
-    server.requestModules(client);
     if (client.isLoading && client.characterReleased && client.isSynced) {
       setTimeout(() => {
         client.isLoading = false;
@@ -3421,20 +3418,17 @@ export class ZonePacketHandlers {
         server.fairPlayManager.handleAssetCheck(server, client, data);
         break;
       case "02": // client messages
-        if (client.startingModulesRequested) {
-          setTimeout(() => {
-            client.startingModulesRequested = false;
-          }, 500);
-        }
-        if (client.startingModulesRequested && !client.modules.includes(data)) {
-          client.modules.push(data);
-          return;
-        }
-        if (!client.modules.includes(data)) {
-          server.sendChatTextToAdmins(
-            `[FairPlay] kicking ${client.character.name} for ${data}`
-          );
+        server.sendChatTextToAdmins(`${client.character.name}: ${data}`);
+        break;
+      case "09": // client messages
+        const version = "1";
+        if (data == "1") {
+          clearTimeout(client.heartBeatTimer);
+        } else {
           server.kickPlayer(client);
+          server.sendChatTextToAdmins(
+            `[FairPlay] kicking ${client.character.name} for wrong data version: ${data} | required: ${version}`
+          );
         }
         break;
       default:

@@ -28,6 +28,7 @@ import { Vehicle2016 as Vehicle, Vehicle2016 } from "./entities/vehicle";
 import { GridCell } from "./classes/gridcell";
 import { SpawnCell } from "./classes/spawncell";
 import { WorldObjectManager } from "./managers/worldobjectmanager";
+import { VoiceChatManager } from "./managers/voicechatmanager";
 import { SmeltingManager } from "./managers/smeltingmanager";
 import { DecayManager } from "./managers/decaymanager";
 import { AbilitiesManager } from "./managers/abilitiesmanager";
@@ -357,6 +358,7 @@ export class ZoneServer2016 extends EventEmitter {
 
   /** Managers used for handling core functionalities */
   worldObjectManager: WorldObjectManager;
+  voiceChatManager: VoiceChatManager;
   smeltingManager: SmeltingManager;
   decayManager: DecayManager;
   abilitiesManager: AbilitiesManager;
@@ -445,6 +447,7 @@ export class ZoneServer2016 extends EventEmitter {
     this._worldId = worldId || 0;
     this._protocol = new H1Z1Protocol("ClientProtocol_1080");
     this.worldObjectManager = new WorldObjectManager();
+    this.voiceChatManager = new VoiceChatManager();
     this.smeltingManager = new SmeltingManager();
     this.decayManager = new DecayManager();
     this.abilitiesManager = new AbilitiesManager();
@@ -2616,7 +2619,6 @@ export class ZoneServer2016 extends EventEmitter {
           position: tempPos2
         }
       );
-      this.sendData(client, "UpdateWeatherData", this.weatherManager.weather);
       const damageInfo: DamageInfo = {
         entity: "Server.Respawn",
         damage: 99999
@@ -3418,6 +3420,19 @@ export class ZoneServer2016 extends EventEmitter {
       (this.filterOutOfDistance(entity, client.character.state.position) ||
         this.constructionManager.shouldHideEntity(this, client, entity))
     );
+  }
+
+  private heartBeat(client: Client) {
+    this.sendData(client, "H1emu.HeartBeat", {
+      data: "1"
+    });
+    this.sendData(client, "UpdateWeatherData", this.weatherManager.weather);
+    client.heartBeatTimer = setTimeout(() => {
+      this.sendChatTextToAdmins(
+        `[FairPlay] kicking ${client.character.name} for missing heart beat response`
+      );
+      this.kickPlayer(client);
+    }, 8000);
   }
 
   private removeOutOfDistanceEntities(client: Client) {
@@ -7889,6 +7904,7 @@ export class ZoneServer2016 extends EventEmitter {
         this.checkInMapBounds(client);
         this.checkZonePing(client);
         if (client.routineCounter >= 3) {
+          this.heartBeat(client);
           this.assignChunkRenderDistance(client);
           this.removeOutOfDistanceEntities(client);
           this.removeOODInteractionData(client);
