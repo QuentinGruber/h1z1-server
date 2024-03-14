@@ -6587,7 +6587,7 @@ export class ZoneServer2016 extends EventEmitter {
   fillPass(client: Client, character: BaseFullCharacter, item: BaseItem) {
     if (client.character.characterStates.inWater) {
       if (!this.removeInventoryItem(character, item)) return;
-      character.lootContainerItem(this, this.generateItem(1368)); // give dirty water
+      character.lootContainerItem(this, this.generateItem(Items.WATER_DIRTY)); // give dirty water
     } else {
       this.sendAlert(client, "There is no water source nearby");
     }

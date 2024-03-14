@@ -675,6 +675,7 @@ export class WorldObjectManager {
           case "Common_Props_Bathroom_Toilet01.adr":
           case "Common_Props_Dam_WaterValve01.adr":
           case "Common_Props_Well.adr":
+          case "Common_Props_FireHydrant.adr":
             obj = new WaterSource(
               characterId,
               server.getTransientId(characterId), // need transient generated for Interaction Replication
