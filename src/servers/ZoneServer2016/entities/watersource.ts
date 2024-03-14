@@ -212,10 +212,12 @@ export class WaterSource extends TaskProp {
     if (!client || !weaponId || !activatableItems.includes(weaponId)) return;
 
     if (this.isHydrantOnCooldown) {
-      server.sendChatText(
-        client,
-        "This fire hydrant has been drained recently. It will replenish soon."
-      );
+      if (!this.isHydrantGushing) {
+        server.sendChatText(
+          client,
+          "This fire hydrant has been drained recently. It will replenish soon."
+        );
+      }
       return;
     }
 
