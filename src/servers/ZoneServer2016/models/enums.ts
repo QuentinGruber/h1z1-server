@@ -150,7 +150,8 @@ export enum ModelIds {
   BARBED_WIRE = 28,
   BARBED_WIRE_POSTS = 43,
   SNARE = 1974,
-  BATTERY = 70
+  BATTERY = 70,
+  FIRE_HYDRANT = 9337
 }
 
 export enum StringIds {
@@ -198,7 +199,9 @@ export enum StringIds {
   ZOMBIE_WALKER = 60,
   DEER = 1245,
   BEAR = 1246,
-  WOLF = 1213
+  WOLF = 1213,
+  CHECK_WATER = 9833,
+  FIRE_HYDRANT = 14383
 }
 
 export enum MovementModifiers {

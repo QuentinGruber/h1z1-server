@@ -11,14 +11,18 @@
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
 
+import { DamageInfo } from "types/zoneserver";
 import { ZoneClient2016 } from "../classes/zoneclient";
-import { Items, ResourceIds, StringIds } from "../models/enums";
+import { Effects, Items, ModelIds, ResourceIds, StringIds } from "../models/enums";
 import { ZoneServer2016 } from "../zoneserver";
 import { TaskProp } from "./taskprop";
+import { CharacterPlayWorldCompositeEffect } from "types/zone2016packets";
 
 export class WaterSource extends TaskProp {
   usesLeft?: number;
   refillAmount!: number;
+  isHydrantGushing: boolean = false;
+  isHydrantOnCooldown: boolean = false;
   constructor(
     characterId: string,
     transientId: number,
@@ -55,6 +59,7 @@ export class WaterSource extends TaskProp {
         break;
       case "Common_Props_Dam_WaterValve01.adr":
       case "Common_Props_Well.adr":
+      case "Common_Props_FireHydrant.adr":
         this.usesLeft = Number.MAX_SAFE_INTEGER;
         break;
     }
@@ -66,6 +71,21 @@ export class WaterSource extends TaskProp {
       case "Common_Props_Cabinets_BathroomSink.adr":
       case "Common_Props_Bathroom_Toilet01.adr":
         if (this.usesLeft && this.usesLeft > 0) {
+          server.sendData(client, "Command.InteractionString", {
+            guid: this.characterId,
+            stringId: client.character.hasItem(Items.WATER_EMPTY)
+              ? StringIds.COLLECT_WATER
+              : StringIds.DRINK_DIRTY_WATER
+          });
+        }
+        break;
+      case "Common_Props_FireHydrant.adr":
+        if (!this.isHydrantGushing) {
+          server.sendData(client, "Command.InteractionString", {
+            guid: this.characterId,
+            stringId: StringIds.CHECK_WATER
+          });
+        } else {
           server.sendData(client, "Command.InteractionString", {
             guid: this.characterId,
             stringId: client.character.hasItem(Items.WATER_EMPTY)
@@ -91,10 +111,21 @@ export class WaterSource extends TaskProp {
     client: ZoneClient2016
     /* eslint-enable @typescript-eslint/no-unused-vars */
   ) {
+    if (this.actorModelId == ModelIds.FIRE_HYDRANT && !this.isHydrantGushing) {
+      server.utilizeHudTimer(client, StringIds.FIRE_HYDRANT, 3000, 0, () => {
+        if (this.isHydrantOnCooldown) {
+          server.sendChatText(client, "This fire hydrant has been drained recently. It will replenish soon.");
+        } else {
+          server.sendChatText(client, "This fire hydrant is full of water!");
+        } 
+      });
+      return;
+    }
     const bottle = client.character.getItemById(Items.WATER_EMPTY),
       infiniteSources = [
         "Common_Props_Well.adr",
-        "Common_Props_Dam_WaterValve01.adr"
+        "Common_Props_Dam_WaterValve01.adr",
+        "Common_Props_FireHydrant.adr"
       ],
       hasUses =
         infiniteSources.includes(this.actorModel) ||
@@ -148,5 +179,49 @@ export class WaterSource extends TaskProp {
         if (this.usesLeft) this.usesLeft--;
       }
     );
+  }
+
+  OnMeleeHit(server: ZoneServer2016, damageInfo: DamageInfo) {
+    const client = server.getClientByCharId(damageInfo.entity),
+      weapon = client?.character.getEquippedWeapon(),
+      weaponId = weapon?.itemDefinitionId,
+      activatableItems = [
+        Items.WEAPON_WRENCH,
+        Items.WEAPON_BRANCH,
+        Items.WEAPON_HAMMER,
+        Items.WEAPON_HAMMER_DEMOLITION
+      ];
+    if (this.actorModelId != ModelIds.FIRE_HYDRANT) return;
+    if (!client || (!weaponId || !activatableItems.includes(weaponId))) return;
+
+    if (this.isHydrantOnCooldown) {
+      server.sendChatText(client, "This fire hydrant has been drained recently. It will replenish soon.");
+      return;
+    }
+
+    this.isHydrantGushing = true;
+    this.isHydrantOnCooldown = true;
+
+    const pos = this.state.position;
+    server.sendDataToAllWithSpawnedEntity<CharacterPlayWorldCompositeEffect>(
+      server._taskProps,
+      this.characterId,
+      "Character.PlayWorldCompositeEffect",
+      {
+        characterId: this.characterId,
+        effectId: Effects.EFX_FireHydrant_Gushing,
+        position: new Float32Array([pos[0], pos[1], pos[2], 1]),
+        effectTime: 30
+      }
+    );
+
+    setTimeout(() => {
+      this.isHydrantGushing = false;
+    }, 30000);
+
+    setTimeout(() => {
+      this.isHydrantOnCooldown = false;
+    }, 300000)
+
   }
 }
