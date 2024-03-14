@@ -742,7 +742,7 @@ export class WorldObjectManager {
     });
     Z1_destroyables.forEach((propType: any) => {
       // disable fences until we find a fix for glitching graphics
-      if (propType.actorDefinition.toLowerCase().includes("fence")) return;
+      if (propType.actor_file.toLowerCase().includes("fence")) return;
       propType.instances.forEach((propInstance: any) => {
         const characterId = generateRandomGuid();
         const obj = new Destroyable(
@@ -760,7 +760,7 @@ export class WorldObjectManager {
           new Float32Array(propInstance.scale),
           propInstance.id,
           Number(propType.renderDistance),
-          propType.actorDefinition
+          propType.actor_file
         );
         server._destroyables[characterId] = obj;
         server._destroyableDTOlist.push(propInstance.id);
