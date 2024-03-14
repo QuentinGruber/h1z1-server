@@ -18,15 +18,15 @@ import { Effects, ModelIds } from "../models/enums";
 import { AddLightweightNpc, AddSimpleNpc } from "types/zone2016packets";
 import { BaseSimpleNpc } from "./basesimplenpc";
 
-function getDestroyedModels(actorModel: string): number[] {
-  switch (actorModel) {
-    case "Common_Props_GlassWindow01.adr":
+function getDestroyedModels(actorModelId: ModelIds): number[] {
+  switch (actorModelId) {
+    case ModelIds.GLASS_WINDOW_01:
       return [
         ModelIds.GLASS_WINDOW_DESTROYED_1,
         ModelIds.GLASS_WINDOW_DESTROYED_2,
         ModelIds.GLASS_WINDOW_DESTROYED_3
       ];
-    case "Common_Props_TintedWindow01.adr":
+    case ModelIds.TINTED_WINDOW_01:
       return [
         ModelIds.TINTED_WINDOW_DESTROYED_1,
         ModelIds.TINTED_WINDOW_DESTROYED_2,
@@ -34,6 +34,22 @@ function getDestroyedModels(actorModel: string): number[] {
       ];
     default:
       return [];
+  }
+}
+
+function getMaxHealth(actorModelId: ModelIds): number {
+  switch (actorModelId) {
+    case ModelIds.GLASS_WINDOW_01:
+    case ModelIds.TINTED_WINDOW_01:
+      return 2000;
+    case ModelIds.FENCES_WOOD_PLANKS_GREY_PLANK:
+    case ModelIds.FENCES_WOOD_PLANKS_GREY_POSTS_1X1:
+    case ModelIds.FENCES_WOOD_PLANKS_GREY_1X1:
+    case ModelIds.FENCES_WOOD_PLANKS_GREY_POSTS_1X2:
+    case ModelIds.FENCES_WOOD_PLANKS_GREY_GAP_1X1:
+      return 7500;
+    default:
+      return 2000;
   }
 }
 
@@ -47,23 +63,22 @@ export class Destroyable extends BaseSimpleNpc {
   constructor(
     characterId: string,
     transientId: number,
-    actorModelId: number,
+    actorModelId: ModelIds,
     position: Float32Array,
     rotation: Float32Array,
     server: ZoneServer2016,
     scale: Float32Array,
     zoneId: number,
-    renderDistance: number,
-    actorModel: string
+    renderDistance: number
   ) {
     super(characterId, transientId, actorModelId, position, rotation, server);
     this.spawnerId = zoneId;
     this.scale = scale;
     this.npcRenderDistance = renderDistance;
-    this.destroyedModels = getDestroyedModels(actorModel);
+    this.destroyedModels = getDestroyedModels(this.actorModelId);
     this.destroyedModel =
       this.destroyedModels[(this.destroyedModels.length * Math.random()) | 0];
-    this.maxHealth = actorModel.toLowerCase().includes("fence") ? 30000 : 2000;
+    this.maxHealth = getMaxHealth(actorModelId);
     this.health = this.maxHealth;
   }
 
@@ -108,10 +123,9 @@ export class Destroyable extends BaseSimpleNpc {
     return true;
   }
 
-  // eslint-disable-next-line
   OnProjectileHit(server: ZoneServer2016, damageInfo: DamageInfo) {
     if (this.destroyed) return;
-    this.destroy(server, true);
+    this.damage(server, damageInfo);
   }
 
   OnMeleeHit(server: ZoneServer2016, damageInfo: DamageInfo) {
