@@ -13,7 +13,13 @@
 
 import { DamageInfo } from "types/zoneserver";
 import { ZoneClient2016 } from "../classes/zoneclient";
-import { Effects, Items, ModelIds, ResourceIds, StringIds } from "../models/enums";
+import {
+  Effects,
+  Items,
+  ModelIds,
+  ResourceIds,
+  StringIds
+} from "../models/enums";
 import { ZoneServer2016 } from "../zoneserver";
 import { TaskProp } from "./taskprop";
 import { CharacterPlayWorldCompositeEffect } from "types/zone2016packets";
@@ -114,10 +120,13 @@ export class WaterSource extends TaskProp {
     if (this.actorModelId == ModelIds.FIRE_HYDRANT && !this.isHydrantGushing) {
       server.utilizeHudTimer(client, StringIds.FIRE_HYDRANT, 3000, 0, () => {
         if (this.isHydrantOnCooldown) {
-          server.sendChatText(client, "This fire hydrant has been drained recently. It will replenish soon.");
+          server.sendChatText(
+            client,
+            "This fire hydrant has been drained recently. It will replenish soon."
+          );
         } else {
           server.sendChatText(client, "This fire hydrant is full of water!");
-        } 
+        }
       });
       return;
     }
@@ -192,10 +201,13 @@ export class WaterSource extends TaskProp {
         Items.WEAPON_HAMMER_DEMOLITION
       ];
     if (this.actorModelId != ModelIds.FIRE_HYDRANT) return;
-    if (!client || (!weaponId || !activatableItems.includes(weaponId))) return;
+    if (!client || !weaponId || !activatableItems.includes(weaponId)) return;
 
     if (this.isHydrantOnCooldown) {
-      server.sendChatText(client, "This fire hydrant has been drained recently. It will replenish soon.");
+      server.sendChatText(
+        client,
+        "This fire hydrant has been drained recently. It will replenish soon."
+      );
       return;
     }
 
@@ -221,7 +233,6 @@ export class WaterSource extends TaskProp {
 
     setTimeout(() => {
       this.isHydrantOnCooldown = false;
-    }, 300000)
-
+    }, 300000);
   }
 }
