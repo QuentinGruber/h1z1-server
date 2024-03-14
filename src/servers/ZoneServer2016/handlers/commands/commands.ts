@@ -131,7 +131,7 @@ export const commands: Array<Command> = [
         } = server;
         const serverVersion = require("../../../../../package.json").version;
         server.sendChatText(client, `h1z1-server V${serverVersion}`, true);
-        const uptimeMin = getCurrentServerTimeWrapper().getMinutes();
+        const uptimeMin = process.uptime() / 60;
 
         server.sendChatText(
           client,
@@ -198,6 +198,32 @@ export const commands: Array<Command> = [
       server.sendChatText(
         client,
         `Displaying list of players and logs matching criteria: ${listNames.join(
+          ",\n"
+        )}`,
+        true
+      );
+    }
+  },
+  {
+    name: "findmodule",
+    permissionLevel: PermissionLevels.MODERATOR,
+    execute: (server: ZoneServer2016, client: Client, args: Array<string>) => {
+      if (!args[0]) {
+        server.sendChatText(client, "[] No argument provided", true);
+        return;
+      }
+      const listNames: string[] = [];
+      for (const a in server._clients) {
+        const c = server._clients[a];
+        c.modules.forEach((module: string) => {
+          if (module.toLowerCase().includes(args[0].toString().toLowerCase())) {
+            listNames.push(`${c.character.name} ${module}`);
+          }
+        });
+      }
+      server.sendChatText(
+        client,
+        `Displaying list of modules matching criteria: ${listNames.join(
           ",\n"
         )}`,
         true
@@ -832,11 +858,15 @@ export const commands: Array<Command> = [
       client.characterReleased = false;
       client.character.lastLoginDate = toHex(Date.now());
       server.dropAllManagedObjects(client);
-
       server.sendData(client, "ClientUpdate.UpdateLocation", {
         position,
         triggerLoadingScreen
       });
+      server.sendData(
+        client,
+        "UpdateWeatherData",
+        server.weatherManager.weather
+      );
     }
   },
   {
@@ -1261,9 +1291,11 @@ export const commands: Array<Command> = [
       }
       server.sendChatText(
         client,
-        `Requesting modules from: ${targetClient.character.name}`
+        `Listing modules of: ${targetClient.character.name}`
       );
-      server.sendData(targetClient, "H1emu.RequestModules", {});
+      targetClient.modules.forEach((module: string) => {
+        server.sendChatText(client, module);
+      });
     }
   },
   {

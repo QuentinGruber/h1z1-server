@@ -213,7 +213,11 @@ export class LootableProp extends BaseLootableEntity {
   npcRenderDistance = 150;
   positionUpdateType = 0;
   containerId: number = Items.CONTAINER_STORAGE;
+
+  /** Determines the loot table to distribute to the LootableProp */
   lootSpawner: string = "Wrecked Car";
+
+  /** Time (milliseconds) it takes before the container loads for the player */
   searchTime: number = 1000;
   constructor(
     characterId: string,
