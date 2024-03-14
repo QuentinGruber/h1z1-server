@@ -14,15 +14,29 @@
 import { Weapon } from "./weapon";
 
 export class BaseItem {
+  /** Id of the item - See ServerItemDefinitions.json for more information */
   itemDefinitionId: number;
+
+  /** Id (index) of the current slot the item occupies in the hotbar */
   slotId = 0;
+
+  /** Global universal identifier of the item */
   itemGuid: string;
   containerGuid = "0x0";
+
+  /** Current health of the item */
   currentDurability: number;
   debugFlag: string = "unset";
+
+  /** Returns the amount of items inside of a stack  */
   stackCount: number;
+
+  /** Determines if the item should be treated as a weapon object */
   weapon?: Weapon;
+
+  /** Returns true if the airdrop has passed all the checks to land safely */
   hasAirdropClearance: boolean = false;
+
   constructor(
     itemDefinitionId: number,
     guid: string,

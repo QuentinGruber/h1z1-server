@@ -19,8 +19,12 @@ import { ZoneServer2016 } from "../zoneserver";
 import { BaseEntity } from "./baseentity";
 
 export abstract class BaseSimpleNpc extends BaseEntity {
+  /** Maximum health alloted BaseSimpleNPC */
   maxHealth: number = 100000;
+
+  /** Health initialized by maxHealth to determine the health percentage in pGetSimpleProxyHealth */
   health: number = this.maxHealth;
+
   constructor(
     characterId: string,
     transientId: number,

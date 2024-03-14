@@ -25,10 +25,18 @@ import { TaskProp } from "./taskprop";
 import { CharacterPlayWorldCompositeEffect } from "types/zone2016packets";
 
 export class WaterSource extends TaskProp {
+  /** The amount of interactions left on the WaterSource */
   usesLeft?: number;
+
+  /** Amount to be refilled in a water bottle */
   refillAmount!: number;
+
+  /** Returns true if the fire hydrant is currently releasing water */
   isHydrantGushing: boolean = false;
+
+  /** Returns true if the hydrant is currently not able to be melee'd for water */
   isHydrantOnCooldown: boolean = false;
+
   constructor(
     characterId: string,
     transientId: number,

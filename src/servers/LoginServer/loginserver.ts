@@ -531,10 +531,12 @@ export class LoginServer extends EventEmitter {
               status = NAME_VALIDATION_STATUS.PROFANE;
             }
           } else {
+            // So we don't care about the case
+            const characterNameRegex = new RegExp(`^${characterName}$`, "i");
             const duplicateCharacter = await this._db
               .collection(DB_COLLECTIONS.CHARACTERS_LIGHT)
               .findOne({
-                "payload.name": characterName,
+                "payload.name": { $regex: characterNameRegex },
                 serverId: baseResponse.serverId,
                 status: 1
               });
