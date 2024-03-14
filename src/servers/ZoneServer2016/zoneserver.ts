@@ -3427,12 +3427,14 @@ export class ZoneServer2016 extends EventEmitter {
       data: "1"
     });
     this.sendData(client, "UpdateWeatherData", this.weatherManager.weather);
-    client.heartBeatTimer = setTimeout(() => {
-      this.sendChatTextToAdmins(
-        `[FairPlay] kicking ${client.character.name} for missing heart beat response`
-      );
-      this.kickPlayer(client);
-    }, 8000);
+    if (!this._soloMode) {
+      client.heartBeatTimer = setTimeout(() => {
+        this.sendChatTextToAdmins(
+          `[FairPlay] kicking ${client.character.name} for missing heart beat response`
+        );
+        this.kickPlayer(client);
+      }, 8000);
+    }
   }
 
   private removeOutOfDistanceEntities(client: Client) {
