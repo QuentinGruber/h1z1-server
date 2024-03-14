@@ -1,6 +1,6 @@
 [
   {
-    "actor_file": "Common_Props_Bathroom_Toilet01.adr",
+    "actorDefinition": "Common_Props_Bathroom_Toilet01.adr",
     "modelId": 9399,
     "renderDistance": 150,
     "instances": [
@@ -5329,7 +5329,7 @@
     ]
   },
   {
-    "actor_file": "Common_Props_Bedroom_Mattress01.adr",
+    "actorDefinition": "Common_Props_Bedroom_Mattress01.adr",
     "modelId": 9331,
     "renderDistance": 50,
     "instances": [
@@ -8290,7 +8290,7 @@
     ]
   },
   {
-    "actor_file": "Common_Props_Bedroom_BedCombined03.adr",
+    "actorDefinition": "Common_Props_Bedroom_BedCombined03.adr",
     "modelId": 9330,
     "renderDistance": 50,
     "instances": [
@@ -9953,7 +9953,7 @@
     ]
   },
   {
-    "actor_file": "Common_Props_MilitaryBase_BunkBed.adr",
+    "actorDefinition": "Common_Props_MilitaryBase_BunkBed.adr",
     "modelId": 9507,
     "renderDistance": 100,
     "instances": [
@@ -10524,7 +10524,7 @@
     ]
   },
   {
-    "actor_file": "Common_Props_Bedroom_BedCombined01.adr",
+    "actorDefinition": "Common_Props_Bedroom_BedCombined01.adr",
     "modelId": 9328,
     "renderDistance": 50,
     "instances": [
@@ -12287,7 +12287,7 @@
     ]
   },
   {
-    "actor_file": "Common_Props_Cabinets_BathroomSink.adr",
+    "actorDefinition": "Common_Props_Cabinets_BathroomSink.adr",
     "modelId": 9032,
     "renderDistance": 50,
     "instances": [
@@ -16680,7 +16680,7 @@
     ]
   },
   {
-    "actor_file": "Common_Props_Bedroom_BedCombined02.adr",
+    "actorDefinition": "Common_Props_Bedroom_BedCombined02.adr",
     "modelId": 9329,
     "renderDistance": 50,
     "instances": [
@@ -17689,7 +17689,7 @@
     ]
   },
   {
-    "actor_file": "Common_Props_SpikeTrap.adr",
+    "actorDefinition": "Common_Props_SpikeTrap.adr",
     "modelId": 56,
     "renderDistance": 75,
     "instances": [
@@ -17718,7 +17718,7 @@
     ]
   },
   {
-    "actor_file": "Common_Props_Dam_WaterValve01.adr",
+    "actorDefinition": "Common_Props_Dam_WaterValve01.adr",
     "modelId": 9394,
     "renderDistance": 400,
     "instances": [
@@ -17783,7 +17783,7 @@
     ]
   },
   {
-    "actor_file": "Common_Props_Well.adr",
+    "actorDefinition": "Common_Props_Well.adr",
     "modelId": 9121,
     "renderDistance": 150,
     "instances": [
@@ -17952,7 +17952,7 @@
     ]
   },
   {
-    "actor_file": "Common_Props_Bedroom_BedFrame01.adr",
+    "actorDefinition": "Common_Props_Bedroom_BedFrame01.adr",
     "modelId": 9336,
     "renderDistance": 50,
     "instances": [
@@ -18811,7 +18811,7 @@
     ]
   },
   {
-    "actor_file": "Task_Hospital_Researcher_Radio.adr",
+    "actorDefinition": "Task_Hospital_Researcher_Radio.adr",
     "modelId": 9604,
     "renderDistance": 100,
     "instances": [
@@ -18842,7 +18842,7 @@
     ]
   },
   {
-    "actor_file": "Task_Nurse_Hospital_Props_Desk01.adr",
+    "actorDefinition": "Task_Nurse_Hospital_Props_Desk01.adr",
     "modelId": 9603,
     "renderDistance": 150,
     "instances": [
@@ -18855,7 +18855,7 @@
     ]
   },
   {
-    "actor_file": "Task_Patient_Records_FileCabinet01.adr",
+    "actorDefinition": "Task_Patient_Records_FileCabinet01.adr",
     "modelId": 9605,
     "renderDistance": 100,
     "instances": [
@@ -18868,7 +18868,7 @@
     ]
   },
   {
-    "actor_file": "Task_Hospital_Researcher_Locker02.adr",
+    "actorDefinition": "Task_Hospital_Researcher_Locker02.adr",
     "modelId": 9615,
     "renderDistance": 70,
     "instances": [
@@ -18881,7 +18881,7 @@
     ]
   },
   {
-    "actor_file": "Task_Hospital_Researcher_Locker03.adr",
+    "actorDefinition": "Task_Hospital_Researcher_Locker03.adr",
     "modelId": 9616,
     "renderDistance": 70,
     "instances": [
@@ -18894,7 +18894,7 @@
     ]
   },
   {
-    "actor_file": "Task_Hospital_Researcher_Locker04.adr",
+    "actorDefinition": "Task_Hospital_Researcher_Locker04.adr",
     "modelId": 9617,
     "renderDistance": 70,
     "instances": [
@@ -18907,7 +18907,7 @@
     ]
   },
   {
-    "actor_file": "Task_Patient_Hospital_Props_Desk01.adr",
+    "actorDefinition": "Task_Patient_Hospital_Props_Desk01.adr",
     "modelId": 9607,
     "renderDistance": 150,
     "instances": [
@@ -18920,7 +18920,7 @@
     ]
   },
   {
-    "actor_file": "Task_Nurse_Hospital_Props_DrugCabinet.adr",
+    "actorDefinition": "Task_Nurse_Hospital_Props_DrugCabinet.adr",
     "modelId": 9614,
     "renderDistance": 70,
     "instances": [
@@ -18933,7 +18933,7 @@
     ]
   },
   {
-    "actor_file": "Task_Hospital_Researcher_TreasureChest.adr",
+    "actorDefinition": "Task_Hospital_Researcher_TreasureChest.adr",
     "modelId": 9611,
     "renderDistance": 100,
     "instances": [
@@ -18964,7 +18964,7 @@
     ]
   },
   {
-    "actor_file": "Task_Hospital_Researcher_Locker.adr",
+    "actorDefinition": "Task_Hospital_Researcher_Locker.adr",
     "modelId": 9612,
     "renderDistance": 70,
     "instances": [
@@ -18977,7 +18977,7 @@
     ]
   },
   {
-    "actor_file": "Task_Patient_Quarantine_FileCabinet01.adr",
+    "actorDefinition": "Task_Patient_Quarantine_FileCabinet01.adr",
     "modelId": 9606,
     "renderDistance": 100,
     "instances": [
@@ -18990,7 +18990,7 @@
     ]
   },
   {
-    "actor_file": "Task_Patient_Safe_FileCabinet01.adr",
+    "actorDefinition": "Task_Patient_Safe_FileCabinet01.adr",
     "modelId": 9608,
     "renderDistance": 100,
     "instances": [
@@ -19003,7 +19003,7 @@
     ]
   },
   {
-    "actor_file": "Task_Orderly_Hospital_Props_Desk01.adr",
+    "actorDefinition": "Task_Orderly_Hospital_Props_Desk01.adr",
     "modelId": 9609,
     "renderDistance": 150,
     "instances": [
@@ -19016,7 +19016,7 @@
     ]
   },
   {
-    "actor_file": "Task_Hospital_Orderly_ToolCabinet01.adr",
+    "actorDefinition": "Task_Hospital_Orderly_ToolCabinet01.adr",
     "modelId": 9610,
     "renderDistance": 100,
     "instances": [
@@ -19029,7 +19029,7 @@
     ]
   },
   {
-    "actor_file": "Task_Orderly_Hospital_PaperDebris.adr",
+    "actorDefinition": "Task_Orderly_Hospital_PaperDebris.adr",
     "modelId": 9613,
     "renderDistance": 100,
     "instances": [
@@ -19042,7 +19042,7 @@
     ]
   },
   {
-    "actor_file": "Common_Props_BarbedWire.adr",
+    "actorDefinition": "Common_Props_BarbedWire.adr",
     "modelId": 28,
     "renderDistance": 30,
     "instances": [
@@ -19465,7 +19465,7 @@
     ]
   },
   {
-    "actor_file": "Common_Props_WorkBench01.adr",
+    "actorDefinition": "Common_Props_WorkBench01.adr",
     "modelId": 9406,
     "renderDistance": 50,
     "instances": [
@@ -19510,7 +19510,7 @@
     ]
   },
   {
-    "actor_file": "Common_Props_BarbedWire_Posts.adr",
+    "actorDefinition": "Common_Props_BarbedWire_Posts.adr",
     "modelId": 43,
     "renderDistance": 50,
     "instances": [
