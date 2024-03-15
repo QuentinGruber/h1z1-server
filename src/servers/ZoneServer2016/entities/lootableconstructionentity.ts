@@ -42,14 +42,27 @@ function getMaxHealth(itemDefinitionId: Items): number {
 }
 
 export class LootableConstructionEntity extends BaseLootableEntity {
+  /** Time (milliseconds) when the LootableConstructionEntity was placed */
   placementTime = Date.now();
+  /** Parent foundation that the LootableConstructionEntity is on top of */
   parentObjectCharacterId: string;
   loadoutId = 5;
+
+  /** Id of the LootableConstructionId - See ServerItemDefinitions.json for more information */
   itemDefinitionId: number;
+
+  /** Range at which the LootableConstructionEntity will receive damage from explosions */
   damageRange: number = 1.5;
+
+  /** Distance (H1Z1 meters) at which the player can interact with the LootableConstructionEntity */
   interactionDistance = 3;
+
+  /** Determines if the LootableConstructionEntity is a SmeltingEntity or CollectingEntity */
   subEntity?: SmeltingEntity | CollectingEntity;
+
+  /** Used by DecayManager, determines if the entity will be damaged the next decay tick */
   isDecayProtected: boolean = false;
+  isProp: boolean = false;
   constructor(
     characterId: string,
     transientId: number,
@@ -60,7 +73,8 @@ export class LootableConstructionEntity extends BaseLootableEntity {
     scale: Float32Array,
     itemDefinitionId: number,
     parentObjectCharacterId: string,
-    subEntityType: string
+    subEntityType: string,
+    isProp = false
   ) {
     super(characterId, transientId, actorModelId, position, rotation, server);
     this.parentObjectCharacterId = parentObjectCharacterId || "";
@@ -68,6 +82,7 @@ export class LootableConstructionEntity extends BaseLootableEntity {
     const itemDefinition = server.getItemDefinition(itemDefinitionId);
     if (itemDefinition) this.nameId = itemDefinition.NAME_ID;
     this.profileId = 999; /// mark as construction
+    this.isProp = isProp;
 
     this.maxHealth = getMaxHealth(this.itemDefinitionId);
     this.health = this.maxHealth;
@@ -267,55 +282,74 @@ export class LootableConstructionEntity extends BaseLootableEntity {
     }
   }
 
-  async OnMeleeHit(server: ZoneServer2016, damageInfo: DamageInfo) {
+  async handleBeeboxSwarm(server: ZoneServer2016, damageInfo: DamageInfo) {
+    const client = server.getClientByCharId(damageInfo.entity);
+    const dictionary = server.getEntityDictionary(this.characterId);
+    if (!client || !dictionary) return;
+
+    server.sendDataToAllWithSpawnedEntity<CharacterPlayWorldCompositeEffect>(
+      dictionary,
+      this.characterId,
+      "Character.PlayWorldCompositeEffect",
+      {
+        characterId: this.characterId,
+        effectId: Effects.PFX_Bee_Swarm_Attack,
+        position: client.character.state.position,
+        effectTime: 5
+      }
+    );
+
+    for (let i = 0; i < 12; i++) {
+      const dmgInfo: DamageInfo = {
+        entity: "",
+        damage: 25
+      };
+      client.character.damage(server, dmgInfo);
+      await scheduler.wait(500);
+    }
+
+    let hudIndicator: HudIndicator | undefined = undefined;
+    hudIndicator = server._hudIndicators[ResourceIndicators.BEES];
+
+    if (!hudIndicator) return;
+
+    if (client.character.hudIndicators[hudIndicator.typeName]) {
+      client.character.hudIndicators[hudIndicator.typeName].expirationTime +=
+        5000;
+    } else {
+      client.character.hudIndicators[hudIndicator.typeName] = {
+        typeName: hudIndicator.typeName,
+        expirationTime: Date.now() + 5000
+      };
+      server.sendHudIndicators(client);
+    }
+  }
+
+  OnMeleeHit(server: ZoneServer2016, damageInfo: DamageInfo) {
+    if (this.isProp) return;
     if (
       this.itemDefinitionId == Items.BEE_BOX &&
       damageInfo.weapon != Items.WEAPON_HAMMER_DEMOLITION
     ) {
-      const client = server.getClientByCharId(damageInfo.entity);
-      const dictionary = server.getEntityDictionary(this.characterId);
-
-      if (!client) return;
-      if (!dictionary) return;
-
-      server.sendDataToAllWithSpawnedEntity<CharacterPlayWorldCompositeEffect>(
-        dictionary,
-        this.characterId,
-        "Character.PlayWorldCompositeEffect",
-        {
-          characterId: this.characterId,
-          effectId: Effects.PFX_Bee_Swarm_Attack,
-          position: client.character.state.position,
-          effectTime: 5
-        }
-      );
-
-      for (let i = 0; i < 3; i++) {
-        const dmgInfo: DamageInfo = {
-          entity: "",
-          damage: 100
-        };
-        client.character.damage(server, dmgInfo);
-        await scheduler.wait(500);
-      }
-
-      let hudIndicator: HudIndicator | undefined = undefined;
-      hudIndicator = server._hudIndicators[ResourceIndicators.BEES];
-
-      if (!hudIndicator) return;
-
-      if (client.character.hudIndicators[hudIndicator.typeName]) {
-        client.character.hudIndicators[hudIndicator.typeName].expirationTime +=
-          5000;
-      } else {
-        client.character.hudIndicators[hudIndicator.typeName] = {
-          typeName: hudIndicator.typeName,
-          expirationTime: Date.now() + 5000
-        };
-        server.sendHudIndicators(client);
-      }
+      this.handleBeeboxSwarm(server, damageInfo);
     }
 
     server.constructionManager.OnMeleeHit(server, damageInfo, this);
+  }
+
+  OnProjectileHit(server: ZoneServer2016, damageInfo: DamageInfo) {
+    if (this.isProp) return;
+    let freePlaceDmgMultiplier = 1;
+
+    const dictionary = server.getEntityDictionary(this.characterId);
+    if (
+      dictionary == server._worldLootableConstruction ||
+      (server._worldSimpleConstruction && !this.parentObjectCharacterId)
+    ) {
+      freePlaceDmgMultiplier = 2;
+    }
+    // 26 308 shots for freeplaced objects, 13 for parented objects
+    const damage = damageInfo.damage * (3 * freePlaceDmgMultiplier);
+    this.damage(server, { ...damageInfo, damage });
   }
 }

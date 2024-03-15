@@ -80,7 +80,8 @@ export class ConstructionManager {
     Items.SHACK_BASIC
   ];
 
-  /* MANAGED BY CONFIGMANAGER */
+  /** MANAGED BY CONFIGMANAGER - See defaultConfig.yaml for more information */
+  allowPOIPlacement!: boolean;
   allowStackedPlacement!: boolean;
   allowOutOfBoundsPlacement!: boolean;
   placementRange!: number;
@@ -362,7 +363,6 @@ export class ConstructionManager {
 
     let useRange = true;
     let isInPoi = false;
-    let isShackInRange = false;
     Z1_POIs.forEach((point: any) => {
       if (point.bounds) {
         useRange = false;
@@ -372,20 +372,13 @@ export class ConstructionManager {
             return;
           }
         });
-        if (point.shackBounds && this.shackItems.includes(itemDefinitionId)) {
-          point.shackBounds.forEach((bound: any) => {
-            if (isInsideSquare([position[0], position[2]], bound)) {
-              isShackInRange = true;
-            }
-          });
-        }
       }
       if (useRange && isPosInRadius(point.range, position, point.position)) {
         isInPoi = true;
       }
     });
     // allow placement in poi if object is parented to a foundation
-    if (isInPoi && !isInsidePermissionedFoundation && !isShackInRange) {
+    if (isInPoi && !isInsidePermissionedFoundation) {
       return true;
     }
     return false;
@@ -737,6 +730,14 @@ export class ConstructionManager {
           position,
           eul2quat(rotation),
           120000
+        );
+      case Items.CANDLE:
+        return this.placeTemporaryEntity(
+          server,
+          modelId,
+          position,
+          eul2quat(rotation),
+          3600000
         );
       case Items.IED:
       case Items.LANDMINE:
@@ -1487,7 +1488,8 @@ export class ConstructionManager {
     position: Float32Array,
     rotation: Float32Array,
     scale: Float32Array,
-    parentObjectCharacterId?: string
+    parentObjectCharacterId?: string,
+    isProp: boolean = false
   ): boolean {
     const characterId = server.generateGuid(),
       transientId = server.getTransientId(characterId);
@@ -1501,7 +1503,8 @@ export class ConstructionManager {
       scale,
       itemDefinitionId,
       parentObjectCharacterId || "",
-      "SmeltingEntity"
+      "SmeltingEntity",
+      isProp
     );
 
     const parent = obj.getParent(server);
@@ -2468,6 +2471,14 @@ export class ConstructionManager {
     entity: ConstructionEntity,
     weaponItem: LoadoutItem
   ) {
+    if (
+      client.character.lastRepairTime &&
+      Date.now() - client.character.lastRepairTime < 1000
+    ) {
+      server.sendChatText(client, "Cooldown on repairing.");
+      return;
+    }
+
     let accumulatedItemDamage = 0;
     server.sendCompositeEffectToAllInRange(
       15,
@@ -2501,6 +2512,7 @@ export class ConstructionManager {
     }
     server.damageItem(client, weaponItem, Math.ceil(accumulatedItemDamage / 4));
     client.character.lastMeleeHitTime = Date.now();
+    client.character.lastRepairTime = Date.now();
   }
 
   private fullyRepairFreeplaceEntities(
@@ -2519,6 +2531,37 @@ export class ConstructionManager {
         }
       }
     );
+  }
+
+  crowbarConstructionEntity(
+    server: ZoneServer2016,
+    client: Client,
+    entity: ConstructionEntity,
+    weaponItem: LoadoutItem
+  ) {
+    switch (entity.itemDefinitionId) {
+      case Items.CAMPFIRE:
+      case Items.DEW_COLLECTOR:
+      case Items.BEE_BOX:
+      case Items.ANIMAL_TRAP:
+        return;
+    }
+    let worldFreeplaceMultiplier = 1;
+    const dictionary = server.getEntityDictionary(entity.characterId);
+
+    if (
+      dictionary == server._worldSimpleConstruction ||
+      (server._worldLootableConstruction && !entity.parentObjectCharacterId)
+    ) {
+      worldFreeplaceMultiplier = 2;
+    }
+
+    // 8 melee hits for entities with parents, 4 for freeplace world entities
+    entity.damage(server, {
+      entity: "",
+      damage: entity.maxHealth / (8 / worldFreeplaceMultiplier)
+    });
+    server.damageItem(client, weaponItem, 50);
   }
 
   fullyRepairFoundation(
@@ -2638,6 +2681,9 @@ export class ConstructionManager {
         return;
       case Items.WEAPON_HAMMER:
         this.hammerConstructionEntity(server, client, construction, weapon);
+        return;
+      case Items.WEAPON_CROWBAR:
+        this.crowbarConstructionEntity(server, client, construction, weapon);
         return;
     }
 

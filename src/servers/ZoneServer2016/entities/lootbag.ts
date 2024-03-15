@@ -15,10 +15,13 @@ import { BaseLootableEntity } from "./baselootableentity";
 import { ZoneServer2016 } from "../zoneserver";
 import { lootableContainerDefaultLoadouts } from "../data/loadouts";
 import { ZoneClient2016 } from "../classes/zoneclient";
-import { StringIds } from "../models/enums";
+import { ModelIds, StringIds } from "../models/enums";
 
 export class Lootbag extends BaseLootableEntity {
+  /** Time (milliseconds) when the lootbag is created */
   creationTime = Date.now();
+
+  /** Returns true if the player can transfer items to the lootbag */
   canAcceptItems = false;
   loadoutId = 5;
   constructor(
@@ -33,9 +36,10 @@ export class Lootbag extends BaseLootableEntity {
     const container = this.getContainer();
     if (container) container.canAcceptItems = false;
     this.flags.noCollide = 1;
-    this.npcRenderDistance = this.actorModelId != 9218 ? 50 : 200;
+    this.npcRenderDistance =
+      this.actorModelId != ModelIds.MILITARY_CRATE ? 50 : 200;
     this.defaultLoadout =
-      this.actorModelId != 9218
+      this.actorModelId != ModelIds.MILITARY_CRATE
         ? lootableContainerDefaultLoadouts.lootbag
         : lootableContainerDefaultLoadouts.military_crate;
     this.equipLoadout(server);
@@ -67,7 +71,7 @@ export class Lootbag extends BaseLootableEntity {
         client,
         server.getItemDefinition(this._containers["31"].itemDefinitionId)
           ?.NAME_ID ?? 0,
-        this.actorModelId != 9218 ? 0 : 10000,
+        this.actorModelId != ModelIds.MILITARY_CRATE ? 0 : 10000,
         0,
         () => {
           super.OnPlayerSelect(server, client);
