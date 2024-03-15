@@ -308,7 +308,7 @@ export class TaskProp extends BaseLightweightCharacter {
       case "Common_Props_Bedroom_BedCombined02.adr":
       case "Common_Props_Bedroom_BedCombined03.adr":
         if (client.character._resources[ResourceIds.ENDURANCE] <= 3501) {
-          server.utilizeHudTimer(client, StringIds.RESTING, 30000, 0, () => {
+          server.utilizeHudTimer(client, StringIds.RESTING, 20000, 0, () => {
             server.sleep(client);
           });
         }
