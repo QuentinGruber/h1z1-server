@@ -1033,7 +1033,9 @@ export class WorldObjectManager {
       if (!container) continue;
       if (!!Object.keys(container.items).length) continue; // skip if container is not empty
       if (!prop.shouldSpawnLoot) continue; // skip medical stations and treasure chests
-      const lootTable = containerLootSpawners[prop.lootSpawner];
+      const lootTable = prop.isBuffedWeaponLocker
+        ? containerLootSpawners["Weapon_Locker_Buffed"]
+        : containerLootSpawners[prop.lootSpawner];
       if (lootTable) {
         for (let x = 0; x < lootTable.maxItems; x++) {
           const item = getRandomItem(lootTable.items);
