@@ -2634,9 +2634,18 @@ export const commands: Array<Command> = [
         }
       }
 
+      for (const characterId in server._lootableProps) {
+        const item = server._lootableProps[characterId];
+        if (item.spawnerId > 0) {
+          const container = item.getContainer();
+          if (container) container.items = {};
+        }
+      }
+
       delete require.cache[require.resolve("../../data/lootspawns")];
       const loottables = require("../../data/lootspawns").lootTables;
       server.worldObjectManager.createLoot(server, loottables);
+      server.worldObjectManager.createContainerLoot(server);
       server.sendChatText(client, `Respawned loot`);
     }
   },
