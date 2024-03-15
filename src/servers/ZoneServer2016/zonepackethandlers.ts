@@ -189,10 +189,7 @@ function getStanceFlags(num: number): StanceFlags {
 //const abilities = require("../../../data/2016/sampleData/abilities.json");
 
 export class ZonePacketHandlers {
-  commandHandler: CommandHandler;
-  constructor() {
-    this.commandHandler = new CommandHandler();
-  }
+  constructor() {}
 
   ClientIsReady(
     server: ZoneServer2016,
@@ -358,7 +355,7 @@ export class ZonePacketHandlers {
           command: "help"
         }
       );
-      Object.values(this.commandHandler.commands).forEach((command) => {
+      Object.values(server.commandHandler.commands).forEach((command) => {
         server.sendData<CommandAddWorldCommand>(
           client,
           "Command.AddWorldCommand",
@@ -414,7 +411,7 @@ export class ZonePacketHandlers {
     client: Client,
     packet: ReceivedPacket<CommandSpawnVehicle>
   ) {
-    this.commandHandler.executeInternalCommand(
+    server.commandHandler.executeInternalCommand(
       server,
       client,
       "vehicle",
@@ -857,14 +854,14 @@ export class ZonePacketHandlers {
     packet: ReceivedPacket<CommandExecuteCommand>
   ) {
     const hash = packet.data.commandHash ?? 0;
-    if (this.commandHandler.commands[hash]) {
-      const command = this.commandHandler.commands[hash];
+    if (server.commandHandler.commands[hash]) {
+      const command = server.commandHandler.commands[hash];
       if (command?.name == "!!h1custom!!") {
         this.handleCustomPacket(server, client, packet.data.arguments ?? "");
         return;
       }
     }
-    this.commandHandler.executeCommand(server, client, packet);
+    server.commandHandler.executeCommand(server, client, packet);
   }
   CommandInteractRequest(
     server: ZoneServer2016,
@@ -1518,7 +1515,7 @@ export class ZonePacketHandlers {
     client: Client,
     packet: ReceivedPacket<CharacterRespawn>
   ) {
-    this.commandHandler.executeInternalCommand(
+    server.commandHandler.executeInternalCommand(
       server,
       client,
       "respawn",
@@ -2991,14 +2988,14 @@ export class ZonePacketHandlers {
     client: Client,
     packet: ReceivedPacket<CommandRunSpeed>
   ) {
-    this.commandHandler.executeInternalCommand(server, client, "run", packet);
+    server.commandHandler.executeInternalCommand(server, client, "run", packet);
   }
   CommandSpectate(
     server: ZoneServer2016,
     client: Client,
     packet: ReceivedPacket<object>
   ) {
-    this.commandHandler.executeInternalCommand(
+    server.commandHandler.executeInternalCommand(
       server,
       client,
       "spectate",
@@ -3437,14 +3434,5 @@ export class ZonePacketHandlers {
         );
         break;
     }
-  }
-
-  async reloadCommandCache() {
-    delete require.cache[require.resolve("./handlers/commands/commandhandler")];
-    const CommandHandler = (
-      require("./handlers/commands/commandhandler") as any
-    ).CommandHandler;
-    this.commandHandler = new CommandHandler();
-    this.commandHandler.reloadCommands();
   }
 }
