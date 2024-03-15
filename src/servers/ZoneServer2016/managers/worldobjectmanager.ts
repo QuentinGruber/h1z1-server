@@ -1047,7 +1047,7 @@ export class WorldObjectManager {
             if (item.item == spawnedItem.itemDefinitionId) allow = false; // dont allow the same item to be added twice
           });
           if (allow) {
-            if (chance <= item.weight) {
+            if (chance <= lootTable.spawnChance) {
               const count = Math.floor(
                 Math.random() *
                   (item.spawnCount.max - item.spawnCount.min + 1) +
