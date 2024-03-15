@@ -25,9 +25,16 @@ import { ZoneServer2016 } from "../zoneserver";
 import { BaseSimpleNpc } from "./basesimplenpc";
 
 export class TrapEntity extends BaseSimpleNpc {
+  /** Damage delay for the TrapEntity */
   trapTimer?: NodeJS.Timeout;
+
+  /** Returns true if a snare has been stepped on */
   isTriggered = false;
+
+  /** Distance (H1Z1 meters) where the TrapEntity will render */
   npcRenderDistance = 75;
+
+  /** Id of the TrapEntity - See ServerItemDefinitions.json for more information */
   itemDefinitionId: number;
   worldOwned: boolean = false;
   readonly cubebounds!: CubeBounds;
@@ -99,7 +106,7 @@ export class TrapEntity extends BaseSimpleNpc {
                 "Character.UpdateSimpleProxyHealth",
                 this.pGetSimpleProxyHealth()
               );
-              this.health -= 1000;
+              if (!this.worldOwned) this.health -= 1000;
             }
           }
 
@@ -211,7 +218,7 @@ export class TrapEntity extends BaseSimpleNpc {
                 "Character.UpdateSimpleProxyHealth",
                 this.pGetSimpleProxyHealth()
               );
-              this.health -= 1000;
+              if (!this.worldOwned) this.health -= 1000;
             }
           }
 
@@ -262,6 +269,7 @@ export class TrapEntity extends BaseSimpleNpc {
   }
 
   damage(server: ZoneServer2016, damageInfo: DamageInfo) {
+    if (this.worldOwned) return;
     this.health -= damageInfo.damage;
     server.sendDataToAllWithSpawnedEntity(
       server._traps,

@@ -127,11 +127,12 @@ export const commands: Array<Command> = [
           _clients: clients,
           _npcs: npcs,
           _spawnedItems: objects,
-          _vehicles: vehicles
+          _vehicles: vehicles,
+          _destroyables: dto
         } = server;
         const serverVersion = require("../../../../../package.json").version;
         server.sendChatText(client, `h1z1-server V${serverVersion}`, true);
-        const uptimeMin = getCurrentServerTimeWrapper().getMinutes();
+        const uptimeMin = process.uptime() / 60;
 
         server.sendChatText(
           client,
@@ -149,6 +150,7 @@ export const commands: Array<Command> = [
           client,
           `items : ${_.size(objects)} | vehicles : ${_.size(vehicles)}`
         );
+        server.sendChatText(client, `dto: ${_.size(dto)}`);
       }
     }
   },
@@ -832,7 +834,6 @@ export const commands: Array<Command> = [
       client.characterReleased = false;
       client.character.lastLoginDate = toHex(Date.now());
       server.dropAllManagedObjects(client);
-
       server.sendData(client, "ClientUpdate.UpdateLocation", {
         position,
         triggerLoadingScreen
@@ -1259,11 +1260,24 @@ export const commands: Array<Command> = [
         server.sendChatText(client, "Client not found.");
         return;
       }
+
+      if (targetClient.isAdmin) {
+        server.sendChatText(
+          client,
+          `${targetClient.character.name} is an admin!`
+        );
+      }
+
       server.sendChatText(
         client,
         `Requesting modules from: ${targetClient.character.name}`
       );
       server.sendData(targetClient, "H1emu.RequestModules", {});
+      server.sendData(
+        targetClient,
+        "UpdateWeatherData",
+        server.weatherManager.weather
+      );
     }
   },
   {
@@ -1296,6 +1310,11 @@ export const commands: Array<Command> = [
         `Requesting windows from: ${targetClient.character.name}`
       );
       server.sendData(targetClient, "H1emu.RequestWindows", {});
+      server.sendData(
+        targetClient,
+        "UpdateWeatherData",
+        server.weatherManager.weather
+      );
     }
   },
   {
