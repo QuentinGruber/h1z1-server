@@ -15,13 +15,19 @@ server:
   isNoBuildInPois: true
   baseConstructionDamage: 34000
 
+# Rcon
+
+rcon:
+  password: ""
+  port: 0
+
 # VoiceChat
 
 voicechat:
-    useVoiceChatV2: true
-    joinVoiceChatOnConnect: true
-    serverId: 0
-    serverAccessToken: ""
+  useVoiceChatV2: true
+  joinVoiceChatOnConnect: true
+  serverId: 0
+  serverAccessToken: ""
 
 # Fairplay / anticheat config
 

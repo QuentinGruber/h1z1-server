@@ -2,6 +2,8 @@ import test, { after } from "node:test";
 import { ZoneServer2016 } from "./zoneserver";
 import { scheduler } from "node:timers/promises";
 
+process.env.FORCE_DISABLE_WS = "true";
+
 const isMongoTests = process.env.MONGO_TESTS === "true";
 test("ZoneServer2016", { timeout: 10000 }, async (t) => {
   const ZoneServer = new ZoneServer2016(0);

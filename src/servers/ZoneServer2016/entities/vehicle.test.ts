@@ -5,6 +5,7 @@ import { DamageInfo } from "types/zoneserver";
 import { getCurrentServerTimeWrapper } from "../../../utils/utils";
 import assert from "node:assert";
 
+process.env.FORCE_DISABLE_WS = "true";
 test("Damage-pve", { timeout: 10000 }, async (t) => {
   const zone = new ZoneServer2016(0);
   zone.isPvE = true;
