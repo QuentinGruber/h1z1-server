@@ -232,6 +232,7 @@ import { IngameTimeManager } from "./managers/gametimemanager";
 import { H1z1ProtocolReadingFormat } from "types/protocols";
 import { GatewayServer } from "../GatewayServer/gatewayserver";
 import { WaterSource } from "./entities/watersource";
+import { CommandHandler } from "./handlers/commands/commandhandler";
 
 const spawnLocations2 = require("../../../data/2016/zoneData/Z1_gridSpawns.json"),
   deprecatedDoors = require("../../../data/2016/sampleData/deprecatedDoors.json"),
@@ -412,6 +413,7 @@ export class ZoneServer2016 extends EventEmitter {
   private _mongoClient?: MongoClient;
   rebootTimeTimer?: NodeJS.Timeout;
   inGameTimeManager: IngameTimeManager = new IngameTimeManager();
+  commandHandler: CommandHandler;
 
   /** MANAGED BY CONFIGMANAGER - See defaultConfig.yaml for more information */
   proximityItemsDistance!: number;
@@ -460,6 +462,7 @@ export class ZoneServer2016 extends EventEmitter {
     this.constructionManager = new ConstructionManager();
     this.fairPlayManager = new FairPlayManager();
     this.pluginManager = new PluginManager();
+    this.commandHandler = new CommandHandler();
     /* CONFIG MANAGER MUST BE INSTANTIATED LAST ! */
     this.configManager = new ConfigManager(this, process.env.CONFIG_PATH);
     this.enableWorldSaves =
@@ -621,6 +624,14 @@ export class ZoneServer2016 extends EventEmitter {
     }
   }
 
+  async reloadCommandCache() {
+    delete require.cache[require.resolve("./handlers/commands/commandhandler")];
+    const CommandHandler = (
+      require("./handlers/commands/commandhandler") as any
+    ).CommandHandler;
+    this.commandHandler = new CommandHandler();
+    this.commandHandler.reloadCommands();
+  }
   async registerLoginConnectionListeners(internalServerPort?: number) {
     this._loginConnectionManager = new LoginConnectionManager(
       this._worldId,
@@ -7813,7 +7824,7 @@ export class ZoneServer2016 extends EventEmitter {
     delete require.cache[require.resolve("./zonepackethandlers")];
     this._packetHandlers =
       new (require("./zonepackethandlers").ZonePacketHandlers)();
-    await this._packetHandlers.reloadCommandCache();
+    await this.reloadCommandCache();
   }
   generateGuid(): string {
     return generateRandomGuid();
