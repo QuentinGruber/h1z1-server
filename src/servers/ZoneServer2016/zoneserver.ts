@@ -46,7 +46,10 @@ import {
   ItemUseOptions,
   HealTypes,
   Effects,
-  WeaponDefinitionIds
+  WeaponDefinitionIds,
+  StringIds,
+  ModelIds,
+  ItemTypes
 } from "./models/enums";
 import { WeatherManager } from "./managers/weathermanager";
 
@@ -62,7 +65,6 @@ import {
   ItemDefinition,
   modelData,
   PropInstance,
-  Recipe,
   ScreenEffect,
   UseOption
 } from "../../types/zoneserver";
@@ -129,7 +131,6 @@ import {
   FetchedWorldData,
   WorldDataManager
 } from "./managers/worlddatamanager";
-import { recipes } from "./data/Recipes";
 import { UseOptions } from "./data/useoptions";
 import {
   CONNECTION_REJECTION_FLAGS,
@@ -255,6 +256,9 @@ const spawnLocations2 = require("../../../data/2016/zoneData/Z1_gridSpawns.json"
   > = require("../../../data/2016/sampleData/equipmentModelTexturesMapping.json");
 
 export class ZoneServer2016 extends EventEmitter {
+  /** Networking layer - allows sending game data to the game client,
+   * lays on top of the H1Z1 protocol (on top of the actual H1Z1 packets)
+   */
   _gatewayServer: GatewayServer;
   readonly _protocol: H1Z1Protocol;
   _db!: Db;
@@ -272,8 +276,10 @@ export class ZoneServer2016 extends EventEmitter {
 
   nextSaveTime: number = Date.now() + this.saveTimeInterval;
 
+  /** Total amount of clients on the server */
   readonly _clients: { [characterId: string]: Client } = {};
 
+  /** Global dictionaries for all entities */
   _characters: EntityDictionary<Character> = {};
   _npcs: EntityDictionary<Npc> = {};
   _spawnedItems: EntityDictionary<ItemObject> = {};
@@ -300,6 +306,8 @@ export class ZoneServer2016 extends EventEmitter {
   _screenEffects: { [screenEffectName: string]: ScreenEffect } = {};
   _clientEffectsData: { [effectId: number]: clientEffect } = {};
   _modelsData: { [modelId: number]: modelData } = {};
+
+  /** Interactible options for items - See (ZonePacketHandlers.ts or datasources/ItemUseOptions) */
   _itemUseOptions: { [optionId: number]: UseOption } = {};
   _decoys: {
     [transientId: number]: {
@@ -310,6 +318,12 @@ export class ZoneServer2016 extends EventEmitter {
     };
   } = {};
 
+  /** Airdrop information - includes:
+   * plane (Plane), cargo (Plane), planeTarget (string),
+   * planeTargetPos (Float32Array), cargoTarget (string), cargoTargetPos(Float32Array),
+   * destination (string), destinationPos (Float32Array), cargoSpawned (boolean),
+   * hospitalCrate (boolean), manager (Client)
+   */
   _airdrop?: {
     plane: Plane;
     cargo?: Plane;
@@ -324,9 +338,12 @@ export class ZoneServer2016 extends EventEmitter {
     hospitalCrate: boolean;
     manager?: Client;
   };
+
   _serverStartTime: TimeWrapper = new TimeWrapper(0);
   _transientIds: { [transientId: number]: string } = {};
   _characterIds: { [characterId: string]: number } = {};
+
+  /** Determines which login server is used, Localhost by default. */
   readonly _loginServerInfo: { address?: string; port: number } = {
     address: process.env.LOGINSERVER_IP,
     port: 1110
@@ -335,7 +352,11 @@ export class ZoneServer2016 extends EventEmitter {
   _allowedCommands: string[] = process.env.ALLOWED_COMMANDS
     ? JSON.parse(process.env.ALLOWED_COMMANDS)
     : [];
+
+  /** Handles all packets for H1Z1 */
   _packetHandlers: ZonePacketHandlers;
+
+  /** Managers used for handling core functionalities */
   worldObjectManager: WorldObjectManager;
   voiceChatManager: VoiceChatManager;
   smeltingManager: SmeltingManager;
@@ -354,6 +375,8 @@ export class ZoneServer2016 extends EventEmitter {
   configManager: ConfigManager;
 
   _ready: boolean = false;
+
+  /** Information from ServerItemDefinitions.json */
   _itemDefinitions: { [itemDefinitionId: number]: ItemDefinition } =
     itemDefinitions;
   _weaponDefinitions: { [weaponDefinitionId: number]: any } =
@@ -370,7 +393,6 @@ export class ZoneServer2016 extends EventEmitter {
   profileDefinitionsCache?: Buffer;
   _containerDefinitions: { [containerDefinitionId: number]: any } =
     containerDefinitions;
-  _recipes: { [recipeId: number]: Recipe } = recipes;
   lastItemGuid: bigint = 0x3000000000000000n;
   private readonly _transientIdGenerator = generateTransientId();
   enableWorldSaves: boolean;
@@ -391,7 +413,7 @@ export class ZoneServer2016 extends EventEmitter {
   rebootTimeTimer?: NodeJS.Timeout;
   inGameTimeManager: IngameTimeManager = new IngameTimeManager();
 
-  /* MANAGED BY CONFIGMANAGER */
+  /** MANAGED BY CONFIGMANAGER - See defaultConfig.yaml for more information */
   proximityItemsDistance!: number;
   interactionDistance!: number;
   charactersRenderDistance!: number;
@@ -443,6 +465,7 @@ export class ZoneServer2016 extends EventEmitter {
     this.enableWorldSaves =
       process.env.ENABLE_SAVES?.toLowerCase() == "false" ? false : true;
 
+    /** Determines what rulesets are used. */
     const serverGameRules = [];
     serverGameRules.push(this.isPvE ? "PvE" : "PvP");
     if (this.isFirstPersonOnly) serverGameRules.push("FirstPersonOnly");
@@ -1179,51 +1202,6 @@ export class ZoneServer2016 extends EventEmitter {
     }
 
     return proximityItems;
-  }
-
-  pGetRecipes(): any[] {
-    // todo: change to per-character recipe lists
-    const recipeKeys = Object.keys(this._recipes);
-
-    const recipes: Array<any> = [];
-    let i = 0;
-    for (const recipe of Object.values(this._recipes)) {
-      const recipeDef = this.getItemDefinition(Number(recipeKeys[i]));
-      i++;
-      if (!recipeDef) continue;
-      recipes.push({
-        recipeId: recipeDef.ID,
-        itemDefinitionId: recipeDef.ID,
-        nameId: recipeDef.NAME_ID,
-        iconId: recipeDef.IMAGE_SET_ID,
-        unknownDword1: 0, // idk
-        descriptionId: recipeDef.DESCRIPTION_ID,
-        unknownDword2: 1, // idk
-        bundleCount: recipe.bundleCount || 1,
-        membersOnly: false, // could be used for admin-only recipes?
-        filterId: recipe.filterId,
-        components: recipe.components
-          .map((component: any) => {
-            const componentDef = this.getItemDefinition(
-              component.itemDefinitionId
-            );
-            if (!componentDef) return true;
-            return {
-              unknownDword1: 0, // idk
-              nameId: componentDef.NAME_ID,
-              iconId: componentDef.IMAGE_SET_ID,
-              unknownDword2: 0, // idk
-              requiredAmount: component.requiredAmount,
-              unknownQword1: "0x0", // idk
-              unknownDword3: 0, // idk
-              itemDefinitionId: componentDef.ID
-            };
-          })
-          .filter((component) => component !== true)
-      });
-    }
-
-    return recipes;
   }
 
   async sendCharacterData(client: Client) {
@@ -2330,6 +2308,23 @@ export class ZoneServer2016 extends EventEmitter {
 
     const sourceEntity = this.getEntity(npcTriggered),
       sourceIsVehicle = sourceEntity instanceof Vehicle2016;
+
+    // explode nearby explosives first
+    for (const explosive in this._explosives) {
+      const explosiveObj = this._explosives[explosive];
+      if (explosiveObj.characterId != npcTriggered) {
+        if (getDistance(position, explosiveObj.state.position) < 2) {
+          await scheduler.wait(100);
+          if (this._spawnedItems[explosiveObj.characterId]) {
+            const object = this._spawnedItems[explosiveObj.characterId];
+            this.deleteEntity(explosiveObj.characterId, this._spawnedItems);
+            delete this.worldObjectManager.spawnedLootObjects[object.spawnerId];
+          }
+          if (!explosiveObj.detonated) explosiveObj.detonate(this, client);
+        }
+      }
+    }
+
     if (!this.isPvE) {
       for (const characterId in this._characters) {
         const character = this._characters[characterId];
@@ -2532,20 +2527,6 @@ export class ZoneServer2016 extends EventEmitter {
             constructionObject.state.position,
             itemDefinitionId
           );
-        }
-      }
-    }
-    for (const explosive in this._explosives) {
-      const explosiveObj = this._explosives[explosive];
-      if (explosiveObj.characterId != npcTriggered) {
-        if (getDistance(position, explosiveObj.state.position) < 2) {
-          await scheduler.wait(100);
-          if (this._spawnedItems[explosiveObj.characterId]) {
-            const object = this._spawnedItems[explosiveObj.characterId];
-            this.deleteEntity(explosiveObj.characterId, this._spawnedItems);
-            delete this.worldObjectManager.spawnedLootObjects[object.spawnerId];
-          }
-          if (!explosiveObj.detonated) explosiveObj.detonate(this, client);
         }
       }
     }
@@ -2874,7 +2855,7 @@ export class ZoneServer2016 extends EventEmitter {
     }
   }
 
-  damageItem(client: Client, item: LoadoutItem, damage: number) {
+  damageItem(client: Client, item: LoadoutItem | BaseItem, damage: number) {
     if (item.itemDefinitionId == Items.WEAPON_FISTS) return;
 
     item.currentDurability -= damage;
@@ -2888,7 +2869,13 @@ export class ZoneServer2016 extends EventEmitter {
       }
       return;
     }
-    this.updateLoadoutItem(client, item);
+    if (item instanceof LoadoutItem) {
+      this.updateLoadoutItem(client, item);
+    } else if (item instanceof BaseItem) {
+      const container = client.character.getItemContainer(item.itemGuid);
+      if (!container) return;
+      this.updateContainerItem(client.character, item, container);
+    }
   }
 
   getClientByCharId(characterId: string) {
@@ -4295,7 +4282,7 @@ export class ZoneServer2016 extends EventEmitter {
       const lightWeight = {
         characterId: this._airdrop.planeTarget,
         transientId: 0,
-        actorModelId: 9770,
+        actorModelId: ModelIds.AIRDROP_PLANE,
         position: this._airdrop.planeTargetPos,
         rotation: new Float32Array([0, 0, 0, 0]),
         scale: new Float32Array([0.001, 0.001, 0.001, 0.001]),
@@ -4331,7 +4318,7 @@ export class ZoneServer2016 extends EventEmitter {
       const lightWeight3 = {
         characterId: this._airdrop.cargoTarget,
         transientId: 0,
-        actorModelId: 9770,
+        actorModelId: ModelIds.AIRDROP_PLANE,
         position: this._airdrop.cargoTargetPos,
         rotation: new Float32Array([0, 0, 0, 0]),
         scale: new Float32Array([0.001, 0.001, 0.001, 0.001]),
@@ -5477,6 +5464,9 @@ export class ZoneServer2016 extends EventEmitter {
       case this.isConvey(itemDefinitionId):
         durability = Math.floor(Math.random() * 5400);
         break;
+      case this.isGeneric(itemDefinitionId):
+        durability = 2000;
+        break;
       default:
         durability = 2000;
         break;
@@ -5530,7 +5520,9 @@ export class ZoneServer2016 extends EventEmitter {
    * @returns {boolean} True if the item is a weapon, false otherwise.
    */
   isWeapon(itemDefinitionId: number): boolean {
-    return this.getItemDefinition(itemDefinitionId)?.ITEM_TYPE == 20;
+    return (
+      this.getItemDefinition(itemDefinitionId)?.ITEM_TYPE == ItemTypes.WEAPON
+    );
   }
 
   /**
@@ -5540,7 +5532,9 @@ export class ZoneServer2016 extends EventEmitter {
    * @returns {boolean} True if the item is a container, false otherwise.
    */
   isContainer(itemDefinitionId: number): boolean {
-    return this.getItemDefinition(itemDefinitionId)?.ITEM_TYPE == 34;
+    return (
+      this.getItemDefinition(itemDefinitionId)?.ITEM_TYPE == ItemTypes.CONTAINER
+    );
   }
 
   /**
@@ -5551,9 +5545,12 @@ export class ZoneServer2016 extends EventEmitter {
    */
   isArmor(itemDefinitionId: number): boolean {
     return (
-      this.getItemDefinition(itemDefinitionId)?.DESCRIPTION_ID == 12073 ||
-      this.getItemDefinition(itemDefinitionId)?.DESCRIPTION_ID == 11151 ||
-      this.getItemDefinition(itemDefinitionId)?.DESCRIPTION_ID == 11153
+      this.getItemDefinition(itemDefinitionId)?.DESCRIPTION_ID ==
+        StringIds.TACTICAL_ARMOR ||
+      this.getItemDefinition(itemDefinitionId)?.DESCRIPTION_ID ==
+        StringIds.WOODEN_ARMOR ||
+      this.getItemDefinition(itemDefinitionId)?.DESCRIPTION_ID ==
+        StringIds.PLATED_ARMOR
     );
   }
 
@@ -5565,13 +5562,18 @@ export class ZoneServer2016 extends EventEmitter {
    */
   isHelmet(itemDefinitionId: number): boolean {
     return (
-      this.getItemDefinition(itemDefinitionId)?.DESCRIPTION_ID == 9945 ||
-      this.getItemDefinition(itemDefinitionId)?.DESCRIPTION_ID == 12994 ||
-      this.getItemDefinition(itemDefinitionId)?.DESCRIPTION_ID == 9114 ||
-      this.getItemDefinition(itemDefinitionId)?.DESCRIPTION_ID == 9945 ||
-      this.getItemDefinition(itemDefinitionId)?.DESCRIPTION_ID == 12898 ||
-      this.getItemDefinition(itemDefinitionId)?.DESCRIPTION_ID == 12858 ||
-      this.getItemDefinition(itemDefinitionId)?.DESCRIPTION_ID == 14171
+      this.getItemDefinition(itemDefinitionId)?.DESCRIPTION_ID ==
+        StringIds.TACTICAL_HELMET ||
+      this.getItemDefinition(itemDefinitionId)?.DESCRIPTION_ID ==
+        StringIds.SLEIGH_HELMET ||
+      this.getItemDefinition(itemDefinitionId)?.DESCRIPTION_ID ==
+        StringIds.GENERAL_HELMET_1 ||
+      this.getItemDefinition(itemDefinitionId)?.DESCRIPTION_ID ==
+        StringIds.CREEPY_MASK ||
+      this.getItemDefinition(itemDefinitionId)?.DESCRIPTION_ID ==
+        StringIds.SCRAY_HALLOWEEN_MASK ||
+      this.getItemDefinition(itemDefinitionId)?.DESCRIPTION_ID ==
+        StringIds.UNCLE_SAM_MASK
     );
   }
 
@@ -5582,7 +5584,20 @@ export class ZoneServer2016 extends EventEmitter {
    * @returns {boolean} True if the item is a convey, false otherwise.
    */
   isConvey(itemDefinitionId: number): boolean {
-    return this.getItemDefinition(itemDefinitionId)?.DESCRIPTION_ID == 11895;
+    return (
+      this.getItemDefinition(itemDefinitionId)?.DESCRIPTION_ID ==
+      StringIds.CONVEYS
+    );
+  }
+
+  /**
+   * Checks if an item with the specified itemDefinitionId is a generic item type.
+   *
+   * @param {number} itemDefinitionId - The itemDefinitionId to check.
+   * @returns {boolean} True if the item is a generic type, false otherwise.
+   */
+  isGeneric(itemDefinitionId: number): boolean {
+    return this.getItemDefinition(itemDefinitionId)?.ITEM_TYPE == 1;
   }
 
   /**
@@ -5835,7 +5850,7 @@ export class ZoneServer2016 extends EventEmitter {
       this.checkShoes(client);
       this.checkNightVision(client);
     }
-    if (this.getItemDefinition(itemDefId)?.ITEM_TYPE === 34) {
+    if (this.getItemDefinition(itemDefId)?.ITEM_TYPE === ItemTypes.CONTAINER) {
       delete character._containers[loadoutSlotId];
       if (client) this.initializeContainerList(client);
     }
@@ -6067,7 +6082,8 @@ export class ZoneServer2016 extends EventEmitter {
     this.sendCompositeEffectToAllWithSpawnedEntity(
       this._spawnedItems,
       object,
-      this.getItemDefinition(item.itemDefinitionId)?.PICKUP_EFFECT ?? 5151
+      this.getItemDefinition(item.itemDefinitionId)?.PICKUP_EFFECT ??
+        Effects.SFX_Item_PickUp_Generic
     );
 
     client.character.lootItem(this, item);
