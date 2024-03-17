@@ -3165,6 +3165,7 @@ export class ZonePacketHandlers {
   ) {
     debug(`VehicleItemDefinitionRequest: ${packet.data.itemDefinitionId}`);
   }
+  FairPlayInternal(server: ZoneServer2016, client: Client, packet: any) {}
   //#endregion
 
   processPacket(
@@ -3401,6 +3402,9 @@ export class ZonePacketHandlers {
         break;
       case "Vehicle.ItemDefinitionRequest":
         this.VehicleItemDefinitionRequest(server, client, packet);
+        break;
+      case "FairPlay.Internal":
+        this.FairPlayInternal(server, client, packet);
         break;
       default:
         debug(packet);

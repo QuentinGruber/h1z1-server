@@ -3435,19 +3435,6 @@ export class ZoneServer2016 extends EventEmitter {
     );
   }
 
-  private heartBeat(client: Client) {
-    this.sendData(client, "H1emu.HeartBeat", {
-      data: "1"
-    });
-    this.sendData(client, "UpdateWeatherData", this.weatherManager.weather);
-    client.heartBeatTimer = setTimeout(() => {
-      this.sendChatTextToAdmins(
-        `[FairPlay] kicking ${client.character.name} for missing heart beat response`
-      );
-      this.kickPlayer(client);
-    }, 8000);
-  }
-
   private removeOutOfDistanceEntities(client: Client) {
     // does not include vehicles
     for (const entity of client.spawnedEntities) {
@@ -7888,7 +7875,7 @@ export class ZoneServer2016 extends EventEmitter {
         this.checkInMapBounds(client);
         this.checkZonePing(client);
         if (client.routineCounter >= 3) {
-          this.heartBeat(client);
+          this.createFairPlayInternalPacket(client);
           this.assignChunkRenderDistance(client);
           this.removeOutOfDistanceEntities(client);
           this.removeOODInteractionData(client);
@@ -8028,6 +8015,16 @@ export class ZoneServer2016 extends EventEmitter {
         unknownDword3: effect.id
       };
     });
+  }
+
+  createFairPlayInternalPacket(client: Client) {
+    // send fake packet for plugin to handle
+    const packet: H1z1ProtocolReadingFormat = {
+      name: "FairPlay.Internal",
+      flag: 0,
+      data: null
+    };
+    this.onZoneDataEvent(client, packet);
   }
 
   initClientEffectsDataSource() {
