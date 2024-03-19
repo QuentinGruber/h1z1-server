@@ -213,7 +213,6 @@ function getContainerAndTime(entity: LootableProp) {
 export class LootableProp extends BaseLootableEntity {
   spawnerId: number;
   npcRenderDistance = 150;
-  positionUpdateType = 0;
   containerId: number = Items.CONTAINER_STORAGE;
 
   /** Determines the loot table to distribute to the LootableProp */

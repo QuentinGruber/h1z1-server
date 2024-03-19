@@ -17,7 +17,12 @@ import { BaseLightweightCharacter } from "./baselightweightcharacter";
 import { ZoneClient2016 } from "../classes/zoneclient";
 import { DamageInfo } from "../../../types/zoneserver";
 import { AddLightweightNpc } from "types/zone2016packets";
-import { Effects, ModelIds, StringIds } from "../models/enums";
+import {
+  Effects,
+  ModelIds,
+  PositionUpdateType,
+  StringIds
+} from "../models/enums";
 
 function getDestroyedModels(actorModel: number): number[] {
   switch (actorModel) {
@@ -121,7 +126,6 @@ export class DoorEntity extends BaseLightweightCharacter {
   closedAngle: number;
   /** Default rotation for the  */
   startRot: Float32Array;
-  positionUpdateType = 1;
   /** Returns true while the door is the process of closing/opening */
   moving = false;
   /** Returns true if the player opens the door */
@@ -143,6 +147,7 @@ export class DoorEntity extends BaseLightweightCharacter {
     spawnerId: number
   ) {
     super(characterId, transientId, actorModelId, position, rotation, server);
+    this.positionUpdateType = PositionUpdateType.MOVABLE;
     this.flags.projectileCollision = 1;
     this.scale = new Float32Array(scale);
     this.spawnerId = spawnerId;
