@@ -13,6 +13,12 @@
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
 
+export enum PositionUpdateType {
+  STATIC = 0,
+  MOVABLE = 1
+  // there are others we can get by looking at the vehicle packets
+}
+
 export enum ItemUseOptions {
   EAT = 1,
   DRINK = 2,

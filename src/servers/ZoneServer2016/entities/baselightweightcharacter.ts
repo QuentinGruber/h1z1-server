@@ -14,7 +14,7 @@
 import { AddLightweightNpc, AddSimpleNpc } from "types/zone2016packets";
 import { ZoneServer2016 } from "../zoneserver";
 import { BaseEntity } from "./baseentity";
-import { ModelIds } from "../models/enums";
+import { ModelIds, PositionUpdateType } from "../models/enums";
 
 function getHeadActor(modelId: number): string {
   switch (modelId) {
@@ -78,9 +78,8 @@ export abstract class BaseLightweightCharacter extends BaseEntity {
   isLightweight = true;
 
   /** Determines if the lightweight is moving with the positionUpdate - Avcio
-   * 0 for normal player movement, 1 for vehicle movement
    */
-  positionUpdateType = 0;
+  positionUpdateType: PositionUpdateType = PositionUpdateType.STATIC;
 
   /** Returns the modelId of the lightweight, zombies or players */
   headActor = getHeadActor(this.actorModelId);
