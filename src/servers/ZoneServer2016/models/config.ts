@@ -33,6 +33,11 @@ interface ServerConfig {
   baseConstructionDamage: number;
 }
 
+interface RconConfig {
+  port: number;
+  password: string;
+}
+
 interface FairplayConfig {
   useFairplay: boolean;
   maxPing: number;
@@ -134,6 +139,7 @@ interface VoiceChatConfig {
 
 export interface Config {
   server: ServerConfig;
+  rcon: RconConfig;
   voicechat: VoiceChatConfig;
   fairplay: FairplayConfig;
   weather: WeatherConfig;

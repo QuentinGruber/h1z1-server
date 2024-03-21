@@ -127,7 +127,8 @@ export const commands: Array<Command> = [
           _clients: clients,
           _npcs: npcs,
           _spawnedItems: objects,
-          _vehicles: vehicles
+          _vehicles: vehicles,
+          _destroyables: dto
         } = server;
         const serverVersion = require("../../../../../package.json").version;
         server.sendChatText(client, `h1z1-server V${serverVersion}`, true);
@@ -149,6 +150,7 @@ export const commands: Array<Command> = [
           client,
           `items : ${_.size(objects)} | vehicles : ${_.size(vehicles)}`
         );
+        server.sendChatText(client, `dto: ${_.size(dto)}`);
       }
     }
   },
@@ -2651,9 +2653,18 @@ export const commands: Array<Command> = [
         }
       }
 
+      for (const characterId in server._lootableProps) {
+        const item = server._lootableProps[characterId];
+        if (item.spawnerId > 0) {
+          const container = item.getContainer();
+          if (container) container.items = {};
+        }
+      }
+
       delete require.cache[require.resolve("../../data/lootspawns")];
       const loottables = require("../../data/lootspawns").lootTables;
       server.worldObjectManager.createLoot(server, loottables);
+      server.worldObjectManager.createContainerLoot(server);
       server.sendChatText(client, `Respawned loot`);
     }
   },

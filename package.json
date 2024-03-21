@@ -1,6 +1,6 @@
 {
   "name": "h1z1-server",
-  "version": "0.34.3-2",
+  "version": "0.34.3-3",
   "description": "Library for emulating h1z1 servers",
   "author": "Quentin Gruber <quentingruber@gmail.com> (http://github.com/quentingruber)",
   "license": "GPL-3.0-only",
@@ -15,13 +15,15 @@
   "dependencies": {
     "@types/js-yaml": "4.0.9",
     "@types/node": "20.11.19",
+    "@types/ws": "8.5.10",
     "debug": "4.3.4",
     "h1emu-core": "1.2.8",
     "h1z1-dataschema": "1.7.1",
     "js-yaml": "4.1.0",
     "mongodb": "6.3.0",
     "threads": "1.7.0",
-    "typescript": "5.3.3"
+    "typescript": "5.3.3",
+    "ws": "8.16.0"
   },
   "directories": {
     "src": "./src"
@@ -79,3 +81,4 @@
   },
   "homepage": "http://h1emu.com/"
 }
+

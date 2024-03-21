@@ -21,7 +21,8 @@ import {
   StringIds,
   Effects,
   VehicleEffects,
-  ModelIds
+  ModelIds,
+  PositionUpdateType
 } from "../models/enums";
 import { ZoneClient2016 } from "../classes/zoneclient";
 import { ZoneServer2016 } from "../zoneserver";
@@ -211,7 +212,6 @@ export class Vehicle2016 extends BaseLootableEntity {
   /** Id of a vehicle - See VehicleIds in enums.ts for more information */
   vehicleId: number;
   destroyedState = 0;
-  positionUpdateType = 1;
   currentDamageEffect: number = 0;
 
   /** The previous position of the vehicle that was last transmitted to the server,
@@ -234,6 +234,7 @@ export class Vehicle2016 extends BaseLootableEntity {
     vehicleId: number
   ) {
     super(characterId, transientId, actorModelId, position, rotation, server);
+    this.positionUpdateType = PositionUpdateType.MOVABLE;
     this._resources = {
       [ResourceIds.CONDITION]: 100000,
       [ResourceIds.FUEL]: 7500
@@ -995,7 +996,7 @@ export class Vehicle2016 extends BaseLootableEntity {
     );
     this.effectTags.push(hotwireEffect);
 
-    server.utilizeHudTimer(client, 0, 5000, 0, () => {
+    server.utilizeHudTimer(client, 0, 7000, 0, () => {
       this.removeHotwireEffect(server);
       this.startEngine(server);
     });
