@@ -3430,8 +3430,8 @@ export class ZonePacketHandlers {
         server.sendChatTextToAdmins(`${client.character.name}: ${data}`);
         break;
       case "09": // client messages
-        const version = "1";
-        if (data == "1") {
+        const version = "2";
+        if (data == "2") {
           clearTimeout(client.heartBeatTimer);
         } else {
           server.kickPlayer(client);
