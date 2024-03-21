@@ -15,6 +15,12 @@ server:
   isNoBuildInPois: true
   baseConstructionDamage: 34000
 
+# Rcon
+
+rcon:
+  password: ""
+  port: 0
+
 # VoiceChat
 
 voicechat:

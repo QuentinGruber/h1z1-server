@@ -649,7 +649,7 @@ export class WorldObjectManager {
       propType.instances.forEach((propInstance: any) => {
         const characterId = generateRandomGuid();
         let obj;
-        switch (propType.actor_file) {
+        switch (propType.actorDefinition) {
           case "Common_Props_SpikeTrap.adr":
             server.constructionManager.placeTrap(
               server,
@@ -675,6 +675,7 @@ export class WorldObjectManager {
           case "Common_Props_Bathroom_Toilet01.adr":
           case "Common_Props_Dam_WaterValve01.adr":
           case "Common_Props_Well.adr":
+          case "Common_Props_FireHydrant.adr":
             obj = new WaterSource(
               characterId,
               server.getTransientId(characterId), // need transient generated for Interaction Replication
@@ -685,7 +686,7 @@ export class WorldObjectManager {
               new Float32Array(propInstance.scale),
               propInstance.id,
               propType.renderDistance,
-              propType.actor_file,
+              propType.actorDefinition,
               this.waterSourceRefillAmount
             );
             break;
@@ -710,7 +711,7 @@ export class WorldObjectManager {
               new Float32Array(propInstance.scale),
               propInstance.id,
               propType.renderDistance,
-              propType.actor_file
+              propType.actorDefinition
             );
         }
         if (obj) server._taskProps[characterId] = obj;
@@ -721,7 +722,7 @@ export class WorldObjectManager {
         const characterId = generateRandomGuid();
         const obj = new Crate(
           characterId,
-          1, // need transient generated for Interaction Replication
+          server.getTransientId(characterId), // need transient generated for Interaction Replication
           getActorModelId(propType.actorDefinition),
           new Float32Array(propInstance.position),
           new Float32Array([
@@ -739,13 +740,11 @@ export class WorldObjectManager {
       });
     });
     Z1_destroyables.forEach((propType: any) => {
-      // disable fences until we find a fix for glitching graphics
-      if (propType.actor_file.toLowerCase().includes("fence")) return;
       propType.instances.forEach((propInstance: any) => {
         const characterId = generateRandomGuid();
         const obj = new Destroyable(
           characterId,
-          1, // need transient generated for Interaction Replication
+          server.getTransientId(characterId), // need transient generated for Interaction Replication
           propInstance.modelId,
           new Float32Array(propInstance.position),
           new Float32Array([
@@ -757,8 +756,7 @@ export class WorldObjectManager {
           server,
           new Float32Array(propInstance.scale),
           propInstance.id,
-          Number(propType.renderDistance),
-          propType.actor_file
+          Number(propType.renderDistance)
         );
         server._destroyables[characterId] = obj;
         server._destroyableDTOlist.push(propInstance.id);

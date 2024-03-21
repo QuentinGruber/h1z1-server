@@ -665,7 +665,7 @@ export class ConstructionChildEntity extends BaseLightweightCharacter {
       client.character._resources[ResourceIds.ENDURANCE] <= 3501 &&
       this.itemDefinitionId == Items.SLEEPING_MAT
     ) {
-      server.utilizeHudTimer(client, StringIds.RESTING, 30000, 0, () => {
+      server.utilizeHudTimer(client, StringIds.RESTING, 20000, 0, () => {
         server.sleep(client);
       });
     }

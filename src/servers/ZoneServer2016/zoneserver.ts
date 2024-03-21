@@ -97,7 +97,8 @@ import {
   getAngle,
   getDistance2d,
   TimeWrapper,
-  getCurrentServerTimeWrapper
+  getCurrentServerTimeWrapper,
+  flhash
 } from "../../utils/utils";
 
 import { Db, MongoClient, WithId } from "mongodb";
@@ -216,7 +217,11 @@ import { TaskProp } from "./entities/taskprop";
 import { ChatManager } from "./managers/chatmanager";
 import { Crate } from "./entities/crate";
 import { ConfigManager } from "./managers/configmanager";
-import { RConManager } from "./managers/rconmanager";
+import {
+  RConManager,
+  RconMessage,
+  RconMessageType
+} from "./managers/rconmanager";
 import { GroupManager } from "./managers/groupmanager";
 import { SpeedTreeManager } from "./managers/speedtreemanager";
 import { ConstructionManager } from "./managers/constructionmanager";
@@ -232,6 +237,8 @@ import { IngameTimeManager } from "./managers/gametimemanager";
 import { H1z1ProtocolReadingFormat } from "types/protocols";
 import { GatewayServer } from "../GatewayServer/gatewayserver";
 import { WaterSource } from "./entities/watersource";
+import { WebSocket } from "ws";
+import { CommandHandler } from "./handlers/commands/commandhandler";
 
 const spawnLocations2 = require("../../../data/2016/zoneData/Z1_gridSpawns.json"),
   deprecatedDoors = require("../../../data/2016/sampleData/deprecatedDoors.json"),
@@ -412,6 +419,7 @@ export class ZoneServer2016 extends EventEmitter {
   private _mongoClient?: MongoClient;
   rebootTimeTimer?: NodeJS.Timeout;
   inGameTimeManager: IngameTimeManager = new IngameTimeManager();
+  commandHandler: CommandHandler;
 
   /** MANAGED BY CONFIGMANAGER - See defaultConfig.yaml for more information */
   proximityItemsDistance!: number;
@@ -460,6 +468,7 @@ export class ZoneServer2016 extends EventEmitter {
     this.constructionManager = new ConstructionManager();
     this.fairPlayManager = new FairPlayManager();
     this.pluginManager = new PluginManager();
+    this.commandHandler = new CommandHandler();
     /* CONFIG MANAGER MUST BE INSTANTIATED LAST ! */
     this.configManager = new ConfigManager(this, process.env.CONFIG_PATH);
     this.enableWorldSaves =
@@ -621,6 +630,14 @@ export class ZoneServer2016 extends EventEmitter {
     }
   }
 
+  async reloadCommandCache() {
+    delete require.cache[require.resolve("./handlers/commands/commandhandler")];
+    const CommandHandler = (
+      require("./handlers/commands/commandhandler") as any
+    ).CommandHandler;
+    this.commandHandler = new CommandHandler();
+    this.commandHandler.reloadCommands();
+  }
   async registerLoginConnectionListeners(internalServerPort?: number) {
     this._loginConnectionManager = new LoginConnectionManager(
       this._worldId,
@@ -799,6 +816,7 @@ export class ZoneServer2016 extends EventEmitter {
       await this._mongoClient.close();
     }
     await this._gatewayServer.stop();
+    await this.rconManager.stop();
   }
 
   async shutdown(timeLeft: number, message: string) {
@@ -1644,6 +1662,32 @@ export class ZoneServer2016 extends EventEmitter {
     console.timeEnd("ZONE: saveWorld");
   }
 
+  executeRconCommand(ws: WebSocket, payload: string) {
+    payload = payload.replaceAll("/", "");
+    const splitMessage = payload.split(" ");
+    const commandName = splitMessage[0];
+    console.log(`[RCON]Execute command "${commandName}"`);
+    const commandHash: number = flhash(commandName.toUpperCase());
+    const args: string = payload.replace(commandName, "").trim();
+    const fakeClient = this.createClient(0, "", "", "", 0);
+    // Admin rights for the Rcon client but we should add that as an option in the config
+    fakeClient.permissionLevel = 2;
+    this.commandHandler.executeCommand(this, fakeClient, {
+      name: "Command.ExecuteCommand",
+      data: { commandHash, arguments: args }
+    });
+    ws.send(`Execute ${payload}`);
+  }
+
+  handleRconMessage(ws: WebSocket, message: RconMessage) {
+    switch (message.type) {
+      case RconMessageType.ExecCommand:
+        if (typeof message.payload === "string") {
+          this.executeRconCommand(ws, message.payload);
+        }
+    }
+  }
+
   async start(): Promise<void> {
     debug("Starting server");
     debug(`Protocol used : ${this._protocol.protocolName}`);
@@ -1674,6 +1718,8 @@ export class ZoneServer2016 extends EventEmitter {
     this.initScreenEffectDataSource();
     this.initClientEffectsDataSource();
     this.initUseOptionsDataSource();
+    this.rconManager.start();
+    this.rconManager.on("message", this.handleRconMessage.bind(this));
     this.hookManager.checkHook("OnServerReady");
   }
 
@@ -3421,7 +3467,7 @@ export class ZoneServer2016 extends EventEmitter {
         this.constructionManager.shouldHideEntity(this, client, entity))
     );
   }
-
+  
   private removeOutOfDistanceEntities(client: Client) {
     // does not include vehicles
     for (const entity of client.spawnedEntities) {
@@ -6574,7 +6620,7 @@ export class ZoneServer2016 extends EventEmitter {
   fillPass(client: Client, character: BaseFullCharacter, item: BaseItem) {
     if (client.character.characterStates.inWater) {
       if (!this.removeInventoryItem(character, item)) return;
-      character.lootContainerItem(this, this.generateItem(1368)); // give dirty water
+      character.lootContainerItem(this, this.generateItem(Items.WATER_DIRTY)); // give dirty water
     } else {
       this.sendAlert(client, "There is no water source nearby");
     }
@@ -7798,7 +7844,7 @@ export class ZoneServer2016 extends EventEmitter {
     delete require.cache[require.resolve("./zonepackethandlers")];
     this._packetHandlers =
       new (require("./zonepackethandlers").ZonePacketHandlers)();
-    await this._packetHandlers.reloadCommandCache();
+    await this.reloadCommandCache();
   }
   generateGuid(): string {
     return generateRandomGuid();

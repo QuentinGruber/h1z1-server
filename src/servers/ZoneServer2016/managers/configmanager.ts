@@ -85,6 +85,7 @@ export class ConfigManager {
     // fill with default values
     const {
       server,
+      rcon,
       fairplay,
       voicechat,
       weather,
@@ -100,6 +101,10 @@ export class ConfigManager {
       server: {
         ...server,
         ...config.server
+      },
+      rcon: {
+        ...rcon,
+        ...config.rcon
       },
       voicechat: {
         ...voicechat,
@@ -172,6 +177,12 @@ export class ConfigManager {
     server.baseConstructionDamage = baseConstructionDamage;
     //#endregion
 
+    //#region Rcon
+    const { port, password } = this.config.rcon;
+    server.rconManager.wssPort = port;
+    server.rconManager.password = password;
+
+    //#endregion
     //#region voicechat
     const { useVoiceChatV2, joinVoiceChatOnConnect, serverAccessToken } =
       this.config.voicechat;

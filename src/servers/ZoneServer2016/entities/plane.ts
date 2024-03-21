@@ -55,7 +55,6 @@ export class Plane extends Vehicle2016 {
   vehicleManager?: string;
   vehicleId: number;
   destroyedState = 0;
-  positionUpdateType = 1;
   constructor(
     characterId: string,
     transientId: number,
