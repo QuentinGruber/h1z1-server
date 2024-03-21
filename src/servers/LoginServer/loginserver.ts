@@ -503,8 +503,14 @@ export class LoginServer extends EventEmitter {
     } else if (client.gameVersion == GAME_VERSIONS.H1Z1_6dec_2016) {
       this._soeServer.sendAppData(client, loginReplyData2016);
     }
-    if (client.gameVersion == GAME_VERSIONS.H1Z1_6dec_2016 && !this._soloMode) {
-      this.sendData(client, "H1emu.HadesQuery", {
+    if (client.gameVersion == GAME_VERSIONS.H1Z1_6dec_2016) {
+      if (!this._soloMode) {
+        this.sendData(client, "H1emu.HadesQuery", {
+          authTicket: "-",
+          gatewayServer: "-"
+        });
+      }
+      this.sendData(client, "FairPlay.Init", {
         authTicket: "-",
         gatewayServer: "-"
       });

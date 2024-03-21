@@ -214,6 +214,7 @@ export class ZonePacketHandlers {
       decalAlias: "#"
     });
     */
+    client.isInVoiceChat = false;
     server.firstRoutine(client);
     server.setGodMode(client, true);
 
@@ -322,8 +323,13 @@ export class ZonePacketHandlers {
           server.voiceChatManager.useVoiceChatV2 &&
           server.voiceChatManager.joinVoiceChatOnConnect
         ) {
-          // disabled for now
+          // disabled for now, client will init manually
           //server.voiceChatManager.handleVoiceChatInit(server, client);
+          server.voiceChatManager.sendVoiceChatState(server, client);
+          client.voiceChatTimer = setInterval(() => {
+            server.voiceChatManager.sendVoiceChatState(server, client);
+          }, 20000);
+          client.isInVoiceChat = true;
         }
         server.sendData(
           client,
@@ -3162,6 +3168,7 @@ export class ZonePacketHandlers {
   ) {
     debug(`VehicleItemDefinitionRequest: ${packet.data.itemDefinitionId}`);
   }
+  FairPlayInternal(server: ZoneServer2016, client: Client, packet: any) {}
   //#endregion
 
   processPacket(
@@ -3399,6 +3406,9 @@ export class ZonePacketHandlers {
       case "Vehicle.ItemDefinitionRequest":
         this.VehicleItemDefinitionRequest(server, client, packet);
         break;
+      case "FairPlay.Internal":
+        this.FairPlayInternal(server, client, packet);
+        break;
       default:
         debug(packet);
         debug("Packet not implemented in packetHandlers");
@@ -3418,8 +3428,8 @@ export class ZonePacketHandlers {
         server.sendChatTextToAdmins(`${client.character.name}: ${data}`);
         break;
       case "09": // client messages
-        const version = "1";
-        if (data == "1") {
+        const version = "2";
+        if (data == "2") {
           clearTimeout(client.heartBeatTimer);
         } else {
           server.kickPlayer(client);

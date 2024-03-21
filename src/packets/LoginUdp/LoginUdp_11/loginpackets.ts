@@ -399,6 +399,13 @@ const packets: PacketStructures = [
         { name: "gatewayServer", type: "string", defaultValue: "" }
       ]
     }
+  ],
+  [
+    "FairPlay.Init",
+    0x24,
+    {
+      fields: [{ name: "__opcode__", type: "uint8", defaultValue: 5 }]
+    }
   ]
 ];
 
