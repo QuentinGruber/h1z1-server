@@ -3467,7 +3467,7 @@ export class ZoneServer2016 extends EventEmitter {
         this.constructionManager.shouldHideEntity(this, client, entity))
     );
   }
-  
+
   private removeOutOfDistanceEntities(client: Client) {
     // does not include vehicles
     for (const entity of client.spawnedEntities) {
