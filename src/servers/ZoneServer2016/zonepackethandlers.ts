@@ -214,6 +214,7 @@ export class ZonePacketHandlers {
       decalAlias: "#"
     });
     */
+    client.isInVoiceChat = false;
     server.firstRoutine(client);
     server.setGodMode(client, true);
 
