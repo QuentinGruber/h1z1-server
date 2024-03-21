@@ -325,8 +325,13 @@ export class ZonePacketHandlers {
           server.voiceChatManager.useVoiceChatV2 &&
           server.voiceChatManager.joinVoiceChatOnConnect
         ) {
-          // disabled for now
+          // disabled for now, client will init manually
           //server.voiceChatManager.handleVoiceChatInit(server, client);
+          server.voiceChatManager.sendVoiceChatState(server, client);
+          client.voiceChatTimer = setInterval(() => {
+            server.voiceChatManager.sendVoiceChatState(server, client);
+          }, 20000);
+          client.isInVoiceChat = true;
         }
         server.sendData(
           client,

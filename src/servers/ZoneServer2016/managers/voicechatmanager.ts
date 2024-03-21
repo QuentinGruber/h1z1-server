@@ -17,7 +17,6 @@ export class VoiceChatManager {
   /* MANAGED BY CONFIGMANAGER */
   useVoiceChatV2!: boolean;
   joinVoiceChatOnConnect!: boolean;
-  serverId!: number;
   serverAccessToken!: string;
 
   sendVoiceChatError(server: ZoneServer2016, client: Client, error: string) {
@@ -31,8 +30,8 @@ export class VoiceChatManager {
     server.sendData(client, "H1emu.VoiceState", {
       message: JSON.stringify({
         name: client.character.name,
-        world: this.serverId,
-        instance // somebody else can implement radio logic using this. It's implemented serverside already
+        world: server._worldId,
+        instance: instance // somebody else can implement radio logic using this. It's implemented serverside already
         // +10 to make it a radio channel, so radio chan 1 is instance: 11, chan 2 instance 12 etc etc
       })
     });

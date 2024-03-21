@@ -18,9 +18,8 @@ server:
 # VoiceChat
 
 voicechat:
-    useVoiceChatV2: true
-    joinVoiceChatOnConnect: true
-    serverId: 0
+    useVoiceChatV2: false
+    joinVoiceChatOnConnect: false
     serverAccessToken: ""
 
 # Fairplay / anticheat config
