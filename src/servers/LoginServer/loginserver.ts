@@ -509,11 +509,11 @@ export class LoginServer extends EventEmitter {
           authTicket: "-",
           gatewayServer: "-"
         });
+        this.sendData(client, "FairPlay.Init", {
+          authTicket: "-",
+          gatewayServer: "-"
+        });
       }
-      this.sendData(client, "FairPlay.Init", {
-        authTicket: "-",
-        gatewayServer: "-"
-      });
     }
   }
 
