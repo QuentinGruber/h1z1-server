@@ -69,5 +69,38 @@ export const h1emuPackets: PacketStructures = [
     {
       fields: [{ name: "message", type: "string", defaultValue: "" }]
     }
+  ],
+  [
+    "H1emu.FairPlay",
+    0x990801,
+    {
+      fields: [
+        { name: "name", type: "string", defaultValue: "" },
+        { name: "data1", type: "string", defaultValue: "" },
+        { name: "data2", type: "string", defaultValue: "" },
+        { name: "data3", type: "string", defaultValue: "" }
+      ]
+    }
+  ],
+  [
+    "H1emu.HeartBeat",
+    0x990802,
+    {
+      fields: [
+        { name: "data", type: "string", defaultValue: 0 },
+        { name: "name", type: "string", defaultValue: "" },
+        { name: "data2", type: "string", defaultValue: "" },
+        { name: "data3", type: "string", defaultValue: "" },
+        { name: "data4", type: "string", defaultValue: "" },
+        { name: "data5", type: "string", defaultValue: "" }
+      ]
+    }
+  ],
+  [
+    "FairPlay.Internal",
+    0xff,
+    {
+      fields: []
+    }
   ]
 ];

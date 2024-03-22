@@ -27,14 +27,28 @@ import {
 import { CharacterPlayWorldCompositeEffect } from "types/zone2016packets";
 
 export class Plant extends ItemObject {
+  /** Current state the crop is in */
   growState: number = 0;
+
+  /** Next time (milliseconds) that the crop will enter the next state */
   nextStateTime: number;
-  readonly growTime = 28800000; // 8h;
+
+  /** Time (milliseconds) it takes for a crop to enter the next state - Default: 8hrs */
+  readonly growTime = 28800000;
+
+  /** CharacterId of the PlantingDiamater the crop is occupying */
   parentObjectCharacterId: string;
+
+  /** Current slot on a PlantingDiameter (4 slots in total) */
   slot: string;
+
+  /** Returns true when a player uses fertilizer near the crop */
   isFertilized: boolean = false;
   isLightweight = false;
+
+  /** Distance (H1Z1 meters) where the crop will render */
   npcRenderDistance = 30;
+
   constructor(
     characterId: string,
     transientId: number,

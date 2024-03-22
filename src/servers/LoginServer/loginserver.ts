@@ -503,11 +503,17 @@ export class LoginServer extends EventEmitter {
     } else if (client.gameVersion == GAME_VERSIONS.H1Z1_6dec_2016) {
       this._soeServer.sendAppData(client, loginReplyData2016);
     }
-    if (client.gameVersion == GAME_VERSIONS.H1Z1_6dec_2016 && !this._soloMode) {
-      this.sendData(client, "H1emu.HadesQuery", {
-        authTicket: "-",
-        gatewayServer: "-"
-      });
+    if (client.gameVersion == GAME_VERSIONS.H1Z1_6dec_2016) {
+      if (!this._soloMode) {
+        this.sendData(client, "H1emu.HadesQuery", {
+          authTicket: "-",
+          gatewayServer: "-"
+        });
+        this.sendData(client, "FairPlay.Init", {
+          authTicket: "-",
+          gatewayServer: "-"
+        });
+      }
     }
   }
 
@@ -531,10 +537,12 @@ export class LoginServer extends EventEmitter {
               status = NAME_VALIDATION_STATUS.PROFANE;
             }
           } else {
+            // So we don't care about the case
+            const characterNameRegex = new RegExp(`^${characterName}$`, "i");
             const duplicateCharacter = await this._db
               .collection(DB_COLLECTIONS.CHARACTERS_LIGHT)
               .findOne({
-                "payload.name": characterName,
+                "payload.name": { $regex: characterNameRegex },
                 serverId: baseResponse.serverId,
                 status: 1
               });

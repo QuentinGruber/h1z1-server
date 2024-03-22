@@ -148,7 +148,7 @@ export class WorldDataManager {
   private _soloMode: boolean = false;
   readonly worldSaveVersion: number = 2;
 
-  /* MANAGED BY CONFIGMANAGER */
+  /** MANAGED BY CONFIGMANAGER - See defaultConfig.yaml for more information */
   /*saveTimeInterval: number = 600000;
 
   nextSaveTime: number = Date.now() + this.saveTimeInterval;*/

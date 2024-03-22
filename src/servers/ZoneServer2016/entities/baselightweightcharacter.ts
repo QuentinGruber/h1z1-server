@@ -14,16 +14,17 @@
 import { AddLightweightNpc, AddSimpleNpc } from "types/zone2016packets";
 import { ZoneServer2016 } from "../zoneserver";
 import { BaseEntity } from "./baseentity";
+import { ModelIds, PositionUpdateType } from "../models/enums";
 
 function getHeadActor(modelId: number): string {
   switch (modelId) {
-    case 9240:
+    case ModelIds.SURVIVOR_MALE_HEAD_01:
       return "SurvivorMale_Head_01.adr";
-    case 9474:
+    case ModelIds.SURVIVAL_FEMALE_HEAD_01:
       return "SurvivorFemale_Head_01.adr";
-    case 9510:
+    case ModelIds.ZOMBIE_FEMALE_HEAD:
       return `ZombieFemale_Head_0${Math.floor(Math.random() * 2) + 1}.adr`;
-    case 9634:
+    case ModelIds.ZOMBIE_MALE_HEAD:
       return `ZombieMale_Head_0${Math.floor(Math.random() * 3) + 1}.adr`;
     default:
       return "";
@@ -31,12 +32,21 @@ function getHeadActor(modelId: number): string {
 }
 
 export abstract class BaseLightweightCharacter extends BaseEntity {
+  /** State of the BaseLightweightCharacter, includes: state (Float32Array),
+   * rotation(Float32Array), lookAt(Float32Array), and yaw (number) */
   state: {
     position: Float32Array;
     rotation: Float32Array;
     lookAt: Float32Array;
     yaw: number;
   };
+
+  /** Adjustable flags for the lightweight, useful flags:
+   * nonAttackable - disables melee flinch
+   * noCollide - determines if NpcCollision packet gets sent on player collide
+   * bit13 - causes a crash if 1 with noCollide 1
+   * knockedOut - currently used for determining if a character is dead
+   */
   flags = {
     bit0: 0,
     bit1: 0,
@@ -46,31 +56,49 @@ export abstract class BaseLightweightCharacter extends BaseEntity {
     bit5: 0,
     bit6: 0,
     bit7: 0,
-    nonAttackable: 0, // disables melee flinch
+    nonAttackable: 0,
     bit9: 0,
     bit10: 0,
     bit11: 0,
     projectileCollision: 0,
-    bit13: 0, // causes a crash if 1 with noCollide 1
+    bit13: 0,
     bit14: 0,
     bit15: 0,
     bit16: 0,
     bit17: 0,
     bit18: 0,
     bit19: 0,
-    noCollide: 0, // determines if NpcCollision packet gets sent on player collide
+    noCollide: 0,
     knockedOut: 0,
     bit22: 0,
     bit23: 0
   };
+
+  /** Returns true if the character is a lightweight */
   isLightweight = true;
-  positionUpdateType = 0;
+
+  /** Determines if the lightweight is moving with the positionUpdate - Avcio
+   */
+  positionUpdateType: PositionUpdateType = PositionUpdateType.STATIC;
+
+  /** Returns the modelId of the lightweight, zombies or players */
   headActor = getHeadActor(this.actorModelId);
+
+  /** Used for constructions */
   profileId: number = 0;
+
+  /** Id of the lightweight, used in determining the proper name for HUDTimer and InteractionString */
   nameId: number = 0;
+
+  /** Health of the lightweight  */
   health: number = 1000000;
+
+  /** Maximum health of the lightweight */
   maxHealth: number = 1000000;
+
+  /** Determines if the lightweight should be used as a SimpleNpc (non-moving) */
   useSimpleStruct: boolean = false;
+
   constructor(
     characterId: string,
     transientId: number,

@@ -33,6 +33,11 @@ interface ServerConfig {
   baseConstructionDamage: number;
 }
 
+interface RconConfig {
+  port: number;
+  password: string;
+}
+
 interface FairplayConfig {
   useFairplay: boolean;
   maxPing: number;
@@ -125,8 +130,17 @@ interface SmeltingConfig {
   smeltTime: number;
 }
 
+interface VoiceChatConfig {
+  useVoiceChatV2: boolean;
+  joinVoiceChatOnConnect: boolean;
+  serverId: number;
+  serverAccessToken: string;
+}
+
 export interface Config {
   server: ServerConfig;
+  rcon: RconConfig;
+  voicechat: VoiceChatConfig;
   fairplay: FairplayConfig;
   weather: WeatherConfig;
   gametime: GameTimeConfig;

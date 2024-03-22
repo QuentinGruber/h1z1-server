@@ -189,10 +189,7 @@ function getStanceFlags(num: number): StanceFlags {
 //const abilities = require("../../../data/2016/sampleData/abilities.json");
 
 export class ZonePacketHandlers {
-  commandHandler: CommandHandler;
-  constructor() {
-    this.commandHandler = new CommandHandler();
-  }
+  constructor() {}
 
   ClientIsReady(
     server: ZoneServer2016,
@@ -217,7 +214,7 @@ export class ZonePacketHandlers {
       decalAlias: "#"
     });
     */
-
+    client.isInVoiceChat = false;
     server.firstRoutine(client);
     server.setGodMode(client, true);
 
@@ -260,9 +257,6 @@ export class ZonePacketHandlers {
     if (server.profileDefinitionsCache) {
       server.sendRawDataReliable(client, server.profileDefinitionsCache);
     }
-
-    // Do not send too early
-    server.fairPlayManager.handleAssetValidationInit(server, client);
 
     // for melees / emotes / vehicle boost / etc (needs more work)
     /*
@@ -319,11 +313,29 @@ export class ZonePacketHandlers {
     server.tempGodMode(client, 15000);
     client.currentPOI = 0; // clears currentPOI for POIManager
     server.sendGameTimeSync(client);
+    server.sendData(client, "UpdateWeatherData", server.weatherManager.weather);
     server.constructionManager.sendConstructionData(server, client);
     if (client.firstLoading) {
       client.character.lastLoginDate = toHex(Date.now());
       server.setGodMode(client, false);
       setTimeout(() => {
+        if (
+          server.voiceChatManager.useVoiceChatV2 &&
+          server.voiceChatManager.joinVoiceChatOnConnect
+        ) {
+          // disabled for now, client will init manually
+          //server.voiceChatManager.handleVoiceChatInit(server, client);
+          server.voiceChatManager.sendVoiceChatState(server, client);
+          client.voiceChatTimer = setInterval(() => {
+            server.voiceChatManager.sendVoiceChatState(server, client);
+          }, 20000);
+          client.isInVoiceChat = true;
+        }
+        server.sendData(
+          client,
+          "UpdateWeatherData",
+          server.weatherManager.weather
+        );
         if (server.welcomeMessage)
           server.sendAlert(client, server.welcomeMessage);
         server.sendChatText(
@@ -349,7 +361,7 @@ export class ZonePacketHandlers {
           command: "help"
         }
       );
-      Object.values(this.commandHandler.commands).forEach((command) => {
+      Object.values(server.commandHandler.commands).forEach((command) => {
         server.sendData<CommandAddWorldCommand>(
           client,
           "Command.AddWorldCommand",
@@ -405,7 +417,7 @@ export class ZonePacketHandlers {
     client: Client,
     packet: ReceivedPacket<CommandSpawnVehicle>
   ) {
-    this.commandHandler.executeInternalCommand(
+    server.commandHandler.executeInternalCommand(
       server,
       client,
       "vehicle",
@@ -848,14 +860,14 @@ export class ZonePacketHandlers {
     packet: ReceivedPacket<CommandExecuteCommand>
   ) {
     const hash = packet.data.commandHash ?? 0;
-    if (this.commandHandler.commands[hash]) {
-      const command = this.commandHandler.commands[hash];
+    if (server.commandHandler.commands[hash]) {
+      const command = server.commandHandler.commands[hash];
       if (command?.name == "!!h1custom!!") {
         this.handleCustomPacket(server, client, packet.data.arguments ?? "");
         return;
       }
     }
-    this.commandHandler.executeCommand(server, client, packet);
+    server.commandHandler.executeCommand(server, client, packet);
   }
   CommandInteractRequest(
     server: ZoneServer2016,
@@ -1509,7 +1521,7 @@ export class ZonePacketHandlers {
     client: Client,
     packet: ReceivedPacket<CharacterRespawn>
   ) {
-    this.commandHandler.executeInternalCommand(
+    server.commandHandler.executeInternalCommand(
       server,
       client,
       "respawn",
@@ -2982,14 +2994,14 @@ export class ZonePacketHandlers {
     client: Client,
     packet: ReceivedPacket<CommandRunSpeed>
   ) {
-    this.commandHandler.executeInternalCommand(server, client, "run", packet);
+    server.commandHandler.executeInternalCommand(server, client, "run", packet);
   }
   CommandSpectate(
     server: ZoneServer2016,
     client: Client,
     packet: ReceivedPacket<object>
   ) {
-    this.commandHandler.executeInternalCommand(
+    server.commandHandler.executeInternalCommand(
       server,
       client,
       "spectate",
@@ -3156,6 +3168,7 @@ export class ZonePacketHandlers {
   ) {
     debug(`VehicleItemDefinitionRequest: ${packet.data.itemDefinitionId}`);
   }
+  FairPlayInternal(server: ZoneServer2016, client: Client, packet: any) {}
   //#endregion
 
   processPacket(
@@ -3393,6 +3406,9 @@ export class ZonePacketHandlers {
       case "Vehicle.ItemDefinitionRequest":
         this.VehicleItemDefinitionRequest(server, client, packet);
         break;
+      case "FairPlay.Internal":
+        this.FairPlayInternal(server, client, packet);
+        break;
       default:
         debug(packet);
         debug("Packet not implemented in packetHandlers");
@@ -3411,20 +3427,22 @@ export class ZonePacketHandlers {
       case "02": // client messages
         server.sendChatTextToAdmins(`${client.character.name}: ${data}`);
         break;
+      case "09": // client messages
+        const version = "2";
+        if (data == "2") {
+          clearTimeout(client.heartBeatTimer);
+        } else {
+          server.kickPlayer(client);
+          server.sendChatTextToAdmins(
+            `[FairPlay] kicking ${client.character.name} for wrong data version: ${data} | required: ${version}`
+          );
+        }
+        break;
       default:
         console.log(
           `Unknown custom packet opcode: ${opcode} from ${client.loginSessionId}`
         );
         break;
     }
-  }
-
-  async reloadCommandCache() {
-    delete require.cache[require.resolve("./handlers/commands/commandhandler")];
-    const CommandHandler = (
-      require("./handlers/commands/commandhandler") as any
-    ).CommandHandler;
-    this.commandHandler = new CommandHandler();
-    this.commandHandler.reloadCommands();
   }
 }

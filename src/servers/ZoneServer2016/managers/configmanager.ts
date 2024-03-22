@@ -85,7 +85,9 @@ export class ConfigManager {
     // fill with default values
     const {
       server,
+      rcon,
       fairplay,
+      voicechat,
       weather,
       worldobjects,
       speedtree,
@@ -99,6 +101,14 @@ export class ConfigManager {
       server: {
         ...server,
         ...config.server
+      },
+      rcon: {
+        ...rcon,
+        ...config.rcon
+      },
+      voicechat: {
+        ...voicechat,
+        ...config.voicechat
       },
       fairplay: {
         ...fairplay,
@@ -165,6 +175,20 @@ export class ConfigManager {
     server.isFirstPersonOnly = isFirstPersonOnly;
     server.isNoBuildInPois = isNoBuildInPois;
     server.baseConstructionDamage = baseConstructionDamage;
+    //#endregion
+
+    //#region Rcon
+    const { port, password } = this.config.rcon;
+    server.rconManager.wssPort = port;
+    server.rconManager.password = password;
+
+    //#endregion
+    //#region voicechat
+    const { useVoiceChatV2, joinVoiceChatOnConnect, serverAccessToken } =
+      this.config.voicechat;
+    server.voiceChatManager.useVoiceChatV2 = useVoiceChatV2;
+    server.voiceChatManager.joinVoiceChatOnConnect = joinVoiceChatOnConnect;
+    server.voiceChatManager.serverAccessToken = serverAccessToken;
     //#endregion
 
     //#region fairplay

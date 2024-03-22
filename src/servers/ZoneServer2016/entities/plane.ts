@@ -15,7 +15,7 @@ import {
   createPositionUpdate,
   getCurrentServerTimeWrapper
 } from "../../../utils/utils";
-import { VehicleIds } from "../models/enums";
+import { ModelIds, VehicleIds } from "../models/enums";
 import { ZoneServer2016 } from "../zoneserver";
 import { Vehicle2016 } from "../entities/vehicle";
 import { ZoneClient2016 } from "../classes/zoneclient";
@@ -23,17 +23,18 @@ import { ZoneClient2016 } from "../classes/zoneclient";
 function getActorModelId(vehicleId: number) {
   switch (vehicleId) {
     case VehicleIds.OFFROADER:
-      return 9215;
+      return ModelIds.OFFROADER;
     case VehicleIds.PICKUP:
-      return 9384;
+      return ModelIds.PICKUP_TRUCK;
     case VehicleIds.POLICECAR:
-      return 9219;
+      return ModelIds.POLICE_CAR;
     default:
       return 0;
   }
 }
 
 export class Plane extends Vehicle2016 {
+  /** See Vehicle2016 */
   isManaged: boolean = false;
   manager?: any;
   destroyedEffect: number = 0;
@@ -54,7 +55,6 @@ export class Plane extends Vehicle2016 {
   vehicleManager?: string;
   vehicleId: number;
   destroyedState = 0;
-  positionUpdateType = 1;
   constructor(
     characterId: string,
     transientId: number,
