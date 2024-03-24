@@ -34,7 +34,7 @@ import { scheduler } from "timers/promises";
 import { CharacterPlayWorldCompositeEffect } from "types/zone2016packets";
 
 export class SmeltingManager {
-  /** Array of all SmeltingEntities,
+  /** HashMap of all SmeltingEntities,
    * uses CharacterId (string) for indexing
    */
   _smeltingEntities: { [characterId: string]: string } = {};
@@ -45,7 +45,7 @@ export class SmeltingManager {
   _collectingEntities: { [characterId: string]: string } = {};
 
   /** The time (milliseconds) it takes for a CollectingEntity to fill water/honey - 5 min x 4 ticks = 20 mins */
-  collectingTickTime: number = 300000;
+  collectingTickTime: number = 3000//300000;
 
   /** The time (milliseconds) at which the most recent qualified item was "burned" */
   lastBurnTime: number = 0;
@@ -285,15 +285,17 @@ export class SmeltingManager {
     for (const a in container.items) {
       const item = container.items[a];
       // check if the current item is an empty water bottle and that the container is either empty
-      // or currently not containing honeycomb, in that case then to exit the scope of the for loop
-      if (
-        item.itemDefinitionId == Items.WATER_EMPTY &&
-        (Object.keys(container.items).length == 1 ||
-          !Object.values(container.items).some(
-            (item) => item.itemDefinitionId == Items.HONEYCOMB
-          ))
-      )
-        continue;
+      // or currently not containing honeycomb, in that case then exit the scope of the for loop
+      if (entity.itemDefinitionId == Items.BEE_BOX) {
+        if (
+          item.itemDefinitionId == Items.WATER_EMPTY &&
+          (Object.keys(container.items).length == 1 ||
+            !Object.values(container.items).some(
+              (item) => item.itemDefinitionId == Items.HONEYCOMB
+            ))
+        )
+          continue;
+      }
       if (item.itemDefinitionId != Items.WATER_EMPTY) continue;
       if (subEntity.currentTicks >= subEntity.requiredTicks) {
         subEntity.currentTicks = 0;
