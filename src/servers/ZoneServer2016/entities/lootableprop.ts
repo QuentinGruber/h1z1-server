@@ -95,7 +95,6 @@ function getContainerAndTime(entity: LootableProp) {
     case ModelIds.BLUE_TOOL_CABINET:
     case ModelIds.RED_SILVER_TOOL_CABINET:
     case ModelIds.TOOL_CABINET_01:
-    case ModelIds.TOOL_CABINET_02:
       entity.containerId = Items.CONTAINER_TOOL_CABINETS;
       entity.searchTime = 500;
       entity.lootSpawner = "Tool Cabinet";
