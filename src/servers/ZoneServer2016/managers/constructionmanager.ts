@@ -2539,13 +2539,31 @@ export class ConstructionManager {
     entity: ConstructionEntity,
     weaponItem: LoadoutItem
   ) {
-    switch (entity.itemDefinitionId) {
-      case Items.CAMPFIRE:
-      case Items.DEW_COLLECTOR:
-      case Items.BEE_BOX:
-      case Items.ANIMAL_TRAP:
-        return;
+    const disallowedItems = [
+      Items.CAMPFIRE,
+      Items.BEE_BOX,
+      Items.DEW_COLLECTOR,
+      Items.ANIMAL_TRAP
+    ];
+
+    const permission = entity.getHasPermission(
+      server,
+      client.character.characterId,
+      ConstructionPermissionIds.DEMOLISH
+    );
+
+    // check if the entity is a lootableconstruction type, isn't contained in disallowedItems ^
+    // and if the server is pve, only players with demolish permissions to break items with
+    // the crowbar - TODO: add a check for meleeing world entities on pve - niko
+    if (
+      !(entity instanceof LootableConstructionEntity) ||
+      disallowedItems.includes(entity.itemDefinitionId) ||
+      (server.isPvE && !permission)
+    ) {
+      return;
     }
+    if (!permission && entity.parentObjectCharacterId) return;
+
     let worldFreeplaceMultiplier = 1;
     const dictionary = server.getEntityDictionary(entity.characterId);
 
