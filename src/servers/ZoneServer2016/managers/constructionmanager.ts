@@ -2548,17 +2548,19 @@ export class ConstructionManager {
     ];
 
     const permission = entity.getHasPermission(
-      server, 
-      client.character.characterId, 
+      server,
+      client.character.characterId,
       ConstructionPermissionIds.DEMOLISH
     );
 
     // check if the entity is a lootableconstruction type, isn't contained in disallowedItems ^
     // and if the server is pve, allow only players with demolish permissions to break items with
     // the crowbar - TODO: add a check for meleeing world entities on pve - niko
-    if (!(entity instanceof LootableConstructionEntity) || 
-    disallowedItems.includes(entity.itemDefinitionId) ||
-    (server.isPvE && !permission)) {
+    if (
+      !(entity instanceof LootableConstructionEntity) ||
+      disallowedItems.includes(entity.itemDefinitionId) ||
+      (server.isPvE && !permission)
+    ) {
       return;
     }
 
