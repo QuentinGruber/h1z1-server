@@ -37,7 +37,7 @@ export function getActorModelId(actorModel: string): number {
 }
 
 function isBuffedCrate(position: Float32Array): boolean {
-  const buffedPostions: [number, number, number, number][] = [
+  const buffedPositions: [number, number, number, number][] = [
     [1814.5, 48.88, 224.07, 1],
     [2043.44, 46.28, 423.75, 1],
     [2216.36, 49.72, 772.95, 1],
@@ -47,7 +47,7 @@ function isBuffedCrate(position: Float32Array): boolean {
     [2601.42, 32.0, 2046.66, 1],
     [-2813.46, 47.66, 2735.36, 1],
     [-2399.8, 16.19, 1871.99, 1],
-    [-3005.66, 52.51, -2055.08, 1],
+    [-3038.7, 44.69, -2030.24, 1],
     [418.6, 21.66, -723.23, 1],
     [-1514.96, 354.0, -832.32, 1],
     [-1781.56, 75.91, 1717.67, 1],
@@ -55,12 +55,13 @@ function isBuffedCrate(position: Float32Array): boolean {
     [-65.6, 53.75, 847.88, 1],
     [-66.63, 56.4, 775.5, 1],
     [101.67, 34.26, 254.99, 1],
-    [1604.81, 47.82, -592.11, 1],
+    [1585.43, 38.81, -595.97, 1],
     [1587.97, 57.38, -222.97, 1],
-    [-2063.19, 62.97, 2722.55, 1]
+    [-2063.19, 62.97, 2722.55, 1],
+    [-2921.34, 48.56, -676.97, 1]
   ];
   let result = false;
-  for (const a of buffedPostions) {
+  for (const a of buffedPositions) {
     if (isPosInRadius(40, position, new Float32Array(a))) result = true;
   }
   return result;
@@ -207,7 +208,7 @@ export class Crate extends BaseSimpleNpc {
   }
 
   OnMeleeHit(server: ZoneServer2016, damageInfo: DamageInfo) {
-    const damage = damageInfo.damage * 2;
+    const damage = damageInfo.damage * 5;
     this.damage(server, { ...damageInfo, damage });
   }
 
