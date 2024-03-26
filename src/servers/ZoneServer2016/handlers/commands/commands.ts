@@ -1913,7 +1913,7 @@ export const commands: Array<Command> = [
           similar = itemDefinitions[a].NAME.toUpperCase().replaceAll(" ", "_");
       }
       if (!itemDefId) itemDefId = Number(args[0]);
-      const item = server.generateItem(itemDefId, count);
+      const item = server.generateItem(itemDefId, count, true);
       if (!item) {
         server.sendChatText(
           client,
