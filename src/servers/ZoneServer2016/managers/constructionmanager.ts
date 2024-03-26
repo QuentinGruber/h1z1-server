@@ -65,7 +65,6 @@ import {
   ConstructionUnknown,
   PlayerUpdatePosition
 } from "types/zone2016packets";
-import { SmeltingEntity } from "../classes/smeltingentity";
 
 export class ConstructionManager {
   overridePlacementItems: Array<number> = [
