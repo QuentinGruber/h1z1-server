@@ -2562,6 +2562,7 @@ export class ConstructionManager {
     ) {
       return;
     }
+    if (!permission) return;
 
     let worldFreeplaceMultiplier = 1;
     const dictionary = server.getEntityDictionary(entity.characterId);
