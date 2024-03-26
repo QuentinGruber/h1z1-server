@@ -2533,6 +2533,55 @@ export class ConstructionManager {
     );
   }
 
+  crowbarConstructionEntity(
+    server: ZoneServer2016,
+    client: Client,
+    entity: ConstructionEntity,
+    weaponItem: LoadoutItem
+  ) {
+    const disallowedItems = [
+      Items.CAMPFIRE,
+      Items.BEE_BOX,
+      Items.DEW_COLLECTOR,
+      Items.ANIMAL_TRAP
+    ];
+
+    const permission = entity.getHasPermission(
+      server,
+      client.character.characterId,
+      ConstructionPermissionIds.DEMOLISH
+    );
+
+    // check if the entity is a lootableconstruction type, isn't contained in disallowedItems ^
+    // and if the server is pve, only players with demolish permissions to break items with
+    // the crowbar - TODO: add a check for meleeing world entities on pve - niko
+    if (
+      !(entity instanceof LootableConstructionEntity) ||
+      disallowedItems.includes(entity.itemDefinitionId) ||
+      (server.isPvE && !permission)
+    ) {
+      return;
+    }
+    if (!permission && entity.parentObjectCharacterId) return;
+
+    let worldFreeplaceMultiplier = 1;
+    const dictionary = server.getEntityDictionary(entity.characterId);
+
+    if (
+      dictionary == server._worldSimpleConstruction ||
+      (server._worldLootableConstruction && !entity.parentObjectCharacterId)
+    ) {
+      worldFreeplaceMultiplier = 2;
+    }
+
+    // 8 melee hits for entities with parents, 4 for freeplace world entities
+    entity.damage(server, {
+      entity: "",
+      damage: entity.maxHealth / (8 / worldFreeplaceMultiplier)
+    });
+    server.damageItem(client, weaponItem, 50);
+  }
+
   fullyRepairFoundation(
     server: ZoneServer2016,
     entity: ConstructionParentEntity
@@ -2650,6 +2699,9 @@ export class ConstructionManager {
         return;
       case Items.WEAPON_HAMMER:
         this.hammerConstructionEntity(server, client, construction, weapon);
+        return;
+      case Items.WEAPON_CROWBAR:
+        this.crowbarConstructionEntity(server, client, construction, weapon);
         return;
     }
 
