@@ -29,7 +29,17 @@ export const recipePackets: PacketStructures = [
       ]
     }
   ],
-  ["Recipe.ComponentUpdate", 0x2602, {}],
+  [
+    "Recipe.ComponentUpdate",
+    0x2602,
+    {
+      fields: [
+        { name: "unknownDword1", type: "uint32", defaultValue: 0 },
+        { name: "unknownDword2", type: "uint32", defaultValue: 0 },
+        { name: "unknownQword1", type: "uint64string", defaultValue: "0" }
+      ]
+    }
+  ],
   [
     "Recipe.Remove",
     0x2603,
@@ -88,14 +98,38 @@ export const recipePackets: PacketStructures = [
           name: "unkArray1",
           type: "array",
           defaultValue: [{}],
-          fields: []
+          fields: [
+            { name: "unknownQword1", type: "uint64string", defaultValue: "0" },
+            {
+              name: "unkArray1",
+              type: "array",
+              defaultValue: [{}],
+              fields: [
+                { name: "unknownDword1", type: "uint32", defaultValue: 0 },
+                { name: "unknownDword2", type: "uint32", defaultValue: 0 }
+              ]
+            }
+          ]
         },
         {
           name: "unkArray2",
           type: "array",
           defaultValue: [{}],
-          fields: []
+          fields: [
+            { name: "unknownQword1", type: "uint64string", defaultValue: "0" },
+            { name: "unknownDword1", type: "uint32", defaultValue: 0 }
+          ]
         }
+      ]
+    }
+  ],
+  [
+    "Recipe.Unk8",
+    0x2608,
+    {
+      fields: [
+        { name: "unknownQword1", type: "uint64string", defaultValue: "0" },
+        { name: "unknownDword1", type: "uint32", defaultValue: 0 }
       ]
     }
   ],
