@@ -1735,24 +1735,28 @@ export class ZoneServer2016 extends EventEmitter {
       {
         ENVIRONMENT: "LIVE", // LOCAL, MAIN, QA, TEST, STAGE, LIVE, //THE_NINE, INNOVA
         unknownString1: "SKU_Is_JustSurvive", //JS.Environment
-        rulesetDefinitions: Object.values(gameRulesSource).map((gameRule: any) => {
-          return {
-            RULESET_ID: gameRule.ID,
-            RULESET_ID_: gameRule.ID,
-            ruleset: gameRule.RULESET,
-            rulesets: Object.values(gameRule?.RULESETS || []).map((ruleSet: any) => {
-              return {
-                ID: ruleSet.ID,
-                DATA: {
-                  ID: ruleSet.ID,
-                  RULESET_ID: ruleSet.RULESET_ID,
-                  CONTENT_PACK_ID: ruleSet.CONTENT_PACK_ID,
-                  CONTENT_PACK_ACTION_ID: ruleSet.CONTENT_PACK_ACTION_ID
+        rulesetDefinitions: Object.values(gameRulesSource).map(
+          (gameRule: any) => {
+            return {
+              RULESET_ID: gameRule.ID,
+              RULESET_ID_: gameRule.ID,
+              ruleset: gameRule.RULESET,
+              rulesets: Object.values(gameRule?.RULESETS || []).map(
+                (ruleSet: any) => {
+                  return {
+                    ID: ruleSet.ID,
+                    DATA: {
+                      ID: ruleSet.ID,
+                      RULESET_ID: ruleSet.RULESET_ID,
+                      CONTENT_PACK_ID: ruleSet.CONTENT_PACK_ID,
+                      CONTENT_PACK_ACTION_ID: ruleSet.CONTENT_PACK_ACTION_ID
+                    }
+                  };
                 }
-              }
-            })
+              )
+            };
           }
-        })
+        )
       }
     );
 
