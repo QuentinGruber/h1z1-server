@@ -3409,6 +3409,81 @@ export class ZonePacketHandlers {
       case "FairPlay.Internal":
         this.FairPlayInternal(server, client, packet);
         break;
+      // This is just some testing data from me:
+      case "Recipe.Discovery":
+        server.sendData(client, "Recipe.Unk8", {
+          unknownQword1: "1890",
+          unknownDword1: 171
+        });
+        break;
+      case "InGamePurchase.AcccountInfoRequest":
+        server.sendData(client, "InGamePurchase.AcccountInfoResponse", {
+          unknownDword1: 1,
+          locale: "en_US",
+          currency: "USD"
+        });
+        break;
+      case "InGamePurchase.CountryCodesRequest":
+        server.sendData(client, "InGamePurchase.CountryCodesResponse", {
+          unknownDword1: 1,
+          countryCodes: [
+            {
+              countryCode: "US",
+              country: "United States"
+            }
+          ]
+        });
+        break;
+      case "InGamePurchase.WalletInfoRequest":
+        server.sendData(client, "InGamePurchase.WalletInfoResponse", {
+          unknownDword1: 1,
+          unknownBoolean1: true,
+          unknownDword2: 2,
+          unknownDword3: 86720018,
+          unknownString1: "KH$",
+          unknownString2: "US"
+        });
+        break;
+      case "Items.RequestUseAccountItem":
+        // This code is anything but optimal, everything will be moved to a separate function at some point.
+        if (!packet.data.itemSubData.unknownBoolean1) {
+          const item = client.character.getInventoryItem(
+              packet.data.itemSubData.targetItemGuid
+            ),
+            accountItem = Object.values(server._accountItemDefinitions).find(
+              (a) => a.ACCOUNT_ITEM_ID == packet.data.itemDefinitionId
+            );
+          if (item && accountItem) {
+            const container = client.character.getContainerFromGuid(
+              item.containerGuid
+            );
+
+            item.itemDefinitionId = accountItem.REWARD_ITEM_ID;
+
+            if (container) {
+              server.updateContainerItem(client.character, item, container);
+            }
+
+            const equipmentItem = Object.values(
+                client.character._equipment
+              ).find((e) => e.guid == item.itemGuid),
+              itemDef = server.getItemDefinition(packet.data.itemDefinitionId);
+            if (equipmentItem) {
+              if (itemDef?.MODEL_NAME) {
+                equipmentItem.modelName = itemDef?.MODEL_NAME;
+              }
+
+              if (itemDef?.TEXTURE_ALIAS) {
+                equipmentItem.textureAlias = itemDef?.TEXTURE_ALIAS;
+              }
+
+              client.character.updateLoadout(server, true);
+              client.character.updateEquipment(server, 3);
+            }
+          }
+        }
+        // unknownDword3 = 24 for Skins, 85 for Crates
+        break;
       default:
         debug(packet);
         debug("Packet not implemented in packetHandlers");

@@ -54,6 +54,7 @@ import {
 import { WeatherManager } from "./managers/weathermanager";
 
 import {
+  AccountDefinition,
   ClientBan,
   clientEffect,
   ConstructionEntity,
@@ -257,6 +258,7 @@ const spawnLocations2 = require("../../../data/2016/zoneData/Z1_gridSpawns.json"
   clientEffectsDataSource = require("../../../data/2016/dataSources/ClientEffects.json"),
   itemUseOptionsDataSource = require("../../../data/2016/dataSources/ItemUseOptions"),
   models = require("../../../data/2016/dataSources/Models"),
+  accountItemConversions = require("./../../../data/2016/dataSources/AcctItemConversions.json"),
   equipmentModelTexturesMapping: Record<
     string,
     Record<string, string[]>
@@ -392,6 +394,8 @@ export class ZoneServer2016 extends EventEmitter {
     weaponDefinitions.FIRE_GROUP_DEFINITIONS;
   _firemodeDefinitions: { [firemodeId: number]: any } =
     weaponDefinitions.FIRE_MODE_DEFINITIONS;
+  _accountItemDefinitions: { [ACCOUNT_ITEM_ID: number]: AccountDefinition } =
+    accountItemConversions;
   itemDefinitionsCache?: Buffer;
   dynamicAppearanceCache?: Buffer;
   weaponDefinitionsCache?: Buffer;

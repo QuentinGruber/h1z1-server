@@ -477,6 +477,17 @@ export interface WeatherTemplate extends Weather2016 {
   templateName: string,
 }
 
+export interface AccountDefinition {
+  ID: number,
+  ACCOUNT_ITEM_ID: number,
+  REWARD_SET_ID: number,
+  REWARD_ITEM_ID: number,
+  REWARD_ITEM_TINT_ID: number,
+  REWARD_ITEM_COUNT: number,
+  REWARD_ITEM_MATERIAL_EFFECT_ID: number,
+  CONTENT_ID: number
+}
+
 export interface ItemDefinition {
   NAME: string,
   ID: number,
