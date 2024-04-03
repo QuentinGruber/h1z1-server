@@ -52,7 +52,16 @@ export const uiPackets: PacketStructures = [
   ],
   ["Ui.HeadShotFeedback", 0x1a11, {}],
   ["Ui.WaypointCooldown", 0x1a14, {}],
-  ["Ui.ZoneWaypoint", 0x1a15, {}],
+  [
+    "Ui.ZoneWaypoint",
+    0x1a15,
+    {
+      fields: [
+        { name: "unknownBoolean1", type: "boolean", defaultValue: false },
+        { name: "unknownDword1", type: "uint32", defaultValue: 0 }
+      ]
+    }
+  ],
   ["Ui.WaypointNotify", 0x1a16, {}],
   ["Ui.ContinentDominationNotification", 0x1a17, {}],
   ["Ui.InteractStart", 0x1a18, {}],
