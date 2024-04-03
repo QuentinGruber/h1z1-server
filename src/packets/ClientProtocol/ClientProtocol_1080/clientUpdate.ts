@@ -379,7 +379,26 @@ export const clientUpdatePackets: PacketStructures = [
   ["ClientUpdate.UpdateCurrency", 0x113f00, {}],
   ["ClientUpdate.AddNotifications", 0x114000, {}],
   ["ClientUpdate.RemoveNotifications", 0x114100, {}],
-  ["ClientUpdate.NpcRelevance", 0x114200, {}],
+  [
+    "ClientUpdate.NpcRelevance",
+    0x114200,
+    {
+      fields: [
+        { name: "unknownByte1", type: "uint8", defaultValue: 0 },
+        {
+          name: "npcs",
+          type: "array",
+          defaultValue: [],
+          fields: [
+            { name: "characterId", type: "uint64string", defaultValue: "0" },
+            { name: "unknownBoolean1", type: "boolean", defaultValue: true },
+            { name: "unknownByte1", type: "uint8", defaultValue: 255 },
+            { name: "unknownBoolean2", type: "boolean", defaultValue: false }
+          ]
+        }
+      ]
+    }
+  ],
   ["ClientUpdate.InitiateNameChange", 0x114300, {}],
   ["ClientUpdate.NameChangeResult", 0x114400, {}],
   [
