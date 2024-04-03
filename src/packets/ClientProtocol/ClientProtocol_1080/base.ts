@@ -1387,7 +1387,7 @@ export const basePackets: PacketStructures = [
               ]
             },
             {
-              name: "itemTimerData",
+              name: "accountItems",
               type: "schema",
               defaultValue: {},
               fields: [
@@ -2599,7 +2599,16 @@ export const basePackets: PacketStructures = [
   ["AddClientPortraitCrc", 0x4c, {}],
   ["ObjectiveTarget", 0x4d, {}],
   ["CommerceSessionRequest", 0x4e, {}],
-  ["CommerceSessionResponse", 0x4f, {}],
+  [
+    "CommerceSessionResponse",
+    0x4f,
+    {
+      fields: [
+        { name: "unknownDword1", type: "uint32", defaultValue: 0 },
+        { name: "sessionToken", type: "string", defaultValue: "" }
+      ]
+    }
+  ],
   ["TrackedEvent", 0x50, {}],
   [
     "LoginFailed",
