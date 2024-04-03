@@ -1,0 +1,979 @@
+[{
+        "ID": 1,
+        "RULESET": "Permadeath",
+        "RULESETS": {
+            "ID": 1,
+            "RULESET_ID": 1,
+            "CONTENT_PACK_ID": 112,
+            "CONTENT_PACK_ACTION_ID": 1
+        }
+    },
+    {
+        "ID": 2,
+        "RULESET": "NoGuns",
+        "RULESETS": [{
+            "ID": 2,
+            "RULESET_ID": 2,
+            "CONTENT_PACK_ID": 113,
+            "CONTENT_PACK_ACTION_ID": 1
+        }]
+    },
+    {
+        "ID": 3,
+        "RULESET": "Headshots"
+    },
+    {
+        "ID": 4,
+        "RULESET": "FirstPersonOnly"
+    },
+    {
+        "ID": 5,
+        "RULESET": "PvE"
+    },
+    {
+        "ID": 6,
+        "RULESET": "BattleRoyale",
+        "RULESETS": [{
+                "ID": 3,
+                "RULESET_ID": 6,
+                "CONTENT_PACK_ID": 114,
+                "CONTENT_PACK_ACTION_ID": 2
+            },
+            {
+                "ID": 16,
+                "RULESET_ID": 6,
+                "CONTENT_PACK_ID": 133,
+                "CONTENT_PACK_ACTION_ID": 2
+            },
+            {
+                "ID": 17,
+                "RULESET_ID": 6,
+                "CONTENT_PACK_ID": 134,
+                "CONTENT_PACK_ACTION_ID": 1
+            },
+            {
+                "ID": 25,
+                "RULESET_ID": 6,
+                "CONTENT_PACK_ID": 135,
+                "CONTENT_PACK_ACTION_ID": 2
+            },
+            {
+                "ID": 33,
+                "RULESET_ID": 6,
+                "CONTENT_PACK_ID": 140,
+                "CONTENT_PACK_ACTION_ID": 2
+            },
+            {
+                "ID": 48,
+                "RULESET_ID": 6,
+                "CONTENT_PACK_ID": 143,
+                "CONTENT_PACK_ACTION_ID": 2
+            },
+            {
+                "ID": 74,
+                "RULESET_ID": 6,
+                "CONTENT_PACK_ID": 150,
+                "CONTENT_PACK_ACTION_ID": 2
+            }
+        ]
+    },
+    {
+        "ID": 7,
+        "RULESET": "ComplexVehicleDamage"
+    },
+    {
+        "ID": 8,
+        "RULESET": "Team5"
+    },
+    {
+        "ID": 9,
+        "RULESET": "Team2"
+    },
+    {
+        "ID": 10,
+        "RULESET": "RecipeWipeOnDeath"
+    },
+    {
+        "ID": 11,
+        "RULESET": "ItemScarcityLow",
+        "RULESETS": [{
+            "ID": 4,
+            "RULESET_ID": 11,
+            "CONTENT_PACK_ID": 115,
+            "CONTENT_PACK_ACTION_ID": 1
+        }]
+    },
+    {
+        "ID": 12,
+        "RULESET": "ItemScarcityHigh",
+        "RULESETS": [{
+                "ID": 5,
+                "RULESET_ID": 12,
+                "CONTENT_PACK_ID": 115,
+                "CONTENT_PACK_ACTION_ID": 2
+            },
+            {
+                "ID": 6,
+                "RULESET_ID": 12,
+                "CONTENT_PACK_ID": 116,
+                "CONTENT_PACK_ACTION_ID": 1
+            }
+        ]
+    },
+    {
+        "ID": 15,
+        "RULESET": "PopulationLow"
+    },
+    {
+        "ID": 16,
+        "RULESET": "PopulationMedium"
+    },
+    {
+        "ID": 17,
+        "RULESET": "PopulationHigh"
+    },
+    {
+        "ID": 18,
+        "RULESET": "TicketEventServer"
+    },
+    {
+        "ID": 19,
+        "RULESET": "Whitelist"
+    },
+    {
+        "ID": 20,
+        "RULESET": "Ignition",
+        "RULESETS": [{
+                "ID": 7,
+                "RULESET_ID": 20,
+                "CONTENT_PACK_ID": 117,
+                "CONTENT_PACK_ACTION_ID": 2
+            },
+            {
+                "ID": 112,
+                "RULESET_ID": 20,
+                "CONTENT_PACK_ID": 134,
+                "CONTENT_PACK_ACTION_ID": 1
+            },
+            {
+                "ID": 113,
+                "RULESET_ID": 20,
+                "CONTENT_PACK_ID": 114,
+                "CONTENT_PACK_ACTION_ID": 2
+            },
+            {
+                "ID": 114,
+                "RULESET_ID": 20,
+                "CONTENT_PACK_ID": 135,
+                "CONTENT_PACK_ACTION_ID": 2
+            },
+            {
+                "ID": 115,
+                "RULESET_ID": 20,
+                "CONTENT_PACK_ID": 140,
+                "CONTENT_PACK_ACTION_ID": 2
+            },
+            {
+                "ID": 116,
+                "RULESET_ID": 20,
+                "CONTENT_PACK_ID": 143,
+                "CONTENT_PACK_ACTION_ID": 2
+            },
+            {
+                "ID": 117,
+                "RULESET_ID": 20,
+                "CONTENT_PACK_ID": 150,
+                "CONTENT_PACK_ACTION_ID": 2
+            },
+            {
+                "ID": 118,
+                "RULESET_ID": 20,
+                "CONTENT_PACK_ID": 133,
+                "CONTENT_PACK_ACTION_ID": 2
+            }
+        ]
+    },
+    {
+        "ID": 21,
+        "RULESET": "NoBuildNearPois",
+        "RULESETS": [{
+            "ID": 8,
+            "RULESET_ID": 21,
+            "CONTENT_PACK_ID": 120,
+            "CONTENT_PACK_ACTION_ID": 1
+        }]
+    },
+    {
+        "ID": 22,
+        "RULESET": "Antidote"
+    },
+    {
+        "ID": 24,
+        "RULESET": "PistolOnly"
+    },
+    {
+        "ID": 25,
+        "RULESET": "NoBuildRecipes"
+    },
+    {
+        "ID": 27,
+        "RULESET": "ReanimatedSkirmish"
+    },
+    {
+        "ID": 28,
+        "RULESET": "Training",
+        "RULESETS": [{
+                "ID": 18,
+                "RULESET_ID": 28,
+                "CONTENT_PACK_ID": 133,
+                "CONTENT_PACK_ACTION_ID": 2
+            },
+            {
+                "ID": 28,
+                "RULESET_ID": 28,
+                "CONTENT_PACK_ID": 135,
+                "CONTENT_PACK_ACTION_ID": 2
+            },
+            {
+                "ID": 37,
+                "RULESET_ID": 28,
+                "CONTENT_PACK_ID": 140,
+                "CONTENT_PACK_ACTION_ID": 2
+            },
+            {
+                "ID": 49,
+                "RULESET_ID": 28,
+                "CONTENT_PACK_ID": 143,
+                "CONTENT_PACK_ACTION_ID": 2
+            },
+            {
+                "ID": 75,
+                "RULESET_ID": 28,
+                "CONTENT_PACK_ID": 150,
+                "CONTENT_PACK_ACTION_ID": 2
+            }
+        ]
+    },
+    {
+        "ID": 29,
+        "RULESET": "ShottySniperSkirmish",
+        "RULESETS": [{
+                "ID": 14,
+                "RULESET_ID": 29,
+                "CONTENT_PACK_ID": 133,
+                "CONTENT_PACK_ACTION_ID": 1
+            },
+            {
+                "ID": 15,
+                "RULESET_ID": 29,
+                "CONTENT_PACK_ID": 134,
+                "CONTENT_PACK_ACTION_ID": 2
+            },
+            {
+                "ID": 26,
+                "RULESET_ID": 29,
+                "CONTENT_PACK_ID": 135,
+                "CONTENT_PACK_ACTION_ID": 2
+            },
+            {
+                "ID": 39,
+                "RULESET_ID": 29,
+                "CONTENT_PACK_ID": 140,
+                "CONTENT_PACK_ACTION_ID": 2
+            },
+            {
+                "ID": 50,
+                "RULESET_ID": 29,
+                "CONTENT_PACK_ID": 143,
+                "CONTENT_PACK_ACTION_ID": 2
+            }
+        ]
+    },
+    {
+        "ID": 30,
+        "RULESET": "ScoredReset"
+    },
+    {
+        "ID": 31,
+        "RULESET": "IronmanSkirmish"
+    },
+    {
+        "ID": 32,
+        "RULESET": "Audio Zombies"
+    },
+    {
+        "ID": 35,
+        "RULESET": "SkirmishNightPV",
+        "RULESETS": [{
+                "ID": 27,
+                "RULESET_ID": 35,
+                "CONTENT_PACK_ID": 135,
+                "CONTENT_PACK_ACTION_ID": 2
+            },
+            {
+                "ID": 36,
+                "RULESET_ID": 35,
+                "CONTENT_PACK_ID": 140,
+                "CONTENT_PACK_ACTION_ID": 2
+            },
+            {
+                "ID": 51,
+                "RULESET_ID": 35,
+                "CONTENT_PACK_ID": 143,
+                "CONTENT_PACK_ACTION_ID": 2
+            }
+        ]
+    },
+    {
+        "ID": 36,
+        "RULESET": "NoTimedGrants"
+    },
+    {
+        "ID": 37,
+        "RULESET": "Skirmish"
+    },
+    {
+        "ID": 38,
+        "RULESET": "Deathmatch"
+    },
+    {
+        "ID": 40,
+        "RULESET": "GunGameSkirmish",
+        "RULESETS": [{
+                "ID": 23,
+                "RULESET_ID": 40,
+                "CONTENT_PACK_ID": 134,
+                "CONTENT_PACK_ACTION_ID": 2
+            },
+            {
+                "ID": 24,
+                "RULESET_ID": 40,
+                "CONTENT_PACK_ID": 135,
+                "CONTENT_PACK_ACTION_ID": 1
+            },
+            {
+                "ID": 29,
+                "RULESET_ID": 40,
+                "CONTENT_PACK_ID": 133,
+                "CONTENT_PACK_ACTION_ID": 2
+            },
+            {
+                "ID": 38,
+                "RULESET_ID": 40,
+                "CONTENT_PACK_ID": 140,
+                "CONTENT_PACK_ACTION_ID": 2
+            },
+            {
+                "ID": 52,
+                "RULESET_ID": 40,
+                "CONTENT_PACK_ID": 143,
+                "CONTENT_PACK_ACTION_ID": 2
+            },
+            {
+                "ID": 76,
+                "RULESET_ID": 40,
+                "CONTENT_PACK_ID": 141,
+                "CONTENT_PACK_ACTION_ID": 2
+            },
+            {
+                "ID": 77,
+                "RULESET_ID": 40,
+                "CONTENT_PACK_ID": 150,
+                "CONTENT_PACK_ACTION_ID": 2
+            }
+        ]
+    },
+    {
+        "ID": 41,
+        "RULESET": "DevGameMode"
+    },
+    {
+        "ID": 42,
+        "RULESET": "SkirmishHeadshotsOnly",
+        "RULESETS": [{
+                "ID": 31,
+                "RULESET_ID": 42,
+                "CONTENT_PACK_ID": 140,
+                "CONTENT_PACK_ACTION_ID": 1
+            },
+            {
+                "ID": 32,
+                "RULESET_ID": 42,
+                "CONTENT_PACK_ID": 133,
+                "CONTENT_PACK_ACTION_ID": 2
+            },
+            {
+                "ID": 34,
+                "RULESET_ID": 42,
+                "CONTENT_PACK_ID": 134,
+                "CONTENT_PACK_ACTION_ID": 1
+            },
+            {
+                "ID": 35,
+                "RULESET_ID": 42,
+                "CONTENT_PACK_ID": 135,
+                "CONTENT_PACK_ACTION_ID": 2
+            },
+            {
+                "ID": 53,
+                "RULESET_ID": 42,
+                "CONTENT_PACK_ID": 143,
+                "CONTENT_PACK_ACTION_ID": 2
+            }
+        ]
+    },
+    {
+        "ID": 44,
+        "RULESET": "SkirmishGoldenGun",
+        "RULESETS": [{
+                "ID": 44,
+                "RULESET_ID": 44,
+                "CONTENT_PACK_ID": 134,
+                "CONTENT_PACK_ACTION_ID": 2
+            },
+            {
+                "ID": 45,
+                "RULESET_ID": 44,
+                "CONTENT_PACK_ID": 143,
+                "CONTENT_PACK_ACTION_ID": 1
+            },
+            {
+                "ID": 46,
+                "RULESET_ID": 44,
+                "CONTENT_PACK_ID": 118,
+                "CONTENT_PACK_ACTION_ID": 1
+            },
+            {
+                "ID": 47,
+                "RULESET_ID": 44,
+                "CONTENT_PACK_ID": 140,
+                "CONTENT_PACK_ACTION_ID": 2
+            }
+        ]
+    },
+    {
+        "ID": 45,
+        "RULESET": "Team1"
+    },
+    {
+        "ID": 46,
+        "RULESET": "AllowAntiStreamSniping"
+    },
+    {
+        "ID": 47,
+        "RULESET": "CombatPractice",
+        "RULESETS": [{
+                "ID": 56,
+                "RULESET_ID": 47,
+                "CONTENT_PACK_ID": 133,
+                "CONTENT_PACK_ACTION_ID": 2
+            },
+            {
+                "ID": 57,
+                "RULESET_ID": 47,
+                "CONTENT_PACK_ID": 135,
+                "CONTENT_PACK_ACTION_ID": 2
+            },
+            {
+                "ID": 58,
+                "RULESET_ID": 47,
+                "CONTENT_PACK_ID": 140,
+                "CONTENT_PACK_ACTION_ID": 2
+            },
+            {
+                "ID": 59,
+                "RULESET_ID": 47,
+                "CONTENT_PACK_ID": 143,
+                "CONTENT_PACK_ACTION_ID": 2
+            }
+        ]
+    },
+    {
+        "ID": 48,
+        "RULESET": "GodBeam"
+    },
+    {
+        "ID": 49,
+        "RULESET": "Event.ThanksGiving.TurkeyHunt",
+        "RULESETS": [{
+                "ID": 63,
+                "RULESET_ID": 49,
+                "CONTENT_PACK_ID": 134,
+                "CONTENT_PACK_ACTION_ID": 2
+            },
+            {
+                "ID": 66,
+                "RULESET_ID": 49,
+                "CONTENT_PACK_ID": 118,
+                "CONTENT_PACK_ACTION_ID": 1
+            },
+            {
+                "ID": 67,
+                "RULESET_ID": 49,
+                "CONTENT_PACK_ID": 150,
+                "CONTENT_PACK_ACTION_ID": 1
+            },
+            {
+                "ID": 69,
+                "RULESET_ID": 49,
+                "CONTENT_PACK_ID": 140,
+                "CONTENT_PACK_ACTION_ID": 2
+            },
+            {
+                "ID": 70,
+                "RULESET_ID": 49,
+                "CONTENT_PACK_ID": 133,
+                "CONTENT_PACK_ACTION_ID": 2
+            },
+            {
+                "ID": 71,
+                "RULESET_ID": 49,
+                "CONTENT_PACK_ID": 135,
+                "CONTENT_PACK_ACTION_ID": 1
+            },
+            {
+                "ID": 72,
+                "RULESET_ID": 49,
+                "CONTENT_PACK_ID": 143,
+                "CONTENT_PACK_ACTION_ID": 2
+            },
+            {
+                "ID": 73,
+                "RULESET_ID": 49,
+                "CONTENT_PACK_ID": 141,
+                "CONTENT_PACK_ACTION_ID": 2
+            }
+        ]
+    },
+    {
+        "ID": 50,
+        "RULESET": "NoChallengeUpdates"
+    },
+    {
+        "ID": 51,
+        "RULESET": "HostedGame"
+    },
+    {
+        "ID": 52,
+        "RULESET": "CAR1Z1"
+    },
+    {
+        "ID": 55,
+        "RULESET": "CAR1Z1duos"
+    },
+    {
+        "ID": 61,
+        "RULESET": "AllowNewbieMatchMaking"
+    },
+    {
+        "ID": 64,
+        "RULESET": "Console",
+        "RULESETS": [{
+            "ID": 100,
+            "RULESET_ID": 64,
+            "CONTENT_PACK_ID": 129,
+            "CONTENT_PACK_ACTION_ID": 1
+        }]
+    },
+    {
+        "ID": 67,
+        "RULESET": "PopulationHigh"
+    },
+    {
+        "ID": 68,
+        "RULESET": "Training"
+    },
+    {
+        "ID": 71,
+        "RULESET": "PingRestricted"
+    },
+    {
+        "ID": 72,
+        "RULESET": "UnrankedSolo"
+    },
+    {
+        "ID": 73,
+        "RULESET": "UnrankedDuos"
+    },
+    {
+        "ID": 74,
+        "RULESET": "UnrankedFives"
+    },
+    {
+        "ID": 75,
+        "RULESET": "RocketsAndLMGs"
+    },
+    {
+        "ID": 76,
+        "RULESET": "Bullseye"
+    },
+    {
+        "ID": 77,
+        "RULESET": "NoRangedWeapons"
+    },
+    {
+        "ID": 78,
+        "RULESET": "NoLauncherWeapons"
+    },
+    {
+        "ID": 79,
+        "RULESET": "NoCloseRangeWeapons"
+    },
+    {
+        "ID": 80,
+        "RULESET": "NoMidRangeWeapons"
+    },
+    {
+        "ID": 81,
+        "RULESET": "NoLongRangeWeapons"
+    },
+    {
+        "ID": 82,
+        "RULESET": "NoMeleeWeapons"
+    },
+    {
+        "ID": 83,
+        "RULESET": "NoThrowableWeapons"
+    },
+    {
+        "ID": 84,
+        "RULESET": "EventScavengerSkulls"
+    },
+    {
+        "ID": 85,
+        "RULESET": "EventHalloweenTrickOrTreat"
+    },
+    {
+        "ID": 89,
+        "RULESET": "SantasSlay",
+        "RULESETS": [{
+                "ID": 102,
+                "RULESET_ID": 89,
+                "CONTENT_PACK_ID": 134,
+                "CONTENT_PACK_ACTION_ID": 2
+            },
+            {
+                "ID": 103,
+                "RULESET_ID": 89,
+                "CONTENT_PACK_ID": 118,
+                "CONTENT_PACK_ACTION_ID": 1
+            }
+        ]
+    },
+    {
+        "ID": 96,
+        "RULESET": "HunterHunted"
+    },
+    {
+        "ID": 98,
+        "RULESET": "RankedProSolos"
+    },
+    {
+        "ID": 102,
+        "RULESET": "Fragments1.0"
+    },
+    {
+        "ID": 103,
+        "RULESET": "UnrankedBR"
+    },
+    {
+        "ID": 107,
+        "RULESET": "NoShottyNoCrossyConsole"
+    },
+    {
+        "ID": 108,
+        "RULESET": "UnrankedSolo"
+    },
+    {
+        "ID": 109,
+        "RULESET": "AllowNewbieMatchMaking"
+    },
+    {
+        "ID": 110,
+        "RULESET": "Population High"
+    },
+    {
+        "ID": 111,
+        "RULESET": "BattleRoyale",
+        "RULESETS": [{
+                "ID": 119,
+                "RULESET_ID": 111,
+                "CONTENT_PACK_ID": 114,
+                "CONTENT_PACK_ACTION_ID": 2
+            },
+            {
+                "ID": 120,
+                "RULESET_ID": 111,
+                "CONTENT_PACK_ID": 133,
+                "CONTENT_PACK_ACTION_ID": 2
+            },
+            {
+                "ID": 121,
+                "RULESET_ID": 111,
+                "CONTENT_PACK_ID": 134,
+                "CONTENT_PACK_ACTION_ID": 1
+            },
+            {
+                "ID": 122,
+                "RULESET_ID": 111,
+                "CONTENT_PACK_ID": 135,
+                "CONTENT_PACK_ACTION_ID": 2
+            },
+            {
+                "ID": 123,
+                "RULESET_ID": 111,
+                "CONTENT_PACK_ID": 140,
+                "CONTENT_PACK_ACTION_ID": 2
+            },
+            {
+                "ID": 124,
+                "RULESET_ID": 111,
+                "CONTENT_PACK_ID": 143,
+                "CONTENT_PACK_ACTION_ID": 2
+            },
+            {
+                "ID": 125,
+                "RULESET_ID": 111,
+                "CONTENT_PACK_ID": 150,
+                "CONTENT_PACK_ACTION_ID": 2
+            },
+            {
+                "ID": 126,
+                "RULESET_ID": 111,
+                "CONTENT_PACK_ID": 162,
+                "CONTENT_PACK_ACTION_ID": 2
+            }
+        ]
+    },
+    {
+        "ID": 112,
+        "RULESET": "AtvOnly"
+    },
+    {
+        "ID": 113,
+        "RULESET": "UnrankedSolo"
+    },
+    {
+        "ID": 114,
+        "RULESET": "AllowNewbieMatchMaking"
+    },
+    {
+        "ID": 115,
+        "RULESET": "Population High"
+    },
+    {
+        "ID": 116,
+        "RULESET": "BattleRoyale",
+        "RULESETS": [{
+                "ID": 127,
+                "RULESET_ID": 116,
+                "CONTENT_PACK_ID": 114,
+                "CONTENT_PACK_ACTION_ID": 2
+            },
+            {
+                "ID": 128,
+                "RULESET_ID": 116,
+                "CONTENT_PACK_ID": 133,
+                "CONTENT_PACK_ACTION_ID": 2
+            },
+            {
+                "ID": 129,
+                "RULESET_ID": 116,
+                "CONTENT_PACK_ID": 134,
+                "CONTENT_PACK_ACTION_ID": 1
+            },
+            {
+                "ID": 130,
+                "RULESET_ID": 116,
+                "CONTENT_PACK_ID": 135,
+                "CONTENT_PACK_ACTION_ID": 2
+            },
+            {
+                "ID": 131,
+                "RULESET_ID": 116,
+                "CONTENT_PACK_ID": 140,
+                "CONTENT_PACK_ACTION_ID": 2
+            },
+            {
+                "ID": 132,
+                "RULESET_ID": 116,
+                "CONTENT_PACK_ID": 143,
+                "CONTENT_PACK_ACTION_ID": 2
+            },
+            {
+                "ID": 133,
+                "RULESET_ID": 116,
+                "CONTENT_PACK_ID": 150,
+                "CONTENT_PACK_ACTION_ID": 2
+            },
+            {
+                "ID": 134,
+                "RULESET_ID": 116,
+                "CONTENT_PACK_ID": 162,
+                "CONTENT_PACK_ACTION_ID": 2
+            }
+        ]
+    },
+    {
+        "ID": 117,
+        "RULESET": "PistolGrenadesConsole"
+    },
+    {
+        "ID": 118,
+        "RULESET": "UnrankedSolo"
+    },
+    {
+        "ID": 119,
+        "RULESET": "AllowNewbieMatchMaking"
+    },
+    {
+        "ID": 120,
+        "RULESET": "Population High"
+    },
+    {
+        "ID": 121,
+        "RULESET": "BattleRoyale",
+        "RULESETS": [{
+                "ID": 135,
+                "RULESET_ID": 121,
+                "CONTENT_PACK_ID": 114,
+                "CONTENT_PACK_ACTION_ID": 2
+            },
+            {
+                "ID": 136,
+                "RULESET_ID": 121,
+                "CONTENT_PACK_ID": 133,
+                "CONTENT_PACK_ACTION_ID": 2
+            },
+            {
+                "ID": 137,
+                "RULESET_ID": 121,
+                "CONTENT_PACK_ID": 134,
+                "CONTENT_PACK_ACTION_ID": 1
+            },
+            {
+                "ID": 138,
+                "RULESET_ID": 121,
+                "CONTENT_PACK_ID": 135,
+                "CONTENT_PACK_ACTION_ID": 2
+            },
+            {
+                "ID": 139,
+                "RULESET_ID": 121,
+                "CONTENT_PACK_ID": 140,
+                "CONTENT_PACK_ACTION_ID": 2
+            },
+            {
+                "ID": 140,
+                "RULESET_ID": 121,
+                "CONTENT_PACK_ID": 143,
+                "CONTENT_PACK_ACTION_ID": 2
+            },
+            {
+                "ID": 141,
+                "RULESET_ID": 121,
+                "CONTENT_PACK_ID": 150,
+                "CONTENT_PACK_ACTION_ID": 2
+            },
+            {
+                "ID": 142,
+                "RULESET_ID": 121,
+                "CONTENT_PACK_ID": 162,
+                "CONTENT_PACK_ACTION_ID": 2
+            }
+        ]
+    },
+    {
+        "ID": 127,
+        "RULESET": "HeavyMetalConsole"
+    },
+    {
+        "ID": 128,
+        "RULESET": "UnrankedSolo"
+    },
+    {
+        "ID": 129,
+        "RULESET": "AllowNewbieMatchMaking"
+    },
+    {
+        "ID": 130,
+        "RULESET": "Population High"
+    },
+    {
+        "ID": 131,
+        "RULESET": "BattleRoyale",
+        "RULESETS": [{
+                "ID": 151,
+                "RULESET_ID": 131,
+                "CONTENT_PACK_ID": 114,
+                "CONTENT_PACK_ACTION_ID": 2
+            },
+            {
+                "ID": 152,
+                "RULESET_ID": 131,
+                "CONTENT_PACK_ID": 133,
+                "CONTENT_PACK_ACTION_ID": 2
+            },
+            {
+                "ID": 153,
+                "RULESET_ID": 131,
+                "CONTENT_PACK_ID": 134,
+                "CONTENT_PACK_ACTION_ID": 1
+            },
+            {
+                "ID": 154,
+                "RULESET_ID": 131,
+                "CONTENT_PACK_ID": 135,
+                "CONTENT_PACK_ACTION_ID": 2
+            },
+            {
+                "ID": 155,
+                "RULESET_ID": 131,
+                "CONTENT_PACK_ID": 140,
+                "CONTENT_PACK_ACTION_ID": 2
+            },
+            {
+                "ID": 156,
+                "RULESET_ID": 131,
+                "CONTENT_PACK_ID": 143,
+                "CONTENT_PACK_ACTION_ID": 2
+            },
+            {
+                "ID": 157,
+                "RULESET_ID": 131,
+                "CONTENT_PACK_ID": 150,
+                "CONTENT_PACK_ACTION_ID": 2
+            },
+            {
+                "ID": 158,
+                "RULESET_ID": 131,
+                "CONTENT_PACK_ID": 162,
+                "CONTENT_PACK_ACTION_ID": 2
+            }
+        ]
+    },
+    {
+        "ID": 137,
+        "RULESET": "SpeedRunnersConsole"
+    },
+    {
+        "ID": 138,
+        "RULESET": "AtvOnly.PC"
+    },
+    {
+        "ID": 139,
+        "RULESET": "RoadRunners.PC"
+    },
+    {
+        "ID": 140,
+        "RULESET": "Detonation.PC"
+    },
+    {
+        "ID": 143,
+        "RULESET": "HotdogEatingContest.PC"
+    },
+    {
+        "ID": 145,
+        "RULESET": "Racers.PC"
+    }
+]

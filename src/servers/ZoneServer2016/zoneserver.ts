@@ -257,6 +257,7 @@ const spawnLocations2 = require("../../../data/2016/zoneData/Z1_gridSpawns.json"
   screenEffects = require("../../../data/2016/sampleData/screenEffects.json"),
   clientEffectsDataSource = require("../../../data/2016/dataSources/ClientEffects.json"),
   itemUseOptionsDataSource = require("../../../data/2016/dataSources/ItemUseOptions"),
+  gameRulesSource = require("../../../data/2016/dataSources/ServerGameRules"),
   models = require("../../../data/2016/dataSources/Models"),
   accountItemConversions = require("./../../../data/2016/dataSources/AcctItemConversions.json"),
   equipmentModelTexturesMapping: Record<
@@ -1734,70 +1735,24 @@ export class ZoneServer2016 extends EventEmitter {
       {
         ENVIRONMENT: "LIVE", // LOCAL, MAIN, QA, TEST, STAGE, LIVE, //THE_NINE, INNOVA
         unknownString1: "SKU_Is_JustSurvive", //JS.Environment
-        rulesetDefinitions: [
-          {
-            RULESET_ID: 1,
-            RULESET_ID_: 1,
-            ruleset: "Permadeath",
-            unknownString2: "",
-            rulesets: [
-              {
-                ID: 1,
+        rulesetDefinitions: Object.values(gameRulesSource).map((gameRule: any) => {
+          return {
+            RULESET_ID: gameRule.ID,
+            RULESET_ID_: gameRule.ID,
+            ruleset: gameRule.RULESET,
+            rulesets: Object.values(gameRule?.RULESETS || []).map((ruleSet: any) => {
+              return {
+                ID: ruleSet.ID,
                 DATA: {
-                  ID: 1,
-                  RULESET_ID: 1,
-                  CONTENT_PACK_ID: 112,
-                  CONTENT_PACK_ACTION_ID: 1
+                  ID: ruleSet.ID,
+                  RULESET_ID: ruleSet.RULESET_ID,
+                  CONTENT_PACK_ID: ruleSet.CONTENT_PACK_ID,
+                  CONTENT_PACK_ACTION_ID: ruleSet.CONTENT_PACK_ACTION_ID
                 }
               }
-            ]
-          },
-          {
-            RULESET_ID: 3,
-            RULESET_ID_: 3,
-            ruleset: "Headshots",
-            unknownString2: "",
-            rulesets: []
-          },
-          {
-            RULESET_ID: 4,
-            RULESET_ID_: 4,
-            ruleset: "FirstPersonOnly",
-            unknownString2: "",
-            rulesets: []
-          },
-          {
-            RULESET_ID: 5,
-            RULESET_ID_: 5,
-            ruleset: "PvE", //  could be "Normal"
-            unknownString2: "",
-            rulesets: [
-              {
-                ID: 3,
-                DATA: {
-                  ID: 3,
-                  RULESET_ID: 5,
-                  CONTENT_PACK_ID: 119,
-                  CONTENT_PACK_ACTION_ID: 2
-                }
-              }
-            ]
-          },
-          {
-            RULESET_ID: 6,
-            RULESET_ID_: 6,
-            ruleset: "BattleRoyale",
-            unknownString2: "",
-            rulesets: []
-          },
-          {
-            RULESET_ID: 7,
-            RULESET_ID_: 7,
-            ruleset: "NoBuildNearPois",
-            unknownString2: "",
-            rulesets: []
+            })
           }
-        ]
+        })
       }
     );
 
