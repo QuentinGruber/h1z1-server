@@ -946,8 +946,80 @@ function packProjectileDefinitionData(obj: any) {
 }
 
 export const referenceDataPackets: PacketStructures = [
-  ["ReferenceData.ItemClassDefinitions", 0x1701, {}],
-  ["ReferenceData.ItemCategoryDefinitions", 0x1702, {}],
+  [
+    "ReferenceData.ItemClassDefinitions",
+    0x1701,
+    {
+      fields: [
+        {
+          name: "ITEMCLASS_DEFINITIONS",
+          type: "array",
+          defaultValue: [],
+          fields: [
+            { name: "ID", type: "uint32", defaultValue: 0 },
+            {
+              name: "ITEMCLASS_DATA",
+              type: "schema",
+              defaultValue: {},
+              fields: [
+                { name: "ID", type: "uint32", defaultValue: 0 },
+                { name: "NAME_ID", type: "uint32", defaultValue: 0 },
+                { name: "ICON_ID", type: "uint32", defaultValue: 0 },
+                { name: "WIELD_TYPE", type: "uint32", defaultValue: 0 },
+                {
+                  name: "LIST_DISPLAY_STAT_ID",
+                  type: "uint32",
+                  defaultValue: 0
+                },
+                { name: "TOOLTIP_STRING_ID", type: "uint32", defaultValue: 0 },
+                {
+                  name: "SECONDARY_WIELD_TYPE",
+                  type: "uint32",
+                  defaultValue: 0
+                },
+                { name: "FACTION_ID", type: "uint8", defaultValue: 0 },
+                { name: "SALE_REWARD_SET_ID", type: "uint32", defaultValue: 0 },
+                { name: "SCORE_VALUE", type: "uint32", defaultValue: 0 },
+                { name: "SCRAP_VALUE", type: "uint32", defaultValue: 0 }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  [
+    "ReferenceData.ItemCategoryDefinitions",
+    0x1702,
+    {
+      fields: [
+        {
+          name: "categories",
+          type: "array",
+          defaultValue: [],
+          fields: [
+            { name: "ID", type: "uint32", defaultValue: 0 },
+            {
+              name: "categoryData",
+              type: "schema",
+              defaultValue: {},
+              fields: [
+                { name: "ID", type: "uint32", defaultValue: 0 },
+                { name: "NAME_ID", type: "uint32", defaultValue: 0 },
+                { name: "unknownDword1", type: "uint32", defaultValue: 0 },
+                {
+                  name: "SCRAP_VALUE_OVERRIDE",
+                  type: "uint32",
+                  defaultValue: 0
+                },
+                { name: "unknownBoolean1", type: "boolean", defaultValue: true }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ],
   [
     "ReferenceData.ProfileDefinitions",
     0x1703,

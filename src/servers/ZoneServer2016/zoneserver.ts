@@ -247,6 +247,7 @@ const spawnLocations2 = require("../../../data/2016/zoneData/Z1_gridSpawns.json"
   containerDefinitions = require("./../../../data/2016/dataSources/ContainerDefinitions.json"),
   profileDefinitions = require("./../../../data/2016/dataSources/ServerProfileDefinitions.json"),
   projectileDefinitons = require("./../../../data/2016/dataSources/ServerProjectileDefinitions.json"),
+  itemClassDefinitions = require("./../../../data/2016/dataSources/ServerItemClassDefinitions.json"),
   loadoutSlotItemClasses = require("./../../../data/2016/dataSources/LoadoutSlotItemClasses.json"),
   equipSlotItemClasses = require("./../../../data/2016/dataSources/EquipSlotItemClasses.json"),
   weaponDefinitions = require("../../../data/2016/dataSources/ServerWeaponDefinitions"),
@@ -403,6 +404,7 @@ export class ZoneServer2016 extends EventEmitter {
   initialDataStaticDtoCache?: Buffer;
   projectileDefinitionsCache?: Buffer;
   profileDefinitionsCache?: Buffer;
+  itemClassDefinitionsCache?: Buffer;
   _containerDefinitions: { [containerDefinitionId: number]: any } =
     containerDefinitions;
   lastItemGuid: bigint = 0x3000000000000000n;
@@ -1429,6 +1431,30 @@ export class ZoneServer2016 extends EventEmitter {
     this.profileDefinitionsCache = profileDefinitionsCache;
   }
 
+  /**
+   * Caches itemClass definitons so they aren't packed every time a client logs in.
+   */
+  private packitemClassDefinitions() {
+    const itemClassDefinitionsCache = this._protocol.pack(
+      "ReferenceData.ItemClassDefinitions",
+      {
+        ITEMCLASS_DEFINITIONS: Object.values(itemClassDefinitions).map(
+          (itemClassDefinition: any) => {
+            return {
+              ID: itemClassDefinition.ID,
+              ITEMCLASS_DATA: {
+                ...itemClassDefinition
+              }
+            };
+          }
+        )
+      }
+    );
+
+    if (!itemClassDefinitionsCache) return;
+    this.itemClassDefinitionsCache = itemClassDefinitionsCache;
+  }
+
   private async initializeLoginServerConnection() {
     debug("Starting H1emuZoneServer");
     if (!this._loginServerInfo.address) {
@@ -1569,6 +1595,7 @@ export class ZoneServer2016 extends EventEmitter {
     this.packWeaponDefinitions();
     this.packProjectileDefinitions();
     this.packProfileDefinitions();
+    this.packitemClassDefinitions();
     this.packDynamicAppearance();
     this.worldObjectManager.createDoors(this);
     this.worldObjectManager.createProps(this);
@@ -1746,10 +1773,7 @@ export class ZoneServer2016 extends EventEmitter {
                   return {
                     ID: ruleSet.ID,
                     DATA: {
-                      ID: ruleSet.ID,
-                      RULESET_ID: ruleSet.RULESET_ID,
-                      CONTENT_PACK_ID: ruleSet.CONTENT_PACK_ID,
-                      CONTENT_PACK_ACTION_ID: ruleSet.CONTENT_PACK_ACTION_ID
+                      ...ruleSet
                     }
                   };
                 }
@@ -1771,6 +1795,17 @@ export class ZoneServer2016 extends EventEmitter {
       unknownBoolean2: true,
       lighting: "Lighting_JustSurvive.txt",
       isInvitational: false
+    });
+
+    this.sendData<ClientGameSettings>(client, "ClientGameSettings", {
+      interactionCheckRadius: 16, // need it high for tampers
+      unknownBoolean1: true,
+      timescale: 1.0,
+      enableWeapons: 1, // no longer seems to do anything, used to disable weapons from working
+      Unknown5: 1,
+      unknownFloat1: 0.0,
+      fallDamageVelocityThreshold: 15,
+      fallDamageVelocityMultiplier: 11
     });
 
     if (!this.itemDefinitionsCache) {
@@ -1801,17 +1836,6 @@ export class ZoneServer2016 extends EventEmitter {
     if (this.dynamicAppearanceCache) {
       this.sendRawDataReliable(client, this.dynamicAppearanceCache);
     }
-
-    this.sendData<ClientGameSettings>(client, "ClientGameSettings", {
-      interactionCheckRadius: 16, // need it high for tampers
-      unknownBoolean1: true,
-      timescale: 1.0,
-      enableWeapons: 1, // no longer seems to do anything, used to disable weapons from working
-      Unknown5: 1,
-      unknownFloat1: 0.0,
-      fallDamageVelocityThreshold: 15,
-      fallDamageVelocityMultiplier: 11
-    });
 
     // packet is just broken, idk why
     /*
