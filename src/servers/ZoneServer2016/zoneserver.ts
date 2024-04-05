@@ -1229,7 +1229,7 @@ export class ZoneServer2016 extends EventEmitter {
     return proximityItems;
   }
 
-  async sendCharacterData(client: Client) {
+  async fetchCharacterData(client: Client) {
     if (!this.hookManager.checkHook("OnSendCharacterData", client)) return;
     if (!(await this.hookManager.checkAsyncHook("OnSendCharacterData", client)))
       return;
@@ -1248,6 +1248,9 @@ export class ZoneServer2016 extends EventEmitter {
       savedCharacter as FullCharacterSaveData
     );
     client.startingPos = client.character.state.position;
+  }
+
+  sendCharacterData(client: Client) {
     // guid is sensitive for now, so don't send real one to client rn
     this.sendData<SendSelfToClient>(
       client,
@@ -1591,7 +1594,7 @@ export class ZoneServer2016 extends EventEmitter {
 
     // !!ANYTHING THAT USES / GENERATES ITEMS MUST BE CALLED AFTER WORLD DATA IS LOADED!!
 
-    this.packItemDefinitions();
+    //this.packItemDefinitions(); // No longer necessary, we'll see if only sending the required items will impact server performance
     this.packWeaponDefinitions();
     this.packProjectileDefinitions();
     this.packProfileDefinitions();
@@ -1808,12 +1811,36 @@ export class ZoneServer2016 extends EventEmitter {
       fallDamageVelocityMultiplier: 11
     });
 
-    if (!this.itemDefinitionsCache) {
-      this.packItemDefinitions();
-    }
-    // only sends a few needed definitions
-    if (this.itemDefinitionsCache) {
-      this.sendRawDataReliable(client, this.itemDefinitionsCache);
+    // Load character before sending sendSelf, as we need to send item definitions for the inventory to the client first. This is the same behaviour as Z1BR
+    await this.fetchCharacterData(client);
+
+    const inventoryItemIds = client.character
+      .pGetInventoryItems(this)
+      .map((it) => it.itemDefinitionId);
+    if (inventoryItemIds) {
+      this.sendData(client, "Command.ItemDefinitions", {
+        data: {
+          itemDefinitions: Object.values(this._itemDefinitions)
+            .filter((item) => inventoryItemIds.includes(item.ID))
+            .map((itemDef) => {
+              return {
+                ID: itemDef.ID,
+                definitionData: {
+                  ...itemDef,
+                  HUD_IMAGE_SET_ID: itemDef.IMAGE_SET_ID,
+                  ITEM_TYPE_1: itemDef.ITEM_TYPE,
+                  flags1: {
+                    ...itemDef
+                  },
+                  flags2: {
+                    ...itemDef
+                  },
+                  stats: []
+                }
+              };
+            })
+        }
+      });
     }
     if (!this.weaponDefinitionsCache) {
       this.packWeaponDefinitions();
@@ -1846,7 +1873,7 @@ export class ZoneServer2016 extends EventEmitter {
     });
     */
 
-    await this.sendCharacterData(client);
+    this.sendCharacterData(client);
   }
 
   private divideMapIntoSpawnGrid(
