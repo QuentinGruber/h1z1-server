@@ -1973,7 +1973,7 @@ export class ZonePacketHandlers {
     });
   }
   //#region ITEMS
-  RequestUseItem(
+  async RequestUseItem(
     server: ZoneServer2016,
     client: Client,
     packet: ReceivedPacket<ItemsRequestUseItem>
@@ -2162,7 +2162,9 @@ export class ZonePacketHandlers {
         }
         break;
       case ItemUseOptions.SALVAGE:
-        server.salvageAmmo(client, character, item, animationId);
+        for (let i = 0; i < count; i++) {
+          await server.salvageAmmo(client, character, item, animationId);
+        }
         break;
       case ItemUseOptions.LOOT:
         const containerEnt = client.character.mountedContainer,

@@ -6919,14 +6919,14 @@ export class ZoneServer2016 extends EventEmitter {
     });
   }
 
-  salvageAmmo(
+  async salvageAmmo(
     client: Client,
     character: BaseFullCharacter,
     item: BaseItem,
     animationId: number
-  ) {
+  ): Promise<boolean> {
     const itemDefinition = this.getItemDefinition(item.itemDefinitionId);
-    if (!itemDefinition) return;
+    if (!itemDefinition) return false;
     const nameId = itemDefinition.NAME_ID;
     const timeout = 1000;
     const allowedItems = [
@@ -6944,7 +6944,7 @@ export class ZoneServer2016 extends EventEmitter {
         client,
         `[ERROR] Salvage option not mapped to item definition ${item.itemDefinitionId}`
       );
-      return;
+      return false;
     }
     const count =
       item.itemDefinitionId == Items.AMMO_12GA ||
@@ -6953,8 +6953,11 @@ export class ZoneServer2016 extends EventEmitter {
       item.itemDefinitionId == Items.AMMO_44
         ? 2
         : 1;
-    this.utilizeHudTimer(client, nameId, timeout, animationId, () => {
-      this.salvageItemPass(character, item, count);
+
+    return await new Promise<boolean>(async(resolve) => {
+      this.utilizeHudTimer(client, nameId, timeout, animationId, async() => {
+        resolve(await this.salvageItemPass(character, item, count));
+      });
     });
   }
 
@@ -7215,14 +7218,15 @@ export class ZoneServer2016 extends EventEmitter {
     );
   }
 
-  salvageItemPass(character: BaseFullCharacter, item: BaseItem, count: number) {
-    if (!this.removeInventoryItem(character, item)) return;
+  async salvageItemPass(character: BaseFullCharacter, item: BaseItem, count: number): Promise<boolean> {
+    if (!this.removeInventoryItem(character, item)) return false;
     if (item.itemDefinitionId == Items.AMMO_12GA) {
       character.lootItem(this, this.generateItem(Items.SHARD_PLASTIC, 1));
     }
     character.lootItem(this, this.generateItem(Items.ALLOY_LEAD, count));
     character.lootItem(this, this.generateItem(Items.SHARD_BRASS, 1));
     character.lootItem(this, this.generateItem(Items.GUNPOWDER_REFINED, 1));
+    return true;
   }
 
   repairOption(
