@@ -13,7 +13,12 @@
 
 import { EventEmitter } from "node:events";
 import { RemoteInfo } from "node:dgram";
-import { append_crc_legacy, SoeOpcode, Soeprotocol } from "h1emu-core";
+import {
+  append_crc_legacy,
+  SoeOpcode,
+  SoePacketParsed,
+  Soeprotocol
+} from "h1emu-core";
 import Client from "./soeclient";
 import SOEClient from "./soeclient";
 import { crc_length_options } from "../../types/soeserver";
@@ -265,92 +270,117 @@ export class SOEServer extends EventEmitter {
   }
 
   // Handle the packet received from the client
-  private handlePacket(client: SOEClient, packet: any) {
-    switch (packet.name) {
-      case "SessionRequest":
+  private handlePacket(client: SOEClient, packet: SoePacketParsed) {
+    switch (packet.get_opcode()) {
+      case SoeOpcode.SessionRequest:
         debug(
           "Received session request from " + client.address + ":" + client.port
         );
-        client.sessionId = packet.session_id;
-        client.clientUdpLength = packet.udp_length;
-        client.protocolName = packet.protocol;
-        client.serverUdpLength = this._udpLength;
-        client.crcSeed = this._crcSeed;
-        client.crcLength = this._crcLength;
-        client.inputStream.setEncryption(this._useEncryption);
-        client.outputStream.setEncryption(this._useEncryption);
-        // 4 since we don't count the opcode and it's an uint16
-        client.outputStream.setFragmentSize(
-          client.clientUdpLength - (4 + this._crcLength)
-        );
-        // setup the keep alive timer
-        client.lastKeepAliveTimer = this.keepAliveTimeoutTime
-          ? setTimeout(() => {
-              debug("Client keep alive timeout");
-              this.emit("disconnect", client);
-            }, this.keepAliveTimeoutTime)
-          : null;
+        const sessionRequestPacket = packet.get_session_request_packet();
+        if (sessionRequestPacket) {
+          client.sessionId = sessionRequestPacket.session_id;
+          client.clientUdpLength = sessionRequestPacket.udp_length;
+          client.protocolName = sessionRequestPacket.get_protocol();
+          client.serverUdpLength = this._udpLength;
+          client.crcSeed = this._crcSeed;
+          client.crcLength = this._crcLength;
+          client.inputStream.setEncryption(this._useEncryption);
+          client.outputStream.setEncryption(this._useEncryption);
+          // 4 since we don't count the opcode and it's an uint16
+          client.outputStream.setFragmentSize(
+            client.clientUdpLength - (4 + this._crcLength)
+          );
+          // setup the keep alive timer
+          client.lastKeepAliveTimer = this.keepAliveTimeoutTime
+            ? setTimeout(() => {
+                debug("Client keep alive timeout");
+                this.emit("disconnect", client);
+              }, this.keepAliveTimeoutTime)
+            : null;
 
-        const sessionReply = this.createLogicalPacket(SoeOpcode.SessionReply, {
-          session_id: client.sessionId,
-          crc_seed: client.crcSeed,
-          crc_length: client.crcLength,
-          encrypt_method: 0,
-          udp_length: client.serverUdpLength
-        });
-        // We send the session reply packet directly because it's a special case
-        this._sendAndBuildPhysicalPacket(client, sessionReply);
+          const sessionReply = this.createLogicalPacket(
+            SoeOpcode.SessionReply,
+            {
+              session_id: client.sessionId,
+              crc_seed: client.crcSeed,
+              crc_length: client.crcLength,
+              encrypt_method: 0,
+              udp_length: client.serverUdpLength
+            }
+          );
+          // We send the session reply packet directly because it's a special case
+          this._sendAndBuildPhysicalPacket(client, sessionReply);
+        }
         break;
-      case "FatalError":
-      case "Disconnect":
+      case SoeOpcode.FatalError:
+      case SoeOpcode.Disconnect:
         debug("Received disconnect from client");
         this.deleteClient(client);
         this.emit("disconnect", client);
         break;
-      case "MultiPacket": {
-        for (let i = 0; i < packet.sub_packets.length; i++) {
-          const subPacket = packet.sub_packets[i];
-          this.handlePacket(client, subPacket);
+      case SoeOpcode.MultiPacket: {
+        const multipacket = packet.get_grouped_packets();
+        if (multipacket) {
+          const sub_packets = multipacket as unknown as any[];
+          for (let i = 0; i < sub_packets.length; i++) {
+            const subPacket = sub_packets[i];
+            this.handlePacket(client, subPacket);
+          }
         }
         break;
       }
-      case "Ping":
+      case SoeOpcode.Ping:
         debug("Received ping from client");
         const ping = this.createLogicalPacket(SoeOpcode.Ping, {});
         // Same as session reply, we send the ping directly
         this._sendAndBuildPhysicalPacket(client, ping);
         break;
-      case "NetStatusRequest":
-        debug("Received net status request from client");
-        break;
-      case "Data":
-        client.inputStream.write(
-          Buffer.from(packet.data),
-          packet.sequence,
-          false
-        );
-        break;
-      case "DataFragment":
-        client.inputStream.write(
-          Buffer.from(packet.data),
-          packet.sequence,
-          true
-        );
-        break;
-      case "OutOfOrder":
-        client.stats.packetsOutOfOrder++;
-        client.outputStream.outOfOrder.add(packet.sequence);
-        client.outputStream.removeFromCache(packet.sequence);
-        client.unAckData.delete(packet.sequence);
-        break;
-      case "Ack":
-        const mostWaitedPacketTime = client.unAckData.get(packet.sequence);
-        if (mostWaitedPacketTime) {
-          const currentLag = this.currentEventLoopLag || 0;
-          client.addPing(Date.now() - mostWaitedPacketTime - currentLag);
+      case SoeOpcode.Data: {
+        const data_packet = packet.get_data_packet();
+        if (data_packet) {
+          client.inputStream.write(
+            Buffer.from(data_packet.fisdepute),
+            data_packet.sequence,
+            false
+          );
+          break;
         }
-        client.outputStream.ack(packet.sequence, client.unAckData);
+      }
+      case SoeOpcode.DataFragment: {
+        const data_packet = packet.get_data_packet();
+        if (data_packet) {
+          client.inputStream.write(
+            Buffer.from(data_packet.),
+            data_packet.sequence,
+            true
+          );
+        }
         break;
+      }
+      case SoeOpcode.OutOfOrder: {
+        const ack_packet = packet.get_ack_packet();
+        if (ack_packet) {
+          client.stats.packetsOutOfOrder++;
+          client.outputStream.outOfOrder.add(ack_packet.sequence);
+          client.outputStream.removeFromCache(ack_packet.sequence);
+          client.unAckData.delete(ack_packet.sequence);
+        }
+        break;
+      }
+      case SoeOpcode.Ack: {
+        const ack_packet = packet.get_ack_packet();
+        if (ack_packet) {
+          const mostWaitedPacketTime = client.unAckData.get(
+            ack_packet.sequence
+          );
+          if (mostWaitedPacketTime) {
+            const currentLag = this.currentEventLoopLag || 0;
+            client.addPing(Date.now() - mostWaitedPacketTime - currentLag);
+          }
+          client.outputStream.ack(ack_packet.sequence, client.unAckData);
+        }
+        break;
+      }
       default:
         console.log(`Unknown SOE packet received from ${client.sessionId}`);
         console.log(packet);
@@ -416,21 +446,11 @@ export class SOEServer extends EventEmitter {
           client = this._clients.get(clientId) as SOEClient;
         }
         if (data[0] === 0x00) {
-          const raw_parsed_data: string = this._protocol.parse(data);
-          if (raw_parsed_data) {
-            const parsed_data = JSON.parse(raw_parsed_data);
-            if (parsed_data.name === "Error") {
-              console.error("parsing error " + parsed_data.error);
-              console.error(parsed_data);
-            } else {
-              if (client.lastKeepAliveTimer) {
-                client.lastKeepAliveTimer.refresh();
-              }
-              this.handlePacket(client, parsed_data);
-            }
-          } else {
-            console.error("Unmanaged packet from client", clientId, data);
+          const parsed_data = this._protocol.parse(data);
+          if (client.lastKeepAliveTimer) {
+            client.lastKeepAliveTimer.refresh();
           }
+          this.handlePacket(client, parsed_data);
         } else {
           if (this._allowRawDataReception) {
             console.log("Raw data received from client", clientId, data);
