@@ -49,7 +49,8 @@ import {
   WeaponDefinitionIds,
   StringIds,
   ModelIds,
-  ItemTypes
+  ItemTypes,
+  ItemClasses
 } from "./models/enums";
 import { WeatherManager } from "./managers/weathermanager";
 
@@ -6972,7 +6973,7 @@ export class ZoneServer2016 extends EventEmitter {
         ? 2
         : 1;
 
-    return await new Promise<boolean>(async(resolve) => {
+    return await new Promise<boolean>((resolve) => {
       this.utilizeHudTimer(client, nameId, timeout, animationId, async() => {
         resolve(await this.salvageItemPass(character, item, count));
       });
@@ -7236,7 +7237,11 @@ export class ZoneServer2016 extends EventEmitter {
     );
   }
 
-  async salvageItemPass(character: BaseFullCharacter, item: BaseItem, count: number): Promise<boolean> {
+  async salvageItemPass(
+    character: BaseFullCharacter,
+    item: BaseItem,
+    count: number
+  ): Promise<boolean> {
     if (!this.removeInventoryItem(character, item)) return false;
     if (item.itemDefinitionId == Items.AMMO_12GA) {
       character.lootItem(this, this.generateItem(Items.SHARD_PLASTIC, 1));
@@ -7521,6 +7526,13 @@ export class ZoneServer2016 extends EventEmitter {
     const itemDefinition = this.getItemDefinition(weaponItem.itemDefinitionId);
     if (!itemDefinition) return;
     const weaponDefinitionId = itemDefinition.PARAM1;
+
+    // Allow reloading for grenades
+    if (itemDefinition.ITEM_CLASS == ItemClasses.WEAPON_THROWABLES) {
+      weaponItem.weapon.ammoCount = 1;
+      this.sendWeaponReload(client, weaponItem, 1);
+      return;
+    }
 
     switch (weaponDefinitionId) {
       case WeaponDefinitionIds.WEAPON_BOW_MAKESHIFT:
