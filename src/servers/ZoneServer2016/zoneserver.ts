@@ -1128,7 +1128,18 @@ export class ZoneServer2016 extends EventEmitter {
           const proximityItem = {
             itemDefinitionId: object.item.itemDefinitionId,
             associatedCharacterGuid: client.character.characterId,
-            itemData: object.item // should change to it use getItemData method later
+            itemData: {
+              itemDefinitionId: object.item.itemDefinitionId,
+              tintId: 0,
+              guid: object.item.itemGuid,
+              count: object.item.stackCount,
+              itemSubData: {
+                hasSubData: false
+              },
+              unknownBoolean1: true,
+              ownerCharacterId: "",
+              unknownDword9: 1
+            }
           };
           (proximityItems.items as any[]).push(proximityItem);
         }
@@ -6130,6 +6141,12 @@ export class ZoneServer2016 extends EventEmitter {
       c.spawnedEntities.add(obj);
       this.addLightweightNpc(c, obj);
     }, obj);
+
+    this.sendData<ClientUpdateProximateItems>(
+      client,
+      "ClientUpdate.ProximateItems",
+      this.getProximityItems(client)
+    );
   }
 
   pickupItem(client: Client, guid: string) {
