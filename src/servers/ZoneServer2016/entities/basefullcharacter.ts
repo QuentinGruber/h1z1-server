@@ -432,6 +432,7 @@ export abstract class BaseFullCharacter extends BaseLightweightCharacter {
         server.sendData(client, "Reward.AddNonRewardItem", {
           itemDefId: itemDefId,
           iconId: server.getItemDefinition(itemDefId)?.IMAGE_SET_ID,
+          nameId: server.getItemDefinition(itemDefId)?.NAME_ID,
           count: count
         });
       }
@@ -464,6 +465,7 @@ export abstract class BaseFullCharacter extends BaseLightweightCharacter {
         server.sendData(client, "Reward.AddNonRewardItem", {
           itemDefId: itemDefId,
           iconId: server.getItemDefinition(itemDefId)?.IMAGE_SET_ID,
+          nameId: server.getItemDefinition(itemDefId)?.NAME_ID,
           count: count
         });
       }
@@ -644,6 +646,7 @@ export abstract class BaseFullCharacter extends BaseLightweightCharacter {
         server.sendData(client, "Reward.AddNonRewardItem", {
           itemDefId: itemDefId,
           iconId: server.getItemDefinition(itemDefId)?.IMAGE_SET_ID,
+          nameId: server.getItemDefinition(itemDefId)?.NAME_ID,
           count: count
         });
       }

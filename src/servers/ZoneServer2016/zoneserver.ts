@@ -6253,6 +6253,7 @@ export class ZoneServer2016 extends EventEmitter {
       this.sendData<RewardAddNonRewardItem>(client, "Reward.AddNonRewardItem", {
         itemDefId: itemDefId,
         iconId: this.getItemDefinition(itemDefId)?.IMAGE_SET_ID ?? 0,
+        nameId: this.getItemDefinition(itemDefId)?.NAME_ID ?? 0,
         count: item.stackCount
       });
     }

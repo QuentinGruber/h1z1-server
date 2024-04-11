@@ -2384,11 +2384,11 @@ export const basePackets: PacketStructures = [
     {
       fields: [
         { name: "itemDefId", type: "uint32", defaultValue: 10 },
-        { name: "unk1", type: "uint32", defaultValue: 1 },
+        { name: "nameId", type: "uint32", defaultValue: 1 },
         { name: "iconId", type: "uint32", defaultValue: 7 },
-        { name: "time4", type: "uint32", defaultValue: 1 },
+        { name: "time4", type: "uint32", defaultValue: 0 },
         { name: "count", type: "uint32", defaultValue: 2 },
-        { name: "time6", type: "uint32", defaultValue: 1 }
+        { name: "time6", type: "uint32", defaultValue: 0 }
       ]
     }
   ],
