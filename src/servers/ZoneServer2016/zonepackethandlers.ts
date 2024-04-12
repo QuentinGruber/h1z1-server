@@ -13,6 +13,7 @@
 
 /* eslint-disable @typescript-eslint/no-unused-vars */
 // TODO enable @typescript-eslint/no-unused-vars
+import fs from "fs";
 import { ZoneClient2016 as Client } from "./classes/zoneclient";
 import { ZoneServer2016 } from "./zoneserver";
 const debug = require("debug")("ZoneServer");
@@ -3486,6 +3487,41 @@ export class ZonePacketHandlers {
               client.character.updateEquipment(server, 3);
             }
           }
+        }
+
+        if (packet.data.unknownDword3 == 85) {
+          const crates = fs.readFileSync("../../data/2016/dataSources/AccountCrates.json"),
+            crateData = JSON.parse(crates.toString()),
+            crate = crateData.find((c: any) => c.itemDefinitionId == packet.data.itemDefinitionId);
+
+          if(!crate) {
+            debug("CrateId #" + packet.data.itemDefinitionId + " not found");
+          }
+
+          const items: any[] = Object.values(crate?.rewards);
+          
+          let reward = 0;
+          if(packet.data.itemSubData.unknownBoolean1 == 0) {
+            const totalChances = crate.rewards.reduce((acc: any, reward: any) => acc + reward.rewardChance, 0);
+            let randomChance = Math.random() * totalChances;
+            for (const rew of crate.rewards) {
+              if (randomChance < rew.rewardChance) {
+                reward = rew.itemDefinitionId;
+                break;
+              }
+              randomChance -= rew.rewardChance;
+            }
+          }
+
+          server.sendData(client, "Items.ReportRewardCrateContents", {
+            unknownArray1: reward > 0 ? [{ unknownDword1: reward, unknownDword2: 1}] : [],
+            unknownArray2: Object.values(items).map((rew) => {
+              return {
+                unknownDword1: rew.itemDefinitionId,
+                unknownDword2: 1
+              };
+            })
+          });
         }
         // unknownDword3 = 24 for Skins, 85 for Crates
         break;
