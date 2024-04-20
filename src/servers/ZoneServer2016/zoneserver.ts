@@ -21,7 +21,7 @@ import { LoginConnectionManager } from "../LoginZoneConnection/loginconnectionma
 import { LZConnectionClient } from "../LoginZoneConnection/shared/lzconnectionclient";
 import { Resolver } from "node:dns";
 
-import { isObject, promisify } from "node:util";
+import { promisify } from "node:util";
 import { ZonePacketHandlers } from "./zonepackethandlers";
 import { ZoneClient2016 as Client } from "./classes/zoneclient";
 import { Vehicle2016 as Vehicle, Vehicle2016 } from "./entities/vehicle";
@@ -101,7 +101,7 @@ import {
   flhash
 } from "../../utils/utils";
 
-import { Db, MongoClient, ObjectId, WithId } from "mongodb";
+import { Db, MongoClient, WithId } from "mongodb";
 import { BaseFullCharacter } from "./entities/basefullcharacter";
 import { ItemObject } from "./entities/itemobject";
 import {
@@ -239,7 +239,6 @@ import { GatewayServer } from "../GatewayServer/gatewayserver";
 import { WaterSource } from "./entities/watersource";
 import { WebSocket } from "ws";
 import { CommandHandler } from "./handlers/commands/commandhandler";
-import { containers } from "packets/ClientProtocol/ClientProtocol_1080/shared";
 
 const spawnLocations2 = require("../../../data/2016/zoneData/Z1_gridSpawns.json"),
   deprecatedDoors = require("../../../data/2016/sampleData/deprecatedDoors.json"),
