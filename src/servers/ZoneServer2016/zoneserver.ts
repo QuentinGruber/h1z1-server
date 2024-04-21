@@ -3252,7 +3252,8 @@ export class ZoneServer2016 extends EventEmitter {
   }
 
   registerHit(client: Client, packet: any, gameTime: number) {
-    if (!client.character.isAlive) return;
+    //if (!client.character.isAlive) return;
+    // Should be able to trade while in combat
 
     const { hitReport } = packet;
     if (!hitReport) return; // should never trigger
@@ -3273,6 +3274,8 @@ export class ZoneServer2016 extends EventEmitter {
     const message = `FairPlay: blocked incoming projectile from ${client.character.name}`;
     const entity = this.getEntity(hitReport.characterId);
     if (!entity) return;
+    // Don't allow hits registering over 350 as this is the render distance for NPC's
+    if(getDistance2d(entity.state.position, client.character.state.position) > 350) return;
     const fireHint = client.fireHints[hitReport.sessionProjectileCount];
     const targetClient = this.getClientByCharId(entity.characterId);
     if (!fireHint) {
