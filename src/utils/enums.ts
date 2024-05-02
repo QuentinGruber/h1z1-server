@@ -64,6 +64,7 @@ export enum DB_COLLECTIONS {
   KILLS = "kills",
   MUTED = "muted",
   ASSET_HASHES = "asset-hashes",
+  GROUPS = "groups",
   VPN_WHITELIST = "vpn-whitelist"
 }
 

@@ -16,6 +16,7 @@ import { zone2016packets } from "types/zone2016packets";
 import { Group } from "types/zoneserver";
 import { ZoneClient2016 as Client } from "../classes/zoneclient";
 import { ZoneServer2016 } from "../zoneserver";
+import { DB_COLLECTIONS } from "../../../utils/enums";
 
 enum GroupErrors {
   INVALID = "GroupIsInvalid",
@@ -26,11 +27,6 @@ export class GroupManager {
   /** Id that is generated upon a new group creation */
   nextGroupId = 1;
 
-  /** HashMap of all groups in the world,
-   * uses groupId (number) for indexing
-   */
-  groups: { [groupId: number]: Group } = {};
-
   /** "Limbo" for an invite that awaits acceptance or denial */
   pendingInvites: { [characterId: string]: number } = {};
 
@@ -38,7 +34,7 @@ export class GroupManager {
     server.sendChatText(client, `[GroupError] ${error}`);
   }
 
-  sendDataToAllOthersInGroup(
+  async sendDataToAllOthersInGroup(
     server: ZoneServer2016,
     excludedClient: Client,
     groupId: number,
@@ -46,7 +42,9 @@ export class GroupManager {
     obj: zone2016packets
   ) {
     if (!groupId) return;
-    const group = this.groups[groupId];
+    const group = await server._db
+      .collection(DB_COLLECTIONS.GROUPS)
+      .findOne<Group>({ serverId: server._worldId, groupId });
     if (!group) return;
     for (const a of group.members) {
       const client = server.getClientByCharId(a);
@@ -124,38 +122,49 @@ export class GroupManager {
     }
   }
 
-  sendAlertToGroup(server: ZoneServer2016, groupId: number, message: string) {
-    if (!this.groups[groupId] || message == "") return;
+  async sendAlertToGroup(
+    server: ZoneServer2016,
+    groupId: number,
+    message: string
+  ) {
+    const group = await server._db
+      .collection(DB_COLLECTIONS.GROUPS)
+      .findOne<Group>({ serverId: server._worldId, groupId });
+    if (!group || message == "") return;
 
-    for (const characterId of this.groups[groupId].members) {
+    for (const characterId of group.members) {
       const client = server.getClientByCharId(characterId);
       if (!client) continue;
       server.sendAlert(client, message);
     }
   }
 
-  sendAlertToAllOthersInGroup(
+  async sendAlertToAllOthersInGroup(
     server: ZoneServer2016,
     excludedClient: Client,
     groupId: number,
     message: string
   ) {
-    if (!this.groups[groupId] || message == "") return;
+    const group = await server._db
+      .collection(DB_COLLECTIONS.GROUPS)
+      .findOne<Group>({ serverId: server._worldId, groupId });
+    if (!group || message == "") return;
 
-    for (const characterId of this.groups[groupId].members) {
+    for (const characterId of group.members) {
       const client = server.getClientByCharId(characterId);
       if (!client || client == excludedClient) continue;
       server.sendAlert(client, message);
     }
   }
 
-  createGroup(server: ZoneServer2016, leader: Client) {
+  async createGroup(server: ZoneServer2016, leader: Client) {
     const groupId = this.nextGroupId;
-    this.groups[groupId] = {
-      groupId: groupId,
+    await server._db.collection(DB_COLLECTIONS.GROUPS).insertOne({
+      serverId: server._worldId,
+      groupId,
       leader: leader.character.characterId,
       members: [leader.character.characterId]
-    };
+    });
     leader.character.groupId = groupId;
 
     this.nextGroupId++;
@@ -166,23 +175,31 @@ export class GroupManager {
     );
   }
 
-  disbandGroup(server: ZoneServer2016, groupId: number) {
-    const group = this.groups[groupId];
+  async disbandGroup(server: ZoneServer2016, groupId: number) {
+    const group = await server._db
+      .collection(DB_COLLECTIONS.GROUPS)
+      .findOne<Group>({ serverId: server._worldId, groupId });
     if (!group) {
       return;
     }
 
     this.sendAlertToGroup(server, groupId, "Group has been disbanded!");
-    for (const characterId of this.groups[groupId].members) {
+    for (const characterId of group.members) {
       const client = server.getClientByCharId(characterId);
       if (!client) continue;
       this.removeGroupMember(server, client, group, true);
     }
 
-    delete this.groups[groupId];
+    await server._db
+      .collection(DB_COLLECTIONS.GROUPS)
+      .deleteOne({ serverId: server._worldId, groupId });
   }
 
-  sendGroupInvite(server: ZoneServer2016, source: Client, target: Client) {
+  async sendGroupInvite(
+    server: ZoneServer2016,
+    source: Client,
+    target: Client
+  ) {
     if (this.pendingInvites[target.character.characterId]) {
       server.sendAlert(
         source,
@@ -207,7 +224,12 @@ export class GroupManager {
       return;
     }
 
-    const group = this.groups[source.character.groupId];
+    const group = await server._db
+      .collection(DB_COLLECTIONS.GROUPS)
+      .findOne<Group>({
+        serverId: server._worldId,
+        groupId: source.character.groupId
+      });
     if (group && group.leader != source.character.characterId) {
       server.sendAlert(source, "You are not the group leader!");
       return;
@@ -238,7 +260,7 @@ export class GroupManager {
     });
   }
 
-  handleGroupJoin(
+  async handleGroupJoin(
     server: ZoneServer2016,
     source: Client,
     target: Client,
@@ -250,7 +272,12 @@ export class GroupManager {
       return;
     }
 
-    let group = this.groups[source.character.groupId];
+    let group = await server._db
+      .collection(DB_COLLECTIONS.GROUPS)
+      .findOne<Group>({
+        serverId: server._worldId,
+        groupId: source.character.groupId
+      });
     if (group && source.character.characterId != group.leader) {
       return;
     }
@@ -267,7 +294,10 @@ export class GroupManager {
     if (!group) {
       this.createGroup(server, source);
     }
-    group = this.groups[source.character.groupId];
+    group = await server._db.collection(DB_COLLECTIONS.GROUPS).findOne<Group>({
+      serverId: server._worldId,
+      groupId: source.character.groupId
+    });
     if (!group) {
       server.sendAlert(source, "FAILED TO CREATE GROUP - PLEASE REPORT");
       return;
@@ -287,11 +317,16 @@ export class GroupManager {
     this.sendGroupOutlineUpdates(server, group);
   }
 
-  handlePlayerDisconnect(server: ZoneServer2016, client: Client) {
+  async handlePlayerDisconnect(server: ZoneServer2016, client: Client) {
     delete this.pendingInvites[client.character.characterId];
 
-    const groupId = client.character.groupId,
-      group = this.groups[groupId];
+    const groupId = client.character.groupId;
+    const group = await server._db
+      .collection(DB_COLLECTIONS.GROUPS)
+      .findOne<Group>({
+        serverId: server._worldId,
+        groupId: groupId
+      });
     if (!group) return;
 
     this.handleGroupLeave(server, client, group);
@@ -410,7 +445,7 @@ export class GroupManager {
     this.disbandGroup(server, group.groupId);
   }
 
-  handleGroupCommand(
+  async handleGroupCommand(
     server: ZoneServer2016,
     client: Client,
     args: Array<string>
@@ -422,8 +457,13 @@ export class GroupManager {
       );
       return;
     }
-    const groupId = client.character.groupId,
-      group = this.groups[groupId];
+    const groupId = client.character.groupId;
+    const group = await server._db
+      .collection(DB_COLLECTIONS.GROUPS)
+      .findOne<Group>({
+        serverId: server._worldId,
+        groupId: groupId
+      });
     if (args[0] != "invite" && (!groupId || !group)) {
       server.sendChatText(client, "You are not in a group!");
       return;
@@ -446,16 +486,16 @@ export class GroupManager {
           return;
         }
 
-        this.handleGroupKick(server, client, target, group);
+        this.handleGroupKick(server, client, target, group as Group);
         break;
       case "leave":
-        this.handleGroupLeave(server, client, group);
+        this.handleGroupLeave(server, client, group as Group);
         break;
       case "view":
-        this.handleGroupView(server, client, group);
+        this.handleGroupView(server, client, group as Group);
         break;
       case "disband":
-        this.handleGroupDisband(server, client, group);
+        this.handleGroupDisband(server, client, group as Group);
         break;
       case "invite":
         if (!args[1]) {
