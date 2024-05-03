@@ -132,6 +132,7 @@ import {
   ClientBan,
   ConstructionPermissions,
   DamageInfo,
+  Group,
   StanceFlags
 } from "types/zoneserver";
 import { Vehicle2016 } from "./entities/vehicle";
@@ -345,6 +346,9 @@ export class ZonePacketHandlers {
         if (client.isAdmin) {
           if (server.adminMessage)
             server.sendAlert(client, server.adminMessage);
+        }
+        if (!server._soloMode) {
+          server.groupManager.handleJoinExistingGroup(server, client);
         }
       }, 10000);
       if (client.banType != "") {

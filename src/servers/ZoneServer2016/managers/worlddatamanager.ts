@@ -462,6 +462,7 @@ export class WorldDataManager {
         _containers: loadedCharacter._containers || {},
         _resources: loadedCharacter._resources || {},
         mutedCharacters: loadedCharacter.mutedCharacters || [],
+        groupId: loadedCharacter.groupId || 0,
         status: 1,
         worldSaveVersion: this.worldSaveVersion
       };
@@ -519,7 +520,8 @@ export class WorldDataManager {
       rotation: Array.from(character.state.lookAt),
       isRespawning: character.isRespawning,
       spawnGridData: character.spawnGridData,
-      mutedCharacters: character.mutedCharacters
+      mutedCharacters: character.mutedCharacters,
+      groupId: character.groupId
     };
     return saveData;
   }

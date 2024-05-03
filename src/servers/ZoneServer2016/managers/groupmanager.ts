@@ -260,6 +260,24 @@ export class GroupManager {
     });
   }
 
+  async handleJoinExistingGroup(server: ZoneServer2016, client: Client) {
+    const group = await server._db
+      .collection(DB_COLLECTIONS.GROUPS)
+      .findOne<Group>({
+        serverId: server._worldId,
+        groupId: client.character.groupId
+      });
+    if (group) {
+      server.groupManager.sendGroupOutlineUpdates(server, group);
+      this.sendAlertToGroup(
+        server,
+        client.character.groupId,
+        `${client.character.name} Connected.`
+      );
+      server.sendAlert(client, "Group automatically joined.");
+    }
+  }
+
   async handleGroupJoin(
     server: ZoneServer2016,
     source: Client,
@@ -321,18 +339,15 @@ export class GroupManager {
     delete this.pendingInvites[client.character.characterId];
 
     const groupId = client.character.groupId;
-    const group = await server._db
-      .collection(DB_COLLECTIONS.GROUPS)
-      .findOne<Group>({
-        serverId: server._worldId,
-        groupId: groupId
-      });
-    if (!group) return;
-
-    this.handleGroupLeave(server, client, group);
+    this.sendAlertToAllOthersInGroup(
+      server,
+      client,
+      groupId,
+      `${client.character.name} has disconnected from the game.`
+    );
   }
 
-  removeGroupMember(
+  async removeGroupMember(
     server: ZoneServer2016,
     client: Client,
     group: Group,
@@ -354,13 +369,21 @@ export class GroupManager {
 
     // disband single member / empty group
     if (!disband && group.members.length <= 1) {
-      this.disbandGroup(server, group.groupId);
+      await this.disbandGroup(server, group.groupId);
     }
 
     // re-assign leader if 2+ remaining members
     if (group.leader == client.character.characterId && !disband) {
       const leader = Object.values(group.members)[0],
         leaderClient = server.getClientByCharId(leader);
+
+      await server._db.collection(DB_COLLECTIONS.GROUPS).updateOne(
+        {
+          serverId: server._worldId,
+          groupId: group.groupId
+        },
+        { leader: leader }
+      );
       group.leader = leader;
       if (leaderClient) {
         this.sendAlertToAllOthersInGroup(
