@@ -40,11 +40,11 @@ test("decaymanager", { timeout: 10000 }, async (t) => {
     const originalLen = Object.keys(zone._constructionFoundations).length;
     zone._constructionFoundations[characterId] = foundation;
 
-    const oridate = Date.now();
+    const originalDate = Date.now();
     t.mock.timers.enable({ apis: ["Date"] });
     // TODO: load that from config
     const timeGrief = 60_000 * 60 * 24 * 3;
-    t.mock.timers.tick(oridate + timeGrief);
+    t.mock.timers.tick(originalDate + timeGrief);
     zone.decayManager.run(zone);
     assert.strictEqual(
       Object.keys(zone._constructionFoundations).length,
