@@ -18,7 +18,7 @@ import { generate_random_guid } from "h1emu-core";
 import { Items } from "../models/enums";
 
 test("decaymanager", { timeout: 10000 }, async (t) => {
-  const zone = new ZoneServer2016(1117);
+  const zone = new ZoneServer2016(0);
   await zone.start();
   await t.test("test decay grief", () => {
     const characterId = generate_random_guid();
@@ -37,7 +37,6 @@ test("decaymanager", { timeout: 10000 }, async (t) => {
       "",
       ""
     );
-    const originalLen = Object.keys(zone._constructionFoundations).length;
     zone._constructionFoundations[characterId] = foundation;
 
     const originalDate = Date.now();
@@ -46,10 +45,7 @@ test("decaymanager", { timeout: 10000 }, async (t) => {
     const timeGrief = 60_000 * 60 * 24 * 3;
     t.mock.timers.tick(originalDate + timeGrief);
     zone.decayManager.run(zone);
-    assert.strictEqual(
-      Object.keys(zone._constructionFoundations).length,
-      originalLen
-    );
+    assert.strictEqual(Object.keys(zone._constructionFoundations).length, 0);
   });
 });
 
