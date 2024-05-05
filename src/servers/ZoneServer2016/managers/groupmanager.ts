@@ -24,9 +24,6 @@ enum GroupErrors {
 }
 
 export class GroupManager {
-  /** Id that is generated upon a new group creation */
-  nextGroupId = 1;
-
   /** "Limbo" for an invite that awaits acceptance or denial */
   pendingInvites: { [characterId: string]: number } = {};
 
@@ -158,7 +155,19 @@ export class GroupManager {
   }
 
   async createGroup(server: ZoneServer2016, leader: Client) {
-    const groupId = this.nextGroupId;
+    let groupId;
+    const latestGroup = await server._db
+      .collection(DB_COLLECTIONS.GROUPS)
+      .aggregate([
+        { $sort: { groupId: -1 } }, // Sort documents based on yourField in descending order
+        { $limit: 1 } // Limit to only the first document
+      ])
+      .toArray();
+    if (latestGroup.length) {
+      groupId = latestGroup[0].groupId + 1;
+    } else {
+      groupId = 1;
+    }
     await server._db.collection(DB_COLLECTIONS.GROUPS).insertOne({
       serverId: server._worldId,
       groupId,
@@ -167,7 +176,6 @@ export class GroupManager {
     });
     leader.character.groupId = groupId;
 
-    this.nextGroupId++;
     server.sendChatText(
       leader,
       "Group created. Use /group for a list of commands.",
@@ -310,7 +318,7 @@ export class GroupManager {
       return;
     }
     if (!group) {
-      this.createGroup(server, source);
+      await this.createGroup(server, source);
     }
     group = await server._db.collection(DB_COLLECTIONS.GROUPS).findOne<Group>({
       serverId: server._worldId,
@@ -328,6 +336,14 @@ export class GroupManager {
     );
     target.character.groupId = source.character.groupId;
     group.members.push(target.character.characterId);
+
+    await server._db.collection(DB_COLLECTIONS.GROUPS).updateOne(
+      {
+        serverId: server._worldId,
+        groupId: source.character.groupId
+      },
+      { $set: { members: group.members } }
+    );
 
     server.sendAlert(target, "Group joined.");
     delete this.pendingInvites[target.character.characterId];
