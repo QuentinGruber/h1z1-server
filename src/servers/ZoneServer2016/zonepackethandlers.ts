@@ -293,6 +293,22 @@ export class ZonePacketHandlers {
       "ZoneDoneSendingInitialData",
       {}
     ); // Required for WaitForWorldReady
+
+    server.sendData(client, "Items.SetEscrowAccountItemManager", {
+      accountItems: Object.values(client.character._accountItems).map(
+        (item) => {
+          return {
+            itemId: item.itemGuid,
+            itemData: {
+              itemId: item.itemGuid,
+              itemGuid: item.itemGuid,
+              itemDefinitionId: item.itemDefinitionId,
+              itemCount: item.stackCount
+            }
+          };
+        }
+      )
+    });
   }
   ClientFinishedLoading(
     server: ZoneServer2016,
@@ -3177,6 +3193,93 @@ export class ZonePacketHandlers {
   FairPlayInternal(server: ZoneServer2016, client: Client, packet: any) {}
   //#endregion
 
+  requestUseAccountItem(server: ZoneServer2016, client: Client, packet: any) {
+    const item = Object.values(client.character._accountItems).find(
+      (i) => i.itemDefinitionId === packet.data.itemDefinitionId
+    );
+    if (!item) return;
+    switch (packet.data.unknownDword3) {
+      case 85:
+        const rewards = server.getCrateRewards(packet.data.itemDefinitionId),
+          reward = server.getRandomCrateReward(packet.data.itemDefinitionId);
+        if (!rewards || !reward) return;
+
+        if (
+          packet.data.itemSubData.unknownBoolean1 == 0 &&
+          !server.removeInventoryItem(client.character, item)
+        )
+          return;
+        server.sendData(client, "Items.ReportRewardCrateContents", {
+          winningRewards:
+            reward > 0 && packet.data.itemSubData.unknownBoolean1 == 0
+              ? [{ itemDefinitionId: reward}]
+              : [],
+          possibleRewards: Object.values(rewards).map((rew) => {
+            return {
+              itemDefinitionId: rew.itemDefinitionId
+            };
+          })
+        });
+
+        if (reward > 0 && packet.data.itemSubData.unknownBoolean1 == 0)
+          client.character.lootItem(server, server.generateItem(reward));
+        break;
+      case 24:
+        //TODO: Clean up this code
+        const oitem = client.character.getInventoryItem(
+            packet.data.itemSubData.targetItemGuid
+          ),
+          accountItem = [
+            ...Object.values(server._accountItemDefinitions),
+            { ACCOUNT_ITEM_ID: 1800, REWARD_ITEM_ID: 0 }
+          ].find((a) => a.ACCOUNT_ITEM_ID == packet.data.itemDefinitionId);
+        if (oitem && accountItem) {
+          const newItem = server.generateItem(accountItem.REWARD_ITEM_ID),
+            containerItems = client.character.getContainerFromGuid(
+              oitem.itemGuid
+            )?.items;
+          if (newItem) {
+            // Copy over item data to new item
+            newItem.currentDurability = oitem.currentDurability;
+            newItem.itemGuid = oitem.itemGuid;
+            if (item.weapon) {
+              newItem.weapon = oitem.weapon;
+            }
+            if (!server.removeInventoryItem(client.character, oitem)) return;
+
+            client.character.equipItem(server, newItem);
+            client.character.updateEquipment(server);
+
+            // Copy over items from the old container to the new container
+            if (containerItems && _.size(containerItems) !== 0) {
+              const newContainer = client.character.getContainerFromGuid(
+                newItem.itemGuid
+              );
+              // Normally it should always find this container as it's constructed above, if not then we'll cross that bridge when we get to it
+              if (newContainer) {
+                Object.values(containerItems).forEach((i) => {
+                  server.addContainerItem(
+                    client.character,
+                    i,
+                    newContainer,
+                    false
+                  );
+                });
+              }
+            }
+
+            //TODO: Swap back to the item you just skinned
+          }
+        }
+        break;
+      case 25:
+        server.useAirdrop(client, client.character, item);
+        break;
+      default:
+        debug(packet.data);
+    }
+  }
+
   processPacket(
     server: ZoneServer2016,
     client: Client,
@@ -3415,12 +3518,7 @@ export class ZonePacketHandlers {
       case "FairPlay.Internal":
         this.FairPlayInternal(server, client, packet);
         break;
-      // This is just some testing data from me:
       case "Recipe.Discovery":
-        server.sendData(client, "Recipe.Unk8", {
-          unknownQword1: "1890",
-          unknownDword1: 171
-        });
         break;
       case "InGamePurchase.AcccountInfoRequest":
         server.sendData(client, "InGamePurchase.AcccountInfoResponse", {
@@ -3441,89 +3539,11 @@ export class ZonePacketHandlers {
         });
         break;
       case "InGamePurchase.WalletInfoRequest":
-        server.sendData(client, "InGamePurchase.WalletInfoResponse", {
-          unknownDword1: 1,
-          unknownBoolean1: true,
-          unknownDword2: 2,
-          unknownDword3: 86720018,
-          unknownString1: "KH$",
-          unknownString2: "US"
-        });
+        break;
+      case "InGamePurchase.StationCashProductsRequest":
         break;
       case "Items.RequestUseAccountItem":
-        // This code is anything but optimal, everything will be moved to a separate function at some point.
-        if (!packet.data.itemSubData.unknownBoolean1) {
-          const item = client.character.getInventoryItem(
-              packet.data.itemSubData.targetItemGuid
-            ),
-            accountItem = Object.values(server._accountItemDefinitions).find(
-              (a) => a.ACCOUNT_ITEM_ID == packet.data.itemDefinitionId
-            );
-          if (item && accountItem) {
-            const container = client.character.getContainerFromGuid(
-              item.containerGuid
-            );
-
-            item.itemDefinitionId = accountItem.REWARD_ITEM_ID;
-
-            if (container) {
-              server.updateContainerItem(client.character, item, container);
-            }
-
-            const equipmentItem = Object.values(
-                client.character._equipment
-              ).find((e) => e.guid == item.itemGuid),
-              itemDef = server.getItemDefinition(packet.data.itemDefinitionId);
-            if (equipmentItem) {
-              if (itemDef?.MODEL_NAME) {
-                equipmentItem.modelName = itemDef?.MODEL_NAME;
-              }
-
-              if (itemDef?.TEXTURE_ALIAS) {
-                equipmentItem.textureAlias = itemDef?.TEXTURE_ALIAS;
-              }
-
-              client.character.updateLoadout(server, true);
-              client.character.updateEquipment(server, 3);
-            }
-          }
-        }
-
-        if (packet.data.unknownDword3 == 85) {
-          const crates = fs.readFileSync("../../data/2016/dataSources/AccountCrates.json"),
-            crateData = JSON.parse(crates.toString()),
-            crate = crateData.find((c: any) => c.itemDefinitionId == packet.data.itemDefinitionId);
-
-          if(!crate) {
-            debug("CrateId #" + packet.data.itemDefinitionId + " not found");
-          }
-
-          const items: any[] = Object.values(crate?.rewards);
-          
-          let reward = 0;
-          if(packet.data.itemSubData.unknownBoolean1 == 0) {
-            const totalChances = crate.rewards.reduce((acc: any, reward: any) => acc + reward.rewardChance, 0);
-            let randomChance = Math.random() * totalChances;
-            for (const rew of crate.rewards) {
-              if (randomChance < rew.rewardChance) {
-                reward = rew.itemDefinitionId;
-                break;
-              }
-              randomChance -= rew.rewardChance;
-            }
-          }
-
-          server.sendData(client, "Items.ReportRewardCrateContents", {
-            unknownArray1: reward > 0 ? [{ unknownDword1: reward, unknownDword2: 1}] : [],
-            unknownArray2: Object.values(items).map((rew) => {
-              return {
-                unknownDword1: rew.itemDefinitionId,
-                unknownDword2: 1
-              };
-            })
-          });
-        }
-        // unknownDword3 = 24 for Skins, 85 for Crates
+        this.requestUseAccountItem(server, client, packet);
         break;
       default:
         debug(packet);
