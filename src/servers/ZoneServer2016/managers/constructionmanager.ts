@@ -739,6 +739,7 @@ export class ConstructionManager {
           eul2quat(rotation),
           3600000
         );
+      case Items.TRAP_FLASH:
       case Items.IED:
       case Items.LANDMINE:
         return this.placeExplosiveEntity(
@@ -1403,7 +1404,7 @@ export class ConstructionManager {
         server,
         itemDefinitionId
       );
-    if (npc.isLandmine()) {
+    if (npc.isLandmine() || npc.isTrap()) {
       npc.arm(server);
     }
     server._explosives[characterId] = npc;
