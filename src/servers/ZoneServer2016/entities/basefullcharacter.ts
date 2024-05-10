@@ -71,6 +71,7 @@ export abstract class BaseFullCharacter extends BaseLightweightCharacter {
   _loadout: { [loadoutSlotId: number]: LoadoutItem } = {};
   _equipment: { [equipmentSlotId: number]: CharacterEquipment } = {};
   _containers: { [loadoutSlotId: number]: LoadoutContainer } = {};
+  _accountItems: { [itemGuid: string]: BaseItem } = {};
   loadoutId = 5;
   currentLoadoutSlot = 0; // idk if other full npcs use this
   isLightweight = false;
@@ -427,7 +428,9 @@ export abstract class BaseFullCharacter extends BaseLightweightCharacter {
       count = item.stackCount;
     }
     const itemDefId = item.itemDefinitionId;
-    if (this.getAvailableLoadoutSlot(server, itemDefId)) {
+    if (server.isAccountItem(itemDefId) && client) {
+      this.lootAccountItem(server, client, item);
+    } else if (this.getAvailableLoadoutSlot(server, itemDefId)) {
       if (client && client.character.initialized && sendUpdate) {
         server.sendData(client, "Reward.AddNonRewardItem", {
           itemDefId: itemDefId,
@@ -440,6 +443,22 @@ export abstract class BaseFullCharacter extends BaseLightweightCharacter {
     } else {
       this.lootContainerItem(server, item, count, sendUpdate);
     }
+  }
+
+  lootAccountItem(
+    server: ZoneServer2016,
+    client: ZoneClient2016,
+    item: BaseItem
+  ) {
+    client.character._accountItems[item.itemGuid] = item;
+    server.sendData(client, "Items.AddEscrowAccountItem", {
+      itemData: {
+        itemId: item.itemGuid,
+        itemDefinitionId: item.itemDefinitionId,
+        itemCount: item.stackCount,
+        itemGuid: item.itemGuid
+      }
+    });
   }
 
   lootItemFromContainer(

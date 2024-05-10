@@ -67,6 +67,8 @@ import {
   ItemDefinition,
   modelData,
   PropInstance,
+  RewardCrateDefinition,
+  RewardCrateRewardDefinition,
   ScreenEffect,
   UseOption
 } from "../../types/zoneserver";
@@ -262,6 +264,7 @@ const spawnLocations2 = require("../../../data/2016/zoneData/Z1_gridSpawns.json"
   gameRulesSource = require("../../../data/2016/dataSources/ServerGameRules"),
   models = require("../../../data/2016/dataSources/Models"),
   accountItemConversions = require("./../../../data/2016/dataSources/AcctItemConversions.json"),
+  rewardCrates = require("./../../../data/2016/dataSources/AccountCrates.json"),
   equipmentModelTexturesMapping: Record<
     string,
     Record<string, string[]>
@@ -399,6 +402,7 @@ export class ZoneServer2016 extends EventEmitter {
     weaponDefinitions.FIRE_MODE_DEFINITIONS;
   _accountItemDefinitions: { [ACCOUNT_ITEM_ID: number]: AccountDefinition } =
     accountItemConversions;
+  _rewardCrateDefinitions: RewardCrateDefinition[] = rewardCrates;
   itemDefinitionsCache?: Buffer;
   dynamicAppearanceCache?: Buffer;
   weaponDefinitionsCache?: Buffer;
@@ -1508,6 +1512,20 @@ export class ZoneServer2016 extends EventEmitter {
     client.character.hairModel = savedCharacter.hairModel || "";
     client.character.spawnGridData = savedCharacter.spawnGridData;
     client.character.mutedCharacters = savedCharacter.mutedCharacters || [];
+
+    // TODO: Cleanup
+    // TODO: On new character creation _accountItems is missing
+    Object.values(savedCharacter._accountItems).forEach((item) => {
+      client.character._accountItems[item.itemGuid] = new BaseItem(
+        item.itemDefinitionId,
+        item.itemGuid,
+        0,
+        item.stackCount
+      );
+    });
+
+    if (Object.values(savedCharacter._accountItems).length == 0)
+      client.character._accountItems = {};
 
     let newCharacter = false;
     if (
@@ -5361,6 +5379,52 @@ export class ZoneServer2016 extends EventEmitter {
     };
   }
 
+  isAccountItem(itemDefinitionId?: number): boolean {
+    if (!itemDefinitionId) return false;
+    const itemDef = this.getItemDefinition(itemDefinitionId);
+    return [
+      "RewardCrate",
+      "AccountRecipe",
+      "IncrementEntitlement",
+      "EmoteAnimation"
+    ].includes(itemDef?.CODE_FACTORY_NAME ?? "");
+  }
+
+  /**
+   * Gets the rewards for a given itemDefinitionId.
+   *
+   * @param {number} [itemDefinitionId] - The ID of the crate to retrieve rewards from.
+   * @returns {RewardCrateRewardDefinition[]|undefined} The rewards.
+   */
+  getCrateRewards(itemDefinitionId?: number) {
+    if (!itemDefinitionId) return;
+    return Object.values(this._rewardCrateDefinitions).find(
+      (i) => i.itemDefinitionId === itemDefinitionId
+    )?.rewards;
+  }
+
+  /**
+   * Gets a random reward for a given crate.
+   *
+   * @param {number} [itemDefinitionId] - The ID of the crate to retrieve rewards from.
+   * @returns {number} Reward Item definition ID.
+   */
+  getRandomCrateReward(itemDefinitionId?: number) {
+    const rewards = this.getCrateRewards(itemDefinitionId);
+    if (!rewards) return;
+    const totalChances = rewards.reduce(
+      (acc: any, reward: any) => acc + reward.rewardChance,
+      0
+    );
+    let randomChance = Math.random() * totalChances;
+    for (const rew of rewards) {
+      if (randomChance < rew.rewardChance) {
+        return rew.itemDefinitionId;
+      }
+      randomChance -= rew.rewardChance;
+    }
+  }
+
   /**
    * Gets the item definition for a given itemDefinitionId.
    *
@@ -5883,6 +5947,36 @@ export class ZoneServer2016 extends EventEmitter {
   }
 
   /**
+   * Removes an item from the account inventory.
+   *
+   * @param {BaseFullCharacter} character - The character to have their items removed.
+   * @param {BaseItem} item - The item to remove.
+   * @returns {boolean} Returns true if the item was successfully removed, false if there was an error.
+   */
+  removeAccountItem(character: BaseFullCharacter, item: BaseItem): boolean {
+    const client = this.getClientByCharId(character.characterId);
+    if (!client) return false;
+    item.stackCount--;
+    if (item.stackCount <= 0) {
+      delete character._accountItems[item.itemGuid];
+      this.sendData(client, "Items.RemoveEscrowAccountItem", {
+        itemId: item.itemGuid,
+        itemDefinitionId: item.itemDefinitionId
+      });
+      return true;
+    }
+    this.sendData(client, "Items.UpdateEscrowAccountItem", {
+      itemData: {
+        itemId: item.itemGuid,
+        itemDefinitionId: item.itemDefinitionId,
+        itemCount: item.stackCount,
+        itemGuid: item.itemGuid,
+      }
+    });
+    return true;
+  }
+
+  /**
    * Removes an item from the loadout.
    *
    * @param {BaseFullCharacter} character - The character to have their items removed.
@@ -6005,7 +6099,9 @@ export class ZoneServer2016 extends EventEmitter {
       count = item.stackCount;
     }
 
-    if (character._loadout[item.slotId]?.itemGuid == item.itemGuid) {
+    if (this.isAccountItem(item.itemDefinitionId)) {
+      return this.removeAccountItem(character, item);
+    } else if (character._loadout[item.slotId]?.itemGuid == item.itemGuid) {
       return this.removeLoadoutItem(character, item.slotId, updateEquipment);
     } else {
       return this.removeContainerItem(
@@ -6339,6 +6435,34 @@ export class ZoneServer2016 extends EventEmitter {
     }
   }
 
+  updateAirdropIndicator(client: Client | undefined = undefined) {
+    let statusCode = 0;
+    if (this._airdrop) {
+      statusCode = 1;
+    } else if (
+      _.size(this._clients) < this.worldObjectManager.minAirdropSurvivors &&
+      !this._soloMode
+    ) {
+      statusCode = 2;
+    }
+
+    const data = {
+      indicator: statusCode == 0 ? 1 : 0,
+      status: 0
+    };
+
+    console.log(data);
+
+    if (!client) {
+      this.sendDataToAll("Command.DeliveryManagerStatus", data);
+      console.log("a");
+      return;
+    }
+
+    console.log("cl");
+    this.sendData(client, "Command.DeliveryManagerStatus", data);
+  }
+
   useAirdrop(
     client: Client,
     character: Character | BaseLootableEntity,
@@ -6376,7 +6500,7 @@ export class ZoneServer2016 extends EventEmitter {
     }
 
     if (
-      item.itemDefinitionId != Items.AIRDROP_CODE ||
+      ![1800, Items.AIRDROP_CODE].includes(item.itemDefinitionId) ||
       !this.removeInventoryItem(character, item)
     )
       return;
@@ -6977,7 +7101,7 @@ export class ZoneServer2016 extends EventEmitter {
         : 1;
 
     return await new Promise<boolean>((resolve) => {
-      this.utilizeHudTimer(client, nameId, timeout, animationId, async() => {
+      this.utilizeHudTimer(client, nameId, timeout, animationId, async () => {
         resolve(await this.salvageItemPass(character, item, count));
       });
     });

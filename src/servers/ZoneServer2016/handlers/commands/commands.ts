@@ -1899,7 +1899,6 @@ export const commands: Array<Command> = [
         const name = itemDefinitions[a].NAME;
         const argsName = args[0].toString().toUpperCase().replaceAll("_", " ");
         if (!name) continue;
-        if (itemDefinitions[a].CODE_FACTORY_NAME == "AccountRecipe") continue;
         if (itemDefinitions[a].CODE_FACTORY_NAME == "EquippableContainer") {
           if (itemDefinitions[a].BULK == 0) continue; // skip account recipes and world containers
         }

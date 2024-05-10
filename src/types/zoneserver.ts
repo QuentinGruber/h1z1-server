@@ -488,6 +488,16 @@ export interface AccountDefinition {
   CONTENT_ID: number
 }
 
+export interface RewardCrateDefinition {
+  itemDefinitionId: number,
+  rewards: RewardCrateRewardDefinition[]
+}
+
+export interface RewardCrateRewardDefinition {
+  itemDefinitionId: number,
+  rewardChance: number
+}
+
 export interface ItemDefinition {
   NAME: string,
   ID: number,

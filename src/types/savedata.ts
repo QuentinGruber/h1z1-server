@@ -33,6 +33,12 @@ export interface WeaponSaveData {
   ammoCount: number;
 }
 
+export interface AccountItemSaveData {
+  itemDefinitionId: number;
+  itemGuid: string;
+  stackCount: number;
+}
+
 export interface ItemSaveData {
   itemDefinitionId: number;
   slotId: number;
@@ -54,6 +60,7 @@ export interface LoadoutContainerSaveData extends LoadoutItemSaveData {
 
 export interface BaseFullCharacterUpdateSaveData extends BaseEntityUpdateSaveData {
   _loadout: { [loadoutSlotId: number]: LoadoutItemSaveData };
+  _accountItems: { [itemGuid: string]: AccountItemSaveData };
   _containers: { [loadoutSlotId: number]: LoadoutContainerSaveData };
   _resources: { [resourceId: number]: number };
   worldSaveVersion: number;

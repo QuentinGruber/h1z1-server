@@ -13,6 +13,7 @@
 
 import { Collection, Db, MongoClient } from "mongodb";
 import {
+  AccountItemSaveData,
   BaseConstructionSaveData,
   BaseEntityUpdateSaveData,
   BaseFullCharacterUpdateSaveData,
@@ -304,6 +305,14 @@ export class WorldDataManager {
     };
   }
 
+  static getAccountItemSaveData(item: BaseItem): AccountItemSaveData {
+    return {
+      itemDefinitionId: item.itemDefinitionId,
+      itemGuid: item.itemGuid,
+      stackCount: item.stackCount
+    };
+  }
+
   static getItemSaveData(item: BaseItem): ItemSaveData {
     return {
       itemDefinitionId: item.itemDefinitionId,
@@ -345,10 +354,16 @@ export class WorldDataManager {
     worldSaveVersion: number
   ): BaseFullCharacterUpdateSaveData {
     const loadout: { [loadoutSlotId: number]: LoadoutItemSaveData } = {},
+      accountItems: { [itemGuid: string]: AccountItemSaveData } = {},
       containers: { [loadoutSlotId: number]: LoadoutContainerSaveData } = {};
     Object.values(entity._loadout).forEach((item) => {
       loadout[item.slotId] = {
         ...this.getLoadoutItemSaveData(item)
+      };
+    });
+    Object.values(entity._accountItems).forEach((item) => {
+      accountItems[item.itemGuid] = {
+        ...this.getAccountItemSaveData(item)
       };
     });
     Object.values(entity._containers).forEach((container) => {
@@ -360,6 +375,7 @@ export class WorldDataManager {
     return {
       ...this.getBaseEntityUpdateSaveData(entity),
       _loadout: loadout,
+      _accountItems: accountItems,
       _containers: containers,
       _resources: entity._resources,
       worldSaveVersion: worldSaveVersion
@@ -458,6 +474,7 @@ export class WorldDataManager {
         spawnGridData: loadedCharacter.spawnGridData || Array(100).fill(0),
         position: loadedCharacter.position,
         rotation: loadedCharacter.rotation,
+        _accountItems: loadedCharacter._accountItems || {},
         _loadout: loadedCharacter._loadout || {},
         _containers: loadedCharacter._containers || {},
         _resources: loadedCharacter._resources || {},
