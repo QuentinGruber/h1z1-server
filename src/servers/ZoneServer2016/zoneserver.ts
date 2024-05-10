@@ -1512,20 +1512,6 @@ export class ZoneServer2016 extends EventEmitter {
     client.character.spawnGridData = savedCharacter.spawnGridData;
     client.character.mutedCharacters = savedCharacter.mutedCharacters || [];
 
-    // TODO: Cleanup
-    // TODO: On new character creation _accountItems is missing
-    Object.values(savedCharacter._accountItems).forEach((item) => {
-      client.character._accountItems[item.itemGuid] = new BaseItem(
-        item.itemDefinitionId,
-        item.itemGuid,
-        0,
-        item.stackCount
-      );
-    });
-
-    if (Object.values(savedCharacter._accountItems).length == 0)
-      client.character._accountItems = {};
-
     let newCharacter = false;
     if (
       _.isEqual(savedCharacter.position, [0, 0, 0, 1]) &&
@@ -1558,6 +1544,14 @@ export class ZoneServer2016 extends EventEmitter {
         savedCharacter._containers,
         client.character._containers
       );
+      Object.values(savedCharacter._accountItems).forEach((item) => {
+        client.character._accountItems[item.itemGuid] = new BaseItem(
+          item.itemDefinitionId,
+          item.itemGuid,
+          0,
+          item.stackCount
+        );
+      });
       client.character._resources =
         savedCharacter._resources || client.character._resources;
       client.character.generateEquipmentFromLoadout(this);
