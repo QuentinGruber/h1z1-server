@@ -68,7 +68,6 @@ import {
   modelData,
   PropInstance,
   RewardCrateDefinition,
-  RewardCrateRewardDefinition,
   ScreenEffect,
   UseOption
 } from "../../types/zoneserver";
@@ -3293,7 +3292,11 @@ export class ZoneServer2016 extends EventEmitter {
     const entity = this.getEntity(hitReport.characterId);
     if (!entity) return;
     // Don't allow hits registering over 350 as this is the render distance for NPC's
-    if(getDistance2d(entity.state.position, client.character.state.position) > 350) return;
+    if (
+      getDistance2d(entity.state.position, client.character.state.position) >
+      350
+    )
+      return;
     const fireHint = client.fireHints[hitReport.sessionProjectileCount];
     const targetClient = this.getClientByCharId(entity.characterId);
     if (!fireHint) {
@@ -5970,7 +5973,7 @@ export class ZoneServer2016 extends EventEmitter {
         itemId: item.itemGuid,
         itemDefinitionId: item.itemDefinitionId,
         itemCount: item.stackCount,
-        itemGuid: item.itemGuid,
+        itemGuid: item.itemGuid
       }
     });
     return true;

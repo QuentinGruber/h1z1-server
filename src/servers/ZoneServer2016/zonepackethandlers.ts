@@ -3212,7 +3212,7 @@ export class ZonePacketHandlers {
         server.sendData(client, "Items.ReportRewardCrateContents", {
           winningRewards:
             reward > 0 && packet.data.itemSubData.unknownBoolean1 == 0
-              ? [{ itemDefinitionId: reward}]
+              ? [{ itemDefinitionId: reward }]
               : [],
           possibleRewards: Object.values(rewards).map((rew) => {
             return {
