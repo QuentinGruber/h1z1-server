@@ -964,37 +964,6 @@ export class Character2016 extends BaseFullCharacter {
         equipmentSlots: this.pGetEquipment() as any,
         characterResources: this.pGetResources(),
         containers: this.pGetContainers(server),
-        // Currently send account items to admins only since EscrowServerConnected isn't set to true, yet.
-        // Requires more reversing. I'm guessing this has to do with the loginReply, Z1BR send character data, which we don't
-        accountItems: {
-          unknownArray1: !client.isAdmin
-            ? {}
-            : Object.values(server._accountItemDefinitions).map((itemDef) => {
-                return {
-                  unknownQword1: client.character.characterId,
-                  unknownData1: {
-                    unknownQword1: server.generateGuid(),
-                    unknownDword1: itemDef.ACCOUNT_ITEM_ID,
-                    unknownDword2: itemDef.ID,
-                    unknownDword3: 1
-                  }
-                };
-              }),
-          unknownArray2: [
-            {
-              unknownQword1: client.character.characterId,
-              unknownDword1: 1,
-              unknownDword2: 1
-            }
-          ],
-          unknownArray3: [
-            {
-              unknownQword1: "0x665a2bff2b44c034",
-              unknownQword2: client.character.characterId,
-              unknownDword1: 1
-            }
-          ]
-        },
         //unknownQword1: this.characterId,
         //unknownDword38: 1,
         //vehicleLoadoutRelatedQword: this.characterId,
