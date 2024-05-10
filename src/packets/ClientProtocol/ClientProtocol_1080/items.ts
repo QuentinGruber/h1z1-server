@@ -13,6 +13,7 @@
 
 import { h1z1Buffer } from "h1z1-dataschema";
 import { PacketStructures } from "types/packetStructure";
+import { accountItemSchema } from "./shared";
 
 export function parseItemRequestSubData(data: h1z1Buffer, offset: number) {
   const obj: any = {},
@@ -176,7 +177,7 @@ export const itemsPackets: PacketStructures = [
     0xad1100,
     {
       fields: [
-        { name: "itemId", type: "uint64", defaultValue: 0x3100000000000000n },
+        { name: "itemId", type: "uint64string", defaultValue: "0x0" },
         { name: "unknowWord2", type: "uint32", defaultValue: 1 },
         { name: "unknowWord3", type: "uint32", defaultValue: 2 },
         { name: "unknowWord4", type: "uint32", defaultValue: 3 } // count ?
@@ -195,21 +196,37 @@ export const itemsPackets: PacketStructures = [
           type: "array",
           defaultValue: [],
           fields: [
-            { name: "unknownQword1", type: "uint64string", defaultValue: "0" },
-            { name: "unknownQword2", type: "uint64string", defaultValue: "0" },
-            { name: "itemDefinitionId", type: "uint32", defaultValue: 0 },
-            { name: "unknownDword2", type: "uint32", defaultValue: 0 },
-            { name: "itemCount", type: "uint32", defaultValue: 0 },
-            { name: "itemGuid", type: "uint64string", defaultValue: "0" },
-            { name: "unknownDword4", type: "uint32", defaultValue: 0 }
+            { name: "itemId", type: "uint64string", defaultValue: "0" },
+            { name: "itemData", type: "schema", fields: accountItemSchema }
           ]
         }
       ]
     }
   ],
-  ["Items.AddEscrowAccountItem", 0xad15, {}],
-  ["Items.RemoveEscrowAccountItem", 0xad16, {}],
-  ["Items.UpdateEscrowAccountItem", 0xad17, {}],
+  [
+    "Items.AddEscrowAccountItem",
+    0xad15,
+    {
+      fields: [{ name: "itemData", type: "schema", fields: accountItemSchema }]
+    }
+  ],
+  [
+    "Items.RemoveEscrowAccountItem",
+    0xad16,
+    {
+      fields: [
+        { name: "itemId", type: "uint64string", defaultValue: "0" },
+        { name: "itemDefinitionId", type: "uint32", defaultValue: 0 }
+      ]
+    }
+  ],
+  [
+    "Items.UpdateEscrowAccountItem",
+    0xad17,
+    {
+      fields: [{ name: "itemData", type: "schema", fields: accountItemSchema }]
+    }
+  ],
   [
     "Items.AccountItemManagerStateChanged",
     0xad18,
@@ -226,7 +243,32 @@ export const itemsPackets: PacketStructures = [
   ["Items.RemoveNewAccountItemRecByItemId", 0xad1b, {}],
   ["Items.RemoveAllNewAccountItemRecs", 0xad1c, {}],
   ["Items.ReportNewRewardCrateAdded", 0xad1d, {}],
-  ["Items.ReportRewardCrateContents", 0xad1e, {}],
+  [
+    "Items.ReportRewardCrateContents",
+    0xad1e,
+    {
+      fields: [
+        {
+          name: "winningRewards",
+          type: "array",
+          defaultValue: [],
+          fields: [
+            { name: "itemDefinitionId", type: "uint32", defaultValue: 0 },
+            { name: "unknownDword2", type: "uint32", defaultValue: 0 }
+          ]
+        },
+        {
+          name: "possibleRewards",
+          type: "array",
+          defaultValue: [],
+          fields: [
+            { name: "itemDefinitionId", type: "uint32", defaultValue: 0 },
+            { name: "unknownDword2", type: "uint32", defaultValue: 0 }
+          ]
+        }
+      ]
+    }
+  ],
   ["Items.ItemPacketIdSetEmoteItem", 0xad1f, {}],
   ["Items.RemoveEmoteItem", 0xad20, {}],
   ["Items.SetSkinItemManager", 0xad21, {}],
