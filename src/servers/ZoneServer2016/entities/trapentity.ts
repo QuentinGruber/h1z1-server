@@ -243,6 +243,7 @@ export class TrapEntity extends BaseSimpleNpc {
           }
         }, 500);
         break;
+      case Items.TRAP_FIRE:
       case Items.TRAP_FLASH:
         this.trapTimer = setTimeout(() => {
           if (!server._traps[this.characterId]) {
@@ -326,18 +327,14 @@ export class TrapEntity extends BaseSimpleNpc {
 
   detonateTrap(server: ZoneServer2016, damageInfo: DamageInfo) {
     const client = server.getClientByCharId(damageInfo.entity);
-    if (!client || ![Items.TRAP_FLASH].includes(this.itemDefinitionId)) return;
+    if (
+      !client ||
+      ![Items.TRAP_FLASH, Items.TRAP_FIRE].includes(this.itemDefinitionId)
+    )
+      return;
 
     switch (this.itemDefinitionId) {
       case Items.TRAP_FLASH:
-        if (!this.isTriggered) {
-          server.sendCompositeEffectToAllInRange(
-            600,
-            "",
-            this.state.position,
-            4658
-          );
-        }
         if (
           getDistance(client.character.state.position, this.state.position) <= 5
         ) {
@@ -362,6 +359,78 @@ export class TrapEntity extends BaseSimpleNpc {
           );
         }
         break;
+      case Items.TRAP_FIRE:
+        if (
+          getDistance(client.character.state.position, this.state.position) <= 5
+        ) {
+          server.sendDataToAllOthersWithSpawnedEntity(
+            server._characters,
+            client,
+            client.character.characterId,
+            "Character.PlayAnimation",
+            {
+              characterId: client.character.characterId,
+              animationName: "Action",
+              animationType: "ActionType",
+              unm4: 0,
+              unknownDword1: 0,
+              unknownByte1: 0,
+              unknownDword2: 0,
+              unknownByte1xda: 0,
+              unknownDword3: 11
+            }
+          );
+
+          server.sendDataToAllWithSpawnedEntity(
+            server._traps,
+            this.characterId,
+            "Character.AddEffectTagCompositeEffect",
+            {
+              characterId: client.character.characterId,
+              unknownDword1: Effects.PFX_Fire_Person_loop,
+              effectId: Effects.PFX_Fire_Person_loop,
+              unknownGuid: client.character.characterId,
+              unknownDword2: 3
+            }
+          );
+
+          const interval = 1000,
+            duration = 10000;
+          let elapsedTime = 0;
+
+          const timerId = setInterval(() => {
+            elapsedTime += interval;
+
+            client.character.damage(server, {
+              entity: this.characterId,
+              causeBleed: false,
+              damage: 500
+            });
+            if (elapsedTime >= duration) {
+              clearInterval(timerId);
+              server.sendDataToAllWithSpawnedEntity(
+                server._characters,
+                client.character.characterId,
+                "Character.RemoveEffectTagCompositeEffect",
+                {
+                  characterId: client.character.characterId,
+                  effectId: Effects.PFX_Fire_Person_loop,
+                  newEffectId: 0
+                }
+              );
+            }
+          }, interval);
+        }
+        break;
+    }
+
+    if (!this.isTriggered) {
+      server.sendCompositeEffectToAllInRange(
+        600,
+        "",
+        this.state.position,
+        4658
+      );
     }
   }
 }
