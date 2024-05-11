@@ -36,6 +36,9 @@ export class ExplosiveEntity extends BaseLightweightCharacter {
   triggerExplosionShots =
     this.isLandmine() || this.isIED() ? 1 : Math.floor(Math.random() * 2) + 1;
 
+  /** the characterId from who place this to keep track */
+  ownerCharacterId: string;
+
   constructor(
     characterId: string,
     transientId: number,
@@ -43,18 +46,16 @@ export class ExplosiveEntity extends BaseLightweightCharacter {
     position: Float32Array,
     rotation: Float32Array,
     server: ZoneServer2016,
-    itemDefinitionId: number
+    itemDefinitionId: number,
+    ownerCharacterId: string = ""
   ) {
     super(characterId, transientId, actorModelId, position, rotation, server);
     this.itemDefinitionId = itemDefinitionId;
+    this.ownerCharacterId = ownerCharacterId;
   }
 
   isIED() {
     return this.itemDefinitionId == Items.IED;
-  }
-
-  isTrap() {
-    return this.itemDefinitionId == Items.TRAP_FLASH;
   }
 
   isLandmine() {
@@ -62,7 +63,7 @@ export class ExplosiveEntity extends BaseLightweightCharacter {
   }
 
   ignite(server: ZoneServer2016, client: ZoneClient2016) {
-    if (!this.isIED() || this.isTrap()) {
+    if (!this.isIED()) {
       return;
     }
     const pos = this.state.position;
@@ -97,78 +98,14 @@ export class ExplosiveEntity extends BaseLightweightCharacter {
   detonate(server: ZoneServer2016, client?: ZoneClient2016) {
     if (!server._explosives[this.characterId] || this.detonated) return;
     this.detonated = true;
-
+    server.sendCompositeEffectToAllInRange(600, "", this.state.position, 1875);
     server.deleteEntity(this.characterId, server._explosives);
-    switch (this.itemDefinitionId) {
-      case Items.TRAP_FLASH:
-        server.sendCompositeEffectToAllInRange(
-          600,
-          "",
-          this.state.position,
-          4658
-        );
-        if (client && getDistance(this.state.position, client.character.state.position) <= 3) {
-          server.sendData(client, "ScreenEffect.ApplyScreenEffect", {
-            unknownDword1: 1662059549,
-            effectId: 8,
-            unknownDword3: 4,
-            duration: 4000,
-            unknownDword5: 110,
-            screenBrightness: 10,
-            unknownDword7: 1,
-            string1: "",
-            unknownDword8: 0,
-            string2: "",
-            unknownDword9: 0,
-            colorGradingFilename: "",
-            colorGrading: 0,
-            unknownDword11: 4294967295,
-            unknownDword12: 4294967295,
-            screenCover: 0,
-            transparency: 0,
-            color: 0,
-            unknownDword16: 1,
-            unknownDword17: 1.5,
-            unknownDword18: 0.05,
-            unknownDword19: 1082130432,
-            unknownDword20: 0,
-            unknownDword21: 0
-          });
-
-          server.sendDataToAllOthersWithSpawnedEntity(
-            server._characters,
-            client,
-            client.character.characterId,
-            "Character.PlayAnimation",
-            {
-              characterId: client.character.characterId,
-              animationName: "Action",
-              animationType: "ActionType",
-              unm4: 0,
-              unknownDword1: 0,
-              unknownByte1: 0,
-              unknownDword2: 0,
-              unknownByte1xda: 0,
-              unknownDword3: 9
-            }
-          );
-        }
-        break;
-      default:
-        server.sendCompositeEffectToAllInRange(
-          600,
-          "",
-          this.state.position,
-          1875
-        );
-        server.explosionDamage(
-          this.state.position,
-          this.characterId,
-          this.itemDefinitionId,
-          client
-        );
-        break;
-    }
+    server.explosionDamage(
+      this.state.position,
+      this.characterId,
+      this.itemDefinitionId,
+      client
+    );
   }
 
   /** Used by landmines to arm their explosivenss */
@@ -184,7 +121,7 @@ export class ExplosiveEntity extends BaseLightweightCharacter {
             this.state.position
           ) < 0.6
         ) {
-          this.detonate(server, server._clients[a]);
+          this.detonate(server);
           return;
         }
       }
@@ -214,7 +151,7 @@ export class ExplosiveEntity extends BaseLightweightCharacter {
       const randomInt = randomIntFromInterval(0, 100);
       if (randomInt < 90) this.triggerExplosionShots += 1;
     }
-    if (this.triggerExplosionShots > 0 && !this.isTrap()) return;
+    if (this.triggerExplosionShots > 0) return;
     this.detonate(server, server.getClientByCharId(damageInfo.entity));
   }
 
