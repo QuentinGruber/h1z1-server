@@ -27,7 +27,6 @@ export class Npc extends BaseFullCharacter {
   deathTime: number = 0;
   npcId: number = 0;
   rewardItems: { itemDefId: number; weight: number }[] = [];
-  canReceiveDamage = true;
   flags = {
     bit0: 0,
     bit1: 0,
@@ -103,14 +102,6 @@ export class Npc extends BaseFullCharacter {
           characterId: this.characterId
         }
       );
-
-      this.health = 10000;
-      // This is temporary fix so shotguns won't despawn the entity since the pellets will hit after entity is knocked out.
-      // TODO: Revisit this
-      this.canReceiveDamage = false;
-      setTimeout(() => {
-        this.canReceiveDamage = true;
-      }, 1000);
     }
 
     if (client) {
@@ -178,7 +169,13 @@ export class Npc extends BaseFullCharacter {
   initNpcData() {
     switch (this.actorModelId) {
       case ModelIds.ZOMBIE_SCREAMER:
-        //Screamer
+        this.nameId = StringIds.BANSHEE;
+        this.rewardItems = [
+          {
+            itemDefId: Items.CLOTH,
+            weight: 40
+          }
+        ];
         break;
       case ModelIds.ZOMBIE_FEMALE_WALKER:
       case ModelIds.ZOMBIE_MALE_WALKER:
@@ -275,6 +272,8 @@ export class Npc extends BaseFullCharacter {
           case ModelIds.WOLF:
             this.triggerAwards(server, client, this.rewardItems);
             break;
+          case ModelIds.ZOMBIE_SCREAMER:
+            this.triggerAwards(server, client, this.rewardItems);
         }
         server.damageItem(client, skinningKnife, 400);
         server.deleteEntity(this.characterId, server._npcs);
@@ -317,7 +316,7 @@ export class Npc extends BaseFullCharacter {
       if (!preRewardedItems.includes(selectedRange.item.itemDefId)) {
         preRewardedItems.push(selectedRange.item.itemDefId);
 
-        if (Math.random() <= 0.4) {
+        if (Math.random() <= 0.4 && selectedRange.item.itemDefId != Items.BRAIN_INFECTED) {
           // 40% chance to spawn double rewards
           count = 2;
         }
@@ -336,6 +335,7 @@ export class Npc extends BaseFullCharacter {
       switch (this.actorModelId) {
         case ModelIds.ZOMBIE_FEMALE_WALKER:
         case ModelIds.ZOMBIE_MALE_WALKER:
+        case ModelIds.ZOMBIE_SCREAMER:
           if (client.character.hasItem(Items.SYRINGE_EMPTY)) {
             this.sendInteractionString(server, client, StringIds.EXTRACT_BLOOD);
             return;
