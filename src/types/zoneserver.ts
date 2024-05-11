@@ -387,6 +387,11 @@ export interface ScreenEffect {
 	transparency: number;
 	color: number;
 	unknownDword3: number;
+  unknownDword7: number;
+  unknownDword16: number;
+  unknownDword17: number;
+  unknownDword18: number;
+  unknownDword19: number;
 }
 
 export interface clientEffect {

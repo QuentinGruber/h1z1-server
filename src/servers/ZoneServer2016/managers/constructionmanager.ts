@@ -708,12 +708,15 @@ export class ConstructionManager {
       case Items.SNARE:
       case Items.PUNJI_STICKS:
       case Items.PUNJI_STICK_ROW:
+      case Items.TRAP_FLASH:
         return this.placeTrap(
           server,
           itemDefinitionId,
           modelId,
           position,
-          fixEulerOrder(rotation)
+          fixEulerOrder(rotation),
+          false,
+          client.character.characterId
         );
       case Items.RIGGED_LIGHT:
         return this.placeTemporaryEntity(
@@ -739,7 +742,6 @@ export class ConstructionManager {
           eul2quat(rotation),
           3600000
         );
-      case Items.TRAP_FLASH:
       case Items.IED:
       case Items.LANDMINE:
         return this.placeExplosiveEntity(
@@ -747,7 +749,8 @@ export class ConstructionManager {
           itemDefinitionId,
           modelId,
           position,
-          eul2quat(rotation)
+          eul2quat(rotation),
+          client.character.characterId
         );
       case Items.METAL_GATE:
       case Items.DOOR_BASIC:
@@ -1366,7 +1369,8 @@ export class ConstructionManager {
     modelId: number,
     position: Float32Array,
     rotation: Float32Array,
-    worldOwned: boolean = false
+    worldOwned: boolean = false,
+    owner: string = ""
   ): boolean {
     const characterId = server.generateGuid(),
       transientId = 1, // dont think its needed here
@@ -1378,7 +1382,8 @@ export class ConstructionManager {
         rotation,
         server,
         itemDefinitionId,
-        worldOwned
+        worldOwned,
+        owner
       );
     npc.arm(server);
     server._traps[characterId] = npc;
@@ -1391,7 +1396,8 @@ export class ConstructionManager {
     itemDefinitionId: Items,
     modelId: number,
     position: Float32Array,
-    rotation: Float32Array
+    rotation: Float32Array,
+    ownerCharacterId: string
   ): boolean {
     const characterId = server.generateGuid(),
       transientId = 1, // dont think its needed
@@ -1402,9 +1408,10 @@ export class ConstructionManager {
         position,
         rotation,
         server,
-        itemDefinitionId
+        itemDefinitionId,
+        ownerCharacterId
       );
-    if (npc.isLandmine() || npc.isTrap()) {
+    if (npc.isLandmine()) {
       npc.arm(server);
     }
     server._explosives[characterId] = npc;

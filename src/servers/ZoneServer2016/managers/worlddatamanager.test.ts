@@ -54,7 +54,8 @@ async function worldSaveUnitTests(t: any, mongoAddress: string) {
     characters: [],
     constructions: [],
     worldConstructions: [],
-    crops: []
+    crops: [],
+    traps: []
   };
   await t.test("convert vehicles", async () => {
     world.vehicles = WorldDataManager.convertVehiclesToSaveData(

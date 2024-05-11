@@ -163,6 +163,13 @@ export interface PlantingDiameterSaveData
     isFertilized: boolean;
 }
 
+export interface TrapSaveData
+  extends BaseFullEntitySaveData {
+    ownerCharacterId: string;
+    itemDefinitionId: number;
+    health: number;
+}
+
 export interface ServerSaveData extends BaseSaveData {
   lastItemGuid: string;
   worldSaveVersion: number;

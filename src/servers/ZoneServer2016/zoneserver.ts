@@ -127,7 +127,8 @@ import {
   ConstructionParentSaveData,
   FullCharacterSaveData,
   LootableConstructionSaveData,
-  PlantingDiameterSaveData
+  PlantingDiameterSaveData,
+  TrapSaveData
 } from "types/savedata";
 import {
   constructContainers,
@@ -1605,6 +1606,9 @@ export class ZoneServer2016 extends EventEmitter {
       fetchedWorldData.crops.forEach((entityData) => {
         WorldDataManager.loadPlantingDiameter(this, entityData);
       });
+      fetchedWorldData.traps.forEach((entityData) => {
+        WorldDataManager.loadTraps(this, entityData);
+      });
       fetchedWorldData.vehicles.forEach((entityData) => {
         WorldDataManager.loadVehicles(this, entityData);
       });
@@ -1691,6 +1695,17 @@ export class ZoneServer2016 extends EventEmitter {
           );
         }
       });
+      const traps: TrapSaveData[] = [];
+      Object.values(this._traps).forEach((entity) => {
+        if (entity instanceof TrapEntity && !entity.worldOwned) {
+          traps.push(WorldDataManager.getTrapSaveData(entity, this._worldId));
+        }
+      });
+      Object.values(this._explosives).forEach((entity) => {
+        if (entity instanceof ExplosiveEntity && entity.isLandmine()) {
+          traps.push(WorldDataManager.getTrapSaveData(entity, this._worldId));
+        }
+      });
 
       console.timeEnd("ZONE: processing");
 
@@ -1702,6 +1717,7 @@ export class ZoneServer2016 extends EventEmitter {
           characters,
           worldConstructions,
           crops,
+          traps,
           constructions,
           vehicles
         })
@@ -8246,7 +8262,12 @@ export class ZoneServer2016 extends EventEmitter {
         screenCover: effect.screenCover,
         transparency: effect.transparency,
         color: parseInt(effect.color, 16),
-        unknownDword3: effect.id
+        unknownDword3: effect?.unknownDword3 ?? 0,
+        unknownDword7: effect?.unknownDword7 ?? 0,
+        unknownDword16: effect?.unknownDword16 ?? 0,
+        unknownDword17: effect?.unknownDword17 ?? 0,
+        unknownDword18: effect?.unknownDword18 ?? 0,
+        unknownDword19: effect?.unknownDword19 ?? 0
       };
     });
   }

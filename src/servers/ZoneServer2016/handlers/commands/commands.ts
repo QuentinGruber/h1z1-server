@@ -1707,7 +1707,8 @@ export const commands: Array<Command> = [
           ]),
           client.character.state.lookAt,
           server,
-          Items.IED
+          Items.IED,
+          client.character.characterId
         ); // save explosive
       });
     }

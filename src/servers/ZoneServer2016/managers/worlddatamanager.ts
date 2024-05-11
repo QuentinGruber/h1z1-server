@@ -33,6 +33,7 @@ import {
   PlantSaveData,
   positionUpdate,
   ServerSaveData,
+  TrapSaveData,
   WeaponSaveData
 } from "types/savedata";
 import {
@@ -61,6 +62,8 @@ import { DB_NAME } from "../../../utils/constants";
 import { Character2016 } from "../entities/character";
 import { Items } from "../models/enums";
 import { Vehicle2016 } from "../entities/vehicle";
+import { TrapEntity } from "../entities/trapentity";
+import { ExplosiveEntity } from "../entities/explosiveentity";
 
 const fs = require("node:fs");
 const debug = require("debug")("ZoneServer");
@@ -69,6 +72,7 @@ export interface WorldArg {
   characters: CharacterUpdateSaveData[];
   worldConstructions: LootableConstructionSaveData[];
   crops: PlantingDiameterSaveData[];
+  traps: TrapSaveData[];
   constructions: ConstructionParentSaveData[];
   vehicles: FullVehicleSaveData[];
 }
@@ -76,6 +80,7 @@ export interface FetchedWorldData {
   constructionParents: ConstructionParentSaveData[];
   freeplace: LootableConstructionSaveData[];
   crops: PlantingDiameterSaveData[];
+  traps: TrapSaveData[];
   lastTransientId: number;
   vehicles: FullVehicleSaveData[];
 }
@@ -207,11 +212,13 @@ export class WorldDataManager {
     const freeplace =
       (await this.loadWorldFreeplaceConstruction()) as LootableConstructionSaveData[];
     const crops = (await this.loadCropData()) as PlantingDiameterSaveData[];
+    const traps = (await this.loadTrapData()) as TrapSaveData[];
     debug("World fetched!");
     return {
       constructionParents,
       freeplace,
       crops,
+      traps,
       lastTransientId: 0,
       vehicles
     };
@@ -259,6 +266,7 @@ export class WorldDataManager {
     await this.saveConstructionData(world.constructions);
     await this.saveWorldFreeplaceConstruction(world.worldConstructions);
     await this.saveCropData(world.crops);
+    await this.saveTrapData(world.traps);
     console.timeEnd("WDM: saveWorld");
   }
 
@@ -1295,6 +1303,103 @@ export class WorldDataManager {
       );
     }
     return freeplace;
+  }
+
+  static getTrapSaveData(
+    entity: TrapEntity | ExplosiveEntity,
+    serverId: number
+  ): TrapSaveData {
+    return {
+      ...this.getBaseFullEntitySaveData(entity, serverId),
+      ownerCharacterId: entity.ownerCharacterId,
+      itemDefinitionId: entity.itemDefinitionId,
+      health: entity.health
+    };
+  }
+
+  async saveTrapData(traps: TrapSaveData[]) {
+    if (this._soloMode) {
+      fs.writeFileSync(
+        `${this._appDataFolder}/worlddata/traps.json`,
+        JSON.stringify(traps, null, 2)
+      );
+    } else {
+      const collection = this._db?.collection(
+        DB_COLLECTIONS.TRAPS
+      ) as Collection;
+      const updatePromises = [];
+      for (let i = 0; i < traps.length; i++) {
+        const construction = traps[i];
+        updatePromises.push(
+          collection.updateOne(
+            { characterId: construction.characterId, serverId: this._worldId },
+            { $set: construction },
+            { upsert: true }
+          )
+        );
+      }
+      await Promise.all(updatePromises);
+      const allCharactersIds = traps.map((trap) => {
+        return trap.characterId;
+      });
+      await collection.deleteMany({
+        serverId: this._worldId,
+        characterId: { $nin: allCharactersIds }
+      });
+    }
+  }
+
+  async loadTrapData() {
+    let traps: Array<TrapSaveData> = [];
+    if (this._soloMode) {
+      traps = require(`${this._appDataFolder}/worlddata/traps.json`);
+      if (!traps) {
+        debug("trap data not found in file, aborting.");
+        return;
+      }
+    } else {
+      traps = <any>(
+        await this._db
+          ?.collection(DB_COLLECTIONS.TRAPS)
+          .find({ serverId: this._worldId })
+          .toArray()
+      );
+    }
+    return traps;
+  }
+
+  static loadTraps(server: ZoneServer2016, entityData: TrapSaveData) {
+    const transientId = server.getTransientId(entityData.characterId);
+    switch (entityData.itemDefinitionId) {
+      case Items.LANDMINE:
+        const explosive = new ExplosiveEntity(
+          entityData.characterId,
+          transientId,
+          entityData.actorModelId,
+          new Float32Array(entityData.position),
+          new Float32Array(entityData.rotation),
+          server,
+          entityData.itemDefinitionId,
+          entityData.ownerCharacterId
+        );
+        server._explosives[entityData.characterId] = explosive;
+        explosive.arm(server);
+        break;
+      default:
+        const trap = new TrapEntity(
+          entityData.characterId,
+          transientId,
+          entityData.actorModelId,
+          new Float32Array(entityData.position),
+          new Float32Array(entityData.rotation),
+          server,
+          entityData.itemDefinitionId,
+          false,
+          entityData.ownerCharacterId
+        );
+        trap.health = entityData.health;
+        server._traps[trap.characterId] = trap;
+    }
   }
 
   //#endregion

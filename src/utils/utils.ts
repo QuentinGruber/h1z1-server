@@ -497,6 +497,12 @@ export const setupAppDataFolder = (): void => {
       JSON.stringify([])
     );
   }
+  if (!fs.existsSync(`${AppDataFolderPath}/worlddata/traps.json`)) {
+    fs.writeFileSync(
+      `${AppDataFolderPath}/worlddata/traps.json`,
+      JSON.stringify([])
+    );
+  }
   if (!fs.existsSync(`${AppDataFolderPath}/worlddata/world.json`)) {
     fs.writeFileSync(
       `${AppDataFolderPath}/worlddata/world.json`,
