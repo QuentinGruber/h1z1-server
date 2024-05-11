@@ -316,7 +316,10 @@ export class Npc extends BaseFullCharacter {
       if (!preRewardedItems.includes(selectedRange.item.itemDefId)) {
         preRewardedItems.push(selectedRange.item.itemDefId);
 
-        if (Math.random() <= 0.4 && selectedRange.item.itemDefId != Items.BRAIN_INFECTED) {
+        if (
+          Math.random() <= 0.4 &&
+          selectedRange.item.itemDefId != Items.BRAIN_INFECTED
+        ) {
           // 40% chance to spawn double rewards
           count = 2;
         }
