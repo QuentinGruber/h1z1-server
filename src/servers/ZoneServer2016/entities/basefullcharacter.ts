@@ -71,7 +71,6 @@ export abstract class BaseFullCharacter extends BaseLightweightCharacter {
   _loadout: { [loadoutSlotId: number]: LoadoutItem } = {};
   _equipment: { [equipmentSlotId: number]: CharacterEquipment } = {};
   _containers: { [loadoutSlotId: number]: LoadoutContainer } = {};
-  _accountItems: { [itemGuid: string]: BaseItem } = {};
   loadoutId = 5;
   currentLoadoutSlot = 0; // idk if other full npcs use this
   isLightweight = false;
@@ -450,7 +449,9 @@ export abstract class BaseFullCharacter extends BaseLightweightCharacter {
     client: ZoneClient2016,
     item: BaseItem
   ) {
-    client.character._accountItems[item.itemGuid] = item;
+    const items = server._accountInventories[client.loginSessionId]?.items;
+    if (!items) return;
+    items[item.itemGuid] = item;
     server.sendData(client, "Items.AddEscrowAccountItem", {
       itemData: {
         itemId: item.itemGuid,

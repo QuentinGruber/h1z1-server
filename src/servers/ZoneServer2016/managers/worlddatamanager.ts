@@ -64,12 +64,14 @@ import { Items } from "../models/enums";
 import { Vehicle2016 } from "../entities/vehicle";
 import { TrapEntity } from "../entities/trapentity";
 import { ExplosiveEntity } from "../entities/explosiveentity";
+import { AccountInventory } from "../classes/accountinventory";
 
 const fs = require("node:fs");
 const debug = require("debug")("ZoneServer");
 export interface WorldArg {
   lastGuidItem: bigint;
   characters: CharacterUpdateSaveData[];
+  accountInventories: AccountItemSaveData[];
   worldConstructions: LootableConstructionSaveData[];
   crops: PlantingDiameterSaveData[];
   traps: TrapSaveData[];
@@ -267,6 +269,7 @@ export class WorldDataManager {
     await this.saveWorldFreeplaceConstruction(world.worldConstructions);
     await this.saveCropData(world.crops);
     await this.saveTrapData(world.traps);
+    await this.saveAccountInventories(world.accountInventories);
     console.timeEnd("WDM: saveWorld");
   }
 
@@ -313,14 +316,6 @@ export class WorldDataManager {
     };
   }
 
-  static getAccountItemSaveData(item: BaseItem): AccountItemSaveData {
-    return {
-      itemDefinitionId: item.itemDefinitionId,
-      itemGuid: item.itemGuid,
-      stackCount: item.stackCount
-    };
-  }
-
   static getItemSaveData(item: BaseItem): ItemSaveData {
     return {
       itemDefinitionId: item.itemDefinitionId,
@@ -362,16 +357,10 @@ export class WorldDataManager {
     worldSaveVersion: number
   ): BaseFullCharacterUpdateSaveData {
     const loadout: { [loadoutSlotId: number]: LoadoutItemSaveData } = {},
-      accountItems: { [itemGuid: string]: AccountItemSaveData } = {},
       containers: { [loadoutSlotId: number]: LoadoutContainerSaveData } = {};
     Object.values(entity._loadout).forEach((item) => {
       loadout[item.slotId] = {
         ...this.getLoadoutItemSaveData(item)
-      };
-    });
-    Object.values(entity._accountItems).forEach((item) => {
-      accountItems[item.itemGuid] = {
-        ...this.getAccountItemSaveData(item)
       };
     });
     Object.values(entity._containers).forEach((container) => {
@@ -383,7 +372,6 @@ export class WorldDataManager {
     return {
       ...this.getBaseEntityUpdateSaveData(entity),
       _loadout: loadout,
-      _accountItems: accountItems,
       _containers: containers,
       _resources: entity._resources,
       worldSaveVersion: worldSaveVersion
@@ -482,7 +470,6 @@ export class WorldDataManager {
         spawnGridData: loadedCharacter.spawnGridData || Array(100).fill(0),
         position: loadedCharacter.position,
         rotation: loadedCharacter.rotation,
-        _accountItems: loadedCharacter._accountItems || {},
         _loadout: loadedCharacter._loadout || {},
         _containers: loadedCharacter._containers || {},
         _resources: loadedCharacter._resources || {},
@@ -1400,6 +1387,109 @@ export class WorldDataManager {
         trap.health = entityData.health;
         server._traps[trap.characterId] = trap;
         trap.arm(server);
+    }
+  }
+
+  async saveAccountInventories(accountInventories: AccountItemSaveData[]) {
+    if (this._soloMode) {
+      fs.writeFileSync(
+        `${this._appDataFolder}/single_player_accountitems.json`,
+        JSON.stringify(accountInventories, null, 2)
+      );
+    } else {
+      const collection = this._db?.collection(
+        DB_COLLECTIONS.ACCOUNT_ITEMS
+      ) as Collection;
+      const updatePromises = [];
+      for (let i = 0; i < accountInventories.length; i++) {
+        const accountInventory = accountInventories[i];
+        updatePromises.push(
+          collection.updateOne(
+            {
+              loginSessionId: accountInventory.loginSessionId,
+              serverId: this._worldId
+            },
+            { $set: accountInventory },
+            { upsert: true }
+          )
+        );
+      }
+      await Promise.all(updatePromises);
+      const allCharactersIds = accountInventories.map((accountInventory) => {
+        return accountInventory.loginSessionId;
+      });
+      await collection.deleteMany({
+        serverId: this._worldId,
+        loginSessionId: { $nin: allCharactersIds }
+      });
+    }
+  }
+
+  async loadAccountInventory(loginSessionId: string) {
+    let savedAccountInventory: AccountItemSaveData;
+    if (this._soloMode) {
+      const accountInventories = require(
+        `${this._appDataFolder}/single_player_accountitems.json`
+      );
+      if (!accountInventories) {
+        debug("account inventory data not found in file, aborting.");
+        return;
+      }
+
+      savedAccountInventory = accountInventories.find(
+        (inventory: any) => inventory.loginSessionId === loginSessionId
+      );
+    } else {
+      const loadedAccountInventory = <any>(
+        await this._db
+          ?.collection(DB_COLLECTIONS.ACCOUNT_ITEMS)
+          .findOne({ loginSessionId: loginSessionId })
+      );
+
+      savedAccountInventory = {
+        loginSessionId:
+          loadedAccountInventory?.loginSessionId || loginSessionId,
+        items: loadedAccountInventory?.items || {}
+      };
+    }
+
+    if (!savedAccountInventory) {
+      return new AccountInventory(loginSessionId, {});
+    }
+    const accountInventory = new AccountInventory(
+      savedAccountInventory.loginSessionId,
+      {}
+    );
+    Object.values(savedAccountInventory.items).forEach((item) => {
+      accountInventory.items[item.itemGuid] = new BaseItem(
+        item.itemDefinitionId,
+        item.itemGuid,
+        item.currentDurability,
+        item.stackCount
+      );
+    });
+
+    return accountInventory;
+  }
+
+  async saveAccountInventory(accountInventory: AccountInventory) {
+    if (this._soloMode) {
+      fs.writeFileSync(
+        `${this._appDataFolder}/single_player_accountitems.json`,
+        JSON.stringify([accountInventory], null, 2)
+      );
+    } else {
+      await this._db?.collection(DB_COLLECTIONS.ACCOUNT_ITEMS).updateOne(
+        {
+          serverId: this._worldId,
+          loginSessionId: accountInventory.loginSessionId
+        },
+        {
+          $set: {
+            ...accountInventory
+          }
+        }
+      );
     }
   }
 

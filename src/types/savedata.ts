@@ -34,9 +34,8 @@ export interface WeaponSaveData {
 }
 
 export interface AccountItemSaveData {
-  itemDefinitionId: number;
-  itemGuid: string;
-  stackCount: number;
+  loginSessionId: string;
+  items: ItemSaveData[];
 }
 
 export interface ItemSaveData {
@@ -60,7 +59,6 @@ export interface LoadoutContainerSaveData extends LoadoutItemSaveData {
 
 export interface BaseFullCharacterUpdateSaveData extends BaseEntityUpdateSaveData {
   _loadout: { [loadoutSlotId: number]: LoadoutItemSaveData };
-  _accountItems: { [itemGuid: string]: AccountItemSaveData };
   _containers: { [loadoutSlotId: number]: LoadoutContainerSaveData };
   _resources: { [resourceId: number]: number };
   worldSaveVersion: number;

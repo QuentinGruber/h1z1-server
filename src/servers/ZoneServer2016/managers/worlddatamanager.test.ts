@@ -52,6 +52,7 @@ async function worldSaveUnitTests(t: any, mongoAddress: string) {
     lastGuidItem: 1000n,
     vehicles: [],
     characters: [],
+    accountInventories: [],
     constructions: [],
     worldConstructions: [],
     crops: [],

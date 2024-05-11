@@ -124,6 +124,7 @@ import { ConstructionDoor } from "./entities/constructiondoor";
 import { ConstructionParentEntity } from "./entities/constructionparententity";
 import { ConstructionChildEntity } from "./entities/constructionchildentity";
 import {
+  AccountItemSaveData,
   ConstructionParentSaveData,
   FullCharacterSaveData,
   LootableConstructionSaveData,
@@ -243,6 +244,7 @@ import { GatewayServer } from "../GatewayServer/gatewayserver";
 import { WaterSource } from "./entities/watersource";
 import { WebSocket } from "ws";
 import { CommandHandler } from "./handlers/commands/commandhandler";
+import { AccountInventory } from "./classes/accountinventory";
 
 const spawnLocations2 = require("../../../data/2016/zoneData/Z1_gridSpawns.json"),
   deprecatedDoors = require("../../../data/2016/sampleData/deprecatedDoors.json"),
@@ -296,6 +298,7 @@ export class ZoneServer2016 extends EventEmitter {
 
   /** Global dictionaries for all entities */
   _characters: EntityDictionary<Character> = {};
+  _accountInventories: EntityDictionary<AccountInventory> = {};
   _npcs: EntityDictionary<Npc> = {};
   _spawnedItems: EntityDictionary<ItemObject> = {};
   _plants: EntityDictionary<Plant> = {};
@@ -1249,10 +1252,14 @@ export class ZoneServer2016 extends EventEmitter {
     if (!this.hookManager.checkHook("OnSendCharacterData", client)) return;
     if (!(await this.hookManager.checkAsyncHook("OnSendCharacterData", client)))
       return;
-    let savedCharacter: FullCharacterSaveData;
+    let savedCharacter: FullCharacterSaveData,
+      accountInventory: AccountInventory;
     try {
       savedCharacter = await this.worldDataManager.fetchCharacterData(
         client.character.characterId
+      );
+      accountInventory = await this.worldDataManager.loadAccountInventory(
+        client.loginSessionId
       );
     } catch (e) {
       console.log(e);
@@ -1264,6 +1271,11 @@ export class ZoneServer2016 extends EventEmitter {
       savedCharacter as FullCharacterSaveData
     );
     client.startingPos = client.character.state.position;
+    if (this._accountInventories[accountInventory.loginSessionId]) {
+      delete this._accountInventories[accountInventory.loginSessionId];
+    }
+    this._accountInventories[accountInventory.loginSessionId] =
+      accountInventory;
   }
 
   sendCharacterData(client: Client) {
@@ -1545,14 +1557,12 @@ export class ZoneServer2016 extends EventEmitter {
         savedCharacter._containers,
         client.character._containers
       );
-      Object.values(savedCharacter._accountItems).forEach((item) => {
-        client.character._accountItems[item.itemGuid] = new BaseItem(
-          item.itemDefinitionId,
-          item.itemGuid,
-          0,
-          item.stackCount
+      if (!this._accountInventories[client.loginSessionId]) {
+        this._accountInventories[client.loginSessionId] = new AccountInventory(
+          client.loginSessionId,
+          {}
         );
-      });
+      }
       client.character._resources =
         savedCharacter._resources || client.character._resources;
       client.character.generateEquipmentFromLoadout(this);
@@ -1706,6 +1716,13 @@ export class ZoneServer2016 extends EventEmitter {
           traps.push(WorldDataManager.getTrapSaveData(entity, this._worldId));
         }
       });
+      const accountInventories: AccountItemSaveData[] = [];
+      Object.values(this._accountInventories).forEach((entity) => {
+        accountInventories.push({
+          loginSessionId: entity.loginSessionId,
+          items: Object.values(entity.items)
+        });
+      });
 
       console.timeEnd("ZONE: processing");
 
@@ -1715,6 +1732,7 @@ export class ZoneServer2016 extends EventEmitter {
         .saveWorld({
           lastGuidItem: this.lastItemGuid,
           characters,
+          accountInventories,
           worldConstructions,
           crops,
           traps,
@@ -2109,6 +2127,11 @@ export class ZoneServer2016 extends EventEmitter {
         this._worldId
       );
       this.worldDataManager.saveCharacterData(characterSave, this.lastItemGuid);
+      if (this._accountInventories[client.loginSessionId]) {
+        this.worldDataManager.saveAccountInventory(
+          this._accountInventories[client.loginSessionId]
+        );
+      }
       this.dismountVehicle(client);
       client.managedObjects?.forEach((characterId: string) => {
         this.dropVehicleManager(client, characterId);
@@ -5969,9 +5992,11 @@ export class ZoneServer2016 extends EventEmitter {
   removeAccountItem(character: BaseFullCharacter, item: BaseItem): boolean {
     const client = this.getClientByCharId(character.characterId);
     if (!client) return false;
+    const accountItems = this._accountInventories[client.loginSessionId]?.items;
+    if (!accountItems) return false;
     item.stackCount--;
     if (item.stackCount <= 0) {
-      delete character._accountItems[item.itemGuid];
+      delete accountItems[item.itemGuid];
       this.sendData(client, "Items.RemoveEscrowAccountItem", {
         itemId: item.itemGuid,
         itemDefinitionId: item.itemDefinitionId
@@ -8534,6 +8559,13 @@ export class ZoneServer2016 extends EventEmitter {
         }
       )?.SHADER_PARAMETER_GROUP ?? []
     );
+  }
+
+  getAccountItems(sessionId: string): Array<BaseItem> {
+    if (!this._accountInventories[sessionId]?.items) {
+      return [];
+    }
+    return Object.values(this._accountInventories[sessionId].items);
   }
 }
 

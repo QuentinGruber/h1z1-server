@@ -153,7 +153,7 @@ import { Destroyable } from "./entities/destroyable";
 import { Lootbag } from "./entities/lootbag";
 import { ReceivedPacket } from "types/shared";
 import { LoadoutItem } from "./classes/loadoutItem";
-import { TrapEntity } from "./entities/trapentity";
+import { BaseItem } from "./classes/baseItem";
 
 function getStanceFlags(num: number): StanceFlags {
   function getBit(bin: string, bit: number) {
@@ -295,8 +295,9 @@ export class ZonePacketHandlers {
     ); // Required for WaitForWorldReady
 
     server.sendData(client, "Items.SetEscrowAccountItemManager", {
-      accountItems: Object.values(client.character._accountItems).map(
-        (item) => {
+      accountItems: server
+        .getAccountItems(client.loginSessionId)
+        .map((item: BaseItem) => {
           return {
             itemId: item.itemGuid,
             itemData: {
@@ -306,8 +307,7 @@ export class ZonePacketHandlers {
               itemCount: item.stackCount
             }
           };
-        }
-      )
+        })
     });
   }
   ClientFinishedLoading(
@@ -3194,7 +3194,10 @@ export class ZonePacketHandlers {
   //#endregion
 
   requestUseAccountItem(server: ZoneServer2016, client: Client, packet: any) {
-    const item = Object.values(client.character._accountItems).find(
+    const accountItems =
+      server._accountInventories[client.loginSessionId]?.items;
+    if (!accountItems) return;
+    const item = Object.values(accountItems).find(
       (i) => i.itemDefinitionId === packet.data.itemDefinitionId
     );
     if (!item) return;

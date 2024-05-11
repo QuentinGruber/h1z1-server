@@ -362,8 +362,7 @@ export class TrapEntity extends BaseSimpleNpc {
         break;
       case Items.TRAP_FIRE:
         if (
-          getDistance(client.character.state.position, this.state.position) <=
-          5
+          getDistance(client.character.state.position, this.state.position) <= 5
         ) {
           server.sendDataToAllOthersWithSpawnedEntity(
             server._characters,
