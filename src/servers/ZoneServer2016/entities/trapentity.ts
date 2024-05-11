@@ -271,10 +271,10 @@ export class TrapEntity extends BaseSimpleNpc {
                 this.state.position
               ) < 2
             ) {
-              for (const b in server._vehicles[a].getPassengerList()) {
-                this.detonateTrap(server, { entity: b, damage: 0 });
+              server._vehicles[a].getPassengerList().map((passenger) => {
+                this.detonateTrap(server, { entity: passenger, damage: 0 });
                 this.isTriggered = true;
-              }
+              });
             }
           }
           if (!this.isTriggered) {
@@ -333,6 +333,7 @@ export class TrapEntity extends BaseSimpleNpc {
     )
       return;
 
+    //TODO: Damage vehicles while driving over fire traps
     switch (this.itemDefinitionId) {
       case Items.TRAP_FLASH:
         if (
@@ -361,7 +362,8 @@ export class TrapEntity extends BaseSimpleNpc {
         break;
       case Items.TRAP_FIRE:
         if (
-          getDistance(client.character.state.position, this.state.position) <= 5
+          getDistance(client.character.state.position, this.state.position) <=
+          5
         ) {
           server.sendDataToAllOthersWithSpawnedEntity(
             server._characters,
