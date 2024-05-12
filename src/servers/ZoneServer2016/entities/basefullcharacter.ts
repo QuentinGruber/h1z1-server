@@ -428,7 +428,7 @@ export abstract class BaseFullCharacter extends BaseLightweightCharacter {
     }
     const itemDefId = item.itemDefinitionId;
     if (server.isAccountItem(itemDefId) && client) {
-      this.lootAccountItem(server, client, item);
+      this.lootAccountItem(server, client, item, sendUpdate);
     } else if (this.getAvailableLoadoutSlot(server, itemDefId)) {
       if (client && client.character.initialized && sendUpdate) {
         server.sendData(client, "Reward.AddNonRewardItem", {
@@ -447,7 +447,8 @@ export abstract class BaseFullCharacter extends BaseLightweightCharacter {
   lootAccountItem(
     server: ZoneServer2016,
     client: ZoneClient2016,
-    item: BaseItem
+    item: BaseItem,
+    sendUpdate: boolean = false
   ) {
     const items = server._accountInventories[client.loginSessionId]?.items;
     if (!items) return;
@@ -459,6 +460,14 @@ export abstract class BaseFullCharacter extends BaseLightweightCharacter {
         itemCount: item.stackCount,
         itemGuid: item.itemGuid
       }
+    });
+
+    if (!sendUpdate) return;
+    server.sendData(client, "Reward.AddNonRewardItem", {
+      itemDefId: item.itemDefinitionId,
+      iconId: server.getItemDefinition(item.itemDefinitionId)?.IMAGE_SET_ID,
+      nameId: server.getItemDefinition(item.itemDefinitionId)?.NAME_ID,
+      count: item.stackCount
     });
   }
 

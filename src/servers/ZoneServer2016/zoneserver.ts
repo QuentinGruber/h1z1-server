@@ -5422,7 +5422,8 @@ export class ZoneServer2016 extends EventEmitter {
       "RewardCrate",
       "AccountRecipe",
       "IncrementEntitlement",
-      "EmoteAnimation"
+      "EmoteAnimation",
+      "AccountGiveRewardSet"
     ].includes(itemDef?.CODE_FACTORY_NAME ?? "");
   }
 

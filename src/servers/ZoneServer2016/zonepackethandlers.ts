@@ -3225,7 +3225,12 @@ export class ZonePacketHandlers {
         });
 
         if (reward > 0 && packet.data.itemSubData.unknownBoolean1 == 0)
-          client.character.lootItem(server, server.generateItem(reward));
+          client.character.lootItem(
+            server,
+            server.generateItem(reward),
+            1,
+            false
+          );
         break;
       case 24:
         //TODO: Clean up this code
@@ -3277,6 +3282,67 @@ export class ZonePacketHandlers {
         break;
       case 25:
         server.useAirdrop(client, client.character, item);
+        break;
+      case 26:
+        const bagRewards = server.getCrateRewards(packet.data.itemDefinitionId),
+          bagReward = server.getRandomCrateReward(packet.data.itemDefinitionId);
+        if (!bagRewards || !bagReward) return;
+        server.utilizeHudTimer(
+          client,
+          server.getItemDefinition(packet.data.itemDefinitionId)?.NAME_ID ?? 0,
+          1000,
+          0,
+          () => {
+            if (!server.removeInventoryItem(client.character, item)) return;
+            client.character.lootItem(server, server.generateItem(bagReward));
+          }
+        );
+        break;
+      case 46:
+        let packageRewards: number[] = [];
+        switch (packet.data.itemDefinitionId) {
+          case 2725:
+            packageRewards = [2679, 2669];
+            break;
+          case 2326:
+            packageRewards = [2305, 2296];
+            break;
+          case 2327:
+            packageRewards = [2303, 2298];
+            break;
+          case 2328:
+            packageRewards = [2301, 2293];
+            break;
+          case 2329:
+            packageRewards = [2302, 2294];
+            break;
+          case 2330:
+            packageRewards = [2307, 2297];
+            break;
+          case 2331:
+            packageRewards = [2304, 2295];
+            break;
+          case 2332:
+            packageRewards = [2306, 2292];
+            break;
+        }
+
+        server.utilizeHudTimer(
+          client,
+          server.getItemDefinition(packet.data.itemDefinitionId)?.NAME_ID ?? 0,
+          1000,
+          0,
+          () => {
+            if (
+              !server.removeInventoryItem(client.character, item) &&
+              packageRewards.length <= 0
+            )
+              return;
+            Object.values(packageRewards).forEach((itemDefId) => {
+              client.character.lootItem(server, server.generateItem(itemDefId));
+            });
+          }
+        );
         break;
       default:
         debug(packet.data);
