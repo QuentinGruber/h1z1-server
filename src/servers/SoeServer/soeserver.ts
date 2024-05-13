@@ -14,7 +14,11 @@
 import { EventEmitter } from "node:events";
 import { RemoteInfo } from "node:dgram";
 import {
+  AckPacket,
   append_crc_legacy,
+  DataPacket,
+  SessionReplyPacket,
+  SessionRequestPacket,
   SoeOpcode,
   SoePacketParsed,
   Soeprotocol
@@ -39,7 +43,7 @@ export class SOEServer extends EventEmitter {
   private _connection: dgram.Socket;
   private readonly _crcSeed: number = Math.floor(Math.random() * 255);
   private _crcLength: crc_length_options = 2;
-  _waitTimeMs: number = 24;
+  _waitTimeMs: number = 0;
   keepAliveTimeoutTime: number = 40000;
   private readonly _maxMultiBufferSize: number;
   private _resendTimeout: number = 400;
@@ -122,7 +126,7 @@ export class SOEServer extends EventEmitter {
   private _sendPhysicalPacket(client: Client, packet: Uint8Array): void {
     client.packetsSentThisSec++;
     client.stats.totalPhysicalPacketSent++;
-    debug("Sending physical packet", packet);
+    console.log("Sending physical packet", packet);
     this._connection.send(packet, client.port, client.address);
   }
 
@@ -271,6 +275,8 @@ export class SOEServer extends EventEmitter {
 
   // Handle the packet received from the client
   private handlePacket(client: SOEClient, packet: SoePacketParsed) {
+    console.log(packet);
+    console.log(packet.get_opcode());
     switch (packet.get_opcode()) {
       case SoeOpcode.SessionRequest:
         debug(
@@ -450,6 +456,7 @@ export class SOEServer extends EventEmitter {
           if (client.lastKeepAliveTimer) {
             client.lastKeepAliveTimer.refresh();
           }
+          console.log(data);
           this.handlePacket(client, parsed_data);
         } else {
           if (this._allowRawDataReception) {
@@ -487,55 +494,59 @@ export class SOEServer extends EventEmitter {
   private packLogicalData(packetOpcode: SoeOpcode, packet: json): Buffer {
     let logicalData;
     switch (packetOpcode) {
-      case SoeOpcode.SessionRequest:
-        logicalData = this._protocol.pack_session_request_packet(
-          packet.session_id,
-          packet.crc_length,
-          packet.udp_length,
-          packet.protocol
-        );
-        break;
+      // FIXME:
+      // case SoeOpcode.SessionRequest:
+      //   logicalData = new SessionRequestPacket(
+      //     packet.session_id,
+      //     packet.crc_length,
+      //     packet.udp_length,
+      //     packet.protocol
+      //   ).build();
+      //   break;
       case SoeOpcode.SessionReply:
-        logicalData = this._protocol.pack_session_reply_packet(
+        console.log("package SessionReply");
+        console.log(packet);
+        logicalData = new SessionReplyPacket(
           packet.session_id,
           packet.crc_seed,
           packet.crc_length,
           packet.encrypt_method,
           packet.udp_length
-        );
+        ).build();
+        console.log(logicalData);
         break;
       case SoeOpcode.MultiPacket:
-        logicalData = this._protocol.pack_multi_fromjs(packet);
-        break;
+      // logicalData = this._protocol.pack_multi_fromjs(packet);
+      // break;
       case SoeOpcode.Ack:
-        logicalData = this._protocol.pack_ack_packet(packet.sequence);
+        logicalData = new AckPacket(SoeOpcode.Ack, packet.sequence).build();
         break;
       case SoeOpcode.OutOfOrder:
-        logicalData = this._protocol.pack_out_of_order_packet(packet.sequence);
-        break;
-      case SoeOpcode.Ordered:
-        logicalData = this._protocol.pack_ordered_packet(
-          packet.data,
+        logicalData = new AckPacket(
+          SoeOpcode.OutOfOrder,
           packet.sequence
-        );
+        ).build();
         break;
+      // disabled for now since h1z1 2016 doesn't support them
+      // case SoeOpcode.Ordered:
+      //   logicalData = new OrderedPacket(packet.data, packet.sequence);
+      //   break;
       case SoeOpcode.Data:
-        logicalData = this._protocol.pack_data_packet(
+        logicalData = new DataPacket(
           packet.data,
-          packet.sequence
-        );
+          packet.sequence,
+          SoeOpcode.Data
+        ).build();
         break;
       case SoeOpcode.DataFragment:
-        logicalData = this._protocol.pack_fragment_data_packet(
+        logicalData = new DataPacket(
           packet.data,
-          packet.sequence
-        );
-        break;
-      default:
-        logicalData = this._protocol.pack(packetOpcode, JSON.stringify(packet));
+          packet.sequence,
+          SoeOpcode.DataFragment
+        ).build();
         break;
     }
-    return Buffer.from(logicalData);
+    return Buffer.from(logicalData as unknown as any);
   }
   private _clearSendingTimer(client: Client) {
     if (client.sendingTimer) {

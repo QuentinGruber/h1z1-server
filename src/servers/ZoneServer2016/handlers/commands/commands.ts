@@ -206,45 +206,45 @@ export const commands: Array<Command> = [
       );
     }
   },
-  {
-    name: "netstats",
-    permissionLevel: PermissionLevels.DEFAULT,
-    execute: async (
-      server: ZoneServer2016,
-      client: Client,
-      args: Array<string>
-    ) => {
-      const stats = server._gatewayServer.getSoeClientNetworkStats(
-        client.soeClientId
-      );
-      if (stats) {
-        const serverStats = server._gatewayServer.getServerNetworkStats();
-        stats.push(serverStats[0]);
-        for (let index = 0; index < stats.length; index++) {
-          const stat = stats[index];
-          server.sendChatText(client, stat, index == 0);
-        }
-      }
-    }
-  },
-  {
-    name: "ping",
-    permissionLevel: PermissionLevels.DEFAULT,
-    execute: async (
-      server: ZoneServer2016,
-      client: Client,
-      args: Array<string>
-    ) => {
-      const stats = server._gatewayServer.getSoeClientNetworkStats(
-        client.soeClientId
-      );
-      const serverStats = server._gatewayServer.getServerNetworkStats();
-      if (stats) {
-        server.sendChatText(client, stats[2], true);
-        server.sendChatText(client, serverStats[0], false);
-      }
-    }
-  },
+  // {
+  //   name: "netstats",
+  //   permissionLevel: PermissionLevels.DEFAULT,
+  //   execute: async (
+  //     server: ZoneServer2016,
+  //     client: Client,
+  //     args: Array<string>
+  //   ) => {
+  //     const stats = server._gatewayServer.getSoeClientNetworkStats(
+  //       client.soeClientId
+  //     );
+  //     if (stats) {
+  //       const serverStats = server._gatewayServer.getServerNetworkStats();
+  //       stats.push(serverStats[0]);
+  //       for (let index = 0; index < stats.length; index++) {
+  //         const stat = stats[index];
+  //         server.sendChatText(client, stat, index == 0);
+  //       }
+  //     }
+  //   }
+  // },
+  // {
+  //   name: "ping",
+  //   permissionLevel: PermissionLevels.DEFAULT,
+  //   execute: async (
+  //     server: ZoneServer2016,
+  //     client: Client,
+  //     args: Array<string>
+  //   ) => {
+  //     const stats = server._gatewayServer.getSoeClientNetworkStats(
+  //       client.soeClientId
+  //     );
+  //     const serverStats = server._gatewayServer.getServerNetworkStats();
+  //     if (stats) {
+  //       server.sendChatText(client, stats[2], true);
+  //       server.sendChatText(client, serverStats[0], false);
+  //     }
+  //   }
+  // },
   {
     name: "location",
     permissionLevel: PermissionLevels.DEFAULT,
