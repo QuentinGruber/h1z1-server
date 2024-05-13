@@ -50,6 +50,7 @@ import {
   ConstructionPermissionIds,
   Effects,
   Items,
+  ModelIds,
   ResourceIds,
   ResourceTypes,
   StringIds,
@@ -218,18 +219,47 @@ export class ConstructionManager {
     item: BaseItem,
     position: Float32Array
   ): boolean {
-    if (item.itemDefinitionId == Items.GROUND_TAMPER) {
+    if (
+      [
+        Items.GROUND_TAMPER,
+        Items.FOUNDATION,
+        Items.HAND_SHOVEL,
+        Items.FOUNDATION_EXPANSION
+      ].includes(item.itemDefinitionId)
+    ) {
       // fix for tamper stacking
       let tampersInRadius = 0;
       for (const a in server._constructionFoundations) {
         const foundation = server._constructionFoundations[a];
-        if (foundation.itemDefinitionId != Items.GROUND_TAMPER) continue;
-        if (isPosInRadius(22, foundation.state.position, position))
+        // Prevent stacking / hiding hidden stashes under tampers / foundations
+        if (
+          item.itemDefinitionId == Items.HAND_SHOVEL &&
+          [
+            Items.GROUND_TAMPER,
+            Items.FOUNDATION,
+            Items.FOUNDATION_EXPANSION
+          ].includes(foundation.itemDefinitionId) &&
+          getDistance(foundation.state.position, position) <= 22
+        )
+          return true;
+        if (
+          isPosInRadius(22, foundation.state.position, position) &&
+          foundation.itemDefinitionId == Items.GROUND_TAMPER
+        )
           tampersInRadius++;
       }
       if (tampersInRadius >= 3) {
         return true;
       }
+
+      // Prevent stacking / hiding hidden stashes under tampers / foundations
+      return (
+        Object.values(server._worldLootableConstruction).filter(
+          (lc) =>
+            lc.actorModelId == ModelIds.HAND_SHOVEL &&
+            getDistance(lc.state.position, position) <= 5
+        ).length > 0
+      );
     }
     return false;
   }
@@ -598,7 +628,13 @@ export class ConstructionManager {
 
     if (this.detectStackedTamperPlacement(server, item, position)) {
       this.sendPlacementFinalize(server, client, false);
-      this.placementError(server, client, ConstructionErrors.STACKED);
+      this.placementError(
+        server,
+        client,
+        item.itemDefinitionId == Items.HAND_SHOVEL
+          ? ConstructionErrors.OVERLAP
+          : ConstructionErrors.STACKED
+      );
       return;
     }
 
@@ -1710,13 +1746,7 @@ export class ConstructionManager {
       ""
     );
 
-    const parent = obj.getParent(server);
-    if (parent) {
-      server._lootableConstruction[characterId] = obj;
-      parent.addFreeplaceConstruction(obj);
-    } else {
-      server._worldLootableConstruction[characterId] = obj;
-    }
+    server._worldLootableConstruction[characterId] = obj;
 
     obj.equipLoadout(server);
 
