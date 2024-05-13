@@ -757,7 +757,7 @@ export const commands: Array<Command> = [
           position = new Float32Array([479.46, 109.7, 2902.51, 1]);
           break;
         case "dam":
-          position = new Float32Array([-629.49, 69.96, 1233.49, 1]);
+          position = new Float32Array([-685, 69.96, 1185.49, 1]);
           break;
         case "cranberry":
           position = new Float32Array([-1368.37, 71.29, 1837.61, 1]);
