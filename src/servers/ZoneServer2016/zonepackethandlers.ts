@@ -155,6 +155,7 @@ import { Lootbag } from "./entities/lootbag";
 import { ReceivedPacket } from "types/shared";
 import { LoadoutItem } from "./classes/loadoutItem";
 import { BaseItem } from "./classes/baseItem";
+import { load } from "js-yaml";
 
 function getStanceFlags(num: number): StanceFlags {
   function getBit(bin: string, bit: number) {
@@ -2464,7 +2465,10 @@ export class ZonePacketHandlers {
                 client.character.loadoutId
               )
             ) {*/
-            if(server.getItemDefinition(item?.itemDefinitionId)?.ITEM_CLASS == ItemClasses.THROWABLES) {
+            if (
+              server.getItemDefinition(item?.itemDefinitionId)?.ITEM_CLASS ==
+              ItemClasses.THROWABLES
+            ) {
               //TODO: Prevent equipping of throwables until fixed
               return;
             }
@@ -2534,6 +2538,18 @@ export class ZonePacketHandlers {
 
         const loadoutItem = sourceCharacter.getLoadoutItem(itemGuid ?? "");
         if (loadoutItem) {
+          if (
+            !targetContainer.getHasSpace(
+              server,
+              loadoutItem.itemDefinitionId,
+              loadoutItem.stackCount
+            ) ||
+            Object.values(targetContainer.items).length >=
+              targetContainer.getMaxSlots(server)
+          ) {
+            server.containerError(client, ContainerErrors.NO_SPACE);
+            return;
+          }
           sourceCharacter.transferItemFromLoadout(
             server,
             targetContainer,
@@ -2551,6 +2567,19 @@ export class ZonePacketHandlers {
         const item = sourceContainer.items[itemGuid ?? ""];
         if (!item) {
           server.containerError(client, ContainerErrors.NO_ITEM_IN_SLOT);
+          return;
+        }
+
+        if (
+          !targetContainer.getHasSpace(
+            server,
+            item.itemDefinitionId,
+            item.stackCount
+          ) ||
+          Object.values(targetContainer.items).length >=
+            targetContainer.getMaxSlots(server)
+        ) {
+          server.containerError(client, ContainerErrors.NO_SPACE);
           return;
         }
 
