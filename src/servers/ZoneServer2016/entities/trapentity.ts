@@ -69,7 +69,7 @@ export class TrapEntity extends BaseSimpleNpc {
     }
   }
 
-  arm(server: ZoneServer2016) {
+  async arm(server: ZoneServer2016) {
     switch (this.itemDefinitionId) {
       case Items.PUNJI_STICKS:
       case Items.PUNJI_STICK_ROW:
@@ -245,6 +245,9 @@ export class TrapEntity extends BaseSimpleNpc {
         break;
       case Items.TRAP_FIRE:
       case Items.TRAP_FLASH:
+        // Wait 10 seconds before activating the trap
+        await new Promise<void>((resolve) => setTimeout(resolve, 10000));
+
         this.trapTimer = setTimeout(() => {
           if (!server._traps[this.characterId]) {
             return;

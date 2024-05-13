@@ -109,7 +109,11 @@ export class ExplosiveEntity extends BaseLightweightCharacter {
   }
 
   /** Used by landmines to arm their explosivenss */
-  arm(server: ZoneServer2016) {
+  async arm(server: ZoneServer2016) {
+    if (this.isLandmine()) {
+      // Wait 10 seconds before activating the trap
+      await new Promise<void>((resolve) => setTimeout(resolve, 10000));
+    }
     this.mineTimer = setTimeout(() => {
       if (!server._explosives[this.characterId]) {
         return;
