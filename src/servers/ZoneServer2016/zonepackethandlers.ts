@@ -42,7 +42,8 @@ import {
   ResourceTypes,
   ItemUseOptions,
   LoadoutSlots,
-  StringIds
+  StringIds,
+  ItemClasses
 } from "./models/enums";
 import { BaseFullCharacter } from "./entities/basefullcharacter";
 import { BaseLightweightCharacter } from "./entities/baselightweightcharacter";
@@ -2463,6 +2464,10 @@ export class ZonePacketHandlers {
                 client.character.loadoutId
               )
             ) {*/
+            if(server.getItemDefinition(item?.itemDefinitionId)?.ITEM_CLASS == ItemClasses.THROWABLES) {
+              //TODO: Prevent equipping of throwables until fixed
+              return;
+            }
             sourceCharacter.equipContainerItem(server, item, newSlotId);
             //}
           } else {

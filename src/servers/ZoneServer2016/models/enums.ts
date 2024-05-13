@@ -381,7 +381,8 @@ export enum ItemClasses {
   WEAPON_THROWABLES = 25078,
   WEAPONS_BOW = 25038,
   POUCHES = 25013,
-  BACKPACKS = 25004
+  BACKPACKS = 25004,
+  THROWABLES = 25078
 }
 
 export enum VehicleIds {
