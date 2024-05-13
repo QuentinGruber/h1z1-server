@@ -15,23 +15,9 @@ import {
   createPositionUpdate,
   getCurrentServerTimeWrapper
 } from "../../../utils/utils";
-import { ModelIds, VehicleIds } from "../models/enums";
 import { ZoneServer2016 } from "../zoneserver";
 import { Vehicle2016 } from "../entities/vehicle";
 import { ZoneClient2016 } from "../classes/zoneclient";
-
-function getActorModelId(vehicleId: number) {
-  switch (vehicleId) {
-    case VehicleIds.OFFROADER:
-      return ModelIds.OFFROADER;
-    case VehicleIds.PICKUP:
-      return ModelIds.PICKUP_TRUCK;
-    case VehicleIds.POLICECAR:
-      return ModelIds.POLICE_CAR;
-    default:
-      return 0;
-  }
-}
 
 export class Plane extends Vehicle2016 {
   /** See Vehicle2016 */
@@ -83,12 +69,8 @@ export class Plane extends Vehicle2016 {
       yaw: 0
     };
     this.vehicleId = vehicleId;
-    this.actorModelId = getActorModelId(this.vehicleId);
     this.npcRenderDistance = 400;
-    this.isInvulnerable =
-      this.vehicleId == VehicleIds.SPECTATE ||
-      this.vehicleId == VehicleIds.PARACHUTE ||
-      this instanceof Plane;
+    this.isInvulnerable = true;
     this.positionUpdate = {
       ...createPositionUpdate(
         this.state.position,
