@@ -321,7 +321,7 @@ export class SOEServer extends EventEmitter {
       case SoeOpcode.MultiPacket: {
         const multipacket = packet.get_grouped_packets();
         if (multipacket) {
-          const sub_packets = multipacket as unknown as any[];
+          const sub_packets = multipacket.get_packets();
           for (let i = 0; i < sub_packets.length; i++) {
             const subPacket = sub_packets[i];
             this.handlePacket(client, subPacket);
@@ -339,7 +339,7 @@ export class SOEServer extends EventEmitter {
         const data_packet = packet.get_data_packet();
         if (data_packet) {
           client.inputStream.write(
-            Buffer.from(data_packet.fisdepute),
+            Buffer.from(data_packet.get_data()),
             data_packet.sequence,
             false
           );
@@ -350,7 +350,7 @@ export class SOEServer extends EventEmitter {
         const data_packet = packet.get_data_packet();
         if (data_packet) {
           client.inputStream.write(
-            Buffer.from(data_packet.),
+            Buffer.from(data_packet.get_data()),
             data_packet.sequence,
             true
           );
