@@ -35,5 +35,161 @@ export const gamemodePackets: PacketStructures = [
         { name: "radius", type: "uint32", defaultValue: 1000 }
       ]
     }
+  ],
+  [
+    "GameMode.Unk4",
+    0xcf0400,
+    {
+      fields: [
+        { name: "unknownDword1", type: "uint32", defaultValue: 0 },
+        { name: "unknownBoolean1", type: "boolean", defaultValue: false },
+        { name: "unknownString1", type: "string", defaultValue: "" },
+        { name: "unknownDword2", type: "uint32", defaultValue: 0 },
+        { name: "unknownDword3", type: "uint32", defaultValue: 0 },
+        { name: "unknownDword4", type: "uint32", defaultValue: 0 }
+      ]
+    }
+  ],
+  [
+    "GameMode.StartLogout",
+    0xcf0600,
+    {
+      fields: [
+        { name: "unknownBoolean1", type: "boolean", defaultValue: false }
+      ]
+    }
+  ],
+  [
+    "GameMode.Unk9",
+    0xcf0900,
+    {
+      fields: [{ name: "unknownDword1", type: "uint32", defaultValue: 0 }]
+    }
+  ],
+  [
+    "GameMode.Unk10",
+    0xcf0a00,
+    {
+      fields: [
+        { name: "unknownDword1", type: "uint32", defaultValue: 0 },
+        { name: "unknownDword2", type: "uint32", defaultValue: 0 }
+      ]
+    }
+  ],
+  [
+    "GameMode.Unk11",
+    0xcf0b00,
+    {
+      fields: [
+        { name: "unknownBoolean1", type: "boolean", defaultValue: false }
+      ]
+    }
+  ],
+  [
+    "GameMode.Unk13",
+    0xcf0d00,
+    {
+      fields: [
+        {
+          name: "unknownArray1",
+          type: "array",
+          defaultValue: [],
+          fields: [
+            {
+              name: "unknownFloatArray1",
+              type: "floatvector4",
+              defaultValue: [0, 0, 0, 0]
+            },
+            { name: "unknownDword1", type: "uint32", defaultValue: 0 },
+            { name: "unknownDword2", type: "uint32", defaultValue: 0 },
+            { name: "unknownDword3", type: "uint32", defaultValue: 0 },
+            { name: "unknownDword4", type: "uint32", defaultValue: 0 },
+            { name: "unknownDword5", type: "uint32", defaultValue: 0 },
+            { name: "unknownDword6", type: "uint32", defaultValue: 0 }
+          ]
+        }
+      ]
+    }
+  ],
+  [
+    "GameMode.Unk15",
+    0xcf0f00,
+    {
+      fields: [
+        { name: "unknownDword1", type: "uint32", defaultValue: 0 },
+        { name: "unknownDword2", type: "uint32", defaultValue: 0 },
+        { name: "unknownDword3", type: "uint32", defaultValue: 0 },
+        { name: "unknownString1", type: "string", defaultValue: "" }
+      ]
+    }
+  ],
+  [
+    "GameMode.Unk16",
+    0xcf1000,
+    {
+      fields: [
+        { name: "unknownDword1", type: "uint32", defaultValue: 0 },
+        { name: "unknownDword2", type: "uint32", defaultValue: 0 }
+      ]
+    }
+  ],
+  [
+    "GameMode.Unk18",
+    0xcf1200,
+    {
+      fields: [{ name: "unknownDword1", type: "uint32", defaultValue: 0 }]
+    }
+  ],
+  [
+    "GameMode.Unk19",
+    0xcf1300,
+    {
+      fields: [
+        { name: "unknownBoolean1", type: "boolean", defaultValue: false }
+      ]
+    }
+  ],
+  [
+    "GameMode.Unk20",
+    0xcf1400,
+    {
+      fields: [
+        { name: "unknownString1", type: "string", defaultValue: "" },
+        { name: "unknownString2", type: "string", defaultValue: "" },
+        { name: "unknownDword1", type: "uint32", defaultValue: 0 }
+      ]
+    }
+  ],
+  [
+    "GameMode.Unk21",
+    0xcf1500,
+    {
+      fields: [
+        { name: "unknownBoolean1", type: "boolean", defaultValue: false }
+      ]
+    }
+  ],
+  [
+    "GameMode.StartMatch",
+    0xcf1600,
+    {
+      fields: [{ name: "remainingSeconds", type: "uint32", defaultValue: 300 }]
+    }
+  ],
+  [
+    "GameMode.Unk23",
+    0xcf1700,
+    {
+      fields: [
+        { name: "unknownBoolean1", type: "boolean", defaultValue: false }
+      ]
+    }
+  ],
+  [
+    "GameMode.ShowVictoryScreen",
+    0xcf1800,
+    {
+      fields: [{ name: "unknownDword1", type: "uint32", defaultValue: 0 }]
+    }
   ]
 ];
