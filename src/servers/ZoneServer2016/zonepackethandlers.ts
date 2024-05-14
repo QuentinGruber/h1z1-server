@@ -3275,7 +3275,6 @@ export class ZonePacketHandlers {
           );
         break;
       case 24:
-        //TODO: Clean up this code
         const oitem = client.character.getInventoryItem(
             itemSubData.targetItemGuid
           ),
@@ -3283,44 +3282,52 @@ export class ZonePacketHandlers {
             ...Object.values(server._accountItemDefinitions),
             { ACCOUNT_ITEM_ID: 1800, REWARD_ITEM_ID: 0 }
           ].find((a) => a.ACCOUNT_ITEM_ID == packet.data.itemDefinitionId);
-        if (oitem && accountItem) {
-          const newItem = server.generateItem(accountItem.REWARD_ITEM_ID),
-            containerItems = client.character.getContainerFromGuid(
-              oitem.itemGuid
-            )?.items;
-          if (newItem) {
-            // Copy over item data to new item
-            newItem.currentDurability = oitem.currentDurability;
-            newItem.itemGuid = oitem.itemGuid;
-            if (oitem.weapon) {
-              newItem.weapon = oitem.weapon;
-            }
-            if (!server.removeInventoryItem(client.character, oitem)) return;
 
-            client.character.equipItem(server, newItem);
-            client.character.updateEquipment(server);
+        if (!oitem || !accountItem) return;
+        if (oitem.itemDefinitionId == accountItem.REWARD_ITEM_ID) {
+          // prevent skinning if same skin is already applied
+          return;
+        }
 
-            // Copy over items from the old container to the new container
-            if (containerItems && _.size(containerItems) !== 0) {
-              const newContainer = client.character.getContainerFromGuid(
-                newItem.itemGuid
-              );
-              // Normally it should always find this container as it's constructed above, if not then we'll cross that bridge when we get to it
-              if (newContainer) {
-                Object.values(containerItems).forEach((i) => {
-                  server.addContainerItem(
-                    client.character,
-                    i,
-                    newContainer,
-                    false
-                  );
-                });
-              }
-            }
+        const newItem = server.generateItem(accountItem.REWARD_ITEM_ID),
+          containerItems = client.character.getContainerFromGuid(
+            oitem.itemGuid
+          )?.items;
 
-            //TODO: Swap back to the item you just skinned
+        if (!newItem) return;
+
+        // Copy over item data to new item
+        newItem.currentDurability = oitem.currentDurability;
+        newItem.itemGuid = oitem.itemGuid;
+        if (oitem.weapon) {
+          newItem.weapon = oitem.weapon;
+        }
+
+        const oldSlot = client.character.currentLoadoutSlot;
+        if (!server.removeInventoryItem(client.character, oitem)) return;
+
+        client.character.equipItem(server, newItem);
+        client.character.updateEquipment(server);
+
+        // Copy over items from the old container to the new container
+        if (containerItems && _.size(containerItems) !== 0) {
+          const newContainer = client.character.getContainerFromGuid(
+            newItem.itemGuid
+          );
+          // Normally it should always find this container as it's constructed above, if not then we'll cross that bridge when we get to it
+          if (newContainer) {
+            Object.values(containerItems).forEach((i) => {
+              server.addContainerItem(client.character, i, newContainer, false);
+            });
           }
         }
+
+        // switch back to weapon if it was previously selected
+        if (oldSlot == client.character.currentLoadoutSlot) return;
+        const loadoutItem = client.character.getLoadoutItem(newItem.itemGuid);
+        if (!loadoutItem) return;
+
+        server.switchLoadoutSlot(client, loadoutItem, true);
         break;
       case 25:
         server.useAirdrop(client, client.character, item);
