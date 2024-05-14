@@ -100,6 +100,7 @@ import {
   GetContinentBattleInfo,
   GroupInvite,
   GroupJoin,
+  ItemsRequestUseAccountItem,
   ItemsRequestUseItem,
   KeepAlive,
   LightweightToFullNpc,
@@ -3227,7 +3228,7 @@ export class ZonePacketHandlers {
   FairPlayInternal(server: ZoneServer2016, client: Client, packet: any) {}
   //#endregion
 
-  requestUseAccountItem(server: ZoneServer2016, client: Client, packet: any) {
+  requestUseAccountItem(server: ZoneServer2016, client: Client, packet: ReceivedPacket<ItemsRequestUseAccountItem>) {
     const accountItems =
       server._accountInventories[client.loginSessionId]?.items;
     if (!accountItems) return;
@@ -3235,6 +3236,9 @@ export class ZonePacketHandlers {
       (i) => i.itemDefinitionId === packet.data.itemDefinitionId
     );
     if (!item) return;
+
+    const itemSubData: any = packet.data.itemSubData;
+
     switch (packet.data.unknownDword3) {
       case 85:
         const rewards = server.getCrateRewards(packet.data.itemDefinitionId),
@@ -3242,13 +3246,13 @@ export class ZonePacketHandlers {
         if (!rewards || !reward) return;
 
         if (
-          packet.data.itemSubData.unknownBoolean1 == 0 &&
+          itemSubData?.unknownBoolean1 == 0 &&
           !server.removeInventoryItem(client.character, item)
         )
           return;
         server.sendData(client, "Items.ReportRewardCrateContents", {
           winningRewards:
-            reward > 0 && packet.data.itemSubData.unknownBoolean1 == 0
+            reward > 0 && itemSubData?.unknownBoolean1 == 0
               ? [{ itemDefinitionId: reward }]
               : [],
           possibleRewards: Object.values(rewards).map((rew) => {
@@ -3258,7 +3262,7 @@ export class ZonePacketHandlers {
           })
         });
 
-        if (reward > 0 && packet.data.itemSubData.unknownBoolean1 == 0)
+        if (reward > 0 && itemSubData.unknownBoolean1 == 0)
           client.character.lootItem(
             server,
             server.generateItem(reward),
@@ -3269,7 +3273,7 @@ export class ZonePacketHandlers {
       case 24:
         //TODO: Clean up this code
         const oitem = client.character.getInventoryItem(
-            packet.data.itemSubData.targetItemGuid
+            itemSubData.targetItemGuid
           ),
           accountItem = [
             ...Object.values(server._accountItemDefinitions),
