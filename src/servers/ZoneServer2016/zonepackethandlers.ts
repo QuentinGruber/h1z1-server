@@ -157,6 +157,7 @@ import { ReceivedPacket } from "types/shared";
 import { LoadoutItem } from "./classes/loadoutItem";
 import { BaseItem } from "./classes/baseItem";
 import { load } from "js-yaml";
+import { Weapon } from "./classes/weapon";
 
 function getStanceFlags(num: number): StanceFlags {
   function getBit(bin: string, bit: number) {
@@ -3228,7 +3229,11 @@ export class ZonePacketHandlers {
   FairPlayInternal(server: ZoneServer2016, client: Client, packet: any) {}
   //#endregion
 
-  requestUseAccountItem(server: ZoneServer2016, client: Client, packet: ReceivedPacket<ItemsRequestUseAccountItem>) {
+  requestUseAccountItem(
+    server: ZoneServer2016,
+    client: Client,
+    packet: ReceivedPacket<ItemsRequestUseAccountItem>
+  ) {
     const accountItems =
       server._accountInventories[client.loginSessionId]?.items;
     if (!accountItems) return;
@@ -3248,8 +3253,9 @@ export class ZonePacketHandlers {
         if (
           itemSubData?.unknownBoolean1 == 0 &&
           !server.removeInventoryItem(client.character, item)
-        )
+        ) {
           return;
+        }
         server.sendData(client, "Items.ReportRewardCrateContents", {
           winningRewards:
             reward > 0 && itemSubData?.unknownBoolean1 == 0
@@ -3288,7 +3294,7 @@ export class ZonePacketHandlers {
             // Copy over item data to new item
             newItem.currentDurability = oitem.currentDurability;
             newItem.itemGuid = oitem.itemGuid;
-            if (item.weapon) {
+            if (oitem.weapon) {
               newItem.weapon = oitem.weapon;
             }
             if (!server.removeInventoryItem(client.character, oitem)) return;
