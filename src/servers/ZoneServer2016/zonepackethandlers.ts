@@ -156,8 +156,6 @@ import { Lootbag } from "./entities/lootbag";
 import { ReceivedPacket } from "types/shared";
 import { LoadoutItem } from "./classes/loadoutItem";
 import { BaseItem } from "./classes/baseItem";
-import { load } from "js-yaml";
-import { Weapon } from "./classes/weapon";
 
 function getStanceFlags(num: number): StanceFlags {
   function getBit(bin: string, bit: number) {
