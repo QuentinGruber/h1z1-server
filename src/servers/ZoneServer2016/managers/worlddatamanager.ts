@@ -1406,8 +1406,7 @@ export class WorldDataManager {
         updatePromises.push(
           collection.updateOne(
             {
-              loginSessionId: accountInventory.loginSessionId,
-              serverId: this._worldId
+              loginSessionId: accountInventory.loginSessionId
             },
             { $set: accountInventory },
             { upsert: true }
@@ -1481,7 +1480,6 @@ export class WorldDataManager {
     } else {
       await this._db?.collection(DB_COLLECTIONS.ACCOUNT_ITEMS).updateOne(
         {
-          serverId: this._worldId,
           loginSessionId: accountInventory.loginSessionId
         },
         {
