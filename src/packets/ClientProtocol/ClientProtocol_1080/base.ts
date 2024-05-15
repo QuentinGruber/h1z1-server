@@ -2598,7 +2598,7 @@ export const basePackets: PacketStructures = [
   ["Promotional", 0x4b, {}],
   ["AddClientPortraitCrc", 0x4c, {}],
   ["ObjectiveTarget", 0x4d, {}],
-  ["CommerceSessionRequest", 0x4e, {}],
+  ["CommerceSessionRequest", 0x4e, {}], // empty
   [
     "CommerceSessionResponse",
     0x4f,
