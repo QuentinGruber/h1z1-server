@@ -5653,7 +5653,9 @@ export class ZoneServer2016 extends EventEmitter {
         durability = 100;
         break;
       case this.isConvey(itemDefinitionId):
-        durability = Math.floor(Math.random() * 5400);
+        durability = forceMaxDurability
+          ? 5400
+          : Math.floor(Math.random() * 5400);
         break;
       case this.isGeneric(itemDefinitionId):
         durability = 2000;
@@ -7672,6 +7674,19 @@ export class ZoneServer2016 extends EventEmitter {
       "Update.ProjectileLaunch",
       {}
     );
+
+    if (itemDefinition.ITEM_CLASS == ItemClasses.THROWABLES) {
+      const grenadeAmount = client.character.getInventoryItemAmount(
+        weaponItem.itemDefinitionId
+      );
+      // Remove loadout item if there's no more grenades in the inventory, this check is only temporary until removeInventoryItems is fixed
+      if (grenadeAmount <= 0) {
+        this.removeInventoryItem(client.character, weaponItem);
+        return;
+      }
+      this.removeInventoryItems(client, weaponItem.itemDefinitionId);
+      return;
+    }
     this.damageItem(client, weaponItem, 5);
   }
 
