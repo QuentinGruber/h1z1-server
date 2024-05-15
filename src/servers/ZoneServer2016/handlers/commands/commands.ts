@@ -1882,6 +1882,53 @@ export const commands: Array<Command> = [
     }
   },
   {
+    name: "addcontaineritem",
+    permissionLevel: PermissionLevels.ADMIN,
+    execute: (server: ZoneServer2016, client: Client, args: Array<string>) => {
+      if (!args[0]) {
+        server.sendChatText(
+          client,
+          "[ERROR] Usage /addcontaineritem {itemDefinitionId/item name} optional: {count}"
+        );
+        return;
+      }
+      const count = Number(args[1]) || 1;
+      let itemDefId;
+      let similar;
+
+      for (const a in itemDefinitions) {
+        const name = itemDefinitions[a].NAME;
+        const argsName = args[0].toString().toUpperCase().replaceAll("_", " ");
+        if (!name) continue;
+        if (itemDefinitions[a].CODE_FACTORY_NAME == "EquippableContainer") {
+          if (itemDefinitions[a].BULK == 0) continue; // skip account recipes and world containers
+        }
+        if (name.toUpperCase() == argsName) {
+          itemDefId = itemDefinitions[a].ID;
+          break;
+        } else if (
+          getDifference(name.toUpperCase(), argsName) <= 3 &&
+          getDifference(name.toUpperCase(), argsName) != 0
+        )
+          similar = itemDefinitions[a].NAME.toUpperCase().replaceAll(" ", "_");
+      }
+      if (!itemDefId) itemDefId = Number(args[0]);
+      const item = server.generateItem(itemDefId, count, true);
+      if (!item) {
+        server.sendChatText(
+          client,
+          similar
+            ? `[ERROR] Cannot find item "${args[0].toUpperCase()}", did you mean "${similar}"`
+            : `[ERROR] Cannot find item "${args[0]}"`
+        );
+        return;
+      }
+
+      if (!client.character.mountedContainer) return;
+      client.character.mountedContainer.lootItem(server, item);
+    }
+  },
+  {
     name: "additem",
     permissionLevel: PermissionLevels.ADMIN,
     execute: (server: ZoneServer2016, client: Client, args: Array<string>) => {
