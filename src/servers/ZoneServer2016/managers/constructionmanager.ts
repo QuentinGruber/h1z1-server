@@ -257,7 +257,7 @@ export class ConstructionManager {
         Object.values(server._worldLootableConstruction).filter(
           (lc) =>
             lc.actorModelId == ModelIds.HAND_SHOVEL &&
-            getDistance(lc.state.position, position) <= 5
+            getDistance(lc.state.position, position) <= 15
         ).length > 0
       );
     }
