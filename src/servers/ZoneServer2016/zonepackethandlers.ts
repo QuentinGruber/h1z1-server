@@ -3398,6 +3398,16 @@ export class ZonePacketHandlers {
     }
   }
 
+  commerceSessionRequest(
+    server: ZoneServer2016,
+    client: Client
+  ) {
+    server.sendData(client, "CommerceSessionResponse", {
+      unknownDword1: 1,
+      sessionToken: "test"
+    })
+  }
+
   processPacket(
     server: ZoneServer2016,
     client: Client,
@@ -3662,6 +3672,9 @@ export class ZonePacketHandlers {
         break;
       case "Items.RequestUseAccountItem":
         this.requestUseAccountItem(server, client, packet);
+        break;
+      case "CommerceSessionRequest":
+        this.commerceSessionRequest(server, client);
         break;
       default:
         debug(packet);
