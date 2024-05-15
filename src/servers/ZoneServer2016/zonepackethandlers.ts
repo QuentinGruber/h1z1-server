@@ -3357,29 +3357,53 @@ export class ZonePacketHandlers {
       case 46:
         let packageRewards: number[] = [];
         switch (packet.data.itemDefinitionId) {
-          case 2725:
-            packageRewards = [2679, 2669];
+          case Items.REWARD_SET_WOODLAND_GHILLIE:
+            packageRewards = [
+              Items.SKIN_WOODLAND_GHILLIE_SUIT_BOOTS,
+              Items.SKIN_GREEN_GLOVES
+            ];
             break;
-          case 2326:
-            packageRewards = [2305, 2296];
+          case Items.REWARD_SET_RED_FACE_BANDANA:
+            packageRewards = [
+              Items.SKIN_RED_FACE_BANDANA,
+              Items.SKIN_RED_BIKER_SHADES
+            ];
             break;
-          case 2327:
-            packageRewards = [2303, 2298];
+          case Items.REWARD_SET_EVIL_CLOWN_BANDANA:
+            packageRewards = [
+              Items.SKIN_EVIL_CLOWN_FACE_BANDANA,
+              Items.SKIN_EVIL_CLOWN_GLASSES
+            ];
             break;
-          case 2328:
-            packageRewards = [2301, 2293];
+          case Items.REWARD_SET_BLUE_FACE_BANDANA:
+            packageRewards = [
+              Items.SKIN_BLUE_FACE_BANDANA,
+              Items.SKIN_BLUE_BIKER_SHADES
+            ];
             break;
-          case 2329:
-            packageRewards = [2302, 2294];
+          case Items.REWARD_SET_CAMO_FACE_BANDANA:
+            packageRewards = [
+              Items.SKIN_CAMO_FACE_BANDANA,
+              Items.SKIN_GREEN_BIKER_SHADES
+            ];
             break;
-          case 2330:
-            packageRewards = [2307, 2297];
+          case Items.REWARD_SET_AMERICAN_FACE_BANDANA:
+            packageRewards = [
+              Items.SKIN_AMERICAN_FACE_BANDANA,
+              Items.SKIN_WHITE_BIKER_SHADES
+            ];
             break;
-          case 2331:
-            packageRewards = [2304, 2295];
+          case Items.REWARD_SET_PINK_FACE_BANDANA:
+            packageRewards = [
+              Items.SKIN_PINK_FACE_BANDANA,
+              Items.SKIN_PINK_BIKER_SHADES
+            ];
             break;
-          case 2332:
-            packageRewards = [2306, 2292];
+          case Items.REWARD_SET_SKULL_FACE_BANDANA:
+            packageRewards = [
+              Items.SKIN_SKULL_FACE_BANDANA,
+              Items.SKIN_BLACK_BIKER_SHADES
+            ];
             break;
         }
 
