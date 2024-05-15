@@ -953,7 +953,6 @@ export abstract class BaseFullCharacter extends BaseLightweightCharacter {
     switch (itemDef?.ITEM_CLASS) {
       // TODO: Prevent equipping throwables until fixed
       case ItemClasses.THROWABLES:
-        return 0;
       case ItemClasses.WEAPONS_LONG:
       case ItemClasses.WEAPONS_PISTOL:
       case ItemClasses.WEAPONS_MELEES:
@@ -971,6 +970,7 @@ export abstract class BaseFullCharacter extends BaseLightweightCharacter {
           // secondary
           slot = LoadoutSlots.TERTIARY;
         }
+        if (![Items.GRENADE_SMOKE].includes(itemDefId)) slot = 0;
         break;
       case ItemClasses.WEAPONS_GENERIC: // item1/item2 slots
         if (this._loadout[slot]?.itemDefinitionId) {

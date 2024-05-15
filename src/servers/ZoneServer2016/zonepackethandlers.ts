@@ -2466,8 +2466,9 @@ export class ZonePacketHandlers {
               )
             ) {*/
             if (
+              ![Items.GRENADE_SMOKE].includes(item.itemDefinitionId) &&
               server.getItemDefinition(item?.itemDefinitionId)?.ITEM_CLASS ==
-              ItemClasses.THROWABLES
+                ItemClasses.THROWABLES
             ) {
               //TODO: Prevent equipping of throwables until fixed
               return;
