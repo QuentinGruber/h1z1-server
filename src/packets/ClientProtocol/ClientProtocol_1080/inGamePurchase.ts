@@ -356,8 +356,8 @@ export const inGamePurchasePackets: PacketStructures = [
   ["InGamePurchase.StoreBundleContentRequest", 0x271b00, {}],
   ["InGamePurchase.StoreBundleContentResponse", 0x271c00, {}],
   [
-    "InGamePurchase.ClientStatistics", 
-    0x271d00, 
+    "InGamePurchase.ClientStatistics",
+    0x271d00,
     {
       fields: [
         { name: "unknownByte1", type: "uint8", defaultValue: 0 },

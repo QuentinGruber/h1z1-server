@@ -3398,14 +3398,11 @@ export class ZonePacketHandlers {
     }
   }
 
-  commerceSessionRequest(
-    server: ZoneServer2016,
-    client: Client
-  ) {
+  commerceSessionRequest(server: ZoneServer2016, client: Client) {
     server.sendData(client, "CommerceSessionResponse", {
       unknownDword1: 1,
       sessionToken: "test"
-    })
+    });
   }
 
   processPacket(
