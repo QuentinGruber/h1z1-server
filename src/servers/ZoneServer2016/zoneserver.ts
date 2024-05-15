@@ -615,13 +615,28 @@ export class ZoneServer2016 extends EventEmitter {
             loginSessionId: this._clients[soeClientSessionId].loginSessionId
           });
         }
-        // Idk if this is really efficient , we may loose too much time on context switching
+        // Idk if this is really efficient , we may lose too much time on context switching
         // if (flags < GatewayChannels.UpdatePosition) {
         //   // if the packet isn't a high priority one, we can wait for the next tick to process it
         //   // If there is a lot of packet to process, it's better, if there is none then we only add like some µsec
         //   await scheduler.yield();
         // }
         const packet = this._protocol.parse(data, flags);
+
+        // for reversing new packets
+        /*
+        if(
+          packet?.name == ""
+        ) {
+          let hexString = '';
+          for (let i = 0; i < data.length; i++) {
+              const byte = data[i].toString(16).padStart(2, '0');
+              hexString += byte + ' ';
+          }
+          console.log(`<Buffer ${hexString.trim()}>`);
+        }
+        */
+
         if (packet) {
           this.onZoneDataEvent(this._clients[soeClientSessionId], packet);
         } else {
