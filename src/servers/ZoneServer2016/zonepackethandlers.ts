@@ -3663,7 +3663,7 @@ export class ZonePacketHandlers {
       case "Items.RequestUseAccountItem":
         this.requestUseAccountItem(server, client, packet);
         break;
-      default:
+      default://
         debug(packet);
         debug("Packet not implemented in packetHandlers");
         break;
