@@ -2640,6 +2640,13 @@ export class ZonePacketHandlers {
         return;
       }
 
+      if (server.isAccountItem(item.itemDefinitionId)) {
+        if (!server.removeContainerItem(sourceCharacter, item, sourceContainer))
+          return;
+        client.character.lootItem(server, item, item.stackCount, true);
+        return;
+      }
+
       if (sourceCharacter instanceof Vehicle2016 && newSlotId) {
         const loadOutSlot = sourceCharacter.getAvailableLoadoutSlot(
           server,
