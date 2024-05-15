@@ -970,7 +970,12 @@ export abstract class BaseFullCharacter extends BaseLightweightCharacter {
           // secondary
           slot = LoadoutSlots.TERTIARY;
         }
-        if (![Items.GRENADE_SMOKE].includes(itemDefId)) slot = 0;
+        if (
+          ![Items.GRENADE_SMOKE].includes(itemDefId) &&
+          itemDef?.ITEM_CLASS == ItemClasses.THROWABLES
+        ) {
+          slot = 0;
+        }
         break;
       case ItemClasses.WEAPONS_GENERIC: // item1/item2 slots
         if (this._loadout[slot]?.itemDefinitionId) {
