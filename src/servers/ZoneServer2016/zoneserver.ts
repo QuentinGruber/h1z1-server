@@ -245,6 +245,7 @@ import { WaterSource } from "./entities/watersource";
 import { WebSocket } from "ws";
 import { CommandHandler } from "./handlers/commands/commandhandler";
 import { AccountInventory } from "./classes/accountinventory";
+import { accountInventoryDefaultRewards } from "./data/loadouts";
 
 const spawnLocations2 = require("../../../data/2016/zoneData/Z1_gridSpawns.json"),
   deprecatedDoors = require("../../../data/2016/sampleData/deprecatedDoors.json"),
@@ -1288,6 +1289,15 @@ export class ZoneServer2016 extends EventEmitter {
     client.startingPos = client.character.state.position;
     if (this._accountInventories[accountInventory.loginSessionId]) {
       delete this._accountInventories[accountInventory.loginSessionId];
+    }
+
+    // Give a new player some gifts
+    if (Object.values(accountInventory.items).length == 0) {
+      Object.values(accountInventoryDefaultRewards).forEach((gift) => {
+        const item = this.generateItem(gift.item, gift.count);
+        if (!item) return;
+        accountInventory.items[item.itemGuid] = item;
+      });
     }
     this._accountInventories[accountInventory.loginSessionId] =
       accountInventory;

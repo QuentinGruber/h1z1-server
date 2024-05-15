@@ -195,3 +195,9 @@ export const lootableContainerDefaultLoadouts = {
   repair_box: [{ item: Items.CONTAINER_REPAIR_BOX }],
   stash: [{ item: Items.CONTAINER_STASH }]
 };
+
+export const accountInventoryDefaultRewards = [
+  { item: Items.REWARD_CRATE_WEARABLES, count: 3 },
+  { item: Items.REWARD_CRATE_ALPHA_LAUNCH, count: 3 },
+  { item: Items.MYSTERY_BAG_1, count: 2 }
+];
