@@ -5445,6 +5445,7 @@ export class ZoneServer2016 extends EventEmitter {
     const itemDef = this.getItemDefinition(itemDefinitionId);
     return [
       "RewardCrate",
+      "RewardCrateKey",
       "AccountRecipe",
       "IncrementEntitlement",
       "EmoteAnimation",
