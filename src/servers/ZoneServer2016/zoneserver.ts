@@ -6528,7 +6528,6 @@ export class ZoneServer2016 extends EventEmitter {
 
     if (!client) {
       this.sendDataToAll("Command.DeliveryManagerStatus", data);
-      console.log("a");
       return;
     }
 
