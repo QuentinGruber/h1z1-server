@@ -1903,7 +1903,13 @@ export class ZoneServer2016 extends EventEmitter {
       this.sendData(client, "Command.ItemDefinitions", {
         data: {
           itemDefinitions: Object.values(this._itemDefinitions)
-            .filter((item) => inventoryItemIds.includes(item.ID))
+            .filter(
+              (item) =>
+                inventoryItemIds.includes(item.ID) &&
+                !["Foundation", "ConstructionSocketBound"].includes(
+                  item.CODE_FACTORY_NAME
+                )
+            ) // Filter out construction items that aren't freeplace, because they will be handled as freeplace objects if you do. My guess is that this packet structure isn't 100% correct yet. - Jason
             .map((itemDef) => {
               return {
                 ID: itemDef.ID,
