@@ -1213,7 +1213,8 @@ export class ZoneServer2016 extends EventEmitter {
             client.character.state.position,
             object.state.position,
             1
-          )
+          ) &&
+          client.searchedProps.includes(object)
         ) {
           const container = object.getContainer();
           if (container) {
@@ -6602,22 +6603,22 @@ export class ZoneServer2016 extends EventEmitter {
     const plane = new Plane(
       characterId,
       this.getTransientId(characterId),
-      0,
+      ModelIds.AIRDROP_PLANE,
       moved,
       client.character.state.lookAt,
       this,
       getCurrentServerTimeWrapper().getTruncatedU32(),
-      VehicleIds.OFFROADER
+      VehicleIds.SPECTATE
     );
     const cargo = new Plane(
       characterId4,
       this.getTransientId(characterId4),
-      0,
+      ModelIds.MILITARY_CRATE,
       new Float32Array([pos[0], pos[1] - 20, pos[2], 1]),
       client.character.state.lookAt,
       this,
       getCurrentServerTimeWrapper().getTruncatedU32(),
-      VehicleIds.PICKUP
+      VehicleIds.SPECTATE
     );
     this._airdrop = {
       plane: plane,

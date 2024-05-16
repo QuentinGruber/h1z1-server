@@ -6,6 +6,7 @@ import { ConstructionParentEntity } from "../entities/constructionparententity";
 import { generate_random_guid } from "h1emu-core";
 import { ConstructionChildEntity } from "../entities/constructionchildentity";
 import { ConstructionDoor } from "../entities/constructiondoor";
+import { Items } from "../models/enums";
 
 const isMongoTests = process.env.MONGO_TESTS === "true";
 process.env.FORCE_DISABLE_WS = "true";
@@ -83,7 +84,7 @@ async function worldSaveUnitTests(t: any, mongoAddress: string) {
         pos,
         pos,
         zone,
-        1,
+        Items.FOUNDATION,
         "1",
         "name",
         "",
@@ -99,7 +100,7 @@ async function worldSaveUnitTests(t: any, mongoAddress: string) {
           pos,
           pos,
           zone,
-          1,
+          Items.METAL_WALL,
           foundation.characterId,
           ""
         );
@@ -115,7 +116,7 @@ async function worldSaveUnitTests(t: any, mongoAddress: string) {
         pos,
         pos,
         zone,
-        1,
+        Items.DOOR_METAL,
         foundation.characterId,
         "",
         ""

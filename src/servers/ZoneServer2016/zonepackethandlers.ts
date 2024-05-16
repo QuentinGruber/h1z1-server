@@ -3723,16 +3723,7 @@ export class ZonePacketHandlers {
       case "02": // client messages
         server.sendChatTextToAdmins(`${client.character.name}: ${data}`);
         break;
-      case "09": // client messages
-        const version = "2";
-        if (data == "2") {
-          clearTimeout(client.heartBeatTimer);
-        } else {
-          server.kickPlayer(client);
-          server.sendChatTextToAdmins(
-            `[FairPlay] kicking ${client.character.name} for wrong data version: ${data} | required: ${version}`
-          );
-        }
+      case "09":
         break;
       default:
         console.log(
