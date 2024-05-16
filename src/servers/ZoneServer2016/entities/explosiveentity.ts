@@ -36,6 +36,9 @@ export class ExplosiveEntity extends BaseLightweightCharacter {
   triggerExplosionShots =
     this.isLandmine() || this.isIED() ? 1 : Math.floor(Math.random() * 2) + 1;
 
+  /** the characterId from who place this to keep track */
+  ownerCharacterId: string;
+
   constructor(
     characterId: string,
     transientId: number,
@@ -43,10 +46,12 @@ export class ExplosiveEntity extends BaseLightweightCharacter {
     position: Float32Array,
     rotation: Float32Array,
     server: ZoneServer2016,
-    itemDefinitionId: number
+    itemDefinitionId: number,
+    ownerCharacterId: string = ""
   ) {
     super(characterId, transientId, actorModelId, position, rotation, server);
     this.itemDefinitionId = itemDefinitionId;
+    this.ownerCharacterId = ownerCharacterId;
   }
 
   isIED() {
@@ -104,7 +109,11 @@ export class ExplosiveEntity extends BaseLightweightCharacter {
   }
 
   /** Used by landmines to arm their explosivenss */
-  arm(server: ZoneServer2016) {
+  async arm(server: ZoneServer2016) {
+    if (this.isLandmine()) {
+      // Wait 10 seconds before activating the trap
+      await new Promise<void>((resolve) => setTimeout(resolve, 10000));
+    }
     this.mineTimer = setTimeout(() => {
       if (!server._explosives[this.characterId]) {
         return;

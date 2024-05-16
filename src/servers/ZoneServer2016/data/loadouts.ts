@@ -117,10 +117,10 @@ export const characterVehicleKit = [
   { item: Items.SPARKPLUGS },
   { item: Items.VEHICLE_KEY },
   { item: Items.BATTERY },
-  { item: Items.BATTERY },
   { item: Items.TURBO_OFFROADER },
   { item: Items.TURBO_ATV },
   { item: Items.TURBO_PICKUP },
+  { item: Items.TURBO_POLICE },
   { item: Items.HEADLIGHTS_ATV },
   { item: Items.HEADLIGHTS_OFFROADER },
   { item: Items.HEADLIGHTS_PICKUP },
@@ -195,3 +195,9 @@ export const lootableContainerDefaultLoadouts = {
   repair_box: [{ item: Items.CONTAINER_REPAIR_BOX }],
   stash: [{ item: Items.CONTAINER_STASH }]
 };
+
+export const accountInventoryDefaultRewards = [
+  { item: Items.REWARD_CRATE_WEARABLES, count: 3 },
+  { item: Items.REWARD_CRATE_ALPHA_LAUNCH, count: 3 },
+  { item: Items.MYSTERY_BAG_1, count: 2 }
+];

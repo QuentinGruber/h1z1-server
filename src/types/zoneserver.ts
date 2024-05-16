@@ -387,6 +387,11 @@ export interface ScreenEffect {
 	transparency: number;
 	color: number;
 	unknownDword3: number;
+  unknownDword7: number;
+  unknownDword16: number;
+  unknownDword17: number;
+  unknownDword18: number;
+  unknownDword19: number;
 }
 
 export interface clientEffect {
@@ -475,6 +480,27 @@ export interface Weather2016 {
 
 export interface WeatherTemplate extends Weather2016 {
   templateName: string,
+}
+
+export interface AccountDefinition {
+  ID: number,
+  ACCOUNT_ITEM_ID: number,
+  REWARD_SET_ID: number,
+  REWARD_ITEM_ID: number,
+  REWARD_ITEM_TINT_ID: number,
+  REWARD_ITEM_COUNT: number,
+  REWARD_ITEM_MATERIAL_EFFECT_ID: number,
+  CONTENT_ID: number
+}
+
+export interface RewardCrateDefinition {
+  itemDefinitionId: number,
+  rewards: RewardCrateRewardDefinition[]
+}
+
+export interface RewardCrateRewardDefinition {
+  itemDefinitionId: number,
+  rewardChance: number
 }
 
 export interface ItemDefinition {

@@ -1449,7 +1449,7 @@ export const lootTables: { [lootSpawner: string]: LootSpawner } = {
           max: 1
         }
       },
-	  {
+      {
         item: Items.GRENADE_SMOKE,
         weight: 100,
         spawnCount: {
@@ -1457,7 +1457,7 @@ export const lootTables: { [lootSpawner: string]: LootSpawner } = {
           max: 1
         }
       },
-	  {
+      {
         item: Items.GRENADE_FLASH,
         weight: 100,
         spawnCount: {
@@ -1465,7 +1465,7 @@ export const lootTables: { [lootSpawner: string]: LootSpawner } = {
           max: 1
         }
       },
-	  {
+      {
         item: Items.WEAPON_MOLOTOV,
         weight: 100,
         spawnCount: {
@@ -1631,7 +1631,7 @@ export const lootTables: { [lootSpawner: string]: LootSpawner } = {
           max: 1
         }
       },
-	  {
+      {
         item: Items.GRENADE_SMOKE,
         weight: 100,
         spawnCount: {
@@ -1639,7 +1639,7 @@ export const lootTables: { [lootSpawner: string]: LootSpawner } = {
           max: 1
         }
       },
-	  {
+      {
         item: Items.GRENADE_FLASH,
         weight: 100,
         spawnCount: {
@@ -1647,7 +1647,7 @@ export const lootTables: { [lootSpawner: string]: LootSpawner } = {
           max: 1
         }
       },
-	  {
+      {
         item: Items.WEAPON_MOLOTOV,
         weight: 100,
         spawnCount: {
@@ -1725,7 +1725,7 @@ export const lootTables: { [lootSpawner: string]: LootSpawner } = {
           max: 1
         }
       },
-	  {
+      {
         item: Items.GRENADE_SMOKE,
         weight: 100,
         spawnCount: {
@@ -1733,7 +1733,7 @@ export const lootTables: { [lootSpawner: string]: LootSpawner } = {
           max: 1
         }
       },
-	  {
+      {
         item: Items.GRENADE_FLASH,
         weight: 100,
         spawnCount: {
@@ -1741,7 +1741,7 @@ export const lootTables: { [lootSpawner: string]: LootSpawner } = {
           max: 1
         }
       },
-	  {
+      {
         item: Items.WEAPON_MOLOTOV,
         weight: 100,
         spawnCount: {
@@ -1820,7 +1820,7 @@ export const lootTables: { [lootSpawner: string]: LootSpawner } = {
           max: 1
         }
       },
-	  {
+      {
         item: Items.GRENADE_SMOKE,
         weight: 100,
         spawnCount: {
@@ -1828,7 +1828,7 @@ export const lootTables: { [lootSpawner: string]: LootSpawner } = {
           max: 1
         }
       },
-	  {
+      {
         item: Items.GRENADE_FLASH,
         weight: 100,
         spawnCount: {
@@ -1836,7 +1836,7 @@ export const lootTables: { [lootSpawner: string]: LootSpawner } = {
           max: 1
         }
       },
-	  {
+      {
         item: Items.WEAPON_MOLOTOV,
         weight: 100,
         spawnCount: {

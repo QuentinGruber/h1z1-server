@@ -757,7 +757,7 @@ export const commands: Array<Command> = [
           position = new Float32Array([479.46, 109.7, 2902.51, 1]);
           break;
         case "dam":
-          position = new Float32Array([-629.49, 69.96, 1233.49, 1]);
+          position = new Float32Array([-685, 69.96, 1185.49, 1]);
           break;
         case "cranberry":
           position = new Float32Array([-1368.37, 71.29, 1837.61, 1]);
@@ -1707,7 +1707,8 @@ export const commands: Array<Command> = [
           ]),
           client.character.state.lookAt,
           server,
-          Items.IED
+          Items.IED,
+          client.character.characterId
         ); // save explosive
       });
     }
@@ -1881,6 +1882,53 @@ export const commands: Array<Command> = [
     }
   },
   {
+    name: "addcontaineritem",
+    permissionLevel: PermissionLevels.ADMIN,
+    execute: (server: ZoneServer2016, client: Client, args: Array<string>) => {
+      if (!args[0]) {
+        server.sendChatText(
+          client,
+          "[ERROR] Usage /addcontaineritem {itemDefinitionId/item name} optional: {count}"
+        );
+        return;
+      }
+      const count = Number(args[1]) || 1;
+      let itemDefId;
+      let similar;
+
+      for (const a in itemDefinitions) {
+        const name = itemDefinitions[a].NAME;
+        const argsName = args[0].toString().toUpperCase().replaceAll("_", " ");
+        if (!name) continue;
+        if (itemDefinitions[a].CODE_FACTORY_NAME == "EquippableContainer") {
+          if (itemDefinitions[a].BULK == 0) continue; // skip account recipes and world containers
+        }
+        if (name.toUpperCase() == argsName) {
+          itemDefId = itemDefinitions[a].ID;
+          break;
+        } else if (
+          getDifference(name.toUpperCase(), argsName) <= 3 &&
+          getDifference(name.toUpperCase(), argsName) != 0
+        )
+          similar = itemDefinitions[a].NAME.toUpperCase().replaceAll(" ", "_");
+      }
+      if (!itemDefId) itemDefId = Number(args[0]);
+      const item = server.generateItem(itemDefId, count, true);
+      if (!item) {
+        server.sendChatText(
+          client,
+          similar
+            ? `[ERROR] Cannot find item "${args[0].toUpperCase()}", did you mean "${similar}"`
+            : `[ERROR] Cannot find item "${args[0]}"`
+        );
+        return;
+      }
+
+      if (!client.character.mountedContainer) return;
+      client.character.mountedContainer.lootItem(server, item);
+    }
+  },
+  {
     name: "additem",
     permissionLevel: PermissionLevels.ADMIN,
     execute: (server: ZoneServer2016, client: Client, args: Array<string>) => {
@@ -1899,7 +1947,6 @@ export const commands: Array<Command> = [
         const name = itemDefinitions[a].NAME;
         const argsName = args[0].toString().toUpperCase().replaceAll("_", " ");
         if (!name) continue;
-        if (itemDefinitions[a].CODE_FACTORY_NAME == "AccountRecipe") continue;
         if (itemDefinitions[a].CODE_FACTORY_NAME == "EquippableContainer") {
           if (itemDefinitions[a].BULK == 0) continue; // skip account recipes and world containers
         }

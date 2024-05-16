@@ -50,6 +50,7 @@ import {
   ConstructionPermissionIds,
   Effects,
   Items,
+  ModelIds,
   ResourceIds,
   ResourceTypes,
   StringIds,
@@ -218,18 +219,47 @@ export class ConstructionManager {
     item: BaseItem,
     position: Float32Array
   ): boolean {
-    if (item.itemDefinitionId == Items.GROUND_TAMPER) {
+    if (
+      [
+        Items.GROUND_TAMPER,
+        Items.FOUNDATION,
+        Items.HAND_SHOVEL,
+        Items.FOUNDATION_EXPANSION
+      ].includes(item.itemDefinitionId)
+    ) {
       // fix for tamper stacking
       let tampersInRadius = 0;
       for (const a in server._constructionFoundations) {
         const foundation = server._constructionFoundations[a];
-        if (foundation.itemDefinitionId != Items.GROUND_TAMPER) continue;
-        if (isPosInRadius(22, foundation.state.position, position))
+        // Prevent stacking / hiding hidden stashes under tampers / foundations
+        if (
+          item.itemDefinitionId == Items.HAND_SHOVEL &&
+          [
+            Items.GROUND_TAMPER,
+            Items.FOUNDATION,
+            Items.FOUNDATION_EXPANSION
+          ].includes(foundation.itemDefinitionId) &&
+          getDistance(foundation.state.position, position) <= 22
+        )
+          return true;
+        if (
+          isPosInRadius(22, foundation.state.position, position) &&
+          foundation.itemDefinitionId == Items.GROUND_TAMPER
+        )
           tampersInRadius++;
       }
       if (tampersInRadius >= 3) {
         return true;
       }
+
+      // Prevent stacking / hiding hidden stashes under tampers / foundations
+      return (
+        Object.values(server._worldLootableConstruction).filter(
+          (lc) =>
+            lc.actorModelId == ModelIds.HAND_SHOVEL &&
+            getDistance(lc.state.position, position) <= 15
+        ).length > 0
+      );
     }
     return false;
   }
@@ -598,7 +628,13 @@ export class ConstructionManager {
 
     if (this.detectStackedTamperPlacement(server, item, position)) {
       this.sendPlacementFinalize(server, client, false);
-      this.placementError(server, client, ConstructionErrors.STACKED);
+      this.placementError(
+        server,
+        client,
+        item.itemDefinitionId == Items.HAND_SHOVEL
+          ? ConstructionErrors.OVERLAP
+          : ConstructionErrors.STACKED
+      );
       return;
     }
 
@@ -708,12 +744,16 @@ export class ConstructionManager {
       case Items.SNARE:
       case Items.PUNJI_STICKS:
       case Items.PUNJI_STICK_ROW:
+      case Items.TRAP_FIRE:
+      case Items.TRAP_FLASH:
         return this.placeTrap(
           server,
           itemDefinitionId,
           modelId,
           position,
-          fixEulerOrder(rotation)
+          fixEulerOrder(rotation),
+          false,
+          client.character.characterId
         );
       case Items.RIGGED_LIGHT:
         return this.placeTemporaryEntity(
@@ -746,7 +786,8 @@ export class ConstructionManager {
           itemDefinitionId,
           modelId,
           position,
-          eul2quat(rotation)
+          eul2quat(rotation),
+          client.character.characterId
         );
       case Items.METAL_GATE:
       case Items.DOOR_BASIC:
@@ -1365,7 +1406,8 @@ export class ConstructionManager {
     modelId: number,
     position: Float32Array,
     rotation: Float32Array,
-    worldOwned: boolean = false
+    worldOwned: boolean = false,
+    owner: string = ""
   ): boolean {
     const characterId = server.generateGuid(),
       transientId = 1, // dont think its needed here
@@ -1377,7 +1419,8 @@ export class ConstructionManager {
         rotation,
         server,
         itemDefinitionId,
-        worldOwned
+        worldOwned,
+        owner
       );
     npc.arm(server);
     server._traps[characterId] = npc;
@@ -1390,7 +1433,8 @@ export class ConstructionManager {
     itemDefinitionId: Items,
     modelId: number,
     position: Float32Array,
-    rotation: Float32Array
+    rotation: Float32Array,
+    ownerCharacterId: string
   ): boolean {
     const characterId = server.generateGuid(),
       transientId = 1, // dont think its needed
@@ -1401,7 +1445,8 @@ export class ConstructionManager {
         position,
         rotation,
         server,
-        itemDefinitionId
+        itemDefinitionId,
+        ownerCharacterId
       );
     if (npc.isLandmine()) {
       npc.arm(server);
@@ -1701,13 +1746,7 @@ export class ConstructionManager {
       ""
     );
 
-    const parent = obj.getParent(server);
-    if (parent) {
-      server._lootableConstruction[characterId] = obj;
-      parent.addFreeplaceConstruction(obj);
-    } else {
-      server._worldLootableConstruction[characterId] = obj;
-    }
+    server._worldLootableConstruction[characterId] = obj;
 
     obj.equipLoadout(server);
 

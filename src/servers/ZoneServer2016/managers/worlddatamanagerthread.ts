@@ -22,6 +22,7 @@ import {
   WorldArg,
   WorldDataManager
 } from "./worlddatamanager";
+import { AccountInventory } from "../classes/accountinventory";
 
 const worldDataManager = new WorldDataManager();
 export interface WorldDataManagerThreaded {
@@ -40,6 +41,8 @@ export interface WorldDataManagerThreaded {
     arg0: CharacterUpdateSaveData,
     arg1?: bigint
   ) => Promise<void>;
+  loadAccountInventory: (arg0: string) => Promise<AccountInventory>;
+  saveAccountInventory: (arg0: AccountInventory) => Promise<void>;
   kill: () => void;
 }
 expose({
@@ -69,6 +72,12 @@ expose({
   },
   saveCharacterData(character: CharacterUpdateSaveData, lastItemGuid?: bigint) {
     return worldDataManager.saveCharacterData(character, lastItemGuid);
+  },
+  loadAccountInventory(loginSessionId: string) {
+    return worldDataManager.loadAccountInventory(loginSessionId);
+  },
+  saveAccountInventory(accountInventory: AccountInventory) {
+    return worldDataManager.saveAccountInventory(accountInventory);
   },
   kill() {
     process.exit(0);
