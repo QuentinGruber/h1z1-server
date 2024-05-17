@@ -2854,3 +2854,12 @@ export function pack2ByteLengthString(string: string) {
     },
   */
 }
+
+export const accountItemSchema: PacketFields = [
+  { name: "itemId", type: "uint64string", defaultValue: "0" },
+  { name: "itemDefinitionId", type: "uint32", defaultValue: 0 },
+  { name: "unknownDword2", type: "uint32", defaultValue: 0 }, // 44 for itemDefId 1871, 37 for itemDefId 37, ... (No idea where it comes from)
+  { name: "itemCount", type: "uint32", defaultValue: 0 },
+  { name: "itemGuid", type: "uint64string", defaultValue: "0" },
+  { name: "unknownDword4", type: "uint32", defaultValue: 0 }
+];
