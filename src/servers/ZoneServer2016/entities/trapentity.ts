@@ -344,9 +344,8 @@ export class TrapEntity extends BaseSimpleNpc {
         ) {
           server.addScreenEffect(client, server._screenEffects["FLASH"]);
 
-          server.sendDataToAllOthersWithSpawnedEntity(
+          server.sendDataToAllWithSpawnedEntity(
             server._characters,
-            client,
             client.character.characterId,
             "Character.PlayAnimation",
             {
@@ -367,9 +366,8 @@ export class TrapEntity extends BaseSimpleNpc {
         if (
           getDistance(client.character.state.position, this.state.position) <= 5
         ) {
-          server.sendDataToAllOthersWithSpawnedEntity(
+          server.sendDataToAllWithSpawnedEntity(
             server._characters,
-            client,
             client.character.characterId,
             "Character.PlayAnimation",
             {
