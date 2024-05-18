@@ -980,7 +980,7 @@ export interface CharacterPlayAnimation {
   unknownDword1?: number;
   unknownByte1?: number;
   unknownDword2?: number;
-  unkWord2?: number;
+  animationType: unknown;
   unknownByte1xda?: number;
   unknownDword3?: number;
 }
