@@ -357,7 +357,8 @@ export class AbilitiesManager {
         "Character.PlayAnimation",
         {
           characterId: client.character.characterId,
-          animationName: animationName
+          animationName: animationName,
+          animationType: ""
         }
       );
       return;
