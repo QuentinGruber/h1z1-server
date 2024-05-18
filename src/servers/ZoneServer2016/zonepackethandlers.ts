@@ -3317,10 +3317,16 @@ export class ZonePacketHandlers {
         client.character.equipItem(server, newItem);
         client.character.updateEquipment(server);
         // Update outlines for groups
-        if(client.character.groupId && server.groupManager.groups[client.character.groupId]) {
-          server.groupManager.sendGroupOutlineUpdates(server, server.groupManager.groups[client.character.groupId]);
+        if (
+          client.character.groupId &&
+          server.groupManager.groups[client.character.groupId]
+        ) {
+          server.groupManager.sendGroupOutlineUpdates(
+            server,
+            server.groupManager.groups[client.character.groupId]
+          );
         }
-        
+
         // Copy over items from the old container to the new container
         if (containerItems && _.size(containerItems) !== 0) {
           const newContainer = client.character.getContainerFromGuid(
