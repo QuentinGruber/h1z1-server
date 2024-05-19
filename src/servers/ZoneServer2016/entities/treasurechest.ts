@@ -121,7 +121,8 @@ export class TreasureChest extends LootableProp {
       (itemInstance: { itemDefinitionId: number; count: number }) => {
         const item = server.generateItem(
           itemInstance.itemDefinitionId,
-          itemInstance.count
+          itemInstance.count,
+          true
         );
         this.lootContainerItem(server, item, itemInstance.count, false);
       }
