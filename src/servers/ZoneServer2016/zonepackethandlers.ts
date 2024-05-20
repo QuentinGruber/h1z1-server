@@ -311,6 +311,8 @@ export class ZonePacketHandlers {
           };
         })
     });
+
+    server.sendDeliveryStatus(client);
   }
   ClientFinishedLoading(
     server: ZoneServer2016,

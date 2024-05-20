@@ -6572,7 +6572,9 @@ export class ZoneServer2016 extends EventEmitter {
     }
 
     if (
-      ![1800, Items.AIRDROP_CODE].includes(item.itemDefinitionId) ||
+      ![Items.AIRDROP_TICKET, Items.AIRDROP_CODE].includes(
+        item.itemDefinitionId
+      ) ||
       !this.removeInventoryItem(character, item)
     )
       return;
@@ -6663,6 +6665,8 @@ export class ZoneServer2016 extends EventEmitter {
       item.hasAirdropClearance = false;
     }
 
+    this.sendDeliveryStatus();
+
     setTimeout(() => {
       if (this._airdrop && this._airdrop.plane.characterId == characterId) {
         for (const a in this._clients) {
@@ -6670,6 +6674,7 @@ export class ZoneServer2016 extends EventEmitter {
             this.airdropManager(this._clients[a], false);
           }
         }
+        this.sendDeliveryStatus();
         delete this._airdrop;
       }
     }, 600000);
@@ -8613,6 +8618,35 @@ export class ZoneServer2016 extends EventEmitter {
       return [];
     }
     return Object.values(this._accountInventories[sessionId].items);
+  }
+
+  sendDeliveryStatus(client: Client | undefined = undefined) {
+    const hasEnoughSurvivors =
+      this._soloMode ||
+      this.worldObjectManager.minAirdropSurvivors < _.size(this._clients);
+
+    let status = 0;
+    switch (true) {
+      case !hasEnoughSurvivors:
+        status = 2;
+        break;
+      case this._airdrop !== undefined:
+        status = 1;
+        break;
+    }
+
+    if (client) {
+      this.sendData(client, "Command.DeliveryManagerStatus", {
+        color: status == 0 ? 1 : 0,
+        status: status
+      });
+      return;
+    }
+
+    this.sendDataToAll("Command.DeliveryManagerStatus", {
+      color: status == 0 ? 1 : 0,
+      status: status
+    });
   }
 }
 

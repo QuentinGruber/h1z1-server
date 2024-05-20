@@ -338,7 +338,17 @@ export const commandPackets: PacketStructures = [
   ["Command.StartLogoutRequest", 0x094e00, {}],
   ["Command.Delivery", 0x094f00, {}],
   ["Command.DeliveryDisplayInfo", 0x095000, {}],
-  ["Command.DeliveryManagerStatus", 0x095100, {}],
+  [
+    "Command.DeliveryManagerStatus",
+    0x095100,
+    {
+      fields: [
+        { name: "color", type: "uint16", defaultValue: 1 },
+        { name: "status", type: "uint16", defaultValue: 0 },
+        { name: "unkString", type: "string", defaultValue: "" }
+      ]
+    }
+  ],
   ["Command.DeliveryManagerShowNotification", 0x095200, {}],
 
   /* GAP */
