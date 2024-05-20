@@ -6566,7 +6566,7 @@ export class ZoneServer2016 extends EventEmitter {
       }
     }
 
-    if (client.currentPOI || blockedArea) {
+    if ((client.currentPOI || blockedArea) && !client.isDebugMode) {
       this.sendAlert(client, "You are too close to a restricted area.");
       return;
     }
@@ -6613,7 +6613,7 @@ export class ZoneServer2016 extends EventEmitter {
     const cargo = new Plane(
       characterId4,
       this.getTransientId(characterId4),
-      ModelIds.MILITARY_CRATE,
+      ModelIds.AIRDROP_CARGO_CONTAINER,
       new Float32Array([pos[0], pos[1] - 20, pos[2], 1]),
       client.character.state.lookAt,
       this,
