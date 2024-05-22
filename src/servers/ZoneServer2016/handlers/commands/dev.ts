@@ -994,6 +994,26 @@ const dev: any = {
     args: Array<string>
   ) {
     server.sleep(client);
+  },
+  status: function (
+    server: ZoneServer2016,
+    client: Client,
+    args: Array<string>
+  ) {
+    server.sendData(client, "Command.DeliveryManagerStatus", {
+      deliveryAvailable: Number(args[1]),// treated as bool
+      status: Number(args[2]), // 0, 1, 2
+      unknownString1: args[3]
+    });
+  },
+  notification: function (
+    server: ZoneServer2016,
+    client: Client,
+    args: Array<string>
+  ) {
+    server.sendData(client, "Command.DeliveryManagerShowNotification", {
+      status: args[1]
+    });
   }
   /*
   shutdown: function (
