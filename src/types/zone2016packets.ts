@@ -2610,10 +2610,12 @@ export interface CommandRequestWeaponFireStateUpdate {
   characterId?: string;
 }
 export interface CommandDeliveryDisplayInfo {
+  startIndex?: number;
+  segments?: unknown[];
 }
 export interface CommandDeliveryManagerStatus {
-  unknownWord1?: number;
-  unknownWord2?: number;
+  deliveryAvailable?: number;
+  status?: number;
   unknownString1?: string;
 }
 export interface CommandDeliveryManagerShowNotification {

@@ -19,12 +19,13 @@ import {
   CharacterPlayWorldCompositeEffect,
   CharacterSeekTarget,
   ClientUpdateTextAlert,
+  CommandDeliveryDisplayInfo,
   ItemsAddAccountItem
 } from "types/zone2016packets";
 import { Npc } from "../../entities/npc";
 import { ZoneClient2016 as Client } from "../../classes/zoneclient";
 import { ZoneServer2016 } from "../../zoneserver";
-import { Items } from "../../models/enums";
+import { Items, ModelIds } from "../../models/enums";
 import { LootableConstructionEntity } from "../../entities/lootableconstructionentity";
 import { ConstructionChildEntity } from "../../entities/constructionchildentity";
 import { ConstructionDoor } from "../../entities/constructiondoor";
@@ -1001,7 +1002,7 @@ const dev: any = {
     args: Array<string>
   ) {
     server.sendData(client, "Command.DeliveryManagerStatus", {
-      deliveryAvailable: Number(args[1]),// treated as bool
+      deliveryAvailable: Number(args[1]), // treated as bool
       status: Number(args[2]), // 0, 1, 2
       unknownString1: args[3]
     });
@@ -1014,6 +1015,150 @@ const dev: any = {
     server.sendData(client, "Command.DeliveryManagerShowNotification", {
       status: args[1]
     });
+  },
+
+  airdrop: function (
+    server: ZoneServer2016,
+    client: Client,
+    args: Array<string>
+  ) {
+    server.sendData<CommandDeliveryDisplayInfo>(
+      client,
+      "Command.DeliveryDisplayInfo",
+      {
+        startIndex: 1,
+        segments: [
+          {
+            index: 1,
+            startModelId: ModelIds.AIRDROP_PLANE,
+            endModelId: ModelIds.AIRDROP_PLANE,
+            unknownDword2: server.inGameTimeManager.time + 1000,
+            unknownFloat1: 75,
+            endPosition: client.character.state.position,
+            unknownDword3: 0,
+            progressStages: [
+              {
+                progress: 0,
+                position: client.character.state.position
+              },
+              {
+                progress: 0.5859599,
+                position: client.character.state.position
+              },
+              {
+                progress: 0.6926265,
+                position: [874.7058, 400, 481.1545, 0.03829768]
+              },
+              {
+                progress: 0.7592933,
+                position: [1323.968, 400, 1143.095, 0.06382946]
+              },
+              {
+                progress: 0.7659599,
+                position: [1368.894, 410, 1209.289, 0.08936124]
+              },
+              {
+                progress: 0.7726266,
+                position: [1413.82, 420, 1275.483, 0.114893]
+              },
+              {
+                progress: 0.7792932,
+                position: [1458.746, 430, 1341.676, 0.1404248]
+              },
+              {
+                progress: 0.7859599,
+                position: [1503.672, 440, 1407.87, 0.1659566]
+              },
+              {
+                progress: 0.7926266,
+                position: [1548.598, 450, 1474.064, 0.1914884]
+              },
+              {
+                progress: 0.7992932,
+                position: [1593.524, 460, 1540.258, 0.2170202]
+              },
+              {
+                progress: 0.8059599,
+                position: [1638.45, 470, 1606.452, 0.2425519]
+              },
+              {
+                progress: 0.8126265,
+                position: [1683.377, 480, 1672.646, 0.2680837]
+              },
+              {
+                progress: 0.9592932,
+                position: [2671.752, 950, 3128.914, 0.2553178]
+              },
+              {
+                progress: 1,
+                position: [2946.072, 950, 3533.095, 0]
+              },
+              {
+                progress: 1.159293,
+                position: [4019.537, 950, 5114.733, 0]
+              }
+            ]
+          },
+          {
+            index: 2,
+            startModelId: ModelIds.MILITARY_CRATE_PARACHUTE,
+            endModelId: ModelIds.MILITARY_CRATE_PARACHUTE,
+            unknownDword2: server.inGameTimeManager.time + 1500,
+            unknownFloat1: 28.64041,
+            endPosition: [1100.13, 27.67558, 811.8412, 1],
+            unknownDword4: 0,
+            progressStages: [
+              {
+                progress: 0,
+                position: [1099.337, 400, 812.1246, 0]
+              },
+              {
+                progress: 1,
+                position: [1100.13, 27.67558, 811.8412, 0]
+              }
+            ]
+          },
+          {
+            index: 3,
+            startModelId: 9222,
+            endModelId: 9222, //ModelIds.AIRDROP_CARGO_CONTAINER,
+            unknownDword2: server.inGameTimeManager.time + 2000,
+            unknownFloat1: 31.23798,
+            endPosition: [1100.13, 27.67558, 811.8412, 1],
+            unknownDword3: 0,
+            progressStages: [
+              {
+                progress: 0,
+                position: [1099.337, 400, 812.1246, 0]
+              },
+              {
+                progress: 1,
+                position: [1100.13, 27.67558, 811.8412, 0]
+              }
+            ]
+          },
+          {
+            index: 4,
+            startModelId: ModelIds.MILITARY_CRATE,
+            endModelId: ModelIds.MILITARY_CRATE,
+            unknownDword2: server.inGameTimeManager.time + 2500,
+            unknownFloat1: 28.64041,
+            endPosition: [1100.13, 27.67558, 811.8412, 1],
+            unknownDword3: 0,
+            progressStages: [
+              {
+                progress: 0,
+                position: [1099.337, 400, 812.1246, 0]
+              },
+              {
+                progress: 1,
+                position: [1100.13, 27.67558, 811.8412, 0]
+              }
+            ]
+          }
+        ]
+      }
+    );
   }
   /*
   shutdown: function (

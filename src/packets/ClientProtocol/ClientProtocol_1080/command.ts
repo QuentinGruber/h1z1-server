@@ -342,38 +342,38 @@ export const commandPackets: PacketStructures = [
     0x095000,
     {
       fields: [
-        { name: "unknownDword1", type: "uint32", defaultValue: 0 }, // 1
+        { name: "startIndex", type: "uint32", defaultValue: 0 }, // 1
         {
           name: "segments",
           type: "array",
           defaultValue: [],
           fields: [
-            { name: "unknownDword1", type: "uint32", defaultValue: 0 },
+            { name: "startIndex", type: "uint32", defaultValue: 0 },
             { name: "startModelId", type: "uint32", defaultValue: 0 },
             { name: "endModelId", type: "uint32", defaultValue: 0 }, // same as above
             { name: "unknownDword2", type: "uint32", defaultValue: 0 }, // gameTime?
-            { name: "unknownDword3", type: "uint32", defaultValue: 0 },
+            { name: "unknownFloat1", type: "float", defaultValue: 0 },
             {
               name: "endPosition",
               type: "floatvector4",
               defaultValue: [0, 0, 0, 0]
             },
-            { name: "unknownDword4", type: "uint32", defaultValue: 0 },
+            { name: "unknownDword3", type: "uint32", defaultValue: 0 },
             {
               name: "progressStages",
               type: "array",
               defaultValue: [],
               fields: [
-                { name: "progress", type: "uint32", defaultValue: 0 },
+                { name: "progress", type: "float", defaultValue: 0 },
                 {
                   name: "position",
                   type: "floatvector4",
                   defaultValue: [0, 0, 0, 0]
-                },
+                }
               ]
-            },
+            }
           ]
-        },
+        }
       ]
     }
   ],
