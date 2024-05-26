@@ -5384,7 +5384,11 @@ export class ZoneServer2016 extends EventEmitter {
         characterIds.add(characterId);
       });
     } else {
-      characterIds.add(character.characterId);
+      if (character instanceof BaseLootableEntity) {
+        characterIds.add(character.mountedCharacter || "");
+      } else {
+        characterIds.add(character.characterId);
+      }
     }
 
     characterIds.forEach((characterId) => {
@@ -6386,7 +6390,11 @@ export class ZoneServer2016 extends EventEmitter {
         characterIds.add(characterId);
       });
     } else {
-      characterIds.add(character.characterId);
+      if (character instanceof BaseLootableEntity) {
+        characterIds.add(character.mountedCharacter || "");
+      } else {
+        characterIds.add(character.characterId);
+      }
     }
 
     characterIds.forEach((characterId) => {
@@ -6478,7 +6486,11 @@ export class ZoneServer2016 extends EventEmitter {
         characterIds.add(characterId);
       });
     } else {
-      characterIds.add(character.characterId);
+      if (character instanceof BaseLootableEntity) {
+        characterIds.add(character.mountedCharacter || "");
+      } else {
+        characterIds.add(character.characterId);
+      }
     }
 
     characterIds.forEach((characterId) => {
