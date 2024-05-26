@@ -182,7 +182,7 @@ export const internalCommands: Array<InternalCommand> = [
         getCurrentServerTimeWrapper().getTruncatedU32(),
         vehicleId
       );
-      server.worldObjectManager.createVehicle(server, vehicle);
+      server.worldObjectManager.createVehicle(server, vehicle, true);
       client.character.ownedVehicle = vehicle.characterId;
     }
   }

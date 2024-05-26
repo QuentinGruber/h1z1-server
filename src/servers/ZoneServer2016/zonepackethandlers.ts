@@ -311,6 +311,8 @@ export class ZonePacketHandlers {
           };
         })
     });
+
+    server.sendDeliveryStatus(client);
   }
   ClientFinishedLoading(
     server: ZoneServer2016,
@@ -3251,7 +3253,7 @@ export class ZonePacketHandlers {
     const itemSubData: any = packet.data.itemSubData;
 
     switch (packet.data.unknownDword3) {
-      case 85:
+      case ItemUseOptions.OPEN_CRATE:
         const rewards = server.getCrateRewards(packet.data.itemDefinitionId),
           reward = server.getRandomCrateReward(packet.data.itemDefinitionId);
         if (!rewards || !reward) return;
@@ -3282,13 +3284,13 @@ export class ZonePacketHandlers {
             false
           );
         break;
-      case 24:
+      case ItemUseOptions.APPLY_SKIN:
         const oitem = client.character.getInventoryItem(
             itemSubData.targetItemGuid
           ),
           accountItem = [
             ...Object.values(server._accountItemDefinitions),
-            { ACCOUNT_ITEM_ID: 1800, REWARD_ITEM_ID: 0 }
+            { ACCOUNT_ITEM_ID: Items.AIRDROP_TICKET, REWARD_ITEM_ID: 0 }
           ].find((a) => a.ACCOUNT_ITEM_ID == packet.data.itemDefinitionId);
 
         if (!oitem || !accountItem) return;
@@ -3316,6 +3318,16 @@ export class ZonePacketHandlers {
 
         client.character.equipItem(server, newItem);
         client.character.updateEquipment(server);
+        // Update outlines for groups
+        if (
+          client.character.groupId &&
+          server.groupManager.groups[client.character.groupId]
+        ) {
+          server.groupManager.sendGroupOutlineUpdates(
+            server,
+            server.groupManager.groups[client.character.groupId]
+          );
+        }
 
         // Copy over items from the old container to the new container
         if (containerItems && _.size(containerItems) !== 0) {
@@ -3337,10 +3349,10 @@ export class ZonePacketHandlers {
 
         server.switchLoadoutSlot(client, loadoutItem, true);
         break;
-      case 25:
+      case ItemUseOptions.CALL_AIRDROP:
         server.useAirdrop(client, client.character, item);
         break;
-      case 26:
+      case ItemUseOptions.OPEN_BAG:
         const bagRewards = server.getCrateRewards(packet.data.itemDefinitionId),
           bagReward = server.getRandomCrateReward(packet.data.itemDefinitionId);
         if (!bagRewards || !bagReward) return;
@@ -3355,7 +3367,7 @@ export class ZonePacketHandlers {
           }
         );
         break;
-      case 46:
+      case ItemUseOptions.OPEN_PACKAGE:
         let packageRewards: number[] = [];
         switch (packet.data.itemDefinitionId) {
           case Items.REWARD_SET_WOODLAND_GHILLIE:

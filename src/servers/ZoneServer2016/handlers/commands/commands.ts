@@ -59,6 +59,7 @@ import { MAX_UINT32 } from "../../../../utils/constants";
 import { WithId } from "mongodb";
 import { FullCharacterSaveData } from "types/savedata";
 import { scheduler } from "node:timers/promises";
+import { Vehicle2016 } from "../../entities/vehicle";
 const itemDefinitions = require("./../../../../../data/2016/dataSources/ServerItemDefinitions.json");
 
 export const commands: Array<Command> = [
@@ -1446,36 +1447,35 @@ export const commands: Array<Command> = [
     name: "parachute",
     permissionLevel: PermissionLevels.ADMIN,
     execute: (server: ZoneServer2016, client: Client, args: Array<string>) => {
-      server.sendChatText(client, "Disabled for now");
-      /*
       const characterId = server.generateGuid(),
-      loc = new Float32Array([
-        client.character.state.position[0],
-        client.character.state.position[1] + 700,
-        client.character.state.position[2],
-        client.character.state.position[3],
-      ]),
-      vehicle = new Vehicle(
-        characterId,
-        999999,
-        9374,
-        loc,
-        client.character.state.lookAt,
-        server.getGameTime()
-      );
+        loc = new Float32Array([
+          client.character.state.position[0],
+          client.character.state.position[1] + 700,
+          client.character.state.position[2],
+          client.character.state.position[3]
+        ]),
+        vehicle = new Vehicle2016(
+          characterId,
+          server.getTransientId(characterId),
+          9374,
+          loc,
+          client.character.state.rotation,
+          server,
+          getCurrentServerTimeWrapper().getTruncatedU32(),
+          VehicleIds.PARACHUTE
+        );
       server.sendData(client, "ClientUpdate.UpdateLocation", {
         position: loc,
-        triggerLoadingScreen: true,
+        triggerLoadingScreen: true
       });
-      vehicle.onReadyCallback = () => {
+      vehicle.onReadyCallback = (clientTriggered: Client) => {
         // doing anything with vehicle before client gets fullvehicle packet breaks it
-        server.mountVehicle(client, characterId);
+        server.mountVehicle(clientTriggered, characterId);
         // todo: when vehicle takeover function works, delete assignManagedObject call
-        server.assignManagedObject(client, vehicle);
-        client.vehicle.mountedVehicle = characterId;
+        server.assignManagedObject(clientTriggered, vehicle);
+        clientTriggered.vehicle.mountedVehicle = characterId;
       };
       server.worldObjectManager.createVehicle(server, vehicle);
-      */
     }
   },
   {

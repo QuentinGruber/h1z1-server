@@ -5082,11 +5082,13 @@ export class ZoneServer2016 extends EventEmitter {
           }
         ]
       });
-
-      if (vehicle.getContainer()) {
-        client.character.mountContainer(this, vehicle);
-      }
     }
+
+    // Mount container on all players in the vehicle
+    if (vehicle.getContainer()) {
+      client.character.mountContainer(this, vehicle);
+    }
+
     this.sendDataToAllWithSpawnedEntity<MountMountResponse>(
       this._vehicles,
       vehicleGuid,
@@ -5374,17 +5376,31 @@ export class ZoneServer2016 extends EventEmitter {
     containerDefinitionId: number,
     character: BaseFullCharacter = client.character
   ) {
-    if (
-      client.character.characterId == character.characterId &&
-      !client.character.initialized
-    )
-      return;
-    this.sendData<ClientUpdateItemAdd>(client, "ClientUpdate.ItemAdd", {
-      characterId:
-        character instanceof Character || character instanceof Vehicle2016
-          ? character.characterId
-          : EXTERNAL_CONTAINER_GUID,
-      data: character.pGetItemData(this, item, containerDefinitionId)
+    const characterIds = new Set<string>();
+
+    const vehicle = this._vehicles[character.characterId];
+    if (vehicle) {
+      vehicle.getPassengerList().forEach((characterId) => {
+        characterIds.add(characterId);
+      });
+    } else {
+      if (character instanceof BaseLootableEntity) {
+        characterIds.add(character.mountedCharacter || "");
+      } else {
+        characterIds.add(character.characterId);
+      }
+    }
+
+    characterIds.forEach((characterId) => {
+      const client = this.getClientByCharId(characterId);
+      if (!client || !client.character?.initialized) return;
+      this.sendData<ClientUpdateItemAdd>(client, "ClientUpdate.ItemAdd", {
+        characterId:
+          character instanceof Character || character instanceof Vehicle2016
+            ? character.characterId
+            : EXTERNAL_CONTAINER_GUID,
+        data: character.pGetItemData(this, item, containerDefinitionId)
+      });
     });
   }
 
@@ -6366,15 +6382,31 @@ export class ZoneServer2016 extends EventEmitter {
   }
 
   deleteItem(character: BaseFullCharacter, itemGuid: string) {
-    const client = this.getClientByContainerAccessor(character);
-    if (!client || !client.character.initialized) return;
+    const characterIds = new Set<string>();
 
-    this.sendData<ClientUpdateItemDelete>(client, "ClientUpdate.ItemDelete", {
-      characterId:
-        character instanceof Character || character instanceof Vehicle2016
-          ? character.characterId
-          : EXTERNAL_CONTAINER_GUID,
-      itemGuid: itemGuid
+    const vehicle = this._vehicles[character.characterId];
+    if (vehicle) {
+      vehicle.getPassengerList().forEach((characterId) => {
+        characterIds.add(characterId);
+      });
+    } else {
+      if (character instanceof BaseLootableEntity) {
+        characterIds.add(character.mountedCharacter || "");
+      } else {
+        characterIds.add(character.characterId);
+      }
+    }
+
+    characterIds.forEach((characterId) => {
+      const client = this.getClientByCharId(characterId);
+      if (!client || !client.character?.initialized) return;
+      this.sendData<ClientUpdateItemDelete>(client, "ClientUpdate.ItemDelete", {
+        characterId:
+          character instanceof Character || character instanceof Vehicle2016
+            ? character.characterId
+            : EXTERNAL_CONTAINER_GUID,
+        itemGuid: itemGuid
+      });
     });
   }
 
@@ -6446,17 +6478,34 @@ export class ZoneServer2016 extends EventEmitter {
   }
 
   updateContainer(character: BaseFullCharacter, container: LoadoutContainer) {
-    const client = this.getClientByContainerAccessor(character);
-    if (!client || !client.character.initialized) return;
-    this.sendData<ContainerUpdateEquippedContainer>(
-      client,
-      "Container.UpdateEquippedContainer",
-      {
-        ignore: character.characterId,
-        characterId: character.characterId,
-        containerData: character.pGetContainerData(this, container)
+    const characterIds = new Set<string>();
+
+    const vehicle = this._vehicles[character.characterId];
+    if (vehicle) {
+      vehicle.getPassengerList().forEach((characterId) => {
+        characterIds.add(characterId);
+      });
+    } else {
+      if (character instanceof BaseLootableEntity) {
+        characterIds.add(character.mountedCharacter || "");
+      } else {
+        characterIds.add(character.characterId);
       }
-    );
+    }
+
+    characterIds.forEach((characterId) => {
+      const client = this.getClientByCharId(characterId);
+      if (!client || !client.character?.initialized) return;
+      this.sendData<ContainerUpdateEquippedContainer>(
+        client,
+        "Container.UpdateEquippedContainer",
+        {
+          ignore: character.characterId,
+          characterId: character.characterId,
+          containerData: character.pGetContainerData(this, container)
+        }
+      );
+    });
   }
 
   updateContainerItem(
@@ -6566,13 +6615,15 @@ export class ZoneServer2016 extends EventEmitter {
       }
     }
 
-    if (client.currentPOI || blockedArea) {
+    if ((client.currentPOI || blockedArea) && !client.isDebugMode) {
       this.sendAlert(client, "You are too close to a restricted area.");
       return;
     }
 
     if (
-      ![1800, Items.AIRDROP_CODE].includes(item.itemDefinitionId) ||
+      ![Items.AIRDROP_TICKET, Items.AIRDROP_CODE].includes(
+        item.itemDefinitionId
+      ) ||
       !this.removeInventoryItem(character, item)
     )
       return;
@@ -6613,7 +6664,7 @@ export class ZoneServer2016 extends EventEmitter {
     const cargo = new Plane(
       characterId4,
       this.getTransientId(characterId4),
-      ModelIds.MILITARY_CRATE,
+      ModelIds.AIRDROP_CARGO_CONTAINER,
       new Float32Array([pos[0], pos[1] - 20, pos[2], 1]),
       client.character.state.lookAt,
       this,
@@ -6663,6 +6714,8 @@ export class ZoneServer2016 extends EventEmitter {
       item.hasAirdropClearance = false;
     }
 
+    this.sendDeliveryStatus();
+
     setTimeout(() => {
       if (this._airdrop && this._airdrop.plane.characterId == characterId) {
         for (const a in this._clients) {
@@ -6670,6 +6723,7 @@ export class ZoneServer2016 extends EventEmitter {
             this.airdropManager(this._clients[a], false);
           }
         }
+        this.sendDeliveryStatus();
         delete this._airdrop;
       }
     }, 600000);
@@ -8613,6 +8667,35 @@ export class ZoneServer2016 extends EventEmitter {
       return [];
     }
     return Object.values(this._accountInventories[sessionId].items);
+  }
+
+  sendDeliveryStatus(client: Client | undefined = undefined) {
+    const hasEnoughSurvivors =
+      this._soloMode ||
+      this.worldObjectManager.minAirdropSurvivors < _.size(this._clients);
+
+    let status = 0;
+    switch (true) {
+      case !hasEnoughSurvivors:
+        status = 2;
+        break;
+      case this._airdrop !== undefined:
+        status = 1;
+        break;
+    }
+
+    if (client) {
+      this.sendData(client, "Command.DeliveryManagerStatus", {
+        color: status == 0 ? 1 : 0,
+        status: status
+      });
+      return;
+    }
+
+    this.sendDataToAll("Command.DeliveryManagerStatus", {
+      color: status == 0 ? 1 : 0,
+      status: status
+    });
   }
 }
 
