@@ -23,7 +23,7 @@ import { Resolver } from "node:dns";
 
 import { promisify } from "node:util";
 import { ZonePacketHandlers } from "./zonepackethandlers";
-import { ZoneClient2016 as Client } from "./classes/zoneclient";
+import { ZoneClient2016 as Client, ZoneClient2016 } from "./classes/zoneclient";
 import { Vehicle2016 as Vehicle, Vehicle2016 } from "./entities/vehicle";
 import { GridCell } from "./classes/gridcell";
 import { SpawnCell } from "./classes/spawncell";
@@ -5082,11 +5082,13 @@ export class ZoneServer2016 extends EventEmitter {
           }
         ]
       });
-
-      if (vehicle.getContainer()) {
-        client.character.mountContainer(this, vehicle);
-      }
     }
+
+    // Mount container on all players in the vehicle
+    if (vehicle.getContainer()) {
+      client.character.mountContainer(this, vehicle);
+    }
+
     this.sendDataToAllWithSpawnedEntity<MountMountResponse>(
       this._vehicles,
       vehicleGuid,
@@ -5374,17 +5376,27 @@ export class ZoneServer2016 extends EventEmitter {
     containerDefinitionId: number,
     character: BaseFullCharacter = client.character
   ) {
-    if (
-      client.character.characterId == character.characterId &&
-      !client.character.initialized
-    )
-      return;
-    this.sendData<ClientUpdateItemAdd>(client, "ClientUpdate.ItemAdd", {
-      characterId:
-        character instanceof Character || character instanceof Vehicle2016
-          ? character.characterId
-          : EXTERNAL_CONTAINER_GUID,
-      data: character.pGetItemData(this, item, containerDefinitionId)
+    const characterIds = new Set<string>();
+
+    const vehicle = this._vehicles[character.characterId];
+    if (vehicle) {
+      vehicle.getPassengerList().forEach((characterId) => {
+        characterIds.add(characterId);
+      });
+    } else {
+      characterIds.add(character.characterId);
+    }
+
+    characterIds.forEach((characterId) => {
+      const client = this.getClientByCharId(characterId);
+      if (!client || !client.character?.initialized) return;
+      this.sendData<ClientUpdateItemAdd>(client, "ClientUpdate.ItemAdd", {
+        characterId:
+          character instanceof Character || character instanceof Vehicle2016
+            ? character.characterId
+            : EXTERNAL_CONTAINER_GUID,
+        data: character.pGetItemData(this, item, containerDefinitionId)
+      });
     });
   }
 
@@ -6366,15 +6378,27 @@ export class ZoneServer2016 extends EventEmitter {
   }
 
   deleteItem(character: BaseFullCharacter, itemGuid: string) {
-    const client = this.getClientByContainerAccessor(character);
-    if (!client || !client.character.initialized) return;
+    const characterIds = new Set<string>();
 
-    this.sendData<ClientUpdateItemDelete>(client, "ClientUpdate.ItemDelete", {
-      characterId:
-        character instanceof Character || character instanceof Vehicle2016
-          ? character.characterId
-          : EXTERNAL_CONTAINER_GUID,
-      itemGuid: itemGuid
+    const vehicle = this._vehicles[character.characterId];
+    if (vehicle) {
+      vehicle.getPassengerList().forEach((characterId) => {
+        characterIds.add(characterId);
+      });
+    } else {
+      characterIds.add(character.characterId);
+    }
+
+    characterIds.forEach((characterId) => {
+      const client = this.getClientByCharId(characterId);
+      if (!client || !client.character?.initialized) return;
+      this.sendData<ClientUpdateItemDelete>(client, "ClientUpdate.ItemDelete", {
+        characterId:
+          character instanceof Character || character instanceof Vehicle2016
+            ? character.characterId
+            : EXTERNAL_CONTAINER_GUID,
+        itemGuid: itemGuid
+      });
     });
   }
 
@@ -6446,17 +6470,30 @@ export class ZoneServer2016 extends EventEmitter {
   }
 
   updateContainer(character: BaseFullCharacter, container: LoadoutContainer) {
-    const client = this.getClientByContainerAccessor(character);
-    if (!client || !client.character.initialized) return;
-    this.sendData<ContainerUpdateEquippedContainer>(
-      client,
-      "Container.UpdateEquippedContainer",
-      {
-        ignore: character.characterId,
-        characterId: character.characterId,
-        containerData: character.pGetContainerData(this, container)
-      }
-    );
+    const characterIds = new Set<string>();
+
+    const vehicle = this._vehicles[character.characterId];
+    if (vehicle) {
+      vehicle.getPassengerList().forEach((characterId) => {
+        characterIds.add(characterId);
+      });
+    } else {
+      characterIds.add(character.characterId);
+    }
+
+    characterIds.forEach((characterId) => {
+      const client = this.getClientByCharId(characterId);
+      if (!client || !client.character?.initialized) return;
+      this.sendData<ContainerUpdateEquippedContainer>(
+        client,
+        "Container.UpdateEquippedContainer",
+        {
+          ignore: character.characterId,
+          characterId: character.characterId,
+          containerData: character.pGetContainerData(this, container)
+        }
+      );
+    });
   }
 
   updateContainerItem(
