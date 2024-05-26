@@ -830,15 +830,49 @@ export class WorldObjectManager {
     }
   }
 
-  createVehicle(server: ZoneServer2016, vehicle: Vehicle2016, maxSpawnChance: boolean = false) {
+  createVehicle(
+    server: ZoneServer2016,
+    vehicle: Vehicle2016,
+    maxSpawnChance: boolean = false
+  ) {
     vehicle.equipLoadout(server);
 
-    this.setSpawnchance(server, vehicle, maxSpawnChance ? 100 : 50, Items.BATTERY);
-    this.setSpawnchance(server, vehicle, maxSpawnChance ? 100 : 50, Items.SPARKPLUGS);
-    this.setSpawnchance(server, vehicle, maxSpawnChance ? 100 : 30, Items.VEHICLE_KEY);
-    this.setSpawnchance(server, vehicle, maxSpawnChance ? 100 : 20, Items.FUEL_BIOFUEL);
-    this.setSpawnchance(server, vehicle, maxSpawnChance ? 100 : 30, vehicle.getHeadlightsItemId());
-    this.setSpawnchance(server, vehicle, maxSpawnChance ? 100 : 30, vehicle.getTurboItemId());
+    this.setSpawnchance(
+      server,
+      vehicle,
+      maxSpawnChance ? 100 : 50,
+      Items.BATTERY
+    );
+    this.setSpawnchance(
+      server,
+      vehicle,
+      maxSpawnChance ? 100 : 50,
+      Items.SPARKPLUGS
+    );
+    this.setSpawnchance(
+      server,
+      vehicle,
+      maxSpawnChance ? 100 : 30,
+      Items.VEHICLE_KEY
+    );
+    this.setSpawnchance(
+      server,
+      vehicle,
+      maxSpawnChance ? 100 : 20,
+      Items.FUEL_BIOFUEL
+    );
+    this.setSpawnchance(
+      server,
+      vehicle,
+      maxSpawnChance ? 100 : 30,
+      vehicle.getHeadlightsItemId()
+    );
+    this.setSpawnchance(
+      server,
+      vehicle,
+      maxSpawnChance ? 100 : 30,
+      vehicle.getTurboItemId()
+    );
 
     server._vehicles[vehicle.characterId] = vehicle;
   }
