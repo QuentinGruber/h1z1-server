@@ -823,23 +823,22 @@ export class WorldObjectManager {
     item: Items
   ) {
     if (percentage <= 0) return false;
-    if (percentage >= 100) return true;
 
     const randomNumber = Math.random() * 100;
-    if (randomNumber <= percentage) {
+    if (randomNumber <= percentage || percentage >= 100) {
       entity.lootItem(server, server.generateItem(item));
     }
   }
 
-  createVehicle(server: ZoneServer2016, vehicle: Vehicle2016) {
+  createVehicle(server: ZoneServer2016, vehicle: Vehicle2016, maxSpawnChance: boolean = false) {
     vehicle.equipLoadout(server);
 
-    this.setSpawnchance(server, vehicle, 50, Items.BATTERY);
-    this.setSpawnchance(server, vehicle, 50, Items.SPARKPLUGS);
-    this.setSpawnchance(server, vehicle, 30, Items.VEHICLE_KEY);
-    this.setSpawnchance(server, vehicle, 20, Items.FUEL_BIOFUEL);
-    this.setSpawnchance(server, vehicle, 30, vehicle.getHeadlightsItemId());
-    this.setSpawnchance(server, vehicle, 30, vehicle.getTurboItemId());
+    this.setSpawnchance(server, vehicle, maxSpawnChance ? 100 : 50, Items.BATTERY);
+    this.setSpawnchance(server, vehicle, maxSpawnChance ? 100 : 50, Items.SPARKPLUGS);
+    this.setSpawnchance(server, vehicle, maxSpawnChance ? 100 : 30, Items.VEHICLE_KEY);
+    this.setSpawnchance(server, vehicle, maxSpawnChance ? 100 : 20, Items.FUEL_BIOFUEL);
+    this.setSpawnchance(server, vehicle, maxSpawnChance ? 100 : 30, vehicle.getHeadlightsItemId());
+    this.setSpawnchance(server, vehicle, maxSpawnChance ? 100 : 30, vehicle.getTurboItemId());
 
     server._vehicles[vehicle.characterId] = vehicle;
   }
