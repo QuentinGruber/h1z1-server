@@ -23,7 +23,7 @@ import { Resolver } from "node:dns";
 
 import { promisify } from "node:util";
 import { ZonePacketHandlers } from "./zonepackethandlers";
-import { ZoneClient2016 as Client, ZoneClient2016 } from "./classes/zoneclient";
+import { ZoneClient2016 as Client } from "./classes/zoneclient";
 import { Vehicle2016 as Vehicle, Vehicle2016 } from "./entities/vehicle";
 import { GridCell } from "./classes/gridcell";
 import { SpawnCell } from "./classes/spawncell";
