@@ -1159,10 +1159,7 @@ export class Vehicle2016 extends BaseLootableEntity {
   }
 
   OnFullCharacterDataRequest(server: ZoneServer2016, client: ZoneClient2016) {
-    if (
-      this.vehicleId == VehicleIds.SPECTATE ||
-      this.vehicleId == VehicleIds.PARACHUTE
-    ) {
+    if (this.vehicleId == VehicleIds.SPECTATE) {
       return;
     }
     server.sendData(

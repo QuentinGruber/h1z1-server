@@ -1292,8 +1292,24 @@ export class Character2016 extends BaseFullCharacter {
 
     const oldMount = this.mountedContainer?.characterId;
 
-    lootableEntity.mountedCharacter = this.characterId;
+    // Only mount container if none is mounted
+    if (!lootableEntity.mountedCharacter) {
+      lootableEntity.mountedCharacter = this.characterId;
+    }
+
     this.mountedContainer = lootableEntity;
+
+    // Change accessor so others in the vehicle will also see the loot but can't interact with
+    let accessor = client.character.characterId;
+    if (
+      lootableEntity instanceof Vehicle2016 &&
+      server._vehicles[lootableEntity.characterId]
+    ) {
+      const vehicle = server._vehicles[lootableEntity.characterId],
+        driver = vehicle.getDriver(server);
+      if (driver) accessor = driver.characterId;
+      else accessor = "0x0";
+    }
 
     server.sendData<AccessedCharacterBeginCharacterAccess>(
       client,
@@ -1303,7 +1319,7 @@ export class Character2016 extends BaseFullCharacter {
           lootableEntity instanceof Vehicle2016
             ? lootableEntity.characterId
             : EXTERNAL_CONTAINER_GUID,
-        mutatorCharacterId: client.character.characterId,
+        mutatorCharacterId: accessor,
         dontOpenInventory:
           lootableEntity instanceof Vehicle2016 ? true : !!oldMount,
         itemsData: {
