@@ -3316,13 +3316,17 @@ export class ZonePacketHandlers {
         const oldSlot = client.character.currentLoadoutSlot,
           oldLoadoutItem = client.character._loadout[oitem.slotId];
         if (!server.removeInventoryItem(client.character, oitem)) return;
-
         if (
           !oldLoadoutItem ||
           oldLoadoutItem.itemDefinitionId !== oitem.itemDefinitionId
         ) {
           // Determine if the item is equipped; if it isn't, loot it instead.
-          client.character.lootItem(server, newItem, newItem.stackCount, false);
+          client.character.lootContainerItem(
+            server,
+            newItem,
+            newItem.stackCount,
+            false
+          );
           return;
         }
 
