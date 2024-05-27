@@ -470,7 +470,6 @@ export class ZoneServer2016 extends EventEmitter {
     this._mongoAddress = mongoAddress;
     this._worldId = worldId || 0;
     this._protocol = new H1Z1Protocol("ClientProtocol_1080");
-    this.accountInventoriesManager = new AccountInventoryManager(this);
     this.worldObjectManager = new WorldObjectManager();
     this.voiceChatManager = new VoiceChatManager();
     this.smeltingManager = new SmeltingManager();
@@ -507,6 +506,7 @@ export class ZoneServer2016 extends EventEmitter {
       debug("Server in solo mode !");
     }
 
+    this.accountInventoriesManager = new AccountInventoryManager(this);
     this.on("login", async (client) => {
       if (!this._soloMode) {
         this.sendZonePopulationUpdate();
