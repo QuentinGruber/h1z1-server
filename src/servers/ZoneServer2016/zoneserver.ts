@@ -470,7 +470,7 @@ export class ZoneServer2016 extends EventEmitter {
     this._mongoAddress = mongoAddress;
     this._worldId = worldId || 0;
     this._protocol = new H1Z1Protocol("ClientProtocol_1080");
-    this.accountInventoriesManager = new AccountInventoryManager();
+    this.accountInventoriesManager = new AccountInventoryManager(this);
     this.worldObjectManager = new WorldObjectManager();
     this.voiceChatManager = new VoiceChatManager();
     this.smeltingManager = new SmeltingManager();
@@ -1812,6 +1812,11 @@ export class ZoneServer2016 extends EventEmitter {
     this._serverStartTime = getCurrentServerTimeWrapper();
     this.weatherManager.startWeatherWorker(this);
     this.inGameTimeManager.start();
+    if (!this._soloMode) {
+      this.accountInventoriesManager.init(
+        this._db.collection(DB_COLLECTIONS.ACCOUNT_ITEMS)
+      );
+    }
     this._gatewayServer.start();
     this.worldRoutineTimer = setTimeout(
       () => this.worldRoutine.bind(this)(),

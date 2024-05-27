@@ -13,22 +13,81 @@
 
 import { AccountItem } from "types/zoneserver";
 import { BaseItem } from "../classes/baseItem";
+import { ZoneServer2016 } from "../zoneserver";
+import { Collection } from "mongodb";
 
 export class AccountInventoryManager {
-  constructor() {}
+  isInSoloMode: boolean;
+  // need to be initialized before using the manager in !solomode
+  mongodbCollection!: Collection;
+  constructor(zoneServer: ZoneServer2016) {
+    this.isInSoloMode = zoneServer._soloMode;
+  }
+
+  init(collection: Collection) {
+    this.mongodbCollection = collection;
+  }
 
   async getAccountItems(loginSessionId: string): Promise<AccountItem[]> {
-    return [];
+    if (this.isInSoloMode) {
+      return [];
+    } else {
+      return await this.mongodbCollection
+        .find<AccountItem>({ loginSessionId })
+        .toArray();
+    }
   }
 
   async getAccountItem(
     loginSessionId: string,
-    itemDefinition: number
+    itemDefinitionId: number
   ): Promise<AccountItem | null> {
-    return null;
+    if (this.isInSoloMode) {
+      return null;
+    } else {
+      return await this.mongodbCollection.findOne<AccountItem>({
+        loginSessionId,
+        itemDefinitionId
+      });
+    }
   }
 
-  async addAccountItem(loginSessionId: string, item: BaseItem) {}
-  async updateAccountItem(loginSessionId: string, item: BaseItem) {}
-  async removeAccountItem(loginSessionId: string, item: BaseItem) {}
+  async addAccountItem(loginSessionId: string, item: BaseItem) {
+    if (this.isInSoloMode) {
+      return null;
+    } else {
+      return await this.mongodbCollection.insertOne({
+        loginSessionId,
+        ...item
+      });
+    }
+  }
+  async updateAccountItem(loginSessionId: string, item: BaseItem) {
+    if (this.isInSoloMode) {
+      return null;
+    } else {
+      return await this.mongodbCollection.updateOne(
+        {
+          loginSessionId,
+          itemDefinitionId: item.itemDefinitionId,
+          itemGuid: item.itemGuid
+        },
+        {
+          $set: {
+            ...item
+          }
+        }
+      );
+    }
+  }
+  async removeAccountItem(loginSessionId: string, item: BaseItem) {
+    if (this.isInSoloMode) {
+      return null;
+    } else {
+      return await this.mongodbCollection.deleteOne({
+        loginSessionId,
+        itemGuid: item.itemGuid
+      });
+    }
+  }
 }
