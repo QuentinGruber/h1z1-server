@@ -13,7 +13,6 @@
 
 import { Collection, Db, MongoClient } from "mongodb";
 import {
-  AccountItemSaveData,
   BaseConstructionSaveData,
   BaseEntityUpdateSaveData,
   BaseFullCharacterUpdateSaveData,

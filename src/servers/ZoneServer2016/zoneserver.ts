@@ -124,7 +124,6 @@ import { ConstructionDoor } from "./entities/constructiondoor";
 import { ConstructionParentEntity } from "./entities/constructionparententity";
 import { ConstructionChildEntity } from "./entities/constructionchildentity";
 import {
-  AccountItemSaveData,
   ConstructionParentSaveData,
   FullCharacterSaveData,
   LootableConstructionSaveData,
@@ -237,7 +236,7 @@ import { Plane } from "./entities/plane";
 import { FileHashTypeList, ReceivedPacket } from "types/shared";
 import { SOEOutputChannels } from "../../servers/SoeServer/soeoutputstream";
 import { scheduler } from "node:timers/promises";
-import { GatewayChannels, generate_random_guid } from "h1emu-core";
+import { GatewayChannels } from "h1emu-core";
 import { IngameTimeManager } from "./managers/gametimemanager";
 import { H1z1ProtocolReadingFormat } from "types/protocols";
 import { GatewayServer } from "../GatewayServer/gatewayserver";
