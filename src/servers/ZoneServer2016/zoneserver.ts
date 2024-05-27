@@ -237,7 +237,7 @@ import { Plane } from "./entities/plane";
 import { FileHashTypeList, ReceivedPacket } from "types/shared";
 import { SOEOutputChannels } from "../../servers/SoeServer/soeoutputstream";
 import { scheduler } from "node:timers/promises";
-import { GatewayChannels } from "h1emu-core";
+import { GatewayChannels, generate_random_guid } from "h1emu-core";
 import { IngameTimeManager } from "./managers/gametimemanager";
 import { H1z1ProtocolReadingFormat } from "types/protocols";
 import { GatewayServer } from "../GatewayServer/gatewayserver";
@@ -1293,7 +1293,7 @@ export class ZoneServer2016 extends EventEmitter {
     // Give a new player some gifts
     if (Object.values(accountInventory).length == 0) {
       Object.values(accountInventoryDefaultRewards).forEach((gift) => {
-        const item = this.generateItem(gift.item, gift.count);
+        const item = this.generateAccountItem(gift.item, gift.count);
         if (!item) return;
         this.accountInventoriesManager.addAccountItem(
           client.loginSessionId,
@@ -5722,6 +5722,27 @@ export class ZoneServer2016 extends EventEmitter {
     if (this.isWeapon(itemDefinitionId)) {
       itemData.weapon = new Weapon(itemData);
     }
+    return itemData;
+  }
+  generateAccountItem(
+    itemDefinitionId: number,
+    count: number = 1
+  ): BaseItem | undefined {
+    const itemDefinition = this.getItemDefinition(itemDefinitionId);
+    if (!itemDefinition) {
+      debug(
+        `[ERROR] GenerateItem: Invalid item definition: ${itemDefinitionId}`
+      );
+      return;
+    }
+    const generatedGuid = generateRandomGuid();
+
+    const itemData: BaseItem = new BaseItem(
+      itemDefinitionId,
+      generatedGuid,
+      100,
+      count
+    );
     return itemData;
   }
 

@@ -3282,7 +3282,7 @@ export class ZonePacketHandlers {
         if (reward > 0 && itemSubData.unknownBoolean1 == 0)
           client.character.lootItem(
             server,
-            server.generateItem(reward),
+            server.generateAccountItem(reward),
             1,
             false
           );
@@ -3366,7 +3366,10 @@ export class ZonePacketHandlers {
           0,
           () => {
             if (!server.removeInventoryItem(client.character, item)) return;
-            client.character.lootItem(server, server.generateItem(bagReward));
+            client.character.lootItem(
+              server,
+              server.generateAccountItem(bagReward)
+            );
           }
         );
         break;
