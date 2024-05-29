@@ -19,6 +19,7 @@ import { LootableConstructionEntity } from "servers/ZoneServer2016/entities/loot
 import { LoadoutItem } from "servers/ZoneServer2016/classes/loadoutItem";
 import { ZoneServer2016 } from "servers/ZoneServer2016/zoneserver";
 import { Character2016 } from "servers/ZoneServer2016/entities/character";
+import { BaseItem } from "servers/ZoneServer2016/classes/baseItem";
 
 export interface npcData {
   guid: string;
@@ -581,6 +582,10 @@ export interface ItemDefinition {
   WORLD_MODEL_ID?: number,
   PICKUP_EFFECT?: number,
   PLACEMENT_MODEL_ID?: number,
+}
+
+export interface AccountItem extends BaseItem {
+  loginSessionId: string;
 }
 
 export type EntityDictionary<Entity> = { [characterId: string]: Entity};

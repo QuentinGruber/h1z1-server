@@ -296,21 +296,23 @@ export class ZonePacketHandlers {
       {}
     ); // Required for WaitForWorldReady
 
-    server.sendData(client, "Items.SetEscrowAccountItemManager", {
-      accountItems: server
-        .getAccountItems(client.loginSessionId)
-        .map((item: BaseItem) => {
-          return {
-            itemId: item.itemGuid,
-            itemData: {
+    server.accountInventoriesManager
+      .getAccountItems(client.loginSessionId)
+      .then((accountItems) => {
+        server.sendData(client, "Items.SetEscrowAccountItemManager", {
+          accountItems: accountItems.map((item: BaseItem) => {
+            return {
               itemId: item.itemGuid,
-              itemGuid: item.itemGuid,
-              itemDefinitionId: item.itemDefinitionId,
-              itemCount: item.stackCount
-            }
-          };
-        })
-    });
+              itemData: {
+                itemId: item.itemGuid,
+                itemGuid: item.itemGuid,
+                itemDefinitionId: item.itemDefinitionId,
+                itemCount: item.stackCount
+              }
+            };
+          })
+        });
+      });
 
     server.sendDeliveryStatus(client);
   }
@@ -3237,16 +3239,17 @@ export class ZonePacketHandlers {
   FairPlayInternal(server: ZoneServer2016, client: Client, packet: any) {}
   //#endregion
 
-  requestUseAccountItem(
+  async requestUseAccountItem(
     server: ZoneServer2016,
     client: Client,
     packet: ReceivedPacket<ItemsRequestUseAccountItem>
   ) {
-    const accountItems =
-      server._accountInventories[client.loginSessionId]?.items;
-    if (!accountItems) return;
-    const item = Object.values(accountItems).find(
-      (i) => i.itemDefinitionId === packet.data.itemDefinitionId
+    if (!packet.data.itemDefinitionId) {
+      return;
+    }
+    const item = await server.accountInventoriesManager.getAccountItem(
+      client.loginSessionId,
+      packet.data.itemDefinitionId
     );
     if (!item) return;
 
@@ -3279,7 +3282,7 @@ export class ZonePacketHandlers {
         if (reward > 0 && itemSubData.unknownBoolean1 == 0)
           client.character.lootItem(
             server,
-            server.generateItem(reward),
+            server.generateAccountItem(reward),
             1,
             false
           );
@@ -3377,7 +3380,10 @@ export class ZonePacketHandlers {
           0,
           () => {
             if (!server.removeInventoryItem(client.character, item)) return;
-            client.character.lootItem(server, server.generateItem(bagReward));
+            client.character.lootItem(
+              server,
+              server.generateAccountItem(bagReward)
+            );
           }
         );
         break;
