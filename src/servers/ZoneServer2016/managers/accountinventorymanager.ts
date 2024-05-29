@@ -31,8 +31,10 @@ export class AccountInventoryManager {
     this.mongodbCollection = collection;
   }
 
-  private _getSoloAccountItems(): AccountItem[] {
-    return JSON.parse(fs.readFileSync(this._soloDataPath).toString());
+  private _getSoloAccountItems(loginSessionId: string): AccountItem[] {
+    return (
+      JSON.parse(fs.readFileSync(this._soloDataPath).toString()) as any[]
+    ).filter((e) => e.loginSessionId === loginSessionId);
   }
 
   private _saveSoloAccountItems(items: AccountItem[]) {
@@ -41,7 +43,7 @@ export class AccountInventoryManager {
 
   async getAccountItems(loginSessionId: string): Promise<AccountItem[]> {
     if (this.isInSoloMode) {
-      return this._getSoloAccountItems();
+      return this._getSoloAccountItems(loginSessionId);
     } else {
       return await this.mongodbCollection
         .find<AccountItem>({ loginSessionId })
@@ -54,7 +56,7 @@ export class AccountInventoryManager {
     itemDefinitionId: number
   ): Promise<AccountItem | null> {
     if (this.isInSoloMode) {
-      const accountItems = this._getSoloAccountItems();
+      const accountItems = this._getSoloAccountItems(loginSessionId);
       return (
         accountItems.find((v) => {
           return v.itemDefinitionId === itemDefinitionId;
@@ -70,7 +72,7 @@ export class AccountInventoryManager {
 
   async addAccountItem(loginSessionId: string, item: BaseItem) {
     if (this.isInSoloMode) {
-      const accountItems = this._getSoloAccountItems();
+      const accountItems = this._getSoloAccountItems(loginSessionId);
       accountItems.push({ loginSessionId, ...item } as any);
       this._saveSoloAccountItems(accountItems);
     } else {
@@ -82,7 +84,7 @@ export class AccountInventoryManager {
   }
   async updateAccountItem(loginSessionId: string, item: BaseItem) {
     if (this.isInSoloMode) {
-      const accountItems = this._getSoloAccountItems();
+      const accountItems = this._getSoloAccountItems(loginSessionId);
       for (let i = 0; i < accountItems.length; i++) {
         const originalItem = accountItems[i];
         if (originalItem.itemDefinitionId === item.itemDefinitionId) {
@@ -107,7 +109,7 @@ export class AccountInventoryManager {
   }
   async removeAccountItem(loginSessionId: string, item: BaseItem) {
     if (this.isInSoloMode) {
-      const accountItems = this._getSoloAccountItems();
+      const accountItems = this._getSoloAccountItems(loginSessionId);
       for (let i = 0; i < accountItems.length; i++) {
         const originalItem = accountItems[i];
         if (originalItem.itemDefinitionId === item.itemDefinitionId) {
