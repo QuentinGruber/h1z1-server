@@ -13,7 +13,6 @@
 import test, { after } from "node:test";
 import { ZoneServer2016 } from "../zoneserver";
 import assert from "node:assert";
-import { ConstructionParentEntity } from "../entities/constructionparententity";
 import { generate_random_guid } from "h1emu-core";
 import { Items } from "../models/enums";
 
@@ -76,7 +75,7 @@ test("AccountIventoriesManager", { timeout: 10000 }, async (t) => {
     );
   });
   await t.test("GetAccountItems", async () => {
-    let savedItems = await accountInventoriesManager.getAccountItems(rndId);
+    const savedItems = await accountInventoriesManager.getAccountItems(rndId);
     assert.strictEqual(
       savedItems?.length,
       1,
@@ -84,10 +83,11 @@ test("AccountIventoriesManager", { timeout: 10000 }, async (t) => {
     );
   });
   await t.test("RemoveAccountItem", async () => {
-    let savedItemsLen = (await accountInventoriesManager.getAccountItems(rndId))
-      .length;
+    const savedItemsLen = (
+      await accountInventoriesManager.getAccountItems(rndId)
+    ).length;
     await accountInventoriesManager.removeAccountItem(rndId, item);
-    let savedItemsLenAfterDelete = (
+    const savedItemsLenAfterDelete = (
       await accountInventoriesManager.getAccountItems(rndId)
     ).length;
     assert.strictEqual(
@@ -166,7 +166,7 @@ test(
       );
     });
     await t.test("GetAccountItems", async () => {
-      let savedItems = await accountInventoriesManager.getAccountItems(rndId);
+      const savedItems = await accountInventoriesManager.getAccountItems(rndId);
       assert.strictEqual(
         savedItems?.length,
         1,
@@ -174,23 +174,23 @@ test(
       );
     });
     await t.test("RemoveAccountItem", async () => {
-      // let savedItemsLen = (
-      //   await accountInventoriesManager.getAccountItems(rndId)
-      // ).length;
-      // await accountInventoriesManager.removeAccountItem(rndId, item);
-      // let savedItemsLenAfterDelete = (
-      //   await accountInventoriesManager.getAccountItems(rndId)
-      // ).length;
-      // assert.strictEqual(
-      //   savedItemsLen - 1,
-      //   savedItemsLenAfterDelete,
-      //   "Item isn't removed"
-      // );
-      // const savedItem = await accountInventoriesManager.getAccountItem(
-      //   rndId,
-      //   item.itemDefinitionId
-      // );
-      // assert.strictEqual(savedItem, null, "Item isn't removed");
+      const savedItemsLen = (
+        await accountInventoriesManager.getAccountItems(rndId)
+      ).length;
+      await accountInventoriesManager.removeAccountItem(rndId, item);
+      const savedItemsLenAfterDelete = (
+        await accountInventoriesManager.getAccountItems(rndId)
+      ).length;
+      assert.strictEqual(
+        savedItemsLen - 1,
+        savedItemsLenAfterDelete,
+        "Item isn't removed"
+      );
+      const savedItem = await accountInventoriesManager.getAccountItem(
+        rndId,
+        item.itemDefinitionId
+      );
+      assert.strictEqual(savedItem, null, "Item isn't removed");
     });
   }
 );
