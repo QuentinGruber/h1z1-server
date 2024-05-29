@@ -4424,10 +4424,11 @@ export class ZoneServer2016 extends EventEmitter {
   airdropManager(client: Client, spawn: boolean) {
     if (!this._airdrop) return;
     if (spawn) {
+      // These lightWeight characters are only used like targets for the plane
       const lightWeight = {
         characterId: this._airdrop.planeTarget,
         transientId: 0,
-        actorModelId: ModelIds.AIRDROP_PLANE,
+        actorModelId: ModelIds.WEAPON_EMPTY,
         position: this._airdrop.planeTargetPos,
         rotation: new Float32Array([0, 0, 0, 0]),
         scale: new Float32Array([0.001, 0.001, 0.001, 0.001]),
@@ -4463,7 +4464,7 @@ export class ZoneServer2016 extends EventEmitter {
       const lightWeight3 = {
         characterId: this._airdrop.cargoTarget,
         transientId: 0,
-        actorModelId: ModelIds.AIRDROP_PLANE,
+        actorModelId: ModelIds.WEAPON_EMPTY,
         position: this._airdrop.cargoTargetPos,
         rotation: new Float32Array([0, 0, 0, 0]),
         scale: new Float32Array([0.001, 0.001, 0.001, 0.001]),
@@ -6588,8 +6589,6 @@ export class ZoneServer2016 extends EventEmitter {
       indicator: statusCode == 0 ? 1 : 0,
       status: 0
     };
-
-    console.log(data);
 
     if (!client) {
       this.sendDataToAll("Command.DeliveryManagerStatus", data);
