@@ -6346,13 +6346,12 @@ export class ZoneServer2016 extends EventEmitter {
     this.executeFuncForAllReadyClientsInRange((c) => {
       c.spawnedEntities.add(obj);
       this.addLightweightNpc(c, obj);
+      this.sendData<ClientUpdateProximateItems>(
+        c,
+        "ClientUpdate.ProximateItems",
+        this.getProximityItems(c)
+      );
     }, obj);
-
-    this.sendData<ClientUpdateProximateItems>(
-      client,
-      "ClientUpdate.ProximateItems",
-      this.getProximityItems(client)
-    );
   }
 
   pickupItem(client: Client, guid: string) {
