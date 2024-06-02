@@ -1151,7 +1151,7 @@ export class ZoneServer2016 extends EventEmitter {
         ) {
           const proximityItem = {
             itemDefinitionId: object.item.itemDefinitionId,
-            associatedCharacterGuid: client.character.characterId,
+            associatedCharacterGuid: object.characterId,
             itemData: {
               itemDefinitionId: object.item.itemDefinitionId,
               tintId: 0,
@@ -1161,7 +1161,7 @@ export class ZoneServer2016 extends EventEmitter {
                 hasSubData: false
               },
               unknownBoolean1: true,
-              ownerCharacterId: "",
+              ownerCharacterId: object.characterId,
               unknownDword9: 1
             }
           };
@@ -3623,7 +3623,13 @@ export class ZoneServer2016 extends EventEmitter {
 
     for (const a in this._clients) {
       const client = this._clients[a];
-      client.spawnedEntities.delete(dictionary[characterId]);
+      if (client.spawnedEntities.delete(dictionary[characterId])) {
+        this.sendData<ClientUpdateProximateItems>(
+          client,
+          "ClientUpdate.ProximateItems",
+          this.getProximityItems(client)
+        );
+      }
     }
     delete dictionary[characterId];
     delete this._transientIds[this._characterIds[characterId]];

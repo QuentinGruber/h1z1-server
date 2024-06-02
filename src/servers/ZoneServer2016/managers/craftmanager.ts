@@ -37,9 +37,13 @@ type InventoryDataSource = {
 /**
  * Retrieves the craft components data source from the client's inventory and mounted container.
  * @param client The client to get the craft components data source for.
+ * @param server ZoneServer pointer.
  * @returns The craft components data source object.
  */
-function getCraftComponentsDataSource(client: Client): {
+function getCraftComponentsDataSource(
+  client: Client,
+  server: ZoneServer2016
+): {
   [itemDefinitionId: number]: CraftComponentDSEntry;
 } {
   // ignoring proximity container items for now
@@ -59,6 +63,19 @@ function getCraftComponentsDataSource(client: Client): {
       }
     });
   });
+  const proximityItems = server.getProximityItems(client)?.items;
+  if (proximityItems) {
+    proximityItems.forEach((item: any) => {
+      if (inventory[item.itemDefinitionId]) {
+        inventory[item.itemDefinitionId].stackCount += 1;
+      } else {
+        inventory[item.itemDefinitionId] = {
+          ...item,
+          stackCount: 1
+        }; // push new itemstack
+      }
+    });
+  }
 
   if (!client.character.mountedContainer) return inventory;
 
@@ -105,7 +122,7 @@ export class CraftManager {
     recipeId: number = 0,
     count: number = 0
   ) {
-    this.componentsDataSource = getCraftComponentsDataSource(client);
+    this.componentsDataSource = getCraftComponentsDataSource(client, server);
     this.start(client, server, recipeId, count);
   }
 
@@ -145,7 +162,14 @@ export class CraftManager {
     count: number
   ): boolean {
     // todo: check items on ground and proximity containers
-    return server.removeInventoryItem(itemDS.character, itemDS.item, count);
+    return (
+      server.removeInventoryItem(itemDS.character, itemDS.item, count) ||
+      server.deleteEntity(
+        //@ts-ignore
+        itemDS.item.associatedCharacterGuid,
+        server._spawnedItems
+      )
+    );
   }
 
   /**
@@ -439,6 +463,17 @@ export class CraftManager {
     const r = client.character.recipes[recipeId];
     for (const component of r.components) {
       const inventory = this.getInventoryDataSource(client.character);
+      const proximityItems = server.getProximityItems(client);
+      if (proximityItems?.items) {
+        const character = client.character;
+        proximityItems.items.forEach((item: any) => {
+          if (inventory[item.itemDefinitionId]) {
+            inventory[item.itemDefinitionId].push({ item, character });
+          } else {
+            inventory[item.itemDefinitionId] = [{ item, character }];
+          }
+        });
+      }
       let remainingItems = component.requiredAmount * recipeCount,
         stackCount = 0;
       if (!inventory[component.itemDefinitionId]) {
