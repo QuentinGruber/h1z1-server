@@ -705,6 +705,15 @@ export const commands: Array<Command> = [
     name: "d",
     permissionLevel: PermissionLevels.MODERATOR,
     execute: (server: ZoneServer2016, client: Client, args: Array<string>) => {
+      // Clear spectator on logout to prevent the client from crashing on the next login - Jason
+      if (client.character.isSpectator) {
+        server.commandHandler.executeInternalCommand(
+          server,
+          client,
+          "spectate",
+          []
+        );
+      }
       client.properlyLogout = true;
       server.sendData(client, "CharacterSelectSessionResponse", {
         status: 1,

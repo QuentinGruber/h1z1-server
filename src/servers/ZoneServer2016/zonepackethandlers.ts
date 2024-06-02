@@ -950,6 +950,15 @@ export class ZonePacketHandlers {
     client.character.dismountContainer(server);
     const timerTime = 10000;
     server.utilizeHudTimer(client, 0, timerTime, 0, () => {
+      // Clear spectator on logout to prevent the client from crashing on the next login - Jason
+      if (client.character.isSpectator) {
+        server.commandHandler.executeInternalCommand(
+          server,
+          client,
+          "spectate",
+          []
+        );
+      }
       client.properlyLogout = true;
       server.sendData<ClientUpdateCompleteLogoutProcess>(
         client,
