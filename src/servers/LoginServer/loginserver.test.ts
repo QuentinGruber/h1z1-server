@@ -19,7 +19,6 @@ test("LoginServer-mongo", { timeout: 5000, skip: !isMongoTests }, async (t) => {
   await t.test("start", async () => {
     await loginServer.start();
   });
-  // TODO: start should stop awaiting only when everything is really done
   await scheduler.yield();
   await t.test("stop", async () => {
     await loginServer.stop();

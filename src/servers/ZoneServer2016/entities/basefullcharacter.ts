@@ -952,7 +952,6 @@ export abstract class BaseFullCharacter extends BaseLightweightCharacter {
     let slot = loadoutSlotItemClass?.SLOT;
     if (!slot) return 0;
     switch (itemDef?.ITEM_CLASS) {
-      // TODO: Prevent equipping throwables until fixed
       case ItemClasses.THROWABLES:
       case ItemClasses.WEAPONS_LONG:
       case ItemClasses.WEAPONS_PISTOL:

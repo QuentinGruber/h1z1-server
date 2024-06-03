@@ -11,8 +11,6 @@
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
 
-import { RemoteInfo } from "node:dgram";
-
 export class LZConnectionClient {
   sessionId: number = 0;
   address: string;
@@ -21,8 +19,8 @@ export class LZConnectionClient {
   clientId: string;
   lastPing: number = 0;
 
-  constructor(remote: RemoteInfo) {
-    this.address = remote.address;
+  constructor(remote: { address?: string; port: number }) {
+    this.address = remote.address ?? "";
     this.port = remote.port;
     this.clientId = `${remote.address}:${remote.port}`;
   }

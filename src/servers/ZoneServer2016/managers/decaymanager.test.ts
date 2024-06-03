@@ -60,7 +60,6 @@ test("decaymanager", { timeout: 10000 }, async (t) => {
       pos,
       pos,
       zone,
-      // FIXME: that's an hack
       1,
       "1",
       "name",

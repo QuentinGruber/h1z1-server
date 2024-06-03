@@ -1503,3 +1503,23 @@ export function getCurrentServerTimeWrapper() {
 export function getCurrentRealTimeWrapper() {
   return new TimeWrapper(Date.now());
 }
+export function getDateString(timestamp: number) {
+  const months = [
+    "JAN",
+    "FEB",
+    "MAR",
+    "APR",
+    "MAY",
+    "JUN",
+    "JUL",
+    "AUG",
+    "SEP",
+    "OCT",
+    "NOV",
+    "DEC"
+  ];
+  const date = new Date(timestamp);
+  return `${date.getDate()} ${
+    months[date.getMonth()]
+  } ${date.getFullYear()} ${date.getHours()}:${date.getMinutes()}`;
+}

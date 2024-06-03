@@ -30,7 +30,8 @@ import {
   getDistance1d,
   isPosInRadiusWithY,
   checkConstructionInRange,
-  getCurrentServerTimeWrapper
+  getCurrentServerTimeWrapper,
+  getDateString
 } from "../../utils/utils";
 
 import { CraftManager } from "./managers/craftmanager";
@@ -656,7 +657,7 @@ export class ZonePacketHandlers {
         title: "Position:",
         info: `${client.character.state.position[0]}   ${client.character.state.position[1]}   ${client.character.state.position[2]}`
       },
-      { title: "Time:", info: `${server.getDateString(Date.now())}` },
+      { title: "Time:", info: `${getDateString(Date.now())}` },
       { title: "Total reports this session:", info: `${targetClient.reports}` }
     ];
     delete client.lastDeathReport;

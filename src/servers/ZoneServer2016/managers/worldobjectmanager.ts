@@ -382,7 +382,6 @@ export class WorldObjectManager {
 
   createLootbag(server: ZoneServer2016, entity: BaseFullCharacter) {
     if (entity instanceof Zombie) {
-      //TODO: Probably should rework this?
       const wornLetters = [
         Items.WORN_LETTER_CHURCH_PV,
         Items.WORN_LETTER_LJ_PV,
