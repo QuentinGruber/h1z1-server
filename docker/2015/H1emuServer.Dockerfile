@@ -1,4 +1,4 @@
-FROM node:16-alpine 
+FROM node:21-alpine 
 LABEL maintainer="quentingruber@gmail.com"
 WORKDIR /usr/src/app
 COPY . .

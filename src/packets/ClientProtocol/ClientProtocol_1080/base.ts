@@ -1387,7 +1387,7 @@ export const basePackets: PacketStructures = [
               ]
             },
             {
-              name: "itemTimerData",
+              name: "accountItems",
               type: "schema",
               defaultValue: {},
               fields: [
@@ -2384,11 +2384,11 @@ export const basePackets: PacketStructures = [
     {
       fields: [
         { name: "itemDefId", type: "uint32", defaultValue: 10 },
-        { name: "unk1", type: "uint32", defaultValue: 1 },
+        { name: "nameId", type: "uint32", defaultValue: 1 },
         { name: "iconId", type: "uint32", defaultValue: 7 },
-        { name: "time4", type: "uint32", defaultValue: 1 },
+        { name: "time4", type: "uint32", defaultValue: 0 },
         { name: "count", type: "uint32", defaultValue: 2 },
-        { name: "time6", type: "uint32", defaultValue: 1 }
+        { name: "time6", type: "uint32", defaultValue: 0 }
       ]
     }
   ],
@@ -2598,8 +2598,17 @@ export const basePackets: PacketStructures = [
   ["Promotional", 0x4b, {}],
   ["AddClientPortraitCrc", 0x4c, {}],
   ["ObjectiveTarget", 0x4d, {}],
-  ["CommerceSessionRequest", 0x4e, {}],
-  ["CommerceSessionResponse", 0x4f, {}],
+  ["CommerceSessionRequest", 0x4e, {}], // empty
+  [
+    "CommerceSessionResponse",
+    0x4f,
+    {
+      fields: [
+        { name: "unknownDword1", type: "uint32", defaultValue: 0 },
+        { name: "sessionToken", type: "string", defaultValue: "" }
+      ]
+    }
+  ],
   ["TrackedEvent", 0x50, {}],
   [
     "LoginFailed",

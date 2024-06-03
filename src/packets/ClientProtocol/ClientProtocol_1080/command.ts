@@ -337,8 +337,55 @@ export const commandPackets: PacketStructures = [
   ["Command.ClearInWater", 0x094d00, {}],
   ["Command.StartLogoutRequest", 0x094e00, {}],
   ["Command.Delivery", 0x094f00, {}],
-  ["Command.DeliveryDisplayInfo", 0x095000, {}],
-  ["Command.DeliveryManagerStatus", 0x095100, {}],
+  [
+    "Command.DeliveryDisplayInfo",
+    0x095000,
+    {
+      fields: [
+        { name: "unknownDword1", type: "uint32", defaultValue: 0 },
+        {
+          name: "unknownArray1",
+          type: "array",
+          fields: [
+            { name: "unknownDword1", type: "uint32", defaultValue: 0 },
+            { name: "unknownDword2", type: "uint32", defaultValue: 0 },
+            { name: "unknownDword3", type: "uint32", defaultValue: 0 },
+            { name: "unknownDword4", type: "float", defaultValue: 0 },
+            { name: "unknownDword5", type: "float", defaultValue: 0 },
+            {
+              name: "position",
+              type: "floatvector4",
+              defaultValue: [0, 0, 0, 0]
+            },
+            { name: "unknownDword6", type: "uint32", defaultValue: 0 },
+            {
+              name: "unknownArray1",
+              type: "array",
+              fields: [
+                { name: "progress", type: "float", defaultValue: 0 },
+                {
+                  name: "position",
+                  type: "floatvector4",
+                  defaultValue: [0, 0, 0, 0]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  [
+    "Command.DeliveryManagerStatus",
+    0x095100,
+    {
+      fields: [
+        { name: "color", type: "uint16", defaultValue: 1 },
+        { name: "status", type: "uint16", defaultValue: 0 },
+        { name: "unkString", type: "string", defaultValue: "" }
+      ]
+    }
+  ],
   ["Command.DeliveryManagerShowNotification", 0x095200, {}],
 
   /* GAP */

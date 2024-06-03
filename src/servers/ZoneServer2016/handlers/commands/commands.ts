@@ -59,6 +59,7 @@ import { MAX_UINT32 } from "../../../../utils/constants";
 import { WithId } from "mongodb";
 import { FullCharacterSaveData } from "types/savedata";
 import { scheduler } from "node:timers/promises";
+import { Vehicle2016 } from "../../entities/vehicle";
 const itemDefinitions = require("./../../../../../data/2016/dataSources/ServerItemDefinitions.json");
 
 export const commands: Array<Command> = [
@@ -704,6 +705,15 @@ export const commands: Array<Command> = [
     name: "d",
     permissionLevel: PermissionLevels.MODERATOR,
     execute: (server: ZoneServer2016, client: Client, args: Array<string>) => {
+      // Clear spectator on logout to prevent the client from crashing on the next login - Jason
+      if (client.character.isSpectator) {
+        server.commandHandler.executeInternalCommand(
+          server,
+          client,
+          "spectate",
+          []
+        );
+      }
       client.properlyLogout = true;
       server.sendData(client, "CharacterSelectSessionResponse", {
         status: 1,
@@ -757,7 +767,7 @@ export const commands: Array<Command> = [
           position = new Float32Array([479.46, 109.7, 2902.51, 1]);
           break;
         case "dam":
-          position = new Float32Array([-629.49, 69.96, 1233.49, 1]);
+          position = new Float32Array([-685, 69.96, 1185.49, 1]);
           break;
         case "cranberry":
           position = new Float32Array([-1368.37, 71.29, 1837.61, 1]);
@@ -1446,36 +1456,35 @@ export const commands: Array<Command> = [
     name: "parachute",
     permissionLevel: PermissionLevels.ADMIN,
     execute: (server: ZoneServer2016, client: Client, args: Array<string>) => {
-      server.sendChatText(client, "Disabled for now");
-      /*
       const characterId = server.generateGuid(),
-      loc = new Float32Array([
-        client.character.state.position[0],
-        client.character.state.position[1] + 700,
-        client.character.state.position[2],
-        client.character.state.position[3],
-      ]),
-      vehicle = new Vehicle(
-        characterId,
-        999999,
-        9374,
-        loc,
-        client.character.state.lookAt,
-        server.getGameTime()
-      );
+        loc = new Float32Array([
+          client.character.state.position[0],
+          client.character.state.position[1] + 700,
+          client.character.state.position[2],
+          client.character.state.position[3]
+        ]),
+        vehicle = new Vehicle2016(
+          characterId,
+          server.getTransientId(characterId),
+          9374,
+          loc,
+          client.character.state.rotation,
+          server,
+          getCurrentServerTimeWrapper().getTruncatedU32(),
+          VehicleIds.PARACHUTE
+        );
       server.sendData(client, "ClientUpdate.UpdateLocation", {
         position: loc,
-        triggerLoadingScreen: true,
+        triggerLoadingScreen: true
       });
-      vehicle.onReadyCallback = () => {
+      vehicle.onReadyCallback = (clientTriggered: Client) => {
         // doing anything with vehicle before client gets fullvehicle packet breaks it
-        server.mountVehicle(client, characterId);
+        server.mountVehicle(clientTriggered, characterId);
         // todo: when vehicle takeover function works, delete assignManagedObject call
-        server.assignManagedObject(client, vehicle);
-        client.vehicle.mountedVehicle = characterId;
+        server.assignManagedObject(clientTriggered, vehicle);
+        clientTriggered.vehicle.mountedVehicle = characterId;
       };
       server.worldObjectManager.createVehicle(server, vehicle);
-      */
     }
   },
   {
@@ -1707,7 +1716,8 @@ export const commands: Array<Command> = [
           ]),
           client.character.state.lookAt,
           server,
-          Items.IED
+          Items.IED,
+          client.character.characterId
         ); // save explosive
       });
     }
@@ -1881,6 +1891,53 @@ export const commands: Array<Command> = [
     }
   },
   {
+    name: "addcontaineritem",
+    permissionLevel: PermissionLevels.ADMIN,
+    execute: (server: ZoneServer2016, client: Client, args: Array<string>) => {
+      if (!args[0]) {
+        server.sendChatText(
+          client,
+          "[ERROR] Usage /addcontaineritem {itemDefinitionId/item name} optional: {count}"
+        );
+        return;
+      }
+      const count = Number(args[1]) || 1;
+      let itemDefId;
+      let similar;
+
+      for (const a in itemDefinitions) {
+        const name = itemDefinitions[a].NAME;
+        const argsName = args[0].toString().toUpperCase().replaceAll("_", " ");
+        if (!name) continue;
+        if (itemDefinitions[a].CODE_FACTORY_NAME == "EquippableContainer") {
+          if (itemDefinitions[a].BULK == 0) continue; // skip account recipes and world containers
+        }
+        if (name.toUpperCase() == argsName) {
+          itemDefId = itemDefinitions[a].ID;
+          break;
+        } else if (
+          getDifference(name.toUpperCase(), argsName) <= 3 &&
+          getDifference(name.toUpperCase(), argsName) != 0
+        )
+          similar = itemDefinitions[a].NAME.toUpperCase().replaceAll(" ", "_");
+      }
+      if (!itemDefId) itemDefId = Number(args[0]);
+      const item = server.generateItem(itemDefId, count, true);
+      if (!item) {
+        server.sendChatText(
+          client,
+          similar
+            ? `[ERROR] Cannot find item "${args[0].toUpperCase()}", did you mean "${similar}"`
+            : `[ERROR] Cannot find item "${args[0]}"`
+        );
+        return;
+      }
+
+      if (!client.character.mountedContainer) return;
+      client.character.mountedContainer.lootItem(server, item);
+    }
+  },
+  {
     name: "additem",
     permissionLevel: PermissionLevels.ADMIN,
     execute: (server: ZoneServer2016, client: Client, args: Array<string>) => {
@@ -1899,7 +1956,6 @@ export const commands: Array<Command> = [
         const name = itemDefinitions[a].NAME;
         const argsName = args[0].toString().toUpperCase().replaceAll("_", " ");
         if (!name) continue;
-        if (itemDefinitions[a].CODE_FACTORY_NAME == "AccountRecipe") continue;
         if (itemDefinitions[a].CODE_FACTORY_NAME == "EquippableContainer") {
           if (itemDefinitions[a].BULK == 0) continue; // skip account recipes and world containers
         }

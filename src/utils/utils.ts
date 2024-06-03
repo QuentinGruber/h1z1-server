@@ -451,6 +451,12 @@ export const setupAppDataFolder = (): void => {
       JSON.stringify([])
     );
   }
+  if (!fs.existsSync(`${AppDataFolderPath}/single_player_accountitems.json`)) {
+    fs.writeFileSync(
+      `${AppDataFolderPath}/single_player_accountitems.json`,
+      JSON.stringify([])
+    );
+  }
   if (
     !fs.existsSync(`${AppDataFolderPath}/single_player_characters2016.json`) ||
     fs
@@ -494,6 +500,12 @@ export const setupAppDataFolder = (): void => {
   if (!fs.existsSync(`${AppDataFolderPath}/worlddata/crops.json`)) {
     fs.writeFileSync(
       `${AppDataFolderPath}/worlddata/crops.json`,
+      JSON.stringify([])
+    );
+  }
+  if (!fs.existsSync(`${AppDataFolderPath}/worlddata/traps.json`)) {
+    fs.writeFileSync(
+      `${AppDataFolderPath}/worlddata/traps.json`,
       JSON.stringify([])
     );
   }

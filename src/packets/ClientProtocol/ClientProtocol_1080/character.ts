@@ -53,9 +53,14 @@ export const characterPackets: PacketStructures = [
         { name: "unknownDword1", type: "uint32", defaultValue: 1430 },
         { name: "unknownByte1", type: "uint8", defaultValue: 0 },
         { name: "unknownDword2", type: "uint32", defaultValue: 1430 },
-        { name: "unkWord2", type: "uint16", defaultValue: 0 },
+        {
+          name: "animationType",
+          type: "custom",
+          parser: pack2ByteLengthString,
+          packer: pack2ByteLengthString
+        },
         { name: "unknownByte1xda", type: "uint8", defaultValue: 0 },
-        { name: "unknownDword3", type: "uint32", defaultValue: 1430 }
+        { name: "unknownDword3", type: "float", defaultValue: 1430 }
       ]
     }
   ],

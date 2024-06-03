@@ -427,11 +427,14 @@ export abstract class BaseFullCharacter extends BaseLightweightCharacter {
       count = item.stackCount;
     }
     const itemDefId = item.itemDefinitionId;
-    if (this.getAvailableLoadoutSlot(server, itemDefId)) {
+    if (server.isAccountItem(itemDefId) && client) {
+      this.lootAccountItem(server, client, item, sendUpdate);
+    } else if (this.getAvailableLoadoutSlot(server, itemDefId)) {
       if (client && client.character.initialized && sendUpdate) {
         server.sendData(client, "Reward.AddNonRewardItem", {
           itemDefId: itemDefId,
           iconId: server.getItemDefinition(itemDefId)?.IMAGE_SET_ID,
+          nameId: server.getItemDefinition(itemDefId)?.NAME_ID,
           count: count
         });
       }
@@ -439,6 +442,34 @@ export abstract class BaseFullCharacter extends BaseLightweightCharacter {
     } else {
       this.lootContainerItem(server, item, count, sendUpdate);
     }
+  }
+
+  async lootAccountItem(
+    server: ZoneServer2016,
+    client: ZoneClient2016,
+    item: BaseItem,
+    sendUpdate: boolean = false
+  ) {
+    await server.accountInventoriesManager.addAccountItem(
+      client.loginSessionId,
+      item
+    );
+    server.sendData(client, "Items.AddEscrowAccountItem", {
+      itemData: {
+        itemId: item.itemGuid,
+        itemDefinitionId: item.itemDefinitionId,
+        itemCount: item.stackCount,
+        itemGuid: item.itemGuid
+      }
+    });
+
+    if (!sendUpdate) return;
+    server.sendData(client, "Reward.AddNonRewardItem", {
+      itemDefId: item.itemDefinitionId,
+      iconId: server.getItemDefinition(item.itemDefinitionId)?.IMAGE_SET_ID,
+      nameId: server.getItemDefinition(item.itemDefinitionId)?.NAME_ID,
+      count: item.stackCount
+    });
   }
 
   lootItemFromContainer(
@@ -464,6 +495,7 @@ export abstract class BaseFullCharacter extends BaseLightweightCharacter {
         server.sendData(client, "Reward.AddNonRewardItem", {
           itemDefId: itemDefId,
           iconId: server.getItemDefinition(itemDefId)?.IMAGE_SET_ID,
+          nameId: server.getItemDefinition(itemDefId)?.NAME_ID,
           count: count
         });
       }
@@ -644,6 +676,7 @@ export abstract class BaseFullCharacter extends BaseLightweightCharacter {
         server.sendData(client, "Reward.AddNonRewardItem", {
           itemDefId: itemDefId,
           iconId: server.getItemDefinition(itemDefId)?.IMAGE_SET_ID,
+          nameId: server.getItemDefinition(itemDefId)?.NAME_ID,
           count: count
         });
       }
@@ -919,6 +952,8 @@ export abstract class BaseFullCharacter extends BaseLightweightCharacter {
     let slot = loadoutSlotItemClass?.SLOT;
     if (!slot) return 0;
     switch (itemDef?.ITEM_CLASS) {
+      // TODO: Prevent equipping throwables until fixed
+      case ItemClasses.THROWABLES:
       case ItemClasses.WEAPONS_LONG:
       case ItemClasses.WEAPONS_PISTOL:
       case ItemClasses.WEAPONS_MELEES:
@@ -935,6 +970,12 @@ export abstract class BaseFullCharacter extends BaseLightweightCharacter {
         ) {
           // secondary
           slot = LoadoutSlots.TERTIARY;
+        }
+        if (
+          ![Items.GRENADE_SMOKE].includes(itemDefId) &&
+          itemDef?.ITEM_CLASS == ItemClasses.THROWABLES
+        ) {
+          slot = 0;
         }
         break;
       case ItemClasses.WEAPONS_GENERIC: // item1/item2 slots

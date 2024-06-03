@@ -13,6 +13,7 @@
 
 /* eslint-disable @typescript-eslint/no-unused-vars */
 // TODO enable @typescript-eslint/no-unused-vars
+import fs from "fs";
 import { ZoneClient2016 as Client } from "./classes/zoneclient";
 import { ZoneServer2016 } from "./zoneserver";
 const debug = require("debug")("ZoneServer");
@@ -41,7 +42,8 @@ import {
   ResourceTypes,
   ItemUseOptions,
   LoadoutSlots,
-  StringIds
+  StringIds,
+  ItemClasses
 } from "./models/enums";
 import { BaseFullCharacter } from "./entities/basefullcharacter";
 import { BaseLightweightCharacter } from "./entities/baselightweightcharacter";
@@ -98,6 +100,7 @@ import {
   GetContinentBattleInfo,
   GroupInvite,
   GroupJoin,
+  ItemsRequestUseAccountItem,
   ItemsRequestUseItem,
   KeepAlive,
   LightweightToFullNpc,
@@ -153,7 +156,7 @@ import { Destroyable } from "./entities/destroyable";
 import { Lootbag } from "./entities/lootbag";
 import { ReceivedPacket } from "types/shared";
 import { LoadoutItem } from "./classes/loadoutItem";
-import { TrapEntity } from "./entities/trapentity";
+import { BaseItem } from "./classes/baseItem";
 
 function getStanceFlags(num: number): StanceFlags {
   function getBit(bin: string, bit: number) {
@@ -252,11 +255,14 @@ export class ZonePacketHandlers {
       }
     );
 
-    if (server.projectileDefinitionsCache) {
-      server.sendRawDataReliable(client, server.projectileDefinitionsCache);
+    if (server.itemClassDefinitionsCache) {
+      server.sendRawDataReliable(client, server.itemClassDefinitionsCache);
     }
     if (server.profileDefinitionsCache) {
       server.sendRawDataReliable(client, server.profileDefinitionsCache);
+    }
+    if (server.projectileDefinitionsCache) {
+      server.sendRawDataReliable(client, server.projectileDefinitionsCache);
     }
 
     // for melees / emotes / vehicle boost / etc (needs more work)
@@ -290,6 +296,26 @@ export class ZonePacketHandlers {
       "ZoneDoneSendingInitialData",
       {}
     ); // Required for WaitForWorldReady
+
+    server.accountInventoriesManager
+      .getAccountItems(client.loginSessionId)
+      .then((accountItems) => {
+        server.sendData(client, "Items.SetEscrowAccountItemManager", {
+          accountItems: accountItems.map((item: BaseItem) => {
+            return {
+              itemId: item.itemGuid,
+              itemData: {
+                itemId: item.itemGuid,
+                itemGuid: item.itemGuid,
+                itemDefinitionId: item.itemDefinitionId,
+                itemCount: item.stackCount
+              }
+            };
+          })
+        });
+      });
+
+    server.sendDeliveryStatus(client);
   }
   ClientFinishedLoading(
     server: ZoneServer2016,
@@ -928,6 +954,15 @@ export class ZonePacketHandlers {
     client.character.dismountContainer(server);
     const timerTime = 10000;
     server.utilizeHudTimer(client, 0, timerTime, 0, () => {
+      // Clear spectator on logout to prevent the client from crashing on the next login - Jason
+      if (client.character.isSpectator) {
+        server.commandHandler.executeInternalCommand(
+          server,
+          client,
+          "spectate",
+          []
+        );
+      }
       client.properlyLogout = true;
       server.sendData<ClientUpdateCompleteLogoutProcess>(
         client,
@@ -1974,7 +2009,7 @@ export class ZonePacketHandlers {
     });
   }
   //#region ITEMS
-  RequestUseItem(
+  async RequestUseItem(
     server: ZoneServer2016,
     client: Client,
     packet: ReceivedPacket<ItemsRequestUseItem>
@@ -2163,7 +2198,9 @@ export class ZonePacketHandlers {
         }
         break;
       case ItemUseOptions.SALVAGE:
-        server.salvageAmmo(client, character, item, animationId);
+        for (let i = 0; i < count; i++) {
+          await server.salvageAmmo(client, character, item, animationId);
+        }
         break;
       case ItemUseOptions.LOOT:
         const containerEnt = client.character.mountedContainer,
@@ -2445,6 +2482,14 @@ export class ZonePacketHandlers {
                 client.character.loadoutId
               )
             ) {*/
+            if (
+              ![Items.GRENADE_SMOKE].includes(item.itemDefinitionId) &&
+              server.getItemDefinition(item?.itemDefinitionId)?.ITEM_CLASS ==
+                ItemClasses.THROWABLES
+            ) {
+              //TODO: Prevent equipping of throwables until fixed
+              return;
+            }
             sourceCharacter.equipContainerItem(server, item, newSlotId);
             //}
           } else {
@@ -2511,6 +2556,18 @@ export class ZonePacketHandlers {
 
         const loadoutItem = sourceCharacter.getLoadoutItem(itemGuid ?? "");
         if (loadoutItem) {
+          if (
+            !targetContainer.getHasSpace(
+              server,
+              loadoutItem.itemDefinitionId,
+              loadoutItem.stackCount
+            ) ||
+            Object.values(targetContainer.items).length >=
+              targetContainer.getMaxSlots(server)
+          ) {
+            server.containerError(client, ContainerErrors.NO_SPACE);
+            return;
+          }
           sourceCharacter.transferItemFromLoadout(
             server,
             targetContainer,
@@ -2528,6 +2585,19 @@ export class ZonePacketHandlers {
         const item = sourceContainer.items[itemGuid ?? ""];
         if (!item) {
           server.containerError(client, ContainerErrors.NO_ITEM_IN_SLOT);
+          return;
+        }
+
+        if (
+          !targetContainer.getHasSpace(
+            server,
+            item.itemDefinitionId,
+            item.stackCount
+          ) ||
+          Object.values(targetContainer.items).length >=
+            targetContainer.getMaxSlots(server)
+        ) {
+          server.containerError(client, ContainerErrors.NO_SPACE);
           return;
         }
 
@@ -2585,6 +2655,13 @@ export class ZonePacketHandlers {
       const item = sourceContainer.items[itemGuid ?? ""];
       if (!item) {
         server.containerError(client, ContainerErrors.NO_ITEM_IN_SLOT);
+        return;
+      }
+
+      if (server.isAccountItem(item.itemDefinitionId)) {
+        if (!server.removeContainerItem(sourceCharacter, item, sourceContainer))
+          return;
+        client.character.lootItem(server, item, item.stackCount, true);
         return;
       }
 
@@ -3175,6 +3252,236 @@ export class ZonePacketHandlers {
   FairPlayInternal(server: ZoneServer2016, client: Client, packet: any) {}
   //#endregion
 
+  async requestUseAccountItem(
+    server: ZoneServer2016,
+    client: Client,
+    packet: ReceivedPacket<ItemsRequestUseAccountItem>
+  ) {
+    if (!packet.data.itemDefinitionId) {
+      return;
+    }
+    const item = await server.accountInventoriesManager.getAccountItem(
+      client.loginSessionId,
+      packet.data.itemDefinitionId
+    );
+    if (!item) return;
+
+    const itemSubData: any = packet.data.itemSubData;
+
+    switch (packet.data.unknownDword3) {
+      case ItemUseOptions.OPEN_CRATE:
+        const rewards = server.getCrateRewards(packet.data.itemDefinitionId),
+          reward = server.getRandomCrateReward(packet.data.itemDefinitionId);
+        if (!rewards || !reward) return;
+
+        if (
+          itemSubData?.unknownBoolean1 == 0 &&
+          !server.removeInventoryItem(client.character, item)
+        ) {
+          return;
+        }
+        server.sendData(client, "Items.ReportRewardCrateContents", {
+          winningRewards:
+            reward > 0 && itemSubData?.unknownBoolean1 == 0
+              ? [{ itemDefinitionId: reward }]
+              : [],
+          possibleRewards: Object.values(rewards).map((rew) => {
+            return {
+              itemDefinitionId: rew.itemDefinitionId
+            };
+          })
+        });
+
+        if (reward > 0 && itemSubData.unknownBoolean1 == 0)
+          client.character.lootItem(
+            server,
+            server.generateAccountItem(reward),
+            1,
+            false
+          );
+        break;
+      case ItemUseOptions.APPLY_SKIN:
+        const oitem = client.character.getInventoryItem(
+            itemSubData.targetItemGuid
+          ),
+          accountItem = [
+            ...Object.values(server._accountItemDefinitions),
+            { ACCOUNT_ITEM_ID: Items.AIRDROP_TICKET, REWARD_ITEM_ID: 0 }
+          ].find((a) => a.ACCOUNT_ITEM_ID == packet.data.itemDefinitionId);
+
+        if (!oitem || !accountItem) return;
+        if (oitem.itemDefinitionId == accountItem.REWARD_ITEM_ID) {
+          // prevent skinning if same skin is already applied
+          return;
+        }
+
+        const newItem = server.generateItem(accountItem.REWARD_ITEM_ID),
+          containerItems = client.character.getContainerFromGuid(
+            oitem.itemGuid
+          )?.items;
+
+        if (!newItem) return;
+
+        // Copy over item data to new item
+        newItem.currentDurability = oitem.currentDurability;
+        newItem.itemGuid = oitem.itemGuid;
+        if (oitem.weapon) {
+          newItem.weapon = oitem.weapon;
+        }
+
+        const oldSlot = client.character.currentLoadoutSlot,
+          oldLoadoutItem = client.character._loadout[oitem.slotId];
+        if (!server.removeInventoryItem(client.character, oitem)) return;
+        if (
+          !oldLoadoutItem ||
+          oldLoadoutItem.itemDefinitionId !== oitem.itemDefinitionId
+        ) {
+          // Determine if the item is equipped; if it isn't, loot it instead.
+          client.character.lootContainerItem(
+            server,
+            newItem,
+            newItem.stackCount,
+            false
+          );
+          return;
+        }
+
+        client.character.equipItem(server, newItem);
+        client.character.updateEquipment(server);
+        // Update outlines for groups
+        if (
+          client.character.groupId &&
+          server.groupManager.groups[client.character.groupId]
+        ) {
+          server.groupManager.sendGroupOutlineUpdates(
+            server,
+            server.groupManager.groups[client.character.groupId]
+          );
+        }
+
+        // Copy over items from the old container to the new container
+        if (containerItems && _.size(containerItems) !== 0) {
+          const newContainer = client.character.getContainerFromGuid(
+            newItem.itemGuid
+          );
+          // Normally it should always find this container as it's constructed above, if not then we'll cross that bridge when we get to it
+          if (newContainer) {
+            Object.values(containerItems).forEach((i) => {
+              server.addContainerItem(client.character, i, newContainer, false);
+            });
+          }
+        }
+
+        // switch back to weapon if it was previously selected
+        if (oldSlot == client.character.currentLoadoutSlot) return;
+        const loadoutItem = client.character.getLoadoutItem(newItem.itemGuid);
+        if (!loadoutItem) return;
+
+        server.switchLoadoutSlot(client, loadoutItem, true);
+        break;
+      case ItemUseOptions.CALL_AIRDROP:
+        server.useAirdrop(client, client.character, item);
+        break;
+      case ItemUseOptions.OPEN_BAG:
+        const bagRewards = server.getCrateRewards(packet.data.itemDefinitionId),
+          bagReward = server.getRandomCrateReward(packet.data.itemDefinitionId);
+        if (!bagRewards || !bagReward) return;
+        server.utilizeHudTimer(
+          client,
+          server.getItemDefinition(packet.data.itemDefinitionId)?.NAME_ID ?? 0,
+          1000,
+          0,
+          () => {
+            if (!server.removeInventoryItem(client.character, item)) return;
+            client.character.lootItem(
+              server,
+              server.generateAccountItem(bagReward)
+            );
+          }
+        );
+        break;
+      case ItemUseOptions.OPEN_PACKAGE:
+        let packageRewards: number[] = [];
+        switch (packet.data.itemDefinitionId) {
+          case Items.REWARD_SET_WOODLAND_GHILLIE:
+            packageRewards = [
+              Items.SKIN_WOODLAND_GHILLIE_SUIT_BOOTS,
+              Items.SKIN_GREEN_GLOVES
+            ];
+            break;
+          case Items.REWARD_SET_RED_FACE_BANDANA:
+            packageRewards = [
+              Items.SKIN_RED_FACE_BANDANA,
+              Items.SKIN_RED_BIKER_SHADES
+            ];
+            break;
+          case Items.REWARD_SET_EVIL_CLOWN_BANDANA:
+            packageRewards = [
+              Items.SKIN_EVIL_CLOWN_FACE_BANDANA,
+              Items.SKIN_EVIL_CLOWN_GLASSES
+            ];
+            break;
+          case Items.REWARD_SET_BLUE_FACE_BANDANA:
+            packageRewards = [
+              Items.SKIN_BLUE_FACE_BANDANA,
+              Items.SKIN_BLUE_BIKER_SHADES
+            ];
+            break;
+          case Items.REWARD_SET_CAMO_FACE_BANDANA:
+            packageRewards = [
+              Items.SKIN_CAMO_FACE_BANDANA,
+              Items.SKIN_GREEN_BIKER_SHADES
+            ];
+            break;
+          case Items.REWARD_SET_AMERICAN_FACE_BANDANA:
+            packageRewards = [
+              Items.SKIN_AMERICAN_FACE_BANDANA,
+              Items.SKIN_WHITE_BIKER_SHADES
+            ];
+            break;
+          case Items.REWARD_SET_PINK_FACE_BANDANA:
+            packageRewards = [
+              Items.SKIN_PINK_FACE_BANDANA,
+              Items.SKIN_PINK_BIKER_SHADES
+            ];
+            break;
+          case Items.REWARD_SET_SKULL_FACE_BANDANA:
+            packageRewards = [
+              Items.SKIN_SKULL_FACE_BANDANA,
+              Items.SKIN_BLACK_BIKER_SHADES
+            ];
+            break;
+        }
+
+        server.utilizeHudTimer(
+          client,
+          server.getItemDefinition(packet.data.itemDefinitionId)?.NAME_ID ?? 0,
+          1000,
+          0,
+          () => {
+            if (
+              !server.removeInventoryItem(client.character, item) &&
+              packageRewards.length <= 0
+            )
+              return;
+            Object.values(packageRewards).forEach((itemDefId) => {
+              client.character.lootItem(server, server.generateItem(itemDefId));
+            });
+          }
+        );
+        break;
+      default:
+        debug(packet.data);
+    }
+  }
+
+  commerceSessionRequest(server: ZoneServer2016, client: Client) {
+    server.sendData(client, "CommerceSessionResponse", {
+      unknownDword1: 1,
+      sessionToken: "test"
+    });
+  }
+
   processPacket(
     server: ZoneServer2016,
     client: Client,
@@ -3412,6 +3719,36 @@ export class ZonePacketHandlers {
         break;
       case "FairPlay.Internal":
         this.FairPlayInternal(server, client, packet);
+        break;
+      case "Recipe.Discovery":
+        break;
+      case "InGamePurchase.AcccountInfoRequest":
+        server.sendData(client, "InGamePurchase.AcccountInfoResponse", {
+          unknownDword1: 1,
+          locale: "en_US",
+          currency: "USD"
+        });
+        break;
+      case "InGamePurchase.CountryCodesRequest":
+        server.sendData(client, "InGamePurchase.CountryCodesResponse", {
+          unknownDword1: 1,
+          countryCodes: [
+            {
+              countryCode: "US",
+              country: "United States"
+            }
+          ]
+        });
+        break;
+      case "InGamePurchase.WalletInfoRequest":
+        break;
+      case "InGamePurchase.StationCashProductsRequest":
+        break;
+      case "Items.RequestUseAccountItem":
+        this.requestUseAccountItem(server, client, packet);
+        break;
+      case "CommerceSessionRequest":
+        this.commerceSessionRequest(server, client);
         break;
       default:
         debug(packet);

@@ -24,13 +24,18 @@ import {
 import { Npc } from "../../entities/npc";
 import { ZoneClient2016 as Client } from "../../classes/zoneclient";
 import { ZoneServer2016 } from "../../zoneserver";
-import { Items } from "../../models/enums";
+import { Items, ModelIds, VehicleIds } from "../../models/enums";
 import { LootableConstructionEntity } from "../../entities/lootableconstructionentity";
 import { ConstructionChildEntity } from "../../entities/constructionchildentity";
 import { ConstructionDoor } from "../../entities/constructiondoor";
-import { randomIntFromInterval } from "../../../../utils/utils";
+import {
+  getCurrentServerTimeWrapper,
+  randomIntFromInterval
+} from "../../../../utils/utils";
 import { Zombie } from "../../entities/zombie";
 import { WorldObjectManager } from "../../managers/worldobjectmanager";
+import { Vehicle2016 } from "../../entities/vehicle";
+import { Plane } from "../../entities/plane";
 
 const abilities = require("../../../../../data/2016/dataSources/Abilities.json"),
   vehicleAbilities = require("../../../../../data/2016/dataSources/VehicleAbilities.json");
@@ -426,7 +431,6 @@ const dev: any = {
     server.sendChatText(client, "Sending setcurrentloadout packet");
     server.sendData(client, "Loadout.CreateCustomLoadout", loadout);
   },
-
   setslot: function (
     server: ZoneServer2016,
     client: Client,
