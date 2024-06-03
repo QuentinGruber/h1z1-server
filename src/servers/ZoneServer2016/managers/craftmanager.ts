@@ -161,12 +161,10 @@ export class CraftManager {
     itemDS: ItemDataSource,
     count: number
   ): boolean {
-    // todo: check items on ground and proximity containers
     return (
       server.removeInventoryItem(itemDS.character, itemDS.item, count) ||
       server.deleteEntity(
-        //@ts-ignore
-        itemDS.item.associatedCharacterGuid,
+        (itemDS.item as any).associatedCharacterGuid,
         server._spawnedItems
       )
     );
@@ -463,10 +461,12 @@ export class CraftManager {
     const r = client.character.recipes[recipeId];
     for (const component of r.components) {
       const inventory = this.getInventoryDataSource(client.character);
-      const proximityItems = server.getProximityItems(client);
+      const proximityItems = server.getProximityItems(client) as {
+        items: any[];
+      };
       if (proximityItems?.items) {
         const character = client.character;
-        proximityItems.items.forEach((item: any) => {
+        proximityItems.items.forEach((item) => {
           if (inventory[item.itemDefinitionId]) {
             inventory[item.itemDefinitionId].push({ item, character });
           } else {
