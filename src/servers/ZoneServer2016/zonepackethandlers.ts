@@ -296,21 +296,23 @@ export class ZonePacketHandlers {
       {}
     ); // Required for WaitForWorldReady
 
-    server.sendData(client, "Items.SetEscrowAccountItemManager", {
-      accountItems: server
-        .getAccountItems(client.loginSessionId)
-        .map((item: BaseItem) => {
-          return {
-            itemId: item.itemGuid,
-            itemData: {
+    server.accountInventoriesManager
+      .getAccountItems(client.loginSessionId)
+      .then((accountItems) => {
+        server.sendData(client, "Items.SetEscrowAccountItemManager", {
+          accountItems: accountItems.map((item: BaseItem) => {
+            return {
               itemId: item.itemGuid,
-              itemGuid: item.itemGuid,
-              itemDefinitionId: item.itemDefinitionId,
-              itemCount: item.stackCount
-            }
-          };
-        })
-    });
+              itemData: {
+                itemId: item.itemGuid,
+                itemGuid: item.itemGuid,
+                itemDefinitionId: item.itemDefinitionId,
+                itemCount: item.stackCount
+              }
+            };
+          })
+        });
+      });
 
     server.sendDeliveryStatus(client);
   }
@@ -948,6 +950,15 @@ export class ZonePacketHandlers {
     client.character.dismountContainer(server);
     const timerTime = 10000;
     server.utilizeHudTimer(client, 0, timerTime, 0, () => {
+      // Clear spectator on logout to prevent the client from crashing on the next login - Jason
+      if (client.character.isSpectator) {
+        server.commandHandler.executeInternalCommand(
+          server,
+          client,
+          "spectate",
+          []
+        );
+      }
       client.properlyLogout = true;
       server.sendData<ClientUpdateCompleteLogoutProcess>(
         client,
@@ -3237,16 +3248,17 @@ export class ZonePacketHandlers {
   FairPlayInternal(server: ZoneServer2016, client: Client, packet: any) {}
   //#endregion
 
-  requestUseAccountItem(
+  async requestUseAccountItem(
     server: ZoneServer2016,
     client: Client,
     packet: ReceivedPacket<ItemsRequestUseAccountItem>
   ) {
-    const accountItems =
-      server._accountInventories[client.loginSessionId]?.items;
-    if (!accountItems) return;
-    const item = Object.values(accountItems).find(
-      (i) => i.itemDefinitionId === packet.data.itemDefinitionId
+    if (!packet.data.itemDefinitionId) {
+      return;
+    }
+    const item = await server.accountInventoriesManager.getAccountItem(
+      client.loginSessionId,
+      packet.data.itemDefinitionId
     );
     if (!item) return;
 
@@ -3279,7 +3291,7 @@ export class ZonePacketHandlers {
         if (reward > 0 && itemSubData.unknownBoolean1 == 0)
           client.character.lootItem(
             server,
-            server.generateItem(reward),
+            server.generateAccountItem(reward),
             1,
             false
           );
@@ -3313,8 +3325,22 @@ export class ZonePacketHandlers {
           newItem.weapon = oitem.weapon;
         }
 
-        const oldSlot = client.character.currentLoadoutSlot;
+        const oldSlot = client.character.currentLoadoutSlot,
+          oldLoadoutItem = client.character._loadout[oitem.slotId];
         if (!server.removeInventoryItem(client.character, oitem)) return;
+        if (
+          !oldLoadoutItem ||
+          oldLoadoutItem.itemDefinitionId !== oitem.itemDefinitionId
+        ) {
+          // Determine if the item is equipped; if it isn't, loot it instead.
+          client.character.lootContainerItem(
+            server,
+            newItem,
+            newItem.stackCount,
+            false
+          );
+          return;
+        }
 
         client.character.equipItem(server, newItem);
         client.character.updateEquipment(server);
@@ -3363,7 +3389,10 @@ export class ZonePacketHandlers {
           0,
           () => {
             if (!server.removeInventoryItem(client.character, item)) return;
-            client.character.lootItem(server, server.generateItem(bagReward));
+            client.character.lootItem(
+              server,
+              server.generateAccountItem(bagReward)
+            );
           }
         );
         break;

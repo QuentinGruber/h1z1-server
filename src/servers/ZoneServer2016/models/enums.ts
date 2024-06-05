@@ -82,6 +82,7 @@ export enum ConstructionPermissionIds {
 }
 
 export enum ModelIds {
+  WEAPON_EMPTY = 9084,
   LOOT_BAG_LARGE = 9581,
   MILITARY_CRATE = 9218,
   MILITARY_CRATE_PARACHUTE = 9219,

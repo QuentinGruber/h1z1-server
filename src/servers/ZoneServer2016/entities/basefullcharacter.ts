@@ -444,15 +444,16 @@ export abstract class BaseFullCharacter extends BaseLightweightCharacter {
     }
   }
 
-  lootAccountItem(
+  async lootAccountItem(
     server: ZoneServer2016,
     client: ZoneClient2016,
     item: BaseItem,
     sendUpdate: boolean = false
   ) {
-    const items = server._accountInventories[client.loginSessionId]?.items;
-    if (!items) return;
-    items[item.itemGuid] = item;
+    await server.accountInventoriesManager.addAccountItem(
+      client.loginSessionId,
+      item
+    );
     server.sendData(client, "Items.AddEscrowAccountItem", {
       itemData: {
         itemId: item.itemGuid,
@@ -556,7 +557,9 @@ export abstract class BaseFullCharacter extends BaseLightweightCharacter {
       if (
         ammo &&
         loadoutItem.weapon.ammoCount > 0 &&
-        loadoutItem.weapon.itemDefinitionId != Items.WEAPON_REMOVER
+        loadoutItem.weapon.itemDefinitionId != Items.WEAPON_REMOVER &&
+        server.getItemDefinition(loadoutItem.itemDefinitionId)?.ITEM_CLASS !=
+          ItemClasses.THROWABLES
       ) {
         this.lootContainerItem(server, ammo, ammo.stackCount, true);
       }
