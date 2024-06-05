@@ -1342,7 +1342,7 @@ export const lootTables: { [lootSpawner: string]: LootSpawner } = {
         }
       },
       {
-        item: Items.SHIRT_DEFAULT,
+        item: Items.SHIRT_SCRUBS_GRAY,
         weight: 100,
         spawnCount: {
           min: 1,
@@ -1350,7 +1350,15 @@ export const lootTables: { [lootSpawner: string]: LootSpawner } = {
         }
       },
       {
-        item: Items.PANTS_DEFAULT,
+        item: Items.PANTS_SCRUBS_GRAY,
+        weight: 100,
+        spawnCount: {
+          min: 1,
+          max: 1
+        }
+      },
+      {
+        item: Items.CAP_SCRUBS_GRAY,
         weight: 100,
         spawnCount: {
           min: 1,
