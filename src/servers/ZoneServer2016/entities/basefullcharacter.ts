@@ -447,9 +447,12 @@ export abstract class BaseFullCharacter extends BaseLightweightCharacter {
   async lootAccountItem(
     server: ZoneServer2016,
     client: ZoneClient2016,
-    item: BaseItem,
+    item?: BaseItem,
     sendUpdate: boolean = false
   ) {
+    if (!item) {
+      return;
+    }
     await server.accountInventoriesManager.addAccountItem(
       client.loginSessionId,
       item
