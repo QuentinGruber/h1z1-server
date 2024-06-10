@@ -118,6 +118,16 @@ function getContainerAndTime(entity: LootableProp) {
       entity.searchTime = 500;
       entity.lootSpawner = "Fridge";
       break;
+    case ModelIds.WASHER:
+      entity.containerId = Items.CONTAINER_WASHING_MACHINE;
+      entity.searchTime = 500;
+      entity.lootSpawner = "Washer";
+      break;
+    case ModelIds.DRYER:
+      entity.containerId = Items.CONTAINER_DRYER;
+      entity.searchTime = 500;
+      entity.lootSpawner = "Dryer";
+      break;
     case ModelIds.OTTOMAN_01:
     case ModelIds.OTTOMAN_02:
       entity.containerId = Items.CONTAINER_OTTOMAN;
@@ -180,16 +190,6 @@ function getContainerAndTime(entity: LootableProp) {
       entity.containerId = Items.CONTAINER_STORAGE;
       entity.searchTime = 500;
       entity.lootSpawner = "Dresser";
-      break;
-    case ModelIds.WASHER:
-      entity.containerId = Items.CONTAINER_WASHING_MACHINE;
-      entity.searchTime = 500;
-      entity.lootSpawner = "Washer_Dryer";
-      break;
-    case ModelIds.DRYER:
-      entity.containerId = Items.CONTAINER_DRYER;
-      entity.searchTime = 500;
-      entity.lootSpawner = "Washer_Dryer";
       break;
     case ModelIds.FURNACE:
       entity.containerId = Items.CONTAINER_FURNACE;
