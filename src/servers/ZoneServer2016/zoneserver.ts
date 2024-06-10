@@ -245,6 +245,7 @@ import { WaterSource } from "./entities/watersource";
 import { WebSocket } from "ws";
 import { CommandHandler } from "./handlers/commands/commandhandler";
 import { AccountInventoryManager } from "./managers/accountinventorymanager";
+import { RewardManager } from "./managers/rewardmanager";
 
 const spawnLocations2 = require("../../../data/2016/zoneData/Z1_gridSpawns.json"),
   deprecatedDoors = require("../../../data/2016/sampleData/deprecatedDoors.json"),
@@ -375,6 +376,7 @@ export class ZoneServer2016 extends EventEmitter {
 
   /** Managers used for handling core functionalities */
   accountInventoriesManager: AccountInventoryManager;
+  rewardManager: RewardManager;
   worldObjectManager: WorldObjectManager;
   voiceChatManager: VoiceChatManager;
   smeltingManager: SmeltingManager;
@@ -480,6 +482,7 @@ export class ZoneServer2016 extends EventEmitter {
     this.rconManager = new RConManager();
     this.groupManager = new GroupManager();
     this.speedtreeManager = new SpeedTreeManager();
+    this.rewardManager = new RewardManager(this);
     this.constructionManager = new ConstructionManager();
     this.fairPlayManager = new FairPlayManager();
     this.pluginManager = new PluginManager();
@@ -1811,6 +1814,7 @@ export class ZoneServer2016 extends EventEmitter {
     this.initUseOptionsDataSource();
     this.rconManager.start();
     this.rconManager.on("message", this.handleRconMessage.bind(this));
+    this.rewardManager.start();
     this.hookManager.checkHook("OnServerReady");
   }
 
