@@ -17,7 +17,6 @@ import { eul2quat } from "../../../utils/utils";
 import { Effects, ModelIds } from "../models/enums";
 import { AddLightweightNpc, AddSimpleNpc } from "types/zone2016packets";
 import { BaseSimpleNpc } from "./basesimplenpc";
-import { MAX_UINT32 } from "../../../utils/constants";
 
 function getDestroyedModels(actorModelId: ModelIds): number[] {
   switch (actorModelId) {
