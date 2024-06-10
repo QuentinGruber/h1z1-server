@@ -26,7 +26,8 @@ import {
   isPosInRadius,
   toHex,
   randomIntFromInterval,
-  getCurrentServerTimeWrapper
+  getCurrentServerTimeWrapper,
+  getDateString
 } from "../../../../utils/utils";
 import { ExplosiveEntity } from "../../entities/explosiveentity";
 import { Npc } from "../../entities/npc";
@@ -1009,9 +1010,7 @@ export const commands: Array<Command> = [
           client,
           `You have ${
             isSilent ? "silently " : ""
-          }banned ${character?.characterName} until ${server.getDateString(
-            time
-          )}`
+          }banned ${character?.characterName} until ${getDateString(time)}`
         );
       } else {
         server.sendChatText(
@@ -1092,9 +1091,7 @@ export const commands: Array<Command> = [
           client,
           `You have ${
             isSilent ? "silently " : ""
-          }banned ${character?.characterName} until ${server.getDateString(
-            time
-          )}`
+          }banned ${character?.characterName} until ${getDateString(time)}`
         );
       } else {
         server.sendChatText(
@@ -1371,7 +1368,7 @@ export const commands: Array<Command> = [
           client,
           `You have muted ${
             targetClient.character.name
-          } until ${server.getDateString(time)}`
+          } until ${getDateString(time)}`
         );
       } else {
         server.sendChatText(

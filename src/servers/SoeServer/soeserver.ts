@@ -410,7 +410,7 @@ export class SOEServer extends EventEmitter {
           );
 
           // client.outputStream.on(SOEOutputChannels.Raw, (data: Buffer) => {
-          // TODO:
+          //  unused in h1z1
           // });
         } else {
           client = this._clients.get(clientId) as SOEClient;
