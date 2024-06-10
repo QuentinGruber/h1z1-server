@@ -55,7 +55,7 @@ export const dtoPackets: PacketStructures = [
             { name: "unknownDword1", type: "uint32", defaultValue: 0 },
             { name: "unknownBool1", type: "boolean", defaultValue: true },
             { name: "unknownBool2", type: "boolean", defaultValue: true },
-            { name: "unknownBool3", type: "boolean", defaultValue: true }
+            { name: "invisibility", type: "boolean", defaultValue: true }
           ]
         },
         {
