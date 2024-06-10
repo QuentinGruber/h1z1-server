@@ -1988,12 +1988,15 @@ export class ZonePacketHandlers {
     client: Client,
     packet: ReceivedPacket<object>
   ) {
-    const proximityItems = server.getProximityItems(client);
-    server.sendData<ClientUpdateProximateItems>(
-      client,
-      "ClientUpdate.ProximateItems",
-      proximityItems
-    );
+    client.character.isInInventory = !client.character.isInInventory;
+    if (client.character.isInInventory) {
+      const proximityItems = server.getProximityItems(client);
+      server.sendData<ClientUpdateProximateItems>(
+        client,
+        "ClientUpdate.ProximateItems",
+        proximityItems
+      );
+    }
   }
   CommandSuicide(
     server: ZoneServer2016,
