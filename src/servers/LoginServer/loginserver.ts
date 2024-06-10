@@ -1112,12 +1112,8 @@ export class LoginServer extends EventEmitter {
     ];
     const [address, port] = zoneConnectionString.split(":");
 
-    return {
-      address: address,
-      port: port,
-      clientId: zoneConnectionString,
-      serverId: 1 // TODO: that's a hack
-    } as any;
+    const LZClient = new LZConnectionClient({ address, port: Number(port) });
+    return LZClient;
   }
 
   async askZone(

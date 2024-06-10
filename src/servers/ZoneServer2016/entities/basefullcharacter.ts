@@ -557,7 +557,9 @@ export abstract class BaseFullCharacter extends BaseLightweightCharacter {
       if (
         ammo &&
         loadoutItem.weapon.ammoCount > 0 &&
-        loadoutItem.weapon.itemDefinitionId != Items.WEAPON_REMOVER
+        loadoutItem.weapon.itemDefinitionId != Items.WEAPON_REMOVER &&
+        server.getItemDefinition(loadoutItem.itemDefinitionId)?.ITEM_CLASS !=
+          ItemClasses.THROWABLES
       ) {
         this.lootContainerItem(server, ammo, ammo.stackCount, true);
       }
@@ -952,7 +954,6 @@ export abstract class BaseFullCharacter extends BaseLightweightCharacter {
     let slot = loadoutSlotItemClass?.SLOT;
     if (!slot) return 0;
     switch (itemDef?.ITEM_CLASS) {
-      // TODO: Prevent equipping throwables until fixed
       case ItemClasses.THROWABLES:
       case ItemClasses.WEAPONS_LONG:
       case ItemClasses.WEAPONS_PISTOL:

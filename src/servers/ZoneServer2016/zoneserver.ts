@@ -101,7 +101,8 @@ import {
   getDistance2d,
   TimeWrapper,
   getCurrentServerTimeWrapper,
-  flhash
+  flhash,
+  getDateString
 } from "../../utils/utils";
 
 import { Db, MongoClient, WithId } from "mongodb";
@@ -1066,7 +1067,7 @@ export class ZoneServer2016 extends EventEmitter {
       );
 
       const unbanTime = ban.expirationDate
-          ? this.getDateString(ban.expirationDate)
+          ? getDateString(ban.expirationDate)
           : 0,
         reason = ban.banReason;
 
@@ -4272,20 +4273,20 @@ export class ZoneServer2016 extends EventEmitter {
         this.sendAlert(
           client,
           reason
-            ? `YOU HAVE BEEN BANNED FROM THE SERVER UNTIL ${this.getDateString(
+            ? `YOU HAVE BEEN BANNED FROM THE SERVER UNTIL ${getDateString(
                 timestamp
               )}. REASON: ${reason}`
-            : `YOU HAVE BEEN BANNED FROM THE SERVER UNTIL: ${this.getDateString(
+            : `YOU HAVE BEEN BANNED FROM THE SERVER UNTIL: ${getDateString(
                 timestamp
               )}`
         );
       }
       this.sendAlertToAll(
         reason
-          ? `${characterName} HAS BEEN BANNED FROM THE SERVER UNTIL ${this.getDateString(
+          ? `${characterName} HAS BEEN BANNED FROM THE SERVER UNTIL ${getDateString(
               timestamp
             )}. REASON: ${reason}`
-          : `${characterName} HAS BEEN BANNED FROM THE SERVER UNTIL: ${this.getDateString(
+          : `${characterName} HAS BEEN BANNED FROM THE SERVER UNTIL: ${getDateString(
               timestamp
             )}`
       );
@@ -4360,28 +4361,6 @@ export class ZoneServer2016 extends EventEmitter {
     );
     if (!client) return;
     this.deleteClient(client);
-  }
-
-  // TODO: this should be a util function
-  getDateString(timestamp: number) {
-    const months = [
-      "JAN",
-      "FEB",
-      "MAR",
-      "APR",
-      "MAY",
-      "JUN",
-      "JUL",
-      "AUG",
-      "SEP",
-      "OCT",
-      "NOV",
-      "DEC"
-    ];
-    const date = new Date(timestamp);
-    return `${date.getDate()} ${
-      months[date.getMonth()]
-    } ${date.getFullYear()} ${date.getHours()}:${date.getMinutes()}`;
   }
 
   sendGameTimeSync(client: Client) {
