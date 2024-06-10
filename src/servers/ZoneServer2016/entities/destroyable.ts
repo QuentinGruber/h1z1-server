@@ -48,8 +48,8 @@ function getMaxHealth(actorModelId: ModelIds): number {
     case ModelIds.FENCES_WOOD_PLANKS_GREY_1X1:
     case ModelIds.FENCES_WOOD_PLANKS_GREY_POSTS_1X2:
     case ModelIds.FENCES_WOOD_PLANKS_GREY_GAP_1X1:
-      // temp hack so it can't be destroyed ( or you really wanted to )
-      return MAX_UINT32;
+    // temp hack so it can't be destroyed ( or you really wanted to )
+    // return MAX_UINT32;
     default:
       return 5000;
   }
