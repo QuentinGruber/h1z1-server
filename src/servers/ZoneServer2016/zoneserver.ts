@@ -244,7 +244,6 @@ import { GatewayServer } from "../GatewayServer/gatewayserver";
 import { WaterSource } from "./entities/watersource";
 import { WebSocket } from "ws";
 import { CommandHandler } from "./handlers/commands/commandhandler";
-import { accountInventoryDefaultRewards } from "./data/loadouts";
 import { AccountInventoryManager } from "./managers/accountinventorymanager";
 
 const spawnLocations2 = require("../../../data/2016/zoneData/Z1_gridSpawns.json"),
@@ -1271,10 +1270,6 @@ export class ZoneServer2016 extends EventEmitter {
     if (!(await this.hookManager.checkAsyncHook("OnSendCharacterData", client)))
       return;
     let savedCharacter: FullCharacterSaveData;
-    const accountInventory =
-      await this.accountInventoriesManager.getAccountItems(
-        client.loginSessionId
-      );
     try {
       savedCharacter = await this.worldDataManager.fetchCharacterData(
         client.character.characterId
@@ -1289,18 +1284,6 @@ export class ZoneServer2016 extends EventEmitter {
       savedCharacter as FullCharacterSaveData
     );
     client.startingPos = client.character.state.position;
-
-    // Give a new player some gifts
-    if (Object.values(accountInventory).length == 0) {
-      Object.values(accountInventoryDefaultRewards).forEach((gift) => {
-        const item = this.generateAccountItem(gift.item, gift.count);
-        if (!item) return;
-        this.accountInventoriesManager.addAccountItem(
-          client.loginSessionId,
-          item
-        );
-      });
-    }
   }
 
   sendCharacterData(client: Client) {
