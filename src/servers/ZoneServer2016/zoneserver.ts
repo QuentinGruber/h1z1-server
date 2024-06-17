@@ -246,6 +246,7 @@ import { WebSocket } from "ws";
 import { CommandHandler } from "./handlers/commands/commandhandler";
 import { AccountInventoryManager } from "./managers/accountinventorymanager";
 import { RewardManager } from "./managers/rewardmanager";
+import { PlayTimeManager } from "./managers/playtimemanager";
 
 const spawnLocations2 = require("../../../data/2016/zoneData/Z1_gridSpawns.json"),
   deprecatedDoors = require("../../../data/2016/sampleData/deprecatedDoors.json"),
@@ -393,6 +394,7 @@ export class ZoneServer2016 extends EventEmitter {
   fairPlayManager: FairPlayManager;
   pluginManager: PluginManager;
   configManager: ConfigManager;
+  playTimeManager: PlayTimeManager;
 
   _ready: boolean = false;
 
@@ -487,6 +489,7 @@ export class ZoneServer2016 extends EventEmitter {
     this.fairPlayManager = new FairPlayManager();
     this.pluginManager = new PluginManager();
     this.commandHandler = new CommandHandler();
+    this.playTimeManager = new PlayTimeManager();
     /* CONFIG MANAGER MUST BE INSTANTIATED LAST ! */
     this.configManager = new ConfigManager(this, process.env.CONFIG_PATH);
     this.enableWorldSaves =
@@ -1578,6 +1581,7 @@ export class ZoneServer2016 extends EventEmitter {
 
   private async setupServer() {
     this.weatherManager.init();
+    this.playTimeManager.init(this);
     this.initModelsDataSource();
     this.worldDataManager = (await spawn(
       new Worker("./managers/worlddatamanagerthread")
