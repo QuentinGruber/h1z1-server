@@ -102,6 +102,7 @@ export class Character2016 extends BaseFullCharacter {
   resourcesUpdater?: any;
   factionId = 2;
   isInInventory: boolean = false;
+  playTime: number = 0;
   set godMode(state: boolean) {
     this.characterStates.invincibility = state;
   }
