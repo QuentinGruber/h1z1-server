@@ -545,9 +545,7 @@ export class WorldDataManager {
       const singlePlayerCharacters = require(
         `${this._appDataFolder}/single_player_characters2016.json`
       );
-      let singlePlayerCharacter = singlePlayerCharacters.find(
-        (character: any) => character.characterId === character.characterId
-      );
+      let singlePlayerCharacter = singlePlayerCharacters[0];
       if (!singlePlayerCharacter) {
         console.log("[ERROR] Single player character savedata not found!");
         return;
