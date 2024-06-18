@@ -1723,22 +1723,19 @@ export class ZoneServer2016 extends EventEmitter {
 
       console.time("ZONE: saveWorld");
 
-      this.worldDataManager
-        .saveWorld({
-          lastGuidItem: this.lastItemGuid,
-          characters,
-          worldConstructions,
-          crops,
-          traps,
-          constructions,
-          vehicles
-        })
-        .then(() => {
-          this._isSaving = false;
-          this.sendChatTextToAdmins("World saved!");
-          this.nextSaveTime = Date.now() + this.saveTimeInterval;
-          debug("World saved!");
-        });
+      await this.worldDataManager.saveWorld({
+        lastGuidItem: this.lastItemGuid,
+        characters,
+        worldConstructions,
+        crops,
+        traps,
+        constructions,
+        vehicles
+      });
+      this._isSaving = false;
+      this.sendChatTextToAdmins("World saved!");
+      this.nextSaveTime = Date.now() + this.saveTimeInterval;
+      debug("World saved!");
     } catch (e) {
       console.log(e);
       this._isSaving = false;
