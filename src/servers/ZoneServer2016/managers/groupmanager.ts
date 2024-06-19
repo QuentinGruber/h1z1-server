@@ -268,7 +268,7 @@ export class GroupManager {
     });
   }
 
-  async handleJoinExistingGroup(server: ZoneServer2016, client: Client) {
+  async updateOutLines(server: ZoneServer2016, client: Client) {
     const group = await server._db
       .collection(DB_COLLECTIONS.GROUPS)
       .findOne<Group>({
@@ -282,8 +282,12 @@ export class GroupManager {
         client.character.groupId,
         `${client.character.name} Connected.`
       );
-      server.sendAlert(client, "Group automatically joined.");
     }
+  }
+
+  async handleJoinExistingGroup(server: ZoneServer2016, client: Client) {
+    this.updateOutLines(server, client);
+    server.sendAlert(client, "Group automatically joined.");
   }
 
   async handleGroupJoin(
