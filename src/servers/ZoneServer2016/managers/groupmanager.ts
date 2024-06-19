@@ -17,6 +17,7 @@ import { Group } from "types/zoneserver";
 import { ZoneClient2016 as Client } from "../classes/zoneclient";
 import { ZoneServer2016 } from "../zoneserver";
 import { DB_COLLECTIONS } from "../../../utils/enums";
+import { generate_random_guid } from "h1emu-core";
 
 enum GroupErrors {
   INVALID = "GroupIsInvalid",
@@ -155,19 +156,10 @@ export class GroupManager {
   }
 
   async createGroup(server: ZoneServer2016, leader: Client) {
-    let groupId;
-    const latestGroup = await server._db
-      .collection(DB_COLLECTIONS.GROUPS)
-      .aggregate([
-        { $sort: { groupId: -1 } }, // Sort documents based on yourField in descending order
-        { $limit: 1 } // Limit to only the first document
-      ])
-      .toArray();
-    if (latestGroup.length) {
-      groupId = latestGroup[0].groupId + 1;
-    } else {
-      groupId = 1;
-    }
+    const maxSafeBigInt = BigInt(Number.MAX_SAFE_INTEGER);
+    const groupId: number = Number(
+      BigInt(generate_random_guid()) % maxSafeBigInt
+    );
     await server._db.collection(DB_COLLECTIONS.GROUPS).insertOne({
       serverId: server._worldId,
       groupId,
