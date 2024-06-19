@@ -71,6 +71,7 @@ export interface CharacterUpdateSaveData
   spawnGridData: number[];
   mutedCharacters: string[];
   playTime: number;
+  lastMysteryBagDropPlayTime: number;
 }
 
 export interface FullCharacterSaveData

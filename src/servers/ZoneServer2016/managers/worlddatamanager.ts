@@ -471,6 +471,8 @@ export class WorldDataManager {
         _resources: loadedCharacter._resources || {},
         mutedCharacters: loadedCharacter.mutedCharacters || [],
         playTime: loadedCharacter.playTime ?? 0,
+        lastMysteryBagDropPlayTime:
+          loadedCharacter.lastMysteryBagDropPlayTime ?? 0,
         status: 1,
         worldSaveVersion: this.worldSaveVersion
       };
@@ -528,6 +530,7 @@ export class WorldDataManager {
       rotation: Array.from(character.state.lookAt),
       isRespawning: character.isRespawning,
       playTime: character.playTime,
+      lastMysteryBagDropPlayTime: character.lastDropPlaytime,
       spawnGridData: character.spawnGridData,
       mutedCharacters: character.mutedCharacters
     };
