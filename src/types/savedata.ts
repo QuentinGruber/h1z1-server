@@ -70,6 +70,7 @@ export interface CharacterUpdateSaveData
   isRespawning: boolean;
   spawnGridData: number[];
   mutedCharacters: string[];
+  playTime: number;
 }
 
 export interface FullCharacterSaveData
