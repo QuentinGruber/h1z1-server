@@ -582,11 +582,7 @@ export class WorldDataManager {
     const promises: Array<any> = [];
     for (let i = 0; i < characters.length; i++) {
       const character = characters[i];
-      promises.push(
-        this.saveCharacterData(character).then((ret: any) => {
-          return ret;
-        })
-      );
+      promises.push(this.saveCharacterData(character));
     }
     await Promise.all(promises);
   }
