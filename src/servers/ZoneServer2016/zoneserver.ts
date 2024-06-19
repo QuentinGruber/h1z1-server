@@ -1653,7 +1653,6 @@ export class ZoneServer2016 extends EventEmitter {
     debug("Server ready");
   }
 
-  /* TODO: MOVE TO WORLDDATAMANAGER */
   async saveWorld() {
     if (this._isSaving) {
       this.sendChatTextToAdmins("A save is already in progress.");
@@ -1721,31 +1720,24 @@ export class ZoneServer2016 extends EventEmitter {
 
       console.timeEnd("ZONE: processing");
 
-      console.time("ZONE: saveWorld");
-
-      this.worldDataManager
-        .saveWorld({
-          lastGuidItem: this.lastItemGuid,
-          characters,
-          worldConstructions,
-          crops,
-          traps,
-          constructions,
-          vehicles
-        })
-        .then(() => {
-          this._isSaving = false;
-          this.sendChatTextToAdmins("World saved!");
-          this.nextSaveTime = Date.now() + this.saveTimeInterval;
-          debug("World saved!");
-        });
+      await this.worldDataManager.saveWorld({
+        lastGuidItem: this.lastItemGuid,
+        characters,
+        worldConstructions,
+        crops,
+        traps,
+        constructions,
+        vehicles
+      });
+      this._isSaving = false;
+      this.sendChatTextToAdmins("World saved!");
+      this.nextSaveTime = Date.now() + this.saveTimeInterval;
+      debug("World saved!");
     } catch (e) {
       console.log(e);
       this._isSaving = false;
-      console.timeEnd("ZONE: saveWorld");
       this.sendChatTextToAdmins("World save failed!");
     }
-    console.timeEnd("ZONE: saveWorld");
   }
 
   executeRconCommand(ws: WebSocket, payload: string) {
