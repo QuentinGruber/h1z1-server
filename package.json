@@ -6,7 +6,7 @@
   "license": "GPL-3.0-only",
   "main": "h1z1-server.js",
   "engines": {
-    "node": ">=0.17.0 <22"
+    "node": ">=0.17.0 <23"
   },
   "bin": {
     "h1z1-server-demo": "scripts/h1z1-server-demo.js",
