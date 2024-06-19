@@ -256,7 +256,8 @@ export const commands: Array<Command> = [
         client,
         `position: ${position[0].toFixed(2)},${position[1].toFixed(
           2
-        )},${position[2].toFixed(2)}`
+        )},${position[2].toFixed(2)}`,
+        true
       );
       server.sendChatText(
         client,

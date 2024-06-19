@@ -25,16 +25,14 @@ export class ChatManager {
     clearChat = false
   ) {
     if (clearChat) {
-      for (let index = 0; index <= 6; index++) {
-        server.sendData(client, "Chat.ChatText", {
-          message: " ",
-          unknownDword1: 0,
-          color: [255, 255, 255, 0],
-          unknownDword2: 13951728,
-          unknownByte3: 0,
-          unknownByte4: 1
-        });
-      }
+      server.sendData(client, "Chat.ChatText", {
+        message: `\n\n\n\n\n\n`,
+        unknownDword1: 0,
+        color: [255, 255, 255, 0],
+        unknownDword2: 13951728,
+        unknownByte3: 0,
+        unknownByte4: 1
+      });
     }
     server.sendData(client, "Chat.ChatText", {
       message: message,

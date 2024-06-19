@@ -40,7 +40,7 @@ import { Worker } from "node:worker_threads";
 import { FileHash, httpServerMessage } from "types/shared";
 import { LoginProtocol2016 } from "../../protocols/loginprotocol2016";
 import { crc_length_options } from "../../types/soeserver";
-import { DB_NAME, DEFAULT_CRYPTO_KEY } from "../../utils/constants";
+import { DB_NAME, DEFAULT_CRYPTO_KEY, MAX_UINT32 } from "../../utils/constants";
 import {
   LoginReply,
   CharacterSelectInfoReply,
@@ -1113,6 +1113,8 @@ export class LoginServer extends EventEmitter {
     const [address, port] = zoneConnectionString.split(":");
 
     const LZClient = new LZConnectionClient({ address, port: Number(port) });
+    // Hack since the loginserver doesn't have a serverId
+    LZClient.serverId = MAX_UINT32;
     return LZClient;
   }
 

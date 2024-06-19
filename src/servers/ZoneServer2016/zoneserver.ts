@@ -244,8 +244,8 @@ import { GatewayServer } from "../GatewayServer/gatewayserver";
 import { WaterSource } from "./entities/watersource";
 import { WebSocket } from "ws";
 import { CommandHandler } from "./handlers/commands/commandhandler";
-import { accountInventoryDefaultRewards } from "./data/loadouts";
 import { AccountInventoryManager } from "./managers/accountinventorymanager";
+import { PlayTimeManager } from "./managers/playtimemanager";
 
 const spawnLocations2 = require("../../../data/2016/zoneData/Z1_gridSpawns.json"),
   deprecatedDoors = require("../../../data/2016/sampleData/deprecatedDoors.json"),
@@ -392,6 +392,7 @@ export class ZoneServer2016 extends EventEmitter {
   fairPlayManager: FairPlayManager;
   pluginManager: PluginManager;
   configManager: ConfigManager;
+  playTimeManager: PlayTimeManager;
 
   _ready: boolean = false;
 
@@ -485,6 +486,7 @@ export class ZoneServer2016 extends EventEmitter {
     this.fairPlayManager = new FairPlayManager();
     this.pluginManager = new PluginManager();
     this.commandHandler = new CommandHandler();
+    this.playTimeManager = new PlayTimeManager();
     /* CONFIG MANAGER MUST BE INSTANTIATED LAST ! */
     this.configManager = new ConfigManager(this, process.env.CONFIG_PATH);
     this.enableWorldSaves =
@@ -982,6 +984,7 @@ export class ZoneServer2016 extends EventEmitter {
         hairModel: characterModelData.hairModel,
         gender: characterData.payload.gender,
         status: 1,
+        playTime: 0,
         worldSaveVersion: this.worldSaveVersion
       };
       const collection = this._db.collection(DB_COLLECTIONS.CHARACTERS);
@@ -1271,10 +1274,6 @@ export class ZoneServer2016 extends EventEmitter {
     if (!(await this.hookManager.checkAsyncHook("OnSendCharacterData", client)))
       return;
     let savedCharacter: FullCharacterSaveData;
-    const accountInventory =
-      await this.accountInventoriesManager.getAccountItems(
-        client.loginSessionId
-      );
     try {
       savedCharacter = await this.worldDataManager.fetchCharacterData(
         client.character.characterId
@@ -1289,18 +1288,6 @@ export class ZoneServer2016 extends EventEmitter {
       savedCharacter as FullCharacterSaveData
     );
     client.startingPos = client.character.state.position;
-
-    // Give a new player some gifts
-    if (Object.values(accountInventory).length == 0) {
-      Object.values(accountInventoryDefaultRewards).forEach((gift) => {
-        const item = this.generateAccountItem(gift.item, gift.count);
-        if (!item) return;
-        this.accountInventoriesManager.addAccountItem(
-          client.loginSessionId,
-          item
-        );
-      });
-    }
   }
 
   sendCharacterData(client: Client) {
@@ -1550,6 +1537,7 @@ export class ZoneServer2016 extends EventEmitter {
     client.character.spawnGridData = savedCharacter.spawnGridData;
     client.character.mutedCharacters = savedCharacter.mutedCharacters || [];
     client.character.groupId = savedCharacter.groupId || 0;
+    client.character.playTime = savedCharacter.playTime || 0;
 
     let newCharacter = false;
     if (
@@ -1593,6 +1581,7 @@ export class ZoneServer2016 extends EventEmitter {
 
   private async setupServer() {
     this.weatherManager.init();
+    this.playTimeManager.init(this);
     this.initModelsDataSource();
     this.worldDataManager = (await spawn(
       new Worker("./managers/worlddatamanagerthread")
@@ -1671,7 +1660,6 @@ export class ZoneServer2016 extends EventEmitter {
     debug("Server ready");
   }
 
-  /* TODO: MOVE TO WORLDDATAMANAGER */
   async saveWorld() {
     if (this._isSaving) {
       this.sendChatTextToAdmins("A save is already in progress.");
@@ -1739,31 +1727,24 @@ export class ZoneServer2016 extends EventEmitter {
 
       console.timeEnd("ZONE: processing");
 
-      console.time("ZONE: saveWorld");
-
-      this.worldDataManager
-        .saveWorld({
-          lastGuidItem: this.lastItemGuid,
-          characters,
-          worldConstructions,
-          crops,
-          traps,
-          constructions,
-          vehicles
-        })
-        .then(() => {
-          this._isSaving = false;
-          this.sendChatTextToAdmins("World saved!");
-          this.nextSaveTime = Date.now() + this.saveTimeInterval;
-          debug("World saved!");
-        });
+      await this.worldDataManager.saveWorld({
+        lastGuidItem: this.lastItemGuid,
+        characters,
+        worldConstructions,
+        crops,
+        traps,
+        constructions,
+        vehicles
+      });
+      this._isSaving = false;
+      this.sendChatTextToAdmins("World saved!");
+      this.nextSaveTime = Date.now() + this.saveTimeInterval;
+      debug("World saved!");
     } catch (e) {
       console.log(e);
       this._isSaving = false;
-      console.timeEnd("ZONE: saveWorld");
       this.sendChatTextToAdmins("World save failed!");
     }
-    console.timeEnd("ZONE: saveWorld");
   }
 
   executeRconCommand(ws: WebSocket, payload: string) {

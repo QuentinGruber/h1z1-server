@@ -1992,12 +1992,15 @@ export class ZonePacketHandlers {
     client: Client,
     packet: ReceivedPacket<object>
   ) {
-    const proximityItems = server.getProximityItems(client);
-    server.sendData<ClientUpdateProximateItems>(
-      client,
-      "ClientUpdate.ProximateItems",
-      proximityItems
-    );
+    client.character.isInInventory = !client.character.isInInventory;
+    if (client.character.isInInventory) {
+      const proximityItems = server.getProximityItems(client);
+      server.sendData<ClientUpdateProximateItems>(
+        client,
+        "ClientUpdate.ProximateItems",
+        proximityItems
+      );
+    }
   }
   CommandSuicide(
     server: ZoneServer2016,
@@ -3294,12 +3297,14 @@ export class ZonePacketHandlers {
         });
 
         if (reward > 0 && itemSubData.unknownBoolean1 == 0)
-          client.character.lootItem(
-            server,
-            server.generateAccountItem(reward),
-            1,
-            false
-          );
+          setTimeout(() => {
+            client.character.lootAccountItem(
+              server,
+              client,
+              server.generateAccountItem(reward),
+              true
+            );
+          }, 12_000);
         break;
       case ItemUseOptions.APPLY_SKIN:
         const oitem = client.character.getInventoryItem(
@@ -3394,8 +3399,9 @@ export class ZonePacketHandlers {
           0,
           () => {
             if (!server.removeInventoryItem(client.character, item)) return;
-            client.character.lootItem(
+            client.character.lootAccountItem(
               server,
+              client,
               server.generateAccountItem(bagReward)
             );
           }

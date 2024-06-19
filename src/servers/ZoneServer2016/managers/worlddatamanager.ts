@@ -471,6 +471,7 @@ export class WorldDataManager {
         _resources: loadedCharacter._resources || {},
         mutedCharacters: loadedCharacter.mutedCharacters || [],
         groupId: loadedCharacter.groupId || 0,
+        playTime: loadedCharacter.playTime ?? 0,
         status: 1,
         worldSaveVersion: this.worldSaveVersion
       };
@@ -527,6 +528,7 @@ export class WorldDataManager {
       characterId: character.characterId,
       rotation: Array.from(character.state.lookAt),
       isRespawning: character.isRespawning,
+      playTime: character.playTime,
       spawnGridData: character.spawnGridData,
       mutedCharacters: character.mutedCharacters,
       groupId: character.groupId
@@ -572,7 +574,8 @@ export class WorldDataManager {
           $set: {
             ...characterSaveData
           }
-        }
+        },
+        { upsert: true }
       );
     }
   }
