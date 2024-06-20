@@ -71,15 +71,44 @@ export class AccountInventoryManager {
   }
 
   async addAccountItem(loginSessionId: string, item: BaseItem) {
+    let accountItems: AccountItem[];
+
     if (this.isInSoloMode) {
-      const accountItems = this._getSoloAccountItems(loginSessionId);
-      accountItems.push({ loginSessionId, ...item } as any);
+      accountItems = this._getSoloAccountItems(loginSessionId);
+    } else {
+      accountItems = await this.getAccountItems(loginSessionId);
+    }
+    const index = accountItems.findIndex((v) => {
+      return v.itemDefinitionId === item.itemDefinitionId;
+    });
+    const storedItem = accountItems[index];
+    if (this.isInSoloMode) {
+      if (storedItem) {
+        storedItem.stackCount++;
+      } else {
+        accountItems.push({ loginSessionId, ...item } as any);
+      }
       this._saveSoloAccountItems(accountItems);
     } else {
-      return await this.mongodbCollection.insertOne({
-        loginSessionId,
-        ...item
-      });
+      if (storedItem) {
+        storedItem.stackCount++;
+        return await this.mongodbCollection.updateOne(
+          {
+            loginSessionId,
+            itemDefinitionId: item.itemDefinitionId
+          },
+          {
+            $set: {
+              stackCount: storedItem.stackCount
+            }
+          }
+        );
+      } else {
+        return await this.mongodbCollection.insertOne({
+          loginSessionId,
+          ...item
+        });
+      }
     }
   }
   async updateAccountItem(loginSessionId: string, item: BaseItem) {
@@ -89,6 +118,7 @@ export class AccountInventoryManager {
         const originalItem = accountItems[i];
         if (originalItem.itemDefinitionId === item.itemDefinitionId) {
           accountItems[i] = { loginSessionId, ...item } as any;
+          break;
         }
       }
       this._saveSoloAccountItems(accountItems);
@@ -114,13 +144,14 @@ export class AccountInventoryManager {
         const originalItem = accountItems[i];
         if (originalItem.itemDefinitionId === item.itemDefinitionId) {
           accountItems.splice(i, 1);
+          break;
         }
       }
       this._saveSoloAccountItems(accountItems);
     } else {
       return await this.mongodbCollection.deleteOne({
         loginSessionId,
-        itemGuid: item.itemGuid
+        itemDefinitionId: item.itemDefinitionId
       });
     }
   }
