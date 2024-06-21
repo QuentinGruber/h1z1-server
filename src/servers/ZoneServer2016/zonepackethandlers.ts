@@ -136,6 +136,7 @@ import {
   ClientBan,
   ConstructionPermissions,
   DamageInfo,
+  Group,
   StanceFlags
 } from "types/zoneserver";
 import { Vehicle2016 } from "./entities/vehicle";
@@ -372,6 +373,9 @@ export class ZonePacketHandlers {
         if (client.isAdmin) {
           if (server.adminMessage)
             server.sendAlert(client, server.adminMessage);
+        }
+        if (!server._soloMode) {
+          server.groupManager.handleJoinExistingGroup(server, client);
         }
       }, 10000);
       if (client.banType != "") {
@@ -3350,15 +3354,8 @@ export class ZonePacketHandlers {
 
         client.character.equipItem(server, newItem);
         client.character.updateEquipment(server);
-        // Update outlines for groups
-        if (
-          client.character.groupId &&
-          server.groupManager.groups[client.character.groupId]
-        ) {
-          server.groupManager.sendGroupOutlineUpdates(
-            server,
-            server.groupManager.groups[client.character.groupId]
-          );
+        if (!server._soloMode) {
+          server.groupManager.updateOutLines(server, client);
         }
 
         // Copy over items from the old container to the new container
