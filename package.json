@@ -14,16 +14,16 @@
   },
   "dependencies": {
     "@types/js-yaml": "4.0.9",
-    "@types/node": "20.14.5",
+    "@types/node": "20.14.10",
     "@types/ws": "8.5.10",
     "debug": "4.3.5",
     "h1emu-core": "1.2.8",
     "h1z1-dataschema": "1.7.2",
     "js-yaml": "4.1.0",
-    "mongodb": "6.7.0",
+    "mongodb": "6.8.0",
     "threads": "1.7.0",
-    "typescript": "5.4.5",
-    "ws": "8.17.1"
+    "typescript": "5.5.3",
+    "ws": "8.18.0"
   },
   "directories": {
     "src": "./src"
@@ -34,7 +34,7 @@
     "eslint": "^8.56.0",
     "prettier": "^3.3.2",
     "ts-node": "^10.9.2",
-    "typedoc": "^0.25.13"
+    "typedoc": "^0.26.3"
   },
   "scripts": {
     "gen-packets-types": "npx ts-node ./scripts/genPacketsNames.ts",
