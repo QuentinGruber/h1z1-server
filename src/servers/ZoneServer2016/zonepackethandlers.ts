@@ -3298,7 +3298,7 @@ export class ZonePacketHandlers {
 
         if (reward > 0 && itemSubData.unknownBoolean1 == 0)
           setTimeout(() => {
-            client.character.lootAccountItem(
+            server.lootAccountItem(
               server,
               client,
               server.generateAccountItem(reward),
@@ -3392,7 +3392,7 @@ export class ZonePacketHandlers {
           0,
           () => {
             if (!server.removeInventoryItem(client.character, item)) return;
-            client.character.lootAccountItem(
+            server.lootAccountItem(
               server,
               client,
               server.generateAccountItem(bagReward)

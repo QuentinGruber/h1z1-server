@@ -3977,6 +3977,10 @@ export class ZoneServer2016 extends EventEmitter {
     packetName: h1z1PacketsType2016,
     obj: ZonePacket
   ) {
+    if (packetName.includes("Items.")) {
+      console.log("sending " + packetName);
+      console.log(obj);
+    }
     this._sendData<ZonePacket>(
       client,
       packetName,
@@ -6012,7 +6016,60 @@ export class ZoneServer2016 extends EventEmitter {
     }
     return true;
   }
+  async lootAccountItem(
+    server: ZoneServer2016,
+    client: Client,
+    item?: BaseItem,
+    sendUpdate: boolean = false
+  ) {
+    if (!item) {
+      return;
+    }
+    const accountItems = await server.accountInventoriesManager.getAccountItems(
+      client.loginSessionId
+    );
+    if (!accountItems) return false;
+    const savedItem = accountItems.find((v) => {
+      return v.itemDefinitionId === item.itemDefinitionId;
+    });
+    // if an itemdef is already in the account inventory we only update the stack count
+    if (savedItem) {
+      savedItem.stackCount++;
+      await server.accountInventoriesManager.updateAccountItem(
+        client.loginSessionId,
+        savedItem
+      );
+      server.sendData(client, "Items.UpdateEscrowAccountItem", {
+        itemData: {
+          itemId: savedItem.itemGuid,
+          itemDefinitionId: savedItem.itemDefinitionId,
+          itemCount: savedItem.stackCount,
+          itemGuid: savedItem.itemGuid
+        }
+      });
+    } else {
+      await server.accountInventoriesManager.addAccountItem(
+        client.loginSessionId,
+        item
+      );
+      server.sendData(client, "Items.AddEscrowAccountItem", {
+        itemData: {
+          itemId: item.itemGuid,
+          itemDefinitionId: item.itemDefinitionId,
+          itemCount: item.stackCount,
+          itemGuid: item.itemGuid
+        }
+      });
+    }
 
+    if (!sendUpdate) return;
+    server.sendData(client, "Reward.AddNonRewardItem", {
+      itemDefId: item.itemDefinitionId,
+      iconId: server.getItemDefinition(item.itemDefinitionId)?.IMAGE_SET_ID,
+      nameId: server.getItemDefinition(item.itemDefinitionId)?.NAME_ID,
+      count: item.stackCount
+    });
+  }
   /**
    * Removes an item from the account inventory.
    *
@@ -6023,10 +6080,6 @@ export class ZoneServer2016 extends EventEmitter {
   removeAccountItem(character: BaseFullCharacter, item: BaseItem): boolean {
     const client = this.getClientByCharId(character.characterId);
     if (!client) return false;
-    const accountItems = this.accountInventoriesManager.getAccountItems(
-      client.loginSessionId
-    );
-    if (!accountItems) return false;
     item.stackCount--;
     if (item.stackCount <= 0) {
       this.accountInventoriesManager.removeAccountItem(

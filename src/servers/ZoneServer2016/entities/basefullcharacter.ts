@@ -428,7 +428,7 @@ export abstract class BaseFullCharacter extends BaseLightweightCharacter {
     }
     const itemDefId = item.itemDefinitionId;
     if (server.isAccountItem(itemDefId) && client) {
-      this.lootAccountItem(server, client, item, sendUpdate);
+      server.lootAccountItem(server, client, item, sendUpdate);
     } else if (this.getAvailableLoadoutSlot(server, itemDefId)) {
       if (client && client.character.initialized && sendUpdate) {
         server.sendData(client, "Reward.AddNonRewardItem", {
@@ -442,37 +442,6 @@ export abstract class BaseFullCharacter extends BaseLightweightCharacter {
     } else {
       this.lootContainerItem(server, item, count, sendUpdate);
     }
-  }
-
-  async lootAccountItem(
-    server: ZoneServer2016,
-    client: ZoneClient2016,
-    item?: BaseItem,
-    sendUpdate: boolean = false
-  ) {
-    if (!item) {
-      return;
-    }
-    await server.accountInventoriesManager.addAccountItem(
-      client.loginSessionId,
-      item
-    );
-    server.sendData(client, "Items.AddEscrowAccountItem", {
-      itemData: {
-        itemId: item.itemGuid,
-        itemDefinitionId: item.itemDefinitionId,
-        itemCount: item.stackCount,
-        itemGuid: item.itemGuid
-      }
-    });
-
-    if (!sendUpdate) return;
-    server.sendData(client, "Reward.AddNonRewardItem", {
-      itemDefId: item.itemDefinitionId,
-      iconId: server.getItemDefinition(item.itemDefinitionId)?.IMAGE_SET_ID,
-      nameId: server.getItemDefinition(item.itemDefinitionId)?.NAME_ID,
-      count: item.stackCount
-    });
   }
 
   lootItemFromContainer(
