@@ -489,12 +489,12 @@ export class GroupManager {
       return;
     }
     const groupId = client.character.groupId;
-    const group = await server._db
+    const group = (await server._db
       .collection(DB_COLLECTIONS.GROUPS)
       .findOne<Group>({
         serverId: server._worldId,
         groupId: groupId
-      });
+      })) as Group;
     if (args[0] != "invite" && (!groupId || !group)) {
       server.sendChatText(client, "You are not in a group!");
       return;
@@ -517,16 +517,16 @@ export class GroupManager {
           return;
         }
 
-        this.handleGroupKick(server, client, target, group as Group);
+        this.handleGroupKick(server, client, target, group);
         break;
       case "leave":
-        this.handleGroupLeave(server, client, group as Group);
+        this.handleGroupLeave(server, client, group);
         break;
       case "view":
-        this.handleGroupView(server, client, group as Group);
+        this.handleGroupView(server, client, group);
         break;
       case "disband":
-        this.handleGroupDisband(server, client, group as Group);
+        this.handleGroupDisband(server, client, group);
         break;
       case "invite":
         if (!args[1]) {
