@@ -156,11 +156,7 @@ export class GroupManager {
   }
 
   async createGroup(server: ZoneServer2016, leader: Client) {
-    // Since groupId is a Number and Numbers can't store too large number we have to do this little trick
-    const maxSafeBigInt = BigInt(Number.MAX_SAFE_INTEGER);
-    const groupId: number = Number(
-      BigInt(generate_random_guid()) % maxSafeBigInt
-    );
+    const groupId: number = Math.floor(Math.random() * Number.MAX_SAFE_INTEGER);
     await server._db.collection(DB_COLLECTIONS.GROUPS).insertOne({
       serverId: server._worldId,
       groupId,
