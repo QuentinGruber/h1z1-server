@@ -470,6 +470,7 @@ export class WorldDataManager {
         _containers: loadedCharacter._containers || {},
         _resources: loadedCharacter._resources || {},
         mutedCharacters: loadedCharacter.mutedCharacters || [],
+        groupId: loadedCharacter.groupId || 0,
         playTime: loadedCharacter.playTime ?? 0,
         lastMysteryBagDropPlayTime:
           loadedCharacter.lastMysteryBagDropPlayTime ?? 0,
@@ -532,7 +533,8 @@ export class WorldDataManager {
       playTime: character.playTime,
       lastMysteryBagDropPlayTime: character.lastDropPlaytime,
       spawnGridData: character.spawnGridData,
-      mutedCharacters: character.mutedCharacters
+      mutedCharacters: character.mutedCharacters,
+      groupId: character.groupId
     };
     return saveData;
   }
