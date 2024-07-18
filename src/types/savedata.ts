@@ -72,6 +72,7 @@ export interface CharacterUpdateSaveData
   mutedCharacters: string[];
   groupId: number;
   playTime: number;
+  lastMysteryBagDropPlayTime: number;
 }
 
 export interface FullCharacterSaveData

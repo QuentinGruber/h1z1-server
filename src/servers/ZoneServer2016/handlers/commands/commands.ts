@@ -1936,6 +1936,81 @@ export const commands: Array<Command> = [
     }
   },
   {
+    name: "giverewardtoall",
+    permissionLevel: PermissionLevels.ADMIN,
+    execute: (server: ZoneServer2016, client: Client, args: Array<string>) => {
+      if (!args[0]) {
+        server.sendChatText(
+          client,
+          "[ERROR] Usage /giverewardtoall {itemDefinitionId}"
+        );
+        return;
+      }
+      const rewardId = Number(args[0]);
+      const validRewardItem = server.rewardManager.rewards.some(
+        (v) => v.itemId === rewardId
+      );
+      if (!validRewardItem) {
+        server.sendChatText(
+          client,
+          `[ERROR] ${rewardId} isn't a valid reward item`
+        );
+        return;
+      }
+      server.sendAlertToAll(
+        `Admin ${client.character.name} rewarded all connected players with ${Items[rewardId]}`
+      );
+      for (const key in server._clients) {
+        const c = server._clients[key];
+        server.rewardManager.addRewardToPlayer(c, rewardId);
+      }
+    }
+  },
+  {
+    name: "givereward",
+    permissionLevel: PermissionLevels.ADMIN,
+    execute: (server: ZoneServer2016, client: Client, args: Array<string>) => {
+      if (!args[1]) {
+        server.sendChatText(
+          client,
+          "[ERROR] Usage /givereward {itemDefinitionId} {playerName|playerId}"
+        );
+        return;
+      }
+      const rewardId = Number(args[0]);
+      const validRewardItem = server.rewardManager.rewards.some(
+        (v) => v.itemId === rewardId
+      );
+      if (!validRewardItem) {
+        server.sendChatText(
+          client,
+          `[ERROR] ${rewardId} isn't a valid reward item`
+        );
+        return;
+      }
+      const targetClient = server.getClientByNameOrLoginSession(
+        args[1].toString()
+      );
+      if (typeof targetClient == "string") {
+        server.sendChatText(
+          client,
+          `Could not find player ${args[1]
+            .toString()
+            .toUpperCase()}, did you mean ${targetClient.toUpperCase()}`
+        );
+        return;
+      }
+      if (!targetClient) {
+        server.sendChatText(client, "Client not found.");
+        return;
+      }
+      server.sendAlertToAll(
+        `Admin ${client.character.name} rewarded ${targetClient.character.name} with ${Items[rewardId]}`
+      );
+      server.rewardManager.addRewardToPlayer(targetClient, rewardId);
+    }
+  },
+  {
     name: "additem",
     permissionLevel: PermissionLevels.ADMIN,
     execute: (server: ZoneServer2016, client: Client, args: Array<string>) => {

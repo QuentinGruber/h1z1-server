@@ -472,6 +472,8 @@ export class WorldDataManager {
         mutedCharacters: loadedCharacter.mutedCharacters || [],
         groupId: loadedCharacter.groupId || 0,
         playTime: loadedCharacter.playTime ?? 0,
+        lastMysteryBagDropPlayTime:
+          loadedCharacter.lastMysteryBagDropPlayTime ?? 0,
         status: 1,
         worldSaveVersion: this.worldSaveVersion
       };
@@ -529,6 +531,7 @@ export class WorldDataManager {
       rotation: Array.from(character.state.lookAt),
       isRespawning: character.isRespawning,
       playTime: character.playTime,
+      lastMysteryBagDropPlayTime: character.lastDropPlaytime,
       spawnGridData: character.spawnGridData,
       mutedCharacters: character.mutedCharacters,
       groupId: character.groupId
@@ -584,11 +587,7 @@ export class WorldDataManager {
     const promises: Array<any> = [];
     for (let i = 0; i < characters.length; i++) {
       const character = characters[i];
-      promises.push(
-        this.saveCharacterData(character).then((ret: any) => {
-          return ret;
-        })
-      );
+      promises.push(this.saveCharacterData(character));
     }
     await Promise.all(promises);
   }

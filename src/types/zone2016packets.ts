@@ -2335,8 +2335,7 @@ export interface ItemsSetEscrowAccountItemManager {
 export interface ItemsAddEscrowAccountItem {
   itemData :{
   itemId?: string;
-  itemDefinitionId?: number;
-  unknownDword2?: number;
+  itemDefinitionId?: bigint;
   itemCount?: number;
   itemGuid?: string;
   unknownDword4?: number;
@@ -2349,8 +2348,7 @@ export interface ItemsRemoveEscrowAccountItem {
 export interface ItemsUpdateEscrowAccountItem {
   itemData :{
   itemId?: string;
-  itemDefinitionId?: number;
-  unknownDword2?: number;
+  itemDefinitionId?: bigint;
   itemCount?: number;
   itemGuid?: string;
   unknownDword4?: number;
