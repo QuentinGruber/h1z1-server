@@ -18,7 +18,7 @@ import { Items } from "../models/enums";
 
 process.env.FORCE_DISABLE_WS = "true";
 const isMongoTests = process.env.MONGO_TESTS === "true";
-test("AccountIventoriesManager", { timeout: 10000 }, async (t) => {
+test("AccountInventoriesManager", { timeout: 10000 }, async (t) => {
   const zone = new ZoneServer2016(0);
   await zone.start();
   const accountInventoriesManager = zone.accountInventoriesManager;
@@ -103,7 +103,7 @@ test("AccountIventoriesManager", { timeout: 10000 }, async (t) => {
   });
 });
 test(
-  "AccountIventoriesManager-Mongo",
+  "AccountInventoriesManager-Mongo",
   { timeout: 10000, skip: !isMongoTests },
   async (t) => {
     const zone = new ZoneServer2016(
