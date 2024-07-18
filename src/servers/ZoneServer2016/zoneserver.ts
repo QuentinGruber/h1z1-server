@@ -3977,10 +3977,6 @@ export class ZoneServer2016 extends EventEmitter {
     packetName: h1z1PacketsType2016,
     obj: ZonePacket
   ) {
-    if (packetName.includes("Items.")) {
-      console.log("sending " + packetName);
-      console.log(obj);
-    }
     this._sendData<ZonePacket>(
       client,
       packetName,
