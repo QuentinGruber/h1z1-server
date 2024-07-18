@@ -17,7 +17,6 @@ import { Group } from "types/zoneserver";
 import { ZoneClient2016 as Client } from "../classes/zoneclient";
 import { ZoneServer2016 } from "../zoneserver";
 import { DB_COLLECTIONS } from "../../../utils/enums";
-import { generate_random_guid } from "h1emu-core";
 
 enum GroupErrors {
   INVALID = "GroupIsInvalid",
