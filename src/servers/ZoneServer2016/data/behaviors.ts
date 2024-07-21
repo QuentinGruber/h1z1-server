@@ -8,7 +8,7 @@ import {
 } from "../../../types/zone2016packets";
 import { DamageInfo } from "../../../types/zoneserver";
 import {
-  getCurrentTimeWrapper,
+  getCurrentServerTimeWrapper,
   getDistance,
   movePoint3D
 } from "../../../utils/utils";
@@ -35,7 +35,7 @@ export const behavior_Zombie = (
       {
         transientId: npc.transientId,
         positionUpdate: {
-          sequenceTime: getCurrentTimeWrapper().getTruncatedU32(),
+          sequenceTime: getCurrentServerTimeWrapper().getTruncatedU32(),
           position: npc.state.position,
           unknown3_int8: 0,
           stance: 66565,
@@ -87,7 +87,7 @@ export const behavior_Zombie = (
       {
         transientId: npc.transientId,
         positionUpdate: {
-          sequenceTime: getCurrentTimeWrapper().getTruncatedU32() + 500,
+          sequenceTime: getCurrentServerTimeWrapper().getTruncatedU32() + 500,
           position: npc.state.position,
           unknown3_int8: 0,
           stance: 66565,
@@ -185,7 +185,7 @@ export const behavior_Zombie = (
     {
       transientId: npc.transientId,
       positionUpdate: {
-        sequenceTime: getCurrentTimeWrapper().getTruncatedU32(),
+        sequenceTime: getCurrentServerTimeWrapper().getTruncatedU32(),
         unknown3_int8: 0,
         stance: 66565,
         engineRPM: 0,
@@ -205,7 +205,7 @@ export const behavior_Zombie = (
     {
       transientId: npc.transientId,
       positionUpdate: {
-        sequenceTime: getCurrentTimeWrapper().getTruncatedU32() + 500,
+        sequenceTime: getCurrentServerTimeWrapper().getTruncatedU32() + 500,
         position: npc.state.position,
         unknown3_int8: 0,
         stance: 66565,
@@ -243,7 +243,7 @@ export const behavior_Wolf = (
       {
         transientId: npc.transientId,
         positionUpdate: {
-          sequenceTime: getCurrentTimeWrapper().getTruncatedU32(),
+          sequenceTime: getCurrentServerTimeWrapper().getTruncatedU32(),
           position: npc.state.position,
           unknown3_int8: 0,
           stance: 66565,
@@ -273,7 +273,7 @@ export const behavior_Wolf = (
       {
         transientId: npc.transientId,
         positionUpdate: {
-          sequenceTime: getCurrentTimeWrapper().getTruncatedU32() + 500,
+          sequenceTime: getCurrentServerTimeWrapper().getTruncatedU32() + 500,
           position: npc.state.position,
           unknown3_int8: 0,
           stance: 66565,
@@ -371,7 +371,7 @@ export const behavior_Wolf = (
     {
       transientId: npc.transientId,
       positionUpdate: {
-        sequenceTime: getCurrentTimeWrapper().getTruncatedU32(),
+        sequenceTime: getCurrentServerTimeWrapper().getTruncatedU32(),
         unknown3_int8: 0,
         stance: 66565,
         engineRPM: 2,
@@ -391,7 +391,7 @@ export const behavior_Wolf = (
     {
       transientId: npc.transientId,
       positionUpdate: {
-        sequenceTime: getCurrentTimeWrapper().getTruncatedU32() + 500,
+        sequenceTime: getCurrentServerTimeWrapper().getTruncatedU32() + 500,
         position: npc.state.position,
         unknown3_int8: 0,
         stance: 66565,
@@ -429,7 +429,7 @@ export const behavior_Bear = (
       {
         transientId: npc.transientId,
         positionUpdate: {
-          sequenceTime: getCurrentTimeWrapper().getTruncatedU32(),
+          sequenceTime: getCurrentServerTimeWrapper().getTruncatedU32(),
           position: npc.state.position,
           unknown3_int8: 0,
           stance: 66565,
@@ -459,7 +459,7 @@ export const behavior_Bear = (
       {
         transientId: npc.transientId,
         positionUpdate: {
-          sequenceTime: getCurrentTimeWrapper().getTruncatedU32() + 500,
+          sequenceTime: getCurrentServerTimeWrapper().getTruncatedU32() + 500,
           position: npc.state.position,
           unknown3_int8: 0,
           stance: 66565,
@@ -557,7 +557,7 @@ export const behavior_Bear = (
     {
       transientId: npc.transientId,
       positionUpdate: {
-        sequenceTime: getCurrentTimeWrapper().getTruncatedU32(),
+        sequenceTime: getCurrentServerTimeWrapper().getTruncatedU32(),
         unknown3_int8: 0,
         stance: 66565,
         engineRPM: 2,
@@ -577,7 +577,7 @@ export const behavior_Bear = (
     {
       transientId: npc.transientId,
       positionUpdate: {
-        sequenceTime: getCurrentTimeWrapper().getTruncatedU32() + 500,
+        sequenceTime: getCurrentServerTimeWrapper().getTruncatedU32() + 500,
         position: npc.state.position,
         unknown3_int8: 0,
         stance: 66565,
@@ -632,7 +632,7 @@ export const behavior_Deer = (
     {
       transientId: npc.transientId,
       positionUpdate: {
-        sequenceTime: getCurrentTimeWrapper().getTruncatedU32(),
+        sequenceTime: getCurrentServerTimeWrapper().getTruncatedU32(),
         unknown3_int8: 0,
         stance: 66565,
         engineRPM: 2,
@@ -652,7 +652,7 @@ export const behavior_Deer = (
     {
       transientId: npc.transientId,
       positionUpdate: {
-        sequenceTime: getCurrentTimeWrapper().getTruncatedU32() + 500,
+        sequenceTime: getCurrentServerTimeWrapper().getTruncatedU32() + 500,
         position: npc.state.position,
         unknown3_int8: 0,
         stance: 66565,

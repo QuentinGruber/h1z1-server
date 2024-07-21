@@ -3976,7 +3976,7 @@ export class ZoneServer2016 extends EventEmitter {
                   remoteWeapons: { data: [] }
                 },
                 positionUpdate: {
-                  sequenceTime: getCurrentTimeWrapper().getTruncatedU32(),
+                  sequenceTime: getCurrentServerTimeWrapper().getTruncatedU32(),
                   position: object.state.position
                 },
                 stats: [],
@@ -8473,7 +8473,7 @@ export class ZoneServer2016 extends EventEmitter {
         {
           transientId: npc.transientId,
           positionUpdate: {
-            sequenceTime: getCurrentTimeWrapper().getTruncatedU32(),
+            sequenceTime: getCurrentServerTimeWrapper().getTruncatedU32(),
             unknown3_int8: 0,
             stance: 66565,
             engineRPM: 0,
@@ -8493,7 +8493,7 @@ export class ZoneServer2016 extends EventEmitter {
         {
           transientId: npc.transientId,
           positionUpdate: {
-            sequenceTime: getCurrentTimeWrapper().getTruncatedU32() + 20000,
+            sequenceTime: getCurrentServerTimeWrapper().getTruncatedU32() + 20000,
             position: npc.state.position,
             unknown3_int8: 0,
             stance: 66565,

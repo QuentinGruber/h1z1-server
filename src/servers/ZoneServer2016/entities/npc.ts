@@ -151,7 +151,7 @@ export class Npc extends BaseFullCharacter {
         remoteWeapons: { data: [] }
       },
       positionUpdate: {
-        sequenceTime: getCurrentTimeWrapper().getTruncatedU32(),
+        sequenceTime: getCurrentServerTimeWrapper().getTruncatedU32(),
         position: this.state.position
       },
       stats: [],
