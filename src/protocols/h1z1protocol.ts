@@ -92,6 +92,10 @@ export class H1Z1Protocol {
     return Buffer.concat([Buffer.from([0x79]), tId, rawData]); //0x79 = opcode
   }
 
+  createManagedPositionBroadcast2016(rawData: Buffer): Buffer {
+    return Buffer.concat([Buffer.from([0x79]), rawData]); //0x79 = opcode
+  }
+
   createVehiclePositionBroadcast(rawData: Buffer): Buffer {
     return Buffer.concat([new Uint8Array([120]), rawData]);
   }
@@ -506,6 +510,7 @@ export class H1Z1Protocol {
       }
       return {
         name: packet.name,
+        flag,
         data: result
       };
     } else {

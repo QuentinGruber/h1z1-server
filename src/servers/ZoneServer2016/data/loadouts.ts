@@ -24,12 +24,14 @@ export const characterDefaultLoadout = [
   { item: Items.WEAPON_FISTS },
   { item: Items.WEAPON_FLASHLIGHT },
   { item: Items.SHIRT_DEFAULT },
-  { item: Items.WAIST_PACK },
+  { item: Items.BELT_POUCH },
   { item: Items.PANTS_DEFAULT },
+  { item: Items.BOOTS_GRAY_BLUE },
+  { item: Items.SKINNING_KNIFE },
 
   { item: Items.MAP },
-  { item: Items.COMPASS },
-  { item: Items.BUNDLE_GAUZE, count: 1 }
+  { item: Items.COMPASS_IMPROVISED },
+  { item: Items.GAUZE, count: 5 }
 ];
 
 export const characterKitLoadout = [
@@ -115,10 +117,10 @@ export const characterVehicleKit = [
   { item: Items.SPARKPLUGS },
   { item: Items.VEHICLE_KEY },
   { item: Items.BATTERY },
-  { item: Items.BATTERY },
   { item: Items.TURBO_OFFROADER },
   { item: Items.TURBO_ATV },
   { item: Items.TURBO_PICKUP },
+  { item: Items.TURBO_POLICE },
   { item: Items.HEADLIGHTS_ATV },
   { item: Items.HEADLIGHTS_OFFROADER },
   { item: Items.HEADLIGHTS_PICKUP },

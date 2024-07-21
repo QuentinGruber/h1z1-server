@@ -2461,11 +2461,11 @@ export const recipes: { [recipeId: number]: Recipe } = {
     components: [
       {
         itemDefinitionId: Items.WOOD_PLANK,
-        requiredAmount: 2
+        requiredAmount: 6
       },
       {
         itemDefinitionId: Items.NAIL,
-        requiredAmount: 4
+        requiredAmount: 12
       }
     ]
   },

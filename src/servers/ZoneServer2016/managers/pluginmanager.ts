@@ -400,9 +400,8 @@ export class PluginManager {
     server: ZoneServer2016,
     command: Command
   ) {
-    server._packetHandlers.commandHandler.commands[
-      flhash(command.name.toUpperCase())
-    ] = command;
+    server.commandHandler.commands[flhash(command.name.toUpperCase())] =
+      command;
     console.log(
       `[PluginManager] Plugin ${plugin.name} registered a command: /${command.name}`
     );

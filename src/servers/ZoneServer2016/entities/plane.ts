@@ -13,27 +13,14 @@
 
 import {
   createPositionUpdate,
-  getCurrentTimeWrapper
+  getCurrentServerTimeWrapper
 } from "../../../utils/utils";
-import { VehicleIds } from "../models/enums";
 import { ZoneServer2016 } from "../zoneserver";
 import { Vehicle2016 } from "../entities/vehicle";
 import { ZoneClient2016 } from "../classes/zoneclient";
 
-function getActorModelId(vehicleId: number) {
-  switch (vehicleId) {
-    case VehicleIds.OFFROADER:
-      return 9215;
-    case VehicleIds.PICKUP:
-      return 9384;
-    case VehicleIds.POLICECAR:
-      return 9219;
-    default:
-      return 0;
-  }
-}
-
 export class Plane extends Vehicle2016 {
+  /** See Vehicle2016 */
   isManaged: boolean = false;
   manager?: any;
   destroyedEffect: number = 0;
@@ -54,7 +41,6 @@ export class Plane extends Vehicle2016 {
   vehicleManager?: string;
   vehicleId: number;
   destroyedState = 0;
-  positionUpdateType = 1;
   constructor(
     characterId: string,
     transientId: number,
@@ -83,22 +69,14 @@ export class Plane extends Vehicle2016 {
       yaw: 0
     };
     this.vehicleId = vehicleId;
-    this.actorModelId = getActorModelId(this.vehicleId);
     this.npcRenderDistance = 400;
-    this.isInvulnerable =
-      this.vehicleId == VehicleIds.SPECTATE ||
-      this.vehicleId == VehicleIds.PARACHUTE ||
-      this instanceof Plane;
+    this.isInvulnerable = true;
     this.positionUpdate = {
       ...createPositionUpdate(
         this.state.position,
         this.state.rotation,
         gameTime
-      ),
-      vehicle: this,
-      get position() {
-        return this.vehicle.state.position;
-      }
+      )
     };
   }
 
@@ -121,7 +99,7 @@ export class Plane extends Vehicle2016 {
       },
       positionUpdate: {
         ...this.positionUpdate,
-        sequenceTime: getCurrentTimeWrapper().getTruncatedU32(),
+        sequenceTime: getCurrentServerTimeWrapper().getTruncatedU32(),
         position: this.state.position // trying to fix invisible characters/vehicles until they move
       },
       unknownArray1: [],

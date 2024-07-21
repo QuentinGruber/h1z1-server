@@ -43,11 +43,21 @@ function combineItemStack(
 }
 
 export class LoadoutContainer extends LoadoutItem {
+  /** Id of the container attached to the item - See ContainerDefinitions.json for more information */
   containerDefinitionId: number;
+
+  /** HashMap of items in the container - uses itemGuid (string) for indexing */
   items: { [itemGuid: string]: BaseItem } = {};
+
+  /** Determines if the player can transfer items inside of the container - used for props mainly */
   canAcceptItems: boolean = true;
+
+  /** Array of item id's that can bypass a container not allowing items */
   acceptedItems: number[] = [];
+
+  /** Returns false if the items state is static */
   readonly isMutable: boolean = true;
+
   constructor(item: LoadoutItem, containerDefinitionId: number) {
     super(item, item.slotId, item.loadoutItemOwnerGuid);
     this.containerDefinitionId = containerDefinitionId;

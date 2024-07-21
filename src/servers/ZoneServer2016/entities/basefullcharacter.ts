@@ -21,9 +21,11 @@ import { LoadoutKit } from "../data/loadouts";
 import {
   ContainerErrors,
   ItemClasses,
+  ItemTypes,
   Items,
   LoadoutIds,
   LoadoutSlots,
+  ModelIds,
   ResourceIds,
   ResourceTypes
 } from "../models/enums";
@@ -49,11 +51,11 @@ const loadoutSlots = require("./../../../../data/2016/dataSources/LoadoutSlots.j
 
 function getGender(actorModelId: number): number {
   switch (actorModelId) {
-    case 9510: // zombiemale
-    case 9240: // male character
+    case ModelIds.ZOMBIE_FEMALE_WALKER:
+    case ModelIds.SURVIVOR_MALE_HEAD_01:
       return 1;
-    case 9634: // zombiefemale
-    case 9474: // female character
+    case ModelIds.ZOMBIE_MALE_HEAD:
+    case ModelIds.SURVIVAL_FEMALE_HEAD_01:
       return 2;
     default:
       return 0;
@@ -61,7 +63,10 @@ function getGender(actorModelId: number): number {
 }
 
 export abstract class BaseFullCharacter extends BaseLightweightCharacter {
+  /** Callback for OnFullCharacterDataRequest */
   onReadyCallback?: (clientTriggered: ZoneClient2016) => void;
+
+  /** BaseFullCharacter loadout values */
   _resources: { [resourceId: number]: number } = {};
   _loadout: { [loadoutSlotId: number]: LoadoutItem } = {};
   _equipment: { [equipmentSlotId: number]: CharacterEquipment } = {};
@@ -70,6 +75,8 @@ export abstract class BaseFullCharacter extends BaseLightweightCharacter {
   currentLoadoutSlot = 0; // idk if other full npcs use this
   isLightweight = false;
   gender: number;
+
+  /** The default items that will spawn on and with the BaseFullCharacter */
   defaultLoadout: LoadoutKit = [];
   constructor(
     characterId: string,
@@ -180,7 +187,7 @@ export abstract class BaseFullCharacter extends BaseLightweightCharacter {
     const client = server.getClientByContainerAccessor(this);
     if (client) {
       if (!client.character.initialized) return;
-      server.checkConveys(client);
+      server.checkShoes(client);
     }
     server.sendDataToAllWithSpawnedEntity(
       server._characters,
@@ -302,7 +309,7 @@ export abstract class BaseFullCharacter extends BaseLightweightCharacter {
       server.deleteItem(this, loadoutItem.itemGuid);
     }
 
-    if (def.ITEM_TYPE === 34) {
+    if (def.ITEM_TYPE === ItemTypes.CONTAINER) {
       const loadoutContainer = this._containers[loadoutSlotId],
         itemDefId = loadoutContainer?.itemDefinitionId,
         items = loadoutContainer?.items;
@@ -420,11 +427,14 @@ export abstract class BaseFullCharacter extends BaseLightweightCharacter {
       count = item.stackCount;
     }
     const itemDefId = item.itemDefinitionId;
-    if (this.getAvailableLoadoutSlot(server, itemDefId)) {
+    if (server.isAccountItem(itemDefId) && client) {
+      server.lootAccountItem(server, client, item, sendUpdate);
+    } else if (this.getAvailableLoadoutSlot(server, itemDefId)) {
       if (client && client.character.initialized && sendUpdate) {
         server.sendData(client, "Reward.AddNonRewardItem", {
           itemDefId: itemDefId,
           iconId: server.getItemDefinition(itemDefId)?.IMAGE_SET_ID,
+          nameId: server.getItemDefinition(itemDefId)?.NAME_ID,
           count: count
         });
       }
@@ -457,6 +467,7 @@ export abstract class BaseFullCharacter extends BaseLightweightCharacter {
         server.sendData(client, "Reward.AddNonRewardItem", {
           itemDefId: itemDefId,
           iconId: server.getItemDefinition(itemDefId)?.IMAGE_SET_ID,
+          nameId: server.getItemDefinition(itemDefId)?.NAME_ID,
           count: count
         });
       }
@@ -518,7 +529,9 @@ export abstract class BaseFullCharacter extends BaseLightweightCharacter {
       if (
         ammo &&
         loadoutItem.weapon.ammoCount > 0 &&
-        loadoutItem.weapon.itemDefinitionId != Items.WEAPON_REMOVER
+        loadoutItem.weapon.itemDefinitionId != Items.WEAPON_REMOVER &&
+        server.getItemDefinition(loadoutItem.itemDefinitionId)?.ITEM_CLASS !=
+          ItemClasses.THROWABLES
       ) {
         this.lootContainerItem(server, ammo, ammo.stackCount, true);
       }
@@ -637,6 +650,7 @@ export abstract class BaseFullCharacter extends BaseLightweightCharacter {
         server.sendData(client, "Reward.AddNonRewardItem", {
           itemDefId: itemDefId,
           iconId: server.getItemDefinition(itemDefId)?.IMAGE_SET_ID,
+          nameId: server.getItemDefinition(itemDefId)?.NAME_ID,
           count: count
         });
       }
@@ -658,7 +672,7 @@ export abstract class BaseFullCharacter extends BaseLightweightCharacter {
   equipLoadout(
     server: ZoneServer2016,
     loadout?: LoadoutKit,
-    sendPacket = true
+    forceMaxDurability = false
   ) {
     const l = loadout ? loadout : this.defaultLoadout;
     l.forEach((entry) => {
@@ -668,9 +682,9 @@ export abstract class BaseFullCharacter extends BaseLightweightCharacter {
       ) {
         this.lootItem(
           server,
-          server.generateItem(entry.item, entry.count),
+          server.generateItem(entry.item, entry.count, forceMaxDurability),
           entry.count,
-          sendPacket
+          true
         );
       }
     });
@@ -703,7 +717,7 @@ export abstract class BaseFullCharacter extends BaseLightweightCharacter {
     if (oldLoadoutItem?.itemDefinitionId) {
       //TODO: Probably have to rework this? This makes backpack swapping possible.
       const def = server.getItemDefinition(oldLoadoutItem.itemDefinitionId);
-      if (def?.ITEM_TYPE == 34) {
+      if (def?.ITEM_TYPE == ItemTypes.CONTAINER) {
         if (this.getAvailableLoadoutSlot(server, item.itemDefinitionId)) {
           this.equipItem(server, item, true, slotId);
         } else {
@@ -912,6 +926,7 @@ export abstract class BaseFullCharacter extends BaseLightweightCharacter {
     let slot = loadoutSlotItemClass?.SLOT;
     if (!slot) return 0;
     switch (itemDef?.ITEM_CLASS) {
+      case ItemClasses.THROWABLES:
       case ItemClasses.WEAPONS_LONG:
       case ItemClasses.WEAPONS_PISTOL:
       case ItemClasses.WEAPONS_MELEES:
@@ -929,12 +944,19 @@ export abstract class BaseFullCharacter extends BaseLightweightCharacter {
           // secondary
           slot = LoadoutSlots.TERTIARY;
         }
+        if (
+          ![Items.GRENADE_SMOKE].includes(itemDefId) &&
+          itemDef?.ITEM_CLASS == ItemClasses.THROWABLES
+        ) {
+          slot = 0;
+        }
         break;
       case ItemClasses.WEAPONS_GENERIC: // item1/item2 slots
         if (this._loadout[slot]?.itemDefinitionId) {
           slot = LoadoutSlots.ITEM2;
         }
         break;
+      case ItemClasses.POUCHES:
       case ItemClasses.BACKPACKS:
         const currentItemBulk = server.getContainerDefinition(
             itemDef?.PARAM1
@@ -1081,6 +1103,12 @@ export abstract class BaseFullCharacter extends BaseLightweightCharacter {
         break;
       case server.isHelmet(item.itemDefinitionId):
         durability = 100;
+        break;
+      case server.isConvey(item.itemDefinitionId):
+        durability = 5400;
+        break;
+      case server.isGeneric(item.itemDefinitionId):
+        durability = 2000;
         break;
     }
     return {

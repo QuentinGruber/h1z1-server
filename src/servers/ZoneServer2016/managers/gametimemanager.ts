@@ -13,7 +13,7 @@
 
 import {
   TimeWrapper,
-  getCurrentTimeWrapper,
+  getCurrentServerTimeWrapper,
   toInt
 } from "../../../utils/utils";
 
@@ -24,12 +24,22 @@ const SEVEN_PM = 19 * 60 * 60;
 export class IngameTimeManager {
   private _updtTimeTimer!: NodeJS.Timeout;
   lastIngameTimeUpdate: TimeWrapper | null = null;
-  timeMultiplier = 36; // 1 hour IRL = 36 hours ingame, so 20 min a day
+  nightTimeMultiplier = 1;
   timeFrozen = true;
-  nightMultiplier = 1;
-  constructor(public time: number) {}
+
+  /** MANAGED BY CONFIGMANAGER - See defaultConfig.yaml for more information */
+  timeFrozenByConfig!: boolean;
+  time!: number;
+  baseTimeMultiplier!: number;
+  nightTimeMultiplierValue!: number;
+
+  constructor() {}
 
   start() {
+    if (this.timeFrozenByConfig) {
+      this.timeFrozen = true;
+      return;
+    }
     this.timeFrozen = false;
     this._updtTimeTimer = setTimeout(() => {
       this.updateTime();
@@ -40,11 +50,11 @@ export class IngameTimeManager {
 
   getCycleSpeed() {
     if (this.timeFrozen) return 0;
-    return this.timeMultiplier * this.nightMultiplier * 0.97222;
+    return this.baseTimeMultiplier * this.nightTimeMultiplier * 0.97222;
   }
 
   updateTime() {
-    const currentTime = getCurrentTimeWrapper();
+    const currentTime = getCurrentServerTimeWrapper();
     if (!this.lastIngameTimeUpdate) {
       this.lastIngameTimeUpdate = currentTime;
     }
@@ -53,21 +63,23 @@ export class IngameTimeManager {
     if (
       currentSeconds >= FIVE_AM &&
       currentSeconds < SEVEN_PM &&
-      this.nightMultiplier !== 1
+      this.nightTimeMultiplier !== 1
     ) {
-      this.nightMultiplier = 1;
+      this.nightTimeMultiplier = 1;
     } else if (
       (currentSeconds < FIVE_AM || currentSeconds >= SEVEN_PM) &&
-      this.nightMultiplier !== 2
+      this.nightTimeMultiplier !== this.nightTimeMultiplierValue
     ) {
-      this.nightMultiplier = 2;
+      this.nightTimeMultiplier = this.nightTimeMultiplierValue;
     }
     const timeDifference =
       currentTime.getSeconds() - this.lastIngameTimeUpdate.getSeconds();
 
     this.time =
       (this.time +
-        toInt(timeDifference * this.timeMultiplier * this.nightMultiplier)) %
+        toInt(
+          timeDifference * this.baseTimeMultiplier * this.nightTimeMultiplier
+        )) %
       SECONDS_IN_A_DAY;
     this.lastIngameTimeUpdate = currentTime;
   }

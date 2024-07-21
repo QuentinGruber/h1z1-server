@@ -7,14 +7,29 @@ server:
   tickRate: 2000
   worldRoutineRate: 10000
   enableLoginServerKickRequests: true
-  rebootTime: 72 # hours (0 to disable)
+  rebootTime: 48 # hours (0 to disable)
   rebootWarnTime: 600 # seconds
   isPvE: false
   isHeadshotOnly: false
   isFirstPersonOnly: false
+  isNoBuildInPois: true
   baseConstructionDamage: 34000
 
+# Rcon
+
+rcon:
+  password: ""
+  port: 0
+
+# VoiceChat
+
+voicechat:
+    useVoiceChatV2: false
+    joinVoiceChatOnConnect: false
+    serverAccessToken: ""
+
 # Fairplay / anticheat config
+
 fairplay:
   useFairplay: true
   maxPing: 250
@@ -46,7 +61,8 @@ fairplay:
   #  crc32_hash: ""
 
 weather:
-  defaultTemplate: "z1br"
+  defaultTemplate: "h1emubaseweather"
+  dynamicEnabled: false
 
 # Anything to do with loot, vehicle, and npc spawning / despawning
 worldobjects:
@@ -101,7 +117,7 @@ speedtree:
   maxTreeHits: 20 # maximum hits it takes to chop a tree
 
 construction:
-  allowPOIPlacement: false
+  # allowPOIPlacement: false - deprecated in favor of isNoBuildInPOIs ^
   allowStackedPlacement: false
   allowOutOfBoundsPlacement: false
   placementRange: 30
@@ -127,7 +143,9 @@ decay:
 
   vehicleDamageTicks: 3 # damage vehicles every hour
   vacantFoundationTicks: 3 # destroy empty foundations after 1 hour
-  baseVehicleDamage: 6000 # 6% damage per 3 ticks
+  griefFoundationTimer: 72 # destroy grief foundations after 3 days (72 hours)
+  griefCheckSlotAmount: 4 # must have a minimum of 4 wall slots to avoid anti-grief
+  baseVehicleDamage: 2000 # 2% damage per 3 ticks (1 hour)
   maxVehiclesPerArea: 2 # the max amount of vehicles that can be in an area before they start taking more damage
   vehicleDamageRange: 25 # how large of a range to detect maxVehiclesPerArea
   dailyRepairMaterials:
@@ -148,4 +166,9 @@ decay:
 
 smelting:
   burnTime: 120000 # consume fuel every 120 seconds
-  smeltTime: 40000 # smelt 1 item every 40 seconds
+  smeltTime: 7000 # smelt 1 item every 7 seconds
+gametime:
+  timeFrozen: false # Froze ingameTime
+  nightTimeMultiplier: 2 # This way night time pass 2 times faster than daytime
+  timeMultiplier: 36 # 1 hour IRL = 36 hours ingame, so 20 min for a full day
+  baseTime: 6 # server ingameTime start at 6 AM, 18 = 6PM

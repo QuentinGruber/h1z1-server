@@ -11,6 +11,8 @@
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
 
+import { GatewayChannels } from "h1emu-core";
+
 export interface LoginProtocolReadingFormat {
   serverId?: number;
   unknown?: number;
@@ -23,6 +25,7 @@ export interface LoginProtocolReadingFormat {
 
 export interface H1z1ProtocolReadingFormat {
   name: string;
+  flag: GatewayChannels 
   data: any;
 }
 

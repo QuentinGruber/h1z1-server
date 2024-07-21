@@ -1,12 +1,12 @@
 {
   "name": "h1z1-server",
-  "version": "0.30.4-0",
+  "version": "0.36.2-4",
   "description": "Library for emulating h1z1 servers",
   "author": "Quentin Gruber <quentingruber@gmail.com> (http://github.com/quentingruber)",
   "license": "GPL-3.0-only",
   "main": "h1z1-server.js",
   "engines": {
-    "node": ">=0.17.0 <21"
+    "node": ">=0.17.0 <23"
   },
   "bin": {
     "h1z1-server-demo": "scripts/h1z1-server-demo.js",
@@ -14,26 +14,28 @@
   },
   "dependencies": {
     "@types/js-yaml": "4.0.9",
-    "@types/node": "20.11.0",
-    "debug": "4.3.4",
+    "@types/node": "20.14.10",
+    "@types/ws": "8.5.10",
+    "debug": "4.3.5",
     "h1emu-core": "1.2.8",
-    "h1z1-dataschema": "1.7.1",
+    "h1z1-dataschema": "1.7.2",
     "js-yaml": "4.1.0",
-    "mongodb": "6.3.0",
+    "mongodb": "6.8.0",
     "threads": "1.7.0",
     "typescript": "5.3.3",
-    "@napi-rs/canvas": "0.1.44"
+    "@napi-rs/canvas": "0.1.44",
+    "ws": "8.18.0"
   },
   "directories": {
     "src": "./src"
   },
   "devDependencies": {
-    "@typescript-eslint/eslint-plugin": "^6.18.1",
-    "@typescript-eslint/parser": "^6.18.1",
+    "@typescript-eslint/eslint-plugin": "^7.13.1",
+    "@typescript-eslint/parser": "^7.13.1",
     "eslint": "^8.56.0",
-    "prettier": "^3.2.2",
+    "prettier": "^3.3.2",
     "ts-node": "^10.9.2",
-    "typedoc": "^0.25.7"
+    "typedoc": "^0.26.3"
   },
   "scripts": {
     "gen-packets-types": "npx ts-node ./scripts/genPacketsNames.ts",
@@ -61,7 +63,7 @@
     "test": "npm run build && npm run build-tests && node --test",
     "postinstall": "npm run build",
     "publish_release": "git push --tags && git push origin dev && git push origin master && git checkout dev && npm run publish_release-next",
-    "publish_release-next": "npm version prerelease && git add * && git commit -m 'publish-a-next-version' && npm publish --tag next && git push origin dev",
+    "publish_release-next": "npm version --no-git-tag-version prerelease && git add * && git commit -m 'publish-a-next-version' && npm publish --tag next && git push origin dev",
     "check_prettier": "prettier --check ./src && prettier --check ./tests && prettier --check ./benchmarks",
     "prettier_sources": "prettier --write ./src && prettier --write ./tests && prettier --write ./benchmarks",
     "tests": "npm run gen-packets-types && npm run gen-packets-interfaces && npm run prettier_sources"

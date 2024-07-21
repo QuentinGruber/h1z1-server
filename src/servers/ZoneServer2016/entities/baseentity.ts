@@ -14,54 +14,75 @@
 import { DamageInfo } from "types/zoneserver";
 import { ZoneServer2016 } from "../zoneserver";
 import { ZoneClient2016 } from "../classes/zoneclient";
+import { ModelIds } from "../models/enums";
 
 function getRenderDistance(actorModelId: number) {
   let range: number = 0;
   switch (actorModelId) {
-    case 9115: // tamper
+    case ModelIds.GROUND_TAMPER:
       range = 1000;
       break;
-    case 9492: // expansion
-    case 9181: // shack door
-    case 9180: // metal shack
-    case 9192: // small shack
-    case 55: // dew collector
-    case 9223: // wood shack
-    case 63: // wood shack door
-      range = 500;
+    case ModelIds.DECK_EXPANSION:
+    case ModelIds.METAL_SHACK_DOOR:
+    case ModelIds.METAL_SHACK:
+    case ModelIds.SMALL_SHACK:
+    case ModelIds.DEW_COLLECTOR:
+    case ModelIds.WOOD_SHACK:
+    case ModelIds.WOOD_SHACK_DOOR:
+      range = 1000;
       break;
-    case 9487: // ramp
+    case ModelIds.RAMP:
       range = 450;
       break;
-    case 9488: // foundation stairs
-    case 49: // metal gate
-    case 50: // metal wall
-    case 9407: // upper metal wall
-    case 51: // shelter
-    case 52: // large shelter
-    case 9408: // upper level shelter
-    case 9411: // upper level large shelter
-    case 53: // structure stairs
-    case 9493: // tower
-    case 9130: // foundation, lod distance is 2250, tho i dont think we need it to be that high
-      range = 750;
+    case ModelIds.FOUNDATION_STAIRS:
+    case ModelIds.METAL_GATE:
+    case ModelIds.METAL_WALL:
+    case ModelIds.UPPER_METAL_WALL:
+    case ModelIds.SHELTER:
+    case ModelIds.LARGE_SHELTER:
+    case ModelIds.UPPER_LEVEL_SHELTER:
+    case ModelIds.UPPER_LEVEL_LARGE_SHELTER:
+    case ModelIds.STRUCTURE_STAIRS:
+    case ModelIds.TOWER:
+    case ModelIds.DECK_FOUNDATION:
+      range = 1000;
       break;
   }
   return range ? range : undefined;
 }
 
 export abstract class BaseEntity {
+  /** Universal Identifier, used for locating the home of an entity */
   characterId: string;
+
+  /** Required for interactable entities, npc and interaction components packet */
   transientId: number;
+
+  /** Id of the model that corresponds to the entity */
   actorModelId!: number;
+
+  /** State of the BaseLightweightCharacter, includes: state (Float32Array),
+   * rotation(Float32Array), lookAt(Float32Array), and yaw (number) */
   state: {
     position: Float32Array;
     rotation: Float32Array;
   };
+
+  /** Physical size of the entity based on the entity model */
   scale = new Float32Array([1, 1, 1, 1]);
-  npcRenderDistance: number; // when undefined, use the zoneserver._charactersRenderDistance value
+
+  /** Distance (H1Z1 meters) where the entity will render,
+   * when undefined, uses the zoneserver._charactersRenderDistance value instead
+   */
+  npcRenderDistance: number;
+
+  /** Distance (H1Z1 meters) at which the player can interact with the entity */
   interactionDistance: number;
+
+  /** Used for vehicle abilities, array of the corresponding vehicles effects */
   effectTags: number[] = [];
+
+  /** The physical material the entity is made of - See enums.ts/MaterialTypes for more information */
   materialType: number;
   gridIndex?: number;
   constructor(

@@ -160,12 +160,6 @@ export class ZoneServer2015 extends EventEmitter {
       this.onZoneLoginEvent(client);
     });
 
-    this._gatewayServer._soeServer.on("fatalError", (soeClient: SOEClient) => {
-      const client = this._clients[soeClient.sessionId];
-      this.deleteClient(client);
-      // TODO: force crash the client
-    });
-
     this._gatewayServer.on(
       "login",
       (
@@ -450,10 +444,6 @@ export class ZoneServer2015 extends EventEmitter {
     this.deleteClient(client);
   }
 
-  getSoeClient(soeClientId: string): SOEClient | undefined {
-    return this._gatewayServer._soeServer.getSoeClient(soeClientId);
-  }
-
   deleteClient(client: Client) {
     if (client) {
       if (client.character) {
@@ -465,10 +455,7 @@ export class ZoneServer2015 extends EventEmitter {
         });
       }
       delete this._clients[client.sessionId];
-      const soeClient = this.getSoeClient(client.soeClientId);
-      if (soeClient) {
-        this._gatewayServer._soeServer.deleteClient(soeClient);
-      }
+      this._gatewayServer.deleteSoeClient(client.soeClientId);
       if (!this._soloMode) {
         this.sendZonePopulationUpdate();
       }
@@ -2512,14 +2499,11 @@ export class ZoneServer2015 extends EventEmitter {
     }
     const data = this._protocol.pack(packetName, obj);
     if (data) {
-      const soeClient = this.getSoeClient(client.soeClientId);
-      if (soeClient) {
-        this._gatewayServer.sendTunnelData(
-          soeClient,
-          data,
-          SOEOutputChannels.Reliable
-        );
-      }
+      this._gatewayServer.sendTunnelData(
+        client.soeClientId,
+        data,
+        SOEOutputChannels.Reliable
+      );
     }
   }
 
@@ -2570,14 +2554,11 @@ export class ZoneServer2015 extends EventEmitter {
   }
 
   sendRawData(client: Client, data: Buffer): void {
-    const soeClient = this.getSoeClient(client.soeClientId);
-    if (soeClient) {
-      this._gatewayServer.sendTunnelData(
-        soeClient,
-        data,
-        SOEOutputChannels.Reliable
-      );
-    }
+    this._gatewayServer.sendTunnelData(
+      client.soeClientId,
+      data,
+      SOEOutputChannels.Reliable
+    );
   }
 
   stop(): void {

@@ -34,9 +34,17 @@ So we will see :)
 
 - Thanks to all those who sent messages of help and support and perpetuated the hope of playing h1z1 again.
 
+## Documentations
+
+- https://quentingruber.github.io/h1z1-server/
+
 ## Setup H1Z1
 
 ### How to download it
+
+#### Using our Launcher
+
+[Download the latest version of h1emu-launcher](https://github.com/H1emu/h1emu-launcher/releases)
 
 #### Using our custom implementation of DepotDownloader
 
@@ -90,10 +98,6 @@ Since v0.2.3 of h1z1-server the npm package [debug](https://www.npmjs.com/packag
 
 - `set DEBUG=* & node loginserver.js`
 - `set DEBUG=ZoneServer & node zoneserver.js`
-
-## Documentations
-
-- https://quentingruber.github.io/h1z1-server/
 
 ## Demo
 

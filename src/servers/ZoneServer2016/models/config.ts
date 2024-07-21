@@ -29,7 +29,13 @@ interface ServerConfig {
   isPvE: boolean;
   isHeadshotOnly: boolean;
   isFirstPersonOnly: boolean;
+  isNoBuildInPois: boolean;
   baseConstructionDamage: number;
+}
+
+interface RconConfig {
+  port: number;
+  password: string;
 }
 
 interface FairplayConfig {
@@ -44,9 +50,15 @@ interface FairplayConfig {
 }
 
 interface WeatherConfig {
-  cycleSpeed: number;
-  frozeCycle: boolean;
   defaultTemplate: string;
+  dynamicEnabled: boolean;
+}
+
+interface GameTimeConfig {
+  timeFrozen: boolean;
+  nightTimeMultiplier: number;
+  baseTime: number;
+  timeMultiplier: number;
 }
 
 interface WorldObjectsConfig {
@@ -89,7 +101,6 @@ interface SpeedTreeConfig {
 }
 
 interface ConstructionConfig {
-  allowPOIPlacement: boolean;
   allowStackedPlacement: boolean;
   allowOutOfBoundsPlacement: boolean;
   placementRange: number;
@@ -106,6 +117,8 @@ interface DecayConfig {
   worldFreeplaceDecayMultiplier: number;
   vehicleDamageTicks: number;
   vacantFoundationTicks: number;
+  griefFoundationTimer: number;
+  griefCheckSlotAmount: number;
   baseVehicleDamage: number;
   maxVehiclesPerArea: number;
   vehicleDamageRange: number;
@@ -117,10 +130,20 @@ interface SmeltingConfig {
   smeltTime: number;
 }
 
+interface VoiceChatConfig {
+  useVoiceChatV2: boolean;
+  joinVoiceChatOnConnect: boolean;
+  serverId: number;
+  serverAccessToken: string;
+}
+
 export interface Config {
   server: ServerConfig;
+  rcon: RconConfig;
+  voicechat: VoiceChatConfig;
   fairplay: FairplayConfig;
   weather: WeatherConfig;
+  gametime: GameTimeConfig;
   worldobjects: WorldObjectsConfig;
   speedtree: SpeedTreeConfig;
   construction: ConstructionConfig;

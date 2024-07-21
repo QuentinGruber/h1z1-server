@@ -40,7 +40,7 @@ import { Worker } from "node:worker_threads";
 import { FileHash, httpServerMessage } from "types/shared";
 import { LoginProtocol2016 } from "../../protocols/loginprotocol2016";
 import { crc_length_options } from "../../types/soeserver";
-import { DB_NAME, DEFAULT_CRYPTO_KEY } from "../../utils/constants";
+import { DB_NAME, DEFAULT_CRYPTO_KEY, MAX_UINT32 } from "../../utils/constants";
 import {
   LoginReply,
   CharacterSelectInfoReply,
@@ -503,11 +503,17 @@ export class LoginServer extends EventEmitter {
     } else if (client.gameVersion == GAME_VERSIONS.H1Z1_6dec_2016) {
       this._soeServer.sendAppData(client, loginReplyData2016);
     }
-    if (client.gameVersion == GAME_VERSIONS.H1Z1_6dec_2016 && !this._soloMode) {
-      this.sendData(client, "H1emu.HadesQuery", {
-        authTicket: "-",
-        gatewayServer: "-"
-      });
+    if (client.gameVersion == GAME_VERSIONS.H1Z1_6dec_2016) {
+      if (!this._soloMode) {
+        this.sendData(client, "H1emu.HadesQuery", {
+          authTicket: "-",
+          gatewayServer: "-"
+        });
+        this.sendData(client, "FairPlay.Init", {
+          authTicket: "-",
+          gatewayServer: "-"
+        });
+      }
     }
   }
 
@@ -531,10 +537,12 @@ export class LoginServer extends EventEmitter {
               status = NAME_VALIDATION_STATUS.PROFANE;
             }
           } else {
+            // So we don't care about the case
+            const characterNameRegex = new RegExp(`^${characterName}$`, "i");
             const duplicateCharacter = await this._db
               .collection(DB_COLLECTIONS.CHARACTERS_LIGHT)
               .findOne({
-                "payload.name": characterName,
+                "payload.name": { $regex: characterNameRegex },
                 serverId: baseResponse.serverId,
                 status: 1
               });
@@ -946,7 +954,7 @@ export class LoginServer extends EventEmitter {
       .findOne({
         $or: [{ IP: ip }, { loginSessionId }],
         // We don't take into account temporary bans as global bans
-        $and: [{ status: true }, { expirationDate: 0 }]
+        $and: [{ active: true }, { expirationDate: 0 }]
       });
     const rejectionFlags: Array<CONNECTION_REJECTION_FLAGS> = [];
     if (bannedUser) {
@@ -1104,12 +1112,10 @@ export class LoginServer extends EventEmitter {
     ];
     const [address, port] = zoneConnectionString.split(":");
 
-    return {
-      address: address,
-      port: port,
-      clientId: zoneConnectionString,
-      serverId: 1 // TODO: that's a hack
-    } as any;
+    const LZClient = new LZConnectionClient({ address, port: Number(port) });
+    // Hack since the loginserver doesn't have a serverId
+    LZClient.serverId = MAX_UINT32;
+    return LZClient;
   }
 
   async askZone(

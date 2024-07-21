@@ -55,18 +55,39 @@ function getMaxHealth(itemDefinitionId: Items): number {
 }
 
 export class ConstructionDoor extends DoorEntity {
+  /** CharacterId of the player that owns the door entity */
   ownerCharacterId: string;
+
+  /** Hashed password for the door */
   passwordHash: number = 0;
+
+  /** List of all accessed players on a door entity: demolish permission also grants access */
   grantedAccess: Array<string> = [];
 
+  /** The parent object the door entity is attached to */
   parentObjectCharacterId: string;
+
+  /** ItemDefinitionId of the door */
   readonly itemDefinitionId: number;
+
+  /** Current slot from the parent object the door is attached to */
   readonly slot: string;
+
+  /** Range at which the door entity will receive damage from explosions */
   damageRange: number;
+
+  /** Fixed position the door remains at while it's closed */
   readonly fixedPosition: Float32Array;
+
+  /** Time (milliseconds) the door was placed at */
   placementTime = Date.now();
+
+  /** Used to determine whether the parent object is secured - having the door open makes the parent object unsecured */
   isSecured = true;
+
+  /** Used by DecayManager, determines if the entity will be damaged the next decay tick */
   isDecayProtected: boolean = false;
+
   constructor(
     characterId: string,
     transientId: number,

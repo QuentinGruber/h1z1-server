@@ -17,7 +17,7 @@ import { Weather2016, WeatherTemplate } from "types/zoneserver";
 import {
   randomIntFromInterval,
   _,
-  getCurrentTimeWrapper
+  getCurrentServerTimeWrapper
 } from "../../../utils/utils";
 import { ZoneClient2016 as Client } from "../classes/zoneclient";
 import { ZoneServer2016 } from "../zoneserver";
@@ -43,9 +43,10 @@ export class WeatherManager {
   weather!: Weather2016;
   templates: { [name: string]: WeatherTemplate } = localWeatherTemplates;
   dynamicWorker: any;
-  dynamicEnabled = true;
 
-  defaultTemplate = "z1br";
+  // setup by config file
+  dynamicEnabled = false;
+  defaultTemplate = "donotusethat";
 
   init() {
     this.weather = this.templates[this.defaultTemplate];
@@ -191,15 +192,15 @@ export class WeatherManager {
       this.dynamicWorker = setTimeout(() => {
         if (!this.dynamicEnabled) return;
         this.weather = this.dynamicWeather(
-          getCurrentTimeWrapper().getFull(),
+          getCurrentServerTimeWrapper().getFull(),
           server._serverStartTime.getFull(),
-          server.inGameTimeManager.timeMultiplier
+          server.inGameTimeManager.baseTimeMultiplier
         );
         this.sendUpdateToAll(server);
-        // FIXME: Needed to avoid black screen issue ? Why ? No idea.
+        // Needed to avoid black screen issue ? Why ? No idea.
         this.sendUpdateToAll(server);
         this.dynamicWorker.refresh();
-      }, 360000 / server.inGameTimeManager.timeMultiplier);
+      }, 360000 / server.inGameTimeManager.baseTimeMultiplier);
     }
   }
 

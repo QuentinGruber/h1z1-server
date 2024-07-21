@@ -314,6 +314,7 @@ export function readAbilityUpdateData(data: Buffer, offset: number) {
 export function readPositionUpdateData(data: Buffer, offset: number) {
   const obj: any = {},
     startOffset = offset;
+  obj.raw = data.slice(1);
   obj["flags"] = data.readUInt16LE(offset);
   offset += 2;
 
@@ -2853,3 +2854,11 @@ export function pack2ByteLengthString(string: string) {
     },
   */
 }
+
+export const accountItemSchema: PacketFields = [
+  { name: "itemId", type: "uint64string", defaultValue: "0" },
+  { name: "itemDefinitionId", type: "uint64", defaultValue: 0 },
+  { name: "itemCount", type: "uint32", defaultValue: 0 },
+  { name: "itemGuid", type: "uint64string", defaultValue: "0" },
+  { name: "unknownDword4", type: "uint32", defaultValue: 0 }
+];

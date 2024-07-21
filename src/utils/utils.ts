@@ -34,6 +34,8 @@ import { ZoneClient2016 } from "servers/ZoneServer2016/classes/zoneclient";
 import * as crypto from "crypto";
 import { ZoneClient } from "servers/ZoneServer2015/classes/zoneclient";
 
+const startTime = Date.now();
+
 /**
  * Represents a custom implementation of lodash library.
  */
@@ -492,6 +494,12 @@ export const setupAppDataFolder = (): void => {
       JSON.stringify([])
     );
   }
+  if (!fs.existsSync(`${AppDataFolderPath}/single_player_accountitems.json`)) {
+    fs.writeFileSync(
+      `${AppDataFolderPath}/single_player_accountitems.json`,
+      JSON.stringify([])
+    );
+  }
   if (
     !fs.existsSync(`${AppDataFolderPath}/single_player_characters2016.json`) ||
     fs
@@ -535,6 +543,12 @@ export const setupAppDataFolder = (): void => {
   if (!fs.existsSync(`${AppDataFolderPath}/worlddata/crops.json`)) {
     fs.writeFileSync(
       `${AppDataFolderPath}/worlddata/crops.json`,
+      JSON.stringify([])
+    );
+  }
+  if (!fs.existsSync(`${AppDataFolderPath}/worlddata/traps.json`)) {
+    fs.writeFileSync(
+      `${AppDataFolderPath}/worlddata/traps.json`,
       JSON.stringify([])
     );
   }
@@ -1513,14 +1527,42 @@ export class TimeWrapper {
   }
 
   getTruncatedU32() {
-    return this.fullTimeMs & MAX_UINT32;
+    const truncated = this.fullTimeMs & MAX_UINT32;
+    return truncated >= 0 ? truncated : truncated >>> 0;
   }
 
   getTruncatedU32String() {
-    return Int64String(this.fullTimeMs & MAX_UINT32);
+    const truncated = this.fullTimeMs & MAX_UINT32;
+    return truncated >= 0
+      ? Int64String(truncated)
+      : Int64String(truncated >>> 0);
   }
 }
 
-export function getCurrentTimeWrapper() {
+export function getCurrentServerTimeWrapper() {
+  return new TimeWrapper(Date.now() - startTime);
+}
+
+export function getCurrentRealTimeWrapper() {
   return new TimeWrapper(Date.now());
+}
+export function getDateString(timestamp: number) {
+  const months = [
+    "JAN",
+    "FEB",
+    "MAR",
+    "APR",
+    "MAY",
+    "JUN",
+    "JUL",
+    "AUG",
+    "SEP",
+    "OCT",
+    "NOV",
+    "DEC"
+  ];
+  const date = new Date(timestamp);
+  return `${date.getDate()} ${
+    months[date.getMonth()]
+  } ${date.getFullYear()} ${date.getHours()}:${date.getMinutes()}`;
 }

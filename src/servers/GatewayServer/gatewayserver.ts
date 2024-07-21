@@ -21,8 +21,8 @@ import { SOEOutputChannels } from "servers/SoeServer/soeoutputstream";
 const debug = require("debug")("GatewayServer");
 
 export class GatewayServer extends EventEmitter {
-  _soeServer: SOEServer;
-  _protocol: GatewayProtocol;
+  private _soeServer: SOEServer;
+  private _protocol: GatewayProtocol;
   private _crcLength: crc_length_options;
   private _udpLength: number;
 
@@ -37,7 +37,7 @@ export class GatewayServer extends EventEmitter {
     this._protocol = new GatewayProtocol();
     this._soeServer.on("disconnect", (client: SOEClient) => {
       debug("Client disconnected from " + client.address + ":" + client.port);
-      this.emit("disconnect", client);
+      this.emit("disconnect", client.sessionId);
     });
 
     this._soeServer.on(
@@ -60,7 +60,7 @@ export class GatewayServer extends EventEmitter {
                   }
                   this.emit(
                     "login",
-                    client,
+                    client.soeClientId,
                     packet.character_id,
                     packet.ticket,
                     packet.client_protocol
@@ -69,12 +69,12 @@ export class GatewayServer extends EventEmitter {
                 break;
               case "Logout":
                 debug("Logout gateway");
-                this.emit("disconnect", client);
+                this.emit("disconnect", client.sessionId);
                 break;
               case "TunnelPacket":
                 this.emit(
                   "tunneldata",
-                  client,
+                  client.sessionId,
                   Buffer.from(packet.tunnel_data),
                   packet.channel
                 );
@@ -93,13 +93,49 @@ export class GatewayServer extends EventEmitter {
     );
   }
 
+  getSoeClientAvgPing(soeClientId: string): number | undefined {
+    return this._soeServer.getSoeClient(soeClientId)?.avgPing;
+  }
+
+  isSoeClientFlooded(soeClientId: string): boolean {
+    return !this._soeServer.getSoeClient(soeClientId)?.outputStream.isFlooded();
+  }
+
+  getSoeClientNetworkStats(soeClientId: string): string[] | undefined {
+    return this._soeServer.getSoeClient(soeClientId)?.getNetworkStats();
+  }
+
+  getServerNetworkStats(): string[] {
+    return this._soeServer.getNetworkStats();
+  }
+
+  getSoeClientSessionId(soeClientId: string): number | undefined {
+    return this._soeServer.getSoeClient(soeClientId)?.sessionId;
+  }
+
+  getSoeClientNetworkInfos(
+    soeClientId: string
+  ): { address: string; port: number } | undefined {
+    const client = this._soeServer.getSoeClient(soeClientId);
+    if (client) {
+      return { address: client.address, port: client.port };
+    }
+  }
+
+  deleteSoeClient(soeClientId: string) {
+    const soeClient = this._soeServer.getSoeClient(soeClientId);
+    if (soeClient) {
+      this._soeServer.deleteClient(soeClient);
+    }
+  }
+
   start() {
     debug("Starting server");
     this._soeServer.start(this._crcLength, this._udpLength);
   }
 
   sendTunnelData(
-    client: SOEClient,
+    soeClientId: string,
     tunnelData: Buffer,
     channel: SOEOutputChannels
   ) {
@@ -109,7 +145,10 @@ export class GatewayServer extends EventEmitter {
       0
     );
     if (data) {
-      this._soeServer.sendAppData(client, data, channel);
+      const client = this._soeServer.getSoeClient(soeClientId);
+      if (client) {
+        this._soeServer.sendAppData(client, data, channel);
+      }
     }
   }
 

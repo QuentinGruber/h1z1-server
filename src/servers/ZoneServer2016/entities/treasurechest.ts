@@ -16,9 +16,15 @@ import { ZoneServer2016 } from "../zoneserver";
 import { LootableProp } from "./lootableprop";
 
 export class TreasureChest extends LootableProp {
+  /** Id of the worn letter that corresponds to the correct TreasureChest */
   requiredItemId: number = 0;
+
+  /** Determines what items will spawn in the TreasureChest */
   rewardItems: number[] = [];
+
+  /** Id of the chest container to spawn the items at */
   spawnerId: number;
+
   constructor(
     characterId: string,
     transientId: number,
@@ -115,7 +121,8 @@ export class TreasureChest extends LootableProp {
       (itemInstance: { itemDefinitionId: number; count: number }) => {
         const item = server.generateItem(
           itemInstance.itemDefinitionId,
-          itemInstance.count
+          itemInstance.count,
+          true
         );
         this.lootContainerItem(server, item, itemInstance.count, false);
       }

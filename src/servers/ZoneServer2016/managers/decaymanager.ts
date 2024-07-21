@@ -22,17 +22,24 @@ import { dailyRepairMaterial } from "types/zoneserver";
 import { BaseItem } from "../classes/baseItem";
 
 export class DecayManager {
-  constructionDamageTickCount = 0; // used to run structure damaging once every x loops
+  /** Used for tracking the tick amount needed before decay damage occurs on the construction */
+  constructionDamageTickCount = 0;
+
+  /** Used for tracking the tick amount needed before decay damage occurs on the vehicle */
   vehicleDamageTickCount = 0; // used to run vehicle damaging once every x loops
+
+  /** Timer used for determining the interval for decay ticks */
   runTimer?: NodeJS.Timeout;
 
-  /* MANAGED BY CONFIGMANAGER */
+  /** MANAGED BY CONFIGMANAGER - See defaultConfig.yaml for more information */
   decayTickInterval!: number;
   constructionDamageTicks!: number;
   ticksToFullDecay!: number;
   worldFreeplaceDecayMultiplier!: number;
   vehicleDamageTicks!: number;
   vacantFoundationTicks!: number;
+  griefFoundationTimer!: number;
+  griefCheckSlotAmount!: number;
   baseVehicleDamage!: number;
   maxVehiclesPerArea!: number;
   vehicleDamageRange!: number;
@@ -62,8 +69,36 @@ export class DecayManager {
   }
 
   private contructionExpirationCheck(server: ZoneServer2016) {
+    let destroyedGriefFoundations = 0;
     for (const a in server._constructionFoundations) {
       const foundation = server._constructionFoundations[a];
+      if (
+        foundation.itemDefinitionId == Items.FOUNDATION ||
+        foundation.itemDefinitionId == Items.GROUND_TAMPER
+      ) {
+        if (
+          Date.now() - foundation.placementTime >=
+          this.griefFoundationTimer * 3600000
+        ) {
+          if (
+            Object.keys(foundation.occupiedWallSlots).length <
+              this.griefCheckSlotAmount &&
+            Object.keys(foundation.occupiedShelterSlots).length == 0 &&
+            Object.keys(foundation.occupiedExpansionSlots).length == 0
+          ) {
+            for (const a in foundation.occupiedWallSlots) {
+              foundation.occupiedWallSlots[a].destroy(server);
+            }
+            // clear floating entities
+            for (const a in foundation.freeplaceEntities) {
+              foundation.freeplaceEntities[a].destroy(server);
+            }
+            foundation.destroy(server);
+            destroyedGriefFoundations++;
+          }
+        }
+      }
+
       if (
         foundation.itemDefinitionId != Items.FOUNDATION &&
         foundation.itemDefinitionId != Items.GROUND_TAMPER
@@ -124,6 +159,9 @@ export class DecayManager {
         foundation.ticksWithoutObjects = 0;
       }
     }
+    if (destroyedGriefFoundations > 0) {
+      console.log(`Destroyed ${destroyedGriefFoundations} grief foundations`);
+    }
   }
 
   private decayDamage(
@@ -131,7 +169,8 @@ export class DecayManager {
     entity:
       | LootableConstructionEntity
       | ConstructionDoor
-      | ConstructionChildEntity
+      | ConstructionChildEntity,
+    freeplaceDecayMultiplier: number = 1
   ) {
     if (entity.isDecayProtected) {
       entity.isDecayProtected = false;
@@ -140,7 +179,8 @@ export class DecayManager {
 
     entity.damage(server, {
       entity: "Server.DecayManager",
-      damage: entity.maxHealth / this.ticksToFullDecay
+      damage:
+        entity.maxHealth / (this.ticksToFullDecay / freeplaceDecayMultiplier)
     });
   }
 
@@ -210,10 +250,18 @@ export class DecayManager {
     }
 
     for (const a in server._worldLootableConstruction) {
-      this.decayDamage(server, server._worldLootableConstruction[a]);
+      this.decayDamage(
+        server,
+        server._worldLootableConstruction[a],
+        this.worldFreeplaceDecayMultiplier
+      );
     }
     for (const a in server._worldSimpleConstruction) {
-      this.decayDamage(server, server._worldSimpleConstruction[a]);
+      this.decayDamage(
+        server,
+        server._worldSimpleConstruction[a],
+        this.worldFreeplaceDecayMultiplier
+      );
     }
     for (const a in server._constructionSimple) {
       const simple = server._constructionSimple[a];

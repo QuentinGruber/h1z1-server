@@ -85,7 +85,9 @@ export class ConfigManager {
     // fill with default values
     const {
       server,
+      rcon,
       fairplay,
+      voicechat,
       weather,
       worldobjects,
       speedtree,
@@ -99,6 +101,14 @@ export class ConfigManager {
       server: {
         ...server,
         ...config.server
+      },
+      rcon: {
+        ...rcon,
+        ...config.rcon
+      },
+      voicechat: {
+        ...voicechat,
+        ...config.voicechat
       },
       fairplay: {
         ...fairplay,
@@ -147,6 +157,7 @@ export class ConfigManager {
       isPvE,
       isHeadshotOnly,
       isFirstPersonOnly,
+      isNoBuildInPois,
       baseConstructionDamage
     } = this.config.server;
     server.proximityItemsDistance = proximityItemsDistance;
@@ -162,7 +173,22 @@ export class ConfigManager {
     server.isPvE = isPvE;
     server.isHeadshotOnly = isHeadshotOnly;
     server.isFirstPersonOnly = isFirstPersonOnly;
+    server.isNoBuildInPois = isNoBuildInPois;
     server.baseConstructionDamage = baseConstructionDamage;
+    //#endregion
+
+    //#region Rcon
+    const { port, password } = this.config.rcon;
+    server.rconManager.wssPort = port;
+    server.rconManager.password = password;
+
+    //#endregion
+    //#region voicechat
+    const { useVoiceChatV2, joinVoiceChatOnConnect, serverAccessToken } =
+      this.config.voicechat;
+    server.voiceChatManager.useVoiceChatV2 = useVoiceChatV2;
+    server.voiceChatManager.joinVoiceChatOnConnect = joinVoiceChatOnConnect;
+    server.voiceChatManager.serverAccessToken = serverAccessToken;
     //#endregion
 
     //#region fairplay
@@ -186,8 +212,9 @@ export class ConfigManager {
     //#endregion
 
     //#region weather
-    const { defaultTemplate } = this.config.weather;
+    const { defaultTemplate, dynamicEnabled } = this.config.weather;
     server.weatherManager.defaultTemplate = defaultTemplate;
+    server.weatherManager.dynamicEnabled = dynamicEnabled;
     //#endregion
 
     //#region worldobjects
@@ -267,7 +294,6 @@ export class ConfigManager {
 
     //#region construction
     const {
-      allowPOIPlacement,
       allowStackedPlacement,
       allowOutOfBoundsPlacement,
       placementRange,
@@ -276,7 +302,6 @@ export class ConfigManager {
       playerFoundationBlockedPlacementRange,
       playerShackBlockedPlacementRange
     } = this.config.construction;
-    server.constructionManager.allowPOIPlacement = allowPOIPlacement;
     server.constructionManager.allowStackedPlacement = allowStackedPlacement;
     server.constructionManager.allowOutOfBoundsPlacement =
       allowOutOfBoundsPlacement;
@@ -299,6 +324,8 @@ export class ConfigManager {
       worldFreeplaceDecayMultiplier,
       vehicleDamageTicks,
       vacantFoundationTicks,
+      griefFoundationTimer,
+      griefCheckSlotAmount,
       baseVehicleDamage,
       maxVehiclesPerArea,
       vehicleDamageRange,
@@ -311,6 +338,8 @@ export class ConfigManager {
       worldFreeplaceDecayMultiplier),
       (server.decayManager.vehicleDamageTicks = vehicleDamageTicks);
     server.decayManager.vacantFoundationTicks = vacantFoundationTicks;
+    server.decayManager.griefFoundationTimer = griefFoundationTimer;
+    server.decayManager.griefCheckSlotAmount = griefCheckSlotAmount;
     server.decayManager.baseVehicleDamage = baseVehicleDamage;
     server.decayManager.maxVehiclesPerArea = maxVehiclesPerArea;
     server.decayManager.vehicleDamageRange = vehicleDamageRange;
@@ -321,6 +350,15 @@ export class ConfigManager {
     const { burnTime, smeltTime } = this.config.smelting;
     server.smeltingManager.burnTime = burnTime;
     server.smeltingManager.smeltTime = smeltTime;
+    //#endregion
+    //
+    //#region gameTime
+    const { timeFrozen, timeMultiplier, nightTimeMultiplier, baseTime } =
+      this.config.gametime;
+    server.inGameTimeManager.time = baseTime * 3600;
+    server.inGameTimeManager.timeFrozenByConfig = timeFrozen;
+    server.inGameTimeManager.baseTimeMultiplier = timeMultiplier;
+    server.inGameTimeManager.nightTimeMultiplierValue = nightTimeMultiplier;
     //#endregion
   }
 }

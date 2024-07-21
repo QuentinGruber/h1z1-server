@@ -17,11 +17,21 @@ import { BaseItem } from "./baseItem";
 import { ZoneClient2016 } from "./zoneclient";
 
 export class Weapon {
+  /** Global universal Id of the weapon */
   itemGuid: string;
+
+  /** Id of the item - See ServerItemDefinitions.json for more information */
   itemDefinitionId: number;
+
+  /** Amount of ammo in the weapon */
   ammoCount: number;
+
+  /** Time it takes for a weapon to reload */
   reloadTimer?: NodeJS.Timeout;
-  currentReloadCount = 0; // needed for reload packet to work every time
+
+  /** Required for the reload packet to work every time (especially shotgun) */
+  currentReloadCount = 0;
+
   constructor(item: BaseItem, ammoCount?: number) {
     this.itemGuid = item.itemGuid;
     this.itemDefinitionId = item.itemDefinitionId;

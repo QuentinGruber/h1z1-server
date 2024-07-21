@@ -357,7 +357,8 @@ export class AbilitiesManager {
         "Character.PlayAnimation",
         {
           characterId: client.character.characterId,
-          animationName: animationName
+          animationName: animationName,
+          animationType: ""
         }
       );
       return;
@@ -367,7 +368,7 @@ export class AbilitiesManager {
     if (!vehicle) return;
 
     switch (vehicleAbilityEffectId) {
-      case VehicleEffects.MOTOR_RUN_OFFROADER:
+      case VehicleEffects.MOTOR_RUN_OFFROADER_1:
         vehicle.checkEngineRequirements(server);
         break;
       case VehicleEffects.TURBO_OFFROADER:
@@ -390,7 +391,7 @@ export class AbilitiesManager {
     if (!vehicle) return;
 
     switch (vehicleAbilityEffectId) {
-      case VehicleEffects.MOTOR_RUN_OFFROADER:
+      case VehicleEffects.MOTOR_RUN_OFFROADER_1:
         vehicle.stopEngine(server);
         break;
       case VehicleEffects.TURBO_OFFROADER:

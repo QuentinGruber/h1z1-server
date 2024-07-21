@@ -11,7 +11,7 @@
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
 
-import { Items, StringIds } from "../models/enums";
+import { Effects, Items, StringIds } from "../models/enums";
 import { ZoneServer2016 } from "../zoneserver";
 import { LootableConstructionEntity } from "../entities/lootableconstructionentity";
 import { lootableContainerDefaultLoadouts } from "../data/loadouts";
@@ -26,7 +26,7 @@ function getSubEntityData(
   switch (entity.itemDefinitionId) {
     case Items.BEE_BOX:
       entity.defaultLoadout = lootableContainerDefaultLoadouts.bee_box;
-      child.workingEffect = 188;
+      child.workingEffect = Effects.EFX_Bees_BeeHiveBox;
       break;
     case Items.DEW_COLLECTOR:
       entity.defaultLoadout = lootableContainerDefaultLoadouts.dew_collector;
@@ -40,17 +40,17 @@ function getSubEntityData(
 }
 
 export class CollectingEntity {
-  parentObject: LootableConstructionEntity;
+  /** Id of the parent that the CollectingEntity sits on - used for deck foundations and ground tampers */
+  parentObjectCharacterId: string;
   workingEffect: number = 0; // bee box
   dictionary: { [characterId: string]: BaseEntity };
   requiredTicks: number = 4; // 20 min to fill
   currentTicks: number = 0;
-  requiredHoneycombTicks: number = 144; // 12 hours to collect honeycomb
+  requiredHoneycombTicks: number = 72; // 6 hours to collect honeycomb
   currentHoneycombTicks: number = 0;
   wasUsed: boolean = false;
   isWorking: boolean = true; // some values below arent used, keeping them to avoid compile errors related to 2 different subclasses
   isSmelting: boolean = true;
-  smeltingTime: number = 40000;
   allowedFuel: number[] = [];
   filterId: number = 0;
   subType: string = "CollectingEntity"; // for saving identification
@@ -58,11 +58,10 @@ export class CollectingEntity {
     parentObject: LootableConstructionEntity,
     server: ZoneServer2016
   ) {
-    this.parentObject = parentObject;
+    this.parentObjectCharacterId = parentObject.characterId;
     if (!parentObject.getParent(server)) {
       this.dictionary = server._worldLootableConstruction;
     } else this.dictionary = server._lootableConstruction;
-    getSubEntityData(parentObject, this);
   }
 
   OnInteractionString(server: ZoneServer2016, client: ZoneClient2016) {
@@ -70,15 +69,18 @@ export class CollectingEntity {
       client,
       "Command.InteractionString",
       {
-        guid: this.parentObject.characterId,
+        guid: this.parentObjectCharacterId,
         stringId: StringIds.OPEN
       }
     );
   }
 
   OnFullCharacterDataRequest(server: ZoneServer2016, client: ZoneClient2016) {
-    if (this.parentObject.itemDefinitionId != Items.BEE_BOX) return;
-    const container = this.parentObject.getContainer();
+    const parentObject =
+      server._lootableConstruction[this.parentObjectCharacterId];
+    getSubEntityData(parentObject, this);
+    if (parentObject.itemDefinitionId != Items.BEE_BOX) return;
+    const container = parentObject.getContainer();
     if (!container) return;
     for (const a in container.items) {
       const item = container.items[a];
@@ -87,7 +89,7 @@ export class CollectingEntity {
         item.itemDefinitionId == Items.WAX
       ) {
         server.sendData(client, "Command.PlayDialogEffect", {
-          characterId: this.parentObject.characterId,
+          characterId: parentObject.characterId,
           effectId: this.workingEffect
         });
         return;

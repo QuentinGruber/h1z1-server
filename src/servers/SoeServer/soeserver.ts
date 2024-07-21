@@ -32,7 +32,7 @@ export class SOEServer extends EventEmitter {
   _useEncryption: boolean = true;
   private _clients: Map<string, SOEClient> = new Map();
   private _connection: dgram.Socket;
-  private readonly _crcSeed: number = Math.floor(Math.random() * 256);
+  private readonly _crcSeed: number = Math.floor(Math.random() * 255);
   private _crcLength: crc_length_options = 2;
   _waitTimeMs: number = 24;
   keepAliveTimeoutTime: number = 40000;
@@ -40,6 +40,9 @@ export class SOEServer extends EventEmitter {
   private _resendTimeout: number = 400;
   _allowRawDataReception: boolean = false;
   private _packetResetInterval: NodeJS.Timeout | undefined;
+  avgEventLoopLag: number = 0;
+  eventLoopLagValues: number[] = [];
+  currentEventLoopLag: number = 0;
   constructor(serverPort: number, cryptoKey: Uint8Array) {
     super();
     const oneMb = 1024 * 1024;
@@ -53,6 +56,40 @@ export class SOEServer extends EventEmitter {
       this._connection.setRecvBufferSize(oneMb);
       this._connection.setSendBufferSize(oneMb);
     });
+    // To support node 18 that we use for h1z1-server binaries
+    try {
+      const intervalTime = 100;
+      const obs = new PerformanceObserver((list) => {
+        const entry = list.getEntries()[0];
+        this.currentEventLoopLag = Math.floor(entry.duration) - intervalTime;
+        // calculate the average of the last 100 values
+        // if the array is full then we remove the first value
+        if (this.eventLoopLagValues.length > 100) {
+          this.eventLoopLagValues.shift();
+        }
+        this.eventLoopLagValues.push(this.currentEventLoopLag);
+        this.avgEventLoopLag =
+          this.eventLoopLagValues.reduce((a, b) => a + b, 0) /
+          this.eventLoopLagValues.length;
+      });
+      obs.observe({ entryTypes: ["measure"], buffered: true });
+      performance.mark("A");
+      setInterval(() => {
+        performance.mark("B");
+        performance.measure("A to B", "A", "B");
+        performance.mark("A");
+      }, intervalTime);
+    } catch (e) {
+      console.log("PerformanceObserver not available");
+    }
+  }
+
+  getNetworkStats() {
+    const avgServerLag =
+      this.avgEventLoopLag > 1
+        ? Number(this.avgEventLoopLag.toFixed(1)) - 1
+        : 0;
+    return [`Avg Server lag : ${avgServerLag}ms`];
   }
 
   // return the client if found
@@ -91,7 +128,10 @@ export class SOEServer extends EventEmitter {
     const resendedSequences: Set<number> = new Set();
     for (const [sequence, time] of client.unAckData) {
       // if the packet is too old then we resend it
-      if (time + this._resendTimeout + client.avgPing < currentTime) {
+      if (
+        time + this._resendTimeout + this._waitTimeMs + client.avgPing <
+        currentTime
+      ) {
         const dataCache = client.outputStream.getDataCache(sequence);
         if (dataCache) {
           client.stats.packetResend++;
@@ -177,10 +217,7 @@ export class SOEServer extends EventEmitter {
     for (let index = 0; index < queue.packets.length; index++) {
       const packet = queue.packets[index];
       if (packet.isReliable) {
-        client.unAckData.set(
-          packet.sequence as number,
-          Date.now() + this._waitTimeMs
-        );
+        client.unAckData.set(packet.sequence as number, Date.now());
       }
     }
   }
@@ -309,7 +346,8 @@ export class SOEServer extends EventEmitter {
       case "Ack":
         const mostWaitedPacketTime = client.unAckData.get(packet.sequence);
         if (mostWaitedPacketTime) {
-          client.addPing(Date.now() - mostWaitedPacketTime);
+          const currentLag = this.currentEventLoopLag || 0;
+          client.addPing(Date.now() - mostWaitedPacketTime - currentLag);
         }
         client.outputStream.ack(packet.sequence, client.unAckData);
         break;
@@ -372,7 +410,7 @@ export class SOEServer extends EventEmitter {
           );
 
           // client.outputStream.on(SOEOutputChannels.Raw, (data: Buffer) => {
-          // TODO:
+          //  unused in h1z1
           // });
         } else {
           client = this._clients.get(clientId) as SOEClient;

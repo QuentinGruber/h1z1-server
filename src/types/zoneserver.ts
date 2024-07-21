@@ -19,6 +19,7 @@ import { LootableConstructionEntity } from "servers/ZoneServer2016/entities/loot
 import { LoadoutItem } from "servers/ZoneServer2016/classes/loadoutItem";
 import { ZoneServer2016 } from "servers/ZoneServer2016/zoneserver";
 import { Character2016 } from "servers/ZoneServer2016/entities/character";
+import { BaseItem } from "servers/ZoneServer2016/classes/baseItem";
 
 export interface npcData {
   guid: string;
@@ -239,6 +240,7 @@ export interface ItemUseOption {
   timeout: number,
   eatCount?: number,
   drinkCount?: number,
+  comfortCount?: number,
   givetrash?: number,
   healCount?: number,
   staminaCount?: number,
@@ -386,6 +388,11 @@ export interface ScreenEffect {
 	transparency: number;
 	color: number;
 	unknownDword3: number;
+  unknownDword7: number;
+  unknownDword16: number;
+  unknownDword17: number;
+  unknownDword18: number;
+  unknownDword19: number;
 }
 
 export interface clientEffect {
@@ -476,6 +483,27 @@ export interface WeatherTemplate extends Weather2016 {
   templateName: string,
 }
 
+export interface AccountDefinition {
+  ID: number,
+  ACCOUNT_ITEM_ID: number,
+  REWARD_SET_ID: number,
+  REWARD_ITEM_ID: number,
+  REWARD_ITEM_TINT_ID: number,
+  REWARD_ITEM_COUNT: number,
+  REWARD_ITEM_MATERIAL_EFFECT_ID: number,
+  CONTENT_ID: number
+}
+
+export interface RewardCrateDefinition {
+  itemDefinitionId: number,
+  rewards: RewardCrateRewardDefinition[]
+}
+
+export interface RewardCrateRewardDefinition {
+  itemDefinitionId: number,
+  rewardChance: number
+}
+
 export interface ItemDefinition {
   NAME: string,
   ID: number,
@@ -554,6 +582,10 @@ export interface ItemDefinition {
   WORLD_MODEL_ID?: number,
   PICKUP_EFFECT?: number,
   PLACEMENT_MODEL_ID?: number,
+}
+
+export interface AccountItem extends BaseItem {
+  loginSessionId: string;
 }
 
 export type EntityDictionary<Entity> = { [characterId: string]: Entity};

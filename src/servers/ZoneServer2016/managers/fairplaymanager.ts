@@ -24,7 +24,7 @@ import {
 } from "../../../utils/enums";
 import {
   decrypt,
-  getCurrentTimeWrapper,
+  getCurrentServerTimeWrapper,
   getDistance,
   getDistance1d,
   getDistance2d,
@@ -56,7 +56,7 @@ export class FairPlayManager {
   fairPlayValues?: FairPlayValues;
   defaultHashes = defaultHashes;
 
-  /* MANAGED BY CONFIGMANAGER */
+  /** MANAGED BY CONFIGMANAGER - See defaultConfig.yaml for more information */
   useFairPlay!: boolean;
   maxPing!: number;
   acceptedRejectionTypes!: Array<CONNECTION_REJECTION_FLAGS>;
@@ -133,12 +133,12 @@ export class FairPlayManager {
     }
   }
 
-  checkPlayerSpeed(
+  async checkPlayerSpeed(
     server: ZoneServer2016,
     client: Client,
     sequenceTime: number,
     position: Float32Array
-  ): boolean {
+  ): Promise<boolean> {
     if (client.isAdmin || !this.fairPlayValues || !client.isSynced)
       return false;
     if (!server.isSaving) {
@@ -196,7 +196,7 @@ export class FairPlayManager {
         new Date().getTime()
       ) {
         const drift = Math.abs(
-          sequenceTime - getCurrentTimeWrapper().getTruncatedU32()
+          sequenceTime - getCurrentServerTimeWrapper().getTruncatedU32()
         );
         if (drift > this.fairPlayValues.maxTimeDrift) {
           server.kickPlayer(client);
@@ -236,9 +236,11 @@ export class FairPlayManager {
         speed > this.fairPlayValues.maxSpeed &&
         verticalSpeed < this.fairPlayValues.maxVerticalSpeed
       ) {
-        const soeClient = server.getSoeClient(client.soeClientId);
-        if (soeClient) {
-          if (soeClient.avgPing >= 250) return false;
+        const avgPing = await server._gatewayServer.getSoeClientAvgPing(
+          client.soeClientId
+        );
+        if (avgPing) {
+          if (avgPing >= 250) return false;
         }
         client.speedWarnsNumber += 1;
       } else if (client.speedWarnsNumber > 0) {
@@ -267,17 +269,17 @@ export class FairPlayManager {
     return false;
   }
 
-  checkVehicleSpeed(
+  async checkVehicleSpeed(
     server: ZoneServer2016,
     client: Client,
     sequenceTime: number,
     position: Float32Array,
     vehicle: Vehicle
-  ): boolean {
+  ): Promise<boolean> {
     if (client.isAdmin || !this.useFairPlay) return false;
     if (!server.isSaving) {
       const drift = Math.abs(
-        sequenceTime - getCurrentTimeWrapper().getTruncatedU32()
+        sequenceTime - getCurrentServerTimeWrapper().getTruncatedU32()
       );
       if (drift > 10000) {
         server.kickPlayer(client);
@@ -296,10 +298,13 @@ export class FairPlayManager {
           1000 /
           (sequenceTime - vehicle.oldPos.time)) *
         3600000;
+
       if (speed > 130 && verticalSpeed < 20) {
-        const soeClient = server.getSoeClient(client.soeClientId);
-        if (soeClient) {
-          if (soeClient.avgPing >= 250) return false;
+        const avgPing = await server._gatewayServer.getSoeClientAvgPing(
+          client.soeClientId
+        );
+        if (avgPing) {
+          if (avgPing >= 250) return false;
         }
         client.speedWarnsNumber += 1;
       } else if (client.speedWarnsNumber > 0) {
@@ -324,7 +329,6 @@ export class FairPlayManager {
         return true;
       }
     }
-    vehicle.oldPos = { position: position, time: sequenceTime };
     return false;
   }
 
@@ -719,7 +723,7 @@ export class FairPlayManager {
   }
 
   handleAssetValidationInit(server: ZoneServer2016, client: Client) {
-    if (!this.useAssetValidation || server._soloMode) return;
+    if (!this.useAssetValidation || server._soloMode || client.isAdmin) return;
 
     server.sendData(client, "H1emu.RequestAssetHashes", {});
     server.sendConsoleText(client, "[SERVER] Requested asset hashes");

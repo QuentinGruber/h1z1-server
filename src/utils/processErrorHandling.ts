@@ -14,3 +14,46 @@
 export function logVersion() {
   console.error(`h1z1-server version : ${process.env.H1Z1_SERVER_VERSION}`);
 }
+
+process.on("unhandledRejection", (reason, promise) => {
+  console.log(
+    "Unhandled rejection at ",
+    promise,
+    `reason: ${reason} at ${new Date()}`
+  );
+  logVersion();
+  process.exit(1);
+});
+
+process.on("uncaughtException", (err) => {
+  console.log(`Uncaught Exception: ${err.message} time : ${new Date()}`);
+  console.error(err.stack);
+  logVersion();
+  process.exit(1);
+});
+
+process.on("SIGTERM", () => {
+  console.log(
+    `Process ${process.pid} received a SIGTERM signal time : ${new Date()}`
+  );
+  logVersion();
+  process.exit(0);
+});
+
+process.on("SIGINT", () => {
+  console.log(
+    `Process ${process.pid} has been interrupted time : ${new Date()}`
+  );
+  logVersion();
+  process.exit(1);
+});
+
+process.on("beforeExit", (code) => {
+  console.log(`Process will exit with code: ${code} time : ${new Date()}`);
+  logVersion();
+});
+
+process.on("exit", (code) => {
+  console.log(`Process exited with code: ${code} time : ${new Date()}`);
+  logVersion();
+});

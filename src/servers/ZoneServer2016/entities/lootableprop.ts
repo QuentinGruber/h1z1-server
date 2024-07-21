@@ -23,40 +23,37 @@ function getContainerAndTime(entity: LootableProp) {
   switch (entity.actorModelId) {
     case ModelIds.WRECKED_VAN:
       entity.containerId = Items.CONTAINER_WRECKED_VAN;
-      entity.searchTime = 2500;
+      entity.searchTime = 1500;
       entity.lootSpawner = "Wrecked Van";
       break;
     case ModelIds.WRECKED_CAR:
     case ModelIds.WRECKED_CAR_OD_01:
       entity.containerId = Items.CONTAINER_WRECKED_CAR;
-      entity.searchTime = 2500;
+      entity.searchTime = 1500;
       entity.lootSpawner = "Wrecked Car";
       break;
     case ModelIds.WRECKED_TRUCK_01:
     case ModelIds.WRECKED_TRUCK_OD_01:
       entity.containerId = Items.CONTAINER_WRECKED_TRUCK;
-      entity.searchTime = 2500;
+      entity.searchTime = 1500;
       entity.lootSpawner = "Wrecked Truck";
       break;
     case ModelIds.LOCKERS_LOCKER_WEAPONS:
       entity.containerId = Items.CONTAINER_WEAPONS_LOCKER;
-      entity.searchTime = 1000;
+      entity.searchTime = 500;
       entity.lootSpawner = "Weapons Locker";
       break;
     case ModelIds.LOCKERS_LOCKER_POLICE:
       entity.containerId = Items.CONTAINER_LOCKER;
-      entity.searchTime = 1000;
+      entity.searchTime = 500;
       entity.lootSpawner = "Locker";
       break;
+    case ModelIds.OFFICE_CABINETS_02:
     case ModelIds.DESK:
       entity.containerId = Items.CONTAINER_DESK;
-      entity.searchTime = 1000;
+      entity.searchTime = 500;
       entity.lootSpawner = "Desk";
       break;
-    case ModelIds.OFFICE_CABINETS_01:
-    case ModelIds.OFFICE_FILING_CABINET:
-    case ModelIds.OFFICE_CABINETS_02:
-    case ModelIds.OFFICE_CABINETS_03:
     case ModelIds.LAB_GLASS_CABINET:
       entity.containerId = Items.CONTAINER_CABINETS;
       entity.searchTime = 700;
@@ -64,7 +61,7 @@ function getContainerAndTime(entity: LootableProp) {
       break;
     case ModelIds.OFFICE_CUBE_CABINET:
       entity.containerId = Items.CONTAINER_CABINETS_CUBE;
-      entity.searchTime = 300;
+      entity.searchTime = 500;
       entity.lootSpawner = "Cabinets Cube";
       break;
     case ModelIds.CABINETS_KITCHEN_02:
@@ -92,50 +89,66 @@ function getContainerAndTime(entity: LootableProp) {
     case ModelIds.CABINETS_BATHROOM_SINK:
     case ModelIds.CABINETS_BATHROOM_02:
       entity.containerId = Items.CONTAINER_CABINETS_BATHROOM;
-      entity.searchTime = 1000;
+      entity.searchTime = 500;
       entity.lootSpawner = "Cabinets Bathroom";
       break;
+    case ModelIds.BLUE_TOOL_CABINET:
+    case ModelIds.RED_SILVER_TOOL_CABINET:
     case ModelIds.TOOL_CABINET_01:
+    case ModelIds.TOOL_CABINET_02:
       entity.containerId = Items.CONTAINER_TOOL_CABINETS;
-      entity.searchTime = 1000;
+      entity.searchTime = 500;
       entity.lootSpawner = "Tool Cabinet";
       break;
     case ModelIds.DUMPSTER:
       entity.containerId = Items.CONTAINER_DUMPSTER;
-      entity.searchTime = 1000;
+      entity.searchTime = 500;
       entity.lootSpawner = "Dumpster";
       break;
+    case ModelIds.OFFICE_CABINETS_01:
+    case ModelIds.OFFICE_CABINETS_03:
+    case ModelIds.OFFICE_FILING_CABINET:
     case ModelIds.FILE_CABINETS:
       entity.containerId = Items.CONTAINER_FILE_CABINET;
-      entity.searchTime = 200;
+      entity.searchTime = 500;
       entity.lootSpawner = "File Cabinet";
       break;
     case ModelIds.KITCHEN_FRIDGE:
       entity.containerId = Items.CONTAINER_FRIDGE;
-      entity.searchTime = 1000;
+      entity.searchTime = 500;
       entity.lootSpawner = "Fridge";
+      break;
+    case ModelIds.WASHER:
+      entity.containerId = Items.CONTAINER_WASHING_MACHINE;
+      entity.searchTime = 500;
+      entity.lootSpawner = "Washer";
+      break;
+    case ModelIds.DRYER:
+      entity.containerId = Items.CONTAINER_DRYER;
+      entity.searchTime = 500;
+      entity.lootSpawner = "Dryer";
       break;
     case ModelIds.OTTOMAN_01:
     case ModelIds.OTTOMAN_02:
       entity.containerId = Items.CONTAINER_OTTOMAN;
-      entity.searchTime = 300;
+      entity.searchTime = 500;
       entity.lootSpawner = "Ottoman";
       break;
     case ModelIds.DRESSER_01:
     case ModelIds.DRESSER_02:
       entity.containerId = Items.CONTAINER_DRESSER;
-      entity.searchTime = 700;
+      entity.searchTime = 500;
       entity.lootSpawner = "Dresser";
       break;
     case ModelIds.ARMOIRE_02:
     case ModelIds.ARMOIRE_01:
       entity.containerId = Items.CONTAINER_ARMOIRE;
-      entity.searchTime = 700;
+      entity.searchTime = 500;
       entity.lootSpawner = "Armoire";
       break;
     case ModelIds.GARBAGE_CAN_01:
       entity.containerId = Items.CONTAINER_GARBAGE_CAN;
-      entity.searchTime = 1000;
+      entity.searchTime = 500;
       entity.lootSpawner = "Garbage Can";
       break;
     case ModelIds.HOSPITAL_DRUG_CABNINET:
@@ -175,18 +188,8 @@ function getContainerAndTime(entity: LootableProp) {
       entity.searchTime = 1000;
     case ModelIds.METAL_STORAGE_CHEST:
       entity.containerId = Items.CONTAINER_STORAGE;
-      entity.searchTime = 1000;
-      entity.lootSpawner = "Cabinets";
-      break;
-    case ModelIds.WASHER:
-      entity.containerId = Items.CONTAINER_WASHING_MACHINE;
-      entity.searchTime = 1000;
-      entity.lootSpawner = "Armoire";
-      break;
-    case ModelIds.DRYER:
-      entity.containerId = Items.CONTAINER_DRYER;
-      entity.searchTime = 1000;
-      entity.lootSpawner = "Armoire";
+      entity.searchTime = 500;
+      entity.lootSpawner = "Dresser";
       break;
     case ModelIds.FURNACE:
       entity.containerId = Items.CONTAINER_FURNACE;
@@ -199,7 +202,6 @@ function getContainerAndTime(entity: LootableProp) {
     case ModelIds.BARBEQUE:
       entity.containerId = Items.BARBEQUE;
       entity.searchTime = 0;
-      entity.lootSpawner = "Fridge";
       break;
     default:
       entity.containerId = Items.CONTAINER_STORAGE;
@@ -211,9 +213,12 @@ function getContainerAndTime(entity: LootableProp) {
 export class LootableProp extends BaseLootableEntity {
   spawnerId: number;
   npcRenderDistance = 150;
-  positionUpdateType = 0;
   containerId: number = Items.CONTAINER_STORAGE;
+
+  /** Determines the loot table to distribute to the LootableProp */
   lootSpawner: string = "Wrecked Car";
+
+  /** Time (milliseconds) it takes before the container loads for the player */
   searchTime: number = 1000;
   constructor(
     characterId: string,
@@ -299,10 +304,20 @@ export class LootableProp extends BaseLootableEntity {
         stringId: StringIds.OPEN
       });
     } else {
-      server.sendData(client, "Command.InteractionString", {
-        guid: this.characterId,
-        stringId: StringIds.SEARCH
-      });
+      switch (this.actorModelId) {
+        case ModelIds.CABINET_SET_05:
+          server.sendData(client, "Command.InteractionString", {
+            guid: this.characterId,
+            stringId: StringIds.SEARCH_ALL_CABINETS
+          });
+          break;
+        default:
+          server.sendData(client, "Command.InteractionString", {
+            guid: this.characterId,
+            stringId: StringIds.SEARCH
+          });
+          return;
+      }
     }
   }
 

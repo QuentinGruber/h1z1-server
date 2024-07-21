@@ -24,12 +24,12 @@ import {
 import { Npc } from "../../entities/npc";
 import { ZoneClient2016 as Client } from "../../classes/zoneclient";
 import { ZoneServer2016 } from "../../zoneserver";
-import { Items } from "../../models/enums";
+import { Items, ModelIds, VehicleIds } from "../../models/enums";
 import { LootableConstructionEntity } from "../../entities/lootableconstructionentity";
 import { ConstructionChildEntity } from "../../entities/constructionchildentity";
 import { ConstructionDoor } from "../../entities/constructiondoor";
 import {
-  getCurrentTimeWrapper,
+  getCurrentServerTimeWrapper,
   getDistance,
   movePoint3DByAngles,
   randomIntFromInterval
@@ -38,6 +38,7 @@ import { Zombie } from "../../entities/zombie";
 import { Wolf } from "../../entities/wolf";
 import { Bear } from "../../entities/bear";
 import { Deer } from "../../entities/deer";
+import { WorldObjectManager } from "servers/ZoneServer2016/managers/worldobjectmanager";
 
 const abilities = require("../../../../../data/2016/dataSources/Abilities.json"),
   vehicleAbilities = require("../../../../../data/2016/dataSources/VehicleAbilities.json");
@@ -48,16 +49,33 @@ const dev: any = {
     client: Client,
     args: Array<string>
   ) {
-    setInterval(() => {
-      const soeClient = server.getSoeClient(client.soeClientId);
-      if (soeClient) {
-        const stats = soeClient.getNetworkStats();
+    setInterval(async () => {
+      const stats = await server._gatewayServer.getSoeClientNetworkStats(
+        client.soeClientId
+      );
+      if (stats) {
         for (let index = 0; index < stats.length; index++) {
           const stat = stats[index];
           server.sendChatText(client, stat, index == 0);
         }
       }
     }, 500);
+  },
+  sc: function (server: ZoneServer2016, client: Client, args: Array<string>) {
+    console.log(WorldObjectManager.itemSpawnersChances);
+  },
+  lag: function (server: ZoneServer2016, client: Client, args: Array<string>) {
+    const startTime = Date.now();
+    const interval = setInterval(() => {
+      if (Date.now() - startTime > 20000) {
+        clearInterval(interval);
+      }
+      for (let i = 0; i < 1_000_000_000; i++) {
+        // do nothing but hold the event loop
+        const a = i;
+        a;
+      }
+    }, 0);
   },
   o: function (server: ZoneServer2016, client: Client, args: Array<string>) {
     server.sendOrderedData(client, "ClientUpdate.TextAlert", {
@@ -87,7 +105,7 @@ const dev: any = {
           server.sendData(client, "PlayerUpdatePosition", {
             transientId: npc.transientId,
             positionUpdate: {
-              sequenceTime: getCurrentTimeWrapper().getTruncatedU32() + 500,
+              sequenceTime: getCurrentServerTimeWrapper().getTruncatedU32() + 500,
               position: npc.state.position,
               unknown3_int8: 0,
               stance: 66565,
@@ -128,7 +146,7 @@ const dev: any = {
         server.sendData(client, "PlayerUpdatePosition", {
           transientId: npc.transientId,
           positionUpdate: {
-            sequenceTime: getCurrentTimeWrapper().getTruncatedU32(),
+            sequenceTime: getCurrentServerTimeWrapper().getTruncatedU32(),
             unknown3_int8: 0,
             stance: 66565,
             engineRPM: 2,
@@ -149,7 +167,7 @@ const dev: any = {
         server.sendData(client, "PlayerUpdatePosition", {
           transientId: npc.transientId,
           positionUpdate: {
-            sequenceTime: getCurrentTimeWrapper().getTruncatedU32() + 500,
+            sequenceTime: getCurrentServerTimeWrapper().getTruncatedU32() + 500,
             position: npc.state.position,
             unknown3_int8: 0,
             stance: 66565,
@@ -442,7 +460,7 @@ const dev: any = {
     client: Client,
     args: Array<string>
   ) {
-    const models = require("../../../../data/2016/dataSources/Models.json");
+    const models = require("../../../../../data/2016/dataSources/Models.json");
     const wordFilter = args[1];
     if (wordFilter) {
       const result = models.filter((word: any) =>
@@ -541,7 +559,6 @@ const dev: any = {
     server.sendChatText(client, "Sending setcurrentloadout packet");
     server.sendData(client, "Loadout.CreateCustomLoadout", loadout);
   },
-
   setslot: function (
     server: ZoneServer2016,
     client: Client,

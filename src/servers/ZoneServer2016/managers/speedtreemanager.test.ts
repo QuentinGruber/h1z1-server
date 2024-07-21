@@ -10,7 +10,7 @@
 //
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
-import test from "node:test";
+import test, { after } from "node:test";
 import { SpeedTreeManager } from "./speedtreemanager";
 import { PropInstance, ZoneSpeedTreeData } from "types/zoneserver";
 import { ZoneServer2016 } from "../zoneserver";
@@ -43,5 +43,11 @@ test("speedTreeManager", { timeout: 10000 }, async (t) => {
     const arr: PropInstance[] = [];
     speedTreeManager.customize(arr);
     assert.strictEqual(arr.length, destroyedDto);
+  });
+});
+
+after(() => {
+  setImmediate(() => {
+    process.exit(0);
   });
 });
