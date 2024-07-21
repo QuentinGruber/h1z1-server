@@ -262,6 +262,7 @@ export class ZonePacketHandlers {
     if (server.profileDefinitionsCache) {
       server.sendRawDataReliable(client, server.profileDefinitionsCache);
     }
+    server.fairPlayManager.handleAssetValidationInit(server, client);
     if (server.projectileDefinitionsCache) {
       server.sendRawDataReliable(client, server.projectileDefinitionsCache);
     }

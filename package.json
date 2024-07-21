@@ -22,7 +22,8 @@
     "js-yaml": "4.1.0",
     "mongodb": "6.8.0",
     "threads": "1.7.0",
-    "typescript": "5.5.3",
+    "typescript": "5.3.3",
+    "@napi-rs/canvas": "0.1.44",
     "ws": "8.18.0"
   },
   "directories": {

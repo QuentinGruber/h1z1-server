@@ -30,12 +30,15 @@ import { ConstructionChildEntity } from "../../entities/constructionchildentity"
 import { ConstructionDoor } from "../../entities/constructiondoor";
 import {
   getCurrentServerTimeWrapper,
+  getDistance,
+  movePoint3DByAngles,
   randomIntFromInterval
 } from "../../../../utils/utils";
 import { Zombie } from "../../entities/zombie";
+import { Wolf } from "../../entities/wolf";
+import { Bear } from "../../entities/bear";
+import { Deer } from "../../entities/deer";
 import { WorldObjectManager } from "../../managers/worldobjectmanager";
-import { Vehicle2016 } from "../../entities/vehicle";
-import { Plane } from "../../entities/plane";
 
 const abilities = require("../../../../../data/2016/dataSources/Abilities.json"),
   vehicleAbilities = require("../../../../../data/2016/dataSources/VehicleAbilities.json");
@@ -89,13 +92,97 @@ const dev: any = {
       client.character.state.rotation,
       server
     );
-    server.addLightweightNpc(client, npc);
+    server._npcs[characterId] = npc;
     setTimeout(() => {
-      server.sendData(client, "ClientPath.Reply", {
-        unknownDword2: npc.transientId,
-        nodes: [{ node: client.character.state.position }]
-      });
-    }, 2000);
+      setInterval(() => {
+        if (
+          getDistance(client.character.state.position, npc.state.position) < 1.5
+        ) {
+          const angleInRadians2 = Math.atan2(
+            client.character.state.position[0] - npc.state.position[0],
+            client.character.state.position[2] - npc.state.position[2]
+          );
+          server.sendData(client, "PlayerUpdatePosition", {
+            transientId: npc.transientId,
+            positionUpdate: {
+              sequenceTime:
+                getCurrentServerTimeWrapper().getTruncatedU32() + 500,
+              position: npc.state.position,
+              unknown3_int8: 0,
+              stance: 66565,
+              engineRPM: 2,
+              orientation: angleInRadians2,
+              frontTilt: 0,
+              sideTilt: 0,
+              angleChange: 0,
+              verticalSpeed: 0,
+              horizontalSpeed: 0
+            }
+          });
+          if (!npc.isAttacking) {
+            npc.setAttackingState(server);
+            server.sendDataToAllWithSpawnedEntity(
+              server._npcs,
+              npc.characterId,
+              "Character.PlayAnimation",
+              {
+                characterId: npc.characterId,
+                animationName: "KnifeSlash"
+              }
+            );
+          }
+          return;
+        }
+        const height1 = Math.abs(npc.state.position[1]);
+        const height2 = Math.abs(client.character.state.position[1]);
+        const distance = Math.abs(
+          getDistance(npc.state.position, client.character.state.position)
+        );
+        // Calculate the angle in radians
+        const angleInRadians = Math.atan2(height2 - height1, distance);
+        const angleInRadians2 = Math.atan2(
+          client.character.state.position[0] - npc.state.position[0],
+          client.character.state.position[2] - npc.state.position[2]
+        );
+        server.sendData(client, "PlayerUpdatePosition", {
+          transientId: npc.transientId,
+          positionUpdate: {
+            sequenceTime: getCurrentServerTimeWrapper().getTruncatedU32(),
+            unknown3_int8: 0,
+            stance: 66565,
+            engineRPM: 2,
+            orientation: angleInRadians2,
+            frontTilt: 0,
+            sideTilt: 0,
+            angleChange: 0,
+            verticalSpeed: angleInRadians,
+            horizontalSpeed: 4
+          }
+        });
+        movePoint3DByAngles(
+          npc.state.position,
+          angleInRadians,
+          angleInRadians2,
+          2
+        );
+        server.sendData(client, "PlayerUpdatePosition", {
+          transientId: npc.transientId,
+          positionUpdate: {
+            sequenceTime: getCurrentServerTimeWrapper().getTruncatedU32() + 500,
+            position: npc.state.position,
+            unknown3_int8: 0,
+            stance: 66565,
+            engineRPM: 2,
+            orientation: angleInRadians2,
+            frontTilt: 0,
+            sideTilt: 0,
+            angleChange: 0,
+            verticalSpeed: angleInRadians,
+            horizontalSpeed: 0
+          }
+        });
+      }, 500);
+    }, 3000);
   },
   acc: function (server: ZoneServer2016, client: Client, args: Array<string>) {
     server.sendData<ItemsAddAccountItem>(client, "Items.AddAccountItem", {});
@@ -137,7 +224,7 @@ const dev: any = {
     // spawn a zombie
     const characterId = server.generateGuid();
     const transient = server.getTransientId(characterId);
-    const zombie = new Npc(
+    const zombie = new Zombie(
       characterId,
       transient,
       9510,
@@ -146,6 +233,48 @@ const dev: any = {
       server
     );
     server._npcs[characterId] = zombie;
+  },
+  wolf: function (server: ZoneServer2016, client: Client, args: Array<string>) {
+    // spawn a zombie
+    const characterId = server.generateGuid();
+    const transient = server.getTransientId(characterId);
+    const wolf = new Wolf(
+      characterId,
+      transient,
+      9003,
+      client.character.state.position,
+      client.character.state.rotation,
+      server
+    );
+    server._npcs[characterId] = wolf;
+  },
+  bear: function (server: ZoneServer2016, client: Client, args: Array<string>) {
+    // spawn a zombie
+    const characterId = server.generateGuid();
+    const transient = server.getTransientId(characterId);
+    const bear = new Bear(
+      characterId,
+      transient,
+      9187,
+      client.character.state.position,
+      client.character.state.rotation,
+      server
+    );
+    server._npcs[characterId] = bear;
+  },
+  deer: function (server: ZoneServer2016, client: Client, args: Array<string>) {
+    // spawn a zombie
+    const characterId = server.generateGuid();
+    const transient = server.getTransientId(characterId);
+    const deer = new Deer(
+      characterId,
+      transient,
+      9253,
+      client.character.state.position,
+      client.character.state.rotation,
+      server
+    );
+    server._npcs[characterId] = deer;
   },
   abilities: function (
     server: ZoneServer2016,

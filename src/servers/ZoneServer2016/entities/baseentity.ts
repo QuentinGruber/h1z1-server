@@ -84,6 +84,7 @@ export abstract class BaseEntity {
 
   /** The physical material the entity is made of - See enums.ts/MaterialTypes for more information */
   materialType: number;
+  gridIndex?: number;
   constructor(
     characterId: string,
     transientId: number,
