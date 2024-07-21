@@ -38,7 +38,7 @@ import { Zombie } from "../../entities/zombie";
 import { Wolf } from "../../entities/wolf";
 import { Bear } from "../../entities/bear";
 import { Deer } from "../../entities/deer";
-import { WorldObjectManager } from "servers/ZoneServer2016/managers/worldobjectmanager";
+import { WorldObjectManager } from "../../managers/worldobjectmanager";
 
 const abilities = require("../../../../../data/2016/dataSources/Abilities.json"),
   vehicleAbilities = require("../../../../../data/2016/dataSources/VehicleAbilities.json");
@@ -105,7 +105,8 @@ const dev: any = {
           server.sendData(client, "PlayerUpdatePosition", {
             transientId: npc.transientId,
             positionUpdate: {
-              sequenceTime: getCurrentServerTimeWrapper().getTruncatedU32() + 500,
+              sequenceTime:
+                getCurrentServerTimeWrapper().getTruncatedU32() + 500,
               position: npc.state.position,
               unknown3_int8: 0,
               stance: 66565,
