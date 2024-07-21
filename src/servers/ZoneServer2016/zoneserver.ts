@@ -8493,7 +8493,8 @@ export class ZoneServer2016 extends EventEmitter {
         {
           transientId: npc.transientId,
           positionUpdate: {
-            sequenceTime: getCurrentServerTimeWrapper().getTruncatedU32() + 20000,
+            sequenceTime:
+              getCurrentServerTimeWrapper().getTruncatedU32() + 20000,
             position: npc.state.position,
             unknown3_int8: 0,
             stance: 66565,

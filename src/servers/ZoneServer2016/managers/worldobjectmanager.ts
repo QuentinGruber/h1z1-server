@@ -15,7 +15,7 @@ import { ZoneServer2016 } from "../zoneserver";
 const Z1_doors = require("../../../../data/2016/zoneData/Z1_doors.json");
 const Z1_items = require("../../../../data/2016/zoneData/Z1_items.json");
 const Z1_vehicles = require("../../../../data/2016/zoneData/Z1_vehicleLocations.json");
-const Z1_npcs = require("../../../../data/2016/zoneData/Z1_npcs.json");
+// const Z1_npcs = require("../../../../data/2016/zoneData/Z1_npcs.json");
 const Z1_lootableProps = require("../../../../data/2016/zoneData/Z1_lootableProps.json");
 const Z1_taskProps = require("../../../../data/2016/zoneData/Z1_taskProps.json");
 const Z1_crates = require("../../../../data/2016/zoneData/Z1_crates.json");

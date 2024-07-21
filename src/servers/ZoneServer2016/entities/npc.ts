@@ -15,9 +15,7 @@ import { DamageInfo } from "types/zoneserver";
 import { ZoneServer2016 } from "../zoneserver";
 import { BaseFullCharacter } from "./basefullcharacter";
 import { ZoneClient2016 } from "../classes/zoneclient";
-import {
-  logClientActionToMongo
-} from "../../../utils/utils";
+import { logClientActionToMongo } from "../../../utils/utils";
 import { DB_COLLECTIONS } from "../../../utils/enums";
 import { Items, ModelIds, NpcIds, StringIds } from "../models/enums";
 import { CommandInteractionString } from "types/zone2016packets";
@@ -140,6 +138,7 @@ export class Npc extends BaseFullCharacter {
     }
   }
 
+  // eslint-disable-next-line
   OnFullCharacterDataRequest(server: ZoneServer2016, client: ZoneClient2016) {
     /*server.sendData(client, "LightweightToFullPc", {
       useCompression: false,
