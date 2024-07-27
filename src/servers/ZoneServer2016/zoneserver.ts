@@ -534,7 +534,6 @@ export class ZoneServer2016 extends EventEmitter {
           this._loginConnectionManager.sendData(
             {
               ...this._loginServerInfo,
-              // TODO: what a dirty hack
               serverId: this._worldId
             } as any,
             "ClientMessage",
