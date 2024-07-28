@@ -71,13 +71,15 @@ export class SOEServer extends EventEmitter {
         this.avgEventLoopLag =
           this.eventLoopLagValues.reduce((a, b) => a + b, 0) /
           this.eventLoopLagValues.length;
+        performance.clearMarks();
+        performance.clearMeasures();
+        performance.mark("A");
       });
       obs.observe({ entryTypes: ["measure"], buffered: true });
       performance.mark("A");
       setInterval(() => {
         performance.mark("B");
         performance.measure("A to B", "A", "B");
-        performance.mark("A");
       }, intervalTime);
     } catch (e) {
       console.log("PerformanceObserver not available");
