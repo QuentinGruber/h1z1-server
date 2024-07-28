@@ -341,7 +341,14 @@ export class LoginServer extends EventEmitter {
     debug(
       `rejected connection serverId : ${serverId} address: ${client.address} `
     );
-    delete this._zoneConnectionManager._clients[client.clientId];
+    // Don't ask why or how but it happenned
+    if (this._zoneConnectionManager) {
+      delete this._zoneConnectionManager._clients[client.clientId];
+    } else {
+      console.error(
+        "zoneConnectionManager is undefined on connection rejected"
+      );
+    }
   }
 
   parseData(clientProtocol: string, data: Buffer) {
