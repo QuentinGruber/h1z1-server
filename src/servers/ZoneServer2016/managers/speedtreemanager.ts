@@ -48,7 +48,6 @@ export class SpeedTreeManager {
     Z1_speedTrees.forEach((tree: any) => {
       this._speedTreesList.set(tree.uniqueId, {
         objectId: tree.uniqueId,
-        treeId: tree.id,
         position: tree.position
         // position: new Float32Array(tree.position) take somehow much more memory and cpu time
       });
@@ -74,7 +73,7 @@ export class SpeedTreeManager {
     name: string
   ) {
     const zoneSpeedTree = this._speedTreesList.get(objectId);
-    if (!zoneSpeedTree || zoneSpeedTree.treeId != treeId) {
+    if (!zoneSpeedTree) {
       server.sendChatText(
         client,
         `[Server] Invalid tree, please report this! ${treeId}`

@@ -30,7 +30,6 @@ test("speedTreeManager", { timeout: 10000 }, async (t) => {
     for (let i = 0; i < destroyedDto; i++) {
       const speedTree: ZoneSpeedTreeData = {
         objectId: i,
-        treeId: 1,
         position: new Float32Array([i, i, i])
       };
       speedTreeManager.destroy(zone, speedTree, "ouai");

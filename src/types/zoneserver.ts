@@ -359,7 +359,6 @@ export interface SpeedTree {
 
 export interface ZoneSpeedTreeData {
 	objectId: number;
-	treeId: number;
 	position: Float32Array
 }
 
