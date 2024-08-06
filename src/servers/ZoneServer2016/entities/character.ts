@@ -147,8 +147,6 @@ export class Character2016 extends BaseFullCharacter {
   isMoving = false;
 
   /** Values used upon character creation */
-  actorModelId!: number;
-  headActor!: string;
   hairModel!: string;
   isRespawning = false;
   isReady = false;
