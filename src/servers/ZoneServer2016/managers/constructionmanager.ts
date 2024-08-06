@@ -272,7 +272,12 @@ export class ConstructionManager {
     const disallowedItems = [Items.STORAGE_BOX, Items.BEE_BOX, Items.FURNACE];
     if (disallowedItems.includes(item.itemDefinitionId)) {
       for (const treeKey in server.speedtreeManager._speedTreesList) {
-        const zoneTree = server.speedtreeManager._speedTreesList[treeKey];
+        const zoneTree = server.speedtreeManager._speedTreesList.get(
+          Number(treeKey)
+        );
+        if (!zoneTree) {
+          return false;
+        }
         const allowedTrees = [
           TreeIds.BLACKBERRY,
           TreeIds.DEVILCLUB,

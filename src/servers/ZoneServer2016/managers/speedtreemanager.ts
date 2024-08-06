@@ -30,7 +30,7 @@ export class SpeedTreeManager {
   /** HashMap of all spawned trees in the world,
    * uses ObjectId (number) for indexing
    */
-  _speedTreesList: { [objectId: number]: ZoneSpeedTreeData } = {};
+  _speedTreesList: Map<number, ZoneSpeedTreeData> = new Map();
 
   /** MANAGED BY CONFIGMANAGER - See defaultConfig.yaml for more information */
   minBlackberryHarvest!: number;
@@ -46,11 +46,12 @@ export class SpeedTreeManager {
 
   initiateList() {
     Z1_speedTrees.forEach((tree: any) => {
-      this._speedTreesList[tree.uniqueId] = {
+      this._speedTreesList.set(tree.uniqueId, {
         objectId: tree.uniqueId,
         treeId: tree.id,
         position: tree.position
-      };
+        // position: new Float32Array(tree.position) take somehow much more memory and cpu time
+      });
     });
   }
 
@@ -72,7 +73,7 @@ export class SpeedTreeManager {
     treeId: number,
     name: string
   ) {
-    const zoneSpeedTree = this._speedTreesList[objectId];
+    const zoneSpeedTree = this._speedTreesList.get(objectId);
     if (!zoneSpeedTree || zoneSpeedTree.treeId != treeId) {
       server.sendChatText(
         client,
