@@ -49,7 +49,6 @@ export class SpeedTreeManager {
       this._speedTreesList.set(tree.uniqueId, {
         objectId: tree.uniqueId,
         position: tree.position
-        // position: new Float32Array(tree.position) take somehow much more memory and cpu time
       });
     });
   }
