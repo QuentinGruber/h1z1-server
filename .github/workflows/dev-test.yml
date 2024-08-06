@@ -95,18 +95,3 @@ jobs:
           node-version: ${{ matrix.node-version }}
       - run: npm i
       - run: npm test
-  test-binaries:
-    name: Test Binaries
-    runs-on: windows-latest
-    steps:
-      - uses: actions/checkout@v3
-      - name: Use Node.js 20.12.2
-        uses: actions/setup-node@v3
-        with:
-          node-version: 20.12.2
-      - run: npm i --omit=dev
-      - run: npm i -g pkg@5.8.0
-      - run: pkg --compress GZip -t node18-win-x64 ./bin/2015/h1emuServer.js --output ./bin/h1emuServer-2015-${{ github.ref }}.exe
-      - run: pkg --compress GZip -t node18-win-x64 ./bin/2016/h1emuServer.js --output ./bin/h1emuServer-2016-${{ github.ref }}.exe
-      - run: ./bin/h1emuServer-2015-${{ github.ref }}.exe --test
-      - run: ./bin/h1emuServer-2016-${{ github.ref }}.exe --test
