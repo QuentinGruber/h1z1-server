@@ -271,17 +271,11 @@ export class ConstructionManager {
   ): boolean {
     const disallowedItems = [Items.STORAGE_BOX, Items.BEE_BOX, Items.FURNACE];
     if (disallowedItems.includes(item.itemDefinitionId)) {
-      for (const treeKey in server.speedtreeManager._speedTreesList) {
-        const zoneTree = server.speedtreeManager._speedTreesList.get(
-          Number(treeKey)
-        );
-        if (!zoneTree) {
-          return false;
-        }
-        if (isPosInRadius(1, position, zoneTree.position)) {
+      server.speedtreeManager._speedTreesList.forEach((v) => {
+        if (isPosInRadius(1, position, v.position)) {
           return true;
         }
-      }
+      });
     }
     return false;
   }
