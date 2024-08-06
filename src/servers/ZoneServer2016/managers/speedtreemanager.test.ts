@@ -20,6 +20,7 @@ test("speedTreeManager", { timeout: 10000 }, async (t) => {
   const speedTreeManager = new SpeedTreeManager();
   await t.test("initiateList", () => {
     speedTreeManager.initiateList();
+    assert.notStrictEqual(Object.keys(speedTreeManager._speedTreesList), 0);
   });
 
   const destroyedDto: number = 1000;
@@ -35,7 +36,7 @@ test("speedTreeManager", { timeout: 10000 }, async (t) => {
       speedTreeManager.destroy(zone, speedTree, "ouai");
     }
     assert.strictEqual(
-      Object.keys(speedTreeManager._speedTrees).length,
+      Object.keys(speedTreeManager._speedTreesDestroyed).length,
       destroyedDto
     );
   });

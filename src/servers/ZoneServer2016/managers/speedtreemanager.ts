@@ -22,7 +22,7 @@ export class SpeedTreeManager {
   /** HashMap of destroyed trees,
    * uses ObjectId (number) for indexing
    */
-  _speedTrees: { [objectId: number]: SpeedTree } = {};
+  _speedTreesDestroyed: { [objectId: number]: SpeedTree } = {};
 
   /** The amount of spawned trees in the world */
   _speedTreesCounter: any = {};
@@ -55,8 +55,8 @@ export class SpeedTreeManager {
   }
 
   customize(DTOArray: Array<PropInstance>) {
-    for (const object in this._speedTrees) {
-      const DTO = this._speedTrees[object];
+    for (const object in this._speedTreesDestroyed) {
+      const DTO = this._speedTreesDestroyed[object];
       const DTOinstance = {
         objectId: DTO.objectId,
         replacementModel: DTO.modelName.concat(".Stump")
@@ -87,7 +87,7 @@ export class SpeedTreeManager {
       server.sendConsoleText(client, `[Server] Tree is too far.`);
       return;
     }
-    const speedtreeDestroyed = this._speedTrees[objectId];
+    const speedtreeDestroyed = this._speedTreesDestroyed[objectId];
     let destroy = false;
     let count = 1;
     if (speedtreeDestroyed) return;
@@ -190,7 +190,7 @@ export class SpeedTreeManager {
       unk4: true
     });
 
-    this._speedTrees[zoneSpeedTree.objectId] = {
+    this._speedTreesDestroyed[zoneSpeedTree.objectId] = {
       objectId: zoneSpeedTree.objectId,
       modelName: name,
       position: zoneSpeedTree.position
@@ -198,12 +198,12 @@ export class SpeedTreeManager {
     setTimeout(() => {
       server.sendDataToAll("DtoStateChange", {
         objectId: zoneSpeedTree.objectId,
-        modelName: this._speedTrees[zoneSpeedTree.objectId].modelName,
+        modelName: this._speedTreesDestroyed[zoneSpeedTree.objectId].modelName,
         effectId: 0,
         unk3: 0,
         unk4: true
       });
-      delete this._speedTrees[zoneSpeedTree.objectId];
+      delete this._speedTreesDestroyed[zoneSpeedTree.objectId];
     }, this.treeRespawnTimeMS);
   }
 }
