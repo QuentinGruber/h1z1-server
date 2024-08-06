@@ -56,8 +56,6 @@
     "build-tests": "npx tsc -p tsconfigs/tsconfig-tests.json",
     "build-benchs": "npx tsc -p ./benchmarks/tsconfig.json",
     "build-docker-images": "npx ts-node ./docker/buildDocker.ts",
-    "build-binaries-win": "cd ./bin/ && build.bat",
-    "build-binaries-unix": "chmod +x ./bin/build.sh && ./bin/build.sh",
     "test-mongo": "npm run build && npm run build-tests && MONGO_TESTS='true' node --test",
     "test": "npm run build && npm run build-tests && node --test",
     "postinstall": "npm run build",
