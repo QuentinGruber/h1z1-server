@@ -1432,6 +1432,7 @@ export function fileExists(filePath: string): boolean {
     fs.accessSync(filePath);
     return true;
   } catch (error) {
+    console.error(error);
     return false;
   }
 }

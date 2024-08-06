@@ -89,6 +89,7 @@ export class SOEServer extends EventEmitter {
         performance.measure("A to B", "A", "B");
       }, intervalTime);
     } catch (e) {
+      console.error(e);
       console.log("PerformanceObserver not available");
     }
   }

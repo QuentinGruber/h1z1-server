@@ -324,15 +324,17 @@ export const commands: Array<Command> = [
       ) {
         server.sendChatText(client, "[ERROR] You aren't wearing a hoodie.");
       } else {
-        equipmentModel.includes("Up")
-          ? (client.character._equipment[3].modelName = equipmentModel.replace(
-              "Up",
-              "Down"
-            ))
-          : (client.character._equipment[3].modelName = equipmentModel.replace(
-              "Down",
-              "Up"
-            ));
+        if (equipmentModel.includes("Up")) {
+          client.character._equipment[3].modelName = equipmentModel.replace(
+            "Up",
+            "Down"
+          );
+        } else {
+          client.character._equipment[3].modelName = equipmentModel.replace(
+            "Down",
+            "Up"
+          );
+        }
         client.character.updateEquipmentSlot(server, EquipSlots.CHEST);
       }
     }

@@ -2811,7 +2811,7 @@ export class ZonePacketHandlers {
     if (!obj.build && !obj.demolish && !obj.useContainers && !obj.visit) {
       delete foundation.permissions[characterId];
     } else {
-      foundation.permissions[characterId] == obj;
+      foundation.permissions[characterId] = obj;
     }
 
     // update child expansion permissions

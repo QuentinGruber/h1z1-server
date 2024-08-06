@@ -1030,11 +1030,8 @@ export class ConstructionManager {
         this.placementError(server, client, ConstructionErrors.OVERLAP);
         return false;
       }
-      (position = parent.getSlotPosition(BuildingSlot, parent.upperWallSlots)),
-        (rotation = parent.getSlotRotation(
-          BuildingSlot,
-          parent.upperWallSlots
-        ));
+      position = parent.getSlotPosition(BuildingSlot, parent.upperWallSlots);
+      rotation = parent.getSlotRotation(BuildingSlot, parent.upperWallSlots);
     } else {
       if (
         parent &&
@@ -1046,8 +1043,8 @@ export class ConstructionManager {
         this.placementError(server, client, ConstructionErrors.OVERLAP);
         return false;
       }
-      (position = parent.getSlotPosition(BuildingSlot, parent.wallSlots)),
-        (rotation = parent.getSlotRotation(BuildingSlot, parent.wallSlots));
+      position = parent.getSlotPosition(BuildingSlot, parent.wallSlots);
+      rotation = parent.getSlotRotation(BuildingSlot, parent.wallSlots);
     }
     if (!position || !rotation) {
       this.placementError(server, client, ConstructionErrors.UNKNOWN_SLOT);
