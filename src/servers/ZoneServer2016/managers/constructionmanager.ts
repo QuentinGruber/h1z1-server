@@ -278,12 +278,6 @@ export class ConstructionManager {
         if (!zoneTree) {
           return false;
         }
-        const allowedTrees = [
-          TreeIds.BLACKBERRY,
-          TreeIds.DEVILCLUB,
-          TreeIds.VINEMAPLE
-        ];
-        if (allowedTrees.includes(zoneTree.treeId)) continue;
         if (isPosInRadius(1, position, zoneTree.position)) {
           return true;
         }
