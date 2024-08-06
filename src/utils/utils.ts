@@ -1523,3 +1523,7 @@ export function getDateString(timestamp: number) {
     months[date.getMonth()]
   } ${date.getFullYear()} ${date.getHours()}:${date.getMinutes()}`;
 }
+
+export function loadJson(path: string) {
+  return JSON.parse(fs.readFileSync(path, "utf8"));
+}
