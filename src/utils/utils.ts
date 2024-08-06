@@ -33,6 +33,7 @@ import { Resolver } from "node:dns";
 import { ZoneClient2016 } from "servers/ZoneServer2016/classes/zoneclient";
 import * as crypto from "crypto";
 import { ZoneClient } from "servers/ZoneServer2015/classes/zoneclient";
+import pathNode from "node:path";
 
 const startTime = Date.now();
 
@@ -1522,4 +1523,8 @@ export function getDateString(timestamp: number) {
   return `${date.getDate()} ${
     months[date.getMonth()]
   } ${date.getFullYear()} ${date.getHours()}:${date.getMinutes()}`;
+}
+
+export function loadJson(path: string) {
+  return JSON.parse(fs.readFileSync(path, "utf8"));
 }
