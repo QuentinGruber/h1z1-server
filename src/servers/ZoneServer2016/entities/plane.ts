@@ -22,7 +22,6 @@ import { ZoneClient2016 } from "../classes/zoneclient";
 export class Plane extends Vehicle2016 {
   /** See Vehicle2016 */
   isManaged: boolean = false;
-  manager?: any;
   destroyedEffect: number = 0;
   destroyedModel: number = 0;
   minorDamageEffect: number = 0;
@@ -33,12 +32,7 @@ export class Plane extends Vehicle2016 {
   isLocked: boolean = false;
   positionUpdate: any /*positionUpdate*/;
   engineRPM: number = 0;
-  fuelUpdater: any;
   isInvulnerable: boolean = false;
-  onDismount?: any;
-  resourcesUpdater?: any;
-  damageTimeout?: any;
-  vehicleManager?: string;
   vehicleId: number;
   destroyedState = 0;
   constructor(
