@@ -310,7 +310,7 @@ export class Character2016 extends BaseFullCharacter {
     this.npcRenderDistance = 400;
 
     /** Default resource amounts applied after respawning */
-    (this._resources = {
+    this._resources = {
       [ResourceIds.HEALTH]: 10000,
       [ResourceIds.STAMINA]: 600,
       [ResourceIds.HUNGER]: 10000,
@@ -319,12 +319,12 @@ export class Character2016 extends BaseFullCharacter {
       [ResourceIds.COMFORT]: 5000,
       [ResourceIds.BLEEDING]: 0,
       [ResourceIds.ENDURANCE]: 8000
-    }),
-      (this.characterStates = {
-        knockedOut: false,
-        inWater: false,
-        invincibility: false
-      });
+    };
+    this.characterStates = {
+      knockedOut: false,
+      inWater: false,
+      invincibility: false
+    };
     this.timeouts = {};
     this.starthealingInterval = (
       client: ZoneClient2016,
@@ -1672,21 +1672,22 @@ export class Character2016 extends BaseFullCharacter {
     let damage = damageInfo.damage,
       canStopBleed,
       armorDmgModifier;
-    weaponDefinitionId == WeaponDefinitionIds.WEAPON_SHOTGUN
-      ? (armorDmgModifier = 10)
-      : (armorDmgModifier = 4);
+    armorDmgModifier =
+      weaponDefinitionId == WeaponDefinitionIds.WEAPON_SHOTGUN ? 10 : 4;
     if (weaponDefinitionId == WeaponDefinitionIds.WEAPON_308)
       armorDmgModifier = 2;
     switch (damageInfo.hitReport?.hitLocation) {
       case "HEAD":
       case "GLASSES":
       case "NECK":
-        weaponDefinitionId == WeaponDefinitionIds.WEAPON_SHOTGUN
-          ? (damage *= 2)
-          : (damage *= 4);
-        weaponDefinitionId == WeaponDefinitionIds.WEAPON_308
-          ? (damage *= 2)
-          : damage;
+        damage =
+          weaponDefinitionId == WeaponDefinitionIds.WEAPON_SHOTGUN
+            ? (damage *= 2)
+            : (damage *= 4);
+        damage =
+          weaponDefinitionId == WeaponDefinitionIds.WEAPON_308
+            ? (damage *= 2)
+            : damage;
         damage = server.checkHelmet(this.characterId, damage, 1);
         break;
       default:
