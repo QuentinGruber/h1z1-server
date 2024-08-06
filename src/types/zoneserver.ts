@@ -354,12 +354,10 @@ export interface FairPlayValues {
 export interface SpeedTree {
   objectId: number;
   modelName: string;
-  position: Float32Array;
 }
 
 export interface ZoneSpeedTreeData {
 	objectId: number;
-	treeId: number;
 	position: Float32Array
 }
 

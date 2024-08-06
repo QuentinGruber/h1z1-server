@@ -53,8 +53,7 @@ import {
   ModelIds,
   ResourceIds,
   ResourceTypes,
-  StringIds,
-  TreeIds
+  StringIds
 } from "../models/enums";
 import { ZoneServer2016 } from "../zoneserver";
 import {
@@ -271,18 +270,11 @@ export class ConstructionManager {
   ): boolean {
     const disallowedItems = [Items.STORAGE_BOX, Items.BEE_BOX, Items.FURNACE];
     if (disallowedItems.includes(item.itemDefinitionId)) {
-      for (const treeKey in server.speedtreeManager._speedTreesList) {
-        const zoneTree = server.speedtreeManager._speedTreesList[treeKey];
-        const allowedTrees = [
-          TreeIds.BLACKBERRY,
-          TreeIds.DEVILCLUB,
-          TreeIds.VINEMAPLE
-        ];
-        if (allowedTrees.includes(zoneTree.treeId)) continue;
-        if (isPosInRadius(1, position, zoneTree.position)) {
+      server.speedtreeManager._speedTreesList.forEach((v) => {
+        if (isPosInRadius(1, position, v.position)) {
           return true;
         }
-      }
+      });
     }
     return false;
   }

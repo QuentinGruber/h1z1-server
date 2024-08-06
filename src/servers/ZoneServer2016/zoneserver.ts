@@ -101,7 +101,8 @@ import {
   TimeWrapper,
   getCurrentServerTimeWrapper,
   flhash,
-  getDateString
+  getDateString,
+  loadJson
 } from "../../utils/utils";
 
 import { Db, MongoClient, WithId } from "mongodb";
@@ -246,6 +247,7 @@ import { CommandHandler } from "./handlers/commands/commandhandler";
 import { AccountInventoryManager } from "./managers/accountinventorymanager";
 import { PlayTimeManager } from "./managers/playtimemanager";
 import { RewardManager } from "./managers/rewardmanager";
+import { DynamicAppearance } from "types/zonedata";
 
 const spawnLocations2 = require("../../../data/2016/zoneData/Z1_gridSpawns.json"),
   deprecatedDoors = require("../../../data/2016/sampleData/deprecatedDoors.json"),
@@ -257,7 +259,6 @@ const spawnLocations2 = require("../../../data/2016/zoneData/Z1_gridSpawns.json"
   loadoutSlotItemClasses = require("./../../../data/2016/dataSources/LoadoutSlotItemClasses.json"),
   equipSlotItemClasses = require("./../../../data/2016/dataSources/EquipSlotItemClasses.json"),
   weaponDefinitions = require("../../../data/2016/dataSources/ServerWeaponDefinitions"),
-  dynamicappearance = require("../../../data/2016/sampleData/dynamicappearance"),
   resourceDefinitions = require("../../../data/2016/dataSources/Resources"),
   Z1_POIs = require("../../../data/2016/zoneData/Z1_POIs"),
   hudIndicators = require("../../../data/2016/dataSources/HudIndicators"),
@@ -438,6 +439,7 @@ export class ZoneServer2016 extends EventEmitter {
   rebootTimeTimer?: NodeJS.Timeout;
   inGameTimeManager: IngameTimeManager = new IngameTimeManager();
   commandHandler: CommandHandler;
+  dynamicappearance: DynamicAppearance;
 
   /** MANAGED BY CONFIGMANAGER - See defaultConfig.yaml for more information */
   proximityItemsDistance!: number;
@@ -653,6 +655,11 @@ export class ZoneServer2016 extends EventEmitter {
     if (!this._soloMode) {
       this.registerLoginConnectionListeners(internalServerPort);
     }
+
+    const dynamicappearance = loadJson(
+      __dirname + "/../../../data/2016/sampleData/dynamicappearance.json"
+    );
+    this.dynamicappearance = dynamicappearance;
     if (this._mongoAddress && this.rebootTime) {
       console.log("Reboot time set to " + this.rebootTime + " hours");
       this.rebootTimeTimer = setTimeout(
@@ -1401,15 +1408,18 @@ export class ZoneServer2016 extends EventEmitter {
       "ReferenceData.DynamicAppearance",
       {
         ITEM_APPEARANCE_DEFINITIONS:
-          dynamicappearance.ITEM_APPEARANCE_DEFINITIONS,
+          this.dynamicappearance.ITEM_APPEARANCE_DEFINITIONS,
         SHADER_SEMANTIC_DEFINITIONS:
-          dynamicappearance.SHADER_SEMANTIC_DEFINITIONS,
+          this.dynamicappearance.SHADER_SEMANTIC_DEFINITIONS,
         SHADER_PARAMETER_DEFINITIONS:
-          dynamicappearance.SHADER_PARAMETER_DEFINITIONS
+          this.dynamicappearance.SHADER_PARAMETER_DEFINITIONS
       }
     );
     if (!dynamicAppearanceCache) return;
     this.dynamicAppearanceCache = dynamicAppearanceCache;
+    // unused after the packet is in cache so we clear that
+    delete this.dynamicappearance.ITEM_APPEARANCE_DEFINITIONS;
+    delete this.dynamicappearance.SHADER_PARAMETER_DEFINITIONS;
   }
   /**
    * Caches weapon definitons so they aren't packed every time a client logs in.
@@ -8691,7 +8701,7 @@ export class ZoneServer2016 extends EventEmitter {
 
   getShaderParameterGroup(itemDefinitionId: number): Array<any> {
     return (
-      dynamicappearance.SHADER_SEMANTIC_DEFINITIONS.find(
+      this.dynamicappearance.SHADER_SEMANTIC_DEFINITIONS.find(
         (definition: {
           SHADER_PARAMETER_GROUP_ID: number;
           SHADER_PARAMETER_GROUP: Array<{ SHADER_SEMANTIC_ID: number }>;
