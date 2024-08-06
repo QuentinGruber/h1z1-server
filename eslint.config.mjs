@@ -16,7 +16,7 @@ const compat = new FlatCompat({
 
 export default [
   {
-    ignores: ["**/clients/*"]
+    ignores: ["**/clients/*", "**/ZoneServer2015/*", "**/ClientProtocol_860/*"]
   },
   ...compat.extends(
     "eslint:recommended",
@@ -49,8 +49,7 @@ export default [
       "@typescript-eslint/ban-ts-comment": "warn",
       "@typescript-eslint/no-empty-interface": "off",
       "@typescript-eslint/no-require-imports": "off",
-      "@typescript-eslint/no-empty-object-type": "off"
+      "@typescript-eslint/no-empty-object-type": "warn"
     }
   }
 ];
-
