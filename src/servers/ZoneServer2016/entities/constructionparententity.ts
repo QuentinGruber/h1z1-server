@@ -103,7 +103,7 @@ export class ConstructionParentEntity extends ConstructionChildEntity {
   readonly damageRange: number;
 
   /** 3d boundaries of the space the ConstructionParentEntity occupies (8 vertice points) */
-  readonly cubebounds?: CubeBounds;
+  declare readonly cubebounds?: CubeBounds;
 
   /** For detecting players / objects underneath a foundation */
   readonly boundsUnder?: CubeBounds;
