@@ -53,8 +53,7 @@ import {
   ModelIds,
   ResourceIds,
   ResourceTypes,
-  StringIds,
-  TreeIds
+  StringIds
 } from "../models/enums";
 import { ZoneServer2016 } from "../zoneserver";
 import {
