@@ -14,7 +14,6 @@
 const debugName = "ZoneServer",
   debug = require("debug")(debugName);
 
-process.env.isBin && require("./managers/worlddatamanagerthread");
 import { EventEmitter } from "node:events";
 import { H1Z1Protocol } from "../../protocols/h1z1protocol";
 import { LoginConnectionManager } from "../LoginZoneConnection/loginconnectionmanager";

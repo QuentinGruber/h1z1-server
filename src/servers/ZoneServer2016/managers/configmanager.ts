@@ -15,12 +15,7 @@ import * as fs from "fs";
 import * as yaml from "js-yaml";
 import { Config } from "../models/config";
 import { ZoneServer2016 } from "../zoneserver";
-import * as path from "node:path";
 import { copyFile } from "../../../utils/utils";
-
-process.env.isBin &&
-  require("js-yaml") &&
-  path.join(__dirname, "../../../../data/2016/sampleData/defaultconfig.yaml");
 
 function fileExists(filePath: string): boolean {
   try {
