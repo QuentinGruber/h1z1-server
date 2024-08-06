@@ -165,12 +165,15 @@ export class WorldDataManager {
     try {
       await mongoClient.connect();
     } catch (e) {
+      console.error(e);
       throw debug("[ERROR]Unable to connect to mongo server " + mongoAddress);
     }
     debug("connected to mongo !");
     // if no collections exist on h1server database , fill it with samples
-    (await mongoClient.db(DB_NAME).collections()).length ||
-      (await initMongo(mongoClient, "ZoneServer"));
+
+    if (!(await mongoClient.db(DB_NAME).collections()).length) {
+      await initMongo(mongoClient, "ZoneServer");
+    }
     return [mongoClient.db(DB_NAME), mongoClient];
   }
 

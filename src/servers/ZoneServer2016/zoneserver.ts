@@ -768,6 +768,7 @@ export class ZoneServer2016 extends EventEmitter {
                   );
                 }
               } catch (error) {
+                console.error(error);
                 this._loginConnectionManager.sendData(
                   client,
                   "CharacterDeleteReply",
@@ -1007,6 +1008,7 @@ export class ZoneServer2016 extends EventEmitter {
         status: 1
       });
     } catch (error) {
+      console.error(error);
       this._loginConnectionManager.sendData(client, "CharacterCreateReply", {
         reqId: reqId,
         status: 0
@@ -1021,6 +1023,7 @@ export class ZoneServer2016 extends EventEmitter {
         status: this.getIsAdmin(guid)
       });
     } catch (error) {
+      console.error(error);
       this._loginConnectionManager.sendData(client, "ClientIsAdminReply", {
         reqId: reqId,
         status: 0
@@ -3190,7 +3193,7 @@ export class ZoneServer2016 extends EventEmitter {
         crackedArmor:
           isHeadshot && hasHelmetBefore && !hasHelmet
             ? 1
-            : 0 || (!isHeadshot && hasArmorBefore && !hasArmor)
+            : !isHeadshot && hasArmorBefore && !hasArmor
               ? 1
               : 0
       }
@@ -5025,7 +5028,9 @@ export class ZoneServer2016 extends EventEmitter {
     if (passenger) {
       // dismount the driver
       const client = this.getClientByCharId(passenger.characterId);
-      !client || this.dismountVehicle(client);
+      if (client) {
+        this.dismountVehicle(client);
+      }
     }
     vehicle.seats[seatId] = client.character.characterId;
     if (seatId == 0) {
@@ -5191,7 +5196,9 @@ export class ZoneServer2016 extends EventEmitter {
     ) {
       if (passenger && !passenger?.isAlive) {
         const client = this.getClientByCharId(passenger.characterId);
-        !client || this.dismountVehicle(client);
+        if (client) {
+          this.dismountVehicle(client);
+        }
       }
       this.sendDataToAllWithSpawnedEntity<MountSeatChangeResponse>(
         this._vehicles,

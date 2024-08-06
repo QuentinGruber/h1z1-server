@@ -37,7 +37,8 @@ export class ItemObject extends BaseLightweightCharacter {
   ) {
     super(characterId, transientId, actorModelId, position, rotation, server);
     this.flags.noCollide = 1;
-    (this.spawnerId = spawnerId), (this.item = item);
+    this.spawnerId = spawnerId;
+    this.item = item;
   }
   /* eslint-disable @typescript-eslint/no-unused-vars */
   OnPlayerSelect(
@@ -57,7 +58,6 @@ export class ItemObject extends BaseLightweightCharacter {
   }
 
   OnProjectileHit(server: ZoneServer2016, damageInfo: DamageInfo) {
-    damageInfo; // eslint
     if (
       this.item.itemDefinitionId === Items.FUEL_BIOFUEL ||
       this.item.itemDefinitionId === Items.FUEL_ETHANOL

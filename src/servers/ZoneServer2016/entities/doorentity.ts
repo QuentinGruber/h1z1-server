@@ -152,12 +152,12 @@ export class DoorEntity extends BaseLightweightCharacter {
     this.scale = new Float32Array(scale);
     this.spawnerId = spawnerId;
     this.startRot = rotation;
-    (this.state.rotation = new Float32Array(
+    this.state.rotation = new Float32Array(
       eul2quat(
         new Float32Array([rotation[0], rotation[1], rotation[2], rotation[3]])
       )
-    )),
-      (this.openAngle = this.startRot[0] + 1.575);
+    );
+    this.openAngle = this.startRot[0] + 1.575;
     this.closedAngle = this.startRot[0];
     const { openSound, closeSound } = getDoorSound(this.actorModelId);
     this.openSound = openSound;
@@ -215,14 +215,13 @@ export class DoorEntity extends BaseLightweightCharacter {
     this.OnProjectileHit(server, damageInfo);
   }
 
-  /* eslint-disable @typescript-eslint/no-unused-vars */
   OnPlayerSelect(
     server: ZoneServer2016,
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     client: ZoneClient2016,
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     isInstant?: boolean
-    /* eslint-enable @typescript-eslint/no-unused-vars */
   ) {
-    client; // eslint
     if (this.moving) {
       return;
     }

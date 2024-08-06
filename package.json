@@ -14,8 +14,8 @@
   },
   "dependencies": {
     "@types/js-yaml": "4.0.9",
-    "@types/node": "20.14.12",
-    "@types/ws": "8.5.11",
+    "@types/node": "22.1.0",
+    "@types/ws": "8.5.12",
     "debug": "4.3.6",
     "h1emu-core": "1.2.8",
     "h1z1-dataschema": "1.7.2",
@@ -29,9 +29,12 @@
     "src": "./src"
   },
   "devDependencies": {
-    "@typescript-eslint/eslint-plugin": "^7.13.1",
-    "@typescript-eslint/parser": "^7.13.1",
-    "eslint": "^8.56.0",
+    "@eslint/eslintrc": "^3.1.0",
+    "@eslint/js": "^9.8.0",
+    "@typescript-eslint/eslint-plugin": "^8.0.1",
+    "@typescript-eslint/parser": "^8.0.1",
+    "eslint": "^9.8.0",
+    "globals": "^15.9.0",
     "prettier": "^3.3.3",
     "ts-node": "^10.9.2",
     "typedoc": "^0.26.5"

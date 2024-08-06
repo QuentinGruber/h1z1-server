@@ -448,7 +448,6 @@ export class LoginServer extends EventEmitter {
     }
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   async LoginRequest(client: Client, request: LoginRequest) {
     let authKey, gameVersion;
     let sessionIdString = request.sessionId;
@@ -462,6 +461,7 @@ export class LoginServer extends EventEmitter {
         throw new Error("Invalid sessionId");
       }
     } catch (e) {
+      console.error(e);
       authKey = sessionIdString;
       gameVersion =
         client.protocolName === "LoginUdp_9"
@@ -1276,7 +1276,6 @@ export class LoginServer extends EventEmitter {
           status: 1
         });
       }
-      newCharacter;
     }
     const characterCreateReply: CharacterCreateReply = {
       status: creationStatus,
@@ -1294,6 +1293,7 @@ export class LoginServer extends EventEmitter {
       try {
         await this._mongoClient.connect();
       } catch (e) {
+        console.error(e);
         throw debug(
           "[ERROR]Unable to connect to mongo server " + this._mongoAddress
         );
