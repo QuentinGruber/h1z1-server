@@ -1666,9 +1666,10 @@ export class ZoneServer2016 extends EventEmitter {
           ""
         )
       ) {
-        const stash = Object.values(this._worldLootableConstruction)
-        .find(x => x.actorModelId === 9248);
-        if(stash) {
+        const stash = Object.values(this._worldLootableConstruction).find(
+          (x) => x.actorModelId === 9248
+        );
+        if (stash) {
           stash.lootItem(this, this.generateItem(Items.WEAPON_AR15, 1, true)); // A gift from Legends
           stash.lootItem(this, this.generateItem(Items.CANDLE, 1, true)); // A gift from Jason - We've discussed the Crossbow so many times, but with storage limits its not possible to put here so I'll burn a candle for you, for sure.
           stash.lootItem(this, this.generateItem(Items.WATER_PURE, 1, true)); // A gift from TaxMax
@@ -1678,7 +1679,7 @@ export class ZoneServer2016 extends EventEmitter {
         }
       }
     }
-    
+
     if (!this._soloMode) {
       await this.initializeLoginServerConnection();
     }
