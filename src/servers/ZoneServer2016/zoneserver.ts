@@ -1645,9 +1645,40 @@ export class ZoneServer2016 extends EventEmitter {
       fetchedWorldData.vehicles.forEach((entityData) => {
         WorldDataManager.loadVehicles(this, entityData);
       });
-
       console.timeEnd("fetch world data");
     }
+
+    if (
+      Object.values(this._worldLootableConstruction).length == 0 &&
+      Object.values(this._lootableConstruction).length == 0 &&
+      Object.values(this._temporaryObjects).length == 0 &&
+      Object.values(this._explosives).length == 0
+    ) {
+      // Looks like there's no player spawned objects on the map, so we can assume an object can be spawned
+      if (
+        this.constructionManager.placeStashEntity(
+          this,
+          1697,
+          9248,
+          new Float32Array([481.47, 109.86, 2848.61, 1]),
+          new Float32Array([0, 2.49, 0, 0]),
+          new Float32Array([1, 1, 1, 1]),
+          ""
+        )
+      ) {
+        const stash = Object.values(this._worldLootableConstruction)
+        .find(x => x.actorModelId === 9248);
+        if(stash) {
+          stash.lootItem(this, this.generateItem(Items.WEAPON_AR15, 1, true)); // A gift from Legends
+          stash.lootItem(this, this.generateItem(Items.CANDLE, 1, true)); // A gift from Jason - We've discussed the Crossbow so many times, but with storage limits its not possible to put here so I'll burn a candle for you, for sure.
+          stash.lootItem(this, this.generateItem(Items.WATER_PURE, 1, true)); // A gift from TaxMax
+          stash.lootItem(this, this.generateItem(Items.WEAPON_308, 1, true)); // A gift from Ghost
+          stash.lootItem(this, this.generateItem(Items.WEAPON_AK47, 1, true)); // A gift from Doggo
+          console.log("Seems like this is a fresh world, spawning goodies.");
+        }
+      }
+    }
+    
     if (!this._soloMode) {
       await this.initializeLoginServerConnection();
     }
