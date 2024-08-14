@@ -28867,5 +28867,32 @@
         "id": 365666100
       }
     ]
+  },
+  {
+    "actorDefinition": "Common_Props_Gravestone01.adr",
+    "modelId": 9058,
+    "renderDistance": 125,
+    "instances": [
+      {
+        "position": [
+          481.9295654296875,
+          109.84939575195312,
+          2848.1806640625,
+          1
+        ],
+        "rotation": [
+          -0.7956235408782959,
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1,
+          1
+        ]
+      }
+    ]
   }
 ]
