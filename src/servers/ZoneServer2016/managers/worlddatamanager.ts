@@ -393,7 +393,7 @@ export class WorldDataManager {
       serverData = await this._db
         ?.collection(DB_COLLECTIONS.WORLDS)
         .findOne({ worldId: serverId });
-      if (!serverData.serverId) {
+      if (!serverData || !serverData.serverId) {
         debug("World data not found in mongo, aborting.");
         return null;
       }
