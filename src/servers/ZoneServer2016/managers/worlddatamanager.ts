@@ -385,7 +385,7 @@ export class WorldDataManager {
     let serverData: ServerSaveData;
     if (this._soloMode) {
       serverData = require(`${this._appDataFolder}/worlddata/world.json`);
-      if (!serverData) {
+      if (!serverData.serverId) {
         debug("World data not found in file, aborting.");
         return null;
       }
@@ -393,12 +393,12 @@ export class WorldDataManager {
       serverData = await this._db
         ?.collection(DB_COLLECTIONS.WORLDS)
         .findOne({ worldId: serverId });
-      if (!serverData) {
+      if (!serverData.serverId) {
         debug("World data not found in mongo, aborting.");
         return null;
       }
     }
-    return serverData;
+    return serverData ?? null;
   }
 
   private async saveServerData(lastItemGuid: bigint) {

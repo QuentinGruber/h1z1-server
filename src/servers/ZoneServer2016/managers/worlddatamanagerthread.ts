@@ -47,9 +47,7 @@ expose({
     return worldDataManager.initialize(worldId, mongoAddress);
   },
   getServerData(serverId: number) {
-    return worldDataManager.getServerData(
-      serverId
-    ) as Promise<ServerSaveData | null>;
+    return worldDataManager.getServerData(serverId);
   },
   fetchWorldData() {
     return worldDataManager.fetchWorldData();
