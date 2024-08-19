@@ -29,7 +29,7 @@ export interface WorldDataManagerThreaded {
   saveTimeInterval: number;
   nextSaveTime: number;
   initialize: (arg0: number, arg1: string) => Promise<void>;
-  getServerData: (arg0: number) => Promise<ServerSaveData>;
+  getServerData: (arg0: number) => Promise<ServerSaveData | null>;
   fetchWorldData: () => Promise<FetchedWorldData>;
   fetchCharacterData: (arg0: string) => Promise<FullCharacterSaveData>;
   insertWorld: (arg0: bigint) => Promise<void>;
@@ -47,7 +47,9 @@ expose({
     return worldDataManager.initialize(worldId, mongoAddress);
   },
   getServerData(serverId: number) {
-    return worldDataManager.getServerData(serverId) as Promise<ServerSaveData>;
+    return worldDataManager.getServerData(
+      serverId
+    ) as Promise<ServerSaveData | null>;
   },
   fetchWorldData() {
     return worldDataManager.fetchWorldData();
