@@ -1613,7 +1613,9 @@ export class ZoneServer2016 extends EventEmitter {
       );
       if (loadedWorld != null) {
         isANewWorld = false;
-        this.lastItemGuid = BigInt(loadedWorld.lastItemGuid);
+        if (loadedWorld.lastItemGuid) {
+          this.lastItemGuid = BigInt(loadedWorld.lastItemGuid);
+        }
         if (loadedWorld.worldSaveVersion !== this.worldSaveVersion) {
           console.log(
             `World save version mismatch, deleting world data. Current: ${this.worldSaveVersion} Old: ${loadedWorld.worldSaveVersion}`
