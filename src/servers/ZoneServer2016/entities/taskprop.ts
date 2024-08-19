@@ -200,10 +200,6 @@ export class TaskProp extends BaseLightweightCharacter {
           Items.FIRST_AID
         ];
         break;
-      case "Common_Props_Gravestone01.adr":
-        this.nameId = 66;
-        this.rewardItems = [];
-        break;
     }
   }
 
@@ -213,12 +209,6 @@ export class TaskProp extends BaseLightweightCharacter {
 
   OnInteractionString(server: ZoneServer2016, client: ZoneClient2016) {
     switch (this.actorModel) {
-      case "Common_Props_Gravestone01.adr":
-        server.sendData(client, "Command.InteractionString", {
-          guid: this.characterId,
-          stringId: 0
-        });
-        break;
       case "Task_Patient_Safe_FileCabinet01.adr":
         server.sendData(client, "Command.InteractionString", {
           guid: this.characterId,
@@ -299,20 +289,6 @@ export class TaskProp extends BaseLightweightCharacter {
     /* eslint-enable @typescript-eslint/no-unused-vars */
   ) {
     switch (this.actorModel) {
-      case "Common_Props_Gravestone01.adr":
-        server.utilizeHudTimer(
-          client,
-          66,
-          60000, // Minute of silence
-          0,
-          () => {
-            server.sendChatText(
-              client,
-              "In loving memory of our dear friend, you will be deeply missed."
-            );
-          }
-        );
-        break;
       case "Task_Hospital_Researcher_Radio.adr":
         if (!client.character.hasItem(Items.AIRDROP_CODE)) return;
         const item = client.character.getItemById(Items.AIRDROP_CODE);
