@@ -248,6 +248,8 @@ import { AccountInventoryManager } from "./managers/accountinventorymanager";
 import { PlayTimeManager } from "./managers/playtimemanager";
 import { RewardManager } from "./managers/rewardmanager";
 import { DynamicAppearance } from "types/zonedata";
+import { AiManager, EntityFromJs, EntityType } from "h1emu-ai";
+import { setInterval } from "node:timers";
 
 const spawnLocations2 = require("../../../data/2016/zoneData/Z1_gridSpawns.json"),
   deprecatedDoors = require("../../../data/2016/sampleData/deprecatedDoors.json"),
@@ -395,6 +397,7 @@ export class ZoneServer2016 extends EventEmitter {
   pluginManager: PluginManager;
   configManager: ConfigManager;
   playTimeManager: PlayTimeManager;
+  aiManager: AiManager;
 
   _ready: boolean = false;
 
@@ -491,6 +494,7 @@ export class ZoneServer2016 extends EventEmitter {
     this.pluginManager = new PluginManager();
     this.commandHandler = new CommandHandler();
     this.playTimeManager = new PlayTimeManager();
+    this.aiManager = new AiManager();
     /* CONFIG MANAGER MUST BE INSTANTIATED LAST ! */
     this.configManager = new ConfigManager(this, process.env.CONFIG_PATH);
     this.enableWorldSaves =
@@ -1858,6 +1862,11 @@ export class ZoneServer2016 extends EventEmitter {
     this.rconManager.on("message", this.handleRconMessage.bind(this));
     this.rewardManager.start();
     this.hookManager.checkHook("OnServerReady");
+    setInterval(() => {
+      console.time("ai");
+      this.aiManager.run();
+      console.timeEnd("ai");
+    }, 300);
   }
 
   async sendInitData(client: Client) {
@@ -4179,6 +4188,8 @@ export class ZoneServer2016 extends EventEmitter {
       generatedTransient,
       this
     );
+    const e = new EntityFromJs(EntityType.Player, client.character);
+    this.aiManager.add_entity(e);
     return client;
   }
 

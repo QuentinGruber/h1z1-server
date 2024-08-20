@@ -36,6 +36,7 @@ import { Zombie } from "../../entities/zombie";
 import { WorldObjectManager } from "../../managers/worldobjectmanager";
 import { Vehicle2016 } from "../../entities/vehicle";
 import { Plane } from "../../entities/plane";
+import { EntityFromJs, EntityType } from "h1emu-ai";
 
 const abilities = require("../../../../../data/2016/dataSources/Abilities.json"),
   vehicleAbilities = require("../../../../../data/2016/dataSources/VehicleAbilities.json");
@@ -147,7 +148,10 @@ const dev: any = {
       client.character.state.rotation,
       server
     );
+
     server._npcs[characterId] = zombie;
+    const e = new EntityFromJs(EntityType.Zombie, zombie);
+    server.aiManager.add_entity(e);
   },
   abilities: function (
     server: ZoneServer2016,
