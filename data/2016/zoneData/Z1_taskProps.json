@@ -28870,6 +28870,7 @@
   },
   {
     "actorDefinition": "Common_Props_Gravestone01.adr",
+    "tribute":true,
     "modelId": 9058,
     "renderDistance": 125,
     "instances": [

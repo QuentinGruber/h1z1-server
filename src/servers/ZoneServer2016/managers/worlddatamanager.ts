@@ -381,22 +381,24 @@ export class WorldDataManager {
 
   //#region SERVER DATA
 
-  async getServerData(serverId: number): Promise<ServerSaveData | undefined> {
+  async getServerData(serverId: number): Promise<ServerSaveData | null> {
     let serverData: ServerSaveData;
     if (this._soloMode) {
       serverData = require(`${this._appDataFolder}/worlddata/world.json`);
-      if (!serverData) {
+      if (!serverData.serverId) {
         debug("World data not found in file, aborting.");
-        return;
+        return null;
       }
     } else {
-      serverData = <any>(
-        await this._db
-          ?.collection(DB_COLLECTIONS.WORLDS)
-          .findOne({ worldId: serverId })
-      );
+      serverData = await this._db
+        ?.collection(DB_COLLECTIONS.WORLDS)
+        .findOne({ worldId: serverId });
+      if (!serverData || !serverData.serverId) {
+        debug("World data not found in mongo, aborting.");
+        return null;
+      }
     }
-    return serverData;
+    return serverData ?? null;
   }
 
   private async saveServerData(lastItemGuid: bigint) {

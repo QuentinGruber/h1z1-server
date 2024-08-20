@@ -909,14 +909,16 @@ export class ConstructionManager {
           itemDefinitionId
         );
       case Items.HAND_SHOVEL:
-        return this.placeStashEntity(
-          server,
-          itemDefinitionId,
-          modelId,
-          position,
-          fixEulerOrder(rotation),
-          new Float32Array([1, 1, 1, 1]),
-          freeplaceParentCharacterId
+        return Boolean(
+          this.placeStashEntity(
+            server,
+            itemDefinitionId,
+            modelId,
+            position,
+            fixEulerOrder(rotation),
+            new Float32Array([1, 1, 1, 1]),
+            freeplaceParentCharacterId
+          )
         );
       default:
         //this.placementError(client, ConstructionErrors.UNKNOWN_CONSTRUCTION);
@@ -1720,7 +1722,7 @@ export class ConstructionManager {
     rotation: Float32Array,
     scale: Float32Array,
     parentObjectCharacterId?: string
-  ): boolean {
+  ): LootableConstructionEntity {
     const characterId = server.generateGuid(),
       transientId = server.getTransientId(characterId);
     const obj = new LootableConstructionEntity(
@@ -1747,7 +1749,7 @@ export class ConstructionManager {
       this.spawnLootableConstruction(server, client, obj);
     }, obj);
 
-    return true;
+    return obj;
   }
 
   checkFoundationPermission(
