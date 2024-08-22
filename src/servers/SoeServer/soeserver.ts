@@ -52,7 +52,7 @@ export class SOEServer extends EventEmitter {
     this._cryptoKey = cryptoKey;
     this._maxMultiBufferSize = this._udpLength - 4 - this._crcLength;
     this._connection = dgram.createSocket({
-      type: "udp6",
+      type: "udp4",
       reuseAddr: true,
       recvBufferSize: oneMb,
       sendBufferSize: oneMb
