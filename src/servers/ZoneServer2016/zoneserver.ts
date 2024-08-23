@@ -1666,7 +1666,6 @@ export class ZoneServer2016 extends EventEmitter {
       stash.lootItem(this, this.generateItem(Items.WATER_PURE, 1, true)); // A gift from TaxMax
       stash.lootItem(this, this.generateItem(Items.WEAPON_308, 1, true)); // A gift from Ghost
       stash.lootItem(this, this.generateItem(Items.WEAPON_AK47, 1, true)); // A gift from Doggo
-      console.log("Seems like this is a fresh world, spawning goodies.");
     }
 
     if (!this._soloMode) {
