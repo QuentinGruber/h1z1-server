@@ -53,8 +53,7 @@ import {
   ModelIds,
   ResourceIds,
   ResourceTypes,
-  StringIds,
-  TreeIds
+  StringIds
 } from "../models/enums";
 import { ZoneServer2016 } from "../zoneserver";
 import {
@@ -271,18 +270,11 @@ export class ConstructionManager {
   ): boolean {
     const disallowedItems = [Items.STORAGE_BOX, Items.BEE_BOX, Items.FURNACE];
     if (disallowedItems.includes(item.itemDefinitionId)) {
-      for (const treeKey in server.speedtreeManager._speedTreesList) {
-        const zoneTree = server.speedtreeManager._speedTreesList[treeKey];
-        const allowedTrees = [
-          TreeIds.BLACKBERRY,
-          TreeIds.DEVILCLUB,
-          TreeIds.VINEMAPLE
-        ];
-        if (allowedTrees.includes(zoneTree.treeId)) continue;
-        if (isPosInRadius(1, position, zoneTree.position)) {
+      server.speedtreeManager._speedTreesList.forEach((v) => {
+        if (isPosInRadius(1, position, v.position)) {
           return true;
         }
-      }
+      });
     }
     return false;
   }
@@ -917,14 +909,16 @@ export class ConstructionManager {
           itemDefinitionId
         );
       case Items.HAND_SHOVEL:
-        return this.placeStashEntity(
-          server,
-          itemDefinitionId,
-          modelId,
-          position,
-          fixEulerOrder(rotation),
-          new Float32Array([1, 1, 1, 1]),
-          freeplaceParentCharacterId
+        return Boolean(
+          this.placeStashEntity(
+            server,
+            itemDefinitionId,
+            modelId,
+            position,
+            fixEulerOrder(rotation),
+            new Float32Array([1, 1, 1, 1]),
+            freeplaceParentCharacterId
+          )
         );
       default:
         //this.placementError(client, ConstructionErrors.UNKNOWN_CONSTRUCTION);
@@ -1038,11 +1032,8 @@ export class ConstructionManager {
         this.placementError(server, client, ConstructionErrors.OVERLAP);
         return false;
       }
-      (position = parent.getSlotPosition(BuildingSlot, parent.upperWallSlots)),
-        (rotation = parent.getSlotRotation(
-          BuildingSlot,
-          parent.upperWallSlots
-        ));
+      position = parent.getSlotPosition(BuildingSlot, parent.upperWallSlots);
+      rotation = parent.getSlotRotation(BuildingSlot, parent.upperWallSlots);
     } else {
       if (
         parent &&
@@ -1054,8 +1045,8 @@ export class ConstructionManager {
         this.placementError(server, client, ConstructionErrors.OVERLAP);
         return false;
       }
-      (position = parent.getSlotPosition(BuildingSlot, parent.wallSlots)),
-        (rotation = parent.getSlotRotation(BuildingSlot, parent.wallSlots));
+      position = parent.getSlotPosition(BuildingSlot, parent.wallSlots);
+      rotation = parent.getSlotRotation(BuildingSlot, parent.wallSlots);
     }
     if (!position || !rotation) {
       this.placementError(server, client, ConstructionErrors.UNKNOWN_SLOT);
@@ -1731,7 +1722,7 @@ export class ConstructionManager {
     rotation: Float32Array,
     scale: Float32Array,
     parentObjectCharacterId?: string
-  ): boolean {
+  ): LootableConstructionEntity {
     const characterId = server.generateGuid(),
       transientId = server.getTransientId(characterId);
     const obj = new LootableConstructionEntity(
@@ -1758,7 +1749,7 @@ export class ConstructionManager {
       this.spawnLootableConstruction(server, client, obj);
     }, obj);
 
-    return true;
+    return obj;
   }
 
   checkFoundationPermission(

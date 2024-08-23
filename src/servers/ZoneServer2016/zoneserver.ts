@@ -14,7 +14,6 @@
 const debugName = "ZoneServer",
   debug = require("debug")(debugName);
 
-process.env.isBin && require("./managers/worlddatamanagerthread");
 import { EventEmitter } from "node:events";
 import { H1Z1Protocol } from "../../protocols/h1z1protocol";
 import { LoginConnectionManager } from "../LoginZoneConnection/loginconnectionmanager";
@@ -101,7 +100,9 @@ import {
   getDistance2d,
   TimeWrapper,
   getCurrentServerTimeWrapper,
-  flhash
+  flhash,
+  getDateString,
+  loadJson
 } from "../../utils/utils";
 
 import { Db, MongoClient, WithId } from "mongodb";
@@ -124,7 +125,6 @@ import { ConstructionDoor } from "./entities/constructiondoor";
 import { ConstructionParentEntity } from "./entities/constructionparententity";
 import { ConstructionChildEntity } from "./entities/constructionchildentity";
 import {
-  AccountItemSaveData,
   ConstructionParentSaveData,
   FullCharacterSaveData,
   LootableConstructionSaveData,
@@ -244,8 +244,10 @@ import { GatewayServer } from "../GatewayServer/gatewayserver";
 import { WaterSource } from "./entities/watersource";
 import { WebSocket } from "ws";
 import { CommandHandler } from "./handlers/commands/commandhandler";
-import { AccountInventory } from "./classes/accountinventory";
-import { accountInventoryDefaultRewards } from "./data/loadouts";
+import { AccountInventoryManager } from "./managers/accountinventorymanager";
+import { PlayTimeManager } from "./managers/playtimemanager";
+import { RewardManager } from "./managers/rewardmanager";
+import { DynamicAppearance } from "types/zonedata";
 
 const spawnLocations2 = require("../../../data/2016/zoneData/Z1_gridSpawns.json"),
   deprecatedDoors = require("../../../data/2016/sampleData/deprecatedDoors.json"),
@@ -257,7 +259,6 @@ const spawnLocations2 = require("../../../data/2016/zoneData/Z1_gridSpawns.json"
   loadoutSlotItemClasses = require("./../../../data/2016/dataSources/LoadoutSlotItemClasses.json"),
   equipSlotItemClasses = require("./../../../data/2016/dataSources/EquipSlotItemClasses.json"),
   weaponDefinitions = require("../../../data/2016/dataSources/ServerWeaponDefinitions"),
-  dynamicappearance = require("../../../data/2016/sampleData/dynamicappearance"),
   resourceDefinitions = require("../../../data/2016/dataSources/Resources"),
   Z1_POIs = require("../../../data/2016/zoneData/Z1_POIs"),
   hudIndicators = require("../../../data/2016/dataSources/HudIndicators"),
@@ -299,7 +300,6 @@ export class ZoneServer2016 extends EventEmitter {
 
   /** Global dictionaries for all entities */
   _characters: EntityDictionary<Character> = {};
-  _accountInventories: EntityDictionary<AccountInventory> = {};
   _npcs: EntityDictionary<Npc> = {};
   _spawnedItems: EntityDictionary<ItemObject> = {};
   _plants: EntityDictionary<Plant> = {};
@@ -376,6 +376,8 @@ export class ZoneServer2016 extends EventEmitter {
   _packetHandlers: ZonePacketHandlers;
 
   /** Managers used for handling core functionalities */
+  accountInventoriesManager: AccountInventoryManager;
+  rewardManager: RewardManager;
   worldObjectManager: WorldObjectManager;
   voiceChatManager: VoiceChatManager;
   smeltingManager: SmeltingManager;
@@ -392,6 +394,7 @@ export class ZoneServer2016 extends EventEmitter {
   fairPlayManager: FairPlayManager;
   pluginManager: PluginManager;
   configManager: ConfigManager;
+  playTimeManager: PlayTimeManager;
 
   _ready: boolean = false;
 
@@ -436,6 +439,7 @@ export class ZoneServer2016 extends EventEmitter {
   rebootTimeTimer?: NodeJS.Timeout;
   inGameTimeManager: IngameTimeManager = new IngameTimeManager();
   commandHandler: CommandHandler;
+  dynamicappearance: DynamicAppearance;
 
   /** MANAGED BY CONFIGMANAGER - See defaultConfig.yaml for more information */
   proximityItemsDistance!: number;
@@ -481,10 +485,12 @@ export class ZoneServer2016 extends EventEmitter {
     this.rconManager = new RConManager();
     this.groupManager = new GroupManager();
     this.speedtreeManager = new SpeedTreeManager();
+    this.rewardManager = new RewardManager(this);
     this.constructionManager = new ConstructionManager();
     this.fairPlayManager = new FairPlayManager();
     this.pluginManager = new PluginManager();
     this.commandHandler = new CommandHandler();
+    this.playTimeManager = new PlayTimeManager();
     /* CONFIG MANAGER MUST BE INSTANTIATED LAST ! */
     this.configManager = new ConfigManager(this, process.env.CONFIG_PATH);
     this.enableWorldSaves =
@@ -506,6 +512,7 @@ export class ZoneServer2016 extends EventEmitter {
       debug("Server in solo mode !");
     }
 
+    this.accountInventoriesManager = new AccountInventoryManager(this);
     this.on("login", async (client) => {
       if (!this._soloMode) {
         this.sendZonePopulationUpdate();
@@ -528,7 +535,6 @@ export class ZoneServer2016 extends EventEmitter {
           this._loginConnectionManager.sendData(
             {
               ...this._loginServerInfo,
-              // TODO: what a dirty hack
               serverId: this._worldId
             } as any,
             "ClientMessage",
@@ -649,6 +655,11 @@ export class ZoneServer2016 extends EventEmitter {
     if (!this._soloMode) {
       this.registerLoginConnectionListeners(internalServerPort);
     }
+
+    const dynamicappearance = loadJson(
+      __dirname + "/../../../data/2016/sampleData/dynamicappearance.json"
+    );
+    this.dynamicappearance = dynamicappearance;
     if (this._mongoAddress && this.rebootTime) {
       console.log("Reboot time set to " + this.rebootTime + " hours");
       this.rebootTimeTimer = setTimeout(
@@ -757,6 +768,7 @@ export class ZoneServer2016 extends EventEmitter {
                   );
                 }
               } catch (error) {
+                console.error(error);
                 this._loginConnectionManager.sendData(
                   client,
                   "CharacterDeleteReply",
@@ -981,6 +993,7 @@ export class ZoneServer2016 extends EventEmitter {
         hairModel: characterModelData.hairModel,
         gender: characterData.payload.gender,
         status: 1,
+        playTime: 0,
         worldSaveVersion: this.worldSaveVersion
       };
       const collection = this._db.collection(DB_COLLECTIONS.CHARACTERS);
@@ -995,6 +1008,7 @@ export class ZoneServer2016 extends EventEmitter {
         status: 1
       });
     } catch (error) {
+      console.error(error);
       this._loginConnectionManager.sendData(client, "CharacterCreateReply", {
         reqId: reqId,
         status: 0
@@ -1009,6 +1023,7 @@ export class ZoneServer2016 extends EventEmitter {
         status: this.getIsAdmin(guid)
       });
     } catch (error) {
+      console.error(error);
       this._loginConnectionManager.sendData(client, "ClientIsAdminReply", {
         reqId: reqId,
         status: 0
@@ -1066,7 +1081,7 @@ export class ZoneServer2016 extends EventEmitter {
       );
 
       const unbanTime = ban.expirationDate
-          ? this.getDateString(ban.expirationDate)
+          ? getDateString(ban.expirationDate)
           : 0,
         reason = ban.banReason;
 
@@ -1151,7 +1166,7 @@ export class ZoneServer2016 extends EventEmitter {
         ) {
           const proximityItem = {
             itemDefinitionId: object.item.itemDefinitionId,
-            associatedCharacterGuid: client.character.characterId,
+            associatedCharacterGuid: object.characterId,
             itemData: {
               itemDefinitionId: object.item.itemDefinitionId,
               tintId: 0,
@@ -1161,7 +1176,7 @@ export class ZoneServer2016 extends EventEmitter {
                 hasSubData: false
               },
               unknownBoolean1: true,
-              ownerCharacterId: "",
+              ownerCharacterId: object.characterId,
               unknownDword9: 1
             }
           };
@@ -1269,14 +1284,10 @@ export class ZoneServer2016 extends EventEmitter {
     if (!this.hookManager.checkHook("OnSendCharacterData", client)) return;
     if (!(await this.hookManager.checkAsyncHook("OnSendCharacterData", client)))
       return;
-    let savedCharacter: FullCharacterSaveData,
-      accountInventory: AccountInventory;
+    let savedCharacter: FullCharacterSaveData;
     try {
       savedCharacter = await this.worldDataManager.fetchCharacterData(
         client.character.characterId
-      );
-      accountInventory = await this.worldDataManager.loadAccountInventory(
-        client.loginSessionId
       );
     } catch (e) {
       console.log(e);
@@ -1288,20 +1299,6 @@ export class ZoneServer2016 extends EventEmitter {
       savedCharacter as FullCharacterSaveData
     );
     client.startingPos = client.character.state.position;
-    if (this._accountInventories[accountInventory.loginSessionId]) {
-      delete this._accountInventories[accountInventory.loginSessionId];
-    }
-
-    // Give a new player some gifts
-    if (Object.values(accountInventory.items).length == 0) {
-      Object.values(accountInventoryDefaultRewards).forEach((gift) => {
-        const item = this.generateItem(gift.item, gift.count);
-        if (!item) return;
-        accountInventory.items[item.itemGuid] = item;
-      });
-    }
-    this._accountInventories[accountInventory.loginSessionId] =
-      accountInventory;
   }
 
   sendCharacterData(client: Client) {
@@ -1411,15 +1408,18 @@ export class ZoneServer2016 extends EventEmitter {
       "ReferenceData.DynamicAppearance",
       {
         ITEM_APPEARANCE_DEFINITIONS:
-          dynamicappearance.ITEM_APPEARANCE_DEFINITIONS,
+          this.dynamicappearance.ITEM_APPEARANCE_DEFINITIONS,
         SHADER_SEMANTIC_DEFINITIONS:
-          dynamicappearance.SHADER_SEMANTIC_DEFINITIONS,
+          this.dynamicappearance.SHADER_SEMANTIC_DEFINITIONS,
         SHADER_PARAMETER_DEFINITIONS:
-          dynamicappearance.SHADER_PARAMETER_DEFINITIONS
+          this.dynamicappearance.SHADER_PARAMETER_DEFINITIONS
       }
     );
     if (!dynamicAppearanceCache) return;
     this.dynamicAppearanceCache = dynamicAppearanceCache;
+    // unused after the packet is in cache so we clear that
+    delete this.dynamicappearance.ITEM_APPEARANCE_DEFINITIONS;
+    delete this.dynamicappearance.SHADER_PARAMETER_DEFINITIONS;
   }
   /**
    * Caches weapon definitons so they aren't packed every time a client logs in.
@@ -1550,6 +1550,8 @@ export class ZoneServer2016 extends EventEmitter {
     client.character.hairModel = savedCharacter.hairModel || "";
     client.character.spawnGridData = savedCharacter.spawnGridData;
     client.character.mutedCharacters = savedCharacter.mutedCharacters || [];
+    client.character.groupId = savedCharacter.groupId || 0;
+    client.character.playTime = savedCharacter.playTime || 0;
 
     let newCharacter = false;
     if (
@@ -1583,12 +1585,6 @@ export class ZoneServer2016 extends EventEmitter {
         savedCharacter._containers,
         client.character._containers
       );
-      if (!this._accountInventories[client.loginSessionId]) {
-        this._accountInventories[client.loginSessionId] = new AccountInventory(
-          client.loginSessionId,
-          {}
-        );
-      }
       client.character._resources =
         savedCharacter._resources || client.character._resources;
       client.character.generateEquipmentFromLoadout(this);
@@ -1599,6 +1595,7 @@ export class ZoneServer2016 extends EventEmitter {
 
   private async setupServer() {
     this.weatherManager.init();
+    this.playTimeManager.init(this);
     this.initModelsDataSource();
     this.worldDataManager = (await spawn(
       new Worker("./managers/worlddatamanagerthread")
@@ -1609,11 +1606,16 @@ export class ZoneServer2016 extends EventEmitter {
         this._mongoAddress
       );
     }
+    let isANewWorld: boolean = true;
     if (this.enableWorldSaves) {
       const loadedWorld = await this.worldDataManager.getServerData(
         this._worldId
       );
-      if (loadedWorld && Object.keys(loadedWorld).length) {
+      if (loadedWorld != null) {
+        isANewWorld = false;
+        if (loadedWorld.lastItemGuid) {
+          this.lastItemGuid = BigInt(loadedWorld.lastItemGuid);
+        }
         if (loadedWorld.worldSaveVersion !== this.worldSaveVersion) {
           console.log(
             `World save version mismatch, deleting world data. Current: ${this.worldSaveVersion} Old: ${loadedWorld.worldSaveVersion}`
@@ -1626,9 +1628,6 @@ export class ZoneServer2016 extends EventEmitter {
       } else {
         await this.worldDataManager.insertWorld(this.lastItemGuid);
       }
-      this.lastItemGuid = BigInt(
-        loadedWorld?.lastItemGuid || this.lastItemGuid
-      );
       console.time("fetch world data");
       const fetchedWorldData =
         (await this.worldDataManager.fetchWorldData()) as FetchedWorldData;
@@ -1648,9 +1647,27 @@ export class ZoneServer2016 extends EventEmitter {
       fetchedWorldData.vehicles.forEach((entityData) => {
         WorldDataManager.loadVehicles(this, entityData);
       });
-
       console.timeEnd("fetch world data");
     }
+
+    if (isANewWorld) {
+      // Looks like there's no player spawned objects on the map, so we can assume an object can be spawned
+      const stash = this.constructionManager.placeStashEntity(
+        this,
+        1697,
+        9248,
+        new Float32Array([481.47, 109.86, 2848.61, 1]),
+        new Float32Array([0, 2.49, 0, 0]),
+        new Float32Array([1, 1, 1, 1]),
+        ""
+      );
+      stash.lootItem(this, this.generateItem(Items.WEAPON_AR15, 1, true)); // A gift from Legends
+      stash.lootItem(this, this.generateItem(Items.CANDLE, 1, true)); // A gift from Jason - We've discussed the Crossbow so many times, but with storage limits its not possible to put here so I'll burn a candle for you, for sure.
+      stash.lootItem(this, this.generateItem(Items.WATER_PURE, 1, true)); // A gift from TaxMax
+      stash.lootItem(this, this.generateItem(Items.WEAPON_308, 1, true)); // A gift from Ghost
+      stash.lootItem(this, this.generateItem(Items.WEAPON_AK47, 1, true)); // A gift from Doggo
+    }
+
     if (!this._soloMode) {
       await this.initializeLoginServerConnection();
     }
@@ -1677,7 +1694,6 @@ export class ZoneServer2016 extends EventEmitter {
     debug("Server ready");
   }
 
-  /* TODO: MOVE TO WORLDDATAMANAGER */
   async saveWorld() {
     if (this._isSaving) {
       this.sendChatTextToAdmins("A save is already in progress.");
@@ -1742,42 +1758,27 @@ export class ZoneServer2016 extends EventEmitter {
           traps.push(WorldDataManager.getTrapSaveData(entity, this._worldId));
         }
       });
-      const accountInventories: AccountItemSaveData[] = [];
-      Object.values(this._accountInventories).forEach((entity) => {
-        accountInventories.push({
-          loginSessionId: entity.loginSessionId,
-          items: Object.values(entity.items)
-        });
-      });
 
       console.timeEnd("ZONE: processing");
 
-      console.time("ZONE: saveWorld");
-
-      this.worldDataManager
-        .saveWorld({
-          lastGuidItem: this.lastItemGuid,
-          characters,
-          accountInventories,
-          worldConstructions,
-          crops,
-          traps,
-          constructions,
-          vehicles
-        })
-        .then(() => {
-          this._isSaving = false;
-          this.sendChatTextToAdmins("World saved!");
-          this.nextSaveTime = Date.now() + this.saveTimeInterval;
-          debug("World saved!");
-        });
+      await this.worldDataManager.saveWorld({
+        lastGuidItem: this.lastItemGuid,
+        characters,
+        worldConstructions,
+        crops,
+        traps,
+        constructions,
+        vehicles
+      });
+      this._isSaving = false;
+      this.sendChatTextToAdmins("World saved!");
+      this.nextSaveTime = Date.now() + this.saveTimeInterval;
+      debug("World saved!");
     } catch (e) {
       console.log(e);
       this._isSaving = false;
-      console.timeEnd("ZONE: saveWorld");
       this.sendChatTextToAdmins("World save failed!");
     }
-    console.timeEnd("ZONE: saveWorld");
   }
 
   executeRconCommand(ws: WebSocket, payload: string) {
@@ -1827,6 +1828,11 @@ export class ZoneServer2016 extends EventEmitter {
     this._serverStartTime = getCurrentServerTimeWrapper();
     this.weatherManager.startWeatherWorker(this);
     this.inGameTimeManager.start();
+    if (!this._soloMode) {
+      this.accountInventoriesManager.init(
+        this._db.collection(DB_COLLECTIONS.ACCOUNT_ITEMS)
+      );
+    }
     this._gatewayServer.start();
     this.worldRoutineTimer = setTimeout(
       () => this.worldRoutine.bind(this)(),
@@ -1838,6 +1844,7 @@ export class ZoneServer2016 extends EventEmitter {
     this.initUseOptionsDataSource();
     this.rconManager.start();
     this.rconManager.on("message", this.handleRconMessage.bind(this));
+    this.rewardManager.start();
     this.hookManager.checkHook("OnServerReady");
   }
 
@@ -2159,18 +2166,15 @@ export class ZoneServer2016 extends EventEmitter {
         this._worldId
       );
       this.worldDataManager.saveCharacterData(characterSave, this.lastItemGuid);
-      if (this._accountInventories[client.loginSessionId]) {
-        this.worldDataManager.saveAccountInventory(
-          this._accountInventories[client.loginSessionId]
-        );
-      }
       this.dismountVehicle(client);
       client.managedObjects?.forEach((characterId: string) => {
         this.dropVehicleManager(client, characterId);
       });
       this.deleteEntity(client.character.characterId, this._characters);
 
-      this.groupManager.handlePlayerDisconnect(this, client);
+      if (!this._soloMode) {
+        this.groupManager.handlePlayerDisconnect(this, client);
+      }
     }
     delete this._clients[client.sessionId];
     this._gatewayServer.deleteSoeClient(client.soeClientId);
@@ -3209,7 +3213,7 @@ export class ZoneServer2016 extends EventEmitter {
         crackedArmor:
           isHeadshot && hasHelmetBefore && !hasHelmet
             ? 1
-            : 0 || (!isHeadshot && hasArmorBefore && !hasArmor)
+            : !isHeadshot && hasArmorBefore && !hasArmor
               ? 1
               : 0
       }
@@ -3639,7 +3643,13 @@ export class ZoneServer2016 extends EventEmitter {
 
     for (const a in this._clients) {
       const client = this._clients[a];
-      client.spawnedEntities.delete(dictionary[characterId]);
+      if (client.spawnedEntities.delete(dictionary[characterId])) {
+        this.sendData<ClientUpdateProximateItems>(
+          client,
+          "ClientUpdate.ProximateItems",
+          this.getProximityItems(client)
+        );
+      }
     }
     delete dictionary[characterId];
     delete this._transientIds[this._characterIds[characterId]];
@@ -4281,20 +4291,20 @@ export class ZoneServer2016 extends EventEmitter {
         this.sendAlert(
           client,
           reason
-            ? `YOU HAVE BEEN BANNED FROM THE SERVER UNTIL ${this.getDateString(
+            ? `YOU HAVE BEEN BANNED FROM THE SERVER UNTIL ${getDateString(
                 timestamp
               )}. REASON: ${reason}`
-            : `YOU HAVE BEEN BANNED FROM THE SERVER UNTIL: ${this.getDateString(
+            : `YOU HAVE BEEN BANNED FROM THE SERVER UNTIL: ${getDateString(
                 timestamp
               )}`
         );
       }
       this.sendAlertToAll(
         reason
-          ? `${characterName} HAS BEEN BANNED FROM THE SERVER UNTIL ${this.getDateString(
+          ? `${characterName} HAS BEEN BANNED FROM THE SERVER UNTIL ${getDateString(
               timestamp
             )}. REASON: ${reason}`
-          : `${characterName} HAS BEEN BANNED FROM THE SERVER UNTIL: ${this.getDateString(
+          : `${characterName} HAS BEEN BANNED FROM THE SERVER UNTIL: ${getDateString(
               timestamp
             )}`
       );
@@ -4371,28 +4381,6 @@ export class ZoneServer2016 extends EventEmitter {
     this.deleteClient(client);
   }
 
-  // TODO: this should be a util function
-  getDateString(timestamp: number) {
-    const months = [
-      "JAN",
-      "FEB",
-      "MAR",
-      "APR",
-      "MAY",
-      "JUN",
-      "JUL",
-      "AUG",
-      "SEP",
-      "OCT",
-      "NOV",
-      "DEC"
-    ];
-    const date = new Date(timestamp);
-    return `${date.getDate()} ${
-      months[date.getMonth()]
-    } ${date.getFullYear()} ${date.getHours()}:${date.getMinutes()}`;
-  }
-
   sendGameTimeSync(client: Client) {
     debug("GameTimeSync");
     this.sendData<GameTimeSync>(client, "GameTimeSync", {
@@ -4440,10 +4428,11 @@ export class ZoneServer2016 extends EventEmitter {
   airdropManager(client: Client, spawn: boolean) {
     if (!this._airdrop) return;
     if (spawn) {
+      // These lightWeight characters are only used like targets for the plane
       const lightWeight = {
         characterId: this._airdrop.planeTarget,
         transientId: 0,
-        actorModelId: ModelIds.AIRDROP_PLANE,
+        actorModelId: ModelIds.WEAPON_EMPTY,
         position: this._airdrop.planeTargetPos,
         rotation: new Float32Array([0, 0, 0, 0]),
         scale: new Float32Array([0.001, 0.001, 0.001, 0.001]),
@@ -4479,7 +4468,7 @@ export class ZoneServer2016 extends EventEmitter {
       const lightWeight3 = {
         characterId: this._airdrop.cargoTarget,
         transientId: 0,
-        actorModelId: ModelIds.AIRDROP_PLANE,
+        actorModelId: ModelIds.WEAPON_EMPTY,
         position: this._airdrop.cargoTargetPos,
         rotation: new Float32Array([0, 0, 0, 0]),
         scale: new Float32Array([0.001, 0.001, 0.001, 0.001]),
@@ -5059,7 +5048,9 @@ export class ZoneServer2016 extends EventEmitter {
     if (passenger) {
       // dismount the driver
       const client = this.getClientByCharId(passenger.characterId);
-      !client || this.dismountVehicle(client);
+      if (client) {
+        this.dismountVehicle(client);
+      }
     }
     vehicle.seats[seatId] = client.character.characterId;
     if (seatId == 0) {
@@ -5225,7 +5216,9 @@ export class ZoneServer2016 extends EventEmitter {
     ) {
       if (passenger && !passenger?.isAlive) {
         const client = this.getClientByCharId(passenger.characterId);
-        !client || this.dismountVehicle(client);
+        if (client) {
+          this.dismountVehicle(client);
+        }
       }
       this.sendDataToAllWithSpawnedEntity<MountSeatChangeResponse>(
         this._vehicles,
@@ -5739,6 +5732,27 @@ export class ZoneServer2016 extends EventEmitter {
     }
     return itemData;
   }
+  generateAccountItem(
+    itemDefinitionId: number,
+    count: number = 1
+  ): BaseItem | undefined {
+    const itemDefinition = this.getItemDefinition(itemDefinitionId);
+    if (!itemDefinition) {
+      debug(
+        `[ERROR] GenerateItem: Invalid item definition: ${itemDefinitionId}`
+      );
+      return;
+    }
+    const generatedGuid = generateRandomGuid();
+
+    const itemData: BaseItem = new BaseItem(
+      itemDefinitionId,
+      generatedGuid,
+      100,
+      count
+    );
+    return itemData;
+  }
 
   /**
    * Checks if an item with the specified itemDefinitionId is a weapon.
@@ -6033,7 +6047,60 @@ export class ZoneServer2016 extends EventEmitter {
     }
     return true;
   }
+  async lootAccountItem(
+    server: ZoneServer2016,
+    client: Client,
+    item?: BaseItem,
+    sendUpdate: boolean = false
+  ) {
+    if (!item) {
+      return;
+    }
+    const accountItems = await server.accountInventoriesManager.getAccountItems(
+      client.loginSessionId
+    );
+    if (!accountItems) return false;
+    const savedItem = accountItems.find((v) => {
+      return v.itemDefinitionId === item.itemDefinitionId;
+    });
+    // if an itemdef is already in the account inventory we only update the stack count
+    if (savedItem) {
+      savedItem.stackCount++;
+      await server.accountInventoriesManager.updateAccountItem(
+        client.loginSessionId,
+        savedItem
+      );
+      server.sendData(client, "Items.UpdateEscrowAccountItem", {
+        itemData: {
+          itemId: savedItem.itemGuid,
+          itemDefinitionId: savedItem.itemDefinitionId,
+          itemCount: savedItem.stackCount,
+          itemGuid: savedItem.itemGuid
+        }
+      });
+    } else {
+      await server.accountInventoriesManager.addAccountItem(
+        client.loginSessionId,
+        item
+      );
+      server.sendData(client, "Items.AddEscrowAccountItem", {
+        itemData: {
+          itemId: item.itemGuid,
+          itemDefinitionId: item.itemDefinitionId,
+          itemCount: item.stackCount,
+          itemGuid: item.itemGuid
+        }
+      });
+    }
 
+    if (!sendUpdate) return;
+    server.sendData(client, "Reward.AddNonRewardItem", {
+      itemDefId: item.itemDefinitionId,
+      iconId: server.getItemDefinition(item.itemDefinitionId)?.IMAGE_SET_ID,
+      nameId: server.getItemDefinition(item.itemDefinitionId)?.NAME_ID,
+      count: item.stackCount
+    });
+  }
   /**
    * Removes an item from the account inventory.
    *
@@ -6044,16 +6111,22 @@ export class ZoneServer2016 extends EventEmitter {
   removeAccountItem(character: BaseFullCharacter, item: BaseItem): boolean {
     const client = this.getClientByCharId(character.characterId);
     if (!client) return false;
-    const accountItems = this._accountInventories[client.loginSessionId]?.items;
-    if (!accountItems) return false;
     item.stackCount--;
     if (item.stackCount <= 0) {
-      delete accountItems[item.itemGuid];
+      this.accountInventoriesManager.removeAccountItem(
+        client.loginSessionId,
+        item
+      );
       this.sendData(client, "Items.RemoveEscrowAccountItem", {
         itemId: item.itemGuid,
         itemDefinitionId: item.itemDefinitionId
       });
       return true;
+    } else {
+      this.accountInventoriesManager.updateAccountItem(
+        client.loginSessionId,
+        item
+      );
     }
     this.sendData(client, "Items.UpdateEscrowAccountItem", {
       itemData: {
@@ -6330,13 +6403,12 @@ export class ZoneServer2016 extends EventEmitter {
     this.executeFuncForAllReadyClientsInRange((c) => {
       c.spawnedEntities.add(obj);
       this.addLightweightNpc(c, obj);
+      this.sendData<ClientUpdateProximateItems>(
+        c,
+        "ClientUpdate.ProximateItems",
+        this.getProximityItems(c)
+      );
     }, obj);
-
-    this.sendData<ClientUpdateProximateItems>(
-      client,
-      "ClientUpdate.ProximateItems",
-      this.getProximityItems(client)
-    );
   }
 
   pickupItem(client: Client, guid: string) {
@@ -6573,8 +6645,6 @@ export class ZoneServer2016 extends EventEmitter {
       indicator: statusCode == 0 ? 1 : 0,
       status: 0
     };
-
-    console.log(data);
 
     if (!client) {
       this.sendDataToAll("Command.DeliveryManagerStatus", data);
@@ -8651,7 +8721,7 @@ export class ZoneServer2016 extends EventEmitter {
 
   getShaderParameterGroup(itemDefinitionId: number): Array<any> {
     return (
-      dynamicappearance.SHADER_SEMANTIC_DEFINITIONS.find(
+      this.dynamicappearance.SHADER_SEMANTIC_DEFINITIONS.find(
         (definition: {
           SHADER_PARAMETER_GROUP_ID: number;
           SHADER_PARAMETER_GROUP: Array<{ SHADER_SEMANTIC_ID: number }>;
@@ -8660,13 +8730,6 @@ export class ZoneServer2016 extends EventEmitter {
         }
       )?.SHADER_PARAMETER_GROUP ?? []
     );
-  }
-
-  getAccountItems(sessionId: string): Array<BaseItem> {
-    if (!this._accountInventories[sessionId]?.items) {
-      return [];
-    }
-    return Object.values(this._accountInventories[sessionId].items);
   }
 
   sendDeliveryStatus(client: Client | undefined = undefined) {

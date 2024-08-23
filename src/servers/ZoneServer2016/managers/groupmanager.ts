@@ -16,6 +16,7 @@ import { zone2016packets } from "types/zone2016packets";
 import { Group } from "types/zoneserver";
 import { ZoneClient2016 as Client } from "../classes/zoneclient";
 import { ZoneServer2016 } from "../zoneserver";
+import { DB_COLLECTIONS } from "../../../utils/enums";
 
 enum GroupErrors {
   INVALID = "GroupIsInvalid",
@@ -23,14 +24,6 @@ enum GroupErrors {
 }
 
 export class GroupManager {
-  /** Id that is generated upon a new group creation */
-  nextGroupId = 1;
-
-  /** HashMap of all groups in the world,
-   * uses groupId (number) for indexing
-   */
-  groups: { [groupId: number]: Group } = {};
-
   /** "Limbo" for an invite that awaits acceptance or denial */
   pendingInvites: { [characterId: string]: number } = {};
 
@@ -38,7 +31,7 @@ export class GroupManager {
     server.sendChatText(client, `[GroupError] ${error}`);
   }
 
-  sendDataToAllOthersInGroup(
+  async sendDataToAllOthersInGroup(
     server: ZoneServer2016,
     excludedClient: Client,
     groupId: number,
@@ -46,7 +39,9 @@ export class GroupManager {
     obj: zone2016packets
   ) {
     if (!groupId) return;
-    const group = this.groups[groupId];
+    const group = await server._db
+      .collection(DB_COLLECTIONS.GROUPS)
+      .findOne<Group>({ serverId: server._worldId, groupId });
     if (!group) return;
     for (const a of group.members) {
       const client = server.getClientByCharId(a);
@@ -124,41 +119,51 @@ export class GroupManager {
     }
   }
 
-  sendAlertToGroup(server: ZoneServer2016, groupId: number, message: string) {
-    if (!this.groups[groupId] || message == "") return;
+  async sendAlertToGroup(
+    server: ZoneServer2016,
+    groupId: number,
+    message: string
+  ) {
+    const group = await server._db
+      .collection(DB_COLLECTIONS.GROUPS)
+      .findOne<Group>({ serverId: server._worldId, groupId });
+    if (!group || message == "") return;
 
-    for (const characterId of this.groups[groupId].members) {
+    for (const characterId of group.members) {
       const client = server.getClientByCharId(characterId);
       if (!client) continue;
       server.sendAlert(client, message);
     }
   }
 
-  sendAlertToAllOthersInGroup(
+  async sendAlertToAllOthersInGroup(
     server: ZoneServer2016,
     excludedClient: Client,
     groupId: number,
     message: string
   ) {
-    if (!this.groups[groupId] || message == "") return;
+    const group = await server._db
+      .collection(DB_COLLECTIONS.GROUPS)
+      .findOne<Group>({ serverId: server._worldId, groupId });
+    if (!group || message == "") return;
 
-    for (const characterId of this.groups[groupId].members) {
+    for (const characterId of group.members) {
       const client = server.getClientByCharId(characterId);
       if (!client || client == excludedClient) continue;
       server.sendAlert(client, message);
     }
   }
 
-  createGroup(server: ZoneServer2016, leader: Client) {
-    const groupId = this.nextGroupId;
-    this.groups[groupId] = {
-      groupId: groupId,
+  async createGroup(server: ZoneServer2016, leader: Client) {
+    const groupId: number = Math.floor(Math.random() * Number.MAX_SAFE_INTEGER);
+    await server._db.collection(DB_COLLECTIONS.GROUPS).insertOne({
+      serverId: server._worldId,
+      groupId,
       leader: leader.character.characterId,
       members: [leader.character.characterId]
-    };
+    });
     leader.character.groupId = groupId;
 
-    this.nextGroupId++;
     server.sendChatText(
       leader,
       "Group created. Use /group for a list of commands.",
@@ -166,23 +171,31 @@ export class GroupManager {
     );
   }
 
-  disbandGroup(server: ZoneServer2016, groupId: number) {
-    const group = this.groups[groupId];
+  async disbandGroup(server: ZoneServer2016, groupId: number) {
+    const group = await server._db
+      .collection(DB_COLLECTIONS.GROUPS)
+      .findOne<Group>({ serverId: server._worldId, groupId });
     if (!group) {
       return;
     }
 
     this.sendAlertToGroup(server, groupId, "Group has been disbanded!");
-    for (const characterId of this.groups[groupId].members) {
+    for (const characterId of group.members) {
       const client = server.getClientByCharId(characterId);
       if (!client) continue;
       this.removeGroupMember(server, client, group, true);
     }
 
-    delete this.groups[groupId];
+    await server._db
+      .collection(DB_COLLECTIONS.GROUPS)
+      .deleteOne({ serverId: server._worldId, groupId });
   }
 
-  sendGroupInvite(server: ZoneServer2016, source: Client, target: Client) {
+  async sendGroupInvite(
+    server: ZoneServer2016,
+    source: Client,
+    target: Client
+  ) {
     if (this.pendingInvites[target.character.characterId]) {
       server.sendAlert(
         source,
@@ -207,7 +220,12 @@ export class GroupManager {
       return;
     }
 
-    const group = this.groups[source.character.groupId];
+    const group = await server._db
+      .collection(DB_COLLECTIONS.GROUPS)
+      .findOne<Group>({
+        serverId: server._worldId,
+        groupId: source.character.groupId
+      });
     if (group && group.leader != source.character.characterId) {
       server.sendAlert(source, "You are not the group leader!");
       return;
@@ -238,7 +256,29 @@ export class GroupManager {
     });
   }
 
-  handleGroupJoin(
+  async updateOutLines(server: ZoneServer2016, client: Client) {
+    const group = await server._db
+      .collection(DB_COLLECTIONS.GROUPS)
+      .findOne<Group>({
+        serverId: server._worldId,
+        groupId: client.character.groupId
+      });
+    if (group) {
+      server.groupManager.sendGroupOutlineUpdates(server, group);
+      this.sendAlertToGroup(
+        server,
+        client.character.groupId,
+        `${client.character.name} Connected.`
+      );
+    }
+  }
+
+  async handleJoinExistingGroup(server: ZoneServer2016, client: Client) {
+    this.updateOutLines(server, client);
+    server.sendAlert(client, "Group automatically joined.");
+  }
+
+  async handleGroupJoin(
     server: ZoneServer2016,
     source: Client,
     target: Client,
@@ -250,7 +290,12 @@ export class GroupManager {
       return;
     }
 
-    let group = this.groups[source.character.groupId];
+    let group = await server._db
+      .collection(DB_COLLECTIONS.GROUPS)
+      .findOne<Group>({
+        serverId: server._worldId,
+        groupId: source.character.groupId
+      });
     if (group && source.character.characterId != group.leader) {
       return;
     }
@@ -265,9 +310,12 @@ export class GroupManager {
       return;
     }
     if (!group) {
-      this.createGroup(server, source);
+      await this.createGroup(server, source);
     }
-    group = this.groups[source.character.groupId];
+    group = await server._db.collection(DB_COLLECTIONS.GROUPS).findOne<Group>({
+      serverId: server._worldId,
+      groupId: source.character.groupId
+    });
     if (!group) {
       server.sendAlert(source, "FAILED TO CREATE GROUP - PLEASE REPORT");
       return;
@@ -281,23 +329,33 @@ export class GroupManager {
     target.character.groupId = source.character.groupId;
     group.members.push(target.character.characterId);
 
+    await server._db.collection(DB_COLLECTIONS.GROUPS).updateOne(
+      {
+        serverId: server._worldId,
+        groupId: source.character.groupId
+      },
+      { $set: { members: group.members } }
+    );
+
     server.sendAlert(target, "Group joined.");
     delete this.pendingInvites[target.character.characterId];
 
     this.sendGroupOutlineUpdates(server, group);
   }
 
-  handlePlayerDisconnect(server: ZoneServer2016, client: Client) {
+  async handlePlayerDisconnect(server: ZoneServer2016, client: Client) {
     delete this.pendingInvites[client.character.characterId];
 
-    const groupId = client.character.groupId,
-      group = this.groups[groupId];
-    if (!group) return;
-
-    this.handleGroupLeave(server, client, group);
+    const groupId = client.character.groupId;
+    this.sendAlertToAllOthersInGroup(
+      server,
+      client,
+      groupId,
+      `${client.character.name} has disconnected from the game.`
+    );
   }
 
-  removeGroupMember(
+  async removeGroupMember(
     server: ZoneServer2016,
     client: Client,
     group: Group,
@@ -312,20 +370,35 @@ export class GroupManager {
 
     this.removeGroupCharacterOutlines(server, client, group);
     this.removeGroupOutlinesForCharacter(server, client, group);
-    //this.sendGroupOutlineUpdates(server, group);
 
     const idx = group.members.indexOf(client.character.characterId);
     group.members.splice(idx, 1);
 
+    await server._db.collection(DB_COLLECTIONS.GROUPS).updateOne(
+      {
+        serverId: server._worldId,
+        groupId: group.groupId
+      },
+      { $set: { members: group.members } }
+    );
+
     // disband single member / empty group
     if (!disband && group.members.length <= 1) {
-      this.disbandGroup(server, group.groupId);
+      await this.disbandGroup(server, group.groupId);
     }
 
     // re-assign leader if 2+ remaining members
     if (group.leader == client.character.characterId && !disband) {
       const leader = Object.values(group.members)[0],
         leaderClient = server.getClientByCharId(leader);
+
+      await server._db.collection(DB_COLLECTIONS.GROUPS).updateOne(
+        {
+          serverId: server._worldId,
+          groupId: group.groupId
+        },
+        { $set: { leader: leader } }
+      );
       group.leader = leader;
       if (leaderClient) {
         this.sendAlertToAllOthersInGroup(
@@ -410,7 +483,7 @@ export class GroupManager {
     this.disbandGroup(server, group.groupId);
   }
 
-  handleGroupCommand(
+  async handleGroupCommand(
     server: ZoneServer2016,
     client: Client,
     args: Array<string>
@@ -422,8 +495,13 @@ export class GroupManager {
       );
       return;
     }
-    const groupId = client.character.groupId,
-      group = this.groups[groupId];
+    const groupId = client.character.groupId;
+    const group = (await server._db
+      .collection(DB_COLLECTIONS.GROUPS)
+      .findOne<Group>({
+        serverId: server._worldId,
+        groupId: groupId
+      })) as Group;
     if (args[0] != "invite" && (!groupId || !group)) {
       server.sendChatText(client, "You are not in a group!");
       return;

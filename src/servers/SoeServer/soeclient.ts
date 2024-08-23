@@ -30,6 +30,7 @@ export default class SOEClient {
   sessionId: number = 0;
   address: string;
   port: number;
+  family: "IPv4" | "IPv6";
   crcSeed: number;
   crcLength: number = 2;
   clientUdpLength: number = 512;
@@ -61,6 +62,7 @@ export default class SOEClient {
     this.soeClientId = remote.address + ":" + remote.port;
     this.address = remote.address;
     this.port = remote.port;
+    this.family = remote.family;
     this.crcSeed = crcSeed;
     this.inputStream = new SOEInputStream(cryptoKey);
     this.outputStream = new SOEOutputStream(cryptoKey);

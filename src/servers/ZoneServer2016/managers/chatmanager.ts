@@ -15,6 +15,7 @@ import { ClientMute } from "types/zoneserver";
 import { DB_COLLECTIONS } from "../../../utils/enums";
 import { ZoneClient2016 as Client } from "../classes/zoneclient";
 import { ZoneServer2016 } from "../zoneserver";
+import { getDateString } from "../../../utils/utils";
 
 export class ChatManager {
   sendChatText(
@@ -24,16 +25,14 @@ export class ChatManager {
     clearChat = false
   ) {
     if (clearChat) {
-      for (let index = 0; index <= 6; index++) {
-        server.sendData(client, "Chat.ChatText", {
-          message: " ",
-          unknownDword1: 0,
-          color: [255, 255, 255, 0],
-          unknownDword2: 13951728,
-          unknownByte3: 0,
-          unknownByte4: 1
-        });
-      }
+      server.sendData(client, "Chat.ChatText", {
+        message: `\n\n\n\n\n\n`,
+        unknownDword1: 0,
+        color: [255, 255, 255, 0],
+        unknownDword2: 13951728,
+        unknownByte3: 0,
+        unknownByte4: 1
+      });
     }
     server.sendData(client, "Chat.ChatText", {
       message: message,
@@ -141,22 +140,20 @@ export class ChatManager {
       server.sendChatText(
         client,
         reason
-          ? `You have been muted until: ${server.getDateString(
+          ? `You have been muted until: ${getDateString(
               timestamp
             )}. Reason: ${reason}`
-          : `You have been muted until: ${server.getDateString(timestamp)}`
+          : `You have been muted until: ${getDateString(timestamp)}`
       );
       server.sendChatTextToAllOthers(
         client,
         reason
-          ? `${
-              client.character.name
-            } has been muted until: ${server.getDateString(
+          ? `${client.character.name} has been muted until: ${getDateString(
               timestamp
             )}. Reason: ${reason}`
           : `${
               client.character.name
-            } has been muted until: ${server.getDateString(timestamp)}`
+            } has been muted until: ${getDateString(timestamp)}`
       );
     } else {
       server.sendChatText(

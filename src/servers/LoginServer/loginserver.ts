@@ -40,7 +40,7 @@ import { Worker } from "node:worker_threads";
 import { FileHash, httpServerMessage } from "types/shared";
 import { LoginProtocol2016 } from "../../protocols/loginprotocol2016";
 import { crc_length_options } from "../../types/soeserver";
-import { DB_NAME, DEFAULT_CRYPTO_KEY } from "../../utils/constants";
+import { DB_NAME, DEFAULT_CRYPTO_KEY, MAX_UINT32 } from "../../utils/constants";
 import {
   LoginReply,
   CharacterSelectInfoReply,
@@ -341,7 +341,14 @@ export class LoginServer extends EventEmitter {
     debug(
       `rejected connection serverId : ${serverId} address: ${client.address} `
     );
-    delete this._zoneConnectionManager._clients[client.clientId];
+    // Don't ask why or how but it happenned
+    if (this._zoneConnectionManager) {
+      delete this._zoneConnectionManager._clients[client.clientId];
+    } else {
+      console.error(
+        "zoneConnectionManager is undefined on connection rejected"
+      );
+    }
   }
 
   parseData(clientProtocol: string, data: Buffer) {
@@ -441,7 +448,6 @@ export class LoginServer extends EventEmitter {
     }
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   async LoginRequest(client: Client, request: LoginRequest) {
     let authKey, gameVersion;
     let sessionIdString = request.sessionId;
@@ -455,6 +461,7 @@ export class LoginServer extends EventEmitter {
         throw new Error("Invalid sessionId");
       }
     } catch (e) {
+      console.error(e);
       authKey = sessionIdString;
       gameVersion =
         client.protocolName === "LoginUdp_9"
@@ -1112,12 +1119,10 @@ export class LoginServer extends EventEmitter {
     ];
     const [address, port] = zoneConnectionString.split(":");
 
-    return {
-      address: address,
-      port: port,
-      clientId: zoneConnectionString,
-      serverId: 1 // TODO: that's a hack
-    } as any;
+    const LZClient = new LZConnectionClient({ address, port: Number(port) });
+    // Hack since the loginserver doesn't have a serverId
+    LZClient.serverId = MAX_UINT32;
+    return LZClient;
   }
 
   async askZone(
@@ -1271,7 +1276,6 @@ export class LoginServer extends EventEmitter {
           status: 1
         });
       }
-      newCharacter;
     }
     const characterCreateReply: CharacterCreateReply = {
       status: creationStatus,
@@ -1289,6 +1293,7 @@ export class LoginServer extends EventEmitter {
       try {
         await this._mongoClient.connect();
       } catch (e) {
+        console.error(e);
         throw debug(
           "[ERROR]Unable to connect to mongo server " + this._mongoAddress
         );

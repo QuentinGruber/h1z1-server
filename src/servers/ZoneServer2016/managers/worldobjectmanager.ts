@@ -382,7 +382,6 @@ export class WorldObjectManager {
 
   createLootbag(server: ZoneServer2016, entity: BaseFullCharacter) {
     if (entity instanceof Zombie) {
-      //TODO: Probably should rework this?
       const wornLetters = [
         Items.WORN_LETTER_CHURCH_PV,
         Items.WORN_LETTER_LJ_PV,
@@ -700,6 +699,55 @@ export class WorldObjectManager {
               Items.WORKBENCH
             );
             break;
+          case "Common_Props_Gravestone01.adr":
+            obj = new TaskProp(
+              characterId,
+              server.getTransientId(characterId), // need transient generated for Interaction Replication
+              propType.modelId,
+              new Float32Array(propInstance.position),
+              new Float32Array(fixEulerOrder(propInstance.rotation)),
+              server,
+              new Float32Array(propInstance.scale),
+              propInstance.id,
+              propType.renderDistance,
+              propType.actorDefinition
+            );
+            if (propType.tribute) {
+              const thisObj = obj;
+              obj.OnInteractionString = (server, client) => {
+                server.sendData(client, "Command.InteractionString", {
+                  guid: thisObj.characterId,
+                  stringId: 0
+                });
+              };
+              obj.getTaskPropData = () => {
+                thisObj.nameId = 66;
+                thisObj.rewardItems = [];
+              };
+              obj.OnPlayerSelect = (server, client) => {
+                server.utilizeHudTimer(
+                  client,
+                  66,
+                  60000, // Minute of silence
+                  0,
+                  () => {
+                    server.sendChatText(
+                      client,
+                      "In loving memory of our dear friend, you will be deeply missed."
+                    );
+                  }
+                );
+              };
+              // punish shooting at the grave
+              obj.OnProjectileHit = (server, damageInfo) => {
+                const assholeId = damageInfo.entity;
+                const asshole = server._characters[assholeId];
+                damageInfo.damage = damageInfo.damage * 2;
+                asshole.damage(server, damageInfo);
+              };
+              obj.OnMeleeHit = obj.OnProjectileHit;
+            }
+            break;
           default:
             obj = new TaskProp(
               characterId,
@@ -806,8 +854,7 @@ export class WorldObjectManager {
           modelId ? modelId : 9183,
           new Float32Array(doorInstance.position),
           new Float32Array(doorInstance.rotation),
-          new Float32Array(doorInstance.scale) ??
-            new Float32Array([1, 1, 1, 1]),
+          new Float32Array(doorInstance.scale),
           // doorInstance.id doesn't exist
           0
         );

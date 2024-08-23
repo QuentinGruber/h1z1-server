@@ -82,6 +82,7 @@ export enum ConstructionPermissionIds {
 }
 
 export enum ModelIds {
+  WEAPON_EMPTY = 9084,
   LOOT_BAG_LARGE = 9581,
   MILITARY_CRATE = 9218,
   MILITARY_CRATE_PARACHUTE = 9219,
@@ -976,6 +977,7 @@ export enum Items {
   BACKPACK_MILITARY_GREEN_CAMO = 2121,
   BACKPACK_BLUE_ORANGE = 2038,
   HELMET_MOTORCYCLE = 2170, // TODO = expand with other default helmet colors
+  DEFAULT_TACTICAL_HELMET = 2172, // TODO = expand with other default helmet colors
   HAT_CAP = 2102, // TODO = expand with other cap colors
   SHIRT_DEFAULT = 2088, // TODO = expand with other default shirts
   PANTS_DEFAULT = 2177, // TODO = expand with other default pants

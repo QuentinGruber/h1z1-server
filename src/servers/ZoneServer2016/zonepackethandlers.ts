@@ -30,7 +30,8 @@ import {
   getDistance1d,
   isPosInRadiusWithY,
   checkConstructionInRange,
-  getCurrentServerTimeWrapper
+  getCurrentServerTimeWrapper,
+  getDateString
 } from "../../utils/utils";
 
 import { CraftManager } from "./managers/craftmanager";
@@ -135,6 +136,7 @@ import {
   ClientBan,
   ConstructionPermissions,
   DamageInfo,
+  Group,
   StanceFlags
 } from "types/zoneserver";
 import { Vehicle2016 } from "./entities/vehicle";
@@ -296,21 +298,23 @@ export class ZonePacketHandlers {
       {}
     ); // Required for WaitForWorldReady
 
-    server.sendData(client, "Items.SetEscrowAccountItemManager", {
-      accountItems: server
-        .getAccountItems(client.loginSessionId)
-        .map((item: BaseItem) => {
-          return {
-            itemId: item.itemGuid,
-            itemData: {
+    server.accountInventoriesManager
+      .getAccountItems(client.loginSessionId)
+      .then((accountItems) => {
+        server.sendData(client, "Items.SetEscrowAccountItemManager", {
+          accountItems: accountItems.map((item: BaseItem) => {
+            return {
               itemId: item.itemGuid,
-              itemGuid: item.itemGuid,
-              itemDefinitionId: item.itemDefinitionId,
-              itemCount: item.stackCount
-            }
-          };
-        })
-    });
+              itemData: {
+                itemId: item.itemGuid,
+                itemGuid: item.itemGuid,
+                itemDefinitionId: item.itemDefinitionId,
+                itemCount: item.stackCount
+              }
+            };
+          })
+        });
+      });
 
     server.sendDeliveryStatus(client);
   }
@@ -369,6 +373,9 @@ export class ZonePacketHandlers {
         if (client.isAdmin) {
           if (server.adminMessage)
             server.sendAlert(client, server.adminMessage);
+        }
+        if (!server._soloMode && client.character.groupId) {
+          server.groupManager.handleJoinExistingGroup(server, client);
         }
       }, 10000);
       if (client.banType != "") {
@@ -654,7 +661,7 @@ export class ZonePacketHandlers {
         title: "Position:",
         info: `${client.character.state.position[0]}   ${client.character.state.position[1]}   ${client.character.state.position[2]}`
       },
-      { title: "Time:", info: `${server.getDateString(Date.now())}` },
+      { title: "Time:", info: `${getDateString(Date.now())}` },
       { title: "Total reports this session:", info: `${targetClient.reports}` }
     ];
     delete client.lastDeathReport;
@@ -948,6 +955,15 @@ export class ZonePacketHandlers {
     client.character.dismountContainer(server);
     const timerTime = 10000;
     server.utilizeHudTimer(client, 0, timerTime, 0, () => {
+      // Clear spectator on logout to prevent the client from crashing on the next login - Jason
+      if (client.character.isSpectator) {
+        server.commandHandler.executeInternalCommand(
+          server,
+          client,
+          "spectate",
+          []
+        );
+      }
       client.properlyLogout = true;
       server.sendData<ClientUpdateCompleteLogoutProcess>(
         client,
@@ -1976,12 +1992,15 @@ export class ZonePacketHandlers {
     client: Client,
     packet: ReceivedPacket<object>
   ) {
-    const proximityItems = server.getProximityItems(client);
-    server.sendData<ClientUpdateProximateItems>(
-      client,
-      "ClientUpdate.ProximateItems",
-      proximityItems
-    );
+    client.character.isInInventory = !client.character.isInInventory;
+    if (client.character.isInInventory) {
+      const proximityItems = server.getProximityItems(client);
+      server.sendData<ClientUpdateProximateItems>(
+        client,
+        "ClientUpdate.ProximateItems",
+        proximityItems
+      );
+    }
   }
   CommandSuicide(
     server: ZoneServer2016,
@@ -2792,7 +2811,7 @@ export class ZonePacketHandlers {
     if (!obj.build && !obj.demolish && !obj.useContainers && !obj.visit) {
       delete foundation.permissions[characterId];
     } else {
-      foundation.permissions[characterId] == obj;
+      foundation.permissions[characterId] = obj;
     }
 
     // update child expansion permissions
@@ -3237,16 +3256,17 @@ export class ZonePacketHandlers {
   FairPlayInternal(server: ZoneServer2016, client: Client, packet: any) {}
   //#endregion
 
-  requestUseAccountItem(
+  async requestUseAccountItem(
     server: ZoneServer2016,
     client: Client,
     packet: ReceivedPacket<ItemsRequestUseAccountItem>
   ) {
-    const accountItems =
-      server._accountInventories[client.loginSessionId]?.items;
-    if (!accountItems) return;
-    const item = Object.values(accountItems).find(
-      (i) => i.itemDefinitionId === packet.data.itemDefinitionId
+    if (!packet.data.itemDefinitionId) {
+      return;
+    }
+    const item = await server.accountInventoriesManager.getAccountItem(
+      client.loginSessionId,
+      packet.data.itemDefinitionId
     );
     if (!item) return;
 
@@ -3277,12 +3297,14 @@ export class ZonePacketHandlers {
         });
 
         if (reward > 0 && itemSubData.unknownBoolean1 == 0)
-          client.character.lootItem(
-            server,
-            server.generateItem(reward),
-            1,
-            false
-          );
+          setTimeout(() => {
+            server.lootAccountItem(
+              server,
+              client,
+              server.generateAccountItem(reward),
+              true
+            );
+          }, 12_000);
         break;
       case ItemUseOptions.APPLY_SKIN:
         const oitem = client.character.getInventoryItem(
@@ -3313,20 +3335,27 @@ export class ZonePacketHandlers {
           newItem.weapon = oitem.weapon;
         }
 
-        const oldSlot = client.character.currentLoadoutSlot;
+        const oldSlot = client.character.currentLoadoutSlot,
+          oldLoadoutItem = client.character._loadout[oitem.slotId];
         if (!server.removeInventoryItem(client.character, oitem)) return;
+        if (
+          !oldLoadoutItem ||
+          oldLoadoutItem.itemDefinitionId !== oitem.itemDefinitionId
+        ) {
+          // Determine if the item is equipped; if it isn't, loot it instead.
+          client.character.lootContainerItem(
+            server,
+            newItem,
+            newItem.stackCount,
+            false
+          );
+          return;
+        }
 
         client.character.equipItem(server, newItem);
         client.character.updateEquipment(server);
-        // Update outlines for groups
-        if (
-          client.character.groupId &&
-          server.groupManager.groups[client.character.groupId]
-        ) {
-          server.groupManager.sendGroupOutlineUpdates(
-            server,
-            server.groupManager.groups[client.character.groupId]
-          );
+        if (!server._soloMode) {
+          server.groupManager.updateOutLines(server, client);
         }
 
         // Copy over items from the old container to the new container
@@ -3363,7 +3392,11 @@ export class ZonePacketHandlers {
           0,
           () => {
             if (!server.removeInventoryItem(client.character, item)) return;
-            client.character.lootItem(server, server.generateItem(bagReward));
+            server.lootAccountItem(
+              server,
+              client,
+              server.generateAccountItem(bagReward)
+            );
           }
         );
         break;

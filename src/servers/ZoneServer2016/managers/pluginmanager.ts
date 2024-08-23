@@ -210,6 +210,7 @@ export class PluginManager {
       });
       console.log("[PluginManager] Dependencies installed successfully.");
     } catch (error) {
+      console.error(error);
       console.error("[PluginManager] Failed to install dependencies.");
       process.exit(1);
     }

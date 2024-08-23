@@ -69,8 +69,10 @@ const dev: any = {
       }
       for (let i = 0; i < 1_000_000_000; i++) {
         // do nothing but hold the event loop
-        const a = i;
-        a;
+        let a = i;
+        if (a > 100) {
+          a--;
+        }
       }
     }, 0);
   },

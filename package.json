@@ -1,12 +1,12 @@
 {
   "name": "h1z1-server",
-  "version": "0.36.2",
+  "version": "0.37.0",
   "description": "Library for emulating h1z1 servers",
   "author": "Quentin Gruber <quentingruber@gmail.com> (http://github.com/quentingruber)",
   "license": "GPL-3.0-only",
   "main": "h1z1-server.js",
   "engines": {
-    "node": ">=0.17.0 <21"
+    "node": ">=0.17.0 <23"
   },
   "bin": {
     "h1z1-server-demo": "scripts/h1z1-server-demo.js",
@@ -14,27 +14,30 @@
   },
   "dependencies": {
     "@types/js-yaml": "4.0.9",
-    "@types/node": "20.11.19",
-    "@types/ws": "8.5.10",
-    "debug": "4.3.4",
+    "@types/node": "22.1.0",
+    "@types/ws": "8.5.12",
+    "debug": "4.3.6",
     "h1emu-core": "1.2.8",
-    "h1z1-dataschema": "1.7.1",
+    "h1z1-dataschema": "1.7.2",
     "js-yaml": "4.1.0",
-    "mongodb": "6.3.0",
+    "mongodb": "6.8.0",
     "threads": "1.7.0",
-    "typescript": "5.3.3",
-    "ws": "8.16.0"
+    "typescript": "5.5.4",
+    "ws": "8.18.0"
   },
   "directories": {
     "src": "./src"
   },
   "devDependencies": {
-    "@typescript-eslint/eslint-plugin": "^7.0.2",
-    "@typescript-eslint/parser": "^7.0.2",
-    "eslint": "^8.56.0",
-    "prettier": "^3.2.5",
+    "@eslint/eslintrc": "^3.1.0",
+    "@eslint/js": "^9.8.0",
+    "@typescript-eslint/eslint-plugin": "^8.0.1",
+    "@typescript-eslint/parser": "^8.0.1",
+    "eslint": "^9.8.0",
+    "globals": "^15.9.0",
+    "prettier": "^3.3.3",
     "ts-node": "^10.9.2",
-    "typedoc": "^0.25.8"
+    "typedoc": "^0.26.5"
   },
   "scripts": {
     "gen-packets-types": "npx ts-node ./scripts/genPacketsNames.ts",
@@ -56,8 +59,6 @@
     "build-tests": "npx tsc -p tsconfigs/tsconfig-tests.json",
     "build-benchs": "npx tsc -p ./benchmarks/tsconfig.json",
     "build-docker-images": "npx ts-node ./docker/buildDocker.ts",
-    "build-binaries-win": "cd ./bin/ && build.bat",
-    "build-binaries-unix": "chmod +x ./bin/build.sh && ./bin/build.sh",
     "test-mongo": "npm run build && npm run build-tests && MONGO_TESTS='true' node --test",
     "test": "npm run build && npm run build-tests && node --test",
     "postinstall": "npm run build",

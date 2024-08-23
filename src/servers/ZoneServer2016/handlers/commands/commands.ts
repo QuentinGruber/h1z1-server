@@ -26,7 +26,8 @@ import {
   isPosInRadius,
   toHex,
   randomIntFromInterval,
-  getCurrentServerTimeWrapper
+  getCurrentServerTimeWrapper,
+  getDateString
 } from "../../../../utils/utils";
 import { ExplosiveEntity } from "../../entities/explosiveentity";
 import { Npc } from "../../entities/npc";
@@ -255,7 +256,8 @@ export const commands: Array<Command> = [
         client,
         `position: ${position[0].toFixed(2)},${position[1].toFixed(
           2
-        )},${position[2].toFixed(2)}`
+        )},${position[2].toFixed(2)}`,
+        true
       );
       server.sendChatText(
         client,
@@ -322,15 +324,17 @@ export const commands: Array<Command> = [
       ) {
         server.sendChatText(client, "[ERROR] You aren't wearing a hoodie.");
       } else {
-        equipmentModel.includes("Up")
-          ? (client.character._equipment[3].modelName = equipmentModel.replace(
-              "Up",
-              "Down"
-            ))
-          : (client.character._equipment[3].modelName = equipmentModel.replace(
-              "Down",
-              "Up"
-            ));
+        if (equipmentModel.includes("Up")) {
+          client.character._equipment[3].modelName = equipmentModel.replace(
+            "Up",
+            "Down"
+          );
+        } else {
+          client.character._equipment[3].modelName = equipmentModel.replace(
+            "Down",
+            "Up"
+          );
+        }
         client.character.updateEquipmentSlot(server, EquipSlots.CHEST);
       }
     }
@@ -705,6 +709,15 @@ export const commands: Array<Command> = [
     name: "d",
     permissionLevel: PermissionLevels.MODERATOR,
     execute: (server: ZoneServer2016, client: Client, args: Array<string>) => {
+      // Clear spectator on logout to prevent the client from crashing on the next login - Jason
+      if (client.character.isSpectator) {
+        server.commandHandler.executeInternalCommand(
+          server,
+          client,
+          "spectate",
+          []
+        );
+      }
       client.properlyLogout = true;
       server.sendData(client, "CharacterSelectSessionResponse", {
         status: 1,
@@ -1000,9 +1013,7 @@ export const commands: Array<Command> = [
           client,
           `You have ${
             isSilent ? "silently " : ""
-          }banned ${character?.characterName} until ${server.getDateString(
-            time
-          )}`
+          }banned ${character?.characterName} until ${getDateString(time)}`
         );
       } else {
         server.sendChatText(
@@ -1083,9 +1094,7 @@ export const commands: Array<Command> = [
           client,
           `You have ${
             isSilent ? "silently " : ""
-          }banned ${character?.characterName} until ${server.getDateString(
-            time
-          )}`
+          }banned ${character?.characterName} until ${getDateString(time)}`
         );
       } else {
         server.sendChatText(
@@ -1362,7 +1371,7 @@ export const commands: Array<Command> = [
           client,
           `You have muted ${
             targetClient.character.name
-          } until ${server.getDateString(time)}`
+          } until ${getDateString(time)}`
         );
       } else {
         server.sendChatText(
@@ -1926,6 +1935,81 @@ export const commands: Array<Command> = [
 
       if (!client.character.mountedContainer) return;
       client.character.mountedContainer.lootItem(server, item);
+    }
+  },
+  {
+    name: "giverewardtoall",
+    permissionLevel: PermissionLevels.ADMIN,
+    execute: (server: ZoneServer2016, client: Client, args: Array<string>) => {
+      if (!args[0]) {
+        server.sendChatText(
+          client,
+          "[ERROR] Usage /giverewardtoall {itemDefinitionId}"
+        );
+        return;
+      }
+      const rewardId = Number(args[0]);
+      const validRewardItem = server.rewardManager.rewards.some(
+        (v) => v.itemId === rewardId
+      );
+      if (!validRewardItem) {
+        server.sendChatText(
+          client,
+          `[ERROR] ${rewardId} isn't a valid reward item`
+        );
+        return;
+      }
+      server.sendAlertToAll(
+        `Admin ${client.character.name} rewarded all connected players with ${Items[rewardId]}`
+      );
+      for (const key in server._clients) {
+        const c = server._clients[key];
+        server.rewardManager.addRewardToPlayer(c, rewardId);
+      }
+    }
+  },
+  {
+    name: "givereward",
+    permissionLevel: PermissionLevels.ADMIN,
+    execute: (server: ZoneServer2016, client: Client, args: Array<string>) => {
+      if (!args[1]) {
+        server.sendChatText(
+          client,
+          "[ERROR] Usage /givereward {itemDefinitionId} {playerName|playerId}"
+        );
+        return;
+      }
+      const rewardId = Number(args[0]);
+      const validRewardItem = server.rewardManager.rewards.some(
+        (v) => v.itemId === rewardId
+      );
+      if (!validRewardItem) {
+        server.sendChatText(
+          client,
+          `[ERROR] ${rewardId} isn't a valid reward item`
+        );
+        return;
+      }
+      const targetClient = server.getClientByNameOrLoginSession(
+        args[1].toString()
+      );
+      if (typeof targetClient == "string") {
+        server.sendChatText(
+          client,
+          `Could not find player ${args[1]
+            .toString()
+            .toUpperCase()}, did you mean ${targetClient.toUpperCase()}`
+        );
+        return;
+      }
+      if (!targetClient) {
+        server.sendChatText(client, "Client not found.");
+        return;
+      }
+      server.sendAlertToAll(
+        `Admin ${client.character.name} rewarded ${targetClient.character.name} with ${Items[rewardId]}`
+      );
+      server.rewardManager.addRewardToPlayer(targetClient, rewardId);
     }
   },
   {
