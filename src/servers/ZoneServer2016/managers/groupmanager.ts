@@ -370,10 +370,17 @@ export class GroupManager {
 
     this.removeGroupCharacterOutlines(server, client, group);
     this.removeGroupOutlinesForCharacter(server, client, group);
-    //this.sendGroupOutlineUpdates(server, group);
 
     const idx = group.members.indexOf(client.character.characterId);
     group.members.splice(idx, 1);
+
+    await server._db.collection(DB_COLLECTIONS.GROUPS).updateOne(
+      {
+        serverId: server._worldId,
+        groupId: group.groupId
+      },
+      { $set: { members: group.members } }
+    );
 
     // disband single member / empty group
     if (!disband && group.members.length <= 1) {
@@ -390,7 +397,7 @@ export class GroupManager {
           serverId: server._worldId,
           groupId: group.groupId
         },
-        { leader: leader }
+        { $set: { leader: leader } }
       );
       group.leader = leader;
       if (leaderClient) {
