@@ -1552,6 +1552,7 @@ export class ZoneServer2016 extends EventEmitter {
     client.character.mutedCharacters = savedCharacter.mutedCharacters || [];
     client.character.groupId = savedCharacter.groupId || 0;
     client.character.playTime = savedCharacter.playTime || 0;
+    client.character.lastDropPlaytime = savedCharacter.lastDropPlayTime || 0;
 
     let newCharacter = false;
     if (
