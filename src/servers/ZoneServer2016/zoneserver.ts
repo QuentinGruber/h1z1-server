@@ -495,8 +495,7 @@ export class ZoneServer2016 extends EventEmitter {
     this.pluginManager = new PluginManager();
     this.commandHandler = new CommandHandler();
     this.playTimeManager = new PlayTimeManager();
-    const nav_data = loadNavData();
-    this.aiManager = new AiManager(nav_data);
+    this.aiManager = new AiManager();
     /* CONFIG MANAGER MUST BE INSTANTIATED LAST ! */
     this.configManager = new ConfigManager(this, process.env.CONFIG_PATH);
     this.enableWorldSaves =
@@ -1824,7 +1823,10 @@ export class ZoneServer2016 extends EventEmitter {
     if (this.isPvE) {
       console.log("Server in PvE mode");
     }
-
+    console.time("Loading navigation data");
+    const nav_data_compressed = loadNavData();
+    this.aiManager.load_nav_data(nav_data_compressed);
+    console.timeEnd("Loading navigation data");
     this.fairPlayManager.decryptFairPlayValues();
     this._spawnGrid = this.divideMapIntoSpawnGrid(7448, 7448, 744);
     this.speedtreeManager.initiateList();
