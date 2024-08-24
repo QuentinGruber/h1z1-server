@@ -1533,7 +1533,7 @@ export function loadNavData() {
   const folderPath = `${__dirname}/../../data/2016/navData/`;
   const files = fs.readdirSync(folderPath);
 
-  const dataInOrder: Uint8Array[] = new Array(3);
+  const dataInOrder: Uint8Array[] = [];
 
   files.forEach((file) => {
     const filePath = path.join(folderPath, file);
