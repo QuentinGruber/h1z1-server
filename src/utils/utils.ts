@@ -13,7 +13,7 @@
 import { generate_random_guid } from "h1emu-core";
 import { compress, compressBound } from "./lz4/lz4";
 import fs, { readdirSync } from "node:fs";
-import { normalize, resolve } from "node:path";
+import path, { normalize, resolve } from "node:path";
 import { Collection, MongoClient } from "mongodb";
 import { DB_NAME, MAX_TRANSIENT_ID, MAX_UINT16, MAX_UINT32 } from "./constants";
 import { ZoneServer2016 } from "servers/ZoneServer2016/zoneserver";
@@ -1527,4 +1527,26 @@ export function getDateString(timestamp: number) {
 
 export function loadJson(path: string) {
   return JSON.parse(fs.readFileSync(path, "utf8"));
+}
+
+export function loadNavData() {
+  const folderPath = `${__dirname}/../../data/2016/navData/`;
+  const files = fs.readdirSync(folderPath);
+
+  const dataInOrder: Uint8Array[] = new Array(3);
+
+  files.forEach((file) => {
+    const filePath = path.join(folderPath, file);
+
+    const stats = fs.statSync(filePath);
+
+    if (stats.isFile()) {
+      const data = fs.readFileSync(filePath);
+      const fileIndex: number =
+        Number(filePath.split(".")[0].split("_part")[1]) - 1;
+
+      dataInOrder[fileIndex] = new Uint8Array(data);
+    }
+  });
+  return new Uint8Array(Buffer.concat(dataInOrder));
 }

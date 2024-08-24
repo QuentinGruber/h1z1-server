@@ -102,7 +102,8 @@ import {
   getCurrentServerTimeWrapper,
   flhash,
   getDateString,
-  loadJson
+  loadJson,
+  loadNavData
 } from "../../utils/utils";
 
 import { Db, MongoClient, WithId } from "mongodb";
@@ -494,7 +495,8 @@ export class ZoneServer2016 extends EventEmitter {
     this.pluginManager = new PluginManager();
     this.commandHandler = new CommandHandler();
     this.playTimeManager = new PlayTimeManager();
-    this.aiManager = new AiManager();
+    const nav_data = loadNavData();
+    this.aiManager = new AiManager(nav_data);
     /* CONFIG MANAGER MUST BE INSTANTIATED LAST ! */
     this.configManager = new ConfigManager(this, process.env.CONFIG_PATH);
     this.enableWorldSaves =
