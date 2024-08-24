@@ -374,7 +374,7 @@ export class ZonePacketHandlers {
           if (server.adminMessage)
             server.sendAlert(client, server.adminMessage);
         }
-        if (!server._soloMode) {
+        if (!server._soloMode && client.character.groupId) {
           server.groupManager.handleJoinExistingGroup(server, client);
         }
       }, 10000);
