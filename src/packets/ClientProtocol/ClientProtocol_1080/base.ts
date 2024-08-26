@@ -3382,7 +3382,40 @@ export const basePackets: PacketStructures = [
   ],
   ["CheckLocalValues", 0xde, {}],
   ["ChronicleBase", 0xdf, {}],
-  ["GrinderBase", 0xe0, {}],
+  [
+    "Grinder.ExchangeRequest",
+    0xe00100,
+    {
+      fields: [
+        {
+          name: "items",
+          type: "array",
+          defaultValue: [],
+          fields: [
+            { name: "itemDefinitionId", type: "uint32", defaultValue: 0 },
+            { name: "count", type: "uint32", defaultValue: 0 }
+          ]
+        }
+      ]
+    }
+  ],
+  [
+    "Grinder.ExchangeResponse",
+    0xe00200,
+    {
+      fields: [
+        {
+          name: "items",
+          type: "array",
+          defaultValue: [],
+          fields: [
+            { name: "itemDefinitionId", type: "uint32", defaultValue: 0 },
+            { name: "count", type: "uint32", defaultValue: 0 }
+          ]
+        }
+      ]
+    }
+  ],
   ["RequestObject", 0xe1, {}],
   ["WhitelistBase", 0xe4, {}],
   [
