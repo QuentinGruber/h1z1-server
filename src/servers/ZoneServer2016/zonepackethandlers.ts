@@ -490,7 +490,7 @@ export class ZonePacketHandlers {
   ) {
     if (packet.data.objectCharacterId != client.character.characterId) {
       const objVehicle = server._vehicles[packet.data.objectCharacterId || ""];
-      if (objVehicle && objVehicle.engineRPM > 4500) {
+      if (objVehicle && objVehicle.engineOn) {
         for (const a in server._destroyables) {
           const destroyable = server._destroyables[a];
           if (destroyable.destroyedModel) continue;
