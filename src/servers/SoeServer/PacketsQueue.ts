@@ -11,18 +11,18 @@
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
 
-import { LogicalPacket } from "./logicalPacket";
+import { SoePacket } from "./soeserver";
 
 export class PacketsQueue {
-  packets: LogicalPacket[] = [];
+  packets: SoePacket[] = [];
   CurrentByteLength: number = 0;
 
   clear(): void {
     this.packets = [];
     this.CurrentByteLength = 0;
   }
-  addPacket(packet: LogicalPacket): void {
-    const fullBufferedPacketLen = packet.data.length + 1; // the additionnal byte is the length of the packet written in the buffer when assembling the packet
+  addPacket(packet: SoePacket): void {
+    const fullBufferedPacketLen = packet.length + 1; // the additionnal byte is the length of the packet written in the buffer when assembling the packet
     this.packets.push(packet);
     this.CurrentByteLength += fullBufferedPacketLen;
   }

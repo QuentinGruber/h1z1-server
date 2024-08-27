@@ -17,7 +17,7 @@ import { SOEInputStream } from "./soeinputstream";
 import { SOEOutputStream } from "./soeoutputstream";
 import { PacketsQueue } from "./PacketsQueue";
 import { clearInterval } from "node:timers";
-import { LogicalPacket } from "./logicalPacket";
+import { SoePacket } from "./soeserver";
 
 interface SOEClientStats {
   totalPhysicalPacketSent: number;
@@ -56,7 +56,7 @@ export default class SOEClient {
   avgPingLen: number = 6;
   sendingTimer: NodeJS.Timeout | null = null;
   private _statsResetTimer: NodeJS.Timer;
-  delayedLogicalPackets: LogicalPacket[] = [];
+  delayedLogicalPackets: SoePacket[] = [];
   constructor(remote: RemoteInfo, crcSeed: number, cryptoKey: Uint8Array) {
     this.soeClientId = remote.address + ":" + remote.port;
     this.address = remote.address;

@@ -25,13 +25,14 @@ import {
 } from "h1emu-core";
 import Client from "./soeclient";
 import SOEClient from "./soeclient";
-import { crc_length_options } from "../../types/soeserver";
-import { LogicalPacket } from "./logicalPacket";
+import { crc_length_options, soePacket } from "../../types/soeserver";
 import { json } from "types/shared";
 import { SOEOutputChannels } from "./soeoutputstream";
 import dgram from "node:dgram";
 import { PacketsQueue } from "./PacketsQueue";
 const debug = require("debug")("SOEServer");
+
+export type SoePacket = AckPacket | DataPacket | SessionReplyPacket;
 
 export class SOEServer extends EventEmitter {
   _serverPort: number;
@@ -109,17 +110,9 @@ export class SOEServer extends EventEmitter {
   // create a physical packet and send it
   private _sendAndBuildPhysicalPacket(
     client: Client,
-    logicalPacket: LogicalPacket
+    logicalPacket: SoePacket
   ): void {
-    const data =
-      logicalPacket.canCrc && this._crcLength
-        ? append_crc_legacy(logicalPacket.data, this._crcSeed)
-        : logicalPacket.data;
-    //FIXME: that's shit
-    if (logicalPacket.isReliable) {
-      client.unAckData.set(logicalPacket.sequence as number, Date.now());
-    }
-    this._sendPhysicalPacket(client, data);
+    this._sendPhysicalPacket(client, logicalPacket.build());
   }
 
   // Send a physical packet
@@ -131,9 +124,9 @@ export class SOEServer extends EventEmitter {
   }
 
   // Get an array of packet that we need to resend
-  getResends(client: Client): LogicalPacket[] {
+  getResends(client: Client): DataPacket[] {
     const currentTime = Date.now();
-    const resends: LogicalPacket[] = [];
+    const resends: DataPacket[] = [];
     const resendedSequences: Set<number> = new Set();
     for (const [sequence, time] of client.unAckData) {
       // if the packet is too old then we resend it
@@ -148,7 +141,7 @@ export class SOEServer extends EventEmitter {
           const logicalPacket = this.createLogicalPacket(
             dataCache.fragment ? SoeOpcode.DataFragment : SoeOpcode.Data,
             { sequence: sequence, data: dataCache.data }
-          );
+          ) as DataPacket;
           if (logicalPacket) {
             resendedSequences.add(sequence);
             resends.push(logicalPacket);
@@ -193,7 +186,7 @@ export class SOEServer extends EventEmitter {
           const logicalPacket = this.createLogicalPacket(
             dataCache.fragment ? SoeOpcode.DataFragment : SoeOpcode.Data,
             { sequence: index, data: dataCache.data }
-          );
+          ) as DataPacket;
           if (logicalPacket) {
             resendedSequences.add(index);
             resends.push(logicalPacket);
@@ -211,7 +204,7 @@ export class SOEServer extends EventEmitter {
   }
 
   // Use the lastAck value to acknowlege multiple packets as a time
-  private getAck(client: Client): LogicalPacket | undefined {
+  private getAck(client: Client): SoePacket | undefined {
     const lastAck = client.inputStream._lastAck.get();
     // If we already sent an ack for that lastAck then we don't send another one
     if (client.lastAckSend.get() != lastAck) {
@@ -225,8 +218,11 @@ export class SOEServer extends EventEmitter {
   private setupResendForQueuedPackets(client: Client, queue: PacketsQueue) {
     for (let index = 0; index < queue.packets.length; index++) {
       const packet = queue.packets[index];
-      if (packet.isReliable) {
-        client.unAckData.set(packet.sequence as number, Date.now());
+      if (
+        packet.opcode == SoeOpcode.Data ||
+        packet.opcode == SoeOpcode.DataFragment
+      ) {
+        client.unAckData.set((packet as DataPacket).sequence, Date.now());
       }
     }
   }
@@ -236,25 +232,25 @@ export class SOEServer extends EventEmitter {
   private getClientWaitQueuePacket(
     client: Client,
     queue: PacketsQueue
-  ): LogicalPacket | null {
-    if (queue.packets.length > 1) {
-      this.setupResendForQueuedPackets(client, queue);
-      const multiPacket = this.createLogicalPacket(SoeOpcode.MultiPacket, {
-        sub_packets: queue.packets.map((packet) => {
-          return Array.from(packet.data);
-        })
-      });
-      queue.clear();
-      return multiPacket;
-      // if there is only one packet then we don't need to build a multipacket
-    } else if (queue.packets.length === 1) {
-      // no need for a structuredClone , the variable hold the ref
-      const singlePacketCopy = queue.packets[0];
-      queue.clear();
-      return singlePacketCopy;
-    } else {
-      return null;
-    }
+  ): SoePacket | null {
+    // if (queue.packets.length > 1) {
+    //   this.setupResendForQueuedPackets(client, queue);
+    //   const multiPacket = this.createLogicalPacket(SoeOpcode.MultiPacket, {
+    //     sub_packets: queue.packets.map((packet) => {
+    //       return Array.from(packet.data);
+    //     })
+    //   });
+    //   queue.clear();
+    //   return multiPacket;
+    //   // if there is only one packet then we don't need to build a multipacket
+    // } else if (queue.packets.length === 1) {
+    // no need for a structuredClone , the variable hold the ref
+    const singlePacketCopy = queue.packets[0];
+    queue.clear();
+    return singlePacketCopy;
+    // } else {
+    //   return null;
+    // }
   }
 
   private _createClient(clientId: string, remote: RemoteInfo) {
@@ -275,7 +271,6 @@ export class SOEServer extends EventEmitter {
 
   // Handle the packet received from the client
   private handlePacket(client: SOEClient, packet: SoePacketParsed) {
-    console.log(packet);
     console.log(packet.get_opcode());
     switch (packet.get_opcode()) {
       case SoeOpcode.SessionRequest:
@@ -491,7 +486,7 @@ export class SOEServer extends EventEmitter {
     });
   }
 
-  private packLogicalData(packetOpcode: SoeOpcode, packet: json): Buffer {
+  private packLogicalData(packetOpcode: SoeOpcode, packet: json): SoePacket {
     let logicalData;
     switch (packetOpcode) {
       // FIXME:
@@ -512,20 +507,16 @@ export class SOEServer extends EventEmitter {
           packet.crc_length,
           packet.encrypt_method,
           packet.udp_length
-        ).build();
-        console.log(logicalData);
+        );
         break;
       case SoeOpcode.MultiPacket:
       // logicalData = this._protocol.pack_multi_fromjs(packet);
       // break;
       case SoeOpcode.Ack:
-        logicalData = new AckPacket(SoeOpcode.Ack, packet.sequence).build();
+        logicalData = new AckPacket(SoeOpcode.Ack, packet.sequence);
         break;
       case SoeOpcode.OutOfOrder:
-        logicalData = new AckPacket(
-          SoeOpcode.OutOfOrder,
-          packet.sequence
-        ).build();
+        logicalData = new AckPacket(SoeOpcode.OutOfOrder, packet.sequence);
         break;
       // disabled for now since h1z1 2016 doesn't support them
       // case SoeOpcode.Ordered:
@@ -536,17 +527,17 @@ export class SOEServer extends EventEmitter {
           packet.data,
           packet.sequence,
           SoeOpcode.Data
-        ).build();
+        );
         break;
       case SoeOpcode.DataFragment:
         logicalData = new DataPacket(
           packet.data,
           packet.sequence,
           SoeOpcode.DataFragment
-        ).build();
+        );
         break;
     }
-    return Buffer.from(logicalData as unknown as any);
+    return logicalData as SoePacket;
   }
   private _clearSendingTimer(client: Client) {
     if (client.sendingTimer) {
@@ -556,9 +547,9 @@ export class SOEServer extends EventEmitter {
   }
 
   // Get an array of logical app packets that can be sent
-  private getAvailableAppPackets(client: Client): LogicalPacket[] {
+  private getAvailableAppPackets(client: Client): SoePacket[] {
     const dataCaches = client.outputStream.getAvailableReliableData();
-    const appPackets: LogicalPacket[] = [];
+    const appPackets: SoePacket[] = [];
     for (const dataCache of dataCaches) {
       const logicalPacket = this.createLogicalPacket(
         dataCache.fragment ? SoeOpcode.DataFragment : SoeOpcode.Data,
@@ -662,47 +653,23 @@ export class SOEServer extends EventEmitter {
     }
   }
   // Build the logical packet via the soeprotocol
-  private createLogicalPacket(
-    packetOpcode: SoeOpcode,
-    packet: json
-  ): LogicalPacket {
-    try {
-      const logicalPacket = new LogicalPacket(
-        this.packLogicalData(packetOpcode, packet),
-        packet.sequence
-      );
-      return logicalPacket;
-    } catch (e) {
-      console.error(
-        `Failed to create packet ${packetOpcode} packet data : ${JSON.stringify(
-          packet,
-          null,
-          4
-        )}`
-      );
-      console.error(e);
-      process.exitCode = 444;
-      // @ts-ignore
-      return null;
-    }
+  private createLogicalPacket(packetOpcode: SoeOpcode, packet: json) {
+    const logicalPacket = this.packLogicalData(packetOpcode, packet);
+    return logicalPacket;
   }
 
   private _canBeBufferedIntoQueue(
-    logicalPacket: LogicalPacket,
+    logicalPacket: SoePacket,
     queue: PacketsQueue
   ): boolean {
     return (
       this._waitTimeMs > 0 &&
-      logicalPacket.canBeBuffered &&
-      queue.CurrentByteLength + logicalPacket.data.length <=
-        this._maxMultiBufferSize
+      logicalPacket.bufferable &&
+      queue.CurrentByteLength + logicalPacket.length <= this._maxMultiBufferSize
     );
   }
 
-  private _sendLogicalPacket(
-    client: Client,
-    logicalPacket: LogicalPacket
-  ): void {
+  private _sendLogicalPacket(client: Client, logicalPacket: SoePacket): void {
     client.stats.totalLogicalPacketSent++;
     if (this._canBeBufferedIntoQueue(logicalPacket, client.waitingQueue)) {
       client.waitingQueue.addPacket(logicalPacket);
