@@ -241,6 +241,7 @@ export class PluginManager {
     delete require.cache[require.resolve(runPath)];
     const module = await import(runPath);
     if (!(module.default.prototype instanceof BasePlugin)) {
+      console.log(module.default.prototype);
       console.log(`[PluginManager] Invalid plugin detected! ${runPath}`);
       return;
     }
