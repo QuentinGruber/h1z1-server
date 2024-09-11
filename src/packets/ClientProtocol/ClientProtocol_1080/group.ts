@@ -11,6 +11,7 @@
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
 
+import DataSchema from "h1z1-dataschema";
 import { PacketField, PacketStructures } from "types/packetStructure";
 import { identitySchema } from "./shared";
 
@@ -52,15 +53,15 @@ const joinDataSchema: Array<PacketField> = [
     fields: groupCharacterSchema
   },
   {
-    name: "unknownData1",
+    name: "jobData",
     type: "schema",
     defaultValue: {},
     fields: [
-      { name: "unknownDword1", type: "uint32", defaultValue: 0 },
+      { name: "id", type: "uint32", defaultValue: 0 },
       { name: "unknownDword2", type: "uint32", defaultValue: 0 },
-      { name: "unknownDword3", type: "uint32", defaultValue: 0 },
-      { name: "unknownDword4", type: "uint32", defaultValue: 0 },
-      { name: "unknownDword5", type: "uint32", defaultValue: 0 }
+      { name: "iconId", type: "uint32", defaultValue: 0 },
+      { name: "backgroundIconId", type: "uint32", defaultValue: 0 },
+      { name: "rank", type: "uint32", defaultValue: 0 }
     ]
   },
   { name: "unknownDword1", type: "uint32", defaultValue: 0 },
@@ -69,7 +70,7 @@ const joinDataSchema: Array<PacketField> = [
   { name: "unknownDword3", type: "uint32", defaultValue: 0 },
   { name: "unknownDword4", type: "uint32", defaultValue: 0 },
   { name: "unknownQword1", type: "uint64string", defaultValue: "" },
-  { name: "unknownDword5", type: "uint32", defaultValue: 0 },
+  { name: "zoneId", type: "uint32", defaultValue: 0 },
   {
     name: "unknownFloatVector3",
     type: "floatvector3",
@@ -82,11 +83,30 @@ const joinDataSchema: Array<PacketField> = [
   },
   { name: "unknownQword2", type: "uint64string", defaultValue: "" },
   { name: "unknownDword6", type: "uint32", defaultValue: 0 },
-  { name: "unknownDword7", type: "uint32", defaultValue: 0 },
-  { name: "unknownDword8", type: "uint32", defaultValue: 0 },
-  { name: "unknownDword9", type: "uint32", defaultValue: 0 },
-  { name: "unknownDword10", type: "uint32", defaultValue: 0 }
+  { name: "memberId", type: "uint32", defaultValue: 0 },
+  { name: "playerDistance", type: "uint32", defaultValue: 0 },
+  { name: "helmetDurability", type: "uint32", defaultValue: 0 },
+  { name: "armorDurability", type: "uint32", defaultValue: 0 }
 ];
+
+export function packRemoveMember(obj: any) {
+  const unknownData1Schema = [
+    { name: "unknownDword1", type: "uint32", defaultValue: 0 },
+    { name: "unknownDword2", type: "uint32", defaultValue: 0 },
+    { name: "characterId", type: "uint64string", defaultValue: "" }
+  ];
+
+  const unknownData2Schema = [
+    { name: "unknownQword1", type: "uint64string", defaultValue: "" },
+    { name: "unknownBoolean1", type: "boolean", defaultValue: false }
+  ];
+
+  if (obj.unknownDword2 == 4) {
+    return DataSchema.pack([...unknownData1Schema, ...unknownData2Schema], obj)
+      .data;
+  }
+  return DataSchema.pack(unknownData1Schema, obj).data;
+}
 
 export const groupPackets: PacketStructures = [
   [
@@ -125,16 +145,28 @@ export const groupPackets: PacketStructures = [
     }
   ],
   [
-    // ** UNFINISHED **
     "Group.AutoGroup",
     0x1303,
     {
       fields: [
-        { name: "unknownDword1", type: "uint32", defaultValue: 0 },
+        { name: "unknownDword1", type: "uint32", defaultValue: 3 },
         { name: "unknownDword2", type: "uint32", defaultValue: 0 },
         { name: "unknownDword3", type: "uint32", defaultValue: 0 },
-        { name: "unknownDword4", type: "uint32", defaultValue: 0 }
-        // todo: make pack func
+        { name: "unknownDword4", type: "uint32", defaultValue: 1 },
+        {
+          name: "unknownArray1",
+          type: "array",
+          fields: [
+            { name: "unknownQword1", type: "uint64string", defaultValue: "0" }
+          ]
+        },
+        {
+          name: "unknownArray2",
+          type: "array",
+          fields: [
+            { name: "unknownQword1", type: "uint64string", defaultValue: "0" }
+          ]
+        }
       ]
     }
   ],
@@ -184,10 +216,10 @@ export const groupPackets: PacketStructures = [
     0x1308,
     {
       fields: [
-        { name: "unknownDword1", type: "uint32", defaultValue: 0 },
+        { name: "unknownDword1", type: "uint32", defaultValue: 2 },
         { name: "unknownDword2", type: "uint32", defaultValue: 0 },
         { name: "characterId", type: "uint64string", defaultValue: "" },
-        { name: "unknownDword3", type: "uint32", defaultValue: 0 }
+        { name: "groupId", type: "uint32", defaultValue: 0 }
       ]
     }
   ],
@@ -284,8 +316,28 @@ export const groupPackets: PacketStructures = [
     0x1312,
     {
       fields: [
-        // confirmed to be used on Z1BR
-        // todo: massive structure
+        { name: "unknownDword1", type: "uint32", defaultValue: 2 },
+        {
+          name: "unknownData1",
+          type: "schema",
+          fields: [
+            { name: "groupId", type: "uint32", defaultValue: 0 },
+            { name: "characterId", type: "uint64string", defaultValue: "" },
+            { name: "unknownByte1", type: "uint8", defaultValue: 0 }
+          ]
+        },
+        { name: "unknownByte1", type: "uint8", defaultValue: 0 },
+        { name: "unknownString1", type: "string", defaultValue: "" },
+        { name: "unknownDword2", type: "uint32", defaultValue: 0 },
+        {
+          name: "members",
+          type: "array",
+          fields: [
+            { name: "characterId", type: "uint64string", defaultValue: "" },
+            ...joinDataSchema
+          ]
+        },
+        { name: "unknownDword3", type: "uint32", defaultValue: 0 }
       ]
     }
   ],
@@ -327,7 +379,7 @@ export const groupPackets: PacketStructures = [
       fields: [
         { name: "unknownDword1", type: "uint32", defaultValue: 0 },
         { name: "unknownDword2", type: "uint32", defaultValue: 0 },
-        { name: "unknownDword3", type: "uint32", defaultValue: 0 }
+        { name: "groupId", type: "uint32", defaultValue: 0 }
       ]
     }
   ],
@@ -335,18 +387,7 @@ export const groupPackets: PacketStructures = [
     "Group.RemoveMember",
     0x1317,
     {
-      fields: [
-        { name: "unknownDword1", type: "uint32", defaultValue: 0 },
-        { name: "unknownDword2", type: "uint32", defaultValue: 0 },
-        { name: "characterId", type: "uint64string", defaultValue: "" }
-
-        // need to write pack func
-        // if unknownDword2 == 4
-        /*
-        { name: "unknownQword1", type: "uint64string", defaultValue: "" },
-        { name: "unknownBoolean1", type: "boolean", defaultValue: false },
-        */
-      ]
+      fields: [{ name: "data", type: "custom", packer: packRemoveMember }]
     }
   ],
   [
@@ -371,8 +412,35 @@ export const groupPackets: PacketStructures = [
     {
       fields: [
         { name: "unknownDword1", type: "uint32", defaultValue: 0 },
-        { name: "unknownDword2", type: "uint32", defaultValue: 0 }
-        // todo: extra dword if dword2 passes some condition
+        {
+          name: "unknownArray1",
+          type: "array",
+          defaultValue: [],
+          fields: [
+            {
+              name: "unknownString1",
+              type: "string",
+              defaultValue: ""
+            },
+            { name: "unknownDword1", type: "uint32", defaultValue: 0 },
+            { name: "unknownShort1", type: "uint16", defaultValue: 0 },
+            { name: "unknownShort2", type: "uint16", defaultValue: 0 },
+            { name: "unknownByte1", type: "uint8", defaultValue: 0 },
+            { name: "unknownBoolean1", type: "boolean", defaultValue: false },
+            { name: "unknownDword2", type: "uint32", defaultValue: 0 },
+            {
+              name: "unknownString2",
+              type: "string",
+              defaultValue: ""
+            },
+            {
+              name: "unknownString3",
+              type: "string",
+              defaultValue: ""
+            },
+            { name: "unknownDword3", type: "uint32", defaultValue: 0 }
+          ]
+        }
       ]
     }
   ],
