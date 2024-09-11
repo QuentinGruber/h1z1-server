@@ -72,12 +72,12 @@ const joinDataSchema: Array<PacketField> = [
   { name: "unknownQword1", type: "uint64string", defaultValue: "" },
   { name: "zoneId", type: "uint32", defaultValue: 0 },
   {
-    name: "unknownFloatVector3",
+    name: "position",
     type: "floatvector3",
     defaultValue: [0, 0, 0]
   },
   {
-    name: "unknownFloatVector4",
+    name: "rotation",
     type: "floatvector4",
     defaultValue: [1, 1, 1, 1]
   },

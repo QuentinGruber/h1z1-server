@@ -63,8 +63,8 @@ export class GroupManager {
                 unknownQword1: member
               }
             },
-            unknownFloatVector3: character?.state.position,
-            unknownFloatVector4: character?.state.rotation,
+            position: character?.state.position,
+            rotation: character?.state.rotation,
             memberId: index,
             unknownQword2: member
           };
@@ -344,8 +344,8 @@ export class GroupManager {
               unknownQword1: member
             }
           },
-          unknownFloatVector3: character?.state.position,
-          unknownFloatVector4: character?.state.rotation,
+          position: character?.state.position,
+          rotation: character?.state.rotation,
           memberId: index,
           unknownQword2: member
         };

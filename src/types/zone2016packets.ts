@@ -1422,8 +1422,8 @@ export interface GroupPlayerJoined {
   unknownDword4?: number;
   unknownQword1?: string;
   zoneId?: number;
-  unknownFloatVector3?: Float32Array;
-  unknownFloatVector4?: Float32Array;
+  position?: Float32Array;
+  rotation?: Float32Array;
   unknownQword2?: string;
   unknownDword6?: number;
   memberId?: number;
@@ -1464,8 +1464,8 @@ export interface GroupUnknown14 {
   unknownDword4?: number;
   unknownQword1?: string;
   zoneId?: number;
-  unknownFloatVector3?: Float32Array;
-  unknownFloatVector4?: Float32Array;
+  position?: Float32Array;
+  rotation?: Float32Array;
   unknownQword2?: string;
   unknownDword6?: number;
   memberId?: number;
