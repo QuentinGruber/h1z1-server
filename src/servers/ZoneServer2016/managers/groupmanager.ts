@@ -50,10 +50,12 @@ export class GroupManager {
           groupId: group.groupId,
           characterId: group.leader
         },
-        members: membersArray.map((member, index) => {
+        members: Object.values(group.members).map((member, index) => {
           const client = server.getClientByCharId(member);
           const character = client?.character;
-
+  
+          if (!client || !character) return null;
+  
           return {
             characterId: member,
             inviteData: {
@@ -68,7 +70,7 @@ export class GroupManager {
             memberId: index,
             unknownQword2: member
           };
-        })
+        }).filter(m => m !== null)
       };
 
       this.sendDataToGroup(server, group.groupId, "Group.Unknown12", sendData);
@@ -219,6 +221,8 @@ export class GroupManager {
       return;
     }
 
+    if(target.character.groupId != 0) return;
+
     if (source == target) {
       server.sendAlert(source, "You can't invite yourself to group!");
       return;
@@ -335,6 +339,8 @@ export class GroupManager {
         const client = server.getClientByCharId(member);
         const character = client?.character;
 
+        if (!client || !character) return null;
+
         return {
           characterId: member,
           inviteData: {
@@ -349,7 +355,7 @@ export class GroupManager {
           memberId: index,
           unknownQword2: member
         };
-      })
+      }).filter(m => m !== null)
     });
   }
 
