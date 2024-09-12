@@ -50,27 +50,29 @@ export class GroupManager {
           groupId: group.groupId,
           characterId: group.leader
         },
-        members: Object.values(group.members).map((member, index) => {
-          const client = server.getClientByCharId(member);
-          const character = client?.character;
-  
-          if (!client || !character) return null;
-  
-          return {
-            characterId: member,
-            inviteData: {
+        members: Object.values(group.members)
+          .map((member, index) => {
+            const client = server.getClientByCharId(member);
+            const character = client?.character;
+
+            if (!client || !character) return null;
+
+            return {
               characterId: member,
-              identity: {
-                characterName: character?.name,
-                unknownQword1: member
-              }
-            },
-            position: character?.state.position,
-            rotation: character?.state.rotation,
-            memberId: index,
-            unknownQword2: member
-          };
-        }).filter(m => m !== null)
+              inviteData: {
+                characterId: member,
+                identity: {
+                  characterName: character?.name,
+                  unknownQword1: member
+                }
+              },
+              position: character?.state.position,
+              rotation: character?.state.rotation,
+              memberId: index,
+              unknownQword2: member
+            };
+          })
+          .filter((m) => m !== null)
       };
 
       this.sendDataToGroup(server, group.groupId, "Group.Unknown12", sendData);
@@ -221,7 +223,7 @@ export class GroupManager {
       return;
     }
 
-    if(target.character.groupId != 0) return;
+    if (target.character.groupId != 0) return;
 
     if (source == target) {
       server.sendAlert(source, "You can't invite yourself to group!");
@@ -335,27 +337,29 @@ export class GroupManager {
         characterId: leaderClient.character.characterId
       },
       unknownString1: leaderClient.character.name,
-      members: Object.values(group.members).map((member, index) => {
-        const client = server.getClientByCharId(member);
-        const character = client?.character;
+      members: Object.values(group.members)
+        .map((member, index) => {
+          const client = server.getClientByCharId(member);
+          const character = client?.character;
 
-        if (!client || !character) return null;
+          if (!client || !character) return null;
 
-        return {
-          characterId: member,
-          inviteData: {
+          return {
             characterId: member,
-            identity: {
-              characterName: character?.name,
-              unknownQword1: member
-            }
-          },
-          position: character?.state.position,
-          rotation: character?.state.rotation,
-          memberId: index,
-          unknownQword2: member
-        };
-      }).filter(m => m !== null)
+            inviteData: {
+              characterId: member,
+              identity: {
+                characterName: character?.name,
+                unknownQword1: member
+              }
+            },
+            position: character?.state.position,
+            rotation: character?.state.rotation,
+            memberId: index,
+            unknownQword2: member
+          };
+        })
+        .filter((m) => m !== null)
     });
   }
 
