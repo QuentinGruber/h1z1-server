@@ -43,7 +43,6 @@ export class GroupManager {
     if (!lastSyncTime || lastSyncTime + 5000 <= now) {
       this.groupSync[groupId] = now;
 
-      const membersArray = Object.values(group.members); // Cache members array
       const sendData = {
         unknownDword1: group.groupId,
         unknownData1: {
