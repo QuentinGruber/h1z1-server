@@ -17,11 +17,11 @@
   - [Launch the game](#launch-the-game)
   - [Enable Debug log](#enable-debug-log)
 - [Demo](#demo)
-- [Contributing](#contributing)
-- [License](#license)
+- [Setting up a Development Environment](#setting-up-a-development-environment)
 - [Usage Examples](#usage-examples)
 - [Troubleshooting](#troubleshooting)
-- [Setting up a Development Environment](#setting-up-a-development-environment)
+- [Contributing](#contributing)
+- [License](#license)
 
 ## Description
 
