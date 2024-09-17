@@ -162,7 +162,7 @@ npm run start-dev
 To start the H1Z1 server, run the following command:
 
 ```sh
-npx -p h1z1-server h1z1-server-2016-demo
+npx -p h1z1-server h1z1-server-demo-2016
 ```
 
 ### Example 2: Connecting to the Server
