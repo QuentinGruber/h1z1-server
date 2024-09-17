@@ -2,6 +2,27 @@
 
 [![Discord](https://img.shields.io/discord/707525351357677610.svg?label=&logo=discord&logoColor=ffffff&color=7389D8&labelColor=6A7EC2)](https://discord.gg/RM6jNkj)
 
+## Table of Contents
+- [Description](#description)
+- [Motivation](#motivation)
+- [Thanks list](#thanks-list)
+- [Documentations](#documentations)
+- [Setup H1Z1](#setup-h1z1)
+  - [How to download it](#how-to-download-it)
+    - [Using our Launcher](#using-our-launcher)
+    - [Using our custom implementation of DepotDownloader](#using-our-custom-implementation-of-depotdownloader)
+    - [Using DepotDownloader](#using-depotdownloader)
+  - [H1Z1 Dependencies](#h1z1-dependencies)
+  - [Setup ClientConfig.ini](#setup-clientconfigini)
+  - [Launch the game](#launch-the-game)
+  - [Enable Debug log](#enable-debug-log)
+- [Demo](#demo)
+- [Contributing](#contributing)
+- [License](#license)
+- [Usage Examples](#usage-examples)
+- [Troubleshooting](#troubleshooting)
+- [Setting up a Development Environment](#setting-up-a-development-environment)
+
 ## Description
 
 Based on the work of [jseidelin](https://github.com/jseidelin) on [soe-network](https://github.com/psemu/soe-network),
@@ -108,3 +129,63 @@ Since v0.2.3 of h1z1-server the npm package [debug](https://www.npmjs.com/packag
 - `npx -p h1z1-server h1z1-server-demo` to try the 2015 server via npx.
 
 - `npx -p h1z1-server h1z1-server-demo-2016` to try the 2016 server via npx.
+
+## Setting up a Development Environment
+
+To set up a simple development environment for working on the H1Z1 server, follow these steps:
+
+1. Clone the repository:
+
+```sh
+git clone https://github.com/QuentinGruber/h1z1-server.git
+cd h1z1-server
+```
+
+2. Install the dependencies:
+
+```sh
+npm install
+```
+
+3. Start the development server:
+
+```sh
+npm run start-dev
+```
+
+4. Make your changes and test them using the provided scripts and commands.
+
+## Usage Examples
+
+### Example 1: Starting the Server
+
+To start the H1Z1 server, run the following command:
+
+```sh
+npx -p h1z1-server h1z1-server-2016-demo
+```
+
+### Example 2: Connecting to the Server
+
+To connect to the server, launch the H1Z1 game and configure the `ClientConfig.ini` file as described in the [Setup H1Z1](#setup-h1z1) section.
+
+## Troubleshooting
+
+### Common Issues
+
+#### Issue 1: Server Not Starting
+
+If the server is not starting, make sure you have installed all the necessary dependencies and followed the setup instructions correctly.
+
+#### Issue 2: Client Not Connecting
+
+If the client is not connecting to the server, double-check the `ClientConfig.ini` file and ensure that the server address is correct.
+
+## Contributing
+
+We welcome contributions! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines on how to contribute to this project.
+
+## License
+
+This project is licensed under the terms of the GNU General Public License v3.0. See the [LICENSE](LICENSE) file for details.
+
