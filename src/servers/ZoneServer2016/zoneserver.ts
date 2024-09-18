@@ -102,8 +102,7 @@ import {
   getCurrentServerTimeWrapper,
   flhash,
   getDateString,
-  loadJson,
-  loadNavData
+  loadJson
 } from "../../utils/utils";
 
 import { Db, MongoClient, WithId } from "mongodb";
@@ -1823,10 +1822,6 @@ export class ZoneServer2016 extends EventEmitter {
     if (this.isPvE) {
       console.log("Server in PvE mode");
     }
-    console.time("Loading navigation data");
-    const nav_data_compressed = loadNavData();
-    this.aiManager.load_nav_data(nav_data_compressed);
-    console.timeEnd("Loading navigation data");
     this.fairPlayManager.decryptFairPlayValues();
     this._spawnGrid = this.divideMapIntoSpawnGrid(7448, 7448, 744);
     this.speedtreeManager.initiateList();
