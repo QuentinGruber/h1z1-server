@@ -12,15 +12,14 @@
 // ======================================================================
 
 import test, { after } from "node:test";
-import { ZoneServer2016 } from "../zoneserver";
 import assert from "node:assert";
+import { RewardManager } from "./rewardmanager";
 
 process.env.FORCE_DISABLE_WS = "true";
 test("RewardManager", { timeout: 10000 }, async (t) => {
-  const zone = new ZoneServer2016(0);
-  await zone.start();
+  const rewardManager = new RewardManager(void 0 as any);
   await t.test("Total chances", () => {
-    const totalChances = zone.rewardManager["rewards"].reduce(
+    const totalChances = rewardManager["rewards"].reduce(
       (sum, reward) => sum + reward.dropChances,
       0
     );

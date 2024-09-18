@@ -87,7 +87,7 @@ export class LoginServer extends EventEmitter {
   private readonly _appDataFolder: string;
   private _httpServer!: Worker;
   _enableHttpServer: boolean;
-  _httpServerPort: number = 80;
+  _httpServerPort: number = Number(process.env.HTTP_PORT ?? 80);
   private _zoneConnectionManager!: ZoneConnectionManager;
   private _zoneConnections: { [LZConnectionClientId: string]: number } = {};
   private _internalReqCount: number = 0;
