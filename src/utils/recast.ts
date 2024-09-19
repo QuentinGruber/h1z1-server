@@ -25,6 +25,7 @@ export class NavManager {
   navmesh!: NavMesh;
   crowd!: Crowd;
   navMeshQuery!: NavMeshQuery;
+  lastTimeCall: number = Date.now();
   constructor() {}
   async loadNav(navData: Uint8Array) {
     await initRecast();
@@ -43,13 +44,17 @@ export class NavManager {
     return new Float32Array([v.x, v.y, v.z]);
   }
   updt() {
-    const delta = 60;
     // console.time("crowd updt");
-    this.crowd.update(delta);
+    this.crowd.update(this.lastTimeCall);
+    this.lastTimeCall = Date.now();
     // console.timeEnd("crowd updt");
   }
+  getClosestNavPoint(pos: Float32Array): Vector3 {
+    const n = this.navMeshQuery.findNearestPoly(NavManager.Float32ToVec3(pos));
+    return n.nearestPoint;
+  }
   createAgent(pos: Float32Array): CrowdAgent {
-    const position = NavManager.Float32ToVec3(pos);
+    const position = this.getClosestNavPoint(pos);
     const radius = 2;
 
     const { randomPoint: initialAgentPosition } =

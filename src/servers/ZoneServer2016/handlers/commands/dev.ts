@@ -157,18 +157,30 @@ const dev: any = {
     const a = server.navManager.createAgent(zombie.state.position);
     zombie.navAgent = a;
 
-    zombie.navAgent.requestMoveTarget(
-      NavManager.Float32ToVec3(client.character.state.position)
-    );
     const targetVelocity = { x: 2, y: 2, z: 2 };
     zombie.navAgent.requestMoveVelocity(targetVelocity);
     console.log("waiiiting");
     await scheduler.wait(5000);
-    console.log("letsgoo");
+    // if (zombie.navAgent) {
+    //   console.log("ori");
+    //   console.log(zombie.state.position);
+    //   console.log("closest");
+    //   console.log(server.navManager.getClosestNavPoint(zombie.state.position));
+    //   zombie.navAgent.requestMoveTarget(
+    //     server.navManager.getClosestNavPoint(zombie.state.position)
+    //   );
+    //   server.navManager.updt();
+    //   console.log(zombie.navAgent.interpolatedPosition);
+    //   zombie.goTo(
+    //     NavManager.Vec3ToFloat32(zombie.navAgent.interpolatedPosition)
+    //   );
+    // }
     setInterval(() => {
       server.navManager.updt();
       if (zombie.navAgent) {
-        console.log(zombie.state.position);
+        zombie.navAgent.requestMoveTarget(
+          server.navManager.getClosestNavPoint(client.character.state.position)
+        );
         console.log(zombie.navAgent.interpolatedPosition);
         zombie.goTo(
           NavManager.Vec3ToFloat32(zombie.navAgent.interpolatedPosition)
