@@ -152,6 +152,15 @@ const dev: any = {
     server._npcs[characterId] = zombie;
     const e = new EntityFromJs(EntityType.Zombie, zombie);
     server.aiManager.add_entity(e);
+    setInterval(() => {
+      const p = server.navigator.testNavMesh(
+        zombie.state.position,
+        client.character.state.position
+      );
+      if (p.length) {
+        p.forEach((v) => zombie.goTo(v));
+      }
+    }, 1000);
   },
   abilities: function (
     server: ZoneServer2016,

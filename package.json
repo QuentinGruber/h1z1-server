@@ -47,7 +47,7 @@
     "fix-signatures": "npx ts-node ./scripts/fixSignatures.ts && npm run prettier_sources",
     "gen-doc": "npm run updt-doc-config && npx typedoc",
     "updt-doc-config": "npx ts-node ./scripts/updateTypeDoc.ts",
-    "start": "node --experimental-require-module ./scripts/h1z1-server-demo-2016.js",
+    "start": "node --no-warnings --experimental-require-module ./scripts/h1z1-server-demo-2016.js",
     "start-dev": "npm run build && npm start",
     "start-echo": "npm run build && npm run build-benchs && node --inspect ./benchmarks/out/echo/echo-server-start.js",
     "lint": "npx eslint src",

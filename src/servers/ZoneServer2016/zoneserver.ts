@@ -250,6 +250,8 @@ import { RewardManager } from "./managers/rewardmanager";
 import { DynamicAppearance } from "types/zonedata";
 import { AiManager, EntityFromJs, EntityType } from "h1emu-ai";
 import { setInterval } from "node:timers";
+import { readFileSync } from "node:fs";
+import { Navig } from "../../utils/recast";
 
 const spawnLocations2 = require("../../../data/2016/zoneData/Z1_gridSpawns.json"),
   deprecatedDoors = require("../../../data/2016/sampleData/deprecatedDoors.json"),
@@ -463,6 +465,7 @@ export class ZoneServer2016 extends EventEmitter {
   crowbarHitRewardChance!: number;
   crowbarHitDamage!: number;
   /*                          */
+  navigator: Navig;
 
   constructor(
     serverPort: number,
@@ -495,6 +498,7 @@ export class ZoneServer2016 extends EventEmitter {
     this.commandHandler = new CommandHandler();
     this.playTimeManager = new PlayTimeManager();
     this.aiManager = new AiManager();
+    this.navigator = new Navig();
     /* CONFIG MANAGER MUST BE INSTANTIATED LAST ! */
     this.configManager = new ConfigManager(this, process.env.CONFIG_PATH);
     this.enableWorldSaves =
@@ -1599,6 +1603,11 @@ export class ZoneServer2016 extends EventEmitter {
   }
 
   private async setupServer() {
+    const z1_nav = new Uint8Array(
+      readFileSync(__dirname + "/../../../data/2016/navData/z1.bin")
+    );
+    await this.navigator.loadNav(z1_nav);
+
     this.weatherManager.init();
     this.playTimeManager.init(this);
     this.initModelsDataSource();
