@@ -62,7 +62,7 @@
     "build-tests": "npx tsc -p tsconfigs/tsconfig-tests.json",
     "build-benchs": "npx tsc -p ./benchmarks/tsconfig.json",
     "build-docker-images": "npx ts-node ./docker/buildDocker.ts",
-    "test-mongo": "npm run build && npm run build-tests && MONGO_TESTS='true' node --test",
+    "test-mongo": "npm run build && npm run build-tests && MONGO_TESTS='true' node --no-warnings --experimental-require-module --test",
     "test": "npm run build && npm run build-tests && node --no-warnings --experimental-require-module --test",
     "postinstall": "npm run build",
     "publish_release": "git push --tags && git push origin dev && git push origin master && git checkout dev && npm run publish_release-next",
