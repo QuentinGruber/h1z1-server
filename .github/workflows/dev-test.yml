@@ -7,10 +7,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - name: Use Node.js 20.12.2
+      - name: Use Node.js 22.9.0
         uses: actions/setup-node@v3
         with:
-          node-version: 20.12.2
+          node-version: 22.9.0
       - run: npm i
       - run: npm run lint-quiet
   prettier:
@@ -18,10 +18,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - name: Use Node.js 20.12.2
+      - name: Use Node.js 22.9.0
         uses: actions/setup-node@v3
         with:
-          node-version: 20.12.2
+          node-version: 22.9.0
       - run: npm i
       - run: npm run check_prettier
   interfaces-up-to-date:
@@ -29,10 +29,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - name: Use Node.js 20.12.2
+      - name: Use Node.js 22.9.0
         uses: actions/setup-node@v3
         with:
-          node-version: 20.12.2
+          node-version: 22.9.0
       - run: npm i
       - run: npm run gen-packets-types
       - run: npm run gen-packets-interfaces
@@ -42,7 +42,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        node-version: [20.x, 21.x]
+        node-version: [21.x, 22.x]
     steps:
       - uses: actions/checkout@v3
       - name: Use Node.js ${{ matrix.node-version }}
@@ -56,7 +56,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        node-version: [20.12.2, 20.x, 21.x]
+        node-version: [22.9.0, 21.x, 22.x]
     steps:
       - uses: actions/checkout@v3
       - name: Use Node.js ${{ matrix.node-version }}
@@ -72,7 +72,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        node-version: [20.12.2, 20.x, 21.x]
+        node-version: [22.9.0, 21.x, 22.x]
     steps:
       - uses: actions/checkout@v3
       - name: Use Node.js ${{ matrix.node-version }}
@@ -86,7 +86,7 @@ jobs:
     runs-on: windows-latest
     strategy:
       matrix:
-        node-version: [20.12.2, 20.x, 21.x]
+        node-version: [22.9.0, 21.x, 22.x]
     steps:
       - uses: actions/checkout@v3
       - name: Use Node.js ${{ matrix.node-version }}
