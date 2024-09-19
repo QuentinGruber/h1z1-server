@@ -1,8 +1,0 @@
-{
-  "extends": "../tsconfig.json",
-  "include": ["../src/"],
-  "exclude": ["../src/clients/",
-    "../src/packets/LoginUdp/LoginUdp_9/",
-    "../src/packets/ClientProtocol/ClientProtocol_860/",
-    "../src/types/"]
-}
