@@ -37,6 +37,8 @@ import { WorldObjectManager } from "../../managers/worldobjectmanager";
 import { Vehicle2016 } from "../../entities/vehicle";
 import { Plane } from "../../entities/plane";
 import { EntityFromJs, EntityType } from "h1emu-ai";
+import { NavManager } from "../../../../utils/recast";
+import { scheduler } from "timers/promises";
 
 const abilities = require("../../../../../data/2016/dataSources/Abilities.json"),
   vehicleAbilities = require("../../../../../data/2016/dataSources/VehicleAbilities.json");
@@ -132,7 +134,7 @@ const dev: any = {
       unknownData2: {}
     });
   },
-  zombie: function (
+  zombie: async function (
     server: ZoneServer2016,
     client: Client,
     args: Array<string>
@@ -152,15 +154,27 @@ const dev: any = {
     server._npcs[characterId] = zombie;
     const e = new EntityFromJs(EntityType.Zombie, zombie);
     server.aiManager.add_entity(e);
+    const a = server.navManager.createAgent(zombie.state.position);
+    zombie.navAgent = a;
+
+    zombie.navAgent.requestMoveTarget(
+      NavManager.Float32ToVec3(client.character.state.position)
+    );
+    const targetVelocity = { x: 2, y: 2, z: 2 };
+    zombie.navAgent.requestMoveVelocity(targetVelocity);
+    console.log("waiiiting");
+    await scheduler.wait(5000);
+    console.log("letsgoo");
     setInterval(() => {
-      const p = server.navigator.testNavMesh(
-        zombie.state.position,
-        client.character.state.position
-      );
-      if (p.length) {
-        p.forEach((v) => zombie.goTo(v));
+      server.navManager.updt();
+      if (zombie.navAgent) {
+        console.log(zombie.state.position);
+        console.log(zombie.navAgent.interpolatedPosition);
+        zombie.goTo(
+          NavManager.Vec3ToFloat32(zombie.navAgent.interpolatedPosition)
+        );
       }
-    }, 1000);
+    }, 200);
   },
   abilities: function (
     server: ZoneServer2016,

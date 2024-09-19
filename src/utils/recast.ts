@@ -11,25 +11,67 @@
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
 
-import { init as initRecast, NavMesh } from "recast-navigation";
+import {
+  CrowdAgent,
+  init as initRecast,
+  NavMesh,
+  Vector3
+} from "recast-navigation";
 import { NavMeshQuery } from "recast-navigation";
 import { importNavMesh } from "recast-navigation";
+import { Crowd } from "recast-navigation";
 
-export class Navig {
+export class NavManager {
   navmesh!: NavMesh;
+  crowd!: Crowd;
+  navMeshQuery!: NavMeshQuery;
   constructor() {}
   async loadNav(navData: Uint8Array) {
     await initRecast();
     const { navMesh } = importNavMesh(navData);
     this.navmesh = navMesh;
+    const maxAgents = 100;
+    const maxAgentRadius = 0.6;
+
+    this.navMeshQuery = new NavMeshQuery(this.navmesh);
+    this.crowd = new Crowd(navMesh, { maxAgents, maxAgentRadius });
+  }
+  static Float32ToVec3(f: Float32Array): Vector3 {
+    return { x: f[0], y: f[1], z: f[2] };
+  }
+  static Vec3ToFloat32(v: Vector3): Float32Array {
+    return new Float32Array([v.x, v.y, v.z]);
+  }
+  updt() {
+    const delta = 60;
+    // console.time("crowd updt");
+    this.crowd.update(delta);
+    // console.timeEnd("crowd updt");
+  }
+  createAgent(pos: Float32Array): CrowdAgent {
+    const position = NavManager.Float32ToVec3(pos);
+    const radius = 2;
+
+    const { randomPoint: initialAgentPosition } =
+      this.navMeshQuery.findRandomPointAroundCircle(position, radius);
+
+    const agent = this.crowd.addAgent(initialAgentPosition, {
+      radius: 5,
+      height: 5,
+      maxAcceleration: 4.0,
+      maxSpeed: 1.0,
+      collisionQueryRange: 0.5,
+      pathOptimizationRange: 0.0,
+      separationWeight: 1.0
+    });
+    return agent;
   }
   testNavMesh(a: Float32Array, b: Float32Array): Float32Array[] {
     console.time("calculating path");
-    const navMeshQuery = new NavMeshQuery(this.navmesh);
 
-    const start = { x: a[0], y: a[1], z: a[2] };
-    const end = { x: b[0], y: b[1], z: b[2] };
-    const { success, error, path } = navMeshQuery.computePath(start, end);
+    const start = NavManager.Float32ToVec3(a);
+    const end = NavManager.Float32ToVec3(b);
+    const { success, error, path } = this.navMeshQuery.computePath(start, end);
     console.log(success);
     console.log(error);
     console.log(path);
