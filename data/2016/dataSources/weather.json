@@ -1,4 +1,41 @@
 {
+  "h1emubaseweather-old": {
+    "templateName": "h1emubaseweather-old",
+    "overcast": 1,
+    "fogDensity": 0,
+    "fogFloor": 71,
+    "fogGradient": 0.008,
+    "globalPrecipitation": 0,
+    "temperature": 80,
+    "skyClarity": 0.14,
+    "cloudWeight0": 0.05,
+    "cloudWeight1": 0,
+    "cloudWeight2": 0.05,
+    "cloudWeight3": 0.15,
+    "transitionTime": 0,
+    "sunAxisX": 0,
+    "sunAxisY": 0,
+    "sunAxisZ": 0,
+    "windDirectionX": -1,
+    "windDirectionY": -0.5,
+    "windDirectionZ": -1,
+    "wind": 1.4,
+    "rainMinStrength": 0,
+    "rainRampupTimeSeconds": 1,
+    "cloudFile": "sky_Z_clouds.dds",
+    "stratusCloudTiling": 0.3,
+    "stratusCloudScrollU": -0.002,
+    "stratusCloudScrollV": 0,
+    "stratusCloudHeight": 1000,
+    "cumulusCloudTiling": 0.2,
+    "cumulusCloudScrollU": 0,
+    "cumulusCloudScrollV": 0.002,
+    "cumulusCloudHeight": 8000,
+    "cloudAnimationSpeed": 0.1,
+    "cloudSilverLiningThickness": 0.8,
+    "cloudSilverLiningBrightness": 0.2,
+    "cloudShadows": 0.5
+  },
   "h1emubaseweather": {
     "templateName": "h1emubaseweather",
     "overcast": 25,
@@ -259,4 +296,3 @@
     "cloudShadows": 0.5
   }
 }
-
