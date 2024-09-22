@@ -1213,7 +1213,11 @@ export const commands: Array<Command> = [
   {
     name: "superman",
     permissionLevel: PermissionLevels.MODERATOR,
-    execute: async (server: ZoneServer2016, client: Client, args: Array<string>) => {
+    execute: async (
+      server: ZoneServer2016,
+      client: Client,
+      args: Array<string>
+    ) => {
       // Heal the character
       client.character.resetResources(server);
       server.sendChatText(client, "Set resources to maximum values.");
@@ -1222,12 +1226,15 @@ export const commands: Array<Command> = [
       server.sendAlert(client, `Set debug mode to ${client.isDebugMode}`);
       // Toggle vanish state
       client.character.isVanished = !client.character.isVanished;
-      server.sendAlert(client, `Set vanish state to ${client.character.isVanished}`);
+      server.sendAlert(
+        client,
+        `Set vanish state to ${client.character.isVanished}`
+      );
       if (!client.character.isVanished) {
         for (const decoy of Object.values(server._decoys)) {
           if (decoy.transientId === client.character.transientId) {
             server.sendDataToAll("Character.RemovePlayer", {
-              characterId: decoy.characterId,
+              characterId: decoy.characterId
             });
             server.sendChatText(client, "Decoy removed", false);
             client.isDecoy = false;
@@ -1237,7 +1244,7 @@ export const commands: Array<Command> = [
         for (const iteratedClient of Object.values(server._clients)) {
           if (iteratedClient.spawnedEntities.has(client.character)) {
             server.sendData(iteratedClient, "Character.RemovePlayer", {
-              characterId: client.character.characterId,
+              characterId: client.character.characterId
             });
             iteratedClient.spawnedEntities.delete(client.character);
           }
@@ -1253,7 +1260,7 @@ export const commands: Array<Command> = [
         client.character.characterStates,
         true
       );
-    },
+    }
   },
   {
     name: "move",
@@ -1263,11 +1270,13 @@ export const commands: Array<Command> = [
       const heightInput = args[1];
       const height = heightInput !== undefined ? parseFloat(heightInput) : 50;
       if (isNaN(height)) {
-        server.sendAlert(client, "Error: Please enter a valid number for the height.");
+        server.sendAlert(
+          client,
+          "Error: Please enter a valid number for the height."
+        );
         return;
       }
-      const currentPosition = client.character.state.position;
-      let newPosition = new Float32Array(currentPosition);
+      const newPosition = new Float32Array(client.character.state.position);
       switch (direction) {
         case "up":
           newPosition[1] += height;
@@ -1276,7 +1285,10 @@ export const commands: Array<Command> = [
           newPosition[1] -= height;
           break;
         default:
-          server.sendAlert(client, "Error: Invalid direction. Use 'up' or 'down'.");
+          server.sendAlert(
+            client,
+            "Error: Invalid direction. Use 'up' or 'down'."
+          );
           return;
       }
       server.sendData(client, "ClientUpdate.UpdateLocation", {
