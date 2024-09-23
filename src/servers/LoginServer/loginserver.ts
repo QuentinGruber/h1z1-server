@@ -232,7 +232,6 @@ export class LoginServer extends EventEmitter {
                   const serverData = await this._db
                     .collection(DB_COLLECTIONS.SERVERS)
                     .findOne({ serverId: serverId });
-                  console.log(serverData?.maxPopulationNumber);
                   this._db?.collection(DB_COLLECTIONS.SERVERS).findOneAndUpdate(
                     { serverId: serverId },
                     {
@@ -240,8 +239,9 @@ export class LoginServer extends EventEmitter {
                         populationNumber: population,
                         populationLevel: Number(
                           (
-                            (population / serverData?.maxPopulationNumber ??
-                              100) * 3
+                            (population /
+                              (serverData?.maxPopulationNumber ?? 100)) *
+                            3
                           ).toFixed(0)
                         )
                       }
