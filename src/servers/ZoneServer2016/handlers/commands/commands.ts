@@ -144,10 +144,12 @@ export const commands: Array<Command> = [
               : `${(uptimeMin / 60).toFixed()}h `
           }`
         );
-        server.sendChatText(
-          client,
-          `clients : ${_.size(clients)} | npcs : ${_.size(npcs)}`
-        );
+        if(client.isAdmin) {
+          server.sendChatText(
+            client,
+            `clients : ${_.size(clients)} | npcs : ${_.size(npcs)}`
+          );
+        }
         server.sendChatText(
           client,
           `items : ${_.size(objects)} | vehicles : ${_.size(vehicles)}`
