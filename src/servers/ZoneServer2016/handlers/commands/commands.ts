@@ -158,7 +158,7 @@ export const commands: Array<Command> = [
   },
   {
     name: "pop",
-    permissionLevel: PermissionLevels.DEFAULT,
+    permissionLevel: PermissionLevels.ADMIN,
     execute: (server: ZoneServer2016, client: Client, args: Array<string>) => {
       const pop = _.size(server._clients);
       server.sendChatText(

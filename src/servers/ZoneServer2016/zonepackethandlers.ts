@@ -366,11 +366,11 @@ export class ZonePacketHandlers {
         );
         if (server.welcomeMessage)
           server.sendAlert(client, server.welcomeMessage);
-        server.sendChatText(
-          client,
-          `server population : ${_.size(server._characters)}`
-        );
         if (client.isAdmin) {
+          server.sendChatText(
+            client,
+            `server population : ${_.size(server._characters)}`
+          );
           if (server.adminMessage)
             server.sendAlert(client, server.adminMessage);
         }
