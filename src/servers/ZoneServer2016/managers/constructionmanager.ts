@@ -1882,6 +1882,8 @@ export class ConstructionManager {
     state: boolean
   ) {
     if (state) {
+      //TODO: Leaving a group will not remove the player because the client already has the isHidden flag.
+      //To reproduce: Create a group and give the other player visitor perm, before disbanding the group remove other players' perms.
       if (!client.character.isHidden) {
         client.character.isHidden = constructionGuid;
         for (const a in server._clients) {
