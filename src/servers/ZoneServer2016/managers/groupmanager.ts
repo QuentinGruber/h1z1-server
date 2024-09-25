@@ -323,6 +323,8 @@ export class GroupManager {
         },
         { $set: { members: group.members } }
       );
+    } else {
+      this.soloGroups[group.groupId] = group;
     }
 
     server.sendAlert(target, "Group joined.");
@@ -516,7 +518,14 @@ export class GroupManager {
       return;
     }
 
+    this.removeGroupMember(server, client, group, true);
     this.disbandGroup(server, group.groupId);
+    // For some reason the leader isn't a member anymore while disbanding. So this is a temporary workaround to fix the group UI.
+    client.character.groupId = 0;
+    server.sendData(client, "Group.RemoveGroup", {
+      unknownDword1: group.groupId,
+      groupId: group.groupId
+    });
   }
 
   async handleGroupCommand(
