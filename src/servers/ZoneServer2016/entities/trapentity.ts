@@ -85,7 +85,8 @@ export class TrapEntity extends BaseSimpleNpc {
                 this.state.position
               ) < 1.5 &&
               client.character.isAlive &&
-              !client.vehicle.mountedVehicle
+              !client.vehicle.mountedVehicle &&
+              !client.character.isSpectator
             ) {
               client.character.damage(server, {
                 entity: this.characterId,
@@ -197,7 +198,8 @@ export class TrapEntity extends BaseSimpleNpc {
             const client = server._clients[a];
             if (
               this.isInside(client.character.state.position) &&
-              client.character.isAlive
+              client.character.isAlive &&
+              !client.character.isSpectator
             ) {
               client.character.damage(server, {
                 entity: this.characterId,
