@@ -1310,6 +1310,8 @@ export interface GroupAutoGroup {
   unknownDword2?: number;
   unknownDword3?: number;
   unknownDword4?: number;
+  unknownArray1: unknown[];
+  unknownArray2: unknown[];
 }
 export interface GroupLeave {
   unknownDword1?: number;
@@ -1332,7 +1334,7 @@ export interface GroupSetGroupOwner {
   unknownDword1?: number;
   unknownDword2?: number;
   characterId?: string;
-  unknownDword3?: number;
+  groupId?: number;
 }
 export interface GroupSetGroupDescription {
   unknownDword1?: number;
@@ -1375,6 +1377,17 @@ export interface GroupToggleSquadLeaderChat {
   leaveState?: boolean;
 }
 export interface GroupUnknown12 {
+  unknownDword1?: number;
+  unknownData1 :{
+  groupId?: number;
+  characterId?: string;
+  unknownByte1?: number;
+};
+  unknownByte1?: number;
+  unknownString1?: string;
+  unknownDword2?: number;
+  members: unknown[];
+  unknownDword3?: number;
 }
 export interface GroupPlayerJoined {
   unknownDword1?: number;
@@ -1395,12 +1408,12 @@ export interface GroupPlayerJoined {
   unknownByte1?: number;
   unknownString1?: string;
 };
-  unknownData1 :{
-  unknownDword1?: number;
+  jobData :{
+  id?: number;
   unknownDword2?: number;
-  unknownDword3?: number;
-  unknownDword4?: number;
-  unknownDword5?: number;
+  iconId?: number;
+  backgroundIconId?: number;
+  rank?: number;
 };
   unknownDword1?: number;
   unknownByte1?: number;
@@ -1408,15 +1421,15 @@ export interface GroupPlayerJoined {
   unknownDword3?: number;
   unknownDword4?: number;
   unknownQword1?: string;
-  unknownDword5?: number;
-  unknownFloatVector3?: Float32Array;
-  unknownFloatVector4?: Float32Array;
+  zoneId?: number;
+  position?: Float32Array;
+  rotation?: Float32Array;
   unknownQword2?: string;
   unknownDword6?: number;
-  unknownDword7?: number;
-  unknownDword8?: number;
-  unknownDword9?: number;
-  unknownDword10?: number;
+  memberId?: number;
+  playerDistance?: number;
+  helmetDurability?: number;
+  armorDurability?: number;
 };
 }
 export interface GroupUnknown14 {
@@ -1437,12 +1450,12 @@ export interface GroupUnknown14 {
   unknownByte1?: number;
   unknownString1?: string;
 };
-  unknownData1 :{
-  unknownDword1?: number;
+  jobData :{
+  id?: number;
   unknownDword2?: number;
-  unknownDword3?: number;
-  unknownDword4?: number;
-  unknownDword5?: number;
+  iconId?: number;
+  backgroundIconId?: number;
+  rank?: number;
 };
   unknownDword1?: number;
   unknownByte1?: number;
@@ -1450,26 +1463,24 @@ export interface GroupUnknown14 {
   unknownDword3?: number;
   unknownDword4?: number;
   unknownQword1?: string;
-  unknownDword5?: number;
-  unknownFloatVector3?: Float32Array;
-  unknownFloatVector4?: Float32Array;
+  zoneId?: number;
+  position?: Float32Array;
+  rotation?: Float32Array;
   unknownQword2?: string;
   unknownDword6?: number;
-  unknownDword7?: number;
-  unknownDword8?: number;
-  unknownDword9?: number;
-  unknownDword10?: number;
+  memberId?: number;
+  playerDistance?: number;
+  helmetDurability?: number;
+  armorDurability?: number;
 };
 }
 export interface GroupRemoveGroup {
   unknownDword1?: number;
   unknownDword2?: number;
-  unknownDword3?: number;
+  groupId?: number;
 }
 export interface GroupRemoveMember {
-  unknownDword1?: number;
-  unknownDword2?: number;
-  characterId?: string;
+  data: unknown;
 }
 export interface GroupRemoveInvitation {
   unknownDword1?: number;
@@ -1512,7 +1523,7 @@ export interface GroupRemoveInvitation {
 }
 export interface GroupUnknown19 {
   unknownDword1?: number;
-  unknownDword2?: number;
+  unknownArray1?: unknown[];
 }
 export interface GroupUnknown1a {
   unknownDword1?: number;
