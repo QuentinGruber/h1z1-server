@@ -239,9 +239,7 @@ export class PluginManager {
     );
 
     delete require.cache[require.resolve(runPath)];
-    let module = await import(runPath);
-    // Just don't ask why, somehow it happens when targeting node16 package
-    module = module.default ? module.default : module.default.default;
+    const module = await import(runPath);
     if (!(module.default.prototype instanceof BasePlugin)) {
       console.log(`[PluginManager] Invalid plugin detected! ${runPath}`);
       return;
