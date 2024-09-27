@@ -366,16 +366,16 @@ export class ZonePacketHandlers {
         );
         if (server.welcomeMessage)
           server.sendAlert(client, server.welcomeMessage);
-        server.sendChatText(
-          client,
-          `server population : ${_.size(server._characters)}`
-        );
         if (client.isAdmin) {
+          server.sendChatText(
+            client,
+            `server population : ${_.size(server._characters)}`
+          );
           if (server.adminMessage)
             server.sendAlert(client, server.adminMessage);
         }
         if (!server._soloMode && client.character.groupId) {
-          server.groupManager.handleJoinExistingGroup(server, client);
+          server.sendAlert(client, "Group automatically joined.");
         }
       }, 10000);
       if (client.banType != "") {
@@ -490,7 +490,7 @@ export class ZonePacketHandlers {
   ) {
     if (packet.data.objectCharacterId != client.character.characterId) {
       const objVehicle = server._vehicles[packet.data.objectCharacterId || ""];
-      if (objVehicle && objVehicle.engineRPM > 4500) {
+      if (objVehicle && objVehicle.engineOn) {
         for (const a in server._destroyables) {
           const destroyable = server._destroyables[a];
           if (destroyable.destroyedModel) continue;
@@ -880,6 +880,10 @@ export class ZonePacketHandlers {
       "Synchronization",
       reflectedPacket
     );
+    const groupId = client.character.groupId;
+    if (groupId) {
+      server.groupManager.syncGroup(server, groupId);
+    }
     if (client.isSynced) return;
     client.isSynced = true;
     client.character.lastLoginDate = toHex(Date.now());
@@ -3354,9 +3358,6 @@ export class ZonePacketHandlers {
 
         client.character.equipItem(server, newItem);
         client.character.updateEquipment(server);
-        if (!server._soloMode) {
-          server.groupManager.updateOutLines(server, client);
-        }
 
         // Copy over items from the old container to the new container
         if (containerItems && _.size(containerItems) !== 0) {
@@ -3473,6 +3474,14 @@ export class ZonePacketHandlers {
       default:
         debug(packet.data);
     }
+  }
+
+  disbandGroup(server: ZoneServer2016, client: Client) {
+    server.groupManager.handleGroupCommand(server, client, ["disband"]);
+  }
+
+  leaveGroup(server: ZoneServer2016, client: Client) {
+    server.groupManager.handleGroupCommand(server, client, ["leave"]);
   }
 
   commerceSessionRequest(server: ZoneServer2016, client: Client) {
@@ -3749,6 +3758,12 @@ export class ZonePacketHandlers {
         break;
       case "CommerceSessionRequest":
         this.commerceSessionRequest(server, client);
+        break;
+      case "Group.Disband":
+        this.disbandGroup(server, client);
+        break;
+      case "Group.Leave":
+        this.leaveGroup(server, client);
         break;
       default:
         debug(packet);

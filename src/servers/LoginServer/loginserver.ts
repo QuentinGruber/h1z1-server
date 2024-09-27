@@ -87,7 +87,7 @@ export class LoginServer extends EventEmitter {
   private readonly _appDataFolder: string;
   private _httpServer!: Worker;
   _enableHttpServer: boolean;
-  _httpServerPort: number = 80;
+  _httpServerPort: number = Number(process.env.HTTP_PORT ?? 80);
   private _zoneConnectionManager!: ZoneConnectionManager;
   private _zoneConnections: { [LZConnectionClientId: string]: number } = {};
   private _internalReqCount: number = 0;
@@ -229,12 +229,21 @@ export class LoginServer extends EventEmitter {
                 case "UpdateZonePopulation": {
                   const { population } = packet.data;
                   const serverId = this._zoneConnections[client.clientId];
+                  const serverData = await this._db
+                    .collection(DB_COLLECTIONS.SERVERS)
+                    .findOne({ serverId: serverId });
                   this._db?.collection(DB_COLLECTIONS.SERVERS).findOneAndUpdate(
                     { serverId: serverId },
                     {
                       $set: {
                         populationNumber: population,
-                        populationLevel: population
+                        populationLevel: Number(
+                          (
+                            (population /
+                              (serverData?.maxPopulationNumber ?? 100)) *
+                            3
+                          ).toFixed(0)
+                        )
                       }
                     }
                   );
