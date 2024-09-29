@@ -1302,11 +1302,10 @@ export class ZoneServer2016 extends EventEmitter {
   }
 
   sendCharacterData(client: Client) {
-    // guid is sensitive for now, so don't send real one to client rn
     this.sendData<SendSelfToClient>(
       client,
       "SendSelfToClient",
-      client.character.pGetSendSelf(this, this._serverGuid, client)
+      client.character.pGetSendSelf(this, client)
     );
     client.character.initialized = true;
     this.initializeContainerList(client);
