@@ -1079,7 +1079,7 @@ export const lightWeightPcSchema: PacketFields = [
     type: "uint64string",
     defaultValue: "0x0100000000100000"
   },
-  { name: "unknownDword5", type: "uint32", defaultValue: /*665*/ 665 }, //
+  { name: "shaderGroupId", type: "uint32", defaultValue: 0 }, //
   {
     name: "flags1",
     type: "bitflags",

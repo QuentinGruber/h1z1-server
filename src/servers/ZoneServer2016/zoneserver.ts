@@ -1299,6 +1299,7 @@ export class ZoneServer2016 extends EventEmitter {
       savedCharacter as FullCharacterSaveData
     );
     client.startingPos = client.character.state.position;
+    client.character.getShaderGroup();
   }
 
   sendCharacterData(client: Client) {

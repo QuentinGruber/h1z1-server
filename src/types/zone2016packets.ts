@@ -589,7 +589,7 @@ export interface AddLightweightPc {
   effectId?: number;
   unknownDword4?: number;
   unknownQword1?: string;
-  unknownDword5?: number;
+  shaderGroupId?: number;
   flags1:{
      flag0?: number,
      knockedOut?: number,

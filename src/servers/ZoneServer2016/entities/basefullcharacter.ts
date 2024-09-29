@@ -291,8 +291,8 @@ export abstract class BaseFullCharacter extends BaseLightweightCharacter {
         ),
         slotId: equipmentSlotId,
         guid: item.itemGuid,
-        textureAlias: def.TEXTURE_ALIAS || "default0",
-        tintAlias: "",
+        textureAlias: def.TEXTURE_ALIAS || "Default",
+        tintAlias: "#",
         SHADER_PARAMETER_GROUP: server.getShaderParameterGroup(
           item.itemDefinitionId
         )
@@ -847,8 +847,8 @@ export abstract class BaseFullCharacter extends BaseLightweightCharacter {
           textureAlias: slot.textureAlias || "",
           tintAlias: slot.tintAlias || "Default",
           decalAlias: slot.decalAlias || "#",
-          slotId: slot.slotId
-          //SHADER_PARAMETER_GROUP: slot.SHADER_PARAMETER_GROUP
+          slotId: slot.slotId,
+          SHADER_PARAMETER_GROUP: slot?.SHADER_PARAMETER_GROUP ?? []
         }
       : undefined;
   }

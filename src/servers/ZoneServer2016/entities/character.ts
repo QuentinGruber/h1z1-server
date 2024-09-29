@@ -294,6 +294,9 @@ export class Character2016 extends BaseFullCharacter {
    */
   recipes: { [recipeId: number]: Recipe } = recipes;
 
+  /* Used for skin tones */
+  shaderGroupId: number = 122;
+
   constructor(
     characterId: string,
     transientId: number,
@@ -384,6 +387,22 @@ export class Character2016 extends BaseFullCharacter {
       }, 1000);
     };
     this.materialType = MaterialTypes.FLESH;
+  }
+
+  getShaderGroup() {
+    switch (this.headActor) {
+      case "SurvivorMale_Head_02.adr":
+      case "SurvivorFemale_Head_02.adr":
+        this.shaderGroupId = 125;
+        break;
+      case "SurvivorMale_Head_03.adr":
+      case "SurvivorFemale_Head_03.adr":
+        this.shaderGroupId = 129;
+        break;
+      default:
+        this.shaderGroupId = 122;
+        break;
+    }
   }
 
   pGetRecipes(server: ZoneServer2016): any[] {
@@ -918,7 +937,8 @@ export class Character2016 extends BaseFullCharacter {
       rotation: this.state.lookAt,
       identity: {
         characterName: this.name
-      }
+      },
+      shaderGroupId: this.shaderGroupId
     };
   }
 
@@ -974,7 +994,8 @@ export class Character2016 extends BaseFullCharacter {
         //vehicleLoadoutRelatedDword: 1,
         //unknownDword40: 1
         isAdmin: client.isAdmin,
-        firstPersonOnly: server.isFirstPersonOnly
+        firstPersonOnly: server.isFirstPersonOnly,
+        shaderGroupId: this.shaderGroupId
       } as any
     };
   }
@@ -1442,42 +1463,16 @@ export class Character2016 extends BaseFullCharacter {
     });
   }
 
-  updateEquipmentSlot(
-    server: ZoneServer2016,
-    slotId: number,
-    sendPacketToLocalClient = true
-  ) {
+  updateEquipmentSlot(server: ZoneServer2016, slotId: number) {
     if (!server.getClientByCharId(this.characterId)?.character.initialized)
       return;
-    /*
+
     server.sendDataToAllWithSpawnedEntity(
       server._characters,
       this.characterId,
       "Equipment.SetCharacterEquipmentSlot",
       this.pGetEquipmentSlotFull(slotId) as EquipmentSetCharacterEquipmentSlot
     );
-    */
-    // GROUP OUTLINE WORKAROUND
-
-    server.executeFuncForAllReadyClients((client) => {
-      let groupId = 0;
-      if (client.character != this) {
-        groupId = client.character.groupId;
-      }
-      if (
-        sendPacketToLocalClient ||
-        this.characterId != client.character.characterId
-      ) {
-        server.sendData<EquipmentSetCharacterEquipmentSlot>(
-          client,
-          "Equipment.SetCharacterEquipmentSlot",
-          this.pGetEquipmentSlotFull(
-            slotId,
-            groupId
-          ) as EquipmentSetCharacterEquipmentSlot
-        );
-      }
-    });
   }
 
   meleeBlocked(delay: number = 1000) {
@@ -1494,7 +1489,7 @@ export class Character2016 extends BaseFullCharacter {
     }
   }
 
-  pGetEquipmentSlotFull(slotId: number, groupId?: number) {
+  pGetEquipmentSlotFull(slotId: number) {
     const slot = this._equipment[slotId];
     if (!slot) return;
     return {
@@ -1502,22 +1497,22 @@ export class Character2016 extends BaseFullCharacter {
         characterId: this.characterId
       },
       equipmentSlot: this.pGetEquipmentSlot(slotId),
-      attachmentData: this.pGetAttachmentSlot(slotId, groupId)
+      attachmentData: this.pGetAttachmentSlot(slotId)
     };
   }
 
-  updateEquipment(server: ZoneServer2016, groupId?: number) {
+  updateEquipment(server: ZoneServer2016) {
     if (!server.getClientByCharId(this.characterId)?.character.initialized)
       return;
     server.sendDataToAllWithSpawnedEntity(
       server._characters,
       this.characterId,
       "Equipment.SetCharacterEquipment",
-      this.pGetEquipment(groupId)
+      this.pGetEquipment()
     );
   }
 
-  pGetEquipment(groupId?: number) {
+  pGetEquipment() {
     return {
       characterData: {
         profileId: 5,
@@ -1527,29 +1522,28 @@ export class Character2016 extends BaseFullCharacter {
       unknownString1: "Default",
       unknownString2: "#",
       equipmentSlots: this.pGetEquipmentSlots(),
-      attachmentData: this.pGetAttachmentSlots(groupId),
+      attachmentData: this.pGetAttachmentSlots(),
       unknownBoolean1: true
     };
   }
 
-  pGetAttachmentSlots(groupId?: number) {
+  pGetAttachmentSlots() {
     return Object.keys(this._equipment).map((slotId) => {
-      return this.pGetAttachmentSlot(Number(slotId), groupId);
+      return this.pGetAttachmentSlot(Number(slotId));
     });
   }
 
-  pGetAttachmentSlot(slotId: number, groupId?: number) {
+  pGetAttachmentSlot(slotId: number) {
     const slot = this._equipment[slotId];
     return slot
       ? {
           modelName:
             slot.modelName /* == "Weapon_Empty.adr" ? slot.modelName : ""*/,
-          effectId: this.groupId > 0 && this.groupId == groupId ? 3 : 0,
           textureAlias: slot.textureAlias || "",
           tintAlias: slot.tintAlias || "Default",
           decalAlias: slot.decalAlias || "#",
-          slotId: slot.slotId
-          //SHADER_PARAMETER_GROUP: slot.SHADER_PARAMETER_GROUP
+          slotId: slot.slotId,
+          SHADER_PARAMETER_GROUP: slot?.SHADER_PARAMETER_GROUP ?? []
         }
       : undefined;
   }
@@ -1599,7 +1593,7 @@ export class Character2016 extends BaseFullCharacter {
       useCompression: false,
       fullPcData: {
         transientId: this.transientId,
-        attachmentData: this.pGetAttachmentSlots(client.character.groupId),
+        attachmentData: this.pGetAttachmentSlots(),
         headActor: this.headActor,
         hairModel: this.hairModel,
         resources: { data: this.pGetResources() },
@@ -1641,7 +1635,7 @@ export class Character2016 extends BaseFullCharacter {
     server.sendData<EquipmentSetCharacterEquipment>(
       client,
       "Equipment.SetCharacterEquipment",
-      this.pGetEquipment(client.character.groupId)
+      this.pGetEquipment()
     );
     const c = server.getClientByCharId(this.characterId);
     if (c && !c.firstLoading) {
