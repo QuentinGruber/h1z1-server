@@ -1293,9 +1293,11 @@ export class Character2016 extends BaseFullCharacter {
       server._lootableConstruction[lootableEntity.characterId];
     if (lootableConstruction && lootableConstruction.parentObjectCharacterId) {
       const parent = lootableConstruction.getParent(server);
+      const c = server.getClientByCharId(this.characterId);
       if (
         parent &&
         parent.isSecured &&
+        !c?.isDebugMode &&
         !parent.getHasPermission(
           server,
           this.characterId,
