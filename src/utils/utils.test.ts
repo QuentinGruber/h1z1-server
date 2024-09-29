@@ -1,5 +1,10 @@
 ﻿import test, { after } from "node:test";
-import { customLodash, isFloat, isValidCharacterName } from "./utils";
+import {
+  customLodash,
+  generateTransientId,
+  isFloat,
+  isValidCharacterName
+} from "./utils";
 import assert from "node:assert";
 import { NAME_VALIDATION_STATUS } from "./enums";
 
@@ -13,6 +18,13 @@ test("customLodash", async () => {
 test("isFloat", async () => {
   const result = isFloat(1.1);
   assert.equal(result, true);
+});
+
+test("transientId generator", async () => {
+  const generator = generateTransientId();
+  assert.equal(generator.next().value, 1);
+  assert.equal(generator.next().value, 2);
+  assert.equal(generator.next().value, 3);
 });
 
 test("isValidCharacterName", async () => {
