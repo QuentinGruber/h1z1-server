@@ -1555,12 +1555,19 @@ export class ZoneServer2016 extends EventEmitter {
     client.character.lastDropPlaytime = savedCharacter.lastDropPlayTime || 0;
 
     let newCharacter = false;
-    if (
-      _.isEqual(savedCharacter.position, [0, 0, 0, 1]) &&
-      _.isEqual(savedCharacter.rotation, [0, 0, 0, 1])
-    ) {
-      // if position/rotation hasn't changed
+    if (_.isEqual(savedCharacter.position, [0, 0, 0, 1])) {
+      // if position hasn't changed
       newCharacter = true;
+    }
+    // https://github.com/QuentinGruber/h1z1-server/issues/2117
+    if (savedCharacter.position.length < 4) {
+      newCharacter = true;
+      setTimeout(() => {
+        this.sendAlert(
+          client,
+          "You've been respawned due to lost position data"
+        );
+      }, 30000);
     }
 
     if (
