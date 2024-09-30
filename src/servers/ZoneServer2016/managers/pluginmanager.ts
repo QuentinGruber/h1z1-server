@@ -18,6 +18,7 @@ import { execSync } from "child_process";
 import { copyFile, fileExists, flhash } from "../../../utils/utils";
 import { Command } from "../handlers/commands/types";
 import { ZoneClient2016 } from "../classes/zoneclient";
+import { run } from "node:test";
 
 /**
  * Abstract class representing a base plugin.
@@ -237,6 +238,8 @@ export class PluginManager {
     delete require.cache[require.resolve(runPath)];
     const module = await import(runPath);
 
+    console.log(runPath);
+    console.log(module);
     const plugin = new module.default();
     plugin.dir = path.join(this.pluginsDir, pluginPath);
     this.plugins.push(plugin);
