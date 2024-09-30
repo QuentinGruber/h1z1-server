@@ -320,6 +320,10 @@ export class PluginManager {
    * @param server - The ZoneServer2016 instance.
    */
   public async initializePlugins(server: ZoneServer2016) {
+    // Used in tests
+    if (process.env.DISABLE_PLUGINS) {
+      return;
+    }
     if (!this.moduleDir) {
       console.error("[PluginManager] moduleDir is undefined!");
       console.log(`[PluginManager] No plugins loaded.`);
