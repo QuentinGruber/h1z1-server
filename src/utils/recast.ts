@@ -56,7 +56,7 @@ export class NavManager {
   }
   createAgent(pos: Float32Array): CrowdAgent {
     const position = this.getClosestNavPoint(pos);
-    const radius = 20000;
+    const radius = 0.5;
 
     let {
       randomPoint: initialAgentPosition,
@@ -70,8 +70,8 @@ export class NavManager {
     }
 
     const agent = this.crowd.addAgent(initialAgentPosition, {
-      radius: 5,
-      height: 5,
+      radius: 0.6,
+      height: 1,
       maxAcceleration: 4.0,
       maxSpeed: 1.0,
       collisionQueryRange: 0.5,
