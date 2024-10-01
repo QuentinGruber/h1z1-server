@@ -1041,7 +1041,7 @@ export const identitySchema: PacketFields = [
   { name: "characterFirstName", type: "string", defaultValue: "" },
   { name: "characterLastName", type: "string", defaultValue: "" },
   { name: "unknownString1", type: "string", defaultValue: "" },
-  { name: "characterName", type: "string", defaultValue: "unnamed" },
+  { name: "characterName", type: "string", defaultValue: "unnamed" }, // steamId
   { name: "unknownQword1", type: "uint64string", defaultValue: "0" }
 ];
 
@@ -1059,7 +1059,7 @@ export const lightWeightPcSchema: PacketFields = [
     fields: identitySchema
   },
   { name: "unknownByte1", type: "uint8", defaultValue: /*2*/ 2 }, // one of these messes with fullcharacter packet
-  { name: "actorModelId", type: "uint32", defaultValue: 9240 },
+  { name: "actorModelId", type: "uint32", defaultValue: 9469 },
   { name: "unknownDword1", type: "uint32", defaultValue: /*270*/ 270 }, // one of these messes with fullcharacter packet
   { name: "position", type: "floatvector3", defaultValue: [0, 80, 0] },
   { name: "rotation", type: "floatvector4", defaultValue: [0, 80, 0, 1] },
@@ -2156,7 +2156,7 @@ export const fullPcSchema: PacketFields = [
       { name: "unknownDword1", type: "uint32", defaultValue: 0 },
       { name: "unknownDword2", type: "uint32", defaultValue: 0 },
       { name: "unknownDword3", type: "uint32", defaultValue: 0 },
-      { name: "unknownDword4", type: "uint32", defaultValue: 0 },
+      { name: "unknownDword4", type: "uint32", defaultValue: 1 },
       {
         name: "attachmentData",
         type: "array",
@@ -2171,8 +2171,8 @@ export const fullPcSchema: PacketFields = [
       { name: "unknownString3", type: "string", defaultValue: "" },
       { name: "unknownString4", type: "string", defaultValue: "" },
       { name: "unknownString5", type: "string", defaultValue: "" },
-      { name: "unknownString6", type: "string", defaultValue: "" },
-      { name: "unknownString7", type: "string", defaultValue: "" },
+      { name: "unknownString6", type: "string", defaultValue: "Default" },
+      { name: "unknownString7", type: "string", defaultValue: "#" },
       { name: "unknownString8", type: "string", defaultValue: "" },
       { name: "unknownDword8", type: "uint32", defaultValue: 0 },
       {

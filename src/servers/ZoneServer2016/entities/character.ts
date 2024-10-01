@@ -1519,8 +1519,8 @@ export class Character2016 extends BaseFullCharacter {
         characterId: this.characterId
       },
       unknownDword1: 0,
-      unknownString1: "Default",
-      unknownString2: "#",
+      tintAlias: "Default",
+      decalAlias: "#",
       equipmentSlots: this.pGetEquipmentSlots(),
       attachmentData: this.pGetAttachmentSlots(),
       unknownBoolean1: true
@@ -1631,12 +1631,6 @@ export class Character2016 extends BaseFullCharacter {
       stance: this.weaponStance
     });
 
-    // GROUP OUTLINE WORKAROUND
-    server.sendData<EquipmentSetCharacterEquipment>(
-      client,
-      "Equipment.SetCharacterEquipment",
-      this.pGetEquipment()
-    );
     const c = server.getClientByCharId(this.characterId);
     if (c && !c.firstLoading) {
       server.updateCharacterState(

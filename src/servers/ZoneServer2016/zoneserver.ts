@@ -1418,9 +1418,6 @@ export class ZoneServer2016 extends EventEmitter {
     );
     if (!dynamicAppearanceCache) return;
     this.dynamicAppearanceCache = dynamicAppearanceCache;
-    // unused after the packet is in cache so we clear that
-    delete this.dynamicappearance.ITEM_APPEARANCE_DEFINITIONS;
-    delete this.dynamicappearance.SHADER_PARAMETER_DEFINITIONS;
   }
   /**
    * Caches weapon definitons so they aren't packed every time a client logs in.
@@ -5942,25 +5939,17 @@ export class ZoneServer2016 extends EventEmitter {
     this.clearEquipmentSlot(
       client.character,
       client.character.getActiveEquipmentSlot(loadoutItem),
-      true,
-      sendPacketToLocalClient
+      true
     );
     client.character.currentLoadoutSlot = loadoutItem.slotId;
-    client.character.equipItem(
-      this,
-      loadoutItem,
-      true,
-      loadoutItem.slotId,
-      sendPacketToLocalClient
-    );
+    client.character.equipItem(this, loadoutItem, true, loadoutItem.slotId);
 
     // equip passive slot
     client.character.equipItem(
       this,
       client.character._loadout[oldLoadoutSlot],
       true,
-      oldLoadoutSlot,
-      sendPacketToLocalClient
+      oldLoadoutSlot
     );
     if (loadoutItem.weapon) loadoutItem.weapon.currentReloadCount = 0;
     if (this.isWeapon(loadoutItem.itemDefinitionId)) {
@@ -6009,8 +5998,7 @@ export class ZoneServer2016 extends EventEmitter {
   clearEquipmentSlot(
     character: BaseFullCharacter,
     equipmentSlotId: number,
-    sendPacket = true,
-    sendPacketToLocalClient = true
+    sendPacket = true
   ): boolean {
     if (!equipmentSlotId) return false;
     delete character._equipment[equipmentSlotId];
@@ -6025,16 +6013,8 @@ export class ZoneServer2016 extends EventEmitter {
         },
         slotId: equipmentSlotId
       };
-      if (sendPacketToLocalClient) {
-        this.sendData<EquipmentUnsetCharacterEquipmentSlot>(
-          client,
-          "Equipment.UnsetCharacterEquipmentSlot",
-          data
-        );
-      }
-      this.sendDataToAllOthersWithSpawnedEntity(
+      this.sendDataToAllWithSpawnedEntity(
         this._characters,
-        client,
         client.character.characterId,
         "Equipment.UnsetCharacterEquipmentSlot",
         data
