@@ -1481,12 +1481,9 @@ export class ZonePacketHandlers {
           );
         }
       }*/
-      client.character.state.position = new Float32Array([
-        packet.data.position[0],
-        packet.data.position[1],
-        packet.data.position[2],
-        0
-      ]);
+      client.character.state.position[0] = packet.data.position[0];
+      client.character.state.position[1] = packet.data.position[1];
+      client.character.state.position[2] = packet.data.position[2];
       if (
         client.hudTimer != null &&
         !isPosInRadius(
