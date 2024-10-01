@@ -158,7 +158,13 @@ const dev: any = {
     zombie.navAgent = a;
 
     await scheduler.wait(1000);
-    setInterval(() => {
+    let retries = 0;
+    const interval = setInterval(() => {
+      retries++;
+      if (retries > 10) {
+        clearInterval(interval);
+      }
+
       server.navManager.updt();
       if (zombie.navAgent) {
         zombie.navAgent.requestMoveTarget(
