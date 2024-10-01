@@ -15,6 +15,7 @@ import {
   CrowdAgent,
   init as initRecast,
   NavMesh,
+  statusToReadableString,
   Vector3
 } from "recast-navigation";
 import { NavMeshQuery } from "recast-navigation";
@@ -55,10 +56,18 @@ export class NavManager {
   }
   createAgent(pos: Float32Array): CrowdAgent {
     const position = this.getClosestNavPoint(pos);
-    const radius = 2;
+    const radius = 20000;
 
-    const { randomPoint: initialAgentPosition } =
-      this.navMeshQuery.findRandomPointAroundCircle(position, radius);
+    let {
+      randomPoint: initialAgentPosition,
+      success,
+      status
+    } = this.navMeshQuery.findRandomPointAroundCircle(position, radius);
+
+    if (!success) {
+      console.log(statusToReadableString(status));
+      initialAgentPosition = position;
+    }
 
     const agent = this.crowd.addAgent(initialAgentPosition, {
       radius: 5,
