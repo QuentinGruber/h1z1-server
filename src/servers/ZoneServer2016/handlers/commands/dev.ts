@@ -175,7 +175,7 @@ const dev: any = {
           NavManager.Vec3ToFloat32(zombie.navAgent.interpolatedPosition)
         );
       }
-    }, 200);
+    }, 500);
   },
   abilities: function (
     server: ZoneServer2016,

@@ -45,10 +45,7 @@ export class NavManager {
     return new Float32Array([v.x, v.y, v.z]);
   }
   updt() {
-    // console.time("crowd updt");
-    this.crowd.update(this.lastTimeCall);
-    this.lastTimeCall = Date.now();
-    // console.timeEnd("crowd updt");
+    this.crowd.update(1 / 60);
   }
   getClosestNavPoint(pos: Float32Array): Vector3 {
     const n = this.navMeshQuery.findNearestPoly(NavManager.Float32ToVec3(pos));
@@ -69,14 +66,14 @@ export class NavManager {
       initialAgentPosition = position;
     }
 
-    const agent = this.crowd.addAgent(initialAgentPosition, {
-      radius: 0.6,
+    const agent = this.crowd.addAgent(NavManager.Float32ToVec3(pos), {
+      radius: 0.5,
       height: 2,
       maxAcceleration: 4.0,
       maxSpeed: 1.0,
-      collisionQueryRange: 0.5,
+      collisionQueryRange: 0.1,
       pathOptimizationRange: 0.0,
-      separationWeight: 1.0
+      separationWeight: 0
     });
     return agent;
   }
