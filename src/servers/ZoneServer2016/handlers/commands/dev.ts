@@ -157,7 +157,7 @@ const dev: any = {
     const a = server.navManager.createAgent(zombie.state.position);
     zombie.navAgent = a;
 
-    await scheduler.wait(1000);
+    await scheduler.wait(5000);
     let retries = 0;
     const interval = setInterval(() => {
       retries++;
