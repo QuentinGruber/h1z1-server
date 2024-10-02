@@ -1951,13 +1951,6 @@ export class ZoneServer2016 extends EventEmitter {
       it's supposed to work (removes the delay) - Meme
     */
 
-    if (!this.dynamicAppearanceCache) {
-      this.packDynamicAppearance();
-    }
-    if (this.dynamicAppearanceCache) {
-      this.sendRawDataReliable(client, this.dynamicAppearanceCache);
-    }
-
     // packet is just broken, idk why
     /*
     this.sendData<ClientBeginZoning>(client, "ClientBeginZoning", {
@@ -1968,6 +1961,13 @@ export class ZoneServer2016 extends EventEmitter {
     */
 
     this.sendCharacterData(client);
+
+    if (!this.dynamicAppearanceCache) {
+      this.packDynamicAppearance();
+    }
+    if (this.dynamicAppearanceCache) {
+      this.sendRawDataReliable(client, this.dynamicAppearanceCache);
+    }
   }
 
   private divideMapIntoSpawnGrid(
