@@ -864,11 +864,16 @@ const dev: any = {
     }
 
     const vehicle = server._vehicles[mountedVehicleId];
-    server.sendData(client, "VehicleSkinSetVehicleSkinManager", {
-      vehicleId: vehicle.characterId,
-      characterId: client.character.characterId,
-      shaderGroupId
-    });
+    server.sendDataToAllWithSpawnedEntity(
+      server._vehicles,
+      mountedVehicleId,
+      "VehicleSkinSetVehicleSkinManager",
+      {
+        vehicleId: vehicle.characterId,
+        characterId: client.character.characterId,
+        shaderGroupId
+      }
+    );
     vehicle.shaderGroupId = shaderGroupId;
   },
   reloadplugins: async function (
