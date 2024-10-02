@@ -3458,7 +3458,17 @@ export const basePackets: PacketStructures = [
       ]
     }
   ],
-  ["VehicleSkinBase", 0xf3, {}],
+  [
+    "VehicleSkinSetVehicleSkinManager",
+    0xf301,
+    {
+      fields: [
+        { name: "vehicleId", type: "uint64string", defaultValue: "0" },
+        { name: "characterId", type: "uint64string", defaultValue: "0" },
+        { name: "shaderGroupId", type: "uint32", defaultValue: 838 }
+      ]
+    }
+  ],
   ["WeaponLagLockParameters", 0xf5, {}],
   ["CrateOpeningBase", 0xf6, {}],
   ["PlayerHeatWarning", 0xf7, {}],
