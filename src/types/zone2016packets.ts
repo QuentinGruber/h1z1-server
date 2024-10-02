@@ -670,7 +670,7 @@ export interface AddLightweightNpc {
   unknownDword11?: number;
   useCollision?: number;
   unknownDword13?: number;
-  unknownDword14?: number;
+  shaderGroupId?: number;
   unknownDword15?: number;
 }
 export interface AddLightweightVehicle {
@@ -743,7 +743,7 @@ export interface AddLightweightVehicle {
   unknownDword11?: number;
   useCollision?: number;
   unknownDword13?: number;
-  unknownDword14?: number;
+  shaderGroupId?: number;
   unknownDword15?: number;
 };
   unknownGuid1?: string;

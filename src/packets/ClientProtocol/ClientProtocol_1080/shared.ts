@@ -1224,7 +1224,7 @@ export const lightWeightNpcSchema: PacketFields = [
   { name: "unknownDword11", type: "uint32", defaultValue: 0 },
   { name: "useCollision", type: "uint32", defaultValue: 0 },
   { name: "unknownDword13", type: "uint32", defaultValue: 0 },
-  { name: "unknownDword14", type: "uint32", defaultValue: 0 },
+  { name: "shaderGroupId", type: "uint32", defaultValue: 1146 },
   { name: "unknownDword15", type: "uint32", defaultValue: 0 }
 ];
 
