@@ -8709,6 +8709,25 @@ export class ZoneServer2016 extends EventEmitter {
     );
   }
 
+  getShaderGroupId(itemDefinitionId: number): number {
+    return (
+      this.dynamicappearance.ITEM_APPEARANCE_DEFINITIONS.filter(
+        (definition: {
+          ID: number;
+          ITEM_APPEARANCE_DATA: {
+            ID: number;
+            ITEM_ID: number;
+            MODEL_ID: number;
+            GENDER_ID: number;
+            SHADER_PARAMETER_GROUP_ID: number;
+          };
+        }) => {
+          return definition.ITEM_APPEARANCE_DATA.ITEM_ID == itemDefinitionId;
+        }
+      )[0]?.ITEM_APPEARANCE_DATA?.SHADER_PARAMETER_GROUP_ID ?? 0
+    );
+  }
+
   sendDeliveryStatus(client: Client | undefined = undefined) {
     const hasEnoughSurvivors =
       this._soloMode ||
