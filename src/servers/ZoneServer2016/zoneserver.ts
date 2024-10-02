@@ -5916,11 +5916,7 @@ export class ZoneServer2016 extends EventEmitter {
    * @param {Client} client - The client to switch the loadout slot for.
    * @param {LoadoutItem} loadoutItem - The new loadout item.
    */
-  switchLoadoutSlot(
-    client: Client,
-    loadoutItem: LoadoutItem,
-    sendPacketToLocalClient = false
-  ) {
+  switchLoadoutSlot(client: Client, loadoutItem: LoadoutItem) {
     const oldLoadoutSlot = client.character.currentLoadoutSlot;
     this.reloadInterrupt(client, client.character._loadout[oldLoadoutSlot]);
 
