@@ -1447,7 +1447,6 @@ export class ZonePacketHandlers {
       }
       client.character.stance = packet.data.stance;
     }
-    const movingCharacter = server._characters[client.character.characterId];
     if (packet.data.position) {
       if (!client.characterReleased) {
         client.characterReleased = true;
@@ -1481,12 +1480,7 @@ export class ZonePacketHandlers {
           );
         }
       }*/
-      client.character.state.position = new Float32Array([
-        packet.data.position[0],
-        packet.data.position[1],
-        packet.data.position[2],
-        0
-      ]);
+      client.character.state.position = packet.data.position;
       if (
         client.hudTimer != null &&
         !isPosInRadius(
