@@ -1078,7 +1078,7 @@ export class ZonePacketHandlers {
         return;
 
       // Update plane position and orientation
-      server._airdrop.plane.state.position.set([
+      server._airdrop.plane.state.position = new Float32Array([
         positionUpdate.position[0],
         400,
         positionUpdate.position[2],
@@ -1249,7 +1249,7 @@ export class ZonePacketHandlers {
       vehicle.getPassengerList().forEach((passengerId) => {
         const passenger = server._characters[passengerId];
         if (passenger) {
-          passenger.state.position.set(positionUpdate.position);
+          passenger.state.position = positionUpdate.position;
           const c = server.getClientByCharId(passengerId);
           if (c) c.startLoc = positionUpdate.position[1];
         } else {
