@@ -581,7 +581,7 @@ const parseUpdatePositionData = function (data: Buffer, offset: number) {
     }
 
     if (obj.flags & 2) {
-      obj["position"] = [];
+      obj["position"] = new Float32Array(4);
       v = readSignedIntWith2bitLengthValue(data, offset);
       obj["position"][0] = v.value / 100;
       offset += v.length;
@@ -629,7 +629,7 @@ const parseUpdatePositionData = function (data: Buffer, offset: number) {
     }
 
     if (obj.flags & 0x100) {
-      obj["unknown12_float"] = [];
+      obj["unknown12_float"] = new Float32Array(3);
       v = readSignedIntWith2bitLengthValue(data, offset);
       obj["unknown12_float"][0] = v.value / 100;
       offset += v.length;
@@ -642,7 +642,7 @@ const parseUpdatePositionData = function (data: Buffer, offset: number) {
     }
 
     if (obj.flags & 0x200) {
-      const rotationEul = [];
+      const rotationEul = new Float32Array(4);
       v = readSignedIntWith2bitLengthValue(data, offset);
       rotationEul[0] = v.value / 100;
       offset += v.length;
@@ -672,7 +672,7 @@ const parseUpdatePositionData = function (data: Buffer, offset: number) {
       offset += v.length;
     }
     if (obj.flags & 0x1000) {
-      const rotationEul = [];
+      const rotationEul = new Float32Array(8);
       v = readSignedIntWith2bitLengthValue(data, offset);
       rotationEul[0] = v.value / 10000;
       offset += v.length;
