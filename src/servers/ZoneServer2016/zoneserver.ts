@@ -8320,6 +8320,9 @@ export class ZoneServer2016 extends EventEmitter {
       return;
     }
     for (const a in this._clients) {
+      while (this.isSaving) {
+        await scheduler.wait(500);
+      }
       const startTime = Date.now();
       const client = this._clients[a];
       if (!client.isLoading) {
