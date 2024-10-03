@@ -81,18 +81,28 @@ export function readUnsignedIntWith2bitLengthValue(
 
 export function packUnsignedIntWith2bitLengthValue(value: number) {
   value = value << 2;
-  let n = 0;
+  let n: number;
+
   if (value > 0xffffff) {
     n = 3;
   } else if (value > 0xffff) {
     n = 2;
   } else if (value > 0xff) {
     n = 1;
+  } else {
+    n = 0;
   }
+
   value |= n;
-  const data = Buffer.allocUnsafe(4);
-  data.writeUInt32LE(value, 0);
-  return data.slice(0, n + 1);
+
+  const buffer = Buffer.allocUnsafe(n + 1);
+
+  for (let i = 0; i < n + 1; i++) {
+    buffer[i] = value & 0xff;
+    value >>= 8;
+  }
+
+  return buffer;
 }
 
 export function readSignedIntWith2bitLengthValue(data: Buffer, offset: number) {

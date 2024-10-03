@@ -88,12 +88,26 @@ export class H1Z1Protocol {
   }
 
   createPositionBroadcast2016(rawData: Buffer, transientId: number): Buffer {
-    const tId = packUnsignedIntWith2bitLengthValue(transientId);
-    return Buffer.concat([Buffer.from([0x79]), tId, rawData]); //0x79 = opcode
+    const transientIdPacked = packUnsignedIntWith2bitLengthValue(transientId);
+
+    const buff = Buffer.allocUnsafe(
+      1 + transientIdPacked.length + rawData.length
+    );
+
+    buff[0] = 0x79; // opcode
+    transientIdPacked.copy(buff, 1);
+    rawData.copy(buff, 1 + transientIdPacked.length);
+
+    return buff;
   }
 
   createManagedPositionBroadcast2016(rawData: Buffer): Buffer {
-    return Buffer.concat([Buffer.from([0x79]), rawData]); //0x79 = opcode
+    const buff = Buffer.allocUnsafe(1 + rawData.length);
+
+    buff[0] = 0x79; // opcode
+    rawData.copy(buff, 1);
+
+    return buff;
   }
 
   createVehiclePositionBroadcast(rawData: Buffer): Buffer {
@@ -104,8 +118,17 @@ export class H1Z1Protocol {
     rawData: Buffer,
     transientId: number
   ): Buffer {
-    const tId = packUnsignedIntWith2bitLengthValue(transientId);
-    return Buffer.concat([Buffer.from([0x91]), tId, rawData]); //0x91 = opcode
+    const transientIdPacked = packUnsignedIntWith2bitLengthValue(transientId);
+
+    const buff = Buffer.allocUnsafe(
+      1 + transientIdPacked.length + rawData.length
+    );
+
+    buff[0] = 0x91; // opcode
+    transientIdPacked.copy(buff, 1);
+    rawData.copy(buff, 1 + transientIdPacked.length);
+
+    return buff;
   }
 
   parseFacilityReferenceData(data: Buffer) {
@@ -325,15 +348,6 @@ export class H1Z1Protocol {
   parsePlayerUpdatePosition(data: Buffer, offset: number) {
     return {
       result: parseUpdatePositionData(data, offset)
-    };
-  }
-
-  parseUpdatePositionRaw(data: Buffer) {
-    // Temp workaround
-    const obj = {} as UpdatePositionObject;
-    obj.raw = data;
-    return {
-      result: obj
     };
   }
 
@@ -700,7 +714,7 @@ const parseUpdatePositionData = function (data: Buffer, offset: number) {
       offset += v.length;
     }
   } catch (e) {
-    debug(e);
+    console.error(e);
   }
   return obj;
 };
