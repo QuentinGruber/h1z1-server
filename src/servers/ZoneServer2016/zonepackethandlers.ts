@@ -1491,19 +1491,9 @@ export class ZonePacketHandlers {
     }
     // Handle rotation flag (0x200)
     if (flags & 0x200) {
-      client.character.state.rotation = new Float32Array([
-        rotation[0],
-        rotation[1],
-        rotation[2],
-        rotation[3]
-      ]);
+      client.character.state.rotation = rotation;
       client.character.state.yaw = rotationRaw[0];
-      client.character.state.lookAt = new Float32Array([
-        lookAt[0],
-        lookAt[1],
-        lookAt[2],
-        lookAt[3]
-      ]);
+      client.character.state.lookAt = lookAt;
     }
 
     // Sync decoy position for spectators and vanished characters
