@@ -294,7 +294,7 @@ export class Character2016 extends BaseFullCharacter {
   recipes: { [recipeId: number]: Recipe } = recipes;
 
   /* Used for skin tones */
-  shaderGroupId: number = 122;
+  shaderGroupId!: number;
 
   constructor(
     characterId: string,
@@ -392,15 +392,12 @@ export class Character2016 extends BaseFullCharacter {
     switch (this.headActor) {
       case "SurvivorMale_Head_02.adr":
       case "SurvivorFemale_Head_02.adr":
-        this.shaderGroupId = 125;
-        break;
+        return 125;
       case "SurvivorMale_Head_03.adr":
       case "SurvivorFemale_Head_03.adr":
-        this.shaderGroupId = 129;
-        break;
+        return 129;
       default:
-        this.shaderGroupId = 122;
-        break;
+        return 122;
     }
   }
 

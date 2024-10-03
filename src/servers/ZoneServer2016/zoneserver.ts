@@ -1298,7 +1298,6 @@ export class ZoneServer2016 extends EventEmitter {
       savedCharacter as FullCharacterSaveData
     );
     client.startingPos = client.character.state.position;
-    client.character.getShaderGroup();
   }
 
   sendCharacterData(client: Client) {
@@ -1540,6 +1539,7 @@ export class ZoneServer2016 extends EventEmitter {
     client.character.name = savedCharacter.characterName;
     client.character.actorModelId = savedCharacter.actorModelId;
     client.character.headActor = savedCharacter.headActor;
+    client.character.shaderGroupId = client.character.getShaderGroup();
     client.character.isRespawning = savedCharacter.isRespawning;
     client.character.gender = savedCharacter.gender;
     client.character.creationDate = savedCharacter.creationDate;
