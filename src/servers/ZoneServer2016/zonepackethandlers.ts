@@ -405,7 +405,7 @@ export class ZonePacketHandlers {
       server.sendData<CharacterWeaponStance>(client, "Character.WeaponStance", {
         // activates weaponstance key
         characterId: client.character.characterId,
-        stance: 1
+        stance: client.character.weaponStance
       });
       client.character.updateEquipment(server); // needed or third person character will be invisible
       client.character.updateLoadout(server); // needed or all loadout context menu entries aren't shown
