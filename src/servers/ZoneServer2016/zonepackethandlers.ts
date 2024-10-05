@@ -414,7 +414,7 @@ export class ZonePacketHandlers {
       server.sendData<CharacterWeaponStance>(client, "Character.WeaponStance", {
         // activates weaponstance key
         characterId: client.character.characterId,
-        stance: 1
+        stance: client.character.weaponStance
       });
       client.character.updateEquipment(server); // needed or third person character will be invisible
       client.character.updateLoadout(server); // needed or all loadout context menu entries aren't shown
@@ -1500,19 +1500,9 @@ export class ZonePacketHandlers {
     }
     // Handle rotation flag (0x200)
     if (flags & 0x200) {
-      client.character.state.rotation = new Float32Array([
-        rotation[0],
-        rotation[1],
-        rotation[2],
-        rotation[3]
-      ]);
+      client.character.state.rotation = rotation;
       client.character.state.yaw = rotationRaw[0];
-      client.character.state.lookAt = new Float32Array([
-        lookAt[0],
-        lookAt[1],
-        lookAt[2],
-        lookAt[3]
-      ]);
+      client.character.state.lookAt = lookAt;
     }
 
     // Sync decoy position for spectators and vanished characters
