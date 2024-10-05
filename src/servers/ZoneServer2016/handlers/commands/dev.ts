@@ -32,7 +32,6 @@ import {
   getCurrentServerTimeWrapper,
   randomIntFromInterval
 } from "../../../../utils/utils";
-import { Zombie } from "../../entities/zombie";
 import { WorldObjectManager } from "../../managers/worldobjectmanager";
 import { Vehicle2016 } from "../../entities/vehicle";
 import { Plane } from "../../entities/plane";
@@ -86,7 +85,7 @@ const dev: any = {
   },
   path: function (server: ZoneServer2016, client: Client, args: Array<string>) {
     const characterId = server.generateGuid();
-    const npc = new Zombie(
+    const npc = new Npc(
       characterId,
       server.getTransientId(characterId),
       9510,
@@ -104,6 +103,16 @@ const dev: any = {
   },
   acc: function (server: ZoneServer2016, client: Client, args: Array<string>) {
     server.sendData<ItemsAddAccountItem>(client, "Items.AddAccountItem", {});
+  },
+  ai_load: function (
+    server: ZoneServer2016,
+    client: Client,
+    args: Array<string>
+  ) {
+    server.sendChatText(
+      client,
+      server.aiManager.get_stats().entities.toString()
+    );
   },
   ui: function (server: ZoneServer2016, client: Client, args: Array<string>) {
     server.sendData(client, "Effect.AddUiIndicator", {

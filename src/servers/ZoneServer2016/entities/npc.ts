@@ -23,12 +23,14 @@ import {
 import { DB_COLLECTIONS } from "../../../utils/enums";
 import {
   Items,
+  MaterialTypes,
   ModelIds,
   NpcIds,
   PositionUpdateType,
   StringIds
 } from "../models/enums";
 import { CommandInteractionString } from "types/zone2016packets";
+import { EntityFromJs, EntityType } from "h1emu-ai";
 
 export class Npc extends BaseFullCharacter {
   health: number;
@@ -82,6 +84,10 @@ export class Npc extends BaseFullCharacter {
     this.health = 10000;
     this.initNpcData();
     this.server = server;
+    // FIXME: this should be setup based on the model
+    this.materialType = MaterialTypes.ZOMBIE;
+    const e = new EntityFromJs(EntityType.Zombie, this);
+    server.aiManager.add_entity(e);
   }
 
   async damage(server: ZoneServer2016, damageInfo: DamageInfo) {

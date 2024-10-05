@@ -1652,7 +1652,7 @@ export const commands: Array<Command> = [
         }
       }
       points.forEach((obj) => {
-        server.worldObjectManager.createZombie(
+        server.worldObjectManager.createNpc(
           server,
           9634,
           new Float32Array([

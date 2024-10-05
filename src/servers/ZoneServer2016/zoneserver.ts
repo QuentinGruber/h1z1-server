@@ -1860,7 +1860,9 @@ export class ZoneServer2016 extends EventEmitter {
     this.rewardManager.start();
     this.hookManager.checkHook("OnServerReady");
     setInterval(() => {
+      console.time("ai");
       this.aiManager.run();
+      console.timeEnd("ai");
     }, 300);
   }
 
@@ -4183,8 +4185,10 @@ export class ZoneServer2016 extends EventEmitter {
       generatedTransient,
       this
     );
-    const e = new EntityFromJs(EntityType.Player, client.character);
-    this.aiManager.add_entity(e);
+    for (let index = 0; index < 100; index++) {
+      const e = new EntityFromJs(EntityType.Player, client.character);
+      this.aiManager.add_entity(e);
+    }
     return client;
   }
 
