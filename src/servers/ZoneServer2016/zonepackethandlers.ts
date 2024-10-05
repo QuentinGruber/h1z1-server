@@ -129,7 +129,8 @@ import {
   WallOfDataClientSystemInfo,
   WallOfDataUIEvent,
   WeaponWeapon,
-  ZoneDoneSendingInitialData
+  ZoneDoneSendingInitialData,
+  H1emuVoiceInit
 } from "types/zone2016packets";
 import { VehicleCurrentMoveMode } from "types/zone2015packets";
 import {
@@ -345,7 +346,7 @@ export class ZonePacketHandlers {
     server.constructionManager.sendConstructionData(server, client);
     if (client.firstLoading) {
       client.character.lastLoginDate = toHex(Date.now());
-      server.sendData(client, "H1emu.VoiceInit", {
+      server.sendData<H1emuVoiceInit>(client, "H1emu.VoiceInit", {
         args: `51.83.180.201 ${server._worldId}` // not wise but we'll change it
       });
       server.sendData(
