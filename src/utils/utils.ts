@@ -863,13 +863,11 @@ export const generateRandomGuid = function (): string {
 /**
  * Generates a transient ID starting from the specified ID.
  *
- * @param startId - The starting ID for the generator.
  * @yields The generated transient ID.
  */
-export function* generateTransientId(startId: number = 0) {
-  let id = startId;
-  for (let index = 0; index < MAX_TRANSIENT_ID; index++) {
-    yield id++;
+export function* generateTransientId() {
+  for (let index = 1; index < MAX_TRANSIENT_ID; index++) {
+    yield index;
   }
 }
 

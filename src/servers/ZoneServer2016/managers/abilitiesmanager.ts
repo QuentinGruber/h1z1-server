@@ -195,9 +195,11 @@ export class AbilitiesManager {
   ) {
     // todo: validate time between init and update
     if (!client.character.abilityInitTime) {
-      console.log(
-        `${client.character.characterId} tried to update a non-initialized ability!`
-      );
+      // This happen a lot in production but i'm unable to reproduce it
+      // Maybe sometimes the hitLocation field in abilityInit is empty
+      // console.log(
+      //   `${client.character.characterId} tried to update a non-initialized ability!`
+      // );
       return;
     }
     client.character.checkCurrentInteractionGuid();

@@ -63,6 +63,13 @@ const dev: any = {
   sc: function (server: ZoneServer2016, client: Client, args: Array<string>) {
     console.log(WorldObjectManager.itemSpawnersChances);
   },
+  kickme: function (
+    server: ZoneServer2016,
+    client: Client,
+    args: Array<string>
+  ) {
+    server.kickPlayer(client);
+  },
   lag: function (server: ZoneServer2016, client: Client, args: Array<string>) {
     const startTime = Date.now();
     const interval = setInterval(() => {

@@ -229,12 +229,21 @@ export class LoginServer extends EventEmitter {
                 case "UpdateZonePopulation": {
                   const { population } = packet.data;
                   const serverId = this._zoneConnections[client.clientId];
+                  const serverData = await this._db
+                    .collection(DB_COLLECTIONS.SERVERS)
+                    .findOne({ serverId: serverId });
                   this._db?.collection(DB_COLLECTIONS.SERVERS).findOneAndUpdate(
                     { serverId: serverId },
                     {
                       $set: {
                         populationNumber: population,
-                        populationLevel: population
+                        populationLevel: Number(
+                          (
+                            (population /
+                              (serverData?.maxPopulationNumber ?? 100)) *
+                            3
+                          ).toFixed(0)
+                        )
                       }
                     }
                   );
@@ -341,14 +350,7 @@ export class LoginServer extends EventEmitter {
     debug(
       `rejected connection serverId : ${serverId} address: ${client.address} `
     );
-    // Don't ask why or how but it happenned
-    if (this._zoneConnectionManager) {
-      delete this._zoneConnectionManager._clients[client.clientId];
-    } else {
-      console.error(
-        "zoneConnectionManager is undefined on connection rejected"
-      );
-    }
+    delete this._zoneConnectionManager._clients[client.clientId];
   }
 
   parseData(clientProtocol: string, data: Buffer) {

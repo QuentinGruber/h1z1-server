@@ -144,10 +144,12 @@ export const commands: Array<Command> = [
               : `${(uptimeMin / 60).toFixed()}h `
           }`
         );
-        server.sendChatText(
-          client,
-          `clients : ${_.size(clients)} | npcs : ${_.size(npcs)}`
-        );
+        if (client.isAdmin) {
+          server.sendChatText(
+            client,
+            `clients : ${_.size(clients)} | npcs : ${_.size(npcs)}`
+          );
+        }
         server.sendChatText(
           client,
           `items : ${_.size(objects)} | vehicles : ${_.size(vehicles)}`
@@ -158,7 +160,7 @@ export const commands: Array<Command> = [
   },
   {
     name: "pop",
-    permissionLevel: PermissionLevels.DEFAULT,
+    permissionLevel: PermissionLevels.ADMIN,
     execute: (server: ZoneServer2016, client: Client, args: Array<string>) => {
       const pop = _.size(server._clients);
       server.sendChatText(
@@ -1208,6 +1210,94 @@ export const commands: Array<Command> = [
         client.character.characterStates,
         true
       );
+    }
+  },
+  {
+    name: "superman",
+    permissionLevel: PermissionLevels.MODERATOR,
+    execute: async (
+      server: ZoneServer2016,
+      client: Client,
+      args: Array<string>
+    ) => {
+      // Heal the character
+      client.character.resetResources(server);
+      server.sendChatText(client, "Set resources to maximum values.");
+      // Toggle debug mode
+      client.isDebugMode = !client.isDebugMode;
+      server.sendAlert(client, `Set debug mode to ${client.isDebugMode}`);
+      // Toggle vanish state
+      client.character.isVanished = !client.character.isVanished;
+      server.sendAlert(
+        client,
+        `Set vanish state to ${client.character.isVanished}`
+      );
+      if (!client.character.isVanished) {
+        for (const decoy of Object.values(server._decoys)) {
+          if (decoy.transientId === client.character.transientId) {
+            server.sendDataToAll("Character.RemovePlayer", {
+              characterId: decoy.characterId
+            });
+            server.sendChatText(client, "Decoy removed", false);
+            client.isDecoy = false;
+          }
+        }
+      } else {
+        for (const iteratedClient of Object.values(server._clients)) {
+          if (iteratedClient.spawnedEntities.has(client.character)) {
+            server.sendData(iteratedClient, "Character.RemovePlayer", {
+              characterId: client.character.characterId
+            });
+            iteratedClient.spawnedEntities.delete(client.character);
+          }
+        }
+        server.sendData(client, "Spectator.Enable", {});
+      }
+      // Toggle god mode
+      server.setGodMode(client, !client.character.godMode);
+      server.sendAlert(client, `Set godmode to ${client.character.godMode}`);
+      server.updateCharacterState(
+        client,
+        client.character.characterId,
+        client.character.characterStates,
+        true
+      );
+    }
+  },
+  {
+    name: "move",
+    permissionLevel: PermissionLevels.MODERATOR,
+    execute: (server: ZoneServer2016, client: Client, args: Array<string>) => {
+      const direction = (args[0] || "up").toLowerCase(); // Default direction is "up"
+      const heightInput = args[1];
+      const height = heightInput !== undefined ? parseFloat(heightInput) : 50;
+      if (isNaN(height)) {
+        server.sendAlert(
+          client,
+          "Error: Please enter a valid number for the height."
+        );
+        return;
+      }
+      const newPosition = new Float32Array(client.character.state.position);
+      switch (direction) {
+        case "up":
+          newPosition[1] += height;
+          break;
+        case "down":
+          newPosition[1] -= height;
+          break;
+        default:
+          server.sendAlert(
+            client,
+            "Error: Invalid direction. Use 'up' or 'down'."
+          );
+          return;
+      }
+      server.sendData(client, "ClientUpdate.UpdateLocation", {
+        position: newPosition,
+        triggerLoadingScreen: false
+      });
+      server.sendAlert(client, `Moved ${direction} by ${height}.`);
     }
   },
   {

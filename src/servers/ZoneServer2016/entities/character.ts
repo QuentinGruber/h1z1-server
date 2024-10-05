@@ -70,6 +70,8 @@ import {
   LOADOUT_CONTAINER_ID
 } from "../../../utils/constants";
 import { recipes } from "../data/Recipes";
+import { ConstructionChildEntity } from "./constructionchildentity";
+import { ConstructionParentEntity } from "./constructionparententity";
 const stats = require("../../../../data/2016/sampleData/stats.json");
 
 interface CharacterStates {
@@ -940,13 +942,12 @@ export class Character2016 extends BaseFullCharacter {
 
   pGetSendSelf(
     server: ZoneServer2016,
-    guid = "",
     client: ZoneClient2016
   ): SendSelfToClient {
     return {
       data: {
         ...this.pGetLightweight(),
-        guid: guid,
+        guid: client.loginSessionId,
         hairModel: this.hairModel,
         isRespawning: this.isRespawning,
         gender: this.gender,
@@ -1192,6 +1193,21 @@ export class Character2016 extends BaseFullCharacter {
 
     if (this.isGodMode() || !this.isAlive || this.isRespawning || damage <= 25)
       return;
+
+    // Don't damage players inside shelters
+    if (this.isHidden) {
+      const entity = server.getConstructionEntity(this.isHidden);
+
+      if (
+        entity instanceof ConstructionChildEntity ||
+        entity instanceof ConstructionParentEntity
+      ) {
+        if (entity.isInside(this.state.position)) {
+          return;
+        }
+      }
+    }
+
     if (damageInfo.causeBleed) {
       if (randomIntFromInterval(0, 100) < damage / 100 && damage > 500) {
         this._resources[ResourceIds.BLEEDING] += 41;
@@ -1277,9 +1293,11 @@ export class Character2016 extends BaseFullCharacter {
       server._lootableConstruction[lootableEntity.characterId];
     if (lootableConstruction && lootableConstruction.parentObjectCharacterId) {
       const parent = lootableConstruction.getParent(server);
+      const c = server.getClientByCharId(this.characterId);
       if (
         parent &&
         parent.isSecured &&
+        !c?.isDebugMode &&
         !parent.getHasPermission(
           server,
           this.characterId,

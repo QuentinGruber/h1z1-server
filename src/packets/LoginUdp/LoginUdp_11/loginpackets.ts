@@ -28,9 +28,10 @@ const serverField: any[] = [
   { name: "descriptionId", type: "uint32" },
   { name: "reqFeatureId", type: "uint32" },
   { name: "serverInfo", type: "string" },
+  { name: "populationLevel", type: "uint32", defaultValue: 0 },
   // The "populationNumber" dword was split into 2 uint16s to show server population numbers on the main menu -Meme
-  { name: "populationNumber", type: "uint16", defaultValue: 0 },
-  { name: "maxPopulationNumber", type: "uint16", defaultValue: 1 },
+  //{ name: "populationNumber", type: "uint16", defaultValue: 0 },
+  //{ name: "maxPopulationNumber", type: "uint16", defaultValue: 1 },
   { name: "populationData", type: "string" },
   { name: "AccessExpression", type: "string", defaultValue: "" },
   { name: "allowedAccess", type: "boolean" }

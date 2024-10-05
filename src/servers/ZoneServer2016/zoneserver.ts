@@ -1310,11 +1310,10 @@ export class ZoneServer2016 extends EventEmitter {
   }
 
   sendCharacterData(client: Client) {
-    // guid is sensitive for now, so don't send real one to client rn
     this.sendData<SendSelfToClient>(
       client,
       "SendSelfToClient",
-      client.character.pGetSendSelf(this, this._serverGuid, client)
+      client.character.pGetSendSelf(this, client)
     );
     client.character.initialized = true;
     this.initializeContainerList(client);
@@ -1563,12 +1562,19 @@ export class ZoneServer2016 extends EventEmitter {
     client.character.lastDropPlaytime = savedCharacter.lastDropPlayTime || 0;
 
     let newCharacter = false;
-    if (
-      _.isEqual(savedCharacter.position, [0, 0, 0, 1]) &&
-      _.isEqual(savedCharacter.rotation, [0, 0, 0, 1])
-    ) {
-      // if position/rotation hasn't changed
+    if (_.isEqual(savedCharacter.position, [0, 0, 0, 1])) {
+      // if position hasn't changed
       newCharacter = true;
+    }
+    // https://github.com/QuentinGruber/h1z1-server/issues/2117
+    if (savedCharacter.position.length < 4) {
+      newCharacter = true;
+      setTimeout(() => {
+        this.sendAlert(
+          client,
+          "You've been respawned due to lost position data"
+        );
+      }, 30000);
     }
 
     if (
@@ -8335,6 +8341,9 @@ export class ZoneServer2016 extends EventEmitter {
       return;
     }
     for (const a in this._clients) {
+      while (this.isSaving) {
+        await scheduler.wait(500);
+      }
       const startTime = Date.now();
       const client = this._clients[a];
       if (!client.isLoading) {

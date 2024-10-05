@@ -96,8 +96,7 @@ export interface ServerUpdate {
   descriptionId: number;
   reqFeatureId: number;
   serverInfo: string;
-  populationNumber?: number;
-  maxPopulationNumber?: number;
+  populationLevel?: number;
   populationData: string;
   AccessExpression?: string;
   allowedAccess: boolean;
