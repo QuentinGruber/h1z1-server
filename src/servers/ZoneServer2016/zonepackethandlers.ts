@@ -347,7 +347,7 @@ export class ZonePacketHandlers {
     if (client.firstLoading) {
       client.character.lastLoginDate = toHex(Date.now());
       server.sendData<H1emuVoiceInit>(client, "H1emu.VoiceInit", {
-        args: `51.83.180.201 ${server._worldId}` // not wise but we'll change it
+        args: `51.83.180.201 ${server._worldId}`
       });
       server.sendData(
         client,
