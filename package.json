@@ -50,6 +50,7 @@
     "gen-doc": "npm run updt-doc-config && typedoc",
     "updt-doc-config": "tsx ./scripts/updateTypeDoc.ts",
     "start": "node --no-warnings --experimental-require-module ./scripts/h1z1-server-demo-2016.js",
+    "start-dev": "npm run build && npm start",
     "start-echo": "npm run build && npm run build-benchs && node --inspect ./benchmarks/out/echo/echo-server-start.js",
     "lint": "eslint src",
     "lint-quiet": "eslint --quiet src",
