@@ -1827,6 +1827,15 @@ export class ZoneServer2016 extends EventEmitter {
     }
   }
 
+  startH1emuAi() {
+    setInterval(() => {
+      const start = performance.now();
+      this.aiManager.run();
+      const end = performance.now();
+      console.log(`H1emu-ai took ${end - start}ms`);
+    }, 100);
+  }
+
   async start(): Promise<void> {
     debug("Starting server");
     debug(`Protocol used : ${this._protocol.protocolName}`);
@@ -1865,12 +1874,9 @@ export class ZoneServer2016 extends EventEmitter {
     this.rconManager.on("message", this.handleRconMessage.bind(this));
     this.rewardManager.start();
     this.hookManager.checkHook("OnServerReady");
-    setInterval(() => {
-      const start = performance.now();
-      this.aiManager.run();
-      const end = performance.now();
-      console.log(`H1emu-ai took ${end - start}ms`);
-    }, 100);
+    if (this._soloMode || process.env.ENABLE_H1EMU_AI) {
+      this.startH1emuAi();
+    }
   }
 
   async sendInitData(client: Client) {
@@ -4192,7 +4198,7 @@ export class ZoneServer2016 extends EventEmitter {
       generatedTransient,
       this
     );
-    // it's just for performance testing for h1emu-ai
+    // it's just for performance testing
     // for (let index = 0; index < 100; index++) {
     // this.aiManager.add_entity(client.character, EntityType.Player);
     // }
