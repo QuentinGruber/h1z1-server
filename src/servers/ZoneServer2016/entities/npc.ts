@@ -30,7 +30,8 @@ import {
   StringIds
 } from "../models/enums";
 import { CommandInteractionString } from "types/zone2016packets";
-import { EntityFromJs, EntityType } from "h1emu-ai";
+import { EntityType } from "h1emu-ai";
+import { BaseLightweightCharacter } from "./baselightweightcharacter";
 
 export class Npc extends BaseFullCharacter {
   health: number;
@@ -69,6 +70,7 @@ export class Npc extends BaseFullCharacter {
     return this.deathTime == 0;
   }
   server: ZoneServer2016;
+  entityType: EntityType;
   constructor(
     characterId: string,
     transientId: number,
@@ -84,10 +86,35 @@ export class Npc extends BaseFullCharacter {
     this.health = 10000;
     this.initNpcData();
     this.server = server;
-    // FIXME: this should be setup based on the model
-    this.materialType = MaterialTypes.ZOMBIE;
-    const e = new EntityFromJs(EntityType.Zombie, this);
-    server.aiManager.add_entity(e);
+    switch (actorModelId) {
+      case 9510:
+      case 9634:
+        this.entityType = EntityType.Zombie;
+        this.materialType = MaterialTypes.ZOMBIE;
+        break;
+      case 9002:
+      case 9253:
+        this.entityType = EntityType.Deer;
+        this.materialType = MaterialTypes.FLESH;
+        break;
+      case 9003:
+        this.entityType = EntityType.Wolf;
+        this.materialType = MaterialTypes.FLESH;
+        break;
+      case 9187:
+        this.entityType = EntityType.Bear;
+        this.materialType = MaterialTypes.FLESH;
+        break;
+      default:
+        this.entityType = EntityType.Deer;
+        this.materialType = MaterialTypes.FLESH;
+        break;
+    }
+    server.aiManager.add_entity(this, this.entityType);
+  }
+
+  async attack(target: BaseLightweightCharacter) {
+    console.log("attack");
   }
 
   async damage(server: ZoneServer2016, damageInfo: DamageInfo) {

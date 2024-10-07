@@ -35,7 +35,6 @@ import {
 import { WorldObjectManager } from "../../managers/worldobjectmanager";
 import { Vehicle2016 } from "../../entities/vehicle";
 import { Plane } from "../../entities/plane";
-import { EntityFromJs, EntityType } from "h1emu-ai";
 import { NavManager } from "../../../../utils/recast";
 import { scheduler } from "timers/promises";
 
@@ -168,8 +167,7 @@ const dev: any = {
     );
 
     server._npcs[characterId] = zombie;
-    const e = new EntityFromJs(EntityType.Zombie, zombie);
-    server.aiManager.add_entity(e);
+    server.aiManager.add_entity(zombie, zombie.entityType);
     const a = server.navManager.createAgent(zombie.state.position);
     zombie.navAgent = a;
 

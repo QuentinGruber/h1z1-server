@@ -248,7 +248,7 @@ import { AccountInventoryManager } from "./managers/accountinventorymanager";
 import { PlayTimeManager } from "./managers/playtimemanager";
 import { RewardManager } from "./managers/rewardmanager";
 import { DynamicAppearance } from "types/zonedata";
-import { AiManager, EntityFromJs, EntityType } from "h1emu-ai";
+import { AiManager, EntityType } from "h1emu-ai";
 import { setInterval } from "node:timers";
 import { readFileSync } from "node:fs";
 import { NavManager } from "../../utils/recast";
@@ -1866,9 +1866,10 @@ export class ZoneServer2016 extends EventEmitter {
     this.rewardManager.start();
     this.hookManager.checkHook("OnServerReady");
     setInterval(() => {
-      console.time("ai");
+      const start = performance.now();
       this.aiManager.run();
-      console.timeEnd("ai");
+      const end = performance.now();
+      console.log(`H1emu-ai took ${end - start}ms`);
     }, 300);
   }
 
@@ -4191,9 +4192,9 @@ export class ZoneServer2016 extends EventEmitter {
       generatedTransient,
       this
     );
+    // FIXME: remove that later on it's just for performance testing
     for (let index = 0; index < 100; index++) {
-      const e = new EntityFromJs(EntityType.Player, client.character);
-      this.aiManager.add_entity(e);
+      this.aiManager.add_entity(client.character, EntityType.Player);
     }
     return client;
   }
