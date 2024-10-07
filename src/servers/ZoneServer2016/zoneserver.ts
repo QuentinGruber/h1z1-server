@@ -1870,7 +1870,7 @@ export class ZoneServer2016 extends EventEmitter {
       this.aiManager.run();
       const end = performance.now();
       console.log(`H1emu-ai took ${end - start}ms`);
-    }, 300);
+    }, 100);
   }
 
   async sendInitData(client: Client) {
@@ -4192,10 +4192,11 @@ export class ZoneServer2016 extends EventEmitter {
       generatedTransient,
       this
     );
-    // FIXME: remove that later on it's just for performance testing
-    for (let index = 0; index < 100; index++) {
-      this.aiManager.add_entity(client.character, EntityType.Player);
-    }
+    // it's just for performance testing for h1emu-ai
+    // for (let index = 0; index < 100; index++) {
+    // this.aiManager.add_entity(client.character, EntityType.Player);
+    // }
+    this.aiManager.add_entity(client.character, EntityType.Player);
     return client;
   }
 

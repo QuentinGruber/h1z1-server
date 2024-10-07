@@ -24,6 +24,7 @@ import { DB_COLLECTIONS } from "../../../utils/enums";
 import {
   Items,
   MaterialTypes,
+  MeleeTypes,
   ModelIds,
   NpcIds,
   PositionUpdateType,
@@ -87,8 +88,11 @@ export class Npc extends BaseFullCharacter {
     this.initNpcData();
     this.server = server;
     switch (actorModelId) {
+      // TODO: use enums
       case 9510:
       case 9634:
+      // screamer
+      case 9667:
         this.entityType = EntityType.Zombie;
         this.materialType = MaterialTypes.ZOMBIE;
         break;
@@ -113,8 +117,43 @@ export class Npc extends BaseFullCharacter {
     server.aiManager.add_entity(this, this.entityType);
   }
 
-  async attack(target: BaseLightweightCharacter) {
-    console.log("attack");
+  attack() {
+    this.server.sendDataToAllWithSpawnedEntity(
+      this.server._npcs,
+      this.characterId,
+      "Character.PlayAnimation",
+      {
+        characterId: this.characterId,
+        animationName: "KnifeSlash"
+      }
+    );
+  }
+
+  applyDamage(characterId: string) {
+    const client = this.server.getClientByCharId(characterId);
+    if (client) {
+      const damageInfo: DamageInfo = {
+        entity: client.character.characterId,
+        weapon: Items.WEAPON_MACHETE01,
+        damage: 2000, // need to figure out a good number for this
+        causeBleed: false, // another method for melees to apply bleeding
+        meleeType: MeleeTypes.BLADE,
+        hitReport: {
+          sessionProjectileCount: 0,
+          characterId: client.character.characterId,
+          position: client.character.state.position,
+          unknownFlag1: 0,
+          unknownByte2: 0,
+          totalShotCount: 0,
+          hitLocation: client.character.meleeHit.abilityHitLocation
+        }
+      };
+      client.character.OnMeleeHit(this.server, damageInfo);
+    } else {
+      console.log(
+        `CharacterId ${characterId} not found when applying damage from npc`
+      );
+    }
   }
 
   async damage(server: ZoneServer2016, damageInfo: DamageInfo) {
