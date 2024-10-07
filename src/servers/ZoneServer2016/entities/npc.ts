@@ -72,6 +72,7 @@ export class Npc extends BaseFullCharacter {
   }
   server: ZoneServer2016;
   entityType: EntityType;
+  npcMeleeDamage: number;
   constructor(
     characterId: string,
     transientId: number,
@@ -95,23 +96,28 @@ export class Npc extends BaseFullCharacter {
       case 9667:
         this.entityType = EntityType.Zombie;
         this.materialType = MaterialTypes.ZOMBIE;
+        this.npcMeleeDamage = 2000;
         break;
       case 9002:
       case 9253:
         this.entityType = EntityType.Deer;
         this.materialType = MaterialTypes.FLESH;
+        this.npcMeleeDamage = 0;
         break;
       case 9003:
         this.entityType = EntityType.Wolf;
         this.materialType = MaterialTypes.FLESH;
+        this.npcMeleeDamage = 2000;
         break;
       case 9187:
         this.entityType = EntityType.Bear;
         this.materialType = MaterialTypes.FLESH;
+        this.npcMeleeDamage = 4000;
         break;
       default:
         this.entityType = EntityType.Deer;
         this.materialType = MaterialTypes.FLESH;
+        this.npcMeleeDamage = 0;
         break;
     }
     server.aiManager.add_entity(this, this.entityType);
@@ -135,7 +141,7 @@ export class Npc extends BaseFullCharacter {
       const damageInfo: DamageInfo = {
         entity: client.character.characterId,
         weapon: Items.WEAPON_MACHETE01,
-        damage: 2000, // need to figure out a good number for this
+        damage: this.npcMeleeDamage,
         causeBleed: false, // another method for melees to apply bleeding
         meleeType: MeleeTypes.BLADE,
         hitReport: {
