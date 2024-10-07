@@ -1829,10 +1829,14 @@ export class ZoneServer2016 extends EventEmitter {
 
   startH1emuAi() {
     setInterval(() => {
-      const start = performance.now();
-      this.aiManager.run();
-      const end = performance.now();
-      console.log(`H1emu-ai took ${end - start}ms`);
+      if (process.env.ENABLE_AI_TIME_LOGS) {
+        const start = performance.now();
+        this.aiManager.run();
+        const end = performance.now();
+        console.log(`H1emu-ai took ${end - start}ms`);
+      } else {
+        this.aiManager.run();
+      }
     }, 100);
   }
 
@@ -1874,7 +1878,7 @@ export class ZoneServer2016 extends EventEmitter {
     this.rconManager.on("message", this.handleRconMessage.bind(this));
     this.rewardManager.start();
     this.hookManager.checkHook("OnServerReady");
-    if (this._soloMode || process.env.ENABLE_H1EMU_AI) {
+    if (this._soloMode || process.env.ENABLE_AI) {
       this.startH1emuAi();
     }
   }
