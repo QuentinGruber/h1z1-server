@@ -18,7 +18,7 @@
     "@types/ws": "8.5.12",
     "debug": "4.3.6",
     "h1emu-core": "1.2.8",
-    "h1z1-dataschema": "1.8.1",
+    "h1z1-dataschema": "1.9.0",
     "js-yaml": "4.1.0",
     "mongodb": "6.8.0",
     "threads": "1.7.0",
