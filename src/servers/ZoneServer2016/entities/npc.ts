@@ -92,11 +92,14 @@ export class Npc extends BaseFullCharacter {
       // TODO: use enums
       case 9510:
       case 9634:
-      // screamer
-      case 9667:
         this.entityType = EntityType.Zombie;
         this.materialType = MaterialTypes.ZOMBIE;
         this.npcMeleeDamage = 2000;
+        break;
+      case 9667:
+        this.entityType = EntityType.Screamer;
+        this.materialType = MaterialTypes.ZOMBIE;
+        this.npcMeleeDamage = 3000;
         break;
       case 9002:
       case 9253:
@@ -123,14 +126,14 @@ export class Npc extends BaseFullCharacter {
     server.aiManager.add_entity(this, this.entityType);
   }
 
-  attack() {
+  playAnimation(animationName: string) {
     this.server.sendDataToAllWithSpawnedEntity(
       this.server._npcs,
       this.characterId,
       "Character.PlayAnimation",
       {
         characterId: this.characterId,
-        animationName: "KnifeSlash"
+        animationName: animationName
       }
     );
   }
