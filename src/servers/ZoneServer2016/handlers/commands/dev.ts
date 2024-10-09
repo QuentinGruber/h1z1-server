@@ -32,10 +32,11 @@ import {
   getCurrentServerTimeWrapper,
   randomIntFromInterval
 } from "../../../../utils/utils";
-import { Zombie } from "../../entities/zombie";
 import { WorldObjectManager } from "../../managers/worldobjectmanager";
 import { Vehicle2016 } from "../../entities/vehicle";
 import { Plane } from "../../entities/plane";
+import { NavManager } from "../../../../utils/recast";
+import { scheduler } from "timers/promises";
 
 const abilities = require("../../../../../data/2016/dataSources/Abilities.json"),
   vehicleAbilities = require("../../../../../data/2016/dataSources/VehicleAbilities.json");
@@ -90,7 +91,7 @@ const dev: any = {
   },
   path: function (server: ZoneServer2016, client: Client, args: Array<string>) {
     const characterId = server.generateGuid();
-    const npc = new Zombie(
+    const npc = new Npc(
       characterId,
       server.getTransientId(characterId),
       9510,
@@ -108,6 +109,16 @@ const dev: any = {
   },
   acc: function (server: ZoneServer2016, client: Client, args: Array<string>) {
     server.sendData<ItemsAddAccountItem>(client, "Items.AddAccountItem", {});
+  },
+  ai_load: function (
+    server: ZoneServer2016,
+    client: Client,
+    args: Array<string>
+  ) {
+    server.sendChatText(
+      client,
+      server.aiManager.get_stats().entities.toString()
+    );
   },
   ui: function (server: ZoneServer2016, client: Client, args: Array<string>) {
     server.sendData(client, "Effect.AddUiIndicator", {
@@ -138,7 +149,7 @@ const dev: any = {
       unknownData2: {}
     });
   },
-  zombie: function (
+  zombie: async function (
     server: ZoneServer2016,
     client: Client,
     args: Array<string>
@@ -154,7 +165,31 @@ const dev: any = {
       client.character.state.rotation,
       server
     );
+
     server._npcs[characterId] = zombie;
+    server.aiManager.add_entity(zombie, zombie.entityType);
+    const a = server.navManager.createAgent(zombie.state.position);
+    zombie.navAgent = a;
+
+    await scheduler.wait(5000);
+    let retries = 0;
+    const interval = setInterval(() => {
+      retries++;
+      if (retries > 10) {
+        clearInterval(interval);
+      }
+
+      server.navManager.updt();
+      if (zombie.navAgent) {
+        zombie.navAgent.requestMoveTarget(
+          server.navManager.getClosestNavPoint(client.character.state.position)
+        );
+        console.log(zombie.navAgent.interpolatedPosition);
+        zombie.goTo(
+          NavManager.Vec3ToFloat32(zombie.navAgent.interpolatedPosition)
+        );
+      }
+    }, 500);
   },
   abilities: function (
     server: ZoneServer2016,

@@ -11,7 +11,7 @@ jobs:
       - uses: actions/checkout@v3
       - uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 22
           registry-url: https://registry.npmjs.org/
       - run: npm i
       - run: npm publish
@@ -42,10 +42,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - name: Use Node.js 20.12.2
+      - name: Use Node.js 22.9.0
         uses: actions/setup-node@v3
         with:
-          node-version: 20.12.2
+          node-version: 22.9.0
       - uses: olegtarasov/get-tag@v2.1
         id: tagName
       - uses: docker-practice/actions-setup-docker@master

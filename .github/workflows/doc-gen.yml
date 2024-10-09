@@ -29,10 +29,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - name: Use Node.js 20.12.2
+      - name: Use Node.js 22.9.0
         uses: actions/setup-node@v3
         with:
-          node-version: 20.12.2
+          node-version: 22.9.0
       - run: npm i
       - run: npm run gen-doc
       - name: Setup Pages

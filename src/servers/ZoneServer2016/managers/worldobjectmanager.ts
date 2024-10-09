@@ -21,7 +21,7 @@ const Z1_taskProps = require("../../../../data/2016/zoneData/Z1_taskProps.json")
 const Z1_crates = require("../../../../data/2016/zoneData/Z1_crates.json");
 const Z1_destroyables = require("../../../../data/2016/zoneData/Z1_destroyables.json");
 const models = require("../../../../data/2016/dataSources/Models.json");
-const bannedZombieModels = require("../../../../data/2016/sampleData/bannedZombiesModels.json");
+// const bannedZombieModels = require("../../../../data/2016/sampleData/bannedZombiesModels.json");
 import {
   _,
   eul2quat,
@@ -59,7 +59,6 @@ import { Vehicle2016 } from "../entities/vehicle";
 import { LootDefinition } from "types/zoneserver";
 import { ItemObject } from "../entities/itemobject";
 import { DoorEntity } from "../entities/doorentity";
-import { Zombie } from "../entities/zombie";
 import { BaseFullCharacter } from "../entities/basefullcharacter";
 import { ExplosiveEntity } from "../entities/explosiveentity";
 import { lootTables, containerLootSpawners } from "../data/lootspawns";
@@ -73,6 +72,8 @@ import { Destroyable } from "../entities/destroyable";
 import { CharacterPlayWorldCompositeEffect } from "types/zone2016packets";
 import { WaterSource } from "../entities/watersource";
 import { TreasureChest } from "../entities/treasurechest";
+import { Npc } from "../entities/npc";
+import { EntityType } from "h1emu-ai";
 const debug = require("debug")("ZoneServer");
 
 function getRandomSkin(itemDefinitionId: number) {
@@ -305,7 +306,7 @@ export class WorldObjectManager {
   ): void {
     server.generateRandomEquipmentsFromAnEntity(entity, slots, excludedModels);
   }
-  createZombie(
+  createNpc(
     server: ZoneServer2016,
     modelId: number,
     position: Float32Array,
@@ -313,7 +314,7 @@ export class WorldObjectManager {
     spawnerId: number = 0
   ) {
     const characterId = generateRandomGuid();
-    const zombie = new Zombie(
+    const npc = new Npc(
       characterId,
       server.getTransientId(characterId),
       modelId,
@@ -322,8 +323,10 @@ export class WorldObjectManager {
       server,
       spawnerId
     );
-    this.equipRandomSkins(server, zombie, this.zombieSlots, bannedZombieModels);
-    server._npcs[characterId] = zombie;
+
+    // doesn't work anymore
+    // this.equipRandomSkins(server, npc, this.zombieSlots, bannedZombieModels);
+    server._npcs[characterId] = npc;
     if (spawnerId) this.spawnedNpcs[spawnerId] = characterId;
   }
 
@@ -381,7 +384,7 @@ export class WorldObjectManager {
   }
 
   createLootbag(server: ZoneServer2016, entity: BaseFullCharacter) {
-    if (entity instanceof Zombie) {
+    if (entity instanceof Npc && entity.entityType == EntityType.Zombie) {
       const wornLetters = [
         Items.WORN_LETTER_CHURCH_PV,
         Items.WORN_LETTER_LJ_PV,
@@ -994,7 +997,7 @@ export class WorldObjectManager {
       if (!authorizedModelId.length) return;
       spawnerType.instances.forEach((npcInstance: any) => {
         let spawn = true;
-        Object.values(server._npcs).every((spawnedNpc: Zombie) => {
+        Object.values(server._npcs).every((spawnedNpc: Npc) => {
           if (
             isPosInRadius(
               this.npcSpawnRadius,
@@ -1014,7 +1017,7 @@ export class WorldObjectManager {
           if (screamerChance <= this.chanceScreamer) {
             authorizedModelId.push(9667);
           }
-          this.createZombie(
+          this.createNpc(
             server,
             authorizedModelId[
               Math.floor(Math.random() * authorizedModelId.length)
