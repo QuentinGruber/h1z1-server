@@ -11,6 +11,7 @@
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
 
+import { readFileSync } from "node:fs";
 import {
   CrowdAgent,
   init as initRecast,
@@ -28,7 +29,10 @@ export class NavManager {
   navMeshQuery!: NavMeshQuery;
   lastTimeCall: number = Date.now();
   constructor() {}
-  async loadNav(navData: Uint8Array) {
+  async loadNav() {
+    const navData = new Uint8Array(
+      readFileSync(__dirname + "/../../data/2016/navData/z1.bin")
+    );
     await initRecast();
     const { navMesh } = importNavMesh(navData);
     this.navmesh = navMesh;

@@ -1609,11 +1609,8 @@ export class ZoneServer2016 extends EventEmitter {
   }
 
   private async setupServer() {
-    const z1_nav = new Uint8Array(
-      readFileSync(__dirname + "/../../../data/2016/navData/z1.bin")
-    );
-    await this.navManager.loadNav(z1_nav);
-
+    // TODO: Disabled for now
+    // await this.navManager.loadNav();
     this.weatherManager.init();
     this.playTimeManager.init(this);
     this.initModelsDataSource();
