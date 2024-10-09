@@ -123,7 +123,7 @@ export class Npc extends BaseFullCharacter {
         this.npcMeleeDamage = 0;
         break;
     }
-    server.aiManager.add_entity(this, this.entityType);
+    this.h1emu_ai_id = server.aiManager.add_entity(this, this.entityType);
   }
 
   playAnimation(animationName: string) {

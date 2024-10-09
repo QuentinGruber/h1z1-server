@@ -2193,6 +2193,9 @@ export class ZoneServer2016 extends EventEmitter {
     }
 
     if (client.character) {
+      if (client.character.h1emu_ai_id) {
+        this.aiManager.remove_entity(client.character.h1emu_ai_id);
+      }
       client.isLoading = true; // stop anything from acting on character
 
       clearTimeout(client.character?.resourcesUpdater);
@@ -3685,6 +3688,9 @@ export class ZoneServer2016 extends EventEmitter {
           this.getProximityItems(client)
         );
       }
+    }
+    if (dictionary[characterId].h1emu_ai_id) {
+      this.aiManager.remove_entity(dictionary[characterId].h1emu_ai_id);
     }
     delete dictionary[characterId];
     delete this._transientIds[this._characterIds[characterId]];
