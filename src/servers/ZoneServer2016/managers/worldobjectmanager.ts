@@ -73,6 +73,7 @@ import { CharacterPlayWorldCompositeEffect } from "types/zone2016packets";
 import { WaterSource } from "../entities/watersource";
 import { TreasureChest } from "../entities/treasurechest";
 import { Npc } from "../entities/npc";
+import { EntityType } from "h1emu-ai";
 const debug = require("debug")("ZoneServer");
 
 function getRandomSkin(itemDefinitionId: number) {
@@ -383,8 +384,7 @@ export class WorldObjectManager {
   }
 
   createLootbag(server: ZoneServer2016, entity: BaseFullCharacter) {
-    // FIXME: find another way to identify if it's a zombie or not
-    if (entity instanceof Npc) {
+    if (entity instanceof Npc && entity.entityType == EntityType.Zombie) {
       const wornLetters = [
         Items.WORN_LETTER_CHURCH_PV,
         Items.WORN_LETTER_LJ_PV,
