@@ -4202,11 +4202,6 @@ export class ZoneServer2016 extends EventEmitter {
       generatedTransient,
       this
     );
-    // it's just for performance testing
-    // for (let index = 0; index < 100; index++) {
-    // this.aiManager.add_entity(client.character, EntityType.Player);
-    // }
-    this.aiManager.add_entity(client.character, EntityType.Player);
     return client;
   }
 

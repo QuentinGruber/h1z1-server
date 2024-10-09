@@ -158,6 +158,7 @@ import { Lootbag } from "./entities/lootbag";
 import { ReceivedPacket } from "types/shared";
 import { LoadoutItem } from "./classes/loadoutItem";
 import { BaseItem } from "./classes/baseItem";
+import { EntityType } from "h1emu-ai";
 
 function getStanceFlags(num: number): StanceFlags {
   function getBit(bin: string, bit: number) {
@@ -347,6 +348,11 @@ export class ZonePacketHandlers {
       client.character.lastLoginDate = toHex(Date.now());
       server.setGodMode(client, false);
       setTimeout(() => {
+        // it's just for performance testing
+        // for (let index = 0; index < 100; index++) {
+        // this.aiManager.add_entity(client.character, EntityType.Player);
+        // }
+        server.aiManager.add_entity(client.character, EntityType.Player);
         if (
           server.voiceChatManager.useVoiceChatV2 &&
           server.voiceChatManager.joinVoiceChatOnConnect
