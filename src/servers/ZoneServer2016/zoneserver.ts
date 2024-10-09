@@ -248,9 +248,8 @@ import { AccountInventoryManager } from "./managers/accountinventorymanager";
 import { PlayTimeManager } from "./managers/playtimemanager";
 import { RewardManager } from "./managers/rewardmanager";
 import { DynamicAppearance } from "types/zonedata";
-import { AiManager, EntityType } from "h1emu-ai";
+import { AiManager } from "h1emu-ai";
 import { setInterval } from "node:timers";
-import { readFileSync } from "node:fs";
 import { NavManager } from "../../utils/recast";
 
 const spawnLocations2 = require("../../../data/2016/zoneData/Z1_gridSpawns.json"),

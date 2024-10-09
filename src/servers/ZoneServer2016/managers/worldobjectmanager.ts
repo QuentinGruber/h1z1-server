@@ -21,7 +21,7 @@ const Z1_taskProps = require("../../../../data/2016/zoneData/Z1_taskProps.json")
 const Z1_crates = require("../../../../data/2016/zoneData/Z1_crates.json");
 const Z1_destroyables = require("../../../../data/2016/zoneData/Z1_destroyables.json");
 const models = require("../../../../data/2016/dataSources/Models.json");
-const bannedZombieModels = require("../../../../data/2016/sampleData/bannedZombiesModels.json");
+// const bannedZombieModels = require("../../../../data/2016/sampleData/bannedZombiesModels.json");
 import {
   _,
   eul2quat,

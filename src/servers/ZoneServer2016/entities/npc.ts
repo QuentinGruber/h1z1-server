@@ -32,7 +32,6 @@ import {
 } from "../models/enums";
 import { CommandInteractionString } from "types/zone2016packets";
 import { EntityType } from "h1emu-ai";
-import { BaseLightweightCharacter } from "./baselightweightcharacter";
 
 export class Npc extends BaseFullCharacter {
   health: number;

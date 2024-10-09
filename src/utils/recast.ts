@@ -59,7 +59,7 @@ export class NavManager {
     const position = this.getClosestNavPoint(pos);
     const radius = 0.5;
 
-    let {
+    const {
       randomPoint: initialAgentPosition,
       success,
       status
@@ -67,10 +67,9 @@ export class NavManager {
 
     if (!success) {
       console.log(statusToReadableString(status));
-      initialAgentPosition = position;
     }
 
-    const agent = this.crowd.addAgent(NavManager.Float32ToVec3(pos), {
+    const agent = this.crowd.addAgent(initialAgentPosition, {
       radius: 0.5,
       height: 2,
       maxAcceleration: 4.0,
