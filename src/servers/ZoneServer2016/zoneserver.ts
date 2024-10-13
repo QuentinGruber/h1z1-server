@@ -4387,6 +4387,7 @@ export class ZoneServer2016 extends EventEmitter {
   }
 
   kickPlayerWithReason(client: Client, reason: string, sendGlobal = false) {
+    if (!client || client.isAdmin) return;
     for (let i = 0; i < 5; i++) {
       this.sendAlert(
         client,
@@ -4406,6 +4407,7 @@ export class ZoneServer2016 extends EventEmitter {
   }
 
   kickPlayer(client: Client) {
+    if (!client || client.isAdmin) return;
     this.sendData<CharacterSelectSessionResponse>(
       client,
       "CharacterSelectSessionResponse",
@@ -4414,7 +4416,6 @@ export class ZoneServer2016 extends EventEmitter {
         sessionId: client.loginSessionId
       }
     );
-    if (!client) return;
     this.deleteClient(client);
   }
 
