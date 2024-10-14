@@ -15,10 +15,23 @@ import { DamageInfo } from "types/zoneserver";
 import { ZoneServer2016 } from "../zoneserver";
 import { BaseFullCharacter } from "./basefullcharacter";
 import { ZoneClient2016 } from "../classes/zoneclient";
-import { logClientActionToMongo } from "../../../utils/utils";
+import {
+  getCurrentServerTimeWrapper,
+  getDistance,
+  logClientActionToMongo
+} from "../../../utils/utils";
 import { DB_COLLECTIONS } from "../../../utils/enums";
-import { Items, ModelIds, NpcIds, StringIds } from "../models/enums";
+import {
+  Items,
+  MaterialTypes,
+  MeleeTypes,
+  ModelIds,
+  NpcIds,
+  PositionUpdateType,
+  StringIds
+} from "../models/enums";
 import { CommandInteractionString } from "types/zone2016packets";
+import { EntityType } from "h1emu-ai";
 
 export class Npc extends BaseFullCharacter {
   health: number;
@@ -56,6 +69,9 @@ export class Npc extends BaseFullCharacter {
   public get isAlive(): boolean {
     return this.deathTime == 0;
   }
+  server: ZoneServer2016;
+  entityType: EntityType;
+  npcMeleeDamage: number;
   constructor(
     characterId: string,
     transientId: number,
@@ -66,9 +82,86 @@ export class Npc extends BaseFullCharacter {
     spawnerId: number = 0
   ) {
     super(characterId, transientId, actorModelId, position, rotation, server);
+    this.positionUpdateType = PositionUpdateType.MOVABLE;
     this.spawnerId = spawnerId;
     this.health = 10000;
     this.initNpcData();
+    this.server = server;
+    switch (actorModelId) {
+      // TODO: use enums
+      case 9510:
+      case 9634:
+        this.entityType = EntityType.Zombie;
+        this.materialType = MaterialTypes.ZOMBIE;
+        this.npcMeleeDamage = 2000;
+        break;
+      case 9667:
+        this.entityType = EntityType.Screamer;
+        this.materialType = MaterialTypes.ZOMBIE;
+        this.npcMeleeDamage = 3000;
+        break;
+      case 9002:
+      case 9253:
+        this.entityType = EntityType.Deer;
+        this.materialType = MaterialTypes.FLESH;
+        this.npcMeleeDamage = 0;
+        break;
+      case 9003:
+        this.entityType = EntityType.Wolf;
+        this.materialType = MaterialTypes.FLESH;
+        this.npcMeleeDamage = 2000;
+        break;
+      case 9187:
+        this.entityType = EntityType.Bear;
+        this.materialType = MaterialTypes.FLESH;
+        this.npcMeleeDamage = 4000;
+        break;
+      default:
+        this.entityType = EntityType.Deer;
+        this.materialType = MaterialTypes.FLESH;
+        this.npcMeleeDamage = 0;
+        break;
+    }
+    this.h1emu_ai_id = server.aiManager.add_entity(this, this.entityType);
+  }
+
+  playAnimation(animationName: string) {
+    this.server.sendDataToAllWithSpawnedEntity(
+      this.server._npcs,
+      this.characterId,
+      "Character.PlayAnimation",
+      {
+        characterId: this.characterId,
+        animationName: animationName
+      }
+    );
+  }
+
+  applyDamage(characterId: string) {
+    const client = this.server.getClientByCharId(characterId);
+    if (client) {
+      const damageInfo: DamageInfo = {
+        entity: client.character.characterId,
+        weapon: Items.WEAPON_MACHETE01,
+        damage: this.npcMeleeDamage,
+        causeBleed: false, // another method for melees to apply bleeding
+        meleeType: MeleeTypes.BLADE,
+        hitReport: {
+          sessionProjectileCount: 0,
+          characterId: client.character.characterId,
+          position: client.character.state.position,
+          unknownFlag1: 0,
+          unknownByte2: 0,
+          totalShotCount: 0,
+          hitLocation: client.character.meleeHit.abilityHitLocation
+        }
+      };
+      client.character.OnMeleeHit(this.server, damageInfo);
+    } else {
+      console.log(
+        `CharacterId ${characterId} not found when applying damage from npc`
+      );
+    }
   }
 
   async damage(server: ZoneServer2016, damageInfo: DamageInfo) {
@@ -368,5 +461,29 @@ export class Npc extends BaseFullCharacter {
         stringId: stringId
       }
     );
+  }
+  goTo(position: Float32Array) {
+    const angleInRadians2 = Math.random() * (2 * Math.PI) - Math.PI;
+    const angleInRadians = Math.atan2(
+      position[1] - this.state.position[1],
+      getDistance(this.state.position, position)
+    );
+    this.state.position = position;
+    this.server.sendDataToAll("PlayerUpdatePosition", {
+      transientId: this.transientId,
+      positionUpdate: {
+        sequenceTime: getCurrentServerTimeWrapper().getTruncatedU32(),
+        position: this.state.position,
+        unknown3_int8: 0,
+        stance: 66565,
+        engineRPM: 0,
+        orientation: angleInRadians2,
+        frontTilt: 0,
+        sideTilt: 0,
+        angleChange: 0,
+        verticalSpeed: angleInRadians,
+        horizontalSpeed: 0.5
+      }
+    });
   }
 }

@@ -374,7 +374,7 @@ export class H1Z1Protocol {
       const packetTypeBytes = getPacketTypeBytes(packetType);
       if (packet.schema) {
         try {
-          packetData = DataSchema.pack(packet.schema, object, null, null);
+          packetData = DataSchema.pack(packet.schema, object);
         } catch (error) {
           console.error(`${packetName} : ${error}`);
           console.error(`${packetName} : ${JSON.stringify(object)}`);

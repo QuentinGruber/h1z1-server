@@ -57,7 +57,8 @@ export const characterPackets: PacketStructures = [
           name: "animationType",
           type: "custom",
           parser: pack2ByteLengthString,
-          packer: pack2ByteLengthString
+          packer: pack2ByteLengthString,
+          defaultValue: ""
         },
         { name: "unknownByte1xda", type: "uint8", defaultValue: 0 },
         { name: "unknownDword3", type: "float", defaultValue: 1430 }

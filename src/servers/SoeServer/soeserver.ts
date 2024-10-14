@@ -54,13 +54,13 @@ export class SOEServer extends EventEmitter {
     this._connection = dgram.createSocket({
       type: "udp4",
       reuseAddr: true,
-      recvBufferSize: oneMb,
+      recvBufferSize: oneMb * 2,
       sendBufferSize: oneMb
     });
     this._connectionv6 = dgram.createSocket({
       type: "udp6",
       reuseAddr: true,
-      recvBufferSize: oneMb,
+      recvBufferSize: oneMb * 2,
       sendBufferSize: oneMb
     });
     // To support node 18 that we use for h1z1-server binaries
