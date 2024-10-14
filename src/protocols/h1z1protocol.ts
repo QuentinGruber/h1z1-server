@@ -88,12 +88,26 @@ export class H1Z1Protocol {
   }
 
   createPositionBroadcast2016(rawData: Buffer, transientId: number): Buffer {
-    const tId = packUnsignedIntWith2bitLengthValue(transientId);
-    return Buffer.concat([Buffer.from([0x79]), tId, rawData]); //0x79 = opcode
+    const transientIdPacked = packUnsignedIntWith2bitLengthValue(transientId);
+
+    const buff = Buffer.allocUnsafe(
+      1 + transientIdPacked.length + rawData.length
+    );
+
+    buff[0] = 0x79; // opcode
+    transientIdPacked.copy(buff, 1);
+    rawData.copy(buff, 1 + transientIdPacked.length);
+
+    return buff;
   }
 
   createManagedPositionBroadcast2016(rawData: Buffer): Buffer {
-    return Buffer.concat([Buffer.from([0x79]), rawData]); //0x79 = opcode
+    const buff = Buffer.allocUnsafe(1 + rawData.length);
+
+    buff[0] = 0x79; // opcode
+    rawData.copy(buff, 1);
+
+    return buff;
   }
 
   createVehiclePositionBroadcast(rawData: Buffer): Buffer {
@@ -104,8 +118,17 @@ export class H1Z1Protocol {
     rawData: Buffer,
     transientId: number
   ): Buffer {
-    const tId = packUnsignedIntWith2bitLengthValue(transientId);
-    return Buffer.concat([Buffer.from([0x91]), tId, rawData]); //0x91 = opcode
+    const transientIdPacked = packUnsignedIntWith2bitLengthValue(transientId);
+
+    const buff = Buffer.allocUnsafe(
+      1 + transientIdPacked.length + rawData.length
+    );
+
+    buff[0] = 0x91; // opcode
+    transientIdPacked.copy(buff, 1);
+    rawData.copy(buff, 1 + transientIdPacked.length);
+
+    return buff;
   }
 
   parseFacilityReferenceData(data: Buffer) {
@@ -328,15 +351,6 @@ export class H1Z1Protocol {
     };
   }
 
-  parseUpdatePositionRaw(data: Buffer) {
-    // Temp workaround
-    const obj = {} as UpdatePositionObject;
-    obj.raw = data;
-    return {
-      result: obj
-    };
-  }
-
   parseUpdatePositionZoneToClient(data: Buffer, offset: number) {
     const obj = {} as PositionZoneToClient;
 
@@ -360,7 +374,7 @@ export class H1Z1Protocol {
       const packetTypeBytes = getPacketTypeBytes(packetType);
       if (packet.schema) {
         try {
-          packetData = DataSchema.pack(packet.schema, object, null, null);
+          packetData = DataSchema.pack(packet.schema, object);
         } catch (error) {
           console.error(`${packetName} : ${error}`);
           console.error(`${packetName} : ${JSON.stringify(object)}`);
@@ -700,7 +714,7 @@ const parseUpdatePositionData = function (data: Buffer, offset: number) {
       offset += v.length;
     }
   } catch (e) {
-    debug(e);
+    console.error(e);
   }
   return obj;
 };

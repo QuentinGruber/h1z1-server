@@ -159,6 +159,7 @@ import { Lootbag } from "./entities/lootbag";
 import { ReceivedPacket } from "types/shared";
 import { LoadoutItem } from "./classes/loadoutItem";
 import { BaseItem } from "./classes/baseItem";
+import { EntityType } from "h1emu-ai";
 
 function getStanceFlags(num: number): StanceFlags {
   function getBit(bin: string, bit: number) {
@@ -356,6 +357,14 @@ export class ZonePacketHandlers {
       );
       server.setGodMode(client, false);
       setTimeout(() => {
+        // it's just for performance testing
+        // for (let index = 0; index < 100; index++) {
+        // this.aiManager.add_entity(client.character, EntityType.Player);
+        // }
+        client.character.h1emu_ai_id = server.aiManager.add_entity(
+          client.character,
+          EntityType.Player
+        );
         if (
           server.voiceChatManager.useVoiceChatV2 &&
           server.voiceChatManager.joinVoiceChatOnConnect
@@ -414,7 +423,7 @@ export class ZonePacketHandlers {
       server.sendData<CharacterWeaponStance>(client, "Character.WeaponStance", {
         // activates weaponstance key
         characterId: client.character.characterId,
-        stance: 1
+        stance: client.character.weaponStance
       });
       client.character.updateEquipment(server); // needed or third person character will be invisible
       client.character.updateLoadout(server); // needed or all loadout context menu entries aren't shown
@@ -1500,19 +1509,9 @@ export class ZonePacketHandlers {
     }
     // Handle rotation flag (0x200)
     if (flags & 0x200) {
-      client.character.state.rotation = new Float32Array([
-        rotation[0],
-        rotation[1],
-        rotation[2],
-        rotation[3]
-      ]);
+      client.character.state.rotation = rotation;
       client.character.state.yaw = rotationRaw[0];
-      client.character.state.lookAt = new Float32Array([
-        lookAt[0],
-        lookAt[1],
-        lookAt[2],
-        lookAt[3]
-      ]);
+      client.character.state.lookAt = lookAt;
     }
 
     // Sync decoy position for spectators and vanished characters
