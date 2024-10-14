@@ -129,7 +129,8 @@ import {
   WallOfDataClientSystemInfo,
   WallOfDataUIEvent,
   WeaponWeapon,
-  ZoneDoneSendingInitialData
+  ZoneDoneSendingInitialData,
+  H1emuVoiceInit
 } from "types/zone2016packets";
 import { VehicleCurrentMoveMode } from "types/zone2015packets";
 import {
@@ -346,6 +347,14 @@ export class ZonePacketHandlers {
     server.constructionManager.sendConstructionData(server, client);
     if (client.firstLoading) {
       client.character.lastLoginDate = toHex(Date.now());
+      server.sendData<H1emuVoiceInit>(client, "H1emu.VoiceInit", {
+        args: `51.83.180.201 ${server._worldId}` // not wise but we'll change it
+      });
+      server.sendData(
+        client,
+        "UpdateWeatherData",
+        server.weatherManager.weather
+      );
       server.setGodMode(client, false);
       setTimeout(() => {
         // it's just for performance testing
@@ -1087,7 +1096,7 @@ export class ZonePacketHandlers {
         return;
 
       // Update plane position and orientation
-      server._airdrop.plane.state.position.set([
+      server._airdrop.plane.state.position = new Float32Array([
         positionUpdate.position[0],
         400,
         positionUpdate.position[2],
@@ -1258,7 +1267,7 @@ export class ZonePacketHandlers {
       vehicle.getPassengerList().forEach((passengerId) => {
         const passenger = server._characters[passengerId];
         if (passenger) {
-          passenger.state.position.set(positionUpdate.position);
+          passenger.state.position = positionUpdate.position;
           const c = server.getClientByCharId(passengerId);
           if (c) c.startLoc = positionUpdate.position[1];
         } else {
