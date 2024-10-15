@@ -306,7 +306,6 @@ export class SOEServer extends EventEmitter {
   private _activateSendingTimer(client: SOEClient, additonalTime: number = 0) {
     if (!client.sendingTimer) {
       client.sendingTimer = setTimeout(() => {
-        client.sendingTimer = null;
         this.sendingProcess(client);
       }, this._waitTimeMs + additonalTime);
     }
@@ -570,6 +569,9 @@ export class SOEServer extends EventEmitter {
   private sendingProcess(client: Client) {
     // If there is a pending sending timer then we clear it
     this._clearSendingTimer(client);
+    if (client.isDeleted) {
+      return;
+    }
 
     if (client.outputStream.isReliableAvailable()) {
       const appPackets = this.getAvailableAppPackets(client);
@@ -740,6 +742,7 @@ export class SOEServer extends EventEmitter {
   }
 
   deleteClient(client: SOEClient): void {
+    client.isDeleted = true;
     client.closeTimers();
     this._clearSendingTimer(client);
     this._clients.delete(client.soeClientId);
