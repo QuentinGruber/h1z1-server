@@ -746,5 +746,3 @@ export class SOEServer extends EventEmitter {
     debug("client connection from port : ", client.port, " deleted");
   }
 }
-
-exports.SOEServer = SOEServer;
