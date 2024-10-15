@@ -361,10 +361,11 @@ export class ZonePacketHandlers {
         // for (let index = 0; index < 100; index++) {
         // this.aiManager.add_entity(client.character, EntityType.Player);
         // }
-        client.character.h1emu_ai_id = server.aiManager.add_entity(
-          client.character,
-          EntityType.Player
-        );
+        if (server._soloMode || process.env.ENABLE_AI)
+          client.character.h1emu_ai_id = server.aiManager.add_entity(
+            client.character,
+            EntityType.Player
+          );
         if (
           server.voiceChatManager.useVoiceChatV2 &&
           server.voiceChatManager.joinVoiceChatOnConnect

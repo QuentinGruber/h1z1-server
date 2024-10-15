@@ -24,6 +24,17 @@ test("SoeServer", { timeout: 5000 }, async (t) => {
     result = soeServer["_canBeBufferedIntoQueue"](maxSizelogical, queue);
     assert.strictEqual(result, false);
   });
+  await t.test("soeclient deletions", async () => {
+    const c = soeServer["_createClient"]({
+      address: "127.0.0.1",
+      family: "IPv4",
+      port: 0,
+      size: 0
+    });
+    assert.strictEqual(soeServer["_clients"].size, 1, "Client wasn't created");
+    soeServer.deleteClient(c);
+    assert.strictEqual(soeServer["_clients"].size, 0, "Client wasn't deleted");
+  });
 
   await t.test("stop", async () => {
     await soeServer.stop();
