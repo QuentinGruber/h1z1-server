@@ -582,7 +582,7 @@ export class WorldDataManager {
             ...characterSaveData
           }
         },
-        { upsert: true }
+        { upsert: false }
       );
     }
   }
