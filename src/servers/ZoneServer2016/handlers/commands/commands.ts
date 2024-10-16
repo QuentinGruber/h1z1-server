@@ -133,7 +133,7 @@ export const commands: Array<Command> = [
           _destroyables: dto
         } = server;
         const serverVersion = require("../../../../../package.json").version;
-        server.sendChatText(client, `h1z1-server V${serverVersion}`, true);
+        server.sendChatText(client, `test h1z1-server V${serverVersion}`, true); // test tb removed soon
         const uptimeMin = process.uptime() / 60;
 
         server.sendChatText(
