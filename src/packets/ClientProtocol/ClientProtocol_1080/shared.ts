@@ -1493,7 +1493,6 @@ export const rewardBundleSchema: PacketFields = [
   { name: "characterId", type: "uint64string", defaultValue: "0" },
   { name: "nameId", type: "uint32", defaultValue: 0 },
   { name: "unknownDword7", type: "uint32", defaultValue: 0 },
-  { name: "imageSetId", type: "uint32", defaultValue: 0 },
   { name: "entriesArrLength", type: "uint32", defaultValue: 0 },
   /* INGORE THIS FOR NOW, CAN'T FIND READ export function (length set to 0 for now)
   {

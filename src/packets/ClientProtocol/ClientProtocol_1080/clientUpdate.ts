@@ -429,7 +429,13 @@ export const clientUpdatePackets: PacketStructures = [
       ]
     }
   ],
-  ["ClientUpdate.ZoneStatus", 0x114f00, {}],
+  [
+    "ClientUpdate.ZoneStatus",
+    0x114f00,
+    {
+      fields: [{ name: "status", type: "uint32", defaultValue: 0 }]
+    }
+  ],
   ["ClientUpdate.SetDataCenter", 0x115000, {}],
   ["ClientUpdate.UpdateBattlEyeRegistration", 0x115100, {}]
 ];

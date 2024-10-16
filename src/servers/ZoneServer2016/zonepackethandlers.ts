@@ -3765,6 +3765,9 @@ export class ZonePacketHandlers {
       case "Group.Leave":
         this.leaveGroup(server, client);
         break;
+      case "Ping":
+        server.sendData(client, "Pong", {});
+        break;
       default:
         debug(packet);
         debug("Packet not implemented in packetHandlers");
