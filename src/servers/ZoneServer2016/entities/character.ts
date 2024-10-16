@@ -955,13 +955,12 @@ export class Character2016 extends BaseFullCharacter {
 
   pGetSendSelf(
     server: ZoneServer2016,
-    guid = "",
     client: ZoneClient2016
   ): SendSelfToClient {
     return {
       data: {
         ...this.pGetLightweight(),
-        guid: guid,
+        guid: client.loginSessionId,
         hairModel: this.hairModel,
         isRespawning: this.isRespawning,
         gender: this.gender,
@@ -1308,9 +1307,11 @@ export class Character2016 extends BaseFullCharacter {
       server._lootableConstruction[lootableEntity.characterId];
     if (lootableConstruction && lootableConstruction.parentObjectCharacterId) {
       const parent = lootableConstruction.getParent(server);
+      const c = server.getClientByCharId(this.characterId);
       if (
         parent &&
         parent.isSecured &&
+        !c?.isDebugMode &&
         !parent.getHasPermission(
           server,
           this.characterId,

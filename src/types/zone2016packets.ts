@@ -980,7 +980,7 @@ export interface CharacterPlayAnimation {
   unknownDword1?: number;
   unknownByte1?: number;
   unknownDword2?: number;
-  animationType: unknown;
+  animationType?: unknown;
   unknownByte1xda?: number;
   unknownDword3?: number;
 }
@@ -2097,6 +2097,7 @@ export interface H1emuMessageBox {
 export interface H1emuRequestAssetHashes {
 }
 export interface H1emuVoiceInit {
+  args?: string;
 }
 export interface H1emuRequestModules {
 }

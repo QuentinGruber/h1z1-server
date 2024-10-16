@@ -81,18 +81,28 @@ export function readUnsignedIntWith2bitLengthValue(
 
 export function packUnsignedIntWith2bitLengthValue(value: number) {
   value = value << 2;
-  let n = 0;
+  let n: number;
+
   if (value > 0xffffff) {
     n = 3;
   } else if (value > 0xffff) {
     n = 2;
   } else if (value > 0xff) {
     n = 1;
+  } else {
+    n = 0;
   }
+
   value |= n;
-  const data = Buffer.allocUnsafe(4);
-  data.writeUInt32LE(value, 0);
-  return data.slice(0, n + 1);
+
+  const buffer = Buffer.allocUnsafe(n + 1);
+
+  for (let i = 0; i < n + 1; i++) {
+    buffer[i] = value & 0xff;
+    value >>= 8;
+  }
+
+  return buffer;
 }
 
 export function readSignedIntWith2bitLengthValue(data: Buffer, offset: number) {
@@ -331,7 +341,7 @@ export function readPositionUpdateData(data: Buffer, offset: number) {
   }
 
   if (obj.flags & 2) {
-    obj["position"] = [];
+    obj["position"] = new Float32Array(4);
     v = readSignedIntWith2bitLengthValue(data, offset);
     obj["position"][0] = v.value / 100;
     offset += v.length;
@@ -380,7 +390,7 @@ export function readPositionUpdateData(data: Buffer, offset: number) {
 
   if (obj.flags & 0x100) {
     // either the previous one i meantioned is rotation delta or this one cause rotation is almost neved sent by client
-    obj["unknown12_float"] = [];
+    obj["unknown12_float"] = new Float32Array(3);
     v = readSignedIntWith2bitLengthValue(data, offset);
     obj["unknown12_float"][0] = v.value / 100;
     offset += v.length;
@@ -393,7 +403,7 @@ export function readPositionUpdateData(data: Buffer, offset: number) {
   }
 
   if (obj.flags & 0x200) {
-    const rotationEul = [];
+    const rotationEul = new Float32Array(4);
     v = readSignedIntWith2bitLengthValue(data, offset);
     rotationEul[0] = v.value / 100;
     offset += v.length;
@@ -405,7 +415,7 @@ export function readPositionUpdateData(data: Buffer, offset: number) {
     offset += v.length;
     v = readSignedIntWith2bitLengthValue(data, offset);
     rotationEul[3] = v.value / 100;
-    obj["rotation"] = eul2quat(new Float32Array(rotationEul));
+    obj["rotation"] = eul2quat(rotationEul);
     obj["rotationRaw"] = rotationEul;
     obj["lookAt"] = eul2quat(new Float32Array([rotationEul[0], 0, 0, 0]));
     offset += v.length;
@@ -423,7 +433,7 @@ export function readPositionUpdateData(data: Buffer, offset: number) {
     offset += v.length;
   }
   if (obj.flags & 0x1000) {
-    const rotationEul = [];
+    const rotationEul = new Float32Array(8);
     v = readSignedIntWith2bitLengthValue(data, offset);
     rotationEul[0] = v.value / 10000;
     offset += v.length;

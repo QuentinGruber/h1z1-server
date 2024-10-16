@@ -84,6 +84,8 @@ export abstract class BaseEntity {
 
   /** The physical material the entity is made of - See enums.ts/MaterialTypes for more information */
   materialType: number;
+
+  h1emu_ai_id?: bigint;
   constructor(
     characterId: string,
     transientId: number,

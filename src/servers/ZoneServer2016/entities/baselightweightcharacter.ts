@@ -15,6 +15,7 @@ import { AddLightweightNpc, AddSimpleNpc } from "types/zone2016packets";
 import { ZoneServer2016 } from "../zoneserver";
 import { BaseEntity } from "./baseentity";
 import { ModelIds, PositionUpdateType } from "../models/enums";
+import { CrowdAgent } from "recast-navigation";
 
 function getHeadActor(modelId: number): string {
   switch (modelId) {
@@ -98,6 +99,8 @@ export abstract class BaseLightweightCharacter extends BaseEntity {
 
   /** Determines if the lightweight should be used as a SimpleNpc (non-moving) */
   useSimpleStruct: boolean = false;
+
+  navAgent?: CrowdAgent;
 
   constructor(
     characterId: string,

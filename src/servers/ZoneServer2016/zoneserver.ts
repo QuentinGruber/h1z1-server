@@ -247,6 +247,9 @@ import { AccountInventoryManager } from "./managers/accountinventorymanager";
 import { PlayTimeManager } from "./managers/playtimemanager";
 import { RewardManager } from "./managers/rewardmanager";
 import { DynamicAppearance } from "types/zonedata";
+import { AiManager } from "h1emu-ai";
+import { setInterval } from "node:timers";
+import { NavManager } from "../../utils/recast";
 
 const spawnLocations2 = require("../../../data/2016/zoneData/Z1_gridSpawns.json"),
   deprecatedDoors = require("../../../data/2016/sampleData/deprecatedDoors.json"),
@@ -394,6 +397,7 @@ export class ZoneServer2016 extends EventEmitter {
   pluginManager: PluginManager;
   configManager: ConfigManager;
   playTimeManager: PlayTimeManager;
+  aiManager: AiManager;
 
   _ready: boolean = false;
 
@@ -459,6 +463,7 @@ export class ZoneServer2016 extends EventEmitter {
   crowbarHitRewardChance!: number;
   crowbarHitDamage!: number;
   /*                          */
+  navManager: NavManager;
 
   constructor(
     serverPort: number,
@@ -490,6 +495,8 @@ export class ZoneServer2016 extends EventEmitter {
     this.pluginManager = new PluginManager();
     this.commandHandler = new CommandHandler();
     this.playTimeManager = new PlayTimeManager();
+    this.aiManager = new AiManager();
+    this.navManager = new NavManager();
     /* CONFIG MANAGER MUST BE INSTANTIATED LAST ! */
     this.configManager = new ConfigManager(this, process.env.CONFIG_PATH);
     this.enableWorldSaves =
@@ -1301,11 +1308,10 @@ export class ZoneServer2016 extends EventEmitter {
   }
 
   sendCharacterData(client: Client) {
-    // guid is sensitive for now, so don't send real one to client rn
     this.sendData<SendSelfToClient>(
       client,
       "SendSelfToClient",
-      client.character.pGetSendSelf(this, this._serverGuid, client)
+      client.character.pGetSendSelf(this, client)
     );
     client.character.initialized = true;
     this.initializeContainerList(client);
@@ -1551,12 +1557,19 @@ export class ZoneServer2016 extends EventEmitter {
     client.character.lastDropPlaytime = savedCharacter.lastDropPlayTime || 0;
 
     let newCharacter = false;
-    if (
-      _.isEqual(savedCharacter.position, [0, 0, 0, 1]) &&
-      _.isEqual(savedCharacter.rotation, [0, 0, 0, 1])
-    ) {
-      // if position/rotation hasn't changed
+    if (_.isEqual(savedCharacter.position, [0, 0, 0, 1])) {
+      // if position hasn't changed
       newCharacter = true;
+    }
+    // https://github.com/QuentinGruber/h1z1-server/issues/2117
+    if (savedCharacter.position.length < 4) {
+      newCharacter = true;
+      setTimeout(() => {
+        this.sendAlert(
+          client,
+          "You've been respawned due to lost position data"
+        );
+      }, 30000);
     }
 
     if (
@@ -1591,6 +1604,8 @@ export class ZoneServer2016 extends EventEmitter {
   }
 
   private async setupServer() {
+    // TODO: Disabled for now
+    // await this.navManager.loadNav();
     this.weatherManager.init();
     this.playTimeManager.init(this);
     this.initModelsDataSource();
@@ -1804,6 +1819,19 @@ export class ZoneServer2016 extends EventEmitter {
     }
   }
 
+  startH1emuAi() {
+    setInterval(() => {
+      if (process.env.ENABLE_AI_TIME_LOGS) {
+        const start = performance.now();
+        this.aiManager.run();
+        const end = performance.now();
+        console.log(`H1emu-ai took ${end - start}ms`);
+      } else {
+        this.aiManager.run();
+      }
+    }, 100);
+  }
+
   async start(): Promise<void> {
     debug("Starting server");
     debug(`Protocol used : ${this._protocol.protocolName}`);
@@ -1814,7 +1842,6 @@ export class ZoneServer2016 extends EventEmitter {
     if (this.isPvE) {
       console.log("Server in PvE mode");
     }
-
     this.fairPlayManager.decryptFairPlayValues();
     this._spawnGrid = this.divideMapIntoSpawnGrid(7448, 7448, 744);
     this.speedtreeManager.initiateList();
@@ -1843,6 +1870,9 @@ export class ZoneServer2016 extends EventEmitter {
     this.rconManager.on("message", this.handleRconMessage.bind(this));
     this.rewardManager.start();
     this.hookManager.checkHook("OnServerReady");
+    if (this._soloMode || process.env.ENABLE_AI) {
+      this.startH1emuAi();
+    }
   }
 
   async sendInitData(client: Client) {
@@ -2162,6 +2192,9 @@ export class ZoneServer2016 extends EventEmitter {
     }
 
     if (client.character) {
+      if (client.character.h1emu_ai_id) {
+        this.aiManager.remove_entity(client.character.h1emu_ai_id);
+      }
       client.isLoading = true; // stop anything from acting on character
 
       clearTimeout(client.character?.resourcesUpdater);
@@ -3655,6 +3688,9 @@ export class ZoneServer2016 extends EventEmitter {
         );
       }
     }
+    if (dictionary[characterId].h1emu_ai_id) {
+      this.aiManager.remove_entity(dictionary[characterId].h1emu_ai_id);
+    }
     delete dictionary[characterId];
     delete this._transientIds[this._characterIds[characterId]];
     delete this._characterIds[characterId];
@@ -4354,6 +4390,7 @@ export class ZoneServer2016 extends EventEmitter {
   }
 
   kickPlayerWithReason(client: Client, reason: string, sendGlobal = false) {
+    if (!client || client.isAdmin) return;
     for (let i = 0; i < 5; i++) {
       this.sendAlert(
         client,
@@ -4373,6 +4410,7 @@ export class ZoneServer2016 extends EventEmitter {
   }
 
   kickPlayer(client: Client) {
+    if (!client || client.isAdmin) return;
     this.sendData<CharacterSelectSessionResponse>(
       client,
       "CharacterSelectSessionResponse",
@@ -4381,7 +4419,6 @@ export class ZoneServer2016 extends EventEmitter {
         sessionId: client.loginSessionId
       }
     );
-    if (!client) return;
     this.deleteClient(client);
   }
 
@@ -8296,6 +8333,9 @@ export class ZoneServer2016 extends EventEmitter {
       return;
     }
     for (const a in this._clients) {
+      while (this.isSaving) {
+        await scheduler.wait(500);
+      }
       const startTime = Date.now();
       const client = this._clients[a];
       if (!client.isLoading) {

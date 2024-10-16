@@ -54,13 +54,13 @@ export class SOEServer extends EventEmitter {
     this._connection = dgram.createSocket({
       type: "udp4",
       reuseAddr: true,
-      recvBufferSize: oneMb,
+      recvBufferSize: oneMb * 2,
       sendBufferSize: oneMb
     });
     this._connectionv6 = dgram.createSocket({
       type: "udp6",
       reuseAddr: true,
-      recvBufferSize: oneMb,
+      recvBufferSize: oneMb * 2,
       sendBufferSize: oneMb
     });
     // To support node 18 that we use for h1z1-server binaries
@@ -262,9 +262,43 @@ export class SOEServer extends EventEmitter {
     }
   }
 
-  private _createClient(clientId: string, remote: RemoteInfo) {
+  private _createClient(remote: RemoteInfo) {
     const client = new SOEClient(remote, this._crcSeed, this._cryptoKey);
-    this._clients.set(clientId, client);
+    client.inputStream.on("appdata", (data: Buffer) => {
+      this.emit("appdata", client, data);
+    });
+
+    client.inputStream.on("outOfOrder", (sequence: number) => {
+      this._sendAndBuildLogicalPacket(client, SoeOpcode.OutOfOrder, {
+        sequence: sequence
+      });
+    });
+
+    client.inputStream.on("error", (err: Error) => {
+      console.error(err);
+      this.emit("disconnect", client);
+    });
+
+    client.outputStream.on(SOEOutputChannels.Reliable, () => {
+      // some reliables are available, we send them
+      this._activateSendingTimer(client);
+    });
+
+    client.outputStream.on(
+      SOEOutputChannels.Ordered,
+      (data: Buffer, sequence: number) => {
+        console.log("ordered");
+        this._sendAndBuildLogicalPacket(client, SoeOpcode.Ordered, {
+          sequence: sequence,
+          data: data
+        });
+      }
+    );
+
+    // client.outputStream.on(SOEOutputChannels.Raw, (data: Buffer) => {
+    //  unused in h1z1
+    // });
+    this._clients.set(client.soeClientId, client);
     return client;
   }
 
@@ -272,7 +306,6 @@ export class SOEServer extends EventEmitter {
   private _activateSendingTimer(client: SOEClient, additonalTime: number = 0) {
     if (!client.sendingTimer) {
       client.sendingTimer = setTimeout(() => {
-        client.sendingTimer = null;
         this.sendingProcess(client);
       }, this._waitTimeMs + additonalTime);
     }
@@ -374,7 +407,7 @@ export class SOEServer extends EventEmitter {
   onMessage(data: Buffer, remote: RemoteInfo) {
     try {
       let client: SOEClient;
-      const clientId = remote.address + ":" + remote.port;
+      const clientId = SOEClient.getClientId(remote);
       debug(data.length + " bytes from ", clientId);
       // if doesn't know the client
       if (!this._clients.has(clientId)) {
@@ -382,42 +415,7 @@ export class SOEServer extends EventEmitter {
         if (data[1] !== 1) {
           return;
         }
-        client = this._createClient(clientId, remote);
-
-        client.inputStream.on("appdata", (data: Buffer) => {
-          this.emit("appdata", client, data);
-        });
-
-        client.inputStream.on("outOfOrder", (sequence: number) => {
-          this._sendAndBuildLogicalPacket(client, SoeOpcode.OutOfOrder, {
-            sequence: sequence
-          });
-        });
-
-        client.inputStream.on("error", (err: Error) => {
-          console.error(err);
-          this.emit("disconnect", client);
-        });
-
-        client.outputStream.on(SOEOutputChannels.Reliable, () => {
-          // some reliables are available, we send them
-          this._activateSendingTimer(client);
-        });
-
-        client.outputStream.on(
-          SOEOutputChannels.Ordered,
-          (data: Buffer, sequence: number) => {
-            console.log("ordered");
-            this._sendAndBuildLogicalPacket(client, SoeOpcode.Ordered, {
-              sequence: sequence,
-              data: data
-            });
-          }
-        );
-
-        // client.outputStream.on(SOEOutputChannels.Raw, (data: Buffer) => {
-        //  unused in h1z1
-        // });
+        client = this._createClient(remote);
       } else {
         client = this._clients.get(clientId) as SOEClient;
       }
@@ -571,6 +569,9 @@ export class SOEServer extends EventEmitter {
   private sendingProcess(client: Client) {
     // If there is a pending sending timer then we clear it
     this._clearSendingTimer(client);
+    if (client.isDeleted) {
+      return;
+    }
 
     if (client.outputStream.isReliableAvailable()) {
       const appPackets = this.getAvailableAppPackets(client);
@@ -741,11 +742,10 @@ export class SOEServer extends EventEmitter {
   }
 
   deleteClient(client: SOEClient): void {
+    client.isDeleted = true;
     client.closeTimers();
     this._clearSendingTimer(client);
-    this._clients.delete(client.address + ":" + client.port);
+    this._clients.delete(client.soeClientId);
     debug("client connection from port : ", client.port, " deleted");
   }
 }
-
-exports.SOEServer = SOEServer;
