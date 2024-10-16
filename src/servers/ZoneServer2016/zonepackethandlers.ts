@@ -129,7 +129,8 @@ import {
   WallOfDataClientSystemInfo,
   WallOfDataUIEvent,
   WeaponWeapon,
-  ZoneDoneSendingInitialData
+  ZoneDoneSendingInitialData,
+  H1emuVoiceInit
 } from "types/zone2016packets";
 import { VehicleCurrentMoveMode } from "types/zone2015packets";
 import {
@@ -158,6 +159,7 @@ import { Lootbag } from "./entities/lootbag";
 import { ReceivedPacket } from "types/shared";
 import { LoadoutItem } from "./classes/loadoutItem";
 import { BaseItem } from "./classes/baseItem";
+import { EntityType } from "h1emu-ai";
 
 function getStanceFlags(num: number): StanceFlags {
   function getBit(bin: string, bit: number) {
@@ -345,8 +347,25 @@ export class ZonePacketHandlers {
     server.constructionManager.sendConstructionData(server, client);
     if (client.firstLoading) {
       client.character.lastLoginDate = toHex(Date.now());
+      server.sendData<H1emuVoiceInit>(client, "H1emu.VoiceInit", {
+        args: `51.83.180.201 ${server._worldId}` // not wise but we'll change it
+      });
+      server.sendData(
+        client,
+        "UpdateWeatherData",
+        server.weatherManager.weather
+      );
       server.setGodMode(client, false);
       setTimeout(() => {
+        // it's just for performance testing
+        // for (let index = 0; index < 100; index++) {
+        // this.aiManager.add_entity(client.character, EntityType.Player);
+        // }
+        if (server._soloMode || process.env.ENABLE_AI)
+          client.character.h1emu_ai_id = server.aiManager.add_entity(
+            client.character,
+            EntityType.Player
+          );
         if (
           server.voiceChatManager.useVoiceChatV2 &&
           server.voiceChatManager.joinVoiceChatOnConnect
@@ -405,7 +424,7 @@ export class ZonePacketHandlers {
       server.sendData<CharacterWeaponStance>(client, "Character.WeaponStance", {
         // activates weaponstance key
         characterId: client.character.characterId,
-        stance: 1
+        stance: client.character.weaponStance
       });
       client.character.updateEquipment(server); // needed or third person character will be invisible
       client.character.updateLoadout(server); // needed or all loadout context menu entries aren't shown
@@ -1057,21 +1076,27 @@ export class ZonePacketHandlers {
     client: Client,
     packet: ReceivedPacket<PlayerUpdateManagedPosition>
   ) {
-    if (!packet.data || !packet.data.transientId) {
-      console.log("TransientId error detected");
-      console.log(packet);
+    // Early exit if no data or transientId is missing
+    const packetData = packet.data;
+    if (!packetData || !packetData.transientId) {
+      console.log("TransientId error detected", packet);
       return;
     }
 
-    const positionUpdate = packet.data.positionUpdate as any;
+    const positionUpdate = packetData.positionUpdate as any;
+    const flags = positionUpdate.flags;
 
-    if (positionUpdate.unknown3_int8 == 5) {
+    // Airdrop management
+    if (positionUpdate.unknown3_int8 === 5) {
       if (!server._airdrop || !positionUpdate.position) return;
+
+      const airdropManager = server._airdrop.manager;
       if (
-        server._airdrop.manager?.character.characterId !=
-        client.character.characterId
+        airdropManager?.character.characterId !== client.character.characterId
       )
         return;
+
+      // Update plane position and orientation
       server._airdrop.plane.state.position = new Float32Array([
         positionUpdate.position[0],
         400,
@@ -1083,71 +1108,64 @@ export class ZonePacketHandlers {
       server._airdrop.plane.state.rotation = eul2quat(
         new Float32Array([positionUpdate.orientation, 0, 0, 0])
       );
-      server._airdrop.plane.positionUpdate.frontTilt = positionUpdate.frontTile;
-      server._airdrop.plane.positionUpdate.sideTilt = positionUpdate.sideTilt;
+
+      // Handle airdrop release
       if (
+        !server._airdrop.cargoSpawned &&
+        server._airdrop.cargo &&
         isPosInRadius(
           150,
           positionUpdate.position,
           server._airdrop.destinationPos
-        ) &&
-        !server._airdrop.cargoSpawned &&
-        server._airdrop.cargo
+        )
       ) {
         server._airdrop.cargoSpawned = true;
-        server.sendAlert(
-          server._airdrop.manager,
-          "Air drop released. The package is delivered."
-        );
+
+        // Disabling the alert, manager is usually not the person who called an airdrop
+        //server.sendAlert(server._airdrop.manager, "Air drop released. The package is delivered.");
+
         setTimeout(() => {
-          if (server._airdrop && server._airdrop.cargo) {
-            for (const a in server._clients) {
+          if (server._airdrop?.cargo) {
+            for (const client of Object.values(server._clients)) {
               if (!client.firstLoading && !client.isLoading) {
-                server.sendData(server._clients[a], "AddLightweightVehicle", {
+                const vehicleData =
+                  server._airdrop.cargo.pGetFullVehicle(server);
+                server.sendData(client, "AddLightweightVehicle", {
                   ...server._airdrop.cargo.pGetLightweightVehicle(),
                   unknownGuid1: server.generateGuid()
                 });
-                server.sendData<CharacterMovementVersion>(
-                  client,
-                  "Character.MovementVersion",
-                  {
-                    characterId: server._airdrop.cargo.characterId,
-                    version: 6
-                  }
-                );
-                server.sendData<LightweightToFullVehicle>(
+                server.sendData(client, "Character.MovementVersion", {
+                  characterId: server._airdrop.cargo.characterId,
+                  version: 6
+                });
+                server.sendData(
                   client,
                   "LightweightToFullVehicle",
-                  server._airdrop.cargo.pGetFullVehicle(server) as any
+                  vehicleData as any
                 );
-                server.sendData<CharacterSeekTarget>(
-                  client,
-                  "Character.SeekTarget",
-                  {
-                    characterId: server._airdrop.cargo.characterId,
-                    TargetCharacterId: server._airdrop.cargoTarget,
-                    initSpeed: -5,
-                    acceleration: 0,
-                    speed: 0,
-                    turn: 5,
-                    yRot: 0
-                  }
-                );
-                server.sendData<CharacterManagedObject>(
-                  client,
-                  "Character.ManagedObject",
-                  {
-                    objectCharacterId: server._airdrop.cargo.characterId,
-                    characterId: client.character.characterId
-                  }
-                );
+                server.sendData(client, "Character.SeekTarget", {
+                  characterId: server._airdrop.cargo.characterId,
+                  TargetCharacterId: server._airdrop.cargoTarget,
+                  initSpeed: -5,
+                  acceleration: 0,
+                  speed: 0,
+                  turn: 5,
+                  yRot: 0
+                });
+                server.sendData(client, "Character.ManagedObject", {
+                  objectCharacterId: server._airdrop.cargo.characterId,
+                  characterId: client.character.characterId
+                });
               }
             }
           }
         }, 4500);
       }
       return;
-    } else if (positionUpdate.unknown3_int8 == 6) {
+    }
+
+    // Airdrop container spawn handling
+    if (positionUpdate.unknown3_int8 === 6) {
       if (
         !server._airdrop ||
         !positionUpdate.position ||
@@ -1155,23 +1173,18 @@ export class ZonePacketHandlers {
       )
         return;
       if (
-        server._airdrop.manager?.character.characterId !=
+        server._airdrop.manager?.character.characterId !==
         client.character.characterId
       )
         return;
-      server._airdrop.cargo.state.position = new Float32Array([
-        server._airdrop.cargo.state.position[0],
-        positionUpdate.position[1],
-        server._airdrop.cargo.state.position[2],
-        1
-      ]);
+
+      server._airdrop.cargo.state.position[1] = positionUpdate.position[1]; // Update Y position only
       server._airdrop.cargo.positionUpdate.orientation =
         positionUpdate.orientation;
-      server._airdrop.cargo.positionUpdate.frontTilt = positionUpdate.frontTile;
-      server._airdrop.cargo.positionUpdate.sideTilt = positionUpdate.sideTilt;
+
       if (
-        positionUpdate.position[1] <= server._airdrop.destinationPos[1] + 2 &&
-        !server._airdrop.containerSpawned
+        !server._airdrop.containerSpawned &&
+        positionUpdate.position[1] <= server._airdrop.destinationPos[1] + 2
       ) {
         server._airdrop.containerSpawned = true;
         server.worldObjectManager.createAirdropContainer(
@@ -1179,26 +1192,31 @@ export class ZonePacketHandlers {
           server._airdrop.destinationPos,
           server._airdrop.hospitalCrate ? "Hospital" : ""
         );
-        for (const a in server._clients) {
-          server.airdropManager(server._clients[a], false);
+        for (const client of Object.values(server._clients)) {
+          server.airdropManager(client, false);
         }
         delete server._airdrop;
       }
-    }
-    const transientId = (packet.data.transientId as number) || 0,
-      characterId = server._transientIds[transientId],
-      vehicle = characterId ? server._vehicles[characterId] : undefined;
-
-    if (!vehicle) {
-      const pos = positionUpdate.position;
-      if (client.character.isSpectator && pos)
-        client.character.state.position = pos;
       return;
     }
-    // for cheaters spawning cars on top of peoples heads
+
+    // Vehicle handling
+    const transientId = (packetData.transientId as number) || 0;
+    const characterId = server._transientIds[transientId];
+    const vehicle = characterId ? server._vehicles[characterId] : undefined;
+
+    if (!vehicle) {
+      if (client.character.isSpectator && positionUpdate.position) {
+        client.character.state.position = positionUpdate.position;
+      }
+      return;
+    }
+
+    // Block cheaters spawning cars on top of people's heads
     if (!client.managedObjects.includes(vehicle.characterId)) return;
+
     if (!client.character.isAlive) {
-      client.blockedPositionUpdates += 1;
+      client.blockedPositionUpdates++;
       if (client.blockedPositionUpdates >= 50) {
         server.updateCharacterState(
           client,
@@ -1206,18 +1224,18 @@ export class ZonePacketHandlers {
           client.character.characterStates,
           false
         );
-        server.sendData<CharacterStartMultiStateDeath>(
-          client,
-          "Character.StartMultiStateDeath",
-          {
-            characterId: client.character.characterId
-          }
-        );
+        server.sendData(client, "Character.StartMultiStateDeath", {
+          characterId: client.character.characterId
+        });
         client.blockedPositionUpdates = 0;
         return;
       }
-    } else client.blockedPositionUpdates = 0;
-    if (positionUpdate.position) {
+    } else {
+      client.blockedPositionUpdates = 0;
+    }
+
+    if (flags & 2) {
+      // Position flag
       if (
         await server.fairPlayManager.checkVehicleSpeed(
           server,
@@ -1228,62 +1246,37 @@ export class ZonePacketHandlers {
         )
       )
         return;
-      let kick = false;
+
       const dist = getDistance(
         vehicle.positionUpdate.position,
         positionUpdate.position
       );
-      if (dist > 220) {
-        kick = true;
-      }
       if (
+        dist > 220 ||
         getDistance1d(vehicle.oldPos.position[1], positionUpdate.position[1]) >
-        100
+          100
       ) {
-        kick = true;
         server.kickPlayer(client);
         server.sendChatTextToAdmins(
-          `FairPlay: kicking ${client.character.name} for suspeced teleport in vehicle by ${dist} from [${vehicle.positionUpdate.position[0]} ${vehicle.positionUpdate.position[1]} ${vehicle.positionUpdate.position[2]}] to [${positionUpdate.position[0]} ${positionUpdate.position[1]} ${positionUpdate.position[2]}]`,
+          `FairPlay: kicking ${client.character.name} for suspected teleport in vehicle by ${dist} from [${vehicle.positionUpdate.position.join(", ")}] to [${positionUpdate.position.join(", ")}]`,
           false
         );
+        return;
       }
-      vehicle.getPassengerList().forEach((passenger: string) => {
-        if (server._characters[passenger]) {
-          if (kick) {
-            const c = server.getClientByCharId(passenger);
-            if (!c) return;
-            server.kickPlayer(c);
-            server.sendChatTextToAdmins(
-              `FairPlay: kicking ${c.character.name} for suspeced teleport in vehicle by ${dist} from [${vehicle.positionUpdate.position[0]} ${vehicle.positionUpdate.position[1]} ${vehicle.positionUpdate.position[2]}] to [${positionUpdate.position[0]} ${positionUpdate.position[1]} ${positionUpdate.position[2]}]`,
-              false
-            );
-            return;
-          }
-          server._characters[passenger].state.position = new Float32Array([
-            positionUpdate.position[0],
-            positionUpdate.position[1],
-            positionUpdate.position[2],
-            1
-          ]);
-          const c = server.getClientByCharId(passenger);
+
+      // Update passenger positions and handle kicks if necessary
+      vehicle.getPassengerList().forEach((passengerId) => {
+        const passenger = server._characters[passengerId];
+        if (passenger) {
+          passenger.state.position = positionUpdate.position;
+          const c = server.getClientByCharId(passengerId);
           if (c) c.startLoc = positionUpdate.position[1];
         } else {
-          debug(`passenger ${passenger} not found`);
-          vehicle.removePassenger(passenger);
+          vehicle.removePassenger(passengerId);
         }
       });
-      if (kick) return;
-      if (
-        client.hudTimer != null &&
-        !isPosInRadius(
-          1,
-          client.character.state.position,
-          client.posAtTimerStart
-        )
-      ) {
-        server.stopHudTimer(client);
-        delete client.hudTimer;
-      }
+
+      // Update vehicle position
       vehicle.state.position = new Float32Array([
         positionUpdate.position[0],
         positionUpdate.position[1] - 0.4,
@@ -1295,22 +1288,23 @@ export class ZonePacketHandlers {
         time: positionUpdate.sequenceTime
       };
       vehicle.positionUpdate.position = positionUpdate.position;
-      // disabled, dont think we need it and wastes alot of resources
-      /*if (client.vehicle.mountedVehicle === characterId) {
-        if (
-          !client.posAtLastRoutine ||
-          !isPosInRadius(
-            server._charactersRenderDistance / 2.5,
-            client.character.state.position,
-            client.posAtLastRoutine
-          )
-        ) {
-          server.executeFuncForAllReadyClients(() => server.vehicleManager);
-        }
-      }*/
+
+      // Stop HUD timer if player moved
+      if (
+        client.hudTimer &&
+        !isPosInRadius(
+          1,
+          client.character.state.position,
+          client.posAtTimerStart
+        )
+      ) {
+        server.stopHudTimer(client);
+        delete client.hudTimer;
+      }
     }
-    // doesn't replicate the observer position to other clients
-    if (packet.data.transientId !== server._characterIds[OBSERVER_GUID]) {
+
+    // Send position updates to other clients
+    if (packetData.transientId !== server._characterIds[OBSERVER_GUID]) {
       server.sendRawToAllOthersWithSpawnedEntity(
         client,
         server._vehicles,
@@ -1318,22 +1312,16 @@ export class ZonePacketHandlers {
         server._protocol.createManagedPositionBroadcast2016(positionUpdate.raw)
       );
     }
-    if (positionUpdate.engineRPM) {
-      vehicle.engineRPM = positionUpdate.engineRPM;
-    }
 
-    if (positionUpdate.orientation) {
-      vehicle.positionUpdate.orientation = positionUpdate.orientation;
+    // Update engineRPM, orientation, frontTilt, sideTilt based on flags
+    if (flags & 0x800) vehicle.engineRPM = positionUpdate.engineRPM;
+    if (flags & 0x20)
       vehicle.state.rotation = eul2quat(
         new Float32Array([positionUpdate.orientation, 0, 0, 0])
       );
-    }
-    if (positionUpdate.frontTilt) {
+    if (flags & 0x40)
       vehicle.positionUpdate.frontTilt = positionUpdate.frontTilt;
-    }
-    if (positionUpdate.sideTilt) {
-      vehicle.positionUpdate.sideTilt = positionUpdate.sideTilt;
-    }
+    if (flags & 0x80) vehicle.positionUpdate.sideTilt = positionUpdate.sideTilt;
   }
   VehicleStateData(
     server: ZoneServer2016,
@@ -1350,33 +1338,42 @@ export class ZonePacketHandlers {
       }
     );
   }
-  async PlayerUpdatePosition(
+  PlayerUpdatePosition(
     server: ZoneServer2016,
     client: Client,
     packet: ReceivedPacket<any> // todo: remove any - Meme
   ) {
-    if (client.character.tempGodMode) {
-      server.setTempGodMode(client, false);
-    }
-    client.character.positionUpdate = {
-      ...client.character.positionUpdate,
-      ...packet.data
-    };
-    // TODO: whats up ?
-    if (packet.data.flags === 513) {
-      // head rotation when in vehicle, client spams this packet every 1ms even if you dont move, disabled for now(it doesnt work anyway)
-      return;
-    }
+    const {
+      flags,
+      sequenceTime,
+      position,
+      rotation,
+      rotationRaw,
+      lookAt,
+      stance
+    } = packet.data;
 
-    if (packet.data.orientation) {
-      server.fairPlayManager.checkAimVector(
+    // Return early for spammed junk packets
+    if (flags === 2 || flags === 513) return;
+
+    // Disable temporary god mode if enabled
+    if (client.character.tempGodMode) server.setTempGodMode(client, false);
+
+    // Update character's position
+    client.character.positionUpdate = client.character.positionUpdate || {};
+    Object.assign(client.character.positionUpdate, packet.data);
+
+    if (flags & 0x20) {
+      // orientation
+      /*server.fairPlayManager.checkAimVector(
         server,
         client,
         packet.data.orientation
-      );
+      );*/
     }
+    // Handle dead character state
     if (!client.character.isAlive) {
-      client.blockedPositionUpdates += 1;
+      client.blockedPositionUpdates++;
       if (client.blockedPositionUpdates >= 30) {
         server.updateCharacterState(
           client,
@@ -1387,21 +1384,23 @@ export class ZonePacketHandlers {
         server.sendData<CharacterStartMultiStateDeath>(
           client,
           "Character.StartMultiStateDeath",
-          {
-            characterId: client.character.characterId
-          }
+          { characterId: client.character.characterId }
         );
         return;
       }
-    } else client.blockedPositionUpdates = 0;
+    } else {
+      client.blockedPositionUpdates = 0;
+    }
 
-    if (packet.data.stance) {
-      const stanceFlags = getStanceFlags(packet.data.stance);
+    // Handle stance flag (0x01)
+    if (flags & 1) {
+      const stanceFlags = getStanceFlags(stance);
 
+      // Detect movements based on stance
       server.fairPlayManager.detectJumpXSMovement(server, client, stanceFlags);
-
       server.fairPlayManager.detectDroneMovement(server, client, stanceFlags);
 
+      // Handle jump logic
       if (
         stanceFlags.JUMPING &&
         stanceFlags.FLOATING &&
@@ -1415,28 +1414,31 @@ export class ZonePacketHandlers {
         client.isInAir = false;
       }
 
-      if (
+      // Handle sitting logic
+      client.character.isSitting =
         stanceFlags.SITTING &&
         stanceFlags.ON_GROUND &&
-        !client.character.isSitting &&
         !client.vehicle.mountedVehicle
-      ) {
-        client.character.isSitting = true;
-      } else if (!stanceFlags.SITTING || client.character.isSitting) {
-        client.character.isSitting = false;
-      }
+          ? true
+          : stanceFlags.SITTING
+            ? false
+            : client.character.isSitting;
+
+      // Update running state
       client.character.isRunning = stanceFlags.SPRINTING;
+
+      // Handle jump penalty
       if (
         stanceFlags.JUMPING &&
         !stanceFlags.FLOATING &&
-        // temporary fix for multiplying jump penalty until exact flags are found
-        client.character.lastJumpTime < packet.data.sequenceTime &&
+        client.character.lastJumpTime < sequenceTime &&
         !client.character.isGodMode()
       ) {
-        client.character.lastJumpTime = packet.data.sequenceTime + 1100;
-        client.character._resources[ResourceIds.STAMINA] -= 12; // 2% stamina jump penalty
-        if (client.character._resources[ResourceIds.STAMINA] < 0)
-          client.character._resources[ResourceIds.STAMINA] = 0;
+        client.character.lastJumpTime = sequenceTime + 1100;
+        client.character._resources[ResourceIds.STAMINA] = Math.max(
+          0,
+          client.character._resources[ResourceIds.STAMINA] - 12
+        );
         server.updateResourceToAllWithSpawnedEntity(
           client.character.characterId,
           client.character._resources[ResourceIds.STAMINA],
@@ -1445,14 +1447,17 @@ export class ZonePacketHandlers {
           server._characters
         );
       }
-      client.character.stance = packet.data.stance;
+
+      // Update character stance
+      client.character.stance = stance;
     }
-    const movingCharacter = server._characters[client.character.characterId];
-    if (packet.data.position) {
-      if (!client.characterReleased) {
-        client.characterReleased = true;
-      }
-      if (
+    // Handle position flag (0x02)
+    if (flags & 2) {
+      if (!client.characterReleased) client.characterReleased = true;
+
+      // skip fairplay for performance test
+
+      /*if (
         await server.fairPlayManager.checkPlayerSpeed(
           server,
           client,
@@ -1460,35 +1465,14 @@ export class ZonePacketHandlers {
           packet.data.position
         )
       )
-        return;
-      /*if (!client.isAdmin) {
-        const distance = getDistance(
-          client.character.state.position,
-          packet.data.position
-        );
-        if (distance >= 1) {
-          server.sendChatTextToAdmins(
-            `FairPlay: kicking ${client.character.name}`
-          );
-          server.kickPlayer(client);
-          const pos = packet.data.position;
-          server.sendChatTextToAdmins(
-            `FairPlay: ${
-              client.character.name
-            } position desynced by ${distance.toFixed(2)} at [${pos[0]} ${
-              pos[1]
-            } ${pos[2]}]`
-          );
-        }
-      }*/
-      client.character.state.position = new Float32Array([
-        packet.data.position[0],
-        packet.data.position[1],
-        packet.data.position[2],
-        0
-      ]);
+        return;*/
+
+      // Update character position
+      client.character.state.position = position;
+
+      // Stop HUD timer if position is out of radius
       if (
-        client.hudTimer != null &&
+        client.hudTimer &&
         !isPosInRadius(
           1,
           client.character.state.position,
@@ -1499,65 +1483,53 @@ export class ZonePacketHandlers {
         delete client.hudTimer;
       }
 
+      // Handle dismounting from container if out of range
       if (
         client.character.mountedContainer &&
-        !server._vehicles[client.character.mountedContainer.characterId]
+        !server._vehicles[client.character.mountedContainer.characterId] &&
+        !isPosInRadius(
+          client.character.mountedContainer.interactionDistance,
+          client.character.state.position,
+          client.character.mountedContainer.state.position
+        )
       ) {
-        if (
-          !isPosInRadius(
-            client.character.mountedContainer.interactionDistance,
-            client.character.state.position,
-            client.character.mountedContainer.state.position
-          )
-        ) {
-          client.character.dismountContainer(server);
-        }
+        client.character.dismountContainer(server);
       }
 
+      // Check current interaction
       client.character.checkCurrentInteractionGuid();
 
-      // for door locks (1m timeout)
+      // Timeout interaction lock UI
       if (
         client.character.lastInteractionRequestGuid &&
         client.character.lastInteractionTime + 60000 > Date.now()
       ) {
-        // should timeout lock ui here if possible
         client.character.lastInteractionRequestGuid = "";
         client.character.lastInteractionTime = 0;
       }
-    } else if (packet.data.vehicle_position && client.vehicle.mountedVehicle) {
-      server._vehicles[client.vehicle.mountedVehicle].state.position =
-        new Float32Array([
-          packet.data.vehicle_position[0],
-          packet.data.vehicle_position[1],
-          packet.data.vehicle_position[2],
-          0
-        ]);
     }
-    if (packet.data.rotation) {
-      client.character.state.rotation = new Float32Array([
-        packet.data.rotation[0],
-        packet.data.rotation[1],
-        packet.data.rotation[2],
-        packet.data.rotation[3]
-      ]);
-      client.character.state.yaw = packet.data.rotationRaw[0];
-      client.character.state.lookAt = new Float32Array([
-        packet.data.lookAt[0],
-        packet.data.lookAt[1],
-        packet.data.lookAt[2],
-        packet.data.lookAt[3]
-      ]);
+    // Handle rotation flag (0x200)
+    if (flags & 0x200) {
+      client.character.state.rotation = rotation;
+      client.character.state.yaw = rotationRaw[0];
+      client.character.state.lookAt = lookAt;
     }
+
+    // Sync decoy position for spectators and vanished characters
     if (
       (client.character.isSpectator || client.character.isVanished) &&
       _.size(server._decoys) > 0 &&
       client.isDecoy
     ) {
-      server.sendDataToAll("PlayerUpdatePosition", {
-        transientId: client.character.transientId,
-        positionUpdate: packet.data
-      });
+      server.sendDataToAllWithSpawnedEntity(
+        server._characters,
+        client.character.characterId,
+        "PlayerUpdatePosition",
+        {
+          transientId: client.character.transientId,
+          positionUpdate: packet.data
+        }
+      );
     }
   }
   CharacterRespawn(

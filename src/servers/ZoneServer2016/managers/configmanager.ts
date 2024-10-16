@@ -21,8 +21,8 @@ function fileExists(filePath: string): boolean {
   try {
     fs.accessSync(filePath);
     return true;
+    /* eslint-disable @typescript-eslint/no-unused-vars */
   } catch (error) {
-    console.error(error);
     return false;
   }
 }
