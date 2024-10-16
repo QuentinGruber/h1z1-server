@@ -31,30 +31,7 @@ import {
   fixEulerOrder,
   getCurrentServerTimeWrapper
 } from "../../../utils/utils";
-import {
-  EquipSlots,
-  Items,
-  Skins_Shirt,
-  Skins_Pants,
-  Skins_Beanie,
-  Skins_Cap,
-  Skins_MotorHelmet,
-  Skins_Kevlar,
-  Skins_Military,
-  Skins_Glasses,
-  Effects,
-  ModelIds,
-  Skins_Conveys,
-  Skins_Backpack,
-  Skins_Sniper,
-  Skins_Shotgun,
-  Skins_AK47,
-  Skins_AR15,
-  Skins_TacticalHelmet,
-  Skins_Respirator,
-  Skins_Bandana,
-  Skins_Boots
-} from "../models/enums";
+import { EquipSlots, Items, Effects, ModelIds } from "../models/enums";
 import { Vehicle2016 } from "../entities/vehicle";
 import { LootDefinition } from "types/zoneserver";
 import { ItemObject } from "../entities/itemobject";
