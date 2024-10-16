@@ -293,9 +293,6 @@ export class Character2016 extends BaseFullCharacter {
    */
   recipes: { [recipeId: number]: Recipe } = recipes;
 
-  /* Used for skin tones */
-  shaderGroupId!: number;
-
   constructor(
     characterId: string,
     transientId: number,
@@ -934,7 +931,7 @@ export class Character2016 extends BaseFullCharacter {
       identity: {
         characterName: this.name
       },
-      shaderGroupId: this.shaderGroupId
+      shaderGroupId: this.getShaderGroup()
     };
   }
 
@@ -991,7 +988,7 @@ export class Character2016 extends BaseFullCharacter {
         //unknownDword40: 1
         isAdmin: client.isAdmin,
         firstPersonOnly: server.isFirstPersonOnly,
-        shaderGroupId: this.shaderGroupId
+        shaderGroupId: this.getShaderGroup()
       } as any
     };
   }

@@ -1539,7 +1539,6 @@ export class ZoneServer2016 extends EventEmitter {
     client.character.name = savedCharacter.characterName;
     client.character.actorModelId = savedCharacter.actorModelId;
     client.character.headActor = savedCharacter.headActor;
-    client.character.shaderGroupId = client.character.getShaderGroup();
     client.character.isRespawning = savedCharacter.isRespawning;
     client.character.gender = savedCharacter.gender;
     client.character.creationDate = savedCharacter.creationDate;
@@ -1847,6 +1846,17 @@ export class ZoneServer2016 extends EventEmitter {
   }
 
   async sendInitData(client: Client) {
+    // Load character before sending sendSelf, as we need to send item definitions for the inventory to the client first. This is the same behaviour as Z1BR
+    await this.fetchCharacterData(client);
+
+    // This packet is only necessary for transitioning between different zones.
+    // KOTK / Z1BR handle it this way because the main menu is also considered a zone, which is not the case in JS.
+    /*this.sendData<ClientBeginZoning>(client, "ClientBeginZoning", {
+      position: client.character.state.position,
+      rotation: client.character.state.rotation,
+      skyData: this.weatherManager.weather
+    });*/
+
     this.sendData<InitializationParameters>(
       client,
       "InitializationParameters",
@@ -1899,10 +1909,9 @@ export class ZoneServer2016 extends EventEmitter {
       fallDamageVelocityMultiplier: 11
     });
 
-    // Load character before sending sendSelf, as we need to send item definitions for the inventory to the client first. This is the same behaviour as Z1BR
-    await this.fetchCharacterData(client);
-
-    const inventoryItemIds = client.character
+    // Item definitions are only required if custom icons for items or entirely custom items are needed.
+    // This could be an interesting feature to implement in a plugin.
+    /*const inventoryItemIds = client.character
       .pGetInventoryItems(this)
       .map((it) => it.itemDefinitionId);
     if (inventoryItemIds) {
@@ -1935,7 +1944,7 @@ export class ZoneServer2016 extends EventEmitter {
             })
         }
       });
-    }
+    }*/
     if (!this.weaponDefinitionsCache) {
       this.packWeaponDefinitions();
     }
@@ -1943,25 +1952,22 @@ export class ZoneServer2016 extends EventEmitter {
       this.sendRawDataReliable(client, this.weaponDefinitionsCache);
     }
 
-    // used for equipment textures / skins, does nothing so far
-
-    /*
-      this packet doesn't do anything for skins yet, but it's needed so that
-      the client can switch equipment slots without server input, which is the way
-      it's supposed to work (removes the delay) - Meme
-    */
-
-    // packet is just broken, idk why
-    /*
-    this.sendData<ClientBeginZoning>(client, "ClientBeginZoning", {
-      position: client.character.state.position,
-      rotation: client.character.state.rotation,
-      skyData: this.weatherManager.weather
+    // Initially, send only the skin tones to ensure the character displays the correct skin tone.
+    this.sendData(client, "ReferenceData.DynamicAppearance", {
+      ITEM_APPEARANCE_DEFINITIONS: [],
+      SHADER_SEMANTIC_DEFINITIONS: [],
+      SHADER_PARAMETER_DEFINITIONS:
+        this.dynamicappearance.SHADER_PARAMETER_DEFINITIONS.filter((def) =>
+          [125, 129, 122].includes(def?.ID)
+        )
     });
-    */
 
     this.sendCharacterData(client);
 
+    // Now we can send all the rest of the data while the player is at the loading screen.
+    // This ensures the player doesn't have to wait on the loading screen after clicking 'join', as this packet is large.
+    // Z1BR resolved this issue by using LZ4 to compress this block. We can easily add this in the patch, but we'll implement it if users start experiencing network issues.
+    // FYI: This was tested with 40 players on my server without any issues. - Jason
     if (!this.dynamicAppearanceCache) {
       this.packDynamicAppearance();
     }
