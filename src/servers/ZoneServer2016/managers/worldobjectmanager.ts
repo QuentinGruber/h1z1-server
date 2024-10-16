@@ -74,6 +74,7 @@ import { WaterSource } from "../entities/watersource";
 import { TreasureChest } from "../entities/treasurechest";
 import { Npc } from "../entities/npc";
 import { EntityType } from "h1emu-ai";
+import { scheduler } from "node:timers/promises";
 const debug = require("debug")("ZoneServer");
 
 function getRandomSkin(itemDefinitionId: number) {
@@ -210,7 +211,7 @@ export class WorldObjectManager {
     }
   }
 
-  run(server: ZoneServer2016) {
+  async run(server: ZoneServer2016) {
     debug("WOM::Run");
     this.getItemRespawnTimer(server);
     if (this._lastLootRespawnTime + this.lootRespawnTimer <= Date.now()) {
@@ -240,8 +241,14 @@ export class WorldObjectManager {
     this.despawnEntities(server);
   }
 
-  private npcDespawner(server: ZoneServer2016) {
+  private async npcDespawner(server: ZoneServer2016) {
+    let counter = 0;
     for (const characterId in server._npcs) {
+      if (counter > 9) {
+        counter = 0;
+        await scheduler.wait(60);
+      }
+      counter++;
       const npc = server._npcs[characterId];
       // dead npc despawner
       if (
@@ -263,8 +270,14 @@ export class WorldObjectManager {
     }
   }
 
-  private itemDespawner(server: ZoneServer2016) {
+  private async itemDespawner(server: ZoneServer2016) {
+    let counter = 0;
     for (const characterId in server._spawnedItems) {
+      if (counter > 9) {
+        counter = 0;
+        await scheduler.wait(60);
+      }
+      counter++;
       const itemObject = server._spawnedItems[characterId];
       if (!itemObject) return;
       // dropped item despawner
@@ -816,10 +829,17 @@ export class WorldObjectManager {
     debug("All props created");
   }
 
-  replenishWaterSources(server: ZoneServer2016) {
-    Object.values(server._taskProps).forEach((propInstance: any) => {
+  async replenishWaterSources(server: ZoneServer2016) {
+    let counter = 0;
+    for (const a in server._taskProps) {
+      if (counter > 9) {
+        counter = 0;
+        await scheduler.wait(60);
+      }
+      counter++;
+      const propInstance = server._taskProps[a];
       if (propInstance instanceof WaterSource) propInstance.replenish();
-    });
+    }
   }
 
   private createDoor(
@@ -968,9 +988,9 @@ export class WorldObjectManager {
     debug("All vehicles created");
   }
 
-  createNpcs(server: ZoneServer2016) {
+  async createNpcs(server: ZoneServer2016) {
     // This is only for giving the world some life
-    Z1_npcs.forEach((spawnerType: any) => {
+    for (const spawnerType of Z1_npcs) {
       const authorizedModelId: number[] = [];
       switch (spawnerType.actorDefinition) {
         case "NPCSpawner_ZombieLazy.adr":
@@ -995,21 +1015,33 @@ export class WorldObjectManager {
           break;
       }
       if (!authorizedModelId.length) return;
-      spawnerType.instances.forEach((npcInstance: any) => {
+      for (const npcInstance of spawnerType.instances) {
+        let counter = 0;
+        if (counter > 9) {
+          counter = 0;
+          await scheduler.wait(60);
+        }
+        counter++;
         let spawn = true;
-        Object.values(server._npcs).every((spawnedNpc: Npc) => {
+        for (const a in server._npcs) {
+          let counter2 = 0;
+          if (counter2 > 9) {
+            counter2 = 0;
+            await scheduler.wait(60);
+          }
+          counter2++;
           if (
             isPosInRadius(
               this.npcSpawnRadius,
               npcInstance.position,
-              spawnedNpc.state.position
+              server._npcs[a].state.position
             )
           ) {
             spawn = false;
             return false;
           }
           return true;
-        });
+        }
         if (!spawn) return;
         const spawnchance = Math.floor(Math.random() * 100) + 1; // temporary spawnchance
         if (spawnchance <= this.chanceNpc) {
@@ -1027,18 +1059,24 @@ export class WorldObjectManager {
             npcInstance.id
           );
         }
-      });
-    });
+      }
+    }
     debug("All npcs objects created");
   }
 
-  createLoot(server: ZoneServer2016, lTables = lootTables) {
-    Z1_items.forEach((spawnerType: any) => {
+  async createLoot(server: ZoneServer2016, lTables = lootTables) {
+    let counter = 0;
+    for (const spawnerType of Z1_items) {
       const lootTable = lTables[spawnerType.actorDefinition];
       if (lootTable) {
-        spawnerType.instances.forEach((itemInstance: any) => {
-          if (this.spawnedLootObjects[itemInstance.id]) return;
-          const chance = Math.floor(Math.random() * 100) + 1; // temporary spawnchance
+        for (const itemInstance of spawnerType.instances) {
+          if (counter > 9) {
+            counter = 0;
+            await scheduler.wait(60);
+          }
+          counter++;
+          if (this.spawnedLootObjects[itemInstance.id]) continue;
+          const chance = Math.floor(Math.random() * 100) + 1;
           if (chance <= lootTable.spawnChance) {
             if (!WorldObjectManager.itemSpawnersChances[itemInstance.id]) {
               const realSpawnChance =
@@ -1049,7 +1087,6 @@ export class WorldObjectManager {
                 spawnerType.actorDefinition
               ] = realSpawnChance;
             }
-            // temporary spawnchance
             const item = getRandomItem(lootTable.items);
             if (item) {
               this.createLootEntity(
@@ -1067,13 +1104,20 @@ export class WorldObjectManager {
               );
             }
           }
-        });
+        }
       }
-    });
+    }
   }
-  updateQuestContainers(server: ZoneServer2016) {
-    Object.values(server._lootableProps).forEach((a) => {
-      const prop = a as BaseFullCharacter;
+
+  async updateQuestContainers(server: ZoneServer2016) {
+    let counter = 0;
+    for (const a in server._lootableProps) {
+      if (counter > 9) {
+        counter = 0;
+        await scheduler.wait(60); // Await the wait function to pause
+      }
+      counter++;
+      const prop = server._lootableProps[a] as BaseFullCharacter;
       switch (prop.actorModelId) {
         case ModelIds.HOSPITAL_LAB_WORKBENCH:
           if (
@@ -1087,7 +1131,7 @@ export class WorldObjectManager {
               req3 = prop.getItemById(Items.BRAIN_INFECTED),
               req4 = prop.getItemById(Items.VIAL_H1Z1_REDUCER);
 
-            if (!req1 || !req2 || !req3 || !req4) return;
+            if (!req1 || !req2 || !req3 || !req4) continue;
 
             if (
               !server.removeInventoryItem(prop, req1) ||
@@ -1095,7 +1139,7 @@ export class WorldObjectManager {
               !server.removeInventoryItem(prop, req3) ||
               !server.removeInventoryItem(prop, req4)
             ) {
-              return;
+              continue;
             }
 
             const obj = server.generateItem(Items.BRAIN_TREATED, 1);
@@ -1103,14 +1147,20 @@ export class WorldObjectManager {
           }
           break;
         case 9347:
-          const rewardChest = a as TreasureChest;
+          const rewardChest = server._lootableProps[a] as TreasureChest;
           if (rewardChest) rewardChest.triggerRewards(server);
           break;
       }
-    });
+    }
   }
-  createContainerLoot(server: ZoneServer2016) {
+  async createContainerLoot(server: ZoneServer2016) {
+    let counter = 0;
     for (const a in server._lootableProps) {
+      if (counter > 9) {
+        counter = 0;
+        await scheduler.wait(60); // Await the wait function to pause
+      }
+      counter++;
       const prop = server._lootableProps[a] as LootableProp;
       const container = prop.getContainer();
       if (!container) continue;
