@@ -2170,8 +2170,8 @@ export const fullPcSchema: PacketFields = [
       { name: "unknownString3", type: "string", defaultValue: "" },
       { name: "unknownString4", type: "string", defaultValue: "" },
       { name: "unknownString5", type: "string", defaultValue: "" },
-      { name: "unknownString6", type: "string", defaultValue: "Default" },
-      { name: "unknownString7", type: "string", defaultValue: "#" },
+      { name: "unknownString6", type: "string", defaultValue: "" },
+      { name: "unknownString7", type: "string", defaultValue: "" },
       { name: "unknownString8", type: "string", defaultValue: "" },
       { name: "unknownDword8", type: "uint32", defaultValue: 0 },
       {
