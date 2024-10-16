@@ -886,19 +886,30 @@ const dev: any = {
     client: Client,
     args: Array<string>
   ) {
-    if (!args[3]) {
-      server.sendChatText(client, "Missing 3 args");
+    const mountedVehicleId = client.vehicle.mountedVehicle;
+    if (!mountedVehicleId) {
+      server.sendChatText(client, "Not mounted to vehicle");
       return;
     }
-    Object.values(server._clients).forEach((c) => {
-      server.sendData(client, "ShaderParameterOverrideBase", {
-        characterId: c.character.characterId,
-        unknownDword1: Number(args[1]),
-        slotId: Number(args[2]),
-        unknownDword2: Number(args[3]),
-        shaderGroupId: 588 // maybe try setting other character's shaderGroupId on spawn
-      });
-    });
+
+    const shaderGroupId = Number(args[1]);
+    if (!args[1] || isNaN(shaderGroupId)) {
+      server.sendChatText(client, "Missing or invalid shaderGroupId");
+      return;
+    }
+
+    const vehicle = server._vehicles[mountedVehicleId];
+    server.sendDataToAllWithSpawnedEntity(
+      server._vehicles,
+      mountedVehicleId,
+      "VehicleSkinSetVehicleSkinManager",
+      {
+        vehicleId: vehicle.characterId,
+        characterId: client.character.characterId,
+        shaderGroupId
+      }
+    );
+    vehicle.shaderGroupId = shaderGroupId;
   },
   reloadplugins: async function (
     server: ZoneServer2016,
