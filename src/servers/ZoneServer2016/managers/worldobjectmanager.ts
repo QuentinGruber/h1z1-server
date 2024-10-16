@@ -273,9 +273,9 @@ export class WorldObjectManager {
   private async itemDespawner(server: ZoneServer2016) {
     let counter = 0;
     for (const characterId in server._spawnedItems) {
-      if (counter > 9) {
+      if (counter > 100) {
         counter = 0;
-        await scheduler.wait(60);
+        await scheduler.wait(30);
       }
       counter++;
       const itemObject = server._spawnedItems[characterId];
