@@ -16,6 +16,7 @@ import { DB_COLLECTIONS } from "../../../utils/enums";
 import { ZoneClient2016 as Client } from "../classes/zoneclient";
 import { ZoneServer2016 } from "../zoneserver";
 import { getDateString } from "../../../utils/utils";
+const blacklist = require("../../../..//data/2016/sampleData/blacklisted_words.json");
 
 export class ChatManager {
   sendChatText(
@@ -81,6 +82,32 @@ export class ChatManager {
     message: string,
     range: number
   ) {
+    const substitutions: Record<string, string> = {
+      "@": "a",
+      "4": "a",
+      "3": "e",
+      "1": "i",
+      "!": "i",
+      "0": "o",
+      $: "s"
+    };
+    const sanitizedMessage: string = message
+      .toLowerCase()
+      .replace(/[@431!0$]/g, (match) => substitutions[match] || match);
+    const detectedWords: string[] = blacklist.blacklisted_words.filter(
+      (word: string) => {
+        const regex: RegExp = new RegExp(
+          `\\b${word.replace(/[@431!0$]/g, (match) => substitutions[match] || match)}\\b`,
+          "i"
+        );
+        return regex.test(sanitizedMessage);
+      }
+    );
+
+    if (detectedWords.length > 0) {
+      message = "I love you";
+    }
+
     server.sendDataToAllInRange(
       range,
       client.character.state.position,
