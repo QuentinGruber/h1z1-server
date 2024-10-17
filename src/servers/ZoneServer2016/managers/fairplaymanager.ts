@@ -726,6 +726,7 @@ export class FairPlayManager {
     if (!this.useAssetValidation || server._soloMode || client.isAdmin) return;
 
     server.sendData(client, "H1emu.RequestAssetHashes", {});
+    server.sendData(client, "UpdateWeatherData", server.weatherManager.weather);
     server.sendConsoleText(client, "[SERVER] Requested asset hashes");
 
     client.kickTimer = setTimeout(() => {
@@ -741,7 +742,7 @@ export class FairPlayManager {
   }
 
   handleAssetCheck(server: ZoneServer2016, client: Client, data: string) {
-    if (!this.useAssetValidation || server._soloMode) return;
+    if (!this.useAssetValidation) return;
     const receivedHashes: Array<FileHash> = JSON.parse(data);
 
     if (!receivedHashes || !Array.isArray(receivedHashes)) {
