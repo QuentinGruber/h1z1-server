@@ -244,9 +244,9 @@ export class WorldObjectManager {
   private async npcDespawner(server: ZoneServer2016) {
     let counter = 0;
     for (const characterId in server._npcs) {
-      if (counter > 9) {
+      if (counter > 30) {
         counter = 0;
-        await scheduler.wait(60);
+        await scheduler.wait(30);
       }
       counter++;
       const npc = server._npcs[characterId];
@@ -1014,22 +1014,16 @@ export class WorldObjectManager {
         default:
           break;
       }
-      if (!authorizedModelId.length) return;
+      if (!authorizedModelId.length) continue;
       for (const npcInstance of spawnerType.instances) {
-        let counter = 0;
-        if (counter > 9) {
-          counter = 0;
-          await scheduler.wait(60);
-        }
-        counter++;
         let spawn = true;
+        let counter = 0;
         for (const a in server._npcs) {
-          let counter2 = 0;
-          if (counter2 > 9) {
-            counter2 = 0;
-            await scheduler.wait(60);
+          if (counter > 150) {
+            counter = 0;
+            await scheduler.wait(30);
           }
-          counter2++;
+          counter++;
           if (
             isPosInRadius(
               this.npcSpawnRadius,
@@ -1038,11 +1032,10 @@ export class WorldObjectManager {
             )
           ) {
             spawn = false;
-            return false;
+            break;
           }
-          return true;
         }
-        if (!spawn) return;
+        if (!spawn) continue;
         const spawnchance = Math.floor(Math.random() * 100) + 1; // temporary spawnchance
         if (spawnchance <= this.chanceNpc) {
           const screamerChance = Math.floor(Math.random() * 1000) + 1; // temporary spawnchance
@@ -1112,9 +1105,9 @@ export class WorldObjectManager {
   async updateQuestContainers(server: ZoneServer2016) {
     let counter = 0;
     for (const a in server._lootableProps) {
-      if (counter > 9) {
+      if (counter > 100) {
         counter = 0;
-        await scheduler.wait(60); // Await the wait function to pause
+        await scheduler.wait(30); // Await the wait function to pause
       }
       counter++;
       const prop = server._lootableProps[a] as BaseFullCharacter;
