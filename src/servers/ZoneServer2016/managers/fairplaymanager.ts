@@ -49,8 +49,8 @@ const encryptedData = require("../../../../data/2016/encryptedData/encryptedData
   fairPlayData = require("../../../../data/2016/encryptedData/fairPlayData.json"),
   defaultHashes: Array<FileHash> = require("../../../../data/2016/dataSources/AllowedFileHashes.json");
 defaultHashes.push({
-    "file_name": "Assets_256.pack",
-    "crc32_hash": "f9eca10a"
+  file_name: "Assets_256.pack",
+  crc32_hash: "f9eca10a"
 }); // workaround please work
 export class FairPlayManager {
   _decryptKey: string = "";
