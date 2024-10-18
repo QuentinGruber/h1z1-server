@@ -758,6 +758,7 @@ export class FairPlayManager {
 
     const hashes = this.defaultHashes,
       validatedHashes: Array<FileHash> = [];
+    console.log(JSON.stringify(defaultHashes));
 
     // check if all default / required packs are found in game files
     for (const value of hashes) {
