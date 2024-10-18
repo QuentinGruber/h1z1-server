@@ -756,7 +756,7 @@ export class FairPlayManager {
       return;
     }
 
-      const hashes = this.requiredPacks.concat(this.defaultHashes),
+    const hashes = this.requiredPacks.concat(this.defaultHashes),
       validatedHashes: Array<FileHash> = [];
 
     // check if all default / required packs are found in game files
