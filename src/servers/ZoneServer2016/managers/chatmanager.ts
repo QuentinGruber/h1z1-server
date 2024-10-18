@@ -94,15 +94,13 @@ export class ChatManager {
     const sanitizedMessage: string = message
       .toLowerCase()
       .replace(/[@431!0$]/g, (match) => substitutions[match] || match);
-    const detectedWords: string[] = blacklist.blacklisted_words.filter(
-      (word: string) => {
-        const regex: RegExp = new RegExp(
-          `\\b${word.replace(/[@431!0$]/g, (match) => substitutions[match] || match)}\\b`,
-          "i"
-        );
-        return regex.test(sanitizedMessage);
-      }
-    );
+    const detectedWords: string[] = blacklist.filter((word: string) => {
+      const regex: RegExp = new RegExp(
+        `\\b${word.replace(/[@431!0$]/g, (match) => substitutions[match] || match)}\\b`,
+        "i"
+      );
+      return regex.test(sanitizedMessage);
+    });
 
     if (detectedWords.length > 0) {
       message = "I love you";
