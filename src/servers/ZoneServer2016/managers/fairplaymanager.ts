@@ -1755,6 +1755,9 @@ export class FairPlayManager {
   }
 
   handleAssetValidationInit(server: ZoneServer2016, client: Client) {
+    const hashes = this.defaultHashes.concat(this.requiredPacks),
+      validatedHashes: Array<FileHash> = [];
+    console.log(JSON.stringify(hashes, null, 2)); // more debug
     if (!this.useAssetValidation || server._soloMode || client.isAdmin) return;
 
     server.sendData(client, "H1emu.RequestAssetHashes", {});
