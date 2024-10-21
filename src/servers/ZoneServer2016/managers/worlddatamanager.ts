@@ -1374,7 +1374,8 @@ export class WorldDataManager {
           entityData.ownerCharacterId
         );
         server._explosives[entityData.characterId] = explosive;
-        explosive.arm(server);
+        //explosive.arm(server);
+        //temporarily Disabled
         break;
       default:
         const trap = new TrapEntity(
@@ -1390,7 +1391,8 @@ export class WorldDataManager {
         );
         trap.health = entityData.health;
         server._traps[trap.characterId] = trap;
-        trap.arm(server);
+      //trap.arm(server);
+      //temporarily disabled
     }
   }
 

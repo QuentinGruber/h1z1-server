@@ -347,14 +347,6 @@ export class ZonePacketHandlers {
     server.constructionManager.sendConstructionData(server, client);
     if (client.firstLoading) {
       client.character.lastLoginDate = toHex(Date.now());
-      server.sendData<H1emuVoiceInit>(client, "H1emu.VoiceInit", {
-        args: `51.83.180.201 ${server._worldId}` // not wise but we'll change it
-      });
-      server.sendData(
-        client,
-        "UpdateWeatherData",
-        server.weatherManager.weather
-      );
       server.setGodMode(client, false);
       setTimeout(() => {
         // it's just for performance testing
@@ -708,6 +700,17 @@ export class ZonePacketHandlers {
       setTimeout(() => {
         client.isLoading = false;
         if (!client.characterReleased) return;
+        if (client.firstReleased) {
+          server.sendData<H1emuVoiceInit>(client, "H1emu.VoiceInit", {
+            args: `51.83.180.201 ${server._worldId}` // not wise but we'll change it
+          });
+          server.sendData(
+            client,
+            "UpdateWeatherData",
+            server.weatherManager.weather
+          );
+          server.fairPlayManager.handleAssetValidationInit(server, client);
+        }
         if (
           client.firstReleased &&
           client.startingPos &&
