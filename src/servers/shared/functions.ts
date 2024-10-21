@@ -23,7 +23,7 @@ export function getCharacterModelData(payload: any): any {
       };
     case Characters.MALE_BLACK:
       return {
-        modelId: 9240,
+        modelId: 9469,
         headActor: "SurvivorMale_Head_03.adr",
         hairModel: ""
       };
@@ -41,14 +41,14 @@ export function getCharacterModelData(payload: any): any {
       };
     case Characters.MALE_WHITE_BALD:
       return {
-        modelId: 9240,
+        modelId: 9469,
         headActor: "SurvivorMale_Head_02.adr",
         hairModel: ""
       };
     case Characters.MALE_WHITE:
     default:
       return {
-        modelId: 9240,
+        modelId: 9469,
         headActor: "SurvivorMale_Head_01.adr",
         hairModel: "SurvivorMale_Hair_ShortMessy.adr"
       };

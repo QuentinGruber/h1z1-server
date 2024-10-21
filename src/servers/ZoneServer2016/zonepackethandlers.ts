@@ -2115,7 +2115,7 @@ export class ZonePacketHandlers {
               server.containerError(client, ContainerErrors.NO_ITEM_IN_SLOT);
               return;
             }
-            server.switchLoadoutSlot(client, loadoutItem, true);
+            server.switchLoadoutSlot(client, loadoutItem);
           }
         } else {
           if (activeSlotId) {
@@ -2737,7 +2737,7 @@ export class ZonePacketHandlers {
       server.sendChatText(client, "[ERROR] Target slot is empty!");
       return;
     }
-    server.switchLoadoutSlot(client, slot, false);
+    server.switchLoadoutSlot(client, slot);
   }
   NpcFoundationPermissionsManagerEditPermission(
     server: ZoneServer2016,
@@ -3349,7 +3349,7 @@ export class ZonePacketHandlers {
         const loadoutItem = client.character.getLoadoutItem(newItem.itemGuid);
         if (!loadoutItem) return;
 
-        server.switchLoadoutSlot(client, loadoutItem, true);
+        server.switchLoadoutSlot(client, loadoutItem);
         break;
       case ItemUseOptions.CALL_AIRDROP:
         server.useAirdrop(client, client.character, item);
@@ -3736,6 +3736,9 @@ export class ZonePacketHandlers {
         break;
       case "Group.Leave":
         this.leaveGroup(server, client);
+        break;
+      case "Ping":
+        server.sendData(client, "Pong", {});
         break;
       default:
         debug(packet);

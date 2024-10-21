@@ -98,7 +98,8 @@ export interface FullVehicleSaveData
   extends BaseFullCharacterUpdateSaveData,
     BaseFullEntitySaveData {
     positionUpdate: positionUpdate;
-    vehicleId: number
+    vehicleId: number,
+    shaderGroupId: number
 }
 
 export interface BaseConstructionSaveData
