@@ -3014,17 +3014,6 @@ export const commands: Array<Command> = [
     }
   },
   {
-    name: "group",
-    permissionLevel: PermissionLevels.DEFAULT,
-    execute: async (
-      server: ZoneServer2016,
-      client: Client,
-      args: Array<string>
-    ) => {
-      server.groupManager.handleGroupCommand(server, client, args);
-    }
-  },
-  {
     name: "deepcover",
     permissionLevel: PermissionLevels.ADMIN,
     execute: async (
