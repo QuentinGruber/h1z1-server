@@ -361,10 +361,21 @@ export class ConstructionChildEntity extends BaseLightweightCharacter {
       slot = 1;
     }
     const slots = definitions[this.itemDefinitionId];
-    if (!slots || !slots.authorizedItems.includes(itemDefinitionId)) {
+    if (!slots) {
+      console.error(`Slot definition not found for item ${itemDefinitionId}`);
       return false;
     }
-    return !!slotMap[slot];
+    if (!slots.authorizedItems.includes(itemDefinitionId)) {
+      console.error(
+        `Item ${itemDefinitionId} is not authorized for slot ${slot}`
+      );
+      return false;
+    }
+    if (!slotMap[slot]) {
+      console.error(`Slot ${slot} is not valid`);
+      return false;
+    }
+    return true;
   }
 
   protected setSlot(
@@ -374,8 +385,13 @@ export class ConstructionChildEntity extends BaseLightweightCharacter {
     occupiedSlots: OccupiedSlotMap
   ) {
     const slot = entity.getSlotNumber();
-    if (!this.isSlotValid(slot, definitions, slotMap, entity.itemDefinitionId))
+    if (
+      !this.isSlotValid(slot, definitions, slotMap, entity.itemDefinitionId)
+    ) {
+      console.error("Invalid slot for entity");
+      console.error(JSON.stringify(entity));
       return false;
+    }
     occupiedSlots[slot] = entity;
     return true;
   }
