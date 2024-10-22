@@ -887,6 +887,7 @@ export class ZoneServer2016 extends EventEmitter {
       timeLeftMs - (Date.now() - this.shutdownStartedTime);
     if (currentTimeLeft < 0) {
       this.sendAlertToAll(`Server will shutdown now`);
+      this.enableWorldSaves = false;
       await this.saveWorld();
       Object.values(this._clients).forEach((client: Client) => {
         this.sendData<CharacterSelectSessionResponse>(
@@ -2199,7 +2200,12 @@ export class ZoneServer2016 extends EventEmitter {
         client.character,
         this._worldId
       );
-      this.worldDataManager.saveCharacterData(characterSave, this.lastItemGuid);
+      if (this.enableWorldSaves) {
+        this.worldDataManager.saveCharacterData(
+          characterSave,
+          this.lastItemGuid
+        );
+      }
       this.dismountVehicle(client);
       client.managedObjects?.forEach((characterId: string) => {
         this.dropVehicleManager(client, characterId);
