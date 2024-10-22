@@ -374,8 +374,13 @@ export class ConstructionChildEntity extends BaseLightweightCharacter {
     occupiedSlots: OccupiedSlotMap
   ) {
     const slot = entity.getSlotNumber();
-    if (!this.isSlotValid(slot, definitions, slotMap, entity.itemDefinitionId))
+    if (
+      !this.isSlotValid(slot, definitions, slotMap, entity.itemDefinitionId)
+    ) {
+      console.log("Invalid slot for entity");
+      console.log(JSON.stringify(entity));
       return false;
+    }
     occupiedSlots[slot] = entity;
     return true;
   }
