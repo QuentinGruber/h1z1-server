@@ -8371,8 +8371,8 @@ export class ZoneServer2016 extends EventEmitter {
         }
         //this.constructionManager.spawnConstructionParentsInRange(this, client); // put back into grid for now
         this.vehicleManager(client);
+        this.spawnGridObjects(client); // Spawn base parts before the player
         this.spawnCharacters(client);
-        this.spawnGridObjects(client);
         //this.constructionManager.worldConstructionManager(this, client); // put into grid
         client.posAtLastRoutine = client.character.state.position;
       }
@@ -8393,8 +8393,8 @@ export class ZoneServer2016 extends EventEmitter {
     //this.constructionManager.spawnConstructionParentsInRange(this, client); // put into grid
     this.vehicleManager(client);
     this.removeOutOfDistanceEntities(client);
+    this.spawnGridObjects(client); // Spawn base parts before the player
     this.spawnCharacters(client);
-    this.spawnGridObjects(client);
     //this.constructionManager.worldConstructionManager(this, client);
     this.POIManager(client);
     client.posAtLastRoutine = client.character.state.position;
