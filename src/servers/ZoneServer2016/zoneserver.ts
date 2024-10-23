@@ -2524,13 +2524,16 @@ export class ZoneServer2016 extends EventEmitter {
       const explosiveObj = this._explosives[explosive];
       if (explosiveObj.characterId != npcTriggered) {
         if (getDistance(position, explosiveObj.state.position) < 2) {
-          await scheduler.wait(100);
+          await scheduler.wait(150);
           if (this._spawnedItems[explosiveObj.characterId]) {
             const object = this._spawnedItems[explosiveObj.characterId];
             this.deleteEntity(explosiveObj.characterId, this._spawnedItems);
             delete this.worldObjectManager.spawnedLootObjects[object.spawnerId];
           }
-          if (!explosiveObj.detonated) explosiveObj.detonate(this, client);
+          if (!explosiveObj.detonated) {
+            explosiveObj.detonate(this, client);
+            break;
+          }
         }
       }
     }
