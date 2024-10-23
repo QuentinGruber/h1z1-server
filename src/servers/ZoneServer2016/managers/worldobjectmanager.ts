@@ -223,14 +223,6 @@ export class WorldObjectManager {
     this.itemDespawner(server);
   }
 
-  private equipRandomSkins(
-    server: ZoneServer2016,
-    entity: BaseFullCharacter,
-    slots: EquipSlots[],
-    excludedModels: string[] = []
-  ): void {
-    server.generateRandomEquipmentsFromAnEntity(entity, slots, excludedModels);
-  }
   createNpc(
     server: ZoneServer2016,
     modelId: number,
