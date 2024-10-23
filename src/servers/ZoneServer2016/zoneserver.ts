@@ -767,6 +767,14 @@ export class ZoneServer2016 extends EventEmitter {
                     "CharacterDeleteReply",
                     { status: 1, reqId: reqId }
                   );
+                  const groupId = charactersArray[0]?.groupId;
+                  if (groupId) {
+                    this.groupManager.removeGroupMember(
+                      this,
+                      characterId,
+                      groupId
+                    );
+                  }
                 } else {
                   this._loginConnectionManager.sendData(
                     client,
