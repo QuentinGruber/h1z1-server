@@ -221,6 +221,8 @@ export class Vehicle2016 extends BaseLootableEntity {
     time: 0
   };
 
+  shaderGroupId: number = 0;
+
   droppedManagedClient?: ZoneClient2016; // for temporary fix
   isMountable: boolean = true;
   constructor(
@@ -231,7 +233,8 @@ export class Vehicle2016 extends BaseLootableEntity {
     rotation: Float32Array,
     server: ZoneServer2016,
     gameTime: number,
-    vehicleId: number
+    vehicleId: number,
+    shaderGroupId: number = 0
   ) {
     super(characterId, transientId, actorModelId, position, rotation, server);
     this.positionUpdateType = PositionUpdateType.MOVABLE;
@@ -254,6 +257,7 @@ export class Vehicle2016 extends BaseLootableEntity {
     this.isInvulnerable =
       this.vehicleId == VehicleIds.SPECTATE ||
       this.vehicleId == VehicleIds.PARACHUTE;
+    this.shaderGroupId = shaderGroupId;
     switch (this.vehicleId) {
       case VehicleIds.OFFROADER:
       case VehicleIds.PICKUP:
@@ -315,6 +319,12 @@ export class Vehicle2016 extends BaseLootableEntity {
         break;
       case VehicleIds.OFFROADER:
       default:
+        const allowedShaders = [838, 1143, 837, 1003, 1148],
+          randomShader =
+            allowedShaders[Math.floor(Math.random() * allowedShaders.length)];
+        if (this.shaderGroupId == 0) {
+          this.shaderGroupId = randomShader;
+        }
         this.destroyedEffect = Effects.VEH_Death_OffRoader;
         this.destroyedModel = ModelIds.OFFROADER_DESTROYED;
         this.minorDamageEffect = Effects.VEH_Damage_OffRoader_Stage01;
@@ -371,7 +381,8 @@ export class Vehicle2016 extends BaseLootableEntity {
       npcData: {
         ...this.pGetLightweight(),
         position: this.state.position,
-        vehicleId: this.vehicleId
+        vehicleId: this.vehicleId,
+        shaderGroupId: this.shaderGroupId
       },
       positionUpdate: this.positionUpdate
     };
