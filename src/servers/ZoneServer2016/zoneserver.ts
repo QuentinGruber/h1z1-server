@@ -766,6 +766,14 @@ export class ZoneServer2016 extends EventEmitter {
                     "CharacterDeleteReply",
                     { status: 1, reqId: reqId }
                   );
+                  const groupId = charactersArray[0]?.groupId;
+                  if (groupId) {
+                    this.groupManager.removeGroupMember(
+                      this,
+                      characterId,
+                      groupId
+                    );
+                  }
                 } else {
                   this._loginConnectionManager.sendData(
                     client,
@@ -886,6 +894,7 @@ export class ZoneServer2016 extends EventEmitter {
       timeLeftMs - (Date.now() - this.shutdownStartedTime);
     if (currentTimeLeft < 0) {
       this.sendAlertToAll(`Server will shutdown now`);
+      this.enableWorldSaves = false;
       await this.saveWorld();
       Object.values(this._clients).forEach((client: Client) => {
         this.sendData<CharacterSelectSessionResponse>(
@@ -1678,6 +1687,7 @@ export class ZoneServer2016 extends EventEmitter {
       stash.lootItem(this, this.generateItem(Items.WATER_PURE, 1, true)); // A gift from TaxMax
       stash.lootItem(this, this.generateItem(Items.WEAPON_308, 1, true)); // A gift from Ghost
       stash.lootItem(this, this.generateItem(Items.WEAPON_AK47, 1, true)); // A gift from Doggo
+      stash.lootItem(this, this.generateItem(Items.GROUND_TILLER, 1, true)); // A gift from Meme - Kronic found out that people were using ground tillers to float decks in the air, we discussed this in discord dms. RIP, friend.
     }
 
     if (!this._soloMode) {
@@ -2202,7 +2212,12 @@ export class ZoneServer2016 extends EventEmitter {
         client.character,
         this._worldId
       );
-      this.worldDataManager.saveCharacterData(characterSave, this.lastItemGuid);
+      if (this.enableWorldSaves) {
+        this.worldDataManager.saveCharacterData(
+          characterSave,
+          this.lastItemGuid
+        );
+      }
       this.dismountVehicle(client);
       client.managedObjects?.forEach((characterId: string) => {
         this.dropVehicleManager(client, characterId);
