@@ -183,7 +183,7 @@ export abstract class BaseFullCharacter extends BaseLightweightCharacter {
   }
 
   /* eslint-disable @typescript-eslint/no-unused-vars */
-  updateLoadout(server: ZoneServer2016, sendPacketToLocalClient = true) {
+  updateLoadout(server: ZoneServer2016) {
     const client = server.getClientByContainerAccessor(this);
     if (client) {
       if (!client.character.initialized) return;
@@ -198,8 +198,6 @@ export abstract class BaseFullCharacter extends BaseLightweightCharacter {
   }
 
   updateEquipment(server: ZoneServer2016) {
-    if (!server.getClientByCharId(this.characterId)?.character.initialized)
-      return;
     server.sendDataToAllWithSpawnedEntity(
       server._characters,
       this.characterId,
@@ -208,13 +206,7 @@ export abstract class BaseFullCharacter extends BaseLightweightCharacter {
     );
   }
 
-  updateEquipmentSlot(
-    server: ZoneServer2016,
-    slotId: number,
-    sendPacketToLocalClient = true
-  ) {
-    if (!server.getClientByCharId(this.characterId)?.character.initialized)
-      return;
+  updateEquipmentSlot(server: ZoneServer2016, slotId: number) {
     server.sendDataToAllWithSpawnedEntity(
       server._characters,
       this.characterId,
@@ -236,8 +228,7 @@ export abstract class BaseFullCharacter extends BaseLightweightCharacter {
     server: ZoneServer2016,
     item?: BaseItem,
     sendPacket: boolean = true,
-    loadoutSlotId: number = 0,
-    sendPacketToLocalClient = true
+    loadoutSlotId: number = 0
   ) {
     if (!item || !item.isValid("equipItem")) return;
     const def = server.getItemDefinition(item.itemDefinitionId);
@@ -291,7 +282,7 @@ export abstract class BaseFullCharacter extends BaseLightweightCharacter {
         ),
         slotId: equipmentSlotId,
         guid: item.itemGuid,
-        textureAlias: def.TEXTURE_ALIAS || "default0",
+        textureAlias: def.TEXTURE_ALIAS || "Default",
         tintAlias: "",
         SHADER_PARAMETER_GROUP: server.getShaderParameterGroup(
           item.itemDefinitionId
@@ -370,13 +361,8 @@ export abstract class BaseFullCharacter extends BaseLightweightCharacter {
         }
       );
     }
-    this.updateLoadout(server, sendPacketToLocalClient);
-    if (equipmentSlotId)
-      this.updateEquipmentSlot(
-        server,
-        equipmentSlotId,
-        sendPacketToLocalClient
-      );
+    this.updateLoadout(server);
+    if (equipmentSlotId) this.updateEquipmentSlot(server, equipmentSlotId);
   }
 
   generateEquipmentFromLoadout(server: ZoneServer2016) {
@@ -847,8 +833,8 @@ export abstract class BaseFullCharacter extends BaseLightweightCharacter {
           textureAlias: slot.textureAlias || "",
           tintAlias: slot.tintAlias || "Default",
           decalAlias: slot.decalAlias || "#",
-          slotId: slot.slotId
-          //SHADER_PARAMETER_GROUP: slot.SHADER_PARAMETER_GROUP
+          slotId: slot.slotId,
+          SHADER_PARAMETER_GROUP: slot?.SHADER_PARAMETER_GROUP ?? []
         }
       : undefined;
   }

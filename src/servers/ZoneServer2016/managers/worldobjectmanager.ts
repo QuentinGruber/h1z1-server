@@ -31,30 +31,7 @@ import {
   fixEulerOrder,
   getCurrentServerTimeWrapper
 } from "../../../utils/utils";
-import {
-  EquipSlots,
-  Items,
-  Skins_Shirt,
-  Skins_Pants,
-  Skins_Beanie,
-  Skins_Cap,
-  Skins_MotorHelmet,
-  Skins_Kevlar,
-  Skins_Military,
-  Skins_Glasses,
-  Effects,
-  ModelIds,
-  Skins_Conveys,
-  Skins_Backpack,
-  Skins_Sniper,
-  Skins_Shotgun,
-  Skins_AK47,
-  Skins_AR15,
-  Skins_TacticalHelmet,
-  Skins_Respirator,
-  Skins_Bandana,
-  Skins_Boots
-} from "../models/enums";
+import { EquipSlots, Items, Effects, ModelIds } from "../models/enums";
 import { Vehicle2016 } from "../entities/vehicle";
 import { LootDefinition } from "types/zoneserver";
 import { ItemObject } from "../entities/itemobject";
@@ -75,71 +52,6 @@ import { TreasureChest } from "../entities/treasurechest";
 import { Npc } from "../entities/npc";
 import { EntityType } from "h1emu-ai";
 const debug = require("debug")("ZoneServer");
-
-function getRandomSkin(itemDefinitionId: number) {
-  let itemDefId = 0;
-  let arr: any[] = [];
-  switch (itemDefinitionId) {
-    case Items.SHIRT_DEFAULT:
-      arr = Object.keys(Skins_Shirt);
-      break;
-    case Items.PANTS_DEFAULT:
-      arr = Object.keys(Skins_Pants);
-      break;
-    case Items.HAT_BEANIE:
-      arr = Object.keys(Skins_Beanie);
-      break;
-    case Items.HAT_CAP:
-      arr = Object.keys(Skins_Cap);
-      break;
-    case Items.HELMET_MOTORCYCLE:
-      arr = Object.keys(Skins_MotorHelmet);
-      break;
-    case Items.KEVLAR_DEFAULT:
-      arr = Object.keys(Skins_Kevlar);
-      break;
-    case Items.BACKPACK_MILITARY_TAN:
-      arr = Object.keys(Skins_Military);
-      break;
-    case Items.BACKPACK_BLUE_ORANGE:
-      arr = Object.keys(Skins_Backpack);
-      break;
-    case Items.ALL_PURPOSE_GOGGLES:
-      arr = Object.keys(Skins_Glasses);
-      break;
-    case Items.CONVEYS_BLUE:
-      arr = Object.keys(Skins_Conveys);
-      break;
-    case Items.BOOTS_TAN:
-      arr = Object.keys(Skins_Boots);
-      break;
-    case Items.WEAPON_308:
-      arr = Object.keys(Skins_Sniper);
-      break;
-    case Items.WEAPON_SHOTGUN:
-      arr = Object.keys(Skins_Shotgun);
-      break;
-    case Items.WEAPON_AK47:
-      arr = Object.keys(Skins_AK47);
-      break;
-    case Items.WEAPON_AR15:
-      arr = Object.keys(Skins_AR15);
-      break;
-    case Items.HELMET_TACTICAL:
-      arr = Object.keys(Skins_TacticalHelmet);
-      break;
-    case Items.RESPIRATOR:
-      arr = Object.keys(Skins_Respirator);
-      break;
-    case Items.BANDANA_BASIC:
-      arr = Object.keys(Skins_Bandana);
-      break;
-    default:
-      return itemDefinitionId;
-  }
-  itemDefId = Number(arr[Math.floor((Math.random() * arr.length) / 2)]);
-  return itemDefId;
-}
 
 export function getRandomItem(items: Array<LootDefinition>) {
   const totalWeight = items.reduce((total, item) => total + item.weight, 0),
@@ -1055,7 +967,7 @@ export class WorldObjectManager {
               this.createLootEntity(
                 server,
                 server.generateItem(
-                  getRandomSkin(item.item),
+                  item.item,
                   randomIntFromInterval(
                     item.spawnCount.min,
                     item.spawnCount.max
@@ -1136,7 +1048,7 @@ export class WorldObjectManager {
               // temporary spawnchance
               server.addContainerItem(
                 prop,
-                server.generateItem(getRandomSkin(item.item), count),
+                server.generateItem(item.item, count),
                 container
               );
             }

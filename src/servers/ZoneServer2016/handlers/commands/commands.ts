@@ -1897,9 +1897,7 @@ export const commands: Array<Command> = [
             useCompression: false,
             fullPcData: {
               transientId: client.character.transientId,
-              attachmentData: client.character.pGetAttachmentSlots(
-                client.character.groupId
-              ),
+              attachmentData: client.character.pGetAttachmentSlots(),
               headActor: client.character.headActor,
               hairModel: client.character.hairModel,
               resources: { data: client.character.pGetResources() },

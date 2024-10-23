@@ -180,7 +180,6 @@ import {
   ContainerInitEquippedContainers,
   ContainerUpdateEquippedContainer,
   DtoObjectInitialData,
-  EquipmentUnsetCharacterEquipmentSlot,
   GameTimeSync,
   H1emuPrintToConsole,
   InitializationParameters,
@@ -1432,9 +1431,6 @@ export class ZoneServer2016 extends EventEmitter {
     );
     if (!dynamicAppearanceCache) return;
     this.dynamicAppearanceCache = dynamicAppearanceCache;
-    // unused after the packet is in cache so we clear that
-    delete this.dynamicappearance.ITEM_APPEARANCE_DEFINITIONS;
-    delete this.dynamicappearance.SHADER_PARAMETER_DEFINITIONS;
   }
   /**
    * Caches weapon definitons so they aren't packed every time a client logs in.
@@ -1890,6 +1886,17 @@ export class ZoneServer2016 extends EventEmitter {
   }
 
   async sendInitData(client: Client) {
+    // Load character before sending sendSelf, as we need to send item definitions for the inventory to the client first. This is the same behaviour as Z1BR
+    await this.fetchCharacterData(client);
+
+    // This packet is only necessary for transitioning between different zones.
+    // KOTK / Z1BR handle it this way because the main menu is also considered a zone, which is not the case in JS.
+    /*this.sendData<ClientBeginZoning>(client, "ClientBeginZoning", {
+      position: client.character.state.position,
+      rotation: client.character.state.rotation,
+      skyData: this.weatherManager.weather
+    });*/
+
     this.sendData<InitializationParameters>(
       client,
       "InitializationParameters",
@@ -1942,10 +1949,9 @@ export class ZoneServer2016 extends EventEmitter {
       fallDamageVelocityMultiplier: 11
     });
 
-    // Load character before sending sendSelf, as we need to send item definitions for the inventory to the client first. This is the same behaviour as Z1BR
-    await this.fetchCharacterData(client);
-
-    const inventoryItemIds = client.character
+    // Item definitions are only required if custom icons for items or entirely custom items are needed.
+    // This could be an interesting feature to implement in a plugin.
+    /*const inventoryItemIds = client.character
       .pGetInventoryItems(this)
       .map((it) => it.itemDefinitionId);
     if (inventoryItemIds) {
@@ -1978,7 +1984,7 @@ export class ZoneServer2016 extends EventEmitter {
             })
         }
       });
-    }
+    }*/
     if (!this.weaponDefinitionsCache) {
       this.packWeaponDefinitions();
     }
@@ -1986,31 +1992,28 @@ export class ZoneServer2016 extends EventEmitter {
       this.sendRawDataReliable(client, this.weaponDefinitionsCache);
     }
 
-    // used for equipment textures / skins, does nothing so far
+    // Initially, send only the skin tones to ensure the character displays the correct skin tone.
+    this.sendData(client, "ReferenceData.DynamicAppearance", {
+      ITEM_APPEARANCE_DEFINITIONS: [],
+      SHADER_SEMANTIC_DEFINITIONS: [],
+      SHADER_PARAMETER_DEFINITIONS:
+        this.dynamicappearance.SHADER_PARAMETER_DEFINITIONS.filter((def) =>
+          [125, 129, 122].includes(def?.ID)
+        )
+    });
 
-    /*
-      this packet doesn't do anything for skins yet, but it's needed so that
-      the client can switch equipment slots without server input, which is the way
-      it's supposed to work (removes the delay) - Meme
-    */
+    this.sendCharacterData(client);
 
+    // Now we can send all the rest of the data while the player is at the loading screen.
+    // This ensures the player doesn't have to wait on the loading screen after clicking 'join', as this packet is large.
+    // Z1BR resolved this issue by using LZ4 to compress this block. We can easily add this in the patch, but we'll implement it if users start experiencing network issues.
+    // FYI: This was tested with 40 players on my server without any issues. - Jason
     if (!this.dynamicAppearanceCache) {
       this.packDynamicAppearance();
     }
     if (this.dynamicAppearanceCache) {
       this.sendRawDataReliable(client, this.dynamicAppearanceCache);
     }
-
-    // packet is just broken, idk why
-    /*
-    this.sendData<ClientBeginZoning>(client, "ClientBeginZoning", {
-      position: client.character.state.position,
-      rotation: client.character.state.rotation,
-      skyData: this.weatherManager.weather
-    });
-    */
-
-    this.sendCharacterData(client);
   }
 
   private divideMapIntoSpawnGrid(
@@ -5970,11 +5973,7 @@ export class ZoneServer2016 extends EventEmitter {
    * @param {Client} client - The client to switch the loadout slot for.
    * @param {LoadoutItem} loadoutItem - The new loadout item.
    */
-  switchLoadoutSlot(
-    client: Client,
-    loadoutItem: LoadoutItem,
-    sendPacketToLocalClient = false
-  ) {
+  switchLoadoutSlot(client: Client, loadoutItem: LoadoutItem) {
     const oldLoadoutSlot = client.character.currentLoadoutSlot;
     this.reloadInterrupt(client, client.character._loadout[oldLoadoutSlot]);
 
@@ -5993,25 +5992,17 @@ export class ZoneServer2016 extends EventEmitter {
     this.clearEquipmentSlot(
       client.character,
       client.character.getActiveEquipmentSlot(loadoutItem),
-      true,
-      sendPacketToLocalClient
+      true
     );
     client.character.currentLoadoutSlot = loadoutItem.slotId;
-    client.character.equipItem(
-      this,
-      loadoutItem,
-      true,
-      loadoutItem.slotId,
-      sendPacketToLocalClient
-    );
+    client.character.equipItem(this, loadoutItem, true, loadoutItem.slotId);
 
     // equip passive slot
     client.character.equipItem(
       this,
       client.character._loadout[oldLoadoutSlot],
       true,
-      oldLoadoutSlot,
-      sendPacketToLocalClient
+      oldLoadoutSlot
     );
     if (loadoutItem.weapon) loadoutItem.weapon.currentReloadCount = 0;
     if (this.isWeapon(loadoutItem.itemDefinitionId)) {
@@ -6060,8 +6051,7 @@ export class ZoneServer2016 extends EventEmitter {
   clearEquipmentSlot(
     character: BaseFullCharacter,
     equipmentSlotId: number,
-    sendPacket = true,
-    sendPacketToLocalClient = true
+    sendPacket = true
   ): boolean {
     if (!equipmentSlotId) return false;
     delete character._equipment[equipmentSlotId];
@@ -6076,16 +6066,8 @@ export class ZoneServer2016 extends EventEmitter {
         },
         slotId: equipmentSlotId
       };
-      if (sendPacketToLocalClient) {
-        this.sendData<EquipmentUnsetCharacterEquipmentSlot>(
-          client,
-          "Equipment.UnsetCharacterEquipmentSlot",
-          data
-        );
-      }
-      this.sendDataToAllOthersWithSpawnedEntity(
+      this.sendDataToAllWithSpawnedEntity(
         this._characters,
-        client,
         client.character.characterId,
         "Equipment.UnsetCharacterEquipmentSlot",
         data
@@ -8785,6 +8767,25 @@ export class ZoneServer2016 extends EventEmitter {
           return definition.SHADER_PARAMETER_GROUP_ID == itemDefinitionId;
         }
       )?.SHADER_PARAMETER_GROUP ?? []
+    );
+  }
+
+  getShaderGroupId(itemDefinitionId: number): number {
+    return (
+      this.dynamicappearance.ITEM_APPEARANCE_DEFINITIONS.filter(
+        (definition: {
+          ID: number;
+          ITEM_APPEARANCE_DATA: {
+            ID: number;
+            ITEM_ID: number;
+            MODEL_ID: number;
+            GENDER_ID: number;
+            SHADER_PARAMETER_GROUP_ID: number;
+          };
+        }) => {
+          return definition.ITEM_APPEARANCE_DATA.ITEM_ID == itemDefinitionId;
+        }
+      )[0]?.ITEM_APPEARANCE_DATA?.SHADER_PARAMETER_GROUP_ID ?? 0
     );
   }
 
