@@ -1687,7 +1687,7 @@ export class ZoneServer2016 extends EventEmitter {
       stash.lootItem(this, this.generateItem(Items.WATER_PURE, 1, true)); // A gift from TaxMax
       stash.lootItem(this, this.generateItem(Items.WEAPON_308, 1, true)); // A gift from Ghost
       stash.lootItem(this, this.generateItem(Items.WEAPON_AK47, 1, true)); // A gift from Doggo
-      stash.lootItem(this, this.generateItem(Items.GROUND_TILLER, 1, true)); // A gift from Meme - Kronic found out that people were using ground tillers to float decks in the air, we discussed this in discord dms. RIP, friend.
+      stash.lootItem(this, this.generateItem(Items.GROUND_TILLER, 1, true)); // A gift from Meme - He found out that people were using ground tillers to float decks in the air, we discussed this issue in DMs. RIP, friend.
     }
 
     if (!this._soloMode) {
