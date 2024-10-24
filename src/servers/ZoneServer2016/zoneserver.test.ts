@@ -29,7 +29,7 @@ test("ZoneServer2016", { timeout: 10000 }, async (t) => {
     assert.equal(Object.keys(zone._clients).length, 1, "Client not created");
     const client = zone.getClientByCharId(character.characterId);
     if (client) {
-      zone.deleteClient(client);
+      await zone.deleteClient(client);
       assert.equal(
         Object.keys(zone._characters).length,
         0,
@@ -71,7 +71,7 @@ test(
       assert.equal(Object.keys(zone._clients).length, 1, "Client not created");
       const client = zone.getClientByCharId(character.characterId);
       if (client) {
-        zone.deleteClient(client);
+        await zone.deleteClient(client);
         assert.equal(
           Object.keys(zone._characters).length,
           0,

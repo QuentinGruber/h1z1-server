@@ -2195,7 +2195,7 @@ export class ZoneServer2016 extends EventEmitter {
     this.tickRate = 3000 / size;
   }
 
-  deleteClient(client: Client) {
+  async deleteClient(client: Client) {
     if (!client) {
       this.setTickRate();
       return;
@@ -2213,10 +2213,14 @@ export class ZoneServer2016 extends EventEmitter {
         this._worldId
       );
       if (this.enableWorldSaves) {
-        this.worldDataManager.saveCharacterData(
-          characterSave,
-          this.lastItemGuid
-        );
+        if (this._soloMode) {
+          await this.saveWorld();
+        } else {
+          await this.worldDataManager.saveCharacterData(
+            characterSave,
+            this.lastItemGuid
+          );
+        }
       }
       this.dismountVehicle(client);
       client.managedObjects?.forEach((characterId: string) => {
