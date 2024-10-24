@@ -5032,8 +5032,7 @@ export class ZoneServer2016 extends EventEmitter {
     range: number,
     position: Float32Array,
     packetName: any,
-    obj: ZonePacket,
-    includeAdmins = false
+    obj: ZonePacket
   ) {
     const data = this._protocol.pack(packetName, obj);
     if (!data) return;
@@ -5044,8 +5043,7 @@ export class ZoneServer2016 extends EventEmitter {
           range,
           this._clients[a].character.state.position,
           position
-        ) ||
-        (includeAdmins && this._clients[a].isAdmin)
+        )
       ) {
         this.sendRawDataReliable(this._clients[a], data);
       }

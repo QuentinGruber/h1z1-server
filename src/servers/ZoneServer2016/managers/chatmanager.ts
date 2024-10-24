@@ -117,20 +117,18 @@ export class ChatManager {
         unknownDword2: 13951728,
         unknownByte3: 0,
         unknownByte4: 1
-      },
-      true
+      }
     );
   }
 
   sendChatToAllWithRadio(
     server: ZoneServer2016,
     client: Client,
-    message: string,
-    includeAdmins = false
+    message: string
   ) {
     for (const a in server._clients) {
       const c = server._clients[a];
-      if (c.radio || (includeAdmins && c.isAdmin)) {
+      if (c.radio) {
         server.sendData(c, "Chat.ChatText", {
           message: `[RADIO: ${client.character.name}]: ${message}`,
           unknownDword1: 0,
