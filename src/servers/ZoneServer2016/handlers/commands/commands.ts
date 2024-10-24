@@ -414,11 +414,6 @@ export const commands: Array<Command> = [
         targetClient,
         `[Whisper from ${client.character.name}]: ${message}`
       );
-      if (!client.isAdmin) {
-        server.sendChatTextToAdmins(
-          `[${client.character.name} whispered to ${targetClient.character.name}]: ${message}`
-        );
-      }
     }
   },
   {
