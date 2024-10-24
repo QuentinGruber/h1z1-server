@@ -26,7 +26,7 @@ export interface zoneObjectInstance {
   unknownFloat1: number;
 }
 export interface DynamicAppearance {
-ITEM_APPEARANCE_DEFINITIONS?:any[]
+ITEM_APPEARANCE_DEFINITIONS:any[]
 SHADER_SEMANTIC_DEFINITIONS:any[]
-SHADER_PARAMETER_DEFINITIONS?:any[]
+SHADER_PARAMETER_DEFINITIONS:any[]
 }

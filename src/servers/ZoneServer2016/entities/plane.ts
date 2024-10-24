@@ -79,7 +79,8 @@ export class Plane extends Vehicle2016 {
       npcData: {
         ...this.pGetLightweight(),
         position: this.state.position,
-        vehicleId: this.vehicleId
+        vehicleId: this.vehicleId,
+        shaderGroupId: 0
       },
       positionUpdate: {
         ...this.positionUpdate

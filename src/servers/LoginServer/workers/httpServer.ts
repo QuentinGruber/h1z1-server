@@ -58,6 +58,14 @@ http.request({
 });
 const httpServer = http.createServer().listen(SERVER_PORT);
 httpServer.on("request", async function (req, res) {
+  res.setHeader("Access-Control-Allow-Origin", "*"); // Allow all origins
+  res.setHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS"); // Allow specified methods
+  res.setHeader("Access-Control-Allow-Headers", "Content-Type"); // Allow specified headers
+  if (req.method === "OPTIONS") {
+    res.writeHead(204); // No Content response
+    res.end();
+    return;
+  }
   const url = req.url ? req.url.substr(1, req.url.length - 1) : "";
   const [path, queryString] = url.split("?");
   const queryObject: any = queryString ? parseQueryString(queryString) : null;

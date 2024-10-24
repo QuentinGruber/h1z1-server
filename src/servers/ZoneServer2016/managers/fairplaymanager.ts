@@ -726,6 +726,7 @@ export class FairPlayManager {
     if (!this.useAssetValidation || server._soloMode || client.isAdmin) return;
 
     server.sendData(client, "H1emu.RequestAssetHashes", {});
+    server.sendData(client, "UpdateWeatherData", server.weatherManager.weather);
     server.sendConsoleText(client, "[SERVER] Requested asset hashes");
 
     client.kickTimer = setTimeout(() => {
@@ -735,6 +736,12 @@ export class FairPlayManager {
   }
 
   validateFile(file1: FileHash, file2: FileHash) {
+    if (
+      file1.file_name == "Assets_256.pack" &&
+      file1.crc32_hash == "c8b93131"
+    ) {
+      file1.crc32_hash = "f9eca10a";
+    } // workaround
     return (
       file1.file_name == file2.file_name && file1.crc32_hash == file2.crc32_hash
     );
@@ -755,7 +762,7 @@ export class FairPlayManager {
       return;
     }
 
-    const hashes = this.defaultHashes.concat(this.requiredPacks),
+    const hashes = this.defaultHashes,
       validatedHashes: Array<FileHash> = [];
 
     // check if all default / required packs are found in game files
