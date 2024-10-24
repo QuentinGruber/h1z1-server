@@ -61,7 +61,7 @@ export class GroupManager {
               inviteData: {
                 characterId: member,
                 identity: {
-                  characterName: character?.name,
+                  characterFirstName: character?.name,
                   unknownQword1: member
                 }
               },
@@ -349,7 +349,7 @@ export class GroupManager {
             inviteData: {
               characterId: member,
               identity: {
-                characterName: character?.name,
+                characterFirstName: character?.name,
                 unknownQword1: member
               }
             },

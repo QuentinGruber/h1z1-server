@@ -1320,6 +1320,10 @@ export interface GroupLeave {
 export interface GroupKick {
   unknownDword1?: number;
   unknownDword2?: number;
+  unknownDword3?: number;
+  unknownDword4?: number;
+  characterId?: string;
+  unknownByte1?: number;
 }
 export interface GroupDisband {
   executeType?: number;

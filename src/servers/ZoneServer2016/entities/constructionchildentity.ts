@@ -15,7 +15,20 @@ function getRenderDistance(itemDefinitionId: number) {
     case Items.FOUNDATION:
     case Items.FOUNDATION_EXPANSION:
     case Items.GROUND_TAMPER:
-      range = 350;
+    case Items.METAL_DOORWAY:
+    case Items.METAL_WALL:
+    case Items.METAL_WALL_UPPER:
+    case Items.DOOR_BASIC:
+    case Items.DOOR_METAL:
+    case Items.DOOR_WOOD:
+    case Items.SHELTER:
+    case Items.SHELTER_LARGE:
+    case Items.SHELTER_UPPER:
+    case Items.SHELTER_UPPER_LARGE:
+    case Items.METAL_GATE:
+    case Items.STRUCTURE_STAIRS:
+    case Items.STRUCTURE_STAIRS_UPPER:
+      range = 410;
       break;
     case Items.FURNACE:
     case Items.WORKBENCH:

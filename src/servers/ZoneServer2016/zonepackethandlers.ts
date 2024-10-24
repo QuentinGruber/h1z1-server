@@ -130,7 +130,8 @@ import {
   WallOfDataUIEvent,
   WeaponWeapon,
   ZoneDoneSendingInitialData,
-  H1emuVoiceInit
+  H1emuVoiceInit,
+  GroupKick
 } from "types/zone2016packets";
 import { VehicleCurrentMoveMode } from "types/zone2015packets";
 import {
@@ -3141,6 +3142,28 @@ export class ZonePacketHandlers {
     );
   }
 
+  async GroupKick(
+    server: ZoneServer2016,
+    client: Client,
+    packet: ReceivedPacket<GroupKick>
+  ) {
+    if (!client.character.groupId || !packet.data.characterId) return;
+
+    const group: Group | null = await server.groupManager.getGroup(
+      server,
+      client.character.groupId
+    );
+
+    if (!group) return;
+
+    server.groupManager.handleGroupKick(
+      server,
+      client.character.characterId,
+      packet.data.characterId,
+      group
+    );
+  }
+
   EffectAddEffect(
     server: ZoneServer2016,
     client: Client,
@@ -3679,6 +3702,9 @@ export class ZonePacketHandlers {
         break;
       case "Group.Join":
         this.GroupJoin(server, client, packet);
+        break;
+      case "Group.Kick":
+        this.GroupKick(server, client, packet);
         break;
       case "Effect.AddEffect":
         this.EffectAddEffect(server, client, packet);
