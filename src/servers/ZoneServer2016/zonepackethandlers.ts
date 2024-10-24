@@ -839,21 +839,12 @@ export class ZonePacketHandlers {
       server.sendChatText(client, "You are muted!");
       return;
     }
-
-    if (!client.radio) {
-      server.chatManager.sendChatToAllInRange(
-        server,
-        client,
-        message as string,
-        300
-      );
-    } else if (client.radio) {
-      server.chatManager.sendChatToAllWithRadio(
-        server,
-        client,
-        message as string
-      );
-    }
+    server.chatManager.sendChatToAllInRange(
+      server,
+      client,
+      message as string,
+      300
+    );
   }
   ClientInitializationDetails(
     server: ZoneServer2016,
