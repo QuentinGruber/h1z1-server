@@ -871,8 +871,6 @@ export class LoginServer extends EventEmitter {
     let connectionStatus =
       Object.values(this._zoneConnections).includes(serverId) &&
       (populationNumber < maxPopulationNumber || !maxPopulationNumber);
-    debug(`connectionStatus ${connectionStatus}`);
-
     if (!character) {
       console.error(
         `CharacterId "${characterId}" unfound on serverId: "${serverId}"`
@@ -883,9 +881,11 @@ export class LoginServer extends EventEmitter {
       .findOne({ authKey })) ?? { guid: "" };
     if (!connectionStatus && hiddenSession.guid) {
       // Admins bypass max pop
-      connectionStatus = (await this.askZone(serverId, "ClientIsAdminRequest", {
-        guid: hiddenSession.guid
-      })) as boolean;
+      connectionStatus = (
+        (await this.askZone(serverId, "ClientIsAdminRequest", {
+          guid: hiddenSession.guid
+        })) as ConnectionAllowed
+      ).status as unknown as boolean;
     }
     return {
       unknownQword1: "0x0",
@@ -1039,7 +1039,7 @@ export class LoginServer extends EventEmitter {
       charactersLoginInfo.status = Number(connectionAllowed.status);
     } else {
       this.sendData(client, "H1emu.PrintToConsole", {
-        message: `Invalid character status! If this is a new character, please delete and recreate it.`,
+        message: `Server is full`,
         showConsole: true,
         clearOutput: true
       });
