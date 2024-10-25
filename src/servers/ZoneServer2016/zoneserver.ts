@@ -1687,7 +1687,7 @@ export class ZoneServer2016 extends EventEmitter {
       stash.lootItem(this, this.generateItem(Items.WATER_PURE, 1, true)); // A gift from TaxMax
       stash.lootItem(this, this.generateItem(Items.WEAPON_308, 1, true)); // A gift from Ghost
       stash.lootItem(this, this.generateItem(Items.WEAPON_AK47, 1, true)); // A gift from Doggo
-      stash.lootItem(this, this.generateItem(Items.GROUND_TILLER, 1, true)); // A gift from Meme - Kronic found out that people were using ground tillers to float decks in the air, we discussed this in discord dms. RIP, friend.
+      stash.lootItem(this, this.generateItem(Items.GROUND_TILLER, 1, true)); // A gift from Meme - He found out that people were using ground tillers to float decks in the air, we discussed this issue in DMs. RIP, friend.
     }
 
     if (!this._soloMode) {
@@ -2524,13 +2524,16 @@ export class ZoneServer2016 extends EventEmitter {
       const explosiveObj = this._explosives[explosive];
       if (explosiveObj.characterId != npcTriggered) {
         if (getDistance(position, explosiveObj.state.position) < 2) {
-          await scheduler.wait(100);
+          await scheduler.wait(150);
           if (this._spawnedItems[explosiveObj.characterId]) {
             const object = this._spawnedItems[explosiveObj.characterId];
             this.deleteEntity(explosiveObj.characterId, this._spawnedItems);
             delete this.worldObjectManager.spawnedLootObjects[object.spawnerId];
           }
-          if (!explosiveObj.detonated) explosiveObj.detonate(this, client);
+          if (!explosiveObj.detonated) {
+            explosiveObj.detonate(this, client);
+            break;
+          }
         }
       }
     }
@@ -8368,8 +8371,8 @@ export class ZoneServer2016 extends EventEmitter {
         }
         //this.constructionManager.spawnConstructionParentsInRange(this, client); // put back into grid for now
         this.vehicleManager(client);
+        this.spawnGridObjects(client); // Spawn base parts before the player
         this.spawnCharacters(client);
-        this.spawnGridObjects(client);
         //this.constructionManager.worldConstructionManager(this, client); // put into grid
         client.posAtLastRoutine = client.character.state.position;
       }
@@ -8390,8 +8393,8 @@ export class ZoneServer2016 extends EventEmitter {
     //this.constructionManager.spawnConstructionParentsInRange(this, client); // put into grid
     this.vehicleManager(client);
     this.removeOutOfDistanceEntities(client);
+    this.spawnGridObjects(client); // Spawn base parts before the player
     this.spawnCharacters(client);
-    this.spawnGridObjects(client);
     //this.constructionManager.worldConstructionManager(this, client);
     this.POIManager(client);
     client.posAtLastRoutine = client.character.state.position;

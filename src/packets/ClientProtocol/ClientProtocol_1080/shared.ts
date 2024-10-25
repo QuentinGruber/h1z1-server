@@ -1051,7 +1051,7 @@ export const identitySchema: PacketFields = [
   { name: "characterFirstName", type: "string", defaultValue: "" },
   { name: "characterLastName", type: "string", defaultValue: "" },
   { name: "unknownString1", type: "string", defaultValue: "" },
-  { name: "characterName", type: "string", defaultValue: "unnamed" }, // steamId
+  { name: "characterName", type: "string", defaultValue: "" }, // steamId
   { name: "unknownQword1", type: "uint64string", defaultValue: "0" }
 ];
 

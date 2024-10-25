@@ -130,7 +130,8 @@ import {
   WallOfDataUIEvent,
   WeaponWeapon,
   ZoneDoneSendingInitialData,
-  H1emuVoiceInit
+  H1emuVoiceInit,
+  GroupKick
 } from "types/zone2016packets";
 import { VehicleCurrentMoveMode } from "types/zone2015packets";
 import {
@@ -347,14 +348,6 @@ export class ZonePacketHandlers {
     server.constructionManager.sendConstructionData(server, client);
     if (client.firstLoading) {
       client.character.lastLoginDate = toHex(Date.now());
-      server.sendData<H1emuVoiceInit>(client, "H1emu.VoiceInit", {
-        args: `51.83.180.201 ${server._worldId}` // not wise but we'll change it
-      });
-      server.sendData(
-        client,
-        "UpdateWeatherData",
-        server.weatherManager.weather
-      );
       server.setGodMode(client, false);
       setTimeout(() => {
         // it's just for performance testing
@@ -708,6 +701,17 @@ export class ZonePacketHandlers {
       setTimeout(() => {
         client.isLoading = false;
         if (!client.characterReleased) return;
+        if (client.firstReleased) {
+          server.sendData<H1emuVoiceInit>(client, "H1emu.VoiceInit", {
+            args: `51.83.180.201 ${server._worldId}` // not wise but we'll change it
+          });
+          server.sendData(
+            client,
+            "UpdateWeatherData",
+            server.weatherManager.weather
+          );
+          server.fairPlayManager.handleAssetValidationInit(server, client);
+        }
         if (
           client.firstReleased &&
           client.startingPos &&
@@ -835,21 +839,12 @@ export class ZonePacketHandlers {
       server.sendChatText(client, "You are muted!");
       return;
     }
-
-    if (!client.radio) {
-      server.chatManager.sendChatToAllInRange(
-        server,
-        client,
-        message as string,
-        300
-      );
-    } else if (client.radio) {
-      server.chatManager.sendChatToAllWithRadio(
-        server,
-        client,
-        message as string
-      );
-    }
+    server.chatManager.sendChatToAllInRange(
+      server,
+      client,
+      message as string,
+      300
+    );
   }
   ClientInitializationDetails(
     server: ZoneServer2016,
@@ -3138,6 +3133,28 @@ export class ZonePacketHandlers {
     );
   }
 
+  async GroupKick(
+    server: ZoneServer2016,
+    client: Client,
+    packet: ReceivedPacket<GroupKick>
+  ) {
+    if (!client.character.groupId || !packet.data.characterId) return;
+
+    const group: Group | null = await server.groupManager.getGroup(
+      server,
+      client.character.groupId
+    );
+
+    if (!group) return;
+
+    server.groupManager.handleGroupKick(
+      server,
+      client.character.characterId,
+      packet.data.characterId,
+      group
+    );
+  }
+
   EffectAddEffect(
     server: ZoneServer2016,
     client: Client,
@@ -3676,6 +3693,9 @@ export class ZonePacketHandlers {
         break;
       case "Group.Join":
         this.GroupJoin(server, client, packet);
+        break;
+      case "Group.Kick":
+        this.GroupKick(server, client, packet);
         break;
       case "Effect.AddEffect":
         this.EffectAddEffect(server, client, packet);
