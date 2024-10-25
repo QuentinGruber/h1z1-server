@@ -61,7 +61,7 @@ export class GroupManager {
               inviteData: {
                 characterId: member,
                 identity: {
-                  characterName: character?.name,
+                  characterFirstName: character?.name,
                   unknownQword1: member
                 }
               },
@@ -202,9 +202,7 @@ export class GroupManager {
 
     this.sendAlertToGroup(server, groupId, "Group has been disbanded!");
     for (const characterId of group.members) {
-      const client = server.getClientByCharId(characterId);
-      if (!client) continue;
-      this.removeGroupMember(server, client, group, true);
+      this.removeGroupMember(server, characterId, groupId, true);
     }
 
     this.deleteGroup(server, groupId);
@@ -351,7 +349,7 @@ export class GroupManager {
             inviteData: {
               characterId: member,
               identity: {
-                characterName: character?.name,
+                characterFirstName: character?.name,
                 unknownQword1: member
               }
             },
@@ -380,18 +378,27 @@ export class GroupManager {
 
   async removeGroupMember(
     server: ZoneServer2016,
-    client: Client,
-    group: Group,
+    characterId: string,
+    groupId: number,
     disband = false
   ) {
-    if (!group.members.includes(client.character.characterId)) {
-      this.sendGroupError(server, client, GroupErrors.INVALID_MEMBER);
+    const client: Client | undefined = server.getClientByCharId(characterId),
+      group: Group | null = await this.getGroup(server, groupId);
+
+    if (!group) return;
+
+    if (!group.members.includes(characterId)) {
+      if (client) {
+        this.sendGroupError(server, client, GroupErrors.INVALID_MEMBER);
+      }
       return;
     }
 
-    client.character.groupId = 0;
+    if (client) {
+      client.character.groupId = 0;
+    }
 
-    const idx = group.members.indexOf(client.character.characterId);
+    const idx = group.members.indexOf(characterId);
     group.members.splice(idx, 1);
 
     this.sendDataToGroup(server, group.groupId, "Group.RemoveGroup", {
@@ -407,6 +414,13 @@ export class GroupManager {
         },
         { $set: { members: group.members } }
       );
+      await server._db.collection(DB_COLLECTIONS.CHARACTERS).updateOne(
+        {
+          serverId: server._worldId,
+          characterId: characterId
+        },
+        { $set: { groupId: 0 } }
+      );
     }
 
     // disband single member / empty group
@@ -415,7 +429,7 @@ export class GroupManager {
     }
 
     // re-assign leader if 2+ remaining members
-    if (group.leader == client.character.characterId && !disband) {
+    if (group.leader == characterId && !disband) {
       const leader = Object.values(group.members)[0],
         leaderClient = server.getClientByCharId(leader);
 
@@ -448,30 +462,40 @@ export class GroupManager {
 
   handleGroupKick(
     server: ZoneServer2016,
-    client: Client,
-    target: Client,
+    sourceCharacterId: string,
+    targetCharacterId: string,
     group: Group
   ) {
-    if (group.leader != client.character.characterId) {
-      server.sendChatText(client, "You are not the group leader.");
+    const sourceClient: Client | undefined =
+        server.getClientByCharId(sourceCharacterId),
+      targetClient: Client | undefined =
+        server.getClientByCharId(targetCharacterId);
+
+    if (group.leader != sourceCharacterId) {
+      if (sourceClient) {
+        server.sendChatText(sourceClient, "You are not the group leader.");
+      }
       return;
     }
 
-    if (!group.members.includes(target.character.characterId)) {
-      server.sendChatText(
-        client,
-        `${target.character.characterId} is not a member of your group.`
+    if (!group.members.includes(targetCharacterId)) {
+      if (sourceClient && targetClient) {
+        server.sendChatText(
+          sourceClient,
+          `${targetClient.character?.name} is not a member of your group.`
+        );
+      }
+      return;
+    }
+    if (targetClient) {
+      server.sendAlert(targetClient, "You have been kicked from the group!");
+      this.sendAlertToGroup(
+        server,
+        group.groupId,
+        `${targetClient.character?.name} has been kicked from the group!`
       );
-      return;
     }
-
-    server.sendAlert(target, "You have been kicked from the group!");
-    this.sendAlertToGroup(
-      server,
-      client.character.groupId,
-      `${target.character.name} has been kicked from the group!`
-    );
-    this.removeGroupMember(server, target, group);
+    this.removeGroupMember(server, targetCharacterId, group.groupId);
   }
 
   handleGroupLeave(server: ZoneServer2016, client: Client, group: Group) {
@@ -482,7 +506,7 @@ export class GroupManager {
       group.groupId,
       `${client.character.name} has left the group.`
     );
-    this.removeGroupMember(server, client, group);
+    this.removeGroupMember(server, client.character.characterId, group.groupId);
     server.sendData(client, "Group.RemoveGroup", {
       unknownDword1: group.groupId,
       groupId: group.groupId
@@ -518,7 +542,12 @@ export class GroupManager {
       return;
     }
 
-    this.removeGroupMember(server, client, group, true);
+    this.removeGroupMember(
+      server,
+      client.character.characterId,
+      group.groupId,
+      true
+    );
     this.disbandGroup(server, group.groupId);
     // For some reason the leader isn't a member anymore while disbanding. So this is a temporary workaround to fix the group UI.
     client.character.groupId = 0;
@@ -565,7 +594,12 @@ export class GroupManager {
           return;
         }
 
-        this.handleGroupKick(server, client, target, group);
+        this.handleGroupKick(
+          server,
+          client.character.characterId,
+          target.character.characterId,
+          group
+        );
         break;
       case "leave":
         this.handleGroupLeave(server, client, group);

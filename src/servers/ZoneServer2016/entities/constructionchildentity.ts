@@ -15,7 +15,20 @@ function getRenderDistance(itemDefinitionId: number) {
     case Items.FOUNDATION:
     case Items.FOUNDATION_EXPANSION:
     case Items.GROUND_TAMPER:
-      range = 350;
+    case Items.METAL_DOORWAY:
+    case Items.METAL_WALL:
+    case Items.METAL_WALL_UPPER:
+    case Items.DOOR_BASIC:
+    case Items.DOOR_METAL:
+    case Items.DOOR_WOOD:
+    case Items.SHELTER:
+    case Items.SHELTER_LARGE:
+    case Items.SHELTER_UPPER:
+    case Items.SHELTER_UPPER_LARGE:
+    case Items.METAL_GATE:
+    case Items.STRUCTURE_STAIRS:
+    case Items.STRUCTURE_STAIRS_UPPER:
+      range = 410;
       break;
     case Items.FURNACE:
     case Items.WORKBENCH:
@@ -361,10 +374,21 @@ export class ConstructionChildEntity extends BaseLightweightCharacter {
       slot = 1;
     }
     const slots = definitions[this.itemDefinitionId];
-    if (!slots || !slots.authorizedItems.includes(itemDefinitionId)) {
+    if (!slots) {
+      console.error(`Slot definition not found for item ${itemDefinitionId}`);
       return false;
     }
-    return !!slotMap[slot];
+    if (!slots.authorizedItems.includes(itemDefinitionId)) {
+      console.error(
+        `Item ${itemDefinitionId} is not authorized for slot ${slot}`
+      );
+      return false;
+    }
+    if (!slotMap[slot]) {
+      console.error(`Slot ${slot} is not valid`);
+      return false;
+    }
+    return true;
   }
 
   protected setSlot(
@@ -374,8 +398,13 @@ export class ConstructionChildEntity extends BaseLightweightCharacter {
     occupiedSlots: OccupiedSlotMap
   ) {
     const slot = entity.getSlotNumber();
-    if (!this.isSlotValid(slot, definitions, slotMap, entity.itemDefinitionId))
+    if (
+      !this.isSlotValid(slot, definitions, slotMap, entity.itemDefinitionId)
+    ) {
+      console.error("Invalid slot for entity");
+      console.error(JSON.stringify(entity));
       return false;
+    }
     occupiedSlots[slot] = entity;
     return true;
   }

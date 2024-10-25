@@ -517,6 +517,7 @@ export class WorldDataManager {
       ...WorldDataManager.getBaseFullCharacterUpdateSaveData(vehicle, worldId),
       vehicleId: vehicle.vehicleId,
       actorModelId: vehicle.actorModelId,
+      shaderGroupId: vehicle.shaderGroupId,
       characterId: vehicle.characterId,
       serverId: worldId,
       rotation: Array.from(vehicle.state.lookAt),
@@ -1155,7 +1156,8 @@ export class WorldDataManager {
         new Float32Array(entityData.rotation),
         server,
         getCurrentServerTimeWrapper().getTruncatedU32(),
-        entityData.vehicleId
+        entityData.vehicleId,
+        entityData?.shaderGroupId ?? 0
       );
     vehicle._resources = entityData._resources;
     Object.assign(vehicle.positionUpdate, entityData.positionUpdate);
@@ -1374,7 +1376,8 @@ export class WorldDataManager {
           entityData.ownerCharacterId
         );
         server._explosives[entityData.characterId] = explosive;
-        explosive.arm(server);
+        //explosive.arm(server);
+        //temporarily Disabled
         break;
       default:
         const trap = new TrapEntity(
@@ -1390,7 +1393,8 @@ export class WorldDataManager {
         );
         trap.health = entityData.health;
         server._traps[trap.characterId] = trap;
-        trap.arm(server);
+      //trap.arm(server);
+      //temporarily disabled
     }
   }
 
