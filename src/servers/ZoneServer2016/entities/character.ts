@@ -59,6 +59,7 @@ import {
   ClientUpdateDamageInfo,
   ClientUpdateModifyMovementSpeed,
   CommandPlayDialogEffect,
+  EquipmentSetCharacterEquipment,
   EquipmentSetCharacterEquipmentSlot,
   LoadoutSetLoadoutSlots,
   SendSelfToClient
@@ -1597,7 +1598,7 @@ export class Character2016 extends BaseFullCharacter {
         ...this.positionUpdate,
         sequenceTime: getCurrentServerTimeWrapper().getTruncatedU32(),
         position: this.state.position, // trying to fix invisible characters/vehicles until they move
-        stance: 66561
+        stance: this.positionUpdate?.stance ? this.positionUpdate.stance : 66561
       },
       stats: this.getStats().map((stat: any) => {
         return stat.statData;
@@ -1624,6 +1625,12 @@ export class Character2016 extends BaseFullCharacter {
       characterId: this.characterId,
       stance: this.weaponStance
     });
+
+    server.sendData<EquipmentSetCharacterEquipment>(
+      client,
+      "Equipment.SetCharacterEquipment",
+      this.pGetEquipment()
+    );
 
     const c = server.getClientByCharId(this.characterId);
     if (c && !c.firstLoading) {
