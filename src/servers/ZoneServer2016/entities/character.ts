@@ -308,7 +308,7 @@ export class Character2016 extends BaseFullCharacter {
     );
 
     /** The distance at which the character will render, exceeding the renderDistance and the object renders away */
-    this.npcRenderDistance = 500;
+    this.npcRenderDistance = 350;
 
     /** Default resource amounts applied after respawning */
     this._resources = {
