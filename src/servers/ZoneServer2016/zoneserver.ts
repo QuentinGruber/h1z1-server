@@ -8421,7 +8421,7 @@ export class ZoneServer2016 extends EventEmitter {
       return;
     }
 
-    client.zonePings.push(ping > 600 ? 600 : ping); // dont push values higher than 600, that would increase average value drasticaly
+    client.zonePings.push(ping > 220 ? 220 : ping); // dont push values higher than 600, that would increase average value drasticaly
     if (ping >= this.fairPlayManager.maxPing) {
       this.sendAlert(
         client,
