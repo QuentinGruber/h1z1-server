@@ -965,7 +965,6 @@ export class LoginServer extends EventEmitter {
   async CharacterLoginRequest(client: Client, packet: CharacterLoginRequest) {
     const { serverId, characterId } = packet;
     let connectionAllowed: ConnectionAllowed = { status: 1 };
-    let rejectionFlags: Array<CONNECTION_REJECTION_FLAGS> = [];
 
     if (this._soloMode) {
       this.sendData(
@@ -997,23 +996,25 @@ export class LoginServer extends EventEmitter {
       characterId,
       UserSession.guid
     );
-    if (populationNumber < maxPopulationNumber || !maxPopulationNumber) {
-      const isAdmin = (await this.askZone(serverId, "ClientIsAdminRequest", {
+    // If server full
+    if (populationNumber >= maxPopulationNumber) {
+      const isAdmin = await this.askZone(serverId, "ClientIsAdminRequest", {
         guid: UserSession.guid
-      })) as ConnectionAllowed;
+      });
 
-      if (!isAdmin.status) {
+      // Only allow admins
+      if (!isAdmin) {
         this.sendData(client, "H1emu.PrintToConsole", {
           message: `Server is full !`,
           showConsole: true,
-          clearOutput: true
+          clearOutput: false
         });
         charactersLoginInfo.status = 0;
         this.sendData(client, "CharacterLoginReply", charactersLoginInfo);
         return;
       }
     }
-    rejectionFlags = await this.getClientRejectionFlags(serverId, client);
+    const rejectionFlags = await this.getClientRejectionFlags(serverId, client);
 
     connectionAllowed = (await this.askZone(
       serverId,

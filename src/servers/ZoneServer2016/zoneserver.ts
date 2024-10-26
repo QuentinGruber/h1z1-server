@@ -1032,10 +1032,11 @@ export class ZoneServer2016 extends EventEmitter {
   }
   async onClientIsAdminRequest(client: LZConnectionClient, packet: any) {
     const { guid, reqId } = packet.data;
+    const isAdmin = await this.getIsAdmin(guid);
     try {
       this._loginConnectionManager.sendData(client, "ClientIsAdminReply", {
         reqId: reqId,
-        status: this.getIsAdmin(guid)
+        status: isAdmin
       });
     } catch (error) {
       console.error(error);
