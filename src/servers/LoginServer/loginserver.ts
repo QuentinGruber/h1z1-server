@@ -853,48 +853,26 @@ export class LoginServer extends EventEmitter {
 
   async getCharactersLoginInfo(
     serverId: number,
+    serverAddress: string,
     characterId: string,
-    authKey: string | undefined
+    guid: string
   ): Promise<CharacterLoginReply | null> {
-    const gameServer = await this._db
-      .collection<GameServer>(DB_COLLECTIONS.SERVERS)
-      .findOne({ serverId: serverId });
-    if (!gameServer) {
-      console.error(`ServerId "${serverId}" unfound`);
-      return null;
-    }
-
-    const { serverAddress, populationNumber, maxPopulationNumber } = gameServer;
     const character = await this._db
       .collection(DB_COLLECTIONS.CHARACTERS_LIGHT)
       .findOne({ characterId: characterId });
-    let connectionStatus =
-      Object.values(this._zoneConnections).includes(serverId) &&
-      (populationNumber < maxPopulationNumber || !maxPopulationNumber);
     if (!character) {
       console.error(
         `CharacterId "${characterId}" unfound on serverId: "${serverId}"`
       );
     }
-    const hiddenSession = (await this._db
-      .collection(DB_COLLECTIONS.USERS_SESSIONS)
-      .findOne({ authKey })) ?? { guid: "" };
-    if (!connectionStatus && hiddenSession.guid) {
-      // Admins bypass max pop
-      connectionStatus = (
-        (await this.askZone(serverId, "ClientIsAdminRequest", {
-          guid: hiddenSession.guid
-        })) as ConnectionAllowed
-      ).status as unknown as boolean;
-    }
     return {
       unknownQword1: "0x0",
       unknownDword1: 0,
       unknownDword2: 0,
-      status: character ? Number(connectionStatus) : 0,
+      status: character ? 1 : 0,
       applicationData: {
         serverAddress: serverAddress,
-        serverTicket: hiddenSession?.guid,
+        serverTicket: guid,
         encryptionKey: this._cryptoKey,
         guid: characterId
       }
@@ -999,13 +977,41 @@ export class LoginServer extends EventEmitter {
       return;
     }
 
+    const gameServer = await this._db
+      .collection<GameServer>(DB_COLLECTIONS.SERVERS)
+      .findOne({ serverId: serverId });
+    if (!gameServer) {
+      console.error(`ServerId "${serverId}" unfound`);
+      return;
+    }
+    const hiddenSession = (await this._db
+      .collection(DB_COLLECTIONS.USERS_SESSIONS)
+      .findOne({ authKey: client.authKey })) ?? { guid: "" };
+    const { serverAddress, populationNumber, maxPopulationNumber } = gameServer;
     const charactersLoginInfo = await this.getCharactersLoginInfo(
       serverId,
+      serverAddress,
       characterId,
-      client.authKey
+      hiddenSession.guid
     );
     if (charactersLoginInfo === null) {
       return;
+    }
+    if (populationNumber < maxPopulationNumber || !maxPopulationNumber) {
+      const isAdmin = (await this.askZone(serverId, "ClientIsAdminRequest", {
+        guid: hiddenSession.guid
+      })) as ConnectionAllowed;
+
+      if (!isAdmin.status) {
+        this.sendData(client, "H1emu.PrintToConsole", {
+          message: `Server is full !`,
+          showConsole: true,
+          clearOutput: true
+        });
+        charactersLoginInfo.status = 0;
+        this.sendData(client, "CharacterLoginReply", charactersLoginInfo);
+        return;
+      }
     }
     rejectionFlags = await this.getClientRejectionFlags(serverId, client);
 
@@ -1039,7 +1045,7 @@ export class LoginServer extends EventEmitter {
       charactersLoginInfo.status = Number(connectionAllowed.status);
     } else {
       this.sendData(client, "H1emu.PrintToConsole", {
-        message: `Server is full`,
+        message: `Invalid character status! If this is a new character, please delete and recreate it.`,
         showConsole: true,
         clearOutput: true
       });
