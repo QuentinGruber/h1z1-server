@@ -30,8 +30,7 @@ import {
 import {
   BannedUser,
   ConnectionAllowed,
-  GameServer,
-  UserSession
+  GameServer
 } from "../../types/loginserver";
 import Client from "servers/LoginServer/loginclient";
 import fs from "node:fs";
@@ -856,7 +855,7 @@ export class LoginServer extends EventEmitter {
     serverAddress: string,
     characterId: string,
     guid: string
-  ): Promise<CharacterLoginReply | null> {
+  ): Promise<CharacterLoginReply> {
     const character = await this._db
       .collection(DB_COLLECTIONS.CHARACTERS_LIGHT)
       .findOne({ characterId: characterId });
@@ -984,22 +983,23 @@ export class LoginServer extends EventEmitter {
       console.error(`ServerId "${serverId}" unfound`);
       return;
     }
-    const hiddenSession = (await this._db
+    const UserSession = (await this._db
       .collection(DB_COLLECTIONS.USERS_SESSIONS)
       .findOne({ authKey: client.authKey })) ?? { guid: "" };
+    if (!UserSession || !UserSession.guid) {
+      console.error(`Could not find session for ${client.authKey}`);
+      return;
+    }
     const { serverAddress, populationNumber, maxPopulationNumber } = gameServer;
     const charactersLoginInfo = await this.getCharactersLoginInfo(
       serverId,
       serverAddress,
       characterId,
-      hiddenSession.guid
+      UserSession.guid
     );
-    if (charactersLoginInfo === null) {
-      return;
-    }
     if (populationNumber < maxPopulationNumber || !maxPopulationNumber) {
       const isAdmin = (await this.askZone(serverId, "ClientIsAdminRequest", {
-        guid: hiddenSession.guid
+        guid: UserSession.guid
       })) as ConnectionAllowed;
 
       if (!isAdmin.status) {
@@ -1015,18 +1015,12 @@ export class LoginServer extends EventEmitter {
     }
     rejectionFlags = await this.getClientRejectionFlags(serverId, client);
 
-    const userSession = (await this._db
-      ?.collection<UserSession>(DB_COLLECTIONS.USERS_SESSIONS)
-      .findOne({ serverId: packet.serverId, authKey: client.authKey })) as
-      | UserSession
-      | undefined;
-
     connectionAllowed = (await this.askZone(
       serverId,
       "CharacterAllowedRequest",
       {
         characterId,
-        loginSessionId: userSession?.guid ?? "",
+        loginSessionId: UserSession?.guid ?? "",
         rejectionFlags: rejectionFlags.map((flag) => {
           return { rejectionFlag: flag };
         })
