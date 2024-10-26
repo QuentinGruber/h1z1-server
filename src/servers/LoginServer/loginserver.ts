@@ -30,8 +30,7 @@ import {
 import {
   BannedUser,
   ConnectionAllowed,
-  GameServer,
-  UserSession
+  GameServer
 } from "../../types/loginserver";
 import Client from "servers/LoginServer/loginclient";
 import fs from "node:fs";
@@ -853,48 +852,26 @@ export class LoginServer extends EventEmitter {
 
   async getCharactersLoginInfo(
     serverId: number,
+    serverAddress: string,
     characterId: string,
-    authKey: string | undefined
-  ): Promise<CharacterLoginReply | null> {
-    const gameServer = await this._db
-      .collection<GameServer>(DB_COLLECTIONS.SERVERS)
-      .findOne({ serverId: serverId });
-    if (!gameServer) {
-      console.error(`ServerId "${serverId}" unfound`);
-      return null;
-    }
-
-    const { serverAddress, populationNumber, maxPopulationNumber } = gameServer;
+    guid: string
+  ): Promise<CharacterLoginReply> {
     const character = await this._db
       .collection(DB_COLLECTIONS.CHARACTERS_LIGHT)
       .findOne({ characterId: characterId });
-    let connectionStatus =
-      Object.values(this._zoneConnections).includes(serverId) &&
-      (populationNumber < maxPopulationNumber || !maxPopulationNumber);
     if (!character) {
       console.error(
         `CharacterId "${characterId}" unfound on serverId: "${serverId}"`
       );
     }
-    const hiddenSession = (await this._db
-      .collection(DB_COLLECTIONS.USERS_SESSIONS)
-      .findOne({ authKey })) ?? { guid: "" };
-    if (!connectionStatus && hiddenSession.guid) {
-      // Admins bypass max pop
-      connectionStatus = (
-        (await this.askZone(serverId, "ClientIsAdminRequest", {
-          guid: hiddenSession.guid
-        })) as ConnectionAllowed
-      ).status as unknown as boolean;
-    }
     return {
       unknownQword1: "0x0",
       unknownDword1: 0,
       unknownDword2: 0,
-      status: character ? Number(connectionStatus) : 0,
+      status: character ? 1 : 0,
       applicationData: {
         serverAddress: serverAddress,
-        serverTicket: hiddenSession?.guid,
+        serverTicket: guid,
         encryptionKey: this._cryptoKey,
         guid: characterId
       }
@@ -988,7 +965,6 @@ export class LoginServer extends EventEmitter {
   async CharacterLoginRequest(client: Client, packet: CharacterLoginRequest) {
     const { serverId, characterId } = packet;
     let connectionAllowed: ConnectionAllowed = { status: 1 };
-    let rejectionFlags: Array<CONNECTION_REJECTION_FLAGS> = [];
 
     if (this._soloMode) {
       this.sendData(
@@ -999,28 +975,53 @@ export class LoginServer extends EventEmitter {
       return;
     }
 
-    const charactersLoginInfo = await this.getCharactersLoginInfo(
-      serverId,
-      characterId,
-      client.authKey
-    );
-    if (charactersLoginInfo === null) {
+    const gameServer = await this._db
+      .collection<GameServer>(DB_COLLECTIONS.SERVERS)
+      .findOne({ serverId: serverId });
+    if (!gameServer) {
+      console.error(`ServerId "${serverId}" unfound`);
       return;
     }
-    rejectionFlags = await this.getClientRejectionFlags(serverId, client);
+    const UserSession = (await this._db
+      .collection(DB_COLLECTIONS.USERS_SESSIONS)
+      .findOne({ authKey: client.authKey })) ?? { guid: "" };
+    if (!UserSession || !UserSession.guid) {
+      console.error(`Could not find session for ${client.authKey}`);
+      return;
+    }
+    const { serverAddress, populationNumber, maxPopulationNumber } = gameServer;
+    const charactersLoginInfo = await this.getCharactersLoginInfo(
+      serverId,
+      serverAddress,
+      characterId,
+      UserSession.guid
+    );
+    // If server full
+    if (populationNumber >= maxPopulationNumber) {
+      const isAdmin = await this.askZone(serverId, "ClientIsAdminRequest", {
+        guid: UserSession.guid
+      });
 
-    const userSession = (await this._db
-      ?.collection<UserSession>(DB_COLLECTIONS.USERS_SESSIONS)
-      .findOne({ serverId: packet.serverId, authKey: client.authKey })) as
-      | UserSession
-      | undefined;
+      // Only allow admins
+      if (!isAdmin) {
+        this.sendData(client, "H1emu.PrintToConsole", {
+          message: `Server is full !`,
+          showConsole: true,
+          clearOutput: false
+        });
+        charactersLoginInfo.status = 0;
+        this.sendData(client, "CharacterLoginReply", charactersLoginInfo);
+        return;
+      }
+    }
+    const rejectionFlags = await this.getClientRejectionFlags(serverId, client);
 
     connectionAllowed = (await this.askZone(
       serverId,
       "CharacterAllowedRequest",
       {
         characterId,
-        loginSessionId: userSession?.guid ?? "",
+        loginSessionId: UserSession?.guid ?? "",
         rejectionFlags: rejectionFlags.map((flag) => {
           return { rejectionFlag: flag };
         })
@@ -1039,7 +1040,7 @@ export class LoginServer extends EventEmitter {
       charactersLoginInfo.status = Number(connectionAllowed.status);
     } else {
       this.sendData(client, "H1emu.PrintToConsole", {
-        message: `Server is full`,
+        message: `Invalid character status! If this is a new character, please delete and recreate it.`,
         showConsole: true,
         clearOutput: true
       });
