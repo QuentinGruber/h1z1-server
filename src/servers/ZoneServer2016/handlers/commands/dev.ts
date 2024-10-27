@@ -371,6 +371,121 @@ const dev: any = {
     const packetName = args[1];
     server.sendData(client, packetName as h1z1PacketsType2016, {});
   },
+  loadouttest: function (
+    server: ZoneServer2016,
+    client: Client,
+    args: Array<string>
+  ) {
+    if (!args[1]) {
+      server.sendChatText(client, "Missing characterName");
+      return;
+    }
+
+    const targetClient: Client | undefined | string = server.getClientByName(
+      args[1]
+    );
+    if (typeof targetClient === "string") {
+      server.sendChatText(
+        client,
+        `Player not found, did you mean ${targetClient}?`
+      );
+      return;
+    }
+
+    if (!targetClient) return;
+    targetClient.character.updateLoadout(server, false);
+    server.sendChatText(
+      client,
+      `Updated loadout for ${targetClient.character?.name}`
+    );
+  },
+  equipmenttest: function (
+    server: ZoneServer2016,
+    client: Client,
+    args: Array<string>
+  ) {
+    if (!args[1]) {
+      server.sendChatText(client, "Missing characterName");
+      return;
+    }
+
+    const targetClient: Client | undefined | string = server.getClientByName(
+      args[1]
+    );
+    if (typeof targetClient === "string") {
+      server.sendChatText(
+        client,
+        `Player not found, did you mean ${targetClient}?`
+      );
+      return;
+    }
+
+    if (!targetClient) return;
+    targetClient.character.updateEquipment(server);
+    server.sendChatText(
+      client,
+      `Updated equipment for ${targetClient.character?.name}`
+    );
+  },
+  fullpctest: function (
+    server: ZoneServer2016,
+    client: Client,
+    args: Array<string>
+  ) {
+    if (!args[1]) {
+      server.sendChatText(client, "Missing characterName");
+      return;
+    }
+
+    const targetClient: Client | undefined | string = server.getClientByName(
+      args[1]
+    );
+    if (typeof targetClient === "string") {
+      server.sendChatText(
+        client,
+        `Player not found, did you mean ${targetClient}?`
+      );
+      return;
+    }
+
+    if (!targetClient) return;
+    server.sendDataToAllWithSpawnedEntity(
+      server._characters,
+      targetClient.character.characterId,
+      "LightweightToFullPc",
+      {
+        useCompression: false,
+        fullPcData: {
+          transientId: targetClient.character.transientId,
+          attachmentData: targetClient.character.pGetAttachmentSlots(),
+          headActor: targetClient.character.headActor,
+          hairModel: targetClient.character.hairModel,
+          resources: { data: targetClient.character.pGetResources() },
+          remoteWeapons: {
+            data: targetClient.character.pGetRemoteWeaponsData(server)
+          }
+        },
+        positionUpdate: {
+          ...targetClient.character.positionUpdate,
+          sequenceTime: getCurrentServerTimeWrapper().getTruncatedU32(),
+          position: targetClient.character.state.position, // trying to fix invisible characters/vehicles until they move
+          stance: targetClient.character.positionUpdate?.stance
+            ? targetClient.character.positionUpdate.stance
+            : 66561
+        },
+        stats: targetClient.character.getStats().map((stat: any) => {
+          return stat.statData;
+        }),
+        remoteWeaponsExtra:
+          targetClient.character.pGetRemoteWeaponsExtraData(server)
+      }
+    );
+
+    server.sendChatText(
+      client,
+      `Resent fullPC for ${targetClient.character?.name}`
+    );
+  },
   findmodel: function (
     server: ZoneServer2016,
     client: Client,
