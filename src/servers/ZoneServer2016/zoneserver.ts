@@ -1897,7 +1897,17 @@ export class ZoneServer2016 extends EventEmitter {
       rotation: client.character.state.rotation,
       skyData: this.weatherManager.weather
     });*/
-
+    this.sendData<ClientUpdateUpdateLocation>(
+      client,
+      "ClientUpdate.UpdateLocation",
+      {
+        position: client.startingPos,
+        rotation: new Float32Array([0, 0, 0, 1]),
+        unknownBoolean1: true,
+        unknownByte1: 4,
+        triggerLoadingScreen: false
+      }
+    );
     this.sendData<InitializationParameters>(
       client,
       "InitializationParameters",

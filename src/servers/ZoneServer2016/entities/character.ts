@@ -59,7 +59,6 @@ import {
   ClientUpdateDamageInfo,
   ClientUpdateModifyMovementSpeed,
   CommandPlayDialogEffect,
-  EquipmentSetCharacterEquipment,
   EquipmentSetCharacterEquipmentSlot,
   LoadoutSetLoadoutSlots,
   SendSelfToClient

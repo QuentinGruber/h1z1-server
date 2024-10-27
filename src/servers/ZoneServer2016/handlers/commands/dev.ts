@@ -486,6 +486,21 @@ const dev: any = {
       `Resent fullPC for ${targetClient.character?.name}`
     );
   },
+  tptest: function (
+    server: ZoneServer2016,
+    client: Client,
+    args: Array<string>
+  ) {
+    if (!args[1]) {
+      server.sendChatText(client, "usage /tptest 0-1");
+      return;
+    }
+    const triggerLoadingScreen = Number(args[1]);
+    server.sendData(client, "ClientUpdate.UpdateLocation", {
+      position: client.character.state.position,
+      triggerLoadingScreen
+    });
+  },
   findmodel: function (
     server: ZoneServer2016,
     client: Client,
