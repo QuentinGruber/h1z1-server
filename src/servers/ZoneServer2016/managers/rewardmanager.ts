@@ -28,27 +28,27 @@ export class RewardManager {
     this.rewards = [
       {
         itemId: Items.MYSTERY_BAG_1,
-        dropChances: 80
+        dropChances: 20
       },
       {
-        itemId: Items.REWARD_CRATE_ALPHA_LAUNCH,
-        dropChances: 8.5
+        itemId: Items.MYSTERY_BAG_V2,
+        dropChances: 20
       },
       {
-        itemId: Items.REWARD_CRATE_WEARABLES,
-        dropChances: 8
+        itemId: Items.ELITE_BAG_HARDCORE,
+        dropChances: 10
       },
       {
-        itemId: Items.REWARD_CRATE_WASTELAND,
-        dropChances: 2
+        itemId: Items.REWARD_CRATE_MARAUDER,
+        dropChances: 30
       },
       {
-        itemId: Items.REWARD_CRATE_WASTELAND_BRONZE,
-        dropChances: 1
+        itemId: Items.REWARD_CRATE_SHOWDOWN,
+        dropChances: 10
       },
       {
-        itemId: Items.REWARD_CRATE_WASTELAND_SILVER,
-        dropChances: 0.5
+        itemId: Items.REWARD_CRATE_INVITATIONAL,
+        dropChances: 10
       }
     ];
   }
