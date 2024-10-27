@@ -5851,7 +5851,9 @@ export class ZoneServer2016 extends EventEmitter {
       this.getItemDefinition(itemDefinitionId)?.DESCRIPTION_ID ==
         StringIds.WOODEN_ARMOR ||
       this.getItemDefinition(itemDefinitionId)?.DESCRIPTION_ID ==
-        StringIds.PLATED_ARMOR
+        StringIds.PLATED_ARMOR ||
+      this.getItemDefinition(itemDefinitionId)?.DESCRIPTION_ID ==
+        StringIds.BADASS_ARMOR
     );
   }
 
