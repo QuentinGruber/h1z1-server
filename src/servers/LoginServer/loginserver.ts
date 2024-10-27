@@ -17,7 +17,7 @@ import { SOEServer } from "../SoeServer/soeserver";
 import { ZoneConnectionManager } from "../LoginZoneConnection/zoneconnectionmanager";
 import { LZConnectionClient } from "../LoginZoneConnection/shared/lzconnectionclient";
 import { LoginProtocol } from "../../protocols/loginprotocol";
-import { Collection, Db, MongoClient, WithId } from "mongodb";
+import { Db, MongoClient, WithId } from "mongodb";
 import {
   _,
   generateRandomGuid,
