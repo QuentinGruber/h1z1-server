@@ -738,9 +738,9 @@ export class FairPlayManager {
   validateFile(file1: FileHash, file2: FileHash) {
     if (
       file1.file_name == "Assets_256.pack" &&
-      file1.crc32_hash == "c8b93131"
+      (file1.crc32_hash == "c8b93131" || file1.crc32_hash == "f9eca10a")
     ) {
-      file1.crc32_hash = "f9eca10a";
+      file1.crc32_hash = "0a89a497";
     } // workaround
     return (
       file1.file_name == file2.file_name && file1.crc32_hash == file2.crc32_hash
