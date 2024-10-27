@@ -1993,28 +1993,14 @@ export class ZoneServer2016 extends EventEmitter {
       this.sendRawDataReliable(client, this.weaponDefinitionsCache);
     }
 
-    // Initially, send only the skin tones to ensure the character displays the correct skin tone.
-    this.sendData(client, "ReferenceData.DynamicAppearance", {
-      ITEM_APPEARANCE_DEFINITIONS: [],
-      SHADER_SEMANTIC_DEFINITIONS: [],
-      SHADER_PARAMETER_DEFINITIONS:
-        this.dynamicappearance.SHADER_PARAMETER_DEFINITIONS.filter((def) =>
-          [125, 129, 122].includes(def?.ID)
-        )
-    });
-
-    this.sendCharacterData(client);
-
-    // Now we can send all the rest of the data while the player is at the loading screen.
-    // This ensures the player doesn't have to wait on the loading screen after clicking 'join', as this packet is large.
-    // Z1BR resolved this issue by using LZ4 to compress this block. We can easily add this in the patch, but we'll implement it if users start experiencing network issues.
-    // FYI: This was tested with 40 players on my server without any issues. - Jason
     if (!this.dynamicAppearanceCache) {
       this.packDynamicAppearance();
     }
     if (this.dynamicAppearanceCache) {
       this.sendRawDataReliable(client, this.dynamicAppearanceCache);
     }
+
+    this.sendCharacterData(client);
   }
 
   private divideMapIntoSpawnGrid(

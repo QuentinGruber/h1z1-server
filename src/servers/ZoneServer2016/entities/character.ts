@@ -1626,14 +1626,6 @@ export class Character2016 extends BaseFullCharacter {
       stance: this.weaponStance
     });
 
-    server.sendData(client, "Loadout.SetLoadoutSlots", this.pGetLoadoutSlots());
-
-    server.sendData<EquipmentSetCharacterEquipment>(
-      client,
-      "Equipment.SetCharacterEquipment",
-      this.pGetEquipment()
-    );
-
     const c = server.getClientByCharId(this.characterId);
     if (c && !c.firstLoading) {
       server.updateCharacterState(
