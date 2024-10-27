@@ -1053,6 +1053,32 @@ const dev: any = {
     args: Array<string>
   ) {
     server.sleep(client);
+  },
+  updatecharacter: function (
+    server: ZoneServer2016,
+    client: Client,
+    args: Array<string>
+  ) {
+    if (!args[1]) {
+      server.sendChatText(client, "Missing characterName");
+      return;
+    }
+
+    const targetClient: Client | undefined | string = server.getClientByName(args[1]);
+    if (typeof targetClient === "string") {
+      server.sendChatText(
+        client,
+        `Player not found, did you mean ${targetClient}?`
+      );
+      return;
+    }
+
+    if(!targetClient) return;
+    targetClient.character.updateLoadout(server, false);
+    server.sendChatText(client, `Updated loadout for ${targetClient.character?.name}, waiting 3 seconds before sending equipment packet.`);
+    setTimeout(() => {
+      targetClient.character.updateEquipment(server);
+    }, 3000);
   }
   /*
   shutdown: function (
