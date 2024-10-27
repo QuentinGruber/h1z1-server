@@ -5846,14 +5846,8 @@ export class ZoneServer2016 extends EventEmitter {
    */
   isArmor(itemDefinitionId: number): boolean {
     return (
-      this.getItemDefinition(itemDefinitionId)?.DESCRIPTION_ID ==
-        StringIds.TACTICAL_ARMOR ||
-      this.getItemDefinition(itemDefinitionId)?.DESCRIPTION_ID ==
-        StringIds.WOODEN_ARMOR ||
-      this.getItemDefinition(itemDefinitionId)?.DESCRIPTION_ID ==
-        StringIds.PLATED_ARMOR ||
-      this.getItemDefinition(itemDefinitionId)?.DESCRIPTION_ID ==
-        StringIds.BADASS_ARMOR
+      this.getItemDefinition(itemDefinitionId)?.ITEM_CLASS ==
+      ItemClasses.BODY_ARMOR
     );
   }
 
