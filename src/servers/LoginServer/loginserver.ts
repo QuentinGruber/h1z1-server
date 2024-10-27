@@ -962,7 +962,10 @@ export class LoginServer extends EventEmitter {
     return rejectionFlags;
   }
 
-  async CharacterLoginRequest(client: Client, packet: CharacterLoginRequest) {
+  async CharacterLoginRequest(
+    client: Client,
+    packet: CharacterLoginRequest
+  ): Promise<boolean> {
     const { serverId, characterId } = packet;
     let connectionAllowed: ConnectionAllowed = { status: 1 };
 
@@ -972,7 +975,7 @@ export class LoginServer extends EventEmitter {
         "CharacterLoginReply",
         await this.getCharactersLoginInfoSolo(client, characterId)
       );
-      return;
+      return true;
     }
 
     const gameServer = await this._db
@@ -980,14 +983,14 @@ export class LoginServer extends EventEmitter {
       .findOne({ serverId: serverId });
     if (!gameServer) {
       console.error(`ServerId "${serverId}" unfound`);
-      return;
+      return false;
     }
     const UserSession = (await this._db
       .collection(DB_COLLECTIONS.USERS_SESSIONS)
       .findOne({ authKey: client.authKey })) ?? { guid: "" };
     if (!UserSession || !UserSession.guid) {
       console.error(`Could not find session for ${client.authKey}`);
-      return;
+      return false;
     }
     const { serverAddress, populationNumber, maxPopulationNumber } = gameServer;
     const charactersLoginInfo = await this.getCharactersLoginInfo(
@@ -1011,7 +1014,7 @@ export class LoginServer extends EventEmitter {
         });
         charactersLoginInfo.status = 0;
         this.sendData(client, "CharacterLoginReply", charactersLoginInfo);
-        return;
+        return false;
       }
     }
     const rejectionFlags = await this.getClientRejectionFlags(serverId, client);
@@ -1087,7 +1090,7 @@ export class LoginServer extends EventEmitter {
             clearOutput: true
           });
           this.sendData(client, "CharacterLoginReply", charactersLoginInfo);
-          return;
+          return false;
       }
       this.sendData(client, "H1emu.PrintToConsole", {
         message: `CONNECTION REJECTED! Reason: ${reason}`,
@@ -1111,6 +1114,7 @@ export class LoginServer extends EventEmitter {
     }
     this.sendData(client, "CharacterLoginReply", charactersLoginInfo);
     debug("CharacterLoginRequest");
+    return charactersLoginInfo.status === 1;
   }
 
   getZoneConnectionClient(serverId: number): LZConnectionClient | undefined {
