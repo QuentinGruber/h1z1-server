@@ -412,6 +412,7 @@ export abstract class BaseFullCharacter extends BaseLightweightCharacter {
     if (count > item.stackCount) {
       count = item.stackCount;
     }
+    if (item.itemDefinitionId == 1899) item.itemDefinitionId = 1373; // Remove this next wipe
     const itemDefId = item.itemDefinitionId;
     if (server.isAccountItem(itemDefId) && client) {
       server.lootAccountItem(server, client, item, sendUpdate);
