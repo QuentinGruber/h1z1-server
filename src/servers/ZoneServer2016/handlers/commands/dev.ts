@@ -1064,7 +1064,9 @@ const dev: any = {
       return;
     }
 
-    const targetClient: Client | undefined | string = server.getClientByName(args[1]);
+    const targetClient: Client | undefined | string = server.getClientByName(
+      args[1]
+    );
     if (typeof targetClient === "string") {
       server.sendChatText(
         client,
@@ -1073,9 +1075,12 @@ const dev: any = {
       return;
     }
 
-    if(!targetClient) return;
+    if (!targetClient) return;
     targetClient.character.updateLoadout(server, false);
-    server.sendChatText(client, `Updated loadout for ${targetClient.character?.name}, waiting 3 seconds before sending equipment packet.`);
+    server.sendChatText(
+      client,
+      `Updated loadout for ${targetClient.character?.name}, waiting 3 seconds before sending equipment packet.`
+    );
     setTimeout(() => {
       targetClient.character.updateEquipment(server);
     }, 3000);
