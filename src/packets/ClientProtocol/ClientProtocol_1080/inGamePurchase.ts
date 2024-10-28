@@ -15,25 +15,52 @@ import { PacketStructures } from "types/packetStructure";
 
 export const inGamePurchasePackets: PacketStructures = [
   ["InGamePurchase.PreviewOrderRequest", 0x270100, {}],
-  ["InGamePurchase.PreviewOrderResponse", 0x270200, {}],
-  ["InGamePurchase.PlaceOrderRequest", 0x270300, {}],
-  ["InGamePurchase.PlaceOrderResponse", 0x270400, {}],
   [
-    "InGamePurchase.StoreBundles",
-    0x27050000,
+    "InGamePurchase.PreviewOrderResponse",
+    0x270200,
     {
       fields: [
-        { name: "unknownDword1", type: "uint32", defaultValue: 0 },
+        { name: "unknownDword1", type: "uint32", defaultValue: 1 },
         { name: "unknownDword2", type: "uint32", defaultValue: 0 },
-        { name: "storeId", type: "uint32", defaultValue: 0 },
         { name: "unknownDword3", type: "uint32", defaultValue: 0 },
-        { name: "unknownDword4", type: "uint32", defaultValue: 0 },
+        { name: "unknownDword4", type: "uint32", defaultValue: 0 }
+      ]
+    }
+  ],
+  ["InGamePurchase.PlaceOrderRequest", 0x270300, {}],
+  [
+    "InGamePurchase.PlaceOrderResponse",
+    0x270400,
+    {
+      fields: [
+        { name: "unknownDword1", type: "uint32", defaultValue: 1 },
+        { name: "unknownDword2", type: "uint32", defaultValue: 0 },
+        {
+          name: "unknownString1",
+          type: "string",
+          defaultValue: ""
+        },
+        { name: "unknownDword3", type: "uint32", defaultValue: 0 },
+        { name: "unknownDword4", type: "uint32", defaultValue: 0 }
+      ]
+    }
+  ],
+  [
+    "InGamePurchase.StoreBundles",
+    0x270500,
+    {
+      fields: [
+        { name: "unknownDword1", type: "uint32", defaultValue: 1 },
+        { name: "unknownDword2", type: "uint32", defaultValue: 1 },
+        { name: "storeId", type: "uint32", defaultValue: 1 },
+        { name: "unknownDword3", type: "uint32", defaultValue: 71 },
+        { name: "unknownDword4", type: "uint32", defaultValue: 71 },
         {
           name: "imageData",
           type: "schema",
           fields: [
-            { name: "imageSetId", type: "string", defaultValue: "" },
-            { name: "imageTintValue", type: "string", defaultValue: "" }
+            { name: "imageSetId", type: "string", defaultValue: "0" },
+            { name: "imageTintValue", type: "string", defaultValue: "0" }
           ]
         },
         {
@@ -149,6 +176,28 @@ export const inGamePurchasePackets: PacketStructures = [
                               name: "unknownString1",
                               type: "string",
                               defaultValue: ""
+                            },
+                            {
+                              name: "unknownString2",
+                              type: "string",
+                              defaultValue: ""
+                            }
+                          ]
+                        },
+                        {
+                          name: "unknownArray2",
+                          type: "array",
+                          defaultValue: [{}],
+                          fields: [
+                            {
+                              name: "unknownDword1",
+                              type: "uint32",
+                              defaultValue: 0
+                            },
+                            {
+                              name: "unknownDword2",
+                              type: "uint32",
+                              defaultValue: 0
                             }
                           ]
                         }
@@ -198,13 +247,14 @@ export const inGamePurchasePackets: PacketStructures = [
                 { name: "unknownDword9", type: "uint32", defaultValue: 0 },
                 { name: "memberSalePrice", type: "uint32", defaultValue: 0 },
                 { name: "unknownDword11", type: "uint32", defaultValue: 0 },
+                {
+                  name: "unknownQword3",
+                  type: "uint64string",
+                  defaultValue: "0"
+                },
                 { name: "unknownString2", type: "string", defaultValue: "" },
                 { name: "unknownDword12", type: "uint32", defaultValue: 0 },
-                {
-                  name: "unknownBoolean1",
-                  type: "boolean",
-                  defaultValue: false
-                }
+                { name: "unknownDword13", type: "uint32", defaultValue: 0 }
               ]
             }
           ]
@@ -214,7 +264,35 @@ export const inGamePurchasePackets: PacketStructures = [
   ],
   ["InGamePurchase.StoreBundleStoreUpdate", 0x27050001, {}],
   ["InGamePurchase.StoreBundleStoreBundleUpdate", 0x27050002, {}],
-  ["InGamePurchase.StoreBundleCategoryGroups", 0x270600, {}],
+  [
+    "InGamePurchase.StoreBundleCategoryGroups",
+    0x270600,
+    {
+      fields: [
+        {
+          name: "categoryGroups",
+          type: "array",
+          defaultValue: [{}],
+          fields: [
+            { name: "Id", type: "uint32", defaultValue: 0 },
+            {
+              name: "categoryData",
+              type: "schema",
+              fields: [
+                { name: "Id", type: "uint32", defaultValue: 0 },
+                {
+                  name: "categoryGroups",
+                  type: "array",
+                  defaultValue: [{}],
+                  fields: [{ name: "Id", type: "uint32", defaultValue: 0 }]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ],
   [
     "InGamePurchase.StoreBundleCategories",
     0x270700,
@@ -240,20 +318,16 @@ export const inGamePurchasePackets: PacketStructures = [
                   defaultValue: false
                 },
                 { name: "unknownDword2", type: "uint32", defaultValue: 0 },
-                {
-                  name: "unknownArray1",
-                  type: "array",
-                  defaultValue: [{}],
-                  fields: [
-                    { name: "unknownDword1", type: "uint32", defaultValue: 0 },
-                    { name: "unknownDword2", type: "uint32", defaultValue: 0 },
-                    { name: "unknownDword3", type: "uint32", defaultValue: 0 }
-                  ]
-                },
-                { name: "unknownDword3", type: "uint32", defaultValue: 0 }
+                { name: "unknownDword3", type: "uint32", defaultValue: 0 },
+                { name: "unknownDword4", type: "uint32", defaultValue: 0 }
               ]
             }
           ]
+        },
+        {
+          name: "unknownBoolean1",
+          type: "boolean",
+          defaultValue: false
         }
       ]
     }
@@ -272,14 +346,51 @@ export const inGamePurchasePackets: PacketStructures = [
         { name: "unknownDword3", type: "uint32", defaultValue: 0 },
         { name: "unknownString1", type: "string", defaultValue: "" },
         { name: "unknownString2", type: "string", defaultValue: "" },
-        { name: "unknownBoolean2", type: "boolean", defaultValue: false }
+        { name: "unknownBoolean2", type: "boolean", defaultValue: false },
+        {
+          name: "unknownArray1",
+          type: "array",
+          defaultValue: [{}],
+          fields: [
+            { name: "unknownString1", type: "string", defaultValue: "" },
+            { name: "unknownBoolean1", type: "boolean", defaultValue: false },
+            { name: "unknownDword1", type: "uint32", defaultValue: 0 },
+            { name: "unknownDword2", type: "uint32", defaultValue: 0 },
+            { name: "unknownString2", type: "string", defaultValue: "" },
+            { name: "unknownString3", type: "string", defaultValue: "" },
+            { name: "unknownBoolean2", type: "boolean", defaultValue: false }
+          ]
+        }
       ]
     }
   ],
   ["InGamePurchase.ServerStatusRequest", 0x270c00, {}],
   ["InGamePurchase.ServerStatusResponse", 0x270d00, {}],
   ["InGamePurchase.StationCashProductsRequest", 0x270e00, {}],
-  ["InGamePurchase.StationCashProductsResponse", 0x270f00, {}],
+  [
+    "InGamePurchase.StationCashProductsResponse",
+    0x270f00,
+    {
+      fields: [
+        { name: "unknownDword1", type: "uint32", defaultValue: 1 },
+        {
+          name: "products",
+          type: "array",
+          defaultValue: [{}],
+          fields: [
+            { name: "unknownString1", type: "string", defaultValue: "" },
+            { name: "unknownString2", type: "string", defaultValue: "" },
+            { name: "unknownDword1", type: "uint32", defaultValue: 0 },
+            { name: "unknownDword2", type: "uint32", defaultValue: 0 },
+            { name: "unknownString3", type: "string", defaultValue: "" },
+            { name: "unknownString4", type: "string", defaultValue: "" },
+            { name: "unknownDword3", type: "uint32", defaultValue: 0 },
+            { name: "unknownDword4", type: "uint32", defaultValue: 0 }
+          ]
+        }
+      ]
+    }
+  ],
   ["InGamePurchase.CurrencyCodesRequest", 0x271000, {}],
   ["InGamePurchase.CurrencyCodesResponse", 0x271100, {}],
   ["InGamePurchase.StateCodesRequest", 0x271200, {}],
@@ -323,7 +434,34 @@ export const inGamePurchasePackets: PacketStructures = [
     }
   ],
   ["InGamePurchase.SubscriptionProductsRequest", 0x271600, {}],
-  ["InGamePurchase.SubscriptionProductsResponse", 0x271700, {}],
+  [
+    "InGamePurchase.SubscriptionProductsResponse",
+    0x271700,
+    {
+      fields: [
+        { name: "unknownDword1", type: "uint32", defaultValue: 1 },
+        {
+          name: "products",
+          type: "array",
+          defaultValue: [{}],
+          fields: [
+            { name: "unknownString1", type: "string", defaultValue: "" },
+            { name: "unknownString2", type: "string", defaultValue: "" },
+            { name: "unknownString3", type: "string", defaultValue: "" },
+            { name: "unknownString4", type: "string", defaultValue: "" },
+            { name: "unknownString5", type: "string", defaultValue: "" },
+            { name: "unknownString6", type: "string", defaultValue: "" },
+            { name: "unknownString7", type: "string", defaultValue: "" },
+            { name: "unknownString8", type: "string", defaultValue: "" },
+            { name: "unknownString9", type: "string", defaultValue: "" },
+            { name: "unknownString10", type: "string", defaultValue: "" },
+            { name: "unknownDword1", type: "uint32", defaultValue: 0 },
+            { name: "unknownBoolean1", type: "boolean", defaultValue: false }
+          ]
+        }
+      ]
+    }
+  ],
   [
     "InGamePurchase.EnableMarketplace",
     0x271800,
@@ -398,8 +536,26 @@ export const inGamePurchasePackets: PacketStructures = [
       fields: [{ name: "bundleId", type: "uint32", defaultValue: 0 }]
     }
   ],
-  ["InGamePurchase.EnablePaymentSources", 0x272100, {}],
-  ["InGamePurchase.SetMembershipFreeItemInfo", 0x272200, {}],
+  [
+    "InGamePurchase.EnablePaymentSources",
+    0x272100,
+    {
+      fields: [
+        { name: "unknownBoolean1", type: "boolean", defaultValue: false },
+        { name: "unknownBoolean2", type: "boolean", defaultValue: false }
+      ]
+    }
+  ],
+  [
+    "InGamePurchase.SetMembershipFreeItemInfo",
+    0x272200,
+    {
+      fields: [
+        { name: "unknownDword1", type: "uint32", defaultValue: 0 },
+        { name: "unknownDword2", type: "uint32", defaultValue: 0 }
+      ]
+    }
+  ],
   ["InGamePurchase.WishListAddBundle", 0x272300, {}],
   ["InGamePurchase.WishListRemoveBundle", 0x272400, {}],
   ["InGamePurchase.PlaceOrderRequestClientTicket", 0x272500, {}],
