@@ -454,6 +454,7 @@ export class H1Z1Protocol {
           };
         } catch (e) {
           console.error(e);
+          return null;
         }
         break;
       }
@@ -491,6 +492,7 @@ export class H1Z1Protocol {
       }
       default:
         console.error(`unknown flag used : ${flag} for packet : ${opCode}`);
+        [packet, offset] = this.resolveOpcode(opCode, data);
         break;
     }
     if (packet) {
@@ -502,25 +504,13 @@ export class H1Z1Protocol {
           result = DataSchema.parse(packet.schema, data, offset).result;
         } catch (e) {
           console.error(`${packet.name} : ${e}`);
-        }
-        // FIXME: this is shit
-        switch (packet.name) {
-          case "FacilityBase.ReferenceData":
-            result = this.parseFacilityReferenceData((result as any).data);
-            break;
-          case "ReferenceData.WeaponDefinitions":
-            result = this.parseWeaponDefinitionReferenceData(
-              (result as any).data
-            );
-            break;
+          return null;
         }
       } else if (packet.fn) {
-        if (packet.name != "PlayerUpdatePosition") {
-          debug(packet.name);
-        }
         result = packet.fn(data, offset).result;
       } else {
-        debug("No schema for packet " + packet.name);
+        console.error("No schema for packet " + packet.name);
+        return null;
       }
       return {
         name: packet.name,
