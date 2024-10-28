@@ -65,7 +65,6 @@ export enum DB_COLLECTIONS {
   FAIRPLAY = "fairplay-logs",
   KILLS = "kills",
   MUTED = "muted",
-  ASSET_HASHES = "asset-hashes",
   GROUPS = "groups",
   VPN_WHITELIST = "vpn-whitelist"
 }

@@ -17,7 +17,7 @@ import { SOEServer } from "../SoeServer/soeserver";
 import { ZoneConnectionManager } from "../LoginZoneConnection/zoneconnectionmanager";
 import { LZConnectionClient } from "../LoginZoneConnection/shared/lzconnectionclient";
 import { LoginProtocol } from "../../protocols/loginprotocol";
-import { Collection, Db, MongoClient, WithId } from "mongodb";
+import { Db, MongoClient, WithId } from "mongodb";
 import {
   _,
   generateRandomGuid,
@@ -646,25 +646,10 @@ export class LoginServer extends EventEmitter {
   async sendFileHashes(serverId: number) {
     if (this._soloMode) return;
 
-    const collection: Collection = this._db.collection(
-      DB_COLLECTIONS.ASSET_HASHES
-    );
-    let hashes = await collection.findOne();
-
-    if (!hashes) {
-      debug("Setting default asset-hashes in mongo");
-      await collection.insertOne({
-        type: "assets",
-        hashes: defaultHashes
-      });
-      hashes = await collection.findOne({});
-    }
-
-    debug(`Sending OverrideAllowedFileHashes to zone ${serverId}`);
     this._zoneConnectionManager.sendData(
       this.getZoneConnectionClient(serverId),
       "OverrideAllowedFileHashes",
-      { types: [hashes] }
+      { types: [defaultHashes] }
     );
   }
 
