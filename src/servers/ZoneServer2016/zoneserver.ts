@@ -8407,9 +8407,7 @@ export class ZoneServer2016 extends EventEmitter {
   }
 
   async checkZonePing(client: Client) {
-    const ping = await this._gatewayServer.getSoeClientAvgPing(
-      client.soeClientId
-    );
+    const ping = this._gatewayServer.getSoeClientAvgPing(client.soeClientId);
     if (
       client.isAdmin ||
       Number(client.character.lastLoginDate) + 30000 > new Date().getTime() ||
@@ -8418,18 +8416,24 @@ export class ZoneServer2016 extends EventEmitter {
       return;
     }
 
-    client.zonePings.push(ping > 600 ? 600 : ping); // dont push values higher than 600, that would increase average value drasticaly
+    client.zonePings.push(ping > 400 ? 400 : ping); // dont push values higher than 400, that would increase average value drasticaly and it's the resend rate
     if (ping >= this.fairPlayManager.maxPing) {
       this.sendAlert(
         client,
         `Your ping is very high: ${ping}. You may be kicked soon`
       );
+      client.pingWarnings += 1;
+    } else {
+      client.pingWarnings = 0;
     }
     if (client.zonePings.length < 15) return;
 
     const averagePing =
       client.zonePings.reduce((a, b) => a + b, 0) / client.zonePings.length;
-    if (averagePing >= this.fairPlayManager.maxPing) {
+    if (
+      averagePing >= this.fairPlayManager.maxPing &&
+      client.pingWarnings > 3
+    ) {
       this.kickPlayer(client);
       this.sendChatTextToAdmins(
         `${client.character.name} has been been kicked for average ping: ${averagePing}`
