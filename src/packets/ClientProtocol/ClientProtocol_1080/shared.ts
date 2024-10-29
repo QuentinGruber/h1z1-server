@@ -2871,3 +2871,195 @@ export const accountItemSchema: PacketFields = [
   { name: "itemGuid", type: "uint64string", defaultValue: "0" },
   { name: "unknownDword4", type: "uint32", defaultValue: 0 }
 ];
+
+export const storeBundleSchema: PacketFields = [
+  { name: "bundleId", type: "uint32", defaultValue: 0 },
+  {
+    name: "appStoreBundle",
+    type: "schema",
+    fields: [
+      {
+        name: "storeBundle",
+        type: "schema",
+        fields: [
+          {
+            name: "marketingBundle",
+            type: "schema",
+            fields: [
+              { name: "bundleId", type: "uint32", defaultValue: 0 },
+              { name: "nameId", type: "uint32", defaultValue: 0 },
+              {
+                name: "descriptionId",
+                type: "uint32",
+                defaultValue: 0
+              },
+              {
+                name: "unknownDword4",
+                type: "uint32",
+                defaultValue: 0
+              },
+              {
+                name: "imageData",
+                type: "schema",
+                fields: [
+                  {
+                    name: "imageSetId",
+                    type: "string",
+                    defaultValue: ""
+                  },
+                  {
+                    name: "imageTintValue",
+                    type: "string",
+                    defaultValue: ""
+                  }
+                ]
+              },
+              {
+                name: "unknownBoolean1",
+                type: "boolean",
+                defaultValue: false
+              },
+              {
+                name: "unknownString1",
+                type: "string",
+                defaultValue: ""
+              },
+              {
+                name: "stationCurrencyId",
+                type: "uint32",
+                defaultValue: 0
+              },
+              { name: "price", type: "uint32", defaultValue: 0 },
+              { name: "currencyId", type: "uint32", defaultValue: 0 },
+              {
+                name: "currencyPrice",
+                type: "uint32",
+                defaultValue: 0
+              },
+              {
+                name: "unknownDword9",
+                type: "uint32",
+                defaultValue: 0
+              },
+              {
+                name: "unknownTime1",
+                type: "uint64string",
+                defaultValue: "0"
+              },
+              {
+                name: "unknownTime2",
+                type: "uint64string",
+                defaultValue: "0"
+              },
+              {
+                name: "unknownDword10",
+                type: "uint32",
+                defaultValue: 0
+              },
+              {
+                name: "unknownBoolean2",
+                type: "boolean",
+                defaultValue: false
+              },
+              {
+                name: "itemListDetails",
+                type: "array",
+                defaultValue: [{}],
+                fields: [
+                  {
+                    name: "unknownDword1",
+                    type: "uint32",
+                    defaultValue: 0
+                  },
+                  {
+                    name: "imageSetId",
+                    type: "uint32",
+                    defaultValue: 0
+                  },
+                  { name: "itemId", type: "uint32", defaultValue: 0 },
+                  {
+                    name: "unknownString1",
+                    type: "string",
+                    defaultValue: ""
+                  },
+                  {
+                    name: "unknownString2",
+                    type: "string",
+                    defaultValue: ""
+                  }
+                ]
+              },
+              {
+                name: "unknownArray2",
+                type: "array",
+                defaultValue: [{}],
+                fields: [
+                  {
+                    name: "unknownDword1",
+                    type: "uint32",
+                    defaultValue: 0
+                  },
+                  {
+                    name: "unknownDword2",
+                    type: "uint32",
+                    defaultValue: 0
+                  }
+                ]
+              }
+            ]
+          },
+          { name: "storeId", type: "uint32", defaultValue: 0 },
+          { name: "categoryId", type: "uint32", defaultValue: 0 },
+          {
+            name: "unknownBoolean1",
+            type: "boolean",
+            defaultValue: false
+          },
+          { name: "unknownDword3", type: "uint32", defaultValue: 0 },
+          { name: "unknownDword4", type: "uint32", defaultValue: 0 },
+          { name: "unknownDword5", type: "uint32", defaultValue: 0 },
+          { name: "unknownDword6", type: "uint32", defaultValue: 0 },
+          { name: "unknownDword7", type: "uint32", defaultValue: 0 },
+          { name: "unknownDword8", type: "uint32", defaultValue: 0 },
+          { name: "unknownDword9", type: "uint32", defaultValue: 0 },
+          { name: "unknownDword10", type: "uint32", defaultValue: 0 },
+          {
+            name: "unknownBoolean2",
+            type: "boolean",
+            defaultValue: false
+          },
+          {
+            name: "unknownBoolean3",
+            type: "boolean",
+            defaultValue: false
+          },
+          {
+            name: "unknownBoolean4",
+            type: "boolean",
+            defaultValue: false
+          }
+        ]
+      },
+      { name: "unknownDword1", type: "uint32", defaultValue: 0 },
+      { name: "unknownDword2", type: "uint32", defaultValue: 0 },
+      { name: "unknownDword3", type: "uint32", defaultValue: 0 },
+      { name: "unknownDword4", type: "uint32", defaultValue: 0 },
+      { name: "unknownDword5", type: "uint32", defaultValue: 0 },
+      { name: "unknownDword6", type: "uint32", defaultValue: 0 },
+      { name: "unknownString1", type: "string", defaultValue: "" },
+      { name: "unknownDword7", type: "uint32", defaultValue: 0 },
+      { name: "unknownDword8", type: "uint32", defaultValue: 0 },
+      { name: "unknownDword9", type: "uint32", defaultValue: 0 },
+      { name: "memberSalePrice", type: "uint32", defaultValue: 0 },
+      { name: "unknownDword11", type: "uint32", defaultValue: 0 },
+      {
+        name: "unknownQword3",
+        type: "uint64string",
+        defaultValue: "0"
+      },
+      { name: "unknownString2", type: "string", defaultValue: "" },
+      { name: "unknownDword12", type: "uint32", defaultValue: 0 },
+      { name: "unknownDword13", type: "uint32", defaultValue: 0 }
+    ]
+  }
+];
