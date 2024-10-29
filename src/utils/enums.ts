@@ -66,7 +66,8 @@ export enum DB_COLLECTIONS {
   KILLS = "kills",
   MUTED = "muted",
   GROUPS = "groups",
-  VPN_WHITELIST = "vpn-whitelist"
+  VPN_WHITELIST = "vpn-whitelist",
+  AUTHKEYS = "verified-authkeys"
 }
 
 export enum LOGIN_KICK_REASON {
