@@ -525,8 +525,8 @@ export const inGamePurchasePackets: PacketStructures = [
     0x272c00,
     {
       fields: [
-        { name: "unknownString1", type: "string", defaultValue: "" },
-        { name: "unknownString2", type: "string", defaultValue: "" }
+        { name: "codeStringMappingId", type: "string", defaultValue: "0" },
+        { name: "url", type: "string", defaultValue: "" }
       ]
     }
   ],

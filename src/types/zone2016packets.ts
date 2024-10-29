@@ -3067,8 +3067,8 @@ export interface InGamePurchaseNudgeOfferNotification {
   unknownDword7?: number;
 }
 export interface InGamePurchaseSpiceWebAuthUrlResponse {
-  unknownString1?: string;
-  unknownString2?: string;
+  codeStringMappingId?: string;
+  url?: string;
 }
 export interface InGamePurchaseBundlePriceUpdate {
   unknownArray1?: unknown[];
