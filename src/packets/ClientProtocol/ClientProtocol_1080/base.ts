@@ -47,7 +47,15 @@ import { PacketStructures } from "types/packetStructure";
 
 export const basePackets: PacketStructures = [
   ["Server", 0x01, {}],
-  ["ClientFinishedLoading", 0x02, {}],
+  [
+    "ClientFinishedLoading",
+    0x02,
+    {
+      fields: [
+        { name: "unknownBoolean1", type: "boolean", defaultValue: false } // This value is first set to false, the second time its sent its set to true
+      ]
+    }
+  ],
   [
     "SendSelfToClient",
     0x03,
