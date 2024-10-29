@@ -555,7 +555,7 @@ export const inGamePurchasePackets: PacketStructures = [
     "InGamePurchase.WalletBalanceUpdate",
     0x272e00,
     {
-      fields: [{ name: "unknownDword1", type: "uint32", defaultValue: 0 }]
+      fields: [{ name: "totalCoinsCount", type: "uint32", defaultValue: 0 }]
     }
   ],
   [

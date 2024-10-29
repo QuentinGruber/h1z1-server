@@ -3074,7 +3074,7 @@ export interface InGamePurchaseBundlePriceUpdate {
   unknownArray1?: unknown[];
 }
 export interface InGamePurchaseWalletBalanceUpdate {
-  unknownDword1?: number;
+  totalCoinsCount?: number;
 }
 export interface InGamePurchaseMemberFreeItemCount {
   unknownDword1?: number;
