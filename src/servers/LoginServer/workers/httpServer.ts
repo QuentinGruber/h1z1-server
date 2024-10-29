@@ -57,6 +57,7 @@ http.request({
   port: SERVER_PORT
 });
 const httpServer = http.createServer().listen(SERVER_PORT);
+console.log(`Http server listening on ${SERVER_PORT}`);
 httpServer.on("request", async function (req, res) {
   res.setHeader("Access-Control-Allow-Origin", "*"); // Allow all origins
   res.setHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS"); // Allow specified methods
@@ -95,6 +96,28 @@ httpServer.on("request", async function (req, res) {
         Number(queryObject?.serverId)
       );
       pendingRequest[requestCount] = res;
+      break;
+    }
+    case "isverified": {
+      if (!queryObject) {
+        res.writeHead(500);
+        res.end();
+        break;
+      }
+      let { authKey } = queryObject;
+      if (authKey) {
+        authKey = decodeURIComponent(authKey);
+        const collection = db.collection(DB_COLLECTIONS.AUTHKEYS);
+
+        const result = await collection.findOne({ authKey });
+        if (result) {
+          res.writeHead(200);
+          res.end();
+        } else {
+          res.writeHead(401);
+          res.end();
+        }
+      }
       break;
     }
     default:
