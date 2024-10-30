@@ -509,8 +509,7 @@ export class H1Z1Protocol {
       } else if (packet.fn) {
         result = packet.fn(data, offset).result;
       } else {
-        console.error("No schema for packet " + packet.name);
-        return null;
+        debug("No schema for packet " + packet.name);
       }
       return {
         name: packet.name,
