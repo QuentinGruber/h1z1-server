@@ -7689,7 +7689,7 @@ export class ZoneServer2016 extends EventEmitter {
     // used to update the item's durability on-screen regardless of container / loadout
     this.updateItem(client, repairItem);
   }
-  
+
   handleWeaponFireStateUpdate(
     client: Client,
     weaponItem: LoadoutItem,
