@@ -10,7 +10,7 @@ export interface LoginRequest {
 export interface LoginReply {
   loggedIn?: boolean;
   status?: number;
-  unknownDword2?: number;
+  resultCode?: number;
   isMember?: boolean;
   isInternal?: boolean;
   namespace?: string;

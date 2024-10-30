@@ -1,7 +1,7 @@
 {
     "loggedIn": true,
     "status": 1,
-    "unknownDword2": 0,
+    "resultCode": 0,
     "isMember": false,
     "isInternal": false,
     "unknownBoolean4": false,

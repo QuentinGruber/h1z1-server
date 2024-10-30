@@ -496,15 +496,12 @@ export class LoginServer extends EventEmitter {
             }
           }
         ],
-        errorDetails: [
-          {
-            unknownDword1: 0,
-            name: "None",
-            value: "None"
-          }
-        ],
+        unknownArray2: [],
         ipCountryCode: "US",
-        applicationPayload: "US"
+        applicationPayload: {
+          unknownArray1: [],
+          unknownArray2: []
+        }
       };
       this.sendData(client, "LoginReply", loginReply);
     } else if (client.gameVersion == GAME_VERSIONS.H1Z1_6dec_2016) {

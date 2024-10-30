@@ -94,7 +94,7 @@ const packets: PacketStructures = [
       fields: [
         { name: "loggedIn", type: "boolean", defaultValue: true },
         { name: "status", type: "uint32", defaultValue: 1 },
-        { name: "unknownDword2", type: "uint32", defaultValue: 0 },
+        { name: "resultCode", type: "uint32", defaultValue: 0 },
         { name: "isMember", type: "boolean", defaultValue: false },
         { name: "isInternal", type: "boolean", defaultValue: false },
         { name: "namespace", type: "string", defaultValue: "STATION" },
