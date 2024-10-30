@@ -515,7 +515,7 @@ export class ZoneServer2016 extends EventEmitter {
     if (!this._mongoAddress) {
       this._soloMode = true;
       this.fairPlayManager.useFairPlay = false;
-      debug("Server in solo mode !");
+      console.log("Server in solo mode !");
     }
 
     this.accountInventoriesManager = new AccountInventoryManager(this);
@@ -1032,10 +1032,11 @@ export class ZoneServer2016 extends EventEmitter {
   }
   async onClientIsAdminRequest(client: LZConnectionClient, packet: any) {
     const { guid, reqId } = packet.data;
+    const isAdmin = await this.getIsAdmin(guid);
     try {
       this._loginConnectionManager.sendData(client, "ClientIsAdminReply", {
         reqId: reqId,
-        status: this.getIsAdmin(guid)
+        status: isAdmin
       });
     } catch (error) {
       console.error(error);
@@ -2208,15 +2209,20 @@ export class ZoneServer2016 extends EventEmitter {
       client.isLoading = true; // stop anything from acting on character
 
       clearTimeout(client.character?.resourcesUpdater);
-      const characterSave = WorldDataManager.convertToCharacterSaveData(
-        client.character,
-        this._worldId
-      );
-      if (this.enableWorldSaves) {
-        this.worldDataManager.saveCharacterData(
-          characterSave,
-          this.lastItemGuid
+      try {
+        const characterSave = WorldDataManager.convertToCharacterSaveData(
+          client.character,
+          this._worldId
         );
+        if (this.enableWorldSaves) {
+          this.worldDataManager.saveCharacterData(
+            characterSave,
+            this.lastItemGuid
+          );
+        }
+      } catch (e) {
+        console.error("Failed to save a character");
+        console.error(e);
       }
       this.dismountVehicle(client);
       client.managedObjects?.forEach((characterId: string) => {
@@ -5845,12 +5851,8 @@ export class ZoneServer2016 extends EventEmitter {
    */
   isArmor(itemDefinitionId: number): boolean {
     return (
-      this.getItemDefinition(itemDefinitionId)?.DESCRIPTION_ID ==
-        StringIds.TACTICAL_ARMOR ||
-      this.getItemDefinition(itemDefinitionId)?.DESCRIPTION_ID ==
-        StringIds.WOODEN_ARMOR ||
-      this.getItemDefinition(itemDefinitionId)?.DESCRIPTION_ID ==
-        StringIds.PLATED_ARMOR
+      this.getItemDefinition(itemDefinitionId)?.ITEM_CLASS ==
+      ItemClasses.BODY_ARMOR
     );
   }
 
@@ -8410,9 +8412,7 @@ export class ZoneServer2016 extends EventEmitter {
   }
 
   async checkZonePing(client: Client) {
-    const ping = await this._gatewayServer.getSoeClientAvgPing(
-      client.soeClientId
-    );
+    const ping = this._gatewayServer.getSoeClientAvgPing(client.soeClientId);
     if (
       client.isAdmin ||
       Number(client.character.lastLoginDate) + 30000 > new Date().getTime() ||
@@ -8421,18 +8421,24 @@ export class ZoneServer2016 extends EventEmitter {
       return;
     }
 
-    client.zonePings.push(ping > 600 ? 600 : ping); // dont push values higher than 600, that would increase average value drasticaly
+    client.zonePings.push(ping > 400 ? 400 : ping); // dont push values higher than 400, that would increase average value drasticaly and it's the resend rate
     if (ping >= this.fairPlayManager.maxPing) {
       this.sendAlert(
         client,
         `Your ping is very high: ${ping}. You may be kicked soon`
       );
+      client.pingWarnings += 1;
+    } else {
+      client.pingWarnings = 0;
     }
     if (client.zonePings.length < 15) return;
 
     const averagePing =
       client.zonePings.reduce((a, b) => a + b, 0) / client.zonePings.length;
-    if (averagePing >= this.fairPlayManager.maxPing) {
+    if (
+      averagePing >= this.fairPlayManager.maxPing &&
+      client.pingWarnings > 3
+    ) {
       this.kickPlayer(client);
       this.sendChatTextToAdmins(
         `${client.character.name} has been been kicked for average ping: ${averagePing}`

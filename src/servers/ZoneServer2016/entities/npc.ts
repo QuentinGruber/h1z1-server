@@ -72,6 +72,7 @@ export class Npc extends BaseFullCharacter {
   server: ZoneServer2016;
   entityType: EntityType;
   npcMeleeDamage: number;
+  isSelected: boolean = false;
   constructor(
     characterId: string,
     transientId: number,
@@ -336,6 +337,16 @@ export class Npc extends BaseFullCharacter {
   }
 
   OnPlayerSelect(server: ZoneServer2016, client: ZoneClient2016) {
+    // Only one at a time
+    if (this.isSelected) {
+      return;
+    }
+    this.isSelected = true;
+    // Unlock selection after 5sec
+    // It's easier to do it that way that to make a whole sys with the utilizeHudTimer
+    setTimeout(() => {
+      this.isSelected = false;
+    }, 5_100);
     const skinningKnife = client.character.getItemById(Items.SKINNING_KNIFE);
     if (!this.isAlive && skinningKnife) {
       server.utilizeHudTimer(client, this.nameId, 5000, 0, () => {
