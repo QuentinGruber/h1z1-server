@@ -13,11 +13,12 @@
 
 import { setInterval } from "timers";
 import { ZoneServer2016 } from "../zoneserver";
-import { Items } from "../models/enums";
+import { AccountItems } from "../models/enums";
 import { ZoneClient2016 } from "../classes/zoneclient";
+import { isHalloween } from "../../../utils/utils";
 
 interface Reward {
-  itemId: Items;
+  itemId: AccountItems;
   dropChances: number;
 }
 
@@ -27,27 +28,27 @@ export class RewardManager {
   constructor(public server: ZoneServer2016) {
     this.rewards = [
       {
-        itemId: Items.MYSTERY_BAG_1,
+        itemId: AccountItems.MYSTERY_BAG_1,
         dropChances: 20
       },
       {
-        itemId: Items.MYSTERY_BAG_V2,
+        itemId: AccountItems.MYSTERY_BAG_V2,
         dropChances: 20
       },
       {
-        itemId: Items.ELITE_BAG_HARDCORE,
+        itemId: AccountItems.ELITE_BAG_HARDCORE,
         dropChances: 10
       },
       {
-        itemId: Items.REWARD_CRATE_MARAUDER,
+        itemId: AccountItems.REWARD_CRATE_MARAUDER,
         dropChances: 30
       },
       {
-        itemId: Items.REWARD_CRATE_SHOWDOWN,
+        itemId: AccountItems.REWARD_CRATE_SHOWDOWN,
         dropChances: 10
       },
       {
-        itemId: Items.REWARD_CRATE_INVITATIONAL,
+        itemId: AccountItems.REWARD_CRATE_INVITATIONAL,
         dropChances: 10
       }
     ];
@@ -62,7 +63,7 @@ export class RewardManager {
   stop() {
     clearInterval(this.timer);
   }
-  addRewardToPlayer(client: ZoneClient2016, rewardId: Items) {
+  addRewardToPlayer(client: ZoneClient2016, rewardId: AccountItems) {
     const item = this.server.generateAccountItem(rewardId);
     if (item) {
       this.server.lootAccountItem(this.server, client, item, true);
@@ -72,22 +73,30 @@ export class RewardManager {
   }
   dropReward(client: ZoneClient2016) {
     client.character.lastDropPlaytime = client.character.playTime;
-    let rewardId: Items = Items.MYSTERY_BAG_1;
-    let random = Math.random() * 100;
-    for (const reward of this.rewards) {
-      random -= reward.dropChances;
-      if (random <= 0) {
-        rewardId = reward.itemId;
-        break;
+    if (isHalloween()) {
+      const rewardId: AccountItems = AccountItems.REWARD_CRATE_INFERNAL;
+      this.addRewardToPlayer(client, rewardId);
+    } else {
+      let rewardId: AccountItems = AccountItems.MYSTERY_BAG_1;
+      let random = Math.random() * 100;
+      for (const reward of this.rewards) {
+        random -= reward.dropChances;
+        if (random <= 0) {
+          rewardId = reward.itemId;
+          break;
+        }
       }
+      this.addRewardToPlayer(client, rewardId);
     }
-    this.addRewardToPlayer(client, rewardId);
   }
 
   update() {
     for (const clientKey in this.server._clients) {
       const client = this.server._clients[clientKey];
-      if (client.character.playTime - client.character.lastDropPlaytime > 120) {
+      if (
+        client.character.playTime - client.character.lastDropPlaytime >
+        (isHalloween() ? 60 : 120)
+      ) {
         this.dropReward(client);
       }
     }

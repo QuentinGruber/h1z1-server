@@ -1548,3 +1548,11 @@ export function loadNavData() {
   });
   return new Uint8Array(Buffer.concat(dataInOrder));
 }
+export function isHalloween() {
+  const today = new Date();
+  return today.getMonth() === 9 && today.getDate() === 31;
+}
+
+export function luck(l: number) {
+  return Math.floor(Math.random() * l) === 0;
+}
