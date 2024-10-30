@@ -1548,3 +1548,33 @@ export function loadNavData() {
   });
   return new Uint8Array(Buffer.concat(dataInOrder));
 }
+export function isHalloween() {
+  const today = new Date();
+  return today.getMonth() === 9 && today.getDate() === 31;
+}
+
+export function luck(l: number) {
+  return Math.floor(Math.random() * l) === 0;
+}
+
+const Z1_POIs = require("../../data/2016/zoneData/Z1_POIs");
+export function isPosInPoi(position: Float32Array): boolean {
+  let useRange = true;
+  let isInPoi = false;
+  Z1_POIs.forEach((point: any) => {
+    if (point.bounds) {
+      useRange = false;
+      point.bounds.forEach((bound: any) => {
+        if (isInsideSquare([position[0], position[2]], bound)) {
+          isInPoi = true;
+          return;
+        }
+      });
+    }
+    if (useRange && isPosInRadius(point.range, position, point.position)) {
+      isInPoi = true;
+    }
+  });
+
+  return isInPoi;
+}
