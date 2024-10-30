@@ -92,25 +92,29 @@ const packets: PacketStructures = [
     0x02,
     {
       fields: [
-        { name: "loggedIn", type: "boolean" },
-        { name: "status", type: "uint32" },
-        { name: "resultCode", type: "uint32" },
-        { name: "isMember", type: "boolean" },
-        { name: "isInternal", type: "boolean" },
-        { name: "namespace", type: "string" },
+        { name: "loggedIn", type: "boolean", defaultValue: true },
+        { name: "status", type: "uint32", defaultValue: 1 },
+        { name: "unknownDword2", type: "uint32", defaultValue: 0 },
+        { name: "isMember", type: "boolean", defaultValue: false },
+        { name: "isInternal", type: "boolean", defaultValue: false },
+        { name: "namespace", type: "string", defaultValue: "STATION" },
         {
           name: "accountFeatures",
           type: "array",
           fields: [
-            { name: "key", type: "uint32" },
+            { name: "featureId", type: "uint32", defaultValue: 0 },
             {
-              name: "accountFeature",
+              name: "featureData",
               type: "schema",
               fields: [
-                { name: "id", type: "uint32" },
-                { name: "active", type: "boolean" },
-                { name: "remainingCount", type: "uint32" },
-                { name: "rawData", type: "string" }
+                { name: "featureId", type: "uint32", defaultValue: 0 },
+                {
+                  name: "unknownBoolean1",
+                  type: "boolean",
+                  defaultValue: true
+                },
+                { name: "unknownDword2", type: "uint32", defaultValue: 0 },
+                { name: "unknownString1", type: "string", defaultValue: "" }
               ]
             }
           ]
@@ -118,18 +122,80 @@ const packets: PacketStructures = [
         {
           name: "applicationPayload",
           type: "byteswithlength",
-          defaultValue: 0
-        },
-        {
-          name: "errorDetails",
-          type: "array",
           fields: [
-            { name: "unknownDword1", type: "uint32" },
-            { name: "name", type: "string" },
-            { name: "value", type: "string" }
+            { name: "unknownDword1", type: "uint32", defaultValue: 1 },
+            { name: "unknownDword2", type: "uint32", defaultValue: 0 },
+            { name: "unknownDword3", type: "uint32", defaultValue: 1 },
+            { name: "unknownDword4", type: "uint32", defaultValue: 1 },
+            { name: "unknownDword5", type: "uint32", defaultValue: 1 },
+            { name: "unknownDword6", type: "uint32", defaultValue: 0 },
+            { name: "unknownDword7", type: "uint32", defaultValue: 0 },
+            { name: "unknownDword8", type: "uint32", defaultValue: 0 },
+            { name: "unknownDword9", type: "uint32", defaultValue: 0 },
+            { name: "unknownDword10", type: "uint32", defaultValue: 0 },
+            { name: "unknownBoolean1", type: "boolean", defaultValue: false },
+            { name: "unknownDword11", type: "uint32", defaultValue: 0 },
+            {
+              name: "unknownArray1",
+              type: "array",
+              fields: [
+                { name: "unknownString1", type: "string", defaultValue: "" },
+                { name: "unknownString2", type: "string", defaultValue: "" },
+                {
+                  name: "datasheetProperties",
+                  type: "array",
+                  fields: [
+                    { name: "propertyId1", type: "uint8", defaultValue: 0 },
+                    { name: "propertyId2", type: "uint8", defaultValue: 0 },
+                    { name: "propertyId3", type: "uint8", defaultValue: 0 },
+                    { name: "propertyId4", type: "uint8", defaultValue: 0 },
+                    { name: "unknownString1", type: "string", defaultValue: "" }
+                  ]
+                }
+              ]
+            },
+            {
+              name: "unknownString1",
+              type: "string",
+              defaultValue: "LIVE_KOTK"
+            },
+            {
+              name: "unknownArray2",
+              type: "array",
+              fields: [
+                { name: "unknownDword1", type: "uint32", defaultValue: 0 },
+                { name: "unknownString1", type: "string", defaultValue: "" }
+              ]
+            },
+            { name: "unknownString2", type: "string", defaultValue: "LIVE" },
+            { name: "unknownString3", type: "string", defaultValue: "" },
+            { name: "unknownString4", type: "string", defaultValue: "LIVE" },
+            { name: "unknownString5", type: "string", defaultValue: "" },
+            { name: "unknownString6", type: "string", defaultValue: "LVS" },
+            { name: "unknownString7", type: "string", defaultValue: "" }
           ]
         },
-        { name: "ipCountryCode", type: "string" }
+        {
+          name: "unknownArray2",
+          type: "array",
+          fields: [
+            { name: "unknownString1", type: "string", defaultValue: "" },
+            { name: "unknownString2", type: "string", defaultValue: "" }
+          ]
+        },
+        { name: "unknownString2", type: "string", defaultValue: "" },
+        { name: "unknownString3", type: "string", defaultValue: "" },
+        { name: "unknownBoolean3", type: "boolean", defaultValue: false },
+        { name: "unknownString4", type: "string", defaultValue: "" },
+        { name: "ipCountryCode", type: "string", defaultValue: "US" },
+        { name: "unknownString5", type: "string", defaultValue: "" },
+        { name: "unknownString6", type: "string", defaultValue: "" },
+        { name: "unknownString7", type: "string", defaultValue: "" },
+        { name: "unknownString8", type: "string", defaultValue: "" },
+        { name: "unknownString9", type: "string", defaultValue: "" },
+        { name: "unknownString10", type: "string", defaultValue: "" },
+        { name: "unknownString11", type: "string", defaultValue: "" },
+        { name: "unknownDword3", type: "uint32", defaultValue: 0 }
       ]
     }
   ],

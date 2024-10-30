@@ -1,0 +1,3285 @@
+{
+    "loggedIn": true,
+    "status": 1,
+    "unknownDword2": 0,
+    "isMember": false,
+    "isInternal": false,
+    "unknownBoolean4": false,
+    "namespace": "STATION",
+    "accountFeatures": [
+        {
+            "featureId": 3000,
+            "featureData": {
+                "featureId": 3000,
+                "unknownBoolean1": true,
+                "unknownDword2": 0,
+                "unknownString1": ""
+            }
+        },
+        {
+            "featureId": 90020,
+            "featureData": {
+                "featureId": 90020,
+                "unknownBoolean1": true,
+                "unknownDword2": 0,
+                "unknownString1": ""
+            }
+        },
+        {
+            "featureId": 90270,
+            "featureData": {
+                "featureId": 90270,
+                "unknownBoolean1": true,
+                "unknownDword2": 0,
+                "unknownString1": ""
+            }
+        },
+        {
+            "featureId": 90321,
+            "featureData": {
+                "featureId": 90321,
+                "unknownBoolean1": true,
+                "unknownDword2": 0,
+                "unknownString1": ""
+            }
+        },
+        {
+            "featureId": 105000,
+            "featureData": {
+                "featureId": 105000,
+                "unknownBoolean1": true,
+                "unknownDword2": 0,
+                "unknownString1": ""
+            }
+        },
+        {
+            "featureId": 105001,
+            "featureData": {
+                "featureId": 105001,
+                "unknownBoolean1": true,
+                "unknownDword2": 0,
+                "unknownString1": ""
+            }
+        },
+        {
+            "featureId": 1000002,
+            "featureData": {
+                "featureId": 1000002,
+                "unknownBoolean1": true,
+                "unknownDword2": 0,
+                "unknownString1": ""
+            }
+        },
+        {
+            "featureId": 1000003,
+            "featureData": {
+                "featureId": 1000003,
+                "unknownBoolean1": true,
+                "unknownDword2": 0,
+                "unknownString1": ""
+            }
+        },
+        {
+            "featureId": 1000006,
+            "featureData": {
+                "featureId": 1000006,
+                "unknownBoolean1": true,
+                "unknownDword2": 0,
+                "unknownString1": ""
+            }
+        },
+        {
+            "featureId": 1000007,
+            "featureData": {
+                "featureId": 1000007,
+                "unknownBoolean1": true,
+                "unknownDword2": 0,
+                "unknownString1": ""
+            }
+        },
+        {
+            "featureId": 1000030,
+            "featureData": {
+                "featureId": 1000030,
+                "unknownBoolean1": true,
+                "unknownDword2": 0,
+                "unknownString1": ""
+            }
+        },
+        {
+            "featureId": 2008325,
+            "featureData": {
+                "featureId": 2008325,
+                "unknownBoolean1": true,
+                "unknownDword2": 0,
+                "unknownString1": ""
+            }
+        },
+        {
+            "featureId": 2008412,
+            "featureData": {
+                "featureId": 2008412,
+                "unknownBoolean1": true,
+                "unknownDword2": 0,
+                "unknownString1": ""
+            }
+        },
+        {
+            "featureId": 2008455,
+            "featureData": {
+                "featureId": 2008455,
+                "unknownBoolean1": true,
+                "unknownDword2": 0,
+                "unknownString1": ""
+            }
+        },
+        {
+            "featureId": 2009542,
+            "featureData": {
+                "featureId": 2009542,
+                "unknownBoolean1": true,
+                "unknownDword2": 0,
+                "unknownString1": ""
+            }
+        },
+        {
+            "featureId": 2009547,
+            "featureData": {
+                "featureId": 2009547,
+                "unknownBoolean1": true,
+                "unknownDword2": 0,
+                "unknownString1": ""
+            }
+        },
+        {
+            "featureId": 2009556,
+            "featureData": {
+                "featureId": 2009556,
+                "unknownBoolean1": true,
+                "unknownDword2": 0,
+                "unknownString1": ""
+            }
+        },
+        {
+            "featureId": 2009571,
+            "featureData": {
+                "featureId": 2009571,
+                "unknownBoolean1": true,
+                "unknownDword2": 0,
+                "unknownString1": ""
+            }
+        },
+        {
+            "featureId": 2009640,
+            "featureData": {
+                "featureId": 2009640,
+                "unknownBoolean1": true,
+                "unknownDword2": 1,
+                "unknownString1": "count[1] active[1]"
+            }
+        },
+        {
+            "featureId": 2009641,
+            "featureData": {
+                "featureId": 2009641,
+                "unknownBoolean1": true,
+                "unknownDword2": 1,
+                "unknownString1": "count[1] active[1]"
+            }
+        },
+        {
+            "featureId": 2011384,
+            "featureData": {
+                "featureId": 2011384,
+                "unknownBoolean1": true,
+                "unknownDword2": 1,
+                "unknownString1": "count[1] active[1]"
+            }
+        }
+    ],
+    "applicationPayload": {
+        "unknownDword1": 1,
+        "unknownDword2": 0,
+        "unknownDword3": 1,
+        "unknownDword4": 1,
+        "unknownDword5": 1,
+        "unknownDword6": 0,
+        "unknownDword7": 0,
+        "unknownDword8": 0,
+        "unknownDword9": 0,
+        "unknownDword10": 0,
+        "unknownBoolean1": false,
+        "unknownDword11": 1,
+        "unknownArray1": [
+            {
+                "unknownString1": "DEFAULT",
+                "unknownString2": "DEFAULT",
+                "datasheetProperties": [
+                    {
+                        "propertyId1": 177,
+                        "propertyId2": 179,
+                        "propertyId3": 126,
+                        "propertyId4": 95,
+                        "unknownString1": "DEFAULT"
+                    },
+                    {
+                        "propertyId1": 15,
+                        "propertyId2": 90,
+                        "propertyId3": 136,
+                        "propertyId4": 144,
+                        "unknownString1": "0"
+                    },
+                    {
+                        "propertyId1": 102,
+                        "propertyId2": 76,
+                        "propertyId3": 144,
+                        "propertyId4": 192,
+                        "unknownString1": "0"
+                    },
+                    {
+                        "propertyId1": 172,
+                        "propertyId2": 29,
+                        "propertyId3": 164,
+                        "propertyId4": 48,
+                        "unknownString1": "1"
+                    },
+                    {
+                        "propertyId1": 251,
+                        "propertyId2": 209,
+                        "propertyId3": 7,
+                        "propertyId4": 162,
+                        "unknownString1": "1"
+                    },
+                    {
+                        "propertyId1": 75,
+                        "propertyId2": 82,
+                        "propertyId3": 250,
+                        "propertyId4": 154,
+                        "unknownString1": "0"
+                    },
+                    {
+                        "propertyId1": 196,
+                        "propertyId2": 20,
+                        "propertyId3": 209,
+                        "propertyId4": 149,
+                        "unknownString1": "1"
+                    },
+                    {
+                        "propertyId1": 44,
+                        "propertyId2": 147,
+                        "propertyId3": 17,
+                        "propertyId4": 0,
+                        "unknownString1": "1"
+                    },
+                    {
+                        "propertyId1": 61,
+                        "propertyId2": 48,
+                        "propertyId3": 82,
+                        "propertyId4": 33,
+                        "unknownString1": "1"
+                    },
+                    {
+                        "propertyId1": 132,
+                        "propertyId2": 74,
+                        "propertyId3": 213,
+                        "propertyId4": 230,
+                        "unknownString1": "0"
+                    },
+                    {
+                        "propertyId1": 114,
+                        "propertyId2": 55,
+                        "propertyId3": 47,
+                        "propertyId4": 57,
+                        "unknownString1": "1"
+                    },
+                    {
+                        "propertyId1": 37,
+                        "propertyId2": 97,
+                        "propertyId3": 75,
+                        "propertyId4": 173,
+                        "unknownString1": "1"
+                    },
+                    {
+                        "propertyId1": 47,
+                        "propertyId2": 138,
+                        "propertyId3": 134,
+                        "propertyId4": 175,
+                        "unknownString1": "1"
+                    },
+                    {
+                        "propertyId1": 134,
+                        "propertyId2": 189,
+                        "propertyId3": 116,
+                        "propertyId4": 78,
+                        "unknownString1": "1"
+                    },
+                    {
+                        "propertyId1": 79,
+                        "propertyId2": 212,
+                        "propertyId3": 255,
+                        "propertyId4": 118,
+                        "unknownString1": "1"
+                    },
+                    {
+                        "propertyId1": 39,
+                        "propertyId2": 107,
+                        "propertyId3": 177,
+                        "propertyId4": 77,
+                        "unknownString1": "0"
+                    },
+                    {
+                        "propertyId1": 254,
+                        "propertyId2": 78,
+                        "propertyId3": 161,
+                        "propertyId4": 111,
+                        "unknownString1": "0"
+                    },
+                    {
+                        "propertyId1": 20,
+                        "propertyId2": 235,
+                        "propertyId3": 181,
+                        "propertyId4": 64,
+                        "unknownString1": "UI.Marketplace.GetStationCash"
+                    },
+                    {
+                        "propertyId1": 242,
+                        "propertyId2": 22,
+                        "propertyId3": 183,
+                        "propertyId4": 56,
+                        "unknownString1": "1"
+                    },
+                    {
+                        "propertyId1": 39,
+                        "propertyId2": 120,
+                        "propertyId3": 163,
+                        "propertyId4": 111,
+                        "unknownString1": "1"
+                    },
+                    {
+                        "propertyId1": 100,
+                        "propertyId2": 195,
+                        "propertyId3": 188,
+                        "propertyId4": 176,
+                        "unknownString1": "0"
+                    },
+                    {
+                        "propertyId1": 21,
+                        "propertyId2": 140,
+                        "propertyId3": 61,
+                        "propertyId4": 186,
+                        "unknownString1": "1"
+                    },
+                    {
+                        "propertyId1": 55,
+                        "propertyId2": 122,
+                        "propertyId3": 61,
+                        "propertyId4": 89,
+                        "unknownString1": "6"
+                    },
+                    {
+                        "propertyId1": 127,
+                        "propertyId2": 159,
+                        "propertyId3": 39,
+                        "propertyId4": 114,
+                        "unknownString1": "2"
+                    }
+                ]
+            },
+            {
+                "unknownString1": "EVENT",
+                "unknownString2": "EVENT",
+                "datasheetProperties": [
+                    {
+                        "propertyId1": 177,
+                        "propertyId2": 179,
+                        "propertyId3": 126,
+                        "propertyId4": 95,
+                        "unknownString1": "EVENT"
+                    },
+                    {
+                        "propertyId1": 19,
+                        "propertyId2": 209,
+                        "propertyId3": 183,
+                        "propertyId4": 46,
+                        "unknownString1": "http://soe-%s.custhelp.com/app/answers/list/p/5833/c/5933"
+                    },
+                    {
+                        "propertyId1": 80,
+                        "propertyId2": 245,
+                        "propertyId3": 35,
+                        "propertyId4": 83,
+                        "unknownString1": "https://qa.h1z1.com/king-of-the-kill/game.error?code=G"
+                    },
+                    {
+                        "propertyId1": 214,
+                        "propertyId2": 164,
+                        "propertyId3": 94,
+                        "propertyId4": 250,
+                        "unknownString1": "https://partner-qa.soe.platformpublishing.com/rest/client/session/create"
+                    },
+                    {
+                        "propertyId1": 102,
+                        "propertyId2": 76,
+                        "propertyId3": 144,
+                        "propertyId4": 192,
+                        "unknownString1": "7000"
+                    },
+                    {
+                        "propertyId1": 21,
+                        "propertyId2": 140,
+                        "propertyId3": 61,
+                        "propertyId4": 186,
+                        "unknownString1": "0"
+                    },
+                    {
+                        "propertyId1": 55,
+                        "propertyId2": 122,
+                        "propertyId3": 61,
+                        "propertyId4": 89,
+                        "unknownString1": "6"
+                    },
+                    {
+                        "propertyId1": 127,
+                        "propertyId2": 159,
+                        "propertyId3": 39,
+                        "propertyId4": 114,
+                        "unknownString1": "2"
+                    }
+                ]
+            },
+            {
+                "unknownString1": "INNOVA",
+                "unknownString2": "INNOVA",
+                "datasheetProperties": [
+                    {
+                        "propertyId1": 177,
+                        "propertyId2": 179,
+                        "propertyId3": 126,
+                        "propertyId4": 95,
+                        "unknownString1": "INNOVA"
+                    },
+                    {
+                        "propertyId1": 244,
+                        "propertyId2": 67,
+                        "propertyId3": 101,
+                        "propertyId4": 3,
+                        "unknownString1": "https://ru.4game.com/planetside2/play/?popupWidget=PaymentTerminalWidget"
+                    },
+                    {
+                        "propertyId1": 147,
+                        "propertyId2": 225,
+                        "propertyId3": 1,
+                        "propertyId4": 77,
+                        "unknownString1": "InGamePurchaseStoreScreen.FundWalletWithInnova"
+                    },
+                    {
+                        "propertyId1": 14,
+                        "propertyId2": 25,
+                        "propertyId3": 113,
+                        "propertyId4": 124,
+                        "unknownString1": "InGamePurchaseStoreScreen.PurchaseMembershipWithInnova"
+                    },
+                    {
+                        "propertyId1": 19,
+                        "propertyId2": 209,
+                        "propertyId3": 183,
+                        "propertyId4": 46,
+                        "unknownString1": "https://ru.4gamesupport.com/"
+                    },
+                    {
+                        "propertyId1": 15,
+                        "propertyId2": 90,
+                        "propertyId3": 136,
+                        "propertyId4": 144,
+                        "unknownString1": "1"
+                    },
+                    {
+                        "propertyId1": 102,
+                        "propertyId2": 76,
+                        "propertyId3": 144,
+                        "propertyId4": 192,
+                        "unknownString1": "7002"
+                    },
+                    {
+                        "propertyId1": 172,
+                        "propertyId2": 29,
+                        "propertyId3": 164,
+                        "propertyId4": 48,
+                        "unknownString1": "0"
+                    },
+                    {
+                        "propertyId1": 251,
+                        "propertyId2": 209,
+                        "propertyId3": 7,
+                        "propertyId4": 162,
+                        "unknownString1": "0"
+                    },
+                    {
+                        "propertyId1": 61,
+                        "propertyId2": 48,
+                        "propertyId3": 82,
+                        "propertyId4": 33,
+                        "unknownString1": "1"
+                    },
+                    {
+                        "propertyId1": 134,
+                        "propertyId2": 189,
+                        "propertyId3": 116,
+                        "propertyId4": 78,
+                        "unknownString1": "1"
+                    },
+                    {
+                        "propertyId1": 141,
+                        "propertyId2": 249,
+                        "propertyId3": 242,
+                        "propertyId4": 117,
+                        "unknownString1": "https://ru.4game.com/giftcode"
+                    },
+                    {
+                        "propertyId1": 228,
+                        "propertyId2": 107,
+                        "propertyId3": 116,
+                        "propertyId4": 167,
+                        "unknownString1": "OnlineHelpWindow.NavigateUrl"
+                    },
+                    {
+                        "propertyId1": 20,
+                        "propertyId2": 235,
+                        "propertyId3": 181,
+                        "propertyId4": 64,
+                        "unknownString1": "UI.Marketplace.TopupAccount"
+                    },
+                    {
+                        "propertyId1": 242,
+                        "propertyId2": 22,
+                        "propertyId3": 183,
+                        "propertyId4": 56,
+                        "unknownString1": "0"
+                    },
+                    {
+                        "propertyId1": 39,
+                        "propertyId2": 120,
+                        "propertyId3": 163,
+                        "propertyId4": 111,
+                        "unknownString1": "1"
+                    },
+                    {
+                        "propertyId1": 100,
+                        "propertyId2": 195,
+                        "propertyId3": 188,
+                        "propertyId4": 176,
+                        "unknownString1": "1"
+                    },
+                    {
+                        "propertyId1": 21,
+                        "propertyId2": 140,
+                        "propertyId3": 61,
+                        "propertyId4": 186,
+                        "unknownString1": "1"
+                    },
+                    {
+                        "propertyId1": 55,
+                        "propertyId2": 122,
+                        "propertyId3": 61,
+                        "propertyId4": 89,
+                        "unknownString1": "6"
+                    }
+                ]
+            },
+            {
+                "unknownString1": "LIVE",
+                "unknownString2": "LIVE",
+                "datasheetProperties": [
+                    {
+                        "propertyId1": 177,
+                        "propertyId2": 179,
+                        "propertyId3": 126,
+                        "propertyId4": 95,
+                        "unknownString1": "LIVE"
+                    },
+                    {
+                        "propertyId1": 19,
+                        "propertyId2": 209,
+                        "propertyId3": 183,
+                        "propertyId4": 46,
+                        "unknownString1": "http://soe-%s.custhelp.com/app/answers/list/p/5833/c/5933"
+                    },
+                    {
+                        "propertyId1": 80,
+                        "propertyId2": 245,
+                        "propertyId3": 35,
+                        "propertyId4": 83,
+                        "unknownString1": "https://www.h1z1.com/just-survive/game.error?code=G"
+                    },
+                    {
+                        "propertyId1": 214,
+                        "propertyId2": 164,
+                        "propertyId3": 94,
+                        "propertyId4": 250,
+                        "unknownString1": "https://partner.soe.platformpublishing.com/rest/client/session/create"
+                    },
+                    {
+                        "propertyId1": 102,
+                        "propertyId2": 76,
+                        "propertyId3": 144,
+                        "propertyId4": 192,
+                        "unknownString1": "7000"
+                    },
+                    {
+                        "propertyId1": 21,
+                        "propertyId2": 140,
+                        "propertyId3": 61,
+                        "propertyId4": 186,
+                        "unknownString1": "0"
+                    },
+                    {
+                        "propertyId1": 55,
+                        "propertyId2": 122,
+                        "propertyId3": 61,
+                        "propertyId4": 89,
+                        "unknownString1": "6"
+                    },
+                    {
+                        "propertyId1": 127,
+                        "propertyId2": 159,
+                        "propertyId3": 39,
+                        "propertyId4": 114,
+                        "unknownString1": "1"
+                    }
+                ]
+            },
+            {
+                "unknownString1": "LIVE_KOTK",
+                "unknownString2": "LIVE_KOTK",
+                "datasheetProperties": [
+                    {
+                        "propertyId1": 177,
+                        "propertyId2": 179,
+                        "propertyId3": 126,
+                        "propertyId4": 95,
+                        "unknownString1": "LIVE_KOTK"
+                    },
+                    {
+                        "propertyId1": 244,
+                        "propertyId2": 67,
+                        "propertyId3": 101,
+                        "propertyId4": 3,
+                        "unknownString1": "https://account.daybreakgames.com/authenticated/link/wallet/fundWallet.action?theme=h1z1xxInGame"
+                    },
+                    {
+                        "propertyId1": 19,
+                        "propertyId2": 209,
+                        "propertyId3": 183,
+                        "propertyId4": 46,
+                        "unknownString1": "http://soe-%s.custhelp.com/app/answers/list/p/5833/c/5933"
+                    },
+                    {
+                        "propertyId1": 80,
+                        "propertyId2": 245,
+                        "propertyId3": 35,
+                        "propertyId4": 83,
+                        "unknownString1": "https://www.h1z1.com/king-of-the-kill/game.error?code=G"
+                    },
+                    {
+                        "propertyId1": 214,
+                        "propertyId2": 164,
+                        "propertyId3": 94,
+                        "propertyId4": 250,
+                        "unknownString1": "https://partner.soe.platformpublishing.com/rest/client/session/create"
+                    },
+                    {
+                        "propertyId1": 102,
+                        "propertyId2": 76,
+                        "propertyId3": 144,
+                        "propertyId4": 192,
+                        "unknownString1": "4"
+                    },
+                    {
+                        "propertyId1": 21,
+                        "propertyId2": 140,
+                        "propertyId3": 61,
+                        "propertyId4": 186,
+                        "unknownString1": "0"
+                    },
+                    {
+                        "propertyId1": 55,
+                        "propertyId2": 122,
+                        "propertyId3": 61,
+                        "propertyId4": 89,
+                        "unknownString1": "6"
+                    },
+                    {
+                        "propertyId1": 127,
+                        "propertyId2": 159,
+                        "propertyId3": 39,
+                        "propertyId4": 114,
+                        "unknownString1": "2"
+                    },
+                    {
+                        "propertyId1": 204,
+                        "propertyId2": 246,
+                        "propertyId3": 99,
+                        "propertyId4": 39,
+                        "unknownString1": "https://account.daybreakgames.com/authenticated/link/wallet/currencyConversion.vm?theme=h1z1xxInGame"
+                    }
+                ]
+            },
+            {
+                "unknownString1": "LIVE_KOTK_PS4",
+                "unknownString2": "LIVE_KOTK_PS4",
+                "datasheetProperties": [
+                    {
+                        "propertyId1": 177,
+                        "propertyId2": 179,
+                        "propertyId3": 126,
+                        "propertyId4": 95,
+                        "unknownString1": "LIVE_KOTK_PS4"
+                    },
+                    {
+                        "propertyId1": 244,
+                        "propertyId2": 67,
+                        "propertyId3": 101,
+                        "propertyId4": 3,
+                        "unknownString1": "https://account.daybreakgames.com/authenticated/link/wallet/fundWallet.action?theme=h1z1xxInGame"
+                    },
+                    {
+                        "propertyId1": 19,
+                        "propertyId2": 209,
+                        "propertyId3": 183,
+                        "propertyId4": 46,
+                        "unknownString1": "http://soe-%s.custhelp.com/app/answers/list/p/5833/c/5933"
+                    },
+                    {
+                        "propertyId1": 80,
+                        "propertyId2": 245,
+                        "propertyId3": 35,
+                        "propertyId4": 83,
+                        "unknownString1": "https://www.h1z1.com/king-of-the-kill/game.error?code=G"
+                    },
+                    {
+                        "propertyId1": 214,
+                        "propertyId2": 164,
+                        "propertyId3": 94,
+                        "propertyId4": 250,
+                        "unknownString1": "https://partner.soe.platformpublishing.com/rest/client/session/create"
+                    },
+                    {
+                        "propertyId1": 102,
+                        "propertyId2": 76,
+                        "propertyId3": 144,
+                        "propertyId4": 192,
+                        "unknownString1": "4"
+                    },
+                    {
+                        "propertyId1": 21,
+                        "propertyId2": 140,
+                        "propertyId3": 61,
+                        "propertyId4": 186,
+                        "unknownString1": "0"
+                    },
+                    {
+                        "propertyId1": 55,
+                        "propertyId2": 122,
+                        "propertyId3": 61,
+                        "propertyId4": 89,
+                        "unknownString1": "6"
+                    },
+                    {
+                        "propertyId1": 127,
+                        "propertyId2": 159,
+                        "propertyId3": 39,
+                        "propertyId4": 114,
+                        "unknownString1": "2"
+                    },
+                    {
+                        "propertyId1": 204,
+                        "propertyId2": 246,
+                        "propertyId3": 99,
+                        "propertyId4": 39,
+                        "unknownString1": "https://account.daybreakgames.com/authenticated/link/wallet/currencyConversion.vm?theme=h1z1xxInGame"
+                    }
+                ]
+            },
+            {
+                "unknownString1": "LIVE_KOTK_XB1",
+                "unknownString2": "LIVE_KOTK_XB1",
+                "datasheetProperties": [
+                    {
+                        "propertyId1": 177,
+                        "propertyId2": 179,
+                        "propertyId3": 126,
+                        "propertyId4": 95,
+                        "unknownString1": "LIVE_KOTK_XB1"
+                    },
+                    {
+                        "propertyId1": 244,
+                        "propertyId2": 67,
+                        "propertyId3": 101,
+                        "propertyId4": 3,
+                        "unknownString1": "https://account.daybreakgames.com/authenticated/link/wallet/fundWallet.action?theme=h1z1xxInGame"
+                    },
+                    {
+                        "propertyId1": 19,
+                        "propertyId2": 209,
+                        "propertyId3": 183,
+                        "propertyId4": 46,
+                        "unknownString1": "http://soe-%s.custhelp.com/app/answers/list/p/5833/c/5933"
+                    },
+                    {
+                        "propertyId1": 80,
+                        "propertyId2": 245,
+                        "propertyId3": 35,
+                        "propertyId4": 83,
+                        "unknownString1": "https://www.h1z1.com/king-of-the-kill/game.error?code=G"
+                    },
+                    {
+                        "propertyId1": 214,
+                        "propertyId2": 164,
+                        "propertyId3": 94,
+                        "propertyId4": 250,
+                        "unknownString1": "https://partner.soe.platformpublishing.com/rest/client/session/create"
+                    },
+                    {
+                        "propertyId1": 102,
+                        "propertyId2": 76,
+                        "propertyId3": 144,
+                        "propertyId4": 192,
+                        "unknownString1": "4"
+                    },
+                    {
+                        "propertyId1": 21,
+                        "propertyId2": 140,
+                        "propertyId3": 61,
+                        "propertyId4": 186,
+                        "unknownString1": "0"
+                    },
+                    {
+                        "propertyId1": 55,
+                        "propertyId2": 122,
+                        "propertyId3": 61,
+                        "propertyId4": 89,
+                        "unknownString1": "6"
+                    },
+                    {
+                        "propertyId1": 127,
+                        "propertyId2": 159,
+                        "propertyId3": 39,
+                        "propertyId4": 114,
+                        "unknownString1": "2"
+                    },
+                    {
+                        "propertyId1": 204,
+                        "propertyId2": 246,
+                        "propertyId3": 99,
+                        "propertyId4": 39,
+                        "unknownString1": "https://account.daybreakgames.com/authenticated/link/wallet/currencyConversion.vm?theme=h1z1xxInGame"
+                    }
+                ]
+            },
+            {
+                "unknownString1": "LIVE_PSG",
+                "unknownString2": "LIVE_PSG",
+                "datasheetProperties": [
+                    {
+                        "propertyId1": 177,
+                        "propertyId2": 179,
+                        "propertyId3": 126,
+                        "propertyId4": 95,
+                        "unknownString1": "LIVE_PSG"
+                    },
+                    {
+                        "propertyId1": 244,
+                        "propertyId2": 67,
+                        "propertyId3": 101,
+                        "propertyId4": 3,
+                        "unknownString1": "https://secure.planetside2.eu/users/mytopup/?SOESessionID="
+                    },
+                    {
+                        "propertyId1": 46,
+                        "propertyId2": 198,
+                        "propertyId3": 6,
+                        "propertyId4": 40,
+                        "unknownString1": "https://secure.planetside2.eu/users/mytopup/?SOESessionID="
+                    },
+                    {
+                        "propertyId1": 19,
+                        "propertyId2": 209,
+                        "propertyId3": 183,
+                        "propertyId4": 46,
+                        "unknownString1": "https://secure.planetside2.eu/support?SOESessionID="
+                    },
+                    {
+                        "propertyId1": 102,
+                        "propertyId2": 76,
+                        "propertyId3": 144,
+                        "propertyId4": 192,
+                        "unknownString1": "7001"
+                    },
+                    {
+                        "propertyId1": 21,
+                        "propertyId2": 140,
+                        "propertyId3": 61,
+                        "propertyId4": 186,
+                        "unknownString1": "1"
+                    },
+                    {
+                        "propertyId1": 55,
+                        "propertyId2": 122,
+                        "propertyId3": 61,
+                        "propertyId4": 89,
+                        "unknownString1": "6"
+                    }
+                ]
+            },
+            {
+                "unknownString1": "LOCAL",
+                "unknownString2": "LOCAL",
+                "datasheetProperties": [
+                    {
+                        "propertyId1": 177,
+                        "propertyId2": 179,
+                        "propertyId3": 126,
+                        "propertyId4": 95,
+                        "unknownString1": "LOCAL"
+                    },
+                    {
+                        "propertyId1": 244,
+                        "propertyId2": 67,
+                        "propertyId3": 101,
+                        "propertyId4": 3,
+                        "unknownString1": "https://account-test.daybreakgames.com/authenticated/link/wallet/fundWallet.action?theme=h1z1xxInGame"
+                    },
+                    {
+                        "propertyId1": 19,
+                        "propertyId2": 209,
+                        "propertyId3": 183,
+                        "propertyId4": 46,
+                        "unknownString1": "http://soe-%s.custhelp.com/app/answers/list/p/5833/c/5933"
+                    },
+                    {
+                        "propertyId1": 80,
+                        "propertyId2": 245,
+                        "propertyId3": 35,
+                        "propertyId4": 83,
+                        "unknownString1": "https://test.h1z1.com/just-survive/game.error?code=G"
+                    },
+                    {
+                        "propertyId1": 214,
+                        "propertyId2": 164,
+                        "propertyId3": 94,
+                        "propertyId4": 250,
+                        "unknownString1": "https://partner-test.soe.platformpublishing.com/rest/client/session/create"
+                    },
+                    {
+                        "propertyId1": 102,
+                        "propertyId2": 76,
+                        "propertyId3": 144,
+                        "propertyId4": 192,
+                        "unknownString1": "7000"
+                    },
+                    {
+                        "propertyId1": 21,
+                        "propertyId2": 140,
+                        "propertyId3": 61,
+                        "propertyId4": 186,
+                        "unknownString1": "0"
+                    },
+                    {
+                        "propertyId1": 55,
+                        "propertyId2": 122,
+                        "propertyId3": 61,
+                        "propertyId4": 89,
+                        "unknownString1": "6"
+                    },
+                    {
+                        "propertyId1": 127,
+                        "propertyId2": 159,
+                        "propertyId3": 39,
+                        "propertyId4": 114,
+                        "unknownString1": "1"
+                    },
+                    {
+                        "propertyId1": 204,
+                        "propertyId2": 246,
+                        "propertyId3": 99,
+                        "propertyId4": 39,
+                        "unknownString1": "https://account-test.daybreakgames.com/authenticated/link/wallet/currencyConversion.vm?theme=h1z1xxInGame"
+                    }
+                ]
+            },
+            {
+                "unknownString1": "LOCAL_KOTK",
+                "unknownString2": "LOCAL_KOTK",
+                "datasheetProperties": [
+                    {
+                        "propertyId1": 177,
+                        "propertyId2": 179,
+                        "propertyId3": 126,
+                        "propertyId4": 95,
+                        "unknownString1": "LOCAL_KOTK"
+                    },
+                    {
+                        "propertyId1": 244,
+                        "propertyId2": 67,
+                        "propertyId3": 101,
+                        "propertyId4": 3,
+                        "unknownString1": "https://account-test.daybreakgames.com/authenticated/link/wallet/fundWallet.action?theme=h1z1xxInGame"
+                    },
+                    {
+                        "propertyId1": 19,
+                        "propertyId2": 209,
+                        "propertyId3": 183,
+                        "propertyId4": 46,
+                        "unknownString1": "http://soe-%s.custhelp.com/app/answers/list/p/5833/c/5933"
+                    },
+                    {
+                        "propertyId1": 80,
+                        "propertyId2": 245,
+                        "propertyId3": 35,
+                        "propertyId4": 83,
+                        "unknownString1": "https://test.h1z1.com/king-of-the-kill/game.error?code=G"
+                    },
+                    {
+                        "propertyId1": 214,
+                        "propertyId2": 164,
+                        "propertyId3": 94,
+                        "propertyId4": 250,
+                        "unknownString1": "https://partner-test.soe.platformpublishing.com/rest/client/session/create"
+                    },
+                    {
+                        "propertyId1": 102,
+                        "propertyId2": 76,
+                        "propertyId3": 144,
+                        "propertyId4": 192,
+                        "unknownString1": "4"
+                    },
+                    {
+                        "propertyId1": 21,
+                        "propertyId2": 140,
+                        "propertyId3": 61,
+                        "propertyId4": 186,
+                        "unknownString1": "0"
+                    },
+                    {
+                        "propertyId1": 55,
+                        "propertyId2": 122,
+                        "propertyId3": 61,
+                        "propertyId4": 89,
+                        "unknownString1": "6"
+                    },
+                    {
+                        "propertyId1": 127,
+                        "propertyId2": 159,
+                        "propertyId3": 39,
+                        "propertyId4": 114,
+                        "unknownString1": "2"
+                    },
+                    {
+                        "propertyId1": 204,
+                        "propertyId2": 246,
+                        "propertyId3": 99,
+                        "propertyId4": 39,
+                        "unknownString1": "https://account-test.daybreakgames.com/authenticated/link/wallet/currencyConversion.vm?theme=h1z1xxInGame"
+                    }
+                ]
+            },
+            {
+                "unknownString1": "LOCAL_KOTK_PS4",
+                "unknownString2": "LOCAL_KOTK_PS4",
+                "datasheetProperties": [
+                    {
+                        "propertyId1": 177,
+                        "propertyId2": 179,
+                        "propertyId3": 126,
+                        "propertyId4": 95,
+                        "unknownString1": "LOCAL_KOTK_PS4"
+                    },
+                    {
+                        "propertyId1": 244,
+                        "propertyId2": 67,
+                        "propertyId3": 101,
+                        "propertyId4": 3,
+                        "unknownString1": "https://account-test.daybreakgames.com/authenticated/link/wallet/fundWallet.action?theme=h1z1xxInGame"
+                    },
+                    {
+                        "propertyId1": 19,
+                        "propertyId2": 209,
+                        "propertyId3": 183,
+                        "propertyId4": 46,
+                        "unknownString1": "http://soe-%s.custhelp.com/app/answers/list/p/5833/c/5933"
+                    },
+                    {
+                        "propertyId1": 80,
+                        "propertyId2": 245,
+                        "propertyId3": 35,
+                        "propertyId4": 83,
+                        "unknownString1": "https://test.h1z1.com/king-of-the-kill/game.error?code=G"
+                    },
+                    {
+                        "propertyId1": 214,
+                        "propertyId2": 164,
+                        "propertyId3": 94,
+                        "propertyId4": 250,
+                        "unknownString1": "https://partner-test.soe.platformpublishing.com/rest/client/session/create"
+                    },
+                    {
+                        "propertyId1": 102,
+                        "propertyId2": 76,
+                        "propertyId3": 144,
+                        "propertyId4": 192,
+                        "unknownString1": "4"
+                    },
+                    {
+                        "propertyId1": 21,
+                        "propertyId2": 140,
+                        "propertyId3": 61,
+                        "propertyId4": 186,
+                        "unknownString1": "0"
+                    },
+                    {
+                        "propertyId1": 55,
+                        "propertyId2": 122,
+                        "propertyId3": 61,
+                        "propertyId4": 89,
+                        "unknownString1": "6"
+                    },
+                    {
+                        "propertyId1": 127,
+                        "propertyId2": 159,
+                        "propertyId3": 39,
+                        "propertyId4": 114,
+                        "unknownString1": "2"
+                    },
+                    {
+                        "propertyId1": 204,
+                        "propertyId2": 246,
+                        "propertyId3": 99,
+                        "propertyId4": 39,
+                        "unknownString1": "https://account-test.daybreakgames.com/authenticated/link/wallet/currencyConversion.vm?theme=h1z1xxInGame"
+                    }
+                ]
+            },
+            {
+                "unknownString1": "LOCAL_KOTK_XB1",
+                "unknownString2": "LOCAL_KOTK_XB1",
+                "datasheetProperties": [
+                    {
+                        "propertyId1": 177,
+                        "propertyId2": 179,
+                        "propertyId3": 126,
+                        "propertyId4": 95,
+                        "unknownString1": "LOCAL_KOTK_XB1"
+                    },
+                    {
+                        "propertyId1": 244,
+                        "propertyId2": 67,
+                        "propertyId3": 101,
+                        "propertyId4": 3,
+                        "unknownString1": "https://account-test.daybreakgames.com/authenticated/link/wallet/fundWallet.action?theme=h1z1xxInGame"
+                    },
+                    {
+                        "propertyId1": 19,
+                        "propertyId2": 209,
+                        "propertyId3": 183,
+                        "propertyId4": 46,
+                        "unknownString1": "http://soe-%s.custhelp.com/app/answers/list/p/5833/c/5933"
+                    },
+                    {
+                        "propertyId1": 80,
+                        "propertyId2": 245,
+                        "propertyId3": 35,
+                        "propertyId4": 83,
+                        "unknownString1": "https://test.h1z1.com/king-of-the-kill/game.error?code=G"
+                    },
+                    {
+                        "propertyId1": 214,
+                        "propertyId2": 164,
+                        "propertyId3": 94,
+                        "propertyId4": 250,
+                        "unknownString1": "https://partner-test.soe.platformpublishing.com/rest/client/session/create"
+                    },
+                    {
+                        "propertyId1": 102,
+                        "propertyId2": 76,
+                        "propertyId3": 144,
+                        "propertyId4": 192,
+                        "unknownString1": "4"
+                    },
+                    {
+                        "propertyId1": 21,
+                        "propertyId2": 140,
+                        "propertyId3": 61,
+                        "propertyId4": 186,
+                        "unknownString1": "0"
+                    },
+                    {
+                        "propertyId1": 55,
+                        "propertyId2": 122,
+                        "propertyId3": 61,
+                        "propertyId4": 89,
+                        "unknownString1": "6"
+                    },
+                    {
+                        "propertyId1": 127,
+                        "propertyId2": 159,
+                        "propertyId3": 39,
+                        "propertyId4": 114,
+                        "unknownString1": "2"
+                    },
+                    {
+                        "propertyId1": 204,
+                        "propertyId2": 246,
+                        "propertyId3": 99,
+                        "propertyId4": 39,
+                        "unknownString1": "https://account-test.daybreakgames.com/authenticated/link/wallet/currencyConversion.vm?theme=h1z1xxInGame"
+                    }
+                ]
+            },
+            {
+                "unknownString1": "LOCAL_PSG",
+                "unknownString2": "LOCAL_PSG",
+                "datasheetProperties": [
+                    {
+                        "propertyId1": 177,
+                        "propertyId2": 179,
+                        "propertyId3": 126,
+                        "propertyId4": 95,
+                        "unknownString1": "LOCAL_PSG"
+                    },
+                    {
+                        "propertyId1": 244,
+                        "propertyId2": 67,
+                        "propertyId3": 101,
+                        "propertyId4": 3,
+                        "unknownString1": "https://staging.planetside2.eu/users/mytopup/?SOESessionID="
+                    },
+                    {
+                        "propertyId1": 46,
+                        "propertyId2": 198,
+                        "propertyId3": 6,
+                        "propertyId4": 40,
+                        "unknownString1": "https://staging.planetside2.eu/users/mytopup/?SOESessionID="
+                    },
+                    {
+                        "propertyId1": 19,
+                        "propertyId2": 209,
+                        "propertyId3": 183,
+                        "propertyId4": 46,
+                        "unknownString1": "https://secure.staging.planetside2.eu/support?SOESessionID="
+                    },
+                    {
+                        "propertyId1": 102,
+                        "propertyId2": 76,
+                        "propertyId3": 144,
+                        "propertyId4": 192,
+                        "unknownString1": "7001"
+                    },
+                    {
+                        "propertyId1": 21,
+                        "propertyId2": 140,
+                        "propertyId3": 61,
+                        "propertyId4": 186,
+                        "unknownString1": "1"
+                    },
+                    {
+                        "propertyId1": 55,
+                        "propertyId2": 122,
+                        "propertyId3": 61,
+                        "propertyId4": 89,
+                        "unknownString1": "6"
+                    }
+                ]
+            },
+            {
+                "unknownString1": "MAIN",
+                "unknownString2": "MAIN",
+                "datasheetProperties": [
+                    {
+                        "propertyId1": 177,
+                        "propertyId2": 179,
+                        "propertyId3": 126,
+                        "propertyId4": 95,
+                        "unknownString1": "MAIN"
+                    },
+                    {
+                        "propertyId1": 19,
+                        "propertyId2": 209,
+                        "propertyId3": 183,
+                        "propertyId4": 46,
+                        "unknownString1": "http://soe-%s.custhelp.com/app/answers/list/p/5833/c/5933"
+                    },
+                    {
+                        "propertyId1": 80,
+                        "propertyId2": 245,
+                        "propertyId3": 35,
+                        "propertyId4": 83,
+                        "unknownString1": "https://test.h1z1.com/just-survive/game.error?code=G"
+                    },
+                    {
+                        "propertyId1": 214,
+                        "propertyId2": 164,
+                        "propertyId3": 94,
+                        "propertyId4": 250,
+                        "unknownString1": "https://partner-test.soe.platformpublishing.com/rest/client/session/create"
+                    },
+                    {
+                        "propertyId1": 102,
+                        "propertyId2": 76,
+                        "propertyId3": 144,
+                        "propertyId4": 192,
+                        "unknownString1": "7000"
+                    },
+                    {
+                        "propertyId1": 21,
+                        "propertyId2": 140,
+                        "propertyId3": 61,
+                        "propertyId4": 186,
+                        "unknownString1": "0"
+                    },
+                    {
+                        "propertyId1": 55,
+                        "propertyId2": 122,
+                        "propertyId3": 61,
+                        "propertyId4": 89,
+                        "unknownString1": "6"
+                    },
+                    {
+                        "propertyId1": 127,
+                        "propertyId2": 159,
+                        "propertyId3": 39,
+                        "propertyId4": 114,
+                        "unknownString1": "1"
+                    }
+                ]
+            },
+            {
+                "unknownString1": "MAIN_KOTK",
+                "unknownString2": "MAIN_KOTK",
+                "datasheetProperties": [
+                    {
+                        "propertyId1": 177,
+                        "propertyId2": 179,
+                        "propertyId3": 126,
+                        "propertyId4": 95,
+                        "unknownString1": "MAIN_KOTK"
+                    },
+                    {
+                        "propertyId1": 244,
+                        "propertyId2": 67,
+                        "propertyId3": 101,
+                        "propertyId4": 3,
+                        "unknownString1": "https://account-test.daybreakgames.com/authenticated/link/wallet/fundWallet.action?theme=h1z1xxInGame"
+                    },
+                    {
+                        "propertyId1": 19,
+                        "propertyId2": 209,
+                        "propertyId3": 183,
+                        "propertyId4": 46,
+                        "unknownString1": "http://soe-%s.custhelp.com/app/answers/list/p/5833/c/5933"
+                    },
+                    {
+                        "propertyId1": 80,
+                        "propertyId2": 245,
+                        "propertyId3": 35,
+                        "propertyId4": 83,
+                        "unknownString1": "https://test.h1z1.com/king-of-the-kill/game.error?code=G"
+                    },
+                    {
+                        "propertyId1": 214,
+                        "propertyId2": 164,
+                        "propertyId3": 94,
+                        "propertyId4": 250,
+                        "unknownString1": "https://partner-test.soe.platformpublishing.com/rest/client/session/create"
+                    },
+                    {
+                        "propertyId1": 102,
+                        "propertyId2": 76,
+                        "propertyId3": 144,
+                        "propertyId4": 192,
+                        "unknownString1": "4"
+                    },
+                    {
+                        "propertyId1": 21,
+                        "propertyId2": 140,
+                        "propertyId3": 61,
+                        "propertyId4": 186,
+                        "unknownString1": "0"
+                    },
+                    {
+                        "propertyId1": 55,
+                        "propertyId2": 122,
+                        "propertyId3": 61,
+                        "propertyId4": 89,
+                        "unknownString1": "6"
+                    },
+                    {
+                        "propertyId1": 127,
+                        "propertyId2": 159,
+                        "propertyId3": 39,
+                        "propertyId4": 114,
+                        "unknownString1": "2"
+                    },
+                    {
+                        "propertyId1": 204,
+                        "propertyId2": 246,
+                        "propertyId3": 99,
+                        "propertyId4": 39,
+                        "unknownString1": "https://account-test.daybreakgames.com/authenticated/link/wallet/currencyConversion.vm?theme=h1z1xxInGame"
+                    }
+                ]
+            },
+            {
+                "unknownString1": "MAIN_KOTK_PS4",
+                "unknownString2": "MAIN_KOTK_PS4",
+                "datasheetProperties": [
+                    {
+                        "propertyId1": 177,
+                        "propertyId2": 179,
+                        "propertyId3": 126,
+                        "propertyId4": 95,
+                        "unknownString1": "MAIN_KOTK_PS4"
+                    },
+                    {
+                        "propertyId1": 244,
+                        "propertyId2": 67,
+                        "propertyId3": 101,
+                        "propertyId4": 3,
+                        "unknownString1": "https://account-test.daybreakgames.com/authenticated/link/wallet/fundWallet.action?theme=h1z1xxInGame"
+                    },
+                    {
+                        "propertyId1": 19,
+                        "propertyId2": 209,
+                        "propertyId3": 183,
+                        "propertyId4": 46,
+                        "unknownString1": "http://soe-%s.custhelp.com/app/answers/list/p/5833/c/5933"
+                    },
+                    {
+                        "propertyId1": 80,
+                        "propertyId2": 245,
+                        "propertyId3": 35,
+                        "propertyId4": 83,
+                        "unknownString1": "https://test.h1z1.com/king-of-the-kill/game.error?code=G"
+                    },
+                    {
+                        "propertyId1": 214,
+                        "propertyId2": 164,
+                        "propertyId3": 94,
+                        "propertyId4": 250,
+                        "unknownString1": "https://partner-test.soe.platformpublishing.com/rest/client/session/create"
+                    },
+                    {
+                        "propertyId1": 102,
+                        "propertyId2": 76,
+                        "propertyId3": 144,
+                        "propertyId4": 192,
+                        "unknownString1": "4"
+                    },
+                    {
+                        "propertyId1": 21,
+                        "propertyId2": 140,
+                        "propertyId3": 61,
+                        "propertyId4": 186,
+                        "unknownString1": "0"
+                    },
+                    {
+                        "propertyId1": 55,
+                        "propertyId2": 122,
+                        "propertyId3": 61,
+                        "propertyId4": 89,
+                        "unknownString1": "6"
+                    },
+                    {
+                        "propertyId1": 127,
+                        "propertyId2": 159,
+                        "propertyId3": 39,
+                        "propertyId4": 114,
+                        "unknownString1": "2"
+                    },
+                    {
+                        "propertyId1": 204,
+                        "propertyId2": 246,
+                        "propertyId3": 99,
+                        "propertyId4": 39,
+                        "unknownString1": "https://account-test.daybreakgames.com/authenticated/link/wallet/currencyConversion.vm?theme=h1z1xxInGame"
+                    }
+                ]
+            },
+            {
+                "unknownString1": "MAIN_KOTK_XB1",
+                "unknownString2": "MAIN_KOTK_XB1",
+                "datasheetProperties": [
+                    {
+                        "propertyId1": 177,
+                        "propertyId2": 179,
+                        "propertyId3": 126,
+                        "propertyId4": 95,
+                        "unknownString1": "MAIN_KOTK_XB1"
+                    },
+                    {
+                        "propertyId1": 244,
+                        "propertyId2": 67,
+                        "propertyId3": 101,
+                        "propertyId4": 3,
+                        "unknownString1": "https://account-test.daybreakgames.com/authenticated/link/wallet/fundWallet.action?theme=h1z1xxInGame"
+                    },
+                    {
+                        "propertyId1": 19,
+                        "propertyId2": 209,
+                        "propertyId3": 183,
+                        "propertyId4": 46,
+                        "unknownString1": "http://soe-%s.custhelp.com/app/answers/list/p/5833/c/5933"
+                    },
+                    {
+                        "propertyId1": 80,
+                        "propertyId2": 245,
+                        "propertyId3": 35,
+                        "propertyId4": 83,
+                        "unknownString1": "https://test.h1z1.com/king-of-the-kill/game.error?code=G"
+                    },
+                    {
+                        "propertyId1": 214,
+                        "propertyId2": 164,
+                        "propertyId3": 94,
+                        "propertyId4": 250,
+                        "unknownString1": "https://partner-test.soe.platformpublishing.com/rest/client/session/create"
+                    },
+                    {
+                        "propertyId1": 102,
+                        "propertyId2": 76,
+                        "propertyId3": 144,
+                        "propertyId4": 192,
+                        "unknownString1": "4"
+                    },
+                    {
+                        "propertyId1": 21,
+                        "propertyId2": 140,
+                        "propertyId3": 61,
+                        "propertyId4": 186,
+                        "unknownString1": "0"
+                    },
+                    {
+                        "propertyId1": 55,
+                        "propertyId2": 122,
+                        "propertyId3": 61,
+                        "propertyId4": 89,
+                        "unknownString1": "6"
+                    },
+                    {
+                        "propertyId1": 127,
+                        "propertyId2": 159,
+                        "propertyId3": 39,
+                        "propertyId4": 114,
+                        "unknownString1": "2"
+                    },
+                    {
+                        "propertyId1": 204,
+                        "propertyId2": 246,
+                        "propertyId3": 99,
+                        "propertyId4": 39,
+                        "unknownString1": "https://account-test.daybreakgames.com/authenticated/link/wallet/currencyConversion.vm?theme=h1z1xxInGame"
+                    }
+                ]
+            },
+            {
+                "unknownString1": "MAIN_PSG",
+                "unknownString2": "MAIN_PSG",
+                "datasheetProperties": [
+                    {
+                        "propertyId1": 177,
+                        "propertyId2": 179,
+                        "propertyId3": 126,
+                        "propertyId4": 95,
+                        "unknownString1": "MAIN_PSG"
+                    },
+                    {
+                        "propertyId1": 244,
+                        "propertyId2": 67,
+                        "propertyId3": 101,
+                        "propertyId4": 3,
+                        "unknownString1": "https://staging.planetside2.eu/users/mytopup/?SOESessionID="
+                    },
+                    {
+                        "propertyId1": 46,
+                        "propertyId2": 198,
+                        "propertyId3": 6,
+                        "propertyId4": 40,
+                        "unknownString1": "https://staging.planetside2.eu/users/mytopup/?SOESessionID="
+                    },
+                    {
+                        "propertyId1": 19,
+                        "propertyId2": 209,
+                        "propertyId3": 183,
+                        "propertyId4": 46,
+                        "unknownString1": "https://secure.staging.planetside2.eu/support?SOESessionID="
+                    },
+                    {
+                        "propertyId1": 102,
+                        "propertyId2": 76,
+                        "propertyId3": 144,
+                        "propertyId4": 192,
+                        "unknownString1": "7001"
+                    },
+                    {
+                        "propertyId1": 21,
+                        "propertyId2": 140,
+                        "propertyId3": 61,
+                        "propertyId4": 186,
+                        "unknownString1": "1"
+                    },
+                    {
+                        "propertyId1": 55,
+                        "propertyId2": 122,
+                        "propertyId3": 61,
+                        "propertyId4": 89,
+                        "unknownString1": "6"
+                    }
+                ]
+            },
+            {
+                "unknownString1": "PSG",
+                "unknownString2": "PSG",
+                "datasheetProperties": [
+                    {
+                        "propertyId1": 177,
+                        "propertyId2": 179,
+                        "propertyId3": 126,
+                        "propertyId4": 95,
+                        "unknownString1": "PSG"
+                    },
+                    {
+                        "propertyId1": 147,
+                        "propertyId2": 225,
+                        "propertyId3": 1,
+                        "propertyId4": 77,
+                        "unknownString1": "InGamePurchaseStoreScreen.FundWalletWithProsieben"
+                    },
+                    {
+                        "propertyId1": 14,
+                        "propertyId2": 25,
+                        "propertyId3": 113,
+                        "propertyId4": 124,
+                        "unknownString1": "InGamePurchaseStoreScreen.PurchaseMembershipWithProsieben"
+                    },
+                    {
+                        "propertyId1": 15,
+                        "propertyId2": 90,
+                        "propertyId3": 136,
+                        "propertyId4": 144,
+                        "unknownString1": "1"
+                    },
+                    {
+                        "propertyId1": 102,
+                        "propertyId2": 76,
+                        "propertyId3": 144,
+                        "propertyId4": 192,
+                        "unknownString1": "0"
+                    },
+                    {
+                        "propertyId1": 172,
+                        "propertyId2": 29,
+                        "propertyId3": 164,
+                        "propertyId4": 48,
+                        "unknownString1": "0"
+                    },
+                    {
+                        "propertyId1": 251,
+                        "propertyId2": 209,
+                        "propertyId3": 7,
+                        "propertyId4": 162,
+                        "unknownString1": "0"
+                    },
+                    {
+                        "propertyId1": 21,
+                        "propertyId2": 140,
+                        "propertyId3": 61,
+                        "propertyId4": 186,
+                        "unknownString1": "0"
+                    },
+                    {
+                        "propertyId1": 55,
+                        "propertyId2": 122,
+                        "propertyId3": 61,
+                        "propertyId4": 89,
+                        "unknownString1": "6"
+                    }
+                ]
+            },
+            {
+                "unknownString1": "QA",
+                "unknownString2": "QA",
+                "datasheetProperties": [
+                    {
+                        "propertyId1": 177,
+                        "propertyId2": 179,
+                        "propertyId3": 126,
+                        "propertyId4": 95,
+                        "unknownString1": "QA"
+                    },
+                    {
+                        "propertyId1": 19,
+                        "propertyId2": 209,
+                        "propertyId3": 183,
+                        "propertyId4": 46,
+                        "unknownString1": "http://soe-%s.custhelp.com/app/answers/list/p/5833/c/5933"
+                    },
+                    {
+                        "propertyId1": 80,
+                        "propertyId2": 245,
+                        "propertyId3": 35,
+                        "propertyId4": 83,
+                        "unknownString1": "https://qa.h1z1.com/just-survive/game.error?code=G"
+                    },
+                    {
+                        "propertyId1": 214,
+                        "propertyId2": 164,
+                        "propertyId3": 94,
+                        "propertyId4": 250,
+                        "unknownString1": "https://partner-qa.soe.platformpublishing.com/rest/client/session/create"
+                    },
+                    {
+                        "propertyId1": 102,
+                        "propertyId2": 76,
+                        "propertyId3": 144,
+                        "propertyId4": 192,
+                        "unknownString1": "7000"
+                    },
+                    {
+                        "propertyId1": 21,
+                        "propertyId2": 140,
+                        "propertyId3": 61,
+                        "propertyId4": 186,
+                        "unknownString1": "0"
+                    },
+                    {
+                        "propertyId1": 55,
+                        "propertyId2": 122,
+                        "propertyId3": 61,
+                        "propertyId4": 89,
+                        "unknownString1": "6"
+                    },
+                    {
+                        "propertyId1": 127,
+                        "propertyId2": 159,
+                        "propertyId3": 39,
+                        "propertyId4": 114,
+                        "unknownString1": "1"
+                    }
+                ]
+            },
+            {
+                "unknownString1": "QA_KOTK",
+                "unknownString2": "QA_KOTK",
+                "datasheetProperties": [
+                    {
+                        "propertyId1": 177,
+                        "propertyId2": 179,
+                        "propertyId3": 126,
+                        "propertyId4": 95,
+                        "unknownString1": "QA_KOTK"
+                    },
+                    {
+                        "propertyId1": 244,
+                        "propertyId2": 67,
+                        "propertyId3": 101,
+                        "propertyId4": 3,
+                        "unknownString1": "https://account-qa.daybreakgames.com/authenticated/link/wallet/fundWallet.action?theme=h1z1xxInGame"
+                    },
+                    {
+                        "propertyId1": 19,
+                        "propertyId2": 209,
+                        "propertyId3": 183,
+                        "propertyId4": 46,
+                        "unknownString1": "http://soe-%s.custhelp.com/app/answers/list/p/5833/c/5933"
+                    },
+                    {
+                        "propertyId1": 80,
+                        "propertyId2": 245,
+                        "propertyId3": 35,
+                        "propertyId4": 83,
+                        "unknownString1": "https://qa.h1z1.com/king-of-the-kill/game.error?code=G"
+                    },
+                    {
+                        "propertyId1": 214,
+                        "propertyId2": 164,
+                        "propertyId3": 94,
+                        "propertyId4": 250,
+                        "unknownString1": "https://partner-qa.soe.platformpublishing.com/rest/client/session/create"
+                    },
+                    {
+                        "propertyId1": 102,
+                        "propertyId2": 76,
+                        "propertyId3": 144,
+                        "propertyId4": 192,
+                        "unknownString1": "4"
+                    },
+                    {
+                        "propertyId1": 21,
+                        "propertyId2": 140,
+                        "propertyId3": 61,
+                        "propertyId4": 186,
+                        "unknownString1": "0"
+                    },
+                    {
+                        "propertyId1": 55,
+                        "propertyId2": 122,
+                        "propertyId3": 61,
+                        "propertyId4": 89,
+                        "unknownString1": "6"
+                    },
+                    {
+                        "propertyId1": 127,
+                        "propertyId2": 159,
+                        "propertyId3": 39,
+                        "propertyId4": 114,
+                        "unknownString1": "2"
+                    },
+                    {
+                        "propertyId1": 204,
+                        "propertyId2": 246,
+                        "propertyId3": 99,
+                        "propertyId4": 39,
+                        "unknownString1": "https://account-qa.daybreakgames.com/authenticated/link/wallet/currencyConversion.vm?theme=h1z1xxInGame"
+                    }
+                ]
+            },
+            {
+                "unknownString1": "QA_KOTK_PS4",
+                "unknownString2": "QA_KOTK_PS4",
+                "datasheetProperties": [
+                    {
+                        "propertyId1": 177,
+                        "propertyId2": 179,
+                        "propertyId3": 126,
+                        "propertyId4": 95,
+                        "unknownString1": "QA_KOTK_PS4"
+                    },
+                    {
+                        "propertyId1": 244,
+                        "propertyId2": 67,
+                        "propertyId3": 101,
+                        "propertyId4": 3,
+                        "unknownString1": "https://account-qa.daybreakgames.com/authenticated/link/wallet/fundWallet.action?theme=h1z1xxInGame"
+                    },
+                    {
+                        "propertyId1": 19,
+                        "propertyId2": 209,
+                        "propertyId3": 183,
+                        "propertyId4": 46,
+                        "unknownString1": "http://soe-%s.custhelp.com/app/answers/list/p/5833/c/5933"
+                    },
+                    {
+                        "propertyId1": 80,
+                        "propertyId2": 245,
+                        "propertyId3": 35,
+                        "propertyId4": 83,
+                        "unknownString1": "https://qa.h1z1.com/king-of-the-kill/game.error?code=G"
+                    },
+                    {
+                        "propertyId1": 214,
+                        "propertyId2": 164,
+                        "propertyId3": 94,
+                        "propertyId4": 250,
+                        "unknownString1": "https://partner-qa.soe.platformpublishing.com/rest/client/session/create"
+                    },
+                    {
+                        "propertyId1": 102,
+                        "propertyId2": 76,
+                        "propertyId3": 144,
+                        "propertyId4": 192,
+                        "unknownString1": "4"
+                    },
+                    {
+                        "propertyId1": 21,
+                        "propertyId2": 140,
+                        "propertyId3": 61,
+                        "propertyId4": 186,
+                        "unknownString1": "0"
+                    },
+                    {
+                        "propertyId1": 55,
+                        "propertyId2": 122,
+                        "propertyId3": 61,
+                        "propertyId4": 89,
+                        "unknownString1": "6"
+                    },
+                    {
+                        "propertyId1": 127,
+                        "propertyId2": 159,
+                        "propertyId3": 39,
+                        "propertyId4": 114,
+                        "unknownString1": "2"
+                    },
+                    {
+                        "propertyId1": 204,
+                        "propertyId2": 246,
+                        "propertyId3": 99,
+                        "propertyId4": 39,
+                        "unknownString1": "https://account-qa.daybreakgames.com/authenticated/link/wallet/currencyConversion.vm?theme=h1z1xxInGame"
+                    }
+                ]
+            },
+            {
+                "unknownString1": "QA_KOTK_XB1",
+                "unknownString2": "QA_KOTK_XB1",
+                "datasheetProperties": [
+                    {
+                        "propertyId1": 177,
+                        "propertyId2": 179,
+                        "propertyId3": 126,
+                        "propertyId4": 95,
+                        "unknownString1": "QA_KOTK_XB1"
+                    },
+                    {
+                        "propertyId1": 244,
+                        "propertyId2": 67,
+                        "propertyId3": 101,
+                        "propertyId4": 3,
+                        "unknownString1": "https://account-qa.daybreakgames.com/authenticated/link/wallet/fundWallet.action?theme=h1z1xxInGame"
+                    },
+                    {
+                        "propertyId1": 19,
+                        "propertyId2": 209,
+                        "propertyId3": 183,
+                        "propertyId4": 46,
+                        "unknownString1": "http://soe-%s.custhelp.com/app/answers/list/p/5833/c/5933"
+                    },
+                    {
+                        "propertyId1": 80,
+                        "propertyId2": 245,
+                        "propertyId3": 35,
+                        "propertyId4": 83,
+                        "unknownString1": "https://qa.h1z1.com/king-of-the-kill/game.error?code=G"
+                    },
+                    {
+                        "propertyId1": 214,
+                        "propertyId2": 164,
+                        "propertyId3": 94,
+                        "propertyId4": 250,
+                        "unknownString1": "https://partner-qa.soe.platformpublishing.com/rest/client/session/create"
+                    },
+                    {
+                        "propertyId1": 102,
+                        "propertyId2": 76,
+                        "propertyId3": 144,
+                        "propertyId4": 192,
+                        "unknownString1": "4"
+                    },
+                    {
+                        "propertyId1": 21,
+                        "propertyId2": 140,
+                        "propertyId3": 61,
+                        "propertyId4": 186,
+                        "unknownString1": "0"
+                    },
+                    {
+                        "propertyId1": 55,
+                        "propertyId2": 122,
+                        "propertyId3": 61,
+                        "propertyId4": 89,
+                        "unknownString1": "6"
+                    },
+                    {
+                        "propertyId1": 127,
+                        "propertyId2": 159,
+                        "propertyId3": 39,
+                        "propertyId4": 114,
+                        "unknownString1": "2"
+                    },
+                    {
+                        "propertyId1": 204,
+                        "propertyId2": 246,
+                        "propertyId3": 99,
+                        "propertyId4": 39,
+                        "unknownString1": "https://account-qa.daybreakgames.com/authenticated/link/wallet/currencyConversion.vm?theme=h1z1xxInGame"
+                    }
+                ]
+            },
+            {
+                "unknownString1": "QA_PSG",
+                "unknownString2": "QA_PSG",
+                "datasheetProperties": [
+                    {
+                        "propertyId1": 177,
+                        "propertyId2": 179,
+                        "propertyId3": 126,
+                        "propertyId4": 95,
+                        "unknownString1": "QA_PSG"
+                    },
+                    {
+                        "propertyId1": 244,
+                        "propertyId2": 67,
+                        "propertyId3": 101,
+                        "propertyId4": 3,
+                        "unknownString1": "https://staging.planetside2.eu/users/mytopup/?SOESessionID="
+                    },
+                    {
+                        "propertyId1": 46,
+                        "propertyId2": 198,
+                        "propertyId3": 6,
+                        "propertyId4": 40,
+                        "unknownString1": "https://staging.planetside2.eu/users/mytopup/?SOESessionID="
+                    },
+                    {
+                        "propertyId1": 19,
+                        "propertyId2": 209,
+                        "propertyId3": 183,
+                        "propertyId4": 46,
+                        "unknownString1": "https://secure.staging.planetside2.eu/support?SOESessionID="
+                    },
+                    {
+                        "propertyId1": 102,
+                        "propertyId2": 76,
+                        "propertyId3": 144,
+                        "propertyId4": 192,
+                        "unknownString1": "7001"
+                    },
+                    {
+                        "propertyId1": 21,
+                        "propertyId2": 140,
+                        "propertyId3": 61,
+                        "propertyId4": 186,
+                        "unknownString1": "1"
+                    },
+                    {
+                        "propertyId1": 55,
+                        "propertyId2": 122,
+                        "propertyId3": 61,
+                        "propertyId4": 89,
+                        "unknownString1": "6"
+                    }
+                ]
+            },
+            {
+                "unknownString1": "STAGE",
+                "unknownString2": "STAGE",
+                "datasheetProperties": [
+                    {
+                        "propertyId1": 177,
+                        "propertyId2": 179,
+                        "propertyId3": 126,
+                        "propertyId4": 95,
+                        "unknownString1": "STAGE"
+                    },
+                    {
+                        "propertyId1": 19,
+                        "propertyId2": 209,
+                        "propertyId3": 183,
+                        "propertyId4": 46,
+                        "unknownString1": "http://soe-%s.custhelp.com/app/answers/list/p/5833/c/5933"
+                    },
+                    {
+                        "propertyId1": 80,
+                        "propertyId2": 245,
+                        "propertyId3": 35,
+                        "propertyId4": 83,
+                        "unknownString1": "https://stage.h1z1.com/just-survive/game.error?code=G"
+                    },
+                    {
+                        "propertyId1": 214,
+                        "propertyId2": 164,
+                        "propertyId3": 94,
+                        "propertyId4": 250,
+                        "unknownString1": "https://partner-stage.soe.platformpublishing.com/rest/client/session/create"
+                    },
+                    {
+                        "propertyId1": 102,
+                        "propertyId2": 76,
+                        "propertyId3": 144,
+                        "propertyId4": 192,
+                        "unknownString1": "7000"
+                    },
+                    {
+                        "propertyId1": 21,
+                        "propertyId2": 140,
+                        "propertyId3": 61,
+                        "propertyId4": 186,
+                        "unknownString1": "0"
+                    },
+                    {
+                        "propertyId1": 55,
+                        "propertyId2": 122,
+                        "propertyId3": 61,
+                        "propertyId4": 89,
+                        "unknownString1": "6"
+                    },
+                    {
+                        "propertyId1": 127,
+                        "propertyId2": 159,
+                        "propertyId3": 39,
+                        "propertyId4": 114,
+                        "unknownString1": "1"
+                    }
+                ]
+            },
+            {
+                "unknownString1": "STAGE_KOTK",
+                "unknownString2": "STAGE_KOTK",
+                "datasheetProperties": [
+                    {
+                        "propertyId1": 177,
+                        "propertyId2": 179,
+                        "propertyId3": 126,
+                        "propertyId4": 95,
+                        "unknownString1": "STAGE_KOTK"
+                    },
+                    {
+                        "propertyId1": 244,
+                        "propertyId2": 67,
+                        "propertyId3": 101,
+                        "propertyId4": 3,
+                        "unknownString1": "https://account.daybreakgames.com/authenticated/link/wallet/fundWallet.action?theme=h1z1xxInGame"
+                    },
+                    {
+                        "propertyId1": 19,
+                        "propertyId2": 209,
+                        "propertyId3": 183,
+                        "propertyId4": 46,
+                        "unknownString1": "http://soe-%s.custhelp.com/app/answers/list/p/5833/c/5933"
+                    },
+                    {
+                        "propertyId1": 80,
+                        "propertyId2": 245,
+                        "propertyId3": 35,
+                        "propertyId4": 83,
+                        "unknownString1": "https://stage.h1z1.com/king-of-the-kill/game.error?code=G"
+                    },
+                    {
+                        "propertyId1": 214,
+                        "propertyId2": 164,
+                        "propertyId3": 94,
+                        "propertyId4": 250,
+                        "unknownString1": "https://partner-stage.soe.platformpublishing.com/rest/client/session/create"
+                    },
+                    {
+                        "propertyId1": 102,
+                        "propertyId2": 76,
+                        "propertyId3": 144,
+                        "propertyId4": 192,
+                        "unknownString1": "4"
+                    },
+                    {
+                        "propertyId1": 21,
+                        "propertyId2": 140,
+                        "propertyId3": 61,
+                        "propertyId4": 186,
+                        "unknownString1": "0"
+                    },
+                    {
+                        "propertyId1": 55,
+                        "propertyId2": 122,
+                        "propertyId3": 61,
+                        "propertyId4": 89,
+                        "unknownString1": "6"
+                    },
+                    {
+                        "propertyId1": 127,
+                        "propertyId2": 159,
+                        "propertyId3": 39,
+                        "propertyId4": 114,
+                        "unknownString1": "2"
+                    },
+                    {
+                        "propertyId1": 204,
+                        "propertyId2": 246,
+                        "propertyId3": 99,
+                        "propertyId4": 39,
+                        "unknownString1": "https://account.daybreakgames.com/authenticated/link/wallet/currencyConversion.vm?theme=h1z1xxInGame"
+                    }
+                ]
+            },
+            {
+                "unknownString1": "STAGE_KOTK_PS4",
+                "unknownString2": "STAGE_KOTK_PS4",
+                "datasheetProperties": [
+                    {
+                        "propertyId1": 177,
+                        "propertyId2": 179,
+                        "propertyId3": 126,
+                        "propertyId4": 95,
+                        "unknownString1": "STAGE_KOTK_PS4"
+                    },
+                    {
+                        "propertyId1": 244,
+                        "propertyId2": 67,
+                        "propertyId3": 101,
+                        "propertyId4": 3,
+                        "unknownString1": "https://account.daybreakgames.com/authenticated/link/wallet/fundWallet.action?theme=h1z1xxInGame"
+                    },
+                    {
+                        "propertyId1": 19,
+                        "propertyId2": 209,
+                        "propertyId3": 183,
+                        "propertyId4": 46,
+                        "unknownString1": "http://soe-%s.custhelp.com/app/answers/list/p/5833/c/5933"
+                    },
+                    {
+                        "propertyId1": 80,
+                        "propertyId2": 245,
+                        "propertyId3": 35,
+                        "propertyId4": 83,
+                        "unknownString1": "https://stage.h1z1.com/king-of-the-kill/game.error?code=G"
+                    },
+                    {
+                        "propertyId1": 214,
+                        "propertyId2": 164,
+                        "propertyId3": 94,
+                        "propertyId4": 250,
+                        "unknownString1": "https://partner-stage.soe.platformpublishing.com/rest/client/session/create"
+                    },
+                    {
+                        "propertyId1": 102,
+                        "propertyId2": 76,
+                        "propertyId3": 144,
+                        "propertyId4": 192,
+                        "unknownString1": "4"
+                    },
+                    {
+                        "propertyId1": 21,
+                        "propertyId2": 140,
+                        "propertyId3": 61,
+                        "propertyId4": 186,
+                        "unknownString1": "0"
+                    },
+                    {
+                        "propertyId1": 55,
+                        "propertyId2": 122,
+                        "propertyId3": 61,
+                        "propertyId4": 89,
+                        "unknownString1": "6"
+                    },
+                    {
+                        "propertyId1": 127,
+                        "propertyId2": 159,
+                        "propertyId3": 39,
+                        "propertyId4": 114,
+                        "unknownString1": "2"
+                    },
+                    {
+                        "propertyId1": 204,
+                        "propertyId2": 246,
+                        "propertyId3": 99,
+                        "propertyId4": 39,
+                        "unknownString1": "https://account.daybreakgames.com/authenticated/link/wallet/currencyConversion.vm?theme=h1z1xxInGame"
+                    }
+                ]
+            },
+            {
+                "unknownString1": "STAGE_KOTK_XB1",
+                "unknownString2": "STAGE_KOTK_XB1",
+                "datasheetProperties": [
+                    {
+                        "propertyId1": 177,
+                        "propertyId2": 179,
+                        "propertyId3": 126,
+                        "propertyId4": 95,
+                        "unknownString1": "STAGE_KOTK_XB1"
+                    },
+                    {
+                        "propertyId1": 244,
+                        "propertyId2": 67,
+                        "propertyId3": 101,
+                        "propertyId4": 3,
+                        "unknownString1": "https://account.daybreakgames.com/authenticated/link/wallet/fundWallet.action?theme=h1z1xxInGame"
+                    },
+                    {
+                        "propertyId1": 19,
+                        "propertyId2": 209,
+                        "propertyId3": 183,
+                        "propertyId4": 46,
+                        "unknownString1": "http://soe-%s.custhelp.com/app/answers/list/p/5833/c/5933"
+                    },
+                    {
+                        "propertyId1": 80,
+                        "propertyId2": 245,
+                        "propertyId3": 35,
+                        "propertyId4": 83,
+                        "unknownString1": "https://stage.h1z1.com/king-of-the-kill/game.error?code=G"
+                    },
+                    {
+                        "propertyId1": 214,
+                        "propertyId2": 164,
+                        "propertyId3": 94,
+                        "propertyId4": 250,
+                        "unknownString1": "https://partner-stage.soe.platformpublishing.com/rest/client/session/create"
+                    },
+                    {
+                        "propertyId1": 102,
+                        "propertyId2": 76,
+                        "propertyId3": 144,
+                        "propertyId4": 192,
+                        "unknownString1": "4"
+                    },
+                    {
+                        "propertyId1": 21,
+                        "propertyId2": 140,
+                        "propertyId3": 61,
+                        "propertyId4": 186,
+                        "unknownString1": "0"
+                    },
+                    {
+                        "propertyId1": 55,
+                        "propertyId2": 122,
+                        "propertyId3": 61,
+                        "propertyId4": 89,
+                        "unknownString1": "6"
+                    },
+                    {
+                        "propertyId1": 127,
+                        "propertyId2": 159,
+                        "propertyId3": 39,
+                        "propertyId4": 114,
+                        "unknownString1": "2"
+                    },
+                    {
+                        "propertyId1": 204,
+                        "propertyId2": 246,
+                        "propertyId3": 99,
+                        "propertyId4": 39,
+                        "unknownString1": "https://account.daybreakgames.com/authenticated/link/wallet/currencyConversion.vm?theme=h1z1xxInGame"
+                    }
+                ]
+            },
+            {
+                "unknownString1": "STAGE_PSG",
+                "unknownString2": "STAGE_PSG",
+                "datasheetProperties": [
+                    {
+                        "propertyId1": 177,
+                        "propertyId2": 179,
+                        "propertyId3": 126,
+                        "propertyId4": 95,
+                        "unknownString1": "STAGE_PSG"
+                    },
+                    {
+                        "propertyId1": 244,
+                        "propertyId2": 67,
+                        "propertyId3": 101,
+                        "propertyId4": 3,
+                        "unknownString1": "https://staging.planetside2.eu/users/mytopup/?SOESessionID="
+                    },
+                    {
+                        "propertyId1": 46,
+                        "propertyId2": 198,
+                        "propertyId3": 6,
+                        "propertyId4": 40,
+                        "unknownString1": "https://staging.planetside2.eu/users/mytopup/?SOESessionID="
+                    },
+                    {
+                        "propertyId1": 19,
+                        "propertyId2": 209,
+                        "propertyId3": 183,
+                        "propertyId4": 46,
+                        "unknownString1": "https://secure.staging.planetside2.eu/support?SOESessionID="
+                    },
+                    {
+                        "propertyId1": 102,
+                        "propertyId2": 76,
+                        "propertyId3": 144,
+                        "propertyId4": 192,
+                        "unknownString1": "7001"
+                    },
+                    {
+                        "propertyId1": 21,
+                        "propertyId2": 140,
+                        "propertyId3": 61,
+                        "propertyId4": 186,
+                        "unknownString1": "1"
+                    },
+                    {
+                        "propertyId1": 55,
+                        "propertyId2": 122,
+                        "propertyId3": 61,
+                        "propertyId4": 89,
+                        "unknownString1": "6"
+                    }
+                ]
+            },
+            {
+                "unknownString1": "STEAM",
+                "unknownString2": "STEAM",
+                "datasheetProperties": [
+                    {
+                        "propertyId1": 177,
+                        "propertyId2": 179,
+                        "propertyId3": 126,
+                        "propertyId4": 95,
+                        "unknownString1": "STEAM"
+                    },
+                    {
+                        "propertyId1": 147,
+                        "propertyId2": 225,
+                        "propertyId3": 1,
+                        "propertyId4": 77,
+                        "unknownString1": "InGamePurchaseStoreScreen.FundWalletWithSteam"
+                    },
+                    {
+                        "propertyId1": 102,
+                        "propertyId2": 76,
+                        "propertyId3": 144,
+                        "propertyId4": 192,
+                        "unknownString1": "7000"
+                    },
+                    {
+                        "propertyId1": 172,
+                        "propertyId2": 29,
+                        "propertyId3": 164,
+                        "propertyId4": 48,
+                        "unknownString1": "0"
+                    },
+                    {
+                        "propertyId1": 251,
+                        "propertyId2": 209,
+                        "propertyId3": 7,
+                        "propertyId4": 162,
+                        "unknownString1": "0"
+                    },
+                    {
+                        "propertyId1": 21,
+                        "propertyId2": 140,
+                        "propertyId3": 61,
+                        "propertyId4": 186,
+                        "unknownString1": "0"
+                    },
+                    {
+                        "propertyId1": 55,
+                        "propertyId2": 122,
+                        "propertyId3": 61,
+                        "propertyId4": 89,
+                        "unknownString1": "6"
+                    }
+                ]
+            },
+            {
+                "unknownString1": "STEAM_KOTK",
+                "unknownString2": "STEAM_KOTK",
+                "datasheetProperties": [
+                    {
+                        "propertyId1": 177,
+                        "propertyId2": 179,
+                        "propertyId3": 126,
+                        "propertyId4": 95,
+                        "unknownString1": "STEAM_KOTK"
+                    },
+                    {
+                        "propertyId1": 147,
+                        "propertyId2": 225,
+                        "propertyId3": 1,
+                        "propertyId4": 77,
+                        "unknownString1": "InGamePurchaseStoreScreen.FundWalletWithSteam"
+                    },
+                    {
+                        "propertyId1": 102,
+                        "propertyId2": 76,
+                        "propertyId3": 144,
+                        "propertyId4": 192,
+                        "unknownString1": "4"
+                    },
+                    {
+                        "propertyId1": 172,
+                        "propertyId2": 29,
+                        "propertyId3": 164,
+                        "propertyId4": 48,
+                        "unknownString1": "0"
+                    },
+                    {
+                        "propertyId1": 251,
+                        "propertyId2": 209,
+                        "propertyId3": 7,
+                        "propertyId4": 162,
+                        "unknownString1": "0"
+                    },
+                    {
+                        "propertyId1": 21,
+                        "propertyId2": 140,
+                        "propertyId3": 61,
+                        "propertyId4": 186,
+                        "unknownString1": "0"
+                    },
+                    {
+                        "propertyId1": 55,
+                        "propertyId2": 122,
+                        "propertyId3": 61,
+                        "propertyId4": 89,
+                        "unknownString1": "6"
+                    },
+                    {
+                        "propertyId1": 127,
+                        "propertyId2": 159,
+                        "propertyId3": 39,
+                        "propertyId4": 114,
+                        "unknownString1": "2"
+                    }
+                ]
+            },
+            {
+                "unknownString1": "TENCENT",
+                "unknownString2": "TENCENT",
+                "datasheetProperties": [
+                    {
+                        "propertyId1": 177,
+                        "propertyId2": 179,
+                        "propertyId3": 126,
+                        "propertyId4": 95,
+                        "unknownString1": "TENCENT"
+                    },
+                    {
+                        "propertyId1": 244,
+                        "propertyId2": 67,
+                        "propertyId3": 101,
+                        "propertyId4": 3,
+                        "unknownString1": "http://www.qq.com/"
+                    },
+                    {
+                        "propertyId1": 19,
+                        "propertyId2": 209,
+                        "propertyId3": 183,
+                        "propertyId4": 46,
+                        "unknownString1": "http://soe-%s.custhelp.com/app/answers/list/p/5833/c/5933"
+                    },
+                    {
+                        "propertyId1": 80,
+                        "propertyId2": 245,
+                        "propertyId3": 35,
+                        "propertyId4": 83,
+                        "unknownString1": "https://test.h1z1.com/king-of-the-kill/game.error?code=G"
+                    },
+                    {
+                        "propertyId1": 214,
+                        "propertyId2": 164,
+                        "propertyId3": 94,
+                        "propertyId4": 250,
+                        "unknownString1": "https://partner-test.soe.platformpublishing.com/rest/client/session/create"
+                    },
+                    {
+                        "propertyId1": 102,
+                        "propertyId2": 76,
+                        "propertyId3": 144,
+                        "propertyId4": 192,
+                        "unknownString1": "4"
+                    },
+                    {
+                        "propertyId1": 21,
+                        "propertyId2": 140,
+                        "propertyId3": 61,
+                        "propertyId4": 186,
+                        "unknownString1": "0"
+                    },
+                    {
+                        "propertyId1": 55,
+                        "propertyId2": 122,
+                        "propertyId3": 61,
+                        "propertyId4": 89,
+                        "unknownString1": "6"
+                    },
+                    {
+                        "propertyId1": 127,
+                        "propertyId2": 159,
+                        "propertyId3": 39,
+                        "propertyId4": 114,
+                        "unknownString1": "2"
+                    },
+                    {
+                        "propertyId1": 204,
+                        "propertyId2": 246,
+                        "propertyId3": 99,
+                        "propertyId4": 39,
+                        "unknownString1": "https://account-test.daybreakgames.com/authenticated/link/wallet/currencyConversion.vm?theme=h1z1xxInGame"
+                    }
+                ]
+            },
+            {
+                "unknownString1": "TEST",
+                "unknownString2": "TEST",
+                "datasheetProperties": [
+                    {
+                        "propertyId1": 177,
+                        "propertyId2": 179,
+                        "propertyId3": 126,
+                        "propertyId4": 95,
+                        "unknownString1": "TEST"
+                    },
+                    {
+                        "propertyId1": 19,
+                        "propertyId2": 209,
+                        "propertyId3": 183,
+                        "propertyId4": 46,
+                        "unknownString1": "http://soe-%s.custhelp.com/app/answers/list/p/5833/c/5933"
+                    },
+                    {
+                        "propertyId1": 80,
+                        "propertyId2": 245,
+                        "propertyId3": 35,
+                        "propertyId4": 83,
+                        "unknownString1": "https://www.h1z1.com/just-survive/game.error?code=G"
+                    },
+                    {
+                        "propertyId1": 214,
+                        "propertyId2": 164,
+                        "propertyId3": 94,
+                        "propertyId4": 250,
+                        "unknownString1": "https://partner.soe.platformpublishing.com/rest/client/session/create"
+                    },
+                    {
+                        "propertyId1": 102,
+                        "propertyId2": 76,
+                        "propertyId3": 144,
+                        "propertyId4": 192,
+                        "unknownString1": "7000"
+                    },
+                    {
+                        "propertyId1": 79,
+                        "propertyId2": 212,
+                        "propertyId3": 255,
+                        "propertyId4": 118,
+                        "unknownString1": "0"
+                    },
+                    {
+                        "propertyId1": 254,
+                        "propertyId2": 78,
+                        "propertyId3": 161,
+                        "propertyId4": 111,
+                        "unknownString1": "1"
+                    },
+                    {
+                        "propertyId1": 39,
+                        "propertyId2": 120,
+                        "propertyId3": 163,
+                        "propertyId4": 111,
+                        "unknownString1": "0"
+                    },
+                    {
+                        "propertyId1": 21,
+                        "propertyId2": 140,
+                        "propertyId3": 61,
+                        "propertyId4": 186,
+                        "unknownString1": "0"
+                    },
+                    {
+                        "propertyId1": 55,
+                        "propertyId2": 122,
+                        "propertyId3": 61,
+                        "propertyId4": 89,
+                        "unknownString1": "6"
+                    },
+                    {
+                        "propertyId1": 127,
+                        "propertyId2": 159,
+                        "propertyId3": 39,
+                        "propertyId4": 114,
+                        "unknownString1": "1"
+                    }
+                ]
+            },
+            {
+                "unknownString1": "TEST_KOTK",
+                "unknownString2": "TEST_KOTK",
+                "datasheetProperties": [
+                    {
+                        "propertyId1": 177,
+                        "propertyId2": 179,
+                        "propertyId3": 126,
+                        "propertyId4": 95,
+                        "unknownString1": "TEST_KOTK"
+                    },
+                    {
+                        "propertyId1": 19,
+                        "propertyId2": 209,
+                        "propertyId3": 183,
+                        "propertyId4": 46,
+                        "unknownString1": "http://soe-%s.custhelp.com/app/answers/list/p/5833/c/5933"
+                    },
+                    {
+                        "propertyId1": 80,
+                        "propertyId2": 245,
+                        "propertyId3": 35,
+                        "propertyId4": 83,
+                        "unknownString1": "https://www.h1z1.com/king-of-the-kill/game.error?code=G"
+                    },
+                    {
+                        "propertyId1": 214,
+                        "propertyId2": 164,
+                        "propertyId3": 94,
+                        "propertyId4": 250,
+                        "unknownString1": "https://partner.soe.platformpublishing.com/rest/client/session/create"
+                    },
+                    {
+                        "propertyId1": 102,
+                        "propertyId2": 76,
+                        "propertyId3": 144,
+                        "propertyId4": 192,
+                        "unknownString1": "7000"
+                    },
+                    {
+                        "propertyId1": 79,
+                        "propertyId2": 212,
+                        "propertyId3": 255,
+                        "propertyId4": 118,
+                        "unknownString1": "0"
+                    },
+                    {
+                        "propertyId1": 254,
+                        "propertyId2": 78,
+                        "propertyId3": 161,
+                        "propertyId4": 111,
+                        "unknownString1": "1"
+                    },
+                    {
+                        "propertyId1": 39,
+                        "propertyId2": 120,
+                        "propertyId3": 163,
+                        "propertyId4": 111,
+                        "unknownString1": "0"
+                    },
+                    {
+                        "propertyId1": 21,
+                        "propertyId2": 140,
+                        "propertyId3": 61,
+                        "propertyId4": 186,
+                        "unknownString1": "0"
+                    },
+                    {
+                        "propertyId1": 55,
+                        "propertyId2": 122,
+                        "propertyId3": 61,
+                        "propertyId4": 89,
+                        "unknownString1": "6"
+                    },
+                    {
+                        "propertyId1": 127,
+                        "propertyId2": 159,
+                        "propertyId3": 39,
+                        "propertyId4": 114,
+                        "unknownString1": "2"
+                    }
+                ]
+            },
+            {
+                "unknownString1": "TEST_KOTK_PS4",
+                "unknownString2": "TEST_KOTK_PS4",
+                "datasheetProperties": [
+                    {
+                        "propertyId1": 177,
+                        "propertyId2": 179,
+                        "propertyId3": 126,
+                        "propertyId4": 95,
+                        "unknownString1": "TEST_KOTK_PS4"
+                    },
+                    {
+                        "propertyId1": 19,
+                        "propertyId2": 209,
+                        "propertyId3": 183,
+                        "propertyId4": 46,
+                        "unknownString1": "http://soe-%s.custhelp.com/app/answers/list/p/5833/c/5933"
+                    },
+                    {
+                        "propertyId1": 80,
+                        "propertyId2": 245,
+                        "propertyId3": 35,
+                        "propertyId4": 83,
+                        "unknownString1": "https://www.h1z1.com/king-of-the-kill/game.error?code=G"
+                    },
+                    {
+                        "propertyId1": 214,
+                        "propertyId2": 164,
+                        "propertyId3": 94,
+                        "propertyId4": 250,
+                        "unknownString1": "https://partner.soe.platformpublishing.com/rest/client/session/create"
+                    },
+                    {
+                        "propertyId1": 102,
+                        "propertyId2": 76,
+                        "propertyId3": 144,
+                        "propertyId4": 192,
+                        "unknownString1": "7000"
+                    },
+                    {
+                        "propertyId1": 79,
+                        "propertyId2": 212,
+                        "propertyId3": 255,
+                        "propertyId4": 118,
+                        "unknownString1": "0"
+                    },
+                    {
+                        "propertyId1": 254,
+                        "propertyId2": 78,
+                        "propertyId3": 161,
+                        "propertyId4": 111,
+                        "unknownString1": "1"
+                    },
+                    {
+                        "propertyId1": 39,
+                        "propertyId2": 120,
+                        "propertyId3": 163,
+                        "propertyId4": 111,
+                        "unknownString1": "0"
+                    },
+                    {
+                        "propertyId1": 21,
+                        "propertyId2": 140,
+                        "propertyId3": 61,
+                        "propertyId4": 186,
+                        "unknownString1": "0"
+                    },
+                    {
+                        "propertyId1": 55,
+                        "propertyId2": 122,
+                        "propertyId3": 61,
+                        "propertyId4": 89,
+                        "unknownString1": "6"
+                    },
+                    {
+                        "propertyId1": 127,
+                        "propertyId2": 159,
+                        "propertyId3": 39,
+                        "propertyId4": 114,
+                        "unknownString1": "2"
+                    }
+                ]
+            },
+            {
+                "unknownString1": "TEST_KOTK_XB1",
+                "unknownString2": "TEST_KOTK_XB1",
+                "datasheetProperties": [
+                    {
+                        "propertyId1": 177,
+                        "propertyId2": 179,
+                        "propertyId3": 126,
+                        "propertyId4": 95,
+                        "unknownString1": "TEST_KOTK_XB1"
+                    },
+                    {
+                        "propertyId1": 19,
+                        "propertyId2": 209,
+                        "propertyId3": 183,
+                        "propertyId4": 46,
+                        "unknownString1": "http://soe-%s.custhelp.com/app/answers/list/p/5833/c/5933"
+                    },
+                    {
+                        "propertyId1": 80,
+                        "propertyId2": 245,
+                        "propertyId3": 35,
+                        "propertyId4": 83,
+                        "unknownString1": "https://www.h1z1.com/king-of-the-kill/game.error?code=G"
+                    },
+                    {
+                        "propertyId1": 214,
+                        "propertyId2": 164,
+                        "propertyId3": 94,
+                        "propertyId4": 250,
+                        "unknownString1": "https://partner.soe.platformpublishing.com/rest/client/session/create"
+                    },
+                    {
+                        "propertyId1": 102,
+                        "propertyId2": 76,
+                        "propertyId3": 144,
+                        "propertyId4": 192,
+                        "unknownString1": "7000"
+                    },
+                    {
+                        "propertyId1": 79,
+                        "propertyId2": 212,
+                        "propertyId3": 255,
+                        "propertyId4": 118,
+                        "unknownString1": "0"
+                    },
+                    {
+                        "propertyId1": 254,
+                        "propertyId2": 78,
+                        "propertyId3": 161,
+                        "propertyId4": 111,
+                        "unknownString1": "1"
+                    },
+                    {
+                        "propertyId1": 39,
+                        "propertyId2": 120,
+                        "propertyId3": 163,
+                        "propertyId4": 111,
+                        "unknownString1": "0"
+                    },
+                    {
+                        "propertyId1": 21,
+                        "propertyId2": 140,
+                        "propertyId3": 61,
+                        "propertyId4": 186,
+                        "unknownString1": "0"
+                    },
+                    {
+                        "propertyId1": 55,
+                        "propertyId2": 122,
+                        "propertyId3": 61,
+                        "propertyId4": 89,
+                        "unknownString1": "6"
+                    },
+                    {
+                        "propertyId1": 127,
+                        "propertyId2": 159,
+                        "propertyId3": 39,
+                        "propertyId4": 114,
+                        "unknownString1": "2"
+                    }
+                ]
+            },
+            {
+                "unknownString1": "TEST_PSG",
+                "unknownString2": "TEST_PSG",
+                "datasheetProperties": [
+                    {
+                        "propertyId1": 177,
+                        "propertyId2": 179,
+                        "propertyId3": 126,
+                        "propertyId4": 95,
+                        "unknownString1": "TEST_PSG"
+                    },
+                    {
+                        "propertyId1": 244,
+                        "propertyId2": 67,
+                        "propertyId3": 101,
+                        "propertyId4": 3,
+                        "unknownString1": "https://planetside2.eu/users/mytopup/?SOESessionID="
+                    },
+                    {
+                        "propertyId1": 46,
+                        "propertyId2": 198,
+                        "propertyId3": 6,
+                        "propertyId4": 40,
+                        "unknownString1": "https://planetside2.eu/users/mytopup/?SOESessionID="
+                    },
+                    {
+                        "propertyId1": 19,
+                        "propertyId2": 209,
+                        "propertyId3": 183,
+                        "propertyId4": 46,
+                        "unknownString1": "https://secure.planetside2.eu/support?SOESessionID="
+                    },
+                    {
+                        "propertyId1": 102,
+                        "propertyId2": 76,
+                        "propertyId3": 144,
+                        "propertyId4": 192,
+                        "unknownString1": "7001"
+                    },
+                    {
+                        "propertyId1": 21,
+                        "propertyId2": 140,
+                        "propertyId3": 61,
+                        "propertyId4": 186,
+                        "unknownString1": "1"
+                    },
+                    {
+                        "propertyId1": 55,
+                        "propertyId2": 122,
+                        "propertyId3": 61,
+                        "propertyId4": 89,
+                        "unknownString1": "6"
+                    }
+                ]
+            },
+            {
+                "unknownString1": "THE9",
+                "unknownString2": "THE9",
+                "datasheetProperties": [
+                    {
+                        "propertyId1": 177,
+                        "propertyId2": 179,
+                        "propertyId3": 126,
+                        "propertyId4": 95,
+                        "unknownString1": "THE9"
+                    },
+                    {
+                        "propertyId1": 244,
+                        "propertyId2": 67,
+                        "propertyId3": 101,
+                        "propertyId4": 3,
+                        "unknownString1": "http://ps2.the9.com/pay.html"
+                    },
+                    {
+                        "propertyId1": 147,
+                        "propertyId2": 225,
+                        "propertyId3": 1,
+                        "propertyId4": 77,
+                        "unknownString1": "InGamePurchaseStoreScreen.FundWalletWithThe9"
+                    },
+                    {
+                        "propertyId1": 46,
+                        "propertyId2": 198,
+                        "propertyId3": 6,
+                        "propertyId4": 40,
+                        "unknownString1": "http://ps2.the9.com/vip/"
+                    },
+                    {
+                        "propertyId1": 14,
+                        "propertyId2": 25,
+                        "propertyId3": 113,
+                        "propertyId4": 124,
+                        "unknownString1": "InGamePurchaseStoreScreen.PurchaseMembershipFromUrl"
+                    },
+                    {
+                        "propertyId1": 19,
+                        "propertyId2": 209,
+                        "propertyId3": 183,
+                        "propertyId4": 46,
+                        "unknownString1": "http://ps2.the9.com/beginner/"
+                    },
+                    {
+                        "propertyId1": 15,
+                        "propertyId2": 90,
+                        "propertyId3": 136,
+                        "propertyId4": 144,
+                        "unknownString1": "1"
+                    },
+                    {
+                        "propertyId1": 102,
+                        "propertyId2": 76,
+                        "propertyId3": 144,
+                        "propertyId4": 192,
+                        "unknownString1": "7000"
+                    },
+                    {
+                        "propertyId1": 172,
+                        "propertyId2": 29,
+                        "propertyId3": 164,
+                        "propertyId4": 48,
+                        "unknownString1": "0"
+                    },
+                    {
+                        "propertyId1": 251,
+                        "propertyId2": 209,
+                        "propertyId3": 7,
+                        "propertyId4": 162,
+                        "unknownString1": "0"
+                    },
+                    {
+                        "propertyId1": 75,
+                        "propertyId2": 82,
+                        "propertyId3": 250,
+                        "propertyId4": 154,
+                        "unknownString1": "1"
+                    },
+                    {
+                        "propertyId1": 196,
+                        "propertyId2": 20,
+                        "propertyId3": 209,
+                        "propertyId4": 149,
+                        "unknownString1": "0"
+                    },
+                    {
+                        "propertyId1": 44,
+                        "propertyId2": 147,
+                        "propertyId3": 17,
+                        "propertyId4": 0,
+                        "unknownString1": "0"
+                    },
+                    {
+                        "propertyId1": 132,
+                        "propertyId2": 74,
+                        "propertyId3": 213,
+                        "propertyId4": 230,
+                        "unknownString1": "1"
+                    },
+                    {
+                        "propertyId1": 37,
+                        "propertyId2": 97,
+                        "propertyId3": 75,
+                        "propertyId4": 173,
+                        "unknownString1": "0"
+                    },
+                    {
+                        "propertyId1": 39,
+                        "propertyId2": 107,
+                        "propertyId3": 177,
+                        "propertyId4": 77,
+                        "unknownString1": "1"
+                    },
+                    {
+                        "propertyId1": 17,
+                        "propertyId2": 75,
+                        "propertyId3": 129,
+                        "propertyId4": 201,
+                        "unknownString1": "the9"
+                    },
+                    {
+                        "propertyId1": 141,
+                        "propertyId2": 249,
+                        "propertyId3": 242,
+                        "propertyId4": 117,
+                        "unknownString1": "http://new.the9.com/"
+                    },
+                    {
+                        "propertyId1": 228,
+                        "propertyId2": 107,
+                        "propertyId3": 116,
+                        "propertyId4": 167,
+                        "unknownString1": "OnlineHelpWindow.NavigateUrl"
+                    },
+                    {
+                        "propertyId1": 242,
+                        "propertyId2": 22,
+                        "propertyId3": 183,
+                        "propertyId4": 56,
+                        "unknownString1": "0"
+                    },
+                    {
+                        "propertyId1": 21,
+                        "propertyId2": 140,
+                        "propertyId3": 61,
+                        "propertyId4": 186,
+                        "unknownString1": "1"
+                    },
+                    {
+                        "propertyId1": 78,
+                        "propertyId2": 91,
+                        "propertyId3": 190,
+                        "propertyId4": 32,
+                        "unknownString1": "8290,8291,8292,8293"
+                    },
+                    {
+                        "propertyId1": 55,
+                        "propertyId2": 122,
+                        "propertyId3": 61,
+                        "propertyId4": 89,
+                        "unknownString1": "6,8"
+                    }
+                ]
+            }
+        ],
+        "unknownString1": "LIVE",
+        "unknownArray2": [
+            {
+                "unknownDword1": 1602139057,
+                "unknownString1": "LIVE"
+            },
+            {
+                "unknownDword1": 2424855055,
+                "unknownString1": "0"
+            },
+            {
+                "unknownDword1": 3230682214,
+                "unknownString1": "4"
+            },
+            {
+                "unknownDword1": 816061868,
+                "unknownString1": "1"
+            },
+            {
+                "unknownDword1": 2718421499,
+                "unknownString1": "1"
+            },
+            {
+                "unknownDword1": 2600096331,
+                "unknownString1": "0"
+            },
+            {
+                "unknownDword1": 2513507524,
+                "unknownString1": "1"
+            },
+            {
+                "unknownDword1": 1151788,
+                "unknownString1": "1"
+            },
+            {
+                "unknownDword1": 559034429,
+                "unknownString1": "1"
+            },
+            {
+                "unknownDword1": 3872737924,
+                "unknownString1": "0"
+            },
+            {
+                "unknownDword1": 959395698,
+                "unknownString1": "1"
+            },
+            {
+                "unknownDword1": 2907398437,
+                "unknownString1": "1"
+            },
+            {
+                "unknownDword1": 2944829999,
+                "unknownString1": "1"
+            },
+            {
+                "unknownDword1": 1316273542,
+                "unknownString1": "1"
+            },
+            {
+                "unknownDword1": 1996477519,
+                "unknownString1": "1"
+            },
+            {
+                "unknownDword1": 1303472935,
+                "unknownString1": "0"
+            },
+            {
+                "unknownDword1": 1872842494,
+                "unknownString1": "0"
+            },
+            {
+                "unknownDword1": 1085664020,
+                "unknownString1": "UI.Marketplace.GetStationCash"
+            },
+            {
+                "unknownDword1": 951523058,
+                "unknownString1": "1"
+            },
+            {
+                "unknownDword1": 1872984103,
+                "unknownString1": "1"
+            },
+            {
+                "unknownDword1": 2965160804,
+                "unknownString1": "0"
+            },
+            {
+                "unknownDword1": 3124595733,
+                "unknownString1": "0"
+            },
+            {
+                "unknownDword1": 1497201207,
+                "unknownString1": "6"
+            },
+            {
+                "unknownDword1": 1915199359,
+                "unknownString1": "2"
+            },
+            {
+                "unknownDword1": 56968180,
+                "unknownString1": "https://account.daybreakgames.com/authenticated/link/wallet/fundWallet.action?theme=h1z1xxInGame"
+            },
+            {
+                "unknownDword1": 783798547,
+                "unknownString1": "http://soe-%s.custhelp.com/app/answers/list/p/5833/c/5933"
+            },
+            {
+                "unknownDword1": 1394865488,
+                "unknownString1": "https://www.h1z1.com/king-of-the-kill/game.error?code=G"
+            },
+            {
+                "unknownDword1": 4200506582,
+                "unknownString1": "https://partner.soe.platformpublishing.com/rest/client/session/create"
+            },
+            {
+                "unknownDword1": 660862668,
+                "unknownString1": "https://account.daybreakgames.com/authenticated/link/wallet/currencyConversion.vm?theme=h1z1xxInGame"
+            }
+        ],
+        "unknownString2": "LIVE",
+        "unknownString3": "",
+        "unknownString4": "LIVE",
+        "unknownString5": "",
+        "unknownString6": "LVS",
+        "unknownString7": ""
+    },
+    "unknownArray2": [],
+    "unknownString2": "",
+    "unknownString3": "",
+    "unknownBoolean3": false,
+    "unknownString4": "",
+    "ipCountryCode": "US",
+    "unknownString5": "",
+    "unknownString6": "",
+    "unknownString7": "",
+    "unknownString8": "",
+    "unknownString9": "",
+    "unknownString10": "",
+    "unknownString11": "PII",
+    "unknownDword3": 1
+}
