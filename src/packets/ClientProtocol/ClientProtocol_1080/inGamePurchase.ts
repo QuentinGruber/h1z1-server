@@ -376,7 +376,7 @@ export const inGamePurchasePackets: PacketStructures = [
             { name: "unknownDword1", type: "uint32", defaultValue: 0 },
             { name: "bundleId", type: "uint32", defaultValue: 0 },
             {
-              name: "unknownArray1",
+              name: "items",
               type: "array",
               defaultValue: [{}],
               fields: [{ name: "itemDefId", type: "uint32", defaultValue: 0 }]
