@@ -2873,7 +2873,6 @@ export const accountItemSchema: PacketFields = [
 ];
 
 export const storeBundleSchema: PacketFields = [
-  { name: "bundleId", type: "uint32", defaultValue: 0 },
   {
     name: "appStoreBundle",
     type: "schema",

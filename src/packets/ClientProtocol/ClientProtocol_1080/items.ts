@@ -151,7 +151,17 @@ export const itemsPackets: PacketStructures = [
   ],
   ["Items.SetItemLockTimer", 0xad03, {}],
   ["Items.SetItemTimers", 0xad04, {}],
-  ["Items.SetItemTrialLockTimer", 0xad05, {}],
+  [
+    "Items.SetItemTrialLockTimer",
+    0xad05,
+    {
+      fields: [
+        { name: "unknownDword1", type: "uint32", defaultValue: 0 },
+        { name: "unknownDword2", type: "uint32", defaultValue: 0 },
+        { name: "unknownQword1", type: "uint64string", defaultValue: "0" }
+      ]
+    }
+  ],
   ["Items.SetItemTrialTimers", 0xad06, {}],
   ["Items.AddItemTrialTimer", 0xad07, {}],
   ["Items.RemoveItemTrialTimer", 0xad08, {}],
