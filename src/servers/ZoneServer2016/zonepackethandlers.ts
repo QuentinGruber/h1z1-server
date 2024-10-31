@@ -3883,7 +3883,8 @@ export class ZonePacketHandlers {
         server.sendData(client, "Pong", {});
         break;
       case "Grinder.ExchangeRequest":
-        this.grinderExchangeRequest(server, client, packet);
+        //this.grinderExchangeRequest(server, client, packet);
+        // temporary disable
         break;
       case "InGamePurchase.StoreBundleContentRequest":
         debug(JSON.stringify(packet.data));
