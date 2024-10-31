@@ -75,6 +75,7 @@ export abstract class BaseFullCharacter extends BaseLightweightCharacter {
   currentLoadoutSlot = 0; // idk if other full npcs use this
   isLightweight = false;
   gender: number;
+  hoodState: string = "Up";
 
   /** The default items that will spawn on and with the BaseFullCharacter */
   defaultLoadout: LoadoutKit = [];
@@ -833,7 +834,10 @@ export abstract class BaseFullCharacter extends BaseLightweightCharacter {
     const slot = this._equipment[slotId];
     return slot
       ? {
-          modelName: slot.modelName,
+          modelName: slot.modelName.replace(
+            /Up|Down/g,
+            this.hoodState == "Down" ? "Up" : "Down"
+          ),
           effectId: slot.effectId || 0,
           textureAlias: slot.textureAlias || "",
           tintAlias: slot.tintAlias || "Default",
