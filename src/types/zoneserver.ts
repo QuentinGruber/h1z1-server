@@ -86,6 +86,11 @@ export interface CharacterEquipment {
   SHADER_PARAMETER_GROUP?: Array<{SHADER_SEMANTIC_ID: number}>
 }
 
+export interface GrinderItem {
+  itemDefinitionId: number;
+  count: number;
+}
+
 export interface Weather {
   templateName?: string;
   name: string;

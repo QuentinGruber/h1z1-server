@@ -134,13 +134,17 @@ import {
   WeaponWeapon,
   ZoneDoneSendingInitialData,
   H1emuVoiceInit,
-  GroupKick
+  GroupKick,
+  InGamePurchaseStoreBundleContentResponse,
+  GrinderExchangeRequest,
+  GrinderExchangeResponse
 } from "types/zone2016packets";
 import { VehicleCurrentMoveMode } from "types/zone2015packets";
 import {
   ClientBan,
   ConstructionPermissions,
   DamageInfo,
+  GrinderItem,
   Group,
   StanceFlags
 } from "types/zoneserver";
@@ -3498,9 +3502,86 @@ export class ZonePacketHandlers {
 
   commerceSessionRequest(server: ZoneServer2016, client: Client) {
     server.sendData(client, "CommerceSessionResponse", {
-      unknownDword1: 1,
-      sessionToken: "test"
+      unknownBoolean1: true,
+      sessionToken: "TICKET"
     });
+  }
+
+  async grinderExchangeRequest(
+    server: ZoneServer2016,
+    client: Client,
+    packet: ReceivedPacket<GrinderExchangeRequest>
+  ) {
+    if (!packet.data.items) return;
+
+    let rarity = -1;
+    let itemCount = 0;
+
+    for (const item of packet.data.items as GrinderItem[]) {
+      const definition = server.getItemDefinition(item.itemDefinitionId);
+      if (definition) {
+        if (rarity == -1) {
+          rarity = definition.RARITY;
+        }
+
+        if (rarity == definition.RARITY) {
+          itemCount += item.count;
+        }
+      }
+    }
+
+    const itemsNeeded = rarity === 6 ? 4 : 5;
+
+    if (itemCount < itemsNeeded) return;
+
+    const itemsRemoved = await (async (): Promise<boolean> => {
+      for (const item of packet.data.items as GrinderItem[]) {
+        const inventoryItem =
+          await server.accountInventoriesManager.getAccountItem(
+            client.loginSessionId,
+            item.itemDefinitionId
+          );
+        if (!inventoryItem) return false;
+        const result = server.removeAccountItem(
+          client.character,
+          inventoryItem
+        );
+        if (!result) {
+          return false;
+        }
+      }
+      return true;
+    })();
+
+    // TODO: Fix items that are not stacked
+    if (itemsRemoved) {
+      const higherRarityItems = Object.values(server._itemDefinitions).filter(
+        (item) =>
+          item.RARITY === rarity + 1 &&
+          item.CODE_FACTORY_NAME == "AccountRecipe"
+      );
+
+      if (higherRarityItems.length > 0) {
+        const itemDef =
+          higherRarityItems[
+            Math.floor(Math.random() * higherRarityItems.length)
+          ];
+        const item = server.generateItem(itemDef.ID, 1, true);
+        server.lootAccountItem(server, client, item, false);
+        server.sendData<GrinderExchangeResponse>(
+          client,
+          "Grinder.ExchangeResponse",
+          {
+            items: [
+              {
+                itemDefinitionId: item?.itemDefinitionId || itemDef.ID || 0,
+                count: 1
+              }
+            ]
+          }
+        );
+      }
+    }
   }
 
   processPacket(
@@ -3782,6 +3863,24 @@ export class ZonePacketHandlers {
         break;
       case "Ping":
         server.sendData(client, "Pong", {});
+        break;
+      case "Grinder.ExchangeRequest":
+        this.grinderExchangeRequest(server, client, packet);
+        break;
+      case "InGamePurchase.StoreBundleContentRequest":
+        debug(JSON.stringify(packet.data));
+        server.sendData<InGamePurchaseStoreBundleContentResponse>(
+          client,
+          "InGamePurchase.StoreBundleContentResponse",
+          {
+            bundles: [
+              {
+                itemDefId: 1791,
+                bundleId: packet.data.bundles[0].bundleId
+              }
+            ]
+          }
+        );
         break;
       default:
         debug(packet);
