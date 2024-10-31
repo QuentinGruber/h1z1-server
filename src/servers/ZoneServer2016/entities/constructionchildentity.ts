@@ -28,14 +28,14 @@ function getRenderDistance(itemDefinitionId: number) {
     case Items.METAL_GATE:
     case Items.STRUCTURE_STAIRS:
     case Items.STRUCTURE_STAIRS_UPPER:
-      range = 410;
+      range = 420;
       break;
     case Items.FURNACE:
     case Items.WORKBENCH:
     case Items.WORKBENCH_WEAPON:
     case Items.BEE_BOX:
     case Items.DEW_COLLECTOR:
-      range = 100;
+      range = 420;
       break;
     case Items.STORAGE_BOX:
     case Items.ANIMAL_TRAP:
