@@ -1534,6 +1534,7 @@ export class Character2016 extends BaseFullCharacter {
           modelName:
             slot.modelName /* == "Weapon_Empty.adr" ? slot.modelName : ""*/,
           textureAlias: slot.textureAlias || "",
+          effectId: slot.effectId || 0,
           tintAlias: slot.tintAlias || "Default",
           decalAlias: slot.decalAlias || "#",
           slotId: slot.slotId,

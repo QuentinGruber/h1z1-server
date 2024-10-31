@@ -77,6 +77,7 @@ export interface positionUpdate {
 export interface CharacterEquipment {
   modelName: string;
   slotId: number;
+  effectId?: number;
   guid?: string;
   defaultTextureAlias?: string;
   textureAlias?: string;
@@ -578,6 +579,7 @@ export interface ItemDefinition {
 
   // server-side only, added by h1emu
   WORLD_MODEL_ID?: number,
+  EFFECT_ID?: number;
   PICKUP_EFFECT?: number,
   PLACEMENT_MODEL_ID?: number,
 }
