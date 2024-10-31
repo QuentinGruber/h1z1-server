@@ -12,7 +12,6 @@
 // ======================================================================
 
 const Z1_vehicles = require("../../../../data/2016/zoneData/Z1_vehicleLocations.json"),
-  Z1_POIs = require("../../../../data/2016/zoneData/Z1_POIs"),
   spawnLocations2 = require("../../../../data/2016/zoneData/Z1_gridSpawns.json");
 
 import {
@@ -26,7 +25,7 @@ import {
   fixEulerOrder,
   getConstructionSlotId,
   getDistance,
-  isInsideSquare,
+  isPosInPoi,
   isPosInRadius,
   isPosInRadiusWithY,
   movePoint
@@ -383,22 +382,7 @@ export class ConstructionManager {
     if (client.isDebugMode) return false;
     if (this.overridePlacementItems.includes(itemDefinitionId)) return false;
 
-    let useRange = true;
-    let isInPoi = false;
-    Z1_POIs.forEach((point: any) => {
-      if (point.bounds) {
-        useRange = false;
-        point.bounds.forEach((bound: any) => {
-          if (isInsideSquare([position[0], position[2]], bound)) {
-            isInPoi = true;
-            return;
-          }
-        });
-      }
-      if (useRange && isPosInRadius(point.range, position, point.position)) {
-        isInPoi = true;
-      }
-    });
+    const isInPoi = isPosInPoi(position);
     // allow placement in poi if object is parented to a foundation
     if (isInPoi && !isInsidePermissionedFoundation) {
       return true;

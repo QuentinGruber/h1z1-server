@@ -31,7 +31,9 @@ import {
   isPosInRadiusWithY,
   checkConstructionInRange,
   getCurrentServerTimeWrapper,
-  getDateString
+  getDateString,
+  isHalloween,
+  luck
 } from "../../utils/utils";
 
 import { CraftManager } from "./managers/craftmanager";
@@ -44,7 +46,8 @@ import {
   ItemUseOptions,
   LoadoutSlots,
   StringIds,
-  ItemClasses
+  ItemClasses,
+  AccountItems
 } from "./models/enums";
 import { BaseFullCharacter } from "./entities/basefullcharacter";
 import { BaseLightweightCharacter } from "./entities/baselightweightcharacter";
@@ -388,6 +391,26 @@ export class ZonePacketHandlers {
         }
         if (!server._soloMode && client.character.groupId) {
           server.sendAlert(client, "Group automatically joined.");
+        }
+
+        if (isHalloween()) {
+          server.accountInventoriesManager
+            .getAccountItem(client.loginSessionId, AccountItems.HAUNTED_HOODIE)
+            .then((alreadyHaveMask) => {
+              if (!alreadyHaveMask) {
+                server.rewardManager.addRewardToPlayer(
+                  client,
+                  AccountItems.HAUNTED_HOODIE
+                );
+                server.rewardManager.addRewardToPlayer(
+                  client,
+                  AccountItems.FRANKENSWINE_BACKPACK
+                );
+
+                const item = server.generateItem(Items.PUMPKIN_MASK, 1, true);
+                client.character.lootItem(server, item);
+              }
+            });
         }
       }, 10000);
       if (client.banType != "") {
