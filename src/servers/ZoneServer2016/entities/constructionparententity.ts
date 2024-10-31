@@ -995,8 +995,7 @@ export class ConstructionParentEntity extends ConstructionChildEntity {
 
   OnExplosiveHit(
     server: ZoneServer2016,
-    sourceEntity: BaseEntity,
-    client?: ZoneClient2016
+    sourceEntity: BaseEntity
   ) {
     if (
       !isPosInRadius(

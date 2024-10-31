@@ -17,8 +17,7 @@ const Z1_vehicles = require("../../../../data/2016/zoneData/Z1_vehicleLocations.
 import {
   ConstructionEntity,
   dailyRepairMaterial,
-  DamageInfo,
-  EntityDictionary
+  DamageInfo
 } from "types/zoneserver";
 import {
   eul2quat,

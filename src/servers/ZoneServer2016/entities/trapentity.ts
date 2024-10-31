@@ -447,8 +447,7 @@ export class TrapEntity extends BaseSimpleNpc {
 
   OnExplosiveHit(
     server: ZoneServer2016,
-    sourceEntity: BaseEntity,
-    client?: ZoneClient2016
+    sourceEntity: BaseEntity
   ) {
     if (!isPosInRadius(5, this.state.position, sourceEntity.state.position))
       return;

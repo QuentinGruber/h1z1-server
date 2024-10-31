@@ -31,7 +31,7 @@ import { EXTERNAL_CONTAINER_GUID } from "../../../utils/constants";
 import { CharacterPlayWorldCompositeEffect } from "types/zone2016packets";
 import { scheduler } from "timers/promises";
 import { BaseEntity } from "./baseentity";
-import { isPosInRadius } from "utils/utils";
+import { isPosInRadius } from "../../../utils/utils";
 import { ExplosiveEntity } from "./explosiveentity";
 
 function getMaxHealth(itemDefinitionId: Items): number {
