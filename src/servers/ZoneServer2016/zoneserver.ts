@@ -2513,16 +2513,7 @@ export class ZoneServer2016 extends EventEmitter {
   }
 
   async explosionDamage(sourceEntity: BaseEntity, client?: Client) {
-    // TODO: REDO THIS WITH AN OnExplosiveDamage method per class
-
-    // TODO: REDO THIS WITH GRID CHUNK SYSTEM
-
-    const sourceIsVehicle = sourceEntity instanceof Vehicle2016;
     const position = sourceEntity.state.position;
-    const itemDefinitionId =
-      sourceEntity instanceof ExplosiveEntity
-        ? sourceEntity.itemDefinitionId
-        : 0;
 
     if (!sourceEntity) return;
 
@@ -2546,35 +2537,11 @@ export class ZoneServer2016 extends EventEmitter {
 
     for (const characterId in this._characters) {
       const character = this._characters[characterId];
-      if (
-        isPosInRadiusWithY(
-          sourceIsVehicle ? 5 : 3,
-          character.state.position,
-          position,
-          1.5
-        )
-      ) {
-        const distance = getDistance(position, character.state.position);
-        const damage = 50000 / distance;
-        character.damage(this, {
-          entity: sourceEntity.characterId,
-          damage: damage
-        });
-      }
+      character.OnExplosiveHit(this, sourceEntity);
     }
     for (const vehicleKey in this._vehicles) {
       const vehicle = this._vehicles[vehicleKey];
-      if (vehicle.characterId != sourceEntity.characterId) {
-        if (isPosInRadius(5, vehicle.state.position, position)) {
-          const distance = getDistance(position, vehicle.state.position);
-          const damage = 250000 / distance;
-          await scheduler.wait(150);
-          vehicle.damage(this, {
-            entity: sourceEntity.characterId,
-            damage: damage
-          });
-        }
-      }
+      await vehicle.OnExplosiveHit(this, sourceEntity);
     }
   }
   createProjectileNpc(client: Client, data: any) {

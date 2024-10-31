@@ -993,10 +993,7 @@ export class ConstructionParentEntity extends ConstructionChildEntity {
     this.destroy(server, 3000);
   }
 
-  OnExplosiveHit(
-    server: ZoneServer2016,
-    sourceEntity: BaseEntity
-  ) {
+  OnExplosiveHit(server: ZoneServer2016, sourceEntity: BaseEntity) {
     if (
       !isPosInRadius(
         this.damageRange * 1.5,
