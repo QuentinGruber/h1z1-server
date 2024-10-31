@@ -13,7 +13,8 @@
 
 /* eslint-disable @typescript-eslint/no-unused-vars */
 // TODO enable @typescript-eslint/no-unused-vars
-import { ZoneClient2016 as Client } from "./classes/zoneclient";
+import fs from "fs";
+import { ZoneClient2016 as Client, ZoneClient2016 } from "./classes/zoneclient";
 import { ZoneServer2016 } from "./zoneserver";
 const debug = require("debug")("ZoneServer");
 
@@ -416,6 +417,12 @@ export class ZonePacketHandlers {
               }
             });
         }
+
+        // if (!server._soloMode) {
+        //   client.afkTimer = setInterval(() => {
+        //     client.afk(server);
+        //   }, ZoneClient2016.afkTime);
+        // }
       }, 10000);
       if (client.banType != "") {
         server.sendChatTextToAdmins(
@@ -1476,6 +1483,11 @@ export class ZonePacketHandlers {
     // Handle position flag (0x02)
     if (flags & 2) {
       if (!client.characterReleased) client.characterReleased = true;
+
+      // if (client.movementSet.size < ZoneClient2016.minMovementForAfk) {
+      //   const movementId = Math.round(position[0]) + Math.round(position[2]);
+      //   client.movementSet.add(movementId);
+      // }
 
       // skip fairplay for performance test
 

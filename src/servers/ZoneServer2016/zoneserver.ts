@@ -248,7 +248,7 @@ import { PlayTimeManager } from "./managers/playtimemanager";
 import { RewardManager } from "./managers/rewardmanager";
 import { DynamicAppearance } from "types/zonedata";
 import { AiManager } from "h1emu-ai";
-import { setInterval } from "node:timers";
+import { clearInterval, setInterval } from "node:timers";
 import { NavManager } from "../../utils/recast";
 
 const spawnLocations2 = require("../../../data/2016/zoneData/Z1_gridSpawns.json"),
@@ -2200,6 +2200,10 @@ export class ZoneServer2016 extends EventEmitter {
     if (!client) {
       this.setTickRate();
       return;
+    }
+
+    if (client.afkTimer) {
+      clearInterval(client.afkTimer);
     }
 
     if (client.character) {
