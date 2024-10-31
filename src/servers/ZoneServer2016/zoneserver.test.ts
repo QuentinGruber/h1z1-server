@@ -22,7 +22,7 @@ test("ZoneServer2016", { timeout: 10000 }, async (t) => {
     const character = createFakeCharacter(zone);
     createFakeZoneClient(zone, character);
     assert.equal(
-      Object.keys(zone._characters).length,
+      Object.keys(zone._entities._characters).length,
       1,
       "Character not created"
     );
@@ -31,7 +31,7 @@ test("ZoneServer2016", { timeout: 10000 }, async (t) => {
     if (client) {
       zone.deleteClient(client);
       assert.equal(
-        Object.keys(zone._characters).length,
+        Object.keys(zone._entities._characters).length,
         0,
         "Character not deleted"
       );
@@ -64,7 +64,7 @@ test(
       const character = createFakeCharacter(zone);
       createFakeZoneClient(zone, character);
       assert.equal(
-        Object.keys(zone._characters).length,
+        Object.keys(zone._entities._characters).length,
         1,
         "Character not created"
       );
@@ -73,7 +73,7 @@ test(
       if (client) {
         zone.deleteClient(client);
         assert.equal(
-          Object.keys(zone._characters).length,
+          Object.keys(zone._entities._characters).length,
           0,
           "Character not deleted"
         );

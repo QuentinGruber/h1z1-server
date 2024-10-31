@@ -128,7 +128,7 @@ export class Npc extends BaseFullCharacter {
 
   playAnimation(animationName: string) {
     this.server.sendDataToAllWithSpawnedEntity(
-      this.server._npcs,
+      this.server._entities._npcs,
       this.characterId,
       "Character.PlayAnimation",
       {
@@ -189,7 +189,7 @@ export class Npc extends BaseFullCharacter {
         }
       }
       server.sendDataToAllWithSpawnedEntity(
-        server._npcs,
+        server._entities._npcs,
         this.characterId,
         "Character.StartMultiStateDeath",
         {
@@ -257,7 +257,7 @@ export class Npc extends BaseFullCharacter {
   }
 
   destroy(server: ZoneServer2016): boolean {
-    return server.deleteEntity(this.characterId, server._npcs);
+    return server.deleteEntity(this.characterId, server._entities._npcs);
   }
 
   initNpcData() {
@@ -380,7 +380,7 @@ export class Npc extends BaseFullCharacter {
             this.triggerAwards(server, client, this.rewardItems);
         }
         server.damageItem(client, skinningKnife, 400);
-        server.deleteEntity(this.characterId, server._npcs);
+        server.deleteEntity(this.characterId, server._entities._npcs);
       });
     }
   }

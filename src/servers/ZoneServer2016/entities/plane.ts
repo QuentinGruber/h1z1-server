@@ -123,9 +123,9 @@ export class Plane extends Vehicle2016 {
       return {
         characterId: passenger,
         identity: {
-          characterName: server._characters[passenger].name
+          characterName: server._entities._characters[passenger].name
         },
-        unknownString1: server._characters[passenger].name,
+        unknownString1: server._entities._characters[passenger].name,
         unknownByte1: 1
       };
     });

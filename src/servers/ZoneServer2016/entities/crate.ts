@@ -131,7 +131,7 @@ export class Crate extends BaseSimpleNpc {
   damage(server: ZoneServer2016, damageInfo: DamageInfo) {
     this.health -= damageInfo.damage;
     server.sendDataToAllWithSpawnedEntity(
-      server._crates,
+      server._entities._crates,
       this.characterId,
       "Character.UpdateSimpleProxyHealth",
       this.pGetSimpleProxyHealth()
@@ -182,7 +182,7 @@ export class Crate extends BaseSimpleNpc {
     this.spawnTimestamp = Date.now() + this.respawnTime;
     this.health = this.maxHealth;
     server.sendDataToAllWithSpawnedEntity<CharacterRemovePlayer>(
-      server._crates,
+      server._entities._crates,
       this.characterId,
       "Character.RemovePlayer",
       {
@@ -196,7 +196,7 @@ export class Crate extends BaseSimpleNpc {
 
     for (const a in server._clients) {
       const client = server._clients[a];
-      client.spawnedEntities.delete(server._crates[this.characterId]);
+      client.spawnedEntities.delete(server._entities._crates[this.characterId]);
     }
     return true;
     // crates cannot get deleted from dictionarries, need separate function to despawn

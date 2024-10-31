@@ -556,9 +556,9 @@ export class ConstructionChildEntity extends BaseLightweightCharacter {
   destroy(server: ZoneServer2016, destructTime = 0): boolean {
     const deleted = server.deleteEntity(
       this.characterId,
-      server._constructionSimple[this.characterId]
-        ? server._constructionSimple
-        : server._worldSimpleConstruction,
+      server._entities._constructionSimple[this.characterId]
+        ? server._entities._constructionSimple
+        : server._entities._worldSimpleConstruction,
       this.destroyedEffect,
       destructTime
     );
@@ -625,8 +625,8 @@ export class ConstructionChildEntity extends BaseLightweightCharacter {
 
   getParent(server: ZoneServer2016): ConstructionParentEntity | undefined {
     return (
-      server._constructionFoundations[this.parentObjectCharacterId] ||
-      server._constructionSimple[this.parentObjectCharacterId]
+      server._entities._constructionFoundations[this.parentObjectCharacterId] ||
+      server._entities._constructionSimple[this.parentObjectCharacterId]
     );
   }
 
@@ -663,12 +663,12 @@ export class ConstructionChildEntity extends BaseLightweightCharacter {
   ): ConstructionParentEntity | undefined {
     const parent = this.getParent(server);
     if (!parent) return;
-    if (server._constructionSimple[parent.characterId]) {
-      return server._constructionSimple[parent.characterId].getParentFoundation(
-        server
-      );
+    if (server._entities._constructionSimple[parent.characterId]) {
+      return server._entities._constructionSimple[
+        parent.characterId
+      ].getParentFoundation(server);
     }
-    return server._constructionFoundations[parent.characterId];
+    return server._entities._constructionFoundations[parent.characterId];
   }
 
   getSlotNumber(): number {

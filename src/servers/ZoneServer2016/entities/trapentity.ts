@@ -74,7 +74,7 @@ export class TrapEntity extends BaseSimpleNpc {
       case Items.PUNJI_STICKS:
       case Items.PUNJI_STICK_ROW:
         this.trapTimer = setTimeout(() => {
-          if (!server._traps[this.characterId]) {
+          if (!server._entities._traps[this.characterId]) {
             return;
           }
           for (const a in server._clients) {
@@ -94,7 +94,7 @@ export class TrapEntity extends BaseSimpleNpc {
                 damage: 501
               });
               server.sendDataToAllWithSpawnedEntity(
-                server._traps,
+                server._entities._traps,
                 this.characterId,
                 "Character.PlayWorldCompositeEffect",
                 {
@@ -105,7 +105,7 @@ export class TrapEntity extends BaseSimpleNpc {
               );
 
               server.sendDataToAllWithSpawnedEntity(
-                server._traps,
+                server._entities._traps,
                 this.characterId,
                 "Character.UpdateSimpleProxyHealth",
                 this.pGetSimpleProxyHealth()
@@ -118,7 +118,7 @@ export class TrapEntity extends BaseSimpleNpc {
             this.trapTimer?.refresh();
           } else {
             server.sendDataToAllWithSpawnedEntity(
-              server._traps,
+              server._entities._traps,
               this.characterId,
               "Character.PlayWorldCompositeEffect",
               {
@@ -134,7 +134,7 @@ export class TrapEntity extends BaseSimpleNpc {
         break;
       case Items.SNARE:
         this.trapTimer = setTimeout(() => {
-          if (!server._traps[this.characterId]) {
+          if (!server._entities._traps[this.characterId]) {
             return;
           }
           for (const a in server._clients) {
@@ -157,16 +157,17 @@ export class TrapEntity extends BaseSimpleNpc {
                   : 0,
                 ResourceIds.BLEEDING,
                 ResourceTypes.BLEEDING,
-                server._characters
+                server._entities._characters
               );
               server.sendDataToAllWithSpawnedEntity(
-                server._traps,
+                server._entities._traps,
                 this.characterId,
                 "Character.PlayWorldCompositeEffect",
                 {
                   characterId: this.characterId,
                   effectId: Effects.PFX_Impact_Knife_Metal_Vehicle,
-                  position: server._traps[this.characterId].state.position
+                  position:
+                    server._entities._traps[this.characterId].state.position
                 }
               );
               this.isTriggered = true;
@@ -191,7 +192,7 @@ export class TrapEntity extends BaseSimpleNpc {
         break;
       case Items.BARBED_WIRE:
         this.trapTimer = setTimeout(() => {
-          if (!server._traps[this.characterId]) {
+          if (!server._entities._traps[this.characterId]) {
             return;
           }
           for (const a in server._clients) {
@@ -207,7 +208,7 @@ export class TrapEntity extends BaseSimpleNpc {
                 damage: 501
               });
               server.sendDataToAllWithSpawnedEntity(
-                server._traps,
+                server._entities._traps,
                 this.characterId,
                 "Character.PlayWorldCompositeEffect",
                 {
@@ -218,7 +219,7 @@ export class TrapEntity extends BaseSimpleNpc {
               );
 
               server.sendDataToAllWithSpawnedEntity(
-                server._traps,
+                server._entities._traps,
                 this.characterId,
                 "Character.UpdateSimpleProxyHealth",
                 this.pGetSimpleProxyHealth()
@@ -231,7 +232,7 @@ export class TrapEntity extends BaseSimpleNpc {
             this.trapTimer?.refresh();
           } else {
             server.sendDataToAllWithSpawnedEntity(
-              server._traps,
+              server._entities._traps,
               this.characterId,
               "Character.PlayWorldCompositeEffect",
               {
@@ -251,7 +252,7 @@ export class TrapEntity extends BaseSimpleNpc {
         await new Promise<void>((resolve) => setTimeout(resolve, 10000));
 
         this.trapTimer = setTimeout(() => {
-          if (!server._traps[this.characterId]) {
+          if (!server._entities._traps[this.characterId]) {
             return;
           }
           for (const a in server._clients) {
@@ -269,17 +270,19 @@ export class TrapEntity extends BaseSimpleNpc {
               this.isTriggered = true;
             }
           }
-          for (const a in server._vehicles) {
+          for (const a in server._entities._vehicles) {
             if (
               getDistance(
-                server._vehicles[a].state.position,
+                server._entities._vehicles[a].state.position,
                 this.state.position
               ) < 2
             ) {
-              server._vehicles[a].getPassengerList().map((passenger) => {
-                this.detonateTrap(server, { entity: passenger, damage: 0 });
-                this.isTriggered = true;
-              });
+              server._entities._vehicles[a]
+                .getPassengerList()
+                .map((passenger) => {
+                  this.detonateTrap(server, { entity: passenger, damage: 0 });
+                  this.isTriggered = true;
+                });
             }
           }
           if (!this.isTriggered) {
@@ -292,7 +295,7 @@ export class TrapEntity extends BaseSimpleNpc {
     }
   }
   destroy(server: ZoneServer2016): boolean {
-    return server.deleteEntity(this.characterId, server._traps);
+    return server.deleteEntity(this.characterId, server._entities._traps);
   }
 
   isInside(position: Float32Array) {
@@ -321,7 +324,7 @@ export class TrapEntity extends BaseSimpleNpc {
     if (this.worldOwned) return;
     this.health -= damageInfo.damage;
     server.sendDataToAllWithSpawnedEntity(
-      server._traps,
+      server._entities._traps,
       this.characterId,
       "Character.UpdateSimpleProxyHealth",
       this.pGetSimpleProxyHealth()
@@ -347,7 +350,7 @@ export class TrapEntity extends BaseSimpleNpc {
           server.addScreenEffect(client, server._screenEffects["FLASH"]);
 
           server.sendDataToAllWithSpawnedEntity(
-            server._characters,
+            server._entities._characters,
             client.character.characterId,
             "Character.PlayAnimation",
             {
@@ -369,7 +372,7 @@ export class TrapEntity extends BaseSimpleNpc {
           getDistance(client.character.state.position, this.state.position) <= 5
         ) {
           server.sendDataToAllWithSpawnedEntity(
-            server._characters,
+            server._entities._characters,
             client.character.characterId,
             "Character.PlayAnimation",
             {
@@ -386,7 +389,7 @@ export class TrapEntity extends BaseSimpleNpc {
           );
 
           server.sendDataToAllWithSpawnedEntity(
-            server._traps,
+            server._entities._traps,
             this.characterId,
             "Character.AddEffectTagCompositeEffect",
             {
@@ -413,7 +416,7 @@ export class TrapEntity extends BaseSimpleNpc {
             if (elapsedTime >= duration) {
               clearInterval(timerId);
               server.sendDataToAllWithSpawnedEntity(
-                server._characters,
+                server._entities._characters,
                 client.character.characterId,
                 "Character.RemoveEffectTagCompositeEffect",
                 {

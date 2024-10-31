@@ -322,7 +322,10 @@ export class LootableProp extends BaseLootableEntity {
   }
 
   destroy(server: ZoneServer2016): boolean {
-    return server.deleteEntity(this.characterId, server._lootableProps);
+    return server.deleteEntity(
+      this.characterId,
+      server._entities._lootableProps
+    );
   }
 
   OnMeleeHit(server: ZoneServer2016, damageInfo: DamageInfo) {

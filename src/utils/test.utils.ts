@@ -6,7 +6,7 @@ export function createFakeCharacter(zone: ZoneServer2016) {
   const characterId = zone.generateGuid();
   const transientId = zone.getTransientId(characterId);
   const character = new Character2016(characterId, transientId, zone);
-  zone._characters[characterId] = character;
+  zone._entities._characters[characterId] = character;
   return character;
 }
 

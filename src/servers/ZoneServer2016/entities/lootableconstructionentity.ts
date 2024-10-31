@@ -131,8 +131,8 @@ export class LootableConstructionEntity extends BaseLootableEntity {
     server: ZoneServer2016
   ): ConstructionParentEntity | ConstructionChildEntity | undefined {
     return (
-      server._constructionFoundations[this.parentObjectCharacterId] ||
-      server._constructionSimple[this.parentObjectCharacterId] ||
+      server._entities._constructionFoundations[this.parentObjectCharacterId] ||
+      server._entities._constructionSimple[this.parentObjectCharacterId] ||
       undefined
     );
   }
@@ -142,12 +142,12 @@ export class LootableConstructionEntity extends BaseLootableEntity {
   ): ConstructionParentEntity | undefined {
     const parent = this.getParent(server);
     if (!parent) return;
-    if (server._constructionSimple[parent.characterId]) {
-      return server._constructionSimple[parent.characterId].getParentFoundation(
-        server
-      );
+    if (server._entities._constructionSimple[parent.characterId]) {
+      return server._entities._constructionSimple[
+        parent.characterId
+      ].getParentFoundation(server);
     }
-    return server._constructionFoundations[parent.characterId];
+    return server._entities._constructionFoundations[parent.characterId];
   }
 
   canUndoPlacement(server: ZoneServer2016, client: ZoneClient2016) {
@@ -167,9 +167,9 @@ export class LootableConstructionEntity extends BaseLootableEntity {
   destroy(server: ZoneServer2016, destructTime = 0): boolean {
     const deleted = server.deleteEntity(
       this.characterId,
-      server._lootableConstruction[this.characterId]
-        ? server._lootableConstruction
-        : server._worldLootableConstruction,
+      server._entities._lootableConstruction[this.characterId]
+        ? server._entities._lootableConstruction
+        : server._entities._worldLootableConstruction,
       242,
       destructTime
     );
@@ -182,8 +182,8 @@ export class LootableConstructionEntity extends BaseLootableEntity {
     const container = this.getContainer();
     if (container) {
       container.items = {};
-      for (const a in server._characters) {
-        const character = server._characters[a];
+      for (const a in server._entities._characters) {
+        const character = server._entities._characters[a];
         if (character.mountedContainer == this) {
           character.dismountContainer(server);
         }
@@ -221,8 +221,8 @@ export class LootableConstructionEntity extends BaseLootableEntity {
       return;
     }
     if (server.fairPlayManager.useFairPlay) {
-      for (const a in server._constructionFoundations) {
-        const foundation = server._constructionFoundations[a];
+      for (const a in server._entities._constructionFoundations) {
+        const foundation = server._entities._constructionFoundations[a];
         if (
           foundation.itemDefinitionId != Items.FOUNDATION &&
           foundation.itemDefinitionId != Items.FOUNDATION_EXPANSION
@@ -232,10 +232,12 @@ export class LootableConstructionEntity extends BaseLootableEntity {
           let pos = foundation.state.position[1];
           if (
             foundation.parentObjectCharacterId &&
-            server._constructionFoundations[foundation.parentObjectCharacterId]
+            server._entities._constructionFoundations[
+              foundation.parentObjectCharacterId
+            ]
           ) {
             pos =
-              server._constructionFoundations[
+              server._entities._constructionFoundations[
                 foundation.parentObjectCharacterId
               ].state.position[1];
           }
@@ -343,8 +345,9 @@ export class LootableConstructionEntity extends BaseLootableEntity {
 
     const dictionary = server.getEntityDictionary(this.characterId);
     if (
-      dictionary == server._worldLootableConstruction ||
-      (server._worldSimpleConstruction && !this.parentObjectCharacterId)
+      dictionary == server._entities._worldLootableConstruction ||
+      (server._entities._worldSimpleConstruction &&
+        !this.parentObjectCharacterId)
     ) {
       freePlaceDmgMultiplier = 2;
     }

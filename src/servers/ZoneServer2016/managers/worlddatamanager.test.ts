@@ -60,16 +60,16 @@ async function worldSaveUnitTests(t: any, mongoAddress: string) {
   };
   await t.test("convert vehicles", async () => {
     world.vehicles = WorldDataManager.convertVehiclesToSaveData(
-      Object.values(zone._vehicles),
+      Object.values(zone._entities._vehicles),
       worldId
     );
   });
   const constructionNb = 50;
   await t.test("convert constructions", async () => {
     // clear the construction list
-    zone._constructionFoundations = {};
+    zone._entities._constructionFoundations = {};
     assert.deepStrictEqual(
-      Object.keys(zone._constructionFoundations).length,
+      Object.keys(zone._entities._constructionFoundations).length,
       0
     );
     for (let i = 0; i < constructionNb; i++) {
@@ -121,10 +121,10 @@ async function worldSaveUnitTests(t: any, mongoAddress: string) {
         ""
       );
       foundation.setWallSlot(zone, door);
-      zone._constructionFoundations[characterId] = foundation;
+      zone._entities._constructionFoundations[characterId] = foundation;
     }
 
-    Object.values(zone._constructionFoundations).forEach((entity) => {
+    Object.values(zone._entities._constructionFoundations).forEach((entity) => {
       const construction = WorldDataManager.getConstructionParentSaveData(
         entity,
         zone._worldId

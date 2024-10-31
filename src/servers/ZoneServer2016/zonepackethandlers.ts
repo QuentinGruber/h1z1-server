@@ -384,7 +384,7 @@ export class ZonePacketHandlers {
         if (client.isAdmin) {
           server.sendChatText(
             client,
-            `server population : ${_.size(server._characters)}`
+            `server population : ${_.size(server._entities._characters)}`
           );
           if (server.adminMessage)
             server.sendAlert(client, server.adminMessage);
@@ -524,10 +524,11 @@ export class ZonePacketHandlers {
     packet: ReceivedPacket<CollisionDamage>
   ) {
     if (packet.data.objectCharacterId != client.character.characterId) {
-      const objVehicle = server._vehicles[packet.data.objectCharacterId || ""];
+      const objVehicle =
+        server._entities._vehicles[packet.data.objectCharacterId || ""];
       if (objVehicle && objVehicle.engineOn) {
-        for (const a in server._destroyables) {
-          const destroyable = server._destroyables[a];
+        for (const a in server._entities._destroyables) {
+          const destroyable = server._entities._destroyables[a];
           if (destroyable.destroyedModel) continue;
           if (
             !packet.data.position ||
@@ -552,7 +553,7 @@ export class ZonePacketHandlers {
     }
     const characterId = packet.data.characterId || "",
       damage: number = packet.data.damage || 0,
-      vehicle = server._vehicles[characterId];
+      vehicle = server._entities._vehicles[characterId];
     if (characterId === client.character.characterId) {
       if (client.character.vehicleExitDate + 3000 > new Date().getTime()) {
         return;
@@ -586,7 +587,9 @@ export class ZonePacketHandlers {
   ) {
     const transientId = (packet.data.transientId as number) || 0,
       characterId = server._transientIds[transientId],
-      vehicle = characterId ? server._vehicles[characterId] : undefined,
+      vehicle = characterId
+        ? server._entities._vehicles[characterId]
+        : undefined,
       damage = Number((packet.data.damage || 0).toFixed(0));
 
     if (!vehicle) return;
@@ -1221,7 +1224,9 @@ export class ZonePacketHandlers {
     // Vehicle handling
     const transientId = (packetData.transientId as number) || 0;
     const characterId = server._transientIds[transientId];
-    const vehicle = characterId ? server._vehicles[characterId] : undefined;
+    const vehicle = characterId
+      ? server._entities._vehicles[characterId]
+      : undefined;
 
     if (!vehicle) {
       if (client.character.isSpectator && positionUpdate.position) {
@@ -1284,7 +1289,7 @@ export class ZonePacketHandlers {
 
       // Update passenger positions and handle kicks if necessary
       vehicle.getPassengerList().forEach((passengerId) => {
-        const passenger = server._characters[passengerId];
+        const passenger = server._entities._characters[passengerId];
         if (passenger) {
           passenger.state.position = positionUpdate.position;
           const c = server.getClientByCharId(passengerId);
@@ -1325,7 +1330,7 @@ export class ZonePacketHandlers {
     if (packetData.transientId !== server._characterIds[OBSERVER_GUID]) {
       server.sendRawToAllOthersWithSpawnedEntity(
         client,
-        server._vehicles,
+        server._entities._vehicles,
         characterId,
         server._protocol.createManagedPositionBroadcast2016(positionUpdate.raw)
       );
@@ -1347,7 +1352,7 @@ export class ZonePacketHandlers {
     packet: ReceivedPacket<VehicleStateData>
   ) {
     server.sendDataToAllOthersWithSpawnedEntity(
-      server._vehicles,
+      server._entities._vehicles,
       client,
       packet.data.guid,
       "Vehicle.StateData",
@@ -1462,7 +1467,7 @@ export class ZonePacketHandlers {
           client.character._resources[ResourceIds.STAMINA],
           ResourceIds.STAMINA,
           ResourceTypes.STAMINA,
-          server._characters
+          server._entities._characters
         );
       }
 
@@ -1504,7 +1509,9 @@ export class ZonePacketHandlers {
       // Handle dismounting from container if out of range
       if (
         client.character.mountedContainer &&
-        !server._vehicles[client.character.mountedContainer.characterId] &&
+        !server._entities._vehicles[
+          client.character.mountedContainer.characterId
+        ] &&
         !isPosInRadius(
           client.character.mountedContainer.interactionDistance,
           client.character.state.position,
@@ -1540,7 +1547,7 @@ export class ZonePacketHandlers {
       client.isDecoy
     ) {
       server.sendDataToAllWithSpawnedEntity(
-        server._characters,
+        server._entities._characters,
         client.character.characterId,
         "PlayerUpdatePosition",
         {
@@ -1665,7 +1672,7 @@ export class ZonePacketHandlers {
       server.sendAlert(client, "Invalid door entity!");
       return;
     }
-    const doorEntity = server._constructionDoors[
+    const doorEntity = server._entities._constructionDoors[
       client.character.lastInteractionRequestGuid
     ] as ConstructionDoor;
     if (!doorEntity) {
@@ -1748,7 +1755,7 @@ export class ZonePacketHandlers {
     packet: ReceivedPacket<VehicleCurrentMoveMode>
   ) {
     const { characterId, moveMode } = packet.data,
-      vehicle = server._vehicles[characterId as string];
+      vehicle = server._entities._vehicles[characterId as string];
     if (!vehicle) return;
     debug(
       `vehTransient:${vehicle.transientId} , mode: ${moveMode} from ${
@@ -1772,7 +1779,7 @@ export class ZonePacketHandlers {
     client: Client,
     packet: ReceivedPacket<VehicleAccessType>
   ) {
-    const vehicle = server._vehicles[packet.data.vehicleGuid ?? ""],
+    const vehicle = server._entities._vehicles[packet.data.vehicleGuid ?? ""],
       accessType = packet.data.accessType ?? 0;
     vehicle.setLockState(server, client, !!accessType);
   }
@@ -1960,7 +1967,7 @@ export class ZonePacketHandlers {
       client.character.weaponStance = stance;
     }
     server.sendDataToAllOthersWithSpawnedEntity(
-      server._characters,
+      server._entities._characters,
       client,
       client.character.characterId,
       "Character.WeaponStance",
@@ -2325,7 +2332,8 @@ export class ZonePacketHandlers {
       case ItemUseOptions.HOTWIRE_PICKUP:
       case ItemUseOptions.HOTWIRE_POLICE:
       case ItemUseOptions.HOTWIRE_ATV:
-        const vehicle = server._vehicles[client.vehicle.mountedVehicle || ""];
+        const vehicle =
+          server._entities._vehicles[client.vehicle.mountedVehicle || ""];
         if (!vehicle) return;
         vehicle.hotwire(server);
         break;
@@ -2333,7 +2341,8 @@ export class ZonePacketHandlers {
       case ItemUseOptions.HOTWIRE_OFFROADER_NO_PARTS:
       case ItemUseOptions.HOTWIRE_PICKUP_NO_PARTS:
       case ItemUseOptions.HOTWIRE_POLICE_NO_PARTS:
-        const v = server._vehicles[client.vehicle.mountedVehicle || ""];
+        const v =
+          server._entities._vehicles[client.vehicle.mountedVehicle || ""];
         if (!v) return;
         if (!v.hasFuel()) {
           server.sendAlert(
@@ -2763,7 +2772,7 @@ export class ZonePacketHandlers {
     packet: ReceivedPacket<NpcFoundationPermissionsManagerEditPermission>
   ) {
     const objectCharacterId = packet.data.objectCharacterId || "",
-      foundation = server._constructionFoundations[
+      foundation = server._entities._constructionFoundations[
         objectCharacterId
       ] as ConstructionParentEntity;
     if (
@@ -2810,7 +2819,8 @@ export class ZonePacketHandlers {
 
     // update child expansion permissions
     Object.values(
-      server._constructionFoundations[objectCharacterId].occupiedExpansionSlots
+      server._entities._constructionFoundations[objectCharacterId]
+        .occupiedExpansionSlots
     ).forEach((expansion) => {
       expansion.permissions = foundation.permissions;
     });
@@ -2836,7 +2846,7 @@ export class ZonePacketHandlers {
   ) {
     const objectCharacterId = packet.data.objectCharacterId || "",
       characterName = packet.data.characterName || "",
-      foundation = server._constructionFoundations[
+      foundation = server._entities._constructionFoundations[
         objectCharacterId
       ] as ConstructionParentEntity;
     if (
@@ -2902,7 +2912,8 @@ export class ZonePacketHandlers {
 
     // update child expansion permissions
     Object.values(
-      server._constructionFoundations[objectCharacterId].occupiedExpansionSlots
+      server._entities._constructionFoundations[objectCharacterId]
+        .occupiedExpansionSlots
     ).forEach((expansion) => {
       expansion.permissions = foundation.permissions;
     });
@@ -3209,7 +3220,7 @@ export class ZonePacketHandlers {
     packet: ReceivedPacket<AbilitiesUninitAbility>
   ) {
     if (!client.vehicle.mountedVehicle) return;
-    const vehicle = server._vehicles[client.vehicle.mountedVehicle];
+    const vehicle = server._entities._vehicles[client.vehicle.mountedVehicle];
     if (!vehicle) return;
     server.abilitiesManager.processAbilityUninit(
       server,

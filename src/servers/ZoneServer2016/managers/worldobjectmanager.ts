@@ -112,7 +112,7 @@ export class WorldObjectManager {
   private getItemRespawnTimer(server: ZoneServer2016): void {
     if (this.hasCustomLootRespawnTime) return;
 
-    const playerCount = _.size(server._characters);
+    const playerCount = _.size(server._entities._characters);
 
     if (playerCount >= 60) {
       this.lootRespawnTimer = 600_000; // 10 min
@@ -155,42 +155,42 @@ export class WorldObjectManager {
 
   private async npcDespawner(server: ZoneServer2016) {
     let counter = 0;
-    for (const characterId in server._npcs) {
+    for (const characterId in server._entities._npcs) {
       if (counter > 30) {
         counter = 0;
         await scheduler.wait(30);
       }
       counter++;
-      const npc = server._npcs[characterId];
+      const npc = server._entities._npcs[characterId];
       // dead npc despawner
       if (
         npc.flags.knockedOut &&
         Date.now() - npc.deathTime >= this.deadNpcDespawnTimer
       ) {
-        server.deleteEntity(npc.characterId, server._npcs);
+        server.deleteEntity(npc.characterId, server._entities._npcs);
       }
     }
   }
 
   private lootbagDespawner(server: ZoneServer2016) {
-    for (const characterId in server._lootbags) {
+    for (const characterId in server._entities._lootbags) {
       // lootbag despawner
-      const lootbag = server._lootbags[characterId];
+      const lootbag = server._entities._lootbags[characterId];
       if (Date.now() - lootbag.creationTime >= this.lootbagDespawnTimer) {
-        server.deleteEntity(lootbag.characterId, server._lootbags);
+        server.deleteEntity(lootbag.characterId, server._entities._lootbags);
       }
     }
   }
 
   private async itemDespawner(server: ZoneServer2016) {
     let counter = 0;
-    for (const characterId in server._spawnedItems) {
+    for (const characterId in server._entities._spawnedItems) {
       if (counter > 100) {
         counter = 0;
         await scheduler.wait(30);
       }
       counter++;
-      const itemObject = server._spawnedItems[characterId];
+      const itemObject = server._entities._spawnedItems[characterId];
       if (!itemObject) return;
       // dropped item despawner
       const despawnTime =
@@ -198,17 +198,23 @@ export class WorldObjectManager {
           ? this.itemDespawnTimer
           : this.lootDespawnTimer;
       if (Date.now() - itemObject.creationTime >= despawnTime) {
-        server.deleteEntity(itemObject.characterId, server._spawnedItems);
+        server.deleteEntity(
+          itemObject.characterId,
+          server._entities._spawnedItems
+        );
         switch (itemObject.item.itemDefinitionId) {
           case Items.FUEL_ETHANOL:
           case Items.FUEL_BIOFUEL:
-            server.deleteEntity(itemObject.characterId, server._explosives);
+            server.deleteEntity(
+              itemObject.characterId,
+              server._entities._explosives
+            );
             break;
         }
         if (itemObject.spawnerId != -1)
           delete this.spawnedLootObjects[itemObject.spawnerId];
         server.sendCompositeEffectToAllWithSpawnedEntity(
-          server._spawnedItems,
+          server._entities._spawnedItems,
           itemObject,
           server.getItemDefinition(itemObject.item.itemDefinitionId)
             ?.PICKUP_EFFECT ?? 5151
@@ -243,7 +249,7 @@ export class WorldObjectManager {
 
     // doesn't work anymore
     // this.equipRandomSkins(server, npc, this.zombieSlots, bannedZombieModels);
-    server._npcs[characterId] = npc;
+    server._entities._npcs[characterId] = npc;
     if (spawnerId) this.spawnedNpcs[spawnerId] = characterId;
   }
 
@@ -277,14 +283,14 @@ export class WorldObjectManager {
         itemSpawnerId || 0,
         item
       );
-    server._spawnedItems[characterId] = lootObj;
-    server._spawnedItems[characterId].nameId = itemDef.NAME_ID;
+    server._entities._spawnedItems[characterId] = lootObj;
+    server._entities._spawnedItems[characterId].nameId = itemDef.NAME_ID;
 
     switch (item.itemDefinitionId) {
       case Items.FUEL_ETHANOL:
       case Items.FUEL_BIOFUEL:
         lootObj.flags.projectileCollision = 1;
-        server._explosives[characterId] = new ExplosiveEntity(
+        server._entities._explosives[characterId] = new ExplosiveEntity(
           characterId,
           server.getTransientId(characterId),
           modelId,
@@ -324,7 +330,7 @@ export class WorldObjectManager {
     }
 
     const characterId = generateRandomGuid(),
-      isCharacter = !!server._characters[entity.characterId],
+      isCharacter = !!server._entities._characters[entity.characterId],
       items = entity.getDeathItems(server);
 
     if (!_.size(items)) return; // don't spawn lootbag if inventory is empty
@@ -343,7 +349,7 @@ export class WorldObjectManager {
       container.items = items;
     }
 
-    server._lootbags[characterId] = lootbag;
+    server._entities._lootbags[characterId] = lootbag;
     server.executeFuncForAllReadyClientsInRange((client) => {
       server.addLightweightNpc(client, lootbag);
       client.spawnedEntities.add(lootbag);
@@ -503,7 +509,7 @@ export class WorldObjectManager {
         );
       }
     }
-    server._lootbags[characterId] = lootbag;
+    server._entities._lootbags[characterId] = lootbag;
   }
 
   createProps(server: ZoneServer2016) {
@@ -546,7 +552,7 @@ export class WorldObjectManager {
           propInstance.id,
           Number(propType.renderDistance)
         );
-        server._lootableProps[characterId] = obj;
+        server._entities._lootableProps[characterId] = obj;
         obj.equipItem(server, server.generateItem(obj.containerId), false);
         if (
           ![
@@ -661,7 +667,7 @@ export class WorldObjectManager {
               // punish shooting at the grave
               obj.OnProjectileHit = (server, damageInfo) => {
                 const assholeId = damageInfo.entity;
-                const asshole = server._characters[assholeId];
+                const asshole = server._entities._characters[assholeId];
                 damageInfo.damage = damageInfo.damage * 2;
                 asshole.damage(server, damageInfo);
               };
@@ -682,7 +688,7 @@ export class WorldObjectManager {
               propType.actorDefinition
             );
         }
-        if (obj) server._taskProps[characterId] = obj;
+        if (obj) server._entities._taskProps[characterId] = obj;
       });
     });
     Z1_crates.forEach((propType: any) => {
@@ -704,7 +710,7 @@ export class WorldObjectManager {
           propInstance.zoneId,
           Number(propType.renderDistance)
         );
-        server._crates[characterId] = obj;
+        server._entities._crates[characterId] = obj;
       });
     });
     Z1_destroyables.forEach((propType: any) => {
@@ -726,7 +732,7 @@ export class WorldObjectManager {
           propInstance.id,
           Number(propType.renderDistance)
         );
-        server._destroyables[characterId] = obj;
+        server._entities._destroyables[characterId] = obj;
         server._destroyableDTOlist.push(propInstance.id);
       });
     });
@@ -735,13 +741,13 @@ export class WorldObjectManager {
 
   async replenishWaterSources(server: ZoneServer2016) {
     let counter = 0;
-    for (const a in server._taskProps) {
+    for (const a in server._entities._taskProps) {
       if (counter > 9) {
         counter = 0;
         await scheduler.wait(60);
       }
       counter++;
-      const propInstance = server._taskProps[a];
+      const propInstance = server._entities._taskProps[a];
       if (propInstance instanceof WaterSource) propInstance.replenish();
     }
   }
@@ -755,7 +761,7 @@ export class WorldObjectManager {
     spawnerId: number
   ) {
     const characterId = generateRandomGuid();
-    server._doors[characterId] = new DoorEntity(
+    server._entities._doors[characterId] = new DoorEntity(
       characterId,
       server.getTransientId(characterId),
       modelID,
@@ -848,30 +854,32 @@ export class WorldObjectManager {
       vehicle.getTurboItemId()
     );
 
-    server._vehicles[vehicle.characterId] = vehicle;
+    server._entities._vehicles[vehicle.characterId] = vehicle;
   }
 
   createVehicles(server: ZoneServer2016) {
-    if (_.size(server._vehicles) >= this.vehicleSpawnCap) return;
+    if (_.size(server._entities._vehicles) >= this.vehicleSpawnCap) return;
     const respawnAmount = Math.ceil(
-      (this.vehicleSpawnCap - _.size(server._vehicles)) / 8
+      (this.vehicleSpawnCap - _.size(server._entities._vehicles)) / 8
     );
     for (let x = 0; x < respawnAmount; x++) {
       const dataVehicle =
         Z1_vehicles[randomIntFromInterval(0, Z1_vehicles.length - 1)];
       let spawn = true;
-      Object.values(server._vehicles).forEach((spawnedVehicle: Vehicle2016) => {
-        if (!spawn) return;
-        if (
-          isPosInRadius(
-            this.vehicleSpawnRadius,
-            dataVehicle.position,
-            spawnedVehicle.state.position
-          )
-        ) {
-          spawn = false;
+      Object.values(server._entities._vehicles).forEach(
+        (spawnedVehicle: Vehicle2016) => {
+          if (!spawn) return;
+          if (
+            isPosInRadius(
+              this.vehicleSpawnRadius,
+              dataVehicle.position,
+              spawnedVehicle.state.position
+            )
+          ) {
+            spawn = false;
+          }
         }
-      });
+      );
       if (!spawn) {
         continue;
       }
@@ -922,7 +930,7 @@ export class WorldObjectManager {
       for (const npcInstance of spawnerType.instances) {
         let spawn = true;
         let counter = 0;
-        for (const a in server._npcs) {
+        for (const a in server._entities._npcs) {
           if (counter > 150) {
             counter = 0;
             await scheduler.wait(30);
@@ -932,7 +940,7 @@ export class WorldObjectManager {
             isPosInRadius(
               this.npcSpawnRadius,
               npcInstance.position,
-              server._npcs[a].state.position
+              server._entities._npcs[a].state.position
             )
           ) {
             spawn = false;
@@ -1008,13 +1016,13 @@ export class WorldObjectManager {
 
   async updateQuestContainers(server: ZoneServer2016) {
     let counter = 0;
-    for (const a in server._lootableProps) {
+    for (const a in server._entities._lootableProps) {
       if (counter > 100) {
         counter = 0;
         await scheduler.wait(30); // Await the wait function to pause
       }
       counter++;
-      const prop = server._lootableProps[a] as BaseFullCharacter;
+      const prop = server._entities._lootableProps[a] as BaseFullCharacter;
       switch (prop.actorModelId) {
         case ModelIds.HOSPITAL_LAB_WORKBENCH:
           if (
@@ -1044,7 +1052,9 @@ export class WorldObjectManager {
           }
           break;
         case 9347:
-          const rewardChest = server._lootableProps[a] as TreasureChest;
+          const rewardChest = server._entities._lootableProps[
+            a
+          ] as TreasureChest;
           if (rewardChest) rewardChest.triggerRewards(server);
           break;
       }
@@ -1052,13 +1062,13 @@ export class WorldObjectManager {
   }
   async createContainerLoot(server: ZoneServer2016) {
     let counter = 0;
-    for (const a in server._lootableProps) {
+    for (const a in server._entities._lootableProps) {
       if (counter > 9) {
         counter = 0;
         await scheduler.wait(60); // Await the wait function to pause
       }
       counter++;
-      const prop = server._lootableProps[a] as LootableProp;
+      const prop = server._entities._lootableProps[a] as LootableProp;
       const container = prop.getContainer();
       if (!container) continue;
       if (!!Object.keys(container.items).length) continue; // skip if container is not empty

@@ -472,7 +472,7 @@ export class Character2016 extends BaseFullCharacter {
     }
     if (effectId == 0 && effectId != undefined) {
       server.sendDataToAllWithSpawnedEntity<CommandPlayDialogEffect>(
-        server._characters,
+        server._entities._characters,
         this.characterId,
         "Command.PlayDialogEffect",
         {
@@ -511,13 +511,13 @@ export class Character2016 extends BaseFullCharacter {
     if (
       client.character.isSitting &&
       (checkConstructionInRange(
-        server._lootableConstruction,
+        server._entities._lootableConstruction,
         client.character.state.position,
         4,
         Items.CAMPFIRE
       ) ||
         checkConstructionInRange(
-          server._worldLootableConstruction,
+          server._entities._worldLootableConstruction,
           client.character.state.position,
           4,
           Items.CAMPFIRE
@@ -800,7 +800,7 @@ export class Character2016 extends BaseFullCharacter {
         resource > 0 ? resource : 0,
         resourceId,
         resouceType,
-        server._characters
+        server._entities._characters
       );
       return;
     }
@@ -846,7 +846,7 @@ export class Character2016 extends BaseFullCharacter {
       );
     }
     server.sendDataToAllOthersWithSpawnedEntity(
-      server._characters,
+      server._entities._characters,
       client,
       this.characterId,
       "Loadout.SetLoadoutSlots",
@@ -940,7 +940,7 @@ export class Character2016 extends BaseFullCharacter {
     client: ZoneClient2016
   ): AddLightweightPc {
     const vehicleId = client.vehicle.mountedVehicle,
-      vehicle = server._vehicles[vehicleId ?? ""],
+      vehicle = server._entities._vehicles[vehicleId ?? ""],
       mountSeatId = vehicle?.getCharacterSeat(this.characterId);
     return {
       ...this.pGetLightweight(),
@@ -1197,7 +1197,7 @@ export class Character2016 extends BaseFullCharacter {
     if (
       server.isPvE &&
       damageInfo.hitReport?.characterId &&
-      server._characters[damageInfo.hitReport?.characterId]
+      server._entities._characters[damageInfo.hitReport?.characterId]
     )
       return;
     const client = server.getClientByCharId(this.characterId),
@@ -1233,7 +1233,7 @@ export class Character2016 extends BaseFullCharacter {
           this._resources[ResourceIds.BLEEDING],
           ResourceIds.BLEEDING,
           ResourceTypes.BLEEDING,
-          server._characters
+          server._entities._characters
         );
       }
     }
@@ -1304,7 +1304,7 @@ export class Character2016 extends BaseFullCharacter {
 
     // construction container permissions
     const lootableConstruction =
-      server._lootableConstruction[lootableEntity.characterId];
+      server._entities._lootableConstruction[lootableEntity.characterId];
     if (lootableConstruction && lootableConstruction.parentObjectCharacterId) {
       const parent = lootableConstruction.getParent(server);
       const c = server.getClientByCharId(this.characterId);
@@ -1336,9 +1336,9 @@ export class Character2016 extends BaseFullCharacter {
     let accessor = client.character.characterId;
     if (
       lootableEntity instanceof Vehicle2016 &&
-      server._vehicles[lootableEntity.characterId]
+      server._entities._vehicles[lootableEntity.characterId]
     ) {
-      const vehicle = server._vehicles[lootableEntity.characterId],
+      const vehicle = server._entities._vehicles[lootableEntity.characterId],
         driver = vehicle.getDriver(server);
       if (driver) accessor = driver.characterId;
       else accessor = "0x0";
@@ -1418,7 +1418,10 @@ export class Character2016 extends BaseFullCharacter {
     });
 
     if (this.mountedContainer.isLootbag && !_.size(container.items)) {
-      server.deleteEntity(this.mountedContainer.characterId, server._lootbags);
+      server.deleteEntity(
+        this.mountedContainer.characterId,
+        server._entities._lootbags
+      );
     }
 
     server.sendData<AccessedCharacterEndCharacterAccess>(
@@ -1462,7 +1465,7 @@ export class Character2016 extends BaseFullCharacter {
       return;
 
     server.sendDataToAllWithSpawnedEntity(
-      server._characters,
+      server._entities._characters,
       this.characterId,
       "Equipment.SetCharacterEquipmentSlot",
       this.pGetEquipmentSlotFull(slotId) as EquipmentSetCharacterEquipmentSlot
@@ -1499,7 +1502,7 @@ export class Character2016 extends BaseFullCharacter {
     if (!server.getClientByCharId(this.characterId)?.character.initialized)
       return;
     server.sendDataToAllWithSpawnedEntity(
-      server._characters,
+      server._entities._characters,
       this.characterId,
       "Equipment.SetCharacterEquipment",
       this.pGetEquipment()
@@ -1721,7 +1724,7 @@ export class Character2016 extends BaseFullCharacter {
               damage: 500
             });
             server.sendDataToAllWithSpawnedEntity(
-              server._characters,
+              server._entities._characters,
               character.characterId,
               "Command.PlayDialogEffect",
               {
@@ -1732,7 +1735,7 @@ export class Character2016 extends BaseFullCharacter {
           }
         };
         server.sendDataToAllWithSpawnedEntity(
-          server._characters,
+          server._entities._characters,
           this.characterId,
           "Command.PlayDialogEffect",
           {
@@ -1768,7 +1771,7 @@ export class Character2016 extends BaseFullCharacter {
           }
         };
         server.sendDataToAllWithSpawnedEntity(
-          server._characters,
+          server._entities._characters,
           this.characterId,
           "Command.PlayDialogEffect",
           {
@@ -1825,7 +1828,7 @@ export class Character2016 extends BaseFullCharacter {
         this._resources[ResourceIds.BLEEDING],
         ResourceIds.BLEEDING,
         ResourceIds.BLEEDING,
-        server._characters
+        server._entities._characters
       );
     }
 

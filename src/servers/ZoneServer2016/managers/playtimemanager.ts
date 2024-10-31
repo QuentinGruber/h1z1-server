@@ -18,7 +18,7 @@ export class PlayTimeManager {
   server!: ZoneServer2016;
 
   updatePlaytime() {
-    const chars = Object.values(this.server._characters);
+    const chars = Object.values(this.server._entities._characters);
     for (const char of chars) {
       char.playTime += 1;
     }

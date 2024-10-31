@@ -60,8 +60,8 @@ export class CollectingEntity {
   ) {
     this.parentObjectCharacterId = parentObject.characterId;
     if (!parentObject.getParent(server)) {
-      this.dictionary = server._worldLootableConstruction;
-    } else this.dictionary = server._lootableConstruction;
+      this.dictionary = server._entities._worldLootableConstruction;
+    } else this.dictionary = server._entities._lootableConstruction;
   }
 
   OnInteractionString(server: ZoneServer2016, client: ZoneClient2016) {
@@ -77,7 +77,7 @@ export class CollectingEntity {
 
   OnFullCharacterDataRequest(server: ZoneServer2016, client: ZoneClient2016) {
     const parentObject =
-      server._lootableConstruction[this.parentObjectCharacterId];
+      server._entities._lootableConstruction[this.parentObjectCharacterId];
     getSubEntityData(parentObject, this);
     if (parentObject.itemDefinitionId != Items.BEE_BOX) return;
     const container = parentObject.getContainer();

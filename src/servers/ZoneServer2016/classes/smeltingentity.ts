@@ -115,8 +115,8 @@ export class SmeltingEntity {
     this.allowedFuel = getAllowedFuel(parentObject.itemDefinitionId);
     getSmeltingEntityData(parentObject, this);
     if (!parentObject.getParent(server)) {
-      this.dictionary = server._worldLootableConstruction;
-    } else this.dictionary = server._lootableConstruction;
+      this.dictionary = server._entities._worldLootableConstruction;
+    } else this.dictionary = server._entities._lootableConstruction;
   }
 
   OnInteractionString(server: ZoneServer2016, client: ZoneClient2016) {

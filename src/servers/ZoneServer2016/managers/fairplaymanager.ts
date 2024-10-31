@@ -147,29 +147,30 @@ export class FairPlayManager {
         position[1] - client.startLoc > this.fairPlayValues.maxFlying
       ) {
         let kick = true;
-        for (const a in server._constructionFoundations) {
+        for (const a in server._entities._constructionFoundations) {
           if (
-            server._constructionFoundations[a].getHasPermission(
+            server._entities._constructionFoundations[a].getHasPermission(
               server,
               client.character.characterId,
               ConstructionPermissionIds.VISIT
             ) &&
-            server._constructionFoundations[a].isInside(
+            server._entities._constructionFoundations[a].isInside(
               client.character.state.position
             )
           )
             kick = false;
         }
-        for (const char in server._characters) {
+        for (const char in server._entities._characters) {
           if (
-            server._characters[char].characterId == client.character.characterId
+            server._entities._characters[char].characterId ==
+            client.character.characterId
           )
             continue;
           if (
             isPosInRadiusWithY(
               3,
               client.character.state.position,
-              server._characters[char].state.position,
+              server._entities._characters[char].state.position,
               4.5
             )
           )
@@ -594,8 +595,8 @@ export class FairPlayManager {
 
   checkAimVector(server: ZoneServer2016, client: Client, orientation: number) {
     if (client.character.weaponStance != 2) return;
-    for (const a in server._characters) {
-      const char = server._characters[a];
+    for (const a in server._entities._characters) {
+      const char = server._entities._characters[a];
       if (client.character.name == char.name) continue;
       const fixedOrientation =
         orientation < 0

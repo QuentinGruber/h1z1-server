@@ -166,7 +166,7 @@ const dev: any = {
       server
     );
 
-    server._npcs[characterId] = zombie;
+    server._entities._npcs[characterId] = zombie;
     server.aiManager.add_entity(zombie, zombie.entityType);
     const a = server.navManager.createAgent(zombie.state.position);
     zombie.navAgent = a;
@@ -281,7 +281,7 @@ const dev: any = {
     args: Array<string>
   ) {
     server.sendDataToAllWithSpawnedEntity(
-      server._characters,
+      server._entities._characters,
       client.character.characterId,
       "AnimationBase",
       {
@@ -292,8 +292,8 @@ const dev: any = {
   },
   deletesmallshacks: function (server: ZoneServer2016, client: Client) {
     let counter = 0;
-    for (const a in server._constructionFoundations) {
-      const foundation = server._constructionFoundations[a];
+    for (const a in server._entities._constructionFoundations) {
+      const foundation = server._entities._constructionFoundations[a];
       if (foundation.itemDefinitionId == Items.SHACK_SMALL) {
         Object.values(foundation.freeplaceEntities).forEach(
           (
@@ -332,7 +332,7 @@ const dev: any = {
       client.character.state.rotation,
       server
     );
-    server._npcs[characterId] = zombie;
+    server._entities._npcs[characterId] = zombie;
     setTimeout(() => {
       server.sendData(client, "Character.ManagedObject", {
         characterId: client.character.characterId,
@@ -609,10 +609,10 @@ const dev: any = {
       triggerLoadingScreen: true
     };
     let found = false;
-    for (const v in server._vehicles) {
-      console.log(server._vehicles[v]);
-      if (server._vehicles[v].actorModelId === parseInt(args[1])) {
-        location.position = server._vehicles[v].state.position;
+    for (const v in server._entities._vehicles) {
+      console.log(server._entities._vehicles[v]);
+      if (server._entities._vehicles[v].actorModelId === parseInt(args[1])) {
+        location.position = server._entities._vehicles[v].state.position;
         server.sendData(client, "ClientUpdate.UpdateLocation", location);
         found = true;
         break;
@@ -640,10 +640,10 @@ const dev: any = {
       triggerLoadingScreen: true
     };
     let found = false;
-    for (const n in server._npcs) {
-      if (server._npcs[n].actorModelId === parseInt(args[1])) {
-        console.log(server._npcs[n]);
-        location.position = server._npcs[n].state.position;
+    for (const n in server._entities._npcs) {
+      if (server._entities._npcs[n].actorModelId === parseInt(args[1])) {
+        console.log(server._entities._npcs[n]);
+        location.position = server._entities._npcs[n].state.position;
         server.sendData(client, "ClientUpdate.UpdateLocation", location);
         found = true;
         break;
@@ -706,7 +706,7 @@ const dev: any = {
     args: Array<string>
   ) {
     const characterId = client.vehicle.mountedVehicle,
-      vehicle = server._vehicles[characterId || ""],
+      vehicle = server._entities._vehicles[characterId || ""],
       container = vehicle?.getContainer();
     if (!container) {
       server.sendChatText(client, "No container!");
@@ -898,9 +898,9 @@ const dev: any = {
       return;
     }
 
-    const vehicle = server._vehicles[mountedVehicleId];
+    const vehicle = server._entities._vehicles[mountedVehicleId];
     server.sendDataToAllWithSpawnedEntity(
-      server._vehicles,
+      server._entities._vehicles,
       mountedVehicleId,
       "VehicleSkinSetVehicleSkinManager",
       {

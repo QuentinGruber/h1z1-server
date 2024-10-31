@@ -68,7 +68,7 @@ export class ExplosiveEntity extends BaseLightweightCharacter {
     }
     const pos = this.state.position;
     server.sendDataToAllWithSpawnedEntity<CharacterPlayWorldCompositeEffect>(
-      server._explosives,
+      server._entities._explosives,
       this.characterId,
       "Character.PlayWorldCompositeEffect",
       {
@@ -80,7 +80,7 @@ export class ExplosiveEntity extends BaseLightweightCharacter {
     );
 
     server.sendDataToAllWithSpawnedEntity<CharacterPlayWorldCompositeEffect>(
-      server._explosives,
+      server._entities._explosives,
       this.characterId,
       "Character.PlayWorldCompositeEffect",
       {
@@ -96,10 +96,11 @@ export class ExplosiveEntity extends BaseLightweightCharacter {
   }
 
   detonate(server: ZoneServer2016, client?: ZoneClient2016) {
-    if (!server._explosives[this.characterId] || this.detonated) return;
+    if (!server._entities._explosives[this.characterId] || this.detonated)
+      return;
     this.detonated = true;
     server.sendCompositeEffectToAllInRange(600, "", this.state.position, 1875);
-    server.deleteEntity(this.characterId, server._explosives);
+    server.deleteEntity(this.characterId, server._entities._explosives);
     server.explosionDamage(
       this.state.position,
       this.characterId,
@@ -115,7 +116,7 @@ export class ExplosiveEntity extends BaseLightweightCharacter {
       await new Promise<void>((resolve) => setTimeout(resolve, 10000));
     }
     this.mineTimer = setTimeout(() => {
-      if (!server._explosives[this.characterId]) {
+      if (!server._entities._explosives[this.characterId]) {
         return;
       }
       for (const a in server._clients) {
@@ -129,16 +130,18 @@ export class ExplosiveEntity extends BaseLightweightCharacter {
           return;
         }
       }
-      for (const a in server._vehicles) {
+      for (const a in server._entities._vehicles) {
         if (
-          getDistance(server._vehicles[a].state.position, this.state.position) <
-          1.8
+          getDistance(
+            server._entities._vehicles[a].state.position,
+            this.state.position
+          ) < 1.8
         ) {
           this.detonate(server);
           return;
         }
       }
-      if (server._explosives[this.characterId]) {
+      if (server._entities._explosives[this.characterId]) {
         this.mineTimer?.refresh();
       }
     }, 90);
@@ -160,6 +163,6 @@ export class ExplosiveEntity extends BaseLightweightCharacter {
   }
 
   destroy(server: ZoneServer2016): boolean {
-    return server.deleteEntity(this.characterId, server._explosives);
+    return server.deleteEntity(this.characterId, server._entities._explosives);
   }
 }

@@ -204,7 +204,7 @@ export class TaskProp extends BaseLightweightCharacter {
   }
 
   destroy(server: ZoneServer2016): boolean {
-    return server.deleteEntity(this.characterId, server._taskProps);
+    return server.deleteEntity(this.characterId, server._entities._taskProps);
   }
 
   OnInteractionString(server: ZoneServer2016, client: ZoneClient2016) {

@@ -123,7 +123,8 @@ export class AbilitiesManager {
         return;
     }
 
-    const vehicle = server._vehicles[client.vehicle.mountedVehicle ?? ""],
+    const vehicle =
+        server._entities._vehicles[client.vehicle.mountedVehicle ?? ""],
       isDriver = vehicle?.getDriver(server) == client.character;
     if (!vehicle || !isDriver) {
       client.character.abilityInitTime = Date.now();
@@ -353,7 +354,7 @@ export class AbilitiesManager {
     if (clientEffect.typeName == "RequestAnimation") {
       const animationName = clientEffect.animationName;
       server.sendDataToAllOthersWithSpawnedEntity(
-        server._characters,
+        server._entities._characters,
         client,
         client.character.characterId,
         "Character.PlayAnimation",
@@ -366,7 +367,7 @@ export class AbilitiesManager {
       return;
     }
     const vehicleAbilityEffectId = packetData.effectData.abilityEffectId1,
-      vehicle = server._vehicles[client.vehicle.mountedVehicle ?? ""];
+      vehicle = server._entities._vehicles[client.vehicle.mountedVehicle ?? ""];
     if (!vehicle) return;
 
     switch (vehicleAbilityEffectId) {
@@ -389,7 +390,7 @@ export class AbilitiesManager {
   ) {
     const vehicleAbilityEffectId =
         packetData.abilityEffectData.abilityEffectId1,
-      vehicle = server._vehicles[packetData.targetCharacterId ?? ""];
+      vehicle = server._entities._vehicles[packetData.targetCharacterId ?? ""];
     if (!vehicle) return;
 
     switch (vehicleAbilityEffectId) {
@@ -400,7 +401,11 @@ export class AbilitiesManager {
       case VehicleEffects.TURBO_PICKUP_TRUCK:
       case VehicleEffects.TURBO_POLICE_CAR:
       case VehicleEffects.TURBO_ATV:
-        this.sendRemoveEffectPacket(server, packetData, server._vehicles);
+        this.sendRemoveEffectPacket(
+          server,
+          packetData,
+          server._entities._vehicles
+        );
         vehicle.setTurboState(server, client, false);
         break;
     }

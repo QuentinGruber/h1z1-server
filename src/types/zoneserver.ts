@@ -20,6 +20,20 @@ import { LoadoutItem } from "servers/ZoneServer2016/classes/loadoutItem";
 import { ZoneServer2016 } from "servers/ZoneServer2016/zoneserver";
 import { Character2016 } from "servers/ZoneServer2016/entities/character";
 import { BaseItem } from "servers/ZoneServer2016/classes/baseItem";
+import { Npc } from "servers/ZoneServer2016/entities/npc";
+import { ItemObject } from "servers/ZoneServer2016/entities/itemobject";
+import { Plant } from "servers/ZoneServer2016/entities/plant";
+import { DoorEntity } from "servers/ZoneServer2016/entities/doorentity";
+import { ExplosiveEntity } from "servers/ZoneServer2016/entities/explosiveentity";
+import { TrapEntity } from "servers/ZoneServer2016/entities/trapentity";
+import { TemporaryEntity } from "servers/ZoneServer2016/entities/temporaryentity";
+import { PlantingDiameter } from "servers/ZoneServer2016/entities/plantingdiameter";
+import { Vehicle2016 } from "servers/ZoneServer2016/entities/vehicle";
+import { Lootbag } from "servers/ZoneServer2016/entities/lootbag";
+import { LootableProp } from "servers/ZoneServer2016/entities/lootableprop";
+import { TaskProp } from "servers/ZoneServer2016/entities/taskprop";
+import { Crate } from "servers/ZoneServer2016/entities/crate";
+import { Destroyable } from "servers/ZoneServer2016/entities/destroyable";
 
 export interface npcData {
   guid: string;
@@ -587,6 +601,29 @@ export interface AccountItem extends BaseItem {
 }
 
 export type EntityDictionary<Entity> = { [characterId: string]: Entity};
+
+export type ServerEntities = {
+  _characters: EntityDictionary<Character2016>;
+  _npcs: EntityDictionary<Npc>;
+  _spawnedItems: EntityDictionary<ItemObject>;
+  _plants: EntityDictionary<Plant>;
+  _doors: EntityDictionary<DoorEntity>;
+  _explosives: EntityDictionary<ExplosiveEntity>;
+  _traps: EntityDictionary<TrapEntity>;
+  _temporaryObjects: EntityDictionary<TemporaryEntity | PlantingDiameter>;
+  _vehicles: EntityDictionary<Vehicle2016>;
+  _lootbags: EntityDictionary<Lootbag>;
+  _lootableConstruction: EntityDictionary<LootableConstructionEntity>;
+  _constructionFoundations: EntityDictionary<ConstructionParentEntity>;
+  _constructionDoors: EntityDictionary<ConstructionDoor>;
+  _constructionSimple: EntityDictionary<ConstructionChildEntity>;
+  _lootableProps: EntityDictionary<LootableProp>;
+  _taskProps: EntityDictionary<TaskProp>;
+  _crates: EntityDictionary<Crate>;
+  _destroyables: EntityDictionary<Destroyable>;
+  _worldLootableConstruction: EntityDictionary<LootableConstructionEntity>;
+  _worldSimpleConstruction: EntityDictionary<ConstructionChildEntity>;
+};
 
 export interface PropInstance {
   objectId: number,

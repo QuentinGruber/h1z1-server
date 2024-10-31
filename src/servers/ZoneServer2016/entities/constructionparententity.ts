@@ -532,7 +532,7 @@ export class ConstructionParentEntity extends ConstructionChildEntity {
     // update secured state for all attached expansions
     if (this.itemDefinitionId == Items.FOUNDATION_EXPANSION) {
       const parent =
-        server._constructionFoundations[this.parentObjectCharacterId];
+        server._entities._constructionFoundations[this.parentObjectCharacterId];
       if (parent) {
         parent.updateSecuredState(server);
       }
@@ -733,7 +733,7 @@ export class ConstructionParentEntity extends ConstructionChildEntity {
 
     // if this is an expansion, check dependent parent foundation walls
     const parent =
-      server._constructionFoundations[this.parentObjectCharacterId];
+      server._entities._constructionFoundations[this.parentObjectCharacterId];
     if (parent) {
       for (const slot of this.getDependentWalls()) {
         const wall = parent.occupiedWallSlots[slot];
@@ -838,7 +838,7 @@ export class ConstructionParentEntity extends ConstructionChildEntity {
   destroy(server: ZoneServer2016, destructTime = 0): boolean {
     const deleted = server.deleteEntity(
       this.characterId,
-      server._constructionFoundations,
+      server._entities._constructionFoundations,
       242,
       destructTime
     );
@@ -852,16 +852,18 @@ export class ConstructionParentEntity extends ConstructionChildEntity {
     ) {
       for (const entity of Object.values(this.freeplaceEntities)) {
         if (entity instanceof ConstructionChildEntity) {
-          server._worldSimpleConstruction[entity.characterId] = entity;
-          delete server._constructionSimple[entity.characterId];
+          server._entities._worldSimpleConstruction[entity.characterId] =
+            entity;
+          delete server._entities._constructionSimple[entity.characterId];
         } else if (entity instanceof LootableConstructionEntity) {
-          server._worldLootableConstruction[entity.characterId] = entity;
-          delete server._lootableConstruction[entity.characterId];
+          server._entities._worldLootableConstruction[entity.characterId] =
+            entity;
+          delete server._entities._lootableConstruction[entity.characterId];
         }
       }
     }
     const parent =
-      server._constructionFoundations[this.parentObjectCharacterId];
+      server._entities._constructionFoundations[this.parentObjectCharacterId];
     if (!parent) return deleted;
     if (!this.slot || !this.parentObjectCharacterId) return deleted;
     parent.clearSlot(this.getSlotNumber(), parent.occupiedExpansionSlots);
@@ -980,7 +982,7 @@ export class ConstructionParentEntity extends ConstructionChildEntity {
 
     this.health -= damageInfo.damage;
     server.sendDataToAllWithSpawnedEntity(
-      server._constructionFoundations,
+      server._entities._constructionFoundations,
       this.characterId,
       "Character.UpdateSimpleProxyHealth",
       this.pGetSimpleProxyHealth()

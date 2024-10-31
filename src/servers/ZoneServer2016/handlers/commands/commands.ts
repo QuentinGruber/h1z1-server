@@ -126,12 +126,12 @@ export const commands: Array<Command> = [
         );
       } else {
         const {
-          _clients: clients,
-          _npcs: npcs,
-          _spawnedItems: objects,
-          _vehicles: vehicles,
-          _destroyables: dto
-        } = server;
+            _npcs: npcs,
+            _spawnedItems: objects,
+            _vehicles: vehicles,
+            _destroyables: dto
+          } = server._entities,
+          clients = server._clients;
         const serverVersion = require("../../../../../package.json").version;
         server.sendChatText(client, `h1z1-server V${serverVersion}`, true);
         const uptimeMin = process.uptime() / 60;
@@ -303,7 +303,7 @@ export const commands: Array<Command> = [
       }
 
       server.sendDataToAllWithSpawnedEntity(
-        server._characters,
+        server._entities._characters,
         client.character.characterId,
         "AnimationBase",
         {
@@ -1642,11 +1642,11 @@ export const commands: Array<Command> = [
         server.despawnEntity(object.characterId);
       });
       client.spawnedEntities = new Set();
-      server._lootableProps = {};
-      server._npcs = {};
-      server._spawnedItems = {};
-      server._vehicles = {};
-      server._doors = {};
+      server._entities._lootableProps = {};
+      server._entities._npcs = {};
+      server._entities._spawnedItems = {};
+      server._entities._vehicles = {};
+      server._entities._doors = {};
       server.sendChatText(client, "Objects removed from the game.", true);
     }
   },
@@ -1806,7 +1806,7 @@ export const commands: Array<Command> = [
       }
       points.forEach((obj) => {
         const characterId = server.generateGuid();
-        server._explosives[characterId] = new ExplosiveEntity(
+        server._entities._explosives[characterId] = new ExplosiveEntity(
           characterId,
           server.getTransientId(characterId),
           9176,
@@ -1843,7 +1843,7 @@ export const commands: Array<Command> = [
         client.character.state.lookAt,
         server
       );
-      server._npcs[characterId] = npc; // save npc
+      server._entities._npcs[characterId] = npc; // save npc
     }
   },
   {
@@ -2419,7 +2419,7 @@ export const commands: Array<Command> = [
       }
       server.sendChatText(client, "CharacterData save started.");
       const characters = WorldDataManager.convertCharactersToSaveData(
-        Object.values(server._characters),
+        Object.values(server._entities._characters),
         server._worldId
       );
       await server.worldDataManager.saveCharacters(characters);
@@ -2534,8 +2534,8 @@ export const commands: Array<Command> = [
         characterId: string;
         dictionary: EntityDictionary<BaseEntity>;
       }[] = [];
-      for (const a in server._constructionSimple) {
-        const construction = server._constructionSimple[a];
+      for (const a in server._entities._constructionSimple) {
+        const construction = server._entities._constructionSimple[a];
         if (
           isPosInRadius(
             Number(args[0]),
@@ -2546,8 +2546,8 @@ export const commands: Array<Command> = [
           construction.destroy(server);
         }
       }
-      for (const a in server._constructionDoors) {
-        const construction = server._constructionDoors[a];
+      for (const a in server._entities._constructionDoors) {
+        const construction = server._entities._constructionDoors[a];
         if (
           isPosInRadius(
             Number(args[0]),
@@ -2558,8 +2558,8 @@ export const commands: Array<Command> = [
           construction.destroy(server);
         }
       }
-      for (const a in server._constructionFoundations) {
-        const construction = server._constructionFoundations[a];
+      for (const a in server._entities._constructionFoundations) {
+        const construction = server._entities._constructionFoundations[a];
         if (
           isPosInRadius(
             Number(args[0]),
@@ -2570,21 +2570,8 @@ export const commands: Array<Command> = [
           construction.destroy(server);
         }
       }
-      for (const a in server._lootableConstruction) {
-        const construction = server._lootableConstruction[a];
-        if (
-          isPosInRadius(
-            Number(args[0]),
-            client.character.state.position,
-            construction.state.position
-          )
-        ) {
-          construction.destroy(server);
-        }
-      }
-
-      for (const a in server._worldLootableConstruction) {
-        const construction = server._worldLootableConstruction[a];
+      for (const a in server._entities._lootableConstruction) {
+        const construction = server._entities._lootableConstruction[a];
         if (
           isPosInRadius(
             Number(args[0]),
@@ -2596,8 +2583,21 @@ export const commands: Array<Command> = [
         }
       }
 
-      for (const a in server._temporaryObjects) {
-        const construction = server._temporaryObjects[a];
+      for (const a in server._entities._worldLootableConstruction) {
+        const construction = server._entities._worldLootableConstruction[a];
+        if (
+          isPosInRadius(
+            Number(args[0]),
+            client.character.state.position,
+            construction.state.position
+          )
+        ) {
+          construction.destroy(server);
+        }
+      }
+
+      for (const a in server._entities._temporaryObjects) {
+        const construction = server._entities._temporaryObjects[a];
         if (
           isPosInRadius(
             Number(args[0]),
@@ -2607,13 +2607,13 @@ export const commands: Array<Command> = [
         ) {
           entitiesToDelete.push({
             characterId: construction.characterId,
-            dictionary: server._temporaryObjects
+            dictionary: server._entities._temporaryObjects
           });
         }
       }
 
-      for (const a in server._traps) {
-        const construction = server._traps[a];
+      for (const a in server._entities._traps) {
+        const construction = server._entities._traps[a];
         if (
           isPosInRadius(
             Number(args[0]),
@@ -2623,13 +2623,13 @@ export const commands: Array<Command> = [
         ) {
           entitiesToDelete.push({
             characterId: construction.characterId,
-            dictionary: server._traps
+            dictionary: server._entities._traps
           });
         }
       }
 
-      for (const a in server._plants) {
-        const construction = server._plants[a];
+      for (const a in server._entities._plants) {
+        const construction = server._entities._plants[a];
         if (
           isPosInRadius(
             Number(args[0]),
@@ -2639,7 +2639,7 @@ export const commands: Array<Command> = [
         ) {
           entitiesToDelete.push({
             characterId: construction.characterId,
-            dictionary: server._plants
+            dictionary: server._entities._plants
           });
         }
       }
@@ -2731,8 +2731,8 @@ export const commands: Array<Command> = [
         `Listing all bases of ${targetClient.character.name}:`
       );
       let counter = 1;
-      for (const a in server._constructionFoundations) {
-        const foundation = server._constructionFoundations[a];
+      for (const a in server._entities._constructionFoundations) {
+        const foundation = server._entities._constructionFoundations[a];
         const name = server.getItemDefinition(
           foundation.itemDefinitionId
         )?.NAME;
@@ -2846,7 +2846,7 @@ export const commands: Array<Command> = [
         server.sendChatText(client, `[ERROR] No interaction target`);
         return;
       }
-      const foundation = server._constructionFoundations[
+      const foundation = server._entities._constructionFoundations[
         client.character.currentInteractionGuid
       ] as ConstructionParentEntity;
       if (!foundation) {
@@ -2870,22 +2870,22 @@ export const commands: Array<Command> = [
       client: Client,
       args: Array<string>
     ) => {
-      for (const characterId in server._spawnedItems) {
-        const item = server._spawnedItems[characterId];
+      for (const characterId in server._entities._spawnedItems) {
+        const item = server._entities._spawnedItems[characterId];
         if (item.spawnerId > 0) {
           if (
             item.item.itemDefinitionId === Items.FUEL_BIOFUEL ||
             item.item.itemDefinitionId === Items.FUEL_ETHANOL
           ) {
-            server.deleteEntity(characterId, server._explosives);
+            server.deleteEntity(characterId, server._entities._explosives);
           }
-          server.deleteEntity(characterId, server._spawnedItems);
+          server.deleteEntity(characterId, server._entities._spawnedItems);
           delete server.worldObjectManager.spawnedLootObjects[item.spawnerId];
         }
       }
 
-      for (const characterId in server._lootableProps) {
-        const item = server._lootableProps[characterId];
+      for (const characterId in server._entities._lootableProps) {
+        const item = server._entities._lootableProps[characterId];
         if (item.spawnerId > 0) {
           const container = item.getContainer();
           if (container) container.items = {};

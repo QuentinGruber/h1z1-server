@@ -165,7 +165,7 @@ export class CraftManager {
       server.removeInventoryItem(itemDS.character, itemDS.item, count) ||
       server.deleteEntity(
         (itemDS.item as any).associatedCharacterGuid,
-        server._spawnedItems
+        server._entities._spawnedItems
       )
     );
   }
@@ -396,13 +396,13 @@ export class CraftManager {
     if (recipe.requireWorkbench) {
       if (
         !checkConstructionInRange(
-          server._constructionSimple,
+          server._entities._constructionSimple,
           client.character.state.position,
           3,
           Items.WORKBENCH
         ) &&
         !checkConstructionInRange(
-          server._worldSimpleConstruction,
+          server._entities._worldSimpleConstruction,
           client.character.state.position,
           3,
           Items.WORKBENCH
@@ -418,13 +418,13 @@ export class CraftManager {
     if (recipe.requireWeaponWorkbench) {
       if (
         !checkConstructionInRange(
-          server._constructionSimple,
+          server._entities._constructionSimple,
           client.character.state.position,
           3,
           Items.WORKBENCH_WEAPON
         ) &&
         !checkConstructionInRange(
-          server._worldSimpleConstruction,
+          server._entities._worldSimpleConstruction,
           client.character.state.position,
           3,
           Items.WORKBENCH_WEAPON

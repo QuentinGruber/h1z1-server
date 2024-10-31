@@ -226,7 +226,7 @@ export class WaterSource extends TaskProp {
 
     const pos = this.state.position;
     server.sendDataToAllWithSpawnedEntity<CharacterPlayWorldCompositeEffect>(
-      server._taskProps,
+      server._entities._taskProps,
       this.characterId,
       "Character.PlayWorldCompositeEffect",
       {

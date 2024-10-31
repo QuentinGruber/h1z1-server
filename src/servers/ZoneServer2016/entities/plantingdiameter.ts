@@ -44,6 +44,9 @@ export class PlantingDiameter extends TemporaryEntity {
     for (const plant of Object.values(this.seedSlots)) {
       plant.destroy(server);
     }
-    return server.deleteEntity(this.characterId, server._temporaryObjects);
+    return server.deleteEntity(
+      this.characterId,
+      server._entities._temporaryObjects
+    );
   }
 }

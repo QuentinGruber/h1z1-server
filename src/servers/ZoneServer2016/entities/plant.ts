@@ -74,8 +74,8 @@ export class Plant extends ItemObject {
     this.parentObjectCharacterId = parentObjectCharacterId;
     this.slot = slot;
     this.nextStateTime = new Date().getTime() + this.growTime;
-    if (!server._temporaryObjects[parentObjectCharacterId]) return;
-    const parent = server._temporaryObjects[
+    if (!server._entities._temporaryObjects[parentObjectCharacterId]) return;
+    const parent = server._entities._temporaryObjects[
       parentObjectCharacterId
     ] as PlantingDiameter;
     if (parent.isFertilized) this.isFertilized = true;
@@ -115,7 +115,7 @@ export class Plant extends ItemObject {
         }
     }
     server.sendDataToAllWithSpawnedEntity(
-      server._plants,
+      server._entities._plants,
       this.characterId,
       "Character.ReplaceBaseModel",
       {
@@ -127,7 +127,7 @@ export class Plant extends ItemObject {
       const pos = this.state.position;
       server.sendDataToAllWithSpawnedEntity<CharacterPlayWorldCompositeEffect>(
         // play burning effect & remove it after 15s
-        server._plants,
+        server._entities._plants,
         this.characterId,
         "Character.PlayWorldCompositeEffect",
         {
@@ -149,8 +149,8 @@ export class Plant extends ItemObject {
     /* eslint-enable @typescript-eslint/no-unused-vars */
   ) {
     if (this.growState != 3) return;
-    for (const a in server._constructionFoundations) {
-      const foundation = server._constructionFoundations[a];
+    for (const a in server._entities._constructionFoundations) {
+      const foundation = server._entities._constructionFoundations[a];
       if (!foundation.isInside(this.state.position)) continue;
       if (
         foundation.isSecured &&
@@ -164,11 +164,11 @@ export class Plant extends ItemObject {
         return;
       }
     }
-    if (!server._temporaryObjects[this.parentObjectCharacterId]) {
-      server.deleteEntity(this.characterId, server._plants);
+    if (!server._entities._temporaryObjects[this.parentObjectCharacterId]) {
+      server.deleteEntity(this.characterId, server._entities._plants);
       return;
     }
-    const parent = server._temporaryObjects[
+    const parent = server._entities._temporaryObjects[
       this.parentObjectCharacterId
     ] as PlantingDiameter;
     delete parent.seedSlots[this.slot];
@@ -192,11 +192,11 @@ export class Plant extends ItemObject {
         break;
     }
     server.sendCompositeEffectToAllWithSpawnedEntity(
-      server._plants,
+      server._entities._plants,
       this,
       5151
     );
-    server.deleteEntity(this.characterId, server._plants);
+    server.deleteEntity(this.characterId, server._entities._plants);
   }
 
   OnInteractionString(server: ZoneServer2016, client: ZoneClient2016): void {
@@ -219,6 +219,6 @@ export class Plant extends ItemObject {
   }
 
   destroy(server: ZoneServer2016): boolean {
-    return server.deleteEntity(this.characterId, server._plants);
+    return server.deleteEntity(this.characterId, server._entities._plants);
   }
 }

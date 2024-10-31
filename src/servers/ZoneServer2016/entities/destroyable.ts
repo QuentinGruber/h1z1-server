@@ -144,7 +144,7 @@ export class Destroyable extends BaseSimpleNpc {
   damage(server: ZoneServer2016, damageInfo: DamageInfo) {
     this.health -= damageInfo.damage;
     server.sendDataToAllWithSpawnedEntity(
-      server._destroyables,
+      server._entities._destroyables,
       this.characterId,
       "Character.UpdateSimpleProxyHealth",
       this.pGetSimpleProxyHealth()
@@ -157,7 +157,7 @@ export class Destroyable extends BaseSimpleNpc {
     if (!this.destroyed) {
       this.destroyed = true;
       server.sendDataToAllWithSpawnedEntity(
-        server._destroyables,
+        server._entities._destroyables,
         this.characterId,
         "Character.RemovePlayer",
         {
@@ -168,7 +168,7 @@ export class Destroyable extends BaseSimpleNpc {
       );
       if (this.destroyedModel && useDestroyedModel) {
         server.sendDataToAllWithSpawnedEntity(
-          server._destroyables,
+          server._entities._destroyables,
           this.characterId,
           "AddLightweightNpc",
           this.pGetLightweight()
@@ -178,7 +178,7 @@ export class Destroyable extends BaseSimpleNpc {
     }
     server.deleteEntity(
       this.characterId,
-      server._destroyables,
+      server._entities._destroyables,
       Effects.PFX_Damage_GlassWindow_House
     );
     return true;

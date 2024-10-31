@@ -70,8 +70,8 @@ export class DecayManager {
 
   private contructionExpirationCheck(server: ZoneServer2016) {
     let destroyedGriefFoundations = 0;
-    for (const a in server._constructionFoundations) {
-      const foundation = server._constructionFoundations[a];
+    for (const a in server._entities._constructionFoundations) {
+      const foundation = server._entities._constructionFoundations[a];
       if (
         foundation.itemDefinitionId == Items.FOUNDATION ||
         foundation.itemDefinitionId == Items.GROUND_TAMPER
@@ -235,8 +235,8 @@ export class DecayManager {
   }
 
   contructionDecayDamage(server: ZoneServer2016) {
-    for (const a in server._constructionFoundations) {
-      const foundation = server._constructionFoundations[a];
+    for (const a in server._entities._constructionFoundations) {
+      const foundation = server._entities._constructionFoundations[a];
 
       this.useRepairBox(server, foundation);
 
@@ -249,43 +249,43 @@ export class DecayManager {
       }
     }
 
-    for (const a in server._worldLootableConstruction) {
+    for (const a in server._entities._worldLootableConstruction) {
       this.decayDamage(
         server,
-        server._worldLootableConstruction[a],
+        server._entities._worldLootableConstruction[a],
         this.worldFreeplaceDecayMultiplier
       );
     }
-    for (const a in server._worldSimpleConstruction) {
+    for (const a in server._entities._worldSimpleConstruction) {
       this.decayDamage(
         server,
-        server._worldSimpleConstruction[a],
+        server._entities._worldSimpleConstruction[a],
         this.worldFreeplaceDecayMultiplier
       );
     }
-    for (const a in server._constructionSimple) {
-      const simple = server._constructionSimple[a];
+    for (const a in server._entities._constructionSimple) {
+      const simple = server._entities._constructionSimple[a];
       if (
         simple.itemDefinitionId == Items.FOUNDATION_RAMP ||
         simple.itemDefinitionId == Items.FOUNDATION_STAIRS
       ) {
         continue;
       }
-      this.decayDamage(server, server._constructionSimple[a]);
+      this.decayDamage(server, server._entities._constructionSimple[a]);
     }
-    for (const a in server._lootableConstruction) {
-      this.decayDamage(server, server._lootableConstruction[a]);
+    for (const a in server._entities._lootableConstruction) {
+      this.decayDamage(server, server._entities._lootableConstruction[a]);
     }
-    for (const a in server._constructionDoors) {
-      const door = server._constructionDoors[a];
+    for (const a in server._entities._constructionDoors) {
+      const door = server._entities._constructionDoors[a];
       this.decayDamage(server, door);
     }
   }
 
   private getCloseVehicles(server: ZoneServer2016, vehicle: Vehicle2016) {
     const vehicles: Array<string> = [];
-    for (const characterId in server._vehicles) {
-      const v = server._vehicles[characterId];
+    for (const characterId in server._entities._vehicles) {
+      const v = server._entities._vehicles[characterId];
       if (!vehicle) continue;
       if (
         getDistance(vehicle.state.position, v.state.position) <=
@@ -298,8 +298,8 @@ export class DecayManager {
   }
 
   public vehicleDecayDamage(server: ZoneServer2016) {
-    for (const characterId in server._vehicles) {
-      const vehicle = server._vehicles[characterId];
+    for (const characterId in server._entities._vehicles) {
+      const vehicle = server._entities._vehicles[characterId];
       if (!vehicle) continue;
       const closeVehicles = this.getCloseVehicles(server, vehicle);
       let damage = this.baseVehicleDamage;
@@ -315,7 +315,7 @@ export class DecayManager {
         vehicle._resources[ResourceIds.CONDITION],
         ResourceIds.CONDITION,
         ResourceTypes.CONDITION,
-        server._vehicles
+        server._entities._vehicles
       );
       if (vehicle.getHealth() > 0) continue;
       vehicle.destroy(server);

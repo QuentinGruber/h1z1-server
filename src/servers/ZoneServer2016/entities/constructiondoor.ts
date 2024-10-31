@@ -145,7 +145,7 @@ export class ConstructionDoor extends DoorEntity {
       (this.health / this.maxHealth) * 1000000,
       ResourceIds.CONSTRUCTION_CONDITION,
       ResourceTypes.CONDITION,
-      server._constructionDoors
+      server._entities._constructionDoors
     );
 
     if (this.health > 0) return;
@@ -155,7 +155,7 @@ export class ConstructionDoor extends DoorEntity {
   destroy(server: ZoneServer2016, destructTime = 0): boolean {
     const deleted = server.deleteEntity(
       this.characterId,
-      server._constructionDoors,
+      server._entities._constructionDoors,
       242,
       destructTime
     );
@@ -198,8 +198,8 @@ export class ConstructionDoor extends DoorEntity {
 
   getParent(server: ZoneServer2016): ConstructionChildEntity | undefined {
     return (
-      server._constructionSimple[this.parentObjectCharacterId] ||
-      server._constructionFoundations[this.parentObjectCharacterId]
+      server._entities._constructionSimple[this.parentObjectCharacterId] ||
+      server._entities._constructionFoundations[this.parentObjectCharacterId]
     );
   }
 
@@ -208,12 +208,12 @@ export class ConstructionDoor extends DoorEntity {
   ): ConstructionParentEntity | undefined {
     const parent = this.getParent(server);
     if (!parent) return;
-    if (server._constructionSimple[parent.characterId]) {
-      return server._constructionSimple[parent.characterId].getParentFoundation(
-        server
-      );
+    if (server._entities._constructionSimple[parent.characterId]) {
+      return server._entities._constructionSimple[
+        parent.characterId
+      ].getParentFoundation(server);
     }
-    return server._constructionFoundations[parent.characterId];
+    return server._entities._constructionFoundations[parent.characterId];
   }
 
   getHasPermission(
@@ -271,7 +271,7 @@ export class ConstructionDoor extends DoorEntity {
           door.moving = false;
         }, 1000);
         server.sendDataToAllWithSpawnedEntity(
-          server._constructionDoors,
+          server._entities._constructionDoors,
           this.characterId,
           "PlayerUpdatePosition",
           {
@@ -285,7 +285,7 @@ export class ConstructionDoor extends DoorEntity {
           }
         );
         server.sendDataToAllWithSpawnedEntity(
-          server._constructionDoors,
+          server._entities._constructionDoors,
           this.characterId,
           "Command.PlayDialogEffect",
           {

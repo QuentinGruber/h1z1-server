@@ -158,8 +158,8 @@ export class SmeltingManager {
     characterId: string
   ): LootableConstructionEntity | undefined {
     return (
-      server._lootableConstruction[characterId] ||
-      server._worldLootableConstruction[characterId] ||
+      server._entities._lootableConstruction[characterId] ||
+      server._entities._worldLootableConstruction[characterId] ||
       undefined
     );
   }

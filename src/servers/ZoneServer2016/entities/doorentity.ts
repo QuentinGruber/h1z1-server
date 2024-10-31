@@ -199,7 +199,7 @@ export class DoorEntity extends BaseLightweightCharacter {
     if (this.health > 0) return;
     this.destroyed = true;
     server.sendDataToAllWithSpawnedEntity(
-      server._doors,
+      server._entities._doors,
       this.characterId,
       "Character.Destroyed",
       {
@@ -232,7 +232,7 @@ export class DoorEntity extends BaseLightweightCharacter {
       door.moving = false;
     }, 1000);
     server.sendDataToAllWithSpawnedEntity(
-      server._doors,
+      server._entities._doors,
       this.characterId,
       "PlayerUpdatePosition",
       {
@@ -246,7 +246,7 @@ export class DoorEntity extends BaseLightweightCharacter {
       }
     );
     server.sendDataToAllWithSpawnedEntity(
-      server._doors,
+      server._entities._doors,
       this.characterId,
       "Command.PlayDialogEffect",
       {
@@ -265,6 +265,6 @@ export class DoorEntity extends BaseLightweightCharacter {
   }
 
   destroy(server: ZoneServer2016): boolean {
-    return server.deleteEntity(this.characterId, server._doors);
+    return server.deleteEntity(this.characterId, server._entities._doors);
   }
 }

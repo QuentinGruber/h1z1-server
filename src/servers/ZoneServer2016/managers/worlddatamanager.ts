@@ -639,7 +639,7 @@ export class WorldDataManager {
   // async saveVehicles(server: ZoneServer2016) {
   //   if (!server.enableWorldSaves) return;
   //   const vehicles: Array<FullVehicleSaveData> = Object.values(
-  //     server._vehicles
+  //     server._entities._vehicles
   //   ).map((vehicle) => {
   //     return {
   //       ...WorldDataManager.getBaseFullCharacterUpdateSaveData(server, vehicle),
@@ -687,7 +687,7 @@ export class WorldDataManager {
     entity.grantedAccess = entityData.grantedAccess;
     entity.placementTime = entityData.placementTime;
 
-    server._constructionDoors[entity.characterId] = entity;
+    server._entities._constructionDoors[entity.characterId] = entity;
 
     return entity;
   }
@@ -732,10 +732,10 @@ export class WorldDataManager {
       }
     }
     if (isWorldConstruction) {
-      server._worldLootableConstruction[entity.characterId] = entity;
+      server._entities._worldLootableConstruction[entity.characterId] = entity;
       return entity;
     }
-    server._lootableConstruction[entity.characterId] = entity;
+    server._entities._lootableConstruction[entity.characterId] = entity;
 
     return entity;
   }
@@ -797,7 +797,7 @@ export class WorldDataManager {
       );
     entity.health = entityData.health;
     entity.placementTime = entityData.placementTime;
-    server._constructionSimple[entity.characterId] = entity;
+    server._entities._constructionSimple[entity.characterId] = entity;
 
     this.loadConstructionChildSlots(server, entity, entityData);
 
@@ -826,7 +826,8 @@ export class WorldDataManager {
     foundation.health = entityData.health;
     foundation.placementTime = entityData.placementTime;
     foundation.permissions = entityData.permissions;
-    server._constructionFoundations[foundation.characterId] = foundation;
+    server._entities._constructionFoundations[foundation.characterId] =
+      foundation;
 
     this.loadConstructionChildSlots(server, foundation, entityData);
 
@@ -1142,7 +1143,7 @@ export class WorldDataManager {
     plant.growState = entityData.growState;
     plant.nextStateTime = entityData.nextStateTime;
 
-    server._plants[plant.characterId] = plant;
+    server._entities._plants[plant.characterId] = plant;
     return plant;
   }
 
@@ -1163,7 +1164,7 @@ export class WorldDataManager {
     Object.assign(vehicle.positionUpdate, entityData.positionUpdate);
     constructLoadout(entityData._loadout, vehicle._loadout);
     constructContainers(entityData._containers, vehicle._containers);
-    server._vehicles[vehicle.characterId] = vehicle;
+    server._entities._vehicles[vehicle.characterId] = vehicle;
   }
 
   static loadPlantingDiameter(
@@ -1182,7 +1183,8 @@ export class WorldDataManager {
 
     plantingDiameter.fertilizedTimestamp = entityData.fertilizedTimestamp;
     plantingDiameter.isFertilized = entityData.isFertilized;
-    server._temporaryObjects[plantingDiameter.characterId] = plantingDiameter;
+    server._entities._temporaryObjects[plantingDiameter.characterId] =
+      plantingDiameter;
 
     Object.values(entityData.seedSlots).forEach((plant) => {
       plantingDiameter.seedSlots[plant.slot] = this.loadPlant(
@@ -1375,7 +1377,7 @@ export class WorldDataManager {
           entityData.itemDefinitionId,
           entityData.ownerCharacterId
         );
-        server._explosives[entityData.characterId] = explosive;
+        server._entities._explosives[entityData.characterId] = explosive;
         //explosive.arm(server);
         //temporarily Disabled
         break;
@@ -1392,7 +1394,7 @@ export class WorldDataManager {
           entityData.ownerCharacterId
         );
         trap.health = entityData.health;
-        server._traps[trap.characterId] = trap;
+        server._entities._traps[trap.characterId] = trap;
       //trap.arm(server);
       //temporarily disabled
     }

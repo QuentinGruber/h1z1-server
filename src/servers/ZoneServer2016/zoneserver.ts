@@ -68,6 +68,7 @@ import {
   PropInstance,
   RewardCrateDefinition,
   ScreenEffect,
+  ServerEntities,
   UseOption
 } from "../../types/zoneserver";
 import { h1z1PacketsType2016 } from "../../types/packets";
@@ -119,7 +120,6 @@ import { Npc } from "./entities/npc";
 import { ExplosiveEntity } from "./entities/explosiveentity";
 import { BaseLightweightCharacter } from "./entities/baselightweightcharacter";
 import { BaseSimpleNpc } from "./entities/basesimplenpc";
-import { TemporaryEntity } from "./entities/temporaryentity";
 import { BaseEntity } from "./entities/baseentity";
 import { ConstructionDoor } from "./entities/constructiondoor";
 import { ConstructionParentEntity } from "./entities/constructionparententity";
@@ -212,12 +212,10 @@ import { BaseLootableEntity } from "./entities/baselootableentity";
 import { LootableConstructionEntity } from "./entities/lootableconstructionentity";
 import { LootableProp } from "./entities/lootableprop";
 import { PlantingDiameter } from "./entities/plantingdiameter";
-import { Plant } from "./entities/plant";
 import { SmeltingEntity } from "./classes/smeltingentity";
 import { spawn, Worker } from "threads";
 import { WorldDataManagerThreaded } from "./managers/worlddatamanagerthread";
 import { logVersion } from "../../utils/processErrorHandling";
-import { TaskProp } from "./entities/taskprop";
 import { ChatManager } from "./managers/chatmanager";
 import { Crate } from "./entities/crate";
 import { ConfigManager } from "./managers/configmanager";
@@ -231,7 +229,6 @@ import { SpeedTreeManager } from "./managers/speedtreemanager";
 import { ConstructionManager } from "./managers/constructionmanager";
 import { FairPlayManager } from "./managers/fairplaymanager";
 import { PluginManager } from "./managers/pluginmanager";
-import { Destroyable } from "./entities/destroyable";
 import { Plane } from "./entities/plane";
 import { FileHashTypeList, ReceivedPacket } from "types/shared";
 import { SOEOutputChannels } from "../../servers/SoeServer/soeoutputstream";
@@ -301,26 +298,29 @@ export class ZoneServer2016 extends EventEmitter {
   readonly _clients: { [characterId: string]: Client } = {};
 
   /** Global dictionaries for all entities */
-  _characters: EntityDictionary<Character> = {};
-  _npcs: EntityDictionary<Npc> = {};
-  _spawnedItems: EntityDictionary<ItemObject> = {};
-  _plants: EntityDictionary<Plant> = {};
-  _doors: EntityDictionary<DoorEntity> = {};
-  _explosives: EntityDictionary<ExplosiveEntity> = {};
-  _traps: EntityDictionary<TrapEntity> = {};
-  _temporaryObjects: EntityDictionary<TemporaryEntity | PlantingDiameter> = {};
-  _vehicles: EntityDictionary<Vehicle> = {};
-  _lootbags: EntityDictionary<Lootbag> = {};
-  _lootableConstruction: EntityDictionary<LootableConstructionEntity> = {};
-  _constructionFoundations: EntityDictionary<ConstructionParentEntity> = {};
-  _constructionDoors: EntityDictionary<ConstructionDoor> = {};
-  _constructionSimple: EntityDictionary<ConstructionChildEntity> = {};
-  _lootableProps: EntityDictionary<LootableProp> = {};
-  _taskProps: EntityDictionary<TaskProp> = {};
-  _crates: EntityDictionary<Crate> = {};
-  _destroyables: EntityDictionary<Destroyable> = {};
-  _worldLootableConstruction: EntityDictionary<LootableConstructionEntity> = {};
-  _worldSimpleConstruction: EntityDictionary<ConstructionChildEntity> = {};
+
+  _entities: ServerEntities = {
+    _characters: {},
+    _npcs: {},
+    _spawnedItems: {},
+    _plants: {},
+    _doors: {},
+    _explosives: {},
+    _traps: {},
+    _temporaryObjects: {},
+    _vehicles: {},
+    _lootbags: {},
+    _lootableConstruction: {},
+    _constructionFoundations: {},
+    _constructionDoors: {},
+    _constructionSimple: {},
+    _lootableProps: {},
+    _taskProps: {},
+    _crates: {},
+    _destroyables: {},
+    _worldLootableConstruction: {},
+    _worldSimpleConstruction: {}
+  };
 
   _destroyableDTOlist: number[] = [];
   _hudIndicators: { [indicatorId: string]: HudIndicator } = {};
@@ -609,7 +609,7 @@ export class ZoneServer2016 extends EventEmitter {
           this.deleteClient(oldClient);
         }
         this._clients[sessionId] = zoneClient;
-        this._characters[characterId] = zoneClient.character;
+        this._entities._characters[characterId] = zoneClient.character;
         this.emit("login", zoneClient);
       }
     );
@@ -855,7 +855,7 @@ export class ZoneServer2016 extends EventEmitter {
   }
 
   async stop() {
-    for (const trap of Object.values(this._traps)) {
+    for (const trap of Object.values(this._entities._traps)) {
       clearTimeout(trap.trapTimer);
     }
     this.worldDataManager.kill();
@@ -955,7 +955,8 @@ export class ZoneServer2016 extends EventEmitter {
       debug(`Receive Data ${[packet.name]}`);
     }
     if (packet.flag === GatewayChannels.UpdatePosition) {
-      const movingCharacter = this._characters[client.character.characterId];
+      const movingCharacter =
+        this._entities._characters[client.character.characterId];
       if (movingCharacter) {
         this.sendRawToAllOthersWithSpawnedCharacter(
           client,
@@ -1326,7 +1327,7 @@ export class ZoneServer2016 extends EventEmitter {
     client.character.initialized = true;
     this.initializeContainerList(client);
 
-    this._characters[client.character.characterId] = client.character; // character will spawn on other player's screen(s) at this point
+    this._entities._characters[client.character.characterId] = client.character; // character will spawn on other player's screen(s) at this point
     this.hookManager.checkHook("OnSentCharacterData", client);
   }
   /**
@@ -1727,43 +1728,47 @@ export class ZoneServer2016 extends EventEmitter {
     console.time("ZONE: processing");
     try {
       const characters = WorldDataManager.convertCharactersToSaveData(
-        Object.values(this._characters),
+        Object.values(this._entities._characters),
         this._worldId
       );
       const vehicles = WorldDataManager.convertVehiclesToSaveData(
-        Object.values(this._vehicles),
+        Object.values(this._entities._vehicles),
         this._worldId
       );
       const worldConstructions: LootableConstructionSaveData[] = [];
-      Object.values(this._worldLootableConstruction).forEach((entity) => {
-        if (
-          entity.parentObjectCharacterId == this._serverGuid ||
-          entity instanceof WaterSource ||
-          (entity instanceof TrapEntity && entity?.worldOwned)
-        )
-          return; // Don't save world spawned campfires / barbeques
-        const lootableConstructionSaveData =
-          WorldDataManager.getLootableConstructionSaveData(
-            entity,
-            this._worldId
-          );
-        removeUntransferableFields(lootableConstructionSaveData);
-        worldConstructions.push(lootableConstructionSaveData);
-      });
+      Object.values(this._entities._worldLootableConstruction).forEach(
+        (entity) => {
+          if (
+            entity.parentObjectCharacterId == this._serverGuid ||
+            entity instanceof WaterSource ||
+            (entity instanceof TrapEntity && entity?.worldOwned)
+          )
+            return; // Don't save world spawned campfires / barbeques
+          const lootableConstructionSaveData =
+            WorldDataManager.getLootableConstructionSaveData(
+              entity,
+              this._worldId
+            );
+          removeUntransferableFields(lootableConstructionSaveData);
+          worldConstructions.push(lootableConstructionSaveData);
+        }
+      );
       const constructions: ConstructionParentSaveData[] = [];
 
-      Object.values(this._constructionFoundations).forEach((entity) => {
-        if (entity.itemDefinitionId != Items.FOUNDATION_EXPANSION) {
-          const construction = WorldDataManager.getConstructionParentSaveData(
-            entity,
-            this._worldId
-          );
-          // isTransferable(construction) too complex will run on max recursive call error
-          constructions.push(construction);
+      Object.values(this._entities._constructionFoundations).forEach(
+        (entity) => {
+          if (entity.itemDefinitionId != Items.FOUNDATION_EXPANSION) {
+            const construction = WorldDataManager.getConstructionParentSaveData(
+              entity,
+              this._worldId
+            );
+            // isTransferable(construction) too complex will run on max recursive call error
+            constructions.push(construction);
+          }
         }
-      });
+      );
       const crops: PlantingDiameterSaveData[] = [];
-      Object.values(this._temporaryObjects).forEach((entity) => {
+      Object.values(this._entities._temporaryObjects).forEach((entity) => {
         if (entity instanceof PlantingDiameter) {
           crops.push(
             WorldDataManager.getPlantingDiameterSaveData(entity, this._worldId)
@@ -1771,12 +1776,12 @@ export class ZoneServer2016 extends EventEmitter {
         }
       });
       const traps: TrapSaveData[] = [];
-      Object.values(this._traps).forEach((entity) => {
+      Object.values(this._entities._traps).forEach((entity) => {
         if (entity instanceof TrapEntity && !entity.worldOwned) {
           traps.push(WorldDataManager.getTrapSaveData(entity, this._worldId));
         }
       });
-      Object.values(this._explosives).forEach((entity) => {
+      Object.values(this._entities._explosives).forEach((entity) => {
         if (entity instanceof ExplosiveEntity && entity.isLandmine()) {
           traps.push(WorldDataManager.getTrapSaveData(entity, this._worldId));
         }
@@ -2228,7 +2233,10 @@ export class ZoneServer2016 extends EventEmitter {
       client.managedObjects?.forEach((characterId: string) => {
         this.dropVehicleManager(client, characterId);
       });
-      this.deleteEntity(client.character.characterId, this._characters);
+      this.deleteEntity(
+        client.character.characterId,
+        this._entities._characters
+      );
 
       if (!this._soloMode) {
         this.groupManager.handlePlayerDisconnect(this, client);
@@ -2431,7 +2439,7 @@ export class ZoneServer2016 extends EventEmitter {
     );
     if (!client.isLoading) {
       this.sendDataToAllWithSpawnedEntity<CharacterStartMultiStateDeath>(
-        this._characters,
+        this._entities._characters,
         client.character.characterId,
         "Character.StartMultiStateDeath",
         {
@@ -2440,7 +2448,7 @@ export class ZoneServer2016 extends EventEmitter {
       );
     } else {
       this.sendDataToAllOthersWithSpawnedEntity<CharacterStartMultiStateDeath>(
-        this._characters,
+        this._entities._characters,
         client,
         client.character.characterId,
         "Character.StartMultiStateDeath",
@@ -2454,7 +2462,7 @@ export class ZoneServer2016 extends EventEmitter {
     client.character.dismountContainer(this);
 
     if (client.vehicle.mountedVehicle) {
-      const vehicle = this._vehicles[client.vehicle.mountedVehicle],
+      const vehicle = this._entities._vehicles[client.vehicle.mountedVehicle],
         container = vehicle?.getContainer();
       if (vehicle && container) {
         container.items = {
@@ -2526,14 +2534,18 @@ export class ZoneServer2016 extends EventEmitter {
       sourceIsVehicle = sourceEntity instanceof Vehicle2016;
 
     // explode nearby explosives first
-    for (const explosive in this._explosives) {
-      const explosiveObj = this._explosives[explosive];
+    for (const explosive in this._entities._explosives) {
+      const explosiveObj = this._entities._explosives[explosive];
       if (explosiveObj.characterId != npcTriggered) {
         if (getDistance(position, explosiveObj.state.position) < 2) {
           await scheduler.wait(150);
-          if (this._spawnedItems[explosiveObj.characterId]) {
-            const object = this._spawnedItems[explosiveObj.characterId];
-            this.deleteEntity(explosiveObj.characterId, this._spawnedItems);
+          if (this._entities._spawnedItems[explosiveObj.characterId]) {
+            const object =
+              this._entities._spawnedItems[explosiveObj.characterId];
+            this.deleteEntity(
+              explosiveObj.characterId,
+              this._entities._spawnedItems
+            );
             delete this.worldObjectManager.spawnedLootObjects[object.spawnerId];
           }
           if (!explosiveObj.detonated) {
@@ -2545,8 +2557,8 @@ export class ZoneServer2016 extends EventEmitter {
     }
 
     if (!this.isPvE) {
-      for (const characterId in this._characters) {
-        const character = this._characters[characterId];
+      for (const characterId in this._entities._characters) {
+        const character = this._entities._characters[characterId];
         if (
           isPosInRadiusWithY(
             sourceIsVehicle ? 5 : 3,
@@ -2563,8 +2575,8 @@ export class ZoneServer2016 extends EventEmitter {
           });
         }
       }
-      for (const vehicleKey in this._vehicles) {
-        const vehicle = this._vehicles[vehicleKey];
+      for (const vehicleKey in this._entities._vehicles) {
+        const vehicle = this._entities._vehicles[vehicleKey];
         if (vehicle.characterId != npcTriggered) {
           if (isPosInRadius(5, vehicle.state.position, position)) {
             const distance = getDistance(position, vehicle.state.position);
@@ -2575,16 +2587,17 @@ export class ZoneServer2016 extends EventEmitter {
         }
       }
 
-      for (const trapKey in this._traps) {
-        const trap = this._traps[trapKey];
+      for (const trapKey in this._entities._traps) {
+        const trap = this._entities._traps[trapKey];
         if (!trap) continue;
         if (isPosInRadius(5, trap.state.position, position)) {
           trap.destroy(this);
         }
       }
 
-      for (const construction in this._constructionSimple) {
-        const constructionObject = this._constructionSimple[construction];
+      for (const construction in this._entities._constructionSimple) {
+        const constructionObject =
+          this._entities._constructionSimple[construction];
         if (
           constructionObject.itemDefinitionId == Items.FOUNDATION_RAMP ||
           constructionObject.itemDefinitionId == Items.FOUNDATION_STAIRS
@@ -2613,7 +2626,7 @@ export class ZoneServer2016 extends EventEmitter {
               this,
               constructionObject.characterId,
               this.baseConstructionDamage,
-              this._constructionSimple,
+              this._entities._constructionSimple,
               position,
               constructionObject.fixedPosition
                 ? constructionObject.fixedPosition
@@ -2624,8 +2637,8 @@ export class ZoneServer2016 extends EventEmitter {
         }
       }
 
-      for (const construction in this._constructionDoors) {
-        const constructionObject = this._constructionDoors[
+      for (const construction in this._entities._constructionDoors) {
+        const constructionObject = this._entities._constructionDoors[
           construction
         ] as ConstructionDoor;
         if (
@@ -2651,7 +2664,7 @@ export class ZoneServer2016 extends EventEmitter {
               this,
               constructionObject.characterId,
               this.baseConstructionDamage,
-              this._constructionDoors,
+              this._entities._constructionDoors,
               position,
               constructionObject.fixedPosition
                 ? constructionObject.fixedPosition
@@ -2662,8 +2675,8 @@ export class ZoneServer2016 extends EventEmitter {
         }
       }
 
-      for (const construction in this._constructionFoundations) {
-        const constructionObject = this._constructionFoundations[
+      for (const construction in this._entities._constructionFoundations) {
+        const constructionObject = this._entities._constructionFoundations[
           construction
         ] as ConstructionParentEntity;
         if (
@@ -2681,7 +2694,7 @@ export class ZoneServer2016 extends EventEmitter {
                 this,
                 constructionObject.characterId,
                 this.baseConstructionDamage,
-                this._constructionFoundations,
+                this._entities._constructionFoundations,
                 position,
                 constructionObject.state.position,
                 itemDefinitionId
@@ -2691,8 +2704,8 @@ export class ZoneServer2016 extends EventEmitter {
         }
       }
 
-      for (const construction in this._lootableConstruction) {
-        const constructionObject = this._lootableConstruction[
+      for (const construction in this._entities._lootableConstruction) {
+        const constructionObject = this._entities._lootableConstruction[
           construction
         ] as LootableConstructionEntity;
         if (isPosInRadius(2, constructionObject.state.position, position)) {
@@ -2707,7 +2720,7 @@ export class ZoneServer2016 extends EventEmitter {
             this,
             constructionObject.characterId,
             this.baseConstructionDamage,
-            this._lootableConstruction,
+            this._entities._lootableConstruction,
             position,
             constructionObject.state.position,
             itemDefinitionId
@@ -2715,8 +2728,8 @@ export class ZoneServer2016 extends EventEmitter {
         }
       }
 
-      for (const construction in this._worldLootableConstruction) {
-        const constructionObject = this._worldLootableConstruction[
+      for (const construction in this._entities._worldLootableConstruction) {
+        const constructionObject = this._entities._worldLootableConstruction[
           construction
         ] as LootableConstructionEntity;
         if (isPosInRadius(2, constructionObject.state.position, position)) {
@@ -2724,7 +2737,7 @@ export class ZoneServer2016 extends EventEmitter {
             this,
             constructionObject.characterId,
             this.baseConstructionDamage,
-            this._worldLootableConstruction,
+            this._entities._worldLootableConstruction,
             position,
             constructionObject.state.position,
             itemDefinitionId
@@ -2732,8 +2745,8 @@ export class ZoneServer2016 extends EventEmitter {
         }
       }
 
-      for (const construction in this._worldSimpleConstruction) {
-        const constructionObject = this._worldSimpleConstruction[
+      for (const construction in this._entities._worldSimpleConstruction) {
+        const constructionObject = this._entities._worldSimpleConstruction[
           construction
         ] as ConstructionChildEntity;
         if (isPosInRadius(4, constructionObject.state.position, position)) {
@@ -2741,7 +2754,7 @@ export class ZoneServer2016 extends EventEmitter {
             this,
             constructionObject.characterId,
             this.baseConstructionDamage,
-            this._worldSimpleConstruction,
+            this._entities._worldSimpleConstruction,
             position,
             constructionObject.state.position,
             itemDefinitionId
@@ -2802,7 +2815,7 @@ export class ZoneServer2016 extends EventEmitter {
     client.isInAir = false;
 
     this.sendDataToAllWithSpawnedEntity<CommandPlayDialogEffect>(
-      this._characters,
+      this._entities._characters,
       client.character.characterId,
       "Command.PlayDialogEffect",
       {
@@ -2885,7 +2898,7 @@ export class ZoneServer2016 extends EventEmitter {
     // fixes characters showing up as dead if they respawn close to other characters
     if (client.character.initialized) {
       this.sendDataToAllOthersWithSpawnedEntity<CharacterRemovePlayer>(
-        this._characters,
+        this._entities._characters,
         client,
         client.character.characterId,
         "Character.RemovePlayer",
@@ -2896,7 +2909,7 @@ export class ZoneServer2016 extends EventEmitter {
       setTimeout(() => {
         if (!client?.character) return;
         this.sendDataToAllOthersWithSpawnedEntity<AddLightweightPc>(
-          this._characters,
+          this._entities._characters,
           client,
           client.character.characterId,
           "AddLightweightPc",
@@ -2963,114 +2976,62 @@ export class ZoneServer2016 extends EventEmitter {
     entityKey: string
   ): BaseLootableEntity | Vehicle2016 | undefined {
     return (
-      this._lootbags[entityKey] ||
-      this._vehicles[entityKey] ||
-      this._lootableConstruction[entityKey] ||
-      this._worldLootableConstruction[entityKey] ||
-      this._lootableProps[entityKey] ||
+      this._entities._lootbags[entityKey] ||
+      this._entities._vehicles[entityKey] ||
+      this._entities._lootableConstruction[entityKey] ||
+      this._entities._worldLootableConstruction[entityKey] ||
+      this._entities._lootableProps[entityKey] ||
       undefined
     );
   }
 
   getConstructionEntity(entityKey: string): ConstructionEntity | undefined {
     return (
-      this._constructionFoundations[entityKey] ||
-      this._constructionSimple[entityKey] ||
-      this._lootableConstruction[entityKey] ||
-      this._constructionDoors[entityKey] ||
-      this._worldLootableConstruction[entityKey] ||
+      this._entities._constructionFoundations[entityKey] ||
+      this._entities._constructionSimple[entityKey] ||
+      this._entities._lootableConstruction[entityKey] ||
+      this._entities._constructionDoors[entityKey] ||
+      this._entities._worldLootableConstruction[entityKey] ||
       undefined
     );
   }
 
   getConstructionDictionary(entityKey: string): any | undefined {
     switch (true) {
-      case !!this._constructionFoundations[entityKey]:
-        return this._constructionFoundations;
-      case !!this._constructionSimple[entityKey]:
-        return this._constructionSimple;
-      case !!this._lootableConstruction[entityKey]:
-        return this._lootableConstruction;
-      case !!this._constructionDoors[entityKey]:
-        return this._constructionDoors;
-      case !!this._worldLootableConstruction[entityKey]:
-        return this._worldLootableConstruction;
-      case !!this._worldSimpleConstruction[entityKey]:
-        return this._worldSimpleConstruction;
+      case !!this._entities._constructionFoundations[entityKey]:
+        return this._entities._constructionFoundations;
+      case !!this._entities._constructionSimple[entityKey]:
+        return this._entities._constructionSimple;
+      case !!this._entities._lootableConstruction[entityKey]:
+        return this._entities._lootableConstruction;
+      case !!this._entities._constructionDoors[entityKey]:
+        return this._entities._constructionDoors;
+      case !!this._entities._worldLootableConstruction[entityKey]:
+        return this._entities._worldLootableConstruction;
+      case !!this._entities._worldSimpleConstruction[entityKey]:
+        return this._entities._worldSimpleConstruction;
       default:
         return;
     }
   }
 
   getEntity(entityKey: string = ""): BaseEntity | undefined {
-    return (
-      this._npcs[entityKey] ||
-      this._vehicles[entityKey] ||
-      this._characters[entityKey] ||
-      this._spawnedItems[entityKey] ||
-      this._doors[entityKey] ||
-      this._explosives[entityKey] ||
-      this._constructionFoundations[entityKey] ||
-      this._constructionDoors[entityKey] ||
-      this._constructionSimple[entityKey] ||
-      this._lootbags[entityKey] ||
-      this._lootableConstruction[entityKey] ||
-      this._lootableProps[entityKey] ||
-      this._worldLootableConstruction[entityKey] ||
-      this._worldSimpleConstruction[entityKey] ||
-      this._plants[entityKey] ||
-      this._taskProps[entityKey] ||
-      this._crates[entityKey] ||
-      this._destroyables[entityKey] ||
-      this._temporaryObjects[entityKey] ||
-      this._traps[entityKey] ||
-      undefined
-    );
+    for (const key in this._entities) {
+      const entityDict = this._entities[key as keyof ServerEntities];
+      if (entityDict && entityDict[entityKey]) {
+        return entityDict[entityKey];
+      }
+    }
   }
 
   getEntityDictionary(
     entityKey: string
   ): EntityDictionary<BaseEntity> | undefined {
-    switch (true) {
-      case !!this._npcs[entityKey]:
-        return this._npcs;
-      case !!this._vehicles[entityKey]:
-        return this._vehicles;
-      case !!this._characters[entityKey]:
-        return this._characters;
-      case !!this._spawnedItems[entityKey]:
-        return this._spawnedItems;
-      case !!this._doors[entityKey]:
-        return this._doors;
-      case !!this._explosives[entityKey]:
-        return this._explosives;
-      case !!this._constructionFoundations[entityKey]:
-        return this._constructionFoundations;
-      case !!this._constructionDoors[entityKey]:
-        return this._constructionDoors;
-      case !!this._constructionSimple[entityKey]:
-        return this._constructionSimple;
-      case !!this._lootbags[entityKey]:
-        return this._lootbags;
-      case !!this._lootableConstruction[entityKey]:
-        return this._lootableConstruction;
-      case !!this._lootableProps[entityKey]:
-        return this._lootableProps;
-      case !!this._worldLootableConstruction[entityKey]:
-        return this._worldLootableConstruction;
-      case !!this._worldSimpleConstruction[entityKey]:
-        return this._worldSimpleConstruction;
-      case !!this._plants[entityKey]:
-        return this._plants;
-      case !!this._taskProps[entityKey]:
-        return this._taskProps;
-      case !!this._crates[entityKey]:
-        return this._crates;
-      case !!this._destroyables[entityKey]:
-        return this._destroyables;
-      case !!this._temporaryObjects[entityKey]:
-      default:
-        return;
+    for (const key in this._entities) {
+      const entityDict = this._entities[key as keyof ServerEntities];
+      if (entityDict && entityDict[entityKey]) {
+        return entityDict;
+      }
     }
   }
 
@@ -3564,7 +3525,7 @@ export class ZoneServer2016 extends EventEmitter {
       );
     } else {
       this.sendDataToAllOthersWithSpawnedEntity<CharacterUpdateCharacterState>(
-        this._characters,
+        this._entities._characters,
         client,
         client.character.characterId,
         "Character.UpdateCharacterState",
@@ -3576,8 +3537,8 @@ export class ZoneServer2016 extends EventEmitter {
   customizeStaticDTOs() {
     // caches DTOs that should always be removed
 
-    for (const object in this._lootableProps) {
-      const prop = this._lootableProps[object];
+    for (const object in this._entities._lootableProps) {
+      const prop = this._entities._lootableProps[object];
       const propInstance = {
         objectId: prop.spawnerId,
         replacementModel: "Weapon_Empty.adr"
@@ -3585,16 +3546,16 @@ export class ZoneServer2016 extends EventEmitter {
       this.staticDTOs.push(propInstance);
     }
 
-    for (const object in this._taskProps) {
-      const prop = this._taskProps[object];
+    for (const object in this._entities._taskProps) {
+      const prop = this._entities._taskProps[object];
       const propInstance = {
         objectId: prop.spawnerId,
         replacementModel: "Weapon_Empty.adr"
       };
       this.staticDTOs.push(propInstance);
     }
-    for (const object in this._crates) {
-      const prop = this._crates[object];
+    for (const object in this._entities._crates) {
+      const prop = this._entities._crates[object];
       const propInstance = {
         objectId: prop.spawnerId,
         replacementModel: "Weapon_Empty.adr"
@@ -3806,7 +3767,9 @@ export class ZoneServer2016 extends EventEmitter {
           "AddLightweightPc",
           characterObj.pGetLightweightPC(this, this._clients[c])
         );
-        client.spawnedEntities.add(this._characters[characterObj.characterId]);
+        client.spawnedEntities.add(
+          this._entities._characters[characterObj.characterId]
+        );
       }
     }
   }
@@ -3836,8 +3799,8 @@ export class ZoneServer2016 extends EventEmitter {
   }
 
   private checkVehiclesInMapBounds() {
-    for (const a in this._vehicles) {
-      const vehicle = this._vehicles[a];
+    for (const a in this._entities._vehicles) {
+      const vehicle = this._entities._vehicles[a];
       let inMapBounds: boolean = false;
       this._spawnGrid.forEach((cell: SpawnCell) => {
         const position = vehicle.state.position;
@@ -4128,7 +4091,7 @@ export class ZoneServer2016 extends EventEmitter {
     obj: any
   ) {
     this.sendDataToAllOthersWithSpawnedEntity<WeaponWeapon>(
-      this._characters,
+      this._entities._characters,
       client,
       client.character.characterId,
       "Weapon.Weapon",
@@ -4178,7 +4141,7 @@ export class ZoneServer2016 extends EventEmitter {
     obj: any
   ) {
     this.sendDataToAllOthersWithSpawnedEntity<WeaponWeapon>(
-      this._characters,
+      this._entities._characters,
       client,
       client.character.characterId,
       "Weapon.Weapon",
@@ -4464,7 +4427,7 @@ export class ZoneServer2016 extends EventEmitter {
       if (
         client != this._clients[a] &&
         this._clients[a].spawnedEntities.has(
-          this._characters[entityCharacterId]
+          this._entities._characters[entityCharacterId]
         )
       ) {
         this.sendRawDataReliable(this._clients[a], data);
@@ -4804,8 +4767,8 @@ export class ZoneServer2016 extends EventEmitter {
   }
 
   vehicleManager(client: Client) {
-    for (const key in this._vehicles) {
-      const vehicle = this._vehicles[key];
+    for (const key in this._entities._vehicles) {
+      const vehicle = this._entities._vehicles[key];
       if (
         // vehicle spawning / managed object assignment logic
         isPosInRadius(
@@ -5078,15 +5041,15 @@ export class ZoneServer2016 extends EventEmitter {
   }
 
   mountVehicle(client: Client, vehicleGuid: string) {
-    const vehicle = this._vehicles[vehicleGuid];
+    const vehicle = this._entities._vehicles[vehicleGuid];
     if (!vehicle || !vehicle.isMountable) return;
 
     if (vehicle.isLocked) {
       this.sendChatText(client, "Vehicle is locked.");
       return;
     }
-    for (const a in this._constructionFoundations) {
-      const foundation = this._constructionFoundations[a];
+    for (const a in this._entities._constructionFoundations) {
+      const foundation = this._entities._constructionFoundations[a];
       if (
         foundation.isSecured &&
         foundation.isInside(vehicle.state.position) &&
@@ -5106,7 +5069,7 @@ export class ZoneServer2016 extends EventEmitter {
     client.character.isRunning = false; // maybe some async stuff make this useless need to test that
     const seatId = vehicle.getNextSeatId(this),
       seat = vehicle.seats[seatId],
-      passenger = this._characters[seat];
+      passenger = this._entities._characters[seat];
     if (Number(seatId) < 0) return; // no available seats in vehicle
     client.vehicle.mountedVehicle = vehicle.characterId;
     client.isInAir = false;
@@ -5146,7 +5109,7 @@ export class ZoneServer2016 extends EventEmitter {
     }
 
     this.sendDataToAllWithSpawnedEntity<MountMountResponse>(
-      this._vehicles,
+      this._entities._vehicles,
       vehicleGuid,
       "Mount.MountResponse",
       {
@@ -5189,7 +5152,7 @@ export class ZoneServer2016 extends EventEmitter {
     setTimeout(() => {
       client.enableChecks = true;
     }, 5000);
-    const vehicle = this._vehicles[client.vehicle.mountedVehicle];
+    const vehicle = this._entities._vehicles[client.vehicle.mountedVehicle];
     if (!vehicle) {
       // return if vehicle doesnt exist
       console.log(
@@ -5213,12 +5176,12 @@ export class ZoneServer2016 extends EventEmitter {
       this.sendData<MountDismountResponse>(client, "Mount.DismountResponse", {
         characterId: client.character.characterId
       });
-      this.deleteEntity(vehicle.characterId, this._vehicles);
+      this.deleteEntity(vehicle.characterId, this._entities._vehicles);
       return;
     }
     vehicle.seats[seatId] = "";
     this.sendDataToAllWithSpawnedEntity<MountDismountResponse>(
-      this._characters,
+      this._entities._characters,
       client.character.characterId,
       "Mount.DismountResponse",
       {
@@ -5250,7 +5213,7 @@ export class ZoneServer2016 extends EventEmitter {
       unknownBytes2: { itemData: {} }
     });
     this.sendDataToAllWithSpawnedEntity<VehicleOwner>(
-      this._vehicles,
+      this._entities._vehicles,
       vehicle.characterId,
       "Vehicle.Owner",
       {
@@ -5266,14 +5229,14 @@ export class ZoneServer2016 extends EventEmitter {
 
   changeSeat(client: Client, packet: ReceivedPacket<MountSeatChangeRequest>) {
     if (!client.vehicle.mountedVehicle) return;
-    const vehicle = this._vehicles[client.vehicle.mountedVehicle];
+    const vehicle = this._entities._vehicles[client.vehicle.mountedVehicle];
     if (!vehicle) return;
     const seatCount = vehicle.getSeatCount(),
       oldSeatId = vehicle.getCharacterSeat(client.character.characterId);
 
     const seatId = packet.data.seatId ?? 0,
       seat = vehicle.seats[seatId],
-      passenger = this._characters[seat];
+      passenger = this._entities._characters[seat];
     if (
       seatId < seatCount &&
       (!vehicle.seats[seatId] || !passenger?.isAlive) &&
@@ -5286,7 +5249,7 @@ export class ZoneServer2016 extends EventEmitter {
         }
       }
       this.sendDataToAllWithSpawnedEntity<MountSeatChangeResponse>(
-        this._vehicles,
+        this._entities._vehicles,
         client.vehicle.mountedVehicle,
         "Mount.SeatChangeResponse",
         {
@@ -5328,7 +5291,7 @@ export class ZoneServer2016 extends EventEmitter {
     animationId: number
   ) {
     this.sendDataToAllWithSpawnedEntity(
-      this._characters,
+      this._entities._characters,
       client.character.characterId,
       "CharacterState.InteractionStart",
       {
@@ -5436,7 +5399,7 @@ export class ZoneServer2016 extends EventEmitter {
   ) {
     const characterIds = new Set<string>();
 
-    const vehicle = this._vehicles[character.characterId];
+    const vehicle = this._entities._vehicles[character.characterId];
     if (vehicle) {
       vehicle.getPassengerList().forEach((characterId) => {
         characterIds.add(characterId);
@@ -6033,7 +5996,7 @@ export class ZoneServer2016 extends EventEmitter {
       );
 
       this.sendDataToAllOthersWithSpawnedEntity<CharacterWeaponStance>(
-        this._characters,
+        this._entities._characters,
         client,
         client.character.characterId,
         "Character.WeaponStance",
@@ -6072,7 +6035,7 @@ export class ZoneServer2016 extends EventEmitter {
         slotId: equipmentSlotId
       };
       this.sendDataToAllWithSpawnedEntity(
-        this._characters,
+        this._entities._characters,
         client.character.characterId,
         "Equipment.UnsetCharacterEquipmentSlot",
         data
@@ -6452,14 +6415,14 @@ export class ZoneServer2016 extends EventEmitter {
   }
 
   pickupItem(client: Client, guid: string) {
-    const object = this._spawnedItems[guid],
+    const object = this._entities._spawnedItems[guid],
       item: BaseItem = object.item;
     if (!item) {
       this.sendChatText(client, `[ERROR] Invalid item`);
       return;
     }
     this.sendCompositeEffectToAllWithSpawnedEntity(
-      this._spawnedItems,
+      this._entities._spawnedItems,
       object,
       this.getItemDefinition(item.itemDefinitionId)?.PICKUP_EFFECT ??
         Effects.SFX_Item_PickUp_Generic
@@ -6471,9 +6434,9 @@ export class ZoneServer2016 extends EventEmitter {
       item.itemDefinitionId === Items.FUEL_BIOFUEL ||
       item.itemDefinitionId === Items.FUEL_ETHANOL
     ) {
-      this.deleteEntity(object.characterId, this._explosives);
+      this.deleteEntity(object.characterId, this._entities._explosives);
     }
-    this.deleteEntity(guid, this._spawnedItems);
+    this.deleteEntity(guid, this._entities._spawnedItems);
     delete this.worldObjectManager.spawnedLootObjects[object.spawnerId];
   }
 
@@ -6496,7 +6459,7 @@ export class ZoneServer2016 extends EventEmitter {
   deleteItem(character: BaseFullCharacter, itemGuid: string) {
     const characterIds = new Set<string>();
 
-    const vehicle = this._vehicles[character.characterId];
+    const vehicle = this._entities._vehicles[character.characterId];
     if (vehicle) {
       vehicle.getPassengerList().forEach((characterId) => {
         characterIds.add(characterId);
@@ -6592,7 +6555,7 @@ export class ZoneServer2016 extends EventEmitter {
   updateContainer(character: BaseFullCharacter, container: LoadoutContainer) {
     const characterIds = new Set<string>();
 
-    const vehicle = this._vehicles[character.characterId];
+    const vehicle = this._entities._vehicles[character.characterId];
     if (vehicle) {
       vehicle.getPassengerList().forEach((characterId) => {
         characterIds.add(characterId);
@@ -6712,11 +6675,11 @@ export class ZoneServer2016 extends EventEmitter {
       return;
     }
     let blockedArea = false;
-    for (const a in this._constructionFoundations) {
+    for (const a in this._entities._constructionFoundations) {
       if (
         isPosInRadius(
           50,
-          this._constructionFoundations[a].state.position,
+          this._entities._constructionFoundations[a].state.position,
           client.character.state.position
         )
       ) {
@@ -7033,8 +6996,8 @@ export class ZoneServer2016 extends EventEmitter {
     item: BaseItem
   ) {
     if (!this.removeInventoryItem(character, item)) return;
-    for (const characterId in this._temporaryObjects) {
-      const object = this._temporaryObjects[characterId];
+    for (const characterId in this._entities._temporaryObjects) {
+      const object = this._entities._temporaryObjects[characterId];
       if (
         object instanceof PlantingDiameter &&
         isPosInRadius(3, object.state.position, client.character.state.position)
@@ -7048,7 +7011,7 @@ export class ZoneServer2016 extends EventEmitter {
           plant.nextStateTime = new Date().getTime() + roz;
           this.sendDataToAllWithSpawnedEntity<CharacterPlayWorldCompositeEffect>(
             // play burning effect & remove it after 15s
-            this._plants,
+            this._entities._plants,
             plant.characterId,
             "Character.PlayWorldCompositeEffect",
             {
@@ -7100,7 +7063,7 @@ export class ZoneServer2016 extends EventEmitter {
     client.character._resources[ResourceIds.STAMINA] = 600;
     this.applyMovementModifier(client, MovementModifiers.RESTED);
     this.sendDataToAllWithSpawnedEntity(
-      this._characters,
+      this._entities._characters,
       client.character.characterId,
       "AnimationBase",
       {
@@ -7113,7 +7076,7 @@ export class ZoneServer2016 extends EventEmitter {
       client.character._resources[ResourceIds.STAMINA],
       ResourceIds.STAMINA,
       ResourceTypes.STAMINA,
-      this._characters
+      this._entities._characters
     );
     this.updateResource(
       client,
@@ -7262,7 +7225,7 @@ export class ZoneServer2016 extends EventEmitter {
       );
       return;
     }
-    const vehicle = this._vehicles[vehicleGuid];
+    const vehicle = this._entities._vehicles[vehicleGuid];
     if (vehicle._resources[ResourceIds.FUEL] >= 10000) {
       // prevent players from wasting fuel while being at 100%
       this.sendAlert(client, "Fuel tank is full!");
@@ -7446,7 +7409,7 @@ export class ZoneServer2016 extends EventEmitter {
           bleeding,
           ResourceIds.BLEEDING,
           ResourceTypes.BLEEDING,
-          this._characters
+          this._entities._characters
         );
         if (client.character._resources[ResourceIds.BLEEDING] < 0)
           client.character._resources[ResourceIds.BLEEDING] = 0;
@@ -7456,7 +7419,7 @@ export class ZoneServer2016 extends EventEmitter {
         client.character._resources[ResourceIds.BLEEDING],
         ResourceIds.BLEEDING,
         ResourceIds.BLEEDING,
-        this._characters
+        this._entities._characters
       );
     }
   }
@@ -7472,8 +7435,8 @@ export class ZoneServer2016 extends EventEmitter {
   }
 
   async igniteoptionPass(client: Client) {
-    for (const a in this._explosives) {
-      const explosive = this._explosives[a];
+    for (const a in this._entities._explosives) {
+      const explosive = this._entities._explosives[a];
       if (
         isPosInRadius(
           2.0,
@@ -7485,8 +7448,8 @@ export class ZoneServer2016 extends EventEmitter {
         explosive.ignite(this, client);
       }
     }
-    for (const a in this._lootableConstruction) {
-      const smeltable = this._lootableConstruction[a];
+    for (const a in this._entities._lootableConstruction) {
+      const smeltable = this._entities._lootableConstruction[a];
       if (
         isPosInRadius(
           1.5,
@@ -7520,8 +7483,8 @@ export class ZoneServer2016 extends EventEmitter {
         }
       }
     }
-    for (const a in this._worldLootableConstruction) {
-      const smeltable = this._worldLootableConstruction[a];
+    for (const a in this._entities._worldLootableConstruction) {
+      const smeltable = this._entities._worldLootableConstruction[a];
       if (
         isPosInRadius(
           1.5,
@@ -7571,7 +7534,7 @@ export class ZoneServer2016 extends EventEmitter {
       !this.removeInventoryItem(character, item)
     )
       return;
-    const vehicle = this._vehicles[vehicleGuid];
+    const vehicle = this._entities._vehicles[vehicleGuid];
     vehicle._resources[ResourceIds.FUEL] += fuelValue;
     // check if refuel amount is over 100, if so adjust to 100 to prevent over-fueling.
     if (vehicle._resources[ResourceIds.FUEL] >= 10000) {
@@ -7582,7 +7545,7 @@ export class ZoneServer2016 extends EventEmitter {
       vehicle._resources[ResourceIds.FUEL],
       ResourceIds.FUEL,
       ResourceTypes.FUEL,
-      this._vehicles
+      this._entities._vehicles
     );
   }
 
@@ -8018,7 +7981,7 @@ export class ZoneServer2016 extends EventEmitter {
     this.utilizeHudTimer(client, 0, 0, 0, () => {
       client.hudTimer = null;
       this.sendDataToAllWithSpawnedEntity(
-        this._characters,
+        this._entities._characters,
         client.character.characterId,
         "CharacterState.InteractionStop",
         {
@@ -8026,7 +7989,8 @@ export class ZoneServer2016 extends EventEmitter {
         }
       );
       // TODO: this should be somewhere else
-      const vehicle = this._vehicles[client.vehicle.mountedVehicle ?? ""];
+      const vehicle =
+        this._entities._vehicles[client.vehicle.mountedVehicle ?? ""];
       if (!vehicle) return;
       vehicle.removeHotwireEffect(this);
     });
@@ -8052,7 +8016,7 @@ export class ZoneServer2016 extends EventEmitter {
       callback.apply(this);
       client.hudTimer = null;
       this.sendDataToAllWithSpawnedEntity(
-        this._characters,
+        this._entities._characters,
         client.character.characterId,
         "CharacterState.InteractionStop",
         {
@@ -8288,24 +8252,24 @@ export class ZoneServer2016 extends EventEmitter {
   }
   getAllCurrentUsedTransientId() {
     const allTransient: any = {};
-    for (const key in this._doors) {
-      const door = this._doors[key];
+    for (const key in this._entities._doors) {
+      const door = this._entities._doors[key];
       allTransient[door.transientId] = key;
     }
-    for (const key in this._lootableProps) {
-      const prop = this._lootableProps[key];
+    for (const key in this._entities._lootableProps) {
+      const prop = this._entities._lootableProps[key];
       allTransient[prop.transientId] = key;
     }
-    for (const key in this._vehicles) {
-      const vehicle = this._vehicles[key];
+    for (const key in this._entities._vehicles) {
+      const vehicle = this._entities._vehicles[key];
       allTransient[vehicle.transientId] = key;
     }
-    for (const key in this._npcs) {
-      const npc = this._npcs[key];
+    for (const key in this._entities._npcs) {
+      const npc = this._entities._npcs[key];
       allTransient[npc.transientId] = key;
     }
-    for (const key in this._spawnedItems) {
-      const object = this._spawnedItems[key];
+    for (const key in this._entities._spawnedItems) {
+      const object = this._entities._spawnedItems[key];
       allTransient[object.transientId] = key;
     }
     return allTransient;
@@ -8641,10 +8605,10 @@ export class ZoneServer2016 extends EventEmitter {
       client.managedObjects.findIndex((e: string) => e === vehicleGuid),
       1
     );
-    delete this._vehicles[vehicleGuid]?.manager;
+    delete this._entities._vehicles[vehicleGuid]?.manager;
   }
   sendZonePopulationUpdate() {
-    const populationNumber = _.size(this._characters);
+    const populationNumber = _.size(this._entities._characters);
     this._loginConnectionManager.sendData(
       {
         ...this._loginServerInfo,
@@ -8670,7 +8634,7 @@ export class ZoneServer2016 extends EventEmitter {
     this.sendDataToAll<CharacterRemovePlayer>("Character.RemovePlayer", {
       characterId: vehicleGuid
     });
-    this.deleteEntity(vehicleGuid, this._vehicles);
+    this.deleteEntity(vehicleGuid, this._entities._vehicles);
   }
 
   /**

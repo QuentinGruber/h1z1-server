@@ -341,7 +341,7 @@ export class Vehicle2016 extends BaseLootableEntity {
   getNextSeatId(server: ZoneServer2016) {
     for (const seatId in this.seats) {
       const seat = this.seats[seatId],
-        passenger = seat ? server._characters[seat] : undefined;
+        passenger = seat ? server._entities._characters[seat] : undefined;
       if (!this.seats[seatId] || !passenger?.isAlive) {
         return Number(seatId);
       }
@@ -434,9 +434,9 @@ export class Vehicle2016 extends BaseLootableEntity {
       return {
         characterId: passenger,
         identity: {
-          characterName: server._characters[passenger].name
+          characterName: server._entities._characters[passenger].name
         },
-        unknownString1: server._characters[passenger].name,
+        unknownString1: server._entities._characters[passenger].name,
         unknownByte1: 1
       };
     });
@@ -588,7 +588,7 @@ export class Vehicle2016 extends BaseLootableEntity {
       if (allowSend) {
         this.currentDamageEffect = damageeffect;
         server.sendDataToAllWithSpawnedEntity(
-          server._vehicles,
+          server._entities._vehicles,
           this.characterId,
           "Command.PlayDialogEffect",
           {
@@ -606,7 +606,7 @@ export class Vehicle2016 extends BaseLootableEntity {
         this._resources[ResourceIds.CONDITION],
         ResourceIds.CONDITION,
         ResourceTypes.CONDITION,
-        server._vehicles
+        server._entities._vehicles
       );
     }
   }
@@ -618,7 +618,7 @@ export class Vehicle2016 extends BaseLootableEntity {
       server.checkShoes(client);
     }
     server.sendDataToAllWithSpawnedEntity(
-      server._vehicles,
+      server._entities._vehicles,
       this.characterId,
       "Loadout.SetLoadoutSlots",
       this.pGetLoadoutSlots()
@@ -627,13 +627,13 @@ export class Vehicle2016 extends BaseLootableEntity {
 
   getDriver(server: ZoneServer2016): Character2016 | undefined {
     const seat = this.seats[0];
-    if (seat) return server._characters[seat];
+    if (seat) return server._entities._characters[seat];
   }
 
   doesPassengersHaveKey(server: ZoneServer2016): boolean {
     for (const seatId in this.seats) {
       const seat = this.seats[seatId],
-        passenger = seat ? server._characters[seat] : undefined;
+        passenger = seat ? server._entities._characters[seat] : undefined;
 
       if (passenger?.getItemById(Items.VEHICLE_KEY)) {
         return true;
@@ -644,7 +644,7 @@ export class Vehicle2016 extends BaseLootableEntity {
 
   startEngine(server: ZoneServer2016) {
     server.sendDataToAllWithSpawnedEntity(
-      server._vehicles,
+      server._entities._vehicles,
       this.characterId,
       "Vehicle.Engine",
       {
@@ -658,7 +658,7 @@ export class Vehicle2016 extends BaseLootableEntity {
 
   stopEngine(server: ZoneServer2016) {
     server.sendDataToAllWithSpawnedEntity(
-      server._vehicles,
+      server._entities._vehicles,
       this.characterId,
       "Vehicle.Engine",
       {
@@ -670,7 +670,7 @@ export class Vehicle2016 extends BaseLootableEntity {
 
     const driver = this.getDriver(server);
     server.sendDataToAllWithSpawnedEntity<EffectRemoveEffect>(
-      server._vehicles,
+      server._entities._vehicles,
       this.characterId,
       "Effect.RemoveEffect",
       {
@@ -737,7 +737,7 @@ export class Vehicle2016 extends BaseLootableEntity {
         return;
       }
       server.sendDataToAllWithSpawnedEntity(
-        server._vehicles,
+        server._entities._vehicles,
         this.characterId,
         "Character.AddEffectTagCompositeEffect",
         {
@@ -752,7 +752,7 @@ export class Vehicle2016 extends BaseLootableEntity {
     }
 
     server.sendDataToAllWithSpawnedEntity(
-      server._vehicles,
+      server._entities._vehicles,
       this.characterId,
       "Character.RemoveEffectTagCompositeEffect",
       {
@@ -779,7 +779,7 @@ export class Vehicle2016 extends BaseLootableEntity {
         return;
       }
       server.sendDataToAllWithSpawnedEntity(
-        server._vehicles,
+        server._entities._vehicles,
         this.characterId,
         "Character.AddEffectTagCompositeEffect",
         {
@@ -794,7 +794,7 @@ export class Vehicle2016 extends BaseLootableEntity {
     }
 
     server.sendDataToAllWithSpawnedEntity(
-      server._vehicles,
+      server._entities._vehicles,
       this.characterId,
       "Character.RemoveEffectTagCompositeEffect",
       {
@@ -820,7 +820,7 @@ export class Vehicle2016 extends BaseLootableEntity {
         return;
       }
       server.sendDataToAllWithSpawnedEntity(
-        server._vehicles,
+        server._entities._vehicles,
         this.characterId,
         "Character.AddEffectTagCompositeEffect",
         {
@@ -835,7 +835,7 @@ export class Vehicle2016 extends BaseLootableEntity {
     }
 
     server.sendDataToAllWithSpawnedEntity(
-      server._vehicles,
+      server._entities._vehicles,
       this.characterId,
       "Character.RemoveEffectTagCompositeEffect",
       {
@@ -865,7 +865,7 @@ export class Vehicle2016 extends BaseLootableEntity {
         client,
         this,
         turboEffect,
-        server._vehicles
+        server._entities._vehicles
       );
       return;
     }
@@ -875,7 +875,7 @@ export class Vehicle2016 extends BaseLootableEntity {
       client,
       this,
       turboEffect,
-      server._vehicles
+      server._entities._vehicles
     );
   }
 
@@ -974,7 +974,7 @@ export class Vehicle2016 extends BaseLootableEntity {
     if (index <= -1) return;
 
     server.sendDataToAllWithSpawnedEntity(
-      server._vehicles,
+      server._entities._vehicles,
       this.characterId,
       "Character.RemoveEffectTagCompositeEffect",
       {
@@ -995,7 +995,7 @@ export class Vehicle2016 extends BaseLootableEntity {
       index = this.effectTags.indexOf(hotwireEffect);
     if (!hotwireEffect || index >= 0) return;
     server.sendDataToAllWithSpawnedEntity(
-      server._vehicles,
+      server._entities._vehicles,
       this.characterId,
       "Character.AddEffectTagCompositeEffect",
       {
@@ -1016,7 +1016,7 @@ export class Vehicle2016 extends BaseLootableEntity {
   startResourceUpdater(server: ZoneServer2016) {
     if (this.resourcesUpdater) return;
     this.resourcesUpdater = setTimeout(() => {
-      if (!server._vehicles[this.characterId]) return;
+      if (!server._entities._vehicles[this.characterId]) return;
       if (!this.engineOn) {
         delete this.resourcesUpdater;
         return;
@@ -1040,7 +1040,7 @@ export class Vehicle2016 extends BaseLootableEntity {
         this._resources[ResourceIds.FUEL],
         ResourceIds.FUEL,
         ResourceTypes.FUEL,
-        server._vehicles
+        server._entities._vehicles
       );
       this.resourcesUpdater.refresh();
     }, 3000);
@@ -1265,7 +1265,7 @@ export class Vehicle2016 extends BaseLootableEntity {
   }
 
   destroy(server: ZoneServer2016, disableExplosion = false): boolean {
-    if (!server._vehicles[this.characterId]) return false;
+    if (!server._entities._vehicles[this.characterId]) return false;
     this._resources[ResourceIds.CONDITION] = 0;
     for (const c in server._clients) {
       if (this.characterId === server._clients[c].vehicle.mountedVehicle) {
@@ -1273,7 +1273,7 @@ export class Vehicle2016 extends BaseLootableEntity {
       }
     }
     server.sendDataToAllWithSpawnedEntity(
-      server._vehicles,
+      server._entities._vehicles,
       this.characterId,
       "Character.Destroyed",
       {
@@ -1284,7 +1284,10 @@ export class Vehicle2016 extends BaseLootableEntity {
         disableWeirdPhysics: false
       }
     );
-    const deleted = server.deleteEntity(this.characterId, server._vehicles);
+    const deleted = server.deleteEntity(
+      this.characterId,
+      server._entities._vehicles
+    );
     if (!disableExplosion) {
       server.explosionDamage(this.state.position, this.characterId, 0);
     }

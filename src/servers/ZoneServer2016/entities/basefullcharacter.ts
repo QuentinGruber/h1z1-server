@@ -190,7 +190,7 @@ export abstract class BaseFullCharacter extends BaseLightweightCharacter {
       server.checkShoes(client);
     }
     server.sendDataToAllWithSpawnedEntity(
-      server._characters,
+      server._entities._characters,
       this.characterId,
       "Loadout.SetLoadoutSlots",
       this.pGetLoadoutSlots()
@@ -199,7 +199,7 @@ export abstract class BaseFullCharacter extends BaseLightweightCharacter {
 
   updateEquipment(server: ZoneServer2016) {
     server.sendDataToAllWithSpawnedEntity(
-      server._characters,
+      server._entities._characters,
       this.characterId,
       "Equipment.SetCharacterEquipment",
       this.pGetEquipment()
@@ -208,7 +208,7 @@ export abstract class BaseFullCharacter extends BaseLightweightCharacter {
 
   updateEquipmentSlot(server: ZoneServer2016, slotId: number) {
     server.sendDataToAllWithSpawnedEntity(
-      server._characters,
+      server._entities._characters,
       this.characterId,
       "Equipment.SetCharacterEquipmentSlot",
       this.pGetEquipmentSlotFull(slotId) as EquipmentSetCharacterEquipmentSlot

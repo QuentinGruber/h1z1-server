@@ -23,7 +23,7 @@ test("decaymanager", { timeout: 10000 }, async (t) => {
   const originalDate = Date.now();
   t.mock.timers.enable({ apis: ["Date"] });
   await t.test("test decay grief", () => {
-    zone._constructionFoundations = {};
+    zone._entities._constructionFoundations = {};
     const characterId = generate_random_guid();
     const transientId = zone.getTransientId(characterId);
     const pos = new Float32Array([0, 0, 0, 0]);
@@ -40,16 +40,19 @@ test("decaymanager", { timeout: 10000 }, async (t) => {
       "",
       ""
     );
-    zone._constructionFoundations[characterId] = foundation;
+    zone._entities._constructionFoundations[characterId] = foundation;
 
     // TODO: load that from config
     const timeGrief = 60_000 * 60 * 24 * 30;
     t.mock.timers.tick(originalDate + timeGrief);
     zone.decayManager.run(zone);
-    assert.strictEqual(Object.keys(zone._constructionFoundations).length, 0);
+    assert.strictEqual(
+      Object.keys(zone._entities._constructionFoundations).length,
+      0
+    );
   });
   await t.test("test decay", () => {
-    zone._constructionFoundations = {};
+    zone._entities._constructionFoundations = {};
     const characterId = generate_random_guid();
     const transientId = zone.getTransientId(characterId);
     const pos = new Float32Array([0, 0, 0, 0]);
@@ -66,14 +69,17 @@ test("decaymanager", { timeout: 10000 }, async (t) => {
       "",
       ""
     );
-    zone._constructionFoundations[characterId] = foundation;
+    zone._entities._constructionFoundations[characterId] = foundation;
 
     zone.decayManager.griefCheckSlotAmount = 0;
     t.mock.timers.tick(originalDate);
     for (let i = 0; i < 10_000; i++) {
       zone.decayManager.run(zone);
     }
-    assert.strictEqual(Object.keys(zone._constructionFoundations).length, 0);
+    assert.strictEqual(
+      Object.keys(zone._entities._constructionFoundations).length,
+      0
+    );
   });
 });
 

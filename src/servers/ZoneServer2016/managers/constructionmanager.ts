@@ -143,8 +143,8 @@ export class ConstructionManager {
       !Number(parentObjectCharacterId) &&
       !this.overridePlacementItems.includes(itemDefinitionId)
     ) {
-      for (const a in server._worldSimpleConstruction) {
-        const c = server._worldSimpleConstruction[a];
+      for (const a in server._entities._worldSimpleConstruction) {
+        const c = server._entities._worldSimpleConstruction[a];
         const diff = Math.abs(c.state.position[1] - position[1]);
         if (
           isPosInRadiusWithY(1, c.state.position, position, 1.5) &&
@@ -153,8 +153,8 @@ export class ConstructionManager {
           return true;
         }
       }
-      for (const a in server._constructionSimple) {
-        const c = server._constructionSimple[a];
+      for (const a in server._entities._constructionSimple) {
+        const c = server._entities._constructionSimple[a];
         const diff = Math.abs(c.state.position[1] - position[1]);
         if (
           isPosInRadiusWithY(1, c.state.position, position, 1.5) &&
@@ -164,8 +164,8 @@ export class ConstructionManager {
         }
       }
 
-      for (const a in server._lootableConstruction) {
-        const c = server._lootableConstruction[a];
+      for (const a in server._entities._lootableConstruction) {
+        const c = server._entities._lootableConstruction[a];
         const diff = Math.abs(c.state.position[1] - position[1]);
         if (
           isPosInRadiusWithY(1, c.state.position, position, 1.5) &&
@@ -186,8 +186,8 @@ export class ConstructionManager {
           }
         }
       }
-      for (const a in server._worldLootableConstruction) {
-        const c = server._worldLootableConstruction[a];
+      for (const a in server._entities._worldLootableConstruction) {
+        const c = server._entities._worldLootableConstruction[a];
         const diff = Math.abs(c.state.position[1] - position[1]);
         if (
           isPosInRadiusWithY(1, c.state.position, position, 1.5) &&
@@ -227,8 +227,8 @@ export class ConstructionManager {
     ) {
       // fix for tamper stacking
       let tampersInRadius = 0;
-      for (const a in server._constructionFoundations) {
-        const foundation = server._constructionFoundations[a];
+      for (const a in server._entities._constructionFoundations) {
+        const foundation = server._entities._constructionFoundations[a];
         // Prevent stacking / hiding hidden stashes under tampers / foundations
         if (
           item.itemDefinitionId == Items.HAND_SHOVEL &&
@@ -252,7 +252,7 @@ export class ConstructionManager {
 
       // Prevent stacking / hiding hidden stashes under tampers / foundations
       return (
-        Object.values(server._worldLootableConstruction).filter(
+        Object.values(server._entities._worldLootableConstruction).filter(
           (lc) =>
             lc.actorModelId == ModelIds.HAND_SHOVEL &&
             getDistance(lc.state.position, position) <= 15
@@ -467,8 +467,8 @@ export class ConstructionManager {
     // TODO: SEARCH FOUNDATIONS IN GRID RANGE INSTEAD OF ALL OF THEM
     // TODO: CHECK DECKS BEFORE TAMPERS SO OBJECTS PLACED ON A DECK DON'T GET INCORRECTLY
     // PARENTED TO THE TAMPER A DECK IS ON
-    for (const a in server._constructionFoundations) {
-      const foundation = server._constructionFoundations[a];
+    for (const a in server._entities._constructionFoundations) {
+      const foundation = server._entities._constructionFoundations[a];
       // check if inside a shelter even if not inside foundation (large shelters can extend it)
       Object.values(foundation.occupiedShelterSlots).forEach((shelter) => {
         // check uppers first so entity is not incorrectly parented to top of a lower (isOn)
@@ -561,8 +561,8 @@ export class ConstructionManager {
         ? parentObjectCharacterId
         : freeplaceParentCharacterId,
       parent =
-        server._constructionFoundations[characterId] ||
-        server._constructionSimple[characterId];
+        server._entities._constructionFoundations[characterId] ||
+        server._entities._constructionSimple[characterId];
 
     if (!parent) return false;
     return parent.getHasPermission(
@@ -653,8 +653,8 @@ export class ConstructionManager {
       return;
     }
 
-    for (const a in server._constructionFoundations) {
-      const foundation = server._constructionFoundations[a];
+    for (const a in server._entities._constructionFoundations) {
+      const foundation = server._entities._constructionFoundations[a];
 
       if (
         this.handleClosePlacement(
@@ -928,8 +928,8 @@ export class ConstructionManager {
     BuildingSlot: string
   ): boolean {
     const parent =
-      server._constructionFoundations[parentObjectCharacterId] ||
-      server._constructionSimple[parentObjectCharacterId];
+      server._entities._constructionFoundations[parentObjectCharacterId] ||
+      server._entities._constructionSimple[parentObjectCharacterId];
     if (!Number(parentObjectCharacterId) || !parent) {
       this.placementError(server, client, ConstructionErrors.UNKNOWN_PARENT);
       return false;
@@ -975,7 +975,7 @@ export class ConstructionManager {
         BuildingSlot
       );
 
-    server._constructionSimple[characterId] = shelter;
+    server._entities._constructionSimple[characterId] = shelter;
     parent.setShelterSlot(server, shelter);
     server.executeFuncForAllReadyClientsInRange((client) => {
       this.spawnSimpleConstruction(server, client, shelter);
@@ -992,8 +992,8 @@ export class ConstructionManager {
     BuildingSlot: string
   ): boolean {
     const parent =
-      server._constructionFoundations[parentObjectCharacterId] ||
-      server._constructionSimple[parentObjectCharacterId];
+      server._entities._constructionFoundations[parentObjectCharacterId] ||
+      server._entities._constructionSimple[parentObjectCharacterId];
     if (!Number(parentObjectCharacterId) || !parent) {
       this.placementError(server, client, ConstructionErrors.UNKNOWN_PARENT);
       return false;
@@ -1053,7 +1053,7 @@ export class ConstructionManager {
 
     parent.setWallSlot(server, wall);
 
-    server._constructionSimple[characterId] = wall;
+    server._entities._constructionSimple[characterId] = wall;
     server.executeFuncForAllReadyClientsInRange((client) => {
       this.spawnSimpleConstruction(server, client, wall);
     }, wall);
@@ -1069,7 +1069,7 @@ export class ConstructionManager {
     BuildingSlot: string
   ): boolean {
     const parentFoundation =
-      server._constructionFoundations[parentObjectCharacterId];
+      server._entities._constructionFoundations[parentObjectCharacterId];
     if (!Number(parentObjectCharacterId) || !parentFoundation) {
       this.placementError(server, client, ConstructionErrors.UNKNOWN_PARENT);
       return false;
@@ -1119,7 +1119,7 @@ export class ConstructionManager {
       );
 
     parentFoundation.setRampSlot(ramp);
-    server._constructionSimple[characterId] = ramp;
+    server._entities._constructionSimple[characterId] = ramp;
     server.executeFuncForAllReadyClientsInRange((client) => {
       this.spawnSimpleConstruction(server, client, ramp);
     }, ramp);
@@ -1136,7 +1136,7 @@ export class ConstructionManager {
     BuildingSlot: string
   ): boolean {
     const parentFoundation =
-      server._constructionFoundations[parentObjectCharacterId];
+      server._entities._constructionFoundations[parentObjectCharacterId];
     if (!Number(parentObjectCharacterId) || !parentFoundation) {
       this.placementError(server, client, ConstructionErrors.UNKNOWN_PARENT);
       return false;
@@ -1183,7 +1183,7 @@ export class ConstructionManager {
       );
 
     parentFoundation.setRampSlot(stairs);
-    server._constructionSimple[characterId] = stairs;
+    server._entities._constructionSimple[characterId] = stairs;
     server.executeFuncForAllReadyClientsInRange((client) => {
       this.spawnSimpleConstruction(server, client, stairs);
     }, stairs);
@@ -1199,8 +1199,8 @@ export class ConstructionManager {
     BuildingSlot: string
   ): boolean {
     const parent =
-      server._constructionFoundations[parentObjectCharacterId] ||
-      server._constructionSimple[parentObjectCharacterId];
+      server._entities._constructionFoundations[parentObjectCharacterId] ||
+      server._entities._constructionSimple[parentObjectCharacterId];
     if (!Number(parentObjectCharacterId) || !parent) {
       this.placementError(server, client, ConstructionErrors.UNKNOWN_PARENT);
       return false;
@@ -1246,7 +1246,7 @@ export class ConstructionManager {
 
     parent.setWallSlot(server, door);
 
-    server._constructionDoors[characterId] = door;
+    server._entities._constructionDoors[characterId] = door;
     server.executeFuncForAllReadyClientsInRange((client) => {
       this.spawnConstructionDoor(server, client, door);
     }, door);
@@ -1272,7 +1272,7 @@ export class ConstructionManager {
     }
     if (
       BuildingSlot &&
-      server._constructionFoundations[parentObjectCharacterId]
+      server._entities._constructionFoundations[parentObjectCharacterId]
         ?.occupiedExpansionSlots[getConstructionSlotId(BuildingSlot)]
     ) {
       this.placementError(server, client, ConstructionErrors.OVERLAP);
@@ -1280,7 +1280,7 @@ export class ConstructionManager {
     }
 
     const parentFoundation =
-      server._constructionFoundations[parentObjectCharacterId];
+      server._entities._constructionFoundations[parentObjectCharacterId];
     if (Number(parentObjectCharacterId) && !parentFoundation) {
       this.placementError(server, client, ConstructionErrors.UNKNOWN_PARENT);
       return false;
@@ -1346,7 +1346,7 @@ export class ConstructionManager {
       parentFoundation.setExpansionSlot(npc);
       npc.permissions = parentFoundation.permissions;
     }
-    server._constructionFoundations[characterId] = npc;
+    server._entities._constructionFoundations[characterId] = npc;
     server.executeFuncForAllReadyClientsInRange((client) => {
       this.spawnConstructionParent(server, client, npc);
     }, npc);
@@ -1371,7 +1371,7 @@ export class ConstructionManager {
         server
       );
     npc.setDespawnTimer(server, time);
-    server._temporaryObjects[characterId] = npc;
+    server._entities._temporaryObjects[characterId] = npc;
     server.spawnSimpleNpcForAllInRange(npc);
     return true;
   }
@@ -1400,7 +1400,7 @@ export class ConstructionManager {
       );
     //npc.arm(server);
     //temporarily disabled
-    server._traps[characterId] = npc;
+    server._entities._traps[characterId] = npc;
     server.spawnSimpleNpcForAllInRange(npc);
     return true;
   }
@@ -1429,7 +1429,7 @@ export class ConstructionManager {
       //npc.arm(server);
       //temporarily disabled
     }
-    server._explosives[characterId] = npc;
+    server._entities._explosives[characterId] = npc;
     server.spawnSimpleNpcForAllInRange(npc);
     return true;
   }
@@ -1475,10 +1475,10 @@ export class ConstructionManager {
 
     const parent = obj.getParent(server);
     if (parent) {
-      server._lootableConstruction[characterId] = obj;
+      server._entities._lootableConstruction[characterId] = obj;
       parent.addFreeplaceConstruction(obj);
     } else {
-      server._worldLootableConstruction[characterId] = obj;
+      server._entities._worldLootableConstruction[characterId] = obj;
     }
     obj.equipLoadout(server);
 
@@ -1532,10 +1532,10 @@ export class ConstructionManager {
 
     const parent = obj.getParent(server);
     if (parent) {
-      server._lootableConstruction[characterId] = obj;
+      server._entities._lootableConstruction[characterId] = obj;
       parent.addFreeplaceConstruction(obj);
     } else {
-      server._worldLootableConstruction[characterId] = obj;
+      server._entities._worldLootableConstruction[characterId] = obj;
     }
 
     obj.equipLoadout(server);
@@ -1575,10 +1575,10 @@ export class ConstructionManager {
 
     const parent = obj.getParent(server);
     if (parent) {
-      server._lootableConstruction[characterId] = obj;
+      server._entities._lootableConstruction[characterId] = obj;
       parent.addFreeplaceConstruction(obj);
     } else {
-      server._worldLootableConstruction[characterId] = obj;
+      server._entities._worldLootableConstruction[characterId] = obj;
     }
 
     obj.equipLoadout(server);
@@ -1619,7 +1619,7 @@ export class ConstructionManager {
       rotation,
       server
     );
-    server._temporaryObjects[characterId] = obj;
+    server._entities._temporaryObjects[characterId] = obj;
     server.spawnSimpleNpcForAllInRange(obj);
 
     return true;
@@ -1637,8 +1637,9 @@ export class ConstructionManager {
     if (!item) return false;
     const characterId = server.generateGuid(),
       transientId = server.getTransientId(characterId);
-    if (!server._temporaryObjects[parentObjectCharacterId]) return false;
-    const parent = server._temporaryObjects[
+    if (!server._entities._temporaryObjects[parentObjectCharacterId])
+      return false;
+    const parent = server._entities._temporaryObjects[
       parentObjectCharacterId
     ] as PlantingDiameter;
     if (parent.seedSlots[slot]) {
@@ -1658,7 +1659,7 @@ export class ConstructionManager {
       slot
     );
     parent.seedSlots[slot] = obj;
-    server._plants[characterId] = obj;
+    server._entities._plants[characterId] = obj;
     server.spawnSimpleNpcForAllInRange(obj);
     return true;
   }
@@ -1687,10 +1688,10 @@ export class ConstructionManager {
 
     const parent = construction.getParent(server);
     if (parent) {
-      server._constructionSimple[characterId] = construction;
+      server._entities._constructionSimple[characterId] = construction;
       parent.addFreeplaceConstruction(construction);
     } else {
-      server._worldSimpleConstruction[characterId] = construction;
+      server._entities._worldSimpleConstruction[characterId] = construction;
     }
     server.executeFuncForAllReadyClientsInRange((client) => {
       if (this.shouldHideEntity(server, client, construction)) {
@@ -1724,7 +1725,7 @@ export class ConstructionManager {
       ""
     );
 
-    server._worldLootableConstruction[characterId] = obj;
+    server._entities._worldLootableConstruction[characterId] = obj;
 
     obj.equipLoadout(server);
 
@@ -1810,24 +1811,34 @@ export class ConstructionManager {
     let allowed = false;
     if (!construction.isSecured) return false;
     let foundation: ConstructionParentEntity | undefined;
-    if (server._constructionFoundations[construction.parentObjectCharacterId]) {
-      foundation =
-        server._constructionFoundations[construction.parentObjectCharacterId];
-    } else if (
-      server._constructionSimple[construction.parentObjectCharacterId] &&
-      server._constructionFoundations[
-        server._constructionSimple[construction.parentObjectCharacterId]
-          .parentObjectCharacterId
+    if (
+      server._entities._constructionFoundations[
+        construction.parentObjectCharacterId
       ]
     ) {
       foundation =
-        server._constructionFoundations[
-          server._constructionSimple[construction.parentObjectCharacterId]
-            .parentObjectCharacterId
+        server._entities._constructionFoundations[
+          construction.parentObjectCharacterId
+        ];
+    } else if (
+      server._entities._constructionSimple[
+        construction.parentObjectCharacterId
+      ] &&
+      server._entities._constructionFoundations[
+        server._entities._constructionSimple[
+          construction.parentObjectCharacterId
+        ].parentObjectCharacterId
+      ]
+    ) {
+      foundation =
+        server._entities._constructionFoundations[
+          server._entities._constructionSimple[
+            construction.parentObjectCharacterId
+          ].parentObjectCharacterId
         ];
     } else {
-      for (const a in server._constructionFoundations) {
-        const b = server._constructionFoundations[a];
+      for (const a in server._entities._constructionFoundations) {
+        const b = server._entities._constructionFoundations[a];
         if (!b.isInside(construction.state.position)) continue;
         foundation = b;
       }
@@ -1997,8 +2008,8 @@ export class ConstructionManager {
     server: ZoneServer2016,
     tpDirection: number
   ) {
-    for (const a in server._constructionSimple) {
-      const simple = server._constructionSimple[a];
+    for (const a in server._entities._constructionSimple) {
+      const simple = server._entities._constructionSimple[a];
       const shelters = [
         Items.SHELTER,
         Items.SHELTER_LARGE,
@@ -2034,14 +2045,19 @@ export class ConstructionManager {
 
   plantManager(server: ZoneServer2016) {
     const date = new Date().getTime();
-    for (const characterId in server._temporaryObjects) {
-      const object = server._temporaryObjects[characterId] as PlantingDiameter;
+    for (const characterId in server._entities._temporaryObjects) {
+      const object = server._entities._temporaryObjects[
+        characterId
+      ] as PlantingDiameter;
       if (object instanceof PlantingDiameter) {
         if (
           object.disappearTimestamp < date &&
           Object.values(object.seedSlots).length === 0
         ) {
-          server.deleteEntity(object.characterId, server._temporaryObjects);
+          server.deleteEntity(
+            object.characterId,
+            server._entities._temporaryObjects
+          );
         } else if (object.disappearTimestamp < date)
           object.disappearTimestamp = date + 86400000;
         if (object.fertilizedTimestamp < date) object.isFertilized = false;
@@ -2230,8 +2246,8 @@ export class ConstructionManager {
   }
 
   /*spawnConstructionParentsInRange(server: ZoneServer2016, client: Client) { // put back into grid
-    for (const a in server._constructionFoundations) {
-      const foundation = server._constructionFoundations[a];
+    for (const a in server._entities._constructionFoundations) {
+      const foundation = server._entities._constructionFoundations[a];
       if (
         isPosInRadius(
           foundation.npcRenderDistance || server.charactersRenderDistance,
@@ -2381,8 +2397,8 @@ export class ConstructionManager {
    *
    */
   /*worldConstructionManager(server: ZoneServer2016, client: Client) {
-    for (const characterId in server._worldSimpleConstruction) {
-      const entity = server._worldSimpleConstruction[characterId];
+    for (const characterId in server._entities._worldSimpleConstruction) {
+      const entity = server._entities._worldSimpleConstruction[characterId];
       if (
         isPosInRadius(
           (entity.npcRenderDistance as number) ||
@@ -2394,8 +2410,8 @@ export class ConstructionManager {
         this.spawnSimpleConstruction(server, client, entity, false);
       }
     }
-    for (const characterId in server._worldLootableConstruction) {
-      const entity = server._worldLootableConstruction[characterId];
+    for (const characterId in server._entities._worldLootableConstruction) {
+      const entity = server._entities._worldLootableConstruction[characterId];
       if (
         isPosInRadius(
           (entity.npcRenderDistance as number) ||
