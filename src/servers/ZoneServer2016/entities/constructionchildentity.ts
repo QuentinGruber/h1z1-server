@@ -731,15 +731,23 @@ export class ConstructionChildEntity extends BaseLightweightCharacter {
     server.constructionManager.OnMeleeHit(server, damageInfo, this);
   }
 
-  OnExplosiveHit(server: ZoneServer2016, sourceEntity: BaseEntity, client?: ZoneClient2016) {
+  OnExplosiveHit(
+    server: ZoneServer2016,
+    sourceEntity: BaseEntity,
+    client?: ZoneClient2016
+  ) {
     if (
       this.itemDefinitionId == Items.FOUNDATION_RAMP ||
       this.itemDefinitionId == Items.FOUNDATION_STAIRS
-    ) return;
+    )
+      return;
 
-    const itemDefinitionId = (sourceEntity instanceof ExplosiveEntity) ? sourceEntity.itemDefinitionId : 0;
+    const itemDefinitionId =
+      sourceEntity instanceof ExplosiveEntity
+        ? sourceEntity.itemDefinitionId
+        : 0;
 
-    if(
+    if (
       server._worldSimpleConstruction[this.characterId] &&
       isPosInRadius(4, this.state.position, sourceEntity.state.position)
     ) {
@@ -751,38 +759,33 @@ export class ConstructionChildEntity extends BaseLightweightCharacter {
         this.state.position,
         itemDefinitionId
       );
+      return;
     }
 
     if (
-      isPosInRadius(
+      !isPosInRadius(
         this.damageRange * 1.5,
-        this.fixedPosition
-          ? this.fixedPosition
-          : this.state.position,
+        this.fixedPosition ? this.fixedPosition : this.state.position,
         sourceEntity.state.position
       )
     ) {
-      if (
-        server.constructionManager.isConstructionInSecuredArea(
-          server,
-          this
-        )
-      ) {
-        if (client) {
-          server.constructionManager.sendBaseSecuredMessage(server, client);
-        }
-      } else {
-        server.constructionManager.checkConstructionDamage(
-          server,
-          this,
-          server.baseConstructionDamage,
-          sourceEntity.state.position,
-          this.fixedPosition
-            ? this.fixedPosition
-            : this.state.position,
-          itemDefinitionId
-        );
-      }
+      return;
     }
+
+    if (server.constructionManager.isConstructionInSecuredArea(server, this)) {
+      if (!client) return;
+      server.constructionManager.sendBaseSecuredMessage(server, client);
+      
+      return;
+    }
+
+    server.constructionManager.checkConstructionDamage(
+      server,
+      this,
+      server.baseConstructionDamage,
+      sourceEntity.state.position,
+      this.fixedPosition ? this.fixedPosition : this.state.position,
+      itemDefinitionId
+    );
   }
 }

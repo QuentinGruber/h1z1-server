@@ -102,10 +102,7 @@ export class ExplosiveEntity extends BaseLightweightCharacter {
     this.detonated = true;
     server.sendCompositeEffectToAllInRange(600, "", this.state.position, 1875);
     server.deleteEntity(this.characterId, server._explosives);
-    server.explosionDamage(
-      this,
-      client
-    );
+    server.explosionDamage(this, client);
   }
 
   /** Used by landmines to arm their explosivenss */
@@ -159,9 +156,14 @@ export class ExplosiveEntity extends BaseLightweightCharacter {
     this.detonate(server, server.getClientByCharId(damageInfo.entity));
   }
 
-  async OnExplosiveHit(server: ZoneServer2016, sourceEntity: BaseEntity, client?: ZoneClient2016) {
+  async OnExplosiveHit(
+    server: ZoneServer2016,
+    sourceEntity: BaseEntity,
+    client?: ZoneClient2016
+  ) {
     if (this.characterId == sourceEntity.characterId) return;
-    if (getDistance(sourceEntity.state.position, this.state.position) >= 2) return;
+    if (getDistance(sourceEntity.state.position, this.state.position) >= 2)
+      return;
 
     await scheduler.wait(200);
     if (server._spawnedItems[this.characterId]) {

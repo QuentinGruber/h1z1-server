@@ -12,7 +12,12 @@
 // ======================================================================
 
 import { CubeBounds, DamageInfo, Point3D } from "types/zoneserver";
-import { getCubeBounds, getDistance, isInsideCube, isPosInRadius } from "../../../utils/utils";
+import {
+  getCubeBounds,
+  getDistance,
+  isInsideCube,
+  isPosInRadius
+} from "../../../utils/utils";
 import {
   Effects,
   Items,
@@ -440,8 +445,13 @@ export class TrapEntity extends BaseSimpleNpc {
     }
   }
 
-  OnExplosiveHit(server: ZoneServer2016, sourceEntity: BaseEntity, client?: ZoneClient2016) {
-    if (!isPosInRadius(5, this.state.position, sourceEntity.state.position)) return;
+  OnExplosiveHit(
+    server: ZoneServer2016,
+    sourceEntity: BaseEntity,
+    client?: ZoneClient2016
+  ) {
+    if (!isPosInRadius(5, this.state.position, sourceEntity.state.position))
+      return;
     this.destroy(server);
   }
 }

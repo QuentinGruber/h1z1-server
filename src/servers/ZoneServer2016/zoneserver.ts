@@ -2512,28 +2512,26 @@ export class ZoneServer2016 extends EventEmitter {
     }
   }
 
-  async explosionDamage(
-    sourceEntity: BaseEntity,
-    client?: Client
-  ) {
+  async explosionDamage(sourceEntity: BaseEntity, client?: Client) {
     // TODO: REDO THIS WITH AN OnExplosiveDamage method per class
 
     // TODO: REDO THIS WITH GRID CHUNK SYSTEM
 
     const sourceIsVehicle = sourceEntity instanceof Vehicle2016;
     const position = sourceEntity.state.position;
-    const itemDefinitionId = (sourceEntity instanceof ExplosiveEntity) ? sourceEntity.itemDefinitionId : 0;
+    const itemDefinitionId =
+      sourceEntity instanceof ExplosiveEntity
+        ? sourceEntity.itemDefinitionId
+        : 0;
 
-    if(!sourceEntity) return;
+    if (!sourceEntity) return;
 
     for (const gridCell of this._grid) {
-      if (
-        !isPosInRadius(400, gridCell.position, position)
-      ) {
+      if (!isPosInRadius(400, gridCell.position, position)) {
         continue;
       }
       for (const object of gridCell.objects) {
-        if(object instanceof ExplosiveEntity) {
+        if (object instanceof ExplosiveEntity) {
           await object.OnExplosiveHit(this, sourceEntity, client);
           continue;
         }
@@ -2541,9 +2539,10 @@ export class ZoneServer2016 extends EventEmitter {
         if (this.isPvE) continue;
 
         // temp if statement until all entities have this method
-        if(
+        if (
           object instanceof TrapEntity ||
-          object instanceof ConstructionChildEntity
+          object instanceof ConstructionChildEntity ||
+          object instanceof ConstructionDoor
         ) {
           object.OnExplosiveHit(this, sourceEntity, client);
         }
@@ -2577,7 +2576,10 @@ export class ZoneServer2016 extends EventEmitter {
           const distance = getDistance(position, vehicle.state.position);
           const damage = 250000 / distance;
           await scheduler.wait(150);
-          vehicle.damage(this, { entity: sourceEntity.characterId, damage: damage });
+          vehicle.damage(this, {
+            entity: sourceEntity.characterId,
+            damage: damage
+          });
         }
       }
     }
@@ -2624,8 +2626,8 @@ export class ZoneServer2016 extends EventEmitter {
       }
     }
     */
-    
 
+    /*
     for (const construction in this._constructionDoors) {
       const constructionObject = this._constructionDoors[
         construction
@@ -2661,7 +2663,7 @@ export class ZoneServer2016 extends EventEmitter {
           );
         }
       }
-    }
+    }*/
 
     for (const construction in this._constructionFoundations) {
       const constructionObject = this._constructionFoundations[
@@ -2748,7 +2750,6 @@ export class ZoneServer2016 extends EventEmitter {
       }
     }
     */
-    
   }
   createProjectileNpc(client: Client, data: any) {
     const fireHint = client.fireHints[data.projectileId];

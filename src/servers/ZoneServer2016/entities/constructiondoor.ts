@@ -22,10 +22,16 @@ import {
 import { ZoneServer2016 } from "../zoneserver";
 import { ZoneClient2016 } from "../classes/zoneclient";
 import { DamageInfo, OccupiedSlotMap } from "types/zoneserver";
-import { getConstructionSlotId, movePoint } from "../../../utils/utils";
+import {
+  getConstructionSlotId,
+  isPosInRadius,
+  movePoint
+} from "../../../utils/utils";
 import { ConstructionParentEntity } from "./constructionparententity";
 import { ConstructionChildEntity } from "./constructionchildentity";
 import { CUSTOM_PROFILES_IDS } from "../../../utils/enums";
+import { BaseEntity } from "./baseentity";
+import { ExplosiveEntity } from "./explosiveentity";
 function getDamageRange(definitionId: number): number {
   switch (definitionId) {
     case Items.METAL_GATE:
@@ -395,5 +401,41 @@ export class ConstructionDoor extends DoorEntity {
 
   OnMeleeHit(server: ZoneServer2016, damageInfo: DamageInfo) {
     server.constructionManager.OnMeleeHit(server, damageInfo, this);
+  }
+
+  OnExplosiveHit(
+    server: ZoneServer2016,
+    sourceEntity: BaseEntity,
+    client?: ZoneClient2016
+  ) {
+    const itemDefinitionId =
+      sourceEntity instanceof ExplosiveEntity
+        ? sourceEntity.itemDefinitionId
+        : 0;
+
+    if (
+      !isPosInRadius(
+        this.damageRange,
+        this.fixedPosition ? this.fixedPosition : this.state.position,
+        sourceEntity.state.position
+      )
+    ) {
+      return;
+    }
+
+    if (server.constructionManager.isConstructionInSecuredArea(server, this)) {
+      if (!client) return;
+      server.constructionManager.sendBaseSecuredMessage(server, client);
+      
+      return;
+    }
+    server.constructionManager.checkConstructionDamage(
+      server,
+      this,
+      server.baseConstructionDamage,
+      sourceEntity.state.position,
+      this.fixedPosition ? this.fixedPosition : this.state.position,
+      itemDefinitionId
+    );
   }
 }
