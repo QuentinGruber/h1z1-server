@@ -515,7 +515,7 @@ export class ZoneServer2016 extends EventEmitter {
     if (!this._mongoAddress) {
       this._soloMode = true;
       this.fairPlayManager.useFairPlay = false;
-      debug("Server in solo mode !");
+      console.log("Server in solo mode !");
     }
 
     this.accountInventoriesManager = new AccountInventoryManager(this);
