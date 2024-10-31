@@ -2210,18 +2210,20 @@ export class ZoneServer2016 extends EventEmitter {
 
       clearTimeout(client.character?.resourcesUpdater);
       try {
-const characterSave = WorldDataManager.convertToCharacterSaveData(
-        client.character,
-        this._worldId
-      );
-      if (this.enableWorldSaves) {
-        if (this._soloMode) {
-          await this.saveWorld();
-        } else {
-          await this.worldDataManager.saveCharacterData(
-
+        const characterSave = WorldDataManager.convertToCharacterSaveData(
+          client.character,
+          this._worldId
+        );
+        if (this.enableWorldSaves) {
+          if (this._soloMode) {
+            await this.saveWorld();
+          } else {
+            await this.worldDataManager.saveCharacterData(
+              characterSave,
+              this.lastItemGuid
+            );
+          }
         }
-      }
       } catch (e) {
         console.error("Failed to save a character");
         console.error(e);
