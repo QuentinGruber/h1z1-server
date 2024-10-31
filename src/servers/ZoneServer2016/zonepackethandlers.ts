@@ -1479,10 +1479,10 @@ export class ZonePacketHandlers {
     if (flags & 2) {
       if (!client.characterReleased) client.characterReleased = true;
 
-      if (client.movementSet.size < ZoneClient2016.minMovementForAfk) {
-        const movementId = Math.round(position[0]) + Math.round(position[2]);
-        client.movementSet.add(movementId);
-      }
+      // if (client.movementSet.size < ZoneClient2016.minMovementForAfk) {
+      //   const movementId = Math.round(position[0]) + Math.round(position[2]);
+      //   client.movementSet.add(movementId);
+      // }
 
       // skip fairplay for performance test
 
