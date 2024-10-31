@@ -1482,7 +1482,6 @@ export class ZonePacketHandlers {
       if (client.movementSet.size < ZoneClient2016.minMovementForAfk) {
         const movementId = Math.round(position[0]) + Math.round(position[2]);
         client.movementSet.add(movementId);
-        console.log(client.movementSet.size);
       }
 
       // skip fairplay for performance test
