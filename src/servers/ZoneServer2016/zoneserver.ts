@@ -2513,240 +2513,235 @@ export class ZoneServer2016 extends EventEmitter {
   }
 
   async explosionDamage(
-    position: Float32Array,
-    npcTriggered: string,
-    itemDefinitionId: number,
+    sourceEntity: BaseEntity,
     client?: Client
   ) {
     // TODO: REDO THIS WITH AN OnExplosiveDamage method per class
 
     // TODO: REDO THIS WITH GRID CHUNK SYSTEM
 
-    const sourceEntity = this.getEntity(npcTriggered),
-      sourceIsVehicle = sourceEntity instanceof Vehicle2016;
+    const sourceIsVehicle = sourceEntity instanceof Vehicle2016;
+    const position = sourceEntity.state.position;
+    const itemDefinitionId = (sourceEntity instanceof ExplosiveEntity) ? sourceEntity.itemDefinitionId : 0;
 
-    // explode nearby explosives first
-    for (const explosive in this._explosives) {
-      const explosiveObj = this._explosives[explosive];
-      if (explosiveObj.characterId != npcTriggered) {
-        if (getDistance(position, explosiveObj.state.position) < 2) {
-          await scheduler.wait(150);
-          if (this._spawnedItems[explosiveObj.characterId]) {
-            const object = this._spawnedItems[explosiveObj.characterId];
-            this.deleteEntity(explosiveObj.characterId, this._spawnedItems);
-            delete this.worldObjectManager.spawnedLootObjects[object.spawnerId];
-          }
-          if (!explosiveObj.detonated) {
-            explosiveObj.detonate(this, client);
-            break;
-          }
+    if(!sourceEntity) return;
+
+    for (const gridCell of this._grid) {
+      if (
+        !isPosInRadius(400, gridCell.position, position)
+      ) {
+        continue;
+      }
+      for (const object of gridCell.objects) {
+        if(object instanceof ExplosiveEntity) {
+          await object.OnExplosiveHit(this, sourceEntity, client);
+          continue;
+        }
+
+        if (this.isPvE) continue;
+
+        // temp if statement until all entities have this method
+        if(object instanceof TrapEntity) {
+          object.OnExplosiveHit(this, sourceEntity, client);
         }
       }
     }
 
-    if (!this.isPvE) {
-      for (const characterId in this._characters) {
-        const character = this._characters[characterId];
-        if (
-          isPosInRadiusWithY(
-            sourceIsVehicle ? 5 : 3,
-            character.state.position,
-            position,
-            1.5
-          )
-        ) {
-          const distance = getDistance(position, character.state.position);
-          const damage = 50000 / distance;
-          character.damage(this, {
-            entity: npcTriggered,
-            damage: damage
-          });
-        }
-      }
-      for (const vehicleKey in this._vehicles) {
-        const vehicle = this._vehicles[vehicleKey];
-        if (vehicle.characterId != npcTriggered) {
-          if (isPosInRadius(5, vehicle.state.position, position)) {
-            const distance = getDistance(position, vehicle.state.position);
-            const damage = 250000 / distance;
-            await scheduler.wait(150);
-            vehicle.damage(this, { entity: npcTriggered, damage: damage });
-          }
-        }
-      }
+    if (this.isPvE) return;
 
-      for (const trapKey in this._traps) {
-        const trap = this._traps[trapKey];
-        if (!trap) continue;
-        if (isPosInRadius(5, trap.state.position, position)) {
-          trap.destroy(this);
-        }
-      }
-
-      for (const construction in this._constructionSimple) {
-        const constructionObject = this._constructionSimple[construction];
-        if (
-          constructionObject.itemDefinitionId == Items.FOUNDATION_RAMP ||
-          constructionObject.itemDefinitionId == Items.FOUNDATION_STAIRS
+    for (const characterId in this._characters) {
+      const character = this._characters[characterId];
+      if (
+        isPosInRadiusWithY(
+          sourceIsVehicle ? 5 : 3,
+          character.state.position,
+          position,
+          1.5
         )
+      ) {
+        const distance = getDistance(position, character.state.position);
+        const damage = 50000 / distance;
+        character.damage(this, {
+          entity: sourceEntity.characterId,
+          damage: damage
+        });
+      }
+    }
+    for (const vehicleKey in this._vehicles) {
+      const vehicle = this._vehicles[vehicleKey];
+      if (vehicle.characterId != sourceEntity.characterId) {
+        if (isPosInRadius(5, vehicle.state.position, position)) {
+          const distance = getDistance(position, vehicle.state.position);
+          const damage = 250000 / distance;
+          await scheduler.wait(150);
+          vehicle.damage(this, { entity: sourceEntity.characterId, damage: damage });
+        }
+      }
+    }
+
+    for (const construction in this._constructionSimple) {
+      const constructionObject = this._constructionSimple[construction];
+      if (
+        constructionObject.itemDefinitionId == Items.FOUNDATION_RAMP ||
+        constructionObject.itemDefinitionId == Items.FOUNDATION_STAIRS
+      )
+        continue;
+      if (
+        isPosInRadius(
+          constructionObject.damageRange * 1.5,
+          constructionObject.fixedPosition
+            ? constructionObject.fixedPosition
+            : constructionObject.state.position,
+          position
+        )
+      ) {
+        if (
+          this.constructionManager.isConstructionInSecuredArea(
+            this,
+            constructionObject
+          )
+        ) {
+          if (client) {
+            this.constructionManager.sendBaseSecuredMessage(this, client);
+          }
+        } else {
+          this.constructionManager.checkConstructionDamage(
+            this,
+            constructionObject.characterId,
+            this.baseConstructionDamage,
+            this._constructionSimple,
+            position,
+            constructionObject.fixedPosition
+              ? constructionObject.fixedPosition
+              : constructionObject.state.position,
+            itemDefinitionId
+          );
+        }
+      }
+    }
+
+    for (const construction in this._constructionDoors) {
+      const constructionObject = this._constructionDoors[
+        construction
+      ] as ConstructionDoor;
+      if (
+        isPosInRadius(
+          constructionObject.damageRange,
+          constructionObject.fixedPosition
+            ? constructionObject.fixedPosition
+            : constructionObject.state.position,
+          position
+        )
+      ) {
+        if (
+          this.constructionManager.isConstructionInSecuredArea(
+            this,
+            constructionObject
+          )
+        ) {
+          if (client) {
+            this.constructionManager.sendBaseSecuredMessage(this, client);
+          }
+        } else {
+          this.constructionManager.checkConstructionDamage(
+            this,
+            constructionObject.characterId,
+            this.baseConstructionDamage,
+            this._constructionDoors,
+            position,
+            constructionObject.fixedPosition
+              ? constructionObject.fixedPosition
+              : constructionObject.state.position,
+            itemDefinitionId
+          );
+        }
+      }
+    }
+
+    for (const construction in this._constructionFoundations) {
+      const constructionObject = this._constructionFoundations[
+        construction
+      ] as ConstructionParentEntity;
+      if (
+        isPosInRadius(
+          constructionObject.damageRange * 1.5,
+          constructionObject.state.position,
+          position
+        )
+      ) {
+        switch (constructionObject.itemDefinitionId) {
+          case Items.SHACK:
+          case Items.SHACK_SMALL:
+          case Items.SHACK_BASIC:
+            this.constructionManager.checkConstructionDamage(
+              this,
+              constructionObject.characterId,
+              this.baseConstructionDamage,
+              this._constructionFoundations,
+              position,
+              constructionObject.state.position,
+              itemDefinitionId
+            );
+            break;
+        }
+      }
+    }
+
+    for (const construction in this._lootableConstruction) {
+      const constructionObject = this._lootableConstruction[
+        construction
+      ] as LootableConstructionEntity;
+      if (isPosInRadius(2, constructionObject.state.position, position)) {
+        const parent = constructionObject.getParent(this);
+        if (parent && parent.isSecured) {
+          if (client) {
+            this.constructionManager.sendBaseSecuredMessage(this, client);
+          }
           continue;
-        if (
-          isPosInRadius(
-            constructionObject.damageRange * 1.5,
-            constructionObject.fixedPosition
-              ? constructionObject.fixedPosition
-              : constructionObject.state.position,
-            position
-          )
-        ) {
-          if (
-            this.constructionManager.isConstructionInSecuredArea(
-              this,
-              constructionObject
-            )
-          ) {
-            if (client) {
-              this.constructionManager.sendBaseSecuredMessage(this, client);
-            }
-          } else {
-            this.constructionManager.checkConstructionDamage(
-              this,
-              constructionObject.characterId,
-              this.baseConstructionDamage,
-              this._constructionSimple,
-              position,
-              constructionObject.fixedPosition
-                ? constructionObject.fixedPosition
-                : constructionObject.state.position,
-              itemDefinitionId
-            );
-          }
         }
+        this.constructionManager.checkConstructionDamage(
+          this,
+          constructionObject.characterId,
+          this.baseConstructionDamage,
+          this._lootableConstruction,
+          position,
+          constructionObject.state.position,
+          itemDefinitionId
+        );
       }
+    }
 
-      for (const construction in this._constructionDoors) {
-        const constructionObject = this._constructionDoors[
-          construction
-        ] as ConstructionDoor;
-        if (
-          isPosInRadius(
-            constructionObject.damageRange,
-            constructionObject.fixedPosition
-              ? constructionObject.fixedPosition
-              : constructionObject.state.position,
-            position
-          )
-        ) {
-          if (
-            this.constructionManager.isConstructionInSecuredArea(
-              this,
-              constructionObject
-            )
-          ) {
-            if (client) {
-              this.constructionManager.sendBaseSecuredMessage(this, client);
-            }
-          } else {
-            this.constructionManager.checkConstructionDamage(
-              this,
-              constructionObject.characterId,
-              this.baseConstructionDamage,
-              this._constructionDoors,
-              position,
-              constructionObject.fixedPosition
-                ? constructionObject.fixedPosition
-                : constructionObject.state.position,
-              itemDefinitionId
-            );
-          }
-        }
+    for (const construction in this._worldLootableConstruction) {
+      const constructionObject = this._worldLootableConstruction[
+        construction
+      ] as LootableConstructionEntity;
+      if (isPosInRadius(2, constructionObject.state.position, position)) {
+        this.constructionManager.checkConstructionDamage(
+          this,
+          constructionObject.characterId,
+          this.baseConstructionDamage,
+          this._worldLootableConstruction,
+          position,
+          constructionObject.state.position,
+          itemDefinitionId
+        );
       }
+    }
 
-      for (const construction in this._constructionFoundations) {
-        const constructionObject = this._constructionFoundations[
-          construction
-        ] as ConstructionParentEntity;
-        if (
-          isPosInRadius(
-            constructionObject.damageRange * 1.5,
-            constructionObject.state.position,
-            position
-          )
-        ) {
-          switch (constructionObject.itemDefinitionId) {
-            case Items.SHACK:
-            case Items.SHACK_SMALL:
-            case Items.SHACK_BASIC:
-              this.constructionManager.checkConstructionDamage(
-                this,
-                constructionObject.characterId,
-                this.baseConstructionDamage,
-                this._constructionFoundations,
-                position,
-                constructionObject.state.position,
-                itemDefinitionId
-              );
-              break;
-          }
-        }
-      }
-
-      for (const construction in this._lootableConstruction) {
-        const constructionObject = this._lootableConstruction[
-          construction
-        ] as LootableConstructionEntity;
-        if (isPosInRadius(2, constructionObject.state.position, position)) {
-          const parent = constructionObject.getParent(this);
-          if (parent && parent.isSecured) {
-            if (client) {
-              this.constructionManager.sendBaseSecuredMessage(this, client);
-            }
-            continue;
-          }
-          this.constructionManager.checkConstructionDamage(
-            this,
-            constructionObject.characterId,
-            this.baseConstructionDamage,
-            this._lootableConstruction,
-            position,
-            constructionObject.state.position,
-            itemDefinitionId
-          );
-        }
-      }
-
-      for (const construction in this._worldLootableConstruction) {
-        const constructionObject = this._worldLootableConstruction[
-          construction
-        ] as LootableConstructionEntity;
-        if (isPosInRadius(2, constructionObject.state.position, position)) {
-          this.constructionManager.checkConstructionDamage(
-            this,
-            constructionObject.characterId,
-            this.baseConstructionDamage,
-            this._worldLootableConstruction,
-            position,
-            constructionObject.state.position,
-            itemDefinitionId
-          );
-        }
-      }
-
-      for (const construction in this._worldSimpleConstruction) {
-        const constructionObject = this._worldSimpleConstruction[
-          construction
-        ] as ConstructionChildEntity;
-        if (isPosInRadius(4, constructionObject.state.position, position)) {
-          this.constructionManager.checkConstructionDamage(
-            this,
-            constructionObject.characterId,
-            this.baseConstructionDamage,
-            this._worldSimpleConstruction,
-            position,
-            constructionObject.state.position,
-            itemDefinitionId
-          );
-        }
+    for (const construction in this._worldSimpleConstruction) {
+      const constructionObject = this._worldSimpleConstruction[
+        construction
+      ] as ConstructionChildEntity;
+      if (isPosInRadius(4, constructionObject.state.position, position)) {
+        this.constructionManager.checkConstructionDamage(
+          this,
+          constructionObject.characterId,
+          this.baseConstructionDamage,
+          this._worldSimpleConstruction,
+          position,
+          constructionObject.state.position,
+          itemDefinitionId
+        );
       }
     }
   }
