@@ -2612,7 +2612,7 @@ export const basePackets: PacketStructures = [
     0x4f,
     {
       fields: [
-        { name: "unknownDword1", type: "uint32", defaultValue: 0 },
+        { name: "unknownBoolean1", type: "boolean", defaultValue: true },
         { name: "sessionToken", type: "string", defaultValue: "" }
       ]
     }
