@@ -142,6 +142,7 @@ export class ZoneClient2016 {
     if (this.movementSet.size < ZoneClient2016.minMovementForAfk) {
       if (this.gotAfkWarning) {
         server.kickPlayer(this);
+        return;
       }
       server.sendAlert(this, "You will be kicked soon for AFK");
       this.gotAfkWarning = true;
