@@ -413,11 +413,11 @@ export class ZonePacketHandlers {
             });
         }
 
-        if (!server._soloMode) {
-          client.afkTimer = setInterval(() => {
-            client.afk(server);
-          }, ZoneClient2016.afkTime);
-        }
+        // if (!server._soloMode) {
+        //   client.afkTimer = setInterval(() => {
+        //     client.afk(server);
+        //   }, ZoneClient2016.afkTime);
+        // }
       }, 10000);
       if (client.banType != "") {
         server.sendChatTextToAdmins(
