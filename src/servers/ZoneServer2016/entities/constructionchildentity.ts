@@ -42,7 +42,7 @@ function getRenderDistance(itemDefinitionId: number) {
       range = 20;
       break;
     default:
-      range = 300;
+      range = 420;
       break;
   }
   return range;
