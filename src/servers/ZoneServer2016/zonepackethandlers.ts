@@ -13,7 +13,6 @@
 
 /* eslint-disable @typescript-eslint/no-unused-vars */
 // TODO enable @typescript-eslint/no-unused-vars
-import fs from "fs";
 import { ZoneClient2016 as Client } from "./classes/zoneclient";
 import { ZoneServer2016 } from "./zoneserver";
 const debug = require("debug")("ZoneServer");
@@ -141,6 +140,7 @@ import {
 } from "types/zone2016packets";
 import { VehicleCurrentMoveMode } from "types/zone2015packets";
 import {
+  AccountItem,
   ClientBan,
   ConstructionPermissions,
   DamageInfo,
@@ -3530,35 +3530,52 @@ export class ZonePacketHandlers {
       }
     }
 
-    const itemsNeeded = rarity === 6 ? 4 : 5;
-
+    const itemsNeeded = rarity == 6 ? 4 : 5;
     if (itemCount < itemsNeeded) return;
-
     const itemsRemoved = await (async (): Promise<boolean> => {
-      for (const item of packet.data.items as GrinderItem[]) {
-        const inventoryItem =
-          await server.accountInventoriesManager.getAccountItem(
-            client.loginSessionId,
-            item.itemDefinitionId
-          );
-        if (!inventoryItem) return false;
-        const result = server.removeAccountItem(
-          client.character,
-          inventoryItem
-        );
-        if (!result) {
-          return false;
+      const removedItems: { item: AccountItem }[] = [];
+      try {
+        for (const item of packet.data.items as GrinderItem[]) {
+          let remainingCount = item.count;
+          while (remainingCount > 0) {
+            const inventoryItem =
+              await server.accountInventoriesManager.getAccountItem(
+                client.loginSessionId,
+                item.itemDefinitionId
+              );
+            if (!inventoryItem) return false;
+            if (inventoryItem.stackCount < remainingCount) {
+              removedItems.push({ item: inventoryItem });
+              remainingCount -= inventoryItem.stackCount;
+              const partialResult = server.removeAccountItem(
+                client.character,
+                inventoryItem
+              );
+              if (!partialResult) return false;
+            } else {
+              removedItems.push({ item: inventoryItem });
+              const result = server.removeAccountItem(
+                client.character,
+                inventoryItem
+              );
+              if (!result) if (!result) throw new Error("Final removal failed");
+              remainingCount = 0;
+            }
+          }
         }
+        return true;
+      } catch (error) {
+        for (const removed of removedItems) {
+          await server.lootAccountItem(server, client, removed.item, false);
+        }
+        debug("Error occurred during item removal. Rollback completed:", error);
+        return false;
       }
-      return true;
     })();
-
-    // TODO: Fix items that are not stacked
     if (itemsRemoved) {
       const higherRarityItems = Object.values(server._itemDefinitions).filter(
         (item) =>
-          item.RARITY === rarity + 1 &&
-          item.CODE_FACTORY_NAME == "AccountRecipe"
+          item.RARITY == rarity + 1 && item.CODE_FACTORY_NAME == "AccountRecipe"
       );
 
       if (higherRarityItems.length > 0) {
