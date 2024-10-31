@@ -2541,7 +2541,10 @@ export class ZoneServer2016 extends EventEmitter {
         if (this.isPvE) continue;
 
         // temp if statement until all entities have this method
-        if(object instanceof TrapEntity) {
+        if(
+          object instanceof TrapEntity ||
+          object instanceof ConstructionChildEntity
+        ) {
           object.OnExplosiveHit(this, sourceEntity, client);
         }
       }
@@ -2579,6 +2582,7 @@ export class ZoneServer2016 extends EventEmitter {
       }
     }
 
+    /*    
     for (const construction in this._constructionSimple) {
       const constructionObject = this._constructionSimple[construction];
       if (
@@ -2607,7 +2611,7 @@ export class ZoneServer2016 extends EventEmitter {
         } else {
           this.constructionManager.checkConstructionDamage(
             this,
-            constructionObject.characterId,
+            constructionObject,
             this.baseConstructionDamage,
             this._constructionSimple,
             position,
@@ -2619,6 +2623,8 @@ export class ZoneServer2016 extends EventEmitter {
         }
       }
     }
+    */
+    
 
     for (const construction in this._constructionDoors) {
       const constructionObject = this._constructionDoors[
@@ -2645,9 +2651,8 @@ export class ZoneServer2016 extends EventEmitter {
         } else {
           this.constructionManager.checkConstructionDamage(
             this,
-            constructionObject.characterId,
+            constructionObject,
             this.baseConstructionDamage,
-            this._constructionDoors,
             position,
             constructionObject.fixedPosition
               ? constructionObject.fixedPosition
@@ -2675,9 +2680,8 @@ export class ZoneServer2016 extends EventEmitter {
           case Items.SHACK_BASIC:
             this.constructionManager.checkConstructionDamage(
               this,
-              constructionObject.characterId,
+              constructionObject,
               this.baseConstructionDamage,
-              this._constructionFoundations,
               position,
               constructionObject.state.position,
               itemDefinitionId
@@ -2701,9 +2705,8 @@ export class ZoneServer2016 extends EventEmitter {
         }
         this.constructionManager.checkConstructionDamage(
           this,
-          constructionObject.characterId,
+          constructionObject,
           this.baseConstructionDamage,
-          this._lootableConstruction,
           position,
           constructionObject.state.position,
           itemDefinitionId
@@ -2718,9 +2721,8 @@ export class ZoneServer2016 extends EventEmitter {
       if (isPosInRadius(2, constructionObject.state.position, position)) {
         this.constructionManager.checkConstructionDamage(
           this,
-          constructionObject.characterId,
+          constructionObject,
           this.baseConstructionDamage,
-          this._worldLootableConstruction,
           position,
           constructionObject.state.position,
           itemDefinitionId
@@ -2728,6 +2730,7 @@ export class ZoneServer2016 extends EventEmitter {
       }
     }
 
+    /*
     for (const construction in this._worldSimpleConstruction) {
       const constructionObject = this._worldSimpleConstruction[
         construction
@@ -2735,7 +2738,7 @@ export class ZoneServer2016 extends EventEmitter {
       if (isPosInRadius(4, constructionObject.state.position, position)) {
         this.constructionManager.checkConstructionDamage(
           this,
-          constructionObject.characterId,
+          constructionObject,
           this.baseConstructionDamage,
           this._worldSimpleConstruction,
           position,
@@ -2744,6 +2747,8 @@ export class ZoneServer2016 extends EventEmitter {
         );
       }
     }
+    */
+    
   }
   createProjectileNpc(client: Client, data: any) {
     const fireHint = client.fireHints[data.projectileId];

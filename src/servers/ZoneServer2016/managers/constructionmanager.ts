@@ -2709,9 +2709,8 @@ export class ConstructionManager {
 
   checkConstructionDamage(
     server: ZoneServer2016,
-    constructionCharId: string,
+    constructionObject: ConstructionEntity,
     damage: number,
-    dictionary: EntityDictionary<ConstructionEntity>,
     position: Float32Array,
     entityPosition: Float32Array,
     itemDefinitionId: number
@@ -2731,8 +2730,7 @@ export class ConstructionManager {
         break;
     }
 
-    const constructionObject = dictionary[constructionCharId],
-      distance = getDistance(entityPosition, position);
+    const distance = getDistance(entityPosition, position);
 
     constructionObject.damage(server, {
       entity: "",
