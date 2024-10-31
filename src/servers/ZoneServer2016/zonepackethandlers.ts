@@ -3572,6 +3572,7 @@ export class ZonePacketHandlers {
         return false;
       }
     })();
+    const responseItems = [];
     if (itemsRemoved) {
       const higherRarityItems = Object.values(server._itemDefinitions).filter(
         (item) =>
@@ -3585,20 +3586,20 @@ export class ZonePacketHandlers {
           ];
         const item = server.generateItem(itemDef.ID, 1, true);
         server.lootAccountItem(server, client, item, false);
-        server.sendData<GrinderExchangeResponse>(
-          client,
-          "Grinder.ExchangeResponse",
-          {
-            items: [
-              {
-                itemDefinitionId: item?.itemDefinitionId || itemDef.ID || 0,
-                count: 1
-              }
-            ]
-          }
-        );
+        responseItems.push({
+          itemDefinitionId: item?.itemDefinitionId || itemDef.ID || 0,
+          count: 1
+        });
       }
     }
+
+    server.sendData<GrinderExchangeResponse>(
+      client,
+      "Grinder.ExchangeResponse",
+      {
+        items: responseItems
+      }
+    );
   }
 
   processPacket(
