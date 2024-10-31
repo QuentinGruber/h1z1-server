@@ -19,7 +19,8 @@ import {
   getConstructionSlotId,
   registerConstructionSlots,
   getCubeBounds,
-  isInsideCube
+  isInsideCube,
+  isPosInRadius
 } from "../../../utils/utils";
 import { ZoneClient2016 } from "../classes/zoneclient";
 import {
@@ -37,6 +38,8 @@ import {
   shelterSlotDefinitions,
   wallSlotDefinitions
 } from "../data/constructionslots";
+import { BaseEntity } from "./baseentity";
+import { ExplosiveEntity } from "./explosiveentity";
 
 function getDamageRange(definitionId: number): number {
   switch (definitionId) {
@@ -988,5 +991,39 @@ export class ConstructionParentEntity extends ConstructionChildEntity {
 
     if (this.health > 0) return;
     this.destroy(server, 3000);
+  }
+
+  OnExplosiveHit(
+    server: ZoneServer2016,
+    sourceEntity: BaseEntity,
+    client?: ZoneClient2016
+  ) {
+    if (
+      !isPosInRadius(
+        this.damageRange * 1.5,
+        this.state.position,
+        sourceEntity.state.position
+      )
+    )
+      return;
+
+    const itemDefinitionId =
+      sourceEntity instanceof ExplosiveEntity
+        ? sourceEntity.itemDefinitionId
+        : 0;
+
+    switch (this.itemDefinitionId) {
+      case Items.SHACK:
+      case Items.SHACK_SMALL:
+      case Items.SHACK_BASIC:
+        server.constructionManager.checkConstructionDamage(
+          server,
+          this,
+          server.baseConstructionDamage,
+          sourceEntity.state.position,
+          this.state.position,
+          itemDefinitionId
+        );
+    }
   }
 }

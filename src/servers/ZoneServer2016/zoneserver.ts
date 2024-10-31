@@ -2526,6 +2526,8 @@ export class ZoneServer2016 extends EventEmitter {
 
     if (!sourceEntity) return;
 
+    // render distance is max client.chunkRenderDistance, could probably be lowered a lot
+    // - meme
     for (const gridCell of this._grid) {
       if (!isPosInRadius(400, gridCell.position, position)) {
         continue;
@@ -2542,7 +2544,9 @@ export class ZoneServer2016 extends EventEmitter {
         if (
           object instanceof TrapEntity ||
           object instanceof ConstructionChildEntity ||
-          object instanceof ConstructionDoor
+          object instanceof ConstructionDoor ||
+          object instanceof LootableConstructionEntity ||
+          object instanceof ConstructionParentEntity
         ) {
           object.OnExplosiveHit(this, sourceEntity, client);
         }
@@ -2665,6 +2669,7 @@ export class ZoneServer2016 extends EventEmitter {
       }
     }*/
 
+    /*
     for (const construction in this._constructionFoundations) {
       const constructionObject = this._constructionFoundations[
         construction
@@ -2691,7 +2696,7 @@ export class ZoneServer2016 extends EventEmitter {
             break;
         }
       }
-    }
+    }*/
 
     /*
     for (const construction in this._lootableConstruction) {
