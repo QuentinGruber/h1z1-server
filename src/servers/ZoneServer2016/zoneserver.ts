@@ -2693,6 +2693,7 @@ export class ZoneServer2016 extends EventEmitter {
       }
     }
 
+    /*
     for (const construction in this._lootableConstruction) {
       const constructionObject = this._lootableConstruction[
         construction
@@ -2730,7 +2731,7 @@ export class ZoneServer2016 extends EventEmitter {
           itemDefinitionId
         );
       }
-    }
+    }*/
 
     /*
     for (const construction in this._worldSimpleConstruction) {

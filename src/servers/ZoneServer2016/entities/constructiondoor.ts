@@ -426,7 +426,7 @@ export class ConstructionDoor extends DoorEntity {
     if (server.constructionManager.isConstructionInSecuredArea(server, this)) {
       if (!client) return;
       server.constructionManager.sendBaseSecuredMessage(server, client);
-      
+
       return;
     }
     server.constructionManager.checkConstructionDamage(

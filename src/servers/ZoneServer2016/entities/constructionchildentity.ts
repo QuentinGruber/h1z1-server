@@ -775,7 +775,7 @@ export class ConstructionChildEntity extends BaseLightweightCharacter {
     if (server.constructionManager.isConstructionInSecuredArea(server, this)) {
       if (!client) return;
       server.constructionManager.sendBaseSecuredMessage(server, client);
-      
+
       return;
     }
 

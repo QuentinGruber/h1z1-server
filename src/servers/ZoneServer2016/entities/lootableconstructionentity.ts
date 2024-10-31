@@ -30,6 +30,9 @@ import { CollectingEntity } from "../classes/collectingentity";
 import { EXTERNAL_CONTAINER_GUID } from "../../../utils/constants";
 import { CharacterPlayWorldCompositeEffect } from "types/zone2016packets";
 import { scheduler } from "timers/promises";
+import { BaseEntity } from "./baseentity";
+import { isPosInRadius } from "utils/utils";
+import { ExplosiveEntity } from "./explosiveentity";
 
 function getMaxHealth(itemDefinitionId: Items): number {
   switch (itemDefinitionId) {
@@ -351,5 +354,47 @@ export class LootableConstructionEntity extends BaseLootableEntity {
     // 26 308 shots for freeplaced objects, 13 for parented objects
     const damage = damageInfo.damage * (3 * freePlaceDmgMultiplier);
     this.damage(server, { ...damageInfo, damage });
+  }
+
+  OnExplosiveHit(
+    server: ZoneServer2016,
+    sourceEntity: BaseEntity,
+    client?: ZoneClient2016
+  ) {
+    if (!isPosInRadius(2, this.state.position, sourceEntity.state.position))
+      return;
+
+    const itemDefinitionId =
+      sourceEntity instanceof ExplosiveEntity
+        ? sourceEntity.itemDefinitionId
+        : 0;
+
+    if (server._worldLootableConstruction[this.characterId]) {
+      server.constructionManager.checkConstructionDamage(
+        server,
+        this,
+        server.baseConstructionDamage,
+        sourceEntity.state.position,
+        this.state.position,
+        itemDefinitionId
+      );
+      return;
+    }
+
+    const parent = this.getParent(server);
+    if (parent && parent.isSecured) {
+      if (!client) return;
+      server.constructionManager.sendBaseSecuredMessage(server, client);
+
+      return;
+    }
+    server.constructionManager.checkConstructionDamage(
+      server,
+      this,
+      server.baseConstructionDamage,
+      sourceEntity.state.position,
+      this.state.position,
+      itemDefinitionId
+    );
   }
 }
