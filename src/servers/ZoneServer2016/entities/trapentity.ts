@@ -29,7 +29,6 @@ import {
 import { ZoneServer2016 } from "../zoneserver";
 import { BaseSimpleNpc } from "./basesimplenpc";
 import { BaseEntity } from "./baseentity";
-import { ZoneClient2016 } from "../classes/zoneclient";
 
 export class TrapEntity extends BaseSimpleNpc {
   /** Damage delay for the TrapEntity */

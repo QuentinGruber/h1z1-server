@@ -1835,10 +1835,7 @@ export class Character2016 extends BaseFullCharacter {
     this.damage(server, { ...damageInfo, damage });
   }
 
-  OnExplosiveHit(
-    server: ZoneServer2016,
-    sourceEntity: BaseEntity
-  ) {
+  OnExplosiveHit(server: ZoneServer2016, sourceEntity: BaseEntity) {
     const sourceIsVehicle = sourceEntity instanceof Vehicle2016;
     if (
       !isPosInRadiusWithY(
@@ -1851,10 +1848,10 @@ export class Character2016 extends BaseFullCharacter {
       return;
 
     const distance = getDistance(
-      sourceEntity.state.position,
-      this.state.position
-    ),
-    damage = 50000 / distance;
+        sourceEntity.state.position,
+        this.state.position
+      ),
+      damage = 50000 / distance;
 
     this.damage(server, {
       entity: sourceEntity.characterId,

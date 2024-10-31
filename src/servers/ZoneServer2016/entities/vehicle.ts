@@ -1302,10 +1302,7 @@ export class Vehicle2016 extends BaseLootableEntity {
     return deleted;
   }
 
-  async OnExplosiveHit(
-    server: ZoneServer2016,
-    sourceEntity: BaseEntity
-  ) {
+  async OnExplosiveHit(server: ZoneServer2016, sourceEntity: BaseEntity) {
     if (this.characterId == sourceEntity.characterId) return;
     if (!isPosInRadius(5, this.state.position, sourceEntity.state.position))
       return;

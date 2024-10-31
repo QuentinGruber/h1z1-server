@@ -2524,6 +2524,7 @@ export class ZoneServer2016 extends EventEmitter {
         continue;
       }
       for (const object of gridCell.objects) {
+        // explosives still chain explode on PvE
         if (!(object instanceof ExplosiveEntity) && this.isPvE) continue;
 
         // await is for ExplosiveEntity, ignore error
