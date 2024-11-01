@@ -6976,6 +6976,8 @@ export class ZoneServer2016 extends EventEmitter {
         client.character.lootContainerItem(this, item);
       }
     );
+
+    // crate drop logic
     if (chance(10)) {
       const rewards = this.rewardManager.rewards;
       const randomIndex = randomIntFromInterval(0, rewards.length - 1);
