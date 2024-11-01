@@ -332,7 +332,7 @@ export class ZonePacketHandlers {
   ClientFinishedLoading(
     server: ZoneServer2016,
     client: Client,
-    packet: ReceivedPacket<object>
+    packet: ReceivedPacket<any>
   ) {
     if (!server.hookManager.checkHook("OnClientFinishedLoading", client)) {
       return;
@@ -354,10 +354,10 @@ export class ZonePacketHandlers {
     server.sendGameTimeSync(client);
     server.sendData(client, "UpdateWeatherData", server.weatherManager.weather);
     server.constructionManager.sendConstructionData(server, client);
-    if (client.firstLoading) {
-      client.character.lastLoginDate = toHex(Date.now());
-      server.setGodMode(client, false);
-      setTimeout(() => {
+    if (packet.data.characterReleased) {
+      client.characterReleased = true;
+      if (client.firstCharacterReleased) {
+        client.firstCharacterReleased = false;
         // it's just for performance testing
         // for (let index = 0; index < 100; index++) {
         // this.aiManager.add_entity(client.character, EntityType.Player);
@@ -423,7 +423,12 @@ export class ZonePacketHandlers {
         //     client.afk(server);
         //   }, ZoneClient2016.afkTime);
         // }
-      }, 10000);
+      }
+    }
+
+    if (client.firstLoading) {
+      client.character.lastLoginDate = toHex(Date.now());
+      server.setGodMode(client, false);
       if (client.banType != "") {
         server.sendChatTextToAdmins(
           `Silently banned ${client.character.name} has joined the server !`
@@ -1482,8 +1487,6 @@ export class ZonePacketHandlers {
     }
     // Handle position flag (0x02)
     if (flags & 2) {
-      if (!client.characterReleased) client.characterReleased = true;
-
       // if (client.movementSet.size < ZoneClient2016.minMovementForAfk) {
       //   const movementId = Math.round(position[0]) + Math.round(position[2]);
       //   client.movementSet.add(movementId);

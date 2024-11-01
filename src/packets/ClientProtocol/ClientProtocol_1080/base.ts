@@ -52,7 +52,7 @@ export const basePackets: PacketStructures = [
     0x02,
     {
       fields: [
-        { name: "unknownBoolean1", type: "boolean", defaultValue: false } // This value is first set to false, the second time its sent its set to true
+        { name: "characterReleased", type: "boolean", defaultValue: false } // This value is first set to false, the second time its sent its set to true
       ]
     }
   ],
