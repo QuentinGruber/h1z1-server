@@ -30,29 +30,29 @@ export class RewardManager {
     this.rewards = [
       {
         itemId: AccountItems.REWARD_CRATE_MARAUDER,
-        dropChances: 50
+        dropChances: 33
       },
       {
         itemId: AccountItems.REWARD_CRATE_SHOWDOWN,
-        dropChances: 50
+        dropChances: 33
       },
       {
         itemId: AccountItems.REWARD_CRATE_INVITATIONAL,
-        dropChances: 50
+        dropChances: 34
       }
     ];
     this.playTimerewards = [
       {
         itemId: AccountItems.MYSTERY_BAG_1,
-        dropChances: 20
+        dropChances: 40
       },
       {
         itemId: AccountItems.ELITE_BAG_HARDCORE,
-        dropChances: 10
+        dropChances: 20
       },
       {
         itemId: AccountItems.MYSTERY_BAG_V2,
-        dropChances: 20
+        dropChances: 40
       }
     ];
   }
