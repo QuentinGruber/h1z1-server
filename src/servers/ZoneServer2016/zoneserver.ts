@@ -3093,13 +3093,7 @@ export class ZoneServer2016 extends EventEmitter {
       }
       return;
     }
-    if (item instanceof LoadoutItem) {
-      this.updateLoadoutItem(client, item);
-    } else if (item instanceof BaseItem) {
-      const container = client.character.getItemContainer(item.itemGuid);
-      if (!container) return;
-      this.updateContainerItem(client.character, item, container);
-    }
+    this.updateItem(client, item);
   }
 
   getClientByCharId(characterId: string) {
@@ -6642,6 +6636,28 @@ export class ZoneServer2016 extends EventEmitter {
     this.updateContainer(character, container);
   }
 
+  updateItem(client: Client, item: BaseItem) {
+    const loadoutItem = client.character.getLoadoutItem(item.itemGuid);
+    if (loadoutItem) {
+      this.updateLoadoutItem(client, loadoutItem);
+      return;
+    }
+
+    const container = client.character.getItemContainer(item.itemGuid);
+    if (container) {
+      this.updateContainerItem(client.character, item, container);
+      return;
+    }
+
+    const mountedContainer = client.character.mountedContainer;
+
+    if (mountedContainer) {
+      const container = mountedContainer.getContainer();
+      if (!container) return;
+      this.updateContainerItem(mountedContainer, item, container);
+    }
+  }
+
   /**
    * Clears all items from a character's inventory.
    * @param client The client that'll have it's character's inventory cleared.
@@ -7685,29 +7701,8 @@ export class ZoneServer2016 extends EventEmitter {
       repairItem.currentDurability += repairAmount;
     }
 
-    // TODO: move below logic to it's own updateItem function
-
     // used to update the item's durability on-screen regardless of container / loadout
-
-    const loadoutItem = client.character.getLoadoutItem(repairItem.itemGuid);
-    if (loadoutItem) {
-      this.updateLoadoutItem(client, loadoutItem);
-      return;
-    }
-
-    const container = client.character.getItemContainer(repairItem.itemGuid);
-    if (container) {
-      this.updateContainerItem(client.character, repairItem, container);
-      return;
-    }
-
-    const mountedContainer = client.character.mountedContainer;
-
-    if (mountedContainer) {
-      const container = mountedContainer.getContainer();
-      if (!container) return;
-      this.updateContainerItem(mountedContainer, item, container);
-    }
+    this.updateItem(client, repairItem);
   }
 
   handleWeaponFireStateUpdate(
