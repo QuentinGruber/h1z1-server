@@ -13,7 +13,6 @@
 
 /* eslint-disable @typescript-eslint/no-unused-vars */
 // TODO enable @typescript-eslint/no-unused-vars
-import fs from "fs";
 import { h1z1PacketsType2016 } from "types/packets";
 import {
   CharacterManagedObject,
@@ -196,25 +195,11 @@ const dev: any = {
       ]
     });
 
-    const d0 = fs.readFileSync(
-        "../../data/2016/marketplaceData/categories.json",
-        "utf-8"
-      ),
-      p0 = JSON.parse(d0);
+    const categories = require("../../data/2016/marketplaceData/categories.json");
+    server.sendData(client, "InGamePurchase.StoreBundleCategories", categories);
 
-    server.sendData(client, "InGamePurchase.StoreBundleCategories", {
-      ...p0
-    });
-
-    const d = fs.readFileSync(
-        "../../data/2016/marketplaceData/bundles.json",
-        "utf-8"
-      ),
-      p = JSON.parse(d);
-
-    server.sendData(client, "InGamePurchase.StoreBundles", {
-      ...p
-    });
+    const bundles = require("../../data/2016/marketplaceData/bundles.json");
+    server.sendData(client, "InGamePurchase.StoreBundles", bundles);
 
     server.sendData(client, "InGamePurchase.SubscriptionProductsResponse", {
       unknownDword1: 1,
