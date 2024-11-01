@@ -75,6 +75,7 @@ export abstract class BaseFullCharacter extends BaseLightweightCharacter {
   currentLoadoutSlot = 0; // idk if other full npcs use this
   isLightweight = false;
   gender: number;
+  hoodState: string = "Up";
 
   /** The default items that will spawn on and with the BaseFullCharacter */
   defaultLoadout: LoadoutKit = [];
@@ -283,6 +284,7 @@ export abstract class BaseFullCharacter extends BaseLightweightCharacter {
         slotId: equipmentSlotId,
         guid: item.itemGuid,
         textureAlias: def.TEXTURE_ALIAS || "Default",
+        effectId: def.EFFECT_ID || 0,
         tintAlias: "",
         SHADER_PARAMETER_GROUP: server.getShaderParameterGroup(
           item.itemDefinitionId
@@ -390,6 +392,7 @@ export abstract class BaseFullCharacter extends BaseLightweightCharacter {
           slotId: equipmentSlotId,
           guid: slot.itemGuid,
           textureAlias: def.TEXTURE_ALIAS || "",
+          effectId: def.EFFECT_ID || 0,
           tintAlias: "",
           SHADER_PARAMETER_GROUP: server.getShaderParameterGroup(
             slot.itemDefinitionId
@@ -412,7 +415,6 @@ export abstract class BaseFullCharacter extends BaseLightweightCharacter {
     if (count > item.stackCount) {
       count = item.stackCount;
     }
-    if (item.itemDefinitionId == 1899) item.itemDefinitionId = 1373; // Remove this next wipe
     const itemDefId = item.itemDefinitionId;
     if (server.isAccountItem(itemDefId) && client) {
       server.lootAccountItem(server, client, item, sendUpdate);
@@ -813,6 +815,7 @@ export abstract class BaseFullCharacter extends BaseLightweightCharacter {
           equipmentSlotData: {
             equipmentSlotId: slot.slotId,
             guid: slot.guid || "",
+            effectId: slot.effectId || 0,
             tintAlias: slot.tintAlias || "Default",
             decalAlias: slot.decalAlias || "#"
           }
@@ -830,7 +833,11 @@ export abstract class BaseFullCharacter extends BaseLightweightCharacter {
     const slot = this._equipment[slotId];
     return slot
       ? {
-          modelName: slot.modelName,
+          modelName: slot.modelName.replace(
+            /Up|Down/g,
+            this.hoodState == "Down" ? "Up" : "Down"
+          ),
+          effectId: slot.effectId || 0,
           textureAlias: slot.textureAlias || "",
           tintAlias: slot.tintAlias || "Default",
           decalAlias: slot.decalAlias || "#",

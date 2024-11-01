@@ -317,28 +317,14 @@ export const commands: Array<Command> = [
     name: "hood",
     permissionLevel: PermissionLevels.DEFAULT,
     execute: (server: ZoneServer2016, client: Client, args: Array<string>) => {
-      const equipment = client.character._equipment[3] || {},
-        equipmentModel = equipment.modelName || "";
-
-      if (
-        !client.character._equipment[3] ||
-        !client.character._equipment[3].modelName.includes("Hoodie")
-      ) {
+      const equipment = client.character._equipment[3];
+      if (!equipment || !equipment.modelName.includes("Hoodie")) {
         server.sendChatText(client, "[ERROR] You aren't wearing a hoodie.");
-      } else {
-        if (equipmentModel.includes("Up")) {
-          client.character._equipment[3].modelName = equipmentModel.replace(
-            "Up",
-            "Down"
-          );
-        } else {
-          client.character._equipment[3].modelName = equipmentModel.replace(
-            "Down",
-            "Up"
-          );
-        }
-        client.character.updateEquipmentSlot(server, EquipSlots.CHEST);
+        return;
       }
+      client.character.hoodState =
+        client.character.hoodState == "Up" ? "Down" : "Up";
+      client.character.updateEquipmentSlot(server, EquipSlots.CHEST);
     }
   },
   {
