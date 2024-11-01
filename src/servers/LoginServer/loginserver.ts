@@ -70,7 +70,7 @@ const debugName = "LoginServer";
 const debug = require("debug")(debugName);
 const characterItemDefinitionsDummy = require("../../../data/2015/sampleData/characterItemDefinitionsDummy.json");
 const defaultHashes: Array<FileHash> = require("../../../data/2016/dataSources/AllowedFileHashes.json");
-const loginReply = require("../../../data/2016/dataSources/loginData.json");
+const loginReply = require("../../../data/2016/dataSources/LoginData.json");
 
 export class LoginServer extends EventEmitter {
   _soeServer: SOEServer;
