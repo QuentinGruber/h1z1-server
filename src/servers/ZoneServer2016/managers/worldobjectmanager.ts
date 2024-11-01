@@ -164,6 +164,7 @@ export class WorldObjectManager {
       const npc = server._npcs[characterId];
       // dead npc despawner
       if (
+        npc &&
         npc.flags.knockedOut &&
         Date.now() - npc.deathTime >= this.deadNpcDespawnTimer
       ) {
