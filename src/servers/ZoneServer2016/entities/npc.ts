@@ -409,7 +409,7 @@ export class Npc extends BaseFullCharacter {
           Items.WORN_LETTER_WATER_TOWER
         ];
 
-        const randomIndex = randomIntFromInterval(0, wornLetters.length);
+        const randomIndex = randomIntFromInterval(0, wornLetters.length - 1);
         const randomWornLetter = wornLetters[randomIndex];
         const newItem = server.generateItem(randomWornLetter, 1);
         client.character.lootContainerItem(server, newItem);
