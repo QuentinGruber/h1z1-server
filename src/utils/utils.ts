@@ -33,6 +33,7 @@ import { Resolver } from "node:dns";
 import { ZoneClient2016 } from "servers/ZoneServer2016/classes/zoneclient";
 import * as crypto from "crypto";
 import { ZoneClient } from "servers/ZoneServer2015/classes/zoneclient";
+import { debug } from "node:util";
 
 const startTime = Date.now();
 
@@ -1577,4 +1578,8 @@ export function isPosInPoi(position: Float32Array): boolean {
   });
 
   return isInPoi;
+}
+
+export function chance(percentage: number): boolean {
+  return Math.random() * 100 < percentage;
 }

@@ -24,15 +24,26 @@ interface Reward {
 
 export class RewardManager {
   rewards: Reward[];
+  playTimerewards: Reward[];
   private timer?: NodeJS.Timeout;
   constructor(public server: ZoneServer2016) {
     this.rewards = [
       {
-        itemId: AccountItems.MYSTERY_BAG_1,
-        dropChances: 20
+        itemId: AccountItems.REWARD_CRATE_MARAUDER,
+        dropChances: 50
       },
       {
-        itemId: AccountItems.MYSTERY_BAG_V2,
+        itemId: AccountItems.REWARD_CRATE_SHOWDOWN,
+        dropChances: 50
+      },
+      {
+        itemId: AccountItems.REWARD_CRATE_INVITATIONAL,
+        dropChances: 50
+      }
+    ];
+    this.playTimerewards = [
+      {
+        itemId: AccountItems.MYSTERY_BAG_1,
         dropChances: 20
       },
       {
@@ -40,16 +51,8 @@ export class RewardManager {
         dropChances: 10
       },
       {
-        itemId: AccountItems.REWARD_CRATE_MARAUDER,
-        dropChances: 30
-      },
-      {
-        itemId: AccountItems.REWARD_CRATE_SHOWDOWN,
-        dropChances: 10
-      },
-      {
-        itemId: AccountItems.REWARD_CRATE_INVITATIONAL,
-        dropChances: 10
+        itemId: AccountItems.MYSTERY_BAG_V2,
+        dropChances: 20
       }
     ];
   }
@@ -79,7 +82,7 @@ export class RewardManager {
     } else {
       let rewardId: AccountItems = AccountItems.MYSTERY_BAG_1;
       let random = Math.random() * 100;
-      for (const reward of this.rewards) {
+      for (const reward of this.playTimerewards) {
         random -= reward.dropChances;
         if (random <= 0) {
           rewardId = reward.itemId;

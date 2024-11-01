@@ -102,7 +102,8 @@ import {
   getCurrentServerTimeWrapper,
   flhash,
   getDateString,
-  loadJson
+  loadJson,
+  chance
 } from "../../utils/utils";
 
 import { Db, MongoClient, WithId } from "mongodb";
@@ -6975,6 +6976,14 @@ export class ZoneServer2016 extends EventEmitter {
         client.character.lootContainerItem(this, item);
       }
     );
+    if (chance(100)) {
+      const rewards = this.rewardManager.rewards;
+      const randomIndex = randomIntFromInterval(0, rewards.length);
+      const randomCrateId = rewards[randomIndex].itemId;
+      const randomCrate = this.generateItem(randomCrateId, 1, true);
+      if (!randomCrate) return;
+      this.lootAccountItem(this, client, randomCrate, true);
+    }
   }
 
   igniteOption(client: Client, item: BaseItem) {
