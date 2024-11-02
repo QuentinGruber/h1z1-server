@@ -2881,6 +2881,15 @@ export class ZoneServer2016 extends EventEmitter {
   damageItem(character: BaseFullCharacter, item: LoadoutItem | BaseItem, damage: number) {
     if (item.itemDefinitionId == Items.WEAPON_FISTS) return;
 
+    // break armor if it goes below 100 health, this helps in shotgun fights
+    // so 1 pump fully breaks an armor if most pellets are hit
+    if(
+      this.isArmor(item.itemDefinitionId) &&
+      item.currentDurability - damage <= 100
+    ) {
+      damage = item.currentDurability;
+    }
+
     item.currentDurability -= damage;
     if (item.currentDurability <= 0) {
       this.removeInventoryItem(character, item);
@@ -2999,7 +3008,11 @@ export class ZoneServer2016 extends EventEmitter {
     damage: number,
     helmetDamageDivder = 1
   ): number {
-    // TODO: REDO THIS
+    // prevent helmet damage in godmode / temp godmode
+    if(character instanceof Character && character.isGodMode()) {
+      return damage;
+    }
+    
     if (!character.hasHelmet(this)) {
       return damage;
     }
@@ -3017,7 +3030,10 @@ export class ZoneServer2016 extends EventEmitter {
     damage: number,
     kevlarDamageDivider = 4
   ): number {
-    // TODO: REDO THIS
+    // prevent armor damage in godmode / temp godmode
+    if(character instanceof Character && character.isGodMode()) {
+      return damage;
+    }
 
     // hasArmor is not used since itemDef is needed later in this function
     const slot = character._loadout[LoadoutSlots.ARMOR],
@@ -3123,17 +3139,17 @@ export class ZoneServer2016 extends EventEmitter {
         return calculate_falloff(
           getDistance(sourcePos, targetPos),
           200,
-          1667, //1667,
-          1,
+          1500, //1667,
+          0,
           12
         );
       case WeaponDefinitionIds.WEAPON_NAGAFENS_RAGE:
         return calculate_falloff(
           getDistance(sourcePos, targetPos),
-          200,
-          2000, //1667,
-          3,
-          20
+          400,
+          1750, //1667,
+          2,
+          18
         );
       case WeaponDefinitionIds.WEAPON_AK47:
       case WeaponDefinitionIds.WEAPON_FROSTBITE:
