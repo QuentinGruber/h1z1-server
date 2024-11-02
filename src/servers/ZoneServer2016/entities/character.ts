@@ -46,7 +46,9 @@ import {
   randomIntFromInterval,
   _,
   checkConstructionInRange,
-  getCurrentServerTimeWrapper
+  getCurrentServerTimeWrapper,
+  isPosInRadiusWithY,
+  getDistance
 } from "../../../utils/utils";
 import { BaseItem } from "../classes/baseItem";
 import { BaseLootableEntity } from "./baselootableentity";
@@ -71,6 +73,7 @@ import {
 import { recipes } from "../data/Recipes";
 import { ConstructionChildEntity } from "./constructionchildentity";
 import { ConstructionParentEntity } from "./constructionparententity";
+import { BaseEntity } from "./baseentity";
 const stats = require("../../../../data/2016/sampleData/stats.json");
 
 interface CharacterStates {
@@ -1833,5 +1836,29 @@ export class Character2016 extends BaseFullCharacter {
     }
 
     this.damage(server, { ...damageInfo, damage });
+  }
+
+  OnExplosiveHit(server: ZoneServer2016, sourceEntity: BaseEntity) {
+    const sourceIsVehicle = sourceEntity instanceof Vehicle2016;
+    if (
+      !isPosInRadiusWithY(
+        sourceIsVehicle ? 5 : 3,
+        this.state.position,
+        sourceEntity.state.position,
+        1.5
+      )
+    )
+      return;
+
+    const distance = getDistance(
+        sourceEntity.state.position,
+        this.state.position
+      ),
+      damage = 50000 / distance;
+
+    this.damage(server, {
+      entity: sourceEntity.characterId,
+      damage: damage
+    });
   }
 }

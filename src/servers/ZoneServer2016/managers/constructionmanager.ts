@@ -17,8 +17,7 @@ const Z1_vehicles = require("../../../../data/2016/zoneData/Z1_vehicleLocations.
 import {
   ConstructionEntity,
   dailyRepairMaterial,
-  DamageInfo,
-  EntityDictionary
+  DamageInfo
 } from "types/zoneserver";
 import {
   eul2quat,
@@ -2229,21 +2228,6 @@ export class ConstructionManager {
     }
   }
 
-  /*spawnConstructionParentsInRange(server: ZoneServer2016, client: Client) { // put back into grid
-    for (const a in server._constructionFoundations) {
-      const foundation = server._constructionFoundations[a];
-      if (
-        isPosInRadius(
-          foundation.npcRenderDistance || server.charactersRenderDistance,
-          client.character.state.position,
-          foundation.state.position
-        )
-      ) {
-        this.spawnConstructionParent(server, client, foundation);
-      }
-    }
-  }*/
-
   public constructionPermissionsManager(
     server: ZoneServer2016,
     client: Client
@@ -2375,41 +2359,6 @@ export class ConstructionManager {
     );
     entity.isDecayProtected = true;
   }
-
-  /**
-   * Manages the spawning of WORLD parented free-place construction entities, such as storage containers placed directly on the ground.
-   *
-   */
-  /*worldConstructionManager(server: ZoneServer2016, client: Client) {
-    for (const characterId in server._worldSimpleConstruction) {
-      const entity = server._worldSimpleConstruction[characterId];
-      if (
-        isPosInRadius(
-          (entity.npcRenderDistance as number) ||
-            server.charactersRenderDistance,
-          client.character.state.position,
-          entity.state.position
-        )
-      ) {
-        this.spawnSimpleConstruction(server, client, entity, false);
-      }
-    }
-    for (const characterId in server._worldLootableConstruction) {
-      const entity = server._worldLootableConstruction[characterId];
-      if (
-        isPosInRadius(
-          (entity.npcRenderDistance as number) ||
-            server.charactersRenderDistance,
-          client.character.state.position,
-          entity.state.position
-        )
-      ) {
-        this.spawnLootableConstruction(server, client, entity);
-      }
-    }
-  }*/
-
-  // put into grid
 
   private repairFreeplaceEntities(
     server: ZoneServer2016,
@@ -2709,9 +2658,8 @@ export class ConstructionManager {
 
   checkConstructionDamage(
     server: ZoneServer2016,
-    constructionCharId: string,
+    constructionObject: ConstructionEntity,
     damage: number,
-    dictionary: EntityDictionary<ConstructionEntity>,
     position: Float32Array,
     entityPosition: Float32Array,
     itemDefinitionId: number
@@ -2731,8 +2679,7 @@ export class ConstructionManager {
         break;
     }
 
-    const constructionObject = dictionary[constructionCharId],
-      distance = getDistance(entityPosition, position);
+    const distance = getDistance(entityPosition, position);
 
     constructionObject.damage(server, {
       entity: "",
