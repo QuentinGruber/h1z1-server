@@ -1678,7 +1678,7 @@ export class Character2016 extends BaseFullCharacter {
       canStopBleed,
       armorDmgModifier;
     armorDmgModifier =
-      weaponDefinitionId == WeaponDefinitionIds.WEAPON_SHOTGUN ? 4 : 4; // was 10 : 4
+      weaponDefinitionId == WeaponDefinitionIds.WEAPON_SHOTGUN ? 10 : 4;
     if (weaponDefinitionId == WeaponDefinitionIds.WEAPON_308)
       armorDmgModifier = 2;
     switch (damageInfo.hitReport?.hitLocation) {

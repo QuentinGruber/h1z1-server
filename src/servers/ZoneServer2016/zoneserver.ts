@@ -3057,7 +3057,7 @@ export class ZoneServer2016 extends EventEmitter {
     }
 
     // all other kevlar armors
-    damage *= 0.3; // was 0.8
+    damage *= 0.5; // was 0.8
     this.damageItem(
       character,
       character._loadout[LoadoutSlots.ARMOR],
@@ -3139,17 +3139,17 @@ export class ZoneServer2016 extends EventEmitter {
         return calculate_falloff(
           getDistance(sourcePos, targetPos),
           200,
-          1500, //1667,
-          0,
+          1400, //1667,
+          1,
           12
         );
       case WeaponDefinitionIds.WEAPON_NAGAFENS_RAGE:
         return calculate_falloff(
           getDistance(sourcePos, targetPos),
-          400,
-          1750, //1667,
-          2,
-          18
+          200,
+          2000, //1667,
+          3,
+          20
         );
       case WeaponDefinitionIds.WEAPON_AK47:
       case WeaponDefinitionIds.WEAPON_FROSTBITE:
