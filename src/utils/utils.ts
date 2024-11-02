@@ -1578,3 +1578,7 @@ export function isPosInPoi(position: Float32Array): boolean {
 
   return isInPoi;
 }
+
+export function chance(percentage: number): boolean {
+  return Math.random() * 100 < percentage;
+}

@@ -102,7 +102,8 @@ import {
   getCurrentServerTimeWrapper,
   flhash,
   getDateString,
-  loadJson
+  loadJson,
+  chance
 } from "../../utils/utils";
 
 import { Db, MongoClient, WithId } from "mongodb";
@@ -2196,7 +2197,7 @@ export class ZoneServer2016 extends EventEmitter {
     this.tickRate = 3000 / size;
   }
 
-  deleteClient(client: Client) {
+  async deleteClient(client: Client) {
     if (!client) {
       this.setTickRate();
       return;
@@ -2219,10 +2220,14 @@ export class ZoneServer2016 extends EventEmitter {
           this._worldId
         );
         if (this.enableWorldSaves) {
-          this.worldDataManager.saveCharacterData(
-            characterSave,
-            this.lastItemGuid
-          );
+          if (this._soloMode) {
+            await this.saveWorld();
+          } else {
+            await this.worldDataManager.saveCharacterData(
+              characterSave,
+              this.lastItemGuid
+            );
+          }
         }
       } catch (e) {
         console.error("Failed to save a character");
@@ -2887,13 +2892,7 @@ export class ZoneServer2016 extends EventEmitter {
       }
       return;
     }
-    if (item instanceof LoadoutItem) {
-      this.updateLoadoutItem(client, item);
-    } else if (item instanceof BaseItem) {
-      const container = client.character.getItemContainer(item.itemGuid);
-      if (!container) return;
-      this.updateContainerItem(client.character, item, container);
-    }
+    this.updateItem(client, item);
   }
 
   getClientByCharId(characterId: string) {
@@ -5904,7 +5903,7 @@ export class ZoneServer2016 extends EventEmitter {
     });
     // if an itemdef is already in the account inventory we only update the stack count
     if (savedItem) {
-      savedItem.stackCount++;
+      savedItem.stackCount += item.stackCount;
       await server.accountInventoriesManager.updateAccountItem(
         client.loginSessionId,
         savedItem
@@ -6436,6 +6435,28 @@ export class ZoneServer2016 extends EventEmitter {
     this.updateContainer(character, container);
   }
 
+  updateItem(client: Client, item: BaseItem) {
+    const loadoutItem = client.character.getLoadoutItem(item.itemGuid);
+    if (loadoutItem) {
+      this.updateLoadoutItem(client, loadoutItem);
+      return;
+    }
+
+    const container = client.character.getItemContainer(item.itemGuid);
+    if (container) {
+      this.updateContainerItem(client.character, item, container);
+      return;
+    }
+
+    const mountedContainer = client.character.mountedContainer;
+
+    if (mountedContainer) {
+      const container = mountedContainer.getContainer();
+      if (!container) return;
+      this.updateContainerItem(mountedContainer, item, container);
+    }
+  }
+
   /**
    * Clears all items from a character's inventory.
    * @param client The client that'll have it's character's inventory cleared.
@@ -6770,6 +6791,16 @@ export class ZoneServer2016 extends EventEmitter {
         client.character.lootContainerItem(this, item);
       }
     );
+
+    // crate drop logic
+    if (chance(10)) {
+      const rewards = this.rewardManager.rewards;
+      const randomIndex = randomIntFromInterval(0, rewards.length - 1);
+      const randomCrateId = rewards[randomIndex].itemId;
+      const randomCrate = this.generateItem(randomCrateId, 1, true);
+      if (!randomCrate) return;
+      this.lootAccountItem(this, client, randomCrate, true);
+    }
   }
 
   igniteOption(client: Client, item: BaseItem) {
@@ -7469,29 +7500,8 @@ export class ZoneServer2016 extends EventEmitter {
       repairItem.currentDurability += repairAmount;
     }
 
-    // TODO: move below logic to it's own updateItem function
-
     // used to update the item's durability on-screen regardless of container / loadout
-
-    const loadoutItem = client.character.getLoadoutItem(repairItem.itemGuid);
-    if (loadoutItem) {
-      this.updateLoadoutItem(client, loadoutItem);
-      return;
-    }
-
-    const container = client.character.getItemContainer(repairItem.itemGuid);
-    if (container) {
-      this.updateContainerItem(client.character, repairItem, container);
-      return;
-    }
-
-    const mountedContainer = client.character.mountedContainer;
-
-    if (mountedContainer) {
-      const container = mountedContainer.getContainer();
-      if (!container) return;
-      this.updateContainerItem(mountedContainer, item, container);
-    }
+    this.updateItem(client, repairItem);
   }
 
   handleWeaponFireStateUpdate(

@@ -50,7 +50,7 @@ import { CharacterPlayWorldCompositeEffect } from "types/zone2016packets";
 import { WaterSource } from "../entities/watersource";
 import { TreasureChest } from "../entities/treasurechest";
 import { Npc } from "../entities/npc";
-import { EntityType } from "h1emu-ai";
+//import { EntityType } from "h1emu-ai";
 import { scheduler } from "node:timers/promises";
 const debug = require("debug")("ZoneServer");
 
@@ -164,6 +164,7 @@ export class WorldObjectManager {
       const npc = server._npcs[characterId];
       // dead npc despawner
       if (
+        npc &&
         npc.flags.knockedOut &&
         Date.now() - npc.deathTime >= this.deadNpcDespawnTimer
       ) {
@@ -301,28 +302,6 @@ export class WorldObjectManager {
   }
 
   createLootbag(server: ZoneServer2016, entity: BaseFullCharacter) {
-    if (entity instanceof Npc && entity.entityType == EntityType.Zombie) {
-      const wornLetters = [
-        Items.WORN_LETTER_CHURCH_PV,
-        Items.WORN_LETTER_LJ_PV,
-        Items.WORN_LETTER_MISTY_DAM,
-        Items.WORN_LETTER_RADIO,
-        Items.WORN_LETTER_RUBY_LAKE,
-        Items.WORN_LETTER_TOXIC_LAKE,
-        Items.WORN_LETTER_VILLAS,
-        Items.WORN_LETTER_WATER_TOWER
-      ];
-
-      const shouldGenerateWornLetter =
-        Math.floor(Math.random() * 100) + 1 <= this.chanceWornLetter;
-      if (shouldGenerateWornLetter) {
-        const randomIndex = randomIntFromInterval(0, wornLetters.length - 1);
-        const randomWornLetter = wornLetters[randomIndex];
-        const newItem = server.generateItem(randomWornLetter, 1);
-        entity.lootItem(server, newItem);
-      }
-    }
-
     const characterId = generateRandomGuid(),
       isCharacter = !!server._characters[entity.characterId],
       items = entity.getDeathItems(server);
