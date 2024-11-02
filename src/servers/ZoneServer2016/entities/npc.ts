@@ -381,7 +381,7 @@ export class Npc extends BaseFullCharacter {
           case ModelIds.ZOMBIE_SCREAMER:
             this.triggerAwards(server, client, this.rewardItems, true);
         }
-        server.damageItem(client, skinningKnife, 200);
+        server.damageItem(client.character, skinningKnife, 200);
         server.deleteEntity(this.characterId, server._npcs);
       });
     }

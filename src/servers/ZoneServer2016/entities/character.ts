@@ -1693,10 +1693,10 @@ export class Character2016 extends BaseFullCharacter {
           weaponDefinitionId == WeaponDefinitionIds.WEAPON_308
             ? (damage *= 2)
             : damage;
-        damage = server.checkHelmet(this.characterId, damage, 1);
+        damage = server.checkHelmet(this, damage, 1);
         break;
       default:
-        damage = server.checkArmor(this.characterId, damage, armorDmgModifier);
+        damage = server.checkArmor(this, damage, armorDmgModifier);
         canStopBleed = true;
         break;
     }
@@ -1817,10 +1817,10 @@ export class Character2016 extends BaseFullCharacter {
       case "HEAD":
       case "GLASSES":
       case "NECK":
-        damage = server.checkHelmet(this.characterId, damage, 1);
+        damage = server.checkHelmet(this, damage, 1);
         break;
       default:
-        damage = server.checkArmor(this.characterId, damage, 4);
+        damage = server.checkArmor(this, damage, 4);
         break;
     }
 

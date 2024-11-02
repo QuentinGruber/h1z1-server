@@ -2492,7 +2492,7 @@ export class ZoneServer2016 extends EventEmitter {
             );
           }
           slot.weapon.ammoCount = 0;
-          this.damageItem(client, slot, 350);
+          this.damageItem(client.character, slot, 350);
         }
       });
       this.worldObjectManager.createLootbag(this, character);
@@ -2878,21 +2878,23 @@ export class ZoneServer2016 extends EventEmitter {
     }
   }
 
-  damageItem(client: Client, item: LoadoutItem | BaseItem, damage: number) {
+  damageItem(character: BaseFullCharacter, item: LoadoutItem | BaseItem, damage: number) {
     if (item.itemDefinitionId == Items.WEAPON_FISTS) return;
 
     item.currentDurability -= damage;
     if (item.currentDurability <= 0) {
-      this.removeInventoryItem(client.character, item);
+      this.removeInventoryItem(character, item);
       if (this.isWeapon(item.itemDefinitionId)) {
-        client.character.lootContainerItem(
+        character.lootContainerItem(
           this,
           this.generateItem(Items.BROKEN_METAL_ITEM)
         );
       }
       return;
     }
-    this.updateItem(client, item);
+
+    const client = this.getClientByCharId(character.characterId);
+    if(client) this.updateItem(client, item);
   }
 
   getClientByCharId(characterId: string) {
@@ -2993,41 +2995,39 @@ export class ZoneServer2016 extends EventEmitter {
   }
 
   checkHelmet(
-    characterId: string,
+    character: BaseFullCharacter,
     damage: number,
     helmetDamageDivder = 1
   ): number {
     // TODO: REDO THIS
-    const c = this.getClientByCharId(characterId);
-    if (!c || !c.character.hasHelmet(this)) {
+    if (!character.hasHelmet(this)) {
       return damage;
     }
     damage *= 0.25;
     this.damageItem(
-      c,
-      c.character._loadout[LoadoutSlots.HEAD],
+      character,
+      character._loadout[LoadoutSlots.HEAD],
       damage / helmetDamageDivder
     );
     return damage;
   }
 
   checkArmor(
-    characterId: string,
+    character: BaseFullCharacter,
     damage: number,
     kevlarDamageDivider = 4
   ): number {
     // TODO: REDO THIS
-    const c = this.getClientByCharId(characterId),
-      slot = c?.character._loadout[LoadoutSlots.ARMOR],
+    const slot = character._loadout[LoadoutSlots.ARMOR],
       itemDef = this.getItemDefinition(slot?.itemDefinitionId);
-    if (!c || !slot || !slot.itemDefinitionId || !itemDef) {
+    if (!slot || !slot.itemDefinitionId || !itemDef) {
       return damage;
     }
     if (itemDef.DESCRIPTION_ID == 12073) {
       damage *= 0.5; // was 0.8
       this.damageItem(
-        c,
-        c.character._loadout[LoadoutSlots.ARMOR],
+        character,
+        character._loadout[LoadoutSlots.ARMOR],
         damage / kevlarDamageDivider
       );
     } else if (
@@ -3036,8 +3036,8 @@ export class ZoneServer2016 extends EventEmitter {
     ) {
       damage *= 0.7; // was 0.9
       this.damageItem(
-        c,
-        c.character._loadout[LoadoutSlots.ARMOR],
+        character,
+        character._loadout[LoadoutSlots.ARMOR],
         damage / kevlarDamageDivider
       );
     }
@@ -6123,25 +6123,25 @@ export class ZoneServer2016 extends EventEmitter {
    * @returns Returns true if all items were successfully removed, false if there was an error.
    */
   removeInventoryItems(
-    client: Client,
+    character: BaseFullCharacter,
     itemDefinitionId: number,
     requiredCount: number = 1
   ): boolean {
     const loadoutSlotId = 0; //this.getActiveLoadoutSlot(client, itemDefinitionId);
     // loadout disabled for now
     if (
-      client.character._loadout[loadoutSlotId]?.itemDefinitionId ==
+      character._loadout[loadoutSlotId]?.itemDefinitionId ==
       itemDefinitionId
     ) {
       // todo: check multiple loadout slots for items
-      return this.removeLoadoutItem(client.character, loadoutSlotId);
+      return this.removeLoadoutItem(character, loadoutSlotId);
     } else {
       const removeItems: {
         container: LoadoutContainer;
         item: BaseItem;
         count: number;
       }[] = [];
-      for (const container of Object.values(client.character._containers)) {
+      for (const container of Object.values(character._containers)) {
         if (!requiredCount) break;
         for (const item of Object.values(container.items)) {
           if (item.itemDefinitionId == itemDefinitionId) {
@@ -6163,7 +6163,7 @@ export class ZoneServer2016 extends EventEmitter {
       for (const itemStack of Object.values(removeItems)) {
         if (
           !this.removeContainerItem(
-            client.character,
+            character,
             itemStack.item,
             itemStack.container,
             itemStack.count
@@ -6776,7 +6776,7 @@ export class ZoneServer2016 extends EventEmitter {
   ) {
     if (
       !this.removeInventoryItems(
-        client,
+        client.character,
         removedItem.itemDefinitionId,
         removedItem.count
       )
@@ -7673,10 +7673,10 @@ export class ZoneServer2016 extends EventEmitter {
         this.removeInventoryItem(client.character, weaponItem);
         return;
       }
-      this.removeInventoryItems(client, weaponItem.itemDefinitionId);
+      this.removeInventoryItems(client.character, weaponItem.itemDefinitionId);
       return;
     }
-    this.damageItem(client, weaponItem, 5);
+    this.damageItem(client.character, weaponItem, 5);
   }
 
   handleWeaponReload(client: Client, weaponItem: LoadoutItem) {
@@ -7732,7 +7732,7 @@ export class ZoneServer2016 extends EventEmitter {
           reloadAmount =
             reserveAmmo >= maxReloadAmount ? maxReloadAmount : reserveAmmo; // actual amount able to reload
 
-        if (!this.removeInventoryItems(client, weaponAmmoId, reloadAmount)) {
+        if (!this.removeInventoryItems(client.character, weaponAmmoId, reloadAmount)) {
           return;
         }
         this.sendWeaponReload(
@@ -7755,7 +7755,7 @@ export class ZoneServer2016 extends EventEmitter {
         if (
           !reserveAmmo ||
           (weaponItem.weapon.ammoCount < maxAmmo &&
-            !this.removeInventoryItems(client, weaponAmmoId, 1)) ||
+            !this.removeInventoryItems(client.character, weaponAmmoId, 1)) ||
           ++weaponItem.weapon.ammoCount == maxAmmo
         ) {
           this.sendWeaponReload(client, weaponItem);
@@ -7805,7 +7805,7 @@ export class ZoneServer2016 extends EventEmitter {
         reloadAmount =
           reserveAmmo >= maxReloadAmount ? maxReloadAmount : reserveAmmo; // actual amount able to reload
 
-      if (!this.removeInventoryItems(client, weaponAmmoId, reloadAmount)) {
+      if (!this.removeInventoryItems(client.character, weaponAmmoId, reloadAmount)) {
         return;
       }
       this.sendWeaponReload(

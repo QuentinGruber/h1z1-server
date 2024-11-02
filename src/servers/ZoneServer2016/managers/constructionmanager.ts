@@ -2451,7 +2451,7 @@ export class ConstructionManager {
       entity: "Server.DemoHammer",
       damage: entity.maxHealth / 3 + 10
     });
-    server.damageItem(client, weaponItem, 50);
+    server.damageItem(client.character, weaponItem, 50);
   }
 
   hammerConstructionEntity(
@@ -2499,7 +2499,7 @@ export class ConstructionManager {
       this.repairConstruction(server, entity, entity.maxHealth / 10);
       accumulatedItemDamage += 15;
     }
-    server.damageItem(client, weaponItem, Math.ceil(accumulatedItemDamage / 4));
+    server.damageItem(client.character, weaponItem, Math.ceil(accumulatedItemDamage / 4));
     client.character.lastMeleeHitTime = Date.now();
     client.character.lastRepairTime = Date.now();
   }
