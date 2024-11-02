@@ -410,7 +410,16 @@ export const clientUpdatePackets: PacketStructures = [
   ],
   ["ClientUpdate.NotifyServerOfStalledEvent", 0x114600, {}],
   ["ClientUpdate.UpdateSights", 0x114700, {}],
-  ["ClientUpdate.UpdateRewardAndGrinderState", 0x114900, {}],
+  [
+    "ClientUpdate.UpdateRewardAndGrinderState",
+    0x114900,
+    {
+      fields: [
+        { name: "unknownBoolean1", type: "boolean", defaultValue: false },
+        { name: "unknownBoolean2", type: "boolean", defaultValue: false }
+      ]
+    }
+  ],
   ["ClientUpdate.UpdateActivityMetrics", 0x114b00, {}],
   ["ClientUpdate.StopWithError", 0x114c00, {}],
   ["ClientUpdate.SetWorldWipeTimer", 0x114d00, {}],
@@ -429,7 +438,13 @@ export const clientUpdatePackets: PacketStructures = [
       ]
     }
   ],
-  ["ClientUpdate.ZoneStatus", 0x114f00, {}],
+  [
+    "ClientUpdate.ZoneStatus",
+    0x114f00,
+    {
+      fields: [{ name: "status", type: "uint32", defaultValue: 0 }]
+    }
+  ],
   ["ClientUpdate.SetDataCenter", 0x115000, {}],
   ["ClientUpdate.UpdateBattlEyeRegistration", 0x115100, {}]
 ];

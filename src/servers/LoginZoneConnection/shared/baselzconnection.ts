@@ -17,7 +17,6 @@ import { LZConnectionClient } from "./lzconnectionclient";
 import dgram, { RemoteInfo } from "node:dgram";
 
 const debug = require("debug")("LZConnection");
-process.env.isBin && require("../../shared/workers/udpServerWorker.js");
 
 export abstract class BaseLZConnection extends EventEmitter {
   _serverPort?: number;

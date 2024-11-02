@@ -15,17 +15,13 @@ import * as fs from "fs";
 import * as yaml from "js-yaml";
 import { Config } from "../models/config";
 import { ZoneServer2016 } from "../zoneserver";
-import * as path from "node:path";
 import { copyFile } from "../../../utils/utils";
-
-process.env.isBin &&
-  require("js-yaml") &&
-  path.join(__dirname, "../../../../data/2016/sampleData/defaultconfig.yaml");
 
 function fileExists(filePath: string): boolean {
   try {
     fs.accessSync(filePath);
     return true;
+    /* eslint-disable @typescript-eslint/no-unused-vars */
   } catch (error) {
     return false;
   }
@@ -334,9 +330,9 @@ export class ConfigManager {
     server.decayManager.decayTickInterval = decayTickInterval;
     server.decayManager.constructionDamageTicks = constructionDamageTicks;
     server.decayManager.ticksToFullDecay = ticksToFullDecay;
-    (server.decayManager.worldFreeplaceDecayMultiplier =
-      worldFreeplaceDecayMultiplier),
-      (server.decayManager.vehicleDamageTicks = vehicleDamageTicks);
+    server.decayManager.worldFreeplaceDecayMultiplier =
+      worldFreeplaceDecayMultiplier;
+    server.decayManager.vehicleDamageTicks = vehicleDamageTicks;
     server.decayManager.vacantFoundationTicks = vacantFoundationTicks;
     server.decayManager.griefFoundationTimer = griefFoundationTimer;
     server.decayManager.griefCheckSlotAmount = griefCheckSlotAmount;

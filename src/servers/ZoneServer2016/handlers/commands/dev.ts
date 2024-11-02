@@ -20,23 +20,371 @@ import {
   CharacterSeekTarget,
   ClientUpdateTextAlert,
   CommandDeliveryDisplayInfo,
+  InGamePurchaseActiveSchedules,
+  InGamePurchaseGiftOrderNotification,
+  InGamePurchaseItemOfTheDay,
+  InGamePurchaseSpiceWebAuthUrlResponse,
+  InGamePurchaseStoreBundles,
+  InGamePurchaseWalletBalanceUpdate,
   ItemsAddAccountItem
 } from "types/zone2016packets";
 import { Npc } from "../../entities/npc";
 import { ZoneClient2016 as Client } from "../../classes/zoneclient";
 import { ZoneServer2016 } from "../../zoneserver";
-import { Items, ModelIds } from "../../models/enums";
+import { Items, ModelIds, VehicleIds } from "../../models/enums";
 import { LootableConstructionEntity } from "../../entities/lootableconstructionentity";
 import { ConstructionChildEntity } from "../../entities/constructionchildentity";
 import { ConstructionDoor } from "../../entities/constructiondoor";
-import { randomIntFromInterval } from "../../../../utils/utils";
-import { Zombie } from "../../entities/zombie";
+import {
+  getCurrentServerTimeWrapper,
+  randomIntFromInterval
+} from "../../../../utils/utils";
 import { WorldObjectManager } from "../../managers/worldobjectmanager";
+import { Vehicle2016 } from "../../entities/vehicle";
+import { Plane } from "../../entities/plane";
+import { NavManager } from "../../../../utils/recast";
+import { scheduler } from "timers/promises";
 
 const abilities = require("../../../../../data/2016/dataSources/Abilities.json"),
   vehicleAbilities = require("../../../../../data/2016/dataSources/VehicleAbilities.json");
 
 const dev: any = {
+  igp: function (server: ZoneServer2016, client: Client, args: Array<string>) {
+    server.sendData(client, "InGamePurchase.EnableMarketplace", {
+      unknownBoolean1: true,
+      unknownBoolean2: true
+    });
+
+    server.sendData(client, "InGamePurchase.WalletInfoResponse", {
+      unknownDword1: 1,
+      unknownBoolean1: true,
+      unknownDword2: 0,
+      unknownDword3: 86720018,
+      unknownString1: "KH$",
+      unknownString2: "BE",
+      unknownArray1: [
+        {
+          unknownString1: "KS$",
+          unknownBoolean1: true,
+          unknownDword1: 12375,
+          unknownDword2: 113720319,
+          unknownString2: "KS$",
+          unknownString3: "BE",
+          unknownBoolean2: false
+        }
+      ]
+    });
+
+    server.sendData(client, "InGamePurchase.SetMembershipFreeItemInfo", {
+      unknownDword1: 0,
+      unknownDword2: 0
+    });
+
+    server.sendData(client, "InGamePurchase.StateCodesResponse", {
+      unknownDword1: 1,
+      stateCodes: [
+        {
+          stateCode: "AA",
+          stateName: "Armed Forces Central/South"
+        }
+      ]
+    });
+
+    server.sendData(client, "InGamePurchase.CountryCodesResponse", {
+      unknownDword1: 1,
+      countryCodes: [
+        {
+          countryCode: "BE",
+          languageLocale: "",
+          countryLocale: "",
+          countryName: "Belgium"
+        }
+      ]
+    });
+
+    server.sendData(client, "InGamePurchase.AcccountInfoResponse", {
+      unknownDword1: 1,
+      locale: "BE",
+      currency: "EUR",
+      unknownBoolean1: false
+    });
+
+    server.sendData(client, "InGamePurchase.EnablePaymentSources", {
+      unknownBoolean1: false,
+      unknownBoolean2: false
+    });
+
+    server.sendData(client, "InGamePurchase.StoreBundleCategoryGroups", {
+      categoryGroups: [
+        {
+          Id: 1,
+          categoryData: {
+            Id: 1,
+            categoryGroups: [
+              {
+                Id: 1
+              }
+            ]
+          }
+        },
+        {
+          Id: 2,
+          categoryData: {
+            Id: 2,
+            categoryGroups: [
+              {
+                Id: 2
+              }
+            ]
+          }
+        },
+        {
+          Id: 3,
+          categoryData: {
+            Id: 3,
+            categoryGroups: [
+              {
+                Id: 3
+              }
+            ]
+          }
+        },
+        {
+          Id: 4,
+          categoryData: {
+            Id: 4,
+            categoryGroups: [
+              {
+                Id: 4
+              }
+            ]
+          }
+        },
+        {
+          Id: 5,
+          categoryData: {
+            Id: 5,
+            categoryGroups: [
+              {
+                Id: 5
+              }
+            ]
+          }
+        },
+        {
+          Id: 13,
+          categoryData: {
+            Id: 13,
+            categoryGroups: [
+              {
+                Id: 13
+              }
+            ]
+          }
+        },
+        {
+          Id: 15,
+          categoryData: {
+            Id: 15,
+            categoryGroups: [
+              {
+                Id: 15
+              }
+            ]
+          }
+        }
+      ]
+    });
+
+    const categories = require("../../data/2016/marketplaceData/categories.json");
+    server.sendData(client, "InGamePurchase.StoreBundleCategories", categories);
+
+    const bundles = require("../../data/2016/marketplaceData/bundles.json");
+    server.sendData(client, "InGamePurchase.StoreBundles", bundles);
+
+    server.sendData(client, "InGamePurchase.SubscriptionProductsResponse", {
+      unknownDword1: 1,
+      products: []
+    });
+
+    server.sendData(client, "InGamePurchase.StationCashProductsResponse", {
+      unknownDword1: 1,
+      products: [
+        {
+          unknownString1: "100002213",
+          unknownString2: "KH$",
+          unknownDword1: 10000,
+          unknownDword2: 0,
+          unknownString3: "â‚¬ 85.00",
+          unknownString4: "â‚¬ 85.00",
+          unknownDword3: 0,
+          unknownDword4: 0
+        },
+        {
+          unknownString1: "100002211",
+          unknownString2: "KH$",
+          unknownDword1: 5000,
+          unknownDword2: 0,
+          unknownString3: "â‚¬ 43.00",
+          unknownString4: "â‚¬ 43.00",
+          unknownDword3: 0,
+          unknownDword4: 0
+        },
+        {
+          unknownString1: "100002208",
+          unknownString2: "KH$",
+          unknownDword1: 2000,
+          unknownDword2: 0,
+          unknownString3: "â‚¬ 18.00",
+          unknownString4: "â‚¬ 18.00",
+          unknownDword3: 0,
+          unknownDword4: 0
+        },
+        {
+          unknownString1: "100002206",
+          unknownString2: "KH$",
+          unknownDword1: 1000,
+          unknownDword2: 0,
+          unknownString3: "â‚¬ 9.00",
+          unknownString4: "â‚¬ 9.00",
+          unknownDword3: 0,
+          unknownDword4: 0
+        },
+        {
+          unknownString1: "100002205",
+          unknownString2: "KH$",
+          unknownDword1: 500,
+          unknownDword2: 0,
+          unknownString3: "â‚¬ 5.00",
+          unknownString4: "â‚¬ 5.00",
+          unknownDword3: 0,
+          unknownDword4: 0
+        }
+      ]
+    });
+
+    /*server.sendData<InGamePurchaseItemOfTheDay>(
+      client,
+      "InGamePurchase.ItemOfTheDay",
+      {
+        unknownDword1: 1,
+        unknownDword2: 1,
+        unknownDword3: 1,
+        unknownDword4: 1,
+        unknownDword5: 1,
+        unknownDword6: 1,
+        unknownDword7: 1,
+        unknownDword8: 1,
+        unknownDword9: 1,
+        unknownDword10: 1,
+        unknownDword11: 1,
+        unknownDword12: 1,
+        appStoreBundle: {
+          storeBundle: {
+            marketingBundle: {
+              bundleId: 1790,
+              nameId: 26852,
+              descriptionId: 26876,
+              unknownDword4: 1,
+              imageData: {
+                imageSetId: "13974",
+                imageTintValue: ""
+              },
+              unknownBoolean1: false,
+              unknownString1: "",
+              stationCurrencyId: 4,
+              price: 1500,
+              currencyId: 1,
+              currencyPrice: 0,
+              unknownDword9: 0,
+              unknownTime1: "1563232442",
+              unknownTime2: "3186940800",
+              unknownDword10: 0,
+              unknownBoolean2: false,
+              itemListDetails: [
+                {
+                  unknownDword1: 1,
+                  imageSetId: 79,
+                  itemId: 2891,
+                  unknownString1: "",
+                  unknownString2: ""
+                }
+              ],
+              unknownArray2: []
+            },
+            storeId: 1,
+            categoryId: 1,
+            unknownBoolean1: false,
+            unknownDword3: 0,
+            unknownDword4: 99,
+            unknownDword5: 4100,
+            unknownDword6: 4100,
+            unknownDword7: 8,
+            unknownDword8: 0,
+            unknownDword9: 0,
+            unknownDword10: 0,
+            unknownBoolean2: false,
+            unknownBoolean3: false,
+            unknownBoolean4: false
+          },
+          unknownDword1: 0,
+          unknownDword2: 0,
+          unknownDword3: 0,
+          unknownDword4: 0,
+          unknownDword5: 0,
+          unknownDword6: 0,
+          unknownString1: "",
+          unknownDword7: 0,
+          unknownDword8: 0,
+          unknownDword9: 0,
+          memberSalePrice: 0,
+          unknownDword11: 0,
+          unknownQword3: "0",
+          unknownString2: "",
+          unknownDword12: 0,
+          unknownDword13: 0
+        },
+        unknownBoolean1: false
+      }
+    );*/
+
+    /*server.sendData<InGamePurchaseSpiceWebAuthUrlResponse>(
+      client,
+      "InGamePurchase.SpiceWebAuthUrlResponse",
+      {
+        codeStringMappingId: "1",
+        url: "https://www.google.be"
+      }
+    );*/
+
+    server.sendData<InGamePurchaseWalletBalanceUpdate>(
+      client,
+      "InGamePurchase.WalletBalanceUpdate",
+      {
+        totalCoinsCount: 5000
+      }
+    );
+
+    server.sendData<InGamePurchaseActiveSchedules>(
+      client,
+      "InGamePurchase.ActiveSchedules",
+      {
+        unknownArray1: [],
+        unknownString1: "",
+        unknownArray3: []
+      }
+    );
+
+    /*server.sendData<InGamePurchaseGiftOrderNotification>(client, "InGamePurchase.GiftOrderNotification", {
+      unknownDword1: 1,
+      unknownString1: "TEST",
+      unknownString2: "TEST2",
+      unknownString3: "TEST3",
+      unknownQword1: client.character.characterId
+    });*/
+
+    server.sendData(client, "Items.SetItemTrialLockTimer", {});
+  },
   netstats: function (
     server: ZoneServer2016,
     client: Client,
@@ -57,6 +405,13 @@ const dev: any = {
   sc: function (server: ZoneServer2016, client: Client, args: Array<string>) {
     console.log(WorldObjectManager.itemSpawnersChances);
   },
+  kickme: function (
+    server: ZoneServer2016,
+    client: Client,
+    args: Array<string>
+  ) {
+    server.kickPlayer(client);
+  },
   lag: function (server: ZoneServer2016, client: Client, args: Array<string>) {
     const startTime = Date.now();
     const interval = setInterval(() => {
@@ -65,8 +420,10 @@ const dev: any = {
       }
       for (let i = 0; i < 1_000_000_000; i++) {
         // do nothing but hold the event loop
-        const a = i;
-        a;
+        let a = i;
+        if (a > 100) {
+          a--;
+        }
       }
     }, 0);
   },
@@ -77,7 +434,7 @@ const dev: any = {
   },
   path: function (server: ZoneServer2016, client: Client, args: Array<string>) {
     const characterId = server.generateGuid();
-    const npc = new Zombie(
+    const npc = new Npc(
       characterId,
       server.getTransientId(characterId),
       9510,
@@ -95,6 +452,16 @@ const dev: any = {
   },
   acc: function (server: ZoneServer2016, client: Client, args: Array<string>) {
     server.sendData<ItemsAddAccountItem>(client, "Items.AddAccountItem", {});
+  },
+  ai_load: function (
+    server: ZoneServer2016,
+    client: Client,
+    args: Array<string>
+  ) {
+    server.sendChatText(
+      client,
+      server.aiManager.get_stats().entities.toString()
+    );
   },
   ui: function (server: ZoneServer2016, client: Client, args: Array<string>) {
     server.sendData(client, "Effect.AddUiIndicator", {
@@ -125,7 +492,7 @@ const dev: any = {
       unknownData2: {}
     });
   },
-  zombie: function (
+  zombie: async function (
     server: ZoneServer2016,
     client: Client,
     args: Array<string>
@@ -141,7 +508,31 @@ const dev: any = {
       client.character.state.rotation,
       server
     );
+
     server._npcs[characterId] = zombie;
+    server.aiManager.add_entity(zombie, zombie.entityType);
+    const a = server.navManager.createAgent(zombie.state.position);
+    zombie.navAgent = a;
+
+    await scheduler.wait(5000);
+    let retries = 0;
+    const interval = setInterval(() => {
+      retries++;
+      if (retries > 10) {
+        clearInterval(interval);
+      }
+
+      server.navManager.updt();
+      if (zombie.navAgent) {
+        zombie.navAgent.requestMoveTarget(
+          server.navManager.getClosestNavPoint(client.character.state.position)
+        );
+        console.log(zombie.navAgent.interpolatedPosition);
+        zombie.goTo(
+          NavManager.Vec3ToFloat32(zombie.navAgent.interpolatedPosition)
+        );
+      }
+    }, 500);
   },
   abilities: function (
     server: ZoneServer2016,
@@ -427,7 +818,6 @@ const dev: any = {
     server.sendChatText(client, "Sending setcurrentloadout packet");
     server.sendData(client, "Loadout.CreateCustomLoadout", loadout);
   },
-
   setslot: function (
     server: ZoneServer2016,
     client: Client,
@@ -545,6 +935,12 @@ const dev: any = {
     };
     server.sendChatText(client, "Setting character equipment");
     server.sendData(client, "Equipment.SetCharacterEquipmentSlots", equipment);*/
+  },
+  coms: function (server: ZoneServer2016, client: Client, args: Array<string>) {
+    server.sendData(client, "CommerceSessionResponse", {
+      unknownDword1: 50,
+      sessionToken: "test"
+    });
   },
 
   tpvehicle: function (
@@ -839,19 +1235,30 @@ const dev: any = {
     client: Client,
     args: Array<string>
   ) {
-    if (!args[3]) {
-      server.sendChatText(client, "Missing 3 args");
+    const mountedVehicleId = client.vehicle.mountedVehicle;
+    if (!mountedVehicleId) {
+      server.sendChatText(client, "Not mounted to vehicle");
       return;
     }
-    Object.values(server._clients).forEach((c) => {
-      server.sendData(client, "ShaderParameterOverrideBase", {
-        characterId: c.character.characterId,
-        unknownDword1: Number(args[1]),
-        slotId: Number(args[2]),
-        unknownDword2: Number(args[3]),
-        shaderGroupId: 588 // maybe try setting other character's shaderGroupId on spawn
-      });
-    });
+
+    const shaderGroupId = Number(args[1]);
+    if (!args[1] || isNaN(shaderGroupId)) {
+      server.sendChatText(client, "Missing or invalid shaderGroupId");
+      return;
+    }
+
+    const vehicle = server._vehicles[mountedVehicleId];
+    server.sendDataToAllWithSpawnedEntity(
+      server._vehicles,
+      mountedVehicleId,
+      "VehicleSkinSetVehicleSkinManager",
+      {
+        vehicleId: vehicle.characterId,
+        characterId: client.character.characterId,
+        shaderGroupId
+      }
+    );
+    vehicle.shaderGroupId = shaderGroupId;
   },
   reloadplugins: async function (
     server: ZoneServer2016,
@@ -1016,7 +1423,6 @@ const dev: any = {
       status: args[1]
     });
   },
-
   airdrop: function (
     server: ZoneServer2016,
     client: Client,
@@ -1159,6 +1565,37 @@ const dev: any = {
         ]
       }
     );
+ },
+ updatecharacter: function (
+    server: ZoneServer2016,
+    client: Client,
+    args: Array<string>
+  ) {
+    if (!args[1]) {
+      server.sendChatText(client, "Missing characterName");
+      return;
+    }
+
+    const targetClient: Client | undefined | string = server.getClientByName(
+      args[1]
+    );
+    if (typeof targetClient === "string") {
+      server.sendChatText(
+        client,
+        `Player not found, did you mean ${targetClient}?`
+      );
+      return;
+    }
+
+    if (!targetClient) return;
+    targetClient.character.updateLoadout(server, false);
+    server.sendChatText(
+      client,
+      `Updated loadout for ${targetClient.character?.name}, waiting 3 seconds before sending equipment packet.`
+    );
+    setTimeout(() => {
+      targetClient.character.updateEquipment(server);
+    }, 3000);
   }
   /*
   shutdown: function (

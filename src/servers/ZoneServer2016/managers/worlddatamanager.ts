@@ -13,7 +13,6 @@
 
 import { Collection, Db, MongoClient } from "mongodb";
 import {
-  AccountItemSaveData,
   BaseConstructionSaveData,
   BaseEntityUpdateSaveData,
   BaseFullCharacterUpdateSaveData,
@@ -64,14 +63,12 @@ import { Items } from "../models/enums";
 import { Vehicle2016 } from "../entities/vehicle";
 import { TrapEntity } from "../entities/trapentity";
 import { ExplosiveEntity } from "../entities/explosiveentity";
-import { AccountInventory } from "../classes/accountinventory";
 
 const fs = require("node:fs");
 const debug = require("debug")("ZoneServer");
 export interface WorldArg {
   lastGuidItem: bigint;
   characters: CharacterUpdateSaveData[];
-  accountInventories: AccountItemSaveData[];
   worldConstructions: LootableConstructionSaveData[];
   crops: PlantingDiameterSaveData[];
   traps: TrapSaveData[];
@@ -168,12 +165,15 @@ export class WorldDataManager {
     try {
       await mongoClient.connect();
     } catch (e) {
+      console.error(e);
       throw debug("[ERROR]Unable to connect to mongo server " + mongoAddress);
     }
     debug("connected to mongo !");
     // if no collections exist on h1server database , fill it with samples
-    (await mongoClient.db(DB_NAME).collections()).length ||
-      (await initMongo(mongoClient, "ZoneServer"));
+
+    if (!(await mongoClient.db(DB_NAME).collections()).length) {
+      await initMongo(mongoClient, "ZoneServer");
+    }
     return [mongoClient.db(DB_NAME), mongoClient];
   }
 
@@ -269,7 +269,6 @@ export class WorldDataManager {
     await this.saveWorldFreeplaceConstruction(world.worldConstructions);
     await this.saveCropData(world.crops);
     await this.saveTrapData(world.traps);
-    await this.saveAccountInventories(world.accountInventories);
     console.timeEnd("WDM: saveWorld");
   }
 
@@ -382,22 +381,24 @@ export class WorldDataManager {
 
   //#region SERVER DATA
 
-  async getServerData(serverId: number): Promise<ServerSaveData | undefined> {
+  async getServerData(serverId: number): Promise<ServerSaveData | null> {
     let serverData: ServerSaveData;
     if (this._soloMode) {
       serverData = require(`${this._appDataFolder}/worlddata/world.json`);
-      if (!serverData) {
+      if (!serverData.serverId) {
         debug("World data not found in file, aborting.");
-        return;
+        return null;
       }
     } else {
-      serverData = <any>(
-        await this._db
-          ?.collection(DB_COLLECTIONS.WORLDS)
-          .findOne({ worldId: serverId })
-      );
+      serverData = await this._db
+        ?.collection(DB_COLLECTIONS.WORLDS)
+        .findOne({ worldId: serverId });
+      if (!serverData || !serverData.serverId) {
+        debug("World data not found in mongo, aborting.");
+        return null;
+      }
     }
-    return serverData;
+    return serverData ?? null;
   }
 
   private async saveServerData(lastItemGuid: bigint) {
@@ -474,6 +475,9 @@ export class WorldDataManager {
         _containers: loadedCharacter._containers || {},
         _resources: loadedCharacter._resources || {},
         mutedCharacters: loadedCharacter.mutedCharacters || [],
+        groupId: loadedCharacter.groupId || 0,
+        playTime: loadedCharacter.playTime ?? 0,
+        lastDropPlayTime: loadedCharacter.lastDropPlayTime ?? 0,
         status: 1,
         worldSaveVersion: this.worldSaveVersion
       };
@@ -513,6 +517,7 @@ export class WorldDataManager {
       ...WorldDataManager.getBaseFullCharacterUpdateSaveData(vehicle, worldId),
       vehicleId: vehicle.vehicleId,
       actorModelId: vehicle.actorModelId,
+      shaderGroupId: vehicle.shaderGroupId,
       characterId: vehicle.characterId,
       serverId: worldId,
       rotation: Array.from(vehicle.state.lookAt),
@@ -530,8 +535,11 @@ export class WorldDataManager {
       characterId: character.characterId,
       rotation: Array.from(character.state.lookAt),
       isRespawning: character.isRespawning,
+      playTime: character.playTime,
+      lastDropPlayTime: character.lastDropPlaytime,
       spawnGridData: character.spawnGridData,
-      mutedCharacters: character.mutedCharacters
+      mutedCharacters: character.mutedCharacters,
+      groupId: character.groupId
     };
     return saveData;
   }
@@ -574,7 +582,8 @@ export class WorldDataManager {
           $set: {
             ...characterSaveData
           }
-        }
+        },
+        { upsert: true }
       );
     }
   }
@@ -583,11 +592,7 @@ export class WorldDataManager {
     const promises: Array<any> = [];
     for (let i = 0; i < characters.length; i++) {
       const character = characters[i];
-      promises.push(
-        this.saveCharacterData(character).then((ret: any) => {
-          return ret;
-        })
-      );
+      promises.push(this.saveCharacterData(character));
     }
     await Promise.all(promises);
   }
@@ -1151,7 +1156,8 @@ export class WorldDataManager {
         new Float32Array(entityData.rotation),
         server,
         getCurrentServerTimeWrapper().getTruncatedU32(),
-        entityData.vehicleId
+        entityData.vehicleId,
+        entityData?.shaderGroupId ?? 0
       );
     vehicle._resources = entityData._resources;
     Object.assign(vehicle.positionUpdate, entityData.positionUpdate);
@@ -1370,7 +1376,8 @@ export class WorldDataManager {
           entityData.ownerCharacterId
         );
         server._explosives[entityData.characterId] = explosive;
-        explosive.arm(server);
+        //explosive.arm(server);
+        //temporarily Disabled
         break;
       default:
         const trap = new TrapEntity(
@@ -1386,108 +1393,8 @@ export class WorldDataManager {
         );
         trap.health = entityData.health;
         server._traps[trap.characterId] = trap;
-        trap.arm(server);
-    }
-  }
-
-  async saveAccountInventories(accountInventories: AccountItemSaveData[]) {
-    if (this._soloMode) {
-      fs.writeFileSync(
-        `${this._appDataFolder}/single_player_accountitems.json`,
-        JSON.stringify(accountInventories, null, 2)
-      );
-    } else {
-      const collection = this._db?.collection(
-        DB_COLLECTIONS.ACCOUNT_ITEMS
-      ) as Collection;
-      const updatePromises = [];
-      for (let i = 0; i < accountInventories.length; i++) {
-        const accountInventory = accountInventories[i];
-        updatePromises.push(
-          collection.updateOne(
-            {
-              loginSessionId: accountInventory.loginSessionId
-            },
-            { $set: accountInventory },
-            { upsert: true }
-          )
-        );
-      }
-      await Promise.all(updatePromises);
-      const allCharactersIds = accountInventories.map((accountInventory) => {
-        return accountInventory.loginSessionId;
-      });
-      await collection.deleteMany({
-        serverId: this._worldId,
-        loginSessionId: { $nin: allCharactersIds }
-      });
-    }
-  }
-
-  async loadAccountInventory(loginSessionId: string) {
-    let savedAccountInventory: AccountItemSaveData;
-    if (this._soloMode) {
-      const accountInventories = require(
-        `${this._appDataFolder}/single_player_accountitems.json`
-      );
-      if (!accountInventories) {
-        debug("account inventory data not found in file, aborting.");
-        return;
-      }
-
-      savedAccountInventory = accountInventories.find(
-        (inventory: any) => inventory.loginSessionId === loginSessionId
-      );
-    } else {
-      const loadedAccountInventory = <any>(
-        await this._db
-          ?.collection(DB_COLLECTIONS.ACCOUNT_ITEMS)
-          .findOne({ loginSessionId: loginSessionId })
-      );
-
-      savedAccountInventory = {
-        loginSessionId:
-          loadedAccountInventory?.loginSessionId || loginSessionId,
-        items: loadedAccountInventory?.items || {}
-      };
-    }
-
-    if (!savedAccountInventory) {
-      return new AccountInventory(loginSessionId, {});
-    }
-    const accountInventory = new AccountInventory(
-      savedAccountInventory.loginSessionId,
-      {}
-    );
-    Object.values(savedAccountInventory.items).forEach((item) => {
-      accountInventory.items[item.itemGuid] = new BaseItem(
-        item.itemDefinitionId,
-        item.itemGuid,
-        item.currentDurability,
-        item.stackCount
-      );
-    });
-
-    return accountInventory;
-  }
-
-  async saveAccountInventory(accountInventory: AccountInventory) {
-    if (this._soloMode) {
-      fs.writeFileSync(
-        `${this._appDataFolder}/single_player_accountitems.json`,
-        JSON.stringify([accountInventory], null, 2)
-      );
-    } else {
-      await this._db?.collection(DB_COLLECTIONS.ACCOUNT_ITEMS).updateOne(
-        {
-          loginSessionId: accountInventory.loginSessionId
-        },
-        {
-          $set: {
-            ...accountInventory
-          }
-        }
-      );
+      //trap.arm(server);
+      //temporarily disabled
     }
   }
 

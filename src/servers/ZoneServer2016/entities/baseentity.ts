@@ -84,6 +84,8 @@ export abstract class BaseEntity {
 
   /** The physical material the entity is made of - See enums.ts/MaterialTypes for more information */
   materialType: number;
+
+  h1emu_ai_id?: bigint;
   constructor(
     characterId: string,
     transientId: number,
@@ -144,6 +146,14 @@ export abstract class BaseEntity {
       `Attempted to call destroy() on an entity an undefined destroy method! actorModelId ${this.actorModelId}`
     );
     return false;
+  }
+
+  OnExplosiveHit(
+    server: ZoneServer2016,
+    sourceEntity: BaseEntity,
+    client?: ZoneClient2016
+  ) {
+    // default: do nothing
   }
   /* eslint-enable @typescript-eslint/no-unused-vars */
 }

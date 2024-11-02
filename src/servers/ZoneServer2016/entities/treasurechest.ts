@@ -14,6 +14,7 @@
 import { Items } from "../models/enums";
 import { ZoneServer2016 } from "../zoneserver";
 import { LootableProp } from "./lootableprop";
+import { chance } from "../../../utils/utils";
 
 export class TreasureChest extends LootableProp {
   /** Id of the worn letter that corresponds to the correct TreasureChest */
@@ -121,10 +122,19 @@ export class TreasureChest extends LootableProp {
       (itemInstance: { itemDefinitionId: number; count: number }) => {
         const item = server.generateItem(
           itemInstance.itemDefinitionId,
-          itemInstance.count
+          itemInstance.count,
+          true
         );
         this.lootContainerItem(server, item, itemInstance.count, false);
       }
     );
+    const rewards = server.rewardManager.rewards;
+    for (const reward of rewards) {
+      if (chance(50)) {
+        const item = server.generateItem(reward.itemId, 1, true);
+        if (!item) return;
+        this.lootContainerItem(server, item, item?.stackCount, false);
+      }
+    }
   }
 }

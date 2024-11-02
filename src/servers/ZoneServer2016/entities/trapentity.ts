@@ -12,7 +12,12 @@
 // ======================================================================
 
 import { CubeBounds, DamageInfo, Point3D } from "types/zoneserver";
-import { getCubeBounds, getDistance, isInsideCube } from "../../../utils/utils";
+import {
+  getCubeBounds,
+  getDistance,
+  isInsideCube,
+  isPosInRadius
+} from "../../../utils/utils";
 import {
   Effects,
   Items,
@@ -23,6 +28,7 @@ import {
 } from "../models/enums";
 import { ZoneServer2016 } from "../zoneserver";
 import { BaseSimpleNpc } from "./basesimplenpc";
+import { BaseEntity } from "./baseentity";
 
 export class TrapEntity extends BaseSimpleNpc {
   /** Damage delay for the TrapEntity */
@@ -85,7 +91,8 @@ export class TrapEntity extends BaseSimpleNpc {
                 this.state.position
               ) < 1.5 &&
               client.character.isAlive &&
-              !client.vehicle.mountedVehicle
+              !client.vehicle.mountedVehicle &&
+              !client.character.isSpectator
             ) {
               client.character.damage(server, {
                 entity: this.characterId,
@@ -197,7 +204,8 @@ export class TrapEntity extends BaseSimpleNpc {
             const client = server._clients[a];
             if (
               this.isInside(client.character.state.position) &&
-              client.character.isAlive
+              client.character.isAlive &&
+              !client.character.isSpectator
             ) {
               client.character.damage(server, {
                 entity: this.characterId,
@@ -344,9 +352,8 @@ export class TrapEntity extends BaseSimpleNpc {
         ) {
           server.addScreenEffect(client, server._screenEffects["FLASH"]);
 
-          server.sendDataToAllOthersWithSpawnedEntity(
+          server.sendDataToAllWithSpawnedEntity(
             server._characters,
-            client,
             client.character.characterId,
             "Character.PlayAnimation",
             {
@@ -367,9 +374,8 @@ export class TrapEntity extends BaseSimpleNpc {
         if (
           getDistance(client.character.state.position, this.state.position) <= 5
         ) {
-          server.sendDataToAllOthersWithSpawnedEntity(
+          server.sendDataToAllWithSpawnedEntity(
             server._characters,
-            client,
             client.character.characterId,
             "Character.PlayAnimation",
             {
@@ -436,5 +442,11 @@ export class TrapEntity extends BaseSimpleNpc {
         4658
       );
     }
+  }
+
+  OnExplosiveHit(server: ZoneServer2016, sourceEntity: BaseEntity) {
+    if (!isPosInRadius(5, this.state.position, sourceEntity.state.position))
+      return;
+    this.destroy(server);
   }
 }

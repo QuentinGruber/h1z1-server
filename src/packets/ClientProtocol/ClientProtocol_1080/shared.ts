@@ -81,18 +81,28 @@ export function readUnsignedIntWith2bitLengthValue(
 
 export function packUnsignedIntWith2bitLengthValue(value: number) {
   value = value << 2;
-  let n = 0;
+  let n: number;
+
   if (value > 0xffffff) {
     n = 3;
   } else if (value > 0xffff) {
     n = 2;
   } else if (value > 0xff) {
     n = 1;
+  } else {
+    n = 0;
   }
+
   value |= n;
-  const data = Buffer.allocUnsafe(4);
-  data.writeUInt32LE(value, 0);
-  return data.slice(0, n + 1);
+
+  const buffer = Buffer.allocUnsafe(n + 1);
+
+  for (let i = 0; i < n + 1; i++) {
+    buffer[i] = value & 0xff;
+    value >>= 8;
+  }
+
+  return buffer;
 }
 
 export function readSignedIntWith2bitLengthValue(data: Buffer, offset: number) {
@@ -331,7 +341,7 @@ export function readPositionUpdateData(data: Buffer, offset: number) {
   }
 
   if (obj.flags & 2) {
-    obj["position"] = [];
+    obj["position"] = new Float32Array(4);
     v = readSignedIntWith2bitLengthValue(data, offset);
     obj["position"][0] = v.value / 100;
     offset += v.length;
@@ -380,7 +390,7 @@ export function readPositionUpdateData(data: Buffer, offset: number) {
 
   if (obj.flags & 0x100) {
     // either the previous one i meantioned is rotation delta or this one cause rotation is almost neved sent by client
-    obj["unknown12_float"] = [];
+    obj["unknown12_float"] = new Float32Array(3);
     v = readSignedIntWith2bitLengthValue(data, offset);
     obj["unknown12_float"][0] = v.value / 100;
     offset += v.length;
@@ -393,7 +403,7 @@ export function readPositionUpdateData(data: Buffer, offset: number) {
   }
 
   if (obj.flags & 0x200) {
-    const rotationEul = [];
+    const rotationEul = new Float32Array(4);
     v = readSignedIntWith2bitLengthValue(data, offset);
     rotationEul[0] = v.value / 100;
     offset += v.length;
@@ -405,7 +415,7 @@ export function readPositionUpdateData(data: Buffer, offset: number) {
     offset += v.length;
     v = readSignedIntWith2bitLengthValue(data, offset);
     rotationEul[3] = v.value / 100;
-    obj["rotation"] = eul2quat(new Float32Array(rotationEul));
+    obj["rotation"] = eul2quat(rotationEul);
     obj["rotationRaw"] = rotationEul;
     obj["lookAt"] = eul2quat(new Float32Array([rotationEul[0], 0, 0, 0]));
     offset += v.length;
@@ -423,7 +433,7 @@ export function readPositionUpdateData(data: Buffer, offset: number) {
     offset += v.length;
   }
   if (obj.flags & 0x1000) {
-    const rotationEul = [];
+    const rotationEul = new Float32Array(8);
     v = readSignedIntWith2bitLengthValue(data, offset);
     rotationEul[0] = v.value / 10000;
     offset += v.length;
@@ -1041,7 +1051,7 @@ export const identitySchema: PacketFields = [
   { name: "characterFirstName", type: "string", defaultValue: "" },
   { name: "characterLastName", type: "string", defaultValue: "" },
   { name: "unknownString1", type: "string", defaultValue: "" },
-  { name: "characterName", type: "string", defaultValue: "unnamed" },
+  { name: "characterName", type: "string", defaultValue: "" }, // steamId
   { name: "unknownQword1", type: "uint64string", defaultValue: "0" }
 ];
 
@@ -1059,7 +1069,7 @@ export const lightWeightPcSchema: PacketFields = [
     fields: identitySchema
   },
   { name: "unknownByte1", type: "uint8", defaultValue: /*2*/ 2 }, // one of these messes with fullcharacter packet
-  { name: "actorModelId", type: "uint32", defaultValue: 9240 },
+  { name: "actorModelId", type: "uint32", defaultValue: 9469 },
   { name: "unknownDword1", type: "uint32", defaultValue: /*270*/ 270 }, // one of these messes with fullcharacter packet
   { name: "position", type: "floatvector3", defaultValue: [0, 80, 0] },
   { name: "rotation", type: "floatvector4", defaultValue: [0, 80, 0, 1] },
@@ -1079,7 +1089,7 @@ export const lightWeightPcSchema: PacketFields = [
     type: "uint64string",
     defaultValue: "0x0100000000100000"
   },
-  { name: "unknownDword5", type: "uint32", defaultValue: /*665*/ 665 }, //
+  { name: "shaderGroupId", type: "uint32", defaultValue: 0 }, //
   {
     name: "flags1",
     type: "bitflags",
@@ -1224,7 +1234,7 @@ export const lightWeightNpcSchema: PacketFields = [
   { name: "unknownDword11", type: "uint32", defaultValue: 0 },
   { name: "useCollision", type: "uint32", defaultValue: 0 },
   { name: "unknownDword13", type: "uint32", defaultValue: 0 },
-  { name: "unknownDword14", type: "uint32", defaultValue: 0 },
+  { name: "shaderGroupId", type: "uint32", defaultValue: 0 },
   { name: "unknownDword15", type: "uint32", defaultValue: 0 }
 ];
 
@@ -1493,7 +1503,6 @@ export const rewardBundleSchema: PacketFields = [
   { name: "characterId", type: "uint64string", defaultValue: "0" },
   { name: "nameId", type: "uint32", defaultValue: 0 },
   { name: "unknownDword7", type: "uint32", defaultValue: 0 },
-  { name: "imageSetId", type: "uint32", defaultValue: 0 },
   { name: "entriesArrLength", type: "uint32", defaultValue: 0 },
   /* INGORE THIS FOR NOW, CAN'T FIND READ export function (length set to 0 for now)
   {
@@ -2156,7 +2165,7 @@ export const fullPcSchema: PacketFields = [
       { name: "unknownDword1", type: "uint32", defaultValue: 0 },
       { name: "unknownDword2", type: "uint32", defaultValue: 0 },
       { name: "unknownDword3", type: "uint32", defaultValue: 0 },
-      { name: "unknownDword4", type: "uint32", defaultValue: 0 },
+      { name: "unknownDword4", type: "uint32", defaultValue: 1 },
       {
         name: "attachmentData",
         type: "array",
@@ -2857,9 +2866,199 @@ export function pack2ByteLengthString(string: string) {
 
 export const accountItemSchema: PacketFields = [
   { name: "itemId", type: "uint64string", defaultValue: "0" },
-  { name: "itemDefinitionId", type: "uint32", defaultValue: 0 },
-  { name: "unknownDword2", type: "uint32", defaultValue: 0 }, // 44 for itemDefId 1871, 37 for itemDefId 37, ... (No idea where it comes from)
+  { name: "itemDefinitionId", type: "uint64", defaultValue: 0 },
   { name: "itemCount", type: "uint32", defaultValue: 0 },
   { name: "itemGuid", type: "uint64string", defaultValue: "0" },
   { name: "unknownDword4", type: "uint32", defaultValue: 0 }
+];
+
+export const storeBundleSchema: PacketFields = [
+  {
+    name: "appStoreBundle",
+    type: "schema",
+    fields: [
+      {
+        name: "storeBundle",
+        type: "schema",
+        fields: [
+          {
+            name: "marketingBundle",
+            type: "schema",
+            fields: [
+              { name: "bundleId", type: "uint32", defaultValue: 0 },
+              { name: "nameId", type: "uint32", defaultValue: 0 },
+              {
+                name: "descriptionId",
+                type: "uint32",
+                defaultValue: 0
+              },
+              {
+                name: "unknownDword4",
+                type: "uint32",
+                defaultValue: 0
+              },
+              {
+                name: "imageData",
+                type: "schema",
+                fields: [
+                  {
+                    name: "imageSetId",
+                    type: "string",
+                    defaultValue: ""
+                  },
+                  {
+                    name: "imageTintValue",
+                    type: "string",
+                    defaultValue: ""
+                  }
+                ]
+              },
+              {
+                name: "unknownBoolean1",
+                type: "boolean",
+                defaultValue: false
+              },
+              {
+                name: "unknownString1",
+                type: "string",
+                defaultValue: ""
+              },
+              {
+                name: "stationCurrencyId",
+                type: "uint32",
+                defaultValue: 0
+              },
+              { name: "price", type: "uint32", defaultValue: 0 },
+              { name: "currencyId", type: "uint32", defaultValue: 0 },
+              {
+                name: "currencyPrice",
+                type: "uint32",
+                defaultValue: 0
+              },
+              {
+                name: "unknownDword9",
+                type: "uint32",
+                defaultValue: 0
+              },
+              {
+                name: "unknownTime1",
+                type: "uint64string",
+                defaultValue: "0"
+              },
+              {
+                name: "unknownTime2",
+                type: "uint64string",
+                defaultValue: "0"
+              },
+              {
+                name: "unknownDword10",
+                type: "uint32",
+                defaultValue: 0
+              },
+              {
+                name: "unknownBoolean2",
+                type: "boolean",
+                defaultValue: false
+              },
+              {
+                name: "itemListDetails",
+                type: "array",
+                defaultValue: [{}],
+                fields: [
+                  {
+                    name: "unknownDword1",
+                    type: "uint32",
+                    defaultValue: 0
+                  },
+                  {
+                    name: "imageSetId",
+                    type: "uint32",
+                    defaultValue: 0
+                  },
+                  { name: "itemId", type: "uint32", defaultValue: 0 },
+                  {
+                    name: "unknownString1",
+                    type: "string",
+                    defaultValue: ""
+                  },
+                  {
+                    name: "unknownString2",
+                    type: "string",
+                    defaultValue: ""
+                  }
+                ]
+              },
+              {
+                name: "unknownArray2",
+                type: "array",
+                defaultValue: [{}],
+                fields: [
+                  {
+                    name: "unknownDword1",
+                    type: "uint32",
+                    defaultValue: 0
+                  },
+                  {
+                    name: "unknownDword2",
+                    type: "uint32",
+                    defaultValue: 0
+                  }
+                ]
+              }
+            ]
+          },
+          { name: "storeId", type: "uint32", defaultValue: 0 },
+          { name: "categoryId", type: "uint32", defaultValue: 0 },
+          {
+            name: "unknownBoolean1",
+            type: "boolean",
+            defaultValue: false
+          },
+          { name: "unknownDword3", type: "uint32", defaultValue: 0 },
+          { name: "unknownDword4", type: "uint32", defaultValue: 0 },
+          { name: "unknownDword5", type: "uint32", defaultValue: 0 },
+          { name: "unknownDword6", type: "uint32", defaultValue: 0 },
+          { name: "unknownDword7", type: "uint32", defaultValue: 0 },
+          { name: "unknownDword8", type: "uint32", defaultValue: 0 },
+          { name: "unknownDword9", type: "uint32", defaultValue: 0 },
+          { name: "unknownDword10", type: "uint32", defaultValue: 0 },
+          {
+            name: "unknownBoolean2",
+            type: "boolean",
+            defaultValue: false
+          },
+          {
+            name: "unknownBoolean3",
+            type: "boolean",
+            defaultValue: false
+          },
+          {
+            name: "unknownBoolean4",
+            type: "boolean",
+            defaultValue: false
+          }
+        ]
+      },
+      { name: "unknownDword1", type: "uint32", defaultValue: 0 },
+      { name: "unknownDword2", type: "uint32", defaultValue: 0 },
+      { name: "unknownDword3", type: "uint32", defaultValue: 0 },
+      { name: "unknownDword4", type: "uint32", defaultValue: 0 },
+      { name: "unknownDword5", type: "uint32", defaultValue: 0 },
+      { name: "unknownDword6", type: "uint32", defaultValue: 0 },
+      { name: "unknownString1", type: "string", defaultValue: "" },
+      { name: "unknownDword7", type: "uint32", defaultValue: 0 },
+      { name: "unknownDword8", type: "uint32", defaultValue: 0 },
+      { name: "unknownDword9", type: "uint32", defaultValue: 0 },
+      { name: "memberSalePrice", type: "uint32", defaultValue: 0 },
+      { name: "unknownDword11", type: "uint32", defaultValue: 0 },
+      {
+        name: "unknownQword3",
+        type: "uint64string",
+        defaultValue: "0"
+      },
+      { name: "unknownString2", type: "string", defaultValue: "" },
+      { name: "unknownDword12", type: "uint32", defaultValue: 0 },
+      { name: "unknownDword13", type: "uint32", defaultValue: 0 }
+    ]
+  }
 ];

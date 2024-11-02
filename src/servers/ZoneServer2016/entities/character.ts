@@ -46,7 +46,9 @@ import {
   randomIntFromInterval,
   _,
   checkConstructionInRange,
-  getCurrentServerTimeWrapper
+  getCurrentServerTimeWrapper,
+  isPosInRadiusWithY,
+  getDistance
 } from "../../../utils/utils";
 import { BaseItem } from "../classes/baseItem";
 import { BaseLootableEntity } from "./baselootableentity";
@@ -59,7 +61,6 @@ import {
   ClientUpdateDamageInfo,
   ClientUpdateModifyMovementSpeed,
   CommandPlayDialogEffect,
-  EquipmentSetCharacterEquipment,
   EquipmentSetCharacterEquipmentSlot,
   LoadoutSetLoadoutSlots,
   SendSelfToClient
@@ -70,6 +71,9 @@ import {
   LOADOUT_CONTAINER_ID
 } from "../../../utils/constants";
 import { recipes } from "../data/Recipes";
+import { ConstructionChildEntity } from "./constructionchildentity";
+import { ConstructionParentEntity } from "./constructionparententity";
+import { BaseEntity } from "./baseentity";
 const stats = require("../../../../data/2016/sampleData/stats.json");
 
 interface CharacterStates {
@@ -101,6 +105,9 @@ export class Character2016 extends BaseFullCharacter {
   /** Used to update the status of the players resources */
   resourcesUpdater?: any;
   factionId = 2;
+  isInInventory: boolean = false;
+  playTime: number = 0;
+  lastDropPlaytime: number = 0;
   set godMode(state: boolean) {
     this.characterStates.invincibility = state;
   }
@@ -144,8 +151,6 @@ export class Character2016 extends BaseFullCharacter {
   isMoving = false;
 
   /** Values used upon character creation */
-  actorModelId!: number;
-  headActor!: string;
   hairModel!: string;
   isRespawning = false;
   isReady = false;
@@ -309,7 +314,7 @@ export class Character2016 extends BaseFullCharacter {
     this.npcRenderDistance = 400;
 
     /** Default resource amounts applied after respawning */
-    (this._resources = {
+    this._resources = {
       [ResourceIds.HEALTH]: 10000,
       [ResourceIds.STAMINA]: 600,
       [ResourceIds.HUNGER]: 10000,
@@ -318,12 +323,12 @@ export class Character2016 extends BaseFullCharacter {
       [ResourceIds.COMFORT]: 5000,
       [ResourceIds.BLEEDING]: 0,
       [ResourceIds.ENDURANCE]: 8000
-    }),
-      (this.characterStates = {
-        knockedOut: false,
-        inWater: false,
-        invincibility: false
-      });
+    };
+    this.characterStates = {
+      knockedOut: false,
+      inWater: false,
+      invincibility: false
+    };
     this.timeouts = {};
     this.starthealingInterval = (
       client: ZoneClient2016,
@@ -381,6 +386,19 @@ export class Character2016 extends BaseFullCharacter {
       }, 1000);
     };
     this.materialType = MaterialTypes.FLESH;
+  }
+
+  getShaderGroup() {
+    switch (this.headActor) {
+      case "SurvivorMale_Head_02.adr":
+      case "SurvivorFemale_Head_02.adr":
+        return 125;
+      case "SurvivorMale_Head_03.adr":
+      case "SurvivorFemale_Head_03.adr":
+        return 129;
+      default:
+        return 122;
+    }
   }
 
   pGetRecipes(server: ZoneServer2016): any[] {
@@ -915,7 +933,8 @@ export class Character2016 extends BaseFullCharacter {
       rotation: this.state.lookAt,
       identity: {
         characterName: this.name
-      }
+      },
+      shaderGroupId: this.getShaderGroup()
     };
   }
 
@@ -939,13 +958,12 @@ export class Character2016 extends BaseFullCharacter {
 
   pGetSendSelf(
     server: ZoneServer2016,
-    guid = "",
     client: ZoneClient2016
   ): SendSelfToClient {
     return {
       data: {
         ...this.pGetLightweight(),
-        guid: guid,
+        guid: client.loginSessionId,
         hairModel: this.hairModel,
         isRespawning: this.isRespawning,
         gender: this.gender,
@@ -971,7 +989,8 @@ export class Character2016 extends BaseFullCharacter {
         //vehicleLoadoutRelatedDword: 1,
         //unknownDword40: 1
         isAdmin: client.isAdmin,
-        firstPersonOnly: server.isFirstPersonOnly
+        firstPersonOnly: server.isFirstPersonOnly,
+        shaderGroupId: this.getShaderGroup()
       } as any
     };
   }
@@ -1191,6 +1210,21 @@ export class Character2016 extends BaseFullCharacter {
 
     if (this.isGodMode() || !this.isAlive || this.isRespawning || damage <= 25)
       return;
+
+    // Don't damage players inside shelters
+    if (this.isHidden) {
+      const entity = server.getConstructionEntity(this.isHidden);
+
+      if (
+        entity instanceof ConstructionChildEntity ||
+        entity instanceof ConstructionParentEntity
+      ) {
+        if (entity.isInside(this.state.position)) {
+          return;
+        }
+      }
+    }
+
     if (damageInfo.causeBleed) {
       if (randomIntFromInterval(0, 100) < damage / 100 && damage > 500) {
         this._resources[ResourceIds.BLEEDING] += 41;
@@ -1276,9 +1310,11 @@ export class Character2016 extends BaseFullCharacter {
       server._lootableConstruction[lootableEntity.characterId];
     if (lootableConstruction && lootableConstruction.parentObjectCharacterId) {
       const parent = lootableConstruction.getParent(server);
+      const c = server.getClientByCharId(this.characterId);
       if (
         parent &&
         parent.isSecured &&
+        !c?.isDebugMode &&
         !parent.getHasPermission(
           server,
           this.characterId,
@@ -1292,8 +1328,24 @@ export class Character2016 extends BaseFullCharacter {
 
     const oldMount = this.mountedContainer?.characterId;
 
-    lootableEntity.mountedCharacter = this.characterId;
+    // Only mount container if none is mounted
+    if (!lootableEntity.mountedCharacter) {
+      lootableEntity.mountedCharacter = this.characterId;
+    }
+
     this.mountedContainer = lootableEntity;
+
+    // Change accessor so others in the vehicle will also see the loot but can't interact with
+    let accessor = client.character.characterId;
+    if (
+      lootableEntity instanceof Vehicle2016 &&
+      server._vehicles[lootableEntity.characterId]
+    ) {
+      const vehicle = server._vehicles[lootableEntity.characterId],
+        driver = vehicle.getDriver(server);
+      if (driver) accessor = driver.characterId;
+      else accessor = "0x0";
+    }
 
     server.sendData<AccessedCharacterBeginCharacterAccess>(
       client,
@@ -1303,7 +1355,7 @@ export class Character2016 extends BaseFullCharacter {
           lootableEntity instanceof Vehicle2016
             ? lootableEntity.characterId
             : EXTERNAL_CONTAINER_GUID,
-        mutatorCharacterId: client.character.characterId,
+        mutatorCharacterId: accessor,
         dontOpenInventory:
           lootableEntity instanceof Vehicle2016 ? true : !!oldMount,
         itemsData: {
@@ -1408,42 +1460,16 @@ export class Character2016 extends BaseFullCharacter {
     });
   }
 
-  updateEquipmentSlot(
-    server: ZoneServer2016,
-    slotId: number,
-    sendPacketToLocalClient = true
-  ) {
+  updateEquipmentSlot(server: ZoneServer2016, slotId: number) {
     if (!server.getClientByCharId(this.characterId)?.character.initialized)
       return;
-    /*
+
     server.sendDataToAllWithSpawnedEntity(
       server._characters,
       this.characterId,
       "Equipment.SetCharacterEquipmentSlot",
       this.pGetEquipmentSlotFull(slotId) as EquipmentSetCharacterEquipmentSlot
     );
-    */
-    // GROUP OUTLINE WORKAROUND
-
-    server.executeFuncForAllReadyClients((client) => {
-      let groupId = 0;
-      if (client.character != this) {
-        groupId = client.character.groupId;
-      }
-      if (
-        sendPacketToLocalClient ||
-        this.characterId != client.character.characterId
-      ) {
-        server.sendData<EquipmentSetCharacterEquipmentSlot>(
-          client,
-          "Equipment.SetCharacterEquipmentSlot",
-          this.pGetEquipmentSlotFull(
-            slotId,
-            groupId
-          ) as EquipmentSetCharacterEquipmentSlot
-        );
-      }
-    });
   }
 
   meleeBlocked(delay: number = 1000) {
@@ -1460,7 +1486,7 @@ export class Character2016 extends BaseFullCharacter {
     }
   }
 
-  pGetEquipmentSlotFull(slotId: number, groupId?: number) {
+  pGetEquipmentSlotFull(slotId: number) {
     const slot = this._equipment[slotId];
     if (!slot) return;
     return {
@@ -1468,54 +1494,56 @@ export class Character2016 extends BaseFullCharacter {
         characterId: this.characterId
       },
       equipmentSlot: this.pGetEquipmentSlot(slotId),
-      attachmentData: this.pGetAttachmentSlot(slotId, groupId)
+      attachmentData: this.pGetAttachmentSlot(slotId)
     };
   }
 
-  updateEquipment(server: ZoneServer2016, groupId?: number) {
+  updateEquipment(server: ZoneServer2016) {
     if (!server.getClientByCharId(this.characterId)?.character.initialized)
       return;
     server.sendDataToAllWithSpawnedEntity(
       server._characters,
       this.characterId,
       "Equipment.SetCharacterEquipment",
-      this.pGetEquipment(groupId)
+      this.pGetEquipment()
     );
   }
 
-  pGetEquipment(groupId?: number) {
+  pGetEquipment() {
     return {
       characterData: {
         profileId: 5,
         characterId: this.characterId
       },
       unknownDword1: 0,
-      unknownString1: "Default",
-      unknownString2: "#",
+      tintAlias: "Default",
+      decalAlias: "#",
       equipmentSlots: this.pGetEquipmentSlots(),
-      attachmentData: this.pGetAttachmentSlots(groupId),
+      attachmentData: this.pGetAttachmentSlots(),
       unknownBoolean1: true
     };
   }
 
-  pGetAttachmentSlots(groupId?: number) {
+  pGetAttachmentSlots() {
     return Object.keys(this._equipment).map((slotId) => {
-      return this.pGetAttachmentSlot(Number(slotId), groupId);
+      return this.pGetAttachmentSlot(Number(slotId));
     });
   }
 
-  pGetAttachmentSlot(slotId: number, groupId?: number) {
+  pGetAttachmentSlot(slotId: number) {
     const slot = this._equipment[slotId];
     return slot
       ? {
-          modelName:
-            slot.modelName /* == "Weapon_Empty.adr" ? slot.modelName : ""*/,
-          effectId: this.groupId > 0 && this.groupId == groupId ? 3 : 0,
+          modelName: slot.modelName.replace(
+            /Up|Down/g,
+            this.hoodState == "Down" ? "Up" : "Down"
+          ),
           textureAlias: slot.textureAlias || "",
+          effectId: slot.effectId || 0,
           tintAlias: slot.tintAlias || "Default",
           decalAlias: slot.decalAlias || "#",
-          slotId: slot.slotId
-          //SHADER_PARAMETER_GROUP: slot.SHADER_PARAMETER_GROUP
+          slotId: slot.slotId,
+          SHADER_PARAMETER_GROUP: slot?.SHADER_PARAMETER_GROUP ?? []
         }
       : undefined;
   }
@@ -1565,7 +1593,7 @@ export class Character2016 extends BaseFullCharacter {
       useCompression: false,
       fullPcData: {
         transientId: this.transientId,
-        attachmentData: this.pGetAttachmentSlots(client.character.groupId),
+        attachmentData: this.pGetAttachmentSlots(),
         headActor: this.headActor,
         hairModel: this.hairModel,
         resources: { data: this.pGetResources() },
@@ -1603,12 +1631,6 @@ export class Character2016 extends BaseFullCharacter {
       stance: this.weaponStance
     });
 
-    // GROUP OUTLINE WORKAROUND
-    server.sendData<EquipmentSetCharacterEquipment>(
-      client,
-      "Equipment.SetCharacterEquipment",
-      this.pGetEquipment(client.character.groupId)
-    );
     const c = server.getClientByCharId(this.characterId);
     if (c && !c.firstLoading) {
       server.updateCharacterState(
@@ -1655,21 +1677,22 @@ export class Character2016 extends BaseFullCharacter {
     let damage = damageInfo.damage,
       canStopBleed,
       armorDmgModifier;
-    weaponDefinitionId == WeaponDefinitionIds.WEAPON_SHOTGUN
-      ? (armorDmgModifier = 10)
-      : (armorDmgModifier = 4);
+    armorDmgModifier =
+      weaponDefinitionId == WeaponDefinitionIds.WEAPON_SHOTGUN ? 10 : 4;
     if (weaponDefinitionId == WeaponDefinitionIds.WEAPON_308)
       armorDmgModifier = 2;
     switch (damageInfo.hitReport?.hitLocation) {
       case "HEAD":
       case "GLASSES":
       case "NECK":
-        weaponDefinitionId == WeaponDefinitionIds.WEAPON_SHOTGUN
-          ? (damage *= 2)
-          : (damage *= 4);
-        weaponDefinitionId == WeaponDefinitionIds.WEAPON_308
-          ? (damage *= 2)
-          : damage;
+        damage =
+          weaponDefinitionId == WeaponDefinitionIds.WEAPON_SHOTGUN
+            ? (damage *= 2)
+            : (damage *= 4);
+        damage =
+          weaponDefinitionId == WeaponDefinitionIds.WEAPON_308
+            ? (damage *= 2)
+            : damage;
         damage = server.checkHelmet(this.characterId, damage, 1);
         break;
       default:
@@ -1813,5 +1836,29 @@ export class Character2016 extends BaseFullCharacter {
     }
 
     this.damage(server, { ...damageInfo, damage });
+  }
+
+  OnExplosiveHit(server: ZoneServer2016, sourceEntity: BaseEntity) {
+    const sourceIsVehicle = sourceEntity instanceof Vehicle2016;
+    if (
+      !isPosInRadiusWithY(
+        sourceIsVehicle ? 5 : 3,
+        this.state.position,
+        sourceEntity.state.position,
+        1.5
+      )
+    )
+      return;
+
+    const distance = getDistance(
+        sourceEntity.state.position,
+        this.state.position
+      ),
+      damage = 50000 / distance;
+
+    this.damage(server, {
+      entity: sourceEntity.characterId,
+      damage: damage
+    });
   }
 }

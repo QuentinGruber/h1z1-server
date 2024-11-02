@@ -180,9 +180,10 @@ export const internalCommands: Array<InternalCommand> = [
         client.character.state.lookAt,
         server,
         getCurrentServerTimeWrapper().getTruncatedU32(),
-        vehicleId
+        vehicleId,
+        0
       );
-      server.worldObjectManager.createVehicle(server, vehicle);
+      server.worldObjectManager.createVehicle(server, vehicle, true);
       client.character.ownedVehicle = vehicle.characterId;
     }
   }

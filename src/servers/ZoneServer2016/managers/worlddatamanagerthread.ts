@@ -22,7 +22,6 @@ import {
   WorldArg,
   WorldDataManager
 } from "./worlddatamanager";
-import { AccountInventory } from "../classes/accountinventory";
 
 const worldDataManager = new WorldDataManager();
 export interface WorldDataManagerThreaded {
@@ -30,7 +29,7 @@ export interface WorldDataManagerThreaded {
   saveTimeInterval: number;
   nextSaveTime: number;
   initialize: (arg0: number, arg1: string) => Promise<void>;
-  getServerData: (arg0: number) => Promise<ServerSaveData>;
+  getServerData: (arg0: number) => Promise<ServerSaveData | null>;
   fetchWorldData: () => Promise<FetchedWorldData>;
   fetchCharacterData: (arg0: string) => Promise<FullCharacterSaveData>;
   insertWorld: (arg0: bigint) => Promise<void>;
@@ -41,8 +40,6 @@ export interface WorldDataManagerThreaded {
     arg0: CharacterUpdateSaveData,
     arg1?: bigint
   ) => Promise<void>;
-  loadAccountInventory: (arg0: string) => Promise<AccountInventory>;
-  saveAccountInventory: (arg0: AccountInventory) => Promise<void>;
   kill: () => void;
 }
 expose({
@@ -50,7 +47,7 @@ expose({
     return worldDataManager.initialize(worldId, mongoAddress);
   },
   getServerData(serverId: number) {
-    return worldDataManager.getServerData(serverId) as Promise<ServerSaveData>;
+    return worldDataManager.getServerData(serverId);
   },
   fetchWorldData() {
     return worldDataManager.fetchWorldData();
@@ -72,12 +69,6 @@ expose({
   },
   saveCharacterData(character: CharacterUpdateSaveData, lastItemGuid?: bigint) {
     return worldDataManager.saveCharacterData(character, lastItemGuid);
-  },
-  loadAccountInventory(loginSessionId: string) {
-    return worldDataManager.loadAccountInventory(loginSessionId);
-  },
-  saveAccountInventory(accountInventory: AccountInventory) {
-    return worldDataManager.saveAccountInventory(accountInventory);
   },
   kill() {
     process.exit(0);

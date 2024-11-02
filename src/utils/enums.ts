@@ -65,8 +65,9 @@ export enum DB_COLLECTIONS {
   FAIRPLAY = "fairplay-logs",
   KILLS = "kills",
   MUTED = "muted",
-  ASSET_HASHES = "asset-hashes",
-  VPN_WHITELIST = "vpn-whitelist"
+  GROUPS = "groups",
+  VPN_WHITELIST = "vpn-whitelist",
+  AUTHKEYS = "verified-authkeys"
 }
 
 export enum LOGIN_KICK_REASON {

@@ -153,7 +153,7 @@ export class PluginManager {
   private moduleDir =
     process.env.PLUGIN_MODULES_DIR ||
     searchFolder(process.cwd(), "h1z1-server") ||
-    "";
+    process.cwd();
 
   /**
    * Checks if the plugins directory exists and creates it if it doesn't.
@@ -189,30 +189,28 @@ export class PluginManager {
    * @param pluginPath - The path of the plugin.
    * @param dependencies - An array of dependencies to install.
    */
-  private installDependencies(
-    pluginPath: string,
-    dependencies: string[]
-  ): void {
-    // shoutout chatGPT
+  private async installDependencies(pluginPath: string): Promise<void> {
+    return new Promise((resolve, reject) => {
+      // shoutout chatGPT
 
-    if (dependencies.length === 0) {
-      return;
-    }
+      console.log("[PluginManager] Installing dependencies...");
 
-    console.log("[PluginManager] Installing dependencies...");
+      const installCommand = `npm install`;
 
-    const installCommand = `npm install ${dependencies.join(" ")}`;
-
-    try {
-      execSync(installCommand, {
-        cwd: path.join(this.pluginsDir, pluginPath),
-        stdio: "inherit"
-      });
-      console.log("[PluginManager] Dependencies installed successfully.");
-    } catch (error) {
-      console.error("[PluginManager] Failed to install dependencies.");
-      process.exit(1);
-    }
+      try {
+        execSync(installCommand, {
+          cwd: path.join(this.pluginsDir, pluginPath),
+          stdio: "inherit"
+        });
+        console.log("[PluginManager] Dependencies installed successfully.");
+        resolve();
+      } catch (error) {
+        console.error(error);
+        console.error("[PluginManager] Failed to install dependencies.");
+        reject();
+        process.exit(1);
+      }
+    });
   }
 
   /**
@@ -225,10 +223,9 @@ export class PluginManager {
 
     if (!folderExists(path.join(this.pluginsDir, pluginPath, "node_modules"))) {
       // Install dependencies into the node_modules directory
-      const dependencies = this.getDependencies(pluginPath);
-      this.installDependencies(pluginPath, dependencies);
+      await this.installDependencies(pluginPath);
     } else {
-      console.log(`[PluginManager] Dependencies detected for ${pluginPath}`);
+      console.log(`[PluginManager] Dependencies loaded for ${pluginPath}`);
     }
 
     traverseAndReplace(
@@ -239,10 +236,6 @@ export class PluginManager {
 
     delete require.cache[require.resolve(runPath)];
     const module = await import(runPath);
-    if (!(module.default.prototype instanceof BasePlugin)) {
-      console.log(`[PluginManager] Invalid plugin detected! ${runPath}`);
-      return;
-    }
 
     const plugin = new module.default();
     plugin.dir = path.join(this.pluginsDir, pluginPath);
@@ -327,6 +320,10 @@ export class PluginManager {
    * @param server - The ZoneServer2016 instance.
    */
   public async initializePlugins(server: ZoneServer2016) {
+    // Used in tests
+    if (process.env.DISABLE_PLUGINS) {
+      return;
+    }
     if (!this.moduleDir) {
       console.error("[PluginManager] moduleDir is undefined!");
       console.log(`[PluginManager] No plugins loaded.`);

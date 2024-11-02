@@ -75,6 +75,7 @@ export abstract class BaseFullCharacter extends BaseLightweightCharacter {
   currentLoadoutSlot = 0; // idk if other full npcs use this
   isLightweight = false;
   gender: number;
+  hoodState: string = "Up";
 
   /** The default items that will spawn on and with the BaseFullCharacter */
   defaultLoadout: LoadoutKit = [];
@@ -183,7 +184,7 @@ export abstract class BaseFullCharacter extends BaseLightweightCharacter {
   }
 
   /* eslint-disable @typescript-eslint/no-unused-vars */
-  updateLoadout(server: ZoneServer2016, sendPacketToLocalClient = true) {
+  updateLoadout(server: ZoneServer2016) {
     const client = server.getClientByContainerAccessor(this);
     if (client) {
       if (!client.character.initialized) return;
@@ -198,8 +199,6 @@ export abstract class BaseFullCharacter extends BaseLightweightCharacter {
   }
 
   updateEquipment(server: ZoneServer2016) {
-    if (!server.getClientByCharId(this.characterId)?.character.initialized)
-      return;
     server.sendDataToAllWithSpawnedEntity(
       server._characters,
       this.characterId,
@@ -208,13 +207,7 @@ export abstract class BaseFullCharacter extends BaseLightweightCharacter {
     );
   }
 
-  updateEquipmentSlot(
-    server: ZoneServer2016,
-    slotId: number,
-    sendPacketToLocalClient = true
-  ) {
-    if (!server.getClientByCharId(this.characterId)?.character.initialized)
-      return;
+  updateEquipmentSlot(server: ZoneServer2016, slotId: number) {
     server.sendDataToAllWithSpawnedEntity(
       server._characters,
       this.characterId,
@@ -236,8 +229,7 @@ export abstract class BaseFullCharacter extends BaseLightweightCharacter {
     server: ZoneServer2016,
     item?: BaseItem,
     sendPacket: boolean = true,
-    loadoutSlotId: number = 0,
-    sendPacketToLocalClient = true
+    loadoutSlotId: number = 0
   ) {
     if (!item || !item.isValid("equipItem")) return;
     const def = server.getItemDefinition(item.itemDefinitionId);
@@ -291,7 +283,8 @@ export abstract class BaseFullCharacter extends BaseLightweightCharacter {
         ),
         slotId: equipmentSlotId,
         guid: item.itemGuid,
-        textureAlias: def.TEXTURE_ALIAS || "default0",
+        textureAlias: def.TEXTURE_ALIAS || "Default",
+        effectId: def.EFFECT_ID || 0,
         tintAlias: "",
         SHADER_PARAMETER_GROUP: server.getShaderParameterGroup(
           item.itemDefinitionId
@@ -370,13 +363,8 @@ export abstract class BaseFullCharacter extends BaseLightweightCharacter {
         }
       );
     }
-    this.updateLoadout(server, sendPacketToLocalClient);
-    if (equipmentSlotId)
-      this.updateEquipmentSlot(
-        server,
-        equipmentSlotId,
-        sendPacketToLocalClient
-      );
+    this.updateLoadout(server);
+    if (equipmentSlotId) this.updateEquipmentSlot(server, equipmentSlotId);
   }
 
   generateEquipmentFromLoadout(server: ZoneServer2016) {
@@ -404,6 +392,7 @@ export abstract class BaseFullCharacter extends BaseLightweightCharacter {
           slotId: equipmentSlotId,
           guid: slot.itemGuid,
           textureAlias: def.TEXTURE_ALIAS || "",
+          effectId: def.EFFECT_ID || 0,
           tintAlias: "",
           SHADER_PARAMETER_GROUP: server.getShaderParameterGroup(
             slot.itemDefinitionId
@@ -428,7 +417,7 @@ export abstract class BaseFullCharacter extends BaseLightweightCharacter {
     }
     const itemDefId = item.itemDefinitionId;
     if (server.isAccountItem(itemDefId) && client) {
-      this.lootAccountItem(server, client, item, sendUpdate);
+      server.lootAccountItem(server, client, item, sendUpdate);
     } else if (this.getAvailableLoadoutSlot(server, itemDefId)) {
       if (client && client.character.initialized && sendUpdate) {
         server.sendData(client, "Reward.AddNonRewardItem", {
@@ -442,33 +431,6 @@ export abstract class BaseFullCharacter extends BaseLightweightCharacter {
     } else {
       this.lootContainerItem(server, item, count, sendUpdate);
     }
-  }
-
-  lootAccountItem(
-    server: ZoneServer2016,
-    client: ZoneClient2016,
-    item: BaseItem,
-    sendUpdate: boolean = false
-  ) {
-    const items = server._accountInventories[client.loginSessionId]?.items;
-    if (!items) return;
-    items[item.itemGuid] = item;
-    server.sendData(client, "Items.AddEscrowAccountItem", {
-      itemData: {
-        itemId: item.itemGuid,
-        itemDefinitionId: item.itemDefinitionId,
-        itemCount: item.stackCount,
-        itemGuid: item.itemGuid
-      }
-    });
-
-    if (!sendUpdate) return;
-    server.sendData(client, "Reward.AddNonRewardItem", {
-      itemDefId: item.itemDefinitionId,
-      iconId: server.getItemDefinition(item.itemDefinitionId)?.IMAGE_SET_ID,
-      nameId: server.getItemDefinition(item.itemDefinitionId)?.NAME_ID,
-      count: item.stackCount
-    });
   }
 
   lootItemFromContainer(
@@ -556,7 +518,9 @@ export abstract class BaseFullCharacter extends BaseLightweightCharacter {
       if (
         ammo &&
         loadoutItem.weapon.ammoCount > 0 &&
-        loadoutItem.weapon.itemDefinitionId != Items.WEAPON_REMOVER
+        loadoutItem.weapon.itemDefinitionId != Items.WEAPON_REMOVER &&
+        server.getItemDefinition(loadoutItem.itemDefinitionId)?.ITEM_CLASS !=
+          ItemClasses.THROWABLES
       ) {
         this.lootContainerItem(server, ammo, ammo.stackCount, true);
       }
@@ -851,6 +815,7 @@ export abstract class BaseFullCharacter extends BaseLightweightCharacter {
           equipmentSlotData: {
             equipmentSlotId: slot.slotId,
             guid: slot.guid || "",
+            effectId: slot.effectId || 0,
             tintAlias: slot.tintAlias || "Default",
             decalAlias: slot.decalAlias || "#"
           }
@@ -868,12 +833,16 @@ export abstract class BaseFullCharacter extends BaseLightweightCharacter {
     const slot = this._equipment[slotId];
     return slot
       ? {
-          modelName: slot.modelName,
+          modelName: slot.modelName.replace(
+            /Up|Down/g,
+            this.hoodState == "Down" ? "Up" : "Down"
+          ),
+          effectId: slot.effectId || 0,
           textureAlias: slot.textureAlias || "",
           tintAlias: slot.tintAlias || "Default",
           decalAlias: slot.decalAlias || "#",
-          slotId: slot.slotId
-          //SHADER_PARAMETER_GROUP: slot.SHADER_PARAMETER_GROUP
+          slotId: slot.slotId,
+          SHADER_PARAMETER_GROUP: slot?.SHADER_PARAMETER_GROUP ?? []
         }
       : undefined;
   }
@@ -951,7 +920,6 @@ export abstract class BaseFullCharacter extends BaseLightweightCharacter {
     let slot = loadoutSlotItemClass?.SLOT;
     if (!slot) return 0;
     switch (itemDef?.ITEM_CLASS) {
-      // TODO: Prevent equipping throwables until fixed
       case ItemClasses.THROWABLES:
       case ItemClasses.WEAPONS_LONG:
       case ItemClasses.WEAPONS_PISTOL:

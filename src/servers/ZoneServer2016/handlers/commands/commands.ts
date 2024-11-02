@@ -26,7 +26,8 @@ import {
   isPosInRadius,
   toHex,
   randomIntFromInterval,
-  getCurrentServerTimeWrapper
+  getCurrentServerTimeWrapper,
+  getDateString
 } from "../../../../utils/utils";
 import { ExplosiveEntity } from "../../entities/explosiveentity";
 import { Npc } from "../../entities/npc";
@@ -59,6 +60,7 @@ import { MAX_UINT32 } from "../../../../utils/constants";
 import { WithId } from "mongodb";
 import { FullCharacterSaveData } from "types/savedata";
 import { scheduler } from "node:timers/promises";
+import { Vehicle2016 } from "../../entities/vehicle";
 const itemDefinitions = require("./../../../../../data/2016/dataSources/ServerItemDefinitions.json");
 
 export const commands: Array<Command> = [
@@ -142,10 +144,12 @@ export const commands: Array<Command> = [
               : `${(uptimeMin / 60).toFixed()}h `
           }`
         );
-        server.sendChatText(
-          client,
-          `clients : ${_.size(clients)} | npcs : ${_.size(npcs)}`
-        );
+        if (client.isAdmin) {
+          server.sendChatText(
+            client,
+            `clients : ${_.size(clients)} | npcs : ${_.size(npcs)}`
+          );
+        }
         server.sendChatText(
           client,
           `items : ${_.size(objects)} | vehicles : ${_.size(vehicles)}`
@@ -156,7 +160,7 @@ export const commands: Array<Command> = [
   },
   {
     name: "pop",
-    permissionLevel: PermissionLevels.DEFAULT,
+    permissionLevel: PermissionLevels.ADMIN,
     execute: (server: ZoneServer2016, client: Client, args: Array<string>) => {
       const pop = _.size(server._clients);
       server.sendChatText(
@@ -254,7 +258,8 @@ export const commands: Array<Command> = [
         client,
         `position: ${position[0].toFixed(2)},${position[1].toFixed(
           2
-        )},${position[2].toFixed(2)}`
+        )},${position[2].toFixed(2)}`,
+        true
       );
       server.sendChatText(
         client,
@@ -312,26 +317,14 @@ export const commands: Array<Command> = [
     name: "hood",
     permissionLevel: PermissionLevels.DEFAULT,
     execute: (server: ZoneServer2016, client: Client, args: Array<string>) => {
-      const equipment = client.character._equipment[3] || {},
-        equipmentModel = equipment.modelName || "";
-
-      if (
-        !client.character._equipment[3] ||
-        !client.character._equipment[3].modelName.includes("Hoodie")
-      ) {
+      const equipment = client.character._equipment[3];
+      if (!equipment || !equipment.modelName.includes("Hoodie")) {
         server.sendChatText(client, "[ERROR] You aren't wearing a hoodie.");
-      } else {
-        equipmentModel.includes("Up")
-          ? (client.character._equipment[3].modelName = equipmentModel.replace(
-              "Up",
-              "Down"
-            ))
-          : (client.character._equipment[3].modelName = equipmentModel.replace(
-              "Down",
-              "Up"
-            ));
-        client.character.updateEquipmentSlot(server, EquipSlots.CHEST);
+        return;
       }
+      client.character.hoodState =
+        client.character.hoodState == "Up" ? "Down" : "Up";
+      client.character.updateEquipmentSlot(server, EquipSlots.CHEST);
     }
   },
   {
@@ -704,6 +697,15 @@ export const commands: Array<Command> = [
     name: "d",
     permissionLevel: PermissionLevels.MODERATOR,
     execute: (server: ZoneServer2016, client: Client, args: Array<string>) => {
+      // Clear spectator on logout to prevent the client from crashing on the next login - Jason
+      if (client.character.isSpectator) {
+        server.commandHandler.executeInternalCommand(
+          server,
+          client,
+          "spectate",
+          []
+        );
+      }
       client.properlyLogout = true;
       server.sendData(client, "CharacterSelectSessionResponse", {
         status: 1,
@@ -999,9 +1001,7 @@ export const commands: Array<Command> = [
           client,
           `You have ${
             isSilent ? "silently " : ""
-          }banned ${character?.characterName} until ${server.getDateString(
-            time
-          )}`
+          }banned ${character?.characterName} until ${getDateString(time)}`
         );
       } else {
         server.sendChatText(
@@ -1082,9 +1082,7 @@ export const commands: Array<Command> = [
           client,
           `You have ${
             isSilent ? "silently " : ""
-          }banned ${character?.characterName} until ${server.getDateString(
-            time
-          )}`
+          }banned ${character?.characterName} until ${getDateString(time)}`
         );
       } else {
         server.sendChatText(
@@ -1198,6 +1196,94 @@ export const commands: Array<Command> = [
         client.character.characterStates,
         true
       );
+    }
+  },
+  {
+    name: "superman",
+    permissionLevel: PermissionLevels.MODERATOR,
+    execute: async (
+      server: ZoneServer2016,
+      client: Client,
+      args: Array<string>
+    ) => {
+      // Heal the character
+      client.character.resetResources(server);
+      server.sendChatText(client, "Set resources to maximum values.");
+      // Toggle debug mode
+      client.isDebugMode = !client.isDebugMode;
+      server.sendAlert(client, `Set debug mode to ${client.isDebugMode}`);
+      // Toggle vanish state
+      client.character.isVanished = !client.character.isVanished;
+      server.sendAlert(
+        client,
+        `Set vanish state to ${client.character.isVanished}`
+      );
+      if (!client.character.isVanished) {
+        for (const decoy of Object.values(server._decoys)) {
+          if (decoy.transientId === client.character.transientId) {
+            server.sendDataToAll("Character.RemovePlayer", {
+              characterId: decoy.characterId
+            });
+            server.sendChatText(client, "Decoy removed", false);
+            client.isDecoy = false;
+          }
+        }
+      } else {
+        for (const iteratedClient of Object.values(server._clients)) {
+          if (iteratedClient.spawnedEntities.has(client.character)) {
+            server.sendData(iteratedClient, "Character.RemovePlayer", {
+              characterId: client.character.characterId
+            });
+            iteratedClient.spawnedEntities.delete(client.character);
+          }
+        }
+        server.sendData(client, "Spectator.Enable", {});
+      }
+      // Toggle god mode
+      server.setGodMode(client, !client.character.godMode);
+      server.sendAlert(client, `Set godmode to ${client.character.godMode}`);
+      server.updateCharacterState(
+        client,
+        client.character.characterId,
+        client.character.characterStates,
+        true
+      );
+    }
+  },
+  {
+    name: "move",
+    permissionLevel: PermissionLevels.MODERATOR,
+    execute: (server: ZoneServer2016, client: Client, args: Array<string>) => {
+      const direction = (args[0] || "up").toLowerCase(); // Default direction is "up"
+      const heightInput = args[1];
+      const height = heightInput !== undefined ? parseFloat(heightInput) : 50;
+      if (isNaN(height)) {
+        server.sendAlert(
+          client,
+          "Error: Please enter a valid number for the height."
+        );
+        return;
+      }
+      const newPosition = new Float32Array(client.character.state.position);
+      switch (direction) {
+        case "up":
+          newPosition[1] += height;
+          break;
+        case "down":
+          newPosition[1] -= height;
+          break;
+        default:
+          server.sendAlert(
+            client,
+            "Error: Invalid direction. Use 'up' or 'down'."
+          );
+          return;
+      }
+      server.sendData(client, "ClientUpdate.UpdateLocation", {
+        position: newPosition,
+        triggerLoadingScreen: false
+      });
+      server.sendAlert(client, `Moved ${direction} by ${height}.`);
     }
   },
   {
@@ -1361,7 +1447,7 @@ export const commands: Array<Command> = [
           client,
           `You have muted ${
             targetClient.character.name
-          } until ${server.getDateString(time)}`
+          } until ${getDateString(time)}`
         );
       } else {
         server.sendChatText(
@@ -1446,36 +1532,47 @@ export const commands: Array<Command> = [
     name: "parachute",
     permissionLevel: PermissionLevels.ADMIN,
     execute: (server: ZoneServer2016, client: Client, args: Array<string>) => {
-      server.sendChatText(client, "Disabled for now");
-      /*
+      const player = args[0];
+      const targetClient = player && server.getClientByName(player);
+
+      if (typeof targetClient === "string") {
+        server.sendChatText(
+          client,
+          `Player not found, did you mean ${targetClient}?`
+        );
+        return;
+      }
+
+      const actingClient = targetClient ?? client;
       const characterId = server.generateGuid(),
-      loc = new Float32Array([
-        client.character.state.position[0],
-        client.character.state.position[1] + 700,
-        client.character.state.position[2],
-        client.character.state.position[3],
-      ]),
-      vehicle = new Vehicle(
-        characterId,
-        999999,
-        9374,
-        loc,
-        client.character.state.lookAt,
-        server.getGameTime()
-      );
-      server.sendData(client, "ClientUpdate.UpdateLocation", {
+        loc = new Float32Array([
+          actingClient.character.state.position[0],
+          actingClient.character.state.position[1] + 700,
+          actingClient.character.state.position[2],
+          actingClient.character.state.position[3]
+        ]),
+        vehicle = new Vehicle2016(
+          characterId,
+          server.getTransientId(characterId),
+          9374,
+          loc,
+          actingClient.character.state.rotation,
+          server,
+          getCurrentServerTimeWrapper().getTruncatedU32(),
+          VehicleIds.PARACHUTE
+        );
+      server.sendData(actingClient, "ClientUpdate.UpdateLocation", {
         position: loc,
-        triggerLoadingScreen: true,
+        triggerLoadingScreen: true
       });
-      vehicle.onReadyCallback = () => {
+      vehicle.onReadyCallback = (clientTriggered: Client) => {
         // doing anything with vehicle before client gets fullvehicle packet breaks it
-        server.mountVehicle(client, characterId);
+        server.mountVehicle(clientTriggered, characterId);
         // todo: when vehicle takeover function works, delete assignManagedObject call
-        server.assignManagedObject(client, vehicle);
-        client.vehicle.mountedVehicle = characterId;
+        server.assignManagedObject(clientTriggered, vehicle);
+        clientTriggered.vehicle.mountedVehicle = characterId;
       };
-      server.worldObjectManager.createVehicle(server, vehicle);
-      */
+      server.worldObjectManager.createVehicle(server, vehicle, true);
     }
   },
   {
@@ -1643,7 +1740,7 @@ export const commands: Array<Command> = [
         }
       }
       points.forEach((obj) => {
-        server.worldObjectManager.createZombie(
+        server.worldObjectManager.createNpc(
           server,
           9634,
           new Float32Array([
@@ -1798,9 +1895,7 @@ export const commands: Array<Command> = [
             useCompression: false,
             fullPcData: {
               transientId: client.character.transientId,
-              attachmentData: client.character.pGetAttachmentSlots(
-                client.character.groupId
-              ),
+              attachmentData: client.character.pGetAttachmentSlots(),
               headActor: client.character.headActor,
               hairModel: client.character.hairModel,
               resources: { data: client.character.pGetResources() },
@@ -1926,6 +2021,81 @@ export const commands: Array<Command> = [
 
       if (!client.character.mountedContainer) return;
       client.character.mountedContainer.lootItem(server, item);
+    }
+  },
+  {
+    name: "giverewardtoall",
+    permissionLevel: PermissionLevels.ADMIN,
+    execute: (server: ZoneServer2016, client: Client, args: Array<string>) => {
+      if (!args[0]) {
+        server.sendChatText(
+          client,
+          "[ERROR] Usage /giverewardtoall {itemDefinitionId}"
+        );
+        return;
+      }
+      const rewardId = Number(args[0]);
+      const validRewardItem = server.rewardManager.rewards.some(
+        (v) => v.itemId === rewardId
+      );
+      if (!validRewardItem) {
+        server.sendChatText(
+          client,
+          `[ERROR] ${rewardId} isn't a valid reward item`
+        );
+        return;
+      }
+      server.sendAlertToAll(
+        `Admin ${client.character.name} rewarded all connected players with ${Items[rewardId]}`
+      );
+      for (const key in server._clients) {
+        const c = server._clients[key];
+        server.rewardManager.addRewardToPlayer(c, rewardId);
+      }
+    }
+  },
+  {
+    name: "givereward",
+    permissionLevel: PermissionLevels.ADMIN,
+    execute: (server: ZoneServer2016, client: Client, args: Array<string>) => {
+      if (!args[1]) {
+        server.sendChatText(
+          client,
+          "[ERROR] Usage /givereward {itemDefinitionId} {playerName|playerId}"
+        );
+        return;
+      }
+      const rewardId = Number(args[0]);
+      const validRewardItem = server.rewardManager.rewards.some(
+        (v) => v.itemId === rewardId
+      );
+      if (!validRewardItem) {
+        server.sendChatText(
+          client,
+          `[ERROR] ${rewardId} isn't a valid reward item`
+        );
+        return;
+      }
+      const targetClient = server.getClientByNameOrLoginSession(
+        args[1].toString()
+      );
+      if (typeof targetClient == "string") {
+        server.sendChatText(
+          client,
+          `Could not find player ${args[1]
+            .toString()
+            .toUpperCase()}, did you mean ${targetClient.toUpperCase()}`
+        );
+        return;
+      }
+      if (!targetClient) {
+        server.sendChatText(client, "Client not found.");
+        return;
+      }
+      server.sendAlertToAll(
+        `Admin ${client.character.name} rewarded ${targetClient.character.name} with ${Items[rewardId]}`
+      );
+      server.rewardManager.addRewardToPlayer(targetClient, rewardId);
     }
   },
   {
@@ -2837,17 +3007,6 @@ export const commands: Array<Command> = [
       /* DO NOT REMOVE THIS */
       /* handled clientside, used to send custom packets from client to zone */
       /* DO NOT REMOVE THIS */
-    }
-  },
-  {
-    name: "group",
-    permissionLevel: PermissionLevels.DEFAULT,
-    execute: async (
-      server: ZoneServer2016,
-      client: Client,
-      args: Array<string>
-    ) => {
-      server.groupManager.handleGroupCommand(server, client, args);
     }
   },
   {

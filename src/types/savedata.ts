@@ -70,6 +70,9 @@ export interface CharacterUpdateSaveData
   isRespawning: boolean;
   spawnGridData: number[];
   mutedCharacters: string[];
+  groupId: number;
+  playTime: number;
+  lastDropPlayTime: number;
 }
 
 export interface FullCharacterSaveData
@@ -95,7 +98,8 @@ export interface FullVehicleSaveData
   extends BaseFullCharacterUpdateSaveData,
     BaseFullEntitySaveData {
     positionUpdate: positionUpdate;
-    vehicleId: number
+    vehicleId: number,
+    shaderGroupId: number
 }
 
 export interface BaseConstructionSaveData
