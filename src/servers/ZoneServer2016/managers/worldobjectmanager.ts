@@ -853,8 +853,9 @@ export class WorldObjectManager {
               modelId ? modelId : 9183,
               new Float32Array(doorInstance.position),
               new Float32Array(doorInstance.rotation),
-              doorInstance.scale ? new Float32Array(doorInstance.scale) :
-                new Float32Array([1, 1, 1, 1]),
+              doorInstance.scale
+                ? new Float32Array(doorInstance.scale)
+                : new Float32Array([1, 1, 1, 1]),
               // doorInstance.id doesn't exist
               0
             );
@@ -900,8 +901,9 @@ export class WorldObjectManager {
               modelId ? modelId : 9183,
               new Float32Array(doorInstance.position),
               new Float32Array(doorInstance.rotation),
-              doorInstance.scale ? new Float32Array(doorInstance.scale) :
-                new Float32Array([1, 1, 1, 1]),
+              doorInstance.scale
+                ? new Float32Array(doorInstance.scale)
+                : new Float32Array([1, 1, 1, 1]),
               // doorInstance.id doesn't exist
               0
             );
