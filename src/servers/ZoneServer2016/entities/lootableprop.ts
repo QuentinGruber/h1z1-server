@@ -61,10 +61,6 @@ function getContainerAndTime(entity: LootableProp) {
       entity.searchTime = 1000;
       entity.lootSpawner = "Desk";
       break;
-    case ModelIds.OFFICE_CABINETS_01:
-    case ModelIds.OFFICE_FILING_CABINET:
-    case ModelIds.OFFICE_CABINETS_02:
-    case ModelIds.OFFICE_CABINETS_03:
     case ModelIds.LAB_GLASS_CABINET:
       entity.containerId = Items.CONTAINER_CABINETS;
       entity.searchTime = 700;
@@ -272,12 +268,6 @@ function getContainerAndTime(entity: LootableProp) {
       entity.searchTime = 1000;
       entity.lootSpawner = "Cabinets";
       break;
-    case ModelIds.WASHER:
-      entity.containerId = Items.CONTAINER_WASHING_MACHINE;
-      entity.searchTime = 1000;
-      entity.lootSpawner = "Armoire";
-      break;
-    case ModelIds.DRYER:
     case ModelIds.Residential_Props_WasherDryerCombo:
       entity.containerId = Items.CONTAINER_DRYER;
       entity.searchTime = 1000;
