@@ -3003,7 +3003,7 @@ export class ZoneServer2016 extends EventEmitter {
     return undefined;
   }
 
-  checkHelmet(
+  applyHelmetDamageReduction(
     character: BaseFullCharacter,
     damage: number,
     helmetDamageDivder = 1
@@ -3025,7 +3025,7 @@ export class ZoneServer2016 extends EventEmitter {
     return damage;
   }
 
-  checkArmor(
+  applyArmorDamageReduction(
     character: BaseFullCharacter,
     damage: number,
     kevlarDamageDivider = 4
@@ -3060,7 +3060,7 @@ export class ZoneServer2016 extends EventEmitter {
     damage *= 0.5; // was 0.8
     this.damageItem(
       character,
-      character._loadout[LoadoutSlots.ARMOR],
+      slot,
       damage / kevlarDamageDivider
     );
 
