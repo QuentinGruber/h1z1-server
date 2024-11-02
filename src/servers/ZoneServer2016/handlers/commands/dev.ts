@@ -1565,8 +1565,8 @@ const dev: any = {
         ]
       }
     );
- },
- updatecharacter: function (
+  },
+  updatecharacter: function (
     server: ZoneServer2016,
     client: Client,
     args: Array<string>
