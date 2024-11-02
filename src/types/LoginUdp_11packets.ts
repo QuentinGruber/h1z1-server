@@ -8,16 +8,50 @@ export interface LoginRequest {
   ThirdPartyId?: number;
 }
 export interface LoginReply {
-  loggedIn: boolean;
-  status: number;
-  resultCode: number;
-  isMember: boolean;
-  isInternal: boolean;
-  namespace: string;
+  loggedIn?: boolean;
+  status?: number;
+  resultCode?: number;
+  isMember?: boolean;
+  isInternal?: boolean;
+  namespace?: string;
   accountFeatures: unknown[];
-  applicationPayload?: unknown;
-  errorDetails: unknown[];
-  ipCountryCode: string;
+  applicationPayload :{
+  unknownDword1?: number;
+  unknownDword2?: number;
+  unknownDword3?: number;
+  unknownDword4?: number;
+  unknownDword5?: number;
+  unknownDword6?: number;
+  unknownDword7?: number;
+  unknownDword8?: number;
+  unknownDword9?: number;
+  unknownDword10?: number;
+  unknownBoolean1?: boolean;
+  unknownDword11?: number;
+  unknownArray1: unknown[];
+  unknownString1?: string;
+  unknownArray2: unknown[];
+  unknownString2?: string;
+  unknownString3?: string;
+  unknownString4?: string;
+  unknownString5?: string;
+  unknownString6?: string;
+  unknownString7?: string;
+};
+  unknownArray2: unknown[];
+  unknownString2?: string;
+  unknownString3?: string;
+  unknownBoolean3?: boolean;
+  unknownString4?: string;
+  ipCountryCode?: string;
+  unknownString5?: string;
+  unknownString6?: string;
+  unknownString7?: string;
+  unknownString8?: string;
+  unknownString9?: string;
+  unknownString10?: string;
+  unknownString11?: string;
+  unknownDword3?: number;
 }
 export interface Logout {
 }
@@ -96,8 +130,7 @@ export interface ServerUpdate {
   descriptionId: number;
   reqFeatureId: number;
   serverInfo: string;
-  populationNumber?: number;
-  maxPopulationNumber?: number;
+  populationLevel?: number;
   populationData: string;
   AccessExpression?: string;
   allowedAccess: boolean;
@@ -130,4 +163,7 @@ export interface H1emuHadesQuery {
   authTicket?: string;
   gatewayServer?: string;
 }
-export type LoginUdp_11packets = LoginRequest | LoginReply | Logout | ForceDisconnect | CharacterCreateRequest | CharacterCreateReply | CharacterLoginRequest | CharacterLoginReply | CharacterDeleteRequest | CharacterDeleteReply | CharacterSelectInfoRequest | CharacterSelectInfoReply | ServerListRequest | ServerListReply | ServerUpdate | TunnelAppPacketClientToServer | TunnelAppPacketServerToClient | H1emuPrintToConsole | H1emuMessageBox | H1emuHadesInit | H1emuHadesQuery;
+export interface FairPlayInit {
+  __opcode__?: number;
+}
+export type LoginUdp_11packets = LoginRequest | LoginReply | Logout | ForceDisconnect | CharacterCreateRequest | CharacterCreateReply | CharacterLoginRequest | CharacterLoginReply | CharacterDeleteRequest | CharacterDeleteReply | CharacterSelectInfoRequest | CharacterSelectInfoReply | ServerListRequest | ServerListReply | ServerUpdate | TunnelAppPacketClientToServer | TunnelAppPacketServerToClient | H1emuPrintToConsole | H1emuMessageBox | H1emuHadesInit | H1emuHadesQuery | FairPlayInit;

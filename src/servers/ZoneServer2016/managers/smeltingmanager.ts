@@ -34,16 +34,32 @@ import { scheduler } from "timers/promises";
 import { CharacterPlayWorldCompositeEffect } from "types/zone2016packets";
 
 export class SmeltingManager {
+  /** HashMap of all SmeltingEntities,
+   * uses CharacterId (string) for indexing
+   */
   _smeltingEntities: { [characterId: string]: string } = {};
-  _collectingEntities: { [characterId: string]: string } = {};
-  collectingTickTime: number = 300000; // 5 min x 4 ticks = 20 min to fill water/honey
-  lastBurnTime: number = 0;
-  checkSmeltablesTimer?: NodeJS.Timeout;
-  checkCollectorsTimer?: NodeJS.Timeout;
-  // 5 min x 72 ticks = 6 hours for honeycomb
 
-  /* MANAGED BY CONFIGMANAGER */
+  /** HashMap of all CollectingEntities,
+   * uses CharacterId (string) for indexing
+   */
+  _collectingEntities: { [characterId: string]: string } = {};
+
+  /** The time (milliseconds) it takes for a CollectingEntity to fill water/honey - 5 min x 4 ticks = 20 mins */
+  collectingTickTime: number = 300000;
+
+  /** The time (milliseconds) at which the most recent qualified item was "burned" */
+  lastBurnTime: number = 0;
+
+  /** The timer for checking all smeltable entities  */
+  checkSmeltablesTimer?: NodeJS.Timeout;
+
+  /** The timer to check for honeycomb inside of all collectable entities - 5 min x 72 ticks = 6 hours for honeycomb */
+  checkCollectorsTimer?: NodeJS.Timeout;
+
+  /** MANAGED BY CONFIGMANAGER - See defaultConfig.yaml for more information */
+  /** The time (milliseconds) it takes for a fuel entity to burn - 2 minutes seconds by default */
   burnTime!: number;
+  /** The time (milliseconds) it takes for a non-fuel entity to smelt - 7 seconds by default */
   smeltTime!: number;
 
   public clearTimers() {
@@ -268,6 +284,18 @@ export class SmeltingManager {
   ) {
     for (const a in container.items) {
       const item = container.items[a];
+      // check if the current item is an empty water bottle and that the container is either empty
+      // or currently not containing honeycomb, in that case then exit the scope of the for loop
+      if (entity.itemDefinitionId == Items.BEE_BOX) {
+        if (
+          item.itemDefinitionId == Items.WATER_EMPTY &&
+          (Object.keys(container.items).length == 1 ||
+            !Object.values(container.items).some(
+              (item) => item.itemDefinitionId == Items.HONEYCOMB
+            ))
+        )
+          continue;
+      }
       if (item.itemDefinitionId != Items.WATER_EMPTY) continue;
       if (subEntity.currentTicks >= subEntity.requiredTicks) {
         subEntity.currentTicks = 0;

@@ -379,7 +379,26 @@ export const clientUpdatePackets: PacketStructures = [
   ["ClientUpdate.UpdateCurrency", 0x113f00, {}],
   ["ClientUpdate.AddNotifications", 0x114000, {}],
   ["ClientUpdate.RemoveNotifications", 0x114100, {}],
-  ["ClientUpdate.NpcRelevance", 0x114200, {}],
+  [
+    "ClientUpdate.NpcRelevance",
+    0x114200,
+    {
+      fields: [
+        { name: "unknownByte1", type: "uint8", defaultValue: 0 },
+        {
+          name: "npcs",
+          type: "array",
+          defaultValue: [],
+          fields: [
+            { name: "characterId", type: "uint64string", defaultValue: "0" },
+            { name: "unknownBoolean1", type: "boolean", defaultValue: true },
+            { name: "unknownByte1", type: "uint8", defaultValue: 255 },
+            { name: "unknownBoolean2", type: "boolean", defaultValue: false }
+          ]
+        }
+      ]
+    }
+  ],
   ["ClientUpdate.InitiateNameChange", 0x114300, {}],
   ["ClientUpdate.NameChangeResult", 0x114400, {}],
   [
@@ -391,7 +410,16 @@ export const clientUpdatePackets: PacketStructures = [
   ],
   ["ClientUpdate.NotifyServerOfStalledEvent", 0x114600, {}],
   ["ClientUpdate.UpdateSights", 0x114700, {}],
-  ["ClientUpdate.UpdateRewardAndGrinderState", 0x114900, {}],
+  [
+    "ClientUpdate.UpdateRewardAndGrinderState",
+    0x114900,
+    {
+      fields: [
+        { name: "unknownBoolean1", type: "boolean", defaultValue: false },
+        { name: "unknownBoolean2", type: "boolean", defaultValue: false }
+      ]
+    }
+  ],
   ["ClientUpdate.UpdateActivityMetrics", 0x114b00, {}],
   ["ClientUpdate.StopWithError", 0x114c00, {}],
   ["ClientUpdate.SetWorldWipeTimer", 0x114d00, {}],
@@ -410,7 +438,13 @@ export const clientUpdatePackets: PacketStructures = [
       ]
     }
   ],
-  ["ClientUpdate.ZoneStatus", 0x114f00, {}],
+  [
+    "ClientUpdate.ZoneStatus",
+    0x114f00,
+    {
+      fields: [{ name: "status", type: "uint32", defaultValue: 0 }]
+    }
+  ],
   ["ClientUpdate.SetDataCenter", 0x115000, {}],
   ["ClientUpdate.UpdateBattlEyeRegistration", 0x115100, {}]
 ];

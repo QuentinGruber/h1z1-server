@@ -19,6 +19,8 @@ import { commands } from "./commands";
 import { internalCommands } from "./internalcommands";
 import { DB_COLLECTIONS } from "../../../../utils/enums";
 import { Collection } from "mongodb";
+import { CommandExecuteCommand } from "types/zone2016packets";
+import { ReceivedPacket } from "types/shared";
 
 export class CommandHandler {
   readonly commands: { [hash: number]: Command } = {};
@@ -51,7 +53,11 @@ export class CommandHandler {
     });
   }
 
-  executeCommand(server: ZoneServer2016, client: Client, packet: any) {
+  executeCommand(
+    server: ZoneServer2016,
+    client: Client,
+    packet: ReceivedPacket<CommandExecuteCommand>
+  ) {
     if (
       !server.hookManager.checkHook(
         "OnClientExecuteCommand",
@@ -63,11 +69,17 @@ export class CommandHandler {
       return;
     }
     const hash = packet.data.commandHash;
-    if (this.commands[hash]) {
-      const command = this.commands[hash],
-        args: string[] = command.keepCase
+    if (hash && this.commands[hash]) {
+      const command = this.commands[hash];
+      let args: string[];
+      if (packet.data.arguments) {
+        args = command.keepCase
           ? packet.data.arguments.split(" ")
           : packet.data.arguments.toLowerCase().split(" ");
+      } else {
+        args = [];
+      }
+
       if (!this.clientHasCommandPermission(server, client, command)) {
         server.sendChatText(client, "You don't have access to that.");
         return;
@@ -141,9 +153,9 @@ export class CommandHandler {
 
   reloadCommands() {
     delete require.cache[require.resolve("./commands")];
-    delete require.cache[require.resolve("./internalCommands")];
+    delete require.cache[require.resolve("./internalcommands")];
     const commands = require("./commands").commands,
-      internalCommands = require("./internalCommands").internalCommands;
+      internalCommands = require("./internalcommands").internalCommands;
     this.indexCommands(commands, internalCommands);
   }
 }

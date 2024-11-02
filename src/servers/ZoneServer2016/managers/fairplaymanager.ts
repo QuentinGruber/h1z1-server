@@ -56,7 +56,7 @@ export class FairPlayManager {
   fairPlayValues?: FairPlayValues;
   defaultHashes = defaultHashes;
 
-  /* MANAGED BY CONFIGMANAGER */
+  /** MANAGED BY CONFIGMANAGER - See defaultConfig.yaml for more information */
   useFairPlay!: boolean;
   maxPing!: number;
   acceptedRejectionTypes!: Array<CONNECTION_REJECTION_FLAGS>;
@@ -298,6 +298,7 @@ export class FairPlayManager {
           1000 /
           (sequenceTime - vehicle.oldPos.time)) *
         3600000;
+
       if (speed > 130 && verticalSpeed < 20) {
         const avgPing = await server._gatewayServer.getSoeClientAvgPing(
           client.soeClientId
@@ -328,7 +329,6 @@ export class FairPlayManager {
         return true;
       }
     }
-    vehicle.oldPos = { position: position, time: sequenceTime };
     return false;
   }
 
@@ -723,12 +723,13 @@ export class FairPlayManager {
   }
 
   handleAssetValidationInit(server: ZoneServer2016, client: Client) {
-    if (!this.useAssetValidation || server._soloMode) return;
+    if (!this.useAssetValidation || server._soloMode || client.isAdmin) return;
 
     server.sendData(client, "H1emu.RequestAssetHashes", {});
+    server.sendData(client, "UpdateWeatherData", server.weatherManager.weather);
     server.sendConsoleText(client, "[SERVER] Requested asset hashes");
 
-    client.kickTimer = setTimeout(() => {
+    client.assetIntegrityKickTimer = setTimeout(() => {
       if (!client) return;
       server.kickPlayerWithReason(client, "Missing asset integrity check.");
     }, this.hashSubmissionTimeout);
@@ -755,7 +756,7 @@ export class FairPlayManager {
       return;
     }
 
-    const hashes = this.defaultHashes.concat(this.requiredPacks),
+    const hashes = this.defaultHashes,
       validatedHashes: Array<FileHash> = [];
 
     // check if all default / required packs are found in game files
@@ -804,7 +805,7 @@ export class FairPlayManager {
 
     console.log(`${client.loginSessionId} passed asset integrity check.`);
     server.sendConsoleText(client, "[SERVER] Passed asset integrity check");
-    clearTimeout(client.kickTimer);
-    delete client.kickTimer;
+    clearTimeout(client.assetIntegrityKickTimer);
+    delete client.assetIntegrityKickTimer;
   }
 }

@@ -17,81 +17,101 @@ import { BaseLightweightCharacter } from "./baselightweightcharacter";
 import { ZoneClient2016 } from "../classes/zoneclient";
 import { DamageInfo } from "../../../types/zoneserver";
 import { AddLightweightNpc } from "types/zone2016packets";
-import { Effects } from "../models/enums";
+import {
+  Effects,
+  ModelIds,
+  PositionUpdateType,
+  StringIds
+} from "../models/enums";
 
 function getDestroyedModels(actorModel: number): number[] {
   switch (actorModel) {
-    case 9455:
-      return [9452, 9453, 9454];
-    case 9897:
-      return [9898, 9899, 9900];
-    case 9901:
-      return [9902];
-    case 9183:
-      return [9184, 9185, 9186];
-    case 9333:
-      return [9334, 9335];
+    case ModelIds.RESTAURANT_DOOR_1:
+      return [
+        ModelIds.RESTAURANT_DOOR_GLASS_BROKEN_1,
+        ModelIds.RESTAURANT_DOOR_GLASS_BROKEN_2,
+        ModelIds.RESTAURANT_DOOR_GLASS_BROKEN_3
+      ];
+    case ModelIds.BUISNESS_DOORS_GLASS:
+      return [
+        ModelIds.BUISNESS_DOORS_GLASS_BROKEN_1,
+        ModelIds.BUISNESS_DOORS_GLASS_BROKEN_2,
+        ModelIds.BUISNESS_DOORS_GLASS_BROKEN_3
+      ];
+    case ModelIds.CABIN_DOOR:
+      return [ModelIds.CABIN_DOOR_BROKEN];
+    case ModelIds.BUISNESS_DOOR_GLASS:
+      return [
+        ModelIds.BUISNESS_DOOR_GLASS_BROKEN_1,
+        ModelIds.BUISNESS_DOOR_GLASS_BROKEN_2,
+        ModelIds.BUISNESS_DOOR_GLASS_BROKEN_3
+      ];
+    case ModelIds.CAMPER_DOOR_1:
+      return [
+        ModelIds.CAMPER_DOOR_GLASS_BROKEN_1,
+        ModelIds.CAMPER_DOOR_GLASS_BROKEN_2
+      ];
     default:
       return [];
   }
 }
 
 function getDoorSound(actorModelId: number) {
-  let openSound = 5048;
-  let closeSound = 5049;
+  let openSound = Effects.SFX_Door_Wood_Open;
+  let closeSound = Effects.SFX_Door_Wood_Close;
   switch (actorModelId) {
-    case 49:
-      openSound = 5081;
-      closeSound = 5082;
+    case ModelIds.PLYWOOD_METAL_GATE:
+      openSound = Effects.SFX_Gate_Placeable_Metal_Open;
+      closeSound = Effects.SFX_Gate_Placeable_Metal_Close;
       break;
-    case 9009:
-    case 9165:
-    case 9167:
-    case 9169:
-    case 9171:
-    case 9497:
-    case 9904:
-    case 9905:
-    case 9333:
-    case 9334:
-    case 9335:
-      openSound = 5048;
-      closeSound = 5049;
+    case ModelIds.RESIDENTIAL_DOOR_1:
+    case ModelIds.RESIDENTIAL_DOOR_2:
+    case ModelIds.RESIDENTIAL_DOOR_3:
+    case ModelIds.RESIDENTIAL_DOOR_4:
+    case ModelIds.RESIDENTIAL_DOOR_5:
+    case ModelIds.RESIDENTIAL_FRONT_DOOR_1:
+    case ModelIds.RESIDENTIAL_FRONT_DOOR_2:
+    case ModelIds.RESIDENTIAL_INTERIOR_DOOR:
+    case ModelIds.CAMPER_DOOR_1:
+    case ModelIds.CAMPER_DOOR_GLASS_BROKEN_1:
+    case ModelIds.CAMPER_DOOR_GLASS_BROKEN_2:
+      openSound = Effects.SFX_Door_Wood_Open;
+      closeSound = Effects.SFX_Door_Wood_Close;
       break;
-    case 9136:
-      openSound = 5091;
-      closeSound = 5092;
+    case ModelIds.CHURCH_DOOR:
+      openSound = Effects.SFX_Door_Wood_Church_Open;
+      closeSound = Effects.SFX_Door_Wood_Church_Close;
       break;
-    case 9224:
-    case 9231:
-    case 9232:
-    case 9233:
-      openSound = 5089;
-      closeSound = 5090;
+    case ModelIds.OFFICE_DOOR:
+    case ModelIds.UNISEX_LEFT_DOOR:
+    case ModelIds.MENS_LEFT_DOOR:
+    case ModelIds.WOMENS_LEFT_DOOR:
+      openSound = Effects.SFX_Door_Office_Open;
+      closeSound = Effects.SFX_Door_Office_Close;
       break;
-    case 9243:
-      openSound = 5093;
-      closeSound = 5094;
+    case ModelIds.FREEZER_DOOR:
+      openSound = Effects.SFX_Door_Metal_Freezer_Open;
+      closeSound = Effects.SFX_Door_Metal_Freezer_Close;
       break;
-    case 9903:
-    case 9246:
-    case 9498:
-      openSound = 5095;
-      closeSound = 5096;
+    case ModelIds.INDUSTRIAL_DOOR_1:
+    case ModelIds.INDUSTRIAL_DOOR_2:
+    case ModelIds.PUSH_DOOR:
+      openSound = Effects.SFX_Door_Metal_Industrial_Open;
+      closeSound = Effects.SFX_Door_Metal_Industrial_Close;
       break;
-    case 9452:
-    case 9453:
-    case 9454:
-    case 9455:
-      openSound = 5083;
-      closeSound = 5084;
+    case ModelIds.RESTAURANT_DOOR_GLASS_BROKEN_1:
+    case ModelIds.RESTAURANT_DOOR_GLASS_BROKEN_2:
+    case ModelIds.RESTAURANT_DOOR_GLASS_BROKEN_3:
+    case ModelIds.RESTAURANT_DOOR_1:
+      openSound = Effects.SFX_Door_Wood_Restaurant_Open;
+      closeSound = Effects.SFX_Door_Wood_Restaurant_Close;
       break;
-    case 9183:
-    case 9184:
-    case 9185:
-    case 9186:
-      openSound = 5085;
-      closeSound = 5086;
+    case ModelIds.BUISNESS_DOOR_GLASS:
+    case ModelIds.BUISNESS_DOOR_GLASS_BROKEN_1:
+    case ModelIds.BUISNESS_DOOR_GLASS_BROKEN_2:
+    case ModelIds.BUISNESS_DOOR_GLASS_BROKEN_3:
+      openSound = Effects.SFX_Door_Glass_Business_Open;
+      closeSound = Effects.SFX_Door_Glass_Business_Close;
       break;
     default:
       break;
@@ -101,15 +121,19 @@ function getDoorSound(actorModelId: number) {
 
 export class DoorEntity extends BaseLightweightCharacter {
   spawnerId: number;
+  /** Distance (H1Z1 meters) where the DoorEntity will spawn for the player */
   npcRenderDistance = 150;
   openAngle: number;
   closedAngle: number;
+  /** Default rotation for the  */
   startRot: Float32Array;
-  positionUpdateType = 1;
+  /** Returns true while the door is the process of closing/opening */
   moving = false;
+  /** Returns true if the player opens the door */
   isOpen = false;
   openSound: number;
   closeSound: number;
+  /** Returns true when a window is broken  */
   destroyed: boolean = false;
   destroyedModel: number;
   destroyedModels: number[];
@@ -124,16 +148,17 @@ export class DoorEntity extends BaseLightweightCharacter {
     spawnerId: number
   ) {
     super(characterId, transientId, actorModelId, position, rotation, server);
+    this.positionUpdateType = PositionUpdateType.MOVABLE;
     this.flags.projectileCollision = 1;
     this.scale = new Float32Array(scale);
     this.spawnerId = spawnerId;
     this.startRot = rotation;
-    (this.state.rotation = new Float32Array(
+    this.state.rotation = new Float32Array(
       eul2quat(
         new Float32Array([rotation[0], rotation[1], rotation[2], rotation[3]])
       )
-    )),
-      (this.openAngle = this.startRot[0] + 1.575);
+    );
+    this.openAngle = this.startRot[0] + 1.575;
     this.closedAngle = this.startRot[0];
     const { openSound, closeSound } = getDoorSound(this.actorModelId);
     this.openSound = openSound;
@@ -191,14 +216,13 @@ export class DoorEntity extends BaseLightweightCharacter {
     this.OnProjectileHit(server, damageInfo);
   }
 
-  /* eslint-disable @typescript-eslint/no-unused-vars */
   OnPlayerSelect(
     server: ZoneServer2016,
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     client: ZoneClient2016,
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     isInstant?: boolean
-    /* eslint-enable @typescript-eslint/no-unused-vars */
   ) {
-    client; // eslint
     if (this.moving) {
       return;
     }
@@ -237,7 +261,7 @@ export class DoorEntity extends BaseLightweightCharacter {
   OnInteractionString(server: ZoneServer2016, client: ZoneClient2016) {
     server.sendData(client, "Command.InteractionString", {
       guid: this.characterId,
-      stringId: 78
+      stringId: StringIds.USE_DOOR
     });
   }
 

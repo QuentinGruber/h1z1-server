@@ -15,10 +15,25 @@ import { DamageInfo } from "types/zoneserver";
 import { ZoneServer2016 } from "../zoneserver";
 import { BaseFullCharacter } from "./basefullcharacter";
 import { ZoneClient2016 } from "../classes/zoneclient";
-import { logClientActionToMongo } from "../../../utils/utils";
+import {
+  chance,
+  getCurrentServerTimeWrapper,
+  getDistance,
+  logClientActionToMongo,
+  randomIntFromInterval
+} from "../../../utils/utils";
 import { DB_COLLECTIONS } from "../../../utils/enums";
-import { Items, ModelIds, NpcIds, StringIds } from "../models/enums";
+import {
+  Items,
+  MaterialTypes,
+  MeleeTypes,
+  ModelIds,
+  NpcIds,
+  PositionUpdateType,
+  StringIds
+} from "../models/enums";
 import { CommandInteractionString } from "types/zone2016packets";
+import { EntityType } from "h1emu-ai";
 
 export class Npc extends BaseFullCharacter {
   health: number;
@@ -61,6 +76,10 @@ export class Npc extends BaseFullCharacter {
   public get isAlive(): boolean {
     return this.deathTime == 0;
   }
+  server: ZoneServer2016;
+  entityType: EntityType;
+  npcMeleeDamage: number;
+  isSelected: boolean = false;
   constructor(
     characterId: string,
     transientId: number,
@@ -71,9 +90,86 @@ export class Npc extends BaseFullCharacter {
     spawnerId: number = 0
   ) {
     super(characterId, transientId, actorModelId, position, rotation, server);
+    this.positionUpdateType = PositionUpdateType.MOVABLE;
     this.spawnerId = spawnerId;
     this.health = 10000;
     this.initNpcData();
+    this.server = server;
+    switch (actorModelId) {
+      // TODO: use enums
+      case 9510:
+      case 9634:
+        this.entityType = EntityType.Zombie;
+        this.materialType = MaterialTypes.ZOMBIE;
+        this.npcMeleeDamage = 2000;
+        break;
+      case 9667:
+        this.entityType = EntityType.Screamer;
+        this.materialType = MaterialTypes.ZOMBIE;
+        this.npcMeleeDamage = 3000;
+        break;
+      case 9002:
+      case 9253:
+        this.entityType = EntityType.Deer;
+        this.materialType = MaterialTypes.FLESH;
+        this.npcMeleeDamage = 0;
+        break;
+      case 9003:
+        this.entityType = EntityType.Wolf;
+        this.materialType = MaterialTypes.FLESH;
+        this.npcMeleeDamage = 2000;
+        break;
+      case 9187:
+        this.entityType = EntityType.Bear;
+        this.materialType = MaterialTypes.FLESH;
+        this.npcMeleeDamage = 4000;
+        break;
+      default:
+        this.entityType = EntityType.Deer;
+        this.materialType = MaterialTypes.FLESH;
+        this.npcMeleeDamage = 0;
+        break;
+    }
+    this.h1emu_ai_id = server.aiManager.add_entity(this, this.entityType);
+  }
+
+  playAnimation(animationName: string) {
+    this.server.sendDataToAllWithSpawnedEntity(
+      this.server._npcs,
+      this.characterId,
+      "Character.PlayAnimation",
+      {
+        characterId: this.characterId,
+        animationName: animationName
+      }
+    );
+  }
+
+  applyDamage(characterId: string) {
+    const client = this.server.getClientByCharId(characterId);
+    if (client) {
+      const damageInfo: DamageInfo = {
+        entity: client.character.characterId,
+        weapon: Items.WEAPON_MACHETE01,
+        damage: this.npcMeleeDamage,
+        causeBleed: false, // another method for melees to apply bleeding
+        meleeType: MeleeTypes.BLADE,
+        hitReport: {
+          sessionProjectileCount: 0,
+          characterId: client.character.characterId,
+          position: client.character.state.position,
+          unknownFlag1: 0,
+          unknownByte2: 0,
+          totalShotCount: 0,
+          hitLocation: client.character.meleeHit.abilityHitLocation
+        }
+      };
+      client.character.OnMeleeHit(this.server, damageInfo);
+    } else {
+      console.log(
+        `CharacterId ${characterId} not found when applying damage from npc`
+      );
+    }
   }
 
   setAttackingState(server: ZoneServer2016) {
@@ -205,7 +301,13 @@ export class Npc extends BaseFullCharacter {
   initNpcData() {
     switch (this.actorModelId) {
       case ModelIds.ZOMBIE_SCREAMER:
-        //Screamer
+        this.nameId = StringIds.BANSHEE;
+        this.rewardItems = [
+          {
+            itemDefId: Items.CLOTH,
+            weight: 40
+          }
+        ];
         break;
       case ModelIds.ZOMBIE_FEMALE_WALKER:
       case ModelIds.ZOMBIE_MALE_WALKER:
@@ -273,7 +375,18 @@ export class Npc extends BaseFullCharacter {
   }
 
   OnPlayerSelect(server: ZoneServer2016, client: ZoneClient2016) {
-    if (!this.isAlive && client.character.hasItem(Items.SKINNING_KNIFE)) {
+    // Only one at a time
+    if (this.isSelected) {
+      return;
+    }
+    this.isSelected = true;
+    // Unlock selection after 5sec
+    // It's easier to do it that way that to make a whole sys with the utilizeHudTimer
+    setTimeout(() => {
+      this.isSelected = false;
+    }, 5_100);
+    const skinningKnife = client.character.getItemById(Items.SKINNING_KNIFE);
+    if (!this.isAlive && skinningKnife) {
       server.utilizeHudTimer(client, this.nameId, 5000, 0, () => {
         switch (this.actorModelId) {
           case ModelIds.ZOMBIE_FEMALE_WALKER:
@@ -289,7 +402,7 @@ export class Npc extends BaseFullCharacter {
               server.removeInventoryItem(client.character, emptySyringe);
               return;
             }
-            this.triggerAwards(server, client, this.rewardItems);
+            this.triggerAwards(server, client, this.rewardItems, true);
             break;
           case ModelIds.DEER_BUCK:
           case ModelIds.DEER:
@@ -301,7 +414,10 @@ export class Npc extends BaseFullCharacter {
           case ModelIds.WOLF:
             this.triggerAwards(server, client, this.rewardItems);
             break;
+          case ModelIds.ZOMBIE_SCREAMER:
+            this.triggerAwards(server, client, this.rewardItems, true);
         }
+        server.damageItem(client, skinningKnife, 200);
         server.deleteEntity(this.characterId, server._npcs);
       });
     }
@@ -310,10 +426,31 @@ export class Npc extends BaseFullCharacter {
   triggerAwards(
     server: ZoneServer2016,
     client: ZoneClient2016,
-    rewardItems: { itemDefId: number; weight: number }[]
+    rewardItems: { itemDefId: number; weight: number }[],
+    isZombie: boolean = false
   ) {
     const ranges = [];
     const preRewardedItems: number[] = [];
+
+    if (isZombie) {
+      if (chance(2)) {
+        const wornLetters = [
+          Items.WORN_LETTER_CHURCH_PV,
+          Items.WORN_LETTER_LJ_PV,
+          Items.WORN_LETTER_MISTY_DAM,
+          Items.WORN_LETTER_RADIO,
+          Items.WORN_LETTER_RUBY_LAKE,
+          Items.WORN_LETTER_TOXIC_LAKE,
+          Items.WORN_LETTER_VILLAS,
+          Items.WORN_LETTER_WATER_TOWER
+        ];
+
+        const randomIndex = randomIntFromInterval(0, wornLetters.length - 1);
+        const randomWornLetter = wornLetters[randomIndex];
+        const newItem = server.generateItem(randomWornLetter, 1);
+        client.character.lootContainerItem(server, newItem);
+      }
+    }
 
     let cumulativeWeight = 0;
     for (const reward of rewardItems) {
@@ -342,7 +479,10 @@ export class Npc extends BaseFullCharacter {
       if (!preRewardedItems.includes(selectedRange.item.itemDefId)) {
         preRewardedItems.push(selectedRange.item.itemDefId);
 
-        if (Math.random() <= 0.4) {
+        if (
+          Math.random() <= 0.4 &&
+          selectedRange.item.itemDefId != Items.BRAIN_INFECTED
+        ) {
           // 40% chance to spawn double rewards
           count = 2;
         }
@@ -361,6 +501,7 @@ export class Npc extends BaseFullCharacter {
       switch (this.actorModelId) {
         case ModelIds.ZOMBIE_FEMALE_WALKER:
         case ModelIds.ZOMBIE_MALE_WALKER:
+        case ModelIds.ZOMBIE_SCREAMER:
           if (client.character.hasItem(Items.SYRINGE_EMPTY)) {
             this.sendInteractionString(server, client, StringIds.EXTRACT_BLOOD);
             return;
@@ -390,5 +531,29 @@ export class Npc extends BaseFullCharacter {
         stringId: stringId
       }
     );
+  }
+  goTo(position: Float32Array) {
+    const angleInRadians2 = Math.random() * (2 * Math.PI) - Math.PI;
+    const angleInRadians = Math.atan2(
+      position[1] - this.state.position[1],
+      getDistance(this.state.position, position)
+    );
+    this.state.position = position;
+    this.server.sendDataToAll("PlayerUpdatePosition", {
+      transientId: this.transientId,
+      positionUpdate: {
+        sequenceTime: getCurrentServerTimeWrapper().getTruncatedU32(),
+        position: this.state.position,
+        unknown3_int8: 0,
+        stance: 66565,
+        engineRPM: 0,
+        orientation: angleInRadians2,
+        frontTilt: 0,
+        sideTilt: 0,
+        angleChange: 0,
+        verticalSpeed: angleInRadians,
+        horizontalSpeed: 0.5
+      }
+    });
   }
 }

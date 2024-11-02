@@ -12,17 +12,26 @@
 // ======================================================================
 
 import { PropInstance, SpeedTree, ZoneSpeedTreeData } from "types/zoneserver";
-import { isPosInRadius, randomIntFromInterval } from "../../../utils/utils";
+import { loadJson, randomIntFromInterval } from "../../../utils/utils";
 import { ZoneClient2016 as Client } from "../classes/zoneclient";
 import { Items, TreeIds } from "../models/enums";
 import { ZoneServer2016 } from "../zoneserver";
 
 export class SpeedTreeManager {
-  _speedTrees: { [objectId: number]: SpeedTree } = {};
-  _speedTreesCounter: any = {};
-  _speedTreesList: { [objectId: number]: ZoneSpeedTreeData } = {};
+  /** HashMap of destroyed trees,
+   * uses ObjectId (number) for indexing
+   */
+  _speedTreesDestroyed: { [objectId: number]: SpeedTree } = {};
 
-  /* MANAGED BY CONFIGMANAGER */
+  /** The amount of spawned trees in the world */
+  _speedTreesCounter: any = {};
+
+  /** HashMap of all spawned trees in the world,
+   * uses ObjectId (number) for indexing
+   */
+  _speedTreesList: Map<number, ZoneSpeedTreeData> = new Map();
+
+  /** MANAGED BY CONFIGMANAGER - See defaultConfig.yaml for more information */
   map!: string;
   minBlackberryHarvest!: number;
   maxBlackberryHarvest!: number;
@@ -42,17 +51,16 @@ export class SpeedTreeManager {
         : require("../../../../data/2016/zoneData/BWC/BWC_speedTrees.json");
 
     treesArray.forEach((tree: any) => {
-      this._speedTreesList[tree.uniqueId] = {
+      this._speedTreesList.set(tree.uniqueId, {
         objectId: tree.uniqueId,
-        treeId: tree.id,
         position: tree.position
-      };
+      });
     });
   }
 
   customize(DTOArray: Array<PropInstance>) {
-    for (const object in this._speedTrees) {
-      const DTO = this._speedTrees[object];
+    for (const object in this._speedTreesDestroyed) {
+      const DTO = this._speedTreesDestroyed[object];
       const DTOinstance = {
         objectId: DTO.objectId,
         replacementModel: DTO.modelName.concat(".Stump")
@@ -68,22 +76,7 @@ export class SpeedTreeManager {
     treeId: number,
     name: string
   ) {
-    const zoneSpeedTree = this._speedTreesList[objectId];
-    if (!zoneSpeedTree || zoneSpeedTree.treeId != treeId) {
-      server.sendChatText(
-        client,
-        `[Server] Invalid tree, please report this! ${treeId}`
-      );
-      return;
-    }
-
-    if (
-      !isPosInRadius(3, zoneSpeedTree.position, client.character.state.position)
-    ) {
-      server.sendConsoleText(client, `[Server] Tree is too far.`);
-      return;
-    }
-    const speedtreeDestroyed = this._speedTrees[objectId];
+    const speedtreeDestroyed = this._speedTreesDestroyed[objectId];
     let destroy = false;
     let count = 1;
     if (speedtreeDestroyed) return;
@@ -236,37 +229,32 @@ export class SpeedTreeManager {
       );
     }
     if (destroy) {
-      this.destroy(server, zoneSpeedTree, name);
+      this.destroy(server, objectId, name);
     }
   }
 
-  destroy(
-    server: ZoneServer2016,
-    zoneSpeedTree: ZoneSpeedTreeData,
-    name: string
-  ) {
+  destroy(server: ZoneServer2016, objectId: number, name: string) {
     server.sendDataToAll("DtoStateChange", {
-      objectId: zoneSpeedTree.objectId,
+      objectId: objectId,
       modelName: name.concat(".Stump"),
       effectId: 0,
       unk3: 0,
       unk4: true
     });
 
-    this._speedTrees[zoneSpeedTree.objectId] = {
-      objectId: zoneSpeedTree.objectId,
-      modelName: name,
-      position: zoneSpeedTree.position
+    this._speedTreesDestroyed[objectId] = {
+      objectId: objectId,
+      modelName: name
     };
     setTimeout(() => {
       server.sendDataToAll("DtoStateChange", {
-        objectId: zoneSpeedTree.objectId,
-        modelName: this._speedTrees[zoneSpeedTree.objectId].modelName,
+        objectId: objectId,
+        modelName: this._speedTreesDestroyed[objectId].modelName,
         effectId: 0,
         unk3: 0,
         unk4: true
       });
-      delete this._speedTrees[zoneSpeedTree.objectId];
+      delete this._speedTreesDestroyed[objectId];
     }, this.treeRespawnTimeMS);
   }
 }

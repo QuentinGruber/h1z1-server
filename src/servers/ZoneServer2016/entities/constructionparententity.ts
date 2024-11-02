@@ -19,7 +19,8 @@ import {
   getConstructionSlotId,
   registerConstructionSlots,
   getCubeBounds,
-  isInsideCube
+  isInsideCube,
+  isPosInRadius
 } from "../../../utils/utils";
 import { ZoneClient2016 } from "../classes/zoneclient";
 import {
@@ -37,6 +38,8 @@ import {
   shelterSlotDefinitions,
   wallSlotDefinitions
 } from "../data/constructionslots";
+import { BaseEntity } from "./baseentity";
+import { ExplosiveEntity } from "./explosiveentity";
 
 function getDamageRange(definitionId: number): number {
   switch (definitionId) {
@@ -64,21 +67,48 @@ function getMaxHealth(itemDefinitionId: Items): number {
 }
 
 export class ConstructionParentEntity extends ConstructionChildEntity {
+  /** Allowed permissions for players on the ConstructionParentEntity,
+   * determines if a player can visit, use containers, build or demolish*/
   permissions: { [characterId: string]: ConstructionPermissions } = {};
+
+  /** CharacterId of the player who placed the ConstructionParentEntity */
   ownerCharacterId: string;
+
+  /** Used by decay manager to determine the amount of ticks a ConstructionParentEntity has spent without any occupied slots */
   ticksWithoutObjects: number = 0;
+
+  /** Data on deck expansions - includes [slot: number] of position (Float32Array) and rotation (Float32Array)  */
   readonly expansionSlots: ConstructionSlotPositionMap = {};
+
+  /** HashMap of occupied expansion slots for a deck foundation (1 per side - 4 total),
+   * uses slot (number) for indexing
+   */
   occupiedExpansionSlots: { [slot: number]: ConstructionParentEntity } = {};
+
+  /** Data on a ramp - includes: [slot: number] of position (Float32Array) and rotation (Float32Array) */
   readonly rampSlots: ConstructionSlotPositionMap = {};
+
+  /** HashMap of occupied ramp slots for a deck foundation (3 per side - 12 total),
+   * uses slot (number) for indexing
+   */
   occupiedRampSlots: { [slot: number]: ConstructionChildEntity } = {};
+
+  /** Last time the ConstructionParentEntity was damaged */
   lastDamagedTimestamp: number = 0;
 
+  /** Id of the ConstructionParentEntity - See ServerItemDefinitions.json for more information */
   readonly itemDefinitionId: number;
-  readonly slot: string;
-  readonly damageRange: number;
-  readonly cubebounds?: CubeBounds;
 
-  // for detecting players / objects underneath a foundation
+  /** Index of the parent slot, used by ConstructionChildEntity - also determines CubeBounds  */
+  readonly slot: string;
+
+  /** Range that the ConstructionParentEntity will take damage from explosives */
+  readonly damageRange: number;
+
+  /** 3d boundaries of the space the ConstructionParentEntity occupies (8 vertice points) */
+  declare readonly cubebounds?: CubeBounds;
+
+  /** For detecting players / objects underneath a foundation */
   readonly boundsUnder?: CubeBounds;
 
   constructor(
@@ -961,5 +991,35 @@ export class ConstructionParentEntity extends ConstructionChildEntity {
 
     if (this.health > 0) return;
     this.destroy(server, 3000);
+  }
+
+  OnExplosiveHit(server: ZoneServer2016, sourceEntity: BaseEntity) {
+    if (
+      !isPosInRadius(
+        this.damageRange * 1.5,
+        this.state.position,
+        sourceEntity.state.position
+      )
+    )
+      return;
+
+    const itemDefinitionId =
+      sourceEntity instanceof ExplosiveEntity
+        ? sourceEntity.itemDefinitionId
+        : 0;
+
+    switch (this.itemDefinitionId) {
+      case Items.SHACK:
+      case Items.SHACK_SMALL:
+      case Items.SHACK_BASIC:
+        server.constructionManager.checkConstructionDamage(
+          server,
+          this,
+          server.baseConstructionDamage,
+          sourceEntity.state.position,
+          this.state.position,
+          itemDefinitionId
+        );
+    }
   }
 }

@@ -7,8 +7,9 @@ import {
   createFakeZoneClient
 } from "../../../utils/test.utils";
 
+process.env.FORCE_DISABLE_WS = "true";
 test("Damage-pve", { timeout: 10000 }, async (t) => {
-  const zone = new ZoneServer2016(1119);
+  const zone = new ZoneServer2016(0);
   zone.isPvE = true;
   await zone.start();
   assert.equal(zone.isPvE, true);
@@ -34,10 +35,11 @@ test("Damage-pve", { timeout: 10000 }, async (t) => {
     character.damage(zone, damageInfo);
     assert.equal(character.getHealth(), oldHealth);
   });
+  await zone.stop();
 });
 
 test("Damage-pvp", { timeout: 10000 }, async (t) => {
-  const zone = new ZoneServer2016(1120);
+  const zone = new ZoneServer2016(0);
   await zone.start();
   assert.equal(zone.isPvE, false);
   const character = createFakeCharacter(zone);
@@ -62,6 +64,7 @@ test("Damage-pvp", { timeout: 10000 }, async (t) => {
     character.damage(zone, damageInfo);
     assert.equal(character.getHealth(), oldHealth - dmg);
   });
+  await zone.stop();
 });
 after(() => {
   setImmediate(() => {

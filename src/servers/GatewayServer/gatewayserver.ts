@@ -105,6 +105,10 @@ export class GatewayServer extends EventEmitter {
     return this._soeServer.getSoeClient(soeClientId)?.getNetworkStats();
   }
 
+  getServerNetworkStats(): string[] {
+    return this._soeServer.getNetworkStats();
+  }
+
   getSoeClientSessionId(soeClientId: string): number | undefined {
     return this._soeServer.getSoeClient(soeClientId)?.sessionId;
   }

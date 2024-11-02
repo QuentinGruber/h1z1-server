@@ -22,10 +22,16 @@ import {
 import { ZoneServer2016 } from "../zoneserver";
 import { ZoneClient2016 } from "../classes/zoneclient";
 import { DamageInfo, OccupiedSlotMap } from "types/zoneserver";
-import { getConstructionSlotId, movePoint } from "../../../utils/utils";
+import {
+  getConstructionSlotId,
+  isPosInRadius,
+  movePoint
+} from "../../../utils/utils";
 import { ConstructionParentEntity } from "./constructionparententity";
 import { ConstructionChildEntity } from "./constructionchildentity";
 import { CUSTOM_PROFILES_IDS } from "../../../utils/enums";
+import { BaseEntity } from "./baseentity";
+import { ExplosiveEntity } from "./explosiveentity";
 function getDamageRange(definitionId: number): number {
   switch (definitionId) {
     case Items.METAL_GATE:
@@ -55,18 +61,39 @@ function getMaxHealth(itemDefinitionId: Items): number {
 }
 
 export class ConstructionDoor extends DoorEntity {
+  /** CharacterId of the player that owns the door entity */
   ownerCharacterId: string;
+
+  /** Hashed password for the door */
   passwordHash: number = 0;
+
+  /** List of all accessed players on a door entity: demolish permission also grants access */
   grantedAccess: Array<string> = [];
 
+  /** The parent object the door entity is attached to */
   parentObjectCharacterId: string;
+
+  /** ItemDefinitionId of the door */
   readonly itemDefinitionId: number;
+
+  /** Current slot from the parent object the door is attached to */
   readonly slot: string;
+
+  /** Range at which the door entity will receive damage from explosions */
   damageRange: number;
+
+  /** Fixed position the door remains at while it's closed */
   readonly fixedPosition: Float32Array;
+
+  /** Time (milliseconds) the door was placed at */
   placementTime = Date.now();
+
+  /** Used to determine whether the parent object is secured - having the door open makes the parent object unsecured */
   isSecured = true;
+
+  /** Used by DecayManager, determines if the entity will be damaged the next decay tick */
   isDecayProtected: boolean = false;
+
   constructor(
     characterId: string,
     transientId: number,
@@ -374,5 +401,41 @@ export class ConstructionDoor extends DoorEntity {
 
   OnMeleeHit(server: ZoneServer2016, damageInfo: DamageInfo) {
     server.constructionManager.OnMeleeHit(server, damageInfo, this);
+  }
+
+  OnExplosiveHit(
+    server: ZoneServer2016,
+    sourceEntity: BaseEntity,
+    client?: ZoneClient2016
+  ) {
+    const itemDefinitionId =
+      sourceEntity instanceof ExplosiveEntity
+        ? sourceEntity.itemDefinitionId
+        : 0;
+
+    if (
+      !isPosInRadius(
+        this.damageRange,
+        this.fixedPosition ? this.fixedPosition : this.state.position,
+        sourceEntity.state.position
+      )
+    ) {
+      return;
+    }
+
+    if (server.constructionManager.isConstructionInSecuredArea(server, this)) {
+      if (!client) return;
+      server.constructionManager.sendBaseSecuredMessage(server, client);
+
+      return;
+    }
+    server.constructionManager.checkConstructionDamage(
+      server,
+      this,
+      server.baseConstructionDamage,
+      sourceEntity.state.position,
+      this.fixedPosition ? this.fixedPosition : this.state.position,
+      itemDefinitionId
+    );
   }
 }

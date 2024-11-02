@@ -11,6 +11,7 @@
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
 
+/** Used when a player respawns and decides a location */
 export class SpawnCell {
   position: Float32Array;
   spawnPoints: Float32Array[] = [];

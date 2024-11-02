@@ -13,56 +13,56 @@ export const UseOptions: { [itemDefinitionIds: number]: ItemUseOption } = {
   2: {
     itemDef: Items.CANNED_FOOD01,
     type: ItemUseOptions.EAT,
-    timeout: 2000,
+    timeout: 4000,
     eatCount: 4000,
     givetrash: 48
   },
   100: {
     itemDef: Items.CANNED_FOOD02,
     type: ItemUseOptions.EAT,
-    timeout: 2000,
+    timeout: 4000,
     eatCount: 4000,
     givetrash: 48
   },
   101: {
     itemDef: Items.CANNED_FOOD03,
     type: ItemUseOptions.EAT,
-    timeout: 2000,
+    timeout: 4000,
     eatCount: 4000,
     givetrash: 48
   },
   102: {
     itemDef: Items.CANNED_FOOD04,
     type: ItemUseOptions.EAT,
-    timeout: 2000,
+    timeout: 4000,
     eatCount: 4000,
     givetrash: 48
   },
   103: {
     itemDef: Items.CANNED_FOOD05,
     type: ItemUseOptions.EAT,
-    timeout: 2000,
+    timeout: 4000,
     eatCount: 4000,
     givetrash: 48
   },
   104: {
     itemDef: Items.CANNED_FOOD06,
     type: ItemUseOptions.EAT,
-    timeout: 2000,
+    timeout: 4000,
     eatCount: 4000,
     givetrash: 48
   },
   105: {
     itemDef: Items.CANNED_FOOD07,
     type: ItemUseOptions.EAT,
-    timeout: 2000,
+    timeout: 4000,
     eatCount: 4000,
     givetrash: 48
   },
   106: {
     itemDef: Items.CANNED_FOOD08,
     type: ItemUseOptions.EAT,
-    timeout: 2000,
+    timeout: 4000,
     eatCount: 4000,
     comfortCount: 250,
     givetrash: 48
@@ -70,7 +70,7 @@ export const UseOptions: { [itemDefinitionIds: number]: ItemUseOption } = {
   107: {
     itemDef: Items.CANNED_FOOD09,
     type: ItemUseOptions.EAT,
-    timeout: 2000,
+    timeout: 4000,
     eatCount: 4000,
     comfortCount: 250,
     givetrash: 48
@@ -78,7 +78,7 @@ export const UseOptions: { [itemDefinitionIds: number]: ItemUseOption } = {
   108: {
     itemDef: Items.CANNED_FOOD10,
     type: ItemUseOptions.EAT,
-    timeout: 2000,
+    timeout: 4000,
     eatCount: 4000,
     comfortCount: 250,
     givetrash: 48
@@ -86,7 +86,7 @@ export const UseOptions: { [itemDefinitionIds: number]: ItemUseOption } = {
   109: {
     itemDef: Items.CANNED_FOOD11,
     type: ItemUseOptions.EAT,
-    timeout: 2000,
+    timeout: 4000,
     eatCount: 4000,
     comfortCount: 250,
     givetrash: 48
@@ -94,7 +94,7 @@ export const UseOptions: { [itemDefinitionIds: number]: ItemUseOption } = {
   121: {
     itemDef: Items.CANNED_FOOD21,
     type: ItemUseOptions.EAT,
-    timeout: 2000,
+    timeout: 4000,
     eatCount: 4000,
     comfortCount: 250,
     givetrash: 48
@@ -102,7 +102,7 @@ export const UseOptions: { [itemDefinitionIds: number]: ItemUseOption } = {
   123: {
     itemDef: Items.CANNED_FOOD25,
     type: ItemUseOptions.EAT,
-    timeout: 2000,
+    timeout: 4000,
     eatCount: 4000,
     comfortCount: 250,
     givetrash: 48
@@ -110,7 +110,7 @@ export const UseOptions: { [itemDefinitionIds: number]: ItemUseOption } = {
   124: {
     itemDef: Items.CANNED_FOOD26,
     type: ItemUseOptions.EAT,
-    timeout: 2000,
+    timeout: 4000,
     eatCount: 4000,
     comfortCount: 250,
     givetrash: 48

@@ -11,7 +11,12 @@
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
 
-import { createPositionUpdate, eul2quat } from "../../../utils/utils";
+import {
+  createPositionUpdate,
+  eul2quat,
+  getDistance,
+  isPosInRadius
+} from "../../../utils/utils";
 import {
   Items,
   LoadoutIds,
@@ -20,7 +25,9 @@ import {
   VehicleIds,
   StringIds,
   Effects,
-  VehicleEffects
+  VehicleEffects,
+  ModelIds,
+  PositionUpdateType
 } from "../models/enums";
 import { ZoneClient2016 } from "../classes/zoneclient";
 import { ZoneServer2016 } from "../zoneserver";
@@ -35,35 +42,37 @@ import {
   LightweightToFullNpc,
   LightweightToFullVehicle
 } from "types/zone2016packets";
+import { BaseEntity } from "./baseentity";
+import { scheduler } from "timers/promises";
 
 function getActorModelId(vehicleId: VehicleIds) {
   switch (vehicleId) {
     case VehicleIds.OFFROADER:
-      return 7225;
+      return ModelIds.OFFROADER;
     case VehicleIds.PICKUP:
-      return 9258;
+      return ModelIds.PICKUP_TRUCK;
     case VehicleIds.POLICECAR:
-      return 9301;
+      return ModelIds.POLICE_CAR;
     case VehicleIds.ATV:
-      return 9588;
+      return ModelIds.ATV;
     case VehicleIds.PARACHUTE:
-      return 9374;
+      return ModelIds.PARACHUTE;
     case VehicleIds.SPECTATE:
-      return 9371;
+      return ModelIds.SPECTATE;
     default:
-      return 7225;
+      return ModelIds.OFFROADER;
   }
 }
 
 function getVehicleName(ModelId: number) {
   switch (ModelId) {
-    case 7225:
+    case ModelIds.OFFROADER:
       return StringIds.OFFROADER;
-    case 9258: // pickup
+    case ModelIds.PICKUP_TRUCK: // pickup
       return StringIds.PICKUP_TRUCK;
-    case 9301: // policecar
+    case ModelIds.POLICE_CAR: // policecar
       return StringIds.POLICE_CAR;
-    case 9588: // atv
+    case ModelIds.ATV: // atv
       return StringIds.ATV;
     default:
       return StringIds.OFFROADER;
@@ -163,33 +172,64 @@ function getHotwireEffect(vehicleId: VehicleIds) {
 }
 
 export class Vehicle2016 extends BaseLootableEntity {
+  /** Used to determine if the vehicle physics are currently managed by a client */
   isManaged: boolean = false;
   manager?: ZoneClient2016;
+
+  /** Effect Id upon a car explosion */
   destroyedEffect: number = 0;
+
+  /** Model Id to spawn after a car explosion */
   destroyedModel: number = 0;
+
+  /** Effect Id of the vehicle when it collides with the world */
   minorDamageEffect: number = 0;
   majorDamageEffect: number = 0;
   criticalDamageEffect: number = 0;
   supercriticalDamageEffect: number = 0;
+
+  /** Returns true when the engine is turned on */
   engineOn: boolean = false;
+
+  /** Returns true when the player locks the vehicle */
   isLocked: boolean = false;
+
+  /** Used to determine the position of the vehicle to transmit to the server */
   positionUpdate: any /*positionUpdate*/;
+
+  /** Speed (H1Z1 RPMs) of the vehicle */
   engineRPM: number = 0;
+
+  /** Used by resources to determine the fuel level */
   fuelUpdater: any;
+
+  /** Returns true if the player is spectating or is parachuting -
+   * spectating is treated as being inside a vehicle - a "hacky aircraft" if you will */
   isInvulnerable: boolean = false;
   onDismount?: any;
+
+  /** Used to update the health of the vehicle */
   resourcesUpdater?: any;
   damageTimeout?: any;
   vehicleManager?: string;
+
+  /** HashMap of seats - uses seatId (string) for indexing */
   seats: { [seatId: string]: string } = {};
+
+  /** Id of a vehicle - See VehicleIds in enums.ts for more information */
   vehicleId: number;
   destroyedState = 0;
-  positionUpdateType = 1;
   currentDamageEffect: number = 0;
+
+  /** The previous position of the vehicle that was last transmitted to the server,
+   * used to determine FairPlay. */
   oldPos: { position: Float32Array; time: number } = {
     position: new Float32Array(),
     time: 0
   };
+
+  shaderGroupId: number = 0;
+
   droppedManagedClient?: ZoneClient2016; // for temporary fix
   isMountable: boolean = true;
   constructor(
@@ -200,9 +240,11 @@ export class Vehicle2016 extends BaseLootableEntity {
     rotation: Float32Array,
     server: ZoneServer2016,
     gameTime: number,
-    vehicleId: number
+    vehicleId: number,
+    shaderGroupId: number = 0
   ) {
     super(characterId, transientId, actorModelId, position, rotation, server);
+    this.positionUpdateType = PositionUpdateType.MOVABLE;
     this._resources = {
       [ResourceIds.CONDITION]: 100000,
       [ResourceIds.FUEL]: 7500
@@ -222,6 +264,7 @@ export class Vehicle2016 extends BaseLootableEntity {
     this.isInvulnerable =
       this.vehicleId == VehicleIds.SPECTATE ||
       this.vehicleId == VehicleIds.PARACHUTE;
+    this.shaderGroupId = shaderGroupId;
     switch (this.vehicleId) {
       case VehicleIds.OFFROADER:
       case VehicleIds.PICKUP:
@@ -259,7 +302,7 @@ export class Vehicle2016 extends BaseLootableEntity {
     switch (this.vehicleId) {
       case VehicleIds.PICKUP:
         this.destroyedEffect = Effects.VEH_Death_PickupTruck;
-        this.destroyedModel = 9315;
+        this.destroyedModel = ModelIds.PICKUP_DESTROYED;
         this.minorDamageEffect = Effects.VEH_Damage_PickupTruck_Stage01;
         this.majorDamageEffect = Effects.VEH_Damage_PickupTruck_Stage02;
         this.criticalDamageEffect = Effects.VEH_Damage_PickupTruck_Stage03;
@@ -267,7 +310,7 @@ export class Vehicle2016 extends BaseLootableEntity {
         break;
       case VehicleIds.POLICECAR:
         this.destroyedEffect = Effects.VEH_Death_PoliceCar;
-        this.destroyedModel = 9316;
+        this.destroyedModel = ModelIds.POLICE_CAR_DESTROYED;
         this.minorDamageEffect = Effects.VEH_Damage_PoliceCar_Stage01;
         this.majorDamageEffect = Effects.VEH_Damage_PoliceCar_Stage02;
         this.criticalDamageEffect = Effects.VEH_Damage_PoliceCar_Stage03;
@@ -275,7 +318,7 @@ export class Vehicle2016 extends BaseLootableEntity {
         break;
       case VehicleIds.ATV:
         this.destroyedEffect = Effects.VEH_Death_ATV;
-        this.destroyedModel = 9593;
+        this.destroyedModel = ModelIds.ATV_DESTROYED;
         this.minorDamageEffect = Effects.VEH_Damage_ATV_Stage01;
         this.majorDamageEffect = Effects.VEH_Damage_ATV_Stage02;
         this.criticalDamageEffect = Effects.VEH_Damage_ATV_Stage03;
@@ -283,8 +326,14 @@ export class Vehicle2016 extends BaseLootableEntity {
         break;
       case VehicleIds.OFFROADER:
       default:
+        const allowedShaders = [838, 1143, 837, 1003, 1148],
+          randomShader =
+            allowedShaders[Math.floor(Math.random() * allowedShaders.length)];
+        if (this.shaderGroupId == 0) {
+          this.shaderGroupId = randomShader;
+        }
         this.destroyedEffect = Effects.VEH_Death_OffRoader;
-        this.destroyedModel = 7226;
+        this.destroyedModel = ModelIds.OFFROADER_DESTROYED;
         this.minorDamageEffect = Effects.VEH_Damage_OffRoader_Stage01;
         this.majorDamageEffect = Effects.VEH_Damage_OffRoader_Stage02;
         this.criticalDamageEffect = Effects.VEH_Damage_OffRoader_Stage03;
@@ -339,7 +388,8 @@ export class Vehicle2016 extends BaseLootableEntity {
       npcData: {
         ...this.pGetLightweight(),
         position: this.state.position,
-        vehicleId: this.vehicleId
+        vehicleId: this.vehicleId,
+        shaderGroupId: this.shaderGroupId
       },
       positionUpdate: this.positionUpdate
     };
@@ -587,6 +637,18 @@ export class Vehicle2016 extends BaseLootableEntity {
     if (seat) return server._characters[seat];
   }
 
+  doesPassengersHaveKey(server: ZoneServer2016): boolean {
+    for (const seatId in this.seats) {
+      const seat = this.seats[seatId],
+        passenger = seat ? server._characters[seat] : undefined;
+
+      if (passenger?.getItemById(Items.VEHICLE_KEY)) {
+        return true;
+      }
+    }
+    return false;
+  }
+
   startEngine(server: ZoneServer2016) {
     server.sendDataToAllWithSpawnedEntity(
       server._vehicles,
@@ -621,8 +683,8 @@ export class Vehicle2016 extends BaseLootableEntity {
       {
         abilityEffectData: {
           unknownDword1: 4,
-          abilityEffectId1: VehicleEffects.MOTOR_RUN_OFFROADER,
-          abilityEffectId2: 100042
+          abilityEffectId1: VehicleEffects.MOTOR_RUN_OFFROADER_1,
+          abilityEffectId2: VehicleEffects.MOTOR_RUN_OFFROADER_2
         },
         targetCharacterData: {
           characterId: this.characterId
@@ -853,7 +915,7 @@ export class Vehicle2016 extends BaseLootableEntity {
   hasVehicleKey(server: ZoneServer2016): boolean {
     return (
       !!this.getItemById(Items.VEHICLE_KEY) ||
-      !!this.getDriver(server)?.getItemById(Items.VEHICLE_KEY)
+      this.doesPassengersHaveKey(server)
     );
   }
 
@@ -952,7 +1014,7 @@ export class Vehicle2016 extends BaseLootableEntity {
     );
     this.effectTags.push(hotwireEffect);
 
-    server.utilizeHudTimer(client, 0, 5000, 0, () => {
+    server.utilizeHudTimer(client, 0, 7000, 0, () => {
       this.removeHotwireEffect(server);
       this.startEngine(server);
     });
@@ -1089,6 +1151,9 @@ export class Vehicle2016 extends BaseLootableEntity {
       case server.isConvey(item.itemDefinitionId):
         durability = 5400;
         break;
+      case server.isGeneric(item.itemDefinitionId):
+        durability = 2000;
+        break;
     }
     return {
       itemDefinitionId: item.itemDefinitionId,
@@ -1112,10 +1177,7 @@ export class Vehicle2016 extends BaseLootableEntity {
   }
 
   OnFullCharacterDataRequest(server: ZoneServer2016, client: ZoneClient2016) {
-    if (
-      this.vehicleId == VehicleIds.SPECTATE ||
-      this.vehicleId == VehicleIds.PARACHUTE
-    ) {
+    if (this.vehicleId == VehicleIds.SPECTATE) {
       return;
     }
     server.sendData(
@@ -1198,7 +1260,7 @@ export class Vehicle2016 extends BaseLootableEntity {
     }
 
     if (this._resources[ResourceIds.CONDITION] < 100000) {
-      this.damage(server, { ...damageInfo, damage: -5000 });
+      this.damage(server, { ...damageInfo, damage: -2000 });
       server.damageItem(client, weapon, 100);
     }
   }
@@ -1231,12 +1293,29 @@ export class Vehicle2016 extends BaseLootableEntity {
     );
     const deleted = server.deleteEntity(this.characterId, server._vehicles);
     if (!disableExplosion) {
-      server.explosionDamage(this.state.position, this.characterId, 0);
+      server.explosionDamage(this);
     }
     //this.state.position[1] -= 0.4; // makes bags spawn under the map sometimes.
     // TODO: Have to revisit when the heightmap is implemented server side.
     // fix floating vehicle lootbags
     server.worldObjectManager.createLootbag(server, this);
     return deleted;
+  }
+
+  async OnExplosiveHit(server: ZoneServer2016, sourceEntity: BaseEntity) {
+    if (this.characterId == sourceEntity.characterId) return;
+    if (!isPosInRadius(5, this.state.position, sourceEntity.state.position))
+      return;
+
+    const distance = getDistance(
+      sourceEntity.state.position,
+      this.state.position
+    );
+    const damage = 250000 / distance;
+    await scheduler.wait(150);
+    this.damage(server, {
+      entity: sourceEntity.characterId,
+      damage: damage
+    });
   }
 }

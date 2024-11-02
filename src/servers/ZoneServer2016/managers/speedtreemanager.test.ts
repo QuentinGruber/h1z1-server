@@ -12,7 +12,7 @@
 // ======================================================================
 import test, { after } from "node:test";
 import { SpeedTreeManager } from "./speedtreemanager";
-import { PropInstance, ZoneSpeedTreeData } from "types/zoneserver";
+import { PropInstance } from "types/zoneserver";
 import { ZoneServer2016 } from "../zoneserver";
 import assert from "node:assert";
 
@@ -20,6 +20,7 @@ test("speedTreeManager", { timeout: 10000 }, async (t) => {
   const speedTreeManager = new SpeedTreeManager();
   await t.test("initiateList", () => {
     speedTreeManager.initiateList();
+    assert.notStrictEqual(Object.keys(speedTreeManager._speedTreesList), 0);
   });
 
   const destroyedDto: number = 1000;
@@ -27,15 +28,10 @@ test("speedTreeManager", { timeout: 10000 }, async (t) => {
     const zone = new ZoneServer2016(1117);
 
     for (let i = 0; i < destroyedDto; i++) {
-      const speedTree: ZoneSpeedTreeData = {
-        objectId: i,
-        treeId: 1,
-        position: new Float32Array([i, i, i])
-      };
-      speedTreeManager.destroy(zone, speedTree, "ouai");
+      speedTreeManager.destroy(zone, i, "ouai");
     }
     assert.strictEqual(
-      Object.keys(speedTreeManager._speedTrees).length,
+      Object.keys(speedTreeManager._speedTreesDestroyed).length,
       destroyedDto
     );
   });

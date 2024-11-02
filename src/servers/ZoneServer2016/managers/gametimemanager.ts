@@ -27,11 +27,12 @@ export class IngameTimeManager {
   nightTimeMultiplier = 1;
   timeFrozen = true;
 
-  // Managed by config
+  /** MANAGED BY CONFIGMANAGER - See defaultConfig.yaml for more information */
   timeFrozenByConfig!: boolean;
   time!: number;
   baseTimeMultiplier!: number;
   nightTimeMultiplierValue!: number;
+
   constructor() {}
 
   start() {

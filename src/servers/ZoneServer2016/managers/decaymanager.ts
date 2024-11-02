@@ -22,11 +22,16 @@ import { dailyRepairMaterial } from "types/zoneserver";
 import { BaseItem } from "../classes/baseItem";
 
 export class DecayManager {
-  constructionDamageTickCount = 0; // used to run structure damaging once every x loops
+  /** Used for tracking the tick amount needed before decay damage occurs on the construction */
+  constructionDamageTickCount = 0;
+
+  /** Used for tracking the tick amount needed before decay damage occurs on the vehicle */
   vehicleDamageTickCount = 0; // used to run vehicle damaging once every x loops
+
+  /** Timer used for determining the interval for decay ticks */
   runTimer?: NodeJS.Timeout;
 
-  /* MANAGED BY CONFIGMANAGER */
+  /** MANAGED BY CONFIGMANAGER - See defaultConfig.yaml for more information */
   decayTickInterval!: number;
   constructionDamageTicks!: number;
   ticksToFullDecay!: number;
@@ -164,7 +169,8 @@ export class DecayManager {
     entity:
       | LootableConstructionEntity
       | ConstructionDoor
-      | ConstructionChildEntity
+      | ConstructionChildEntity,
+    freeplaceDecayMultiplier: number = 1
   ) {
     if (entity.isDecayProtected) {
       entity.isDecayProtected = false;
@@ -173,7 +179,8 @@ export class DecayManager {
 
     entity.damage(server, {
       entity: "Server.DecayManager",
-      damage: entity.maxHealth / this.ticksToFullDecay
+      damage:
+        entity.maxHealth / (this.ticksToFullDecay / freeplaceDecayMultiplier)
     });
   }
 
@@ -243,10 +250,18 @@ export class DecayManager {
     }
 
     for (const a in server._worldLootableConstruction) {
-      this.decayDamage(server, server._worldLootableConstruction[a]);
+      this.decayDamage(
+        server,
+        server._worldLootableConstruction[a],
+        this.worldFreeplaceDecayMultiplier
+      );
     }
     for (const a in server._worldSimpleConstruction) {
-      this.decayDamage(server, server._worldSimpleConstruction[a]);
+      this.decayDamage(
+        server,
+        server._worldSimpleConstruction[a],
+        this.worldFreeplaceDecayMultiplier
+      );
     }
     for (const a in server._constructionSimple) {
       const simple = server._constructionSimple[a];

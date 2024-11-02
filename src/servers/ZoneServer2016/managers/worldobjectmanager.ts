@@ -18,7 +18,7 @@ const Z1_taskProps = require("../../../../data/2016/zoneData/Z1_taskProps.json")
 const Z1_crates = require("../../../../data/2016/zoneData/Z1_crates.json");
 const Z1_destroyables = require("../../../../data/2016/zoneData/Z1_destroyables.json");
 const models = require("../../../../data/2016/dataSources/Models.json");
-const bannedZombieModels = require("../../../../data/2016/sampleData/bannedZombiesModels.json");
+// const bannedZombieModels = require("../../../../data/2016/sampleData/bannedZombiesModels.json");
 import {
   _,
   eul2quat,
@@ -29,30 +29,7 @@ import {
   getCurrentServerTimeWrapper,
   movePoint3D
 } from "../../../utils/utils";
-import {
-  EquipSlots,
-  Items,
-  Skins_Shirt,
-  Skins_Pants,
-  Skins_Beanie,
-  Skins_Cap,
-  Skins_MotorHelmet,
-  Skins_Kevlar,
-  Skins_Military,
-  Skins_Glasses,
-  Effects,
-  ModelIds,
-  Skins_Conveys,
-  Skins_Backpack,
-  Skins_Sniper,
-  Skins_Shotgun,
-  Skins_AK47,
-  Skins_AR15,
-  Skins_TacticalHelmet,
-  Skins_Respirator,
-  Skins_Bandana,
-  Skins_Boots
-} from "../models/enums";
+import { EquipSlots, Items, Effects, ModelIds } from "../models/enums";
 import { Vehicle2016 } from "../entities/vehicle";
 import { LootDefinition } from "types/zoneserver";
 import { ItemObject } from "../entities/itemobject";
@@ -79,72 +56,10 @@ import { CharacterPlayWorldCompositeEffect } from "types/zone2016packets";
 import { WaterSource } from "../entities/watersource";
 import { TreasureChest } from "../entities/treasurechest";
 import { HarvestableProp } from "../entities/harvestableprop";
+import { Npc } from "../entities/npc";
+//import { EntityType } from "h1emu-ai";
+import { scheduler } from "node:timers/promises";
 const debug = require("debug")("ZoneServer");
-
-function getRandomSkin(itemDefinitionId: number) {
-  let itemDefId = 0;
-  let arr: any[] = [];
-  switch (itemDefinitionId) {
-    case Items.SHIRT_DEFAULT:
-      arr = Object.keys(Skins_Shirt);
-      break;
-    case Items.PANTS_DEFAULT:
-      arr = Object.keys(Skins_Pants);
-      break;
-    case Items.HAT_BEANIE:
-      arr = Object.keys(Skins_Beanie);
-      break;
-    case Items.HAT_CAP:
-      arr = Object.keys(Skins_Cap);
-      break;
-    case Items.HELMET_MOTORCYCLE:
-      arr = Object.keys(Skins_MotorHelmet);
-      break;
-    case Items.KEVLAR_DEFAULT:
-      arr = Object.keys(Skins_Kevlar);
-      break;
-    case Items.BACKPACK_MILITARY_TAN:
-      arr = Object.keys(Skins_Military);
-      break;
-    case Items.BACKPACK_BLUE_ORANGE:
-      arr = Object.keys(Skins_Backpack);
-      break;
-    case Items.ALL_PURPOSE_GOGGLES:
-      arr = Object.keys(Skins_Glasses);
-      break;
-    case Items.CONVEYS_BLUE:
-      arr = Object.keys(Skins_Conveys);
-      break;
-    case Items.BOOTS_TAN:
-      arr = Object.keys(Skins_Boots);
-      break;
-    case Items.WEAPON_308:
-      arr = Object.keys(Skins_Sniper);
-      break;
-    case Items.WEAPON_SHOTGUN:
-      arr = Object.keys(Skins_Shotgun);
-      break;
-    case Items.WEAPON_AK47:
-      arr = Object.keys(Skins_AK47);
-      break;
-    case Items.WEAPON_AR15:
-      arr = Object.keys(Skins_AR15);
-      break;
-    case Items.HELMET_TACTICAL:
-      arr = Object.keys(Skins_TacticalHelmet);
-      break;
-    case Items.RESPIRATOR:
-      arr = Object.keys(Skins_Respirator);
-      break;
-    case Items.BANDANA_BASIC:
-      arr = Object.keys(Skins_Bandana);
-      break;
-    default:
-      return itemDefinitionId;
-  }
-  itemDefId = Number(arr[Math.floor((Math.random() * arr.length) / 2)]);
-  return itemDefId;
-}
 
 export function getRandomItem(items: Array<LootDefinition>) {
   const totalWeight = items.reduce((total, item) => total + item.weight, 0),
@@ -160,15 +75,19 @@ export function getRandomItem(items: Array<LootDefinition>) {
 }
 
 export class WorldObjectManager {
+  /** HashMap of all spawned NPCs in the world - uses spawnerId (number) for indexing */
   spawnedNpcs: { [spawnerId: number]: string } = {};
+
+  /** HashMap of all spawned objects in the world - uses spawnerId (number) for indexing */
   spawnedLootObjects: { [spawnerId: number]: string } = {};
 
+  /** Global respawn timers */
   private _lastLootRespawnTime: number = 0;
   private _lastVehicleRespawnTime: number = 0;
   private _lastNpcRespawnTime: number = 0;
   private _lastWaterSourceReplenishTime: number = 0;
 
-  /* MANAGED BY CONFIGMANAGER */
+  /** MANAGED BY CONFIGMANAGER - See defaultConfig.yaml for more information */
   map!: string;
   vehicleSpawnCap!: number;
   minAirdropSurvivors!: number;
@@ -176,19 +95,15 @@ export class WorldObjectManager {
   vehicleRespawnTimer!: number;
   npcRespawnTimer!: number;
   hasCustomLootRespawnTime!: boolean;
-
   itemDespawnTimer!: number;
   lootDespawnTimer!: number;
   deadNpcDespawnTimer!: number;
   lootbagDespawnTimer!: number;
-
   vehicleSpawnRadius!: number;
   npcSpawnRadius!: number;
   chanceNpc!: number;
   chanceScreamer!: number;
-
   chanceWornLetter!: number;
-
   waterSourceReplenishTimer!: number;
   waterSourceRefillAmount!: number;
 
@@ -216,12 +131,12 @@ export class WorldObjectManager {
     }
   }
 
-  run(server: ZoneServer2016) {
+  async run(server: ZoneServer2016) {
     debug("WOM::Run");
     this.getItemRespawnTimer(server);
     if (this._lastLootRespawnTime + this.lootRespawnTimer <= Date.now()) {
-      this.createLoot(server);
-      this.createContainerLoot(server);
+      await this.createLoot(server);
+      await this.createContainerLoot(server);
       this._lastLootRespawnTime = Date.now();
       server.divideLargeCells(700);
     }
@@ -246,11 +161,18 @@ export class WorldObjectManager {
     this.despawnEntities(server);
   }
 
-  private npcDespawner(server: ZoneServer2016) {
+  private async npcDespawner(server: ZoneServer2016) {
+    let counter = 0;
     for (const characterId in server._npcs) {
+      if (counter > 30) {
+        counter = 0;
+        await scheduler.wait(30);
+      }
+      counter++;
       const npc = server._npcs[characterId];
       // dead npc despawner
       if (
+        npc &&
         npc.flags.knockedOut &&
         Date.now() - npc.deathTime >= this.deadNpcDespawnTimer
       ) {
@@ -269,8 +191,14 @@ export class WorldObjectManager {
     }
   }
 
-  private itemDespawner(server: ZoneServer2016) {
+  private async itemDespawner(server: ZoneServer2016) {
+    let counter = 0;
     for (const characterId in server._spawnedItems) {
+      if (counter > 100) {
+        counter = 0;
+        await scheduler.wait(30);
+      }
+      counter++;
       const itemObject = server._spawnedItems[characterId];
       if (!itemObject) return;
       // dropped item despawner
@@ -304,15 +232,7 @@ export class WorldObjectManager {
     this.itemDespawner(server);
   }
 
-  private equipRandomSkins(
-    server: ZoneServer2016,
-    entity: BaseFullCharacter,
-    slots: EquipSlots[],
-    excludedModels: string[] = []
-  ): void {
-    server.generateRandomEquipmentsFromAnEntity(entity, slots, excludedModels);
-  }
-  createZombie(
+  createNpc(
     server: ZoneServer2016,
     modelId: number,
     position: Float32Array,
@@ -320,7 +240,7 @@ export class WorldObjectManager {
     spawnerId: number = 0
   ) {
     const characterId = generateRandomGuid();
-    const zombie = new Zombie(
+    const npc = new Npc(
       characterId,
       server.getTransientId(characterId),
       modelId,
@@ -329,8 +249,10 @@ export class WorldObjectManager {
       server,
       spawnerId
     );
-    this.equipRandomSkins(server, zombie, this.zombieSlots, bannedZombieModels);
-    server._npcs[characterId] = zombie;
+
+    // doesn't work anymore
+    // this.equipRandomSkins(server, npc, this.zombieSlots, bannedZombieModels);
+    server._npcs[characterId] = npc;
     if (spawnerId) this.spawnedNpcs[spawnerId] = characterId;
   }
 
@@ -388,29 +310,6 @@ export class WorldObjectManager {
   }
 
   createLootbag(server: ZoneServer2016, entity: BaseFullCharacter) {
-    if (entity instanceof Zombie) {
-      //TODO: Probably should rework this?
-      const wornLetters = [
-        Items.WORN_LETTER_CHURCH_PV,
-        Items.WORN_LETTER_LJ_PV,
-        Items.WORN_LETTER_MISTY_DAM,
-        Items.WORN_LETTER_RADIO,
-        Items.WORN_LETTER_RUBY_LAKE,
-        Items.WORN_LETTER_TOXIC_LAKE,
-        Items.WORN_LETTER_VILLAS,
-        Items.WORN_LETTER_WATER_TOWER
-      ];
-
-      const shouldGenerateWornLetter =
-        Math.floor(Math.random() * 100) + 1 <= this.chanceWornLetter;
-      if (shouldGenerateWornLetter) {
-        const randomIndex = randomIntFromInterval(0, wornLetters.length - 1);
-        const randomWornLetter = wornLetters[randomIndex];
-        const newItem = server.generateItem(randomWornLetter, 1);
-        entity.lootItem(server, newItem);
-      }
-    }
-
     const characterId = generateRandomGuid(),
       isCharacter = !!server._characters[entity.characterId],
       items = entity.getDeathItems(server);
@@ -433,11 +332,9 @@ export class WorldObjectManager {
 
     server._lootbags[characterId] = lootbag;
     server.executeFuncForAllReadyClientsInRange((client) => {
-      if (!client.spawnedEntities.has(entity)) {
-        server.addLightweightNpc(client, entity);
-        client.spawnedEntities.add(entity);
-      }
-    }, entity);
+      server.addLightweightNpc(client, lootbag);
+      client.spawnedEntities.add(lootbag);
+    }, lootbag);
   }
 
   createAirdropContainer(
@@ -732,130 +629,187 @@ export class WorldObjectManager {
           }
         });
       });
-      Z1_taskProps.forEach((propType: any) => {
-        propType.instances.forEach((propInstance: any) => {
-          const characterId = generateRandomGuid();
-          let obj;
-          switch (propType.actor_file) {
-            case "Common_Props_SpikeTrap.adr":
-              server.constructionManager.placeTrap(
-                server,
-                Items.PUNJI_STICKS,
-                propType.modelId,
-                new Float32Array(propInstance.position),
-                fixEulerOrder(propInstance.rotation)
-              );
-              break;
-            case "Common_Props_BarbedWire.adr":
-              server.constructionManager.placeTrap(
-                server,
-                Items.BARBED_WIRE,
-                propType.modelId,
-                new Float32Array(propInstance.position),
-                fixEulerOrder(propInstance.rotation)
-              );
-              break;
-            case "Common_Props_Cabinets_BathroomSink.adr":
-            case "Common_Props_Bathroom_Toilet01.adr":
-            case "Common_Props_Dam_WaterValve01.adr":
-            case "Common_Props_Well.adr":
-              obj = new WaterSource(
-                characterId,
-                server.getTransientId(characterId), // need transient generated for Interaction Replication
-                propType.modelId,
-                new Float32Array(propInstance.position),
-                new Float32Array(fixEulerOrder(propInstance.rotation)),
-                server,
-                new Float32Array(propInstance.scale),
-                propInstance.id,
-                propType.renderDistance,
-                propType.actor_file,
-                this.waterSourceRefillAmount
-              );
-              break;
-            case "Common_Props_WorkBench01.adr":
-              server.constructionManager.placeSimpleConstruction(
-                server,
-                propType.modelId,
-                new Float32Array(propInstance.position),
-                new Float32Array(fixEulerOrder(propInstance.rotation)),
-                "",
-                Items.WORKBENCH
-              );
-              break;
-            default:
-              obj = new TaskProp(
-                characterId,
-                server.getTransientId(characterId), // need transient generated for Interaction Replication
-                propType.modelId,
-                new Float32Array(propInstance.position),
-                new Float32Array(fixEulerOrder(propInstance.rotation)),
-                server,
-                new Float32Array(propInstance.scale),
-                propInstance.id,
-                propType.renderDistance,
-                propType.actor_file
-              );
-          }
-          if (obj) server._taskProps[characterId] = obj;
-        });
-      });
-      Z1_crates.forEach((propType: any) => {
-        propType.instances.forEach((propInstance: any) => {
-          const characterId = generateRandomGuid();
-          const obj = new Crate(
-            characterId,
-            1, // need transient generated for Interaction Replication
-            getActorModelId(propType.actorDefinition),
-            new Float32Array(propInstance.position),
-            new Float32Array([
-              propInstance.rotation[1],
-              propInstance.rotation[0],
-              propInstance.rotation[2],
-              0
-            ]),
-            server,
-            new Float32Array(propInstance.scale),
-            propInstance.zoneId,
-            Number(propType.renderDistance)
-          );
-          server._crates[characterId] = obj;
-        });
-      });
-      Z1_destroyables.forEach((propType: any) => {
-        // disable fences until we find a fix for glitching graphics
-        if (propType.actor_file.toLowerCase().includes("fence")) return;
-        propType.instances.forEach((propInstance: any) => {
-          const characterId = generateRandomGuid();
-          const obj = new Destroyable(
-            characterId,
-            1, // need transient generated for Interaction Replication
-            propInstance.modelId,
-            new Float32Array(propInstance.position),
-            new Float32Array([
-              propInstance.rotation[1],
-              propInstance.rotation[0],
-              propInstance.rotation[2],
-              0
-            ]),
-            server,
-            new Float32Array(propInstance.scale),
-            propInstance.id,
-            Number(propType.renderDistance),
-            propType.actor_file
-          );
-          server._destroyables[characterId] = obj;
-          server._destroyableDTOlist.push(propInstance.id);
-        });
-      });
     }
+    Z1_taskProps.forEach((propType: any) => {
+      propType.instances.forEach((propInstance: any) => {
+        const characterId = generateRandomGuid();
+        let obj;
+        switch (propType.actorDefinition) {
+          case "Common_Props_SpikeTrap.adr":
+            server.constructionManager.placeTrap(
+              server,
+              Items.PUNJI_STICKS,
+              propType.modelId,
+              new Float32Array(propInstance.position),
+              fixEulerOrder(propInstance.rotation),
+              true
+            );
+            break;
+          case "Common_Props_BarbedWire.adr":
+          case "Common_Props_BarbedWire_Posts.adr":
+            server.constructionManager.placeTrap(
+              server,
+              Items.BARBED_WIRE,
+              propType.modelId,
+              new Float32Array(propInstance.position),
+              fixEulerOrder(propInstance.rotation),
+              true
+            );
+            break;
+          case "Common_Props_Cabinets_BathroomSink.adr":
+          case "Common_Props_Bathroom_Toilet01.adr":
+          case "Common_Props_Dam_WaterValve01.adr":
+          case "Common_Props_Well.adr":
+          case "Common_Props_FireHydrant.adr":
+            obj = new WaterSource(
+              characterId,
+              server.getTransientId(characterId), // need transient generated for Interaction Replication
+              propType.modelId,
+              new Float32Array(propInstance.position),
+              new Float32Array(fixEulerOrder(propInstance.rotation)),
+              server,
+              new Float32Array(propInstance.scale),
+              propInstance.id,
+              propType.renderDistance,
+              propType.actorDefinition,
+              this.waterSourceRefillAmount
+            );
+            break;
+          case "Common_Props_WorkBench01.adr":
+            server.constructionManager.placeSimpleConstruction(
+              server,
+              propType.modelId,
+              new Float32Array(propInstance.position),
+              new Float32Array(fixEulerOrder(propInstance.rotation)),
+              server._serverGuid,
+              Items.WORKBENCH
+            );
+            break;
+          case "Common_Props_Gravestone01.adr":
+            obj = new TaskProp(
+              characterId,
+              server.getTransientId(characterId), // need transient generated for Interaction Replication
+              propType.modelId,
+              new Float32Array(propInstance.position),
+              new Float32Array(fixEulerOrder(propInstance.rotation)),
+              server,
+              new Float32Array(propInstance.scale),
+              propInstance.id,
+              propType.renderDistance,
+              propType.actorDefinition
+            );
+            if (propType.tribute) {
+              const thisObj = obj;
+              obj.OnInteractionString = (server, client) => {
+                server.sendData(client, "Command.InteractionString", {
+                  guid: thisObj.characterId,
+                  stringId: 0
+                });
+              };
+              obj.getTaskPropData = () => {
+                thisObj.nameId = 66;
+                thisObj.rewardItems = [];
+              };
+              obj.OnPlayerSelect = (server, client) => {
+                server.utilizeHudTimer(
+                  client,
+                  66,
+                  60000, // Minute of silence
+                  0,
+                  () => {
+                    server.sendChatText(
+                      client,
+                      "In loving memory of our dear friend, you will be deeply missed."
+                    );
+                  }
+                );
+              };
+              // punish shooting at the grave
+              obj.OnProjectileHit = (server, damageInfo) => {
+                const assholeId = damageInfo.entity;
+                const asshole = server._characters[assholeId];
+                damageInfo.damage = damageInfo.damage * 2;
+                asshole.damage(server, damageInfo);
+              };
+              obj.OnMeleeHit = obj.OnProjectileHit;
+            }
+            break;
+          default:
+            obj = new TaskProp(
+              characterId,
+              server.getTransientId(characterId), // need transient generated for Interaction Replication
+              propType.modelId,
+              new Float32Array(propInstance.position),
+              new Float32Array(fixEulerOrder(propInstance.rotation)),
+              server,
+              new Float32Array(propInstance.scale),
+              propInstance.id,
+              propType.renderDistance,
+              propType.actorDefinition
+            );
+        }
+        if (obj) server._taskProps[characterId] = obj;
+      });
+    });
+    Z1_crates.forEach((propType: any) => {
+      propType.instances.forEach((propInstance: any) => {
+        const characterId = generateRandomGuid();
+        const obj = new Crate(
+          characterId,
+          server.getTransientId(characterId), // need transient generated for Interaction Replication
+          getActorModelId(propType.actorDefinition),
+          new Float32Array(propInstance.position),
+          new Float32Array([
+            propInstance.rotation[1],
+            propInstance.rotation[0],
+            propInstance.rotation[2],
+            0
+          ]),
+          server,
+          new Float32Array(propInstance.scale),
+          propInstance.zoneId,
+          Number(propType.renderDistance)
+        );
+        server._crates[characterId] = obj;
+      });
+    });
+    Z1_destroyables.forEach((propType: any) => {
+      propType.instances.forEach((propInstance: any) => {
+        const characterId = generateRandomGuid();
+        const obj = new Destroyable(
+          characterId,
+          server.getTransientId(characterId), // need transient generated for Interaction Replication
+          propInstance.modelId,
+          new Float32Array(propInstance.position),
+          new Float32Array([
+            propInstance.rotation[1],
+            propInstance.rotation[0],
+            propInstance.rotation[2],
+            0
+          ]),
+          server,
+          new Float32Array(propInstance.scale),
+          propInstance.id,
+          Number(propType.renderDistance)
+        );
+        server._destroyables[characterId] = obj;
+        server._destroyableDTOlist.push(propInstance.id);
+      });
+    });
     debug("All props created");
   }
 
-  replenishWaterSources(server: ZoneServer2016) {
-    Object.values(server._taskProps).forEach((propInstance: any) => {
+  async replenishWaterSources(server: ZoneServer2016) {
+    let counter = 0;
+    for (const a in server._taskProps) {
+      if (counter > 9) {
+        counter = 0;
+        await scheduler.wait(60);
+      }
+      counter++;
+      const propInstance = server._taskProps[a];
       if (propInstance instanceof WaterSource) propInstance.replenish();
-    });
+    }
   }
 
   private createDoor(
@@ -966,23 +920,56 @@ export class WorldObjectManager {
     item: Items
   ) {
     if (percentage <= 0) return false;
-    if (percentage >= 100) return true;
 
     const randomNumber = Math.random() * 100;
-    if (randomNumber <= percentage) {
+    if (randomNumber <= percentage || percentage >= 100) {
       entity.lootItem(server, server.generateItem(item));
     }
   }
 
-  createVehicle(server: ZoneServer2016, vehicle: Vehicle2016) {
+  createVehicle(
+    server: ZoneServer2016,
+    vehicle: Vehicle2016,
+    maxSpawnChance: boolean = false
+  ) {
     vehicle.equipLoadout(server);
 
-    this.setSpawnchance(server, vehicle, 50, Items.BATTERY);
-    this.setSpawnchance(server, vehicle, 50, Items.SPARKPLUGS);
-    this.setSpawnchance(server, vehicle, 30, Items.VEHICLE_KEY);
-    this.setSpawnchance(server, vehicle, 20, Items.FUEL_BIOFUEL);
-    this.setSpawnchance(server, vehicle, 30, vehicle.getHeadlightsItemId());
-    this.setSpawnchance(server, vehicle, 30, vehicle.getTurboItemId());
+    this.setSpawnchance(
+      server,
+      vehicle,
+      maxSpawnChance ? 100 : 50,
+      Items.BATTERY
+    );
+    this.setSpawnchance(
+      server,
+      vehicle,
+      maxSpawnChance ? 100 : 50,
+      Items.SPARKPLUGS
+    );
+    this.setSpawnchance(
+      server,
+      vehicle,
+      maxSpawnChance ? 100 : 30,
+      Items.VEHICLE_KEY
+    );
+    this.setSpawnchance(
+      server,
+      vehicle,
+      maxSpawnChance ? 100 : 20,
+      Items.FUEL_BIOFUEL
+    );
+    this.setSpawnchance(
+      server,
+      vehicle,
+      maxSpawnChance ? 100 : 30,
+      vehicle.getHeadlightsItemId()
+    );
+    this.setSpawnchance(
+      server,
+      vehicle,
+      maxSpawnChance ? 100 : 30,
+      vehicle.getTurboItemId()
+    );
 
     server._vehicles[vehicle.characterId] = vehicle;
   }
@@ -1118,17 +1105,23 @@ export class WorldObjectManager {
     }
   }
 
-  createLoot(
+  async createLoot(
     server: ZoneServer2016,
     lTables = this.map == "Z1" ? lootTables : lootTablesBWC
   ) {
+    let counter = 0;
     const items = this.map == "Z1" ? Z1_items : BWC_items;
-    items.forEach((spawnerType: any) => {
+    for (const spawnerType of items) {
       const lootTable = lTables[spawnerType.actorDefinition];
       if (lootTable) {
-        spawnerType.instances.forEach((itemInstance: any) => {
-          if (this.spawnedLootObjects[itemInstance.id]) return;
-          const chance = Math.floor(Math.random() * 100) + 1; // temporary spawnchance
+        for (const itemInstance of spawnerType.instances) {
+          if (counter > 9) {
+            counter = 0;
+            await scheduler.wait(60);
+          }
+          counter++;
+          if (this.spawnedLootObjects[itemInstance.id]) continue;
+          const chance = Math.floor(Math.random() * 100) + 1;
           if (chance <= lootTable.spawnChance) {
             if (!WorldObjectManager.itemSpawnersChances[itemInstance.id]) {
               const realSpawnChance =
@@ -1139,13 +1132,12 @@ export class WorldObjectManager {
                 spawnerType.actorDefinition
               ] = realSpawnChance;
             }
-            // temporary spawnchance
             const item = getRandomItem(lootTable.items);
             if (item) {
               this.createLootEntity(
                 server,
                 server.generateItem(
-                  getRandomSkin(item.item),
+                  item.item,
                   randomIntFromInterval(
                     item.spawnCount.min,
                     item.spawnCount.max
@@ -1157,13 +1149,20 @@ export class WorldObjectManager {
               );
             }
           }
-        });
+        }
       }
-    });
+    }
   }
-  updateQuestContainers(server: ZoneServer2016) {
-    Object.values(server._lootableProps).forEach((a) => {
-      const prop = a as BaseFullCharacter;
+
+  async updateQuestContainers(server: ZoneServer2016) {
+    let counter = 0;
+    for (const a in server._lootableProps) {
+      if (counter > 100) {
+        counter = 0;
+        await scheduler.wait(30); // Await the wait function to pause
+      }
+      counter++;
+      const prop = server._lootableProps[a] as BaseFullCharacter;
       switch (prop.actorModelId) {
         case ModelIds.HOSPITAL_LAB_WORKBENCH:
           if (
@@ -1177,7 +1176,7 @@ export class WorldObjectManager {
               req3 = prop.getItemById(Items.BRAIN_INFECTED),
               req4 = prop.getItemById(Items.VIAL_H1Z1_REDUCER);
 
-            if (!req1 || !req2 || !req3 || !req4) return;
+            if (!req1 || !req2 || !req3 || !req4) continue;
 
             if (
               !server.removeInventoryItem(prop, req1) ||
@@ -1185,7 +1184,7 @@ export class WorldObjectManager {
               !server.removeInventoryItem(prop, req3) ||
               !server.removeInventoryItem(prop, req4)
             ) {
-              return;
+              continue;
             }
 
             const obj = server.generateItem(Items.BRAIN_TREATED, 1);
@@ -1193,13 +1192,14 @@ export class WorldObjectManager {
           }
           break;
         case 9347:
-          const rewardChest = a as TreasureChest;
+          const rewardChest = server._lootableProps[a] as TreasureChest;
           if (rewardChest) rewardChest.triggerRewards(server);
           break;
       }
-    });
+    }
   }
-  createContainerLoot(server: ZoneServer2016) {
+  async createContainerLoot(server: ZoneServer2016) {
+    let counter = 0;
     for (const a in server._lootableProps) {
       if (server._lootableProps[a] instanceof HarvestableProp) {
         const harvestableProp = server._lootableProps[a] as HarvestableProp;
@@ -1212,6 +1212,11 @@ export class WorldObjectManager {
           harvestableProp.updateStage(server, 0);
         }
       }
+      if (counter > 9) {
+        counter = 0;
+        await scheduler.wait(60); // Await the wait function to pause
+      }
+      counter++;
       const prop = server._lootableProps[a] as LootableProp;
       const container = prop.getContainer();
       if (!container) continue;
@@ -1240,7 +1245,7 @@ export class WorldObjectManager {
               // temporary spawnchance
               server.addContainerItem(
                 prop,
-                server.generateItem(getRandomSkin(item.item), count),
+                server.generateItem(item.item, count),
                 container
               );
             }

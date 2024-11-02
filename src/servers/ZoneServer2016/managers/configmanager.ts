@@ -15,17 +15,13 @@ import * as fs from "fs";
 import * as yaml from "js-yaml";
 import { Config } from "../models/config";
 import { ZoneServer2016 } from "../zoneserver";
-import * as path from "node:path";
 import { copyFile } from "../../../utils/utils";
-
-process.env.isBin &&
-  require("js-yaml") &&
-  path.join(__dirname, "../../../../data/2016/sampleData/defaultconfig.yaml");
 
 function fileExists(filePath: string): boolean {
   try {
     fs.accessSync(filePath);
     return true;
+    /* eslint-disable @typescript-eslint/no-unused-vars */
   } catch (error) {
     return false;
   }
@@ -85,7 +81,9 @@ export class ConfigManager {
     // fill with default values
     const {
       server,
+      rcon,
       fairplay,
+      voicechat,
       weather,
       worldobjects,
       speedtree,
@@ -99,6 +97,14 @@ export class ConfigManager {
       server: {
         ...server,
         ...config.server
+      },
+      rcon: {
+        ...rcon,
+        ...config.rcon
+      },
+      voicechat: {
+        ...voicechat,
+        ...config.voicechat
       },
       fairplay: {
         ...fairplay,
@@ -148,6 +154,7 @@ export class ConfigManager {
       isPvE,
       isHeadshotOnly,
       isFirstPersonOnly,
+      isNoBuildInPois,
       baseConstructionDamage
     } = this.config.server;
     server.map = map;
@@ -164,7 +171,22 @@ export class ConfigManager {
     server.isPvE = isPvE;
     server.isHeadshotOnly = isHeadshotOnly;
     server.isFirstPersonOnly = isFirstPersonOnly;
+    server.isNoBuildInPois = isNoBuildInPois;
     server.baseConstructionDamage = baseConstructionDamage;
+    //#endregion
+
+    //#region Rcon
+    const { port, password } = this.config.rcon;
+    server.rconManager.wssPort = port;
+    server.rconManager.password = password;
+
+    //#endregion
+    //#region voicechat
+    const { useVoiceChatV2, joinVoiceChatOnConnect, serverAccessToken } =
+      this.config.voicechat;
+    server.voiceChatManager.useVoiceChatV2 = useVoiceChatV2;
+    server.voiceChatManager.joinVoiceChatOnConnect = joinVoiceChatOnConnect;
+    server.voiceChatManager.serverAccessToken = serverAccessToken;
     //#endregion
 
     //#region fairplay
@@ -272,7 +294,6 @@ export class ConfigManager {
 
     //#region construction
     const {
-      allowPOIPlacement,
       allowStackedPlacement,
       allowOutOfBoundsPlacement,
       placementRange,
@@ -281,7 +302,6 @@ export class ConfigManager {
       playerFoundationBlockedPlacementRange,
       playerShackBlockedPlacementRange
     } = this.config.construction;
-    server.constructionManager.allowPOIPlacement = allowPOIPlacement;
     server.constructionManager.allowStackedPlacement = allowStackedPlacement;
     server.constructionManager.allowOutOfBoundsPlacement =
       allowOutOfBoundsPlacement;
@@ -314,9 +334,9 @@ export class ConfigManager {
     server.decayManager.decayTickInterval = decayTickInterval;
     server.decayManager.constructionDamageTicks = constructionDamageTicks;
     server.decayManager.ticksToFullDecay = ticksToFullDecay;
-    (server.decayManager.worldFreeplaceDecayMultiplier =
-      worldFreeplaceDecayMultiplier),
-      (server.decayManager.vehicleDamageTicks = vehicleDamageTicks);
+    server.decayManager.worldFreeplaceDecayMultiplier =
+      worldFreeplaceDecayMultiplier;
+    server.decayManager.vehicleDamageTicks = vehicleDamageTicks;
     server.decayManager.vacantFoundationTicks = vacantFoundationTicks;
     server.decayManager.griefFoundationTimer = griefFoundationTimer;
     server.decayManager.griefCheckSlotAmount = griefCheckSlotAmount;

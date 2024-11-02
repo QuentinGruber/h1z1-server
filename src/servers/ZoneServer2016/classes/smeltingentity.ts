@@ -11,7 +11,7 @@
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
 
-import { Items, FilterIds, StringIds } from "../models/enums";
+import { Items, FilterIds, StringIds, Effects } from "../models/enums";
 import { ZoneServer2016 } from "../zoneserver";
 import { LootableConstructionEntity } from "../entities/lootableconstructionentity";
 import { lootableContainerDefaultLoadouts } from "../data/loadouts";
@@ -61,36 +61,52 @@ function getSmeltingEntityData(
     case Items.FURNACE:
       child.filterId = FilterIds.FURNACE;
       entity.defaultLoadout = lootableContainerDefaultLoadouts.furnace;
-      child.workingEffect = 5028;
+      child.workingEffect = Effects.EFX_Fire_Furnace;
       break;
     case Items.CAMPFIRE:
       child.filterId = FilterIds.COOKING;
       entity.defaultLoadout = lootableContainerDefaultLoadouts.campfire;
-      child.workingEffect = 1207;
+      child.workingEffect = Effects.EFX_Fire_Campfire;
       break;
     case Items.BARBEQUE:
       child.filterId = FilterIds.COOKING;
       entity.defaultLoadout = lootableContainerDefaultLoadouts.barbeque;
-      child.workingEffect = 5044;
+      child.workingEffect = Effects.EFX_Fire_Barbecue;
       break;
     default:
       child.filterId = FilterIds.FURNACE;
       entity.defaultLoadout = lootableContainerDefaultLoadouts.furnace;
-      child.workingEffect = 5028;
+      child.workingEffect = Effects.EFX_Fire_Furnace;
       break;
   }
 }
 
 export class SmeltingEntity {
+  /** The CharacterId of the parent that the entity sits on */
   parentObjectCharacterId: string;
+
+  /** Array of item id's that can be used as fuel */
   allowedFuel: number[];
+
+  /** Determines if a smelting entity is for cooking or smelting - Default: smelting */
   filterId: number = FilterIds.FURNACE;
-  workingEffect: number = 5028;
+
+  /** Id of the effect the smelting entity will have, Default: Furance EFX
+   * - See Effects enum for more information */
+  workingEffect: number = Effects.EFX_Fire_Furnace;
+
+  /** Returns true when the smelting entity has been ignited */
   isWorking: boolean = false;
+
+  /** Returns true when the item is smelted */
   isSmelting: boolean = false;
-  smeltingTime: number = 40000;
+
+  /** Global HashMap of SmeltingEntities - uses CharacterId (string) for indexing */
   dictionary: { [characterId: string]: BaseEntity };
-  subType: string = "SmeltingEntity"; // for saving identification
+
+  /** For identification upon saving */
+  subType: string = "SmeltingEntity";
+
   constructor(
     parentObject: LootableConstructionEntity,
     server: ZoneServer2016

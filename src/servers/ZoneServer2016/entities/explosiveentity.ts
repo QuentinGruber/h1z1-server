@@ -18,14 +18,29 @@ import { ZoneServer2016 } from "../zoneserver";
 import { BaseLightweightCharacter } from "./baselightweightcharacter";
 import { ZoneClient2016 } from "../classes/zoneclient";
 import { CharacterPlayWorldCompositeEffect } from "types/zone2016packets";
+import { scheduler } from "node:timers/promises";
+import { BaseEntity } from "./baseentity";
 
 export class ExplosiveEntity extends BaseLightweightCharacter {
+  /** Id of the item - See ServerItemDefinitions.json for more information */
   itemDefinitionId: number;
+
+  /** The delay it takes for the landmine to be armed */
   mineTimer?: NodeJS.Timeout;
+
+  /** The distance where the explosive will render for the player */
   npcRenderDistance = 300;
+
+  /** Returns true upon explosion of the explosive */
   detonated = false;
+
+  /** Used for shooting explosion with projectiles, 1 for IEDS and a coinflip between 1 and 2 for biofuel/ethanol */
   triggerExplosionShots =
-    this.isLandmine() || this.isIED() ? 1 : Math.floor(Math.random() * 2) + 1; // random number 1-2 neccesary shots if fuel
+    this.isLandmine() || this.isIED() ? 1 : Math.floor(Math.random() * 2) + 1;
+
+  /** the characterId from who place this to keep track */
+  ownerCharacterId: string;
+
   constructor(
     characterId: string,
     transientId: number,
@@ -33,10 +48,12 @@ export class ExplosiveEntity extends BaseLightweightCharacter {
     position: Float32Array,
     rotation: Float32Array,
     server: ZoneServer2016,
-    itemDefinitionId: number
+    itemDefinitionId: number,
+    ownerCharacterId: string = ""
   ) {
     super(characterId, transientId, actorModelId, position, rotation, server);
     this.itemDefinitionId = itemDefinitionId;
+    this.ownerCharacterId = ownerCharacterId;
   }
 
   isIED() {
@@ -85,15 +102,15 @@ export class ExplosiveEntity extends BaseLightweightCharacter {
     this.detonated = true;
     server.sendCompositeEffectToAllInRange(600, "", this.state.position, 1875);
     server.deleteEntity(this.characterId, server._explosives);
-    server.explosionDamage(
-      this.state.position,
-      this.characterId,
-      this.itemDefinitionId,
-      client
-    );
+    server.explosionDamage(this, client);
   }
 
-  arm(server: ZoneServer2016) {
+  /** Used by landmines to arm their explosivenss */
+  async arm(server: ZoneServer2016) {
+    if (this.isLandmine()) {
+      // Wait 10 seconds before activating the trap
+      await new Promise<void>((resolve) => setTimeout(resolve, 10000));
+    }
     this.mineTimer = setTimeout(() => {
       if (!server._explosives[this.characterId]) {
         return;
@@ -134,6 +151,7 @@ export class ExplosiveEntity extends BaseLightweightCharacter {
     }, 90);
   }
 
+  /** Called when the explosive gets hit by a projectile (bullet, arrow, etc.) */
   OnProjectileHit(server: ZoneServer2016, damageInfo: DamageInfo) {
     this.triggerExplosionShots -= 1;
     if (
@@ -146,6 +164,25 @@ export class ExplosiveEntity extends BaseLightweightCharacter {
     }
     if (this.triggerExplosionShots > 0) return;
     this.detonate(server, server.getClientByCharId(damageInfo.entity));
+  }
+
+  async OnExplosiveHit(
+    server: ZoneServer2016,
+    sourceEntity: BaseEntity,
+    client?: ZoneClient2016
+  ) {
+    if (this.characterId == sourceEntity.characterId) return;
+    if (getDistance(sourceEntity.state.position, this.state.position) >= 2)
+      return;
+
+    await scheduler.wait(200);
+    if (server._spawnedItems[this.characterId]) {
+      const itemObject = server._spawnedItems[this.characterId];
+      server.deleteEntity(this.characterId, server._spawnedItems);
+      delete server.worldObjectManager.spawnedLootObjects[itemObject.spawnerId];
+    }
+    if (this.detonated) return;
+    this.detonate(server, client);
   }
 
   destroy(server: ZoneServer2016): boolean {

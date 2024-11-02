@@ -37,6 +37,7 @@ import { equipmentPackets } from "./equipment";
 import { experiencePackets } from "./experience";
 import { facilityPackets } from "./facility";
 import { friendPackets } from "./friend";
+import { gamemodePackets } from "./gamemode";
 import { guildPackets } from "./guild";
 import { implantPackets } from "./implant";
 import { inGamePurchasePackets } from "./inGamePurchase";
@@ -102,6 +103,7 @@ const packets: PacketStructures = [
   ...experiencePackets,
   ...facilityPackets,
   ...friendPackets,
+  ...gamemodePackets,
   ...guildPackets,
   ...inGamePurchasePackets,
   ...itemsPackets,

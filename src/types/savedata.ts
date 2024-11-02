@@ -33,6 +33,11 @@ export interface WeaponSaveData {
   ammoCount: number;
 }
 
+export interface AccountItemSaveData {
+  loginSessionId: string;
+  items: ItemSaveData[];
+}
+
 export interface ItemSaveData {
   itemDefinitionId: number;
   slotId: number;
@@ -65,6 +70,9 @@ export interface CharacterUpdateSaveData
   isRespawning: boolean;
   spawnGridData: number[];
   mutedCharacters: string[];
+  groupId: number;
+  playTime: number;
+  lastDropPlayTime: number;
 }
 
 export interface FullCharacterSaveData
@@ -90,7 +98,8 @@ export interface FullVehicleSaveData
   extends BaseFullCharacterUpdateSaveData,
     BaseFullEntitySaveData {
     positionUpdate: positionUpdate;
-    vehicleId: number
+    vehicleId: number,
+    shaderGroupId: number
 }
 
 export interface BaseConstructionSaveData
@@ -154,6 +163,13 @@ export interface PlantingDiameterSaveData
     seedSlots: { [id: string]: PlantSaveData };
     fertilizedTimestamp: number;
     isFertilized: boolean;
+}
+
+export interface TrapSaveData
+  extends BaseFullEntitySaveData {
+    ownerCharacterId: string;
+    itemDefinitionId: number;
+    health: number;
 }
 
 export interface ServerSaveData extends BaseSaveData {

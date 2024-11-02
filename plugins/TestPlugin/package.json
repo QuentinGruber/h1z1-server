@@ -1,0 +1,17 @@
+{
+  "name": "plugin-template",
+  "version": "1.0.0",
+  "description": "",
+  "main": "plugin.js",
+  "scripts": {
+    "install": "npm run build",
+    "build": "tsc -p tsconfig.json"
+  },
+  "keywords": [],
+  "author": "H1emu",
+  "license": "GPL-3.0-only",
+  "devDependencies": {
+    "h1z1-server": "^0.38.0",
+    "typescript": "^5.1.3"
+  }
+}

@@ -19,6 +19,7 @@ import { LootableConstructionEntity } from "servers/ZoneServer2016/entities/loot
 import { LoadoutItem } from "servers/ZoneServer2016/classes/loadoutItem";
 import { ZoneServer2016 } from "servers/ZoneServer2016/zoneserver";
 import { Character2016 } from "servers/ZoneServer2016/entities/character";
+import { BaseItem } from "servers/ZoneServer2016/classes/baseItem";
 
 export interface npcData {
   guid: string;
@@ -76,12 +77,18 @@ export interface positionUpdate {
 export interface CharacterEquipment {
   modelName: string;
   slotId: number;
+  effectId?: number;
   guid?: string;
   defaultTextureAlias?: string;
   textureAlias?: string;
   tintAlias?: string;
   decalAlias?: string;
   SHADER_PARAMETER_GROUP?: Array<{SHADER_SEMANTIC_ID: number}>
+}
+
+export interface GrinderItem {
+  itemDefinitionId: number;
+  count: number;
 }
 
 export interface Weather {
@@ -353,12 +360,10 @@ export interface FairPlayValues {
 export interface SpeedTree {
   objectId: number;
   modelName: string;
-  position: Float32Array;
 }
 
 export interface ZoneSpeedTreeData {
 	objectId: number;
-	treeId: number;
 	position: Float32Array
 }
 
@@ -387,6 +392,11 @@ export interface ScreenEffect {
 	transparency: number;
 	color: number;
 	unknownDword3: number;
+  unknownDword7: number;
+  unknownDword16: number;
+  unknownDword17: number;
+  unknownDword18: number;
+  unknownDword19: number;
 }
 
 export interface clientEffect {
@@ -477,6 +487,27 @@ export interface WeatherTemplate extends Weather2016 {
   templateName: string,
 }
 
+export interface AccountDefinition {
+  ID: number,
+  ACCOUNT_ITEM_ID: number,
+  REWARD_SET_ID: number,
+  REWARD_ITEM_ID: number,
+  REWARD_ITEM_TINT_ID: number,
+  REWARD_ITEM_COUNT: number,
+  REWARD_ITEM_MATERIAL_EFFECT_ID: number,
+  CONTENT_ID: number
+}
+
+export interface RewardCrateDefinition {
+  itemDefinitionId: number,
+  rewards: RewardCrateRewardDefinition[]
+}
+
+export interface RewardCrateRewardDefinition {
+  itemDefinitionId: number,
+  rewardChance: number
+}
+
 export interface ItemDefinition {
   NAME: string,
   ID: number,
@@ -553,8 +584,13 @@ export interface ItemDefinition {
 
   // server-side only, added by h1emu
   WORLD_MODEL_ID?: number,
+  EFFECT_ID?: number;
   PICKUP_EFFECT?: number,
   PLACEMENT_MODEL_ID?: number,
+}
+
+export interface AccountItem extends BaseItem {
+  loginSessionId: string;
 }
 
 export type EntityDictionary<Entity> = { [characterId: string]: Entity};

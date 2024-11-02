@@ -13,7 +13,8 @@
 
 /* eslint-disable @typescript-eslint/no-unused-vars */
 // TODO enable @typescript-eslint/no-unused-vars
-import { ZoneClient2016 as Client } from "./classes/zoneclient";
+import fs from "fs";
+import { ZoneClient2016 as Client, ZoneClient2016 } from "./classes/zoneclient";
 import { ZoneServer2016 } from "./zoneserver";
 const debug = require("debug")("ZoneServer");
 
@@ -29,7 +30,10 @@ import {
   getDistance1d,
   isPosInRadiusWithY,
   checkConstructionInRange,
-  getCurrentServerTimeWrapper
+  getCurrentServerTimeWrapper,
+  getDateString,
+  isHalloween,
+  luck
 } from "../../utils/utils";
 
 import { CraftManager } from "./managers/craftmanager";
@@ -41,7 +45,9 @@ import {
   ResourceTypes,
   ItemUseOptions,
   LoadoutSlots,
-  StringIds
+  StringIds,
+  ItemClasses,
+  AccountItems
 } from "./models/enums";
 import { BaseFullCharacter } from "./entities/basefullcharacter";
 import { BaseLightweightCharacter } from "./entities/baselightweightcharacter";
@@ -98,6 +104,7 @@ import {
   GetContinentBattleInfo,
   GroupInvite,
   GroupJoin,
+  ItemsRequestUseAccountItem,
   ItemsRequestUseItem,
   KeepAlive,
   LightweightToFullNpc,
@@ -125,13 +132,21 @@ import {
   WallOfDataClientSystemInfo,
   WallOfDataUIEvent,
   WeaponWeapon,
-  ZoneDoneSendingInitialData
+  ZoneDoneSendingInitialData,
+  H1emuVoiceInit,
+  GroupKick,
+  InGamePurchaseStoreBundleContentResponse,
+  GrinderExchangeRequest,
+  GrinderExchangeResponse
 } from "types/zone2016packets";
 import { VehicleCurrentMoveMode } from "types/zone2015packets";
 import {
+  AccountItem,
   ClientBan,
   ConstructionPermissions,
   DamageInfo,
+  GrinderItem,
+  Group,
   StanceFlags
 } from "types/zoneserver";
 import { Vehicle2016 } from "./entities/vehicle";
@@ -152,6 +167,8 @@ import { Destroyable } from "./entities/destroyable";
 import { Lootbag } from "./entities/lootbag";
 import { ReceivedPacket } from "types/shared";
 import { LoadoutItem } from "./classes/loadoutItem";
+import { BaseItem } from "./classes/baseItem";
+import { EntityType } from "h1emu-ai";
 
 function getStanceFlags(num: number): StanceFlags {
   function getBit(bin: string, bit: number) {
@@ -188,10 +205,7 @@ function getStanceFlags(num: number): StanceFlags {
 //const abilities = require("../../../data/2016/sampleData/abilities.json");
 
 export class ZonePacketHandlers {
-  commandHandler: CommandHandler;
-  constructor() {
-    this.commandHandler = new CommandHandler();
-  }
+  constructor() {}
 
   ClientIsReady(
     server: ZoneServer2016,
@@ -216,7 +230,7 @@ export class ZonePacketHandlers {
       decalAlias: "#"
     });
     */
-
+    client.isInVoiceChat = false;
     server.firstRoutine(client);
     server.setGodMode(client, true);
 
@@ -253,15 +267,15 @@ export class ZonePacketHandlers {
       }
     );
 
-    if (server.projectileDefinitionsCache) {
-      server.sendRawDataReliable(client, server.projectileDefinitionsCache);
+    if (server.itemClassDefinitionsCache) {
+      server.sendRawDataReliable(client, server.itemClassDefinitionsCache);
     }
     if (server.profileDefinitionsCache) {
       server.sendRawDataReliable(client, server.profileDefinitionsCache);
     }
-
-    // Do not send too early
-    server.fairPlayManager.handleAssetValidationInit(server, client);
+    if (server.projectileDefinitionsCache) {
+      server.sendRawDataReliable(client, server.projectileDefinitionsCache);
+    }
 
     // for melees / emotes / vehicle boost / etc (needs more work)
     /*
@@ -294,6 +308,26 @@ export class ZonePacketHandlers {
       "ZoneDoneSendingInitialData",
       {}
     ); // Required for WaitForWorldReady
+
+    server.accountInventoriesManager
+      .getAccountItems(client.loginSessionId)
+      .then((accountItems) => {
+        server.sendData(client, "Items.SetEscrowAccountItemManager", {
+          accountItems: accountItems.map((item: BaseItem) => {
+            return {
+              itemId: item.itemGuid,
+              itemData: {
+                itemId: item.itemGuid,
+                itemGuid: item.itemGuid,
+                itemDefinitionId: item.itemDefinitionId,
+                itemCount: item.stackCount
+              }
+            };
+          })
+        });
+      });
+
+    server.sendDeliveryStatus(client);
   }
   ClientFinishedLoading(
     server: ZoneServer2016,
@@ -318,21 +352,77 @@ export class ZonePacketHandlers {
     server.tempGodMode(client, 15000);
     client.currentPOI = 0; // clears currentPOI for POIManager
     server.sendGameTimeSync(client);
+    server.sendData(client, "UpdateWeatherData", server.weatherManager.weather);
     server.constructionManager.sendConstructionData(server, client);
     if (client.firstLoading) {
       client.character.lastLoginDate = toHex(Date.now());
       server.setGodMode(client, false);
       setTimeout(() => {
+        // it's just for performance testing
+        // for (let index = 0; index < 100; index++) {
+        // this.aiManager.add_entity(client.character, EntityType.Player);
+        // }
+        if (server._soloMode || process.env.ENABLE_AI)
+          client.character.h1emu_ai_id = server.aiManager.add_entity(
+            client.character,
+            EntityType.Player
+          );
+        if (
+          server.voiceChatManager.useVoiceChatV2 &&
+          server.voiceChatManager.joinVoiceChatOnConnect
+        ) {
+          // disabled for now, client will init manually
+          //server.voiceChatManager.handleVoiceChatInit(server, client);
+          server.voiceChatManager.sendVoiceChatState(server, client);
+          client.voiceChatTimer = setInterval(() => {
+            server.voiceChatManager.sendVoiceChatState(server, client);
+          }, 20000);
+          client.isInVoiceChat = true;
+        }
+        server.sendData(
+          client,
+          "UpdateWeatherData",
+          server.weatherManager.weather
+        );
         if (server.welcomeMessage)
           server.sendAlert(client, server.welcomeMessage);
-        server.sendChatText(
-          client,
-          `server population : ${_.size(server._characters)}`
-        );
         if (client.isAdmin) {
+          server.sendChatText(
+            client,
+            `server population : ${_.size(server._characters)}`
+          );
           if (server.adminMessage)
             server.sendAlert(client, server.adminMessage);
         }
+        if (!server._soloMode && client.character.groupId) {
+          server.sendAlert(client, "Group automatically joined.");
+        }
+
+        if (isHalloween()) {
+          server.accountInventoriesManager
+            .getAccountItem(client.loginSessionId, AccountItems.HAUNTED_HOODIE)
+            .then((alreadyHaveMask) => {
+              if (!alreadyHaveMask) {
+                server.rewardManager.addRewardToPlayer(
+                  client,
+                  AccountItems.HAUNTED_HOODIE
+                );
+                server.rewardManager.addRewardToPlayer(
+                  client,
+                  AccountItems.FRANKENSWINE_BACKPACK
+                );
+
+                const item = server.generateItem(Items.PUMPKIN_MASK, 1, true);
+                client.character.lootItem(server, item);
+              }
+            });
+        }
+
+        // if (!server._soloMode) {
+        //   client.afkTimer = setInterval(() => {
+        //     client.afk(server);
+        //   }, ZoneClient2016.afkTime);
+        // }
       }, 10000);
       if (client.banType != "") {
         server.sendChatTextToAdmins(
@@ -348,7 +438,7 @@ export class ZonePacketHandlers {
           command: "help"
         }
       );
-      Object.values(this.commandHandler.commands).forEach((command) => {
+      Object.values(server.commandHandler.commands).forEach((command) => {
         server.sendData<CommandAddWorldCommand>(
           client,
           "Command.AddWorldCommand",
@@ -361,7 +451,7 @@ export class ZonePacketHandlers {
       server.sendData<CharacterWeaponStance>(client, "Character.WeaponStance", {
         // activates weaponstance key
         characterId: client.character.characterId,
-        stance: 1
+        stance: client.character.weaponStance
       });
       client.character.updateEquipment(server); // needed or third person character will be invisible
       client.character.updateLoadout(server); // needed or all loadout context menu entries aren't shown
@@ -404,7 +494,7 @@ export class ZonePacketHandlers {
     client: Client,
     packet: ReceivedPacket<CommandSpawnVehicle>
   ) {
-    this.commandHandler.executeInternalCommand(
+    server.commandHandler.executeInternalCommand(
       server,
       client,
       "vehicle",
@@ -446,7 +536,7 @@ export class ZonePacketHandlers {
   ) {
     if (packet.data.objectCharacterId != client.character.characterId) {
       const objVehicle = server._vehicles[packet.data.objectCharacterId || ""];
-      if (objVehicle && objVehicle.engineRPM > 4500) {
+      if (objVehicle && objVehicle.engineOn) {
         for (const a in server._destroyables) {
           const destroyable = server._destroyables[a];
           if (destroyable.destroyedModel) continue;
@@ -617,7 +707,7 @@ export class ZonePacketHandlers {
         title: "Position:",
         info: `${client.character.state.position[0]}   ${client.character.state.position[1]}   ${client.character.state.position[2]}`
       },
-      { title: "Time:", info: `${server.getDateString(Date.now())}` },
+      { title: "Time:", info: `${getDateString(Date.now())}` },
       { title: "Total reports this session:", info: `${targetClient.reports}` }
     ];
     delete client.lastDeathReport;
@@ -645,6 +735,17 @@ export class ZonePacketHandlers {
       setTimeout(() => {
         client.isLoading = false;
         if (!client.characterReleased) return;
+        if (client.firstReleased) {
+          server.sendData<H1emuVoiceInit>(client, "H1emu.VoiceInit", {
+            args: `51.83.180.201 ${server._worldId}` // not wise but we'll change it
+          });
+          server.sendData(
+            client,
+            "UpdateWeatherData",
+            server.weatherManager.weather
+          );
+          server.fairPlayManager.handleAssetValidationInit(server, client);
+        }
         if (
           client.firstReleased &&
           client.startingPos &&
@@ -772,21 +873,12 @@ export class ZonePacketHandlers {
       server.sendChatText(client, "You are muted!");
       return;
     }
-
-    if (!client.radio) {
-      server.chatManager.sendChatToAllInRange(
-        server,
-        client,
-        message as string,
-        300
-      );
-    } else if (client.radio) {
-      server.chatManager.sendChatToAllWithRadio(
-        server,
-        client,
-        message as string
-      );
-    }
+    server.chatManager.sendChatToAllInRange(
+      server,
+      client,
+      message as string,
+      300
+    );
   }
   ClientInitializationDetails(
     server: ZoneServer2016,
@@ -836,6 +928,10 @@ export class ZonePacketHandlers {
       "Synchronization",
       reflectedPacket
     );
+    const groupId = client.character.groupId;
+    if (groupId) {
+      server.groupManager.syncGroup(server, groupId);
+    }
     if (client.isSynced) return;
     client.isSynced = true;
     client.character.lastLoginDate = toHex(Date.now());
@@ -847,14 +943,14 @@ export class ZonePacketHandlers {
     packet: ReceivedPacket<CommandExecuteCommand>
   ) {
     const hash = packet.data.commandHash ?? 0;
-    if (this.commandHandler.commands[hash]) {
-      const command = this.commandHandler.commands[hash];
+    if (server.commandHandler.commands[hash]) {
+      const command = server.commandHandler.commands[hash];
       if (command?.name == "!!h1custom!!") {
         this.handleCustomPacket(server, client, packet.data.arguments ?? "");
         return;
       }
     }
-    this.commandHandler.executeCommand(server, client, packet);
+    server.commandHandler.executeCommand(server, client, packet);
   }
   CommandInteractRequest(
     server: ZoneServer2016,
@@ -911,6 +1007,15 @@ export class ZonePacketHandlers {
     client.character.dismountContainer(server);
     const timerTime = 10000;
     server.utilizeHudTimer(client, 0, timerTime, 0, () => {
+      // Clear spectator on logout to prevent the client from crashing on the next login - Jason
+      if (client.character.isSpectator) {
+        server.commandHandler.executeInternalCommand(
+          server,
+          client,
+          "spectate",
+          []
+        );
+      }
       client.properlyLogout = true;
       server.sendData<ClientUpdateCompleteLogoutProcess>(
         client,
@@ -1000,21 +1105,27 @@ export class ZonePacketHandlers {
     client: Client,
     packet: ReceivedPacket<PlayerUpdateManagedPosition>
   ) {
-    if (!packet.data || !packet.data.transientId) {
-      console.log("TransientId error detected");
-      console.log(packet);
+    // Early exit if no data or transientId is missing
+    const packetData = packet.data;
+    if (!packetData || !packetData.transientId) {
+      console.log("TransientId error detected", packet);
       return;
     }
 
-    const positionUpdate = packet.data.positionUpdate as any;
+    const positionUpdate = packetData.positionUpdate as any;
+    const flags = positionUpdate.flags;
 
-    if (positionUpdate.unknown3_int8 == 5) {
+    // Airdrop management
+    if (positionUpdate.unknown3_int8 === 5) {
       if (!server._airdrop || !positionUpdate.position) return;
+
+      const airdropManager = server._airdrop.manager;
       if (
-        server._airdrop.manager?.character.characterId !=
-        client.character.characterId
+        airdropManager?.character.characterId !== client.character.characterId
       )
         return;
+
+      // Update plane position and orientation
       server._airdrop.plane.state.position = new Float32Array([
         positionUpdate.position[0],
         400,
@@ -1026,71 +1137,64 @@ export class ZonePacketHandlers {
       server._airdrop.plane.state.rotation = eul2quat(
         new Float32Array([positionUpdate.orientation, 0, 0, 0])
       );
-      server._airdrop.plane.positionUpdate.frontTilt = positionUpdate.frontTile;
-      server._airdrop.plane.positionUpdate.sideTilt = positionUpdate.sideTilt;
+
+      // Handle airdrop release
       if (
+        !server._airdrop.cargoSpawned &&
+        server._airdrop.cargo &&
         isPosInRadius(
           150,
           positionUpdate.position,
           server._airdrop.destinationPos
-        ) &&
-        !server._airdrop.cargoSpawned &&
-        server._airdrop.cargo
+        )
       ) {
         server._airdrop.cargoSpawned = true;
-        server.sendAlert(
-          server._airdrop.manager,
-          "Air drop released. The package is delivered."
-        );
+
+        // Disabling the alert, manager is usually not the person who called an airdrop
+        //server.sendAlert(server._airdrop.manager, "Air drop released. The package is delivered.");
+
         setTimeout(() => {
-          if (server._airdrop && server._airdrop.cargo) {
-            for (const a in server._clients) {
+          if (server._airdrop?.cargo) {
+            for (const client of Object.values(server._clients)) {
               if (!client.firstLoading && !client.isLoading) {
-                server.sendData(server._clients[a], "AddLightweightVehicle", {
+                const vehicleData =
+                  server._airdrop.cargo.pGetFullVehicle(server);
+                server.sendData(client, "AddLightweightVehicle", {
                   ...server._airdrop.cargo.pGetLightweightVehicle(),
                   unknownGuid1: server.generateGuid()
                 });
-                server.sendData<CharacterMovementVersion>(
-                  client,
-                  "Character.MovementVersion",
-                  {
-                    characterId: server._airdrop.cargo.characterId,
-                    version: 6
-                  }
-                );
-                server.sendData<LightweightToFullVehicle>(
+                server.sendData(client, "Character.MovementVersion", {
+                  characterId: server._airdrop.cargo.characterId,
+                  version: 6
+                });
+                server.sendData(
                   client,
                   "LightweightToFullVehicle",
-                  server._airdrop.cargo.pGetFullVehicle(server) as any
+                  vehicleData as any
                 );
-                server.sendData<CharacterSeekTarget>(
-                  client,
-                  "Character.SeekTarget",
-                  {
-                    characterId: server._airdrop.cargo.characterId,
-                    TargetCharacterId: server._airdrop.cargoTarget,
-                    initSpeed: -5,
-                    acceleration: 0,
-                    speed: 0,
-                    turn: 5,
-                    yRot: 0
-                  }
-                );
-                server.sendData<CharacterManagedObject>(
-                  client,
-                  "Character.ManagedObject",
-                  {
-                    objectCharacterId: server._airdrop.cargo.characterId,
-                    characterId: client.character.characterId
-                  }
-                );
+                server.sendData(client, "Character.SeekTarget", {
+                  characterId: server._airdrop.cargo.characterId,
+                  TargetCharacterId: server._airdrop.cargoTarget,
+                  initSpeed: -5,
+                  acceleration: 0,
+                  speed: 0,
+                  turn: 5,
+                  yRot: 0
+                });
+                server.sendData(client, "Character.ManagedObject", {
+                  objectCharacterId: server._airdrop.cargo.characterId,
+                  characterId: client.character.characterId
+                });
               }
             }
           }
         }, 4500);
       }
       return;
-    } else if (positionUpdate.unknown3_int8 == 6) {
+    }
+
+    // Airdrop container spawn handling
+    if (positionUpdate.unknown3_int8 === 6) {
       if (
         !server._airdrop ||
         !positionUpdate.position ||
@@ -1098,23 +1202,18 @@ export class ZonePacketHandlers {
       )
         return;
       if (
-        server._airdrop.manager?.character.characterId !=
+        server._airdrop.manager?.character.characterId !==
         client.character.characterId
       )
         return;
-      server._airdrop.cargo.state.position = new Float32Array([
-        server._airdrop.cargo.state.position[0],
-        positionUpdate.position[1],
-        server._airdrop.cargo.state.position[2],
-        1
-      ]);
+
+      server._airdrop.cargo.state.position[1] = positionUpdate.position[1]; // Update Y position only
       server._airdrop.cargo.positionUpdate.orientation =
         positionUpdate.orientation;
-      server._airdrop.cargo.positionUpdate.frontTilt = positionUpdate.frontTile;
-      server._airdrop.cargo.positionUpdate.sideTilt = positionUpdate.sideTilt;
+
       if (
-        positionUpdate.position[1] <= server._airdrop.destinationPos[1] + 2 &&
-        !server._airdrop.containerSpawned
+        !server._airdrop.containerSpawned &&
+        positionUpdate.position[1] <= server._airdrop.destinationPos[1] + 2
       ) {
         server._airdrop.containerSpawned = true;
         server.worldObjectManager.createAirdropContainer(
@@ -1122,26 +1221,31 @@ export class ZonePacketHandlers {
           server._airdrop.destinationPos,
           server._airdrop.hospitalCrate ? "Hospital" : ""
         );
-        for (const a in server._clients) {
-          server.airdropManager(server._clients[a], false);
+        for (const client of Object.values(server._clients)) {
+          server.airdropManager(client, false);
         }
         delete server._airdrop;
       }
-    }
-    const transientId = (packet.data.transientId as number) || 0,
-      characterId = server._transientIds[transientId],
-      vehicle = characterId ? server._vehicles[characterId] : undefined;
-
-    if (!vehicle) {
-      const pos = positionUpdate.position;
-      if (client.character.isSpectator && pos)
-        client.character.state.position = pos;
       return;
     }
-    // for cheaters spawning cars on top of peoples heads
+
+    // Vehicle handling
+    const transientId = (packetData.transientId as number) || 0;
+    const characterId = server._transientIds[transientId];
+    const vehicle = characterId ? server._vehicles[characterId] : undefined;
+
+    if (!vehicle) {
+      if (client.character.isSpectator && positionUpdate.position) {
+        client.character.state.position = positionUpdate.position;
+      }
+      return;
+    }
+
+    // Block cheaters spawning cars on top of people's heads
     if (!client.managedObjects.includes(vehicle.characterId)) return;
+
     if (!client.character.isAlive) {
-      client.blockedPositionUpdates += 1;
+      client.blockedPositionUpdates++;
       if (client.blockedPositionUpdates >= 50) {
         server.updateCharacterState(
           client,
@@ -1149,18 +1253,18 @@ export class ZonePacketHandlers {
           client.character.characterStates,
           false
         );
-        server.sendData<CharacterStartMultiStateDeath>(
-          client,
-          "Character.StartMultiStateDeath",
-          {
-            characterId: client.character.characterId
-          }
-        );
+        server.sendData(client, "Character.StartMultiStateDeath", {
+          characterId: client.character.characterId
+        });
         client.blockedPositionUpdates = 0;
         return;
       }
-    } else client.blockedPositionUpdates = 0;
-    if (positionUpdate.position) {
+    } else {
+      client.blockedPositionUpdates = 0;
+    }
+
+    if (flags & 2) {
+      // Position flag
       if (
         await server.fairPlayManager.checkVehicleSpeed(
           server,
@@ -1171,53 +1275,52 @@ export class ZonePacketHandlers {
         )
       )
         return;
-      let kick = false;
+
       const dist = getDistance(
         vehicle.positionUpdate.position,
         positionUpdate.position
       );
-      if (dist > 220) {
-        kick = true;
-      }
       if (
+        dist > 220 ||
         getDistance1d(vehicle.oldPos.position[1], positionUpdate.position[1]) >
-        100
+          100
       ) {
-        kick = true;
         server.kickPlayer(client);
         server.sendChatTextToAdmins(
-          `FairPlay: kicking ${client.character.name} for suspeced teleport in vehicle by ${dist} from [${vehicle.positionUpdate.position[0]} ${vehicle.positionUpdate.position[1]} ${vehicle.positionUpdate.position[2]}] to [${positionUpdate.position[0]} ${positionUpdate.position[1]} ${positionUpdate.position[2]}]`,
+          `FairPlay: kicking ${client.character.name} for suspected teleport in vehicle by ${dist} from [${vehicle.positionUpdate.position.join(", ")}] to [${positionUpdate.position.join(", ")}]`,
           false
         );
+        return;
       }
-      vehicle.getPassengerList().forEach((passenger: string) => {
-        if (server._characters[passenger]) {
-          if (kick) {
-            const c = server.getClientByCharId(passenger);
-            if (!c) return;
-            server.kickPlayer(c);
-            server.sendChatTextToAdmins(
-              `FairPlay: kicking ${c.character.name} for suspeced teleport in vehicle by ${dist} from [${vehicle.positionUpdate.position[0]} ${vehicle.positionUpdate.position[1]} ${vehicle.positionUpdate.position[2]}] to [${positionUpdate.position[0]} ${positionUpdate.position[1]} ${positionUpdate.position[2]}]`,
-              false
-            );
-            return;
-          }
-          server._characters[passenger].state.position = new Float32Array([
-            positionUpdate.position[0],
-            positionUpdate.position[1],
-            positionUpdate.position[2],
-            1
-          ]);
-          const c = server.getClientByCharId(passenger);
+
+      // Update passenger positions and handle kicks if necessary
+      vehicle.getPassengerList().forEach((passengerId) => {
+        const passenger = server._characters[passengerId];
+        if (passenger) {
+          passenger.state.position = positionUpdate.position;
+          const c = server.getClientByCharId(passengerId);
           if (c) c.startLoc = positionUpdate.position[1];
         } else {
-          debug(`passenger ${passenger} not found`);
-          vehicle.removePassenger(passenger);
+          vehicle.removePassenger(passengerId);
         }
       });
-      if (kick) return;
+
+      // Update vehicle position
+      vehicle.state.position = new Float32Array([
+        positionUpdate.position[0],
+        positionUpdate.position[1] - 0.4,
+        positionUpdate.position[2],
+        1
+      ]);
+      vehicle.oldPos = {
+        position: positionUpdate.position,
+        time: positionUpdate.sequenceTime
+      };
+      vehicle.positionUpdate.position = positionUpdate.position;
+
+      // Stop HUD timer if player moved
       if (
-        client.hudTimer != null &&
+        client.hudTimer &&
         !isPosInRadius(
           1,
           client.character.state.position,
@@ -1227,33 +1330,10 @@ export class ZonePacketHandlers {
         server.stopHudTimer(client);
         delete client.hudTimer;
       }
-      vehicle.state.position = new Float32Array([
-        positionUpdate.position[0],
-        positionUpdate.position[1] - 0.4,
-        positionUpdate.position[2],
-        1
-      ]);
-      vehicle.oldPos = {
-        position: positionUpdate.position,
-        time: getCurrentServerTimeWrapper().getTruncatedU32()
-      };
-      vehicle.positionUpdate.position = positionUpdate.position;
-      // disabled, dont think we need it and wastes alot of resources
-      /*if (client.vehicle.mountedVehicle === characterId) {
-        if (
-          !client.posAtLastRoutine ||
-          !isPosInRadius(
-            server._charactersRenderDistance / 2.5,
-            client.character.state.position,
-            client.posAtLastRoutine
-          )
-        ) {
-          server.executeFuncForAllReadyClients(() => server.vehicleManager);
-        }
-      }*/
     }
-    // doesn't replicate the observer position to other clients
-    if (packet.data.transientId !== server._characterIds[OBSERVER_GUID]) {
+
+    // Send position updates to other clients
+    if (packetData.transientId !== server._characterIds[OBSERVER_GUID]) {
       server.sendRawToAllOthersWithSpawnedEntity(
         client,
         server._vehicles,
@@ -1261,22 +1341,16 @@ export class ZonePacketHandlers {
         server._protocol.createManagedPositionBroadcast2016(positionUpdate.raw)
       );
     }
-    if (positionUpdate.engineRPM) {
-      vehicle.engineRPM = positionUpdate.engineRPM;
-    }
 
-    if (positionUpdate.orientation) {
-      vehicle.positionUpdate.orientation = positionUpdate.orientation;
+    // Update engineRPM, orientation, frontTilt, sideTilt based on flags
+    if (flags & 0x800) vehicle.engineRPM = positionUpdate.engineRPM;
+    if (flags & 0x20)
       vehicle.state.rotation = eul2quat(
         new Float32Array([positionUpdate.orientation, 0, 0, 0])
       );
-    }
-    if (positionUpdate.frontTilt) {
+    if (flags & 0x40)
       vehicle.positionUpdate.frontTilt = positionUpdate.frontTilt;
-    }
-    if (positionUpdate.sideTilt) {
-      vehicle.positionUpdate.sideTilt = positionUpdate.sideTilt;
-    }
+    if (flags & 0x80) vehicle.positionUpdate.sideTilt = positionUpdate.sideTilt;
   }
   VehicleStateData(
     server: ZoneServer2016,
@@ -1293,33 +1367,42 @@ export class ZonePacketHandlers {
       }
     );
   }
-  async PlayerUpdatePosition(
+  PlayerUpdatePosition(
     server: ZoneServer2016,
     client: Client,
     packet: ReceivedPacket<any> // todo: remove any - Meme
   ) {
-    if (client.character.tempGodMode) {
-      server.setTempGodMode(client, false);
-    }
-    client.character.positionUpdate = {
-      ...client.character.positionUpdate,
-      ...packet.data
-    };
-    // TODO: whats up ?
-    if (packet.data.flags === 513) {
-      // head rotation when in vehicle, client spams this packet every 1ms even if you dont move, disabled for now(it doesnt work anyway)
-      return;
-    }
+    const {
+      flags,
+      sequenceTime,
+      position,
+      rotation,
+      rotationRaw,
+      lookAt,
+      stance
+    } = packet.data;
 
-    if (packet.data.orientation) {
-      server.fairPlayManager.checkAimVector(
+    // Return early for spammed junk packets
+    if (flags === 2 || flags === 513) return;
+
+    // Disable temporary god mode if enabled
+    if (client.character.tempGodMode) server.setTempGodMode(client, false);
+
+    // Update character's position
+    client.character.positionUpdate = client.character.positionUpdate || {};
+    Object.assign(client.character.positionUpdate, packet.data);
+
+    if (flags & 0x20) {
+      // orientation
+      /*server.fairPlayManager.checkAimVector(
         server,
         client,
         packet.data.orientation
-      );
+      );*/
     }
+    // Handle dead character state
     if (!client.character.isAlive) {
-      client.blockedPositionUpdates += 1;
+      client.blockedPositionUpdates++;
       if (client.blockedPositionUpdates >= 30) {
         server.updateCharacterState(
           client,
@@ -1330,21 +1413,23 @@ export class ZonePacketHandlers {
         server.sendData<CharacterStartMultiStateDeath>(
           client,
           "Character.StartMultiStateDeath",
-          {
-            characterId: client.character.characterId
-          }
+          { characterId: client.character.characterId }
         );
         return;
       }
-    } else client.blockedPositionUpdates = 0;
+    } else {
+      client.blockedPositionUpdates = 0;
+    }
 
-    if (packet.data.stance) {
-      const stanceFlags = getStanceFlags(packet.data.stance);
+    // Handle stance flag (0x01)
+    if (flags & 1) {
+      const stanceFlags = getStanceFlags(stance);
 
+      // Detect movements based on stance
       server.fairPlayManager.detectJumpXSMovement(server, client, stanceFlags);
-
       server.fairPlayManager.detectDroneMovement(server, client, stanceFlags);
 
+      // Handle jump logic
       if (
         stanceFlags.JUMPING &&
         stanceFlags.FLOATING &&
@@ -1358,28 +1443,31 @@ export class ZonePacketHandlers {
         client.isInAir = false;
       }
 
-      if (
+      // Handle sitting logic
+      client.character.isSitting =
         stanceFlags.SITTING &&
         stanceFlags.ON_GROUND &&
-        !client.character.isSitting &&
         !client.vehicle.mountedVehicle
-      ) {
-        client.character.isSitting = true;
-      } else if (!stanceFlags.SITTING || client.character.isSitting) {
-        client.character.isSitting = false;
-      }
+          ? true
+          : stanceFlags.SITTING
+            ? false
+            : client.character.isSitting;
+
+      // Update running state
       client.character.isRunning = stanceFlags.SPRINTING;
+
+      // Handle jump penalty
       if (
         stanceFlags.JUMPING &&
         !stanceFlags.FLOATING &&
-        // temporary fix for multiplying jump penalty until exact flags are found
-        client.character.lastJumpTime < packet.data.sequenceTime &&
+        client.character.lastJumpTime < sequenceTime &&
         !client.character.isGodMode()
       ) {
-        client.character.lastJumpTime = packet.data.sequenceTime + 1100;
-        client.character._resources[ResourceIds.STAMINA] -= 12; // 2% stamina jump penalty
-        if (client.character._resources[ResourceIds.STAMINA] < 0)
-          client.character._resources[ResourceIds.STAMINA] = 0;
+        client.character.lastJumpTime = sequenceTime + 1100;
+        client.character._resources[ResourceIds.STAMINA] = Math.max(
+          0,
+          client.character._resources[ResourceIds.STAMINA] - 12
+        );
         server.updateResourceToAllWithSpawnedEntity(
           client.character.characterId,
           client.character._resources[ResourceIds.STAMINA],
@@ -1388,14 +1476,22 @@ export class ZonePacketHandlers {
           server._characters
         );
       }
-      client.character.stance = packet.data.stance;
+
+      // Update character stance
+      client.character.stance = stance;
     }
-    const movingCharacter = server._characters[client.character.characterId];
-    if (packet.data.position) {
-      if (!client.characterReleased) {
-        client.characterReleased = true;
-      }
-      if (
+    // Handle position flag (0x02)
+    if (flags & 2) {
+      if (!client.characterReleased) client.characterReleased = true;
+
+      // if (client.movementSet.size < ZoneClient2016.minMovementForAfk) {
+      //   const movementId = Math.round(position[0]) + Math.round(position[2]);
+      //   client.movementSet.add(movementId);
+      // }
+
+      // skip fairplay for performance test
+
+      /*if (
         await server.fairPlayManager.checkPlayerSpeed(
           server,
           client,
@@ -1403,35 +1499,14 @@ export class ZonePacketHandlers {
           packet.data.position
         )
       )
-        return;
-      /*if (!client.isAdmin) {
-        const distance = getDistance(
-          client.character.state.position,
-          packet.data.position
-        );
-        if (distance >= 1) {
-          server.sendChatTextToAdmins(
-            `FairPlay: kicking ${client.character.name}`
-          );
-          server.kickPlayer(client);
-          const pos = packet.data.position;
-          server.sendChatTextToAdmins(
-            `FairPlay: ${
-              client.character.name
-            } position desynced by ${distance.toFixed(2)} at [${pos[0]} ${
-              pos[1]
-            } ${pos[2]}]`
-          );
-        }
-      }*/
-      client.character.state.position = new Float32Array([
-        packet.data.position[0],
-        packet.data.position[1],
-        packet.data.position[2],
-        0
-      ]);
+        return;*/
+
+      // Update character position
+      client.character.state.position = position;
+
+      // Stop HUD timer if position is out of radius
       if (
-        client.hudTimer != null &&
+        client.hudTimer &&
         !isPosInRadius(
           1,
           client.character.state.position,
@@ -1442,65 +1517,53 @@ export class ZonePacketHandlers {
         delete client.hudTimer;
       }
 
+      // Handle dismounting from container if out of range
       if (
         client.character.mountedContainer &&
-        !server._vehicles[client.character.mountedContainer.characterId]
+        !server._vehicles[client.character.mountedContainer.characterId] &&
+        !isPosInRadius(
+          client.character.mountedContainer.interactionDistance,
+          client.character.state.position,
+          client.character.mountedContainer.state.position
+        )
       ) {
-        if (
-          !isPosInRadius(
-            client.character.mountedContainer.interactionDistance,
-            client.character.state.position,
-            client.character.mountedContainer.state.position
-          )
-        ) {
-          client.character.dismountContainer(server);
-        }
+        client.character.dismountContainer(server);
       }
 
+      // Check current interaction
       client.character.checkCurrentInteractionGuid();
 
-      // for door locks (1m timeout)
+      // Timeout interaction lock UI
       if (
         client.character.lastInteractionRequestGuid &&
         client.character.lastInteractionTime + 60000 > Date.now()
       ) {
-        // should timeout lock ui here if possible
         client.character.lastInteractionRequestGuid = "";
         client.character.lastInteractionTime = 0;
       }
-    } else if (packet.data.vehicle_position && client.vehicle.mountedVehicle) {
-      server._vehicles[client.vehicle.mountedVehicle].state.position =
-        new Float32Array([
-          packet.data.vehicle_position[0],
-          packet.data.vehicle_position[1],
-          packet.data.vehicle_position[2],
-          0
-        ]);
     }
-    if (packet.data.rotation) {
-      client.character.state.rotation = new Float32Array([
-        packet.data.rotation[0],
-        packet.data.rotation[1],
-        packet.data.rotation[2],
-        packet.data.rotation[3]
-      ]);
-      client.character.state.yaw = packet.data.rotationRaw[0];
-      client.character.state.lookAt = new Float32Array([
-        packet.data.lookAt[0],
-        packet.data.lookAt[1],
-        packet.data.lookAt[2],
-        packet.data.lookAt[3]
-      ]);
+    // Handle rotation flag (0x200)
+    if (flags & 0x200) {
+      client.character.state.rotation = rotation;
+      client.character.state.yaw = rotationRaw[0];
+      client.character.state.lookAt = lookAt;
     }
+
+    // Sync decoy position for spectators and vanished characters
     if (
       (client.character.isSpectator || client.character.isVanished) &&
       _.size(server._decoys) > 0 &&
       client.isDecoy
     ) {
-      server.sendDataToAll("PlayerUpdatePosition", {
-        transientId: client.character.transientId,
-        positionUpdate: packet.data
-      });
+      server.sendDataToAllWithSpawnedEntity(
+        server._characters,
+        client.character.characterId,
+        "PlayerUpdatePosition",
+        {
+          transientId: client.character.transientId,
+          positionUpdate: packet.data
+        }
+      );
     }
   }
   CharacterRespawn(
@@ -1508,7 +1571,7 @@ export class ZonePacketHandlers {
     client: Client,
     packet: ReceivedPacket<CharacterRespawn>
   ) {
-    this.commandHandler.executeInternalCommand(
+    server.commandHandler.executeInternalCommand(
       server,
       client,
       "respawn",
@@ -1939,12 +2002,15 @@ export class ZonePacketHandlers {
     client: Client,
     packet: ReceivedPacket<object>
   ) {
-    const proximityItems = server.getProximityItems(client);
-    server.sendData<ClientUpdateProximateItems>(
-      client,
-      "ClientUpdate.ProximateItems",
-      proximityItems
-    );
+    client.character.isInInventory = !client.character.isInInventory;
+    if (client.character.isInInventory) {
+      const proximityItems = server.getProximityItems(client);
+      server.sendData<ClientUpdateProximateItems>(
+        client,
+        "ClientUpdate.ProximateItems",
+        proximityItems
+      );
+    }
   }
   CommandSuicide(
     server: ZoneServer2016,
@@ -1957,7 +2023,7 @@ export class ZonePacketHandlers {
     });
   }
   //#region ITEMS
-  RequestUseItem(
+  async RequestUseItem(
     server: ZoneServer2016,
     client: Client,
     packet: ReceivedPacket<ItemsRequestUseItem>
@@ -2083,7 +2149,7 @@ export class ZonePacketHandlers {
               server.containerError(client, ContainerErrors.NO_ITEM_IN_SLOT);
               return;
             }
-            server.switchLoadoutSlot(client, loadoutItem, true);
+            server.switchLoadoutSlot(client, loadoutItem);
           }
         } else {
           if (activeSlotId) {
@@ -2146,7 +2212,9 @@ export class ZonePacketHandlers {
         }
         break;
       case ItemUseOptions.SALVAGE:
-        server.salvageAmmo(client, character, item, animationId);
+        for (let i = 0; i < count; i++) {
+          await server.salvageAmmo(client, character, item, animationId);
+        }
         break;
       case ItemUseOptions.LOOT:
         const containerEnt = client.character.mountedContainer,
@@ -2391,6 +2459,7 @@ export class ZonePacketHandlers {
             server.containerError(client, ContainerErrors.NO_ITEM_IN_SLOT);
             return;
           }
+          if (item.itemDefinitionId == 1899) item.itemDefinitionId = 1373; // Remove this next wipe
           if (item.weapon) {
             const ammo = server.generateItem(
               server.getWeaponAmmoId(item.itemDefinitionId),
@@ -2428,6 +2497,14 @@ export class ZonePacketHandlers {
                 client.character.loadoutId
               )
             ) {*/
+            if (
+              ![Items.GRENADE_SMOKE].includes(item.itemDefinitionId) &&
+              server.getItemDefinition(item?.itemDefinitionId)?.ITEM_CLASS ==
+                ItemClasses.THROWABLES
+            ) {
+              //TODO: Prevent equipping of throwables until fixed
+              return;
+            }
             sourceCharacter.equipContainerItem(server, item, newSlotId);
             //}
           } else {
@@ -2456,6 +2533,8 @@ export class ZonePacketHandlers {
               server.containerError(client, ContainerErrors.NO_ITEM_IN_SLOT);
               return;
             }
+            if (loadoutItem.itemDefinitionId == 1899)
+              loadoutItem.itemDefinitionId = 1373; // Remove this next wipe
             loadoutItem.transferLoadoutItem(
               server,
               targetCharacterId,
@@ -2494,6 +2573,20 @@ export class ZonePacketHandlers {
 
         const loadoutItem = sourceCharacter.getLoadoutItem(itemGuid ?? "");
         if (loadoutItem) {
+          if (
+            !targetContainer.getHasSpace(
+              server,
+              loadoutItem.itemDefinitionId,
+              loadoutItem.stackCount
+            ) ||
+            Object.values(targetContainer.items).length >=
+              targetContainer.getMaxSlots(server)
+          ) {
+            server.containerError(client, ContainerErrors.NO_SPACE);
+            return;
+          }
+          if (loadoutItem.itemDefinitionId == 1899)
+            loadoutItem.itemDefinitionId = 1373; // Remove this next wipe
           sourceCharacter.transferItemFromLoadout(
             server,
             targetContainer,
@@ -2511,6 +2604,19 @@ export class ZonePacketHandlers {
         const item = sourceContainer.items[itemGuid ?? ""];
         if (!item) {
           server.containerError(client, ContainerErrors.NO_ITEM_IN_SLOT);
+          return;
+        }
+
+        if (
+          !targetContainer.getHasSpace(
+            server,
+            item.itemDefinitionId,
+            item.stackCount
+          ) ||
+          Object.values(targetContainer.items).length >=
+            targetContainer.getMaxSlots(server)
+        ) {
+          server.containerError(client, ContainerErrors.NO_SPACE);
           return;
         }
 
@@ -2568,6 +2674,13 @@ export class ZonePacketHandlers {
       const item = sourceContainer.items[itemGuid ?? ""];
       if (!item) {
         server.containerError(client, ContainerErrors.NO_ITEM_IN_SLOT);
+        return;
+      }
+
+      if (server.isAccountItem(item.itemDefinitionId)) {
+        if (!server.removeContainerItem(sourceCharacter, item, sourceContainer))
+          return;
+        client.character.lootItem(server, item, item.stackCount, true);
         return;
       }
 
@@ -2663,7 +2776,7 @@ export class ZonePacketHandlers {
       server.sendChatText(client, "[ERROR] Target slot is empty!");
       return;
     }
-    server.switchLoadoutSlot(client, slot, false);
+    server.switchLoadoutSlot(client, slot);
   }
   NpcFoundationPermissionsManagerEditPermission(
     server: ZoneServer2016,
@@ -2713,7 +2826,7 @@ export class ZonePacketHandlers {
     if (!obj.build && !obj.demolish && !obj.useContainers && !obj.visit) {
       delete foundation.permissions[characterId];
     } else {
-      foundation.permissions[characterId] == obj;
+      foundation.permissions[characterId] = obj;
     }
 
     // update child expansion permissions
@@ -2737,7 +2850,7 @@ export class ZonePacketHandlers {
       }
     );
   }
-  NpcFoundationPermissionsManagerAddPermission(
+  async NpcFoundationPermissionsManagerAddPermission(
     server: ZoneServer2016,
     client: Client,
     packet: ReceivedPacket<NpcFoundationPermissionsManagerAddPermission>
@@ -2752,19 +2865,25 @@ export class ZonePacketHandlers {
       (!client.isAdmin || !client.isDebugMode)
     )
       return;
-    let characterId = "";
-    for (const a in server._characters) {
-      const character = server._characters[a];
-      if (character.name === packet.data.characterName) {
-        characterId = character.characterId;
-      }
+
+    let targetClient = server.getClientByNameOrLoginSession(characterName);
+
+    if (!targetClient) {
+      targetClient = await server.getOfflineClientByName(characterName);
     }
+
+    if (!targetClient || !(targetClient instanceof Client)) {
+      server.sendChatText(client, "Player not found.");
+      return;
+    }
+
+    let characterId = targetClient.character.characterId;
 
     // check existing characters in foundation permissions
     if (!characterId) {
       for (const a in foundation.permissions) {
         const permissions = foundation.permissions[a];
-        if (permissions.characterName === packet.data.characterName) {
+        if (permissions.characterName === characterName) {
           characterId = permissions.characterId;
         }
       }
@@ -2975,14 +3094,14 @@ export class ZonePacketHandlers {
     client: Client,
     packet: ReceivedPacket<CommandRunSpeed>
   ) {
-    this.commandHandler.executeInternalCommand(server, client, "run", packet);
+    server.commandHandler.executeInternalCommand(server, client, "run", packet);
   }
   CommandSpectate(
     server: ZoneServer2016,
     client: Client,
     packet: ReceivedPacket<object>
   ) {
-    this.commandHandler.executeInternalCommand(
+    server.commandHandler.executeInternalCommand(
       server,
       client,
       "spectate",
@@ -3055,6 +3174,28 @@ export class ZonePacketHandlers {
       source,
       client,
       packet.data.joinState == 1
+    );
+  }
+
+  async GroupKick(
+    server: ZoneServer2016,
+    client: Client,
+    packet: ReceivedPacket<GroupKick>
+  ) {
+    if (!client.character.groupId || !packet.data.characterId) return;
+
+    const group: Group | null = await server.groupManager.getGroup(
+      server,
+      client.character.groupId
+    );
+
+    if (!group) return;
+
+    server.groupManager.handleGroupKick(
+      server,
+      client.character.characterId,
+      packet.data.characterId,
+      group
     );
   }
 
@@ -3149,7 +3290,334 @@ export class ZonePacketHandlers {
   ) {
     debug(`VehicleItemDefinitionRequest: ${packet.data.itemDefinitionId}`);
   }
+  FairPlayInternal(server: ZoneServer2016, client: Client, packet: any) {}
   //#endregion
+
+  async requestUseAccountItem(
+    server: ZoneServer2016,
+    client: Client,
+    packet: ReceivedPacket<ItemsRequestUseAccountItem>
+  ) {
+    if (!packet.data.itemDefinitionId) {
+      return;
+    }
+    const item = await server.accountInventoriesManager.getAccountItem(
+      client.loginSessionId,
+      packet.data.itemDefinitionId
+    );
+    if (!item) return;
+
+    const itemSubData: any = packet.data.itemSubData;
+
+    switch (packet.data.unknownDword3) {
+      case ItemUseOptions.OPEN_CRATE:
+        const rewards = server.getCrateRewards(packet.data.itemDefinitionId),
+          reward = server.getRandomCrateReward(packet.data.itemDefinitionId);
+        if (!rewards || !reward) return;
+
+        if (
+          itemSubData?.unknownBoolean1 == 0 &&
+          !server.removeInventoryItem(client.character, item)
+        ) {
+          return;
+        }
+        server.sendData(client, "Items.ReportRewardCrateContents", {
+          winningRewards:
+            reward > 0 && itemSubData?.unknownBoolean1 == 0
+              ? [{ itemDefinitionId: reward }]
+              : [],
+          possibleRewards: Object.values(rewards).map((rew) => {
+            return {
+              itemDefinitionId: rew.itemDefinitionId
+            };
+          })
+        });
+
+        if (reward > 0 && itemSubData.unknownBoolean1 == 0)
+          setTimeout(() => {
+            server.lootAccountItem(
+              server,
+              client,
+              server.generateAccountItem(reward),
+              true
+            );
+          }, 12_000);
+        break;
+      case ItemUseOptions.APPLY_SKIN:
+        const oitem = client.character.getInventoryItem(
+            itemSubData.targetItemGuid
+          ),
+          accountItem = [
+            ...Object.values(server._accountItemDefinitions),
+            { ACCOUNT_ITEM_ID: Items.AIRDROP_TICKET, REWARD_ITEM_ID: 0 }
+          ].find((a) => a.ACCOUNT_ITEM_ID == packet.data.itemDefinitionId);
+
+        if (!oitem || !accountItem) return;
+        if (oitem.itemDefinitionId == accountItem.REWARD_ITEM_ID) {
+          // prevent skinning if same skin is already applied
+          return;
+        }
+
+        const newItem = server.generateItem(accountItem.REWARD_ITEM_ID),
+          containerItems = client.character.getContainerFromGuid(
+            oitem.itemGuid
+          )?.items;
+
+        if (!newItem) return;
+
+        // Copy over item data to new item
+        newItem.currentDurability = oitem.currentDurability;
+        newItem.itemGuid = oitem.itemGuid;
+        if (oitem.weapon) {
+          newItem.weapon = oitem.weapon;
+        }
+
+        const oldSlot = client.character.currentLoadoutSlot,
+          oldLoadoutItem = client.character._loadout[oitem.slotId];
+        if (!server.removeInventoryItem(client.character, oitem)) return;
+        if (
+          !oldLoadoutItem ||
+          oldLoadoutItem.itemDefinitionId !== oitem.itemDefinitionId
+        ) {
+          // Determine if the item is equipped; if it isn't, loot it instead.
+          client.character.lootContainerItem(
+            server,
+            newItem,
+            newItem.stackCount,
+            false
+          );
+          return;
+        }
+
+        client.character.equipItem(server, newItem);
+        client.character.updateEquipment(server);
+
+        // Copy over items from the old container to the new container
+        if (containerItems && _.size(containerItems) !== 0) {
+          const newContainer = client.character.getContainerFromGuid(
+            newItem.itemGuid
+          );
+          // Normally it should always find this container as it's constructed above, if not then we'll cross that bridge when we get to it
+          if (newContainer) {
+            Object.values(containerItems).forEach((i) => {
+              server.addContainerItem(client.character, i, newContainer, false);
+            });
+          }
+        }
+
+        // switch back to weapon if it was previously selected
+        if (oldSlot == client.character.currentLoadoutSlot) return;
+        const loadoutItem = client.character.getLoadoutItem(newItem.itemGuid);
+        if (!loadoutItem) return;
+
+        server.switchLoadoutSlot(client, loadoutItem);
+        break;
+      case ItemUseOptions.CALL_AIRDROP:
+        server.useAirdrop(client, client.character, item);
+        break;
+      case ItemUseOptions.OPEN_BAG:
+        const bagRewards = server.getCrateRewards(packet.data.itemDefinitionId),
+          bagReward = server.getRandomCrateReward(packet.data.itemDefinitionId);
+        if (!bagRewards || !bagReward) return;
+        server.utilizeHudTimer(
+          client,
+          server.getItemDefinition(packet.data.itemDefinitionId)?.NAME_ID ?? 0,
+          1000,
+          0,
+          () => {
+            if (!server.removeInventoryItem(client.character, item)) return;
+            server.lootAccountItem(
+              server,
+              client,
+              server.generateAccountItem(bagReward)
+            );
+          }
+        );
+        break;
+      case ItemUseOptions.OPEN_PACKAGE:
+        let packageRewards: number[] = [];
+        switch (packet.data.itemDefinitionId) {
+          case Items.REWARD_SET_WOODLAND_GHILLIE:
+            packageRewards = [
+              Items.SKIN_WOODLAND_GHILLIE_SUIT_BOOTS,
+              Items.SKIN_GREEN_GLOVES
+            ];
+            break;
+          case Items.REWARD_SET_RED_FACE_BANDANA:
+            packageRewards = [
+              Items.SKIN_RED_FACE_BANDANA,
+              Items.SKIN_RED_BIKER_SHADES
+            ];
+            break;
+          case Items.REWARD_SET_EVIL_CLOWN_BANDANA:
+            packageRewards = [
+              Items.SKIN_EVIL_CLOWN_FACE_BANDANA,
+              Items.SKIN_EVIL_CLOWN_GLASSES
+            ];
+            break;
+          case Items.REWARD_SET_BLUE_FACE_BANDANA:
+            packageRewards = [
+              Items.SKIN_BLUE_FACE_BANDANA,
+              Items.SKIN_BLUE_BIKER_SHADES
+            ];
+            break;
+          case Items.REWARD_SET_CAMO_FACE_BANDANA:
+            packageRewards = [
+              Items.SKIN_CAMO_FACE_BANDANA,
+              Items.SKIN_GREEN_BIKER_SHADES
+            ];
+            break;
+          case Items.REWARD_SET_AMERICAN_FACE_BANDANA:
+            packageRewards = [
+              Items.SKIN_AMERICAN_FACE_BANDANA,
+              Items.SKIN_WHITE_BIKER_SHADES
+            ];
+            break;
+          case Items.REWARD_SET_PINK_FACE_BANDANA:
+            packageRewards = [
+              Items.SKIN_PINK_FACE_BANDANA,
+              Items.SKIN_PINK_BIKER_SHADES
+            ];
+            break;
+          case Items.REWARD_SET_SKULL_FACE_BANDANA:
+            packageRewards = [
+              Items.SKIN_SKULL_FACE_BANDANA,
+              Items.SKIN_BLACK_BIKER_SHADES
+            ];
+            break;
+        }
+
+        server.utilizeHudTimer(
+          client,
+          server.getItemDefinition(packet.data.itemDefinitionId)?.NAME_ID ?? 0,
+          1000,
+          0,
+          () => {
+            if (
+              !server.removeInventoryItem(client.character, item) &&
+              packageRewards.length <= 0
+            )
+              return;
+            Object.values(packageRewards).forEach((itemDefId) => {
+              client.character.lootItem(server, server.generateItem(itemDefId));
+            });
+          }
+        );
+        break;
+      default:
+        debug(packet.data);
+    }
+  }
+
+  disbandGroup(server: ZoneServer2016, client: Client) {
+    server.groupManager.handleGroupCommand(server, client, ["disband"]);
+  }
+
+  leaveGroup(server: ZoneServer2016, client: Client) {
+    server.groupManager.handleGroupCommand(server, client, ["leave"]);
+  }
+
+  commerceSessionRequest(server: ZoneServer2016, client: Client) {
+    server.sendData(client, "CommerceSessionResponse", {
+      unknownBoolean1: true,
+      sessionToken: "TICKET"
+    });
+  }
+
+  async grinderExchangeRequest(
+    server: ZoneServer2016,
+    client: Client,
+    packet: ReceivedPacket<GrinderExchangeRequest>
+  ) {
+    if (!packet.data.items) return;
+
+    let rarity = -1;
+    let itemCount = 0;
+
+    for (const item of packet.data.items as GrinderItem[]) {
+      const definition = server.getItemDefinition(item.itemDefinitionId);
+      if (definition) {
+        if (rarity == -1) {
+          rarity = definition.RARITY;
+        }
+
+        if (rarity == definition.RARITY) {
+          itemCount += item.count;
+        }
+      }
+    }
+
+    const itemsNeeded = rarity == 6 ? 4 : 5;
+    if (itemCount < itemsNeeded) return;
+    const itemsRemoved = await (async (): Promise<boolean> => {
+      const removedItems: { item: AccountItem }[] = [];
+      try {
+        for (const item of packet.data.items as GrinderItem[]) {
+          let remainingCount = item.count;
+          while (remainingCount > 0) {
+            const inventoryItem =
+              await server.accountInventoriesManager.getAccountItem(
+                client.loginSessionId,
+                item.itemDefinitionId
+              );
+            if (!inventoryItem) return false;
+            if (inventoryItem.stackCount < remainingCount) {
+              removedItems.push({ item: inventoryItem });
+              remainingCount -= inventoryItem.stackCount;
+              const partialResult = server.removeAccountItem(
+                client.character,
+                inventoryItem
+              );
+              if (!partialResult) return false;
+            } else {
+              removedItems.push({ item: inventoryItem });
+              const result = server.removeAccountItem(
+                client.character,
+                inventoryItem
+              );
+              if (!result) if (!result) throw new Error("Final removal failed");
+              remainingCount = 0;
+            }
+          }
+        }
+        return true;
+      } catch (error) {
+        for (const removed of removedItems) {
+          await server.lootAccountItem(server, client, removed.item, false);
+        }
+        debug("Error occurred during item removal. Rollback completed:", error);
+        return false;
+      }
+    })();
+    const responseItems = [];
+    if (itemsRemoved) {
+      const higherRarityItems = Object.values(server._itemDefinitions).filter(
+        (item) =>
+          item.RARITY == rarity + 1 && item.CODE_FACTORY_NAME == "AccountRecipe"
+      );
+
+      if (higherRarityItems.length > 0) {
+        const itemDef =
+          higherRarityItems[
+            Math.floor(Math.random() * higherRarityItems.length)
+          ];
+        const item = server.generateItem(itemDef.ID, 1, true);
+        server.lootAccountItem(server, client, item, false);
+        responseItems.push({
+          itemDefinitionId: item?.itemDefinitionId || itemDef.ID || 0,
+          count: 1
+        });
+      }
+    }
+
+    server.sendData<GrinderExchangeResponse>(
+      client,
+      "Grinder.ExchangeResponse",
+      {
+        items: responseItems
+      }
+    );
+  }
 
   processPacket(
     server: ZoneServer2016,
@@ -3365,6 +3833,9 @@ export class ZonePacketHandlers {
       case "Group.Join":
         this.GroupJoin(server, client, packet);
         break;
+      case "Group.Kick":
+        this.GroupKick(server, client, packet);
+        break;
       case "Effect.AddEffect":
         this.EffectAddEffect(server, client, packet);
         break;
@@ -3386,6 +3857,67 @@ export class ZonePacketHandlers {
       case "Vehicle.ItemDefinitionRequest":
         this.VehicleItemDefinitionRequest(server, client, packet);
         break;
+      case "FairPlay.Internal":
+        this.FairPlayInternal(server, client, packet);
+        break;
+      case "Recipe.Discovery":
+        break;
+      case "InGamePurchase.AcccountInfoRequest":
+        server.sendData(client, "InGamePurchase.AcccountInfoResponse", {
+          unknownDword1: 1,
+          locale: "en_US",
+          currency: "USD"
+        });
+        break;
+      case "InGamePurchase.CountryCodesRequest":
+        server.sendData(client, "InGamePurchase.CountryCodesResponse", {
+          unknownDword1: 1,
+          countryCodes: [
+            {
+              countryCode: "US",
+              country: "United States"
+            }
+          ]
+        });
+        break;
+      case "InGamePurchase.WalletInfoRequest":
+        break;
+      case "InGamePurchase.StationCashProductsRequest":
+        break;
+      case "Items.RequestUseAccountItem":
+        this.requestUseAccountItem(server, client, packet);
+        break;
+      case "CommerceSessionRequest":
+        this.commerceSessionRequest(server, client);
+        break;
+      case "Group.Disband":
+        this.disbandGroup(server, client);
+        break;
+      case "Group.Leave":
+        this.leaveGroup(server, client);
+        break;
+      case "Ping":
+        server.sendData(client, "Pong", {});
+        break;
+      case "Grinder.ExchangeRequest":
+        //this.grinderExchangeRequest(server, client, packet);
+        // temporary disable
+        break;
+      case "InGamePurchase.StoreBundleContentRequest":
+        debug(JSON.stringify(packet.data));
+        server.sendData<InGamePurchaseStoreBundleContentResponse>(
+          client,
+          "InGamePurchase.StoreBundleContentResponse",
+          {
+            bundles: [
+              {
+                itemDefId: 1791,
+                bundleId: packet.data.bundles[0].bundleId
+              }
+            ]
+          }
+        );
+        break;
       default:
         debug(packet);
         debug("Packet not implemented in packetHandlers");
@@ -3404,20 +3936,13 @@ export class ZonePacketHandlers {
       case "02": // client messages
         server.sendChatTextToAdmins(`${client.character.name}: ${data}`);
         break;
+      case "09":
+        break;
       default:
         console.log(
           `Unknown custom packet opcode: ${opcode} from ${client.loginSessionId}`
         );
         break;
     }
-  }
-
-  async reloadCommandCache() {
-    delete require.cache[require.resolve("./handlers/commands/commandhandler")];
-    const CommandHandler = (
-      require("./handlers/commands/commandhandler") as any
-    ).CommandHandler;
-    this.commandHandler = new CommandHandler();
-    this.commandHandler.reloadCommands();
   }
 }

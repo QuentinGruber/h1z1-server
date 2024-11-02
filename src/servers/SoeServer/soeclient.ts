@@ -30,6 +30,7 @@ export default class SOEClient {
   sessionId: number = 0;
   address: string;
   port: number;
+  family: "IPv4" | "IPv6";
   crcSeed: number;
   crcLength: number = 2;
   clientUdpLength: number = 512;
@@ -58,13 +59,17 @@ export default class SOEClient {
   private _statsResetTimer: NodeJS.Timer;
   delayedLogicalPackets: LogicalPacket[] = [];
   constructor(remote: RemoteInfo, crcSeed: number, cryptoKey: Uint8Array) {
-    this.soeClientId = remote.address + ":" + remote.port;
+    this.soeClientId = SOEClient.getClientId(remote);
     this.address = remote.address;
     this.port = remote.port;
+    this.family = remote.family;
     this.crcSeed = crcSeed;
     this.inputStream = new SOEInputStream(cryptoKey);
     this.outputStream = new SOEOutputStream(cryptoKey);
     this._statsResetTimer = setInterval(() => this._resetStats(), 60000);
+  }
+  static getClientId(remote: RemoteInfo): string {
+    return remote.address + ":" + remote.port;
   }
   closeTimers() {
     // wierd stuff with the new global Symbol used with the using keyword, skipping that headache for now

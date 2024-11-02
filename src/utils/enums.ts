@@ -47,10 +47,12 @@ export enum DB_COLLECTIONS {
   BANNED = "banned",
   BLACK_LIST_ENTRIES = "blackListEntries",
   CHARACTERS = "characters",
+  ACCOUNT_ITEMS = "account-items",
   CHARACTERS_LIGHT = "characters-light",
   CHAT = "chats",
   CONSTRUCTION = "construction",
   CROPS = "crops",
+  TRAPS = "traps",
   FINGERPRINTS = "fingerprints",
   PROPS = "props",
   SERVERS = "servers",
@@ -63,7 +65,9 @@ export enum DB_COLLECTIONS {
   FAIRPLAY = "fairplay-logs",
   KILLS = "kills",
   MUTED = "muted",
-  ASSET_HASHES = "asset-hashes"
+  GROUPS = "groups",
+  VPN_WHITELIST = "vpn-whitelist",
+  AUTHKEYS = "verified-authkeys"
 }
 
 export enum LOGIN_KICK_REASON {

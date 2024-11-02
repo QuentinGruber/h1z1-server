@@ -13,7 +13,7 @@
 import { generate_random_guid } from "h1emu-core";
 import { compress, compressBound } from "./lz4/lz4";
 import fs, { readdirSync } from "node:fs";
-import { normalize, resolve } from "node:path";
+import path, { normalize, resolve } from "node:path";
 import { Collection, MongoClient } from "mongodb";
 import { DB_NAME, MAX_TRANSIENT_ID, MAX_UINT16, MAX_UINT32 } from "./constants";
 import { ZoneServer2016 } from "servers/ZoneServer2016/zoneserver";
@@ -494,6 +494,12 @@ export const setupAppDataFolder = (): void => {
       JSON.stringify([])
     );
   }
+  if (!fs.existsSync(`${AppDataFolderPath}/single_player_accountitems.json`)) {
+    fs.writeFileSync(
+      `${AppDataFolderPath}/single_player_accountitems.json`,
+      JSON.stringify([])
+    );
+  }
   if (
     !fs.existsSync(`${AppDataFolderPath}/single_player_characters2016.json`) ||
     fs
@@ -537,6 +543,12 @@ export const setupAppDataFolder = (): void => {
   if (!fs.existsSync(`${AppDataFolderPath}/worlddata/crops.json`)) {
     fs.writeFileSync(
       `${AppDataFolderPath}/worlddata/crops.json`,
+      JSON.stringify([])
+    );
+  }
+  if (!fs.existsSync(`${AppDataFolderPath}/worlddata/traps.json`)) {
+    fs.writeFileSync(
+      `${AppDataFolderPath}/worlddata/traps.json`,
       JSON.stringify([])
     );
   }
@@ -894,13 +906,11 @@ export const generateRandomGuid = function (): string {
 /**
  * Generates a transient ID starting from the specified ID.
  *
- * @param startId - The starting ID for the generator.
  * @yields The generated transient ID.
  */
-export function* generateTransientId(startId: number = 0) {
-  let id = startId;
-  for (let index = 0; index < MAX_TRANSIENT_ID; index++) {
-    yield id++;
+export function* generateTransientId() {
+  for (let index = 1; index < MAX_TRANSIENT_ID; index++) {
+    yield index;
   }
 }
 
@@ -1463,6 +1473,7 @@ export function fileExists(filePath: string): boolean {
     fs.accessSync(filePath);
     return true;
   } catch (error) {
+    console.error(error);
     return false;
   }
 }
@@ -1533,4 +1544,84 @@ export function getCurrentServerTimeWrapper() {
 
 export function getCurrentRealTimeWrapper() {
   return new TimeWrapper(Date.now());
+}
+export function getDateString(timestamp: number) {
+  const months = [
+    "JAN",
+    "FEB",
+    "MAR",
+    "APR",
+    "MAY",
+    "JUN",
+    "JUL",
+    "AUG",
+    "SEP",
+    "OCT",
+    "NOV",
+    "DEC"
+  ];
+  const date = new Date(timestamp);
+  return `${date.getDate()} ${
+    months[date.getMonth()]
+  } ${date.getFullYear()} ${date.getHours()}:${date.getMinutes()}`;
+}
+
+export function loadJson(path: string) {
+  return JSON.parse(fs.readFileSync(path, "utf8"));
+}
+
+export function loadNavData() {
+  const folderPath = `${__dirname}/../../data/2016/navData/`;
+  const files = fs.readdirSync(folderPath);
+
+  const dataInOrder: Uint8Array[] = [];
+
+  files.forEach((file) => {
+    const filePath = path.join(folderPath, file);
+
+    const stats = fs.statSync(filePath);
+
+    if (stats.isFile()) {
+      const data = fs.readFileSync(filePath);
+      const fileIndex: number =
+        Number(filePath.split(".")[0].split("_part")[1]) - 1;
+
+      dataInOrder[fileIndex] = new Uint8Array(data);
+    }
+  });
+  return new Uint8Array(Buffer.concat(dataInOrder));
+}
+export function isHalloween() {
+  const today = new Date();
+  return today.getMonth() === 9 && today.getDate() === 31;
+}
+
+export function luck(l: number) {
+  return Math.floor(Math.random() * l) === 0;
+}
+
+const Z1_POIs = require("../../data/2016/zoneData/Z1_POIs");
+export function isPosInPoi(position: Float32Array): boolean {
+  let useRange = true;
+  let isInPoi = false;
+  Z1_POIs.forEach((point: any) => {
+    if (point.bounds) {
+      useRange = false;
+      point.bounds.forEach((bound: any) => {
+        if (isInsideSquare([position[0], position[2]], bound)) {
+          isInPoi = true;
+          return;
+        }
+      });
+    }
+    if (useRange && isPosInRadius(point.range, position, point.position)) {
+      isInPoi = true;
+    }
+  });
+
+  return isInPoi;
+}
+
+export function chance(percentage: number): boolean {
+  return Math.random() * 100 < percentage;
 }

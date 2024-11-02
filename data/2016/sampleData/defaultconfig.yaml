@@ -13,9 +13,24 @@ server:
   isPvE: false
   isHeadshotOnly: false
   isFirstPersonOnly: false
+  isNoBuildInPois: true
   baseConstructionDamage: 34000
 
+# Rcon
+
+rcon:
+  password: ""
+  port: 0
+
+# VoiceChat
+
+voicechat:
+    useVoiceChatV2: false
+    joinVoiceChatOnConnect: false
+    serverAccessToken: ""
+
 # Fairplay / anticheat config
+
 fairplay:
   useFairplay: true
   maxPing: 250
@@ -103,7 +118,7 @@ speedtree:
   maxTreeHits: 20 # maximum hits it takes to chop a tree
 
 construction:
-  allowPOIPlacement: false
+  # allowPOIPlacement: false - deprecated in favor of isNoBuildInPOIs ^
   allowStackedPlacement: false
   allowOutOfBoundsPlacement: false
   placementRange: 30
@@ -131,7 +146,7 @@ decay:
   vacantFoundationTicks: 3 # destroy empty foundations after 1 hour
   griefFoundationTimer: 72 # destroy grief foundations after 3 days (72 hours)
   griefCheckSlotAmount: 4 # must have a minimum of 4 wall slots to avoid anti-grief
-  baseVehicleDamage: 6000 # 6% damage per 3 ticks
+  baseVehicleDamage: 2000 # 2% damage per 3 ticks (1 hour)
   maxVehiclesPerArea: 2 # the max amount of vehicles that can be in an area before they start taking more damage
   vehicleDamageRange: 25 # how large of a range to detect maxVehiclesPerArea
   dailyRepairMaterials:

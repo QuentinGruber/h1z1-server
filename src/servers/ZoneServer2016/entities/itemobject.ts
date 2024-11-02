@@ -18,6 +18,7 @@ import { BaseItem } from "../classes/baseItem";
 import { BaseLightweightCharacter } from "./baselightweightcharacter";
 import { ZoneClient2016 } from "../classes/zoneclient";
 import { randomIntFromInterval } from "../../../utils/utils";
+import { AddLightweightNpc } from "types/zone2016packets";
 
 export class ItemObject extends BaseLightweightCharacter {
   npcRenderDistance = 25;
@@ -25,6 +26,7 @@ export class ItemObject extends BaseLightweightCharacter {
   item: BaseItem;
   creationTime: number = 0;
   triggerExplosionShots = Math.floor(Math.random() * 3) + 2; // random number 2-4 neccesary shots
+  shaderGroupId: number = 0;
   constructor(
     characterId: string,
     transientId: number,
@@ -37,7 +39,9 @@ export class ItemObject extends BaseLightweightCharacter {
   ) {
     super(characterId, transientId, actorModelId, position, rotation, server);
     this.flags.noCollide = 1;
-    (this.spawnerId = spawnerId), (this.item = item);
+    this.spawnerId = spawnerId;
+    this.item = item;
+    this.shaderGroupId = server.getShaderGroupId(item.itemDefinitionId);
   }
   /* eslint-disable @typescript-eslint/no-unused-vars */
   OnPlayerSelect(
@@ -57,7 +61,6 @@ export class ItemObject extends BaseLightweightCharacter {
   }
 
   OnProjectileHit(server: ZoneServer2016, damageInfo: DamageInfo) {
-    damageInfo; // eslint
     if (
       this.item.itemDefinitionId === Items.FUEL_BIOFUEL ||
       this.item.itemDefinitionId === Items.FUEL_ETHANOL
@@ -79,6 +82,13 @@ export class ItemObject extends BaseLightweightCharacter {
         server.getClientByCharId(damageInfo.entity)
       );
     }
+  }
+
+  pGetLightweight(): AddLightweightNpc {
+    return {
+      ...super.pGetLightweight(),
+      shaderGroupId: this.shaderGroupId
+    };
   }
 
   destroy(server: ZoneServer2016): boolean {

@@ -195,9 +195,11 @@ export class AbilitiesManager {
   ) {
     // todo: validate time between init and update
     if (!client.character.abilityInitTime) {
-      console.log(
-        `${client.character.characterId} tried to update a non-initialized ability!`
-      );
+      // This happen a lot in production but i'm unable to reproduce it
+      // Maybe sometimes the hitLocation field in abilityInit is empty
+      // console.log(
+      //   `${client.character.characterId} tried to update a non-initialized ability!`
+      // );
       return;
     }
     client.character.checkCurrentInteractionGuid();
@@ -357,7 +359,8 @@ export class AbilitiesManager {
         "Character.PlayAnimation",
         {
           characterId: client.character.characterId,
-          animationName: animationName
+          animationName: animationName,
+          animationType: ""
         }
       );
       return;
@@ -367,7 +370,7 @@ export class AbilitiesManager {
     if (!vehicle) return;
 
     switch (vehicleAbilityEffectId) {
-      case VehicleEffects.MOTOR_RUN_OFFROADER:
+      case VehicleEffects.MOTOR_RUN_OFFROADER_1:
         vehicle.checkEngineRequirements(server);
         break;
       case VehicleEffects.TURBO_OFFROADER:
@@ -390,7 +393,7 @@ export class AbilitiesManager {
     if (!vehicle) return;
 
     switch (vehicleAbilityEffectId) {
-      case VehicleEffects.MOTOR_RUN_OFFROADER:
+      case VehicleEffects.MOTOR_RUN_OFFROADER_1:
         vehicle.stopEngine(server);
         break;
       case VehicleEffects.TURBO_OFFROADER:

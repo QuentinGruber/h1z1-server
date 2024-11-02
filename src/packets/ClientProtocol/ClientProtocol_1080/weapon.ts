@@ -556,9 +556,9 @@ export function packRemoteWeaponPacket(obj: any): Buffer {
   }
   let subData = Buffer.allocUnsafe(6);
   const subTypeData = writePacketType(subType);
-  subData.writeUInt32LE((obj.gameTime & 0xffffffff) >>> 0, 0),
-    subData.writeUInt8(0x15, 4), // "Weapon.RemoteWeapon" opcode
-    subData.writeUInt8(subTypeData[0], 5); // remoteweapon sub opcode
+  subData.writeUInt32LE((obj.gameTime & 0xffffffff) >>> 0, 0);
+  subData.writeUInt8(0x15, 4); // "Weapon.RemoteWeapon" opcode
+  subData.writeUInt8(subTypeData[0], 5); // remoteweapon sub opcode
   const transientId = packUnsignedIntWith2bitLengthValue(
     obj["remoteWeaponPacket"]["transientId"]
   );
@@ -579,9 +579,9 @@ export function packRemoteWeaponUpdatePacket(obj: any): Buffer {
   }
   let subData = Buffer.allocUnsafe(6);
   const subTypeData = writePacketType(subType);
-  subData.writeUInt32LE((obj.gameTime & 0xffffffff) >>> 0, 0),
-    subData.writeUInt8(0x15, 4), // "Weapon.RemoteWeapon" opcode
-    subData.writeUInt8(0x04, 5); // "RemoteWeapon.Update" opcode
+  subData.writeUInt32LE((obj.gameTime & 0xffffffff) >>> 0, 0);
+  subData.writeUInt8(0x15, 4); // "Weapon.RemoteWeapon" opcode
+  subData.writeUInt8(0x04, 5); // "RemoteWeapon.Update" opcode
   const transientId = packUnsignedIntWith2bitLengthValue(
     obj["remoteWeaponPacket"]["transientId"]
   );

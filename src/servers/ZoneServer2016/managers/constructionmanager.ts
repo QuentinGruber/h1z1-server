@@ -12,21 +12,19 @@
 // ======================================================================
 
 const Z1_vehicles = require("../../../../data/2016/zoneData/Z1_vehicleLocations.json"),
-  Z1_POIs = require("../../../../data/2016/zoneData/Z1_POIs"),
   spawnLocations2 = require("../../../../data/2016/zoneData/Z1_gridSpawns.json");
 
 import {
   ConstructionEntity,
   dailyRepairMaterial,
-  DamageInfo,
-  EntityDictionary
+  DamageInfo
 } from "types/zoneserver";
 import {
   eul2quat,
   fixEulerOrder,
   getConstructionSlotId,
   getDistance,
-  isInsideSquare,
+  isPosInPoi,
   isPosInRadius,
   isPosInRadiusWithY,
   movePoint
@@ -50,10 +48,10 @@ import {
   ConstructionPermissionIds,
   Effects,
   Items,
+  ModelIds,
   ResourceIds,
   ResourceTypes,
-  StringIds,
-  TreeIds
+  StringIds
 } from "../models/enums";
 import { ZoneServer2016 } from "../zoneserver";
 import {
@@ -74,7 +72,13 @@ export class ConstructionManager {
     Items.SEED_WHEAT
   ];
 
-  /* MANAGED BY CONFIGMANAGER */
+  shackItems: Array<number> = [
+    Items.SHACK,
+    Items.SHACK_SMALL,
+    Items.SHACK_BASIC
+  ];
+
+  /** MANAGED BY CONFIGMANAGER - See defaultConfig.yaml for more information */
   allowPOIPlacement!: boolean;
   allowStackedPlacement!: boolean;
   allowOutOfBoundsPlacement!: boolean;
@@ -212,18 +216,47 @@ export class ConstructionManager {
     item: BaseItem,
     position: Float32Array
   ): boolean {
-    if (item.itemDefinitionId == Items.GROUND_TAMPER) {
+    if (
+      [
+        Items.GROUND_TAMPER,
+        Items.FOUNDATION,
+        Items.HAND_SHOVEL,
+        Items.FOUNDATION_EXPANSION
+      ].includes(item.itemDefinitionId)
+    ) {
       // fix for tamper stacking
       let tampersInRadius = 0;
       for (const a in server._constructionFoundations) {
         const foundation = server._constructionFoundations[a];
-        if (foundation.itemDefinitionId != Items.GROUND_TAMPER) continue;
-        if (isPosInRadius(22, foundation.state.position, position))
+        // Prevent stacking / hiding hidden stashes under tampers / foundations
+        if (
+          item.itemDefinitionId == Items.HAND_SHOVEL &&
+          [
+            Items.GROUND_TAMPER,
+            Items.FOUNDATION,
+            Items.FOUNDATION_EXPANSION
+          ].includes(foundation.itemDefinitionId) &&
+          getDistance(foundation.state.position, position) <= 22
+        )
+          return true;
+        if (
+          isPosInRadius(22, foundation.state.position, position) &&
+          foundation.itemDefinitionId == Items.GROUND_TAMPER
+        )
           tampersInRadius++;
       }
       if (tampersInRadius >= 3) {
         return true;
       }
+
+      // Prevent stacking / hiding hidden stashes under tampers / foundations
+      return (
+        Object.values(server._worldLootableConstruction).filter(
+          (lc) =>
+            lc.actorModelId == ModelIds.HAND_SHOVEL &&
+            getDistance(lc.state.position, position) <= 15
+        ).length > 0
+      );
     }
     return false;
   }
@@ -235,18 +268,11 @@ export class ConstructionManager {
   ): boolean {
     const disallowedItems = [Items.STORAGE_BOX, Items.BEE_BOX, Items.FURNACE];
     if (disallowedItems.includes(item.itemDefinitionId)) {
-      for (const treeKey in server.speedtreeManager._speedTreesList) {
-        const zoneTree = server.speedtreeManager._speedTreesList[treeKey];
-        const allowedTrees = [
-          TreeIds.BLACKBERRY,
-          TreeIds.DEVILCLUB,
-          TreeIds.VINEMAPLE
-        ];
-        if (allowedTrees.includes(zoneTree.treeId)) continue;
-        if (isPosInRadius(1, position, zoneTree.position)) {
+      server.speedtreeManager._speedTreesList.forEach((v) => {
+        if (isPosInRadius(1, position, v.position)) {
           return true;
         }
-      }
+      });
     }
     return false;
   }
@@ -353,24 +379,9 @@ export class ConstructionManager {
     isInsidePermissionedFoundation: boolean
   ): boolean {
     if (client.isDebugMode) return false;
-    if (this.allowPOIPlacement) return false;
     if (this.overridePlacementItems.includes(itemDefinitionId)) return false;
-    let useRange = true;
-    let isInPoi = false;
-    Z1_POIs.forEach((point: any) => {
-      if (point.bounds) {
-        useRange = false;
-        point.bounds.forEach((bound: any) => {
-          if (isInsideSquare([position[0], position[2]], bound)) {
-            isInPoi = true;
-            return;
-          }
-        });
-      }
-      if (useRange && isPosInRadius(point.range, position, point.position)) {
-        isInPoi = true;
-      }
-    });
+
+    const isInPoi = isPosInPoi(position);
     // allow placement in poi if object is parented to a foundation
     if (isInPoi && !isInsidePermissionedFoundation) {
       return true;
@@ -427,6 +438,7 @@ export class ConstructionManager {
     }
 
     if (
+      server.isNoBuildInPois &&
       this.detectPOIPlacement(
         itemDefinitionId,
         position,
@@ -591,7 +603,13 @@ export class ConstructionManager {
 
     if (this.detectStackedTamperPlacement(server, item, position)) {
       this.sendPlacementFinalize(server, client, false);
-      this.placementError(server, client, ConstructionErrors.STACKED);
+      this.placementError(
+        server,
+        client,
+        item.itemDefinitionId == Items.HAND_SHOVEL
+          ? ConstructionErrors.OVERLAP
+          : ConstructionErrors.STACKED
+      );
       return;
     }
 
@@ -652,6 +670,7 @@ export class ConstructionManager {
     }
 
     if (
+      ![Items.TRAP_FIRE, Items.TRAP_FLASH].includes(itemDefinitionId) &&
       this.handleInvalidPlacement(
         server,
         client,
@@ -701,12 +720,16 @@ export class ConstructionManager {
       case Items.SNARE:
       case Items.PUNJI_STICKS:
       case Items.PUNJI_STICK_ROW:
+      case Items.TRAP_FIRE:
+      case Items.TRAP_FLASH:
         return this.placeTrap(
           server,
           itemDefinitionId,
           modelId,
           position,
-          fixEulerOrder(rotation)
+          fixEulerOrder(rotation),
+          false,
+          client.character.characterId
         );
       case Items.RIGGED_LIGHT:
         return this.placeTemporaryEntity(
@@ -724,6 +747,14 @@ export class ConstructionManager {
           eul2quat(rotation),
           120000
         );
+      case Items.CANDLE:
+        return this.placeTemporaryEntity(
+          server,
+          modelId,
+          position,
+          eul2quat(rotation),
+          3600000
+        );
       case Items.IED:
       case Items.LANDMINE:
         return this.placeExplosiveEntity(
@@ -731,7 +762,8 @@ export class ConstructionManager {
           itemDefinitionId,
           modelId,
           position,
-          eul2quat(rotation)
+          eul2quat(rotation),
+          client.character.characterId
         );
       case Items.METAL_GATE:
       case Items.DOOR_BASIC:
@@ -860,14 +892,16 @@ export class ConstructionManager {
           itemDefinitionId
         );
       case Items.HAND_SHOVEL:
-        return this.placeStashEntity(
-          server,
-          itemDefinitionId,
-          modelId,
-          position,
-          fixEulerOrder(rotation),
-          new Float32Array([1, 1, 1, 1]),
-          freeplaceParentCharacterId
+        return Boolean(
+          this.placeStashEntity(
+            server,
+            itemDefinitionId,
+            modelId,
+            position,
+            fixEulerOrder(rotation),
+            new Float32Array([1, 1, 1, 1]),
+            freeplaceParentCharacterId
+          )
         );
       default:
         //this.placementError(client, ConstructionErrors.UNKNOWN_CONSTRUCTION);
@@ -981,11 +1015,8 @@ export class ConstructionManager {
         this.placementError(server, client, ConstructionErrors.OVERLAP);
         return false;
       }
-      (position = parent.getSlotPosition(BuildingSlot, parent.upperWallSlots)),
-        (rotation = parent.getSlotRotation(
-          BuildingSlot,
-          parent.upperWallSlots
-        ));
+      position = parent.getSlotPosition(BuildingSlot, parent.upperWallSlots);
+      rotation = parent.getSlotRotation(BuildingSlot, parent.upperWallSlots);
     } else {
       if (
         parent &&
@@ -997,8 +1028,8 @@ export class ConstructionManager {
         this.placementError(server, client, ConstructionErrors.OVERLAP);
         return false;
       }
-      (position = parent.getSlotPosition(BuildingSlot, parent.wallSlots)),
-        (rotation = parent.getSlotRotation(BuildingSlot, parent.wallSlots));
+      position = parent.getSlotPosition(BuildingSlot, parent.wallSlots);
+      rotation = parent.getSlotRotation(BuildingSlot, parent.wallSlots);
     }
     if (!position || !rotation) {
       this.placementError(server, client, ConstructionErrors.UNKNOWN_SLOT);
@@ -1349,7 +1380,9 @@ export class ConstructionManager {
     itemDefinitionId: number,
     modelId: number,
     position: Float32Array,
-    rotation: Float32Array
+    rotation: Float32Array,
+    worldOwned: boolean = false,
+    owner: string = ""
   ): boolean {
     const characterId = server.generateGuid(),
       transientId = 1, // dont think its needed here
@@ -1360,9 +1393,12 @@ export class ConstructionManager {
         position,
         rotation,
         server,
-        itemDefinitionId
+        itemDefinitionId,
+        worldOwned,
+        owner
       );
-    npc.arm(server);
+    //npc.arm(server);
+    //temporarily disabled
     server._traps[characterId] = npc;
     server.spawnSimpleNpcForAllInRange(npc);
     return true;
@@ -1373,7 +1409,8 @@ export class ConstructionManager {
     itemDefinitionId: Items,
     modelId: number,
     position: Float32Array,
-    rotation: Float32Array
+    rotation: Float32Array,
+    ownerCharacterId: string
   ): boolean {
     const characterId = server.generateGuid(),
       transientId = 1, // dont think its needed
@@ -1384,10 +1421,12 @@ export class ConstructionManager {
         position,
         rotation,
         server,
-        itemDefinitionId
+        itemDefinitionId,
+        ownerCharacterId
       );
     if (npc.isLandmine()) {
-      npc.arm(server);
+      //npc.arm(server);
+      //temporarily disabled
     }
     server._explosives[characterId] = npc;
     server.spawnSimpleNpcForAllInRange(npc);
@@ -1471,7 +1510,8 @@ export class ConstructionManager {
     position: Float32Array,
     rotation: Float32Array,
     scale: Float32Array,
-    parentObjectCharacterId?: string
+    parentObjectCharacterId?: string,
+    isProp: boolean = false
   ): boolean {
     const characterId = server.generateGuid(),
       transientId = server.getTransientId(characterId);
@@ -1485,7 +1525,8 @@ export class ConstructionManager {
       scale,
       itemDefinitionId,
       parentObjectCharacterId || "",
-      "SmeltingEntity"
+      "SmeltingEntity",
+      isProp
     );
 
     const parent = obj.getParent(server);
@@ -1666,7 +1707,7 @@ export class ConstructionManager {
     rotation: Float32Array,
     scale: Float32Array,
     parentObjectCharacterId?: string
-  ): boolean {
+  ): LootableConstructionEntity {
     const characterId = server.generateGuid(),
       transientId = server.getTransientId(characterId);
     const obj = new LootableConstructionEntity(
@@ -1682,13 +1723,7 @@ export class ConstructionManager {
       ""
     );
 
-    const parent = obj.getParent(server);
-    if (parent) {
-      server._lootableConstruction[characterId] = obj;
-      parent.addFreeplaceConstruction(obj);
-    } else {
-      server._worldLootableConstruction[characterId] = obj;
-    }
+    server._worldLootableConstruction[characterId] = obj;
 
     obj.equipLoadout(server);
 
@@ -1699,7 +1734,7 @@ export class ConstructionManager {
       this.spawnLootableConstruction(server, client, obj);
     }, obj);
 
-    return true;
+    return obj;
   }
 
   checkFoundationPermission(
@@ -1832,13 +1867,36 @@ export class ConstructionManager {
     state: boolean
   ) {
     if (state) {
+      //TODO: Leaving a group will not remove the player because the client already has the isHidden flag.
+      //To reproduce: Create a group and give the other player visitor perm, before disbanding the group remove other players' perms.
       if (!client.character.isHidden) {
         client.character.isHidden = constructionGuid;
         for (const a in server._clients) {
           const iteratedClient = server._clients[a];
+
+          const constructionEntity =
+            server.getConstructionEntity(constructionGuid);
+
+          let hasVisitPermission = false;
+          if (constructionEntity) {
+            hasVisitPermission = constructionEntity.getHasPermission(
+              server,
+              iteratedClient.character.characterId,
+              ConstructionPermissionIds.VISIT
+            );
+          }
+
+          const isSameGroup =
+            client.character.groupId != 0 &&
+            iteratedClient.character.groupId != 0 &&
+            client.character.groupId === iteratedClient.character.groupId;
+
+          const hasPermission = isSameGroup && hasVisitPermission;
+
           if (
             iteratedClient.spawnedEntities.has(client.character) &&
-            iteratedClient.character.isHidden != client.character.isHidden
+            iteratedClient.character.isHidden != client.character.isHidden &&
+            !hasPermission
           ) {
             server.sendData<CharacterRemovePlayer>(
               iteratedClient,
@@ -2098,7 +2156,7 @@ export class ConstructionManager {
     server.updateResource(
       client,
       entity.characterId,
-      (entity.maxHealth / entity.health) * 1000000,
+      (entity.health / entity.maxHealth) * 1000000,
       ResourceIds.CONSTRUCTION_CONDITION,
       ResourceTypes.CONDITION
     );
@@ -2169,21 +2227,6 @@ export class ConstructionManager {
       }
     }
   }
-
-  /*spawnConstructionParentsInRange(server: ZoneServer2016, client: Client) { // put back into grid
-    for (const a in server._constructionFoundations) {
-      const foundation = server._constructionFoundations[a];
-      if (
-        isPosInRadius(
-          foundation.npcRenderDistance || server.charactersRenderDistance,
-          client.character.state.position,
-          foundation.state.position
-        )
-      ) {
-        this.spawnConstructionParent(server, client, foundation);
-      }
-    }
-  }*/
 
   public constructionPermissionsManager(
     server: ZoneServer2016,
@@ -2317,41 +2360,6 @@ export class ConstructionManager {
     entity.isDecayProtected = true;
   }
 
-  /**
-   * Manages the spawning of WORLD parented free-place construction entities, such as storage containers placed directly on the ground.
-   *
-   */
-  /*worldConstructionManager(server: ZoneServer2016, client: Client) {
-    for (const characterId in server._worldSimpleConstruction) {
-      const entity = server._worldSimpleConstruction[characterId];
-      if (
-        isPosInRadius(
-          (entity.npcRenderDistance as number) ||
-            server.charactersRenderDistance,
-          client.character.state.position,
-          entity.state.position
-        )
-      ) {
-        this.spawnSimpleConstruction(server, client, entity, false);
-      }
-    }
-    for (const characterId in server._worldLootableConstruction) {
-      const entity = server._worldLootableConstruction[characterId];
-      if (
-        isPosInRadius(
-          (entity.npcRenderDistance as number) ||
-            server.charactersRenderDistance,
-          client.character.state.position,
-          entity.state.position
-        )
-      ) {
-        this.spawnLootableConstruction(server, client, entity);
-      }
-    }
-  }*/
-
-  // put into grid
-
   private repairFreeplaceEntities(
     server: ZoneServer2016,
     entity: ConstructionChildEntity
@@ -2452,6 +2460,14 @@ export class ConstructionManager {
     entity: ConstructionEntity,
     weaponItem: LoadoutItem
   ) {
+    if (
+      client.character.lastRepairTime &&
+      Date.now() - client.character.lastRepairTime < 1000
+    ) {
+      server.sendChatText(client, "Cooldown on repairing.");
+      return;
+    }
+
     let accumulatedItemDamage = 0;
     server.sendCompositeEffectToAllInRange(
       15,
@@ -2485,6 +2501,7 @@ export class ConstructionManager {
     }
     server.damageItem(client, weaponItem, Math.ceil(accumulatedItemDamage / 4));
     client.character.lastMeleeHitTime = Date.now();
+    client.character.lastRepairTime = Date.now();
   }
 
   private fullyRepairFreeplaceEntities(
@@ -2641,9 +2658,8 @@ export class ConstructionManager {
 
   checkConstructionDamage(
     server: ZoneServer2016,
-    constructionCharId: string,
+    constructionObject: ConstructionEntity,
     damage: number,
-    dictionary: EntityDictionary<ConstructionEntity>,
     position: Float32Array,
     entityPosition: Float32Array,
     itemDefinitionId: number
@@ -2663,8 +2679,7 @@ export class ConstructionManager {
         break;
     }
 
-    const constructionObject = dictionary[constructionCharId],
-      distance = getDistance(entityPosition, position);
+    const distance = getDistance(entityPosition, position);
 
     constructionObject.damage(server, {
       entity: "",

@@ -40,6 +40,7 @@ function getSubEntityData(
 }
 
 export class CollectingEntity {
+  /** Id of the parent that the CollectingEntity sits on - used for deck foundations and ground tampers */
   parentObjectCharacterId: string;
   workingEffect: number = 0; // bee box
   dictionary: { [characterId: string]: BaseEntity };
@@ -50,7 +51,6 @@ export class CollectingEntity {
   wasUsed: boolean = false;
   isWorking: boolean = true; // some values below arent used, keeping them to avoid compile errors related to 2 different subclasses
   isSmelting: boolean = true;
-  smeltingTime: number = 40000;
   allowedFuel: number[] = [];
   filterId: number = 0;
   subType: string = "CollectingEntity"; // for saving identification
