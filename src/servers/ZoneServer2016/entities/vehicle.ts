@@ -11,7 +11,12 @@
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
 
-import { createPositionUpdate, eul2quat } from "../../../utils/utils";
+import {
+  createPositionUpdate,
+  eul2quat,
+  getDistance,
+  isPosInRadius
+} from "../../../utils/utils";
 import {
   Items,
   LoadoutIds,
@@ -37,6 +42,8 @@ import {
   LightweightToFullNpc,
   LightweightToFullVehicle
 } from "types/zone2016packets";
+import { BaseEntity } from "./baseentity";
+import { scheduler } from "timers/promises";
 
 function getActorModelId(vehicleId: VehicleIds) {
   switch (vehicleId) {
@@ -1286,12 +1293,29 @@ export class Vehicle2016 extends BaseLootableEntity {
     );
     const deleted = server.deleteEntity(this.characterId, server._vehicles);
     if (!disableExplosion) {
-      server.explosionDamage(this.state.position, this.characterId, 0);
+      server.explosionDamage(this);
     }
     //this.state.position[1] -= 0.4; // makes bags spawn under the map sometimes.
     // TODO: Have to revisit when the heightmap is implemented server side.
     // fix floating vehicle lootbags
     server.worldObjectManager.createLootbag(server, this);
     return deleted;
+  }
+
+  async OnExplosiveHit(server: ZoneServer2016, sourceEntity: BaseEntity) {
+    if (this.characterId == sourceEntity.characterId) return;
+    if (!isPosInRadius(5, this.state.position, sourceEntity.state.position))
+      return;
+
+    const distance = getDistance(
+      sourceEntity.state.position,
+      this.state.position
+    );
+    const damage = 250000 / distance;
+    await scheduler.wait(150);
+    this.damage(server, {
+      entity: sourceEntity.characterId,
+      damage: damage
+    });
   }
 }

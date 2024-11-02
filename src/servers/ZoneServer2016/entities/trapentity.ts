@@ -12,7 +12,12 @@
 // ======================================================================
 
 import { CubeBounds, DamageInfo, Point3D } from "types/zoneserver";
-import { getCubeBounds, getDistance, isInsideCube } from "../../../utils/utils";
+import {
+  getCubeBounds,
+  getDistance,
+  isInsideCube,
+  isPosInRadius
+} from "../../../utils/utils";
 import {
   Effects,
   Items,
@@ -23,6 +28,7 @@ import {
 } from "../models/enums";
 import { ZoneServer2016 } from "../zoneserver";
 import { BaseSimpleNpc } from "./basesimplenpc";
+import { BaseEntity } from "./baseentity";
 
 export class TrapEntity extends BaseSimpleNpc {
   /** Damage delay for the TrapEntity */
@@ -436,5 +442,11 @@ export class TrapEntity extends BaseSimpleNpc {
         4658
       );
     }
+  }
+
+  OnExplosiveHit(server: ZoneServer2016, sourceEntity: BaseEntity) {
+    if (!isPosInRadius(5, this.state.position, sourceEntity.state.position))
+      return;
+    this.destroy(server);
   }
 }

@@ -147,5 +147,13 @@ export abstract class BaseEntity {
     );
     return false;
   }
+
+  OnExplosiveHit(
+    server: ZoneServer2016,
+    sourceEntity: BaseEntity,
+    client?: ZoneClient2016
+  ) {
+    // default: do nothing
+  }
   /* eslint-enable @typescript-eslint/no-unused-vars */
 }

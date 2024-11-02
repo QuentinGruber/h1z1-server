@@ -18,6 +18,8 @@ import { ZoneServer2016 } from "../zoneserver";
 import { BaseLightweightCharacter } from "./baselightweightcharacter";
 import { ZoneClient2016 } from "../classes/zoneclient";
 import { CharacterPlayWorldCompositeEffect } from "types/zone2016packets";
+import { scheduler } from "node:timers/promises";
+import { BaseEntity } from "./baseentity";
 
 export class ExplosiveEntity extends BaseLightweightCharacter {
   /** Id of the item - See ServerItemDefinitions.json for more information */
@@ -100,12 +102,7 @@ export class ExplosiveEntity extends BaseLightweightCharacter {
     this.detonated = true;
     server.sendCompositeEffectToAllInRange(600, "", this.state.position, 1875);
     server.deleteEntity(this.characterId, server._explosives);
-    server.explosionDamage(
-      this.state.position,
-      this.characterId,
-      this.itemDefinitionId,
-      client
-    );
+    server.explosionDamage(this, client);
   }
 
   /** Used by landmines to arm their explosivenss */
@@ -157,6 +154,25 @@ export class ExplosiveEntity extends BaseLightweightCharacter {
     }
     if (this.triggerExplosionShots > 0) return;
     this.detonate(server, server.getClientByCharId(damageInfo.entity));
+  }
+
+  async OnExplosiveHit(
+    server: ZoneServer2016,
+    sourceEntity: BaseEntity,
+    client?: ZoneClient2016
+  ) {
+    if (this.characterId == sourceEntity.characterId) return;
+    if (getDistance(sourceEntity.state.position, this.state.position) >= 2)
+      return;
+
+    await scheduler.wait(200);
+    if (server._spawnedItems[this.characterId]) {
+      const itemObject = server._spawnedItems[this.characterId];
+      server.deleteEntity(this.characterId, server._spawnedItems);
+      delete server.worldObjectManager.spawnedLootObjects[itemObject.spawnerId];
+    }
+    if (this.detonated) return;
+    this.detonate(server, client);
   }
 
   destroy(server: ZoneServer2016): boolean {
