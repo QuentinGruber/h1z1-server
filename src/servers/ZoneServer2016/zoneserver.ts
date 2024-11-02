@@ -3041,7 +3041,7 @@ export class ZoneServer2016 extends EventEmitter {
     }
 
     // all other kevlar armors
-    damage *= 0.5; // was 0.8
+    damage *= 0.3; // was 0.8
     this.damageItem(
       character,
       character._loadout[LoadoutSlots.ARMOR],
@@ -3123,7 +3123,7 @@ export class ZoneServer2016 extends EventEmitter {
         return calculate_falloff(
           getDistance(sourcePos, targetPos),
           200,
-          1400, //1667,
+          1667, //1667,
           1,
           12
         );
