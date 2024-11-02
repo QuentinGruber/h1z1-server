@@ -3056,11 +3056,7 @@ export class ZoneServer2016 extends EventEmitter {
     // checking for plated or wooden armor, these don't have custom skins
     if (itemDef.DESCRIPTION_ID == 11151 || itemDef.DESCRIPTION_ID == 11153) {
       damage *= makeshiftDamageModifier;
-      this.damageItem(
-        character,
-        slot,
-        damage / (weaponDmgModifier / 2)
-      );
+      this.damageItem(character, slot, damage / (weaponDmgModifier / 2));
       return damage;
     }
 

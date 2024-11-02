@@ -1792,7 +1792,7 @@ export class Character2016 extends BaseFullCharacter {
       case "HEAD":
       case "GLASSES":
       case "NECK":
-        damage = damage *= headshotDmgMultiplier
+        damage = damage *= headshotDmgMultiplier;
         damage = server.applyHelmetDamageReduction(this, damage, 1);
         break;
       default:
