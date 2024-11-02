@@ -3061,10 +3061,10 @@ export class ZoneServer2016 extends EventEmitter {
     this.damageItem(
       character,
       slot,
-      damage / kevlarDamageDivider
+      damage / (kevlarDamageDivider / 2)
     );
 
-    return damage;
+    return damage / kevlarDamageDivider;
   }
 
   sendHitmarker(

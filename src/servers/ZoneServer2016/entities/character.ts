@@ -1759,10 +1759,19 @@ export class Character2016 extends BaseFullCharacter {
     let damage = damageInfo.damage,
       canStopBleed,
       armorDmgModifier;
-    armorDmgModifier =
-      weaponDefinitionId == WeaponDefinitionIds.WEAPON_SHOTGUN ? 10 : 4;
-    if (weaponDefinitionId == WeaponDefinitionIds.WEAPON_308)
-      armorDmgModifier = 2;
+
+    switch(weaponDefinitionId) {
+      case WeaponDefinitionIds.WEAPON_SHOTGUN:
+        armorDmgModifier = 10;
+        break;
+      case WeaponDefinitionIds.WEAPON_308:
+        armorDmgModifier = 1;
+        break;
+      default:
+        armorDmgModifier = 4;
+        break;
+    }
+
     switch (damageInfo.hitReport?.hitLocation) {
       case "HEAD":
       case "GLASSES":
