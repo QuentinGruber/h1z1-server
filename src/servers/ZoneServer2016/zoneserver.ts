@@ -3010,7 +3010,7 @@ export class ZoneServer2016 extends EventEmitter {
   applyHelmetDamageReduction(
     character: BaseFullCharacter,
     damage: number,
-    helmetDamageDivder = 1
+    weaponDmgModifier = 1
   ): number {
     // prevent helmet damage in godmode / temp godmode
     if (character instanceof Character && character.isGodMode()) {
@@ -3020,11 +3020,14 @@ export class ZoneServer2016 extends EventEmitter {
     if (!character.hasHelmet(this)) {
       return damage;
     }
-    damage *= 0.25;
+
+    const helmetDmgModifier = 0.25;
+
+    damage *= helmetDmgModifier;
     this.damageItem(
       character,
       character._loadout[LoadoutSlots.HEAD],
-      damage / helmetDamageDivder
+      damage / weaponDmgModifier
     );
     return damage;
   }
@@ -3034,9 +3037,6 @@ export class ZoneServer2016 extends EventEmitter {
     damage: number,
     weaponDmgModifier = 4
   ): number {
-    const makeshiftDamageModifier = 0.7, // was 0.9
-      kevlarDamageModifier = 0.5; // was 0.8
-
     // prevent armor damage in godmode / temp godmode
     if (character instanceof Character && character.isGodMode()) {
       return damage;
@@ -3049,12 +3049,16 @@ export class ZoneServer2016 extends EventEmitter {
       return damage;
     }
 
+    // these should be configurable
+    const makeshiftDamageModifier = 0.7, // was 0.9
+      kevlarDamageModifier = 0.5; // was 0.8
+
     // checking for plated or wooden armor, these don't have custom skins
     if (itemDef.DESCRIPTION_ID == 11151 || itemDef.DESCRIPTION_ID == 11153) {
       damage *= makeshiftDamageModifier;
       this.damageItem(
         character,
-        character._loadout[LoadoutSlots.ARMOR],
+        slot,
         damage / (weaponDmgModifier / 2)
       );
       return damage;

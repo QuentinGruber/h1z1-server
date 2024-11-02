@@ -1766,21 +1766,24 @@ export class Character2016 extends BaseFullCharacter {
       headshotDmgMultiplier;
 
     // these should be configurable
-    const headshotDmgMultiplierDefault = 4,
-      headshotDmgMultiplierShotgun = 2,
-      headshotDmgMultiplierSniper = 2;
+    const weaponDmgModifierDefault = 4,
+      weaponDmgModifierShotgun = 10,
+      weaponDmgModifierSniper = 1,
+      headshotDmgMultiplierDefault = 4,
+      headshotDmgMultiplierShotgun = 1,
+      headshotDmgMultiplierSniper = 6;
 
     switch (weaponDefinitionId) {
       case WeaponDefinitionIds.WEAPON_SHOTGUN:
-        weaponDmgModifier = 10;
+        weaponDmgModifier = weaponDmgModifierShotgun;
         headshotDmgMultiplier = headshotDmgMultiplierShotgun;
         break;
       case WeaponDefinitionIds.WEAPON_308:
-        weaponDmgModifier = 1;
+        weaponDmgModifier = weaponDmgModifierSniper;
         headshotDmgMultiplier = headshotDmgMultiplierSniper;
         break;
       default:
-        weaponDmgModifier = 4;
+        weaponDmgModifier = weaponDmgModifierDefault;
         headshotDmgMultiplier = headshotDmgMultiplierDefault;
         break;
     }
@@ -1789,7 +1792,7 @@ export class Character2016 extends BaseFullCharacter {
       case "HEAD":
       case "GLASSES":
       case "NECK":
-        damage = damage *= headshotDmgMultiplier;
+        damage = damage *= headshotDmgMultiplier
         damage = server.applyHelmetDamageReduction(this, damage, 1);
         break;
       default:
