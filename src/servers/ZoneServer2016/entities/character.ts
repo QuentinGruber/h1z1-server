@@ -1648,7 +1648,18 @@ export class Character2016 extends BaseFullCharacter {
   }
 
   OnProjectileHit(server: ZoneServer2016, damageInfo: DamageInfo) {
-    if (!this.isAlive) return;
+    if (!this.isAlive || server.isPvE) return;
+
+    if(server.isHeadshotOnly) {
+      switch (damageInfo.hitReport?.hitLocation) {
+        case "HEAD":
+        case "GLASSES":
+        case "NECK":
+          break;
+        default:
+          return;
+      }
+    }
 
     const itemDefinition = server.getItemDefinition(damageInfo.weapon);
     if (!itemDefinition) return;
@@ -1666,10 +1677,6 @@ export class Character2016 extends BaseFullCharacter {
       true,
       damageInfo.hitReport?.hitLocation || ""
     );
-
-    if (server.isHeadshotOnly && damageInfo.hitReport?.hitLocation != "HEAD")
-      return;
-    if (server.isPvE) return;
 
     const hasHelmetBefore = this.hasHelmet(server);
     const hasArmorBefore = this.hasArmor(server);
