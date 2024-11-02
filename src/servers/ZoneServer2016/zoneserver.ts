@@ -3018,13 +3018,11 @@ export class ZoneServer2016 extends EventEmitter {
     kevlarDamageDivider = 4
   ): number {
     // TODO: REDO THIS
+
+    // hasArmor is not used since itemDef is needed later in this function
     const slot = character._loadout[LoadoutSlots.ARMOR],
       itemDef = this.getItemDefinition(slot?.itemDefinitionId);
     if (!slot || !slot.itemDefinitionId || !itemDef) {
-      return damage;
-    }
-
-    if(!this.isArmor(slot.itemDefinitionId)) {
       return damage;
     }
 
