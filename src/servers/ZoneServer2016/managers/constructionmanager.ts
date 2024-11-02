@@ -2499,7 +2499,11 @@ export class ConstructionManager {
       this.repairConstruction(server, entity, entity.maxHealth / 10);
       accumulatedItemDamage += 15;
     }
-    server.damageItem(client.character, weaponItem, Math.ceil(accumulatedItemDamage / 4));
+    server.damageItem(
+      client.character,
+      weaponItem,
+      Math.ceil(accumulatedItemDamage / 4)
+    );
     client.character.lastMeleeHitTime = Date.now();
     client.character.lastRepairTime = Date.now();
   }

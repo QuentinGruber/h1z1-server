@@ -2878,12 +2878,16 @@ export class ZoneServer2016 extends EventEmitter {
     }
   }
 
-  damageItem(character: BaseFullCharacter, item: LoadoutItem | BaseItem, damage: number) {
+  damageItem(
+    character: BaseFullCharacter,
+    item: LoadoutItem | BaseItem,
+    damage: number
+  ) {
     if (item.itemDefinitionId == Items.WEAPON_FISTS) return;
 
     // break armor if it goes below 100 health, this helps in shotgun fights
     // so 1 pump fully breaks an armor if most pellets are hit
-    if(
+    if (
       this.isArmor(item.itemDefinitionId) &&
       item.currentDurability - damage <= 100
     ) {
@@ -2903,7 +2907,7 @@ export class ZoneServer2016 extends EventEmitter {
     }
 
     const client = this.getClientByCharId(character.characterId);
-    if(client) this.updateItem(client, item);
+    if (client) this.updateItem(client, item);
   }
 
   getClientByCharId(characterId: string) {
@@ -3009,10 +3013,10 @@ export class ZoneServer2016 extends EventEmitter {
     helmetDamageDivder = 1
   ): number {
     // prevent helmet damage in godmode / temp godmode
-    if(character instanceof Character && character.isGodMode()) {
+    if (character instanceof Character && character.isGodMode()) {
       return damage;
     }
-    
+
     if (!character.hasHelmet(this)) {
       return damage;
     }
@@ -3028,10 +3032,13 @@ export class ZoneServer2016 extends EventEmitter {
   applyArmorDamageReduction(
     character: BaseFullCharacter,
     damage: number,
-    kevlarDamageDivider = 4
+    weaponDmgModifier = 4
   ): number {
+    const makeshiftDamageModifier = 0.7, // was 0.9
+      kevlarDamageModifier = 0.5; // was 0.8
+
     // prevent armor damage in godmode / temp godmode
-    if(character instanceof Character && character.isGodMode()) {
+    if (character instanceof Character && character.isGodMode()) {
       return damage;
     }
 
@@ -3043,28 +3050,21 @@ export class ZoneServer2016 extends EventEmitter {
     }
 
     // checking for plated or wooden armor, these don't have custom skins
-    if (
-      itemDef.DESCRIPTION_ID == 11151 ||
-      itemDef.DESCRIPTION_ID == 11153
-    ) {
-      damage *= 0.7; // was 0.9
+    if (itemDef.DESCRIPTION_ID == 11151 || itemDef.DESCRIPTION_ID == 11153) {
+      damage *= makeshiftDamageModifier;
       this.damageItem(
         character,
         character._loadout[LoadoutSlots.ARMOR],
-        damage / kevlarDamageDivider
+        damage / (weaponDmgModifier / 2)
       );
       return damage;
     }
 
     // all other kevlar armors
-    damage *= 0.5; // was 0.8
-    this.damageItem(
-      character,
-      slot,
-      damage / (kevlarDamageDivider / 2)
-    );
+    damage *= kevlarDamageModifier;
+    this.damageItem(character, slot, damage / (weaponDmgModifier / 2));
 
-    return damage / kevlarDamageDivider;
+    return damage / weaponDmgModifier;
   }
 
   sendHitmarker(
@@ -6153,8 +6153,7 @@ export class ZoneServer2016 extends EventEmitter {
     const loadoutSlotId = 0; //this.getActiveLoadoutSlot(client, itemDefinitionId);
     // loadout disabled for now
     if (
-      character._loadout[loadoutSlotId]?.itemDefinitionId ==
-      itemDefinitionId
+      character._loadout[loadoutSlotId]?.itemDefinitionId == itemDefinitionId
     ) {
       // todo: check multiple loadout slots for items
       return this.removeLoadoutItem(character, loadoutSlotId);
@@ -7755,7 +7754,13 @@ export class ZoneServer2016 extends EventEmitter {
           reloadAmount =
             reserveAmmo >= maxReloadAmount ? maxReloadAmount : reserveAmmo; // actual amount able to reload
 
-        if (!this.removeInventoryItems(client.character, weaponAmmoId, reloadAmount)) {
+        if (
+          !this.removeInventoryItems(
+            client.character,
+            weaponAmmoId,
+            reloadAmount
+          )
+        ) {
           return;
         }
         this.sendWeaponReload(
@@ -7828,7 +7833,9 @@ export class ZoneServer2016 extends EventEmitter {
         reloadAmount =
           reserveAmmo >= maxReloadAmount ? maxReloadAmount : reserveAmmo; // actual amount able to reload
 
-      if (!this.removeInventoryItems(client.character, weaponAmmoId, reloadAmount)) {
+      if (
+        !this.removeInventoryItems(client.character, weaponAmmoId, reloadAmount)
+      ) {
         return;
       }
       this.sendWeaponReload(

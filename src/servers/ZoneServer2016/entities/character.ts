@@ -1647,7 +1647,11 @@ export class Character2016 extends BaseFullCharacter {
     }
   }
 
-  applySpecialWeaponEffect(server: ZoneServer2016, client: ZoneClient2016, weaponDefinitionId: WeaponDefinitionIds) {
+  applySpecialWeaponEffect(
+    server: ZoneServer2016,
+    client: ZoneClient2016,
+    weaponDefinitionId: WeaponDefinitionIds
+  ) {
     /* eslint-disable @typescript-eslint/no-unused-vars */
     switch (weaponDefinitionId) {
       case WeaponDefinitionIds.WEAPON_BLAZE:
@@ -1725,7 +1729,7 @@ export class Character2016 extends BaseFullCharacter {
   OnProjectileHit(server: ZoneServer2016, damageInfo: DamageInfo) {
     if (!this.isAlive || server.isPvE) return;
 
-    if(server.isHeadshotOnly) {
+    if (server.isHeadshotOnly) {
       switch (damageInfo.hitReport?.hitLocation) {
         case "HEAD":
         case "GLASSES":
@@ -1758,17 +1762,26 @@ export class Character2016 extends BaseFullCharacter {
 
     let damage = damageInfo.damage,
       canStopBleed,
-      armorDmgModifier;
+      weaponDmgModifier,
+      headshotDmgMultiplier;
 
-    switch(weaponDefinitionId) {
+    // these should be configurable
+    const headshotDmgMultiplierDefault = 4,
+      headshotDmgMultiplierShotgun = 2,
+      headshotDmgMultiplierSniper = 2;
+
+    switch (weaponDefinitionId) {
       case WeaponDefinitionIds.WEAPON_SHOTGUN:
-        armorDmgModifier = 10;
+        weaponDmgModifier = 10;
+        headshotDmgMultiplier = headshotDmgMultiplierShotgun;
         break;
       case WeaponDefinitionIds.WEAPON_308:
-        armorDmgModifier = 1;
+        weaponDmgModifier = 1;
+        headshotDmgMultiplier = headshotDmgMultiplierSniper;
         break;
       default:
-        armorDmgModifier = 4;
+        weaponDmgModifier = 4;
+        headshotDmgMultiplier = headshotDmgMultiplierDefault;
         break;
     }
 
@@ -1776,18 +1789,15 @@ export class Character2016 extends BaseFullCharacter {
       case "HEAD":
       case "GLASSES":
       case "NECK":
-        damage =
-          weaponDefinitionId == WeaponDefinitionIds.WEAPON_SHOTGUN
-            ? (damage *= 2)
-            : (damage *= 4);
-        damage =
-          weaponDefinitionId == WeaponDefinitionIds.WEAPON_308
-            ? (damage *= 2)
-            : damage;
+        damage = damage *= headshotDmgMultiplier;
         damage = server.applyHelmetDamageReduction(this, damage, 1);
         break;
       default:
-        damage = server.applyArmorDamageReduction(this, damage, armorDmgModifier);
+        damage = server.applyArmorDamageReduction(
+          this,
+          damage,
+          weaponDmgModifier
+        );
         canStopBleed = true;
         break;
     }
