@@ -3023,14 +3023,13 @@ export class ZoneServer2016 extends EventEmitter {
     if (!slot || !slot.itemDefinitionId || !itemDef) {
       return damage;
     }
-    if (itemDef.DESCRIPTION_ID == 12073) {
-      damage *= 0.5; // was 0.8
-      this.damageItem(
-        character,
-        character._loadout[LoadoutSlots.ARMOR],
-        damage / kevlarDamageDivider
-      );
-    } else if (
+
+    if(!this.isArmor(slot.itemDefinitionId)) {
+      return damage;
+    }
+
+    // checking for plated or wooden armor, these don't have custom skins
+    if (
       itemDef.DESCRIPTION_ID == 11151 ||
       itemDef.DESCRIPTION_ID == 11153
     ) {
@@ -3040,7 +3039,17 @@ export class ZoneServer2016 extends EventEmitter {
         character._loadout[LoadoutSlots.ARMOR],
         damage / kevlarDamageDivider
       );
+      return damage;
     }
+
+    // all other kevlar armors
+    damage *= 0.5; // was 0.8
+    this.damageItem(
+      character,
+      character._loadout[LoadoutSlots.ARMOR],
+      damage / kevlarDamageDivider
+    );
+
     return damage;
   }
 
