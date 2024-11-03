@@ -5941,6 +5941,7 @@ export class ZoneServer2016 extends EventEmitter {
   }
 
   lootCrateWithChance(client: Client, dropChance: number) {
+    // dropChance ranges 0-1000
     if (chance(dropChance)) {
       const rewards = this.rewardManager.rewards;
       const randomIndex = randomIntFromInterval(0, rewards.length - 1);
