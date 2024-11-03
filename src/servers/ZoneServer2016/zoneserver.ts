@@ -5939,6 +5939,17 @@ export class ZoneServer2016 extends EventEmitter {
       count: item.stackCount
     });
   }
+
+  lootCrateWithChance(client: Client, dropChance: number) {
+    if (chance(dropChance)) {
+      const rewards = this.rewardManager.rewards;
+      const randomIndex = randomIntFromInterval(0, rewards.length - 1);
+      const randomCrateId = rewards[randomIndex].itemId;
+      const randomCrate = this.generateItem(randomCrateId, 1, true);
+      if (!randomCrate) return;
+      this.lootAccountItem(this, client, randomCrate, true);
+    }
+  }
   /**
    * Removes an item from the account inventory.
    *
@@ -6791,16 +6802,7 @@ export class ZoneServer2016 extends EventEmitter {
         client.character.lootContainerItem(this, item);
       }
     );
-
-    // crate drop logic
-    if (chance(10)) {
-      const rewards = this.rewardManager.rewards;
-      const randomIndex = randomIntFromInterval(0, rewards.length - 1);
-      const randomCrateId = rewards[randomIndex].itemId;
-      const randomCrate = this.generateItem(randomCrateId, 1, true);
-      if (!randomCrate) return;
-      this.lootAccountItem(this, client, randomCrate, true);
-    }
+    this.lootCrateWithChance(client, 25);
   }
 
   igniteOption(client: Client, item: BaseItem) {
