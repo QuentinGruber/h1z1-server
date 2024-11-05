@@ -1050,13 +1050,22 @@ export class WorldObjectManager {
           setTimeout(() => {
             // give the player 5 minutes to loot before clearing out the treasure chest. also check
             // if no players are currently accessing the chest
-            if ((Date.now() - rewardChest.lastLootTime[rewardChest.spawnerId] >= 300_000) &&
-                  !rewardChest.mountedCharacter) {
+            if (
+              Date.now() - rewardChest.lastLootTime[rewardChest.spawnerId] >=
+                300_000 &&
+              !rewardChest.mountedCharacter
+            ) {
               const container = rewardChest.getContainer();
               for (const a in container!.items) {
                 const item = container!.items[a];
-                if (item.itemDefinitionId === rewardChest.requiredItemId) continue; // skip worn letters
-                server.removeContainerItem(rewardChest, item, container, item.stackCount);
+                if (item.itemDefinitionId === rewardChest.requiredItemId)
+                  continue; // skip worn letters
+                server.removeContainerItem(
+                  rewardChest,
+                  item,
+                  container,
+                  item.stackCount
+                );
               }
               delete rewardChest.lastLootTime[rewardChest.spawnerId];
             }
