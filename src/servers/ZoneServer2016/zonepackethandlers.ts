@@ -355,7 +355,6 @@ export class ZonePacketHandlers {
     server.sendData(client, "UpdateWeatherData", server.weatherManager.weather);
     server.constructionManager.sendConstructionData(server, client);
     if (packet.data.characterReleased) {
-      client.characterReleased = true;
       if (client.firstCharacterReleased) {
         client.firstCharacterReleased = false;
         // it's just for performance testing
@@ -1487,6 +1486,7 @@ export class ZonePacketHandlers {
     }
     // Handle position flag (0x02)
     if (flags & 2) {
+      if (!client.characterReleased) client.characterReleased = true;
       // if (client.movementSet.size < ZoneClient2016.minMovementForAfk) {
       //   const movementId = Math.round(position[0]) + Math.round(position[2]);
       //   client.movementSet.add(movementId);
