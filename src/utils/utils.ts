@@ -1021,6 +1021,12 @@ export const initMongo = async function (
     .db(dbName)
     .collection(DB_COLLECTIONS.SERVERS)
     .insertMany(servers);
+  await mongoClient.db(dbName).createCollection(DB_COLLECTIONS.ADMINS);
+  const admins = require("../../data/defaultDatabase/shared/admins.json");
+  await mongoClient
+    .db(dbName)
+    .collection(DB_COLLECTIONS.ADMINS)
+    .insertMany(admins);
   debug("h1server database was missing... created one with samples.");
 };
 
