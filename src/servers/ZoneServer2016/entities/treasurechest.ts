@@ -11,7 +11,6 @@
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
 
-import { scheduler } from "timers/promises";
 import { Items } from "../models/enums";
 import { ZoneServer2016 } from "../zoneserver";
 import { LootableProp } from "./lootableprop";
