@@ -410,7 +410,7 @@ export class TrapEntity extends BaseSimpleNpc {
 
     const damage = damageInfo.damage * 3;
     this.damage(server, { ...damageInfo, damage });
-    server.damageItem(client, weapon, 50);
+    server.damageItem(client.character, weapon, 50);
   }
 
   damage(server: ZoneServer2016, damageInfo: DamageInfo) {

@@ -1,6 +1,6 @@
 /* prettier-ignore */ 
 export interface ClientFinishedLoading {
-  unknownBoolean1?: boolean;
+  characterReleased?: boolean;
 }
 export interface SendSelfToClient {
   data :{
