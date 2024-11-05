@@ -11,6 +11,7 @@
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
 
+import { scheduler } from "timers/promises";
 import { Items } from "../models/enums";
 import { ZoneServer2016 } from "../zoneserver";
 import { LootableProp } from "./lootableprop";
@@ -24,6 +25,9 @@ export class TreasureChest extends LootableProp {
 
   /** Id of the chest container to spawn the items at */
   spawnerId: number;
+
+  /** Timestamp of the last loot time */
+  lastLootTime: { [chestId: number]: number } = {};
 
   constructor(
     characterId: string,
@@ -127,5 +131,6 @@ export class TreasureChest extends LootableProp {
         this.lootContainerItem(server, item, itemInstance.count, false);
       }
     );
+    this.lastLootTime[this.spawnerId] = Date.now();
   }
 }
