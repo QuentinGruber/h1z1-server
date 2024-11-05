@@ -284,6 +284,7 @@ export class LootableProp extends BaseLootableEntity {
         () => {
           super.OnPlayerSelect(server, client);
           client.searchedProps.push(this);
+          server.lootCrateWithChance(client, 5);
         }
       );
     } else {
