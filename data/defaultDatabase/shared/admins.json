@@ -1,0 +1,9 @@
+[
+  {
+    "name": "Your name",
+    "permissionLevel": 2,
+    "commentOnLevel": "1=moderator,2=admin,3=dev",
+    "sessionId": "Your sessionId that you get using /me in game"
+  }
+]
+
