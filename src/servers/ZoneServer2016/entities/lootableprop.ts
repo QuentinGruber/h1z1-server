@@ -347,6 +347,6 @@ export class LootableProp extends BaseLootableEntity {
       client.character.lootItem(server, server.generateItem(Items.METAL_SCRAP));
     }
 
-    server.damageItem(client, weapon, server.crowbarHitDamage);
+    server.damageItem(client.character, weapon, server.crowbarHitDamage);
   }
 }
