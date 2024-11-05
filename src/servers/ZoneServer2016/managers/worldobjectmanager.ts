@@ -907,6 +907,7 @@ export class WorldObjectManager {
             await scheduler.wait(30);
           }
           counter++;
+          if (!server._npcs[a]) continue;
           if (
             isPosInRadius(
               this.npcSpawnRadius,
