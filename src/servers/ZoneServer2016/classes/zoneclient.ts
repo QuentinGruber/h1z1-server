@@ -26,9 +26,10 @@ export class ZoneClient2016 {
   guid?: string;
   character: Character2016;
   currentPOI?: number;
-  firstLoading: boolean = false;
+  firstLoading: boolean = true;
   isLoading: boolean = true;
   characterReleased: boolean = false;
+  firstCharacterReleased: boolean = true;
   isSynced: boolean = false;
   isInteracting: boolean = false;
   isAdmin: boolean = false;
@@ -121,8 +122,6 @@ export class ZoneClient2016 {
     this.sessionId = sessionId;
     this.soeClientId = soeClientId;
 
-    this.isLoading = true;
-    this.firstLoading = true;
     this.loginSessionId = loginSessionId;
     this.spawnedEntities = new Set();
     this.managedObjects = [];
