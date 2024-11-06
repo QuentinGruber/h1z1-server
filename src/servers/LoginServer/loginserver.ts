@@ -96,6 +96,9 @@ export class LoginServer extends EventEmitter {
   private clients: Map<string, LoginClient>;
   private _resolver = new Resolver();
   private _mongoClient?: MongoClient;
+  _httpsServerPort: number | null = null;
+  _sslKey: Buffer | null = null;
+  _sslCert: Buffer | null = null;
   constructor(serverPort: number, mongoAddress = "") {
     super();
     this._crcLength = 2;
@@ -1305,7 +1308,10 @@ export class LoginServer extends EventEmitter {
       this._httpServer = new Worker(`${__dirname}/workers/httpServer.js`, {
         workerData: {
           MONGO_URL: this._mongoAddress,
-          SERVER_PORT: this._httpServerPort
+          SERVER_PORT: this._httpServerPort,
+          HTTPS_PORT: this._httpsServerPort,
+          SSL_KEY: this._sslKey,
+          SSL_CERT: this._sslCert
         }
       });
       this._httpServer.on("message", (message: httpServerMessage) => {

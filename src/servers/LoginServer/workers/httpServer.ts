@@ -15,6 +15,7 @@ import { MongoClient } from "mongodb";
 import { httpServerMessage } from "types/shared";
 import { parentPort, workerData } from "node:worker_threads";
 import http from "node:http";
+import https from "node:https";
 import { DB_COLLECTIONS } from "../../../utils/enums";
 import { DB_NAME } from "../../../utils/constants";
 function sendMessageToServer(type: string, requestId: number, data: any) {
@@ -26,7 +27,11 @@ function sendMessageToServer(type: string, requestId: number, data: any) {
   parentPort?.postMessage(message);
 }
 
-const { MONGO_URL, SERVER_PORT } = workerData;
+const { MONGO_URL, SERVER_PORT, HTTPS_PORT, SSL_KEY, SSL_CERT } = workerData;
+const sslOptions = {
+  key: SSL_KEY,
+  cert: SSL_CERT
+};
 
 const client = new MongoClient(MONGO_URL, {
   maxPoolSize: 5
@@ -46,19 +51,10 @@ function parseQueryString(queryString: string) {
   });
   return queryObject;
 }
-const agent = new http.Agent({
-  keepAlive: true,
-  maxSockets: 45
-});
-http.request({
-  agent: agent,
-  method: "GET",
-  hostname: "localhost",
-  port: SERVER_PORT
-});
-const httpServer = http.createServer().listen(SERVER_PORT);
-console.log(`Http server listening on ${SERVER_PORT}`);
-httpServer.on("request", async function (req, res) {
+async function handleRequest(
+  req: http.IncomingMessage,
+  res: http.ServerResponse
+) {
   res.setHeader("Access-Control-Allow-Origin", "*"); // Allow all origins
   res.setHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS"); // Allow specified methods
   res.setHeader("Access-Control-Allow-Headers", "Content-Type"); // Allow specified headers
@@ -125,11 +121,42 @@ httpServer.on("request", async function (req, res) {
       res.end();
       break;
   }
+}
+const agent = new http.Agent({
+  keepAlive: true,
+  maxSockets: 45
 });
+http.request({
+  agent: agent,
+  method: "GET",
+  hostname: "localhost",
+  port: SERVER_PORT
+});
+const httpServer = http.createServer().listen(SERVER_PORT);
+console.log(`Http server listening on ${SERVER_PORT}`);
+httpServer.on("request", handleRequest);
 httpServer.on("error", (error) => {
   console.error(error);
 });
 
+if (HTTPS_PORT) {
+  const httpsAgent = new https.Agent({
+    keepAlive: true,
+    maxSockets: 45
+  });
+  https.request({
+    agent: httpsAgent,
+    method: "GET",
+    hostname: "localhost",
+    port: HTTPS_PORT
+  });
+  const httpsServer = https.createServer(sslOptions).listen(HTTPS_PORT);
+  console.log(`Https server listening on ${HTTPS_PORT}`);
+  httpsServer.on("request", handleRequest);
+  httpsServer.on("error", (error) => {
+    console.error(error);
+  });
+}
 parentPort?.on(`message`, (message: httpServerMessage) => {
   const { type, requestId, data } = message;
   switch (type) {
