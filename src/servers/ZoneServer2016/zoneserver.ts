@@ -102,7 +102,8 @@ import {
   getCurrentServerTimeWrapper,
   flhash,
   getDateString,
-  loadJson
+  loadJson,
+  chance
 } from "../../utils/utils";
 
 import { Db, MongoClient, WithId } from "mongodb";
@@ -248,7 +249,7 @@ import { PlayTimeManager } from "./managers/playtimemanager";
 import { RewardManager } from "./managers/rewardmanager";
 import { DynamicAppearance } from "types/zonedata";
 import { AiManager } from "h1emu-ai";
-import { setInterval } from "node:timers";
+import { clearInterval, setInterval } from "node:timers";
 import { NavManager } from "../../utils/recast";
 
 const spawnLocations2 = require("../../../data/2016/zoneData/Z1_gridSpawns.json"),
@@ -2196,10 +2197,14 @@ export class ZoneServer2016 extends EventEmitter {
     this.tickRate = 3000 / size;
   }
 
-  deleteClient(client: Client) {
+  async deleteClient(client: Client) {
     if (!client) {
       this.setTickRate();
       return;
+    }
+
+    if (client.afkTimer) {
+      clearInterval(client.afkTimer);
     }
 
     if (client.character) {
@@ -2215,10 +2220,14 @@ export class ZoneServer2016 extends EventEmitter {
           this._worldId
         );
         if (this.enableWorldSaves) {
-          this.worldDataManager.saveCharacterData(
-            characterSave,
-            this.lastItemGuid
-          );
+          if (this._soloMode) {
+            await this.saveWorld();
+          } else {
+            await this.worldDataManager.saveCharacterData(
+              characterSave,
+              this.lastItemGuid
+            );
+          }
         }
       } catch (e) {
         console.error("Failed to save a character");
@@ -2483,7 +2492,7 @@ export class ZoneServer2016 extends EventEmitter {
             );
           }
           slot.weapon.ammoCount = 0;
-          this.damageItem(client, slot, 350);
+          this.damageItem(client.character, slot, 350);
         }
       });
       this.worldObjectManager.createLootbag(this, character);
@@ -2512,242 +2521,37 @@ export class ZoneServer2016 extends EventEmitter {
     }
   }
 
-  async explosionDamage(
-    position: Float32Array,
-    npcTriggered: string,
-    itemDefinitionId: number,
-    client?: Client
-  ) {
-    // TODO: REDO THIS WITH AN OnExplosiveDamage method per class
+  async explosionDamage(sourceEntity: BaseEntity, client?: Client) {
+    const position = sourceEntity.state.position;
 
-    // TODO: REDO THIS WITH GRID CHUNK SYSTEM
+    if (!sourceEntity) return;
 
-    const sourceEntity = this.getEntity(npcTriggered),
-      sourceIsVehicle = sourceEntity instanceof Vehicle2016;
+    // render distance is max client.chunkRenderDistance, could probably be lowered a lot
+    // - meme
+    for (const gridCell of this._grid) {
+      if (!isPosInRadius(400, gridCell.position, position)) {
+        continue;
+      }
+      for (const object of gridCell.objects) {
+        // explosives still chain explode on PvE
+        if (!(object instanceof ExplosiveEntity) && this.isPvE) continue;
 
-    // explode nearby explosives first
-    for (const explosive in this._explosives) {
-      const explosiveObj = this._explosives[explosive];
-      if (explosiveObj.characterId != npcTriggered) {
-        if (getDistance(position, explosiveObj.state.position) < 2) {
-          await scheduler.wait(150);
-          if (this._spawnedItems[explosiveObj.characterId]) {
-            const object = this._spawnedItems[explosiveObj.characterId];
-            this.deleteEntity(explosiveObj.characterId, this._spawnedItems);
-            delete this.worldObjectManager.spawnedLootObjects[object.spawnerId];
-          }
-          if (!explosiveObj.detonated) {
-            explosiveObj.detonate(this, client);
-            break;
-          }
-        }
+        // await is for ExplosiveEntity, ignore error
+        await object.OnExplosiveHit(this, sourceEntity, client);
       }
     }
 
-    if (!this.isPvE) {
-      for (const characterId in this._characters) {
-        const character = this._characters[characterId];
-        if (
-          isPosInRadiusWithY(
-            sourceIsVehicle ? 5 : 3,
-            character.state.position,
-            position,
-            1.5
-          )
-        ) {
-          const distance = getDistance(position, character.state.position);
-          const damage = 50000 / distance;
-          character.damage(this, {
-            entity: npcTriggered,
-            damage: damage
-          });
-        }
-      }
-      for (const vehicleKey in this._vehicles) {
-        const vehicle = this._vehicles[vehicleKey];
-        if (vehicle.characterId != npcTriggered) {
-          if (isPosInRadius(5, vehicle.state.position, position)) {
-            const distance = getDistance(position, vehicle.state.position);
-            const damage = 250000 / distance;
-            await scheduler.wait(150);
-            vehicle.damage(this, { entity: npcTriggered, damage: damage });
-          }
-        }
-      }
+    if (this.isPvE) return;
 
-      for (const trapKey in this._traps) {
-        const trap = this._traps[trapKey];
-        if (!trap) continue;
-        if (isPosInRadius(5, trap.state.position, position)) {
-          trap.destroy(this);
-        }
-      }
+    // these entities do not use the grid system
 
-      for (const construction in this._constructionSimple) {
-        const constructionObject = this._constructionSimple[construction];
-        if (
-          constructionObject.itemDefinitionId == Items.FOUNDATION_RAMP ||
-          constructionObject.itemDefinitionId == Items.FOUNDATION_STAIRS
-        )
-          continue;
-        if (
-          isPosInRadius(
-            constructionObject.damageRange * 1.5,
-            constructionObject.fixedPosition
-              ? constructionObject.fixedPosition
-              : constructionObject.state.position,
-            position
-          )
-        ) {
-          if (
-            this.constructionManager.isConstructionInSecuredArea(
-              this,
-              constructionObject
-            )
-          ) {
-            if (client) {
-              this.constructionManager.sendBaseSecuredMessage(this, client);
-            }
-          } else {
-            this.constructionManager.checkConstructionDamage(
-              this,
-              constructionObject.characterId,
-              this.baseConstructionDamage,
-              this._constructionSimple,
-              position,
-              constructionObject.fixedPosition
-                ? constructionObject.fixedPosition
-                : constructionObject.state.position,
-              itemDefinitionId
-            );
-          }
-        }
-      }
-
-      for (const construction in this._constructionDoors) {
-        const constructionObject = this._constructionDoors[
-          construction
-        ] as ConstructionDoor;
-        if (
-          isPosInRadius(
-            constructionObject.damageRange,
-            constructionObject.fixedPosition
-              ? constructionObject.fixedPosition
-              : constructionObject.state.position,
-            position
-          )
-        ) {
-          if (
-            this.constructionManager.isConstructionInSecuredArea(
-              this,
-              constructionObject
-            )
-          ) {
-            if (client) {
-              this.constructionManager.sendBaseSecuredMessage(this, client);
-            }
-          } else {
-            this.constructionManager.checkConstructionDamage(
-              this,
-              constructionObject.characterId,
-              this.baseConstructionDamage,
-              this._constructionDoors,
-              position,
-              constructionObject.fixedPosition
-                ? constructionObject.fixedPosition
-                : constructionObject.state.position,
-              itemDefinitionId
-            );
-          }
-        }
-      }
-
-      for (const construction in this._constructionFoundations) {
-        const constructionObject = this._constructionFoundations[
-          construction
-        ] as ConstructionParentEntity;
-        if (
-          isPosInRadius(
-            constructionObject.damageRange * 1.5,
-            constructionObject.state.position,
-            position
-          )
-        ) {
-          switch (constructionObject.itemDefinitionId) {
-            case Items.SHACK:
-            case Items.SHACK_SMALL:
-            case Items.SHACK_BASIC:
-              this.constructionManager.checkConstructionDamage(
-                this,
-                constructionObject.characterId,
-                this.baseConstructionDamage,
-                this._constructionFoundations,
-                position,
-                constructionObject.state.position,
-                itemDefinitionId
-              );
-              break;
-          }
-        }
-      }
-
-      for (const construction in this._lootableConstruction) {
-        const constructionObject = this._lootableConstruction[
-          construction
-        ] as LootableConstructionEntity;
-        if (isPosInRadius(2, constructionObject.state.position, position)) {
-          const parent = constructionObject.getParent(this);
-          if (parent && parent.isSecured) {
-            if (client) {
-              this.constructionManager.sendBaseSecuredMessage(this, client);
-            }
-            continue;
-          }
-          this.constructionManager.checkConstructionDamage(
-            this,
-            constructionObject.characterId,
-            this.baseConstructionDamage,
-            this._lootableConstruction,
-            position,
-            constructionObject.state.position,
-            itemDefinitionId
-          );
-        }
-      }
-
-      for (const construction in this._worldLootableConstruction) {
-        const constructionObject = this._worldLootableConstruction[
-          construction
-        ] as LootableConstructionEntity;
-        if (isPosInRadius(2, constructionObject.state.position, position)) {
-          this.constructionManager.checkConstructionDamage(
-            this,
-            constructionObject.characterId,
-            this.baseConstructionDamage,
-            this._worldLootableConstruction,
-            position,
-            constructionObject.state.position,
-            itemDefinitionId
-          );
-        }
-      }
-
-      for (const construction in this._worldSimpleConstruction) {
-        const constructionObject = this._worldSimpleConstruction[
-          construction
-        ] as ConstructionChildEntity;
-        if (isPosInRadius(4, constructionObject.state.position, position)) {
-          this.constructionManager.checkConstructionDamage(
-            this,
-            constructionObject.characterId,
-            this.baseConstructionDamage,
-            this._worldSimpleConstruction,
-            position,
-            constructionObject.state.position,
-            itemDefinitionId
-          );
-        }
-      }
+    for (const characterId in this._characters) {
+      const character = this._characters[characterId];
+      character.OnExplosiveHit(this, sourceEntity);
+    }
+    for (const vehicleKey in this._vehicles) {
+      const vehicle = this._vehicles[vehicleKey];
+      await vehicle.OnExplosiveHit(this, sourceEntity);
     }
   }
   createProjectileNpc(client: Client, data: any) {
@@ -3074,27 +2878,36 @@ export class ZoneServer2016 extends EventEmitter {
     }
   }
 
-  damageItem(client: Client, item: LoadoutItem | BaseItem, damage: number) {
+  damageItem(
+    character: BaseFullCharacter,
+    item: LoadoutItem | BaseItem,
+    damage: number
+  ) {
     if (item.itemDefinitionId == Items.WEAPON_FISTS) return;
+
+    // break armor if it goes below 100 health, this helps in shotgun fights
+    // so 1 pump fully breaks an armor if most pellets are hit
+    if (
+      this.isArmor(item.itemDefinitionId) &&
+      item.currentDurability - damage <= 100
+    ) {
+      damage = item.currentDurability;
+    }
 
     item.currentDurability -= damage;
     if (item.currentDurability <= 0) {
-      this.removeInventoryItem(client.character, item);
+      this.removeInventoryItem(character, item);
       if (this.isWeapon(item.itemDefinitionId)) {
-        client.character.lootContainerItem(
+        character.lootContainerItem(
           this,
           this.generateItem(Items.BROKEN_METAL_ITEM)
         );
       }
       return;
     }
-    if (item instanceof LoadoutItem) {
-      this.updateLoadoutItem(client, item);
-    } else if (item instanceof BaseItem) {
-      const container = client.character.getItemContainer(item.itemGuid);
-      if (!container) return;
-      this.updateContainerItem(client.character, item, container);
-    }
+
+    const client = this.getClientByCharId(character.characterId);
+    if (client) this.updateItem(client, item);
   }
 
   getClientByCharId(characterId: string) {
@@ -3194,56 +3007,64 @@ export class ZoneServer2016 extends EventEmitter {
     return undefined;
   }
 
-  checkHelmet(
-    characterId: string,
+  applyHelmetDamageReduction(
+    character: BaseFullCharacter,
     damage: number,
-    helmetDamageDivder = 1
+    weaponDmgModifier = 1
   ): number {
-    // TODO: REDO THIS
-    const c = this.getClientByCharId(characterId);
-    if (!c || !c.character.hasHelmet(this)) {
+    // prevent helmet damage in godmode / temp godmode
+    if (character instanceof Character && character.isGodMode()) {
       return damage;
     }
-    damage *= 0.25;
+
+    if (!character.hasHelmet(this)) {
+      return damage;
+    }
+
+    const helmetDmgModifier = 0.25;
+
+    damage *= helmetDmgModifier;
     this.damageItem(
-      c,
-      c.character._loadout[LoadoutSlots.HEAD],
-      damage / helmetDamageDivder
+      character,
+      character._loadout[LoadoutSlots.HEAD],
+      damage / weaponDmgModifier
     );
     return damage;
   }
 
-  checkArmor(
-    characterId: string,
+  applyArmorDamageReduction(
+    character: BaseFullCharacter,
     damage: number,
-    kevlarDamageDivider = 4
+    weaponDmgModifier = 4
   ): number {
-    // TODO: REDO THIS
-    const c = this.getClientByCharId(characterId),
-      slot = c?.character._loadout[LoadoutSlots.ARMOR],
-      itemDef = this.getItemDefinition(slot?.itemDefinitionId);
-    if (!c || !slot || !slot.itemDefinitionId || !itemDef) {
+    // prevent armor damage in godmode / temp godmode
+    if (character instanceof Character && character.isGodMode()) {
       return damage;
     }
-    if (itemDef.DESCRIPTION_ID == 12073) {
-      damage *= 0.5; // was 0.8
-      this.damageItem(
-        c,
-        c.character._loadout[LoadoutSlots.ARMOR],
-        damage / kevlarDamageDivider
-      );
-    } else if (
-      itemDef.DESCRIPTION_ID == 11151 ||
-      itemDef.DESCRIPTION_ID == 11153
-    ) {
-      damage *= 0.7; // was 0.9
-      this.damageItem(
-        c,
-        c.character._loadout[LoadoutSlots.ARMOR],
-        damage / kevlarDamageDivider
-      );
+
+    // hasArmor is not used since itemDef is needed later in this function
+    const slot = character._loadout[LoadoutSlots.ARMOR],
+      itemDef = this.getItemDefinition(slot?.itemDefinitionId);
+    if (!slot || !slot.itemDefinitionId || !itemDef) {
+      return damage;
     }
-    return damage;
+
+    // these should be configurable
+    const makeshiftDamageModifier = 0.7, // was 0.9
+      kevlarDamageModifier = 0.5; // was 0.8
+
+    // checking for plated or wooden armor, these don't have custom skins
+    if (itemDef.DESCRIPTION_ID == 11151 || itemDef.DESCRIPTION_ID == 11153) {
+      damage *= makeshiftDamageModifier;
+      this.damageItem(character, slot, damage / (weaponDmgModifier / 2));
+      return damage;
+    }
+
+    // all other kevlar armors
+    damage *= kevlarDamageModifier;
+    this.damageItem(character, slot, damage / (weaponDmgModifier / 2));
+
+    return damage / weaponDmgModifier;
   }
 
   sendHitmarker(
@@ -6105,7 +5926,7 @@ export class ZoneServer2016 extends EventEmitter {
     });
     // if an itemdef is already in the account inventory we only update the stack count
     if (savedItem) {
-      savedItem.stackCount++;
+      savedItem.stackCount += item.stackCount;
       await server.accountInventoriesManager.updateAccountItem(
         client.loginSessionId,
         savedItem
@@ -6140,6 +5961,18 @@ export class ZoneServer2016 extends EventEmitter {
       nameId: server.getItemDefinition(item.itemDefinitionId)?.NAME_ID,
       count: item.stackCount
     });
+  }
+
+  lootCrateWithChance(client: Client, dropChance: number) {
+    // dropChance ranges 0-1000
+    if (chance(dropChance)) {
+      const rewards = this.rewardManager.rewards;
+      const randomIndex = randomIntFromInterval(0, rewards.length - 1);
+      const randomCrateId = rewards[randomIndex].itemId;
+      const randomCrate = this.generateItem(randomCrateId, 1, true);
+      if (!randomCrate) return;
+      this.lootAccountItem(this, client, randomCrate, true);
+    }
   }
   /**
    * Removes an item from the account inventory.
@@ -6325,25 +6158,24 @@ export class ZoneServer2016 extends EventEmitter {
    * @returns Returns true if all items were successfully removed, false if there was an error.
    */
   removeInventoryItems(
-    client: Client,
+    character: BaseFullCharacter,
     itemDefinitionId: number,
     requiredCount: number = 1
   ): boolean {
     const loadoutSlotId = 0; //this.getActiveLoadoutSlot(client, itemDefinitionId);
     // loadout disabled for now
     if (
-      client.character._loadout[loadoutSlotId]?.itemDefinitionId ==
-      itemDefinitionId
+      character._loadout[loadoutSlotId]?.itemDefinitionId == itemDefinitionId
     ) {
       // todo: check multiple loadout slots for items
-      return this.removeLoadoutItem(client.character, loadoutSlotId);
+      return this.removeLoadoutItem(character, loadoutSlotId);
     } else {
       const removeItems: {
         container: LoadoutContainer;
         item: BaseItem;
         count: number;
       }[] = [];
-      for (const container of Object.values(client.character._containers)) {
+      for (const container of Object.values(character._containers)) {
         if (!requiredCount) break;
         for (const item of Object.values(container.items)) {
           if (item.itemDefinitionId == itemDefinitionId) {
@@ -6365,7 +6197,7 @@ export class ZoneServer2016 extends EventEmitter {
       for (const itemStack of Object.values(removeItems)) {
         if (
           !this.removeContainerItem(
-            client.character,
+            character,
             itemStack.item,
             itemStack.container,
             itemStack.count
@@ -6635,6 +6467,28 @@ export class ZoneServer2016 extends EventEmitter {
       data: character.pGetItemData(this, item, container.containerDefinitionId)
     });
     this.updateContainer(character, container);
+  }
+
+  updateItem(client: Client, item: BaseItem) {
+    const loadoutItem = client.character.getLoadoutItem(item.itemGuid);
+    if (loadoutItem) {
+      this.updateLoadoutItem(client, loadoutItem);
+      return;
+    }
+
+    const container = client.character.getItemContainer(item.itemGuid);
+    if (container) {
+      this.updateContainerItem(client.character, item, container);
+      return;
+    }
+
+    const mountedContainer = client.character.mountedContainer;
+
+    if (mountedContainer) {
+      const container = mountedContainer.getContainer();
+      if (!container) return;
+      this.updateContainerItem(mountedContainer, item, container);
+    }
   }
 
   /**
@@ -6956,7 +6810,7 @@ export class ZoneServer2016 extends EventEmitter {
   ) {
     if (
       !this.removeInventoryItems(
-        client,
+        client.character,
         removedItem.itemDefinitionId,
         removedItem.count
       )
@@ -6971,6 +6825,7 @@ export class ZoneServer2016 extends EventEmitter {
         client.character.lootContainerItem(this, item);
       }
     );
+    this.lootCrateWithChance(client, 25);
   }
 
   igniteOption(client: Client, item: BaseItem) {
@@ -7670,29 +7525,8 @@ export class ZoneServer2016 extends EventEmitter {
       repairItem.currentDurability += repairAmount;
     }
 
-    // TODO: move below logic to it's own updateItem function
-
     // used to update the item's durability on-screen regardless of container / loadout
-
-    const loadoutItem = client.character.getLoadoutItem(repairItem.itemGuid);
-    if (loadoutItem) {
-      this.updateLoadoutItem(client, loadoutItem);
-      return;
-    }
-
-    const container = client.character.getItemContainer(repairItem.itemGuid);
-    if (container) {
-      this.updateContainerItem(client.character, repairItem, container);
-      return;
-    }
-
-    const mountedContainer = client.character.mountedContainer;
-
-    if (mountedContainer) {
-      const container = mountedContainer.getContainer();
-      if (!container) return;
-      this.updateContainerItem(mountedContainer, item, container);
-    }
+    this.updateItem(client, repairItem);
   }
 
   handleWeaponFireStateUpdate(
@@ -7864,10 +7698,10 @@ export class ZoneServer2016 extends EventEmitter {
         this.removeInventoryItem(client.character, weaponItem);
         return;
       }
-      this.removeInventoryItems(client, weaponItem.itemDefinitionId);
+      this.removeInventoryItems(client.character, weaponItem.itemDefinitionId);
       return;
     }
-    this.damageItem(client, weaponItem, 5);
+    this.damageItem(client.character, weaponItem, 5);
   }
 
   handleWeaponReload(client: Client, weaponItem: LoadoutItem) {
@@ -7923,7 +7757,13 @@ export class ZoneServer2016 extends EventEmitter {
           reloadAmount =
             reserveAmmo >= maxReloadAmount ? maxReloadAmount : reserveAmmo; // actual amount able to reload
 
-        if (!this.removeInventoryItems(client, weaponAmmoId, reloadAmount)) {
+        if (
+          !this.removeInventoryItems(
+            client.character,
+            weaponAmmoId,
+            reloadAmount
+          )
+        ) {
           return;
         }
         this.sendWeaponReload(
@@ -7946,7 +7786,7 @@ export class ZoneServer2016 extends EventEmitter {
         if (
           !reserveAmmo ||
           (weaponItem.weapon.ammoCount < maxAmmo &&
-            !this.removeInventoryItems(client, weaponAmmoId, 1)) ||
+            !this.removeInventoryItems(client.character, weaponAmmoId, 1)) ||
           ++weaponItem.weapon.ammoCount == maxAmmo
         ) {
           this.sendWeaponReload(client, weaponItem);
@@ -7996,7 +7836,9 @@ export class ZoneServer2016 extends EventEmitter {
         reloadAmount =
           reserveAmmo >= maxReloadAmount ? maxReloadAmount : reserveAmmo; // actual amount able to reload
 
-      if (!this.removeInventoryItems(client, weaponAmmoId, reloadAmount)) {
+      if (
+        !this.removeInventoryItems(client.character, weaponAmmoId, reloadAmount)
+      ) {
         return;
       }
       this.sendWeaponReload(

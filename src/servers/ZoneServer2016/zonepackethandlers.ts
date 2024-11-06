@@ -14,7 +14,7 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 // TODO enable @typescript-eslint/no-unused-vars
 import fs from "fs";
-import { ZoneClient2016 as Client } from "./classes/zoneclient";
+import { ZoneClient2016 as Client, ZoneClient2016 } from "./classes/zoneclient";
 import { ZoneServer2016 } from "./zoneserver";
 const debug = require("debug")("ZoneServer");
 
@@ -134,13 +134,18 @@ import {
   WeaponWeapon,
   ZoneDoneSendingInitialData,
   H1emuVoiceInit,
-  GroupKick
+  GroupKick,
+  InGamePurchaseStoreBundleContentResponse,
+  GrinderExchangeRequest,
+  GrinderExchangeResponse
 } from "types/zone2016packets";
 import { VehicleCurrentMoveMode } from "types/zone2015packets";
 import {
+  AccountItem,
   ClientBan,
   ConstructionPermissions,
   DamageInfo,
+  GrinderItem,
   Group,
   StanceFlags
 } from "types/zoneserver";
@@ -327,7 +332,7 @@ export class ZonePacketHandlers {
   ClientFinishedLoading(
     server: ZoneServer2016,
     client: Client,
-    packet: ReceivedPacket<object>
+    packet: ReceivedPacket<any>
   ) {
     if (!server.hookManager.checkHook("OnClientFinishedLoading", client)) {
       return;
@@ -349,10 +354,9 @@ export class ZonePacketHandlers {
     server.sendGameTimeSync(client);
     server.sendData(client, "UpdateWeatherData", server.weatherManager.weather);
     server.constructionManager.sendConstructionData(server, client);
-    if (client.firstLoading) {
-      client.character.lastLoginDate = toHex(Date.now());
-      server.setGodMode(client, false);
-      setTimeout(() => {
+    if (packet.data.characterReleased) {
+      if (client.firstCharacterReleased) {
+        client.firstCharacterReleased = false;
         // it's just for performance testing
         // for (let index = 0; index < 100; index++) {
         // this.aiManager.add_entity(client.character, EntityType.Player);
@@ -412,7 +416,18 @@ export class ZonePacketHandlers {
               }
             });
         }
-      }, 10000);
+
+        // if (!server._soloMode) {
+        //   client.afkTimer = setInterval(() => {
+        //     client.afk(server);
+        //   }, ZoneClient2016.afkTime);
+        // }
+      }
+    }
+
+    if (client.firstLoading) {
+      client.character.lastLoginDate = toHex(Date.now());
+      server.setGodMode(client, false);
       if (client.banType != "") {
         server.sendChatTextToAdmins(
           `Silently banned ${client.character.name} has joined the server !`
@@ -1472,6 +1487,10 @@ export class ZonePacketHandlers {
     // Handle position flag (0x02)
     if (flags & 2) {
       if (!client.characterReleased) client.characterReleased = true;
+      // if (client.movementSet.size < ZoneClient2016.minMovementForAfk) {
+      //   const movementId = Math.round(position[0]) + Math.round(position[2]);
+      //   client.movementSet.add(movementId);
+      // }
 
       // skip fairplay for performance test
 
@@ -2443,6 +2462,7 @@ export class ZonePacketHandlers {
             server.containerError(client, ContainerErrors.NO_ITEM_IN_SLOT);
             return;
           }
+          if (item.itemDefinitionId == 1899) item.itemDefinitionId = 1373; // Remove this next wipe
           if (item.weapon) {
             const ammo = server.generateItem(
               server.getWeaponAmmoId(item.itemDefinitionId),
@@ -2516,6 +2536,8 @@ export class ZonePacketHandlers {
               server.containerError(client, ContainerErrors.NO_ITEM_IN_SLOT);
               return;
             }
+            if (loadoutItem.itemDefinitionId == 1899)
+              loadoutItem.itemDefinitionId = 1373; // Remove this next wipe
             loadoutItem.transferLoadoutItem(
               server,
               targetCharacterId,
@@ -2566,6 +2588,8 @@ export class ZonePacketHandlers {
             server.containerError(client, ContainerErrors.NO_SPACE);
             return;
           }
+          if (loadoutItem.itemDefinitionId == 1899)
+            loadoutItem.itemDefinitionId = 1373; // Remove this next wipe
           sourceCharacter.transferItemFromLoadout(
             server,
             targetContainer,
@@ -3498,9 +3522,104 @@ export class ZonePacketHandlers {
 
   commerceSessionRequest(server: ZoneServer2016, client: Client) {
     server.sendData(client, "CommerceSessionResponse", {
-      unknownDword1: 1,
-      sessionToken: "test"
+      unknownBoolean1: true,
+      sessionToken: "TICKET"
     });
+  }
+
+  async grinderExchangeRequest(
+    server: ZoneServer2016,
+    client: Client,
+    packet: ReceivedPacket<GrinderExchangeRequest>
+  ) {
+    if (!packet.data.items) return;
+
+    let rarity = -1;
+    let itemCount = 0;
+
+    for (const item of packet.data.items as GrinderItem[]) {
+      const definition = server.getItemDefinition(item.itemDefinitionId);
+      if (definition) {
+        if (rarity == -1) {
+          rarity = definition.RARITY;
+        }
+
+        if (rarity == definition.RARITY) {
+          itemCount += item.count;
+        }
+      }
+    }
+
+    const itemsNeeded = rarity == 6 ? 4 : 5;
+    if (itemCount < itemsNeeded) return;
+    const itemsRemoved = await (async (): Promise<boolean> => {
+      const removedItems: { item: AccountItem }[] = [];
+      try {
+        for (const item of packet.data.items as GrinderItem[]) {
+          let remainingCount = item.count;
+          while (remainingCount > 0) {
+            const inventoryItem =
+              await server.accountInventoriesManager.getAccountItem(
+                client.loginSessionId,
+                item.itemDefinitionId
+              );
+            if (!inventoryItem) return false;
+            if (inventoryItem.stackCount < remainingCount) {
+              removedItems.push({ item: inventoryItem });
+              remainingCount -= inventoryItem.stackCount;
+              const partialResult = server.removeAccountItem(
+                client.character,
+                inventoryItem
+              );
+              if (!partialResult) return false;
+            } else {
+              removedItems.push({ item: inventoryItem });
+              const result = server.removeAccountItem(
+                client.character,
+                inventoryItem
+              );
+              if (!result) if (!result) throw new Error("Final removal failed");
+              remainingCount = 0;
+            }
+          }
+        }
+        return true;
+      } catch (error) {
+        for (const removed of removedItems) {
+          await server.lootAccountItem(server, client, removed.item, false);
+        }
+        debug("Error occurred during item removal. Rollback completed:", error);
+        return false;
+      }
+    })();
+    const responseItems = [];
+    if (itemsRemoved) {
+      const higherRarityItems = Object.values(server._itemDefinitions).filter(
+        (item) =>
+          item.RARITY == rarity + 1 && item.CODE_FACTORY_NAME == "AccountRecipe"
+      );
+
+      if (higherRarityItems.length > 0) {
+        const itemDef =
+          higherRarityItems[
+            Math.floor(Math.random() * higherRarityItems.length)
+          ];
+        const item = server.generateItem(itemDef.ID, 1, true);
+        server.lootAccountItem(server, client, item, false);
+        responseItems.push({
+          itemDefinitionId: item?.itemDefinitionId || itemDef.ID || 0,
+          count: 1
+        });
+      }
+    }
+
+    server.sendData<GrinderExchangeResponse>(
+      client,
+      "Grinder.ExchangeResponse",
+      {
+        items: responseItems
+      }
+    );
   }
 
   processPacket(
@@ -3782,6 +3901,25 @@ export class ZonePacketHandlers {
         break;
       case "Ping":
         server.sendData(client, "Pong", {});
+        break;
+      case "Grinder.ExchangeRequest":
+        //this.grinderExchangeRequest(server, client, packet);
+        // temporary disable
+        break;
+      case "InGamePurchase.StoreBundleContentRequest":
+        debug(JSON.stringify(packet.data));
+        server.sendData<InGamePurchaseStoreBundleContentResponse>(
+          client,
+          "InGamePurchase.StoreBundleContentResponse",
+          {
+            bundles: [
+              {
+                itemDefId: 1791,
+                bundleId: packet.data.bundles[0].bundleId
+              }
+            ]
+          }
+        );
         break;
       default:
         debug(packet);

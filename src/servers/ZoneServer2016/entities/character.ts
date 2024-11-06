@@ -46,7 +46,9 @@ import {
   randomIntFromInterval,
   _,
   checkConstructionInRange,
-  getCurrentServerTimeWrapper
+  getCurrentServerTimeWrapper,
+  isPosInRadiusWithY,
+  getDistance
 } from "../../../utils/utils";
 import { BaseItem } from "../classes/baseItem";
 import { BaseLootableEntity } from "./baselootableentity";
@@ -71,6 +73,7 @@ import {
 import { recipes } from "../data/Recipes";
 import { ConstructionChildEntity } from "./constructionchildentity";
 import { ConstructionParentEntity } from "./constructionparententity";
+import { BaseEntity } from "./baseentity";
 const stats = require("../../../../data/2016/sampleData/stats.json");
 
 interface CharacterStates {
@@ -308,7 +311,7 @@ export class Character2016 extends BaseFullCharacter {
     );
 
     /** The distance at which the character will render, exceeding the renderDistance and the object renders away */
-    this.npcRenderDistance = 145;
+    this.npcRenderDistance = 400;
 
     /** Default resource amounts applied after respawning */
     this._resources = {
@@ -1531,9 +1534,12 @@ export class Character2016 extends BaseFullCharacter {
     const slot = this._equipment[slotId];
     return slot
       ? {
-          modelName:
-            slot.modelName /* == "Weapon_Empty.adr" ? slot.modelName : ""*/,
+          modelName: slot.modelName.replace(
+            /Up|Down/g,
+            this.hoodState == "Down" ? "Up" : "Down"
+          ),
           textureAlias: slot.textureAlias || "",
+          effectId: slot.effectId || 0,
           tintAlias: slot.tintAlias || "Default",
           decalAlias: slot.decalAlias || "#",
           slotId: slot.slotId,
@@ -1641,71 +1647,11 @@ export class Character2016 extends BaseFullCharacter {
     }
   }
 
-  OnProjectileHit(server: ZoneServer2016, damageInfo: DamageInfo) {
-    if (!this.isAlive) return;
-
-    const itemDefinition = server.getItemDefinition(damageInfo.weapon);
-    if (!itemDefinition) return;
-    const weaponDefinitionId = itemDefinition.PARAM1;
-
-    const client = server.getClientByCharId(damageInfo.entity), // source
-      c = server.getClientByCharId(this.characterId); // target
-    if (!client || !c || !damageInfo.hitReport) {
-      return;
-    }
-
-    server.fairPlayManager.hitMissFairPlayCheck(
-      server,
-      client,
-      true,
-      damageInfo.hitReport?.hitLocation || ""
-    );
-
-    if (server.isHeadshotOnly && damageInfo.hitReport?.hitLocation != "HEAD")
-      return;
-    if (server.isPvE) return;
-
-    const hasHelmetBefore = this.hasHelmet(server);
-    const hasArmorBefore = this.hasArmor(server);
-
-    let damage = damageInfo.damage,
-      canStopBleed,
-      armorDmgModifier;
-    armorDmgModifier =
-      weaponDefinitionId == WeaponDefinitionIds.WEAPON_SHOTGUN ? 10 : 4;
-    if (weaponDefinitionId == WeaponDefinitionIds.WEAPON_308)
-      armorDmgModifier = 2;
-    switch (damageInfo.hitReport?.hitLocation) {
-      case "HEAD":
-      case "GLASSES":
-      case "NECK":
-        damage =
-          weaponDefinitionId == WeaponDefinitionIds.WEAPON_SHOTGUN
-            ? (damage *= 2)
-            : (damage *= 4);
-        damage =
-          weaponDefinitionId == WeaponDefinitionIds.WEAPON_308
-            ? (damage *= 2)
-            : damage;
-        damage = server.checkHelmet(this.characterId, damage, 1);
-        break;
-      default:
-        damage = server.checkArmor(this.characterId, damage, armorDmgModifier);
-        canStopBleed = true;
-        break;
-    }
-
-    if (this.isAlive) {
-      server.sendHitmarker(
-        client,
-        damageInfo.hitReport?.hitLocation,
-        this.hasHelmet(server),
-        this.hasArmor(server),
-        hasHelmetBefore,
-        hasArmorBefore
-      );
-    }
-
+  applySpecialWeaponEffect(
+    server: ZoneServer2016,
+    client: ZoneClient2016,
+    weaponDefinitionId: WeaponDefinitionIds
+  ) {
     /* eslint-disable @typescript-eslint/no-unused-vars */
     switch (weaponDefinitionId) {
       case WeaponDefinitionIds.WEAPON_BLAZE:
@@ -1744,7 +1690,7 @@ export class Character2016 extends BaseFullCharacter {
       case WeaponDefinitionIds.WEAPON_FROSTBITE:
         if (!this._characterEffects[Effects.PFX_Seasonal_Holiday_Snow_skel]) {
           server.sendData<ClientUpdateModifyMovementSpeed>(
-            c,
+            client,
             "ClientUpdate.ModifyMovementSpeed",
             {
               speed: 0.5
@@ -1759,7 +1705,7 @@ export class Character2016 extends BaseFullCharacter {
             character: Character2016
           ) {
             server.sendData<ClientUpdateModifyMovementSpeed>(
-              c,
+              client,
               "ClientUpdate.ModifyMovementSpeed",
               {
                 speed: 2
@@ -1778,7 +1724,100 @@ export class Character2016 extends BaseFullCharacter {
         );
         break;
     }
-    /* eslint-enable @typescript-eslint/no-unused-vars */
+  }
+
+  OnProjectileHit(server: ZoneServer2016, damageInfo: DamageInfo) {
+    if (!this.isAlive || server.isPvE) return;
+
+    if (server.isHeadshotOnly) {
+      switch (damageInfo.hitReport?.hitLocation) {
+        case "HEAD":
+        case "GLASSES":
+        case "NECK":
+          break;
+        default:
+          return;
+      }
+    }
+
+    const itemDefinition = server.getItemDefinition(damageInfo.weapon);
+    if (!itemDefinition) return;
+    const weaponDefinitionId = itemDefinition.PARAM1;
+
+    const sourceClient = server.getClientByCharId(damageInfo.entity), // source
+      targetClient = server.getClientByCharId(this.characterId); // target
+    if (!sourceClient || !targetClient || !damageInfo.hitReport) {
+      return;
+    }
+
+    server.fairPlayManager.hitMissFairPlayCheck(
+      server,
+      sourceClient,
+      true,
+      damageInfo.hitReport?.hitLocation || ""
+    );
+
+    const hasHelmetBefore = this.hasHelmet(server);
+    const hasArmorBefore = this.hasArmor(server);
+
+    let damage = damageInfo.damage,
+      canStopBleed,
+      weaponDmgModifier,
+      headshotDmgMultiplier;
+
+    // these should be configurable
+    const weaponDmgModifierDefault = 4,
+      weaponDmgModifierShotgun = 10,
+      weaponDmgModifierSniper = 1,
+      headshotDmgMultiplierDefault = 4,
+      headshotDmgMultiplierShotgun = 1,
+      headshotDmgMultiplierSniper = 6;
+
+    switch (weaponDefinitionId) {
+      case WeaponDefinitionIds.WEAPON_SHOTGUN:
+        weaponDmgModifier = weaponDmgModifierShotgun;
+        headshotDmgMultiplier = headshotDmgMultiplierShotgun;
+        break;
+      case WeaponDefinitionIds.WEAPON_308:
+        weaponDmgModifier = weaponDmgModifierSniper;
+        headshotDmgMultiplier = headshotDmgMultiplierSniper;
+        break;
+      default:
+        weaponDmgModifier = weaponDmgModifierDefault;
+        headshotDmgMultiplier = headshotDmgMultiplierDefault;
+        break;
+    }
+
+    switch (damageInfo.hitReport?.hitLocation) {
+      case "HEAD":
+      case "GLASSES":
+      case "NECK":
+        damage = damage *= headshotDmgMultiplier;
+        damage = server.applyHelmetDamageReduction(this, damage, 1);
+        break;
+      default:
+        damage = server.applyArmorDamageReduction(
+          this,
+          damage,
+          weaponDmgModifier
+        );
+        canStopBleed = true;
+        break;
+    }
+
+    if (this.isAlive) {
+      server.sendHitmarker(
+        sourceClient,
+        damageInfo.hitReport?.hitLocation,
+        this.hasHelmet(server),
+        this.hasArmor(server),
+        hasHelmetBefore,
+        hasArmorBefore
+      );
+    }
+
+    this.applySpecialWeaponEffect(server, targetClient, weaponDefinitionId);
+
     this.damage(server, {
       ...damageInfo,
       damage: damage,
@@ -1811,10 +1850,10 @@ export class Character2016 extends BaseFullCharacter {
       case "HEAD":
       case "GLASSES":
       case "NECK":
-        damage = server.checkHelmet(this.characterId, damage, 1);
+        damage = server.applyHelmetDamageReduction(this, damage, 1);
         break;
       default:
-        damage = server.checkArmor(this.characterId, damage, 4);
+        damage = server.applyArmorDamageReduction(this, damage, 4);
         break;
     }
 
@@ -1830,5 +1869,29 @@ export class Character2016 extends BaseFullCharacter {
     }
 
     this.damage(server, { ...damageInfo, damage });
+  }
+
+  OnExplosiveHit(server: ZoneServer2016, sourceEntity: BaseEntity) {
+    const sourceIsVehicle = sourceEntity instanceof Vehicle2016;
+    if (
+      !isPosInRadiusWithY(
+        sourceIsVehicle ? 5 : 3,
+        this.state.position,
+        sourceEntity.state.position,
+        1.5
+      )
+    )
+      return;
+
+    const distance = getDistance(
+        sourceEntity.state.position,
+        this.state.position
+      ),
+      damage = 50000 / distance;
+
+    this.damage(server, {
+      entity: sourceEntity.characterId,
+      damage: damage
+    });
   }
 }
