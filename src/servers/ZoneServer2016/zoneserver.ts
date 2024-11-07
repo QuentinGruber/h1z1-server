@@ -2014,7 +2014,8 @@ export class ZoneServer2016 extends EventEmitter {
       this.packDynamicAppearance();
     }
     if (this.dynamicAppearanceCache) {
-      this.sendRawDataReliable(client, this.dynamicAppearanceCache);
+      // disabled for short test
+      //this.sendRawDataReliable(client, this.dynamicAppearanceCache);
     }
   }
 
