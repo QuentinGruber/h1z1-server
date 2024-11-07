@@ -47,7 +47,15 @@ import { PacketStructures } from "types/packetStructure";
 
 export const basePackets: PacketStructures = [
   ["Server", 0x01, {}],
-  ["ClientFinishedLoading", 0x02, {}],
+  [
+    "ClientFinishedLoading",
+    0x02,
+    {
+      fields: [
+        { name: "characterReleased", type: "boolean", defaultValue: false } // This value is first set to false, the second time its sent its set to true
+      ]
+    }
+  ],
   [
     "SendSelfToClient",
     0x03,
@@ -2604,7 +2612,7 @@ export const basePackets: PacketStructures = [
     0x4f,
     {
       fields: [
-        { name: "unknownDword1", type: "uint32", defaultValue: 0 },
+        { name: "unknownBoolean1", type: "boolean", defaultValue: true },
         { name: "sessionToken", type: "string", defaultValue: "" }
       ]
     }
@@ -3382,7 +3390,40 @@ export const basePackets: PacketStructures = [
   ],
   ["CheckLocalValues", 0xde, {}],
   ["ChronicleBase", 0xdf, {}],
-  ["GrinderBase", 0xe0, {}],
+  [
+    "Grinder.ExchangeRequest",
+    0xe00100,
+    {
+      fields: [
+        {
+          name: "items",
+          type: "array",
+          defaultValue: [],
+          fields: [
+            { name: "itemDefinitionId", type: "uint32", defaultValue: 0 },
+            { name: "count", type: "uint32", defaultValue: 0 }
+          ]
+        }
+      ]
+    }
+  ],
+  [
+    "Grinder.ExchangeResponse",
+    0xe00200,
+    {
+      fields: [
+        {
+          name: "items",
+          type: "array",
+          defaultValue: [],
+          fields: [
+            { name: "itemDefinitionId", type: "uint32", defaultValue: 0 },
+            { name: "count", type: "uint32", defaultValue: 0 }
+          ]
+        }
+      ]
+    }
+  ],
   ["RequestObject", 0xe1, {}],
   ["WhitelistBase", 0xe4, {}],
   [
