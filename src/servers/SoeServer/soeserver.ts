@@ -387,8 +387,6 @@ export class SOEServer extends EventEmitter {
       case "OutOfOrder":
         client.stats.packetsOutOfOrder++;
         client.outputStream.outOfOrder.add(packet.sequence);
-        client.outputStream.removeFromCache(packet.sequence);
-        client.unAckData.delete(packet.sequence);
         break;
       case "Ack":
         const mostWaitedPacketTime = client.unAckData.get(packet.sequence);

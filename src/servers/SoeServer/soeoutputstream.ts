@@ -151,20 +151,25 @@ export class SOEOutputStream extends EventEmitter {
   }
 
   ack(sequence: number, unAckData: Map<number, number>): void {
-    // delete all data / timers cached for the sequences behind the given ack sequence
-    while (this.lastAck.get() !== wrappedUint16.wrap(sequence)) {
-      const lastAck = this.lastAck.get();
-      this.removeFromCache(lastAck);
-      unAckData.delete(lastAck);
-      this.lastAck.increment();
-      // So we clear the last ack at the end of the loop without incrementing it
-      if (this.lastAck.get() === wrappedUint16.wrap(sequence)) {
+    const wrappedSequence = wrappedUint16.wrap(sequence);
+
+    // Handle out-of-order acknowledgments by updating last acknowledged sequence only when it progresses
+    if (wrappedSequence > this.lastAck.get()) {
+      while (this.lastAck.get() !== wrappedSequence) {
         const lastAck = this.lastAck.get();
         this.removeFromCache(lastAck);
         unAckData.delete(lastAck);
+        this.lastAck.increment();
+      }
+    } else {
+      // If an out-of-order ack is received, just delete that specific entry if it exists
+      if (unAckData.has(wrappedSequence)) {
+        this.removeFromCache(wrappedSequence);
+        unAckData.delete(wrappedSequence);
       }
     }
-    // When we receive an ack, we can emit the event Reliable so the application can send more data
+
+    // Emit event to signal that acknowledged data can be removed and new data can be sent
     this.emit(SOEOutputChannels.Reliable);
   }
 
