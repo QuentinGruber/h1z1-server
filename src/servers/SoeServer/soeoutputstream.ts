@@ -15,6 +15,7 @@ import { EventEmitter } from "node:events";
 import { RC4 } from "h1emu-core";
 import { wrappedUint16 } from "../../utils/utils";
 import { dataCache, dataCacheMap } from "types/soeserver";
+import { MAX_UINT16 } from "../../utils/constants";
 
 const debug = require("debug")("SOEOutputStream");
 
@@ -152,9 +153,17 @@ export class SOEOutputStream extends EventEmitter {
 
   ack(sequence: number, unAckData: Map<number, number>): void {
     const wrappedSequence = wrappedUint16.wrap(sequence);
+    const maxUint16 = MAX_UINT16;
+    const wrapThreshold = MAX_UINT16 / 2;
 
-    // Handle out-of-order acknowledgments by updating last acknowledged sequence only when it progresses
-    if (wrappedSequence > this.lastAck.get()) {
+    // Determine if wrappedSequence is ahead of lastAck, including wrap-around handling
+    const isSequenceAhead =
+      wrappedSequence > this.lastAck.get() ||
+      (wrappedSequence < this.lastAck.get() &&
+        this.lastAck.get() - wrappedSequence > wrapThreshold);
+
+    // If the sequence is ahead, delete all cached data/timers up to the given ack sequence
+    if (isSequenceAhead) {
       while (this.lastAck.get() !== wrappedSequence) {
         const lastAck = this.lastAck.get();
         this.removeFromCache(lastAck);
@@ -162,7 +171,7 @@ export class SOEOutputStream extends EventEmitter {
         this.lastAck.increment();
       }
     } else {
-      // If an out-of-order ack is received, just delete that specific entry if it exists
+      // If an out-of-order ack is received, delete that specific entry if it exists
       if (unAckData.has(wrappedSequence)) {
         this.removeFromCache(wrappedSequence);
         unAckData.delete(wrappedSequence);
