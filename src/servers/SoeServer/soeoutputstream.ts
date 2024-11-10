@@ -153,7 +153,6 @@ export class SOEOutputStream extends EventEmitter {
 
   ack(sequence: number, unAckData: Map<number, number>): void {
     const wrappedSequence = wrappedUint16.wrap(sequence);
-    const maxUint16 = MAX_UINT16;
     const wrapThreshold = MAX_UINT16 / 2;
 
     // Determine if wrappedSequence is ahead of lastAck, including wrap-around handling
