@@ -1770,7 +1770,7 @@ export class Character2016 extends BaseFullCharacter {
       weaponDmgModifierShotgun = 10,
       weaponDmgModifierSniper = 1,
       headshotDmgMultiplierDefault = 4,
-      headshotDmgMultiplierShotgun = 1,
+      headshotDmgMultiplierShotgun = 2,
       headshotDmgMultiplierSniper = 6;
 
     switch (weaponDefinitionId) {
