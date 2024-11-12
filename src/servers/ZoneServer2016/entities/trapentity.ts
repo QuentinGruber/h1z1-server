@@ -29,6 +29,8 @@ import {
 import { ZoneServer2016 } from "../zoneserver";
 import { BaseSimpleNpc } from "./basesimplenpc";
 import { BaseEntity } from "./baseentity";
+import { characterVehicleKit } from "../data/loadouts";
+import { scheduler } from "timers/promises";
 
 export class TrapEntity extends BaseSimpleNpc {
   /** Damage delay for the TrapEntity */
@@ -45,6 +47,7 @@ export class TrapEntity extends BaseSimpleNpc {
   worldOwned: boolean = false;
   ownerCharacterId: string;
   readonly cubebounds!: CubeBounds;
+  server: ZoneServer2016;
   constructor(
     characterId: string,
     transientId: number,
@@ -60,6 +63,7 @@ export class TrapEntity extends BaseSimpleNpc {
     this.itemDefinitionId = itemDefinitionId;
     this.worldOwned = worldOwned;
     this.ownerCharacterId = ownerCharacterId;
+    this.server = server;
 
     const angle = -this.state.rotation[1];
     switch (itemDefinitionId) {
@@ -75,228 +79,234 @@ export class TrapEntity extends BaseSimpleNpc {
     }
   }
 
-  async arm(server: ZoneServer2016) {
+  async arm() {
     switch (this.itemDefinitionId) {
       case Items.PUNJI_STICKS:
       case Items.PUNJI_STICK_ROW:
-        this.trapTimer = setTimeout(() => {
-          if (!server._traps[this.characterId]) {
-            return;
-          }
-          for (const a in server._clients) {
-            const client = server._clients[a];
-            if (
-              getDistance(
-                client.character.state.position,
-                this.state.position
-              ) < 1.5 &&
-              client.character.isAlive &&
-              !client.vehicle.mountedVehicle &&
-              !client.character.isSpectator
-            ) {
-              client.character.damage(server, {
-                entity: this.characterId,
-                causeBleed: true,
-                damage: 501
-              });
-              server.sendDataToAllWithSpawnedEntity(
-                server._traps,
-                this.characterId,
-                "Character.PlayWorldCompositeEffect",
-                {
-                  characterId: "0x0",
-                  effectId: Effects.PFX_Impact_PunjiSticks_Blood,
-                  position: server._clients[a].character.state.position
-                }
-              );
-
-              server.sendDataToAllWithSpawnedEntity(
-                server._traps,
-                this.characterId,
-                "Character.UpdateSimpleProxyHealth",
-                this.pGetSimpleProxyHealth()
-              );
-              if (!this.worldOwned) this.health -= 1000;
-            }
-          }
-
-          if (this.health > 0) {
-            this.trapTimer?.refresh();
-          } else {
-            server.sendDataToAllWithSpawnedEntity(
-              server._traps,
-              this.characterId,
-              "Character.PlayWorldCompositeEffect",
-              {
-                characterId: "0x0",
-                effectId: Effects.PFX_Damage_Crate_01m,
-                position: this.state.position
-              }
-            );
-            this.destroy(server);
-            return;
-          }
-        }, 500);
+        this.h1emu_ai_id = this.server.aiManager.add_trap(this, 1.5, 500n);
         break;
       case Items.SNARE:
-        this.trapTimer = setTimeout(() => {
-          if (!server._traps[this.characterId]) {
-            return;
-          }
-          for (const a in server._clients) {
-            const client = server._clients[a];
-            if (
-              getDistance(
-                client.character.state.position,
-                this.state.position
-              ) < 1
-            ) {
-              client.character.damage(server, {
-                entity: this.characterId,
-                damage: 2000
-              });
-              client.character._resources[ResourceIds.BLEEDING] += 41;
-              server.updateResourceToAllWithSpawnedEntity(
-                client.character.characterId,
-                client.character._resources[ResourceIds.BLEEDING] > 0
-                  ? client.character._resources[ResourceIds.BLEEDING]
-                  : 0,
-                ResourceIds.BLEEDING,
-                ResourceTypes.BLEEDING,
-                server._characters
-              );
-              server.sendDataToAllWithSpawnedEntity(
-                server._traps,
-                this.characterId,
-                "Character.PlayWorldCompositeEffect",
-                {
-                  characterId: this.characterId,
-                  effectId: Effects.PFX_Impact_Knife_Metal_Vehicle,
-                  position: server._traps[this.characterId].state.position
-                }
-              );
-              this.isTriggered = true;
-              server.applyMovementModifier(client, MovementModifiers.SNARED);
-            }
-          }
-
-          if (!this.isTriggered) {
-            this.trapTimer?.refresh();
-          } else {
-            this.destroy(server);
-            this.actorModelId = ModelIds.SNARE;
-            server.worldObjectManager.createLootEntity(
-              server,
-              server.generateItem(Items.SNARE),
-              this.state.position,
-              this.state.rotation,
-              15
-            );
-          }
-        }, 200);
+        this.h1emu_ai_id = this.server.aiManager.add_trap(this, 1, 200n);
         break;
       case Items.BARBED_WIRE:
-        this.trapTimer = setTimeout(() => {
-          if (!server._traps[this.characterId]) {
-            return;
-          }
-          for (const a in server._clients) {
-            const client = server._clients[a];
-            if (
-              this.isInside(client.character.state.position) &&
-              client.character.isAlive &&
-              !client.character.isSpectator
-            ) {
-              client.character.damage(server, {
-                entity: this.characterId,
-                causeBleed: true,
-                damage: 501
-              });
-              server.sendDataToAllWithSpawnedEntity(
-                server._traps,
-                this.characterId,
-                "Character.PlayWorldCompositeEffect",
-                {
-                  characterId: "0x0",
-                  effectId: Effects.PFX_Impact_PunjiSticks_Blood,
-                  position: server._clients[a].character.state.position
-                }
-              );
+        this.h1emu_ai_id = this.server.aiManager.add_trap(this, 20, 200n);
+        break;
+      case Items.TRAP_FIRE:
+      case Items.TRAP_FLASH:
+        // Wait 10 seconds before activating the trap
+        await new Promise<void>((resolve) => setTimeout(resolve, 10000));
+        this.h1emu_ai_id = this.server.aiManager.add_trap(this, 1, 90n);
+        break;
+    }
+  }
 
-              server.sendDataToAllWithSpawnedEntity(
-                server._traps,
-                this.characterId,
-                "Character.UpdateSimpleProxyHealth",
-                this.pGetSimpleProxyHealth()
-              );
-              if (!this.worldOwned) this.health -= 1000;
+  async detonate(characterId: string) {
+    await scheduler.yield();
+    const client = this.server.getClientByCharId(characterId);
+    const server = this.server;
+    if (!client) {
+      return;
+    }
+    switch (this.itemDefinitionId) {
+      case Items.PUNJI_STICKS:
+      case Items.PUNJI_STICK_ROW:
+        if (!server._traps[this.characterId]) {
+          return;
+        }
+        if (
+          client.character.isAlive &&
+          !client.vehicle.mountedVehicle &&
+          !client.character.isSpectator
+        ) {
+          client.character.damage(server, {
+            entity: this.characterId,
+            causeBleed: true,
+            damage: 501
+          });
+          server.sendDataToAllWithSpawnedEntity(
+            server._traps,
+            this.characterId,
+            "Character.PlayWorldCompositeEffect",
+            {
+              characterId: "0x0",
+              effectId: Effects.PFX_Impact_PunjiSticks_Blood,
+              position: client.character.state.position
             }
-          }
+          );
 
-          if (this.health > 0) {
-            this.trapTimer?.refresh();
-          } else {
+          server.sendDataToAllWithSpawnedEntity(
+            server._traps,
+            this.characterId,
+            "Character.UpdateSimpleProxyHealth",
+            this.pGetSimpleProxyHealth()
+          );
+          if (!this.worldOwned) this.health -= 1000;
+        }
+        if (this.health <= 0) {
+          server.sendDataToAllWithSpawnedEntity(
+            server._traps,
+            this.characterId,
+            "Character.PlayWorldCompositeEffect",
+            {
+              characterId: "0x0",
+              effectId: Effects.PFX_Damage_Crate_01m,
+              position: this.state.position
+            }
+          );
+          this.destroy(server);
+          return;
+        }
+        break;
+      case Items.SNARE:
+        if (!server._traps[this.characterId]) {
+          return;
+        }
+        for (const a in server._clients) {
+          const client = server._clients[a];
+          if (
+            getDistance(client.character.state.position, this.state.position) <
+            1
+          ) {
+            client.character.damage(server, {
+              entity: this.characterId,
+              damage: 2000
+            });
+            client.character._resources[ResourceIds.BLEEDING] += 41;
+            server.updateResourceToAllWithSpawnedEntity(
+              client.character.characterId,
+              client.character._resources[ResourceIds.BLEEDING] > 0
+                ? client.character._resources[ResourceIds.BLEEDING]
+                : 0,
+              ResourceIds.BLEEDING,
+              ResourceTypes.BLEEDING,
+              server._characters
+            );
+            server.sendDataToAllWithSpawnedEntity(
+              server._traps,
+              this.characterId,
+              "Character.PlayWorldCompositeEffect",
+              {
+                characterId: this.characterId,
+                effectId: Effects.PFX_Impact_Knife_Metal_Vehicle,
+                position: server._traps[this.characterId].state.position
+              }
+            );
+            this.isTriggered = true;
+            server.applyMovementModifier(client, MovementModifiers.SNARED);
+          }
+        }
+
+        if (!this.isTriggered) {
+          this.trapTimer?.refresh();
+        } else {
+          this.destroy(server);
+          this.actorModelId = ModelIds.SNARE;
+          server.worldObjectManager.createLootEntity(
+            server,
+            server.generateItem(Items.SNARE),
+            this.state.position,
+            this.state.rotation,
+            15
+          );
+        }
+        break;
+      case Items.BARBED_WIRE:
+        if (!server._traps[this.characterId]) {
+          return;
+        }
+        for (const a in server._clients) {
+          const client = server._clients[a];
+          if (
+            this.isInside(client.character.state.position) &&
+            client.character.isAlive &&
+            !client.character.isSpectator
+          ) {
+            client.character.damage(server, {
+              entity: this.characterId,
+              causeBleed: true,
+              damage: 501
+            });
             server.sendDataToAllWithSpawnedEntity(
               server._traps,
               this.characterId,
               "Character.PlayWorldCompositeEffect",
               {
                 characterId: "0x0",
-                effectId: Effects.PFX_Damage_Crate_01m,
-                position: this.state.position
+                effectId: Effects.PFX_Impact_PunjiSticks_Blood,
+                position: server._clients[a].character.state.position
               }
             );
-            this.destroy(server);
-            return;
+
+            server.sendDataToAllWithSpawnedEntity(
+              server._traps,
+              this.characterId,
+              "Character.UpdateSimpleProxyHealth",
+              this.pGetSimpleProxyHealth()
+            );
+            if (!this.worldOwned) this.health -= 1000;
           }
-        }, 500);
+        }
+
+        if (this.health > 0) {
+          this.trapTimer?.refresh();
+        } else {
+          server.sendDataToAllWithSpawnedEntity(
+            server._traps,
+            this.characterId,
+            "Character.PlayWorldCompositeEffect",
+            {
+              characterId: "0x0",
+              effectId: Effects.PFX_Damage_Crate_01m,
+              position: this.state.position
+            }
+          );
+          this.destroy(server);
+          return;
+        }
         break;
       case Items.TRAP_FIRE:
       case Items.TRAP_FLASH:
         // Wait 10 seconds before activating the trap
         await new Promise<void>((resolve) => setTimeout(resolve, 10000));
 
-        this.trapTimer = setTimeout(() => {
-          if (!server._traps[this.characterId]) {
-            return;
+        if (!server._traps[this.characterId]) {
+          return;
+        }
+        for (const a in server._clients) {
+          const client = server._clients[a];
+          if (
+            getDistance(client.character.state.position, this.state.position) <
+            1
+          ) {
+            this.detonateTrap(server, {
+              entity: client.character.characterId,
+              damage: 0
+            });
+            this.isTriggered = true;
           }
-          for (const a in server._clients) {
-            const client = server._clients[a];
-            if (
-              getDistance(
-                client.character.state.position,
-                this.state.position
-              ) < 1
-            ) {
-              this.detonateTrap(server, {
-                entity: client.character.characterId,
-                damage: 0
-              });
+        }
+        for (const a in server._vehicles) {
+          if (
+            getDistance(
+              server._vehicles[a].state.position,
+              this.state.position
+            ) < 2
+          ) {
+            server._vehicles[a].getPassengerList().map((passenger) => {
+              this.detonateTrap(server, { entity: passenger, damage: 0 });
               this.isTriggered = true;
-            }
+            });
           }
-          for (const a in server._vehicles) {
-            if (
-              getDistance(
-                server._vehicles[a].state.position,
-                this.state.position
-              ) < 2
-            ) {
-              server._vehicles[a].getPassengerList().map((passenger) => {
-                this.detonateTrap(server, { entity: passenger, damage: 0 });
-                this.isTriggered = true;
-              });
-            }
-          }
-          if (!this.isTriggered) {
-            this.trapTimer?.refresh();
-          } else {
-            this.destroy(server);
-          }
-        }, 90);
+        }
+        if (!this.isTriggered) {
+          this.trapTimer?.refresh();
+        } else {
+          this.destroy(server);
+        }
         break;
     }
   }
+
   destroy(server: ZoneServer2016): boolean {
     return server.deleteEntity(this.characterId, server._traps);
   }
