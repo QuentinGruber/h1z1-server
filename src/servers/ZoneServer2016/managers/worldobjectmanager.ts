@@ -12,8 +12,11 @@
 // ======================================================================
 
 import { ZoneServer2016 } from "../zoneserver";
+const Z1_doors = require("../../../../data/2016/zoneData/Z1_doors.json");
 const Z1_items = require("../../../../data/2016/zoneData/Z1_items.json");
-const BWC_items = require("../../../../data/2016/zoneData/BWC/BWC_items.json");
+const Z1_vehicles = require("../../../../data/2016/zoneData/Z1_vehicleLocations.json");
+const Z1_npcs = require("../../../../data/2016/zoneData/Z1_npcs.json");
+const Z1_lootableProps = require("../../../../data/2016/zoneData/Z1_lootableProps.json");
 const Z1_taskProps = require("../../../../data/2016/zoneData/Z1_taskProps.json");
 const Z1_crates = require("../../../../data/2016/zoneData/Z1_crates.json");
 const Z1_destroyables = require("../../../../data/2016/zoneData/Z1_destroyables.json");
@@ -26,25 +29,16 @@ import {
   isPosInRadius,
   randomIntFromInterval,
   fixEulerOrder,
-  getCurrentServerTimeWrapper,
-  movePoint3D
+  getCurrentServerTimeWrapper
 } from "../../../utils/utils";
 import { EquipSlots, Items, Effects, ModelIds } from "../models/enums";
 import { Vehicle2016 } from "../entities/vehicle";
 import { LootDefinition } from "types/zoneserver";
 import { ItemObject } from "../entities/itemobject";
 import { DoorEntity } from "../entities/doorentity";
-import { Zombie } from "../entities/zombie";
-import { Wolf } from "../entities/wolf";
-import { Deer } from "../entities/deer";
-import { Bear } from "../entities/bear";
 import { BaseFullCharacter } from "../entities/basefullcharacter";
 import { ExplosiveEntity } from "../entities/explosiveentity";
 import { lootTables, containerLootSpawners } from "../data/lootspawns";
-import {
-  lootTablesBWC,
-  containerLootSpawnersBWC
-} from "../data/BWC/BWC_lootspawns";
 import { BaseItem } from "../classes/baseItem";
 import { Lootbag } from "../entities/lootbag";
 import { LootableProp } from "../entities/lootableprop";
@@ -55,7 +49,6 @@ import { Destroyable } from "../entities/destroyable";
 import { CharacterPlayWorldCompositeEffect } from "types/zone2016packets";
 import { WaterSource } from "../entities/watersource";
 import { TreasureChest } from "../entities/treasurechest";
-import { HarvestableProp } from "../entities/harvestableprop";
 import { Npc } from "../entities/npc";
 //import { EntityType } from "h1emu-ai";
 import { scheduler } from "node:timers/promises";
@@ -135,8 +128,8 @@ export class WorldObjectManager {
     debug("WOM::Run");
     this.getItemRespawnTimer(server);
     if (this._lastLootRespawnTime + this.lootRespawnTimer <= Date.now()) {
-      await this.createLoot(server);
-      await this.createContainerLoot(server);
+      this.createLoot(server);
+      this.createContainerLoot(server);
       this._lastLootRespawnTime = Date.now();
       server.divideLargeCells(700);
     }
@@ -494,142 +487,63 @@ export class WorldObjectManager {
   }
 
   createProps(server: ZoneServer2016) {
-    if (this.map == "JustSurvive") {
-      const BWC_harvestableProps = require("../../../../data/2016/zoneData/BWC/BWC_harvestableProps.json");
-      BWC_harvestableProps.forEach((propType: any) => {
-        propType.instances.forEach((propInstance: any) => {
-          const characterId = generateRandomGuid();
-          const obj = new HarvestableProp(
-            characterId,
-            server.getTransientId(characterId), // need transient generated for Interaction Replication
-            0,
-            new Float32Array(propInstance.position),
-            new Float32Array(eul2quat(propInstance.rotation)),
+    Z1_lootableProps.forEach((propType: any) => {
+      propType.instances.forEach((propInstance: any) => {
+        const itemMap: { [modelId: number]: number } = {
+          36: Items.FURNACE,
+          9205: Items.BARBEQUE,
+          9041: Items.CAMPFIRE
+        };
+        if (Object.keys(itemMap).includes(propInstance.modelId.toString())) {
+          server.constructionManager.placeSmeltingEntity(
             server,
-            new Float32Array(propInstance.scale),
-            propInstance.id,
-            propType.renderDistance,
-            propType.actorDefinition
-          );
-          server._lootableProps[characterId] = obj;
-        });
-      });
-      const BWC_lootableProps = require("../../../../data/2016/zoneData/BWC/BWC_lootableProps.json");
-      BWC_lootableProps.forEach((propType: any) => {
-        propType.instances.forEach((propInstance: any) => {
-          const itemMap: { [modelId: number]: number } = {
-            36: Items.FURNACE,
-            9205: Items.BARBEQUE,
-            9041: Items.CAMPFIRE
-          };
-          if (Object.keys(itemMap).includes(propType.modelId.toString())) {
-            server.constructionManager.placeSmeltingEntity(
-              server,
-              itemMap[propInstance.modelId],
-              propInstance.modelId,
-              new Float32Array(propInstance.position),
-              new Float32Array(fixEulerOrder(propInstance.rotation)),
-              new Float32Array(propInstance.scale)
-            );
-            return;
-          }
-          const characterId = generateRandomGuid();
-          const obj = new (
-            propInstance.modelId == 9347 ? TreasureChest : LootableProp
-          )(
-            characterId,
-            server.getTransientId(characterId), // need transient generated for Interaction Replication
-            propType.modelId,
-            new Float32Array(propInstance.position),
-            new Float32Array([
-              propInstance.rotation[1],
-              propInstance.rotation[0],
-              propInstance.rotation[2],
-              0
-            ]),
-            server,
-            new Float32Array(propInstance.scale),
-            propInstance.id,
-            Number(propType.renderDistance)
-          );
-          server._lootableProps[characterId] = obj;
-          obj.equipItem(server, server.generateItem(obj.containerId), false);
-          if (
-            ![
-              ModelIds.HOSPITAL_LAB_WORKBENCH,
-              ModelIds.TREASURE_CHEST,
-              ModelIds.CAMPFIRE,
-              ModelIds.FURNACE
-            ].includes(propInstance.modelId)
-          ) {
-            const container = obj.getContainer();
-            if (container) {
-              container.canAcceptItems = false;
-            }
-            obj.nameId =
-              server.getItemDefinition(obj.containerId)?.NAME_ID ?? 0;
-          }
-        });
-      });
-    } else if (this.map == "Z1") {
-      const Z1_lootableProps = require("../../../../data/2016/zoneData/Z1_lootableProps.json");
-      Z1_lootableProps.forEach((propType: any) => {
-        propType.instances.forEach((propInstance: any) => {
-          const itemMap: { [modelId: number]: number } = {
-            36: Items.FURNACE,
-            9205: Items.BARBEQUE,
-            9041: Items.CAMPFIRE
-          };
-          if (Object.keys(itemMap).includes(propInstance.modelId.toString())) {
-            server.constructionManager.placeSmeltingEntity(
-              server,
-              itemMap[propInstance.modelId],
-              propInstance.modelId,
-              new Float32Array(propInstance.position),
-              new Float32Array(fixEulerOrder(propInstance.rotation)),
-              new Float32Array(propInstance.scale)
-            );
-            return;
-          }
-          const characterId = generateRandomGuid();
-          const obj = new (
-            propInstance.modelId == 9347 ? TreasureChest : LootableProp
-          )(
-            characterId,
-            server.getTransientId(characterId), // need transient generated for Interaction Replication
+            itemMap[propInstance.modelId],
             propInstance.modelId,
             new Float32Array(propInstance.position),
-            new Float32Array([
-              propInstance.rotation[1],
-              propInstance.rotation[0],
-              propInstance.rotation[2],
-              0
-            ]),
-            server,
+            new Float32Array(fixEulerOrder(propInstance.rotation)),
             new Float32Array(propInstance.scale),
-            propInstance.id,
-            Number(propType.renderDistance)
+            server._serverGuid,
+            true
           );
-          server._lootableProps[characterId] = obj;
-          obj.equipItem(server, server.generateItem(obj.containerId), false);
-          if (
-            ![
-              ModelIds.HOSPITAL_LAB_WORKBENCH,
-              ModelIds.TREASURE_CHEST,
-              ModelIds.CAMPFIRE,
-              ModelIds.FURNACE
-            ].includes(propInstance.modelId)
-          ) {
-            const container = obj.getContainer();
-            if (container) {
-              container.canAcceptItems = false;
-            }
-            obj.nameId =
-              server.getItemDefinition(obj.containerId)?.NAME_ID ?? 0;
+          return;
+        }
+        const characterId = generateRandomGuid();
+        const obj = new (
+          propInstance.modelId == 9347 ? TreasureChest : LootableProp
+        )(
+          characterId,
+          server.getTransientId(characterId), // need transient generated for Interaction Replication
+          propInstance.modelId,
+          new Float32Array(propInstance.position),
+          new Float32Array([
+            propInstance.rotation[1],
+            propInstance.rotation[0],
+            propInstance.rotation[2],
+            0
+          ]),
+          server,
+          new Float32Array(propInstance.scale),
+          propInstance.id,
+          Number(propType.renderDistance)
+        );
+        server._lootableProps[characterId] = obj;
+        obj.equipItem(server, server.generateItem(obj.containerId), false);
+        if (
+          ![
+            ModelIds.HOSPITAL_LAB_WORKBENCH,
+            ModelIds.TREASURE_CHEST,
+            ModelIds.CAMPFIRE,
+            ModelIds.FURNACE
+          ].includes(propInstance.modelId)
+        ) {
+          const container = obj.getContainer();
+          if (container) {
+            container.canAcceptItems = false;
           }
-        });
+          obj.nameId = server.getItemDefinition(obj.containerId)?.NAME_ID ?? 0;
+        }
       });
-    }
+    });
     Z1_taskProps.forEach((propType: any) => {
       propType.instances.forEach((propInstance: any) => {
         const characterId = generateRandomGuid();
@@ -834,84 +748,25 @@ export class WorldObjectManager {
   }
 
   createDoors(server: ZoneServer2016) {
-    const doors =
-      this.map == "Z1"
-        ? require("../../../../data/2016/zoneData/Z1_doors.json")
-        : require("../../../../data/2016/zoneData/BWC/BWC_doors.json");
-    switch (this.map) {
-      case "Z1":
-        doors.forEach((doorType: any) => {
-          const modelId: number = _.find(models, (model: any) => {
-            return (
-              model.MODEL_FILE_NAME ===
-              doorType.actorDefinition.replace("_Placer", "")
-            );
-          })?.ID;
-          doorType.instances.forEach((doorInstance: any) => {
-            this.createDoor(
-              server,
-              modelId ? modelId : 9183,
-              new Float32Array(doorInstance.position),
-              new Float32Array(doorInstance.rotation),
-              doorInstance.scale
-                ? new Float32Array(doorInstance.scale)
-                : new Float32Array([1, 1, 1, 1]),
-              // doorInstance.id doesn't exist
-              0
-            );
-          });
-        });
-        break;
-      case "JustSurvive":
-        doors.forEach((doorType: any) => {
-          let modelId: number = 9904;
-          switch (doorType.actorDefinition) {
-            case "Common_DPO_DoorProxy_ResidentialFront.adr":
-              modelId = 9904;
-              break;
-            case "Common_DPO_DoorProxy_Residential.adr":
-              modelId = 9905;
-              break;
-            case "Common_DPO_DoorProxy_Cabin.adr":
-              modelId = 9901;
-              break;
-            case "Common_DPO_DoorProxy_Camper.adr":
-              modelId = 10055;
-              break;
-            case "Common_DPO_DoorProxy_Industrial.adr":
-              modelId = 9003;
-              break;
-            case "Common_DPO_DoorProxy_Office.adr":
-              modelId = 9905; // change for proper model later
-              break;
-            case "Common_DPO_DoorProxy_BathroomStall.adr":
-              modelId = 9884;
-              break;
-            case "Common_DPO_DoorProxy_CommercialGlass.adr":
-              modelId = 9897;
-              break;
-            default:
-              modelId = 9232;
-              break;
-          }
-
-          doorType.instances.forEach((doorInstance: any) => {
-            this.createDoor(
-              server,
-              modelId ? modelId : 9183,
-              new Float32Array(doorInstance.position),
-              new Float32Array(doorInstance.rotation),
-              doorInstance.scale
-                ? new Float32Array(doorInstance.scale)
-                : new Float32Array([1, 1, 1, 1]),
-              // doorInstance.id doesn't exist
-              0
-            );
-          });
-        });
-        break;
-    }
-
+    Z1_doors.forEach((doorType: any) => {
+      const modelId: number = _.find(models, (model: any) => {
+        return (
+          model.MODEL_FILE_NAME ===
+          doorType.actorDefinition.replace("_Placer", "")
+        );
+      })?.ID;
+      doorType.instances.forEach((doorInstance: any) => {
+        this.createDoor(
+          server,
+          modelId ? modelId : 9183,
+          new Float32Array(doorInstance.position),
+          new Float32Array(doorInstance.rotation),
+          new Float32Array(doorInstance.scale),
+          // doorInstance.id doesn't exist
+          0
+        );
+      });
+    });
     debug("All doors objects created");
   }
 
@@ -982,12 +837,8 @@ export class WorldObjectManager {
       (this.vehicleSpawnCap - _.size(server._vehicles)) / 8
     );
     for (let x = 0; x < respawnAmount; x++) {
-      const vehicles =
-        this.map == "Z1"
-          ? require("../../../../data/2016/zoneData/Z1_vehicleLocations.json")
-          : require("../../../../data/2016/zoneData/BWC/BWC_vehicleLocations.json");
       const dataVehicle =
-        vehicles[randomIntFromInterval(0, vehicles.length - 1)];
+        Z1_vehicles[randomIntFromInterval(0, Z1_vehicles.length - 1)];
       let spawn = true;
       Object.values(server._vehicles).forEach((spawnedVehicle: Vehicle2016) => {
         if (!spawn) return;
@@ -1022,98 +873,78 @@ export class WorldObjectManager {
   }
 
   async createNpcs(server: ZoneServer2016) {
-    let tickRate = this.npcRespawnTimer;
-    const size = _.size(server._clients);
-    if (size <= 0) return;
-    tickRate = this.npcRespawnTimer / size;
-    for (const a in server._clients) {
-      const client = server._clients[a];
-      const zombieSpawnChance =
-        Math.floor(Math.random() * 100) + 1 * (client.currentPOI ? 2 : 1);
-      const wolfSpawnChance = client.currentPOI
-        ? 0
-        : Math.floor(Math.random() * 100) + 1;
-      const bearSpawnChance = client.currentPOI
-        ? 0
-        : Math.floor(Math.random() * 100) + 1;
-      const deerSpawnChance = client.currentPOI
-        ? 0
-        : Math.floor(Math.random() * 100) + 1;
-      const pos = client.character.state.position;
-      if (zombieSpawnChance >= 60) {
-        const characterId = server.generateGuid();
-        const randomAngle = Math.random() * (2 * Math.PI) - Math.PI;
-        const newPos = movePoint3D(pos, randomAngle, 30);
-        const newPosFixed = server.getHeight(newPos);
-        const npc = new Zombie(
-          characterId,
-          server.getTransientId(characterId),
-          9510,
-          newPosFixed,
-          new Float32Array([0, 0, 0, 0]),
-          server
-        );
-        server._npcs[characterId] = npc;
+    // This is only for giving the world some life
+    for (const spawnerType of Z1_npcs) {
+      const authorizedModelId: number[] = [];
+      switch (spawnerType.actorDefinition) {
+        case "NPCSpawner_ZombieLazy.adr":
+          authorizedModelId.push(9510);
+          authorizedModelId.push(9634);
+          break;
+        case "NPCSpawner_ZombieWalker.adr":
+          authorizedModelId.push(9510);
+          authorizedModelId.push(9634);
+          break;
+        case "NPCSpawner_Deer001.adr":
+          authorizedModelId.push(9002);
+          authorizedModelId.push(9253);
+          break;
+        case "NPCSpawner_Wolf001.adr":
+          authorizedModelId.push(9003);
+          break;
+        case "Bear_Brown.adr":
+          authorizedModelId.push(9187);
+          break;
+        default:
+          break;
       }
-
-      if (wolfSpawnChance >= 70) {
-        const characterId = server.generateGuid();
-        const randomAngle = Math.random() * (2 * Math.PI) - Math.PI;
-        const newPos = movePoint3D(pos, randomAngle, 50);
-        const newPosFixed = server.getHeight(newPos);
-        const npc = new Wolf(
-          characterId,
-          server.getTransientId(characterId),
-          9003,
-          newPosFixed,
-          new Float32Array([0, 0, 0, 0]),
-          server
-        );
-        server._npcs[characterId] = npc;
+      if (!authorizedModelId.length) continue;
+      for (const npcInstance of spawnerType.instances) {
+        let spawn = true;
+        let counter = 0;
+        for (const a in server._npcs) {
+          if (counter > 150) {
+            counter = 0;
+            await scheduler.wait(30);
+          }
+          counter++;
+          if (!server._npcs[a]) continue;
+          if (
+            isPosInRadius(
+              this.npcSpawnRadius,
+              npcInstance.position,
+              server._npcs[a].state.position
+            )
+          ) {
+            spawn = false;
+            break;
+          }
+        }
+        if (!spawn) continue;
+        const spawnchance = Math.floor(Math.random() * 100) + 1; // temporary spawnchance
+        if (spawnchance <= this.chanceNpc) {
+          const screamerChance = Math.floor(Math.random() * 1000) + 1; // temporary spawnchance
+          if (screamerChance <= this.chanceScreamer) {
+            authorizedModelId.push(9667);
+          }
+          this.createNpc(
+            server,
+            authorizedModelId[
+              Math.floor(Math.random() * authorizedModelId.length)
+            ],
+            new Float32Array(npcInstance.position),
+            new Float32Array(eul2quat(npcInstance.rotation)),
+            npcInstance.id
+          );
+        }
       }
-
-      if (bearSpawnChance >= 80) {
-        const characterId = server.generateGuid();
-        const randomAngle = Math.random() * (2 * Math.PI) - Math.PI;
-        const newPos = movePoint3D(pos, randomAngle, 50);
-        const newPosFixed = server.getHeight(newPos);
-        const npc = new Bear(
-          characterId,
-          server.getTransientId(characterId),
-          9187,
-          newPosFixed,
-          new Float32Array([0, 0, 0, 0]),
-          server
-        );
-        server._npcs[characterId] = npc;
-      }
-
-      if (deerSpawnChance >= 70) {
-        const characterId = server.generateGuid();
-        const randomAngle = Math.random() * (2 * Math.PI) - Math.PI;
-        const newPos = movePoint3D(pos, randomAngle, 50);
-        const newPosFixed = server.getHeight(newPos);
-        const npc = new Deer(
-          characterId,
-          server.getTransientId(characterId),
-          Math.floor(newPos[0]) % 2 == 1 ? 9253 : 9002, // randomize model
-          newPosFixed,
-          new Float32Array([0, 0, 0, 0]),
-          server
-        );
-        server._npcs[characterId] = npc;
-      }
-      await new Promise((resolve) => setTimeout(resolve, Math.floor(tickRate)));
     }
+    debug("All npcs objects created");
   }
 
-  async createLoot(
-    server: ZoneServer2016,
-    lTables = this.map == "Z1" ? lootTables : lootTablesBWC
-  ) {
+  async createLoot(server: ZoneServer2016, lTables = lootTables) {
     let counter = 0;
-    const items = this.map == "Z1" ? Z1_items : BWC_items;
-    for (const spawnerType of items) {
+    for (const spawnerType of Z1_items) {
       const lootTable = lTables[spawnerType.actorDefinition];
       if (lootTable) {
         for (const itemInstance of spawnerType.instances) {
@@ -1203,17 +1034,6 @@ export class WorldObjectManager {
   async createContainerLoot(server: ZoneServer2016) {
     let counter = 0;
     for (const a in server._lootableProps) {
-      if (server._lootableProps[a] instanceof HarvestableProp) {
-        const harvestableProp = server._lootableProps[a] as HarvestableProp;
-        const lootSpawner = containerLootSpawnersBWC;
-        const resetChance = randomIntFromInterval(0, 100);
-        if (
-          resetChance <= lootSpawner[harvestableProp.lootSpawner].spawnChance
-        ) {
-          harvestableProp.stage = 0;
-          harvestableProp.updateStage(server, 0);
-        }
-      }
       if (counter > 9) {
         counter = 0;
         await scheduler.wait(60); // Await the wait function to pause
@@ -1224,10 +1044,7 @@ export class WorldObjectManager {
       if (!container) continue;
       if (!!Object.keys(container.items).length) continue; // skip if container is not empty
       if (!prop.shouldSpawnLoot) continue; // skip medical stations and treasure chests
-      const lootTable =
-        this.map == "Z1"
-          ? containerLootSpawners[prop.lootSpawner]
-          : containerLootSpawnersBWC[prop.lootSpawner];
+      const lootTable = containerLootSpawners[prop.lootSpawner];
       if (lootTable) {
         for (let x = 0; x < lootTable.maxItems; x++) {
           const item = getRandomItem(lootTable.items);
