@@ -1397,7 +1397,7 @@ export class ConstructionManager {
         worldOwned,
         owner
       );
-    //npc.arm(server);
+    npc.arm();
     //temporarily disabled
     server._traps[characterId] = npc;
     server.spawnSimpleNpcForAllInRange(npc);
