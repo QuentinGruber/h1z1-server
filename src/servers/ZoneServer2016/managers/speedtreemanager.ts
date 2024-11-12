@@ -170,7 +170,7 @@ export class SpeedTreeManager {
             return;
         }
 
-        server.damageItem(client, wep, 5);
+        server.damageItem(client.character, wep, 5);
 
         if (!this._speedTreesCounter[objectId]) {
           this._speedTreesCounter[objectId] = {
@@ -202,7 +202,7 @@ export class SpeedTreeManager {
             return;
         }
 
-        server.damageItem(client, weapon, 5);
+        server.damageItem(client.character, weapon, 5);
 
         if (!this._speedTreesCounter[objectId]) {
           this._speedTreesCounter[objectId] = {

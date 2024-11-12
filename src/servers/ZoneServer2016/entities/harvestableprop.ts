@@ -119,7 +119,7 @@ export class HarvestableProp extends BaseLootableEntity {
         const weapon2 = client.character.getEquippedWeapon();
         if (!weapon2 || weapon2.itemDefinitionId != Items.WEAPON_CROWBAR)
           return;
-        server.damageItem(client, weapon2, 400);
+        server.damageItem(client.character, weapon2, 400);
         this.stage++;
         let effectId = 0;
         switch (this.actorModelId) {
@@ -248,6 +248,6 @@ export class HarvestableProp extends BaseLootableEntity {
       client.character.lootItem(server, server.generateItem(Items.METAL_SCRAP));
     }
 
-    server.damageItem(client, weapon, server.crowbarHitDamage);
+    server.damageItem(client.character, weapon, server.crowbarHitDamage);
   }
 }
