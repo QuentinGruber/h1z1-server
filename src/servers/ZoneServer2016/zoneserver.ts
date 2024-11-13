@@ -1631,7 +1631,7 @@ export class ZoneServer2016 extends EventEmitter {
 
   private async setupServer() {
     // TODO: Disabled for now
-    // await this.navManager.loadNav();
+    await this.navManager.loadNav();
     this.weatherManager.init();
     this.playTimeManager.init(this);
     this.initModelsDataSource();
