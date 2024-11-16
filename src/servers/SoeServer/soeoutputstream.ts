@@ -164,10 +164,13 @@ export class SOEOutputStream extends EventEmitter {
     // If the sequence is ahead, delete all cached data/timers up to the given ack sequence
     if (isSequenceAhead) {
       while (this.lastAck.get() !== wrappedSequence) {
-        const lastAck = this.lastAck.get();
-        this.removeFromCache(lastAck);
-        unAckData.delete(lastAck);
+        this.removeFromCache(this.lastAck.get());
+        unAckData.delete(this.lastAck.get());
         this.lastAck.increment();
+        if (this.lastAck.get() === wrappedSequence) {
+          this.removeFromCache(this.lastAck.get());
+          unAckData.delete(this.lastAck.get());
+        }
       }
     } else {
       // If an out-of-order ack is received, delete that specific entry if it exists
