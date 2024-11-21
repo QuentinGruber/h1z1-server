@@ -185,8 +185,6 @@ export class SOEServer extends EventEmitter {
         }
         const dataCache = client.outputStream.getDataCache(index);
         if (dataCache) {
-          client.stats.packetResend++;
-
           const logicalPacket = this.createLogicalPacket(
             dataCache.fragment ? SoeOpcode.DataFragment : SoeOpcode.Data,
             { sequence: index, data: dataCache.data }
@@ -379,6 +377,11 @@ export class SOEServer extends EventEmitter {
       case "OutOfOrder":
         client.stats.packetsOutOfOrder++;
         client.outputStream.outOfOrder.add(packet.sequence);
+        const mostWaitedPacketTime2 = client.unAckData.get(packet.sequence);
+        if (mostWaitedPacketTime2) {
+          const currentLag = this.currentEventLoopLag || 0;
+          client.addPing(Date.now() - mostWaitedPacketTime2 - currentLag);
+        }
         break;
       case "Ack":
         const mostWaitedPacketTime = client.unAckData.get(packet.sequence);
