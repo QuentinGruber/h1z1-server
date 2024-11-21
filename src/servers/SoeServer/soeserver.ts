@@ -38,7 +38,7 @@ export class SOEServer extends EventEmitter {
   _waitTimeMs: number = 24;
   keepAliveTimeoutTime: number = 40000;
   private readonly _maxMultiBufferSize: number;
-  private _resendTimeout: number = 400;
+  private _resendTimeout: number = 250;
   _allowRawDataReception: boolean = false;
   private _packetResetInterval: NodeJS.Timeout | undefined;
   avgEventLoopLag: number = 0;
@@ -161,14 +161,6 @@ export class SOEServer extends EventEmitter {
         } else {
           // If the data cache is not found it means that the packet has been acked
         }
-      }
-    }
-    // if a packet is lost due to timeout then we increase the ping
-    // this will auto-fix when the connection goes well again
-    for (let index = 0; index < resends.length; index++) {
-      client.avgPing += 100;
-      if (client.avgPing > 5000) {
-        client.avgPing = 5000;
       }
     }
 
@@ -386,11 +378,9 @@ export class SOEServer extends EventEmitter {
         break;
       case "OutOfOrder":
         client.stats.packetsOutOfOrder++;
-        //client.outputStream.outOfOrder.add(packet.sequence);
-        client.outputStream.removeFromCache(packet.sequence);
-        client.unAckData.delete(packet.sequence);
+            client.outputStream.outOfOrder.add(packet.sequence);
         break;
-      case "Ack":
+        case "Ack":
         const mostWaitedPacketTime = client.unAckData.get(packet.sequence);
         if (mostWaitedPacketTime) {
           const currentLag = this.currentEventLoopLag || 0;
@@ -572,7 +562,28 @@ export class SOEServer extends EventEmitter {
     if (client.isDeleted) {
       return;
     }
-
+    const resends = this.getResends(client);
+    for (const resend of resends) {
+      client.stats.totalLogicalPacketSent++;
+      if (this._canBeBufferedIntoQueue(resend, client.waitingQueue)) {
+        client.waitingQueue.addPacket(resend);
+      } else {
+        const waitingQueuePacket = this.getClientWaitQueuePacket(
+          client,
+          client.waitingQueue
+        );
+        if (waitingQueuePacket) {
+          this._sendAndBuildPhysicalPacket(client, waitingQueuePacket);
+        }
+        if (this._canBeBufferedIntoQueue(resend, client.waitingQueue)) {
+          client.waitingQueue.addPacket(resend);
+        } else {
+          // if it still can't be buffered it means that the packet is too big so we send it directly
+          this._sendAndBuildPhysicalPacket(client, resend);
+        }
+      }
+      client.unAckData.delete(resend.sequence as number);
+    }
     if (client.outputStream.isReliableAvailable()) {
       const appPackets = this.getAvailableAppPackets(client);
       client.delayedLogicalPackets.push(...appPackets);
@@ -624,28 +635,6 @@ export class SOEServer extends EventEmitter {
         // no additionnal check needed here because ack packets have a fixed size
         client.waitingQueue.addPacket(ackPacket);
       }
-    }
-    const resends = this.getResends(client);
-    for (const resend of resends) {
-      client.stats.totalLogicalPacketSent++;
-      if (this._canBeBufferedIntoQueue(resend, client.waitingQueue)) {
-        client.waitingQueue.addPacket(resend);
-      } else {
-        const waitingQueuePacket = this.getClientWaitQueuePacket(
-          client,
-          client.waitingQueue
-        );
-        if (waitingQueuePacket) {
-          this._sendAndBuildPhysicalPacket(client, waitingQueuePacket);
-        }
-        if (this._canBeBufferedIntoQueue(resend, client.waitingQueue)) {
-          client.waitingQueue.addPacket(resend);
-        } else {
-          // if it still can't be buffered it means that the packet is too big so we send it directly
-          this._sendAndBuildPhysicalPacket(client, resend);
-        }
-      }
-      client.unAckData.delete(resend.sequence as number);
     }
     // if there is still some packets in the queue then we send them
     const waitingQueuePacket = this.getClientWaitQueuePacket(
