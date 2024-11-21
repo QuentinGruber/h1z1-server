@@ -11,7 +11,12 @@
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
 
-import { createPositionUpdate, eul2quat } from "../../../utils/utils";
+import {
+  createPositionUpdate,
+  eul2quat,
+  getDistance,
+  isPosInRadius
+} from "../../../utils/utils";
 import {
   Items,
   LoadoutIds,
@@ -37,6 +42,8 @@ import {
   LightweightToFullNpc,
   LightweightToFullVehicle
 } from "types/zone2016packets";
+import { BaseEntity } from "./baseentity";
+import { scheduler } from "timers/promises";
 
 function getActorModelId(vehicleId: VehicleIds) {
   switch (vehicleId) {
@@ -221,6 +228,8 @@ export class Vehicle2016 extends BaseLootableEntity {
     time: 0
   };
 
+  shaderGroupId: number = 0;
+
   droppedManagedClient?: ZoneClient2016; // for temporary fix
   isMountable: boolean = true;
   constructor(
@@ -231,7 +240,8 @@ export class Vehicle2016 extends BaseLootableEntity {
     rotation: Float32Array,
     server: ZoneServer2016,
     gameTime: number,
-    vehicleId: number
+    vehicleId: number,
+    shaderGroupId: number = 0
   ) {
     super(characterId, transientId, actorModelId, position, rotation, server);
     this.positionUpdateType = PositionUpdateType.MOVABLE;
@@ -254,6 +264,7 @@ export class Vehicle2016 extends BaseLootableEntity {
     this.isInvulnerable =
       this.vehicleId == VehicleIds.SPECTATE ||
       this.vehicleId == VehicleIds.PARACHUTE;
+    this.shaderGroupId = shaderGroupId;
     switch (this.vehicleId) {
       case VehicleIds.OFFROADER:
       case VehicleIds.PICKUP:
@@ -315,6 +326,12 @@ export class Vehicle2016 extends BaseLootableEntity {
         break;
       case VehicleIds.OFFROADER:
       default:
+        const allowedShaders = [838, 1143, 837, 1003, 1148],
+          randomShader =
+            allowedShaders[Math.floor(Math.random() * allowedShaders.length)];
+        if (this.shaderGroupId == 0) {
+          this.shaderGroupId = randomShader;
+        }
         this.destroyedEffect = Effects.VEH_Death_OffRoader;
         this.destroyedModel = ModelIds.OFFROADER_DESTROYED;
         this.minorDamageEffect = Effects.VEH_Damage_OffRoader_Stage01;
@@ -371,7 +388,8 @@ export class Vehicle2016 extends BaseLootableEntity {
       npcData: {
         ...this.pGetLightweight(),
         position: this.state.position,
-        vehicleId: this.vehicleId
+        vehicleId: this.vehicleId,
+        shaderGroupId: this.shaderGroupId
       },
       positionUpdate: this.positionUpdate
     };
@@ -1243,7 +1261,7 @@ export class Vehicle2016 extends BaseLootableEntity {
 
     if (this._resources[ResourceIds.CONDITION] < 100000) {
       this.damage(server, { ...damageInfo, damage: -2000 });
-      server.damageItem(client, weapon, 100);
+      server.damageItem(client.character, weapon, 100);
     }
   }
 
@@ -1275,12 +1293,29 @@ export class Vehicle2016 extends BaseLootableEntity {
     );
     const deleted = server.deleteEntity(this.characterId, server._vehicles);
     if (!disableExplosion) {
-      server.explosionDamage(this.state.position, this.characterId, 0);
+      server.explosionDamage(this);
     }
     //this.state.position[1] -= 0.4; // makes bags spawn under the map sometimes.
     // TODO: Have to revisit when the heightmap is implemented server side.
     // fix floating vehicle lootbags
     server.worldObjectManager.createLootbag(server, this);
     return deleted;
+  }
+
+  async OnExplosiveHit(server: ZoneServer2016, sourceEntity: BaseEntity) {
+    if (this.characterId == sourceEntity.characterId) return;
+    if (!isPosInRadius(5, this.state.position, sourceEntity.state.position))
+      return;
+
+    const distance = getDistance(
+      sourceEntity.state.position,
+      this.state.position
+    );
+    const damage = 250000 / distance;
+    await scheduler.wait(150);
+    this.damage(server, {
+      entity: sourceEntity.characterId,
+      damage: damage
+    });
   }
 }

@@ -46,7 +46,9 @@ import {
   randomIntFromInterval,
   _,
   checkConstructionInRange,
-  getCurrentServerTimeWrapper
+  getCurrentServerTimeWrapper,
+  isPosInRadiusWithY,
+  getDistance
 } from "../../../utils/utils";
 import { BaseItem } from "../classes/baseItem";
 import { BaseLootableEntity } from "./baselootableentity";
@@ -59,7 +61,6 @@ import {
   ClientUpdateDamageInfo,
   ClientUpdateModifyMovementSpeed,
   CommandPlayDialogEffect,
-  EquipmentSetCharacterEquipment,
   EquipmentSetCharacterEquipmentSlot,
   LoadoutSetLoadoutSlots,
   SendSelfToClient
@@ -72,6 +73,7 @@ import {
 import { recipes } from "../data/Recipes";
 import { ConstructionChildEntity } from "./constructionchildentity";
 import { ConstructionParentEntity } from "./constructionparententity";
+import { BaseEntity } from "./baseentity";
 const stats = require("../../../../data/2016/sampleData/stats.json");
 
 interface CharacterStates {
@@ -384,6 +386,19 @@ export class Character2016 extends BaseFullCharacter {
       }, 1000);
     };
     this.materialType = MaterialTypes.FLESH;
+  }
+
+  getShaderGroup() {
+    switch (this.headActor) {
+      case "SurvivorMale_Head_02.adr":
+      case "SurvivorFemale_Head_02.adr":
+        return 125;
+      case "SurvivorMale_Head_03.adr":
+      case "SurvivorFemale_Head_03.adr":
+        return 129;
+      default:
+        return 122;
+    }
   }
 
   pGetRecipes(server: ZoneServer2016): any[] {
@@ -918,7 +933,8 @@ export class Character2016 extends BaseFullCharacter {
       rotation: this.state.lookAt,
       identity: {
         characterName: this.name
-      }
+      },
+      shaderGroupId: this.getShaderGroup()
     };
   }
 
@@ -973,7 +989,8 @@ export class Character2016 extends BaseFullCharacter {
         //vehicleLoadoutRelatedDword: 1,
         //unknownDword40: 1
         isAdmin: client.isAdmin,
-        firstPersonOnly: server.isFirstPersonOnly
+        firstPersonOnly: server.isFirstPersonOnly,
+        shaderGroupId: this.getShaderGroup()
       } as any
     };
   }
@@ -1443,42 +1460,16 @@ export class Character2016 extends BaseFullCharacter {
     });
   }
 
-  updateEquipmentSlot(
-    server: ZoneServer2016,
-    slotId: number,
-    sendPacketToLocalClient = true
-  ) {
+  updateEquipmentSlot(server: ZoneServer2016, slotId: number) {
     if (!server.getClientByCharId(this.characterId)?.character.initialized)
       return;
-    /*
+
     server.sendDataToAllWithSpawnedEntity(
       server._characters,
       this.characterId,
       "Equipment.SetCharacterEquipmentSlot",
       this.pGetEquipmentSlotFull(slotId) as EquipmentSetCharacterEquipmentSlot
     );
-    */
-    // GROUP OUTLINE WORKAROUND
-
-    server.executeFuncForAllReadyClients((client) => {
-      let groupId = 0;
-      if (client.character != this) {
-        groupId = client.character.groupId;
-      }
-      if (
-        sendPacketToLocalClient ||
-        this.characterId != client.character.characterId
-      ) {
-        server.sendData<EquipmentSetCharacterEquipmentSlot>(
-          client,
-          "Equipment.SetCharacterEquipmentSlot",
-          this.pGetEquipmentSlotFull(
-            slotId,
-            groupId
-          ) as EquipmentSetCharacterEquipmentSlot
-        );
-      }
-    });
   }
 
   meleeBlocked(delay: number = 1000) {
@@ -1495,7 +1486,7 @@ export class Character2016 extends BaseFullCharacter {
     }
   }
 
-  pGetEquipmentSlotFull(slotId: number, groupId?: number) {
+  pGetEquipmentSlotFull(slotId: number) {
     const slot = this._equipment[slotId];
     if (!slot) return;
     return {
@@ -1503,54 +1494,56 @@ export class Character2016 extends BaseFullCharacter {
         characterId: this.characterId
       },
       equipmentSlot: this.pGetEquipmentSlot(slotId),
-      attachmentData: this.pGetAttachmentSlot(slotId, groupId)
+      attachmentData: this.pGetAttachmentSlot(slotId)
     };
   }
 
-  updateEquipment(server: ZoneServer2016, groupId?: number) {
+  updateEquipment(server: ZoneServer2016) {
     if (!server.getClientByCharId(this.characterId)?.character.initialized)
       return;
     server.sendDataToAllWithSpawnedEntity(
       server._characters,
       this.characterId,
       "Equipment.SetCharacterEquipment",
-      this.pGetEquipment(groupId)
+      this.pGetEquipment()
     );
   }
 
-  pGetEquipment(groupId?: number) {
+  pGetEquipment() {
     return {
       characterData: {
         profileId: 5,
         characterId: this.characterId
       },
       unknownDword1: 0,
-      unknownString1: "Default",
-      unknownString2: "#",
+      tintAlias: "Default",
+      decalAlias: "#",
       equipmentSlots: this.pGetEquipmentSlots(),
-      attachmentData: this.pGetAttachmentSlots(groupId),
+      attachmentData: this.pGetAttachmentSlots(),
       unknownBoolean1: true
     };
   }
 
-  pGetAttachmentSlots(groupId?: number) {
+  pGetAttachmentSlots() {
     return Object.keys(this._equipment).map((slotId) => {
-      return this.pGetAttachmentSlot(Number(slotId), groupId);
+      return this.pGetAttachmentSlot(Number(slotId));
     });
   }
 
-  pGetAttachmentSlot(slotId: number, groupId?: number) {
+  pGetAttachmentSlot(slotId: number) {
     const slot = this._equipment[slotId];
     return slot
       ? {
-          modelName:
-            slot.modelName /* == "Weapon_Empty.adr" ? slot.modelName : ""*/,
-          effectId: this.groupId > 0 && this.groupId == groupId ? 3 : 0,
+          modelName: slot.modelName.replace(
+            /Up|Down/g,
+            this.hoodState == "Down" ? "Up" : "Down"
+          ),
           textureAlias: slot.textureAlias || "",
+          effectId: slot.effectId || 0,
           tintAlias: slot.tintAlias || "Default",
           decalAlias: slot.decalAlias || "#",
-          slotId: slot.slotId
-          //SHADER_PARAMETER_GROUP: slot.SHADER_PARAMETER_GROUP
+          slotId: slot.slotId,
+          SHADER_PARAMETER_GROUP: slot?.SHADER_PARAMETER_GROUP ?? []
         }
       : undefined;
   }
@@ -1600,7 +1593,7 @@ export class Character2016 extends BaseFullCharacter {
       useCompression: false,
       fullPcData: {
         transientId: this.transientId,
-        attachmentData: this.pGetAttachmentSlots(client.character.groupId),
+        attachmentData: this.pGetAttachmentSlots(),
         headActor: this.headActor,
         hairModel: this.hairModel,
         resources: { data: this.pGetResources() },
@@ -1638,12 +1631,6 @@ export class Character2016 extends BaseFullCharacter {
       stance: this.weaponStance
     });
 
-    // GROUP OUTLINE WORKAROUND
-    server.sendData<EquipmentSetCharacterEquipment>(
-      client,
-      "Equipment.SetCharacterEquipment",
-      this.pGetEquipment(client.character.groupId)
-    );
     const c = server.getClientByCharId(this.characterId);
     if (c && !c.firstLoading) {
       server.updateCharacterState(
@@ -1660,71 +1647,11 @@ export class Character2016 extends BaseFullCharacter {
     }
   }
 
-  OnProjectileHit(server: ZoneServer2016, damageInfo: DamageInfo) {
-    if (!this.isAlive) return;
-
-    const itemDefinition = server.getItemDefinition(damageInfo.weapon);
-    if (!itemDefinition) return;
-    const weaponDefinitionId = itemDefinition.PARAM1;
-
-    const client = server.getClientByCharId(damageInfo.entity), // source
-      c = server.getClientByCharId(this.characterId); // target
-    if (!client || !c || !damageInfo.hitReport) {
-      return;
-    }
-
-    server.fairPlayManager.hitMissFairPlayCheck(
-      server,
-      client,
-      true,
-      damageInfo.hitReport?.hitLocation || ""
-    );
-
-    if (server.isHeadshotOnly && damageInfo.hitReport?.hitLocation != "HEAD")
-      return;
-    if (server.isPvE) return;
-
-    const hasHelmetBefore = this.hasHelmet(server);
-    const hasArmorBefore = this.hasArmor(server);
-
-    let damage = damageInfo.damage,
-      canStopBleed,
-      armorDmgModifier;
-    armorDmgModifier =
-      weaponDefinitionId == WeaponDefinitionIds.WEAPON_SHOTGUN ? 10 : 4;
-    if (weaponDefinitionId == WeaponDefinitionIds.WEAPON_308)
-      armorDmgModifier = 2;
-    switch (damageInfo.hitReport?.hitLocation) {
-      case "HEAD":
-      case "GLASSES":
-      case "NECK":
-        damage =
-          weaponDefinitionId == WeaponDefinitionIds.WEAPON_SHOTGUN
-            ? (damage *= 2)
-            : (damage *= 4);
-        damage =
-          weaponDefinitionId == WeaponDefinitionIds.WEAPON_308
-            ? (damage *= 2)
-            : damage;
-        damage = server.checkHelmet(this.characterId, damage, 1);
-        break;
-      default:
-        damage = server.checkArmor(this.characterId, damage, armorDmgModifier);
-        canStopBleed = true;
-        break;
-    }
-
-    if (this.isAlive) {
-      server.sendHitmarker(
-        client,
-        damageInfo.hitReport?.hitLocation,
-        this.hasHelmet(server),
-        this.hasArmor(server),
-        hasHelmetBefore,
-        hasArmorBefore
-      );
-    }
-
+  applySpecialWeaponEffect(
+    server: ZoneServer2016,
+    client: ZoneClient2016,
+    weaponDefinitionId: WeaponDefinitionIds
+  ) {
     /* eslint-disable @typescript-eslint/no-unused-vars */
     switch (weaponDefinitionId) {
       case WeaponDefinitionIds.WEAPON_BLAZE:
@@ -1763,7 +1690,7 @@ export class Character2016 extends BaseFullCharacter {
       case WeaponDefinitionIds.WEAPON_FROSTBITE:
         if (!this._characterEffects[Effects.PFX_Seasonal_Holiday_Snow_skel]) {
           server.sendData<ClientUpdateModifyMovementSpeed>(
-            c,
+            client,
             "ClientUpdate.ModifyMovementSpeed",
             {
               speed: 0.5
@@ -1778,7 +1705,7 @@ export class Character2016 extends BaseFullCharacter {
             character: Character2016
           ) {
             server.sendData<ClientUpdateModifyMovementSpeed>(
-              c,
+              client,
               "ClientUpdate.ModifyMovementSpeed",
               {
                 speed: 2
@@ -1797,7 +1724,100 @@ export class Character2016 extends BaseFullCharacter {
         );
         break;
     }
-    /* eslint-enable @typescript-eslint/no-unused-vars */
+  }
+
+  OnProjectileHit(server: ZoneServer2016, damageInfo: DamageInfo) {
+    if (!this.isAlive || server.isPvE) return;
+
+    if (server.isHeadshotOnly) {
+      switch (damageInfo.hitReport?.hitLocation) {
+        case "HEAD":
+        case "GLASSES":
+        case "NECK":
+          break;
+        default:
+          return;
+      }
+    }
+
+    const itemDefinition = server.getItemDefinition(damageInfo.weapon);
+    if (!itemDefinition) return;
+    const weaponDefinitionId = itemDefinition.PARAM1;
+
+    const sourceClient = server.getClientByCharId(damageInfo.entity), // source
+      targetClient = server.getClientByCharId(this.characterId); // target
+    if (!sourceClient || !targetClient || !damageInfo.hitReport) {
+      return;
+    }
+
+    server.fairPlayManager.hitMissFairPlayCheck(
+      server,
+      sourceClient,
+      true,
+      damageInfo.hitReport?.hitLocation || ""
+    );
+
+    const hasHelmetBefore = this.hasHelmet(server);
+    const hasArmorBefore = this.hasArmor(server);
+
+    let damage = damageInfo.damage,
+      canStopBleed,
+      weaponDmgModifier,
+      headshotDmgMultiplier;
+
+    // these should be configurable
+    const weaponDmgModifierDefault = 4,
+      weaponDmgModifierShotgun = 10,
+      weaponDmgModifierSniper = 1,
+      headshotDmgMultiplierDefault = 4,
+      headshotDmgMultiplierShotgun = 2,
+      headshotDmgMultiplierSniper = 6;
+
+    switch (weaponDefinitionId) {
+      case WeaponDefinitionIds.WEAPON_SHOTGUN:
+        weaponDmgModifier = weaponDmgModifierShotgun;
+        headshotDmgMultiplier = headshotDmgMultiplierShotgun;
+        break;
+      case WeaponDefinitionIds.WEAPON_308:
+        weaponDmgModifier = weaponDmgModifierSniper;
+        headshotDmgMultiplier = headshotDmgMultiplierSniper;
+        break;
+      default:
+        weaponDmgModifier = weaponDmgModifierDefault;
+        headshotDmgMultiplier = headshotDmgMultiplierDefault;
+        break;
+    }
+
+    switch (damageInfo.hitReport?.hitLocation) {
+      case "HEAD":
+      case "GLASSES":
+      case "NECK":
+        damage = damage *= headshotDmgMultiplier;
+        damage = server.applyHelmetDamageReduction(this, damage, 1);
+        break;
+      default:
+        damage = server.applyArmorDamageReduction(
+          this,
+          damage,
+          weaponDmgModifier
+        );
+        canStopBleed = true;
+        break;
+    }
+
+    if (this.isAlive) {
+      server.sendHitmarker(
+        sourceClient,
+        damageInfo.hitReport?.hitLocation,
+        this.hasHelmet(server),
+        this.hasArmor(server),
+        hasHelmetBefore,
+        hasArmorBefore
+      );
+    }
+
+    this.applySpecialWeaponEffect(server, targetClient, weaponDefinitionId);
+
     this.damage(server, {
       ...damageInfo,
       damage: damage,
@@ -1830,10 +1850,10 @@ export class Character2016 extends BaseFullCharacter {
       case "HEAD":
       case "GLASSES":
       case "NECK":
-        damage = server.checkHelmet(this.characterId, damage, 1);
+        damage = server.applyHelmetDamageReduction(this, damage, 1);
         break;
       default:
-        damage = server.checkArmor(this.characterId, damage, 4);
+        damage = server.applyArmorDamageReduction(this, damage, 4);
         break;
     }
 
@@ -1849,5 +1869,29 @@ export class Character2016 extends BaseFullCharacter {
     }
 
     this.damage(server, { ...damageInfo, damage });
+  }
+
+  OnExplosiveHit(server: ZoneServer2016, sourceEntity: BaseEntity) {
+    const sourceIsVehicle = sourceEntity instanceof Vehicle2016;
+    if (
+      !isPosInRadiusWithY(
+        sourceIsVehicle ? 5 : 3,
+        this.state.position,
+        sourceEntity.state.position,
+        1.5
+      )
+    )
+      return;
+
+    const distance = getDistance(
+        sourceEntity.state.position,
+        this.state.position
+      ),
+      damage = 50000 / distance;
+
+    this.damage(server, {
+      entity: sourceEntity.characterId,
+      damage: damage
+    });
   }
 }

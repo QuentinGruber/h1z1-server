@@ -26,9 +26,10 @@ export class ZoneClient2016 {
   guid?: string;
   character: Character2016;
   currentPOI?: number;
-  firstLoading: boolean = false;
+  firstLoading: boolean = true;
   isLoading: boolean = true;
   characterReleased: boolean = false;
+  firstCharacterReleased: boolean = true;
   isSynced: boolean = false;
   isInteracting: boolean = false;
   isAdmin: boolean = false;
@@ -101,10 +102,15 @@ export class ZoneClient2016 {
   blockedPositionUpdates: number = 0;
   flaggedShots: number = 0;
   isFairPlayFlagged: boolean = false;
-  kickTimer?: NodeJS.Timeout;
+  assetIntegrityKickTimer?: NodeJS.Timeout;
   isInVoiceChat: boolean = false;
   voiceChatTimer?: NodeJS.Timeout;
   heartBeatTimer?: NodeJS.Timeout;
+  afkTimer?: NodeJS.Timeout;
+  movementSet: Set<number> = new Set();
+  static minMovementForAfk: number = 20;
+  static afkTime: number = 10 * 60_000;
+  gotAfkWarning: boolean = false;
   constructor(
     sessionId: number,
     soeClientId: string,
@@ -116,8 +122,6 @@ export class ZoneClient2016 {
     this.sessionId = sessionId;
     this.soeClientId = soeClientId;
 
-    this.isLoading = true;
-    this.firstLoading = true;
     this.loginSessionId = loginSessionId;
     this.spawnedEntities = new Set();
     this.managedObjects = [];
@@ -132,6 +136,25 @@ export class ZoneClient2016 {
       this.isInteracting = false;
     };
     this.character = new Character2016(characterId, transientId, server);
+  }
+  afk(server: ZoneServer2016) {
+    if (this.movementSet.size < ZoneClient2016.minMovementForAfk) {
+      if (this.gotAfkWarning) {
+        server.kickPlayer(this);
+        return;
+      }
+      server.sendAlert(this, "You will be kicked soon for AFK");
+      this.gotAfkWarning = true;
+      setTimeout(() => {
+        this.afk(server);
+      }, 20_000);
+    } else {
+      this.movementSet.clear();
+      if (this.gotAfkWarning) {
+        this.gotAfkWarning = false;
+        server.sendAlert(this, "You're no longer detected as AFK");
+      }
+    }
   }
   addPing(ping: number) {
     if (ping > 0) {

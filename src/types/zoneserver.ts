@@ -77,12 +77,18 @@ export interface positionUpdate {
 export interface CharacterEquipment {
   modelName: string;
   slotId: number;
+  effectId?: number;
   guid?: string;
   defaultTextureAlias?: string;
   textureAlias?: string;
   tintAlias?: string;
   decalAlias?: string;
   SHADER_PARAMETER_GROUP?: Array<{SHADER_SEMANTIC_ID: number}>
+}
+
+export interface GrinderItem {
+  itemDefinitionId: number;
+  count: number;
 }
 
 export interface Weather {
@@ -578,6 +584,7 @@ export interface ItemDefinition {
 
   // server-side only, added by h1emu
   WORLD_MODEL_ID?: number,
+  EFFECT_ID?: number;
   PICKUP_EFFECT?: number,
   PLACEMENT_MODEL_ID?: number,
 }

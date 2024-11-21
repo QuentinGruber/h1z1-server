@@ -1021,6 +1021,12 @@ export const initMongo = async function (
     .db(dbName)
     .collection(DB_COLLECTIONS.SERVERS)
     .insertMany(servers);
+  await mongoClient.db(dbName).createCollection(DB_COLLECTIONS.ADMINS);
+  const admins = require("../../data/defaultDatabase/shared/admins.json");
+  await mongoClient
+    .db(dbName)
+    .collection(DB_COLLECTIONS.ADMINS)
+    .insertMany(admins);
   debug("h1server database was missing... created one with samples.");
 };
 
@@ -1547,4 +1553,38 @@ export function loadNavData() {
     }
   });
   return new Uint8Array(Buffer.concat(dataInOrder));
+}
+export function isHalloween() {
+  const today = new Date();
+  return today.getMonth() === 9 && today.getDate() === 31;
+}
+
+export function luck(l: number) {
+  return Math.floor(Math.random() * l) === 0;
+}
+
+const Z1_POIs = require("../../data/2016/zoneData/Z1_POIs");
+export function isPosInPoi(position: Float32Array): boolean {
+  let useRange = true;
+  let isInPoi = false;
+  Z1_POIs.forEach((point: any) => {
+    if (point.bounds) {
+      useRange = false;
+      point.bounds.forEach((bound: any) => {
+        if (isInsideSquare([position[0], position[2]], bound)) {
+          isInPoi = true;
+          return;
+        }
+      });
+    }
+    if (useRange && isPosInRadius(point.range, position, point.position)) {
+      isInPoi = true;
+    }
+  });
+
+  return isInPoi;
+}
+
+export function chance(chanceNum: number): boolean {
+  return Math.random() * 1000 < chanceNum;
 }

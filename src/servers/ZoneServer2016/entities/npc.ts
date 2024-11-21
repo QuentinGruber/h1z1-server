@@ -16,9 +16,11 @@ import { ZoneServer2016 } from "../zoneserver";
 import { BaseFullCharacter } from "./basefullcharacter";
 import { ZoneClient2016 } from "../classes/zoneclient";
 import {
+  chance,
   getCurrentServerTimeWrapper,
   getDistance,
-  logClientActionToMongo
+  logClientActionToMongo,
+  randomIntFromInterval
 } from "../../../utils/utils";
 import { DB_COLLECTIONS } from "../../../utils/enums";
 import {
@@ -72,6 +74,7 @@ export class Npc extends BaseFullCharacter {
   server: ZoneServer2016;
   entityType: EntityType;
   npcMeleeDamage: number;
+  isSelected: boolean = false;
   constructor(
     characterId: string,
     transientId: number,
@@ -336,6 +339,16 @@ export class Npc extends BaseFullCharacter {
   }
 
   OnPlayerSelect(server: ZoneServer2016, client: ZoneClient2016) {
+    // Only one at a time
+    if (this.isSelected) {
+      return;
+    }
+    this.isSelected = true;
+    // Unlock selection after 5sec
+    // It's easier to do it that way that to make a whole sys with the utilizeHudTimer
+    setTimeout(() => {
+      this.isSelected = false;
+    }, 5_100);
     const skinningKnife = client.character.getItemById(Items.SKINNING_KNIFE);
     if (!this.isAlive && skinningKnife) {
       server.utilizeHudTimer(client, this.nameId, 5000, 0, () => {
@@ -353,7 +366,7 @@ export class Npc extends BaseFullCharacter {
               server.removeInventoryItem(client.character, emptySyringe);
               return;
             }
-            this.triggerAwards(server, client, this.rewardItems);
+            this.triggerAwards(server, client, this.rewardItems, true);
             break;
           case ModelIds.DEER_BUCK:
           case ModelIds.DEER:
@@ -366,9 +379,9 @@ export class Npc extends BaseFullCharacter {
             this.triggerAwards(server, client, this.rewardItems);
             break;
           case ModelIds.ZOMBIE_SCREAMER:
-            this.triggerAwards(server, client, this.rewardItems);
+            this.triggerAwards(server, client, this.rewardItems, true);
         }
-        server.damageItem(client, skinningKnife, 400);
+        server.damageItem(client.character, skinningKnife, 200);
         server.deleteEntity(this.characterId, server._npcs);
       });
     }
@@ -377,10 +390,31 @@ export class Npc extends BaseFullCharacter {
   triggerAwards(
     server: ZoneServer2016,
     client: ZoneClient2016,
-    rewardItems: { itemDefId: number; weight: number }[]
+    rewardItems: { itemDefId: number; weight: number }[],
+    isZombie: boolean = false
   ) {
     const ranges = [];
     const preRewardedItems: number[] = [];
+
+    if (isZombie) {
+      if (chance(2)) {
+        const wornLetters = [
+          Items.WORN_LETTER_CHURCH_PV,
+          Items.WORN_LETTER_LJ_PV,
+          Items.WORN_LETTER_MISTY_DAM,
+          Items.WORN_LETTER_RADIO,
+          Items.WORN_LETTER_RUBY_LAKE,
+          Items.WORN_LETTER_TOXIC_LAKE,
+          Items.WORN_LETTER_VILLAS,
+          Items.WORN_LETTER_WATER_TOWER
+        ];
+
+        const randomIndex = randomIntFromInterval(0, wornLetters.length - 1);
+        const randomWornLetter = wornLetters[randomIndex];
+        const newItem = server.generateItem(randomWornLetter, 1);
+        client.character.lootContainerItem(server, newItem);
+      }
+    }
 
     let cumulativeWeight = 0;
     for (const reward of rewardItems) {

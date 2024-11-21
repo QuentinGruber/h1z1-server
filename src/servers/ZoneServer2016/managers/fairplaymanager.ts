@@ -726,9 +726,10 @@ export class FairPlayManager {
     if (!this.useAssetValidation || server._soloMode || client.isAdmin) return;
 
     server.sendData(client, "H1emu.RequestAssetHashes", {});
+    server.sendData(client, "UpdateWeatherData", server.weatherManager.weather);
     server.sendConsoleText(client, "[SERVER] Requested asset hashes");
 
-    client.kickTimer = setTimeout(() => {
+    client.assetIntegrityKickTimer = setTimeout(() => {
       if (!client) return;
       server.kickPlayerWithReason(client, "Missing asset integrity check.");
     }, this.hashSubmissionTimeout);
@@ -755,7 +756,7 @@ export class FairPlayManager {
       return;
     }
 
-    const hashes = this.defaultHashes.concat(this.requiredPacks),
+    const hashes = this.defaultHashes,
       validatedHashes: Array<FileHash> = [];
 
     // check if all default / required packs are found in game files
@@ -804,7 +805,7 @@ export class FairPlayManager {
 
     console.log(`${client.loginSessionId} passed asset integrity check.`);
     server.sendConsoleText(client, "[SERVER] Passed asset integrity check");
-    clearTimeout(client.kickTimer);
-    delete client.kickTimer;
+    clearTimeout(client.assetIntegrityKickTimer);
+    delete client.assetIntegrityKickTimer;
   }
 }

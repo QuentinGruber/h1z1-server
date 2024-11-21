@@ -317,28 +317,14 @@ export const commands: Array<Command> = [
     name: "hood",
     permissionLevel: PermissionLevels.DEFAULT,
     execute: (server: ZoneServer2016, client: Client, args: Array<string>) => {
-      const equipment = client.character._equipment[3] || {},
-        equipmentModel = equipment.modelName || "";
-
-      if (
-        !client.character._equipment[3] ||
-        !client.character._equipment[3].modelName.includes("Hoodie")
-      ) {
+      const equipment = client.character._equipment[3];
+      if (!equipment || !equipment.modelName.includes("Hoodie")) {
         server.sendChatText(client, "[ERROR] You aren't wearing a hoodie.");
-      } else {
-        if (equipmentModel.includes("Up")) {
-          client.character._equipment[3].modelName = equipmentModel.replace(
-            "Up",
-            "Down"
-          );
-        } else {
-          client.character._equipment[3].modelName = equipmentModel.replace(
-            "Down",
-            "Up"
-          );
-        }
-        client.character.updateEquipmentSlot(server, EquipSlots.CHEST);
+        return;
       }
+      client.character.hoodState =
+        client.character.hoodState == "Up" ? "Down" : "Up";
+      client.character.updateEquipmentSlot(server, EquipSlots.CHEST);
     }
   },
   {
@@ -1546,24 +1532,36 @@ export const commands: Array<Command> = [
     name: "parachute",
     permissionLevel: PermissionLevels.ADMIN,
     execute: (server: ZoneServer2016, client: Client, args: Array<string>) => {
+      const player = args[0];
+      const targetClient = player && server.getClientByName(player);
+
+      if (typeof targetClient === "string") {
+        server.sendChatText(
+          client,
+          `Player not found, did you mean ${targetClient}?`
+        );
+        return;
+      }
+
+      const actingClient = targetClient ?? client;
       const characterId = server.generateGuid(),
         loc = new Float32Array([
-          client.character.state.position[0],
-          client.character.state.position[1] + 700,
-          client.character.state.position[2],
-          client.character.state.position[3]
+          actingClient.character.state.position[0],
+          actingClient.character.state.position[1] + 700,
+          actingClient.character.state.position[2],
+          actingClient.character.state.position[3]
         ]),
         vehicle = new Vehicle2016(
           characterId,
           server.getTransientId(characterId),
           9374,
           loc,
-          client.character.state.rotation,
+          actingClient.character.state.rotation,
           server,
           getCurrentServerTimeWrapper().getTruncatedU32(),
           VehicleIds.PARACHUTE
         );
-      server.sendData(client, "ClientUpdate.UpdateLocation", {
+      server.sendData(actingClient, "ClientUpdate.UpdateLocation", {
         position: loc,
         triggerLoadingScreen: true
       });
@@ -1574,7 +1572,7 @@ export const commands: Array<Command> = [
         server.assignManagedObject(clientTriggered, vehicle);
         clientTriggered.vehicle.mountedVehicle = characterId;
       };
-      server.worldObjectManager.createVehicle(server, vehicle);
+      server.worldObjectManager.createVehicle(server, vehicle, true);
     }
   },
   {
@@ -1897,9 +1895,7 @@ export const commands: Array<Command> = [
             useCompression: false,
             fullPcData: {
               transientId: client.character.transientId,
-              attachmentData: client.character.pGetAttachmentSlots(
-                client.character.groupId
-              ),
+              attachmentData: client.character.pGetAttachmentSlots(),
               headActor: client.character.headActor,
               hairModel: client.character.hairModel,
               resources: { data: client.character.pGetResources() },
@@ -3011,17 +3007,6 @@ export const commands: Array<Command> = [
       /* DO NOT REMOVE THIS */
       /* handled clientside, used to send custom packets from client to zone */
       /* DO NOT REMOVE THIS */
-    }
-  },
-  {
-    name: "group",
-    permissionLevel: PermissionLevels.DEFAULT,
-    execute: async (
-      server: ZoneServer2016,
-      client: Client,
-      args: Array<string>
-    ) => {
-      server.groupManager.handleGroupCommand(server, client, args);
     }
   },
   {

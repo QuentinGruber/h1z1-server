@@ -47,7 +47,15 @@ import { PacketStructures } from "types/packetStructure";
 
 export const basePackets: PacketStructures = [
   ["Server", 0x01, {}],
-  ["ClientFinishedLoading", 0x02, {}],
+  [
+    "ClientFinishedLoading",
+    0x02,
+    {
+      fields: [
+        { name: "characterReleased", type: "boolean", defaultValue: false } // This value is first set to false, the second time its sent its set to true
+      ]
+    }
+  ],
   [
     "SendSelfToClient",
     0x03,
@@ -76,7 +84,7 @@ export const basePackets: PacketStructures = [
             { name: "unknownString4", type: "string", defaultValue: "" },
             { name: "headId", type: "uint32", defaultValue: 0 },
             { name: "unknownDword6", type: "uint32", defaultValue: 0 },
-            { name: "shaderGroupId", type: "uint32", defaultValue: 664 },
+            { name: "shaderGroupId", type: "uint32", defaultValue: 0 },
             { name: "unknownDword9", type: "uint32", defaultValue: 0 },
             { name: "unknownDword10", type: "uint32", defaultValue: 0 },
             { name: "position", type: "floatvector4", defaultValue: 0 },
@@ -2272,7 +2280,7 @@ export const basePackets: PacketStructures = [
               type: "uint32",
               defaultValue: 0
             },
-            { name: "unknownDword40", type: "uint32", defaultValue: 0 },
+            { name: "unknownDword40", type: "int32", defaultValue: 0 },
             { name: "isAdmin", type: "boolean", defaultValue: true },
             { name: "firstPersonOnly", type: "boolean", defaultValue: false },
             { name: "spectatorFlags", type: "uint8", defaultValue: 0 }
@@ -2604,7 +2612,7 @@ export const basePackets: PacketStructures = [
     0x4f,
     {
       fields: [
-        { name: "unknownDword1", type: "uint32", defaultValue: 0 },
+        { name: "unknownBoolean1", type: "boolean", defaultValue: true },
         { name: "sessionToken", type: "string", defaultValue: "" }
       ]
     }
@@ -3382,7 +3390,40 @@ export const basePackets: PacketStructures = [
   ],
   ["CheckLocalValues", 0xde, {}],
   ["ChronicleBase", 0xdf, {}],
-  ["GrinderBase", 0xe0, {}],
+  [
+    "Grinder.ExchangeRequest",
+    0xe00100,
+    {
+      fields: [
+        {
+          name: "items",
+          type: "array",
+          defaultValue: [],
+          fields: [
+            { name: "itemDefinitionId", type: "uint32", defaultValue: 0 },
+            { name: "count", type: "uint32", defaultValue: 0 }
+          ]
+        }
+      ]
+    }
+  ],
+  [
+    "Grinder.ExchangeResponse",
+    0xe00200,
+    {
+      fields: [
+        {
+          name: "items",
+          type: "array",
+          defaultValue: [],
+          fields: [
+            { name: "itemDefinitionId", type: "uint32", defaultValue: 0 },
+            { name: "count", type: "uint32", defaultValue: 0 }
+          ]
+        }
+      ]
+    }
+  ],
   ["RequestObject", 0xe1, {}],
   ["WhitelistBase", 0xe4, {}],
   [
@@ -3446,19 +3487,29 @@ export const basePackets: PacketStructures = [
   ["CancelQueueOnWorld", 0xef, {}],
   ["DeclineEnterGameOnWorld", 0xf0, {}],
   [
-    "ShaderParameterOverrideBase",
+    "ShaderParameterOverrideBase", // This is used for items with ShaderParameterOverride code factory name
     0xf20100,
     {
       fields: [
         { name: "characterId", type: "uint64string", defaultValue: "0" },
-        { name: "unknownDword1", type: "uint32", defaultValue: 0 },
-        { name: "slotId", type: "uint32", defaultValue: 0 },
-        { name: "unknownDword2", type: "uint32", defaultValue: 0 },
+        { name: "itemDefinitionId", type: "uint32", defaultValue: 0 },
+        { name: "slotId", type: "uint32", defaultValue: 0 }, // PARAM1
+        { name: "unknownDword2", type: "uint32", defaultValue: 0 }, // PARAM2
+        { name: "shaderGroupId", type: "uint32", defaultValue: 0 } // PARAM3
+      ]
+    }
+  ],
+  [
+    "VehicleSkinSetVehicleSkinManager",
+    0xf301,
+    {
+      fields: [
+        { name: "vehicleId", type: "uint64string", defaultValue: "0" },
+        { name: "characterId", type: "uint64string", defaultValue: "0" },
         { name: "shaderGroupId", type: "uint32", defaultValue: 0 }
       ]
     }
   ],
-  ["VehicleSkinBase", 0xf3, {}],
   ["WeaponLagLockParameters", 0xf5, {}],
   ["CrateOpeningBase", 0xf6, {}],
   ["PlayerHeatWarning", 0xf7, {}],
@@ -3469,6 +3520,25 @@ export const basePackets: PacketStructures = [
       fields: [
         { name: "characterId", type: "uint64string", defaultValue: "0" },
         { name: "animationId", type: "uint32", defaultValue: 0 }
+      ]
+    }
+  ],
+  // These packets are sent when using data from KOTK
+  [
+    "Ping",
+    0x7f00,
+    {
+      fields: [
+        // Theres 1204 more bytes, which I can't make sense of
+      ]
+    }
+  ],
+  [
+    "Pong",
+    0x7f01,
+    {
+      fields: [
+        { name: "unknownQword1", type: "uint64string", defaultValue: "0" }
       ]
     }
   ]

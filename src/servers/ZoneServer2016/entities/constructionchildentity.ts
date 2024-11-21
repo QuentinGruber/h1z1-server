@@ -15,21 +15,34 @@ function getRenderDistance(itemDefinitionId: number) {
     case Items.FOUNDATION:
     case Items.FOUNDATION_EXPANSION:
     case Items.GROUND_TAMPER:
-      range = 350;
+    case Items.METAL_DOORWAY:
+    case Items.METAL_WALL:
+    case Items.METAL_WALL_UPPER:
+    case Items.DOOR_BASIC:
+    case Items.DOOR_METAL:
+    case Items.DOOR_WOOD:
+    case Items.SHELTER:
+    case Items.SHELTER_LARGE:
+    case Items.SHELTER_UPPER:
+    case Items.SHELTER_UPPER_LARGE:
+    case Items.METAL_GATE:
+    case Items.STRUCTURE_STAIRS:
+    case Items.STRUCTURE_STAIRS_UPPER:
+      range = 420;
       break;
     case Items.FURNACE:
     case Items.WORKBENCH:
     case Items.WORKBENCH_WEAPON:
     case Items.BEE_BOX:
     case Items.DEW_COLLECTOR:
-      range = 100;
+      range = 420;
       break;
     case Items.STORAGE_BOX:
     case Items.ANIMAL_TRAP:
       range = 20;
       break;
     default:
-      range = 300;
+      range = 420;
       break;
   }
   return range;
@@ -56,6 +69,7 @@ import {
   getConstructionSlotId,
   getCubeBounds,
   isInsideCube,
+  isPosInRadius,
   movePoint,
   registerConstructionSlots
 } from "../../../utils/utils";
@@ -69,6 +83,8 @@ import {
 } from "../data/constructionslots";
 import { ConstructionDoor } from "./constructiondoor";
 import { LootableConstructionEntity } from "./lootableconstructionentity";
+import { BaseEntity } from "./baseentity";
+import { ExplosiveEntity } from "./explosiveentity";
 function getDamageRange(definitionId: Items): number {
   switch (definitionId) {
     case Items.METAL_WALL:
@@ -361,10 +377,21 @@ export class ConstructionChildEntity extends BaseLightweightCharacter {
       slot = 1;
     }
     const slots = definitions[this.itemDefinitionId];
-    if (!slots || !slots.authorizedItems.includes(itemDefinitionId)) {
+    if (!slots) {
+      console.error(`Slot definition not found for item ${itemDefinitionId}`);
       return false;
     }
-    return !!slotMap[slot];
+    if (!slots.authorizedItems.includes(itemDefinitionId)) {
+      console.error(
+        `Item ${itemDefinitionId} is not authorized for slot ${slot}`
+      );
+      return false;
+    }
+    if (!slotMap[slot]) {
+      console.error(`Slot ${slot} is not valid`);
+      return false;
+    }
+    return true;
   }
 
   protected setSlot(
@@ -374,8 +401,13 @@ export class ConstructionChildEntity extends BaseLightweightCharacter {
     occupiedSlots: OccupiedSlotMap
   ) {
     const slot = entity.getSlotNumber();
-    if (!this.isSlotValid(slot, definitions, slotMap, entity.itemDefinitionId))
+    if (
+      !this.isSlotValid(slot, definitions, slotMap, entity.itemDefinitionId)
+    ) {
+      console.error("Invalid slot for entity");
+      console.error(JSON.stringify(entity));
       return false;
+    }
     occupiedSlots[slot] = entity;
     return true;
   }
@@ -697,5 +729,63 @@ export class ConstructionChildEntity extends BaseLightweightCharacter {
 
   OnMeleeHit(server: ZoneServer2016, damageInfo: DamageInfo) {
     server.constructionManager.OnMeleeHit(server, damageInfo, this);
+  }
+
+  OnExplosiveHit(
+    server: ZoneServer2016,
+    sourceEntity: BaseEntity,
+    client?: ZoneClient2016
+  ) {
+    if (
+      this.itemDefinitionId == Items.FOUNDATION_RAMP ||
+      this.itemDefinitionId == Items.FOUNDATION_STAIRS
+    )
+      return;
+
+    const itemDefinitionId =
+      sourceEntity instanceof ExplosiveEntity
+        ? sourceEntity.itemDefinitionId
+        : 0;
+
+    if (
+      server._worldSimpleConstruction[this.characterId] &&
+      isPosInRadius(4, this.state.position, sourceEntity.state.position)
+    ) {
+      server.constructionManager.checkConstructionDamage(
+        server,
+        this,
+        server.baseConstructionDamage,
+        sourceEntity.state.position,
+        this.state.position,
+        itemDefinitionId
+      );
+      return;
+    }
+
+    if (
+      !isPosInRadius(
+        this.damageRange * 1.5,
+        this.fixedPosition ? this.fixedPosition : this.state.position,
+        sourceEntity.state.position
+      )
+    ) {
+      return;
+    }
+
+    if (server.constructionManager.isConstructionInSecuredArea(server, this)) {
+      if (!client) return;
+      server.constructionManager.sendBaseSecuredMessage(server, client);
+
+      return;
+    }
+
+    server.constructionManager.checkConstructionDamage(
+      server,
+      this,
+      server.baseConstructionDamage,
+      sourceEntity.state.position,
+      this.fixedPosition ? this.fixedPosition : this.state.position,
+      itemDefinitionId
+    );
   }
 }
