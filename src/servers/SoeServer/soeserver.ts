@@ -378,9 +378,9 @@ export class SOEServer extends EventEmitter {
         break;
       case "OutOfOrder":
         client.stats.packetsOutOfOrder++;
-            client.outputStream.outOfOrder.add(packet.sequence);
+        client.outputStream.outOfOrder.add(packet.sequence);
         break;
-        case "Ack":
+      case "Ack":
         const mostWaitedPacketTime = client.unAckData.get(packet.sequence);
         if (mostWaitedPacketTime) {
           const currentLag = this.currentEventLoopLag || 0;
