@@ -66,7 +66,7 @@ export default class SOEClient {
     this.crcSeed = crcSeed;
     this.inputStream = new SOEInputStream(cryptoKey);
     this.outputStream = new SOEOutputStream(cryptoKey);
-    this._statsResetTimer = setInterval(() => this._resetStats(), 10000);
+    this._statsResetTimer = setInterval(() => this._resetStats(), 60000);
   }
   static getClientId(remote: RemoteInfo): string {
     return remote.address + ":" + remote.port;

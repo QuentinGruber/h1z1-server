@@ -46,7 +46,8 @@ export class SOEOutputStream extends EventEmitter {
     this._cache[sequence] = {
       data: data,
       fragment: isFragment,
-      sequence: sequence
+      sequence: sequence,
+      resendCounter: 0
     };
   }
 
@@ -184,15 +185,19 @@ export class SOEOutputStream extends EventEmitter {
     this.emit(SOEOutputChannels.Reliable);
   }
 
-  singleAck(sequence: number, unAckData: Map<number, number>): void {
+  /*singleAck(sequence: number, unAckData: Map<number, number>): void {
     const wrappedSequence = wrappedUint16.wrap(sequence);
     this.removeFromCache(wrappedSequence);
     unAckData.delete(wrappedSequence);
     this.emit(SOEOutputChannels.Reliable);
-  }
+  }*/
 
   getDataCache(sequence: number): dataCache {
     return this._cache[sequence];
+  }
+
+  incrementDataCacheResend(sequence: number) {
+    this._cache[sequence].resendCounter++;
   }
 
   isUsingEncryption(): boolean {

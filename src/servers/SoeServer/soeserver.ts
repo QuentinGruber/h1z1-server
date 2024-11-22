@@ -39,6 +39,7 @@ export class SOEServer extends EventEmitter {
   keepAliveTimeoutTime: number = 40000;
   private readonly _maxMultiBufferSize: number;
   private _resendTimeout: number = 250;
+  private _maxResentTries: number = 5;
   _allowRawDataReception: boolean = false;
   private _packetResetInterval: NodeJS.Timeout | undefined;
   avgEventLoopLag: number = 0;
@@ -142,14 +143,14 @@ export class SOEServer extends EventEmitter {
     const resendedSequences: Set<number> = new Set();
     for (const [sequence, time] of client.unAckData) {
       // if the packet is too old then we resend it
-      if (
-        time + this._resendTimeout <
-        currentTime
-      ) {
+      if (time + this._resendTimeout < currentTime) {
         const dataCache = client.outputStream.getDataCache(sequence);
         if (dataCache) {
+          if (dataCache.resendCounter >= this._maxResentTries) {
+            continue;
+          }
+          dataCache.resendCounter++;
           client.stats.packetResend++;
-
           const logicalPacket = this.createLogicalPacket(
             dataCache.fragment ? SoeOpcode.DataFragment : SoeOpcode.Data,
             { sequence: sequence, data: dataCache.data }
@@ -165,7 +166,7 @@ export class SOEServer extends EventEmitter {
     }
 
     // check for possible accerated resends
-    /*for (const sequence of client.outputStream.outOfOrder) {
+    for (const sequence of client.outputStream.outOfOrder) {
       if (sequence < client.outputStream.lastAck.get()) {
         continue;
       }
@@ -197,7 +198,7 @@ export class SOEServer extends EventEmitter {
           // well if it's not in the cache then it means that it has been acked
         }
       }
-    }*/
+    }
 
     // clear out of order array
     client.outputStream.outOfOrder.clear();
@@ -376,19 +377,24 @@ export class SOEServer extends EventEmitter {
         break;
       case "OutOfOrder":
         client.stats.packetsOutOfOrder++;
-        //client.outputStream.outOfOrder.add(packet.sequence);
-        client.outputStream.singleAck(packet.sequence, client.unAckData)
-        const mostWaitedPacketTime2 = client.unAckData.get(packet.sequence);
-        if (mostWaitedPacketTime2) {
-          const currentLag = this.currentEventLoopLag || 0;
-          client.addPing(Date.now() - mostWaitedPacketTime2 - currentLag);
-        }
+        client.outputStream.outOfOrder.add(packet.sequence);
+        //client.outputStream.singleAck(packet.sequence, client.unAckData)
         break;
       case "Ack":
         const mostWaitedPacketTime = client.unAckData.get(packet.sequence);
         if (mostWaitedPacketTime) {
           const currentLag = this.currentEventLoopLag || 0;
-          client.addPing(Date.now() - mostWaitedPacketTime - currentLag);
+          const dataCache = client.outputStream.getDataCache(packet.sequence);
+          if (dataCache) {
+            client.addPing(
+              Date.now() -
+                mostWaitedPacketTime -
+                currentLag +
+                this._resendTimeout *
+                  client.outputStream.getDataCache(packet.sequence)
+                    .resendCounter
+            );
+          }
         }
         client.outputStream.ack(packet.sequence, client.unAckData);
         break;
