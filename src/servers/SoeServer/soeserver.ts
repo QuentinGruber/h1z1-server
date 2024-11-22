@@ -143,7 +143,7 @@ export class SOEServer extends EventEmitter {
     for (const [sequence, time] of client.unAckData) {
       // if the packet is too old then we resend it
       if (
-        time + this._resendTimeout + this._waitTimeMs + client.avgPing <
+        time + this._resendTimeout <
         currentTime
       ) {
         const dataCache = client.outputStream.getDataCache(sequence);
@@ -165,7 +165,7 @@ export class SOEServer extends EventEmitter {
     }
 
     // check for possible accerated resends
-    for (const sequence of client.outputStream.outOfOrder) {
+    /*for (const sequence of client.outputStream.outOfOrder) {
       if (sequence < client.outputStream.lastAck.get()) {
         continue;
       }
@@ -197,7 +197,7 @@ export class SOEServer extends EventEmitter {
           // well if it's not in the cache then it means that it has been acked
         }
       }
-    }
+    }*/
 
     // clear out of order array
     client.outputStream.outOfOrder.clear();
@@ -376,7 +376,8 @@ export class SOEServer extends EventEmitter {
         break;
       case "OutOfOrder":
         client.stats.packetsOutOfOrder++;
-        client.outputStream.outOfOrder.add(packet.sequence);
+        //client.outputStream.outOfOrder.add(packet.sequence);
+        client.outputStream.singleAck(packet.sequence, client.unAckData)
         const mostWaitedPacketTime2 = client.unAckData.get(packet.sequence);
         if (mostWaitedPacketTime2) {
           const currentLag = this.currentEventLoopLag || 0;

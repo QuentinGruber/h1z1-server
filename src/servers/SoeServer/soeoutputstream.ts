@@ -184,6 +184,13 @@ export class SOEOutputStream extends EventEmitter {
     this.emit(SOEOutputChannels.Reliable);
   }
 
+  singleAck(sequence: number, unAckData: Map<number, number>): void {
+    const wrappedSequence = wrappedUint16.wrap(sequence);
+    this.removeFromCache(wrappedSequence);
+    unAckData.delete(wrappedSequence);
+    this.emit(SOEOutputChannels.Reliable);
+  }
+
   getDataCache(sequence: number): dataCache {
     return this._cache[sequence];
   }
