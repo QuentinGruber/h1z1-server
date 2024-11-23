@@ -1041,12 +1041,6 @@ const dev: any = {
       unknownBoolean1: Boolean(args[3])
     });
   },
-  poi: function (server: ZoneServer2016, client: Client, args: Array<string>) {
-    server.sendData(client, "POIChangeMessage", {
-      messageStringId: Number(args[1]) || 0,
-      id: Number(args[1]) || 0
-    });
-  },
 
   vehicleaccess: function (
     server: ZoneServer2016,
