@@ -52,7 +52,10 @@ import {
 } from "../../../utils/utils";
 import { BaseItem } from "../classes/baseItem";
 import { BaseLootableEntity } from "./baselootableentity";
-import { characterDefaultLoadout } from "../data/loadouts";
+import {
+  characterDefaultLoadout,
+  characterDefaultLoadoutBWC
+} from "../data/loadouts";
 import {
   AccessedCharacterBeginCharacterAccess,
   AccessedCharacterEndCharacterAccess,
@@ -386,6 +389,9 @@ export class Character2016 extends BaseFullCharacter {
       }, 1000);
     };
     this.materialType = MaterialTypes.FLESH;
+    if (server.map != "Z1") {
+      this.defaultLoadout = characterDefaultLoadoutBWC;
+    }
   }
 
   getShaderGroup() {

@@ -140,6 +140,7 @@ export class ConfigManager {
   applyConfig(server: ZoneServer2016) {
     //#region server
     const {
+      map,
       proximityItemsDistance,
       interactionDistance,
       charactersRenderDistance,
@@ -156,6 +157,7 @@ export class ConfigManager {
       isNoBuildInPois,
       baseConstructionDamage
     } = this.config.server;
+    server.map = map;
     server.proximityItemsDistance = proximityItemsDistance;
     server.interactionDistance = interactionDistance;
     server.charactersRenderDistance = charactersRenderDistance;
@@ -235,6 +237,7 @@ export class ConfigManager {
       crowbarHitRewardChance,
       crowbarHitDamage
     } = this.config.worldobjects;
+    server.worldObjectManager.map = map;
     server.worldObjectManager.vehicleSpawnCap = vehicleSpawnCap;
     server.worldObjectManager.minAirdropSurvivors = minAirdropSurvivors;
     server.worldObjectManager.hasCustomLootRespawnTime =
@@ -276,6 +279,7 @@ export class ConfigManager {
       minTreeHits,
       maxTreeHits
     } = this.config.speedtree;
+    server.speedtreeManager.map = map;
     server.speedtreeManager.minBlackberryHarvest = minBlackberryHarvest;
     server.speedtreeManager.maxBlackberryHarvest = maxBlackberryHarvest;
     server.speedtreeManager.branchHarvestChance = branchHarvestChance;

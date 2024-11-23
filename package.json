@@ -24,6 +24,7 @@
     "mongodb": "6.8.0",
     "recast-navigation": "^0.34.0",
     "threads": "1.7.0",
+    "@napi-rs/canvas": "0.1.44",
     "typescript": "5.5.4",
     "ws": "8.18.0"
   },

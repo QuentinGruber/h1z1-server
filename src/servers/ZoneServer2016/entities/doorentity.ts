@@ -83,6 +83,7 @@ function getDoorSound(actorModelId: number) {
       closeSound = Effects.SFX_Door_Wood_Church_Close;
       break;
     case ModelIds.OFFICE_DOOR:
+    case ModelIds.UNISEX_LEFT_DOOR:
     case ModelIds.MENS_LEFT_DOOR:
     case ModelIds.WOMENS_LEFT_DOOR:
       openSound = Effects.SFX_Door_Office_Open;

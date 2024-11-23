@@ -16,6 +16,7 @@ import {
   getCubeBounds,
   getDistance,
   isInsideCube,
+  getCurrentServerTimeWrapper,
   isPosInRadius
 } from "../../../utils/utils";
 import {
@@ -117,6 +118,39 @@ export class TrapEntity extends BaseSimpleNpc {
                 this.pGetSimpleProxyHealth()
               );
               if (!this.worldOwned) this.health -= 1000;
+            }
+          }
+
+          for (const a in server._npcs) {
+            const npc = server._npcs[a];
+            if (npc.gridIndex != this.gridIndex) return;
+            if (
+              getDistance(npc.state.position, this.state.position) < 2 &&
+              npc.isAlive
+            ) {
+              npc.damage(server, {
+                entity: this.characterId,
+                causeBleed: false,
+                damage: 501
+              });
+              server.sendDataToAllWithSpawnedEntity(
+                server._traps,
+                this.characterId,
+                "Character.PlayWorldCompositeEffect",
+                {
+                  characterId: "0x0",
+                  effectId: 5116,
+                  position: npc.state.position
+                }
+              );
+
+              server.sendDataToAllWithSpawnedEntity(
+                server._traps,
+                this.characterId,
+                "Character.UpdateSimpleProxyHealth",
+                this.pGetSimpleProxyHealth()
+              );
+              this.health -= 1000;
             }
           }
 
@@ -233,6 +267,57 @@ export class TrapEntity extends BaseSimpleNpc {
             }
           }
 
+          for (const a in server._npcs) {
+            const npc = server._npcs[a];
+            if (npc.gridIndex != this.gridIndex) return;
+            if (this.isInside(npc.state.position) && npc.isAlive) {
+              npc.inBarbedWire = this.characterId;
+              server.sendDataToAllWithSpawnedEntity(
+                server._npcs,
+                npc.characterId,
+                "PlayerUpdatePosition",
+                {
+                  transientId: npc.transientId,
+                  positionUpdate: {
+                    sequenceTime:
+                      getCurrentServerTimeWrapper().getTruncatedU32(),
+                    position: npc.state.position,
+                    unknown3_int8: 0,
+                    stance: 66565,
+                    horizontalSpeed: 0
+                  }
+                }
+              );
+              if (npc.behaviorInterval) {
+                clearInterval(npc.behaviorInterval);
+                npc.behaviorInterval = undefined;
+              }
+              npc.damage(server, {
+                entity: this.characterId,
+                causeBleed: false,
+                damage: 501
+              });
+              server.sendDataToAllWithSpawnedEntity(
+                server._traps,
+                this.characterId,
+                "Character.PlayWorldCompositeEffect",
+                {
+                  characterId: "0x0",
+                  effectId: 5116,
+                  position: npc.state.position
+                }
+              );
+
+              server.sendDataToAllWithSpawnedEntity(
+                server._traps,
+                this.characterId,
+                "Character.UpdateSimpleProxyHealth",
+                this.pGetSimpleProxyHealth()
+              );
+              this.health -= 1000;
+            }
+          }
+
           if (this.health > 0) {
             this.trapTimer?.refresh();
           } else {
@@ -246,6 +331,11 @@ export class TrapEntity extends BaseSimpleNpc {
                 position: this.state.position
               }
             );
+            for (const a in server._npcs) {
+              const npc = server._npcs[a];
+              if (npc.inBarbedWire == this.characterId)
+                npc.inBarbedWire = undefined;
+            }
             this.destroy(server);
             return;
           }
