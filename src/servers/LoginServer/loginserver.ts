@@ -235,12 +235,12 @@ export class LoginServer extends EventEmitter {
                     {
                       $set: {
                         populationNumber: population,
-                        populationLevel: Number(
-                          (
+                        populationLevel: Math.floor(
+                          Number(
                             (population /
                               (serverData?.maxPopulationNumber ?? 100)) *
-                            3
-                          ).toFixed(0)
+                              3
+                          )
                         )
                       }
                     }
