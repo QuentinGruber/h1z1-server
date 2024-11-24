@@ -1267,9 +1267,9 @@ export class ZonePacketHandlers {
       client.blockedPositionUpdates = 0;
     }
 
-    if (flags & 2) {
+    if (positionUpdate.position) {
       // Position flag
-      if (
+      /*if (
         await server.fairPlayManager.checkVehicleSpeed(
           server,
           client,
@@ -1295,7 +1295,7 @@ export class ZonePacketHandlers {
           false
         );
         return;
-      }
+      }*/
 
       // Update passenger positions and handle kicks if necessary
       vehicle.getPassengerList().forEach((passengerId) => {
@@ -1308,19 +1308,20 @@ export class ZonePacketHandlers {
           vehicle.removePassenger(passengerId);
         }
       });
-
-      // Update vehicle position
-      vehicle.state.position = new Float32Array([
+      const adjustedPosValue = vehicle.vehicleId == 5 ? 0.2 : 0.8;
+      const fixedPosUpdate = new Float32Array([
         positionUpdate.position[0],
-        positionUpdate.position[1] - 0.4,
+        positionUpdate.position[1] - adjustedPosValue,
         positionUpdate.position[2],
         1
       ]);
+      // Update vehicle position
+      vehicle.state.position = fixedPosUpdate;
       vehicle.oldPos = {
         position: positionUpdate.position,
         time: positionUpdate.sequenceTime
       };
-      vehicle.positionUpdate.position = positionUpdate.position;
+      vehicle.positionUpdate.position = fixedPosUpdate;
 
       // Stop HUD timer if player moved
       if (
@@ -1347,14 +1348,19 @@ export class ZonePacketHandlers {
     }
 
     // Update engineRPM, orientation, frontTilt, sideTilt based on flags
-    if (flags & 0x800) vehicle.engineRPM = positionUpdate.engineRPM;
-    if (flags & 0x20)
+    if (positionUpdate.engineRPM) vehicle.engineRPM = positionUpdate.engineRPM;
+    if (positionUpdate.rotation) {
       vehicle.state.rotation = eul2quat(
         new Float32Array([positionUpdate.orientation, 0, 0, 0])
       );
-    if (flags & 0x40)
+      vehicle.positionUpdate.rotation = positionUpdate.rotation;
+    }
+    if (positionUpdate.orientation)
+      vehicle.positionUpdate.orientation = positionUpdate.orientation;
+    if (positionUpdate.frontTilt)
       vehicle.positionUpdate.frontTilt = positionUpdate.frontTilt;
-    if (flags & 0x80) vehicle.positionUpdate.sideTilt = positionUpdate.sideTilt;
+    if (positionUpdate.sideTilt)
+      vehicle.positionUpdate.sideTilt = positionUpdate.sideTilt;
   }
   VehicleStateData(
     server: ZoneServer2016,
@@ -1396,7 +1402,7 @@ export class ZonePacketHandlers {
     client.character.positionUpdate = client.character.positionUpdate || {};
     Object.assign(client.character.positionUpdate, packet.data);
 
-    if (flags & 0x20) {
+    if (packet.data.orientation) {
       // orientation
       /*server.fairPlayManager.checkAimVector(
         server,
@@ -1426,7 +1432,7 @@ export class ZonePacketHandlers {
     }
 
     // Handle stance flag (0x01)
-    if (flags & 1) {
+    if (packet.data.stance) {
       const stanceFlags = getStanceFlags(stance);
 
       // Detect movements based on stance
@@ -1485,7 +1491,7 @@ export class ZonePacketHandlers {
       client.character.stance = stance;
     }
     // Handle position flag (0x02)
-    if (flags & 2) {
+    if (packet.data.position) {
       if (!client.characterReleased) client.characterReleased = true;
       // if (client.movementSet.size < ZoneClient2016.minMovementForAfk) {
       //   const movementId = Math.round(position[0]) + Math.round(position[2]);
@@ -1546,7 +1552,7 @@ export class ZonePacketHandlers {
       }
     }
     // Handle rotation flag (0x200)
-    if (flags & 0x200) {
+    if (packet.data.rotation) {
       client.character.state.rotation = rotation;
       client.character.state.yaw = rotationRaw[0];
       client.character.state.lookAt = lookAt;

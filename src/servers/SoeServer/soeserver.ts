@@ -146,7 +146,7 @@ export class SOEServer extends EventEmitter {
       if (time + this._resendTimeout < currentTime) {
         const dataCache = client.outputStream.getDataCache(sequence);
         if (dataCache) {
-          if (dataCache.resendCounter > this._maxResentTries) {
+          if (dataCache.resendCounter >= this._maxResentTries) {
             continue;
           }
           dataCache.resendCounter++;
