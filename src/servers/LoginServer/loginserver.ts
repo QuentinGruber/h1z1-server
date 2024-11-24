@@ -128,7 +128,7 @@ export class LoginServer extends EventEmitter {
           client.protocolName,
           data
         );
-        debug(packet);
+        console.log(packet);
         if (packet?.result) {
           // if packet parsing succeed
           switch (packet.name) {
@@ -523,8 +523,11 @@ export class LoginServer extends EventEmitter {
 
   async TunnelAppPacketClientToServer(client: Client, packet: any) {
     const baseResponse = { serverId: packet.serverId };
-    let response: unknown;
+    console.log(packet);
     switch (packet.subPacketName) {
+      case "loginQueueCanceled":
+        console.log("login queue canceled");
+        break;
       case "nameValidationRequest":
         const characterName = packet.result.characterName;
         let status = isValidCharacterName(characterName);
@@ -555,22 +558,22 @@ export class LoginServer extends EventEmitter {
             }
           }
         }
-        response = {
+        const response = {
           ...baseResponse,
           subPacketOpcode: 0x02,
           firstName: characterName,
           status: status
         };
+        this.sendData(
+          client,
+          "TunnelAppPacketServerToClient",
+          response as LoginUdp_9packets | LoginUdp_11packets
+        );
         break;
       default:
-        debug(`Unhandled tunnel packet "${packet.subPacketName}"`);
+        console.log(`Unhandled tunnel packet "${packet.subPacketName}"`);
         break;
     }
-    this.sendData(
-      client,
-      "TunnelAppPacketServerToClient",
-      response as LoginUdp_9packets | LoginUdp_11packets
-    );
   }
 
   Logout(client: Client) {
@@ -883,7 +886,7 @@ export class LoginServer extends EventEmitter {
       unknownQword1: "0x0",
       unknownDword1: 0,
       unknownDword2: 0,
-      status: 1,
+      status: 8,
       applicationData: {
         serverAddress: `${this._soloPlayIp}:1117`,
         serverTicket: client.authKey,
