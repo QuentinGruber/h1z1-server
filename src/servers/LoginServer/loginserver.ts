@@ -65,7 +65,6 @@ import {
 import DataSchema from "h1z1-dataschema";
 import { applicationDataKOTK } from "../../packets/LoginUdp/LoginUdp_11/loginpackets";
 import { Resolver } from "node:dns";
-import { scheduler } from "node:timers/promises";
 
 const debugName = "LoginServer";
 const debug = require("debug")(debugName);
