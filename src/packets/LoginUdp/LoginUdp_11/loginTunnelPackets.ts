@@ -31,6 +31,16 @@ const packets: any[] = [
         { name: "status", type: "uint32" }
       ]
     }
+  ],
+  [
+    "loginQueueCanceled",
+    0x05,
+    {
+      fields: [
+        { name: "characterId", type: "uint64string" },
+        { name: "unk1", type: "uint8" }
+      ]
+    }
   ]
 ];
 
