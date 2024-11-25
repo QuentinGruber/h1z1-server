@@ -1024,6 +1024,7 @@ export class LoginServer extends EventEmitter {
         this.sendServerQueueUpdate(Number(serverId), qclient);
       }
     }
+    // TODO: register queue size in mongo could be cool to display on the website
   }
 
   async CharacterLoginRequest(
