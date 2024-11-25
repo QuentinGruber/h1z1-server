@@ -109,6 +109,7 @@ export class LoginServer extends EventEmitter {
   private _mongoClient?: MongoClient;
   private _loginQueues: { [serverId: number]: QueuedClient[] } = {};
   private _loginQueuesTimer: NodeJS.Timeout;
+  private _loginTimestamps: { [serverId: number]: number } = {};
   constructor(serverPort: number, mongoAddress = "") {
     super();
     this._crcLength = 2;
@@ -990,6 +991,7 @@ export class LoginServer extends EventEmitter {
           "CharacterLoginReply",
           qclient.characterLoginInfo
         );
+        this._loginTimestamps[serverId] = Date.now();
         queue.splice(clientIndex);
       }
     } else {
@@ -1004,6 +1006,22 @@ export class LoginServer extends EventEmitter {
         serverQueuePacket as LoginUdp_9packets | LoginUdp_11packets
       );
     }
+  }
+
+  async isQueueActive(serverId: number): Promise<boolean> {
+    const gameServer = await this._db
+      .collection<GameServer>(DB_COLLECTIONS.SERVERS)
+      .findOne({ serverId: serverId });
+    if (!gameServer) {
+      console.error(`ServerId "${serverId}" unfound`);
+      return false;
+    }
+    const { populationNumber, maxPopulationNumber } = gameServer;
+    const serverIsFull = populationNumber >= maxPopulationNumber;
+    const limitRate =
+      (this._loginTimestamps[serverId] ?? 0) + 20_000 > Date.now();
+    const alreadyQueued = Boolean(this._loginQueues[serverId]?.length);
+    return (!this._soloMode && serverIsFull) || limitRate || !alreadyQueued;
   }
 
   registerClientInLoginQueue(serverId: number, qclient: QueuedClient) {
@@ -1057,7 +1075,7 @@ export class LoginServer extends EventEmitter {
       console.error(`Could not find session for ${client.authKey}`);
       return false;
     }
-    const { serverAddress, populationNumber, maxPopulationNumber } = gameServer;
+    const { serverAddress } = gameServer;
     const characterLoginInfo = await this.getCharactersLoginInfo(
       serverId,
       serverAddress,
@@ -1159,11 +1177,9 @@ export class LoginServer extends EventEmitter {
         });
       }
     }
-    const serverIsFull = populationNumber >= maxPopulationNumber;
     if (
       characterLoginInfo.status === LoginStatus.ACCEPTED &&
-      serverIsFull &&
-      !this._soloMode
+      (await this.isQueueActive(serverId))
     ) {
       const isAdmin = await this.askZone(serverId, "ClientIsAdminRequest", {
         guid: UserSession.guid
@@ -1175,6 +1191,9 @@ export class LoginServer extends EventEmitter {
       }
     }
     this.sendData(client, "CharacterLoginReply", characterLoginInfo);
+    if (characterLoginInfo.status === LoginStatus.ACCEPTED) {
+      this._loginTimestamps[serverId] = Date.now();
+    }
     debug("CharacterLoginRequest");
     return characterLoginInfo.status !== LoginStatus.REJECTED;
   }
