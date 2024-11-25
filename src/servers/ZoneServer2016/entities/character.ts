@@ -1826,7 +1826,10 @@ export class Character2016 extends BaseFullCharacter {
   }
 
   OnMeleeHit(server: ZoneServer2016, damageInfo: DamageInfo) {
-    if (server.isPvE || this.isRespawning) return;
+    console.log("melee hit");
+    if ((server.isPvE && !server._npcs[damageInfo.entity]) || this.isRespawning)
+      return;
+    console.log("good");
     let damage = damageInfo.damage / 2;
     let bleedingChance = 5;
     switch (damageInfo.meleeType) {
