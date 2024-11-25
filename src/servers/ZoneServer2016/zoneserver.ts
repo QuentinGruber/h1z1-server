@@ -1552,7 +1552,13 @@ export class ZoneServer2016 extends EventEmitter {
     if (!this.hookManager.checkHook("OnLoadCharacterData", client)) return;
     if (!(await this.hookManager.checkAsyncHook("OnLoadCharacterData", client)))
       return;
-
+    if (savedCharacter.characterName == undefined) {
+      console.log(
+        `ERROR: Undefined character name found for client ${client.loginSessionId}`
+      );
+      savedCharacter.characterName =
+        "CharacterNameError" + savedCharacter.characterId.slice(-5);
+    }
     client.guid = savedCharacter.ownerId;
     client.character.name = savedCharacter.characterName;
     client.character.actorModelId = savedCharacter.actorModelId;
@@ -2161,7 +2167,7 @@ export class ZoneServer2016 extends EventEmitter {
         lowerRenderDistance = true;
       }
     }
-    client.chunkRenderDistance = lowerRenderDistance ? 350 : 400;
+    client.chunkRenderDistance = lowerRenderDistance ? 600 : 700;
   }
 
   private async worldRoutine() {
