@@ -8487,7 +8487,14 @@ export class ZoneServer2016 extends EventEmitter {
     delete this._vehicles[vehicleGuid]?.manager;
   }
   sendZonePopulationUpdate() {
-    const populationNumber = _.size(this._characters);
+    let populationNumber = 0;
+    for (const key in this._characters) {
+      const char = this._characters[key];
+      const client = this.getClientByCharId(char.characterId);
+      if (!client?.isAdmin) {
+        populationNumber++;
+      }
+    }
     this._loginConnectionManager.sendData(
       {
         ...this._loginServerInfo,
