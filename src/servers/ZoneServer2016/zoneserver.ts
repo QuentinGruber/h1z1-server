@@ -3725,6 +3725,8 @@ export class ZoneServer2016 extends EventEmitter {
         }
 
         if (object instanceof LootableConstructionEntity) {
+          if (this.constructionManager.shouldHideEntity(this, client, object))
+            continue;
           this.constructionManager.spawnLootableConstruction(
             this,
             client,
