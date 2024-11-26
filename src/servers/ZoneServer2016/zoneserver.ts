@@ -66,6 +66,7 @@ import {
   ItemDefinition,
   modelData,
   PropInstance,
+  RandomReward,
   RewardCrateDefinition,
   ScreenEffect,
   UseOption
@@ -5383,7 +5384,7 @@ export class ZoneServer2016 extends EventEmitter {
    * @param {number} [itemDefinitionId] - The ID of the crate to retrieve rewards from.
    * @returns {number} Reward Item definition ID.
    */
-  getRandomCrateReward(itemDefinitionId?: number) {
+  getRandomCrateReward(itemDefinitionId?: number): RandomReward | undefined {
     const rewards = this.getCrateRewards(itemDefinitionId);
     if (!rewards) return;
     const totalChances = rewards.reduce(
@@ -5393,7 +5394,7 @@ export class ZoneServer2016 extends EventEmitter {
     let randomChance = Math.random() * totalChances;
     for (const rew of rewards) {
       if (randomChance < rew.rewardChance) {
-        return rew.itemDefinitionId;
+        return { reward: rew.itemDefinitionId, isRare: rew.rewardChance === 1 };
       }
       randomChance -= rew.rewardChance;
     }

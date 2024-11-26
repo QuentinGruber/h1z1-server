@@ -599,3 +599,7 @@ export interface PropInstance {
   objectId: number,
   replacementModel: string
 }
+export interface RandomReward {
+  reward: number;
+  isRare: boolean;
+}
