@@ -539,10 +539,10 @@ export class LoginServer extends EventEmitter {
   }
 
   async TunnelAppPacketClientToServer(client: Client, packet: any) {
-    const baseResponse = { serverId: packet.serverId };
     console.log(packet);
     switch (packet.subPacketName) {
       case "loginQueueCanceled":
+        this.removeClientInLoginQueue(client);
         console.log("login queue canceled");
         break;
       case "nameValidationRequest":
@@ -567,7 +567,7 @@ export class LoginServer extends EventEmitter {
               .collection(DB_COLLECTIONS.CHARACTERS_LIGHT)
               .findOne({
                 "payload.name": { $regex: characterNameRegex },
-                serverId: baseResponse.serverId,
+                serverId: packet.serverId,
                 status: 1
               });
             if (duplicateCharacter) {
@@ -576,7 +576,7 @@ export class LoginServer extends EventEmitter {
           }
         }
         const response = {
-          ...baseResponse,
+          serverId: packet.serverId,
           subPacketOpcode: 0x02,
           firstName: characterName,
           status: status
@@ -594,7 +594,9 @@ export class LoginServer extends EventEmitter {
   }
 
   Logout(client: Client) {
+    console.log("logout");
     this.clients.delete(client.soeClientId);
+    this.removeClientInLoginQueue(client);
     this._soeServer.deleteClient(client);
   }
 
@@ -973,7 +975,17 @@ export class LoginServer extends EventEmitter {
         break;
       }
     }
-    if (clientIndex === 0) {
+    const serverQueuePacket = {
+      serverId,
+      subPacketOpcode: 0x03,
+      playersInQueue: clientIndex
+    };
+    this.sendData(
+      qclient.client,
+      "TunnelAppPacketServerToClient",
+      serverQueuePacket as LoginUdp_9packets | LoginUdp_11packets
+    );
+    if (clientIndex === 0 && !this.isLimiteRated(serverId)) {
       const gameServer = await this._db
         .collection<GameServer>(DB_COLLECTIONS.SERVERS)
         .findOne({ serverId: serverId });
@@ -992,20 +1004,13 @@ export class LoginServer extends EventEmitter {
           qclient.characterLoginInfo
         );
         this._loginTimestamps[serverId] = Date.now();
-        queue.splice(clientIndex);
+        queue.splice(clientIndex, 1);
       }
-    } else {
-      const serverQueuePacket = {
-        serverId,
-        subPacketOpcode: 0x03,
-        playersInQueue: clientIndex
-      };
-      this.sendData(
-        qclient.client,
-        "TunnelAppPacketServerToClient",
-        serverQueuePacket as LoginUdp_9packets | LoginUdp_11packets
-      );
     }
+  }
+
+  isLimiteRated(serverId: number): boolean {
+    return (this._loginTimestamps[serverId] ?? 0) + 20_000 > Date.now();
   }
 
   async isQueueActive(serverId: number): Promise<boolean> {
@@ -1018,10 +1023,32 @@ export class LoginServer extends EventEmitter {
     }
     const { populationNumber, maxPopulationNumber } = gameServer;
     const serverIsFull = populationNumber >= maxPopulationNumber;
-    const limitRate =
-      (this._loginTimestamps[serverId] ?? 0) + 20_000 > Date.now();
     const alreadyQueued = Boolean(this._loginQueues[serverId]?.length);
-    return (!this._soloMode && serverIsFull) || limitRate || !alreadyQueued;
+    return (
+      (!this._soloMode && serverIsFull) ||
+      this.isLimiteRated(serverId) ||
+      !alreadyQueued
+    );
+  }
+
+  removeClientInLoginQueue(client: Client) {
+    for (const serverId in this._loginQueues) {
+      const queue = this._loginQueues[serverId];
+      if (!queue) {
+        return;
+      }
+
+      for (let i = 0; i < queue.length; i++) {
+        const v = queue[i];
+
+        if (client.sessionId === v.client.sessionId) {
+          queue.splice(i, 1);
+          console.log("removed ", client.sessionId);
+          break;
+        }
+      }
+    }
+    this.updateLoginQueues();
   }
 
   registerClientInLoginQueue(serverId: number, qclient: QueuedClient) {
@@ -1033,16 +1060,23 @@ export class LoginServer extends EventEmitter {
   }
 
   updateLoginQueues() {
+    console.log("updt queue");
     for (const serverId in this._loginQueues) {
-      for (let index = 0; index < this._loginQueues[serverId].length; index++) {
-        const qclient = this._loginQueues[serverId][index];
+      const queue = this._loginQueues[serverId];
+      console.log("checking server ", serverId);
+      console.log(queue);
+      for (let index = 0; index < queue.length; index++) {
+        const qclient = queue[index];
         console.log(
           `Updating queue ${serverId} for client ${qclient.client.port}`
         );
         this.sendServerQueueUpdate(Number(serverId), qclient);
       }
+      // TODO: register queue size in mongo could be cool to display on the website
+      this._db
+        .collection(DB_COLLECTIONS.SERVERS)
+        .updateOne({ serverId }, { $set: { queueSize: queue.length } });
     }
-    // TODO: register queue size in mongo could be cool to display on the website
   }
 
   async CharacterLoginRequest(
@@ -1193,6 +1227,7 @@ export class LoginServer extends EventEmitter {
     this.sendData(client, "CharacterLoginReply", characterLoginInfo);
     if (characterLoginInfo.status === LoginStatus.ACCEPTED) {
       this._loginTimestamps[serverId] = Date.now();
+      this.updateLoginQueues();
     }
     debug("CharacterLoginRequest");
     return characterLoginInfo.status !== LoginStatus.REJECTED;
