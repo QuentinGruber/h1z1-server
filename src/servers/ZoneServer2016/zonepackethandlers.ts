@@ -3321,7 +3321,10 @@ export class ZonePacketHandlers {
     switch (packet.data.unknownDword3) {
       case ItemUseOptions.OPEN_CRATE:
         const rewards = server.getCrateRewards(packet.data.itemDefinitionId),
-          reward = server.getRandomCrateReward(packet.data.itemDefinitionId);
+          rewardResult = server.getRandomCrateReward(
+            packet.data.itemDefinitionId
+          );
+        const reward = rewardResult?.reward;
         if (!rewards || !reward) return;
 
         if (
@@ -3344,6 +3347,11 @@ export class ZonePacketHandlers {
 
         if (reward > 0 && itemSubData.unknownBoolean1 == 0)
           setTimeout(() => {
+            if (rewardResult.isRare) {
+              server.sendAlertToAll(
+                `Player ${client.character.name} opened ${server.getItemDefinition(reward)?.NAME} `
+              );
+            }
             server.lootAccountItem(
               server,
               client,
@@ -3438,7 +3446,7 @@ export class ZonePacketHandlers {
             server.lootAccountItem(
               server,
               client,
-              server.generateAccountItem(bagReward)
+              server.generateAccountItem(bagReward.reward)
             );
           }
         );
