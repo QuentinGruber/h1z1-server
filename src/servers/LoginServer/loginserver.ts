@@ -145,7 +145,6 @@ export class LoginServer extends EventEmitter {
           client.protocolName,
           data
         );
-        console.log(packet);
         if (packet?.result) {
           // if packet parsing succeed
           switch (packet.name) {
@@ -539,11 +538,9 @@ export class LoginServer extends EventEmitter {
   }
 
   async TunnelAppPacketClientToServer(client: Client, packet: any) {
-    console.log(packet);
     switch (packet.subPacketName) {
       case "loginQueueCanceled":
         this.removeClientInLoginQueue(client);
-        console.log("login queue canceled");
         break;
       case "nameValidationRequest":
         const characterName = packet.result.characterName;
@@ -594,7 +591,6 @@ export class LoginServer extends EventEmitter {
   }
 
   Logout(client: Client) {
-    console.log("logout");
     this.clients.delete(client.soeClientId);
     this.removeClientInLoginQueue(client);
     this._soeServer.deleteClient(client);
@@ -1058,7 +1054,6 @@ export class LoginServer extends EventEmitter {
 
         if (client.sessionId === v.client.sessionId) {
           queue.splice(i, 1);
-          console.log("removed ", client.sessionId);
           break;
         }
       }
@@ -1078,10 +1073,9 @@ export class LoginServer extends EventEmitter {
   async updateQueueSizeMongo(serverId: number) {
     const queue = this._loginQueues[serverId];
 
-    const result = await this._db
+    await this._db
       .collection(DB_COLLECTIONS.SERVERS)
       .updateOne({ serverId }, { $set: { queueSize: queue.length } });
-    console.log(result);
   }
 
   updateLoginQueues() {
