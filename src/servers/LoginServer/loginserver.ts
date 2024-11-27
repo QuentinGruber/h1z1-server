@@ -728,6 +728,21 @@ export class LoginServer extends EventEmitter {
     }
   }
 
+  async clearQueueMongo(): Promise<void> {
+    const servers = await this._db
+      .collection<GameServer>(DB_COLLECTIONS.SERVERS)
+      .find()
+      .toArray();
+
+    for (let index = 0; index < servers.length; index++) {
+      const server: GameServer = servers[index];
+      if (server.queueSize) {
+        await this._db
+          .collection(DB_COLLECTIONS.SERVERS)
+          .updateOne({ serverId: server.serverId }, { $set: { queueSize: 0 } });
+      }
+    }
+  }
   async updateServersStatus(): Promise<void> {
     const servers = await this._db
       .collection<GameServer>(DB_COLLECTIONS.SERVERS)
@@ -1057,25 +1072,27 @@ export class LoginServer extends EventEmitter {
     }
     this._loginQueues[serverId].push(qclient);
     this.sendServerQueueUpdate(serverId, qclient);
+    this.updateQueueSizeMongo(serverId);
+  }
+
+  async updateQueueSizeMongo(serverId: number) {
+    const queue = this._loginQueues[serverId];
+
+    const result = await this._db
+      .collection(DB_COLLECTIONS.SERVERS)
+      .updateOne({ serverId }, { $set: { queueSize: queue.length } });
+    console.log(result);
   }
 
   updateLoginQueues() {
-    console.log("updt queue");
-    for (const serverId in this._loginQueues) {
+    for (const key in this._loginQueues) {
+      const serverId = Number(key);
       const queue = this._loginQueues[serverId];
-      console.log("checking server ", serverId);
-      console.log(queue);
       for (let index = 0; index < queue.length; index++) {
         const qclient = queue[index];
-        console.log(
-          `Updating queue ${serverId} for client ${qclient.client.port}`
-        );
-        this.sendServerQueueUpdate(Number(serverId), qclient);
+        this.sendServerQueueUpdate(serverId, qclient);
       }
-      // TODO: register queue size in mongo could be cool to display on the website
-      this._db
-        .collection(DB_COLLECTIONS.SERVERS)
-        .updateOne({ serverId }, { $set: { queueSize: queue.length } });
+      this.updateQueueSizeMongo(serverId);
     }
   }
 
@@ -1430,6 +1447,7 @@ export class LoginServer extends EventEmitter {
       }
       this._db = this._mongoClient.db(DB_NAME);
       this.updateServersStatus();
+      this.clearQueueMongo();
     }
 
     if (this._soloMode) {
