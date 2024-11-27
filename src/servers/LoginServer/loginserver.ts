@@ -77,6 +77,12 @@ export enum LoginStatus {
   ACCEPTED = 1,
   QUEUED = 8
 }
+export enum PopLevel {
+  LOW = 0,
+  MEDIUM = 1,
+  HIGH = 2,
+  FULL = 3
+}
 
 interface QueuedClient {
   client: Client;
@@ -242,23 +248,38 @@ export class LoginServer extends EventEmitter {
                   break;
                 }
                 case "UpdateZonePopulation": {
-                  const { population } = packet.data;
+                  let { population } = packet.data;
+
                   const serverId = this._zoneConnections[client.clientId];
+                  if (this._loginQueues[serverId]?.length) {
+                    population += this._loginQueues[serverId].length;
+                  }
                   const serverData = await this._db
                     .collection(DB_COLLECTIONS.SERVERS)
                     .findOne({ serverId: serverId });
+                  if (!serverData) {
+                    console.error(`Game server ${serverId} not found`);
+                    return;
+                  }
+                  let populationLevel: PopLevel = PopLevel.LOW;
+
+                  if (population <= 50 && population >= 25) {
+                    populationLevel = PopLevel.MEDIUM;
+                  } else if (
+                    population < serverData.maxPopulationNumber &&
+                    population > 50
+                  ) {
+                    populationLevel = PopLevel.HIGH;
+                  } else if (population >= serverData.maxPopulationNumber) {
+                    populationLevel = PopLevel.FULL;
+                  }
+
                   this._db?.collection(DB_COLLECTIONS.SERVERS).findOneAndUpdate(
                     { serverId: serverId },
                     {
                       $set: {
                         populationNumber: population,
-                        populationLevel: Math.floor(
-                          Number(
-                            (population /
-                              (serverData?.maxPopulationNumber ?? 100)) *
-                              3
-                          )
-                        )
+                        populationLevel
                       }
                     }
                   );
