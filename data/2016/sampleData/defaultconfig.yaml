@@ -24,9 +24,9 @@ rcon:
 # VoiceChat
 
 voicechat:
-    useVoiceChatV2: false
-    joinVoiceChatOnConnect: false
-    serverAccessToken: ""
+  useVoiceChatV2: false
+  joinVoiceChatOnConnect: false
+  serverAccessToken: ""
 
 # Fairplay / anticheat config
 
@@ -128,10 +128,10 @@ construction:
 
 decay:
   decayTickInterval: 1200000 # 20 minutes per decay tick
-  constructionDamageTicks: 72 # damage structures every 24 hours
+  constructionDamageTicks: 3 # damage structures every hour
 
-  # with default values it'll take 14 days for a base to fully decay
-  ticksToFullDecay: 14 # how many decay ticks * constructionDamageTicks it takes to fully decay any construction entity.
+  # with default values it'll take 10 days for a base to fully decay
+  ticksToFullDecay: 240 # how many decay ticks * constructionDamageTicks it takes to fully decay any construction entity.
 
   # unused for now but is planned
   worldFreeplaceDecayMultiplier: 2 # used to multiply decay damage for freeplace constuction with no parent
