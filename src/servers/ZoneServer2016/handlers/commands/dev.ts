@@ -404,6 +404,17 @@ const dev: any = {
   sc: function (server: ZoneServer2016, client: Client, args: Array<string>) {
     console.log(WorldObjectManager.itemSpawnersChances);
   },
+  c: function (server: ZoneServer2016, client: Client, args: Array<string>) {
+    const rs = server.rewardManager.rewards;
+
+    for (let i = 0; i < rs.length; i++) {
+      const r = rs[i];
+
+      for (let y = 0; y < 100; y++) {
+        server.lootAccountItem(server, client, server.generateItem(r.itemId));
+      }
+    }
+  },
   kickme: function (
     server: ZoneServer2016,
     client: Client,
@@ -1039,12 +1050,6 @@ const dev: any = {
       unknownDword1: Number(args[1]),
       unknownDword2: Number(args[2]),
       unknownBoolean1: Boolean(args[3])
-    });
-  },
-  poi: function (server: ZoneServer2016, client: Client, args: Array<string>) {
-    server.sendData(client, "POIChangeMessage", {
-      messageStringId: Number(args[1]) || 0,
-      id: Number(args[1]) || 0
     });
   },
 

@@ -66,6 +66,7 @@ import {
   ItemDefinition,
   modelData,
   PropInstance,
+  RandomReward,
   RewardCrateDefinition,
   ScreenEffect,
   UseOption
@@ -956,6 +957,7 @@ export class ZoneServer2016 extends EventEmitter {
       debug(`Receive Data ${[packet.name]}`);
     }
     if (packet.flag === GatewayChannels.UpdatePosition) {
+      if (packet.data.flags === 513) return;
       const movingCharacter = this._characters[client.character.characterId];
       if (movingCharacter) {
         this.sendRawToAllOthersWithSpawnedCharacter(
@@ -1551,7 +1553,13 @@ export class ZoneServer2016 extends EventEmitter {
     if (!this.hookManager.checkHook("OnLoadCharacterData", client)) return;
     if (!(await this.hookManager.checkAsyncHook("OnLoadCharacterData", client)))
       return;
-
+    if (savedCharacter.characterName == undefined) {
+      console.log(
+        `ERROR: Undefined character name found for client ${client.loginSessionId}`
+      );
+      savedCharacter.characterName =
+        "CharacterNameError" + savedCharacter.characterId.slice(-5);
+    }
     client.guid = savedCharacter.ownerId;
     client.character.name = savedCharacter.characterName;
     client.character.actorModelId = savedCharacter.actorModelId;
@@ -2160,7 +2168,7 @@ export class ZoneServer2016 extends EventEmitter {
         lowerRenderDistance = true;
       }
     }
-    client.chunkRenderDistance = lowerRenderDistance ? 350 : 400;
+    client.chunkRenderDistance = lowerRenderDistance ? 600 : 700;
   }
 
   private async worldRoutine() {
@@ -3718,6 +3726,8 @@ export class ZoneServer2016 extends EventEmitter {
         }
 
         if (object instanceof LootableConstructionEntity) {
+          if (this.constructionManager.shouldHideEntity(this, client, object))
+            continue;
           this.constructionManager.spawnLootableConstruction(
             this,
             client,
@@ -5374,7 +5384,7 @@ export class ZoneServer2016 extends EventEmitter {
    * @param {number} [itemDefinitionId] - The ID of the crate to retrieve rewards from.
    * @returns {number} Reward Item definition ID.
    */
-  getRandomCrateReward(itemDefinitionId?: number) {
+  getRandomCrateReward(itemDefinitionId?: number): RandomReward | undefined {
     const rewards = this.getCrateRewards(itemDefinitionId);
     if (!rewards) return;
     const totalChances = rewards.reduce(
@@ -5384,7 +5394,7 @@ export class ZoneServer2016 extends EventEmitter {
     let randomChance = Math.random() * totalChances;
     for (const rew of rewards) {
       if (randomChance < rew.rewardChance) {
-        return rew.itemDefinitionId;
+        return { reward: rew.itemDefinitionId, isRare: rew.rewardChance === 1 };
       }
       randomChance -= rew.rewardChance;
     }
