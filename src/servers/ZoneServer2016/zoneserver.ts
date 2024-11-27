@@ -679,6 +679,11 @@ export class ZoneServer2016 extends EventEmitter {
         this.rebootTime * 60 * 60 * 1000
       );
     }
+    for (let i = 0; i < this.staticBuildings.length; i++) {
+      const v = this.staticBuildings[i];
+      v.characterId = this.generateGuid();
+      v.transientId = this.getTransientId(v.characterId);
+    }
   }
 
   async reloadCommandCache() {
