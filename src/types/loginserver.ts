@@ -30,6 +30,7 @@ export interface GameServer {
   populationData: string;
   allowedAccess: boolean;
   isDisabled: boolean;
+  queueSize: number;
 }
 
 export interface BannedUser {
