@@ -584,16 +584,18 @@ const parseUpdatePositionData = function (data: Buffer, offset: number) {
     }
 
     if (obj.flags & 2) {
-      obj["position"] = new Float32Array(4);
+      const position = [];
       v = readSignedIntWith2bitLengthValue(data, offset);
-      obj["position"][0] = v.value / 100;
+      position[0] = v.value / 100;
       offset += v.length;
       v = readSignedIntWith2bitLengthValue(data, offset);
-      obj["position"][1] = v.value / 100;
+      position[1] = v.value / 100;
       offset += v.length;
       v = readSignedIntWith2bitLengthValue(data, offset);
-      obj["position"][2] = v.value / 100;
+      position[2] = v.value / 100;
       offset += v.length;
+      position[3] = 1;
+      obj["position"] = position;
     }
 
     if (obj.flags & 0x20) {
@@ -632,20 +634,21 @@ const parseUpdatePositionData = function (data: Buffer, offset: number) {
     }
 
     if (obj.flags & 0x100) {
-      obj["unknown12_float"] = new Float32Array(3);
+      const unknown12_float = [];
       v = readSignedIntWith2bitLengthValue(data, offset);
-      obj["unknown12_float"][0] = v.value / 100;
+      unknown12_float[0] = v.value / 100;
       offset += v.length;
       v = readSignedIntWith2bitLengthValue(data, offset);
-      obj["unknown12_float"][1] = v.value / 100;
+      unknown12_float[1] = v.value / 100;
       offset += v.length;
       v = readSignedIntWith2bitLengthValue(data, offset);
-      obj["unknown12_float"][2] = v.value / 100;
+      unknown12_float[2] = v.value / 100;
+      obj["unknown12_float"] = unknown12_float;
       offset += v.length;
     }
 
     if (obj.flags & 0x200) {
-      const rotationEul = new Float32Array(4);
+      const rotationEul = [];
       v = readSignedIntWith2bitLengthValue(data, offset);
       rotationEul[0] = v.value / 100;
       offset += v.length;
@@ -675,7 +678,7 @@ const parseUpdatePositionData = function (data: Buffer, offset: number) {
       offset += v.length;
     }
     if (obj.flags & 0x1000) {
-      const rotationEul = new Float32Array(8);
+      const rotationEul = [];
       v = readSignedIntWith2bitLengthValue(data, offset);
       rotationEul[0] = v.value / 10000;
       offset += v.length;

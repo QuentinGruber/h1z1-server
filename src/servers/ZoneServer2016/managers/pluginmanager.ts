@@ -221,7 +221,10 @@ export class PluginManager {
   private async loadPlugin(pluginPath: string) {
     const runPath = path.join(this.pluginsDir, pluginPath, "plugin.js");
 
-    if (!folderExists(path.join(this.pluginsDir, pluginPath, "node_modules"))) {
+    if (
+      !folderExists(path.join(this.pluginsDir, pluginPath, "node_modules")) ||
+      process.env.PLUGIN_FORCE_BUILD
+    ) {
       // Install dependencies into the node_modules directory
       await this.installDependencies(pluginPath);
     } else {
