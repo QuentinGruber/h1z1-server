@@ -1027,7 +1027,7 @@ export class LoginServer extends EventEmitter {
     return (
       (!this._soloMode && serverIsFull) ||
       this.isLimiteRated(serverId) ||
-      !alreadyQueued
+      alreadyQueued
     );
   }
 
