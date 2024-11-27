@@ -583,7 +583,7 @@ export class WorldDataManager {
             ...characterSaveData
           }
         },
-        { upsert: true }
+        { upsert: process.env.MONGO_TESTS ? true : false }
       );
     }
   }
