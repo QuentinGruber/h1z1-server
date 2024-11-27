@@ -4802,7 +4802,7 @@ export class ZoneServer2016 extends EventEmitter {
     range: number,
     characterId: string,
     position: Float32Array,
-    effectId: number
+    effectId: Effects
   ) {
     this.sendDataToAllInRange<CharacterPlayWorldCompositeEffect>(
       range,
@@ -4812,6 +4812,22 @@ export class ZoneServer2016 extends EventEmitter {
         characterId: characterId,
         effectId: effectId,
         position: position
+      }
+    );
+  }
+  sendDialogEffectToAllInRange(
+    range: number,
+    characterId: string,
+    position: Float32Array,
+    effectId: Effects
+  ) {
+    this.sendDataToAllInRange<CommandPlayDialogEffect>(
+      range,
+      position,
+      "Command.PlayDialogEffect",
+      {
+        characterId: characterId,
+        effectId: effectId
       }
     );
   }
@@ -4868,7 +4884,7 @@ export class ZoneServer2016 extends EventEmitter {
   sendDataToAllInRange<ZonePacket>(
     range: number,
     position: Float32Array,
-    packetName: any,
+    packetName: h1z1PacketsType2016,
     obj: ZonePacket
   ) {
     const data = this._protocol.pack(packetName, obj);

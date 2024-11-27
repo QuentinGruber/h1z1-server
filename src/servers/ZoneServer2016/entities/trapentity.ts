@@ -439,7 +439,7 @@ export class TrapEntity extends BaseSimpleNpc {
         600,
         "",
         this.state.position,
-        4658
+        Effects.PFX_Impact_Explosion_FlashGrenade_Default
       );
     }
   }
