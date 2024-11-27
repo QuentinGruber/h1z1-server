@@ -1021,7 +1021,7 @@ export class LoginServer extends EventEmitter {
   }
 
   isLimiteRated(serverId: number): boolean {
-    return (this._loginTimestamps[serverId] ?? 0) + 20_000 > Date.now();
+    return (this._loginTimestamps[serverId] ?? 0) + 2_000 > Date.now();
   }
 
   async isQueueActive(serverId: number): Promise<boolean> {
