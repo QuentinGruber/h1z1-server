@@ -110,6 +110,7 @@ export class LoginServer extends EventEmitter {
   private _loginQueues: { [serverId: number]: QueuedClient[] } = {};
   private _loginQueuesTimer: NodeJS.Timeout;
   private _loginTimestamps: { [serverId: number]: number } = {};
+  private _loginRate: number = 2_000;
   constructor(serverPort: number, mongoAddress = "") {
     super();
     this._crcLength = 2;
@@ -122,7 +123,7 @@ export class LoginServer extends EventEmitter {
     this.clients = new Map();
     this._loginQueuesTimer = setInterval(() => {
       this.updateLoginQueues();
-    }, 10_000);
+    }, this._loginRate / 2);
 
     // reminders
     if (!this._mongoAddress) {
@@ -1021,10 +1022,15 @@ export class LoginServer extends EventEmitter {
   }
 
   isLimiteRated(serverId: number): boolean {
-    return (this._loginTimestamps[serverId] ?? 0) + 2_000 > Date.now();
+    return (
+      (this._loginTimestamps[serverId] ?? 0) + this._loginRate > Date.now()
+    );
   }
 
   async isQueueActive(serverId: number): Promise<boolean> {
+    if (process.env.DISABLE_QUEUES) {
+      return false;
+    }
     const gameServer = await this._db
       .collection<GameServer>(DB_COLLECTIONS.SERVERS)
       .findOne({ serverId: serverId });
