@@ -466,6 +466,7 @@ export class ZoneServer2016 extends EventEmitter {
   crowbarHitDamage!: number;
   /*                          */
   navManager: NavManager;
+  staticBuildings: AddSimpleNpc[] = require("../../../data/2016/sampleData/staticbuildings.json");
 
   constructor(
     serverPort: number,
@@ -3608,6 +3609,12 @@ export class ZoneServer2016 extends EventEmitter {
       },
       headActor: "",
       attachedObject: {}
+    });
+  }
+
+  spawnStaticBuildings(client: Client) {
+    this.staticBuildings.forEach((v) => {
+      this.sendData(client, "AddSimpleNpc", v);
     });
   }
 

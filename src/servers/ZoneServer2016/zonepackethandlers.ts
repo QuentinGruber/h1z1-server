@@ -243,6 +243,8 @@ export class ZonePacketHandlers {
       }
     ); // Required for WaitForWorldReady
 
+    server.spawnStaticBuildings(client);
+
     // Required for WaitForWorldReady
     setTimeout(() => {
       // makes loading longer but gives game time to spawn objects and reduce lag
