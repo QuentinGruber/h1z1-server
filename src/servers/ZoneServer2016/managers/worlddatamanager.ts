@@ -1030,28 +1030,9 @@ export class WorldDataManager {
         JSON.stringify(constructions, null, 2)
       );
     } else {
-      const collection = this._db?.collection(
-        DB_COLLECTIONS.CONSTRUCTION
-      ) as Collection;
-      const updatePromises = [];
-      for (let i = 0; i < constructions.length; i++) {
-        const construction = constructions[i];
-        updatePromises.push(
-          collection.updateOne(
-            { characterId: construction.characterId, serverId: this._worldId },
-            { $set: construction },
-            { upsert: true }
-          )
-        );
-      }
-      await Promise.all(updatePromises);
-      const allCharactersIds = constructions.map((construction) => {
-        return construction.characterId;
-      });
-      await collection.deleteMany({
-        serverId: this._worldId,
-        characterId: { $nin: allCharactersIds }
-      });
+      const collection = this._db?.collection(DB_COLLECTIONS.CONSTRUCTION);
+      await collection?.deleteMany({ serverId: this._worldId });
+      if (constructions.length) await collection?.insertMany(constructions);
     }
   }
 
