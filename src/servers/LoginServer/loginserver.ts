@@ -72,6 +72,23 @@ const characterItemDefinitionsDummy = require("../../../data/2015/sampleData/cha
 const defaultHashes: Array<FileHash> = require("../../../data/2016/dataSources/AllowedFileHashes.json");
 const loginReply2016 = require("../../../data/2016/dataSources/LoginData.json");
 
+export enum LoginStatus {
+  REJECTED = 0,
+  ACCEPTED = 1,
+  QUEUED = 8
+}
+export enum PopLevel {
+  LOW = 0,
+  MEDIUM = 1,
+  HIGH = 2,
+  FULL = 3
+}
+
+interface QueuedClient {
+  client: Client;
+  characterLoginInfo: CharacterLoginReply;
+}
+
 export class LoginServer extends EventEmitter {
   _soeServer: SOEServer;
   _protocol: LoginProtocol;
@@ -96,6 +113,10 @@ export class LoginServer extends EventEmitter {
   private clients: Map<string, LoginClient>;
   private _resolver = new Resolver();
   private _mongoClient?: MongoClient;
+  private _loginQueues: { [serverId: number]: QueuedClient[] } = {};
+  private _loginQueuesTimer: NodeJS.Timeout;
+  private _loginTimestamps: { [serverId: number]: number } = {};
+  private _loginRate: number = 2_000;
   constructor(serverPort: number, mongoAddress = "") {
     super();
     this._crcLength = 2;
@@ -106,6 +127,9 @@ export class LoginServer extends EventEmitter {
     this._appDataFolder = getAppDataFolderPath();
     this._enableHttpServer = false;
     this.clients = new Map();
+    this._loginQueuesTimer = setInterval(() => {
+      this.updateLoginQueues();
+    }, this._loginRate / 2);
 
     // reminders
     if (!this._mongoAddress) {
@@ -128,7 +152,6 @@ export class LoginServer extends EventEmitter {
           client.protocolName,
           data
         );
-        debug(packet);
         if (packet?.result) {
           // if packet parsing succeed
           switch (packet.name) {
@@ -225,23 +248,38 @@ export class LoginServer extends EventEmitter {
                   break;
                 }
                 case "UpdateZonePopulation": {
-                  const { population } = packet.data;
+                  let { population } = packet.data;
+
                   const serverId = this._zoneConnections[client.clientId];
+                  if (this._loginQueues[serverId]?.length) {
+                    population += this._loginQueues[serverId].length;
+                  }
                   const serverData = await this._db
                     .collection(DB_COLLECTIONS.SERVERS)
                     .findOne({ serverId: serverId });
+                  if (!serverData) {
+                    console.error(`Game server ${serverId} not found`);
+                    return;
+                  }
+                  let populationLevel: PopLevel = PopLevel.LOW;
+
+                  if (population <= 50 && population >= 25) {
+                    populationLevel = PopLevel.MEDIUM;
+                  } else if (
+                    population < serverData.maxPopulationNumber &&
+                    population > 50
+                  ) {
+                    populationLevel = PopLevel.HIGH;
+                  } else if (population >= serverData.maxPopulationNumber) {
+                    populationLevel = PopLevel.FULL;
+                  }
+
                   this._db?.collection(DB_COLLECTIONS.SERVERS).findOneAndUpdate(
                     { serverId: serverId },
                     {
                       $set: {
                         populationNumber: population,
-                        populationLevel: Number(
-                          (
-                            (population /
-                              (serverData?.maxPopulationNumber ?? 100)) *
-                            3
-                          ).toFixed(0)
-                        )
+                        populationLevel
                       }
                     }
                   );
@@ -522,9 +560,10 @@ export class LoginServer extends EventEmitter {
   }
 
   async TunnelAppPacketClientToServer(client: Client, packet: any) {
-    const baseResponse = { serverId: packet.serverId };
-    let response: unknown;
     switch (packet.subPacketName) {
+      case "loginQueueCanceled":
+        this.removeClientInLoginQueue(client);
+        break;
       case "nameValidationRequest":
         const characterName = packet.result.characterName;
         let status = isValidCharacterName(characterName);
@@ -547,7 +586,7 @@ export class LoginServer extends EventEmitter {
               .collection(DB_COLLECTIONS.CHARACTERS_LIGHT)
               .findOne({
                 "payload.name": { $regex: characterNameRegex },
-                serverId: baseResponse.serverId,
+                serverId: packet.serverId,
                 status: 1
               });
             if (duplicateCharacter) {
@@ -555,26 +594,27 @@ export class LoginServer extends EventEmitter {
             }
           }
         }
-        response = {
-          ...baseResponse,
+        const response = {
+          serverId: packet.serverId,
           subPacketOpcode: 0x02,
           firstName: characterName,
           status: status
         };
+        this.sendData(
+          client,
+          "TunnelAppPacketServerToClient",
+          response as LoginUdp_9packets | LoginUdp_11packets
+        );
         break;
       default:
-        debug(`Unhandled tunnel packet "${packet.subPacketName}"`);
+        console.log(`Unhandled tunnel packet "${packet.subPacketName}"`);
         break;
     }
-    this.sendData(
-      client,
-      "TunnelAppPacketServerToClient",
-      response as LoginUdp_9packets | LoginUdp_11packets
-    );
   }
 
   Logout(client: Client) {
     this.clients.delete(client.soeClientId);
+    this.removeClientInLoginQueue(client);
     this._soeServer.deleteClient(client);
   }
 
@@ -706,6 +746,21 @@ export class LoginServer extends EventEmitter {
     }
   }
 
+  async clearQueueMongo(): Promise<void> {
+    const servers = await this._db
+      .collection<GameServer>(DB_COLLECTIONS.SERVERS)
+      .find()
+      .toArray();
+
+    for (let index = 0; index < servers.length; index++) {
+      const server: GameServer = servers[index];
+      if (server.queueSize) {
+        await this._db
+          .collection(DB_COLLECTIONS.SERVERS)
+          .updateOne({ serverId: server.serverId }, { $set: { queueSize: 0 } });
+      }
+    }
+  }
   async updateServersStatus(): Promise<void> {
     const servers = await this._db
       .collection<GameServer>(DB_COLLECTIONS.SERVERS)
@@ -943,6 +998,125 @@ export class LoginServer extends EventEmitter {
     return rejectionFlags;
   }
 
+  async sendServerQueueUpdate(serverId: number, qclient: QueuedClient) {
+    const queue = this._loginQueues[serverId];
+    let clientIndex: number = 666; // probably a bad idea
+    for (let index = 0; index < queue.length; index++) {
+      const qc = queue[index];
+      if (qc.client.sessionId === qclient.client.sessionId) {
+        clientIndex = index;
+        break;
+      }
+    }
+    const serverQueuePacket = {
+      serverId,
+      subPacketOpcode: 0x03,
+      playersInQueue: clientIndex
+    };
+    this.sendData(
+      qclient.client,
+      "TunnelAppPacketServerToClient",
+      serverQueuePacket as LoginUdp_9packets | LoginUdp_11packets
+    );
+    if (clientIndex === 0 && !this.isLimiteRated(serverId)) {
+      const gameServer = await this._db
+        .collection<GameServer>(DB_COLLECTIONS.SERVERS)
+        .findOne({ serverId: serverId });
+      if (!gameServer) {
+        console.error(`ServerId "${serverId}" unfound`);
+        delete this._loginQueues[serverId];
+        return;
+      }
+      const { populationNumber, maxPopulationNumber } = gameServer;
+      const serverIsFull = populationNumber >= maxPopulationNumber;
+      if (!serverIsFull) {
+        qclient.characterLoginInfo.status = LoginStatus.ACCEPTED;
+        this.sendData(
+          qclient.client,
+          "CharacterLoginReply",
+          qclient.characterLoginInfo
+        );
+        this._loginTimestamps[serverId] = Date.now();
+        queue.splice(clientIndex, 1);
+      }
+    }
+  }
+
+  isLimiteRated(serverId: number): boolean {
+    return (
+      (this._loginTimestamps[serverId] ?? 0) + this._loginRate > Date.now()
+    );
+  }
+
+  async isQueueActive(serverId: number): Promise<boolean> {
+    if (process.env.DISABLE_QUEUES) {
+      return false;
+    }
+    const gameServer = await this._db
+      .collection<GameServer>(DB_COLLECTIONS.SERVERS)
+      .findOne({ serverId: serverId });
+    if (!gameServer) {
+      console.error(`ServerId "${serverId}" unfound`);
+      return false;
+    }
+    const { populationNumber, maxPopulationNumber } = gameServer;
+    const serverIsFull = populationNumber >= maxPopulationNumber;
+    const alreadyQueued = Boolean(this._loginQueues[serverId]?.length);
+    return (
+      (!this._soloMode && serverIsFull) ||
+      this.isLimiteRated(serverId) ||
+      alreadyQueued
+    );
+  }
+
+  removeClientInLoginQueue(client: Client) {
+    for (const serverId in this._loginQueues) {
+      const queue = this._loginQueues[serverId];
+      if (!queue) {
+        return;
+      }
+
+      for (let i = 0; i < queue.length; i++) {
+        const v = queue[i];
+
+        if (client.sessionId === v.client.sessionId) {
+          queue.splice(i, 1);
+          break;
+        }
+      }
+    }
+    this.updateLoginQueues();
+  }
+
+  registerClientInLoginQueue(serverId: number, qclient: QueuedClient) {
+    if (!this._loginQueues[serverId]) {
+      this._loginQueues[serverId] = [];
+    }
+    this._loginQueues[serverId].push(qclient);
+    this.sendServerQueueUpdate(serverId, qclient);
+    this.updateQueueSizeMongo(serverId);
+  }
+
+  async updateQueueSizeMongo(serverId: number) {
+    const queue = this._loginQueues[serverId];
+
+    await this._db
+      .collection(DB_COLLECTIONS.SERVERS)
+      .updateOne({ serverId }, { $set: { queueSize: queue.length } });
+  }
+
+  updateLoginQueues() {
+    for (const key in this._loginQueues) {
+      const serverId = Number(key);
+      const queue = this._loginQueues[serverId];
+      for (let index = 0; index < queue.length; index++) {
+        const qclient = queue[index];
+        this.sendServerQueueUpdate(serverId, qclient);
+      }
+      this.updateQueueSizeMongo(serverId);
+    }
+  }
+
   async CharacterLoginRequest(
     client: Client,
     packet: CharacterLoginRequest
@@ -973,31 +1147,13 @@ export class LoginServer extends EventEmitter {
       console.error(`Could not find session for ${client.authKey}`);
       return false;
     }
-    const { serverAddress, populationNumber, maxPopulationNumber } = gameServer;
-    const charactersLoginInfo = await this.getCharactersLoginInfo(
+    const { serverAddress } = gameServer;
+    const characterLoginInfo = await this.getCharactersLoginInfo(
       serverId,
       serverAddress,
       characterId,
       UserSession.guid
     );
-    // If server full
-    if (populationNumber >= maxPopulationNumber) {
-      const isAdmin = await this.askZone(serverId, "ClientIsAdminRequest", {
-        guid: UserSession.guid
-      });
-
-      // Only allow admins
-      if (!isAdmin) {
-        this.sendData(client, "H1emu.PrintToConsole", {
-          message: `Server is full !`,
-          showConsole: true,
-          clearOutput: false
-        });
-        charactersLoginInfo.status = 0;
-        this.sendData(client, "CharacterLoginReply", charactersLoginInfo);
-        return false;
-      }
-    }
     const rejectionFlags = await this.getClientRejectionFlags(serverId, client);
 
     connectionAllowed = (await this.askZone(
@@ -1014,14 +1170,14 @@ export class LoginServer extends EventEmitter {
 
     if (client.gameVersion === GAME_VERSIONS.H1Z1_KOTK_PS3) {
       // any type can be pass to a byteswithlength field but only the specified type in the table can be read
-      charactersLoginInfo.applicationData = DataSchema.pack(
+      characterLoginInfo.applicationData = DataSchema.pack(
         applicationDataKOTK,
-        charactersLoginInfo.applicationData
+        characterLoginInfo.applicationData
       ).data as unknown as CharacterLoginReply["applicationData"];
     }
-    debug(charactersLoginInfo);
-    if (charactersLoginInfo.status) {
-      charactersLoginInfo.status = Number(connectionAllowed.status);
+    debug(characterLoginInfo);
+    if (characterLoginInfo.status) {
+      characterLoginInfo.status = Number(connectionAllowed.status);
     } else {
       this.sendData(client, "H1emu.PrintToConsole", {
         message: `Invalid character status! If this is a new character, please delete and recreate it.`,
@@ -1070,7 +1226,7 @@ export class LoginServer extends EventEmitter {
             showConsole: true,
             clearOutput: true
           });
-          this.sendData(client, "CharacterLoginReply", charactersLoginInfo);
+          this.sendData(client, "CharacterLoginReply", characterLoginInfo);
           return false;
       }
       this.sendData(client, "H1emu.PrintToConsole", {
@@ -1093,9 +1249,26 @@ export class LoginServer extends EventEmitter {
         });
       }
     }
-    this.sendData(client, "CharacterLoginReply", charactersLoginInfo);
+    if (
+      characterLoginInfo.status === LoginStatus.ACCEPTED &&
+      (await this.isQueueActive(serverId))
+    ) {
+      const isAdmin = await this.askZone(serverId, "ClientIsAdminRequest", {
+        guid: UserSession.guid
+      });
+      if (!isAdmin) {
+        characterLoginInfo.status = LoginStatus.QUEUED;
+        const qclient: QueuedClient = { client, characterLoginInfo };
+        this.registerClientInLoginQueue(serverId, qclient);
+      }
+    }
+    this.sendData(client, "CharacterLoginReply", characterLoginInfo);
+    if (characterLoginInfo.status === LoginStatus.ACCEPTED) {
+      this._loginTimestamps[serverId] = Date.now();
+      this.updateLoginQueues();
+    }
     debug("CharacterLoginRequest");
-    return charactersLoginInfo.status === 1;
+    return characterLoginInfo.status !== LoginStatus.REJECTED;
   }
 
   getZoneConnectionClient(serverId: number): LZConnectionClient | undefined {
@@ -1295,6 +1468,7 @@ export class LoginServer extends EventEmitter {
       }
       this._db = this._mongoClient.db(DB_NAME);
       this.updateServersStatus();
+      this.clearQueueMongo();
     }
 
     if (this._soloMode) {
@@ -1346,6 +1520,7 @@ export class LoginServer extends EventEmitter {
   }
   async stop(): Promise<void> {
     debug("Shutting down");
+    clearInterval(this._loginQueuesTimer);
     // close zoneloginconnections
     if (this._zoneConnectionManager) {
       await this._zoneConnectionManager.stop();
