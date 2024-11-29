@@ -1559,6 +1559,11 @@ export function isHalloween() {
   return today.getMonth() === 9 && today.getDate() === 31;
 }
 
+export function isChristmasSeason() {
+  const today = new Date();
+  return today.getMonth() === 11 && today.getDate() >= 7;
+}
+
 export function luck(l: number) {
   return Math.floor(Math.random() * l) === 0;
 }

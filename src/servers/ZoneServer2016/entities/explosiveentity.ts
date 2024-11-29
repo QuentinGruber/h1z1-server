@@ -12,7 +12,11 @@
 // ======================================================================
 
 import { DamageInfo } from "types/zoneserver";
-import { getDistance, randomIntFromInterval } from "../../../utils/utils";
+import {
+  getDistance,
+  isChristmasSeason,
+  randomIntFromInterval
+} from "../../../utils/utils";
 import { Effects, Items } from "../models/enums";
 import { ZoneServer2016 } from "../zoneserver";
 import { BaseLightweightCharacter } from "./baselightweightcharacter";
@@ -100,7 +104,20 @@ export class ExplosiveEntity extends BaseLightweightCharacter {
   detonate(server: ZoneServer2016, client?: ZoneClient2016) {
     if (!server._explosives[this.characterId] || this.detonated) return;
     this.detonated = true;
-    server.sendCompositeEffectToAllInRange(600, "", this.state.position, 1875);
+    server.sendCompositeEffectToAllInRange(
+      600,
+      "",
+      this.state.position,
+      Effects.PFX_Impact_Explosion_Landmine_Dirt_10m
+    );
+    if (isChristmasSeason()) {
+      server.sendCompositeEffectToAllInRange(
+        600,
+        "",
+        this.state.position,
+        Effects.PFX_Seasonal_Holiday_Snow_skel
+      );
+    }
     server.deleteEntity(this.characterId, server._explosives);
     server.explosionDamage(this, client);
   }

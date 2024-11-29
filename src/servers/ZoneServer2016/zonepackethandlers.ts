@@ -33,7 +33,8 @@ import {
   getCurrentServerTimeWrapper,
   getDateString,
   isHalloween,
-  luck
+  luck,
+  isChristmasSeason as isChristmasSeason
 } from "../../utils/utils";
 
 import { CraftManager } from "./managers/craftmanager";
@@ -242,6 +243,8 @@ export class ZonePacketHandlers {
       }
     ); // Required for WaitForWorldReady
 
+    server.spawnStaticBuildings(client);
+
     // Required for WaitForWorldReady
     setTimeout(() => {
       // makes loading longer but gives game time to spawn objects and reduce lag
@@ -412,6 +415,27 @@ export class ZonePacketHandlers {
                 );
 
                 const item = server.generateItem(Items.PUMPKIN_MASK, 1, true);
+                client.character.lootItem(server, item);
+              }
+            });
+        }
+        if (isChristmasSeason()) {
+          server.accountInventoriesManager
+            .getAccountItem(
+              client.loginSessionId,
+              AccountItems.KRINGLE_HOLIDAY_HAT
+            )
+            .then((alreadyHaveMask) => {
+              if (!alreadyHaveMask) {
+                server.rewardManager.addRewardToPlayer(
+                  client,
+                  AccountItems.KRINGLE_HOLIDAY_HAT
+                );
+                const item = server.generateItem(
+                  Items.KRINGLE_HOLIDAY_HAT,
+                  1,
+                  true
+                );
                 client.character.lootItem(server, item);
               }
             });

@@ -466,6 +466,7 @@ export class ZoneServer2016 extends EventEmitter {
   crowbarHitDamage!: number;
   /*                          */
   navManager: NavManager;
+  staticBuildings: AddSimpleNpc[] = require("../../../data/2016/sampleData/staticbuildings.json");
 
   constructor(
     serverPort: number,
@@ -677,6 +678,11 @@ export class ZoneServer2016 extends EventEmitter {
         },
         this.rebootTime * 60 * 60 * 1000
       );
+    }
+    for (let i = 0; i < this.staticBuildings.length; i++) {
+      const v = this.staticBuildings[i];
+      v.characterId = this.generateGuid();
+      v.transientId = this.getTransientId(v.characterId);
     }
   }
 
@@ -3611,6 +3617,12 @@ export class ZoneServer2016 extends EventEmitter {
     });
   }
 
+  spawnStaticBuildings(client: Client) {
+    this.staticBuildings.forEach((v) => {
+      this.sendData(client, "AddSimpleNpc", v);
+    });
+  }
+
   spawnCharacters(client: Client) {
     for (const c in this._clients) {
       const characterObj: Character = this._clients[c].character;
@@ -4802,7 +4814,7 @@ export class ZoneServer2016 extends EventEmitter {
     range: number,
     characterId: string,
     position: Float32Array,
-    effectId: number
+    effectId: Effects
   ) {
     this.sendDataToAllInRange<CharacterPlayWorldCompositeEffect>(
       range,
@@ -4812,6 +4824,22 @@ export class ZoneServer2016 extends EventEmitter {
         characterId: characterId,
         effectId: effectId,
         position: position
+      }
+    );
+  }
+  sendDialogEffectToAllInRange(
+    range: number,
+    characterId: string,
+    position: Float32Array,
+    effectId: Effects
+  ) {
+    this.sendDataToAllInRange<CommandPlayDialogEffect>(
+      range,
+      position,
+      "Command.PlayDialogEffect",
+      {
+        characterId: characterId,
+        effectId: effectId
       }
     );
   }
@@ -4868,7 +4896,7 @@ export class ZoneServer2016 extends EventEmitter {
   sendDataToAllInRange<ZonePacket>(
     range: number,
     position: Float32Array,
-    packetName: any,
+    packetName: h1z1PacketsType2016,
     obj: ZonePacket
   ) {
     const data = this._protocol.pack(packetName, obj);
