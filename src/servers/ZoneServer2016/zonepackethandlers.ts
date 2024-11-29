@@ -34,7 +34,7 @@ import {
   getDateString,
   isHalloween,
   luck,
-  isChristmassSeason as isChristmasSeason
+  isChristmasSeason as isChristmasSeason
 } from "../../utils/utils";
 
 import { CraftManager } from "./managers/craftmanager";

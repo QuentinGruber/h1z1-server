@@ -14,7 +14,7 @@
 import { DamageInfo } from "types/zoneserver";
 import {
   getDistance,
-  isChristmassSeason,
+  isChristmasSeason,
   randomIntFromInterval
 } from "../../../utils/utils";
 import { Effects, Items } from "../models/enums";
@@ -110,7 +110,7 @@ export class ExplosiveEntity extends BaseLightweightCharacter {
       this.state.position,
       Effects.PFX_Impact_Explosion_Landmine_Dirt_10m
     );
-    if (isChristmassSeason()) {
+    if (isChristmasSeason()) {
       server.sendCompositeEffectToAllInRange(
         600,
         "",
