@@ -1243,7 +1243,7 @@ export const lootTables: { [lootSpawner: string]: LootSpawner } = {
 
   // #region FARM
   "ItemSpawnerFarm.adr": {
-    spawnChance: 70,
+    spawnChance: 90,
     items: [
       {
         item: Items.FERTILIZER,
@@ -1255,7 +1255,7 @@ export const lootTables: { [lootSpawner: string]: LootSpawner } = {
       },
       {
         item: Items.WEAPON_AXE_WOOD,
-        weight: 10,
+        weight: 5,
         spawnCount: {
           min: 1,
           max: 1
@@ -1263,7 +1263,7 @@ export const lootTables: { [lootSpawner: string]: LootSpawner } = {
       },
       {
         item: Items.SEED_CORN,
-        weight: 20,
+        weight: 15,
         spawnCount: {
           min: 1,
           max: 1
@@ -1271,7 +1271,7 @@ export const lootTables: { [lootSpawner: string]: LootSpawner } = {
       },
       {
         item: Items.SEED_WHEAT,
-        weight: 20,
+        weight: 15,
         spawnCount: {
           min: 1,
           max: 1
@@ -1279,7 +1279,7 @@ export const lootTables: { [lootSpawner: string]: LootSpawner } = {
       },
       {
         item: Items.WEAPON_HATCHET,
-        weight: 10,
+        weight: 5,
         spawnCount: {
           min: 1,
           max: 1
@@ -1403,7 +1403,7 @@ export const lootTables: { [lootSpawner: string]: LootSpawner } = {
 
   // #region MILITARY
   "ItemSpawner_Z1_MilitaryBase_MotorPool.adr": {
-    spawnChance: 20,
+    spawnChance: 50,
     items: [
       // COMMON
       {
@@ -1447,11 +1447,11 @@ export const lootTables: { [lootSpawner: string]: LootSpawner } = {
         }
       },
       {
-        item: Items.CLOTH,
+        item: Items.LANDMINE,
         weight: 100,
         spawnCount: {
           min: 1,
-          max: 5
+          max: 1
         }
       },
       {
@@ -1521,7 +1521,7 @@ export const lootTables: { [lootSpawner: string]: LootSpawner } = {
     ]
   },
   "ItemSpawner_Z1_MilitaryBase_Tents1.adr": {
-    spawnChance: 20,
+    spawnChance: 50,
     items: [
       // UNCOMMON
       {
@@ -1687,6 +1687,22 @@ export const lootTables: { [lootSpawner: string]: LootSpawner } = {
       {
         item: Items.GRENADE_FLASH,
         weight: 100,
+        spawnCount: {
+          min: 1,
+          max: 1
+        }
+      },
+      {
+        item: Items.WEAPON_308,
+        weight: 50,
+        spawnCount: {
+          min: 1,
+          max: 1
+        }
+      },
+      {
+        item: Items.WEAPON_SHOTGUN,
+        weight: 50,
         spawnCount: {
           min: 1,
           max: 1
@@ -2735,6 +2751,22 @@ export const containerLootSpawners: {
         }
       },
       {
+        item: Items.EMPTY_SPECIMEN_BAG,
+        weight: 5,
+        spawnCount: {
+          min: 1,
+          max: 1
+        }
+      },
+      {
+        item: Items.VIAL_H1Z1_REDUCER,
+        weight: 5,
+        spawnCount: {
+          min: 1,
+          max: 1
+        }
+      },
+      {
         item: Items.IMMUNITY_BOOSTERS,
         weight: 10,
         spawnCount: {
@@ -2813,6 +2845,22 @@ export const containerLootSpawners: {
         }
       },
       {
+        item: Items.EMPTY_SPECIMEN_BAG,
+        weight: 5,
+        spawnCount: {
+          min: 1,
+          max: 1
+        }
+      },
+      {
+        item: Items.VIAL_H1Z1_REDUCER,
+        weight: 5,
+        spawnCount: {
+          min: 1,
+          max: 1
+        }
+      },
+      {
         item: Items.IMMUNITY_BOOSTERS,
         weight: 10,
         spawnCount: {
@@ -2828,7 +2876,15 @@ export const containerLootSpawners: {
     items: [
       {
         item: Items.EMPTY_SPECIMEN_BAG,
-        weight: 10,
+        weight: 25,
+        spawnCount: {
+          min: 1,
+          max: 1
+        }
+      },
+      {
+        item: Items.VIAL_H1Z1_REDUCER,
+        weight: 25,
         spawnCount: {
           min: 1,
           max: 1
@@ -2836,7 +2892,7 @@ export const containerLootSpawners: {
       },
       {
         item: Items.GAUZE,
-        weight: 10,
+        weight: 30,
         spawnCount: {
           min: 1,
           max: 1
@@ -2844,7 +2900,7 @@ export const containerLootSpawners: {
       },
       {
         item: Items.BANDAGE_DRESSED,
-        weight: 10,
+        weight: 30,
         spawnCount: {
           min: 1,
           max: 1
@@ -2852,7 +2908,7 @@ export const containerLootSpawners: {
       },
       {
         item: Items.BANDAGE,
-        weight: 10,
+        weight: 30,
         spawnCount: {
           min: 1,
           max: 1
@@ -2860,7 +2916,7 @@ export const containerLootSpawners: {
       },
       {
         item: Items.SYRINGE_EMPTY,
-        weight: 10,
+        weight: 30,
         spawnCount: {
           min: 1,
           max: 1
@@ -2868,7 +2924,7 @@ export const containerLootSpawners: {
       },
       {
         item: Items.VITAMINS,
-        weight: 10,
+        weight: 30,
         spawnCount: {
           min: 1,
           max: 2
@@ -2876,7 +2932,7 @@ export const containerLootSpawners: {
       },
       {
         item: Items.ANTIBIOTICS,
-        weight: 10,
+        weight: 30,
         spawnCount: {
           min: 1,
           max: 2
@@ -2884,7 +2940,7 @@ export const containerLootSpawners: {
       },
       {
         item: Items.IMMUNITY_BOOSTERS,
-        weight: 10,
+        weight: 30,
         spawnCount: {
           min: 1,
           max: 2
@@ -2892,7 +2948,7 @@ export const containerLootSpawners: {
       },
       {
         item: Items.CRACKED_CLIPBOARD,
-        weight: 5,
+        weight: 25,
         spawnCount: {
           min: 1,
           max: 1
@@ -2900,7 +2956,7 @@ export const containerLootSpawners: {
       },
       {
         item: Items.DEAD_CELL_PHONE,
-        weight: 3,
+        weight: 23,
         spawnCount: {
           min: 1,
           max: 1
@@ -2908,7 +2964,7 @@ export const containerLootSpawners: {
       },
       {
         item: Items.DOCTORS_FILE,
-        weight: 3,
+        weight: 23,
         spawnCount: {
           min: 1,
           max: 1
@@ -2922,7 +2978,7 @@ export const containerLootSpawners: {
     items: [
       {
         item: Items.GAUZE,
-        weight: 10,
+        weight: 30,
         spawnCount: {
           min: 1,
           max: 1
@@ -2930,7 +2986,7 @@ export const containerLootSpawners: {
       },
       {
         item: Items.DOCTORS_MEMO,
-        weight: 10,
+        weight: 30,
         spawnCount: {
           min: 1,
           max: 1
@@ -2938,7 +2994,7 @@ export const containerLootSpawners: {
       },
       {
         item: Items.WEAK_CELL_PHONE_BATTERY,
-        weight: 10,
+        weight: 30,
         spawnCount: {
           min: 1,
           max: 1
@@ -2946,7 +3002,7 @@ export const containerLootSpawners: {
       },
       {
         item: Items.WEICHS_WALLET,
-        weight: 4,
+        weight: 14,
         spawnCount: {
           min: 1,
           max: 1
@@ -2954,7 +3010,7 @@ export const containerLootSpawners: {
       },
       {
         item: Items.WEICHS_REPORT,
-        weight: 4,
+        weight: 14,
         spawnCount: {
           min: 1,
           max: 1
@@ -2962,7 +3018,7 @@ export const containerLootSpawners: {
       },
       {
         item: Items.KLAVISK_NOTE,
-        weight: 4,
+        weight: 14,
         spawnCount: {
           min: 1,
           max: 1
@@ -2970,7 +3026,7 @@ export const containerLootSpawners: {
       },
       {
         item: Items.BANDAGE_DRESSED,
-        weight: 10,
+        weight: 30,
         spawnCount: {
           min: 1,
           max: 1
@@ -2978,7 +3034,7 @@ export const containerLootSpawners: {
       },
       {
         item: Items.BANDAGE,
-        weight: 10,
+        weight: 30,
         spawnCount: {
           min: 1,
           max: 1
@@ -2986,7 +3042,23 @@ export const containerLootSpawners: {
       },
       {
         item: Items.SYRINGE_EMPTY,
-        weight: 10,
+        weight: 30,
+        spawnCount: {
+          min: 1,
+          max: 1
+        }
+      },
+      {
+        item: Items.EMPTY_SPECIMEN_BAG,
+        weight: 25,
+        spawnCount: {
+          min: 1,
+          max: 1
+        }
+      },
+      {
+        item: Items.VIAL_H1Z1_REDUCER,
+        weight: 25,
         spawnCount: {
           min: 1,
           max: 1
@@ -2994,7 +3066,7 @@ export const containerLootSpawners: {
       },
       {
         item: Items.VITAMINS,
-        weight: 10,
+        weight: 30,
         spawnCount: {
           min: 1,
           max: 3
@@ -3008,7 +3080,7 @@ export const containerLootSpawners: {
     items: [
       {
         item: Items.SYRINGE_H1Z1_REDUCER,
-        weight: 10,
+        weight: 20,
         spawnCount: {
           min: 1,
           max: 1
@@ -3016,7 +3088,7 @@ export const containerLootSpawners: {
       },
       {
         item: Items.REFRIGERATOR_NOTE,
-        weight: 15,
+        weight: 20,
         spawnCount: {
           min: 1,
           max: 1
@@ -3024,7 +3096,7 @@ export const containerLootSpawners: {
       },
       {
         item: Items.SYRINGE_INFECTED_BLOOD,
-        weight: 10,
+        weight: 20,
         spawnCount: {
           min: 1,
           max: 1
@@ -3038,7 +3110,7 @@ export const containerLootSpawners: {
     items: [
       {
         item: Items.SYRINGE_H1Z1_REDUCER,
-        weight: 10,
+        weight: 20,
         spawnCount: {
           min: 1,
           max: 1
@@ -3046,7 +3118,7 @@ export const containerLootSpawners: {
       },
       {
         item: Items.SYRINGE_INFECTED_BLOOD,
-        weight: 10,
+        weight: 20,
         spawnCount: {
           min: 1,
           max: 1
@@ -3609,7 +3681,7 @@ export const containerLootSpawners: {
     items: [
       {
         item: Items.CANNED_FOOD01,
-        weight: 10,
+        weight: 20,
         spawnCount: {
           min: 1,
           max: 1
@@ -3617,7 +3689,7 @@ export const containerLootSpawners: {
       },
       {
         item: Items.WATER_DIRTY,
-        weight: 10,
+        weight: 20,
         spawnCount: {
           min: 1,
           max: 1
@@ -3625,7 +3697,7 @@ export const containerLootSpawners: {
       },
       {
         item: Items.CLOTH,
-        weight: 10,
+        weight: 20,
         spawnCount: {
           min: 1,
           max: 1
@@ -3633,7 +3705,7 @@ export const containerLootSpawners: {
       },
       {
         item: Items.FERTILIZER,
-        weight: 5,
+        weight: 3,
         spawnCount: {
           min: 1,
           max: 1
