@@ -1590,6 +1590,28 @@ export function isPosInPoi(position: Float32Array): boolean {
   return isInPoi;
 }
 
+const Z1_nerfedPOIs = require("../../data/2016/zoneData/Z1_nerfedPOIs");
+export function isLootNerfedLoc(position: Float32Array): boolean {
+  let useRange = true;
+  let isInPoi = false;
+  Z1_nerfedPOIs.forEach((point: any) => {
+    if (point.bounds) {
+      useRange = false;
+      point.bounds.forEach((bound: any) => {
+        if (isInsideSquare([position[0], position[2]], bound)) {
+          isInPoi = true;
+          return;
+        }
+      });
+    }
+    if (useRange && isPosInRadius(point.range, position, point.position)) {
+      isInPoi = true;
+    }
+  });
+
+  return isInPoi;
+}
+
 export function chance(chanceNum: number): boolean {
   return Math.random() * 1000 < chanceNum;
 }

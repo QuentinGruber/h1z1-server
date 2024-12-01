@@ -1783,12 +1783,31 @@ export class ConstructionManager {
       }
     }
     if (allowed) return false;
-    if (
-      foundation.isInside(client.character.state.position) &&
-      (!client.isAdmin || !client.isDebugMode)
-    ) {
-      this.tpPlayerOutsideFoundation(server, client, foundation);
-      return false;
+    const bufferZone = 0.35;
+    const position = client.character.state.position;
+    const positions: Float32Array[] = [];
+
+    // Create the Float32Arrays
+    positions.push(
+      new Float32Array([position[0] + bufferZone, position[1], position[2], 1])
+    ); // Move X by +5
+    positions.push(
+      new Float32Array([position[0] - bufferZone, position[1], position[2], 1])
+    ); // Move X by -5
+    positions.push(
+      new Float32Array([position[0], position[1], position[2] + bufferZone, 1])
+    ); // Move Y by +5
+    positions.push(
+      new Float32Array([position[0], position[1], position[2] - bufferZone, 1])
+    ); // Move Y by -5
+    for (let x = 0; x < positions.length; x++) {
+      if (
+        foundation.isInside(positions[x]) &&
+        (!client.isAdmin || !client.isDebugMode)
+      ) {
+        this.tpPlayerOutsideFoundation(server, client, foundation);
+        return false;
+      }
     }
 
     return false;

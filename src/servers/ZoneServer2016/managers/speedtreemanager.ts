@@ -122,7 +122,6 @@ export class SpeedTreeManager {
           case Items.WEAPON_HATCHET_MAKESHIFT:
           case Items.WEAPON_AXE_FIRE:
           case Items.WEAPON_AXE_WOOD:
-          case Items.WEAPON_MACHETE01:
             break;
           default:
             server.sendAlert(client, "This tool is not sharp enough for this!");
