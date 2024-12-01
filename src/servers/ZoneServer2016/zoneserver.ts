@@ -557,7 +557,7 @@ export class ZoneServer2016 extends EventEmitter {
         }
         const generatedTransient = this.getTransientId(characterId);
         const sessionId =
-          await this._gatewayServer.getSoeClientSessionId(soeClientId);
+          this._gatewayServer.getSoeClientSessionId(soeClientId);
         if (!sessionId) {
           return;
         }
@@ -575,9 +575,8 @@ export class ZoneServer2016 extends EventEmitter {
           return;
         }
         if (!this._soloMode) {
-          const address = (
-            await this._gatewayServer.getSoeClientNetworkInfos(soeClientId)
-          )?.address;
+          const address =
+            this._gatewayServer.getSoeClientNetworkInfos(soeClientId)?.address;
           if (!address) {
             return;
           }
@@ -2281,19 +2280,23 @@ export class ZoneServer2016 extends EventEmitter {
       targetPing = 0;
     if (sourceClient && !targetClient) {
       sourceName = sourceClient.character.name || "Unknown";
-      const sourceSOEClientAvgPing =
-        await this._gatewayServer.getSoeClientAvgPing(sourceClient.soeClientId);
+      const sourceSOEClientAvgPing = this._gatewayServer.getSoeClientAvgPing(
+        sourceClient.soeClientId
+      );
       sourcePing = sourceSOEClientAvgPing ?? 0;
     } else if (!sourceClient && targetClient) {
       targetName = targetClient.character.name || "Unknown";
-      const targetSOEClientAvgPing =
-        await this._gatewayServer.getSoeClientAvgPing(targetClient.soeClientId);
+      const targetSOEClientAvgPing = this._gatewayServer.getSoeClientAvgPing(
+        targetClient.soeClientId
+      );
       targetPing = targetSOEClientAvgPing ?? 0;
     } else if (sourceClient && targetClient) {
-      const sourceSOEClientAvgPing =
-        await this._gatewayServer.getSoeClientAvgPing(sourceClient.soeClientId);
-      const targetSOEClientAvgPing =
-        await this._gatewayServer.getSoeClientAvgPing(targetClient.soeClientId);
+      const sourceSOEClientAvgPing = this._gatewayServer.getSoeClientAvgPing(
+        sourceClient.soeClientId
+      );
+      const targetSOEClientAvgPing = this._gatewayServer.getSoeClientAvgPing(
+        targetClient.soeClientId
+      );
       sourcePing = sourceSOEClientAvgPing ?? 0;
       sourceName = sourceClient.character.name || "Unknown";
       targetName = targetClient.character.name || "Unknown";
@@ -2551,7 +2554,7 @@ export class ZoneServer2016 extends EventEmitter {
         if (!(object instanceof ExplosiveEntity) && this.isPvE) continue;
 
         // await is for ExplosiveEntity, ignore error
-        await object.OnExplosiveHit(this, sourceEntity, client);
+        object.OnExplosiveHit(this, sourceEntity, client);
       }
     }
 
@@ -4164,7 +4167,7 @@ export class ZoneServer2016 extends EventEmitter {
     loginSessionId: string,
     characterName: string,
     reason: string,
-    adminName: string,
+    adminId: string,
     timestamp: number,
     isSilent: boolean
   ) {
@@ -4181,13 +4184,9 @@ export class ZoneServer2016 extends EventEmitter {
       banReason: reason ? reason : "no reason",
       loginSessionId: loginSessionId,
       IP:
-        (
-          await this._gatewayServer.getSoeClientNetworkInfos(
-            client?.soeClientId ?? ""
-          )
-        )?.address ?? "",
-      HWID: client?.HWID ?? "",
-      adminName: adminName ? adminName : "",
+        this._gatewayServer.getSoeClientNetworkInfos(client?.soeClientId ?? "")
+          ?.address ?? "",
+      adminId: adminId ? adminId : "",
       expirationDate: timestamp,
       active: true,
       unBanAdminName: ""
@@ -4619,7 +4618,7 @@ export class ZoneServer2016 extends EventEmitter {
             : this._airdrop.plane.state.position
         )
       ) {
-        const avgPing = await this._gatewayServer.getSoeClientAvgPing(
+        const avgPing = this._gatewayServer.getSoeClientAvgPing(
           client.soeClientId
         );
         choosenClient = client;

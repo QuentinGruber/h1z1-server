@@ -298,8 +298,7 @@ export interface ClientBan {
   banReason: string;
   loginSessionId: string;
   IP: string;
-  HWID: string;
-  adminName: string;
+  adminId: string;
   expirationDate: number;
   active: boolean;
   unBanAdminName: string;
