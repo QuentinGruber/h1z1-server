@@ -4164,7 +4164,7 @@ export class ZoneServer2016 extends EventEmitter {
     loginSessionId: string,
     characterName: string,
     reason: string,
-    adminName: string,
+    adminId: string,
     timestamp: number,
     isSilent: boolean
   ) {
@@ -4181,13 +4181,9 @@ export class ZoneServer2016 extends EventEmitter {
       banReason: reason ? reason : "no reason",
       loginSessionId: loginSessionId,
       IP:
-        (
-          await this._gatewayServer.getSoeClientNetworkInfos(
-            client?.soeClientId ?? ""
-          )
-        )?.address ?? "",
-      HWID: client?.HWID ?? "",
-      adminName: adminName ? adminName : "",
+        this._gatewayServer.getSoeClientNetworkInfos(client?.soeClientId ?? "")
+          ?.address ?? "",
+      adminId: adminId ? adminId : "",
       expirationDate: timestamp,
       active: true,
       unBanAdminName: ""
