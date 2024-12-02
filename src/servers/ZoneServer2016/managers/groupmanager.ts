@@ -16,7 +16,7 @@ import { zone2016packets } from "types/zone2016packets";
 import { Group } from "types/zoneserver";
 import { ZoneClient2016 as Client } from "../classes/zoneclient";
 import { ZoneServer2016 } from "../zoneserver";
-//import { DB_COLLECTIONS } from "../../../utils/enums";
+import { DB_COLLECTIONS } from "../../../utils/enums";
 
 enum GroupErrors {
   INVALID = "GroupIsInvalid",
@@ -83,23 +83,21 @@ export class GroupManager {
     server: ZoneServer2016,
     groupId: number
   ): Promise<Group | null> {
-    /*return server._soloMode
+    return server._soloMode
       ? this.soloGroups[groupId]
       : await server._db
           .collection(DB_COLLECTIONS.GROUPS)
-          .findOne<Group>({ serverId: server._worldId, groupId });*/
-    return this.soloGroups[groupId];
+          .findOne<Group>({ serverId: server._worldId, groupId });
   }
 
   async deleteGroup(server: ZoneServer2016, groupId: number) {
-    /*if (server._soloMode) {
+    if (server._soloMode) {
       delete this.soloGroups[groupId];
     } else {
       await server._db
         .collection(DB_COLLECTIONS.GROUPS)
         .deleteOne({ serverId: server._worldId, groupId });
-    }*/
-    delete this.soloGroups[groupId];
+    }
   }
 
   async sendDataToAllOthersInGroup(
@@ -173,7 +171,7 @@ export class GroupManager {
 
   async createGroup(server: ZoneServer2016, leader: Client) {
     const groupId: number = Math.floor(Math.random() * 4294967295); // MAX UINT32
-    /*if (server._soloMode) {
+    if (server._soloMode) {
       this.soloGroups[groupId] = {
         groupId: groupId,
         leader: leader.character.characterId,
@@ -186,12 +184,7 @@ export class GroupManager {
         leader: leader.character.characterId,
         members: [leader.character.characterId]
       });
-    }*/
-    this.soloGroups[groupId] = {
-      groupId: groupId,
-      leader: leader.character.characterId,
-      members: [leader.character.characterId]
-    };
+    }
     leader.character.groupId = groupId;
 
     server.sendChatText(
@@ -247,6 +240,11 @@ export class GroupManager {
     }
 
     const group = await this.getGroup(server, source.character.groupId);
+    if (group && group.members.length >= 3) {
+      server.sendAlert(source, "Group limit reached");
+      delete this.pendingInvites[target.character.characterId];
+      return;
+    }
     if (group && group.leader != source.character.characterId) {
       server.sendAlert(source, "You are not the group leader!");
       return;
@@ -290,6 +288,13 @@ export class GroupManager {
     }
 
     let group = await this.getGroup(server, source.character.groupId);
+
+    if (group && group.members.length >= 3) {
+      server.sendAlert(target, "Group limit reached");
+      delete this.pendingInvites[target.character.characterId];
+      return;
+    }
+
     if (group && source.character.characterId != group.leader) {
       return;
     }
@@ -320,7 +325,7 @@ export class GroupManager {
     target.character.groupId = source.character.groupId;
     group.members.push(target.character.characterId);
 
-    /*if (!server._soloMode) {
+    if (!server._soloMode) {
       await server._db.collection(DB_COLLECTIONS.GROUPS).updateOne(
         {
           serverId: server._worldId,
@@ -330,8 +335,8 @@ export class GroupManager {
       );
     } else {
       this.soloGroups[group.groupId] = group;
-    }*/
-    this.soloGroups[group.groupId] = group;
+    }
+
     server.sendAlert(target, "Group joined.");
     delete this.pendingInvites[target.character.characterId];
 
@@ -373,7 +378,11 @@ export class GroupManager {
 
   async handlePlayerDisconnect(server: ZoneServer2016, client: Client) {
     delete this.pendingInvites[client.character.characterId];
-
+    this.removeGroupMember(
+      server,
+      client.character.characterId,
+      client.character.groupId
+    );
     const groupId = client.character.groupId;
     this.sendAlertToAllOthersInGroup(
       server,
@@ -413,7 +422,7 @@ export class GroupManager {
       groupId: group.groupId
     });
 
-    /*if (!server._soloMode) {
+    if (!server._soloMode) {
       await server._db.collection(DB_COLLECTIONS.GROUPS).updateOne(
         {
           serverId: server._worldId,
@@ -429,7 +438,7 @@ export class GroupManager {
         { $set: { groupId: 0 } }
       );
     }
-    */
+
     // disband single member / empty group
     if (!disband && group.members.length <= 1) {
       await this.disbandGroup(server, group.groupId);
@@ -440,7 +449,7 @@ export class GroupManager {
       const leader = Object.values(group.members)[0],
         leaderClient = server.getClientByCharId(leader);
 
-      /* if (!server._soloMode) {
+      if (!server._soloMode) {
         await server._db.collection(DB_COLLECTIONS.GROUPS).updateOne(
           {
             serverId: server._worldId,
@@ -448,7 +457,7 @@ export class GroupManager {
           },
           { $set: { leader: leader } }
         );
-      }*/
+      }
 
       group.leader = leader;
       if (leaderClient) {

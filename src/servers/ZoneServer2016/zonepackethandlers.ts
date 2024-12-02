@@ -3178,13 +3178,6 @@ export class ZonePacketHandlers {
     client: Client,
     packet: ReceivedPacket<GroupInvite>
   ) {
-    if (
-      server.groupManager.soloGroups[client.character.groupId].members.length >=
-      3
-    ) {
-      server.sendAlert(client, "Group limit reached");
-      return;
-    }
     const targetCharacterId =
         packet.data.inviteData?.targetCharacter?.characterId || "",
       targetCharacterName =
