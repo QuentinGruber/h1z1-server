@@ -2025,7 +2025,7 @@ export const containerLootSpawners: {
         weight: 33,
         spawnCount: {
           min: 1,
-          max: 2
+          max: 3
         }
       },
       {
@@ -2055,7 +2055,7 @@ export const containerLootSpawners: {
         weight: 33,
         spawnCount: {
           min: 1,
-          max: 2
+          max: 3
         }
       },
       {
@@ -2085,7 +2085,7 @@ export const containerLootSpawners: {
         weight: 33,
         spawnCount: {
           min: 1,
-          max: 2
+          max: 3
         }
       },
       {
