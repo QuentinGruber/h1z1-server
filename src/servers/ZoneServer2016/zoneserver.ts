@@ -5595,9 +5595,6 @@ export class ZoneServer2016 extends EventEmitter {
     let durability: number;
     let wornOffDurability: number = 0;
     switch (true) {
-      case itemDefinitionId == Items.WEAPON_CROWBAR:
-        durability = 1000;
-        break;
       case itemDefinitionId == Items.WEAPON_HATCHET_MAKESHIFT:
         durability = 250;
         break;
