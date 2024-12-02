@@ -774,14 +774,14 @@ export class ZoneServer2016 extends EventEmitter {
                     "CharacterDeleteReply",
                     { status: 1, reqId: reqId }
                   );
-                  const groupId = charactersArray[0]?.groupId;
+                  /*const groupId = charactersArray[0]?.groupId;
                   if (groupId) {
                     this.groupManager.removeGroupMember(
                       this,
                       characterId,
                       groupId
                     );
-                  }
+                  }*/
                 } else {
                   this._loginConnectionManager.sendData(
                     client,
@@ -2255,6 +2255,11 @@ export class ZoneServer2016 extends EventEmitter {
 
       if (!this._soloMode) {
         this.groupManager.handlePlayerDisconnect(this, client);
+        this.groupManager.removeGroupMember(
+          this,
+          client.character.characterId,
+          client.character.groupId
+        );
       }
     }
     delete this._clients[client.sessionId];
