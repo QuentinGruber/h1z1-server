@@ -971,9 +971,8 @@ export class WorldObjectManager {
           const chance = Math.floor(Math.random() * 100) + 1;
           if (
             chance <=
-            (isLootNerfedLoc(itemInstance.position)
-              ? lootTable.spawnChance / 2
-              : lootTable.spawnChance)
+            lootTable.spawnChance *
+              (1 - isLootNerfedLoc(itemInstance.position) / 100)
           ) {
             if (!WorldObjectManager.itemSpawnersChances[itemInstance.id]) {
               const realSpawnChance =
@@ -1076,9 +1075,7 @@ export class WorldObjectManager {
           if (allow) {
             if (
               chance <=
-              (isLootNerfedLoc(prop.state.position)
-                ? item.weight / 2
-                : item.weight)
+              item.weight * (1 - isLootNerfedLoc(prop.state.position) / 100)
             ) {
               const count = Math.floor(
                 Math.random() *
