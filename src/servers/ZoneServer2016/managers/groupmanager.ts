@@ -474,11 +474,22 @@ export class GroupManager {
         });
       }
     }
-    this.sendDataToGroup(server, group.groupId, "Group.RemoveGroup", {
-      unknownDword1: group.groupId,
-      groupId: group.groupId
-    });
-    server.groupManager.syncGroup(server, groupId);
+    if (client) {
+      for (const a of group.members) {
+        const groupClient = server.getClientByCharId(a);
+        if (!groupClient) continue;
+        if (groupClient.spawnedEntities.has(client.character)) {
+          server.sendData(groupClient, "Character.RemovePlayer", {
+            characterId: characterId
+          });
+          server.sendData(
+            client,
+            "AddLightweightPc",
+            client.character.pGetLightweightPC(server, client)
+          );
+        }
+      }
+    }
   }
 
   handleGroupKick(
