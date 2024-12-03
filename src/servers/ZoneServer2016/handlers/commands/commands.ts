@@ -1019,7 +1019,7 @@ export const commands: Array<Command> = [
         ownerId ?? "",
         characterName ?? "",
         reason,
-        client.character.name,
+        client.loginSessionId,
         time,
         isSilent
       );
@@ -1100,7 +1100,7 @@ export const commands: Array<Command> = [
         ownerId ?? "",
         characterName ?? "",
         reason,
-        client.character.name,
+        client.loginSessionId,
         time,
         isSilent
       );

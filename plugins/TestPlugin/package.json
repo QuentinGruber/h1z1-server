@@ -11,7 +11,7 @@
   "author": "H1emu",
   "license": "GPL-3.0-only",
   "devDependencies": {
-    "h1z1-server": "^0.38.0",
+    "h1z1-server": "*",
     "typescript": "^5.1.3"
   }
 }
