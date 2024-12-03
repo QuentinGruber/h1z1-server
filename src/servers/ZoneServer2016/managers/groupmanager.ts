@@ -482,11 +482,13 @@ export class GroupManager {
           server.sendData(groupClient, "Character.RemovePlayer", {
             characterId: characterId
           });
-          server.sendData(
-            groupClient,
-            "AddLightweightPc",
-            client.character.pGetLightweightPC(server, client)
-          );
+          setTimeout(() => {
+            server.sendData(
+              groupClient,
+              "AddLightweightPc",
+              client.character.pGetLightweightPC(server, client)
+            );
+          }, 100);
         }
       }
     }
