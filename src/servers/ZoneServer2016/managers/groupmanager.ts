@@ -483,7 +483,7 @@ export class GroupManager {
             characterId: characterId
           });
           server.sendData(
-            client,
+            groupClient,
             "AddLightweightPc",
             client.character.pGetLightweightPC(server, client)
           );
