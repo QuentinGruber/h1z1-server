@@ -240,7 +240,7 @@ export class GroupManager {
     }
 
     const group = await this.getGroup(server, source.character.groupId);
-    if (group && group.members.length >= 3) {
+    if (group && group.members.length >= 12) {
       server.sendAlert(source, "Group limit reached");
       delete this.pendingInvites[target.character.characterId];
       return;
@@ -289,7 +289,7 @@ export class GroupManager {
 
     let group = await this.getGroup(server, source.character.groupId);
 
-    if (group && group.members.length >= 3) {
+    if (group && group.members.length >= 12) {
       server.sendAlert(target, "Group limit reached");
       delete this.pendingInvites[target.character.characterId];
       return;
