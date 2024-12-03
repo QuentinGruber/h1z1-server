@@ -474,6 +474,7 @@ export class GroupManager {
         });
       }
     }
+    server.groupManager.syncGroup(server, groupId);
   }
 
   handleGroupKick(
