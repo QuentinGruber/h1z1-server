@@ -474,6 +474,10 @@ export class GroupManager {
         });
       }
     }
+    this.sendDataToGroup(server, group.groupId, "Group.RemoveGroup", {
+      unknownDword1: group.groupId,
+      groupId: group.groupId
+    });
     server.groupManager.syncGroup(server, groupId);
   }
 
