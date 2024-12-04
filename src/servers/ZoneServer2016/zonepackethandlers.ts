@@ -1417,7 +1417,10 @@ export class ZonePacketHandlers {
     } = packet.data;
 
     // Return early for spammed junk packets
-    if (flags === 2 || flags === 513) return;
+    if (flags === 2) {
+        if (position) client.character.state.position = position;
+        return;
+    }
 
     // Disable temporary god mode if enabled
     if (client.character.tempGodMode) server.setTempGodMode(client, false);
