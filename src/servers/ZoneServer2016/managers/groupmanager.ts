@@ -33,14 +33,17 @@ export class GroupManager {
     server.sendChatText(client, `[GroupError] ${error}`);
   }
 
-  async syncGroup(server: ZoneServer2016, groupId: number) {
+  async syncGroup(
+    server: ZoneServer2016,
+    groupId: number,
+    forceSync: boolean = false
+  ) {
     const group = await this.getGroup(server, groupId);
     if (!group) return;
-
     const now = Date.now();
     const lastSyncTime = this.groupSync[groupId];
 
-    if (!lastSyncTime || lastSyncTime + 5000 <= now) {
+    if (!lastSyncTime || lastSyncTime + 5000 <= now || forceSync) {
       this.groupSync[groupId] = now;
 
       const sendData = {
@@ -412,8 +415,44 @@ export class GroupManager {
 
     if (client) {
       client.character.groupId = 0;
+      server.sendData(client, "Group.RemoveGroup", {
+        unknownDword1: group.groupId,
+        groupId: group.groupId
+      });
     }
-
+    if (client) {
+      for (const a of group.members) {
+        setTimeout(() => {
+          const groupClient = server.getClientByCharId(a);
+          if (groupClient) {
+            if (client.spawnedEntities.has(groupClient.character)) {
+              server.sendData(client, "Character.RemovePlayer", {
+                characterId: groupClient.character.characterId
+              });
+              setTimeout(() => {
+                server.sendData(
+                  client,
+                  "AddLightweightPc",
+                  groupClient.character.pGetLightweightPC(server, groupClient)
+                );
+              }, 200);
+            }
+            if (groupClient.spawnedEntities.has(client.character)) {
+              server.sendData(groupClient, "Character.RemovePlayer", {
+                characterId: characterId
+              });
+              setTimeout(() => {
+                server.sendData(
+                  groupClient,
+                  "AddLightweightPc",
+                  client.character.pGetLightweightPC(server, client)
+                );
+              }, 200);
+            }
+          }
+        }, 50);
+      }
+    }
     const idx = group.members.indexOf(characterId);
     group.members.splice(idx, 1);
 
@@ -474,24 +513,7 @@ export class GroupManager {
         });
       }
     }
-    if (client) {
-      for (const a of group.members) {
-        const groupClient = server.getClientByCharId(a);
-        if (!groupClient) continue;
-        if (groupClient.spawnedEntities.has(client.character)) {
-          server.sendData(groupClient, "Character.RemovePlayer", {
-            characterId: characterId
-          });
-          setTimeout(() => {
-            server.sendData(
-              groupClient,
-              "AddLightweightPc",
-              client.character.pGetLightweightPC(server, client)
-            );
-          }, 100);
-        }
-      }
-    }
+    this.syncGroup(server, group.groupId, true);
   }
 
   handleGroupKick(
@@ -541,10 +563,6 @@ export class GroupManager {
       `${client.character.name} has left the group.`
     );
     this.removeGroupMember(server, client.character.characterId, group.groupId);
-    server.sendData(client, "Group.RemoveGroup", {
-      unknownDword1: group.groupId,
-      groupId: group.groupId
-    });
   }
 
   handleGroupView(server: ZoneServer2016, client: Client, group: Group) {
