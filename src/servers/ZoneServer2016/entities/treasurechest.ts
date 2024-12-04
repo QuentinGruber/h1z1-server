@@ -142,6 +142,5 @@ export class TreasureChest extends LootableProp {
         this.lootContainerItem(server, item, item?.stackCount, false);
       }
     }
-
   }
 }
