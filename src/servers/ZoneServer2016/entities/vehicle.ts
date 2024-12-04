@@ -266,8 +266,18 @@ export class Vehicle2016 extends BaseLootableEntity {
       this.vehicleId == VehicleIds.PARACHUTE;
     this.shaderGroupId = shaderGroupId;
     switch (this.vehicleId) {
-      case VehicleIds.OFFROADER:
       case VehicleIds.PICKUP:
+        this.seats = {
+          0: "",
+          1: "",
+          2: "",
+          3: "",
+          4: "",
+          5: "",
+          6: ""
+        };
+        break;
+      case VehicleIds.OFFROADER:
       case VehicleIds.POLICECAR:
         this.seats = {
           0: "",

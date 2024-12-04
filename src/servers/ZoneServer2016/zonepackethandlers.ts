@@ -1895,7 +1895,7 @@ export class ZonePacketHandlers {
     client: Client,
     packet: ReceivedPacket<MountSeatChangeRequest>
   ) {
-    //server.changeSeat(client, packet); disabled for now
+    server.changeSeat(client, packet);
   }
   ConstructionPlacementFinalizeRequest(
     server: ZoneServer2016,

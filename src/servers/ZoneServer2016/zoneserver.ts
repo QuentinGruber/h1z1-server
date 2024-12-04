@@ -4976,6 +4976,22 @@ export class ZoneServer2016 extends EventEmitter {
       }
     }
     vehicle.seats[seatId] = client.character.characterId;
+    if (seatId == 5) {
+      vehicle.seats[5] = client.character.characterId;
+      vehicle.seats[2] = client.character.characterId;
+    }
+    if (seatId == 2) {
+      vehicle.seats[5] = client.character.characterId;
+      vehicle.seats[2] = client.character.characterId;
+    }
+    if (seatId == 6) {
+      vehicle.seats[3] = client.character.characterId;
+      vehicle.seats[6] = client.character.characterId;
+    }
+    if (seatId == 3) {
+      vehicle.seats[3] = client.character.characterId;
+      vehicle.seats[6] = client.character.characterId;
+    }
     if (seatId == 0) {
       this.takeoverManagedObject(client, vehicle);
       this.abilitiesManager.sendVehicleAbilities(this, client, vehicle);
@@ -5075,6 +5091,22 @@ export class ZoneServer2016 extends EventEmitter {
       return;
     }
     vehicle.seats[seatId] = "";
+    if (seatId == 5) {
+      vehicle.seats[5] = "";
+      vehicle.seats[2] = "";
+    }
+    if (seatId == 2) {
+      vehicle.seats[5] = "";
+      vehicle.seats[2] = "";
+    }
+    if (seatId == 6) {
+      vehicle.seats[3] = "";
+      vehicle.seats[6] = "";
+    }
+    if (seatId == 3) {
+      vehicle.seats[3] = "";
+      vehicle.seats[6] = "";
+    }
     this.sendDataToAllWithSpawnedEntity<MountDismountResponse>(
       this._characters,
       client.character.characterId,
@@ -5128,14 +5160,15 @@ export class ZoneServer2016 extends EventEmitter {
     if (!vehicle) return;
     const seatCount = vehicle.getSeatCount(),
       oldSeatId = vehicle.getCharacterSeat(client.character.characterId);
-
     const seatId = packet.data.seatId ?? 0,
       seat = vehicle.seats[seatId],
       passenger = this._characters[seat];
     if (
       seatId < seatCount &&
-      (!vehicle.seats[seatId] || !passenger?.isAlive) &&
-      oldSeatId
+      (!vehicle.seats[seatId] ||
+        vehicle.seats[seatId] == client.character.characterId ||
+        !passenger?.isAlive) &&
+      oldSeatId != -1
     ) {
       if (passenger && !passenger?.isAlive) {
         const client = this.getClientByCharId(passenger.characterId);
@@ -5157,6 +5190,22 @@ export class ZoneServer2016 extends EventEmitter {
       );
       vehicle.seats[oldSeatId] = "";
       vehicle.seats[seatId] = client.character.characterId;
+      if (seatId == 5) {
+        vehicle.seats[5] = client.character.characterId;
+        vehicle.seats[2] = client.character.characterId;
+      }
+      if (seatId == 2) {
+        vehicle.seats[5] = client.character.characterId;
+        vehicle.seats[2] = client.character.characterId;
+      }
+      if (seatId == 6) {
+        vehicle.seats[3] = client.character.characterId;
+        vehicle.seats[6] = client.character.characterId;
+      }
+      if (seatId == 3) {
+        vehicle.seats[3] = client.character.characterId;
+        vehicle.seats[6] = client.character.characterId;
+      }
       if (!oldSeatId && vehicle.engineOn) {
         vehicle.stopEngine(this);
         client.character.dismountContainer(this);
