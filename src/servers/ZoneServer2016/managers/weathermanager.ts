@@ -17,7 +17,8 @@ import { Weather2016, WeatherTemplate } from "types/zoneserver";
 import {
   randomIntFromInterval,
   _,
-  getCurrentServerTimeWrapper
+  getCurrentServerTimeWrapper,
+  isChristmasSeason
 } from "../../../utils/utils";
 import { ZoneClient2016 as Client } from "../classes/zoneclient";
 import { ZoneServer2016 } from "../zoneserver";
@@ -49,7 +50,10 @@ export class WeatherManager {
   defaultTemplate = "donotusethat";
 
   init() {
-    this.weather = this.templates[this.defaultTemplate];
+    const defaultTemplate = isChristmasSeason()
+      ? "winter"
+      : this.defaultTemplate;
+    this.weather = this.templates[defaultTemplate];
     this.seasonstart();
   }
 

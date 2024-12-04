@@ -61,6 +61,8 @@ import { WithId } from "mongodb";
 import { FullCharacterSaveData } from "types/savedata";
 import { scheduler } from "node:timers/promises";
 import { Vehicle2016 } from "../../entities/vehicle";
+import { AddSimpleNpc } from "types/zone2016packets";
+import { writeFileSync } from "node:fs";
 const itemDefinitions = require("./../../../../../data/2016/dataSources/ServerItemDefinitions.json");
 
 export const commands: Array<Command> = [
@@ -1017,7 +1019,7 @@ export const commands: Array<Command> = [
         ownerId ?? "",
         characterName ?? "",
         reason,
-        client.character.name,
+        client.loginSessionId,
         time,
         isSilent
       );
@@ -1098,7 +1100,7 @@ export const commands: Array<Command> = [
         ownerId ?? "",
         characterName ?? "",
         reason,
-        client.character.name,
+        client.loginSessionId,
         time,
         isSilent
       );
@@ -1974,6 +1976,37 @@ export const commands: Array<Command> = [
     permissionLevel: PermissionLevels.ADMIN,
     execute: (server: ZoneServer2016, client: Client, args: Array<string>) => {
       server.weatherManager.handleRandomCommand(server, client);
+    }
+  },
+  {
+    name: "addBuilding",
+    permissionLevel: PermissionLevels.DEV,
+    execute: (server: ZoneServer2016, client: Client, args: Array<string>) => {
+      const modelId = Number(args[0]);
+      const { position, rotation } = client.character.state;
+      const characterId = server.generateGuid();
+      const transientId = server.getTransientId(characterId);
+      const s: AddSimpleNpc = {
+        characterId,
+        modelId,
+        position,
+        rotation,
+        transientId,
+        scale: new Float32Array([1, 1, 1, 1]),
+        health: 10000
+      };
+      server.staticBuildings.push(s);
+      server.sendData(client, "AddSimpleNpc", s);
+    }
+  },
+  {
+    name: "saveBuildings",
+    permissionLevel: PermissionLevels.DEV,
+    execute: (server: ZoneServer2016, client: Client, args: Array<string>) => {
+      writeFileSync(
+        __dirname + "/../../../../../data/2016/sampleData/staticbuildings.json",
+        JSON.stringify(server.staticBuildings)
+      );
     }
   },
   {

@@ -221,7 +221,10 @@ export class PluginManager {
   private async loadPlugin(pluginPath: string) {
     const runPath = path.join(this.pluginsDir, pluginPath, "plugin.js");
 
-    if (!folderExists(path.join(this.pluginsDir, pluginPath, "node_modules"))) {
+    if (
+      !folderExists(path.join(this.pluginsDir, pluginPath, "node_modules")) ||
+      process.env.PLUGIN_FORCE_BUILD
+    ) {
       // Install dependencies into the node_modules directory
       await this.installDependencies(pluginPath);
     } else {
@@ -336,7 +339,9 @@ export class PluginManager {
     for (const plugin of this.plugins) {
       try {
         await this.loadPluginConfig(server, plugin);
+        console.time(`Loading ${plugin.name} plugin`);
         await plugin.init(server);
+        console.timeEnd(`Loading ${plugin.name} plugin`);
         this.registerPluginCommands(server, plugin);
         console.log(`[PluginManager] ${plugin.name} initialized!`);
       } catch (e: any) {

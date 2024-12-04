@@ -583,7 +583,7 @@ export class WorldDataManager {
             ...characterSaveData
           }
         },
-        { upsert: true }
+        { upsert: process.env.MONGO_TESTS ? true : false }
       );
     }
   }
@@ -1037,9 +1037,9 @@ export class WorldDataManager {
       for (let i = 0; i < constructions.length; i++) {
         const construction = constructions[i];
         updatePromises.push(
-          collection.updateOne(
+          collection.replaceOne(
             { characterId: construction.characterId, serverId: this._worldId },
-            { $set: construction },
+            construction,
             { upsert: true }
           )
         );

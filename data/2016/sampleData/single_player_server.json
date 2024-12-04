@@ -7,8 +7,9 @@
   "description": "yeah",
   "descriptionId": 1362,
   "reqFeatureId": 0,
-  "serverInfo": "<ServerInfo Region=\"CharacterCreate.RegionUs\" Subregion=\"UI.SubregionUS\" IsRecommended=\"1\" IsRecommendedVS=\"0\" IsRecommendedNC=\"0\" IsRecommendedTR=\"0\" />",
+  "serverInfo": "<ServerInfo Region=\"CharacterCreate.RegionEu\" Subregion=\"UI.SubregionEu\" />",
   "populationLevel": 0,
-  "populationData": "<Population ServerCapacity=\"0\" PingAdr=\"127.0.0.1:1117\" Rulesets=\"Permadeath\"><factionlist IsList=\"1\"><faction Id=\"1\" Percent=\"0\" TargetPopPct=\"0\" RewardBuff=\"52\" XPBuff=\"52\" PercentAvg=\"0\"/><faction Id=\"2\" Percent=\"0\" TargetPopPct=\"1\" RewardBuff=\"0\" XPBuff=\"0\" PercentAvg=\"0\"/><faction Id=\"3\" Percent=\"0\" TargetPopPct=\"1\" RewardBuff=\"0\" XPBuff=\"0\" PercentAvg=\"1\"/></factionlist></Population>",
+  "populationData": "<Population PctCap=\"100\" PingAdr=\"127.0.0.1:1117\" Rulesets=\"Permadeath\"></Population>",
   "allowedAccess": true
 }
+

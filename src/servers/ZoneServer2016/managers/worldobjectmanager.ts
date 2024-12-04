@@ -246,6 +246,7 @@ export class WorldObjectManager {
     // this.equipRandomSkins(server, npc, this.zombieSlots, bannedZombieModels);
     server._npcs[characterId] = npc;
     if (spawnerId) this.spawnedNpcs[spawnerId] = characterId;
+    return npc;
   }
 
   createLootEntity(

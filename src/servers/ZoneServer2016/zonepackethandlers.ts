@@ -33,7 +33,8 @@ import {
   getCurrentServerTimeWrapper,
   getDateString,
   isHalloween,
-  luck
+  luck,
+  isChristmasSeason as isChristmasSeason
 } from "../../utils/utils";
 
 import { CraftManager } from "./managers/craftmanager";
@@ -242,6 +243,8 @@ export class ZonePacketHandlers {
       }
     ); // Required for WaitForWorldReady
 
+    server.spawnStaticBuildings(client);
+
     // Required for WaitForWorldReady
     setTimeout(() => {
       // makes loading longer but gives game time to spawn objects and reduce lag
@@ -412,6 +415,27 @@ export class ZonePacketHandlers {
                 );
 
                 const item = server.generateItem(Items.PUMPKIN_MASK, 1, true);
+                client.character.lootItem(server, item);
+              }
+            });
+        }
+        if (isChristmasSeason()) {
+          server.accountInventoriesManager
+            .getAccountItem(
+              client.loginSessionId,
+              AccountItems.KRINGLE_HOLIDAY_HAT
+            )
+            .then((alreadyHaveMask) => {
+              if (!alreadyHaveMask) {
+                server.rewardManager.addRewardToPlayer(
+                  client,
+                  AccountItems.KRINGLE_HOLIDAY_HAT
+                );
+                const item = server.generateItem(
+                  Items.KRINGLE_HOLIDAY_HAT,
+                  1,
+                  true
+                );
                 client.character.lootItem(server, item);
               }
             });
@@ -1267,9 +1291,9 @@ export class ZonePacketHandlers {
       client.blockedPositionUpdates = 0;
     }
 
-    if (flags & 2) {
+    if (positionUpdate.position) {
       // Position flag
-      if (
+      /*if (
         await server.fairPlayManager.checkVehicleSpeed(
           server,
           client,
@@ -1295,7 +1319,7 @@ export class ZonePacketHandlers {
           false
         );
         return;
-      }
+      }*/
 
       // Update passenger positions and handle kicks if necessary
       vehicle.getPassengerList().forEach((passengerId) => {
@@ -1308,19 +1332,20 @@ export class ZonePacketHandlers {
           vehicle.removePassenger(passengerId);
         }
       });
-
-      // Update vehicle position
-      vehicle.state.position = new Float32Array([
+      const adjustedPosValue = vehicle.vehicleId == 5 ? 0.2 : 0.8;
+      const fixedPosUpdate = new Float32Array([
         positionUpdate.position[0],
-        positionUpdate.position[1] - 0.4,
+        positionUpdate.position[1] - adjustedPosValue,
         positionUpdate.position[2],
         1
       ]);
+      // Update vehicle position
+      vehicle.state.position = fixedPosUpdate;
       vehicle.oldPos = {
         position: positionUpdate.position,
         time: positionUpdate.sequenceTime
       };
-      vehicle.positionUpdate.position = positionUpdate.position;
+      vehicle.positionUpdate.position = fixedPosUpdate;
 
       // Stop HUD timer if player moved
       if (
@@ -1347,14 +1372,19 @@ export class ZonePacketHandlers {
     }
 
     // Update engineRPM, orientation, frontTilt, sideTilt based on flags
-    if (flags & 0x800) vehicle.engineRPM = positionUpdate.engineRPM;
-    if (flags & 0x20)
+    if (positionUpdate.engineRPM) vehicle.engineRPM = positionUpdate.engineRPM;
+    if (positionUpdate.rotation) {
       vehicle.state.rotation = eul2quat(
         new Float32Array([positionUpdate.orientation, 0, 0, 0])
       );
-    if (flags & 0x40)
+      vehicle.positionUpdate.rotation = positionUpdate.rotation;
+    }
+    if (positionUpdate.orientation)
+      vehicle.positionUpdate.orientation = positionUpdate.orientation;
+    if (positionUpdate.frontTilt)
       vehicle.positionUpdate.frontTilt = positionUpdate.frontTilt;
-    if (flags & 0x80) vehicle.positionUpdate.sideTilt = positionUpdate.sideTilt;
+    if (positionUpdate.sideTilt)
+      vehicle.positionUpdate.sideTilt = positionUpdate.sideTilt;
   }
   VehicleStateData(
     server: ZoneServer2016,
@@ -1396,7 +1426,7 @@ export class ZonePacketHandlers {
     client.character.positionUpdate = client.character.positionUpdate || {};
     Object.assign(client.character.positionUpdate, packet.data);
 
-    if (flags & 0x20) {
+    if (packet.data.orientation) {
       // orientation
       /*server.fairPlayManager.checkAimVector(
         server,
@@ -1426,7 +1456,7 @@ export class ZonePacketHandlers {
     }
 
     // Handle stance flag (0x01)
-    if (flags & 1) {
+    if (packet.data.stance) {
       const stanceFlags = getStanceFlags(stance);
 
       // Detect movements based on stance
@@ -1485,7 +1515,7 @@ export class ZonePacketHandlers {
       client.character.stance = stance;
     }
     // Handle position flag (0x02)
-    if (flags & 2) {
+    if (packet.data.position) {
       if (!client.characterReleased) client.characterReleased = true;
       // if (client.movementSet.size < ZoneClient2016.minMovementForAfk) {
       //   const movementId = Math.round(position[0]) + Math.round(position[2]);
@@ -1546,7 +1576,7 @@ export class ZonePacketHandlers {
       }
     }
     // Handle rotation flag (0x200)
-    if (flags & 0x200) {
+    if (packet.data.rotation) {
       client.character.state.rotation = rotation;
       client.character.state.yaw = rotationRaw[0];
       client.character.state.lookAt = lookAt;
@@ -3315,7 +3345,10 @@ export class ZonePacketHandlers {
     switch (packet.data.unknownDword3) {
       case ItemUseOptions.OPEN_CRATE:
         const rewards = server.getCrateRewards(packet.data.itemDefinitionId),
-          reward = server.getRandomCrateReward(packet.data.itemDefinitionId);
+          rewardResult = server.getRandomCrateReward(
+            packet.data.itemDefinitionId
+          );
+        const reward = rewardResult?.reward;
         if (!rewards || !reward) return;
 
         if (
@@ -3338,6 +3371,11 @@ export class ZonePacketHandlers {
 
         if (reward > 0 && itemSubData.unknownBoolean1 == 0)
           setTimeout(() => {
+            if (rewardResult.isRare) {
+              server.sendAlertToAll(
+                `Player ${client.character.name} opened ${server.getItemDefinition(reward)?.NAME} `
+              );
+            }
             server.lootAccountItem(
               server,
               client,
@@ -3432,7 +3470,7 @@ export class ZonePacketHandlers {
             server.lootAccountItem(
               server,
               client,
-              server.generateAccountItem(bagReward)
+              server.generateAccountItem(bagReward.reward)
             );
           }
         );
