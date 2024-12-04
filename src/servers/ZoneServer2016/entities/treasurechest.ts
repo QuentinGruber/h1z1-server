@@ -27,7 +27,7 @@ export class TreasureChest extends LootableProp {
   spawnerId: number;
 
   /** Timestamp of the last loot time */
-  lastLootTime: { [chestId: number]: number } = {};
+  lastLootTime: number = 0;
 
   constructor(
     characterId: string,
@@ -132,7 +132,7 @@ export class TreasureChest extends LootableProp {
       }
     );
 
-    this.lastLootTime[this.spawnerId] = Date.now();
+    this.lastLootTime = Date.now();
 
     const rewards = server.rewardManager.rewards;
     for (const reward of rewards) {
