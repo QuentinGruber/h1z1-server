@@ -86,7 +86,7 @@ test(
         throw "client undefined";
       }
     });
-    await scheduler.yield();
+    await scheduler.wait(500);
     await t.test("stop", async () => {
       await zone.stop();
     });
