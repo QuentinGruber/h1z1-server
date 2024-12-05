@@ -360,6 +360,13 @@ export class Vehicle2016 extends BaseLootableEntity {
       const seat = this.seats[seatId],
         passenger = seat ? server._characters[seat] : undefined;
       if (!this.seats[seatId] || !passenger?.isAlive) {
+        if (Number(seatId) > 4) return -1;
+        if (seatId === "2") {
+          if (!!this.seats[5]) continue;
+        }
+        if (seatId === "3") {
+          if (!!this.seats[6]) continue;
+        }
         return Number(seatId);
       }
     }
