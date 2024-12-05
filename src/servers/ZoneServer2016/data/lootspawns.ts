@@ -3393,6 +3393,14 @@ export const containerLootSpawners: {
           min: 1,
           max: 1
         }
+      },
+      {
+        item: Items.SILVER_METAL_FRAME_SUNGLASSES,
+        weight: 50,
+        spawnCount: {
+          min: 1,
+          max: 1
+        }
       }
     ]
   },
@@ -3455,6 +3463,14 @@ export const containerLootSpawners: {
           min: 1,
           max: 1
         }
+      },
+      {
+        item: Items.SILVER_METAL_FRAME_SUNGLASSES,
+        weight: 50,
+        spawnCount: {
+          min: 1,
+          max: 1
+        }
       }
     ]
   },
@@ -3504,6 +3520,14 @@ export const containerLootSpawners: {
       },
       {
         item: Items.WAIST_PACK,
+        weight: 60,
+        spawnCount: {
+          min: 1,
+          max: 1
+        }
+      },
+      {
+        item: Items.SILVER_METAL_FRAME_SUNGLASSES,
         weight: 60,
         spawnCount: {
           min: 1,
