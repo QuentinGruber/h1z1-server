@@ -6,6 +6,7 @@ export class GridCell {
   objects: Array<BaseEntity> = [];
   width: number;
   height: number;
+  availableScrap: number = 50;
   constructor(x: number, y: number, width: number, height: number) {
     this.position = new Float32Array([x, 0, y, 1]);
     this.width = width;

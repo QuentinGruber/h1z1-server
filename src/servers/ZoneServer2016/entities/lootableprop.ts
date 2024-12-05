@@ -342,11 +342,26 @@ export class LootableProp extends BaseLootableEntity {
     if (!client || !weapon || weapon.itemDefinitionId != Items.WEAPON_CROWBAR) {
       return;
     }
-
-    if (randomIntFromInterval(0, 100) <= server.crowbarHitRewardChance) {
-      client.character.lootItem(server, server.generateItem(Items.METAL_SCRAP));
+    for (let x = 0; x < server._grid.length; x++) {
+      const grid = server._grid[x];
+      const index = grid.objects.indexOf(this);
+      if (index > -1) {
+        if (grid.availableScrap) {
+          if (randomIntFromInterval(0, 100) <= server.crowbarHitRewardChance) {
+            grid.availableScrap--;
+            client.character.lootItem(
+              server,
+              server.generateItem(Items.METAL_SCRAP)
+            );
+          }
+        } else {
+          server.sendChatText(
+            client,
+            `There is no metal scrap left in this area`
+          );
+        }
+      }
     }
-
     server.damageItem(client.character, weapon, server.crowbarHitDamage);
   }
 }
