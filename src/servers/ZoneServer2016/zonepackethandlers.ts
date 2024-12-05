@@ -33,7 +33,8 @@ import {
   getCurrentServerTimeWrapper,
   getDateString,
   isHalloween,
-  luck
+  luck,
+  isChristmasSeason as isChristmasSeason
 } from "../../utils/utils";
 
 import { CraftManager } from "./managers/craftmanager";
@@ -242,6 +243,8 @@ export class ZonePacketHandlers {
       }
     ); // Required for WaitForWorldReady
 
+    server.spawnStaticBuildings(client);
+
     // Required for WaitForWorldReady
     setTimeout(() => {
       // makes loading longer but gives game time to spawn objects and reduce lag
@@ -412,6 +415,27 @@ export class ZonePacketHandlers {
                 );
 
                 const item = server.generateItem(Items.PUMPKIN_MASK, 1, true);
+                client.character.lootItem(server, item);
+              }
+            });
+        }
+        if (isChristmasSeason()) {
+          server.accountInventoriesManager
+            .getAccountItem(
+              client.loginSessionId,
+              AccountItems.KRINGLE_HOLIDAY_HAT
+            )
+            .then((alreadyHaveMask) => {
+              if (!alreadyHaveMask) {
+                server.rewardManager.addRewardToPlayer(
+                  client,
+                  AccountItems.KRINGLE_HOLIDAY_HAT
+                );
+                const item = server.generateItem(
+                  Items.KRINGLE_HOLIDAY_HAT,
+                  1,
+                  true
+                );
                 client.character.lootItem(server, item);
               }
             });
@@ -1393,11 +1417,11 @@ export class ZonePacketHandlers {
     } = packet.data;
 
     // Return early for spammed junk packets
-    if (flags === 2 || flags === 513) return;
-
+    if (flags === 2 || packet.data.flags == 513) {
+      return;
+    }
     // Disable temporary god mode if enabled
     if (client.character.tempGodMode) server.setTempGodMode(client, false);
-
     // Update character's position
     client.character.positionUpdate = client.character.positionUpdate || {};
     Object.assign(client.character.positionUpdate, packet.data);
@@ -1871,7 +1895,7 @@ export class ZonePacketHandlers {
     client: Client,
     packet: ReceivedPacket<MountSeatChangeRequest>
   ) {
-    //server.changeSeat(client, packet); disabled for now
+    server.changeSeat(client, packet);
   }
   ConstructionPlacementFinalizeRequest(
     server: ZoneServer2016,
@@ -2905,6 +2929,10 @@ export class ZonePacketHandlers {
     if (!characterId) return;
     let obj: ConstructionPermissions = foundation.permissions[characterId];
     if (!obj) {
+      if (Object.keys(foundation.permissions).length >= 12) {
+        server.sendAlert(client, "Permissions limit reached.");
+        return;
+      }
       obj = {
         characterId,
         characterName,

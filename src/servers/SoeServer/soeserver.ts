@@ -38,8 +38,8 @@ export class SOEServer extends EventEmitter {
   _waitTimeMs: number = 24;
   keepAliveTimeoutTime: number = 40000;
   private readonly _maxMultiBufferSize: number;
-  private _resendTimeout: number = 400;
-  private _maxResentTries: number = 6;
+  private _resendTimeout: number = 250;
+  private _maxResentTries: number = 12;
   _allowRawDataReception: boolean = false;
   private _packetResetInterval: NodeJS.Timeout | undefined;
   avgEventLoopLag: number = 0;
@@ -143,7 +143,7 @@ export class SOEServer extends EventEmitter {
     const resendedSequences: Set<number> = new Set();
     for (const [sequence, time] of client.unAckData) {
       // if the packet is too old then we resend it
-      if (time + this._resendTimeout < currentTime) {
+      if (time + this._resendTimeout + client.avgPing < currentTime) {
         const dataCache = client.outputStream.getDataCache(sequence);
         if (dataCache) {
           if (dataCache.resendCounter >= this._maxResentTries) {

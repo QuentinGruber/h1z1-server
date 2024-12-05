@@ -466,6 +466,7 @@ export class ZoneServer2016 extends EventEmitter {
   crowbarHitDamage!: number;
   /*                          */
   navManager: NavManager;
+  staticBuildings: AddSimpleNpc[] = require("../../../data/2016/sampleData/staticbuildings.json");
 
   constructor(
     serverPort: number,
@@ -556,7 +557,7 @@ export class ZoneServer2016 extends EventEmitter {
         }
         const generatedTransient = this.getTransientId(characterId);
         const sessionId =
-          await this._gatewayServer.getSoeClientSessionId(soeClientId);
+          this._gatewayServer.getSoeClientSessionId(soeClientId);
         if (!sessionId) {
           return;
         }
@@ -574,9 +575,8 @@ export class ZoneServer2016 extends EventEmitter {
           return;
         }
         if (!this._soloMode) {
-          const address = (
-            await this._gatewayServer.getSoeClientNetworkInfos(soeClientId)
-          )?.address;
+          const address =
+            this._gatewayServer.getSoeClientNetworkInfos(soeClientId)?.address;
           if (!address) {
             return;
           }
@@ -677,6 +677,11 @@ export class ZoneServer2016 extends EventEmitter {
         },
         this.rebootTime * 60 * 60 * 1000
       );
+    }
+    for (let i = 0; i < this.staticBuildings.length; i++) {
+      const v = this.staticBuildings[i];
+      v.characterId = this.generateGuid();
+      v.transientId = this.getTransientId(v.characterId);
     }
   }
 
@@ -2275,19 +2280,23 @@ export class ZoneServer2016 extends EventEmitter {
       targetPing = 0;
     if (sourceClient && !targetClient) {
       sourceName = sourceClient.character.name || "Unknown";
-      const sourceSOEClientAvgPing =
-        await this._gatewayServer.getSoeClientAvgPing(sourceClient.soeClientId);
+      const sourceSOEClientAvgPing = this._gatewayServer.getSoeClientAvgPing(
+        sourceClient.soeClientId
+      );
       sourcePing = sourceSOEClientAvgPing ?? 0;
     } else if (!sourceClient && targetClient) {
       targetName = targetClient.character.name || "Unknown";
-      const targetSOEClientAvgPing =
-        await this._gatewayServer.getSoeClientAvgPing(targetClient.soeClientId);
+      const targetSOEClientAvgPing = this._gatewayServer.getSoeClientAvgPing(
+        targetClient.soeClientId
+      );
       targetPing = targetSOEClientAvgPing ?? 0;
     } else if (sourceClient && targetClient) {
-      const sourceSOEClientAvgPing =
-        await this._gatewayServer.getSoeClientAvgPing(sourceClient.soeClientId);
-      const targetSOEClientAvgPing =
-        await this._gatewayServer.getSoeClientAvgPing(targetClient.soeClientId);
+      const sourceSOEClientAvgPing = this._gatewayServer.getSoeClientAvgPing(
+        sourceClient.soeClientId
+      );
+      const targetSOEClientAvgPing = this._gatewayServer.getSoeClientAvgPing(
+        targetClient.soeClientId
+      );
       sourcePing = sourceSOEClientAvgPing ?? 0;
       sourceName = sourceClient.character.name || "Unknown";
       targetName = targetClient.character.name || "Unknown";
@@ -2545,7 +2554,7 @@ export class ZoneServer2016 extends EventEmitter {
         if (!(object instanceof ExplosiveEntity) && this.isPvE) continue;
 
         // await is for ExplosiveEntity, ignore error
-        await object.OnExplosiveHit(this, sourceEntity, client);
+        object.OnExplosiveHit(this, sourceEntity, client);
       }
     }
 
@@ -3611,6 +3620,12 @@ export class ZoneServer2016 extends EventEmitter {
     });
   }
 
+  spawnStaticBuildings(client: Client) {
+    this.staticBuildings.forEach((v) => {
+      this.sendData(client, "AddSimpleNpc", v);
+    });
+  }
+
   spawnCharacters(client: Client) {
     for (const c in this._clients) {
       const characterObj: Character = this._clients[c].character;
@@ -4152,7 +4167,7 @@ export class ZoneServer2016 extends EventEmitter {
     loginSessionId: string,
     characterName: string,
     reason: string,
-    adminName: string,
+    adminId: string,
     timestamp: number,
     isSilent: boolean
   ) {
@@ -4169,13 +4184,9 @@ export class ZoneServer2016 extends EventEmitter {
       banReason: reason ? reason : "no reason",
       loginSessionId: loginSessionId,
       IP:
-        (
-          await this._gatewayServer.getSoeClientNetworkInfos(
-            client?.soeClientId ?? ""
-          )
-        )?.address ?? "",
-      HWID: client?.HWID ?? "",
-      adminName: adminName ? adminName : "",
+        this._gatewayServer.getSoeClientNetworkInfos(client?.soeClientId ?? "")
+          ?.address ?? "",
+      adminId: adminId ? adminId : "",
       expirationDate: timestamp,
       active: true,
       unBanAdminName: ""
@@ -4607,7 +4618,7 @@ export class ZoneServer2016 extends EventEmitter {
             : this._airdrop.plane.state.position
         )
       ) {
-        const avgPing = await this._gatewayServer.getSoeClientAvgPing(
+        const avgPing = this._gatewayServer.getSoeClientAvgPing(
           client.soeClientId
         );
         choosenClient = client;
@@ -4802,7 +4813,7 @@ export class ZoneServer2016 extends EventEmitter {
     range: number,
     characterId: string,
     position: Float32Array,
-    effectId: number
+    effectId: Effects
   ) {
     this.sendDataToAllInRange<CharacterPlayWorldCompositeEffect>(
       range,
@@ -4812,6 +4823,22 @@ export class ZoneServer2016 extends EventEmitter {
         characterId: characterId,
         effectId: effectId,
         position: position
+      }
+    );
+  }
+  sendDialogEffectToAllInRange(
+    range: number,
+    characterId: string,
+    position: Float32Array,
+    effectId: Effects
+  ) {
+    this.sendDataToAllInRange<CommandPlayDialogEffect>(
+      range,
+      position,
+      "Command.PlayDialogEffect",
+      {
+        characterId: characterId,
+        effectId: effectId
       }
     );
   }
@@ -4868,7 +4895,7 @@ export class ZoneServer2016 extends EventEmitter {
   sendDataToAllInRange<ZonePacket>(
     range: number,
     position: Float32Array,
-    packetName: any,
+    packetName: h1z1PacketsType2016,
     obj: ZonePacket
   ) {
     const data = this._protocol.pack(packetName, obj);
@@ -5101,15 +5128,20 @@ export class ZoneServer2016 extends EventEmitter {
     if (!vehicle) return;
     const seatCount = vehicle.getSeatCount(),
       oldSeatId = vehicle.getCharacterSeat(client.character.characterId);
-
     const seatId = packet.data.seatId ?? 0,
       seat = vehicle.seats[seatId],
       passenger = this._characters[seat];
     if (
       seatId < seatCount &&
       (!vehicle.seats[seatId] || !passenger?.isAlive) &&
-      oldSeatId
+      oldSeatId != -1
     ) {
+      if (seatId === 2) {
+        if (!!vehicle.seats[5]) return;
+      }
+      if (seatId === 3) {
+        if (!!vehicle.seats[6]) return;
+      }
       if (passenger && !passenger?.isAlive) {
         const client = this.getClientByCharId(passenger.characterId);
         if (client) {
@@ -5565,7 +5597,17 @@ export class ZoneServer2016 extends EventEmitter {
     }
     const generatedGuid = toBigHex(this.generateItemGuid());
     let durability: number;
+    let wornOffDurability: number = 0;
     switch (true) {
+      case itemDefinitionId == Items.WEAPON_HATCHET_MAKESHIFT:
+        durability = 250;
+        break;
+      case itemDefinitionId == Items.WEAPON_HATCHET:
+        durability = 500;
+        break;
+      case itemDefinitionId == Items.WEAPON_AXE_WOOD:
+        durability = 1000;
+        break;
       case this.isWeapon(itemDefinitionId):
         durability = 2000;
         break;
@@ -5612,11 +5654,12 @@ export class ZoneServer2016 extends EventEmitter {
       case WeaponDefinitionIds.WEAPON_R380:
         if (!forceMaxDurability) {
           do {
-            durability = Math.floor(Math.random() * 2000);
+            wornOffDurability = Math.floor(Math.random() * durability);
           } while (durability < 250);
           break;
         }
     }
+    if (wornOffDurability > 0) durability = wornOffDurability;
     const itemData: BaseItem = new BaseItem(
       itemDefinitionId,
       generatedGuid,

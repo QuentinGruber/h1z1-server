@@ -29,7 +29,8 @@ import {
   isPosInRadius,
   randomIntFromInterval,
   fixEulerOrder,
-  getCurrentServerTimeWrapper
+  getCurrentServerTimeWrapper,
+  isLootNerfedLoc
 } from "../../../utils/utils";
 import { EquipSlots, Items, Effects, ModelIds } from "../models/enums";
 import { Vehicle2016 } from "../entities/vehicle";
@@ -114,12 +115,16 @@ export class WorldObjectManager {
 
     const playerCount = _.size(server._characters);
 
-    if (playerCount >= 60) {
+    if (playerCount >= 100) {
       this.lootRespawnTimer = 600_000; // 10 min
-    } else if (playerCount >= 30) {
+    } else if (playerCount >= 75) {
       this.lootRespawnTimer = 900_000; // 15 min
-    } else {
+    } else if (playerCount >= 50) {
+      this.lootRespawnTimer = 1_200_000; // 20 min
+    } else if (playerCount >= 25) {
       this.lootRespawnTimer = 1_500_000; // 25 min
+    } else {
+      this.lootRespawnTimer = 1_800_000; // 30 min
     }
   }
 
@@ -127,6 +132,7 @@ export class WorldObjectManager {
     debug("WOM::Run");
     this.getItemRespawnTimer(server);
     if (this._lastLootRespawnTime + this.lootRespawnTimer <= Date.now()) {
+      this.refillScrapInChunks(server);
       this.createLoot(server);
       this.createContainerLoot(server);
       this._lastLootRespawnTime = Date.now();
@@ -246,6 +252,7 @@ export class WorldObjectManager {
     // this.equipRandomSkins(server, npc, this.zombieSlots, bannedZombieModels);
     server._npcs[characterId] = npc;
     if (spawnerId) this.spawnedNpcs[spawnerId] = characterId;
+    return npc;
   }
 
   createLootEntity(
@@ -941,6 +948,14 @@ export class WorldObjectManager {
     debug("All npcs objects created");
   }
 
+  refillScrapInChunks(server: ZoneServer2016) {
+    for (let x = 0; x < server._grid.length; x++) {
+      const chunk = server._grid[x];
+      chunk.availableScrap += 20;
+      if (chunk.availableScrap > 50) chunk.availableScrap = 50;
+    }
+  }
+
   async createLoot(server: ZoneServer2016, lTables = lootTables) {
     let counter = 0;
     for (const spawnerType of Z1_items) {
@@ -954,7 +969,11 @@ export class WorldObjectManager {
           counter++;
           if (this.spawnedLootObjects[itemInstance.id]) continue;
           const chance = Math.floor(Math.random() * 100) + 1;
-          if (chance <= lootTable.spawnChance) {
+          if (
+            chance <=
+            lootTable.spawnChance *
+              (1 - isLootNerfedLoc(itemInstance.position) / 100)
+          ) {
             if (!WorldObjectManager.itemSpawnersChances[itemInstance.id]) {
               const realSpawnChance =
                 ((lootTable.spawnChance / lootTable.items.length) *
@@ -1054,7 +1073,10 @@ export class WorldObjectManager {
             if (item.item == spawnedItem.itemDefinitionId) allow = false; // dont allow the same item to be added twice
           });
           if (allow) {
-            if (chance <= item.weight) {
+            if (
+              chance <=
+              item.weight * (1 - isLootNerfedLoc(prop.state.position) / 100)
+            ) {
               const count = Math.floor(
                 Math.random() *
                   (item.spawnCount.max - item.spawnCount.min + 1) +
