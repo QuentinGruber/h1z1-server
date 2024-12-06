@@ -26,8 +26,8 @@ export class TreasureChest extends LootableProp {
   /** Id of the chest container to spawn the items at */
   spawnerId: number;
 
-  /** Timestamp of the last loot time */
-  lastLootTime: number = 0;
+  /** Time alloted before the Treasure Chest clears its contents */
+  clearChestTimer?: NodeJS.Timeout;
 
   constructor(
     characterId: string,
@@ -131,8 +131,6 @@ export class TreasureChest extends LootableProp {
         this.lootContainerItem(server, item, itemInstance.count, false);
       }
     );
-
-    this.lastLootTime = Date.now();
 
     const rewards = server.rewardManager.rewards;
     for (const reward of rewards) {
