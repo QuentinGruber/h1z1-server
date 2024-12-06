@@ -5128,15 +5128,20 @@ export class ZoneServer2016 extends EventEmitter {
     if (!vehicle) return;
     const seatCount = vehicle.getSeatCount(),
       oldSeatId = vehicle.getCharacterSeat(client.character.characterId);
-
     const seatId = packet.data.seatId ?? 0,
       seat = vehicle.seats[seatId],
       passenger = this._characters[seat];
     if (
       seatId < seatCount &&
       (!vehicle.seats[seatId] || !passenger?.isAlive) &&
-      oldSeatId
+      oldSeatId != -1
     ) {
+      if (seatId === 2) {
+        if (!!vehicle.seats[5]) return;
+      }
+      if (seatId === 3) {
+        if (!!vehicle.seats[6]) return;
+      }
       if (passenger && !passenger?.isAlive) {
         const client = this.getClientByCharId(passenger.characterId);
         if (client) {
@@ -5592,7 +5597,17 @@ export class ZoneServer2016 extends EventEmitter {
     }
     const generatedGuid = toBigHex(this.generateItemGuid());
     let durability: number;
+    let wornOffDurability: number = 0;
     switch (true) {
+      case itemDefinitionId == Items.WEAPON_HATCHET_MAKESHIFT:
+        durability = 250;
+        break;
+      case itemDefinitionId == Items.WEAPON_HATCHET:
+        durability = 500;
+        break;
+      case itemDefinitionId == Items.WEAPON_AXE_WOOD:
+        durability = 1000;
+        break;
       case this.isWeapon(itemDefinitionId):
         durability = 2000;
         break;
@@ -5639,11 +5654,12 @@ export class ZoneServer2016 extends EventEmitter {
       case WeaponDefinitionIds.WEAPON_R380:
         if (!forceMaxDurability) {
           do {
-            durability = Math.floor(Math.random() * 2000);
+            wornOffDurability = Math.floor(Math.random() * durability);
           } while (durability < 250);
           break;
         }
     }
+    if (wornOffDurability > 0) durability = wornOffDurability;
     const itemData: BaseItem = new BaseItem(
       itemDefinitionId,
       generatedGuid,

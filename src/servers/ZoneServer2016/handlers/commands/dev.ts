@@ -1172,8 +1172,11 @@ const dev: any = {
     client: Client,
     args: Array<string>
   ) {
-    server.sendChatText(client, "Decaying all bases");
-    server.decayManager.contructionDecayDamage(server);
+    const n = Number(args[1]);
+    for (let i = 0; i < n; i++) {
+      server.sendChatText(client, "Decaying all bases");
+      server.decayManager.contructionDecayDamage(server);
+    }
   },
 
   script: function (
