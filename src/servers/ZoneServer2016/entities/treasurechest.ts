@@ -131,7 +131,6 @@ export class TreasureChest extends LootableProp {
         this.lootContainerItem(server, item, itemInstance.count, false);
       }
     );
-
     const rewards = server.rewardManager.rewards;
     for (const reward of rewards) {
       if (chance(100)) {
