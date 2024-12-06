@@ -1028,12 +1028,11 @@ export class WorldObjectManager {
           const rewardChest = server._lootableProps[a] as TreasureChest;
           if (rewardChest) rewardChest.triggerRewards(server);
 
-          const activeTimeout: { [spawnerId: number]: NodeJS.Timeout } = {};
-
-          if (activeTimeout[rewardChest.spawnerId]) {
-            clearTimeout(activeTimeout[rewardChest.spawnerId]);
+          if (rewardChest.clearChestTimer) {
+            clearTimeout(rewardChest.clearChestTimer);
           }
-          activeTimeout[rewardChest.spawnerId] = setTimeout(() => {
+          
+          rewardChest.clearChestTimer = setTimeout(() => {
             // give the player 5 minutes to loot before clearing out the treasure chest. also check
             // if no players are currently accessing the chest
             if (!rewardChest.mountedCharacter) {
@@ -1049,7 +1048,6 @@ export class WorldObjectManager {
                   item.stackCount
                 );
               }
-              rewardChest.lastLootTime = 0;
             }
           }, 300_000);
           break;
