@@ -94,5 +94,18 @@
       2341.24,
       1
     ]
+  },
+  {
+    "POIid": 14,
+    "POIname": "Zimms",
+    "stringId": 0,
+    "range": 100,
+    "nerfValue": 35,
+    "position": [
+      2147.94,
+      47.50,
+      -1009.78,
+      1
+    ]
   }
 ]
