@@ -550,7 +550,7 @@ export const lootTables: { [lootSpawner: string]: LootSpawner } = {
     items: [
       {
         item: Items.WEAPON_308,
-        weight: 3,
+        weight: 4,
         spawnCount: {
           min: 1,
           max: 1
@@ -558,7 +558,7 @@ export const lootTables: { [lootSpawner: string]: LootSpawner } = {
       },
       {
         item: Items.WEAPON_SHOTGUN,
-        weight: 3,
+        weight: 4,
         spawnCount: {
           min: 1,
           max: 1
@@ -1263,7 +1263,7 @@ export const lootTables: { [lootSpawner: string]: LootSpawner } = {
       },
       {
         item: Items.SEED_CORN,
-        weight: 14,
+        weight: 15,
         spawnCount: {
           min: 1,
           max: 1
@@ -1271,7 +1271,7 @@ export const lootTables: { [lootSpawner: string]: LootSpawner } = {
       },
       {
         item: Items.SEED_WHEAT,
-        weight: 14,
+        weight: 15,
         spawnCount: {
           min: 1,
           max: 1
