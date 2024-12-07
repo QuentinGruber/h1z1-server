@@ -1576,7 +1576,7 @@ export class ZoneServer2016 extends EventEmitter {
     client.character.hairModel = savedCharacter.hairModel || "";
     client.character.spawnGridData = savedCharacter.spawnGridData;
     client.character.mutedCharacters = savedCharacter.mutedCharacters || [];
-    client.character.groupId = savedCharacter.groupId || 0;
+    client.character.groupId = 0; //savedCharacter.groupId || 0;
     client.character.playTime = savedCharacter.playTime || 0;
     client.character.lastDropPlaytime = savedCharacter.lastDropPlayTime || 0;
 
