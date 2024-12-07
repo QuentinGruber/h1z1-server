@@ -1042,9 +1042,32 @@ export class WorldObjectManager {
             prop.lootItem(server, obj, 1, false);
           }
           break;
-        case 9347:
+        case ModelIds.TREASURE_CHEST:
           const rewardChest = server._lootableProps[a] as TreasureChest;
           if (rewardChest) rewardChest.triggerRewards(server);
+
+          if (rewardChest.clearChestTimer) {
+            clearTimeout(rewardChest.clearChestTimer);
+          }
+          
+          rewardChest.clearChestTimer = setTimeout(() => {
+            // give the player 5 minutes to loot before clearing out the treasure chest. also check
+            // if no players are currently accessing the chest
+            if (!rewardChest.mountedCharacter) {
+              const container = rewardChest.getContainer();
+              for (const a in container!.items) {
+                const item = container!.items[a];
+                if (item.itemDefinitionId === rewardChest.requiredItemId)
+                  continue; // skip worn letters
+                server.removeContainerItem(
+                  rewardChest,
+                  item,
+                  container,
+                  item.stackCount
+                );
+              }
+            }
+          }, 300_000);
           break;
       }
     }
