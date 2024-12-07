@@ -3223,7 +3223,7 @@ export class ZoneServer2016 extends EventEmitter {
         };
       }
     }
-    if (client.isFairPlayFlagged) {
+    /*if (client.isFairPlayFlagged) {
       this.sendChatTextToAdmins(
         `FairPlay: blocked projectile of flagged client: ${client.character.name}`,
         false
@@ -3232,7 +3232,7 @@ export class ZoneServer2016 extends EventEmitter {
         isValid: false,
         message: "InvalidFlag"
       };
-    }
+    }*/
     return ret;
   }
 
@@ -7655,7 +7655,7 @@ export class ZoneServer2016 extends EventEmitter {
     if (weaponItem.weapon.ammoCount > 0) {
       weaponItem.weapon.ammoCount -= 1;
     }
-    if (!client.vehicle.mountedVehicle && this.fairPlayManager.fairPlayValues) {
+    /*if (!client.vehicle.mountedVehicle && this.fairPlayManager.fairPlayValues) {
       if (
         getDistance(client.character.state.position, packet.packet.position) >
         this.fairPlayManager.fairPlayValues?.maxPositionDesync
@@ -7673,8 +7673,8 @@ export class ZoneServer2016 extends EventEmitter {
           )}`
         );
       }
-    }
-    const drift = Math.abs(
+    }*/
+    /*const drift = Math.abs(
       packet.gameTime - getCurrentServerTimeWrapper().getTruncatedU32()
     );
     if (drift > this.fairPlayManager.maxPing + 200) {
@@ -7686,7 +7686,7 @@ export class ZoneServer2016 extends EventEmitter {
         `FairPlay: ${client.character.name}'s shot wasnt registered due to time drift by ${drift}`
       );
       return;
-    }
+    }*/
     const itemDefinition = this.getItemDefinition(weaponItem.itemDefinitionId);
     if (!itemDefinition) return;
     const weaponDefinitionId = itemDefinition.PARAM1;
