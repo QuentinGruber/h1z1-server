@@ -99,6 +99,7 @@ export class TaskProp extends BaseLightweightCharacter {
           Items.FIRST_AID,
           Items.ANTIBIOTICS,
           Items.VIAL_H1Z1_REDUCER,
+          Items.EMPTY_SPECIMEN_BAG,
           Items.CAP_SCRUBS_GRAY,
           Items.PANTS_SCRUBS_GRAY,
           Items.SHIRT_SCRUBS_GRAY
