@@ -136,9 +136,6 @@ export class TaskProp extends BaseLightweightCharacter {
         this.requiredItemId = Items.BRAIN_TREATED;
         this.rewardItems = [
           Items.CODED_MESSAGE,
-          Items.AMMO_9MM,
-          Items.AMMO_223,
-          Items.FIRST_AID
         ];
         break;
       case "Task_Hospital_Researcher_Locker.adr":
