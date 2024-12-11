@@ -134,9 +134,7 @@ export class TaskProp extends BaseLightweightCharacter {
       case "Task_Hospital_Researcher_TreasureChest.adr":
         this.nameId = 12771;
         this.requiredItemId = Items.BRAIN_TREATED;
-        this.rewardItems = [
-          Items.CODED_MESSAGE,
-        ];
+        this.rewardItems = [Items.CODED_MESSAGE];
         break;
       case "Task_Hospital_Researcher_Locker.adr":
         this.nameId = 12781;
