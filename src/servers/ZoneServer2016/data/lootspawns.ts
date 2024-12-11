@@ -4111,8 +4111,8 @@ export const containerLootSpawners: {
         item: Items.ADRENALINE_SHOT,
         weight: 1,
         spawnCount: {
-          min: 2,
-          max: 2
+          min: 0,
+          max: 1
         }
       }
     ]

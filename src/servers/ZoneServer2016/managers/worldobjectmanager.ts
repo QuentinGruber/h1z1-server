@@ -1044,18 +1044,21 @@ export class WorldObjectManager {
           if (
             prop.hasItem(Items.HAPPY_SKULL_SCRUBS_SHIRT) &&
             prop.hasItem(Items.HAPPY_SKULL_SCRUBS_PANTS) &&
-            prop.hasItem(Items.HAPPY_SKULL_SCRUBS_CAP)
+            prop.hasItem(Items.HAPPY_SKULL_SCRUBS_CAP) &&
+            prop.hasItem(Items.ADRENALINE_SHOT)
           ) {
             const req1 = prop.getItemById(Items.HAPPY_SKULL_SCRUBS_SHIRT),
               req2 = prop.getItemById(Items.HAPPY_SKULL_SCRUBS_PANTS),
-              req3 = prop.getItemById(Items.HAPPY_SKULL_SCRUBS_CAP);
+              req3 = prop.getItemById(Items.HAPPY_SKULL_SCRUBS_CAP),
+              req4 = prop.getItemById(Items.ADRENALINE_SHOT);
 
-            if (!req1 || !req2 || !req3) continue;
+            if (!req1 || !req2 || !req3 || !req4) continue;
 
             if (
               !server.removeInventoryItem(prop, req1) ||
               !server.removeInventoryItem(prop, req2) ||
-              !server.removeInventoryItem(prop, req3)
+              !server.removeInventoryItem(prop, req3) ||
+              !server.removeInventoryItem(prop, req4)
             ) {
               continue;
             }
@@ -1079,18 +1082,21 @@ export class WorldObjectManager {
           if (
             prop.hasItem(Items.HUGZ_NEEDED_SCRUBS_SHIRT) &&
             prop.hasItem(Items.HUGZ_NEEDED_SCRUBS_PANTS) &&
-            prop.hasItem(Items.HUGZ_NEEDED_SCRUBS_CAP)
+            prop.hasItem(Items.HUGZ_NEEDED_SCRUBS_CAP) &&
+            prop.hasItem(Items.ADRENALINE_SHOT)
           ) {
             const req1 = prop.getItemById(Items.HUGZ_NEEDED_SCRUBS_SHIRT),
               req2 = prop.getItemById(Items.HUGZ_NEEDED_SCRUBS_PANTS),
-              req3 = prop.getItemById(Items.HUGZ_NEEDED_SCRUBS_CAP);
+              req3 = prop.getItemById(Items.HUGZ_NEEDED_SCRUBS_CAP),
+              req4 = prop.getItemById(Items.ADRENALINE_SHOT);
 
-            if (!req1 || !req2 || !req3) continue;
+            if (!req1 || !req2 || !req3 || !req4) continue;
 
             if (
               !server.removeInventoryItem(prop, req1) ||
               !server.removeInventoryItem(prop, req2) ||
-              !server.removeInventoryItem(prop, req3)
+              !server.removeInventoryItem(prop, req3) ||
+              !server.removeInventoryItem(prop, req4)
             ) {
               continue;
             }
@@ -1114,18 +1120,21 @@ export class WorldObjectManager {
           if (
             prop.hasItem(Items.KURAMA_MEDICAL_SCRUBS_SHIRT) &&
             prop.hasItem(Items.KURAMA_MEDICAL_SCRUBS_PANTS) &&
-            prop.hasItem(Items.KURAMA_MEDICAL_SCRUBS_CAP)
+            prop.hasItem(Items.KURAMA_MEDICAL_SCRUBS_CAP) &&
+            prop.hasItem(Items.ADRENALINE_SHOT)
           ) {
             const req1 = prop.getItemById(Items.KURAMA_MEDICAL_SCRUBS_SHIRT),
               req2 = prop.getItemById(Items.KURAMA_MEDICAL_SCRUBS_PANTS),
-              req3 = prop.getItemById(Items.KURAMA_MEDICAL_SCRUBS_CAP);
+              req3 = prop.getItemById(Items.KURAMA_MEDICAL_SCRUBS_CAP),
+              req4 = prop.getItemById(Items.ADRENALINE_SHOT);
 
-            if (!req1 || !req2 || !req3) continue;
+            if (!req1 || !req2 || !req3 || !req4) continue;
 
             if (
               !server.removeInventoryItem(prop, req1) ||
               !server.removeInventoryItem(prop, req2) ||
-              !server.removeInventoryItem(prop, req3)
+              !server.removeInventoryItem(prop, req3) ||
+              !server.removeInventoryItem(prop, req4)
             ) {
               continue;
             }
@@ -1149,18 +1158,21 @@ export class WorldObjectManager {
           if (
             prop.hasItem(Items.MILITARY_SCRUBS_SHIRT) &&
             prop.hasItem(Items.MILITARY_SCRUBS_PANTS) &&
-            prop.hasItem(Items.MILITARY_SCRUBS_CAP)
+            prop.hasItem(Items.MILITARY_SCRUBS_CAP) &&
+            prop.hasItem(Items.ADRENALINE_SHOT)
           ) {
             const req1 = prop.getItemById(Items.MILITARY_SCRUBS_SHIRT),
               req2 = prop.getItemById(Items.MILITARY_SCRUBS_PANTS),
-              req3 = prop.getItemById(Items.MILITARY_SCRUBS_CAP);
+              req3 = prop.getItemById(Items.MILITARY_SCRUBS_CAP),
+              req4 = prop.getItemById(Items.ADRENALINE_SHOT);
 
-            if (!req1 || !req2 || !req3) continue;
+            if (!req1 || !req2 || !req3 || !req4) continue;
 
             if (
               !server.removeInventoryItem(prop, req1) ||
               !server.removeInventoryItem(prop, req2) ||
-              !server.removeInventoryItem(prop, req3)
+              !server.removeInventoryItem(prop, req3) ||
+              !server.removeInventoryItem(prop, req4)
             ) {
               continue;
             }
