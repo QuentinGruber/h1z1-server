@@ -1049,7 +1049,7 @@ export class WorldObjectManager {
           if (rewardChest.clearChestTimer) {
             clearTimeout(rewardChest.clearChestTimer);
           }
-          
+
           rewardChest.clearChestTimer = setTimeout(() => {
             // give the player 5 minutes to loot before clearing out the treasure chest. also check
             // if no players are currently accessing the chest
