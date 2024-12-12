@@ -5168,7 +5168,9 @@ export class ZoneServer2016 extends EventEmitter {
       }
       if (seatId === 0) {
         this.takeoverManagedObject(client, vehicle);
-        vehicle.startEngine(this);
+        if (vehicle.hasRequiredComponents(this) && !vehicle.engineOn) {
+          vehicle.startEngine(this);
+        }
         if (vehicle.getContainer()) {
           client.character.mountContainer(this, vehicle);
         }
