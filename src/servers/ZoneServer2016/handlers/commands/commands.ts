@@ -2214,97 +2214,75 @@ export const commands: Array<Command> = [
     }
   },
   {
-    name: "givecratetoall",
-    permissionLevel: PermissionLevels.ADMIN,
-    execute: (server: ZoneServer2016, client: Client, args: Array<string>) => {
-      if (!args[0]) {
-        server.sendChatText(
-          client,
-          "[ERROR] Usage /givecratetoall {crate_name} optional: {count}"
-        );
-        return;
-      }
-
-      const count = Number(args[1]) || 1;
-      let itemDefId;
-
-      switch (args[0].toString().toLowerCase()) {
-        case "showdown":
-          itemDefId = 2761;
-          break;
-        case "marauder":
-          itemDefId = 2276;
-          break;
-        case "invitational":
-          itemDefId = 2436;
-          break;
-        case "infernal":
-          itemDefId = 3821;
-          break;
-        case "alpha_launch":
-          itemDefId = 1797;
-          break;
-        case "predator":
-          itemDefId = 3207;
-          break;
-        case "ezw":
-          itemDefId = 3118;
-          break;
-        case "renegade":
-          itemDefId = 2836;
-          break;
-        case "wasteland":
-          itemDefId = 2939;
-          break;
-        case "ronin":
-          itemDefId = 3501;
-          break;
-        case "mercenary":
-          itemDefId = 2432;
-          break;
-        case "wearables":
-          itemDefId = 2009;
-          break;
-        case "invitational2016":
-          itemDefId = 3569;
-          break;
-        default:
-          server.sendChatText(client, `[ERROR] Unknown case "${args[0]}".`);
-          return;
-      }
-
-      const item = server.generateItem(itemDefId, count, true);
-      if (!item) {
-        server.sendChatText(
-          client,
-          `[ERROR] Failed to generate item with ID ${itemDefId}.`
-        );
-        return;
-      }
-      server.sendAlertToAll(
-        `ALL PLAYERS HAVE BEEN REWARDED WITH ${Items[itemDefId]}`
-      );
-
-      const allClients = Object.values(server._clients || {});
-      if (allClients.length === 0) {
-        server.sendChatText(client, "[ERROR] No players found on the server.");
-        return;
-      }
-
-      allClients.forEach((targetClient: Client) => {
-        server.sendChatText(
-          client,
-          `Adding ${count}x item${count == 1 ? "" : "s"} with id ${itemDefId} to player ${targetClient.character.name}`
-        );
-        targetClient.character.lootItem(server, item);
-      });
-
+  name: "givecratetoall",
+  permissionLevel: PermissionLevels.ADMIN,
+  execute: (server: ZoneServer2016, client: Client, args: Array<string>) => {
+    if (!args[0]) {
       server.sendChatText(
         client,
-        `Successfully added ${count}x item${count == 1 ? "" : "s"} with id ${itemDefId} to all players.`
+        "[ERROR] Usage: /givecratetoall {crate_name} optional: {count}"
       );
+      return;
     }
+
+    const count = Number(args[1]) || 1;
+    const crateMapping: Record<string, number> = {
+      showdown: 2761,
+      marauder: 2276,
+      invitational: 2436,
+      infernal: 3821,
+      alpha_launch: 1797,
+      predator: 3207,
+      ezw: 3118,
+      renegade: 2836,
+      wasteland: 2939,
+      ronin: 3501,
+      mercenary: 2432,
+      wearables: 2009,
+      invitational2016: 3569,
+    };
+
+    const crateName = args[0].toString().toLowerCase();
+    const itemDefId = crateMapping[crateName];
+
+    if (!itemDefId) {
+      server.sendChatText(client, `[ERROR] Unknown crate name "${crateName}".`);
+      return;
+    }
+
+    const item = server.generateItem(itemDefId, count, true);
+    if (!item) {
+      server.sendChatText(
+        client,
+        `[ERROR] Failed to generate item with ID ${itemDefId}.`
+      );
+      return;
+    }
+
+    server.sendAlertToAll(
+      `ALL PLAYERS HAVE BEEN REWARDED WITH ${Items[itemDefId]}!`
+    );
+
+    const allClients = Object.values(server._clients || {});
+    if (allClients.length === 0) {
+      server.sendChatText(client, "[ERROR] No players found on the server.");
+      return;
+    }
+
+    allClients.forEach((targetClient: Client) => {
+      server.sendChatText(
+        client,
+        `Adding ${count}x item${count === 1 ? "" : "s"} with ID ${itemDefId} to player ${targetClient.character.name}`
+      );
+      targetClient.character.lootItem(server, item);
+    });
+
+    server.sendChatText(
+      client,
+      `Successfully added ${count}x item${count === 1 ? "" : "s"} with ID ${itemDefId} to all players.`
+    );
   },
+},
   {
     name: "lighting",
     permissionLevel: PermissionLevels.ADMIN,
