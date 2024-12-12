@@ -2214,75 +2214,78 @@ export const commands: Array<Command> = [
     }
   },
   {
-  name: "givecratetoall",
-  permissionLevel: PermissionLevels.ADMIN,
-  execute: (server: ZoneServer2016, client: Client, args: Array<string>) => {
-    if (!args[0]) {
+    name: "givecratetoall",
+    permissionLevel: PermissionLevels.ADMIN,
+    execute: (server: ZoneServer2016, client: Client, args: Array<string>) => {
+      if (!args[0]) {
+        server.sendChatText(
+          client,
+          "[ERROR] Usage: /givecratetoall {crate_name} optional: {count}"
+        );
+        return;
+      }
+
+      const count = Number(args[1]) || 1;
+      const crateMapping: Record<string, number> = {
+        showdown: 2761,
+        marauder: 2276,
+        invitational: 2436,
+        infernal: 3821,
+        alpha_launch: 1797,
+        predator: 3207,
+        ezw: 3118,
+        renegade: 2836,
+        wasteland: 2939,
+        ronin: 3501,
+        mercenary: 2432,
+        wearables: 2009,
+        invitational2016: 3569
+      };
+
+      const crateName = args[0].toString().toLowerCase();
+      const itemDefId = crateMapping[crateName];
+
+      if (!itemDefId) {
+        server.sendChatText(
+          client,
+          `[ERROR] Unknown crate name "${crateName}".`
+        );
+        return;
+      }
+
+      const item = server.generateItem(itemDefId, count, true);
+      if (!item) {
+        server.sendChatText(
+          client,
+          `[ERROR] Failed to generate item with ID ${itemDefId}.`
+        );
+        return;
+      }
+
+      server.sendAlertToAll(
+        `ALL PLAYERS HAVE BEEN REWARDED WITH ${Items[itemDefId]}!`
+      );
+
+      const allClients = Object.values(server._clients || {});
+      if (allClients.length === 0) {
+        server.sendChatText(client, "[ERROR] No players found on the server.");
+        return;
+      }
+
+      allClients.forEach((targetClient: Client) => {
+        server.sendChatText(
+          client,
+          `Adding ${count}x item${count === 1 ? "" : "s"} with ID ${itemDefId} to player ${targetClient.character.name}`
+        );
+        targetClient.character.lootItem(server, item);
+      });
+
       server.sendChatText(
         client,
-        "[ERROR] Usage: /givecratetoall {crate_name} optional: {count}"
+        `Successfully added ${count}x item${count === 1 ? "" : "s"} with ID ${itemDefId} to all players.`
       );
-      return;
     }
-
-    const count = Number(args[1]) || 1;
-    const crateMapping: Record<string, number> = {
-      showdown: 2761,
-      marauder: 2276,
-      invitational: 2436,
-      infernal: 3821,
-      alpha_launch: 1797,
-      predator: 3207,
-      ezw: 3118,
-      renegade: 2836,
-      wasteland: 2939,
-      ronin: 3501,
-      mercenary: 2432,
-      wearables: 2009,
-      invitational2016: 3569,
-    };
-
-    const crateName = args[0].toString().toLowerCase();
-    const itemDefId = crateMapping[crateName];
-
-    if (!itemDefId) {
-      server.sendChatText(client, `[ERROR] Unknown crate name "${crateName}".`);
-      return;
-    }
-
-    const item = server.generateItem(itemDefId, count, true);
-    if (!item) {
-      server.sendChatText(
-        client,
-        `[ERROR] Failed to generate item with ID ${itemDefId}.`
-      );
-      return;
-    }
-
-    server.sendAlertToAll(
-      `ALL PLAYERS HAVE BEEN REWARDED WITH ${Items[itemDefId]}!`
-    );
-
-    const allClients = Object.values(server._clients || {});
-    if (allClients.length === 0) {
-      server.sendChatText(client, "[ERROR] No players found on the server.");
-      return;
-    }
-
-    allClients.forEach((targetClient: Client) => {
-      server.sendChatText(
-        client,
-        `Adding ${count}x item${count === 1 ? "" : "s"} with ID ${itemDefId} to player ${targetClient.character.name}`
-      );
-      targetClient.character.lootItem(server, item);
-    });
-
-    server.sendChatText(
-      client,
-      `Successfully added ${count}x item${count === 1 ? "" : "s"} with ID ${itemDefId} to all players.`
-    );
   },
-},
   {
     name: "lighting",
     permissionLevel: PermissionLevels.ADMIN,
