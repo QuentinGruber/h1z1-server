@@ -1602,7 +1602,7 @@ export const commands: Array<Command> = [
 
         if (!isNaN(Number(input))) {
             newModelId = Number(input);
-        } else if (modelMap.hasOwnProperty(input)) {
+        } else if (Object.prototype.hasOwnProperty.call(modelMap, input)) {
             newModelId = modelMap[input];
         } else {
             server.sendChatText(client, "Specify a valid model ID!");
