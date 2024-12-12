@@ -1260,7 +1260,7 @@ export const commands: Array<Command> = [
       const heightInput = args[1];
       const height = heightInput !== undefined ? parseFloat(heightInput) : 50;
       if (isNaN(height)) {
-        server.sendAlert(
+        server.sendChatText(
           client,
           "Error: Please enter a valid number for the height."
         );
@@ -1275,7 +1275,7 @@ export const commands: Array<Command> = [
           newPosition[1] -= height;
           break;
         default:
-          server.sendAlert(
+          server.sendChatText(
             client,
             "Error: Invalid direction. Use 'up' or 'down'."
           );
@@ -1285,7 +1285,7 @@ export const commands: Array<Command> = [
         position: newPosition,
         triggerLoadingScreen: false
       });
-      server.sendAlert(client, `Moved ${direction} by ${height}.`);
+      server.sendChatText(client, `Moved ${direction} by ${height}`);
     }
   },
   {
