@@ -1578,6 +1578,51 @@ export const commands: Array<Command> = [
     }
   },
   {
+    name: "changemodel",
+    permissionLevel: PermissionLevels.ADMIN,
+    execute: async (server: ZoneServer2016, client: Client, args: Array<string>) => {
+        if (args.length < 1) {
+            server.sendChatText(client, "Please specify a valid model ID.");
+            return;
+        }
+
+        const modelMap: { [key: string]: number } = {
+            deer: 9002,
+            buck: 9253,
+            wolf: 9003,
+            bear: 9187,
+            rabbit: 9212,
+            screamer: 9667,
+            zombie: 9510,
+            raven: 9230
+        };
+
+        let newModelId: number;
+        const input = args[0];
+
+        if (!isNaN(Number(input))) {
+            newModelId = Number(input);
+        } else if (modelMap.hasOwnProperty(input)) {
+            newModelId = modelMap[input];
+        } else {
+            server.sendChatText(client, "Specify a valid model ID!");
+            return;
+        }
+
+        server.sendDataToAllWithSpawnedEntity(
+            server._characters,
+            client.character.characterId,
+            "Character.ReplaceBaseModel",
+            {
+                characterId: client.character.characterId,
+                modelId: newModelId
+            }
+        );
+
+        server.sendChatText(client, `Model changed to ID ${newModelId}`);
+    }
+},
+  {
     name: "titan",
     permissionLevel: PermissionLevels.ADMIN,
     execute: (server: ZoneServer2016, client: Client, args: Array<string>) => {
