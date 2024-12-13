@@ -550,7 +550,7 @@ export const lootTables: { [lootSpawner: string]: LootSpawner } = {
     items: [
       {
         item: Items.WEAPON_308,
-        weight: 3,
+        weight: 4,
         spawnCount: {
           min: 1,
           max: 1
@@ -558,7 +558,7 @@ export const lootTables: { [lootSpawner: string]: LootSpawner } = {
       },
       {
         item: Items.WEAPON_SHOTGUN,
-        weight: 3,
+        weight: 4,
         spawnCount: {
           min: 1,
           max: 1
@@ -1263,7 +1263,7 @@ export const lootTables: { [lootSpawner: string]: LootSpawner } = {
       },
       {
         item: Items.SEED_CORN,
-        weight: 14,
+        weight: 15,
         spawnCount: {
           min: 1,
           max: 1
@@ -1271,7 +1271,7 @@ export const lootTables: { [lootSpawner: string]: LootSpawner } = {
       },
       {
         item: Items.SEED_WHEAT,
-        weight: 14,
+        weight: 15,
         spawnCount: {
           min: 1,
           max: 1
@@ -2668,7 +2668,7 @@ export const containerLootSpawners: {
   },
   "Drug Cabinets": {
     spawnChance: 100,
-    maxItems: 2,
+    maxItems: 3,
     items: [
       {
         item: Items.FIRST_AID,
@@ -2736,7 +2736,7 @@ export const containerLootSpawners: {
       },
       {
         item: Items.EMPTY_SPECIMEN_BAG,
-        weight: 20,
+        weight: 30,
         spawnCount: {
           min: 1,
           max: 1
@@ -2744,7 +2744,7 @@ export const containerLootSpawners: {
       },
       {
         item: Items.VIAL_H1Z1_REDUCER,
-        weight: 20,
+        weight: 30,
         spawnCount: {
           min: 1,
           max: 1
@@ -2762,7 +2762,7 @@ export const containerLootSpawners: {
   },
   "Medical Station": {
     spawnChance: 100,
-    maxItems: 2,
+    maxItems: 3,
     items: [
       {
         item: Items.FIRST_AID,
@@ -2830,7 +2830,7 @@ export const containerLootSpawners: {
       },
       {
         item: Items.EMPTY_SPECIMEN_BAG,
-        weight: 20,
+        weight: 30,
         spawnCount: {
           min: 1,
           max: 1
@@ -2838,7 +2838,7 @@ export const containerLootSpawners: {
       },
       {
         item: Items.VIAL_H1Z1_REDUCER,
-        weight: 20,
+        weight: 30,
         spawnCount: {
           min: 1,
           max: 1
@@ -2860,7 +2860,7 @@ export const containerLootSpawners: {
     items: [
       {
         item: Items.EMPTY_SPECIMEN_BAG,
-        weight: 25,
+        weight: 30,
         spawnCount: {
           min: 1,
           max: 1
@@ -2868,7 +2868,7 @@ export const containerLootSpawners: {
       },
       {
         item: Items.VIAL_H1Z1_REDUCER,
-        weight: 25,
+        weight: 30,
         spawnCount: {
           min: 1,
           max: 1
@@ -3034,7 +3034,7 @@ export const containerLootSpawners: {
       },
       {
         item: Items.EMPTY_SPECIMEN_BAG,
-        weight: 25,
+        weight: 30,
         spawnCount: {
           min: 1,
           max: 1
@@ -3042,7 +3042,7 @@ export const containerLootSpawners: {
       },
       {
         item: Items.VIAL_H1Z1_REDUCER,
-        weight: 25,
+        weight: 30,
         spawnCount: {
           min: 1,
           max: 1
@@ -3060,11 +3060,11 @@ export const containerLootSpawners: {
   },
   "Hospital Refrigerator": {
     spawnChance: 100,
-    maxItems: 2,
+    maxItems: 3,
     items: [
       {
         item: Items.SYRINGE_H1Z1_REDUCER,
-        weight: 20,
+        weight: 30,
         spawnCount: {
           min: 1,
           max: 1
@@ -3080,7 +3080,7 @@ export const containerLootSpawners: {
       },
       {
         item: Items.SYRINGE_INFECTED_BLOOD,
-        weight: 20,
+        weight: 30,
         spawnCount: {
           min: 1,
           max: 1
@@ -3090,11 +3090,11 @@ export const containerLootSpawners: {
   },
   "Grossing Station": {
     spawnChance: 100,
-    maxItems: 2,
+    maxItems: 3,
     items: [
       {
         item: Items.SYRINGE_H1Z1_REDUCER,
-        weight: 20,
+        weight: 30,
         spawnCount: {
           min: 1,
           max: 1
@@ -3102,7 +3102,7 @@ export const containerLootSpawners: {
       },
       {
         item: Items.SYRINGE_INFECTED_BLOOD,
-        weight: 20,
+        weight: 30,
         spawnCount: {
           min: 1,
           max: 1
@@ -4111,8 +4111,8 @@ export const containerLootSpawners: {
         item: Items.ADRENALINE_SHOT,
         weight: 1,
         spawnCount: {
-          min: 2,
-          max: 2
+          min: 0,
+          max: 1
         }
       }
     ]

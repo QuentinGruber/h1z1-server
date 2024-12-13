@@ -361,17 +361,17 @@ export class WorldObjectManager {
       Items.HAPPY_SKULL_SCRUBS_SHIRT,
       Items.HAPPY_SKULL_SCRUBS_PANTS,
 
-      2806,
-      2803,
-      2809,
+      Items.HUGZ_NEEDED_SCRUBS_CAP,
+      Items.HUGZ_NEEDED_SCRUBS_SHIRT,
+      Items.HUGZ_NEEDED_SCRUBS_PANTS,
 
-      2804,
-      2801,
-      2807,
+      Items.MILITARY_SCRUBS_CAP,
+      Items.MILITARY_SCRUBS_SHIRT,
+      Items.MILITARY_SCRUBS_PANTS,
 
-      2799,
-      2798,
-      2800
+      Items.KURAMA_MEDICAL_SCRUBS_CAP,
+      Items.KURAMA_MEDICAL_SCRUBS_SHIRT,
+      Items.KURAMA_MEDICAL_SCRUBS_PANTS
     ];
 
     const index = Math.floor(Math.random() * airdropTypes.length);
@@ -1041,10 +1041,185 @@ export class WorldObjectManager {
             const obj = server.generateItem(Items.BRAIN_TREATED, 1);
             prop.lootItem(server, obj, 1, false);
           }
+          if (
+            prop.hasItem(Items.HAPPY_SKULL_SCRUBS_SHIRT) &&
+            prop.hasItem(Items.HAPPY_SKULL_SCRUBS_PANTS) &&
+            prop.hasItem(Items.HAPPY_SKULL_SCRUBS_CAP) &&
+            prop.hasItem(Items.ADRENALINE_SHOT)
+          ) {
+            const req1 = prop.getItemById(Items.HAPPY_SKULL_SCRUBS_SHIRT),
+              req2 = prop.getItemById(Items.HAPPY_SKULL_SCRUBS_PANTS),
+              req3 = prop.getItemById(Items.HAPPY_SKULL_SCRUBS_CAP),
+              req4 = prop.getItemById(Items.ADRENALINE_SHOT);
+
+            if (!req1 || !req2 || !req3 || !req4) continue;
+
+            if (
+              !server.removeInventoryItem(prop, req1) ||
+              !server.removeInventoryItem(prop, req2) ||
+              !server.removeInventoryItem(prop, req3) ||
+              !server.removeInventoryItem(prop, req4)
+            ) {
+              continue;
+            }
+
+            const obj1 = server.generateItem(
+              Items.REWARD_HAPPY_SKULL_SCRUBS_SHIRT,
+              1
+            );
+            prop.lootItem(server, obj1, 1, false);
+            const obj2 = server.generateItem(
+              Items.REWARD_HAPPY_SKULL_SCRUBS_PANTS,
+              1
+            );
+            prop.lootItem(server, obj2, 1, false);
+            const obj3 = server.generateItem(
+              Items.REWARD_HAPPY_SKULL_SCRUBS_CAP,
+              1
+            );
+            prop.lootItem(server, obj3, 1, false);
+          }
+          if (
+            prop.hasItem(Items.HUGZ_NEEDED_SCRUBS_SHIRT) &&
+            prop.hasItem(Items.HUGZ_NEEDED_SCRUBS_PANTS) &&
+            prop.hasItem(Items.HUGZ_NEEDED_SCRUBS_CAP) &&
+            prop.hasItem(Items.ADRENALINE_SHOT)
+          ) {
+            const req1 = prop.getItemById(Items.HUGZ_NEEDED_SCRUBS_SHIRT),
+              req2 = prop.getItemById(Items.HUGZ_NEEDED_SCRUBS_PANTS),
+              req3 = prop.getItemById(Items.HUGZ_NEEDED_SCRUBS_CAP),
+              req4 = prop.getItemById(Items.ADRENALINE_SHOT);
+
+            if (!req1 || !req2 || !req3 || !req4) continue;
+
+            if (
+              !server.removeInventoryItem(prop, req1) ||
+              !server.removeInventoryItem(prop, req2) ||
+              !server.removeInventoryItem(prop, req3) ||
+              !server.removeInventoryItem(prop, req4)
+            ) {
+              continue;
+            }
+
+            const obj4 = server.generateItem(
+              Items.REWARD_HUGZ_NEEDED_SCRUBS_SHIRT,
+              1
+            );
+            prop.lootItem(server, obj4, 1, false);
+            const obj5 = server.generateItem(
+              Items.REWARD_HUGZ_NEEDED_SCRUBS_PANTS,
+              1
+            );
+            prop.lootItem(server, obj5, 1, false);
+            const obj6 = server.generateItem(
+              Items.REWARD_HUGZ_NEEDED_SCRUBS_CAP,
+              1
+            );
+            prop.lootItem(server, obj6, 1, false);
+          }
+          if (
+            prop.hasItem(Items.KURAMA_MEDICAL_SCRUBS_SHIRT) &&
+            prop.hasItem(Items.KURAMA_MEDICAL_SCRUBS_PANTS) &&
+            prop.hasItem(Items.KURAMA_MEDICAL_SCRUBS_CAP) &&
+            prop.hasItem(Items.ADRENALINE_SHOT)
+          ) {
+            const req1 = prop.getItemById(Items.KURAMA_MEDICAL_SCRUBS_SHIRT),
+              req2 = prop.getItemById(Items.KURAMA_MEDICAL_SCRUBS_PANTS),
+              req3 = prop.getItemById(Items.KURAMA_MEDICAL_SCRUBS_CAP),
+              req4 = prop.getItemById(Items.ADRENALINE_SHOT);
+
+            if (!req1 || !req2 || !req3 || !req4) continue;
+
+            if (
+              !server.removeInventoryItem(prop, req1) ||
+              !server.removeInventoryItem(prop, req2) ||
+              !server.removeInventoryItem(prop, req3) ||
+              !server.removeInventoryItem(prop, req4)
+            ) {
+              continue;
+            }
+
+            const obj10 = server.generateItem(
+              Items.REWARD_KURAMA_MEDICAL_SCRUBS_SHIRT,
+              1
+            );
+            prop.lootItem(server, obj10, 1, false);
+            const obj11 = server.generateItem(
+              Items.REWARD_KURAMA_MEDICAL_SCRUBS_PANTS,
+              1
+            );
+            prop.lootItem(server, obj11, 1, false);
+            const obj12 = server.generateItem(
+              Items.REWARD_KURAMA_MEDICAL_SCRUBS_CAP,
+              1
+            );
+            prop.lootItem(server, obj12, 1, false);
+          }
+          if (
+            prop.hasItem(Items.MILITARY_SCRUBS_SHIRT) &&
+            prop.hasItem(Items.MILITARY_SCRUBS_PANTS) &&
+            prop.hasItem(Items.MILITARY_SCRUBS_CAP) &&
+            prop.hasItem(Items.ADRENALINE_SHOT)
+          ) {
+            const req1 = prop.getItemById(Items.MILITARY_SCRUBS_SHIRT),
+              req2 = prop.getItemById(Items.MILITARY_SCRUBS_PANTS),
+              req3 = prop.getItemById(Items.MILITARY_SCRUBS_CAP),
+              req4 = prop.getItemById(Items.ADRENALINE_SHOT);
+
+            if (!req1 || !req2 || !req3 || !req4) continue;
+
+            if (
+              !server.removeInventoryItem(prop, req1) ||
+              !server.removeInventoryItem(prop, req2) ||
+              !server.removeInventoryItem(prop, req3) ||
+              !server.removeInventoryItem(prop, req4)
+            ) {
+              continue;
+            }
+
+            const obj7 = server.generateItem(
+              Items.REWARD_MILITARY_SCRUBS_SHIRT,
+              1
+            );
+            prop.lootItem(server, obj7, 1, false);
+            const obj8 = server.generateItem(
+              Items.REWARD_MILITARY_SCRUBS_PANTS,
+              1
+            );
+            prop.lootItem(server, obj8, 1, false);
+            const obj9 = server.generateItem(
+              Items.REWARD_MILITARY_SCRUBS_CAP,
+              1
+            );
+            prop.lootItem(server, obj9, 1, false);
+          }
           break;
-        case 9347:
+        case ModelIds.TREASURE_CHEST:
           const rewardChest = server._lootableProps[a] as TreasureChest;
           if (rewardChest) rewardChest.triggerRewards(server);
+
+          if (rewardChest.clearChestTimer) {
+            clearTimeout(rewardChest.clearChestTimer);
+          }
+
+          rewardChest.clearChestTimer = setTimeout(() => {
+            // give the player 5 minutes to loot before clearing out the treasure chest. also check
+            // if no players are currently accessing the chest
+            if (!rewardChest.mountedCharacter) {
+              const container = rewardChest.getContainer();
+              for (const a in container!.items) {
+                const item = container!.items[a];
+                if (item.itemDefinitionId === rewardChest.requiredItemId)
+                  continue; // skip worn letters
+                server.removeContainerItem(
+                  rewardChest,
+                  item,
+                  container,
+                  item.stackCount
+                );
+              }
+            }
+          }, 300_000);
           break;
       }
     }
