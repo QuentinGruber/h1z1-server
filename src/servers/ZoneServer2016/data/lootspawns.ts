@@ -1547,7 +1547,7 @@ export const lootTables: { [lootSpawner: string]: LootSpawner } = {
   "ItemSpawner_Z1_MilitaryBase_Tents1.adr": {
     spawnChance: 50,
     items: [
-      // UNCOMMON
+      // UNCOMON
       {
         item: Items.WEAPON_CROSSBOW,
         weight: 100,
