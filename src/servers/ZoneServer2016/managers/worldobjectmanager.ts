@@ -451,18 +451,18 @@ export class WorldObjectManager {
           );
         }
       case "Hospital":
-  effectId = Effects.Smoke_Orange;
-  if (container) {
-    const randomIndex = Math.floor(
-      Math.random() * experimentalSrubs.length
-    );
-    server.addContainerItem(
-      lootbag,
-      server.generateItem(experimentalSrubs[randomIndex], 1),
-      container
-    );
-  }
-  break;
+        effectId = Effects.Smoke_Orange;
+        if (container) {
+          const randomIndex = Math.floor(
+            Math.random() * experimentalSrubs.length
+          );
+          server.addContainerItem(
+            lootbag,
+            server.generateItem(experimentalSrubs[randomIndex], 1),
+            container
+          );
+        }
+        break;
     }
     if (server._airdrop) {
       const smokePos = new Float32Array([
@@ -1112,7 +1112,9 @@ export class WorldObjectManager {
             prop.hasItem(Items.QUEST_KURAMA_MEDICAL_SCRUBS_PANTS) &&
             prop.hasItem(Items.QUEST_KURAMA_MEDICAL_SCRUBS_CAP)
           ) {
-            const req1 = prop.getItemById(Items.QUEST_KURAMA_MEDICAL_SCRUBS_SHIRT),
+            const req1 = prop.getItemById(
+                Items.QUEST_KURAMA_MEDICAL_SCRUBS_SHIRT
+              ),
               req2 = prop.getItemById(Items.QUEST_KURAMA_MEDICAL_SCRUBS_PANTS),
               req3 = prop.getItemById(Items.QUEST_KURAMA_MEDICAL_SCRUBS_CAP);
 
