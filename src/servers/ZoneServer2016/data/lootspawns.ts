@@ -1471,6 +1471,30 @@ export const lootTables: { [lootSpawner: string]: LootSpawner } = {
         }
       },
       {
+        item: Items.QUEST_MILITARY_SCRUBS_SHIRT,
+        weight: 5,
+        spawnCount: {
+          min: 1,
+          max: 1
+        }
+      },
+      {
+        item: Items.QUEST_MILITARY_SCRUBS_PANTS,
+        weight: 5,
+        spawnCount: {
+          min: 1,
+          max: 1
+        }
+      },
+      {
+        item: Items.QUEST_MILITARY_SCRUBS_CAP,
+        weight: 5,
+        spawnCount: {
+          min: 1,
+          max: 1
+        }
+      },
+      {
         item: Items.MRE_APPLE,
         weight: 100,
         spawnCount: {
@@ -1535,6 +1559,30 @@ export const lootTables: { [lootSpawner: string]: LootSpawner } = {
       {
         item: Items.WEAPON_R380,
         weight: 100,
+        spawnCount: {
+          min: 1,
+          max: 1
+        }
+      },
+      {
+        item: Items.QUEST_MILITARY_SCRUBS_SHIRT,
+        weight: 10,
+        spawnCount: {
+          min: 1,
+          max: 1
+        }
+      },
+      {
+        item: Items.QUEST_MILITARY_SCRUBS_PANTS,
+        weight: 10,
+        spawnCount: {
+          min: 1,
+          max: 1
+        }
+      },
+      {
+        item: Items.QUEST_MILITARY_SCRUBS_CAP,
+        weight: 10,
         spawnCount: {
           min: 1,
           max: 1
@@ -1789,6 +1837,30 @@ export const lootTables: { [lootSpawner: string]: LootSpawner } = {
       {
         item: Items.GRENADE_SMOKE,
         weight: 100,
+        spawnCount: {
+          min: 1,
+          max: 1
+        }
+      },
+      {
+        item: Items.QUEST_MILITARY_SCRUBS_SHIRT,
+        weight: 10,
+        spawnCount: {
+          min: 1,
+          max: 1
+        }
+      },
+      {
+        item: Items.QUEST_MILITARY_SCRUBS_PANTS,
+        weight: 10,
+        spawnCount: {
+          min: 1,
+          max: 1
+        }
+      },
+      {
+        item: Items.QUEST_MILITARY_SCRUBS_CAP,
+        weight: 10,
         spawnCount: {
           min: 1,
           max: 1
@@ -4103,7 +4175,7 @@ export const containerLootSpawners: {
         item: Items.PAINKILLERS,
         weight: 1,
         spawnCount: {
-          min: 2,
+          min: 1,
           max: 2
         }
       },
@@ -4111,8 +4183,8 @@ export const containerLootSpawners: {
         item: Items.ADRENALINE_SHOT,
         weight: 1,
         spawnCount: {
-          min: 0,
-          max: 1
+          min: 1,
+          max: 2
         }
       }
     ]
