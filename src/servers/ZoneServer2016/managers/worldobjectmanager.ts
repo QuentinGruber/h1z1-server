@@ -357,21 +357,17 @@ export class WorldObjectManager {
     ];
 
     const experimentalSrubs: number[] = [
-      Items.HAPPY_SKULL_SCRUBS_CAP,
-      Items.HAPPY_SKULL_SCRUBS_SHIRT,
-      Items.HAPPY_SKULL_SCRUBS_PANTS,
+      Items.QUEST_HAPPY_SKULL_SCRUBS_CAP,
+      Items.QUEST_HAPPY_SKULL_SCRUBS_SHIRT,
+      Items.QUEST_HAPPY_SKULL_SCRUBS_PANTS,
 
-      Items.HUGZ_NEEDED_SCRUBS_CAP,
-      Items.HUGZ_NEEDED_SCRUBS_SHIRT,
-      Items.HUGZ_NEEDED_SCRUBS_PANTS,
+      Items.QUEST_HUGZ_NEEDED_SCRUBS_CAP,
+      Items.QUEST_HUGZ_NEEDED_SCRUBS_SHIRT,
+      Items.QUEST_HUGZ_NEEDED_SCRUBS_PANTS,
 
-      Items.MILITARY_SCRUBS_CAP,
-      Items.MILITARY_SCRUBS_SHIRT,
-      Items.MILITARY_SCRUBS_PANTS,
-
-      Items.KURAMA_MEDICAL_SCRUBS_CAP,
-      Items.KURAMA_MEDICAL_SCRUBS_SHIRT,
-      Items.KURAMA_MEDICAL_SCRUBS_PANTS
+      Items.QUEST_KURAMA_MEDICAL_SCRUBS_CAP,
+      Items.QUEST_KURAMA_MEDICAL_SCRUBS_SHIRT,
+      Items.QUEST_KURAMA_MEDICAL_SCRUBS_PANTS
     ];
 
     const index = Math.floor(Math.random() * airdropTypes.length);
@@ -455,18 +451,18 @@ export class WorldObjectManager {
           );
         }
       case "Hospital":
-        effectId = Effects.Smoke_Orange;
-        if (container) {
-          const randomIndex = Math.floor(
-            Math.random() * experimentalSrubs.length
-          );
-          server.addContainerItem(
-            lootbag,
-            server.generateItem(experimentalSrubs[randomIndex], 1),
-            container
-          );
-        }
-        break;
+  effectId = Effects.Smoke_Orange;
+  if (container) {
+    const randomIndex = Math.floor(
+      Math.random() * experimentalSrubs.length
+    );
+    server.addContainerItem(
+      lootbag,
+      server.generateItem(experimentalSrubs[randomIndex], 1),
+      container
+    );
+  }
+  break;
     }
     if (server._airdrop) {
       const smokePos = new Float32Array([
@@ -1042,23 +1038,20 @@ export class WorldObjectManager {
             prop.lootItem(server, obj, 1, false);
           }
           if (
-            prop.hasItem(Items.HAPPY_SKULL_SCRUBS_SHIRT) &&
-            prop.hasItem(Items.HAPPY_SKULL_SCRUBS_PANTS) &&
-            prop.hasItem(Items.HAPPY_SKULL_SCRUBS_CAP) &&
-            prop.hasItem(Items.ADRENALINE_SHOT)
+            prop.hasItem(Items.QUEST_HAPPY_SKULL_SCRUBS_SHIRT) &&
+            prop.hasItem(Items.QUEST_HAPPY_SKULL_SCRUBS_PANTS) &&
+            prop.hasItem(Items.QUEST_HAPPY_SKULL_SCRUBS_CAP)
           ) {
-            const req1 = prop.getItemById(Items.HAPPY_SKULL_SCRUBS_SHIRT),
-              req2 = prop.getItemById(Items.HAPPY_SKULL_SCRUBS_PANTS),
-              req3 = prop.getItemById(Items.HAPPY_SKULL_SCRUBS_CAP),
-              req4 = prop.getItemById(Items.ADRENALINE_SHOT);
+            const req1 = prop.getItemById(Items.QUEST_HAPPY_SKULL_SCRUBS_SHIRT),
+              req2 = prop.getItemById(Items.QUEST_HAPPY_SKULL_SCRUBS_PANTS),
+              req3 = prop.getItemById(Items.QUEST_HAPPY_SKULL_SCRUBS_CAP);
 
-            if (!req1 || !req2 || !req3 || !req4) continue;
+            if (!req1 || !req2 || !req3) continue;
 
             if (
               !server.removeInventoryItem(prop, req1) ||
               !server.removeInventoryItem(prop, req2) ||
-              !server.removeInventoryItem(prop, req3) ||
-              !server.removeInventoryItem(prop, req4)
+              !server.removeInventoryItem(prop, req3)
             ) {
               continue;
             }
@@ -1080,23 +1073,20 @@ export class WorldObjectManager {
             prop.lootItem(server, obj3, 1, false);
           }
           if (
-            prop.hasItem(Items.HUGZ_NEEDED_SCRUBS_SHIRT) &&
-            prop.hasItem(Items.HUGZ_NEEDED_SCRUBS_PANTS) &&
-            prop.hasItem(Items.HUGZ_NEEDED_SCRUBS_CAP) &&
-            prop.hasItem(Items.ADRENALINE_SHOT)
+            prop.hasItem(Items.QUEST_HUGZ_NEEDED_SCRUBS_SHIRT) &&
+            prop.hasItem(Items.QUEST_HUGZ_NEEDED_SCRUBS_PANTS) &&
+            prop.hasItem(Items.QUEST_HUGZ_NEEDED_SCRUBS_CAP)
           ) {
-            const req1 = prop.getItemById(Items.HUGZ_NEEDED_SCRUBS_SHIRT),
-              req2 = prop.getItemById(Items.HUGZ_NEEDED_SCRUBS_PANTS),
-              req3 = prop.getItemById(Items.HUGZ_NEEDED_SCRUBS_CAP),
-              req4 = prop.getItemById(Items.ADRENALINE_SHOT);
+            const req1 = prop.getItemById(Items.QUEST_HUGZ_NEEDED_SCRUBS_SHIRT),
+              req2 = prop.getItemById(Items.QUEST_HUGZ_NEEDED_SCRUBS_PANTS),
+              req3 = prop.getItemById(Items.QUEST_HUGZ_NEEDED_SCRUBS_CAP);
 
-            if (!req1 || !req2 || !req3 || !req4) continue;
+            if (!req1 || !req2 || !req3) continue;
 
             if (
               !server.removeInventoryItem(prop, req1) ||
               !server.removeInventoryItem(prop, req2) ||
-              !server.removeInventoryItem(prop, req3) ||
-              !server.removeInventoryItem(prop, req4)
+              !server.removeInventoryItem(prop, req3)
             ) {
               continue;
             }
@@ -1118,23 +1108,20 @@ export class WorldObjectManager {
             prop.lootItem(server, obj6, 1, false);
           }
           if (
-            prop.hasItem(Items.KURAMA_MEDICAL_SCRUBS_SHIRT) &&
-            prop.hasItem(Items.KURAMA_MEDICAL_SCRUBS_PANTS) &&
-            prop.hasItem(Items.KURAMA_MEDICAL_SCRUBS_CAP) &&
-            prop.hasItem(Items.ADRENALINE_SHOT)
+            prop.hasItem(Items.QUEST_KURAMA_MEDICAL_SCRUBS_SHIRT) &&
+            prop.hasItem(Items.QUEST_KURAMA_MEDICAL_SCRUBS_PANTS) &&
+            prop.hasItem(Items.QUEST_KURAMA_MEDICAL_SCRUBS_CAP)
           ) {
-            const req1 = prop.getItemById(Items.KURAMA_MEDICAL_SCRUBS_SHIRT),
-              req2 = prop.getItemById(Items.KURAMA_MEDICAL_SCRUBS_PANTS),
-              req3 = prop.getItemById(Items.KURAMA_MEDICAL_SCRUBS_CAP),
-              req4 = prop.getItemById(Items.ADRENALINE_SHOT);
+            const req1 = prop.getItemById(Items.QUEST_KURAMA_MEDICAL_SCRUBS_SHIRT),
+              req2 = prop.getItemById(Items.QUEST_KURAMA_MEDICAL_SCRUBS_PANTS),
+              req3 = prop.getItemById(Items.QUEST_KURAMA_MEDICAL_SCRUBS_CAP);
 
-            if (!req1 || !req2 || !req3 || !req4) continue;
+            if (!req1 || !req2 || !req3) continue;
 
             if (
               !server.removeInventoryItem(prop, req1) ||
               !server.removeInventoryItem(prop, req2) ||
-              !server.removeInventoryItem(prop, req3) ||
-              !server.removeInventoryItem(prop, req4)
+              !server.removeInventoryItem(prop, req3)
             ) {
               continue;
             }
@@ -1156,23 +1143,20 @@ export class WorldObjectManager {
             prop.lootItem(server, obj12, 1, false);
           }
           if (
-            prop.hasItem(Items.MILITARY_SCRUBS_SHIRT) &&
-            prop.hasItem(Items.MILITARY_SCRUBS_PANTS) &&
-            prop.hasItem(Items.MILITARY_SCRUBS_CAP) &&
-            prop.hasItem(Items.ADRENALINE_SHOT)
+            prop.hasItem(Items.QUEST_MILITARY_SCRUBS_SHIRT) &&
+            prop.hasItem(Items.QUEST_MILITARY_SCRUBS_PANTS) &&
+            prop.hasItem(Items.QUEST_MILITARY_SCRUBS_CAP)
           ) {
-            const req1 = prop.getItemById(Items.MILITARY_SCRUBS_SHIRT),
-              req2 = prop.getItemById(Items.MILITARY_SCRUBS_PANTS),
-              req3 = prop.getItemById(Items.MILITARY_SCRUBS_CAP),
-              req4 = prop.getItemById(Items.ADRENALINE_SHOT);
+            const req1 = prop.getItemById(Items.QUEST_MILITARY_SCRUBS_SHIRT),
+              req2 = prop.getItemById(Items.QUEST_MILITARY_SCRUBS_PANTS),
+              req3 = prop.getItemById(Items.QUEST_MILITARY_SCRUBS_CAP);
 
-            if (!req1 || !req2 || !req3 || !req4) continue;
+            if (!req1 || !req2 || !req3) continue;
 
             if (
               !server.removeInventoryItem(prop, req1) ||
               !server.removeInventoryItem(prop, req2) ||
-              !server.removeInventoryItem(prop, req3) ||
-              !server.removeInventoryItem(prop, req4)
+              !server.removeInventoryItem(prop, req3)
             ) {
               continue;
             }
