@@ -148,4 +148,13 @@ export class RewardManager {
       }
     }
   }
+  scheduleReward(loginSessionId: string, rewardId: AccountItems) {
+    const item = this.server.generateAccountItem(rewardId);
+    if (item) {
+      this.server.accountInventoriesManager.addAccountItem(
+        loginSessionId,
+        item
+      );
+    }
+  }
 }

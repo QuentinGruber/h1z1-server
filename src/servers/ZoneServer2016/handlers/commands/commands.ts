@@ -2106,6 +2106,50 @@ export const commands: Array<Command> = [
     }
   },
   {
+    name: "scheduleRewards",
+    permissionLevel: PermissionLevels.ADMIN,
+    execute: (server: ZoneServer2016, client: Client, args: Array<string>) => {
+      //TODO: WIP
+      if (!args[0]) {
+        server.sendChatText(
+          client,
+          "[ERROR] Usage /scheduleRewards all | individual {itemDefinitionId}"
+        );
+        return;
+      }
+      const option = args.shift();
+      const rewardId = Number(args.shift());
+      const validRewardItem = server.rewardManager.rewards.some(
+        (v) => v.itemId === rewardId
+      );
+      if (!validRewardItem) {
+        server.sendChatText(
+          client,
+          `[ERROR] ${rewardId} isn't a valid reward item`
+        );
+        return;
+      }
+      switch (option) {
+        case "all":
+          server.sendAlertToAll(
+            `Admin ${client.character.name} rewarded all connected players with ${Items[rewardId]}`
+          );
+          break;
+
+        case "individual":
+          break;
+        default:
+          server.sendChatText(
+            client,
+            "[ERROR] Usage /scheduleRewards all | individual {itemDefinitionId}"
+          );
+          return;
+
+          break;
+      }
+    }
+  },
+  {
     name: "giverewardtoall",
     permissionLevel: PermissionLevels.ADMIN,
     execute: (server: ZoneServer2016, client: Client, args: Array<string>) => {
