@@ -144,7 +144,7 @@ export class Npc extends BaseFullCharacter {
     const client = this.server.getClientByCharId(characterId);
     if (client) {
       const damageInfo: DamageInfo = {
-        entity: client.character.characterId,
+        entity: this.characterId,
         weapon: Items.WEAPON_MACHETE01,
         damage: this.npcMeleeDamage,
         causeBleed: false, // another method for melees to apply bleeding

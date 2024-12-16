@@ -260,14 +260,24 @@ export class Vehicle2016 extends BaseLootableEntity {
     this.getMaterialType(server, this.actorModelId);
     this.loadoutId = getVehicleLoadoutId(this.vehicleId);
     this.defaultLoadout = getDefaultLoadout(this.loadoutId);
-    this.npcRenderDistance = 400;
+    this.npcRenderDistance = 310;
     this.isInvulnerable =
       this.vehicleId == VehicleIds.SPECTATE ||
       this.vehicleId == VehicleIds.PARACHUTE;
     this.shaderGroupId = shaderGroupId;
     switch (this.vehicleId) {
-      case VehicleIds.OFFROADER:
       case VehicleIds.PICKUP:
+        this.seats = {
+          0: "",
+          1: "",
+          2: "",
+          3: "",
+          4: "",
+          5: "",
+          6: ""
+        };
+        break;
+      case VehicleIds.OFFROADER:
       case VehicleIds.POLICECAR:
         this.seats = {
           0: "",
@@ -350,6 +360,13 @@ export class Vehicle2016 extends BaseLootableEntity {
       const seat = this.seats[seatId],
         passenger = seat ? server._characters[seat] : undefined;
       if (!this.seats[seatId] || !passenger?.isAlive) {
+        if (Number(seatId) > 4) return -1;
+        if (seatId === "2") {
+          if (!!this.seats[5]) continue;
+        }
+        if (seatId === "3") {
+          if (!!this.seats[6]) continue;
+        }
         return Number(seatId);
       }
     }

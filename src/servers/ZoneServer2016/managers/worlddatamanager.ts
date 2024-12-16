@@ -475,7 +475,7 @@ export class WorldDataManager {
         _containers: loadedCharacter._containers || {},
         _resources: loadedCharacter._resources || {},
         mutedCharacters: loadedCharacter.mutedCharacters || [],
-        groupId: loadedCharacter.groupId || 0,
+        groupId: 0, //loadedCharacter.groupId || 0,
         playTime: loadedCharacter.playTime ?? 0,
         lastDropPlayTime: loadedCharacter.lastDropPlayTime ?? 0,
         status: 1,
@@ -539,7 +539,7 @@ export class WorldDataManager {
       lastDropPlayTime: character.lastDropPlaytime,
       spawnGridData: character.spawnGridData,
       mutedCharacters: character.mutedCharacters,
-      groupId: character.groupId
+      groupId: 0 //character.groupId
     };
     return saveData;
   }
@@ -583,7 +583,7 @@ export class WorldDataManager {
             ...characterSaveData
           }
         },
-        { upsert: true }
+        { upsert: process.env.MONGO_TESTS ? true : false }
       );
     }
   }
@@ -1037,9 +1037,9 @@ export class WorldDataManager {
       for (let i = 0; i < constructions.length; i++) {
         const construction = constructions[i];
         updatePromises.push(
-          collection.updateOne(
+          collection.replaceOne(
             { characterId: construction.characterId, serverId: this._worldId },
-            { $set: construction },
+            construction,
             { upsert: true }
           )
         );

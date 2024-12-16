@@ -90,6 +90,7 @@
             "skipFiles": [
                 "<node_internals>/**"
             ],
+            "runtimeArgs": ["--no-warnings", "--experimental-require-module"],
             "program": "${workspaceFolder}/out/servers/ZoneServer2016/zoneserver.js",
             "outFiles": [
                 "${workspaceFolder}/out/**/*.js"

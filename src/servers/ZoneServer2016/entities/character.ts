@@ -311,7 +311,7 @@ export class Character2016 extends BaseFullCharacter {
     );
 
     /** The distance at which the character will render, exceeding the renderDistance and the object renders away */
-    this.npcRenderDistance = 400;
+    this.npcRenderDistance = 310;
 
     /** Default resource amounts applied after respawning */
     this._resources = {
@@ -1770,7 +1770,7 @@ export class Character2016 extends BaseFullCharacter {
       weaponDmgModifierShotgun = 10,
       weaponDmgModifierSniper = 1,
       headshotDmgMultiplierDefault = 4,
-      headshotDmgMultiplierShotgun = 1,
+      headshotDmgMultiplierShotgun = 2,
       headshotDmgMultiplierSniper = 6;
 
     switch (weaponDefinitionId) {
@@ -1826,7 +1826,8 @@ export class Character2016 extends BaseFullCharacter {
   }
 
   OnMeleeHit(server: ZoneServer2016, damageInfo: DamageInfo) {
-    if (server.isPvE || this.isRespawning) return;
+    if ((server.isPvE && !server._npcs[damageInfo.entity]) || this.isRespawning)
+      return;
     let damage = damageInfo.damage / 2;
     let bleedingChance = 5;
     switch (damageInfo.meleeType) {

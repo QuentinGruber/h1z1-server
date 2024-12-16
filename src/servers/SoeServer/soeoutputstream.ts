@@ -15,6 +15,7 @@ import { EventEmitter } from "node:events";
 import { RC4 } from "h1emu-core";
 import { wrappedUint16 } from "../../utils/utils";
 import { dataCache, dataCacheMap } from "types/soeserver";
+import { MAX_UINT16 } from "../../utils/constants";
 
 const debug = require("debug")("SOEOutputStream");
 
@@ -45,7 +46,8 @@ export class SOEOutputStream extends EventEmitter {
     this._cache[sequence] = {
       data: data,
       fragment: isFragment,
-      sequence: sequence
+      sequence: sequence,
+      resendCounter: 0
     };
   }
 
@@ -151,25 +153,51 @@ export class SOEOutputStream extends EventEmitter {
   }
 
   ack(sequence: number, unAckData: Map<number, number>): void {
-    // delete all data / timers cached for the sequences behind the given ack sequence
-    while (this.lastAck.get() !== wrappedUint16.wrap(sequence)) {
-      const lastAck = this.lastAck.get();
-      this.removeFromCache(lastAck);
-      unAckData.delete(lastAck);
-      this.lastAck.increment();
-      // So we clear the last ack at the end of the loop without incrementing it
-      if (this.lastAck.get() === wrappedUint16.wrap(sequence)) {
-        const lastAck = this.lastAck.get();
-        this.removeFromCache(lastAck);
-        unAckData.delete(lastAck);
+    const wrappedSequence = wrappedUint16.wrap(sequence);
+    const wrapThreshold = MAX_UINT16 / 2;
+
+    // Determine if wrappedSequence is ahead of lastAck, including wrap-around handling
+    const isSequenceAhead =
+      wrappedSequence > this.lastAck.get() ||
+      (wrappedSequence < this.lastAck.get() &&
+        this.lastAck.get() - wrappedSequence > wrapThreshold);
+
+    // If the sequence is ahead, delete all cached data/timers up to the given ack sequence
+    if (isSequenceAhead) {
+      while (this.lastAck.get() !== wrappedSequence) {
+        this.removeFromCache(this.lastAck.get());
+        unAckData.delete(this.lastAck.get());
+        this.lastAck.increment();
+        if (this.lastAck.get() === wrappedSequence) {
+          this.removeFromCache(this.lastAck.get());
+          unAckData.delete(this.lastAck.get());
+        }
+      }
+    } else {
+      // If an out-of-order ack is received, delete that specific entry if it exists
+      if (unAckData.has(wrappedSequence)) {
+        this.removeFromCache(wrappedSequence);
+        unAckData.delete(wrappedSequence);
       }
     }
-    // When we receive an ack, we can emit the event Reliable so the application can send more data
+
+    // Emit event to signal that acknowledged data can be removed and new data can be sent
     this.emit(SOEOutputChannels.Reliable);
   }
 
+  /*singleAck(sequence: number, unAckData: Map<number, number>): void {
+    const wrappedSequence = wrappedUint16.wrap(sequence);
+    this.removeFromCache(wrappedSequence);
+    unAckData.delete(wrappedSequence);
+    this.emit(SOEOutputChannels.Reliable);
+  }*/
+
   getDataCache(sequence: number): dataCache {
     return this._cache[sequence];
+  }
+
+  incrementDataCacheResend(sequence: number) {
+    this._cache[sequence].resendCounter++;
   }
 
   isUsingEncryption(): boolean {

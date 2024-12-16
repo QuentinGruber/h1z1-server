@@ -24,9 +24,9 @@ rcon:
 # VoiceChat
 
 voicechat:
-    useVoiceChatV2: false
-    joinVoiceChatOnConnect: false
-    serverAccessToken: ""
+  useVoiceChatV2: false
+  joinVoiceChatOnConnect: false
+  serverAccessToken: ""
 
 # Fairplay / anticheat config
 
@@ -128,10 +128,10 @@ construction:
 
 decay:
   decayTickInterval: 1200000 # 20 minutes per decay tick
-  constructionDamageTicks: 72 # damage structures every 24 hours
+  constructionDamageTicks: 3 # damage structures every hour
 
-  # with default values it'll take 14 days for a base to fully decay
-  ticksToFullDecay: 14 # how many decay ticks * constructionDamageTicks it takes to fully decay any construction entity.
+  # with default values it'll take 10 days for a base to fully decay
+  ticksToFullDecay: 240 # how many decay ticks * constructionDamageTicks it takes to fully decay any construction entity.
 
   # unused for now but is planned
   worldFreeplaceDecayMultiplier: 2 # used to multiply decay damage for freeplace constuction with no parent
@@ -150,17 +150,17 @@ decay:
   vehicleDamageRange: 25 # how large of a range to detect maxVehiclesPerArea
   dailyRepairMaterials:
     - itemDefinitionId: 16 # wood log
-      requiredCount: 5
+      requiredCount: 1
     - itemDefinitionId: 109 # wood plank
-      requiredCount: 79
+      requiredCount: 10
     - itemDefinitionId: 135 # nail
-      requiredCount: 28
+      requiredCount: 4
     - itemDefinitionId: 141 # metal bracket
-      requiredCount: 16
+      requiredCount: 4
     - itemDefinitionId: 46 # metal sheet
-      requiredCount: 20
+      requiredCount: 1
     - itemDefinitionId: 114 # metal shard
-      requiredCount: 44
+      requiredCount: 8
     - itemDefinitionId: 111 # wood stick
       requiredCount: 2
 

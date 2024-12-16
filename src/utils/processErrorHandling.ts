@@ -16,7 +16,7 @@ export function logVersion() {
 }
 
 process.on("unhandledRejection", (reason, promise) => {
-  console.log(
+  console.error(
     "Unhandled rejection at ",
     promise,
     `reason: ${reason} at ${new Date()}`
@@ -26,14 +26,14 @@ process.on("unhandledRejection", (reason, promise) => {
 });
 
 process.on("uncaughtException", (err) => {
-  console.log(`Uncaught Exception: ${err.message} time : ${new Date()}`);
+  console.error(`Uncaught Exception: ${err.message} time : ${new Date()}`);
   console.error(err.stack);
   logVersion();
   process.exit(1);
 });
 
 process.on("SIGTERM", () => {
-  console.log(
+  console.error(
     `Process ${process.pid} received a SIGTERM signal time : ${new Date()}`
   );
   logVersion();
@@ -41,7 +41,7 @@ process.on("SIGTERM", () => {
 });
 
 process.on("SIGINT", () => {
-  console.log(
+  console.error(
     `Process ${process.pid} has been interrupted time : ${new Date()}`
   );
   logVersion();

@@ -298,8 +298,7 @@ export interface ClientBan {
   banReason: string;
   loginSessionId: string;
   IP: string;
-  HWID: string;
-  adminName: string;
+  adminId: string;
   expirationDate: number;
   active: boolean;
   unBanAdminName: string;
@@ -598,4 +597,8 @@ export type EntityDictionary<Entity> = { [characterId: string]: Entity};
 export interface PropInstance {
   objectId: number,
   replacementModel: string
+}
+export interface RandomReward {
+  reward: number;
+  isRare: boolean;
 }
