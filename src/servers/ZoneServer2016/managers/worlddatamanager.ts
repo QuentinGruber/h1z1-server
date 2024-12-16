@@ -1033,21 +1033,28 @@ export class WorldDataManager {
       const collection = this._db?.collection(
         DB_COLLECTIONS.CONSTRUCTION
       ) as Collection;
+
       const updatePromises = [];
       for (let i = 0; i < constructions.length; i++) {
         const construction = constructions[i];
+
         updatePromises.push(
-          collection.replaceOne(
-            { characterId: construction.characterId, serverId: this._worldId },
-            construction,
-            { upsert: true }
-          )
+          (async () => {
+            await collection.deleteOne({
+              characterId: construction.characterId,
+              serverId: this._worldId
+            });
+            await collection.insertOne(construction);
+          })()
         );
       }
+
       await Promise.all(updatePromises);
+
       const allCharactersIds = constructions.map((construction) => {
         return construction.characterId;
       });
+
       await collection.deleteMany({
         serverId: this._worldId,
         characterId: { $nin: allCharactersIds }
