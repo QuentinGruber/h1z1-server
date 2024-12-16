@@ -727,8 +727,7 @@ export class ZoneServer2016 extends EventEmitter {
       "disconnect",
       (err: string, client: LZConnectionClient, reason: number) => {
         debug(
-          `LoginConnection dropped: ${
-            reason ? "Connection Lost" : "Unknown Error"
+          `LoginConnection dropped: ${reason ? "Connection Lost" : "Unknown Error"
           }`
         );
       }
@@ -1105,15 +1104,13 @@ export class ZoneServer2016 extends EventEmitter {
       );
 
       const unbanTime = ban.expirationDate
-          ? getDateString(ban.expirationDate)
-          : 0,
+        ? getDateString(ban.expirationDate)
+        : 0,
         reason = ban.banReason;
 
-      const reasonString = `You have been ${
-        unbanTime ? "" : "permanently "
-      }banned from the server${
-        unbanTime ? ` until ${unbanTime}` : ""
-      }. Reason: ${reason}.`;
+      const reasonString = `You have been ${unbanTime ? "" : "permanently "
+        }banned from the server${unbanTime ? ` until ${unbanTime}` : ""
+        }. Reason: ${reason}.`;
 
       this.sendCharacterAllowedReply(
         client,
@@ -2317,9 +2314,9 @@ export class ZoneServer2016 extends EventEmitter {
         distance:
           sourceEntity && targetEntity
             ? getDistance(
-                sourceEntity.state.position,
-                targetEntity.state.position
-              ).toFixed(1)
+              sourceEntity.state.position,
+              targetEntity.state.position
+            ).toFixed(1)
             : "0",
         hitLocation: damageInfo.hitReport?.hitLocation || "Unknown",
         hitPosition:
@@ -2481,12 +2478,28 @@ export class ZoneServer2016 extends EventEmitter {
 
     if (client.vehicle.mountedVehicle) {
       const vehicle = this._vehicles[client.vehicle.mountedVehicle],
-        container = vehicle?.getContainer();
+        container = vehicle?.getContainer(),
+        occupantsCount = vehicle.getPassengerList().length;
+
       if (vehicle && container) {
         container.items = {
           ...container.items,
-          ...client.character.getDeathItems(this)
+          ...client.character.getDeathItems(this),
         };
+      }
+    
+      // Check if character is dead
+      if (!client.character.isAlive) {
+        // Check if there is only 1 character in the vehicle
+        if (occupantsCount === 1) {
+          // Unlock the vehicle if there are no other occupants in the vehicle
+          vehicle.setLockState(this, client, false);
+        }
+
+        // Wait untill killCharacter is finished for dismountVehicle (if not, there will be no option for the dead occupant to respawn)
+        this.once("killCharacterComplete", (client) => {
+          this.dismountVehicle(client);
+        });
       }
     } else {
       Object.values(client.character._loadout).forEach((slot: LoadoutItem) => {
@@ -2517,6 +2530,7 @@ export class ZoneServer2016 extends EventEmitter {
     this.clearInventory(client, false);
     this.sendKillFeed(client, damageInfo);
     this.hookManager.checkHook("OnPlayerDied", client, damageInfo);
+    this.emit("killCharacterComplete", client); // Throw emit for dismounting character from vehicle
   }
 
   sendKillFeed(client: Client, damageInfo: DamageInfo) {
@@ -3106,7 +3120,7 @@ export class ZoneServer2016 extends EventEmitter {
         isHeadshot: isHeadshot,
         damagedArmor:
           (isHeadshot && hasHelmetBefore && hasHelmet) ||
-          (!isHeadshot && hasArmorBefore && hasArmor)
+            (!isHeadshot && hasArmorBefore && hasArmor)
             ? 1
             : 0,
         crackedArmor:
@@ -3247,8 +3261,7 @@ export class ZoneServer2016 extends EventEmitter {
       const decoy = this._decoys[a];
       if (decoy.characterId === hitReport.characterId) {
         this.sendChatTextToAdmins(
-          `FairPlay: ${
-            client.character.name
+          `FairPlay: ${client.character.name
           } hit a decoy entity at: [${decoy.position[0].toFixed(
             2
           )} ${decoy.position[1].toFixed(2)} ${decoy.position[2].toFixed(2)}]`,
@@ -3329,10 +3342,10 @@ export class ZoneServer2016 extends EventEmitter {
       weapon: weaponItem.itemDefinitionId,
       damage: hitValidation.isValid
         ? this.getProjectileDamage(
-            weaponItem.itemDefinitionId,
-            client.character.state.position,
-            entity.state.position
-          )
+          weaponItem.itemDefinitionId,
+          client.character.state.position,
+          entity.state.position
+        )
         : 0,
       hitReport: packet.hitReport,
       message: hitValidation.message
@@ -3714,7 +3727,7 @@ export class ZoneServer2016 extends EventEmitter {
           client.spawnedEntities.has(object) ||
           !isPosInRadius(
             (object.npcRenderDistance as number) ||
-              this.charactersRenderDistance,
+            this.charactersRenderDistance,
             position,
             object.state.position
           )
@@ -3806,7 +3819,7 @@ export class ZoneServer2016 extends EventEmitter {
         if (
           !isPosInRadius(
             (object.npcRenderDistance as number) ||
-              this.charactersRenderDistance,
+            this.charactersRenderDistance,
             position,
             object.state.position
           )
@@ -4198,21 +4211,21 @@ export class ZoneServer2016 extends EventEmitter {
           client,
           reason
             ? `YOU HAVE BEEN BANNED FROM THE SERVER UNTIL ${getDateString(
-                timestamp
-              )}. REASON: ${reason}`
+              timestamp
+            )}. REASON: ${reason}`
             : `YOU HAVE BEEN BANNED FROM THE SERVER UNTIL: ${getDateString(
-                timestamp
-              )}`
+              timestamp
+            )}`
         );
       }
       this.sendAlertToAll(
         reason
           ? `${characterName} HAS BEEN BANNED FROM THE SERVER UNTIL ${getDateString(
-              timestamp
-            )}. REASON: ${reason}`
+            timestamp
+          )}. REASON: ${reason}`
           : `${characterName} HAS BEEN BANNED FROM THE SERVER UNTIL: ${getDateString(
-              timestamp
-            )}`
+            timestamp
+          )}`
       );
     } else if (!isSilent) {
       if (client) {
@@ -4441,7 +4454,7 @@ export class ZoneServer2016 extends EventEmitter {
       if (
         this._airdrop.manager &&
         this._airdrop.manager.character.characterId ==
-          client.character.characterId
+        client.character.characterId
       ) {
         this.sendData<CharacterManagedObject>(
           client,
@@ -5258,20 +5271,15 @@ export class ZoneServer2016 extends EventEmitter {
         )}, ${e.hitInfo.hitPosition[2].toFixed(0)}]`,
         oldHp = (e.hitInfo.oldHP / 100).toFixed(1),
         newHp = (e.hitInfo.newHP / 100).toFixed(1),
-        ping = `${
-          e.source.name == client.character.name ? e.source.ping : e.target.ping
-        }ms`,
-        enemyPing = `${
-          e.source.name == client.character.name ? e.target.ping : e.source.ping
-        }ms`;
+        ping = `${e.source.name == client.character.name ? e.source.ping : e.target.ping
+          }ms`,
+        enemyPing = `${e.source.name == client.character.name ? e.target.ping : e.source.ping
+          }ms`;
       this.sendChatText(
         client,
-        `${time} ${source} ${target} ${
-          this.getItemDefinition(e.hitInfo.weapon || 0)?.MODEL_NAME || "N/A"
-        } ${e.hitInfo.distance}m ${
-          e.hitInfo.hitLocation
-        } ${hitPosition} ${oldHp} ${newHp} ${ping} ${enemyPing} ${
-          e.hitInfo.message
+        `${time} ${source} ${target} ${this.getItemDefinition(e.hitInfo.weapon || 0)?.MODEL_NAME || "N/A"
+        } ${e.hitInfo.distance}m ${e.hitInfo.hitLocation
+        } ${hitPosition} ${oldHp} ${newHp} ${ping} ${enemyPing} ${e.hitInfo.message
         }`
       );
     });
@@ -5739,17 +5747,17 @@ export class ZoneServer2016 extends EventEmitter {
   isHelmet(itemDefinitionId: number): boolean {
     return (
       this.getItemDefinition(itemDefinitionId)?.DESCRIPTION_ID ==
-        StringIds.TACTICAL_HELMET ||
+      StringIds.TACTICAL_HELMET ||
       this.getItemDefinition(itemDefinitionId)?.DESCRIPTION_ID ==
-        StringIds.SLEIGH_HELMET ||
+      StringIds.SLEIGH_HELMET ||
       this.getItemDefinition(itemDefinitionId)?.DESCRIPTION_ID ==
-        StringIds.GENERAL_HELMET_1 ||
+      StringIds.GENERAL_HELMET_1 ||
       this.getItemDefinition(itemDefinitionId)?.DESCRIPTION_ID ==
-        StringIds.CREEPY_MASK ||
+      StringIds.CREEPY_MASK ||
       this.getItemDefinition(itemDefinitionId)?.DESCRIPTION_ID ==
-        StringIds.SCRAY_HALLOWEEN_MASK ||
+      StringIds.SCRAY_HALLOWEEN_MASK ||
       this.getItemDefinition(itemDefinitionId)?.DESCRIPTION_ID ==
-        StringIds.UNCLE_SAM_MASK
+      StringIds.UNCLE_SAM_MASK
     );
   }
 
@@ -6347,7 +6355,7 @@ export class ZoneServer2016 extends EventEmitter {
       this._spawnedItems,
       object,
       this.getItemDefinition(item.itemDefinitionId)?.PICKUP_EFFECT ??
-        Effects.SFX_Item_PickUp_Generic
+      Effects.SFX_Item_PickUp_Generic
     );
 
     client.character.lootItem(this, item);
@@ -6708,10 +6716,10 @@ export class ZoneServer2016 extends EventEmitter {
       if (
         !choosenClient ||
         currentDistance >
-          getDistance2d(
-            client.character.state.position,
-            this._airdrop.plane.state.position
-          )
+        getDistance2d(
+          client.character.state.position,
+          this._airdrop.plane.state.position
+        )
       ) {
         choosenClient = client;
         currentDistance = getDistance2d(
@@ -6833,7 +6841,7 @@ export class ZoneServer2016 extends EventEmitter {
       this.sendChatText(
         client,
         "[ERROR] consumable not mapped to item Definition " +
-          item.itemDefinitionId
+        item.itemDefinitionId
       );
       return;
     }
@@ -6900,7 +6908,7 @@ export class ZoneServer2016 extends EventEmitter {
       this.sendChatText(
         client,
         "[ERROR] use option not mapped to item Definition " +
-          item.itemDefinitionId
+        item.itemDefinitionId
       );
       return;
     }
@@ -7058,7 +7066,7 @@ export class ZoneServer2016 extends EventEmitter {
       this.sendChatText(
         client,
         "[ERROR] use option not mapped to item Definition " +
-          item.itemDefinitionId
+        item.itemDefinitionId
       );
       return;
     }
@@ -7086,7 +7094,7 @@ export class ZoneServer2016 extends EventEmitter {
         this.sendChatText(
           client,
           "[ERROR] No use option mapped to item Definition " +
-            item.itemDefinitionId
+          item.itemDefinitionId
         );
     }
     switch (useoption) {
@@ -7130,7 +7138,7 @@ export class ZoneServer2016 extends EventEmitter {
       this.sendChatText(
         client,
         "[ERROR] use option not mapped to item Definition " +
-          item.itemDefinitionId
+        item.itemDefinitionId
       );
       return;
     }
@@ -7238,9 +7246,9 @@ export class ZoneServer2016 extends EventEmitter {
     }
     const count =
       item.itemDefinitionId == Items.AMMO_12GA ||
-      item.itemDefinitionId == Items.AMMO_762 ||
-      item.itemDefinitionId == Items.AMMO_308 ||
-      item.itemDefinitionId == Items.AMMO_44
+        item.itemDefinitionId == Items.AMMO_762 ||
+        item.itemDefinitionId == Items.AMMO_308 ||
+        item.itemDefinitionId == Items.AMMO_44
         ? 2
         : 1;
 
@@ -7665,8 +7673,7 @@ export class ZoneServer2016 extends EventEmitter {
           `FairPlay: Your shot didnt register due to position desync`
         );
         this.sendChatTextToAdmins(
-          `FairPlay: ${
-            client.character.name
+          `FairPlay: ${client.character.name
           }'s shot didnt register due to position desync by ${getDistance(
             client.character.state.position,
             packet.packet.position
@@ -7715,7 +7722,7 @@ export class ZoneServer2016 extends EventEmitter {
     }
     const shotProjectiles =
       weaponDefinitionId == WeaponDefinitionIds.WEAPON_SHOTGUN ||
-      weaponDefinitionId == WeaponDefinitionIds.WEAPON_NAGAFENS_RAGE
+        weaponDefinitionId == WeaponDefinitionIds.WEAPON_NAGAFENS_RAGE
         ? 12
         : 1;
     for (let x = 0; x < shotProjectiles; x++) {
