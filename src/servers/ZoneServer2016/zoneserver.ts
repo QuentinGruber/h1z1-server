@@ -2493,15 +2493,14 @@ export class ZoneServer2016 extends EventEmitter {
     
       // Check if character is dead
       if (!client.character.isAlive) {
-        // Check if there is only 1 character in the vehicle
-        if (occupantsCount === 1) {
-          // Unlock the vehicle if there are no other occupants in the vehicle
-          vehicle.setLockState(this, client, false);
-        }
-
         // Wait untill killCharacter is finished for dismountVehicle (if not, there will be no option for the dead occupant to respawn)
         this.once("killCharacterComplete", (client) => {
           this.dismountVehicle(client);
+
+          if (occupantsCount > 1) {
+            // lock the vehicle if there are other occupants in the vehicle, as dismountVehicle unlocks the vehicle
+            vehicle.setLockState(this, client, true);
+          }
         });
       }
     } else {
