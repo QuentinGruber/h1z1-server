@@ -2481,12 +2481,28 @@ export class ZoneServer2016 extends EventEmitter {
 
     if (client.vehicle.mountedVehicle) {
       const vehicle = this._vehicles[client.vehicle.mountedVehicle],
-        container = vehicle?.getContainer();
+        container = vehicle?.getContainer(),
+        occupantsCount = vehicle.getPassengerList().length;
+
       if (vehicle && container) {
         container.items = {
           ...container.items,
-          ...client.character.getDeathItems(this)
+          ...client.character.getDeathItems(this),
         };
+      }
+    
+      // Check if character is dead
+      if (!client.character.isAlive) {
+        // Check if there is only 1 character in the vehicle
+        if (occupantsCount === 1) {
+          // Unlock the vehicle if there are no other occupants in the vehicle
+          vehicle.setLockState(this, client, false);
+        }
+
+        // Wait untill killCharacter is finished for dismountVehicle (if not, there will be no option for the dead occupant to respawn)
+        this.once("killCharacterComplete", (client) => {
+          this.dismountVehicle(client);
+        });
       }
     } else {
       Object.values(client.character._loadout).forEach((slot: LoadoutItem) => {
@@ -2517,6 +2533,7 @@ export class ZoneServer2016 extends EventEmitter {
     this.clearInventory(client, false);
     this.sendKillFeed(client, damageInfo);
     this.hookManager.checkHook("OnPlayerDied", client, damageInfo);
+    this.emit("killCharacterComplete", client); // Throw emit for dismounting character from vehicle
   }
 
   sendKillFeed(client: Client, damageInfo: DamageInfo) {
