@@ -417,9 +417,9 @@ export class Character2016 extends BaseFullCharacter {
         iconId: recipeDef.IMAGE_SET_ID,
         unknownDword1: 0, // idk
         descriptionId: recipeDef.DESCRIPTION_ID,
-        unknownDword2: 1, // idk
+        rewardItemCount: 1,
         bundleCount: recipe.bundleCount || 1,
-        membersOnly: false, // could be used for admin-only recipes?
+        canHandCraft: false, //recipe.canHandCraft, determines if item needs a furnace/campfire
         filterId: recipe.filterId,
         components: recipe.components
           .map((component: any) => {

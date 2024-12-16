@@ -8,7 +8,7 @@
             "descriptionId": 605,
             "rewardItemCount": 1,
             "bundleCount": 0,
-            "memberOnly": false,
+            "canHandCraft": false,
             "filterId": 0,
             "components": [{
                     "itemDefinitionId": 25,
@@ -44,7 +44,7 @@
             "descriptionId": 606,
             "rewardItemCount": 1,
             "bundleCount": 0,
-            "memberOnly": false,
+            "canHandCraft": false,
             "filterId": 0,
             "components": [{
                 "itemDefinitionId": 39,
@@ -68,7 +68,7 @@
             "descriptionId": 607,
             "rewardItemCount": 1,
             "bundleCount": 0,
-            "memberOnly": false,
+            "canHandCraft": false,
             "filterId": 0,
             "components": [{
                 "itemDefinitionId": 46,
@@ -92,7 +92,7 @@
             "descriptionId": 17855,
             "rewardItemCount": 1,
             "bundleCount": 0,
-            "memberOnly": false,
+            "canHandCraft": false,
             "filterId": 0,
             "components": [{
                     "itemDefinitionId": 46,
@@ -128,7 +128,7 @@
             "descriptionId": 8883,
             "rewardItemCount": 1,
             "bundleCount": 0,
-            "memberOnly": false,
+            "canHandCraft": false,
             "filterId": 0,
             "components": [{
                     "itemDefinitionId": 23,
@@ -164,7 +164,7 @@
             "descriptionId": 90,
             "rewardItemCount": 1,
             "bundleCount": 0,
-            "memberOnly": false,
+            "canHandCraft": false,
             "filterId": 0,
             "components": [{
                     "itemDefinitionId": 56,
@@ -200,7 +200,7 @@
             "descriptionId": 592,
             "rewardItemCount": 1,
             "bundleCount": 0,
-            "memberOnly": false,
+            "canHandCraft": false,
             "filterId": 0,
             "components": [{
                     "itemDefinitionId": 23,
@@ -247,7 +247,7 @@
             "descriptionId": 588,
             "rewardItemCount": 1,
             "bundleCount": 0,
-            "memberOnly": false,
+            "canHandCraft": false,
             "filterId": 0,
             "components": [{
                     "itemDefinitionId": 48,
@@ -283,7 +283,7 @@
             "descriptionId": 1029,
             "rewardItemCount": 1,
             "bundleCount": 0,
-            "memberOnly": false,
+            "canHandCraft": false,
             "filterId": 0,
             "components": [{
                     "itemDefinitionId": 23,
@@ -330,7 +330,7 @@
             "descriptionId": 595,
             "rewardItemCount": 1,
             "bundleCount": 0,
-            "memberOnly": false,
+            "canHandCraft": false,
             "filterId": 0,
             "components": [{
                 "itemDefinitionId": 20,
@@ -354,7 +354,7 @@
             "descriptionId": 600,
             "rewardItemCount": 1,
             "bundleCount": 0,
-            "memberOnly": false,
+            "canHandCraft": false,
             "filterId": 0,
             "components": [{
                     "itemDefinitionId": 48,
@@ -390,7 +390,7 @@
             "descriptionId": 157,
             "rewardItemCount": 1,
             "bundleCount": 0,
-            "memberOnly": false,
+            "canHandCraft": false,
             "filterId": 0,
             "components": [{
                     "itemDefinitionId": 55,
@@ -426,7 +426,7 @@
             "descriptionId": 1227,
             "rewardItemCount": 1,
             "bundleCount": 0,
-            "memberOnly": false,
+            "canHandCraft": false,
             "filterId": 0,
             "components": [{
                     "itemDefinitionId": 72,
@@ -462,7 +462,7 @@
             "descriptionId": 1155,
             "rewardItemCount": 1,
             "bundleCount": 0,
-            "memberOnly": false,
+            "canHandCraft": false,
             "filterId": 0,
             "components": [{
                     "itemDefinitionId": 11,
@@ -509,7 +509,7 @@
             "descriptionId": 329,
             "rewardItemCount": 1,
             "bundleCount": 0,
-            "memberOnly": false,
+            "canHandCraft": false,
             "filterId": 0,
             "components": [{
                     "itemDefinitionId": 22,
@@ -545,7 +545,7 @@
             "descriptionId": 331,
             "rewardItemCount": 1,
             "bundleCount": 0,
-            "memberOnly": false,
+            "canHandCraft": false,
             "filterId": 0,
             "components": [{
                     "itemDefinitionId": 24,
@@ -581,7 +581,7 @@
             "descriptionId": 588,
             "rewardItemCount": 1,
             "bundleCount": 0,
-            "memberOnly": false,
+            "canHandCraft": false,
             "filterId": 0,
             "components": [{
                     "itemDefinitionId": 46,
@@ -617,7 +617,7 @@
             "descriptionId": 599,
             "rewardItemCount": 1,
             "bundleCount": 0,
-            "memberOnly": false,
+            "canHandCraft": false,
             "filterId": 0,
             "components": [{
                     "itemDefinitionId": 20,
@@ -653,7 +653,7 @@
             "descriptionId": 591,
             "rewardItemCount": 1,
             "bundleCount": 0,
-            "memberOnly": false,
+            "canHandCraft": false,
             "filterId": 0,
             "components": [{
                     "itemDefinitionId": 109,
@@ -700,7 +700,7 @@
             "descriptionId": 597,
             "rewardItemCount": 1,
             "bundleCount": 0,
-            "memberOnly": false,
+            "canHandCraft": false,
             "filterId": 0,
             "components": [{
                     "itemDefinitionId": 109,
@@ -747,7 +747,7 @@
             "descriptionId": 602,
             "rewardItemCount": 1,
             "bundleCount": 0,
-            "memberOnly": false,
+            "canHandCraft": false,
             "filterId": 0,
             "components": [{
                     "itemDefinitionId": 109,
@@ -794,7 +794,7 @@
             "descriptionId": 611,
             "rewardItemCount": 1,
             "bundleCount": 0,
-            "memberOnly": false,
+            "canHandCraft": false,
             "filterId": 0,
             "components": [{
                 "itemDefinitionId": 111,
@@ -818,7 +818,7 @@
             "descriptionId": 268,
             "rewardItemCount": 1,
             "bundleCount": 0,
-            "memberOnly": false,
+            "canHandCraft": false,
             "filterId": 0,
             "components": [{
                 "itemDefinitionId": 48,
@@ -842,7 +842,7 @@
             "descriptionId": 638,
             "rewardItemCount": 1,
             "bundleCount": 0,
-            "memberOnly": false,
+            "canHandCraft": false,
             "filterId": 0,
             "components": [{
                     "itemDefinitionId": 109,
@@ -878,7 +878,7 @@
             "descriptionId": 642,
             "rewardItemCount": 1,
             "bundleCount": 0,
-            "memberOnly": false,
+            "canHandCraft": false,
             "filterId": 0,
             "components": [{
                 "itemDefinitionId": 116,
@@ -902,7 +902,7 @@
             "descriptionId": 643,
             "rewardItemCount": 1,
             "bundleCount": 0,
-            "memberOnly": false,
+            "canHandCraft": false,
             "filterId": 0,
             "components": [{
                     "itemDefinitionId": 22,
@@ -949,7 +949,7 @@
             "descriptionId": 595,
             "rewardItemCount": 1,
             "bundleCount": 0,
-            "memberOnly": false,
+            "canHandCraft": false,
             "filterId": 0,
             "components": [{
                 "itemDefinitionId": 1342,
@@ -973,7 +973,7 @@
             "descriptionId": 646,
             "rewardItemCount": 1,
             "bundleCount": 0,
-            "memberOnly": false,
+            "canHandCraft": false,
             "filterId": 0,
             "components": [{
                     "itemDefinitionId": 109,
@@ -1009,7 +1009,7 @@
             "descriptionId": 655,
             "rewardItemCount": 1,
             "bundleCount": 0,
-            "memberOnly": false,
+            "canHandCraft": false,
             "filterId": 0,
             "components": [{
                 "itemDefinitionId": 114,
@@ -1033,7 +1033,7 @@
             "descriptionId": 667,
             "rewardItemCount": 1,
             "bundleCount": 0,
-            "memberOnly": false,
+            "canHandCraft": false,
             "filterId": 0,
             "components": [{
                 "itemDefinitionId": 48,
@@ -1057,7 +1057,7 @@
             "descriptionId": 675,
             "rewardItemCount": 1,
             "bundleCount": 0,
-            "memberOnly": false,
+            "canHandCraft": false,
             "filterId": 0,
             "components": [{
                     "itemDefinitionId": 23,
@@ -1104,7 +1104,7 @@
             "descriptionId": 685,
             "rewardItemCount": 1,
             "bundleCount": 0,
-            "memberOnly": false,
+            "canHandCraft": false,
             "filterId": 0,
             "components": [{
                     "itemDefinitionId": 46,
@@ -1151,7 +1151,7 @@
             "descriptionId": 686,
             "rewardItemCount": 1,
             "bundleCount": 0,
-            "memberOnly": false,
+            "canHandCraft": false,
             "filterId": 0,
             "components": [{
                     "itemDefinitionId": 46,
@@ -1187,7 +1187,7 @@
             "descriptionId": 687,
             "rewardItemCount": 1,
             "bundleCount": 0,
-            "memberOnly": false,
+            "canHandCraft": false,
             "filterId": 0,
             "components": [{
                     "itemDefinitionId": 46,
@@ -1234,7 +1234,7 @@
             "descriptionId": 687,
             "rewardItemCount": 1,
             "bundleCount": 0,
-            "memberOnly": false,
+            "canHandCraft": false,
             "filterId": 0,
             "components": [{
                     "itemDefinitionId": 46,
@@ -1292,7 +1292,7 @@
             "descriptionId": 687,
             "rewardItemCount": 1,
             "bundleCount": 0,
-            "memberOnly": false,
+            "canHandCraft": false,
             "filterId": 0,
             "components": [{
                     "itemDefinitionId": 109,
@@ -1339,7 +1339,7 @@
             "descriptionId": 1032,
             "rewardItemCount": 1,
             "bundleCount": 0,
-            "memberOnly": false,
+            "canHandCraft": false,
             "filterId": 0,
             "components": [{
                     "itemDefinitionId": 105,
@@ -1375,7 +1375,7 @@
             "descriptionId": 1249,
             "rewardItemCount": 1,
             "bundleCount": 0,
-            "memberOnly": false,
+            "canHandCraft": false,
             "filterId": 0,
             "components": [{
                 "itemDefinitionId": 1362,
@@ -1399,7 +1399,7 @@
             "descriptionId": 1050,
             "rewardItemCount": 1,
             "bundleCount": 0,
-            "memberOnly": false,
+            "canHandCraft": false,
             "filterId": 0,
             "components": [{
                 "itemDefinitionId": 1368,
@@ -1423,7 +1423,7 @@
             "descriptionId": 1062,
             "rewardItemCount": 1,
             "bundleCount": 0,
-            "memberOnly": false,
+            "canHandCraft": false,
             "filterId": 0,
             "components": [{
                     "itemDefinitionId": 16,
@@ -1481,7 +1481,7 @@
             "descriptionId": 1064,
             "rewardItemCount": 1,
             "bundleCount": 0,
-            "memberOnly": false,
+            "canHandCraft": false,
             "filterId": 0,
             "components": [{
                     "itemDefinitionId": 7,
@@ -1528,7 +1528,7 @@
             "descriptionId": 1102,
             "rewardItemCount": 1,
             "bundleCount": 0,
-            "memberOnly": false,
+            "canHandCraft": false,
             "filterId": 0,
             "components": [{
                     "itemDefinitionId": 47,
@@ -1575,7 +1575,7 @@
             "descriptionId": 1228,
             "rewardItemCount": 1,
             "bundleCount": 0,
-            "memberOnly": false,
+            "canHandCraft": false,
             "filterId": 0,
             "components": [{
                     "itemDefinitionId": 107,
@@ -1622,7 +1622,7 @@
             "descriptionId": 1107,
             "rewardItemCount": 1,
             "bundleCount": 0,
-            "memberOnly": false,
+            "canHandCraft": false,
             "filterId": 0,
             "components": [{
                     "itemDefinitionId": 107,
@@ -1669,7 +1669,7 @@
             "descriptionId": 1109,
             "rewardItemCount": 1,
             "bundleCount": 0,
-            "memberOnly": false,
+            "canHandCraft": false,
             "filterId": 0,
             "components": [{
                 "itemDefinitionId": 107,
@@ -1693,7 +1693,7 @@
             "descriptionId": 15703,
             "rewardItemCount": 1,
             "bundleCount": 0,
-            "memberOnly": false,
+            "canHandCraft": false,
             "filterId": 0,
             "components": [{
                     "itemDefinitionId": 23,
@@ -1729,7 +1729,7 @@
             "descriptionId": 1152,
             "rewardItemCount": 1,
             "bundleCount": 0,
-            "memberOnly": false,
+            "canHandCraft": false,
             "filterId": 0,
             "components": [{
                     "itemDefinitionId": 23,
@@ -1776,7 +1776,7 @@
             "descriptionId": 1154,
             "rewardItemCount": 1,
             "bundleCount": 0,
-            "memberOnly": false,
+            "canHandCraft": false,
             "filterId": 0,
             "components": [{
                     "itemDefinitionId": 46,
@@ -1812,7 +1812,7 @@
             "descriptionId": 1180,
             "rewardItemCount": 1,
             "bundleCount": 0,
-            "memberOnly": false,
+            "canHandCraft": false,
             "filterId": 0,
             "components": [{
                     "itemDefinitionId": 46,
@@ -1859,7 +1859,7 @@
             "descriptionId": 1181,
             "rewardItemCount": 1,
             "bundleCount": 0,
-            "memberOnly": false,
+            "canHandCraft": false,
             "filterId": 0,
             "components": [{
                     "itemDefinitionId": 109,
@@ -1906,7 +1906,7 @@
             "descriptionId": 1180,
             "rewardItemCount": 1,
             "bundleCount": 0,
-            "memberOnly": false,
+            "canHandCraft": false,
             "filterId": 0,
             "components": [{
                     "itemDefinitionId": 109,
@@ -1953,7 +1953,7 @@
             "descriptionId": 1205,
             "rewardItemCount": 1,
             "bundleCount": 0,
-            "memberOnly": false,
+            "canHandCraft": false,
             "filterId": 0,
             "components": [{
                     "itemDefinitionId": 114,
@@ -1989,7 +1989,7 @@
             "descriptionId": 1210,
             "rewardItemCount": 1,
             "bundleCount": 0,
-            "memberOnly": false,
+            "canHandCraft": false,
             "filterId": 0,
             "components": [{
                     "itemDefinitionId": 57,
@@ -2036,7 +2036,7 @@
             "descriptionId": 1212,
             "rewardItemCount": 1,
             "bundleCount": 0,
-            "memberOnly": false,
+            "canHandCraft": false,
             "filterId": 0,
             "components": [{
                     "itemDefinitionId": 47,
@@ -2072,7 +2072,7 @@
             "descriptionId": 1225,
             "rewardItemCount": 1,
             "bundleCount": 0,
-            "memberOnly": false,
+            "canHandCraft": false,
             "filterId": 0,
             "components": [{
                 "itemDefinitionId": 1450,
@@ -2096,7 +2096,7 @@
             "descriptionId": 1231,
             "rewardItemCount": 1,
             "bundleCount": 0,
-            "memberOnly": false,
+            "canHandCraft": false,
             "filterId": 0,
             "components": [{
                     "itemDefinitionId": 23,
@@ -2143,7 +2143,7 @@
             "descriptionId": 1258,
             "rewardItemCount": 1,
             "bundleCount": 0,
-            "memberOnly": false,
+            "canHandCraft": false,
             "filterId": 0,
             "components": [{
                 "itemDefinitionId": 1438,
@@ -2167,7 +2167,7 @@
             "descriptionId": 1252,
             "rewardItemCount": 1,
             "bundleCount": 0,
-            "memberOnly": false,
+            "canHandCraft": false,
             "filterId": 0,
             "components": [{
                     "itemDefinitionId": 1371,
@@ -2214,7 +2214,7 @@
             "descriptionId": 9115,
             "rewardItemCount": 1,
             "bundleCount": 0,
-            "memberOnly": false,
+            "canHandCraft": false,
             "filterId": 0,
             "components": [{
                     "itemDefinitionId": 61,
@@ -2250,7 +2250,7 @@
             "descriptionId": 9115,
             "rewardItemCount": 1,
             "bundleCount": 0,
-            "memberOnly": false,
+            "canHandCraft": false,
             "filterId": 0,
             "components": [{
                     "itemDefinitionId": 1451,
@@ -2286,7 +2286,7 @@
             "descriptionId": 9115,
             "rewardItemCount": 1,
             "bundleCount": 0,
-            "memberOnly": false,
+            "canHandCraft": false,
             "filterId": 0,
             "components": [{
                     "itemDefinitionId": 1343,
@@ -2322,7 +2322,7 @@
             "descriptionId": 9115,
             "rewardItemCount": 1,
             "bundleCount": 0,
-            "memberOnly": false,
+            "canHandCraft": false,
             "filterId": 0,
             "components": [{
                     "itemDefinitionId": 117,
@@ -2358,7 +2358,7 @@
             "descriptionId": 1346,
             "rewardItemCount": 1,
             "bundleCount": 0,
-            "memberOnly": false,
+            "canHandCraft": false,
             "filterId": 0,
             "components": [{
                     "itemDefinitionId": 23,
@@ -2394,7 +2394,7 @@
             "descriptionId": 1357,
             "rewardItemCount": 1,
             "bundleCount": 0,
-            "memberOnly": false,
+            "canHandCraft": false,
             "filterId": 0,
             "components": [{
                     "itemDefinitionId": 111,
@@ -2441,7 +2441,7 @@
             "descriptionId": 1459,
             "rewardItemCount": 1,
             "bundleCount": 0,
-            "memberOnly": false,
+            "canHandCraft": false,
             "filterId": 0,
             "components": [{
                     "itemDefinitionId": 109,
@@ -2477,7 +2477,7 @@
             "descriptionId": 1366,
             "rewardItemCount": 1,
             "bundleCount": 0,
-            "memberOnly": false,
+            "canHandCraft": false,
             "filterId": 0,
             "components": [{
                     "itemDefinitionId": 109,
@@ -2513,7 +2513,7 @@
             "descriptionId": 1050,
             "rewardItemCount": 1,
             "bundleCount": 0,
-            "memberOnly": false,
+            "canHandCraft": false,
             "filterId": 0,
             "components": [{
                 "itemDefinitionId": 1535,
@@ -2537,7 +2537,7 @@
             "descriptionId": 1472,
             "rewardItemCount": 1,
             "bundleCount": 0,
-            "memberOnly": false,
+            "canHandCraft": false,
             "filterId": 0,
             "components": [{
                     "itemDefinitionId": 39,
@@ -2573,7 +2573,7 @@
             "descriptionId": 1483,
             "rewardItemCount": 1,
             "bundleCount": 0,
-            "memberOnly": false,
+            "canHandCraft": false,
             "filterId": 0,
             "components": [{
                     "itemDefinitionId": 23,
@@ -2620,7 +2620,7 @@
             "descriptionId": 1529,
             "rewardItemCount": 1,
             "bundleCount": 0,
-            "memberOnly": false,
+            "canHandCraft": false,
             "filterId": 0,
             "components": [{
                     "itemDefinitionId": 46,
@@ -2656,7 +2656,7 @@
             "descriptionId": 1537,
             "rewardItemCount": 1,
             "bundleCount": 0,
-            "memberOnly": false,
+            "canHandCraft": false,
             "filterId": 0,
             "components": [{
                     "itemDefinitionId": 23,
@@ -2692,7 +2692,7 @@
             "descriptionId": 11143,
             "rewardItemCount": 1,
             "bundleCount": 0,
-            "memberOnly": false,
+            "canHandCraft": false,
             "filterId": 0,
             "components": [{
                     "itemDefinitionId": 46,
@@ -2750,7 +2750,7 @@
             "descriptionId": 8894,
             "rewardItemCount": 1,
             "bundleCount": 0,
-            "memberOnly": false,
+            "canHandCraft": false,
             "filterId": 0,
             "components": [{
                     "itemDefinitionId": 57,
@@ -2797,7 +2797,7 @@
             "descriptionId": 8920,
             "rewardItemCount": 1,
             "bundleCount": 0,
-            "memberOnly": false,
+            "canHandCraft": false,
             "filterId": 0,
             "components": [{
                     "itemDefinitionId": 57,
@@ -2844,7 +2844,7 @@
             "descriptionId": 9038,
             "rewardItemCount": 1,
             "bundleCount": 0,
-            "memberOnly": false,
+            "canHandCraft": false,
             "filterId": 0,
             "components": [{
                     "itemDefinitionId": 9,
@@ -2880,7 +2880,7 @@
             "descriptionId": 349,
             "rewardItemCount": 1,
             "bundleCount": 0,
-            "memberOnly": false,
+            "canHandCraft": false,
             "filterId": 0,
             "components": [{
                     "itemDefinitionId": 46,
@@ -2916,7 +2916,7 @@
             "descriptionId": 11129,
             "rewardItemCount": 1,
             "bundleCount": 0,
-            "memberOnly": false,
+            "canHandCraft": false,
             "filterId": 0,
             "components": [{
                 "itemDefinitionId": 1890,
@@ -2940,7 +2940,7 @@
             "descriptionId": 9837,
             "rewardItemCount": 1,
             "bundleCount": 0,
-            "memberOnly": false,
+            "canHandCraft": false,
             "filterId": 0,
             "components": [{
                     "itemDefinitionId": 109,
@@ -2998,7 +2998,7 @@
             "descriptionId": 9856,
             "rewardItemCount": 1,
             "bundleCount": 0,
-            "memberOnly": false,
+            "canHandCraft": false,
             "filterId": 0,
             "components": [{
                     "itemDefinitionId": 46,
@@ -3034,7 +3034,7 @@
             "descriptionId": 9859,
             "rewardItemCount": 1,
             "bundleCount": 0,
-            "memberOnly": false,
+            "canHandCraft": false,
             "filterId": 0,
             "components": [{
                     "itemDefinitionId": 46,
@@ -3092,7 +3092,7 @@
             "descriptionId": 9860,
             "rewardItemCount": 1,
             "bundleCount": 0,
-            "memberOnly": false,
+            "canHandCraft": false,
             "filterId": 0,
             "components": [{
                     "itemDefinitionId": 46,
@@ -3139,7 +3139,7 @@
             "descriptionId": 9862,
             "rewardItemCount": 1,
             "bundleCount": 0,
-            "memberOnly": false,
+            "canHandCraft": false,
             "filterId": 0,
             "components": [{
                     "itemDefinitionId": 109,
@@ -3197,7 +3197,7 @@
             "descriptionId": 9867,
             "rewardItemCount": 1,
             "bundleCount": 0,
-            "memberOnly": false,
+            "canHandCraft": false,
             "filterId": 0,
             "components": [{
                 "itemDefinitionId": 47,
@@ -3221,7 +3221,7 @@
             "descriptionId": 9835,
             "rewardItemCount": 1,
             "bundleCount": 0,
-            "memberOnly": false,
+            "canHandCraft": false,
             "filterId": 0,
             "components": [{
                 "itemDefinitionId": 2,
@@ -3245,7 +3245,7 @@
             "descriptionId": 9835,
             "rewardItemCount": 1,
             "bundleCount": 0,
-            "memberOnly": false,
+            "canHandCraft": false,
             "filterId": 0,
             "components": [{
                 "itemDefinitionId": 10,
@@ -3269,7 +3269,7 @@
             "descriptionId": 9835,
             "rewardItemCount": 1,
             "bundleCount": 0,
-            "memberOnly": false,
+            "canHandCraft": false,
             "filterId": 0,
             "components": [{
                 "itemDefinitionId": 1373,
@@ -3293,7 +3293,7 @@
             "descriptionId": 9835,
             "rewardItemCount": 1,
             "bundleCount": 0,
-            "memberOnly": false,
+            "canHandCraft": false,
             "filterId": 0,
             "components": [{
                 "itemDefinitionId": 1718,
@@ -3317,7 +3317,7 @@
             "descriptionId": 9835,
             "rewardItemCount": 1,
             "bundleCount": 0,
-            "memberOnly": false,
+            "canHandCraft": false,
             "filterId": 0,
             "components": [{
                 "itemDefinitionId": 1734,
@@ -3341,7 +3341,7 @@
             "descriptionId": 9835,
             "rewardItemCount": 1,
             "bundleCount": 0,
-            "memberOnly": false,
+            "canHandCraft": false,
             "filterId": 0,
             "components": [{
                 "itemDefinitionId": 1991,
@@ -3365,7 +3365,7 @@
             "descriptionId": 9835,
             "rewardItemCount": 1,
             "bundleCount": 0,
-            "memberOnly": false,
+            "canHandCraft": false,
             "filterId": 0,
             "components": [{
                 "itemDefinitionId": 1997,
@@ -3389,7 +3389,7 @@
             "descriptionId": 9835,
             "rewardItemCount": 1,
             "bundleCount": 0,
-            "memberOnly": false,
+            "canHandCraft": false,
             "filterId": 0,
             "components": [{
                 "itemDefinitionId": 1374,
@@ -3413,7 +3413,7 @@
             "descriptionId": 9874,
             "rewardItemCount": 1,
             "bundleCount": 0,
-            "memberOnly": false,
+            "canHandCraft": false,
             "filterId": 0,
             "components": [{
                     "itemDefinitionId": 23,
@@ -3449,7 +3449,7 @@
             "descriptionId": 11105,
             "rewardItemCount": 1,
             "bundleCount": 0,
-            "memberOnly": false,
+            "canHandCraft": false,
             "filterId": 0,
             "components": [{
                     "itemDefinitionId": 109,
@@ -3507,7 +3507,7 @@
             "descriptionId": 11151,
             "rewardItemCount": 1,
             "bundleCount": 0,
-            "memberOnly": false,
+            "canHandCraft": false,
             "filterId": 0,
             "components": [{
                     "itemDefinitionId": 23,
@@ -3554,7 +3554,7 @@
             "descriptionId": 11153,
             "rewardItemCount": 1,
             "bundleCount": 0,
-            "memberOnly": false,
+            "canHandCraft": false,
             "filterId": 0,
             "components": [{
                     "itemDefinitionId": 23,
@@ -3612,7 +3612,7 @@
             "descriptionId": 11880,
             "rewardItemCount": 1,
             "bundleCount": 0,
-            "memberOnly": false,
+            "canHandCraft": false,
             "filterId": 0,
             "components": [{
                     "itemDefinitionId": 24,
@@ -3648,7 +3648,7 @@
             "descriptionId": 11965,
             "rewardItemCount": 1,
             "bundleCount": 0,
-            "memberOnly": false,
+            "canHandCraft": false,
             "filterId": 0,
             "components": [{
                     "itemDefinitionId": 46,
@@ -3695,7 +3695,7 @@
             "descriptionId": 12011,
             "rewardItemCount": 1,
             "bundleCount": 0,
-            "memberOnly": false,
+            "canHandCraft": false,
             "filterId": 0,
             "components": [{
                 "itemDefinitionId": 2244,
@@ -3719,7 +3719,7 @@
             "descriptionId": 12070,
             "rewardItemCount": 1,
             "bundleCount": 0,
-            "memberOnly": false,
+            "canHandCraft": false,
             "filterId": 0,
             "components": [{
                     "itemDefinitionId": 109,
@@ -3766,7 +3766,7 @@
             "descriptionId": 12071,
             "rewardItemCount": 1,
             "bundleCount": 0,
-            "memberOnly": false,
+            "canHandCraft": false,
             "filterId": 0,
             "components": [{
                     "itemDefinitionId": 109,
@@ -3813,7 +3813,7 @@
             "descriptionId": 9835,
             "rewardItemCount": 1,
             "bundleCount": 0,
-            "memberOnly": false,
+            "canHandCraft": false,
             "filterId": 0,
             "components": [{
                 "itemDefinitionId": 2229,
@@ -3837,7 +3837,7 @@
             "descriptionId": 12158,
             "rewardItemCount": 1,
             "bundleCount": 0,
-            "memberOnly": false,
+            "canHandCraft": false,
             "filterId": 0,
             "components": [{
                     "itemDefinitionId": 46,
@@ -3884,7 +3884,7 @@
             "descriptionId": 12154,
             "rewardItemCount": 1,
             "bundleCount": 0,
-            "memberOnly": false,
+            "canHandCraft": false,
             "filterId": 0,
             "components": [{
                     "itemDefinitionId": 16,
@@ -3942,7 +3942,7 @@
             "descriptionId": 636,
             "rewardItemCount": 1,
             "bundleCount": 0,
-            "memberOnly": false,
+            "canHandCraft": false,
             "filterId": 0,
             "components": [{
                     "itemDefinitionId": 23,
@@ -3989,7 +3989,7 @@
             "descriptionId": 9892,
             "rewardItemCount": 1,
             "bundleCount": 0,
-            "memberOnly": false,
+            "canHandCraft": false,
             "filterId": 0,
             "components": [{
                     "itemDefinitionId": 23,
@@ -4025,7 +4025,7 @@
             "descriptionId": 12031,
             "rewardItemCount": 1,
             "bundleCount": 0,
-            "memberOnly": false,
+            "canHandCraft": false,
             "filterId": 0,
             "components": [{
                 "itemDefinitionId": 23,
@@ -4049,7 +4049,7 @@
             "descriptionId": 12087,
             "rewardItemCount": 1,
             "bundleCount": 0,
-            "memberOnly": false,
+            "canHandCraft": false,
             "filterId": 0,
             "components": [{
                     "itemDefinitionId": 23,
@@ -4085,7 +4085,7 @@
             "descriptionId": 12234,
             "rewardItemCount": 1,
             "bundleCount": 0,
-            "memberOnly": false,
+            "canHandCraft": false,
             "filterId": 0,
             "components": [{
                     "itemDefinitionId": 2229,
@@ -4121,7 +4121,7 @@
             "descriptionId": 12269,
             "rewardItemCount": 1,
             "bundleCount": 0,
-            "memberOnly": false,
+            "canHandCraft": false,
             "filterId": 0,
             "components": [{
                     "itemDefinitionId": 114,
@@ -4157,7 +4157,7 @@
             "descriptionId": 12234,
             "rewardItemCount": 1,
             "bundleCount": 0,
-            "memberOnly": false,
+            "canHandCraft": false,
             "filterId": 0,
             "components": [{
                     "itemDefinitionId": 2419,
@@ -4193,7 +4193,7 @@
             "descriptionId": 20350,
             "rewardItemCount": 1,
             "bundleCount": 0,
-            "memberOnly": false,
+            "canHandCraft": false,
             "filterId": 0,
             "components": [{
                     "itemDefinitionId": 24,
@@ -4229,7 +4229,7 @@
             "descriptionId": 12447,
             "rewardItemCount": 1,
             "bundleCount": 0,
-            "memberOnly": false,
+            "canHandCraft": false,
             "filterId": 0,
             "components": [{
                     "itemDefinitionId": 1508,
@@ -4265,7 +4265,7 @@
             "descriptionId": 12446,
             "rewardItemCount": 1,
             "bundleCount": 0,
-            "memberOnly": false,
+            "canHandCraft": false,
             "filterId": 0,
             "components": [{
                     "itemDefinitionId": 1508,
@@ -4301,7 +4301,7 @@
             "descriptionId": 1451,
             "rewardItemCount": 1,
             "bundleCount": 0,
-            "memberOnly": false,
+            "canHandCraft": false,
             "filterId": 0,
             "components": [{
                     "itemDefinitionId": 1508,
@@ -4337,7 +4337,7 @@
             "descriptionId": 12450,
             "rewardItemCount": 1,
             "bundleCount": 0,
-            "memberOnly": false,
+            "canHandCraft": false,
             "filterId": 0,
             "components": [{
                     "itemDefinitionId": 2510,
@@ -4384,7 +4384,7 @@
             "descriptionId": 12448,
             "rewardItemCount": 1,
             "bundleCount": 0,
-            "memberOnly": false,
+            "canHandCraft": false,
             "filterId": 0,
             "components": [{
                     "itemDefinitionId": 2498,
@@ -4442,7 +4442,7 @@
             "descriptionId": 12440,
             "rewardItemCount": 1,
             "bundleCount": 0,
-            "memberOnly": false,
+            "canHandCraft": false,
             "filterId": 0,
             "components": [{
                     "itemDefinitionId": 77,
@@ -4511,7 +4511,7 @@
             "descriptionId": 12671,
             "rewardItemCount": 1,
             "bundleCount": 0,
-            "memberOnly": false,
+            "canHandCraft": false,
             "filterId": 0,
             "components": [{
                     "itemDefinitionId": 2611,
@@ -4547,7 +4547,7 @@
             "descriptionId": 12631,
             "rewardItemCount": 1,
             "bundleCount": 0,
-            "memberOnly": false,
+            "canHandCraft": false,
             "filterId": 0,
             "components": [{
                     "itemDefinitionId": 2635,
@@ -4583,7 +4583,7 @@
             "descriptionId": 12645,
             "rewardItemCount": 1,
             "bundleCount": 0,
-            "memberOnly": false,
+            "canHandCraft": false,
             "filterId": 0,
             "components": [{
                     "itemDefinitionId": 1510,
@@ -4641,7 +4641,7 @@
             "descriptionId": 12796,
             "rewardItemCount": 1,
             "bundleCount": 0,
-            "memberOnly": false,
+            "canHandCraft": false,
             "filterId": 0,
             "components": [{
                 "itemDefinitionId": 2722,
@@ -4665,7 +4665,7 @@
             "descriptionId": 12797,
             "rewardItemCount": 1,
             "bundleCount": 0,
-            "memberOnly": false,
+            "canHandCraft": false,
             "filterId": 0,
             "components": [{
                     "itemDefinitionId": 23,
@@ -4712,7 +4712,7 @@
             "descriptionId": 13981,
             "rewardItemCount": 1,
             "bundleCount": 0,
-            "memberOnly": false,
+            "canHandCraft": false,
             "filterId": 0,
             "components": [{
                     "itemDefinitionId": 2653,
@@ -4759,7 +4759,7 @@
             "descriptionId": 13981,
             "rewardItemCount": 1,
             "bundleCount": 0,
-            "memberOnly": false,
+            "canHandCraft": false,
             "filterId": 0,
             "components": [{
                     "itemDefinitionId": 2649,
@@ -4806,7 +4806,7 @@
             "descriptionId": 13981,
             "rewardItemCount": 1,
             "bundleCount": 0,
-            "memberOnly": false,
+            "canHandCraft": false,
             "filterId": 0,
             "components": [{
                     "itemDefinitionId": 2652,
@@ -4853,7 +4853,7 @@
             "descriptionId": 13981,
             "rewardItemCount": 1,
             "bundleCount": 0,
-            "memberOnly": false,
+            "canHandCraft": false,
             "filterId": 0,
             "components": [{
                     "itemDefinitionId": 2651,
@@ -4900,7 +4900,7 @@
             "descriptionId": 12986,
             "rewardItemCount": 1,
             "bundleCount": 0,
-            "memberOnly": false,
+            "canHandCraft": false,
             "filterId": 0,
             "components": [{
                     "itemDefinitionId": 14,
@@ -4936,7 +4936,7 @@
             "descriptionId": 13008,
             "rewardItemCount": 1,
             "bundleCount": 0,
-            "memberOnly": false,
+            "canHandCraft": false,
             "filterId": 0,
             "components": [{
                     "itemDefinitionId": 11,
@@ -4994,7 +4994,7 @@
             "descriptionId": 12981,
             "rewardItemCount": 1,
             "bundleCount": 0,
-            "memberOnly": false,
+            "canHandCraft": false,
             "filterId": 0,
             "components": [{
                     "itemDefinitionId": 2235,
@@ -5030,7 +5030,7 @@
             "descriptionId": 12984,
             "rewardItemCount": 1,
             "bundleCount": 0,
-            "memberOnly": false,
+            "canHandCraft": false,
             "filterId": 0,
             "components": [{
                     "itemDefinitionId": 2237,
@@ -5066,7 +5066,7 @@
             "descriptionId": 13030,
             "rewardItemCount": 1,
             "bundleCount": 0,
-            "memberOnly": false,
+            "canHandCraft": false,
             "filterId": 0,
             "components": [{
                     "itemDefinitionId": 46,
@@ -5124,7 +5124,7 @@
             "descriptionId": 13086,
             "rewardItemCount": 1,
             "bundleCount": 0,
-            "memberOnly": false,
+            "canHandCraft": false,
             "filterId": 0,
             "components": [{
                     "itemDefinitionId": 109,
@@ -5171,7 +5171,7 @@
             "descriptionId": 13307,
             "rewardItemCount": 1,
             "bundleCount": 0,
-            "memberOnly": false,
+            "canHandCraft": false,
             "filterId": 0,
             "components": [{
                     "itemDefinitionId": 3040,
@@ -5207,7 +5207,7 @@
             "descriptionId": 625,
             "rewardItemCount": 1,
             "bundleCount": 0,
-            "memberOnly": false,
+            "canHandCraft": false,
             "filterId": 0,
             "components": [{
                 "itemDefinitionId": 105,
@@ -5231,7 +5231,7 @@
             "descriptionId": 14148,
             "rewardItemCount": 1,
             "bundleCount": 0,
-            "memberOnly": false,
+            "canHandCraft": false,
             "filterId": 0,
             "components": [{
                     "itemDefinitionId": 1997,
@@ -5289,7 +5289,7 @@
             "descriptionId": 14140,
             "rewardItemCount": 1,
             "bundleCount": 0,
-            "memberOnly": false,
+            "canHandCraft": false,
             "filterId": 0,
             "components": [{
                     "itemDefinitionId": 2229,
@@ -5347,7 +5347,7 @@
             "descriptionId": 14155,
             "rewardItemCount": 1,
             "bundleCount": 0,
-            "memberOnly": false,
+            "canHandCraft": false,
             "filterId": 0,
             "components": [{
                     "itemDefinitionId": 1373,
@@ -5405,7 +5405,7 @@
             "descriptionId": 14142,
             "rewardItemCount": 1,
             "bundleCount": 1,
-            "memberOnly": false,
+            "canHandCraft": false,
             "filterId": 0,
             "components": [{
                     "itemDefinitionId": 10,
@@ -5463,7 +5463,7 @@
             "descriptionId": 14146,
             "rewardItemCount": 1,
             "bundleCount": 0,
-            "memberOnly": false,
+            "canHandCraft": false,
             "filterId": 0,
             "components": [{
                     "itemDefinitionId": 1374,
@@ -5521,7 +5521,7 @@
             "descriptionId": 14001,
             "rewardItemCount": 1,
             "bundleCount": 0,
-            "memberOnly": false,
+            "canHandCraft": false,
             "filterId": 0,
             "components": [{
                     "itemDefinitionId": 3471,
@@ -5557,7 +5557,7 @@
             "descriptionId": 14132,
             "rewardItemCount": 1,
             "bundleCount": 0,
-            "memberOnly": false,
+            "canHandCraft": false,
             "filterId": 0,
             "components": [{
                     "itemDefinitionId": 48,
@@ -5593,7 +5593,7 @@
             "descriptionId": 611,
             "rewardItemCount": 1,
             "bundleCount": 0,
-            "memberOnly": false,
+            "canHandCraft": false,
             "filterId": 0,
             "components": [{
                 "itemDefinitionId": 111,
