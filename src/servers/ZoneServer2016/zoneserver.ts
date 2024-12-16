@@ -2482,15 +2482,17 @@ export class ZoneServer2016 extends EventEmitter {
     if (client.vehicle.mountedVehicle) {
       const vehicle = this._vehicles[client.vehicle.mountedVehicle],
         container = vehicle?.getContainer(),
-        seatCount = vehicle.getPassengerList().length;
+        seatCount = vehicle.getPassengerList().length,
+        seatId = vehicle.getCharacterSeat(client.character.characterId);
       if (vehicle && container) {
         container.items = {
           ...container.items,
           ...client.character.getDeathItems(this)
         };
       }
-      if (!client.character.isAlive && seatCount == 1) {
+      if (seatCount == 1) {
         // unlock car if last passenger
+        vehicle.seats[seatId] = "";
         vehicle.setLockState(this, client, false);
       }
     } else {
