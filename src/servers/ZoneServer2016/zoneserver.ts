@@ -2489,7 +2489,7 @@ export class ZoneServer2016 extends EventEmitter {
           ...client.character.getDeathItems(this)
         };
       }
-      if (seatCount == 1) {
+      if (!client.character.isAlive && seatCount == 1) {
         // unlock car if last passenger
         vehicle.setLockState(this, client, false);
       }
