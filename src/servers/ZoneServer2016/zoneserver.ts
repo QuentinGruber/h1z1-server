@@ -2481,8 +2481,8 @@ export class ZoneServer2016 extends EventEmitter {
 
     if (client.vehicle.mountedVehicle) {
       const vehicle = this._vehicles[client.vehicle.mountedVehicle],
-        container = vehicle?.getContainer(),
-        occupantsCount = vehicle.getPassengerList().length;
+      container = vehicle?.getContainer(),
+      occupantsCount = vehicle.getPassengerList().length,
 
       if (vehicle && container) {
         container.items = {
@@ -2497,7 +2497,7 @@ export class ZoneServer2016 extends EventEmitter {
         this.once("killCharacterComplete", (client) => {
           this.dismountVehicle(client);
 
-          if (occupantsCount > 1) {
+          if (occupantsCount > 1 && vehicle.isLocked) {
             // lock the vehicle if there are other occupants in the vehicle, as dismountVehicle unlocks the vehicle
             vehicle.setLockState(this, client, true);
           }
