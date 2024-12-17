@@ -342,25 +342,27 @@ export const commandPackets: PacketStructures = [
     0x095000,
     {
       fields: [
-        { name: "unknownDword1", type: "uint32", defaultValue: 0 },
+        { name: "startIndex", type: "uint32", defaultValue: 0 }, // 1
         {
-          name: "unknownArray1",
+          name: "segments",
           type: "array",
+          defaultValue: [],
           fields: [
-            { name: "unknownDword1", type: "uint32", defaultValue: 0 },
-            { name: "unknownDword2", type: "uint32", defaultValue: 0 },
-            { name: "unknownDword3", type: "uint32", defaultValue: 0 },
-            { name: "unknownDword4", type: "float", defaultValue: 0 },
-            { name: "unknownDword5", type: "float", defaultValue: 0 },
+            { name: "startIndex", type: "uint32", defaultValue: 0 },
+            { name: "startModelId", type: "uint32", defaultValue: 0 },
+            { name: "endModelId", type: "uint32", defaultValue: 0 }, // same as above
+            { name: "unknownDword2", type: "uint32", defaultValue: 0 }, // gameTime?
+            { name: "unknownFloat1", type: "float", defaultValue: 0 },
             {
-              name: "position",
+              name: "endPosition",
               type: "floatvector4",
               defaultValue: [0, 0, 0, 0]
             },
-            { name: "unknownDword6", type: "uint32", defaultValue: 0 },
+            { name: "unknownDword3", type: "uint32", defaultValue: 0 },
             {
-              name: "unknownArray1",
+              name: "progressStages",
               type: "array",
+              defaultValue: [],
               fields: [
                 { name: "progress", type: "float", defaultValue: 0 },
                 {
@@ -380,13 +382,19 @@ export const commandPackets: PacketStructures = [
     0x095100,
     {
       fields: [
-        { name: "color", type: "uint16", defaultValue: 1 },
-        { name: "status", type: "uint16", defaultValue: 0 },
-        { name: "unkString", type: "string", defaultValue: "" }
+        { name: "deliveryAvailable", type: "uint16", defaultValue: 0 }, // treated as bool
+        { name: "status", type: "uint16", defaultValue: 0 }, // 0, 1, 2
+        { name: "unknownString1", type: "string", defaultValue: "" }
       ]
     }
   ],
-  ["Command.DeliveryManagerShowNotification", 0x095200, {}],
+  [
+    "Command.DeliveryManagerShowNotification",
+    0x095200,
+    {
+      fields: [{ name: "status", type: "uint16", defaultValue: 0 }]
+    }
+  ],
 
   /* GAP */
 
