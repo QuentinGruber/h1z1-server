@@ -2993,35 +2993,35 @@ export class ZoneServer2016 extends EventEmitter {
   async getOfflineClientByName(
     name: string
   ): Promise<string | Client | undefined> {
-    const characters = await this._db
-      .collection(DB_COLLECTIONS.CHARACTERS)
-      .find({
-        characterName: { $regex: `.*${name}.*`, $options: "i" }
-      })
-      .toArray();
-
-    for (const c of characters) {
-      const clientName = c.characterName?.toLowerCase().replaceAll(" ", "_");
-      if (!clientName) return;
-      if (clientName == name.toLowerCase()) {
-        const client = this.createClient(
-          -1,
-          "",
-          clientName,
-          c.characterId,
-          this.getTransientId(c.characterId)
-        );
-        client.character.name = c.characterName;
-        client.character.mutedCharacters = c.mutedCharacters;
-        return client;
-      } else if (
-        getDifference(name.toLowerCase(), clientName) <= 3 &&
-        getDifference(name.toLowerCase(), clientName) != 0
-      )
-        return c.characterName;
+    const c = await this._db.collection(DB_COLLECTIONS.CHARACTERS).findOne({
+      characterName: { $regex: `.*${name}.*`, $options: "i" },
+      status: 1,
+      serverId: this._worldId
+    });
+    if (!c) {
+      return;
     }
 
-    return undefined;
+    const clientName = c.characterName?.toLowerCase().replaceAll(" ", "_");
+    if (!clientName) return;
+    if (clientName == name.toLowerCase()) {
+      const client = this.createClient(
+        -1,
+        "",
+        clientName,
+        c.characterId,
+        this.getTransientId(c.characterId)
+      );
+      client.character.name = c.characterName;
+      client.character.mutedCharacters = c.mutedCharacters;
+      return client;
+    } else if (
+      getDifference(name.toLowerCase(), clientName) <= 3 &&
+      getDifference(name.toLowerCase(), clientName) != 0
+    )
+      return c.characterName;
+
+    return;
   }
 
   applyHelmetDamageReduction(
@@ -3479,7 +3479,7 @@ export class ZoneServer2016 extends EventEmitter {
   private shouldRemoveEntity(client: Client, entity: BaseEntity): boolean {
     return (
       entity && // in case if entity is undefined somehow
-      !(entity instanceof ConstructionParentEntity) &&
+      //!(entity instanceof ConstructionParentEntity) &&
       !(entity instanceof Vehicle2016) &&
       (this.filterOutOfDistance(entity, client.character.state.position) ||
         this.constructionManager.shouldHideEntity(this, client, entity))
@@ -5168,7 +5168,9 @@ export class ZoneServer2016 extends EventEmitter {
       }
       if (seatId === 0) {
         this.takeoverManagedObject(client, vehicle);
-        vehicle.startEngine(this);
+        if (vehicle.hasRequiredComponents(this) && !vehicle.engineOn) {
+          vehicle.startEngine(this);
+        }
         if (vehicle.getContainer()) {
           client.character.mountContainer(this, vehicle);
         }
