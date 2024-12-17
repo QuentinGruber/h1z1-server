@@ -2518,7 +2518,7 @@ export class ZoneServer2016 extends EventEmitter {
     this.sendKillFeed(client, damageInfo);
     if (client.vehicle.mountedVehicle) {
       // has to be called after sendKillFeed or the killed player will not get the respawn screen
-      this.dismountVehicle(client); 
+      this.dismountVehicle(client);
     }
     this.hookManager.checkHook("OnPlayerDied", client, damageInfo);
   }
