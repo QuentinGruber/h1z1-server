@@ -1766,6 +1766,10 @@ export class ZonePacketHandlers {
       const parent = doorEntity.getParentFoundation(server);
       if (!parent) return;
       if (parent.permissions[client.character.characterId]) return;
+      if (Object.keys(parent.permissions).length >= 12) {
+        server.sendAlert(client, "Permissions limit reached.");
+        return;
+      }
       parent.permissions[client.character.characterId] = {
         characterId: client.character.characterId,
         characterName: client.character.name,
