@@ -248,12 +248,9 @@ export class LoginServer extends EventEmitter {
                   break;
                 }
                 case "UpdateZonePopulation": {
-                  let { population } = packet.data;
+                  const { population } = packet.data;
 
                   const serverId = this._zoneConnections[client.clientId];
-                  if (this._loginQueues[serverId]?.length) {
-                    population += this._loginQueues[serverId].length;
-                  }
                   const serverData = await this._db
                     .collection(DB_COLLECTIONS.SERVERS)
                     .findOne({ serverId: serverId });
