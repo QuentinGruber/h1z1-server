@@ -5102,8 +5102,11 @@ export class ZoneServer2016 extends EventEmitter {
     );
     client.isInAir = false;
 
-    if (!seatId) {
+    // Check if there are no more passengers in the vehicle
+    if (vehicle.getPassengerList().length === 0) {
+      // Turn off the engine
       if (vehicle.engineOn) vehicle.stopEngine(this);
+      // Unlock the vehicle
       vehicle.isLocked = false;
     }
 
