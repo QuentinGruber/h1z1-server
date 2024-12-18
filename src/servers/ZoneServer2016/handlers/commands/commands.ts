@@ -1260,7 +1260,7 @@ export const commands: Array<Command> = [
       const heightInput = args[1];
       const height = heightInput !== undefined ? parseFloat(heightInput) : 50;
       if (isNaN(height)) {
-        server.sendAlert(
+        server.sendChatText(
           client,
           "Error: Please enter a valid number for the height."
         );
@@ -1275,7 +1275,7 @@ export const commands: Array<Command> = [
           newPosition[1] -= height;
           break;
         default:
-          server.sendAlert(
+          server.sendChatText(
             client,
             "Error: Invalid direction. Use 'up' or 'down'."
           );
@@ -1285,7 +1285,7 @@ export const commands: Array<Command> = [
         position: newPosition,
         triggerLoadingScreen: false
       });
-      server.sendAlert(client, `Moved ${direction} by ${height}.`);
+      server.sendChatText(client, `Moved ${direction} by ${height}`);
     }
   },
   {
@@ -1575,6 +1575,55 @@ export const commands: Array<Command> = [
         clientTriggered.vehicle.mountedVehicle = characterId;
       };
       server.worldObjectManager.createVehicle(server, vehicle, true);
+    }
+  },
+  {
+    name: "changemodel",
+    permissionLevel: PermissionLevels.ADMIN,
+    execute: async (
+      server: ZoneServer2016,
+      client: Client,
+      args: Array<string>
+    ) => {
+      if (args.length < 1) {
+        server.sendChatText(client, "Please specify a valid model ID.");
+        return;
+      }
+
+      const modelMap: { [key: string]: number } = {
+        deer: 9002,
+        buck: 9253,
+        wolf: 9003,
+        bear: 9187,
+        rabbit: 9212,
+        screamer: 9667,
+        zombie: 9510,
+        raven: 9230
+      };
+
+      let newModelId: number;
+      const input = args[0];
+
+      if (!isNaN(Number(input))) {
+        newModelId = Number(input);
+      } else if (Object.prototype.hasOwnProperty.call(modelMap, input)) {
+        newModelId = modelMap[input];
+      } else {
+        server.sendChatText(client, "Specify a valid model ID!");
+        return;
+      }
+
+      server.sendDataToAllWithSpawnedEntity(
+        server._characters,
+        client.character.characterId,
+        "Character.ReplaceBaseModel",
+        {
+          characterId: client.character.characterId,
+          modelId: newModelId
+        }
+      );
+
+      server.sendChatText(client, `Model changed to ID ${newModelId}`);
     }
   },
   {

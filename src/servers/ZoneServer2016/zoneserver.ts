@@ -1576,7 +1576,7 @@ export class ZoneServer2016 extends EventEmitter {
     client.character.hairModel = savedCharacter.hairModel || "";
     client.character.spawnGridData = savedCharacter.spawnGridData;
     client.character.mutedCharacters = savedCharacter.mutedCharacters || [];
-    client.character.groupId = savedCharacter.groupId || 0;
+    client.character.groupId = 0; //savedCharacter.groupId || 0;
     client.character.playTime = savedCharacter.playTime || 0;
     client.character.lastDropPlaytime = savedCharacter.lastDropPlayTime || 0;
 
@@ -2993,35 +2993,35 @@ export class ZoneServer2016 extends EventEmitter {
   async getOfflineClientByName(
     name: string
   ): Promise<string | Client | undefined> {
-    const characters = await this._db
-      .collection(DB_COLLECTIONS.CHARACTERS)
-      .find({
-        characterName: { $regex: `.*${name}.*`, $options: "i" }
-      })
-      .toArray();
-
-    for (const c of characters) {
-      const clientName = c.characterName?.toLowerCase().replaceAll(" ", "_");
-      if (!clientName) return;
-      if (clientName == name.toLowerCase()) {
-        const client = this.createClient(
-          -1,
-          "",
-          clientName,
-          c.characterId,
-          this.getTransientId(c.characterId)
-        );
-        client.character.name = c.characterName;
-        client.character.mutedCharacters = c.mutedCharacters;
-        return client;
-      } else if (
-        getDifference(name.toLowerCase(), clientName) <= 3 &&
-        getDifference(name.toLowerCase(), clientName) != 0
-      )
-        return c.characterName;
+    const c = await this._db.collection(DB_COLLECTIONS.CHARACTERS).findOne({
+      characterName: { $regex: `.*${name}.*`, $options: "i" },
+      status: 1,
+      serverId: this._worldId
+    });
+    if (!c) {
+      return;
     }
 
-    return undefined;
+    const clientName = c.characterName?.toLowerCase().replaceAll(" ", "_");
+    if (!clientName) return;
+    if (clientName == name.toLowerCase()) {
+      const client = this.createClient(
+        -1,
+        "",
+        clientName,
+        c.characterId,
+        this.getTransientId(c.characterId)
+      );
+      client.character.name = c.characterName;
+      client.character.mutedCharacters = c.mutedCharacters;
+      return client;
+    } else if (
+      getDifference(name.toLowerCase(), clientName) <= 3 &&
+      getDifference(name.toLowerCase(), clientName) != 0
+    )
+      return c.characterName;
+
+    return;
   }
 
   applyHelmetDamageReduction(
@@ -3223,7 +3223,7 @@ export class ZoneServer2016 extends EventEmitter {
         };
       }
     }
-    if (client.isFairPlayFlagged) {
+    /*if (client.isFairPlayFlagged) {
       this.sendChatTextToAdmins(
         `FairPlay: blocked projectile of flagged client: ${client.character.name}`,
         false
@@ -3232,7 +3232,7 @@ export class ZoneServer2016 extends EventEmitter {
         isValid: false,
         message: "InvalidFlag"
       };
-    }
+    }*/
     return ret;
   }
 
@@ -3479,7 +3479,7 @@ export class ZoneServer2016 extends EventEmitter {
   private shouldRemoveEntity(client: Client, entity: BaseEntity): boolean {
     return (
       entity && // in case if entity is undefined somehow
-      !(entity instanceof ConstructionParentEntity) &&
+      //!(entity instanceof ConstructionParentEntity) &&
       !(entity instanceof Vehicle2016) &&
       (this.filterOutOfDistance(entity, client.character.state.position) ||
         this.constructionManager.shouldHideEntity(this, client, entity))
@@ -5168,7 +5168,9 @@ export class ZoneServer2016 extends EventEmitter {
       }
       if (seatId === 0) {
         this.takeoverManagedObject(client, vehicle);
-        vehicle.startEngine(this);
+        if (vehicle.hasRequiredComponents(this) && !vehicle.engineOn) {
+          vehicle.startEngine(this);
+        }
         if (vehicle.getContainer()) {
           client.character.mountContainer(this, vehicle);
         }
@@ -7655,7 +7657,7 @@ export class ZoneServer2016 extends EventEmitter {
     if (weaponItem.weapon.ammoCount > 0) {
       weaponItem.weapon.ammoCount -= 1;
     }
-    if (!client.vehicle.mountedVehicle && this.fairPlayManager.fairPlayValues) {
+    /*if (!client.vehicle.mountedVehicle && this.fairPlayManager.fairPlayValues) {
       if (
         getDistance(client.character.state.position, packet.packet.position) >
         this.fairPlayManager.fairPlayValues?.maxPositionDesync
@@ -7673,8 +7675,8 @@ export class ZoneServer2016 extends EventEmitter {
           )}`
         );
       }
-    }
-    const drift = Math.abs(
+    }*/
+    /*const drift = Math.abs(
       packet.gameTime - getCurrentServerTimeWrapper().getTruncatedU32()
     );
     if (drift > this.fairPlayManager.maxPing + 200) {
@@ -7686,7 +7688,7 @@ export class ZoneServer2016 extends EventEmitter {
         `FairPlay: ${client.character.name}'s shot wasnt registered due to time drift by ${drift}`
       );
       return;
-    }
+    }*/
     const itemDefinition = this.getItemDefinition(weaponItem.itemDefinitionId);
     if (!itemDefinition) return;
     const weaponDefinitionId = itemDefinition.PARAM1;
