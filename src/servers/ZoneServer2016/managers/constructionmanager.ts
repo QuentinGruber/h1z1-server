@@ -2488,7 +2488,7 @@ export class ConstructionManager {
   ) {
     if (
       client.character.lastRepairTime &&
-      Date.now() - client.character.lastRepairTime < 1000
+      Date.now() - client.character.lastRepairTime < 15000
     ) {
       server.sendChatText(client, "Cooldown on repairing.");
       return;
