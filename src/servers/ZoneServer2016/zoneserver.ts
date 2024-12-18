@@ -2488,7 +2488,7 @@ export class ZoneServer2016 extends EventEmitter {
       if (vehicle && container) {
         container.items = {
           ...container.items,
-          ...client.character.getDeathItems(this),
+          ...client.character.getDeathItems(this)
         };
       }
     
