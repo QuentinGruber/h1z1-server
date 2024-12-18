@@ -3162,7 +3162,7 @@ export const containerLootSpawners: {
   },
   "Grossing Station": {
     spawnChance: 100,
-    maxItems: 3,
+    maxItems: 2,
     items: [
       {
         item: Items.SYRINGE_H1Z1_REDUCER,
