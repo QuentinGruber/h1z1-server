@@ -2740,7 +2740,7 @@ export const containerLootSpawners: {
   },
   "Drug Cabinets": {
     spawnChance: 100,
-    maxItems: 3,
+    maxItems: 2,
     items: [
       {
         item: Items.FIRST_AID,
@@ -2834,7 +2834,7 @@ export const containerLootSpawners: {
   },
   "Medical Station": {
     spawnChance: 100,
-    maxItems: 3,
+    maxItems: 2,
     items: [
       {
         item: Items.FIRST_AID,
@@ -3132,7 +3132,7 @@ export const containerLootSpawners: {
   },
   "Hospital Refrigerator": {
     spawnChance: 100,
-    maxItems: 3,
+    maxItems: 2,
     items: [
       {
         item: Items.SYRINGE_H1Z1_REDUCER,
@@ -3162,7 +3162,7 @@ export const containerLootSpawners: {
   },
   "Grossing Station": {
     spawnChance: 100,
-    maxItems: 3,
+    maxItems: 2,
     items: [
       {
         item: Items.SYRINGE_H1Z1_REDUCER,
