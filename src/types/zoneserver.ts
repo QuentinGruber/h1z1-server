@@ -13,7 +13,7 @@
 
 import { ConstructionParentEntity } from "servers/ZoneServer2016/entities/constructionparententity";
 import { ConstructionChildEntity } from "servers/ZoneServer2016/entities/constructionchildentity";
-import { FilterIds, HealTypes, Items } from "servers/ZoneServer2016/models/enums";
+import { FilterIds, HealTypes, Items, Recipes } from "servers/ZoneServer2016/models/enums";
 import { ConstructionDoor } from "servers/ZoneServer2016/entities/constructiondoor";
 import { LootableConstructionEntity } from "servers/ZoneServer2016/entities/lootableconstructionentity";
 import { LoadoutItem } from "servers/ZoneServer2016/classes/loadoutItem";
@@ -238,6 +238,18 @@ export interface Recipe {
   requireWorkbench?: boolean
   requireWeaponWorkbench?: boolean
   leftOverItems?: number[]
+}
+
+export interface Recipe2 {
+  recipeId: Recipes;
+  filterId: FilterIds;
+  bundleCount?: number;
+  canHandCraft: boolean;
+  components: Array<RecipeComponent>;
+  requireWorkbench?: boolean
+  requireWeaponWorkbench?: boolean
+  leftOverItems?: number[]
+  itemDefinitionId: number;
 }
 
 export interface ItemUseOption {

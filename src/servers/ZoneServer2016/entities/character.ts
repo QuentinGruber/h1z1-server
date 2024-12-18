@@ -21,6 +21,7 @@ import {
   LoadoutSlots,
   MaterialTypes,
   MeleeTypes,
+  Recipes,
   ResourceIds,
   ResourceIndicators,
   ResourceTypes,
@@ -37,6 +38,7 @@ import {
   HealType,
   positionUpdate,
   Recipe,
+  Recipe2,
   StanceFlags
 } from "../../../types/zoneserver";
 import {
@@ -75,6 +77,7 @@ import { ConstructionChildEntity } from "./constructionchildentity";
 import { ConstructionParentEntity } from "./constructionparententity";
 import { BaseEntity } from "./baseentity";
 const stats = require("../../../../data/2016/sampleData/stats.json");
+const recipeDiscoveries = require("../../../../data/2016/dataSources/ClientDiscoveries.json");
 
 interface CharacterStates {
   invincibility: boolean;
@@ -291,10 +294,12 @@ export class Character2016 extends BaseFullCharacter {
     characterId: ""
   };
   lastRepairTime: number = 0;
-  /** HashMap of all recipes on a server
-   * uses recipeId (number) for indexing
-   */
-  recipes: { [recipeId: number]: Recipe } = recipes;
+  // /** HashMap of all recipes on a server
+  //  * uses recipeId (number) for indexing
+  //  */
+  // recipes: { [recipeId: number]: Recipe } = recipes;
+
+  recipes: Recipe2[] = recipeDiscoveries.recipes;
 
   constructor(
     characterId: string,
@@ -402,16 +407,16 @@ export class Character2016 extends BaseFullCharacter {
   }
 
   pGetRecipes(server: ZoneServer2016): any[] {
-    const recipeKeys = Object.keys(this.recipes);
+    const recipeKeys = this.recipes;
 
     const recipes: Array<any> = [];
     let i = 0;
-    for (const recipe of Object.values(this.recipes)) {
-      const recipeDef = server.getItemDefinition(Number(recipeKeys[i]));
+    for (const recipe of recipeKeys) {
+      const recipeDef = server.getItemDefinition(recipe.itemDefinitionId);
       i++;
       if (!recipeDef) continue;
       recipes.push({
-        recipeId: recipeDef.ID,
+        recipeId: recipe.recipeId,
         itemDefinitionId: recipeDef.ID,
         nameId: recipeDef.NAME_ID,
         iconId: recipeDef.IMAGE_SET_ID,
@@ -419,7 +424,7 @@ export class Character2016 extends BaseFullCharacter {
         descriptionId: recipeDef.DESCRIPTION_ID,
         rewardItemCount: 1,
         bundleCount: recipe.bundleCount || 1,
-        canHandCraft: false, //recipe.canHandCraft, determines if item needs a furnace/campfire
+        canHandCraft: recipe.canHandCraft, // determines if item needs a furnace/campfire
         filterId: recipe.filterId,
         components: recipe.components
           .map((component: any) => {

@@ -507,42 +507,42 @@ const dev: any = {
     client: Client,
     args: Array<string>
   ) {
-    // spawn a zombie
-    const characterId = server.generateGuid();
-    const transient = server.getTransientId(characterId);
-    const zombie = new Npc(
-      characterId,
-      transient,
-      9510,
-      client.character.state.position,
-      client.character.state.rotation,
-      server
-    );
+    // // spawn a zombie
+    // const characterId = server.generateGuid();
+    // const transient = server.getTransientId(characterId);
+    // const zombie = new Npc(
+    //   characterId,
+    //   transient,
+    //   9510,
+    //   client.character.state.position,
+    //   client.character.state.rotation,
+    //   server
+    // );
 
-    server._npcs[characterId] = zombie;
-    server.aiManager.add_entity(zombie, zombie.entityType);
-    const a = server.navManager.createAgent(zombie.state.position);
-    zombie.navAgent = a;
+    // server._npcs[characterId] = zombie;
+    // server.aiManager.add_entity(zombie, zombie.entityType);
+    // const a = server.navManager.createAgent(zombie.state.position);
+    // zombie.navAgent = a;
 
-    await scheduler.wait(5000);
-    let retries = 0;
-    const interval = setInterval(() => {
-      retries++;
-      if (retries > 10) {
-        clearInterval(interval);
-      }
+    // await scheduler.wait(5000);
+    // let retries = 0;
+    // const interval = setInterval(() => {
+    //   retries++;
+    //   if (retries > 10) {
+    //     clearInterval(interval);
+    //   }
 
-      server.navManager.updt();
-      if (zombie.navAgent) {
-        zombie.navAgent.requestMoveTarget(
-          server.navManager.getClosestNavPoint(client.character.state.position)
-        );
-        console.log(zombie.navAgent.interpolatedPosition);
-        zombie.goTo(
-          NavManager.Vec3ToFloat32(zombie.navAgent.interpolatedPosition)
-        );
-      }
-    }, 500);
+    //   server.navManager.updt();
+    //   if (zombie.navAgent) {
+    //     zombie.navAgent.requestMoveTarget(
+    //       server.navManager.getClosestNavPoint(client.character.state.position)
+    //     );
+    //     console.log(zombie.navAgent.interpolatedPosition);
+    //     zombie.goTo(
+    //       NavManager.Vec3ToFloat32(zombie.navAgent.interpolatedPosition)
+    //     );
+    //   }
+    // }, 500);
   },
   abilities: function (
     server: ZoneServer2016,
