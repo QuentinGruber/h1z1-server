@@ -1223,6 +1223,13 @@ export class ConstructionManager {
 
     const position = parent.getSlotPosition(BuildingSlot, parent.wallSlots),
       rotation = parent.getSlotRotation(BuildingSlot, parent.wallSlots);
+    if (
+      position &&
+      (itemDefinitionId == Items.METAL_GATE ||
+        itemDefinitionId == Items.METAL_WALL ||
+        itemDefinitionId == Items.METAL_WALL_UPPER)
+    )
+      position[1] -= 0.1;
     if (!position || !rotation) {
       this.placementError(server, client, ConstructionErrors.UNKNOWN_SLOT);
       return false;
@@ -2481,7 +2488,7 @@ export class ConstructionManager {
   ) {
     if (
       client.character.lastRepairTime &&
-      Date.now() - client.character.lastRepairTime < 1000
+      Date.now() - client.character.lastRepairTime < 15000
     ) {
       server.sendChatText(client, "Cooldown on repairing.");
       return;
