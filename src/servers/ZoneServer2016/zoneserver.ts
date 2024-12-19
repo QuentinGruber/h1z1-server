@@ -7154,6 +7154,7 @@ export class ZoneServer2016 extends EventEmitter {
     let fuelValue = 0;
     let timeout = 0;
     let doReturn = true;
+
     for (const a in UseOptions) {
       if (
         UseOptions[a].itemDef == item.itemDefinitionId &&
@@ -7172,12 +7173,20 @@ export class ZoneServer2016 extends EventEmitter {
       );
       return;
     }
+
     const vehicle = this._vehicles[vehicleGuid];
+    if (!vehicle) {
+      this.sendChatText(client, "[ERROR] Vehicle not found!");
+      return;
+    }
     if (vehicle._resources[ResourceIds.FUEL] >= 10000) {
-      // prevent players from wasting fuel while being at 100%
       this.sendAlert(client, "Fuel tank is full!");
       return;
     }
+    if (vehicle.vehicleId == VehicleIds.ATV) {
+      fuelValue *= 2;
+    }
+
     this.utilizeHudTimer(client, nameId, timeout, animationId, () => {
       this.refuelVehiclePass(client, character, item, vehicleGuid, fuelValue);
     });
