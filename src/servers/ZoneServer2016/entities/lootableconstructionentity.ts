@@ -359,7 +359,8 @@ export class LootableConstructionEntity extends BaseLootableEntity {
   OnExplosiveHit(
     server: ZoneServer2016,
     sourceEntity: BaseEntity,
-    client?: ZoneClient2016
+    client?: ZoneClient2016,
+    useRaycast?: boolean
   ) {
     if (!isPosInRadius(2, this.state.position, sourceEntity.state.position))
       return;
@@ -380,13 +381,14 @@ export class LootableConstructionEntity extends BaseLootableEntity {
       );
       return;
     }
+    if (!useRaycast) {
+      const parent = this.getParent(server);
+      if (parent && parent.isSecured) {
+        if (!client) return;
+        server.constructionManager.sendBaseSecuredMessage(server, client);
 
-    const parent = this.getParent(server);
-    if (parent && parent.isSecured) {
-      if (!client) return;
-      server.constructionManager.sendBaseSecuredMessage(server, client);
-
-      return;
+        return;
+      }
     }
     server.constructionManager.checkConstructionDamage(
       server,
