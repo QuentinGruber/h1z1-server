@@ -147,7 +147,7 @@ export function constructContainers(
 }
 
 export class WorldDataManager {
-  private _db: any;
+  private _db!: Db;
   private _appDataFolder = getAppDataFolderPath();
   private _worldId: number = 0;
   private _soloMode: boolean = false;
@@ -382,16 +382,16 @@ export class WorldDataManager {
   //#region SERVER DATA
 
   async getServerData(serverId: number): Promise<ServerSaveData | null> {
-    let serverData: ServerSaveData;
+    let serverData: ServerSaveData | null;
     if (this._soloMode) {
       serverData = require(`${this._appDataFolder}/worlddata/world.json`);
-      if (!serverData.serverId) {
+      if (!serverData?.serverId) {
         debug("World data not found in file, aborting.");
         return null;
       }
     } else {
       serverData = await this._db
-        ?.collection(DB_COLLECTIONS.WORLDS)
+        ?.collection<ServerSaveData>(DB_COLLECTIONS.WORLDS)
         .findOne({ worldId: serverId });
       if (!serverData || !serverData.serverId) {
         debug("World data not found in mongo, aborting.");
@@ -1030,21 +1030,19 @@ export class WorldDataManager {
         JSON.stringify(constructions, null, 2)
       );
     } else {
+      await this._db.collection("construction_test").drop();
+      await this._db.collection("construction_test").insertMany(constructions);
       const collection = this._db?.collection(
         DB_COLLECTIONS.CONSTRUCTION
       ) as Collection;
-      const updatePromises = [];
       for (let i = 0; i < constructions.length; i++) {
         const construction = constructions[i];
-        updatePromises.push(
-          collection.replaceOne(
-            { characterId: construction.characterId, serverId: this._worldId },
-            construction,
-            { upsert: true }
-          )
+        await collection.replaceOne(
+          { characterId: construction.characterId, serverId: this._worldId },
+          construction,
+          { upsert: true }
         );
       }
-      await Promise.all(updatePromises);
       const allCharactersIds = constructions.map((construction) => {
         return construction.characterId;
       });
