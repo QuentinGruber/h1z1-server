@@ -182,13 +182,13 @@ export class ExplosiveEntity extends BaseLightweightCharacter {
     waitTime: number = 0,
     useRaycast: boolean = false
   ) {
-    if (this.isAwaitingExplosion) return
+    if (this.isAwaitingExplosion) return;
     this.isAwaitingExplosion = true;
     if (this.characterId == sourceEntity.characterId) return;
-      if (!useRaycast) {
-          if (getDistance(sourceEntity.state.position, this.state.position) >= 2)
-              return;
-      }
+    if (!useRaycast) {
+      if (getDistance(sourceEntity.state.position, this.state.position) >= 2)
+        return;
+    }
     await scheduler.wait(waitTime);
     if (server._spawnedItems[this.characterId]) {
       const itemObject = server._spawnedItems[this.characterId];
