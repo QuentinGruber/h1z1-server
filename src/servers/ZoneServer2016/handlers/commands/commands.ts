@@ -2299,6 +2299,10 @@ export const commands: Array<Command> = [
           client.character.equipLoadout(server, characterKitLoadout, true);
           break;
         case "parts":
+          client.character.equipItem(
+            server,
+            server.generateItem(Items.FANNY_PACK_DEV)
+          );
           client.character.equipLoadout(server, characterVehicleKit, true);
           break;
         case "skins":
