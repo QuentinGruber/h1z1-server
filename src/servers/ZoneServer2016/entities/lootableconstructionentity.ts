@@ -352,8 +352,11 @@ export class LootableConstructionEntity extends BaseLootableEntity {
       freePlaceDmgMultiplier = 2;
     }
     // 26 308 shots for freeplaced objects, 13 for parented objects
+
+    /* disable projectile damage for raycast
     const damage = damageInfo.damage * (3 * freePlaceDmgMultiplier);
     this.damage(server, { ...damageInfo, damage });
+    */
   }
 
   OnExplosiveHit(
