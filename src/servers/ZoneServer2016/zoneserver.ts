@@ -467,6 +467,7 @@ export class ZoneServer2016 extends EventEmitter {
   /*                          */
   navManager: NavManager;
   staticBuildings: AddSimpleNpc[] = require("../../../data/2016/sampleData/staticbuildings.json");
+  worldSaveFailed: boolean = false;
 
   constructor(
     serverPort: number,
@@ -902,7 +903,14 @@ export class ZoneServer2016 extends EventEmitter {
     if (currentTimeLeft < 0) {
       this.sendAlertToAll(`Server will shutdown now`);
       this.enableWorldSaves = false;
-      await this.saveWorld();
+      if (!this.worldSaveFailed) {
+        try {
+          await this.saveWorld();
+        } catch (e) {
+          console.error(e);
+          console.error("saving world failed on reboot");
+        }
+      }
       Object.values(this._clients).forEach((client: Client) => {
         this.sendData<CharacterSelectSessionResponse>(
           client,
@@ -1812,9 +1820,10 @@ export class ZoneServer2016 extends EventEmitter {
       this.nextSaveTime = Date.now() + this.saveTimeInterval;
       debug("World saved!");
     } catch (e) {
-      console.log(e);
-      this._isSaving = false;
-      this.sendChatTextToAdmins("World save failed!");
+      console.error(e);
+      this.worldSaveFailed = true;
+      this.sendAlertToAll("World save failed!");
+      this.shutdown(20, "World saving failed, rollback");
     }
   }
 
