@@ -34,6 +34,7 @@ import { Npc } from "../../entities/npc";
 import { ZoneClient2016 as Client } from "../../classes/zoneclient";
 import {
   characterBuildKitLoadout,
+  characterTestKitLoadout,
   characterSkinsLoadout,
   characterKitLoadout,
   characterVehicleKit
@@ -2333,7 +2334,7 @@ export const commands: Array<Command> = [
             server,
             server.generateItem(Items.FANNY_PACK_DEV)
           );
-          client.character.equipLoadout(server, characterBuildKitLoadout, true);
+        client.character.equipLoadout(server, characterTestKitLoadout, true);
       server.sendChatText(client, `Equipped test kit`);
     }
   },
