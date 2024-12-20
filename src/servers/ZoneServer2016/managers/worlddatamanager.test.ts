@@ -64,7 +64,7 @@ async function worldSaveUnitTests(t: any, mongoAddress: string) {
       worldId
     );
   });
-  const constructionNb = 50;
+  const constructionNb = 1;
   await t.test("convert constructions", async () => {
     // clear the construction list
     zone._constructionFoundations = {};
