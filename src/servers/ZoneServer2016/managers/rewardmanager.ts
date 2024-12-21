@@ -39,8 +39,8 @@ export class RewardManager {
       {
         itemId: AccountItems.REWARD_CRATE_INVITATIONAL,
         dropChances: 34
-      },
-      {
+      }
+      /*{
         itemId: AccountItems.REWARD_CRATE_INFERNAL,
         dropChances: 0
       },
@@ -79,7 +79,7 @@ export class RewardManager {
       {
         itemId: AccountItems.REWARD_CRATE_INVITATIONAL_2016,
         dropChances: 0
-      }
+      }*/
     ];
     this.playTimerewards = [
       {

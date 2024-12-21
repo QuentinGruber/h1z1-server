@@ -2328,7 +2328,7 @@ export const commands: Array<Command> = [
   },
   {
     name: "testkit",
-    permissionLevel: PermissionLevels.DEFAULT,
+    permissionLevel: PermissionLevels.ADMIN,
     execute: (server, client, args) => {
       client.character.equipItem(
         server,
