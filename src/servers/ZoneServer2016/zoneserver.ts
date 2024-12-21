@@ -2490,12 +2490,28 @@ export class ZoneServer2016 extends EventEmitter {
 
     if (client.vehicle.mountedVehicle) {
       const vehicle = this._vehicles[client.vehicle.mountedVehicle],
-        container = vehicle?.getContainer();
+      container = vehicle?.getContainer(),
+      occupantsCount = vehicle.getPassengerList().length,
+      lockedState = vehicle.isLocked;
+
       if (vehicle && container) {
         container.items = {
           ...container.items,
           ...client.character.getDeathItems(this)
         };
+      }
+    
+      // Check if character is dead
+      if (!client.character.isAlive) {
+        // Wait untill killCharacter is finished for dismountVehicle (if not, there will be no option for the dead occupant to respawn)
+        this.once("killCharacterComplete", (client) => {
+          this.dismountVehicle(client);
+
+          if (occupantsCount > 1 && lockedState) {
+            // lock the vehicle if there are other occupants in the vehicle, as dismountVehicle unlocks the vehicle
+            vehicle.setLockState(this, client, true);
+          }
+        });
       }
     } else {
       Object.values(client.character._loadout).forEach((slot: LoadoutItem) => {
@@ -2526,6 +2542,7 @@ export class ZoneServer2016 extends EventEmitter {
     this.clearInventory(client, false);
     this.sendKillFeed(client, damageInfo);
     this.hookManager.checkHook("OnPlayerDied", client, damageInfo);
+    this.emit("killCharacterComplete", client); // Throw emit for dismounting character from vehicle
   }
 
   sendKillFeed(client: Client, damageInfo: DamageInfo) {
@@ -5094,8 +5111,11 @@ export class ZoneServer2016 extends EventEmitter {
     );
     client.isInAir = false;
 
-    if (!seatId) {
+    // Check if there are no more passengers in the vehicle
+    if (vehicle.getPassengerList().length === 0) {
+      // Turn off the engine
       if (vehicle.engineOn) vehicle.stopEngine(this);
+      // Unlock the vehicle
       vehicle.isLocked = false;
     }
 
