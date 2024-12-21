@@ -40,7 +40,7 @@ function getMaxHealth(itemDefinitionId: Items): number {
     case Items.DEW_COLLECTOR:
       return 100000;
     default:
-      return 500000;
+      return 250000;
   }
 }
 
@@ -339,8 +339,9 @@ export class LootableConstructionEntity extends BaseLootableEntity {
 
     server.constructionManager.OnMeleeHit(server, damageInfo, this);
   }
-
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   OnProjectileHit(server: ZoneServer2016, damageInfo: DamageInfo) {
+    /* disable projectile damage for raycast
     if (this.isProp) return;
     let freePlaceDmgMultiplier = 1;
 
@@ -352,8 +353,10 @@ export class LootableConstructionEntity extends BaseLootableEntity {
       freePlaceDmgMultiplier = 2;
     }
     // 26 308 shots for freeplaced objects, 13 for parented objects
+
     const damage = damageInfo.damage * (3 * freePlaceDmgMultiplier);
     this.damage(server, { ...damageInfo, damage });
+    */
   }
 
   OnExplosiveHit(
