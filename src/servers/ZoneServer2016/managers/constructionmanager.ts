@@ -2679,27 +2679,28 @@ export class ConstructionManager {
     }
   }
 
-  sendBaseSecuredMessage(server: ZoneServer2016, client: Client, rayCastProtectionType: number = 0) {
-          switch (rayCastProtectionType) {
-              case 1:
-                  server.sendAlert(
-                      client,
-                      "Base protection unbroken, damage reduced"
-                  );
-                  return;
-              case 2:
-                  server.sendAlert(
-                      client,
-                      "You must destroy the base's gate before placing explosives inside."
-                  );
-                  return;
-              default:
-                  server.sendAlert(
-                      client,
-                      "You must destroy the base's gate before affecting interior structures."
-                  );
-                  return;
-          }
+  sendBaseSecuredMessage(
+    server: ZoneServer2016,
+    client: Client,
+    rayCastProtectionType: number = 0
+  ) {
+    switch (rayCastProtectionType) {
+      case 1:
+        server.sendAlert(client, "Base protection unbroken, damage reduced");
+        return;
+      case 2:
+        server.sendAlert(
+          client,
+          "You must destroy the base's gate before placing explosives inside."
+        );
+        return;
+      default:
+        server.sendAlert(
+          client,
+          "You must destroy the base's gate before affecting interior structures."
+        );
+        return;
+    }
   }
 
   checkConstructionDamage(

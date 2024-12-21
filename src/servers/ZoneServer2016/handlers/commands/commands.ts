@@ -2330,11 +2330,11 @@ export const commands: Array<Command> = [
     name: "testkit",
     permissionLevel: PermissionLevels.DEFAULT,
     execute: (server, client, args) => {
-          client.character.equipItem(
-            server,
-            server.generateItem(Items.FANNY_PACK_DEV)
-          );
-        client.character.equipLoadout(server, characterTestKitLoadout, true);
+      client.character.equipItem(
+        server,
+        server.generateItem(Items.FANNY_PACK_DEV)
+      );
+      client.character.equipLoadout(server, characterTestKitLoadout, true);
       server.sendChatText(client, `Equipped test kit`);
     }
   },
