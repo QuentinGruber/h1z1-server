@@ -467,6 +467,7 @@ export class ZoneServer2016 extends EventEmitter {
   /*                          */
   navManager: NavManager;
   staticBuildings: AddSimpleNpc[] = require("../../../data/2016/sampleData/staticbuildings.json");
+  worldSaveFailed: boolean = false;
 
   constructor(
     serverPort: number,
@@ -902,7 +903,14 @@ export class ZoneServer2016 extends EventEmitter {
     if (currentTimeLeft < 0) {
       this.sendAlertToAll(`Server will shutdown now`);
       this.enableWorldSaves = false;
-      await this.saveWorld();
+      if (!this.worldSaveFailed) {
+        try {
+          await this.saveWorld();
+        } catch (e) {
+          console.error(e);
+          console.error("saving world failed on reboot");
+        }
+      }
       Object.values(this._clients).forEach((client: Client) => {
         this.sendData<CharacterSelectSessionResponse>(
           client,
@@ -1576,7 +1584,7 @@ export class ZoneServer2016 extends EventEmitter {
     client.character.hairModel = savedCharacter.hairModel || "";
     client.character.spawnGridData = savedCharacter.spawnGridData;
     client.character.mutedCharacters = savedCharacter.mutedCharacters || [];
-    client.character.groupId = savedCharacter.groupId || 0;
+    client.character.groupId = 0; //savedCharacter.groupId || 0;
     client.character.playTime = savedCharacter.playTime || 0;
     client.character.lastDropPlaytime = savedCharacter.lastDropPlayTime || 0;
 
@@ -1812,9 +1820,10 @@ export class ZoneServer2016 extends EventEmitter {
       this.nextSaveTime = Date.now() + this.saveTimeInterval;
       debug("World saved!");
     } catch (e) {
-      console.log(e);
-      this._isSaving = false;
-      this.sendChatTextToAdmins("World save failed!");
+      console.error(e);
+      this.worldSaveFailed = true;
+      this.sendAlertToAll("World save failed!");
+      this.shutdown(20, "World saving failed, rollback");
     }
   }
 
@@ -2481,12 +2490,28 @@ export class ZoneServer2016 extends EventEmitter {
 
     if (client.vehicle.mountedVehicle) {
       const vehicle = this._vehicles[client.vehicle.mountedVehicle],
-        container = vehicle?.getContainer();
+        container = vehicle?.getContainer(),
+        occupantsCount = vehicle.getPassengerList().length,
+        lockedState = vehicle.isLocked;
+
       if (vehicle && container) {
         container.items = {
           ...container.items,
           ...client.character.getDeathItems(this)
         };
+      }
+
+      // Check if character is dead
+      if (!client.character.isAlive) {
+        // Wait untill killCharacter is finished for dismountVehicle (if not, there will be no option for the dead occupant to respawn)
+        this.once("killCharacterComplete", (client) => {
+          this.dismountVehicle(client);
+
+          if (occupantsCount > 1 && lockedState) {
+            // lock the vehicle if there are other occupants in the vehicle, as dismountVehicle unlocks the vehicle
+            vehicle.setLockState(this, client, true);
+          }
+        });
       }
     } else {
       Object.values(client.character._loadout).forEach((slot: LoadoutItem) => {
@@ -2517,6 +2542,7 @@ export class ZoneServer2016 extends EventEmitter {
     this.clearInventory(client, false);
     this.sendKillFeed(client, damageInfo);
     this.hookManager.checkHook("OnPlayerDied", client, damageInfo);
+    this.emit("killCharacterComplete", client); // Throw emit for dismounting character from vehicle
   }
 
   sendKillFeed(client: Client, damageInfo: DamageInfo) {
@@ -2993,35 +3019,35 @@ export class ZoneServer2016 extends EventEmitter {
   async getOfflineClientByName(
     name: string
   ): Promise<string | Client | undefined> {
-    const characters = await this._db
-      .collection(DB_COLLECTIONS.CHARACTERS)
-      .find({
-        characterName: { $regex: `.*${name}.*`, $options: "i" }
-      })
-      .toArray();
-
-    for (const c of characters) {
-      const clientName = c.characterName?.toLowerCase().replaceAll(" ", "_");
-      if (!clientName) return;
-      if (clientName == name.toLowerCase()) {
-        const client = this.createClient(
-          -1,
-          "",
-          clientName,
-          c.characterId,
-          this.getTransientId(c.characterId)
-        );
-        client.character.name = c.characterName;
-        client.character.mutedCharacters = c.mutedCharacters;
-        return client;
-      } else if (
-        getDifference(name.toLowerCase(), clientName) <= 3 &&
-        getDifference(name.toLowerCase(), clientName) != 0
-      )
-        return c.characterName;
+    const c = await this._db.collection(DB_COLLECTIONS.CHARACTERS).findOne({
+      characterName: { $regex: `.*${name}.*`, $options: "i" },
+      status: 1,
+      serverId: this._worldId
+    });
+    if (!c) {
+      return;
     }
 
-    return undefined;
+    const clientName = c.characterName?.toLowerCase().replaceAll(" ", "_");
+    if (!clientName) return;
+    if (clientName == name.toLowerCase()) {
+      const client = this.createClient(
+        -1,
+        "",
+        clientName,
+        c.characterId,
+        this.getTransientId(c.characterId)
+      );
+      client.character.name = c.characterName;
+      client.character.mutedCharacters = c.mutedCharacters;
+      return client;
+    } else if (
+      getDifference(name.toLowerCase(), clientName) <= 3 &&
+      getDifference(name.toLowerCase(), clientName) != 0
+    )
+      return c.characterName;
+
+    return;
   }
 
   applyHelmetDamageReduction(
@@ -3223,7 +3249,7 @@ export class ZoneServer2016 extends EventEmitter {
         };
       }
     }
-    if (client.isFairPlayFlagged) {
+    /*if (client.isFairPlayFlagged) {
       this.sendChatTextToAdmins(
         `FairPlay: blocked projectile of flagged client: ${client.character.name}`,
         false
@@ -3232,7 +3258,7 @@ export class ZoneServer2016 extends EventEmitter {
         isValid: false,
         message: "InvalidFlag"
       };
-    }
+    }*/
     return ret;
   }
 
@@ -3479,7 +3505,7 @@ export class ZoneServer2016 extends EventEmitter {
   private shouldRemoveEntity(client: Client, entity: BaseEntity): boolean {
     return (
       entity && // in case if entity is undefined somehow
-      !(entity instanceof ConstructionParentEntity) &&
+      //!(entity instanceof ConstructionParentEntity) &&
       !(entity instanceof Vehicle2016) &&
       (this.filterOutOfDistance(entity, client.character.state.position) ||
         this.constructionManager.shouldHideEntity(this, client, entity))
@@ -5085,8 +5111,11 @@ export class ZoneServer2016 extends EventEmitter {
     );
     client.isInAir = false;
 
-    if (!seatId) {
+    // Check if there are no more passengers in the vehicle
+    if (vehicle.getPassengerList().length === 0) {
+      // Turn off the engine
       if (vehicle.engineOn) vehicle.stopEngine(this);
+      // Unlock the vehicle
       vehicle.isLocked = false;
     }
 
@@ -5168,7 +5197,9 @@ export class ZoneServer2016 extends EventEmitter {
       }
       if (seatId === 0) {
         this.takeoverManagedObject(client, vehicle);
-        vehicle.startEngine(this);
+        if (vehicle.hasRequiredComponents(this) && !vehicle.engineOn) {
+          vehicle.startEngine(this);
+        }
         if (vehicle.getContainer()) {
           client.character.mountContainer(this, vehicle);
         }
@@ -6019,12 +6050,7 @@ export class ZoneServer2016 extends EventEmitter {
   lootCrateWithChance(client: Client, dropChance: number) {
     // dropChance ranges 0-1000
     if (chance(dropChance)) {
-      const rewards = this.rewardManager.rewards;
-      const randomIndex = randomIntFromInterval(0, rewards.length - 1);
-      const randomCrateId = rewards[randomIndex].itemId;
-      const randomCrate = this.generateItem(randomCrateId, 1, true);
-      if (!randomCrate) return;
-      this.lootAccountItem(this, client, randomCrate, true);
+      this.rewardManager.dropReward(client);
     }
   }
   /**
@@ -7152,6 +7178,7 @@ export class ZoneServer2016 extends EventEmitter {
     let fuelValue = 0;
     let timeout = 0;
     let doReturn = true;
+
     for (const a in UseOptions) {
       if (
         UseOptions[a].itemDef == item.itemDefinitionId &&
@@ -7170,12 +7197,20 @@ export class ZoneServer2016 extends EventEmitter {
       );
       return;
     }
+
     const vehicle = this._vehicles[vehicleGuid];
+    if (!vehicle) {
+      this.sendChatText(client, "[ERROR] Vehicle not found!");
+      return;
+    }
     if (vehicle._resources[ResourceIds.FUEL] >= 10000) {
-      // prevent players from wasting fuel while being at 100%
       this.sendAlert(client, "Fuel tank is full!");
       return;
     }
+    if (vehicle.vehicleId == VehicleIds.ATV) {
+      fuelValue *= 2;
+    }
+
     this.utilizeHudTimer(client, nameId, timeout, animationId, () => {
       this.refuelVehiclePass(client, character, item, vehicleGuid, fuelValue);
     });
@@ -7389,8 +7424,8 @@ export class ZoneServer2016 extends EventEmitter {
           explosive.state.position
         )
       ) {
-        await scheduler.wait(35);
         explosive.ignite(this, client);
+        return;
       }
     }
     for (const a in this._lootableConstruction) {
@@ -7655,7 +7690,7 @@ export class ZoneServer2016 extends EventEmitter {
     if (weaponItem.weapon.ammoCount > 0) {
       weaponItem.weapon.ammoCount -= 1;
     }
-    if (!client.vehicle.mountedVehicle && this.fairPlayManager.fairPlayValues) {
+    /*if (!client.vehicle.mountedVehicle && this.fairPlayManager.fairPlayValues) {
       if (
         getDistance(client.character.state.position, packet.packet.position) >
         this.fairPlayManager.fairPlayValues?.maxPositionDesync
@@ -7673,8 +7708,8 @@ export class ZoneServer2016 extends EventEmitter {
           )}`
         );
       }
-    }
-    const drift = Math.abs(
+    }*/
+    /*const drift = Math.abs(
       packet.gameTime - getCurrentServerTimeWrapper().getTruncatedU32()
     );
     if (drift > this.fairPlayManager.maxPing + 200) {
@@ -7686,7 +7721,7 @@ export class ZoneServer2016 extends EventEmitter {
         `FairPlay: ${client.character.name}'s shot wasnt registered due to time drift by ${drift}`
       );
       return;
-    }
+    }*/
     const itemDefinition = this.getItemDefinition(weaponItem.itemDefinitionId);
     if (!itemDefinition) return;
     const weaponDefinitionId = itemDefinition.PARAM1;

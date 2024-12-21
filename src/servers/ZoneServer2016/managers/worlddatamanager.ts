@@ -147,7 +147,7 @@ export function constructContainers(
 }
 
 export class WorldDataManager {
-  private _db: any;
+  private _db!: Db;
   private _appDataFolder = getAppDataFolderPath();
   private _worldId: number = 0;
   private _soloMode: boolean = false;
@@ -382,16 +382,16 @@ export class WorldDataManager {
   //#region SERVER DATA
 
   async getServerData(serverId: number): Promise<ServerSaveData | null> {
-    let serverData: ServerSaveData;
+    let serverData: ServerSaveData | null;
     if (this._soloMode) {
       serverData = require(`${this._appDataFolder}/worlddata/world.json`);
-      if (!serverData.serverId) {
+      if (!serverData?.serverId) {
         debug("World data not found in file, aborting.");
         return null;
       }
     } else {
       serverData = await this._db
-        ?.collection(DB_COLLECTIONS.WORLDS)
+        ?.collection<ServerSaveData>(DB_COLLECTIONS.WORLDS)
         .findOne({ worldId: serverId });
       if (!serverData || !serverData.serverId) {
         debug("World data not found in mongo, aborting.");
@@ -475,7 +475,7 @@ export class WorldDataManager {
         _containers: loadedCharacter._containers || {},
         _resources: loadedCharacter._resources || {},
         mutedCharacters: loadedCharacter.mutedCharacters || [],
-        groupId: loadedCharacter.groupId || 0,
+        groupId: 0, //loadedCharacter.groupId || 0,
         playTime: loadedCharacter.playTime ?? 0,
         lastDropPlayTime: loadedCharacter.lastDropPlayTime ?? 0,
         status: 1,
@@ -539,7 +539,7 @@ export class WorldDataManager {
       lastDropPlayTime: character.lastDropPlaytime,
       spawnGridData: character.spawnGridData,
       mutedCharacters: character.mutedCharacters,
-      groupId: character.groupId
+      groupId: 0 //character.groupId
     };
     return saveData;
   }
@@ -880,10 +880,19 @@ export class WorldDataManager {
     } else {
       constructionParents = <any>(
         await this._db
-          ?.collection("construction")
+          ?.collection(DB_COLLECTIONS.CONSTRUCTION)
           .find({ serverId: this._worldId })
           .toArray()
       );
+      if (!constructionParents.length) {
+        console.log("load backup due to empty construction collection");
+        constructionParents = <any>(
+          await this._db
+            ?.collection(DB_COLLECTIONS.CONSTRUCTION_BACKUP)
+            .find({ serverId: this._worldId })
+            .toArray()
+        );
+      }
     }
     return constructionParents;
   }
@@ -1033,25 +1042,15 @@ export class WorldDataManager {
       const collection = this._db?.collection(
         DB_COLLECTIONS.CONSTRUCTION
       ) as Collection;
-      const updatePromises = [];
-      for (let i = 0; i < constructions.length; i++) {
-        const construction = constructions[i];
-        updatePromises.push(
-          collection.replaceOne(
-            { characterId: construction.characterId, serverId: this._worldId },
-            construction,
-            { upsert: true }
-          )
-        );
-      }
-      await Promise.all(updatePromises);
-      const allCharactersIds = constructions.map((construction) => {
-        return construction.characterId;
-      });
+      const collectionBackup = this._db?.collection(
+        DB_COLLECTIONS.CONSTRUCTION_BACKUP
+      ) as Collection;
+      await collectionBackup.deleteMany({ serverId: this._worldId });
+      await collectionBackup.insertMany(structuredClone(constructions));
       await collection.deleteMany({
-        serverId: this._worldId,
-        characterId: { $nin: allCharactersIds }
+        serverId: this._worldId
       });
+      await collection.insertMany(constructions);
     }
   }
 
