@@ -2928,7 +2928,7 @@ export const containerLootSpawners: {
   },
   "Hospital Desk": {
     spawnChance: 100,
-    maxItems: 2,
+    maxItems: 3,
     items: [
       {
         item: Items.EMPTY_SPECIMEN_BAG,
@@ -3030,7 +3030,7 @@ export const containerLootSpawners: {
   },
   "Hospital Cabinets": {
     spawnChance: 100,
-    maxItems: 3,
+    maxItems: 2,
     items: [
       {
         item: Items.GAUZE,
