@@ -40,7 +40,7 @@ function getMaxHealth(itemDefinitionId: Items): number {
     case Items.DEW_COLLECTOR:
       return 100000;
     default:
-      return 500000;
+      return 250000;
   }
 }
 
