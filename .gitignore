@@ -6,3 +6,5 @@ benchmarks_out
 bin/*.exe
 .vs
 config.yaml
+/src/servers/ZoneServer2016/zoneserver.ts
+/src/servers/ZoneServer2016/managers/worldobjectmanager.ts
