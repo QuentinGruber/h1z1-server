@@ -423,13 +423,14 @@ export class ConstructionDoor extends DoorEntity {
     ) {
       return;
     }
-    if (!useRaycast) {
-      if (
-        server.constructionManager.isConstructionInSecuredArea(server, this)
-      ) {
+    if (server.constructionManager.isConstructionInSecuredArea(server, this)) {
+      if (useRaycast) {
         if (!client) return;
         server.constructionManager.sendBaseSecuredMessage(server, client);
-
+        return;
+      } else {
+        if (!client) return;
+        server.constructionManager.sendBaseSecuredMessage(server, client);
         return;
       }
     }
