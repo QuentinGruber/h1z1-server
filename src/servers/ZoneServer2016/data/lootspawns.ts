@@ -1243,11 +1243,11 @@ export const lootTables: { [lootSpawner: string]: LootSpawner } = {
 
   // #region FARM
   "ItemSpawnerFarm.adr": {
-    spawnChance: 90,
+    spawnChance: 40,
     items: [
       {
         item: Items.FERTILIZER,
-        weight: 25,
+        weight: 22,
         spawnCount: {
           min: 1,
           max: 1
@@ -2928,7 +2928,7 @@ export const containerLootSpawners: {
   },
   "Hospital Desk": {
     spawnChance: 100,
-    maxItems: 3,
+    maxItems: 2,
     items: [
       {
         item: Items.EMPTY_SPECIMEN_BAG,
@@ -3686,12 +3686,12 @@ export const containerLootSpawners: {
   },
   // used for crate props
   Crate_buffed: {
-    spawnChance: 60,
+    spawnChance: 30,
     maxItems: 1,
     items: [
       {
         item: Items.FERTILIZER,
-        weight: 25,
+        weight: 22,
         spawnCount: {
           min: 1,
           max: 1
