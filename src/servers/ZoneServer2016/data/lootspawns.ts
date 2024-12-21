@@ -3030,7 +3030,7 @@ export const containerLootSpawners: {
   },
   "Hospital Cabinets": {
     spawnChance: 100,
-    maxItems: 2,
+    maxItems: 3,
     items: [
       {
         item: Items.GAUZE,
