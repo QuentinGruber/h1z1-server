@@ -1790,7 +1790,7 @@ export class ConstructionManager {
       }
     }
     if (allowed) return false;
-    const bufferZone = 0.35;
+    const bufferZone = 0.15;
     const position = client.character.state.position;
     const positions: Float32Array[] = [];
 
