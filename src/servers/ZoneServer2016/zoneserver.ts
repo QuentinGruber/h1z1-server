@@ -2490,9 +2490,9 @@ export class ZoneServer2016 extends EventEmitter {
 
     if (client.vehicle.mountedVehicle) {
       const vehicle = this._vehicles[client.vehicle.mountedVehicle],
-      container = vehicle?.getContainer(),
-      occupantsCount = vehicle.getPassengerList().length,
-      lockedState = vehicle.isLocked;
+        container = vehicle?.getContainer(),
+        occupantsCount = vehicle.getPassengerList().length,
+        lockedState = vehicle.isLocked;
 
       if (vehicle && container) {
         container.items = {
@@ -2500,7 +2500,7 @@ export class ZoneServer2016 extends EventEmitter {
           ...client.character.getDeathItems(this)
         };
       }
-    
+
       // Check if character is dead
       if (!client.character.isAlive) {
         // Wait untill killCharacter is finished for dismountVehicle (if not, there will be no option for the dead occupant to respawn)
