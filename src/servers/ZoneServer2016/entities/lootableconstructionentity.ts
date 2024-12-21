@@ -339,7 +339,7 @@ export class LootableConstructionEntity extends BaseLootableEntity {
 
     server.constructionManager.OnMeleeHit(server, damageInfo, this);
   }
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   OnProjectileHit(server: ZoneServer2016, damageInfo: DamageInfo) {
     /* disable projectile damage for raycast
     if (this.isProp) return;
