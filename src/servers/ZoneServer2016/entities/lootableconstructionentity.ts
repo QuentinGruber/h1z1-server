@@ -339,8 +339,9 @@ export class LootableConstructionEntity extends BaseLootableEntity {
 
     server.constructionManager.OnMeleeHit(server, damageInfo, this);
   }
-
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars 
   OnProjectileHit(server: ZoneServer2016, damageInfo: DamageInfo) {
+    /* disable projectile damage for raycast
     if (this.isProp) return;
     let freePlaceDmgMultiplier = 1;
 
@@ -353,7 +354,6 @@ export class LootableConstructionEntity extends BaseLootableEntity {
     }
     // 26 308 shots for freeplaced objects, 13 for parented objects
 
-    /* disable projectile damage for raycast
     const damage = damageInfo.damage * (3 * freePlaceDmgMultiplier);
     this.damage(server, { ...damageInfo, damage });
     */
