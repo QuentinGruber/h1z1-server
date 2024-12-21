@@ -18,8 +18,15 @@ import { RewardManager } from "./rewardmanager";
 process.env.FORCE_DISABLE_WS = "true";
 test("RewardManager", { timeout: 10000 }, async (t) => {
   const rewardManager = new RewardManager(void 0 as any);
-  await t.test("Total chances", () => {
+  await t.test("Total chances rewards", () => {
     const totalChances = rewardManager["rewards"].reduce(
+      (sum, reward) => sum + reward.dropChances,
+      0
+    );
+    assert.strictEqual(totalChances, 100, "TotalChances should be 100%");
+  });
+  await t.test("Total chances playtimerewards", () => {
+    const totalChances = rewardManager["playTimerewards"].reduce(
       (sum, reward) => sum + reward.dropChances,
       0
     );

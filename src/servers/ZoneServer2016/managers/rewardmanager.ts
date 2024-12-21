@@ -115,6 +115,20 @@ export class RewardManager {
     }
   }
   dropReward(client: ZoneClient2016) {
+    let random = Math.random() * 100;
+    for (const reward of this.rewards) {
+      if (reward.dropChances === 0) {
+        continue;
+      }
+      random -= reward.dropChances;
+      if (random <= 0) {
+        const rewardId = reward.itemId;
+        this.addRewardToPlayer(client, rewardId);
+        break;
+      }
+    }
+  }
+  dropPlayTimeReward(client: ZoneClient2016) {
     client.character.lastDropPlaytime = client.character.playTime;
     if (isHalloween()) {
       const rewardId: AccountItems = AccountItems.REWARD_CRATE_INFERNAL;
@@ -144,7 +158,7 @@ export class RewardManager {
           (isHalloween() ? 60 : 120) &&
         isPosInPoi(client.character.state.position)
       ) {
-        this.dropReward(client);
+        this.dropPlayTimeReward(client);
       }
     }
   }
