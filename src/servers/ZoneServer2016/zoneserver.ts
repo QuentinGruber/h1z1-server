@@ -467,6 +467,7 @@ export class ZoneServer2016 extends EventEmitter {
   /*                          */
   navManager: NavManager;
   staticBuildings: AddSimpleNpc[] = require("../../../data/2016/sampleData/staticbuildings.json");
+  worldSaveFailed: boolean = false;
 
   constructor(
     serverPort: number,
@@ -902,7 +903,14 @@ export class ZoneServer2016 extends EventEmitter {
     if (currentTimeLeft < 0) {
       this.sendAlertToAll(`Server will shutdown now`);
       this.enableWorldSaves = false;
-      await this.saveWorld();
+      if (!this.worldSaveFailed) {
+        try {
+          await this.saveWorld();
+        } catch (e) {
+          console.error(e);
+          console.error("saving world failed on reboot");
+        }
+      }
       Object.values(this._clients).forEach((client: Client) => {
         this.sendData<CharacterSelectSessionResponse>(
           client,
@@ -1812,9 +1820,10 @@ export class ZoneServer2016 extends EventEmitter {
       this.nextSaveTime = Date.now() + this.saveTimeInterval;
       debug("World saved!");
     } catch (e) {
-      console.log(e);
-      this._isSaving = false;
-      this.sendChatTextToAdmins("World save failed!");
+      console.error(e);
+      this.worldSaveFailed = true;
+      this.sendAlertToAll("World save failed!");
+      this.shutdown(20, "World saving failed, rollback");
     }
   }
 
@@ -2993,35 +3002,35 @@ export class ZoneServer2016 extends EventEmitter {
   async getOfflineClientByName(
     name: string
   ): Promise<string | Client | undefined> {
-    const characters = await this._db
-      .collection(DB_COLLECTIONS.CHARACTERS)
-      .find({
-        characterName: { $regex: `.*${name}.*`, $options: "i" }
-      })
-      .toArray();
-
-    for (const c of characters) {
-      const clientName = c.characterName?.toLowerCase().replaceAll(" ", "_");
-      if (!clientName) return;
-      if (clientName == name.toLowerCase()) {
-        const client = this.createClient(
-          -1,
-          "",
-          clientName,
-          c.characterId,
-          this.getTransientId(c.characterId)
-        );
-        client.character.name = c.characterName;
-        client.character.mutedCharacters = c.mutedCharacters;
-        return client;
-      } else if (
-        getDifference(name.toLowerCase(), clientName) <= 3 &&
-        getDifference(name.toLowerCase(), clientName) != 0
-      )
-        return c.characterName;
+    const c = await this._db.collection(DB_COLLECTIONS.CHARACTERS).findOne({
+      characterName: { $regex: `.*${name}.*`, $options: "i" },
+      status: 1,
+      serverId: this._worldId
+    });
+    if (!c) {
+      return;
     }
 
-    return undefined;
+    const clientName = c.characterName?.toLowerCase().replaceAll(" ", "_");
+    if (!clientName) return;
+    if (clientName == name.toLowerCase()) {
+      const client = this.createClient(
+        -1,
+        "",
+        clientName,
+        c.characterId,
+        this.getTransientId(c.characterId)
+      );
+      client.character.name = c.characterName;
+      client.character.mutedCharacters = c.mutedCharacters;
+      return client;
+    } else if (
+      getDifference(name.toLowerCase(), clientName) <= 3 &&
+      getDifference(name.toLowerCase(), clientName) != 0
+    )
+      return c.characterName;
+
+    return;
   }
 
   applyHelmetDamageReduction(
@@ -3479,7 +3488,7 @@ export class ZoneServer2016 extends EventEmitter {
   private shouldRemoveEntity(client: Client, entity: BaseEntity): boolean {
     return (
       entity && // in case if entity is undefined somehow
-      !(entity instanceof ConstructionParentEntity) &&
+      //!(entity instanceof ConstructionParentEntity) &&
       !(entity instanceof Vehicle2016) &&
       (this.filterOutOfDistance(entity, client.character.state.position) ||
         this.constructionManager.shouldHideEntity(this, client, entity))
@@ -5168,7 +5177,9 @@ export class ZoneServer2016 extends EventEmitter {
       }
       if (seatId === 0) {
         this.takeoverManagedObject(client, vehicle);
-        vehicle.startEngine(this);
+        if (vehicle.hasRequiredComponents(this) && !vehicle.engineOn) {
+          vehicle.startEngine(this);
+        }
         if (vehicle.getContainer()) {
           client.character.mountContainer(this, vehicle);
         }
@@ -7152,6 +7163,7 @@ export class ZoneServer2016 extends EventEmitter {
     let fuelValue = 0;
     let timeout = 0;
     let doReturn = true;
+
     for (const a in UseOptions) {
       if (
         UseOptions[a].itemDef == item.itemDefinitionId &&
@@ -7170,12 +7182,20 @@ export class ZoneServer2016 extends EventEmitter {
       );
       return;
     }
+
     const vehicle = this._vehicles[vehicleGuid];
+    if (!vehicle) {
+      this.sendChatText(client, "[ERROR] Vehicle not found!");
+      return;
+    }
     if (vehicle._resources[ResourceIds.FUEL] >= 10000) {
-      // prevent players from wasting fuel while being at 100%
       this.sendAlert(client, "Fuel tank is full!");
       return;
     }
+    if (vehicle.vehicleId == VehicleIds.ATV) {
+      fuelValue *= 2;
+    }
+
     this.utilizeHudTimer(client, nameId, timeout, animationId, () => {
       this.refuelVehiclePass(client, character, item, vehicleGuid, fuelValue);
     });
