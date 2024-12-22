@@ -133,11 +133,6 @@
         "name": "Team Brazil T-Shirt",
         "itemDefinitionId": 3394,
         "rewardChance": 20
-      },
-      {
-        "name": "Team X T-Shirt",
-        "itemDefinitionId": 3387,
-        "rewardChance": 20
       }
     ]
   },
