@@ -5448,7 +5448,7 @@ export class ZoneServer2016 extends EventEmitter {
     let randomChance = Math.random() * totalChances;
     for (const rew of rewards) {
       if (randomChance < rew.rewardChance) {
-        return { reward: rew.itemDefinitionId, isRare: rew.rewardChance === 1 };
+        return { reward: rew.itemDefinitionId, isRare: rew.rewardChance <= 1 };
       }
       randomChance -= rew.rewardChance;
     }
