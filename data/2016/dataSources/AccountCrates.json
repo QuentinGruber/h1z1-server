@@ -75,73 +75,68 @@
     "itemDefinitionId": 1797,
     "rewards": [
       {
-        "name": "Camouflage Backpack",
-        "itemDefinitionId": 1806,
+        "name": "Twin Galaxies Hoodie",
+        "itemDefinitionId": 2888,
+        "rewardChance": 0.1
+      },
+      {
+        "name": "Twin Galaxies Warmup Pants",
+        "itemDefinitionId": 3876,
+        "rewardChance": 0.1
+      },
+      {
+        "name": "Skull Face Bandana",
+        "itemDefinitionId": 2306,
         "rewardChance": 1
       },
       {
-        "name": "Orange Racing Helmet",
-        "itemDefinitionId": 1828,
-        "rewardChance": 2
+        "name": "All American Face Bandana",
+        "itemDefinitionId": 2307,
+        "rewardChance": 1
       },
       {
-        "name": "Red and Blue Racing Helmet",
-        "itemDefinitionId": 1827,
-        "rewardChance": 2
-      },
-      {
-        "name": "Blue Camo Pants",
-        "itemDefinitionId": 2497,
-        "rewardChance": 5
-      },
-      {
-        "name": "Brown Camo Pants",
-        "itemDefinitionId": 1822,
-        "rewardChance": 5
-      },
-      {
-        "name": "Brown Flannel Shirt",
-        "itemDefinitionId": 1811,
+        "name": "Team China T-Shirt",
+        "itemDefinitionId": 3393,
         "rewardChance": 20
       },
       {
-        "name": "Red Polo Shirt",
-        "itemDefinitionId": 1829,
+        "name": "Team USA T-Shirt",
+        "itemDefinitionId": 3392,
         "rewardChance": 20
       },
       {
-        "name": "Tan Polo Shirt",
-        "itemDefinitionId": 1830,
+        "name": "Team Russia T-Shirt",
+        "itemDefinitionId": 3400,
         "rewardChance": 20
       },
       {
-        "name": "Tan Canvs Outback Hat",
-        "itemDefinitionId": 1812,
+        "name": "Team Japan T-Shirt",
+        "itemDefinitionId": 3399,
         "rewardChance": 20
       },
       {
-        "name": "Green Flannel Shirt",
-        "itemDefinitionId": 1809,
+        "name": "Team UK T-Shirt",
+        "itemDefinitionId": 3398,
         "rewardChance": 20
       },
       {
-        "name": "Blue Flannel Shirt",
-        "itemDefinitionId": 1810,
+        "name": "Team Korea T-Shirt",
+        "itemDefinitionId": 3397,
         "rewardChance": 20
       },
       {
-        "name": "Brown Leather Outback Hat",
-        "itemDefinitionId": 1818,
+        "name": "Team Australia T-Shirt",
+        "itemDefinitionId": 3395,
         "rewardChance": 20
       },
       {
-        "name": "Red Flannel Shirt",
-        "itemDefinitionId": 1817,
+        "name": "Team Brazil T-Shirt",
+        "itemDefinitionId": 3394,
         "rewardChance": 20
       },
       {
-        "name": "Tan Leather Outback Hat",
-        "itemDefinitionId": 1832,
+        "name": "Team X T-Shirt",
+        "itemDefinitionId": 3387,
         "rewardChance": 20
       }
     ]
@@ -3135,4 +3130,3 @@
     ]
   }
 ]
-
