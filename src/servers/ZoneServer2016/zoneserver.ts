@@ -2490,9 +2490,7 @@ export class ZoneServer2016 extends EventEmitter {
 
     if (client.vehicle.mountedVehicle) {
       const vehicle = this._vehicles[client.vehicle.mountedVehicle],
-        container = vehicle?.getContainer(),
-        occupantsCount = vehicle.getPassengerList().length,
-        lockedState = vehicle.isLocked;
+        container = vehicle?.getContainer();
 
       if (vehicle && container) {
         container.items = {
@@ -2506,11 +2504,6 @@ export class ZoneServer2016 extends EventEmitter {
         // Wait untill killCharacter is finished for dismountVehicle (if not, there will be no option for the dead occupant to respawn)
         this.once("killCharacterComplete", (client) => {
           this.dismountVehicle(client);
-
-          if (occupantsCount > 1 && lockedState) {
-            // lock the vehicle if there are other occupants in the vehicle, as dismountVehicle unlocks the vehicle
-            vehicle.setLockState(this, client, true);
-          }
         });
       }
     } else {
