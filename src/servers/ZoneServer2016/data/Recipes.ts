@@ -1486,7 +1486,7 @@ export const recipes: { [recipeId: number]: Recipe } = {
   // probably subject to change in the future
   [Items.GUN_PART]: {
     filterId: FilterIds.WEAPONS,
-    bundleCount: 4,
+    bundleCount: 2,
     splitted: true,
     components: [
       {
@@ -1495,6 +1495,30 @@ export const recipes: { [recipeId: number]: Recipe } = {
       },
       {
         itemDefinitionId: Items.WEAPON_SHOTGUN,
+        requiredAmount: 1
+      },
+      {
+        itemDefinitionId: Items.WEAPON_M9,
+        requiredAmount: 1
+      },
+      {
+        itemDefinitionId: Items.WEAPON_308,
+        requiredAmount: 1
+      },
+      {
+        itemDefinitionId: Items.WEAPON_1911,
+        requiredAmount: 1
+      },
+      {
+        itemDefinitionId: Items.WEAPON_AK47,
+        requiredAmount: 1
+      },
+      {
+        itemDefinitionId: Items.WEAPON_R380,
+        requiredAmount: 1
+      },
+      {
+        itemDefinitionId: Items.WEAPON_MAGNUM,
         requiredAmount: 1
       }
     ]
