@@ -406,40 +406,79 @@ export class Character2016 extends BaseFullCharacter {
 
     const recipes: Array<any> = [];
     let i = 0;
+    let id = 1;
     for (const recipe of Object.values(this.recipes)) {
       const recipeDef = server.getItemDefinition(Number(recipeKeys[i]));
       i++;
       if (!recipeDef) continue;
-      recipes.push({
-        recipeId: recipeDef.ID,
-        itemDefinitionId: recipeDef.ID,
-        nameId: recipeDef.NAME_ID,
-        iconId: recipeDef.IMAGE_SET_ID,
-        unknownDword1: 0, // idk
-        descriptionId: recipeDef.DESCRIPTION_ID,
-        unknownDword2: 1, // idk
-        bundleCount: recipe.bundleCount || 1,
-        membersOnly: false, // could be used for admin-only recipes?
-        filterId: recipe.filterId,
-        components: recipe.components
-          .map((component: any) => {
-            const componentDef = server.getItemDefinition(
-              component.itemDefinitionId
-            );
-            if (!componentDef) return true;
-            return {
-              unknownDword1: 0, // idk
-              nameId: componentDef.NAME_ID,
-              iconId: componentDef.IMAGE_SET_ID,
-              unknownDword2: 0, // idk
-              requiredAmount: component.requiredAmount,
-              unknownQword1: "0x0", // idk
-              unknownDword3: 0, // idk
-              itemDefinitionId: componentDef.ID
-            };
-          })
-          .filter((component) => component !== true)
-      });
+      if (recipe.splitted) {
+        for (let y = 0; y < recipe.components.length; y++) {
+          recipes.push({
+            recipeId: id++,
+            itemDefinitionId: recipeDef.ID,
+            nameId: recipeDef.NAME_ID,
+            iconId: recipeDef.IMAGE_SET_ID,
+            unknownDword1: 0, // idk
+            descriptionId: recipeDef.DESCRIPTION_ID,
+            unknownDword2: 2, // idk
+            bundleCount: recipe.bundleCount || 1,
+            membersOnly: false, // could be used for admin-only recipes?
+            filterId: recipe.filterId,
+            components: recipe.components
+              .map((component: any, index) => {
+                if (y !== index) {
+                  return true;
+                }
+                const componentDef = server.getItemDefinition(
+                  component.itemDefinitionId
+                );
+                if (!componentDef) return true;
+                return {
+                  unknownDword1: 0, // idk
+                  nameId: componentDef.NAME_ID,
+                  iconId: componentDef.IMAGE_SET_ID,
+                  unknownDword2: 0, // idk
+                  requiredAmount: component.requiredAmount,
+                  unknownQword1: "0x0", // idk
+                  unknownDword3: 0, // idk
+                  itemDefinitionId: componentDef.ID
+                };
+              })
+              .filter((component) => component !== true)
+          });
+        }
+      } else {
+        recipes.push({
+          recipeId: id++,
+          itemDefinitionId: recipeDef.ID,
+          nameId: recipeDef.NAME_ID,
+          iconId: recipeDef.IMAGE_SET_ID,
+          unknownDword1: 0, // idk
+          descriptionId: recipeDef.DESCRIPTION_ID,
+          unknownDword2: 1, // idk
+          bundleCount: recipe.bundleCount || 1,
+          membersOnly: false, // could be used for admin-only recipes?
+          filterId: recipe.filterId,
+          components: recipe.components
+            .map((component: any) => {
+              const componentDef = server.getItemDefinition(
+                component.itemDefinitionId
+              );
+              if (!componentDef) return true;
+              return {
+                unknownDword1: 0, // idk
+                nameId: componentDef.NAME_ID,
+                iconId: componentDef.IMAGE_SET_ID,
+                unknownDword2: 0, // idk
+                requiredAmount: component.requiredAmount,
+                unknownQword1: "0x0", // idk
+                unknownDword3: 0, // idk
+                itemDefinitionId: componentDef.ID
+              };
+            })
+            .filter((component) => component !== true)
+        });
+      }
     }
 
     return recipes;

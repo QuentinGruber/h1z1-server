@@ -235,6 +235,7 @@ export interface Recipe {
   filterId: FilterIds;
   bundleCount?: number;
   components: Array<RecipeComponent>;
+  splitted?: boolean;
   requireWorkbench?: boolean
   requireWeaponWorkbench?: boolean
   leftOverItems?: number[]

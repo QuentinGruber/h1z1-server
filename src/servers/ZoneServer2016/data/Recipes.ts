@@ -1487,9 +1487,14 @@ export const recipes: { [recipeId: number]: Recipe } = {
   [Items.GUN_PART]: {
     filterId: FilterIds.WEAPONS,
     bundleCount: 4,
+    splitted: true,
     components: [
       {
         itemDefinitionId: Items.WEAPON_AR15,
+        requiredAmount: 1
+      },
+      {
+        itemDefinitionId: Items.WEAPON_SHOTGUN,
         requiredAmount: 1
       }
     ]
