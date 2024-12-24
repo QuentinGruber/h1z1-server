@@ -365,7 +365,7 @@ export class CraftManager {
    * Crafts an item using the given recipe and adds it to the client's inventory.
    * @param server The ZoneServer2016 instance.
    * @param client The client performing the craft.
-   * @param itemId The ID of the recipe being crafted.
+   * @param itemId The ID of the item being crafted.
    * @param recipeCount The number of times to repeat the recipe.
    * @returns A promise resolving to a boolean indicating if the crafting process was successful.
    */
