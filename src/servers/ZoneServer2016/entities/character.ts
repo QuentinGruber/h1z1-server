@@ -70,7 +70,7 @@ import {
   EXTERNAL_CONTAINER_GUID,
   LOADOUT_CONTAINER_ID
 } from "../../../utils/constants";
-import { recipes } from "../data/Recipes";
+import { recipes as recipesSource } from "../data/Recipes";
 import { ConstructionChildEntity } from "./constructionchildentity";
 import { ConstructionParentEntity } from "./constructionparententity";
 import { BaseEntity } from "./baseentity";
@@ -294,7 +294,7 @@ export class Character2016 extends BaseFullCharacter {
   /** HashMap of all recipes on a server
    * uses recipeId (number) for indexing
    */
-  recipes: { [recipeId: number]: Recipe } = recipes;
+  recipes: { [recipeId: number]: Recipe } = {};
 
   constructor(
     characterId: string,
@@ -309,6 +309,24 @@ export class Character2016 extends BaseFullCharacter {
       new Float32Array([0, 0, 0, 1]),
       server
     );
+
+    console.time("genreceipe");
+    // i'm sorry - kentin
+    let id = 1;
+    for (const key in recipesSource) {
+      const source = recipesSource[key];
+      source.itemId = Number(key);
+      if (source.splitted) {
+        for (let i = 0; i < source.components.length; i++) {
+          const dupeSource = structuredClone(source);
+          dupeSource.components = [source.components[i]];
+          this.recipes[id++] = dupeSource;
+        }
+      } else {
+        this.recipes[id++] = source;
+      }
+    }
+    console.timeEnd("genreceipe");
 
     /** The distance at which the character will render, exceeding the renderDistance and the object renders away */
     this.npcRenderDistance = 310;
@@ -402,14 +420,10 @@ export class Character2016 extends BaseFullCharacter {
   }
 
   pGetRecipes(server: ZoneServer2016): any[] {
-    const recipeKeys = Object.keys(this.recipes);
-
     const recipes: Array<any> = [];
-    let i = 0;
     let id = 1;
     for (const recipe of Object.values(this.recipes)) {
-      const recipeDef = server.getItemDefinition(Number(recipeKeys[i]));
-      i++;
+      const recipeDef = server.getItemDefinition(Number(recipe.itemId));
       if (!recipeDef) continue;
       if (recipe.splitted) {
         for (let y = 0; y < recipe.components.length; y++) {
