@@ -310,7 +310,6 @@ export class Character2016 extends BaseFullCharacter {
       server
     );
 
-    console.time("genreceipe");
     // i'm sorry - kentin
     let id = 1;
     for (const key in recipesSource) {
@@ -326,7 +325,6 @@ export class Character2016 extends BaseFullCharacter {
         this.recipes[id++] = source;
       }
     }
-    console.timeEnd("genreceipe");
 
     /** The distance at which the character will render, exceeding the renderDistance and the object renders away */
     this.npcRenderDistance = 310;
