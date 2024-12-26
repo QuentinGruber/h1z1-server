@@ -1382,8 +1382,8 @@ export const lootTables: { [lootSpawner: string]: LootSpawner } = {
         }
       },
       {
-        item: Items.DOCTORS_MEMO,
-        weight: 10,
+        item: Items.COLD_MEDICINE,
+        weight: 25,
         spawnCount: {
           min: 1,
           max: 1
