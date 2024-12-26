@@ -6,3 +6,5 @@ benchmarks_out
 bin/*.exe
 .vs
 config.yaml
+/data/2016/dataSources/AcctItemConversions.json
+/data/2016/dataSources/ServerItemDefinitions.json
