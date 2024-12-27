@@ -164,7 +164,7 @@ export class WorldObjectManager {
     for (const characterId in server._npcs) {
       if (counter > 30) {
         counter = 0;
-        await scheduler.wait(30);
+        //await scheduler.wait(30);
       }
       counter++;
       const npc = server._npcs[characterId];
@@ -194,7 +194,7 @@ export class WorldObjectManager {
     for (const characterId in server._spawnedItems) {
       if (counter > 100) {
         counter = 0;
-        await scheduler.wait(30);
+        //await scheduler.wait(30);
       }
       counter++;
       const itemObject = server._spawnedItems[characterId];
@@ -720,7 +720,7 @@ export class WorldObjectManager {
     for (const a in server._taskProps) {
       if (counter > 9) {
         counter = 0;
-        await scheduler.wait(60);
+        //await scheduler.wait(60);
       }
       counter++;
       const propInstance = server._taskProps[a];
@@ -907,7 +907,7 @@ export class WorldObjectManager {
         for (const a in server._npcs) {
           if (counter > 150) {
             counter = 0;
-            await scheduler.wait(30);
+            //await scheduler.wait(30);
           }
           counter++;
           if (!server._npcs[a]) continue;
@@ -960,7 +960,7 @@ export class WorldObjectManager {
         for (const itemInstance of spawnerType.instances) {
           if (counter > 9) {
             counter = 0;
-            await scheduler.wait(60);
+            //await scheduler.wait(60);
           }
           counter++;
           if (this.spawnedLootObjects[itemInstance.id]) continue;
@@ -1006,7 +1006,7 @@ export class WorldObjectManager {
     for (const a in server._lootableProps) {
       if (counter > 100) {
         counter = 0;
-        await scheduler.wait(30); // Await the wait function to pause
+        //await scheduler.wait(30); // Await the wait function to pause
       }
       counter++;
       const prop = server._lootableProps[a] as BaseFullCharacter;
@@ -1215,7 +1215,7 @@ export class WorldObjectManager {
     for (const a in server._lootableProps) {
       if (counter > 9) {
         counter = 0;
-        await scheduler.wait(60); // Await the wait function to pause
+        //await scheduler.wait(60); // Await the wait function to pause
       }
       counter++;
       const prop = server._lootableProps[a] as LootableProp;

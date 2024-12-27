@@ -807,7 +807,7 @@ export class ZonePacketHandlers {
     client: Client,
     packet: ReceivedPacket<ClientLog>
   ) {
-    const message = packet.data.message || "";
+    /*const message = packet.data.message || "";
     if (
       packet.data.file ===
         server.fairPlayManager.fairPlayValues?.requiredFile2 &&
@@ -843,7 +843,7 @@ export class ZonePacketHandlers {
       }
       client.clientLogs.push(obj);
     }
-    debug(packet);
+    debug(packet);*/
   }
   WallOfDataUIEvent(
     server: ZoneServer2016,
