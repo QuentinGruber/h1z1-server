@@ -101,7 +101,7 @@ const carparts = [
 export const lootTables: { [lootSpawner: string]: LootSpawner } = {
   // #region AR15
   "ItemSpawner_Weapon_M16A4.adr": {
-    spawnChance: 20,
+    spawnChance: 75,
     items: [
       {
         item: Items.WEAPON_AR15,
@@ -143,7 +143,7 @@ export const lootTables: { [lootSpawner: string]: LootSpawner } = {
 
   // #region SHOTGUN
   "ItemSpawner_Weapon_PumpShotgun01.adr": {
-    spawnChance: 20,
+    spawnChance: 75,
     items: [
       {
         item: Items.WEAPON_SHOTGUN,
@@ -391,7 +391,7 @@ export const lootTables: { [lootSpawner: string]: LootSpawner } = {
 
   // #region 308 RIFLE
   "ItemSpawner_Weapon_M24.adr": {
-    spawnChance: 20,
+    spawnChance: 75,
     items: [
       {
         item: Items.WEAPON_308,
