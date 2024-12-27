@@ -1088,7 +1088,7 @@ export const recipes: { [recipeId: number]: Recipe } = {
     ]
   },
   [Items.FOUNDATION]: {
-    filterId: FilterIds.SURVIVAL,
+    filterId: FilterIds.HOUSING,
     components: [
       {
         itemDefinitionId: Items.WOOD_LOG,
