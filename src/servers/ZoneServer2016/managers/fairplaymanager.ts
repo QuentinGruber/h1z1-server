@@ -508,7 +508,7 @@ export class FairPlayManager {
       }*/
 
     if (targetClient) {
-      if (!targetClient.vehicle.mountedVehicle) {
+      /*if (!targetClient.vehicle.mountedVehicle) {
         if (
           getDistance(
             targetClient.character.state.position,
@@ -522,7 +522,7 @@ export class FairPlayManager {
           server.sendConsoleText(targetClient, message);
           return false;
         }
-      }
+      }*/
       const distance = getDistance(fireHint.position, hitReport.position);
       const speed =
         (distance / 1000 / (gameTime - fireHint.timeStamp)) * 3600000;

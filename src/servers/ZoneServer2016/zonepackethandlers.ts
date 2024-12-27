@@ -1766,6 +1766,10 @@ export class ZonePacketHandlers {
       const parent = doorEntity.getParentFoundation(server);
       if (!parent) return;
       if (parent.permissions[client.character.characterId]) return;
+      if (Object.keys(parent.permissions).length >= 16) {
+        server.sendAlert(client, "Permissions limit reached.");
+        return;
+      }
       parent.permissions[client.character.characterId] = {
         characterId: client.character.characterId,
         characterName: client.character.name,
@@ -2929,7 +2933,7 @@ export class ZonePacketHandlers {
     if (!characterId) return;
     let obj: ConstructionPermissions = foundation.permissions[characterId];
     if (!obj) {
-      if (Object.keys(foundation.permissions).length >= 12) {
+      if (Object.keys(foundation.permissions).length >= 16) {
         server.sendAlert(client, "Permissions limit reached.");
         return;
       }

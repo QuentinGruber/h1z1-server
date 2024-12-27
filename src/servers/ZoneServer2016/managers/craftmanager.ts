@@ -176,7 +176,7 @@ export class CraftManager {
    * @param client The client performing the craft.
    * @param recipe The recipe object.
    * @param recipeCount The number of times to repeat the recipe.
-   * @param recipeId The ID of the recipe being crafted.
+   * @param itemId The ID of the item being crafted.
    * @param craftCount The total number of items to craft.
    * @returns A promise resolving to a boolean indicating if the craft queue generation was successful.
    */
@@ -185,7 +185,7 @@ export class CraftManager {
     client: Client,
     recipe: Recipe,
     recipeCount: number,
-    recipeId: number,
+    itemId: number,
     craftCount: number
   ): Promise<boolean> {
     for (const component of recipe.components) {
@@ -310,11 +310,11 @@ export class CraftManager {
       }
     }
     // push dummy item
-    if (this.componentsDataSource[recipeId]) {
-      this.componentsDataSource[recipeId].stackCount += craftCount;
+    if (this.componentsDataSource[itemId]) {
+      this.componentsDataSource[itemId].stackCount += craftCount;
     } else {
-      this.componentsDataSource[recipeId] = {
-        itemDefinitionId: recipeId,
+      this.componentsDataSource[itemId] = {
+        itemDefinitionId: itemId,
         stackCount: craftCount
       };
     }
@@ -365,7 +365,7 @@ export class CraftManager {
    * Crafts an item using the given recipe and adds it to the client's inventory.
    * @param server The ZoneServer2016 instance.
    * @param client The client performing the craft.
-   * @param recipeId The ID of the recipe being crafted.
+   * @param itemId The ID of the item being crafted.
    * @param recipeCount The number of times to repeat the recipe.
    * @returns A promise resolving to a boolean indicating if the crafting process was successful.
    */
@@ -383,6 +383,7 @@ export class CraftManager {
     const recipe = client.character.recipes[recipeId],
       bundleCount = recipe?.bundleCount || 1, // the amount of an item crafted from 1 recipe (ex. crafting 1 stick recipe gives you 2)
       craftCount = recipeCount * bundleCount; // the actual amount of items to craft
+    const itemId = recipe.itemId as number;
     if (!recipe) return false;
     switch (recipe.filterId) {
       case FilterIds.COOKING:
@@ -444,7 +445,7 @@ export class CraftManager {
         client,
         recipe,
         recipeCount,
-        recipeId,
+        itemId,
         craftCount
       ))
     ) {
@@ -454,7 +455,7 @@ export class CraftManager {
     //#region CRAFTING
     await server.pUtilizeHudTimer(
       client,
-      server.getItemDefinition(recipeId)?.NAME_ID ?? 0,
+      server.getItemDefinition(itemId)?.NAME_ID ?? 0,
       1000 * recipeCount,
       0
     );
@@ -509,7 +510,7 @@ export class CraftManager {
     }
     client.character.lootItem(
       server,
-      server.generateItem(recipeId, craftCount, true)
+      server.generateItem(itemId, craftCount, true)
     );
     if (recipe.leftOverItems) {
       recipe.leftOverItems.forEach((id: number) => {
