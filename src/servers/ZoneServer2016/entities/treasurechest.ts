@@ -26,6 +26,9 @@ export class TreasureChest extends LootableProp {
   /** Id of the chest container to spawn the items at */
   spawnerId: number;
 
+  /** Time alloted before the Treasure Chest clears its contents */
+  clearChestTimer?: NodeJS.Timeout;
+
   constructor(
     characterId: string,
     transientId: number,

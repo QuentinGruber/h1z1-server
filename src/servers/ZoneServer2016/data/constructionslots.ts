@@ -182,8 +182,12 @@ export const shelterSlotDefinitions: ConstructionSlots = {
       Items.STRUCTURE_STAIRS,
       Items.LOOKOUT_TOWER
     ],
+    //offsets: [5.6352, 2.5994, 5.6352],
+    //angles: [27.2306, 90.0056, 152.7694],
+
     offsets: [5.5897, 2.4994, 5.5902],
     angles: [26.5606, 90.0056, 153.4417],
+
     rotationOffsets: [0, 0, 0]
   },
   [Items.SHELTER]: {
