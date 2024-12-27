@@ -45,6 +45,8 @@ export class ExplosiveEntity extends BaseLightweightCharacter {
   /** the characterId from who place this to keep track */
   ownerCharacterId: string;
 
+  isAwaitingExplosion: boolean = false;
+
   constructor(
     characterId: string,
     transientId: number,
@@ -176,13 +178,18 @@ export class ExplosiveEntity extends BaseLightweightCharacter {
   async OnExplosiveHit(
     server: ZoneServer2016,
     sourceEntity: BaseEntity,
-    client?: ZoneClient2016
+    client?: ZoneClient2016,
+    waitTime: number = 0,
+    useRaycast: boolean = false
   ) {
+    if (this.isAwaitingExplosion) return;
+    this.isAwaitingExplosion = true;
     if (this.characterId == sourceEntity.characterId) return;
-    if (getDistance(sourceEntity.state.position, this.state.position) >= 2)
-      return;
-
-    await scheduler.wait(200);
+    if (!useRaycast) {
+      if (getDistance(sourceEntity.state.position, this.state.position) >= 2)
+        return;
+    }
+    await scheduler.wait(waitTime);
     if (server._spawnedItems[this.characterId]) {
       const itemObject = server._spawnedItems[this.characterId];
       server.deleteEntity(this.characterId, server._spawnedItems);
