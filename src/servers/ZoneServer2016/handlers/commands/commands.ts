@@ -1740,19 +1740,6 @@ export const commands: Array<Command> = [
     }
   },
   {
-    name: "sfog",
-    permissionLevel: PermissionLevels.ADMIN,
-    execute: (server: ZoneServer2016, client: Client, args: Array<string>) => {
-      server.sendChatText(
-        client,
-        `Fog has been toggled ${
-          server.weatherManager.toggleFog() ? "ON" : "OFF"
-        } for the server`,
-        true
-      );
-    }
-  },
-  {
     name: "spamzombies",
     permissionLevel: PermissionLevels.ADMIN,
     execute: (server: ZoneServer2016, client: Client, args: Array<string>) => {
