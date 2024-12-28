@@ -265,9 +265,7 @@ export class WeatherManager {
   }
 
   chooseWeather() {
-    console.log("weather choosen");
     const weatherType = rnd_number(4, 1, true);
-    console.log("weathertype", weatherType);
     switch (weatherType) {
       case 1: // sunny
       case 2:
@@ -479,7 +477,6 @@ export class WeatherManager {
       default:
         break;
     }
-    console.log(currentHour);
     switch (
       currentHour // switch for enabling weather effects based by in-game time
     ) {
