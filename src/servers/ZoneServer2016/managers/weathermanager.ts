@@ -303,10 +303,10 @@ export class WeatherManager {
       case 3: // cloudy
         this.rainAllowed = true;
         this.skyColor = rnd_number(1);
-        this.cloudWeight0 = rnd_number(1);
-        this.cloudWeight1 = rnd_number(1);
-        this.cloudWeight2 = rnd_number(1);
-        this.cloudWeight3 = rnd_number(1);
+        this.cloudWeight0 = rnd_number(0.1);
+        this.cloudWeight1 = rnd_number(0.1);
+        this.cloudWeight2 = rnd_number(0.1);
+        this.cloudWeight3 = rnd_number(0.1);
         switch (this.currentSeason) {
           case "summer":
             this.temperature = 80;
@@ -335,10 +335,10 @@ export class WeatherManager {
       case 4: // middle cloudy
         this.rainAllowed = true;
         this.skyColor = rnd_number(0.3);
-        this.cloudWeight0 = rnd_number(0.4);
-        this.cloudWeight1 = rnd_number(0.4);
-        this.cloudWeight2 = rnd_number(0.4);
-        this.cloudWeight3 = rnd_number(0.4);
+        this.cloudWeight0 = rnd_number(0.08);
+        this.cloudWeight1 = rnd_number(0.08);
+        this.cloudWeight2 = rnd_number(0.08);
+        this.cloudWeight3 = rnd_number(0.08);
         switch (this.currentSeason) {
           case "summer":
             this.temperature = 80;
