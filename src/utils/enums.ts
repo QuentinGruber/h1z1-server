@@ -51,6 +51,7 @@ export enum DB_COLLECTIONS {
   CHARACTERS_LIGHT = "characters-light",
   CHAT = "chats",
   CONSTRUCTION = "construction",
+  CONSTRUCTION_BACKUP = "construction-backup",
   CROPS = "crops",
   TRAPS = "traps",
   FINGERPRINTS = "fingerprints",

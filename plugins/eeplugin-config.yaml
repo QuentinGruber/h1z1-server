@@ -1,8 +1,0 @@
-# the "defaultconfig.yaml" file is for default configuration settings that are ok to be packed with the plugin only.
-#
-# # if you are not the developer of this plugin and are only changing configuration settings to suit the needs of your server,
-# # make sure you're editing the generated config.yaml in the "plugins" directory, and not defaultconfig.yaml
-#
-# # ***** do not change this filename *****
-#
-chatTextMessage: "Hooked SendChatText!"
