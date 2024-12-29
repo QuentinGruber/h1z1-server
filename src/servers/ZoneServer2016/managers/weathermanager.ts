@@ -15,8 +15,7 @@ import fs from "node:fs";
 
 import { Weather2016, WeatherTemplate } from "types/zoneserver";
 import {
-  _,
-  getCurrentServerTimeWrapper
+  _
   //isChristmasSeason
 } from "../../../utils/utils";
 import { ZoneClient2016 as Client } from "../classes/zoneclient";
@@ -45,22 +44,23 @@ function rnd_number(
     return range;
 }*/
 
-function getOrderedThreeQuartersOfRange(max: number): number[] {
-  const range = Array.from({ length: max + 1 }, (_, i) => i); // Create array [0, 1, ..., max]
-  const threeQuartersLength = Math.ceil(range.length * 0.75); // Calculate 75% of the array length
-  const selectedIndices = new Set<number>();
-
-  while (selectedIndices.size < threeQuartersLength) {
-    const randomIndex = Math.floor(Math.random() * range.length);
-    selectedIndices.add(randomIndex);
+function getOrderedNumbersInRange(
+  min: number,
+  max: number,
+  length: number
+): number[] {
+  if (length > max - min + 1) {
+    console.log("Length cannot be greater than the range of numbers.");
+    return [];
   }
 
-  // Extract and sort the selected numbers
-  const selectedNumbers = Array.from(selectedIndices)
-    .map((index) => range[index])
-    .sort((a, b) => a - b);
+  // Calculate the starting point
+  const start = Math.floor(Math.random() * (max - min + 1 - length)) + min;
 
-  return selectedNumbers;
+  // Generate the sequence of numbers
+  const sequence = Array.from({ length }, (_, i) => start + i);
+
+  return sequence;
 }
 
 export class WeatherManager {
@@ -235,11 +235,7 @@ export class WeatherManager {
     if (this.dynamicEnabled) {
       this.dynamicWorker = setTimeout(() => {
         if (!this.dynamicEnabled) return;
-        this.weather = this.dynamicWeather(
-          getCurrentServerTimeWrapper().getFull(),
-          server._serverStartTime.getFull(),
-          server.inGameTimeManager.baseTimeMultiplier
-        );
+        this.weather = this.dynamicWeather(server.inGameTimeManager.time);
         this.sendUpdateToAll(server);
         // Needed to avoid black screen issue ? Why ? No idea.
         this.sendUpdateToAll(server);
@@ -287,7 +283,7 @@ export class WeatherManager {
             //this.fog = 0;
             break;
           case "winter":
-            this.temperature = 50;
+            this.temperature = 80;
             this.windStrength = rnd_number(0.8);
             //this.fog = 0;
             break;
@@ -319,7 +315,7 @@ export class WeatherManager {
             //this.fog = randomIntFromInterval(140, 200);
             break;
           case "winter":
-            this.temperature = 0;
+            this.temperature = 80;
             this.windStrength = rnd_number(0.8);
             //this.fog = randomIntFromInterval(140, 200);
             break;
@@ -351,7 +347,7 @@ export class WeatherManager {
             //this.fog = randomIntFromInterval(38, 100);
             break;
           case "winter":
-            this.temperature = 0;
+            this.temperature = 80;
             this.windStrength = rnd_number(0.8);
             //this.fog = randomIntFromInterval(38, 100);
             break;
@@ -366,13 +362,6 @@ export class WeatherManager {
         break;
       default:
         break;
-    }
-    //simple 50% chance for rain during cloudy days
-    if (this.rainAllowed && Math.random() < 0.6) {
-      this.rainingHours = getOrderedThreeQuartersOfRange(23);
-      this.skyColor = 1;
-    } else {
-      this.rainingHours = [];
     }
 
     this.fogAllowed = Math.random() < 0.33; // 33% chance for fog
@@ -401,6 +390,14 @@ export class WeatherManager {
       this.fogDensity = 0.00001;
       this.fogFloor = 34;
       this.fogGradient = 0.00001;
+    }
+
+    //simple 50% chance for rain during cloudy days
+    if (this.rainAllowed && Math.random() <= 0.5) {
+      this.rainingHours = getOrderedNumbersInRange(2, 23, 12);
+      this.skyColor = 1;
+    } else {
+      this.rainingHours = [];
     }
 
     this.weatherChoosen = true;
@@ -442,13 +439,8 @@ export class WeatherManager {
     };
   }
 
-  dynamicWeather(
-    serverTime: number,
-    startTime: number,
-    timeMultiplier: number
-  ): Weather2016 {
-    const delta = Date.now() - startTime;
-    const currentDate = new Date((serverTime + delta) * timeMultiplier);
+  dynamicWeather(serverTime: number): Weather2016 {
+    const currentDate = new Date(serverTime * 1000);
     const currentHour = currentDate.getUTCHours();
     const currentMonth = currentDate.getUTCMonth();
     switch (
@@ -481,6 +473,7 @@ export class WeatherManager {
       currentHour // switch for enabling weather effects based by in-game time
     ) {
       case 1:
+        this.weatherChoosen = false;
         break;
       case 2: // Determine weather for next day cycle (sunny,cloudy etc)
         if (!this.weatherChoosen) {
