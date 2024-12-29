@@ -394,7 +394,7 @@ export class WeatherManager {
 
     //simple 50% chance for rain during cloudy days
     if (this.rainAllowed && Math.random() <= 0.5) {
-      this.rainingHours = getOrderedNumbersInRange(2, 23, 12);
+      this.rainingHours = getOrderedNumbersInRange(2, 23, 15);
       this.skyColor = 1;
     } else {
       this.rainingHours = [];
