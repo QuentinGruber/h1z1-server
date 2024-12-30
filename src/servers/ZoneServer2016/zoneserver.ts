@@ -6060,8 +6060,17 @@ export class ZoneServer2016 extends EventEmitter {
     const client = this.getClientByCharId(character.characterId);
     if (!client) return false;
 
-    if (item.stackCount > count) {
-      item.stackCount -= count;
+    item.stackCount -= count;
+    if (item.stackCount <= 0) {
+      this.accountInventoriesManager.removeAccountItem(
+        client.loginSessionId,
+        item
+      );
+      this.sendData(client, "Items.RemoveEscrowAccountItem", {
+        itemId: item.itemGuid,
+        itemDefinitionId: item.itemDefinitionId
+      });
+    } else {
       this.accountInventoriesManager.updateAccountItem(
         client.loginSessionId,
         item
@@ -6073,15 +6082,6 @@ export class ZoneServer2016 extends EventEmitter {
           itemCount: item.stackCount,
           itemGuid: item.itemGuid
         }
-      });
-    } else {
-      this.accountInventoriesManager.removeAccountItem(
-        client.loginSessionId,
-        item
-      );
-      this.sendData(client, "Items.RemoveEscrowAccountItem", {
-        itemId: item.itemGuid,
-        itemDefinitionId: item.itemDefinitionId
       });
     }
 
