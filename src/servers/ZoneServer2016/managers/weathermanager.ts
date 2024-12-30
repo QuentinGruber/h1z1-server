@@ -308,9 +308,13 @@ export class WeatherManager {
     this.weather.fogGradient = this.fogGradient;
   }
 
-    moveGPtoDesiredValue() {
-        this.globalPrecipation = adjustNumber(this.desiredGlobalPrecipation, this.globalPrecipation, 0.008);
-    }
+  moveGPtoDesiredValue() {
+    this.globalPrecipation = adjustNumber(
+      this.desiredGlobalPrecipation,
+      this.globalPrecipation,
+      0.008
+    );
+  }
 
   chooseWeather() {
     const weatherType = rnd_number(4, 1, true);
@@ -424,7 +428,7 @@ export class WeatherManager {
         case 1:
           this.desiredfogDensity = 0.0002;
           this.desiredfogFloor = 120;
-          this.desiredfogGradient = 0.02;         
+          this.desiredfogGradient = 0.02;
           break;
         case 2:
           this.desiredfogDensity = 0.0002;
@@ -549,15 +553,18 @@ export class WeatherManager {
         break;
     }
     this.seasonstart();
-    if (this.rainingHours.includes(currentHour) && Math.max(...this.rainingHours) >= currentHour) {
+    if (
+      this.rainingHours.includes(currentHour) &&
+      Math.max(...this.rainingHours) >= currentHour
+    ) {
       this.rain = 0.1;
       this.rainRampupTime = 1;
-      this.moveGPtoDesiredValue()
+      this.moveGPtoDesiredValue();
     } else if (currentHour > Math.min(...this.rainingHours)) {
       this.rain = 0;
       this.rainRampupTime = 0;
       this.desiredGlobalPrecipation = 0;
-      this.moveGPtoDesiredValue()
+      this.moveGPtoDesiredValue();
     }
     this.weather.globalPrecipitation = this.globalPrecipation;
     this.weather.rainMinStrength = this.rain;
