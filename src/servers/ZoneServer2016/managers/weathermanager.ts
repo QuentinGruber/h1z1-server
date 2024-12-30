@@ -88,15 +88,17 @@ export class WeatherManager {
   fog = 0; // density
   currentSeason = "summer";
   skyColor = 0;
+  desiredSkyColor = 0;
   windStrength = 0;
-  cloudWeight0 = 0;
-  cloudWeight1 = 0;
-  cloudWeight2 = 0;
-  cloudWeight3 = 0;
+  cloudWeight0 = 0.01;
+  cloudWeight1 = 0.01;
+  cloudWeight2 = 0.01;
+  cloudWeight3 = 0.01;
   temperature = 80;
   rain = 0;
   rainRampupTime = 0;
   globalPrecipation = 0;
+  desiredGlobalPrecipation = 0;
   fogDensity = 0.0001;
   fogFloor = 34;
   fogGradient = 0.001;
@@ -298,10 +300,17 @@ export class WeatherManager {
       0.00015
     );
 
+    this.skyColor = adjustNumber(this.desiredSkyColor, this.skyColor, 0.0125);
+
+    this.weather.skyClarity = this.skyColor;
     this.weather.fogDensity = this.fogDensity;
     this.weather.fogFloor = this.fogFloor;
     this.weather.fogGradient = this.fogGradient;
   }
+
+    moveGPtoDesiredValue() {
+        this.globalPrecipation = adjustNumber(this.desiredGlobalPrecipation, this.globalPrecipation, 0.008);
+    }
 
   chooseWeather() {
     const weatherType = rnd_number(4, 1, true);
@@ -309,7 +318,7 @@ export class WeatherManager {
       case 1: // sunny
       case 2:
         this.rainAllowed = false;
-        this.skyColor = rnd_number(0.1);
+        this.desiredSkyColor = rnd_number(0.1, -0.15);
         this.cloudWeight0 = rnd_number(0.08);
         this.cloudWeight1 = rnd_number(0.03);
         this.cloudWeight2 = rnd_number(0.08);
@@ -341,11 +350,11 @@ export class WeatherManager {
         break;
       case 3: // cloudy
         this.rainAllowed = true;
-        this.skyColor = rnd_number(1);
-        this.cloudWeight0 = rnd_number(0.1);
-        this.cloudWeight1 = rnd_number(0.1);
-        this.cloudWeight2 = rnd_number(0.1);
-        this.cloudWeight3 = rnd_number(0.1);
+        this.desiredSkyColor = rnd_number(1, 0.6);
+        this.cloudWeight0 = rnd_number(0.1, 0.08);
+        this.cloudWeight1 = rnd_number(0.1, 0.08);
+        this.cloudWeight2 = rnd_number(0.1, 0.08);
+        this.cloudWeight3 = rnd_number(0.1, 0.08);
         switch (this.currentSeason) {
           case "summer":
             this.temperature = 80;
@@ -373,11 +382,11 @@ export class WeatherManager {
         break;
       case 4: // middle cloudy
         this.rainAllowed = true;
-        this.skyColor = rnd_number(0.3);
-        this.cloudWeight0 = rnd_number(0.08);
-        this.cloudWeight1 = rnd_number(0.08);
-        this.cloudWeight2 = rnd_number(0.08);
-        this.cloudWeight3 = rnd_number(0.08);
+        this.desiredSkyColor = rnd_number(0.5, 0.3);
+        this.cloudWeight0 = rnd_number(0.08, 0.04);
+        this.cloudWeight1 = rnd_number(0.08, 0.03);
+        this.cloudWeight2 = rnd_number(0.08, 0.04);
+        this.cloudWeight3 = rnd_number(0.08, 0.04);
         switch (this.currentSeason) {
           case "summer":
             this.temperature = 80;
@@ -415,19 +424,19 @@ export class WeatherManager {
         case 1:
           this.desiredfogDensity = 0.0002;
           this.desiredfogFloor = 120;
-          this.desiredfogGradient = 0.02;
-          if (this.skyColor < 0.5) this.skyColor = 0.5;
+          this.desiredfogGradient = 0.02;         
           break;
         case 2:
           this.desiredfogDensity = 0.0002;
           this.desiredfogFloor = 160;
           this.desiredfogGradient = 0.02;
+          if (this.desiredSkyColor < 0.5) this.desiredSkyColor = 0.5;
           break;
         case 3:
           this.desiredfogDensity = 0.0002;
           this.desiredfogFloor = 200;
           this.desiredfogGradient = 0.02;
-          this.skyColor = 1;
+          this.desiredSkyColor = rnd_number(1, 0.5);
           break;
       }
     } else {
@@ -439,11 +448,13 @@ export class WeatherManager {
 
     //simple 50% chance for rain during cloudy days
     if (!this.lastDayWasRainy && this.rainAllowed && Math.random() <= 0.5) {
-      this.rainingHours = getOrderedNumbersInRange(2, 23, 15);
-      this.skyColor = 1;
+      this.rainingHours = getOrderedNumbersInRange(2, 23, 9);
+      this.desiredSkyColor = rnd_number(1, 0.5);
+      this.desiredGlobalPrecipation = rnd_number(0.95, 0.4);
       this.lastDayWasRainy = true;
     } else {
       this.rainingHours = [];
+      this.desiredGlobalPrecipation = 0;
       this.lastDayWasRainy = false;
     }
 
@@ -538,14 +549,15 @@ export class WeatherManager {
         break;
     }
     this.seasonstart();
-    if (this.rainingHours.includes(currentHour)) {
-      this.rain = 1;
+    if (this.rainingHours.includes(currentHour) && Math.max(...this.rainingHours) >= currentHour) {
+      this.rain = 0.1;
       this.rainRampupTime = 1;
-      this.globalPrecipation = 1;
-    } else {
+      this.moveGPtoDesiredValue()
+    } else if (currentHour > Math.min(...this.rainingHours)) {
       this.rain = 0;
       this.rainRampupTime = 0;
-      this.globalPrecipation = 0;
+      this.desiredGlobalPrecipation = 0;
+      this.moveGPtoDesiredValue()
     }
     this.weather.globalPrecipitation = this.globalPrecipation;
     this.weather.rainMinStrength = this.rain;
