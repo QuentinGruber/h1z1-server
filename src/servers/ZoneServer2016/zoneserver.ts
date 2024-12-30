@@ -6049,13 +6049,32 @@ export class ZoneServer2016 extends EventEmitter {
    *
    * @param {BaseFullCharacter} character - The character to have their items removed.
    * @param {BaseItem} item - The item to remove.
+   * @param {number} [count=1]  - Optional: Specifies the amount of items that need to be removed, default is 1.
    * @returns {boolean} Returns true if the item was successfully removed, false if there was an error.
    */
-  removeAccountItem(character: BaseFullCharacter, item: BaseItem): boolean {
+  removeAccountItem(
+    character: BaseFullCharacter,
+    item: BaseItem,
+    count: number = 1
+  ): boolean {
     const client = this.getClientByCharId(character.characterId);
     if (!client) return false;
-    item.stackCount--;
-    if (item.stackCount <= 0) {
+
+    if (item.stackCount > count) {
+      item.stackCount -= count;
+      this.accountInventoriesManager.updateAccountItem(
+        client.loginSessionId,
+        item
+      );
+      this.sendData(client, "Items.UpdateEscrowAccountItem", {
+        itemData: {
+          itemId: item.itemGuid,
+          itemDefinitionId: item.itemDefinitionId,
+          itemCount: item.stackCount,
+          itemGuid: item.itemGuid
+        }
+      });
+    } else {
       this.accountInventoriesManager.removeAccountItem(
         client.loginSessionId,
         item
@@ -6064,21 +6083,8 @@ export class ZoneServer2016 extends EventEmitter {
         itemId: item.itemGuid,
         itemDefinitionId: item.itemDefinitionId
       });
-      return true;
-    } else {
-      this.accountInventoriesManager.updateAccountItem(
-        client.loginSessionId,
-        item
-      );
     }
-    this.sendData(client, "Items.UpdateEscrowAccountItem", {
-      itemData: {
-        itemId: item.itemGuid,
-        itemDefinitionId: item.itemDefinitionId,
-        itemCount: item.stackCount,
-        itemGuid: item.itemGuid
-      }
-    });
+
     return true;
   }
 

@@ -1564,6 +1564,7 @@ export const commands: Array<Command> = [
           getCurrentServerTimeWrapper().getTruncatedU32(),
           VehicleIds.PARACHUTE
         );
+      server.worldObjectManager.createVehicle(server, vehicle, true);
       server.sendData(actingClient, "ClientUpdate.UpdateLocation", {
         position: loc,
         triggerLoadingScreen: true
@@ -1575,7 +1576,6 @@ export const commands: Array<Command> = [
         server.assignManagedObject(clientTriggered, vehicle);
         clientTriggered.vehicle.mountedVehicle = characterId;
       };
-      server.worldObjectManager.createVehicle(server, vehicle, true);
     }
   },
   {
