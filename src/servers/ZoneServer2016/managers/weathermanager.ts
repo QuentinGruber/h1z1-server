@@ -63,6 +63,26 @@ function getOrderedNumbersInRange(
   return sequence;
 }
 
+function adjustNumber(
+  desiredNumber: number,
+  currentNumber: number,
+  changeNumber: number
+): number {
+  if (currentNumber < desiredNumber) {
+    currentNumber += changeNumber;
+    if (currentNumber > desiredNumber) {
+      currentNumber = desiredNumber; // Ensure it does not go above the desired number
+    }
+  } else if (currentNumber > desiredNumber) {
+    currentNumber -= changeNumber;
+    if (currentNumber < desiredNumber) {
+      currentNumber = desiredNumber; // Ensure it does not go below the desired number
+    }
+  }
+
+  return currentNumber; // Return the updated number
+}
+
 export class WeatherManager {
   weatherChoosen = false;
   fog = 0; // density
@@ -77,9 +97,14 @@ export class WeatherManager {
   rain = 0;
   rainRampupTime = 0;
   globalPrecipation = 0;
-  fogDensity = 0.00001;
+  fogDensity = 0.0001;
   fogFloor = 34;
-  fogGradient = 0.00001;
+  fogGradient = 0.001;
+  desiredfogDensity = 0.00001;
+  desiredfogFloor = 34;
+  desiredfogGradient = 0.00001;
+  lastDayWasFoggy = false;
+  lastDayWasRainy = false;
   rainAllowed = false;
   fogAllowed = false;
   rainingHours: number[] = [];
@@ -260,6 +285,24 @@ export class WeatherManager {
     }
   }
 
+  moveToDesiredValues() {
+    this.fogDensity = adjustNumber(
+      this.desiredfogDensity,
+      this.fogDensity,
+      0.0000025
+    );
+    this.fogFloor = adjustNumber(this.desiredfogFloor, this.fogFloor, 1);
+    this.fogGradient = adjustNumber(
+      this.desiredfogGradient,
+      this.fogGradient,
+      0.00015
+    );
+
+    this.weather.fogDensity = this.fogDensity;
+    this.weather.fogFloor = this.fogFloor;
+    this.weather.fogGradient = this.fogGradient;
+  }
+
   chooseWeather() {
     const weatherType = rnd_number(4, 1, true);
     switch (weatherType) {
@@ -365,39 +408,43 @@ export class WeatherManager {
     }
 
     this.fogAllowed = Math.random() < 0.33; // 33% chance for fog
-    if (this.fogAllowed) {
+    if (!this.lastDayWasFoggy && this.fogAllowed) {
+      this.lastDayWasFoggy = true;
       const fogType = rnd_number(3, 1, true);
       switch (fogType) {
         case 1:
-          this.fogDensity = 0.0028;
-          this.fogFloor = 34;
-          this.fogGradient = 0.0151;
+          this.desiredfogDensity = 0.0002;
+          this.desiredfogFloor = 120;
+          this.desiredfogGradient = 0.02;
           if (this.skyColor < 0.5) this.skyColor = 0.5;
           break;
         case 2:
-          this.fogDensity = 0.0118;
-          this.fogFloor = 10;
-          this.fogGradient = 0.1451;
+          this.desiredfogDensity = 0.0002;
+          this.desiredfogFloor = 160;
+          this.desiredfogGradient = 0.02;
           break;
         case 3:
-          this.fogDensity = 0.0028;
-          this.fogFloor = 34;
-          this.fogGradient = 0.0151;
+          this.desiredfogDensity = 0.0002;
+          this.desiredfogFloor = 200;
+          this.desiredfogGradient = 0.02;
           this.skyColor = 1;
           break;
       }
     } else {
-      this.fogDensity = 0.00001;
-      this.fogFloor = 34;
-      this.fogGradient = 0.00001;
+      this.lastDayWasFoggy = false;
+      this.desiredfogDensity = 0.0001;
+      this.desiredfogFloor = 30;
+      this.desiredfogGradient = 0.001;
     }
 
     //simple 50% chance for rain during cloudy days
-    if (this.rainAllowed && Math.random() <= 0.5) {
+    if (!this.lastDayWasRainy && this.rainAllowed && Math.random() <= 0.5) {
       this.rainingHours = getOrderedNumbersInRange(2, 23, 15);
       this.skyColor = 1;
+      this.lastDayWasRainy = true;
     } else {
       this.rainingHours = [];
+      this.lastDayWasRainy = false;
     }
 
     this.weatherChoosen = true;
@@ -503,6 +550,7 @@ export class WeatherManager {
     this.weather.globalPrecipitation = this.globalPrecipation;
     this.weather.rainMinStrength = this.rain;
     this.weather.rainRampupTimeSeconds = this.rainRampupTime;
+    this.moveToDesiredValues();
     return this.weather;
   }
 }
