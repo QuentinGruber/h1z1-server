@@ -148,6 +148,8 @@ import {
   DamageInfo,
   GrinderItem,
   Group,
+  RewardCrateDefinition,
+  RewardCrateRewardDefinition,
   StanceFlags
 } from "types/zoneserver";
 import { Vehicle2016 } from "./entities/vehicle";
@@ -3578,94 +3580,145 @@ export class ZonePacketHandlers {
     client: Client,
     packet: ReceivedPacket<GrinderExchangeRequest>
   ) {
-    if (!packet.data.items) return;
+    if (!packet.data.items || packet.data.items.length === 0) return;
 
+    const items = packet.data.items as GrinderItem[];
     let rarity = -1;
     let itemCount = 0;
 
-    for (const item of packet.data.items as GrinderItem[]) {
-      const definition = server.getItemDefinition(item.itemDefinitionId);
-      if (definition) {
-        if (rarity == -1) {
-          rarity = definition.RARITY;
-        }
-
-        if (rarity == definition.RARITY) {
-          itemCount += item.count;
-        }
-      }
-    }
-
-    const itemsNeeded = rarity == 6 ? 4 : 5;
-    if (itemCount < itemsNeeded) return;
-    const itemsRemoved = await (async (): Promise<boolean> => {
-      const removedItems: { item: AccountItem }[] = [];
-      try {
-        for (const item of packet.data.items as GrinderItem[]) {
-          let remainingCount = item.count;
-          while (remainingCount > 0) {
-            const inventoryItem =
-              await server.accountInventoriesManager.getAccountItem(
-                client.loginSessionId,
-                item.itemDefinitionId
-              );
-            if (!inventoryItem) return false;
-            if (inventoryItem.stackCount < remainingCount) {
-              removedItems.push({ item: inventoryItem });
-              remainingCount -= inventoryItem.stackCount;
-              const partialResult = server.removeAccountItem(
-                client.character,
-                inventoryItem
-              );
-              if (!partialResult) return false;
-            } else {
-              removedItems.push({ item: inventoryItem });
-              const result = server.removeAccountItem(
-                client.character,
-                inventoryItem
-              );
-              if (!result) if (!result) throw new Error("Final removal failed");
-              remainingCount = 0;
-            }
+    const rarityMap = items.reduce(
+      (acc, item) => {
+        const definition = server.getItemDefinition(item.itemDefinitionId);
+        if (definition) {
+          if (rarity === -1) rarity = definition.RARITY;
+          if (rarity === definition.RARITY) {
+            acc[item.itemDefinitionId] =
+              (acc[item.itemDefinitionId] || 0) + item.count;
+            itemCount += item.count;
           }
         }
-        return true;
-      } catch (error) {
-        for (const removed of removedItems) {
-          await server.lootAccountItem(server, client, removed.item, false);
-        }
-        debug("Error occurred during item removal. Rollback completed:", error);
-        return false;
-      }
-    })();
-    const responseItems = [];
-    if (itemsRemoved) {
-      const higherRarityItems = Object.values(server._itemDefinitions).filter(
-        (item) =>
-          item.RARITY == rarity + 1 && item.CODE_FACTORY_NAME == "AccountRecipe"
-      );
+        return acc;
+      },
+      {} as Record<number, number>
+    );
 
-      if (higherRarityItems.length > 0) {
-        const itemDef =
-          higherRarityItems[
-            Math.floor(Math.random() * higherRarityItems.length)
-          ];
-        const item = server.generateItem(itemDef.ID, 1, true);
-        server.lootAccountItem(server, client, item, false);
-        responseItems.push({
-          itemDefinitionId: item?.itemDefinitionId || itemDef.ID || 0,
-          count: 1
-        });
+    const itemsNeeded = rarity === 6 ? 4 : 5;
+    if (itemCount < itemsNeeded) return;
+
+    const rewardCratesFound: RewardCrateDefinition[] = [];
+    const removedItems: { inventoryItem: AccountItem; count: number }[] = [];
+    let itemsRemoved = false;
+
+    try {
+      for (const [itemDefinitionId, count] of Object.entries(rarityMap)) {
+        let remainingCount = count;
+        while (remainingCount > 0) {
+          const inventoryItem =
+            await server.accountInventoriesManager.getAccountItem(
+              client.loginSessionId,
+              parseInt(itemDefinitionId)
+            );
+          if (!inventoryItem) throw new Error("Inventory item not found");
+
+          const removeCount = Math.min(
+            inventoryItem.stackCount,
+            remainingCount
+          );
+          remainingCount -= removeCount;
+
+          removedItems.push({ inventoryItem, count: removeCount });
+          server.removeAccountItem(
+            client.character,
+            inventoryItem,
+            removeCount
+          );
+
+          server._rewardCrateDefinitions.forEach((crate) => {
+            if (
+              crate.rewards.some(
+                (reward) =>
+                  reward.itemDefinitionId === inventoryItem.itemDefinitionId
+              )
+            ) {
+              rewardCratesFound.push(crate);
+            }
+          });
+        }
       }
+      itemsRemoved = true;
+    } catch (error) {
+      debug("Error during item removal, performing rollback:", error);
+      await server.accountInventoriesManager.rollbackItems(
+        client.loginSessionId,
+        removedItems
+      );
+      return;
     }
 
-    server.sendData<GrinderExchangeResponse>(
-      client,
-      "Grinder.ExchangeResponse",
-      {
-        items: responseItems
+    if (itemsRemoved) {
+      const crateWeights = rewardCratesFound.reduce(
+        (acc, crate) => {
+          acc[crate.itemDefinitionId] = (acc[crate.itemDefinitionId] || 0) + 1;
+          return acc;
+        },
+        {} as Record<number, number>
+      );
+
+      const totalWeight = Object.values(crateWeights).reduce(
+        (sum, weight) => sum + weight,
+        0
+      );
+      let random = Math.random() * totalWeight;
+      let selectedCrate: RewardCrateDefinition | null = null;
+
+      for (const crate of rewardCratesFound) {
+        random -= crateWeights[crate.itemDefinitionId];
+        if (random <= 0) {
+          selectedCrate = crate;
+          break;
+        }
       }
-    );
+
+      if (!selectedCrate) {
+        await server.accountInventoriesManager.rollbackItems(
+          client.loginSessionId,
+          removedItems
+        );
+        return;
+      }
+
+      const higherRarityRewards = selectedCrate.rewards.filter((reward) => {
+        const itemDefinition = server._itemDefinitions[reward.itemDefinitionId];
+        return itemDefinition && itemDefinition.RARITY === rarity + 1;
+      });
+
+      if (higherRarityRewards.length > 0) {
+        const weightedRewards = higherRarityRewards.flatMap((reward) =>
+          Array(reward.rewardChance).fill(reward)
+        );
+        const selectedReward =
+          weightedRewards[Math.floor(Math.random() * weightedRewards.length)];
+        const item = server.generateItem(
+          selectedReward.itemDefinitionId,
+          1,
+          true
+        );
+
+        server.lootAccountItem(server, client, item, false);
+        server.sendData<GrinderExchangeResponse>(
+          client,
+          "Grinder.ExchangeResponse",
+          {
+            items: [{ itemDefinitionId: item?.itemDefinitionId || 0, count: 1 }]
+          }
+        );
+      } else {
+        await server.accountInventoriesManager.rollbackItems(
+          client.loginSessionId,
+          removedItems
+        );
+      }
+    }
   }
 
   processPacket(
@@ -3949,8 +4002,7 @@ export class ZonePacketHandlers {
         server.sendData(client, "Pong", {});
         break;
       case "Grinder.ExchangeRequest":
-        //this.grinderExchangeRequest(server, client, packet);
-        // temporary disable
+        this.grinderExchangeRequest(server, client, packet);
         break;
       case "InGamePurchase.StoreBundleContentRequest":
         debug(JSON.stringify(packet.data));
