@@ -35,7 +35,7 @@ export class SOEOutputStream extends EventEmitter {
   private _cache: dataCacheMap = {};
   private _rc4: RC4;
   private hasPendingEmit: boolean = false;
-  maxSequenceAvailable: number = 100;
+  maxSequenceAvailable: number = 300;
   outOfOrder: Set<number> = new Set();
   constructor(cryptoKey: Uint8Array) {
     super();
@@ -59,9 +59,9 @@ export class SOEOutputStream extends EventEmitter {
 
   // basically disable for now
   isFlooded(): boolean {
-    /*const difference =
-      this._last_available_reliable_sequence.get() - this.lastAck.get();*/
-    return false;
+    const difference =
+      this._last_available_reliable_sequence.get() - this.lastAck.get();
+    return difference >= this.maxSequenceAvailable;
   }
 
   isReliableAvailable(): boolean {
