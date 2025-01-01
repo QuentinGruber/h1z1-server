@@ -52,7 +52,7 @@ export class ItemObject extends BaseLightweightCharacter {
   ) {
     server.pickupItem(client, this.characterId);
     // 5 minutes to prevent abuse (players afk dropping & picking up the same item)
-    if (this.creationTime + 300_000  >= Date.now()) return;
+    if (this.creationTime + 300_000 >= Date.now()) return;
     server.lootCrateWithChance(client, 5);
   }
 
