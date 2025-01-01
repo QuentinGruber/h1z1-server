@@ -300,7 +300,7 @@ export class WeatherManager {
       0.00015
     );
 
-    this.skyColor = adjustNumber(this.desiredSkyColor, this.skyColor, 0.0125);
+    this.skyColor = adjustNumber(this.desiredSkyColor, this.skyColor, 0.025);
 
     this.weather.skyClarity = this.skyColor;
     this.weather.fogDensity = this.fogDensity;
@@ -312,7 +312,7 @@ export class WeatherManager {
     this.globalPrecipation = adjustNumber(
       this.desiredGlobalPrecipation,
       this.globalPrecipation,
-      0.008
+      0.012
     );
   }
 
@@ -561,6 +561,11 @@ export class WeatherManager {
       this.rainRampupTime = 1;
       this.moveGPtoDesiredValue();
     } else if (currentHour > Math.min(...this.rainingHours)) {
+      this.rain = 0;
+      this.rainRampupTime = 0;
+      this.desiredGlobalPrecipation = 0;
+      this.moveGPtoDesiredValue();
+    } else if (this.rainingHours.length == 0 && !this.lastDayWasRainy) {
       this.rain = 0;
       this.rainRampupTime = 0;
       this.desiredGlobalPrecipation = 0;
