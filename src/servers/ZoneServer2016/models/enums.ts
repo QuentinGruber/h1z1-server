@@ -511,7 +511,7 @@ export enum ResourceIndicators {
   COMFORT_PLUSPLUS = "COMFORT ++",
   FOOD_POISONING = "FOOD POISONING",
   BEES = "BEES!",
-  COFFEE_SUGAR = "COFFEE_SUGAR",
+  COFFEE_SUGAR = "COFFEE_SUGAR"
 }
 
 export enum Abilities {
