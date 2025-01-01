@@ -129,6 +129,7 @@ export class Character2016 extends BaseFullCharacter {
   isBandaged = false;
   isExhausted = false;
   isPoisoned = false;
+  isCoffeeSugared = false;
 
   /** Last time (milliseconds) the player melee'd */
   lastMeleeHitTime: number = 0;
@@ -683,6 +684,20 @@ export class Character2016 extends BaseFullCharacter {
       }
     } else {
       if (indexFoodPoison > -1) {
+        this.resourceHudIndicators.splice(indexFoodPoison);
+        server.sendHudIndicators(client);
+      }
+    }
+    const indexCoffeeSugared = this.resourceHudIndicators.indexOf(
+      ResourceIndicators.COFFEE_SUGAR
+    );
+    if (this.isCoffeeSugared) {
+      if (indexCoffeeSugared <= -1) {
+        this.resourceHudIndicators.push(ResourceIndicators.COFFEE_SUGAR);
+        server.sendHudIndicators(client);
+      }
+    } else {
+      if (indexCoffeeSugared > -1) {
         this.resourceHudIndicators.splice(indexFoodPoison);
         server.sendHudIndicators(client);
       }
