@@ -363,5 +363,6 @@ export class LootableProp extends BaseLootableEntity {
       }
     }
     server.damageItem(client.character, weapon, server.crowbarHitDamage);
+    server.lootCrateWithChance(client, 5);
   }
 }

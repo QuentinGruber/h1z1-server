@@ -51,6 +51,9 @@ export class ItemObject extends BaseLightweightCharacter {
     /* eslint-enable @typescript-eslint/no-unused-vars */
   ) {
     server.pickupItem(client, this.characterId);
+    // 5 minutes to prevent abuse (players afk dropping & picking up the same item)
+    if (this.creationTime + 300_000  >= Date.now()) return;
+    server.lootCrateWithChance(client, 5);
   }
 
   OnInteractionString(server: ZoneServer2016, client: ZoneClient2016): void {
