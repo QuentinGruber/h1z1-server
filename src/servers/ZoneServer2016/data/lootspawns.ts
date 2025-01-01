@@ -805,8 +805,32 @@ export const lootTables: { [lootSpawner: string]: LootSpawner } = {
         }
       },
       {
-        item: Items.EMERGENCY_RADIO,
-        weight: 7,
+        item: Items.BACKPACK_BLUE_ORANGE,
+        weight: 15,
+        spawnCount: {
+          min: 1,
+          max: 1
+        }
+      },
+      {
+        item: Items. PINK_GATORS,
+        weight: 8,
+        spawnCount: {
+          min: 1,
+          max: 1
+        }
+      },
+      {
+        item: Items.RED_GATORS,
+        weight: 8,
+        spawnCount: {
+          min: 1,
+          max: 1
+        }
+      },
+      {
+        item: Items.PURPLE_GATORS,
+        weight: 8,
         spawnCount: {
           min: 1,
           max: 1
@@ -1333,6 +1357,30 @@ export const lootTables: { [lootSpawner: string]: LootSpawner } = {
           max: 2
         }
       },
+      {
+        item: Items. PINK_GATORS,
+        weight: 50,
+        spawnCount: {
+          min: 1,
+          max: 1
+        }
+      },
+      {
+        item: Items.RED_GATORS,
+        weight: 50,
+        spawnCount: {
+          min: 1,
+          max: 1
+        }
+      },
+      {
+        item: Items.PURPLE_GATORS,
+        weight: 50,
+        spawnCount: {
+          min: 1,
+          max: 1
+        }
+      }
       {
         item: Items.SYRINGE_EMPTY,
         weight: 100,

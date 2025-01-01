@@ -1262,6 +1262,23 @@ export const recipes: { [recipeId: number]: Recipe } = {
       }
     ]
   },
+  [Items. REWARD_CRATE_PREDATOR]: {
+    filterId: FilterIds.SURVIVAL,
+    components: [
+      {
+        itemDefinitionId: Items.PINK_GATORS,
+        requiredAmount: 1
+      },
+      {
+        itemDefinitionId: Items.PURPLE_GATORS,
+        requiredAmount: 1
+      },
+      {
+        itemDefinitionId: Items.RED_GATORS,
+        requiredAmount: 1
+      }
+    ]
+  },
   [Items.TRAP_FIRE]: {
     filterId: FilterIds.WEAPONS,
     components: [
