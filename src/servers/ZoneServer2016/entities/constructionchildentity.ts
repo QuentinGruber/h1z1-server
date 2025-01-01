@@ -727,7 +727,8 @@ export class ConstructionChildEntity extends BaseLightweightCharacter {
   OnExplosiveHit(
     server: ZoneServer2016,
     sourceEntity: BaseEntity,
-    client?: ZoneClient2016
+    client?: ZoneClient2016,
+    useRaycast?: boolean
   ) {
     if (
       this.itemDefinitionId == Items.FOUNDATION_RAMP ||
@@ -764,14 +765,37 @@ export class ConstructionChildEntity extends BaseLightweightCharacter {
     ) {
       return;
     }
-
     if (server.constructionManager.isConstructionInSecuredArea(server, this)) {
-      if (!client) return;
-      server.constructionManager.sendBaseSecuredMessage(server, client);
-
-      return;
+      if (useRaycast) {
+        let damage = server.baseConstructionDamage;
+        switch (this.itemDefinitionId) {
+          case Items.SHELTER:
+          case Items.SHELTER_LARGE:
+          case Items.SHELTER_UPPER:
+          case Items.SHELTER_UPPER_LARGE:
+            damage *= 30 / 100;
+            break;
+          default:
+            damage = 0;
+            break;
+        }
+        server.constructionManager.checkConstructionDamage(
+          server,
+          this,
+          damage,
+          sourceEntity.state.position,
+          this.fixedPosition ? this.fixedPosition : this.state.position,
+          itemDefinitionId
+        );
+        if (!client) return;
+        server.constructionManager.sendBaseSecuredMessage(server, client, 1);
+        return;
+      } else {
+        if (!client) return;
+        server.constructionManager.sendBaseSecuredMessage(server, client);
+        return;
+      }
     }
-
     server.constructionManager.checkConstructionDamage(
       server,
       this,

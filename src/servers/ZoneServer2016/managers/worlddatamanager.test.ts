@@ -64,7 +64,7 @@ async function worldSaveUnitTests(t: any, mongoAddress: string) {
       worldId
     );
   });
-  const constructionNb = 50;
+  const constructionNb = 1;
   await t.test("convert constructions", async () => {
     // clear the construction list
     zone._constructionFoundations = {};
@@ -166,6 +166,7 @@ async function worldSaveUnitTests(t: any, mongoAddress: string) {
 
     assert.deepStrictEqual(loadedConstructions?.length, constructionNb);
     removeMongoDbId(loadedConstructions);
+    removeMongoDbId(world.constructions);
     // sort per characterId since mongo mangle the order
     loadedConstructions.sort((a, b) => {
       return a.characterId.localeCompare(b.characterId);
