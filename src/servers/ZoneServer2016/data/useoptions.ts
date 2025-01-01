@@ -479,8 +479,6 @@ export const UseOptions: { [itemDefinitionIds: number]: ItemUseOption } = {
     type: ItemUseOptions.DRINK,
     timeout: 2000,
     drinkCount: 7000,
-    staminaCount: 400,
-    enduranceCount: 4000,
     comfortCount: 3000,
     givetrash: Items.WATER_EMPTY
   },
