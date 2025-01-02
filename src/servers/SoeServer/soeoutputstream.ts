@@ -57,7 +57,6 @@ export class SOEOutputStream extends EventEmitter {
     }
   }
 
-  // basically disable for now
   isFlooded(): boolean {
     const difference =
       this._last_available_reliable_sequence.get() - this.lastAck.get();
