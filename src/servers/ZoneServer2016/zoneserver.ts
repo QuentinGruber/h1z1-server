@@ -1925,10 +1925,8 @@ export class ZoneServer2016 extends EventEmitter {
       client,
       "InitializationParameters",
       {
-        //ENVIRONMENT: "LIVE", // LOCAL, MAIN, QA, TEST, STAGE, LIVE, //THE_NINE, INNOVA
-        //unknownString1: "SKU_Is_JustSurvive", //JS.Environment
-        ENVIRONMENT: "LIVE_KOTK", // LOCAL, MAIN, QA, TEST, STAGE, LIVE, //THE_NINE, INNOVA
-        unknownString1: "SKU_Is_KotK", //JS.Environment
+        ENVIRONMENT: "LIVE", // LOCAL, MAIN, QA, TEST, STAGE, LIVE, //THE_NINE, INNOVA
+        unknownString1: "SKU_Is_JustSurvive", //JS.Environment
         rulesetDefinitions: Object.values(gameRulesSource).map(
           (gameRule: any) => {
             return {
