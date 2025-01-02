@@ -153,6 +153,11 @@ export class ConstructionDoor extends DoorEntity {
       ResourceTypes.CONDITION,
       server._constructionDoors
     );
+    if (damageInfo.damage > 0) {
+      const timestamp = Date.now();
+      const parentFoundation = this.getParentFoundation(server);
+      if (parentFoundation) parentFoundation.lastDamagedTimestamp = timestamp;
+    }
 
     if (this.health > 0) return;
     this.destroy(server, 3000);

@@ -571,6 +571,30 @@ export class ConstructionManager {
     );
   }
 
+  getIsOnDamagedFoundation(
+    server: ZoneServer2016,
+    parentObjectCharacterId: string,
+    freeplaceParentCharacterId: string
+  ): boolean {
+    const characterId = !!Number(parentObjectCharacterId)
+        ? parentObjectCharacterId
+        : freeplaceParentCharacterId,
+      parent =
+        server._constructionFoundations[characterId] ||
+        server._constructionSimple[characterId];
+    if (!parent) return false;
+    const parentFoundation = parent.getParentFoundation(server);
+    if (!parentFoundation)
+      return Date.now() - parent.lastDamagedTimestamp < 60000;
+
+    for (const a in parentFoundation.occupiedExpansionSlots) {
+      const expansion = parentFoundation.occupiedExpansionSlots[a];
+      if (Date.now() - expansion.lastDamagedTimestamp < 60000) return true;
+    }
+
+    return Date.now() - parentFoundation.lastDamagedTimestamp < 60000;
+  }
+
   placement(
     server: ZoneServer2016,
     client: Client,
@@ -649,6 +673,22 @@ export class ConstructionManager {
     ) {
       this.placementError(server, client, ConstructionErrors.BUILD_PERMISSION);
       this.sendPlacementFinalize(server, client, false);
+      return;
+    }
+
+    // detect placing on recently damaged foundation;
+    if (
+      this.getIsOnDamagedFoundation(
+        server,
+        parentObjectCharacterId,
+        freeplaceParentCharacterId
+      )
+    ) {
+      this.sendPlacementFinalize(server, client, false);
+      server.sendAlert(
+        client,
+        `You cant place anything on this foundation during a raid`
+      );
       return;
     }
 
@@ -2486,12 +2526,17 @@ export class ConstructionManager {
     entity: ConstructionEntity,
     weaponItem: LoadoutItem
   ) {
-    if (
-      client.character.lastRepairTime &&
-      Date.now() - client.character.lastRepairTime < 15000 &&
-      !server.isPvE
-    ) {
-      server.sendChatText(client, "Cooldown on repairing.");
+    const foundation = entity.getParentFoundation(server);
+    let timeDif;
+    if (foundation) timeDif = Date.now() - foundation.lastDamagedTimestamp;
+    if (entity instanceof ConstructionParentEntity)
+      timeDif = Date.now() - entity.lastDamagedTimestamp;
+
+    if (timeDif && timeDif < 60000) {
+      server.sendAlert(
+        client,
+        `You cant repair this base for the next ${(60 - Number(timeDif / 1000)).toFixed(2)} seconds`
+      );
       return;
     }
 
@@ -2505,6 +2550,14 @@ export class ConstructionManager {
     if (entity instanceof ConstructionParentEntity) {
       Object.values(entity.occupiedExpansionSlots).forEach(
         (expansion: ConstructionParentEntity) => {
+          const timeDiffExpansion = Date.now() - expansion.lastDamagedTimestamp;
+          if (timeDiffExpansion < 60000) {
+            server.sendAlert(
+              client,
+              `You cant repair this base for the next ${(60 - Number(timeDiffExpansion / 1000)).toFixed(2)} seconds`
+            );
+            return;
+          }
           // repair every object on each expansion
           accumulatedItemDamage += this.repairShelterSlots(server, expansion);
           accumulatedItemDamage += this.repairWallSlots(server, expansion);
@@ -2532,7 +2585,6 @@ export class ConstructionManager {
       Math.ceil(accumulatedItemDamage / 4)
     );
     client.character.lastMeleeHitTime = Date.now();
-    client.character.lastRepairTime = Date.now();
   }
 
   private fullyRepairFreeplaceEntities(

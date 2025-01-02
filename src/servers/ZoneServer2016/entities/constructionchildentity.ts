@@ -508,6 +508,13 @@ export class ConstructionChildEntity extends BaseLightweightCharacter {
       "Character.UpdateSimpleProxyHealth",
       this.pGetSimpleProxyHealth()
     );
+    if (damageInfo.damage > 0) {
+      const timestamp = Date.now();
+      const parent = this.getParent(server);
+      if (parent) parent.lastDamagedTimestamp = timestamp;
+      const parentFoundation = this.getParentFoundation(server);
+      if (parentFoundation) parentFoundation.lastDamagedTimestamp = timestamp;
+    }
 
     if (this.health > 0) return;
     this.destroy(server, 3000);
