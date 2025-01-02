@@ -186,6 +186,8 @@ export class ConstructionDoor extends DoorEntity {
       case Items.DOOR_METAL:
         slotMap = parent.occupiedWallSlots;
         updateSecured = true;
+        parent.wallSlotsPlacementTimer[this.getSlotNumber()] =
+          Date.now() + 30000;
         break;
     }
     if (slotMap) parent.clearSlot(this.getSlotNumber(), slotMap);

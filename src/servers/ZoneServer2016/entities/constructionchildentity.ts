@@ -63,7 +63,8 @@ import {
   OccupiedSlotMap,
   SlottedConstructionEntity,
   CubeBounds,
-  Point3D
+  Point3D,
+  ShelterSlotsPlacementTimer
 } from "types/zoneserver";
 import {
   getConstructionSlotId,
@@ -177,7 +178,9 @@ export class ConstructionChildEntity extends BaseLightweightCharacter {
   occupiedWallSlots: {
     [slot: number]: ConstructionDoor | ConstructionChildEntity;
   } = {};
-
+  shelterSlotsPlacementTimer: ShelterSlotsPlacementTimer = {};
+  wallSlotsPlacementTimer: ShelterSlotsPlacementTimer = {};
+  upperWallSlotsPlacementTimer: ShelterSlotsPlacementTimer = {};
   /** FOR UPPER WALL ON WALLS / DOORWAYS */
   readonly upperWallSlots: ConstructionSlotPositionMap = {};
   occupiedUpperWallSlots: { [slot: number]: ConstructionChildEntity } = {};
@@ -583,9 +586,13 @@ export class ConstructionChildEntity extends BaseLightweightCharacter {
       case Items.METAL_DOORWAY:
         slotMap = parent.occupiedWallSlots;
         updateSecured = true;
+        parent.wallSlotsPlacementTimer[this.getSlotNumber()] =
+          Date.now() + 30000;
         break;
       case Items.METAL_WALL_UPPER:
         slotMap = parent.occupiedUpperWallSlots;
+        parent.upperWallSlotsPlacementTimer[this.getSlotNumber()] =
+          Date.now() + 30000;
         break;
       case Items.SHELTER:
       case Items.SHELTER_LARGE:
@@ -595,6 +602,8 @@ export class ConstructionChildEntity extends BaseLightweightCharacter {
       case Items.STRUCTURE_STAIRS_UPPER:
       case Items.LOOKOUT_TOWER:
         slotMap = parent.occupiedShelterSlots;
+        parent.shelterSlotsPlacementTimer[this.getSlotNumber()] =
+          Date.now() + 30000;
         break;
       case Items.FOUNDATION_RAMP:
       case Items.FOUNDATION_STAIRS:

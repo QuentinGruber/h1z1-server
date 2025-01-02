@@ -17,7 +17,8 @@ const Z1_vehicles = require("../../../../data/2016/zoneData/Z1_vehicleLocations.
 import {
   ConstructionEntity,
   dailyRepairMaterial,
-  DamageInfo
+  DamageInfo,
+  ShelterSlotsPlacementTimer
 } from "types/zoneserver";
 import {
   eul2quat,
@@ -571,30 +572,6 @@ export class ConstructionManager {
     );
   }
 
-  getIsOnDamagedFoundation(
-    server: ZoneServer2016,
-    parentObjectCharacterId: string,
-    freeplaceParentCharacterId: string
-  ): boolean {
-    const characterId = !!Number(parentObjectCharacterId)
-        ? parentObjectCharacterId
-        : freeplaceParentCharacterId,
-      parent =
-        server._constructionFoundations[characterId] ||
-        server._constructionSimple[characterId];
-    if (!parent) return false;
-    const parentFoundation = parent.getParentFoundation(server);
-    if (!parentFoundation)
-      return Date.now() - parent.lastDamagedTimestamp < 60000;
-
-    for (const a in parentFoundation.occupiedExpansionSlots) {
-      const expansion = parentFoundation.occupiedExpansionSlots[a];
-      if (Date.now() - expansion.lastDamagedTimestamp < 60000) return true;
-    }
-
-    return Date.now() - parentFoundation.lastDamagedTimestamp < 60000;
-  }
-
   placement(
     server: ZoneServer2016,
     client: Client,
@@ -673,22 +650,6 @@ export class ConstructionManager {
     ) {
       this.placementError(server, client, ConstructionErrors.BUILD_PERMISSION);
       this.sendPlacementFinalize(server, client, false);
-      return;
-    }
-
-    // detect placing on recently damaged foundation;
-    if (
-      this.getIsOnDamagedFoundation(
-        server,
-        parentObjectCharacterId,
-        freeplaceParentCharacterId
-      )
-    ) {
-      this.sendPlacementFinalize(server, client, false);
-      server.sendAlert(
-        client,
-        `You cant place anything on this foundation during a raid`
-      );
       return;
     }
 
@@ -989,6 +950,31 @@ export class ConstructionManager {
       return false;
     }
 
+    if (
+      parent &&
+      this.isSlotOnPlacementCooldown(
+        parent.shelterSlotsPlacementTimer,
+        getConstructionSlotId(BuildingSlot)
+      )
+    ) {
+      server.sendAlert(
+        client,
+        `You cant place in this slot for the next ${((parent.shelterSlotsPlacementTimer[getConstructionSlotId(BuildingSlot)] - Date.now()) / 1000).toFixed(2)} seconds`
+      );
+      return false;
+    }
+
+    if (
+      parent &&
+      parent.isSlotOccupied(
+        parent.occupiedShelterSlots,
+        getConstructionSlotId(BuildingSlot)
+      )
+    ) {
+      this.placementError(server, client, ConstructionErrors.OVERLAP);
+      return false;
+    }
+
     if (!parent.isShelterSlotValid(BuildingSlot, itemDefinitionId)) {
       this.placementError(server, client, ConstructionErrors.UNKNOWN_SLOT);
       return false;
@@ -1055,6 +1041,21 @@ export class ConstructionManager {
         this.placementError(server, client, ConstructionErrors.OVERLAP);
         return false;
       }
+
+      if (
+        parent &&
+        this.isSlotOnPlacementCooldown(
+          parent.upperWallSlotsPlacementTimer,
+          getConstructionSlotId(BuildingSlot)
+        )
+      ) {
+        server.sendAlert(
+          client,
+          `You cant place in this slot for the next ${((parent.upperWallSlotsPlacementTimer[getConstructionSlotId(BuildingSlot)] - Date.now()) / 1000).toFixed(2)} seconds`
+        );
+        return false;
+      }
+
       position = parent.getSlotPosition(BuildingSlot, parent.upperWallSlots);
       rotation = parent.getSlotRotation(BuildingSlot, parent.upperWallSlots);
     } else {
@@ -1068,6 +1069,21 @@ export class ConstructionManager {
         this.placementError(server, client, ConstructionErrors.OVERLAP);
         return false;
       }
+
+      if (
+        parent &&
+        this.isSlotOnPlacementCooldown(
+          parent.wallSlotsPlacementTimer,
+          getConstructionSlotId(BuildingSlot)
+        )
+      ) {
+        server.sendAlert(
+          client,
+          `You cant place in this slot for the next ${((parent.wallSlotsPlacementTimer[getConstructionSlotId(BuildingSlot)] - Date.now()) / 1000).toFixed(2)} seconds`
+        );
+        return false;
+      }
+
       position = parent.getSlotPosition(BuildingSlot, parent.wallSlots);
       rotation = parent.getSlotRotation(BuildingSlot, parent.wallSlots);
     }
@@ -1253,6 +1269,20 @@ export class ConstructionManager {
       )
     ) {
       this.placementError(server, client, ConstructionErrors.OVERLAP);
+      return false;
+    }
+
+    if (
+      parent &&
+      this.isSlotOnPlacementCooldown(
+        parent.wallSlotsPlacementTimer,
+        getConstructionSlotId(BuildingSlot)
+      )
+    ) {
+      server.sendAlert(
+        client,
+        `You cant place in this slot for the next ${((parent.wallSlotsPlacementTimer[getConstructionSlotId(BuildingSlot)] - Date.now()) / 1000).toFixed(2)} seconds`
+      );
       return false;
     }
 
@@ -2532,7 +2562,7 @@ export class ConstructionManager {
     if (entity instanceof ConstructionParentEntity)
       timeDif = Date.now() - entity.lastDamagedTimestamp;
 
-    if (timeDif && timeDif < 60000) {
+    if (timeDif && timeDif < 30000) {
       server.sendAlert(
         client,
         `You cant repair this base for the next ${(60 - Number(timeDif / 1000)).toFixed(2)} seconds`
@@ -2551,7 +2581,7 @@ export class ConstructionManager {
       Object.values(entity.occupiedExpansionSlots).forEach(
         (expansion: ConstructionParentEntity) => {
           const timeDiffExpansion = Date.now() - expansion.lastDamagedTimestamp;
-          if (timeDiffExpansion < 60000) {
+          if (timeDiffExpansion < 30000) {
             server.sendAlert(
               client,
               `You cant repair this base for the next ${(60 - Number(timeDiffExpansion / 1000)).toFixed(2)} seconds`
@@ -2788,5 +2818,9 @@ export class ConstructionManager {
           ? damage
           : damage / Math.sqrt(distance)
     });
+  }
+
+  isSlotOnPlacementCooldown(slots: ShelterSlotsPlacementTimer, slot: number) {
+    return slots[slot] > Date.now();
   }
 }
