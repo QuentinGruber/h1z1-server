@@ -237,7 +237,7 @@ export class LootableProp extends BaseLootableEntity {
     this.npcRenderDistance = renderDistance;
     this.loadoutId = 5;
     getContainerAndTime(this);
-    switch (this.lootSpawner) {
+    /*switch (this.lootSpawner) {
       case "Wrecked Van":
       case "Wrecked Car":
       case "Wrecked Truck":
@@ -251,7 +251,7 @@ export class LootableProp extends BaseLootableEntity {
           ])
         );
         break;
-    }
+    }*/
   }
 
   pGetSimpleNpc(): AddSimpleNpc {

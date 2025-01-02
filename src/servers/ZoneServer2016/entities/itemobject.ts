@@ -42,6 +42,7 @@ export class ItemObject extends BaseLightweightCharacter {
     this.spawnerId = spawnerId;
     this.item = item;
     this.shaderGroupId = server.getShaderGroupId(item.itemDefinitionId);
+    if (!server.isWeapon(item.itemDefinitionId)) this.useSimpleStruct = true;
   }
   /* eslint-disable @typescript-eslint/no-unused-vars */
   OnPlayerSelect(
