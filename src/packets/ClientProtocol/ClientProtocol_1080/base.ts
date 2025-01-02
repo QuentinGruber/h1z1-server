@@ -2387,6 +2387,16 @@ export const basePackets: PacketStructures = [
   ["Quest", 0x1b, {}],
   ["Reward", 0x1c, {}],
   [
+    "Reward.AddRewardItem",
+    0x1c01,
+    {
+      fields: [
+        ...rewardBundleSchema,
+        { name: "unknownBoolean2", type: "boolean", defaultValue: true }
+      ]
+    }
+  ],
+  [
     "Reward.AddNonRewardItem",
     0x1c02,
     {
