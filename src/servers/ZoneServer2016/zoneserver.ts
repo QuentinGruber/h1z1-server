@@ -2359,7 +2359,7 @@ export class ZoneServer2016 extends EventEmitter {
             ? Math.max(
                 0,
                 damageRecord.hitInfo.oldHP - damageRecord.hitInfo.newHP
-              )
+              ) * 100
             : 0,
         killedByHeadshot: ["HEAD", "GLASSES", "NECK"].includes(
           damageRecord?.hitInfo.hitLocation ?? ""
