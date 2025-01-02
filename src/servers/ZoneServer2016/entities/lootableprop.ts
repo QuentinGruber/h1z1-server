@@ -306,7 +306,11 @@ export class LootableProp extends BaseLootableEntity {
       });
     } else {
       switch (this.actorModelId) {
+        case ModelIds.CABINET_SET_03:
         case ModelIds.CABINET_SET_05:
+        case ModelIds.CABINET_SET_07:
+        case ModelIds.CABINET_SET_08:
+        case ModelIds.CABINET_SET_09:
           server.sendData(client, "Command.InteractionString", {
             guid: this.characterId,
             stringId: StringIds.SEARCH_ALL_CABINETS
