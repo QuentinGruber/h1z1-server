@@ -1563,9 +1563,6 @@ export class Character2016 extends BaseFullCharacter {
       case server.isConvey(item.itemDefinitionId):
         durability = 5400;
         break;
-      case server.isGeneric(item.itemDefinitionId):
-        durability = 2000;
-        break;
     }
     return {
       itemDefinitionId: item.itemDefinitionId,

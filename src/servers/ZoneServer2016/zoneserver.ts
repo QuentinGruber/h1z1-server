@@ -5608,6 +5608,9 @@ export class ZoneServer2016 extends EventEmitter {
       case itemDefinitionId == Items.WEAPON_AXE_WOOD:
         durability = 1000;
         break;
+      case itemDefinitionId == Items.SKINNING_KNIFE:
+        durability = 2000;
+        break;
       case this.isWeapon(itemDefinitionId):
         durability = 2000;
         break;
@@ -5621,9 +5624,6 @@ export class ZoneServer2016 extends EventEmitter {
         durability = forceMaxDurability
           ? 5400
           : Math.floor(Math.random() * 5400);
-        break;
-      case this.isGeneric(itemDefinitionId):
-        durability = 2000;
         break;
       default:
         durability = 2000;
@@ -5764,16 +5764,6 @@ export class ZoneServer2016 extends EventEmitter {
       this.getItemDefinition(itemDefinitionId)?.DESCRIPTION_ID ==
       StringIds.CONVEYS
     );
-  }
-
-  /**
-   * Checks if an item with the specified itemDefinitionId is a generic item type.
-   *
-   * @param {number} itemDefinitionId - The itemDefinitionId to check.
-   * @returns {boolean} True if the item is a generic type, false otherwise.
-   */
-  isGeneric(itemDefinitionId: number): boolean {
-    return this.getItemDefinition(itemDefinitionId)?.ITEM_TYPE == 1;
   }
 
   /**

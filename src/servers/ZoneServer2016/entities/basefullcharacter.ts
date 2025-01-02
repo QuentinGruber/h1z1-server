@@ -1101,9 +1101,6 @@ export abstract class BaseFullCharacter extends BaseLightweightCharacter {
       case server.isConvey(item.itemDefinitionId):
         durability = 5400;
         break;
-      case server.isGeneric(item.itemDefinitionId):
-        durability = 2000;
-        break;
     }
     return {
       itemDefinitionId: item.itemDefinitionId,
