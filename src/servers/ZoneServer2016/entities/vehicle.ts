@@ -81,6 +81,7 @@ function getVehicleName(ModelId: number) {
 
 function getVehicleLoadoutId(vehicleId: VehicleIds) {
   switch (vehicleId) {
+    case VehicleIds.PARACHUTE:
     case VehicleIds.OFFROADER:
       return LoadoutIds.VEHICLE_OFFROADER;
     case VehicleIds.PICKUP:
@@ -89,7 +90,6 @@ function getVehicleLoadoutId(vehicleId: VehicleIds) {
       return LoadoutIds.VEHICLE_POLICECAR;
     case VehicleIds.ATV:
       return LoadoutIds.VEHICLE_ATV;
-    case VehicleIds.PARACHUTE:
     case VehicleIds.SPECTATE:
     default:
       return 5; // idk if this is right but these vehicles dont have a loadout
@@ -333,6 +333,14 @@ export class Vehicle2016 extends BaseLootableEntity {
         this.majorDamageEffect = Effects.VEH_Damage_ATV_Stage02;
         this.criticalDamageEffect = Effects.VEH_Damage_ATV_Stage03;
         this.supercriticalDamageEffect = Effects.VEH_Damage_ATV_Stage04;
+        break;
+      case VehicleIds.PARACHUTE:
+        this.destroyedEffect = 0;
+        this.destroyedModel = 0;
+        this.minorDamageEffect = 0;
+        this.majorDamageEffect = 0;
+        this.criticalDamageEffect = 0;
+        this.supercriticalDamageEffect = 0;
         break;
       case VehicleIds.OFFROADER:
       default:

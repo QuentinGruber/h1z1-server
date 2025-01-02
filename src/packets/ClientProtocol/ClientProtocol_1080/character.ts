@@ -631,7 +631,16 @@ export const characterPackets: PacketStructures = [
     }
   ],
   ["Character.RequestToggleDoorState", 0x0f52, {}],
-  ["Character.SetAllowRespawn", 0x0f54, {}],
+  [
+    "Character.SetAllowRespawn",
+    0x0f54,
+    {
+      fields: [
+        { name: "characterId", type: "uint64string", defaultValue: "0" },
+        { name: "allowRespawn", type: "boolean", defaultValue: false }
+      ]
+    }
+  ],
   ["Character.UpdateGuildTag", 0x0f55, {}],
   [
     "Character.MovementVersion",
