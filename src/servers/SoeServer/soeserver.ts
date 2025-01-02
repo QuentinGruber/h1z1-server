@@ -39,7 +39,7 @@ export class SOEServer extends EventEmitter {
   keepAliveTimeoutTime: number = 40000;
   private readonly _maxMultiBufferSize: number;
   private _resendTimeout: number = 250;
-  private _maxResentTries: number = 12;
+  private _maxResentTries: number = 24;
   _allowRawDataReception: boolean = false;
   private _packetResetInterval: NodeJS.Timeout | undefined;
   avgEventLoopLag: number = 0;
