@@ -16,7 +16,7 @@ import { ZoneClient2016 } from "../classes/zoneclient";
 
 import { StringIds, Items, ModelIds } from "../models/enums";
 import { DamageInfo } from "types/zoneserver";
-import { eul2quat, randomIntFromInterval } from "../../../utils/utils";
+import { randomIntFromInterval } from "../../../utils/utils";
 import { AddSimpleNpc } from "types/zone2016packets";
 
 function getContainerAndTime(entity: LootableProp) {
