@@ -569,6 +569,9 @@ export class Vehicle2016 extends BaseLootableEntity {
 
     if (this._resources[ResourceIds.CONDITION] <= 0) {
       this.destroy(server);
+      if (client) {
+        client.character.metrics.vehiclesDestroyed++;
+      }
     } else {
       let damageeffect = 0;
       let allowSend = false;

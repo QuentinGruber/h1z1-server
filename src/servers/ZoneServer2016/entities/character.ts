@@ -89,6 +89,8 @@ interface CharacterMetrics {
   wildlifeKilled: number;
   recipesDiscovered: number;
   startedSurvivingTP: number; // timestamp
+  vehiclesDestroyed: number;
+  playersKilled: number;
 }
 
 interface MeleeHit {
@@ -238,7 +240,9 @@ export class Character2016 extends BaseFullCharacter {
     recipesDiscovered: 0,
     zombiesKilled: 0,
     wildlifeKilled: 0,
-    startedSurvivingTP: Date.now()
+    startedSurvivingTP: Date.now(),
+    vehiclesDestroyed: 0,
+    playersKilled: 0
   };
 
   /** Tracks combat with other players/entities */
@@ -1173,6 +1177,8 @@ export class Character2016 extends BaseFullCharacter {
     this.metrics.wildlifeKilled = 0;
     this.metrics.recipesDiscovered = 0;
     this.metrics.startedSurvivingTP = Date.now();
+    this.metrics.vehiclesDestroyed = 0;
+    this.metrics.playersKilled = 0;
   }
 
   resetResources(server: ZoneServer2016) {
@@ -1291,10 +1297,17 @@ export class Character2016 extends BaseFullCharacter {
         );
       }
     }
+    const sourceEntity = server.getEntity(damageInfo.entity);
     this._resources[ResourceIds.HEALTH] -= damage;
     if (this._resources[ResourceIds.HEALTH] <= 0) {
       this._resources[ResourceIds.HEALTH] = 0;
       server.killCharacter(client, damageInfo);
+      if (
+        sourceEntity instanceof Character2016 &&
+        sourceEntity.characterId != client.character.characterId
+      ) {
+        sourceEntity.metrics.playersKilled++;
+      }
     }
     server.updateResource(
       client,
@@ -1303,7 +1316,6 @@ export class Character2016 extends BaseFullCharacter {
       ResourceIds.HEALTH
     );
 
-    const sourceEntity = server.getEntity(damageInfo.entity);
     const orientation = calculateOrientation(
       this.state.position,
       sourceEntity?.state.position || this.state.position // send damaged screen effect during falling/hunger etc

@@ -2342,6 +2342,7 @@ export class ZoneServer2016 extends EventEmitter {
   }
 
   sendDeathMetrics(client: Client) {
+    const damageRecord = Object.values(client.character.getCombatLog()).at(-1);
     this.sendData<ClientUpdateDeathMetrics>(
       client,
       "ClientUpdate.DeathMetrics",
@@ -2350,7 +2351,19 @@ export class ZoneServer2016 extends EventEmitter {
         zombiesKilled: client.character.metrics.zombiesKilled,
         minutesSurvived:
           (Date.now() - client.character.metrics.startedSurvivingTP) / 60000,
-        wildlifeKilled: client.character.metrics.wildlifeKilled
+        wildlifeKilled: client.character.metrics.wildlifeKilled,
+        vehiclesDestroyed: client.character.metrics.vehiclesDestroyed,
+        playersKilled: client.character.metrics.playersKilled,
+        lastDamageAmount:
+          damageRecord?.hitInfo.oldHP && damageRecord?.hitInfo.newHP
+            ? Math.max(
+                0,
+                damageRecord.hitInfo.oldHP - damageRecord.hitInfo.newHP
+              )
+            : 0,
+        killedByHeadshot: ["HEAD", "GLASSES", "NECK"].includes(
+          damageRecord?.hitInfo.hitLocation ?? ""
+        )
       }
     );
   }
