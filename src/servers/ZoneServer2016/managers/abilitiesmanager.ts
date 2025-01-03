@@ -270,6 +270,7 @@ export class AbilitiesManager {
         break;
       case Items.WEAPON_COMBATKNIFE:
       case Items.SKINNING_KNIFE:
+      case Items.WEAPON_TOXIC_COMBATKNIFE:
         effectString += "Knife_ForehandSlash";
         meleeType = MeleeTypes.KNIFE;
         damage *= 3;
@@ -389,7 +390,7 @@ export class AbilitiesManager {
     packetData: EffectRemoveEffect
   ) {
     const vehicleAbilityEffectId =
-        packetData.abilityEffectData.abilityEffectId1,
+      packetData.abilityEffectData.abilityEffectId1,
       vehicle = server._vehicles[packetData.targetCharacterId ?? ""];
     if (!vehicle) return;
 
