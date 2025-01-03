@@ -3586,6 +3586,13 @@ export const basePackets: PacketStructures = [
   ["CrateOpeningBase", 0xf6, {}],
   ["PlayerHeatWarning", 0xf7, {}],
   [
+    "Animation.Request",
+    0xf801,
+    {
+      fields: [{ name: "animationId", type: "uint32", defaultValue: 0 }]
+    }
+  ],
+  [
     "AnimationBase",
     0xf802,
     {
