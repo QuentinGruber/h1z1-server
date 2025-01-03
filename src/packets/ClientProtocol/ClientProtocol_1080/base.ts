@@ -3398,6 +3398,34 @@ export const basePackets: PacketStructures = [
       ]
     }
   ],
+  [
+    "Audio.SetState",
+    0xdd01,
+    {
+      fields: [
+        { name: "unknownString1", type: "string", defaultValue: "" },
+        { name: "unknownString2", type: "string", defaultValue: "" }
+      ]
+    }
+  ],
+  [
+    "Audio.SetSwitch",
+    0xdd02,
+    {
+      fields: [
+        { name: "characterId", type: "uint64string", defaultValue: "0" },
+        { name: "unknownString1", type: "string", defaultValue: "ShoeType" },
+        { name: "unknownString2", type: "string", defaultValue: "Sneaker" }
+      ]
+    }
+  ],
+  [
+    "Audio.PostEvent",
+    0xdd03,
+    {
+      fields: [{ name: "unknownString1", type: "string", defaultValue: "" }]
+    }
+  ],
   ["CheckLocalValues", 0xde, {}],
   ["ChronicleBase", 0xdf, {}],
   [
