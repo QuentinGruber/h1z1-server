@@ -390,7 +390,7 @@ export class AbilitiesManager {
     packetData: EffectRemoveEffect
   ) {
     const vehicleAbilityEffectId =
-      packetData.abilityEffectData.abilityEffectId1,
+        packetData.abilityEffectData.abilityEffectId1,
       vehicle = server._vehicles[packetData.targetCharacterId ?? ""];
     if (!vehicle) return;
 
