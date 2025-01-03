@@ -8185,6 +8185,12 @@ export class ZoneServer2016 extends EventEmitter {
         }
       }
     }
+
+    this.sendData(client, "Audio.SetSwitch", {
+      characterId: client.character.characterId,
+      unknownString1: "ShoeType",
+      unknownString2: character.getFootwearStatus()
+    });
   }
 
   checkNightVision(client: Client, character = client.character) {

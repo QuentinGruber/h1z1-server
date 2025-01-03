@@ -1789,6 +1789,18 @@ export class Character2016 extends BaseFullCharacter {
     }
   }
 
+  getFootwearStatus(): string {
+    switch (true) {
+      case this.hasConveys:
+        return "Sneaker";
+      case this.hasBoots:
+        return "Boot";
+      default:
+        return "Barefoot";
+      // There's also Silent, possibly for zeds?
+    }
+  }
+
   OnProjectileHit(server: ZoneServer2016, damageInfo: DamageInfo) {
     if (!this.isAlive || server.isPvE) return;
 
