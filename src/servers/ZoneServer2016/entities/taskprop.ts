@@ -99,6 +99,7 @@ export class TaskProp extends BaseLightweightCharacter {
           Items.FIRST_AID,
           Items.ANTIBIOTICS,
           Items.VIAL_H1Z1_REDUCER,
+          Items.EMPTY_SPECIMEN_BAG,
           Items.CAP_SCRUBS_GRAY,
           Items.PANTS_SCRUBS_GRAY,
           Items.SHIRT_SCRUBS_GRAY
@@ -133,12 +134,7 @@ export class TaskProp extends BaseLightweightCharacter {
       case "Task_Hospital_Researcher_TreasureChest.adr":
         this.nameId = 12771;
         this.requiredItemId = Items.BRAIN_TREATED;
-        this.rewardItems = [
-          Items.CODED_MESSAGE,
-          Items.AMMO_9MM,
-          Items.AMMO_223,
-          Items.FIRST_AID
-        ];
+        this.rewardItems = [Items.CODED_MESSAGE];
         break;
       case "Task_Hospital_Researcher_Locker.adr":
         this.nameId = 12781;

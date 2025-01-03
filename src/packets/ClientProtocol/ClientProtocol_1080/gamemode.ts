@@ -20,7 +20,7 @@ export const gamemodePackets: PacketStructures = [
     {
       fields: [
         { name: "position", type: "floatvector4", defaultValue: [0, 0, 0, 0] },
-        { name: "radius", type: "uint32", defaultValue: 1000 },
+        { name: "radius", type: "float", defaultValue: 1000 },
         { name: "unknownDword3", type: "uint32", defaultValue: 10 },
         { name: "unknownDword4", type: "uint32", defaultValue: 0 }
       ]
@@ -32,7 +32,7 @@ export const gamemodePackets: PacketStructures = [
     {
       fields: [
         { name: "position", type: "floatvector4", defaultValue: [0, 0, 0, 0] },
-        { name: "radius", type: "uint32", defaultValue: 1000 }
+        { name: "radius", type: "float", defaultValue: 1000 }
       ]
     }
   ],

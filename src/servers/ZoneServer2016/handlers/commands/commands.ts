@@ -34,6 +34,7 @@ import { Npc } from "../../entities/npc";
 import { ZoneClient2016 as Client } from "../../classes/zoneclient";
 import {
   characterBuildKitLoadout,
+  characterTestKitLoadout,
   characterSkinsLoadout,
   characterKitLoadout,
   characterVehicleKit
@@ -1260,7 +1261,7 @@ export const commands: Array<Command> = [
       const heightInput = args[1];
       const height = heightInput !== undefined ? parseFloat(heightInput) : 50;
       if (isNaN(height)) {
-        server.sendAlert(
+        server.sendChatText(
           client,
           "Error: Please enter a valid number for the height."
         );
@@ -1275,7 +1276,7 @@ export const commands: Array<Command> = [
           newPosition[1] -= height;
           break;
         default:
-          server.sendAlert(
+          server.sendChatText(
             client,
             "Error: Invalid direction. Use 'up' or 'down'."
           );
@@ -1285,7 +1286,7 @@ export const commands: Array<Command> = [
         position: newPosition,
         triggerLoadingScreen: false
       });
-      server.sendAlert(client, `Moved ${direction} by ${height}.`);
+      server.sendChatText(client, `Moved ${direction} by ${height}`);
     }
   },
   {
@@ -1563,6 +1564,7 @@ export const commands: Array<Command> = [
           getCurrentServerTimeWrapper().getTruncatedU32(),
           VehicleIds.PARACHUTE
         );
+      server.worldObjectManager.createVehicle(server, vehicle, true);
       server.sendData(actingClient, "ClientUpdate.UpdateLocation", {
         position: loc,
         triggerLoadingScreen: true
@@ -1574,7 +1576,55 @@ export const commands: Array<Command> = [
         server.assignManagedObject(clientTriggered, vehicle);
         clientTriggered.vehicle.mountedVehicle = characterId;
       };
-      server.worldObjectManager.createVehicle(server, vehicle, true);
+    }
+  },
+  {
+    name: "changemodel",
+    permissionLevel: PermissionLevels.ADMIN,
+    execute: async (
+      server: ZoneServer2016,
+      client: Client,
+      args: Array<string>
+    ) => {
+      if (args.length < 1) {
+        server.sendChatText(client, "Please specify a valid model ID.");
+        return;
+      }
+
+      const modelMap: { [key: string]: number } = {
+        deer: 9002,
+        buck: 9253,
+        wolf: 9003,
+        bear: 9187,
+        rabbit: 9212,
+        screamer: 9667,
+        zombie: 9510,
+        raven: 9230
+      };
+
+      let newModelId: number;
+      const input = args[0];
+
+      if (!isNaN(Number(input))) {
+        newModelId = Number(input);
+      } else if (Object.prototype.hasOwnProperty.call(modelMap, input)) {
+        newModelId = modelMap[input];
+      } else {
+        server.sendChatText(client, "Specify a valid model ID!");
+        return;
+      }
+
+      server.sendDataToAllWithSpawnedEntity(
+        server._characters,
+        client.character.characterId,
+        "Character.ReplaceBaseModel",
+        {
+          characterId: client.character.characterId,
+          modelId: newModelId
+        }
+      );
+
+      server.sendChatText(client, `Model changed to ID ${newModelId}`);
     }
   },
   {
@@ -1687,19 +1737,6 @@ export const commands: Array<Command> = [
         server.inGameTimeManager.stop();
         server.sendChatText(client, "Game time is now froze", true);
       }
-    }
-  },
-  {
-    name: "sfog",
-    permissionLevel: PermissionLevels.ADMIN,
-    execute: (server: ZoneServer2016, client: Client, args: Array<string>) => {
-      server.sendChatText(
-        client,
-        `Fog has been toggled ${
-          server.weatherManager.toggleFog() ? "ON" : "OFF"
-        } for the server`,
-        true
-      );
     }
   },
   {
@@ -1958,6 +1995,95 @@ export const commands: Array<Command> = [
     permissionLevel: PermissionLevels.ADMIN,
     execute: (server: ZoneServer2016, client: Client, args: Array<string>) => {
       server.weatherManager.handleWeatherCommand(server, client, args);
+    }
+  },
+  {
+    name: "desiredweather",
+    permissionLevel: PermissionLevels.ADMIN,
+    execute: (server: ZoneServer2016, client: Client, args: Array<string>) => {
+      if (!args[0] || !args[1]) {
+        server.sendChatText(
+          client,
+          "[ERROR] Usage /desiredweather {setting} {value} optional: {alertAll: true/false}"
+        );
+        return;
+      }
+      const value = Number(args[1]);
+      let changed = false;
+      switch (args[0]) {
+        case "skycolor":
+          if (value < -2 || value > 2) {
+            server.sendChatText(
+              client,
+              "Setting out of value range (MIN -2 - 2 MAX) (-2 = Deep blue to +2 = Deep Orange)"
+            );
+            return;
+          }
+          server.weatherManager.desiredSkyColor = value;
+          server.sendChatText(client, "Changing..");
+          changed = true;
+          break;
+        case "globalprecipation":
+          if (value < 0 || value > 0.95) {
+            server.sendChatText(
+              client,
+              "Setting out of value range (MIN 0.0 - 0.95 MAX)"
+            );
+            return;
+          }
+          server.weatherManager.desiredGlobalPrecipation = value;
+          server.weatherManager.rainingHours = value
+            ? Array.from({ length: 24 }, (_, i) => i)
+            : [];
+          server.sendChatText(client, "Changing..");
+          changed = true;
+          break;
+        case "fogdensity":
+          if (value < 0.0001 || value > 0.0002) {
+            server.sendChatText(
+              client,
+              "Setting out of value range (MIN 0.0001 - 0.0002 MAX)"
+            );
+            return;
+          }
+          changed = true;
+          server.weatherManager.desiredfogDensity = value;
+          server.sendChatText(client, "Changing..");
+          break;
+        case "fogfloor":
+          if (value < 1 || value > 300) {
+            server.sendChatText(
+              client,
+              "Setting out of value range (MIN 1 - 300 MAX)"
+            );
+            return;
+          }
+          changed = true;
+          server.weatherManager.desiredfogFloor = value;
+          server.sendChatText(client, "Changing..");
+          break;
+        case "foggradient":
+          if (value < 1 || value > 300) {
+            server.sendChatText(
+              client,
+              "Setting out of value range (MIN 0.001 - 0.02)"
+            );
+            return;
+          }
+          changed = true;
+          server.weatherManager.desiredfogGradient = value;
+          server.sendChatText(client, "Changing..");
+          break;
+        default:
+          server.sendChatText(client, "Setting not found, available settings:");
+          server.sendChatText(
+            client,
+            "skycolor, globalprecipation, fogdensity, fogfloor, foggradient"
+          );
+          break;
+      }
+      if (changed && (Number(args[2]) || args[2] == "true"))
+        server.sendAlertToAll("Desired weather setting has been changed");
     }
   },
   {
@@ -2250,6 +2376,10 @@ export const commands: Array<Command> = [
           client.character.equipLoadout(server, characterKitLoadout, true);
           break;
         case "parts":
+          client.character.equipItem(
+            server,
+            server.generateItem(Items.FANNY_PACK_DEV)
+          );
           client.character.equipLoadout(server, characterVehicleKit, true);
           break;
         case "skins":
@@ -2274,6 +2404,18 @@ export const commands: Array<Command> = [
           return;
       }
       server.sendChatText(client, `Equipped ${args[0]} kit`);
+    }
+  },
+  {
+    name: "testkit",
+    permissionLevel: PermissionLevels.ADMIN,
+    execute: (server, client, args) => {
+      client.character.equipItem(
+        server,
+        server.generateItem(Items.FANNY_PACK_DEV)
+      );
+      client.character.equipLoadout(server, characterTestKitLoadout, true);
+      server.sendChatText(client, `Equipped test kit`);
     }
   },
   {

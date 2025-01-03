@@ -1547,6 +1547,13 @@ export class Character2016 extends BaseFullCharacter {
 
   pGetAttachmentSlot(slotId: number) {
     const slot = this._equipment[slotId];
+    let shaderParams = slot?.SHADER_PARAMETER_GROUP ?? [];
+    if (slotId == 3 && slot.SHADER_PARAMETER_GROUP?.length == 4) {
+      shaderParams =
+        this.hoodState == "Down"
+          ? [slot.SHADER_PARAMETER_GROUP[0], slot.SHADER_PARAMETER_GROUP[1]]
+          : [slot.SHADER_PARAMETER_GROUP[2], slot.SHADER_PARAMETER_GROUP[3]];
+    }
     return slot
       ? {
           modelName: slot.modelName.replace(
@@ -1558,7 +1565,7 @@ export class Character2016 extends BaseFullCharacter {
           tintAlias: slot.tintAlias || "Default",
           decalAlias: slot.decalAlias || "#",
           slotId: slot.slotId,
-          SHADER_PARAMETER_GROUP: slot?.SHADER_PARAMETER_GROUP ?? []
+          SHADER_PARAMETER_GROUP: shaderParams
         }
       : undefined;
   }

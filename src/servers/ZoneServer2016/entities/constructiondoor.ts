@@ -153,6 +153,11 @@ export class ConstructionDoor extends DoorEntity {
       ResourceTypes.CONDITION,
       server._constructionDoors
     );
+    if (damageInfo.damage > 0) {
+      const timestamp = Date.now();
+      const parentFoundation = this.getParentFoundation(server);
+      if (parentFoundation) parentFoundation.lastDamagedTimestamp = timestamp;
+    }
 
     if (this.health > 0) return;
     this.destroy(server, 3000);
@@ -181,6 +186,8 @@ export class ConstructionDoor extends DoorEntity {
       case Items.DOOR_METAL:
         slotMap = parent.occupiedWallSlots;
         updateSecured = true;
+        parent.wallSlotsPlacementTimer[this.getSlotNumber()] =
+          Date.now() + 30000;
         break;
     }
     if (slotMap) parent.clearSlot(this.getSlotNumber(), slotMap);
@@ -406,7 +413,8 @@ export class ConstructionDoor extends DoorEntity {
   OnExplosiveHit(
     server: ZoneServer2016,
     sourceEntity: BaseEntity,
-    client?: ZoneClient2016
+    client?: ZoneClient2016,
+    useRaycast?: boolean
   ) {
     const itemDefinitionId =
       sourceEntity instanceof ExplosiveEntity
@@ -422,12 +430,16 @@ export class ConstructionDoor extends DoorEntity {
     ) {
       return;
     }
-
     if (server.constructionManager.isConstructionInSecuredArea(server, this)) {
-      if (!client) return;
-      server.constructionManager.sendBaseSecuredMessage(server, client);
-
-      return;
+      if (useRaycast) {
+        if (!client) return;
+        server.constructionManager.sendBaseSecuredMessage(server, client);
+        return;
+      } else {
+        if (!client) return;
+        server.constructionManager.sendBaseSecuredMessage(server, client);
+        return;
+      }
     }
     server.constructionManager.checkConstructionDamage(
       server,

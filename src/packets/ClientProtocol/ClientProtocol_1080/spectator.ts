@@ -151,5 +151,14 @@ export const spectatorPackets: PacketStructures = [
         { name: "unknownDword1", type: "uint32", defaultValue: 0 }
       ]
     }
+  ],
+  [
+    "Spectator.Unknown12",
+    0xe30c00,
+    {
+      fields: [
+        { name: "unknownQword1", type: "uint64string", defaultValue: "0" }
+      ]
+    }
   ]
 ];
