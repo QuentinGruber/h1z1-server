@@ -273,6 +273,10 @@ export type SlottedConstructionEntity = ConstructionChildEntity | ConstructionPa
 
 export type ConstructionEntity = SlottedConstructionEntity | LootableConstructionEntity;
 
+export type ShelterSlotsPlacementTimer = {
+	[slot: number]: number;
+};
+
 export interface ConstructionPermissions {
   characterId: string;
   characterName: string;
