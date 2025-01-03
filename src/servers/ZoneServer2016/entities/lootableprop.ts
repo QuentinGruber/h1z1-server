@@ -64,7 +64,7 @@ function getContainerAndTime(entity: LootableProp) {
       entity.searchTime = 500;
       entity.lootSpawner = "Cabinets Cube";
       break;
-    
+
     case ModelIds.CABINET_SET_03:
     case ModelIds.CABINET_SET_05:
     case ModelIds.CABINET_SET_06:
