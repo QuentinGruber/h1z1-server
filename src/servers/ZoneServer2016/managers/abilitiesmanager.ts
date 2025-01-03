@@ -258,6 +258,7 @@ export class AbilitiesManager {
         break;
       case Items.WEAPON_BAT_ALUM:
       case Items.WEAPON_BAT_WOOD:
+      case Items.WEAPON_MOURNING_WOOD:
       case Items.WEAPON_BRANCH:
       case Items.WEAPON_CROWBAR:
       case Items.WEAPON_HAMMER:
