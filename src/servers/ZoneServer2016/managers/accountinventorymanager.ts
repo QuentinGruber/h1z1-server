@@ -155,4 +155,13 @@ export class AccountInventoryManager {
       });
     }
   }
+  async rollbackItems(
+    loginSessionId: string,
+    removedItems: { inventoryItem: AccountItem; count: number }[]
+  ) {
+    for (const { inventoryItem, count } of removedItems) {
+      inventoryItem.stackCount += count;
+      await this.updateAccountItem(loginSessionId, inventoryItem);
+    }
+  }
 }

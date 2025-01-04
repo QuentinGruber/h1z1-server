@@ -3479,7 +3479,41 @@ export const basePackets: PacketStructures = [
   ["BattlEyeData", 0xe6, {}],
   ["OnlineIdBase", 0xe7, {}],
   ["Ps4PlayGoBase", 0xe8, {}],
-  ["SynchronizedTeleportBase", 0xe9, {}],
+  [
+    "SynchronizedTeleport.WaitingForPlayers",
+    0xe90100,
+    {
+      fields: [
+        { name: "unknownBoolean1", type: "boolean", defaultValue: false }
+      ]
+    }
+  ],
+  [
+    "SynchronizedTeleport.Unk2",
+    0xe90200,
+    {
+      fields: []
+    }
+  ],
+  [
+    "SynchronizedTeleport.StartingMatch",
+    0xe90300,
+    {
+      fields: [
+        { name: "cooldown", type: "uint32", defaultValue: 5000 },
+        { name: "unknownBoolean1", type: "boolean", defaultValue: false }
+      ]
+    }
+  ],
+  [
+    "SynchronizedTeleport.Countdown",
+    0xe90400,
+    {
+      fields: [
+        { name: "unknownBoolean1", type: "boolean", defaultValue: false }
+      ]
+    }
+  ],
   ["StaticViewBase", 0xea, {}],
   ["DatasheetsBase", 0xec, {}],
   ["PlayerWorldTransferRequest", 0xed, {}],

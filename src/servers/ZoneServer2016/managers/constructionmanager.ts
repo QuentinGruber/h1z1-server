@@ -17,7 +17,8 @@ const Z1_vehicles = require("../../../../data/2016/zoneData/Z1_vehicleLocations.
 import {
   ConstructionEntity,
   dailyRepairMaterial,
-  DamageInfo
+  DamageInfo,
+  ShelterSlotsPlacementTimer
 } from "types/zoneserver";
 import {
   eul2quat,
@@ -949,6 +950,31 @@ export class ConstructionManager {
       return false;
     }
 
+    if (
+      parent &&
+      this.isSlotOnPlacementCooldown(
+        parent.shelterSlotsPlacementTimer,
+        getConstructionSlotId(BuildingSlot)
+      )
+    ) {
+      server.sendAlert(
+        client,
+        `You cant place in this slot for the next ${((parent.shelterSlotsPlacementTimer[getConstructionSlotId(BuildingSlot)] - Date.now()) / 1000).toFixed(2)} seconds`
+      );
+      return false;
+    }
+
+    if (
+      parent &&
+      parent.isSlotOccupied(
+        parent.occupiedShelterSlots,
+        getConstructionSlotId(BuildingSlot)
+      )
+    ) {
+      this.placementError(server, client, ConstructionErrors.OVERLAP);
+      return false;
+    }
+
     if (!parent.isShelterSlotValid(BuildingSlot, itemDefinitionId)) {
       this.placementError(server, client, ConstructionErrors.UNKNOWN_SLOT);
       return false;
@@ -1015,6 +1041,21 @@ export class ConstructionManager {
         this.placementError(server, client, ConstructionErrors.OVERLAP);
         return false;
       }
+
+      if (
+        parent &&
+        this.isSlotOnPlacementCooldown(
+          parent.upperWallSlotsPlacementTimer,
+          getConstructionSlotId(BuildingSlot)
+        )
+      ) {
+        server.sendAlert(
+          client,
+          `You cant place in this slot for the next ${((parent.upperWallSlotsPlacementTimer[getConstructionSlotId(BuildingSlot)] - Date.now()) / 1000).toFixed(2)} seconds`
+        );
+        return false;
+      }
+
       position = parent.getSlotPosition(BuildingSlot, parent.upperWallSlots);
       rotation = parent.getSlotRotation(BuildingSlot, parent.upperWallSlots);
     } else {
@@ -1028,6 +1069,21 @@ export class ConstructionManager {
         this.placementError(server, client, ConstructionErrors.OVERLAP);
         return false;
       }
+
+      if (
+        parent &&
+        this.isSlotOnPlacementCooldown(
+          parent.wallSlotsPlacementTimer,
+          getConstructionSlotId(BuildingSlot)
+        )
+      ) {
+        server.sendAlert(
+          client,
+          `You cant place in this slot for the next ${((parent.wallSlotsPlacementTimer[getConstructionSlotId(BuildingSlot)] - Date.now()) / 1000).toFixed(2)} seconds`
+        );
+        return false;
+      }
+
       position = parent.getSlotPosition(BuildingSlot, parent.wallSlots);
       rotation = parent.getSlotRotation(BuildingSlot, parent.wallSlots);
     }
@@ -1216,6 +1272,20 @@ export class ConstructionManager {
       return false;
     }
 
+    if (
+      parent &&
+      this.isSlotOnPlacementCooldown(
+        parent.wallSlotsPlacementTimer,
+        getConstructionSlotId(BuildingSlot)
+      )
+    ) {
+      server.sendAlert(
+        client,
+        `You cant place in this slot for the next ${((parent.wallSlotsPlacementTimer[getConstructionSlotId(BuildingSlot)] - Date.now()) / 1000).toFixed(2)} seconds`
+      );
+      return false;
+    }
+
     if (!parent.isWallSlotValid(BuildingSlot, itemDefinitionId)) {
       this.placementError(server, client, ConstructionErrors.UNKNOWN_SLOT);
       return false;
@@ -1223,6 +1293,13 @@ export class ConstructionManager {
 
     const position = parent.getSlotPosition(BuildingSlot, parent.wallSlots),
       rotation = parent.getSlotRotation(BuildingSlot, parent.wallSlots);
+    if (
+      position &&
+      (itemDefinitionId == Items.METAL_GATE ||
+        itemDefinitionId == Items.METAL_WALL ||
+        itemDefinitionId == Items.METAL_WALL_UPPER)
+    )
+      position[1] -= 0.1;
     if (!position || !rotation) {
       this.placementError(server, client, ConstructionErrors.UNKNOWN_SLOT);
       return false;
@@ -1783,7 +1860,7 @@ export class ConstructionManager {
       }
     }
     if (allowed) return false;
-    const bufferZone = 0.35;
+    const bufferZone = 0.15;
     const position = client.character.state.position;
     const positions: Float32Array[] = [];
 
@@ -2479,11 +2556,17 @@ export class ConstructionManager {
     entity: ConstructionEntity,
     weaponItem: LoadoutItem
   ) {
-    if (
-      client.character.lastRepairTime &&
-      Date.now() - client.character.lastRepairTime < 1000
-    ) {
-      server.sendChatText(client, "Cooldown on repairing.");
+    const foundation = entity.getParentFoundation(server);
+    let timeDif;
+    if (foundation) timeDif = Date.now() - foundation.lastDamagedTimestamp;
+    if (entity instanceof ConstructionParentEntity)
+      timeDif = Date.now() - entity.lastDamagedTimestamp;
+
+    if (timeDif && timeDif < 30000) {
+      server.sendAlert(
+        client,
+        `You cant repair this base for the next ${(60 - Number(timeDif / 1000)).toFixed(2)} seconds`
+      );
       return;
     }
 
@@ -2497,6 +2580,14 @@ export class ConstructionManager {
     if (entity instanceof ConstructionParentEntity) {
       Object.values(entity.occupiedExpansionSlots).forEach(
         (expansion: ConstructionParentEntity) => {
+          const timeDiffExpansion = Date.now() - expansion.lastDamagedTimestamp;
+          if (timeDiffExpansion < 30000) {
+            server.sendAlert(
+              client,
+              `You cant repair this base for the next ${(60 - Number(timeDiffExpansion / 1000)).toFixed(2)} seconds`
+            );
+            return;
+          }
           // repair every object on each expansion
           accumulatedItemDamage += this.repairShelterSlots(server, expansion);
           accumulatedItemDamage += this.repairWallSlots(server, expansion);
@@ -2524,7 +2615,6 @@ export class ConstructionManager {
       Math.ceil(accumulatedItemDamage / 4)
     );
     client.character.lastMeleeHitTime = Date.now();
-    client.character.lastRepairTime = Date.now();
   }
 
   private fullyRepairFreeplaceEntities(
@@ -2672,11 +2762,28 @@ export class ConstructionManager {
     }
   }
 
-  sendBaseSecuredMessage(server: ZoneServer2016, client: Client) {
-    server.sendAlert(
-      client,
-      "You must destroy the base's gate before affecting interior structures."
-    );
+  sendBaseSecuredMessage(
+    server: ZoneServer2016,
+    client: Client,
+    rayCastProtectionType: number = 0
+  ) {
+    switch (rayCastProtectionType) {
+      case 1:
+        server.sendAlert(client, "Base protection unbroken, damage reduced");
+        return;
+      case 2:
+        server.sendAlert(
+          client,
+          "You must destroy the base's gate before placing explosives inside."
+        );
+        return;
+      default:
+        server.sendAlert(
+          client,
+          "You must destroy the base's gate before affecting interior structures."
+        );
+        return;
+    }
   }
 
   checkConstructionDamage(
@@ -2711,5 +2818,9 @@ export class ConstructionManager {
           ? damage
           : damage / Math.sqrt(distance)
     });
+  }
+
+  isSlotOnPlacementCooldown(slots: ShelterSlotsPlacementTimer, slot: number) {
+    return slots[slot] > Date.now();
   }
 }

@@ -415,6 +415,15 @@ const dev: any = {
       }
     }
   },
+  testrewards: function (
+    server: ZoneServer2016,
+    client: Client,
+    args: Array<string>
+  ) {
+    for (let i = 0; i < 100; i++) {
+      server.rewardManager.dropReward(client);
+    }
+  },
   kickme: function (
     server: ZoneServer2016,
     client: Client,
