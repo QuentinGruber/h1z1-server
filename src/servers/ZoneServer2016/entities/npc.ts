@@ -395,7 +395,7 @@ export class Npc extends BaseFullCharacter {
   ) {
     const ranges = [];
     const preRewardedItems: number[] = [];
-
+    // Ensure zombie logic is tied to NPC type
     if (isZombie) {
       if (chance(2)) {
         const wornLetters = [
