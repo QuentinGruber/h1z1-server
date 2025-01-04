@@ -1613,5 +1613,5 @@ export function isLootNerfedLoc(position: Float32Array): number {
 }
 
 export function chance(chanceNum: number): boolean {
-  return Math.random() * 100 < chanceNum;
+  return Math.random() * 1000 < chanceNum;
 }
