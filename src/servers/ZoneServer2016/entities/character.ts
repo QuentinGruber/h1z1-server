@@ -1275,7 +1275,6 @@ export class Character2016 extends BaseFullCharacter {
     const sourceClient = server.getClientByCharId(damageInfo.entity);
     if (!sourceClient?.character) return;
     sourceClient.character.addCombatlogEntry(damageRecord);
-    server.lootCrateWithChance(sourceClient, 5);
     //server.combatLog(sourceClient);
   }
 
