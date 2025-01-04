@@ -392,7 +392,8 @@ export enum ItemClasses {
   POUCHES = 25013,
   BACKPACKS = 25004,
   THROWABLES = 25078,
-  BODY_ARMOR = 25041
+  BODY_ARMOR = 25041,
+  FOOTWEAR = 25005
 }
 
 export enum VehicleIds {
@@ -438,6 +439,7 @@ export enum LoadoutSlots {
   CHEST = 10,
   HEAD = 11,
   BACK = 12,
+  FEET = 13,
   LEGS = 14,
   BELT = 25,
   EYES = 29,

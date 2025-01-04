@@ -185,11 +185,6 @@ export abstract class BaseFullCharacter extends BaseLightweightCharacter {
 
   /* eslint-disable @typescript-eslint/no-unused-vars */
   updateLoadout(server: ZoneServer2016) {
-    const client = server.getClientByContainerAccessor(this);
-    if (client) {
-      if (!client.character.initialized) return;
-      server.checkShoes(client);
-    }
     server.sendDataToAllWithSpawnedEntity(
       server._characters,
       this.characterId,
@@ -362,6 +357,9 @@ export abstract class BaseFullCharacter extends BaseLightweightCharacter {
           firemodeIndex: 0
         }
       );
+    }
+    if (client && server.isFootwear(item.itemDefinitionId)) {
+      server.updateFootwear(client, item.itemDefinitionId, false);
     }
     this.updateLoadout(server);
     if (equipmentSlotId) this.updateEquipmentSlot(server, equipmentSlotId);
@@ -1087,24 +1085,6 @@ export abstract class BaseFullCharacter extends BaseLightweightCharacter {
   }
 
   pGetItemData(server: ZoneServer2016, item: BaseItem, containerDefId: number) {
-    let durability: number = 0;
-    switch (true) {
-      case server.isWeapon(item.itemDefinitionId):
-        durability = 2000;
-        break;
-      case server.isArmor(item.itemDefinitionId):
-        durability = 1000;
-        break;
-      case server.isHelmet(item.itemDefinitionId):
-        durability = 100;
-        break;
-      case server.isConvey(item.itemDefinitionId):
-        durability = 5400;
-        break;
-      case server.isGeneric(item.itemDefinitionId):
-        durability = 2000;
-        break;
-    }
     return {
       itemDefinitionId: item.itemDefinitionId,
       tintId: 0,
@@ -1116,9 +1096,11 @@ export abstract class BaseFullCharacter extends BaseLightweightCharacter {
       containerGuid: item.containerGuid,
       containerDefinitionId: containerDefId,
       containerSlotId: item.slotId,
-      baseDurability: durability,
-      currentDurability: durability ? item.currentDurability : 0,
-      maxDurabilityFromDefinition: durability,
+      baseDurability: server.getItemBaseDurability(item.itemDefinitionId),
+      currentDurability: item.currentDurability,
+      maxDurabilityFromDefinition: server.getItemBaseDurability(
+        item.itemDefinitionId
+      ),
       unknownBoolean1: true,
       ownerCharacterId: EXTERNAL_CONTAINER_GUID,
       unknownDword9: 1,

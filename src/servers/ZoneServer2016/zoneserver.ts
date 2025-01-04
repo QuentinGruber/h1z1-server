@@ -5479,6 +5479,27 @@ export class ZoneServer2016 extends EventEmitter {
   }
 
   /**
+   * Gets the max durability for a given itemDefinitionId.
+   *
+   * @param {number} [itemDefinitionId] - The ID of the item definition to retrieve.
+   * @returns {ItemDefinition|undefined} The item definition or undefined.
+   */
+  getItemBaseDurability(itemDefinitionId?: number): number {
+    if (!itemDefinitionId) return 0;
+    switch (true) {
+      case this.isArmor(itemDefinitionId):
+        return 1000;
+      case this.isHelmet(itemDefinitionId):
+        return 100;
+      case this.isConvey(itemDefinitionId):
+        return 5400;
+      case this.isGeneric(itemDefinitionId) || this.isWeapon(itemDefinitionId):
+      default:
+        return 2000;
+    }
+  }
+
+  /**
    * Gets the weapon definition for a given weaponDefinitionId.
    *
    * @param {number} weaponDefinitionId - The ID of the weapon definition to retrieve.
@@ -5795,9 +5816,29 @@ export class ZoneServer2016 extends EventEmitter {
    * @returns {boolean} True if the item is a convey, false otherwise.
    */
   isConvey(itemDefinitionId: number): boolean {
+    return this.getItemDefinition(itemDefinitionId)?.DESCRIPTION_ID == 11895;
+  }
+
+  /**
+   * Checks if an item with the specified itemDefinitionId is a boot.
+   *
+   * @param {number} itemDefinitionId - The itemDefinitionId to check.
+   * @returns {boolean} True if the item is a convey, false otherwise.
+   */
+  isBoot(itemDefinitionId: number): boolean {
+    return this.getItemDefinition(itemDefinitionId)?.DESCRIPTION_ID == 11155;
+  }
+
+  /**
+   * Checks if an item with the specified itemDefinitionId is footwear.
+   *
+   * @param {number} itemDefinitionId - The itemDefinitionId to check.
+   * @returns {boolean} True if the item is a boot, false otherwise.
+   */
+  isFootwear(itemDefinitionId: number): boolean {
     return (
-      this.getItemDefinition(itemDefinitionId)?.DESCRIPTION_ID ==
-      StringIds.CONVEYS
+      this.getItemDefinition(itemDefinitionId)?.ITEM_CLASS ==
+      ItemClasses.FOOTWEAR
     );
   }
 
@@ -6131,6 +6172,9 @@ export class ZoneServer2016 extends EventEmitter {
         }
       );
     }
+    if (client && this.isFootwear(itemDefId)) {
+      this.updateFootwear(client, itemDefId, true);
+    }
     if (client) this.deleteItem(character, item.itemGuid);
     delete character._loadout[loadoutSlotId];
     character.updateLoadout(this);
@@ -6141,7 +6185,6 @@ export class ZoneServer2016 extends EventEmitter {
       );
     }
     if (client) {
-      this.checkShoes(client);
       this.checkNightVision(client);
     }
     if (this.getItemDefinition(itemDefId)?.ITEM_TYPE === ItemTypes.CONTAINER) {
@@ -8141,55 +8184,36 @@ export class ZoneServer2016 extends EventEmitter {
     );
   }
 
-  checkShoes(client: Client, character = client.character) {
-    if (!character._equipment["5"]) {
-      if (character.hasConveys) {
-        character.hasConveys = false;
-        this.divideMovementModifier(client, MovementModifiers.CONVEYS);
-      }
+  updateFootwear(
+    client: Client,
+    itemDefId: number,
+    isRemoved: boolean = false
+  ) {
+    let movementType: MovementModifiers | undefined;
 
-      if (character.hasBoots) {
-        character.hasBoots = false;
-        this.divideMovementModifier(client, MovementModifiers.BOOTS);
-      }
-    } else {
-      if (character._equipment["5"].guid) {
-        const item = client.character.getInventoryItem(
-          character._equipment["5"].guid
-        );
-        const itemDefinition = this.getItemDefinition(
-          item?.itemDefinitionId ?? 0
-        );
-        if (!item || !itemDefinition) return;
+    if (this.isConvey(itemDefId)) {
+      movementType = MovementModifiers.CONVEYS;
+    } else if (this.isBoot(itemDefId)) {
+      movementType = MovementModifiers.BOOTS;
+    }
 
-        if (itemDefinition.DESCRIPTION_ID == 11895 && !character.hasConveys) {
-          character.hasConveys = true;
-          this.multiplyMovementModifier(client, MovementModifiers.CONVEYS);
-        } else if (
-          itemDefinition.DESCRIPTION_ID != 11895 &&
-          character.hasConveys
-        ) {
-          character.hasConveys = false;
-          this.divideMovementModifier(client, MovementModifiers.CONVEYS);
-        }
+    if (movementType) {
+      isRemoved
+        ? this.divideMovementModifier(client, movementType)
+        : this.multiplyMovementModifier(client, movementType);
+    }
 
-        if (itemDefinition.DESCRIPTION_ID == 11155 && !character.hasBoots) {
-          character.hasBoots = true;
-          this.multiplyMovementModifier(client, MovementModifiers.BOOTS);
-        } else if (
-          itemDefinition.DESCRIPTION_ID != 11895 &&
-          character.hasBoots
-        ) {
-          character.hasBoots = false;
-          this.divideMovementModifier(client, MovementModifiers.BOOTS);
-        }
-      }
+    let footwearStatus = "Barefoot";
+    if (this.isConvey(itemDefId) && !isRemoved) {
+      footwearStatus = "Sneaker";
+    } else if (this.isBoot(itemDefId) && !isRemoved) {
+      footwearStatus = "Boot";
     }
 
     this.sendData(client, "Audio.SetSwitch", {
       characterId: client.character.characterId,
       unknownString1: "ShoeType",
-      unknownString2: character.getFootwearStatus()
+      unknownString2: footwearStatus
     });
   }
 

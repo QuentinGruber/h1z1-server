@@ -647,11 +647,6 @@ export class Vehicle2016 extends BaseLootableEntity {
   }
 
   updateLoadout(server: ZoneServer2016) {
-    const client = server.getClientByCharId(this.characterId);
-    if (client) {
-      if (!client.character.initialized) return;
-      server.checkShoes(client);
-    }
     server.sendDataToAllWithSpawnedEntity(
       server._vehicles,
       this.characterId,
@@ -1165,24 +1160,6 @@ export class Vehicle2016 extends BaseLootableEntity {
   }
 
   pGetItemData(server: ZoneServer2016, item: BaseItem, containerDefId: number) {
-    let durability: number = 0;
-    switch (true) {
-      case server.isWeapon(item.itemDefinitionId):
-        durability = 2000;
-        break;
-      case server.isArmor(item.itemDefinitionId):
-        durability = 1000;
-        break;
-      case server.isHelmet(item.itemDefinitionId):
-        durability = 100;
-        break;
-      case server.isConvey(item.itemDefinitionId):
-        durability = 5400;
-        break;
-      case server.isGeneric(item.itemDefinitionId):
-        durability = 2000;
-        break;
-    }
     return {
       itemDefinitionId: item.itemDefinitionId,
       tintId: 0,
@@ -1194,9 +1171,11 @@ export class Vehicle2016 extends BaseLootableEntity {
       containerGuid: item.containerGuid,
       containerDefinitionId: containerDefId,
       containerSlotId: item.slotId,
-      baseDurability: durability,
-      currentDurability: durability ? item.currentDurability : 0,
-      maxDurabilityFromDefinition: durability,
+      baseDurability: server.getItemBaseDurability(item.itemDefinitionId),
+      currentDurability: item.currentDurability,
+      maxDurabilityFromDefinition: server.getItemBaseDurability(
+        item.itemDefinitionId
+      ),
       unknownBoolean1: true,
       ownerCharacterId: this.characterId,
       unknownDword9: 1,

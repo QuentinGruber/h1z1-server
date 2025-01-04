@@ -206,10 +206,6 @@ export class Character2016 extends BaseFullCharacter {
   ) => void;
   timeouts: any;
 
-  /** Determines what ShoeType the player is wearing */
-  hasConveys: boolean = false;
-  hasBoots: boolean = false;
-
   /** Handles the current position of the player */
   positionUpdate?: positionUpdate;
 
@@ -895,7 +891,6 @@ export class Character2016 extends BaseFullCharacter {
   updateLoadout(server: ZoneServer2016, sendPacketToLocalClient = true) {
     const client = server.getClientByContainerAccessor(this);
     if (!client || !client.character.initialized) return;
-    server.checkShoes(client);
     if (sendPacketToLocalClient) {
       server.sendData(
         client,
@@ -1612,24 +1607,6 @@ export class Character2016 extends BaseFullCharacter {
   }
 
   pGetItemData(server: ZoneServer2016, item: BaseItem, containerDefId: number) {
-    let durability: number = 0;
-    switch (true) {
-      case server.isWeapon(item.itemDefinitionId):
-        durability = 2000;
-        break;
-      case server.isArmor(item.itemDefinitionId):
-        durability = 1000;
-        break;
-      case server.isHelmet(item.itemDefinitionId):
-        durability = 100;
-        break;
-      case server.isConvey(item.itemDefinitionId):
-        durability = 5400;
-        break;
-      case server.isGeneric(item.itemDefinitionId):
-        durability = 2000;
-        break;
-    }
     return {
       itemDefinitionId: item.itemDefinitionId,
       tintId: 0,
@@ -1641,9 +1618,11 @@ export class Character2016 extends BaseFullCharacter {
       containerGuid: item.containerGuid,
       containerDefinitionId: containerDefId,
       containerSlotId: item.slotId,
-      baseDurability: durability,
-      currentDurability: durability ? item.currentDurability : 0,
-      maxDurabilityFromDefinition: durability,
+      baseDurability: server.getItemBaseDurability(item.itemDefinitionId),
+      currentDurability: item.currentDurability,
+      maxDurabilityFromDefinition: server.getItemBaseDurability(
+        item.itemDefinitionId
+      ),
       unknownBoolean1: true,
       ownerCharacterId: this.characterId,
       unknownDword9: 1,
@@ -1786,18 +1765,6 @@ export class Character2016 extends BaseFullCharacter {
           }
         );
         break;
-    }
-  }
-
-  getFootwearStatus(): string {
-    switch (true) {
-      case this.hasConveys:
-        return "Sneaker";
-      case this.hasBoots:
-        return "Boot";
-      default:
-        return "Barefoot";
-      // There's also Silent, possibly for zeds?
     }
   }
 
