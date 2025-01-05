@@ -144,7 +144,7 @@ export class ProjectileEntity extends BaseLightweightCharacter {
     this.triggered = true;
     let effectId = 0;
     let effectType = 0;
-    let sendToThrower = true;
+    const sendToThrower = true;
     switch (this.itemDefinitionId) {
       case Items.GRENADE_FLASH:
         effectId = 4658;
@@ -213,10 +213,10 @@ export class ProjectileEntity extends BaseLightweightCharacter {
       this.gasDamageInterval = setInterval(() => {
         for (const a in server._characters) {
           const character = server._characters[a];
-          if (character.hasRespirator) break;
+          if (server.checkRespirator(character)) break;
           if (getDistance(character.state.position, this.state.position) <= 7) {
             const damageInfo: DamageInfo = {
-              entity: "GasGrenade",
+              entity: "Server.GasGrenade",
               damage: 500
             };
             character.damage(server, damageInfo);

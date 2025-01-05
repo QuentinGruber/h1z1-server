@@ -6231,7 +6231,6 @@ export class ZoneServer2016 extends EventEmitter {
     if (client) {
       this.checkShoes(client);
       this.checkNightVision(client);
-      this.checkRespirator(client);
     }
     if (this.getItemDefinition(itemDefId)?.ITEM_TYPE === ItemTypes.CONTAINER) {
       delete character._containers[loadoutSlotId];
@@ -8259,29 +8258,19 @@ export class ZoneServer2016 extends EventEmitter {
     );
   }
 
-  checkRespirator(client: Client, character = client.character) {
-    if (!character._equipment["28"]) {
-      if (character.hasRespirator) {
-        character.hasRespirator = false;
-      }
-    } else {
-      if (character._equipment["28"].guid) {
-        const item = client.character.getInventoryItem(
-          character._equipment["28"].guid
-        );
-        const itemDefinition = this.getItemDefinition(
-          item?.itemDefinitionId ?? 0
-        );
-        if (!item || !itemDefinition) return;
+  checkRespirator(character: Character) {
+    if (!character._equipment["28"]) return false;
+    if (character._equipment["28"].guid) {
+      const item = character.getInventoryItem(character._equipment["28"].guid);
+      const itemDefinition = this.getItemDefinition(
+        item?.itemDefinitionId ?? 0
+      );
+      if (!item || !itemDefinition) return false;
 
-        if (itemDefinition.DESCRIPTION_ID == 11014 && !character.hasRespirator) {
-          character.hasRespirator = true;
-        } else if (
-          itemDefinition.DESCRIPTION_ID != 11014 &&
-          character.hasRespirator
-        ) {
-          character.hasRespirator = false;
-        }
+      if (itemDefinition.DESCRIPTION_ID == 11014) {
+        return true;
+      } else {
+        return false;
       }
     }
   }

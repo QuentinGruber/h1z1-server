@@ -74,7 +74,6 @@ import { recipes } from "../data/Recipes";
 import { ConstructionChildEntity } from "./constructionchildentity";
 import { ConstructionParentEntity } from "./constructionparententity";
 import { BaseEntity } from "./baseentity";
-import { ProjectileEntity } from "./projectileentity";
 const stats = require("../../../../data/2016/sampleData/stats.json");
 
 interface CharacterStates {
@@ -208,9 +207,6 @@ export class Character2016 extends BaseFullCharacter {
   /** Determines what ShoeType the player is wearing */
   hasConveys: boolean = false;
   hasBoots: boolean = false;
-
-  /** Determines if the player is wearing a respirator */
-  hasRespirator: boolean = false;
 
   /** Handles the current position of the player */
   positionUpdate?: positionUpdate;
@@ -653,7 +649,7 @@ export class Character2016 extends BaseFullCharacter {
     });
     if (client.character._resources[ResourceIds.BLEEDING] > 0) {
       this.damage(server, {
-        entity: "Character.Bleeding",
+        entity: "Server.Character.Bleeding",
         damage:
           Math.ceil(client.character._resources[ResourceIds.BLEEDING] / 40) *
           100
@@ -661,7 +657,7 @@ export class Character2016 extends BaseFullCharacter {
     }
     this.checkResource(server, ResourceIds.BLEEDING);
     this.checkResource(server, ResourceIds.HUNGER, () => {
-      this.damage(server, { entity: "Character.Hunger", damage: 100 });
+      this.damage(server, { entity: "Server.Character.Hunger", damage: 100 });
     });
     const indexHunger = this.resourceHudIndicators.indexOf(
       ResourceIndicators.STARVING
@@ -692,10 +688,13 @@ export class Character2016 extends BaseFullCharacter {
       }
     }
     this.checkResource(server, ResourceIds.HUNGER, () => {
-      this.damage(server, { entity: "Character.Hunger", damage: 100 });
+      this.damage(server, { entity: "Server.Character.Hunger", damage: 100 });
     });
     this.checkResource(server, ResourceIds.HYDRATION, () => {
-      this.damage(server, { entity: "Character.Hydration", damage: 100 });
+      this.damage(server, {
+        entity: "Server.Character.Hydration",
+        damage: 100
+      });
     });
     const indexDehydrated = this.resourceHudIndicators.indexOf(
       ResourceIndicators.DEHYDRATED
@@ -845,7 +844,6 @@ export class Character2016 extends BaseFullCharacter {
     const client = server.getClientByContainerAccessor(this);
     if (!client || !client.character.initialized) return;
     server.checkShoes(client);
-    server.checkRespirator(client);
     if (sendPacketToLocalClient) {
       server.sendData(
         client,
@@ -1224,7 +1222,11 @@ export class Character2016 extends BaseFullCharacter {
         entity instanceof ConstructionChildEntity ||
         entity instanceof ConstructionParentEntity
       ) {
-        if (entity.isInside(this.state.position)) {
+        if (
+          damage > 0 &&
+          !damageInfo.entity.includes("Server.") &&
+          entity.isInside(this.state.position)
+        ) {
           return;
         }
       }
