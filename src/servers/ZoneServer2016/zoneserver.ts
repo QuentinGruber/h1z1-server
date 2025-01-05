@@ -2489,28 +2489,19 @@ export class ZoneServer2016 extends EventEmitter {
     client.character.dismountContainer(this);
 
     if (client.vehicle.mountedVehicle) {
-      const vehicle = this._vehicles[client.vehicle.mountedVehicle],
-        container = vehicle?.getContainer(),
-        occupantsCount = vehicle.getPassengerList().length,
-        lockedState = vehicle.isLocked;
+      const vehicle = this._vehicles[client.vehicle.mountedVehicle];
+      if (vehicle) {
+        const container = vehicle?.getContainer();
 
-      if (vehicle && container) {
-        container.items = {
-          ...container.items,
-          ...client.character.getDeathItems(this)
-        };
-      }
-
-      // Check if character is dead
-      if (!client.character.isAlive) {
+        if (vehicle && container) {
+          container.items = {
+            ...container.items,
+            ...client.character.getDeathItems(this)
+          };
+        }
         // Wait untill killCharacter is finished for dismountVehicle (if not, there will be no option for the dead occupant to respawn)
         this.once("killCharacterComplete", (client) => {
           this.dismountVehicle(client);
-
-          if (occupantsCount > 1 && lockedState) {
-            // lock the vehicle if there are other occupants in the vehicle, as dismountVehicle unlocks the vehicle
-            vehicle.setLockState(this, client, true);
-          }
         });
       }
     } else {
@@ -6058,13 +6049,32 @@ export class ZoneServer2016 extends EventEmitter {
    *
    * @param {BaseFullCharacter} character - The character to have their items removed.
    * @param {BaseItem} item - The item to remove.
+   * @param {number} [count=1]  - Optional: Specifies the amount of items that need to be removed, default is 1.
    * @returns {boolean} Returns true if the item was successfully removed, false if there was an error.
    */
-  removeAccountItem(character: BaseFullCharacter, item: BaseItem): boolean {
+  removeAccountItem(
+    character: BaseFullCharacter,
+    item: BaseItem,
+    count: number = 1
+  ): boolean {
     const client = this.getClientByCharId(character.characterId);
     if (!client) return false;
-    item.stackCount--;
-    if (item.stackCount <= 0) {
+
+    if (item.stackCount > count) {
+      item.stackCount -= count;
+      this.accountInventoriesManager.updateAccountItem(
+        client.loginSessionId,
+        item
+      );
+      this.sendData(client, "Items.UpdateEscrowAccountItem", {
+        itemData: {
+          itemId: item.itemGuid,
+          itemDefinitionId: item.itemDefinitionId,
+          itemCount: item.stackCount,
+          itemGuid: item.itemGuid
+        }
+      });
+    } else {
       this.accountInventoriesManager.removeAccountItem(
         client.loginSessionId,
         item
@@ -6073,21 +6083,8 @@ export class ZoneServer2016 extends EventEmitter {
         itemId: item.itemGuid,
         itemDefinitionId: item.itemDefinitionId
       });
-      return true;
-    } else {
-      this.accountInventoriesManager.updateAccountItem(
-        client.loginSessionId,
-        item
-      );
     }
-    this.sendData(client, "Items.UpdateEscrowAccountItem", {
-      itemData: {
-        itemId: item.itemGuid,
-        itemDefinitionId: item.itemDefinitionId,
-        itemCount: item.stackCount,
-        itemGuid: item.itemGuid
-      }
-    });
+
     return true;
   }
 
