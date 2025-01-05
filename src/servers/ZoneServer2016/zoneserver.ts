@@ -8163,9 +8163,9 @@ export class ZoneServer2016 extends EventEmitter {
           this.divideMovementModifier(client, MovementModifiers.CONVEYS);
         }
 
-        if (itemDefinition.DESCRIPTION_ID == 11155 || 
-          itemDefinition.DESCRIPTION_ID == 13581 && 
-          !character.hasBoots
+        if (
+          itemDefinition.DESCRIPTION_ID == 11155 ||
+          (itemDefinition.DESCRIPTION_ID == 13581 && !character.hasBoots)
         ) {
           character.hasBoots = true;
           this.multiplyMovementModifier(client, MovementModifiers.BOOTS);
