@@ -160,6 +160,7 @@ export class SpeedTreeManager {
         server,
         server.generateItem(itemDefId, count)
       );
+      server.lootCrateWithChance(client, 1);
     }
     if (destroy) {
       this.destroy(server, objectId, name);
