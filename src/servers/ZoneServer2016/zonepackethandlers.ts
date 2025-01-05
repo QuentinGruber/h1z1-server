@@ -1145,6 +1145,28 @@ export class ZonePacketHandlers {
     const positionUpdate = packetData.positionUpdate as any;
     const flags = positionUpdate.flags;
 
+    // throwable projectiles management
+
+    if (positionUpdate.unknown3_int8 === 10) {
+      const transientId = (packetData.transientId as number) || 0;
+      const characterId = server._transientIds[transientId];
+      const projectile = characterId
+        ? server._throwableProjectiles[characterId]
+        : undefined;
+      if (projectile) {
+        server.sendRawToAllOthersWithSpawnedEntity(
+          client,
+          server._throwableProjectiles,
+          characterId,
+          server._protocol.createManagedPositionBroadcast2016(
+            positionUpdate.raw
+          )
+        );
+        if (positionUpdate.position)
+          projectile.state.position = positionUpdate.position;
+      }
+    }
+
     // Airdrop management
     if (positionUpdate.unknown3_int8 === 5) {
       if (!server._airdrop || !positionUpdate.position) return;
@@ -2536,14 +2558,6 @@ export class ZonePacketHandlers {
                 client.character.loadoutId
               )
             ) {*/
-            if (
-              ![Items.GRENADE_SMOKE].includes(item.itemDefinitionId) &&
-              server.getItemDefinition(item?.itemDefinitionId)?.ITEM_CLASS ==
-                ItemClasses.THROWABLES
-            ) {
-              //TODO: Prevent equipping of throwables until fixed
-              return;
-            }
             sourceCharacter.equipContainerItem(server, item, newSlotId);
             //}
           } else {
@@ -3100,6 +3114,20 @@ export class ZonePacketHandlers {
             rotation: packet.packet.rotation,
             gameTime: packet.gameTime
           };
+        }
+        break;
+      case "Weapon.GuidedExplode":
+        for (const a in server._throwableProjectiles) {
+          const projectile = server._throwableProjectiles[a];
+          if (projectile.transientId == packet.packet.transientId) {
+            projectile.state.position = new Float32Array([
+              packet.packet.position[0],
+              packet.packet.position[1],
+              packet.packet.position[2],
+              1
+            ]);
+            projectile.onTrigger(server, client);
+          }
         }
         break;
       default:

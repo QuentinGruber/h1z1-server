@@ -47,7 +47,6 @@ import {
   _,
   checkConstructionInRange,
   getCurrentServerTimeWrapper,
-  isPosInRadiusWithY,
   getDistance
 } from "../../../utils/utils";
 import { BaseItem } from "../classes/baseItem";
@@ -73,6 +72,7 @@ import {
 import { recipes } from "../data/Recipes";
 import { ConstructionChildEntity } from "./constructionchildentity";
 import { ConstructionParentEntity } from "./constructionparententity";
+import { ExplosiveEntity } from "./explosiveentity";
 import { BaseEntity } from "./baseentity";
 const stats = require("../../../../data/2016/sampleData/stats.json");
 
@@ -649,7 +649,7 @@ export class Character2016 extends BaseFullCharacter {
     });
     if (client.character._resources[ResourceIds.BLEEDING] > 0) {
       this.damage(server, {
-        entity: "Character.Bleeding",
+        entity: "Server.Character.Bleeding",
         damage:
           Math.ceil(client.character._resources[ResourceIds.BLEEDING] / 40) *
           100
@@ -657,7 +657,7 @@ export class Character2016 extends BaseFullCharacter {
     }
     this.checkResource(server, ResourceIds.BLEEDING);
     this.checkResource(server, ResourceIds.HUNGER, () => {
-      this.damage(server, { entity: "Character.Hunger", damage: 100 });
+      this.damage(server, { entity: "Server.Character.Hunger", damage: 100 });
     });
     const indexHunger = this.resourceHudIndicators.indexOf(
       ResourceIndicators.STARVING
@@ -688,10 +688,13 @@ export class Character2016 extends BaseFullCharacter {
       }
     }
     this.checkResource(server, ResourceIds.HUNGER, () => {
-      this.damage(server, { entity: "Character.Hunger", damage: 100 });
+      this.damage(server, { entity: "Server.Character.Hunger", damage: 100 });
     });
     this.checkResource(server, ResourceIds.HYDRATION, () => {
-      this.damage(server, { entity: "Character.Hydration", damage: 100 });
+      this.damage(server, {
+        entity: "Server.Character.Hydration",
+        damage: 100
+      });
     });
     const indexDehydrated = this.resourceHudIndicators.indexOf(
       ResourceIndicators.DEHYDRATED
@@ -1219,7 +1222,11 @@ export class Character2016 extends BaseFullCharacter {
         entity instanceof ConstructionChildEntity ||
         entity instanceof ConstructionParentEntity
       ) {
-        if (entity.isInside(this.state.position)) {
+        if (
+          damage > 0 &&
+          !damageInfo.entity.includes("Server.") &&
+          entity.isInside(this.state.position)
+        ) {
           return;
         }
       }
@@ -1662,36 +1669,11 @@ export class Character2016 extends BaseFullCharacter {
     /* eslint-disable @typescript-eslint/no-unused-vars */
     switch (weaponDefinitionId) {
       case WeaponDefinitionIds.WEAPON_BLAZE:
-        this._characterEffects[Effects.PFX_Fire_Person_loop] = {
-          id: Effects.PFX_Fire_Person_loop,
-          duration: Date.now() + 10000,
-          callback: function (
-            server: ZoneServer2016,
-            character: Character2016
-          ) {
-            character.damage(server, {
-              entity: "Character.CharacterEffect",
-              damage: 500
-            });
-            server.sendDataToAllWithSpawnedEntity(
-              server._characters,
-              character.characterId,
-              "Command.PlayDialogEffect",
-              {
-                characterId: character.characterId,
-                effectId: Effects.PFX_Fire_Person_loop
-              }
-            );
-          }
-        };
-        server.sendDataToAllWithSpawnedEntity(
-          server._characters,
-          this.characterId,
-          "Command.PlayDialogEffect",
-          {
-            characterId: this.characterId,
-            effectId: Effects.PFX_Fire_Person_loop
-          }
+        server.applyCharacterEffect(
+          this,
+          Effects.PFX_Fire_Person_loop,
+          500,
+          10000
         );
         break;
       case WeaponDefinitionIds.WEAPON_FROSTBITE:
@@ -1704,30 +1686,11 @@ export class Character2016 extends BaseFullCharacter {
             }
           );
         }
-        this._characterEffects[Effects.PFX_Seasonal_Holiday_Snow_skel] = {
-          id: Effects.PFX_Seasonal_Holiday_Snow_skel,
-          duration: Date.now() + 5000,
-          endCallback: function (
-            server: ZoneServer2016,
-            character: Character2016
-          ) {
-            server.sendData<ClientUpdateModifyMovementSpeed>(
-              client,
-              "ClientUpdate.ModifyMovementSpeed",
-              {
-                speed: 2
-              }
-            );
-          }
-        };
-        server.sendDataToAllWithSpawnedEntity(
-          server._characters,
-          this.characterId,
-          "Command.PlayDialogEffect",
-          {
-            characterId: this.characterId,
-            effectId: Effects.PFX_Seasonal_Holiday_Snow_skel
-          }
+        server.applyCharacterEffect(
+          this,
+          Effects.PFX_Seasonal_Holiday_Snow_skel,
+          0,
+          5000
         );
         break;
     }
@@ -1880,22 +1843,13 @@ export class Character2016 extends BaseFullCharacter {
   }
 
   OnExplosiveHit(server: ZoneServer2016, sourceEntity: BaseEntity) {
-    const sourceIsVehicle = sourceEntity instanceof Vehicle2016;
-    if (
-      !isPosInRadiusWithY(
-        sourceIsVehicle ? 5 : 3,
-        this.state.position,
-        sourceEntity.state.position,
-        1.5
-      )
-    )
-      return;
+    const sourceIsExplosiveEntity = sourceEntity instanceof ExplosiveEntity;
 
     const distance = getDistance(
         sourceEntity.state.position,
         this.state.position
       ),
-      damage = 50000 / distance;
+      damage = (sourceIsExplosiveEntity ? 50000 : 20000) / distance;
 
     this.damage(server, {
       entity: sourceEntity.characterId,

@@ -14,8 +14,7 @@
 import {
   createPositionUpdate,
   eul2quat,
-  getDistance,
-  isPosInRadius
+  getDistance
 } from "../../../utils/utils";
 import {
   Items,
@@ -43,7 +42,6 @@ import {
   LightweightToFullVehicle
 } from "types/zone2016packets";
 import { BaseEntity } from "./baseentity";
-import { scheduler } from "timers/promises";
 
 function getActorModelId(vehicleId: VehicleIds) {
   switch (vehicleId) {
@@ -1329,15 +1327,12 @@ export class Vehicle2016 extends BaseLootableEntity {
 
   async OnExplosiveHit(server: ZoneServer2016, sourceEntity: BaseEntity) {
     if (this.characterId == sourceEntity.characterId) return;
-    if (!isPosInRadius(5, this.state.position, sourceEntity.state.position))
-      return;
 
     const distance = getDistance(
       sourceEntity.state.position,
       this.state.position
     );
     const damage = 250000 / distance;
-    await scheduler.wait(150);
     this.damage(server, {
       entity: sourceEntity.characterId,
       damage: damage
