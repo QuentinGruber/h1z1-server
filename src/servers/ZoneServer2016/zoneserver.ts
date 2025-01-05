@@ -5488,13 +5488,20 @@ export class ZoneServer2016 extends EventEmitter {
   getItemBaseDurability(itemDefinitionId?: number): number {
     if (!itemDefinitionId) return 0;
     switch (true) {
+      case this.isGeneric(itemDefinitionId):
+        return 0;
+      case itemDefinitionId == Items.WEAPON_HATCHET_MAKESHIFT:
+        return 250;
+      case itemDefinitionId == Items.WEAPON_HATCHET:
+        return 500;
+      case itemDefinitionId == Items.WEAPON_AXE_WOOD:
       case this.isArmor(itemDefinitionId):
         return 1000;
       case this.isHelmet(itemDefinitionId):
         return 100;
       case this.isConvey(itemDefinitionId):
         return 5400;
-      case this.isGeneric(itemDefinitionId) || this.isWeapon(itemDefinitionId):
+      case this.isWeapon(itemDefinitionId):
       default:
         return 2000;
     }
@@ -5653,39 +5660,8 @@ export class ZoneServer2016 extends EventEmitter {
       return;
     }
     const generatedGuid = toBigHex(this.generateItemGuid());
-    let durability: number;
+    let durability: number = this.getItemBaseDurability(itemDefinitionId);
     let wornOffDurability: number = 0;
-    switch (true) {
-      case itemDefinitionId == Items.WEAPON_HATCHET_MAKESHIFT:
-        durability = 250;
-        break;
-      case itemDefinitionId == Items.WEAPON_HATCHET:
-        durability = 500;
-        break;
-      case itemDefinitionId == Items.WEAPON_AXE_WOOD:
-        durability = 1000;
-        break;
-      case this.isWeapon(itemDefinitionId):
-        durability = 2000;
-        break;
-      case this.isArmor(itemDefinitionId):
-        durability = 1000;
-        break;
-      case this.isHelmet(itemDefinitionId):
-        durability = 100;
-        break;
-      case this.isConvey(itemDefinitionId):
-        durability = forceMaxDurability
-          ? 5400
-          : Math.floor(Math.random() * 5400);
-        break;
-      case this.isGeneric(itemDefinitionId):
-        durability = 2000;
-        break;
-      default:
-        durability = 2000;
-        break;
-    }
 
     const weaponDefinitionId = itemDefinition.PARAM1;
     switch (weaponDefinitionId) {
