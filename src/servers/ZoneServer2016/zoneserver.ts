@@ -2345,6 +2345,7 @@ export class ZoneServer2016 extends EventEmitter {
   }
 
   sendDeathMetrics(client: Client) {
+    const damageRecord = Object.values(client.character.getCombatLog()).at(-1);
     this.sendData<ClientUpdateDeathMetrics>(
       client,
       "ClientUpdate.DeathMetrics",
@@ -2353,7 +2354,19 @@ export class ZoneServer2016 extends EventEmitter {
         zombiesKilled: client.character.metrics.zombiesKilled,
         minutesSurvived:
           (Date.now() - client.character.metrics.startedSurvivingTP) / 60000,
-        wildlifeKilled: client.character.metrics.wildlifeKilled
+        wildlifeKilled: client.character.metrics.wildlifeKilled,
+        vehiclesDestroyed: client.character.metrics.vehiclesDestroyed,
+        playersKilled: client.character.metrics.playersKilled,
+        lastDamageAmount:
+          damageRecord?.hitInfo.oldHP && damageRecord?.hitInfo.newHP
+            ? Math.max(
+                0,
+                damageRecord.hitInfo.oldHP - damageRecord.hitInfo.newHP
+              ) * 100
+            : 0,
+        killedByHeadshot: ["HEAD", "GLASSES", "NECK"].includes(
+          damageRecord?.hitInfo.hitLocation ?? ""
+        )
       }
     );
   }
@@ -2867,6 +2880,7 @@ export class ZoneServer2016 extends EventEmitter {
       }, 2000);
     }
     client.character.updateEquipment(this);
+    client.character.updateFootwearAudio(this);
     this.hookManager.checkHook("OnPlayerRespawned", client);
   }
 
@@ -5600,6 +5614,34 @@ export class ZoneServer2016 extends EventEmitter {
   }
 
   /**
+   * Gets the max durability for a given itemDefinitionId.
+   *
+   * @param {number} [itemDefinitionId] - The ID of the item definition to retrieve.
+   * @returns {ItemDefinition|undefined} The item definition or undefined.
+   */
+  getItemBaseDurability(itemDefinitionId?: number): number {
+    if (!itemDefinitionId) return 0;
+    switch (true) {
+      case this.isGeneric(itemDefinitionId):
+        return 0;
+      case itemDefinitionId == Items.WEAPON_HATCHET_MAKESHIFT:
+        return 250;
+      case itemDefinitionId == Items.WEAPON_HATCHET:
+        return 500;
+      case itemDefinitionId == Items.WEAPON_AXE_WOOD:
+      case this.isArmor(itemDefinitionId):
+        return 1000;
+      case this.isHelmet(itemDefinitionId):
+        return 100;
+      case this.isConvey(itemDefinitionId):
+        return 5400;
+      case this.isWeapon(itemDefinitionId):
+      default:
+        return 2000;
+    }
+  }
+
+  /**
    * Gets the weapon definition for a given weaponDefinitionId.
    *
    * @param {number} weaponDefinitionId - The ID of the weapon definition to retrieve.
@@ -5752,39 +5794,8 @@ export class ZoneServer2016 extends EventEmitter {
       return;
     }
     const generatedGuid = toBigHex(this.generateItemGuid());
-    let durability: number;
+    let durability: number = this.getItemBaseDurability(itemDefinitionId);
     let wornOffDurability: number = 0;
-    switch (true) {
-      case itemDefinitionId == Items.WEAPON_HATCHET_MAKESHIFT:
-        durability = 250;
-        break;
-      case itemDefinitionId == Items.WEAPON_HATCHET:
-        durability = 500;
-        break;
-      case itemDefinitionId == Items.WEAPON_AXE_WOOD:
-        durability = 1000;
-        break;
-      case this.isWeapon(itemDefinitionId):
-        durability = 2000;
-        break;
-      case this.isArmor(itemDefinitionId):
-        durability = 1000;
-        break;
-      case this.isHelmet(itemDefinitionId):
-        durability = 100;
-        break;
-      case this.isConvey(itemDefinitionId):
-        durability = forceMaxDurability
-          ? 5400
-          : Math.floor(Math.random() * 5400);
-        break;
-      case this.isGeneric(itemDefinitionId):
-        durability = 2000;
-        break;
-      default:
-        durability = 2000;
-        break;
-    }
 
     const weaponDefinitionId = itemDefinition.PARAM1;
     switch (weaponDefinitionId) {
@@ -5916,9 +5927,31 @@ export class ZoneServer2016 extends EventEmitter {
    * @returns {boolean} True if the item is a convey, false otherwise.
    */
   isConvey(itemDefinitionId: number): boolean {
+    return this.getItemDefinition(itemDefinitionId)?.DESCRIPTION_ID == 11895;
+  }
+
+  /**
+   * Checks if an item with the specified itemDefinitionId is a boot.
+   *
+   * @param {number} itemDefinitionId - The itemDefinitionId to check.
+   * @returns {boolean} True if the item is a convey, false otherwise.
+   */
+  isBoot(itemDefinitionId: number): boolean {
+    return [11155, 13581].includes(
+      this.getItemDefinition(itemDefinitionId)?.DESCRIPTION_ID ?? 0
+    );
+  }
+
+  /**
+   * Checks if an item with the specified itemDefinitionId is footwear.
+   *
+   * @param {number} itemDefinitionId - The itemDefinitionId to check.
+   * @returns {boolean} True if the item is a boot, false otherwise.
+   */
+  isFootwear(itemDefinitionId: number): boolean {
     return (
-      this.getItemDefinition(itemDefinitionId)?.DESCRIPTION_ID ==
-      StringIds.CONVEYS
+      this.getItemDefinition(itemDefinitionId)?.ITEM_CLASS ==
+      ItemClasses.FOOTWEAR
     );
   }
 
@@ -6194,8 +6227,17 @@ export class ZoneServer2016 extends EventEmitter {
     const client = this.getClientByCharId(character.characterId);
     if (!client) return false;
 
-    if (item.stackCount > count) {
-      item.stackCount -= count;
+    item.stackCount -= count;
+    if (item.stackCount <= 0) {
+      this.accountInventoriesManager.removeAccountItem(
+        client.loginSessionId,
+        item
+      );
+      this.sendData(client, "Items.RemoveEscrowAccountItem", {
+        itemId: item.itemGuid,
+        itemDefinitionId: item.itemDefinitionId
+      });
+    } else {
       this.accountInventoriesManager.updateAccountItem(
         client.loginSessionId,
         item
@@ -6207,15 +6249,6 @@ export class ZoneServer2016 extends EventEmitter {
           itemCount: item.stackCount,
           itemGuid: item.itemGuid
         }
-      });
-    } else {
-      this.accountInventoriesManager.removeAccountItem(
-        client.loginSessionId,
-        item
-      );
-      this.sendData(client, "Items.RemoveEscrowAccountItem", {
-        itemId: item.itemGuid,
-        itemDefinitionId: item.itemDefinitionId
       });
     }
 
@@ -6255,6 +6288,9 @@ export class ZoneServer2016 extends EventEmitter {
     if (client) this.deleteItem(character, item.itemGuid);
     delete character._loadout[loadoutSlotId];
     character.updateLoadout(this);
+    if (client && this.isFootwear(itemDefId)) {
+      this.updateFootwear(client, itemDefId, true);
+    }
     if (updateEquipment) {
       this.clearEquipmentSlot(
         character,
@@ -6262,7 +6298,6 @@ export class ZoneServer2016 extends EventEmitter {
       );
     }
     if (client) {
-      this.checkShoes(client);
       this.checkNightVision(client);
     }
     if (this.getItemDefinition(itemDefId)?.ITEM_TYPE === ItemTypes.CONTAINER) {
@@ -8292,9 +8327,10 @@ export class ZoneServer2016 extends EventEmitter {
   }
 
   checkRespirator(character: Character) {
-    if (!character._equipment["28"]) return false;
-    if (character._equipment["28"].guid) {
-      const item = character.getInventoryItem(character._equipment["28"].guid);
+    if (!character._equipment[EquipSlots.FACE]) return false;
+    const itemGuid = character._equipment[EquipSlots.FACE].guid;
+    if (itemGuid) {
+      const item = character.getInventoryItem(itemGuid);
       const itemDefinition = this.getItemDefinition(
         item?.itemDefinitionId ?? 0
       );
@@ -8308,50 +8344,29 @@ export class ZoneServer2016 extends EventEmitter {
     }
   }
 
-  checkShoes(client: Client, character = client.character) {
-    if (!character._equipment["5"]) {
-      if (character.hasConveys) {
-        character.hasConveys = false;
-        this.divideMovementModifier(client, MovementModifiers.CONVEYS);
-      }
+  updateFootwear(
+    client: Client,
+    itemDefId: number,
+    isRemoved: boolean = false
+  ) {
+    if (!client.character.isReady) return;
+    let movementType: MovementModifiers | undefined;
 
-      if (character.hasBoots) {
-        character.hasBoots = false;
-        this.divideMovementModifier(client, MovementModifiers.BOOTS);
-      }
-    } else {
-      if (character._equipment["5"].guid) {
-        const item = client.character.getInventoryItem(
-          character._equipment["5"].guid
-        );
-        const itemDefinition = this.getItemDefinition(
-          item?.itemDefinitionId ?? 0
-        );
-        if (!item || !itemDefinition) return;
+    if (this.isConvey(itemDefId)) {
+      movementType = MovementModifiers.CONVEYS;
+    } else if (this.isBoot(itemDefId)) {
+      movementType = MovementModifiers.BOOTS;
+    }
 
-        if (itemDefinition.DESCRIPTION_ID == 11895 && !character.hasConveys) {
-          character.hasConveys = true;
-          this.multiplyMovementModifier(client, MovementModifiers.CONVEYS);
-        } else if (
-          itemDefinition.DESCRIPTION_ID != 11895 &&
-          character.hasConveys
-        ) {
-          character.hasConveys = false;
-          this.divideMovementModifier(client, MovementModifiers.CONVEYS);
-        }
-
-        if (itemDefinition.DESCRIPTION_ID == 11155 && !character.hasBoots) {
-          character.hasBoots = true;
-          this.multiplyMovementModifier(client, MovementModifiers.BOOTS);
-        } else if (
-          itemDefinition.DESCRIPTION_ID != 11895 &&
-          character.hasBoots
-        ) {
-          character.hasBoots = false;
-          this.divideMovementModifier(client, MovementModifiers.BOOTS);
-        }
+    if (movementType) {
+      if (isRemoved) {
+        this.divideMovementModifier(client, movementType);
+      } else {
+        this.multiplyMovementModifier(client, movementType);
       }
     }
+
+    client.character.updateFootwearAudio(this);
   }
 
   checkNightVision(client: Client, character = client.character) {

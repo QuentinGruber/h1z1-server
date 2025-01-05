@@ -89,6 +89,8 @@ interface CharacterMetrics {
   wildlifeKilled: number;
   recipesDiscovered: number;
   startedSurvivingTP: number; // timestamp
+  vehiclesDestroyed: number;
+  playersKilled: number;
 }
 
 interface MeleeHit {
@@ -204,10 +206,6 @@ export class Character2016 extends BaseFullCharacter {
   ) => void;
   timeouts: any;
 
-  /** Determines what ShoeType the player is wearing */
-  hasConveys: boolean = false;
-  hasBoots: boolean = false;
-
   /** Handles the current position of the player */
   positionUpdate?: positionUpdate;
 
@@ -238,7 +236,9 @@ export class Character2016 extends BaseFullCharacter {
     recipesDiscovered: 0,
     zombiesKilled: 0,
     wildlifeKilled: 0,
-    startedSurvivingTP: Date.now()
+    startedSurvivingTP: Date.now(),
+    vehiclesDestroyed: 0,
+    playersKilled: 0
   };
 
   /** Tracks combat with other players/entities */
@@ -843,7 +843,6 @@ export class Character2016 extends BaseFullCharacter {
   updateLoadout(server: ZoneServer2016, sendPacketToLocalClient = true) {
     const client = server.getClientByContainerAccessor(this);
     if (!client || !client.character.initialized) return;
-    server.checkShoes(client);
     if (sendPacketToLocalClient) {
       server.sendData(
         client,
@@ -1125,6 +1124,8 @@ export class Character2016 extends BaseFullCharacter {
     this.metrics.wildlifeKilled = 0;
     this.metrics.recipesDiscovered = 0;
     this.metrics.startedSurvivingTP = Date.now();
+    this.metrics.vehiclesDestroyed = 0;
+    this.metrics.playersKilled = 0;
   }
 
   resetResources(server: ZoneServer2016) {
@@ -1247,10 +1248,17 @@ export class Character2016 extends BaseFullCharacter {
         );
       }
     }
+    const sourceEntity = server.getEntity(damageInfo.entity);
     this._resources[ResourceIds.HEALTH] -= damage;
     if (this._resources[ResourceIds.HEALTH] <= 0) {
       this._resources[ResourceIds.HEALTH] = 0;
       server.killCharacter(client, damageInfo);
+      if (
+        sourceEntity instanceof Character2016 &&
+        sourceEntity.characterId != client.character.characterId
+      ) {
+        sourceEntity.metrics.playersKilled++;
+      }
     }
     server.updateResource(
       client,
@@ -1259,7 +1267,6 @@ export class Character2016 extends BaseFullCharacter {
       ResourceIds.HEALTH
     );
 
-    const sourceEntity = server.getEntity(damageInfo.entity);
     const orientation = calculateOrientation(
       this.state.position,
       sourceEntity?.state.position || this.state.position // send damaged screen effect during falling/hunger etc
@@ -1563,24 +1570,6 @@ export class Character2016 extends BaseFullCharacter {
   }
 
   pGetItemData(server: ZoneServer2016, item: BaseItem, containerDefId: number) {
-    let durability: number = 0;
-    switch (true) {
-      case server.isWeapon(item.itemDefinitionId):
-        durability = 2000;
-        break;
-      case server.isArmor(item.itemDefinitionId):
-        durability = 1000;
-        break;
-      case server.isHelmet(item.itemDefinitionId):
-        durability = 100;
-        break;
-      case server.isConvey(item.itemDefinitionId):
-        durability = 5400;
-        break;
-      case server.isGeneric(item.itemDefinitionId):
-        durability = 2000;
-        break;
-    }
     return {
       itemDefinitionId: item.itemDefinitionId,
       tintId: 0,
@@ -1592,9 +1581,11 @@ export class Character2016 extends BaseFullCharacter {
       containerGuid: item.containerGuid,
       containerDefinitionId: containerDefId,
       containerSlotId: item.slotId,
-      baseDurability: durability,
-      currentDurability: durability ? item.currentDurability : 0,
-      maxDurabilityFromDefinition: durability,
+      baseDurability: server.getItemBaseDurability(item.itemDefinitionId),
+      currentDurability: item.currentDurability,
+      maxDurabilityFromDefinition: server.getItemBaseDurability(
+        item.itemDefinitionId
+      ),
       unknownBoolean1: true,
       ownerCharacterId: this.characterId,
       unknownDword9: 1,
@@ -1653,6 +1644,11 @@ export class Character2016 extends BaseFullCharacter {
         this.characterStates,
         false
       );
+
+      //TODO: This is necessary to fix the audio on other clients. Have to figure out a better way of doing so but currently it works.
+      setTimeout(() => {
+        c.character.updateFootwearAudio(server);
+      }, 7500);
     }
 
     if (this.onReadyCallback) {
