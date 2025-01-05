@@ -2558,6 +2558,66 @@ export class ZoneServer2016 extends EventEmitter {
     }
   }
 
+  applyCharacterEffect(
+    character: Character,
+    effect: number,
+    damage: number,
+    time: number
+  ) {
+    character._characterEffects[effect] = {
+      id: effect,
+      duration: Date.now() + time,
+      callback: function (server: ZoneServer2016, character: Character) {
+        if (damage) {
+          character.damage(server, {
+            entity: "Character.CharacterEffect",
+            damage: 2000
+          });
+        }
+        server.sendDataToAllWithSpawnedEntity(
+          server._characters,
+          character.characterId,
+          "Command.PlayDialogEffect",
+          {
+            characterId: character.characterId,
+            effectId: effect
+          }
+        );
+      }
+    };
+    this.sendDataToAllWithSpawnedEntity(
+      this._characters,
+      character.characterId,
+      "Command.PlayDialogEffect",
+      {
+        characterId: character.characterId,
+        effectId: effect
+      }
+    );
+  }
+
+  sendAnimationToAllWithSpawnedEntity(
+    character: Character,
+    animationId: number
+  ) {
+    this.sendDataToAllWithSpawnedEntity(
+      this._characters,
+      character.characterId,
+      "Character.PlayAnimation",
+      {
+        characterId: character.characterId,
+        animationName: "Action",
+        animationType: "ActionType",
+        unm4: 0,
+        unknownDword1: 0,
+        unknownByte1: 0,
+        unknownDword2: 0,
+        unknownByte1xda: 0,
+        unknownDword3: animationId
+      }
+    );
+  }
+
   async explosionDamage(
     sourceEntity: BaseEntity | ProjectileEntity,
     client?: Client
@@ -2578,36 +2638,11 @@ export class ZoneServer2016 extends EventEmitter {
               sourceEntity.state.position
             ) <= 5
           ) {
-            character._characterEffects[Effects.PFX_Fire_Person_loop] = {
-              id: Effects.PFX_Fire_Person_loop,
-              duration: Date.now() + 10000,
-              callback: function (
-                server: ZoneServer2016,
-                character: Character
-              ) {
-                character.damage(server, {
-                  entity: "Character.CharacterEffect",
-                  damage: 2000
-                });
-                server.sendDataToAllWithSpawnedEntity(
-                  server._characters,
-                  character.characterId,
-                  "Command.PlayDialogEffect",
-                  {
-                    characterId: character.characterId,
-                    effectId: Effects.PFX_Fire_Person_loop
-                  }
-                );
-              }
-            };
-            this.sendDataToAllWithSpawnedEntity(
-              this._characters,
-              character.characterId,
-              "Command.PlayDialogEffect",
-              {
-                characterId: character.characterId,
-                effectId: Effects.PFX_Fire_Person_loop
-              }
+            this.applyCharacterEffect(
+              character,
+              Effects.PFX_Fire_Person_loop,
+              2000,
+              10000
             );
           }
         }
@@ -2625,22 +2660,7 @@ export class ZoneServer2016 extends EventEmitter {
           ) {
             this.addScreenEffect(c, this._screenEffects["FLASH"]);
 
-            this.sendDataToAllWithSpawnedEntity(
-              this._characters,
-              c.character.characterId,
-              "Character.PlayAnimation",
-              {
-                characterId: c.character.characterId,
-                animationName: "Action",
-                animationType: "ActionType",
-                unm4: 0,
-                unknownDword1: 0,
-                unknownByte1: 0,
-                unknownDword2: 0,
-                unknownByte1xda: 0,
-                unknownDword3: 9
-              }
-            );
+            this.sendAnimationToAllWithSpawnedEntity(c.character, 9);
           }
         }
         return;
