@@ -14,8 +14,7 @@
 import {
   createPositionUpdate,
   eul2quat,
-  getDistance,
-  isPosInRadius
+  getDistance
 } from "../../../utils/utils";
 import {
   Items,
@@ -43,7 +42,6 @@ import {
   LightweightToFullVehicle
 } from "types/zone2016packets";
 import { BaseEntity } from "./baseentity";
-import { scheduler } from "timers/promises";
 
 function getActorModelId(vehicleId: VehicleIds) {
   switch (vehicleId) {

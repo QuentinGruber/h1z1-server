@@ -47,7 +47,6 @@ import {
   _,
   checkConstructionInRange,
   getCurrentServerTimeWrapper,
-  isPosInRadiusWithY,
   getDistance
 } from "../../../utils/utils";
 import { BaseItem } from "../classes/baseItem";
