@@ -2756,6 +2756,7 @@ export class ZoneServer2016 extends EventEmitter {
       }, 2000);
     }
     client.character.updateEquipment(this);
+    client.character.updateFootwearAudio(this);
     this.hookManager.checkHook("OnPlayerRespawned", client);
   }
 
@@ -6172,12 +6173,12 @@ export class ZoneServer2016 extends EventEmitter {
         }
       );
     }
-    if (client && this.isFootwear(itemDefId)) {
-      this.updateFootwear(client, itemDefId, true);
-    }
     if (client) this.deleteItem(character, item.itemGuid);
     delete character._loadout[loadoutSlotId];
     character.updateLoadout(this);
+    if (client && this.isFootwear(itemDefId)) {
+      this.updateFootwear(client, itemDefId, true);
+    }
     if (updateEquipment) {
       this.clearEquipmentSlot(
         character,
@@ -8189,6 +8190,7 @@ export class ZoneServer2016 extends EventEmitter {
     itemDefId: number,
     isRemoved: boolean = false
   ) {
+    if (!client.character.isReady) return;
     let movementType: MovementModifiers | undefined;
 
     if (this.isConvey(itemDefId)) {
@@ -8203,23 +8205,7 @@ export class ZoneServer2016 extends EventEmitter {
         : this.multiplyMovementModifier(client, movementType);
     }
 
-    let footwearStatus = "Barefoot";
-    if (this.isConvey(itemDefId) && !isRemoved) {
-      footwearStatus = "Sneaker";
-    } else if (this.isBoot(itemDefId) && !isRemoved) {
-      footwearStatus = "Boot";
-    }
-
-    this.sendDataToAllWithSpawnedEntity(
-      this._characters,
-      client.character.characterId,
-      "Audio.SetSwitch",
-      {
-        characterId: client.character.characterId,
-        unknownString1: "ShoeType",
-        unknownString2: footwearStatus
-      }
-    );
+    client.character.updateFootwearAudio(this);
   }
 
   checkNightVision(client: Client, character = client.character) {

@@ -12,6 +12,7 @@
 // ======================================================================
 
 import {
+  AudioSetSwitch,
   EquipmentSetCharacterEquipment,
   EquipmentSetCharacterEquipmentSlot,
   LightweightToFullNpc
@@ -199,6 +200,15 @@ export abstract class BaseFullCharacter extends BaseLightweightCharacter {
       this.characterId,
       "Equipment.SetCharacterEquipment",
       this.pGetEquipment()
+    );
+  }
+
+  updateFootwearAudio(server: ZoneServer2016) {
+    server.sendDataToAllWithSpawnedEntity(
+      server._characters,
+      this.characterId,
+      "Audio.SetSwitch",
+      this.pGetFootwearAudio(server)
     );
   }
 
@@ -875,6 +885,22 @@ export abstract class BaseFullCharacter extends BaseLightweightCharacter {
       equipmentSlots: this.pGetEquipmentSlots(),
       attachmentData: this.pGetAttachmentSlots(),
       unknownBoolean1: true
+    };
+  }
+
+  pGetFootwearAudio(server: ZoneServer2016): AudioSetSwitch {
+    const item: LoadoutItem | undefined = this._loadout[LoadoutSlots.FEET];
+    let footwearStatus = "Barefoot";
+    if (item && server.isConvey(item.itemDefinitionId)) {
+      footwearStatus = "Sneaker";
+    } else if (item && server.isBoot(item.itemDefinitionId)) {
+      footwearStatus = "Boot";
+    }
+
+    return {
+      characterId: this.characterId,
+      unknownString1: "ShoeType",
+      unknownString2: footwearStatus
     };
   }
 

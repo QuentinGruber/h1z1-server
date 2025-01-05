@@ -1681,6 +1681,11 @@ export class Character2016 extends BaseFullCharacter {
         this.characterStates,
         false
       );
+
+      //TODO: This is necessary to fix the audio on other clients. Have to figure out a better way of doing so but currently it works.
+      setTimeout(() => {
+        c.character.updateFootwearAudio(server);
+      }, 7500);
     }
 
     if (this.onReadyCallback) {
