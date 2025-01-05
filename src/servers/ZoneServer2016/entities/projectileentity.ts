@@ -220,6 +220,22 @@ export class ProjectileEntity extends BaseLightweightCharacter {
               damage: 500
             };
             character.damage(server, damageInfo);
+            server.sendDataToAllWithSpawnedEntity(
+              server._characters,
+              character.characterId,
+              "Character.PlayAnimation",
+              {
+                characterId: character.characterId,
+                animationName: "Action",
+                animationType: "ActionType",
+                unm4: 0,
+                unknownDword1: 0,
+                unknownByte1: 0,
+                unknownDword2: 0,
+                unknownByte1xda: 0,
+                unknownDword3: 10
+              }
+            );
           }
         }
       }, 1000);

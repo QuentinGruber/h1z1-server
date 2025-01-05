@@ -2576,7 +2576,7 @@ export class ZoneServer2016 extends EventEmitter {
             getDistance(
               character.state.position,
               sourceEntity.state.position
-            ) <= 4
+            ) <= 5
           ) {
             character._characterEffects[Effects.PFX_Fire_Person_loop] = {
               id: Effects.PFX_Fire_Person_loop,
@@ -2621,7 +2621,7 @@ export class ZoneServer2016 extends EventEmitter {
             getDistance(
               character.state.position,
               sourceEntity.state.position
-            ) <= 3.5
+            ) <= 4
           ) {
             this.addScreenEffect(c, this._screenEffects["FLASH"]);
 

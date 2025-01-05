@@ -73,6 +73,7 @@ import {
 import { recipes } from "../data/Recipes";
 import { ConstructionChildEntity } from "./constructionchildentity";
 import { ConstructionParentEntity } from "./constructionparententity";
+import { ExplosiveEntity } from "./explosiveentity";
 import { BaseEntity } from "./baseentity";
 const stats = require("../../../../data/2016/sampleData/stats.json");
 
@@ -1887,13 +1888,13 @@ export class Character2016 extends BaseFullCharacter {
   }
 
   OnExplosiveHit(server: ZoneServer2016, sourceEntity: BaseEntity) {
-    const sourceIsVehicle = sourceEntity instanceof Vehicle2016;
+    const sourceIsExplosiveEntity = sourceEntity instanceof ExplosiveEntity;
     if (
       !isPosInRadiusWithY(
-        sourceIsVehicle ? 5 : 4,
+        5,
         this.state.position,
         sourceEntity.state.position,
-        1.5
+        3
       )
     )
       return;
@@ -1902,7 +1903,7 @@ export class Character2016 extends BaseFullCharacter {
         sourceEntity.state.position,
         this.state.position
       ),
-      damage = 50000 / distance;
+      damage = (sourceIsExplosiveEntity ? 50000 : 20000) / distance;
 
     this.damage(server, {
       entity: sourceEntity.characterId,
