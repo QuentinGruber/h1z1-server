@@ -16,7 +16,7 @@ import { ZoneClient2016 } from "../classes/zoneclient";
 
 import { StringIds, Items, ModelIds } from "../models/enums";
 import { DamageInfo } from "types/zoneserver";
-import { eul2quat, randomIntFromInterval } from "../../../utils/utils";
+import { randomIntFromInterval } from "../../../utils/utils";
 import { AddSimpleNpc } from "types/zone2016packets";
 
 function getContainerAndTime(entity: LootableProp) {
@@ -242,7 +242,7 @@ export class LootableProp extends BaseLootableEntity {
     this.npcRenderDistance = renderDistance;
     this.loadoutId = 5;
     getContainerAndTime(this);
-    switch (this.lootSpawner) {
+    /*switch (this.lootSpawner) {
       case "Wrecked Van":
       case "Wrecked Car":
       case "Wrecked Truck":
@@ -256,7 +256,7 @@ export class LootableProp extends BaseLootableEntity {
           ])
         );
         break;
-    }
+    }*/
   }
 
   pGetSimpleNpc(): AddSimpleNpc {
@@ -362,6 +362,7 @@ export class LootableProp extends BaseLootableEntity {
               server,
               server.generateItem(Items.METAL_SCRAP)
             );
+            server.lootCrateWithChance(client, 5);
           }
         } else {
           server.sendChatText(
