@@ -2387,6 +2387,16 @@ export const basePackets: PacketStructures = [
   ["Quest", 0x1b, {}],
   ["Reward", 0x1c, {}],
   [
+    "Reward.AddRewardItem",
+    0x1c01,
+    {
+      fields: [
+        ...rewardBundleSchema,
+        { name: "unknownBoolean2", type: "boolean", defaultValue: true }
+      ]
+    }
+  ],
+  [
     "Reward.AddNonRewardItem",
     0x1c02,
     {
@@ -3388,6 +3398,34 @@ export const basePackets: PacketStructures = [
       ]
     }
   ],
+  [
+    "Audio.SetState",
+    0xdd01,
+    {
+      fields: [
+        { name: "unknownString1", type: "string", defaultValue: "" },
+        { name: "unknownString2", type: "string", defaultValue: "" }
+      ]
+    }
+  ],
+  [
+    "Audio.SetSwitch",
+    0xdd02,
+    {
+      fields: [
+        { name: "characterId", type: "uint64string", defaultValue: "0" },
+        { name: "unknownString1", type: "string", defaultValue: "ShoeType" },
+        { name: "unknownString2", type: "string", defaultValue: "Sneaker" }
+      ]
+    }
+  ],
+  [
+    "Audio.PostEvent",
+    0xdd03,
+    {
+      fields: [{ name: "unknownString1", type: "string", defaultValue: "" }]
+    }
+  ],
   ["CheckLocalValues", 0xde, {}],
   ["ChronicleBase", 0xdf, {}],
   [
@@ -3547,6 +3585,13 @@ export const basePackets: PacketStructures = [
   ["WeaponLagLockParameters", 0xf5, {}],
   ["CrateOpeningBase", 0xf6, {}],
   ["PlayerHeatWarning", 0xf7, {}],
+  [
+    "Animation.Request",
+    0xf801,
+    {
+      fields: [{ name: "animationId", type: "uint32", defaultValue: 0 }]
+    }
+  ],
   [
     "AnimationBase",
     0xf802,
