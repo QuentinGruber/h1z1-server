@@ -209,6 +209,9 @@ export class Character2016 extends BaseFullCharacter {
   hasConveys: boolean = false;
   hasBoots: boolean = false;
 
+  /** Determines if the player is wearing a respirator */
+  hasRespirator: boolean = false;
+
   /** Handles the current position of the player */
   positionUpdate?: positionUpdate;
 
@@ -842,6 +845,7 @@ export class Character2016 extends BaseFullCharacter {
     const client = server.getClientByContainerAccessor(this);
     if (!client || !client.character.initialized) return;
     server.checkShoes(client);
+    server.checkRespirator(client);
     if (sendPacketToLocalClient) {
       server.sendData(
         client,

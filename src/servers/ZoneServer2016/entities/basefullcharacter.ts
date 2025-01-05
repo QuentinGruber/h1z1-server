@@ -189,6 +189,7 @@ export abstract class BaseFullCharacter extends BaseLightweightCharacter {
     if (client) {
       if (!client.character.initialized) return;
       server.checkShoes(client);
+      server.checkRespirator(client);
     }
     server.sendDataToAllWithSpawnedEntity(
       server._characters,

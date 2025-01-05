@@ -648,6 +648,7 @@ export class Vehicle2016 extends BaseLootableEntity {
     if (client) {
       if (!client.character.initialized) return;
       server.checkShoes(client);
+      server.checkRespirator(client);
     }
     server.sendDataToAllWithSpawnedEntity(
       server._vehicles,
