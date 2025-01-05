@@ -48,7 +48,8 @@ import {
   LoadoutSlots,
   StringIds,
   ItemClasses,
-  AccountItems
+  AccountItems,
+  EquipSlots
 } from "./models/enums";
 import { BaseFullCharacter } from "./entities/basefullcharacter";
 import { BaseLightweightCharacter } from "./entities/baselightweightcharacter";
@@ -490,6 +491,11 @@ export class ZonePacketHandlers {
         runSpeed: 0
       });
       client.character.isReady = true;
+      server.updateFootwear(
+        client,
+        client.character._loadout[LoadoutSlots.FEET]?.itemDefinitionId ?? 0,
+        client.character._loadout[LoadoutSlots.FEET] == undefined
+      );
       server.airdropManager(client, true);
     }
     if (!client.character.isAlive || client.character.isRespawning) {
