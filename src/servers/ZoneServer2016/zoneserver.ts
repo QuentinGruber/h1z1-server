@@ -8176,9 +8176,11 @@ export class ZoneServer2016 extends EventEmitter {
     }
 
     if (movementType) {
-      isRemoved
-        ? this.divideMovementModifier(client, movementType)
-        : this.multiplyMovementModifier(client, movementType);
+      if (isRemoved) {
+        this.divideMovementModifier(client, movementType);
+      } else {
+        this.multiplyMovementModifier(client, movementType);
+      }
     }
 
     client.character.updateFootwearAudio(this);
