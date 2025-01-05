@@ -5803,7 +5803,7 @@ export class ZoneServer2016 extends EventEmitter {
    * @returns {boolean} True if the item is a convey, false otherwise.
    */
   isBoot(itemDefinitionId: number): boolean {
-    return this.getItemDefinition(itemDefinitionId)?.DESCRIPTION_ID == 11155;
+    return [11155, 13581].includes(this.getItemDefinition(itemDefinitionId)?.DESCRIPTION_ID ?? 0);
   }
 
   /**
