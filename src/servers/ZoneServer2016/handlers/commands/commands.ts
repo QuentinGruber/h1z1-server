@@ -1609,6 +1609,11 @@ export const commands: Array<Command> = [
         newModelId = Number(input);
       } else if (Object.prototype.hasOwnProperty.call(modelMap, input)) {
         newModelId = modelMap[input];
+        client.character.temporaryActorModelId = newModelId;
+      } else if (input == "0") {
+        newModelId = client.character.actorModelId;
+        client.character.temporaryActorModelId = undefined;
+        return;
       } else {
         server.sendChatText(client, "Specify a valid model ID!");
         return;

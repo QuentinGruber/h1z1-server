@@ -8210,13 +8210,16 @@ export class ZoneServer2016 extends EventEmitter {
       footwearStatus = "Boot";
     }
 
-    this.sendDataToAllWithSpawnedEntity(this._characters, 
+    this.sendDataToAllWithSpawnedEntity(
+      this._characters,
       client.character.characterId,
-      "Audio.SetSwitch", {
-      characterId: client.character.characterId,
-      unknownString1: "ShoeType",
-      unknownString2: footwearStatus
-    });
+      "Audio.SetSwitch",
+      {
+        characterId: client.character.characterId,
+        unknownString1: "ShoeType",
+        unknownString2: footwearStatus
+      }
+    );
   }
 
   checkNightVision(client: Client, character = client.character) {
