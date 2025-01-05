@@ -624,7 +624,7 @@ export interface AddLightweightNpc {
   unknownString3?: string;
   unknownString4?: string;
   vehicleId?: number;
-  unknownDword5?: number;
+  projectileUniqueId?: number;
   npcDefinitionId?: number;
   positionUpdateType?: number;
   profileId?: number;
@@ -661,9 +661,9 @@ export interface AddLightweightNpc {
      bit23?: number,
 };
 };
-  unknownByte3?: number;
+  movementVersion?: number;
   unknownDword8?: number;
-  unknownQword1?: string;
+  managerCharacterId?: string;
   attachedObject :{
   targetObjectId?: string;
 };
@@ -697,7 +697,7 @@ export interface AddLightweightVehicle {
   unknownString3?: string;
   unknownString4?: string;
   vehicleId?: number;
-  unknownDword5?: number;
+  projectileUniqueId?: number;
   npcDefinitionId?: number;
   positionUpdateType?: number;
   profileId?: number;
@@ -734,9 +734,9 @@ export interface AddLightweightVehicle {
      bit23?: number,
 };
 };
-  unknownByte3?: number;
+  movementVersion?: number;
   unknownDword8?: number;
-  unknownQword1?: string;
+  managerCharacterId?: string;
   attachedObject :{
   targetObjectId?: string;
 };
