@@ -8267,7 +8267,7 @@ export class ZoneServer2016 extends EventEmitter {
     } else {
       if (character._equipment["28"].guid) {
         const item = client.character.getInventoryItem(
-          character._equipment[28].guid
+          character._equipment["28"].guid
         );
         const itemDefinition = this.getItemDefinition(
           item?.itemDefinitionId ?? 0
