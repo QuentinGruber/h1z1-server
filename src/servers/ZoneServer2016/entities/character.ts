@@ -74,6 +74,7 @@ import { recipes } from "../data/Recipes";
 import { ConstructionChildEntity } from "./constructionchildentity";
 import { ConstructionParentEntity } from "./constructionparententity";
 import { BaseEntity } from "./baseentity";
+import { ProjectileEntity } from "./projectileentity";
 const stats = require("../../../../data/2016/sampleData/stats.json");
 
 interface CharacterStates {
@@ -1883,7 +1884,7 @@ export class Character2016 extends BaseFullCharacter {
     const sourceIsVehicle = sourceEntity instanceof Vehicle2016;
     if (
       !isPosInRadiusWithY(
-        sourceIsVehicle ? 5 : 3,
+        sourceIsVehicle ? 5 : 4,
         this.state.position,
         sourceEntity.state.position,
         1.5

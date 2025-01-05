@@ -100,6 +100,8 @@ export abstract class BaseLightweightCharacter extends BaseEntity {
   /** Determines if the lightweight should be used as a SimpleNpc (non-moving) */
   useSimpleStruct: boolean = false;
 
+  movementVersion: number = 0;
+
   navAgent?: CrowdAgent;
 
   constructor(
@@ -162,6 +164,7 @@ export abstract class BaseLightweightCharacter extends BaseEntity {
         flags2: this.flags,
         flags3: this.flags
       },
+      movementVersion: this.movementVersion,
       headActor: this.headActor,
       attachedObject: {}
     };
