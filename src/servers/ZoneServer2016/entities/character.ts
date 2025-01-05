@@ -1889,15 +1889,6 @@ export class Character2016 extends BaseFullCharacter {
 
   OnExplosiveHit(server: ZoneServer2016, sourceEntity: BaseEntity) {
     const sourceIsExplosiveEntity = sourceEntity instanceof ExplosiveEntity;
-    if (
-      !isPosInRadiusWithY(
-        5,
-        this.state.position,
-        sourceEntity.state.position,
-        3
-      )
-    )
-      return;
 
     const distance = getDistance(
         sourceEntity.state.position,

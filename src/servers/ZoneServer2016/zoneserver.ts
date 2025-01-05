@@ -2672,10 +2672,23 @@ export class ZoneServer2016 extends EventEmitter {
 
     for (const characterId in this._characters) {
       const character = this._characters[characterId];
+      if (
+        !isPosInRadiusWithY(
+          5,
+          character.state.position,
+          sourceEntity.state.position,
+          3
+        )
+      )
+        continue;
       character.OnExplosiveHit(this, sourceEntity);
     }
     for (const vehicleKey in this._vehicles) {
       const vehicle = this._vehicles[vehicleKey];
+      if (
+        !isPosInRadius(5, vehicle.state.position, sourceEntity.state.position)
+      )
+        continue;
       await vehicle.OnExplosiveHit(this, sourceEntity);
     }
   }
