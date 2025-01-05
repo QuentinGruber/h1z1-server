@@ -8210,7 +8210,9 @@ export class ZoneServer2016 extends EventEmitter {
       footwearStatus = "Boot";
     }
 
-    this.sendData(client, "Audio.SetSwitch", {
+    this.sendDataToAllWithSpawnedEntity(this._characters, 
+      client.character.characterId,
+      "Audio.SetSwitch", {
       characterId: client.character.characterId,
       unknownString1: "ShoeType",
       unknownString2: footwearStatus

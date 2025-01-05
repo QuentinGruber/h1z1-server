@@ -358,11 +358,11 @@ export abstract class BaseFullCharacter extends BaseLightweightCharacter {
         }
       );
     }
+    this.updateLoadout(server);
+    if (equipmentSlotId) this.updateEquipmentSlot(server, equipmentSlotId);
     if (client && server.isFootwear(item.itemDefinitionId)) {
       server.updateFootwear(client, item.itemDefinitionId, false);
     }
-    this.updateLoadout(server);
-    if (equipmentSlotId) this.updateEquipmentSlot(server, equipmentSlotId);
   }
 
   generateEquipmentFromLoadout(server: ZoneServer2016) {

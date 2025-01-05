@@ -486,16 +486,16 @@ export class ZonePacketHandlers {
       });
       client.character.updateEquipment(server); // needed or third person character will be invisible
       client.character.updateLoadout(server); // needed or all loadout context menu entries aren't shown
-      server.updateFootwear(
-        client,
-        client.character._loadout[LoadoutSlots.FEET]?.itemDefinitionId ?? 0,
-        client.character._loadout[LoadoutSlots.FEET] == undefined
-      );
       // clear /hax run since switching servers doesn't automatically clear it
       server.sendData<CommandRunSpeed>(client, "Command.RunSpeed", {
         runSpeed: 0
       });
       client.character.isReady = true;
+      server.updateFootwear(
+        client,
+        client.character._loadout[LoadoutSlots.FEET]?.itemDefinitionId ?? 0,
+        client.character._loadout[LoadoutSlots.FEET] == undefined
+      );
       server.airdropManager(client, true);
     }
     if (!client.character.isAlive || client.character.isRespawning) {
