@@ -353,6 +353,7 @@ export class LootableProp extends BaseLootableEntity {
               server,
               server.generateItem(Items.METAL_SCRAP)
             );
+            server.lootCrateWithChance(client, 5);
           }
         } else {
           server.sendChatText(
