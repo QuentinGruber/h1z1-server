@@ -213,7 +213,7 @@ export class ProjectileEntity extends BaseLightweightCharacter {
       this.gasDamageInterval = setInterval(() => {
         for (const a in server._characters) {
           const character = server._characters[a];
-          if (server.checkRespirator(character)) break;
+          if (server.checkRespirator(character)) continue;
           if (getDistance(character.state.position, this.state.position) <= 7) {
             const damageInfo: DamageInfo = {
               entity: "Server.GasGrenade",
