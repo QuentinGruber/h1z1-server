@@ -116,10 +116,10 @@ export class WorldObjectManager {
   spawnedLootObjects: { [spawnerId: number]: string } = {};
 
   /** Global respawn timers */
-  private _lastLootRespawnTime: number = 0;
-  private _lastVehicleRespawnTime: number = 0;
-  private _lastNpcRespawnTime: number = 0;
-  private _lastWaterSourceReplenishTime: number = 0;
+  _lastLootRespawnTime: number = 0;
+  _lastVehicleRespawnTime: number = 0;
+  _lastNpcRespawnTime: number = 0;
+  _lastWaterSourceReplenishTime: number = 0;
 
   /** MANAGED BY CONFIGMANAGER - See defaultConfig.yaml for more information */
   vehicleSpawnCap!: number;
