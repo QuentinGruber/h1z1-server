@@ -60,19 +60,19 @@ export const gamemodePackets: PacketStructures = [
     }
   ],
   [
-    "GameMode.Unk9",
+    "GameMode.PlayersRemaining",
     0xcf0900,
     {
-      fields: [{ name: "unknownDword1", type: "uint32", defaultValue: 0 }]
+      fields: [{ name: "players", type: "uint32", defaultValue: 0 }]
     }
   ],
   [
-    "GameMode.Unk10",
+    "GameMode.TeamsRemaining",
     0xcf0a00,
     {
       fields: [
-        { name: "unknownDword1", type: "uint32", defaultValue: 0 },
-        { name: "unknownDword2", type: "uint32", defaultValue: 0 }
+        { name: "players", type: "uint32", defaultValue: 0 },
+        { name: "teams", type: "uint32", defaultValue: 0 }
       ]
     }
   ],

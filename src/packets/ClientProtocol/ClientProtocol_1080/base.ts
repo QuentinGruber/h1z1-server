@@ -2436,7 +2436,19 @@ export const basePackets: PacketStructures = [
   ["Acquaintance", 0x2b, {}],
   ["ClientServerShuttingDown", 0x2c, {}],
 
-  ["Broadcast", 0x2e, {}],
+  [
+    "Broadcast",
+    0x2e0000,
+    {
+      fields: [
+        { name: "identity", type: "schema", fields: identitySchema },
+        { name: "unknownString1", type: "string", defaultValue: "" },
+        { name: "unknownDword1", type: "uint32", defaultValue: 0 },
+        { name: "unknownBoolean1", type: "boolean", defaultValue: false },
+        { name: "unknownBoolean2", type: "boolean", defaultValue: false }
+      ]
+    }
+  ],
   ["ClientKickedFromServer", 0x2f, {}],
   [
     "UpdateClientSessionData",

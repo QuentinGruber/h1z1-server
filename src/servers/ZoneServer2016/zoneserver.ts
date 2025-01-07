@@ -8185,7 +8185,7 @@ export class ZoneServer2016 extends EventEmitter {
       );
       return;
     }
-    if(this.damageWeapons) {
+    if (this.damageWeapons) {
       this.damageItem(client.character, weaponItem, 5);
     }
   }
@@ -8804,7 +8804,7 @@ export class ZoneServer2016 extends EventEmitter {
       if (!client.isLoading) {
         client.routineCounter++;
         this.constructionManager.constructionPermissionsManager(this, client);
-        if(!this.disableMapBoundsCheck) {
+        if (!this.disableMapBoundsCheck) {
           this.checkInMapBounds(client);
         }
         this.checkZonePing(client);
@@ -8813,7 +8813,7 @@ export class ZoneServer2016 extends EventEmitter {
           this.assignChunkRenderDistance(client);
           this.removeOutOfDistanceEntities(client);
           this.removeOODInteractionData(client);
-          if(!this.disablePOIManager) {
+          if (!this.disablePOIManager) {
             this.POIManager(client);
           }
           client.routineCounter = 0;
@@ -8845,7 +8845,7 @@ export class ZoneServer2016 extends EventEmitter {
     this.spawnGridObjects(client); // Spawn base parts before the player
     this.spawnCharacters(client);
     //this.constructionManager.worldConstructionManager(this, client);
-    if(!this.disablePOIManager) {
+    if (!this.disablePOIManager) {
       this.POIManager(client);
     }
     client.posAtLastRoutine = client.character.state.position;
@@ -8856,7 +8856,7 @@ export class ZoneServer2016 extends EventEmitter {
     this.spawnLoadingGridObjects(client);
     this.spawnCharacters(client);
     //this.constructionManager.worldConstructionManager(this, client);
-    if(!this.disablePOIManager) {
+    if (!this.disablePOIManager) {
       this.POIManager(client);
     }
     client.posAtLastRoutine = client.character.state.position;

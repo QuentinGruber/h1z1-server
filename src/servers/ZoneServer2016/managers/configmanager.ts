@@ -157,7 +157,7 @@ export class ConfigManager {
       baseConstructionDamage,
       damageWeapons,
       disablePOIManager,
-      disableMapBoundsCheck,
+      disableMapBoundsCheck
     } = this.config.server;
     server.proximityItemsDistance = proximityItemsDistance;
     server.interactionDistance = interactionDistance;
