@@ -154,7 +154,10 @@ export class ConfigManager {
       isHeadshotOnly,
       isFirstPersonOnly,
       isNoBuildInPois,
-      baseConstructionDamage
+      baseConstructionDamage,
+      damageWeapons,
+      disablePOIManager,
+      disableMapBoundsCheck,
     } = this.config.server;
     server.proximityItemsDistance = proximityItemsDistance;
     server.interactionDistance = interactionDistance;
@@ -171,6 +174,9 @@ export class ConfigManager {
     server.isFirstPersonOnly = isFirstPersonOnly;
     server.isNoBuildInPois = isNoBuildInPois;
     server.baseConstructionDamage = baseConstructionDamage;
+    server.damageWeapons = damageWeapons;
+    server.disablePOIManager = disablePOIManager;
+    server.disableMapBoundsCheck = disableMapBoundsCheck;
     //#endregion
 
     //#region Rcon
