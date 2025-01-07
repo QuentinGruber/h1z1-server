@@ -48,5 +48,12 @@ export const voicePackets: PacketStructures = [
       ]
     }
   ],
-  ["Voice.LeaveRadio", 0x8208, { fields: [] }]
+  ["Voice.LeaveRadio", 0x8208, { fields: [] }],
+  [
+    "Voice.Unk9", // Related to Gamemode.Unk21
+    0x8209,
+    {
+      fields: [{ name: "unknownByte1", type: "uint8", defaultValue: 0 }]
+    }
+  ]
 ];
