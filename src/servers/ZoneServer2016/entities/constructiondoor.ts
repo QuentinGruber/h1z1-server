@@ -406,7 +406,8 @@ export class ConstructionDoor extends DoorEntity {
   OnExplosiveHit(
     server: ZoneServer2016,
     sourceEntity: BaseEntity,
-    client?: ZoneClient2016
+    client?: ZoneClient2016,
+    useRaycast?: boolean
   ) {
     const itemDefinitionId =
       sourceEntity instanceof ExplosiveEntity
@@ -422,12 +423,16 @@ export class ConstructionDoor extends DoorEntity {
     ) {
       return;
     }
-
     if (server.constructionManager.isConstructionInSecuredArea(server, this)) {
-      if (!client) return;
-      server.constructionManager.sendBaseSecuredMessage(server, client);
-
-      return;
+      if (useRaycast) {
+        if (!client) return;
+        server.constructionManager.sendBaseSecuredMessage(server, client);
+        return;
+      } else {
+        if (!client) return;
+        server.constructionManager.sendBaseSecuredMessage(server, client);
+        return;
+      }
     }
     server.constructionManager.checkConstructionDamage(
       server,

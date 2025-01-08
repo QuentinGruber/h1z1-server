@@ -5,7 +5,7 @@ in
 pkgs.mkShell {
   buildInputs = with pkgs; [
     neovim
-    (nodejs_20)
+    (nodejs_22)
     nushell
   ];
   shellHook = ''

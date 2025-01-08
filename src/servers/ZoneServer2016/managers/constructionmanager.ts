@@ -1223,6 +1223,13 @@ export class ConstructionManager {
 
     const position = parent.getSlotPosition(BuildingSlot, parent.wallSlots),
       rotation = parent.getSlotRotation(BuildingSlot, parent.wallSlots);
+    if (
+      position &&
+      (itemDefinitionId == Items.METAL_GATE ||
+        itemDefinitionId == Items.METAL_WALL ||
+        itemDefinitionId == Items.METAL_WALL_UPPER)
+    )
+      position[1] -= 0.1;
     if (!position || !rotation) {
       this.placementError(server, client, ConstructionErrors.UNKNOWN_SLOT);
       return false;
@@ -1783,7 +1790,7 @@ export class ConstructionManager {
       }
     }
     if (allowed) return false;
-    const bufferZone = 0.35;
+    const bufferZone = 0.15;
     const position = client.character.state.position;
     const positions: Float32Array[] = [];
 
@@ -2481,7 +2488,7 @@ export class ConstructionManager {
   ) {
     if (
       client.character.lastRepairTime &&
-      Date.now() - client.character.lastRepairTime < 1000
+      Date.now() - client.character.lastRepairTime < 15000
     ) {
       server.sendChatText(client, "Cooldown on repairing.");
       return;
@@ -2672,11 +2679,28 @@ export class ConstructionManager {
     }
   }
 
-  sendBaseSecuredMessage(server: ZoneServer2016, client: Client) {
-    server.sendAlert(
-      client,
-      "You must destroy the base's gate before affecting interior structures."
-    );
+  sendBaseSecuredMessage(
+    server: ZoneServer2016,
+    client: Client,
+    rayCastProtectionType: number = 0
+  ) {
+    switch (rayCastProtectionType) {
+      case 1:
+        server.sendAlert(client, "Base protection unbroken, damage reduced");
+        return;
+      case 2:
+        server.sendAlert(
+          client,
+          "You must destroy the base's gate before placing explosives inside."
+        );
+        return;
+      default:
+        server.sendAlert(
+          client,
+          "You must destroy the base's gate before affecting interior structures."
+        );
+        return;
+    }
   }
 
   checkConstructionDamage(
