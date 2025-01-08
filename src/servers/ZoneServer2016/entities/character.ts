@@ -234,7 +234,7 @@ export class Character2016 extends BaseFullCharacter {
   stance?: StanceFlags;
 
   /** Metrics of miscellaneous attributes */
-  readonly metrics: CharacterMetrics = {
+  metrics: CharacterMetrics = {
     recipesDiscovered: 0,
     zombiesKilled: 0,
     wildlifeKilled: 0,

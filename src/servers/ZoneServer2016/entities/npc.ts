@@ -92,29 +92,29 @@ export class Npc extends BaseFullCharacter {
     this.server = server;
     switch (actorModelId) {
       // TODO: use enums
-      case 9510:
-      case 9634:
+      case ModelIds.ZOMBIE_FEMALE_WALKER:
+      case ModelIds.ZOMBIE_MALE_WALKER:
         this.entityType = EntityType.Zombie;
         this.materialType = MaterialTypes.ZOMBIE;
         this.npcMeleeDamage = 2000;
         break;
-      case 9667:
+      case ModelIds.ZOMBIE_SCREAMER:
         this.entityType = EntityType.Screamer;
         this.materialType = MaterialTypes.ZOMBIE;
         this.npcMeleeDamage = 3000;
         break;
-      case 9002:
-      case 9253:
+      case ModelIds.DEER:
+      case ModelIds.DEER_BUCK:
         this.entityType = EntityType.Deer;
         this.materialType = MaterialTypes.FLESH;
         this.npcMeleeDamage = 0;
         break;
-      case 9003:
+      case ModelIds.WOLF:
         this.entityType = EntityType.Wolf;
         this.materialType = MaterialTypes.FLESH;
         this.npcMeleeDamage = 2000;
         break;
-      case 9187:
+      case ModelIds.BEAR:
         this.entityType = EntityType.Bear;
         this.materialType = MaterialTypes.FLESH;
         this.npcMeleeDamage = 4000;
@@ -183,12 +183,11 @@ export class Npc extends BaseFullCharacter {
             server._worldId,
             { type: this.npcId == NpcIds.ZOMBIE ? "zombie" : "wildlife" }
           );
-
-          client.character.metrics.wildlifeKilled++;
-          if (this.npcId == NpcIds.ZOMBIE)
-            client.character.metrics.zombiesKilled++;
-          else client.character.metrics.wildlifeKilled++;
         }
+        
+        if (this.npcId == NpcIds.ZOMBIE)
+          client.character.metrics.zombiesKilled++;
+        else client.character.metrics.wildlifeKilled++;
       }
       server.sendDataToAllWithSpawnedEntity(
         server._npcs,
@@ -272,6 +271,7 @@ export class Npc extends BaseFullCharacter {
             weight: 40
           }
         ];
+        this.npcId = NpcIds.ZOMBIE;
         break;
       case ModelIds.ZOMBIE_FEMALE_WALKER:
       case ModelIds.ZOMBIE_MALE_WALKER:
