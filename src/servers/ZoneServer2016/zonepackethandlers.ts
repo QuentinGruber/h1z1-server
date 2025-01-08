@@ -48,7 +48,8 @@ import {
   LoadoutSlots,
   StringIds,
   ItemClasses,
-  AccountItems
+  AccountItems,
+  EquipSlots
 } from "./models/enums";
 import { BaseFullCharacter } from "./entities/basefullcharacter";
 import { BaseLightweightCharacter } from "./entities/baselightweightcharacter";
@@ -148,6 +149,8 @@ import {
   DamageInfo,
   GrinderItem,
   Group,
+  RewardCrateDefinition,
+  RewardCrateRewardDefinition,
   StanceFlags
 } from "types/zoneserver";
 import { Vehicle2016 } from "./entities/vehicle";
@@ -488,6 +491,11 @@ export class ZonePacketHandlers {
         runSpeed: 0
       });
       client.character.isReady = true;
+      server.updateFootwear(
+        client,
+        client.character._loadout[LoadoutSlots.FEET]?.itemDefinitionId ?? 0,
+        client.character._loadout[LoadoutSlots.FEET] == undefined
+      );
       server.airdropManager(client, true);
     }
     if (!client.character.isAlive || client.character.isRespawning) {
@@ -807,7 +815,7 @@ export class ZonePacketHandlers {
     client: Client,
     packet: ReceivedPacket<ClientLog>
   ) {
-    const message = packet.data.message || "";
+    /*const message = packet.data.message || "";
     if (
       packet.data.file ===
         server.fairPlayManager.fairPlayValues?.requiredFile2 &&
@@ -843,7 +851,7 @@ export class ZonePacketHandlers {
       }
       client.clientLogs.push(obj);
     }
-    debug(packet);
+    debug(packet);*/
   }
   WallOfDataUIEvent(
     server: ZoneServer2016,
@@ -1142,6 +1150,28 @@ export class ZonePacketHandlers {
 
     const positionUpdate = packetData.positionUpdate as any;
     const flags = positionUpdate.flags;
+
+    // throwable projectiles management
+
+    if (positionUpdate.unknown3_int8 === 10) {
+      const transientId = (packetData.transientId as number) || 0;
+      const characterId = server._transientIds[transientId];
+      const projectile = characterId
+        ? server._throwableProjectiles[characterId]
+        : undefined;
+      if (projectile) {
+        server.sendRawToAllOthersWithSpawnedEntity(
+          client,
+          server._throwableProjectiles,
+          characterId,
+          server._protocol.createManagedPositionBroadcast2016(
+            positionUpdate.raw
+          )
+        );
+        if (positionUpdate.position)
+          projectile.state.position = positionUpdate.position;
+      }
+    }
 
     // Airdrop management
     if (positionUpdate.unknown3_int8 === 5) {
@@ -2534,14 +2564,6 @@ export class ZonePacketHandlers {
                 client.character.loadoutId
               )
             ) {*/
-            if (
-              ![Items.GRENADE_SMOKE].includes(item.itemDefinitionId) &&
-              server.getItemDefinition(item?.itemDefinitionId)?.ITEM_CLASS ==
-                ItemClasses.THROWABLES
-            ) {
-              //TODO: Prevent equipping of throwables until fixed
-              return;
-            }
             sourceCharacter.equipContainerItem(server, item, newSlotId);
             //}
           } else {
@@ -3100,6 +3122,20 @@ export class ZonePacketHandlers {
           };
         }
         break;
+      case "Weapon.GuidedExplode":
+        for (const a in server._throwableProjectiles) {
+          const projectile = server._throwableProjectiles[a];
+          if (projectile.transientId == packet.packet.transientId) {
+            projectile.state.position = new Float32Array([
+              packet.packet.position[0],
+              packet.packet.position[1],
+              packet.packet.position[2],
+              1
+            ]);
+            projectile.onTrigger(server, client);
+          }
+        }
+        break;
       default:
         debug(`Unhandled weapon packet type: ${packet.packetName}`);
         break;
@@ -3578,94 +3614,145 @@ export class ZonePacketHandlers {
     client: Client,
     packet: ReceivedPacket<GrinderExchangeRequest>
   ) {
-    if (!packet.data.items) return;
+    if (!packet.data.items || packet.data.items.length === 0) return;
 
+    const items = packet.data.items as GrinderItem[];
     let rarity = -1;
     let itemCount = 0;
 
-    for (const item of packet.data.items as GrinderItem[]) {
-      const definition = server.getItemDefinition(item.itemDefinitionId);
-      if (definition) {
-        if (rarity == -1) {
-          rarity = definition.RARITY;
-        }
-
-        if (rarity == definition.RARITY) {
-          itemCount += item.count;
-        }
-      }
-    }
-
-    const itemsNeeded = rarity == 6 ? 4 : 5;
-    if (itemCount < itemsNeeded) return;
-    const itemsRemoved = await (async (): Promise<boolean> => {
-      const removedItems: { item: AccountItem }[] = [];
-      try {
-        for (const item of packet.data.items as GrinderItem[]) {
-          let remainingCount = item.count;
-          while (remainingCount > 0) {
-            const inventoryItem =
-              await server.accountInventoriesManager.getAccountItem(
-                client.loginSessionId,
-                item.itemDefinitionId
-              );
-            if (!inventoryItem) return false;
-            if (inventoryItem.stackCount < remainingCount) {
-              removedItems.push({ item: inventoryItem });
-              remainingCount -= inventoryItem.stackCount;
-              const partialResult = server.removeAccountItem(
-                client.character,
-                inventoryItem
-              );
-              if (!partialResult) return false;
-            } else {
-              removedItems.push({ item: inventoryItem });
-              const result = server.removeAccountItem(
-                client.character,
-                inventoryItem
-              );
-              if (!result) if (!result) throw new Error("Final removal failed");
-              remainingCount = 0;
-            }
+    const rarityMap = items.reduce(
+      (acc, item) => {
+        const definition = server.getItemDefinition(item.itemDefinitionId);
+        if (definition) {
+          if (rarity === -1) rarity = definition.RARITY;
+          if (rarity === definition.RARITY) {
+            acc[item.itemDefinitionId] =
+              (acc[item.itemDefinitionId] || 0) + item.count;
+            itemCount += item.count;
           }
         }
-        return true;
-      } catch (error) {
-        for (const removed of removedItems) {
-          await server.lootAccountItem(server, client, removed.item, false);
-        }
-        debug("Error occurred during item removal. Rollback completed:", error);
-        return false;
-      }
-    })();
-    const responseItems = [];
-    if (itemsRemoved) {
-      const higherRarityItems = Object.values(server._itemDefinitions).filter(
-        (item) =>
-          item.RARITY == rarity + 1 && item.CODE_FACTORY_NAME == "AccountRecipe"
-      );
+        return acc;
+      },
+      {} as Record<number, number>
+    );
 
-      if (higherRarityItems.length > 0) {
-        const itemDef =
-          higherRarityItems[
-            Math.floor(Math.random() * higherRarityItems.length)
-          ];
-        const item = server.generateItem(itemDef.ID, 1, true);
-        server.lootAccountItem(server, client, item, false);
-        responseItems.push({
-          itemDefinitionId: item?.itemDefinitionId || itemDef.ID || 0,
-          count: 1
-        });
+    const itemsNeeded = rarity === 6 ? 4 : 5;
+    if (itemCount < itemsNeeded) return;
+
+    const rewardCratesFound: RewardCrateDefinition[] = [];
+    const removedItems: { inventoryItem: AccountItem; count: number }[] = [];
+    let itemsRemoved = false;
+
+    try {
+      for (const [itemDefinitionId, count] of Object.entries(rarityMap)) {
+        let remainingCount = count;
+        while (remainingCount > 0) {
+          const inventoryItem =
+            await server.accountInventoriesManager.getAccountItem(
+              client.loginSessionId,
+              parseInt(itemDefinitionId)
+            );
+          if (!inventoryItem) throw new Error("Inventory item not found");
+
+          const removeCount = Math.min(
+            inventoryItem.stackCount,
+            remainingCount
+          );
+          remainingCount -= removeCount;
+
+          removedItems.push({ inventoryItem, count: removeCount });
+          server.removeAccountItem(
+            client.character,
+            inventoryItem,
+            removeCount
+          );
+
+          server._rewardCrateDefinitions.forEach((crate) => {
+            if (
+              crate.rewards.some(
+                (reward) =>
+                  reward.itemDefinitionId === inventoryItem.itemDefinitionId
+              )
+            ) {
+              rewardCratesFound.push(crate);
+            }
+          });
+        }
       }
+      itemsRemoved = true;
+    } catch (error) {
+      debug("Error during item removal, performing rollback:", error);
+      await server.accountInventoriesManager.rollbackItems(
+        client.loginSessionId,
+        removedItems
+      );
+      return;
     }
 
-    server.sendData<GrinderExchangeResponse>(
-      client,
-      "Grinder.ExchangeResponse",
-      {
-        items: responseItems
+    if (itemsRemoved) {
+      const crateWeights = rewardCratesFound.reduce(
+        (acc, crate) => {
+          acc[crate.itemDefinitionId] = (acc[crate.itemDefinitionId] || 0) + 1;
+          return acc;
+        },
+        {} as Record<number, number>
+      );
+
+      const totalWeight = Object.values(crateWeights).reduce(
+        (sum, weight) => sum + weight,
+        0
+      );
+      let random = Math.random() * totalWeight;
+      let selectedCrate: RewardCrateDefinition | null = null;
+
+      for (const crate of rewardCratesFound) {
+        random -= crateWeights[crate.itemDefinitionId];
+        if (random <= 0) {
+          selectedCrate = crate;
+          break;
+        }
       }
-    );
+
+      if (!selectedCrate) {
+        await server.accountInventoriesManager.rollbackItems(
+          client.loginSessionId,
+          removedItems
+        );
+        return;
+      }
+
+      const higherRarityRewards = selectedCrate.rewards.filter((reward) => {
+        const itemDefinition = server._itemDefinitions[reward.itemDefinitionId];
+        return itemDefinition && itemDefinition.RARITY === rarity + 1;
+      });
+
+      if (higherRarityRewards.length > 0) {
+        const weightedRewards = higherRarityRewards.flatMap((reward) =>
+          Array(reward.rewardChance).fill(reward)
+        );
+        const selectedReward =
+          weightedRewards[Math.floor(Math.random() * weightedRewards.length)];
+        const item = server.generateItem(
+          selectedReward.itemDefinitionId,
+          1,
+          true
+        );
+
+        server.lootAccountItem(server, client, item, false);
+        server.sendData<GrinderExchangeResponse>(
+          client,
+          "Grinder.ExchangeResponse",
+          {
+            items: [{ itemDefinitionId: item?.itemDefinitionId || 0, count: 1 }]
+          }
+        );
+      } else {
+        await server.accountInventoriesManager.rollbackItems(
+          client.loginSessionId,
+          removedItems
+        );
+      }
+    }
   }
 
   processPacket(
@@ -3949,8 +4036,7 @@ export class ZonePacketHandlers {
         server.sendData(client, "Pong", {});
         break;
       case "Grinder.ExchangeRequest":
-        //this.grinderExchangeRequest(server, client, packet);
-        // temporary disable
+        this.grinderExchangeRequest(server, client, packet);
         break;
       case "InGamePurchase.StoreBundleContentRequest":
         debug(JSON.stringify(packet.data));

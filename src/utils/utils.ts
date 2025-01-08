@@ -1570,9 +1570,9 @@ export function luck(l: number) {
 
 const Z1_POIs = require("../../data/2016/zoneData/Z1_POIs");
 export function isPosInPoi(position: Float32Array): boolean {
-  let useRange = true;
   let isInPoi = false;
   Z1_POIs.forEach((point: any) => {
+    let useRange = true;
     if (point.bounds) {
       useRange = false;
       point.bounds.forEach((bound: any) => {

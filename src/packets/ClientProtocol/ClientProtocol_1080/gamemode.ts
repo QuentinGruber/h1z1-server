@@ -20,9 +20,9 @@ export const gamemodePackets: PacketStructures = [
     {
       fields: [
         { name: "position", type: "floatvector4", defaultValue: [0, 0, 0, 0] },
-        { name: "radius", type: "uint32", defaultValue: 1000 },
-        { name: "unknownDword3", type: "uint32", defaultValue: 10 },
-        { name: "unknownDword4", type: "uint32", defaultValue: 0 }
+        { name: "radius", type: "float", defaultValue: 1000 },
+        { name: "unknownDword3", type: "uint32", defaultValue: 1000 },
+        { name: "unknownDword4", type: "float", defaultValue: 1 }
       ]
     }
   ],
@@ -32,20 +32,20 @@ export const gamemodePackets: PacketStructures = [
     {
       fields: [
         { name: "position", type: "floatvector4", defaultValue: [0, 0, 0, 0] },
-        { name: "radius", type: "uint32", defaultValue: 1000 }
+        { name: "radius", type: "float", defaultValue: 1000 }
       ]
     }
   ],
   [
-    "GameMode.Unk4",
+    "GameMode.DeathInfo",
     0xcf0400,
     {
       fields: [
-        { name: "unknownDword1", type: "uint32", defaultValue: 0 },
-        { name: "unknownBoolean1", type: "boolean", defaultValue: false },
-        { name: "unknownString1", type: "string", defaultValue: "" },
-        { name: "unknownDword2", type: "uint32", defaultValue: 0 },
-        { name: "unknownDword3", type: "uint32", defaultValue: 0 },
+        { name: "endingPositionIndex", type: "uint32", defaultValue: 0 },
+        { name: "endsInDraw", type: "boolean", defaultValue: false },
+        { name: "playerName", type: "string", defaultValue: "" },
+        { name: "remainingHealth", type: "uint32", defaultValue: 0 },
+        { name: "weapon", type: "uint32", defaultValue: 0 },
         { name: "unknownDword4", type: "uint32", defaultValue: 0 }
       ]
     }
