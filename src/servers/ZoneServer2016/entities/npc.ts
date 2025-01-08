@@ -184,7 +184,7 @@ export class Npc extends BaseFullCharacter {
             { type: this.npcId == NpcIds.ZOMBIE ? "zombie" : "wildlife" }
           );
         }
-        
+
         if (this.npcId == NpcIds.ZOMBIE)
           client.character.metrics.zombiesKilled++;
         else client.character.metrics.wildlifeKilled++;
