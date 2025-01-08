@@ -3488,6 +3488,12 @@ export class ZonePacketHandlers {
               Items.SKIN_GREEN_GLOVES
             ];
             break;
+          case Items.REWARD_SET_GHILLIE:
+            packageRewards = [
+              Items.SKIN_GHILLIE_SUIT_BOOTS,
+              Items.SKIN_GHILLIE_SUIT_GLOVES
+            ];
+            break;
           case Items.REWARD_SET_RED_FACE_BANDANA:
             packageRewards = [
               Items.SKIN_RED_FACE_BANDANA,
