@@ -610,15 +610,15 @@ export class ZonePacketHandlers {
         if (characterId === objectCharacterId) {
           client.character.damage(server, {
             entity: "Server.CollisionDamage",
-            damage: damage 
+            damage: damage
           });
         }
         return;
       }
-      
+
       client.character.damage(server, {
         entity: "Server.CollisionDamage",
-        damage: damage 
+        damage: damage
       });
     } else if (vehicle) {
       // leave old system with this damage threshold to damage flipped vehicles
