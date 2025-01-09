@@ -591,6 +591,7 @@ export class ZonePacketHandlers {
     }
     const characterId = packet.data.characterId || "",
       damage: number = packet.data.damage || 0,
+      objectCharacterId = packet.data.objectCharacterId || "",
       vehicle = server._vehicles[characterId];
     if (characterId === client.character.characterId) {
       if (client.character.vehicleExitDate + 3000 > new Date().getTime()) {
@@ -603,9 +604,21 @@ export class ZonePacketHandlers {
       }
       // damage must pass this threshold to be applied
       if (damage <= 800) return;
+
+      if (server.isPvE) {
+        // only apply collision dmg if falling
+        if (characterId === objectCharacterId) {
+          client.character.damage(server, {
+            entity: "Server.CollisionDamage",
+            damage: damage 
+          });
+        }
+        return;
+      }
+      
       client.character.damage(server, {
         entity: "Server.CollisionDamage",
-        damage: damage
+        damage: damage 
       });
     } else if (vehicle) {
       // leave old system with this damage threshold to damage flipped vehicles
