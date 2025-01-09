@@ -2736,4 +2736,38 @@ export class ConstructionManager {
           : damage / Math.sqrt(distance)
     });
   }
+
+  hasOwnedBases(
+    server: ZoneServer2016,
+    characterId: string,
+  ) {
+    for (const gridCell of server._grid) {
+      for (const object of gridCell.objects) {
+        console.log(object)
+        if (object instanceof ConstructionParentEntity) {
+          if (characterId == object.ownerCharacterId) {
+            return true;
+          }
+        }
+      }
+    }
+    
+    return false; 
+  }
+
+  removeOwnerFromBases(
+    server: ZoneServer2016,
+    characterId: string
+  ) {
+    for (const gridCell of server._grid) {
+      for (const object of gridCell.objects) {
+        if (object instanceof ConstructionParentEntity) {
+          if (characterId == object.ownerCharacterId) {
+            object.ownerCharacterId = "";
+          }
+        }
+      }
+    }
+  }
+
 }

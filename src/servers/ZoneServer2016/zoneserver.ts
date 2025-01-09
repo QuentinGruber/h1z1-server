@@ -781,6 +781,9 @@ export class ZoneServer2016 extends EventEmitter {
                       characterId,
                       groupId
                     );
+                  if (this.constructionManager.hasOwnedBases(this, characterId)) {
+                    this.constructionManager.removeOwnerFromBases(this, characterId);
+                  }
                   }
                 } else {
                   this._loginConnectionManager.sendData(
