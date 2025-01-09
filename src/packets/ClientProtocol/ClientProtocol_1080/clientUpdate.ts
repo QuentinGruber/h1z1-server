@@ -350,14 +350,14 @@ export const clientUpdatePackets: PacketStructures = [
     {
       fields: [
         { name: "recipesDiscovered", type: "uint32", defaultValue: 0 },
-        { name: "unknown4", type: "uint32", defaultValue: 0 },
+        { name: "playersKilled", type: "uint32", defaultValue: 0 },
         { name: "wildlifeKilled", type: "uint32", defaultValue: 0 },
         { name: "zombiesKilled", type: "uint32", defaultValue: 0 },
-        { name: "unknown7", type: "uint32", defaultValue: 0 },
+        { name: "vehiclesDestroyed", type: "uint32", defaultValue: 0 },
         { name: "minutesSurvived", type: "uint32", defaultValue: 0 },
         { name: "position", type: "floatvector4", defaultValue: [0, 0, 0, 1] },
-        { name: "unknown10", type: "uint32", defaultValue: 0 },
-        { name: "unknown11", type: "boolean", defaultValue: 1 }
+        { name: "lastDamageAmount", type: "uint32", defaultValue: 0 },
+        { name: "killedByHeadshot", type: "boolean", defaultValue: false }
       ]
     }
   ],
