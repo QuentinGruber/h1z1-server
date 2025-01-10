@@ -3127,6 +3127,14 @@ export const containerLootSpawners: {
           min: 1,
           max: 3
         }
+      },
+      {
+        item: Items.ANTI_VIRAL_BOTTLE_EMPTY,
+        weight: 30,
+        spawnCount: {
+          min: 1,
+          max: 1
+        }
       }
     ]
   },
