@@ -78,6 +78,7 @@ export class SpeedTreeManager {
     let count = 1;
     if (speedtreeDestroyed) return;
     let itemDefId = 0;
+    let dontCrateSpawn = false;
     switch (treeId) {
       case TreeIds.BLACKBERRY:
         server.startInteractionTimer(client, 0, 0, 9);
@@ -89,6 +90,7 @@ export class SpeedTreeManager {
           );
         }
         destroy = true;
+        dontCrateSpawn = true;
         count = randomIntFromInterval(
           this.minBlackberryHarvest,
           this.maxBlackberryHarvest
@@ -103,6 +105,7 @@ export class SpeedTreeManager {
           this.minStickHarvest,
           this.maxStickHarvest
         );
+        dontCrateSpawn = true;
         break;
       case TreeIds.REDMAPLE:
       case TreeIds.WESTERNCEDAR:
@@ -160,7 +163,9 @@ export class SpeedTreeManager {
         server,
         server.generateItem(itemDefId, count)
       );
-      server.lootCrateWithChance(client, 1);
+      if (!dontCrateSpawn) {
+        server.lootCrateWithChance(client, 1);
+      }
     }
     if (destroy) {
       this.destroy(server, objectId, name);
