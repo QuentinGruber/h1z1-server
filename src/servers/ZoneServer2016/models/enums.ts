@@ -512,7 +512,8 @@ export enum ResourceIndicators {
   COMFORT_PLUS = "COMFORT +",
   COMFORT_PLUSPLUS = "COMFORT ++",
   FOOD_POISONING = "FOOD POISONING",
-  BEES = "BEES!"
+  BEES = "BEES!",
+  COFFEE_SUGAR = "COFFEE_SUGAR"
 }
 
 export enum Abilities {
@@ -837,21 +838,21 @@ export enum Items {
   BUNDLE_WOODEN_ARROWS_2 = 3379,
   GAUZE = 1751,
   SWIZZLE = 1709,
-  GROUND_COFFEE = 56, // TODO = expand with more canned food types
-  CANNED_FOOD01 = 7,
-  CANNED_FOOD02 = 1393,
-  CANNED_FOOD03 = 1394,
-  CANNED_FOOD04 = 1391,
-  CANNED_FOOD05 = 1392,
-  CANNED_FOOD06 = 1396,
-  CANNED_FOOD07 = 1397,
-  CANNED_FOOD08 = 1398,
-  CANNED_FOOD09 = 1399,
-  CANNED_FOOD10 = 1400,
-  CANNED_FOOD11 = 1401,
-  CANNED_FOOD25 = 1431,
-  CANNED_FOOD21 = 1395,
-  CANNED_FOOD26 = 2536,
+  GROUND_COFFEE = 56,
+  CANNED_FOOD01 = 7, // Roel's Sliced Beets
+  CANNED_FOOD02 = 1393, // Mom's Pink Salmon
+  CANNED_FOOD03 = 1394, // Mom's Chunk Tuna in Water
+  CANNED_FOOD04 = 1391, // Graupmann's Beef Chunks
+  CANNED_FOOD05 = 1392, // Graupmann's Cured Sausages
+  CANNED_FOOD06 = 1396, // Sjoberg's Sliced Peaches
+  CANNED_FOOD07 = 1397, // Sjoberg's Mandarin Oranges
+  CANNED_FOOD08 = 1398, // Graupmann's Sliced Carrots
+  CANNED_FOOD09 = 1399, // Smed's Mixed Vegetables
+  CANNED_FOOD10 = 1400, // Grat's Refried Beans
+  CANNED_FOOD11 = 1401, // Sjoberg's Diced Tomatoes
+  CANNED_FOOD25 = 1431, // Grat's Spicy Chili
+  CANNED_FOOD21 = 1395, // Mom's Fresh Chicken
+  CANNED_FOOD26 = 2536, // Deeb's Nuts & More
   BLACKBERRY = 105,
   BLACKBERRY_JUICE = 1361,
   BLACKBERRY_PIE = 1706,
@@ -860,19 +861,19 @@ export enum Items {
   WATER_PURE = 1371,
   WATER_STAGNANT = 1535,
   WATER_DIRTY = 1368,
-  MRE_APPLE = 1402, // TODO = add other MRE types
-  MRE01 = 1403,
-  MRE02 = 1404,
-  MRE03 = 1405,
-  MRE04 = 1406,
-  MRE05 = 1407,
-  MRE06 = 1409,
-  MRE07 = 1408,
-  MRE08 = 1410,
-  MRE09 = 1411,
-  MRE10 = 1412,
-  MRE11 = 1413,
-  MRE12 = 1414,
+  MRE_APPLE = 1402, // Apple Turnover
+  MRE01 = 1403, // BBQ Beef Sandwich
+  MRE02 = 1404, // BBQ Chicken Sandwich
+  MRE03 = 1405, // Beef Steak
+  MRE04 = 1406, // Chicken Fajita
+  MRE05 = 1407, // Chicken with Noodles
+  MRE06 = 1409, // Chili with Beans
+  MRE07 = 1408, // Lemon Pepper Tuna
+  MRE08 = 1410, // Lemon Pound Cake
+  MRE09 = 1411, // Mexican Style Chicken Stew
+  MRE10 = 1412, // Pork Sausage with Gravy
+  MRE11 = 1413, // Ration Nut & Raisin Mix
+  MRE12 = 1414, // Southwest Beef & Black Beans
   SANDWICH_BEAR = 1459,
   STEAK_BEAR = 1451,
   SURVIVAL_BREAD = 1456,

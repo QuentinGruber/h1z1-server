@@ -7540,6 +7540,13 @@ export class ZoneServer2016 extends EventEmitter {
       }
       client.character.isPoisoned = false;
     }
+    if (item.itemDefinitionId == Items.WATER_DIRTY) {
+      const dmgInfoDirtyWater: DamageInfo = {
+        entity: "",
+        damage: 500
+      };
+      client.character.damage(this, dmgInfoDirtyWater);
+    }
     if (givetrash) {
       character.lootContainerItem(
         this,
@@ -7547,6 +7554,27 @@ export class ZoneServer2016 extends EventEmitter {
         undefined,
         character instanceof Character
       );
+    }
+    if (item.itemDefinitionId == Items.COFFEE_SUGAR) {
+      client.character.isCoffeeSugared = true;
+      for (let i = 0; i < 10; i++) {
+        client.character._resources[ResourceIds.STAMINA] += 40;
+        this.updateResource(
+          client,
+          client.character.characterId,
+          client.character._resources[ResourceIds.STAMINA],
+          ResourceIds.STAMINA
+        );
+        client.character._resources[ResourceIds.ENDURANCE] += 400;
+        this.updateResource(
+          client,
+          client.character.characterId,
+          client.character._resources[ResourceIds.ENDURANCE],
+          ResourceIds.ENDURANCE
+        );
+        await scheduler.wait(1000);
+      }
+      client.character.isCoffeeSugared = false;
     }
     if (bandagingCount && healCount) {
       if (!client.character.healingIntervals[healType]) {
