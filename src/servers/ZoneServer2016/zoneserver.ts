@@ -5622,7 +5622,8 @@ export class ZoneServer2016 extends EventEmitter {
   getItemBaseDurability(itemDefinitionId?: number): number {
     if (!itemDefinitionId) return 0;
     switch (true) {
-      case this.isGeneric(itemDefinitionId) && itemDefinitionId == Items.SKINNING_KNIFE:
+      case this.isGeneric(itemDefinitionId) &&
+        itemDefinitionId == Items.SKINNING_KNIFE:
         return 2000;
       case this.isGeneric(itemDefinitionId):
         return 0;
