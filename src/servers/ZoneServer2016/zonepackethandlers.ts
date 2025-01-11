@@ -1462,6 +1462,7 @@ export class ZonePacketHandlers {
       // Detect movements based on stance
       server.fairPlayManager.detectJumpXSMovement(server, client, stanceFlags);
       server.fairPlayManager.detectDroneMovement(server, client, stanceFlags);
+      server.detectEnasMovement(server, client, stanceFlags);
 
       // Handle jump logic
       if (

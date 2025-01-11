@@ -69,6 +69,7 @@ import {
   RandomReward,
   RewardCrateDefinition,
   ScreenEffect,
+  StanceFlags,
   UseOption
 } from "../../types/zoneserver";
 import { h1z1PacketsType2016 } from "../../types/packets";
@@ -8187,6 +8188,49 @@ export class ZoneServer2016 extends EventEmitter {
     if (index > -1) {
       character.screenEffects.splice(index, 1);
       this.removeScreenEffect(client, this._screenEffects["NIGHTVISION"]);
+    }
+  }
+
+  detectEnasMovement(
+    server: ZoneServer2016,
+    client: Client,
+    stanceFlags: StanceFlags
+  ) {
+    if (stanceFlags.CROUCHING) {
+      if (Date.now() - client.character.lastCrouchTime <= 1000) {
+        client.character.crouchCount++;
+      } else {
+        client.character.crouchCount = 0;
+        client.character.lastCrouchTime = 0;
+      }
+      client.character.lastCrouchTime = Date.now();
+      if (client.character.crouchCount >= 5) {
+        if (!client.character._characterEffects[Effects.PFX_Seasonal_Holiday_Snow_skel]) {
+          server.sendData<ClientUpdateModifyMovementSpeed>(
+            client,
+            "ClientUpdate.ModifyMovementSpeed",
+            {
+              speed: 0.5
+            }
+          );
+        }
+        client.character._characterEffects[Effects.PFX_Seasonal_Holiday_Snow_skel] = {
+          id: Effects.PFX_Seasonal_Holiday_Snow_skel,
+          duration: Date.now() + 5000,
+          endCallback: function (
+            server: ZoneServer2016,
+          ) {
+            server.sendData<ClientUpdateModifyMovementSpeed>(
+              client, 
+              "ClientUpdate.ModifyMovementSpeed",
+              {
+                speed: 2
+              }
+            );
+          }
+        };
+        client.character.crouchCount = 0;
+      }
     }
   }
 
