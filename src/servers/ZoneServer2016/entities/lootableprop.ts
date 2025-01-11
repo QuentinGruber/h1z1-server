@@ -289,7 +289,6 @@ export class LootableProp extends BaseLootableEntity {
         () => {
           super.OnPlayerSelect(server, client);
           client.searchedProps.push(this);
-          server.lootCrateWithChance(client, 5);
         }
       );
     } else {
@@ -362,7 +361,7 @@ export class LootableProp extends BaseLootableEntity {
               server,
               server.generateItem(Items.METAL_SCRAP)
             );
-            server.lootCrateWithChance(client, 5);
+            server.lootCrateWithChance(client, 2);
           }
         } else {
           server.sendChatText(

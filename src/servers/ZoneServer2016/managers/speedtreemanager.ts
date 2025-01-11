@@ -150,6 +150,7 @@ export class SpeedTreeManager {
             this.minWoodLogHarvest,
             this.maxWoodLogHarvest
           );
+          server.lootCrateWithChance(client, 2);
         }
         break;
       default: // boulders (do nothing);
@@ -160,7 +161,6 @@ export class SpeedTreeManager {
         server,
         server.generateItem(itemDefId, count)
       );
-      server.lootCrateWithChance(client, 1);
     }
     if (destroy) {
       this.destroy(server, objectId, name);
