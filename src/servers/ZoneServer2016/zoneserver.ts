@@ -8222,7 +8222,7 @@ export class ZoneServer2016 extends EventEmitter {
           Effects.PFX_Char_Death_Explosion_Body
         ] = {
           id: Effects.PFX_Char_Death_Explosion_Body,
-          duration: Date.now() + 5000,
+          duration: Date.now() + 1500,
           endCallback: function (server: ZoneServer2016) {
             server.sendData<ClientUpdateModifyMovementSpeed>(
               client,
