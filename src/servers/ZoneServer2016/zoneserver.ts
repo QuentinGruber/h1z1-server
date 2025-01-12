@@ -8205,7 +8205,11 @@ export class ZoneServer2016 extends EventEmitter {
       }
       client.character.lastCrouchTime = Date.now();
       if (client.character.crouchCount >= 5) {
-        if (!client.character._characterEffects[Effects.PFX_Char_Death_Explosion_Body]) {
+        if (
+          !client.character._characterEffects[
+            Effects.PFX_Char_Death_Explosion_Body
+          ]
+        ) {
           server.sendData<ClientUpdateModifyMovementSpeed>(
             client,
             "ClientUpdate.ModifyMovementSpeed",
@@ -8214,14 +8218,14 @@ export class ZoneServer2016 extends EventEmitter {
             }
           );
         }
-        client.character._characterEffects[Effects.PFX_Char_Death_Explosion_Body] = {
+        client.character._characterEffects[
+          Effects.PFX_Char_Death_Explosion_Body
+        ] = {
           id: Effects.PFX_Char_Death_Explosion_Body,
           duration: Date.now() + 5000,
-          endCallback: function (
-            server: ZoneServer2016,
-          ) {
+          endCallback: function (server: ZoneServer2016) {
             server.sendData<ClientUpdateModifyMovementSpeed>(
-              client, 
+              client,
               "ClientUpdate.ModifyMovementSpeed",
               {
                 speed: 2
