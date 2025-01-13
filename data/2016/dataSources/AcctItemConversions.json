@@ -5827,5 +5827,35 @@
         "REWARD_ITEM_COUNT": 1,
         "REWARD_ITEM_MATERIAL_EFFECT_ID": 0,
         "CONTENT_ID": 0
+    },
+    {
+        "ID": 689,
+        "ACCOUNT_ITEM_ID": 5003,
+        "REWARD_SET_ID": 0,
+        "REWARD_ITEM_ID": 5000,
+        "REWARD_ITEM_TINT_ID": 0,
+        "REWARD_ITEM_COUNT": 1,
+        "REWARD_ITEM_MATERIAL_EFFECT_ID": 0,
+        "CONTENT_ID": 0
+    },
+    {
+        "ID": 690,
+        "ACCOUNT_ITEM_ID": 5004,
+        "REWARD_SET_ID": 0,
+        "REWARD_ITEM_ID": 5001,
+        "REWARD_ITEM_TINT_ID": 0,
+        "REWARD_ITEM_COUNT": 1,
+        "REWARD_ITEM_MATERIAL_EFFECT_ID": 0,
+        "CONTENT_ID": 0
+    },
+    {
+        "ID": 691,
+        "ACCOUNT_ITEM_ID": 5005,
+        "REWARD_SET_ID": 0,
+        "REWARD_ITEM_ID": 5002,
+        "REWARD_ITEM_TINT_ID": 0,
+        "REWARD_ITEM_COUNT": 1,
+        "REWARD_ITEM_MATERIAL_EFFECT_ID": 0,
+        "CONTENT_ID": 0
     }
 ]

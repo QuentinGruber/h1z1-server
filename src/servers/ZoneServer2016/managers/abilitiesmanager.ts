@@ -251,12 +251,14 @@ export class AbilitiesManager {
       case Items.WEAPON_HATCHET:
       case Items.WEAPON_HATCHET_MAKESHIFT:
       case Items.WEAPON_KATANA:
+      case Items.WEAPON_HISREGARD_MACHETE:
         effectString += "Blade_ForehandSlash";
         meleeType = MeleeTypes.BLADE;
         damage *= 3;
         break;
       case Items.WEAPON_BAT_ALUM:
       case Items.WEAPON_BAT_WOOD:
+      case Items.WEAPON_MOURNING_WOOD:
       case Items.WEAPON_BRANCH:
       case Items.WEAPON_CROWBAR:
       case Items.WEAPON_HAMMER:
@@ -269,6 +271,7 @@ export class AbilitiesManager {
         break;
       case Items.WEAPON_COMBATKNIFE:
       case Items.SKINNING_KNIFE:
+      case Items.WEAPON_TOXIC_COMBATKNIFE:
         effectString += "Knife_ForehandSlash";
         meleeType = MeleeTypes.KNIFE;
         damage *= 3;

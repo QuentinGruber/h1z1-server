@@ -1129,7 +1129,6 @@ export class LoginServer extends EventEmitter {
       );
       return true;
     }
-
     const gameServer = await this._db
       .collection<GameServer>(DB_COLLECTIONS.SERVERS)
       .findOne({ serverId: serverId });

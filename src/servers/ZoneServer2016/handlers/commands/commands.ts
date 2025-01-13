@@ -1564,6 +1564,7 @@ export const commands: Array<Command> = [
           getCurrentServerTimeWrapper().getTruncatedU32(),
           VehicleIds.PARACHUTE
         );
+      server.worldObjectManager.createVehicle(server, vehicle, true);
       server.sendData(actingClient, "ClientUpdate.UpdateLocation", {
         position: loc,
         triggerLoadingScreen: true
@@ -1575,7 +1576,6 @@ export const commands: Array<Command> = [
         server.assignManagedObject(clientTriggered, vehicle);
         clientTriggered.vehicle.mountedVehicle = characterId;
       };
-      server.worldObjectManager.createVehicle(server, vehicle, true);
     }
   },
   {
@@ -1609,6 +1609,11 @@ export const commands: Array<Command> = [
         newModelId = Number(input);
       } else if (Object.prototype.hasOwnProperty.call(modelMap, input)) {
         newModelId = modelMap[input];
+        client.character.temporaryActorModelId = newModelId;
+      } else if (input == "0") {
+        newModelId = client.character.actorModelId;
+        client.character.temporaryActorModelId = undefined;
+        return;
       } else {
         server.sendChatText(client, "Specify a valid model ID!");
         return;
@@ -1737,19 +1742,6 @@ export const commands: Array<Command> = [
         server.inGameTimeManager.stop();
         server.sendChatText(client, "Game time is now froze", true);
       }
-    }
-  },
-  {
-    name: "sfog",
-    permissionLevel: PermissionLevels.ADMIN,
-    execute: (server: ZoneServer2016, client: Client, args: Array<string>) => {
-      server.sendChatText(
-        client,
-        `Fog has been toggled ${
-          server.weatherManager.toggleFog() ? "ON" : "OFF"
-        } for the server`,
-        true
-      );
     }
   },
   {
@@ -2008,6 +2000,95 @@ export const commands: Array<Command> = [
     permissionLevel: PermissionLevels.ADMIN,
     execute: (server: ZoneServer2016, client: Client, args: Array<string>) => {
       server.weatherManager.handleWeatherCommand(server, client, args);
+    }
+  },
+  {
+    name: "desiredweather",
+    permissionLevel: PermissionLevels.ADMIN,
+    execute: (server: ZoneServer2016, client: Client, args: Array<string>) => {
+      if (!args[0] || !args[1]) {
+        server.sendChatText(
+          client,
+          "[ERROR] Usage /desiredweather {setting} {value} optional: {alertAll: true/false}"
+        );
+        return;
+      }
+      const value = Number(args[1]);
+      let changed = false;
+      switch (args[0]) {
+        case "skycolor":
+          if (value < -2 || value > 2) {
+            server.sendChatText(
+              client,
+              "Setting out of value range (MIN -2 - 2 MAX) (-2 = Deep blue to +2 = Deep Orange)"
+            );
+            return;
+          }
+          server.weatherManager.desiredSkyColor = value;
+          server.sendChatText(client, "Changing..");
+          changed = true;
+          break;
+        case "globalprecipation":
+          if (value < 0 || value > 0.95) {
+            server.sendChatText(
+              client,
+              "Setting out of value range (MIN 0.0 - 0.95 MAX)"
+            );
+            return;
+          }
+          server.weatherManager.desiredGlobalPrecipation = value;
+          server.weatherManager.rainingHours = value
+            ? Array.from({ length: 24 }, (_, i) => i)
+            : [];
+          server.sendChatText(client, "Changing..");
+          changed = true;
+          break;
+        case "fogdensity":
+          if (value < 0.0001 || value > 0.0002) {
+            server.sendChatText(
+              client,
+              "Setting out of value range (MIN 0.0001 - 0.0002 MAX)"
+            );
+            return;
+          }
+          changed = true;
+          server.weatherManager.desiredfogDensity = value;
+          server.sendChatText(client, "Changing..");
+          break;
+        case "fogfloor":
+          if (value < 1 || value > 300) {
+            server.sendChatText(
+              client,
+              "Setting out of value range (MIN 1 - 300 MAX)"
+            );
+            return;
+          }
+          changed = true;
+          server.weatherManager.desiredfogFloor = value;
+          server.sendChatText(client, "Changing..");
+          break;
+        case "foggradient":
+          if (value < 1 || value > 300) {
+            server.sendChatText(
+              client,
+              "Setting out of value range (MIN 0.001 - 0.02)"
+            );
+            return;
+          }
+          changed = true;
+          server.weatherManager.desiredfogGradient = value;
+          server.sendChatText(client, "Changing..");
+          break;
+        default:
+          server.sendChatText(client, "Setting not found, available settings:");
+          server.sendChatText(
+            client,
+            "skycolor, globalprecipation, fogdensity, fogfloor, foggradient"
+          );
+          break;
+      }
+      if (changed && (Number(args[2]) || args[2] == "true"))
+        server.sendAlertToAll("Desired weather setting has been changed");
     }
   },
   {
