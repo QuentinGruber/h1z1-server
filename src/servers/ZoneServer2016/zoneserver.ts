@@ -2091,7 +2091,7 @@ export class ZoneServer2016 extends EventEmitter {
     const xChunk = Math.floor(obj.state.position[0] / 250);
     const zChunk = Math.floor(obj.state.position[2] / 250);
     const regionKey = this.generateKey(xChunk, zChunk);
-
+    // xd
     if (!this._grid[regionKey]) {
       this._grid[regionKey] = new GridCell(xChunk, zChunk, 250, 250);
     }
