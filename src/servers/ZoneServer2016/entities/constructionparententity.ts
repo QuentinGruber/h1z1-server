@@ -958,8 +958,6 @@ export class ConstructionParentEntity extends ConstructionChildEntity {
   }
 
   OnInteractionString(server: ZoneServer2016, client: ZoneClient2016) {
-    console.log(this.ownerCharacterId);
-    console.log(client.character.characterId);
     if (!this.ownerCharacterId) {
       server.sendData(client, "Command.InteractionString", {
         guid: this.characterId,

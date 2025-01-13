@@ -2741,13 +2741,12 @@ export class ConstructionManager {
     server: ZoneServer2016,
     characterId: string,
   ) {
-    for (const gridCell of server._grid) {
-      for (const object of gridCell.objects) {
-        if (object instanceof ConstructionParentEntity) {
-          if (object.ownerCharacterId === characterId) {
-            return true;
-          }
-        }
+    for (const a in server._constructionFoundations) {
+      const foundation = server._constructionFoundations[a];
+      if (
+        foundation.ownerCharacterId === characterId
+      ) {
+        return true;
       }
     }
     
@@ -2758,15 +2757,13 @@ export class ConstructionManager {
     server: ZoneServer2016,
     characterId: string
   ) {
-    for (const gridCell of server._grid) {
-      for (const object of gridCell.objects) {
-        if (object instanceof ConstructionParentEntity) {
-          if (object.ownerCharacterId === characterId) {
-            object.ownerCharacterId = "";
-          }
-        }
+    for (const a in server._constructionFoundations) {
+      const foundation = server._constructionFoundations[a];
+      if (
+        foundation.ownerCharacterId === characterId
+      ) {
+        foundation.ownerCharacterId = "";
       }
     }
   }
-
 }
