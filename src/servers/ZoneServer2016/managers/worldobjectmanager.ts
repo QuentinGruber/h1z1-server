@@ -136,7 +136,6 @@ export class WorldObjectManager {
       this.createLoot(server);
       this.createContainerLoot(server);
       this._lastLootRespawnTime = Date.now();
-      server.divideLargeCells(700);
     }
     if (this._lastNpcRespawnTime + this.npcRespawnTimer <= Date.now()) {
       this.createNpcs(server);
@@ -945,8 +944,8 @@ export class WorldObjectManager {
   }
 
   refillScrapInChunks(server: ZoneServer2016) {
-    for (let x = 0; x < server._grid.length; x++) {
-      const chunk = server._grid[x];
+    for (const a in server._grid) {
+      const chunk = server._grid[a];
       chunk.availableScrap += 20;
       if (chunk.availableScrap > 50) chunk.availableScrap = 50;
     }

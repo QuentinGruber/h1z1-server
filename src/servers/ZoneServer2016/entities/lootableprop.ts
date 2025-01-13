@@ -350,26 +350,25 @@ export class LootableProp extends BaseLootableEntity {
     if (!client || !weapon || weapon.itemDefinitionId != Items.WEAPON_CROWBAR) {
       return;
     }
-    for (let x = 0; x < server._grid.length; x++) {
-      const grid = server._grid[x];
-      const index = grid.objects.indexOf(this);
-      if (index > -1) {
-        if (grid.availableScrap) {
-          if (randomIntFromInterval(0, 100) <= server.crowbarHitRewardChance) {
-            grid.availableScrap--;
-            client.character.lootItem(
-              server,
-              server.generateItem(Items.METAL_SCRAP)
-            );
-            server.lootCrateWithChance(client, 2);
-          }
-        } else {
-          server.sendChatText(
-            client,
-            `There is no metal scrap left in this area`
-          );
-        }
+
+    const xChunk = Math.floor(this.state.position[0] / 250);
+    const zChunk = Math.floor(this.state.position[2] / 250);
+    const regionKey = `${xChunk},${zChunk}`;
+
+    const grid = server._grid[regionKey];
+    if (!grid.objects.includes(this)) return;
+    if (!grid.availableScrap) return;
+    if (grid.availableScrap) {
+      if (randomIntFromInterval(0, 100) <= server.crowbarHitRewardChance) {
+        grid.availableScrap--;
+        client.character.lootItem(
+          server,
+          server.generateItem(Items.METAL_SCRAP)
+        );
+        server.lootCrateWithChance(client, 2);
       }
+    } else {
+      server.sendChatText(client, `There is no metal scrap left in this area`);
     }
     server.damageItem(client.character, weapon, server.crowbarHitDamage);
   }

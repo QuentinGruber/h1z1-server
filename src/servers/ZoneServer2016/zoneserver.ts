@@ -293,7 +293,7 @@ export class ZoneServer2016 extends EventEmitter {
   protected _loginConnectionManager!: LoginConnectionManager;
   _serverGuid = generateRandomGuid();
   _worldId = 0;
-  _grid: GridCell[] = [];
+  _grid: { [regionKey: string]: GridCell } = {};
   _spawnGrid: SpawnCell[] = [];
 
   saveTimeInterval: number = 600000;
@@ -2076,73 +2076,7 @@ export class ZoneServer2016 extends EventEmitter {
     return grid.reverse();
   }
 
-  private divideMapIntoGrid(
-    mapWidth: number,
-    mapHeight: number,
-    gridCellSize: number
-  ) {
-    const grid = [];
-    for (let i = -mapWidth / 2; i < mapWidth / 2; i += gridCellSize) {
-      for (let j = -mapHeight / 2; j < mapHeight / 2; j += gridCellSize) {
-        const cell = new GridCell(i, j, gridCellSize, gridCellSize);
-        grid.push(cell);
-      }
-    }
-    return grid;
-  }
-
-  divideLargeCells(threshold: number) {
-    const grid = this._grid;
-    for (let i = 0; i < grid.length; i++) {
-      const gridCell: GridCell = grid[i];
-      if (gridCell.height < 250) continue;
-      if (gridCell.objects.length > threshold) {
-        const newGridCellWidth = gridCell.width / 2;
-        const newGridCellHeight = gridCell.height / 2;
-        // 4 cells made of 1
-        const newGridCell1 = new GridCell(
-          gridCell.position[0],
-          gridCell.position[2],
-          newGridCellWidth,
-          newGridCellHeight
-        );
-        const newGridCell2 = new GridCell(
-          gridCell.position[0] + newGridCellWidth,
-          gridCell.position[2],
-          newGridCellWidth,
-          newGridCellHeight
-        );
-        const newGridCell3 = new GridCell(
-          gridCell.position[0],
-          gridCell.position[2] + newGridCellHeight,
-          newGridCellWidth,
-          newGridCellHeight
-        );
-        const newGridCell4 = new GridCell(
-          gridCell.position[0] + newGridCellWidth,
-          gridCell.position[2] + newGridCellHeight,
-          newGridCellWidth,
-          newGridCellHeight
-        );
-        // remove old grid cell
-        const objects = this._grid[i].objects;
-        this._grid.splice(i, 1);
-        i--;
-
-        this._grid.push(newGridCell1);
-        this._grid.push(newGridCell2);
-        this._grid.push(newGridCell3);
-        this._grid.push(newGridCell4);
-        objects.forEach((object: BaseEntity) => {
-          this.pushToGridCell(object);
-        });
-      }
-    }
-  }
-
   pushToGridCell(obj: BaseEntity) {
-    if (this._grid.length == 0)
-      this._grid = this.divideMapIntoGrid(8196, 8196, 250);
     if (
       obj instanceof Vehicle ||
       obj instanceof Character ||
@@ -2153,39 +2087,16 @@ export class ZoneServer2016 extends EventEmitter {
       // dont push objects that can change its position
       return;
     }
-    for (let i = 0; i < this._grid.length; i++) {
-      const gridCell = this._grid[i];
-      if (
-        obj.state.position[0] >= gridCell.position[0] &&
-        obj.state.position[0] <= gridCell.position[0] + gridCell.width &&
-        obj.state.position[2] >= gridCell.position[2] &&
-        obj.state.position[2] <= gridCell.position[2] + gridCell.height
-      ) {
-        if (gridCell.objects.includes(obj)) {
-          return;
-        }
-        gridCell.objects.push(obj);
-      }
-    }
-  }
 
-  assignChunkRenderDistance(client: Client) {
-    let lowerRenderDistance = false;
-    const character = client.character;
-    for (let i = 0; i < this._grid.length; i++) {
-      const gridCell: GridCell = this._grid[i];
+    const xChunk = Math.floor(obj.state.position[0] / 250);
+    const zChunk = Math.floor(obj.state.position[2] / 250);
+    const regionKey = `${xChunk},${zChunk}`;
 
-      if (
-        character.state.position[0] >= gridCell.position[0] &&
-        character.state.position[0] <= gridCell.position[0] + gridCell.width &&
-        character.state.position[2] >= gridCell.position[2] &&
-        character.state.position[2] <= gridCell.position[2] + gridCell.height &&
-        gridCell.height < 250
-      ) {
-        lowerRenderDistance = true;
-      }
+    if (!this._grid[regionKey]) {
+      this._grid[regionKey] = new GridCell(xChunk, zChunk, 250, 250);
     }
-    client.chunkRenderDistance = lowerRenderDistance ? 600 : 700;
+
+    this._grid[regionKey].objects.push(obj);
   }
 
   private async worldRoutine() {
@@ -2684,12 +2595,10 @@ export class ZoneServer2016 extends EventEmitter {
     // - meme
 
     if (!sourceIsProjectile) {
-      // skip projectiles from damaging bases
-      for (const gridCell of this._grid) {
-        if (!isPosInRadius(400, gridCell.position, position)) {
-          continue;
-        }
-        for (const object of gridCell.objects) {
+      const nearbyChunks = this.getNearbyChunks(position, 400);
+      for (const regionKey in nearbyChunks) {
+        const chunk = nearbyChunks[regionKey];
+        for (const object of chunk.objects) {
           // explosives still chain explode on PvE
           if (!(object instanceof ExplosiveEntity) && this.isPvE) continue;
 
@@ -3687,11 +3596,16 @@ export class ZoneServer2016 extends EventEmitter {
         effectDelay: timeToDisappear ? timeToDisappear : 0
       }
     );
-    this._grid.forEach((cell: GridCell) => {
-      if (cell.objects.includes(dictionary[characterId])) {
-        cell.objects.splice(cell.objects.indexOf(dictionary[characterId]), 1);
+
+    for (const a in this._grid) {
+      const gridCell = this._grid[a];
+      if (gridCell.objects.includes(dictionary[characterId])) {
+        gridCell.objects.splice(
+          gridCell.objects.indexOf(dictionary[characterId]),
+          1
+        );
       }
-    });
+    }
 
     // remove deleted entity from spawned entities (correct me if we do it somewhere else)
 
@@ -3858,11 +3772,11 @@ export class ZoneServer2016 extends EventEmitter {
 
   private spawnGridObjects(client: Client) {
     const position = client.character.state.position;
-    for (const gridCell of this._grid) {
-      if (
-        !isPosInRadius(client.chunkRenderDistance, gridCell.position, position)
-      )
-        continue;
+
+    const nearbyChunks = this.getNearbyChunks(position, 600);
+
+    for (const a in nearbyChunks) {
+      const gridCell = nearbyChunks[a];
 
       for (const object of gridCell.objects) {
         if (
@@ -3949,14 +3863,35 @@ export class ZoneServer2016 extends EventEmitter {
     }
   }
 
+  public getNearbyChunks(
+    position: Float32Array,
+    range: number
+  ): { [regionKey: string]: GridCell } {
+    const xStart = Math.floor((position[0] - range) / 250);
+    const xEnd = Math.floor((position[0] + range) / 250);
+    const zStart = Math.floor((position[2] - range) / 250);
+    const zEnd = Math.floor((position[2] + range) / 250);
+
+    const nearbyChunks: { [regionKey: string]: GridCell } = {};
+
+    for (let x = xStart; x <= xEnd; x++) {
+      for (let z = zStart; z <= zEnd; z++) {
+        const regionKey = `${x},${z}`;
+        if (this._grid[regionKey]) {
+          nearbyChunks[regionKey] = this._grid[regionKey];
+        }
+      }
+    }
+    return nearbyChunks;
+  }
+
   private spawnLoadingGridObjects(client: Client) {
     const position = client.character.state.position;
-    for (const gridCell of this._grid) {
-      if (
-        !isPosInRadius(client.chunkRenderDistance, gridCell.position, position)
-      ) {
-        continue;
-      }
+
+    const nearbyChunks = this.getNearbyChunks(position, 600);
+
+    for (const a in nearbyChunks) {
+      const gridCell = nearbyChunks[a];
       for (const object of gridCell.objects) {
         if (
           !isPosInRadius(
@@ -8518,7 +8453,6 @@ export class ZoneServer2016 extends EventEmitter {
         this.checkZonePing(client);
         if (client.routineCounter >= 3) {
           this.createFairPlayInternalPacket(client);
-          this.assignChunkRenderDistance(client);
           this.removeOutOfDistanceEntities(client);
           this.removeOODInteractionData(client);
           this.POIManager(client);
