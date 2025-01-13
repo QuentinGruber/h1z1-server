@@ -2090,7 +2090,7 @@ export class ZoneServer2016 extends EventEmitter {
 
     const xChunk = Math.floor(obj.state.position[0] / 250);
     const zChunk = Math.floor(obj.state.position[2] / 250);
-    const regionKey = `${xChunk},${zChunk}`;
+    const regionKey = this.generateKey(xChunk, zChunk);
 
     if (!this._grid[regionKey]) {
       this._grid[regionKey] = new GridCell(xChunk, zChunk, 250, 250);
@@ -3863,25 +3863,30 @@ export class ZoneServer2016 extends EventEmitter {
     }
   }
 
+  public generateKey(x: number, z: number): number {
+    return (x & 0xffff) | ((z & 0xffff) << 16);
+  }
+
   public getNearbyChunks(
     position: Float32Array,
     range: number
   ): { [regionKey: string]: GridCell } {
+    const t1 = performance.now();
     const xStart = Math.floor((position[0] - range) / 250);
     const xEnd = Math.floor((position[0] + range) / 250);
     const zStart = Math.floor((position[2] - range) / 250);
     const zEnd = Math.floor((position[2] + range) / 250);
 
     const nearbyChunks: { [regionKey: string]: GridCell } = {};
-
     for (let x = xStart; x <= xEnd; x++) {
       for (let z = zStart; z <= zEnd; z++) {
-        const regionKey = `${x},${z}`;
+        const regionKey = this.generateKey(x, z);
         if (this._grid[regionKey]) {
           nearbyChunks[regionKey] = this._grid[regionKey];
         }
       }
     }
+    console.log(performance.now() - t1);
     return nearbyChunks;
   }
 

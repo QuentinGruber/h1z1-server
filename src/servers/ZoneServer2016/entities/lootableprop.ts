@@ -353,7 +353,7 @@ export class LootableProp extends BaseLootableEntity {
 
     const xChunk = Math.floor(this.state.position[0] / 250);
     const zChunk = Math.floor(this.state.position[2] / 250);
-    const regionKey = `${xChunk},${zChunk}`;
+    const regionKey = server.generateKey(xChunk, zChunk);
 
     const grid = server._grid[regionKey];
     if (!grid.objects.includes(this)) return;
