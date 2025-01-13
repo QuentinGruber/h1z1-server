@@ -2737,31 +2737,21 @@ export class ConstructionManager {
     });
   }
 
-  hasOwnedBases(
-    server: ZoneServer2016,
-    characterId: string,
-  ) {
+  hasOwnedBases(server: ZoneServer2016, characterId: string) {
     for (const a in server._constructionFoundations) {
       const foundation = server._constructionFoundations[a];
-      if (
-        foundation.ownerCharacterId === characterId
-      ) {
+      if (foundation.ownerCharacterId === characterId) {
         return true;
       }
     }
-    
-    return false; 
+
+    return false;
   }
 
-  removeOwnerFromBases(
-    server: ZoneServer2016,
-    characterId: string
-  ) {
+  removeOwnerFromBases(server: ZoneServer2016, characterId: string) {
     for (const a in server._constructionFoundations) {
       const foundation = server._constructionFoundations[a];
-      if (
-        foundation.ownerCharacterId === characterId
-      ) {
+      if (foundation.ownerCharacterId === characterId) {
         foundation.ownerCharacterId = "";
       }
     }

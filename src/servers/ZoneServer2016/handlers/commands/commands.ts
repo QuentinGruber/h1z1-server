@@ -2878,8 +2878,8 @@ export const commands: Array<Command> = [
         if (
           foundation.ownerCharacterId === targetClient.character.characterId
         ) {
-          foundation.ownerCharacterId = ""
-          console.log("cleared base")
+          foundation.ownerCharacterId = "";
+          console.log("cleared base");
           continue;
         }
       }
