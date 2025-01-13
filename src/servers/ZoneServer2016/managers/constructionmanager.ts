@@ -2743,9 +2743,8 @@ export class ConstructionManager {
   ) {
     for (const gridCell of server._grid) {
       for (const object of gridCell.objects) {
-        console.log(object)
         if (object instanceof ConstructionParentEntity) {
-          if (characterId == object.ownerCharacterId) {
+          if (object.ownerCharacterId === characterId) {
             return true;
           }
         }
@@ -2762,7 +2761,7 @@ export class ConstructionManager {
     for (const gridCell of server._grid) {
       for (const object of gridCell.objects) {
         if (object instanceof ConstructionParentEntity) {
-          if (characterId == object.ownerCharacterId) {
+          if (object.ownerCharacterId === characterId) {
             object.ownerCharacterId = "";
           }
         }
