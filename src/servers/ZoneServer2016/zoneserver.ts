@@ -293,7 +293,7 @@ export class ZoneServer2016 extends EventEmitter {
   protected _loginConnectionManager!: LoginConnectionManager;
   _serverGuid = generateRandomGuid();
   _worldId = 0;
-  _grid: { [regionKey: string]: GridCell } = {};
+  _grid: Map<number, GridCell> = new Map();
   _spawnGrid: SpawnCell[] = [];
 
   saveTimeInterval: number = 600000;
@@ -2092,11 +2092,14 @@ export class ZoneServer2016 extends EventEmitter {
     const zChunk = Math.floor(obj.state.position[2] / 250);
     const regionKey = this.generateKey(xChunk, zChunk);
     // xd
-    if (!this._grid[regionKey]) {
-      this._grid[regionKey] = new GridCell(xChunk, zChunk, 250, 250);
+    if (!this._grid.has(regionKey)) {
+      this._grid.set(regionKey, new GridCell(xChunk, zChunk, 250, 250));
     }
 
-    this._grid[regionKey].objects.push(obj);
+    const gridCell = this._grid.get(regionKey);
+    if (gridCell) {
+      gridCell.objects.push(obj);
+    }
   }
 
   private async worldRoutine() {
@@ -2596,16 +2599,15 @@ export class ZoneServer2016 extends EventEmitter {
 
     if (!sourceIsProjectile) {
       const nearbyChunks = this.getNearbyChunks(position, 400);
-      for (const regionKey in nearbyChunks) {
-        const chunk = nearbyChunks[regionKey];
-        for (const object of chunk.objects) {
+      nearbyChunks.forEach((value) => {
+        for (const object of value.objects) {
           // explosives still chain explode on PvE
           if (!(object instanceof ExplosiveEntity) && this.isPvE) continue;
 
           // await is for ExplosiveEntity, ignore error
           object.OnExplosiveHit(this, sourceEntity, client);
         }
-      }
+      });
     }
 
     if (this.isPvE) return;
@@ -3596,16 +3598,11 @@ export class ZoneServer2016 extends EventEmitter {
         effectDelay: timeToDisappear ? timeToDisappear : 0
       }
     );
-
-    for (const a in this._grid) {
-      const gridCell = this._grid[a];
-      if (gridCell.objects.includes(dictionary[characterId])) {
-        gridCell.objects.splice(
-          gridCell.objects.indexOf(dictionary[characterId]),
-          1
-        );
+    this._grid.forEach((value) => {
+      if (value.objects.includes(dictionary[characterId])) {
+        value.objects.splice(value.objects.indexOf(dictionary[characterId]), 1);
       }
-    }
+    });
 
     // remove deleted entity from spawned entities (correct me if we do it somewhere else)
 
@@ -3774,11 +3771,8 @@ export class ZoneServer2016 extends EventEmitter {
     const position = client.character.state.position;
 
     const nearbyChunks = this.getNearbyChunks(position, 600);
-
-    for (const a in nearbyChunks) {
-      const gridCell = nearbyChunks[a];
-
-      for (const object of gridCell.objects) {
+    nearbyChunks.forEach((value) => {
+      for (const object of value.objects) {
         if (
           client.spawnedEntities.has(object) ||
           !isPosInRadius(
@@ -3860,7 +3854,7 @@ export class ZoneServer2016 extends EventEmitter {
           }
         }
       }
-    }
+    });
   }
 
   public generateKey(x: number, z: number): number {
@@ -3870,23 +3864,27 @@ export class ZoneServer2016 extends EventEmitter {
   public getNearbyChunks(
     position: Float32Array,
     range: number
-  ): { [regionKey: string]: GridCell } {
-    const t1 = performance.now();
-    const xStart = Math.floor((position[0] - range) / 250);
-    const xEnd = Math.floor((position[0] + range) / 250);
-    const zStart = Math.floor((position[2] - range) / 250);
-    const zEnd = Math.floor((position[2] + range) / 250);
+  ): Map<number, GridCell> {
+    const grid = this._grid; // Cache grid reference
+    const scaleFactor = 1 / 250; // Precompute division factor
 
-    const nearbyChunks: { [regionKey: string]: GridCell } = {};
+    // Precompute chunk bounds
+    const xStart = Math.floor((position[0] - range) * scaleFactor);
+    const xEnd = Math.floor((position[0] + range) * scaleFactor);
+    const zStart = Math.floor((position[2] - range) * scaleFactor);
+    const zEnd = Math.floor((position[2] + range) * scaleFactor);
+    const nearbyChunks = new Map<number, GridCell>();
+
     for (let x = xStart; x <= xEnd; x++) {
       for (let z = zStart; z <= zEnd; z++) {
+        // Combine key generation and grid lookup
         const regionKey = this.generateKey(x, z);
-        if (this._grid[regionKey]) {
-          nearbyChunks[regionKey] = this._grid[regionKey];
+        const cell = grid.get(regionKey);
+        if (cell) {
+          nearbyChunks.set(regionKey, cell);
         }
       }
     }
-    console.log(performance.now() - t1);
     return nearbyChunks;
   }
 
@@ -3894,10 +3892,8 @@ export class ZoneServer2016 extends EventEmitter {
     const position = client.character.state.position;
 
     const nearbyChunks = this.getNearbyChunks(position, 600);
-
-    for (const a in nearbyChunks) {
-      const gridCell = nearbyChunks[a];
-      for (const object of gridCell.objects) {
+    nearbyChunks.forEach((value) => {
+      for (const object of value.objects) {
         if (
           !isPosInRadius(
             (object.npcRenderDistance as number) ||
@@ -3928,7 +3924,7 @@ export class ZoneServer2016 extends EventEmitter {
           this.addSimpleNpc(client, object);
         }
       }
-    }
+    });
   }
 
   private POIManager(client: Client) {

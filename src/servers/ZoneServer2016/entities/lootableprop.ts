@@ -355,12 +355,13 @@ export class LootableProp extends BaseLootableEntity {
     const zChunk = Math.floor(this.state.position[2] / 250);
     const regionKey = server.generateKey(xChunk, zChunk);
 
-    const grid = server._grid[regionKey];
-    if (!grid.objects.includes(this)) return;
-    if (!grid.availableScrap) return;
-    if (grid.availableScrap) {
+    const gridCell = server._grid.get(regionKey);
+    if (!gridCell) return;
+    if (!gridCell.objects.includes(this)) return;
+    if (!gridCell.availableScrap) return;
+    if (gridCell.availableScrap) {
       if (randomIntFromInterval(0, 100) <= server.crowbarHitRewardChance) {
-        grid.availableScrap--;
+        gridCell.availableScrap--;
         client.character.lootItem(
           server,
           server.generateItem(Items.METAL_SCRAP)

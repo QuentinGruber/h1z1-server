@@ -53,6 +53,7 @@ import { TreasureChest } from "../entities/treasurechest";
 import { Npc } from "../entities/npc";
 //import { EntityType } from "h1emu-ai";
 import { scheduler } from "node:timers/promises";
+import { GridCell } from "../classes/gridcell";
 const debug = require("debug")("ZoneServer");
 
 export function getRandomItem(items: Array<LootDefinition>) {
@@ -944,11 +945,10 @@ export class WorldObjectManager {
   }
 
   refillScrapInChunks(server: ZoneServer2016) {
-    for (const a in server._grid) {
-      const chunk = server._grid[a];
-      chunk.availableScrap += 20;
-      if (chunk.availableScrap > 50) chunk.availableScrap = 50;
-    }
+    server._grid.forEach((value: GridCell) => {
+      value.availableScrap += 20;
+      if (value.availableScrap > 50) value.availableScrap = 50;
+    });
   }
 
   async createLoot(server: ZoneServer2016, lTables = lootTables) {
