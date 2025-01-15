@@ -2729,6 +2729,7 @@ export class ZoneServer2016 extends EventEmitter {
       client.character.characterStates,
       true
     );
+    client.character._characterEffects = {};
 
     // fixes characters showing up as dead if they respawn close to other characters
     if (client.character.initialized) {
@@ -8207,7 +8208,7 @@ export class ZoneServer2016 extends EventEmitter {
       if (client.character.crouchCount >= 5) {
         if (
           !client.character._characterEffects[
-            Effects.PFX_Char_Death_Explosion_Body
+            Effects.PFX_Seasonal_Holiday_Snow_skel
           ]
         ) {
           server.sendData<ClientUpdateModifyMovementSpeed>(
@@ -8219,11 +8220,14 @@ export class ZoneServer2016 extends EventEmitter {
           );
         }
         client.character._characterEffects[
-          Effects.PFX_Char_Death_Explosion_Body
+          Effects.PFX_Seasonal_Holiday_Snow_skel
         ] = {
-          id: Effects.PFX_Char_Death_Explosion_Body,
+          id: Effects.PFX_Seasonal_Holiday_Snow_skel,
           duration: Date.now() + 1500,
-          endCallback: function (server: ZoneServer2016) {
+          endCallback: function (
+            server: ZoneServer2016,
+            character: Character
+          ) {
             server.sendData<ClientUpdateModifyMovementSpeed>(
               client,
               "ClientUpdate.ModifyMovementSpeed",
