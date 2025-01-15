@@ -707,6 +707,22 @@ export class Character2016 extends BaseFullCharacter {
         server.sendHudIndicators(client);
       }
     }
+
+    const indexAdrenalineAfterEffects = this.resourceHudIndicators.indexOf(
+      ResourceIndicators.ADRENALINE_AFTER_EFFECTS
+    );
+    if (stamina == 600) {
+      if (indexAdrenalineAfterEffects <= -1) {
+        this.resourceHudIndicators.push(ResourceIndicators.ADRENALINE_AFTER_EFFECTS);
+        server.sendHudIndicators(client);
+      } else {
+        if (indexAdrenalineAfterEffects > -1) {
+          this.resourceHudIndicators.splice(indexAdrenalineAfterEffects, 1);
+          server.sendHudIndicators(client);
+        }
+      }
+    }
+
     this.checkResource(server, ResourceIds.HEALTH);
 
     this.updateResource(

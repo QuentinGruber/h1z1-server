@@ -138,5 +138,19 @@
     "nameId": 11884,
     "descriptionId": 11885,
     "imageSetId": 552
+  },
+  {
+    "id": 22,
+    "typeName": "ADRENALINE",
+    "nameId": 12429,
+    "descriptionId": 12435,
+    "imageSetId": 135
+  },
+  {
+    "id": 23,
+    "typeName": "ADRENALINE AFTER EFFECTS",
+    "nameId": 12431,
+    "descriptionId": 12436,
+    "imageSetId": 145
   }
 ]

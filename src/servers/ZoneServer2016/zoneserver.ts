@@ -49,7 +49,8 @@ import {
   StringIds,
   ModelIds,
   ItemTypes,
-  ItemClasses
+  ItemClasses,
+  ResourceIndicators
 } from "./models/enums";
 import { WeatherManager } from "./managers/weathermanager";
 
@@ -6958,7 +6959,13 @@ export class ZoneServer2016 extends EventEmitter {
 
   sniffPass(client: Client, character: BaseFullCharacter, item: BaseItem) {
     if (!this.removeInventoryItem(character, item)) return;
-    this.applyMovementModifier(client, MovementModifiers.SWIZZLE);
+    if (item.itemDefinitionId === Items.SWIZZLE) {
+      this.applyMovementModifier(client, MovementModifiers.SWIZZLE);
+    }
+
+    if (item.itemDefinitionId === Items.ADRENALINE_SHOT) {
+      this.applyMovementModifier(client, MovementModifiers.ADRENALINE);
+    }
   }
 
   fertilizePlants(
@@ -7093,6 +7100,7 @@ export class ZoneServer2016 extends EventEmitter {
         useoption = "fill";
         break;
       case Items.SWIZZLE:
+      case Items.ADRENALINE_SHOT:
         useoption = "sniff";
         timeout = 3000;
         break;
@@ -8102,6 +8110,36 @@ export class ZoneServer2016 extends EventEmitter {
           this.divideMovementModifier(client, modifier);
           delete client.character.timeouts["snared"];
         }, 15000);
+        break;
+      case MovementModifiers.ADRENALINE:
+        hudIndicator = this._hudIndicators[ResourceIndicators.ADRENALINE];
+        if (client.character.timeouts["ADRENALINE"]) {
+          client.character.timeouts["ADRENALINE"]._onTimeout();
+          clearTimeout(client.character.timeouts["ADRENALINE"]);
+          delete client.character.timeouts["ADRENALINE"];
+          if (client.character.hudIndicators[hudIndicator.typeName]) {
+            client.character.hudIndicators[
+              hudIndicator.typeName
+            ].expirationTime += 30000;
+          }
+        }
+        client.character.hudIndicators[hudIndicator.typeName] = {
+          typeName: hudIndicator.typeName,
+          expirationTime: Date.now() + 30000
+        }
+        this.sendHudIndicators(client);
+        setInterval(() => {
+          client.character._resources[ResourceIds.STAMINA] = 600;
+        })
+        client.character.timeouts["ADRENALINE"] = setTimeout(() => {
+          if (!client.character.timeouts["ADRENALINE"]) {
+            return;
+          }
+          hudIndicator = this._hudIndicators[ResourceIndicators.ADRENALINE_AFTER_EFFECTS]
+          this.sendHudIndicators(client);
+          this.divideMovementModifier(client, modifier);
+          delete client.character.timeouts["ADRENALINE"];
+        }, 30000);
         break;
       case MovementModifiers.BOOTS:
         // some stuff

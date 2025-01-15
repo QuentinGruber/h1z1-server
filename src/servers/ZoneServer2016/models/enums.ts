@@ -346,7 +346,8 @@ export enum MovementModifiers {
   SWIZZLE = 1.1,
   SNARED = 0.5,
   CONVEYS = 1.15,
-  BOOTS = 1.07
+  BOOTS = 1.07,
+  ADRENALINE = 1.1
 }
 
 export enum ContainerErrors {
@@ -510,7 +511,9 @@ export enum ResourceIndicators {
   COMFORT_PLUS = "COMFORT +",
   COMFORT_PLUSPLUS = "COMFORT ++",
   FOOD_POISONING = "FOOD POISONING",
-  BEES = "BEES!"
+  BEES = "BEES!",
+  ADRENALINE = "ADRENALINE",
+  ADRENALINE_AFTER_EFFECTS = "ADRENALINE AFTER EFFECTS"
 }
 
 export enum Abilities {
