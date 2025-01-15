@@ -140,6 +140,13 @@
     "imageSetId": 552
   },
   {
+    "id": 21,
+    "typeName": "COFFEE_SUGAR",
+    "nameId": 9591,
+    "descriptionId": 0,
+    "imageSetId": 31
+  },
+  {
     "id": 22,
     "typeName": "ADRENALINE",
     "nameId": 12429,
