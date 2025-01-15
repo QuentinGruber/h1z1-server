@@ -347,7 +347,7 @@ export enum MovementModifiers {
   SNARED = 0.5,
   CONVEYS = 1.15,
   BOOTS = 1.07,
-  ADRENALINE = 1.1
+  ADRENALINE = 1.12
 }
 
 export enum ContainerErrors {
