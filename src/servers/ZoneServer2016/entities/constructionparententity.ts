@@ -960,8 +960,9 @@ export class ConstructionParentEntity extends ConstructionChildEntity {
       );
       return;
     }
-
+    
     if (
+      !this.getHasPermission(server, client.character.characterId, ConstructionPermissionIds.DEMOLISH) && // if the player has permission to build, show the permissions menu
       this.ownerCharacterId != client.character.characterId &&
       (!client.isAdmin || !client.isDebugMode) // allows debug mode
     )
@@ -973,7 +974,7 @@ export class ConstructionParentEntity extends ConstructionChildEntity {
         characterId: this.characterId,
         characterId2: this.characterId,
         permissions: Object.values(this.permissions).filter(
-          (perm: ConstructionPermissions) =>
+          (perm: ConstructionPermissions) => 
             perm.characterId != this.ownerCharacterId
         )
       }
@@ -991,9 +992,10 @@ export class ConstructionParentEntity extends ConstructionChildEntity {
     }
 
     if (
+      !this.getHasPermission(server, client.character.characterId, ConstructionPermissionIds.DEMOLISH) && // if the player has permission to build, show the permissions menu interaction string
       this.ownerCharacterId != client.character.characterId &&
       (!client.isAdmin || !client.isDebugMode)
-    )
+    ) 
       return; // debug mode give permission interact string
     server.sendData(client, "Command.InteractionString", {
       guid: this.characterId,

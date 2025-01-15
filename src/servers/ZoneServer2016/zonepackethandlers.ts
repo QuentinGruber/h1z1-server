@@ -2859,11 +2859,17 @@ export class ZonePacketHandlers {
       foundation = server._constructionFoundations[
         objectCharacterId
       ] as ConstructionParentEntity;
-    if (
-      foundation.ownerCharacterId != client.character.characterId &&
-      (!client.isAdmin || !client.isDebugMode) // allows debug mode
-    )
-      return; // add debug admin
+  
+    //Check if the client is the owner of the foundation / has demolistion perms or an admin in debug mode or if client has demolition perms
+    if (!foundation.permissions[client.character.characterId]?.demolish) {
+      if (
+        foundation.ownerCharacterId != client.character.characterId &&
+        (!client.isAdmin || !client.isDebugMode) // allows debug mode
+      ) {
+        return; // add debug admin
+      }
+    }
+  
     let characterId = "";
     for (const a in foundation.permissions) {
       const permissions = foundation.permissions[a];
@@ -2871,13 +2877,23 @@ export class ZonePacketHandlers {
         characterId = permissions.characterId;
       }
     }
+  
     if (!characterId) {
       return;
     }
-    if (characterId == foundation.ownerCharacterId) {
+  
+    // If the character ID matches the foundation owner's / own character ID, send an alert and exit
+    if (characterId == foundation.ownerCharacterId || characterId == client.character.characterId) {
       server.sendAlert(client, "You can't edit your own permissions.");
       return;
     }
+
+    // If not an owner and client tries to edit other players permissions with demolish perms, send an alert and exit
+    if (client.character.characterId != foundation.ownerCharacterId && foundation.permissions[characterId]?.demolish && characterId != client.character.characterId) {
+      server.sendAlert(client, "You can't edit someone else's permissions if they have demolish permissions.");
+      return;
+    }
+  
     const obj: ConstructionPermissions = foundation.permissions[characterId];
     if (!obj) return;
     switch (packet.data.permissionSlot) {
@@ -2900,15 +2916,15 @@ export class ZonePacketHandlers {
     } else {
       foundation.permissions[characterId] = obj;
     }
-
+  
     // update child expansion permissions
     Object.values(
       server._constructionFoundations[objectCharacterId].occupiedExpansionSlots
     ).forEach((expansion) => {
       expansion.permissions = foundation.permissions;
     });
-
-    // update permissions list
+  
+     // update permissions list
     server.sendData<NpcFoundationPermissionsManagerBaseShowPermissions>(
       client,
       "NpcFoundationPermissionsManagerBase.ShowPermissions",
@@ -2932,25 +2948,30 @@ export class ZonePacketHandlers {
       foundation = server._constructionFoundations[
         objectCharacterId
       ] as ConstructionParentEntity;
-    if (
-      foundation.ownerCharacterId != client.character.characterId &&
-      (!client.isAdmin || !client.isDebugMode)
-    )
-      return;
-
+  
+    // Check if the client is the owner of the foundation / has demolistion perms or an admin in debug mode
+    if (!foundation.permissions[client.character.characterId]?.demolish) {
+      if (
+        foundation.ownerCharacterId != client.character.characterId &&
+        (!client.isAdmin || !client.isDebugMode)
+      ) {
+        return;
+      }
+    }
+  
     let targetClient = server.getClientByNameOrLoginSession(characterName);
-
+  
     if (!targetClient) {
       targetClient = await server.getOfflineClientByName(characterName);
     }
-
+  
     if (!targetClient || !(targetClient instanceof Client)) {
       server.sendChatText(client, "Player not found.");
       return;
     }
-
+  
     let characterId = targetClient.character.characterId;
-
+  
     // check existing characters in foundation permissions
     if (!characterId) {
       for (const a in foundation.permissions) {
@@ -2960,8 +2981,9 @@ export class ZonePacketHandlers {
         }
       }
     }
-
-    if (characterId == foundation.ownerCharacterId) {
+  
+    // If the character ID matches the foundation owner's / own character ID, send an alert and exit
+    if (characterId == foundation.ownerCharacterId || characterId == client.character.characterId) {
       server.sendAlert(client, "You can't edit your own permissions.");
       return;
     }
@@ -2996,14 +3018,14 @@ export class ZonePacketHandlers {
         break;
     }
     foundation.permissions[characterId] = obj;
-
+  
     // update child expansion permissions
     Object.values(
       server._constructionFoundations[objectCharacterId].occupiedExpansionSlots
     ).forEach((expansion) => {
       expansion.permissions = foundation.permissions;
     });
-
+  
     server.sendData<NpcFoundationPermissionsManagerBaseShowPermissions>(
       client,
       "NpcFoundationPermissionsManagerBase.ShowPermissions",
