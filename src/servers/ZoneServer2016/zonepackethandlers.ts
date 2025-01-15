@@ -2861,14 +2861,12 @@ export class ZonePacketHandlers {
       ] as ConstructionParentEntity;
   
     //Check if the client is the owner of the foundation / has demolistion perms or an admin in debug mode or if client has demolition perms
-    if (!foundation.permissions[client.character.characterId]?.demolish) {
-      if (
-        foundation.ownerCharacterId != client.character.characterId &&
-        (!client.isAdmin || !client.isDebugMode) // allows debug mode
-      ) {
-        return; // add debug admin
-      }
-    }
+    if (
+      foundation.ownerCharacterId !== client.character.characterId &&
+      !foundation.permissions[client.character.characterId]?.demolish &&
+      !(client.isAdmin && client.isDebugMode)
+    ) 
+      return;
   
     let characterId = "";
     for (const a in foundation.permissions) {
@@ -2950,13 +2948,12 @@ export class ZonePacketHandlers {
       ] as ConstructionParentEntity;
   
     // Check if the client is the owner of the foundation / has demolistion perms or an admin in debug mode
-    if (!foundation.permissions[client.character.characterId]?.demolish) {
-      if (
-        foundation.ownerCharacterId != client.character.characterId &&
-        (!client.isAdmin || !client.isDebugMode)
-      ) {
-        return;
-      }
+    if (
+      foundation.ownerCharacterId !== client.character.characterId &&
+      !foundation.permissions[client.character.characterId]?.demolish &&
+      !(client.isAdmin && client.isDebugMode)
+    ) {
+      return;
     }
   
     let targetClient = server.getClientByNameOrLoginSession(characterName);
