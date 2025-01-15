@@ -707,7 +707,6 @@ export class Character2016 extends BaseFullCharacter {
         server.sendHudIndicators(client);
       }
     }
-
     this.checkResource(server, ResourceIds.HEALTH);
 
     this.updateResource(
