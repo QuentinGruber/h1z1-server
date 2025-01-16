@@ -7210,7 +7210,10 @@ export class ZoneServer2016 extends EventEmitter {
     if (vehicle.vehicleId == VehicleIds.ATV) {
       fuelValue *= 2;
     }
-
+    if (vehicle.getCharacterSeat(client.character.characterId)) {
+      this.sendAlert(client, "Only the driver can refuel the vehicle!");
+      return;
+    }
     this.utilizeHudTimer(client, nameId, timeout, animationId, () => {
       this.refuelVehiclePass(client, character, item, vehicleGuid, fuelValue);
     });
