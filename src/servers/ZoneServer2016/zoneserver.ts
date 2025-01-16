@@ -7136,9 +7136,11 @@ export class ZoneServer2016 extends EventEmitter {
 
   sniffPass(client: Client, character: BaseFullCharacter, item: BaseItem) {
     if (!this.removeInventoryItem(character, item)) return;
-    item.itemDefinitionId === Items.SWIZZLE
-      ? this.applyMovementModifier(client, MovementModifiers.SWIZZLE)
-      : this.applyMovementModifier(client, MovementModifiers.ADRENALINE);
+    if (item.itemDefinitionId === Items.SWIZZLE) {
+      this.applyMovementModifier(client, MovementModifiers.SWIZZLE);
+    } else {
+      this.applyMovementModifier(client, MovementModifiers.ADRENALINE);
+    }
   }
 
   fertilizePlants(
