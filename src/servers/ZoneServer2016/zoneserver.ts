@@ -8198,7 +8198,7 @@ export class ZoneServer2016 extends EventEmitter {
     stanceFlags: StanceFlags
   ) {
     if (stanceFlags.CROUCHING) {
-      if (Date.now() - client.character.lastCrouchTime <= 1000) {
+      if (Date.now() - client.character.lastCrouchTime <= 1500) {
         client.character.crouchCount++;
       } else {
         client.character.crouchCount = 0;
@@ -8224,10 +8224,7 @@ export class ZoneServer2016 extends EventEmitter {
         ] = {
           id: Effects.PFX_Seasonal_Holiday_Snow_skel,
           duration: Date.now() + 1500,
-          endCallback: function (
-            server: ZoneServer2016,
-            character: Character
-          ) {
+          endCallback: function (server: ZoneServer2016) {
             server.sendData<ClientUpdateModifyMovementSpeed>(
               client,
               "ClientUpdate.ModifyMovementSpeed",
