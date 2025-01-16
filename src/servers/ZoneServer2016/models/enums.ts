@@ -338,7 +338,8 @@ export enum StringIds {
   SCRAY_HALLOWEEN_MASK = 12858,
   UNCLE_SAM_MASK = 14171,
   CONVEYS = 11895,
-  BANSHEE = 12310
+  BANSHEE = 12310,
+  HOTWIRE = 14166
 }
 
 export enum MovementModifiers {
