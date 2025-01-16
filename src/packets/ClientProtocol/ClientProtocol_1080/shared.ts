@@ -1143,7 +1143,7 @@ export const lightWeightNpcSchema: PacketFields = [
   { name: "unknownString3", type: "string", defaultValue: "" },
   { name: "unknownString4", type: "string", defaultValue: "" },
   { name: "vehicleId", type: "uint32", defaultValue: 0 },
-  { name: "unknownDword5", type: "uint32", defaultValue: 0 },
+  { name: "projectileUniqueId", type: "uint32", defaultValue: 0 },
   { name: "npcDefinitionId", type: "uint32", defaultValue: 0 },
   { name: "positionUpdateType", type: "uint8", defaultValue: 0 }, // determine if npc is moving with positionUpdate - Avcio
   { name: "profileId", type: "uint32", defaultValue: 0 },
@@ -1200,10 +1200,10 @@ export const lightWeightNpcSchema: PacketFields = [
     ],
     defaultValue: {}
   },
-  { name: "unknownByte3", type: "uint8", defaultValue: 0 },
+  { name: "movementVersion", type: "uint8", defaultValue: 0 },
   { name: "unknownDword8", type: "uint32", defaultValue: 0 },
   {
-    name: "unknownQword1",
+    name: "managerCharacterId",
     type: "uint64string",
     defaultValue: "0x0"
   },
@@ -1489,7 +1489,7 @@ export const currencySchema: PacketFields = [
 ];
 
 export const rewardBundleSchema: PacketFields = [
-  { name: "unknownBoolean1", type: "boolean", defaultValue: false },
+  { name: "unknownBoolean1", type: "boolean", defaultValue: true },
   {
     name: "currency",
     type: "array",
@@ -1497,53 +1497,36 @@ export const rewardBundleSchema: PacketFields = [
     fields: currencySchema
   },
   { name: "unknownDword1", type: "uint32", defaultValue: 0 },
-  { name: "unknownDword2", type: "uint32", defaultValue: 0 },
+  { name: "unknownDword2", type: "uint32", defaultValue: 19 },
   { name: "unknownDword3", type: "uint32", defaultValue: 0 },
   { name: "unknownDword4", type: "uint32", defaultValue: 0 },
   { name: "unknownDword5", type: "uint32", defaultValue: 0 },
   { name: "unknownDword6", type: "uint32", defaultValue: 0 },
   { name: "time", type: "uint64string", defaultValue: "0" },
   { name: "characterId", type: "uint64string", defaultValue: "0" },
-  { name: "nameId", type: "uint32", defaultValue: 0 },
-  { name: "unknownDword7", type: "uint32", defaultValue: 0 },
-  { name: "entriesArrLength", type: "uint32", defaultValue: 0 },
-  /* INGORE THIS FOR NOW, CAN'T FIND READ export function (length set to 0 for now)
+  { name: "nameId", type: "uint32", defaultValue: 22 },
+  { name: "unknownDword7", type: "uint32", defaultValue: 49 },
   {
-      name: "entries",
-      type: "array",
-      defaultValue: [{}],
-      fields: [
-          {
-              name: "entryData",
-              type: "variabletype8",
-              types: {
-                  1: [
-                      {
-                          name: "unknownData1",
-                          type: "schema",
-                          fields: [
-                              {
-                                  name: "unknownBoolean1",
-                                  type: "boolean",
-                                  defaultValue: false,
-                              },
-                              { name: "imageSetId", type: "uint32", defaultValue: 0 },
-                              { name: "unknownDword1", type: "uint32", defaultValue: 0 },
-                              { name: "nameId", type: "uint32", defaultValue: 0 },
-                              { name: "quantity", type: "uint32", defaultValue: 0 },
-                              { name: "itemId", type: "uint32", defaultValue: 0 },
-                              { name: "unknownDword2", type: "uint32", defaultValue: 0 },
-                              { name: "unknownString1", type: "string", defaultValue: "" },
-                              { name: "unknownDword3", type: "uint32", defaultValue: 0 },
-                              { name: "unknownDword4", type: "uint32", defaultValue: 0 },
-                          ],
-                      },
-                  ],
-              },
-          },
-      ],
+    name: "entries",
+    type: "array",
+    defaultValue: [{}],
+    fields: [
+      { name: "itemType", type: "uint8", defaultValue: 1 },
+      { name: "unknownDword1", type: "uint32", defaultValue: 0 },
+      { name: "imageSetId", type: "uint32", defaultValue: 0 },
+      { name: "unknownDword3", type: "uint32", defaultValue: 1 },
+      { name: "nameId", type: "uint32", defaultValue: 0 },
+      { name: "quantity", type: "uint32", defaultValue: 0 },
+      { name: "itemDefId", type: "uint32", defaultValue: 0 },
+      { name: "itemGuid", type: "uint64string", defaultValue: "0" },
+      { name: "itemTextColor", type: "uint32", defaultValue: 0 },
+      { name: "membersOnly", type: "uint8", defaultValue: 0 },
+      { name: "tint", type: "int32", defaultValue: -1 },
+      { name: "unknownDword5", type: "uint32", defaultValue: 0 },
+      { name: "unknownDword6", type: "uint32", defaultValue: 0 },
+      { name: "unknownDword7", type: "uint32", defaultValue: 0 }
+    ]
   },
-  */
   { name: "unknownDword8", type: "uint32", defaultValue: 0 }
 ];
 export const collectionsSchema: PacketFields = [
@@ -3064,4 +3047,29 @@ export const storeBundleSchema: PacketFields = [
       { name: "unknownDword13", type: "uint32", defaultValue: 0 }
     ]
   }
+];
+
+export const damageReportPlayerInfoSchema: PacketFields = [
+  { name: "flags1", type: "uint8", defaultValue: 0 },
+  { name: "flags2", type: "uint8", defaultValue: 0 },
+  { name: "unknownDword1", type: "uint32", defaultValue: 0 },
+  { name: "unknownQword1", type: "uint64string", defaultValue: "0" },
+  { name: "unknownQword2", type: "uint64string", defaultValue: "0" },
+  { name: "unknownQword3", type: "uint64string", defaultValue: "0" },
+  { name: "unknownDword2", type: "uint32", defaultValue: 0 },
+  { name: "unknownDword3", type: "int32", defaultValue: 0 },
+  { name: "unknownDword4", type: "uint32", defaultValue: 0 },
+  { name: "unknownDword5", type: "uint32", defaultValue: 0 },
+  { name: "unknownDword6", type: "uint32", defaultValue: 0 },
+  { name: "unknownDword7", type: "uint32", defaultValue: 0 },
+  { name: "unknownDword8", type: "uint32", defaultValue: 0 },
+  {
+    name: "unknownFloatVector1",
+    type: "floatvector4",
+    defaultValue: [0, 0, 0, 1]
+  },
+  { name: "unknownDword9", type: "uint32", defaultValue: 0 },
+  { name: "unknownDword10", type: "uint32", defaultValue: 0 },
+  { name: "unknownDword11", type: "uint32", defaultValue: 0 },
+  { name: "unknownDword12", type: "uint32", defaultValue: 0 }
 ];
