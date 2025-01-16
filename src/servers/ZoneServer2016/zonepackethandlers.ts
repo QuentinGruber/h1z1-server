@@ -1163,6 +1163,7 @@ export class ZonePacketHandlers {
 
     const positionUpdate = packetData.positionUpdate as any;
     const flags = positionUpdate.flags;
+    if (!flags) return;
 
     // throwable projectiles management
 

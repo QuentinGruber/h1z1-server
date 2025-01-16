@@ -566,7 +566,6 @@ const readUnsignedIntWith2bitLengthValue = function (
 
 const generateDummyPosUpdate = function (): UpdatePositionObject {
   const dummyObj = {} as UpdatePositionObject;
-  // 513 is returned in zoneServer
   dummyObj.flags = 0;
   dummyObj.sequenceTime = 0;
   dummyObj.unknown3_int8 = 0;
@@ -580,6 +579,7 @@ const parseUpdatePositionData = function (data: Buffer, offset: number) {
     obj["flags"] = data.readUInt16LE(offset);
     offset += 2;
 
+    // return spammed junk before parsing
     if (obj.flags == 513) return generateDummyPosUpdate();
 
     obj["sequenceTime"] = data.readUInt32LE(offset);
@@ -713,8 +713,10 @@ const parseUpdatePositionData = function (data: Buffer, offset: number) {
       offset += v.length;
       v = readSignedIntWith2bitLengthValue(data, offset);
       rotationEul[7] = v.value / 10000;
-      obj["PosAndRot"] = rotationEul;
       offset += v.length;
+      rotationEul[8] = data.readUint8(offset);
+      offset += 1;
+      obj["PosAndRot"] = rotationEul;
     }
   } catch (e) {
     console.error(e);

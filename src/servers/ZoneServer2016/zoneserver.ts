@@ -4493,7 +4493,7 @@ export class ZoneServer2016 extends EventEmitter {
       // These lightWeight characters are only used like targets for the plane
       const lightWeight = {
         characterId: this._airdrop.planeTarget,
-        transientId: 0,
+        transientId: 1,
         actorModelId: ModelIds.WEAPON_EMPTY,
         position: this._airdrop.planeTargetPos,
         rotation: new Float32Array([0, 0, 0, 0]),
@@ -4529,7 +4529,7 @@ export class ZoneServer2016 extends EventEmitter {
       };*/
       const lightWeight3 = {
         characterId: this._airdrop.cargoTarget,
-        transientId: 0,
+        transientId: 2,
         actorModelId: ModelIds.WEAPON_EMPTY,
         position: this._airdrop.cargoTargetPos,
         rotation: new Float32Array([0, 0, 0, 0]),
@@ -6814,7 +6814,8 @@ export class ZoneServer2016 extends EventEmitter {
 
     if (
       _.size(this._clients) < this.worldObjectManager.minAirdropSurvivors &&
-      !this._soloMode
+      !this._soloMode &&
+      !client.isDebugMode
     ) {
       this.sendAlert(client, "No planes ready. Not enough survivors.");
       return;

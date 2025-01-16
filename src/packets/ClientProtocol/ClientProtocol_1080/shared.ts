@@ -460,15 +460,30 @@ export function readPositionUpdateData(data: Buffer, offset: number) {
     offset += v.length;
     v = readSignedIntWith2bitLengthValue(data, offset);
     rotationEul[7] = v.value / 10000;
-    obj["PosAndRot"] = rotationEul;
     offset += v.length;
+    rotationEul[8] = data.readUint8(offset);
+    offset += 1;
+    obj["PosAndRot"] = rotationEul;
+  }
+  if (offset != data.length) {
+    console.error("Wrong positionUpdate buffer", obj);
+    return {
+      value: generateDummyPosUpdate(),
+      length: offset - startOffset
+    };
   }
   return {
     value: obj,
     length: offset - startOffset
   };
 }
-
+const generateDummyPosUpdate = function () {
+  const dummyObj: any = {};
+  dummyObj.flags = 0;
+  dummyObj.sequenceTime = 0;
+  dummyObj.unknown3_int8 = 0;
+  return dummyObj;
+};
 export function packPositionUpdateData(obj: any) {
   let data = Buffer.allocUnsafe(7),
     flags = 0,
@@ -581,6 +596,8 @@ export function packPositionUpdateData(obj: any) {
     v = packSignedIntWith2bitLengthValue(obj["PosAndRot"][6] * 10000);
     data = Buffer.concat([data, v]);
     v = packSignedIntWith2bitLengthValue(obj["PosAndRot"][7] * 10000);
+    data = Buffer.concat([data, v]);
+    v.writeUint8(0);
     data = Buffer.concat([data, v]);
   }
 
