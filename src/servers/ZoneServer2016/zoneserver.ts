@@ -8425,6 +8425,10 @@ export class ZoneServer2016 extends EventEmitter {
     stanceFlags: StanceFlags
   ) {
     if (stanceFlags.CROUCHING) {
+      if (client.character.isCrouching) {
+        return;
+      }
+      client.character.isCrouching = true;
       if (Date.now() - client.character.lastCrouchTime <= 1500) {
         client.character.crouchCount++;
       } else {
@@ -8463,6 +8467,8 @@ export class ZoneServer2016 extends EventEmitter {
         };
         client.character.crouchCount = 0;
       }
+    } else {
+      client.character.isCrouching = false;
     }
   }
 
