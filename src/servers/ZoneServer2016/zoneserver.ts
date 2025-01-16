@@ -7032,15 +7032,16 @@ export class ZoneServer2016 extends EventEmitter {
   useDeerScent(client: Client, character: BaseFullCharacter, item: BaseItem) {
     client.character.isDeerScented = true;
     if (!this.removeInventoryItem(character, item)) return;
-    let hudIndicator: HudIndicator | undefined = this._hudIndicators["DEER SCENT"];
+    let hudIndicator: HudIndicator | undefined =
+      this._hudIndicators["DEER SCENT"];
     if (!hudIndicator) return;
     if (client.character.timeouts["DEER_SCENT"]) {
       client.character.timeouts["DEER_SCENT"]._onTimeout();
       clearTimeout(client.character.timeouts["DEER_SCENT"]);
       delete client.character.timeouts["DEER_SCENT"];
       if (client.character.hudIndicators[hudIndicator.typeName]) {
-        client.character.hudIndicators[hudIndicator.typeName].expirationTime += 
-        300000;
+        client.character.hudIndicators[hudIndicator.typeName].expirationTime +=
+          300000;
       }
     }
     client.character.hudIndicators[hudIndicator.typeName] = {
@@ -7055,7 +7056,6 @@ export class ZoneServer2016 extends EventEmitter {
       client.character.isDeerScented = false;
       delete client.character.timeouts["DEER_SCENT"];
     }, 300000);
-
   }
 
   sleep(client: Client) {
