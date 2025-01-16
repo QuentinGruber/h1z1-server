@@ -972,7 +972,7 @@ export class ZoneServer2016 extends EventEmitter {
       debug(`Receive Data ${[packet.name]}`);
     }
     if (packet.flag === GatewayChannels.UpdatePosition) {
-      if (packet.data.flags === 513) return;
+      if (!packet.data.flags) return;
       const movingCharacter = this._characters[client.character.characterId];
       if (movingCharacter) {
         this.sendRawToAllOthersWithSpawnedCharacter(

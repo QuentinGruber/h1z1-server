@@ -564,12 +564,23 @@ const readUnsignedIntWith2bitLengthValue = function (
   };
 };
 
+const generateDummyPosUpdate = function (): UpdatePositionObject {
+  const dummyObj = {} as UpdatePositionObject;
+  // 513 is returned in zoneServer
+  dummyObj.flags = 0;
+  dummyObj.sequenceTime = 0;
+  dummyObj.unknown3_int8 = 0;
+  return dummyObj;
+};
+
 const parseUpdatePositionData = function (data: Buffer, offset: number) {
   const obj = {} as UpdatePositionObject;
   obj.raw = data;
   try {
     obj["flags"] = data.readUInt16LE(offset);
     offset += 2;
+
+    if (obj.flags == 513) return generateDummyPosUpdate();
 
     obj["sequenceTime"] = data.readUInt32LE(offset);
     offset += 4;
@@ -707,6 +718,11 @@ const parseUpdatePositionData = function (data: Buffer, offset: number) {
     }
   } catch (e) {
     console.error(e);
+    return generateDummyPosUpdate();
+  }
+  if (offset != data.length) {
+    console.error("Wrong positionUpdate buffer", obj);
+    return generateDummyPosUpdate();
   }
   return obj;
 };
