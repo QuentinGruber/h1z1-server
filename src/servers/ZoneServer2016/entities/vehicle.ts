@@ -14,8 +14,7 @@
 import {
   createPositionUpdate,
   eul2quat,
-  getDistance,
-  isPosInRadius
+  getDistance
 } from "../../../utils/utils";
 import {
   Items,
@@ -43,7 +42,6 @@ import {
   LightweightToFullVehicle
 } from "types/zone2016packets";
 import { BaseEntity } from "./baseentity";
-import { scheduler } from "timers/promises";
 
 function getActorModelId(vehicleId: VehicleIds) {
   switch (vehicleId) {
@@ -81,6 +79,7 @@ function getVehicleName(ModelId: number) {
 
 function getVehicleLoadoutId(vehicleId: VehicleIds) {
   switch (vehicleId) {
+    case VehicleIds.PARACHUTE:
     case VehicleIds.OFFROADER:
       return LoadoutIds.VEHICLE_OFFROADER;
     case VehicleIds.PICKUP:
@@ -89,7 +88,6 @@ function getVehicleLoadoutId(vehicleId: VehicleIds) {
       return LoadoutIds.VEHICLE_POLICECAR;
     case VehicleIds.ATV:
       return LoadoutIds.VEHICLE_ATV;
-    case VehicleIds.PARACHUTE:
     case VehicleIds.SPECTATE:
     default:
       return 5; // idk if this is right but these vehicles dont have a loadout
@@ -334,6 +332,14 @@ export class Vehicle2016 extends BaseLootableEntity {
         this.criticalDamageEffect = Effects.VEH_Damage_ATV_Stage03;
         this.supercriticalDamageEffect = Effects.VEH_Damage_ATV_Stage04;
         break;
+      case VehicleIds.PARACHUTE:
+        this.destroyedEffect = 0;
+        this.destroyedModel = 0;
+        this.minorDamageEffect = 0;
+        this.majorDamageEffect = 0;
+        this.criticalDamageEffect = 0;
+        this.supercriticalDamageEffect = 0;
+        break;
       case VehicleIds.OFFROADER:
       default:
         const allowedShaders = [838, 1143, 837, 1003, 1148],
@@ -561,6 +567,9 @@ export class Vehicle2016 extends BaseLootableEntity {
 
     if (this._resources[ResourceIds.CONDITION] <= 0) {
       this.destroy(server);
+      if (client) {
+        client.character.metrics.vehiclesDestroyed++;
+      }
     } else {
       let damageeffect = 0;
       let allowSend = false;
@@ -636,11 +645,6 @@ export class Vehicle2016 extends BaseLootableEntity {
   }
 
   updateLoadout(server: ZoneServer2016) {
-    const client = server.getClientByCharId(this.characterId);
-    if (client) {
-      if (!client.character.initialized) return;
-      server.checkShoes(client);
-    }
     server.sendDataToAllWithSpawnedEntity(
       server._vehicles,
       this.characterId,
@@ -1154,24 +1158,6 @@ export class Vehicle2016 extends BaseLootableEntity {
   }
 
   pGetItemData(server: ZoneServer2016, item: BaseItem, containerDefId: number) {
-    let durability: number = 0;
-    switch (true) {
-      case server.isWeapon(item.itemDefinitionId):
-        durability = 2000;
-        break;
-      case server.isArmor(item.itemDefinitionId):
-        durability = 1000;
-        break;
-      case server.isHelmet(item.itemDefinitionId):
-        durability = 100;
-        break;
-      case server.isConvey(item.itemDefinitionId):
-        durability = 5400;
-        break;
-      case server.isGeneric(item.itemDefinitionId):
-        durability = 2000;
-        break;
-    }
     return {
       itemDefinitionId: item.itemDefinitionId,
       tintId: 0,
@@ -1183,9 +1169,11 @@ export class Vehicle2016 extends BaseLootableEntity {
       containerGuid: item.containerGuid,
       containerDefinitionId: containerDefId,
       containerSlotId: item.slotId,
-      baseDurability: durability,
-      currentDurability: durability ? item.currentDurability : 0,
-      maxDurabilityFromDefinition: durability,
+      baseDurability: server.getItemBaseDurability(item.itemDefinitionId),
+      currentDurability: item.currentDurability,
+      maxDurabilityFromDefinition: server.getItemBaseDurability(
+        item.itemDefinitionId
+      ),
       unknownBoolean1: true,
       ownerCharacterId: this.characterId,
       unknownDword9: 1,
@@ -1321,15 +1309,12 @@ export class Vehicle2016 extends BaseLootableEntity {
 
   async OnExplosiveHit(server: ZoneServer2016, sourceEntity: BaseEntity) {
     if (this.characterId == sourceEntity.characterId) return;
-    if (!isPosInRadius(5, this.state.position, sourceEntity.state.position))
-      return;
 
     const distance = getDistance(
       sourceEntity.state.position,
       this.state.position
     );
     const damage = 250000 / distance;
-    await scheduler.wait(150);
     this.damage(server, {
       entity: sourceEntity.characterId,
       damage: damage

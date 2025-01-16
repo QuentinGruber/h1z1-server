@@ -166,4 +166,9 @@ export interface H1emuHadesQuery {
 export interface FairPlayInit {
   __opcode__?: number;
 }
-export type LoginUdp_11packets = LoginRequest | LoginReply | Logout | ForceDisconnect | CharacterCreateRequest | CharacterCreateReply | CharacterLoginRequest | CharacterLoginReply | CharacterDeleteRequest | CharacterDeleteReply | CharacterSelectInfoRequest | CharacterSelectInfoReply | ServerListRequest | ServerListReply | ServerUpdate | TunnelAppPacketClientToServer | TunnelAppPacketServerToClient | H1emuPrintToConsole | H1emuMessageBox | H1emuHadesInit | H1emuHadesQuery | FairPlayInit;
+export interface H1emuCustomQueue {
+  __opcode__?: number;
+  currentPosition?: string;
+  estimatedWaitTime?: string;
+}
+export type LoginUdp_11packets = LoginRequest | LoginReply | Logout | ForceDisconnect | CharacterCreateRequest | CharacterCreateReply | CharacterLoginRequest | CharacterLoginReply | CharacterDeleteRequest | CharacterDeleteReply | CharacterSelectInfoRequest | CharacterSelectInfoReply | ServerListRequest | ServerListReply | ServerUpdate | TunnelAppPacketClientToServer | TunnelAppPacketServerToClient | H1emuPrintToConsole | H1emuMessageBox | H1emuHadesInit | H1emuHadesQuery | FairPlayInit | H1emuCustomQueue;
