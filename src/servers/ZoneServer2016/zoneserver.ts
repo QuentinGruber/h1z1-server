@@ -7032,7 +7032,7 @@ export class ZoneServer2016 extends EventEmitter {
   useDeerScent(client: Client, character: BaseFullCharacter, item: BaseItem) {
     client.character.isDeerScented = true;
     if (!this.removeInventoryItem(character, item)) return;
-    let hudIndicator: HudIndicator | undefined =
+    const hudIndicator: HudIndicator | undefined =
       this._hudIndicators["DEER SCENT"];
     if (!hudIndicator) return;
     if (client.character.timeouts["DEER_SCENT"]) {
