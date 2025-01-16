@@ -3407,7 +3407,7 @@ export class ZonePacketHandlers {
           return;
         }
 
-        const newItem = server.generateItem(accountItem.REWARD_ITEM_ID),
+        const newItem = server.generateItem(accountItem.REWARD_ITEM_ID, 1, true),
           containerItems = client.character.getContainerFromGuid(
             oitem.itemGuid
           )?.items;
