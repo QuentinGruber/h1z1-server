@@ -138,5 +138,12 @@
     "nameId": 11884,
     "descriptionId": 11885,
     "imageSetId": 552
+  },
+  {
+    "id": 24,
+    "typeName": "DEER SCENT",
+    "nameId": 1345,
+    "descriptionId": 1346,
+    "imageSetId": 166
   }
 ]

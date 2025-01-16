@@ -7029,6 +7029,35 @@ export class ZoneServer2016 extends EventEmitter {
     }
   }
 
+  useDeerScent(client: Client, character: BaseFullCharacter, item: BaseItem) {
+    client.character.isDeerScented = true;
+    if (!this.removeInventoryItem(character, item)) return;
+    let hudIndicator: HudIndicator | undefined = this._hudIndicators["DEER SCENT"];
+    if (!hudIndicator) return;
+    if (client.character.timeouts["DEER_SCENT"]) {
+      client.character.timeouts["DEER_SCENT"]._onTimeout();
+      clearTimeout(client.character.timeouts["DEER_SCENT"]);
+      delete client.character.timeouts["DEER_SCENT"];
+      if (client.character.hudIndicators[hudIndicator.typeName]) {
+        client.character.hudIndicators[hudIndicator.typeName].expirationTime += 
+        300000;
+      }
+    }
+    client.character.hudIndicators[hudIndicator.typeName] = {
+      typeName: hudIndicator.typeName,
+      expirationTime: Date.now() + 300000
+    };
+    this.sendHudIndicators(client);
+    client.character.timeouts["DEER_SCENT"] = setTimeout(() => {
+      if (!client.character.timeouts["DEER_SCENT"]) {
+        return;
+      }
+      client.character.isDeerScented = false;
+      delete client.character.timeouts["DEER_SCENT"];
+    }, 300000);
+
+  }
+
   sleep(client: Client) {
     client.character._resources[ResourceIds.ENDURANCE] = 8000;
     client.character._resources[ResourceIds.STAMINA] = 600;
@@ -7106,6 +7135,11 @@ export class ZoneServer2016 extends EventEmitter {
       case Items.IMMUNITY_BOOSTERS:
         this.utilizeHudTimer(client, nameId, timeout, animationId, () => {
           this.usePills(client, character, item);
+        });
+        return;
+      case Items.DEER_SCENT:
+        this.utilizeHudTimer(client, nameId, timeout, animationId, () => {
+          this.useDeerScent(client, character, item);
         });
         return;
       default:

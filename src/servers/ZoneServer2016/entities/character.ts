@@ -129,6 +129,7 @@ export class Character2016 extends BaseFullCharacter {
   isBandaged = false;
   isExhausted = false;
   isPoisoned = false;
+  isDeerScented = false;
 
   /** Last time (milliseconds) the player melee'd */
   lastMeleeHitTime: number = 0;
