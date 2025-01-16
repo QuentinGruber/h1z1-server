@@ -798,7 +798,7 @@ export const lootTables: { [lootSpawner: string]: LootSpawner } = {
       },
       {
         item: Items.BACKPACK_BLUE_ORANGE,
-        weight: 15,
+        weight: 8,
         spawnCount: {
           min: 1,
           max: 1
@@ -2035,7 +2035,7 @@ export const lootTables: { [lootSpawner: string]: LootSpawner } = {
 
   // #region MISC
   "ItemSpawner_BackpackOnGround001.adr": {
-    spawnChance: 15,
+    spawnChance: 8,
     items: [
       {
         item: Items.BACKPACK_BLUE_ORANGE,
@@ -2214,7 +2214,7 @@ export const containerLootSpawners: {
       },
       {
         item: Items.BACKPACK_BLUE_ORANGE,
-        weight: 15,
+        weight: 10,
         spawnCount: {
           min: 1,
           max: 1
