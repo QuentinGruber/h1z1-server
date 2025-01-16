@@ -2644,6 +2644,9 @@ export class ZoneServer2016 extends EventEmitter {
 
     if (sourceIsProjectile) {
       if (sourceEntity.itemDefinitionId == Items.WEAPON_MOLOTOV) {
+        if (this.isPvE) {
+          return;
+        }
         for (const characterId in this._characters) {
           const character = this._characters[characterId];
           if (
