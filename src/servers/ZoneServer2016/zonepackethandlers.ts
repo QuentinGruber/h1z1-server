@@ -1505,6 +1505,7 @@ export class ZonePacketHandlers {
       // Detect movements based on stance
       server.fairPlayManager.detectJumpXSMovement(server, client, stanceFlags);
       server.fairPlayManager.detectDroneMovement(server, client, stanceFlags);
+      server.detectEnasMovement(server, client, stanceFlags);
 
       // Handle jump logic
       if (
@@ -2369,6 +2370,7 @@ export class ZonePacketHandlers {
         const loadoutItem =
           sourceCharacter.getLoadoutItem(itemGuid) ||
           sourceCharacter.getInventoryItem(itemGuid);
+        const itemDef = server.getItemDefinition(loadoutItem?.itemDefinitionId);
         if (loadoutItem) {
           const container = client.character.getAvailableContainer(
             server,
@@ -2390,6 +2392,12 @@ export class ZonePacketHandlers {
             loadoutItem instanceof LoadoutItem &&
             character._loadout[item.slotId]
           ) {
+            await server.pUtilizeHudTimer(
+              client,
+              itemDef?.NAME_ID ?? 0,
+              1000,
+              0
+            );
             sourceCharacter.transferItemFromLoadout(
               server,
               container,
@@ -3456,7 +3464,11 @@ export class ZonePacketHandlers {
           return;
         }
 
-        const newItem = server.generateItem(accountItem.REWARD_ITEM_ID),
+        const newItem = server.generateItem(
+            accountItem.REWARD_ITEM_ID,
+            1,
+            true
+          ),
           containerItems = client.character.getContainerFromGuid(
             oitem.itemGuid
           )?.items;

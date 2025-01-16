@@ -226,6 +226,11 @@ export class Character2016 extends BaseFullCharacter {
   lastSitTime: number = 0;
   sitCount: number = 0;
 
+  /** Values used for detecting Enas movement (spamming crouch for an advantage) */
+  crouchCount: number = 0;
+  lastCrouchTime: number = 0;
+  isCrouching: boolean = false;
+
   /** Current stance of the player while holding a weapon */
   weaponStance: number = 1;
 
@@ -1677,7 +1682,6 @@ export class Character2016 extends BaseFullCharacter {
     client: ZoneClient2016,
     weaponDefinitionId: WeaponDefinitionIds
   ) {
-    /* eslint-disable @typescript-eslint/no-unused-vars */
     switch (weaponDefinitionId) {
       case WeaponDefinitionIds.WEAPON_BLAZE:
         server.applyCharacterEffect(
