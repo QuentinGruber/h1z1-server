@@ -2653,7 +2653,8 @@ export class ZoneServer2016 extends EventEmitter {
             getDistance(
               character.state.position,
               sourceEntity.state.position
-            ) <= 5
+            ) <= 5 &&
+            !character.characterStates.inWater
           ) {
             this.applyCharacterEffect(
               character,

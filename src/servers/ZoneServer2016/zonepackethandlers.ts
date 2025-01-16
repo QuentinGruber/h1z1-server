@@ -49,7 +49,8 @@ import {
   StringIds,
   ItemClasses,
   AccountItems,
-  EquipSlots
+  EquipSlots,
+  Effects
 } from "./models/enums";
 import { BaseFullCharacter } from "./entities/basefullcharacter";
 import { BaseLightweightCharacter } from "./entities/baselightweightcharacter";
@@ -544,6 +545,12 @@ export class ZonePacketHandlers {
   ) {
     debug(packet);
     client.character.characterStates.inWater = true;
+    const fireState =
+      client.character._characterEffects[Effects.PFX_Fire_Person_loop];
+    if (fireState) {
+      // remove burning when player is in water
+      fireState.duration = 0;
+    }
   }
   CommandClearInWater(
     server: ZoneServer2016,
