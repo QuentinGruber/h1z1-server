@@ -1623,7 +1623,6 @@ export class Character2016 extends BaseFullCharacter {
         ...this.positionUpdate,
         sequenceTime: getCurrentServerTimeWrapper().getTruncatedU32(),
         position: this.state.position, // trying to fix invisible characters/vehicles until they move
-        stance: 66561
       },
       stats: this.getStats().map((stat: any) => {
         return stat.statData;
