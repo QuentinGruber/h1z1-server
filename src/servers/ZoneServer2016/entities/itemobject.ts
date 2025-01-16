@@ -51,6 +51,9 @@ export class ItemObject extends BaseLightweightCharacter {
     /* eslint-enable @typescript-eslint/no-unused-vars */
   ) {
     server.pickupItem(client, this.characterId);
+    // -1 spawnerId means item was dropped
+    if (this.spawnerId <= -1) return;
+    server.lootCrateWithChance(client, 5);
   }
 
   OnInteractionString(server: ZoneServer2016, client: ZoneClient2016): void {

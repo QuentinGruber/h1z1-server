@@ -146,6 +146,7 @@ export class Crate extends BaseSimpleNpc {
     const client = server.getClientByCharId(damageInfo.entity);
     if (!client) return;
 
+    server.lootCrateWithChance(client, 5);
     const weapon = client.character.getEquippedWeapon();
     if (!weapon) return;
 
