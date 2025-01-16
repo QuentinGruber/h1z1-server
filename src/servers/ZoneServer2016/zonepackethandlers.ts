@@ -2326,6 +2326,7 @@ export class ZonePacketHandlers {
         const loadoutItem =
           sourceCharacter.getLoadoutItem(itemGuid) ||
           sourceCharacter.getInventoryItem(itemGuid);
+        const itemDef = server.getItemDefinition(loadoutItem?.itemDefinitionId)
         if (loadoutItem) {
           const container = client.character.getAvailableContainer(
             server,
@@ -2347,6 +2348,7 @@ export class ZonePacketHandlers {
             loadoutItem instanceof LoadoutItem &&
             character._loadout[item.slotId]
           ) {
+            await server.pUtilizeHudTimer(client, itemDef?.NAME_ID ?? 0, 1000, 0);
             sourceCharacter.transferItemFromLoadout(
               server,
               container,

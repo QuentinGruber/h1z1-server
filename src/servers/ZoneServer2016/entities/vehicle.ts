@@ -1031,7 +1031,7 @@ export class Vehicle2016 extends BaseLootableEntity {
     );
     this.effectTags.push(hotwireEffect);
 
-    server.utilizeHudTimer(client, 0, 7000, 0, () => {
+    server.utilizeHudTimer(client, StringIds.HOTWIRE, 7000, 0, () => {
       this.removeHotwireEffect(server);
       this.startEngine(server);
     });
