@@ -64,22 +64,27 @@ function getContainerAndTime(entity: LootableProp) {
       entity.searchTime = 500;
       entity.lootSpawner = "Cabinets Cube";
       break;
+
+    case ModelIds.CABINET_SET_03:
+    case ModelIds.CABINET_SET_05:
+    case ModelIds.CABINET_SET_06:
+    case ModelIds.CABINET_SET_04:
+    case ModelIds.CABINET_SET_07:
+    case ModelIds.CABINET_SET_08:
+    case ModelIds.CABINET_SET_09:
+      entity.containerId = Items.CONTAINER_CABINETS_KITCHEN;
+      entity.searchTime = 5000;
+      entity.lootSpawner = "Cabinets Kitchen";
+      break;
     case ModelIds.CABINETS_KITCHEN_02:
     case ModelIds.CABINETS_KITCHEN_03:
     case ModelIds.CABINETS_KITCHEN_05:
     case ModelIds.CABINETS_KITCHEN_04:
     case ModelIds.CABINETS_KITCHEN_01:
-    case ModelIds.CABINET_SET_06:
-    case ModelIds.CABINET_SET_04:
     case ModelIds.CABINETS_KITCHEN_06:
-    case ModelIds.CABINET_SET_02:
-    case ModelIds.CABINET_SET_05:
-    case ModelIds.CABINET_SET_03:
     case ModelIds.CABINET_SET_01:
+    case ModelIds.CABINET_SET_02:
     case ModelIds.CABINET_SET_10:
-    case ModelIds.CABINET_SET_08:
-    case ModelIds.CABINET_SET_07:
-    case ModelIds.CABINET_SET_09:
     case ModelIds.CABINET_SET_11:
       entity.containerId = Items.CONTAINER_CABINETS_KITCHEN;
       entity.searchTime = 1000;
@@ -284,7 +289,6 @@ export class LootableProp extends BaseLootableEntity {
         () => {
           super.OnPlayerSelect(server, client);
           client.searchedProps.push(this);
-          server.lootCrateWithChance(client, 5);
         }
       );
     } else {
@@ -306,7 +310,11 @@ export class LootableProp extends BaseLootableEntity {
       });
     } else {
       switch (this.actorModelId) {
+        case ModelIds.CABINET_SET_03:
         case ModelIds.CABINET_SET_05:
+        case ModelIds.CABINET_SET_07:
+        case ModelIds.CABINET_SET_08:
+        case ModelIds.CABINET_SET_09:
           server.sendData(client, "Command.InteractionString", {
             guid: this.characterId,
             stringId: StringIds.SEARCH_ALL_CABINETS
@@ -353,7 +361,7 @@ export class LootableProp extends BaseLootableEntity {
               server,
               server.generateItem(Items.METAL_SCRAP)
             );
-            server.lootCrateWithChance(client, 5);
+            server.lootCrateWithChance(client, 2);
           }
         } else {
           server.sendChatText(

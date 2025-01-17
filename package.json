@@ -1,6 +1,6 @@
 {
   "name": "h1z1-server",
-  "version": "0.42.1-1",
+  "version": "0.42.1-4",
   "description": "Library for emulating h1z1 servers",
   "author": "Quentin Gruber <quentingruber@gmail.com> (http://github.com/quentingruber)",
   "license": "GPL-3.0-only",
@@ -63,8 +63,8 @@
     "build-tests": "tsc -p tsconfigs/tsconfig-tests.json",
     "build-benchs": "tsc -p ./benchmarks/tsconfig.json",
     "build-docker-images": "tsx ./docker/buildDocker.ts",
-    "test-mongo": "npm run build && npm run build-tests && MONGO_TESTS='true' DISABLE_PLUGINS='true' node --no-warnings --experimental-require-module --test",
-    "test": "npm run build && npm run build-tests && cross-env DISABLE_PLUGINS='true' node --no-warnings --experimental-require-module --test",
+    "test-mongo": "npm run build && npm run build-tests && MONGO_TESTS='true' DISABLE_PLUGINS='true' node --no-warnings --experimental-require-module --no-experimental-strip-types --test",
+    "test": "npm run build && npm run build-tests && cross-env DISABLE_PLUGINS='true' node --no-warnings --experimental-require-module --no-experimental-strip-types --test",
     "postinstall": "npm run build",
     "publish_release": "git push --tags && git push origin dev && git push origin master && git checkout dev && npm run publish_release-next",
     "publish_release-next": "npm version --no-git-tag-version prerelease && git add . && git commit -m 'publish-a-next-version' && npm publish --tag next && git push origin dev",

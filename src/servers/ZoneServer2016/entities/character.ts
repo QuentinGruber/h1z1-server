@@ -131,6 +131,7 @@ export class Character2016 extends BaseFullCharacter {
   isBandaged = false;
   isExhausted = false;
   isPoisoned = false;
+  isCoffeeSugared = false;
 
   /** Last time (milliseconds) the player melee'd */
   lastMeleeHitTime: number = 0;
@@ -224,6 +225,11 @@ export class Character2016 extends BaseFullCharacter {
   lastJumpTime: number = 0;
   lastSitTime: number = 0;
   sitCount: number = 0;
+
+  /** Values used for detecting Enas movement (spamming crouch for an advantage) */
+  crouchCount: number = 0;
+  lastCrouchTime: number = 0;
+  isCrouching: boolean = false;
 
   /** Current stance of the player while holding a weapon */
   weaponStance: number = 1;
@@ -683,6 +689,20 @@ export class Character2016 extends BaseFullCharacter {
       }
     } else {
       if (indexFoodPoison > -1) {
+        this.resourceHudIndicators.splice(indexFoodPoison);
+        server.sendHudIndicators(client);
+      }
+    }
+    const indexCoffeeSugared = this.resourceHudIndicators.indexOf(
+      ResourceIndicators.COFFEE_SUGAR
+    );
+    if (this.isCoffeeSugared) {
+      if (indexCoffeeSugared <= -1) {
+        this.resourceHudIndicators.push(ResourceIndicators.COFFEE_SUGAR);
+        server.sendHudIndicators(client);
+      }
+    } else {
+      if (indexCoffeeSugared > -1) {
         this.resourceHudIndicators.splice(indexFoodPoison);
         server.sendHudIndicators(client);
       }
@@ -1662,7 +1682,6 @@ export class Character2016 extends BaseFullCharacter {
     client: ZoneClient2016,
     weaponDefinitionId: WeaponDefinitionIds
   ) {
-    /* eslint-disable @typescript-eslint/no-unused-vars */
     switch (weaponDefinitionId) {
       case WeaponDefinitionIds.WEAPON_BLAZE:
         server.applyCharacterEffect(
@@ -1673,6 +1692,7 @@ export class Character2016 extends BaseFullCharacter {
         );
         break;
       case WeaponDefinitionIds.WEAPON_FROSTBITE:
+        const effectTime = 5000;
         if (!this._characterEffects[Effects.PFX_Seasonal_Holiday_Snow_skel]) {
           server.sendData<ClientUpdateModifyMovementSpeed>(
             client,
@@ -1681,12 +1701,21 @@ export class Character2016 extends BaseFullCharacter {
               speed: 0.5
             }
           );
+          setTimeout(() => {
+            server.sendData<ClientUpdateModifyMovementSpeed>(
+              client,
+              "ClientUpdate.ModifyMovementSpeed",
+              {
+                speed: 2
+              }
+            );
+          }, effectTime);
         }
         server.applyCharacterEffect(
           this,
           Effects.PFX_Seasonal_Holiday_Snow_skel,
           0,
-          5000
+          effectTime
         );
         break;
     }

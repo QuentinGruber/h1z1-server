@@ -49,7 +49,8 @@ import {
   StringIds,
   ItemClasses,
   AccountItems,
-  EquipSlots
+  EquipSlots,
+  Effects
 } from "./models/enums";
 import { BaseFullCharacter } from "./entities/basefullcharacter";
 import { BaseLightweightCharacter } from "./entities/baselightweightcharacter";
@@ -544,6 +545,12 @@ export class ZonePacketHandlers {
   ) {
     debug(packet);
     client.character.characterStates.inWater = true;
+    const fireState =
+      client.character._characterEffects[Effects.PFX_Fire_Person_loop];
+    if (fireState) {
+      // remove burning when player is in water
+      fireState.duration = 0;
+    }
   }
   CommandClearInWater(
     server: ZoneServer2016,
@@ -599,6 +606,7 @@ export class ZonePacketHandlers {
     }
     const characterId = packet.data.characterId || "",
       damage: number = packet.data.damage || 0,
+      objectCharacterId = packet.data.objectCharacterId || "",
       vehicle = server._vehicles[characterId];
     if (characterId === client.character.characterId) {
       if (client.character.vehicleExitDate + 3000 > new Date().getTime()) {
@@ -611,6 +619,18 @@ export class ZonePacketHandlers {
       }
       // damage must pass this threshold to be applied
       if (damage <= 800) return;
+
+      if (server.isPvE) {
+        // only apply collision dmg if falling
+        if (characterId === objectCharacterId) {
+          client.character.damage(server, {
+            entity: "Server.CollisionDamage",
+            damage: damage
+          });
+        }
+        return;
+      }
+
       client.character.damage(server, {
         entity: "Server.CollisionDamage",
         damage: damage
@@ -637,7 +657,7 @@ export class ZonePacketHandlers {
       damage = Number((packet.data.damage || 0).toFixed(0));
 
     if (!vehicle) return;
-    vehicle.damage(server, { entity: "", damage });
+    vehicle.damage(server, { entity: "", damage: damage * 4 });
     //server.DTOhit(client, packet);
   }
 
@@ -1492,6 +1512,7 @@ export class ZonePacketHandlers {
       // Detect movements based on stance
       server.fairPlayManager.detectJumpXSMovement(server, client, stanceFlags);
       server.fairPlayManager.detectDroneMovement(server, client, stanceFlags);
+      server.detectEnasMovement(server, client, stanceFlags);
 
       // Handle jump logic
       if (
@@ -2356,6 +2377,7 @@ export class ZonePacketHandlers {
         const loadoutItem =
           sourceCharacter.getLoadoutItem(itemGuid) ||
           sourceCharacter.getInventoryItem(itemGuid);
+        const itemDef = server.getItemDefinition(loadoutItem?.itemDefinitionId);
         if (loadoutItem) {
           const container = client.character.getAvailableContainer(
             server,
@@ -2377,6 +2399,12 @@ export class ZonePacketHandlers {
             loadoutItem instanceof LoadoutItem &&
             character._loadout[item.slotId]
           ) {
+            await server.pUtilizeHudTimer(
+              client,
+              itemDef?.NAME_ID ?? 0,
+              1000,
+              0
+            );
             sourceCharacter.transferItemFromLoadout(
               server,
               container,
@@ -3443,7 +3471,11 @@ export class ZonePacketHandlers {
           return;
         }
 
-        const newItem = server.generateItem(accountItem.REWARD_ITEM_ID),
+        const newItem = server.generateItem(
+            accountItem.REWARD_ITEM_ID,
+            1,
+            true
+          ),
           containerItems = client.character.getContainerFromGuid(
             oitem.itemGuid
           )?.items;
@@ -3526,6 +3558,12 @@ export class ZonePacketHandlers {
             packageRewards = [
               Items.SKIN_WOODLAND_GHILLIE_SUIT_BOOTS,
               Items.SKIN_GREEN_GLOVES
+            ];
+            break;
+          case Items.REWARD_SET_GHILLIE:
+            packageRewards = [
+              Items.SKIN_GHILLIE_SUIT_BOOTS,
+              Items.SKIN_GHILLIE_SUIT_GLOVES
             ];
             break;
           case Items.REWARD_SET_RED_FACE_BANDANA:

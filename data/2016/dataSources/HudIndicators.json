@@ -138,5 +138,12 @@
     "nameId": 11884,
     "descriptionId": 11885,
     "imageSetId": 552
+  },
+  {
+    "id": 21,
+    "typeName": "COFFEE_SUGAR",
+    "nameId": 9591,
+    "descriptionId": 0,
+    "imageSetId": 31
   }
 ]
