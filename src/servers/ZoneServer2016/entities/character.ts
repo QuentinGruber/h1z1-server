@@ -1692,6 +1692,7 @@ export class Character2016 extends BaseFullCharacter {
         );
         break;
       case WeaponDefinitionIds.WEAPON_FROSTBITE:
+        const effectTime = 5000;
         if (!this._characterEffects[Effects.PFX_Seasonal_Holiday_Snow_skel]) {
           server.sendData<ClientUpdateModifyMovementSpeed>(
             client,
@@ -1700,12 +1701,21 @@ export class Character2016 extends BaseFullCharacter {
               speed: 0.5
             }
           );
+          setTimeout(() => {
+            server.sendData<ClientUpdateModifyMovementSpeed>(
+              client,
+              "ClientUpdate.ModifyMovementSpeed",
+              {
+                speed: 2
+              }
+            );
+          }, effectTime);
         }
         server.applyCharacterEffect(
           this,
           Effects.PFX_Seasonal_Holiday_Snow_skel,
           0,
-          5000
+          effectTime
         );
         break;
     }
