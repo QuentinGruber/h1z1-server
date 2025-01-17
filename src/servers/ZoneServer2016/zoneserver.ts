@@ -8440,7 +8440,7 @@ export class ZoneServer2016 extends EventEmitter {
         client.character.lastCrouchTime = 0;
       }
       client.character.lastCrouchTime = Date.now();
-      if (client.character.crouchCount >= 3) {
+      if (client.character.crouchCount >= 6) {
         if (
           !client.character._characterEffects[
             Effects.PFX_Seasonal_Holiday_Snow_skel
