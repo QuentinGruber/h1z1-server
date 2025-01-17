@@ -8441,34 +8441,22 @@ export class ZoneServer2016 extends EventEmitter {
       }
       client.character.lastCrouchTime = Date.now();
       if (client.character.crouchCount >= 6) {
-        if (
-          !client.character._characterEffects[
-            Effects.PFX_Seasonal_Holiday_Snow_skel
-          ]
-        ) {
+        server.sendData<ClientUpdateModifyMovementSpeed>(
+          client,
+          "ClientUpdate.ModifyMovementSpeed",
+          {
+            speed: 0.5
+          }
+        );
+        setTimeout(() => {
           server.sendData<ClientUpdateModifyMovementSpeed>(
             client,
             "ClientUpdate.ModifyMovementSpeed",
             {
-              speed: 0.5
+              speed: 2
             }
           );
-        }
-        client.character._characterEffects[
-          Effects.PFX_Seasonal_Holiday_Snow_skel
-        ] = {
-          id: Effects.PFX_Seasonal_Holiday_Snow_skel,
-          duration: Date.now() + 1500,
-          endCallback: function (server: ZoneServer2016) {
-            server.sendData<ClientUpdateModifyMovementSpeed>(
-              client,
-              "ClientUpdate.ModifyMovementSpeed",
-              {
-                speed: 2
-              }
-            );
-          }
-        };
+        }, 1500);
         client.character.crouchCount = 0;
       }
     } else {
