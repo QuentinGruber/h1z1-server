@@ -629,7 +629,7 @@ export class ZonePacketHandlers {
       damage = Number((packet.data.damage || 0).toFixed(0));
 
     if (!vehicle) return;
-    vehicle.damage(server, { entity: "", damage });
+    vehicle.damage(server, { entity: "", damage: damage * 4 });
     //server.DTOhit(client, packet);
   }
 
