@@ -97,7 +97,7 @@ export class TrapEntity extends BaseSimpleNpc {
               client.character.damage(server, {
                 entity: this.characterId,
                 causeBleed: true,
-                damage: 501
+                damage: client.character.hasBoots ? 401 : 501
               });
               server.sendDataToAllWithSpawnedEntity(
                 server._traps,
