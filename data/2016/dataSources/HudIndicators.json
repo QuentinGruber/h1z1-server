@@ -140,6 +140,15 @@
     "imageSetId": 552
   },
   {
+    "id": 21,
+    "typeName": "COFFEE_SUGAR",
+    "nameId": 9591,
+    "descriptionId": 0,
+    "imageSetId": 31
+
+  },
+  {
+
     "id": 24,
     "typeName": "DEER SCENT",
     "nameId": 1345,

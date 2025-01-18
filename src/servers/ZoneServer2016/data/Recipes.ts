@@ -1088,7 +1088,7 @@ export const recipes: { [recipeId: number]: Recipe } = {
     ]
   },
   [Items.FOUNDATION]: {
-    filterId: FilterIds.SURVIVAL,
+    filterId: FilterIds.HOUSING,
     components: [
       {
         itemDefinitionId: Items.WOOD_LOG,
@@ -1479,18 +1479,6 @@ export const recipes: { [recipeId: number]: Recipe } = {
       {
         itemDefinitionId: Items.SHARD_METAL,
         requiredAmount: 4
-      }
-    ]
-  },
-
-  // probably subject to change in the future
-  [Items.GUN_PART]: {
-    filterId: FilterIds.WEAPONS,
-    bundleCount: 4,
-    components: [
-      {
-        itemDefinitionId: Items.WEAPON_AR15,
-        requiredAmount: 1
       }
     ]
   },
