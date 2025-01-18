@@ -183,4 +183,6 @@ export interface CharacterMetricsSaveData {
   wildlifeKilled: number;
   recipesDiscovered: number;
   startedSurvivingTP: number;
+  vehiclesDestroyed: number;
+  playersKilled: number;
 }
