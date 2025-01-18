@@ -32,7 +32,15 @@ import {
   getCurrentServerTimeWrapper,
   isLootNerfedLoc
 } from "../../../utils/utils";
-import { EquipSlots, Items, Effects, ModelIds, DefaultSkinsConveys, DefaultSkinsBackpack, DefaultSkinsMotorHelmet } from "../models/enums";
+import {
+  EquipSlots,
+  Items,
+  Effects,
+  ModelIds,
+  DefaultSkinsConveys,
+  DefaultSkinsBackpack,
+  DefaultSkinsMotorHelmet
+} from "../models/enums";
 import { Vehicle2016 } from "../entities/vehicle";
 import { LootDefinition } from "types/zoneserver";
 import { ItemObject } from "../entities/itemobject";
