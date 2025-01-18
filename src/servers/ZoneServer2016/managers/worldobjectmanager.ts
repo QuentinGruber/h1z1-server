@@ -156,7 +156,7 @@ export class WorldObjectManager {
     } else if (playerCount >= 25) {
       this.lootRespawnTimer = 1_500_000; // 25 min
     } else {
-      this.lootRespawnTimer = 1_800_000; // 30 min
+      this.lootRespawnTimer = 1_500_000; // 25 min
     }
   }
 

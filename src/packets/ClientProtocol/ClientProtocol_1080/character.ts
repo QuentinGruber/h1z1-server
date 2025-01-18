@@ -10,7 +10,10 @@
 //
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
-import { pack2ByteLengthString } from "../../../packets/ClientProtocol/ClientProtocol_1080/shared";
+import {
+  damageReportPlayerInfoSchema,
+  pack2ByteLengthString
+} from "../../../packets/ClientProtocol/ClientProtocol_1080/shared";
 import { PacketStructures } from "types/packetStructure";
 
 export const characterPackets: PacketStructures = [
@@ -424,7 +427,87 @@ export const characterPackets: PacketStructures = [
       fields: [{ name: "guid", type: "uint64string", defaultValue: "0" }]
     }
   ],
-  ["Character.KnockedOutDamageReport", 0x0f2d, {}],
+  [
+    "Character.KnockedOutDamageReport",
+    0x0f2d,
+    {
+      fields: [
+        { name: "guid", type: "uint64string", defaultValue: "0" },
+        ...damageReportPlayerInfoSchema,
+        {
+          name: "unknownArray1",
+          type: "array",
+          fields: [
+            { name: "unknownQword1", type: "uint64string", defaultValue: "0" },
+            {
+              name: "unknownArray1",
+              type: "array",
+              fields: [...damageReportPlayerInfoSchema]
+            },
+            { name: "unknownDword1", type: "uint32", defaultValue: 0 },
+            { name: "unknownDword2", type: "uint32", defaultValue: 0 }
+          ]
+        },
+        {
+          name: "unknownArray2",
+          type: "array",
+          fields: [
+            { name: "unknownQword1", type: "uint64string", defaultValue: "0" },
+            { name: "unknownString1", type: "string", defaultValue: "" },
+            { name: "unknownString2", type: "string", defaultValue: "" },
+            { name: "unknownString3", type: "string", defaultValue: "" },
+            { name: "unknownQword2", type: "uint64string", defaultValue: "0" },
+            { name: "unknownDword1", type: "uint32", defaultValue: 0 },
+            { name: "unknownDword2", type: "uint32", defaultValue: 0 },
+            { name: "unknownDword3", type: "uint32", defaultValue: 0 },
+            { name: "unknownDword4", type: "uint32", defaultValue: 0 },
+            { name: "unknownByte1", type: "uint8", defaultValue: 0 },
+            { name: "unknownDword5", type: "uint32", defaultValue: 0 },
+            { name: "unknownDword6", type: "uint32", defaultValue: 0 },
+            { name: "unknownDword7", type: "uint32", defaultValue: 0 },
+            { name: "unknownDword8", type: "uint32", defaultValue: 0 },
+            { name: "unknownDword9", type: "uint32", defaultValue: 0 },
+            { name: "unknownDword10", type: "uint32", defaultValue: 0 },
+            { name: "unknownDword11", type: "uint32", defaultValue: 0 },
+            { name: "unknownDword12", type: "uint32", defaultValue: 0 },
+            { name: "unknownDword13", type: "uint32", defaultValue: 0 },
+            { name: "unknownDword14", type: "uint32", defaultValue: 0 },
+            { name: "unknownDword15", type: "uint32", defaultValue: 0 }
+          ]
+        },
+        {
+          name: "unknownArray3",
+          type: "array",
+          fields: [
+            { name: "unknownDword1", type: "uint32", defaultValue: 0 },
+            { name: "unknownQword1", type: "uint64string", defaultValue: "0" },
+            { name: "unknownDword2", type: "uint32", defaultValue: 0 },
+            { name: "unknownDword3", type: "uint32", defaultValue: 0 },
+            { name: "unknownDword4", type: "uint32", defaultValue: 0 },
+            { name: "unknownDword5", type: "uint32", defaultValue: 0 },
+            { name: "unknownDword6", type: "uint32", defaultValue: 0 },
+            { name: "unknownDword7", type: "uint32", defaultValue: 0 },
+            { name: "unknownDword8", type: "uint32", defaultValue: 0 },
+            { name: "unknownDword9", type: "uint32", defaultValue: 0 },
+            { name: "unknownDword10", type: "uint32", defaultValue: 0 },
+            { name: "unknownDword11", type: "uint32", defaultValue: 0 },
+            { name: "unknownDword12", type: "uint32", defaultValue: 0 }
+          ]
+        },
+        {
+          name: "unknownArray4",
+          type: "array",
+          fields: [
+            { name: "unknownQword1", type: "uint64string", defaultValue: "0" },
+            { name: "unknownQword2", type: "uint64string", defaultValue: "0" },
+            { name: "unknownDword1", type: "uint32", defaultValue: 0 },
+            { name: "unknownDword2", type: "uint32", defaultValue: 0 },
+            { name: "unknownDword3", type: "uint32", defaultValue: 0 }
+          ]
+        }
+      ]
+    }
+  ],
   [
     "Character.Respawn",
     0x0f2e,
@@ -631,7 +714,16 @@ export const characterPackets: PacketStructures = [
     }
   ],
   ["Character.RequestToggleDoorState", 0x0f52, {}],
-  ["Character.SetAllowRespawn", 0x0f54, {}],
+  [
+    "Character.SetAllowRespawn",
+    0x0f54,
+    {
+      fields: [
+        { name: "characterId", type: "uint64string", defaultValue: "0" },
+        { name: "allowRespawn", type: "boolean", defaultValue: false }
+      ]
+    }
+  ],
   ["Character.UpdateGuildTag", 0x0f55, {}],
   [
     "Character.MovementVersion",

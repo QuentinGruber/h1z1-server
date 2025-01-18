@@ -35,9 +35,11 @@ export class SOEOutputStream extends EventEmitter {
   private _cache: dataCacheMap = {};
   private _rc4: RC4;
   private hasPendingEmit: boolean = false;
-  maxSequenceAvailable: number = 100;
   outOfOrder: Set<number> = new Set();
-  constructor(cryptoKey: Uint8Array) {
+  constructor(
+    cryptoKey: Uint8Array,
+    public maxSequenceAvailable: number = 300
+  ) {
     super();
     this._rc4 = new RC4(cryptoKey);
   }
