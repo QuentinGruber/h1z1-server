@@ -3412,15 +3412,27 @@ export class ZoneServer2016 extends EventEmitter {
       }
     }
     const message = `FairPlay: blocked incoming projectile from ${client.character.name}`;
+    const fireHint = client.fireHints[hitReport.sessionProjectileCount];
+    const weaponItem = fireHint.weaponItem;
     const entity = this.getEntity(hitReport.characterId);
-    if (!entity) return;
+    if (!entity) {
+      if (weaponItem.itemDefinitionId == Items.WEAPON_BOW_RECURVE) {
+        for (const a in this._throwableProjectiles) {
+          const projectile = this._throwableProjectiles[a] as ProjectileEntity;
+          if (projectile.projectileUniqueId == fireHint.projectileUniqueId) {
+            projectile.applyPostion(packet.hitReport.position);
+            projectile.onTrigger(this);
+          }
+        }
+      }
+      return;
+    }
     // Don't allow hits registering over 350 as this is the render distance for NPC's
     if (
       getDistance2d(entity.state.position, client.character.state.position) >
       350
     )
       return;
-    const fireHint = client.fireHints[hitReport.sessionProjectileCount];
     const targetClient = this.getClientByCharId(entity.characterId);
     if (!fireHint) {
       if (targetClient) {
@@ -3432,7 +3444,6 @@ export class ZoneServer2016 extends EventEmitter {
       }
       return;
     }
-    const weaponItem = fireHint.weaponItem;
     if (!weaponItem) return;
     if (fireHint.hitNumber > 0) {
       if (targetClient) {
@@ -7823,7 +7834,9 @@ export class ZoneServer2016 extends EventEmitter {
   createThrowableProjectile(
     client: Client,
     packet: any,
-    itemDefinition: ItemDefinition
+    itemDefinition: ItemDefinition,
+    createNpc: boolean,
+    overrideProjectileId?: boolean
   ) {
     const characterId = this.generateGuid();
     const transientId = this.getTransientId(characterId);
@@ -7835,10 +7848,14 @@ export class ZoneServer2016 extends EventEmitter {
       new Float32Array([0, 0, 0, 0]),
       this,
       itemDefinition.ID,
-      packet.packet.projectileUniqueId,
+      overrideProjectileId
+        ? packet.packet.sessionProjectileCount +
+          parseInt(client.character.characterId.slice(-5), 16)
+        : packet.packet.projectileUniqueId,
       client.character.characterId
     );
     this._throwableProjectiles[npc.characterId] = npc;
+    if (!createNpc) return;
     this.getClientsInRange(200, packet.packet.position).forEach((c: Client) => {
       this.addLightweightNpc(c, npc);
       c.spawnedEntities.add(npc);
@@ -7988,7 +8005,11 @@ export class ZoneServer2016 extends EventEmitter {
         rotation: client.character.state.yaw,
         hitNumber: hitNumber,
         weaponItem: weaponItem,
-        timeStamp: packet.gameTime
+        timeStamp: packet.gameTime,
+        projectileUniqueId:
+          packet.packet.sessionProjectileCount +
+          x +
+          parseInt(client.character.characterId.slice(-5), 16)
       };
       client.fireHints[packet.packet.sessionProjectileCount + x] = fireHint;
       setTimeout(() => {
@@ -8006,13 +8027,22 @@ export class ZoneServer2016 extends EventEmitter {
     );
 
     if (itemDefinition.ITEM_CLASS == ItemClasses.THROWABLES) {
-      this.createThrowableProjectile(client, packet, itemDefinition);
+      this.createThrowableProjectile(client, packet, itemDefinition, true);
       // Remove loadout item if there's no more grenades in the inventory, this check is only temporary until removeInventoryItems is fixed
       this.removeInventoryItem(client.character, weaponItem);
       /*(const nextItem = client.character.getItemById(weaponItem.itemDefinitionId)
         if (nextItem) {
             client.character.equipItem(this, nextItem);
         }*/
+      return;
+    } else if (itemDefinition.ID == Items.WEAPON_BOW_RECURVE) {
+      this.createThrowableProjectile(
+        client,
+        packet,
+        itemDefinition,
+        false,
+        true
+      );
       return;
     }
     this.damageItem(client.character, weaponItem, 5);

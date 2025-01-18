@@ -3034,8 +3034,7 @@ export class ZonePacketHandlers {
         break;
       case "Weapon.ProjectileHitReport":
         const weapon = client.character.getEquippedWeapon();
-        if (!weapon) return;
-        if (weapon.itemDefinitionId == Items.WEAPON_REMOVER) {
+        if (weapon && weapon.itemDefinitionId == Items.WEAPON_REMOVER) {
           if (!client.isAdmin) return;
           const characterId = packet.packet.hitReport.characterId,
             entity = server.getEntity(characterId);
@@ -3055,6 +3054,7 @@ export class ZonePacketHandlers {
           return;
         }
         if (client.banType === "nodamage") return;
+        console.log("trigger0");
         server.registerHit(client, packet.packet, packet.gameTime);
         break;
       case "Weapon.ReloadRequest":
