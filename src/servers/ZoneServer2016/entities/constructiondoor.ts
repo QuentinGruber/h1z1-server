@@ -387,10 +387,10 @@ export class ConstructionDoor extends DoorEntity {
         stringId: StringIds.OPEN_AND_LOCK
       });
     } else if (!this.grantedAccess.includes(client.character.characterId)) {
-        server.sendData(client, "Command.InteractionString", {
-          guid: this.characterId,
-          stringId: StringIds.ENTER_ACCESS_CODE
-        });
+      server.sendData(client, "Command.InteractionString", {
+        guid: this.characterId,
+        stringId: StringIds.ENTER_ACCESS_CODE
+      });
     } else {
       server.sendData(client, "Command.InteractionString", {
         guid: this.characterId,
