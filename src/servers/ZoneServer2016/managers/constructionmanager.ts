@@ -2819,7 +2819,7 @@ export class ConstructionManager {
           : damage / Math.sqrt(distance)
     });
   }
-  
+
   isSlotOnPlacementCooldown(slots: ShelterSlotsPlacementTimer, slot: number) {
     return slots[slot] > Date.now();
   }
