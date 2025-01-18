@@ -2975,7 +2975,6 @@ export const commands: Array<Command> = [
           foundation.ownerCharacterId === targetClient.character.characterId
         ) {
           foundation.ownerCharacterId = "";
-          console.log("cleared base");
           continue;
         }
       }
