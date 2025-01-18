@@ -96,7 +96,8 @@ export class TrapEntity extends BaseSimpleNpc {
               !client.vehicle.mountedVehicle &&
               !client.character.isSpectator
             ) {
-              const item: LoadoutItem | undefined = client.character._loadout[LoadoutSlots.FEET];
+              const item: LoadoutItem | undefined =
+                client.character._loadout[LoadoutSlots.FEET];
               client.character.damage(server, {
                 entity: this.characterId,
                 causeBleed: true,
