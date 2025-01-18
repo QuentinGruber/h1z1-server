@@ -123,6 +123,10 @@ export class SpeedTreeManager {
           case Items.WEAPON_AXE_FIRE:
           case Items.WEAPON_AXE_WOOD:
             break;
+          case Items.WEAPON_FISTS:
+          case Items.WEAPON_FLASHLIGHT:
+          case Items.WEAPON_BINOCULARS:
+            return;
           default:
             server.sendAlert(client, "This tool is not sharp enough for this!");
             return;
@@ -146,6 +150,7 @@ export class SpeedTreeManager {
             this.minWoodLogHarvest,
             this.maxWoodLogHarvest
           );
+          server.lootCrateWithChance(client, 2);
         }
         break;
       default: // boulders (do nothing);
