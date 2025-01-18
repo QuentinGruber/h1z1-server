@@ -3054,7 +3054,6 @@ export class ZonePacketHandlers {
           return;
         }
         if (client.banType === "nodamage") return;
-        console.log("trigger0");
         server.registerHit(client, packet.packet, packet.gameTime);
         break;
       case "Weapon.ReloadRequest":
