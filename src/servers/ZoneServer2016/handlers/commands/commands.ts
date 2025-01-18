@@ -640,6 +640,14 @@ export const commands: Array<Command> = [
             client.isDecoy = false;
           }
         }
+        server.sendData(client, "Spectator.Enable", {});
+        client.character.characterStates.gmHidden = client.character.isVanished;
+        server.updateCharacterState(
+          client,
+          client.character.characterId,
+          client.character.characterStates,
+          false
+        );
         return;
       }
       for (const a in server._clients) {
@@ -652,6 +660,13 @@ export const commands: Array<Command> = [
         }
       }
       server.sendData(client, "Spectator.Enable", {});
+      client.character.characterStates.gmHidden = client.character.isVanished;
+      server.updateCharacterState(
+        client,
+        client.character.characterId,
+        client.character.characterStates,
+        false
+      );
     }
   },
   {

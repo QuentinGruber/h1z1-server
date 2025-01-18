@@ -226,6 +226,11 @@ export class Character2016 extends BaseFullCharacter {
   lastSitTime: number = 0;
   sitCount: number = 0;
 
+  /** Values used for detecting Enas movement (spamming crouch for an advantage) */
+  crouchCount: number = 0;
+  lastCrouchTime: number = 0;
+  isCrouching: boolean = false;
+
   /** Current stance of the player while holding a weapon */
   weaponStance: number = 1;
 
@@ -1677,7 +1682,6 @@ export class Character2016 extends BaseFullCharacter {
     client: ZoneClient2016,
     weaponDefinitionId: WeaponDefinitionIds
   ) {
-    /* eslint-disable @typescript-eslint/no-unused-vars */
     switch (weaponDefinitionId) {
       case WeaponDefinitionIds.WEAPON_BLAZE:
         server.applyCharacterEffect(
@@ -1688,6 +1692,7 @@ export class Character2016 extends BaseFullCharacter {
         );
         break;
       case WeaponDefinitionIds.WEAPON_FROSTBITE:
+        const effectTime = 5000;
         if (!this._characterEffects[Effects.PFX_Seasonal_Holiday_Snow_skel]) {
           server.sendData<ClientUpdateModifyMovementSpeed>(
             client,
@@ -1696,12 +1701,21 @@ export class Character2016 extends BaseFullCharacter {
               speed: 0.5
             }
           );
+          setTimeout(() => {
+            server.sendData<ClientUpdateModifyMovementSpeed>(
+              client,
+              "ClientUpdate.ModifyMovementSpeed",
+              {
+                speed: 2
+              }
+            );
+          }, effectTime);
         }
         server.applyCharacterEffect(
           this,
           Effects.PFX_Seasonal_Holiday_Snow_skel,
           0,
-          5000
+          effectTime
         );
         break;
     }

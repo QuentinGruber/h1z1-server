@@ -69,6 +69,7 @@ import {
   RandomReward,
   RewardCrateDefinition,
   ScreenEffect,
+  StanceFlags,
   UseOption
 } from "../../types/zoneserver";
 import { h1z1PacketsType2016 } from "../../types/packets";
@@ -2651,13 +2652,17 @@ export class ZoneServer2016 extends EventEmitter {
 
     if (sourceIsProjectile) {
       if (sourceEntity.itemDefinitionId == Items.WEAPON_MOLOTOV) {
+        if (this.isPvE) {
+          return;
+        }
         for (const characterId in this._characters) {
           const character = this._characters[characterId];
           if (
             getDistance(
               character.state.position,
               sourceEntity.state.position
-            ) <= 5
+            ) <= 5 &&
+            !character.characterStates.inWater
           ) {
             this.applyCharacterEffect(
               character,
@@ -2864,6 +2869,7 @@ export class ZoneServer2016 extends EventEmitter {
       client.character.characterStates,
       true
     );
+    client.character._characterEffects = {};
 
     // fixes characters showing up as dead if they respawn close to other characters
     if (client.character.initialized) {
@@ -7393,7 +7399,11 @@ export class ZoneServer2016 extends EventEmitter {
     if (vehicle.vehicleId == VehicleIds.ATV) {
       fuelValue *= 2;
     }
-
+    // 0 being the driver seat
+    if (vehicle.getCharacterSeat(client.character.characterId) !== 0) {
+      this.sendAlert(client, "Only the driver can refuel the vehicle!");
+      return;
+    }
     this.utilizeHudTimer(client, nameId, timeout, animationId, () => {
       this.refuelVehiclePass(client, character, item, vehicleGuid, fuelValue);
     });
@@ -8418,6 +8428,47 @@ export class ZoneServer2016 extends EventEmitter {
     if (index > -1) {
       character.screenEffects.splice(index, 1);
       this.removeScreenEffect(client, this._screenEffects["NIGHTVISION"]);
+    }
+  }
+
+  detectEnasMovement(
+    server: ZoneServer2016,
+    client: Client,
+    stanceFlags: StanceFlags
+  ) {
+    if (stanceFlags.CROUCHING) {
+      if (client.character.isCrouching) {
+        return;
+      }
+      client.character.isCrouching = true;
+      if (Date.now() - client.character.lastCrouchTime <= 1500) {
+        client.character.crouchCount++;
+      } else {
+        client.character.crouchCount = 0;
+        client.character.lastCrouchTime = 0;
+      }
+      client.character.lastCrouchTime = Date.now();
+      if (client.character.crouchCount >= 6) {
+        server.sendData<ClientUpdateModifyMovementSpeed>(
+          client,
+          "ClientUpdate.ModifyMovementSpeed",
+          {
+            speed: 0.5
+          }
+        );
+        setTimeout(() => {
+          server.sendData<ClientUpdateModifyMovementSpeed>(
+            client,
+            "ClientUpdate.ModifyMovementSpeed",
+            {
+              speed: 2
+            }
+          );
+        }, 1500);
+        client.character.crouchCount = 0;
+      }
+    } else {
+      client.character.isCrouching = false;
     }
   }
 

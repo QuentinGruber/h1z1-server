@@ -1046,18 +1046,20 @@ export class WorldDataManager {
         JSON.stringify(constructions, null, 2)
       );
     } else {
-      const collection = this._db?.collection(
-        DB_COLLECTIONS.CONSTRUCTION
-      ) as Collection;
-      const collectionBackup = this._db?.collection(
-        DB_COLLECTIONS.CONSTRUCTION_BACKUP
-      ) as Collection;
-      await collectionBackup.deleteMany({ serverId: this._worldId });
-      await collectionBackup.insertMany(structuredClone(constructions));
-      await collection.deleteMany({
-        serverId: this._worldId
-      });
-      await collection.insertMany(constructions);
+      if (constructions.length) {
+        const collection = this._db?.collection(
+          DB_COLLECTIONS.CONSTRUCTION
+        ) as Collection;
+        const collectionBackup = this._db?.collection(
+          DB_COLLECTIONS.CONSTRUCTION_BACKUP
+        ) as Collection;
+        await collectionBackup.deleteMany({ serverId: this._worldId });
+        await collectionBackup.insertMany(structuredClone(constructions));
+        await collection.deleteMany({
+          serverId: this._worldId
+        });
+        await collection.insertMany(constructions);
+      }
     }
   }
 
