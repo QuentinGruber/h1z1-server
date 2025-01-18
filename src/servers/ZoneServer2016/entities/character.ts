@@ -1855,26 +1855,25 @@ export class Character2016 extends BaseFullCharacter {
   }
 
   OnExplosiveHit(server: ZoneServer2016, sourceEntity: BaseEntity) {
-    let damage = 50000;
+    let damage = 10000;
     switch (true) {
       case sourceEntity instanceof ExplosiveEntity:
         damage = 50000;
         break;
       case sourceEntity instanceof ProjectileEntity:
-        damage = sourceEntity.actorModelId == 0 ? 10000 : 20000;
+        damage = sourceEntity.actorModelId == 0 ? 8000 : 10000;
         break;
       default:
-        damage = 20000;
+        damage = 10000;
         break;
     }
-    const sourceIsExplosiveEntity = sourceEntity instanceof ExplosiveEntity;
 
     const distance = getDistance(
       sourceEntity.state.position,
       this.state.position
     );
-    damage /= distance;
-
+    if (distance > 1) damage /= distance;
+    console.log(damage);
     this.damage(server, {
       entity: sourceEntity.characterId,
       damage: damage

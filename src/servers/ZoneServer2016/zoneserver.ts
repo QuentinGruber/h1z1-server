@@ -3415,18 +3415,17 @@ export class ZoneServer2016 extends EventEmitter {
     const fireHint = client.fireHints[hitReport.sessionProjectileCount];
     const weaponItem = fireHint.weaponItem;
     const entity = this.getEntity(hitReport.characterId);
-    if (!entity) {
-      if (weaponItem.itemDefinitionId == Items.WEAPON_BOW_RECURVE) {
-        for (const a in this._throwableProjectiles) {
-          const projectile = this._throwableProjectiles[a] as ProjectileEntity;
-          if (projectile.projectileUniqueId == fireHint.projectileUniqueId) {
-            projectile.applyPostion(packet.hitReport.position);
-            projectile.onTrigger(this);
-          }
+    if (weaponItem.itemDefinitionId == Items.WEAPON_BOW_RECURVE) {
+      for (const a in this._throwableProjectiles) {
+        const projectile = this._throwableProjectiles[a] as ProjectileEntity;
+        if (projectile.projectileUniqueId == fireHint.projectileUniqueId) {
+          projectile.applyPostion(packet.hitReport.position);
+          projectile.onTrigger(this);
         }
       }
       return;
     }
+    if (!entity) return;
     // Don't allow hits registering over 350 as this is the render distance for NPC's
     if (
       getDistance2d(entity.state.position, client.character.state.position) >
@@ -8092,29 +8091,43 @@ export class ZoneServer2016 extends EventEmitter {
       case WeaponDefinitionIds.WEAPON_BOW_MAKESHIFT:
       case WeaponDefinitionIds.WEAPON_BOW_RECURVE:
       case WeaponDefinitionIds.WEAPON_BOW_WOOD:
-        const currentWeapon = client.character.getEquippedWeapon();
-        if (!currentWeapon || currentWeapon.itemGuid != weaponItem.itemGuid) {
-          return;
-        }
-        const maxReloadAmount = maxAmmo - weaponItem.weapon.ammoCount, // how much ammo is needed for full clip
-          reserveAmmo = client.character.getInventoryItemAmount(weaponAmmoId), // how much ammo is in inventory
-          reloadAmount =
-            reserveAmmo >= maxReloadAmount ? maxReloadAmount : reserveAmmo; // actual amount able to reload
+        weaponItem.weapon.reloadTimer = setTimeout(() => {
+          const currentWeapon = client.character.getEquippedWeapon();
+          if (
+            !weaponItem.weapon ||
+            !currentWeapon ||
+            currentWeapon.itemGuid != weaponItem.itemGuid
+          ) {
+            client.character.clearReloadTimeout();
+            return;
+          }
+          if (!weaponItem.weapon?.reloadTimer) {
+            client.character.clearReloadTimeout();
+            return;
+          }
+          console.log(reloadTime);
+          const maxReloadAmount = maxAmmo - weaponItem.weapon.ammoCount, // how much ammo is needed for full clip
+            reserveAmmo = client.character.getInventoryItemAmount(weaponAmmoId), // how much ammo is in inventory
+            reloadAmount =
+              reserveAmmo >= maxReloadAmount ? maxReloadAmount : reserveAmmo; // actual amount able to reload
 
-        if (
-          !this.removeInventoryItems(
-            client.character,
-            weaponAmmoId,
-            reloadAmount
-          )
-        ) {
-          return;
-        }
-        this.sendWeaponReload(
-          client,
-          weaponItem,
-          (weaponItem.weapon.ammoCount += reloadAmount)
-        );
+          if (
+            !this.removeInventoryItems(
+              client.character,
+              weaponAmmoId,
+              reloadAmount
+            )
+          ) {
+            client.character.clearReloadTimeout();
+            return;
+          }
+          this.sendWeaponReload(
+            client,
+            weaponItem,
+            (weaponItem.weapon.ammoCount += reloadAmount)
+          );
+          client.character.clearReloadTimeout();
+        }, reloadTime);
         return;
     }
 
