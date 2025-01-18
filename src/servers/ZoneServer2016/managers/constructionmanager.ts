@@ -2831,7 +2831,6 @@ export class ConstructionManager {
         return true;
       }
     }
-
     return false;
   }
 
@@ -2841,6 +2840,6 @@ export class ConstructionManager {
       if (foundation.ownerCharacterId === characterId) {
         foundation.ownerCharacterId = "";
       }
+    }
   }
-  
 }
