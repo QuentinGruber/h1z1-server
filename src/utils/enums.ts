@@ -54,6 +54,7 @@ export enum DB_COLLECTIONS {
   CONSTRUCTION_BACKUP = "construction-backup",
   CROPS = "crops",
   TRAPS = "traps",
+  CLANS = "clans",
   FINGERPRINTS = "fingerprints",
   PROPS = "props",
   SERVERS = "servers",
