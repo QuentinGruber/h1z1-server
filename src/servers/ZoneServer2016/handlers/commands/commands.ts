@@ -3386,6 +3386,9 @@ export const commands: Array<Command> = [
         return await clansCollection.findOne({ members: characterId });
       };
 
+      const currentClan = await getPlayerClan(client.character.characterId);
+      const isOwner = currentClan?.owner.includes(client.character.characterId) ?? false;
+
       switch (subCommand) {
         case "create":
           if (args.length < 2) {
@@ -3394,12 +3397,14 @@ export const commands: Array<Command> = [
           }
           const createTag = args[1];
 
-
           if (createTag.length < 2 || createTag.length > 5) {
-            server.sendChatText(client, "Clan tag must be between 2 and 5 characters.");
+            server.sendChatText(
+              client,
+              "Clan tag must be between 2 and 5 characters."
+            );
             return;
           }
-
+          
           // Check if the player is already in a clan
           const existingClanCreate = await getPlayerClan(
             client.character.characterId
@@ -3411,7 +3416,6 @@ export const commands: Array<Command> = [
             );
             return;
           }
-
           // Create the new clan
           await clansCollection.insertOne({
             tag: createTag,
@@ -3469,17 +3473,6 @@ export const commands: Array<Command> = [
           break;
 
         case "leave":
-          // Fetch the player's current clan
-          const currentClan = await getPlayerClan(client.character.characterId);
-          if (!currentClan) {
-            server.sendChatText(client, "You are not in any clan.");
-            return;
-          }
-
-          const isOwner = currentClan.owner.includes(
-            client.character.characterId
-          );
-
           if (isOwner) {
             // Owner cannot leave the clan without disbanding it
             server.sendChatText(
@@ -3489,7 +3482,7 @@ export const commands: Array<Command> = [
           } else {
             // If not the owner, simply leave the clan
             await clansCollection.updateOne(
-              { tag: currentClan.tag },
+              { tag: currentClan?.tag ?? '' },
               { $pull: { members: client.character.characterId } as any }
             );
             server.sendChatText(client, "You have left the clan successfully.");
@@ -3497,9 +3490,16 @@ export const commands: Array<Command> = [
           break;
 
         case "disband":
-          // Delete the clan if the player is the only member
+          if (!isOwner) {
+            server.sendChatText(
+              client,
+              "You are not the owner of the clan. Only the owner can disband the clan."
+            );
+            return;
+          }
+          // Delete the clan regardless of the number of members
           const disbandResult = await clansCollection.deleteOne({
-            members: { $size: 1, $in: [client.character.characterId] }
+            owner: client.character.characterId
           });
 
           if (disbandResult.deletedCount > 0) {
@@ -3507,7 +3507,7 @@ export const commands: Array<Command> = [
           } else {
             server.sendChatText(
               client,
-              "You cannot disband the clan. Make sure you are the only member."
+              "Unable to disband the clan. Please ensure you are the owner."
             );
           }
           break;
