@@ -64,12 +64,6 @@ import { scheduler } from "node:timers/promises";
 const debug = require("debug")("ZoneServer");
 
 export function getRandomSkin(itemDefinitionId: number) {
-  const allowedItems = [
-    Items.CONVEYS_BLUE,
-    Items.BACKPACK_BLUE_ORANGE,
-    Items.HELMET_MOTORCYCLE
-  ];
-  if (!allowedItems.includes(itemDefinitionId)) return itemDefinitionId;
   let itemDefId = 0;
   let arr: any[] = [];
   switch (itemDefinitionId) {
@@ -82,6 +76,8 @@ export function getRandomSkin(itemDefinitionId: number) {
     case Items.HELMET_MOTORCYCLE:
       arr = Object.keys(DefaultSkinsMotorHelmet);
       break;
+    default:
+      return itemDefinitionId;
   }
   itemDefId = Number(arr[Math.floor((Math.random() * arr.length) / 2)]);
   return itemDefId;
