@@ -3386,14 +3386,6 @@ export const commands: Array<Command> = [
         return await clansCollection.findOne({ members: characterId });
       };
 
-      const currentClan = await getPlayerClan(client.character.characterId);
-      if (!currentClan) {
-        return;
-      }
-      const isOwner = currentClan.owner.includes(
-        client.character.characterId
-      );
-
       switch (subCommand) {
         case "create":
           if (args.length < 2) {
@@ -3478,6 +3470,10 @@ export const commands: Array<Command> = [
             return;
           }
 
+          const isOwner = currentClan.owner.includes(
+            client.character.characterId
+          );
+
           if (isOwner) {
             // Owner cannot leave the clan without disbanding it
             server.sendChatText(
@@ -3494,28 +3490,21 @@ export const commands: Array<Command> = [
           }
           break;
 
-          case "disband":
-            if (!isOwner) {
-              server.sendChatText(
-                client,
-                "You are not the owner of the clan. Only the owner can disband the clan."
-              );
-              return;
-            }
-            // Delete the clan regardless of the number of members
-            const disbandResult = await clansCollection.deleteOne({
-              owner: client.character.characterId // Assuming 'owner' identifies the clan's owner
-            });
-          
-            if (disbandResult.deletedCount > 0) {
-              server.sendChatText(client, "Clan disbanded successfully.");
-            } else {
-              server.sendChatText(
-                client,
-                "Unable to disband the clan. Please ensure you are the owner."
-              );
-            }
-            break;
+        case "disband":
+          // Delete the clan if the player is the only member
+          const disbandResult = await clansCollection.deleteOne({
+            members: { $size: 1, $in: [client.character.characterId] }
+          });
+
+          if (disbandResult.deletedCount > 0) {
+            server.sendChatText(client, "Clan disbanded successfully.");
+          } else {
+            server.sendChatText(
+              client,
+              "You cannot disband the clan. Make sure you are the only member."
+            );
+          }
+          break;
 
         case "test":
           // Fetch the player's current clan tag
