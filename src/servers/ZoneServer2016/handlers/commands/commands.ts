@@ -3394,6 +3394,12 @@ export const commands: Array<Command> = [
           }
           const createTag = args[1];
 
+
+          if (createTag.length < 2 || createTag.length > 5) {
+            server.sendChatText(client, "Clan tag must be between 2 and 5 characters.");
+            return;
+          }
+
           // Check if the player is already in a clan
           const existingClanCreate = await getPlayerClan(
             client.character.characterId
