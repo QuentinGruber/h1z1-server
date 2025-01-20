@@ -141,9 +141,10 @@ export const commands: Array<Command> = [
 
         server.sendChatText(
           client,
-          `Uptime: ${uptimeMin < 60
-            ? `${uptimeMin.toFixed()}m`
-            : `${(uptimeMin / 60).toFixed()}h `
+          `Uptime: ${
+            uptimeMin < 60
+              ? `${uptimeMin.toFixed()}m`
+              : `${(uptimeMin / 60).toFixed()}h `
           }`
         );
         if (client.isAdmin) {
@@ -167,7 +168,8 @@ export const commands: Array<Command> = [
       const pop = _.size(server._clients);
       server.sendChatText(
         client,
-        `There ${pop > 1 ? "are" : "is"} ${pop} player${pop > 1 ? "s" : ""
+        `There ${pop > 1 ? "are" : "is"} ${pop} player${
+          pop > 1 ? "s" : ""
         } online.`
       );
     }
@@ -1015,13 +1017,15 @@ export const commands: Array<Command> = [
         time += Date.now();
         server.sendChatText(
           client,
-          `You have ${isSilent ? "silently " : ""
+          `You have ${
+            isSilent ? "silently " : ""
           }banned ${character?.characterName} until ${getDateString(time)}`
         );
       } else {
         server.sendChatText(
           client,
-          `You have ${isSilent ? "silently " : ""
+          `You have ${
+            isSilent ? "silently " : ""
           }banned ${character?.characterName} permanently`
         );
       }
@@ -1094,13 +1098,15 @@ export const commands: Array<Command> = [
         time += Date.now();
         server.sendChatText(
           client,
-          `You have ${isSilent ? "silently " : ""
+          `You have ${
+            isSilent ? "silently " : ""
           }banned ${character?.characterName} until ${getDateString(time)}`
         );
       } else {
         server.sendChatText(
           client,
-          `You have ${isSilent ? "silently " : ""
+          `You have ${
+            isSilent ? "silently " : ""
           }banned ${character?.characterName} permanently`
         );
       }
@@ -1457,7 +1463,8 @@ export const commands: Array<Command> = [
         time += Date.now();
         server.sendChatText(
           client,
-          `You have muted ${targetClient.character.name
+          `You have muted ${
+            targetClient.character.name
           } until ${getDateString(time)}`
         );
       } else {
@@ -1714,12 +1721,14 @@ export const commands: Array<Command> = [
       server.inGameTimeManager.time = time;
       server.sendChatText(
         client,
-        `Will force time to be ${choosenHour % 1 >= 0.5
-          ? Number(choosenHour.toFixed(0)) - 1
-          : choosenHour.toFixed(0)
-        }:${choosenHour % 1 === 0
-          ? "00"
-          : (((choosenHour % 1) * 100 * 60) / 100).toFixed(0)
+        `Will force time to be ${
+          choosenHour % 1 >= 0.5
+            ? Number(choosenHour.toFixed(0)) - 1
+            : choosenHour.toFixed(0)
+        }:${
+          choosenHour % 1 === 0
+            ? "00"
+            : (((choosenHour % 1) * 100 * 60) / 100).toFixed(0)
         } on next sync...`,
         true
       );
@@ -2329,8 +2338,10 @@ export const commands: Array<Command> = [
         }
         server.sendChatText(
           client,
-          `Adding ${count}x item${count == 1 ? "" : "s"
-          } with id ${itemDefId} to player ${targetClient ? targetClient.character.name : client.character.name
+          `Adding ${count}x item${
+            count == 1 ? "" : "s"
+          } with id ${itemDefId} to player ${
+            targetClient ? targetClient.character.name : client.character.name
           }`
         );
         (targetClient ? targetClient.character : client.character).lootItem(
@@ -2340,7 +2351,8 @@ export const commands: Array<Command> = [
       } else {
         server.sendChatText(
           client,
-          `Adding ${count}x item${count == 1 ? "" : "s"
+          `Adding ${count}x item${
+            count == 1 ? "" : "s"
           } with id ${itemDefId} to player ${client.character.name}`
         );
         client.character.lootItem(server, item);
@@ -2968,7 +2980,8 @@ export const commands: Array<Command> = [
           counter++;
           server.sendChatText(
             client,
-            `${counter}. ${name ? name : item.itemDefinitionId}, count: ${item.stackCount
+            `${counter}. ${name ? name : item.itemDefinitionId}, count: ${
+              item.stackCount
             }`
           );
         }
@@ -2984,7 +2997,8 @@ export const commands: Array<Command> = [
           )?.NAME;
           server.sendChatText(
             client,
-            `${containerName ? containerName : container.itemDefinitionId
+            `${
+              containerName ? containerName : container.itemDefinitionId
             } [${container.getUsedBulk(server)}/${container.getMaxBulk(
               server
             )}]:`
@@ -2996,7 +3010,8 @@ export const commands: Array<Command> = [
             )?.NAME;
             server.sendChatText(
               client,
-              `${counter}. ${itemName ? itemName : item.itemDefinitionId
+              `${counter}. ${
+                itemName ? itemName : item.itemDefinitionId
               }, count: ${item.stackCount}`
             );
           });
@@ -3356,12 +3371,20 @@ export const commands: Array<Command> = [
       args: Array<string>
     ) => {
       if (args.length === 0) {
-        server.sendChatText(client, "Usage: /clan <create|join|accept|leave|disband> [arguments]");
+        server.sendChatText(
+          client,
+          "Usage: /clan <create|join|accept|leave|disband|test> [arguments]"
+        );
         return;
       }
 
       const subCommand = args[0].toLowerCase();
-      const clansCollection = server._db.collection('clans');
+      const clansCollection = server._db?.collection(DB_COLLECTIONS.CLANS);
+
+      // Helper function to check if the player is already in a clan
+      const getPlayerClan = async (characterId: string) => {
+        return await clansCollection.findOne({ members: characterId });
+      };
 
       switch (subCommand) {
         case "create":
@@ -3370,8 +3393,29 @@ export const commands: Array<Command> = [
             return;
           }
           const createTag = args[1];
-          await clansCollection.insertOne({ tag: createTag, members: [client.character.characterId] });
-          server.sendChatText(client, `Clan ${createTag} created successfully.`);
+
+          // Check if the player is already in a clan
+          const existingClanCreate = await getPlayerClan(
+            client.character.characterId
+          );
+          if (existingClanCreate) {
+            server.sendChatText(
+              client,
+              "You are already in a clan. Leave your current clan before creating a new one."
+            );
+            return;
+          }
+
+          // Create the new clan
+          await clansCollection.insertOne({
+            tag: createTag,
+            owner: client.character.characterId,
+            members: [client.character.characterId]
+          });
+          server.sendChatText(
+            client,
+            `Clan ${createTag} created successfully.`
+          );
           break;
 
         case "join":
@@ -3380,8 +3424,29 @@ export const commands: Array<Command> = [
             return;
           }
           const joinTag = args[1];
-          await clansCollection.updateOne({ tag: joinTag }, { $addToSet: { members: client.character.characterId } });
-          server.sendChatText(client, `Joined clan ${joinTag} successfully.`);
+
+          // Check if the player is already in a clan
+          const existingClanJoin = await getPlayerClan(
+            client.character.characterId
+          );
+          if (existingClanJoin) {
+            server.sendChatText(
+              client,
+              "You are already in a clan. Leave your current clan before joining a new one."
+            );
+            return;
+          }
+
+          // Join the specified clan
+          const updated = await clansCollection.updateOne(
+            { tag: joinTag },
+            { $addToSet: { members: client.character.characterId } }
+          );
+          if (updated.modifiedCount > 0) {
+            server.sendChatText(client, `Joined clan ${joinTag} successfully.`);
+          } else {
+            server.sendChatText(client, `Clan ${joinTag} does not exist.`);
+          }
           break;
 
         case "accept":
@@ -3391,22 +3456,78 @@ export const commands: Array<Command> = [
           }
           const acceptName = args[1];
           // Implement clan accept logic here
-          server.sendChatText(client, `Accepted ${acceptName} into the clan successfully.`);
+          server.sendChatText(
+            client,
+            `Accepted ${acceptName} into the clan successfully.`
+          );
           break;
 
         case "leave":
-          server.sendChatText(client, "Left the clan successfully.");
+          // Fetch the player's current clan
+          const currentClan = await getPlayerClan(client.character.characterId);
+          if (!currentClan) {
+            server.sendChatText(client, "You are not in any clan.");
+            return;
+          }
+
+          const isOwner = currentClan.owner.includes(
+            client.character.characterId
+          );
+
+          if (isOwner) {
+            // Owner cannot leave the clan without disbanding it
+            server.sendChatText(
+              client,
+              "You are the owner of the clan. Use /clan disband to disband the clan before leaving."
+            );
+          } else {
+            // If not the owner, simply leave the clan
+            await clansCollection.updateOne(
+              { tag: currentClan.tag },
+              { $pull: { members: client.character.characterId } as any }
+            );
+            server.sendChatText(client, "You have left the clan successfully.");
+          }
           break;
 
         case "disband":
-          server.sendChatText(client, "Clan disbanded successfully.");
+          // Delete the clan if the player is the only member
+          const disbandResult = await clansCollection.deleteOne({
+            members: { $size: 1, $in: [client.character.characterId] }
+          });
+
+          if (disbandResult.deletedCount > 0) {
+            server.sendChatText(client, "Clan disbanded successfully.");
+          } else {
+            server.sendChatText(
+              client,
+              "You cannot disband the clan. Make sure you are the only member."
+            );
+          }
+          break;
+
+        case "test":
+          // Fetch the player's current clan tag
+          const clan = await getPlayerClan(client.character.characterId);
+          if (clan) {
+            server.sendChatText(
+              client,
+              `You are currently in clan: ${clan.tag}`
+            );
+          } else {
+            server.sendChatText(client, "You are not in any clan.");
+          }
           break;
 
         default:
-          server.sendChatText(client, "Unknown subcommand. Usage: /clan <create|join|accept|leave|disband> [arguments]");
+          server.sendChatText(
+            client,
+            "Unknown subcommand. Usage: /clan <create|join|accept|leave|disband|test> [arguments]"
+          );
           break;
       }
     }
   }
+
   //#endregion
 ];
