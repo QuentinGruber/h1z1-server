@@ -12,7 +12,8 @@
 // ======================================================================
 import {
   damageReportPlayerInfoSchema,
-  pack2ByteLengthString
+  pack2ByteLengthString,
+  packMultiStateDeathData
 } from "../../../packets/ClientProtocol/ClientProtocol_1080/shared";
 import { PacketStructures } from "types/packetStructure";
 
@@ -684,23 +685,19 @@ export const characterPackets: PacketStructures = [
   ["Character.ReloadNotification", 0x0f4c, {}],
   ["Character.MountBlockedNotification", 0x0f4d, {}],
   [
-    "Character.StartMultiStateDeath",
-    0x0f4f,
-    {
-      fields: [
-        {
-          name: "characterId",
-          type: "uint64string",
-          defaultValue: "0x0000000000000000"
-        },
-        { name: "unknown4", type: "uint8", defaultValue: 0 }, // die by falling to there left
-        { name: "unknown5", type: "uint8", defaultValue: 1 }, // weird accrobatic stuff
-        // when unknown4 & unknown5 are > 0 then the animation play in a loop forever
-        { name: "unknown6", type: "uint8", defaultValue: 0 }
-        // seems like some bytes can be added after that but not required
-      ]
-    }
-  ],
+  "Character.StartMultiStateDeath",
+  0x0f4f,
+  {
+    fields: [
+          {
+              name: "data",
+              type: "custom",
+              parser: packMultiStateDeathData,
+            packer: packMultiStateDeathData,
+          },
+    ]
+  }
+],
   ["Character.AggroLevel", 0x0f50, {}],
   [
     "Character.DoorState",

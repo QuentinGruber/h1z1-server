@@ -82,6 +82,8 @@ interface CharacterStates {
   knockedOut?: boolean;
   inWater?: boolean;
   userMovementDisabled?: boolean;
+  revivable?: boolean;
+  beingRevived?: boolean
 }
 
 interface CharacterMetrics {
@@ -118,6 +120,8 @@ export class Character2016 extends BaseFullCharacter {
   }
   /** Determines several states of the player such as being in water or knocked out */
   characterStates: CharacterStates;
+
+  awaitingTeleportLocation?: Float32Array;
 
   /** States set by StanceFlags */
   isRunning = false;

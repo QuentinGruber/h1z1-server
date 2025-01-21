@@ -1229,10 +1229,7 @@ export interface CharacterNoSpaceNotification {
   characterId?: string;
 }
 export interface CharacterStartMultiStateDeath {
-  characterId?: string;
-  unknown4?: number;
-  unknown5?: number;
-  unknown6?: number;
+  data: unknown;
 }
 export interface CharacterDoorState {
   characterId?: string;
