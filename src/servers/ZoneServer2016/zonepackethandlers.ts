@@ -346,19 +346,27 @@ export class ZonePacketHandlers {
       return;
     }
     if (client.character.awaitingTeleportLocation) {
-    setTimeout(() => {
-        server.sendData(client, "UpdateWeatherData", server.weatherManager.weather);
-        server.sendData<ClientUpdateUpdateLocation>(
-            client,
-            "ClientUpdate.UpdateLocation",
-            {
-                position: client.character.awaitingTeleportLocation
-            }
+      setTimeout(() => {
+        server.sendData(
+          client,
+          "UpdateWeatherData",
+          server.weatherManager.weather
         );
-        server.sendData(client, "UpdateWeatherData", server.weatherManager.weather);
-        client.character.awaitingTeleportLocation = undefined
-    }, 100)
-}
+        server.sendData<ClientUpdateUpdateLocation>(
+          client,
+          "ClientUpdate.UpdateLocation",
+          {
+            position: client.character.awaitingTeleportLocation
+          }
+        );
+        server.sendData(
+          client,
+          "UpdateWeatherData",
+          server.weatherManager.weather
+        );
+        client.character.awaitingTeleportLocation = undefined;
+      }, 100);
+    }
     const itemDefinition = server.getItemDefinition(
       client.character.getEquippedWeapon()?.itemDefinitionId
     );
@@ -519,9 +527,9 @@ export class ZonePacketHandlers {
         client,
         "Character.StartMultiStateDeath",
         {
-            data: {
-                characterId: client.character.characterId
-            }
+          data: {
+            characterId: client.character.characterId
+          }
         }
       );
     }
@@ -1347,8 +1355,8 @@ export class ZonePacketHandlers {
           client.character.characterStates,
           false
         );
-          server.sendData(client, "Character.StartMultiStateDeath", {
-              data: { characterId: client.character.characterId }
+        server.sendData(client, "Character.StartMultiStateDeath", {
+          data: { characterId: client.character.characterId }
         });
         client.blockedPositionUpdates = 0;
         return;
@@ -1510,10 +1518,10 @@ export class ZonePacketHandlers {
           client.character.characterStates,
           false
         );
-          server.sendData<CharacterStartMultiStateDeath>(
-              client,
-              "Character.StartMultiStateDeath",
-              { data: {characterId: client.character.characterId } }
+        server.sendData<CharacterStartMultiStateDeath>(
+          client,
+          "Character.StartMultiStateDeath",
+          { data: { characterId: client.character.characterId } }
         );
         return;
       }
@@ -3664,12 +3672,13 @@ export class ZonePacketHandlers {
   }
 
   RagdollUpdatePose(
-  server: ZoneServer2016,
-  client: Client,
-  packet: ReceivedPacket<RagdollUpdatePose>
-) {
-    server.sendDataToAllOthersWithSpawnedEntity(server._characters, client, client.character.characterId, "Ragdoll.UpdatePose", packet.data)
-}
+    server: ZoneServer2016,
+    client: Client,
+    packet: ReceivedPacket<RagdollUpdatePose>
+  ) {
+    // currently all ragdoll are client sided, less work for server but creates corpse position desync (shouldnt really be important)
+    //server.sendDataToAllOthersWithSpawnedEntity(server._characters, client, client.character.characterId, "Ragdoll.UpdatePose", packet.data)
+  }
 
   async grinderExchangeRequest(
     server: ZoneServer2016,

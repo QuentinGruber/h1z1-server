@@ -590,28 +590,33 @@ export function packPositionUpdateData(obj: any) {
 }
 
 export function packMultiStateDeathData(obj: any) {
-    const isRagdoll = obj["unknown6"] && obj["unknown6"] > 0
-    let offset = 0
-    const data = Buffer.alloc(isRagdoll ? 19 : 11)
+  const isRagdoll = obj["unknown6"] && obj["unknown6"] > 0;
+  let offset = 0;
+  const data = Buffer.alloc(isRagdoll ? 19 : 11);
+  for (let j = 0; j < 8; j++) {
+    data.writeUInt8(
+      parseInt(obj["characterId"].substr(2 + (7 - j) * 2, 2), 16),
+      offset + j
+    );
+  }
+  offset += 8;
+  data.writeUInt8(obj["unknown4"], offset);
+  offset += 1;
+  data.writeUInt8(obj["unknown5"], offset);
+  offset += 1;
+  data.writeUInt8(obj["unknown6"], offset);
+  offset += 1;
+
+  if (isRagdoll) {
     for (let j = 0; j < 8; j++) {
-        data.writeUInt8(parseInt(obj["characterId"].substr(2 + (7 - j) * 2, 2), 16), offset + j);
+      data.writeUInt8(
+        parseInt(obj["managerCharacterId"].substr(2 + (7 - j) * 2, 2), 16),
+        offset + j
+      );
     }
-    offset += 8
-    data.writeUInt8(obj["unknown4"], offset);
-    offset += 1
-    data.writeUInt8(obj["unknown5"], offset);
-    offset += 1
-    data.writeUInt8(obj["unknown6"], offset);
-    offset += 1
-
-    if (isRagdoll) {
-
-        for (let j = 0; j < 8; j++) {
-            data.writeUInt8(parseInt(obj["managerCharacterId"].substr(2 + (7 - j) * 2, 2), 16), offset + j);
-        }
-        offset += 8
-    }
-    return data;
+    offset += 8;
+  }
+  return data;
 }
 
 /*

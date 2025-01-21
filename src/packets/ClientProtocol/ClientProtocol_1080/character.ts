@@ -685,19 +685,19 @@ export const characterPackets: PacketStructures = [
   ["Character.ReloadNotification", 0x0f4c, {}],
   ["Character.MountBlockedNotification", 0x0f4d, {}],
   [
-  "Character.StartMultiStateDeath",
-  0x0f4f,
-  {
-    fields: [
-          {
-              name: "data",
-              type: "custom",
-              parser: packMultiStateDeathData,
-            packer: packMultiStateDeathData,
-          },
-    ]
-  }
-],
+    "Character.StartMultiStateDeath",
+    0x0f4f,
+    {
+      fields: [
+        {
+          name: "data",
+          type: "custom",
+          parser: packMultiStateDeathData,
+          packer: packMultiStateDeathData
+        }
+      ]
+    }
+  ],
   ["Character.AggroLevel", 0x0f50, {}],
   [
     "Character.DoorState",

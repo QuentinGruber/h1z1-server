@@ -168,80 +168,64 @@ export class Npc extends BaseFullCharacter {
   }
 
   async damage(server: ZoneServer2016, damageInfo: DamageInfo) {
-  const client = server.getClientByCharId(damageInfo.entity),
-    oldHealth = this.health;
+    const client = server.getClientByCharId(damageInfo.entity),
+      oldHealth = this.health;
 
-  if ((this.health -= damageInfo.damage) <= 0 && this.isAlive) {
-    this.deathTime = Date.now();
-    this.flags.knockedOut = 1;
-    server.worldObjectManager.createLootbag(server, this);
-    if (client) {
-      if (!server._soloMode) {
-        logClientActionToMongo(
-          server._db.collection(DB_COLLECTIONS.KILLS),
-          client,
-          server._worldId,
-          { type: this.npcId == NpcIds.ZOMBIE ? "zombie" : "wildlife" }
-        );
+    if ((this.health -= damageInfo.damage) <= 0 && this.isAlive) {
+      this.deathTime = Date.now();
+      this.flags.knockedOut = 1;
+      server.worldObjectManager.createLootbag(server, this);
+      if (client) {
+        if (!server._soloMode) {
+          logClientActionToMongo(
+            server._db.collection(DB_COLLECTIONS.KILLS),
+            client,
+            server._worldId,
+            { type: this.npcId == NpcIds.ZOMBIE ? "zombie" : "wildlife" }
+          );
 
-        client.character.metrics.wildlifeKilled++;
-        if (this.npcId == NpcIds.ZOMBIE)
-          client.character.metrics.zombiesKilled++;
-        else client.character.metrics.wildlifeKilled++;
+          client.character.metrics.wildlifeKilled++;
+          if (this.npcId == NpcIds.ZOMBIE)
+            client.character.metrics.zombiesKilled++;
+          else client.character.metrics.wildlifeKilled++;
+        }
+      }
+      for (const a in server._clients) {
+        const c = server._clients[a];
+        if (c.spawnedEntities.has(this)) {
+          if (!c.isLoading) {
+            server.sendData(c, "Character.StartMultiStateDeath", {
+              data: {
+                characterId: this.characterId,
+                unknown6: 128,
+                managerCharacterId: c.character.characterId
+              }
+            });
+            server.sendData(c, "Character.ManagedObject", {
+              objectCharacterId: this.characterId,
+              characterId: c.character.characterId
+            });
+          } else {
+            server.sendData(c, "Character.StartMultiStateDeath", {
+              data: {
+                characterId: this.characterId,
+                unknown6: 0
+              }
+            });
+          }
+        }
       }
     }
-    let managerClient
-      for (const a in server._clients) {
-          const c = server._clients[a]
-          if (c.spawnedEntities.has(this) && !c.isLoading) {
-              managerClient = c;
-              break;
-          }
-      }
-      if (managerClient) {
-          server.sendDataToAllWithSpawnedEntity(
-              server._npcs,
-              this.characterId,
-              "Character.StartMultiStateDeath",
-              {
-                  data: {
-                      characterId: this.characterId,
-                      unknown6: 128,
-                      managerCharacterId: managerClient.character.characterId
-                  }
-              }
-          );
-          server.sendData(
-              managerClient,
-              "Character.ManagedObject",
-              {
-                  objectCharacterId: this.characterId,
-                  characterId: managerClient.character.characterId
-              }
-          );
-      } else {
-          server.sendDataToAllWithSpawnedEntity(
-              server._npcs,
-              this.characterId,
-              "Character.StartMultiStateDeath",
-              {
-                  data: {
-                      characterId: this.characterId
-                  }
-              }
-          );
-      }
-  }
 
-  if (client) {
-    const damageRecord = await server.generateDamageRecord(
-      this.characterId,
-      damageInfo,
-      oldHealth
-    );
-    client.character.addCombatlogEntry(damageRecord);
+    if (client) {
+      const damageRecord = await server.generateDamageRecord(
+        this.characterId,
+        damageInfo,
+        oldHealth
+      );
+      client.character.addCombatlogEntry(damageRecord);
+    }
   }
-}
 
   OnFullCharacterDataRequest(server: ZoneServer2016, client: ZoneClient2016) {
     server.sendData(client, "LightweightToFullNpc", this.pGetFull(server));

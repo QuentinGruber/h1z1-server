@@ -2450,168 +2450,180 @@ export class ZoneServer2016 extends EventEmitter {
   }
 
   killCharacter(client: Client, damageInfo: DamageInfo) {
-  if (!client.character.isAlive) return;
-  if (!this.hookManager.checkHook("OnPlayerDeath", client, damageInfo))
-    return;
-  for (const a in client.character._characterEffects) {
-    const characterEffect = client.character._characterEffects[a];
-    if (characterEffect.endCallback)
-      characterEffect.endCallback(this, client.character);
-  }
-  const weapon = client.character.getEquippedWeapon();
-  if (weapon && weapon.weapon) {
-    this.sendRemoteWeaponUpdateDataToAllOthers(
-      client,
-      client.character.transientId,
-      weapon.itemGuid,
-      "Update.FireState",
-      {
-        state: {
-          firestate: 0,
-          transientId: client.character.transientId,
-          position: client.character.state.position
-        }
-      }
-    );
-  }
-  const pos = client.character.state.position;
-  if (client.character.spawnGridData.length < 100) {
-    // attemt to fix broken spawn grid after unban
-    client.character.spawnGridData = new Array(100).fill(0);
-  }
-  this._spawnGrid.forEach((spawnCell: SpawnCell) => {
-    // find current grid and add it to blocked ones
-    if (
-      pos[0] >= spawnCell.position[0] - spawnCell.width / 2 &&
-      pos[0] <= spawnCell.position[0] + spawnCell.width / 2 &&
-      pos[2] >= spawnCell.position[2] - spawnCell.height / 2 &&
-      pos[2] <= spawnCell.position[2] + spawnCell.height / 2
-    ) {
-      client.character.spawnGridData[this._spawnGrid.indexOf(spawnCell)] =
-        new Date().getTime() + 300000;
-      // find neighboring grids and add to blocked ones
-      this._spawnGrid.forEach((cell: SpawnCell) => {
-        if (isPosInRadius(1100, cell.position, spawnCell.position)) {
-          client.character.spawnGridData[this._spawnGrid.indexOf(cell)] =
-            new Date().getTime() + 300000;
-        }
-      });
+    if (!client.character.isAlive) return;
+    if (!this.hookManager.checkHook("OnPlayerDeath", client, damageInfo))
+      return;
+    for (const a in client.character._characterEffects) {
+      const characterEffect = client.character._characterEffects[a];
+      if (characterEffect.endCallback)
+        characterEffect.endCallback(this, client.character);
     }
-  });
-  const character = client.character,
-    gridArr: any[] = [];
-  character.spawnGridData.forEach((number: number) => {
-    if (number <= new Date().getTime()) number = 0;
-    gridArr.push({
-      unk: number ? Math.floor((number - new Date().getTime()) / 1000) : 0
-    });
-  });
-
-  this.sendData<ClientUpdateUpdateLockoutTimes>(
-    client,
-    "ClientUpdate.UpdateLockoutTimes",
-    {
-      unk: gridArr,
-      bool: true
-    }
-  );
-  client.character._characterEffects = {};
-  client.character.isRespawning = true;
-  this.sendDeathMetrics(client);
-  this.logPlayerDeath(client, damageInfo);
-
-  client.character.isRunning = false;
-  character.isAlive = false;
-  client.character.characterStates.revivable = true;
-  client.character.characterStates.beingRevived = true;
-  this.updateCharacterState(
-    client,
-    client.character.characterId,
-    client.character.characterStates,
-    false
-  );
-  if (!client.isLoading) {
-    this.sendDataToAllWithSpawnedEntity<CharacterStartMultiStateDeath>(this._characters,
-      client.character.characterId,
-      "Character.StartMultiStateDeath",
-      {
-          data: {
-              characterId: client.character.characterId,
-              unknown6: 128,
-              managerCharacterId: client.character.characterId
-          }
-      }
-      );
-      this.sendData(
-          client,
-          "Character.ManagedObject",
-          {
-              objectCharacterId: client.character.characterId,
-              characterId: client.character.characterId
-          }
-      );
-  } else {
-    this.sendDataToAllOthersWithSpawnedEntity<CharacterStartMultiStateDeath>(
-      this._characters,
-      client,
-      client.character.characterId,
-      "Character.StartMultiStateDeath",
+    const weapon = client.character.getEquippedWeapon();
+    if (weapon && weapon.weapon) {
+      this.sendRemoteWeaponUpdateDataToAllOthers(
+        client,
+        client.character.transientId,
+        weapon.itemGuid,
+        "Update.FireState",
         {
-            data: { characterId: client.character.characterId }
-      }
-    );
-  }
-  this.clearMovementModifiers(client);
-
-  client.character.dismountContainer(this);
-
-  if (client.vehicle.mountedVehicle) {
-    const vehicle = this._vehicles[client.vehicle.mountedVehicle];
-    if (vehicle) {
-      const container = vehicle?.getContainer();
-
-      if (vehicle && container) {
-        container.items = {
-          ...container.items,
-          ...client.character.getDeathItems(this)
-        };
-      }
-      // Wait untill killCharacter is finished for dismountVehicle (if not, there will be no option for the dead occupant to respawn)
-      this.once("killCharacterComplete", (client) => {
-        this.dismountVehicle(client);
-      });
-    }
-  } else {
-    Object.values(client.character._loadout).forEach((slot: LoadoutItem) => {
-      // need to find a better way later, if out of bulk ammo will be outside of lootbag
-      if (slot.weapon) {
-        const ammo = this.generateItem(
-          this.getWeaponAmmoId(slot.itemDefinitionId),
-          slot.weapon.ammoCount
-        );
-        if (
-          ammo &&
-          slot.weapon.ammoCount > 0 &&
-          slot.weapon.itemDefinitionId != Items.WEAPON_REMOVER
-        ) {
-          client.character.lootContainerItem(
-            this,
-            ammo,
-            ammo.stackCount,
-            true
-          );
+          state: {
+            firestate: 0,
+            transientId: client.character.transientId,
+            position: client.character.state.position
+          }
         }
-        slot.weapon.ammoCount = 0;
-        this.damageItem(client.character, slot, 350);
+      );
+    }
+    const pos = client.character.state.position;
+    if (client.character.spawnGridData.length < 100) {
+      // attemt to fix broken spawn grid after unban
+      client.character.spawnGridData = new Array(100).fill(0);
+    }
+    this._spawnGrid.forEach((spawnCell: SpawnCell) => {
+      // find current grid and add it to blocked ones
+      if (
+        pos[0] >= spawnCell.position[0] - spawnCell.width / 2 &&
+        pos[0] <= spawnCell.position[0] + spawnCell.width / 2 &&
+        pos[2] >= spawnCell.position[2] - spawnCell.height / 2 &&
+        pos[2] <= spawnCell.position[2] + spawnCell.height / 2
+      ) {
+        client.character.spawnGridData[this._spawnGrid.indexOf(spawnCell)] =
+          new Date().getTime() + 300000;
+        // find neighboring grids and add to blocked ones
+        this._spawnGrid.forEach((cell: SpawnCell) => {
+          if (isPosInRadius(1100, cell.position, spawnCell.position)) {
+            client.character.spawnGridData[this._spawnGrid.indexOf(cell)] =
+              new Date().getTime() + 300000;
+          }
+        });
       }
     });
-    this.worldObjectManager.createLootbag(this, character);
+    const character = client.character,
+      gridArr: any[] = [];
+    character.spawnGridData.forEach((number: number) => {
+      if (number <= new Date().getTime()) number = 0;
+      gridArr.push({
+        unk: number ? Math.floor((number - new Date().getTime()) / 1000) : 0
+      });
+    });
+
+    this.sendData<ClientUpdateUpdateLockoutTimes>(
+      client,
+      "ClientUpdate.UpdateLockoutTimes",
+      {
+        unk: gridArr,
+        bool: true
+      }
+    );
+    client.character._characterEffects = {};
+    client.character.isRespawning = true;
+    this.sendDeathMetrics(client);
+    this.logPlayerDeath(client, damageInfo);
+
+    client.character.isRunning = false;
+    character.isAlive = false;
+    client.character.characterStates.revivable = true;
+    client.character.characterStates.beingRevived = true;
+    this.updateCharacterState(
+      client,
+      client.character.characterId,
+      client.character.characterStates,
+      false
+    );
+    if (!client.isLoading) {
+      this.sendData<CharacterStartMultiStateDeath>(
+        client,
+        "Character.StartMultiStateDeath",
+        {
+          data: {
+            characterId: client.character.characterId,
+            unknown6: 128,
+            managerCharacterId: client.character.characterId
+          }
+        }
+      );
+      for (const a in this._clients) {
+        const iteratedClient = this._clients[a];
+        if (iteratedClient.spawnedEntities.has(client.character)) {
+          this.sendData<CharacterStartMultiStateDeath>(
+            iteratedClient,
+            "Character.StartMultiStateDeath",
+            {
+              data: {
+                characterId: client.character.characterId,
+                unknown6: 128,
+                managerCharacterId: iteratedClient.character.characterId
+              }
+            }
+          );
+          this.sendData(iteratedClient, "Character.ManagedObject", {
+            objectCharacterId: client.character.characterId,
+            characterId: iteratedClient.character.characterId
+          });
+        }
+      }
+    } else {
+      this.sendDataToAllOthersWithSpawnedEntity<CharacterStartMultiStateDeath>(
+        this._characters,
+        client,
+        client.character.characterId,
+        "Character.StartMultiStateDeath",
+        {
+          data: { characterId: client.character.characterId }
+        }
+      );
+    }
+    this.clearMovementModifiers(client);
+
+    client.character.dismountContainer(this);
+
+    if (client.vehicle.mountedVehicle) {
+      const vehicle = this._vehicles[client.vehicle.mountedVehicle];
+      if (vehicle) {
+        const container = vehicle?.getContainer();
+
+        if (vehicle && container) {
+          container.items = {
+            ...container.items,
+            ...client.character.getDeathItems(this)
+          };
+        }
+        // Wait untill killCharacter is finished for dismountVehicle (if not, there will be no option for the dead occupant to respawn)
+        this.once("killCharacterComplete", (client) => {
+          this.dismountVehicle(client);
+        });
+      }
+    } else {
+      Object.values(client.character._loadout).forEach((slot: LoadoutItem) => {
+        // need to find a better way later, if out of bulk ammo will be outside of lootbag
+        if (slot.weapon) {
+          const ammo = this.generateItem(
+            this.getWeaponAmmoId(slot.itemDefinitionId),
+            slot.weapon.ammoCount
+          );
+          if (
+            ammo &&
+            slot.weapon.ammoCount > 0 &&
+            slot.weapon.itemDefinitionId != Items.WEAPON_REMOVER
+          ) {
+            client.character.lootContainerItem(
+              this,
+              ammo,
+              ammo.stackCount,
+              true
+            );
+          }
+          slot.weapon.ammoCount = 0;
+          this.damageItem(client.character, slot, 350);
+        }
+      });
+      this.worldObjectManager.createLootbag(this, character);
+    }
+    this.clearInventory(client, false);
+    this.sendKillFeed(client, damageInfo);
+    this.hookManager.checkHook("OnPlayerDied", client, damageInfo);
+    this.emit("killCharacterComplete", client); // Throw emit for dismounting character from vehicle
   }
-  this.clearInventory(client, false);
-  this.sendKillFeed(client, damageInfo);
-  this.hookManager.checkHook("OnPlayerDied", client, damageInfo);
-  this.emit("killCharacterComplete", client); // Throw emit for dismounting character from vehicle
-}
 
   sendKillFeed(client: Client, damageInfo: DamageInfo) {
     if (
@@ -2817,143 +2829,143 @@ export class ZoneServer2016 extends EventEmitter {
   }
 
   respawnPlayer(
-  client: Client,
-  cell: SpawnCell,
-  clearEquipment: boolean = true
-) {
-  if (!this.hookManager.checkHook("OnPlayerRespawn", client)) return;
+    client: Client,
+    cell: SpawnCell,
+    clearEquipment: boolean = true
+  ) {
+    if (!this.hookManager.checkHook("OnPlayerRespawn", client)) return;
 
-  if (!client.character.isRespawning) return;
+    if (!client.character.isRespawning) return;
 
-  if (client.vehicle.mountedVehicle) {
-    this.dismountVehicle(client);
-  }
-
-  this.dropAllManagedObjects(client);
-
-  client.isLoading = true;
-  client.characterReleased = false;
-  client.blockedPositionUpdates = 0;
-  client.character.lastLoginDate = toHex(Date.now());
-  client.character.resetMetrics();
-  client.character.isAlive = true;
-  client.character.isRunning = false;
-  client.character.isRespawning = false;
-  client.character.characterStates.knockedOut = false;
-  client.character.characterStates.revivable = false;
-  client.character.characterStates.beingRevived = false;
-  client.isInAir = false;
-
-  this.sendDataToAllWithSpawnedEntity<CommandPlayDialogEffect>(
-    this._characters,
-    client.character.characterId,
-    "Command.PlayDialogEffect",
-    {
-      characterId: client.character.characterId,
-      effectId: 0
+    if (client.vehicle.mountedVehicle) {
+      this.dismountVehicle(client);
     }
-  );
 
-  const randomSpawnIndex = Math.floor(
-    Math.random() * cell.spawnPoints.length
-  );
-  if (client.character.initialized) {
-    client.managedObjects?.forEach((characterId) => {
-      this.dropVehicleManager(client, characterId);
-    });    
-  const tempPos2 = new Float32Array([
-      cell.spawnPoints[randomSpawnIndex][0],
-      cell.spawnPoints[randomSpawnIndex][1] + 1,
-      cell.spawnPoints[randomSpawnIndex][2],
-      1
-    ]);
-    const tempPos = client.character.state.position;
-    client.character.state.position = tempPos2;
-  
-    this.sendData<CharacterRespawnReply>(client, "Character.RespawnReply", {
-      characterId: client.character.characterId,
-      status: true
-    });
-    this.updateCharacterState(
-    client,
-    client.character.characterId,
-    client.character.characterStates,
-    true
-      );
-      this.sendData<ClientUpdateUpdateLocation>(
-          client,
-          "ClientUpdate.UpdateLocation",
-          {
-              position: tempPos2,
-              unknownBoolean1: false
-          }
-      );
-      client.character.awaitingTeleportLocation = tempPos2
-    client.oldPos.position = tempPos2;
-    const damageInfo: DamageInfo = {
-      entity: "Server.Respawn",
-      damage: 99999
-    };
-    if (this.fairPlayManager.fairPlayValues && !client.isAdmin) {
-      for (
-        let x = 1;
-        x < this.fairPlayManager.fairPlayValues.respawnCheckIterations;
-        x++
-      ) {
-        setTimeout(() => {
-          if (
-            isPosInRadius(
-              this.fairPlayManager.fairPlayValues?.respawnCheckRange || 100,
-              tempPos,
-              client.character.state.position
-            ) ||
-            !isPosInRadius(
-              this.fairPlayManager.fairPlayValues?.respawnCheckRange || 300,
-              tempPos2,
-              client.character.state.position
-            )
-          )
-            this.killCharacter(client, damageInfo);
-        }, x * this.fairPlayManager.fairPlayValues.respawnCheckTime);
-      }
-    }
-  }
-  if (clearEquipment) {
-    Object.values(client.character._equipment).forEach((equipmentSlot) => {
-      this.clearEquipmentSlot(client.character, equipmentSlot.slotId, false);
-    });
-    client.character.updateEquipment(this);
-  }
-  client.character.equipLoadout(this);
-  client.character.state.position = cell.spawnPoints[randomSpawnIndex];
-  client.character.resetResources(this);
+    this.dropAllManagedObjects(client);
 
-  // fixes characters showing up as dead if they respawn close to other characters
-  if (client.character.initialized) {
-    this.sendDataToAllOthersWithSpawnedEntity<CharacterRemovePlayer>(
+    client.isLoading = true;
+    client.characterReleased = false;
+    client.blockedPositionUpdates = 0;
+    client.character.lastLoginDate = toHex(Date.now());
+    client.character.resetMetrics();
+    client.character.isAlive = true;
+    client.character.isRunning = false;
+    client.character.isRespawning = false;
+    client.character.characterStates.knockedOut = false;
+    client.character.characterStates.revivable = false;
+    client.character.characterStates.beingRevived = false;
+    client.isInAir = false;
+
+    this.sendDataToAllWithSpawnedEntity<CommandPlayDialogEffect>(
       this._characters,
-      client,
       client.character.characterId,
-      "Character.RemovePlayer",
+      "Command.PlayDialogEffect",
       {
-        characterId: client.character.characterId
+        characterId: client.character.characterId,
+        effectId: 0
       }
     );
-    setTimeout(() => {
-      if (!client?.character) return;
-      this.sendDataToAllOthersWithSpawnedEntity<AddLightweightPc>(
+
+    const randomSpawnIndex = Math.floor(
+      Math.random() * cell.spawnPoints.length
+    );
+    if (client.character.initialized) {
+      client.managedObjects?.forEach((characterId) => {
+        this.dropVehicleManager(client, characterId);
+      });
+      const tempPos2 = new Float32Array([
+        cell.spawnPoints[randomSpawnIndex][0],
+        cell.spawnPoints[randomSpawnIndex][1] + 1,
+        cell.spawnPoints[randomSpawnIndex][2],
+        1
+      ]);
+      const tempPos = client.character.state.position;
+      client.character.state.position = tempPos2;
+
+      this.sendData<CharacterRespawnReply>(client, "Character.RespawnReply", {
+        characterId: client.character.characterId,
+        status: true
+      });
+      this.updateCharacterState(
+        client,
+        client.character.characterId,
+        client.character.characterStates,
+        true
+      );
+      this.sendData<ClientUpdateUpdateLocation>(
+        client,
+        "ClientUpdate.UpdateLocation",
+        {
+          position: tempPos2,
+          unknownBoolean1: false
+        }
+      );
+      client.character.awaitingTeleportLocation = tempPos2;
+      client.oldPos.position = tempPos2;
+      const damageInfo: DamageInfo = {
+        entity: "Server.Respawn",
+        damage: 99999
+      };
+      if (this.fairPlayManager.fairPlayValues && !client.isAdmin) {
+        for (
+          let x = 1;
+          x < this.fairPlayManager.fairPlayValues.respawnCheckIterations;
+          x++
+        ) {
+          setTimeout(() => {
+            if (
+              isPosInRadius(
+                this.fairPlayManager.fairPlayValues?.respawnCheckRange || 100,
+                tempPos,
+                client.character.state.position
+              ) ||
+              !isPosInRadius(
+                this.fairPlayManager.fairPlayValues?.respawnCheckRange || 300,
+                tempPos2,
+                client.character.state.position
+              )
+            )
+              this.killCharacter(client, damageInfo);
+          }, x * this.fairPlayManager.fairPlayValues.respawnCheckTime);
+        }
+      }
+    }
+    if (clearEquipment) {
+      Object.values(client.character._equipment).forEach((equipmentSlot) => {
+        this.clearEquipmentSlot(client.character, equipmentSlot.slotId, false);
+      });
+      client.character.updateEquipment(this);
+    }
+    client.character.equipLoadout(this);
+    client.character.state.position = cell.spawnPoints[randomSpawnIndex];
+    client.character.resetResources(this);
+
+    // fixes characters showing up as dead if they respawn close to other characters
+    if (client.character.initialized) {
+      this.sendDataToAllOthersWithSpawnedEntity<CharacterRemovePlayer>(
         this._characters,
         client,
         client.character.characterId,
-        "AddLightweightPc",
-        client.character.pGetLightweightPC(this, client)
+        "Character.RemovePlayer",
+        {
+          characterId: client.character.characterId
+        }
       );
-    }, 2000);
+      setTimeout(() => {
+        if (!client?.character) return;
+        this.sendDataToAllOthersWithSpawnedEntity<AddLightweightPc>(
+          this._characters,
+          client,
+          client.character.characterId,
+          "AddLightweightPc",
+          client.character.pGetLightweightPC(this, client)
+        );
+      }, 2000);
+    }
+    client.character.updateEquipment(this);
+    client.character.updateFootwearAudio(this);
+    this.hookManager.checkHook("OnPlayerRespawned", client);
   }
-  client.character.updateEquipment(this);
-  client.character.updateFootwearAudio(this);
-  this.hookManager.checkHook("OnPlayerRespawned", client);
-}
 
   requestModules(client: Client) {
     if (!client.isLoading && client.characterReleased && client.isSynced) {

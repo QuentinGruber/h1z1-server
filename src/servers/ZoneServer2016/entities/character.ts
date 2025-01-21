@@ -83,7 +83,7 @@ interface CharacterStates {
   inWater?: boolean;
   userMovementDisabled?: boolean;
   revivable?: boolean;
-  beingRevived?: boolean
+  beingRevived?: boolean;
 }
 
 interface CharacterMetrics {
