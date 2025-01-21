@@ -3373,13 +3373,22 @@ export const commands: Array<Command> = [
       if (args.length === 0) {
         server.sendChatText(
           client,
-          "Usage: /clan <create|join|accept|leave|disband|test> [arguments]"
+          "Usage: /clan <create|join|accept|yes|decline|no|leave|disband|cancel|test> [arguments]"
         );
         return;
       }
 
       const subCommand = args[0].toLowerCase();
       const clansCollection = server._db?.collection(DB_COLLECTIONS.CLANS);
+
+      // In-memory join requests with expiration
+      if (!server._joinRequests) {
+        server._joinRequests = new Map();
+      }
+      const joinRequests = server._joinRequests;
+
+      // Log the current state of joinRequests
+      console.log("Current joinRequests:", Array.from(joinRequests.entries()));
 
       // Helper function to check if the player is already in a clan
       const getPlayerClan = async (characterId: string) => {
@@ -3404,7 +3413,7 @@ export const commands: Array<Command> = [
             );
             return;
           }
-          
+
           // Check if the player is already in a clan
           const existingClanCreate = await getPlayerClan(
             client.character.characterId
@@ -3416,6 +3425,7 @@ export const commands: Array<Command> = [
             );
             return;
           }
+
           // Create the new clan
           await clansCollection.insertOne({
             tag: createTag,
@@ -3442,34 +3452,180 @@ export const commands: Array<Command> = [
           if (existingClanJoin) {
             server.sendChatText(
               client,
-              "You are already in a clan. Leave your current clan before joining a new one."
+              "You are already in a clan. Leave your current clan before requesting to join a new one."
             );
             return;
           }
 
-          // Join the specified clan
-          const updated = await clansCollection.updateOne(
-            { tag: joinTag },
-            { $addToSet: { members: client.character.characterId } }
-          );
-          if (updated.modifiedCount > 0) {
-            server.sendChatText(client, `Joined clan ${joinTag} successfully.`);
-          } else {
+          // Check if the clan exists
+          const targetClan = await clansCollection.findOne({ tag: joinTag });
+          if (!targetClan) {
             server.sendChatText(client, `Clan ${joinTag} does not exist.`);
+            return;
           }
+
+          // Check if the client has already sent a join request
+          if (joinRequests.has(client.character.characterId)) {
+            server.sendChatText(client, "You have already sent a join request. Please wait for it to be processed.");
+            return;
+          }
+
+          // Add a join request to in-memory storage
+          joinRequests.set(client.character.characterId, {
+            clanTag: joinTag,
+            characterId: client.character.characterId,
+            characterName: client.character.name,
+            timestamp: Date.now()
+          });
+
+          // Log the updated state of joinRequests
+          console.log("Updated joinRequests after join:", Array.from(joinRequests.entries()));
+
+          // Notify the clan owner
+          const ownerClient = server.getClientByCharId(targetClan.owner);
+          if (ownerClient) {
+            server.sendChatText(
+              ownerClient,
+              `${client.character.name} has requested to join your clan (${joinTag}). Use /clan accept <name> or /clan yes <name> to accept.`
+            );
+          }
+
+          server.sendChatText(client, `Your request to join clan ${joinTag} has been sent. It will expire in 2 minutes.`);
+
+          // Schedule request removal after 2 minutes
+          setTimeout(() => {
+            if (joinRequests.get(client.character.characterId)?.clanTag === joinTag) {
+              joinRequests.delete(client.character.characterId);
+              server.sendChatText(client, `Your join request to clan ${joinTag} has expired.`);
+              // Log the state of joinRequests after expiration
+              console.log("Updated joinRequests after expiration:", Array.from(joinRequests.entries()));
+            }
+          }, 2 * 60 * 1000);
+
           break;
 
         case "accept":
+        case "yes":
           if (args.length < 2) {
-            server.sendChatText(client, "Usage: /clan accept <name>");
+            server.sendChatText(client, "Usage: /clan accept <name> or /clan yes <name>");
             return;
           }
+
+          if (!isOwner) {
+            server.sendChatText(
+              client,
+              "You are not the owner of the clan. Only the owner can accept members."
+            );
+            return;
+          }
+
           const acceptName = args[1];
-          // Implement clan accept logic here
+          const joinRequest = Array.from(joinRequests.values()).find(
+            (request: any) => request.clanTag === currentClan?.tag && request.characterName === acceptName
+          );
+
+          if (!joinRequest) {
+            server.sendChatText(
+              client,
+              `No valid join request from ${acceptName} found for your clan.`
+            );
+            return;
+          }
+
+          // Add the player to the clan
+          await clansCollection.updateOne(
+            { tag: currentClan?.tag ?? '' },
+            { $addToSet: { members: joinRequest.characterId } }
+          );
+
+          // Remove the join request from memory
+          joinRequests.delete(joinRequest.characterId);
+
+          // Log the updated state of joinRequests after acceptance
+          console.log("Updated joinRequests after accept:", Array.from(joinRequests.entries()));
+
+          // Notify the new member
+          const newMemberClient = server.getClientByCharId(
+            joinRequest.characterId
+          );
+          if (newMemberClient) {
+            server.sendChatText(
+              newMemberClient,
+              `Your request to join clan ${currentClan?.tag ?? ''} has been accepted.`
+            );
+          }
+
           server.sendChatText(
             client,
-            `Accepted ${acceptName} into the clan successfully.`
+            `${acceptName} has been added to your clan.`
           );
+          break;
+
+        case "decline":
+        case "no":
+          if (args.length < 2) {
+            server.sendChatText(client, "Usage: /clan decline <name> or /clan no <name>");
+            return;
+          }
+
+          if (!isOwner) {
+            server.sendChatText(
+              client,
+              "You are not the owner of the clan. Only the owner can decline members."
+            );
+            return;
+          }
+
+          const declineName = args[1];
+          const declineRequest = Array.from(joinRequests.values()).find(
+            (request: any) => request.clanTag === currentClan?.tag && request.characterName === declineName
+          );
+
+          if (!declineRequest) {
+            server.sendChatText(
+              client,
+              `No valid join request from ${declineName} found for your clan.`
+            );
+            return;
+          }
+
+          // Remove the join request from memory
+          joinRequests.delete(declineRequest.characterId);
+
+          // Log the updated state of joinRequests after decline
+          console.log("Updated joinRequests after decline:", Array.from(joinRequests.entries()));
+
+          // Notify the declined member
+          const declinedMemberClient = server.getClientByCharId(
+            declineRequest.characterId
+          );
+          if (declinedMemberClient) {
+            server.sendChatText(
+              declinedMemberClient,
+              `Your request to join clan ${currentClan?.tag ?? ''} has been declined.`
+            );
+          }
+
+          server.sendChatText(
+            client,
+            `${declineName}'s request to join your clan has been declined.`
+          );
+          break;
+
+        case "cancel":
+          // Check if the client has a pending join request
+          if (!joinRequests.has(client.character.characterId)) {
+            server.sendChatText(client, "You have no pending join request to cancel.");
+            return;
+          }
+
+          // Remove the join request from memory
+          joinRequests.delete(client.character.characterId);
+
+          // Log the updated state of joinRequests after cancellation
+          console.log("Updated joinRequests after cancel:", Array.from(joinRequests.entries()));
+
+          server.sendChatText(client, "Your join request has been cancelled.");
           break;
 
         case "leave":
@@ -3479,14 +3635,14 @@ export const commands: Array<Command> = [
               client,
               "You are the owner of the clan. Use /clan disband to disband the clan before leaving."
             );
-          } else {
-            // If not the owner, simply leave the clan
-            await clansCollection.updateOne(
-              { tag: currentClan?.tag ?? '' },
-              { $pull: { members: client.character.characterId } as any }
-            );
-            server.sendChatText(client, "You have left the clan successfully.");
-          }
+            return;
+          } 
+          // If not the owner, simply leave the clan
+          await clansCollection.updateOne(
+            { tag: currentClan?.tag ?? '' },
+            { $pull: { members: client.character.characterId } as any }
+          );
+          server.sendChatText(client, "You have left the clan successfully.");
           break;
 
         case "disband":
@@ -3498,18 +3654,11 @@ export const commands: Array<Command> = [
             return;
           }
           // Delete the clan regardless of the number of members
-          const disbandResult = await clansCollection.deleteOne({
+          await clansCollection.deleteOne({
             owner: client.character.characterId
           });
 
-          if (disbandResult.deletedCount > 0) {
             server.sendChatText(client, "Clan disbanded successfully.");
-          } else {
-            server.sendChatText(
-              client,
-              "Unable to disband the clan. Please ensure you are the owner."
-            );
-          }
           break;
 
         case "test":
@@ -3528,12 +3677,11 @@ export const commands: Array<Command> = [
         default:
           server.sendChatText(
             client,
-            "Unknown subcommand. Usage: /clan <create|join|accept|leave|disband|test> [arguments]"
+            "Unknown subcommand. Usage: /clan <create|join|accept|yes|decline|no|leave|disband|cancel|test> [arguments]"
           );
           break;
       }
     }
   }
-
   //#endregion
 ];

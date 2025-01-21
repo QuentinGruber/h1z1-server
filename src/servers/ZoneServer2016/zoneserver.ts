@@ -303,6 +303,8 @@ export class ZoneServer2016 extends EventEmitter {
   /** Total amount of clients on the server */
   readonly _clients: { [characterId: string]: Client } = {};
 
+  _joinRequests: Map<string, { clanTag: string; characterId: string; characterName: string; timestamp: number }> = new Map();
+
   /** Global dictionaries for all entities */
   _characters: EntityDictionary<Character> = {};
   _npcs: EntityDictionary<Npc> = {};
