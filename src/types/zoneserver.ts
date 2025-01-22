@@ -191,6 +191,7 @@ export interface FireHint {
   hitNumber: number;
   weaponItem: LoadoutItem
   timeStamp: number,
+  projectileUniqueId: number;
   marked?: { characterId: string, position: Float32Array, rotation: Float32Array, gameTime: number }
 }
 

@@ -784,6 +784,14 @@ export class ZoneServer2016 extends EventEmitter {
                       characterId,
                       groupId
                     );
+                    if (
+                      this.constructionManager.hasOwnedBases(this, characterId)
+                    ) {
+                      this.constructionManager.removeOwnerFromBases(
+                        this,
+                        characterId
+                      );
+                    }
                   }
                 } else {
                   this._loginConnectionManager.sendData(
@@ -973,7 +981,7 @@ export class ZoneServer2016 extends EventEmitter {
       debug(`Receive Data ${[packet.name]}`);
     }
     if (packet.flag === GatewayChannels.UpdatePosition) {
-      if (packet.data.flags === 513) return;
+      if (!packet.data.flags) return;
       const movingCharacter = this._characters[client.character.characterId];
       if (movingCharacter) {
         this.sendRawToAllOthersWithSpawnedCharacter(
@@ -3495,7 +3503,19 @@ export class ZoneServer2016 extends EventEmitter {
       }
     }
     const message = `FairPlay: blocked incoming projectile from ${client.character.name}`;
+    const fireHint = client.fireHints[hitReport.sessionProjectileCount];
+    const weaponItem = fireHint.weaponItem;
     const entity = this.getEntity(hitReport.characterId);
+    if (weaponItem.itemDefinitionId == Items.WEAPON_BOW_RECURVE) {
+      for (const a in this._throwableProjectiles) {
+        const projectile = this._throwableProjectiles[a] as ProjectileEntity;
+        if (projectile.projectileUniqueId == fireHint.projectileUniqueId) {
+          projectile.applyPostion(packet.hitReport.position);
+          projectile.onTrigger(this);
+        }
+      }
+      return;
+    }
     if (!entity) return;
     // Don't allow hits registering over 350 as this is the render distance for NPC's
     if (
@@ -3503,7 +3523,6 @@ export class ZoneServer2016 extends EventEmitter {
       350
     )
       return;
-    const fireHint = client.fireHints[hitReport.sessionProjectileCount];
     const targetClient = this.getClientByCharId(entity.characterId);
     if (!fireHint) {
       if (targetClient) {
@@ -3515,7 +3534,6 @@ export class ZoneServer2016 extends EventEmitter {
       }
       return;
     }
-    const weaponItem = fireHint.weaponItem;
     if (!weaponItem) return;
     if (fireHint.hitNumber > 0) {
       if (targetClient) {
@@ -4576,7 +4594,7 @@ export class ZoneServer2016 extends EventEmitter {
       // These lightWeight characters are only used like targets for the plane
       const lightWeight = {
         characterId: this._airdrop.planeTarget,
-        transientId: 0,
+        transientId: 1,
         actorModelId: ModelIds.WEAPON_EMPTY,
         position: this._airdrop.planeTargetPos,
         rotation: new Float32Array([0, 0, 0, 0]),
@@ -4612,7 +4630,7 @@ export class ZoneServer2016 extends EventEmitter {
       };*/
       const lightWeight3 = {
         characterId: this._airdrop.cargoTarget,
-        transientId: 0,
+        transientId: 2,
         actorModelId: ModelIds.WEAPON_EMPTY,
         position: this._airdrop.cargoTargetPos,
         rotation: new Float32Array([0, 0, 0, 0]),
@@ -6897,7 +6915,8 @@ export class ZoneServer2016 extends EventEmitter {
 
     if (
       _.size(this._clients) < this.worldObjectManager.minAirdropSurvivors &&
-      !this._soloMode
+      !this._soloMode &&
+      !client.isDebugMode
     ) {
       this.sendAlert(client, "No planes ready. Not enough survivors.");
       return;
@@ -7287,6 +7306,35 @@ export class ZoneServer2016 extends EventEmitter {
     }
   }
 
+  useDeerScent(client: Client, character: BaseFullCharacter, item: BaseItem) {
+    client.character.isDeerScented = true;
+    if (!this.removeInventoryItem(character, item)) return;
+    const hudIndicator: HudIndicator | undefined =
+      this._hudIndicators["DEER SCENT"];
+    if (!hudIndicator) return;
+    if (client.character.timeouts["DEER_SCENT"]) {
+      client.character.timeouts["DEER_SCENT"]._onTimeout();
+      clearTimeout(client.character.timeouts["DEER_SCENT"]);
+      delete client.character.timeouts["DEER_SCENT"];
+      if (client.character.hudIndicators[hudIndicator.typeName]) {
+        client.character.hudIndicators[hudIndicator.typeName].expirationTime +=
+          300000;
+      }
+    }
+    client.character.hudIndicators[hudIndicator.typeName] = {
+      typeName: hudIndicator.typeName,
+      expirationTime: Date.now() + 300000
+    };
+    this.sendHudIndicators(client);
+    client.character.timeouts["DEER_SCENT"] = setTimeout(() => {
+      if (!client.character.timeouts["DEER_SCENT"]) {
+        return;
+      }
+      client.character.isDeerScented = false;
+      delete client.character.timeouts["DEER_SCENT"];
+    }, 300000);
+  }
+
   sleep(client: Client) {
     client.character._resources[ResourceIds.ENDURANCE] = 8000;
     client.character._resources[ResourceIds.STAMINA] = 600;
@@ -7364,6 +7412,11 @@ export class ZoneServer2016 extends EventEmitter {
       case Items.IMMUNITY_BOOSTERS:
         this.utilizeHudTimer(client, nameId, timeout, animationId, () => {
           this.usePills(client, character, item);
+        });
+        return;
+      case Items.DEER_SCENT:
+        this.utilizeHudTimer(client, nameId, timeout, animationId, () => {
+          this.useDeerScent(client, character, item);
         });
         return;
       default:
@@ -7910,7 +7963,9 @@ export class ZoneServer2016 extends EventEmitter {
   createThrowableProjectile(
     client: Client,
     packet: any,
-    itemDefinition: ItemDefinition
+    itemDefinition: ItemDefinition,
+    createNpc: boolean,
+    overrideProjectileId?: boolean
   ) {
     const characterId = this.generateGuid();
     const transientId = this.getTransientId(characterId);
@@ -7922,10 +7977,14 @@ export class ZoneServer2016 extends EventEmitter {
       new Float32Array([0, 0, 0, 0]),
       this,
       itemDefinition.ID,
-      packet.packet.projectileUniqueId,
+      overrideProjectileId
+        ? packet.packet.sessionProjectileCount +
+          parseInt(client.character.characterId.slice(-5), 16)
+        : packet.packet.projectileUniqueId,
       client.character.characterId
     );
     this._throwableProjectiles[npc.characterId] = npc;
+    if (!createNpc) return;
     this.getClientsInRange(200, packet.packet.position).forEach((c: Client) => {
       this.addLightweightNpc(c, npc);
       c.spawnedEntities.add(npc);
@@ -8075,7 +8134,11 @@ export class ZoneServer2016 extends EventEmitter {
         rotation: client.character.state.yaw,
         hitNumber: hitNumber,
         weaponItem: weaponItem,
-        timeStamp: packet.gameTime
+        timeStamp: packet.gameTime,
+        projectileUniqueId:
+          packet.packet.sessionProjectileCount +
+          x +
+          parseInt(client.character.characterId.slice(-5), 16)
       };
       client.fireHints[packet.packet.sessionProjectileCount + x] = fireHint;
       setTimeout(() => {
@@ -8093,13 +8156,22 @@ export class ZoneServer2016 extends EventEmitter {
     );
 
     if (itemDefinition.ITEM_CLASS == ItemClasses.THROWABLES) {
-      this.createThrowableProjectile(client, packet, itemDefinition);
+      this.createThrowableProjectile(client, packet, itemDefinition, true);
       // Remove loadout item if there's no more grenades in the inventory, this check is only temporary until removeInventoryItems is fixed
       this.removeInventoryItem(client.character, weaponItem);
       /*(const nextItem = client.character.getItemById(weaponItem.itemDefinitionId)
         if (nextItem) {
             client.character.equipItem(this, nextItem);
         }*/
+      return;
+    } else if (itemDefinition.ID == Items.WEAPON_BOW_RECURVE) {
+      this.createThrowableProjectile(
+        client,
+        packet,
+        itemDefinition,
+        false,
+        true
+      );
       return;
     }
     this.damageItem(client.character, weaponItem, 5);
@@ -8149,29 +8221,43 @@ export class ZoneServer2016 extends EventEmitter {
       case WeaponDefinitionIds.WEAPON_BOW_MAKESHIFT:
       case WeaponDefinitionIds.WEAPON_BOW_RECURVE:
       case WeaponDefinitionIds.WEAPON_BOW_WOOD:
-        const currentWeapon = client.character.getEquippedWeapon();
-        if (!currentWeapon || currentWeapon.itemGuid != weaponItem.itemGuid) {
-          return;
-        }
-        const maxReloadAmount = maxAmmo - weaponItem.weapon.ammoCount, // how much ammo is needed for full clip
-          reserveAmmo = client.character.getInventoryItemAmount(weaponAmmoId), // how much ammo is in inventory
-          reloadAmount =
-            reserveAmmo >= maxReloadAmount ? maxReloadAmount : reserveAmmo; // actual amount able to reload
+        weaponItem.weapon.reloadTimer = setTimeout(() => {
+          const currentWeapon = client.character.getEquippedWeapon();
+          if (
+            !weaponItem.weapon ||
+            !currentWeapon ||
+            currentWeapon.itemGuid != weaponItem.itemGuid
+          ) {
+            client.character.clearReloadTimeout();
+            return;
+          }
+          if (!weaponItem.weapon?.reloadTimer) {
+            client.character.clearReloadTimeout();
+            return;
+          }
+          console.log(reloadTime);
+          const maxReloadAmount = maxAmmo - weaponItem.weapon.ammoCount, // how much ammo is needed for full clip
+            reserveAmmo = client.character.getInventoryItemAmount(weaponAmmoId), // how much ammo is in inventory
+            reloadAmount =
+              reserveAmmo >= maxReloadAmount ? maxReloadAmount : reserveAmmo; // actual amount able to reload
 
-        if (
-          !this.removeInventoryItems(
-            client.character,
-            weaponAmmoId,
-            reloadAmount
-          )
-        ) {
-          return;
-        }
-        this.sendWeaponReload(
-          client,
-          weaponItem,
-          (weaponItem.weapon.ammoCount += reloadAmount)
-        );
+          if (
+            !this.removeInventoryItems(
+              client.character,
+              weaponAmmoId,
+              reloadAmount
+            )
+          ) {
+            client.character.clearReloadTimeout();
+            return;
+          }
+          this.sendWeaponReload(
+            client,
+            weaponItem,
+            (weaponItem.weapon.ammoCount += reloadAmount)
+          );
+          client.character.clearReloadTimeout();
+        }, reloadTime);
         return;
     }
 

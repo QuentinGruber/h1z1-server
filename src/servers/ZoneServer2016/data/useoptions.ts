@@ -555,6 +555,12 @@ export const UseOptions: { [itemDefinitionIds: number]: ItemUseOption } = {
     timeout: 1000
   },
 
+  131: {
+    itemDef: Items.DEER_SCENT,
+    type: ItemUseOptions.USE,
+    timeout: 2000
+  },
+
   //----------Repair------------//
   125: {
     itemDef: Items.WEAPON_REPAIR_KIT,
