@@ -11,6 +11,7 @@
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
 
+import { Items, ModelIds } from "../models/enums";
 import { ZoneServer2016 } from "../zoneserver";
 import { BaseSimpleNpc } from "./basesimplenpc";
 
@@ -33,6 +34,14 @@ export class TemporaryEntity extends BaseSimpleNpc {
   setDespawnTimer(server: ZoneServer2016, time: number) {
     if (this.disappearTimer) this.disappearTimer.refresh();
     this.disappearTimer = setTimeout(() => {
+      if (this.actorModelId === ModelIds.CANTEEN) {
+        server.worldObjectManager.createLootEntity(
+          server,
+          server.generateItem(Items.MOONSHINE),
+          this.state.position,
+          this.state.rotation
+        );
+      }
       server.deleteEntity(this.characterId, server._temporaryObjects);
     }, time);
   }
