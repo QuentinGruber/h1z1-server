@@ -759,7 +759,7 @@ export class ConstructionManager {
         return this.placeTemporaryEntity(
           server,
           modelId,
-          position, 
+          position,
           eul2quat(rotation),
           43200000 // 12 hours
         );
