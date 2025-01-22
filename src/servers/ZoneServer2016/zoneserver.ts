@@ -7276,7 +7276,7 @@ export class ZoneServer2016 extends EventEmitter {
         break;
       case Items.SWIZZLE:
       case Items.ADRENALINE_SHOT:
-        useoption = "sniff";
+        useoption = "adrenaline";
         timeout = 3000;
         break;
       case Items.FERTILIZER:
@@ -7306,6 +7306,26 @@ export class ZoneServer2016 extends EventEmitter {
         break;
       case "sniff": // swizzle
         this.utilizeHudTimer(client, nameId, timeout, animationId, () => {
+          this.sniffPass(client, character, item);
+        });
+        break;
+      case "adrenaline": // swizzle
+        this.utilizeHudTimer(client, nameId, timeout, animationId, () => {
+          if (
+            client.character.hudIndicators[
+              this._hudIndicators["ADRENALINE"].typeName
+            ]
+          ) {
+            setTimeout(() => {
+              this.sendChatText(client, "You will died of an heart attack.");
+            }, 2000);
+            setTimeout(() => {
+              this.killCharacter(client, {
+                entity: client.character.characterId,
+                damage: 0xff
+              });
+            }, 5000);
+          }
           this.sniffPass(client, character, item);
         });
         break;
