@@ -63,15 +63,15 @@ function getCraftComponentsDataSource(
       }
     });
   });
-  const proximityItems = server.getProximityItems(client)?.items;
+  const proximityItems = server.getCraftingProximityItems(client)?.items;
   if (proximityItems) {
     proximityItems.forEach((item: any) => {
       if (inventory[item.itemDefinitionId]) {
-        inventory[item.itemDefinitionId].stackCount += 1;
+        inventory[item.itemDefinitionId].stackCount += item.itemData.count;
       } else {
         inventory[item.itemDefinitionId] = {
           ...item,
-          stackCount: 1
+          stackCount: item.itemData.count
         }; // push new itemstack
       }
     });

@@ -32,7 +32,15 @@ import {
   getCurrentServerTimeWrapper,
   isLootNerfedLoc
 } from "../../../utils/utils";
-import { EquipSlots, Items, Effects, ModelIds } from "../models/enums";
+import {
+  EquipSlots,
+  Items,
+  Effects,
+  ModelIds,
+  DefaultSkinsConveys,
+  DefaultSkinsBackpack,
+  DefaultSkinsMotorHelmet
+} from "../models/enums";
 import { Vehicle2016 } from "../entities/vehicle";
 import { LootDefinition } from "types/zoneserver";
 import { ItemObject } from "../entities/itemobject";
@@ -54,6 +62,26 @@ import { Npc } from "../entities/npc";
 //import { EntityType } from "h1emu-ai";
 import { scheduler } from "node:timers/promises";
 const debug = require("debug")("ZoneServer");
+
+export function getRandomSkin(itemDefinitionId: number) {
+  let itemDefId = 0;
+  let arr: any[] = [];
+  switch (itemDefinitionId) {
+    case Items.CONVEYS_BLUE:
+      arr = Object.keys(DefaultSkinsConveys);
+      break;
+    case Items.BACKPACK_BLUE_ORANGE:
+      arr = Object.keys(DefaultSkinsBackpack);
+      break;
+    case Items.HELMET_MOTORCYCLE:
+      arr = Object.keys(DefaultSkinsMotorHelmet);
+      break;
+    default:
+      return itemDefinitionId;
+  }
+  itemDefId = Number(arr[Math.floor((Math.random() * arr.length) / 2)]);
+  return itemDefId;
+}
 
 export function getRandomItem(items: Array<LootDefinition>) {
   const totalWeight = items.reduce((total, item) => total + item.weight, 0),
@@ -984,7 +1012,7 @@ export class WorldObjectManager {
               this.createLootEntity(
                 server,
                 server.generateItem(
-                  item.item,
+                  getRandomSkin(item.item),
                   randomIntFromInterval(
                     item.spawnCount.min,
                     item.spawnCount.max
@@ -1246,7 +1274,7 @@ export class WorldObjectManager {
               // temporary spawnchance
               server.addContainerItem(
                 prop,
-                server.generateItem(item.item, count),
+                server.generateItem(getRandomSkin(item.item), count),
                 container
               );
             }

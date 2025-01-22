@@ -21,6 +21,7 @@ import {
 import {
   Effects,
   Items,
+  LoadoutSlots,
   ModelIds,
   MovementModifiers,
   ResourceIds,
@@ -29,6 +30,7 @@ import {
 import { ZoneServer2016 } from "../zoneserver";
 import { BaseSimpleNpc } from "./basesimplenpc";
 import { BaseEntity } from "./baseentity";
+import { LoadoutItem } from "../classes/loadoutItem";
 
 export class TrapEntity extends BaseSimpleNpc {
   /** Damage delay for the TrapEntity */
@@ -94,10 +96,12 @@ export class TrapEntity extends BaseSimpleNpc {
               !client.vehicle.mountedVehicle &&
               !client.character.isSpectator
             ) {
+              const item: LoadoutItem | undefined =
+                client.character._loadout[LoadoutSlots.FEET];
               client.character.damage(server, {
                 entity: this.characterId,
                 causeBleed: true,
-                damage: 501
+                damage: server.isBoot(item.itemDefinitionId) ? 401 : 501
               });
               server.sendDataToAllWithSpawnedEntity(
                 server._traps,
