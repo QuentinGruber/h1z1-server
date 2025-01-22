@@ -3051,8 +3051,7 @@ export class ZonePacketHandlers {
         break;
       case "Weapon.ProjectileHitReport":
         const weapon = client.character.getEquippedWeapon();
-        if (!weapon) return;
-        if (weapon.itemDefinitionId == Items.WEAPON_REMOVER) {
+        if (weapon && weapon.itemDefinitionId == Items.WEAPON_REMOVER) {
           if (!client.isAdmin) return;
           const characterId = packet.packet.hitReport.characterId,
             entity = server.getEntity(characterId);

@@ -74,6 +74,7 @@ import { ConstructionChildEntity } from "./constructionchildentity";
 import { ConstructionParentEntity } from "./constructionparententity";
 import { ExplosiveEntity } from "./explosiveentity";
 import { BaseEntity } from "./baseentity";
+import { ProjectileEntity } from "./projectileentity";
 const stats = require("../../../../data/2016/sampleData/stats.json");
 
 interface CharacterStates {
@@ -1868,14 +1869,25 @@ export class Character2016 extends BaseFullCharacter {
   }
 
   OnExplosiveHit(server: ZoneServer2016, sourceEntity: BaseEntity) {
-    const sourceIsExplosiveEntity = sourceEntity instanceof ExplosiveEntity;
+    let damage = 10000;
+    switch (true) {
+      case sourceEntity instanceof ExplosiveEntity:
+        damage = 50000;
+        break;
+      case sourceEntity instanceof ProjectileEntity:
+        damage = sourceEntity.actorModelId == 0 ? 8000 : 10000;
+        break;
+      default:
+        damage = 10000;
+        break;
+    }
 
     const distance = getDistance(
-        sourceEntity.state.position,
-        this.state.position
-      ),
-      damage = (sourceIsExplosiveEntity ? 50000 : 20000) / distance;
-
+      sourceEntity.state.position,
+      this.state.position
+    );
+    if (distance > 1) damage /= distance;
+    console.log(damage);
     this.damage(server, {
       entity: sourceEntity.characterId,
       damage: damage
