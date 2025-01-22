@@ -2430,7 +2430,7 @@ export enum DefaultSkinsConveys {
 }
 
 export enum DefaultSkinsBackpack {
-  ORANGE_BACKPACK = 1355,
+  ORANGE_BACKPACK = 2116,
   BLUE_AND_GRAY_PACKPACK = 2114,
   BLUE_BACKPACK = 2113,
   GREEN_BACKPACK = 2115,
