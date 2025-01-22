@@ -28,6 +28,7 @@ import {
   packPositionUpdateData,
   packUnsignedIntWith2bitLengthValue,
   readPositionUpdateData,
+  readPositionUpdateDataAndCheckLength,
   readUnsignedIntWith2bitLengthValue,
   recipeData,
   packItemWeaponData,
@@ -2958,7 +2959,7 @@ export const basePackets: PacketStructures = [
         {
           name: "positionUpdate",
           type: "custom",
-          parser: readPositionUpdateData,
+          parser: readPositionUpdateDataAndCheckLength,
           packer: packPositionUpdateData,
           defaultValue: 1
         }
