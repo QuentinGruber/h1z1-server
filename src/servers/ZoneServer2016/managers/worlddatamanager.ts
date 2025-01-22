@@ -547,7 +547,7 @@ export class WorldDataManager {
       lastDropPlayTime: character.lastDropPlaytime,
       spawnGridData: character.spawnGridData,
       mutedCharacters: character.mutedCharacters,
-      groupId: character.groupId
+      groupId: character.groupId,
       metrics: character.metrics
     };
     return saveData;
