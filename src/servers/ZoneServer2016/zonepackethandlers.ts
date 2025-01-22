@@ -1170,6 +1170,7 @@ export class ZonePacketHandlers {
 
     const positionUpdate = packetData.positionUpdate as any;
     const flags = positionUpdate.flags;
+    if (!flags) return;
 
     // throwable projectiles management
 
@@ -1564,6 +1565,7 @@ export class ZonePacketHandlers {
 
       // Update character stance
       client.character.stance = stance;
+      client.character.positionUpdate.stance = stance;
     }
     // Handle position flag (0x02)
     if (packet.data.position) {
@@ -3049,8 +3051,7 @@ export class ZonePacketHandlers {
         break;
       case "Weapon.ProjectileHitReport":
         const weapon = client.character.getEquippedWeapon();
-        if (!weapon) return;
-        if (weapon.itemDefinitionId == Items.WEAPON_REMOVER) {
+        if (weapon && weapon.itemDefinitionId == Items.WEAPON_REMOVER) {
           if (!client.isAdmin) return;
           const characterId = packet.packet.hitReport.characterId,
             entity = server.getEntity(characterId);

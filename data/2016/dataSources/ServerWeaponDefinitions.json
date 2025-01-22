@@ -1894,19 +1894,17 @@
           }
         ],
         "FIRE_GROUPS": [
-          {
-            "FIRE_GROUP_ID": 37
-          },
-          {
-            "FIRE_GROUP_ID": 60
-          },
-          {
-            "FIRE_GROUP_ID": 61
-          },
-          {
-            "FIRE_GROUP_ID": 173
-          }
-        ]
+		  {
+			"FIRE_GROUP_ID": 61
+		  }
+		],
+		"_comment": [
+		  "original fire groups",
+		  { "FIRE_GROUP_ID": 37 },
+		  { "FIRE_GROUP_ID": 60 },
+		  { "FIRE_GROUP_ID": 61 },
+		  { "FIRE_GROUP_ID": 173 }
+		]
       }
     },
     "1400": {

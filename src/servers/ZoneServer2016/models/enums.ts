@@ -293,6 +293,7 @@ export enum StringIds {
   SEARCH = 1191,
   SEARCH_ALL_CABINETS = 9242,
   OPEN_AND_LOCK = 8944,
+  ENTER_ACCESS_CODE = 8943,
   REST = 9041,
   RESTING = 9051,
   NOT_TIRED = 12159,
@@ -304,6 +305,7 @@ export enum StringIds {
   PICKUP_TRUCK = 12537,
   POLICE_CAR = 12538,
   PERMISSIONS_TARGET = 12982,
+  CLAIM_TARGET = 11940,
   EXTRACT_BLOOD = 1453,
   HARVEST = 1009,
   LONG_RANGE_RADIO = 12809,
@@ -347,7 +349,8 @@ export enum MovementModifiers {
   SWIZZLE = 1.1,
   SNARED = 0.5,
   CONVEYS = 1.15,
-  BOOTS = 1.07
+  BOOTS = 1.07,
+  ADRENALINE = 1.12
 }
 
 export enum ContainerErrors {
@@ -514,7 +517,9 @@ export enum ResourceIndicators {
   COMFORT_PLUSPLUS = "COMFORT ++",
   FOOD_POISONING = "FOOD POISONING",
   BEES = "BEES!",
-  COFFEE_SUGAR = "COFFEE_SUGAR"
+  COFFEE_SUGAR = "COFFEE_SUGAR",
+  ADRENALINE = "ADRENALINE",
+  ADRENALINE_AFTER_EFFECTS = "ADRENALINE AFTER EFFECTS"
 }
 
 export enum Abilities {
@@ -2416,4 +2421,26 @@ export enum MeleeTypes {
   BLADE = 3,
   KNIFE = 4,
   GUITAR = 5
+}
+
+export enum DefaultSkinsConveys {
+  RED_CONVEYS = 2216,
+  WHITE_CONVEYS = 2218,
+  DEFAULT_BLUE_CONVEYS = 2217
+}
+
+export enum DefaultSkinsBackpack {
+  ORANGE_BACKPACK = 1355,
+  BLUE_AND_GRAY_PACKPACK = 2114,
+  BLUE_BACKPACK = 2113,
+  GREEN_BACKPACK = 2115,
+  RED_BACKPACK = 2117,
+  DEFAULT_BLUE_ORANGE = 2038
+}
+
+export enum DefaultSkinsMotorHelmet {
+  // BLACK_MOTORCYCLE_HELMET = 2168 - skin is light blue
+  GRAY_MOTOR_HELMET = 2169,
+  WHITE_MOTOR_HELMET = 2171,
+  DEFAULT_RED_MOTOR_HELMET = 2170
 }
