@@ -261,7 +261,7 @@ export class ConstructionDoor extends DoorEntity {
       );
       return;
     }
-  
+
     if (isInstant) {
       if (
         this.passwordHash == 0 ||
@@ -271,7 +271,7 @@ export class ConstructionDoor extends DoorEntity {
           server,
           client.character.characterId,
           ConstructionPermissionIds.CONTAINERS // Container permissions player is able to open constructiondoors
-        ) || 
+        ) ||
         (client.isAdmin && client.isDebugMode) // debug mode open all doors/gates
       ) {
         if (this.moving) {
