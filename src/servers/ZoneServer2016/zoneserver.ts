@@ -5260,14 +5260,15 @@ export class ZoneServer2016 extends EventEmitter {
 
     // Workaround for fifth player vehicle bug. Ensure the camera position updates correctly while maintaining normal client functionality. TODO: Fix this properly (GitHub issue #2304)
     if (seatId == 4) {
-      this.sendData<MountSeatChangeResponse>(client, 
+      this.sendData<MountSeatChangeResponse>(
+        client,
         "Mount.SeatChangeResponse",
         {
-            characterId: client.character.characterId,
-            vehicleGuid: vehicle.characterId,
-            identity: {},
-            seatId: seatId,
-            unknownDword2: 0 // if set to 1 the selected character will have drive access
+          characterId: client.character.characterId,
+          vehicleGuid: vehicle.characterId,
+          identity: {},
+          seatId: seatId,
+          unknownDword2: 0 // if set to 1 the selected character will have drive access
         }
       );
     }
