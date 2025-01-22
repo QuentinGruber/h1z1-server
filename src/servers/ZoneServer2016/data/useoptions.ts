@@ -14,89 +14,105 @@ export const UseOptions: { [itemDefinitionIds: number]: ItemUseOption } = {
     itemDef: Items.CANNED_FOOD01,
     type: ItemUseOptions.EAT,
     timeout: 4000,
-    eatCount: 4000,
+    eatCount: 2500,
+    drinkCount: 200,
+    comfortCount: 1500,
     givetrash: 48
   },
   100: {
     itemDef: Items.CANNED_FOOD02,
     type: ItemUseOptions.EAT,
     timeout: 4000,
-    eatCount: 4000,
+    eatCount: 3000,
+    comfortCount: 1500,
     givetrash: 48
   },
   101: {
     itemDef: Items.CANNED_FOOD03,
     type: ItemUseOptions.EAT,
     timeout: 4000,
-    eatCount: 4000,
+    eatCount: 3000,
+    drinkCount: 500,
+    comfortCount: 1500,
     givetrash: 48
   },
   102: {
     itemDef: Items.CANNED_FOOD04,
     type: ItemUseOptions.EAT,
     timeout: 4000,
-    eatCount: 4000,
+    eatCount: 3000,
+    comfortCount: 1500,
     givetrash: 48
   },
   103: {
     itemDef: Items.CANNED_FOOD05,
     type: ItemUseOptions.EAT,
     timeout: 4000,
-    eatCount: 4000,
+    eatCount: 3000,
+    drinkCount: 500,
+    comfortCount: 1500,
     givetrash: 48
   },
   104: {
     itemDef: Items.CANNED_FOOD06,
     type: ItemUseOptions.EAT,
     timeout: 4000,
-    eatCount: 4000,
+    eatCount: 3000,
+    drinkCount: 500,
+    comfortCount: 1500,
     givetrash: 48
   },
   105: {
     itemDef: Items.CANNED_FOOD07,
     type: ItemUseOptions.EAT,
     timeout: 4000,
-    eatCount: 4000,
+    eatCount: 3000,
+    drinkCount: 500,
+    comfortCount: 1500,
     givetrash: 48
   },
   106: {
     itemDef: Items.CANNED_FOOD08,
     type: ItemUseOptions.EAT,
     timeout: 4000,
-    eatCount: 4000,
-    comfortCount: 250,
+    eatCount: 3000,
+    drinkCount: 500,
+    comfortCount: 1500,
     givetrash: 48
   },
   107: {
     itemDef: Items.CANNED_FOOD09,
     type: ItemUseOptions.EAT,
     timeout: 4000,
-    eatCount: 4000,
-    comfortCount: 250,
+    eatCount: 3000,
+    drinkCount: 500,
+    comfortCount: 1500,
     givetrash: 48
   },
   108: {
     itemDef: Items.CANNED_FOOD10,
     type: ItemUseOptions.EAT,
     timeout: 4000,
-    eatCount: 4000,
-    comfortCount: 250,
+    eatCount: 3000,
+    comfortCount: 1500,
     givetrash: 48
   },
   109: {
     itemDef: Items.CANNED_FOOD11,
     type: ItemUseOptions.EAT,
     timeout: 4000,
-    eatCount: 4000,
-    comfortCount: 250,
+    eatCount: 3000,
+    drinkCount: 500,
+    comfortCount: 1500,
     givetrash: 48
   },
   121: {
     itemDef: Items.CANNED_FOOD21,
     type: ItemUseOptions.EAT,
     timeout: 4000,
-    eatCount: 4000,
-    comfortCount: 250,
+    eatCount: 3000,
+    drinkCount: 500,
+    comfortCount: 1500,
     givetrash: 48
   },
   123: {
@@ -104,120 +120,95 @@ export const UseOptions: { [itemDefinitionIds: number]: ItemUseOption } = {
     type: ItemUseOptions.EAT,
     timeout: 4000,
     eatCount: 4000,
-    comfortCount: 250,
+    comfortCount: 1500,
     givetrash: 48
   },
   124: {
     itemDef: Items.CANNED_FOOD26,
     type: ItemUseOptions.EAT,
     timeout: 4000,
-    eatCount: 4000,
-    comfortCount: 250,
+    eatCount: 1400,
+    drinkCount: -500,
+    comfortCount: 1500,
     givetrash: 48
   },
   3: {
     itemDef: Items.MRE_APPLE,
     type: ItemUseOptions.EAT,
     timeout: 2000,
-    eatCount: 6000,
-    drinkCount: 6000,
-    comfortCount: 250
+    eatCount: 3000
   },
   110: {
     itemDef: Items.MRE01,
     type: ItemUseOptions.EAT,
     timeout: 2000,
-    eatCount: 4000,
-    drinkCount: 6000,
-    comfortCount: 250
+    eatCount: 4000
   },
   111: {
     itemDef: Items.MRE02,
     type: ItemUseOptions.EAT,
     timeout: 2000,
-    eatCount: 4000,
-    drinkCount: 6000,
-    comfortCount: 250
+    eatCount: 4000
   },
   112: {
     itemDef: Items.MRE03,
     type: ItemUseOptions.EAT,
     timeout: 2000,
-    eatCount: 4000,
-    drinkCount: 6000,
-    comfortCount: 250
+    eatCount: 4000
   },
   113: {
     itemDef: Items.MRE04,
     type: ItemUseOptions.EAT,
     timeout: 2000,
-    eatCount: 4000,
-    drinkCount: 6000,
-    comfortCount: 250
+    eatCount: 4000
   },
   114: {
     itemDef: Items.MRE05,
     type: ItemUseOptions.EAT,
     timeout: 2000,
-    eatCount: 4000,
-    drinkCount: 6000,
-    comfortCount: 250
+    eatCount: 4000
   },
   116: {
     itemDef: Items.MRE06,
     type: ItemUseOptions.EAT,
     timeout: 2000,
-    eatCount: 4000,
-    drinkCount: 6000,
-    comfortCount: 250
+    eatCount: 4000
   },
   117: {
     itemDef: Items.MRE07,
     type: ItemUseOptions.EAT,
     timeout: 2000,
-    eatCount: 4000,
-    drinkCount: 6000,
-    comfortCount: 250
+    eatCount: 4000
   },
   118: {
     itemDef: Items.MRE08,
     type: ItemUseOptions.EAT,
     timeout: 2000,
-    eatCount: 4000,
-    drinkCount: 6000,
-    comfortCount: 250
+    eatCount: 4000
   },
   119: {
     itemDef: Items.MRE09,
     type: ItemUseOptions.EAT,
     timeout: 2000,
-    eatCount: 4000,
-    drinkCount: 6000,
-    comfortCount: 250
+    eatCount: 4000
   },
   120: {
     itemDef: Items.MRE10,
     type: ItemUseOptions.EAT,
     timeout: 2000,
-    eatCount: 4000,
-    drinkCount: 6000,
-    comfortCount: 250
+    eatCount: 4000
   },
   115: {
     itemDef: Items.MRE11,
     type: ItemUseOptions.EAT,
     timeout: 2000,
-    eatCount: 4000,
-    drinkCount: 6000,
-    comfortCount: 250
+    eatCount: 4000
   },
   122: {
     itemDef: Items.MRE12,
     type: ItemUseOptions.EAT,
     timeout: 2000,
-    eatCount: 4000,
-    drinkCount: 6000,
-    comfortCount: 250
+    eatCount: 4000
   },
   4: {
     itemDef: Items.MEAT_ROTTEN,
@@ -229,25 +220,25 @@ export const UseOptions: { [itemDefinitionIds: number]: ItemUseOption } = {
     itemDef: Items.MEAT_BEAR,
     type: ItemUseOptions.EAT,
     timeout: 2000,
-    eatCount: 2000
+    eatCount: 2500
   },
   20: {
     itemDef: Items.MEAT_RABBIT,
     type: ItemUseOptions.EAT,
     timeout: 2000,
-    eatCount: 2000
+    eatCount: 2500
   },
   21: {
     itemDef: Items.MEAT_VENISON,
     type: ItemUseOptions.EAT,
     timeout: 2000,
-    eatCount: 2000
+    eatCount: 2500
   },
   22: {
     itemDef: Items.MEAT_WOLF,
     type: ItemUseOptions.EAT,
     timeout: 2000,
-    eatCount: 2000
+    eatCount: 2500
   },
   23: {
     itemDef: Items.STEAK_BEAR,
@@ -296,28 +287,28 @@ export const UseOptions: { [itemDefinitionIds: number]: ItemUseOption } = {
     type: ItemUseOptions.EAT,
     timeout: 2000,
     eatCount: 10000,
-    comfortCount: 1500
+    comfortCount: 6000
   },
   30: {
     itemDef: Items.SANDWICH_DEER,
     type: ItemUseOptions.EAT,
     timeout: 2000,
     eatCount: 10000,
-    comfortCount: 1500
+    comfortCount: 6000
   },
   31: {
     itemDef: Items.SANDWICH_RABBIT,
     type: ItemUseOptions.EAT,
     timeout: 2000,
     eatCount: 10000,
-    comfortCount: 1500
+    comfortCount: 6000
   },
   32: {
     itemDef: Items.SANDWICH_WOLF,
     type: ItemUseOptions.EAT,
     timeout: 2000,
     eatCount: 10000,
-    comfortCount: 1500
+    comfortCount: 6000
   },
   36: {
     itemDef: Items.BLACKBERRY_HANDFUL,
@@ -331,48 +322,45 @@ export const UseOptions: { [itemDefinitionIds: number]: ItemUseOption } = {
     type: ItemUseOptions.EAT,
     timeout: 2000,
     eatCount: 10000,
-    drinkCount: 4000,
-    comfortCount: 1500
+    drinkCount: 2000,
+    comfortCount: 6000
   },
   39: {
     itemDef: Items.CORN_ROASTED,
     type: ItemUseOptions.EAT,
     timeout: 2000,
-    eatCount: 4000,
-    comfortCount: 500
+    eatCount: 3000,
+    drinkCount: 1000,
+    comfortCount: 3000
   },
   40: {
     itemDef: Items.HONEY,
     type: ItemUseOptions.EAT,
     timeout: 2000,
-    eatCount: 3000,
-    drinkCount: 4000,
-    staminaCount: 200,
+    eatCount: 4000,
     givetrash: Items.WATER_EMPTY
   },
   49: {
     itemDef: Items.HONEYCOMB,
     type: ItemUseOptions.EAT,
     timeout: 2000,
-    eatCount: 4000,
-    drinkCount: 3000,
-    staminaCount: 300
+    eatCount: 3000
   },
   46: {
     itemDef: Items.SURVIVAL_BORSCHT,
     type: ItemUseOptions.EAT,
     timeout: 1000,
-    eatCount: 2000,
-    drinkCount: 6000,
-    comfortCount: 500
+    eatCount: 6000,
+    drinkCount: 5000,
+    comfortCount: 3000
   },
   48: {
     itemDef: Items.BLACKBERRY_PIE_SLICE,
     type: ItemUseOptions.EAT,
     timeout: 2000,
-    eatCount: 2500,
-    drinkCount: 1000,
-    comfortCount: 250
+    eatCount: 2000,
+    drinkCount: 500,
+    comfortCount: 1500
   },
 
   //----------Use Medical-------------//
@@ -465,35 +453,33 @@ export const UseOptions: { [itemDefinitionIds: number]: ItemUseOption } = {
     type: ItemUseOptions.DRINK,
     timeout: 2000,
     drinkCount: 4000,
-    comfortCount: 250,
+    comfortCount: 1500,
     givetrash: Items.WATER_EMPTY
   },
   33: {
     itemDef: Items.BLACKBERRY_JUICE,
     type: ItemUseOptions.DRINK,
     timeout: 2000,
-    eatCount: 2000,
-    drinkCount: 6000,
+    eatCount: 1200,
+    drinkCount: 5200,
     givetrash: Items.WATER_EMPTY
   },
   34: {
     itemDef: Items.COFFEE,
     type: ItemUseOptions.DRINK,
     timeout: 2000,
-    drinkCount: 4000,
+    drinkCount: 6000,
     staminaCount: 300,
     enduranceCount: 2000,
-    comfortCount: 500,
+    comfortCount: 3000,
     givetrash: Items.WATER_EMPTY
   },
   35: {
     itemDef: Items.COFFEE_SUGAR,
     type: ItemUseOptions.DRINK,
     timeout: 2000,
-    drinkCount: 4000,
-    staminaCount: 400,
-    enduranceCount: 4000,
-    comfortCount: 500,
+    drinkCount: 7000,
+    comfortCount: 3000,
     givetrash: Items.WATER_EMPTY
   },
 
@@ -502,8 +488,8 @@ export const UseOptions: { [itemDefinitionIds: number]: ItemUseOption } = {
     type: ItemUseOptions.DRINK,
     timeout: 2000,
     eatCount: 5000,
-    drinkCount: 5000,
-    comfortCount: 1500,
+    drinkCount: 4000,
+    comfortCount: 6000,
     givetrash: Items.WATER_EMPTY
   },
   41: {
@@ -567,6 +553,17 @@ export const UseOptions: { [itemDefinitionIds: number]: ItemUseOption } = {
     itemDef: Items.VITAMINS,
     type: ItemUseOptions.USE,
     timeout: 1000
+  },
+
+  130: {
+    itemDef: Items.ADRENALINE_SHOT,
+    type: ItemUseOptions.USE,
+    timeout: 3000
+  },
+  131: {
+    itemDef: Items.DEER_SCENT,
+    type: ItemUseOptions.USE,
+    timeout: 2000
   },
 
   //----------Repair------------//

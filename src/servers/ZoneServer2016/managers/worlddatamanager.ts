@@ -59,7 +59,7 @@ import { Plant } from "../entities/plant";
 import { DB_COLLECTIONS } from "../../../utils/enums";
 import { DB_NAME } from "../../../utils/constants";
 import { Character2016 } from "../entities/character";
-import { Items } from "../models/enums";
+import { Items, VehicleIds } from "../models/enums";
 import { Vehicle2016 } from "../entities/vehicle";
 import { TrapEntity } from "../entities/trapentity";
 import { ExplosiveEntity } from "../entities/explosiveentity";
@@ -262,7 +262,14 @@ export class WorldDataManager {
 
   async saveWorld(world: WorldArg) {
     console.time("WDM: saveWorld");
-    await this.saveVehicles(world.vehicles);
+    await this.saveVehicles(
+      world.vehicles.filter(
+        (vehicle) =>
+          ![VehicleIds.SPECTATE, VehicleIds.PARACHUTE].includes(
+            vehicle.vehicleId
+          )
+      )
+    );
     await this.saveServerData(world.lastGuidItem);
     await this.saveCharacters(world.characters);
     await this.saveConstructionData(world.constructions);
@@ -476,6 +483,7 @@ export class WorldDataManager {
         _resources: loadedCharacter._resources || {},
         mutedCharacters: loadedCharacter.mutedCharacters || [],
         groupId: 0, //loadedCharacter.groupId || 0,
+        metrics: loadedCharacter.metrics || {},
         playTime: loadedCharacter.playTime ?? 0,
         lastDropPlayTime: loadedCharacter.lastDropPlayTime ?? 0,
         status: 1,
@@ -539,7 +547,8 @@ export class WorldDataManager {
       lastDropPlayTime: character.lastDropPlaytime,
       spawnGridData: character.spawnGridData,
       mutedCharacters: character.mutedCharacters,
-      groupId: 0 //character.groupId
+      groupId: 0, //character.groupId
+      metrics: character.metrics
     };
     return saveData;
   }
@@ -1039,18 +1048,20 @@ export class WorldDataManager {
         JSON.stringify(constructions, null, 2)
       );
     } else {
-      const collection = this._db?.collection(
-        DB_COLLECTIONS.CONSTRUCTION
-      ) as Collection;
-      const collectionBackup = this._db?.collection(
-        DB_COLLECTIONS.CONSTRUCTION_BACKUP
-      ) as Collection;
-      await collectionBackup.deleteMany({ serverId: this._worldId });
-      await collectionBackup.insertMany(structuredClone(constructions));
-      await collection.deleteMany({
-        serverId: this._worldId
-      });
-      await collection.insertMany(constructions);
+      if (constructions.length) {
+        const collection = this._db?.collection(
+          DB_COLLECTIONS.CONSTRUCTION
+        ) as Collection;
+        const collectionBackup = this._db?.collection(
+          DB_COLLECTIONS.CONSTRUCTION_BACKUP
+        ) as Collection;
+        await collectionBackup.deleteMany({ serverId: this._worldId });
+        await collectionBackup.insertMany(structuredClone(constructions));
+        await collection.deleteMany({
+          serverId: this._worldId
+        });
+        await collection.insertMany(constructions);
+      }
     }
   }
 

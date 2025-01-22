@@ -46,7 +46,7 @@ const weaponPackets: PacketStructures = [
         { name: "position", type: "floatvector3", defaultValue: [0, 0, 0] },
         { name: "weaponProjectileCount", type: "uint32", defaultValue: 0 },
         { name: "sessionProjectileCount", type: "uint32", defaultValue: 0 },
-        { name: "unknownDword3", type: "uint32", defaultValue: 0 }
+        { name: "projectileUniqueId", type: "uint32", defaultValue: 0 }
       ]
     }
   ],
@@ -148,7 +148,24 @@ const weaponPackets: PacketStructures = [
   ["Weapon.ChamberRound", 0x8316, {}],
   ["Weapon.GuidedSetNonSeeking", 0x8317, {}],
   ["Weapon.ChamberInterrupt", 0x8318, {}],
-  ["Weapon.GuidedExplode", 0x8319, {}],
+  [
+    "Weapon.GuidedExplode",
+    0x8319,
+    {
+      fields: [
+        { name: "unknwonDword1", type: "uint32", defaultValue: 0 },
+        { name: "sessionProjectileId", type: "uint32", defaultValue: 0 },
+        {
+          name: "transientId",
+          type: "custom",
+          parser: readUnsignedIntWith2bitLengthValue,
+          packer: packUnsignedIntWith2bitLengthValue
+        },
+        { name: "position", type: "floatvector3", defaultValue: [0, 0, 0, 0] },
+        { name: "rotation", type: "floatvector3", defaultValue: [0, 0, 0, 0] }
+      ]
+    }
+  ],
   [
     "Weapon.DestroyNpcProjectile",
     0x831a,
@@ -156,7 +173,7 @@ const weaponPackets: PacketStructures = [
       fields: [
         { name: "unknownDword1", type: "uint32", defaultValue: 0 },
         { name: "unknownDword2", type: "uint32", defaultValue: 0 },
-        { name: "unknownDword3", type: "uint32", defaultValue: 0 },
+        { name: "sessionProjectileId", type: "uint32", defaultValue: 0 },
         { name: "position", type: "floatvector4", defaultValue: [0, 0, 0, 0] }
       ]
     }

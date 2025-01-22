@@ -12,6 +12,7 @@
 // ======================================================================
 
 import {
+  AudioSetSwitch,
   EquipmentSetCharacterEquipment,
   EquipmentSetCharacterEquipmentSlot,
   LightweightToFullNpc
@@ -185,11 +186,6 @@ export abstract class BaseFullCharacter extends BaseLightweightCharacter {
 
   /* eslint-disable @typescript-eslint/no-unused-vars */
   updateLoadout(server: ZoneServer2016) {
-    const client = server.getClientByContainerAccessor(this);
-    if (client) {
-      if (!client.character.initialized) return;
-      server.checkShoes(client);
-    }
     server.sendDataToAllWithSpawnedEntity(
       server._characters,
       this.characterId,
@@ -204,6 +200,15 @@ export abstract class BaseFullCharacter extends BaseLightweightCharacter {
       this.characterId,
       "Equipment.SetCharacterEquipment",
       this.pGetEquipment()
+    );
+  }
+
+  updateFootwearAudio(server: ZoneServer2016) {
+    server.sendDataToAllWithSpawnedEntity(
+      server._characters,
+      this.characterId,
+      "Audio.SetSwitch",
+      this.pGetFootwearAudio(server)
     );
   }
 
@@ -365,6 +370,9 @@ export abstract class BaseFullCharacter extends BaseLightweightCharacter {
     }
     this.updateLoadout(server);
     if (equipmentSlotId) this.updateEquipmentSlot(server, equipmentSlotId);
+    if (client && server.isFootwear(item.itemDefinitionId)) {
+      server.updateFootwear(client, item.itemDefinitionId, false);
+    }
   }
 
   generateEquipmentFromLoadout(server: ZoneServer2016) {
@@ -880,6 +888,22 @@ export abstract class BaseFullCharacter extends BaseLightweightCharacter {
     };
   }
 
+  pGetFootwearAudio(server: ZoneServer2016): AudioSetSwitch {
+    const item: LoadoutItem | undefined = this._loadout[LoadoutSlots.FEET];
+    let footwearStatus = "Barefoot";
+    if (item && server.isConvey(item.itemDefinitionId)) {
+      footwearStatus = "Sneaker";
+    } else if (item && server.isBoot(item.itemDefinitionId)) {
+      footwearStatus = "Boot";
+    }
+
+    return {
+      characterId: this.characterId,
+      unknownString1: "ShoeType",
+      unknownString2: footwearStatus
+    };
+  }
+
   pGetLoadoutSlot(slotId: number) {
     const slot = this._loadout[slotId];
     return {
@@ -937,12 +961,6 @@ export abstract class BaseFullCharacter extends BaseLightweightCharacter {
         ) {
           // secondary
           slot = LoadoutSlots.TERTIARY;
-        }
-        if (
-          ![Items.GRENADE_SMOKE].includes(itemDefId) &&
-          itemDef?.ITEM_CLASS == ItemClasses.THROWABLES
-        ) {
-          slot = 0;
         }
         break;
       case ItemClasses.WEAPONS_GENERIC: // item1/item2 slots
@@ -1087,24 +1105,6 @@ export abstract class BaseFullCharacter extends BaseLightweightCharacter {
   }
 
   pGetItemData(server: ZoneServer2016, item: BaseItem, containerDefId: number) {
-    let durability: number = 0;
-    switch (true) {
-      case server.isWeapon(item.itemDefinitionId):
-        durability = 2000;
-        break;
-      case server.isArmor(item.itemDefinitionId):
-        durability = 1000;
-        break;
-      case server.isHelmet(item.itemDefinitionId):
-        durability = 100;
-        break;
-      case server.isConvey(item.itemDefinitionId):
-        durability = 5400;
-        break;
-      case server.isGeneric(item.itemDefinitionId):
-        durability = 2000;
-        break;
-    }
     return {
       itemDefinitionId: item.itemDefinitionId,
       tintId: 0,
@@ -1116,9 +1116,11 @@ export abstract class BaseFullCharacter extends BaseLightweightCharacter {
       containerGuid: item.containerGuid,
       containerDefinitionId: containerDefId,
       containerSlotId: item.slotId,
-      baseDurability: durability,
-      currentDurability: durability ? item.currentDurability : 0,
-      maxDurabilityFromDefinition: durability,
+      baseDurability: server.getItemBaseDurability(item.itemDefinitionId),
+      currentDurability: item.currentDurability,
+      maxDurabilityFromDefinition: server.getItemBaseDurability(
+        item.itemDefinitionId
+      ),
       unknownBoolean1: true,
       ownerCharacterId: EXTERNAL_CONTAINER_GUID,
       unknownDword9: 1,
