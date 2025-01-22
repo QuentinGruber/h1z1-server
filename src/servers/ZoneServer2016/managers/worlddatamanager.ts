@@ -483,6 +483,7 @@ export class WorldDataManager {
         _resources: loadedCharacter._resources || {},
         mutedCharacters: loadedCharacter.mutedCharacters || [],
         groupId: 0, //loadedCharacter.groupId || 0,
+        metrics: loadedCharacter.metrics || {},
         playTime: loadedCharacter.playTime ?? 0,
         lastDropPlayTime: loadedCharacter.lastDropPlayTime ?? 0,
         status: 1,
@@ -546,7 +547,8 @@ export class WorldDataManager {
       lastDropPlayTime: character.lastDropPlaytime,
       spawnGridData: character.spawnGridData,
       mutedCharacters: character.mutedCharacters,
-      groupId: 0 //character.groupId
+      groupId: 0, //character.groupId
+      metrics: character.metrics
     };
     return saveData;
   }
