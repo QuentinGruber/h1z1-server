@@ -560,6 +560,11 @@ export const UseOptions: { [itemDefinitionIds: number]: ItemUseOption } = {
     type: ItemUseOptions.USE,
     timeout: 3000
   },
+  131: {
+    itemDef: Items.DEER_SCENT,
+    type: ItemUseOptions.USE,
+    timeout: 2000
+  },
 
   //----------Repair------------//
   125: {

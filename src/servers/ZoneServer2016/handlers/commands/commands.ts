@@ -2944,6 +2944,43 @@ export const commands: Array<Command> = [
     }
   },
   {
+    name: "unclaimbases",
+    permissionLevel: PermissionLevels.MODERATOR,
+    execute: async (
+      server: ZoneServer2016,
+      client: Client,
+      args: Array<string>
+    ) => {
+      if (!args[0]) {
+        server.sendChatText(
+          client,
+          `"[ERROR] Usage /unclaimbases {name / clientId}"`
+        );
+        return;
+      }
+      const targetClient = server.getClientByNameOrLoginSession(
+        args[0].toString()
+      );
+      if (server.playerNotFound(client, args[0].toString(), targetClient)) {
+        return;
+      }
+      if (!targetClient || !(targetClient instanceof Client)) {
+        server.sendChatText(client, "Client not found.");
+        return;
+      }
+
+      for (const a in server._constructionFoundations) {
+        const foundation = server._constructionFoundations[a];
+        if (
+          foundation.ownerCharacterId === targetClient.character.characterId
+        ) {
+          foundation.ownerCharacterId = "";
+          continue;
+        }
+      }
+    }
+  },
+  {
     name: "getinventory",
     permissionLevel: PermissionLevels.MODERATOR,
     execute: async (

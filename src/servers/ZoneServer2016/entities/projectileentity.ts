@@ -100,6 +100,9 @@ export class ProjectileEntity extends BaseLightweightCharacter {
       case Items.WEAPON_MOLOTOV:
         this.actorModelId = 9440;
         triggerTimeoutDelay = 0;
+      case Items.WEAPON_BOW_RECURVE:
+        this.actorModelId = 0;
+        triggerTimeoutDelay = 0;
         break;
       default:
         break;
@@ -135,6 +138,10 @@ export class ProjectileEntity extends BaseLightweightCharacter {
     };
   }
 
+  applyPostion(position: Float32Array) {
+    this.state.position = position;
+  }
+
   onTrigger(server: ZoneServer2016, client?: ZoneClient2016) {
     clearTimeout(this.triggerTimeout);
     if (this.triggered) {
@@ -165,6 +172,10 @@ export class ProjectileEntity extends BaseLightweightCharacter {
       case Items.WEAPON_MOLOTOV:
         effectId = 5308;
         effectType = 1;
+        break;
+      case Items.WEAPON_BOW_RECURVE:
+        effectId = 0;
+        effectType = 0;
         break;
     }
 
@@ -209,6 +220,8 @@ export class ProjectileEntity extends BaseLightweightCharacter {
     }
 
     if (this.itemDefinitionId == Items.GRENADE_HE) server.explosionDamage(this);
+    if (this.itemDefinitionId == Items.WEAPON_BOW_RECURVE)
+      server.explosionDamage(this);
     if (this.itemDefinitionId == Items.GRENADE_GAS) {
       this.gasDamageInterval = setInterval(() => {
         for (const a in server._characters) {
@@ -250,6 +263,7 @@ export class ProjectileEntity extends BaseLightweightCharacter {
       case Items.GRENADE_FLASH:
       case Items.GRENADE_HE:
       case Items.WEAPON_MOLOTOV:
+      case Items.WEAPON_BOW_RECURVE:
         this.destroy(server);
         break;
     }

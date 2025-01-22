@@ -952,6 +952,11 @@ export class ConstructionParentEntity extends ConstructionChildEntity {
     isInstant?: boolean
     /* eslint-enable @typescript-eslint/no-unused-vars */
   ) {
+    if (!this.ownerCharacterId) {
+      this.ownerCharacterId = client.character.characterId;
+      return;
+    }
+
     if (this.canUndoPlacement(server, client)) {
       this.destroy(server);
       client.character.lootItem(
@@ -981,6 +986,14 @@ export class ConstructionParentEntity extends ConstructionChildEntity {
   }
 
   OnInteractionString(server: ZoneServer2016, client: ZoneClient2016) {
+    if (!this.ownerCharacterId) {
+      server.sendData(client, "Command.InteractionString", {
+        guid: this.characterId,
+        stringId: StringIds.CLAIM_TARGET
+      });
+      return;
+    }
+
     if (this.canUndoPlacement(server, client)) {
       server.constructionManager.undoPlacementInteractionString(
         server,

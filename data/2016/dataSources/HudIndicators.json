@@ -131,8 +131,8 @@
     "nameId": 8913,
     "descriptionId": 8938,
     "imageSetId": 177
-   },
-   {
+  },
+  {
     "id": 20,
     "typeName": "BEES!",
     "nameId": 11884,
@@ -159,5 +159,13 @@
     "nameId": 12431,
     "descriptionId": 12436,
     "imageSetId": 130
+  },
+  {
+    "id": 24,
+    "typeName": "DEER SCENT",
+    "nameId": 1345,
+    "descriptionId": 1346,
+    "imageSetId": 166
   }
 ]
+
