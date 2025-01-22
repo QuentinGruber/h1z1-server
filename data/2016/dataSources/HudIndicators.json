@@ -131,8 +131,8 @@
     "nameId": 8913,
     "descriptionId": 8938,
     "imageSetId": 177
-   },
-   {
+  },
+  {
     "id": 20,
     "typeName": "BEES!",
     "nameId": 11884,
@@ -145,7 +145,20 @@
     "nameId": 9591,
     "descriptionId": 0,
     "imageSetId": 31
-
+  },
+  {
+    "id": 22,
+    "typeName": "ADRENALINE",
+    "nameId": 12429,
+    "descriptionId": 12435,
+    "imageSetId": 135
+  },
+  {
+    "id": 23,
+    "typeName": "ADRENALINE AFTER EFFECTS",
+    "nameId": 12431,
+    "descriptionId": 12436,
+    "imageSetId": 130
   },
   {
     "id": 24,
@@ -155,3 +168,4 @@
     "imageSetId": 166
   }
 ]
+

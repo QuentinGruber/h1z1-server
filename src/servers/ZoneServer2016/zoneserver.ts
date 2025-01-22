@@ -49,7 +49,8 @@ import {
   StringIds,
   ModelIds,
   ItemTypes,
-  ItemClasses
+  ItemClasses,
+  ResourceIndicators
 } from "./models/enums";
 import { WeatherManager } from "./managers/weathermanager";
 
@@ -7205,7 +7206,11 @@ export class ZoneServer2016 extends EventEmitter {
 
   sniffPass(client: Client, character: BaseFullCharacter, item: BaseItem) {
     if (!this.removeInventoryItem(character, item)) return;
-    this.applyMovementModifier(client, MovementModifiers.SWIZZLE);
+    if (item.itemDefinitionId === Items.SWIZZLE) {
+      this.applyMovementModifier(client, MovementModifiers.SWIZZLE);
+    } else {
+      this.applyMovementModifier(client, MovementModifiers.ADRENALINE);
+    }
   }
 
   fertilizePlants(
@@ -7369,7 +7374,8 @@ export class ZoneServer2016 extends EventEmitter {
         useoption = "fill";
         break;
       case Items.SWIZZLE:
-        useoption = "sniff";
+      case Items.ADRENALINE_SHOT:
+        useoption = "adrenaline";
         timeout = 3000;
         break;
       case Items.FERTILIZER:
@@ -7404,6 +7410,26 @@ export class ZoneServer2016 extends EventEmitter {
         break;
       case "sniff": // swizzle
         this.utilizeHudTimer(client, nameId, timeout, animationId, () => {
+          this.sniffPass(client, character, item);
+        });
+        break;
+      case "adrenaline": // swizzle
+        this.utilizeHudTimer(client, nameId, timeout, animationId, () => {
+          if (
+            client.character.hudIndicators[
+              this._hudIndicators["ADRENALINE"].typeName
+            ]
+          ) {
+            setTimeout(() => {
+              this.sendChatText(client, "You will died of an heart attack.");
+            }, 2000);
+            setTimeout(() => {
+              this.killCharacter(client, {
+                entity: client.character.characterId,
+                damage: 0xff
+              });
+            }, 5000);
+          }
           this.sniffPass(client, character, item);
         });
         break;
@@ -8471,6 +8497,69 @@ export class ZoneServer2016 extends EventEmitter {
           this.divideMovementModifier(client, modifier);
           delete client.character.timeouts["snared"];
         }, 15000);
+        break;
+      case MovementModifiers.ADRENALINE:
+        hudIndicator = this._hudIndicators[ResourceIndicators.ADRENALINE];
+        if (client.character.timeouts["ADRENALINE"]) {
+          client.character.timeouts["ADRENALINE"]._onTimeout();
+          clearTimeout(client.character.timeouts["ADRENALINE"]);
+          delete client.character.timeouts["ADRENALINE"];
+          if (client.character.hudIndicators[hudIndicator.typeName]) {
+            client.character.hudIndicators[
+              hudIndicator.typeName
+            ].expirationTime += 30000;
+          }
+        }
+        client.character.hudIndicators[hudIndicator.typeName] = {
+          typeName: hudIndicator.typeName,
+          expirationTime: Date.now() + 30000
+        };
+        this.sendHudIndicators(client);
+        const adrenalineBoostInterval = setInterval(() => {
+          client.character._resources[ResourceIds.STAMINA] = 600;
+        }, 1000);
+        client.character.timeouts["ADRENALINE"] = setTimeout(() => {
+          if (!client.character.timeouts["ADRENALINE"]) {
+            return;
+          }
+          this.divideMovementModifier(client, modifier);
+          delete client.character.timeouts["ADRENALINE"];
+          clearInterval(adrenalineBoostInterval);
+        }, 30000);
+
+        setTimeout(() => {
+          hudIndicator =
+            this._hudIndicators[ResourceIndicators.ADRENALINE_AFTER_EFFECTS];
+          if (client.character.timeouts["ADRENALINE AFTER EFFECTS"]) {
+            client.character.timeouts["ADRENALINE AFTER EFFECTS"]._onTimeout();
+            clearTimeout(client.character.timeouts["ADRENALINE AFTER EFFECTS"]);
+            delete client.character.timeouts["ADRENALINE AFTER EFFECTS"];
+            if (client.character.hudIndicators[hudIndicator.typeName]) {
+              client.character.hudIndicators[
+                hudIndicator.typeName
+              ].expirationTime += 30000;
+            }
+          }
+          client.character.hudIndicators[hudIndicator.typeName] = {
+            typeName: hudIndicator.typeName,
+            expirationTime: Date.now() + 30000
+          };
+          this.sendHudIndicators(client);
+          const adrenalineAfterEffectsInterval = setInterval(() => {
+            // 4% per interval
+            client.character._resources[ResourceIds.STAMINA] -= 24;
+          }, 1000);
+          client.character.timeouts["ADRENALINE AFTER EFFECTS"] = setTimeout(
+            () => {
+              if (!client.character.timeouts["ADRENALINE AFTER EFFECTS"]) {
+                return;
+              }
+              delete client.character.timeouts["ADRENALINE AFTER EFFECTS"];
+              clearInterval(adrenalineAfterEffectsInterval);
+            },
+            30000
+          );
+        }, 32000);
         break;
       case MovementModifiers.BOOTS:
         // some stuff
