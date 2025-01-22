@@ -2417,3 +2417,25 @@ export enum MeleeTypes {
   KNIFE = 4,
   GUITAR = 5
 }
+
+export enum DefaultSkinsConveys {
+  RED_CONVEYS = 2216,
+  WHITE_CONVEYS = 2218,
+  DEFAULT_BLUE_CONVEYS = 2217
+}
+
+export enum DefaultSkinsBackpack {
+  ORANGE_BACKPACK = 1355,
+  BLUE_AND_GRAY_PACKPACK = 2114,
+  BLUE_BACKPACK = 2113,
+  GREEN_BACKPACK = 2115,
+  RED_BACKPACK = 2117,
+  DEFAULT_BLUE_ORANGE = 2038
+}
+
+export enum DefaultSkinsMotorHelmet {
+  // BLACK_MOTORCYCLE_HELMET = 2168 - skin is light blue
+  GRAY_MOTOR_HELMET = 2169,
+  WHITE_MOTOR_HELMET = 2171,
+  DEFAULT_RED_MOTOR_HELMET = 2170
+}
