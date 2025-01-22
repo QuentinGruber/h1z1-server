@@ -153,6 +153,9 @@
     "Survivor<gender>_Head_Helmet_Motorcycle_Tintable.adr": [
       ""
     ],
+    "Survivor<gender>_Head_Mask_GoatSkull": [
+      "default0"
+    ],
     "Survivor<gender>_Face_Goggles_Tactical.adr": [
       ""
     ],
@@ -234,7 +237,7 @@
       "ScarecrowMask_Tan"
     ],
     "Survivor<gender>_Head_Helmet_TacticalSantaHat.adr": [
-      "Default"
+      "santahat"
     ],
     "Survivor<gender>_Head_Helmet_TacticalAntlers.adr": [
       "Helmet_TacticalAntlers_Red"
@@ -265,6 +268,9 @@
     ],
     "Survivor<gender>_Head_Helmet_Shogun.adr": [
       ""
+    ],
+    "Survivor<gender>_Head_Mask_GoatSkull": [
+      "default0"
     ],
     "Survivor<gender>_Head_Mask_UncleSam.adr": [
       "Default",
@@ -322,7 +328,6 @@
       "Hoodie_Basic",
       "Hoodie_ESport_OrangeBlack",
       "Hoodie_Twitch",
-      "Hoodie_BlueBlack",
       "Hoodie_ESport_BlueWhite",
       ""
     ],
@@ -365,7 +370,7 @@
       ""
     ],
     "Survivor<gender>_Legs_Pants_Slacks_Floral.adr": [
-      ""
+      "flowerpants"
     ],
     "Survivor<gender>_Legs_Pants_SlacksPolice.adr": [
       "Darkblue"
@@ -375,9 +380,9 @@
       ""
     ],
     "Survivor<gender>_Legs_Pants_LeggingsNoTint.adr": [
-      "Leggings_Plain",
       "Leggings_Xray",
-      "Leggings_Muscle"
+      "Leggings_Muscle",
+      "whiteanarchy"
     ],
     "Survivor<gender>_Legs_Pants_SkinnyLeg.adr": [
       ""
