@@ -2441,6 +2441,6 @@ export enum DefaultSkinsBackpack {
 export enum DefaultSkinsMotorHelmet {
   // BLACK_MOTORCYCLE_HELMET = 2168 - skin is light blue
   GRAY_MOTOR_HELMET = 2169,
-  WHITE_MOTOR_HELMET = 2171,
+  // WHITE_MOTOR_HELMET = 2171, skin is light red
   DEFAULT_RED_MOTOR_HELMET = 2170
 }
