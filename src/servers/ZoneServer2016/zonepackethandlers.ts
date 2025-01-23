@@ -3447,7 +3447,7 @@ export class ZonePacketHandlers {
             client.character.updateEquipment(server);
           }
         );
-        
+
         // Copy over items from the old container to the new container
         if (containerItems && _.size(containerItems) !== 0) {
           const newContainer = client.character.getContainerFromGuid(
