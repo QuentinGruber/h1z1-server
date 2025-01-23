@@ -346,6 +346,7 @@ export class ZonePacketHandlers {
       return;
     }
     if (client.character.awaitingTeleportLocation) {
+      const awaitingPos = client.character.awaitingTeleportLocation;
       setTimeout(() => {
         server.sendData(
           client,
@@ -356,7 +357,7 @@ export class ZonePacketHandlers {
           client,
           "ClientUpdate.UpdateLocation",
           {
-            position: client.character.awaitingTeleportLocation
+            position: awaitingPos
           }
         );
         server.sendData(
@@ -364,7 +365,28 @@ export class ZonePacketHandlers {
           "UpdateWeatherData",
           server.weatherManager.weather
         );
+        client.character.state.position = awaitingPos;
         client.character.awaitingTeleportLocation = undefined;
+        // fixes characters showing up as dead if they respawn close to other characters
+        server.sendDataToAllOthersWithSpawnedEntity(
+          server._characters,
+          client,
+          client.character.characterId,
+          "Character.RemovePlayer",
+          {
+            characterId: client.character.characterId
+          }
+        );
+        setTimeout(() => {
+          if (!client?.character) return;
+          server.sendDataToAllOthersWithSpawnedEntity(
+            server._characters,
+            client,
+            client.character.characterId,
+            "AddLightweightPc",
+            client.character.pGetLightweightPC(server, client)
+          );
+        }, 2000);
       }, 100);
     }
     const itemDefinition = server.getItemDefinition(

@@ -2910,7 +2910,7 @@ export class ZoneServer2016 extends EventEmitter {
       );
       client.character.awaitingTeleportLocation = tempPos2;
       client.oldPos.position = tempPos2;
-      const damageInfo: DamageInfo = {
+      /*const damageInfo: DamageInfo = {
         entity: "Server.Respawn",
         damage: 99999
       };
@@ -2936,7 +2936,7 @@ export class ZoneServer2016 extends EventEmitter {
               this.killCharacter(client, damageInfo);
           }, x * this.fairPlayManager.fairPlayValues.respawnCheckTime);
         }
-      }
+      }*/
     }
     if (clearEquipment) {
       Object.values(client.character._equipment).forEach((equipmentSlot) => {
@@ -2947,29 +2947,6 @@ export class ZoneServer2016 extends EventEmitter {
     client.character.equipLoadout(this);
     client.character.state.position = cell.spawnPoints[randomSpawnIndex];
     client.character.resetResources(this);
-
-    // fixes characters showing up as dead if they respawn close to other characters
-    if (client.character.initialized) {
-      this.sendDataToAllOthersWithSpawnedEntity<CharacterRemovePlayer>(
-        this._characters,
-        client,
-        client.character.characterId,
-        "Character.RemovePlayer",
-        {
-          characterId: client.character.characterId
-        }
-      );
-      setTimeout(() => {
-        if (!client?.character) return;
-        this.sendDataToAllOthersWithSpawnedEntity<AddLightweightPc>(
-          this._characters,
-          client,
-          client.character.characterId,
-          "AddLightweightPc",
-          client.character.pGetLightweightPC(this, client)
-        );
-      }, 2000);
-    }
     client.character.updateEquipment(this);
     client.character.updateFootwearAudio(this);
     this.hookManager.checkHook("OnPlayerRespawned", client);
