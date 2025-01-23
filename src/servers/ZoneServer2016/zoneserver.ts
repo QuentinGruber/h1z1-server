@@ -46,7 +46,6 @@ import {
   HealTypes,
   Effects,
   WeaponDefinitionIds,
-  StringIds,
   ModelIds,
   ItemTypes,
   ItemClasses,
