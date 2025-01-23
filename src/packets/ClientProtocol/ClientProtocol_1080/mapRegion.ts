@@ -19,8 +19,8 @@ export const mapRegionPackets: PacketStructures = [
     0xa401,
     {
       fields: [
-        { name: "unknown1", type: "float", defaultValue: 0.0 },
-        { name: "unknown2", type: "float", defaultValue: 0.0 }
+        { name: "unknown1", type: "float", defaultValue: 0.75 },
+        { name: "unknown2", type: "float", defaultValue: 0.150000005960464 }
       ]
     }
   ],
@@ -29,7 +29,7 @@ export const mapRegionPackets: PacketStructures = [
     0xa402,
     {
       fields: [
-        { name: "unknown1", type: "float", defaultValue: 0.0 },
+        { name: "unknown1", type: "float", defaultValue: 100.0 },
         { name: "unknown2", type: "uint32", defaultValue: 0 },
         {
           name: "regions",

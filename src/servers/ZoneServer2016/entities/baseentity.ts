@@ -61,6 +61,8 @@ export abstract class BaseEntity {
   /** Id of the model that corresponds to the entity */
   actorModelId!: number;
 
+  temporaryActorModelId?: number;
+
   /** State of the BaseLightweightCharacter, includes: state (Float32Array),
    * rotation(Float32Array), lookAt(Float32Array), and yaw (number) */
   state: {
