@@ -3423,24 +3423,31 @@ export class ZonePacketHandlers {
 
         const oldSlot = client.character.currentLoadoutSlot,
           oldLoadoutItem = client.character._loadout[oitem.slotId];
-        if (!server.removeInventoryItem(client.character, oitem)) return;
-        if (
-          !oldLoadoutItem ||
-          oldLoadoutItem.itemDefinitionId !== oitem.itemDefinitionId
-        ) {
-          // Determine if the item is equipped; if it isn't, loot it instead.
-          client.character.lootContainerItem(
-            server,
-            newItem,
-            newItem.stackCount,
-            false
-          );
-          return;
-        }
-
-        client.character.equipItem(server, newItem);
-        client.character.updateEquipment(server);
-
+        server.utilizeHudTimer(
+          client,
+          server.getItemDefinition(accountItem.REWARD_ITEM_ID)?.NAME_ID ?? 0,
+          1000,
+          0,
+          () => {
+            if (!server.removeInventoryItem(client.character, oitem)) return;
+            if (
+              !oldLoadoutItem ||
+              oldLoadoutItem.itemDefinitionId !== oitem.itemDefinitionId
+            ) {
+              // Determine if the item is equipped; if it isn't, loot it instead.
+              client.character.lootContainerItem(
+                server,
+                newItem,
+                newItem.stackCount,
+                false
+              );
+              return;
+            }
+            client.character.equipItem(server, newItem);
+            client.character.updateEquipment(server);
+          }
+        );
+        
         // Copy over items from the old container to the new container
         if (containerItems && _.size(containerItems) !== 0) {
           const newContainer = client.character.getContainerFromGuid(
