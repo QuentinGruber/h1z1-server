@@ -140,7 +140,8 @@ import {
   GroupKick,
   InGamePurchaseStoreBundleContentResponse,
   GrinderExchangeRequest,
-  GrinderExchangeResponse
+  GrinderExchangeResponse,
+  RagdollUpdatePose
 } from "types/zone2016packets";
 import { VehicleCurrentMoveMode } from "types/zone2015packets";
 import {
@@ -344,7 +345,50 @@ export class ZonePacketHandlers {
     if (!server.hookManager.checkHook("OnClientFinishedLoading", client)) {
       return;
     }
-
+    if (client.character.awaitingTeleportLocation) {
+      const awaitingPos = client.character.awaitingTeleportLocation;
+      setTimeout(() => {
+        server.sendData(
+          client,
+          "UpdateWeatherData",
+          server.weatherManager.weather
+        );
+        server.sendData<ClientUpdateUpdateLocation>(
+          client,
+          "ClientUpdate.UpdateLocation",
+          {
+            position: awaitingPos
+          }
+        );
+        server.sendData(
+          client,
+          "UpdateWeatherData",
+          server.weatherManager.weather
+        );
+        client.character.state.position = awaitingPos;
+        client.character.awaitingTeleportLocation = undefined;
+        // fixes characters showing up as dead if they respawn close to other characters
+        server.sendDataToAllOthersWithSpawnedEntity(
+          server._characters,
+          client,
+          client.character.characterId,
+          "Character.RemovePlayer",
+          {
+            characterId: client.character.characterId
+          }
+        );
+        setTimeout(() => {
+          if (!client?.character) return;
+          server.sendDataToAllOthersWithSpawnedEntity(
+            server._characters,
+            client,
+            client.character.characterId,
+            "AddLightweightPc",
+            client.character.pGetLightweightPC(server, client)
+          );
+        }, 2000);
+      }, 100);
+    }
     const itemDefinition = server.getItemDefinition(
       client.character.getEquippedWeapon()?.itemDefinitionId
     );
@@ -505,7 +549,9 @@ export class ZonePacketHandlers {
         client,
         "Character.StartMultiStateDeath",
         {
-          characterId: client.character.characterId
+          data: {
+            characterId: client.character.characterId
+          }
         }
       );
     }
@@ -1333,7 +1379,7 @@ export class ZonePacketHandlers {
           false
         );
         server.sendData(client, "Character.StartMultiStateDeath", {
-          characterId: client.character.characterId
+          data: { characterId: client.character.characterId }
         });
         client.blockedPositionUpdates = 0;
         return;
@@ -1498,7 +1544,7 @@ export class ZonePacketHandlers {
         server.sendData<CharacterStartMultiStateDeath>(
           client,
           "Character.StartMultiStateDeath",
-          { characterId: client.character.characterId }
+          { data: { characterId: client.character.characterId } }
         );
         return;
       }
@@ -3648,6 +3694,15 @@ export class ZonePacketHandlers {
     });
   }
 
+  RagdollUpdatePose(
+    server: ZoneServer2016,
+    client: Client,
+    packet: ReceivedPacket<RagdollUpdatePose>
+  ) {
+    // currently all ragdoll are client sided, less work for server but creates corpse position desync (shouldnt really be important)
+    //server.sendDataToAllOthersWithSpawnedEntity(server._characters, client, client.character.characterId, "Ragdoll.UpdatePose", packet.data)
+  }
+
   async grinderExchangeRequest(
     server: ZoneServer2016,
     client: Client,
@@ -4073,6 +4128,9 @@ export class ZonePacketHandlers {
         break;
       case "Ping":
         server.sendData(client, "Pong", {});
+        break;
+      case "Ragdoll.UpdatePose":
+        this.RagdollUpdatePose(server, client, packet);
         break;
       case "Grinder.ExchangeRequest":
         this.grinderExchangeRequest(server, client, packet);

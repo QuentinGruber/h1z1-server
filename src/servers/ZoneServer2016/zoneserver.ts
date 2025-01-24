@@ -2532,6 +2532,8 @@ export class ZoneServer2016 extends EventEmitter {
 
     client.character.isRunning = false;
     character.isAlive = false;
+    client.character.characterStates.revivable = true;
+    client.character.characterStates.beingRevived = true;
     this.updateCharacterState(
       client,
       client.character.characterId,
@@ -2539,14 +2541,37 @@ export class ZoneServer2016 extends EventEmitter {
       false
     );
     if (!client.isLoading) {
-      this.sendDataToAllWithSpawnedEntity<CharacterStartMultiStateDeath>(
-        this._characters,
-        client.character.characterId,
+      this.sendData<CharacterStartMultiStateDeath>(
+        client,
         "Character.StartMultiStateDeath",
         {
-          characterId: client.character.characterId
+          data: {
+            characterId: client.character.characterId,
+            unknown6: 128,
+            managerCharacterId: client.character.characterId
+          }
         }
       );
+      for (const a in this._clients) {
+        const iteratedClient = this._clients[a];
+        if (iteratedClient.spawnedEntities.has(client.character)) {
+          this.sendData<CharacterStartMultiStateDeath>(
+            iteratedClient,
+            "Character.StartMultiStateDeath",
+            {
+              data: {
+                characterId: client.character.characterId,
+                unknown6: 128,
+                managerCharacterId: iteratedClient.character.characterId
+              }
+            }
+          );
+          this.sendData(iteratedClient, "Character.ManagedObject", {
+            objectCharacterId: client.character.characterId,
+            characterId: iteratedClient.character.characterId
+          });
+        }
+      }
     } else {
       this.sendDataToAllOthersWithSpawnedEntity<CharacterStartMultiStateDeath>(
         this._characters,
@@ -2554,7 +2579,7 @@ export class ZoneServer2016 extends EventEmitter {
         client.character.characterId,
         "Character.StartMultiStateDeath",
         {
-          characterId: client.character.characterId
+          data: { characterId: client.character.characterId }
         }
       );
     }
@@ -2836,6 +2861,9 @@ export class ZoneServer2016 extends EventEmitter {
     client.character.isAlive = true;
     client.character.isRunning = false;
     client.character.isRespawning = false;
+    client.character.characterStates.knockedOut = false;
+    client.character.characterStates.revivable = false;
+    client.character.characterStates.beingRevived = false;
     client.isInAir = false;
 
     this.sendDataToAllWithSpawnedEntity<CommandPlayDialogEffect>(
@@ -2855,27 +2883,35 @@ export class ZoneServer2016 extends EventEmitter {
       client.managedObjects?.forEach((characterId) => {
         this.dropVehicleManager(client, characterId);
       });
-      this.sendData<CharacterRespawnReply>(client, "Character.RespawnReply", {
-        characterId: client.character.characterId,
-        status: true
-      });
-      const tempPos = client.character.state.position;
-      const tempPos2 = new Float32Array([
+      const tempPos = new Float32Array([
         cell.spawnPoints[randomSpawnIndex][0],
         cell.spawnPoints[randomSpawnIndex][1] + 1,
         cell.spawnPoints[randomSpawnIndex][2],
         1
       ]);
-      client.character.state.position = tempPos2;
-      client.oldPos.position = tempPos2;
+      client.character.state.position = tempPos;
+
+      this.sendData<CharacterRespawnReply>(client, "Character.RespawnReply", {
+        characterId: client.character.characterId,
+        status: true
+      });
+      this.updateCharacterState(
+        client,
+        client.character.characterId,
+        client.character.characterStates,
+        true
+      );
       this.sendData<ClientUpdateUpdateLocation>(
         client,
         "ClientUpdate.UpdateLocation",
         {
-          position: tempPos2
+          position: tempPos,
+          unknownBoolean1: false
         }
       );
-      const damageInfo: DamageInfo = {
+      client.character.awaitingTeleportLocation = tempPos;
+      client.oldPos.position = tempPos;
+      /*const damageInfo: DamageInfo = {
         entity: "Server.Respawn",
         damage: 99999
       };
@@ -2901,7 +2937,7 @@ export class ZoneServer2016 extends EventEmitter {
               this.killCharacter(client, damageInfo);
           }, x * this.fairPlayManager.fairPlayValues.respawnCheckTime);
         }
-      }
+      }*/
     }
     if (clearEquipment) {
       Object.values(client.character._equipment).forEach((equipmentSlot) => {
@@ -2912,36 +2948,6 @@ export class ZoneServer2016 extends EventEmitter {
     client.character.equipLoadout(this);
     client.character.state.position = cell.spawnPoints[randomSpawnIndex];
     client.character.resetResources(this);
-    this.updateCharacterState(
-      client,
-      client.character.characterId,
-      client.character.characterStates,
-      true
-    );
-    client.character._characterEffects = {};
-
-    // fixes characters showing up as dead if they respawn close to other characters
-    if (client.character.initialized) {
-      this.sendDataToAllOthersWithSpawnedEntity<CharacterRemovePlayer>(
-        this._characters,
-        client,
-        client.character.characterId,
-        "Character.RemovePlayer",
-        {
-          characterId: client.character.characterId
-        }
-      );
-      setTimeout(() => {
-        if (!client?.character) return;
-        this.sendDataToAllOthersWithSpawnedEntity<AddLightweightPc>(
-          this._characters,
-          client,
-          client.character.characterId,
-          "AddLightweightPc",
-          client.character.pGetLightweightPC(this, client)
-        );
-      }, 2000);
-    }
     client.character.updateEquipment(this);
     client.character.updateFootwearAudio(this);
     this.hookManager.checkHook("OnPlayerRespawned", client);

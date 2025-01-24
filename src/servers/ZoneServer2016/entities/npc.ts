@@ -189,14 +189,31 @@ export class Npc extends BaseFullCharacter {
           client.character.metrics.zombiesKilled++;
         else client.character.metrics.wildlifeKilled++;
       }
-      server.sendDataToAllWithSpawnedEntity(
-        server._npcs,
-        this.characterId,
-        "Character.StartMultiStateDeath",
-        {
-          characterId: this.characterId
+      for (const a in server._clients) {
+        const c = server._clients[a];
+        if (c.spawnedEntities.has(this)) {
+          if (!c.isLoading) {
+            server.sendData(c, "Character.StartMultiStateDeath", {
+              data: {
+                characterId: this.characterId,
+                unknown6: 128,
+                managerCharacterId: c.character.characterId
+              }
+            });
+            server.sendData(c, "Character.ManagedObject", {
+              objectCharacterId: this.characterId,
+              characterId: c.character.characterId
+            });
+          } else {
+            server.sendData(c, "Character.StartMultiStateDeath", {
+              data: {
+                characterId: this.characterId,
+                unknown6: 0
+              }
+            });
+          }
         }
-      );
+      }
     }
 
     if (client) {
