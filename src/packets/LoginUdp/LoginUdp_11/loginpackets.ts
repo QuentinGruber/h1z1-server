@@ -473,6 +473,17 @@ const packets: PacketStructures = [
     {
       fields: [{ name: "__opcode__", type: "uint8", defaultValue: 5 }]
     }
+  ],
+  [
+    "H1emu.CustomQueue",
+    0x25,
+    {
+      fields: [
+        { name: "__opcode__", type: "uint8", defaultValue: 6 },
+        { name: "currentPosition", type: "string", defaultValue: "" },
+        { name: "estimatedWaitTime", type: "string", defaultValue: "" }
+      ]
+    }
   ]
 ];
 

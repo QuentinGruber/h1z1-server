@@ -867,6 +867,34 @@ export class ConstructionParentEntity extends ConstructionChildEntity {
       server._constructionFoundations[this.parentObjectCharacterId];
     if (!parent) return deleted;
     if (!this.slot || !this.parentObjectCharacterId) return deleted;
+    switch (this.itemDefinitionId) {
+      case Items.METAL_GATE:
+      case Items.DOOR_BASIC:
+      case Items.DOOR_WOOD:
+      case Items.DOOR_METAL:
+      case Items.METAL_WALL:
+      case Items.METAL_DOORWAY:
+        parent.wallSlotsPlacementTimer[this.getSlotNumber()] =
+          Date.now() + 30000;
+        break;
+      case Items.METAL_WALL_UPPER:
+        parent.upperWallSlotsPlacementTimer[this.getSlotNumber()] =
+          Date.now() + 30000;
+        break;
+      case Items.SHELTER:
+      case Items.SHELTER_LARGE:
+      case Items.SHELTER_UPPER:
+      case Items.SHELTER_UPPER_LARGE:
+      case Items.STRUCTURE_STAIRS:
+      case Items.STRUCTURE_STAIRS_UPPER:
+      case Items.LOOKOUT_TOWER:
+        parent.shelterSlotsPlacementTimer[this.getSlotNumber()] =
+          Date.now() + 30000;
+        break;
+      case Items.FOUNDATION_RAMP:
+      case Items.FOUNDATION_STAIRS:
+        break;
+    }
     parent.clearSlot(this.getSlotNumber(), parent.occupiedExpansionSlots);
     return deleted;
   }
@@ -924,6 +952,11 @@ export class ConstructionParentEntity extends ConstructionChildEntity {
     isInstant?: boolean
     /* eslint-enable @typescript-eslint/no-unused-vars */
   ) {
+    if (!this.ownerCharacterId) {
+      this.ownerCharacterId = client.character.characterId;
+      return;
+    }
+
     if (this.canUndoPlacement(server, client)) {
       this.destroy(server);
       client.character.lootItem(
@@ -934,6 +967,11 @@ export class ConstructionParentEntity extends ConstructionChildEntity {
     }
 
     if (
+      !this.getHasPermission(
+        server,
+        client.character.characterId,
+        ConstructionPermissionIds.DEMOLISH
+      ) && // if the player has permission to build, show the permissions menu
       this.ownerCharacterId != client.character.characterId &&
       (!client.isAdmin || !client.isDebugMode) // allows debug mode
     )
@@ -953,6 +991,14 @@ export class ConstructionParentEntity extends ConstructionChildEntity {
   }
 
   OnInteractionString(server: ZoneServer2016, client: ZoneClient2016) {
+    if (!this.ownerCharacterId) {
+      server.sendData(client, "Command.InteractionString", {
+        guid: this.characterId,
+        stringId: StringIds.CLAIM_TARGET
+      });
+      return;
+    }
+
     if (this.canUndoPlacement(server, client)) {
       server.constructionManager.undoPlacementInteractionString(
         server,
@@ -963,6 +1009,11 @@ export class ConstructionParentEntity extends ConstructionChildEntity {
     }
 
     if (
+      !this.getHasPermission(
+        server,
+        client.character.characterId,
+        ConstructionPermissionIds.DEMOLISH
+      ) && // if the player has permission to build, show the permissions menu interaction string
       this.ownerCharacterId != client.character.characterId &&
       (!client.isAdmin || !client.isDebugMode)
     )
@@ -988,7 +1039,13 @@ export class ConstructionParentEntity extends ConstructionChildEntity {
       "Character.UpdateSimpleProxyHealth",
       this.pGetSimpleProxyHealth()
     );
-
+    if (damageInfo.damage > 0) {
+      const timestamp = Date.now();
+      const parent = this.getParent(server);
+      if (parent) parent.lastDamagedTimestamp = timestamp;
+      const parentFoundation = this.getParentFoundation(server);
+      if (parentFoundation) parentFoundation.lastDamagedTimestamp = timestamp;
+    }
     if (this.health > 0) return;
     this.destroy(server, 3000);
   }

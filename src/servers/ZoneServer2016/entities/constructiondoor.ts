@@ -153,6 +153,11 @@ export class ConstructionDoor extends DoorEntity {
       ResourceTypes.CONDITION,
       server._constructionDoors
     );
+    if (damageInfo.damage > 0) {
+      const timestamp = Date.now();
+      const parentFoundation = this.getParentFoundation(server);
+      if (parentFoundation) parentFoundation.lastDamagedTimestamp = timestamp;
+    }
 
     if (this.health > 0) return;
     this.destroy(server, 3000);
@@ -181,6 +186,8 @@ export class ConstructionDoor extends DoorEntity {
       case Items.DOOR_METAL:
         slotMap = parent.occupiedWallSlots;
         updateSecured = true;
+        parent.wallSlotsPlacementTimer[this.getSlotNumber()] =
+          Date.now() + 30000;
         break;
     }
     if (slotMap) parent.clearSlot(this.getSlotNumber(), slotMap);
@@ -263,7 +270,7 @@ export class ConstructionDoor extends DoorEntity {
         this.getHasPermission(
           server,
           client.character.characterId,
-          ConstructionPermissionIds.DEMOLISH
+          ConstructionPermissionIds.CONTAINERS // Container permissions player is able to open constructiondoors
         ) ||
         (client.isAdmin && client.isDebugMode) // debug mode open all doors/gates
       ) {
@@ -380,12 +387,16 @@ export class ConstructionDoor extends DoorEntity {
         server,
         client.character.characterId,
         ConstructionPermissionIds.DEMOLISH
-      ) ||
-      !this.grantedAccess.includes(client.character.characterId)
+      )
     ) {
       server.sendData(client, "Command.InteractionString", {
         guid: this.characterId,
         stringId: StringIds.OPEN_AND_LOCK
+      });
+    } else if (!this.grantedAccess.includes(client.character.characterId)) {
+      server.sendData(client, "Command.InteractionString", {
+        guid: this.characterId,
+        stringId: StringIds.ENTER_ACCESS_CODE
       });
     } else {
       server.sendData(client, "Command.InteractionString", {

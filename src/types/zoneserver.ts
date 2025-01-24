@@ -191,6 +191,7 @@ export interface FireHint {
   hitNumber: number;
   weaponItem: LoadoutItem
   timeStamp: number,
+  projectileUniqueId: number;
   marked?: { characterId: string, position: Float32Array, rotation: Float32Array, gameTime: number }
 }
 
@@ -235,6 +236,8 @@ export interface Recipe {
   filterId: FilterIds;
   bundleCount?: number;
   components: Array<RecipeComponent>;
+  splitted?: boolean;
+  itemId?: number;
   requireWorkbench?: boolean
   requireWeaponWorkbench?: boolean
   leftOverItems?: number[]
@@ -270,6 +273,10 @@ export interface dailyRepairMaterial {
 export type SlottedConstructionEntity = ConstructionChildEntity | ConstructionParentEntity | ConstructionDoor;
 
 export type ConstructionEntity = SlottedConstructionEntity | LootableConstructionEntity;
+
+export type ShelterSlotsPlacementTimer = {
+	[slot: number]: number;
+};
 
 export interface ConstructionPermissions {
   characterId: string;
