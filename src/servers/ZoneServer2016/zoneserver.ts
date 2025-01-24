@@ -2881,14 +2881,13 @@ export class ZoneServer2016 extends EventEmitter {
       client.managedObjects?.forEach((characterId) => {
         this.dropVehicleManager(client, characterId);
       });
-      const tempPos2 = new Float32Array([
+      const tempPos = new Float32Array([
         cell.spawnPoints[randomSpawnIndex][0],
         cell.spawnPoints[randomSpawnIndex][1] + 1,
         cell.spawnPoints[randomSpawnIndex][2],
         1
       ]);
-      const tempPos = client.character.state.position;
-      client.character.state.position = tempPos2;
+      client.character.state.position = tempPos;
 
       this.sendData<CharacterRespawnReply>(client, "Character.RespawnReply", {
         characterId: client.character.characterId,
@@ -2904,12 +2903,12 @@ export class ZoneServer2016 extends EventEmitter {
         client,
         "ClientUpdate.UpdateLocation",
         {
-          position: tempPos2,
+          position: tempPos,
           unknownBoolean1: false
         }
       );
-      client.character.awaitingTeleportLocation = tempPos2;
-      client.oldPos.position = tempPos2;
+      client.character.awaitingTeleportLocation = tempPos;
+      client.oldPos.position = tempPos;
       /*const damageInfo: DamageInfo = {
         entity: "Server.Respawn",
         damage: 99999
