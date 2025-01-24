@@ -46,7 +46,6 @@ import {
   HealTypes,
   Effects,
   WeaponDefinitionIds,
-  StringIds,
   ModelIds,
   ItemTypes,
   ItemClasses,
@@ -5690,7 +5689,10 @@ export class ZoneServer2016 extends EventEmitter {
     let randomChance = Math.random() * totalChances;
     for (const rew of rewards) {
       if (randomChance < rew.rewardChance) {
-        return { reward: rew.itemDefinitionId, isRare: rew.rewardChance === 1 };
+        return {
+          reward: rew.itemDefinitionId,
+          isRare: rew.rewardChance === 1 || rew.rewardChance === 0.5
+        };
       }
       randomChance -= rew.rewardChance;
     }
@@ -6001,20 +6003,8 @@ export class ZoneServer2016 extends EventEmitter {
    * @returns {boolean} True if the item is a helmet, false otherwise.
    */
   isHelmet(itemDefinitionId: number): boolean {
-    return (
-      this.getItemDefinition(itemDefinitionId)?.DESCRIPTION_ID ==
-        StringIds.TACTICAL_HELMET ||
-      this.getItemDefinition(itemDefinitionId)?.DESCRIPTION_ID ==
-        StringIds.SLEIGH_HELMET ||
-      this.getItemDefinition(itemDefinitionId)?.DESCRIPTION_ID ==
-        StringIds.GENERAL_HELMET_1 ||
-      this.getItemDefinition(itemDefinitionId)?.DESCRIPTION_ID ==
-        StringIds.CREEPY_MASK ||
-      this.getItemDefinition(itemDefinitionId)?.DESCRIPTION_ID ==
-        StringIds.SCRAY_HALLOWEEN_MASK ||
-      this.getItemDefinition(itemDefinitionId)?.DESCRIPTION_ID ==
-        StringIds.UNCLE_SAM_MASK
-    );
+    const itemDef = this.getItemDefinition(itemDefinitionId);
+    return itemDef?.ITEM_CLASS == 25000 && itemDef?.IS_ARMOR == 1;
   }
 
   /**
