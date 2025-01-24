@@ -2922,11 +2922,15 @@ export class ZonePacketHandlers {
       foundation = server._constructionFoundations[
         objectCharacterId
       ] as ConstructionParentEntity;
+
+    //Check if the client is the owner of the foundation / has demolistion perms or an admin in debug mode or if client has demolition perms
     if (
-      foundation.ownerCharacterId != client.character.characterId &&
-      (!client.isAdmin || !client.isDebugMode) // allows debug mode
+      foundation.ownerCharacterId !== client.character.characterId &&
+      !foundation.permissions[client.character.characterId]?.demolish &&
+      !(client.isAdmin && client.isDebugMode)
     )
-      return; // add debug admin
+      return;
+
     let characterId = "";
     for (const a in foundation.permissions) {
       const permissions = foundation.permissions[a];
@@ -2934,13 +2938,33 @@ export class ZonePacketHandlers {
         characterId = permissions.characterId;
       }
     }
+
     if (!characterId) {
       return;
     }
-    if (characterId == foundation.ownerCharacterId) {
+
+    // If the character ID matches the foundation owner's / own character ID, send an alert and exit
+    if (
+      characterId == foundation.ownerCharacterId ||
+      characterId == client.character.characterId
+    ) {
       server.sendAlert(client, "You can't edit your own permissions.");
       return;
     }
+
+    // If not an owner and client tries to edit other players permissions with demolish perms, send an alert and exit
+    if (
+      client.character.characterId != foundation.ownerCharacterId &&
+      foundation.permissions[characterId]?.demolish &&
+      characterId != client.character.characterId
+    ) {
+      server.sendAlert(
+        client,
+        "You can't edit someone else's permissions if they have demolish permissions."
+      );
+      return;
+    }
+
     const obj: ConstructionPermissions = foundation.permissions[characterId];
     if (!obj) return;
     switch (packet.data.permissionSlot) {
@@ -2995,11 +3019,15 @@ export class ZonePacketHandlers {
       foundation = server._constructionFoundations[
         objectCharacterId
       ] as ConstructionParentEntity;
+
+    // Check if the client is the owner of the foundation / has demolistion perms or an admin in debug mode
     if (
-      foundation.ownerCharacterId != client.character.characterId &&
-      (!client.isAdmin || !client.isDebugMode)
-    )
+      foundation.ownerCharacterId !== client.character.characterId &&
+      !foundation.permissions[client.character.characterId]?.demolish &&
+      !(client.isAdmin && client.isDebugMode)
+    ) {
       return;
+    }
 
     let targetClient = server.getClientByNameOrLoginSession(characterName);
 
@@ -3024,7 +3052,11 @@ export class ZonePacketHandlers {
       }
     }
 
-    if (characterId == foundation.ownerCharacterId) {
+    // If the character ID matches the foundation owner's / own character ID, send an alert and exit
+    if (
+      characterId == foundation.ownerCharacterId ||
+      characterId == client.character.characterId
+    ) {
       server.sendAlert(client, "You can't edit your own permissions.");
       return;
     }

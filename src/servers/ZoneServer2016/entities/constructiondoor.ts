@@ -270,7 +270,7 @@ export class ConstructionDoor extends DoorEntity {
         this.getHasPermission(
           server,
           client.character.characterId,
-          ConstructionPermissionIds.DEMOLISH
+          ConstructionPermissionIds.CONTAINERS // Container permissions player is able to open constructiondoors
         ) ||
         (client.isAdmin && client.isDebugMode) // debug mode open all doors/gates
       ) {
