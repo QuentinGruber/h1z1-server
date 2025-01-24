@@ -702,7 +702,7 @@ export class ZonePacketHandlers {
       vehicle = characterId ? server._vehicles[characterId] : undefined,
       damage = Number((packet.data.damage || 0).toFixed(0));
 
-    if (!vehicle) return;
+    if (!vehicle || damage <= 100) return;
     vehicle.damage(server, { entity: "", damage: damage * 4 });
     //server.DTOhit(client, packet);
   }
