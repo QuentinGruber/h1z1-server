@@ -312,7 +312,7 @@ export class LootableProp extends BaseLootableEntity {
       switch (this.actorModelId) {
         case ModelIds.CABINET_SET_03:
         case ModelIds.CABINET_SET_05:
-        case ModelIds.CABINET_SET_06:   
+        case ModelIds.CABINET_SET_06:
         case ModelIds.CABINET_SET_07:
         case ModelIds.CABINET_SET_08:
         case ModelIds.CABINET_SET_09:
