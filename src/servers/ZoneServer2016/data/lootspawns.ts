@@ -1266,7 +1266,7 @@ export const lootTables: { [lootSpawner: string]: LootSpawner } = {
         weight: 15,
         spawnCount: {
           min: 1,
-          max: 1
+          max: 2
         }
       },
       {
@@ -1274,7 +1274,7 @@ export const lootTables: { [lootSpawner: string]: LootSpawner } = {
         weight: 15,
         spawnCount: {
           min: 1,
-          max: 1
+          max: 2
         }
       },
       {
@@ -1291,6 +1291,14 @@ export const lootTables: { [lootSpawner: string]: LootSpawner } = {
         spawnCount: {
           min: 1,
           max: 1
+        }
+      },
+      {
+        item: Items.AMMO_308,
+        weight: 5,
+        spawnCount: {
+          min: 1,
+          max: 3
         }
       }
     ]
