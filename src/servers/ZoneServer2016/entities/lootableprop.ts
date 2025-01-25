@@ -68,7 +68,6 @@ function getContainerAndTime(entity: LootableProp) {
     case ModelIds.CABINET_SET_03:
     case ModelIds.CABINET_SET_05:
     case ModelIds.CABINET_SET_06:
-    case ModelIds.CABINET_SET_04:
     case ModelIds.CABINET_SET_07:
     case ModelIds.CABINET_SET_08:
     case ModelIds.CABINET_SET_09:
@@ -84,6 +83,7 @@ function getContainerAndTime(entity: LootableProp) {
     case ModelIds.CABINETS_KITCHEN_06:
     case ModelIds.CABINET_SET_01:
     case ModelIds.CABINET_SET_02:
+    case ModelIds.CABINET_SET_04:
     case ModelIds.CABINET_SET_10:
     case ModelIds.CABINET_SET_11:
       entity.containerId = Items.CONTAINER_CABINETS_KITCHEN;
@@ -312,6 +312,7 @@ export class LootableProp extends BaseLootableEntity {
       switch (this.actorModelId) {
         case ModelIds.CABINET_SET_03:
         case ModelIds.CABINET_SET_05:
+        case ModelIds.CABINET_SET_06:   
         case ModelIds.CABINET_SET_07:
         case ModelIds.CABINET_SET_08:
         case ModelIds.CABINET_SET_09:
