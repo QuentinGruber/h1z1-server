@@ -2295,7 +2295,8 @@ export class ZoneServer2016 extends EventEmitter {
       }
       client.isLoading = true; // stop anything from acting on character
       // "shift" time played prior to logging out
-      client.character.metrics.startedSurvivingTP += (Date.now() - Number(client.character.lastLoginDate));
+      client.character.metrics.startedSurvivingTP +=
+        Date.now() - Number(client.character.lastLoginDate);
 
       clearTimeout(client.character?.resourcesUpdater);
       try {
