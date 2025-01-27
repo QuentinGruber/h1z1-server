@@ -284,8 +284,9 @@ export class SmeltingManager {
   ) {
     const currentDate = new Date(server.inGameTimeManager.time * 1000);
     const currentHour = currentDate.getUTCHours();
-    const isRaining = server.weatherManager.rainingHours.includes(currentHour) || 
-      server.weatherManager.globalPrecipation > 1 || 
+    const isRaining =
+      server.weatherManager.rainingHours.includes(currentHour) ||
+      server.weatherManager.globalPrecipation > 1 ||
       server.weatherManager.weather.globalPrecipitation > 1;
     const adjustedRequiredTicks = isRaining ? 2 : subEntity.requiredTicks;
 
