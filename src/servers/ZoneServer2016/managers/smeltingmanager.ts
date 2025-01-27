@@ -45,7 +45,7 @@ export class SmeltingManager {
   _collectingEntities: { [characterId: string]: string } = {};
 
   /** The time (milliseconds) it takes for a CollectingEntity to fill water/honey - 5 min x 4 ticks = 20 mins */
-  collectingTickTime: number = 300000;
+  collectingTickTime: number = 10000//300000;
 
   /** The time (milliseconds) at which the most recent qualified item was "burned" */
   lastBurnTime: number = 0;
@@ -282,6 +282,13 @@ export class SmeltingManager {
     subEntity: CollectingEntity,
     container: LoadoutContainer
   ) {
+    const currentDate = new Date(server.inGameTimeManager.time * 1000);
+    const currentHour = currentDate.getUTCHours();
+    const isRaining = server.weatherManager.rainingHours.includes(currentHour) || 
+      server.weatherManager.globalPrecipation > 1 || 
+      server.weatherManager.weather.globalPrecipitation > 1;
+    const adjustedRequiredTicks = isRaining ? 2 : subEntity.requiredTicks;
+
     for (const a in container.items) {
       const item = container.items[a];
       // check if the current item is an empty water bottle and that the container is either empty
@@ -297,7 +304,7 @@ export class SmeltingManager {
           continue;
       }
       if (item.itemDefinitionId != Items.WATER_EMPTY) continue;
-      if (subEntity.currentTicks >= subEntity.requiredTicks) {
+      if (subEntity.currentTicks >= adjustedRequiredTicks) {
         subEntity.currentTicks = 0;
         if (!server.removeContainerItem(entity, item, container, 1)) {
           return;
