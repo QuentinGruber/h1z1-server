@@ -45,7 +45,7 @@ export class SmeltingManager {
   _collectingEntities: { [characterId: string]: string } = {};
 
   /** The time (milliseconds) it takes for a CollectingEntity to fill water/honey - 5 min x 4 ticks = 20 mins */
-  collectingTickTime: number = 10000//300000;
+  collectingTickTime: number = 300000;
 
   /** The time (milliseconds) at which the most recent qualified item was "burned" */
   lastBurnTime: number = 0;
