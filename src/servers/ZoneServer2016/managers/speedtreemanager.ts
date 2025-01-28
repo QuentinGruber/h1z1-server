@@ -78,6 +78,10 @@ export class SpeedTreeManager {
     let count = 1;
     if (speedtreeDestroyed) return;
     let itemDefId = 0;
+    const eightDuraItems = [
+      Items.WEAPON_HATCHET_MAKESHIFT,
+      Items.WEAPON_HATCHET
+    ];
     switch (treeId) {
       case TreeIds.BLACKBERRY:
         server.startInteractionTimer(client, 0, 0, 9);
@@ -132,7 +136,7 @@ export class SpeedTreeManager {
             return;
         }
 
-        server.damageItem(client.character, wep, 5);
+        server.damageItem(client.character, wep, eightDuraItems.includes(wep.itemDefinitionId) ? 8 : 6);
 
         if (!this._speedTreesCounter[objectId]) {
           this._speedTreesCounter[objectId] = {

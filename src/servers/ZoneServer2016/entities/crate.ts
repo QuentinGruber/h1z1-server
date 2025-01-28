@@ -215,7 +215,11 @@ export class Crate extends BaseSimpleNpc {
     
     if (!client || !weapon) return;
 
-    server.damageItem(client.character, weapon, 5);
+    const eightDuraItems = [
+      Items.WEAPON_HATCHET_MAKESHIFT,
+      Items.WEAPON_HATCHET
+    ];
+    server.damageItem(client.character, weapon, eightDuraItems.includes(weapon.itemDefinitionId) ? 8 : 6);
   }
 
   /* eslint-disable @typescript-eslint/no-unused-vars */

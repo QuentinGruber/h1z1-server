@@ -5724,10 +5724,10 @@ export class ZoneServer2016 extends EventEmitter {
       case this.isGeneric(itemDefinitionId):
         return 0;
       case itemDefinitionId == Items.WEAPON_HATCHET_MAKESHIFT:
-        return 250;
-      case itemDefinitionId == Items.WEAPON_HATCHET:
         return 500;
       case itemDefinitionId == Items.WEAPON_AXE_WOOD:
+      case itemDefinitionId == Items.WEAPON_AXE_FIRE:
+        return 4000;
       case this.isArmor(itemDefinitionId):
         return 1000;
       case this.isHelmet(itemDefinitionId):
