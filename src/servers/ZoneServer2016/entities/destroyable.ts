@@ -14,7 +14,7 @@ import { ZoneServer2016 } from "../zoneserver";
 import { ZoneClient2016 } from "../classes/zoneclient";
 import { DamageInfo } from "../../../types/zoneserver";
 import { eul2quat } from "../../../utils/utils";
-import { Effects, ModelIds } from "../models/enums";
+import { Effects, Items, ModelIds } from "../models/enums";
 import { AddLightweightNpc, AddSimpleNpc } from "types/zone2016packets";
 import { BaseSimpleNpc } from "./basesimplenpc";
 
@@ -196,7 +196,12 @@ export class Destroyable extends BaseSimpleNpc {
       weapon = client?.character.getEquippedWeapon();
     
     if (!client || !weapon) return;
-    server.damageItem(client.character, weapon, 5);
+
+    const eightDuraItems = [
+        Items.WEAPON_HATCHET_MAKESHIFT,
+        Items.WEAPON_HATCHET
+    ];
+    server.damageItem(client.character, weapon, eightDuraItems.includes(weapon.itemDefinitionId) ? 8 : 6);
   }
 
   pGetSimpleNpc(): AddSimpleNpc {
