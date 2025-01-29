@@ -7507,7 +7507,7 @@ export class ZoneServer2016 extends EventEmitter {
     this.sendDataToAllWithSpawnedEntity(
       this._characters,
       client.character.characterId,
-      "AnimationBase",
+      "Animation.Play",
       {
         characterId: client.character.characterId,
         animationId: 84 // yawning / waking up emote
@@ -9488,6 +9488,26 @@ export class ZoneServer2016 extends EventEmitter {
       color: status == 0 ? 1 : 0,
       status: status
     });
+  }
+
+  deployParachute(client: Client) {
+    const characterId = this.generateGuid(),
+      vehicle = new Vehicle2016(
+        characterId,
+        this.getTransientId(characterId),
+        9374,
+        client.character.state.position,
+        client.character.state.rotation,
+        this,
+        getCurrentServerTimeWrapper().getTruncatedU32(),
+        VehicleIds.PARACHUTE
+      );
+    this.worldObjectManager.createVehicle(this, vehicle, true);
+    vehicle.onReadyCallback = (client) => {
+      this.mountVehicle(client, characterId);
+      this.assignManagedObject(client, vehicle);
+      client.vehicle.mountedVehicle = characterId;
+    };
   }
 }
 

@@ -125,7 +125,8 @@ import {
   InGamePurchaseStoreBundleContentResponse,
   GrinderExchangeRequest,
   GrinderExchangeResponse,
-  RagdollUpdatePose
+  RagdollUpdatePose,
+  AnimationRequest
 } from "types/zone2016packets";
 import { VehicleCurrentMoveMode } from "types/zone2015packets";
 import {
@@ -3869,6 +3870,27 @@ export class ZonePacketHandlers {
     }
   }
 
+  animationRequest(
+    server: ZoneServer2016,
+    client: Client,
+    packet: ReceivedPacket<AnimationRequest>
+  ) {
+    console.log(packet.data.animationId);
+    const animationId =
+      server.getItemDefinition(packet.data.itemDefinitionId)?.PARAM1 || 0;
+    if (!animationId) return;
+
+    server.sendDataToAllWithSpawnedEntity(
+      server._characters,
+      client.character.characterId,
+      "Animation.Play",
+      {
+        characterId: client.character.characterId,
+        animationId: animationId
+      }
+    );
+  }
+
   processPacket(
     server: ZoneServer2016,
     client: Client,
@@ -4169,6 +4191,9 @@ export class ZonePacketHandlers {
             ]
           }
         );
+        break;
+      case "Animation.Request":
+        this.animationRequest(server, client, packet);
         break;
       default:
         debug(packet);
