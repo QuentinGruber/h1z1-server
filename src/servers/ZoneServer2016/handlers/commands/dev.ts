@@ -664,7 +664,7 @@ const dev: any = {
     server.sendDataToAllWithSpawnedEntity(
       server._characters,
       client.character.characterId,
-      "AnimationBase",
+      "Animation.Play",
       {
         characterId: client.character.characterId,
         unknownDword1: args[1]

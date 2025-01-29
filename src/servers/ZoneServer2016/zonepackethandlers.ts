@@ -3875,7 +3875,6 @@ export class ZonePacketHandlers {
     client: Client,
     packet: ReceivedPacket<AnimationRequest>
   ) {
-    console.log(packet.data.animationId);
     const animationId =
       server.getItemDefinition(packet.data.itemDefinitionId)?.PARAM1 || 0;
     if (!animationId) return;
