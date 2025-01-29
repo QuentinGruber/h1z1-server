@@ -80,7 +80,8 @@ export class SpeedTreeManager {
     let itemDefId = 0;
     const eightDuraItems = [
       Items.WEAPON_HATCHET_MAKESHIFT,
-      Items.WEAPON_HATCHET
+      Items.WEAPON_HATCHET,
+      Items.WEAPON_CROWBAR
     ];
     switch (treeId) {
       case TreeIds.BLACKBERRY:
