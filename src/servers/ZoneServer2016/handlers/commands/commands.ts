@@ -351,11 +351,11 @@ export const commands: Array<Command> = [
         return;
       }
 
-      let targetClient = server.getClientByNameOrLoginSession(args[0]);
+      const targetClient = server.getClientByNameOrLoginSession(args[0]);
 
-      if (!targetClient) {
+      /*if (!targetClient) {
         targetClient = await server.getOfflineClientByName(args[0]);
-      }
+      }*/
 
       if (server.playerNotFound(client, args[0].toString(), targetClient)) {
         return;
