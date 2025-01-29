@@ -38,7 +38,16 @@ export const uiPackets: PacketStructures = [
   ["Ui.ResetTimer", 0x1a0a, {}],
   ["Ui.ObjectiveTargetUpdate", 0x1a0d, {}],
   ["Ui.Message", 0x1a0e, {}],
-  ["Ui.CinematicStartLookAt", 0x1a0f, {}],
+  [
+    "Ui.CinematicStartLookAt",
+    0x1a0f,
+    {
+      fields: [
+        { name: "unknownDword1", type: "uint32", defaultValue: 0 },
+        { name: "unknownBoolean1", type: "boolean", defaultValue: false }
+      ]
+    }
+  ],
   [
     "Ui.WeaponHitFeedback",
     0x1a10,

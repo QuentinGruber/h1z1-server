@@ -3602,11 +3602,11 @@ export const basePackets: PacketStructures = [
     "Animation.Request",
     0xf801,
     {
-      fields: [{ name: "animationId", type: "uint32", defaultValue: 0 }]
+      fields: [{ name: "itemDefinitionId", type: "uint32", defaultValue: 0 }]
     }
   ],
   [
-    "AnimationBase",
+    "Animation.Play",
     0xf802,
     {
       fields: [
