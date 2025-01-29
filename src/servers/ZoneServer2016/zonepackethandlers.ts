@@ -1665,6 +1665,9 @@ export class ZonePacketHandlers {
       // Check current interaction
       client.character.checkCurrentInteractionGuid();
 
+      // Handle shoe durability
+      client.character.handleShoeDurability(server);
+      
       // Timeout interaction lock UI
       if (
         client.character.lastInteractionRequestGuid &&

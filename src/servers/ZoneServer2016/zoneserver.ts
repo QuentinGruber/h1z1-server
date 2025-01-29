@@ -5734,6 +5734,8 @@ export class ZoneServer2016 extends EventEmitter {
         return 100;
       case this.isConvey(itemDefinitionId):
         return 5400;
+      case this.isBoot(itemDefinitionId):
+        return 14400;
       case this.isWeapon(itemDefinitionId):
       default:
         return 2000;

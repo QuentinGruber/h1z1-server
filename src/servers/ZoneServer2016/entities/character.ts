@@ -75,6 +75,7 @@ import { ConstructionParentEntity } from "./constructionparententity";
 import { ExplosiveEntity } from "./explosiveentity";
 import { BaseEntity } from "./baseentity";
 import { ProjectileEntity } from "./projectileentity";
+import { LoadoutItem } from "../classes/loadoutItem";
 const stats = require("../../../../data/2016/sampleData/stats.json");
 
 interface CharacterStates {
@@ -1896,5 +1897,12 @@ export class Character2016 extends BaseFullCharacter {
       entity: sourceEntity.characterId,
       damage: damage
     });
+  }
+
+  handleShoeDurability(server: ZoneServer2016) {
+    const item: LoadoutItem | undefined = this._loadout[LoadoutSlots.FEET];
+    if (!item) return;
+
+    server.damageItem(this, item, server.isBoot(item.itemDefinitionId) ? 0.5 : 0.25);
   }
 }
