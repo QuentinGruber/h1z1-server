@@ -477,6 +477,11 @@ export class H1Z1Protocol {
             offset = 2;
             break;
           }
+          case 0xce: {
+            packet = H1Z1Packets.Packets[0xce];
+            offset = 3;
+            break;
+          }
           default: {
             console.error(`unknown packet use flag 3 : ${opCode}`);
             [packet, offset] = this.resolveOpcode(opCode, data);
