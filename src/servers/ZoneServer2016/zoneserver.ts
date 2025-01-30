@@ -2546,7 +2546,7 @@ export class ZoneServer2016 extends EventEmitter {
         {
           data: {
             characterId: client.character.characterId,
-            unknown6: 128,
+            flag: 128,
             managerCharacterId: client.character.characterId
           }
         }
@@ -2560,7 +2560,7 @@ export class ZoneServer2016 extends EventEmitter {
             {
               data: {
                 characterId: client.character.characterId,
-                unknown6: 128,
+                flag: 128,
                 managerCharacterId: iteratedClient.character.characterId
               }
             }

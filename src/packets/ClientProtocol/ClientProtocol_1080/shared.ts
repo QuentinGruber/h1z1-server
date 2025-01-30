@@ -756,8 +756,16 @@ export function packPositionUpdateData(obj: any) {
   return data;
 }
 
-export function packMultiStateDeathData(obj: any) {
-  const isRagdoll = obj["unknown6"] && obj["unknown6"] > 0;
+export interface MultiDeathData {
+  characterId: string;
+  unknown4: number;
+  unknown5: number;
+  flag: number;
+  managerCharacterId: string;
+}
+
+export function packMultiStateDeathData(obj: MultiDeathData) {
+  const isRagdoll = obj.flag && obj.flag > 0;
   let offset = 0;
   const data = Buffer.allocUnsafe(isRagdoll ? 19 : 11);
   for (let j = 0; j < 8; j++) {
@@ -771,7 +779,7 @@ export function packMultiStateDeathData(obj: any) {
   offset += 1;
   data.writeUInt8(obj["unknown5"], offset);
   offset += 1;
-  data.writeUInt8(obj["unknown6"], offset);
+  data.writeUInt8(obj.flag, offset);
   offset += 1;
 
   if (isRagdoll) {
