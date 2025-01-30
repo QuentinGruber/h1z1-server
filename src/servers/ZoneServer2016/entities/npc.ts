@@ -196,7 +196,7 @@ export class Npc extends BaseFullCharacter {
             server.sendData(c, "Character.StartMultiStateDeath", {
               data: {
                 characterId: this.characterId,
-                unknown6: 128,
+                flag: 128,
                 managerCharacterId: c.character.characterId
               }
             });
@@ -208,7 +208,7 @@ export class Npc extends BaseFullCharacter {
             server.sendData(c, "Character.StartMultiStateDeath", {
               data: {
                 characterId: this.characterId,
-                unknown6: 0
+                flag: 0
               }
             });
           }
