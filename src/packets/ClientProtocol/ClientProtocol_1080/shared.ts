@@ -756,31 +756,31 @@ export function packPositionUpdateData(obj: any) {
   return data;
 }
 
-export function packMultiStateDeathData(obj: any) {
-  const isRagdoll = obj["unknown6"] && obj["unknown6"] > 0;
+export interface MultiDeathData {
+  characterId: string;
+  unknown4: number;
+  unknown5: number;
+  flag: number;
+  managerCharacterId: string;
+}
+
+export function packMultiStateDeathData(obj: MultiDeathData) {
+  const isRagdoll = obj.flag && obj.flag > 0;
   let offset = 0;
   const data = Buffer.allocUnsafe(isRagdoll ? 19 : 11);
-  for (let j = 0; j < 8; j++) {
-    data.writeUInt8(
-      parseInt(obj["characterId"].substr(2 + (7 - j) * 2, 2), 16),
-      offset + j
-    );
-  }
+  const characterIdBI = BigInt(obj.characterId);
+  data.writeBigUInt64LE(characterIdBI, offset);
   offset += 8;
   data.writeUInt8(obj["unknown4"], offset);
   offset += 1;
   data.writeUInt8(obj["unknown5"], offset);
   offset += 1;
-  data.writeUInt8(obj["unknown6"], offset);
+  data.writeUInt8(obj.flag, offset);
   offset += 1;
 
   if (isRagdoll) {
-    for (let j = 0; j < 8; j++) {
-      data.writeUInt8(
-        parseInt(obj["managerCharacterId"].substr(2 + (7 - j) * 2, 2), 16),
-        offset + j
-      );
-    }
+    const managerCharacterIdBI = BigInt(obj.managerCharacterId);
+    data.writeBigUInt64LE(managerCharacterIdBI, offset);
     offset += 8;
   }
   return data;

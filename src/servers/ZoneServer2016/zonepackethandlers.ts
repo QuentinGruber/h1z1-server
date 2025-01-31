@@ -702,7 +702,7 @@ export class ZonePacketHandlers {
       vehicle = characterId ? server._vehicles[characterId] : undefined,
       damage = Number((packet.data.damage || 0).toFixed(0));
 
-    if (!vehicle) return;
+    if (!vehicle || damage <= 100) return;
     vehicle.damage(server, { entity: "", damage: damage * 4 });
     //server.DTOhit(client, packet);
   }
@@ -2588,7 +2588,6 @@ export class ZonePacketHandlers {
 
     if (sourceCharacterId == client.character.characterId) {
       const sourceCharacter = client.character;
-
       // from client container
       if (sourceCharacterId == targetCharacterId) {
         // from / to client container
@@ -2605,25 +2604,27 @@ export class ZonePacketHandlers {
             server.containerError(client, ContainerErrors.NO_ITEM_IN_SLOT);
             return;
           }
-          if (item.itemDefinitionId == 1899) item.itemDefinitionId = 1373; // Remove this next wipe
           if (item.weapon) {
-            const ammo = server.generateItem(
-              server.getWeaponAmmoId(item.itemDefinitionId),
-              item.weapon.ammoCount
-            );
-            if (
-              ammo &&
-              item.weapon.ammoCount > 0 &&
-              item.weapon.itemDefinitionId != Items.WEAPON_REMOVER
-            ) {
-              sourceCharacter.lootContainerItem(
-                server,
-                ammo,
-                ammo.stackCount,
-                true
+            const weaponAmmoId = server.getWeaponAmmoId(item.itemDefinitionId);
+            if (item.itemDefinitionId != weaponAmmoId) {
+              const ammo = server.generateItem(
+                weaponAmmoId,
+                item.weapon.ammoCount
               );
+              if (
+                ammo &&
+                item.weapon.ammoCount > 0 &&
+                item.weapon.itemDefinitionId != Items.WEAPON_REMOVER
+              ) {
+                sourceCharacter.lootContainerItem(
+                  server,
+                  ammo,
+                  ammo.stackCount,
+                  true
+                );
+              }
+              item.weapon.ammoCount = 0;
             }
-            item.weapon.ammoCount = 0;
           }
           if (targetContainer) {
             // to container
