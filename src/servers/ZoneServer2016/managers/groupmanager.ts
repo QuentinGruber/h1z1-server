@@ -89,8 +89,8 @@ export class GroupManager {
     return server._soloMode
       ? this.soloGroups[groupId]
       : await server._db
-          .collection(DB_COLLECTIONS.GROUPS)
-          .findOne<Group>({ serverId: server._worldId, groupId });
+        .collection(DB_COLLECTIONS.GROUPS)
+        .findOne<Group>({ serverId: server._worldId, groupId });
   }
 
   async deleteGroup(server: ZoneServer2016, groupId: number) {
@@ -523,7 +523,7 @@ export class GroupManager {
     group: Group
   ) {
     const sourceClient: Client | undefined =
-        server.getClientByCharId(sourceCharacterId),
+      server.getClientByCharId(sourceCharacterId),
       targetClient: Client | undefined =
         server.getClientByCharId(targetCharacterId);
 
@@ -563,6 +563,18 @@ export class GroupManager {
       `${client.character.name} has left the group.`
     );
     this.removeGroupMember(server, client.character.characterId, group.groupId);
+  }
+
+  handleGroupLeader(server: ZoneServer2016, client: Client, group: Group, arg: argleader) {
+    const newleader = argleader;
+
+    if (group.leader == client.character.characterId) {
+
+
+
+      return;
+    }
+
   }
 
   handleGroupView(server: ZoneServer2016, client: Client, group: Group) {
@@ -653,6 +665,9 @@ export class GroupManager {
           group
         );
         break;
+      case "leader":
+        this.handleGroupLeader(server, client, group, args[1]);
+        break;
       case "leave":
         this.handleGroupLeave(server, client, group);
         break;
@@ -680,7 +695,6 @@ export class GroupManager {
           server.sendChatText(client, "Client not found.");
           return;
         }
-
         this.sendGroupInvite(server, client, targetClient);
         break;
       default:
