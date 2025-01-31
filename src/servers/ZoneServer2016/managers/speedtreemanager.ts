@@ -137,7 +137,11 @@ export class SpeedTreeManager {
             return;
         }
 
-        server.damageItem(client.character, wep, eightDuraItems.includes(wep.itemDefinitionId) ? 8 : 6);
+        server.damageItem(
+          client.character,
+          wep,
+          eightDuraItems.includes(wep.itemDefinitionId) ? 8 : 6
+        );
 
         if (!this._speedTreesCounter[objectId]) {
           this._speedTreesCounter[objectId] = {

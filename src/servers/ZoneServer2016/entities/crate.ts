@@ -212,7 +212,7 @@ export class Crate extends BaseSimpleNpc {
     this.damage(server, { ...damageInfo, damage });
     const client = server.getClientByCharId(damageInfo.entity),
       weapon = client?.character.getEquippedWeapon();
-    
+
     if (!client || !weapon) return;
 
     const eightDuraItems = [
@@ -220,7 +220,11 @@ export class Crate extends BaseSimpleNpc {
       Items.WEAPON_HATCHET,
       Items.WEAPON_CROWBAR
     ];
-    server.damageItem(client.character, weapon, eightDuraItems.includes(weapon.itemDefinitionId) ? 8 : 6);
+    server.damageItem(
+      client.character,
+      weapon,
+      eightDuraItems.includes(weapon.itemDefinitionId) ? 8 : 6
+    );
   }
 
   /* eslint-disable @typescript-eslint/no-unused-vars */
