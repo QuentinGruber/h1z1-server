@@ -5724,7 +5724,7 @@ export class ZoneServer2016 extends EventEmitter {
       case this.isGeneric(itemDefinitionId) &&
         itemDefinitionId == Items.SKINNING_KNIFE:
         return 2000;
-      case this.isGeneric(itemDefinitionId) && !this.isConvey(itemDefinitionId):
+      case this.isGeneric(itemDefinitionId) && !this.isConvey(itemDefinitionId) && !this.isBoot(itemDefinitionId):
         return 0;
       case itemDefinitionId == Items.WEAPON_HATCHET_MAKESHIFT:
         return 250;

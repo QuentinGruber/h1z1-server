@@ -1900,9 +1900,16 @@ export class Character2016 extends BaseFullCharacter {
   }
 
   handleShoeDurability(server: ZoneServer2016) {
-    const item: LoadoutItem | undefined = this._loadout[LoadoutSlots.FEET];
-    if (!item) return;
+    if (!this._loadout[LoadoutSlots.FEET]) return;
+    const itemGuid = this._loadout[LoadoutSlots.FEET].itemGuid;
+    if (itemGuid) {
+      const item = this.getInventoryItem(itemGuid);
+      const itemDefinition = server.getItemDefinition(
+        item?.itemDefinitionId ?? 0
+      );
+      if (!item || !itemDefinition) return;
 
-    server.damageItem(this, item, server.isBoot(item.itemDefinitionId) ? 0.5 : 0.25);
+      server.damageItem(this, item, server.isBoot(item.itemDefinitionId) ? 1.2 : 0.4);
+    } 
   }
 }
