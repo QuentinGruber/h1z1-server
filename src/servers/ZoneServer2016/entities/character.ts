@@ -1909,7 +1909,11 @@ export class Character2016 extends BaseFullCharacter {
       );
       if (!item || !itemDefinition) return;
 
-      server.damageItem(this, item, server.isBoot(item.itemDefinitionId) ? 1.2 : 0.4);
-    } 
+      server.damageItem(
+        this,
+        item,
+        server.isBoot(item.itemDefinitionId) ? 1.2 : 0.4
+      );
+    }
   }
 }
