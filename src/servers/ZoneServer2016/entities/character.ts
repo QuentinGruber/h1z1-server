@@ -75,7 +75,6 @@ import { ConstructionParentEntity } from "./constructionparententity";
 import { ExplosiveEntity } from "./explosiveentity";
 import { BaseEntity } from "./baseentity";
 import { ProjectileEntity } from "./projectileentity";
-import { LoadoutItem } from "../classes/loadoutItem";
 const stats = require("../../../../data/2016/sampleData/stats.json");
 
 interface CharacterStates {
