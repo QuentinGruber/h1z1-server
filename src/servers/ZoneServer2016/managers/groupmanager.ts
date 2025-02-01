@@ -565,17 +565,31 @@ export class GroupManager {
     this.removeGroupMember(server, client.character.characterId, group.groupId);
   }
 
-  handleGroupLeader(server: ZoneServer2016, client: Client, group: Group, arg: argleader) {
+  handleGroupLeader(server: ZoneServer2016, client: Client, group: Group, argleader: string) {
     const newleader = argleader;
 
     if (group.leader == client.character.characterId) {
+        const newLeaderClient = server.getClientByNameOrLoginSession(newleader);
+        if (!newLeaderClient || !(newLeaderClient instanceof Client)) {
+            server.sendChatText(client, "New leader not found.");
+            return;
+        }
 
-
-
-      return;
+        group.leader = newLeaderClient.character.characterId;
+        server.sendAlert(newLeaderClient, "You have been made the group leader!");
+        this.sendAlertToAllOthersInGroup(
+            server,
+            newLeaderClient,
+            group.groupId,
+            `${newLeaderClient.character.name} has been made the group leader!`
+        );
+        this.sendDataToGroup(server, group.groupId, "Group.SetGroupOwner", {
+            characterId: newLeaderClient.character.characterId,
+        });
+    } else {
+        server.sendChatText(client, "You are not the group leader.");
     }
-
-  }
+}
 
   handleGroupView(server: ZoneServer2016, client: Client, group: Group) {
     server.sendConsoleText(
