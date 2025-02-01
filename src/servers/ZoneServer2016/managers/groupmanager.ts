@@ -576,6 +576,19 @@ export class GroupManager {
         }
 
         group.leader = newLeaderClient.character.characterId;
+
+        // Update the database
+        if (!server._soloMode) {
+            server._db.collection(DB_COLLECTIONS.GROUPS).updateOne(
+                {
+                    serverId: server._worldId,
+                    groupId: group.groupId
+                },
+                { $set: { leader: newLeaderClient.character.characterId } }
+            );
+        }
+
+        // Notify the new leader and the group
         server.sendAlert(newLeaderClient, "You have been made the group leader!");
         this.sendAlertToAllOthersInGroup(
             server,
@@ -583,9 +596,15 @@ export class GroupManager {
             group.groupId,
             `${newLeaderClient.character.name} has been made the group leader!`
         );
+
+        // Update the group UI
         this.sendDataToGroup(server, group.groupId, "Group.SetGroupOwner", {
             characterId: newLeaderClient.character.characterId,
+            groupId: group.groupId
         });
+
+        // Sync the group
+        this.syncGroup(server, group.groupId, true);
     } else {
         server.sendChatText(client, "You are not the group leader.");
     }
