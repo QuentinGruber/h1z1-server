@@ -197,15 +197,12 @@ export class Destroyable extends BaseSimpleNpc {
 
     if (!client || !weapon) return;
 
-    const eightDuraItems = [
-      Items.WEAPON_HATCHET_MAKESHIFT,
-      Items.WEAPON_HATCHET,
-      Items.WEAPON_CROWBAR
-    ];
+    const durabilityDamage = server.getDurabilityDamage(weapon.itemDefinitionId);
+    
     server.damageItem(
       client.character,
       weapon,
-      eightDuraItems.includes(weapon.itemDefinitionId) ? 8 : 6
+      durabilityDamage
     );
   }
 
