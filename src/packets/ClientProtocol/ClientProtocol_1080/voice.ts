@@ -38,12 +38,14 @@ export const voicePackets: PacketStructures = [
     }
   ],
   ["Voice.LeaveChannel", 0x8202, { fields: [] }],
-  ["Voice.RadioChannel", 0x8207, 
-    { 
+  [
+    "Voice.RadioChannel",
+    0x8207,
+    {
       fields: [
         { name: "radioType", type: "uint32", defaultValue: 0 },
         { name: "currentChannel", type: "uint32", defaultValue: 0 }
-      ] 
+      ]
     }
   ],
   ["Voice.LeaveRadio", 0x8208, { fields: [] }]
