@@ -662,7 +662,7 @@ export class GroupManager {
   async handleGroupCommand(
     server: ZoneServer2016,
     client: Client,
-    args: Array<string>
+    args: Array<string | undefined>
   ) {
     if (!args[0]) {
       server.sendChatText(
@@ -704,6 +704,13 @@ export class GroupManager {
         );
         break;
       case "leader":
+        if (!args[1]) {
+          server.sendChatText(
+            client,
+            "You must specify a new leader!  Usage: /group leader {playername}"
+          );
+          return;
+        }
         this.handleGroupLeader(server, client, group, args[1]);
         break;
       case "leave":
