@@ -71,6 +71,7 @@ export class ZoneClient2016 {
     mountedVehicle?: string;
   } = {};
   radio: boolean = false;
+  radioChannel?: number = 0;
   npcsToSpawnTimer!: NodeJS.Timeout;
   loginSessionId: string;
   clearHudTimer: () => void;
