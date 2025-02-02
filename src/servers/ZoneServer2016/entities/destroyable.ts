@@ -197,13 +197,11 @@ export class Destroyable extends BaseSimpleNpc {
 
     if (!client || !weapon) return;
 
-    const durabilityDamage = server.getDurabilityDamage(weapon.itemDefinitionId);
-    
-    server.damageItem(
-      client.character,
-      weapon,
-      durabilityDamage
+    const durabilityDamage = server.getDurabilityDamage(
+      weapon.itemDefinitionId
     );
+
+    server.damageItem(client.character, weapon, durabilityDamage);
   }
 
   pGetSimpleNpc(): AddSimpleNpc {

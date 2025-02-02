@@ -3152,13 +3152,13 @@ export class ZoneServer2016 extends EventEmitter {
 
   getDurabilityDamage(itemDefinitionId: number) {
     if (!itemDefinitionId) return 0;
-    
-    switch(itemDefinitionId) {
+
+    switch (itemDefinitionId) {
       case Items.WEAPON_CROWBAR:
       case Items.WEAPON_HATCHET_MAKESHIFT:
       case Items.WEAPON_HATCHET:
         return 8;
-      default: 
+      default:
         return 6;
     }
   }

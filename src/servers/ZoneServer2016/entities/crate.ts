@@ -215,13 +215,11 @@ export class Crate extends BaseSimpleNpc {
 
     if (!client || !weapon) return;
 
-    const durabilityDamage = server.getDurabilityDamage(weapon.itemDefinitionId);
-    
-    server.damageItem(
-      client.character,
-      weapon,
-      durabilityDamage
+    const durabilityDamage = server.getDurabilityDamage(
+      weapon.itemDefinitionId
     );
+
+    server.damageItem(client.character, weapon, durabilityDamage);
   }
 
   /* eslint-disable @typescript-eslint/no-unused-vars */
