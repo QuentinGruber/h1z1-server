@@ -89,8 +89,8 @@ export class GroupManager {
     return server._soloMode
       ? this.soloGroups[groupId]
       : await server._db
-        .collection(DB_COLLECTIONS.GROUPS)
-        .findOne<Group>({ serverId: server._worldId, groupId });
+          .collection(DB_COLLECTIONS.GROUPS)
+          .findOne<Group>({ serverId: server._worldId, groupId });
   }
 
   async deleteGroup(server: ZoneServer2016, groupId: number) {
@@ -523,7 +523,7 @@ export class GroupManager {
     group: Group
   ) {
     const sourceClient: Client | undefined =
-      server.getClientByCharId(sourceCharacterId),
+        server.getClientByCharId(sourceCharacterId),
       targetClient: Client | undefined =
         server.getClientByCharId(targetCharacterId);
 
@@ -565,50 +565,55 @@ export class GroupManager {
     this.removeGroupMember(server, client.character.characterId, group.groupId);
   }
 
-  handleGroupLeader(server: ZoneServer2016, client: Client, group: Group, argleader: string) {
+  handleGroupLeader(
+    server: ZoneServer2016,
+    client: Client,
+    group: Group,
+    argleader: string
+  ) {
     const newleader = argleader;
 
     if (group.leader == client.character.characterId) {
-        const newLeaderClient = server.getClientByNameOrLoginSession(newleader);
-        if (!newLeaderClient || !(newLeaderClient instanceof Client)) {
-            server.sendChatText(client, "New leader not found.");
-            return;
-        }
+      const newLeaderClient = server.getClientByNameOrLoginSession(newleader);
+      if (!newLeaderClient || !(newLeaderClient instanceof Client)) {
+        server.sendChatText(client, "New leader not found.");
+        return;
+      }
 
-        group.leader = newLeaderClient.character.characterId;
+      group.leader = newLeaderClient.character.characterId;
 
-        // Update the database
-        if (!server._soloMode) {
-            server._db.collection(DB_COLLECTIONS.GROUPS).updateOne(
-                {
-                    serverId: server._worldId,
-                    groupId: group.groupId
-                },
-                { $set: { leader: newLeaderClient.character.characterId } }
-            );
-        }
-
-        // Notify the new leader and the group
-        server.sendAlert(newLeaderClient, "You have been made the group leader!");
-        this.sendAlertToAllOthersInGroup(
-            server,
-            newLeaderClient,
-            group.groupId,
-            `${newLeaderClient.character.name} has been made the group leader!`
-        );
-
-        // Update the group UI
-        this.sendDataToGroup(server, group.groupId, "Group.SetGroupOwner", {
-            characterId: newLeaderClient.character.characterId,
+      // Update the database
+      if (!server._soloMode) {
+        server._db.collection(DB_COLLECTIONS.GROUPS).updateOne(
+          {
+            serverId: server._worldId,
             groupId: group.groupId
-        });
+          },
+          { $set: { leader: newLeaderClient.character.characterId } }
+        );
+      }
 
-        // Sync the group
-        this.syncGroup(server, group.groupId, true);
+      // Notify the new leader and the group
+      server.sendAlert(newLeaderClient, "You have been made the group leader!");
+      this.sendAlertToAllOthersInGroup(
+        server,
+        newLeaderClient,
+        group.groupId,
+        `${newLeaderClient.character.name} has been made the group leader!`
+      );
+
+      // Update the group UI
+      this.sendDataToGroup(server, group.groupId, "Group.SetGroupOwner", {
+        characterId: newLeaderClient.character.characterId,
+        groupId: group.groupId
+      });
+
+      // Sync the group
+      this.syncGroup(server, group.groupId, true);
     } else {
-        server.sendChatText(client, "You are not the group leader.");
+      server.sendChatText(client, "You are not the group leader.");
     }
-}
+  }
 
   handleGroupView(server: ZoneServer2016, client: Client, group: Group) {
     server.sendConsoleText(
