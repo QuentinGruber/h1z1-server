@@ -117,6 +117,9 @@ export class SpeedTreeManager {
         const wep = client.character.getEquippedWeapon();
         if (!wep) return;
 
+        const durabilityDamage = server.getDurabilityDamage(
+          wep.itemDefinitionId
+        );
         switch (wep.itemDefinitionId) {
           case Items.WEAPON_HATCHET:
           case Items.WEAPON_HATCHET_MAKESHIFT:
@@ -132,7 +135,7 @@ export class SpeedTreeManager {
             return;
         }
 
-        server.damageItem(client.character, wep, 5);
+        server.damageItem(client.character, wep, durabilityDamage);
 
         if (!this._speedTreesCounter[objectId]) {
           this._speedTreesCounter[objectId] = {
