@@ -2044,6 +2044,14 @@ export const lootTables: { [lootSpawner: string]: LootSpawner } = {
           min: 1,
           max: 1
         }
+      },
+      {
+        item: Items.BACKPACK_MILITARY_TAN,
+        weight: 25,
+        spawnCount: {
+          min: 1,
+          max: 1
+        }
       }
     ]
   },
