@@ -2294,6 +2294,9 @@ export class ZoneServer2016 extends EventEmitter {
         this.aiManager.remove_entity(client.character.h1emu_ai_id);
       }
       client.isLoading = true; // stop anything from acting on character
+      // "shift" time played prior to logging out
+      client.character.metrics.startedSurvivingTP +=
+        Date.now() - Number(client.character.lastLoginDate);
 
       clearTimeout(client.character?.resourcesUpdater);
       try {
@@ -2546,7 +2549,7 @@ export class ZoneServer2016 extends EventEmitter {
         {
           data: {
             characterId: client.character.characterId,
-            unknown6: 128,
+            flag: 128,
             managerCharacterId: client.character.characterId
           }
         }
@@ -2560,7 +2563,7 @@ export class ZoneServer2016 extends EventEmitter {
             {
               data: {
                 characterId: client.character.characterId,
-                unknown6: 128,
+                flag: 128,
                 managerCharacterId: iteratedClient.character.characterId
               }
             }
@@ -5721,7 +5724,7 @@ export class ZoneServer2016 extends EventEmitter {
       case this.isGeneric(itemDefinitionId) &&
         itemDefinitionId == Items.SKINNING_KNIFE:
         return 2000;
-      case this.isGeneric(itemDefinitionId):
+      case this.isGeneric(itemDefinitionId) && !this.isConvey(itemDefinitionId):
         return 0;
       case itemDefinitionId == Items.WEAPON_HATCHET_MAKESHIFT:
         return 250;
