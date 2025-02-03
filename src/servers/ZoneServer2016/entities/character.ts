@@ -1897,4 +1897,22 @@ export class Character2016 extends BaseFullCharacter {
       damage: damage
     });
   }
+
+  handleShoeDurability(server: ZoneServer2016) {
+    if (!this._loadout[LoadoutSlots.FEET]) return;
+    const itemGuid = this._loadout[LoadoutSlots.FEET].itemGuid;
+    if (itemGuid) {
+      const item = this.getInventoryItem(itemGuid);
+      const itemDefinition = server.getItemDefinition(
+        item?.itemDefinitionId ?? 0
+      );
+      if (!item || !itemDefinition) return;
+
+      server.damageItem(
+        this,
+        item,
+        server.isBoot(item.itemDefinitionId) ? 1.2 : 0.4
+      );
+    }
+  }
 }
