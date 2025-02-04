@@ -2324,6 +2324,7 @@ export class ZoneServer2016 extends EventEmitter {
   }
 
   async deleteClient(client: Client) {
+    this.hookManager.checkHook("OnPlayerDisconnected", client);
     if (!client) {
       this.setTickRate();
       return;
