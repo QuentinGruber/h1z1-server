@@ -3305,6 +3305,7 @@ export class ZonePacketHandlers {
     )
       return;
     client.radio = true;
+    client.radioChannel = packet.data.currentChannel;
   }
   VoiceLeaveRadio(
     server: ZoneServer2016,
