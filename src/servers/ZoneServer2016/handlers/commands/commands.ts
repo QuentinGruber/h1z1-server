@@ -3403,13 +3403,6 @@ export const commands: Array<Command> = [
     permissionLevel: PermissionLevels.DEFAULT,
     keepCase: true,
     execute: async (server: ZoneServer2016, client: Client) => {
-      if (server._soloMode) {
-        server.sendChatText(
-          client,
-          `This command is not available in solo mode.`
-        );
-        return;
-      }
 
       const characterData = await server._db
         .collection("characters")
@@ -3422,7 +3415,7 @@ export const commands: Array<Command> = [
 
       const stats = {
         "Zombie Kills": characterData.stats?.zombiesKilled ?? 0,
-        Playtime: `${characterData.playTime ?? 0} hours`,
+        "Playtime": `${characterData.playTime ?? 0} hours`,
         "PvP Kills": characterData.stats?.playersKilled ?? 0,
         "PvP Deaths": characterData.stats?.playersDeaths ?? 0,
         "Vehicle Destructions": characterData.stats?.vehiclesDestroyed ?? 0,
