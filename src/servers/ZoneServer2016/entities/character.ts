@@ -99,6 +99,7 @@ interface CharacterMetrics {
 interface Characterstats {
   zombiesKilled: number;
   playersDeaths: number;
+  itemslooted: number;
   playersKilled: number;
   vehiclesDestroyed: number;
 }
@@ -257,16 +258,17 @@ export class Character2016 extends BaseFullCharacter {
     wildlifeKilled: 0,
     startedSurvivingTP: Date.now(),
     vehiclesDestroyed: 0,
-    playersKilled: 0,
+    playersKilled: 0
   };
 
-    /** Metrics of stats attributes */
-    stats: Characterstats = {
-      playersDeaths: 0,
-      playersKilled: 0,
-      zombiesKilled: 0,
-      vehiclesDestroyed: 0
-    };
+  /** Metrics of stats attributes */
+  stats: Characterstats = {
+    playersDeaths: 0,
+    itemslooted: 0,
+    playersKilled: 0,
+    zombiesKilled: 0,
+    vehiclesDestroyed: 0
+  };
 
   /** Tracks combat with other players/entities */
   private combatlog: DamageRecord[] = [];

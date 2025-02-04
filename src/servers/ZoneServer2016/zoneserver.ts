@@ -1648,6 +1648,7 @@ export class ZoneServer2016 extends EventEmitter {
       playersDeaths: savedCharacter.stats?.playersDeaths || 0,
       playersKilled: savedCharacter.stats?.playersKilled || 0,
       vehiclesDestroyed: savedCharacter.stats?.vehiclesDestroyed || 0,
+      itemslooted: savedCharacter.stats?.itemslooted || 0
     };
     client.character.groupId = 0; //savedCharacter.groupId || 0;
     client.character.playTime = savedCharacter.playTime || 0;
@@ -2640,7 +2641,7 @@ export class ZoneServer2016 extends EventEmitter {
     this.clearInventory(client, false);
     this.sendKillFeed(client, damageInfo);
     this.hookManager.checkHook("OnPlayerDied", client, damageInfo);
-    client.character.stats.playersDeaths++
+    client.character.stats.playersDeaths++;
     this.emit("killCharacterComplete", client); // Throw emit for dismounting character from vehicle
   }
 

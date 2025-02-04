@@ -3404,26 +3404,43 @@ export const commands: Array<Command> = [
     keepCase: true,
     execute: async (server: ZoneServer2016, client: Client) => {
       if (server._soloMode) {
-        server.sendChatText(client, `This command is not available in solo mode.`);
+        server.sendChatText(
+          client,
+          `This command is not available in solo mode.`
+        );
         return;
       }
-  
-      const characterData = await server._db.collection("characters").findOne({ characterId: client.character.characterId });
-  
+
+      const characterData = await server._db
+        .collection("characters")
+        .findOne({ characterId: client.character.characterId });
+
       if (!characterData) {
         server.sendChatText(client, `Character data not found.`);
         return;
       }
-      server.sendChatText(client, `Player Stats:`,true);
-      server.sendChatText(client, `Zombie Kills: ${characterData.stats.zombiesKilled}`);
-      server.sendChatText(client, `Playtime: ${characterData.playTime} hours`);
-      server.sendChatText(client, `PvP Kills: ${characterData.stats.playersKilled}`);
-      server.sendChatText(client, `PvP Deaths: ${characterData.stats.playersDeaths}`);
-      server.sendChatText(client, `Vehicle Destructions: ${characterData.stats.vehiclesDestroyed}`);
-      server.sendChatText(client, `K/D Ratio: ${characterData.stats.playersDeaths === 0 ? characterData.stats.playersKilled : (characterData.stats.playersKilled / characterData.stats.playersDeaths).toFixed(2)}`);
-    },
-  }
-  
 
+      const stats = {
+        "Zombie Kills": characterData.stats?.zombiesKilled ?? 0,
+        Playtime: `${characterData.playTime ?? 0} hours`,
+        "PvP Kills": characterData.stats?.playersKilled ?? 0,
+        "PvP Deaths": characterData.stats?.playersDeaths ?? 0,
+        "Vehicle Destructions": characterData.stats?.vehiclesDestroyed ?? 0,
+        "Items Looted": characterData.stats?.itemslooted ?? 0,
+        "K/D Ratio":
+          characterData.stats?.playersDeaths === 0
+            ? (characterData.stats?.playersKilled ?? 0).toFixed(2)
+            : (
+                (characterData.stats?.playersKilled ?? 0) /
+                (characterData.stats?.playersDeaths ?? 0)
+              ).toFixed(2)
+      };
+
+      server.sendChatText(client, `Player Stats:`, true);
+      for (const [key, value] of Object.entries(stats)) {
+        server.sendChatText(client, `${key}: ${value}`);
+      }
+    }
+  }
   //#endregion
 ];

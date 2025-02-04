@@ -553,8 +553,9 @@ export class WorldDataManager {
       stats: {
         zombiesKilled: character.stats.zombiesKilled || 0,
         playersDeaths: character.stats.playersDeaths || 0,
+        itemslooted: character.stats.itemslooted || 0,
         playersKilled: character.stats.playersKilled || 0,
-        vehiclesDestroyed: character.stats.vehiclesDestroyed || 0,
+        vehiclesDestroyed: character.stats.vehiclesDestroyed || 0
       }
     };
     return saveData;

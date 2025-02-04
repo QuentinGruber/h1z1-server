@@ -54,6 +54,7 @@ export class ItemObject extends BaseLightweightCharacter {
     // -1 spawnerId means item was dropped
     if (this.spawnerId <= -1) return;
     server.lootCrateWithChance(client, 5);
+    client.character.stats.itemslooted++;
   }
 
   OnInteractionString(server: ZoneServer2016, client: ZoneClient2016): void {

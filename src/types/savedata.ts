@@ -190,6 +190,7 @@ export interface CharacterMetricsSaveData {
 
 export interface CharacterStatsSaveData {
   playersDeaths: number;
+  itemslooted: number;
   playersKilled: number;
   zombiesKilled: number;
   vehiclesDestroyed: number;
