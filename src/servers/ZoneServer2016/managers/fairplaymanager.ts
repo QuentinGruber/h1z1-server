@@ -736,6 +736,8 @@ export class FairPlayManager {
   }
 
   validateFile(file1: FileHash, file2: FileHash) {
+    console.log(file1);
+    console.log(file2);
     return (
       file1.file_name == file2.file_name && file1.crc32_hash == file2.crc32_hash
     );
