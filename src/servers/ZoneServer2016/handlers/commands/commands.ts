@@ -3403,28 +3403,33 @@ export const commands: Array<Command> = [
     permissionLevel: PermissionLevels.DEFAULT,
     keepCase: true,
     execute: async (server: ZoneServer2016, client: Client) => {
-        const characterData = await server._db.collection("characters").findOne({ characterId: client.character.characterId });
+      if (server._soloMode) {
+        server.sendChatText(client, `This command is not available in solo mode.`);
+        return;
+      }
   
-        if (!characterData) {
-          server.sendChatText(client, `Character data not found.`);
-          return;
-        }
+      const characterData = await server._db.collection("characters").findOne({ characterId: client.character.characterId });
   
-        const metrics = characterData.metrics || {};
-        const playtime = characterData.playTime || 0;
-        const zombieKills = metrics.zombiesKilled || 0;
-        const playerKills = metrics.playersKilled || 0;
-        const playerDeaths = metrics.playerDeaths || 0;
-        const vehicleDestructions = metrics.vehiclesDestroyed || 0;
-        const kdRatio = playerDeaths === 0 ? playerKills : (playerKills / playerDeaths).toFixed(2);
+      if (!characterData) {
+        server.sendChatText(client, `Character data not found.`);
+        return;
+      }
   
-        server.sendChatText(client, `Player Stats:`);
-        server.sendChatText(client, `Zombie Kills: ${zombieKills}`);
-        server.sendChatText(client, `Playtime: ${playtime} hours`);
-        server.sendChatText(client, `PvP Kills: ${playerKills}`);
-        server.sendChatText(client, `PvP Deaths: ${playerDeaths}`);
-        server.sendChatText(client, `Vehicle Destructions: ${vehicleDestructions}`);
-        server.sendChatText(client, `K/D Ratio: ${kdRatio}`);
+      const metrics = characterData.metrics || {};
+      const playtime = characterData.playTime || 0;
+      const zombieKills = metrics.zombiesKilled || 0;
+      const playerKills = metrics.playersKilled || 0;
+      const playerDeaths = metrics.playerDeaths || 0;
+      const vehicleDestructions = metrics.vehiclesDestroyed || 0;
+      const kdRatio = playerDeaths === 0 ? playerKills : (playerKills / playerDeaths).toFixed(2);
+  
+      server.sendChatText(client, `Player Stats:`);
+      server.sendChatText(client, `Zombie Kills: ${zombieKills}`);
+      server.sendChatText(client, `Playtime: ${playtime} hours`);
+      server.sendChatText(client, `PvP Kills: ${playerKills}`);
+      server.sendChatText(client, `PvP Deaths: ${playerDeaths}`);
+      server.sendChatText(client, `Vehicle Destructions: ${vehicleDestructions}`);
+      server.sendChatText(client, `K/D Ratio: ${kdRatio}`);
     },
   }
   
