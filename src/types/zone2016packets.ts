@@ -2882,7 +2882,6 @@ export interface ClientUpdateNetworkProximityUpdatesComplete {
 export interface ClientUpdateDeathMetrics {
   recipesDiscovered?: number;
   playersKilled?: number;
-  playersDeaths?: number;
   wildlifeKilled?: number;
   zombiesKilled?: number;
   vehiclesDestroyed?: number;
@@ -2891,6 +2890,7 @@ export interface ClientUpdateDeathMetrics {
   lastDamageAmount?: number;
   killedByHeadshot?: boolean;
 }
+
 export interface ClientUpdateManagedObjectResponseControl {
   control?: boolean;
   objectCharacterId?: string;

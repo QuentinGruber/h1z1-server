@@ -70,6 +70,7 @@ export interface CharacterUpdateSaveData
   isRespawning: boolean;
   spawnGridData: number[];
   metrics: CharacterMetricsSaveData;
+  stats: CharacterStatsSaveData;
   mutedCharacters: string[];
   groupId: number;
   playTime: number;
@@ -185,5 +186,11 @@ export interface CharacterMetricsSaveData {
   startedSurvivingTP: number;
   vehiclesDestroyed: number;
   playersKilled: number;
+}
+
+export interface CharacterStatsSaveData {
   playersDeaths: number;
+  playersKilled: number;
+  zombiesKilled: number;
+  vehiclesDestroyed: number;
 }

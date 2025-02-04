@@ -3414,18 +3414,13 @@ export const commands: Array<Command> = [
         server.sendChatText(client, `Character data not found.`);
         return;
       }
-  
-      const metrics = characterData.metrics || {};
-
-      console.log(metrics);
-
       server.sendChatText(client, `Player Stats:`,true);
-      server.sendChatText(client, `Zombie Kills: ${metrics.zombiesKilled}`);
+      server.sendChatText(client, `Zombie Kills: ${characterData.stats.zombiesKilled}`);
       server.sendChatText(client, `Playtime: ${characterData.playTime} hours`);
-      server.sendChatText(client, `PvP Kills: ${metrics.playersKilled}`);
-      server.sendChatText(client, `PvP Deaths: ${metrics.playersDeaths}`);
-      server.sendChatText(client, `Vehicle Destructions: ${metrics.vehiclesDestroyed}`);
-      server.sendChatText(client, `K/D Ratio: ${metrics.playersDeaths === 0 ? metrics.playersKilled : (metrics.playersKilled / metrics.playersDeaths).toFixed(2)}`);
+      server.sendChatText(client, `PvP Kills: ${characterData.stats.playersKilled}`);
+      server.sendChatText(client, `PvP Deaths: ${characterData.stats.playersDeaths}`);
+      server.sendChatText(client, `Vehicle Destructions: ${characterData.stats.vehiclesDestroyed}`);
+      server.sendChatText(client, `K/D Ratio: ${characterData.stats.playersDeaths === 0 ? characterData.stats.playersKilled : (characterData.stats.playersKilled / characterData.stats.playersDeaths).toFixed(2)}`);
     },
   }
   

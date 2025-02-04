@@ -94,7 +94,13 @@ interface CharacterMetrics {
   startedSurvivingTP: number; // timestamp
   vehiclesDestroyed: number;
   playersKilled: number;
+}
+
+interface Characterstats {
+  zombiesKilled: number;
   playersDeaths: number;
+  playersKilled: number;
+  vehiclesDestroyed: number;
 }
 
 interface MeleeHit {
@@ -252,8 +258,15 @@ export class Character2016 extends BaseFullCharacter {
     startedSurvivingTP: Date.now(),
     vehiclesDestroyed: 0,
     playersKilled: 0,
-    playersDeaths: 0
   };
+
+    /** Metrics of stats attributes */
+    stats: Characterstats = {
+      playersDeaths: 0,
+      playersKilled: 0,
+      zombiesKilled: 0,
+      vehiclesDestroyed: 0
+    };
 
   /** Tracks combat with other players/entities */
   private combatlog: DamageRecord[] = [];
@@ -1154,7 +1167,6 @@ export class Character2016 extends BaseFullCharacter {
     this.metrics.startedSurvivingTP = Date.now();
     this.metrics.vehiclesDestroyed = 0;
     this.metrics.playersKilled = 0;
-    this.metrics.playersDeaths = 0;
   }
 
   resetResources(server: ZoneServer2016) {
@@ -1287,6 +1299,7 @@ export class Character2016 extends BaseFullCharacter {
         sourceEntity.characterId != client.character.characterId
       ) {
         sourceEntity.metrics.playersKilled++;
+        sourceEntity.stats.playersKilled++;
       }
     }
     server.updateResource(

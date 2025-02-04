@@ -484,6 +484,7 @@ export class WorldDataManager {
         mutedCharacters: loadedCharacter.mutedCharacters || [],
         groupId: 0, //loadedCharacter.groupId || 0,
         metrics: loadedCharacter.metrics || {},
+        stats: loadedCharacter.stats || {},
         playTime: loadedCharacter.playTime ?? 0,
         lastDropPlayTime: loadedCharacter.lastDropPlayTime ?? 0,
         status: 1,
@@ -548,7 +549,13 @@ export class WorldDataManager {
       spawnGridData: character.spawnGridData,
       mutedCharacters: character.mutedCharacters,
       groupId: 0, //character.groupId
-      metrics: character.metrics
+      metrics: character.metrics,
+      stats: {
+        zombiesKilled: character.stats.zombiesKilled || 0,
+        playersDeaths: character.stats.playersDeaths || 0,
+        playersKilled: character.stats.playersKilled || 0,
+        vehiclesDestroyed: character.stats.vehiclesDestroyed || 0,
+      }
     };
     return saveData;
   }
