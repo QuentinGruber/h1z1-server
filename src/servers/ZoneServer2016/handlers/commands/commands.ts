@@ -3416,20 +3416,16 @@ export const commands: Array<Command> = [
       }
   
       const metrics = characterData.metrics || {};
-      const playtime = characterData.playTime || 0;
-      const zombieKills = metrics.zombiesKilled || 0;
-      const playerKills = metrics.playersKilled || 0;
-      const playerDeaths = metrics.playerDeaths || 0;
-      const vehicleDestructions = metrics.vehiclesDestroyed || 0;
-      const kdRatio = playerDeaths === 0 ? playerKills : (playerKills / playerDeaths).toFixed(2);
-  
-      server.sendChatText(client, `Player Stats:`);
-      server.sendChatText(client, `Zombie Kills: ${zombieKills}`);
-      server.sendChatText(client, `Playtime: ${playtime} hours`);
-      server.sendChatText(client, `PvP Kills: ${playerKills}`);
-      server.sendChatText(client, `PvP Deaths: ${playerDeaths}`);
-      server.sendChatText(client, `Vehicle Destructions: ${vehicleDestructions}`);
-      server.sendChatText(client, `K/D Ratio: ${kdRatio}`);
+
+      console.log(metrics);
+
+      server.sendChatText(client, `Player Stats:`,true);
+      server.sendChatText(client, `Zombie Kills: ${metrics.zombiesKilled}`);
+      server.sendChatText(client, `Playtime: ${characterData.playTime} hours`);
+      server.sendChatText(client, `PvP Kills: ${metrics.playersKilled}`);
+      server.sendChatText(client, `PvP Deaths: ${metrics.playersDeaths}`);
+      server.sendChatText(client, `Vehicle Destructions: ${metrics.vehiclesDestroyed}`);
+      server.sendChatText(client, `K/D Ratio: ${metrics.playersDeaths === 0 ? metrics.playersKilled : (metrics.playersKilled / metrics.playersDeaths).toFixed(2)}`);
     },
   }
   

@@ -2882,6 +2882,7 @@ export interface ClientUpdateNetworkProximityUpdatesComplete {
 export interface ClientUpdateDeathMetrics {
   recipesDiscovered?: number;
   playersKilled?: number;
+  playersDeaths?: number;
   wildlifeKilled?: number;
   zombiesKilled?: number;
   vehiclesDestroyed?: number;

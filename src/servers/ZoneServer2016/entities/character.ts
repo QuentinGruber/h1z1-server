@@ -94,6 +94,7 @@ interface CharacterMetrics {
   startedSurvivingTP: number; // timestamp
   vehiclesDestroyed: number;
   playersKilled: number;
+  playersDeaths: number;
 }
 
 interface MeleeHit {
@@ -250,7 +251,8 @@ export class Character2016 extends BaseFullCharacter {
     wildlifeKilled: 0,
     startedSurvivingTP: Date.now(),
     vehiclesDestroyed: 0,
-    playersKilled: 0
+    playersKilled: 0,
+    playersDeaths: 0
   };
 
   /** Tracks combat with other players/entities */
@@ -1152,6 +1154,7 @@ export class Character2016 extends BaseFullCharacter {
     this.metrics.startedSurvivingTP = Date.now();
     this.metrics.vehiclesDestroyed = 0;
     this.metrics.playersKilled = 0;
+    this.metrics.playersDeaths = 0;
   }
 
   resetResources(server: ZoneServer2016) {

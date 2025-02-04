@@ -2634,6 +2634,7 @@ export class ZoneServer2016 extends EventEmitter {
     this.clearInventory(client, false);
     this.sendKillFeed(client, damageInfo);
     this.hookManager.checkHook("OnPlayerDied", client, damageInfo);
+    client.character.metrics.playersDeaths++
     this.emit("killCharacterComplete", client); // Throw emit for dismounting character from vehicle
   }
 

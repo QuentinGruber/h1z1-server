@@ -185,4 +185,5 @@ export interface CharacterMetricsSaveData {
   startedSurvivingTP: number;
   vehiclesDestroyed: number;
   playersKilled: number;
+  playersDeaths: number;
 }
