@@ -3405,8 +3405,11 @@ export const commands: Array<Command> = [
     execute: async (server: ZoneServer2016, client: Client) => {
 
       const characterData = await server._db
-        .collection("characters")
-        .findOne({ characterId: client.character.characterId });
+      .collection("characters")
+      .findOne({ 
+        characterId: client.character.characterId,
+        serverId: server._worldId
+      });
 
       if (!characterData) {
         server.sendChatText(client, `Character data not found.`);
