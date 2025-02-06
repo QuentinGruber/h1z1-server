@@ -2033,11 +2033,11 @@ export class ConstructionManager {
   ) {
     if (state) {
       if (!freePlacedEntity.isHidden) {
-        freePlacedEntity.isHidden = constructionGuid
+        freePlacedEntity.isHidden = constructionGuid;
         for (const a in server._clients) {
           const iteratedClient = server._clients[a];
 
-          const constructionEntity = 
+          const constructionEntity =
             server.getConstructionEntity(constructionGuid);
 
           let hasVisitPermission = false;
@@ -2070,7 +2070,6 @@ export class ConstructionManager {
             );
             iteratedClient.spawnedEntities.delete(client.character);
           }
-
         }
       } else return;
     } else if (freePlacedEntity.isHidden) freePlacedEntity.isHidden = "";
