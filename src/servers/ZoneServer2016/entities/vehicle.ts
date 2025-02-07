@@ -565,7 +565,10 @@ export class Vehicle2016 extends BaseLootableEntity {
   async damage(server: ZoneServer2016, damageInfo: DamageInfo) {
     if (this.isInvulnerable) return;
     const oldHealth = this._resources[ResourceIds.CONDITION];
-    this._resources[ResourceIds.CONDITION] -= damageInfo.weapon == (Items.WEAPON_308 || Items.WEAPON_MAGNUM) ? 8000 : damageInfo.damage;
+    this._resources[ResourceIds.CONDITION] -=
+      damageInfo.weapon == (Items.WEAPON_308 || Items.WEAPON_MAGNUM)
+        ? 8000
+        : damageInfo.damage;
     const client = server.getClientByCharId(damageInfo.entity);
     if (client) {
       client.character.addCombatlogEntry(
