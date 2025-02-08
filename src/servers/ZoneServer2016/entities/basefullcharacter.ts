@@ -895,7 +895,11 @@ export abstract class BaseFullCharacter extends BaseLightweightCharacter {
       footwearStatus = "Sneaker";
     } else if (item && server.isBoot(item.itemDefinitionId)) {
       footwearStatus = "Boot";
-    } else if (item && (server.isZed(item.itemDefinitionId) || server.isGator(item.itemDefinitionId))) {
+    } else if (
+      item &&
+      (server.isZed(item.itemDefinitionId) ||
+        server.isGator(item.itemDefinitionId))
+    ) {
       footwearStatus = "Silent";
     }
 

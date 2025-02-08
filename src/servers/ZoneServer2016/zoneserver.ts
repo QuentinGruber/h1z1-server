@@ -6028,7 +6028,7 @@ export class ZoneServer2016 extends EventEmitter {
       this.getItemDefinition(itemDefinitionId)?.DESCRIPTION_ID ?? 0
     );
   }
-  
+
   /**
    * Checks if an item with the specified itemDefinitionId is a zed shoe.
    *
@@ -6036,7 +6036,7 @@ export class ZoneServer2016 extends EventEmitter {
    * @returns {boolean} True if the item is a convey, false otherwise.
    */
   isZed(itemDefinitionId: number): boolean {
-    return this.getItemDefinition(itemDefinitionId)?.DESCRIPTION_ID == 15026
+    return this.getItemDefinition(itemDefinitionId)?.DESCRIPTION_ID == 15026;
   }
 
   /**
@@ -8649,7 +8649,11 @@ export class ZoneServer2016 extends EventEmitter {
     if (!client.character.isReady) return;
     let movementType: MovementModifiers | undefined;
 
-    if ((this.isConvey(itemDefId) || this.isZed(itemDefId) || this.isGator(itemDefId))) {
+    if (
+      this.isConvey(itemDefId) ||
+      this.isZed(itemDefId) ||
+      this.isGator(itemDefId)
+    ) {
       movementType = MovementModifiers.CONVEYS;
     } else if (this.isBoot(itemDefId)) {
       movementType = MovementModifiers.BOOTS;
