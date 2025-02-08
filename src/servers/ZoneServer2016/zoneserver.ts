@@ -6054,7 +6054,7 @@ export class ZoneServer2016 extends EventEmitter {
   }
 
   /**
-   * Checks if an item with the specified itemDefinitionId is a generic item type.
+   * Checks if an item with the specified itemDefinitionId is a construction type.
    *
    * @param {number} itemDefinitionId - The itemDefinitionId to check.
    * @returns {boolean} True if the item is a generic type, false otherwise.
