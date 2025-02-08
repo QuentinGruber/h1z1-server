@@ -5721,6 +5721,7 @@ export class ZoneServer2016 extends EventEmitter {
       case this.isGeneric(itemDefinitionId) &&
         itemDefinitionId == Items.SKINNING_KNIFE:
         return 2000;
+      case this.isConstruction(itemDefinitionId):
       case this.isGeneric(itemDefinitionId):
         return 0;
       case itemDefinitionId == Items.WEAPON_HATCHET_MAKESHIFT:
@@ -6050,6 +6051,18 @@ export class ZoneServer2016 extends EventEmitter {
    */
   isGeneric(itemDefinitionId: number): boolean {
     return this.getItemDefinition(itemDefinitionId)?.ITEM_TYPE == 1;
+  }
+
+  /**
+   * Checks if an item with the specified itemDefinitionId is a generic item type.
+   *
+   * @param {number} itemDefinitionId - The itemDefinitionId to check.
+   * @returns {boolean} True if the item is a generic type, false otherwise.
+   */
+  isConstruction(itemDefinitionId: number): boolean {
+    return [40, 41].includes(
+      this.getItemDefinition(itemDefinitionId)?.ITEM_TYPE ?? 0
+    );
   }
 
   /**
