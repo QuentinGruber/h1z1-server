@@ -839,7 +839,7 @@ export class ZonePacketHandlers {
         if (!client.characterReleased) return;
         if (client.firstReleased) {
           server.sendData<H1emuVoiceInit>(client, "H1emu.VoiceInit", {
-            args: `51.83.180.201 ${server._worldId}` // not wise but we'll change it
+            args: `172.232.36.121 ${server._worldId}` // TODO: not wise but we'll change it
           });
           server.sendData(
             client,
