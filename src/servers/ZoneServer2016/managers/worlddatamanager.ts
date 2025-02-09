@@ -893,15 +893,6 @@ export class WorldDataManager {
           .find({ serverId: this._worldId })
           .toArray()
       );
-      if (!constructionParents.length) {
-        console.log("load backup due to empty construction collection");
-        constructionParents = <any>(
-          await this._db
-            ?.collection(DB_COLLECTIONS.CONSTRUCTION_BACKUP)
-            .find({ serverId: this._worldId })
-            .toArray()
-        );
-      }
     }
     return constructionParents;
   }
@@ -1052,15 +1043,28 @@ export class WorldDataManager {
         const collection = this._db?.collection(
           DB_COLLECTIONS.CONSTRUCTION
         ) as Collection;
-        const collectionBackup = this._db?.collection(
-          DB_COLLECTIONS.CONSTRUCTION_BACKUP
-        ) as Collection;
-        await collectionBackup.deleteMany({ serverId: this._worldId });
-        await collectionBackup.insertMany(structuredClone(constructions));
-        await collection.deleteMany({
-          serverId: this._worldId
+        const updatePromises = [];
+        for (let i = 0; i < constructions.length; i++) {
+          const construction = constructions[i];
+          updatePromises.push(
+            collection.updateOne(
+              {
+                characterId: construction.characterId,
+                serverId: this._worldId
+              },
+              { $set: construction },
+              { upsert: true }
+            )
+          );
+        }
+        await Promise.all(updatePromises);
+        const allCharactersIds = constructions.map((c) => {
+          return c.characterId;
         });
-        await collection.insertMany(constructions);
+        await collection.deleteMany({
+          serverId: this._worldId,
+          characterId: { $nin: allCharactersIds }
+        });
       }
     }
   }
