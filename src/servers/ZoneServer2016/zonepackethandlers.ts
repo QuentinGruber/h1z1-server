@@ -1081,7 +1081,7 @@ export class ZonePacketHandlers {
     }
     if (isLootable) {
       server.registerGameLog(GAME_LOGS_TYPES.ACCESS_LOOTABLE, client, {
-        characterId: entity.characterId,
+        lootableCharacterId: entity.characterId,
         containers: entity._containers
       });
     }
@@ -3536,7 +3536,8 @@ export class ZonePacketHandlers {
 
         if (reward > 0 && itemSubData.unknownBoolean1 == 0) {
           server.registerGameLog(GAME_LOGS_TYPES.OPEN_CRATE, client, {
-            itemDefinitionId: item.itemDefinitionId
+            crateItemDefinitionId: item.itemDefinitionId,
+            rewardItemDefinitionId: reward
           });
           setTimeout(() => {
             if (rewardResult.isRare) {
