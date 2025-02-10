@@ -9275,19 +9275,29 @@ export class ZoneServer2016 extends EventEmitter {
       status: status
     });
   }
-  async registerGameLog(logType: GAME_LOGS_TYPES, gameLog: object) {
+  async registerGameLog(
+    logType: GAME_LOGS_TYPES,
+    client: Client,
+    gameLog: object
+  ) {
     if (this._soloMode) {
       return;
     }
-    const gameLogDocument = {
-      serverId: this._worldId,
-      time: new Date(),
-      type: logType,
-      ...gameLog
-    };
-    await this._db
-      .collection(DB_COLLECTIONS.GAME_LOGS)
-      .insertOne(gameLogDocument);
+    try {
+      const gameLogDocument = {
+        serverId: this._worldId,
+        time: new Date(),
+        type: logType,
+        characterName: client.character.name,
+        loginSessionId: client.loginSessionId,
+        ...gameLog
+      };
+      await this._db
+        .collection(DB_COLLECTIONS.GAME_LOGS)
+        .insertOne(gameLogDocument);
+    } catch (e: any) {
+      console.error(e);
+    }
   }
 }
 

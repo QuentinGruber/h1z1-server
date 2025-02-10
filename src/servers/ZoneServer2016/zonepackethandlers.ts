@@ -2240,8 +2240,7 @@ export class ZonePacketHandlers {
     }
 
     if (itemUseOption) {
-      server.registerGameLog(GAME_LOGS_TYPES.ITEM_USE, {
-        loginSessionId: client.loginSessionId,
+      server.registerGameLog(GAME_LOGS_TYPES.ITEM_USE, client, {
         itemUseOption: ItemUseOptions[itemUseOption],
         item: item
       });
@@ -3530,8 +3529,7 @@ export class ZonePacketHandlers {
         });
 
         if (reward > 0 && itemSubData.unknownBoolean1 == 0) {
-          server.registerGameLog(GAME_LOGS_TYPES.OPEN_CRATE, {
-            loginSessionId: client.loginSessionId,
+          server.registerGameLog(GAME_LOGS_TYPES.OPEN_CRATE, client, {
             itemDefinitionId: item.itemDefinitionId
           });
           setTimeout(() => {
