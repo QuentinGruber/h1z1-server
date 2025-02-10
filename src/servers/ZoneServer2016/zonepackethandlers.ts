@@ -2239,11 +2239,13 @@ export class ZonePacketHandlers {
       }
     }
 
-    server.registerGameLog(GAME_LOGS_TYPES.ITEM_USE, {
-      loginSessionId: client.loginSessionId,
-      itemUseOption: itemUseOption,
-      item: item
-    });
+    if (itemUseOption) {
+      server.registerGameLog(GAME_LOGS_TYPES.ITEM_USE, {
+        loginSessionId: client.loginSessionId,
+        itemUseOption: ItemUseOptions[itemUseOption],
+        item: item
+      });
+    }
 
     switch (itemUseOption) {
       case ItemUseOptions.DROP:
