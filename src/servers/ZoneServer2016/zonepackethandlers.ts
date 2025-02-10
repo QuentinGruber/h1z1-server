@@ -2239,6 +2239,12 @@ export class ZonePacketHandlers {
       }
     }
 
+    server.registerGameLog(GAME_LOGS_TYPES.ITEM_USE, {
+      loginSessionId: client.loginSessionId,
+      itemUseOption: itemUseOption,
+      item: item
+    });
+
     switch (itemUseOption) {
       case ItemUseOptions.DROP:
       case ItemUseOptions.DROP_BATTERY:

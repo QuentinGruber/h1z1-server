@@ -74,7 +74,7 @@ export enum DB_COLLECTIONS {
 
 export enum GAME_LOGS_TYPES {
   OPEN_CRATE = "open_crate",
-  ACCESS_CHEST = "access_chest"
+  ITEM_USE = "item_use"
 }
 
 export enum LOGIN_KICK_REASON {
