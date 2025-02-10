@@ -49,7 +49,8 @@ import {
   StringIds,
   ItemClasses,
   AccountItems,
-  EquipSlots
+  EquipSlots,
+  Effects
 } from "./models/enums";
 import { BaseFullCharacter } from "./entities/basefullcharacter";
 import { BaseLightweightCharacter } from "./entities/baselightweightcharacter";
@@ -139,7 +140,8 @@ import {
   GroupKick,
   InGamePurchaseStoreBundleContentResponse,
   GrinderExchangeRequest,
-  GrinderExchangeResponse
+  GrinderExchangeResponse,
+  RagdollUpdatePose
 } from "types/zone2016packets";
 import { VehicleCurrentMoveMode } from "types/zone2015packets";
 import {
@@ -343,7 +345,50 @@ export class ZonePacketHandlers {
     if (!server.hookManager.checkHook("OnClientFinishedLoading", client)) {
       return;
     }
-
+    if (client.character.awaitingTeleportLocation) {
+      const awaitingPos = client.character.awaitingTeleportLocation;
+      setTimeout(() => {
+        server.sendData(
+          client,
+          "UpdateWeatherData",
+          server.weatherManager.weather
+        );
+        server.sendData<ClientUpdateUpdateLocation>(
+          client,
+          "ClientUpdate.UpdateLocation",
+          {
+            position: awaitingPos
+          }
+        );
+        server.sendData(
+          client,
+          "UpdateWeatherData",
+          server.weatherManager.weather
+        );
+        client.character.state.position = awaitingPos;
+        client.character.awaitingTeleportLocation = undefined;
+        // fixes characters showing up as dead if they respawn close to other characters
+        server.sendDataToAllOthersWithSpawnedEntity(
+          server._characters,
+          client,
+          client.character.characterId,
+          "Character.RemovePlayer",
+          {
+            characterId: client.character.characterId
+          }
+        );
+        setTimeout(() => {
+          if (!client?.character) return;
+          server.sendDataToAllOthersWithSpawnedEntity(
+            server._characters,
+            client,
+            client.character.characterId,
+            "AddLightweightPc",
+            client.character.pGetLightweightPC(server, client)
+          );
+        }, 2000);
+      }, 100);
+    }
     const itemDefinition = server.getItemDefinition(
       client.character.getEquippedWeapon()?.itemDefinitionId
     );
@@ -504,7 +549,9 @@ export class ZonePacketHandlers {
         client,
         "Character.StartMultiStateDeath",
         {
-          characterId: client.character.characterId
+          data: {
+            characterId: client.character.characterId
+          }
         }
       );
     }
@@ -544,6 +591,12 @@ export class ZonePacketHandlers {
   ) {
     debug(packet);
     client.character.characterStates.inWater = true;
+    const fireState =
+      client.character._characterEffects[Effects.PFX_Fire_Person_loop];
+    if (fireState) {
+      // remove burning when player is in water
+      fireState.duration = 0;
+    }
   }
   CommandClearInWater(
     server: ZoneServer2016,
@@ -649,8 +702,8 @@ export class ZonePacketHandlers {
       vehicle = characterId ? server._vehicles[characterId] : undefined,
       damage = Number((packet.data.damage || 0).toFixed(0));
 
-    if (!vehicle) return;
-    vehicle.damage(server, { entity: "", damage });
+    if (!vehicle || damage <= 100) return;
+    vehicle.damage(server, { entity: "", damage: damage * 4 });
     //server.DTOhit(client, packet);
   }
 
@@ -1163,6 +1216,7 @@ export class ZonePacketHandlers {
 
     const positionUpdate = packetData.positionUpdate as any;
     const flags = positionUpdate.flags;
+    if (!flags) return;
 
     // throwable projectiles management
 
@@ -1325,7 +1379,7 @@ export class ZonePacketHandlers {
           false
         );
         server.sendData(client, "Character.StartMultiStateDeath", {
-          characterId: client.character.characterId
+          data: { characterId: client.character.characterId }
         });
         client.blockedPositionUpdates = 0;
         return;
@@ -1490,7 +1544,7 @@ export class ZonePacketHandlers {
         server.sendData<CharacterStartMultiStateDeath>(
           client,
           "Character.StartMultiStateDeath",
-          { characterId: client.character.characterId }
+          { data: { characterId: client.character.characterId } }
         );
         return;
       }
@@ -1505,6 +1559,7 @@ export class ZonePacketHandlers {
       // Detect movements based on stance
       server.fairPlayManager.detectJumpXSMovement(server, client, stanceFlags);
       server.fairPlayManager.detectDroneMovement(server, client, stanceFlags);
+      server.detectEnasMovement(server, client, stanceFlags);
 
       // Handle jump logic
       if (
@@ -1556,6 +1611,7 @@ export class ZonePacketHandlers {
 
       // Update character stance
       client.character.stance = stance;
+      client.character.positionUpdate.stance = stance;
     }
     // Handle position flag (0x02)
     if (packet.data.position) {
@@ -2369,6 +2425,7 @@ export class ZonePacketHandlers {
         const loadoutItem =
           sourceCharacter.getLoadoutItem(itemGuid) ||
           sourceCharacter.getInventoryItem(itemGuid);
+        const itemDef = server.getItemDefinition(loadoutItem?.itemDefinitionId);
         if (loadoutItem) {
           const container = client.character.getAvailableContainer(
             server,
@@ -2390,6 +2447,12 @@ export class ZonePacketHandlers {
             loadoutItem instanceof LoadoutItem &&
             character._loadout[item.slotId]
           ) {
+            await server.pUtilizeHudTimer(
+              client,
+              itemDef?.NAME_ID ?? 0,
+              1000,
+              0
+            );
             sourceCharacter.transferItemFromLoadout(
               server,
               container,
@@ -2522,7 +2585,6 @@ export class ZonePacketHandlers {
 
     if (sourceCharacterId == client.character.characterId) {
       const sourceCharacter = client.character;
-
       // from client container
       if (sourceCharacterId == targetCharacterId) {
         // from / to client container
@@ -2539,25 +2601,27 @@ export class ZonePacketHandlers {
             server.containerError(client, ContainerErrors.NO_ITEM_IN_SLOT);
             return;
           }
-          if (item.itemDefinitionId == 1899) item.itemDefinitionId = 1373; // Remove this next wipe
           if (item.weapon) {
-            const ammo = server.generateItem(
-              server.getWeaponAmmoId(item.itemDefinitionId),
-              item.weapon.ammoCount
-            );
-            if (
-              ammo &&
-              item.weapon.ammoCount > 0 &&
-              item.weapon.itemDefinitionId != Items.WEAPON_REMOVER
-            ) {
-              sourceCharacter.lootContainerItem(
-                server,
-                ammo,
-                ammo.stackCount,
-                true
+            const weaponAmmoId = server.getWeaponAmmoId(item.itemDefinitionId);
+            if (item.itemDefinitionId != weaponAmmoId) {
+              const ammo = server.generateItem(
+                weaponAmmoId,
+                item.weapon.ammoCount
               );
+              if (
+                ammo &&
+                item.weapon.ammoCount > 0 &&
+                item.weapon.itemDefinitionId != Items.WEAPON_REMOVER
+              ) {
+                sourceCharacter.lootContainerItem(
+                  server,
+                  ammo,
+                  ammo.stackCount,
+                  true
+                );
+              }
+              item.weapon.ammoCount = 0;
             }
-            item.weapon.ammoCount = 0;
           }
           if (targetContainer) {
             // to container
@@ -2859,11 +2923,15 @@ export class ZonePacketHandlers {
       foundation = server._constructionFoundations[
         objectCharacterId
       ] as ConstructionParentEntity;
+
+    //Check if the client is the owner of the foundation / has demolistion perms or an admin in debug mode or if client has demolition perms
     if (
-      foundation.ownerCharacterId != client.character.characterId &&
-      (!client.isAdmin || !client.isDebugMode) // allows debug mode
+      foundation.ownerCharacterId !== client.character.characterId &&
+      !foundation.permissions[client.character.characterId]?.demolish &&
+      !(client.isAdmin && client.isDebugMode)
     )
-      return; // add debug admin
+      return;
+
     let characterId = "";
     for (const a in foundation.permissions) {
       const permissions = foundation.permissions[a];
@@ -2871,13 +2939,33 @@ export class ZonePacketHandlers {
         characterId = permissions.characterId;
       }
     }
+
     if (!characterId) {
       return;
     }
-    if (characterId == foundation.ownerCharacterId) {
+
+    // If the character ID matches the foundation owner's / own character ID, send an alert and exit
+    if (
+      characterId == foundation.ownerCharacterId ||
+      characterId == client.character.characterId
+    ) {
       server.sendAlert(client, "You can't edit your own permissions.");
       return;
     }
+
+    // If not an owner and client tries to edit other players permissions with demolish perms, send an alert and exit
+    if (
+      client.character.characterId != foundation.ownerCharacterId &&
+      foundation.permissions[characterId]?.demolish &&
+      characterId != client.character.characterId
+    ) {
+      server.sendAlert(
+        client,
+        "You can't edit someone else's permissions if they have demolish permissions."
+      );
+      return;
+    }
+
     const obj: ConstructionPermissions = foundation.permissions[characterId];
     if (!obj) return;
     switch (packet.data.permissionSlot) {
@@ -2932,11 +3020,15 @@ export class ZonePacketHandlers {
       foundation = server._constructionFoundations[
         objectCharacterId
       ] as ConstructionParentEntity;
+
+    // Check if the client is the owner of the foundation / has demolistion perms or an admin in debug mode
     if (
-      foundation.ownerCharacterId != client.character.characterId &&
-      (!client.isAdmin || !client.isDebugMode)
-    )
+      foundation.ownerCharacterId !== client.character.characterId &&
+      !foundation.permissions[client.character.characterId]?.demolish &&
+      !(client.isAdmin && client.isDebugMode)
+    ) {
       return;
+    }
 
     let targetClient = server.getClientByNameOrLoginSession(characterName);
 
@@ -2961,7 +3053,11 @@ export class ZonePacketHandlers {
       }
     }
 
-    if (characterId == foundation.ownerCharacterId) {
+    // If the character ID matches the foundation owner's / own character ID, send an alert and exit
+    if (
+      characterId == foundation.ownerCharacterId ||
+      characterId == client.character.characterId
+    ) {
       server.sendAlert(client, "You can't edit your own permissions.");
       return;
     }
@@ -3034,8 +3130,7 @@ export class ZonePacketHandlers {
         break;
       case "Weapon.ProjectileHitReport":
         const weapon = client.character.getEquippedWeapon();
-        if (!weapon) return;
-        if (weapon.itemDefinitionId == Items.WEAPON_REMOVER) {
+        if (weapon && weapon.itemDefinitionId == Items.WEAPON_REMOVER) {
           if (!client.isAdmin) return;
           const characterId = packet.packet.hitReport.characterId,
             entity = server.getEntity(characterId);
@@ -3456,7 +3551,11 @@ export class ZonePacketHandlers {
           return;
         }
 
-        const newItem = server.generateItem(accountItem.REWARD_ITEM_ID),
+        const newItem = server.generateItem(
+            accountItem.REWARD_ITEM_ID,
+            1,
+            true
+          ),
           containerItems = client.character.getContainerFromGuid(
             oitem.itemGuid
           )?.items;
@@ -3626,6 +3725,15 @@ export class ZonePacketHandlers {
       unknownBoolean1: true,
       sessionToken: "TICKET"
     });
+  }
+
+  RagdollUpdatePose(
+    server: ZoneServer2016,
+    client: Client,
+    packet: ReceivedPacket<RagdollUpdatePose>
+  ) {
+    // currently all ragdoll are client sided, less work for server but creates corpse position desync (shouldnt really be important)
+    //server.sendDataToAllOthersWithSpawnedEntity(server._characters, client, client.character.characterId, "Ragdoll.UpdatePose", packet.data)
   }
 
   async grinderExchangeRequest(
@@ -4053,6 +4161,9 @@ export class ZonePacketHandlers {
         break;
       case "Ping":
         server.sendData(client, "Pong", {});
+        break;
+      case "Ragdoll.UpdatePose":
+        this.RagdollUpdatePose(server, client, packet);
         break;
       case "Grinder.ExchangeRequest":
         this.grinderExchangeRequest(server, client, packet);

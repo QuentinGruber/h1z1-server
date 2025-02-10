@@ -952,6 +952,11 @@ export class ConstructionParentEntity extends ConstructionChildEntity {
     isInstant?: boolean
     /* eslint-enable @typescript-eslint/no-unused-vars */
   ) {
+    if (!this.ownerCharacterId) {
+      this.ownerCharacterId = client.character.characterId;
+      return;
+    }
+
     if (this.canUndoPlacement(server, client)) {
       this.destroy(server);
       client.character.lootItem(
@@ -962,6 +967,11 @@ export class ConstructionParentEntity extends ConstructionChildEntity {
     }
 
     if (
+      !this.getHasPermission(
+        server,
+        client.character.characterId,
+        ConstructionPermissionIds.DEMOLISH
+      ) && // if the player has permission to build, show the permissions menu
       this.ownerCharacterId != client.character.characterId &&
       (!client.isAdmin || !client.isDebugMode) // allows debug mode
     )
@@ -981,6 +991,14 @@ export class ConstructionParentEntity extends ConstructionChildEntity {
   }
 
   OnInteractionString(server: ZoneServer2016, client: ZoneClient2016) {
+    if (!this.ownerCharacterId) {
+      server.sendData(client, "Command.InteractionString", {
+        guid: this.characterId,
+        stringId: StringIds.CLAIM_TARGET
+      });
+      return;
+    }
+
     if (this.canUndoPlacement(server, client)) {
       server.constructionManager.undoPlacementInteractionString(
         server,
@@ -991,6 +1009,11 @@ export class ConstructionParentEntity extends ConstructionChildEntity {
     }
 
     if (
+      !this.getHasPermission(
+        server,
+        client.character.characterId,
+        ConstructionPermissionIds.DEMOLISH
+      ) && // if the player has permission to build, show the permissions menu interaction string
       this.ownerCharacterId != client.character.characterId &&
       (!client.isAdmin || !client.isDebugMode)
     )

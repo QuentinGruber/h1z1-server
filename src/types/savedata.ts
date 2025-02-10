@@ -69,6 +69,7 @@ export interface CharacterUpdateSaveData
   characterId: string,
   isRespawning: boolean;
   spawnGridData: number[];
+  metrics: CharacterMetricsSaveData;
   mutedCharacters: string[];
   groupId: number;
   playTime: number;
@@ -175,4 +176,13 @@ export interface TrapSaveData
 export interface ServerSaveData extends BaseSaveData {
   lastItemGuid: string;
   worldSaveVersion: number;
+}
+
+export interface CharacterMetricsSaveData {
+  zombiesKilled: number;
+  wildlifeKilled: number;
+  recipesDiscovered: number;
+  startedSurvivingTP: number;
+  vehiclesDestroyed: number;
+  playersKilled: number;
 }

@@ -138,27 +138,23 @@ export const ragdollPackets: PacketStructures = [
   ],
   [
     "Ragdoll.Stop",
-    0xce02,
+    0xce0202,
     {
       fields: [
-        { name: "unknown3", type: "uint8", defaultValue: 0 },
         {
-          name: "unknown4",
+          name: "characterId",
           type: "uint64string",
           defaultValue: "0x0000000000000000"
         },
         {
-          name: "array1",
-          type: "array",
-          fields: [
-            { name: "unknown5", type: "uint8", defaultValue: 0 },
-            { name: "unknown6", type: "uint32", defaultValue: 0 }
-          ]
+          name: "position",
+          type: "floatvector3",
+          defaultValue: [0, 50, 0]
         },
         {
-          name: "array2",
-          type: "array",
-          fields: [{ name: "unknown7", type: "uint32", defaultValue: 0 }]
+          name: "rotation",
+          type: "floatvector4",
+          defaultValue: [0, 0, 0, 0]
         }
       ]
     }

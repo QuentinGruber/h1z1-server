@@ -42,6 +42,8 @@ import {
   LightweightToFullVehicle
 } from "types/zone2016packets";
 import { BaseEntity } from "./baseentity";
+import { ExplosiveEntity } from "./explosiveentity";
+import { ProjectileEntity } from "./projectileentity";
 
 function getActorModelId(vehicleId: VehicleIds) {
   switch (vehicleId) {
@@ -1035,7 +1037,7 @@ export class Vehicle2016 extends BaseLootableEntity {
     );
     this.effectTags.push(hotwireEffect);
 
-    server.utilizeHudTimer(client, 0, 7000, 0, () => {
+    server.utilizeHudTimer(client, StringIds.HOTWIRE, 7000, 0, () => {
       this.removeHotwireEffect(server);
       this.startEngine(server);
     });
@@ -1310,11 +1312,24 @@ export class Vehicle2016 extends BaseLootableEntity {
   async OnExplosiveHit(server: ZoneServer2016, sourceEntity: BaseEntity) {
     if (this.characterId == sourceEntity.characterId) return;
 
+    let damage = 100000;
+    switch (true) {
+      case sourceEntity instanceof ExplosiveEntity:
+        damage = 100000;
+        break;
+      case sourceEntity instanceof ProjectileEntity:
+        damage = sourceEntity.actorModelId == 0 ? 50000 : 100000;
+        break;
+      default:
+        damage = 100000;
+        break;
+    }
+
     const distance = getDistance(
       sourceEntity.state.position,
       this.state.position
     );
-    const damage = 250000 / distance;
+    if (distance > 1) damage /= distance;
     this.damage(server, {
       entity: sourceEntity.characterId,
       damage: damage

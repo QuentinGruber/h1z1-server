@@ -74,6 +74,7 @@ import { ConstructionChildEntity } from "./constructionchildentity";
 import { ConstructionParentEntity } from "./constructionparententity";
 import { ExplosiveEntity } from "./explosiveentity";
 import { BaseEntity } from "./baseentity";
+import { ProjectileEntity } from "./projectileentity";
 const stats = require("../../../../data/2016/sampleData/stats.json");
 
 interface CharacterStates {
@@ -82,6 +83,8 @@ interface CharacterStates {
   knockedOut?: boolean;
   inWater?: boolean;
   userMovementDisabled?: boolean;
+  revivable?: boolean;
+  beingRevived?: boolean;
 }
 
 interface CharacterMetrics {
@@ -119,6 +122,8 @@ export class Character2016 extends BaseFullCharacter {
   /** Determines several states of the player such as being in water or knocked out */
   characterStates: CharacterStates;
 
+  awaitingTeleportLocation?: Float32Array;
+
   /** States set by StanceFlags */
   isRunning = false;
   isSitting = false;
@@ -132,6 +137,7 @@ export class Character2016 extends BaseFullCharacter {
   isExhausted = false;
   isPoisoned = false;
   isCoffeeSugared = false;
+  isDeerScented = false;
 
   /** Last time (milliseconds) the player melee'd */
   lastMeleeHitTime: number = 0;
@@ -226,6 +232,11 @@ export class Character2016 extends BaseFullCharacter {
   lastSitTime: number = 0;
   sitCount: number = 0;
 
+  /** Values used for detecting Enas movement (spamming crouch for an advantage) */
+  crouchCount: number = 0;
+  lastCrouchTime: number = 0;
+  isCrouching: boolean = false;
+
   /** Current stance of the player while holding a weapon */
   weaponStance: number = 1;
 
@@ -233,7 +244,7 @@ export class Character2016 extends BaseFullCharacter {
   stance?: StanceFlags;
 
   /** Metrics of miscellaneous attributes */
-  readonly metrics: CharacterMetrics = {
+  metrics: CharacterMetrics = {
     recipesDiscovered: 0,
     zombiesKilled: 0,
     wildlifeKilled: 0,
@@ -1622,8 +1633,7 @@ export class Character2016 extends BaseFullCharacter {
       positionUpdate: {
         ...this.positionUpdate,
         sequenceTime: getCurrentServerTimeWrapper().getTruncatedU32(),
-        position: this.state.position, // trying to fix invisible characters/vehicles until they move
-        stance: 66561
+        position: this.state.position // trying to fix invisible characters/vehicles until they move
       },
       stats: this.getStats().map((stat: any) => {
         return stat.statData;
@@ -1677,7 +1687,6 @@ export class Character2016 extends BaseFullCharacter {
     client: ZoneClient2016,
     weaponDefinitionId: WeaponDefinitionIds
   ) {
-    /* eslint-disable @typescript-eslint/no-unused-vars */
     switch (weaponDefinitionId) {
       case WeaponDefinitionIds.WEAPON_BLAZE:
         server.applyCharacterEffect(
@@ -1688,6 +1697,7 @@ export class Character2016 extends BaseFullCharacter {
         );
         break;
       case WeaponDefinitionIds.WEAPON_FROSTBITE:
+        const effectTime = 5000;
         if (!this._characterEffects[Effects.PFX_Seasonal_Holiday_Snow_skel]) {
           server.sendData<ClientUpdateModifyMovementSpeed>(
             client,
@@ -1696,12 +1706,21 @@ export class Character2016 extends BaseFullCharacter {
               speed: 0.5
             }
           );
+          setTimeout(() => {
+            server.sendData<ClientUpdateModifyMovementSpeed>(
+              client,
+              "ClientUpdate.ModifyMovementSpeed",
+              {
+                speed: 2
+              }
+            );
+          }, effectTime);
         }
         server.applyCharacterEffect(
           this,
           Effects.PFX_Seasonal_Holiday_Snow_skel,
           0,
-          5000
+          effectTime
         );
         break;
     }
@@ -1854,14 +1873,25 @@ export class Character2016 extends BaseFullCharacter {
   }
 
   OnExplosiveHit(server: ZoneServer2016, sourceEntity: BaseEntity) {
-    const sourceIsExplosiveEntity = sourceEntity instanceof ExplosiveEntity;
+    let damage = 10000;
+    switch (true) {
+      case sourceEntity instanceof ExplosiveEntity:
+        damage = 50000;
+        break;
+      case sourceEntity instanceof ProjectileEntity:
+        damage = sourceEntity.actorModelId == 0 ? 8000 : 10000;
+        break;
+      default:
+        damage = 10000;
+        break;
+    }
 
     const distance = getDistance(
-        sourceEntity.state.position,
-        this.state.position
-      ),
-      damage = (sourceIsExplosiveEntity ? 50000 : 20000) / distance;
-
+      sourceEntity.state.position,
+      this.state.position
+    );
+    if (distance > 1) damage /= distance;
+    console.log(damage);
     this.damage(server, {
       entity: sourceEntity.characterId,
       damage: damage

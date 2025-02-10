@@ -483,6 +483,7 @@ export class WorldDataManager {
         _resources: loadedCharacter._resources || {},
         mutedCharacters: loadedCharacter.mutedCharacters || [],
         groupId: 0, //loadedCharacter.groupId || 0,
+        metrics: loadedCharacter.metrics || {},
         playTime: loadedCharacter.playTime ?? 0,
         lastDropPlayTime: loadedCharacter.lastDropPlayTime ?? 0,
         status: 1,
@@ -546,7 +547,8 @@ export class WorldDataManager {
       lastDropPlayTime: character.lastDropPlaytime,
       spawnGridData: character.spawnGridData,
       mutedCharacters: character.mutedCharacters,
-      groupId: 0 //character.groupId
+      groupId: 0, //character.groupId
+      metrics: character.metrics
     };
     return saveData;
   }
@@ -1046,18 +1048,20 @@ export class WorldDataManager {
         JSON.stringify(constructions, null, 2)
       );
     } else {
-      const collection = this._db?.collection(
-        DB_COLLECTIONS.CONSTRUCTION
-      ) as Collection;
-      const collectionBackup = this._db?.collection(
-        DB_COLLECTIONS.CONSTRUCTION_BACKUP
-      ) as Collection;
-      await collectionBackup.deleteMany({ serverId: this._worldId });
-      await collectionBackup.insertMany(structuredClone(constructions));
-      await collection.deleteMany({
-        serverId: this._worldId
-      });
-      await collection.insertMany(constructions);
+      if (constructions.length) {
+        const collection = this._db?.collection(
+          DB_COLLECTIONS.CONSTRUCTION
+        ) as Collection;
+        const collectionBackup = this._db?.collection(
+          DB_COLLECTIONS.CONSTRUCTION_BACKUP
+        ) as Collection;
+        await collectionBackup.deleteMany({ serverId: this._worldId });
+        await collectionBackup.insertMany(structuredClone(constructions));
+        await collection.deleteMany({
+          serverId: this._worldId
+        });
+        await collection.insertMany(constructions);
+      }
     }
   }
 

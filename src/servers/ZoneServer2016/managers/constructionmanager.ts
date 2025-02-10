@@ -2823,4 +2823,23 @@ export class ConstructionManager {
   isSlotOnPlacementCooldown(slots: ShelterSlotsPlacementTimer, slot: number) {
     return slots[slot] > Date.now();
   }
+
+  hasOwnedBases(server: ZoneServer2016, characterId: string) {
+    for (const a in server._constructionFoundations) {
+      const foundation = server._constructionFoundations[a];
+      if (foundation.ownerCharacterId === characterId) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  removeOwnerFromBases(server: ZoneServer2016, characterId: string) {
+    for (const a in server._constructionFoundations) {
+      const foundation = server._constructionFoundations[a];
+      if (foundation.ownerCharacterId === characterId) {
+        foundation.ownerCharacterId = "";
+      }
+    }
+  }
 }
