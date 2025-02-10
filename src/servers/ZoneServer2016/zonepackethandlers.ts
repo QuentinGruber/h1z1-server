@@ -159,7 +159,7 @@ import { Vehicle2016 } from "./entities/vehicle";
 import { Plant } from "./entities/plant";
 import { ConstructionChildEntity } from "./entities/constructionchildentity";
 import { Collection } from "mongodb";
-import { DB_COLLECTIONS } from "../../utils/enums";
+import { DB_COLLECTIONS, GAME_LOGS_TYPES } from "../../utils/enums";
 import { LootableConstructionEntity } from "./entities/lootableconstructionentity";
 import { Character2016 } from "./entities/character";
 import { Crate } from "./entities/crate";
@@ -1078,6 +1078,12 @@ export class ZonePacketHandlers {
       )
     ) {
       return;
+    }
+    if (isLootable) {
+      server.registerGameLog(GAME_LOGS_TYPES.ACCESS_LOOTABLE, client, {
+        lootableCharacterId: entity.characterId,
+        containers: entity._containers
+      });
     }
     client.character.lastInteractionRequestGuid = entity.characterId;
     entity.OnPlayerSelect(server, client, packet.data.isInstant);
@@ -2237,6 +2243,13 @@ export class ZonePacketHandlers {
       if (mountedContainer.items[item.itemGuid]) {
         container = mountedContainer;
       }
+    }
+
+    if (itemUseOption) {
+      server.registerGameLog(GAME_LOGS_TYPES.ITEM_USE, client, {
+        itemUseOption: ItemUseOptions[itemUseOption],
+        item: item
+      });
     }
 
     switch (itemUseOption) {
@@ -3521,7 +3534,11 @@ export class ZonePacketHandlers {
           })
         });
 
-        if (reward > 0 && itemSubData.unknownBoolean1 == 0)
+        if (reward > 0 && itemSubData.unknownBoolean1 == 0) {
+          server.registerGameLog(GAME_LOGS_TYPES.OPEN_CRATE, client, {
+            crateItemDefinitionId: item.itemDefinitionId,
+            rewardItemDefinitionId: reward
+          });
           setTimeout(() => {
             if (rewardResult.isRare) {
               server.sendAlertToAll(
@@ -3535,6 +3552,7 @@ export class ZonePacketHandlers {
               true
             );
           }, 12_000);
+        }
         break;
       case ItemUseOptions.APPLY_SKIN:
         const oitem = client.character.getInventoryItem(
