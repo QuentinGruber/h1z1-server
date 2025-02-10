@@ -144,6 +144,7 @@ import { UseOptions } from "./data/useoptions";
 import {
   CONNECTION_REJECTION_FLAGS,
   DB_COLLECTIONS,
+  GAME_LOGS_TYPES,
   GAME_VERSIONS,
   LOGIN_KICK_REASON
 } from "../../utils/enums";
@@ -9273,6 +9274,20 @@ export class ZoneServer2016 extends EventEmitter {
       color: status == 0 ? 1 : 0,
       status: status
     });
+  }
+  async registerGameLog(logType: GAME_LOGS_TYPES, gameLog: object) {
+    if (this._soloMode) {
+      return;
+    }
+    const gameLogDocument = {
+      serverId: this._worldId,
+      time: new Date(),
+      type: logType,
+      ...gameLog
+    };
+    await this._db
+      .collection(DB_COLLECTIONS.GAME_LOGS)
+      .insertOne(gameLogDocument);
   }
 }
 
