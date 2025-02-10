@@ -1079,6 +1079,12 @@ export class ZonePacketHandlers {
     ) {
       return;
     }
+    if (isLootable) {
+      server.registerGameLog(GAME_LOGS_TYPES.ACCESS_LOOTABLE, client, {
+        characterId: entity.characterId,
+        containers: entity._containers
+      });
+    }
     client.character.lastInteractionRequestGuid = entity.characterId;
     entity.OnPlayerSelect(server, client, packet.data.isInstant);
   }
