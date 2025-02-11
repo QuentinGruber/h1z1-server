@@ -92,9 +92,14 @@ export const commands: Array<Command> = [
         .aggregate([
           {
             $match: {
-              $or: [
-                { loginSessionId: client.loginSessionId }, // Player's kills
-                { playerKilledLoginSessionId: client.loginSessionId } // Player's deaths
+              $and: [
+                {
+                  $or: [
+                    { loginSessionId: client.loginSessionId }, // Player's kills
+                    { playerKilledLoginSessionId: client.loginSessionId } // Player's deaths
+                  ]
+                },
+                { serverId: server._worldId }
               ]
             }
           },
@@ -151,7 +156,10 @@ export const commands: Array<Command> = [
 
       const stats = query[0];
       if (!stats) {
-        server.sendChatText(client, "/stats failed report this");
+        server.sendChatText(
+          client,
+          "/stats failed you mostly have no stats at all"
+        );
         return;
       }
 
