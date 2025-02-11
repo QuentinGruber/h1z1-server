@@ -21,6 +21,7 @@ import {
 import {
   Effects,
   Items,
+  LoadoutSlots,
   ModelIds,
   MovementModifiers,
   ResourceIds,
@@ -31,6 +32,7 @@ import { BaseSimpleNpc } from "./basesimplenpc";
 import { BaseEntity } from "./baseentity";
 import { characterVehicleKit } from "../data/loadouts";
 import { scheduler } from "timers/promises";
+import { LoadoutItem } from "../classes/loadoutItem";
 
 export class TrapEntity extends BaseSimpleNpc {
   /** Damage delay for the TrapEntity */
@@ -449,7 +451,7 @@ export class TrapEntity extends BaseSimpleNpc {
         600,
         "",
         this.state.position,
-        4658
+        Effects.PFX_Impact_Explosion_FlashGrenade_Default
       );
     }
   }

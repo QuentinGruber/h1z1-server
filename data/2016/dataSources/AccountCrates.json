@@ -763,6 +763,7 @@
             }
         ]
     },
+    
     {
         "name": "Bronze Renegade Crate",
         "itemDefinitionId": 2891,
@@ -3087,5 +3088,211 @@
                 "rewardChance": 20
             }
         ]
-    }
+    },
+        {
+            "name": "H1EMU Crate",
+            "itemDefinitionId": 5063,
+            "rewards": [{
+                "name": "Rosegarden Shotgun",
+                "itemDefinitionId": 5037,
+                "rewardChance": 0.5
+            },
+            {
+                "name": "Unicorn Backpack",
+                "itemDefinitionId": 5023,
+                "rewardChance": 0.5
+            },
+            {
+                "name": "Greenwood Sniper",
+                "itemDefinitionId": 5015,
+                "rewardChance": 0.5
+            },
+            {
+                "name": "H1EMU Black & Yellow Hoodie",
+                "itemDefinitionId": 5003,
+                "rewardChance": 0.5
+            },
+            {
+                "name": "H1EMU Black & Yellow Pants",
+                "itemDefinitionId": 5004,
+                "rewardChance": 0.5
+            },
+            {
+                "name": "White Anarchy Leggings",
+                "itemDefinitionId": 2363,
+                "rewardChance": 1
+            },
+            {
+                "name": "Anarchy Motorcycle Helmet",
+                "itemDefinitionId": 2839,
+                "rewardChance": 1
+            },
+            {
+                "name": "Blue Camo Tactical Helmet w/Goggles",
+                "itemDefinitionId": 1944,
+                "rewardChance": 1
+            },
+            {
+                "name": "Rasta face bandana",
+                "itemDefinitionId": 2934,
+                "rewardChance": 1
+            },
+            {
+                "name": "Black Conveys Sneakers",
+                "itemDefinitionId": 5041,
+                "rewardChance": 5
+            },
+            {
+                "name": "Toxic cargo pants",
+                "itemDefinitionId": 3361,
+                "rewardChance": 5
+            },
+            {
+                "name": "Barbed Wire Face Bandana",
+                "itemDefinitionId": 2936,
+                "rewardChance": 5
+            },
+            {
+                "name": "Tactical goggles helmet",
+                "itemDefinitionId": 2224,
+                "rewardChance": 5
+            },
+            {
+                "name": "Dragon golden face bandana",
+                "itemDefinitionId": 2937,
+                "rewardChance": 5
+            },
+            {
+                "name": "Dark Blue Conveys Sneakers",
+                "itemDefinitionId": 5043,
+                "rewardChance": 20
+            },
+            {
+                "name": "Pink Conveys Sneakers",
+                "itemDefinitionId": 5042,
+                "rewardChance": 20
+            },
+            {
+                "name": "Green Conveys Sneakers",
+                "itemDefinitionId": 5044,
+                "rewardChance": 20
+            },
+            {
+                "name": "Yellow Conveys Sneakers",
+                "itemDefinitionId": 5045,
+                "rewardChance": 20
+            },
+            {
+                "name": "White Conveys Sneakers",
+                "itemDefinitionId": 3696,
+                "rewardChance": 20
+            },
+            {
+                "name": "Red Conveys Sneakers",
+                "itemDefinitionId": 5040,
+                "rewardChance": 20
+            }
+         ]
+    },
+    {
+        "name": "H1EMU Exclusive Crate",
+        "itemDefinitionId": 5026,
+        "rewards": [{
+                "name": "H1EMU Sniper Rifle",
+                "itemDefinitionId": 5011,
+                "rewardChance": 0.5
+            },
+            {
+                "name": "H1EMU AR-15",
+                "itemDefinitionId": 5025,
+                "rewardChance": 0.5
+            },
+            {
+                "name": "H1EMU Black & Yellow Kevlar",
+                "itemDefinitionId": 5005,
+                "rewardChance": 0.5
+            },
+            {
+                "name": "H1EMU Black & Red Hoodie",
+                "itemDefinitionId": 5009,
+                "rewardChance": 1
+            },
+            {
+                "name": "H1EMU White & Red Hoodie",
+                "itemDefinitionId": 5030,
+                "rewardChance": 1
+            },
+            {
+                "name": "H1Emu Black & Red Pants",
+                "itemDefinitionId": 5010,
+                "rewardChance": 1
+            },
+            {
+                "name": "H1Emu White & Red Pants",
+                "itemDefinitionId": 5032,
+                "rewardChance": 1
+            },
+            {
+                "name": "H1EMU Black Backpack",
+                "itemDefinitionId": 5013,
+                "rewardChance": 1
+            },
+            {
+                "name": "H1EMU White Backpack",
+                "itemDefinitionId": 5034,
+                "rewardChance": 1
+            },
+            {
+                "name": "H1EMU Beanie",
+                "itemDefinitionId": 5021,
+                "rewardChance": 5
+            },
+            {
+                "name": "Stormcloud Leggings",
+                "itemDefinitionId": 3238,
+                "rewardChance": 5
+            },
+            {
+                "name": "Scorpion Hoodie",
+                "itemDefinitionId": 2885,
+                "rewardChance": 5
+            },
+            {
+                "name": "Tie-dye T-shirt",
+                "itemDefinitionId": 3264,
+                "rewardChance": 5
+            },
+            {
+                "name": "Tie-dye Leggings",
+                "itemDefinitionId": 3268,
+                "rewardChance": 5
+            },
+            {
+                "name": "Teal Scale Leggings",
+                "itemDefinitionId": 3215,
+                "rewardChance": 20
+            },
+            {
+                "name": "Chaos Face Bandana",
+                "itemDefinitionId": 2932,
+                "rewardChance": 20
+            },
+            {
+                "name": "Yellow Plaid Face Bandana",
+                "itemDefinitionId": 2935,
+                "rewardChance": 20
+            },
+            {
+                "name": "Beige Suit Jacket",
+                "itemDefinitionId": 2842,
+                "rewardChance": 20
+            },
+            {
+                "name": "Beige Slacks",
+                "itemDefinitionId": 2844,
+                "rewardChance": 20
+            }
+        ]
+}
+    
 ]

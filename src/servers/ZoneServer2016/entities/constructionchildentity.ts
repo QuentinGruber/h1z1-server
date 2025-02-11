@@ -63,7 +63,8 @@ import {
   OccupiedSlotMap,
   SlottedConstructionEntity,
   CubeBounds,
-  Point3D
+  Point3D,
+  ShelterSlotsPlacementTimer
 } from "types/zoneserver";
 import {
   getConstructionSlotId,
@@ -177,7 +178,9 @@ export class ConstructionChildEntity extends BaseLightweightCharacter {
   occupiedWallSlots: {
     [slot: number]: ConstructionDoor | ConstructionChildEntity;
   } = {};
-
+  shelterSlotsPlacementTimer: ShelterSlotsPlacementTimer = {};
+  wallSlotsPlacementTimer: ShelterSlotsPlacementTimer = {};
+  upperWallSlotsPlacementTimer: ShelterSlotsPlacementTimer = {};
   /** FOR UPPER WALL ON WALLS / DOORWAYS */
   readonly upperWallSlots: ConstructionSlotPositionMap = {};
   occupiedUpperWallSlots: { [slot: number]: ConstructionChildEntity } = {};
@@ -378,17 +381,12 @@ export class ConstructionChildEntity extends BaseLightweightCharacter {
     }
     const slots = definitions[this.itemDefinitionId];
     if (!slots) {
-      console.error(`Slot definition not found for item ${itemDefinitionId}`);
       return false;
     }
     if (!slots.authorizedItems.includes(itemDefinitionId)) {
-      console.error(
-        `Item ${itemDefinitionId} is not authorized for slot ${slot}`
-      );
       return false;
     }
     if (!slotMap[slot]) {
-      console.error(`Slot ${slot} is not valid`);
       return false;
     }
     return true;
@@ -404,8 +402,6 @@ export class ConstructionChildEntity extends BaseLightweightCharacter {
     if (
       !this.isSlotValid(slot, definitions, slotMap, entity.itemDefinitionId)
     ) {
-      console.error("Invalid slot for entity");
-      console.error(JSON.stringify(entity));
       return false;
     }
     occupiedSlots[slot] = entity;
@@ -515,6 +511,13 @@ export class ConstructionChildEntity extends BaseLightweightCharacter {
       "Character.UpdateSimpleProxyHealth",
       this.pGetSimpleProxyHealth()
     );
+    if (damageInfo.damage > 0) {
+      const timestamp = Date.now();
+      const parent = this.getParent(server);
+      if (parent) parent.lastDamagedTimestamp = timestamp;
+      const parentFoundation = this.getParentFoundation(server);
+      if (parentFoundation) parentFoundation.lastDamagedTimestamp = timestamp;
+    }
 
     if (this.health > 0) return;
     this.destroy(server, 3000);
@@ -583,9 +586,13 @@ export class ConstructionChildEntity extends BaseLightweightCharacter {
       case Items.METAL_DOORWAY:
         slotMap = parent.occupiedWallSlots;
         updateSecured = true;
+        parent.wallSlotsPlacementTimer[this.getSlotNumber()] =
+          Date.now() + 30000;
         break;
       case Items.METAL_WALL_UPPER:
         slotMap = parent.occupiedUpperWallSlots;
+        parent.upperWallSlotsPlacementTimer[this.getSlotNumber()] =
+          Date.now() + 30000;
         break;
       case Items.SHELTER:
       case Items.SHELTER_LARGE:
@@ -595,6 +602,8 @@ export class ConstructionChildEntity extends BaseLightweightCharacter {
       case Items.STRUCTURE_STAIRS_UPPER:
       case Items.LOOKOUT_TOWER:
         slotMap = parent.occupiedShelterSlots;
+        parent.shelterSlotsPlacementTimer[this.getSlotNumber()] =
+          Date.now() + 30000;
         break;
       case Items.FOUNDATION_RAMP:
       case Items.FOUNDATION_STAIRS:
@@ -734,7 +743,8 @@ export class ConstructionChildEntity extends BaseLightweightCharacter {
   OnExplosiveHit(
     server: ZoneServer2016,
     sourceEntity: BaseEntity,
-    client?: ZoneClient2016
+    client?: ZoneClient2016,
+    useRaycast?: boolean
   ) {
     if (
       this.itemDefinitionId == Items.FOUNDATION_RAMP ||
@@ -771,14 +781,37 @@ export class ConstructionChildEntity extends BaseLightweightCharacter {
     ) {
       return;
     }
-
     if (server.constructionManager.isConstructionInSecuredArea(server, this)) {
-      if (!client) return;
-      server.constructionManager.sendBaseSecuredMessage(server, client);
-
-      return;
+      if (useRaycast) {
+        let damage = server.baseConstructionDamage;
+        switch (this.itemDefinitionId) {
+          case Items.SHELTER:
+          case Items.SHELTER_LARGE:
+          case Items.SHELTER_UPPER:
+          case Items.SHELTER_UPPER_LARGE:
+            damage *= 30 / 100;
+            break;
+          default:
+            damage = 0;
+            break;
+        }
+        server.constructionManager.checkConstructionDamage(
+          server,
+          this,
+          damage,
+          sourceEntity.state.position,
+          this.fixedPosition ? this.fixedPosition : this.state.position,
+          itemDefinitionId
+        );
+        if (!client) return;
+        server.constructionManager.sendBaseSecuredMessage(server, client, 1);
+        return;
+      } else {
+        if (!client) return;
+        server.constructionManager.sendBaseSecuredMessage(server, client);
+        return;
+      }
     }
-
     server.constructionManager.checkConstructionDamage(
       server,
       this,

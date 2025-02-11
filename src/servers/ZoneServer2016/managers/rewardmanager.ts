@@ -30,15 +30,67 @@ export class RewardManager {
     this.rewards = [
       {
         itemId: AccountItems.REWARD_CRATE_MARAUDER,
-        dropChances: 33
+        dropChances: 25
       },
       {
         itemId: AccountItems.REWARD_CRATE_SHOWDOWN,
-        dropChances: 33
+        dropChances: 25
       },
       {
         itemId: AccountItems.REWARD_CRATE_INVITATIONAL,
-        dropChances: 34
+        dropChances: 25
+      },
+      {
+        itemId: AccountItems.REWARD_CRATE_INFERNAL,
+        dropChances: 0
+      },
+      {
+        itemId: AccountItems.REWARD_CRATE_ALPHA_LAUNCH,
+        dropChances: 0
+      },
+      {
+        itemId: AccountItems.REWARD_CRATE_PREDATOR,
+        dropChances: 25
+      },
+      {
+        itemId: AccountItems.REWARD_CRATE_EZW,
+        dropChances: 0
+      },
+      {
+        itemId: AccountItems.REWARD_CRATE_RENEGADE,
+        dropChances: 0
+      },
+      {
+        itemId: AccountItems.REWARD_CRATE_WASTELAND,
+        dropChances: 0
+      },
+      {
+        itemId: AccountItems.REWARD_CRATE_RONIN,
+        dropChances: 0
+      },
+      {
+        itemId: AccountItems.REWARD_CRATE_MERCENARY,
+        dropChances: 0
+      },
+      {
+        itemId: AccountItems.REWARD_CRATE_WEARABLES,
+        dropChances: 0
+      },
+      {
+        itemId: AccountItems.REWARD_CRATE_INVITATIONAL_2016,
+        dropChances: 0
+      },
+      {
+        itemId: AccountItems.REWARD_CRATE_VIGILANTE,
+        dropChances: 0
+      },
+      {
+        itemId: AccountItems.REWARD_CRATE_H1EMU,
+        dropChances: 0
+      },
+      {
+        itemId: AccountItems.REWARD_CRATE_H1EMUEX,
+        dropChances: 0
       }
     ];
     this.playTimerewards = [
@@ -75,6 +127,20 @@ export class RewardManager {
     }
   }
   dropReward(client: ZoneClient2016) {
+    let random = Math.random() * 100;
+    for (const reward of this.rewards) {
+      if (reward.dropChances === 0) {
+        continue;
+      }
+      random -= reward.dropChances;
+      if (random <= 0) {
+        const rewardId = reward.itemId;
+        this.addRewardToPlayer(client, rewardId);
+        break;
+      }
+    }
+  }
+  dropPlayTimeReward(client: ZoneClient2016) {
     client.character.lastDropPlaytime = client.character.playTime;
     if (isHalloween()) {
       const rewardId: AccountItems = AccountItems.REWARD_CRATE_INFERNAL;
@@ -83,6 +149,9 @@ export class RewardManager {
       let rewardId: AccountItems = AccountItems.MYSTERY_BAG_1;
       let random = Math.random() * 100;
       for (const reward of this.playTimerewards) {
+        if (reward.dropChances === 0) {
+          continue;
+        }
         random -= reward.dropChances;
         if (random <= 0) {
           rewardId = reward.itemId;
@@ -101,7 +170,7 @@ export class RewardManager {
           (isHalloween() ? 60 : 120) &&
         isPosInPoi(client.character.state.position)
       ) {
-        this.dropReward(client);
+        this.dropPlayTimeReward(client);
       }
     }
   }

@@ -29,9 +29,18 @@ import {
   isPosInRadius,
   randomIntFromInterval,
   fixEulerOrder,
-  getCurrentServerTimeWrapper
+  getCurrentServerTimeWrapper,
+  isLootNerfedLoc
 } from "../../../utils/utils";
-import { EquipSlots, Items, Effects, ModelIds } from "../models/enums";
+import {
+  EquipSlots,
+  Items,
+  Effects,
+  ModelIds,
+  DefaultSkinsConveys,
+  DefaultSkinsBackpack,
+  DefaultSkinsMotorHelmet
+} from "../models/enums";
 import { Vehicle2016 } from "../entities/vehicle";
 import { LootDefinition } from "types/zoneserver";
 import { ItemObject } from "../entities/itemobject";
@@ -53,6 +62,26 @@ import { Npc } from "../entities/npc";
 //import { EntityType } from "h1emu-ai";
 import { scheduler } from "node:timers/promises";
 const debug = require("debug")("ZoneServer");
+
+export function getRandomSkin(itemDefinitionId: number) {
+  let itemDefId = 0;
+  let arr: any[] = [];
+  switch (itemDefinitionId) {
+    case Items.CONVEYS_BLUE:
+      arr = Object.keys(DefaultSkinsConveys);
+      break;
+    case Items.BACKPACK_BLUE_ORANGE:
+      arr = Object.keys(DefaultSkinsBackpack);
+      break;
+    case Items.HELMET_MOTORCYCLE:
+      arr = Object.keys(DefaultSkinsMotorHelmet);
+      break;
+    default:
+      return itemDefinitionId;
+  }
+  itemDefId = Number(arr[Math.floor((Math.random() * arr.length) / 2)]);
+  return itemDefId;
+}
 
 export function getRandomItem(items: Array<LootDefinition>) {
   const totalWeight = items.reduce((total, item) => total + item.weight, 0),
@@ -114,10 +143,14 @@ export class WorldObjectManager {
 
     const playerCount = _.size(server._characters);
 
-    if (playerCount >= 60) {
+    if (playerCount >= 100) {
       this.lootRespawnTimer = 600_000; // 10 min
-    } else if (playerCount >= 30) {
+    } else if (playerCount >= 75) {
       this.lootRespawnTimer = 900_000; // 15 min
+    } else if (playerCount >= 50) {
+      this.lootRespawnTimer = 1_200_000; // 20 min
+    } else if (playerCount >= 25) {
+      this.lootRespawnTimer = 1_500_000; // 25 min
     } else {
       this.lootRespawnTimer = 1_500_000; // 25 min
     }
@@ -127,6 +160,7 @@ export class WorldObjectManager {
     debug("WOM::Run");
     this.getItemRespawnTimer(server);
     if (this._lastLootRespawnTime + this.lootRespawnTimer <= Date.now()) {
+      this.refillScrapInChunks(server);
       this.createLoot(server);
       this.createContainerLoot(server);
       this._lastLootRespawnTime = Date.now();
@@ -246,6 +280,7 @@ export class WorldObjectManager {
     // this.equipRandomSkins(server, npc, this.zombieSlots, bannedZombieModels);
     server._npcs[characterId] = npc;
     if (spawnerId) this.spawnedNpcs[spawnerId] = characterId;
+    return npc;
   }
 
   createLootEntity(
@@ -350,21 +385,17 @@ export class WorldObjectManager {
     ];
 
     const experimentalSrubs: number[] = [
-      Items.HAPPY_SKULL_SCRUBS_CAP,
-      Items.HAPPY_SKULL_SCRUBS_SHIRT,
-      Items.HAPPY_SKULL_SCRUBS_PANTS,
+      Items.QUEST_HAPPY_SKULL_SCRUBS_CAP,
+      Items.QUEST_HAPPY_SKULL_SCRUBS_SHIRT,
+      Items.QUEST_HAPPY_SKULL_SCRUBS_PANTS,
 
-      2806,
-      2803,
-      2809,
+      Items.QUEST_HUGZ_NEEDED_SCRUBS_CAP,
+      Items.QUEST_HUGZ_NEEDED_SCRUBS_SHIRT,
+      Items.QUEST_HUGZ_NEEDED_SCRUBS_PANTS,
 
-      2804,
-      2801,
-      2807,
-
-      2799,
-      2798,
-      2800
+      Items.QUEST_KURAMA_MEDICAL_SCRUBS_CAP,
+      Items.QUEST_KURAMA_MEDICAL_SCRUBS_SHIRT,
+      Items.QUEST_KURAMA_MEDICAL_SCRUBS_PANTS
     ];
 
     const index = Math.floor(Math.random() * airdropTypes.length);
@@ -941,6 +972,14 @@ export class WorldObjectManager {
     debug("All npcs objects created");
   }
 
+  refillScrapInChunks(server: ZoneServer2016) {
+    for (let x = 0; x < server._grid.length; x++) {
+      const chunk = server._grid[x];
+      chunk.availableScrap += 20;
+      if (chunk.availableScrap > 50) chunk.availableScrap = 50;
+    }
+  }
+
   async createLoot(server: ZoneServer2016, lTables = lootTables) {
     let counter = 0;
     for (const spawnerType of Z1_items) {
@@ -954,7 +993,11 @@ export class WorldObjectManager {
           counter++;
           if (this.spawnedLootObjects[itemInstance.id]) continue;
           const chance = Math.floor(Math.random() * 100) + 1;
-          if (chance <= lootTable.spawnChance) {
+          if (
+            chance <=
+            lootTable.spawnChance *
+              (1 - isLootNerfedLoc(itemInstance.position) / 100)
+          ) {
             if (!WorldObjectManager.itemSpawnersChances[itemInstance.id]) {
               const realSpawnChance =
                 ((lootTable.spawnChance / lootTable.items.length) *
@@ -969,7 +1012,7 @@ export class WorldObjectManager {
               this.createLootEntity(
                 server,
                 server.generateItem(
-                  item.item,
+                  getRandomSkin(item.item),
                   randomIntFromInterval(
                     item.spawnCount.min,
                     item.spawnCount.max
@@ -1022,10 +1065,175 @@ export class WorldObjectManager {
             const obj = server.generateItem(Items.BRAIN_TREATED, 1);
             prop.lootItem(server, obj, 1, false);
           }
+          if (
+            prop.hasItem(Items.QUEST_HAPPY_SKULL_SCRUBS_SHIRT) &&
+            prop.hasItem(Items.QUEST_HAPPY_SKULL_SCRUBS_PANTS) &&
+            prop.hasItem(Items.QUEST_HAPPY_SKULL_SCRUBS_CAP)
+          ) {
+            const req1 = prop.getItemById(Items.QUEST_HAPPY_SKULL_SCRUBS_SHIRT),
+              req2 = prop.getItemById(Items.QUEST_HAPPY_SKULL_SCRUBS_PANTS),
+              req3 = prop.getItemById(Items.QUEST_HAPPY_SKULL_SCRUBS_CAP);
+
+            if (!req1 || !req2 || !req3) continue;
+
+            if (
+              !server.removeInventoryItem(prop, req1) ||
+              !server.removeInventoryItem(prop, req2) ||
+              !server.removeInventoryItem(prop, req3)
+            ) {
+              continue;
+            }
+
+            const obj1 = server.generateItem(
+              Items.REWARD_HAPPY_SKULL_SCRUBS_SHIRT,
+              1
+            );
+            prop.lootItem(server, obj1, 1, false);
+            const obj2 = server.generateItem(
+              Items.REWARD_HAPPY_SKULL_SCRUBS_PANTS,
+              1
+            );
+            prop.lootItem(server, obj2, 1, false);
+            const obj3 = server.generateItem(
+              Items.REWARD_HAPPY_SKULL_SCRUBS_CAP,
+              1
+            );
+            prop.lootItem(server, obj3, 1, false);
+          }
+          if (
+            prop.hasItem(Items.QUEST_HUGZ_NEEDED_SCRUBS_SHIRT) &&
+            prop.hasItem(Items.QUEST_HUGZ_NEEDED_SCRUBS_PANTS) &&
+            prop.hasItem(Items.QUEST_HUGZ_NEEDED_SCRUBS_CAP)
+          ) {
+            const req1 = prop.getItemById(Items.QUEST_HUGZ_NEEDED_SCRUBS_SHIRT),
+              req2 = prop.getItemById(Items.QUEST_HUGZ_NEEDED_SCRUBS_PANTS),
+              req3 = prop.getItemById(Items.QUEST_HUGZ_NEEDED_SCRUBS_CAP);
+
+            if (!req1 || !req2 || !req3) continue;
+
+            if (
+              !server.removeInventoryItem(prop, req1) ||
+              !server.removeInventoryItem(prop, req2) ||
+              !server.removeInventoryItem(prop, req3)
+            ) {
+              continue;
+            }
+
+            const obj4 = server.generateItem(
+              Items.REWARD_HUGZ_NEEDED_SCRUBS_SHIRT,
+              1
+            );
+            prop.lootItem(server, obj4, 1, false);
+            const obj5 = server.generateItem(
+              Items.REWARD_HUGZ_NEEDED_SCRUBS_PANTS,
+              1
+            );
+            prop.lootItem(server, obj5, 1, false);
+            const obj6 = server.generateItem(
+              Items.REWARD_HUGZ_NEEDED_SCRUBS_CAP,
+              1
+            );
+            prop.lootItem(server, obj6, 1, false);
+          }
+          if (
+            prop.hasItem(Items.QUEST_KURAMA_MEDICAL_SCRUBS_SHIRT) &&
+            prop.hasItem(Items.QUEST_KURAMA_MEDICAL_SCRUBS_PANTS) &&
+            prop.hasItem(Items.QUEST_KURAMA_MEDICAL_SCRUBS_CAP)
+          ) {
+            const req1 = prop.getItemById(
+                Items.QUEST_KURAMA_MEDICAL_SCRUBS_SHIRT
+              ),
+              req2 = prop.getItemById(Items.QUEST_KURAMA_MEDICAL_SCRUBS_PANTS),
+              req3 = prop.getItemById(Items.QUEST_KURAMA_MEDICAL_SCRUBS_CAP);
+
+            if (!req1 || !req2 || !req3) continue;
+
+            if (
+              !server.removeInventoryItem(prop, req1) ||
+              !server.removeInventoryItem(prop, req2) ||
+              !server.removeInventoryItem(prop, req3)
+            ) {
+              continue;
+            }
+
+            const obj10 = server.generateItem(
+              Items.REWARD_KURAMA_MEDICAL_SCRUBS_SHIRT,
+              1
+            );
+            prop.lootItem(server, obj10, 1, false);
+            const obj11 = server.generateItem(
+              Items.REWARD_KURAMA_MEDICAL_SCRUBS_PANTS,
+              1
+            );
+            prop.lootItem(server, obj11, 1, false);
+            const obj12 = server.generateItem(
+              Items.REWARD_KURAMA_MEDICAL_SCRUBS_CAP,
+              1
+            );
+            prop.lootItem(server, obj12, 1, false);
+          }
+          if (
+            prop.hasItem(Items.QUEST_MILITARY_SCRUBS_SHIRT) &&
+            prop.hasItem(Items.QUEST_MILITARY_SCRUBS_PANTS) &&
+            prop.hasItem(Items.QUEST_MILITARY_SCRUBS_CAP)
+          ) {
+            const req1 = prop.getItemById(Items.QUEST_MILITARY_SCRUBS_SHIRT),
+              req2 = prop.getItemById(Items.QUEST_MILITARY_SCRUBS_PANTS),
+              req3 = prop.getItemById(Items.QUEST_MILITARY_SCRUBS_CAP);
+
+            if (!req1 || !req2 || !req3) continue;
+
+            if (
+              !server.removeInventoryItem(prop, req1) ||
+              !server.removeInventoryItem(prop, req2) ||
+              !server.removeInventoryItem(prop, req3)
+            ) {
+              continue;
+            }
+
+            const obj7 = server.generateItem(
+              Items.REWARD_MILITARY_SCRUBS_SHIRT,
+              1
+            );
+            prop.lootItem(server, obj7, 1, false);
+            const obj8 = server.generateItem(
+              Items.REWARD_MILITARY_SCRUBS_PANTS,
+              1
+            );
+            prop.lootItem(server, obj8, 1, false);
+            const obj9 = server.generateItem(
+              Items.REWARD_MILITARY_SCRUBS_CAP,
+              1
+            );
+            prop.lootItem(server, obj9, 1, false);
+          }
           break;
-        case 9347:
+        case ModelIds.TREASURE_CHEST:
           const rewardChest = server._lootableProps[a] as TreasureChest;
           if (rewardChest) rewardChest.triggerRewards(server);
+
+          if (rewardChest.clearChestTimer) {
+            clearTimeout(rewardChest.clearChestTimer);
+          }
+
+          rewardChest.clearChestTimer = setTimeout(() => {
+            // give the player 5 minutes to loot before clearing out the treasure chest. also check
+            // if no players are currently accessing the chest
+            if (!rewardChest.mountedCharacter) {
+              const container = rewardChest.getContainer();
+              for (const a in container!.items) {
+                const item = container!.items[a];
+                if (item.itemDefinitionId === rewardChest.requiredItemId)
+                  continue; // skip worn letters
+                server.removeContainerItem(
+                  rewardChest,
+                  item,
+                  container,
+                  item.stackCount
+                );
+              }
+            }
+          }, 300_000);
           break;
       }
     }
@@ -1054,7 +1262,10 @@ export class WorldObjectManager {
             if (item.item == spawnedItem.itemDefinitionId) allow = false; // dont allow the same item to be added twice
           });
           if (allow) {
-            if (chance <= item.weight) {
+            if (
+              chance <=
+              item.weight * (1 - isLootNerfedLoc(prop.state.position) / 100)
+            ) {
               const count = Math.floor(
                 Math.random() *
                   (item.spawnCount.max - item.spawnCount.min + 1) +
@@ -1063,7 +1274,7 @@ export class WorldObjectManager {
               // temporary spawnchance
               server.addContainerItem(
                 prop,
-                server.generateItem(item.item, count),
+                server.generateItem(getRandomSkin(item.item), count),
                 container
               );
             }

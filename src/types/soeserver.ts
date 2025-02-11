@@ -17,6 +17,7 @@ export type dataCache = {
   data: Uint8Array;
   fragment: boolean;
   sequence: number;
+  resendCounter: number;
 }
 export type dataCacheMap = {
   [sequence: number]: dataCache;

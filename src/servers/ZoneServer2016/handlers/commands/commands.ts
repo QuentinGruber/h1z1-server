@@ -34,6 +34,7 @@ import { Npc } from "../../entities/npc";
 import { ZoneClient2016 as Client } from "../../classes/zoneclient";
 import {
   characterBuildKitLoadout,
+  characterTestKitLoadout,
   characterSkinsLoadout,
   characterKitLoadout,
   characterVehicleKit
@@ -61,6 +62,8 @@ import { WithId } from "mongodb";
 import { FullCharacterSaveData } from "types/savedata";
 import { scheduler } from "node:timers/promises";
 import { Vehicle2016 } from "../../entities/vehicle";
+import { AddSimpleNpc } from "types/zone2016packets";
+import { writeFileSync } from "node:fs";
 const itemDefinitions = require("./../../../../../data/2016/dataSources/ServerItemDefinitions.json");
 
 export const commands: Array<Command> = [
@@ -74,6 +77,97 @@ export const commands: Array<Command> = [
       args: Array<string>
     ) => {
       /* handled clientside */
+    }
+  },
+  {
+    name: "stats",
+    permissionLevel: PermissionLevels.DEFAULT,
+    execute: async (
+      server: ZoneServer2016,
+      client: Client,
+      args: Array<string>
+    ) => {
+      const collection = server._db.collection(DB_COLLECTIONS.KILLS);
+      const query = await collection
+        .aggregate([
+          {
+            $match: {
+              $and: [
+                {
+                  $or: [
+                    { loginSessionId: client.loginSessionId }, // Player's kills
+                    { playerKilledLoginSessionId: client.loginSessionId } // Player's deaths
+                  ]
+                },
+                { serverId: server._worldId }
+              ]
+            }
+          },
+          {
+            $group: {
+              _id: null,
+              playerkills: {
+                $sum: {
+                  $cond: [
+                    {
+                      $and: [
+                        { $eq: ["$type", "player"] },
+                        { $eq: ["$loginSessionId", client.loginSessionId] }
+                      ]
+                    },
+                    1,
+                    0
+                  ]
+                }
+              },
+              zombiekills: {
+                $sum: { $cond: [{ $eq: ["$type", "zombie"] }, 1, 0] }
+              },
+              vehiclekills: {
+                $sum: { $cond: [{ $eq: ["$type", "vehicle"] }, 1, 0] }
+              },
+              playerdeaths: {
+                $sum: {
+                  $cond: [
+                    {
+                      $eq: [
+                        "$playerKilledLoginSessionId",
+                        client.loginSessionId
+                      ]
+                    },
+                    1,
+                    0
+                  ]
+                }
+              }
+            }
+          },
+          {
+            $project: {
+              _id: 0,
+              playerkills: 1,
+              zombiekills: 1,
+              vehiclekills: 1,
+              playerdeaths: 1
+            }
+          }
+        ])
+        .toArray();
+
+      const stats = query[0];
+      if (!stats) {
+        server.sendChatText(
+          client,
+          "/stats failed you mostly have no stats at all"
+        );
+        return;
+      }
+
+      server.sendChatText(
+        client,
+        `Stats: \n Player kills: ${stats.playerkills} \n Zombie kills: ${stats.zombiekills} \n Vehicle kills: ${stats.vehiclekills} \n Deaths: ${stats.playerdeaths} \n K/D: ${(stats.playerkills / stats.playerdeaths).toFixed(2)}`,
+        true
+      );
     }
   },
   {
@@ -348,11 +442,11 @@ export const commands: Array<Command> = [
         return;
       }
 
-      let targetClient = server.getClientByNameOrLoginSession(args[0]);
+      const targetClient = server.getClientByNameOrLoginSession(args[0]);
 
-      if (!targetClient) {
+      /*if (!targetClient) {
         targetClient = await server.getOfflineClientByName(args[0]);
-      }
+      }*/
 
       if (server.playerNotFound(client, args[0].toString(), targetClient)) {
         return;
@@ -637,6 +731,14 @@ export const commands: Array<Command> = [
             client.isDecoy = false;
           }
         }
+        server.sendData(client, "Spectator.Enable", {});
+        client.character.characterStates.gmHidden = client.character.isVanished;
+        server.updateCharacterState(
+          client,
+          client.character.characterId,
+          client.character.characterStates,
+          false
+        );
         return;
       }
       for (const a in server._clients) {
@@ -649,6 +751,13 @@ export const commands: Array<Command> = [
         }
       }
       server.sendData(client, "Spectator.Enable", {});
+      client.character.characterStates.gmHidden = client.character.isVanished;
+      server.updateCharacterState(
+        client,
+        client.character.characterId,
+        client.character.characterStates,
+        false
+      );
     }
   },
   {
@@ -1017,7 +1126,7 @@ export const commands: Array<Command> = [
         ownerId ?? "",
         characterName ?? "",
         reason,
-        client.character.name,
+        client.loginSessionId,
         time,
         isSilent
       );
@@ -1098,7 +1207,7 @@ export const commands: Array<Command> = [
         ownerId ?? "",
         characterName ?? "",
         reason,
-        client.character.name,
+        client.loginSessionId,
         time,
         isSilent
       );
@@ -1258,7 +1367,7 @@ export const commands: Array<Command> = [
       const heightInput = args[1];
       const height = heightInput !== undefined ? parseFloat(heightInput) : 50;
       if (isNaN(height)) {
-        server.sendAlert(
+        server.sendChatText(
           client,
           "Error: Please enter a valid number for the height."
         );
@@ -1273,7 +1382,7 @@ export const commands: Array<Command> = [
           newPosition[1] -= height;
           break;
         default:
-          server.sendAlert(
+          server.sendChatText(
             client,
             "Error: Invalid direction. Use 'up' or 'down'."
           );
@@ -1283,7 +1392,7 @@ export const commands: Array<Command> = [
         position: newPosition,
         triggerLoadingScreen: false
       });
-      server.sendAlert(client, `Moved ${direction} by ${height}.`);
+      server.sendChatText(client, `Moved ${direction} by ${height}`);
     }
   },
   {
@@ -1561,6 +1670,7 @@ export const commands: Array<Command> = [
           getCurrentServerTimeWrapper().getTruncatedU32(),
           VehicleIds.PARACHUTE
         );
+      server.worldObjectManager.createVehicle(server, vehicle, true);
       server.sendData(actingClient, "ClientUpdate.UpdateLocation", {
         position: loc,
         triggerLoadingScreen: true
@@ -1572,7 +1682,60 @@ export const commands: Array<Command> = [
         server.assignManagedObject(clientTriggered, vehicle);
         clientTriggered.vehicle.mountedVehicle = characterId;
       };
-      server.worldObjectManager.createVehicle(server, vehicle, true);
+    }
+  },
+  {
+    name: "changemodel",
+    permissionLevel: PermissionLevels.ADMIN,
+    execute: async (
+      server: ZoneServer2016,
+      client: Client,
+      args: Array<string>
+    ) => {
+      if (args.length < 1) {
+        server.sendChatText(client, "Please specify a valid model ID.");
+        return;
+      }
+
+      const modelMap: { [key: string]: number } = {
+        deer: 9002,
+        buck: 9253,
+        wolf: 9003,
+        bear: 9187,
+        rabbit: 9212,
+        screamer: 9667,
+        zombie: 9510,
+        raven: 9230
+      };
+
+      let newModelId: number;
+      const input = args[0];
+
+      if (!isNaN(Number(input))) {
+        newModelId = Number(input);
+      } else if (Object.prototype.hasOwnProperty.call(modelMap, input)) {
+        newModelId = modelMap[input];
+        client.character.temporaryActorModelId = newModelId;
+      } else if (input == "0") {
+        newModelId = client.character.actorModelId;
+        client.character.temporaryActorModelId = undefined;
+        return;
+      } else {
+        server.sendChatText(client, "Specify a valid model ID!");
+        return;
+      }
+
+      server.sendDataToAllWithSpawnedEntity(
+        server._characters,
+        client.character.characterId,
+        "Character.ReplaceBaseModel",
+        {
+          characterId: client.character.characterId,
+          modelId: newModelId
+        }
+      );
+
+      server.sendChatText(client, `Model changed to ID ${newModelId}`);
     }
   },
   {
@@ -1685,19 +1848,6 @@ export const commands: Array<Command> = [
         server.inGameTimeManager.stop();
         server.sendChatText(client, "Game time is now froze", true);
       }
-    }
-  },
-  {
-    name: "sfog",
-    permissionLevel: PermissionLevels.ADMIN,
-    execute: (server: ZoneServer2016, client: Client, args: Array<string>) => {
-      server.sendChatText(
-        client,
-        `Fog has been toggled ${
-          server.weatherManager.toggleFog() ? "ON" : "OFF"
-        } for the server`,
-        true
-      );
     }
   },
   {
@@ -1959,6 +2109,95 @@ export const commands: Array<Command> = [
     }
   },
   {
+    name: "desiredweather",
+    permissionLevel: PermissionLevels.ADMIN,
+    execute: (server: ZoneServer2016, client: Client, args: Array<string>) => {
+      if (!args[0] || !args[1]) {
+        server.sendChatText(
+          client,
+          "[ERROR] Usage /desiredweather {setting} {value} optional: {alertAll: true/false}"
+        );
+        return;
+      }
+      const value = Number(args[1]);
+      let changed = false;
+      switch (args[0]) {
+        case "skycolor":
+          if (value < -2 || value > 2) {
+            server.sendChatText(
+              client,
+              "Setting out of value range (MIN -2 - 2 MAX) (-2 = Deep blue to +2 = Deep Orange)"
+            );
+            return;
+          }
+          server.weatherManager.desiredSkyColor = value;
+          server.sendChatText(client, "Changing..");
+          changed = true;
+          break;
+        case "globalprecipation":
+          if (value < 0 || value > 0.95) {
+            server.sendChatText(
+              client,
+              "Setting out of value range (MIN 0.0 - 0.95 MAX)"
+            );
+            return;
+          }
+          server.weatherManager.desiredGlobalPrecipation = value;
+          server.weatherManager.rainingHours = value
+            ? Array.from({ length: 24 }, (_, i) => i)
+            : [];
+          server.sendChatText(client, "Changing..");
+          changed = true;
+          break;
+        case "fogdensity":
+          if (value < 0.0001 || value > 0.0002) {
+            server.sendChatText(
+              client,
+              "Setting out of value range (MIN 0.0001 - 0.0002 MAX)"
+            );
+            return;
+          }
+          changed = true;
+          server.weatherManager.desiredfogDensity = value;
+          server.sendChatText(client, "Changing..");
+          break;
+        case "fogfloor":
+          if (value < 1 || value > 300) {
+            server.sendChatText(
+              client,
+              "Setting out of value range (MIN 1 - 300 MAX)"
+            );
+            return;
+          }
+          changed = true;
+          server.weatherManager.desiredfogFloor = value;
+          server.sendChatText(client, "Changing..");
+          break;
+        case "foggradient":
+          if (value < 1 || value > 300) {
+            server.sendChatText(
+              client,
+              "Setting out of value range (MIN 0.001 - 0.02)"
+            );
+            return;
+          }
+          changed = true;
+          server.weatherManager.desiredfogGradient = value;
+          server.sendChatText(client, "Changing..");
+          break;
+        default:
+          server.sendChatText(client, "Setting not found, available settings:");
+          server.sendChatText(
+            client,
+            "skycolor, globalprecipation, fogdensity, fogfloor, foggradient"
+          );
+          break;
+      }
+      if (changed && (Number(args[2]) || args[2] == "true"))
+        server.sendAlertToAll("Desired weather setting has been changed");
+    }
+  },
+  {
     name: "savecurrentweather",
     permissionLevel: PermissionLevels.ADMIN,
     execute: async (
@@ -1974,6 +2213,37 @@ export const commands: Array<Command> = [
     permissionLevel: PermissionLevels.ADMIN,
     execute: (server: ZoneServer2016, client: Client, args: Array<string>) => {
       server.weatherManager.handleRandomCommand(server, client);
+    }
+  },
+  {
+    name: "addBuilding",
+    permissionLevel: PermissionLevels.DEV,
+    execute: (server: ZoneServer2016, client: Client, args: Array<string>) => {
+      const modelId = Number(args[0]);
+      const { position, rotation } = client.character.state;
+      const characterId = server.generateGuid();
+      const transientId = server.getTransientId(characterId);
+      const s: AddSimpleNpc = {
+        characterId,
+        modelId,
+        position,
+        rotation,
+        transientId,
+        scale: new Float32Array([1, 1, 1, 1]),
+        health: 10000
+      };
+      server.staticBuildings.push(s);
+      server.sendData(client, "AddSimpleNpc", s);
+    }
+  },
+  {
+    name: "saveBuildings",
+    permissionLevel: PermissionLevels.DEV,
+    execute: (server: ZoneServer2016, client: Client, args: Array<string>) => {
+      writeFileSync(
+        __dirname + "/../../../../../data/2016/sampleData/staticbuildings.json",
+        JSON.stringify(server.staticBuildings)
+      );
     }
   },
   {
@@ -2217,6 +2487,10 @@ export const commands: Array<Command> = [
           client.character.equipLoadout(server, characterKitLoadout, true);
           break;
         case "parts":
+          client.character.equipItem(
+            server,
+            server.generateItem(Items.FANNY_PACK_DEV)
+          );
           client.character.equipLoadout(server, characterVehicleKit, true);
           break;
         case "skins":
@@ -2241,6 +2515,18 @@ export const commands: Array<Command> = [
           return;
       }
       server.sendChatText(client, `Equipped ${args[0]} kit`);
+    }
+  },
+  {
+    name: "testkit",
+    permissionLevel: PermissionLevels.ADMIN,
+    execute: (server, client, args) => {
+      client.character.equipItem(
+        server,
+        server.generateItem(Items.FANNY_PACK_DEV)
+      );
+      client.character.equipLoadout(server, characterTestKitLoadout, true);
+      server.sendChatText(client, `Equipped test kit`);
     }
   },
   {
@@ -2745,6 +3031,43 @@ export const commands: Array<Command> = [
             }
           }
         );
+      }
+    }
+  },
+  {
+    name: "unclaimbases",
+    permissionLevel: PermissionLevels.MODERATOR,
+    execute: async (
+      server: ZoneServer2016,
+      client: Client,
+      args: Array<string>
+    ) => {
+      if (!args[0]) {
+        server.sendChatText(
+          client,
+          `"[ERROR] Usage /unclaimbases {name / clientId}"`
+        );
+        return;
+      }
+      const targetClient = server.getClientByNameOrLoginSession(
+        args[0].toString()
+      );
+      if (server.playerNotFound(client, args[0].toString(), targetClient)) {
+        return;
+      }
+      if (!targetClient || !(targetClient instanceof Client)) {
+        server.sendChatText(client, "Client not found.");
+        return;
+      }
+
+      for (const a in server._constructionFoundations) {
+        const foundation = server._constructionFoundations[a];
+        if (
+          foundation.ownerCharacterId === targetClient.character.characterId
+        ) {
+          foundation.ownerCharacterId = "";
+          continue;
+        }
       }
     }
   },

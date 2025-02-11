@@ -12,7 +12,11 @@
 // ======================================================================
 
 import { DamageInfo } from "types/zoneserver";
-import { getDistance, randomIntFromInterval } from "../../../utils/utils";
+import {
+  getDistance,
+  isChristmasSeason,
+  randomIntFromInterval
+} from "../../../utils/utils";
 import { Effects, Items } from "../models/enums";
 import { ZoneServer2016 } from "../zoneserver";
 import { BaseLightweightCharacter } from "./baselightweightcharacter";
@@ -40,6 +44,8 @@ export class ExplosiveEntity extends BaseLightweightCharacter {
 
   /** the characterId from who place this to keep track */
   ownerCharacterId: string;
+
+  isAwaitingExplosion: boolean = false;
 
   constructor(
     characterId: string,
@@ -100,7 +106,20 @@ export class ExplosiveEntity extends BaseLightweightCharacter {
   detonate(server: ZoneServer2016, client?: ZoneClient2016) {
     if (!server._explosives[this.characterId] || this.detonated) return;
     this.detonated = true;
-    server.sendCompositeEffectToAllInRange(600, "", this.state.position, 1875);
+    server.sendCompositeEffectToAllInRange(
+      600,
+      "",
+      this.state.position,
+      Effects.PFX_Impact_Explosion_Landmine_Dirt_10m
+    );
+    if (isChristmasSeason()) {
+      server.sendCompositeEffectToAllInRange(
+        600,
+        "",
+        this.state.position,
+        Effects.PFX_Seasonal_Holiday_Snow_skel
+      );
+    }
     server.deleteEntity(this.characterId, server._explosives);
     server.explosionDamage(this, client);
   }
@@ -159,13 +178,18 @@ export class ExplosiveEntity extends BaseLightweightCharacter {
   async OnExplosiveHit(
     server: ZoneServer2016,
     sourceEntity: BaseEntity,
-    client?: ZoneClient2016
+    client?: ZoneClient2016,
+    waitTime: number = 0,
+    useRaycast: boolean = false
   ) {
+    if (this.isAwaitingExplosion) return;
+    this.isAwaitingExplosion = true;
     if (this.characterId == sourceEntity.characterId) return;
-    if (getDistance(sourceEntity.state.position, this.state.position) >= 2)
-      return;
-
-    await scheduler.wait(200);
+    if (!useRaycast) {
+      if (getDistance(sourceEntity.state.position, this.state.position) >= 2)
+        return;
+    }
+    await scheduler.wait(waitTime);
     if (server._spawnedItems[this.characterId]) {
       const itemObject = server._spawnedItems[this.characterId];
       server.deleteEntity(this.characterId, server._spawnedItems);

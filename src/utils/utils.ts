@@ -1391,12 +1391,16 @@ export async function logClientActionToMongo(
   serverId: number,
   logMessage: Record<string, unknown>
 ) {
-  collection.insertOne({
-    ...logMessage,
-    serverId,
-    characterName: client.character.name,
-    loginSessionId: client.loginSessionId
-  });
+  try {
+    collection.insertOne({
+      ...logMessage,
+      serverId,
+      characterName: client.character.name,
+      loginSessionId: client.loginSessionId
+    });
+  } catch (e: any) {
+    console.error(e);
+  }
 }
 
 /**
@@ -1559,15 +1563,20 @@ export function isHalloween() {
   return today.getMonth() === 9 && today.getDate() === 31;
 }
 
+export function isChristmasSeason() {
+  const today = new Date();
+  return today.getMonth() === 11;
+}
+
 export function luck(l: number) {
   return Math.floor(Math.random() * l) === 0;
 }
 
 const Z1_POIs = require("../../data/2016/zoneData/Z1_POIs");
 export function isPosInPoi(position: Float32Array): boolean {
-  let useRange = true;
   let isInPoi = false;
   Z1_POIs.forEach((point: any) => {
+    let useRange = true;
     if (point.bounds) {
       useRange = false;
       point.bounds.forEach((bound: any) => {
@@ -1583,6 +1592,28 @@ export function isPosInPoi(position: Float32Array): boolean {
   });
 
   return isInPoi;
+}
+
+const Z1_nerfedPOIs = require("../../data/2016/zoneData/Z1_nerfedPOIs");
+export function isLootNerfedLoc(position: Float32Array): number {
+  let useRange = true;
+  let nerfedValue = 0;
+  Z1_nerfedPOIs.forEach((point: any) => {
+    if (point.bounds) {
+      useRange = false;
+      point.bounds.forEach((bound: any) => {
+        if (isInsideSquare([position[0], position[2]], bound)) {
+          nerfedValue = point.nerfValue;
+          return;
+        }
+      });
+    }
+    if (useRange && isPosInRadius(point.range, position, point.position)) {
+      nerfedValue = point.nerfValue;
+    }
+  });
+
+  return nerfedValue;
 }
 
 export function chance(chanceNum: number): boolean {

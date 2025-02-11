@@ -191,6 +191,7 @@ export interface FireHint {
   hitNumber: number;
   weaponItem: LoadoutItem
   timeStamp: number,
+  projectileUniqueId: number;
   marked?: { characterId: string, position: Float32Array, rotation: Float32Array, gameTime: number }
 }
 
@@ -235,6 +236,8 @@ export interface Recipe {
   filterId: FilterIds;
   bundleCount?: number;
   components: Array<RecipeComponent>;
+  splitted?: boolean;
+  itemId?: number;
   requireWorkbench?: boolean
   requireWeaponWorkbench?: boolean
   leftOverItems?: number[]
@@ -271,6 +274,10 @@ export type SlottedConstructionEntity = ConstructionChildEntity | ConstructionPa
 
 export type ConstructionEntity = SlottedConstructionEntity | LootableConstructionEntity;
 
+export type ShelterSlotsPlacementTimer = {
+	[slot: number]: number;
+};
+
 export interface ConstructionPermissions {
   characterId: string;
   characterName: string;
@@ -298,8 +305,7 @@ export interface ClientBan {
   banReason: string;
   loginSessionId: string;
   IP: string;
-  HWID: string;
-  adminName: string;
+  adminId: string;
   expirationDate: number;
   active: boolean;
   unBanAdminName: string;
@@ -598,4 +604,8 @@ export type EntityDictionary<Entity> = { [characterId: string]: Entity};
 export interface PropInstance {
   objectId: number,
   replacementModel: string
+}
+export interface RandomReward {
+  reward: number;
+  isRare: boolean;
 }

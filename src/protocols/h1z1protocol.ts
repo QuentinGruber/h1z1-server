@@ -477,6 +477,11 @@ export class H1Z1Protocol {
             offset = 2;
             break;
           }
+          case 0xce: {
+            packet = H1Z1Packets.Packets[0xce];
+            offset = 3;
+            break;
+          }
           default: {
             console.error(`unknown packet use flag 3 : ${opCode}`);
             [packet, offset] = this.resolveOpcode(opCode, data);
@@ -564,12 +569,23 @@ const readUnsignedIntWith2bitLengthValue = function (
   };
 };
 
+const generateDummyPosUpdate = function (): UpdatePositionObject {
+  const dummyObj = {} as UpdatePositionObject;
+  dummyObj.flags = 0;
+  dummyObj.sequenceTime = 0;
+  dummyObj.unknown3_int8 = 0;
+  return dummyObj;
+};
+
 const parseUpdatePositionData = function (data: Buffer, offset: number) {
   const obj = {} as UpdatePositionObject;
   obj.raw = data;
   try {
     obj["flags"] = data.readUInt16LE(offset);
     offset += 2;
+
+    // return spammed junk before parsing
+    if (obj.flags == 513) return generateDummyPosUpdate();
 
     obj["sequenceTime"] = data.readUInt32LE(offset);
     offset += 4;
@@ -584,16 +600,18 @@ const parseUpdatePositionData = function (data: Buffer, offset: number) {
     }
 
     if (obj.flags & 2) {
-      obj["position"] = new Float32Array(4);
+      const position = [];
       v = readSignedIntWith2bitLengthValue(data, offset);
-      obj["position"][0] = v.value / 100;
+      position[0] = v.value / 100;
       offset += v.length;
       v = readSignedIntWith2bitLengthValue(data, offset);
-      obj["position"][1] = v.value / 100;
+      position[1] = v.value / 100;
       offset += v.length;
       v = readSignedIntWith2bitLengthValue(data, offset);
-      obj["position"][2] = v.value / 100;
+      position[2] = v.value / 100;
       offset += v.length;
+      position[3] = 1;
+      obj["position"] = position;
     }
 
     if (obj.flags & 0x20) {
@@ -632,20 +650,21 @@ const parseUpdatePositionData = function (data: Buffer, offset: number) {
     }
 
     if (obj.flags & 0x100) {
-      obj["unknown12_float"] = new Float32Array(3);
+      const unknown12_float = [];
       v = readSignedIntWith2bitLengthValue(data, offset);
-      obj["unknown12_float"][0] = v.value / 100;
+      unknown12_float[0] = v.value / 100;
       offset += v.length;
       v = readSignedIntWith2bitLengthValue(data, offset);
-      obj["unknown12_float"][1] = v.value / 100;
+      unknown12_float[1] = v.value / 100;
       offset += v.length;
       v = readSignedIntWith2bitLengthValue(data, offset);
-      obj["unknown12_float"][2] = v.value / 100;
+      unknown12_float[2] = v.value / 100;
+      obj["unknown12_float"] = unknown12_float;
       offset += v.length;
     }
 
     if (obj.flags & 0x200) {
-      const rotationEul = new Float32Array(4);
+      const rotationEul = [];
       v = readSignedIntWith2bitLengthValue(data, offset);
       rotationEul[0] = v.value / 100;
       offset += v.length;
@@ -675,7 +694,7 @@ const parseUpdatePositionData = function (data: Buffer, offset: number) {
       offset += v.length;
     }
     if (obj.flags & 0x1000) {
-      const rotationEul = new Float32Array(8);
+      const rotationEul = [];
       v = readSignedIntWith2bitLengthValue(data, offset);
       rotationEul[0] = v.value / 10000;
       offset += v.length;
@@ -699,11 +718,18 @@ const parseUpdatePositionData = function (data: Buffer, offset: number) {
       offset += v.length;
       v = readSignedIntWith2bitLengthValue(data, offset);
       rotationEul[7] = v.value / 10000;
-      obj["PosAndRot"] = rotationEul;
       offset += v.length;
+      rotationEul[8] = data.readUint8(offset);
+      offset += 1;
+      obj["PosAndRot"] = rotationEul;
     }
   } catch (e) {
     console.error(e);
+    return generateDummyPosUpdate();
+  }
+  if (offset != data.length) {
+    console.error("Wrong positionUpdate buffer", obj);
+    return generateDummyPosUpdate();
   }
   return obj;
 };

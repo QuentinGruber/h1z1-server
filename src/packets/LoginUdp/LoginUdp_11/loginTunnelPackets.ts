@@ -31,6 +31,37 @@ const packets: any[] = [
         { name: "status", type: "uint32" }
       ]
     }
+  ],
+  [
+    "loginQueueUpdate",
+    0x03,
+    {
+      fields: [
+        { name: "playersInQueue", type: "uint32", defaultValue: 1 },
+        { name: "unk2", type: "uint32", defaultValue: 0 },
+        { name: "unk3", type: "uint32", defaultValue: 0 },
+        { name: "unk4", type: "uint32", defaultValue: 0 },
+        { name: "unk5", type: "uint32", defaultValue: 0 },
+
+        { name: "disableEstimate", type: "boolean", defaultValue: true },
+
+        { name: "unk7", type: "uint32", defaultValue: 0 },
+        { name: "unk8", type: "uint32", defaultValue: 0 },
+        { name: "unk9", type: "uint32", defaultValue: 0 },
+        { name: "unk10", type: "uint32", defaultValue: 0 },
+        { name: "unk11", type: "uint32", defaultValue: 0 }
+      ]
+    }
+  ],
+  [
+    "loginQueueCanceled",
+    0x05,
+    {
+      fields: [
+        { name: "characterId", type: "uint64string" },
+        { name: "unk1", type: "uint8" }
+      ]
+    }
   ]
 ];
 
