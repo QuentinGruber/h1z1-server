@@ -554,11 +554,24 @@ export class Vehicle2016 extends BaseLootableEntity {
   getHealth() {
     return this._resources[ResourceIds.CONDITION];
   }
+  hasVehicleDamageBoost(weapon: Items | undefined) {
+    switch (weapon) {
+      case Items.WEAPON_308:
+      case Items.WEAPON_MAGNUM:
+        return true;
+      default:
+        return false;
+    }
+  }
 
   damage(server: ZoneServer2016, damageInfo: DamageInfo) {
     if (this.isInvulnerable || this.isDestroyed) return;
     const oldHealth = this._resources[ResourceIds.CONDITION];
-    this._resources[ResourceIds.CONDITION] -= damageInfo.damage;
+    this._resources[ResourceIds.CONDITION] -= this.hasVehicleDamageBoost(
+      damageInfo.weapon
+    )
+      ? 8000
+      : damageInfo.damage;
     const client = server.getClientByCharId(damageInfo.entity);
     if (client) {
       queueMicrotask(async () => {
