@@ -192,6 +192,16 @@ export class Destroyable extends BaseSimpleNpc {
   OnMeleeHit(server: ZoneServer2016, damageInfo: DamageInfo) {
     if (this.destroyed) return;
     this.damage(server, damageInfo);
+    const client = server.getClientByCharId(damageInfo.entity),
+      weapon = client?.character.getEquippedWeapon();
+
+    if (!client || !weapon) return;
+
+    const durabilityDamage = server.getDurabilityDamage(
+      weapon.itemDefinitionId
+    );
+
+    server.damageItem(client.character, weapon, durabilityDamage);
   }
 
   pGetSimpleNpc(): AddSimpleNpc {

@@ -3162,6 +3162,19 @@ export class ZoneServer2016 extends EventEmitter {
     if (client) this.updateItem(client, item);
   }
 
+  getDurabilityDamage(itemDefinitionId: number) {
+    if (!itemDefinitionId) return 0;
+
+    switch (itemDefinitionId) {
+      case Items.WEAPON_CROWBAR:
+      case Items.WEAPON_HATCHET_MAKESHIFT:
+      case Items.WEAPON_HATCHET:
+        return 8;
+      default:
+        return 6;
+    }
+  }
+
   getClientByCharId(characterId: string) {
     for (const a in this._clients) {
       const c: Client = this._clients[a];
@@ -5737,10 +5750,15 @@ export class ZoneServer2016 extends EventEmitter {
       case this.isGeneric(itemDefinitionId) && !this.isConvey(itemDefinitionId):
         return 0;
       case itemDefinitionId == Items.WEAPON_HATCHET_MAKESHIFT:
-        return 250;
-      case itemDefinitionId == Items.WEAPON_HATCHET:
+      case itemDefinitionId == Items.WEAPON_BRANCH:
         return 500;
+      case itemDefinitionId == Items.WEAPON_BAT_ALUM:
+        return 3000;
       case itemDefinitionId == Items.WEAPON_AXE_WOOD:
+      case itemDefinitionId == Items.WEAPON_AXE_FIRE:
+        return 4000;
+      case itemDefinitionId == Items.WEAPON_TORCH:
+      case itemDefinitionId == Items.WEAPON_COMBATKNIFE:
       case this.isArmor(itemDefinitionId):
         return 1000;
       case this.isHelmet(itemDefinitionId):

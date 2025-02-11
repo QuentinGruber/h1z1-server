@@ -210,6 +210,16 @@ export class Crate extends BaseSimpleNpc {
   OnMeleeHit(server: ZoneServer2016, damageInfo: DamageInfo) {
     const damage = damageInfo.damage * 2;
     this.damage(server, { ...damageInfo, damage });
+    const client = server.getClientByCharId(damageInfo.entity),
+      weapon = client?.character.getEquippedWeapon();
+
+    if (!client || !weapon) return;
+
+    const durabilityDamage = server.getDurabilityDamage(
+      weapon.itemDefinitionId
+    );
+
+    server.damageItem(client.character, weapon, durabilityDamage);
   }
 
   /* eslint-disable @typescript-eslint/no-unused-vars */
