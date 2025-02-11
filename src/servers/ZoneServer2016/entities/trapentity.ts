@@ -21,7 +21,6 @@ import {
 import {
   Effects,
   Items,
-  LoadoutSlots,
   ModelIds,
   MovementModifiers,
   ResourceIds,
@@ -30,9 +29,7 @@ import {
 import { ZoneServer2016 } from "../zoneserver";
 import { BaseSimpleNpc } from "./basesimplenpc";
 import { BaseEntity } from "./baseentity";
-import { characterVehicleKit } from "../data/loadouts";
 import { scheduler } from "timers/promises";
-import { LoadoutItem } from "../classes/loadoutItem";
 
 export class TrapEntity extends BaseSimpleNpc {
   /** Damage delay for the TrapEntity */
