@@ -551,9 +551,8 @@ export class Vehicle2016 extends BaseLootableEntity {
   getHealth() {
     return this._resources[ResourceIds.CONDITION];
   }
-  useVehicleDamageBoost(damageInfo: DamageInfo) {
-    if (!damageInfo.weapon) return false;
-    switch (damageInfo.weapon) {
+  hasVehicleDamageBoost(weapon: Items | undefined) {
+    switch (weapon) {
       case Items.WEAPON_308:
       case Items.WEAPON_MAGNUM:
         return true;
@@ -565,10 +564,11 @@ export class Vehicle2016 extends BaseLootableEntity {
   async damage(server: ZoneServer2016, damageInfo: DamageInfo) {
     if (this.isInvulnerable) return;
     const oldHealth = this._resources[ResourceIds.CONDITION];
-    this._resources[ResourceIds.CONDITION] -=
-      damageInfo.weapon == (Items.WEAPON_308 || Items.WEAPON_MAGNUM)
-        ? 8000
-        : damageInfo.damage;
+    this._resources[ResourceIds.CONDITION] -= this.hasVehicleDamageBoost(
+      damageInfo.weapon
+    )
+      ? 8000
+      : damageInfo.damage;
     const client = server.getClientByCharId(damageInfo.entity);
     if (client) {
       client.character.addCombatlogEntry(
