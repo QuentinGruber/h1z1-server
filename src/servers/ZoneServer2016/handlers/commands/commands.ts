@@ -80,6 +80,17 @@ export const commands: Array<Command> = [
     }
   },
   {
+    name: "stats",
+    permissionLevel: PermissionLevels.DEFAULT,
+    execute: async (
+      server: ZoneServer2016,
+      client: Client,
+      args: Array<string>
+    ) => {
+      const collection = server._db.collection(DB_COLLECTIONS.KILLS);
+    }
+  },
+  {
     name: "group",
     permissionLevel: PermissionLevels.DEFAULT,
     execute: async (
