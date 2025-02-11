@@ -22,7 +22,7 @@ import {
   logClientActionToMongo,
   randomIntFromInterval
 } from "../../../utils/utils";
-import { DB_COLLECTIONS } from "../../../utils/enums";
+import { DB_COLLECTIONS, KILL_TYPE } from "../../../utils/enums";
 import {
   Items,
   MaterialTypes,
@@ -181,7 +181,12 @@ export class Npc extends BaseFullCharacter {
             server._db.collection(DB_COLLECTIONS.KILLS),
             client,
             server._worldId,
-            { type: this.npcId == NpcIds.ZOMBIE ? "zombie" : "wildlife" }
+            {
+              type:
+                this.npcId == NpcIds.ZOMBIE
+                  ? KILL_TYPE.ZOMBIE
+                  : KILL_TYPE.WILDLIFE
+            }
           );
         }
 

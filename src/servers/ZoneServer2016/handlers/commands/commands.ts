@@ -80,6 +80,97 @@ export const commands: Array<Command> = [
     }
   },
   {
+    name: "stats",
+    permissionLevel: PermissionLevels.DEFAULT,
+    execute: async (
+      server: ZoneServer2016,
+      client: Client,
+      args: Array<string>
+    ) => {
+      const collection = server._db.collection(DB_COLLECTIONS.KILLS);
+      const query = await collection
+        .aggregate([
+          {
+            $match: {
+              $and: [
+                {
+                  $or: [
+                    { loginSessionId: client.loginSessionId }, // Player's kills
+                    { playerKilledLoginSessionId: client.loginSessionId } // Player's deaths
+                  ]
+                },
+                { serverId: server._worldId }
+              ]
+            }
+          },
+          {
+            $group: {
+              _id: null,
+              playerkills: {
+                $sum: {
+                  $cond: [
+                    {
+                      $and: [
+                        { $eq: ["$type", "player"] },
+                        { $eq: ["$loginSessionId", client.loginSessionId] }
+                      ]
+                    },
+                    1,
+                    0
+                  ]
+                }
+              },
+              zombiekills: {
+                $sum: { $cond: [{ $eq: ["$type", "zombie"] }, 1, 0] }
+              },
+              vehiclekills: {
+                $sum: { $cond: [{ $eq: ["$type", "vehicle"] }, 1, 0] }
+              },
+              playerdeaths: {
+                $sum: {
+                  $cond: [
+                    {
+                      $eq: [
+                        "$playerKilledLoginSessionId",
+                        client.loginSessionId
+                      ]
+                    },
+                    1,
+                    0
+                  ]
+                }
+              }
+            }
+          },
+          {
+            $project: {
+              _id: 0,
+              playerkills: 1,
+              zombiekills: 1,
+              vehiclekills: 1,
+              playerdeaths: 1
+            }
+          }
+        ])
+        .toArray();
+
+      const stats = query[0];
+      if (!stats) {
+        server.sendChatText(
+          client,
+          "/stats failed you mostly have no stats at all"
+        );
+        return;
+      }
+
+      server.sendChatText(
+        client,
+        `Stats: \n Player kills: ${stats.playerkills} \n Zombie kills: ${stats.zombiekills} \n Vehicle kills: ${stats.vehiclekills} \n Deaths: ${stats.playerdeaths} \n K/D: ${(stats.playerkills / stats.playerdeaths).toFixed(2)}`,
+        true
+      );
+    }
+  },
+  {
     name: "group",
     permissionLevel: PermissionLevels.DEFAULT,
     execute: async (

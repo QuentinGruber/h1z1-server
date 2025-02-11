@@ -14,7 +14,8 @@
 import {
   createPositionUpdate,
   eul2quat,
-  getDistance
+  getDistance,
+  logClientActionToMongo
 } from "../../../utils/utils";
 import {
   Items,
@@ -44,6 +45,7 @@ import {
 import { BaseEntity } from "./baseentity";
 import { ExplosiveEntity } from "./explosiveentity";
 import { ProjectileEntity } from "./projectileentity";
+import { DB_COLLECTIONS, KILL_TYPE } from "../../../utils/enums";
 
 function getActorModelId(vehicleId: VehicleIds) {
   switch (vehicleId) {
@@ -232,6 +234,7 @@ export class Vehicle2016 extends BaseLootableEntity {
 
   droppedManagedClient?: ZoneClient2016; // for temporary fix
   isMountable: boolean = true;
+  isDestroyed: boolean = false;
   constructor(
     characterId: string,
     transientId: number,
@@ -552,22 +555,32 @@ export class Vehicle2016 extends BaseLootableEntity {
     return this._resources[ResourceIds.CONDITION];
   }
 
-  async damage(server: ZoneServer2016, damageInfo: DamageInfo) {
-    if (this.isInvulnerable) return;
+  damage(server: ZoneServer2016, damageInfo: DamageInfo) {
+    if (this.isInvulnerable || this.isDestroyed) return;
     const oldHealth = this._resources[ResourceIds.CONDITION];
     this._resources[ResourceIds.CONDITION] -= damageInfo.damage;
     const client = server.getClientByCharId(damageInfo.entity);
     if (client) {
-      client.character.addCombatlogEntry(
-        await server.generateDamageRecord(
-          this.characterId,
-          damageInfo,
-          oldHealth
-        )
-      );
+      queueMicrotask(async () => {
+        client.character.addCombatlogEntry(
+          await server.generateDamageRecord(
+            this.characterId,
+            damageInfo,
+            oldHealth
+          )
+        );
+      });
     }
 
     if (this._resources[ResourceIds.CONDITION] <= 0) {
+      if (client) {
+        logClientActionToMongo(
+          server._db.collection(DB_COLLECTIONS.KILLS),
+          client,
+          server._worldId,
+          { type: KILL_TYPE.VEHICLE }
+        );
+      }
       this.destroy(server);
       if (client) {
         client.character.metrics.vehiclesDestroyed++;
@@ -1279,6 +1292,7 @@ export class Vehicle2016 extends BaseLootableEntity {
   }
 
   destroy(server: ZoneServer2016, disableExplosion = false): boolean {
+    this.isDestroyed = true;
     if (!server._vehicles[this.characterId]) return false;
     this._resources[ResourceIds.CONDITION] = 0;
     for (const c in server._clients) {

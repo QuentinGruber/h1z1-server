@@ -146,6 +146,7 @@ import {
   DB_COLLECTIONS,
   GAME_LOGS_TYPES,
   GAME_VERSIONS,
+  KILL_TYPE,
   LOGIN_KICK_REASON
 } from "../../utils/enums";
 
@@ -2445,7 +2446,11 @@ export class ZoneServer2016 extends EventEmitter {
         this._db.collection(DB_COLLECTIONS.KILLS),
         sourceClient,
         this._worldId,
-        { type: "player", playerKilled: client.character.name }
+        {
+          type: KILL_TYPE.PLAYER,
+          playerKilled: client.character.name,
+          playerKilledLoginSessionId: client.loginSessionId
+        }
       );
     }
     client.lastDeathReport = {
