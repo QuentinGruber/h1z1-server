@@ -1391,12 +1391,16 @@ export async function logClientActionToMongo(
   serverId: number,
   logMessage: Record<string, unknown>
 ) {
-  collection.insertOne({
-    ...logMessage,
-    serverId,
-    characterName: client.character.name,
-    loginSessionId: client.loginSessionId
-  });
+  try {
+    collection.insertOne({
+      ...logMessage,
+      serverId,
+      characterName: client.character.name,
+      loginSessionId: client.loginSessionId
+    });
+  } catch (e: any) {
+    console.error(e);
+  }
 }
 
 /**

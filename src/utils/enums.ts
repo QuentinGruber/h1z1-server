@@ -72,6 +72,13 @@ export enum DB_COLLECTIONS {
   AUTHKEYS = "verified-authkeys"
 }
 
+export enum KILL_TYPE {
+  PLAYER = "player",
+  ZOMBIE = "zombie",
+  WILDLIFE = "wildlife",
+  VEHICLE = "vehicle"
+}
+
 export enum GAME_LOGS_TYPES {
   OPEN_CRATE = "open_crate",
   ITEM_USE = "item_use",
