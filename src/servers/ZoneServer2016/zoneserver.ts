@@ -1895,22 +1895,37 @@ export class ZoneServer2016 extends EventEmitter {
     console.log(`[RCON]Execute command "${commandName}"`);
     const commandHash: number = flhash(commandName.toUpperCase());
     const args: string = payload.replace(commandName, "").trim();
+    // TODO: add loginSessionId from the user
     const fakeClient = this.createClient(0, "", "", "", 0);
     // Admin rights for the Rcon client but we should add that as an option in the config
+    // TODO: permissionLevel should be the same as the user who use the rcon
     fakeClient.permissionLevel = 2;
     this.commandHandler.executeCommand(this, fakeClient, {
       name: "Command.ExecuteCommand",
       data: { commandHash, arguments: args }
     });
-    ws.send(`Execute ${payload}`);
   }
 
   handleRconMessage(ws: WebSocket, message: RconMessage) {
-    switch (message.type) {
-      case RconMessageType.ExecCommand:
-        if (typeof message.payload === "string") {
-          this.executeRconCommand(ws, message.payload);
-        }
+    try {
+      this.rconManager.broadcastLog(
+        `Rcon message type ${message.type} payload: ${message.payload} `
+      );
+      switch (message.type) {
+        case RconMessageType.ExecCommand:
+          if (typeof message.payload === "string") {
+            this.executeRconCommand(ws, message.payload);
+            ws.send(
+              this.rconManager.createMessage(
+                RconMessageType.DisplayUserMessage,
+                "Command executed successfully!"
+              )
+            );
+          }
+      }
+    } catch (e) {
+      console.error(`Rcon message failed for ${ws.url}`);
+      console.error(e);
     }
   }
 
