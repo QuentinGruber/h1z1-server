@@ -8308,7 +8308,6 @@ export class ZoneServer2016 extends EventEmitter {
             client.character.clearReloadTimeout();
             return;
           }
-          console.log(reloadTime);
           const maxReloadAmount = maxAmmo - weaponItem.weapon.ammoCount, // how much ammo is needed for full clip
             reserveAmmo = client.character.getInventoryItemAmount(weaponAmmoId), // how much ammo is in inventory
             reloadAmount =
