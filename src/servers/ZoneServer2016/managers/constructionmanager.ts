@@ -671,7 +671,9 @@ export class ConstructionManager {
     }
 
     if (
-      ![Items.TRAP_FIRE, Items.TRAP_FLASH].includes(itemDefinitionId) &&
+      ![Items.TRAP_FIRE, Items.TRAP_FLASH, Items.WOODEN_BARRICADE].includes(
+        itemDefinitionId
+      ) &&
       this.handleInvalidPlacement(
         server,
         client,

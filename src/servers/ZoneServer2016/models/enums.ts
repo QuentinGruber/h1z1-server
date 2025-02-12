@@ -910,6 +910,7 @@ export enum Items {
 
   //#region CONSTRUCTION
   GROUND_TAMPER = 124,
+  WOODEN_BARRICADE = 122,
   SHACK = 1433,
   SHACK_SMALL = 1440,
   SHACK_BASIC = 1468,
