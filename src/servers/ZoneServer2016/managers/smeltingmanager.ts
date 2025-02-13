@@ -179,9 +179,6 @@ export class SmeltingManager {
           this.checkCollector(server, entity, subEntity, container);
           this.checkHoneycomb(server, entity, subEntity, container);
           break;
-        case Items.DEW_COLLECTOR:
-          this.checkCollector(server, entity, subEntity, container);
-          break;
         case Items.ANIMAL_TRAP:
           this.checkAnimalTrap(server, entity, subEntity, container);
           break;
