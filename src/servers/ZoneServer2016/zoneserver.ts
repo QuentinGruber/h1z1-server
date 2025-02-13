@@ -511,6 +511,10 @@ export class ZoneServer2016 extends EventEmitter {
     this.enableWorldSaves =
       process.env.ENABLE_SAVES?.toLowerCase() == "false" ? false : true;
 
+    /* Managers events */
+    this.weatherManager.on("raining", () => {
+      this.smeltingManager.fillDewCollector(this);
+    });
     /** Determines what rulesets are used. */
     const serverGameRules = [];
     serverGameRules.push(this.isPvE ? "PvE" : "PvP");
