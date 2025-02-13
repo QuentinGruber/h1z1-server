@@ -445,7 +445,19 @@ export class ZonePacketHandlers {
             server.sendAlert(client, server.adminMessage);
         }
         if (!server._soloMode && client.character.groupId) {
-          server.sendAlert(client, "Group automatically joined.");
+          server.groupManager
+            .getGroup(server, client.character.groupId)
+            .then((g) => {
+              if (g) {
+                server.sendAlert(client, "Group automatically joined.");
+              } else {
+                server.sendAlert(
+                  client,
+                  "Group not found. removing group assignation."
+                );
+                client.character.groupId = 0;
+              }
+            });
         }
 
         if (isHalloween()) {
