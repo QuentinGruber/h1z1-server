@@ -93,6 +93,20 @@ export class GroupManager {
           .findOne<Group>({ serverId: server._worldId, groupId });
   }
 
+  async getGroupId(
+    server: ZoneServer2016,
+    client: Client
+  ): Promise<number | null> {
+    if (server._soloMode) return null;
+
+    const collection = server._db.collection(DB_COLLECTIONS.GROUPS);
+    const result = await collection.findOne(
+      { serverId: server._worldId, members: client.character.characterId },
+      { projection: { groupId: 1, _id: 0 } }
+    );
+    return result ? result.groupId : null;
+  }
+
   async deleteGroup(server: ZoneServer2016, groupId: number) {
     if (server._soloMode) {
       delete this.soloGroups[groupId];
