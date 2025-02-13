@@ -2047,7 +2047,7 @@ export const lootTables: { [lootSpawner: string]: LootSpawner } = {
       },
       {
         item: Items.BACKPACK_MILITARY_TAN,
-        weight: 25,
+        weight: 5,
         spawnCount: {
           min: 1,
           max: 1
