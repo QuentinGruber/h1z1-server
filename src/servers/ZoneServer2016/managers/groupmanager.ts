@@ -381,11 +381,6 @@ export class GroupManager {
 
   async handlePlayerDisconnect(server: ZoneServer2016, client: Client) {
     delete this.pendingInvites[client.character.characterId];
-    this.removeGroupMember(
-      server,
-      client.character.characterId,
-      client.character.groupId
-    );
     const groupId = client.character.groupId;
     this.sendAlertToAllOthersInGroup(
       server,
