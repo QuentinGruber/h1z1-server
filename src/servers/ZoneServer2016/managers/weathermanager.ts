@@ -20,6 +20,7 @@ import {
 } from "../../../utils/utils";
 import { ZoneClient2016 as Client } from "../classes/zoneclient";
 import { ZoneServer2016 } from "../zoneserver";
+import EventEmitter from "node:events";
 //const debug = require("debug")("dynamicWeather");
 
 const localWeatherTemplates = require("../../../../data/2016/dataSources/weather.json");
@@ -83,7 +84,7 @@ function adjustNumber(
   return currentNumber; // Return the updated number
 }
 
-export class WeatherManager {
+export class WeatherManager extends EventEmitter {
   weatherChoosen = false;
   fog = 0; // density
   currentSeason = "summer";
@@ -560,6 +561,7 @@ export class WeatherManager {
       this.rain = 0.1;
       this.rainRampupTime = 1;
       this.moveGPtoDesiredValue();
+      this.emit("raining");
     } else if (currentHour > Math.min(...this.rainingHours)) {
       this.rain = 0;
       this.rainRampupTime = 0;
