@@ -13,10 +13,11 @@
 import { ZoneServer2016 } from "../zoneserver";
 import { ZoneClient2016 } from "../classes/zoneclient";
 import { DamageInfo } from "../../../types/zoneserver";
-import { eul2quat } from "../../../utils/utils";
+import { eul2quat, getDistance } from "../../../utils/utils";
 import { Effects, ModelIds } from "../models/enums";
 import { AddLightweightNpc, AddSimpleNpc } from "types/zone2016packets";
 import { BaseSimpleNpc } from "./basesimplenpc";
+import { BaseEntity } from "./baseentity";
 
 function getDestroyedModels(actorModelId: ModelIds): number[] {
   switch (actorModelId) {
@@ -235,6 +236,19 @@ export class Destroyable extends BaseSimpleNpc {
       },
       attachedObject: {}
     };
+  }
+
+  OnExplosiveHit(server: ZoneServer2016, sourceEntity: BaseEntity): void {
+    const distance = getDistance(
+      sourceEntity.state.position,
+      this.state.position
+    );
+    if (distance > 5) return;
+
+    this.damage(server, {
+      entity: sourceEntity.characterId,
+      damage: this.health
+    });
   }
 
   /* eslint-disable @typescript-eslint/no-unused-vars */
