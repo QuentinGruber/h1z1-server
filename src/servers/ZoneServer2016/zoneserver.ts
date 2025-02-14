@@ -108,7 +108,7 @@ import {
   chance
 } from "../../utils/utils";
 
-import { Db, MongoClient, WithId } from "mongodb";
+import { Db, MongoClient, WithId, Collection } from "mongodb";
 import { BaseFullCharacter } from "./entities/basefullcharacter";
 import { ItemObject } from "./entities/itemobject";
 import {
@@ -690,6 +690,12 @@ export class ZoneServer2016 extends EventEmitter {
       v.transientId = this.getTransientId(v.characterId);
     }
   }
+
+  async getPlayerClan(characterId: string): Promise<any> {
+    const clansCollection: Collection = this._db?.collection(DB_COLLECTIONS.CLANS);
+    return await clansCollection.findOne({ members: characterId });
+  }
+
 
   async reloadCommandCache() {
     delete require.cache[require.resolve("./handlers/commands/commandhandler")];
@@ -1648,6 +1654,9 @@ export class ZoneServer2016 extends EventEmitter {
     client.character.groupId = 0; //savedCharacter.groupId || 0;
     client.character.playTime = savedCharacter.playTime || 0;
     client.character.lastDropPlaytime = savedCharacter.lastDropPlayTime || 0;
+
+    // Load and set the clan data
+    await client.character.getClan(this);
 
     let newCharacter = false;
     if (_.isEqual(savedCharacter.position, [0, 0, 0, 1])) {
