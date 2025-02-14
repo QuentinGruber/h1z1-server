@@ -139,8 +139,6 @@ export class ClanManager {
           if (joinRequests.get(client.character.characterId)?.clanTag === joinTag) {
             joinRequests.delete(client.character.characterId);
             server.sendChatText(client, `Your join request to clan ${joinTag} has expired.`);
-            // Log the state of joinRequests after expiration
-            console.log("Updated joinRequests after expiration:", Array.from(joinRequests.entries()));
           }
         }, 2 * 60 * 1000);
 
@@ -182,9 +180,6 @@ export class ClanManager {
 
         // Remove the join request from memory
         joinRequests.delete(joinRequest.characterId);
-
-        // Log the updated state of joinRequests after acceptance
-        console.log("Updated joinRequests after accept:", Array.from(joinRequests.entries()));
 
         // Notify the new member
         const newMemberClient = server.getClientByCharId(
@@ -234,9 +229,6 @@ export class ClanManager {
         // Remove the join request from memory
         joinRequests.delete(declineRequest.characterId);
 
-        // Log the updated state of joinRequests after decline
-        console.log("Updated joinRequests after decline:", Array.from(joinRequests.entries()));
-
         // Notify the declined member
         const declinedMemberClient = server.getClientByCharId(
           declineRequest.characterId
@@ -263,9 +255,6 @@ export class ClanManager {
 
         // Remove the join request from memory
         joinRequests.delete(client.character.characterId);
-
-        // Log the updated state of joinRequests after cancellation
-        console.log("Updated joinRequests after cancel:", Array.from(joinRequests.entries()));
 
         server.sendChatText(client, "Your join request has been cancelled.");
         break;
