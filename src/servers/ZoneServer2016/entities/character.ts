@@ -414,10 +414,6 @@ export class Character2016 extends BaseFullCharacter {
 
   }
 
-  getFullName(): string {
-    return this.clan ? `${this.clan} ${this.name}` : this.name;
-  }
-
   getShaderGroup() {
     switch (this.headActor) {
       case "SurvivorMale_Head_02.adr":

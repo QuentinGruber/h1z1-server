@@ -108,7 +108,7 @@ import {
   chance
 } from "../../utils/utils";
 
-import { Db, MongoClient, WithId, Collection } from "mongodb";
+import { Db, MongoClient, WithId } from "mongodb";
 import { BaseFullCharacter } from "./entities/basefullcharacter";
 import { ItemObject } from "./entities/itemobject";
 import {
@@ -230,6 +230,7 @@ import {
   RconMessageType
 } from "./managers/rconmanager";
 import { GroupManager } from "./managers/groupmanager";
+import { ClanManager } from "./managers/clanmanager";
 import { SpeedTreeManager } from "./managers/speedtreemanager";
 import { ConstructionManager } from "./managers/constructionmanager";
 import { FairPlayManager } from "./managers/fairplaymanager";
@@ -398,6 +399,7 @@ export class ZoneServer2016 extends EventEmitter {
   chatManager: ChatManager;
   rconManager: RConManager;
   groupManager: GroupManager;
+  clanManager: ClanManager;
   speedtreeManager: SpeedTreeManager;
   constructionManager: ConstructionManager;
   fairPlayManager: FairPlayManager;
@@ -497,6 +499,7 @@ export class ZoneServer2016 extends EventEmitter {
     this.chatManager = new ChatManager();
     this.rconManager = new RConManager();
     this.groupManager = new GroupManager();
+    this.clanManager = new ClanManager();
     this.speedtreeManager = new SpeedTreeManager();
     this.rewardManager = new RewardManager(this);
     this.constructionManager = new ConstructionManager();
@@ -692,10 +695,8 @@ export class ZoneServer2016 extends EventEmitter {
   }
 
   async getPlayerClan(characterId: string): Promise<any> {
-    const clansCollection: Collection = this._db?.collection(DB_COLLECTIONS.CLANS);
-    return await clansCollection.findOne({ members: characterId });
+    return await this._db?.collection(DB_COLLECTIONS.CLANS).findOne({ members: characterId });
   }
-
 
   async reloadCommandCache() {
     delete require.cache[require.resolve("./handlers/commands/commandhandler")];
