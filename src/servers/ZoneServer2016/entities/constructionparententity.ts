@@ -1051,6 +1051,9 @@ export class ConstructionParentEntity extends ConstructionChildEntity {
   }
 
   OnExplosiveHit(server: ZoneServer2016, sourceEntity: BaseEntity) {
+    if (server.isPvE) {
+      return;
+    }
     if (
       !isPosInRadius(
         this.damageRange * 1.5,
