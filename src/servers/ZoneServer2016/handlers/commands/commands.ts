@@ -165,7 +165,7 @@ export const commands: Array<Command> = [
 
       server.sendChatText(
         client,
-        `Stats: \n Player kills: ${stats.playerkills} \n Zombie kills: ${stats.zombiekills} \n Vehicle kills: ${stats.vehiclekills} \n Deaths: ${stats.playerdeaths} \n K/D: ${(stats.playerkills / stats.playerdeaths).toFixed(2)}`,
+        `Stats:\n Playtime : ${(client.character.playTime / 60).toFixed(1) + "h"} \n Player kills: ${stats.playerkills} \n Zombie kills: ${stats.zombiekills} \n Vehicle kills: ${stats.vehiclekills} \n Deaths: ${stats.playerdeaths} \n K/D: ${(stats.playerkills / stats.playerdeaths).toFixed(2)}`,
         true
       );
     }
