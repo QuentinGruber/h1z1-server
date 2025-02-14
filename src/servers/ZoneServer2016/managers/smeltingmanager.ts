@@ -118,6 +118,45 @@ export class SmeltingManager {
     }, this.burnTime);
   }
 
+  public fillDewCollectors(server: ZoneServer2016) {
+    for (const a in this._collectingEntities) {
+      const entity = this.getTrueEntity(server, this._collectingEntities[a]);
+      if (!entity) {
+        delete this._smeltingEntities[a];
+        continue;
+      }
+      const subEntity = entity.subEntity;
+      if (!(subEntity instanceof CollectingEntity)) {
+        delete this._smeltingEntities[a];
+        continue;
+      }
+      const container = entity.getContainer();
+      if (!container) {
+        delete this._smeltingEntities[a];
+        continue;
+      }
+      if (entity.itemDefinitionId === Items.DEW_COLLECTOR) {
+        for (const a in container.items) {
+          const item = container.items[a];
+          if (item.itemDefinitionId != Items.WATER_EMPTY) continue;
+
+          if (!server.removeContainerItem(entity, item, container, 1)) {
+            return;
+          }
+          const reward = getRewardId(entity.itemDefinitionId);
+          if (reward) {
+            entity.lootContainerItem(
+              server,
+              server.generateItem(reward),
+              1,
+              false
+            );
+          }
+        }
+      }
+    }
+  }
+
   public checkCollectors(server: ZoneServer2016) {
     for (const a in this._collectingEntities) {
       const entity = this.getTrueEntity(server, this._collectingEntities[a]);
