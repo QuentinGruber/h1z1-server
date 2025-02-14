@@ -2754,10 +2754,10 @@ export class ZoneServer2016 extends EventEmitter {
 
     if (sourceIsProjectile) {
       if (sourceEntity.itemDefinitionId == Items.WEAPON_MOLOTOV) {
-        if (this.isPvE) {
-          return;
-        }
         for (const characterId in this._characters) {
+          if (this.isPvE) {
+            break;
+          }
           const character = this._characters[characterId];
           if (
             getDistance(
@@ -2778,6 +2778,9 @@ export class ZoneServer2016 extends EventEmitter {
       }
       if (sourceEntity.itemDefinitionId == Items.GRENADE_FLASH) {
         for (const a in this._clients) {
+          if (this.isPvE) {
+            break;
+          }
           const c = this._clients[a];
           const character = c.character;
           if (
@@ -2803,10 +2806,6 @@ export class ZoneServer2016 extends EventEmitter {
         continue;
       }
       for (const object of gridCell.objects) {
-        // explosives still chain explode on PvE
-        if (!(object instanceof ExplosiveEntity) && this.isPvE) continue;
-
-        // await is for ExplosiveEntity, ignore error
         object.OnExplosiveHit(this, sourceEntity, client);
       }
     }

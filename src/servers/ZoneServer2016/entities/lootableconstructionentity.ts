@@ -365,6 +365,9 @@ export class LootableConstructionEntity extends BaseLootableEntity {
     client?: ZoneClient2016,
     useRaycast?: boolean
   ) {
+    if (server.isPvE) {
+      return;
+    }
     if (!isPosInRadius(2, this.state.position, sourceEntity.state.position))
       return;
 

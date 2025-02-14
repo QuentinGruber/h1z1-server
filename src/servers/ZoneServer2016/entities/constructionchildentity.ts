@@ -746,6 +746,9 @@ export class ConstructionChildEntity extends BaseLightweightCharacter {
     client?: ZoneClient2016,
     useRaycast?: boolean
   ) {
+    if (server.isPvE) {
+      return;
+    }
     if (
       this.itemDefinitionId == Items.FOUNDATION_RAMP ||
       this.itemDefinitionId == Items.FOUNDATION_STAIRS
