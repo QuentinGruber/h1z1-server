@@ -2798,19 +2798,16 @@ export class ZoneServer2016 extends EventEmitter {
     // render distance is max client.chunkRenderDistance, could probably be lowered a lot
     // - meme
 
-    if (!sourceIsProjectile) {
-      // skip projectiles from damaging bases
-      for (const gridCell of this._grid) {
-        if (!isPosInRadius(400, gridCell.position, position)) {
-          continue;
-        }
-        for (const object of gridCell.objects) {
-          // explosives still chain explode on PvE
-          if (!(object instanceof ExplosiveEntity) && this.isPvE) continue;
+    for (const gridCell of this._grid) {
+      if (!isPosInRadius(400, gridCell.position, position)) {
+        continue;
+      }
+      for (const object of gridCell.objects) {
+        // explosives still chain explode on PvE
+        if (!(object instanceof ExplosiveEntity) && this.isPvE) continue;
 
-          // await is for ExplosiveEntity, ignore error
-          object.OnExplosiveHit(this, sourceEntity, client);
-        }
+        // await is for ExplosiveEntity, ignore error
+        object.OnExplosiveHit(this, sourceEntity, client);
       }
     }
 
