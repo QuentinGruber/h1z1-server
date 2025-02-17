@@ -396,12 +396,49 @@ export class GroupManager {
   async handlePlayerDisconnect(server: ZoneServer2016, client: Client) {
     delete this.pendingInvites[client.character.characterId];
     const groupId = client.character.groupId;
+    const group = await this.getGroup(server, groupId);
+
+    if (!group) return;
+
     this.sendAlertToAllOthersInGroup(
       server,
       client,
       groupId,
       `${client.character.name} has disconnected from the game.`
     );
+
+    if (group.leader === client.character.characterId) {
+        const newLeaderId = group.members.find(id => id !== client.character.characterId);
+        if (newLeaderId) {
+          group.leader = newLeaderId;
+
+          if (!server._soloMode) {
+            await server._db.collection(DB_COLLECTIONS.GROUPS).updateOne(
+              {
+                serverId: server._worldId,
+                groupId: group.groupId
+              },
+              { $set: { leader: newLeaderId } }
+            );
+          }
+
+          const newLeaderClient = server.getClientByCharId(newLeaderId);
+          if (newLeaderClient) {
+            this.sendAlertToAllOthersInGroup(
+              server,
+              newLeaderClient,
+              group.groupId,
+              `${newLeaderClient.character.name} has been made the group leader!`
+            );
+            server.sendAlert(newLeaderClient, "You have been made the group leader!");
+            this.sendDataToGroup(server, group.groupId, "Group.SetGroupOwner", {
+              characterId: newLeaderClient.character.characterId,
+              groupId: group.groupId
+            });
+          }
+        }
+    }
+          this.syncGroup(server, group.groupId, true);
   }
 
   async removeGroupMember(
@@ -491,40 +528,9 @@ export class GroupManager {
     if (!disband && group.members.length <= 1) {
       await this.disbandGroup(server, group.groupId);
     }
-
-    // re-assign leader if 2+ remaining members
-    if (group.leader == characterId && !disband) {
-      const leader = Object.values(group.members)[0],
-        leaderClient = server.getClientByCharId(leader);
-
-      if (!server._soloMode) {
-        await server._db.collection(DB_COLLECTIONS.GROUPS).updateOne(
-          {
-            serverId: server._worldId,
-            groupId: group.groupId
-          },
-          { $set: { leader: leader } }
-        );
-      }
-
-      group.leader = leader;
-      if (leaderClient) {
-        this.sendAlertToAllOthersInGroup(
-          server,
-          leaderClient,
-          group.groupId,
-          `${leaderClient.character.name} has been made the group leader!`
-        );
-        server.sendAlert(leaderClient, "You have been made the group leader!");
-        this.sendDataToGroup(server, group.groupId, "Group.SetGroupOwner", {
-          characterId: leaderClient.character.characterId,
-          groupId: group.groupId
-        });
-      }
-    }
-    this.syncGroup(server, group.groupId, true);
   }
 
+  
   handleGroupKick(
     server: ZoneServer2016,
     sourceCharacterId: string,
