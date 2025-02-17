@@ -2567,7 +2567,7 @@ export class ConstructionManager {
     if (timeDif && timeDif < 30000) {
       server.sendAlert(
         client,
-        `You cant repair this base for the next ${(60 - Number(timeDif / 1000)).toFixed(2)} seconds`
+        `You cant repair this base for the next ${(30 - Number(timeDif / 1000)).toFixed(2)} seconds`
       );
       return;
     }
