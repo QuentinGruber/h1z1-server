@@ -408,37 +408,42 @@ export class GroupManager {
     );
 
     if (group.leader === client.character.characterId) {
-        const newLeaderId = group.members.find(id => id !== client.character.characterId);
-        if (newLeaderId) {
-          group.leader = newLeaderId;
+      const newLeaderId = group.members.find(
+        (id) => id !== client.character.characterId
+      );
+      if (newLeaderId) {
+        group.leader = newLeaderId;
 
-          if (!server._soloMode) {
-            await server._db.collection(DB_COLLECTIONS.GROUPS).updateOne(
-              {
-                serverId: server._worldId,
-                groupId: group.groupId
-              },
-              { $set: { leader: newLeaderId } }
-            );
-          }
-
-          const newLeaderClient = server.getClientByCharId(newLeaderId);
-          if (newLeaderClient) {
-            this.sendAlertToAllOthersInGroup(
-              server,
-              newLeaderClient,
-              group.groupId,
-              `${newLeaderClient.character.name} has been made the group leader!`
-            );
-            server.sendAlert(newLeaderClient, "You have been made the group leader!");
-            this.sendDataToGroup(server, group.groupId, "Group.SetGroupOwner", {
-              characterId: newLeaderClient.character.characterId,
+        if (!server._soloMode) {
+          await server._db.collection(DB_COLLECTIONS.GROUPS).updateOne(
+            {
+              serverId: server._worldId,
               groupId: group.groupId
-            });
-          }
+            },
+            { $set: { leader: newLeaderId } }
+          );
         }
+
+        const newLeaderClient = server.getClientByCharId(newLeaderId);
+        if (newLeaderClient) {
+          this.sendAlertToAllOthersInGroup(
+            server,
+            newLeaderClient,
+            group.groupId,
+            `${newLeaderClient.character.name} has been made the group leader!`
+          );
+          server.sendAlert(
+            newLeaderClient,
+            "You have been made the group leader!"
+          );
+          this.sendDataToGroup(server, group.groupId, "Group.SetGroupOwner", {
+            characterId: newLeaderClient.character.characterId,
+            groupId: group.groupId
+          });
+        }
+      }
     }
-          this.syncGroup(server, group.groupId, true);
+    this.syncGroup(server, group.groupId, true);
   }
 
   async removeGroupMember(
@@ -530,7 +535,6 @@ export class GroupManager {
     }
   }
 
-  
   handleGroupKick(
     server: ZoneServer2016,
     sourceCharacterId: string,
