@@ -2572,10 +2572,12 @@ export class ConstructionManager {
     if (entity instanceof ConstructionParentEntity)
       timeDif = Date.now() - entity.lastDamagedTimestamp;
 
-    if (timeDif && timeDif < 30000) {
+    const cooldownTime = 30000;
+
+    if (timeDif && timeDif < cooldownTime) {
       server.sendAlert(
         client,
-        `You cant repair this base for the next ${(30 - Number(timeDif / 1000)).toFixed(2)} seconds`
+        `You cant repair this base for the next ${(cooldownTime / 1000 - Number(timeDif / 1000)).toFixed(2)} seconds`
       );
       return;
     }
@@ -2594,7 +2596,7 @@ export class ConstructionManager {
           if (timeDiffExpansion < 30000) {
             server.sendAlert(
               client,
-              `You cant repair this base for the next ${(60 - Number(timeDiffExpansion / 1000)).toFixed(2)} seconds`
+              `You cant repair this base for the next ${(cooldownTime / 1000 - Number(timeDiffExpansion / 1000)).toFixed(2)} seconds`
             );
             return;
           }
