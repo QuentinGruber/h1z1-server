@@ -71,6 +71,7 @@ export enum ConstructionErrors {
   UNKNOWN_CONSTRUCTION = "Unknown construction item",
   OUT_OF_RANGE = "Out of range",
   STACKED = "Construction stacked",
+  WALL_SLOT_FAILED = "Wall slot failed plz report this!",
   TREESTACKED = "Construction tree stacked"
 }
 

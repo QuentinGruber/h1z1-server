@@ -44,6 +44,7 @@ export enum CUSTOM_PROFILES_IDS {
 
 export enum DB_COLLECTIONS {
   GAME_LOGS = "game-logs",
+  CONSTRUCTION_LOGS = "construction-logs",
   ADMINS = "admins",
   BANNED = "banned",
   BLACK_LIST_ENTRIES = "blackListEntries",
