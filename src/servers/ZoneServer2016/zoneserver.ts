@@ -2665,6 +2665,11 @@ export class ZoneServer2016 extends EventEmitter {
 
   sendKillFeed(client: Client, damageInfo: DamageInfo) {
     if (client.character.characterId === damageInfo.entity) return;
+    const killerClient = this.getClientByCharId(damageInfo.entity);
+    let isInGodMode = false;
+    if (killerClient) {
+      isInGodMode = killerClient.character.isGodMode();
+    }
     this.sendDataToAllWithSpawnedEntity<CharacterKilledBy>(
       this._characters,
       client.character.characterId,
@@ -2672,7 +2677,8 @@ export class ZoneServer2016 extends EventEmitter {
 
       {
         killer: damageInfo.entity,
-        killed: client.character.characterId
+        killed: client.character.characterId,
+        isCheater: isInGodMode
       }
     );
   }
