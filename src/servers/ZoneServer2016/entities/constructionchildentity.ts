@@ -86,6 +86,7 @@ import { ConstructionDoor } from "./constructiondoor";
 import { LootableConstructionEntity } from "./lootableconstructionentity";
 import { BaseEntity } from "./baseentity";
 import { ExplosiveEntity } from "./explosiveentity";
+import { DB_COLLECTIONS } from "../../../utils/enums";
 function getDamageRange(definitionId: Items): number {
   switch (definitionId) {
     case Items.METAL_WALL:
@@ -434,6 +435,22 @@ export class ConstructionChildEntity extends BaseLightweightCharacter {
     );
   }
 
+  logSlotInvalid(
+    server: ZoneServer2016,
+    wall: ConstructionChildEntity | ConstructionDoor,
+    type: string
+  ) {
+    if (!server._soloMode) {
+      server._db.collection(DB_COLLECTIONS.CONSTRUCTION_LOGS).insertOne({
+        serverId: server._worldId,
+        slotNumber: wall.getSlotNumber(),
+        constructionCharId: this.characterId,
+        parentCharId: this.parentObjectCharacterId,
+        type
+      });
+    }
+  }
+
   setWallSlot(
     server: ZoneServer2016,
     wall: ConstructionChildEntity | ConstructionDoor
@@ -453,6 +470,10 @@ export class ConstructionChildEntity extends BaseLightweightCharacter {
       this.occupiedWallSlots
     );
     if (set) this.updateSecuredState(server);
+    if (!set) {
+      this.logSlotInvalid(server, wall, "wall");
+    }
+
     return set;
   }
 
@@ -480,6 +501,9 @@ export class ConstructionChildEntity extends BaseLightweightCharacter {
       this.occupiedShelterSlots
     );
     if (set) this.updateSecuredState(server);
+    if (!set) {
+      this.logSlotInvalid(server, shelter, "shelter");
+    }
     return set;
   }
 
