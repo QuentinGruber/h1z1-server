@@ -337,7 +337,7 @@ export class ZonePacketHandlers {
 
     server.sendDeliveryStatus(client);
   }
-  ClientFinishedLoading(
+  async ClientFinishedLoading(
     server: ZoneServer2016,
     client: Client,
     packet: ReceivedPacket<any>
@@ -446,6 +446,40 @@ export class ZonePacketHandlers {
         }
         if (!server._soloMode && client.character.groupId) {
           server.sendAlert(client, "Group automatically joined.");
+        }
+
+        const group = await server.groupManager.getGroup(
+          server,
+          client.character.groupId
+        );
+        if (group) {
+          const onlineMembers = group.members.filter((memberId) => {
+            const memberClient = server.getClientByCharId(memberId);
+            return memberClient && memberClient.character.isReady;
+          });
+
+          if (
+            onlineMembers.length === 1 &&
+            onlineMembers[0] === client.character.characterId
+          ) {
+            group.leader = client.character.characterId;
+
+            if (!server._soloMode) {
+              await server._db.collection(DB_COLLECTIONS.GROUPS).updateOne(
+                {
+                  serverId: server._worldId,
+                  groupId: group.groupId
+                },
+                { $set: { leader: group.leader } }
+              );
+            }
+
+            await server.sendAlert(
+              client,
+              "You have been made the group leader!"
+            );
+            server.groupManager.syncGroup(server, group.groupId, true);
+          }
         }
 
         if (isHalloween()) {
