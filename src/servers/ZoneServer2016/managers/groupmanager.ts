@@ -238,7 +238,13 @@ export class GroupManager {
       return;
     }
 
-    if (target.character.groupId != 0) return;
+    if (target.character.groupId != 0) {
+      server.sendAlert(
+        source,
+        `${target.character.name} is already in a group!`
+      );
+      return;
+    }
 
     if (source == target) {
       server.sendAlert(source, "You can't invite yourself to group!");
