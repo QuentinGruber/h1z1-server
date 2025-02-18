@@ -2664,22 +2664,17 @@ export class ZoneServer2016 extends EventEmitter {
   }
 
   sendKillFeed(client: Client, damageInfo: DamageInfo) {
-    if (
-      !client.currentPOI ||
-      client.character.characterId === damageInfo.entity
-    )
-      return;
-    for (const a in this._clients) {
-      if (
-        this._clients[a].currentPOI != client.currentPOI ||
-        this._clients[a].loginSessionId === client.loginSessionId
-      )
-        continue;
-      this.sendData<CharacterKilledBy>(this._clients[a], "Character.KilledBy", {
+    if (client.character.characterId === damageInfo.entity) return;
+    this.sendDataToAllWithSpawnedEntity<CharacterKilledBy>(
+      this._characters,
+      client.character.characterId,
+      "Character.KilledBy",
+
+      {
         killer: damageInfo.entity,
         killed: client.character.characterId
-      });
-    }
+      }
+    );
   }
 
   applyCharacterEffect(
