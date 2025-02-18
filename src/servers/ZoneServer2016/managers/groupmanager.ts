@@ -262,10 +262,10 @@ export class GroupManager {
       delete this.pendingInvites[target.character.characterId];
       return;
     }
-    if (group && group.leader != source.character.characterId) {
-      server.sendAlert(source, "You are not the group leader!");
-      return;
-    }
+    // if (group && group.leader != source.character.characterId) {
+    //   server.sendAlert(source, "You are not the group leader!");
+    //   return;
+    // }
 
     this.pendingInvites[target.character.characterId] =
       source.character.groupId;
