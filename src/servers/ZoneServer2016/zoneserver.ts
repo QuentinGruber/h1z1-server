@@ -305,7 +305,15 @@ export class ZoneServer2016 extends EventEmitter {
   /** Total amount of clients on the server */
   readonly _clients: { [characterId: string]: Client } = {};
 
-  _joinRequests: Map<string, { clanTag: string; characterId: string; characterName: string; timestamp: number }> = new Map();
+  _joinRequests: Map<
+    string,
+    {
+      clanTag: string;
+      characterId: string;
+      characterName: string;
+      timestamp: number;
+    }
+  > = new Map();
 
   /** Global dictionaries for all entities */
   _characters: EntityDictionary<Character> = {};
@@ -695,7 +703,9 @@ export class ZoneServer2016 extends EventEmitter {
   }
 
   async getPlayerClan(characterId: string): Promise<any> {
-    return await this._db?.collection(DB_COLLECTIONS.CLANS).findOne({ members: characterId });
+    return await this._db
+      ?.collection(DB_COLLECTIONS.CLANS)
+      .findOne({ members: characterId });
   }
 
   async reloadCommandCache() {

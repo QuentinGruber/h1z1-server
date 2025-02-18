@@ -16,12 +16,11 @@ import { ZoneClient2016 as Client } from "../classes/zoneclient";
 import { DB_COLLECTIONS } from "../../../utils/enums";
 
 export class ClanManager {
-
   async handleClanCommand(
     server: ZoneServer2016,
     client: Client,
-    args: Array<string>) {
-    
+    args: Array<string>
+  ) {
     if (args.length === 0) {
       server.sendChatText(
         client,
@@ -39,9 +38,12 @@ export class ClanManager {
     }
     const joinRequests = server._joinRequests;
 
-    const currentClan = await server.getPlayerClan(client.character.characterId);
+    const currentClan = await server.getPlayerClan(
+      client.character.characterId
+    );
 
-    const isOwner = currentClan?.owner.includes(client.character.characterId) ?? false;
+    const isOwner =
+      currentClan?.owner.includes(client.character.characterId) ?? false;
 
     switch (subCommand) {
       case "create":
@@ -77,10 +79,7 @@ export class ClanManager {
           owner: client.character.characterId,
           members: [client.character.characterId]
         });
-        server.sendChatText(
-          client,
-          `Clan ${createTag} created successfully.`
-        );
+        server.sendChatText(client, `Clan ${createTag} created successfully.`);
         break;
 
       case "join":
@@ -111,7 +110,10 @@ export class ClanManager {
 
         // Check if the client has already sent a join request
         if (joinRequests.has(client.character.characterId)) {
-          server.sendChatText(client, "You have already sent a join request. Please wait for it to be processed.");
+          server.sendChatText(
+            client,
+            "You have already sent a join request. Please wait for it to be processed."
+          );
           return;
         }
 
@@ -132,22 +134,37 @@ export class ClanManager {
           );
         }
 
-        server.sendChatText(client, `Your request to join clan ${joinTag} has been sent. It will expire in 2 minutes.`);
+        server.sendChatText(
+          client,
+          `Your request to join clan ${joinTag} has been sent. It will expire in 2 minutes.`
+        );
 
         // Schedule request removal after 2 minutes
-        setTimeout(() => {
-          if (joinRequests.get(client.character.characterId)?.clanTag === joinTag) {
-            joinRequests.delete(client.character.characterId);
-            server.sendChatText(client, `Your join request to clan ${joinTag} has expired.`);
-          }
-        }, 2 * 60 * 1000);
+        setTimeout(
+          () => {
+            if (
+              joinRequests.get(client.character.characterId)?.clanTag ===
+              joinTag
+            ) {
+              joinRequests.delete(client.character.characterId);
+              server.sendChatText(
+                client,
+                `Your join request to clan ${joinTag} has expired.`
+              );
+            }
+          },
+          2 * 60 * 1000
+        );
 
         break;
 
       case "accept":
       case "yes":
         if (args.length < 2) {
-          server.sendChatText(client, "Usage: /clan accept <name> or /clan yes <name>");
+          server.sendChatText(
+            client,
+            "Usage: /clan accept <name> or /clan yes <name>"
+          );
           return;
         }
 
@@ -161,7 +178,9 @@ export class ClanManager {
 
         const acceptName = args[1];
         const joinRequest = Array.from(joinRequests.values()).find(
-          (request: any) => request.clanTag === currentClan?.tag && request.characterName === acceptName
+          (request: any) =>
+            request.clanTag === currentClan?.tag &&
+            request.characterName === acceptName
         );
 
         if (!joinRequest) {
@@ -174,7 +193,7 @@ export class ClanManager {
 
         // Add the player to the clan
         await clansCollection.updateOne(
-          { tag: currentClan?.tag ?? '' },
+          { tag: currentClan?.tag ?? "" },
           { $addToSet: { members: joinRequest.characterId } }
         );
 
@@ -188,7 +207,7 @@ export class ClanManager {
         if (newMemberClient) {
           server.sendChatText(
             newMemberClient,
-            `Your request to join clan ${currentClan?.tag ?? ''} has been accepted.`
+            `Your request to join clan ${currentClan?.tag ?? ""} has been accepted.`
           );
         }
 
@@ -201,7 +220,10 @@ export class ClanManager {
       case "decline":
       case "no":
         if (args.length < 2) {
-          server.sendChatText(client, "Usage: /clan decline <name> or /clan no <name>");
+          server.sendChatText(
+            client,
+            "Usage: /clan decline <name> or /clan no <name>"
+          );
           return;
         }
 
@@ -215,7 +237,9 @@ export class ClanManager {
 
         const declineName = args[1];
         const declineRequest = Array.from(joinRequests.values()).find(
-          (request: any) => request.clanTag === currentClan?.tag && request.characterName === declineName
+          (request: any) =>
+            request.clanTag === currentClan?.tag &&
+            request.characterName === declineName
         );
 
         if (!declineRequest) {
@@ -236,7 +260,7 @@ export class ClanManager {
         if (declinedMemberClient) {
           server.sendChatText(
             declinedMemberClient,
-            `Your request to join clan ${currentClan?.tag ?? ''} has been declined.`
+            `Your request to join clan ${currentClan?.tag ?? ""} has been declined.`
           );
         }
 
@@ -249,7 +273,10 @@ export class ClanManager {
       case "cancel":
         // Check if the client has a pending join request
         if (!joinRequests.has(client.character.characterId)) {
-          server.sendChatText(client, "You have no pending join request to cancel.");
+          server.sendChatText(
+            client,
+            "You have no pending join request to cancel."
+          );
           return;
         }
 
@@ -267,10 +294,10 @@ export class ClanManager {
             "You are the owner of the clan. Use /clan disband to disband the clan before leaving."
           );
           return;
-        } 
+        }
         // If not the owner, simply leave the clan
         await clansCollection.updateOne(
-          { tag: currentClan?.tag ?? '' },
+          { tag: currentClan?.tag ?? "" },
           { $pull: { members: client.character.characterId } as any }
         );
         server.sendChatText(client, "You have left the clan successfully.");

@@ -408,10 +408,8 @@ export class Character2016 extends BaseFullCharacter {
   async updateClanTag(server: ZoneServer2016, clanTag: string): Promise<void> {
     this.clan = clanTag ? `[${clanTag}]` : "";
     const client = server.getClientByCharId(this.characterId);
-    
+
     //logic to update clan tag for all clients
-
-
   }
 
   getShaderGroup() {
