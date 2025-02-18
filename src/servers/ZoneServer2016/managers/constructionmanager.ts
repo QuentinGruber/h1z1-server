@@ -1002,8 +1002,12 @@ export class ConstructionManager {
         BuildingSlot
       );
 
+    const result = parent.setShelterSlot(server, shelter);
+    if (!result) {
+      this.placementError(server, client, ConstructionErrors.WALL_SLOT_FAILED);
+      return false;
+    }
     server._constructionSimple[characterId] = shelter;
-    parent.setShelterSlot(server, shelter);
     server.executeFuncForAllReadyClientsInRange((client) => {
       this.spawnSimpleConstruction(server, client, shelter);
     }, shelter);
@@ -1322,7 +1326,11 @@ export class ConstructionManager {
         BuildingSlot
       );
 
-    parent.setWallSlot(server, door);
+    const result = parent.setWallSlot(server, door);
+    if (!result) {
+      this.placementError(server, client, ConstructionErrors.WALL_SLOT_FAILED);
+      return false;
+    }
 
     server._constructionDoors[characterId] = door;
     server.executeFuncForAllReadyClientsInRange((client) => {
