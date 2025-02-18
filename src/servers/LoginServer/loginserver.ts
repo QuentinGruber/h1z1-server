@@ -562,23 +562,48 @@ export class LoginServer extends EventEmitter {
         this.removeClientInLoginQueue(client);
         break;
       case "nameValidationRequest":
-        const characterName = packet.result.characterName;
+        const characterName = String(packet.result.characterName);
         let status = isValidCharacterName(characterName);
         if (!this._soloMode) {
-          const blackListedEntry = await this._db
+          // So we don't care about the case
+          const characterNameRegex = new RegExp(`^${characterName}$`, "i");
+          const blackListedEntries = await this._db
             .collection(DB_COLLECTIONS.BLACK_LIST_ENTRIES)
-            .findOne({
-              WORD: characterName.toUpperCase()
-            });
-          if (blackListedEntry) {
+            .aggregate([
+              {
+                $match: {
+                  $or: [
+                    {
+                      IGNORE_SUBSTRING_CHECKS: 0,
+                      $expr: {
+                        $gte: [
+                          {
+                            $indexOfCP: [
+                              { $toLower: characterName },
+                              { $toLower: "$WORD" }
+                            ]
+                          },
+                          0
+                        ]
+                      }
+                    },
+                    {
+                      REQUIRES_EXACT_MATCH: 1,
+                      WORD: characterNameRegex
+                    }
+                  ]
+                }
+              }
+            ])
+            .toArray();
+          if (blackListedEntries && blackListedEntries.length) {
+            const blackListedEntry = blackListedEntries[0];
             if (blackListedEntry.FILTER_TYPE === 3) {
               status = NAME_VALIDATION_STATUS.RESERVED;
             } else {
               status = NAME_VALIDATION_STATUS.PROFANE;
             }
           } else {
-            // So we don't care about the case
-            const characterNameRegex = new RegExp(`^${characterName}$`, "i");
             const duplicateCharacter = await this._db
               .collection(DB_COLLECTIONS.CHARACTERS_LIGHT)
               .findOne({
