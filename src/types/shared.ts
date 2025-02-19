@@ -36,6 +36,7 @@ export type json = any;
 export interface FileHash {
   file_name: string,
   crc32_hash: string;
+  old_crc32_hash?: string;
 }
 
 interface FileHashList {
