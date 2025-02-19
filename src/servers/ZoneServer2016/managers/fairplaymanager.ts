@@ -44,7 +44,6 @@ import {
 } from "../models/enums";
 import { ZoneServer2016 } from "../zoneserver";
 import { FileHash } from "types/shared";
-import { server } from "typescript";
 
 const encryptedData = require("../../../../data/2016/encryptedData/encryptedData.json"),
   fairPlayData = require("../../../../data/2016/encryptedData/fairPlayData.json"),
