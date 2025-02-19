@@ -586,7 +586,7 @@ export class Vehicle2016 extends BaseLootableEntity {
     }
 
     if (this._resources[ResourceIds.CONDITION] <= 0) {
-      if (client) {
+      if (client && !server._soloMode) {
         logClientActionToMongo(
           server._db.collection(DB_COLLECTIONS.KILLS),
           client,
