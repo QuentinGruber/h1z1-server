@@ -48,7 +48,7 @@ jobs:
           node-version: 22.9.0
       - uses: olegtarasov/get-tag@v2.1
         id: tagName
-      - uses: docker-practice/actions-setup-docker@master
+      - uses: docker/setup-docker-action@v4
       - run: npm i
       - run: npm run build-docker-images
       - run: sudo docker login -u qgruber -p ${{ secrets.DOCKER_HUB_TOKEN }}

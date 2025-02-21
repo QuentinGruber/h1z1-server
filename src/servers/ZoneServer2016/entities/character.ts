@@ -1891,7 +1891,6 @@ export class Character2016 extends BaseFullCharacter {
       this.state.position
     );
     if (distance > 1) damage /= distance;
-    console.log(damage);
     this.damage(server, {
       entity: sourceEntity.characterId,
       damage: damage

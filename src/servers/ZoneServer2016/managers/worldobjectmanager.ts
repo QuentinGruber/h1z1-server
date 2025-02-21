@@ -39,7 +39,10 @@ import {
   ModelIds,
   DefaultSkinsConveys,
   DefaultSkinsBackpack,
-  DefaultSkinsMotorHelmet
+  DefaultSkinsMotorHelmet,
+  DefaultSkinsZeds,
+  DefaultSkinsGators,
+  DefaultSkinsBoots
 } from "../models/enums";
 import { Vehicle2016 } from "../entities/vehicle";
 import { LootDefinition } from "types/zoneserver";
@@ -75,6 +78,15 @@ export function getRandomSkin(itemDefinitionId: number) {
       break;
     case Items.HELMET_MOTORCYCLE:
       arr = Object.keys(DefaultSkinsMotorHelmet);
+      break;
+    case Items.ZEDS_WHITE:
+      arr = Object.keys(DefaultSkinsZeds);
+      break;
+    case Items.GATORS_RED:
+      arr = Object.keys(DefaultSkinsGators);
+      break;
+    case Items.BOOTS_GRAY_BLUE:
+      arr = Object.keys(DefaultSkinsBoots);
       break;
     default:
       return itemDefinitionId;

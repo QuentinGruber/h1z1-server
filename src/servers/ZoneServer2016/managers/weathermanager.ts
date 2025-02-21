@@ -20,6 +20,7 @@ import {
 } from "../../../utils/utils";
 import { ZoneClient2016 as Client } from "../classes/zoneclient";
 import { ZoneServer2016 } from "../zoneserver";
+import EventEmitter from "node:events";
 //const debug = require("debug")("dynamicWeather");
 
 const localWeatherTemplates = require("../../../../data/2016/dataSources/weather.json");
@@ -83,7 +84,7 @@ function adjustNumber(
   return currentNumber; // Return the updated number
 }
 
-export class WeatherManager {
+export class WeatherManager extends EventEmitter {
   weatherChoosen = false;
   fog = 0; // density
   currentSeason = "summer";
@@ -96,6 +97,7 @@ export class WeatherManager {
   cloudWeight3 = 0.01;
   temperature = 80;
   rain = 0;
+  lastRainingHour = -1;
   rainRampupTime = 0;
   globalPrecipation = 0;
   desiredGlobalPrecipation = 0;
@@ -557,16 +559,23 @@ export class WeatherManager {
       this.rainingHours.includes(currentHour) &&
       Math.max(...this.rainingHours) >= currentHour
     ) {
+      // fill one bottle per rain hour
+      if (this.lastRainingHour === -1 || this.lastRainingHour !== currentHour) {
+        this.lastRainingHour = currentHour;
+        this.emit("raining");
+      }
       this.rain = 0.1;
       this.rainRampupTime = 1;
       this.moveGPtoDesiredValue();
     } else if (currentHour > Math.min(...this.rainingHours)) {
       this.rain = 0;
+      this.lastRainingHour = -1;
       this.rainRampupTime = 0;
       this.desiredGlobalPrecipation = 0;
       this.moveGPtoDesiredValue();
     } else if (this.rainingHours.length == 0 && !this.lastDayWasRainy) {
       this.rain = 0;
+      this.lastRainingHour = -1;
       this.rainRampupTime = 0;
       this.desiredGlobalPrecipation = 0;
       this.moveGPtoDesiredValue();

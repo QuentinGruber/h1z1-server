@@ -71,7 +71,6 @@ export interface CharacterUpdateSaveData
   spawnGridData: number[];
   metrics: CharacterMetricsSaveData;
   mutedCharacters: string[];
-  groupId: number;
   playTime: number;
   lastDropPlayTime: number;
 }

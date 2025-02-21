@@ -20,7 +20,9 @@ export interface RconMessage {
   protocolVersion: number;
 }
 export enum RconMessageType {
-  ExecCommand = 1
+  ExecCommand = 1,
+  DisplayUserMessage = 2,
+  BroadcastLog
 }
 export class RConManager extends EventEmitter {
   server: Server;
@@ -28,6 +30,7 @@ export class RConManager extends EventEmitter {
   // Managed by config
   wssPort: number = 0;
   password: string = "";
+  protocolVersion = 1;
 
   constructor() {
     super();
@@ -44,7 +47,17 @@ export class RConManager extends EventEmitter {
     this.wss = new WebSocketServer({ noServer: true });
     this.wss.on("connection", (ws) => {
       ws.on("message", (message) => {
-        this.emit("message", ws, JSON.parse(message.toString()));
+        try {
+          const rconMessage: RconMessage = JSON.parse(message.toString());
+          if (this.protocolVersion === rconMessage.protocolVersion) {
+            this.emit("message", ws, rconMessage);
+          } else {
+            console.error("Protocol missmatch");
+            ws.send("Protocol missmatch");
+          }
+        } catch (e) {
+          console.error(e);
+        }
       });
     });
 
@@ -60,6 +73,26 @@ export class RConManager extends EventEmitter {
       });
     });
     this.server.listen(this.wssPort);
+  }
+
+  createMessage(type: RconMessageType, payload: any): string {
+    const rconMessage: RconMessage = {
+      type,
+      payload,
+      protocolVersion: this.protocolVersion
+    };
+    return JSON.stringify(rconMessage);
+  }
+
+  broadcastLog(message: string) {
+    const clients = this.wss.clients;
+    const rconMessage = this.createMessage(
+      RconMessageType.BroadcastLog,
+      message
+    );
+    clients.forEach((ws) => {
+      ws.send(rconMessage);
+    });
   }
 
   async stop() {

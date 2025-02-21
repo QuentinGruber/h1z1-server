@@ -736,8 +736,13 @@ export class FairPlayManager {
   }
 
   validateFile(file1: FileHash, file2: FileHash) {
+    if (file1.file_name != file2.file_name) {
+      return false;
+    }
     return (
-      file1.file_name == file2.file_name && file1.crc32_hash == file2.crc32_hash
+      file1.crc32_hash == file2.crc32_hash ||
+      file1.old_crc32_hash == file2.crc32_hash ||
+      file2.old_crc32_hash == file1.crc32_hash
     );
   }
 
@@ -760,45 +765,45 @@ export class FairPlayManager {
       validatedHashes: Array<FileHash> = [];
 
     // check if all default / required packs are found in game files
-    for (const value of hashes) {
-      if (!value) continue;
+    for (const serverValue of hashes) {
+      if (!serverValue) continue;
       let received: FileHash | undefined;
       if (
         receivedHashes.find((clientValue) => {
           received = clientValue;
-          return this.validateFile(value, clientValue);
+          return this.validateFile(serverValue, clientValue);
         })
       ) {
-        validatedHashes.push(value);
+        validatedHashes.push(serverValue);
         continue;
       }
       console.log(
-        `${client.loginSessionId} (${client.character.name}) failed asset integrity check due to missing or invalid file ${value.file_name} received: ${received?.crc32_hash} expected: ${value.crc32_hash}`
+        `${client.loginSessionId} (${client.character.name}) failed asset integrity check due to missing or invalid file ${serverValue.file_name} received: ${received?.crc32_hash} expected: ${serverValue.crc32_hash}`
       );
       server.kickPlayerWithReason(
         client,
-        `Failed asset integrity check - Missing or invalid file: ${value.file_name}`
+        `Failed asset integrity check - Missing or invalid file: ${serverValue.file_name}`
       );
       return;
     }
 
-    for (const value of receivedHashes) {
+    for (const clientValue of receivedHashes) {
       if (
-        validatedHashes.find((clientValue) =>
-          this.validateFile(value, clientValue)
+        validatedHashes.find((serverValue) =>
+          this.validateFile(clientValue, serverValue)
         ) ||
-        this.allowedPacks.find((clientValue) =>
-          this.validateFile(value, clientValue)
+        this.allowedPacks.find((serverValue) =>
+          this.validateFile(clientValue, serverValue)
         )
       ) {
         continue;
       }
       console.log(
-        `Unauthorized file on client: ${client.loginSessionId} - ${value.file_name}: ${value.crc32_hash}`
+        `Unauthorized file on client: ${client.loginSessionId} - ${clientValue.file_name}: ${clientValue.crc32_hash}`
       );
       server.kickPlayerWithReason(
         client,
-        `Failed asset integrity check - Unauthorized file: ${value.file_name}`
+        `Failed asset integrity check - Unauthorized file: ${clientValue.file_name}`
       );
       return;
     }

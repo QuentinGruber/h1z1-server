@@ -671,7 +671,9 @@ export class ConstructionManager {
     }
 
     if (
-      ![Items.TRAP_FIRE, Items.TRAP_FLASH].includes(itemDefinitionId) &&
+      ![Items.TRAP_FIRE, Items.TRAP_FLASH, Items.WOODEN_BARRICADE].includes(
+        itemDefinitionId
+      ) &&
       this.handleInvalidPlacement(
         server,
         client,
@@ -1000,8 +1002,12 @@ export class ConstructionManager {
         BuildingSlot
       );
 
+    const result = parent.setShelterSlot(server, shelter);
+    if (!result) {
+      this.placementError(server, client, ConstructionErrors.WALL_SLOT_FAILED);
+      return false;
+    }
     server._constructionSimple[characterId] = shelter;
-    parent.setShelterSlot(server, shelter);
     server.executeFuncForAllReadyClientsInRange((client) => {
       this.spawnSimpleConstruction(server, client, shelter);
     }, shelter);
@@ -1320,7 +1326,11 @@ export class ConstructionManager {
         BuildingSlot
       );
 
-    parent.setWallSlot(server, door);
+    const result = parent.setWallSlot(server, door);
+    if (!result) {
+      this.placementError(server, client, ConstructionErrors.WALL_SLOT_FAILED);
+      return false;
+    }
 
     server._constructionDoors[characterId] = door;
     server.executeFuncForAllReadyClientsInRange((client) => {
@@ -2562,10 +2572,12 @@ export class ConstructionManager {
     if (entity instanceof ConstructionParentEntity)
       timeDif = Date.now() - entity.lastDamagedTimestamp;
 
-    if (timeDif && timeDif < 30000) {
+    const cooldownTime = 30000;
+
+    if (timeDif && timeDif < cooldownTime) {
       server.sendAlert(
         client,
-        `You cant repair this base for the next ${(60 - Number(timeDif / 1000)).toFixed(2)} seconds`
+        `You cant repair this base for the next ${(cooldownTime / 1000 - Number(timeDif / 1000)).toFixed(2)} seconds`
       );
       return;
     }
@@ -2584,7 +2596,7 @@ export class ConstructionManager {
           if (timeDiffExpansion < 30000) {
             server.sendAlert(
               client,
-              `You cant repair this base for the next ${(60 - Number(timeDiffExpansion / 1000)).toFixed(2)} seconds`
+              `You cant repair this base for the next ${(cooldownTime / 1000 - Number(timeDiffExpansion / 1000)).toFixed(2)} seconds`
             );
             return;
           }

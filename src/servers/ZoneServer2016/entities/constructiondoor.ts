@@ -420,6 +420,9 @@ export class ConstructionDoor extends DoorEntity {
     client?: ZoneClient2016,
     useRaycast?: boolean
   ) {
+    if (server.isPvE) {
+      return;
+    }
     const itemDefinitionId =
       sourceEntity instanceof ExplosiveEntity
         ? sourceEntity.itemDefinitionId

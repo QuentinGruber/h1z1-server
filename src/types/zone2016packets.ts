@@ -1863,6 +1863,8 @@ export interface VoiceJoinChannel {
 export interface VoiceLeaveChannel {
 }
 export interface VoiceRadioChannel {
+  radioType?: number;
+  currentChannel?: number;
 }
 export interface VoiceLeaveRadio {
 }

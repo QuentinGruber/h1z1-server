@@ -43,6 +43,8 @@ export enum CUSTOM_PROFILES_IDS {
 }
 
 export enum DB_COLLECTIONS {
+  GAME_LOGS = "game-logs",
+  CONSTRUCTION_LOGS = "construction-logs",
   ADMINS = "admins",
   BANNED = "banned",
   BLACK_LIST_ENTRIES = "blackListEntries",
@@ -51,7 +53,6 @@ export enum DB_COLLECTIONS {
   CHARACTERS_LIGHT = "characters-light",
   CHAT = "chats",
   CONSTRUCTION = "construction",
-  CONSTRUCTION_BACKUP = "construction-backup",
   CROPS = "crops",
   TRAPS = "traps",
   FINGERPRINTS = "fingerprints",
@@ -69,6 +70,19 @@ export enum DB_COLLECTIONS {
   GROUPS = "groups",
   VPN_WHITELIST = "vpn-whitelist",
   AUTHKEYS = "verified-authkeys"
+}
+
+export enum KILL_TYPE {
+  PLAYER = "player",
+  ZOMBIE = "zombie",
+  WILDLIFE = "wildlife",
+  VEHICLE = "vehicle"
+}
+
+export enum GAME_LOGS_TYPES {
+  OPEN_CRATE = "open_crate",
+  ITEM_USE = "item_use",
+  ACCESS_LOOTABLE = "access_lootable"
 }
 
 export enum LOGIN_KICK_REASON {

@@ -22,7 +22,7 @@ import {
   logClientActionToMongo,
   randomIntFromInterval
 } from "../../../utils/utils";
-import { DB_COLLECTIONS } from "../../../utils/enums";
+import { DB_COLLECTIONS, KILL_TYPE } from "../../../utils/enums";
 import {
   Items,
   MaterialTypes,
@@ -34,6 +34,7 @@ import {
 } from "../models/enums";
 import { CommandInteractionString } from "types/zone2016packets";
 import { EntityType } from "h1emu-ai";
+import { BaseEntity } from "./baseentity";
 
 export class Npc extends BaseFullCharacter {
   health: number;
@@ -181,7 +182,12 @@ export class Npc extends BaseFullCharacter {
             server._db.collection(DB_COLLECTIONS.KILLS),
             client,
             server._worldId,
-            { type: this.npcId == NpcIds.ZOMBIE ? "zombie" : "wildlife" }
+            {
+              type:
+                this.npcId == NpcIds.ZOMBIE
+                  ? KILL_TYPE.ZOMBIE
+                  : KILL_TYPE.WILDLIFE
+            }
           );
         }
 
@@ -233,6 +239,21 @@ export class Npc extends BaseFullCharacter {
       this.onReadyCallback(client);
       delete this.onReadyCallback;
     }
+  }
+
+  OnExplosiveHit(server: ZoneServer2016, sourceEntity: BaseEntity): void {
+    let damage = this.health + this.health / 2;
+
+    const distance = getDistance(
+      sourceEntity.state.position,
+      this.state.position
+    );
+    if (distance > 5) return;
+    if (distance > 1) damage /= distance;
+    this.damage(server, {
+      entity: sourceEntity.characterId,
+      damage: damage
+    });
   }
 
   OnProjectileHit(server: ZoneServer2016, damageInfo: DamageInfo) {

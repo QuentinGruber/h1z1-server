@@ -93,6 +93,20 @@ export class GroupManager {
           .findOne<Group>({ serverId: server._worldId, groupId });
   }
 
+  async getGroupId(
+    server: ZoneServer2016,
+    client: Client
+  ): Promise<number | null> {
+    if (server._soloMode) return null;
+
+    const collection = server._db.collection(DB_COLLECTIONS.GROUPS);
+    const result = await collection.findOne(
+      { serverId: server._worldId, members: client.character.characterId },
+      { projection: { groupId: 1, _id: 0 } }
+    );
+    return result ? result.groupId : null;
+  }
+
   async deleteGroup(server: ZoneServer2016, groupId: number) {
     if (server._soloMode) {
       delete this.soloGroups[groupId];
@@ -224,7 +238,13 @@ export class GroupManager {
       return;
     }
 
-    if (target.character.groupId != 0) return;
+    if (target.character.groupId != 0) {
+      server.sendAlert(
+        source,
+        `${target.character.name} is already in a group!`
+      );
+      return;
+    }
 
     if (source == target) {
       server.sendAlert(source, "You can't invite yourself to group!");
@@ -248,10 +268,10 @@ export class GroupManager {
       delete this.pendingInvites[target.character.characterId];
       return;
     }
-    if (group && group.leader != source.character.characterId) {
-      server.sendAlert(source, "You are not the group leader!");
-      return;
-    }
+    // if (group && group.leader != source.character.characterId) {
+    //   server.sendAlert(source, "You are not the group leader!");
+    //   return;
+    // }
 
     this.pendingInvites[target.character.characterId] =
       source.character.groupId;
@@ -381,11 +401,6 @@ export class GroupManager {
 
   async handlePlayerDisconnect(server: ZoneServer2016, client: Client) {
     delete this.pendingInvites[client.character.characterId];
-    this.removeGroupMember(
-      server,
-      client.character.characterId,
-      client.character.groupId
-    );
     const groupId = client.character.groupId;
     this.sendAlertToAllOthersInGroup(
       server,
