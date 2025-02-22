@@ -2055,6 +2055,8 @@ export class ZonePacketHandlers {
       );
       return;
     }
+
+    const scale = packet.data.scale || new Float32Array([1, 1, 1, 1]);
     server.constructionManager.placement(
       server,
       client,
@@ -2062,6 +2064,7 @@ export class ZonePacketHandlers {
       modelId,
       packet.data.position2,
       final,
+      scale,
       packet.data.parentObjectCharacterId || "",
       packet.data.BuildingSlot || ""
     );

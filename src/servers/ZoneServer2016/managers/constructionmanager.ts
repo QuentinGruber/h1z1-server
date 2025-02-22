@@ -579,6 +579,7 @@ export class ConstructionManager {
     modelId: number,
     position: Float32Array,
     rotation: Float32Array,
+    scale: Float32Array,
     parentObjectCharacterId: string,
     BuildingSlot: string
   ) {
@@ -693,6 +694,7 @@ export class ConstructionManager {
         modelId,
         position,
         rotation,
+        scale,
         parentObjectCharacterId,
         BuildingSlot,
         freeplaceParentCharacterId
@@ -714,6 +716,7 @@ export class ConstructionManager {
     modelId: number,
     position: Float32Array,
     rotation: Float32Array,
+    scale: Float32Array,
     parentObjectCharacterId: string,
     BuildingSlot: string,
     freeplaceParentCharacterId?: string
@@ -914,6 +917,7 @@ export class ConstructionManager {
           modelId,
           position,
           rotation,
+          scale,
           freeplaceParentCharacterId ?? "",
           itemDefinitionId
         );
@@ -1754,6 +1758,7 @@ export class ConstructionManager {
     modelId: number,
     position: Float32Array,
     rotation: Float32Array,
+    scale: Float32Array,
     parentObjectCharacterId: string,
     itemDefinitionId: number
   ) {
@@ -1770,6 +1775,8 @@ export class ConstructionManager {
         parentObjectCharacterId,
         ""
       );
+
+    construction.scale = scale;
 
     const parent = construction.getParent(server);
     if (parent) {
