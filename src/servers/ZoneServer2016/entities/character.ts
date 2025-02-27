@@ -75,6 +75,7 @@ import { ConstructionParentEntity } from "./constructionparententity";
 import { ExplosiveEntity } from "./explosiveentity";
 import { BaseEntity } from "./baseentity";
 import { ProjectileEntity } from "./projectileentity";
+import { ChallengeType } from "../managers/challengemanager";
 const stats = require("../../../../data/2016/sampleData/stats.json");
 
 interface CharacterStates {
@@ -307,6 +308,8 @@ export class Character2016 extends BaseFullCharacter {
    * uses recipeId (number) for indexing
    */
   recipes: { [recipeId: number]: Recipe } = recipes;
+
+  currentChallenge: ChallengeType = ChallengeType.NONE;
 
   constructor(
     characterId: string,
