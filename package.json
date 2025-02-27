@@ -14,33 +14,33 @@
   },
   "dependencies": {
     "@types/js-yaml": "4.0.9",
-    "@types/node": "22.13.4",
+    "@types/node": "22.13.5",
     "@types/ws": "8.5.14",
     "debug": "4.4.0",
     "h1emu-ai": "0.0.8",
     "h1emu-core": "1.3.0",
     "h1z1-dataschema": "1.9.0",
     "js-yaml": "4.1.0",
-    "mongodb": "6.13.0",
+    "mongodb": "6.13.1",
     "recast-navigation": "0.34.0",
     "threads": "1.7.0",
     "typescript": "5.7.3",
-    "ws": "8.18.0"
+    "ws": "8.18.1"
   },
   "directories": {
     "src": "./src"
   },
   "devDependencies": {
-    "@eslint/eslintrc": "^3.2.0",
-    "@eslint/js": "^9.20.0",
-    "@typescript-eslint/eslint-plugin": "^8.24.0",
-    "@typescript-eslint/parser": "^8.24.0",
+    "@eslint/eslintrc": "^3.3.0",
+    "@eslint/js": "^9.21.0",
+    "@typescript-eslint/eslint-plugin": "^8.25.0",
+    "@typescript-eslint/parser": "^8.25.0",
     "cross-env": "^7.0.3",
-    "eslint": "^9.20.1",
-    "globals": "^15.15.0",
-    "prettier": "^3.5.1",
-    "tsx": "^4.19.2",
-    "typedoc": "^0.27.7"
+    "eslint": "^9.21.0",
+    "globals": "^16.0.0",
+    "prettier": "^3.5.2",
+    "tsx": "^4.19.3",
+    "typedoc": "^0.27.9"
   },
   "scripts": {
     "gen-packets-types": "tsx ./scripts/genPacketsNames.ts",
