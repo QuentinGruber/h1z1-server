@@ -637,6 +637,7 @@ export class WorldObjectManager {
               propType.modelId,
               new Float32Array(propInstance.position),
               new Float32Array(fixEulerOrder(propInstance.rotation)),
+              new Float32Array([1, 1, 1, 1]),
               server._serverGuid,
               Items.WORKBENCH
             );
