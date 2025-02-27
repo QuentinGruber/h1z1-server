@@ -2039,7 +2039,7 @@ export class ZonePacketHandlers {
     } else {
       final = new Float32Array([euler[2], 0, 0, 0]);
     }
-    if (Number(final[0].toFixed(2)) === 0.0) {
+    if (Math.abs(final[0]) < 0.01) {
       final[0] = 0;
     }
     const modelId = server.getItemDefinition(
