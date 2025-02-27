@@ -256,7 +256,7 @@ import { AiManager } from "h1emu-ai";
 import { clearInterval, setInterval } from "node:timers";
 import { NavManager } from "../../utils/recast";
 import { ProjectileEntity } from "./entities/projectileentity";
-import { ChallengeManager } from "./managers/challengemanager";
+import { ChallengeManager, ChallengeType } from "./managers/challengemanager";
 
 const spawnLocations2 = require("../../../data/2016/zoneData/Z1_gridSpawns.json"),
   deprecatedDoors = require("../../../data/2016/sampleData/deprecatedDoors.json"),
@@ -2497,6 +2497,16 @@ export class ZoneServer2016 extends EventEmitter {
     if (!client.character.isAlive) return;
     if (!this.hookManager.checkHook("OnPlayerDeath", client, damageInfo))
       return;
+
+    const killerClient = this.getClientByCharId(damageInfo.entity);
+    if (killerClient) {
+      this.challengeManager.registerChallengeProgression(
+        killerClient,
+        ChallengeType.PLAYERS,
+        1
+      );
+    }
+
     for (const a in client.character._characterEffects) {
       const characterEffect = client.character._characterEffects[a];
       if (characterEffect.endCallback)
