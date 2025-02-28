@@ -33,6 +33,7 @@ import { Resolver } from "node:dns";
 import { ZoneClient2016 } from "servers/ZoneServer2016/classes/zoneclient";
 import * as crypto from "crypto";
 import { ZoneClient } from "servers/ZoneServer2015/classes/zoneclient";
+import { randomInt } from "node:crypto";
 
 const startTime = Date.now();
 
@@ -403,7 +404,9 @@ export function getDifference(s1: string, s2: string) {
  */
 export const randomIntFromInterval = (min: number, max: number) => {
   // min and max included
-  return Math.floor(Math.random() * (max - min + 1) + min);
+  // old code
+  // return Math.floor(Math.random() * (max - min + 1) + min);
+  return randomInt(min, max);
 };
 
 /**
