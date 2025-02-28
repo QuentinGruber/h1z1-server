@@ -80,6 +80,17 @@ export const commands: Array<Command> = [
     }
   },
   {
+    name: "challenge",
+    permissionLevel: PermissionLevels.DEFAULT,
+    execute: async (
+      server: ZoneServer2016,
+      client: Client,
+      args: Array<string>
+    ) => {
+      server.challengeManager.displayChallengeInfos(client);
+    }
+  },
+  {
     name: "stats",
     permissionLevel: PermissionLevels.DEFAULT,
     execute: async (
