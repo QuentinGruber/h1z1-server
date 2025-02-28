@@ -21,6 +21,11 @@ rcon:
   password: ""
   port: 0
 
+# Challenges
+
+challenges:
+  enabled: true
+
 # VoiceChat
 
 voicechat:
