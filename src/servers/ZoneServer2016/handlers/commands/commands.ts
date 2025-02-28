@@ -80,6 +80,17 @@ export const commands: Array<Command> = [
     }
   },
   {
+    name: "expirechallenges",
+    permissionLevel: PermissionLevels.ADMIN,
+    execute: async (
+      server: ZoneServer2016,
+      client: Client,
+      args: Array<string>
+    ) => {
+      server.challengeManager.expireChallenges();
+    }
+  },
+  {
     name: "challenge",
     permissionLevel: PermissionLevels.DEFAULT,
     execute: async (
