@@ -407,6 +407,7 @@ export class ZonePacketHandlers {
     server.constructionManager.sendConstructionData(server, client);
     if (packet.data.characterReleased) {
       if (client.firstCharacterReleased) {
+        server.challengeManager.loadChallenges(client);
         client.firstCharacterReleased = false;
         // it's just for performance testing
         // for (let index = 0; index < 100; index++) {
