@@ -137,9 +137,14 @@ interface VoiceChatConfig {
   serverAccessToken: string;
 }
 
+interface ChallengeConfig {
+  enabled: boolean;
+}
+
 export interface Config {
   server: ServerConfig;
   rcon: RconConfig;
+  challenges: ChallengeConfig;
   voicechat: VoiceChatConfig;
   fairplay: FairplayConfig;
   weather: WeatherConfig;
