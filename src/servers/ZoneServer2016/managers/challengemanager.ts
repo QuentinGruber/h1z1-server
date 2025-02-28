@@ -48,6 +48,8 @@ export interface ChallengeData {
 export class ChallengeManager {
   challenges: ChallengeInfo[];
   challengesCollection!: Collection<ChallengeData>;
+  // managed by config
+  enabled: boolean = true;
   constructor(public server: ZoneServer2016) {
     this.challenges = [
       {
@@ -108,8 +110,10 @@ export class ChallengeManager {
   }
 
   init(collection: Collection<ChallengeData>) {
-    this.challengesCollection = collection;
-    this.scheduleExpires();
+    if (this.enabled) {
+      this.challengesCollection = collection;
+      this.scheduleExpires();
+    }
   }
 
   getChallengeInfo(type: ChallengeType): ChallengeInfo | undefined {
@@ -117,7 +121,7 @@ export class ChallengeManager {
   }
 
   async loadChallenges(client: ZoneClient2016) {
-    if (this.server._soloMode) {
+    if (this.server._soloMode || !this.enabled) {
       return;
     }
     const currentChallenge = await this.getCurrentChallengeData(client);
