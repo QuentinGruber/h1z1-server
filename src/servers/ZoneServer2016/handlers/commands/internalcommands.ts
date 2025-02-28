@@ -138,6 +138,13 @@ export const internalCommands: Array<InternalCommand> = [
       client: Client,
       packetData: CommandRunSpeed
     ) => {
+      if (
+        packetData.runSpeed &&
+        packetData.runSpeed > 10 &&
+        !client.character.isGodMode()
+      ) {
+        server.setGodMode(client, true);
+      }
       server.sendData<CommandRunSpeed>(client, "Command.RunSpeed", {
         runSpeed: packetData.runSpeed
       });
