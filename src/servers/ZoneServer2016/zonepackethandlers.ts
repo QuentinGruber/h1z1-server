@@ -881,6 +881,7 @@ export class ZonePacketHandlers {
     client: Client,
     packet: ReceivedPacket<ClientLog>
   ) {
+    console.log(packet.data);
     /*const message = packet.data.message || "";
     if (
       packet.data.file ===

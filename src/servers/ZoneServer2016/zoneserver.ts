@@ -984,7 +984,7 @@ export class ZoneServer2016 extends EventEmitter {
       packet.name != "PlayerUpdateManagedPosition" &&
       packet.name != "ClientUpdate.MonitorTimeDrift"
     ) {
-      debug(`Receive Data ${[packet.name]}`);
+      console.log(`Receive Data ${[packet.name]}`);
     }
     if (packet.flag === GatewayChannels.UpdatePosition) {
       if (!packet.data.flags) return;
