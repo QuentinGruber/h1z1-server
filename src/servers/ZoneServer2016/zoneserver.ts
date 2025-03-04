@@ -3289,6 +3289,34 @@ export class ZoneServer2016 extends EventEmitter {
     return;
   }
 
+  async getOfflineClientByCharId(
+    characterId: string
+  ): Promise<Client | undefined> {
+    const c = await this._db.collection(DB_COLLECTIONS.CHARACTERS).findOne({
+      // status: 1,
+      serverId: this._worldId,
+      characterId: characterId
+    });
+    if (!c) {
+      return;
+    }
+
+    if (!c) return;
+    const client = this.createClient(
+      -1,
+      "",
+      characterId,
+      c.characterId,
+      this.getTransientId(c.characterId)
+    );
+    // TODO: make a method from the mapping in worlddatamanger
+    client.character.state.position = c.position;
+    client.character.state.rotation = c.rotation;
+    client.character.isAlive = false;
+    client.character.name = c.characterName;
+    return client;
+  }
+
   applyHelmetDamageReduction(
     character: BaseFullCharacter,
     damage: number,
