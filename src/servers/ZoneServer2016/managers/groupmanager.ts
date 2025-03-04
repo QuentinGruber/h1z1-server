@@ -12,7 +12,7 @@
 // ======================================================================
 
 import { h1z1PacketsType2016 } from "types/packets";
-import { zone2016packets } from "types/zone2016packets";
+import { GroupUnknown12, zone2016packets } from "types/zone2016packets";
 import { Group } from "types/zoneserver";
 import { ZoneClient2016 as Client } from "../classes/zoneclient";
 import { ZoneServer2016 } from "../zoneserver";
@@ -68,7 +68,7 @@ export class GroupManager {
                   unknownQword1: member
                 }
               },
-              unknownByte1: character.isAlive ? 0 : -1,
+              // unknownByte1: character.isAlive ? 0 : -1,
               position: character?.state.position,
               rotation: character?.state.rotation,
               memberId: index,
@@ -78,7 +78,12 @@ export class GroupManager {
           .filter((m) => m !== null)
       };
 
-      this.sendDataToGroup(server, group.groupId, "Group.Unknown12", sendData);
+      this.sendDataToGroup<GroupUnknown12>(
+        server,
+        group.groupId,
+        "Group.Unknown12",
+        sendData
+      );
     }
   }
 
@@ -139,11 +144,11 @@ export class GroupManager {
     }
   }
 
-  async sendDataToGroup(
+  async sendDataToGroup<packet>(
     server: ZoneServer2016,
     groupId: number,
     packetName: h1z1PacketsType2016,
-    obj: zone2016packets
+    obj: packet
   ) {
     if (!groupId) return;
     const group = await this.getGroup(server, groupId);
@@ -151,7 +156,7 @@ export class GroupManager {
     for (const a of group.members) {
       const client = server.getClientByCharId(a);
       if (!client) continue;
-      server.sendData(client, packetName, obj);
+      server.sendData<packet>(client, packetName, obj);
     }
   }
 
