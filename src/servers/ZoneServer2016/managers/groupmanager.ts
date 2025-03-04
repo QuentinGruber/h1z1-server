@@ -40,7 +40,6 @@ export class GroupManager {
       let client = server.getClientByCharId(member);
       if (!client) {
         client = await server.getOfflineClientByCharId(member);
-        console.log(client);
       }
       const character = client?.character;
 
