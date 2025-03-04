@@ -68,7 +68,7 @@ export class GroupManager {
                   unknownQword1: member
                 }
               },
-              // unknownByte1: character.isAlive ? 0 : -1,
+              unknownByte1: character.isAlive ? 0 : -1,
               position: character?.state.position,
               rotation: character?.state.rotation,
               memberId: index,
