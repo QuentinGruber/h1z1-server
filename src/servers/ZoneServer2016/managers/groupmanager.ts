@@ -33,6 +33,37 @@ export class GroupManager {
     server.sendChatText(client, `[GroupError] ${error}`);
   }
 
+  async getGroupMembers(group: Group, server: ZoneServer2016) {
+    const members = [];
+
+    for (const [index, member] of Object.values(group.members).entries()) {
+      let client = server.getClientByCharId(member);
+      if (!client) {
+        client = await server.getOfflineClientByCharId(member);
+      }
+      const character = client?.character;
+
+      if (!client || !character) continue;
+
+      members.push({
+        characterId: member,
+        inviteData: {
+          characterId: member,
+          identity: {
+            characterFirstName: character?.name,
+            unknownQword1: member
+          }
+        },
+        unknownByte1: character.isAlive ? 0 : -1,
+        position: character?.state.position,
+        rotation: character?.state.rotation,
+        memberId: index,
+        unknownQword2: member
+      });
+    }
+    return members;
+  }
+
   async syncGroup(
     server: ZoneServer2016,
     groupId: number,
@@ -46,36 +77,14 @@ export class GroupManager {
     if (!lastSyncTime || lastSyncTime + 5000 <= now || forceSync) {
       this.groupSync[groupId] = now;
 
+      const members = await this.getGroupMembers(group, server);
       const sendData = {
         unknownDword1: group.groupId,
         unknownData1: {
           groupId: group.groupId,
           characterId: group.leader
         },
-        members: Object.values(group.members)
-          .map((member, index) => {
-            const client = server.getClientByCharId(member);
-            const character = client?.character;
-
-            if (!client || !character) return null;
-
-            return {
-              characterId: member,
-              inviteData: {
-                characterId: member,
-                identity: {
-                  characterFirstName: character?.name,
-                  unknownQword1: member
-                }
-              },
-              unknownByte1: character.isAlive ? 0 : -1,
-              position: character?.state.position,
-              rotation: character?.state.rotation,
-              memberId: index,
-              unknownQword2: member
-            };
-          })
-          .filter((m) => m !== null)
+        members
       };
 
       this.sendDataToGroup<GroupUnknown12>(
@@ -370,6 +379,7 @@ export class GroupManager {
 
     const leaderClient = server.getClientByCharId(group.leader);
     if (!leaderClient) return;
+    const members = await this.getGroupMembers(group, server);
     this.sendDataToGroup(server, group.groupId, "Group.Unknown12", {
       unknownDword1: group.groupId,
       unknownData1: {
@@ -377,30 +387,7 @@ export class GroupManager {
         characterId: leaderClient.character.characterId
       },
       unknownString1: leaderClient.character.name,
-      members: Object.values(group.members)
-        .map((member, index) => {
-          const client = server.getClientByCharId(member);
-          const character = client?.character;
-
-          if (!client || !character) return null;
-
-          return {
-            characterId: member,
-            inviteData: {
-              characterId: member,
-              identity: {
-                characterFirstName: character?.name,
-                unknownQword1: member
-              }
-            },
-            unknownByte1: character.isAlive ? 0 : -1,
-            position: character?.state.position,
-            rotation: character?.state.rotation,
-            memberId: index,
-            unknownQword2: member
-          };
-        })
-        .filter((m) => m !== null)
+      members
     });
   }
 
