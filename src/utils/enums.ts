@@ -69,6 +69,7 @@ export enum DB_COLLECTIONS {
   MUTED = "muted",
   GROUPS = "groups",
   VPN_WHITELIST = "vpn-whitelist",
+  CHALLENGES = "challenges",
   AUTHKEYS = "verified-authkeys"
 }
 
