@@ -82,6 +82,7 @@ export class ConfigManager {
     const {
       server,
       rcon,
+      challenges: challenge,
       fairplay,
       voicechat,
       weather,
@@ -101,6 +102,10 @@ export class ConfigManager {
       rcon: {
         ...rcon,
         ...config.rcon
+      },
+      challenges: {
+        ...challenge,
+        ...config.challenges
       },
       voicechat: {
         ...voicechat,
@@ -178,7 +183,11 @@ export class ConfigManager {
     server.rconManager.wssPort = port;
     server.rconManager.password = password;
 
+    //#region Challenges
+    const { enabled } = this.config.challenges;
+    server.challengeManager.enabled = enabled;
     //#endregion
+    //
     //#region voicechat
     const { useVoiceChatV2, joinVoiceChatOnConnect, serverAccessToken } =
       this.config.voicechat;

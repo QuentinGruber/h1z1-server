@@ -508,6 +508,7 @@ export class ZoneServer2016 extends EventEmitter {
     this.playTimeManager = new PlayTimeManager();
     this.aiManager = new AiManager();
     this.navManager = new NavManager();
+    this.challengeManager = new ChallengeManager(this);
     /* CONFIG MANAGER MUST BE INSTANTIATED LAST ! */
     this.configManager = new ConfigManager(this, process.env.CONFIG_PATH);
     this.enableWorldSaves =
@@ -534,7 +535,6 @@ export class ZoneServer2016 extends EventEmitter {
     }
 
     this.accountInventoriesManager = new AccountInventoryManager(this);
-    this.challengeManager = new ChallengeManager(this);
     this.on("login", async (client) => {
       if (!this._soloMode) {
         this.sendZonePopulationUpdate();
