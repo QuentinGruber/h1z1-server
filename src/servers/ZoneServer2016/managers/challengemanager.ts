@@ -83,9 +83,36 @@ export class ChallengeManager {
     ];
   }
 
+  scheduleExpires(time?: number) {
+    if (!time) {
+      const now = new Date();
+      const midnight = new Date(now);
+      midnight.setHours(23, 59, 59, 0);
+      time = midnight.getTime() - now.getTime();
+    }
+    console.log(`Challenges expires in ${(time / 60_000).toFixed(0)} minutes`);
+    setTimeout(() => {
+      this.expireChallenges();
+      this.scheduleExpires(24 * 3600 * 1000);
+    }, time);
+  }
+
+  async expireChallenges() {
+    await this.challengesCollection.updateMany(
+      { date: { $lt: new Date() } },
+      { $set: { status: ChallengeStatus.TIMED_OUT } }
+    );
+
+    for (const c in this.server._clients) {
+      const client = this.server._clients[c];
+      this.affectChallenge(client);
+    }
+  }
+
   init(collection: Collection<ChallengeData>) {
     if (this.enabled) {
       this.challengesCollection = collection;
+      this.scheduleExpires();
     }
   }
 
@@ -198,6 +225,7 @@ export class ChallengeManager {
       .find({
         date: { $gte: startOfDay, $lt: endOfDay },
         serverId: this.server._worldId,
+        status: { $ne: ChallengeStatus.TIMED_OUT },
         playerGuid: client.loginSessionId
       })
       .toArray();
