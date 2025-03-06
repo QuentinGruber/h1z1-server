@@ -35,6 +35,7 @@ import {
 import { CommandInteractionString } from "types/zone2016packets";
 import { EntityType } from "h1emu-ai";
 import { BaseEntity } from "./baseentity";
+import { ChallengeType } from "../managers/challengemanager";
 
 export class Npc extends BaseFullCharacter {
   health: number;
@@ -177,6 +178,11 @@ export class Npc extends BaseFullCharacter {
       this.flags.knockedOut = 1;
       server.worldObjectManager.createLootbag(server, this);
       if (client) {
+        server.challengeManager.registerChallengeProgression(
+          client,
+          ChallengeType.ZOMBIE,
+          1
+        );
         if (!server._soloMode) {
           logClientActionToMongo(
             server._db.collection(DB_COLLECTIONS.KILLS),
