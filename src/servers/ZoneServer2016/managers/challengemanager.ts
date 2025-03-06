@@ -86,7 +86,6 @@ export class ChallengeManager {
   init(collection: Collection<ChallengeData>) {
     if (this.enabled) {
       this.challengesCollection = collection;
-      this.scheduleExpires();
     }
   }
 
