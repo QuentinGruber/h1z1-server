@@ -102,9 +102,9 @@ interface MeleeHit {
   characterId: string;
 }
 export class Character2016 extends BaseFullCharacter {
-  /** The players in-game name */
+  /** The players in-game name and clan */
   name!: string;
-
+  clan!: string;
   /** The location the player spawned at */
   spawnLocation?: string;
 
@@ -401,6 +401,18 @@ export class Character2016 extends BaseFullCharacter {
       }, 1000);
     };
     this.materialType = MaterialTypes.FLESH;
+  }
+
+  async getClan(server: ZoneServer2016): Promise<void> {
+    const clanData = await server.getPlayerClan(this.characterId);
+    this.clan = clanData ? `[${clanData.tag}]` : "";
+  }
+
+  async updateClanTag(server: ZoneServer2016, clanTag: string): Promise<void> {
+    this.clan = clanTag ? `[${clanTag}]` : "";
+    const client = server.getClientByCharId(this.characterId);
+
+    //logic to update clan tag for all clients
   }
 
   getShaderGroup() {
@@ -959,11 +971,13 @@ export class Character2016 extends BaseFullCharacter {
    * Gets the LightweightPC packet fields for use in SelfSendToClient and AddLightweightPC
    */
   pGetLightweight() {
+    const characterName = this.clan ? `${this.clan} ${this.name}` : this.name;
+
     return {
       ...super.pGetLightweight(),
       rotation: this.state.lookAt,
       identity: {
-        characterName: this.name
+        characterName: characterName
       },
       shaderGroupId: this.getShaderGroup()
     };
