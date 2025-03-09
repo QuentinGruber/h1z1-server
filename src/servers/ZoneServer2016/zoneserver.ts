@@ -7559,7 +7559,7 @@ export class ZoneServer2016 extends EventEmitter {
             ]
           ) {
             setTimeout(() => {
-              this.sendChatText(client, "You will died of an heart attack.");
+              this.sendChatText(client, "You will die of an heart attack.");
             }, 2000);
             setTimeout(() => {
               this.killCharacter(client, {
