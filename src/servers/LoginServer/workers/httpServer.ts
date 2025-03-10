@@ -29,7 +29,7 @@ function sendMessageToServer(type: string, requestId: number, data: any) {
 const { MONGO_URL, SERVER_PORT } = workerData;
 
 const client = new MongoClient(MONGO_URL, {
-  maxPoolSize: 5
+  maxPoolSize: 20
 });
 const dbName = DB_NAME;
 const db = client.db(dbName);
@@ -73,9 +73,14 @@ httpServer.on("request", async function (req, res) {
   switch (path) {
     case "servers": {
       const collection = db.collection(DB_COLLECTIONS.SERVERS);
-      const serversArray = await collection.find().toArray();
+      const serversArray = await collection
+        .find({ isDisabled: false })
+        .toArray();
       serversArray.forEach((server) => {
         delete server.serverAddress;
+        delete server.populationData;
+        delete server.serverInfo;
+        delete server.isDisabled;
       });
       res.writeHead(200, { "Content-Type": "text/json" });
       res.write(JSON.stringify(serversArray));
