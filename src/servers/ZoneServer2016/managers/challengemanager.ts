@@ -54,6 +54,8 @@ export interface ChallengeData {
 export class ChallengeManager {
   challenges: ChallengeInfo[];
   challengesCollection!: Collection<ChallengeData>;
+  // TODO: add to config
+  challengesPerDay: number = 3;
   // managed by config
   enabled: boolean = true;
   constructor(public server: ZoneServer2016) {
@@ -169,7 +171,7 @@ export class ChallengeManager {
       const challengeData = await this.getCurrentChallengeData(client);
       message = `Challenge "${cInfos.name}": ${cInfos.description} \n Progression: ${challengeData?.points}/${cInfos.neededPoints}`;
     } else {
-      message = "No more challenges for today.";
+      message = `No more challenges for today. (${this.challengesPerDay / this.challengesPerDay})`;
     }
     this.server.sendAlert(client, message);
   }
@@ -239,7 +241,7 @@ export class ChallengeManager {
         playerGuid: client.loginSessionId
       })
       .toArray();
-    if (challengesToday.length >= 3) {
+    if (challengesToday.length >= this.challengesPerDay) {
       client.character.currentChallenge = ChallengeType.NONE;
       this.displayChallengeInfos(client);
       return;
