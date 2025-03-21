@@ -402,16 +402,32 @@ export const commands: Array<Command> = [
         return;
       }
 
-      // may need to disable more
-      // switch (animationId) {
-      //   case 35:
-      //   case 97:
-      //     server.sendChatText(
-      //       client,
-      //       "[ERROR] This emote has been disabled due to abuse."
-      //     );
-      //     return;
-      // }
+      if (!server.isPvE) {
+        switch (animationId) {
+          case 18:
+          case 21:
+          case 29:
+          case 30:
+          case 39:
+          case 88:
+          case 34:
+          case 35:
+          case 43:
+          case 46:
+          case 51:
+          case 58:
+          case 68:
+          case 95:
+          case 97:
+          case 101:
+          case 102:
+            server.sendChatText(
+              client,
+              "[ERROR] This emote has been disabled due to abuse."
+            );
+            return;
+        }
+      }
 
       server.sendDataToAllWithSpawnedEntity(
         server._characters,
