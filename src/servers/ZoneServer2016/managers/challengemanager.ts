@@ -269,7 +269,12 @@ export class ChallengeManager {
     let message: string;
     if (cInfos) {
       const challengeData = await this.getCurrentChallengeData(client);
-      message = `Challenge "${cInfos.name}": ${cInfos.description} \n Progression: ${challengeData?.points}/${cInfos.neededPoints}`;
+      message = `Challenge "${cInfos.name}": ${cInfos.description}`;
+      if (cInfos.neededPoints > 1) {
+        message += `\n Progression: ${challengeData?.points}/${cInfos.neededPoints}`;
+      } else {
+        message += ` Accomplished!`;
+      }
     } else {
       message = `No more challenges for today. (${this.challengesPerDay / this.challengesPerDay})`;
     }
