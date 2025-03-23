@@ -13,27 +13,20 @@
 
 /* eslint-disable @typescript-eslint/no-unused-vars */
 // TODO enable @typescript-eslint/no-unused-vars
-import fs from "fs";
-import { ZoneClient2016 as Client, ZoneClient2016 } from "./classes/zoneclient";
+import { ZoneClient2016 as Client } from "./classes/zoneclient";
 import { ZoneServer2016 } from "./zoneserver";
 const debug = require("debug")("ZoneServer");
 
 import {
   _,
-  Int64String,
   isPosInRadius,
   toHex,
   quat2matrix,
-  logClientActionToMongo,
   eul2quat,
-  getDistance,
-  getDistance1d,
   isPosInRadiusWithY,
-  checkConstructionInRange,
   getCurrentServerTimeWrapper,
   getDateString,
   isHalloween,
-  luck,
   isChristmasSeason as isChristmasSeason
 } from "../../utils/utils";
 
@@ -47,16 +40,13 @@ import {
   ItemUseOptions,
   LoadoutSlots,
   StringIds,
-  ItemClasses,
   AccountItems,
-  EquipSlots,
   Effects
 } from "./models/enums";
 import { BaseFullCharacter } from "./entities/basefullcharacter";
 import { BaseLightweightCharacter } from "./entities/baselightweightcharacter";
 import { ConstructionParentEntity } from "./entities/constructionparententity";
 import { ConstructionDoor } from "./entities/constructiondoor";
-import { CommandHandler } from "./handlers/commands/commandhandler";
 import {
   AbilitiesInitAbility,
   AbilitiesUninitAbility,
@@ -64,11 +54,8 @@ import {
   AccessedCharacterEndCharacterAccess,
   CharacterCharacterStateDelta,
   CharacterFullCharacterDataRequest,
-  CharacterManagedObject,
-  CharacterMovementVersion,
   CharacterNoSpaceNotification,
   CharacterRespawn,
-  CharacterSeekTarget,
   CharacterSelectSessionResponse,
   CharacterStartMultiStateDeath,
   CharacterWeaponStance,
@@ -80,7 +67,6 @@ import {
   ClientUpdateMonitorTimeDrift,
   ClientUpdateNetworkProximityUpdatesComplete,
   ClientUpdateProximateItems,
-  ClientUpdateStartTimer,
   ClientUpdateUpdateLocation,
   ClientUpdateUpdateManagedLocation,
   CollisionDamage,
@@ -99,7 +85,6 @@ import {
   ConstructionPlacementFinalizeRequest,
   ConstructionPlacementRequest,
   ConstructionPlacementResponse,
-  ContainerMoveItem,
   ContinentBattleInfo,
   DtoHitSpeedTreeReport,
   EffectAddEffect,
@@ -111,7 +96,6 @@ import {
   ItemsRequestUseItem,
   KeepAlive,
   LightweightToFullNpc,
-  LightweightToFullVehicle,
   LoadoutSelectSlot,
   LobbyGameDefinitionDefinitionsRequest,
   LocksSetLock,
@@ -152,7 +136,6 @@ import {
   GrinderItem,
   Group,
   RewardCrateDefinition,
-  RewardCrateRewardDefinition,
   StanceFlags
 } from "types/zoneserver";
 import { Vehicle2016 } from "./entities/vehicle";
