@@ -18,6 +18,7 @@ import { StringIds, Items, ModelIds } from "../models/enums";
 import { DamageInfo } from "types/zoneserver";
 import { randomIntFromInterval } from "../../../utils/utils";
 import { AddSimpleNpc } from "types/zone2016packets";
+import { ChallengeType } from "../managers/challengemanager";
 
 function getContainerAndTime(entity: LootableProp) {
   switch (entity.actorModelId) {
@@ -361,6 +362,11 @@ export class LootableProp extends BaseLootableEntity {
             client.character.lootItem(
               server,
               server.generateItem(Items.METAL_SCRAP)
+            );
+            server.challengeManager.registerChallengeProgression(
+              client,
+              ChallengeType.RECYCLING,
+              1
             );
             server.lootCrateWithChance(client, 2);
           }

@@ -474,6 +474,7 @@ export class ZoneServer2016 extends EventEmitter {
   staticBuildings: AddSimpleNpc[] = require("../../../data/2016/sampleData/staticbuildings.json");
   worldSaveFailed: boolean = false;
   challengeManager: ChallengeManager;
+  challengePositionCheckInterval?: NodeJS.Timeout;
 
   constructor(
     serverPort: number,
@@ -882,6 +883,7 @@ export class ZoneServer2016 extends EventEmitter {
   }
 
   async stop() {
+    clearInterval(this.challengePositionCheckInterval);
     for (const trap of Object.values(this._traps)) {
       clearTimeout(trap.trapTimer);
     }
@@ -1993,6 +1995,10 @@ export class ZoneServer2016 extends EventEmitter {
     if (this._soloMode || process.env.ENABLE_AI) {
       this.startH1emuAi();
     }
+    this.challengePositionCheckInterval = setInterval(
+      () => this.checkPlayersPositionsChallenges(),
+      30_000
+    );
   }
 
   async sendInitData(client: Client) {
@@ -2499,11 +2505,20 @@ export class ZoneServer2016 extends EventEmitter {
 
     const killerClient = this.getClientByCharId(damageInfo.entity);
     if (killerClient) {
-      this.challengeManager.registerChallengeProgression(
-        killerClient,
-        ChallengeType.PLAYERS,
-        1
-      );
+      const weapon = damageInfo.weapon;
+      if (weapon && weapon === Items.WEAPON_GUITAR) {
+        this.challengeManager.registerChallengeProgression(
+          killerClient,
+          ChallengeType.ROCKSTAR,
+          1
+        );
+      } else if (weapon && weapon === Items.WEAPON_FISTS) {
+        this.challengeManager.registerChallengeProgression(
+          killerClient,
+          ChallengeType.ROCKY,
+          1
+        );
+      }
     }
 
     for (const a in client.character._characterEffects) {
@@ -3003,7 +3018,7 @@ export class ZoneServer2016 extends EventEmitter {
     client: Client,
     entityId: string,
     value: number,
-    resourceId: number,
+    resourceId: ResourceIds,
     resourceType?: number // most resources have the same id and type
   ) {
     this.sendData<ResourceEvent>(client, "ResourceEvent", {
@@ -4149,6 +4164,25 @@ export class ZoneServer2016 extends EventEmitter {
         ) {
           client.spawnedEntities.add(object);
           this.addSimpleNpc(client, object);
+        }
+      }
+    }
+  }
+
+  private checkPlayersPositionsChallenges() {
+    for (const key in this._characters) {
+      const character = this._characters[key];
+      if (character.currentChallenge === ChallengeType.PV_PD_SURVIVAL) {
+        const client = this.getClientByCharId(character.characterId);
+        if (client) {
+          const pv_pd_pos = new Float32Array([-233.5, 25.44, -1153.43]);
+          if (isPosInRadius(25, character.state.position, pv_pd_pos)) {
+            this.challengeManager.registerChallengeProgression(
+              client,
+              ChallengeType.PV_PD_SURVIVAL,
+              1
+            );
+          }
         }
       }
     }
@@ -8066,6 +8100,11 @@ export class ZoneServer2016 extends EventEmitter {
 
     this.utilizeHudTimer(client, nameId, 5000, animationId, () => {
       this.repairOptionPass(client, character, item, repairItem, durability);
+      this.challengeManager.registerChallengeProgression(
+        client,
+        ChallengeType.NO_WASTE,
+        1
+      );
     });
   }
 
@@ -8192,6 +8231,11 @@ export class ZoneServer2016 extends EventEmitter {
     if (!weaponItem.weapon || weaponItem.weapon.ammoCount <= 0) {
       return;
     }
+    this.challengeManager.registerChallengeProgression(
+      client,
+      ChallengeType.GLOBAL_DISARMAMENT,
+      1
+    );
     if (weaponItem.weapon.ammoCount > 0) {
       weaponItem.weapon.ammoCount -= 1;
     }

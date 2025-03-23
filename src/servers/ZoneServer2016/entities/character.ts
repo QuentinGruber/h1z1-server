@@ -565,6 +565,11 @@ export class Character2016 extends BaseFullCharacter {
         client.character._resources[ResourceIds.STAMINA] -= 14;
         break;
       case energy <= 3501 && energy > 2601:
+        server.challengeManager.registerChallengeProgression(
+          client,
+          ChallengeType.TIRED_BUDDY,
+          1
+        );
         desiredEnergyIndicator = ResourceIndicators.TIRED;
         break;
       case energy > 3501:
@@ -769,6 +774,13 @@ export class Character2016 extends BaseFullCharacter {
       ResourceTypes.VIRUS,
       virus
     );
+    if (stamina <= 2) {
+      server.challengeManager.registerChallengeProgression(
+        client,
+        ChallengeType.CARDIO_ISSUES,
+        1
+      );
+    }
     this.updateResource(
       server,
       client,

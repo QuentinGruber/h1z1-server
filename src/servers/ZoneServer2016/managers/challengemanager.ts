@@ -17,11 +17,22 @@ import { ZoneServer2016 } from "../zoneserver";
 import { Collection } from "mongodb";
 
 export enum ChallengeType {
-  NONE = 0,
-  WOOD = 1,
-  ZOMBIE = 2,
-  PLAYERS = 3,
-  BLACKBERRIES = 4
+  NONE,
+  TREE_HATER,
+  NO_WASTE,
+  DAWN_ITS_TASTY,
+  CARDIO_ISSUES,
+  BRAIN_DEAD,
+  RECYCLING,
+  MY_HOME,
+  TIRED_BUDDY,
+  LIGHTER,
+  MY_LAND,
+  PV_PD_SURVIVAL,
+  GLOBAL_DISARMAMENT,
+  ROCKY,
+  ROCKSTAR,
+  IED
 }
 export enum ChallengeStatus {
   CURRENT = 1,
@@ -55,41 +66,130 @@ export class ChallengeManager {
   challenges: ChallengeInfo[];
   challengesCollection!: Collection<ChallengeData>;
   // TODO: add to config
-  challengesPerDay: number = 3;
+  challengesPerDay: number = 6;
   // managed by config
   enabled: boolean = true;
   constructor(public server: ZoneServer2016) {
     this.challenges = [
       {
-        type: ChallengeType.WOOD,
+        type: ChallengeType.TREE_HATER,
         difficulty: ChallengeDifficulty.EASY,
-        name: "wood",
-        description: "Cut 2 trees",
-        neededPoints: 2,
-        pvpOnly: false
-      },
-      {
-        type: ChallengeType.ZOMBIE,
-        difficulty: ChallengeDifficulty.MEDIUM,
-        name: "zombie",
-        description: "Kill 10 zombies",
+        name: "Tree hater",
+        description: "Cut 10 trees",
         neededPoints: 10,
         pvpOnly: false
       },
+      {
+        type: ChallengeType.NO_WASTE,
+        difficulty: ChallengeDifficulty.EASY,
+        name: "No waste",
+        description: "Repair a gun",
+        neededPoints: 1,
+        pvpOnly: false
+      },
+      {
+        type: ChallengeType.DAWN_ITS_TASTY,
+        difficulty: ChallengeDifficulty.EASY,
+        name: "Dawn it's tasty",
+        description: "Harvest 40 blackberries",
+        neededPoints: 40,
+        pvpOnly: false
+      },
+      {
+        type: ChallengeType.CARDIO_ISSUES,
+        difficulty: ChallengeDifficulty.EASY,
+        name: "Cardio deficiency detected",
+        description: "Run out of stamina",
+        neededPoints: 1,
+        pvpOnly: false
+      },
+      {
+        type: ChallengeType.BRAIN_DEAD,
+        difficulty: ChallengeDifficulty.MEDIUM,
+        name: "They're brain-dead anyway",
+        description: "Kill 50 zombies",
+        neededPoints: 50,
+        pvpOnly: false
+      },
+      {
+        type: ChallengeType.RECYCLING,
+        difficulty: ChallengeDifficulty.MEDIUM,
+        name: "RECYCLING",
+        description: "Get 40 scraps from vehicles",
+        neededPoints: 40,
+        pvpOnly: false
+      },
+      {
+        type: ChallengeType.MY_HOME,
+        difficulty: ChallengeDifficulty.MEDIUM,
+        name: "This is my home",
+        description: "Craft a shack",
+        neededPoints: 1,
+        pvpOnly: false
+      },
+      {
+        type: ChallengeType.TIRED_BUDDY,
+        difficulty: ChallengeDifficulty.MEDIUM,
+        name: "Tired buddy",
+        description: "Survive until being tired",
+        neededPoints: 1,
+        pvpOnly: false
+      },
+      // Too easy to abuse rn
       // {
-      //   type: ChallengeType.PLAYERS,
-      //   difficulty: ChallengeDifficulty.EASY,
-      //   name: "players",
-      //   description: "Kill 2 players",
-      //   neededPoints: 2,
-      //   pvpOnly:true
+      //   type: ChallengeType.LIGHTER,
+      //   difficulty: ChallengeDifficulty.MEDIUM,
+      //   name: "You light up my life",
+      //   description: "Find 10 lighters",
+      //   neededPoints: 10,
+      //   pvpOnly: false
       // },
       {
-        type: ChallengeType.BLACKBERRIES,
+        type: ChallengeType.MY_LAND,
+        difficulty: ChallengeDifficulty.MEDIUM,
+        name: "My land!",
+        description: "Craft a deck foundation",
+        neededPoints: 1,
+        pvpOnly: false
+      },
+      {
+        type: ChallengeType.PV_PD_SURVIVAL,
         difficulty: ChallengeDifficulty.HARD,
-        name: "blackberries",
-        description: "Harvest 3 blackberries",
-        neededPoints: 3,
+        name: "Proving a point",
+        description: "Survive 30 minutes in pv pd",
+        neededPoints: 30,
+        pvpOnly: true
+      },
+      {
+        type: ChallengeType.GLOBAL_DISARMAMENT,
+        difficulty: ChallengeDifficulty.HARD,
+        name: "GLOBAL DISARMAMENT",
+        description: "Fire 60 bullets of any gun",
+        neededPoints: 60,
+        pvpOnly: false
+      },
+      {
+        type: ChallengeType.ROCKY,
+        difficulty: ChallengeDifficulty.HARD,
+        name: "Rocky",
+        description: "Kill 2 players with your fists",
+        neededPoints: 2,
+        pvpOnly: true
+      },
+      {
+        type: ChallengeType.ROCKSTAR,
+        difficulty: ChallengeDifficulty.HARD,
+        name: "Rockstar!!!",
+        description: "Kill someone with a guitar",
+        neededPoints: 1,
+        pvpOnly: true
+      },
+      {
+        type: ChallengeType.IED,
+        difficulty: ChallengeDifficulty.HARD,
+        name: "Let's blow this joint",
+        description: "Craft 15 IEDS",
+        neededPoints: 15,
         pvpOnly: false
       }
     ];
