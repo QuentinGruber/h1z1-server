@@ -256,6 +256,7 @@ import { clearInterval, setInterval } from "node:timers";
 import { NavManager } from "../../utils/recast";
 import { ProjectileEntity } from "./entities/projectileentity";
 import { ChallengeManager, ChallengeType } from "./managers/challengemanager";
+import { RandomEventsManager } from "./managers/randomeventsmanager";
 
 const spawnLocations2 = require("../../../data/2016/zoneData/Z1_gridSpawns.json"),
   deprecatedDoors = require("../../../data/2016/sampleData/deprecatedDoors.json"),
@@ -475,6 +476,7 @@ export class ZoneServer2016 extends EventEmitter {
   worldSaveFailed: boolean = false;
   challengeManager: ChallengeManager;
   challengePositionCheckInterval?: NodeJS.Timeout;
+  randomEventsManager: RandomEventsManager;
 
   constructor(
     serverPort: number,
@@ -509,6 +511,7 @@ export class ZoneServer2016 extends EventEmitter {
     this.aiManager = new AiManager();
     this.navManager = new NavManager();
     this.challengeManager = new ChallengeManager(this);
+    this.randomEventsManager = new RandomEventsManager(this);
     /* CONFIG MANAGER MUST BE INSTANTIATED LAST ! */
     this.configManager = new ConfigManager(this, process.env.CONFIG_PATH);
     this.enableWorldSaves =
@@ -891,6 +894,7 @@ export class ZoneServer2016 extends EventEmitter {
     this.inGameTimeManager.stop();
     this.smeltingManager.clearTimers();
     this.decayManager.clearTimers();
+    this.randomEventsManager.stop();
     clearTimeout(this.worldRoutineTimer);
     clearTimeout(this.weatherManager.dynamicWorker);
     clearTimeout(this.routinesLoopTimer);
@@ -1971,6 +1975,7 @@ export class ZoneServer2016 extends EventEmitter {
     this._serverStartTime = getCurrentServerTimeWrapper();
     this.weatherManager.startWeatherWorker(this);
     this.inGameTimeManager.start();
+    this.randomEventsManager.start();
     if (!this._soloMode) {
       this.accountInventoriesManager.init(
         this._db.collection(DB_COLLECTIONS.ACCOUNT_ITEMS)
