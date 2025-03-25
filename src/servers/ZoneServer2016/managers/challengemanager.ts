@@ -70,7 +70,7 @@ export class ChallengeManager {
       },
       {
         type: ChallengeType.ZOMBIE,
-        difficulty: ChallengeDifficulty.EASY,
+        difficulty: ChallengeDifficulty.MEDIUM,
         name: "zombie",
         description: "Kill 10 zombies",
         neededPoints: 10,
@@ -86,7 +86,7 @@ export class ChallengeManager {
       // },
       {
         type: ChallengeType.BLACKBERRIES,
-        difficulty: ChallengeDifficulty.EASY,
+        difficulty: ChallengeDifficulty.HARD,
         name: "blackberries",
         description: "Harvest 3 blackberries",
         neededPoints: 3,
@@ -249,26 +249,41 @@ export class ChallengeManager {
     const challengesTypesDoneToday = challengesToday.map((e) => {
       return e.type;
     });
+    const currentProgression: number =
+      challengesToday.length / this.challengesPerDay;
+    let nextDifficultyChallenge: ChallengeDifficulty;
+    if (currentProgression < 0.3) {
+      nextDifficultyChallenge = ChallengeDifficulty.EASY;
+    } else if (currentProgression < 0.6) {
+      nextDifficultyChallenge = ChallengeDifficulty.MEDIUM;
+    } else {
+      nextDifficultyChallenge = ChallengeDifficulty.HARD;
+    }
     const challengesAvailable = this.challenges.filter((v) => {
       return (
-        (!challengesTypesDoneToday.includes(v.type) && !v.pvpOnly) ||
-        !this.server.isPvE
+        ((!challengesTypesDoneToday.includes(v.type) && !v.pvpOnly) ||
+          !this.server.isPvE) &&
+        v.difficulty === nextDifficultyChallenge
       );
     });
-    const rnd_index = randomInt(challengesAvailable.length);
-    const challenge = challengesAvailable[rnd_index];
-    if (challenge) {
-      const challengeData: ChallengeData = {
-        serverId: this.server._worldId,
-        type: challenge.type,
-        date: new Date(),
-        status: ChallengeStatus.CURRENT,
-        playerGuid: client.loginSessionId,
-        points: 0
-      };
+    if (challengesAvailable.length) {
+      const rnd_index = randomInt(challengesAvailable.length);
+      const challenge = challengesAvailable[rnd_index];
+      if (challenge) {
+        const challengeData: ChallengeData = {
+          serverId: this.server._worldId,
+          type: challenge.type,
+          date: new Date(),
+          status: ChallengeStatus.CURRENT,
+          playerGuid: client.loginSessionId,
+          points: 0
+        };
 
-      await this.challengesCollection.insertOne(challengeData);
-      client.character.currentChallenge = challenge.type;
+        await this.challengesCollection.insertOne(challengeData);
+        client.character.currentChallenge = challenge.type;
+      } else {
+        client.character.currentChallenge = ChallengeType.NONE;
+      }
     } else {
       client.character.currentChallenge = ChallengeType.NONE;
     }
