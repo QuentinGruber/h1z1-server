@@ -3,7 +3,7 @@ on:
   push:
 jobs:
   eslint:
-    name: eslint
+    name: lint
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -11,7 +11,7 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: 22.9.0
-      - run: npm i
+      - run: npm i --ignore-scripts
       - run: npm run lint-quiet
   prettier:
     name: prettier
@@ -22,7 +22,7 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: 22.9.0
-      - run: npm i
+      - run: npm i --ignore-scripts
       - run: npm run check_prettier
   interfaces-up-to-date:
     name: interfaces-up-to-date
@@ -33,7 +33,7 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: 22.9.0
-      - run: npm i
+      - run: npm i --ignore-scripts
       - run: npm run gen-packets-types
       - run: npm run gen-packets-interfaces
       - run: git diff --exit-code
@@ -49,7 +49,7 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: ${{ matrix.node-version }}
-      - run: npm i
+      - run: npm i --ignore-scripts
       - run: npm pack
   test-mongo-linux:
     name: mongo-linux
