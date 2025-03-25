@@ -7056,22 +7056,20 @@ export class ZoneServer2016 extends EventEmitter {
     )
       return;
     this.sendAlert(client, "Your delivery is on the way!");
-    const pos = new Float32Array([
-      client.character.state.position[0],
-      400,
-      client.character.state.position[2],
-      1
-    ]);
-    const angle = getAngle(
+    this.spawnAirdrop(
       client.character.state.position,
-      new Float32Array([0, 0, 0, 0])
+      item.hasAirdropClearance
     );
+    if (item.hasAirdropClearance) {
+      item.hasAirdropClearance = false;
+    }
+  }
+
+  spawnAirdrop(position: Float32Array, hasAirdropClearance: boolean) {
+    const pos = new Float32Array([position[0], 400, position[2], 1]);
+    const angle = getAngle(position, new Float32Array([0, 0, 0, 0]));
     const distance =
-      5000 +
-      getDistance2d(
-        client.character.state.position,
-        new Float32Array([0, 0, 0, 0])
-      );
+      5000 + getDistance2d(position, new Float32Array([0, 0, 0, 0]));
     const moved = movePoint(pos, angle, distance);
     const moved2 = movePoint(moved, angle, 1500);
     const characterId = this.generateGuid();
@@ -7084,7 +7082,8 @@ export class ZoneServer2016 extends EventEmitter {
       this.getTransientId(characterId),
       ModelIds.AIRDROP_PLANE,
       moved,
-      client.character.state.lookAt,
+      new Float32Array([0, 0, 0, 1]),
+      // client.character.state.lookAt,
       this,
       getCurrentServerTimeWrapper().getTruncatedU32(),
       VehicleIds.SPECTATE
@@ -7094,7 +7093,8 @@ export class ZoneServer2016 extends EventEmitter {
       this.getTransientId(characterId4),
       ModelIds.AIRDROP_CARGO_CONTAINER,
       new Float32Array([pos[0], pos[1] - 20, pos[2], 1]),
-      client.character.state.lookAt,
+      new Float32Array([0, 0, 0, 1]),
+      // client.character.state.lookAt,
       this,
       getCurrentServerTimeWrapper().getTruncatedU32(),
       VehicleIds.SPECTATE
@@ -7107,10 +7107,10 @@ export class ZoneServer2016 extends EventEmitter {
       cargoTarget: characterId5,
       cargoTargetPos: new Float32Array([pos[0], pos[1] + 100, pos[2], 1]),
       destination: characterId3,
-      destinationPos: client.character.state.position,
+      destinationPos: position,
       cargoSpawned: false,
       containerSpawned: false,
-      hospitalCrate: item.hasAirdropClearance
+      hospitalCrate: hasAirdropClearance
     };
     let choosenClient: Client | undefined;
     let currentDistance = 999999;
@@ -7136,10 +7136,6 @@ export class ZoneServer2016 extends EventEmitter {
       if (!this._clients[a].isLoading) {
         this.airdropManager(this._clients[a], true);
       }
-    }
-
-    if (item.hasAirdropClearance) {
-      item.hasAirdropClearance = false;
     }
 
     this.sendDeliveryStatus();
