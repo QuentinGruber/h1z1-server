@@ -82,7 +82,7 @@ clientInfoChannel.on("message", (msg: ClientInfoMessage) => {
   const fn = gatewayServer[msg.fnName];
   if (fn) {
     // FIXME: idk how to type this
-    // @ts-ignore
+    // @ts-expect-error
     const result = fn.call(gatewayServer, msg.soeClientId);
     clientInfoChannel.postMessage({ requestId: msg.requestId, result });
   }
