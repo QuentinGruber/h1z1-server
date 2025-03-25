@@ -8891,7 +8891,7 @@ export class ZoneServer2016 extends EventEmitter {
   //#endregion
 
   async reloadZonePacketHandlers() {
-    //@ts-ignore
+    //@ts-expect-error
     delete this._packetHandlers;
     delete require.cache[require.resolve("./zonepackethandlers")];
     this._packetHandlers =
