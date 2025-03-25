@@ -1619,3 +1619,13 @@ export function isLootNerfedLoc(position: Float32Array): number {
 export function chance(chanceNum: number): boolean {
   return Math.random() * 1000 < chanceNum;
 }
+
+export function getCellName(index: number, numCols: number): string {
+  const columnIndex = index % numCols; // Get column index (0-9)
+  const rowIndex = Math.floor(index / numCols); // Get row index (0-9)
+
+  const columnLetter = String.fromCharCode(65 + columnIndex); // Convert to A-J
+  const rowNumber = rowIndex + 1; // Convert to 1-10
+
+  return columnLetter + rowNumber; // Example: "A1", "B3", "J10"
+}
