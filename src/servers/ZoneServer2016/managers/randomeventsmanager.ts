@@ -13,6 +13,7 @@
 
 import { randomInt } from "node:crypto";
 import { ZoneServer2016 } from "../zoneserver";
+import { getCellName } from "../../../utils/utils";
 
 export class RandomEventsManager {
   interval?: NodeJS.Timeout;
@@ -30,12 +31,13 @@ export class RandomEventsManager {
   }
 
   spawnRandomAirdrop() {
-    const spg = this.server._spawnGrid[randomInt(100)];
+    const cellIndex = randomInt(100);
+    const spg = this.server._spawnGrid[cellIndex];
     const rnd_index = randomInt(spg.spawnPoints.length);
     const pos = spg.spawnPoints[rnd_index];
     this.server.spawnAirdrop(pos, false);
-    // TODO: add the cell
-    this.server.sendAlertToAll("Random airdrop");
+    const cellName = getCellName(cellIndex, 10);
+    this.server.sendAlertToAll(`Random airdrop on ${cellName}`);
     if (!this.server._soloMode) {
       this.server._db.collection("random_aidrops_logs").insertOne({
         position: pos,
