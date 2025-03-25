@@ -25,6 +25,12 @@ rcon:
 
 challenges:
   enabled: true
+  challengePerDay: 6
+
+# Random events
+
+randomevents:
+  enabled: true
 
 # VoiceChat
 
