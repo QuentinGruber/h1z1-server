@@ -451,6 +451,17 @@ const dev: any = {
       message: "hello ordered !"
     } as ClientUpdateTextAlert);
   },
+  skipchallenge: function (
+    server: ZoneServer2016,
+    client: Client,
+    args: Array<string>
+  ) {
+    server.challengeManager.registerChallengeProgression(
+      client,
+      client.character.currentChallenge,
+      Infinity
+    );
+  },
   path: function (server: ZoneServer2016, client: Client, args: Array<string>) {
     const characterId = server.generateGuid();
     const npc = new Npc(
