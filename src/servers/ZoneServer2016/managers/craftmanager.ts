@@ -19,6 +19,7 @@ import { Recipe } from "types/zoneserver";
 import { Character2016 } from "../entities/character";
 import { BaseItem } from "../classes/baseItem";
 import { BaseLootableEntity } from "../entities/baselootableentity";
+import { ChallengeType } from "./challengemanager";
 const debug = require("debug")("ZoneServer");
 
 interface CraftComponentDSEntry {
@@ -515,6 +516,27 @@ export class CraftManager {
       recipe.leftOverItems.forEach((id: number) => {
         client.character.lootItem(server, server.generateItem(id, 1));
       });
+    }
+    if (recipeId === Items.IED) {
+      server.challengeManager.registerChallengeProgression(
+        client,
+        ChallengeType.IED,
+        1
+      );
+    }
+    if (recipeId === Items.FOUNDATION) {
+      server.challengeManager.registerChallengeProgression(
+        client,
+        ChallengeType.MY_LAND,
+        1
+      );
+    }
+    if (recipeId === Items.SHACK) {
+      server.challengeManager.registerChallengeProgression(
+        client,
+        ChallengeType.MY_HOME,
+        1
+      );
     }
     return true;
     //#endregion

@@ -180,7 +180,7 @@ export class Npc extends BaseFullCharacter {
       if (client) {
         server.challengeManager.registerChallengeProgression(
           client,
-          ChallengeType.ZOMBIE,
+          ChallengeType.BRAIN_DEAD,
           1
         );
         if (!server._soloMode) {

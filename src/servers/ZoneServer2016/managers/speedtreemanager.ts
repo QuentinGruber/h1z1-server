@@ -91,7 +91,7 @@ export class SpeedTreeManager {
         }
         server.challengeManager.registerChallengeProgression(
           client,
-          ChallengeType.BLACKBERRIES,
+          ChallengeType.DAWN_ITS_TASTY,
           1
         );
         destroy = true;
@@ -154,7 +154,7 @@ export class SpeedTreeManager {
         if (this._speedTreesCounter[objectId].hitPoints-- == 0) {
           server.challengeManager.registerChallengeProgression(
             client,
-            ChallengeType.WOOD,
+            ChallengeType.TREE_HATER,
             1
           );
           destroy = true;
