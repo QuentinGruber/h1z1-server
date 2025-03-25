@@ -80,6 +80,21 @@ export const commands: Array<Command> = [
     }
   },
   {
+    name: "forcerandomairdrop",
+    permissionLevel: PermissionLevels.ADMIN,
+    execute: async (
+      server: ZoneServer2016,
+      client: Client,
+      args: Array<string>
+    ) => {
+      if (!server._airdrop) {
+        server.randomEventsManager.spawnRandomAirdrop();
+      } else {
+        server.sendAlert(client, "There is already an active airdrop");
+      }
+    }
+  },
+  {
     name: "expirechallenges",
     permissionLevel: PermissionLevels.ADMIN,
     execute: async (
