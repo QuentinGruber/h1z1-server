@@ -462,6 +462,14 @@ const dev: any = {
       Infinity
     );
   },
+  randomevents: function (
+    server: ZoneServer2016,
+    client: Client,
+    args: Array<string>
+  ) {
+    server.randomEventsManager.run();
+    server.sendChatText(client, "random events manager run");
+  },
   path: function (server: ZoneServer2016, client: Client, args: Array<string>) {
     const characterId = server.generateGuid();
     const npc = new Npc(
