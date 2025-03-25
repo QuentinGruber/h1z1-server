@@ -90,7 +90,8 @@ export class ConfigManager {
       speedtree,
       construction,
       decay,
-      smelting
+      smelting,
+      randomevents
     } = this.defaultConfig;
     return {
       ...this.defaultConfig,
@@ -138,6 +139,10 @@ export class ConfigManager {
       smelting: {
         ...smelting,
         ...config.smelting
+      },
+      randomevents: {
+        ...randomevents,
+        ...config.randomevents
       }
     };
   }
@@ -184,8 +189,14 @@ export class ConfigManager {
     server.rconManager.password = password;
 
     //#region Challenges
-    const { enabled } = this.config.challenges;
-    server.challengeManager.enabled = enabled;
+    const { enabled: challengeEnabled, challengePerDay } =
+      this.config.challenges;
+    server.challengeManager.enabled = challengeEnabled;
+    server.challengeManager.challengesPerDay = challengePerDay;
+    //#endregion
+    //#region RandomEvents
+    const { enabled: randomEventsEnabled } = this.config.randomevents;
+    server.challengeManager.enabled = randomEventsEnabled;
     //#endregion
     //
     //#region voicechat

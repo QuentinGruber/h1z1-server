@@ -65,9 +65,8 @@ export interface ChallengeData {
 export class ChallengeManager {
   challenges: ChallengeInfo[];
   challengesCollection!: Collection<ChallengeData>;
-  // TODO: add to config
-  challengesPerDay: number = 6;
   // managed by config
+  challengesPerDay: number = 3;
   enabled: boolean = true;
   constructor(public server: ZoneServer2016) {
     this.challenges = [

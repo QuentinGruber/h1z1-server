@@ -139,6 +139,11 @@ interface VoiceChatConfig {
 
 interface ChallengeConfig {
   enabled: boolean;
+  challengePerDay: number;
+}
+
+interface RandomEventsConfig {
+  enabled: boolean;
 }
 
 export interface Config {
@@ -154,4 +159,5 @@ export interface Config {
   construction: ConstructionConfig;
   decay: DecayConfig;
   smelting: SmeltingConfig;
+  randomevents: RandomEventsConfig;
 }
