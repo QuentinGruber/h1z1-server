@@ -28,8 +28,14 @@ export enum ChallengeStatus {
   DONE = 2,
   TIMED_OUT = 3
 }
+export enum ChallengeDifficulty {
+  EASY = 1,
+  MEDIUM = 2,
+  HARD = 3
+}
 export interface ChallengeInfo {
   type: ChallengeType;
+  difficulty: ChallengeDifficulty;
   name: string;
   description: string;
   neededPoints: number;
@@ -54,6 +60,7 @@ export class ChallengeManager {
     this.challenges = [
       {
         type: ChallengeType.WOOD,
+        difficulty: ChallengeDifficulty.EASY,
         name: "wood",
         description: "Cut 2 trees",
         neededPoints: 2,
@@ -61,6 +68,7 @@ export class ChallengeManager {
       },
       {
         type: ChallengeType.ZOMBIE,
+        difficulty: ChallengeDifficulty.EASY,
         name: "zombie",
         description: "Kill 10 zombies",
         neededPoints: 10,
@@ -68,6 +76,7 @@ export class ChallengeManager {
       },
       // {
       //   type: ChallengeType.PLAYERS,
+      //   difficulty: ChallengeDifficulty.EASY,
       //   name: "players",
       //   description: "Kill 2 players",
       //   neededPoints: 2,
@@ -75,6 +84,7 @@ export class ChallengeManager {
       // },
       {
         type: ChallengeType.BLACKBERRIES,
+        difficulty: ChallengeDifficulty.EASY,
         name: "blackberries",
         description: "Harvest 3 blackberries",
         neededPoints: 3,
