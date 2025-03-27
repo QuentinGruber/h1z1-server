@@ -3,7 +3,7 @@
 //   GNU GENERAL PUBLIC LICENSE
 //   Version 3, 29 June 2007
 //   copyright (C) 2020 - 2021 Quentin Gruber
-//   copyright (C) 2021 - 2024 H1emu community
+//   copyright (C) 2021 - 2025 H1emu community
 //
 //   https://github.com/QuentinGruber/h1z1-server
 //   https://www.npmjs.com/package/h1z1-server
@@ -144,7 +144,6 @@ import { UseOptions } from "./data/useoptions";
 import {
   CONNECTION_REJECTION_FLAGS,
   DB_COLLECTIONS,
-  GAME_LOGS_TYPES,
   GAME_VERSIONS,
   KILL_TYPE,
   LOGIN_KICK_REASON
@@ -256,6 +255,8 @@ import { AiManager } from "h1emu-ai";
 import { clearInterval, setInterval } from "node:timers";
 import { NavManager } from "../../utils/recast";
 import { ProjectileEntity } from "./entities/projectileentity";
+import { ChallengeManager, ChallengeType } from "./managers/challengemanager";
+import { RandomEventsManager } from "./managers/randomeventsmanager";
 
 const spawnLocations2 = require("../../../data/2016/zoneData/Z1_gridSpawns.json"),
   deprecatedDoors = require("../../../data/2016/sampleData/deprecatedDoors.json"),
@@ -363,7 +364,7 @@ export class ZoneServer2016 extends EventEmitter {
     destinationPos: Float32Array;
     cargoSpawned: boolean;
     containerSpawned: boolean;
-    hospitalCrate: boolean;
+    forcedAirdropType?: string;
     manager?: Client;
   };
 
@@ -473,6 +474,9 @@ export class ZoneServer2016 extends EventEmitter {
   navManager: NavManager;
   staticBuildings: AddSimpleNpc[] = require("../../../data/2016/sampleData/staticbuildings.json");
   worldSaveFailed: boolean = false;
+  challengeManager: ChallengeManager;
+  challengePositionCheckInterval?: NodeJS.Timeout;
+  randomEventsManager: RandomEventsManager;
 
   constructor(
     serverPort: number,
@@ -506,6 +510,8 @@ export class ZoneServer2016 extends EventEmitter {
     this.playTimeManager = new PlayTimeManager();
     this.aiManager = new AiManager();
     this.navManager = new NavManager();
+    this.challengeManager = new ChallengeManager(this);
+    this.randomEventsManager = new RandomEventsManager(this);
     /* CONFIG MANAGER MUST BE INSTANTIATED LAST ! */
     this.configManager = new ConfigManager(this, process.env.CONFIG_PATH);
     this.enableWorldSaves =
@@ -880,6 +886,7 @@ export class ZoneServer2016 extends EventEmitter {
   }
 
   async stop() {
+    clearInterval(this.challengePositionCheckInterval);
     for (const trap of Object.values(this._traps)) {
       clearTimeout(trap.trapTimer);
     }
@@ -887,6 +894,7 @@ export class ZoneServer2016 extends EventEmitter {
     this.inGameTimeManager.stop();
     this.smeltingManager.clearTimers();
     this.decayManager.clearTimers();
+    this.randomEventsManager.stop();
     clearTimeout(this.worldRoutineTimer);
     clearTimeout(this.weatherManager.dynamicWorker);
     clearTimeout(this.routinesLoopTimer);
@@ -1967,9 +1975,13 @@ export class ZoneServer2016 extends EventEmitter {
     this._serverStartTime = getCurrentServerTimeWrapper();
     this.weatherManager.startWeatherWorker(this);
     this.inGameTimeManager.start();
+    this.randomEventsManager.start();
     if (!this._soloMode) {
       this.accountInventoriesManager.init(
         this._db.collection(DB_COLLECTIONS.ACCOUNT_ITEMS)
+      );
+      this.challengeManager.init(
+        this._db.collection(DB_COLLECTIONS.CHALLENGES)
       );
     }
     this._gatewayServer.start();
@@ -1988,6 +2000,10 @@ export class ZoneServer2016 extends EventEmitter {
     if (this._soloMode || process.env.ENABLE_AI) {
       this.startH1emuAi();
     }
+    this.challengePositionCheckInterval = setInterval(
+      () => this.checkPlayersPositionsChallenges(),
+      30_000
+    );
   }
 
   async sendInitData(client: Client) {
@@ -2491,6 +2507,25 @@ export class ZoneServer2016 extends EventEmitter {
     if (!client.character.isAlive) return;
     if (!this.hookManager.checkHook("OnPlayerDeath", client, damageInfo))
       return;
+
+    const killerClient = this.getClientByCharId(damageInfo.entity);
+    if (killerClient) {
+      const weapon = damageInfo.weapon;
+      if (weapon && weapon === Items.WEAPON_GUITAR) {
+        this.challengeManager.registerChallengeProgression(
+          killerClient,
+          ChallengeType.ROCKSTAR,
+          1
+        );
+      } else if (weapon && weapon === Items.WEAPON_FISTS) {
+        this.challengeManager.registerChallengeProgression(
+          killerClient,
+          ChallengeType.ROCKY,
+          1
+        );
+      }
+    }
+
     for (const a in client.character._characterEffects) {
       const characterEffect = client.character._characterEffects[a];
       if (characterEffect.endCallback)
@@ -2988,7 +3023,7 @@ export class ZoneServer2016 extends EventEmitter {
     client: Client,
     entityId: string,
     value: number,
-    resourceId: number,
+    resourceId: ResourceIds,
     resourceType?: number // most resources have the same id and type
   ) {
     this.sendData<ResourceEvent>(client, "ResourceEvent", {
@@ -3287,6 +3322,34 @@ export class ZoneServer2016 extends EventEmitter {
       return c.characterName;
 
     return;
+  }
+
+  async getOfflineClientByCharId(
+    characterId: string
+  ): Promise<Client | undefined> {
+    const c = await this._db.collection(DB_COLLECTIONS.CHARACTERS).findOne({
+      // status: 1,
+      serverId: this._worldId,
+      characterId: characterId
+    });
+    if (!c) {
+      return;
+    }
+
+    if (!c) return;
+    const client = this.createClient(
+      -1,
+      "",
+      characterId,
+      c.characterId,
+      this.getTransientId(c.characterId)
+    );
+    // TODO: make a method from the mapping in worlddatamanger
+    client.character.state.position = c.position;
+    client.character.state.rotation = c.rotation;
+    client.character.isAlive = false;
+    client.character.name = c.characterName;
+    return client;
   }
 
   applyHelmetDamageReduction(
@@ -4106,6 +4169,25 @@ export class ZoneServer2016 extends EventEmitter {
         ) {
           client.spawnedEntities.add(object);
           this.addSimpleNpc(client, object);
+        }
+      }
+    }
+  }
+
+  private checkPlayersPositionsChallenges() {
+    for (const key in this._characters) {
+      const character = this._characters[key];
+      if (character.currentChallenge === ChallengeType.PV_PD_SURVIVAL) {
+        const client = this.getClientByCharId(character.characterId);
+        if (client) {
+          const pv_pd_pos = new Float32Array([-233.5, 25.44, -1153.43]);
+          if (isPosInRadius(25, character.state.position, pv_pd_pos)) {
+            this.challengeManager.registerChallengeProgression(
+              client,
+              ChallengeType.PV_PD_SURVIVAL,
+              1
+            );
+          }
         }
       }
     }
@@ -7013,22 +7095,20 @@ export class ZoneServer2016 extends EventEmitter {
     )
       return;
     this.sendAlert(client, "Your delivery is on the way!");
-    const pos = new Float32Array([
-      client.character.state.position[0],
-      400,
-      client.character.state.position[2],
-      1
-    ]);
-    const angle = getAngle(
+    this.spawnAirdrop(
       client.character.state.position,
-      new Float32Array([0, 0, 0, 0])
+      item.hasAirdropClearance ? "Hospital" : ""
     );
+    if (item.hasAirdropClearance) {
+      item.hasAirdropClearance = false;
+    }
+  }
+
+  spawnAirdrop(position: Float32Array, forcedAirdropType: string) {
+    const pos = new Float32Array([position[0], 400, position[2], 1]);
+    const angle = getAngle(position, new Float32Array([0, 0, 0, 0]));
     const distance =
-      5000 +
-      getDistance2d(
-        client.character.state.position,
-        new Float32Array([0, 0, 0, 0])
-      );
+      5000 + getDistance2d(position, new Float32Array([0, 0, 0, 0]));
     const moved = movePoint(pos, angle, distance);
     const moved2 = movePoint(moved, angle, 1500);
     const characterId = this.generateGuid();
@@ -7041,7 +7121,8 @@ export class ZoneServer2016 extends EventEmitter {
       this.getTransientId(characterId),
       ModelIds.AIRDROP_PLANE,
       moved,
-      client.character.state.lookAt,
+      new Float32Array([0, 0, 0, 1]),
+      // client.character.state.lookAt,
       this,
       getCurrentServerTimeWrapper().getTruncatedU32(),
       VehicleIds.SPECTATE
@@ -7051,7 +7132,8 @@ export class ZoneServer2016 extends EventEmitter {
       this.getTransientId(characterId4),
       ModelIds.AIRDROP_CARGO_CONTAINER,
       new Float32Array([pos[0], pos[1] - 20, pos[2], 1]),
-      client.character.state.lookAt,
+      new Float32Array([0, 0, 0, 1]),
+      // client.character.state.lookAt,
       this,
       getCurrentServerTimeWrapper().getTruncatedU32(),
       VehicleIds.SPECTATE
@@ -7064,10 +7146,10 @@ export class ZoneServer2016 extends EventEmitter {
       cargoTarget: characterId5,
       cargoTargetPos: new Float32Array([pos[0], pos[1] + 100, pos[2], 1]),
       destination: characterId3,
-      destinationPos: client.character.state.position,
+      destinationPos: position,
       cargoSpawned: false,
       containerSpawned: false,
-      hospitalCrate: item.hasAirdropClearance
+      forcedAirdropType: forcedAirdropType
     };
     let choosenClient: Client | undefined;
     let currentDistance = 999999;
@@ -7093,10 +7175,6 @@ export class ZoneServer2016 extends EventEmitter {
       if (!this._clients[a].isLoading) {
         this.airdropManager(this._clients[a], true);
       }
-    }
-
-    if (item.hasAirdropClearance) {
-      item.hasAirdropClearance = false;
     }
 
     this.sendDeliveryStatus();
@@ -7515,16 +7593,18 @@ export class ZoneServer2016 extends EventEmitter {
             ]
           ) {
             setTimeout(() => {
-              this.sendChatText(client, "You will died of an heart attack.");
+              this.sendChatText(client, "You will die of an heart attack.");
             }, 2000);
             setTimeout(() => {
+              client.character.timeouts["ADRENALINE"]._onTimeout(true);
               this.killCharacter(client, {
                 entity: client.character.characterId,
                 damage: 0xff
               });
             }, 5000);
+          } else {
+            this.sniffPass(client, character, item);
           }
-          this.sniffPass(client, character, item);
         });
         break;
       default:
@@ -8025,6 +8105,11 @@ export class ZoneServer2016 extends EventEmitter {
 
     this.utilizeHudTimer(client, nameId, 5000, animationId, () => {
       this.repairOptionPass(client, character, item, repairItem, durability);
+      this.challengeManager.registerChallengeProgression(
+        client,
+        ChallengeType.NO_WASTE,
+        1
+      );
     });
   }
 
@@ -8151,6 +8236,11 @@ export class ZoneServer2016 extends EventEmitter {
     if (!weaponItem.weapon || weaponItem.weapon.ammoCount <= 0) {
       return;
     }
+    this.challengeManager.registerChallengeProgression(
+      client,
+      ChallengeType.GLOBAL_DISARMAMENT,
+      1
+    );
     if (weaponItem.weapon.ammoCount > 0) {
       weaponItem.weapon.ammoCount -= 1;
     }
@@ -8611,48 +8701,63 @@ export class ZoneServer2016 extends EventEmitter {
         const adrenalineBoostInterval = setInterval(() => {
           client.character._resources[ResourceIds.STAMINA] = 600;
         }, 1000);
-        client.character.timeouts["ADRENALINE"] = setTimeout(() => {
-          if (!client.character.timeouts["ADRENALINE"]) {
-            return;
-          }
-          this.divideMovementModifier(client, modifier);
-          delete client.character.timeouts["ADRENALINE"];
-          clearInterval(adrenalineBoostInterval);
-        }, 30000);
-
-        setTimeout(() => {
-          hudIndicator =
-            this._hudIndicators[ResourceIndicators.ADRENALINE_AFTER_EFFECTS];
-          if (client.character.timeouts["ADRENALINE AFTER EFFECTS"]) {
-            client.character.timeouts["ADRENALINE AFTER EFFECTS"]._onTimeout();
-            clearTimeout(client.character.timeouts["ADRENALINE AFTER EFFECTS"]);
-            delete client.character.timeouts["ADRENALINE AFTER EFFECTS"];
-            if (client.character.hudIndicators[hudIndicator.typeName]) {
-              client.character.hudIndicators[
-                hudIndicator.typeName
-              ].expirationTime += 30000;
+        client.character.timeouts["ADRENALINE"] = setTimeout(
+          (skipAfterEffect: boolean) => {
+            if (!client.character.timeouts["ADRENALINE"]) {
+              return;
             }
-          }
-          client.character.hudIndicators[hudIndicator.typeName] = {
-            typeName: hudIndicator.typeName,
-            expirationTime: Date.now() + 30000
-          };
-          this.sendHudIndicators(client);
-          const adrenalineAfterEffectsInterval = setInterval(() => {
-            // 4% per interval
-            client.character._resources[ResourceIds.STAMINA] -= 24;
-          }, 1000);
-          client.character.timeouts["ADRENALINE AFTER EFFECTS"] = setTimeout(
-            () => {
-              if (!client.character.timeouts["ADRENALINE AFTER EFFECTS"]) {
-                return;
-              }
-              delete client.character.timeouts["ADRENALINE AFTER EFFECTS"];
-              clearInterval(adrenalineAfterEffectsInterval);
-            },
-            30000
-          );
-        }, 32000);
+            this.divideMovementModifier(client, modifier);
+            delete client.character.timeouts["ADRENALINE"];
+            clearInterval(adrenalineBoostInterval);
+
+            if (!skipAfterEffect && client.character.isAlive) {
+              setTimeout(() => {
+                hudIndicator =
+                  this._hudIndicators[
+                    ResourceIndicators.ADRENALINE_AFTER_EFFECTS
+                  ];
+                if (client.character.timeouts["ADRENALINE AFTER EFFECTS"]) {
+                  client.character.timeouts[
+                    "ADRENALINE AFTER EFFECTS"
+                  ]._onTimeout();
+                  clearTimeout(
+                    client.character.timeouts["ADRENALINE AFTER EFFECTS"]
+                  );
+                  delete client.character.timeouts["ADRENALINE AFTER EFFECTS"];
+                  if (client.character.hudIndicators[hudIndicator.typeName]) {
+                    client.character.hudIndicators[
+                      hudIndicator.typeName
+                    ].expirationTime += 30000;
+                  }
+                }
+                client.character.hudIndicators[hudIndicator.typeName] = {
+                  typeName: hudIndicator.typeName,
+                  expirationTime: Date.now() + 30000
+                };
+                this.sendHudIndicators(client);
+                const adrenalineAfterEffectsInterval = setInterval(() => {
+                  // 4% per interval
+                  client.character._resources[ResourceIds.STAMINA] -= 24;
+                }, 1000);
+                client.character.timeouts["ADRENALINE AFTER EFFECTS"] =
+                  setTimeout(() => {
+                    clearInterval(adrenalineAfterEffectsInterval);
+                    if (
+                      !client.character.timeouts["ADRENALINE AFTER EFFECTS"]
+                    ) {
+                      return;
+                    }
+                    delete client.character.timeouts[
+                      "ADRENALINE AFTER EFFECTS"
+                    ];
+                    clearInterval(adrenalineAfterEffectsInterval);
+                  }, 30000);
+              }, 2000);
+            }
+          },
+          30000
+        );
+
         break;
       case MovementModifiers.BOOTS:
         // some stuff
@@ -8786,7 +8891,7 @@ export class ZoneServer2016 extends EventEmitter {
   //#endregion
 
   async reloadZonePacketHandlers() {
-    //@ts-ignore
+    //@ts-expect-error
     delete this._packetHandlers;
     delete require.cache[require.resolve("./zonepackethandlers")];
     this._packetHandlers =
@@ -9355,30 +9460,6 @@ export class ZoneServer2016 extends EventEmitter {
       color: status == 0 ? 1 : 0,
       status: status
     });
-  }
-  async registerGameLog(
-    logType: GAME_LOGS_TYPES,
-    client: Client,
-    gameLog: object
-  ) {
-    if (this._soloMode) {
-      return;
-    }
-    try {
-      const gameLogDocument = {
-        serverId: this._worldId,
-        time: new Date(),
-        type: logType,
-        characterName: client.character.name,
-        loginSessionId: client.loginSessionId,
-        ...gameLog
-      };
-      await this._db
-        .collection(DB_COLLECTIONS.GAME_LOGS)
-        .insertOne(gameLogDocument);
-    } catch (e: any) {
-      console.error(e);
-    }
   }
 }
 

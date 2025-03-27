@@ -5,7 +5,7 @@
 //   GNU GENERAL PUBLIC LICENSE
 //   Version 3, 29 June 2007
 //   copyright (C) 2020 - 2021 Quentin Gruber
-//   copyright (C) 2021 - 2024 H1emu community
+//   copyright (C) 2021 - 2025 H1emu community
 //
 //   https://github.com/QuentinGruber/h1z1-server
 //   https://www.npmjs.com/package/h1z1-server
@@ -749,6 +749,9 @@ export enum AccountItems {
   REWARD_CRATE_VIGILANTE = 2350,
   REWARD_CRATE_H1EMU = 5063,
   REWARD_CRATE_H1EMUEX = 5026,
+  REWARD_CRATE_VICTORY = 5064,
+  REWARD_CRATE_BREAKOUT = 5255,
+  REWARD_CRATE_SWIRL = 5256,
   MYSTERY_BAG_KOTK = 3239,
   KOTK_ELITE_BAG = 3240,
   SKIRMISH_SMALL_FIREARMS = 3274,

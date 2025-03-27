@@ -3,7 +3,7 @@
 //   GNU GENERAL PUBLIC LICENSE
 //   Version 3, 29 June 2007
 //   copyright (C) 2020 - 2021 Quentin Gruber
-//   copyright (C) 2021 - 2024 H1emu community
+//   copyright (C) 2021 - 2025 H1emu community
 //
 //   https://github.com/QuentinGruber/h1z1-server
 //   https://www.npmjs.com/package/h1z1-server
@@ -35,6 +35,7 @@ import {
 import { CommandInteractionString } from "types/zone2016packets";
 import { EntityType } from "h1emu-ai";
 import { BaseEntity } from "./baseentity";
+import { ChallengeType } from "../managers/challengemanager";
 
 export class Npc extends BaseFullCharacter {
   health: number;
@@ -177,6 +178,11 @@ export class Npc extends BaseFullCharacter {
       this.flags.knockedOut = 1;
       server.worldObjectManager.createLootbag(server, this);
       if (client) {
+        server.challengeManager.registerChallengeProgression(
+          client,
+          ChallengeType.BRAIN_DEAD,
+          1
+        );
         if (!server._soloMode) {
           logClientActionToMongo(
             server._db.collection(DB_COLLECTIONS.KILLS),

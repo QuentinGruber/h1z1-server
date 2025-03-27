@@ -3,7 +3,7 @@
 //   GNU GENERAL PUBLIC LICENSE
 //   Version 3, 29 June 2007
 //   copyright (C) 2020 - 2021 Quentin Gruber
-//   copyright (C) 2021 - 2024 H1emu community
+//   copyright (C) 2021 - 2025 H1emu community
 //
 //   https://github.com/QuentinGruber/h1z1-server
 //   https://www.npmjs.com/package/h1z1-server
@@ -16,6 +16,7 @@ import { loadJson, randomIntFromInterval } from "../../../utils/utils";
 import { ZoneClient2016 as Client } from "../classes/zoneclient";
 import { Items, TreeIds } from "../models/enums";
 import { ZoneServer2016 } from "../zoneserver";
+import { ChallengeType } from "./challengemanager";
 
 export class SpeedTreeManager {
   /** HashMap of destroyed trees,
@@ -88,6 +89,11 @@ export class SpeedTreeManager {
             server.generateItem(Items.WEAPON_BRANCH)
           );
         }
+        server.challengeManager.registerChallengeProgression(
+          client,
+          ChallengeType.DAWN_ITS_TASTY,
+          1
+        );
         destroy = true;
         count = randomIntFromInterval(
           this.minBlackberryHarvest,
@@ -146,6 +152,11 @@ export class SpeedTreeManager {
           }; // add a new tree key with random level of hitpoints
         }
         if (this._speedTreesCounter[objectId].hitPoints-- == 0) {
+          server.challengeManager.registerChallengeProgression(
+            client,
+            ChallengeType.TREE_HATER,
+            1
+          );
           destroy = true;
           delete this._speedTreesCounter[objectId]; // If out of health destroy tree and delete its key
           itemDefId = Items.WOOD_LOG;
