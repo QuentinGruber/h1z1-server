@@ -364,7 +364,7 @@ export class ZoneServer2016 extends EventEmitter {
     destinationPos: Float32Array;
     cargoSpawned: boolean;
     containerSpawned: boolean;
-    hospitalCrate: boolean;
+    forcedAirdropType?: string;
     manager?: Client;
   };
 
@@ -7097,14 +7097,14 @@ export class ZoneServer2016 extends EventEmitter {
     this.sendAlert(client, "Your delivery is on the way!");
     this.spawnAirdrop(
       client.character.state.position,
-      item.hasAirdropClearance
+      item.hasAirdropClearance ? "Hospital" : ""
     );
     if (item.hasAirdropClearance) {
       item.hasAirdropClearance = false;
     }
   }
 
-  spawnAirdrop(position: Float32Array, hasAirdropClearance: boolean) {
+  spawnAirdrop(position: Float32Array, forcedAirdropType: string) {
     const pos = new Float32Array([position[0], 400, position[2], 1]);
     const angle = getAngle(position, new Float32Array([0, 0, 0, 0]));
     const distance =
@@ -7149,7 +7149,7 @@ export class ZoneServer2016 extends EventEmitter {
       destinationPos: position,
       cargoSpawned: false,
       containerSpawned: false,
-      hospitalCrate: hasAirdropClearance
+      forcedAirdropType: forcedAirdropType
     };
     let choosenClient: Client | undefined;
     let currentDistance = 999999;

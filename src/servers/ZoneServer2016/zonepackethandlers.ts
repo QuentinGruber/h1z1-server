@@ -1327,7 +1327,7 @@ export class ZonePacketHandlers {
         server.worldObjectManager.createAirdropContainer(
           server,
           server._airdrop.destinationPos,
-          server._airdrop.hospitalCrate ? "Hospital" : ""
+          server._airdrop.forcedAirdropType
         );
         for (const client of Object.values(server._clients)) {
           server.airdropManager(client, false);
