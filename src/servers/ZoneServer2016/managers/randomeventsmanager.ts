@@ -35,7 +35,7 @@ export class RandomEventsManager {
     const spg = this.server._spawnGrid[cellIndex];
     const rnd_index = randomInt(spg.spawnPoints.length);
     const pos = spg.spawnPoints[rnd_index];
-    this.server.spawnAirdrop(pos, false);
+    this.server.spawnAirdrop(pos, "");
     const cellName = getCellName(cellIndex, 10);
     this.server.sendAlertToAll(`Random airdrop on ${cellName}`);
     if (!this.server._soloMode) {
