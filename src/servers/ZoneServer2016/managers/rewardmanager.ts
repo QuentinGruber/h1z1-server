@@ -89,6 +89,18 @@ export class RewardManager {
         dropChances: 20
       },
       {
+        itemId: AccountItems.REWARD_CRATE_SWIRL,
+        dropChances: 0
+      },
+      {
+        itemId: AccountItems.REWARD_CRATE_BREAKOUT,
+        dropChances: 0
+      },
+      {
+        itemId: AccountItems.REWARD_CRATE_VICTORY,
+        dropChances: 0
+      },
+      {
         itemId: AccountItems.REWARD_CRATE_H1EMUEX,
         dropChances: 0
       }
