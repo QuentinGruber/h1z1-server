@@ -30,15 +30,15 @@ export class RewardManager {
     this.rewards = [
       {
         itemId: AccountItems.REWARD_CRATE_MARAUDER,
-        dropChances: 20
+        dropChances: 5
       },
       {
         itemId: AccountItems.REWARD_CRATE_SHOWDOWN,
-        dropChances: 20
+        dropChances: 5
       },
       {
         itemId: AccountItems.REWARD_CRATE_INVITATIONAL,
-        dropChances: 20
+        dropChances: 5
       },
       {
         itemId: AccountItems.REWARD_CRATE_INFERNAL,
@@ -50,7 +50,7 @@ export class RewardManager {
       },
       {
         itemId: AccountItems.REWARD_CRATE_PREDATOR,
-        dropChances: 20
+        dropChances: 10
       },
       {
         itemId: AccountItems.REWARD_CRATE_EZW,
@@ -90,15 +90,15 @@ export class RewardManager {
       },
       {
         itemId: AccountItems.REWARD_CRATE_SWIRL,
-        dropChances: 0
+        dropChances: 25
       },
       {
         itemId: AccountItems.REWARD_CRATE_BREAKOUT,
-        dropChances: 0
+        dropChances: 20
       },
       {
         itemId: AccountItems.REWARD_CRATE_VICTORY,
-        dropChances: 0
+        dropChances: 10
       },
       {
         itemId: AccountItems.REWARD_CRATE_H1EMUEX,
