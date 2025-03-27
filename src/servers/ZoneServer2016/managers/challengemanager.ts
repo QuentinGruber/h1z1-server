@@ -326,7 +326,10 @@ export class ChallengeManager {
     await this.challengesCollection.updateOne(query, {
       $set: { status: ChallengeStatus.DONE }
     });
-    this.affectChallenge(client);
+    this.server.rewardManager.dropReward(client);
+    setTimeout(() => {
+      this.affectChallenge(client);
+    }, 5000);
   }
 
   async affectChallenge(client: ZoneClient2016) {
