@@ -1,3298 +1,3579 @@
-[{
-        "name": "Showdown Crate",
-        "itemDefinitionId": 2761,
-        "rewards": [{
-                "name": "Showdown AR-15",
-                "itemDefinitionId": 2780,
-                "rewardChance": 1
-            },
-            {
-                "name": "Sxyhxy's Body Armor",
-                "itemDefinitionId": 2785,
-                "rewardChance": 2
-            },
-            {
-                "name": "Summit1g's Body Armor",
-                "itemDefinitionId": 2776,
-                "rewardChance": 2
-            },
-            {
-                "name": "CDNThe3rd's Conveys",
-                "itemDefinitionId": 2796,
-                "rewardChance": 5
-            },
-            {
-                "name": "Showdown Military Backpack",
-                "itemDefinitionId": 2782,
-                "rewardChance": 5
-            },
-            {
-                "name": "Trick2g's Ski Mask",
-                "itemDefinitionId": 2763,
-                "rewardChance": 5
-            },
-            {
-                "name": "Showdown Leggings",
-                "itemDefinitionId": 2774,
-                "rewardChance": 20
-            },
-            {
-                "name": "Showdown Boonie Hat",
-                "itemDefinitionId": 2768,
-                "rewardChance": 20
-            },
-            {
-                "name": "/r/H1Z1 Shirt",
-                "itemDefinitionId": 2794,
-                "rewardChance": 20
-            },
-            {
-                "name": "Showdown Shirt",
-                "itemDefinitionId": 2772,
-                "rewardChance": 20
-            },
-            {
-                "name": "Wisehunt Firearms Tanktop",
-                "itemDefinitionId": 2787,
-                "rewardChance": 20
-            },
-            {
-                "name": "Mr. Grimmmz's Shirt",
-                "itemDefinitionId": 2791,
-                "rewardChance": 20
-            },
-            {
-                "name": "Ninja's Shirt",
-                "itemDefinitionId": 2767,
-                "rewardChance": 20
-            }
-        ]
-    },
-    {
-        "name": "Alpha Launch Crate",
-        "itemDefinitionId": 1797,
-        "rewards": [{
-                "name": "Camouflage Backpack",
-                "itemDefinitionId": 1806,
-                "rewardChance": 1
-            },
-            {
-                "name": "Orange Racing Helmet",
-                "itemDefinitionId": 1828,
-                "rewardChance": 2
-            },
-            {
-                "name": "Red and Blue Racing Helmet",
-                "itemDefinitionId": 1827,
-                "rewardChance": 2
-            },
-            {
-                "name": "Blue Camo Pants",
-                "itemDefinitionId": 2497,
-                "rewardChance": 5
-            },
-            {
-                "name": "Brown Camo Pants",
-                "itemDefinitionId": 1822,
-                "rewardChance": 5
-            },
-            {
-                "name": "Brown Flannel Shirt",
-                "itemDefinitionId": 1811,
-                "rewardChance": 20
-            },
-            {
-                "name": "Red Polo Shirt",
-                "itemDefinitionId": 1829,
-                "rewardChance": 20
-            },
-            {
-                "name": "Tan Polo Shirt",
-                "itemDefinitionId": 1830,
-                "rewardChance": 20
-            },
-            {
-                "name": "Tan Canvs Outback Hat",
-                "itemDefinitionId": 1812,
-                "rewardChance": 20
-            },
-            {
-                "name": "Green Flannel Shirt",
-                "itemDefinitionId": 1809,
-                "rewardChance": 20
-            },
-            {
-                "name": "Blue Flannel Shirt",
-                "itemDefinitionId": 1810,
-                "rewardChance": 20
-            },
-            {
-                "name": "Brown Leather Outback Hat",
-                "itemDefinitionId": 1818,
-                "rewardChance": 20
-            },
-            {
-                "name": "Red Flannel Shirt",
-                "itemDefinitionId": 1817,
-                "rewardChance": 20
-            },
-            {
-                "name": "Tan Leather Outback Hat",
-                "itemDefinitionId": 1832,
-                "rewardChance": 20
-            }
-        ]
-    },
-    {
-        "name": "Gold Predator Crate",
-        "itemDefinitionId": 3211,
-        "rewards": [{
-                "name": "Mask of the Jester",
-                "itemDefinitionId": 3377,
-                "rewardChance": 1
-            },
-            {
-                "name": "Predator AR-15",
-                "itemDefinitionId": 3200,
-                "rewardChance": 1
-            },
-            {
-                "name": "Predator .308 Hunting Rifle",
-                "itemDefinitionId": 3193,
-                "rewardChance": 1
-            },
-            {
-                "name": "Predator 12GA Pump Shotgun",
-                "itemDefinitionId": 3186,
-                "rewardChance": 1
-            }
-        ]
-    },
-    {
-        "name": "Silver Predator Crate",
-        "itemDefinitionId": 3210,
-        "rewards": [{
-                "name": "Mask of the Jester",
-                "itemDefinitionId": 3377,
-                "rewardChance": 1
-            },
-            {
-                "name": "Predator AR-15",
-                "itemDefinitionId": 3200,
-                "rewardChance": 1
-            },
-            {
-                "name": "Predator .308 Hunting Rifle",
-                "itemDefinitionId": 3193,
-                "rewardChance": 1
-            },
-            {
-                "name": "Predator 12GA Pump Shotgun",
-                "itemDefinitionId": 3186,
-                "rewardChance": 1
-            },
-            {
-                "name": "Sniper Military Backpack",
-                "itemDefinitionId": 3190,
-                "rewardChance": 5
-            },
-            {
-                "name": "Heavy Assault Body Armor",
-                "itemDefinitionId": 3203,
-                "rewardChance": 5
-            },
-            {
-                "name": "Tech Military Pants",
-                "itemDefinitionId": 3192,
-                "rewardChance": 5
-            },
-            {
-                "name": "Heavy Assault Full Helmet",
-                "itemDefinitionId": 3202,
-                "rewardChance": 5
-            }
-        ]
-    },
-    {
-        "name": "Bronze Predator Crate",
-        "itemDefinitionId": 3209,
-        "rewards": [{
-                "name": "Mask of the Jester",
-                "itemDefinitionId": 3377,
-                "rewardChance": 1
-            },
-            {
-                "name": "Predator AR-15",
-                "itemDefinitionId": 3200,
-                "rewardChance": 1
-            },
-            {
-                "name": "Predator .308 Hunting Rifle",
-                "itemDefinitionId": 3193,
-                "rewardChance": 1
-            },
-            {
-                "name": "Predator 12GA Pump Shotgun",
-                "itemDefinitionId": 3186,
-                "rewardChance": 1
-            },
-            {
-                "name": "Sniper Military Backpack",
-                "itemDefinitionId": 3190,
-                "rewardChance": 2
-            },
-            {
-                "name": "Heavy Assault Body Armor",
-                "itemDefinitionId": 3203,
-                "rewardChance": 2
-            },
-            {
-                "name": "Tech Military Pants",
-                "itemDefinitionId": 3192,
-                "rewardChance": 2
-            },
-            {
-                "name": "Heavy Assault Full Helmet",
-                "itemDefinitionId": 3202,
-                "rewardChance": 2
-            },
-            {
-                "name": "Sniper Backwards Camo Cap",
-                "itemDefinitionId": 3195,
-                "rewardChance": 5
-            },
-            {
-                "name": "Tech Tactical Helmet",
-                "itemDefinitionId": 3188,
-                "rewardChance": 5
-            },
-            {
-                "name": "Heavy Assault Military Pants",
-                "itemDefinitionId": 3206,
-                "rewardChance": 5
-            },
-            {
-                "name": "Tech Tactical Body Armor",
-                "itemDefinitionId": 3196,
-                "rewardChance": 5
-            },
-            {
-                "name": "Heavy Assault Combat Boots",
-                "itemDefinitionId": 3201,
-                "rewardChance": 5
-            },
-            {
-                "name": "Tech Henley Shirt",
-                "itemDefinitionId": 3205,
-                "rewardChance": 5
-            }
-        ]
-    },
-    {
-        "name": "Predator Crate",
-        "itemDefinitionId": 3207,
-        "rewards": [{
-                "name": "Mask of the Jester",
-                "itemDefinitionId": 3377,
-                "rewardChance": 1
-            },
-            {
-                "name": "Predator AR-15",
-                "itemDefinitionId": 3200,
-                "rewardChance": 1
-            },
-            {
-                "name": "Predator .308 Hunting Rifle",
-                "itemDefinitionId": 3193,
-                "rewardChance": 1
-            },
-            {
-                "name": "Predator 12GA Pump Shotgun",
-                "itemDefinitionId": 3186,
-                "rewardChance": 1
-            },
-            {
-                "name": "Sniper Military Backpack",
-                "itemDefinitionId": 3190,
-                "rewardChance": 2
-            },
-            {
-                "name": "Heavy Assault Body Armor",
-                "itemDefinitionId": 3203,
-                "rewardChance": 2
-            },
-            {
-                "name": "Tech Military Pants",
-                "itemDefinitionId": 3192,
-                "rewardChance": 2
-            },
-            {
-                "name": "Heavy Assault Full Helmet",
-                "itemDefinitionId": 3202,
-                "rewardChance": 2
-            },
-            {
-                "name": "Sniper Backwards Camo Cap",
-                "itemDefinitionId": 3195,
-                "rewardChance": 5
-            },
-            {
-                "name": "Tech Tactical Helmet",
-                "itemDefinitionId": 3188,
-                "rewardChance": 5
-            },
-            {
-                "name": "Heavy Assault Military Pants",
-                "itemDefinitionId": 3206,
-                "rewardChance": 5
-            },
-            {
-                "name": "Tech Tactical Body Armor",
-                "itemDefinitionId": 3196,
-                "rewardChance": 5
-            },
-            {
-                "name": "Heavy Assault Combat Boots",
-                "itemDefinitionId": 3201,
-                "rewardChance": 5
-            },
-            {
-                "name": "Tech Henley Shirt",
-                "itemDefinitionId": 3205,
-                "rewardChance": 5
-            },
-            {
-                "name": "Sniper Stealth Shoes",
-                "itemDefinitionId": 3194,
-                "rewardChance": 20
-            },
-            {
-                "name": "Sniper Farmer Jacket",
-                "itemDefinitionId": 3198,
-                "rewardChance": 20
-            },
-            {
-                "name": "Sniper Camo Padded Pants",
-                "itemDefinitionId": 3199,
-                "rewardChance": 20
-            },
-            {
-                "name": "Tech Shemagh",
-                "itemDefinitionId": 3189,
-                "rewardChance": 20
-            },
-            {
-                "name": "Tech Athletic Boots",
-                "itemDefinitionId": 3187,
-                "rewardChance": 20
-            },
-            {
-                "name": "Heavy Assault Polo Shirt",
-                "itemDefinitionId": 3191,
-                "rewardChance": 20
-            },
-            {
-                "name": "Heavy Assault Padded Gloves",
-                "itemDefinitionId": 3204,
-                "rewardChance": 20
-            },
-            {
-                "name": "Tech Fingerless Gloves",
-                "itemDefinitionId": 3197,
-                "rewardChance": 20
-            }
-        ]
-    },
-    {
-        "name": "Bronze EZW Crate",
-        "itemDefinitionId": 3120,
-        "rewards": [{
-                "name": "EZW Spiked Helmet",
-                "itemDefinitionId": 3154,
-                "rewardChance": 1
-            },
-            {
-                "name": "Tiger Blood Shotgun",
-                "itemDefinitionId": 3137,
-                "rewardChance": 1
-            },
-            {
-                "name": "Emote: Power Pose",
-                "itemDefinitionId": 3136,
-                "rewardChance": 1
-            },
-            {
-                "name": "Murica Halftop Shirt",
-                "itemDefinitionId": 3138,
-                "rewardChance": 2
-            },
-            {
-                "name": "Emote: Listen to the Crowd",
-                "itemDefinitionId": 3083,
-                "rewardChance": 2
-            },
-            {
-                "name": "Murica Trunks and Kneepads",
-                "itemDefinitionId": 3152,
-                "rewardChance": 2
-            },
-            {
-                "name": "Agile Tiger Luchador Mask",
-                "itemDefinitionId": 3150,
-                "rewardChance": 2
-            },
-            {
-                "name": "EZW Armored Championship Belt",
-                "itemDefinitionId": 3155,
-                "rewardChance": 2
-            },
-            {
-                "name": "Barbed Wire Wrestling Shoes",
-                "itemDefinitionId": 3142,
-                "rewardChance": 5
-            },
-            {
-                "name": "EZW Armored Shoulderpads",
-                "itemDefinitionId": 3139,
-                "rewardChance": 5
-            },
-            {
-                "name": "Fiery Rage Trunks and Kneepads",
-                "itemDefinitionId": 3151,
-                "rewardChance": 5
-            },
-            {
-                "name": "Fiery Rage Luchador Mask",
-                "itemDefinitionId": 3082,
-                "rewardChance": 5
-            },
-            {
-                "name": "Golden Eagle Padded Gloves",
-                "itemDefinitionId": 3147,
-                "rewardChance": 5
-            },
-            {
-                "name": "Barbed Wire Wrestling Tights",
-                "itemDefinitionId": 3145,
-                "rewardChance": 5
-            }
-        ]
-    },
-    {
-        "name": "EZW Crate",
-        "itemDefinitionId": 3118,
-        "rewards": [{
-                "name": "EZW Spiked Helmet",
-                "itemDefinitionId": 3154,
-                "rewardChance": 1
-            },
-            {
-                "name": "Tiger Blood Shotgun",
-                "itemDefinitionId": 3137,
-                "rewardChance": 1
-            },
-            {
-                "name": "Emote: Power Pose",
-                "itemDefinitionId": 3136,
-                "rewardChance": 1
-            },
-            {
-                "name": "Murica Halftop Shirt",
-                "itemDefinitionId": 3138,
-                "rewardChance": 2
-            },
-            {
-                "name": "Emote: Listen to the Crowd",
-                "itemDefinitionId": 3083,
-                "rewardChance": 2
-            },
-            {
-                "name": "Murica Trunks and Kneepads",
-                "itemDefinitionId": 3152,
-                "rewardChance": 2
-            },
-            {
-                "name": "Agile Tiger Luchador Mask",
-                "itemDefinitionId": 3150,
-                "rewardChance": 2
-            },
-            {
-                "name": "EZW Armored Championship Belt",
-                "itemDefinitionId": 3155,
-                "rewardChance": 2
-            },
-            {
-                "name": "Barbed Wire Wrestling Shoes",
-                "itemDefinitionId": 3142,
-                "rewardChance": 5
-            },
-            {
-                "name": "EZW Armored Shoulderpads",
-                "itemDefinitionId": 3139,
-                "rewardChance": 5
-            },
-            {
-                "name": "Fiery Rage Trunks and Kneepads",
-                "itemDefinitionId": 3151,
-                "rewardChance": 5
-            },
-            {
-                "name": "Fiery Rage Luchador Mask",
-                "itemDefinitionId": 3082,
-                "rewardChance": 5
-            },
-            {
-                "name": "Golden Eagle Padded Gloves",
-                "itemDefinitionId": 3147,
-                "rewardChance": 5
-            },
-            {
-                "name": "Barbed Wire Wrestling Tights",
-                "itemDefinitionId": 3145,
-                "rewardChance": 5
-            },
-            {
-                "name": "Macho Dude Halftop Shirt",
-                "itemDefinitionId": 3149,
-                "rewardChance": 20
-            },
-            {
-                "name": "Contender Wrestling Tights",
-                "itemDefinitionId": 3143,
-                "rewardChance": 20
-            },
-            {
-                "name": "Snakeskin Wrestling Tights",
-                "itemDefinitionId": 3144,
-                "rewardChance": 20
-            },
-            {
-                "name": "Contender Luchador Mask",
-                "itemDefinitionId": 3081,
-                "rewardChance": 20
-            },
-            {
-                "name": "Pink Zebra Cowboy Hat",
-                "itemDefinitionId": 3153,
-                "rewardChance": 20
-            },
-            {
-                "name": "Contender Padded Gloves",
-                "itemDefinitionId": 3146,
-                "rewardChance": 20
-            },
-            {
-                "name": "EZW World Tour T-Shirt",
-                "itemDefinitionId": 3148,
-                "rewardChance": 20
-            },
-            {
-                "name": "Purple Zebra Wrestling Shoes",
-                "itemDefinitionId": 3140,
-                "rewardChance": 20
-            }
-        ]
-    },
-    {
-        "name": "Silver EZW Crate",
-        "itemDefinitionId": 3121,
-        "rewards": [{
-                "name": "EZW Spiked Helmet",
-                "itemDefinitionId": 3154,
-                "rewardChance": 1
-            },
-            {
-                "name": "Tiger Blood Shotgun",
-                "itemDefinitionId": 3137,
-                "rewardChance": 1
-            },
-            {
-                "name": "Emote: Power Pose",
-                "itemDefinitionId": 3136,
-                "rewardChance": 1
-            },
-            {
-                "name": "Murica Halftop Shirt",
-                "itemDefinitionId": 3138,
-                "rewardChance": 2
-            },
-            {
-                "name": "Emote: Listen to the Crowd",
-                "itemDefinitionId": 3083,
-                "rewardChance": 2
-            },
-            {
-                "name": "Murica Trunks and Kneepads",
-                "itemDefinitionId": 3152,
-                "rewardChance": 2
-            },
-            {
-                "name": "Agile Tiger Luchador Mask",
-                "itemDefinitionId": 3150,
-                "rewardChance": 2
-            },
-            {
-                "name": "EZW Armored Championship Belt",
-                "itemDefinitionId": 3155,
-                "rewardChance": 2
-            }
-        ]
-    },
-    {
-        "name": "Gold EZW Crate",
-        "itemDefinitionId": 3122,
-        "rewards": [{
-                "name": "EZW Spiked Helmet",
-                "itemDefinitionId": 3154,
-                "rewardChance": 1
-            },
-            {
-                "name": "Tiger Blood Shotgun",
-                "itemDefinitionId": 3137,
-                "rewardChance": 1
-            },
-            {
-                "name": "Emote: Power Pose",
-                "itemDefinitionId": 3136,
-                "rewardChance": 1
-            }
-        ]
-    },
-    {
-        "name": "Renegade Crate",
-        "itemDefinitionId": 2836,
-        "rewards": [{
-                "name": "Lightning AR-15",
-                "itemDefinitionId": 2841,
-                "rewardChance": 1
-            },
-            {
-                "name": "Anodized AR-15",
-                "itemDefinitionId": 2851,
-                "rewardChance": 1
-            },
-            {
-                "name": "Hockey Mask",
-                "itemDefinitionId": 2873,
-                "rewardChance": 2
-            },
-            {
-                "name": "Dead End Armor",
-                "itemDefinitionId": 2861,
-                "rewardChance": 2
-            },
-            {
-                "name": "Dragon Motorcycle Helmet",
-                "itemDefinitionId": 2840,
-                "rewardChance": 2
-            },
-            {
-                "name": "Velvet Suit Jacket",
-                "itemDefinitionId": 2847,
-                "rewardChance": 2
-            },
-            {
-                "name": "Fatale Leggings",
-                "itemDefinitionId": 2854,
-                "rewardChance": 5
-            },
-            {
-                "name": "Pinstripe Suit Jacket",
-                "itemDefinitionId": 2849,
-                "rewardChance": 5
-            },
-            {
-                "name": "Eagle Tactical Helmet",
-                "itemDefinitionId": 2850,
-                "rewardChance": 5
-            },
-            {
-                "name": "Gray and Red Armor",
-                "itemDefinitionId": 2867,
-                "rewardChance": 5
-            },
-            {
-                "name": "Graffiti Hoodie",
-                "itemDefinitionId": 2882,
-                "rewardChance": 5
-            },
-            {
-                "name": "Red Star Armor",
-                "itemDefinitionId": 2868,
-                "rewardChance": 5
-            },
-            {
-                "name": "Rasta Motorcycle Helmet",
-                "itemDefinitionId": 2856,
-                "rewardChance": 20
-            },
-            {
-                "name": "Pinstripe Slacks",
-                "itemDefinitionId": 2846,
-                "rewardChance": 20
-            },
-            {
-                "name": "Velvet Slacks",
-                "itemDefinitionId": 2843,
-                "rewardChance": 20
-            },
-            {
-                "name": "Eagle Hockey Mask",
-                "itemDefinitionId": 2876,
-                "rewardChance": 20
-            },
-            {
-                "name": "Purple Boots",
-                "itemDefinitionId": 2857,
-                "rewardChance": 20
-            },
-            {
-                "name": "Pixel Hoodie",
-                "itemDefinitionId": 2886,
-                "rewardChance": 20
-            },
-            {
-                "name": "Skull Hoodie",
-                "itemDefinitionId": 2883,
-                "rewardChance": 20
-            },
-            {
-                "name": "Skull Leggings",
-                "itemDefinitionId": 2855,
-                "rewardChance": 20
-            }
-        ]
-    },
-    
-    {
-        "name": "Bronze Renegade Crate",
-        "itemDefinitionId": 2891,
-        "rewards": [{
-                "name": "Lightning AR-15",
-                "itemDefinitionId": 2841,
-                "rewardChance": 1
-            },
-            {
-                "name": "Anodized AR-15",
-                "itemDefinitionId": 2851,
-                "rewardChance": 1
-            },
-            {
-                "name": "Hockey Mask",
-                "itemDefinitionId": 2873,
-                "rewardChance": 2
-            },
-            {
-                "name": "Dead End Armor",
-                "itemDefinitionId": 2861,
-                "rewardChance": 2
-            },
-            {
-                "name": "Dragon Motorcycle Helmet",
-                "itemDefinitionId": 2840,
-                "rewardChance": 2
-            },
-            {
-                "name": "Velvet Suit Jacket",
-                "itemDefinitionId": 2847,
-                "rewardChance": 2
-            },
-            {
-                "name": "Fatale Leggings",
-                "itemDefinitionId": 2854,
-                "rewardChance": 5
-            },
-            {
-                "name": "Pinstripe Suit Jacket",
-                "itemDefinitionId": 2849,
-                "rewardChance": 5
-            },
-            {
-                "name": "Eagle Tactical Helmet",
-                "itemDefinitionId": 2850,
-                "rewardChance": 5
-            },
-            {
-                "name": "Gray and Red Armor",
-                "itemDefinitionId": 2867,
-                "rewardChance": 5
-            },
-            {
-                "name": "Graffiti Hoodie",
-                "itemDefinitionId": 2882,
-                "rewardChance": 5
-            },
-            {
-                "name": "Red Star Armor",
-                "itemDefinitionId": 2868,
-                "rewardChance": 5
-            }
-        ]
-    },
-    {
-        "name": "Silver Renegade Crate",
-        "itemDefinitionId": 2892,
-        "rewards": [{
-                "name": "Lightning AR-15",
-                "itemDefinitionId": 2841,
-                "rewardChance": 1
-            },
-            {
-                "name": "Anodized AR-15",
-                "itemDefinitionId": 2851,
-                "rewardChance": 1
-            },
-            {
-                "name": "Hockey Mask",
-                "itemDefinitionId": 2873,
-                "rewardChance": 2
-            },
-            {
-                "name": "Dead End Armor",
-                "itemDefinitionId": 2861,
-                "rewardChance": 2
-            },
-            {
-                "name": "Dragon Motorcycle Helmet",
-                "itemDefinitionId": 2840,
-                "rewardChance": 2
-            },
-            {
-                "name": "Velvet Suit Jacket",
-                "itemDefinitionId": 2847,
-                "rewardChance": 2
-            }
-        ]
-    },
-    {
-        "name": "Gold Renegade Crate",
-        "itemDefinitionId": 2893,
-        "rewards": [{
-                "name": "Lightning AR-15",
-                "itemDefinitionId": 2841,
-                "rewardChance": 1
-            },
-            {
-                "name": "Anodized AR-15",
-                "itemDefinitionId": 2851,
-                "rewardChance": 1
-            }
-        ]
-    },
-    {
-        "name": "Wasteland Crate",
-        "itemDefinitionId": 2939,
-        "rewards": [{
-                "name": "Wasteland Skull Helmet",
-                "itemDefinitionId": 3065,
-                "rewardChance": 1
-            },
-            {
-                "name": "Rainbow Swirl AK-47",
-                "itemDefinitionId": 3058,
-                "rewardChance": 1
-            },
-            {
-                "name": "Graffiti Sniper Rifle",
-                "itemDefinitionId": 2940,
-                "rewardChance": 1
-            },
-            {
-                "name": "Dragon Lodge Parka",
-                "itemDefinitionId": 3038,
-                "rewardChance": 2
-            },
-            {
-                "name": "Copper Steampunk Goggles",
-                "itemDefinitionId": 2960,
-                "rewardChance": 2
-            },
-            {
-                "name": "Skull Padded Pants",
-                "itemDefinitionId": 2917,
-                "rewardChance": 2
-            },
-            {
-                "name": "Rainbow Swirl Helmet",
-                "itemDefinitionId": 3077,
-                "rewardChance": 2
-            },
-            {
-                "name": "Snow Camo Parka",
-                "itemDefinitionId": 3036,
-                "rewardChance": 5
-            },
-            {
-                "name": "Rusted Metal Armor",
-                "itemDefinitionId": 2976,
-                "rewardChance": 5
-            },
-            {
-                "name": "Pink Skulls Survivor Backpack",
-                "itemDefinitionId": 3052,
-                "rewardChance": 5
-            },
-            {
-                "name": "Flaming Skull Face Bandana",
-                "itemDefinitionId": 2931,
-                "rewardChance": 5
-            },
-            {
-                "name": "Silver Padded Pants",
-                "itemDefinitionId": 2918,
-                "rewardChance": 5
-            },
-            {
-                "name": "Yellow Raincoat Parka",
-                "itemDefinitionId": 3035,
-                "rewardChance": 5
-            },
-            {
-                "name": "Leather Jacket",
-                "itemDefinitionId": 2946,
-                "rewardChance": 20
-            },
-            {
-                "name": "Patriotic Boots",
-                "itemDefinitionId": 3063,
-                "rewardChance": 20
-            },
-            {
-                "name": "Camo Survivor Backpack",
-                "itemDefinitionId": 3051,
-                "rewardChance": 20
-            },
-            {
-                "name": "Digital Camo Padded Pants",
-                "itemDefinitionId": 2920,
-                "rewardChance": 20
-            },
-            {
-                "name": "Green Camo Armor",
-                "itemDefinitionId": 2974,
-                "rewardChance": 20
-            },
-            {
-                "name": "Gold Padded Pants",
-                "itemDefinitionId": 2916,
-                "rewardChance": 20
-            },
-            {
-                "name": "Dusty Steampunk Goggles",
-                "itemDefinitionId": 2955,
-                "rewardChance": 20
-            },
-            {
-                "name": "Headshot Hockey Mask",
-                "itemDefinitionId": 2874,
-                "rewardChance": 20
-            }
-        ]
-    },
-    {
-        "name": "Bronze Wasteland Crate",
-        "itemDefinitionId": 3026,
-        "rewards": [{
-                "name": "Wasteland Skull Helmet",
-                "itemDefinitionId": 3065,
-                "rewardChance": 1
-            },
-            {
-                "name": "Rainbow Swirl AK-47",
-                "itemDefinitionId": 3058,
-                "rewardChance": 1
-            },
-            {
-                "name": "Graffiti Sniper Rifle",
-                "itemDefinitionId": 2940,
-                "rewardChance": 1
-            },
-            {
-                "name": "Dragon Lodge Parka",
-                "itemDefinitionId": 3038,
-                "rewardChance": 2
-            },
-            {
-                "name": "Copper Steampunk Goggles",
-                "itemDefinitionId": 2960,
-                "rewardChance": 2
-            },
-            {
-                "name": "Skull Padded Pants",
-                "itemDefinitionId": 2917,
-                "rewardChance": 2
-            },
-            {
-                "name": "Rainbow Swirl Helmet",
-                "itemDefinitionId": 3077,
-                "rewardChance": 2
-            },
-            {
-                "name": "Snow Camo Parka",
-                "itemDefinitionId": 3036,
-                "rewardChance": 5
-            },
-            {
-                "name": "Rusted Metal Armor",
-                "itemDefinitionId": 2976,
-                "rewardChance": 5
-            },
-            {
-                "name": "Pink Skulls Survivor Backpack",
-                "itemDefinitionId": 3052,
-                "rewardChance": 5
-            },
-            {
-                "name": "Flaming Skull Face Bandana",
-                "itemDefinitionId": 2931,
-                "rewardChance": 5
-            },
-            {
-                "name": "Silver Padded Pants",
-                "itemDefinitionId": 2918,
-                "rewardChance": 5
-            },
-            {
-                "name": "Yellow Raincoat Parka",
-                "itemDefinitionId": 3035,
-                "rewardChance": 5
-            }
-        ]
-    },
-    {
-        "name": "Silver Wasteland Crate",
-        "itemDefinitionId": 3027,
-        "rewards": [{
-                "name": "Wasteland Skull Helmet",
-                "itemDefinitionId": 3065,
-                "rewardChance": 1
-            },
-            {
-                "name": "Rainbow Swirl AK-47",
-                "itemDefinitionId": 3058,
-                "rewardChance": 1
-            },
-            {
-                "name": "Graffiti Sniper Rifle",
-                "itemDefinitionId": 2940,
-                "rewardChance": 1
-            },
-            {
-                "name": "Dragon Lodge Parka",
-                "itemDefinitionId": 3038,
-                "rewardChance": 2
-            },
-            {
-                "name": "Copper Steampunk Goggles",
-                "itemDefinitionId": 2960,
-                "rewardChance": 2
-            },
-            {
-                "name": "Skull Padded Pants",
-                "itemDefinitionId": 2917,
-                "rewardChance": 2
-            },
-            {
-                "name": "Rainbow Swirl Helmet",
-                "itemDefinitionId": 3077,
-                "rewardChance": 2
-            }
-        ]
-    },
-    {
-        "name": "Gold Wasteland Crate",
-        "itemDefinitionId": 3028,
-        "rewards": [{
-                "name": "Wasteland Skull Helmet",
-                "itemDefinitionId": 3065,
-                "rewardChance": 1
-            },
-            {
-                "name": "Rainbow Swirl AK-47",
-                "itemDefinitionId": 3058,
-                "rewardChance": 1
-            },
-            {
-                "name": "Graffiti Sniper Rifle",
-                "itemDefinitionId": 2940,
-                "rewardChance": 1
-            }
-        ]
-    },
-    {
-        "name": "Battle Royale Wearables Crate",
-        "itemDefinitionId": 2031,
-        "rewards": [{
-                "name": "Emote: We're Not Worthy",
-                "itemDefinitionId": 2008,
-                "rewardChance": 1
-            },
-            {
-                "name": "Emote: Sarcasm Dance",
-                "itemDefinitionId": 2005,
-                "rewardChance": 1
-            },
-            {
-                "name": "Emote: Pelvic Thrust",
-                "itemDefinitionId": 2004,
-                "rewardChance": 1
-            },
-            {
-                "name": "Emote: Crotch Chop",
-                "itemDefinitionId": 2001,
-                "rewardChance": 1
-            },
-            {
-                "name": "Emote: Screw You",
-                "itemDefinitionId": 2006,
-                "rewardChance": 1
-            },
-            {
-                "name": "Emote: Shimmy Dance",
-                "itemDefinitionId": 2007,
-                "rewardChance": 1
-            },
-            {
-                "name": "Emote: Booty Slap",
-                "itemDefinitionId": 2000,
-                "rewardChance": 1
-            },
-            {
-                "name": "Emote: Cry Baby",
-                "itemDefinitionId": 2002,
-                "rewardChance": 1
-            },
-            {
-                "name": "Emote: Bird Cannon",
-                "itemDefinitionId": 1999,
-                "rewardChance": 1
-            },
-            {
-                "name": "Emote: Grind",
-                "itemDefinitionId": 2003,
-                "rewardChance": 1
-            },
-            {
-                "name": "PV Police Dept. T-Shirt",
-                "itemDefinitionId": 1925,
-                "rewardChance": 2
-            },
-            {
-                "name": "Blue Camo Tactical Helmet w/Goggles",
-                "itemDefinitionId": 1944,
-                "rewardChance": 2
-            },
-            {
-                "name": "Eagle Flannel Vest",
-                "itemDefinitionId": 2025,
-                "rewardChance": 5
-            },
-            {
-                "name": "Zimms Yellow Racing Helmet",
-                "itemDefinitionId": 2016,
-                "rewardChance": 5
-            },
-            {
-                "name": "Beige Golf Pants",
-                "itemDefinitionId": 1938,
-                "rewardChance": 5
-            },
-            {
-                "name": "Camo Green Outback Hat",
-                "itemDefinitionId": 2020,
-                "rewardChance": 20
-            },
-            {
-                "name": "White Striped Motorcycle Helmet",
-                "itemDefinitionId": 2015,
-                "rewardChance": 20
-            },
-            {
-                "name": "Greasy Joes T-Shirt",
-                "itemDefinitionId": 1922,
-                "rewardChance": 20
-            },
-            {
-                "name": "Long Johnston T-Shirt",
-                "itemDefinitionId": 1929,
-                "rewardChance": 20
-            },
-            {
-                "name": "Blue and Orange Backpack",
-                "itemDefinitionId": 2022,
-                "rewardChance": 20
-            },
-            {
-                "name": "Tan Cowboy Hat",
-                "itemDefinitionId": 1932,
-                "rewardChance": 20
-            },
-            {
-                "name": "Leather Flannel Vest",
-                "itemDefinitionId": 2024,
-                "rewardChance": 20
-            },
-            {
-                "name": "Blue Racing Helmet",
-                "itemDefinitionId": 2013,
-                "rewardChance": 20
-            }
-        ]
-    },
-    {
-        "name": "Battle Royale Wearables Crate",
-        "itemDefinitionId": 2350,
-        "rewards": [{
-                "name": "Cigar Hog Mask",
-                "itemDefinitionId": 2395,
-                "rewardChance": 1
-            },
-            {
-                "name": "Brown Camo Ski Mask",
-                "itemDefinitionId": 2390,
-                "rewardChance": 1
-            },
-            {
-                "name": "Happy Target Ski Mask",
-                "itemDefinitionId": 2387,
-                "rewardChance": 1
-            },
-            {
-                "name": "Paisley Ski Mask",
-                "itemDefinitionId": 2391,
-                "rewardChance": 1
-            },
-            {
-                "name": "Hunter's Ski Mask",
-                "itemDefinitionId": 2392,
-                "rewardChance": 1
-            },
-            {
-                "name": "Blue Camo Ski Mask",
-                "itemDefinitionId": 2389,
-                "rewardChance": 1
-            },
-            {
-                "name": "Snowy Ski Mask ",
-                "itemDefinitionId": 2388,
-                "rewardChance": 1
-            },
-            {
-                "name": "Rasta Backpack",
-                "itemDefinitionId": 2394,
-                "rewardChance": 2
-            },
-            {
-                "name": "Police Shirt",
-                "itemDefinitionId": 2345,
-                "rewardChance": 2
-            },
-            {
-                "name": "Black and Orange Athletic Hoodie",
-                "itemDefinitionId": 2369,
-                "rewardChance": 2
-            },
-            {
-                "name": "Anarchy Leather Pants",
-                "itemDefinitionId": 2413,
-                "rewardChance": 5
-            },
-            {
-                "name": "Muscle Leggings",
-                "itemDefinitionId": 2361,
-                "rewardChance": 5
-            },
-            {
-                "name": "Stars and Stripes Shorts",
-                "itemDefinitionId": 2402,
-                "rewardChance": 5
-            },
-            {
-                "name": "Police Hat",
-                "itemDefinitionId": 2343,
-                "rewardChance": 5
-            },
-            {
-                "name": "Fanged Gloves",
-                "itemDefinitionId": 2417,
-                "rewardChance": 20
-            },
-            {
-                "name": "Police Slacks",
-                "itemDefinitionId": 2348,
-                "rewardChance": 20
-            },
-            {
-                "name": "Aqua Paisley Shorts",
-                "itemDefinitionId": 2403,
-                "rewardChance": 20
-            },
-            {
-                "name": "Guns Out Tanktop",
-                "itemDefinitionId": 2407,
-                "rewardChance": 20
-            },
-            {
-                "name": "Bone Leggings",
-                "itemDefinitionId": 2362,
-                "rewardChance": 20
-            },
-            {
-                "name": "D.O.A. Hoodie",
-                "itemDefinitionId": 2371,
-                "rewardChance": 20
-            },
-            {
-                "name": "Dragon Conveys",
-                "itemDefinitionId": 2397,
-                "rewardChance": 20
-            },
-            {
-                "name": "Flaming Skull Tanktop",
-                "itemDefinitionId": 2406,
-                "rewardChance": 20
-            }
-        ]
-    },
-    {
-        "name": "H1Z1 Invitational Crate",
-        "itemDefinitionId": 2436,
-        "rewards": [{
-                "name": "Toxic AK-47",
-                "itemDefinitionId": 2479,
-                "rewardChance": 1
-            },
-            {
-                "name": "Toxic Body Armor",
-                "itemDefinitionId": 2478,
-                "rewardChance": 1
-            },
-            {
-                "name": "Toxic Shotgun",
-                "itemDefinitionId": 2447,
-                "rewardChance": 1
-            },
-            {
-                "name": "Emote: Pelvic Barrage",
-                "itemDefinitionId": 2440,
-                "rewardChance": 2
-            },
-            {
-                "name": "Twitch Hoodie",
-                "itemDefinitionId": 2370,
-                "rewardChance": 2
-            },
-            {
-                "name": "Toxic Boonie Hat",
-                "itemDefinitionId": 2485,
-                "rewardChance": 2
-            },
-            {
-                "name": "Toxic Mask",
-                "itemDefinitionId": 2443,
-                "rewardChance": 2
-            },
-            {
-                "name": "Toxic Combat Knife",
-                "itemDefinitionId": 2495,
-                "rewardChance": 2
-            },
-            {
-                "name": "Emote: Fisticuffs",
-                "itemDefinitionId": 2439,
-                "rewardChance": 5
-            },
-            {
-                "name": "Emote: Beg",
-                "itemDefinitionId": 2438,
-                "rewardChance": 5
-            },
-            {
-                "name": "Emote: Flex",
-                "itemDefinitionId": 2441,
-                "rewardChance": 5
-            },
-            {
-                "name": "Pro Gamer Hoodie",
-                "itemDefinitionId": 2372,
-                "rewardChance": 5
-            },
-            {
-                "name": "Toxic Gloves",
-                "itemDefinitionId": 2448,
-                "rewardChance": 5
-            },
-            {
-                "name": "CohhCarnage T-Shirt",
-                "itemDefinitionId": 2450,
-                "rewardChance": 20
-            },
-            {
-                "name": "Curvyllama T-Shirt",
-                "itemDefinitionId": 2451,
-                "rewardChance": 20
-            },
-            {
-                "name": "dasMEHDI T-Shirt",
-                "itemDefinitionId": 2452,
-                "rewardChance": 20
-            },
-            {
-                "name": "OMGitsfirefoxx T-Shirt",
-                "itemDefinitionId": 2457,
-                "rewardChance": 20
-            },
-            {
-                "name": "GoldGlove T-Shirt",
-                "itemDefinitionId": 2453,
-                "rewardChance": 20
-            },
-            {
-                "name": "Grimmybear T-Shirt",
-                "itemDefinitionId": 2454,
-                "rewardChance": 20
-            },
-            {
-                "name": "ITMEJP T-Shirt",
-                "itemDefinitionId": 2455,
-                "rewardChance": 20
-            },
-            {
-                "name": "Lowco2525 T-Shirt",
-                "itemDefinitionId": 2456,
-                "rewardChance": 20
-            },
-            {
-                "name": "Lirik T-Shirt",
-                "itemDefinitionId": 2492,
-                "rewardChance": 20
-            },
-            {
-                "name": "OPscT T-Shirt",
-                "itemDefinitionId": 2458,
-                "rewardChance": 20
-            },
-            {
-                "name": "rhinoCRUNCH T-Shirt",
-                "itemDefinitionId": 2459,
-                "rewardChance": 20
-            },
-            {
-                "name": "SeriousGaming T-Shirt",
-                "itemDefinitionId": 2460,
-                "rewardChance": 20
-            },
-            {
-                "name": "Summit1g T-Shirt",
-                "itemDefinitionId": 2461,
-                "rewardChance": 20
-            },
-            {
-                "name": "Towelliee T-Shirt",
-                "itemDefinitionId": 2462,
-                "rewardChance": 20
-            },
-            {
-                "name": "CDNThe3rd T-Shirt",
-                "itemDefinitionId": 2481,
-                "rewardChance": 20
-            },
-            {
-                "name": "iiJeriichoii T-Shirt",
-                "itemDefinitionId": 2490,
-                "rewardChance": 20
-            },
-            {
-                "name": "LegendaryLea T-Shirt",
-                "itemDefinitionId": 2491,
-                "rewardChance": 20
-            },
-            {
-                "name": "SodaPoppin T-Shirt",
-                "itemDefinitionId": 2493,
-                "rewardChance": 20
-            },
-            {
-                "name": "Sxyhxy T-Shirt",
-                "itemDefinitionId": 2449,
-                "rewardChance": 20
-            }
-        ]
-    },
-    {
-        "name": "H1Z1 Wearables Crate",
-        "itemDefinitionId": 2009,
-        "rewards": [{
-                "name": "Emote: Cry Baby",
-                "itemDefinitionId": 2002,
-                "rewardChance": 1
-            },
-            {
-                "name": "Emote: Shimmy Dance",
-                "itemDefinitionId": 2007,
-                "rewardChance": 1
-            },
-            {
-                "name": "Emote: Booty Slap",
-                "itemDefinitionId": 2000,
-                "rewardChance": 1
-            },
-            {
-                "name": "Emote: Crotch Chop",
-                "itemDefinitionId": 2001,
-                "rewardChance": 1
-            },
-            {
-                "name": "Emote: Grind",
-                "itemDefinitionId": 2003,
-                "rewardChance": 1
-            },
-            {
-                "name": "Emote: We're Not Worthy",
-                "itemDefinitionId": 2008,
-                "rewardChance": 1
-            },
-            {
-                "name": "Emote: Pelvic Thrust",
-                "itemDefinitionId": 2004,
-                "rewardChance": 1
-            },
-            {
-                "name": "Emote: Sarcasm Dance",
-                "itemDefinitionId": 2005,
-                "rewardChance": 1
-            },
-            {
-                "name": "Emote: Screw You",
-                "itemDefinitionId": 2006,
-                "rewardChance": 1
-            },
-            {
-                "name": "Bird Cannon",
-                "itemDefinitionId": 1999,
-                "rewardChance": 1
-            },
-            {
-                "name": "Patriotic Motorcycle Helmet",
-                "itemDefinitionId": 1977,
-                "rewardChance": 2
-            },
-            {
-                "name": "Animal Hide Framed Backpack",
-                "itemDefinitionId": 1994,
-                "rewardChance": 2
-            },
-            {
-                "name": "PV Fire Dept. T-Shirt",
-                "itemDefinitionId": 1924,
-                "rewardChance": 5
-            },
-            {
-                "name": "Blue Sports Pants",
-                "itemDefinitionId": 1939,
-                "rewardChance": 5
-            },
-            {
-                "name": "Zimms Red Racing Helmet",
-                "itemDefinitionId": 1978,
-                "rewardChance": 5
-            },
-            {
-                "name": "Dirty Deeds T-Shirt",
-                "itemDefinitionId": 1923,
-                "rewardChance": 20
-            },
-            {
-                "name": "Blue Aloha Polo",
-                "itemDefinitionId": 1941,
-                "rewardChance": 20
-            },
-            {
-                "name": "Brown Cowboy Hat",
-                "itemDefinitionId": 1934,
-                "rewardChance": 20
-            },
-            {
-                "name": "Gray and Yellow Backpack",
-                "itemDefinitionId": 1976,
-                "rewardChance": 20
-            },
-            {
-                "name": "Red Aloha Polo",
-                "itemDefinitionId": 1972,
-                "rewardChance": 20
-            },
-            {
-                "name": "Royoline Polo",
-                "itemDefinitionId": 1943,
-                "rewardChance": 20
-            },
-            {
-                "name": "Green and White Racing Helmet",
-                "itemDefinitionId": 1980,
-                "rewardChance": 20
-            },
-            {
-                "name": "Leather Satchel",
-                "itemDefinitionId": 2011,
-                "rewardChance": 20
-            }
-        ]
-    },
-    {
-        "name": "Marauder Crate",
-        "itemDefinitionId": 2276,
-        "rewards": [{
-                "name": "Red Face Bandana & Biker Shades",
-                "itemDefinitionId": 2326,
-                "rewardChance": 1
-            },
-            {
-                "name": "All American Face Bandana & White Biker Shades",
-                "itemDefinitionId": 2330,
-                "rewardChance": 1
-            },
-            {
-                "name": "Pink Face Bandana & Biker Shades",
-                "itemDefinitionId": 2331,
-                "rewardChance": 1
-            },
-            {
-                "name": "Blue Face Bandana & Biker Shades",
-                "itemDefinitionId": 2328,
-                "rewardChance": 1
-            },
-            {
-                "name": "Evil Clown Bandana & Glasses",
-                "itemDefinitionId": 2327,
-                "rewardChance": 1
-            },
-            {
-                "name": "Skull Face Bandana & Black Biker Shades",
-                "itemDefinitionId": 2332,
-                "rewardChance": 1
-            },
-            {
-                "name": "Camo Face Bandana & Green Biker Shades",
-                "itemDefinitionId": 2329,
-                "rewardChance": 1
-            },
-            {
-                "name": "Police Body Armor",
-                "itemDefinitionId": 2275,
-                "rewardChance": 2
-            },
-            {
-                "name": "Skull Full Face Respirator",
-                "itemDefinitionId": 2320,
-                "rewardChance": 2
-            },
-            {
-                "name": "All American Fingerless Gloves",
-                "itemDefinitionId": 2315,
-                "rewardChance": 2
-            },
-            {
-                "name": "Flower Print Pants",
-                "itemDefinitionId": 2311,
-                "rewardChance": 5
-            },
-            {
-                "name": "Metal Full Face Respirator",
-                "itemDefinitionId": 2322,
-                "rewardChance": 5
-            },
-            {
-                "name": "Camo Tactical Helmet",
-                "itemDefinitionId": 2321,
-                "rewardChance": 5
-            },
-            {
-                "name": "Rancho Taquito Doomed Jacket",
-                "itemDefinitionId": 2318,
-                "rewardChance": 5
-            },
-            {
-                "name": "Hunting Polo",
-                "itemDefinitionId": 2319,
-                "rewardChance": 20
-            },
-            {
-                "name": "Cheetah Camo Boots",
-                "itemDefinitionId": 2313,
-                "rewardChance": 20
-            },
-            {
-                "name": "Green Splatter Boots",
-                "itemDefinitionId": 2312,
-                "rewardChance": 20
-            },
-            {
-                "name": "Flame Cargo Pants",
-                "itemDefinitionId": 2310,
-                "rewardChance": 20
-            },
-            {
-                "name": "Digital Camo Pants",
-                "itemDefinitionId": 2309,
-                "rewardChance": 20
-            },
-            {
-                "name": "Red and Black Fingerless Gloves",
-                "itemDefinitionId": 2314,
-                "rewardChance": 20
-            },
-            {
-                "name": "Racing Jacket",
-                "itemDefinitionId": 2317,
-                "rewardChance": 20
-            },
-            {
-                "name": "Farmer's Jacket",
-                "itemDefinitionId": 2316,
-                "rewardChance": 20
-            }
-        ]
-    },
-    {
-        "name": "Mercenary Crate",
-        "itemDefinitionId": 2432,
-        "rewards": [{
-                "name": "Mercenary AR-15",
-                "itemDefinitionId": 2673,
-                "rewardChance": 1
-            },
-            {
-                "name": "Combat Riot Shotgun",
-                "itemDefinitionId": 2587,
-                "rewardChance": 1
-            },
-            {
-                "name": "Patriotic AR-15",
-                "itemDefinitionId": 2672,
-                "rewardChance": 1
-            },
-            {
-                "name": "Camo Body Armor",
-                "itemDefinitionId": 2543,
-                "rewardChance": 2
-            },
-            {
-                "name": "Pink Skull Body Armor",
-                "itemDefinitionId": 2542,
-                "rewardChance": 2
-            },
-            {
-                "name": "Crosshair Eyepatch",
-                "itemDefinitionId": 2584,
-                "rewardChance": 2
-            },
-            {
-                "name": "Woodland Ghillie Suit",
-                "itemDefinitionId": 2674,
-                "rewardChance": 2
-            },
-            {
-                "name": "Red Star Eyepatch",
-                "itemDefinitionId": 2578,
-                "rewardChance": 5
-            },
-            {
-                "name": "Floral Boonie Hat",
-                "itemDefinitionId": 2540,
-                "rewardChance": 5
-            },
-            {
-                "name": "Anchor Boonie Hat",
-                "itemDefinitionId": 2537,
-                "rewardChance": 5
-            },
-            {
-                "name": "Camo Eyepatch",
-                "itemDefinitionId": 2581,
-                "rewardChance": 5
-            },
-            {
-                "name": "Khaki Body Armor",
-                "itemDefinitionId": 2544,
-                "rewardChance": 5
-            },
-            {
-                "name": "Red Tessellated Shemagh",
-                "itemDefinitionId": 2698,
-                "rewardChance": 5
-            },
-            {
-                "name": "Brown Digital Camo Shemagh",
-                "itemDefinitionId": 2682,
-                "rewardChance": 5
-            },
-            {
-                "name": "Green Digital Camo Shemagh",
-                "itemDefinitionId": 2692,
-                "rewardChance": 5
-            },
-            {
-                "name": "Camo Shemagh",
-                "itemDefinitionId": 2695,
-                "rewardChance": 5
-            },
-            {
-                "name": "Mercenary Tanktop",
-                "itemDefinitionId": 2590,
-                "rewardChance": 5
-            },
-            {
-                "name": "Snakeskin Eyepatch",
-                "itemDefinitionId": 2579,
-                "rewardChance": 20
-            },
-            {
-                "name": "Khaki Boonie Hat",
-                "itemDefinitionId": 2539,
-                "rewardChance": 20
-            },
-            {
-                "name": "Snakeskin Boonie Hat",
-                "itemDefinitionId": 2541,
-                "rewardChance": 20
-            },
-            {
-                "name": "Beige Eyepatch",
-                "itemDefinitionId": 2580,
-                "rewardChance": 20
-            },
-            {
-                "name": "Tan Ghillie Suit Boots & Gloves",
-                "itemDefinitionId": 2724,
-                "rewardChance": 20
-            },
-            {
-                "name": "Copper Eyepatch",
-                "itemDefinitionId": 2582,
-                "rewardChance": 20
-            },
-            {
-                "name": "Camo Tanktop",
-                "itemDefinitionId": 2591,
-                "rewardChance": 20
-            },
-            {
-                "name": "Woodland Ghillie Suit Boots & Gloves",
-                "itemDefinitionId": 2725,
-                "rewardChance": 20
-            },
-            {
-                "name": "Blue Shemagh",
-                "itemDefinitionId": 2693,
-                "rewardChance": 20
-            },
-            {
-                "name": "Red Shemagh",
-                "itemDefinitionId": 2697,
-                "rewardChance": 20
-            },
-            {
-                "name": "Camo Boonie Hat",
-                "itemDefinitionId": 2538,
-                "rewardChance": 20
-            }
-        ]
-    },
-    {
-        "name": "Ronin Crate",
-        "itemDefinitionId": 3501,
-        "rewards": [{
-                "name": "Irezumi Dragon AR-15",
-                "itemDefinitionId": 3476,
-                "rewardChance": 1
-            },
-            {
-                "name": "Neko-chan Riot Shotgun",
-                "itemDefinitionId": 3478,
-                "rewardChance": 1
-            },
-            {
-                "name": "Heavy Assault Skull Mask",
-                "itemDefinitionId": 3492,
-                "rewardChance": 1
-            },
-            {
-                "name": "Kuromu Dragon M9",
-                "itemDefinitionId": 3419,
-                "rewardChance": 2
-            },
-            {
-                "name": "Neko-chan Hoodie",
-                "itemDefinitionId": 3423,
-                "rewardChance": 2
-            },
-            {
-                "name": "Kitsune Plated Full Helmet",
-                "itemDefinitionId": 3427,
-                "rewardChance": 2
-            },
-            {
-                "name": "Heavy Assault .44 Magnum",
-                "itemDefinitionId": 3496,
-                "rewardChance": 2
-            },
-            {
-                "name": "Neko-chan R380",
-                "itemDefinitionId": 3490,
-                "rewardChance": 5
-            },
-            {
-                "name": "Heavy Assault Military Backpack",
-                "itemDefinitionId": 3421,
-                "rewardChance": 5
-            },
-            {
-                "name": "Sniper Laminated Body Armor",
-                "itemDefinitionId": 3484,
-                "rewardChance": 5
-            },
-            {
-                "name": "Kitsune Tactical Body Armor",
-                "itemDefinitionId": 3431,
-                "rewardChance": 5
-            },
-            {
-                "name": "Kitsune Infiltration Shoes",
-                "itemDefinitionId": 3430,
-                "rewardChance": 5
-            },
-            {
-                "name": "Kuroma Dragon .44 Magnum",
-                "itemDefinitionId": 3482,
-                "rewardChance": 5
-            },
-            {
-                "name": "Neko-chan Shorts",
-                "itemDefinitionId": 3424,
-                "rewardChance": 20
-            },
-            {
-                "name": "Sniper Fingerless Gloves",
-                "itemDefinitionId": 3425,
-                "rewardChance": 20
-            },
-            {
-                "name": "Tech Combat Boots",
-                "itemDefinitionId": 3494,
-                "rewardChance": 20
-            },
-            {
-                "name": "Sniper Tactical Helmet",
-                "itemDefinitionId": 3488,
-                "rewardChance": 20
-            },
-            {
-                "name": "Neko-chan Conveys",
-                "itemDefinitionId": 3422,
-                "rewardChance": 20
-            },
-            {
-                "name": "Kitsune Henley Shirt",
-                "itemDefinitionId": 3428,
-                "rewardChance": 20
-            },
-            {
-                "name": "Kitsune Cargo Pants",
-                "itemDefinitionId": 3429,
-                "rewardChance": 20
-            },
-            {
-                "name": "Kuromu Dragon Recurve Bow",
-                "itemDefinitionId": 3480,
-                "rewardChance": 20
-            }
-        ]
-    },
-    {
-        "name": "2016 Invitational Crate",
-        "itemDefinitionId": 3569,
-        "rewards": [{
-                "name": "Ninja AR-15",
-                "itemDefinitionId": 3597,
-                "rewardChance": 1
-            },
-            {
-                "name": "Gorilla Warfare Full Helmet",
-                "itemDefinitionId": 3632,
-                "rewardChance": 1
-            },
-            {
-                "name": "Mr Grimmmz AR-15",
-                "itemDefinitionId": 3596,
-                "rewardChance": 1
-            },
-            {
-                "name": "Desert Warfare AK-47",
-                "itemDefinitionId": 3418,
-                "rewardChance": 1
-            },
-            {
-                "name": "Red Bone Hoodie",
-                "itemDefinitionId": 3564,
-                "rewardChance": 2
-            },
-            {
-                "name": "JoshOG Leather Jacket",
-                "itemDefinitionId": 3555,
-                "rewardChance": 2
-            },
-            {
-                "name": "Red Bone Full Helmet",
-                "itemDefinitionId": 3568,
-                "rewardChance": 2
-            },
-            {
-                "name": "Twitch Tactical Backpack",
-                "itemDefinitionId": 3594,
-                "rewardChance": 2
-            },
-            {
-                "name": "Desert Warfare Tactical Body Armor",
-                "itemDefinitionId": 3582,
-                "rewardChance": 2
-            },
-            {
-                "name": "Echo Fox Jersey",
-                "itemDefinitionId": 3559,
-                "rewardChance": 5
-            },
-            {
-                "name": "ANGRYPUG Motorcycle Helmet",
-                "itemDefinitionId": 3560,
-                "rewardChance": 5
-            },
-            {
-                "name": "SeaNanners Hockey Mask",
-                "itemDefinitionId": 3561,
-                "rewardChance": 5
-            },
-            {
-                "name": "SandyRavage Cargo Pants",
-                "itemDefinitionId": 3562,
-                "rewardChance": 5
-            },
-            {
-                "name": "GassyMexican T-Shirt",
-                "itemDefinitionId": 3563,
-                "rewardChance": 5
-            },
-            {
-                "name": "Red Bone Body Armor",
-                "itemDefinitionId": 3566,
-                "rewardChance": 5
-            },
-            {
-                "name": "Ellohime Conveys",
-                "itemDefinitionId": 3588,
-                "rewardChance": 5
-            },
-            {
-                "name": "TheZombiUnicorn Tanktop",
-                "itemDefinitionId": 3590,
-                "rewardChance": 5
-            },
-            {
-                "name": "Desert Warfare Tactical Helmet",
-                "itemDefinitionId": 3593,
-                "rewardChance": 5
-            },
-            {
-                "name": "Manpons T-Shirt",
-                "itemDefinitionId": 3589,
-                "rewardChance": 20
-            },
-            {
-                "name": "julia_tv T-Shirt",
-                "itemDefinitionId": 3554,
-                "rewardChance": 20
-            },
-            {
-                "name": "Dr DisRespect Motorcycle Helmet",
-                "itemDefinitionId": 3565,
-                "rewardChance": 20
-            },
-            {
-                "name": "Crunk_Muffin Shorts",
-                "itemDefinitionId": 3556,
-                "rewardChance": 20
-            },
-            {
-                "name": "Desert Warfare Shemagh",
-                "itemDefinitionId": 3599,
-                "rewardChance": 20
-            },
-            {
-                "name": "Red Bone Work Boots",
-                "itemDefinitionId": 3558,
-                "rewardChance": 20
-            },
-            {
-                "name": "Red Bone Baggy Pants",
-                "itemDefinitionId": 3557,
-                "rewardChance": 20
-            },
-            {
-                "name": "Desert Warfare Polo Shirt",
-                "itemDefinitionId": 3591,
-                "rewardChance": 20
-            },
-            {
-                "name": "Desert Warfare Tactical Pants",
-                "itemDefinitionId": 3592,
-                "rewardChance": 20
-            },
-            {
-                "name": "Desert Warfare Work Boots",
-                "itemDefinitionId": 3642,
-                "rewardChance": 20
-            },
-            {
-                "name": "m0E_tv T-Shirt",
-                "itemDefinitionId": 3553,
-                "rewardChance": 20
-            }
-        ]
-    },
-    {
-        "name": "Bronze 2016 Invitational Crate",
-        "itemDefinitionId": 3571,
-        "rewards": [{
-                "name": "Ninja AR-15",
-                "itemDefinitionId": 3597,
-                "rewardChance": 1
-            },
-            {
-                "name": "Gorilla Warfare Full Helmet",
-                "itemDefinitionId": 3632,
-                "rewardChance": 1
-            },
-            {
-                "name": "Mr Grimmmz AR-15",
-                "itemDefinitionId": 3596,
-                "rewardChance": 1
-            },
-            {
-                "name": "Desert Warfare AK-47",
-                "itemDefinitionId": 3418,
-                "rewardChance": 1
-            },
-            {
-                "name": "Red Bone Hoodie",
-                "itemDefinitionId": 3564,
-                "rewardChance": 2
-            },
-            {
-                "name": "JoshOG Leather Jacket",
-                "itemDefinitionId": 3555,
-                "rewardChance": 2
-            },
-            {
-                "name": "Red Bone Full Helmet",
-                "itemDefinitionId": 3568,
-                "rewardChance": 2
-            },
-            {
-                "name": "Twitch Tactical Backpack",
-                "itemDefinitionId": 3594,
-                "rewardChance": 2
-            },
-            {
-                "name": "Desert Warfare Tactical Body Armor",
-                "itemDefinitionId": 3582,
-                "rewardChance": 2
-            },
-            {
-                "name": "Echo Fox Jersey",
-                "itemDefinitionId": 3559,
-                "rewardChance": 5
-            },
-            {
-                "name": "ANGRYPUG Motorcycle Helmet",
-                "itemDefinitionId": 3560,
-                "rewardChance": 5
-            },
-            {
-                "name": "SeaNanners Hockey Mask",
-                "itemDefinitionId": 3561,
-                "rewardChance": 5
-            },
-            {
-                "name": "SandyRavage Cargo Pants",
-                "itemDefinitionId": 3562,
-                "rewardChance": 5
-            },
-            {
-                "name": "GassyMexican T-Shirt",
-                "itemDefinitionId": 3563,
-                "rewardChance": 5
-            },
-            {
-                "name": "Red Bone Body Armor",
-                "itemDefinitionId": 3566,
-                "rewardChance": 5
-            },
-            {
-                "name": "Ellohime Conveys",
-                "itemDefinitionId": 3588,
-                "rewardChance": 5
-            },
-            {
-                "name": "TheZombiUnicorn Tanktop",
-                "itemDefinitionId": 3590,
-                "rewardChance": 5
-            },
-            {
-                "name": "Desert Warfare Tactical Helmet",
-                "itemDefinitionId": 3593,
-                "rewardChance": 5
-            }
-        ]
-    },
-    {
-        "name": "Silver 2016 Invitational Crate",
-        "itemDefinitionId": 3572,
-        "rewards": [{
-                "name": "Ninja AR-15",
-                "itemDefinitionId": 3597,
-                "rewardChance": 1
-            },
-            {
-                "name": "Gorilla Warfare Full Helmet",
-                "itemDefinitionId": 3632,
-                "rewardChance": 1
-            },
-            {
-                "name": "Mr Grimmmz AR-15",
-                "itemDefinitionId": 3596,
-                "rewardChance": 1
-            },
-            {
-                "name": "Desert Warfare AK-47",
-                "itemDefinitionId": 3418,
-                "rewardChance": 1
-            },
-            {
-                "name": "Red Bone Hoodie",
-                "itemDefinitionId": 3564,
-                "rewardChance": 2
-            },
-            {
-                "name": "JoshOG Leather Jacket",
-                "itemDefinitionId": 3555,
-                "rewardChance": 2
-            },
-            {
-                "name": "Red Bone Full Helmet",
-                "itemDefinitionId": 3568,
-                "rewardChance": 2
-            },
-            {
-                "name": "Twitch Tactical Backpack",
-                "itemDefinitionId": 3594,
-                "rewardChance": 2
-            },
-            {
-                "name": "Desert Warfare Tactical Body Armor",
-                "itemDefinitionId": 3582,
-                "rewardChance": 2
-            }
-        ]
-    },
-    {
-        "name": "Gold 2016 Invitational Crate",
-        "itemDefinitionId": 3573,
-        "rewards": [{
-                "name": "Ninja AR-15",
-                "itemDefinitionId": 3597,
-                "rewardChance": 1
-            },
-            {
-                "name": "Gorilla Warfare Full Helmet",
-                "itemDefinitionId": 3632,
-                "rewardChance": 1
-            },
-            {
-                "name": "Mr Grimmmz AR-15",
-                "itemDefinitionId": 3596,
-                "rewardChance": 1
-            },
-            {
-                "name": "Desert Warfare AK-47",
-                "itemDefinitionId": 3418,
-                "rewardChance": 1
-            }
-        ]
-    },
-    {
-        "name": "Infernal Crate - Unlocked",
-        "itemDefinitionId": 3821,
-        "rewards": [{
-                "name": "Red Infernal Demon Mask",
-                "itemDefinitionId": 3759,
-                "rewardChance": 1
-            },
-            {
-                "name": "Green Infernal Demon Mask",
-                "itemDefinitionId": 3861,
-                "rewardChance": 1
-            },
-            {
-                "name": "Infernal 12GA Pump Shotgun",
-                "itemDefinitionId": 3752,
-                "rewardChance": 1
-            },
-            {
-                "name": "Shallow Grave .308 Hunting Rifle",
-                "itemDefinitionId": 3595,
-                "rewardChance": 1
-            },
-            {
-                "name": "Chiller Dance",
-                "itemDefinitionId": 3743,
-                "rewardChance": 2
-            },
-            {
-                "name": "Frankenswine Mask",
-                "itemDefinitionId": 3764,
-                "rewardChance": 2
-            },
-            {
-                "name": "Arachnid Full Helmet",
-                "itemDefinitionId": 3753,
-                "rewardChance": 2
-            },
-            {
-                "name": "Day of the Dead Suit Jacket",
-                "itemDefinitionId": 3760,
-                "rewardChance": 2
-            },
-            {
-                "name": "Full Metal Pumpkin Mask",
-                "itemDefinitionId": 3771,
-                "rewardChance": 2
-            },
-            {
-                "name": "Frankenswine Backpack",
-                "itemDefinitionId": 3774,
-                "rewardChance": 2
-            },
-            {
-                "name": "Anarchy Leather Pants",
-                "itemDefinitionId": 2413,
-                "rewardChance": 5
-            },
-            {
-                "name": "Arachnid Tactical Jacket",
-                "itemDefinitionId": 3755,
-                "rewardChance": 5
-            },
-            {
-                "name": "Arachnid Fingerless Gloves",
-                "itemDefinitionId": 3758,
-                "rewardChance": 5
-            },
-            {
-                "name": "Haunted Hockey Mask",
-                "itemDefinitionId": 3860,
-                "rewardChance": 5
-            },
-            {
-                "name": "Gill Face Bandana",
-                "itemDefinitionId": 3770,
-                "rewardChance": 5
-            },
-            {
-                "name": "Day of the Dead Slacks",
-                "itemDefinitionId": 3761,
-                "rewardChance": 5
-            },
-            {
-                "name": "Day of the dead Hockey Mask",
-                "itemDefinitionId": 3773,
-                "rewardChance": 5
-            },
-            {
-                "name": "Frankenswine Gators",
-                "itemDefinitionId": 3767,
-                "rewardChance": 5
-            },
-            {
-                "name": "Day of the dead Padded Gloves",
-                "itemDefinitionId": 3763,
-                "rewardChance": 20
-            },
-            {
-                "name": "Vlad Face Bandana",
-                "itemDefinitionId": 3769,
-                "rewardChance": 20
-            },
-            {
-                "name": "Arachnid Tactical Body Armor",
-                "itemDefinitionId": 3754,
-                "rewardChance": 20
-            },
-            {
-                "name": "Arachnid Combat Boots",
-                "itemDefinitionId": 3757,
-                "rewardChance": 20
-            },
-            {
-                "name": "Arachnid Padded Pants",
-                "itemDefinitionId": 3756,
-                "rewardChance": 20
-            },
-            {
-                "name": "Haunted Hoodie",
-                "itemDefinitionId": 3772,
-                "rewardChance": 20
-            },
-            {
-                "name": "Frank Face Bandana",
-                "itemDefinitionId": 3768,
-                "rewardChance": 20
-            },
-            {
-                "name": "Day of the Dead Zeds",
-                "itemDefinitionId": 3762,
-                "rewardChance": 20
-            },
-            {
-                "name": "Code Blue Scrubs Shirt",
-                "itemDefinitionId": 3765,
-                "rewardChance": 20
-            },
-            {
-                "name": "Code Blue Scrubs Pants",
-                "itemDefinitionId": 3766,
-                "rewardChance": 20
-            }
-        ]
-    },
-    {
-        "name": "Bronze Infernal Crate",
-        "itemDefinitionId": 3822,
-        "rewards": [{
-                "name": "Red Infernal Demon Mask",
-                "itemDefinitionId": 3759,
-                "rewardChance": 1
-            },
-            {
-                "name": "Green Infernal Demon Mask",
-                "itemDefinitionId": 3861,
-                "rewardChance": 1
-            },
-            {
-                "name": "Infernal 12GA Pump Shotgun",
-                "itemDefinitionId": 3752,
-                "rewardChance": 1
-            },
-            {
-                "name": "Shallow Grave .308 Hunting Rifle",
-                "itemDefinitionId": 3595,
-                "rewardChance": 1
-            },
-            {
-                "name": "Chiller Dance",
-                "itemDefinitionId": 3743,
-                "rewardChance": 2
-            },
-            {
-                "name": "Frankenswine Mask",
-                "itemDefinitionId": 3764,
-                "rewardChance": 2
-            },
-            {
-                "name": "Arachnid Full Helmet",
-                "itemDefinitionId": 3753,
-                "rewardChance": 2
-            },
-            {
-                "name": "Day of the Dead Suit Jacket",
-                "itemDefinitionId": 3760,
-                "rewardChance": 2
-            },
-            {
-                "name": "Full Metal Pumpkin Mask",
-                "itemDefinitionId": 3771,
-                "rewardChance": 2
-            },
-            {
-                "name": "Frankenswine Backpack",
-                "itemDefinitionId": 3774,
-                "rewardChance": 2
-            },
-            {
-                "name": "Anarchy Leather Pants",
-                "itemDefinitionId": 2413,
-                "rewardChance": 5
-            },
-            {
-                "name": "Arachnid Tactical Jacket",
-                "itemDefinitionId": 3755,
-                "rewardChance": 5
-            },
-            {
-                "name": "Arachnid Fingerless Gloves",
-                "itemDefinitionId": 3758,
-                "rewardChance": 5
-            },
-            {
-                "name": "Haunted Hockey Mask",
-                "itemDefinitionId": 3860,
-                "rewardChance": 5
-            },
-            {
-                "name": "Gill Face Bandana",
-                "itemDefinitionId": 3770,
-                "rewardChance": 5
-            },
-            {
-                "name": "Day of the Dead Slacks",
-                "itemDefinitionId": 3761,
-                "rewardChance": 5
-            },
-            {
-                "name": "Day of the dead Hockey Mask",
-                "itemDefinitionId": 3773,
-                "rewardChance": 5
-            },
-            {
-                "name": "Frankenswine Gators",
-                "itemDefinitionId": 3767,
-                "rewardChance": 5
-            }
-        ]
-    },
-    {
-        "name": "Silver Infernal Crate",
-        "itemDefinitionId": 3823,
-        "rewards": [{
-                "name": "Red Infernal Demon Mask",
-                "itemDefinitionId": 3759,
-                "rewardChance": 1
-            },
-            {
-                "name": "Green Infernal Demon Mask",
-                "itemDefinitionId": 3861,
-                "rewardChance": 1
-            },
-            {
-                "name": "Infernal 12GA Pump Shotgun",
-                "itemDefinitionId": 3752,
-                "rewardChance": 1
-            },
-            {
-                "name": "Shallow Grave .308 Hunting Rifle",
-                "itemDefinitionId": 3595,
-                "rewardChance": 1
-            },
-            {
-                "name": "Chiller Dance",
-                "itemDefinitionId": 3743,
-                "rewardChance": 2
-            },
-            {
-                "name": "Frankenswine Mask",
-                "itemDefinitionId": 3764,
-                "rewardChance": 2
-            },
-            {
-                "name": "Arachnid Full Helmet",
-                "itemDefinitionId": 3753,
-                "rewardChance": 2
-            },
-            {
-                "name": "Day of the Dead Suit Jacket",
-                "itemDefinitionId": 3760,
-                "rewardChance": 2
-            },
-            {
-                "name": "Full Metal Pumpkin Mask",
-                "itemDefinitionId": 3771,
-                "rewardChance": 2
-            },
-            {
-                "name": "Frankenswine Backpack",
-                "itemDefinitionId": 3774,
-                "rewardChance": 2
-            }
-        ]
-    },
-    {
-        "name": "Gold Infernal Crate",
-        "itemDefinitionId": 3824,
-        "rewards": [{
-                "name": "Red Infernal Demon Mask",
-                "itemDefinitionId": 3759,
-                "rewardChance": 1
-            },
-            {
-                "name": "Green Infernal Demon Mask",
-                "itemDefinitionId": 3861,
-                "rewardChance": 1
-            },
-            {
-                "name": "Infernal 12GA Pump Shotgun",
-                "itemDefinitionId": 3752,
-                "rewardChance": 1
-            },
-            {
-                "name": "Shallow Grave .308 Hunting Rifle",
-                "itemDefinitionId": 3595,
-                "rewardChance": 1
-            }
-        ]
-    },
-    {
-        "name": "King of the Kill Mystery Bag",
-        "itemDefinitionId": 3239,
-        "rewards": [{
-                "name": "Battle Royale Loser T-Shirt",
-                "itemDefinitionId": 3257,
-                "rewardChance": 20
-            },
-            {
-                "name": "Battle Royale Loser Leggings",
-                "itemDefinitionId": 3266,
-                "rewardChance": 20
-            },
-            {
-                "name": "Skull Graphic T-Shirt",
-                "itemDefinitionId": 1928,
-                "rewardChance": 20
-            },
-            {
-                "name": "Camp Runamok T-Shirt",
-                "itemDefinitionId": 1926,
-                "rewardChance": 20
-            },
-            {
-                "name": "Checkered Past Goggles",
-                "itemDefinitionId": 2957,
-                "rewardChance": 20
-            },
-            {
-                "name": "Starred Army T-Shirt",
-                "itemDefinitionId": 3260,
-                "rewardChance": 20
-            },
-            {
-                "name": "Bullseye Goggles",
-                "itemDefinitionId": 2958,
-                "rewardChance": 20
-            },
-            {
-                "name": "Battle Royale Splatter Leggings",
-                "itemDefinitionId": 3265,
-                "rewardChance": 20
-            },
-            {
-                "name": "Navy Suit Jacket",
-                "itemDefinitionId": 2848,
-                "rewardChance": 20
-            },
-            {
-                "name": "Navy Slacks",
-                "itemDefinitionId": 2845,
-                "rewardChance": 20
-            }
-        ]
-    },
-    {
-        "name": "King of the Kill Elite Bag",
-        "itemDefinitionId": 3240,
-        "rewards": [{
-                "name": "Battle Royale Logo T-Shirt",
-                "itemDefinitionId": 3261,
-                "rewardChance": 20
-            },
-            {
-                "name": "Battle Royale Crown T-Shirt",
-                "itemDefinitionId": 3262,
-                "rewardChance": 20
-            },
-            {
-                "name": "Forest Camo T-Shirt",
-                "itemDefinitionId": 3263,
-                "rewardChance": 20
-            },
-            {
-                "name": "Battle Royale Logo Leggings",
-                "itemDefinitionId": 3267,
-                "rewardChance": 20
-            },
-            {
-                "name": "Tie-Dye T-Shirt",
-                "itemDefinitionId": 3264,
-                "rewardChance": 20
-            },
-            {
-                "name": "Tie-Dye Leggings",
-                "itemDefinitionId": 3268,
-                "rewardChance": 20
-            }
-        ]
-    },
-    {
-        "name": "Skirmish Bag: Small Firearms",
-        "itemDefinitionId": 3274,
-        "rewards": [{
-                "name": "Blue and Black Hoodie",
-                "itemDefinitionId": 2368,
-                "rewardChance": 20
-            },
-            {
-                "name": "Scorpion Hoodie",
-                "itemDefinitionId": 2885,
-                "rewardChance": 20
-            },
-            {
-                "name": "Stormcloud Leggings",
-                "itemDefinitionId": 3238,
-                "rewardChance": 20
-            },
-            {
-                "name": "Teal Scale Leggings",
-                "itemDefinitionId": 3215,
-                "rewardChance": 20
-            }
-        ]
-    },
-    {
-        "name": "Skirmish Bag: Shotties & Snipers",
-        "itemDefinitionId": 3365,
-        "rewards": [{
-                "name": "Green Starred Armor",
-                "itemDefinitionId": 3271,
-                "rewardChance": 20
-            },
-            {
-                "name": "Pink Anarchy Armor",
-                "itemDefinitionId": 3270,
-                "rewardChance": 20
-            },
-            {
-                "name": "Plaid Jacket",
-                "itemDefinitionId": 2945,
-                "rewardChance": 20
-            },
-            {
-                "name": "Forest Camo Jacket",
-                "itemDefinitionId": 2947,
-                "rewardChance": 20
-            }
-        ]
-    },
-    {
-        "name": "Skirmish Bag: Ironman",
-        "itemDefinitionId": 3447,
-        "rewards": [{
-                "name": "Blue Survivor Backpack",
-                "itemDefinitionId": 3048,
-                "rewardChance": 20
-            },
-            {
-                "name": "Orange Survivor Backpack",
-                "itemDefinitionId": 3050,
-                "rewardChance": 20
-            },
-            {
-                "name": "Chaos Face Bandana",
-                "itemDefinitionId": 2932,
-                "rewardChance": 20
-            },
-            {
-                "name": "Yellow Plaid Face Bandana",
-                "itemDefinitionId": 2935,
-                "rewardChance": 20
-            }
-        ]
-    },
-    {
-        "name": "Skirmish Bag: Reanimated",
-        "itemDefinitionId": 3523,
-        "rewards": [{
-                "name": "Starry-Eyed Goggles",
-                "itemDefinitionId": 2959,
-                "rewardChance": 20
-            },
-            {
-                "name": "Beige Suit Jacket",
-                "itemDefinitionId": 2842,
-                "rewardChance": 20
-            },
-            {
-                "name": "Emote: Formal Bow",
-                "itemDefinitionId": 3291,
-                "rewardChance": 20
-            },
-            {
-                "name": "Emote: Tea Time",
-                "itemDefinitionId": 3342,
-                "rewardChance": 20
-            }
-        ]
-    },
-    {
-        "name": "Skirmish Bag: Shotguns & Snipers 2",
-        "itemDefinitionId": 3633,
-        "rewards": [{
-                "name": "Beige Slacks",
-                "itemDefinitionId": 2844,
-                "rewardChance": 20
-            },
-            {
-                "name": "Camo Goggles",
-                "itemDefinitionId": 2956,
-                "rewardChance": 20
-            },
-            {
-                "name": "Rasta Face Bandana",
-                "itemDefinitionId": 2934,
-                "rewardChance": 20
-            },
-            {
-                "name": "Emote: World's Smallest Violin",
-                "itemDefinitionId": 3348,
-                "rewardChance": 20
-            }
-        ]
-    },
-    {
-        "name": "Mystery Bag",
-        "itemDefinitionId": 1840,
-        "rewards": [{
-                "name": "Battle Royale Loser T-Shirt",
-                "itemDefinitionId": 3257,
-                "rewardChance": 20
-            },
-            {
-                "name": "Black and Yellow Cap",
-                "itemDefinitionId": 1851,
-                "rewardChance": 20
-            },
-            {
-                "name": "Blue Trucker Cap",
-                "itemDefinitionId": 1848,
-                "rewardChance": 20
-            },
-            {
-                "name": "Brown Camo Beanie",
-                "itemDefinitionId": 1854,
-                "rewardChance": 20
-            },
-            {
-                "name": "Gray Striped Shirt with Star",
-                "itemDefinitionId": 1847,
-                "rewardChance": 20
-            },
-            {
-                "name": "Green Camo Beanie",
-                "itemDefinitionId": 1855,
-                "rewardChance": 20
-            },
-            {
-                "name": "Green Trucker Cap",
-                "itemDefinitionId": 1852,
-                "rewardChance": 20
-            },
-            {
-                "name": "Maroon Trucker Cap",
-                "itemDefinitionId": 1853,
-                "rewardChance": 20
-            },
-            {
-                "name": "Starred Army Shirt",
-                "itemDefinitionId": 1846,
-                "rewardChance": 20
-            }
-        ]
-    },
-    {
-        "name": "Elite Bag",
-        "itemDefinitionId": 1841,
-        "rewards": [{
-                "name": "Black Battle Royale T-Shirt",
-                "itemDefinitionId": 1876,
-                "rewardChance": 20
-            },
-            {
-                "name": "Camo Green Cap",
-                "itemDefinitionId": 1849,
-                "rewardChance": 20
-            },
-            {
-                "name": "Camo Gray Trucker Cap",
-                "itemDefinitionId": 1850,
-                "rewardChance": 20
-            },
-            {
-                "name": "Forest Camo T-Shirt",
-                "itemDefinitionId": 3263,
-                "rewardChance": 20
-            },
-            {
-                "name": "Marsh Camo T-Shirt",
-                "itemDefinitionId": 1845,
-                "rewardChance": 20
-            },
-            {
-                "name": "White Battle Royale T-Shirt",
-                "itemDefinitionId": 1873,
-                "rewardChance": 20
-            }
-        ]
-    },
-    {
-        "name": "Mystery Bag",
-        "itemDefinitionId": 1879,
-        "rewards": [{
-                "name": "Battle Royale Loser T-Shirt",
-                "itemDefinitionId": 3257,
-                "rewardChance": 20
-            },
-            {
-                "name": "Black and Yellow Cap",
-                "itemDefinitionId": 1851,
-                "rewardChance": 20
-            },
-            {
-                "name": "Blue Trucker Cap",
-                "itemDefinitionId": 1848,
-                "rewardChance": 20
-            },
-            {
-                "name": "Brown Camo Beanie",
-                "itemDefinitionId": 1854,
-                "rewardChance": 20
-            },
-            {
-                "name": "Gray Striped Shirt with Star",
-                "itemDefinitionId": 1847,
-                "rewardChance": 20
-            },
-            {
-                "name": "Green Camo Beanie",
-                "itemDefinitionId": 1855,
-                "rewardChance": 20
-            },
-            {
-                "name": "Green Trucker Cap",
-                "itemDefinitionId": 1852,
-                "rewardChance": 20
-            },
-            {
-                "name": "Maroon Trucker Cap",
-                "itemDefinitionId": 1853,
-                "rewardChance": 20
-            },
-            {
-                "name": "Starred Army Shirt",
-                "itemDefinitionId": 1846,
-                "rewardChance": 20
-            }
-        ]
-    },
-    {
-        "name": "Elite Bag Hardcore",
-        "itemDefinitionId": 1880,
-        "rewards": [{
-                "name": "Abs Shirt",
-                "itemDefinitionId": 2266,
-                "rewardChance": 2
-            },
-            {
-                "name": "Tie-Dye T-Shirt",
-                "itemDefinitionId": 3264,
-                "rewardChance": 2
-            },
-            {
-                "name": "Black BR \"Irish Style\" T-Shirt",
-                "itemDefinitionId": 1868,
-                "rewardChance": 20
-            },
-            {
-                "name": "Black BR \"With Cheese\" T-Shirt",
-                "itemDefinitionId": 1869,
-                "rewardChance": 20
-            },
-            {
-                "name": "Blue Z Trucker Cap",
-                "itemDefinitionId": 1856,
-                "rewardChance": 20
-            },
-            {
-                "name": "White BR \"With Cheese\" T-Shirt",
-                "itemDefinitionId": 1874,
-                "rewardChance": 20
-            }
-        ]
-    },
-    {
-        "name": "Mystery Bag v2",
-        "itemDefinitionId": 2033,
-        "rewards": [{
-                "name": "Black Canvas Outback Hat",
-                "itemDefinitionId": 1970,
-                "rewardChance": 5
-            },
-            {
-                "name": "Camo Green Flannel Shirt",
-                "itemDefinitionId": 1974,
-                "rewardChance": 5
-            },
-            {
-                "name": "Camo Tan Flannel Shirt",
-                "itemDefinitionId": 2029,
-                "rewardChance": 5
-            },
-            {
-                "name": "Paisley Flannel Shirt",
-                "itemDefinitionId": 1937,
-                "rewardChance": 5
-            },
-            {
-                "name": "Birds Graphic T-Shirt",
-                "itemDefinitionId": 1927,
-                "rewardChance": 20
-            },
-            {
-                "name": "Camp Runamok T-Shirt",
-                "itemDefinitionId": 3259,
-                "rewardChance": 20
-            },
-            {
-                "name": "PV Wild Beavers T-Shirt",
-                "itemDefinitionId": 1930,
-                "rewardChance": 20
-            },
-            {
-                "name": "Skull Graphic T-Shirt",
-                "itemDefinitionId": 3258,
-                "rewardChance": 20
-            },
-            {
-                "name": "Spores Polo",
-                "itemDefinitionId": 1940,
-                "rewardChance": 20
-            },
-            {
-                "name": "Tan Aloha Polo",
-                "itemDefinitionId": 2028,
-                "rewardChance": 20
-            }
-        ]
-    },
-        {
-            "name": "H1EMU Crate",
-            "itemDefinitionId": 5063,
-            "rewards": [{
-                "name": "Rosegarden Shotgun",
-                "itemDefinitionId": 5037,
-                "rewardChance": 0.5
-            },
-            {
-                "name": "Unicorn Backpack",
-                "itemDefinitionId": 5023,
-                "rewardChance": 0.5
-            },
-            {
-                "name": "Greenwood Sniper",
-                "itemDefinitionId": 5015,
-                "rewardChance": 0.5
-            },
-            {
-                "name": "H1EMU Black & Yellow Hoodie",
-                "itemDefinitionId": 5003,
-                "rewardChance": 0.5
-            },
-            {
-                "name": "H1EMU Black & Yellow Pants",
-                "itemDefinitionId": 5004,
-                "rewardChance": 0.5
-            },
-            {
-                "name": "White Anarchy Leggings",
-                "itemDefinitionId": 2363,
-                "rewardChance": 1
-            },
-            {
-                "name": "Anarchy Motorcycle Helmet",
-                "itemDefinitionId": 2839,
-                "rewardChance": 1
-            },
-            {
-                "name": "Blue Camo Tactical Helmet w/Goggles",
-                "itemDefinitionId": 1944,
-                "rewardChance": 1
-            },
-            {
-                "name": "Rasta face bandana",
-                "itemDefinitionId": 2934,
-                "rewardChance": 1
-            },
-            {
-                "name": "Black Conveys Sneakers",
-                "itemDefinitionId": 5041,
-                "rewardChance": 5
-            },
-            {
-                "name": "Toxic cargo pants",
-                "itemDefinitionId": 3361,
-                "rewardChance": 5
-            },
-            {
-                "name": "Barbed Wire Face Bandana",
-                "itemDefinitionId": 2936,
-                "rewardChance": 5
-            },
-            {
-                "name": "Tactical goggles helmet",
-                "itemDefinitionId": 2224,
-                "rewardChance": 5
-            },
-            {
-                "name": "Dragon golden face bandana",
-                "itemDefinitionId": 2937,
-                "rewardChance": 5
-            },
-            {
-                "name": "Dark Blue Conveys Sneakers",
-                "itemDefinitionId": 5043,
-                "rewardChance": 20
-            },
-            {
-                "name": "Pink Conveys Sneakers",
-                "itemDefinitionId": 5042,
-                "rewardChance": 20
-            },
-            {
-                "name": "Green Conveys Sneakers",
-                "itemDefinitionId": 5044,
-                "rewardChance": 20
-            },
-            {
-                "name": "Yellow Conveys Sneakers",
-                "itemDefinitionId": 5045,
-                "rewardChance": 20
-            },
-            {
-                "name": "White Conveys Sneakers",
-                "itemDefinitionId": 3696,
-                "rewardChance": 20
-            },
-            {
-                "name": "Red Conveys Sneakers",
-                "itemDefinitionId": 5040,
-                "rewardChance": 20
-            }
-         ]
-    },
-    {
-        "name": "H1EMU Exclusive Crate",
-        "itemDefinitionId": 5026,
-        "rewards": [{
-                "name": "H1EMU Sniper Rifle",
-                "itemDefinitionId": 5011,
-                "rewardChance": 0.5
-            },
-            {
-                "name": "H1EMU AR-15",
-                "itemDefinitionId": 5025,
-                "rewardChance": 0.5
-            },
-            {
-                "name": "H1EMU Black & Yellow Kevlar",
-                "itemDefinitionId": 5005,
-                "rewardChance": 0.5
-            },
-            {
-                "name": "H1EMU Black & Red Hoodie",
-                "itemDefinitionId": 5009,
-                "rewardChance": 1
-            },
-            {
-                "name": "H1EMU White & Red Hoodie",
-                "itemDefinitionId": 5030,
-                "rewardChance": 1
-            },
-            {
-                "name": "H1Emu Black & Red Pants",
-                "itemDefinitionId": 5010,
-                "rewardChance": 1
-            },
-            {
-                "name": "H1Emu White & Red Pants",
-                "itemDefinitionId": 5032,
-                "rewardChance": 1
-            },
-            {
-                "name": "H1EMU Black Backpack",
-                "itemDefinitionId": 5013,
-                "rewardChance": 1
-            },
-            {
-                "name": "H1EMU White Backpack",
-                "itemDefinitionId": 5034,
-                "rewardChance": 1
-            },
-            {
-                "name": "H1EMU Beanie",
-                "itemDefinitionId": 5021,
-                "rewardChance": 5
-            },
-            {
-                "name": "Stormcloud Leggings",
-                "itemDefinitionId": 3238,
-                "rewardChance": 5
-            },
-            {
-                "name": "Scorpion Hoodie",
-                "itemDefinitionId": 2885,
-                "rewardChance": 5
-            },
-            {
-                "name": "Tie-dye T-shirt",
-                "itemDefinitionId": 3264,
-                "rewardChance": 5
-            },
-            {
-                "name": "Tie-dye Leggings",
-                "itemDefinitionId": 3268,
-                "rewardChance": 5
-            },
-            {
-                "name": "Teal Scale Leggings",
-                "itemDefinitionId": 3215,
-                "rewardChance": 20
-            },
-            {
-                "name": "Chaos Face Bandana",
-                "itemDefinitionId": 2932,
-                "rewardChance": 20
-            },
-            {
-                "name": "Yellow Plaid Face Bandana",
-                "itemDefinitionId": 2935,
-                "rewardChance": 20
-            },
-            {
-                "name": "Beige Suit Jacket",
-                "itemDefinitionId": 2842,
-                "rewardChance": 20
-            },
-            {
-                "name": "Beige Slacks",
-                "itemDefinitionId": 2844,
-                "rewardChance": 20
-            }
-        ]
-}
-    
+[
+  {
+    "name": "Showdown Crate",
+    "itemDefinitionId": 2761,
+    "rewards": [
+      {
+        "name": "Showdown AR-15",
+        "itemDefinitionId": 2780,
+        "rewardChance": 1
+      },
+      {
+        "name": "Sxyhxy's Body Armor",
+        "itemDefinitionId": 2785,
+        "rewardChance": 2
+      },
+      {
+        "name": "Summit1g's Body Armor",
+        "itemDefinitionId": 2776,
+        "rewardChance": 2
+      },
+      {
+        "name": "CDNThe3rd's Conveys",
+        "itemDefinitionId": 2796,
+        "rewardChance": 5
+      },
+      {
+        "name": "Showdown Military Backpack",
+        "itemDefinitionId": 2782,
+        "rewardChance": 5
+      },
+      {
+        "name": "Trick2g's Ski Mask",
+        "itemDefinitionId": 2763,
+        "rewardChance": 5
+      },
+      {
+        "name": "Showdown Leggings",
+        "itemDefinitionId": 2774,
+        "rewardChance": 20
+      },
+      {
+        "name": "Showdown Boonie Hat",
+        "itemDefinitionId": 2768,
+        "rewardChance": 20
+      },
+      {
+        "name": "/r/H1Z1 Shirt",
+        "itemDefinitionId": 2794,
+        "rewardChance": 20
+      },
+      {
+        "name": "Showdown Shirt",
+        "itemDefinitionId": 2772,
+        "rewardChance": 20
+      },
+      {
+        "name": "Wisehunt Firearms Tanktop",
+        "itemDefinitionId": 2787,
+        "rewardChance": 20
+      },
+      {
+        "name": "Mr. Grimmmz's Shirt",
+        "itemDefinitionId": 2791,
+        "rewardChance": 20
+      },
+      {
+        "name": "Ninja's Shirt",
+        "itemDefinitionId": 2767,
+        "rewardChance": 20
+      }
+    ]
+  },
+  {
+    "name": "Alpha Launch Crate",
+    "itemDefinitionId": 1797,
+    "rewards": [
+      {
+        "name": "Camouflage Backpack",
+        "itemDefinitionId": 1806,
+        "rewardChance": 1
+      },
+      {
+        "name": "Orange Racing Helmet",
+        "itemDefinitionId": 1828,
+        "rewardChance": 2
+      },
+      {
+        "name": "Red and Blue Racing Helmet",
+        "itemDefinitionId": 1827,
+        "rewardChance": 2
+      },
+      {
+        "name": "Blue Camo Pants",
+        "itemDefinitionId": 2497,
+        "rewardChance": 5
+      },
+      {
+        "name": "Brown Camo Pants",
+        "itemDefinitionId": 1822,
+        "rewardChance": 5
+      },
+      {
+        "name": "Brown Flannel Shirt",
+        "itemDefinitionId": 1811,
+        "rewardChance": 20
+      },
+      {
+        "name": "Red Polo Shirt",
+        "itemDefinitionId": 1829,
+        "rewardChance": 20
+      },
+      {
+        "name": "Tan Polo Shirt",
+        "itemDefinitionId": 1830,
+        "rewardChance": 20
+      },
+      {
+        "name": "Tan Canvs Outback Hat",
+        "itemDefinitionId": 1812,
+        "rewardChance": 20
+      },
+      {
+        "name": "Green Flannel Shirt",
+        "itemDefinitionId": 1809,
+        "rewardChance": 20
+      },
+      {
+        "name": "Blue Flannel Shirt",
+        "itemDefinitionId": 1810,
+        "rewardChance": 20
+      },
+      {
+        "name": "Brown Leather Outback Hat",
+        "itemDefinitionId": 1818,
+        "rewardChance": 20
+      },
+      {
+        "name": "Red Flannel Shirt",
+        "itemDefinitionId": 1817,
+        "rewardChance": 20
+      },
+      {
+        "name": "Tan Leather Outback Hat",
+        "itemDefinitionId": 1832,
+        "rewardChance": 20
+      }
+    ]
+  },
+  {
+    "name": "Gold Predator Crate",
+    "itemDefinitionId": 3211,
+    "rewards": [
+      {
+        "name": "Mask of the Jester",
+        "itemDefinitionId": 3377,
+        "rewardChance": 1
+      },
+      {
+        "name": "Predator AR-15",
+        "itemDefinitionId": 3200,
+        "rewardChance": 1
+      },
+      {
+        "name": "Predator .308 Hunting Rifle",
+        "itemDefinitionId": 3193,
+        "rewardChance": 1
+      },
+      {
+        "name": "Predator 12GA Pump Shotgun",
+        "itemDefinitionId": 3186,
+        "rewardChance": 1
+      }
+    ]
+  },
+  {
+    "name": "Silver Predator Crate",
+    "itemDefinitionId": 3210,
+    "rewards": [
+      {
+        "name": "Mask of the Jester",
+        "itemDefinitionId": 3377,
+        "rewardChance": 1
+      },
+      {
+        "name": "Predator AR-15",
+        "itemDefinitionId": 3200,
+        "rewardChance": 1
+      },
+      {
+        "name": "Predator .308 Hunting Rifle",
+        "itemDefinitionId": 3193,
+        "rewardChance": 1
+      },
+      {
+        "name": "Predator 12GA Pump Shotgun",
+        "itemDefinitionId": 3186,
+        "rewardChance": 1
+      },
+      {
+        "name": "Sniper Military Backpack",
+        "itemDefinitionId": 3190,
+        "rewardChance": 5
+      },
+      {
+        "name": "Heavy Assault Body Armor",
+        "itemDefinitionId": 3203,
+        "rewardChance": 5
+      },
+      {
+        "name": "Tech Military Pants",
+        "itemDefinitionId": 3192,
+        "rewardChance": 5
+      },
+      {
+        "name": "Heavy Assault Full Helmet",
+        "itemDefinitionId": 3202,
+        "rewardChance": 5
+      }
+    ]
+  },
+  {
+    "name": "Bronze Predator Crate",
+    "itemDefinitionId": 3209,
+    "rewards": [
+      {
+        "name": "Mask of the Jester",
+        "itemDefinitionId": 3377,
+        "rewardChance": 1
+      },
+      {
+        "name": "Predator AR-15",
+        "itemDefinitionId": 3200,
+        "rewardChance": 1
+      },
+      {
+        "name": "Predator .308 Hunting Rifle",
+        "itemDefinitionId": 3193,
+        "rewardChance": 1
+      },
+      {
+        "name": "Predator 12GA Pump Shotgun",
+        "itemDefinitionId": 3186,
+        "rewardChance": 1
+      },
+      {
+        "name": "Sniper Military Backpack",
+        "itemDefinitionId": 3190,
+        "rewardChance": 2
+      },
+      {
+        "name": "Heavy Assault Body Armor",
+        "itemDefinitionId": 3203,
+        "rewardChance": 2
+      },
+      {
+        "name": "Tech Military Pants",
+        "itemDefinitionId": 3192,
+        "rewardChance": 2
+      },
+      {
+        "name": "Heavy Assault Full Helmet",
+        "itemDefinitionId": 3202,
+        "rewardChance": 2
+      },
+      {
+        "name": "Sniper Backwards Camo Cap",
+        "itemDefinitionId": 3195,
+        "rewardChance": 5
+      },
+      {
+        "name": "Tech Tactical Helmet",
+        "itemDefinitionId": 3188,
+        "rewardChance": 5
+      },
+      {
+        "name": "Heavy Assault Military Pants",
+        "itemDefinitionId": 3206,
+        "rewardChance": 5
+      },
+      {
+        "name": "Tech Tactical Body Armor",
+        "itemDefinitionId": 3196,
+        "rewardChance": 5
+      },
+      {
+        "name": "Heavy Assault Combat Boots",
+        "itemDefinitionId": 3201,
+        "rewardChance": 5
+      },
+      {
+        "name": "Tech Henley Shirt",
+        "itemDefinitionId": 3205,
+        "rewardChance": 5
+      }
+    ]
+  },
+  {
+    "name": "Predator Crate",
+    "itemDefinitionId": 3207,
+    "rewards": [
+      {
+        "name": "Mask of the Jester",
+        "itemDefinitionId": 3377,
+        "rewardChance": 1
+      },
+      {
+        "name": "Predator AR-15",
+        "itemDefinitionId": 3200,
+        "rewardChance": 1
+      },
+      {
+        "name": "Predator .308 Hunting Rifle",
+        "itemDefinitionId": 3193,
+        "rewardChance": 1
+      },
+      {
+        "name": "Predator 12GA Pump Shotgun",
+        "itemDefinitionId": 3186,
+        "rewardChance": 1
+      },
+      {
+        "name": "Sniper Military Backpack",
+        "itemDefinitionId": 3190,
+        "rewardChance": 2
+      },
+      {
+        "name": "Heavy Assault Body Armor",
+        "itemDefinitionId": 3203,
+        "rewardChance": 2
+      },
+      {
+        "name": "Tech Military Pants",
+        "itemDefinitionId": 3192,
+        "rewardChance": 2
+      },
+      {
+        "name": "Heavy Assault Full Helmet",
+        "itemDefinitionId": 3202,
+        "rewardChance": 2
+      },
+      {
+        "name": "Sniper Backwards Camo Cap",
+        "itemDefinitionId": 3195,
+        "rewardChance": 5
+      },
+      {
+        "name": "Tech Tactical Helmet",
+        "itemDefinitionId": 3188,
+        "rewardChance": 5
+      },
+      {
+        "name": "Heavy Assault Military Pants",
+        "itemDefinitionId": 3206,
+        "rewardChance": 5
+      },
+      {
+        "name": "Tech Tactical Body Armor",
+        "itemDefinitionId": 3196,
+        "rewardChance": 5
+      },
+      {
+        "name": "Heavy Assault Combat Boots",
+        "itemDefinitionId": 3201,
+        "rewardChance": 5
+      },
+      {
+        "name": "Tech Henley Shirt",
+        "itemDefinitionId": 3205,
+        "rewardChance": 5
+      },
+      {
+        "name": "Sniper Stealth Shoes",
+        "itemDefinitionId": 3194,
+        "rewardChance": 20
+      },
+      {
+        "name": "Sniper Farmer Jacket",
+        "itemDefinitionId": 3198,
+        "rewardChance": 20
+      },
+      {
+        "name": "Sniper Camo Padded Pants",
+        "itemDefinitionId": 3199,
+        "rewardChance": 20
+      },
+      {
+        "name": "Tech Shemagh",
+        "itemDefinitionId": 3189,
+        "rewardChance": 20
+      },
+      {
+        "name": "Tech Athletic Boots",
+        "itemDefinitionId": 3187,
+        "rewardChance": 20
+      },
+      {
+        "name": "Heavy Assault Polo Shirt",
+        "itemDefinitionId": 3191,
+        "rewardChance": 20
+      },
+      {
+        "name": "Heavy Assault Padded Gloves",
+        "itemDefinitionId": 3204,
+        "rewardChance": 20
+      },
+      {
+        "name": "Tech Fingerless Gloves",
+        "itemDefinitionId": 3197,
+        "rewardChance": 20
+      }
+    ]
+  },
+  {
+    "name": "Bronze EZW Crate",
+    "itemDefinitionId": 3120,
+    "rewards": [
+      {
+        "name": "EZW Spiked Helmet",
+        "itemDefinitionId": 3154,
+        "rewardChance": 1
+      },
+      {
+        "name": "Tiger Blood Shotgun",
+        "itemDefinitionId": 3137,
+        "rewardChance": 1
+      },
+      {
+        "name": "Emote: Power Pose",
+        "itemDefinitionId": 3136,
+        "rewardChance": 1
+      },
+      {
+        "name": "Murica Halftop Shirt",
+        "itemDefinitionId": 3138,
+        "rewardChance": 2
+      },
+      {
+        "name": "Emote: Listen to the Crowd",
+        "itemDefinitionId": 3083,
+        "rewardChance": 2
+      },
+      {
+        "name": "Murica Trunks and Kneepads",
+        "itemDefinitionId": 3152,
+        "rewardChance": 2
+      },
+      {
+        "name": "Agile Tiger Luchador Mask",
+        "itemDefinitionId": 3150,
+        "rewardChance": 2
+      },
+      {
+        "name": "EZW Armored Championship Belt",
+        "itemDefinitionId": 3155,
+        "rewardChance": 2
+      },
+      {
+        "name": "Barbed Wire Wrestling Shoes",
+        "itemDefinitionId": 3142,
+        "rewardChance": 5
+      },
+      {
+        "name": "EZW Armored Shoulderpads",
+        "itemDefinitionId": 3139,
+        "rewardChance": 5
+      },
+      {
+        "name": "Fiery Rage Trunks and Kneepads",
+        "itemDefinitionId": 3151,
+        "rewardChance": 5
+      },
+      {
+        "name": "Fiery Rage Luchador Mask",
+        "itemDefinitionId": 3082,
+        "rewardChance": 5
+      },
+      {
+        "name": "Golden Eagle Padded Gloves",
+        "itemDefinitionId": 3147,
+        "rewardChance": 5
+      },
+      {
+        "name": "Barbed Wire Wrestling Tights",
+        "itemDefinitionId": 3145,
+        "rewardChance": 5
+      }
+    ]
+  },
+  {
+    "name": "EZW Crate",
+    "itemDefinitionId": 3118,
+    "rewards": [
+      {
+        "name": "EZW Spiked Helmet",
+        "itemDefinitionId": 3154,
+        "rewardChance": 1
+      },
+      {
+        "name": "Tiger Blood Shotgun",
+        "itemDefinitionId": 3137,
+        "rewardChance": 1
+      },
+      {
+        "name": "Emote: Power Pose",
+        "itemDefinitionId": 3136,
+        "rewardChance": 1
+      },
+      {
+        "name": "Murica Halftop Shirt",
+        "itemDefinitionId": 3138,
+        "rewardChance": 2
+      },
+      {
+        "name": "Emote: Listen to the Crowd",
+        "itemDefinitionId": 3083,
+        "rewardChance": 2
+      },
+      {
+        "name": "Murica Trunks and Kneepads",
+        "itemDefinitionId": 3152,
+        "rewardChance": 2
+      },
+      {
+        "name": "Agile Tiger Luchador Mask",
+        "itemDefinitionId": 3150,
+        "rewardChance": 2
+      },
+      {
+        "name": "EZW Armored Championship Belt",
+        "itemDefinitionId": 3155,
+        "rewardChance": 2
+      },
+      {
+        "name": "Barbed Wire Wrestling Shoes",
+        "itemDefinitionId": 3142,
+        "rewardChance": 5
+      },
+      {
+        "name": "EZW Armored Shoulderpads",
+        "itemDefinitionId": 3139,
+        "rewardChance": 5
+      },
+      {
+        "name": "Fiery Rage Trunks and Kneepads",
+        "itemDefinitionId": 3151,
+        "rewardChance": 5
+      },
+      {
+        "name": "Fiery Rage Luchador Mask",
+        "itemDefinitionId": 3082,
+        "rewardChance": 5
+      },
+      {
+        "name": "Golden Eagle Padded Gloves",
+        "itemDefinitionId": 3147,
+        "rewardChance": 5
+      },
+      {
+        "name": "Barbed Wire Wrestling Tights",
+        "itemDefinitionId": 3145,
+        "rewardChance": 5
+      },
+      {
+        "name": "Macho Dude Halftop Shirt",
+        "itemDefinitionId": 3149,
+        "rewardChance": 20
+      },
+      {
+        "name": "Contender Wrestling Tights",
+        "itemDefinitionId": 3143,
+        "rewardChance": 20
+      },
+      {
+        "name": "Snakeskin Wrestling Tights",
+        "itemDefinitionId": 3144,
+        "rewardChance": 20
+      },
+      {
+        "name": "Contender Luchador Mask",
+        "itemDefinitionId": 3081,
+        "rewardChance": 20
+      },
+      {
+        "name": "Pink Zebra Cowboy Hat",
+        "itemDefinitionId": 3153,
+        "rewardChance": 20
+      },
+      {
+        "name": "Contender Padded Gloves",
+        "itemDefinitionId": 3146,
+        "rewardChance": 20
+      },
+      {
+        "name": "EZW World Tour T-Shirt",
+        "itemDefinitionId": 3148,
+        "rewardChance": 20
+      },
+      {
+        "name": "Purple Zebra Wrestling Shoes",
+        "itemDefinitionId": 3140,
+        "rewardChance": 20
+      }
+    ]
+  },
+  {
+    "name": "Silver EZW Crate",
+    "itemDefinitionId": 3121,
+    "rewards": [
+      {
+        "name": "EZW Spiked Helmet",
+        "itemDefinitionId": 3154,
+        "rewardChance": 1
+      },
+      {
+        "name": "Tiger Blood Shotgun",
+        "itemDefinitionId": 3137,
+        "rewardChance": 1
+      },
+      {
+        "name": "Emote: Power Pose",
+        "itemDefinitionId": 3136,
+        "rewardChance": 1
+      },
+      {
+        "name": "Murica Halftop Shirt",
+        "itemDefinitionId": 3138,
+        "rewardChance": 2
+      },
+      {
+        "name": "Emote: Listen to the Crowd",
+        "itemDefinitionId": 3083,
+        "rewardChance": 2
+      },
+      {
+        "name": "Murica Trunks and Kneepads",
+        "itemDefinitionId": 3152,
+        "rewardChance": 2
+      },
+      {
+        "name": "Agile Tiger Luchador Mask",
+        "itemDefinitionId": 3150,
+        "rewardChance": 2
+      },
+      {
+        "name": "EZW Armored Championship Belt",
+        "itemDefinitionId": 3155,
+        "rewardChance": 2
+      }
+    ]
+  },
+  {
+    "name": "Gold EZW Crate",
+    "itemDefinitionId": 3122,
+    "rewards": [
+      {
+        "name": "EZW Spiked Helmet",
+        "itemDefinitionId": 3154,
+        "rewardChance": 1
+      },
+      {
+        "name": "Tiger Blood Shotgun",
+        "itemDefinitionId": 3137,
+        "rewardChance": 1
+      },
+      {
+        "name": "Emote: Power Pose",
+        "itemDefinitionId": 3136,
+        "rewardChance": 1
+      }
+    ]
+  },
+  {
+    "name": "Renegade Crate",
+    "itemDefinitionId": 2836,
+    "rewards": [
+      {
+        "name": "Lightning AR-15",
+        "itemDefinitionId": 2841,
+        "rewardChance": 1
+      },
+      {
+        "name": "Anodized AR-15",
+        "itemDefinitionId": 2851,
+        "rewardChance": 1
+      },
+      {
+        "name": "Hockey Mask",
+        "itemDefinitionId": 2873,
+        "rewardChance": 2
+      },
+      {
+        "name": "Dead End Armor",
+        "itemDefinitionId": 2861,
+        "rewardChance": 2
+      },
+      {
+        "name": "Dragon Motorcycle Helmet",
+        "itemDefinitionId": 2840,
+        "rewardChance": 2
+      },
+      {
+        "name": "Velvet Suit Jacket",
+        "itemDefinitionId": 2847,
+        "rewardChance": 2
+      },
+      {
+        "name": "Fatale Leggings",
+        "itemDefinitionId": 2854,
+        "rewardChance": 5
+      },
+      {
+        "name": "Pinstripe Suit Jacket",
+        "itemDefinitionId": 2849,
+        "rewardChance": 5
+      },
+      {
+        "name": "Eagle Tactical Helmet",
+        "itemDefinitionId": 2850,
+        "rewardChance": 5
+      },
+      {
+        "name": "Gray and Red Armor",
+        "itemDefinitionId": 2867,
+        "rewardChance": 5
+      },
+      {
+        "name": "Graffiti Hoodie",
+        "itemDefinitionId": 2882,
+        "rewardChance": 5
+      },
+      {
+        "name": "Red Star Armor",
+        "itemDefinitionId": 2868,
+        "rewardChance": 5
+      },
+      {
+        "name": "Rasta Motorcycle Helmet",
+        "itemDefinitionId": 2856,
+        "rewardChance": 20
+      },
+      {
+        "name": "Pinstripe Slacks",
+        "itemDefinitionId": 2846,
+        "rewardChance": 20
+      },
+      {
+        "name": "Velvet Slacks",
+        "itemDefinitionId": 2843,
+        "rewardChance": 20
+      },
+      {
+        "name": "Eagle Hockey Mask",
+        "itemDefinitionId": 2876,
+        "rewardChance": 20
+      },
+      {
+        "name": "Purple Boots",
+        "itemDefinitionId": 2857,
+        "rewardChance": 20
+      },
+      {
+        "name": "Pixel Hoodie",
+        "itemDefinitionId": 2886,
+        "rewardChance": 20
+      },
+      {
+        "name": "Skull Hoodie",
+        "itemDefinitionId": 2883,
+        "rewardChance": 20
+      },
+      {
+        "name": "Skull Leggings",
+        "itemDefinitionId": 2855,
+        "rewardChance": 20
+      }
+    ]
+  },
+
+  {
+    "name": "Bronze Renegade Crate",
+    "itemDefinitionId": 2891,
+    "rewards": [
+      {
+        "name": "Lightning AR-15",
+        "itemDefinitionId": 2841,
+        "rewardChance": 1
+      },
+      {
+        "name": "Anodized AR-15",
+        "itemDefinitionId": 2851,
+        "rewardChance": 1
+      },
+      {
+        "name": "Hockey Mask",
+        "itemDefinitionId": 2873,
+        "rewardChance": 2
+      },
+      {
+        "name": "Dead End Armor",
+        "itemDefinitionId": 2861,
+        "rewardChance": 2
+      },
+      {
+        "name": "Dragon Motorcycle Helmet",
+        "itemDefinitionId": 2840,
+        "rewardChance": 2
+      },
+      {
+        "name": "Velvet Suit Jacket",
+        "itemDefinitionId": 2847,
+        "rewardChance": 2
+      },
+      {
+        "name": "Fatale Leggings",
+        "itemDefinitionId": 2854,
+        "rewardChance": 5
+      },
+      {
+        "name": "Pinstripe Suit Jacket",
+        "itemDefinitionId": 2849,
+        "rewardChance": 5
+      },
+      {
+        "name": "Eagle Tactical Helmet",
+        "itemDefinitionId": 2850,
+        "rewardChance": 5
+      },
+      {
+        "name": "Gray and Red Armor",
+        "itemDefinitionId": 2867,
+        "rewardChance": 5
+      },
+      {
+        "name": "Graffiti Hoodie",
+        "itemDefinitionId": 2882,
+        "rewardChance": 5
+      },
+      {
+        "name": "Red Star Armor",
+        "itemDefinitionId": 2868,
+        "rewardChance": 5
+      }
+    ]
+  },
+  {
+    "name": "Silver Renegade Crate",
+    "itemDefinitionId": 2892,
+    "rewards": [
+      {
+        "name": "Lightning AR-15",
+        "itemDefinitionId": 2841,
+        "rewardChance": 1
+      },
+      {
+        "name": "Anodized AR-15",
+        "itemDefinitionId": 2851,
+        "rewardChance": 1
+      },
+      {
+        "name": "Hockey Mask",
+        "itemDefinitionId": 2873,
+        "rewardChance": 2
+      },
+      {
+        "name": "Dead End Armor",
+        "itemDefinitionId": 2861,
+        "rewardChance": 2
+      },
+      {
+        "name": "Dragon Motorcycle Helmet",
+        "itemDefinitionId": 2840,
+        "rewardChance": 2
+      },
+      {
+        "name": "Velvet Suit Jacket",
+        "itemDefinitionId": 2847,
+        "rewardChance": 2
+      }
+    ]
+  },
+  {
+    "name": "Gold Renegade Crate",
+    "itemDefinitionId": 2893,
+    "rewards": [
+      {
+        "name": "Lightning AR-15",
+        "itemDefinitionId": 2841,
+        "rewardChance": 1
+      },
+      {
+        "name": "Anodized AR-15",
+        "itemDefinitionId": 2851,
+        "rewardChance": 1
+      }
+    ]
+  },
+  {
+    "name": "Wasteland Crate",
+    "itemDefinitionId": 2939,
+    "rewards": [
+      {
+        "name": "Wasteland Skull Helmet",
+        "itemDefinitionId": 3065,
+        "rewardChance": 1
+      },
+      {
+        "name": "Rainbow Swirl AK-47",
+        "itemDefinitionId": 3058,
+        "rewardChance": 1
+      },
+      {
+        "name": "Graffiti Sniper Rifle",
+        "itemDefinitionId": 2940,
+        "rewardChance": 1
+      },
+      {
+        "name": "Dragon Lodge Parka",
+        "itemDefinitionId": 3038,
+        "rewardChance": 2
+      },
+      {
+        "name": "Copper Steampunk Goggles",
+        "itemDefinitionId": 2960,
+        "rewardChance": 2
+      },
+      {
+        "name": "Skull Padded Pants",
+        "itemDefinitionId": 2917,
+        "rewardChance": 2
+      },
+      {
+        "name": "Rainbow Swirl Helmet",
+        "itemDefinitionId": 3077,
+        "rewardChance": 2
+      },
+      {
+        "name": "Snow Camo Parka",
+        "itemDefinitionId": 3036,
+        "rewardChance": 5
+      },
+      {
+        "name": "Rusted Metal Armor",
+        "itemDefinitionId": 2976,
+        "rewardChance": 5
+      },
+      {
+        "name": "Pink Skulls Survivor Backpack",
+        "itemDefinitionId": 3052,
+        "rewardChance": 5
+      },
+      {
+        "name": "Flaming Skull Face Bandana",
+        "itemDefinitionId": 2931,
+        "rewardChance": 5
+      },
+      {
+        "name": "Silver Padded Pants",
+        "itemDefinitionId": 2918,
+        "rewardChance": 5
+      },
+      {
+        "name": "Yellow Raincoat Parka",
+        "itemDefinitionId": 3035,
+        "rewardChance": 5
+      },
+      {
+        "name": "Leather Jacket",
+        "itemDefinitionId": 2946,
+        "rewardChance": 20
+      },
+      {
+        "name": "Patriotic Boots",
+        "itemDefinitionId": 3063,
+        "rewardChance": 20
+      },
+      {
+        "name": "Camo Survivor Backpack",
+        "itemDefinitionId": 3051,
+        "rewardChance": 20
+      },
+      {
+        "name": "Digital Camo Padded Pants",
+        "itemDefinitionId": 2920,
+        "rewardChance": 20
+      },
+      {
+        "name": "Green Camo Armor",
+        "itemDefinitionId": 2974,
+        "rewardChance": 20
+      },
+      {
+        "name": "Gold Padded Pants",
+        "itemDefinitionId": 2916,
+        "rewardChance": 20
+      },
+      {
+        "name": "Dusty Steampunk Goggles",
+        "itemDefinitionId": 2955,
+        "rewardChance": 20
+      },
+      {
+        "name": "Headshot Hockey Mask",
+        "itemDefinitionId": 2874,
+        "rewardChance": 20
+      }
+    ]
+  },
+  {
+    "name": "Bronze Wasteland Crate",
+    "itemDefinitionId": 3026,
+    "rewards": [
+      {
+        "name": "Wasteland Skull Helmet",
+        "itemDefinitionId": 3065,
+        "rewardChance": 1
+      },
+      {
+        "name": "Rainbow Swirl AK-47",
+        "itemDefinitionId": 3058,
+        "rewardChance": 1
+      },
+      {
+        "name": "Graffiti Sniper Rifle",
+        "itemDefinitionId": 2940,
+        "rewardChance": 1
+      },
+      {
+        "name": "Dragon Lodge Parka",
+        "itemDefinitionId": 3038,
+        "rewardChance": 2
+      },
+      {
+        "name": "Copper Steampunk Goggles",
+        "itemDefinitionId": 2960,
+        "rewardChance": 2
+      },
+      {
+        "name": "Skull Padded Pants",
+        "itemDefinitionId": 2917,
+        "rewardChance": 2
+      },
+      {
+        "name": "Rainbow Swirl Helmet",
+        "itemDefinitionId": 3077,
+        "rewardChance": 2
+      },
+      {
+        "name": "Snow Camo Parka",
+        "itemDefinitionId": 3036,
+        "rewardChance": 5
+      },
+      {
+        "name": "Rusted Metal Armor",
+        "itemDefinitionId": 2976,
+        "rewardChance": 5
+      },
+      {
+        "name": "Pink Skulls Survivor Backpack",
+        "itemDefinitionId": 3052,
+        "rewardChance": 5
+      },
+      {
+        "name": "Flaming Skull Face Bandana",
+        "itemDefinitionId": 2931,
+        "rewardChance": 5
+      },
+      {
+        "name": "Silver Padded Pants",
+        "itemDefinitionId": 2918,
+        "rewardChance": 5
+      },
+      {
+        "name": "Yellow Raincoat Parka",
+        "itemDefinitionId": 3035,
+        "rewardChance": 5
+      }
+    ]
+  },
+  {
+    "name": "Silver Wasteland Crate",
+    "itemDefinitionId": 3027,
+    "rewards": [
+      {
+        "name": "Wasteland Skull Helmet",
+        "itemDefinitionId": 3065,
+        "rewardChance": 1
+      },
+      {
+        "name": "Rainbow Swirl AK-47",
+        "itemDefinitionId": 3058,
+        "rewardChance": 1
+      },
+      {
+        "name": "Graffiti Sniper Rifle",
+        "itemDefinitionId": 2940,
+        "rewardChance": 1
+      },
+      {
+        "name": "Dragon Lodge Parka",
+        "itemDefinitionId": 3038,
+        "rewardChance": 2
+      },
+      {
+        "name": "Copper Steampunk Goggles",
+        "itemDefinitionId": 2960,
+        "rewardChance": 2
+      },
+      {
+        "name": "Skull Padded Pants",
+        "itemDefinitionId": 2917,
+        "rewardChance": 2
+      },
+      {
+        "name": "Rainbow Swirl Helmet",
+        "itemDefinitionId": 3077,
+        "rewardChance": 2
+      }
+    ]
+  },
+  {
+    "name": "Gold Wasteland Crate",
+    "itemDefinitionId": 3028,
+    "rewards": [
+      {
+        "name": "Wasteland Skull Helmet",
+        "itemDefinitionId": 3065,
+        "rewardChance": 1
+      },
+      {
+        "name": "Rainbow Swirl AK-47",
+        "itemDefinitionId": 3058,
+        "rewardChance": 1
+      },
+      {
+        "name": "Graffiti Sniper Rifle",
+        "itemDefinitionId": 2940,
+        "rewardChance": 1
+      }
+    ]
+  },
+  {
+    "name": "Battle Royale Wearables Crate",
+    "itemDefinitionId": 2031,
+    "rewards": [
+      {
+        "name": "Emote: We're Not Worthy",
+        "itemDefinitionId": 2008,
+        "rewardChance": 1
+      },
+      {
+        "name": "Emote: Sarcasm Dance",
+        "itemDefinitionId": 2005,
+        "rewardChance": 1
+      },
+      {
+        "name": "Emote: Pelvic Thrust",
+        "itemDefinitionId": 2004,
+        "rewardChance": 1
+      },
+      {
+        "name": "Emote: Crotch Chop",
+        "itemDefinitionId": 2001,
+        "rewardChance": 1
+      },
+      {
+        "name": "Emote: Screw You",
+        "itemDefinitionId": 2006,
+        "rewardChance": 1
+      },
+      {
+        "name": "Emote: Shimmy Dance",
+        "itemDefinitionId": 2007,
+        "rewardChance": 1
+      },
+      {
+        "name": "Emote: Booty Slap",
+        "itemDefinitionId": 2000,
+        "rewardChance": 1
+      },
+      {
+        "name": "Emote: Cry Baby",
+        "itemDefinitionId": 2002,
+        "rewardChance": 1
+      },
+      {
+        "name": "Emote: Bird Cannon",
+        "itemDefinitionId": 1999,
+        "rewardChance": 1
+      },
+      {
+        "name": "Emote: Grind",
+        "itemDefinitionId": 2003,
+        "rewardChance": 1
+      },
+      {
+        "name": "PV Police Dept. T-Shirt",
+        "itemDefinitionId": 1925,
+        "rewardChance": 2
+      },
+      {
+        "name": "Blue Camo Tactical Helmet w/Goggles",
+        "itemDefinitionId": 1944,
+        "rewardChance": 2
+      },
+      {
+        "name": "Eagle Flannel Vest",
+        "itemDefinitionId": 2025,
+        "rewardChance": 5
+      },
+      {
+        "name": "Zimms Yellow Racing Helmet",
+        "itemDefinitionId": 2016,
+        "rewardChance": 5
+      },
+      {
+        "name": "Beige Golf Pants",
+        "itemDefinitionId": 1938,
+        "rewardChance": 5
+      },
+      {
+        "name": "Camo Green Outback Hat",
+        "itemDefinitionId": 2020,
+        "rewardChance": 20
+      },
+      {
+        "name": "White Striped Motorcycle Helmet",
+        "itemDefinitionId": 2015,
+        "rewardChance": 20
+      },
+      {
+        "name": "Greasy Joes T-Shirt",
+        "itemDefinitionId": 1922,
+        "rewardChance": 20
+      },
+      {
+        "name": "Long Johnston T-Shirt",
+        "itemDefinitionId": 1929,
+        "rewardChance": 20
+      },
+      {
+        "name": "Blue and Orange Backpack",
+        "itemDefinitionId": 2022,
+        "rewardChance": 20
+      },
+      {
+        "name": "Tan Cowboy Hat",
+        "itemDefinitionId": 1932,
+        "rewardChance": 20
+      },
+      {
+        "name": "Leather Flannel Vest",
+        "itemDefinitionId": 2024,
+        "rewardChance": 20
+      },
+      {
+        "name": "Blue Racing Helmet",
+        "itemDefinitionId": 2013,
+        "rewardChance": 20
+      }
+    ]
+  },
+  {
+    "name": "Battle Royale Wearables Crate",
+    "itemDefinitionId": 2350,
+    "rewards": [
+      {
+        "name": "Cigar Hog Mask",
+        "itemDefinitionId": 2395,
+        "rewardChance": 1
+      },
+      {
+        "name": "Brown Camo Ski Mask",
+        "itemDefinitionId": 2390,
+        "rewardChance": 1
+      },
+      {
+        "name": "Happy Target Ski Mask",
+        "itemDefinitionId": 2387,
+        "rewardChance": 1
+      },
+      {
+        "name": "Paisley Ski Mask",
+        "itemDefinitionId": 2391,
+        "rewardChance": 1
+      },
+      {
+        "name": "Hunter's Ski Mask",
+        "itemDefinitionId": 2392,
+        "rewardChance": 1
+      },
+      {
+        "name": "Blue Camo Ski Mask",
+        "itemDefinitionId": 2389,
+        "rewardChance": 1
+      },
+      {
+        "name": "Snowy Ski Mask ",
+        "itemDefinitionId": 2388,
+        "rewardChance": 1
+      },
+      {
+        "name": "Rasta Backpack",
+        "itemDefinitionId": 2394,
+        "rewardChance": 2
+      },
+      {
+        "name": "Police Shirt",
+        "itemDefinitionId": 2345,
+        "rewardChance": 2
+      },
+      {
+        "name": "Black and Orange Athletic Hoodie",
+        "itemDefinitionId": 2369,
+        "rewardChance": 2
+      },
+      {
+        "name": "Anarchy Leather Pants",
+        "itemDefinitionId": 2413,
+        "rewardChance": 5
+      },
+      {
+        "name": "Muscle Leggings",
+        "itemDefinitionId": 2361,
+        "rewardChance": 5
+      },
+      {
+        "name": "Stars and Stripes Shorts",
+        "itemDefinitionId": 2402,
+        "rewardChance": 5
+      },
+      {
+        "name": "Police Hat",
+        "itemDefinitionId": 2343,
+        "rewardChance": 5
+      },
+      {
+        "name": "Fanged Gloves",
+        "itemDefinitionId": 2417,
+        "rewardChance": 20
+      },
+      {
+        "name": "Police Slacks",
+        "itemDefinitionId": 2348,
+        "rewardChance": 20
+      },
+      {
+        "name": "Aqua Paisley Shorts",
+        "itemDefinitionId": 2403,
+        "rewardChance": 20
+      },
+      {
+        "name": "Guns Out Tanktop",
+        "itemDefinitionId": 2407,
+        "rewardChance": 20
+      },
+      {
+        "name": "Bone Leggings",
+        "itemDefinitionId": 2362,
+        "rewardChance": 20
+      },
+      {
+        "name": "D.O.A. Hoodie",
+        "itemDefinitionId": 2371,
+        "rewardChance": 20
+      },
+      {
+        "name": "Dragon Conveys",
+        "itemDefinitionId": 2397,
+        "rewardChance": 20
+      },
+      {
+        "name": "Flaming Skull Tanktop",
+        "itemDefinitionId": 2406,
+        "rewardChance": 20
+      }
+    ]
+  },
+  {
+    "name": "H1Z1 Invitational Crate",
+    "itemDefinitionId": 2436,
+    "rewards": [
+      {
+        "name": "Toxic AK-47",
+        "itemDefinitionId": 2479,
+        "rewardChance": 1
+      },
+      {
+        "name": "Toxic Body Armor",
+        "itemDefinitionId": 2478,
+        "rewardChance": 1
+      },
+      {
+        "name": "Toxic Shotgun",
+        "itemDefinitionId": 2447,
+        "rewardChance": 1
+      },
+      {
+        "name": "Emote: Pelvic Barrage",
+        "itemDefinitionId": 2440,
+        "rewardChance": 2
+      },
+      {
+        "name": "Twitch Hoodie",
+        "itemDefinitionId": 2370,
+        "rewardChance": 2
+      },
+      {
+        "name": "Toxic Boonie Hat",
+        "itemDefinitionId": 2485,
+        "rewardChance": 2
+      },
+      {
+        "name": "Toxic Mask",
+        "itemDefinitionId": 2443,
+        "rewardChance": 2
+      },
+      {
+        "name": "Toxic Combat Knife",
+        "itemDefinitionId": 2495,
+        "rewardChance": 2
+      },
+      {
+        "name": "Emote: Fisticuffs",
+        "itemDefinitionId": 2439,
+        "rewardChance": 5
+      },
+      {
+        "name": "Emote: Beg",
+        "itemDefinitionId": 2438,
+        "rewardChance": 5
+      },
+      {
+        "name": "Emote: Flex",
+        "itemDefinitionId": 2441,
+        "rewardChance": 5
+      },
+      {
+        "name": "Pro Gamer Hoodie",
+        "itemDefinitionId": 2372,
+        "rewardChance": 5
+      },
+      {
+        "name": "Toxic Gloves",
+        "itemDefinitionId": 2448,
+        "rewardChance": 5
+      },
+      {
+        "name": "CohhCarnage T-Shirt",
+        "itemDefinitionId": 2450,
+        "rewardChance": 20
+      },
+      {
+        "name": "Curvyllama T-Shirt",
+        "itemDefinitionId": 2451,
+        "rewardChance": 20
+      },
+      {
+        "name": "dasMEHDI T-Shirt",
+        "itemDefinitionId": 2452,
+        "rewardChance": 20
+      },
+      {
+        "name": "OMGitsfirefoxx T-Shirt",
+        "itemDefinitionId": 2457,
+        "rewardChance": 20
+      },
+      {
+        "name": "GoldGlove T-Shirt",
+        "itemDefinitionId": 2453,
+        "rewardChance": 20
+      },
+      {
+        "name": "Grimmybear T-Shirt",
+        "itemDefinitionId": 2454,
+        "rewardChance": 20
+      },
+      {
+        "name": "ITMEJP T-Shirt",
+        "itemDefinitionId": 2455,
+        "rewardChance": 20
+      },
+      {
+        "name": "Lowco2525 T-Shirt",
+        "itemDefinitionId": 2456,
+        "rewardChance": 20
+      },
+      {
+        "name": "Lirik T-Shirt",
+        "itemDefinitionId": 2492,
+        "rewardChance": 20
+      },
+      {
+        "name": "OPscT T-Shirt",
+        "itemDefinitionId": 2458,
+        "rewardChance": 20
+      },
+      {
+        "name": "rhinoCRUNCH T-Shirt",
+        "itemDefinitionId": 2459,
+        "rewardChance": 20
+      },
+      {
+        "name": "SeriousGaming T-Shirt",
+        "itemDefinitionId": 2460,
+        "rewardChance": 20
+      },
+      {
+        "name": "Summit1g T-Shirt",
+        "itemDefinitionId": 2461,
+        "rewardChance": 20
+      },
+      {
+        "name": "Towelliee T-Shirt",
+        "itemDefinitionId": 2462,
+        "rewardChance": 20
+      },
+      {
+        "name": "CDNThe3rd T-Shirt",
+        "itemDefinitionId": 2481,
+        "rewardChance": 20
+      },
+      {
+        "name": "iiJeriichoii T-Shirt",
+        "itemDefinitionId": 2490,
+        "rewardChance": 20
+      },
+      {
+        "name": "LegendaryLea T-Shirt",
+        "itemDefinitionId": 2491,
+        "rewardChance": 20
+      },
+      {
+        "name": "SodaPoppin T-Shirt",
+        "itemDefinitionId": 2493,
+        "rewardChance": 20
+      },
+      {
+        "name": "Sxyhxy T-Shirt",
+        "itemDefinitionId": 2449,
+        "rewardChance": 20
+      }
+    ]
+  },
+  {
+    "name": "H1Z1 Wearables Crate",
+    "itemDefinitionId": 2009,
+    "rewards": [
+      {
+        "name": "Emote: Cry Baby",
+        "itemDefinitionId": 2002,
+        "rewardChance": 1
+      },
+      {
+        "name": "Emote: Shimmy Dance",
+        "itemDefinitionId": 2007,
+        "rewardChance": 1
+      },
+      {
+        "name": "Emote: Booty Slap",
+        "itemDefinitionId": 2000,
+        "rewardChance": 1
+      },
+      {
+        "name": "Emote: Crotch Chop",
+        "itemDefinitionId": 2001,
+        "rewardChance": 1
+      },
+      {
+        "name": "Emote: Grind",
+        "itemDefinitionId": 2003,
+        "rewardChance": 1
+      },
+      {
+        "name": "Emote: We're Not Worthy",
+        "itemDefinitionId": 2008,
+        "rewardChance": 1
+      },
+      {
+        "name": "Emote: Pelvic Thrust",
+        "itemDefinitionId": 2004,
+        "rewardChance": 1
+      },
+      {
+        "name": "Emote: Sarcasm Dance",
+        "itemDefinitionId": 2005,
+        "rewardChance": 1
+      },
+      {
+        "name": "Emote: Screw You",
+        "itemDefinitionId": 2006,
+        "rewardChance": 1
+      },
+      {
+        "name": "Bird Cannon",
+        "itemDefinitionId": 1999,
+        "rewardChance": 1
+      },
+      {
+        "name": "Patriotic Motorcycle Helmet",
+        "itemDefinitionId": 1977,
+        "rewardChance": 2
+      },
+      {
+        "name": "Animal Hide Framed Backpack",
+        "itemDefinitionId": 1994,
+        "rewardChance": 2
+      },
+      {
+        "name": "PV Fire Dept. T-Shirt",
+        "itemDefinitionId": 1924,
+        "rewardChance": 5
+      },
+      {
+        "name": "Blue Sports Pants",
+        "itemDefinitionId": 1939,
+        "rewardChance": 5
+      },
+      {
+        "name": "Zimms Red Racing Helmet",
+        "itemDefinitionId": 1978,
+        "rewardChance": 5
+      },
+      {
+        "name": "Dirty Deeds T-Shirt",
+        "itemDefinitionId": 1923,
+        "rewardChance": 20
+      },
+      {
+        "name": "Blue Aloha Polo",
+        "itemDefinitionId": 1941,
+        "rewardChance": 20
+      },
+      {
+        "name": "Brown Cowboy Hat",
+        "itemDefinitionId": 1934,
+        "rewardChance": 20
+      },
+      {
+        "name": "Gray and Yellow Backpack",
+        "itemDefinitionId": 1976,
+        "rewardChance": 20
+      },
+      {
+        "name": "Red Aloha Polo",
+        "itemDefinitionId": 1972,
+        "rewardChance": 20
+      },
+      {
+        "name": "Royoline Polo",
+        "itemDefinitionId": 1943,
+        "rewardChance": 20
+      },
+      {
+        "name": "Green and White Racing Helmet",
+        "itemDefinitionId": 1980,
+        "rewardChance": 20
+      },
+      {
+        "name": "Leather Satchel",
+        "itemDefinitionId": 2011,
+        "rewardChance": 20
+      }
+    ]
+  },
+  {
+    "name": "Marauder Crate",
+    "itemDefinitionId": 2276,
+    "rewards": [
+      {
+        "name": "Red Face Bandana & Biker Shades",
+        "itemDefinitionId": 2326,
+        "rewardChance": 1
+      },
+      {
+        "name": "All American Face Bandana & White Biker Shades",
+        "itemDefinitionId": 2330,
+        "rewardChance": 1
+      },
+      {
+        "name": "Pink Face Bandana & Biker Shades",
+        "itemDefinitionId": 2331,
+        "rewardChance": 1
+      },
+      {
+        "name": "Blue Face Bandana & Biker Shades",
+        "itemDefinitionId": 2328,
+        "rewardChance": 1
+      },
+      {
+        "name": "Evil Clown Bandana & Glasses",
+        "itemDefinitionId": 2327,
+        "rewardChance": 1
+      },
+      {
+        "name": "Skull Face Bandana & Black Biker Shades",
+        "itemDefinitionId": 2332,
+        "rewardChance": 1
+      },
+      {
+        "name": "Camo Face Bandana & Green Biker Shades",
+        "itemDefinitionId": 2329,
+        "rewardChance": 1
+      },
+      {
+        "name": "Police Body Armor",
+        "itemDefinitionId": 2275,
+        "rewardChance": 2
+      },
+      {
+        "name": "Skull Full Face Respirator",
+        "itemDefinitionId": 2320,
+        "rewardChance": 2
+      },
+      {
+        "name": "All American Fingerless Gloves",
+        "itemDefinitionId": 2315,
+        "rewardChance": 2
+      },
+      {
+        "name": "Flower Print Pants",
+        "itemDefinitionId": 2311,
+        "rewardChance": 5
+      },
+      {
+        "name": "Metal Full Face Respirator",
+        "itemDefinitionId": 2322,
+        "rewardChance": 5
+      },
+      {
+        "name": "Camo Tactical Helmet",
+        "itemDefinitionId": 2321,
+        "rewardChance": 5
+      },
+      {
+        "name": "Rancho Taquito Doomed Jacket",
+        "itemDefinitionId": 2318,
+        "rewardChance": 5
+      },
+      {
+        "name": "Hunting Polo",
+        "itemDefinitionId": 2319,
+        "rewardChance": 20
+      },
+      {
+        "name": "Cheetah Camo Boots",
+        "itemDefinitionId": 2313,
+        "rewardChance": 20
+      },
+      {
+        "name": "Green Splatter Boots",
+        "itemDefinitionId": 2312,
+        "rewardChance": 20
+      },
+      {
+        "name": "Flame Cargo Pants",
+        "itemDefinitionId": 2310,
+        "rewardChance": 20
+      },
+      {
+        "name": "Digital Camo Pants",
+        "itemDefinitionId": 2309,
+        "rewardChance": 20
+      },
+      {
+        "name": "Red and Black Fingerless Gloves",
+        "itemDefinitionId": 2314,
+        "rewardChance": 20
+      },
+      {
+        "name": "Racing Jacket",
+        "itemDefinitionId": 2317,
+        "rewardChance": 20
+      },
+      {
+        "name": "Farmer's Jacket",
+        "itemDefinitionId": 2316,
+        "rewardChance": 20
+      }
+    ]
+  },
+  {
+    "name": "Mercenary Crate",
+    "itemDefinitionId": 2432,
+    "rewards": [
+      {
+        "name": "Mercenary AR-15",
+        "itemDefinitionId": 2673,
+        "rewardChance": 1
+      },
+      {
+        "name": "Combat Riot Shotgun",
+        "itemDefinitionId": 2587,
+        "rewardChance": 1
+      },
+      {
+        "name": "Patriotic AR-15",
+        "itemDefinitionId": 2672,
+        "rewardChance": 1
+      },
+      {
+        "name": "Camo Body Armor",
+        "itemDefinitionId": 2543,
+        "rewardChance": 2
+      },
+      {
+        "name": "Pink Skull Body Armor",
+        "itemDefinitionId": 2542,
+        "rewardChance": 2
+      },
+      {
+        "name": "Crosshair Eyepatch",
+        "itemDefinitionId": 2584,
+        "rewardChance": 2
+      },
+      {
+        "name": "Woodland Ghillie Suit",
+        "itemDefinitionId": 2674,
+        "rewardChance": 2
+      },
+      {
+        "name": "Red Star Eyepatch",
+        "itemDefinitionId": 2578,
+        "rewardChance": 5
+      },
+      {
+        "name": "Floral Boonie Hat",
+        "itemDefinitionId": 2540,
+        "rewardChance": 5
+      },
+      {
+        "name": "Anchor Boonie Hat",
+        "itemDefinitionId": 2537,
+        "rewardChance": 5
+      },
+      {
+        "name": "Camo Eyepatch",
+        "itemDefinitionId": 2581,
+        "rewardChance": 5
+      },
+      {
+        "name": "Khaki Body Armor",
+        "itemDefinitionId": 2544,
+        "rewardChance": 5
+      },
+      {
+        "name": "Red Tessellated Shemagh",
+        "itemDefinitionId": 2698,
+        "rewardChance": 5
+      },
+      {
+        "name": "Brown Digital Camo Shemagh",
+        "itemDefinitionId": 2682,
+        "rewardChance": 5
+      },
+      {
+        "name": "Green Digital Camo Shemagh",
+        "itemDefinitionId": 2692,
+        "rewardChance": 5
+      },
+      {
+        "name": "Camo Shemagh",
+        "itemDefinitionId": 2695,
+        "rewardChance": 5
+      },
+      {
+        "name": "Mercenary Tanktop",
+        "itemDefinitionId": 2590,
+        "rewardChance": 5
+      },
+      {
+        "name": "Snakeskin Eyepatch",
+        "itemDefinitionId": 2579,
+        "rewardChance": 20
+      },
+      {
+        "name": "Khaki Boonie Hat",
+        "itemDefinitionId": 2539,
+        "rewardChance": 20
+      },
+      {
+        "name": "Snakeskin Boonie Hat",
+        "itemDefinitionId": 2541,
+        "rewardChance": 20
+      },
+      {
+        "name": "Beige Eyepatch",
+        "itemDefinitionId": 2580,
+        "rewardChance": 20
+      },
+      {
+        "name": "Tan Ghillie Suit Boots & Gloves",
+        "itemDefinitionId": 2724,
+        "rewardChance": 20
+      },
+      {
+        "name": "Copper Eyepatch",
+        "itemDefinitionId": 2582,
+        "rewardChance": 20
+      },
+      {
+        "name": "Camo Tanktop",
+        "itemDefinitionId": 2591,
+        "rewardChance": 20
+      },
+      {
+        "name": "Woodland Ghillie Suit Boots & Gloves",
+        "itemDefinitionId": 2725,
+        "rewardChance": 20
+      },
+      {
+        "name": "Blue Shemagh",
+        "itemDefinitionId": 2693,
+        "rewardChance": 20
+      },
+      {
+        "name": "Red Shemagh",
+        "itemDefinitionId": 2697,
+        "rewardChance": 20
+      },
+      {
+        "name": "Camo Boonie Hat",
+        "itemDefinitionId": 2538,
+        "rewardChance": 20
+      }
+    ]
+  },
+  {
+    "name": "Ronin Crate",
+    "itemDefinitionId": 3501,
+    "rewards": [
+      {
+        "name": "Irezumi Dragon AR-15",
+        "itemDefinitionId": 3476,
+        "rewardChance": 1
+      },
+      {
+        "name": "Neko-chan Riot Shotgun",
+        "itemDefinitionId": 3478,
+        "rewardChance": 1
+      },
+      {
+        "name": "Heavy Assault Skull Mask",
+        "itemDefinitionId": 3492,
+        "rewardChance": 1
+      },
+      {
+        "name": "Kuromu Dragon M9",
+        "itemDefinitionId": 3419,
+        "rewardChance": 2
+      },
+      {
+        "name": "Neko-chan Hoodie",
+        "itemDefinitionId": 3423,
+        "rewardChance": 2
+      },
+      {
+        "name": "Kitsune Plated Full Helmet",
+        "itemDefinitionId": 3427,
+        "rewardChance": 2
+      },
+      {
+        "name": "Heavy Assault .44 Magnum",
+        "itemDefinitionId": 3496,
+        "rewardChance": 2
+      },
+      {
+        "name": "Neko-chan R380",
+        "itemDefinitionId": 3490,
+        "rewardChance": 5
+      },
+      {
+        "name": "Heavy Assault Military Backpack",
+        "itemDefinitionId": 3421,
+        "rewardChance": 5
+      },
+      {
+        "name": "Sniper Laminated Body Armor",
+        "itemDefinitionId": 3484,
+        "rewardChance": 5
+      },
+      {
+        "name": "Kitsune Tactical Body Armor",
+        "itemDefinitionId": 3431,
+        "rewardChance": 5
+      },
+      {
+        "name": "Kitsune Infiltration Shoes",
+        "itemDefinitionId": 3430,
+        "rewardChance": 5
+      },
+      {
+        "name": "Kuroma Dragon .44 Magnum",
+        "itemDefinitionId": 3482,
+        "rewardChance": 5
+      },
+      {
+        "name": "Neko-chan Shorts",
+        "itemDefinitionId": 3424,
+        "rewardChance": 20
+      },
+      {
+        "name": "Sniper Fingerless Gloves",
+        "itemDefinitionId": 3425,
+        "rewardChance": 20
+      },
+      {
+        "name": "Tech Combat Boots",
+        "itemDefinitionId": 3494,
+        "rewardChance": 20
+      },
+      {
+        "name": "Sniper Tactical Helmet",
+        "itemDefinitionId": 3488,
+        "rewardChance": 20
+      },
+      {
+        "name": "Neko-chan Conveys",
+        "itemDefinitionId": 3422,
+        "rewardChance": 20
+      },
+      {
+        "name": "Kitsune Henley Shirt",
+        "itemDefinitionId": 3428,
+        "rewardChance": 20
+      },
+      {
+        "name": "Kitsune Cargo Pants",
+        "itemDefinitionId": 3429,
+        "rewardChance": 20
+      },
+      {
+        "name": "Kuromu Dragon Recurve Bow",
+        "itemDefinitionId": 3480,
+        "rewardChance": 20
+      }
+    ]
+  },
+  {
+    "name": "2016 Invitational Crate",
+    "itemDefinitionId": 3569,
+    "rewards": [
+      {
+        "name": "Ninja AR-15",
+        "itemDefinitionId": 3597,
+        "rewardChance": 1
+      },
+      {
+        "name": "Gorilla Warfare Full Helmet",
+        "itemDefinitionId": 3632,
+        "rewardChance": 1
+      },
+      {
+        "name": "Mr Grimmmz AR-15",
+        "itemDefinitionId": 3596,
+        "rewardChance": 1
+      },
+      {
+        "name": "Desert Warfare AK-47",
+        "itemDefinitionId": 3418,
+        "rewardChance": 1
+      },
+      {
+        "name": "Red Bone Hoodie",
+        "itemDefinitionId": 3564,
+        "rewardChance": 2
+      },
+      {
+        "name": "JoshOG Leather Jacket",
+        "itemDefinitionId": 3555,
+        "rewardChance": 2
+      },
+      {
+        "name": "Red Bone Full Helmet",
+        "itemDefinitionId": 3568,
+        "rewardChance": 2
+      },
+      {
+        "name": "Twitch Tactical Backpack",
+        "itemDefinitionId": 3594,
+        "rewardChance": 2
+      },
+      {
+        "name": "Desert Warfare Tactical Body Armor",
+        "itemDefinitionId": 3582,
+        "rewardChance": 2
+      },
+      {
+        "name": "Echo Fox Jersey",
+        "itemDefinitionId": 3559,
+        "rewardChance": 5
+      },
+      {
+        "name": "ANGRYPUG Motorcycle Helmet",
+        "itemDefinitionId": 3560,
+        "rewardChance": 5
+      },
+      {
+        "name": "SeaNanners Hockey Mask",
+        "itemDefinitionId": 3561,
+        "rewardChance": 5
+      },
+      {
+        "name": "SandyRavage Cargo Pants",
+        "itemDefinitionId": 3562,
+        "rewardChance": 5
+      },
+      {
+        "name": "GassyMexican T-Shirt",
+        "itemDefinitionId": 3563,
+        "rewardChance": 5
+      },
+      {
+        "name": "Red Bone Body Armor",
+        "itemDefinitionId": 3566,
+        "rewardChance": 5
+      },
+      {
+        "name": "Ellohime Conveys",
+        "itemDefinitionId": 3588,
+        "rewardChance": 5
+      },
+      {
+        "name": "TheZombiUnicorn Tanktop",
+        "itemDefinitionId": 3590,
+        "rewardChance": 5
+      },
+      {
+        "name": "Desert Warfare Tactical Helmet",
+        "itemDefinitionId": 3593,
+        "rewardChance": 5
+      },
+      {
+        "name": "Manpons T-Shirt",
+        "itemDefinitionId": 3589,
+        "rewardChance": 20
+      },
+      {
+        "name": "julia_tv T-Shirt",
+        "itemDefinitionId": 3554,
+        "rewardChance": 20
+      },
+      {
+        "name": "Dr DisRespect Motorcycle Helmet",
+        "itemDefinitionId": 3565,
+        "rewardChance": 20
+      },
+      {
+        "name": "Crunk_Muffin Shorts",
+        "itemDefinitionId": 3556,
+        "rewardChance": 20
+      },
+      {
+        "name": "Desert Warfare Shemagh",
+        "itemDefinitionId": 3599,
+        "rewardChance": 20
+      },
+      {
+        "name": "Red Bone Work Boots",
+        "itemDefinitionId": 3558,
+        "rewardChance": 20
+      },
+      {
+        "name": "Red Bone Baggy Pants",
+        "itemDefinitionId": 3557,
+        "rewardChance": 20
+      },
+      {
+        "name": "Desert Warfare Polo Shirt",
+        "itemDefinitionId": 3591,
+        "rewardChance": 20
+      },
+      {
+        "name": "Desert Warfare Tactical Pants",
+        "itemDefinitionId": 3592,
+        "rewardChance": 20
+      },
+      {
+        "name": "Desert Warfare Work Boots",
+        "itemDefinitionId": 3642,
+        "rewardChance": 20
+      },
+      {
+        "name": "m0E_tv T-Shirt",
+        "itemDefinitionId": 3553,
+        "rewardChance": 20
+      }
+    ]
+  },
+  {
+    "name": "Bronze 2016 Invitational Crate",
+    "itemDefinitionId": 3571,
+    "rewards": [
+      {
+        "name": "Ninja AR-15",
+        "itemDefinitionId": 3597,
+        "rewardChance": 1
+      },
+      {
+        "name": "Gorilla Warfare Full Helmet",
+        "itemDefinitionId": 3632,
+        "rewardChance": 1
+      },
+      {
+        "name": "Mr Grimmmz AR-15",
+        "itemDefinitionId": 3596,
+        "rewardChance": 1
+      },
+      {
+        "name": "Desert Warfare AK-47",
+        "itemDefinitionId": 3418,
+        "rewardChance": 1
+      },
+      {
+        "name": "Red Bone Hoodie",
+        "itemDefinitionId": 3564,
+        "rewardChance": 2
+      },
+      {
+        "name": "JoshOG Leather Jacket",
+        "itemDefinitionId": 3555,
+        "rewardChance": 2
+      },
+      {
+        "name": "Red Bone Full Helmet",
+        "itemDefinitionId": 3568,
+        "rewardChance": 2
+      },
+      {
+        "name": "Twitch Tactical Backpack",
+        "itemDefinitionId": 3594,
+        "rewardChance": 2
+      },
+      {
+        "name": "Desert Warfare Tactical Body Armor",
+        "itemDefinitionId": 3582,
+        "rewardChance": 2
+      },
+      {
+        "name": "Echo Fox Jersey",
+        "itemDefinitionId": 3559,
+        "rewardChance": 5
+      },
+      {
+        "name": "ANGRYPUG Motorcycle Helmet",
+        "itemDefinitionId": 3560,
+        "rewardChance": 5
+      },
+      {
+        "name": "SeaNanners Hockey Mask",
+        "itemDefinitionId": 3561,
+        "rewardChance": 5
+      },
+      {
+        "name": "SandyRavage Cargo Pants",
+        "itemDefinitionId": 3562,
+        "rewardChance": 5
+      },
+      {
+        "name": "GassyMexican T-Shirt",
+        "itemDefinitionId": 3563,
+        "rewardChance": 5
+      },
+      {
+        "name": "Red Bone Body Armor",
+        "itemDefinitionId": 3566,
+        "rewardChance": 5
+      },
+      {
+        "name": "Ellohime Conveys",
+        "itemDefinitionId": 3588,
+        "rewardChance": 5
+      },
+      {
+        "name": "TheZombiUnicorn Tanktop",
+        "itemDefinitionId": 3590,
+        "rewardChance": 5
+      },
+      {
+        "name": "Desert Warfare Tactical Helmet",
+        "itemDefinitionId": 3593,
+        "rewardChance": 5
+      }
+    ]
+  },
+  {
+    "name": "Silver 2016 Invitational Crate",
+    "itemDefinitionId": 3572,
+    "rewards": [
+      {
+        "name": "Ninja AR-15",
+        "itemDefinitionId": 3597,
+        "rewardChance": 1
+      },
+      {
+        "name": "Gorilla Warfare Full Helmet",
+        "itemDefinitionId": 3632,
+        "rewardChance": 1
+      },
+      {
+        "name": "Mr Grimmmz AR-15",
+        "itemDefinitionId": 3596,
+        "rewardChance": 1
+      },
+      {
+        "name": "Desert Warfare AK-47",
+        "itemDefinitionId": 3418,
+        "rewardChance": 1
+      },
+      {
+        "name": "Red Bone Hoodie",
+        "itemDefinitionId": 3564,
+        "rewardChance": 2
+      },
+      {
+        "name": "JoshOG Leather Jacket",
+        "itemDefinitionId": 3555,
+        "rewardChance": 2
+      },
+      {
+        "name": "Red Bone Full Helmet",
+        "itemDefinitionId": 3568,
+        "rewardChance": 2
+      },
+      {
+        "name": "Twitch Tactical Backpack",
+        "itemDefinitionId": 3594,
+        "rewardChance": 2
+      },
+      {
+        "name": "Desert Warfare Tactical Body Armor",
+        "itemDefinitionId": 3582,
+        "rewardChance": 2
+      }
+    ]
+  },
+  {
+    "name": "Gold 2016 Invitational Crate",
+    "itemDefinitionId": 3573,
+    "rewards": [
+      {
+        "name": "Ninja AR-15",
+        "itemDefinitionId": 3597,
+        "rewardChance": 1
+      },
+      {
+        "name": "Gorilla Warfare Full Helmet",
+        "itemDefinitionId": 3632,
+        "rewardChance": 1
+      },
+      {
+        "name": "Mr Grimmmz AR-15",
+        "itemDefinitionId": 3596,
+        "rewardChance": 1
+      },
+      {
+        "name": "Desert Warfare AK-47",
+        "itemDefinitionId": 3418,
+        "rewardChance": 1
+      }
+    ]
+  },
+  {
+    "name": "Infernal Crate - Unlocked",
+    "itemDefinitionId": 3821,
+    "rewards": [
+      {
+        "name": "Red Infernal Demon Mask",
+        "itemDefinitionId": 3759,
+        "rewardChance": 1
+      },
+      {
+        "name": "Green Infernal Demon Mask",
+        "itemDefinitionId": 3861,
+        "rewardChance": 1
+      },
+      {
+        "name": "Infernal 12GA Pump Shotgun",
+        "itemDefinitionId": 3752,
+        "rewardChance": 1
+      },
+      {
+        "name": "Shallow Grave .308 Hunting Rifle",
+        "itemDefinitionId": 3595,
+        "rewardChance": 1
+      },
+      {
+        "name": "Chiller Dance",
+        "itemDefinitionId": 3743,
+        "rewardChance": 2
+      },
+      {
+        "name": "Frankenswine Mask",
+        "itemDefinitionId": 3764,
+        "rewardChance": 2
+      },
+      {
+        "name": "Arachnid Full Helmet",
+        "itemDefinitionId": 3753,
+        "rewardChance": 2
+      },
+      {
+        "name": "Day of the Dead Suit Jacket",
+        "itemDefinitionId": 3760,
+        "rewardChance": 2
+      },
+      {
+        "name": "Full Metal Pumpkin Mask",
+        "itemDefinitionId": 3771,
+        "rewardChance": 2
+      },
+      {
+        "name": "Frankenswine Backpack",
+        "itemDefinitionId": 3774,
+        "rewardChance": 2
+      },
+      {
+        "name": "Anarchy Leather Pants",
+        "itemDefinitionId": 2413,
+        "rewardChance": 5
+      },
+      {
+        "name": "Arachnid Tactical Jacket",
+        "itemDefinitionId": 3755,
+        "rewardChance": 5
+      },
+      {
+        "name": "Arachnid Fingerless Gloves",
+        "itemDefinitionId": 3758,
+        "rewardChance": 5
+      },
+      {
+        "name": "Haunted Hockey Mask",
+        "itemDefinitionId": 3860,
+        "rewardChance": 5
+      },
+      {
+        "name": "Gill Face Bandana",
+        "itemDefinitionId": 3770,
+        "rewardChance": 5
+      },
+      {
+        "name": "Day of the Dead Slacks",
+        "itemDefinitionId": 3761,
+        "rewardChance": 5
+      },
+      {
+        "name": "Day of the dead Hockey Mask",
+        "itemDefinitionId": 3773,
+        "rewardChance": 5
+      },
+      {
+        "name": "Frankenswine Gators",
+        "itemDefinitionId": 3767,
+        "rewardChance": 5
+      },
+      {
+        "name": "Day of the dead Padded Gloves",
+        "itemDefinitionId": 3763,
+        "rewardChance": 20
+      },
+      {
+        "name": "Vlad Face Bandana",
+        "itemDefinitionId": 3769,
+        "rewardChance": 20
+      },
+      {
+        "name": "Arachnid Tactical Body Armor",
+        "itemDefinitionId": 3754,
+        "rewardChance": 20
+      },
+      {
+        "name": "Arachnid Combat Boots",
+        "itemDefinitionId": 3757,
+        "rewardChance": 20
+      },
+      {
+        "name": "Arachnid Padded Pants",
+        "itemDefinitionId": 3756,
+        "rewardChance": 20
+      },
+      {
+        "name": "Haunted Hoodie",
+        "itemDefinitionId": 3772,
+        "rewardChance": 20
+      },
+      {
+        "name": "Frank Face Bandana",
+        "itemDefinitionId": 3768,
+        "rewardChance": 20
+      },
+      {
+        "name": "Day of the Dead Zeds",
+        "itemDefinitionId": 3762,
+        "rewardChance": 20
+      },
+      {
+        "name": "Code Blue Scrubs Shirt",
+        "itemDefinitionId": 3765,
+        "rewardChance": 20
+      },
+      {
+        "name": "Code Blue Scrubs Pants",
+        "itemDefinitionId": 3766,
+        "rewardChance": 20
+      }
+    ]
+  },
+  {
+    "name": "Bronze Infernal Crate",
+    "itemDefinitionId": 3822,
+    "rewards": [
+      {
+        "name": "Red Infernal Demon Mask",
+        "itemDefinitionId": 3759,
+        "rewardChance": 1
+      },
+      {
+        "name": "Green Infernal Demon Mask",
+        "itemDefinitionId": 3861,
+        "rewardChance": 1
+      },
+      {
+        "name": "Infernal 12GA Pump Shotgun",
+        "itemDefinitionId": 3752,
+        "rewardChance": 1
+      },
+      {
+        "name": "Shallow Grave .308 Hunting Rifle",
+        "itemDefinitionId": 3595,
+        "rewardChance": 1
+      },
+      {
+        "name": "Chiller Dance",
+        "itemDefinitionId": 3743,
+        "rewardChance": 2
+      },
+      {
+        "name": "Frankenswine Mask",
+        "itemDefinitionId": 3764,
+        "rewardChance": 2
+      },
+      {
+        "name": "Arachnid Full Helmet",
+        "itemDefinitionId": 3753,
+        "rewardChance": 2
+      },
+      {
+        "name": "Day of the Dead Suit Jacket",
+        "itemDefinitionId": 3760,
+        "rewardChance": 2
+      },
+      {
+        "name": "Full Metal Pumpkin Mask",
+        "itemDefinitionId": 3771,
+        "rewardChance": 2
+      },
+      {
+        "name": "Frankenswine Backpack",
+        "itemDefinitionId": 3774,
+        "rewardChance": 2
+      },
+      {
+        "name": "Anarchy Leather Pants",
+        "itemDefinitionId": 2413,
+        "rewardChance": 5
+      },
+      {
+        "name": "Arachnid Tactical Jacket",
+        "itemDefinitionId": 3755,
+        "rewardChance": 5
+      },
+      {
+        "name": "Arachnid Fingerless Gloves",
+        "itemDefinitionId": 3758,
+        "rewardChance": 5
+      },
+      {
+        "name": "Haunted Hockey Mask",
+        "itemDefinitionId": 3860,
+        "rewardChance": 5
+      },
+      {
+        "name": "Gill Face Bandana",
+        "itemDefinitionId": 3770,
+        "rewardChance": 5
+      },
+      {
+        "name": "Day of the Dead Slacks",
+        "itemDefinitionId": 3761,
+        "rewardChance": 5
+      },
+      {
+        "name": "Day of the dead Hockey Mask",
+        "itemDefinitionId": 3773,
+        "rewardChance": 5
+      },
+      {
+        "name": "Frankenswine Gators",
+        "itemDefinitionId": 3767,
+        "rewardChance": 5
+      }
+    ]
+  },
+  {
+    "name": "Silver Infernal Crate",
+    "itemDefinitionId": 3823,
+    "rewards": [
+      {
+        "name": "Red Infernal Demon Mask",
+        "itemDefinitionId": 3759,
+        "rewardChance": 1
+      },
+      {
+        "name": "Green Infernal Demon Mask",
+        "itemDefinitionId": 3861,
+        "rewardChance": 1
+      },
+      {
+        "name": "Infernal 12GA Pump Shotgun",
+        "itemDefinitionId": 3752,
+        "rewardChance": 1
+      },
+      {
+        "name": "Shallow Grave .308 Hunting Rifle",
+        "itemDefinitionId": 3595,
+        "rewardChance": 1
+      },
+      {
+        "name": "Chiller Dance",
+        "itemDefinitionId": 3743,
+        "rewardChance": 2
+      },
+      {
+        "name": "Frankenswine Mask",
+        "itemDefinitionId": 3764,
+        "rewardChance": 2
+      },
+      {
+        "name": "Arachnid Full Helmet",
+        "itemDefinitionId": 3753,
+        "rewardChance": 2
+      },
+      {
+        "name": "Day of the Dead Suit Jacket",
+        "itemDefinitionId": 3760,
+        "rewardChance": 2
+      },
+      {
+        "name": "Full Metal Pumpkin Mask",
+        "itemDefinitionId": 3771,
+        "rewardChance": 2
+      },
+      {
+        "name": "Frankenswine Backpack",
+        "itemDefinitionId": 3774,
+        "rewardChance": 2
+      }
+    ]
+  },
+  {
+    "name": "Gold Infernal Crate",
+    "itemDefinitionId": 3824,
+    "rewards": [
+      {
+        "name": "Red Infernal Demon Mask",
+        "itemDefinitionId": 3759,
+        "rewardChance": 1
+      },
+      {
+        "name": "Green Infernal Demon Mask",
+        "itemDefinitionId": 3861,
+        "rewardChance": 1
+      },
+      {
+        "name": "Infernal 12GA Pump Shotgun",
+        "itemDefinitionId": 3752,
+        "rewardChance": 1
+      },
+      {
+        "name": "Shallow Grave .308 Hunting Rifle",
+        "itemDefinitionId": 3595,
+        "rewardChance": 1
+      }
+    ]
+  },
+  {
+    "name": "King of the Kill Mystery Bag",
+    "itemDefinitionId": 3239,
+    "rewards": [
+      {
+        "name": "Battle Royale Loser T-Shirt",
+        "itemDefinitionId": 3257,
+        "rewardChance": 20
+      },
+      {
+        "name": "Battle Royale Loser Leggings",
+        "itemDefinitionId": 3266,
+        "rewardChance": 20
+      },
+      {
+        "name": "Skull Graphic T-Shirt",
+        "itemDefinitionId": 1928,
+        "rewardChance": 20
+      },
+      {
+        "name": "Camp Runamok T-Shirt",
+        "itemDefinitionId": 1926,
+        "rewardChance": 20
+      },
+      {
+        "name": "Checkered Past Goggles",
+        "itemDefinitionId": 2957,
+        "rewardChance": 20
+      },
+      {
+        "name": "Starred Army T-Shirt",
+        "itemDefinitionId": 3260,
+        "rewardChance": 20
+      },
+      {
+        "name": "Bullseye Goggles",
+        "itemDefinitionId": 2958,
+        "rewardChance": 20
+      },
+      {
+        "name": "Battle Royale Splatter Leggings",
+        "itemDefinitionId": 3265,
+        "rewardChance": 20
+      },
+      {
+        "name": "Navy Suit Jacket",
+        "itemDefinitionId": 2848,
+        "rewardChance": 20
+      },
+      {
+        "name": "Navy Slacks",
+        "itemDefinitionId": 2845,
+        "rewardChance": 20
+      }
+    ]
+  },
+  {
+    "name": "King of the Kill Elite Bag",
+    "itemDefinitionId": 3240,
+    "rewards": [
+      {
+        "name": "Battle Royale Logo T-Shirt",
+        "itemDefinitionId": 3261,
+        "rewardChance": 20
+      },
+      {
+        "name": "Battle Royale Crown T-Shirt",
+        "itemDefinitionId": 3262,
+        "rewardChance": 20
+      },
+      {
+        "name": "Forest Camo T-Shirt",
+        "itemDefinitionId": 3263,
+        "rewardChance": 20
+      },
+      {
+        "name": "Battle Royale Logo Leggings",
+        "itemDefinitionId": 3267,
+        "rewardChance": 20
+      },
+      {
+        "name": "Tie-Dye T-Shirt",
+        "itemDefinitionId": 3264,
+        "rewardChance": 20
+      },
+      {
+        "name": "Tie-Dye Leggings",
+        "itemDefinitionId": 3268,
+        "rewardChance": 20
+      }
+    ]
+  },
+  {
+    "name": "Skirmish Bag: Small Firearms",
+    "itemDefinitionId": 3274,
+    "rewards": [
+      {
+        "name": "Blue and Black Hoodie",
+        "itemDefinitionId": 2368,
+        "rewardChance": 20
+      },
+      {
+        "name": "Scorpion Hoodie",
+        "itemDefinitionId": 2885,
+        "rewardChance": 20
+      },
+      {
+        "name": "Stormcloud Leggings",
+        "itemDefinitionId": 3238,
+        "rewardChance": 20
+      },
+      {
+        "name": "Teal Scale Leggings",
+        "itemDefinitionId": 3215,
+        "rewardChance": 20
+      }
+    ]
+  },
+  {
+    "name": "Skirmish Bag: Shotties & Snipers",
+    "itemDefinitionId": 3365,
+    "rewards": [
+      {
+        "name": "Green Starred Armor",
+        "itemDefinitionId": 3271,
+        "rewardChance": 20
+      },
+      {
+        "name": "Pink Anarchy Armor",
+        "itemDefinitionId": 3270,
+        "rewardChance": 20
+      },
+      {
+        "name": "Plaid Jacket",
+        "itemDefinitionId": 2945,
+        "rewardChance": 20
+      },
+      {
+        "name": "Forest Camo Jacket",
+        "itemDefinitionId": 2947,
+        "rewardChance": 20
+      }
+    ]
+  },
+  {
+    "name": "Skirmish Bag: Ironman",
+    "itemDefinitionId": 3447,
+    "rewards": [
+      {
+        "name": "Blue Survivor Backpack",
+        "itemDefinitionId": 3048,
+        "rewardChance": 20
+      },
+      {
+        "name": "Orange Survivor Backpack",
+        "itemDefinitionId": 3050,
+        "rewardChance": 20
+      },
+      {
+        "name": "Chaos Face Bandana",
+        "itemDefinitionId": 2932,
+        "rewardChance": 20
+      },
+      {
+        "name": "Yellow Plaid Face Bandana",
+        "itemDefinitionId": 2935,
+        "rewardChance": 20
+      }
+    ]
+  },
+  {
+    "name": "Skirmish Bag: Reanimated",
+    "itemDefinitionId": 3523,
+    "rewards": [
+      {
+        "name": "Starry-Eyed Goggles",
+        "itemDefinitionId": 2959,
+        "rewardChance": 20
+      },
+      {
+        "name": "Beige Suit Jacket",
+        "itemDefinitionId": 2842,
+        "rewardChance": 20
+      },
+      {
+        "name": "Emote: Formal Bow",
+        "itemDefinitionId": 3291,
+        "rewardChance": 20
+      },
+      {
+        "name": "Emote: Tea Time",
+        "itemDefinitionId": 3342,
+        "rewardChance": 20
+      }
+    ]
+  },
+  {
+    "name": "Skirmish Bag: Shotguns & Snipers 2",
+    "itemDefinitionId": 3633,
+    "rewards": [
+      {
+        "name": "Beige Slacks",
+        "itemDefinitionId": 2844,
+        "rewardChance": 20
+      },
+      {
+        "name": "Camo Goggles",
+        "itemDefinitionId": 2956,
+        "rewardChance": 20
+      },
+      {
+        "name": "Rasta Face Bandana",
+        "itemDefinitionId": 2934,
+        "rewardChance": 20
+      },
+      {
+        "name": "Emote: World's Smallest Violin",
+        "itemDefinitionId": 3348,
+        "rewardChance": 20
+      }
+    ]
+  },
+  {
+    "name": "Mystery Bag",
+    "itemDefinitionId": 1840,
+    "rewards": [
+      {
+        "name": "Battle Royale Loser T-Shirt",
+        "itemDefinitionId": 3257,
+        "rewardChance": 20
+      },
+      {
+        "name": "Black and Yellow Cap",
+        "itemDefinitionId": 1851,
+        "rewardChance": 20
+      },
+      {
+        "name": "Blue Trucker Cap",
+        "itemDefinitionId": 1848,
+        "rewardChance": 20
+      },
+      {
+        "name": "Brown Camo Beanie",
+        "itemDefinitionId": 1854,
+        "rewardChance": 20
+      },
+      {
+        "name": "Gray Striped Shirt with Star",
+        "itemDefinitionId": 1847,
+        "rewardChance": 20
+      },
+      {
+        "name": "Green Camo Beanie",
+        "itemDefinitionId": 1855,
+        "rewardChance": 20
+      },
+      {
+        "name": "Green Trucker Cap",
+        "itemDefinitionId": 1852,
+        "rewardChance": 20
+      },
+      {
+        "name": "Maroon Trucker Cap",
+        "itemDefinitionId": 1853,
+        "rewardChance": 20
+      },
+      {
+        "name": "Starred Army Shirt",
+        "itemDefinitionId": 1846,
+        "rewardChance": 20
+      }
+    ]
+  },
+  {
+    "name": "Elite Bag",
+    "itemDefinitionId": 1841,
+    "rewards": [
+      {
+        "name": "Black Battle Royale T-Shirt",
+        "itemDefinitionId": 1876,
+        "rewardChance": 20
+      },
+      {
+        "name": "Camo Green Cap",
+        "itemDefinitionId": 1849,
+        "rewardChance": 20
+      },
+      {
+        "name": "Camo Gray Trucker Cap",
+        "itemDefinitionId": 1850,
+        "rewardChance": 20
+      },
+      {
+        "name": "Forest Camo T-Shirt",
+        "itemDefinitionId": 3263,
+        "rewardChance": 20
+      },
+      {
+        "name": "Marsh Camo T-Shirt",
+        "itemDefinitionId": 1845,
+        "rewardChance": 20
+      },
+      {
+        "name": "White Battle Royale T-Shirt",
+        "itemDefinitionId": 1873,
+        "rewardChance": 20
+      }
+    ]
+  },
+  {
+    "name": "Mystery Bag",
+    "itemDefinitionId": 1879,
+    "rewards": [
+      {
+        "name": "Battle Royale Loser T-Shirt",
+        "itemDefinitionId": 3257,
+        "rewardChance": 20
+      },
+      {
+        "name": "Black and Yellow Cap",
+        "itemDefinitionId": 1851,
+        "rewardChance": 20
+      },
+      {
+        "name": "Blue Trucker Cap",
+        "itemDefinitionId": 1848,
+        "rewardChance": 20
+      },
+      {
+        "name": "Brown Camo Beanie",
+        "itemDefinitionId": 1854,
+        "rewardChance": 20
+      },
+      {
+        "name": "Gray Striped Shirt with Star",
+        "itemDefinitionId": 1847,
+        "rewardChance": 20
+      },
+      {
+        "name": "Green Camo Beanie",
+        "itemDefinitionId": 1855,
+        "rewardChance": 20
+      },
+      {
+        "name": "Green Trucker Cap",
+        "itemDefinitionId": 1852,
+        "rewardChance": 20
+      },
+      {
+        "name": "Maroon Trucker Cap",
+        "itemDefinitionId": 1853,
+        "rewardChance": 20
+      },
+      {
+        "name": "Starred Army Shirt",
+        "itemDefinitionId": 1846,
+        "rewardChance": 20
+      }
+    ]
+  },
+  {
+    "name": "Elite Bag Hardcore",
+    "itemDefinitionId": 1880,
+    "rewards": [
+      {
+        "name": "Abs Shirt",
+        "itemDefinitionId": 2266,
+        "rewardChance": 2
+      },
+      {
+        "name": "Tie-Dye T-Shirt",
+        "itemDefinitionId": 3264,
+        "rewardChance": 2
+      },
+      {
+        "name": "Black BR \"Irish Style\" T-Shirt",
+        "itemDefinitionId": 1868,
+        "rewardChance": 20
+      },
+      {
+        "name": "Black BR \"With Cheese\" T-Shirt",
+        "itemDefinitionId": 1869,
+        "rewardChance": 20
+      },
+      {
+        "name": "Blue Z Trucker Cap",
+        "itemDefinitionId": 1856,
+        "rewardChance": 20
+      },
+      {
+        "name": "White BR \"With Cheese\" T-Shirt",
+        "itemDefinitionId": 1874,
+        "rewardChance": 20
+      }
+    ]
+  },
+  {
+    "name": "Mystery Bag v2",
+    "itemDefinitionId": 2033,
+    "rewards": [
+      {
+        "name": "Black Canvas Outback Hat",
+        "itemDefinitionId": 1970,
+        "rewardChance": 5
+      },
+      {
+        "name": "Camo Green Flannel Shirt",
+        "itemDefinitionId": 1974,
+        "rewardChance": 5
+      },
+      {
+        "name": "Camo Tan Flannel Shirt",
+        "itemDefinitionId": 2029,
+        "rewardChance": 5
+      },
+      {
+        "name": "Paisley Flannel Shirt",
+        "itemDefinitionId": 1937,
+        "rewardChance": 5
+      },
+      {
+        "name": "Birds Graphic T-Shirt",
+        "itemDefinitionId": 1927,
+        "rewardChance": 20
+      },
+      {
+        "name": "Camp Runamok T-Shirt",
+        "itemDefinitionId": 3259,
+        "rewardChance": 20
+      },
+      {
+        "name": "PV Wild Beavers T-Shirt",
+        "itemDefinitionId": 1930,
+        "rewardChance": 20
+      },
+      {
+        "name": "Skull Graphic T-Shirt",
+        "itemDefinitionId": 3258,
+        "rewardChance": 20
+      },
+      {
+        "name": "Spores Polo",
+        "itemDefinitionId": 1940,
+        "rewardChance": 20
+      },
+      {
+        "name": "Tan Aloha Polo",
+        "itemDefinitionId": 2028,
+        "rewardChance": 20
+      }
+    ]
+  },
+  {
+    "name": "H1EMU Crate",
+    "itemDefinitionId": 5063,
+    "rewards": [
+      {
+        "name": "Rosegarden Shotgun",
+        "itemDefinitionId": 5037,
+        "rewardChance": 0.5
+      },
+      {
+        "name": "Unicorn Backpack",
+        "itemDefinitionId": 5023,
+        "rewardChance": 0.5
+      },
+      {
+        "name": "Greenwood Sniper",
+        "itemDefinitionId": 5015,
+        "rewardChance": 0.5
+      },
+      {
+        "name": "H1EMU Black & Yellow Hoodie",
+        "itemDefinitionId": 5003,
+        "rewardChance": 0.5
+      },
+      {
+        "name": "H1EMU Black & Yellow Pants",
+        "itemDefinitionId": 5004,
+        "rewardChance": 0.5
+      },
+      {
+        "name": "White Anarchy Leggings",
+        "itemDefinitionId": 2363,
+        "rewardChance": 1
+      },
+      {
+        "name": "Anarchy Motorcycle Helmet",
+        "itemDefinitionId": 2839,
+        "rewardChance": 1
+      },
+      {
+        "name": "Blue Camo Tactical Helmet w/Goggles",
+        "itemDefinitionId": 1944,
+        "rewardChance": 1
+      },
+      {
+        "name": "Rasta face bandana",
+        "itemDefinitionId": 2934,
+        "rewardChance": 1
+      },
+      {
+        "name": "Black Conveys Sneakers",
+        "itemDefinitionId": 5041,
+        "rewardChance": 5
+      },
+      {
+        "name": "Toxic cargo pants",
+        "itemDefinitionId": 3361,
+        "rewardChance": 5
+      },
+      {
+        "name": "Barbed Wire Face Bandana",
+        "itemDefinitionId": 2936,
+        "rewardChance": 5
+      },
+      {
+        "name": "Tactical goggles helmet",
+        "itemDefinitionId": 2224,
+        "rewardChance": 5
+      },
+      {
+        "name": "Dragon golden face bandana",
+        "itemDefinitionId": 2937,
+        "rewardChance": 5
+      },
+      {
+        "name": "Dark Blue Conveys Sneakers",
+        "itemDefinitionId": 5043,
+        "rewardChance": 20
+      },
+      {
+        "name": "Pink Conveys Sneakers",
+        "itemDefinitionId": 5042,
+        "rewardChance": 20
+      },
+      {
+        "name": "Green Conveys Sneakers",
+        "itemDefinitionId": 5044,
+        "rewardChance": 20
+      },
+      {
+        "name": "Yellow Conveys Sneakers",
+        "itemDefinitionId": 5045,
+        "rewardChance": 20
+      },
+      {
+        "name": "White Conveys Sneakers",
+        "itemDefinitionId": 3696,
+        "rewardChance": 20
+      },
+      {
+        "name": "Red Conveys Sneakers",
+        "itemDefinitionId": 5040,
+        "rewardChance": 20
+      }
+    ]
+  },
+  {
+    "name": "H1EMU Exclusive Crate",
+    "itemDefinitionId": 5026,
+    "rewards": [
+      {
+        "name": "H1EMU Sniper Rifle",
+        "itemDefinitionId": 5011,
+        "rewardChance": 0.5
+      },
+      {
+        "name": "H1EMU AR-15",
+        "itemDefinitionId": 5025,
+        "rewardChance": 0.5
+      },
+      {
+        "name": "H1EMU Black & Yellow Kevlar",
+        "itemDefinitionId": 5005,
+        "rewardChance": 0.5
+      },
+      {
+        "name": "H1EMU Black & Red Hoodie",
+        "itemDefinitionId": 5009,
+        "rewardChance": 1
+      },
+      {
+        "name": "H1EMU White & Red Hoodie",
+        "itemDefinitionId": 5030,
+        "rewardChance": 1
+      },
+      {
+        "name": "H1Emu Black & Red Pants",
+        "itemDefinitionId": 5010,
+        "rewardChance": 1
+      },
+      {
+        "name": "H1Emu White & Red Pants",
+        "itemDefinitionId": 5032,
+        "rewardChance": 1
+      },
+      {
+        "name": "H1EMU Black Backpack",
+        "itemDefinitionId": 5013,
+        "rewardChance": 1
+      },
+      {
+        "name": "H1EMU White Backpack",
+        "itemDefinitionId": 5034,
+        "rewardChance": 1
+      },
+      {
+        "name": "H1EMU Beanie",
+        "itemDefinitionId": 5021,
+        "rewardChance": 5
+      },
+      {
+        "name": "Stormcloud Leggings",
+        "itemDefinitionId": 3238,
+        "rewardChance": 5
+      },
+      {
+        "name": "Scorpion Hoodie",
+        "itemDefinitionId": 2885,
+        "rewardChance": 5
+      },
+      {
+        "name": "Tie-dye T-shirt",
+        "itemDefinitionId": 3264,
+        "rewardChance": 5
+      },
+      {
+        "name": "Tie-dye Leggings",
+        "itemDefinitionId": 3268,
+        "rewardChance": 5
+      },
+      {
+        "name": "Teal Scale Leggings",
+        "itemDefinitionId": 3215,
+        "rewardChance": 20
+      },
+      {
+        "name": "Chaos Face Bandana",
+        "itemDefinitionId": 2932,
+        "rewardChance": 20
+      },
+      {
+        "name": "Yellow Plaid Face Bandana",
+        "itemDefinitionId": 2935,
+        "rewardChance": 20
+      },
+      {
+        "name": "Beige Suit Jacket",
+        "itemDefinitionId": 2842,
+        "rewardChance": 20
+      },
+      {
+        "name": "Beige Slacks",
+        "itemDefinitionId": 2844,
+        "rewardChance": 20
+      }
+    ]
+  },
+  {
+    "name": "Victory Crate",
+    "itemDefinitionId": 5064,
+    "rewards": [
+      {
+        "name": "Wildstyle shotgun",
+        "itemDefinitionId": 2598,
+        "rewardChance": 0.5
+      },
+      {
+        "name": "Wildstyle AR-15",
+        "itemDefinitionId": 2602,
+        "rewardChance": 0.5
+      },
+      {
+        "name": "Wildstyle AK-47",
+        "itemDefinitionId": 2599,
+        "rewardChance": 0.5
+      },
+      {
+        "name": "ASUS RoG Military Backpack",
+        "itemDefinitionId": 5084,
+        "rewardChance": 1
+      },
+      {
+        "name": "Firefighter Parka",
+        "itemDefinitionId": 5252,
+        "rewardChance": 1
+      },
+      {
+        "name": "Red Cross Helmet",
+        "itemDefinitionId": 5069,
+        "rewardChance": 1
+      },
+      {
+        "name": "Yellow Cross Helmet",
+        "itemDefinitionId": 5070,
+        "rewardChance": 1
+      },
+      {
+        "name": "Firefighter Respirator",
+        "itemDefinitionId": 5254,
+        "rewardChance": 5
+      },
+      {
+        "name": "Grey & Leather Western Backpack",
+        "itemDefinitionId": 5090,
+        "rewardChance": 5
+      },
+      {
+        "name": "Navy Eagle Parka",
+        "itemDefinitionId": 3037,
+        "rewardChance": 5
+      },
+      {
+        "name": "Firefighter Padded Pants",
+        "itemDefinitionId": 5253,
+        "rewardChance": 20
+      },
+      {
+        "name": "Dark Grey Chained Gloves",
+        "itemDefinitionId": 5097,
+        "rewardChance": 20
+      },
+      {
+        "name": "Leather Chained Gloves",
+        "itemDefinitionId": 5095,
+        "rewardChance": 20
+      },
+      {
+        "name": "Ignition T-shirt",
+        "itemDefinitionId": 3217,
+        "rewardChance": 20
+      }
+    ]
+  },
+  {
+    "name": "Breakout Crate",
+    "itemDefinitionId": 5255,
+    "rewards": [
+      {
+        "name": "Patriotic Sniper Rifle",
+        "itemDefinitionId": 2942,
+        "rewardChance": 0.5
+      },
+      {
+        "name": "Green Camo Sniper Rifle",
+        "itemDefinitionId": 5085,
+        "rewardChance": 0.5
+      },
+      {
+        "name": "H1EMU White & Red Body Armor",
+        "itemDefinitionId": 5080,
+        "rewardChance": 0.5
+      },
+      {
+        "name": "H1EMU Black & Red Body Armor",
+        "itemDefinitionId": 5079,
+        "rewardChance": 0.5
+      },
+      {
+        "name": "Camo Cross Helmet",
+        "itemDefinitionId": 5073,
+        "rewardChance": 1
+      },
+      {
+        "name": "Green Camo Military Backpack",
+        "itemDefinitionId": 5082,
+        "rewardChance": 1
+      },
+      {
+        "name": "Green Puffy Jacket",
+        "itemDefinitionId": 5076,
+        "rewardChance": 5
+      },
+      {
+        "name": "Green Cargo Pants",
+        "itemDefinitionId": 4001,
+        "rewardChance": 5
+      },
+      {
+        "name": "Forest Camo Jacket",
+        "itemDefinitionId": 2947,
+        "rewardChance": 5
+      },
+      {
+        "name": "PW1 Survivor T-Shirt",
+        "itemDefinitionId": 1893,
+        "rewardChance": 5
+      },
+      {
+        "name": "Green padded gloves",
+        "itemDefinitionId": 4007,
+        "rewardChance": 20
+      },
+      {
+        "name": "Green Chained Gloves",
+        "itemDefinitionId": 5096,
+        "rewardChance": 20
+      },
+      {
+        "name": "Aviator Cap",
+        "itemDefinitionId": 1835,
+        "rewardChance": 20
+      },
+      {
+        "name": "Green Army Parka",
+        "itemDefinitionId": 3034,
+        "rewardChance": 20
+      }
+    ]
+  },
+  {
+    "name": "Swirl crate",
+    "itemDefinitionId": 5256,
+    "rewards": [
+      {
+        "name": "Rainbow Swirl Hunting Rifle",
+        "itemDefinitionId": 2943,
+        "rewardChance": 0.5
+      },
+      {
+        "name": "Rainbow Swirl Shotgun",
+        "itemDefinitionId": 3060,
+        "rewardChance": 0.5
+      },
+      {
+        "name": "Rainbow Western Backpack",
+        "itemDefinitionId": 5091,
+        "rewardChance": 1
+      },
+      {
+        "name": "Neon Splatter Survivor Backpack",
+        "itemDefinitionId": 5257,
+        "rewardChance": 1
+      },
+      {
+        "name": "Purple Cross Helmet",
+        "itemDefinitionId": 5074,
+        "rewardChance": 1
+      },
+      {
+        "name": "Blue Cross Helmet",
+        "itemDefinitionId": 5068,
+        "rewardChance": 1
+      },
+      {
+        "name": "Purple Green Western Backpack",
+        "itemDefinitionId": 5089,
+        "rewardChance": 5
+      },
+      {
+        "name": "Plaid Jacket",
+        "itemDefinitionId": 2945,
+        "rewardChance": 5
+      },
+      {
+        "name": "Green Starred Armor",
+        "itemDefinitionId": 3271,
+        "rewardChance": 5
+      },
+      {
+        "name": "Teal Combat Boots",
+        "itemDefinitionId": 2760,
+        "rewardChance": 20
+      },
+      {
+        "name": "Orange and Aqua Hockey Mask",
+        "itemDefinitionId": 2875,
+        "rewardChance": 20
+      },
+      {
+        "name": "Green Striped Suit Jacket",
+        "itemDefinitionId": 3793,
+        "rewardChance": 20
+      },
+      {
+        "name": "Green Striped Slacks",
+        "itemDefinitionId": 3796,
+        "rewardChance": 20
+      },
+      {
+        "name": "Blue Survivor Backpack",
+        "itemDefinitionId": 3048,
+        "rewardChance": 5
+      },
+      {
+        "name": "Orange Survivor Backpack",
+        "itemDefinitionId": 3050,
+        "rewardChance": 5
+      }
+    ]
+  }
 ]
+

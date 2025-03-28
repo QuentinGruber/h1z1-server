@@ -3,7 +3,7 @@
 //   GNU GENERAL PUBLIC LICENSE
 //   Version 3, 29 June 2007
 //   copyright (C) 2020 - 2021 Quentin Gruber
-//   copyright (C) 2021 - 2024 H1emu community
+//   copyright (C) 2021 - 2025 H1emu community
 //
 //   https://github.com/QuentinGruber/h1z1-server
 //   https://www.npmjs.com/package/h1z1-server
@@ -1102,6 +1102,22 @@ export const lootTables: { [lootSpawner: string]: LootSpawner } = {
         }
       },
       {
+        item: Items.ZEDS_WHITE,
+        weight: 20,
+        spawnCount: {
+          min: 1,
+          max: 1
+        }
+      },
+      {
+        item: Items.GATORS_RED,
+        weight: 20,
+        spawnCount: {
+          min: 1,
+          max: 1
+        }
+      },
+      {
         item: Items.WEAPON_HATCHET,
         weight: 20,
         spawnCount: {
@@ -2040,6 +2056,14 @@ export const lootTables: { [lootSpawner: string]: LootSpawner } = {
       {
         item: Items.BACKPACK_BLUE_ORANGE,
         weight: 100,
+        spawnCount: {
+          min: 1,
+          max: 1
+        }
+      },
+      {
+        item: Items.BACKPACK_MILITARY_TAN,
+        weight: 5,
         spawnCount: {
           min: 1,
           max: 1

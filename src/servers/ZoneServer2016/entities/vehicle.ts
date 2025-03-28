@@ -3,7 +3,7 @@
 //   GNU GENERAL PUBLIC LICENSE
 //   Version 3, 29 June 2007
 //   copyright (C) 2020 - 2021 Quentin Gruber
-//   copyright (C) 2021 - 2024 H1emu community
+//   copyright (C) 2021 - 2025 H1emu community
 //
 //   https://github.com/QuentinGruber/h1z1-server
 //   https://www.npmjs.com/package/h1z1-server
@@ -554,11 +554,24 @@ export class Vehicle2016 extends BaseLootableEntity {
   getHealth() {
     return this._resources[ResourceIds.CONDITION];
   }
+  hasVehicleDamageBoost(weapon: Items | undefined) {
+    switch (weapon) {
+      case Items.WEAPON_308:
+      case Items.WEAPON_MAGNUM:
+        return true;
+      default:
+        return false;
+    }
+  }
 
   damage(server: ZoneServer2016, damageInfo: DamageInfo) {
     if (this.isInvulnerable || this.isDestroyed) return;
     const oldHealth = this._resources[ResourceIds.CONDITION];
-    this._resources[ResourceIds.CONDITION] -= damageInfo.damage;
+    this._resources[ResourceIds.CONDITION] -= this.hasVehicleDamageBoost(
+      damageInfo.weapon
+    )
+      ? 8000
+      : damageInfo.damage;
     const client = server.getClientByCharId(damageInfo.entity);
     if (client) {
       queueMicrotask(async () => {
@@ -573,7 +586,7 @@ export class Vehicle2016 extends BaseLootableEntity {
     }
 
     if (this._resources[ResourceIds.CONDITION] <= 0) {
-      if (client) {
+      if (client && !server._soloMode) {
         logClientActionToMongo(
           server._db.collection(DB_COLLECTIONS.KILLS),
           client,

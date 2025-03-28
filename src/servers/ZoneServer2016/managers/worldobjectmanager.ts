@@ -3,7 +3,7 @@
 //   GNU GENERAL PUBLIC LICENSE
 //   Version 3, 29 June 2007
 //   copyright (C) 2020 - 2021 Quentin Gruber
-//   copyright (C) 2021 - 2024 H1emu community
+//   copyright (C) 2021 - 2025 H1emu community
 //
 //   https://github.com/QuentinGruber/h1z1-server
 //   https://www.npmjs.com/package/h1z1-server
@@ -39,7 +39,10 @@ import {
   ModelIds,
   DefaultSkinsConveys,
   DefaultSkinsBackpack,
-  DefaultSkinsMotorHelmet
+  DefaultSkinsMotorHelmet,
+  DefaultSkinsZeds,
+  DefaultSkinsGators,
+  DefaultSkinsBoots
 } from "../models/enums";
 import { Vehicle2016 } from "../entities/vehicle";
 import { LootDefinition } from "types/zoneserver";
@@ -75,6 +78,15 @@ export function getRandomSkin(itemDefinitionId: number) {
       break;
     case Items.HELMET_MOTORCYCLE:
       arr = Object.keys(DefaultSkinsMotorHelmet);
+      break;
+    case Items.ZEDS_WHITE:
+      arr = Object.keys(DefaultSkinsZeds);
+      break;
+    case Items.GATORS_RED:
+      arr = Object.keys(DefaultSkinsGators);
+      break;
+    case Items.BOOTS_GRAY_BLUE:
+      arr = Object.keys(DefaultSkinsBoots);
       break;
     default:
       return itemDefinitionId;
@@ -625,6 +637,7 @@ export class WorldObjectManager {
               propType.modelId,
               new Float32Array(propInstance.position),
               new Float32Array(fixEulerOrder(propInstance.rotation)),
+              new Float32Array([1, 1, 1, 1]),
               server._serverGuid,
               Items.WORKBENCH
             );

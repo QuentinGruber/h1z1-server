@@ -3,7 +3,7 @@
 //   GNU GENERAL PUBLIC LICENSE
 //   Version 3, 29 June 2007
 //   copyright (C) 2020 - 2021 Quentin Gruber
-//   copyright (C) 2021 - 2024 H1emu community
+//   copyright (C) 2021 - 2025 H1emu community
 //
 //   https://github.com/QuentinGruber/h1z1-server
 //   https://www.npmjs.com/package/h1z1-server
@@ -13,27 +13,20 @@
 
 /* eslint-disable @typescript-eslint/no-unused-vars */
 // TODO enable @typescript-eslint/no-unused-vars
-import fs from "fs";
-import { ZoneClient2016 as Client, ZoneClient2016 } from "./classes/zoneclient";
+import { ZoneClient2016 as Client } from "./classes/zoneclient";
 import { ZoneServer2016 } from "./zoneserver";
 const debug = require("debug")("ZoneServer");
 
 import {
   _,
-  Int64String,
   isPosInRadius,
   toHex,
   quat2matrix,
-  logClientActionToMongo,
   eul2quat,
-  getDistance,
-  getDistance1d,
   isPosInRadiusWithY,
-  checkConstructionInRange,
   getCurrentServerTimeWrapper,
   getDateString,
   isHalloween,
-  luck,
   isChristmasSeason as isChristmasSeason
 } from "../../utils/utils";
 
@@ -47,16 +40,13 @@ import {
   ItemUseOptions,
   LoadoutSlots,
   StringIds,
-  ItemClasses,
   AccountItems,
-  EquipSlots,
   Effects
 } from "./models/enums";
 import { BaseFullCharacter } from "./entities/basefullcharacter";
 import { BaseLightweightCharacter } from "./entities/baselightweightcharacter";
 import { ConstructionParentEntity } from "./entities/constructionparententity";
 import { ConstructionDoor } from "./entities/constructiondoor";
-import { CommandHandler } from "./handlers/commands/commandhandler";
 import {
   AbilitiesInitAbility,
   AbilitiesUninitAbility,
@@ -64,11 +54,8 @@ import {
   AccessedCharacterEndCharacterAccess,
   CharacterCharacterStateDelta,
   CharacterFullCharacterDataRequest,
-  CharacterManagedObject,
-  CharacterMovementVersion,
   CharacterNoSpaceNotification,
   CharacterRespawn,
-  CharacterSeekTarget,
   CharacterSelectSessionResponse,
   CharacterStartMultiStateDeath,
   CharacterWeaponStance,
@@ -80,7 +67,6 @@ import {
   ClientUpdateMonitorTimeDrift,
   ClientUpdateNetworkProximityUpdatesComplete,
   ClientUpdateProximateItems,
-  ClientUpdateStartTimer,
   ClientUpdateUpdateLocation,
   ClientUpdateUpdateManagedLocation,
   CollisionDamage,
@@ -99,7 +85,6 @@ import {
   ConstructionPlacementFinalizeRequest,
   ConstructionPlacementRequest,
   ConstructionPlacementResponse,
-  ContainerMoveItem,
   ContinentBattleInfo,
   DtoHitSpeedTreeReport,
   EffectAddEffect,
@@ -111,7 +96,6 @@ import {
   ItemsRequestUseItem,
   KeepAlive,
   LightweightToFullNpc,
-  LightweightToFullVehicle,
   LoadoutSelectSlot,
   LobbyGameDefinitionDefinitionsRequest,
   LocksSetLock,
@@ -152,14 +136,12 @@ import {
   GrinderItem,
   Group,
   RewardCrateDefinition,
-  RewardCrateRewardDefinition,
   StanceFlags
 } from "types/zoneserver";
 import { Vehicle2016 } from "./entities/vehicle";
 import { Plant } from "./entities/plant";
 import { ConstructionChildEntity } from "./entities/constructionchildentity";
-import { Collection } from "mongodb";
-import { DB_COLLECTIONS, GAME_LOGS_TYPES } from "../../utils/enums";
+import { DB_COLLECTIONS } from "../../utils/enums";
 import { LootableConstructionEntity } from "./entities/lootableconstructionentity";
 import { Character2016 } from "./entities/character";
 import { Crate } from "./entities/crate";
@@ -407,6 +389,7 @@ export class ZonePacketHandlers {
     server.constructionManager.sendConstructionData(server, client);
     if (packet.data.characterReleased) {
       if (client.firstCharacterReleased) {
+        server.challengeManager.loadChallenges(client);
         client.firstCharacterReleased = false;
         // it's just for performance testing
         // for (let index = 0; index < 100; index++) {
@@ -1079,12 +1062,6 @@ export class ZonePacketHandlers {
     ) {
       return;
     }
-    if (isLootable) {
-      server.registerGameLog(GAME_LOGS_TYPES.ACCESS_LOOTABLE, client, {
-        lootableCharacterId: entity.characterId,
-        containers: entity._containers
-      });
-    }
     client.character.lastInteractionRequestGuid = entity.characterId;
     entity.OnPlayerSelect(server, client, packet.data.isInstant);
   }
@@ -1350,7 +1327,7 @@ export class ZonePacketHandlers {
         server.worldObjectManager.createAirdropContainer(
           server,
           server._airdrop.destinationPos,
-          server._airdrop.hospitalCrate ? "Hospital" : ""
+          server._airdrop.forcedAirdropType
         );
         for (const client of Object.values(server._clients)) {
           server.airdropManager(client, false);
@@ -2039,7 +2016,7 @@ export class ZonePacketHandlers {
     } else {
       final = new Float32Array([euler[2], 0, 0, 0]);
     }
-    if (Number(final[0].toFixed(2)) === 0.0) {
+    if (Math.abs(final[0]) < 0.01) {
       final[0] = 0;
     }
     const modelId = server.getItemDefinition(
@@ -2055,6 +2032,8 @@ export class ZonePacketHandlers {
       );
       return;
     }
+
+    const scale = packet.data.scale || new Float32Array([1, 1, 1, 1]);
     server.constructionManager.placement(
       server,
       client,
@@ -2062,6 +2041,7 @@ export class ZonePacketHandlers {
       modelId,
       packet.data.position2,
       final,
+      scale,
       packet.data.parentObjectCharacterId || "",
       packet.data.BuildingSlot || ""
     );
@@ -2243,13 +2223,6 @@ export class ZonePacketHandlers {
       if (mountedContainer.items[item.itemGuid]) {
         container = mountedContainer;
       }
-    }
-
-    if (itemUseOption) {
-      server.registerGameLog(GAME_LOGS_TYPES.ITEM_USE, client, {
-        itemUseOption: ItemUseOptions[itemUseOption],
-        item: item
-      });
     }
 
     switch (itemUseOption) {
@@ -3535,10 +3508,6 @@ export class ZonePacketHandlers {
         });
 
         if (reward > 0 && itemSubData.unknownBoolean1 == 0) {
-          server.registerGameLog(GAME_LOGS_TYPES.OPEN_CRATE, client, {
-            crateItemDefinitionId: item.itemDefinitionId,
-            rewardItemDefinitionId: reward
-          });
           setTimeout(() => {
             if (rewardResult.isRare) {
               server.sendAlertToAll(

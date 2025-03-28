@@ -3,7 +3,7 @@
 //   GNU GENERAL PUBLIC LICENSE
 //   Version 3, 29 June 2007
 //   copyright (C) 2020 - 2021 Quentin Gruber
-//   copyright (C) 2021 - 2024 H1emu community
+//   copyright (C) 2021 - 2025 H1emu community
 //
 //   https://github.com/QuentinGruber/h1z1-server
 //   https://www.npmjs.com/package/h1z1-server
@@ -482,7 +482,6 @@ export class WorldDataManager {
         _containers: loadedCharacter._containers || {},
         _resources: loadedCharacter._resources || {},
         mutedCharacters: loadedCharacter.mutedCharacters || [],
-        groupId: 0, //loadedCharacter.groupId || 0,
         metrics: loadedCharacter.metrics || {},
         playTime: loadedCharacter.playTime ?? 0,
         lastDropPlayTime: loadedCharacter.lastDropPlayTime ?? 0,
@@ -547,7 +546,6 @@ export class WorldDataManager {
       lastDropPlayTime: character.lastDropPlaytime,
       spawnGridData: character.spawnGridData,
       mutedCharacters: character.mutedCharacters,
-      groupId: 0, //character.groupId
       metrics: character.metrics
     };
     return saveData;
@@ -893,15 +891,6 @@ export class WorldDataManager {
           .find({ serverId: this._worldId })
           .toArray()
       );
-      if (!constructionParents.length) {
-        console.log("load backup due to empty construction collection");
-        constructionParents = <any>(
-          await this._db
-            ?.collection(DB_COLLECTIONS.CONSTRUCTION_BACKUP)
-            .find({ serverId: this._worldId })
-            .toArray()
-        );
-      }
     }
     return constructionParents;
   }
@@ -1052,15 +1041,28 @@ export class WorldDataManager {
         const collection = this._db?.collection(
           DB_COLLECTIONS.CONSTRUCTION
         ) as Collection;
-        const collectionBackup = this._db?.collection(
-          DB_COLLECTIONS.CONSTRUCTION_BACKUP
-        ) as Collection;
-        await collectionBackup.deleteMany({ serverId: this._worldId });
-        await collectionBackup.insertMany(structuredClone(constructions));
-        await collection.deleteMany({
-          serverId: this._worldId
+        const updatePromises = [];
+        for (let i = 0; i < constructions.length; i++) {
+          const construction = constructions[i];
+          updatePromises.push(
+            collection.updateOne(
+              {
+                characterId: construction.characterId,
+                serverId: this._worldId
+              },
+              { $set: construction },
+              { upsert: true }
+            )
+          );
+        }
+        await Promise.all(updatePromises);
+        const allCharactersIds = constructions.map((c) => {
+          return c.characterId;
         });
-        await collection.insertMany(constructions);
+        await collection.deleteMany({
+          serverId: this._worldId,
+          characterId: { $nin: allCharactersIds }
+        });
       }
     }
   }

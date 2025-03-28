@@ -3,7 +3,7 @@
 //   GNU GENERAL PUBLIC LICENSE
 //   Version 3, 29 June 2007
 //   copyright (C) 2020 - 2021 Quentin Gruber
-//   copyright (C) 2021 - 2024 H1emu community
+//   copyright (C) 2021 - 2025 H1emu community
 //
 //   https://github.com/QuentinGruber/h1z1-server
 //   https://www.npmjs.com/package/h1z1-server
@@ -82,6 +82,7 @@ export class ConfigManager {
     const {
       server,
       rcon,
+      challenges: challenge,
       fairplay,
       voicechat,
       weather,
@@ -89,7 +90,8 @@ export class ConfigManager {
       speedtree,
       construction,
       decay,
-      smelting
+      smelting,
+      randomevents
     } = this.defaultConfig;
     return {
       ...this.defaultConfig,
@@ -101,6 +103,10 @@ export class ConfigManager {
       rcon: {
         ...rcon,
         ...config.rcon
+      },
+      challenges: {
+        ...challenge,
+        ...config.challenges
       },
       voicechat: {
         ...voicechat,
@@ -133,6 +139,10 @@ export class ConfigManager {
       smelting: {
         ...smelting,
         ...config.smelting
+      },
+      randomevents: {
+        ...randomevents,
+        ...config.randomevents
       }
     };
   }
@@ -178,7 +188,17 @@ export class ConfigManager {
     server.rconManager.wssPort = port;
     server.rconManager.password = password;
 
+    //#region Challenges
+    const { enabled: challengeEnabled, challengePerDay } =
+      this.config.challenges;
+    server.challengeManager.enabled = challengeEnabled;
+    server.challengeManager.challengesPerDay = challengePerDay;
     //#endregion
+    //#region RandomEvents
+    const { enabled: randomEventsEnabled } = this.config.randomevents;
+    server.challengeManager.enabled = randomEventsEnabled;
+    //#endregion
+    //
     //#region voicechat
     const { useVoiceChatV2, joinVoiceChatOnConnect, serverAccessToken } =
       this.config.voicechat;

@@ -17583,5 +17583,176 @@
     "CAMERA_DISTANCE": 0,
     "CAMERA_ANGLE": 0,
     "IS_VALID_FOR_PC": 0
+  },
+  {
+    "ID": 10126,
+    "MODEL_FILE_NAME": "SurvivorMale_Back_Backpack_Unicorn.adr",
+    "RACE_ID": 0,
+    "SCALE": 1,
+    "DESCRIPTION": "SurvivorMale_Back_Backpack_Unicorn",
+    "GENDER": 1,
+    "AGE": 0,
+    "DESCRIPTOR": "",
+    "MATERIAL_TYPE": 0,
+    "WATER_DISPLACEMENT": 0,
+    "TELEPORT_EFFECT_ID": 0,
+    "CAMERA_DISTANCE": 0,
+    "CAMERA_ANGLE": 0,
+    "IS_VALID_FOR_PC": 0
+  },
+  {
+    "ID": 10127,
+    "MODEL_FILE_NAME": "SurvivorFemale_Back_Backpack_Unicorn.adr",
+    "RACE_ID": 0,
+    "SCALE": 1,
+    "DESCRIPTION": "SurvivorFemale_Back_Backpack_Unicorn",
+    "GENDER": 2,
+    "AGE": 0,
+    "DESCRIPTOR": "",
+    "MATERIAL_TYPE": 0,
+    "WATER_DISPLACEMENT": 0,
+    "TELEPORT_EFFECT_ID": 0,
+    "CAMERA_DISTANCE": 0,
+    "CAMERA_ANGLE": 0,
+    "IS_VALID_FOR_PC": 0
+  },
+  {
+    "ID": 10128,
+    "MODEL_FILE_NAME": "SurvivorMale_Head_Mask_GoatSkull.adr",
+    "RACE_ID": 0,
+    "SCALE": 1,
+    "DESCRIPTION": "SurvivorMale_Head_Mask_GoatSkull",
+    "GENDER": 1,
+    "AGE": 0,
+    "DESCRIPTOR": "",
+    "MATERIAL_TYPE": 0,
+    "WATER_DISPLACEMENT": 0,
+    "TELEPORT_EFFECT_ID": 0,
+    "CAMERA_DISTANCE": 0,
+    "CAMERA_ANGLE": 0,
+    "IS_VALID_FOR_PC": 0
+  },
+  {
+    "ID": 10129,
+    "MODEL_FILE_NAME": "SurvivorFemale_Head_Mask_GoatSkull.adr",
+    "RACE_ID": 0,
+    "SCALE": 1,
+    "DESCRIPTION": "SurvivorFemale_Head_Mask_GoatSkull",
+    "GENDER": 2,
+    "AGE": 0,
+    "DESCRIPTOR": "",
+    "MATERIAL_TYPE": 0,
+    "WATER_DISPLACEMENT": 0,
+    "TELEPORT_EFFECT_ID": 0,
+    "CAMERA_DISTANCE": 0,
+    "CAMERA_ANGLE": 0,
+    "IS_VALID_FOR_PC": 0
+  },
+  {
+    "ID": 11129,
+    "MODEL_FILE_NAME": "SurvivorMale_Head_Helmet_MotoCross.adr",
+    "RACE_ID": 0,
+    "SCALE": 1,
+    "DESCRIPTION": "SurvivorMale_Head_Helmet_MotoCross",
+    "GENDER": 1,
+    "AGE": 0,
+    "DESCRIPTOR": "",
+    "MATERIAL_TYPE": 0,
+    "WATER_DISPLACEMENT": 0,
+    "TELEPORT_EFFECT_ID": 0,
+    "CAMERA_DISTANCE": 0,
+    "CAMERA_ANGLE": 0,
+    "IS_VALID_FOR_PC": 0
+  },
+  {
+    "ID": 11130,
+    "MODEL_FILE_NAME": "SurvivorFemale_Head_Helmet_MotoCross.adr",
+    "RACE_ID": 0,
+    "SCALE": 1,
+    "DESCRIPTION": "SurvivorFemale_Head_Helmet_MotoCross",
+    "GENDER": 2,
+    "AGE": 0,
+    "DESCRIPTOR": "",
+    "MATERIAL_TYPE": 0,
+    "WATER_DISPLACEMENT": 0,
+    "TELEPORT_EFFECT_ID": 0,
+    "CAMERA_DISTANCE": 0,
+    "CAMERA_ANGLE": 0,
+    "IS_VALID_FOR_PC": 0
+  },
+  {
+    "ID": 11131,
+    "MODEL_FILE_NAME": "SurvivorMale_Back_Satchel_Western.adr",
+    "RACE_ID": 0,
+    "SCALE": 1,
+    "DESCRIPTION": "SurvivorMale_Back_Satchel_Western",
+    "GENDER": 1,
+    "AGE": 0,
+    "DESCRIPTOR": "",
+    "MATERIAL_TYPE": 0,
+    "WATER_DISPLACEMENT": 0,
+    "TELEPORT_EFFECT_ID": 0,
+    "CAMERA_DISTANCE": 0,
+    "CAMERA_ANGLE": 0,
+    "IS_VALID_FOR_PC": 0
+  },
+  {
+    "ID": 11132,
+    "MODEL_FILE_NAME": "SurvivorFemale_Back_Satchel_Western.adr",
+    "RACE_ID": 0,
+    "SCALE": 1,
+    "DESCRIPTION": "SurvivorFemale_Back_Satchel_Western",
+    "GENDER": 2,
+    "AGE": 0,
+    "DESCRIPTOR": "",
+    "MATERIAL_TYPE": 0,
+    "WATER_DISPLACEMENT": 0,
+    "TELEPORT_EFFECT_ID": 0,
+    "CAMERA_DISTANCE": 0,
+    "CAMERA_ANGLE": 0,
+    "IS_VALID_FOR_PC": 0
+  },
+  {
+    "ID": 11133,
+    "MODEL_FILE_NAME": "SurvivorMale_Hands_Gloves_FingerlessChains.adr",
+    "RACE_ID": 0,
+    "SCALE": 1,
+    "DESCRIPTION": "SurvivorMale_Hands_Gloves_FingerlessChains",
+    "GENDER": 1,
+    "AGE": 0,
+    "DESCRIPTOR": "",
+    "MATERIAL_TYPE": 0,
+    "WATER_DISPLACEMENT": 0,
+    "TELEPORT_EFFECT_ID": 0,
+    "CAMERA_DISTANCE": 0,
+    "CAMERA_ANGLE": 0,
+    "IS_VALID_FOR_PC": 0
+  },
+  {
+    "ID": 11134,
+    "MODEL_FILE_NAME": "SurvivorFemale_Hands_Gloves_FingerlessChains.adr",
+    "RACE_ID": 0,
+    "SCALE": 1,
+    "DESCRIPTION": "SurvivorFemale_Hands_Gloves_FingerlessChains",
+    "GENDER": 2,
+    "AGE": 0,
+    "DESCRIPTOR": "",
+    "MATERIAL_TYPE": 0,
+    "WATER_DISPLACEMENT": 0,
+    "TELEPORT_EFFECT_ID": 0,
+    "CAMERA_DISTANCE": 0,
+    "CAMERA_ANGLE": 0,
+    "IS_VALID_FOR_PC": 0
   }
 ]
+
+
+
+
+
+
+
+
+
+
+

@@ -21,6 +21,17 @@ rcon:
   password: ""
   port: 0
 
+# Challenges
+
+challenges:
+  enabled: true
+  challengePerDay: 6
+
+# Random events
+
+randomevents:
+  enabled: true
+
 # VoiceChat
 
 voicechat:

@@ -3,7 +3,7 @@
 //   GNU GENERAL PUBLIC LICENSE
 //   Version 3, 29 June 2007
 //   copyright (C) 2020 - 2021 Quentin Gruber
-//   copyright (C) 2021 - 2024 H1emu community
+//   copyright (C) 2021 - 2025 H1emu community
 //
 //   https://github.com/QuentinGruber/h1z1-server
 //   https://www.npmjs.com/package/h1z1-server
@@ -450,6 +450,25 @@ const dev: any = {
     server.sendOrderedData(client, "ClientUpdate.TextAlert", {
       message: "hello ordered !"
     } as ClientUpdateTextAlert);
+  },
+  skipchallenge: function (
+    server: ZoneServer2016,
+    client: Client,
+    args: Array<string>
+  ) {
+    server.challengeManager.registerChallengeProgression(
+      client,
+      client.character.currentChallenge,
+      Infinity
+    );
+  },
+  randomevents: function (
+    server: ZoneServer2016,
+    client: Client,
+    args: Array<string>
+  ) {
+    server.randomEventsManager.run();
+    server.sendChatText(client, "random events manager run");
   },
   path: function (server: ZoneServer2016, client: Client, args: Array<string>) {
     const characterId = server.generateGuid();
