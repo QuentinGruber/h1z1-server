@@ -1948,7 +1948,10 @@ export class ZoneServer2016 extends EventEmitter {
         const start = performance.now();
         this.aiManager.run();
         const end = performance.now();
-        console.log(`H1emu-ai took ${end - start}ms`);
+        const duration = end - start;
+        if (duration >= 1) {
+          console.log(`H1emu-ai took ${duration}ms`);
+        }
       } else {
         this.aiManager.run();
       }
