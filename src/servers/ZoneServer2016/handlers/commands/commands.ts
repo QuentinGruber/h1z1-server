@@ -3536,7 +3536,18 @@ export const commands: Array<Command> = [
       console.log(server.weatherManager.weather);
       server.weatherManager.sendUpdateToAll(server, client, false);
     }
+  },
+  {
+    name: "clan",
+    permissionLevel: PermissionLevels.DEFAULT,
+    keepCase: true,
+    execute: async (
+      server: ZoneServer2016,
+      client: Client,
+      args: Array<string>
+    ) => {
+      server.clanManager.handleClanCommand(server, client, args);
+    }
   }
-
   //#endregion
 ];
