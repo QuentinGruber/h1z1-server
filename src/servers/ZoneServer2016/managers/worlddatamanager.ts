@@ -1405,8 +1405,7 @@ export class WorldDataManager {
         );
         trap.health = entityData.health;
         server._traps[trap.characterId] = trap;
-      //trap.arm(server);
-      //temporarily disabled
+        trap.arm();
     }
   }
 
