@@ -333,14 +333,12 @@ export class ChallengeManager {
   }
 
   async affectChallenge(client: ZoneClient2016) {
-    const today = new Date();
-    const timeZoneOffset = today.getTimezoneOffset() * 60000; // Convert minutes to milliseconds
     const now = Date.now();
 
-    const startOfDay = new Date(now - timeZoneOffset);
+    const startOfDay = new Date(now);
     startOfDay.setHours(0, 0, 0, 0);
 
-    const endOfDay = new Date(now - timeZoneOffset);
+    const endOfDay = new Date(now);
     endOfDay.setHours(23, 59, 59, 999);
 
     const challengesToday = await this.challengesCollection
@@ -371,8 +369,8 @@ export class ChallengeManager {
     }
     const challengesAvailable = this.challenges.filter((v) => {
       return (
-        ((!challengesTypesDoneToday.includes(v.type) && !v.pvpOnly) ||
-          !this.server.isPvE) &&
+        !challengesTypesDoneToday.includes(v.type) &&
+        (!v.pvpOnly || !this.server.isPvE) &&
         v.difficulty === nextDifficultyChallenge
       );
     });
