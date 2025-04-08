@@ -4215,6 +4215,13 @@ export class ZoneServer2016 extends EventEmitter {
             id: point.POIid
           });
           client.currentPOI = point.stringId;
+          if (point.POIid === 13) {
+            this.challengeManager.registerChallengeProgression(
+              client,
+              ChallengeType.RANCHITO,
+              1
+            );
+          }
         }
       }
     });
