@@ -33,7 +33,8 @@ export enum ChallengeType {
   ROCKY,
   ROCKSTAR,
   IED,
-  RANCHITO
+  RANCHITO,
+  SWIZZLE
 }
 export enum ChallengeStatus {
   CURRENT = 1,
@@ -157,6 +158,14 @@ export class ChallengeManager {
         difficulty: ChallengeDifficulty.MEDIUM,
         name: "My land!",
         description: "Craft a deck foundation",
+        neededPoints: 1,
+        pvpOnly: false
+      },
+      {
+        type: ChallengeType.SWIZZLE,
+        difficulty: ChallengeDifficulty.MEDIUM,
+        name: "Shady buisness",
+        description: "Consume some swizzle",
         neededPoints: 1,
         pvpOnly: false
       },

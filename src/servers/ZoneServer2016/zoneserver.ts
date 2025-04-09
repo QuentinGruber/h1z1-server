@@ -7389,6 +7389,11 @@ export class ZoneServer2016 extends EventEmitter {
   sniffPass(client: Client, character: BaseFullCharacter, item: BaseItem) {
     if (!this.removeInventoryItem(character, item)) return;
     if (item.itemDefinitionId === Items.SWIZZLE) {
+      this.challengeManager.registerChallengeProgression(
+        client,
+        ChallengeType.SWIZZLE,
+        1
+      );
       this.applyMovementModifier(client, MovementModifiers.SWIZZLE);
     } else {
       this.applyMovementModifier(client, MovementModifiers.ADRENALINE);
