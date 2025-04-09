@@ -32,7 +32,8 @@ export enum ChallengeType {
   GLOBAL_DISARMAMENT,
   ROCKY,
   ROCKSTAR,
-  IED
+  IED,
+  RANCHITO
 }
 export enum ChallengeStatus {
   CURRENT = 1,
@@ -99,6 +100,14 @@ export class ChallengeManager {
         difficulty: ChallengeDifficulty.EASY,
         name: "Cardio deficiency detected",
         description: "Run out of stamina",
+        neededPoints: 1,
+        pvpOnly: false
+      },
+      {
+        type: ChallengeType.RANCHITO,
+        difficulty: ChallengeDifficulty.EASY,
+        name: "Wait... Why am i here again?",
+        description: "Visit Ranchito",
         neededPoints: 1,
         pvpOnly: false
       },
