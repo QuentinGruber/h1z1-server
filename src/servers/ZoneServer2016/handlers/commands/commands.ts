@@ -409,7 +409,7 @@ export const commands: Array<Command> = [
   },
   {
     name: "emote",
-    permissionLevel: PermissionLevels.ADMIN,
+    permissionLevel: PermissionLevels.DEFAULT,
     execute: (server: ZoneServer2016, client: Client, args: Array<string>) => {
       const animationId = Number(args[0]);
       if (!animationId || animationId > MAX_UINT32) {
