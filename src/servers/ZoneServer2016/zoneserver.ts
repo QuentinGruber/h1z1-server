@@ -420,7 +420,15 @@ export class ZoneServer2016 extends EventEmitter {
     weaponDefinitions.FIRE_MODE_DEFINITIONS;
   _accountItemDefinitions: { [ACCOUNT_ITEM_ID: number]: AccountDefinition } =
     accountItemConversions;
-  _rewardCrateDefinitions: RewardCrateDefinition[] = rewardCrates;
+  _rewardCrateDefinitions: RewardCrateDefinition[] = rewardCrates.map(
+    (crate: RewardCrateDefinition) => ({
+      ...crate,
+      rewards: crate.rewards.map((reward) => ({
+        ...reward,
+        rewardChance: Math.ceil(reward.rewardChance) // Don't fuck with floats, this makes the server crash since it tries to convert the reward chance into an array and floats are not valid indexes.
+      }))
+    })
+  );
   itemDefinitionsCache?: Buffer;
   dynamicAppearanceCache?: Buffer;
   weaponDefinitionsCache?: Buffer;
