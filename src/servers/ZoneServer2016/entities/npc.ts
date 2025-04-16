@@ -192,7 +192,7 @@ export class Npc extends BaseFullCharacter {
               type:
                 this.npcId == NpcIds.ZOMBIE
                   ? KILL_TYPE.ZOMBIE
-                  : KILL_TYPE.WILDLIFE
+                  : undefined
             }
           );
         }
