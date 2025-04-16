@@ -1948,7 +1948,10 @@ export class ZoneServer2016 extends EventEmitter {
         const start = performance.now();
         this.aiManager.run();
         const end = performance.now();
-        console.log(`H1emu-ai took ${end - start}ms`);
+        const duration = end - start;
+        if (duration >= 1) {
+          console.log(`H1emu-ai took ${duration}ms`);
+        }
       } else {
         this.aiManager.run();
       }
@@ -4212,6 +4215,13 @@ export class ZoneServer2016 extends EventEmitter {
             id: point.POIid
           });
           client.currentPOI = point.stringId;
+          if (point.POIid === 13) {
+            this.challengeManager.registerChallengeProgression(
+              client,
+              ChallengeType.RANCHITO,
+              1
+            );
+          }
         }
       }
     });
@@ -7379,6 +7389,11 @@ export class ZoneServer2016 extends EventEmitter {
   sniffPass(client: Client, character: BaseFullCharacter, item: BaseItem) {
     if (!this.removeInventoryItem(character, item)) return;
     if (item.itemDefinitionId === Items.SWIZZLE) {
+      this.challengeManager.registerChallengeProgression(
+        client,
+        ChallengeType.SWIZZLE,
+        1
+      );
       this.applyMovementModifier(client, MovementModifiers.SWIZZLE);
     } else {
       this.applyMovementModifier(client, MovementModifiers.ADRENALINE);

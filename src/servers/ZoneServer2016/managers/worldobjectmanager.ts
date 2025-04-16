@@ -523,6 +523,16 @@ export class WorldObjectManager {
             effectTime: 60
           }
         );
+
+        if (
+          isPosInRadius(
+            3,
+            c.character.state.position,
+            server._airdrop.destinationPos
+          )
+        ) {
+          server.killCharacter(c, { damage: 99999, entity: "aidrop" });
+        }
       }
     }
     server._lootbags[characterId] = lootbag;

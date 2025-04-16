@@ -23,7 +23,6 @@ interface WeightedItem {
 export class RandomEventsManager {
   interval?: NodeJS.Timeout;
   // managed by config
-  // TODO:
   enabled: boolean = true;
   constructor(public server: ZoneServer2016) {}
   start() {
@@ -61,7 +60,6 @@ export class RandomEventsManager {
       { value: "Supplier", weight: 20 }
     ];
     const airdropType = this.weightedRandom(airdropTypes);
-    console.log(airdropType);
     this.server.spawnAirdrop(pos, airdropType);
     const cellName = getCellName(cellIndex, 10);
     this.server.sendAlertToAll(`Random airdrop on ${cellName}`);

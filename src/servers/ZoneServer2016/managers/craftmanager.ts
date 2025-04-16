@@ -517,27 +517,32 @@ export class CraftManager {
         client.character.lootItem(server, server.generateItem(id, 1));
       });
     }
-    if (recipeId === Items.IED) {
-      server.challengeManager.registerChallengeProgression(
-        client,
-        ChallengeType.IED,
-        1
-      );
+    switch (recipeId) {
+      case Items.IED:
+        server.challengeManager.registerChallengeProgression(
+          client,
+          ChallengeType.IED,
+          1
+        );
+        break;
+
+      case Items.FOUNDATION:
+        server.challengeManager.registerChallengeProgression(
+          client,
+          ChallengeType.MY_LAND,
+          1
+        );
+        break;
+
+      case Items.SHACK:
+        server.challengeManager.registerChallengeProgression(
+          client,
+          ChallengeType.MY_HOME,
+          1
+        );
+        break;
     }
-    if (recipeId === Items.FOUNDATION) {
-      server.challengeManager.registerChallengeProgression(
-        client,
-        ChallengeType.MY_LAND,
-        1
-      );
-    }
-    if (recipeId === Items.SHACK) {
-      server.challengeManager.registerChallengeProgression(
-        client,
-        ChallengeType.MY_HOME,
-        1
-      );
-    }
+
     return true;
     //#endregion
   }
