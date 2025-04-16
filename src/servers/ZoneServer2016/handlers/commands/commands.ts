@@ -447,7 +447,7 @@ export const commands: Array<Command> = [
       server.sendDataToAllWithSpawnedEntity(
         server._characters,
         client.character.characterId,
-        "AnimationBase",
+        "Animation.Play",
         {
           characterId: client.character.characterId,
           animationId: animationId
@@ -1700,36 +1700,14 @@ export const commands: Array<Command> = [
         return;
       }
 
-      const actingClient = targetClient ?? client;
-      const characterId = server.generateGuid(),
-        loc = new Float32Array([
-          actingClient.character.state.position[0],
-          actingClient.character.state.position[1] + 700,
-          actingClient.character.state.position[2],
-          actingClient.character.state.position[3]
-        ]),
-        vehicle = new Vehicle2016(
-          characterId,
-          server.getTransientId(characterId),
-          9374,
-          loc,
-          actingClient.character.state.rotation,
-          server,
-          getCurrentServerTimeWrapper().getTruncatedU32(),
-          VehicleIds.PARACHUTE
-        );
-      server.worldObjectManager.createVehicle(server, vehicle, true);
-      server.sendData(actingClient, "ClientUpdate.UpdateLocation", {
-        position: loc,
-        triggerLoadingScreen: true
-      });
-      vehicle.onReadyCallback = (clientTriggered: Client) => {
-        // doing anything with vehicle before client gets fullvehicle packet breaks it
-        server.mountVehicle(clientTriggered, characterId);
-        // todo: when vehicle takeover function works, delete assignManagedObject call
-        server.assignManagedObject(clientTriggered, vehicle);
-        clientTriggered.vehicle.mountedVehicle = characterId;
-      };
+      if (targetClient) {
+        targetClient.character.state.position[1] += 700;
+        server.sendData(targetClient, "ClientUpdate.UpdateLocation", {
+          position: targetClient.character.state.position,
+          triggerLoadingScreen: true
+        });
+        server.deployParachute(targetClient);
+      }
     }
   },
   {

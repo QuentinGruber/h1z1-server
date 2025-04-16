@@ -31,6 +31,9 @@ interface ServerConfig {
   isFirstPersonOnly: boolean;
   isNoBuildInPois: boolean;
   baseConstructionDamage: number;
+  damageWeapons: boolean;
+  disablePOIManager: boolean;
+  disableMapBoundsCheck: boolean;
 }
 
 interface RconConfig {
