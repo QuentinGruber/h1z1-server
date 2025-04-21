@@ -3,7 +3,7 @@
 //   GNU GENERAL PUBLIC LICENSE
 //   Version 3, 29 June 2007
 //   copyright (C) 2020 - 2021 Quentin Gruber
-//   copyright (C) 2021 - 2024 H1emu community
+//   copyright (C) 2021 - 2025 H1emu community
 //
 //   https://github.com/QuentinGruber/h1z1-server
 //   https://www.npmjs.com/package/h1z1-server
@@ -12,7 +12,7 @@
 // ======================================================================
 
 import { h1z1PacketsType2016 } from "types/packets";
-import { zone2016packets } from "types/zone2016packets";
+import { GroupUnknown12, zone2016packets } from "types/zone2016packets";
 import { Group } from "types/zoneserver";
 import { ZoneClient2016 as Client } from "../classes/zoneclient";
 import { ZoneServer2016 } from "../zoneserver";
@@ -33,6 +33,37 @@ export class GroupManager {
     server.sendChatText(client, `[GroupError] ${error}`);
   }
 
+  async getGroupMembers(group: Group, server: ZoneServer2016) {
+    const members = [];
+
+    for (const [index, member] of Object.values(group.members).entries()) {
+      let client = server.getClientByCharId(member);
+      if (!client) {
+        client = await server.getOfflineClientByCharId(member);
+      }
+      const character = client?.character;
+
+      if (!client || !character) continue;
+
+      members.push({
+        characterId: member,
+        inviteData: {
+          characterId: member,
+          identity: {
+            characterFirstName: character?.name,
+            unknownQword1: member
+          }
+        },
+        unknownByte1: character.isAlive ? 0 : -1,
+        position: character?.state.position,
+        rotation: character?.state.rotation,
+        memberId: index,
+        unknownQword2: member
+      });
+    }
+    return members;
+  }
+
   async syncGroup(
     server: ZoneServer2016,
     groupId: number,
@@ -46,39 +77,22 @@ export class GroupManager {
     if (!lastSyncTime || lastSyncTime + 5000 <= now || forceSync) {
       this.groupSync[groupId] = now;
 
+      const members = await this.getGroupMembers(group, server);
       const sendData = {
         unknownDword1: group.groupId,
         unknownData1: {
           groupId: group.groupId,
           characterId: group.leader
         },
-        members: Object.values(group.members)
-          .map((member, index) => {
-            const client = server.getClientByCharId(member);
-            const character = client?.character;
-
-            if (!client || !character) return null;
-
-            return {
-              characterId: member,
-              inviteData: {
-                characterId: member,
-                identity: {
-                  characterFirstName: character?.name,
-                  unknownQword1: member
-                }
-              },
-              unknownByte1: character.isAlive ? 0 : -1,
-              position: character?.state.position,
-              rotation: character?.state.rotation,
-              memberId: index,
-              unknownQword2: member
-            };
-          })
-          .filter((m) => m !== null)
+        members
       };
 
-      this.sendDataToGroup(server, group.groupId, "Group.Unknown12", sendData);
+      this.sendDataToGroup<GroupUnknown12>(
+        server,
+        group.groupId,
+        "Group.Unknown12",
+        sendData
+      );
     }
   }
 
@@ -139,11 +153,11 @@ export class GroupManager {
     }
   }
 
-  async sendDataToGroup(
+  async sendDataToGroup<packet>(
     server: ZoneServer2016,
     groupId: number,
     packetName: h1z1PacketsType2016,
-    obj: zone2016packets
+    obj: packet
   ) {
     if (!groupId) return;
     const group = await this.getGroup(server, groupId);
@@ -151,7 +165,7 @@ export class GroupManager {
     for (const a of group.members) {
       const client = server.getClientByCharId(a);
       if (!client) continue;
-      server.sendData(client, packetName, obj);
+      server.sendData<packet>(client, packetName, obj);
     }
   }
 
@@ -365,6 +379,7 @@ export class GroupManager {
 
     const leaderClient = server.getClientByCharId(group.leader);
     if (!leaderClient) return;
+    const members = await this.getGroupMembers(group, server);
     this.sendDataToGroup(server, group.groupId, "Group.Unknown12", {
       unknownDword1: group.groupId,
       unknownData1: {
@@ -372,30 +387,7 @@ export class GroupManager {
         characterId: leaderClient.character.characterId
       },
       unknownString1: leaderClient.character.name,
-      members: Object.values(group.members)
-        .map((member, index) => {
-          const client = server.getClientByCharId(member);
-          const character = client?.character;
-
-          if (!client || !character) return null;
-
-          return {
-            characterId: member,
-            inviteData: {
-              characterId: member,
-              identity: {
-                characterFirstName: character?.name,
-                unknownQword1: member
-              }
-            },
-            unknownByte1: character.isAlive ? 0 : -1,
-            position: character?.state.position,
-            rotation: character?.state.rotation,
-            memberId: index,
-            unknownQword2: member
-          };
-        })
-        .filter((m) => m !== null)
+      members
     });
   }
 

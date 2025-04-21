@@ -3,7 +3,7 @@
 //   GNU GENERAL PUBLIC LICENSE
 //   Version 3, 29 June 2007
 //   copyright (C) 2020 - 2021 Quentin Gruber
-//   copyright (C) 2021 - 2024 H1emu community
+//   copyright (C) 2021 - 2025 H1emu community
 //
 //   https://github.com/QuentinGruber/h1z1-server
 //   https://www.npmjs.com/package/h1z1-server
@@ -48,5 +48,12 @@ export const voicePackets: PacketStructures = [
       ]
     }
   ],
-  ["Voice.LeaveRadio", 0x8208, { fields: [] }]
+  ["Voice.LeaveRadio", 0x8208, { fields: [] }],
+  [
+    "Voice.Unk9", // Related to Gamemode.Unk21
+    0x8209,
+    {
+      fields: [{ name: "unknownByte1", type: "uint8", defaultValue: 0 }]
+    }
+  ]
 ];

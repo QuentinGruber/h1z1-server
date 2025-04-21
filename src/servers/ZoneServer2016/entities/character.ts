@@ -3,7 +3,7 @@
 //   GNU GENERAL PUBLIC LICENSE
 //   Version 3, 29 June 2007
 //   copyright (C) 2020 - 2021 Quentin Gruber
-//   copyright (C) 2021 - 2024 H1emu community
+//   copyright (C) 2021 - 2025 H1emu community
 //
 //   https://github.com/QuentinGruber/h1z1-server
 //   https://www.npmjs.com/package/h1z1-server
@@ -75,6 +75,7 @@ import { ConstructionParentEntity } from "./constructionparententity";
 import { ExplosiveEntity } from "./explosiveentity";
 import { BaseEntity } from "./baseentity";
 import { ProjectileEntity } from "./projectileentity";
+import { ChallengeType } from "../managers/challengemanager";
 const stats = require("../../../../data/2016/sampleData/stats.json");
 
 interface CharacterStates {
@@ -307,6 +308,8 @@ export class Character2016 extends BaseFullCharacter {
    * uses recipeId (number) for indexing
    */
   recipes: { [recipeId: number]: Recipe } = recipes;
+
+  currentChallenge: ChallengeType = ChallengeType.NONE;
 
   constructor(
     characterId: string,
@@ -562,6 +565,11 @@ export class Character2016 extends BaseFullCharacter {
         client.character._resources[ResourceIds.STAMINA] -= 14;
         break;
       case energy <= 3501 && energy > 2601:
+        server.challengeManager.registerChallengeProgression(
+          client,
+          ChallengeType.TIRED_BUDDY,
+          1
+        );
         desiredEnergyIndicator = ResourceIndicators.TIRED;
         break;
       case energy > 3501:
@@ -766,6 +774,13 @@ export class Character2016 extends BaseFullCharacter {
       ResourceTypes.VIRUS,
       virus
     );
+    if (stamina <= 2) {
+      server.challengeManager.registerChallengeProgression(
+        client,
+        ChallengeType.CARDIO_ISSUES,
+        1
+      );
+    }
     this.updateResource(
       server,
       client,

@@ -3,7 +3,7 @@
 //   GNU GENERAL PUBLIC LICENSE
 //   Version 3, 29 June 2007
 //   copyright (C) 2020 - 2021 Quentin Gruber
-//   copyright (C) 2021 - 2024 H1emu community
+//   copyright (C) 2021 - 2025 H1emu community
 //
 //   https://github.com/QuentinGruber/h1z1-server
 //   https://www.npmjs.com/package/h1z1-server
@@ -77,6 +77,43 @@ export const commands: Array<Command> = [
       args: Array<string>
     ) => {
       /* handled clientside */
+    }
+  },
+  {
+    name: "forcerandomairdrop",
+    permissionLevel: PermissionLevels.ADMIN,
+    execute: async (
+      server: ZoneServer2016,
+      client: Client,
+      args: Array<string>
+    ) => {
+      if (!server._airdrop) {
+        server.randomEventsManager.spawnRandomAirdrop();
+      } else {
+        server.sendAlert(client, "There is already an active airdrop");
+      }
+    }
+  },
+  {
+    name: "expirechallenges",
+    permissionLevel: PermissionLevels.ADMIN,
+    execute: async (
+      server: ZoneServer2016,
+      client: Client,
+      args: Array<string>
+    ) => {
+      server.challengeManager.expireChallenges();
+    }
+  },
+  {
+    name: "challenge",
+    permissionLevel: PermissionLevels.DEFAULT,
+    execute: async (
+      server: ZoneServer2016,
+      client: Client,
+      args: Array<string>
+    ) => {
+      server.challengeManager.displayChallengeInfos(client);
     }
   },
   {
@@ -374,32 +411,43 @@ export const commands: Array<Command> = [
     name: "emote",
     permissionLevel: PermissionLevels.DEFAULT,
     execute: (server: ZoneServer2016, client: Client, args: Array<string>) => {
-      server.sendChatText(
-        client,
-        "[ERROR] This emote has been disabled due to abuse."
-      );
-      return;
       const animationId = Number(args[0]);
       if (!animationId || animationId > MAX_UINT32) {
         server.sendChatText(client, "Usage /emote <id>");
         return;
       }
 
-      // may need to disable more
-      switch (animationId) {
-        case 35:
-        case 97:
-          server.sendChatText(
-            client,
-            "[ERROR] This emote has been disabled due to abuse."
-          );
-          return;
+      if (!server.isPvE) {
+        switch (animationId) {
+          case 18:
+          case 21:
+          case 29:
+          case 30:
+          case 39:
+          case 88:
+          case 34:
+          case 35:
+          case 43:
+          case 46:
+          case 51:
+          case 58:
+          case 68:
+          case 95:
+          case 97:
+          case 101:
+          case 102:
+            server.sendChatText(
+              client,
+              "[ERROR] This emote has been disabled due to abuse."
+            );
+            return;
+        }
       }
 
       server.sendDataToAllWithSpawnedEntity(
         server._characters,
         client.character.characterId,
-        "AnimationBase",
+        "Animation.Play",
         {
           characterId: client.character.characterId,
           animationId: animationId
@@ -1652,36 +1700,14 @@ export const commands: Array<Command> = [
         return;
       }
 
-      const actingClient = targetClient ?? client;
-      const characterId = server.generateGuid(),
-        loc = new Float32Array([
-          actingClient.character.state.position[0],
-          actingClient.character.state.position[1] + 700,
-          actingClient.character.state.position[2],
-          actingClient.character.state.position[3]
-        ]),
-        vehicle = new Vehicle2016(
-          characterId,
-          server.getTransientId(characterId),
-          9374,
-          loc,
-          actingClient.character.state.rotation,
-          server,
-          getCurrentServerTimeWrapper().getTruncatedU32(),
-          VehicleIds.PARACHUTE
-        );
-      server.worldObjectManager.createVehicle(server, vehicle, true);
-      server.sendData(actingClient, "ClientUpdate.UpdateLocation", {
-        position: loc,
-        triggerLoadingScreen: true
-      });
-      vehicle.onReadyCallback = (clientTriggered: Client) => {
-        // doing anything with vehicle before client gets fullvehicle packet breaks it
-        server.mountVehicle(clientTriggered, characterId);
-        // todo: when vehicle takeover function works, delete assignManagedObject call
-        server.assignManagedObject(clientTriggered, vehicle);
-        clientTriggered.vehicle.mountedVehicle = characterId;
-      };
+      if (targetClient) {
+        targetClient.character.state.position[1] += 700;
+        server.sendData(targetClient, "ClientUpdate.UpdateLocation", {
+          position: targetClient.character.state.position,
+          triggerLoadingScreen: true
+        });
+        server.deployParachute(targetClient);
+      }
     }
   },
   {

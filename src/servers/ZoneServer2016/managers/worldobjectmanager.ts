@@ -3,7 +3,7 @@
 //   GNU GENERAL PUBLIC LICENSE
 //   Version 3, 29 June 2007
 //   copyright (C) 2020 - 2021 Quentin Gruber
-//   copyright (C) 2021 - 2024 H1emu community
+//   copyright (C) 2021 - 2025 H1emu community
 //
 //   https://github.com/QuentinGruber/h1z1-server
 //   https://www.npmjs.com/package/h1z1-server
@@ -116,10 +116,10 @@ export class WorldObjectManager {
   spawnedLootObjects: { [spawnerId: number]: string } = {};
 
   /** Global respawn timers */
-  private _lastLootRespawnTime: number = 0;
-  private _lastVehicleRespawnTime: number = 0;
-  private _lastNpcRespawnTime: number = 0;
-  private _lastWaterSourceReplenishTime: number = 0;
+  _lastLootRespawnTime: number = 0;
+  _lastVehicleRespawnTime: number = 0;
+  _lastNpcRespawnTime: number = 0;
+  _lastWaterSourceReplenishTime: number = 0;
 
   /** MANAGED BY CONFIGMANAGER - See defaultConfig.yaml for more information */
   vehicleSpawnCap!: number;
@@ -523,6 +523,16 @@ export class WorldObjectManager {
             effectTime: 60
           }
         );
+
+        if (
+          isPosInRadius(
+            3,
+            c.character.state.position,
+            server._airdrop.destinationPos
+          )
+        ) {
+          server.killCharacter(c, { damage: 99999, entity: "aidrop" });
+        }
       }
     }
     server._lootbags[characterId] = lootbag;
@@ -637,6 +647,7 @@ export class WorldObjectManager {
               propType.modelId,
               new Float32Array(propInstance.position),
               new Float32Array(fixEulerOrder(propInstance.rotation)),
+              new Float32Array([1, 1, 1, 1]),
               server._serverGuid,
               Items.WORKBENCH
             );

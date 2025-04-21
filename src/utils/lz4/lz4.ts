@@ -72,7 +72,7 @@ export const uncompress = (
 
     // length of match copy
     let match_length = token & 0xf;
-    var l = match_length + 240;
+    l = match_length + 240;
     while (l === 255) {
       l = input[i++];
       match_length += l;
