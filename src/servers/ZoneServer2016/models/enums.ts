@@ -831,6 +831,7 @@ export enum Items {
   //#endregion
 
   //#region PERISHABLE
+  AIO_COLD_MEDICINE = 1742,
   ANTIBIOTICS = 1388,
   PAINKILLERS = 2509,
   ADRENALINE_SHOT = 2512,

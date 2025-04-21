@@ -2667,6 +2667,14 @@ export const containerLootSpawners: {
     maxItems: 3,
     items: [
       {
+        item: Items.AIO_COLD_MEDICINE,
+        weight: 45,
+        spawnCount: {
+          min: 1,
+          max: 2
+        }
+      },
+      {
         item: Items.ANTIBIOTICS,
         weight: 45,
         spawnCount: {
