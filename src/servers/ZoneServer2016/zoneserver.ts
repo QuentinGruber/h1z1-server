@@ -2788,7 +2788,7 @@ export class ZoneServer2016 extends EventEmitter {
             getDistance(
               character.state.position,
               sourceEntity.state.position
-            ) <= 4
+            ) <= 12
           ) {
             this.addScreenEffect(c, this._screenEffects["FLASH"]);
 
