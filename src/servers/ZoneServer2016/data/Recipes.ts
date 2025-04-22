@@ -497,7 +497,374 @@ export const smeltingData: { [recipeId: number]: smeltRecipe } = {
         requiredAmount: 1
       }
     ]
-  }
+  },
+  43: {
+    filterId: FilterIds.FURNACE,
+    rewardId: Items.METAL_BAR,
+    components: [
+      {
+        itemDefinitionId: Items.WEAPON_R380,
+        requiredAmount: 1
+      }
+    ]
+  },
+  44: {
+    filterId: FilterIds.FURNACE,
+    rewardId: Items.METAL_BAR,
+    components: [
+      {
+        itemDefinitionId:5014,
+        requiredAmount: 1
+      }
+    ]
+  },
+  45: {
+    filterId: FilterIds.FURNACE,
+    rewardId: Items.METAL_BAR,
+    components: [
+      {
+        itemDefinitionId:2908,
+        requiredAmount: 1
+      }
+    ]
+  },46: {
+    filterId: FilterIds.FURNACE,
+    rewardId: Items.METAL_BAR,
+    components: [
+      {
+        itemDefinitionId:5008,
+        requiredAmount: 1
+      }
+    ]
+  },
+  47: {
+    filterId: FilterIds.FURNACE,
+    rewardId: Items.METAL_BAR,
+    components: [
+      {
+        itemDefinitionId:5024,
+        requiredAmount: 1
+      }
+    ]
+  },
+  48: {
+    filterId: FilterIds.FURNACE,
+    rewardId: Items.METAL_BAR,
+    components: [
+      {
+        itemDefinitionId:5036,
+        requiredAmount: 1
+      }
+    ]
+  },
+  49: {
+    filterId: FilterIds.FURNACE,
+    rewardId: Items.METAL_BAR,
+    components: [
+      {
+        itemDefinitionId:2593,
+        requiredAmount: 1
+      }
+    ]
+  },
+  50: {
+    filterId: FilterIds.FURNACE,
+    rewardId: Items.METAL_BAR,
+    components: [
+      {
+        itemDefinitionId:3586,
+        requiredAmount: 1
+      }
+    ]
+  },
+  51: {
+    filterId: FilterIds.FURNACE,
+    rewardId: Items.METAL_BAR,
+    components: [
+      {
+        itemDefinitionId:2592,
+        requiredAmount: 1
+      }
+    ]
+  },
+  52: {
+    filterId: FilterIds.FURNACE,
+    rewardId: Items.METAL_BAR,
+    components: [
+      {
+        itemDefinitionId:2586,
+        requiredAmount: 1
+      }
+    ]
+  },
+  53: {
+    filterId: FilterIds.FURNACE,
+    rewardId: Items.METAL_BAR,
+    components: [
+      {
+        itemDefinitionId:3720,
+        requiredAmount: 1
+      }
+    ]
+  },54: {
+    filterId: FilterIds.FURNACE,
+    rewardId: Items.METAL_BAR,
+    components: [
+      {
+        itemDefinitionId:3550,
+        requiredAmount: 1
+      }
+    ]
+  },55: {
+    filterId: FilterIds.FURNACE,
+    rewardId: Items.METAL_BAR,
+    components: [
+      {
+        itemDefinitionId:3584,
+        requiredAmount: 1
+      }
+    ]
+  },
+  56: {
+    filterId: FilterIds.FURNACE,
+    rewardId: Items.METAL_BAR,
+    components: [
+      {
+        itemDefinitionId:3172,
+        requiredAmount: 1
+      }
+    ]
+  },
+  57: {
+    filterId: FilterIds.FURNACE,
+    rewardId: Items.METAL_BAR,
+    components: [
+      {
+        itemDefinitionId:3165,
+        requiredAmount: 1
+      }
+    ]
+  },
+  58: {
+    filterId: FilterIds.FURNACE,
+    rewardId: Items.METAL_BAR,
+    components: [
+      {
+        itemDefinitionId:3179,
+        requiredAmount: 1
+      }
+    ]
+  },
+  59: {
+    filterId: FilterIds.FURNACE,
+    rewardId: Items.METAL_BAR,
+    components: [
+      {
+        itemDefinitionId:2789,
+        requiredAmount: 1
+      }
+    ]
+  },
+  60: {
+    filterId: FilterIds.FURNACE,
+    rewardId: Items.METAL_BAR,
+    components: [
+      {
+        itemDefinitionId:2834,
+        requiredAmount: 1
+      }
+    ]
+  },
+  61: {
+    filterId: FilterIds.FURNACE,
+    rewardId: Items.METAL_BAR,
+    components: [
+      {
+        itemDefinitionId:3475,
+        requiredAmount: 1
+      }
+    ]
+  },
+  62: {
+    filterId: FilterIds.FURNACE,
+    rewardId: Items.METAL_BAR,
+    components: [
+      {
+        itemDefinitionId:3477,
+        requiredAmount: 1
+      }
+    ]
+  },
+  63: {
+    filterId: FilterIds.FURNACE,
+    rewardId: Items.METAL_BAR,
+    components: [
+      {
+        itemDefinitionId:3381,
+        requiredAmount: 1
+      }
+    ]
+  },
+  64: {
+    filterId: FilterIds.FURNACE,
+    rewardId: Items.METAL_BAR,
+    components: [
+      {
+        itemDefinitionId:3495,
+        requiredAmount: 1
+      }
+    ]
+  },
+  65: {
+    filterId: FilterIds.FURNACE,
+    rewardId: Items.METAL_BAR,
+    components: [
+      {
+        itemDefinitionId:3489,
+        requiredAmount: 1
+      }
+    ]
+  },
+  66: {
+    filterId: FilterIds.FURNACE,
+    rewardId: Items.METAL_BAR,
+    components: [
+      {
+        itemDefinitionId:3481,
+        requiredAmount: 1
+      }
+    ]
+  },
+  67: {
+    filterId: FilterIds.FURNACE,
+    rewardId: Items.METAL_BAR,
+    components: [
+      {
+        itemDefinitionId:2909,
+        requiredAmount: 1
+      }
+    ]
+  },
+  68: {
+    filterId: FilterIds.FURNACE,
+    rewardId: Items.METAL_BAR,
+    components: [
+      {
+        itemDefinitionId:3055,
+        requiredAmount: 1
+      }
+    ]
+  },
+  69: {
+    filterId: FilterIds.FURNACE,
+    rewardId: Items.METAL_BAR,
+    components: [
+      {
+        itemDefinitionId:3056,
+        requiredAmount: 1
+      }
+    ]
+  },
+  70: {
+    filterId: FilterIds.FURNACE,
+    rewardId: Items.METAL_BAR,
+    components: [
+      {
+        itemDefinitionId:3057,
+        requiredAmount: 1
+      }
+    ]
+  },
+  71: {
+    filterId: FilterIds.FURNACE,
+    rewardId: Items.METAL_BAR,
+    components: [
+      {
+        itemDefinitionId:2906,
+        requiredAmount: 1
+      }
+    ]
+  },
+  72: {
+    filterId: FilterIds.FURNACE,
+    rewardId: Items.METAL_BAR,
+    components: [
+      {
+        itemDefinitionId:3123,
+        requiredAmount: 1
+      }
+    ]
+  },
+  73: {
+    filterId: FilterIds.FURNACE,
+    rewardId: Items.METAL_BAR,
+    components: [
+      {
+        itemDefinitionId:3401,
+        requiredAmount: 1
+      }
+    ]
+  },
+  74: {
+    filterId: FilterIds.FURNACE,
+    rewardId: Items.METAL_BAR,
+    components: [
+      {
+        itemDefinitionId:3585,
+        requiredAmount: 1
+      }
+    ]
+  },
+  75: {
+    filterId: FilterIds.FURNACE,
+    rewardId: Items.METAL_BAR,
+    components: [
+      {
+        itemDefinitionId:2494,
+        requiredAmount: 1
+      }
+    ]
+  },
+  76: {
+    filterId: FilterIds.FURNACE,
+    rewardId: Items.METAL_BAR,
+    components: [
+      {
+        itemDefinitionId:2483,
+        requiredAmount: 1
+      }
+    ]
+  },
+  77: {
+    filterId: FilterIds.FURNACE,
+    rewardId: Items.METAL_BAR,
+    components: [
+      {
+        itemDefinitionId:2480,
+        requiredAmount: 1
+      }
+    ]
+  },
+  78: {
+    filterId: FilterIds.FURNACE,
+    rewardId: Items.METAL_BAR,
+    components: [
+      {
+        itemDefinitionId:2446,
+        requiredAmount: 1
+      }
+    ]
+  },
+  79: {
+    filterId: FilterIds.FURNACE,
+    rewardId: Items.METAL_BAR,
+    components: [
+      {
+        itemDefinitionId:2781,
+        requiredAmount: 1
+      }
+    ]
+  },
 };
 
 export const recipes: { [recipeId: number]: Recipe } = {
@@ -2584,5 +2951,15 @@ export const recipes: { [recipeId: number]: Recipe } = {
         requiredAmount: 2
       }
     ]
-  }
-};
+  },
+   [Items.GUN_PART]: {
+    filterId: FilterIds.WEAPONS,
+    components: [
+      {
+        itemDefinitionId: Items.WEAPON_1911,
+        requiredAmount: 1
+      }
+    ],
+    requireWeaponWorkbench: true
+  },
+}
