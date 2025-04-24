@@ -513,7 +513,7 @@ export const smeltingData: { [recipeId: number]: smeltRecipe } = {
     rewardId: Items.METAL_BAR,
     components: [
       {
-        itemDefinitionId:5014,
+        itemDefinitionId: Items.WEAPON_GREENWOOD_SNIPER,
         requiredAmount: 1
       }
     ]
@@ -523,16 +523,17 @@ export const smeltingData: { [recipeId: number]: smeltRecipe } = {
     rewardId: Items.METAL_BAR,
     components: [
       {
-        itemDefinitionId:2908,
+        itemDefinitionId: Items.WEAPON_PATRIOTIC_SNIPER,
         requiredAmount: 1
       }
     ]
-  },46: {
+  },
+  46: {
     filterId: FilterIds.FURNACE,
     rewardId: Items.METAL_BAR,
     components: [
       {
-        itemDefinitionId:5008,
+        itemDefinitionId: Items.WEAPON_H1EMU_SNIPER,
         requiredAmount: 1
       }
     ]
@@ -542,7 +543,7 @@ export const smeltingData: { [recipeId: number]: smeltRecipe } = {
     rewardId: Items.METAL_BAR,
     components: [
       {
-        itemDefinitionId:5024,
+        itemDefinitionId: Items.WEAPON_H1EMU_AR,
         requiredAmount: 1
       }
     ]
@@ -552,7 +553,7 @@ export const smeltingData: { [recipeId: number]: smeltRecipe } = {
     rewardId: Items.METAL_BAR,
     components: [
       {
-        itemDefinitionId:5036,
+        itemDefinitionId: Items.WEAPON_ROSEGARDEN_SHOTGUN,
         requiredAmount: 1
       }
     ]
@@ -562,7 +563,7 @@ export const smeltingData: { [recipeId: number]: smeltRecipe } = {
     rewardId: Items.METAL_BAR,
     components: [
       {
-        itemDefinitionId:2593,
+        itemDefinitionId: 2593,
         requiredAmount: 1
       }
     ]
@@ -572,7 +573,7 @@ export const smeltingData: { [recipeId: number]: smeltRecipe } = {
     rewardId: Items.METAL_BAR,
     components: [
       {
-        itemDefinitionId:3586,
+        itemDefinitionId: 3586,
         requiredAmount: 1
       }
     ]
@@ -582,7 +583,7 @@ export const smeltingData: { [recipeId: number]: smeltRecipe } = {
     rewardId: Items.METAL_BAR,
     components: [
       {
-        itemDefinitionId:2592,
+        itemDefinitionId: 2592,
         requiredAmount: 1
       }
     ]
@@ -592,7 +593,7 @@ export const smeltingData: { [recipeId: number]: smeltRecipe } = {
     rewardId: Items.METAL_BAR,
     components: [
       {
-        itemDefinitionId:2586,
+        itemDefinitionId: 2586,
         requiredAmount: 1
       }
     ]
@@ -602,25 +603,27 @@ export const smeltingData: { [recipeId: number]: smeltRecipe } = {
     rewardId: Items.METAL_BAR,
     components: [
       {
-        itemDefinitionId:3720,
+        itemDefinitionId: 3720,
         requiredAmount: 1
       }
     ]
-  },54: {
+  },
+  54: {
     filterId: FilterIds.FURNACE,
     rewardId: Items.METAL_BAR,
     components: [
       {
-        itemDefinitionId:3550,
+        itemDefinitionId: 3550,
         requiredAmount: 1
       }
     ]
-  },55: {
+  },
+  55: {
     filterId: FilterIds.FURNACE,
     rewardId: Items.METAL_BAR,
     components: [
       {
-        itemDefinitionId:3584,
+        itemDefinitionId: 3584,
         requiredAmount: 1
       }
     ]
@@ -630,7 +633,7 @@ export const smeltingData: { [recipeId: number]: smeltRecipe } = {
     rewardId: Items.METAL_BAR,
     components: [
       {
-        itemDefinitionId:3172,
+        itemDefinitionId: 3172,
         requiredAmount: 1
       }
     ]
@@ -640,7 +643,7 @@ export const smeltingData: { [recipeId: number]: smeltRecipe } = {
     rewardId: Items.METAL_BAR,
     components: [
       {
-        itemDefinitionId:3165,
+        itemDefinitionId: 3165,
         requiredAmount: 1
       }
     ]
@@ -650,7 +653,7 @@ export const smeltingData: { [recipeId: number]: smeltRecipe } = {
     rewardId: Items.METAL_BAR,
     components: [
       {
-        itemDefinitionId:3179,
+        itemDefinitionId: 3179,
         requiredAmount: 1
       }
     ]
@@ -660,7 +663,7 @@ export const smeltingData: { [recipeId: number]: smeltRecipe } = {
     rewardId: Items.METAL_BAR,
     components: [
       {
-        itemDefinitionId:2789,
+        itemDefinitionId: 2789,
         requiredAmount: 1
       }
     ]
@@ -670,7 +673,7 @@ export const smeltingData: { [recipeId: number]: smeltRecipe } = {
     rewardId: Items.METAL_BAR,
     components: [
       {
-        itemDefinitionId:2834,
+        itemDefinitionId: 2834,
         requiredAmount: 1
       }
     ]
@@ -680,7 +683,7 @@ export const smeltingData: { [recipeId: number]: smeltRecipe } = {
     rewardId: Items.METAL_BAR,
     components: [
       {
-        itemDefinitionId:3475,
+        itemDefinitionId: 3475,
         requiredAmount: 1
       }
     ]
@@ -690,7 +693,7 @@ export const smeltingData: { [recipeId: number]: smeltRecipe } = {
     rewardId: Items.METAL_BAR,
     components: [
       {
-        itemDefinitionId:3477,
+        itemDefinitionId: 3477,
         requiredAmount: 1
       }
     ]
@@ -700,7 +703,7 @@ export const smeltingData: { [recipeId: number]: smeltRecipe } = {
     rewardId: Items.METAL_BAR,
     components: [
       {
-        itemDefinitionId:3381,
+        itemDefinitionId: 3381,
         requiredAmount: 1
       }
     ]
@@ -710,7 +713,7 @@ export const smeltingData: { [recipeId: number]: smeltRecipe } = {
     rewardId: Items.METAL_BAR,
     components: [
       {
-        itemDefinitionId:3495,
+        itemDefinitionId: 3495,
         requiredAmount: 1
       }
     ]
@@ -720,7 +723,7 @@ export const smeltingData: { [recipeId: number]: smeltRecipe } = {
     rewardId: Items.METAL_BAR,
     components: [
       {
-        itemDefinitionId:3489,
+        itemDefinitionId: 3489,
         requiredAmount: 1
       }
     ]
@@ -730,7 +733,7 @@ export const smeltingData: { [recipeId: number]: smeltRecipe } = {
     rewardId: Items.METAL_BAR,
     components: [
       {
-        itemDefinitionId:3481,
+        itemDefinitionId: 3481,
         requiredAmount: 1
       }
     ]
@@ -740,7 +743,7 @@ export const smeltingData: { [recipeId: number]: smeltRecipe } = {
     rewardId: Items.METAL_BAR,
     components: [
       {
-        itemDefinitionId:2909,
+        itemDefinitionId: 2909,
         requiredAmount: 1
       }
     ]
@@ -750,7 +753,7 @@ export const smeltingData: { [recipeId: number]: smeltRecipe } = {
     rewardId: Items.METAL_BAR,
     components: [
       {
-        itemDefinitionId:3055,
+        itemDefinitionId: 3055,
         requiredAmount: 1
       }
     ]
@@ -760,7 +763,7 @@ export const smeltingData: { [recipeId: number]: smeltRecipe } = {
     rewardId: Items.METAL_BAR,
     components: [
       {
-        itemDefinitionId:3056,
+        itemDefinitionId: 3056,
         requiredAmount: 1
       }
     ]
@@ -770,7 +773,7 @@ export const smeltingData: { [recipeId: number]: smeltRecipe } = {
     rewardId: Items.METAL_BAR,
     components: [
       {
-        itemDefinitionId:3057,
+        itemDefinitionId: 3057,
         requiredAmount: 1
       }
     ]
@@ -780,7 +783,7 @@ export const smeltingData: { [recipeId: number]: smeltRecipe } = {
     rewardId: Items.METAL_BAR,
     components: [
       {
-        itemDefinitionId:2906,
+        itemDefinitionId: 2906,
         requiredAmount: 1
       }
     ]
@@ -790,7 +793,7 @@ export const smeltingData: { [recipeId: number]: smeltRecipe } = {
     rewardId: Items.METAL_BAR,
     components: [
       {
-        itemDefinitionId:3123,
+        itemDefinitionId: 3123,
         requiredAmount: 1
       }
     ]
@@ -800,7 +803,7 @@ export const smeltingData: { [recipeId: number]: smeltRecipe } = {
     rewardId: Items.METAL_BAR,
     components: [
       {
-        itemDefinitionId:3401,
+        itemDefinitionId: 3401,
         requiredAmount: 1
       }
     ]
@@ -810,7 +813,7 @@ export const smeltingData: { [recipeId: number]: smeltRecipe } = {
     rewardId: Items.METAL_BAR,
     components: [
       {
-        itemDefinitionId:3585,
+        itemDefinitionId: 3585,
         requiredAmount: 1
       }
     ]
@@ -820,7 +823,7 @@ export const smeltingData: { [recipeId: number]: smeltRecipe } = {
     rewardId: Items.METAL_BAR,
     components: [
       {
-        itemDefinitionId:2494,
+        itemDefinitionId: 2494,
         requiredAmount: 1
       }
     ]
@@ -830,7 +833,7 @@ export const smeltingData: { [recipeId: number]: smeltRecipe } = {
     rewardId: Items.METAL_BAR,
     components: [
       {
-        itemDefinitionId:2483,
+        itemDefinitionId: 2483,
         requiredAmount: 1
       }
     ]
@@ -840,7 +843,7 @@ export const smeltingData: { [recipeId: number]: smeltRecipe } = {
     rewardId: Items.METAL_BAR,
     components: [
       {
-        itemDefinitionId:2480,
+        itemDefinitionId: 2480,
         requiredAmount: 1
       }
     ]
@@ -850,7 +853,7 @@ export const smeltingData: { [recipeId: number]: smeltRecipe } = {
     rewardId: Items.METAL_BAR,
     components: [
       {
-        itemDefinitionId:2446,
+        itemDefinitionId: 2446,
         requiredAmount: 1
       }
     ]
@@ -860,11 +863,11 @@ export const smeltingData: { [recipeId: number]: smeltRecipe } = {
     rewardId: Items.METAL_BAR,
     components: [
       {
-        itemDefinitionId:2781,
+        itemDefinitionId: 2781,
         requiredAmount: 1
       }
     ]
-  },
+  }
 };
 
 export const recipes: { [recipeId: number]: Recipe } = {
@@ -2952,7 +2955,7 @@ export const recipes: { [recipeId: number]: Recipe } = {
       }
     ]
   },
-   [Items.GUN_PART]: {
+  [Items.GUN_PART]: {
     filterId: FilterIds.WEAPONS,
     components: [
       {
@@ -2961,5 +2964,6 @@ export const recipes: { [recipeId: number]: Recipe } = {
       }
     ],
     requireWeaponWorkbench: true
-  },
-}
+  }
+};
+
