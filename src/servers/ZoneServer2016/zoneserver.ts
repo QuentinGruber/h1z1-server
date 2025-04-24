@@ -2838,7 +2838,7 @@ export class ZoneServer2016 extends EventEmitter {
             getDistance(
               character.state.position,
               sourceEntity.state.position
-            ) <= 4
+            ) <= 12
           ) {
             this.addScreenEffect(c, this._screenEffects["FLASH"]);
 
@@ -7717,11 +7717,6 @@ export class ZoneServer2016 extends EventEmitter {
     }
     if (vehicle.vehicleId == VehicleIds.ATV) {
       fuelValue *= 2;
-    }
-    // 0 being the driver seat
-    if (vehicle.getCharacterSeat(client.character.characterId) !== 0) {
-      this.sendAlert(client, "Only the driver can refuel the vehicle!");
-      return;
     }
     this.utilizeHudTimer(client, nameId, timeout, animationId, () => {
       this.refuelVehiclePass(client, character, item, vehicleGuid, fuelValue);
