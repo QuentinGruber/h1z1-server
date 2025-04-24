@@ -336,6 +336,10 @@ export class ChallengeManager {
   }
 
   async finishChallenge(client: ZoneClient2016) {
+    if (client.character.currentChallenge === ChallengeType.NONE) {
+      return;
+    }
+    client.character.currentChallenge = ChallengeType.NONE;
     const query = {
       status: ChallengeStatus.CURRENT,
       serverId: this.server._worldId,

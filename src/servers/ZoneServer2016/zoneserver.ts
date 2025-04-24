@@ -420,7 +420,15 @@ export class ZoneServer2016 extends EventEmitter {
     weaponDefinitions.FIRE_MODE_DEFINITIONS;
   _accountItemDefinitions: { [ACCOUNT_ITEM_ID: number]: AccountDefinition } =
     accountItemConversions;
-  _rewardCrateDefinitions: RewardCrateDefinition[] = rewardCrates;
+  _rewardCrateDefinitions: RewardCrateDefinition[] = rewardCrates.map(
+    (crate: RewardCrateDefinition) => ({
+      ...crate,
+      rewards: crate.rewards.map((reward) => ({
+        ...reward,
+        rewardChance: Math.ceil(reward.rewardChance) // Don't fuck with floats, this makes the server crash since it tries to convert the reward chance into an array and floats are not valid indexes.
+      }))
+    })
+  );
   itemDefinitionsCache?: Buffer;
   dynamicAppearanceCache?: Buffer;
   weaponDefinitionsCache?: Buffer;
@@ -470,6 +478,9 @@ export class ZoneServer2016 extends EventEmitter {
   baseConstructionDamage!: number;
   crowbarHitRewardChance!: number;
   crowbarHitDamage!: number;
+  damageWeapons!: boolean;
+  disablePOIManager!: boolean;
+  disableMapBoundsCheck!: boolean;
   /*                          */
   navManager: NavManager;
   staticBuildings: AddSimpleNpc[] = require("../../../data/2016/sampleData/staticbuildings.json");
@@ -2321,6 +2332,7 @@ export class ZoneServer2016 extends EventEmitter {
   }
 
   async deleteClient(client: Client) {
+    this.hookManager.checkHook("OnPlayerDisconnected", client);
     if (!client) {
       this.setTickRate();
       return;
@@ -2826,7 +2838,7 @@ export class ZoneServer2016 extends EventEmitter {
             getDistance(
               character.state.position,
               sourceEntity.state.position
-            ) <= 4
+            ) <= 12
           ) {
             this.addScreenEffect(c, this._screenEffects["FLASH"]);
 
@@ -7504,7 +7516,7 @@ export class ZoneServer2016 extends EventEmitter {
     this.sendDataToAllWithSpawnedEntity(
       this._characters,
       client.character.characterId,
-      "AnimationBase",
+      "Animation.Play",
       {
         characterId: client.character.characterId,
         animationId: 84 // yawning / waking up emote
@@ -7705,11 +7717,6 @@ export class ZoneServer2016 extends EventEmitter {
     }
     if (vehicle.vehicleId == VehicleIds.ATV) {
       fuelValue *= 2;
-    }
-    // 0 being the driver seat
-    if (vehicle.getCharacterSeat(client.character.characterId) !== 0) {
-      this.sendAlert(client, "Only the driver can refuel the vehicle!");
-      return;
     }
     this.utilizeHudTimer(client, nameId, timeout, animationId, () => {
       this.refuelVehiclePass(client, character, item, vehicleGuid, fuelValue);
@@ -8369,7 +8376,9 @@ export class ZoneServer2016 extends EventEmitter {
       );
       return;
     }
-    this.damageItem(client.character, weaponItem, 5);
+    if (this.damageWeapons) {
+      this.damageItem(client.character, weaponItem, 5);
+    }
   }
 
   handleWeaponReload(client: Client, weaponItem: LoadoutItem) {
@@ -9004,14 +9013,18 @@ export class ZoneServer2016 extends EventEmitter {
       if (!client.isLoading) {
         client.routineCounter++;
         this.constructionManager.constructionPermissionsManager(this, client);
-        this.checkInMapBounds(client);
+        if (!this.disableMapBoundsCheck) {
+          this.checkInMapBounds(client);
+        }
         this.checkZonePing(client);
         if (client.routineCounter >= 3) {
           this.createFairPlayInternalPacket(client);
           this.assignChunkRenderDistance(client);
           this.removeOutOfDistanceEntities(client);
           this.removeOODInteractionData(client);
-          this.POIManager(client);
+          if (!this.disablePOIManager) {
+            this.POIManager(client);
+          }
           client.routineCounter = 0;
         }
         //this.constructionManager.spawnConstructionParentsInRange(this, client); // put back into grid for now
@@ -9041,7 +9054,9 @@ export class ZoneServer2016 extends EventEmitter {
     this.spawnGridObjects(client); // Spawn base parts before the player
     this.spawnCharacters(client);
     //this.constructionManager.worldConstructionManager(this, client);
-    this.POIManager(client);
+    if (!this.disablePOIManager) {
+      this.POIManager(client);
+    }
     client.posAtLastRoutine = client.character.state.position;
   }
 
@@ -9050,7 +9065,9 @@ export class ZoneServer2016 extends EventEmitter {
     this.spawnLoadingGridObjects(client);
     this.spawnCharacters(client);
     //this.constructionManager.worldConstructionManager(this, client);
-    this.POIManager(client);
+    if (!this.disablePOIManager) {
+      this.POIManager(client);
+    }
     client.posAtLastRoutine = client.character.state.position;
   }
 
@@ -9475,6 +9492,26 @@ export class ZoneServer2016 extends EventEmitter {
       color: status == 0 ? 1 : 0,
       status: status
     });
+  }
+
+  deployParachute(client: Client) {
+    const characterId = this.generateGuid(),
+      vehicle = new Vehicle2016(
+        characterId,
+        this.getTransientId(characterId),
+        9374,
+        client.character.state.position,
+        client.character.state.rotation,
+        this,
+        getCurrentServerTimeWrapper().getTruncatedU32(),
+        VehicleIds.PARACHUTE
+      );
+    this.worldObjectManager.createVehicle(this, vehicle, true);
+    vehicle.onReadyCallback = (client) => {
+      this.mountVehicle(client, characterId);
+      this.assignManagedObject(client, vehicle);
+      client.vehicle.mountedVehicle = characterId;
+    };
   }
 }
 
