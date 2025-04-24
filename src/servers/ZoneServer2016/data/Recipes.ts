@@ -2966,4 +2966,3 @@ export const recipes: { [recipeId: number]: Recipe } = {
     requireWeaponWorkbench: true
   }
 };
-
