@@ -257,6 +257,7 @@ import { NavManager } from "../../utils/recast";
 import { ProjectileEntity } from "./entities/projectileentity";
 import { ChallengeManager, ChallengeType } from "./managers/challengemanager";
 import { RandomEventsManager } from "./managers/randomeventsmanager";
+import { server } from "typescript";
 
 const spawnLocations2 = require("../../../data/2016/zoneData/Z1_gridSpawns.json"),
   deprecatedDoors = require("../../../data/2016/sampleData/deprecatedDoors.json"),
@@ -2746,9 +2747,10 @@ export class ZoneServer2016 extends EventEmitter {
         if (damage) {
           character.damage(server, {
             entity: "Character.CharacterEffect",
-            damage: 2000
+            damage: damage
           });
         }
+
         server.sendDataToAllWithSpawnedEntity(
           server._characters,
           character.characterId,
@@ -2795,7 +2797,8 @@ export class ZoneServer2016 extends EventEmitter {
 
   async explosionDamage(
     sourceEntity: BaseEntity | ProjectileEntity,
-    client?: Client
+    client?: Client,
+    server?: ZoneServer2016
   ) {
     const position = sourceEntity.state.position;
 
@@ -2820,7 +2823,7 @@ export class ZoneServer2016 extends EventEmitter {
             this.applyCharacterEffect(
               character,
               Effects.PFX_Fire_Person_loop,
-              2000,
+              1500,
               10000
             );
           }
