@@ -2796,8 +2796,7 @@ export class ZoneServer2016 extends EventEmitter {
 
   async explosionDamage(
     sourceEntity: BaseEntity | ProjectileEntity,
-    client?: Client,
-    server?: ZoneServer2016
+    client?: Client
   ) {
     const position = sourceEntity.state.position;
 
