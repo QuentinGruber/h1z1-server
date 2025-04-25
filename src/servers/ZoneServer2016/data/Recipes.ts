@@ -13,7 +13,6 @@
 
 import { Recipe, smeltRecipe } from "types/zoneserver";
 import { FilterIds, Items } from "../models/enums";
-import { Weapon } from "../classes/weapon";
 export const smeltingData: { [recipeId: number]: smeltRecipe } = {
   1: {
     filterId: FilterIds.COOKING,
@@ -344,7 +343,7 @@ export const smeltingData: { [recipeId: number]: smeltRecipe } = {
     rewardId: Items.METAL_BAR,
     components: [
       {
-        itemDefinitionId: Items.WEAPON_COMBAT_KNIFE,
+        itemDefinitionId: Items.WEAPON_COMBATKNIFE,
         requiredAmount: 1
       }
     ]
@@ -824,7 +823,7 @@ export const smeltingData: { [recipeId: number]: smeltRecipe } = {
     rewardId: Items.METAL_BAR,
     components: [
       {
-        itemDefinitionId: Items.WEAPON_TOXIC_COMBAT_KNIFE,
+        itemDefinitionId: Items.WEAPON_TOXIC_COMBATKNIFE,
         requiredAmount: 1
       }
     ]
@@ -1420,7 +1419,7 @@ export const recipes: { [recipeId: number]: Recipe } = {
       }
     ]
   },
-  [Items.WEAPON_COMBAT_KNIFE]: {
+  [Items.WEAPON_COMBATKNIFE]: {
     filterId: FilterIds.WEAPONS,
     components: [
       {
