@@ -553,7 +553,7 @@ export const smeltingData: { [recipeId: number]: smeltRecipe } = {
     rewardId: Items.METAL_BAR,
     components: [
       {
-        itemDefinitionId: Items.WEAPON_ROSEGARDEN_SHOTGUN,
+        itemDefinitionId: Items.WEAPON_ROSE_GARDEN_SHOTGUN,
         requiredAmount: 1
       }
     ]
@@ -563,7 +563,7 @@ export const smeltingData: { [recipeId: number]: smeltRecipe } = {
     rewardId: Items.METAL_BAR,
     components: [
       {
-        itemDefinitionId: 2593,
+        itemDefinitionId: Items.WEAPON_PATRIOTIC_AR,
         requiredAmount: 1
       }
     ]
@@ -573,7 +573,7 @@ export const smeltingData: { [recipeId: number]: smeltRecipe } = {
     rewardId: Items.METAL_BAR,
     components: [
       {
-        itemDefinitionId: 3586,
+        itemDefinitionId: Items.WEAPON_NINJA_AR,
         requiredAmount: 1
       }
     ]
@@ -583,7 +583,7 @@ export const smeltingData: { [recipeId: number]: smeltRecipe } = {
     rewardId: Items.METAL_BAR,
     components: [
       {
-        itemDefinitionId: 2592,
+        itemDefinitionId: Items.WEAPON_MERCENARY_AR,
         requiredAmount: 1
       }
     ]
@@ -593,7 +593,7 @@ export const smeltingData: { [recipeId: number]: smeltRecipe } = {
     rewardId: Items.METAL_BAR,
     components: [
       {
-        itemDefinitionId: 2586,
+        itemDefinitionId: Items.WEAPON_COMBAT_SHOTGUN,
         requiredAmount: 1
       }
     ]
@@ -603,7 +603,7 @@ export const smeltingData: { [recipeId: number]: smeltRecipe } = {
     rewardId: Items.METAL_BAR,
     components: [
       {
-        itemDefinitionId: 3720,
+        itemDefinitionId: Items.WEAPON_INFERNAL_SHOTGUN,
         requiredAmount: 1
       }
     ]
@@ -613,7 +613,7 @@ export const smeltingData: { [recipeId: number]: smeltRecipe } = {
     rewardId: Items.METAL_BAR,
     components: [
       {
-        itemDefinitionId: 3550,
+        itemDefinitionId: Items.WEAPON_SHALLOW_M1911A1,
         requiredAmount: 1
       }
     ]
@@ -623,7 +623,7 @@ export const smeltingData: { [recipeId: number]: smeltRecipe } = {
     rewardId: Items.METAL_BAR,
     components: [
       {
-        itemDefinitionId: 3584,
+        itemDefinitionId: Items.WEAPON_SHALLOW_SNIPER,
         requiredAmount: 1
       }
     ]
@@ -633,7 +633,7 @@ export const smeltingData: { [recipeId: number]: smeltRecipe } = {
     rewardId: Items.METAL_BAR,
     components: [
       {
-        itemDefinitionId: 3172,
+        itemDefinitionId: Items.WEAPON_PREDATOR_SNIPER,
         requiredAmount: 1
       }
     ]
@@ -643,7 +643,7 @@ export const smeltingData: { [recipeId: number]: smeltRecipe } = {
     rewardId: Items.METAL_BAR,
     components: [
       {
-        itemDefinitionId: 3165,
+        itemDefinitionId: Items.WEAPON_PREDATOR_SHOTGUN,
         requiredAmount: 1
       }
     ]
@@ -653,7 +653,7 @@ export const smeltingData: { [recipeId: number]: smeltRecipe } = {
     rewardId: Items.METAL_BAR,
     components: [
       {
-        itemDefinitionId: 3179,
+        itemDefinitionId: Items.WEAPON_PREDATOR_AR,
         requiredAmount: 1
       }
     ]
@@ -663,7 +663,7 @@ export const smeltingData: { [recipeId: number]: smeltRecipe } = {
     rewardId: Items.METAL_BAR,
     components: [
       {
-        itemDefinitionId: 2789,
+        itemDefinitionId: Items.WEAPON_ANODIZED_AR,
         requiredAmount: 1
       }
     ]
@@ -673,7 +673,7 @@ export const smeltingData: { [recipeId: number]: smeltRecipe } = {
     rewardId: Items.METAL_BAR,
     components: [
       {
-        itemDefinitionId: 2834,
+        itemDefinitionId: Items.WEAPON_LIGHTNING_AR,
         requiredAmount: 1
       }
     ]
@@ -683,7 +683,7 @@ export const smeltingData: { [recipeId: number]: smeltRecipe } = {
     rewardId: Items.METAL_BAR,
     components: [
       {
-        itemDefinitionId: 3475,
+        itemDefinitionId: Items.WEAPON_IREZUMI_AR,
         requiredAmount: 1
       }
     ]
@@ -693,7 +693,7 @@ export const smeltingData: { [recipeId: number]: smeltRecipe } = {
     rewardId: Items.METAL_BAR,
     components: [
       {
-        itemDefinitionId: 3477,
+        itemDefinitionId: Items.WEAPON_NEKO_CHAN_SHOTGUN,
         requiredAmount: 1
       }
     ]
@@ -703,7 +703,7 @@ export const smeltingData: { [recipeId: number]: smeltRecipe } = {
     rewardId: Items.METAL_BAR,
     components: [
       {
-        itemDefinitionId: 3381,
+        itemDefinitionId: Items.WEAPON_KUROMU_M9,
         requiredAmount: 1
       }
     ]
@@ -713,7 +713,7 @@ export const smeltingData: { [recipeId: number]: smeltRecipe } = {
     rewardId: Items.METAL_BAR,
     components: [
       {
-        itemDefinitionId: 3495,
+        itemDefinitionId: Items.WEAPON_HEAVY_ASSAULT_MAGNUM,
         requiredAmount: 1
       }
     ]
@@ -723,7 +723,7 @@ export const smeltingData: { [recipeId: number]: smeltRecipe } = {
     rewardId: Items.METAL_BAR,
     components: [
       {
-        itemDefinitionId: 3489,
+        itemDefinitionId: Items.WEAPON_NEKO_CHAN_R380,
         requiredAmount: 1
       }
     ]
@@ -733,7 +733,7 @@ export const smeltingData: { [recipeId: number]: smeltRecipe } = {
     rewardId: Items.METAL_BAR,
     components: [
       {
-        itemDefinitionId: 3481,
+        itemDefinitionId: Items.WEAPON_KUROMU_MAGNUM,
         requiredAmount: 1
       }
     ]
@@ -743,7 +743,7 @@ export const smeltingData: { [recipeId: number]: smeltRecipe } = {
     rewardId: Items.METAL_BAR,
     components: [
       {
-        itemDefinitionId: 2909,
+        itemDefinitionId: Items.WEAPON_RAINBOW_SWIRL_SNIPER,
         requiredAmount: 1
       }
     ]
@@ -753,7 +753,7 @@ export const smeltingData: { [recipeId: number]: smeltRecipe } = {
     rewardId: Items.METAL_BAR,
     components: [
       {
-        itemDefinitionId: 3055,
+        itemDefinitionId: Items.WEAPON_RAINBOW_SWIRL_AK47,
         requiredAmount: 1
       }
     ]
@@ -763,7 +763,7 @@ export const smeltingData: { [recipeId: number]: smeltRecipe } = {
     rewardId: Items.METAL_BAR,
     components: [
       {
-        itemDefinitionId: 3056,
+        itemDefinitionId: Items.WEAPON_RAINBOW_SWIRL_AR,
         requiredAmount: 1
       }
     ]
@@ -773,7 +773,7 @@ export const smeltingData: { [recipeId: number]: smeltRecipe } = {
     rewardId: Items.METAL_BAR,
     components: [
       {
-        itemDefinitionId: 3057,
+        itemDefinitionId: Items.WEAPON_RAINBOW_SWIRL_SHOTGUN,
         requiredAmount: 1
       }
     ]
@@ -783,7 +783,7 @@ export const smeltingData: { [recipeId: number]: smeltRecipe } = {
     rewardId: Items.METAL_BAR,
     components: [
       {
-        itemDefinitionId: 2906,
+        itemDefinitionId: Items.WEAPON_GRAFFITI_SNIPER,
         requiredAmount: 1
       }
     ]
@@ -793,7 +793,7 @@ export const smeltingData: { [recipeId: number]: smeltRecipe } = {
     rewardId: Items.METAL_BAR,
     components: [
       {
-        itemDefinitionId: 3123,
+        itemDefinitionId: Items.WEAPON_TIGER_BLOOD_SHOTGUN,
         requiredAmount: 1
       }
     ]
@@ -803,7 +803,7 @@ export const smeltingData: { [recipeId: number]: smeltRecipe } = {
     rewardId: Items.METAL_BAR,
     components: [
       {
-        itemDefinitionId: 3401,
+        itemDefinitionId: Items.WEAPON_DESERT_WARFARE_AK,
         requiredAmount: 1
       }
     ]
@@ -813,7 +813,7 @@ export const smeltingData: { [recipeId: number]: smeltRecipe } = {
     rewardId: Items.METAL_BAR,
     components: [
       {
-        itemDefinitionId: 3585,
+        itemDefinitionId: Items.WEAPON_GRIMMMZ_AR,
         requiredAmount: 1
       }
     ]
@@ -823,11 +823,13 @@ export const smeltingData: { [recipeId: number]: smeltRecipe } = {
     rewardId: Items.METAL_BAR,
     components: [
       {
-        itemDefinitionId: 2494,
+        itemDefinitionId: Items.WEAPON_TOXIC_COMBATKNIFE,
         requiredAmount: 1
       }
     ]
   },
+  // Not addded "Modified Toxic AK-47"
+  /*
   76: {
     filterId: FilterIds.FURNACE,
     rewardId: Items.METAL_BAR,
@@ -837,13 +839,13 @@ export const smeltingData: { [recipeId: number]: smeltRecipe } = {
         requiredAmount: 1
       }
     ]
-  },
+  },*/
   77: {
     filterId: FilterIds.FURNACE,
     rewardId: Items.METAL_BAR,
     components: [
       {
-        itemDefinitionId: 2480,
+        itemDefinitionId: Items.WEAPON_TOXIC_AK47,
         requiredAmount: 1
       }
     ]
@@ -853,7 +855,7 @@ export const smeltingData: { [recipeId: number]: smeltRecipe } = {
     rewardId: Items.METAL_BAR,
     components: [
       {
-        itemDefinitionId: 2446,
+        itemDefinitionId: Items.WEAPON_TOXIC_SHOTGUN,
         requiredAmount: 1
       }
     ]
@@ -863,7 +865,7 @@ export const smeltingData: { [recipeId: number]: smeltRecipe } = {
     rewardId: Items.METAL_BAR,
     components: [
       {
-        itemDefinitionId: 2781,
+        itemDefinitionId: Items.WEAPON_SHOWDOWN_AR,
         requiredAmount: 1
       }
     ]
