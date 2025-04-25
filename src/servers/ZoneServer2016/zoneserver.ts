@@ -2746,9 +2746,10 @@ export class ZoneServer2016 extends EventEmitter {
         if (damage) {
           character.damage(server, {
             entity: "Character.CharacterEffect",
-            damage: 2000
+            damage: damage
           });
         }
+
         server.sendDataToAllWithSpawnedEntity(
           server._characters,
           character.characterId,
@@ -2820,7 +2821,7 @@ export class ZoneServer2016 extends EventEmitter {
             this.applyCharacterEffect(
               character,
               Effects.PFX_Fire_Person_loop,
-              2000,
+              1500,
               10000
             );
           }
