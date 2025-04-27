@@ -2628,8 +2628,8 @@ export interface ChatChatText {
   unknownDword1?: number;
   color: unknown[];
   unknownDword2?: number;
-  unknownBoolean1?: boolean;
-  unknownBoolean2?: boolean;
+    unknownByte3?: boolean;
+    unknownByte4?: boolean;
 }
 export interface CommandPlaySoundAtLocation {
   unknownString1?: string;
