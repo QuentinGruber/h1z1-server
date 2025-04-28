@@ -3,7 +3,7 @@
 //   GNU GENERAL PUBLIC LICENSE
 //   Version 3, 29 June 2007
 //   copyright (C) 2020 - 2021 Quentin Gruber
-//   copyright (C) 2021 - 2024 H1emu community
+//   copyright (C) 2021 - 2025 H1emu community
 //
 //   https://github.com/QuentinGruber/h1z1-server
 //   https://www.npmjs.com/package/h1z1-server
@@ -43,6 +43,7 @@ export enum CUSTOM_PROFILES_IDS {
 }
 
 export enum DB_COLLECTIONS {
+  CONSTRUCTION_LOGS = "construction-logs",
   ADMINS = "admins",
   BANNED = "banned",
   BLACK_LIST_ENTRIES = "blackListEntries",
@@ -51,7 +52,6 @@ export enum DB_COLLECTIONS {
   CHARACTERS_LIGHT = "characters-light",
   CHAT = "chats",
   CONSTRUCTION = "construction",
-  CONSTRUCTION_BACKUP = "construction-backup",
   CROPS = "crops",
   TRAPS = "traps",
   CLANS = "clans",
@@ -69,7 +69,15 @@ export enum DB_COLLECTIONS {
   MUTED = "muted",
   GROUPS = "groups",
   VPN_WHITELIST = "vpn-whitelist",
+  CHALLENGES = "challenges",
   AUTHKEYS = "verified-authkeys"
+}
+
+export enum KILL_TYPE {
+  PLAYER = "player",
+  ZOMBIE = "zombie",
+  WILDLIFE = "wildlife",
+  VEHICLE = "vehicle"
 }
 
 export enum LOGIN_KICK_REASON {

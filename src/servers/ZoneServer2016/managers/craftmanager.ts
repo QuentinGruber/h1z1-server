@@ -3,7 +3,7 @@
 //   GNU GENERAL PUBLIC LICENSE
 //   Version 3, 29 June 2007
 //   copyright (C) 2020 - 2021 Quentin Gruber
-//   copyright (C) 2021 - 2024 H1emu community
+//   copyright (C) 2021 - 2025 H1emu community
 //
 //   https://github.com/QuentinGruber/h1z1-server
 //   https://www.npmjs.com/package/h1z1-server
@@ -19,6 +19,7 @@ import { Recipe } from "types/zoneserver";
 import { Character2016 } from "../entities/character";
 import { BaseItem } from "../classes/baseItem";
 import { BaseLootableEntity } from "../entities/baselootableentity";
+import { ChallengeType } from "./challengemanager";
 const debug = require("debug")("ZoneServer");
 
 interface CraftComponentDSEntry {
@@ -516,6 +517,32 @@ export class CraftManager {
         client.character.lootItem(server, server.generateItem(id, 1));
       });
     }
+    switch (recipeId) {
+      case Items.IED:
+        server.challengeManager.registerChallengeProgression(
+          client,
+          ChallengeType.IED,
+          1
+        );
+        break;
+
+      case Items.FOUNDATION:
+        server.challengeManager.registerChallengeProgression(
+          client,
+          ChallengeType.MY_LAND,
+          1
+        );
+        break;
+
+      case Items.SHACK:
+        server.challengeManager.registerChallengeProgression(
+          client,
+          ChallengeType.MY_HOME,
+          1
+        );
+        break;
+    }
+
     return true;
     //#endregion
   }

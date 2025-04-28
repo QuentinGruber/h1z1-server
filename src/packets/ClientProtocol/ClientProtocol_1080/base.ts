@@ -3,7 +3,7 @@
 //   GNU GENERAL PUBLIC LICENSE
 //   Version 3, 29 June 2007
 //   copyright (C) 2020 - 2021 Quentin Gruber
-//   copyright (C) 2021 - 2024 H1emu community
+//   copyright (C) 2021 - 2025 H1emu community
 //
 //   https://github.com/QuentinGruber/h1z1-server
 //   https://www.npmjs.com/package/h1z1-server
@@ -2436,7 +2436,19 @@ export const basePackets: PacketStructures = [
   ["Acquaintance", 0x2b, {}],
   ["ClientServerShuttingDown", 0x2c, {}],
 
-  ["Broadcast", 0x2e, {}],
+  [
+    "Broadcast",
+    0x2e0000,
+    {
+      fields: [
+        { name: "identity", type: "schema", fields: identitySchema },
+        { name: "unknownString1", type: "string", defaultValue: "" },
+        { name: "unknownDword1", type: "uint32", defaultValue: 0 },
+        { name: "unknownBoolean1", type: "boolean", defaultValue: false },
+        { name: "unknownBoolean2", type: "boolean", defaultValue: false }
+      ]
+    }
+  ],
   ["ClientKickedFromServer", 0x2f, {}],
   [
     "UpdateClientSessionData",
@@ -3590,11 +3602,11 @@ export const basePackets: PacketStructures = [
     "Animation.Request",
     0xf801,
     {
-      fields: [{ name: "animationId", type: "uint32", defaultValue: 0 }]
+      fields: [{ name: "itemDefinitionId", type: "uint32", defaultValue: 0 }]
     }
   ],
   [
-    "AnimationBase",
+    "Animation.Play",
     0xf802,
     {
       fields: [

@@ -3,7 +3,7 @@
 //   GNU GENERAL PUBLIC LICENSE
 //   Version 3, 29 June 2007
 //   copyright (C) 2020 - 2021 Quentin Gruber
-//   copyright (C) 2021 - 2024 H1emu community
+//   copyright (C) 2021 - 2025 H1emu community
 //
 //   https://github.com/QuentinGruber/h1z1-server
 //   https://www.npmjs.com/package/h1z1-server
@@ -38,7 +38,16 @@ export const uiPackets: PacketStructures = [
   ["Ui.ResetTimer", 0x1a0a, {}],
   ["Ui.ObjectiveTargetUpdate", 0x1a0d, {}],
   ["Ui.Message", 0x1a0e, {}],
-  ["Ui.CinematicStartLookAt", 0x1a0f, {}],
+  [
+    "Ui.CinematicStartLookAt",
+    0x1a0f,
+    {
+      fields: [
+        { name: "unknownDword1", type: "uint32", defaultValue: 0 },
+        { name: "unknownBoolean1", type: "boolean", defaultValue: false }
+      ]
+    }
+  ],
   [
     "Ui.WeaponHitFeedback",
     0x1a10,

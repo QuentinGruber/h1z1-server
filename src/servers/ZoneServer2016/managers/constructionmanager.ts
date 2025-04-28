@@ -3,7 +3,7 @@
 //   GNU GENERAL PUBLIC LICENSE
 //   Version 3, 29 June 2007
 //   copyright (C) 2020 - 2021 Quentin Gruber
-//   copyright (C) 2021 - 2024 H1emu community
+//   copyright (C) 2021 - 2025 H1emu community
 //
 //   https://github.com/QuentinGruber/h1z1-server
 //   https://www.npmjs.com/package/h1z1-server
@@ -579,6 +579,7 @@ export class ConstructionManager {
     modelId: number,
     position: Float32Array,
     rotation: Float32Array,
+    scale: Float32Array,
     parentObjectCharacterId: string,
     BuildingSlot: string
   ) {
@@ -671,7 +672,9 @@ export class ConstructionManager {
     }
 
     if (
-      ![Items.TRAP_FIRE, Items.TRAP_FLASH].includes(itemDefinitionId) &&
+      ![Items.TRAP_FIRE, Items.TRAP_FLASH, Items.WOODEN_BARRICADE].includes(
+        itemDefinitionId
+      ) &&
       this.handleInvalidPlacement(
         server,
         client,
@@ -691,6 +694,7 @@ export class ConstructionManager {
         modelId,
         position,
         rotation,
+        scale,
         parentObjectCharacterId,
         BuildingSlot,
         freeplaceParentCharacterId
@@ -712,6 +716,7 @@ export class ConstructionManager {
     modelId: number,
     position: Float32Array,
     rotation: Float32Array,
+    scale: Float32Array,
     parentObjectCharacterId: string,
     BuildingSlot: string,
     freeplaceParentCharacterId?: string
@@ -912,6 +917,7 @@ export class ConstructionManager {
           modelId,
           position,
           rotation,
+          scale,
           freeplaceParentCharacterId ?? "",
           itemDefinitionId
         );
@@ -1000,8 +1006,12 @@ export class ConstructionManager {
         BuildingSlot
       );
 
+    const result = parent.setShelterSlot(server, shelter);
+    if (!result) {
+      this.placementError(server, client, ConstructionErrors.WALL_SLOT_FAILED);
+      return false;
+    }
     server._constructionSimple[characterId] = shelter;
-    parent.setShelterSlot(server, shelter);
     server.executeFuncForAllReadyClientsInRange((client) => {
       this.spawnSimpleConstruction(server, client, shelter);
     }, shelter);
@@ -1320,7 +1330,11 @@ export class ConstructionManager {
         BuildingSlot
       );
 
-    parent.setWallSlot(server, door);
+    const result = parent.setWallSlot(server, door);
+    if (!result) {
+      this.placementError(server, client, ConstructionErrors.WALL_SLOT_FAILED);
+      return false;
+    }
 
     server._constructionDoors[characterId] = door;
     server.executeFuncForAllReadyClientsInRange((client) => {
@@ -1744,6 +1758,7 @@ export class ConstructionManager {
     modelId: number,
     position: Float32Array,
     rotation: Float32Array,
+    scale: Float32Array,
     parentObjectCharacterId: string,
     itemDefinitionId: number
   ) {
@@ -1760,6 +1775,8 @@ export class ConstructionManager {
         parentObjectCharacterId,
         ""
       );
+
+    construction.scale = scale;
 
     const parent = construction.getParent(server);
     if (parent) {
@@ -2562,10 +2579,12 @@ export class ConstructionManager {
     if (entity instanceof ConstructionParentEntity)
       timeDif = Date.now() - entity.lastDamagedTimestamp;
 
-    if (timeDif && timeDif < 30000) {
+    const cooldownTime = 30000;
+
+    if (timeDif && timeDif < cooldownTime) {
       server.sendAlert(
         client,
-        `You cant repair this base for the next ${(60 - Number(timeDif / 1000)).toFixed(2)} seconds`
+        `You cant repair this base for the next ${(cooldownTime / 1000 - Number(timeDif / 1000)).toFixed(2)} seconds`
       );
       return;
     }
@@ -2584,7 +2603,7 @@ export class ConstructionManager {
           if (timeDiffExpansion < 30000) {
             server.sendAlert(
               client,
-              `You cant repair this base for the next ${(60 - Number(timeDiffExpansion / 1000)).toFixed(2)} seconds`
+              `You cant repair this base for the next ${(cooldownTime / 1000 - Number(timeDiffExpansion / 1000)).toFixed(2)} seconds`
             );
             return;
           }
