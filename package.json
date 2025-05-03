@@ -61,7 +61,7 @@
     "build-docker-images": "tsx ./docker/buildDocker.ts",
     "test-mongo": "npm run build && npm run build-tests && MONGO_TESTS='true' DISABLE_PLUGINS='true' node --no-warnings --experimental-require-module --no-experimental-strip-types --test",
     "test": "npm run build && npm run build-tests && cross-env DISABLE_PLUGINS='true' node --no-warnings --experimental-require-module --no-experimental-strip-types --test",
-    "test-dev": "npm run lint -- --quiet; npm run check_prettier; npm t",
+    "test-dev": "npm run lint --quiet; npm run check_prettier; npm t",
     "postinstall": "npm run build",
     "publish_release": "git push --tags && git push origin dev && git push origin master && git checkout dev && npm run publish_release-next",
     "publish_release-next": "npm version --no-git-tag-version prerelease && git add . && git commit -m 'publish-a-next-version' && npm publish --tag next && git push origin dev",

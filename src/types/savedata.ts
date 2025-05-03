@@ -77,7 +77,7 @@ export interface CharacterUpdateSaveData
 
 export interface FullCharacterSaveData
   extends CharacterUpdateSaveData,
-    BaseFullEntitySaveData {
+  BaseFullEntitySaveData {
   creationDate: string;
   lastLoginDate: string;
   ownerId: string;
@@ -89,87 +89,88 @@ export interface FullCharacterSaveData
 }
 
 export interface positionUpdate {
-        orientation?: any;
-        frontTilt?: number;
-        sideTilt?: number;
+  orientation?: any;
+  frontTilt?: number;
+  sideTilt?: number;
 }
 
 export interface FullVehicleSaveData
   extends BaseFullCharacterUpdateSaveData,
-    BaseFullEntitySaveData {
-    positionUpdate: positionUpdate;
-    vehicleId: number,
-    shaderGroupId: number
+  BaseFullEntitySaveData {
+  positionUpdate: positionUpdate;
+  vehicleId: number,
+  shaderGroupId: number
 }
 
 export interface BaseConstructionSaveData
   extends BaseFullEntitySaveData {
-    health: number;
-    placementTime: number;
-    parentObjectCharacterId: string;
-    itemDefinitionId: number;
-    slot: string;
+  health: number;
+  placementTime: number;
+  parentObjectCharacterId: string;
+  itemDefinitionId: number;
+  slot: string;
 }
 
 export interface ConstructionDoorSaveData
   extends BaseConstructionSaveData {
-    ownerCharacterId: string;
-    passwordHash: number;
-    grantedAccess: Array<string>;
+  ownerCharacterId: string;
+  passwordHash: number;
+  grantedAccess: Array<string>;
 }
 
 export interface LootableConstructionSaveData
   extends BaseConstructionSaveData {
-    container?: LoadoutContainerSaveData
-    subEntityType: string;
+  container?: LoadoutContainerSaveData
+  subEntityType: string;
 }
 
 export interface ConstructionChildSaveData
   extends BaseConstructionSaveData {
-    eulerAngle: number;
+  eulerAngle: number;
 
-    occupiedWallSlots: {
-      [slot: number]: ConstructionDoorSaveData | ConstructionChildSaveData;
-    }
-    occupiedUpperWallSlots: { [slot: number]: ConstructionChildSaveData }
-    occupiedShelterSlots: { [slot: number]: ConstructionChildSaveData }
-    freeplaceEntities: {
-      [characterId: string]:
-        | ConstructionChildSaveData
-        | ConstructionDoorSaveData
-        | LootableConstructionSaveData;
-    }
+  occupiedWallSlots: {
+    [slot: number]: ConstructionDoorSaveData | ConstructionChildSaveData;
+  }
+  occupiedUpperWallSlots: { [slot: number]: ConstructionChildSaveData }
+  occupiedShelterSlots: { [slot: number]: ConstructionChildSaveData }
+  freeplaceEntities: {
+    [characterId: string]:
+    | ConstructionChildSaveData
+    | ConstructionDoorSaveData
+    | LootableConstructionSaveData;
+  }
 }
 
 export interface ConstructionParentSaveData
   extends ConstructionChildSaveData {
-    permissions: { [characterId: string]: ConstructionPermissions };
-    ownerCharacterId: string;
-    occupiedExpansionSlots: { [slot: number]: ConstructionParentSaveData };
-    occupiedRampSlots: { [slot: number]: ConstructionChildSaveData }
+  permissions: { [characterId: string]: ConstructionPermissions };
+  ownerCharacterId: string;
+  occupiedExpansionSlots: { [slot: number]: ConstructionParentSaveData };
+  occupiedRampSlots: { [slot: number]: ConstructionChildSaveData }
 }
 
 export interface PlantSaveData
   extends BaseFullEntitySaveData {
-    growState: number;
-    nextStateTime: number;
-    parentObjectCharacterId: string;
-    slot: string;
-    item: ItemSaveData;
+  growState: number;
+  nextStateTime: number;
+  parentObjectCharacterId: string;
+  slot: string;
+  item: ItemSaveData;
 }
 
 export interface PlantingDiameterSaveData
   extends BaseFullEntitySaveData {
-    seedSlots: { [id: string]: PlantSaveData };
-    fertilizedTimestamp: number;
-    isFertilized: boolean;
+  seedSlots: { [id: string]: PlantSaveData };
+  placementTime: number;
+  fertilizedTimestamp: number;
+  isFertilized: boolean;
 }
 
 export interface TrapSaveData
   extends BaseFullEntitySaveData {
-    ownerCharacterId: string;
-    itemDefinitionId: number;
-    health: number;
+  ownerCharacterId: string;
+  itemDefinitionId: number;
+  health: number;
 }
 
 export interface ServerSaveData extends BaseSaveData {
