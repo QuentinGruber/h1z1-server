@@ -14,15 +14,15 @@
 import { TemporaryEntity } from "./temporaryentity";
 import { ZoneServer2016 } from "../zoneserver";
 import { Plant } from "./plant";
-import {
-  DamageInfo,
-} from "types/zoneserver";
+import { DamageInfo } from "types/zoneserver";
 import { Items, ConstructionPermissionIds } from "../models/enums";
-import { ZoneClient2016, ZoneClient2016 as Client } from "../classes/zoneclient";
+import {
+  ZoneClient2016,
+  ZoneClient2016 as Client
+} from "../classes/zoneclient";
 
 // Removed ConstructionEntity from implements clause
 export class PlantingDiameter extends TemporaryEntity {
-
   placementTime = Date.now();
 
   /** HashMap of the Plant occupying the seed slot */
@@ -43,7 +43,7 @@ export class PlantingDiameter extends TemporaryEntity {
     actorModelId: number,
     position: Float32Array,
     rotation: Float32Array,
-    server: ZoneServer2016,
+    server: ZoneServer2016
   ) {
     super(characterId, transientId, actorModelId, position, rotation, server);
     this.npcRenderDistance = 30;
@@ -56,10 +56,7 @@ export class PlantingDiameter extends TemporaryEntity {
     return server.deleteEntity(this.characterId, server._temporaryObjects);
   }
 
-  OnPlayerSelect(
-    server: ZoneServer2016,
-    client: ZoneClient2016,
-  ) {
+  OnPlayerSelect(server: ZoneServer2016, client: ZoneClient2016) {
     for (const clients in server._clients) {
       const client = server._clients[clients];
 
@@ -91,9 +88,15 @@ export class PlantingDiameter extends TemporaryEntity {
 
     for (const a in server._constructionFoundations) {
       const foundation = server._constructionFoundations[a];
-      if (foundation.getHasPermission(server, client.character.characterId, ConstructionPermissionIds.DEMOLISH)
-        && Date.now() < this.placementTime + 120000
-        && weapon.itemDefinitionId == Items.WEAPON_HAMMER_DEMOLITION)
+      if (
+        foundation.getHasPermission(
+          server,
+          client.character.characterId,
+          ConstructionPermissionIds.DEMOLISH
+        ) &&
+        Date.now() < this.placementTime + 120000 &&
+        weapon.itemDefinitionId == Items.WEAPON_HAMMER_DEMOLITION
+      )
         return true;
     }
   }

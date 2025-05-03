@@ -947,15 +947,15 @@ export class WorldDataManager {
     serverId: number
   ): ConstructionChildSaveData {
     const wallSlots: {
-      [slot: number]: ConstructionChildSaveData | ConstructionDoorSaveData;
-    } = {},
+        [slot: number]: ConstructionChildSaveData | ConstructionDoorSaveData;
+      } = {},
       upperWallSlots: { [slot: number]: ConstructionChildSaveData } = {},
       shelterSlots: { [slot: number]: ConstructionChildSaveData } = {},
       freePlaceEntities: {
         [characterId: string]:
-        | ConstructionChildSaveData
-        | ConstructionDoorSaveData
-        | LootableConstructionSaveData;
+          | ConstructionChildSaveData
+          | ConstructionDoorSaveData
+          | LootableConstructionSaveData;
       } = {};
     Object.values(entity.occupiedWallSlots).forEach((wall) => {
       if (wall instanceof ConstructionDoor) {
@@ -1134,11 +1134,11 @@ export class WorldDataManager {
     entityData: PlantSaveData
   ): Plant {
     const item = new BaseItem(
-      entityData.item.itemDefinitionId,
-      entityData.item.itemGuid,
-      entityData.item.currentDurability,
-      entityData.item.stackCount
-    ),
+        entityData.item.itemDefinitionId,
+        entityData.item.itemGuid,
+        entityData.item.currentDurability,
+        entityData.item.stackCount
+      ),
       transientId = server.getTransientId(entityData.characterId),
       plant = new Plant(
         entityData.characterId,
