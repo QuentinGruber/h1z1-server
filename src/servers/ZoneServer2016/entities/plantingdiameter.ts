@@ -16,9 +16,7 @@ import { ZoneServer2016 } from "../zoneserver";
 import { Plant } from "./plant";
 import { DamageInfo } from "types/zoneserver";
 import { Items, ConstructionPermissionIds } from "../models/enums";
-import {
-  ZoneClient2016
-} from "../classes/zoneclient";
+import { ZoneClient2016 } from "../classes/zoneclient";
 
 // Removed ConstructionEntity from implements clause
 export class PlantingDiameter extends TemporaryEntity {
