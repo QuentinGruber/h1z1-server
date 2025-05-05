@@ -78,10 +78,9 @@ export class PlantingDiameter extends TemporaryEntity {
   canUndoPlacement(server: ZoneServer2016, client: ZoneClient2016) {
     const weapon = client.character.getEquippedWeapon();
     if (!weapon) return false;
-
     for (const a in server._constructionFoundations) {
       const foundation = server._constructionFoundations[a];
-      if (
+      return (
         foundation.getHasPermission(
           server,
           client.character.characterId,
@@ -89,8 +88,7 @@ export class PlantingDiameter extends TemporaryEntity {
         ) &&
         Date.now() < this.placementTime + 120000 &&
         weapon.itemDefinitionId == Items.WEAPON_HAMMER_DEMOLITION
-      )
-        return true;
+      );
     }
   }
 }
