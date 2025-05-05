@@ -69,6 +69,18 @@ export class PlantingDiameter extends TemporaryEntity {
       weapon = client?.character.getEquippedWeapon();
     if (!client || !weapon) return;
     if (weapon.itemDefinitionId !== Items.WEAPON_HAMMER_DEMOLITION) return;
+    for (const a in server._constructionFoundations) {
+      const foundation = server._constructionFoundations[a];
+      if (
+        !foundation.getHasPermission(
+          server,
+          client.character.characterId,
+          ConstructionPermissionIds.DEMOLISH
+        )
+      )
+        return;
+    }
+
     for (const plant of Object.values(this.seedSlots)) {
       plant.destroy(server);
     }
