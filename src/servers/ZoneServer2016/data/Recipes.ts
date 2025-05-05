@@ -869,7 +869,37 @@ export const smeltingData: { [recipeId: number]: smeltRecipe } = {
         requiredAmount: 1
       }
     ]
-  }
+  },
+  80: {
+    filterId: FilterIds.FURNACE,
+    rewardId: Items.METAL_BAR,
+    components: [
+      {
+        itemDefinitionId:2600, 
+        requiredAmount: 1
+      }
+    ]
+  },
+  81: {
+    filterId: FilterIds.FURNACE,
+    rewardId: Items.METAL_BAR,
+    components: [
+      {
+        itemDefinitionId:2601,
+        requiredAmount: 1
+      }
+    ]
+  },
+  82: {
+    filterId: FilterIds.FURNACE,
+    rewardId: Items.METAL_BAR,
+    components: [
+      {
+        itemDefinitionId:2597,
+        requiredAmount: 1
+      }
+    ]
+  },  
 };
 
 export const recipes: { [recipeId: number]: Recipe } = {
