@@ -18,8 +18,8 @@ import { DamageInfo } from "types/zoneserver";
 import { Items, ConstructionPermissionIds } from "../models/enums";
 import { ZoneClient2016 } from "../classes/zoneclient";
 
-// Removed ConstructionEntity from implements clause
 export class PlantingDiameter extends TemporaryEntity {
+  /** The time (milliseconds) at which the PlantingDiameter was placed */
   placementTime = Date.now();
 
   /** HashMap of the Plant occupying the seed slot */
@@ -53,18 +53,14 @@ export class PlantingDiameter extends TemporaryEntity {
     return server.deleteEntity(this.characterId, server._temporaryObjects);
   }
 
-  OnPlayerSelect(server: ZoneServer2016) {
-    for (const clients in server._clients) {
-      const client = server._clients[clients];
-
-      if (this.canUndoPlacement(server, client)) {
-        this.destroy(server);
-        client.character.lootItem(
-          server,
-          server.generateItem(Items.GROUND_TILLER)
-        );
-        return;
-      }
+  OnPlayerSelect(server: ZoneServer2016, client: ZoneClient2016) {
+    if (this.canUndoPlacement(server, client)) {
+      this.destroy(server);
+      client.character.lootItem(
+        server,
+        server.generateItem(Items.GROUND_TILLER)
+      );
+      return;
     }
   }
 
