@@ -3,7 +3,7 @@
 //   GNU GENERAL PUBLIC LICENSE
 //   Version 3, 29 June 2007
 //   copyright (C) 2020 - 2021 Quentin Gruber
-//   copyright (C) 2021 - 2024 H1emu community
+//   copyright (C) 2021 - 2025 H1emu community
 //
 //   https://github.com/QuentinGruber/h1z1-server
 //   https://www.npmjs.com/package/h1z1-server
@@ -22,7 +22,7 @@ import {
   logClientActionToMongo,
   randomIntFromInterval
 } from "../../../utils/utils";
-import { DB_COLLECTIONS } from "../../../utils/enums";
+import { DB_COLLECTIONS, KILL_TYPE } from "../../../utils/enums";
 import {
   Items,
   MaterialTypes,
@@ -34,6 +34,8 @@ import {
 } from "../models/enums";
 import { CommandInteractionString } from "types/zone2016packets";
 import { EntityType } from "h1emu-ai";
+import { BaseEntity } from "./baseentity";
+import { ChallengeType } from "../managers/challengemanager";
 
 export class Npc extends BaseFullCharacter {
   health: number;
@@ -176,12 +178,24 @@ export class Npc extends BaseFullCharacter {
       this.flags.knockedOut = 1;
       server.worldObjectManager.createLootbag(server, this);
       if (client) {
+        if (this.npcId === NpcIds.ZOMBIE) {
+          server.challengeManager.registerChallengeProgression(
+            client,
+            ChallengeType.BRAIN_DEAD,
+            1
+          );
+        }
         if (!server._soloMode) {
           logClientActionToMongo(
             server._db.collection(DB_COLLECTIONS.KILLS),
             client,
             server._worldId,
-            { type: this.npcId == NpcIds.ZOMBIE ? "zombie" : "wildlife" }
+            {
+              type:
+                this.npcId == NpcIds.ZOMBIE
+                  ? KILL_TYPE.ZOMBIE
+                  : KILL_TYPE.WILDLIFE
+            }
           );
         }
 
@@ -196,7 +210,7 @@ export class Npc extends BaseFullCharacter {
             server.sendData(c, "Character.StartMultiStateDeath", {
               data: {
                 characterId: this.characterId,
-                unknown6: 128,
+                flag: 128,
                 managerCharacterId: c.character.characterId
               }
             });
@@ -208,7 +222,7 @@ export class Npc extends BaseFullCharacter {
             server.sendData(c, "Character.StartMultiStateDeath", {
               data: {
                 characterId: this.characterId,
-                unknown6: 0
+                flag: 0
               }
             });
           }
@@ -233,6 +247,21 @@ export class Npc extends BaseFullCharacter {
       this.onReadyCallback(client);
       delete this.onReadyCallback;
     }
+  }
+
+  OnExplosiveHit(server: ZoneServer2016, sourceEntity: BaseEntity): void {
+    let damage = this.health + this.health / 2;
+
+    const distance = getDistance(
+      sourceEntity.state.position,
+      this.state.position
+    );
+    if (distance > 5) return;
+    if (distance > 1) damage /= distance;
+    this.damage(server, {
+      entity: sourceEntity.characterId,
+      damage: damage
+    });
   }
 
   OnProjectileHit(server: ZoneServer2016, damageInfo: DamageInfo) {

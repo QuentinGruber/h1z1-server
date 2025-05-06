@@ -152,6 +152,8 @@
     ],
     "Survivor<gender>_Head_Helmet_Motorcycle_Tintable.adr": [
       ""
+    ],    "Survivor<gender>_Head_Helmet_MotoCross.adr": [
+      ""
     ],
     "Survivor<gender>_Head_Mask_GoatSkull": [
       "default0"
@@ -188,6 +190,10 @@
     "Survivor<gender>_Head_Helmet_Motorcycle_Tintable.adr": [
       ""
     ],
+    "Survivor<gender>_Head_Helmet_MotoCross.adr": [
+      ""
+    ],
+    
     "Survivor<gender>_Face_Goggles_Tactical.adr": [
       "Goggles_Black",
       "TacticalGoggles_Mittani"
@@ -329,7 +335,7 @@
       "Hoodie_ESport_OrangeBlack",
       "Hoodie_Twitch",
       "Hoodie_ESport_BlueWhite",
-      ""
+      "Hoodie_Rasta"
     ],
     "Survivor<gender>_Chest_Hoodie_Down.adr": [
       "Hoodie_DOA_Navy"

@@ -3,7 +3,7 @@
 //   GNU GENERAL PUBLIC LICENSE
 //   Version 3, 29 June 2007
 //   copyright (C) 2020 - 2021 Quentin Gruber
-//   copyright (C) 2021 - 2024 H1emu community
+//   copyright (C) 2021 - 2025 H1emu community
 //
 //   https://github.com/QuentinGruber/h1z1-server
 //   https://www.npmjs.com/package/h1z1-server
@@ -30,15 +30,15 @@ export class RewardManager {
     this.rewards = [
       {
         itemId: AccountItems.REWARD_CRATE_MARAUDER,
-        dropChances: 25
+        dropChances: 5
       },
       {
         itemId: AccountItems.REWARD_CRATE_SHOWDOWN,
-        dropChances: 25
+        dropChances: 5
       },
       {
         itemId: AccountItems.REWARD_CRATE_INVITATIONAL,
-        dropChances: 25
+        dropChances: 5
       },
       {
         itemId: AccountItems.REWARD_CRATE_INFERNAL,
@@ -50,7 +50,7 @@ export class RewardManager {
       },
       {
         itemId: AccountItems.REWARD_CRATE_PREDATOR,
-        dropChances: 25
+        dropChances: 10
       },
       {
         itemId: AccountItems.REWARD_CRATE_EZW,
@@ -86,7 +86,19 @@ export class RewardManager {
       },
       {
         itemId: AccountItems.REWARD_CRATE_H1EMU,
-        dropChances: 0
+        dropChances: 20
+      },
+      {
+        itemId: AccountItems.REWARD_CRATE_SWIRL,
+        dropChances: 25
+      },
+      {
+        itemId: AccountItems.REWARD_CRATE_BREAKOUT,
+        dropChances: 20
+      },
+      {
+        itemId: AccountItems.REWARD_CRATE_VICTORY,
+        dropChances: 10
       },
       {
         itemId: AccountItems.REWARD_CRATE_H1EMUEX,

@@ -3,7 +3,7 @@
 //   GNU GENERAL PUBLIC LICENSE
 //   Version 3, 29 June 2007
 //   copyright (C) 2020 - 2021 Quentin Gruber
-//   copyright (C) 2021 - 2024 H1emu community
+//   copyright (C) 2021 - 2025 H1emu community
 //
 //   https://github.com/QuentinGruber/h1z1-server
 //   https://www.npmjs.com/package/h1z1-server
@@ -475,6 +475,11 @@ export class H1Z1Protocol {
           case 0x83: {
             packet = H1Z1Packets.Packets[this.weaponOpcode];
             offset = 2;
+            break;
+          }
+          case 0xce: {
+            packet = H1Z1Packets.Packets[0xce];
+            offset = 3;
             break;
           }
           default: {
