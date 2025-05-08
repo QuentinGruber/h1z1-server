@@ -422,7 +422,7 @@ export class WeatherManager extends EventEmitter {
         break;
     }
 
-    this.fogAllowed = Math.random() < 0.2; // 22% chance for fog
+    this.fogAllowed = Math.random() < 0.2; // 20% chance for fog
     if (!this.lastDayWasFoggy && this.fogAllowed) {
       this.lastDayWasFoggy = true;
       const fogType = rnd_number(3, 1, true);
