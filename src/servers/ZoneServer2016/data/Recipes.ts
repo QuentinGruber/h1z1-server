@@ -875,7 +875,7 @@ export const smeltingData: { [recipeId: number]: smeltRecipe } = {
     rewardId: Items.METAL_BAR,
     components: [
       {
-        itemDefinitionId:Items.WEAPON_WILDSTYLE_AK47,
+        itemDefinitionId: Items.WEAPON_WILDSTYLE_AK47,
         requiredAmount: 1
       }
     ]
@@ -885,7 +885,7 @@ export const smeltingData: { [recipeId: number]: smeltRecipe } = {
     rewardId: Items.METAL_BAR,
     components: [
       {
-        itemDefinitionId:Items.WEAPON_WILDSTYLE_AR,
+        itemDefinitionId: Items.WEAPON_WILDSTYLE_AR,
         requiredAmount: 1
       }
     ]
@@ -895,11 +895,11 @@ export const smeltingData: { [recipeId: number]: smeltRecipe } = {
     rewardId: Items.METAL_BAR,
     components: [
       {
-        itemDefinitionId:Items.WEAPON_WILDSTYLE_SHOTGUN,
+        itemDefinitionId: Items.WEAPON_WILDSTYLE_SHOTGUN,
         requiredAmount: 1
       }
     ]
-  },  
+  }
 };
 
 export const recipes: { [recipeId: number]: Recipe } = {
