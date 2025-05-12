@@ -134,7 +134,7 @@ export class Plant extends ItemObject {
           characterId: this.characterId,
           effectId: Effects.EFX_Crop_Fertilizer,
           position: new Float32Array([pos[0], pos[1], pos[2], 1]),
-          effectTime: 15
+          effectTime: 180
         }
       );
     }

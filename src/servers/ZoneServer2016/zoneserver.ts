@@ -7446,7 +7446,7 @@ export class ZoneServer2016 extends EventEmitter {
                 plant.state.position[2],
                 1
               ]),
-              effectTime: 15
+              effectTime: 180
             }
           );
         });

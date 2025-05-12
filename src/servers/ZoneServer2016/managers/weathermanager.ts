@@ -422,24 +422,24 @@ export class WeatherManager extends EventEmitter {
         break;
     }
 
-    this.fogAllowed = Math.random() < 0.33; // 33% chance for fog
+    this.fogAllowed = Math.random() < 0.2; // 20% chance for fog
     if (!this.lastDayWasFoggy && this.fogAllowed) {
       this.lastDayWasFoggy = true;
       const fogType = rnd_number(3, 1, true);
       switch (fogType) {
         case 1:
-          this.desiredfogDensity = 0.0002;
+          this.desiredfogDensity = rnd_number(0.0002, 0.00008);
           this.desiredfogFloor = 120;
           this.desiredfogGradient = 0.02;
           break;
         case 2:
-          this.desiredfogDensity = 0.0002;
+          this.desiredfogDensity = rnd_number(0.0002, 0.00008);
           this.desiredfogFloor = 160;
           this.desiredfogGradient = 0.02;
           if (this.desiredSkyColor < 0.5) this.desiredSkyColor = 0.5;
           break;
         case 3:
-          this.desiredfogDensity = 0.0002;
+          this.desiredfogDensity = rnd_number(0.0002, 0.00008);
           this.desiredfogFloor = 200;
           this.desiredfogGradient = 0.02;
           this.desiredSkyColor = rnd_number(1, 0.5);

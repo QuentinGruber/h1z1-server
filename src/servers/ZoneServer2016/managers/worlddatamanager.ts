@@ -1090,6 +1090,7 @@ export class WorldDataManager {
     return {
       ...this.getBaseFullEntitySaveData(entity, serverId),
       seedSlots: slots,
+      placementTime: entity.placementTime,
       fertilizedTimestamp: entity.fertilizedTimestamp,
       isFertilized: entity.isFertilized
     };

@@ -869,6 +869,36 @@ export const smeltingData: { [recipeId: number]: smeltRecipe } = {
         requiredAmount: 1
       }
     ]
+  },
+  80: {
+    filterId: FilterIds.FURNACE,
+    rewardId: Items.METAL_BAR,
+    components: [
+      {
+        itemDefinitionId: Items.WEAPON_WILDSTYLE_AK47,
+        requiredAmount: 1
+      }
+    ]
+  },
+  81: {
+    filterId: FilterIds.FURNACE,
+    rewardId: Items.METAL_BAR,
+    components: [
+      {
+        itemDefinitionId: Items.WEAPON_WILDSTYLE_AR,
+        requiredAmount: 1
+      }
+    ]
+  },
+  82: {
+    filterId: FilterIds.FURNACE,
+    rewardId: Items.METAL_BAR,
+    components: [
+      {
+        itemDefinitionId: Items.WEAPON_WILDSTYLE_SHOTGUN,
+        requiredAmount: 1
+      }
+    ]
   }
 };
 
