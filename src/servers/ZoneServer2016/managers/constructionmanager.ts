@@ -1679,8 +1679,9 @@ export class ConstructionManager {
           container.canAcceptItems = false;
           break;
         case Items.DEW_COLLECTOR:
-        case Items.BEE_BOX:
           container.acceptedItems = [Items.WATER_EMPTY];
+        case Items.BEE_BOX:
+          container.acceptedItems = [Items.WATER_EMPTY, Items.HONEYCOMB];
       }
     }
     server.executeFuncForAllReadyClientsInRange((client) => {
