@@ -3214,6 +3214,23 @@ export class ZoneServer2016 extends EventEmitter {
     item.currentDurability -= damage;
     if (item.currentDurability <= 0) {
       this.removeInventoryItem(character, item);
+      
+      {
+
+  // Give broken metal if weapon breaks (except branch)
+  if (
+    this.isWeapon(item.itemDefinitionId) &&
+    item.itemDefinitionId != Items.WEAPON_BRANCH
+  ) {
+    character.lootContainerItem(
+      this,
+      this.generateItem(Items.BROKEN_METAL_ITEM)
+    );
+  }
+  return;
+}
+
+
       if (
         this.isWeapon(item.itemDefinitionId) &&
         item.itemDefinitionId != Items.WEAPON_BRANCH
@@ -3222,6 +3239,22 @@ export class ZoneServer2016 extends EventEmitter {
           this,
           this.generateItem(Items.BROKEN_METAL_ITEM)
         );
+                item.currentDurability -= damage;
+        if (item.currentDurability <= 0) {
+          this.removeInventoryItem(character, item);
+
+      
+          if (
+            this.isWeapon(item.itemDefinitionId) &&
+            item.itemDefinitionId != Items.WEAPON_BRANCH
+          ) {
+            character.lootContainerItem(
+              this,
+              this.generateItem(Items.BROKEN_METAL_ITEM)
+            );
+          }
+          return;
+        }
       }
       return;
     }
@@ -5886,7 +5919,7 @@ export class ZoneServer2016 extends EventEmitter {
       case this.isHelmet(itemDefinitionId):
         return 100;
       case this.isConvey(itemDefinitionId):
-        return 5400;
+        return 1000;
       case this.isWeapon(itemDefinitionId):
       default:
         return 2000;
