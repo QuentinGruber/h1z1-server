@@ -758,24 +758,21 @@ export abstract class BaseFullCharacter extends BaseLightweightCharacter {
     const footwear = this._loadout[LoadoutSlots.FEET];
     if (
       footwear &&
-      (
-        server.isConvey(footwear.itemDefinitionId) ||
+      (server.isConvey(footwear.itemDefinitionId) ||
         server.isZed(footwear.itemDefinitionId) ||
-        server.isGator(footwear.itemDefinitionId)
-      )
+        server.isGator(footwear.itemDefinitionId))
     ) {
       footwear.currentDurability = (footwear.currentDurability || 0) - 1080;
       if (footwear.currentDurability <= 0) {
+        for (const a in server._clients) {
+          const client = server._clients[a];
 
-    for (const a in server._clients) {
-      const client = server._clients[a];
-
-server.removeInventoryItem(client.character, footwear);
-      client.character.lootContainerItem(
-      server,
-      server.generateItem(Items.CLOTH, 4)
-      );
-          }
+          server.removeInventoryItem(client.character, footwear);
+          client.character.lootContainerItem(
+            server,
+            server.generateItem(Items.CLOTH, 4)
+          );
+        }
       }
     }
     // --- End durability loss ---
