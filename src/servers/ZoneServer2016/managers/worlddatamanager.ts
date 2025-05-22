@@ -733,9 +733,12 @@ export class WorldDataManager {
         case Items.ANIMAL_TRAP:
           if (container) container.canAcceptItems = false;
           break;
-        case Items.DEW_COLLECTOR:
         case Items.BEE_BOX:
+          if (container) container.acceptedItems = [Items.HONEYCOMB, Items.WATER_EMPTY];
+          break;
+        case Items.DEW_COLLECTOR:
           if (container) container.acceptedItems = [Items.WATER_EMPTY];
+          break;
       }
     }
     if (isWorldConstruction) {
