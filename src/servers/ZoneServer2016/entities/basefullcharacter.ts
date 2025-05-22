@@ -764,7 +764,7 @@ export abstract class BaseFullCharacter extends BaseLightweightCharacter {
         server.isGator(footwear.itemDefinitionId)
       )
     ) {
-      footwear.currentDurability = (footwear.currentDurability || 0) - 200;
+      footwear.currentDurability = (footwear.currentDurability || 0) - 1080;
       if (footwear.currentDurability <= 0) {
 
     for (const a in server._clients) {
