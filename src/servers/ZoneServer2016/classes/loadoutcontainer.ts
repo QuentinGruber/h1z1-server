@@ -113,7 +113,7 @@ export class LoadoutContainer extends LoadoutItem {
     if (!itemDefinition) return false;
     return !!(
       this.getMaxBulk(server) -
-      (this.getUsedBulk(server) + itemDefinition.BULK * count) >=
+        (this.getUsedBulk(server) + itemDefinition.BULK * count) >=
       0
     );
   }
@@ -139,7 +139,7 @@ export class LoadoutContainer extends LoadoutItem {
         item.itemDefinitionId == itemDefId &&
         (server.getItemDefinition(item.itemDefinitionId)?.MAX_STACK_SIZE ??
           1) >=
-        item.stackCount + count
+          item.stackCount + count
       ) {
         return item.itemGuid;
       }

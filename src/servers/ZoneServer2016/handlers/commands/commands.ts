@@ -939,19 +939,19 @@ export const commands: Array<Command> = [
         case "hospital":
           position = new Float32Array([1895.4, 93.69, -2914.39, 1]);
           break;
-          case "bubbas":
+        case "bubbas":
           position = new Float32Array([-469.08, 72.15, 2591.87, 1]);
           break;
-          case "opfer":
-          position = new Float32Array([-1969.71, 74.16, 1206.50, 1]);
+        case "opfer":
+          position = new Float32Array([-1969.71, 74.16, 1206.5, 1]);
           break;
-          case "crescent":
-          position = new Float32Array([-2688.24, 49.10, 2804.34, 1]);
+        case "crescent":
+          position = new Float32Array([-2688.24, 49.1, 2804.34, 1]);
           break;
-           case "dart":
+        case "dart":
           position = new Float32Array([-2661.66, 29.67, -909.78, 1]);
           break;
-          case "spence":
+        case "spence":
           position = new Float32Array([294.02, 296.73, 2120.74, 1]);
           break;
         default:

@@ -734,7 +734,8 @@ export class WorldDataManager {
           if (container) container.canAcceptItems = false;
           break;
         case Items.BEE_BOX:
-          if (container) container.acceptedItems = [Items.HONEYCOMB, Items.WATER_EMPTY];
+          if (container)
+            container.acceptedItems = [Items.HONEYCOMB, Items.WATER_EMPTY];
           break;
         case Items.DEW_COLLECTOR:
           if (container) container.acceptedItems = [Items.WATER_EMPTY];
