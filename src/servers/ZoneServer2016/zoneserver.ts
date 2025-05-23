@@ -6059,7 +6059,7 @@ export class ZoneServer2016 extends EventEmitter {
         durability = 1000;
         break;
       case WeaponDefinitionIds.WEAPON_WRENCH:
-        durability = 2500;
+        durability = 2000;
         break;
       case WeaponDefinitionIds.WEAPON_HAMMER:
       case WeaponDefinitionIds.WEAPON_CROWBAR:

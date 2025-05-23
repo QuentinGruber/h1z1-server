@@ -171,9 +171,7 @@ export class LoadoutContainer extends LoadoutItem {
 
     if (
       !(sourceCharacter instanceof BaseFullCharacter) ||
-      //!(sourceCharacter instanceof BaseLootableEntity) ||
       !(targetCharacter instanceof BaseFullCharacter)
-      //!(targetCharacter instanceof BaseLootableEntity)
     ) {
       return;
     }
