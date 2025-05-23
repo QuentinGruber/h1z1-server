@@ -33,7 +33,7 @@
   "devDependencies": {
     "cross-env": "^7.0.3",
     "globals": "^16.1.0",
-    "oxlint": "^0.16.10",
+    "oxlint": "^0.16.11",
     "prettier": "^3.5.3",
     "tsx": "^4.19.4",
     "typedoc": "^0.28.4"
