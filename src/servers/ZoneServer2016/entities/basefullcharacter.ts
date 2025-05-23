@@ -764,15 +764,8 @@ export abstract class BaseFullCharacter extends BaseLightweightCharacter {
     ) {
       footwear.currentDurability = (footwear.currentDurability || 0) - 1080;
       if (footwear.currentDurability <= 0) {
-        for (const a in server._clients) {
-          const client = server._clients[a];
-
-          server.removeInventoryItem(client.character, footwear);
-          client.character.lootContainerItem(
-            server,
-            server.generateItem(Items.CLOTH, 4)
-          );
-        }
+        server.removeInventoryItem(this, footwear);
+        this.lootContainerItem(server, server.generateItem(Items.CLOTH, 4));
       }
     }
     // --- End durability loss ---
