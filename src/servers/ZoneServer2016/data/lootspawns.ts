@@ -2754,7 +2754,7 @@ export const containerLootSpawners: {
       },
       {
         item: Items.WEAPON_WRENCH,
-        weight: 30,
+        weight: 35,
         spawnCount: {
           min: 1,
           max: 1
@@ -3731,7 +3731,7 @@ export const containerLootSpawners: {
     items: [
       {
         item: Items.FERTILIZER,
-        weight: 24,
+        weight: 25,
         spawnCount: {
           min: 1,
           max: 1
