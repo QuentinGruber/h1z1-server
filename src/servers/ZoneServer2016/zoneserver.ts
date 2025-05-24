@@ -2565,7 +2565,9 @@ export class ZoneServer2016 extends EventEmitter {
     const pos = client.character.state.position;
     if (client.character.spawnGridData.length < 100) {
       // attemt to fix broken spawn grid after unban
-      client.character.spawnGridData = new Array(100).fill(0);
+      client.character.spawnGridData = Array.from<number>({ length: 100 }).fill(
+        0
+      );
     }
     this._spawnGrid.forEach((spawnCell: SpawnCell) => {
       // find current grid and add it to blocked ones
@@ -8916,7 +8918,7 @@ export class ZoneServer2016 extends EventEmitter {
   //#endregion
 
   async reloadZonePacketHandlers() {
-    //@ts-expect-error
+    //@ts-expect-error we reload it
     delete this._packetHandlers;
     delete require.cache[require.resolve("./zonepackethandlers")];
     this._packetHandlers =
