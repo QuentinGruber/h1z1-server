@@ -27,7 +27,7 @@ import {
   getCurrentServerTimeWrapper,
   getDateString,
   isHalloween,
-  isChristmasSeason as isChristmasSeason
+  isChristmasSeason
 } from "../../utils/utils";
 
 import { CraftManager } from "./managers/craftmanager";

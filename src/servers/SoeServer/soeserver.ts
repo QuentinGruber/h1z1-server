@@ -678,10 +678,7 @@ export class SOEServer extends EventEmitter {
           4
         )}`
       );
-      console.error(e);
-      process.exitCode = 444;
-      // @ts-expect-error
-      return null;
+      throw e;
     }
   }
 
