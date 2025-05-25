@@ -7725,40 +7725,40 @@ export class ZoneServer2016 extends EventEmitter {
   }
 
   shredItem(
-  client: Client,
-  character: Character | BaseLootableEntity,
-  item: BaseItem,
-  animationId: number
-) {
-  const itemDefinition = this.getItemDefinition(item.itemDefinitionId);
-  if (!itemDefinition) return;
-  const nameId = itemDefinition.NAME_ID,
-    itemType = itemDefinition.ITEM_TYPE;
-  let count = 1;
-  const timeout = 3000;
-  if (
-    item.itemDefinitionId === Items.BELT_POUCH ||
-    item.itemDefinitionId === Items.WAIST_PACK
+    client: Client,
+    character: Character | BaseLootableEntity,
+    item: BaseItem,
+    animationId: number
   ) {
-    count = 1;
-  } else {
-    switch (itemType) {
-      case 36:
-      case 39:
-        count = 1;
-        break;
-      case 34: // salvage/shred
-        count = 4;
-        break;
-      default:
-        this.sendChatText(client, "[ERROR] Unknown salvage item or count.");
+    const itemDefinition = this.getItemDefinition(item.itemDefinitionId);
+    if (!itemDefinition) return;
+    const nameId = itemDefinition.NAME_ID,
+      itemType = itemDefinition.ITEM_TYPE;
+    let count = 1;
+    const timeout = 3000;
+    if (
+      item.itemDefinitionId === Items.BELT_POUCH ||
+      item.itemDefinitionId === Items.WAIST_PACK
+    ) {
+      count = 1;
+    } else {
+      switch (itemType) {
+        case 36:
+        case 39:
+          count = 1;
+          break;
+        case 34: // salvage/shred
+          count = 4;
+          break;
+        default:
+          this.sendChatText(client, "[ERROR] Unknown salvage item or count.");
+      }
     }
-  }
 
-  this.utilizeHudTimer(client, nameId, timeout, animationId, () => {
-    this.shredItemPass(character, item, count);
-  });
-}
+    this.utilizeHudTimer(client, nameId, timeout, animationId, () => {
+      this.shredItemPass(character, item, count);
+    });
+  }
 
   async salvageAmmo(
     client: Client,
