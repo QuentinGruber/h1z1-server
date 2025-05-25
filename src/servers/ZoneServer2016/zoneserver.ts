@@ -7725,17 +7725,23 @@ export class ZoneServer2016 extends EventEmitter {
   }
 
   shredItem(
-    client: Client,
-    character: Character | BaseLootableEntity,
-    item: BaseItem,
-    animationId: number
+  client: Client,
+  character: Character | BaseLootableEntity,
+  item: BaseItem,
+  animationId: number
+) {
+  const itemDefinition = this.getItemDefinition(item.itemDefinitionId);
+  if (!itemDefinition) return;
+  const nameId = itemDefinition.NAME_ID,
+    itemType = itemDefinition.ITEM_TYPE;
+  let count = 1;
+  const timeout = 3000;
+  if (
+    item.itemDefinitionId === Items.BELT_POUCH ||
+    item.itemDefinitionId === Items.WAIST_PACK
   ) {
-    const itemDefinition = this.getItemDefinition(item.itemDefinitionId);
-    if (!itemDefinition) return;
-    const nameId = itemDefinition.NAME_ID,
-      itemType = itemDefinition.ITEM_TYPE;
-    let count = 1;
-    const timeout = 3000;
+    count = 1;
+  } else {
     switch (itemType) {
       case 36:
       case 39:
@@ -7747,10 +7753,12 @@ export class ZoneServer2016 extends EventEmitter {
       default:
         this.sendChatText(client, "[ERROR] Unknown salvage item or count.");
     }
-    this.utilizeHudTimer(client, nameId, timeout, animationId, () => {
-      this.shredItemPass(character, item, count);
-    });
   }
+
+  this.utilizeHudTimer(client, nameId, timeout, animationId, () => {
+    this.shredItemPass(character, item, count);
+  });
+}
 
   async salvageAmmo(
     client: Client,
