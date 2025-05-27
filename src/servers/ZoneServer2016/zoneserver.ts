@@ -2821,7 +2821,7 @@ export class ZoneServer2016 extends EventEmitter {
             this.applyCharacterEffect(
               character,
               Effects.PFX_Fire_Person_loop,
-              1500,
+              700,
               10000
             );
           }
