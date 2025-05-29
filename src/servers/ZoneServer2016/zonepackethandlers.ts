@@ -2340,6 +2340,7 @@ export class ZonePacketHandlers {
         }
         break;
       case ItemUseOptions.LOOT:
+       
         const containerEnt = client.character.mountedContainer,
           c = containerEnt?.getContainer();
 
@@ -3867,38 +3868,55 @@ export class ZonePacketHandlers {
           removedItems
         );
       }
+
+      // Always update inventory after exchange or rollback
+      const updatedItems = await server.accountInventoriesManager.getAccountItems(
+        client.loginSessionId
+      );
+
+      server.sendData(client, "Items.SetEscrowAccountItemManager", {
+        accountItems: updatedItems.map((item) => ({
+          itemId: item.itemGuid,
+          itemData: {
+            itemId: item.itemGuid,
+            itemGuid: item.itemGuid,
+            itemDefinitionId: item.itemDefinitionId,
+            itemCount: item.stackCount
+          }
+        }))
+      });
     }
   }
+animationRequest(
+  server: ZoneServer2016,
+  client: Client,
+  packet: ReceivedPacket<AnimationRequest>
+) {
+  const animationId =
+    server.getItemDefinition(packet.data.itemDefinitionId)?.PARAM1 || 0;
+  if (!animationId) return;
 
-  animationRequest(
-    server: ZoneServer2016,
-    client: Client,
-    packet: ReceivedPacket<AnimationRequest>
-  ) {
-    const animationId =
-      server.getItemDefinition(packet.data.itemDefinitionId)?.PARAM1 || 0;
-    if (!animationId) return;
+  server.sendDataToAllWithSpawnedEntity(
+    server._characters,
+    client.character.characterId,
+    "Animation.Play",
+    {
+      characterId: client.character.characterId,
+      animationId: animationId
+    }
+  );
+}
 
-    server.sendDataToAllWithSpawnedEntity(
-      server._characters,
-      client.character.characterId,
-      "Animation.Play",
-      {
-        characterId: client.character.characterId,
-        animationId: animationId
-      }
-    );
-  }
 
-  processPacket(
-    server: ZoneServer2016,
-    client: Client,
-    packet: ReceivedPacket<any>
-  ) {
-    switch (packet.name) {
-      case "ClientIsReady":
-        this.ClientIsReady(server, client, packet);
-        break;
+processPacket(
+  server: ZoneServer2016,
+  client: Client,
+  packet: ReceivedPacket<any>
+) {
+  switch (packet.name) {
+    case "ClientIsReady":
+      this.ClientIsReady(server, client, packet);
+      break;
       case "ClientFinishedLoading":
         this.ClientFinishedLoading(server, client, packet);
         break;
