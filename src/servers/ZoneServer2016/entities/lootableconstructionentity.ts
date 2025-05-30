@@ -294,56 +294,58 @@ export class LootableConstructionEntity extends BaseLootableEntity {
 
     // Find all clients within the radius
     const clientsInRange = Object.values(server._clients).filter((c) => {
-        if (!c.character || !c.character.isAlive) return false;
-        const dx = c.character.state.position[0] - this.state.position[0];
-        const dy = c.character.state.position[1] - this.state.position[1];
-        const dz = c.character.state.position[2] - this.state.position[2];
-        const dist = Math.sqrt(dx * dx + dy * dy + dz * dz);
-        return dist <= 5;
+      if (!c.character || !c.character.isAlive) return false;
+      const dx = c.character.state.position[0] - this.state.position[0];
+      const dy = c.character.state.position[1] - this.state.position[1];
+      const dz = c.character.state.position[2] - this.state.position[2];
+      const dist = Math.sqrt(dx * dx + dy * dy + dz * dz);
+      return dist <= 5;
     });
     //  Bee FX for all affected clients
     for (const c of clientsInRange) {
-        server.sendDataToAllWithSpawnedEntity<CharacterPlayWorldCompositeEffect>(
-            dictionary,
-            this.characterId,
-            "Character.PlayWorldCompositeEffect",
-            {
-                characterId: this.characterId,
-                effectId: Effects.PFX_Bee_Swarm_Attack,
-                position: c.character.state.position,
-                effectTime: 5
-            }
-        );
+      server.sendDataToAllWithSpawnedEntity<CharacterPlayWorldCompositeEffect>(
+        dictionary,
+        this.characterId,
+        "Character.PlayWorldCompositeEffect",
+        {
+          characterId: this.characterId,
+          effectId: Effects.PFX_Bee_Swarm_Attack,
+          position: c.character.state.position,
+          effectTime: 5
+        }
+      );
     }
 
     // Only show HUD and deal damage if bees are angry
     if (damageInfo && damageInfo.damage > 0) {
-        let hudIndicator: HudIndicator | undefined = server._hudIndicators[ResourceIndicators.BEES];
-        if (hudIndicator) {
-            for (const c of clientsInRange) {
-                if (c.character.hudIndicators[hudIndicator.typeName]) {
-                    c.character.hudIndicators[hudIndicator.typeName].expirationTime += 5000;
-                } else {
-                    c.character.hudIndicators[hudIndicator.typeName] = {
-                        typeName: hudIndicator.typeName,
-                        expirationTime: Date.now() + 5000
-                    };
-                    server.sendHudIndicators(c);
-                }
-            }
+      let hudIndicator: HudIndicator | undefined =
+        server._hudIndicators[ResourceIndicators.BEES];
+      if (hudIndicator) {
+        for (const c of clientsInRange) {
+          if (c.character.hudIndicators[hudIndicator.typeName]) {
+            c.character.hudIndicators[hudIndicator.typeName].expirationTime +=
+              5000;
+          } else {
+            c.character.hudIndicators[hudIndicator.typeName] = {
+              typeName: hudIndicator.typeName,
+              expirationTime: Date.now() + 5000
+            };
+            server.sendHudIndicators(c);
+          }
         }
+      }
 
-        // Damage all affected clients over time
-        for (let i = 0; i < 12; i++) {
-            for (const c of clientsInRange) {
-                const dmgInfo: DamageInfo = {
-                    entity: c.character.characterId,
-                    damage: 20
-                };
-                c.character.damage(server, dmgInfo);
-            }
-            await scheduler.wait(500);
+      // Damage all affected clients over time
+      for (let i = 0; i < 12; i++) {
+        for (const c of clientsInRange) {
+          const dmgInfo: DamageInfo = {
+            entity: c.character.characterId,
+            damage: 20
+          };
+          c.character.damage(server, dmgInfo);
         }
+        await scheduler.wait(500);
+      }
     }
   }
 
@@ -362,7 +364,7 @@ export class LootableConstructionEntity extends BaseLootableEntity {
   OnProjectileHit(server: ZoneServer2016, damageInfo: DamageInfo) {
     if (this.isProp) return;
     if (this.itemDefinitionId == Items.BEE_BOX) {
-        this.handleBeeboxSwarm(server, damageInfo);
+      this.handleBeeboxSwarm(server, damageInfo);
     }
     // ...existing or future projectile damage logic...
   }
