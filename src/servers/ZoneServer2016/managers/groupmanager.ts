@@ -674,7 +674,7 @@ export class GroupManager {
     if (!args[0]) {
       server.sendChatText(
         client,
-        "Missing command, valid commands are: invite, kick, leave, view, disband"
+        "Missing command, valid commands are: invite, kick, leave, view, disband, Leader"
       );
       return;
     }

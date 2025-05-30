@@ -754,6 +754,22 @@ export abstract class BaseFullCharacter extends BaseLightweightCharacter {
   }
 
   getDeathItems(server: ZoneServer2016) {
+    // --- Durability loss for footwear on death ---
+    const footwear = this._loadout[LoadoutSlots.FEET];
+    if (
+      footwear &&
+      (server.isConvey(footwear.itemDefinitionId) ||
+        server.isZed(footwear.itemDefinitionId) ||
+        server.isGator(footwear.itemDefinitionId))
+    ) {
+      footwear.currentDurability = (footwear.currentDurability || 0) - 1080;
+      if (footwear.currentDurability <= 0) {
+        server.removeInventoryItem(this, footwear);
+        this.lootContainerItem(server, server.generateItem(Items.CLOTH, 4));
+      }
+    }
+    // --- End durability loss ---
+
     const items: { [itemGuid: string]: BaseItem } = {};
     Object.values(this._loadout).forEach((itemData) => {
       if (
