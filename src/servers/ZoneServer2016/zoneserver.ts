@@ -1037,7 +1037,7 @@ export class ZoneServer2016 extends EventEmitter {
     return Boolean(
       await this._db
         ?.collection(DB_COLLECTIONS.ADMINS)
-        .findOne({ sessionId: loginSessionId })
+        .findOne({ sessionId: loginSessionId, permissionLevel: { $ne: 0 } })
     );
   }
 
