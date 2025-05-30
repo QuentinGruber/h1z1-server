@@ -116,10 +116,10 @@ export class WorldObjectManager {
   spawnedLootObjects: { [spawnerId: number]: string } = {};
 
   /** Global respawn timers */
-  private _lastLootRespawnTime: number = 0;
-  private _lastVehicleRespawnTime: number = 0;
-  private _lastNpcRespawnTime: number = 0;
-  private _lastWaterSourceReplenishTime: number = 0;
+  _lastLootRespawnTime: number = 0;
+  _lastVehicleRespawnTime: number = 0;
+  _lastNpcRespawnTime: number = 0;
+  _lastWaterSourceReplenishTime: number = 0;
 
   /** MANAGED BY CONFIGMANAGER - See defaultConfig.yaml for more information */
   vehicleSpawnCap!: number;
@@ -155,13 +155,13 @@ export class WorldObjectManager {
 
     const playerCount = _.size(server._characters);
 
-    if (playerCount >= 100) {
+    if (playerCount >= 75) {
       this.lootRespawnTimer = 600_000; // 10 min
-    } else if (playerCount >= 75) {
-      this.lootRespawnTimer = 900_000; // 15 min
     } else if (playerCount >= 50) {
-      this.lootRespawnTimer = 1_200_000; // 20 min
+      this.lootRespawnTimer = 900_000; // 15 min
     } else if (playerCount >= 25) {
+      this.lootRespawnTimer = 1_200_000; // 20 min
+    } else if (playerCount >= 1) {
       this.lootRespawnTimer = 1_500_000; // 25 min
     } else {
       this.lootRespawnTimer = 1_500_000; // 25 min
@@ -523,6 +523,16 @@ export class WorldObjectManager {
             effectTime: 60
           }
         );
+
+        if (
+          isPosInRadius(
+            3,
+            c.character.state.position,
+            server._airdrop.destinationPos
+          )
+        ) {
+          server.killCharacter(c, { damage: 99999, entity: "aidrop" });
+        }
       }
     }
     server._lootbags[characterId] = lootbag;

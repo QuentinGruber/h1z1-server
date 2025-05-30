@@ -178,11 +178,13 @@ export class Npc extends BaseFullCharacter {
       this.flags.knockedOut = 1;
       server.worldObjectManager.createLootbag(server, this);
       if (client) {
-        server.challengeManager.registerChallengeProgression(
-          client,
-          ChallengeType.BRAIN_DEAD,
-          1
-        );
+        if (this.npcId === NpcIds.ZOMBIE) {
+          server.challengeManager.registerChallengeProgression(
+            client,
+            ChallengeType.BRAIN_DEAD,
+            1
+          );
+        }
         if (!server._soloMode) {
           logClientActionToMongo(
             server._db.collection(DB_COLLECTIONS.KILLS),

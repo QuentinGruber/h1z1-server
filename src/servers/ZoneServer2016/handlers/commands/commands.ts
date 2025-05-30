@@ -447,7 +447,7 @@ export const commands: Array<Command> = [
       server.sendDataToAllWithSpawnedEntity(
         server._characters,
         client.character.characterId,
-        "AnimationBase",
+        "Animation.Play",
         {
           characterId: client.character.characterId,
           animationId: animationId
@@ -912,9 +912,6 @@ export const commands: Array<Command> = [
         case "ranchito":
           position = new Float32Array([2185.32, 42.36, 2130.49, 1]);
           break;
-        case "drylake":
-          position = new Float32Array([479.46, 109.7, 2902.51, 1]);
-          break;
         case "dam":
           position = new Float32Array([-685, 69.96, 1185.49, 1]);
           break;
@@ -942,6 +939,21 @@ export const commands: Array<Command> = [
         case "hospital":
           position = new Float32Array([1895.4, 93.69, -2914.39, 1]);
           break;
+        case "bubbas":
+          position = new Float32Array([-469.08, 72.15, 2591.87, 1]);
+          break;
+        case "opfer":
+          position = new Float32Array([-1969.71, 74.16, 1206.5, 1]);
+          break;
+        case "crescent":
+          position = new Float32Array([-2688.24, 49.1, 2804.34, 1]);
+          break;
+        case "dart":
+          position = new Float32Array([-2661.66, 29.67, -909.78, 1]);
+          break;
+        case "spence":
+          position = new Float32Array([294.02, 296.73, 2120.74, 1]);
+          break;
         default:
           if (args.length < 3) {
             server.sendChatText(
@@ -951,7 +963,7 @@ export const commands: Array<Command> = [
             );
             server.sendChatText(
               client,
-              "Set location list: farm, zimms, pv, br, ranchito, drylake, dam, cranberry, church, desoto, toxic, radiotower, villas, military, hospital",
+              "Set location list: farm, zimms, pv, br, ranchito, dam, cranberry, church, desoto, toxic, radiotower, villas, military, hospital, opfer, bubbas, crescent, dart, spence",
               false
             );
             return;
@@ -1700,36 +1712,14 @@ export const commands: Array<Command> = [
         return;
       }
 
-      const actingClient = targetClient ?? client;
-      const characterId = server.generateGuid(),
-        loc = new Float32Array([
-          actingClient.character.state.position[0],
-          actingClient.character.state.position[1] + 700,
-          actingClient.character.state.position[2],
-          actingClient.character.state.position[3]
-        ]),
-        vehicle = new Vehicle2016(
-          characterId,
-          server.getTransientId(characterId),
-          9374,
-          loc,
-          actingClient.character.state.rotation,
-          server,
-          getCurrentServerTimeWrapper().getTruncatedU32(),
-          VehicleIds.PARACHUTE
-        );
-      server.worldObjectManager.createVehicle(server, vehicle, true);
-      server.sendData(actingClient, "ClientUpdate.UpdateLocation", {
-        position: loc,
-        triggerLoadingScreen: true
-      });
-      vehicle.onReadyCallback = (clientTriggered: Client) => {
-        // doing anything with vehicle before client gets fullvehicle packet breaks it
-        server.mountVehicle(clientTriggered, characterId);
-        // todo: when vehicle takeover function works, delete assignManagedObject call
-        server.assignManagedObject(clientTriggered, vehicle);
-        clientTriggered.vehicle.mountedVehicle = characterId;
-      };
+      if (targetClient) {
+        targetClient.character.state.position[1] += 700;
+        server.sendData(targetClient, "ClientUpdate.UpdateLocation", {
+          position: targetClient.character.state.position,
+          triggerLoadingScreen: true
+        });
+        server.deployParachute(targetClient);
+      }
     }
   },
   {

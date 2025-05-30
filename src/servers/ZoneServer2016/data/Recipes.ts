@@ -497,6 +497,408 @@ export const smeltingData: { [recipeId: number]: smeltRecipe } = {
         requiredAmount: 1
       }
     ]
+  },
+  43: {
+    filterId: FilterIds.FURNACE,
+    rewardId: Items.METAL_BAR,
+    components: [
+      {
+        itemDefinitionId: Items.WEAPON_R380,
+        requiredAmount: 1
+      }
+    ]
+  },
+  44: {
+    filterId: FilterIds.FURNACE,
+    rewardId: Items.METAL_BAR,
+    components: [
+      {
+        itemDefinitionId: Items.WEAPON_GREENWOOD_SNIPER,
+        requiredAmount: 1
+      }
+    ]
+  },
+  45: {
+    filterId: FilterIds.FURNACE,
+    rewardId: Items.METAL_BAR,
+    components: [
+      {
+        itemDefinitionId: Items.WEAPON_PATRIOTIC_SNIPER,
+        requiredAmount: 1
+      }
+    ]
+  },
+  46: {
+    filterId: FilterIds.FURNACE,
+    rewardId: Items.METAL_BAR,
+    components: [
+      {
+        itemDefinitionId: Items.WEAPON_H1EMU_SNIPER,
+        requiredAmount: 1
+      }
+    ]
+  },
+  47: {
+    filterId: FilterIds.FURNACE,
+    rewardId: Items.METAL_BAR,
+    components: [
+      {
+        itemDefinitionId: Items.WEAPON_H1EMU_AR,
+        requiredAmount: 1
+      }
+    ]
+  },
+  48: {
+    filterId: FilterIds.FURNACE,
+    rewardId: Items.METAL_BAR,
+    components: [
+      {
+        itemDefinitionId: Items.WEAPON_ROSE_GARDEN_SHOTGUN,
+        requiredAmount: 1
+      }
+    ]
+  },
+  49: {
+    filterId: FilterIds.FURNACE,
+    rewardId: Items.METAL_BAR,
+    components: [
+      {
+        itemDefinitionId: Items.WEAPON_PATRIOTIC_AR,
+        requiredAmount: 1
+      }
+    ]
+  },
+  50: {
+    filterId: FilterIds.FURNACE,
+    rewardId: Items.METAL_BAR,
+    components: [
+      {
+        itemDefinitionId: Items.WEAPON_NINJA_AR,
+        requiredAmount: 1
+      }
+    ]
+  },
+  51: {
+    filterId: FilterIds.FURNACE,
+    rewardId: Items.METAL_BAR,
+    components: [
+      {
+        itemDefinitionId: Items.WEAPON_MERCENARY_AR,
+        requiredAmount: 1
+      }
+    ]
+  },
+  52: {
+    filterId: FilterIds.FURNACE,
+    rewardId: Items.METAL_BAR,
+    components: [
+      {
+        itemDefinitionId: Items.WEAPON_COMBAT_SHOTGUN,
+        requiredAmount: 1
+      }
+    ]
+  },
+  53: {
+    filterId: FilterIds.FURNACE,
+    rewardId: Items.METAL_BAR,
+    components: [
+      {
+        itemDefinitionId: Items.WEAPON_INFERNAL_SHOTGUN,
+        requiredAmount: 1
+      }
+    ]
+  },
+  54: {
+    filterId: FilterIds.FURNACE,
+    rewardId: Items.METAL_BAR,
+    components: [
+      {
+        itemDefinitionId: Items.WEAPON_SHALLOW_M1911A1,
+        requiredAmount: 1
+      }
+    ]
+  },
+  55: {
+    filterId: FilterIds.FURNACE,
+    rewardId: Items.METAL_BAR,
+    components: [
+      {
+        itemDefinitionId: Items.WEAPON_SHALLOW_SNIPER,
+        requiredAmount: 1
+      }
+    ]
+  },
+  56: {
+    filterId: FilterIds.FURNACE,
+    rewardId: Items.METAL_BAR,
+    components: [
+      {
+        itemDefinitionId: Items.WEAPON_PREDATOR_SNIPER,
+        requiredAmount: 1
+      }
+    ]
+  },
+  57: {
+    filterId: FilterIds.FURNACE,
+    rewardId: Items.METAL_BAR,
+    components: [
+      {
+        itemDefinitionId: Items.WEAPON_PREDATOR_SHOTGUN,
+        requiredAmount: 1
+      }
+    ]
+  },
+  58: {
+    filterId: FilterIds.FURNACE,
+    rewardId: Items.METAL_BAR,
+    components: [
+      {
+        itemDefinitionId: Items.WEAPON_PREDATOR_AR,
+        requiredAmount: 1
+      }
+    ]
+  },
+  59: {
+    filterId: FilterIds.FURNACE,
+    rewardId: Items.METAL_BAR,
+    components: [
+      {
+        itemDefinitionId: Items.WEAPON_ANODIZED_AR,
+        requiredAmount: 1
+      }
+    ]
+  },
+  60: {
+    filterId: FilterIds.FURNACE,
+    rewardId: Items.METAL_BAR,
+    components: [
+      {
+        itemDefinitionId: Items.WEAPON_LIGHTNING_AR,
+        requiredAmount: 1
+      }
+    ]
+  },
+  61: {
+    filterId: FilterIds.FURNACE,
+    rewardId: Items.METAL_BAR,
+    components: [
+      {
+        itemDefinitionId: Items.WEAPON_IREZUMI_AR,
+        requiredAmount: 1
+      }
+    ]
+  },
+  62: {
+    filterId: FilterIds.FURNACE,
+    rewardId: Items.METAL_BAR,
+    components: [
+      {
+        itemDefinitionId: Items.WEAPON_NEKO_CHAN_SHOTGUN,
+        requiredAmount: 1
+      }
+    ]
+  },
+  63: {
+    filterId: FilterIds.FURNACE,
+    rewardId: Items.METAL_BAR,
+    components: [
+      {
+        itemDefinitionId: Items.WEAPON_KUROMU_M9,
+        requiredAmount: 1
+      }
+    ]
+  },
+  64: {
+    filterId: FilterIds.FURNACE,
+    rewardId: Items.METAL_BAR,
+    components: [
+      {
+        itemDefinitionId: Items.WEAPON_HEAVY_ASSAULT_MAGNUM,
+        requiredAmount: 1
+      }
+    ]
+  },
+  65: {
+    filterId: FilterIds.FURNACE,
+    rewardId: Items.METAL_BAR,
+    components: [
+      {
+        itemDefinitionId: Items.WEAPON_NEKO_CHAN_R380,
+        requiredAmount: 1
+      }
+    ]
+  },
+  66: {
+    filterId: FilterIds.FURNACE,
+    rewardId: Items.METAL_BAR,
+    components: [
+      {
+        itemDefinitionId: Items.WEAPON_KUROMU_MAGNUM,
+        requiredAmount: 1
+      }
+    ]
+  },
+  67: {
+    filterId: FilterIds.FURNACE,
+    rewardId: Items.METAL_BAR,
+    components: [
+      {
+        itemDefinitionId: Items.WEAPON_RAINBOW_SWIRL_SNIPER,
+        requiredAmount: 1
+      }
+    ]
+  },
+  68: {
+    filterId: FilterIds.FURNACE,
+    rewardId: Items.METAL_BAR,
+    components: [
+      {
+        itemDefinitionId: Items.WEAPON_RAINBOW_SWIRL_AK47,
+        requiredAmount: 1
+      }
+    ]
+  },
+  69: {
+    filterId: FilterIds.FURNACE,
+    rewardId: Items.METAL_BAR,
+    components: [
+      {
+        itemDefinitionId: Items.WEAPON_RAINBOW_SWIRL_AR,
+        requiredAmount: 1
+      }
+    ]
+  },
+  70: {
+    filterId: FilterIds.FURNACE,
+    rewardId: Items.METAL_BAR,
+    components: [
+      {
+        itemDefinitionId: Items.WEAPON_RAINBOW_SWIRL_SHOTGUN,
+        requiredAmount: 1
+      }
+    ]
+  },
+  71: {
+    filterId: FilterIds.FURNACE,
+    rewardId: Items.METAL_BAR,
+    components: [
+      {
+        itemDefinitionId: Items.WEAPON_GRAFFITI_SNIPER,
+        requiredAmount: 1
+      }
+    ]
+  },
+  72: {
+    filterId: FilterIds.FURNACE,
+    rewardId: Items.METAL_BAR,
+    components: [
+      {
+        itemDefinitionId: Items.WEAPON_TIGER_BLOOD_SHOTGUN,
+        requiredAmount: 1
+      }
+    ]
+  },
+  73: {
+    filterId: FilterIds.FURNACE,
+    rewardId: Items.METAL_BAR,
+    components: [
+      {
+        itemDefinitionId: Items.WEAPON_DESERT_WARFARE_AK,
+        requiredAmount: 1
+      }
+    ]
+  },
+  74: {
+    filterId: FilterIds.FURNACE,
+    rewardId: Items.METAL_BAR,
+    components: [
+      {
+        itemDefinitionId: Items.WEAPON_GRIMMMZ_AR,
+        requiredAmount: 1
+      }
+    ]
+  },
+  75: {
+    filterId: FilterIds.FURNACE,
+    rewardId: Items.METAL_BAR,
+    components: [
+      {
+        itemDefinitionId: Items.WEAPON_TOXIC_COMBATKNIFE,
+        requiredAmount: 1
+      }
+    ]
+  },
+  // Not addded "Modified Toxic AK-47"
+  /*
+  76: {
+    filterId: FilterIds.FURNACE,
+    rewardId: Items.METAL_BAR,
+    components: [
+      {
+        itemDefinitionId: 2483,
+        requiredAmount: 1
+      }
+    ]
+  },*/
+  77: {
+    filterId: FilterIds.FURNACE,
+    rewardId: Items.METAL_BAR,
+    components: [
+      {
+        itemDefinitionId: Items.WEAPON_TOXIC_AK47,
+        requiredAmount: 1
+      }
+    ]
+  },
+  78: {
+    filterId: FilterIds.FURNACE,
+    rewardId: Items.METAL_BAR,
+    components: [
+      {
+        itemDefinitionId: Items.WEAPON_TOXIC_SHOTGUN,
+        requiredAmount: 1
+      }
+    ]
+  },
+  79: {
+    filterId: FilterIds.FURNACE,
+    rewardId: Items.METAL_BAR,
+    components: [
+      {
+        itemDefinitionId: Items.WEAPON_SHOWDOWN_AR,
+        requiredAmount: 1
+      }
+    ]
+  },
+  80: {
+    filterId: FilterIds.FURNACE,
+    rewardId: Items.METAL_BAR,
+    components: [
+      {
+        itemDefinitionId: Items.WEAPON_WILDSTYLE_AK47,
+        requiredAmount: 1
+      }
+    ]
+  },
+  81: {
+    filterId: FilterIds.FURNACE,
+    rewardId: Items.METAL_BAR,
+    components: [
+      {
+        itemDefinitionId: Items.WEAPON_WILDSTYLE_AR,
+        requiredAmount: 1
+      }
+    ]
+  },
+  82: {
+    filterId: FilterIds.FURNACE,
+    rewardId: Items.METAL_BAR,
+    components: [
+      {
+        itemDefinitionId: Items.WEAPON_WILDSTYLE_SHOTGUN,
+        requiredAmount: 1
+      }
+    ]
   }
 };
 
@@ -2567,5 +2969,32 @@ export const recipes: { [recipeId: number]: Recipe } = {
         requiredAmount: 8
       }
     ]
+  },
+  [Items.AIO_COLD_MEDICINE]: {
+    filterId: FilterIds.SURVIVAL,
+    components: [
+      {
+        itemDefinitionId: Items.VITAMINS,
+        requiredAmount: 2
+      },
+      {
+        itemDefinitionId: Items.IMMUNITY_BOOSTERS,
+        requiredAmount: 2
+      },
+      {
+        itemDefinitionId: Items.ANTIBIOTICS,
+        requiredAmount: 2
+      }
+    ]
+  },
+  [Items.GUN_PART]: {
+    filterId: FilterIds.WEAPONS,
+    components: [
+      {
+        itemDefinitionId: Items.WEAPON_1911,
+        requiredAmount: 1
+      }
+    ],
+    requireWeaponWorkbench: true
   }
 };

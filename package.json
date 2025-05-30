@@ -1,6 +1,6 @@
 {
   "name": "h1z1-server",
-  "version": "0.45.1-0",
+  "version": "0.45.7-0",
   "description": "Library for emulating h1z1 servers",
   "author": "Quentin Gruber <quentingruber@gmail.com> (http://github.com/quentingruber)",
   "license": "GPL-3.0-only",
@@ -14,29 +14,29 @@
   },
   "dependencies": {
     "@types/js-yaml": "4.0.9",
-    "@types/node": "22.13.13",
-    "@types/ws": "8.18.0",
+    "@types/node": "22.15.17",
+    "@types/ws": "8.18.1",
     "debug": "4.4.0",
     "h1emu-ai": "^0.0.11",
     "h1emu-core": "1.3.2",
-    "h1z1-dataschema": "1.9.0",
+    "h1z1-dataschema": "1.9.2",
     "js-yaml": "4.1.0",
-    "mongodb": "6.15.0",
+    "mongodb": "6.16.0",
     "recast-navigation": "0.34.0",
     "threads": "1.7.0",
-    "typescript": "5.8.2",
-    "ws": "8.18.1"
+    "typescript": "5.8.3",
+    "ws": "8.18.2"
   },
   "directories": {
     "src": "./src"
   },
   "devDependencies": {
     "cross-env": "^7.0.3",
-    "globals": "^16.0.0",
-    "oxlint": "^0.16.3",
+    "globals": "^16.1.0",
+    "oxlint": "^0.16.11",
     "prettier": "^3.5.3",
-    "tsx": "^4.19.3",
-    "typedoc": "^0.28.1"
+    "tsx": "^4.19.4",
+    "typedoc": "^0.28.4"
   },
   "scripts": {
     "gen-packets-types": "tsx ./scripts/genPacketsNames.ts",
@@ -61,7 +61,7 @@
     "build-docker-images": "tsx ./docker/buildDocker.ts",
     "test-mongo": "npm run build && npm run build-tests && MONGO_TESTS='true' DISABLE_PLUGINS='true' node --no-warnings --experimental-require-module --no-experimental-strip-types --test",
     "test": "npm run build && npm run build-tests && cross-env DISABLE_PLUGINS='true' node --no-warnings --experimental-require-module --no-experimental-strip-types --test",
-    "test-dev": "npm run lint -- --quiet; npm run check_prettier; npm t",
+    "test-dev": "npm run lint -- --quiet && npm run check_prettier && npm t",
     "postinstall": "npm run build",
     "publish_release": "git push --tags && git push origin dev && git push origin master && git checkout dev && npm run publish_release-next",
     "publish_release-next": "npm version --no-git-tag-version prerelease && git add . && git commit -m 'publish-a-next-version' && npm publish --tag next && git push origin dev",

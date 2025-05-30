@@ -14,6 +14,9 @@ server:
   isFirstPersonOnly: false
   isNoBuildInPois: true
   baseConstructionDamage: 34000
+  damageWeapons: true # Damage weapons on firing
+  disablePOIManager: false # Disables the POI messages
+  disableMapBoundsCheck: false # Disables inboundscheck
 
 # Rcon
 

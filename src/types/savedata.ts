@@ -162,6 +162,7 @@ export interface PlantingDiameterSaveData
   extends BaseFullEntitySaveData {
     seedSlots: { [id: string]: PlantSaveData };
     fertilizedTimestamp: number;
+    placementTime: number;
     isFertilized: boolean;
 }
 

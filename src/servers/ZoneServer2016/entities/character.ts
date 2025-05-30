@@ -1707,7 +1707,7 @@ export class Character2016 extends BaseFullCharacter {
         server.applyCharacterEffect(
           this,
           Effects.PFX_Fire_Person_loop,
-          500,
+          400,
           10000
         );
         break;

@@ -27,7 +27,7 @@ import {
   getCurrentServerTimeWrapper,
   getDateString,
   isHalloween,
-  isChristmasSeason as isChristmasSeason
+  isChristmasSeason
 } from "../../utils/utils";
 
 import { CraftManager } from "./managers/craftmanager";
@@ -125,7 +125,8 @@ import {
   InGamePurchaseStoreBundleContentResponse,
   GrinderExchangeRequest,
   GrinderExchangeResponse,
-  RagdollUpdatePose
+  RagdollUpdatePose,
+  AnimationRequest
 } from "types/zone2016packets";
 import { VehicleCurrentMoveMode } from "types/zone2015packets";
 import {
@@ -1192,7 +1193,7 @@ export class ZonePacketHandlers {
   ) {
     // Early exit if no data or transientId is missing
     const packetData = packet.data;
-    if (!packetData || !packetData.transientId) {
+    if (!packetData || packetData.transientId == undefined) {
       console.log("TransientId error detected", packet);
       return;
     }
@@ -3869,6 +3870,26 @@ export class ZonePacketHandlers {
     }
   }
 
+  animationRequest(
+    server: ZoneServer2016,
+    client: Client,
+    packet: ReceivedPacket<AnimationRequest>
+  ) {
+    const animationId =
+      server.getItemDefinition(packet.data.itemDefinitionId)?.PARAM1 || 0;
+    if (!animationId) return;
+
+    server.sendDataToAllWithSpawnedEntity(
+      server._characters,
+      client.character.characterId,
+      "Animation.Play",
+      {
+        characterId: client.character.characterId,
+        animationId: animationId
+      }
+    );
+  }
+
   processPacket(
     server: ZoneServer2016,
     client: Client,
@@ -4169,6 +4190,9 @@ export class ZonePacketHandlers {
             ]
           }
         );
+        break;
+      case "Animation.Request":
+        this.animationRequest(server, client, packet);
         break;
       default:
         debug(packet);

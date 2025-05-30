@@ -32,7 +32,9 @@ export enum ChallengeType {
   GLOBAL_DISARMAMENT,
   ROCKY,
   ROCKSTAR,
-  IED
+  IED,
+  RANCHITO,
+  SWIZZLE
 }
 export enum ChallengeStatus {
   CURRENT = 1,
@@ -103,6 +105,14 @@ export class ChallengeManager {
         pvpOnly: false
       },
       {
+        type: ChallengeType.RANCHITO,
+        difficulty: ChallengeDifficulty.EASY,
+        name: "Wait... Why am i here again?",
+        description: "Visit Ranchito",
+        neededPoints: 1,
+        pvpOnly: false
+      },
+      {
         type: ChallengeType.BRAIN_DEAD,
         difficulty: ChallengeDifficulty.MEDIUM,
         name: "They're brain-dead anyway",
@@ -148,6 +158,14 @@ export class ChallengeManager {
         difficulty: ChallengeDifficulty.MEDIUM,
         name: "My land!",
         description: "Craft a deck foundation",
+        neededPoints: 1,
+        pvpOnly: false
+      },
+      {
+        type: ChallengeType.SWIZZLE,
+        difficulty: ChallengeDifficulty.MEDIUM,
+        name: "Shady buisness",
+        description: "Consume some swizzle",
         neededPoints: 1,
         pvpOnly: false
       },
@@ -318,6 +336,10 @@ export class ChallengeManager {
   }
 
   async finishChallenge(client: ZoneClient2016) {
+    if (client.character.currentChallenge === ChallengeType.NONE) {
+      return;
+    }
+    client.character.currentChallenge = ChallengeType.NONE;
     const query = {
       status: ChallengeStatus.CURRENT,
       serverId: this.server._worldId,
@@ -333,14 +355,12 @@ export class ChallengeManager {
   }
 
   async affectChallenge(client: ZoneClient2016) {
-    const today = new Date();
-    const timeZoneOffset = today.getTimezoneOffset() * 60000; // Convert minutes to milliseconds
     const now = Date.now();
 
-    const startOfDay = new Date(now - timeZoneOffset);
+    const startOfDay = new Date(now);
     startOfDay.setHours(0, 0, 0, 0);
 
-    const endOfDay = new Date(now - timeZoneOffset);
+    const endOfDay = new Date(now);
     endOfDay.setHours(23, 59, 59, 999);
 
     const challengesToday = await this.challengesCollection
@@ -371,8 +391,8 @@ export class ChallengeManager {
     }
     const challengesAvailable = this.challenges.filter((v) => {
       return (
-        ((!challengesTypesDoneToday.includes(v.type) && !v.pvpOnly) ||
-          !this.server.isPvE) &&
+        !challengesTypesDoneToday.includes(v.type) &&
+        (!v.pvpOnly || !this.server.isPvE) &&
         v.difficulty === nextDifficultyChallenge
       );
     });

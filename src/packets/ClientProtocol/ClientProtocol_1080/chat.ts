@@ -37,9 +37,41 @@ export const chatPackets: PacketStructures = [
       ]
     }
   ],
-  ["Chat.EnterArea", 0x060200, {}],
-  ["Chat.DebugChat", 0x060300, {}],
-  ["Chat.FromStringId", 0x060400, {}],
+  [
+    "Chat.EnterArea",
+    0x060200,
+    {
+      fields: [{ name: "unknownDword1", type: "uint32", defaultValue: 1 }]
+    }
+  ],
+  [
+    "Chat.DebugChat",
+    0x060300,
+    {
+      fields: [
+        { name: "message", type: "string", defaultValue: "" },
+        { name: "unknownBoolean1", type: "boolean", defaultValue: false },
+        { name: "unknownDword1", type: "uint32", defaultValue: 0x40000 }
+      ]
+    }
+  ],
+  [
+    "Chat.FromStringId",
+    0x060400,
+    {
+      fields: [
+        { name: "unknownQword1", type: "uint64string", defaultValue: "" },
+        { name: "stringId", type: "uint32", defaultValue: 1 },
+        { name: "hidden", type: "boolean", defaultValue: false },
+        { name: "unknownBoolean2", type: "boolean", defaultValue: false },
+        { name: "unknownBoolean3", type: "boolean", defaultValue: false },
+        { name: "unknownDword2", type: "uint32", defaultValue: 0 },
+        { name: "unknownQword2", type: "uint64string", defaultValue: "" },
+        { name: "unknownQword3", type: "uint64string", defaultValue: "" },
+        { name: "unknownDword3", type: "uint32", defaultValue: 0 }
+      ]
+    }
+  ],
   //["Chat.TellEcho", 0x060500, {}],
   [
     "Chat.ChatText",
@@ -50,8 +82,8 @@ export const chatPackets: PacketStructures = [
         { name: "unknownDword1", type: "uint32", defaultValue: 0 },
         { name: "color", type: "bytes", length: 4 },
         { name: "unknownDword2", type: "uint32", defaultValue: 0 },
-        { name: "unknownByte3", type: "uint8", defaultValue: 0 },
-        { name: "unknownByte4", type: "uint8", defaultValue: 0 }
+        { name: "unknownBoolean1", type: "boolean", defaultValue: true },
+        { name: "unknownBoolean2", type: "boolean", defaultValue: true }
       ]
     }
   ]

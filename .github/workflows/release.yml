@@ -36,30 +36,29 @@ jobs:
           draft: false
           prerelease: false
 
-  build-docker-images:
-    name: Create and push docker images
-    needs: create-release
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      - name: Use Node.js 22.9.0
-        uses: actions/setup-node@v3
-        with:
-          node-version: 22.9.0
-      - uses: olegtarasov/get-tag@v2.1
-        id: tagName
-      - uses: docker/setup-docker-action@v4
-      - run: npm i
-      - run: npm run build-docker-images
-      - run: sudo docker login -u qgruber -p ${{ secrets.DOCKER_HUB_TOKEN }}
-      - run: sudo docker image push h1emu/server:${{ steps.tagName.outputs.tag }}
-      - run: sudo docker image push h1emu/server-2016:${{ steps.tagName.outputs.tag }}
-      - run: sudo docker image push h1emu/login-server:${{ steps.tagName.outputs.tag }}
-      - run: sudo docker image push h1emu/zone-server:${{ steps.tagName.outputs.tag }}
-      - run: sudo docker image push h1emu/zone-server-2016:${{ steps.tagName.outputs.tag }}
-      - run: sudo docker image push h1emu/server:latest
-      - run: sudo docker image push h1emu/server-2016:latest
-      - run: sudo docker image push h1emu/login-server:latest
-      - run: sudo docker image push h1emu/zone-server:latest
-      - run: sudo docker image push h1emu/zone-server-2016:latest
-
+  # build-docker-images:
+  #   name: Create and push docker images
+  #   needs: create-release
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - uses: actions/checkout@v3
+  #     - name: Use Node.js 22.9.0
+  #       uses: actions/setup-node@v3
+  #       with:
+  #         node-version: 22.9.0
+  #     - uses: olegtarasov/get-tag@v2.1
+  #       id: tagName
+  #     - uses: docker/setup-docker-action@v4
+  #     - run: npm i
+  #     - run: npm run build-docker-images
+  #     - run: sudo docker login -u qgruber -p ${{ secrets.DOCKER_HUB_TOKEN }}
+  #     - run: sudo docker image push h1emu/server:${{ steps.tagName.outputs.tag }}
+  #     - run: sudo docker image push h1emu/server-2016:${{ steps.tagName.outputs.tag }}
+  #     - run: sudo docker image push h1emu/login-server:${{ steps.tagName.outputs.tag }}
+  #     - run: sudo docker image push h1emu/zone-server:${{ steps.tagName.outputs.tag }}
+  #     - run: sudo docker image push h1emu/zone-server-2016:${{ steps.tagName.outputs.tag }}
+  #     - run: sudo docker image push h1emu/server:latest
+  #     - run: sudo docker image push h1emu/server-2016:latest
+  #     - run: sudo docker image push h1emu/login-server:latest
+  #     - run: sudo docker image push h1emu/zone-server:latest
+  #     - run: sudo docker image push h1emu/zone-server-2016:latest

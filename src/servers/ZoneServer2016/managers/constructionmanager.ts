@@ -1679,8 +1679,9 @@ export class ConstructionManager {
           container.canAcceptItems = false;
           break;
         case Items.DEW_COLLECTOR:
-        case Items.BEE_BOX:
           container.acceptedItems = [Items.WATER_EMPTY];
+        case Items.BEE_BOX:
+          container.acceptedItems = [Items.WATER_EMPTY, Items.HONEYCOMB];
       }
     }
     server.executeFuncForAllReadyClientsInRange((client) => {
@@ -1951,6 +1952,22 @@ export class ConstructionManager {
       ConstructionPermissionIds.VISIT
     );
     if (hasVisitPermission) allowed = true;
+    for (const f in construction.freeplaceEntities) {
+      const freePlacedEntity = construction.freeplaceEntities[f];
+      if (construction.isInside(freePlacedEntity.state.position)) {
+        if (freePlacedEntity instanceof LootableConstructionEntity) {
+          if (allowed) {
+            this.constructionHideEntities(
+              server,
+              client,
+              construction.characterId,
+              freePlacedEntity,
+              true
+            );
+          }
+        }
+      }
+    }
     if (construction.isInside(client.character.state.position)) {
       if (allowed) {
         this.constructionHidePlayer(
@@ -2023,6 +2040,57 @@ export class ConstructionManager {
         }
       } else return;
     } else if (client.character.isHidden) client.character.isHidden = "";
+  }
+
+  constructionHideEntities(
+    server: ZoneServer2016,
+    client: Client,
+    constructionGuid: string,
+    freePlacedEntity: LootableConstructionEntity,
+    state: boolean
+  ) {
+    if (state) {
+      if (!freePlacedEntity.isHidden) {
+        freePlacedEntity.isHidden = constructionGuid;
+        for (const a in server._clients) {
+          const iteratedClient = server._clients[a];
+
+          const constructionEntity =
+            server.getConstructionEntity(constructionGuid);
+
+          let hasVisitPermission = false;
+          if (constructionEntity) {
+            hasVisitPermission = constructionEntity.getHasPermission(
+              server,
+              iteratedClient.character.characterId,
+              ConstructionPermissionIds.VISIT
+            );
+          }
+
+          const isSameGroup =
+            client.character.groupId != 0 &&
+            iteratedClient.character.groupId != 0 &&
+            client.character.groupId === iteratedClient.character.groupId;
+
+          const hasPermission = isSameGroup && hasVisitPermission;
+
+          if (
+            iteratedClient.spawnedEntities.has(client.character) &&
+            iteratedClient.character.isHidden != freePlacedEntity.isHidden &&
+            !hasPermission
+          ) {
+            server.sendData<CharacterRemovePlayer>(
+              iteratedClient,
+              "Character.RemovePlayer",
+              {
+                characterId: client.character.characterId
+              }
+            );
+            iteratedClient.spawnedEntities.delete(client.character);
+          }
+        }
+      } else return;
+    } else if (freePlacedEntity.isHidden) freePlacedEntity.isHidden = "";
   }
 
   tpPlayerOutsideFoundation(

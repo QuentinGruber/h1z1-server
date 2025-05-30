@@ -223,6 +223,7 @@ export class ProjectileEntity extends BaseLightweightCharacter {
     if (this.itemDefinitionId == Items.WEAPON_BOW_RECURVE)
       server.explosionDamage(this);
     if (this.itemDefinitionId == Items.GRENADE_GAS) {
+      if (server.isPvE) return;
       this.gasDamageInterval = setInterval(() => {
         for (const a in server._characters) {
           const character = server._characters[a];
