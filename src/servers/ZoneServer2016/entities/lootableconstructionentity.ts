@@ -292,11 +292,11 @@ export class LootableConstructionEntity extends BaseLootableEntity {
     const dictionary = server.getEntityDictionary(this.characterId);
     if (!dictionary) return;
 
-   // Find all clients within the radius
-const clientsInRange = Object.values(server._clients).filter((c) => {
-  if (!c.character || !c.character.isAlive) return false;
-  return isPosInRadius(5, this.state.position, c.character.state.position);
-});
+    // Find all clients within the radius
+    const clientsInRange = Object.values(server._clients).filter((c) => {
+      if (!c.character || !c.character.isAlive) return false;
+      return isPosInRadius(5, this.state.position, c.character.state.position);
+    });
     //  Bee FX for all affected clients
     for (const c of clientsInRange) {
       server.sendDataToAllWithSpawnedEntity<CharacterPlayWorldCompositeEffect>(
