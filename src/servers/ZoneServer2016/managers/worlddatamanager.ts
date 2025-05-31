@@ -1393,7 +1393,7 @@ export class WorldDataManager {
           entityData.ownerCharacterId
         );
         server._explosives[entityData.characterId] = explosive;
-        //explosive.arm(server);
+        explosive.arm(server);
         //temporarily Disabled
         break;
       default:

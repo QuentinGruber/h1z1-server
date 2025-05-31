@@ -1955,18 +1955,22 @@ export class ZoneServer2016 extends EventEmitter {
 
   startH1emuAi() {
     setInterval(() => {
-      if (process.env.ENABLE_AI_TIME_LOGS) {
-        const start = performance.now();
-        this.aiManager.run();
-        const end = performance.now();
-        const duration = end - start;
-        if (duration >= 1) {
-          console.log(
-            `H1emu-ai took ${duration}ms with ${this.aiManager.get_stats().entities} entities`
-          );
+      try {
+        if (process.env.ENABLE_AI_TIME_LOGS) {
+          const start = performance.now();
+          this.aiManager.run();
+          const end = performance.now();
+          const duration = end - start;
+          if (duration >= 3) {
+            console.log(
+              `H1emu-ai took ${duration}ms with ${this.aiManager.get_stats().entities} entities`
+            );
+          }
+        } else {
+          this.aiManager.run();
         }
-      } else {
-        this.aiManager.run();
+      } catch (e) {
+        console.error(e);
       }
     }, 100);
   }
@@ -2013,9 +2017,7 @@ export class ZoneServer2016 extends EventEmitter {
     this.rconManager.on("message", this.handleRconMessage.bind(this));
     this.rewardManager.start();
     this.hookManager.checkHook("OnServerReady");
-    if (this._soloMode || process.env.ENABLE_AI) {
-      this.startH1emuAi();
-    }
+    this.startH1emuAi();
     this.challengePositionCheckInterval = setInterval(
       () => this.checkPlayersPositionsChallenges(),
       30_000
