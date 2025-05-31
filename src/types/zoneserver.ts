@@ -507,6 +507,7 @@ export interface AccountDefinition {
 export interface RewardCrateDefinition {
   itemDefinitionId: number,
   rewards: RewardCrateRewardDefinition[]
+  excludeFromExchange?: boolean;
 }
 
 export interface RewardCrateRewardDefinition {
