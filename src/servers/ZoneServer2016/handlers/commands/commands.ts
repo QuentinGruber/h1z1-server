@@ -2331,64 +2331,61 @@ export const commands: Array<Command> = [
       client.character.mountedContainer.lootItem(server, item);
     }
   },
-{
-  name: "giverewardtoall",
-  permissionLevel: PermissionLevels.ADMIN,
-  execute: (server: ZoneServer2016, client: Client, args: Array<string>) => {
-    if (!args.length) {
-      server.sendChatText(
-        client,
-        "[ERROR] Usage /giverewardtoall {itemDefinitionId} [itemDefinitionId ...] [count]"
-      );
-      return;
-    }
-
-    // Check if the last argument is a count
-    let count = 1;
-    if (!isNaN(Number(args[args.length - 1]))) {
-      count = Number(args.pop());
-    }
-
-    // Collect valid reward IDs and pretty names
-    const rewardIds: number[] = [];
-    const prettyNames: string[] = [];
-    const invalid: string[] = [];
-
-    for (const arg of args) {
-      const rewardId = Number(arg);
-      const validRewardItem = server.rewardManager.rewards.some(
-        (v) => v.itemId === rewardId
-      );
-      if (!validRewardItem) {
-        invalid.push(arg);
-        continue;
+  {
+    name: "giverewardtoall",
+    permissionLevel: PermissionLevels.ADMIN,
+    execute: (server: ZoneServer2016, client: Client, args: Array<string>) => {
+      if (!args.length) {
+        server.sendChatText(
+          client,
+          "[ERROR] Usage /giverewardtoall {itemDefinitionId} [itemDefinitionId ...] [count]"
+        );
+        return;
       }
-      rewardIds.push(rewardId);
-      const rewardKey = Items[rewardId];
-      prettyNames.push(prettifyRewardName(rewardKey));
-    }
 
-    if (!rewardIds.length) {
-      server.sendChatText(
-        client,
-        `[ERROR] No valid reward ID provided`
+      // Check if the last argument is a count
+      let count = 1;
+      if (!isNaN(Number(args[args.length - 1]))) {
+        count = Number(args.pop());
+      }
+
+      // Collect valid reward IDs and pretty names
+      const rewardIds: number[] = [];
+      const prettyNames: string[] = [];
+      const invalid: string[] = [];
+
+      for (const arg of args) {
+        const rewardId = Number(arg);
+        const validRewardItem = server.rewardManager.rewards.some(
+          (v) => v.itemId === rewardId
+        );
+        if (!validRewardItem) {
+          invalid.push(arg);
+          continue;
+        }
+        rewardIds.push(rewardId);
+        const rewardKey = Items[rewardId];
+        prettyNames.push(prettifyRewardName(rewardKey));
+      }
+
+      if (!rewardIds.length) {
+        server.sendChatText(client, `[ERROR] No valid reward ID provided`);
+        return;
+      }
+
+      server.sendAlertToAll(
+        `Admin ${client.character.name} has just initiated a Crate Drop!`
       );
-      return;
-    }
-
-    server.sendAlertToAll(
-      `Admin ${client.character.name} has just initiated a Crate Drop!`
-    );
-    for (const key in server._clients) {
-      const c = server._clients[key];
-      for (const rewardId of rewardIds) {
-        for (let i = 0; i < count; i++) {
-          server.rewardManager.addRewardToPlayer(c, rewardId);
+      for (const key in server._clients) {
+        const c = server._clients[key];
+        for (const rewardId of rewardIds) {
+          for (let i = 0; i < count; i++) {
+            server.rewardManager.addRewardToPlayer(c, rewardId);
+          }
         }
       }
     }
-  }
-},
+  },
   {
     name: "givereward",
     permissionLevel: PermissionLevels.ADMIN,
