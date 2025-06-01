@@ -138,8 +138,7 @@ import {
   Group,
   RewardCrateDefinition,
   StanceFlags
-} 
-from "types/zoneserver";
+} from "types/zoneserver";
 import { Vehicle2016 } from "./entities/vehicle";
 import { Plant } from "./entities/plant";
 import { ConstructionChildEntity } from "./entities/constructionchildentity";
@@ -3725,8 +3724,6 @@ export class ZonePacketHandlers {
     //server.sendDataToAllOthersWithSpawnedEntity(server._characters, client, client.character.characterId, "Ragdoll.UpdatePose", packet.data)
   }
 
-  
-
   async grinderExchangeRequest(
     server: ZoneServer2016,
     client: Client,
@@ -3785,17 +3782,17 @@ export class ZonePacketHandlers {
             removeCount
           );
 
-server._rewardCrateDefinitions.forEach((crate) => {
-  if (crate.excludeFromExchange) return; // Skip excluded crates
-  if (
-    crate.rewards.some(
-      (reward) =>
-        reward.itemDefinitionId === inventoryItem.itemDefinitionId
-    )
-  ) {
-    rewardCratesFound.push(crate);
-  }
-});
+          server._rewardCrateDefinitions.forEach((crate) => {
+            if (crate.excludeFromExchange) return; // Skip excluded crates
+            if (
+              crate.rewards.some(
+                (reward) =>
+                  reward.itemDefinitionId === inventoryItem.itemDefinitionId
+              )
+            ) {
+              rewardCratesFound.push(crate);
+            }
+          });
         }
       }
       itemsRemoved = true;
