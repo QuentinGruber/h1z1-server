@@ -118,7 +118,9 @@ export class ExplosiveEntity extends BaseLightweightCharacter {
         Effects.PFX_Seasonal_Holiday_Snow_skel
       );
     }
-    this.server.deleteEntity(this.characterId, this.server._explosives);
+    queueMicrotask(() => {
+      this.server.deleteEntity(this.characterId, this.server._explosives);
+    });
     this.server.explosionDamage(this, client);
   }
 
