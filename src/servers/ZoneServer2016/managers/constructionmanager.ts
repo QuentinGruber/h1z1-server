@@ -1516,8 +1516,7 @@ export class ConstructionManager {
         ownerCharacterId
       );
     if (npc.isLandmine()) {
-      //npc.arm(server);
-      //temporarily disabled
+      npc.arm(server);
     }
     server._explosives[characterId] = npc;
     server.spawnSimpleNpcForAllInRange(npc);

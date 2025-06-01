@@ -2524,6 +2524,11 @@ export class ZoneServer2016 extends EventEmitter {
 
   killCharacter(client: Client, damageInfo: DamageInfo) {
     if (!client.character.isAlive) return;
+    queueMicrotask(() => {
+      if (client.character.h1emu_ai_id) {
+        this.aiManager.entity_dead(client.character.h1emu_ai_id);
+      }
+    });
     if (!this.hookManager.checkHook("OnPlayerDeath", client, damageInfo))
       return;
 
@@ -2929,6 +2934,11 @@ export class ZoneServer2016 extends EventEmitter {
 
     if (!client.character.isRespawning) return;
 
+    queueMicrotask(() => {
+      if (client.character.h1emu_ai_id) {
+        this.aiManager.entity_alive(client.character.h1emu_ai_id);
+      }
+    });
     if (client.vehicle.mountedVehicle) {
       this.dismountVehicle(client);
     }

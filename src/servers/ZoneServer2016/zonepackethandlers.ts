@@ -392,9 +392,6 @@ export class ZonePacketHandlers {
       if (client.firstCharacterReleased) {
         server.challengeManager.loadChallenges(client);
         client.firstCharacterReleased = false;
-        for (let index = 0; index < 100; index++) {
-          server.aiManager.add_entity(client.character, EntityType.Player);
-        }
         client.character.h1emu_ai_id = server.aiManager.add_entity(
           client.character,
           EntityType.Player
@@ -1617,6 +1614,9 @@ export class ZonePacketHandlers {
 
       // Update character position
       client.character.state.position = position;
+      if (client.character.h1emu_ai_id) {
+        server.aiManager.update_pos(client.character.h1emu_ai_id, position);
+      }
 
       // Stop HUD timer if position is out of radius
       if (
