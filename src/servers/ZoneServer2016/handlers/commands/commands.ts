@@ -2365,7 +2365,7 @@ export const commands: Array<Command> = [
       if (!rewardIds.length) {
         server.sendChatText(
           client,
-          `[ERROR] ${rewardId} isn't a valid reward item`
+          `[ERROR] No valid reward itemDefinitionIds provided.${invalid.length ? " ID: " + invalid.join(", ") : ""}`
         );
         return;
       }
