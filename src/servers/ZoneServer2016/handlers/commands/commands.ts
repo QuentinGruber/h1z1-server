@@ -2338,15 +2338,9 @@ export const commands: Array<Command> = [
       if (!args.length) {
         server.sendChatText(
           client,
-          "[ERROR] Usage /giverewardtoall {itemDefinitionId} [itemDefinitionId ...] [count]"
+          "[ERROR] Usage /giverewardtoall {itemDefinitionId} [itemDefinitionId ...]"
         );
         return;
-      }
-
-      // Check if the last argument is a count
-      let count = 1;
-      if (!isNaN(Number(args[args.length - 1]))) {
-        count = Number(args.pop());
       }
 
       // Collect valid reward IDs and pretty names
@@ -2369,7 +2363,10 @@ export const commands: Array<Command> = [
       }
 
       if (!rewardIds.length) {
-        server.sendChatText(client, `[ERROR] No valid reward ID provided`);
+        server.sendChatText(
+          client,
+          `[ERROR] No valid reward itemDefinitionIds provided.${invalid.length ? " Invalid: " + invalid.join(", ") : ""}`
+        );
         return;
       }
 
@@ -2379,9 +2376,7 @@ export const commands: Array<Command> = [
       for (const key in server._clients) {
         const c = server._clients[key];
         for (const rewardId of rewardIds) {
-          for (let i = 0; i < count; i++) {
-            server.rewardManager.addRewardToPlayer(c, rewardId);
-          }
+          server.rewardManager.addRewardToPlayer(c, rewardId);
         }
       }
     }
