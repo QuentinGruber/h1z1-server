@@ -417,6 +417,14 @@ export const commands: Array<Command> = [
         return;
       }
 
+      if (animationId) {
+        server.sendChatText(
+          client,
+          "[ERROR] This emote has been disabled due to abuse."
+        );
+        return;
+      }
+
       if (!server.isPvE) {
         switch (animationId) {
           case 18:
@@ -443,16 +451,18 @@ export const commands: Array<Command> = [
             return;
         }
       }
-
-      server.sendDataToAllWithSpawnedEntity(
-        server._characters,
-        client.character.characterId,
-        "Animation.Play",
-        {
-          characterId: client.character.characterId,
-          animationId: animationId
-        }
-      );
+      if (server.isPvE) {
+        // In PvE, we allow all emotes
+        server.sendDataToAllWithSpawnedEntity(
+          server._characters,
+          client.character.characterId,
+          "Animation.Play",
+          {
+            characterId: client.character.characterId,
+            animationId: animationId
+          }
+        );
+      }
     }
   },
   {
