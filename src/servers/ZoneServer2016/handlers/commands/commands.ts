@@ -417,14 +417,6 @@ export const commands: Array<Command> = [
         return;
       }
 
-      if (animationId) {
-        server.sendChatText(
-          client,
-          "[ERROR] This emote has been disabled due to abuse."
-        );
-        return;
-      }
-
       if (!server.isPvE) {
         switch (animationId) {
           case 18:
