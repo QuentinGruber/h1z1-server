@@ -95,8 +95,8 @@ export abstract class BaseFullCharacter extends BaseLightweightCharacter {
   getActiveLoadoutSlot(itemGuid: string): number {
     // gets the loadoutSlotId of a specified itemGuid in the loadout
     for (const item of Object.values(this._loadout)) {
-      if (itemGuid == item.itemGuid) {
-        return item.slotId;
+      if (typeof item === "object" && item !== null && "itemGuid" in item && itemGuid == (item as LoadoutItem).itemGuid) {
+        return (item as LoadoutItem).slotId;
       }
     }
     return 0;
@@ -772,18 +772,28 @@ export abstract class BaseFullCharacter extends BaseLightweightCharacter {
 
     const items: { [itemGuid: string]: BaseItem } = {};
     Object.values(this._loadout).forEach((itemData) => {
+      console.log("DeathItems:", itemData.itemDefinitionId, itemData);
       if (
-        itemData.itemGuid != "0x0" &&
-        !this.isDefaultItem(itemData.itemDefinitionId) &&
-        !server.isAdminItem(itemData.itemDefinitionId)
+        // Allow all items except admin items
+        !server.isAdminItem(itemData.itemDefinitionId) &&
+        // Preventing Junk items to drop 
+        itemData.itemDefinitionId !== Items.WEAPON_FISTS &&
+        itemData.itemDefinitionId !== Items.WEAPON_FLASHLIGHT &&
+        itemData.itemDefinitionId !== Items.MAP &&
+        itemData.itemDefinitionId !== Items.SKINNING_KNIFE &&
+        itemData.itemDefinitionId !== Items.COMPASS_IMPROVISED &&
+        itemData.itemDefinitionId !== Items.BOOTS_GRAY_BLUE
       ) {
+        let guid = itemData.itemGuid;
+        if (guid === "0x0") {
+          guid = server.generateGuid();
+        }
         const item = new BaseItem(
           itemData.itemDefinitionId,
-          itemData.itemGuid,
+          guid,
           itemData.currentDurability,
           itemData.stackCount
         );
-
         item.debugFlag = "getDeathItems";
         if (itemData.weapon)
           item.weapon = new Weapon(item, itemData.weapon.ammoCount);
@@ -795,8 +805,13 @@ export abstract class BaseFullCharacter extends BaseLightweightCharacter {
     Object.values(this._containers).forEach((container: LoadoutContainer) => {
       Object.values(container.items).forEach((item) => {
         if (
-          !this.isDefaultItem(item.itemDefinitionId) &&
-          !server.isAdminItem(item.itemDefinitionId)
+          !server.isAdminItem(item.itemDefinitionId) &&
+          item.itemDefinitionId !== Items.WEAPON_FISTS &&
+          item.itemDefinitionId !== Items.WEAPON_FLASHLIGHT &&
+          item.itemDefinitionId !== Items.MAP &&
+          item.itemDefinitionId !== Items.SKINNING_KNIFE &&
+          item.itemDefinitionId !== Items.COMPASS_IMPROVISED &&
+          item.itemDefinitionId !== Items.BOOTS_GRAY_BLUE
         ) {
           let stacked = false;
           for (const i of Object.values(items)) {
@@ -811,9 +826,13 @@ export abstract class BaseFullCharacter extends BaseLightweightCharacter {
             }
           }
           if (!stacked) {
+            let guid = item.itemGuid;
+            if (guid === "0x0") {
+              guid = server.generateGuid();
+            }
             const newItem = new BaseItem(
               item.itemDefinitionId,
-              item.itemGuid,
+              guid,
               item.currentDurability,
               item.stackCount
             );
