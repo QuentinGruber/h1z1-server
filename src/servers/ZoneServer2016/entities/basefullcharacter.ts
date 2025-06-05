@@ -95,7 +95,12 @@ export abstract class BaseFullCharacter extends BaseLightweightCharacter {
   getActiveLoadoutSlot(itemGuid: string): number {
     // gets the loadoutSlotId of a specified itemGuid in the loadout
     for (const item of Object.values(this._loadout)) {
-      if (typeof item === "object" && item !== null && "itemGuid" in item && itemGuid == (item as LoadoutItem).itemGuid) {
+      if (
+        typeof item === "object" &&
+        item !== null &&
+        "itemGuid" in item &&
+        itemGuid == (item as LoadoutItem).itemGuid
+      ) {
         return (item as LoadoutItem).slotId;
       }
     }
@@ -776,7 +781,7 @@ export abstract class BaseFullCharacter extends BaseLightweightCharacter {
       if (
         // Allow all items except admin items
         !server.isAdminItem(itemData.itemDefinitionId) &&
-        // Preventing Junk items to drop 
+        // Preventing Junk items to drop
         itemData.itemDefinitionId !== Items.WEAPON_FISTS &&
         itemData.itemDefinitionId !== Items.WEAPON_FLASHLIGHT &&
         itemData.itemDefinitionId !== Items.MAP &&
