@@ -628,8 +628,6 @@ export const isPosInRadiusWithY = (
   position2: Float32Array,
   y_radius: number
 ): boolean => {
-  // Increase vertical range for Y axis
-  const increasedYRadius = Math.max(y_radius, 3); 
   return (
     isBetween(radius, position1[0], position2[0]) &&
     isBetween(radius, position1[2], position2[2]) &&

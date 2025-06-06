@@ -1252,14 +1252,17 @@ export class ZoneServer2016 extends EventEmitter {
         }
       }
 
-        if (object instanceof LootableConstructionEntity) {
-         // Default loot distance
-          let lootDistance = 2;
+      if (object instanceof LootableConstructionEntity) {
+        // Default loot distance
+        let lootDistance = 2;
 
-            // If player is underneath, allow further distance 
-           if (client.character.state.position[1] < object.state.position[1] - 0.5) {
+        // If player is underneath, allow further distance
+        if (
+          client.character.state.position[1] <
+          object.state.position[1] - 0.5
+        ) {
           lootDistance = 3;
-      }
+        }
 
         if (
           isPosInRadiusWithY(
