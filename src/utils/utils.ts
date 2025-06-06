@@ -633,7 +633,6 @@ export const isPosInRadiusWithY = (
   return (
     isBetween(radius, position1[0], position2[0]) &&
     isBetween(radius, position1[2], position2[2]) &&
-    isBetween(increasedYRadius, position1[1], position2[1])
     isBetween(y_radius, position1[1], position2[1])
   );
 };
