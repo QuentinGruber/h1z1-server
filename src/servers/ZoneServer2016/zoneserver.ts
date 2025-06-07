@@ -1252,7 +1252,7 @@ export class ZoneServer2016 extends EventEmitter {
         }
       }
 
-        if (object instanceof LootableConstructionEntity) {
+      if (object instanceof LootableConstructionEntity) {
         // If player is underneath, allow further Y distance
         let yDistance = 1;
         if (
