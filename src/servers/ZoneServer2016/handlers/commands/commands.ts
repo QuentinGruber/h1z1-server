@@ -525,7 +525,6 @@ export const commands: Array<Command> = [
         client.character.lastWhisperedPlayer = targetClient.character.name;
         targetClient.character.lastWhisperedPlayer = client.character.name;
       } else {
-
         client.character.lastWhisperedPlayer = targetPlayerName;
       }
 
@@ -597,15 +596,11 @@ export const commands: Array<Command> = [
         client.character.lastWhisperedPlayer = targetClient.character.name;
         targetClient.character.lastWhisperedPlayer = client.character.name;
       } else {
-
       }
 
       const message = args.join(" ");
 
-      server.sendChatText(
-        client,
-        `[Reply to ${targetPlayerName}]: ${message}`
-      );
+      server.sendChatText(client, `[Reply to ${targetPlayerName}]: ${message}`);
 
       if (targetClient instanceof Client) {
         server.sendChatText(
