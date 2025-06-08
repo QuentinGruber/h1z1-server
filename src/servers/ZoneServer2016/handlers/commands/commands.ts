@@ -1,4 +1,4 @@
-// ======================================================================
+﻿// ======================================================================
 //
 //   GNU GENERAL PUBLIC LICENSE
 //   Version 3, 29 June 2007
@@ -490,26 +490,11 @@ export const commands: Array<Command> = [
         return;
       }
 
-      const targetClient = server.getClientByNameOrLoginSession(args[0]);
+      const targetPlayerName = args[0]; // Zapisujemy nazwę gracza docelowego
+      const targetClient =
+        server.getClientByNameOrLoginSession(targetPlayerName);
 
-      /*if (!targetClient) {
-        targetClient = await server.getOfflineClientByName(args[0]);
-      }*/
-
-      if (server.playerNotFound(client, args[0].toString(), targetClient)) {
-        return;
-      }
-      if (!targetClient || !(targetClient instanceof Client)) {
-        server.sendChatText(client, "Player not found.");
-        return;
-      }
-      if (
-        targetClient?.character?.characterId == client.character.characterId
-      ) {
-        server.sendChatText(client, "Don't be ridiculous.");
-        return;
-      }
-
+      // Sprawdzamy, czy nadawca jest wyciszony globalnie
       if (await server.chatManager.checkMute(server, client)) {
         server.sendChatText(
           client,
@@ -517,31 +502,55 @@ export const commands: Array<Command> = [
         );
         return;
       }
-      if (
-        targetClient?.character?.mutedCharacters?.includes(
-          client.character.characterId
-        )
-      ) {
-        server.sendChatText(
-          client,
-          `[Whisper] Message blocked, target player has you muted!`
-        );
-        return;
+
+      // TYLKO JEŚLI targetClient JEST OBIEKTEM CLIENT
+      if (targetClient instanceof Client) {
+        // Sprawdzamy czy to nie jest wiadomość do samego siebie
+        if (
+          targetClient.character?.characterId == client.character.characterId
+        ) {
+          server.sendChatText(client, "Don't be ridiculous.");
+          return;
+        }
+
+        // Jeśli targetClient istnieje i ma Cię wyciszonego, zablokuj wiadomość
+        if (
+          targetClient.character?.mutedCharacters?.includes(
+            client.character.characterId
+          )
+        ) {
+          server.sendChatText(
+            client,
+            `[Whisper] Message blocked, target player has you muted!`
+          );
+          return;
+        }
+
+        // Ustawienie ostatnio szeptanego gracza TYLKO jeśli targetClient faktycznie istnieje i jest Clientem
+        client.character.lastWhisperedPlayer = targetClient.character.name;
+        targetClient.character.lastWhisperedPlayer = client.character.name;
+      } else {
+        // Jeśli targetClient nie istnieje lub nie jest Clientem (np. jest undefined lub string),
+        // ustawiamy ostatnio szeptanego gracza na podaną nazwę.
+        client.character.lastWhisperedPlayer = targetPlayerName;
       }
-      client.character.lastWhisperedPlayer = targetClient.character.name;
-      targetClient.character.lastWhisperedPlayer = client.character.name;
 
       args.splice(0, 1);
       const message = args.join(" ");
 
+      // Zawsze wysyłamy potwierdzenie do klienta, który wysłał wiadomość
       server.sendChatText(
         client,
-        `[Whisper to ${targetClient.character.name}]: ${message}`
+        `[Whisper to ${targetPlayerName}]: ${message}` // Używamy oryginalnej nazwy z args[0]
       );
-      server.sendChatText(
-        targetClient,
-        `[Whisper from ${client.character.name}]: ${message}`
-      );
+
+      // Wysyłamy wiadomość do docelowego klienta TYLKO jeśli istnieje i jest typu Client
+      if (targetClient instanceof Client) {
+        server.sendChatText(
+          targetClient,
+          `[Whisper from ${client.character.name}]: ${message}`
+        );
+      }
     }
   },
   {
@@ -562,36 +571,22 @@ export const commands: Array<Command> = [
         return;
       }
 
-      let targetClient = server.getClientByNameOrLoginSession(
-        client.character.lastWhisperedPlayer
-      );
+      const targetPlayerName = client.character.lastWhisperedPlayer; // Nazwa gracza, do którego odpowiadamy
+      let targetClient = server.getClientByNameOrLoginSession(targetPlayerName);
 
-      if (!targetClient) {
-        targetClient = await server.getOfflineClientByName(
-          client.character.lastWhisperedPlayer
-        );
-      }
+      // W przypadku komendy /r, możesz chcieć spróbować znaleźć gracza offline,
+      // jeśli nie jest online. Ale jeśli chcesz symulować wysłanie zawsze,
+      // ten blok powinien być bardziej rozbudowany lub usunięty.
+      // Na potrzeby "udawania wysłania" usuwamy ten blok, aby nie blokować odpowiedzi.
+      /*
+            if (!targetClient) {
+              targetClient = await server.getOfflineClientByName(
+                client.character.lastWhisperedPlayer
+              );
+            }
+            */
 
-      if (
-        server.playerNotFound(
-          client,
-          client.character.lastWhisperedPlayer.toString(),
-          targetClient
-        )
-      ) {
-        return;
-      }
-      if (!targetClient || !(targetClient instanceof Client)) {
-        server.sendChatText(client, "Player not found.");
-        return;
-      }
-      if (
-        targetClient?.character?.characterId == client.character.characterId
-      ) {
-        server.sendChatText(client, "Don't be ridiculous.");
-        return;
-      }
-
+      // Sprawdzamy, czy nadawca jest wyciszony globalnie
       if (await server.chatManager.checkMute(server, client)) {
         server.sendChatText(
           client,
@@ -599,30 +594,54 @@ export const commands: Array<Command> = [
         );
         return;
       }
-      if (
-        targetClient?.character?.mutedCharacters?.includes(
-          client.character.characterId
-        )
-      ) {
-        server.sendChatText(
-          client,
-          `[Reply] Message blocked, target player has you muted!`
-        );
-        return;
+
+      // TYLKO JEŚLI targetClient JEST OBIEKTEM CLIENT
+      if (targetClient instanceof Client) {
+        // Sprawdzamy czy to nie jest wiadomość do samego siebie
+        if (
+          targetClient.character?.characterId == client.character.characterId
+        ) {
+          server.sendChatText(client, "Don't be ridiculous.");
+          return;
+        }
+
+        // Jeśli targetClient istnieje i ma Cię wyciszonego, zablokuj wiadomość
+        if (
+          targetClient.character?.mutedCharacters?.includes(
+            client.character.characterId
+          )
+        ) {
+          server.sendChatText(
+            client,
+            `[Reply] Message blocked, target player has you muted!`
+          );
+          return;
+        }
+
+        // Ustawienie ostatnio szeptanego gracza TYLKO jeśli targetClient faktycznie istnieje i jest Clientem
+        client.character.lastWhisperedPlayer = targetClient.character.name;
+        targetClient.character.lastWhisperedPlayer = client.character.name;
+      } else {
+        // Jeśli targetClient nie jest Clientem (np. jest undefined, bo gracz offline),
+        // to client.character.lastWhisperedPlayer już wskazuje na targetPlayerName, więc nie ma potrzeby zmiany.
+        // Ewentualnie możesz tutaj dodać logikę, jeśli chcesz coś innego robić w przypadku offline.
       }
-      client.character.lastWhisperedPlayer = targetClient.character.name;
-      targetClient.character.lastWhisperedPlayer = client.character.name;
 
       const message = args.join(" ");
 
+      // Zawsze wysyłamy potwierdzenie do klienta, który wysłał wiadomość
       server.sendChatText(
         client,
-        `[Reply to ${targetClient.character.name}]: ${message}`
+        `[Reply to ${targetPlayerName}]: ${message}` // Używamy targetPlayerName
       );
-      server.sendChatText(
-        targetClient,
-        `[Reply from ${client.character.name}]: ${message}`
-      );
+
+      // Wysyłamy wiadomość do docelowego klienta TYLKO jeśli istnieje i jest typu Client
+      if (targetClient instanceof Client) {
+        server.sendChatText(
+          targetClient,
+          `[Reply from ${client.character.name}]: ${message}`
+        );
+      }
     }
   },
   {
@@ -1528,6 +1547,55 @@ export const commands: Array<Command> = [
         `Requesting modules from: ${targetClient.character.name}`
       );
       server.sendData(targetClient, "H1emu.RequestModules", {});
+      server.sendData(
+        targetClient,
+        "UpdateWeatherData",
+        server.weatherManager.weather
+      );
+    }
+  },
+  {
+    name: "listinfo",
+    permissionLevel: PermissionLevels.MODERATOR,
+    execute: async (
+      server: ZoneServer2016,
+      client: Client,
+      args: Array<string>
+    ) => {
+      if (!args[0]) {
+        server.sendChatText(
+          client,
+          `Correct usage: /listinfo {name | ZoneClientId}`
+        );
+        return;
+      }
+
+      const targetClient = server.getClientByNameOrLoginSession(
+        args[0].toString()
+      );
+      if (server.playerNotFound(client, args[0].toString(), targetClient)) {
+        return;
+      }
+
+      if (!targetClient || !(targetClient instanceof Client)) {
+        server.sendChatText(client, "Client not found.");
+        return;
+      }
+
+      if (targetClient.isAdmin) {
+        server.sendChatText(
+          client,
+          `${targetClient.character.name} is an admin!`
+        );
+      }
+
+      server.sendChatText(
+        client,
+        `Requesting modules and windows from: ${targetClient.character.name}`
+      );
+
+      server.sendData(targetClient, "H1emu.RequestModules", {});
+      server.sendData(targetClient, "H1emu.RequestWindows", {});
       server.sendData(
         targetClient,
         "UpdateWeatherData",
