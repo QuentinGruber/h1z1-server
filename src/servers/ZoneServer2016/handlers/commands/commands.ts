@@ -563,7 +563,8 @@ export const commands: Array<Command> = [
       }
 
       const targetPlayerName = client.character.lastWhisperedPlayer;
-      let targetClient = server.getClientByNameOrLoginSession(targetPlayerName);
+      const targetClient =
+        server.getClientByNameOrLoginSession(targetPlayerName);
 
       if (await server.chatManager.checkMute(server, client)) {
         server.sendChatText(
@@ -595,7 +596,6 @@ export const commands: Array<Command> = [
 
         client.character.lastWhisperedPlayer = targetClient.character.name;
         targetClient.character.lastWhisperedPlayer = client.character.name;
-      } else {
       }
 
       const message = args.join(" ");
