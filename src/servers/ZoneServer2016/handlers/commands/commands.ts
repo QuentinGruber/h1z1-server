@@ -490,11 +490,10 @@ export const commands: Array<Command> = [
         return;
       }
 
-      const targetPlayerName = args[0]; // Zapisujemy nazwę gracza docelowego
+      const targetPlayerName = args[0];
       const targetClient =
         server.getClientByNameOrLoginSession(targetPlayerName);
 
-      // Sprawdzamy, czy nadawca jest wyciszony globalnie
       if (await server.chatManager.checkMute(server, client)) {
         server.sendChatText(
           client,
@@ -503,9 +502,7 @@ export const commands: Array<Command> = [
         return;
       }
 
-      // TYLKO JEŚLI targetClient JEST OBIEKTEM CLIENT
       if (targetClient instanceof Client) {
-        // Sprawdzamy czy to nie jest wiadomość do samego siebie
         if (
           targetClient.character?.characterId == client.character.characterId
         ) {
@@ -513,7 +510,6 @@ export const commands: Array<Command> = [
           return;
         }
 
-        // Jeśli targetClient istnieje i ma Cię wyciszonego, zablokuj wiadomość
         if (
           targetClient.character?.mutedCharacters?.includes(
             client.character.characterId
@@ -526,25 +522,21 @@ export const commands: Array<Command> = [
           return;
         }
 
-        // Ustawienie ostatnio szeptanego gracza TYLKO jeśli targetClient faktycznie istnieje i jest Clientem
         client.character.lastWhisperedPlayer = targetClient.character.name;
         targetClient.character.lastWhisperedPlayer = client.character.name;
       } else {
-        // Jeśli targetClient nie istnieje lub nie jest Clientem (np. jest undefined lub string),
-        // ustawiamy ostatnio szeptanego gracza na podaną nazwę.
+
         client.character.lastWhisperedPlayer = targetPlayerName;
       }
 
       args.splice(0, 1);
       const message = args.join(" ");
 
-      // Zawsze wysyłamy potwierdzenie do klienta, który wysłał wiadomość
       server.sendChatText(
         client,
-        `[Whisper to ${targetPlayerName}]: ${message}` // Używamy oryginalnej nazwy z args[0]
+        `[Whisper to ${targetPlayerName}]: ${message}`
       );
 
-      // Wysyłamy wiadomość do docelowego klienta TYLKO jeśli istnieje i jest typu Client
       if (targetClient instanceof Client) {
         server.sendChatText(
           targetClient,
@@ -571,22 +563,9 @@ export const commands: Array<Command> = [
         return;
       }
 
-      const targetPlayerName = client.character.lastWhisperedPlayer; // Nazwa gracza, do którego odpowiadamy
+      const targetPlayerName = client.character.lastWhisperedPlayer;
       let targetClient = server.getClientByNameOrLoginSession(targetPlayerName);
 
-      // W przypadku komendy /r, możesz chcieć spróbować znaleźć gracza offline,
-      // jeśli nie jest online. Ale jeśli chcesz symulować wysłanie zawsze,
-      // ten blok powinien być bardziej rozbudowany lub usunięty.
-      // Na potrzeby "udawania wysłania" usuwamy ten blok, aby nie blokować odpowiedzi.
-      /*
-            if (!targetClient) {
-              targetClient = await server.getOfflineClientByName(
-                client.character.lastWhisperedPlayer
-              );
-            }
-            */
-
-      // Sprawdzamy, czy nadawca jest wyciszony globalnie
       if (await server.chatManager.checkMute(server, client)) {
         server.sendChatText(
           client,
@@ -595,9 +574,7 @@ export const commands: Array<Command> = [
         return;
       }
 
-      // TYLKO JEŚLI targetClient JEST OBIEKTEM CLIENT
       if (targetClient instanceof Client) {
-        // Sprawdzamy czy to nie jest wiadomość do samego siebie
         if (
           targetClient.character?.characterId == client.character.characterId
         ) {
@@ -605,7 +582,6 @@ export const commands: Array<Command> = [
           return;
         }
 
-        // Jeśli targetClient istnieje i ma Cię wyciszonego, zablokuj wiadomość
         if (
           targetClient.character?.mutedCharacters?.includes(
             client.character.characterId
@@ -618,24 +594,19 @@ export const commands: Array<Command> = [
           return;
         }
 
-        // Ustawienie ostatnio szeptanego gracza TYLKO jeśli targetClient faktycznie istnieje i jest Clientem
         client.character.lastWhisperedPlayer = targetClient.character.name;
         targetClient.character.lastWhisperedPlayer = client.character.name;
       } else {
-        // Jeśli targetClient nie jest Clientem (np. jest undefined, bo gracz offline),
-        // to client.character.lastWhisperedPlayer już wskazuje na targetPlayerName, więc nie ma potrzeby zmiany.
-        // Ewentualnie możesz tutaj dodać logikę, jeśli chcesz coś innego robić w przypadku offline.
+
       }
 
       const message = args.join(" ");
 
-      // Zawsze wysyłamy potwierdzenie do klienta, który wysłał wiadomość
       server.sendChatText(
         client,
-        `[Reply to ${targetPlayerName}]: ${message}` // Używamy targetPlayerName
+        `[Reply to ${targetPlayerName}]: ${message}`
       );
 
-      // Wysyłamy wiadomość do docelowego klienta TYLKO jeśli istnieje i jest typu Client
       if (targetClient instanceof Client) {
         server.sendChatText(
           targetClient,
