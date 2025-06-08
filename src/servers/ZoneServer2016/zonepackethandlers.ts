@@ -1193,7 +1193,7 @@ export class ZonePacketHandlers {
   ) {
     // Early exit if no data or transientId is missing
     const packetData = packet.data;
-    if (!packetData || !packetData.transientId) {
+    if (!packetData || packetData.transientId == undefined) {
       console.log("TransientId error detected", packet);
       return;
     }
