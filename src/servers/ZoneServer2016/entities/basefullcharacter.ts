@@ -777,7 +777,6 @@ export abstract class BaseFullCharacter extends BaseLightweightCharacter {
 
     const items: { [itemGuid: string]: BaseItem } = {};
     Object.values(this._loadout).forEach((itemData) => {
-      console.log("DeathItems:", itemData.itemDefinitionId, itemData);
       if (
         // Allow all items except admin items
         !server.isAdminItem(itemData.itemDefinitionId) &&
