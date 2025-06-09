@@ -269,9 +269,10 @@ export const commands: Array<Command> = [
 
         server.sendChatText(
           client,
-          `Uptime: ${uptimeMin < 60
-            ? `${uptimeMin.toFixed()}m`
-            : `${(uptimeMin / 60).toFixed()}h `
+          `Uptime: ${
+            uptimeMin < 60
+              ? `${uptimeMin.toFixed()}m`
+              : `${(uptimeMin / 60).toFixed()}h `
           }`
         );
         if (client.isAdmin) {
@@ -295,7 +296,8 @@ export const commands: Array<Command> = [
       const pop = _.size(server._clients);
       server.sendChatText(
         client,
-        `There ${pop > 1 ? "are" : "is"} ${pop} player${pop > 1 ? "s" : ""
+        `There ${pop > 1 ? "are" : "is"} ${pop} player${
+          pop > 1 ? "s" : ""
         } online.`
       );
     }
@@ -410,8 +412,6 @@ export const commands: Array<Command> = [
     permissionLevel: PermissionLevels.DEFAULT,
     execute: (server: ZoneServer2016, client: Client, args: Array<string>) => {
       if (server.isPvE) {
-
-
         const animationId = Number(args[0]);
         if (!animationId || animationId > MAX_UINT32) {
           server.sendChatText(client, "Usage /emote <id>");
@@ -1174,13 +1174,15 @@ export const commands: Array<Command> = [
         time += Date.now();
         server.sendChatText(
           client,
-          `You have ${isSilent ? "silently " : ""
+          `You have ${
+            isSilent ? "silently " : ""
           }banned ${character?.characterName} until ${getDateString(time)}`
         );
       } else {
         server.sendChatText(
           client,
-          `You have ${isSilent ? "silently " : ""
+          `You have ${
+            isSilent ? "silently " : ""
           }banned ${character?.characterName} permanently`
         );
       }
@@ -1253,13 +1255,15 @@ export const commands: Array<Command> = [
         time += Date.now();
         server.sendChatText(
           client,
-          `You have ${isSilent ? "silently " : ""
+          `You have ${
+            isSilent ? "silently " : ""
           }banned ${character?.characterName} until ${getDateString(time)}`
         );
       } else {
         server.sendChatText(
           client,
-          `You have ${isSilent ? "silently " : ""
+          `You have ${
+            isSilent ? "silently " : ""
           }banned ${character?.characterName} permanently`
         );
       }
@@ -1616,7 +1620,8 @@ export const commands: Array<Command> = [
         time += Date.now();
         server.sendChatText(
           client,
-          `You have muted ${targetClient.character.name
+          `You have muted ${
+            targetClient.character.name
           } until ${getDateString(time)}`
         );
       } else {
@@ -1851,12 +1856,14 @@ export const commands: Array<Command> = [
       server.inGameTimeManager.time = time;
       server.sendChatText(
         client,
-        `Will force time to be ${choosenHour % 1 >= 0.5
-          ? Number(choosenHour.toFixed(0)) - 1
-          : choosenHour.toFixed(0)
-        }:${choosenHour % 1 === 0
-          ? "00"
-          : (((choosenHour % 1) * 100 * 60) / 100).toFixed(0)
+        `Will force time to be ${
+          choosenHour % 1 >= 0.5
+            ? Number(choosenHour.toFixed(0)) - 1
+            : choosenHour.toFixed(0)
+        }:${
+          choosenHour % 1 === 0
+            ? "00"
+            : (((choosenHour % 1) * 100 * 60) / 100).toFixed(0)
         } on next sync...`,
         true
       );
@@ -2466,8 +2473,10 @@ export const commands: Array<Command> = [
         }
         server.sendChatText(
           client,
-          `Adding ${count}x item${count == 1 ? "" : "s"
-          } with id ${itemDefId} to player ${targetClient ? targetClient.character.name : client.character.name
+          `Adding ${count}x item${
+            count == 1 ? "" : "s"
+          } with id ${itemDefId} to player ${
+            targetClient ? targetClient.character.name : client.character.name
           }`
         );
         (targetClient ? targetClient.character : client.character).lootItem(
@@ -2477,7 +2486,8 @@ export const commands: Array<Command> = [
       } else {
         server.sendChatText(
           client,
-          `Adding ${count}x item${count == 1 ? "" : "s"
+          `Adding ${count}x item${
+            count == 1 ? "" : "s"
           } with id ${itemDefId} to player ${client.character.name}`
         );
         client.character.lootItem(server, item);
@@ -3142,7 +3152,8 @@ export const commands: Array<Command> = [
           counter++;
           server.sendChatText(
             client,
-            `${counter}. ${name ? name : item.itemDefinitionId}, count: ${item.stackCount
+            `${counter}. ${name ? name : item.itemDefinitionId}, count: ${
+              item.stackCount
             }`
           );
         }
@@ -3158,7 +3169,8 @@ export const commands: Array<Command> = [
           )?.NAME;
           server.sendChatText(
             client,
-            `${containerName ? containerName : container.itemDefinitionId
+            `${
+              containerName ? containerName : container.itemDefinitionId
             } [${container.getUsedBulk(server)}/${container.getMaxBulk(
               server
             )}]:`
@@ -3170,7 +3182,8 @@ export const commands: Array<Command> = [
             )?.NAME;
             server.sendChatText(
               client,
-              `${counter}. ${itemName ? itemName : item.itemDefinitionId
+              `${counter}. ${
+                itemName ? itemName : item.itemDefinitionId
               }, count: ${item.stackCount}`
             );
           });
