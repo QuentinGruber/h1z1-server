@@ -2370,8 +2370,11 @@ export const commands: Array<Command> = [
         return;
       }
 
+      const rewardKey = Items[rewardId];
+      const prettyName = prettifyRewardName(rewardKey);
+
       server.sendAlertToAll(
-        `Admin ${client.character.name} has just initiated a Crate Drop!`
+        `Admin ${client.character.name} rewarded all connected players with ${prettyName}`
       );
       for (const key in server._clients) {
         const c = server._clients[key];
