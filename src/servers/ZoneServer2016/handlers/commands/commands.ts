@@ -2335,34 +2335,53 @@ export const commands: Array<Command> = [
     name: "giverewardtoall",
     permissionLevel: PermissionLevels.ADMIN,
     execute: (server: ZoneServer2016, client: Client, args: Array<string>) => {
-      if (!args[0]) {
+      if (!args.length) {
         server.sendChatText(
           client,
-          "[ERROR] Usage /giverewardtoall {itemDefinitionId}"
-        );
-        return;
-      }
-      const rewardId = Number(args[0]);
-      const validRewardItem = server.rewardManager.rewards.some(
-        (v) => v.itemId === rewardId
-      );
-      if (!validRewardItem) {
-        server.sendChatText(
-          client,
-          `[ERROR] ${rewardId} isn't a valid reward item`
+          "[ERROR] Usage /giverewardtoall {itemDefinitionId} [itemDefinitionId ...]"
         );
         return;
       }
 
-      const rewardKey = Items[rewardId];
-      const prettyName = prettifyRewardName(rewardKey);
+      // Collect valid reward IDs and pretty names
+      const rewardIds: number[] = [];
+      const prettyNames: string[] = [];
+      const invalid: string[] = [];
 
-      server.sendAlertToAll(
-        `Admin ${client.character.name} rewarded all connected players with ${prettyName}`
-      );
+      for (const arg of args) {
+        const rewardId = Number(arg);
+        const validRewardItem = server.rewardManager.rewards.some(
+          (v) => v.itemId === rewardId
+        );
+        if (!validRewardItem) {
+          invalid.push(arg);
+          continue;
+        }
+        rewardIds.push(rewardId);
+        const rewardKey = Items[rewardId];
+        prettyNames.push(prettifyRewardName(rewardKey));
+      }
+
+      if (!rewardIds.length) {
+        server.sendChatText(
+          client,
+          `[ERROR] No valid reward itemDefinitionIds provided.${invalid.length ? " ID: " + invalid.join(", ") : ""}`
+        );
+        return;
+      }
+
+      for (let index = 0; index < prettyNames.length; index++) {
+        const name = prettyNames[index];
+        server.sendAlertToAll(
+          `Admin ${client.character.name} rewarded all connected players with ${name}`
+        );
+      }
+
       for (const key in server._clients) {
         const c = server._clients[key];
-        server.rewardManager.addRewardToPlayer(c, rewardId);
+        for (const rewardId of rewardIds) {
+          server.rewardManager.addRewardToPlayer(c, rewardId);
+        }
       }
     }
   },
