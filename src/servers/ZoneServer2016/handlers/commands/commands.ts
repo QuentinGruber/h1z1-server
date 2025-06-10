@@ -2353,8 +2353,12 @@ export const commands: Array<Command> = [
         );
         return;
       }
+
+      const rewardKey = Items[rewardId];
+      const prettyName = prettifyRewardName(rewardKey);
+
       server.sendAlertToAll(
-        `Admin ${client.character.name} rewarded all connected players with ${Items[rewardId]}`
+        `Admin ${client.character.name} rewarded all connected players with ${prettyName}`
       );
       for (const key in server._clients) {
         const c = server._clients[key];
@@ -3530,3 +3534,15 @@ export const commands: Array<Command> = [
 
   //#endregion
 ];
+
+function prettifyRewardName(rewardKey: string): string {
+  // Remove "REWARD_CRATE_" prefix if present
+  let name = rewardKey.replace(/^REWARD_CRATE_/, "");
+  // Replace underscores with spaces, lowercase everything
+  name = name.replace(/_/g, " ").toLowerCase();
+  // Move "crate" to the end if not already
+  if (!name.endsWith(" crate")) {
+    name = name + " crate";
+  }
+  return name;
+}

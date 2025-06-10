@@ -101,7 +101,7 @@ export class RewardManager {
         dropChances: 10
       },
       {
-        itemId: AccountItems.REWARD_CRATE_H1EMUEX,
+        itemId: AccountItems.REWARD_CRATE_H1EMUEXCLUSIVE,
         dropChances: 0
       }
     ];
