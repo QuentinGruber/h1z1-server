@@ -2370,12 +2370,13 @@ export const commands: Array<Command> = [
         return;
       }
 
-      const rewardKey = Items[rewardId];
-      const prettyName = prettifyRewardName(rewardKey);
-
-      server.sendAlertToAll(
-        `Admin ${client.character.name} rewarded all connected players with ${prettyName}`
+      for (let index = 0; index < prettyNames.length; index++) {
+        const name = prettyNames[index];
+        server.sendAlertToAll(
+        `Admin ${client.character.name} rewarded all connected players with ${name}`
       );
+      }
+      
       for (const key in server._clients) {
         const c = server._clients[key];
         for (const rewardId of rewardIds) {
