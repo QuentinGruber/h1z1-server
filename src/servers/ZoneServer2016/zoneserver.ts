@@ -6162,46 +6162,71 @@ export class ZoneServer2016 extends EventEmitter {
     return itemDef?.ITEM_CLASS == 25000 && itemDef?.IS_ARMOR == 1;
   }
 
-/**
- * Checks if an item with the specified itemDefinitionId is a MilitaryTan backpack.
- *
- * @param {number} itemDefinitionId - The itemDefinitionId to check.
- * @returns {boolean} True if the item is a MilitaryTan bag, false otherwise.
- */
-isMilitaryTan(itemDefinitionId: number): boolean {
-  const militaryTanBag = [
-    Items.BACKPACK_MILITARY_TAN,
-    2118,2119,2120,2121,2122,2123,2124,2393,2777,2778,3046,3169,5022,5033,3042,3043,3044,3045,3046,3047,3169,3403,3583,4008,4009,4010,4011,5012,
-  ];
-  return militaryTanBag.includes(itemDefinitionId);
-}
+  /**
+   * Checks if an item with the specified itemDefinitionId is a MilitaryTan backpack.
+   *
+   * @param {number} itemDefinitionId - The itemDefinitionId to check.
+   * @returns {boolean} True if the item is a MilitaryTan bag, false otherwise.
+   */
+  isMilitaryTan(itemDefinitionId: number): boolean {
+    const militaryTanBag = [
+      Items.BACKPACK_MILITARY_TAN,
+      2118,
+      2119,
+      2120,
+      2121,
+      2122,
+      2123,
+      2124,
+      2393,
+      2777,
+      2778,
+      3046,
+      3169,
+      5022,
+      5033,
+      3042,
+      3043,
+      3044,
+      3045,
+      3046,
+      3047,
+      3169,
+      3403,
+      3583,
+      4008,
+      4009,
+      4010,
+      4011,
+      5012
+    ];
+    return militaryTanBag.includes(itemDefinitionId);
+  }
 
-/**
- * Checks if an item with the specified itemDefinitionId is a Framed bag.
- *
- * @param {number} itemDefinitionId - The itemDefinitionId to check.
- * @returns {boolean} True if the item is a MilitaryTan bag, false otherwise.
- */
-isFramedBp(itemDefinitionId: number): boolean {
-  const BACKPACK_FRAMED = [
-    Items.BACKPACK_FRAMED,
-    1995,2073,2111,
-  ];
-  return BACKPACK_FRAMED.includes(itemDefinitionId);
-}
+  /**
+   * Checks if an item with the specified itemDefinitionId is a Framed bag.
+   *
+   * @param {number} itemDefinitionId - The itemDefinitionId to check.
+   * @returns {boolean} True if the item is a MilitaryTan bag, false otherwise.
+   */
+  isFramedBp(itemDefinitionId: number): boolean {
+    const BACKPACK_FRAMED = [Items.BACKPACK_FRAMED, 1995, 2073, 2111];
+    return BACKPACK_FRAMED.includes(itemDefinitionId);
+  }
 
-/**
- * Checks if an item with the specified itemDefinitionId is a Small backpack (1000 bulk).
- *
- * @param {number} itemDefinitionId - The itemDefinitionId to check.
- * @returns {boolean} True if the item is a MilitaryTan bag, false otherwise.
- */
-isBackpack(itemDefinitionId: number): boolean {
-  const Small_Backpack = [
-    2051,2072,2112,2113,2114,2115,2116,2117,2038,3643,3644,3742,3798
-  ];
-  return Small_Backpack.includes(itemDefinitionId);
-}
+  /**
+   * Checks if an item with the specified itemDefinitionId is a Small backpack (1000 bulk).
+   *
+   * @param {number} itemDefinitionId - The itemDefinitionId to check.
+   * @returns {boolean} True if the item is a MilitaryTan bag, false otherwise.
+   */
+  isBackpack(itemDefinitionId: number): boolean {
+    const Small_Backpack = [
+      2051, 2072, 2112, 2113, 2114, 2115, 2116, 2117, 2038, 3643, 3644, 3742,
+      3798
+    ];
+    return Small_Backpack.includes(itemDefinitionId);
+  }
 
   /**
    * Checks if an item with the specified itemDefinitionId is a convey.
