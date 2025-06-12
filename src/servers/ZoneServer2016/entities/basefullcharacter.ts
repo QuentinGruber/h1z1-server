@@ -771,16 +771,14 @@ export abstract class BaseFullCharacter extends BaseLightweightCharacter {
     // --- End durability loss ---
 
     // --- Durability loss for MilitaryTan bag on death ---
-    const bag = this._loadout[LoadoutSlots.BACK];
-    if (bag && server.isMilitaryTan(bag.itemDefinitionId)) {
-      bag.currentDurability = (bag.currentDurability || 0) - 334; /// 6 Lifes/Tan
-      if (bag.currentDurability <= 0) {
-        server.removeInventoryItem(this, bag);
+    const MilitaryTan = this._loadout[LoadoutSlots.BACK];
+    if (MilitaryTan && server.isMilitaryTan(MilitaryTan.itemDefinitionId)) {
+      MilitaryTan.currentDurability = (MilitaryTan.currentDurability || 0) - 334; /// 6 Lifes/Tan
+      if (MilitaryTan.currentDurability <= 0) {
+        server.removeInventoryItem(this, MilitaryTan);
         this.lootContainerItem(server, server.generateItem(Items.CLOTH, 4));
         this.lootContainerItem(server, server.generateItem(Items.TWINE, 1));
-        this.lootContainerItem(
-          server,
-          server.generateItem(Items.METAL_BRACKET, 1)
+        this.lootContainerItem(server,server.generateItem(Items.METAL_BRACKET, 1)
         );
       }
     }
@@ -790,7 +788,6 @@ export abstract class BaseFullCharacter extends BaseLightweightCharacter {
     const smallBackpack = this._loadout[LoadoutSlots.BACK];
     if (
       smallBackpack &&
-      server.isBackpack &&
       server.isBackpack(smallBackpack.itemDefinitionId)
     ) {
       smallBackpack.currentDurability =
@@ -806,7 +803,6 @@ export abstract class BaseFullCharacter extends BaseLightweightCharacter {
     const framedBackpack = this._loadout[LoadoutSlots.BACK];
     if (
       framedBackpack &&
-      server.isFramedBp &&
       server.isFramedBp(framedBackpack.itemDefinitionId)
     ) {
       framedBackpack.currentDurability =
