@@ -52,12 +52,9 @@ import {
   ResourceIndicators,
   isBackpack,
   isMilitaryTan,
-  isFramedBp,
-  
-  
+  isFramedBp
 } from "./models/enums";
 import { WeatherManager } from "./managers/weathermanager";
-
 
 import {
   AccountDefinition,
@@ -6175,9 +6172,8 @@ export class ZoneServer2016 extends EventEmitter {
    * @returns {boolean} True if the item is a MilitaryTan bag, false otherwise.
    */
   isMilitaryTan(itemDefinitionId: number): boolean {
-  return Object.values(isMilitaryTan).includes(itemDefinitionId);
-}
-  
+    return Object.values(isMilitaryTan).includes(itemDefinitionId);
+  }
 
   /**
    * Checks if an item with the specified itemDefinitionId is a Framed bag.
@@ -6185,8 +6181,8 @@ export class ZoneServer2016 extends EventEmitter {
    * @param {number} itemDefinitionId - The itemDefinitionId to check.
    * @returns {boolean} True if the item is a MilitaryTan bag, false otherwise.
    */
-  isFramedBp (itemDefinitionId: number): boolean {
-  return Object.values(isFramedBp).includes(itemDefinitionId);
+  isFramedBp(itemDefinitionId: number): boolean {
+    return Object.values(isFramedBp).includes(itemDefinitionId);
   }
 
   /**
@@ -6195,8 +6191,8 @@ export class ZoneServer2016 extends EventEmitter {
    * @param {number} itemDefinitionId - The itemDefinitionId to check.
    * @returns {boolean} True if the item is a MilitaryTan bag, false otherwise.
    */
-    isBackpack(itemDefinitionId: number): boolean {
-  return Object.values(isBackpack).includes(itemDefinitionId);
+  isBackpack(itemDefinitionId: number): boolean {
+    return Object.values(isBackpack).includes(itemDefinitionId);
   }
 
   /**
