@@ -27,7 +27,7 @@ import {
   getCurrentServerTimeWrapper,
   getDateString,
   isHalloween,
-  isChristmasSeason as isChristmasSeason
+  isChristmasSeason
 } from "../../utils/utils";
 
 import { CraftManager } from "./managers/craftmanager";
@@ -3783,6 +3783,7 @@ export class ZonePacketHandlers {
           );
 
           server._rewardCrateDefinitions.forEach((crate) => {
+            if (crate.excludeFromExchange) return; // Skip excluded crates
             if (
               crate.rewards.some(
                 (reward) =>

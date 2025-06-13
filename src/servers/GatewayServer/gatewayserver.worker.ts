@@ -81,8 +81,7 @@ export interface ClientInfoMessage {
 clientInfoChannel.on("message", (msg: ClientInfoMessage) => {
   const fn = gatewayServer[msg.fnName];
   if (fn) {
-    // FIXME: idk how to type this
-    // @ts-expect-error
+    // @ts-expect-error idk how to type this
     const result = fn.call(gatewayServer, msg.soeClientId);
     clientInfoChannel.postMessage({ requestId: msg.requestId, result });
   }

@@ -49,7 +49,10 @@ import {
   ModelIds,
   ItemTypes,
   ItemClasses,
-  ResourceIndicators
+  ResourceIndicators,
+  Backpack1000,
+  MilitaryTan,
+  FramedBackpack
 } from "./models/enums";
 import { WeatherManager } from "./managers/weathermanager";
 
@@ -1037,7 +1040,7 @@ export class ZoneServer2016 extends EventEmitter {
     return Boolean(
       await this._db
         ?.collection(DB_COLLECTIONS.ADMINS)
-        .findOne({ sessionId: loginSessionId })
+        .findOne({ sessionId: loginSessionId, permissionLevel: { $ne: 0 } })
     );
   }
 
@@ -2565,7 +2568,9 @@ export class ZoneServer2016 extends EventEmitter {
     const pos = client.character.state.position;
     if (client.character.spawnGridData.length < 100) {
       // attemt to fix broken spawn grid after unban
-      client.character.spawnGridData = new Array(100).fill(0);
+      client.character.spawnGridData = Array.from<number>({ length: 100 }).fill(
+        0
+      );
     }
     this._spawnGrid.forEach((spawnCell: SpawnCell) => {
       // find current grid and add it to blocked ones
@@ -6161,6 +6166,36 @@ export class ZoneServer2016 extends EventEmitter {
   }
 
   /**
+   * Checks if an item with the specified itemDefinitionId is a MilitaryTan backpack.
+   *
+   * @param {number} itemDefinitionId - The itemDefinitionId to check.
+   * @returns {boolean} True if the item is a MilitaryTan bag, false otherwise.
+   */
+  isMilitaryTan(itemDefinitionId: number): boolean {
+    return Object.values(MilitaryTan).includes(itemDefinitionId);
+  }
+
+  /**
+   * Checks if an item with the specified itemDefinitionId is a Framed bag.
+   *
+   * @param {number} itemDefinitionId - The itemDefinitionId to check.
+   * @returns {boolean} True if the item is a MilitaryTan bag, false otherwise.
+   */
+  isFramedBp(itemDefinitionId: number): boolean {
+    return Object.values(FramedBackpack).includes(itemDefinitionId);
+  }
+
+  /**
+   * Checks if an item with the specified itemDefinitionId is a Small backpack (1000 bulk).
+   *
+   * @param {number} itemDefinitionId - The itemDefinitionId to check.
+   * @returns {boolean} True if the item is a MilitaryTan bag, false otherwise.
+   */
+  isBackpack(itemDefinitionId: number): boolean {
+    return Object.values(Backpack1000).includes(itemDefinitionId);
+  }
+
+  /**
    * Checks if an item with the specified itemDefinitionId is a convey.
    *
    * @param {number} itemDefinitionId - The itemDefinitionId to check.
@@ -8916,7 +8951,7 @@ export class ZoneServer2016 extends EventEmitter {
   //#endregion
 
   async reloadZonePacketHandlers() {
-    //@ts-expect-error
+    //@ts-expect-error we reload it
     delete this._packetHandlers;
     delete require.cache[require.resolve("./zonepackethandlers")];
     this._packetHandlers =
