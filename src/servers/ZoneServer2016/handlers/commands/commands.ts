@@ -2365,61 +2365,54 @@ export const commands: Array<Command> = [
       client.character.mountedContainer.lootItem(server, item);
     }
   },
-  {
-    name: "giverewardtoall",
-    permissionLevel: PermissionLevels.ADMIN,
-    execute: (server: ZoneServer2016, client: Client, args: Array<string>) => {
-      if (!args.length) {
-        server.sendChatText(
-          client,
-          "[ERROR] Usage /giverewardtoall {CrateID} [CrateID ...]"
-        );
-        return;
-      }
-
-      // Collect valid reward IDs and pretty names
-      const rewardIds: number[] = [];
-      const prettyNames: string[] = [];
-      const invalid: string[] = [];
-
-      for (const arg of args) {
-        const rewardId = Number(arg);
-        const validRewardItem = server.rewardManager.rewards.some(
-          (v) => v.itemId === rewardId
-        );
-        if (!validRewardItem) {
-          invalid.push(arg);
-          continue;
-        }
-        rewardIds.push(rewardId);
-        const rewardKey = Items[rewardId];
-        prettyNames.push(prettifyRewardName(rewardKey));
-      }
-
-      if (!rewardIds.length) {
-        server.sendChatText(
-          client,
-          `[ERROR] ${invalid.length ? " Crate ID: " + invalid.join(", ") : ""} is not valid`
-        );
-        return;
-      }
-
-      server.sendAlertToAll(
-        `Admin ${client.character.name} has just initiated a crate drop`
+{
+  name: "giverewardtoall",
+  permissionLevel: PermissionLevels.ADMIN,
+  execute: (server: ZoneServer2016, client: Client, args: Array<string>) => {
+    if (!args.length) {
+      server.sendChatText(
+        client,
+        "[ERROR] Usage /giverewardtoall {CrateID} [CrateID ...]"
       );
+      return;
+    }
 
-      for (let index = 0; index < prettyNames.length; index++) {
-        const name = prettyNames[index];
+    // Collect valid reward IDs
+    const rewardIds: number[] = [];
+    const invalid: string[] = [];
+
+    for (const arg of args) {
+      const rewardId = Number(arg);
+      const validRewardItem = server.rewardManager.rewards.some(
+        (v) => v.itemId === rewardId
+      );
+      if (!validRewardItem) {
+        invalid.push(arg);
+        continue;
       }
+      rewardIds.push(rewardId);
+    }
 
-      for (const key in server._clients) {
-        const c = server._clients[key];
-        for (const rewardId of rewardIds) {
-          server.rewardManager.addRewardToPlayer(c, rewardId);
-        }
+    if (!rewardIds.length) {
+      server.sendChatText(
+        client,
+        `[ERROR]${invalid.length ? " Crate ID: " + invalid.join(", ") : ""} is not valid`
+      );
+      return;
+    }
+
+    server.sendAlertToAll(
+      `Admin ${client.character.name} has just initiated a crate drop`
+    );
+
+    for (const key in server._clients) {
+      const c = server._clients[key];
+      for (const rewardId of rewardIds) {
+        server.rewardManager.addRewardToPlayer(c, rewardId);
       }
     }
-  },
+  }
+},
   {
     name: "givereward",
     permissionLevel: PermissionLevels.ADMIN,
@@ -3589,14 +3582,3 @@ export const commands: Array<Command> = [
   //#endregion
 ];
 
-function prettifyRewardName(rewardKey: string): string {
-  // Remove "REWARD_CRATE_" prefix if present
-  let name = rewardKey.replace(/^REWARD_CRATE_/, "");
-  // Replace underscores with spaces, lowercase everything
-  name = name.replace(/_/g, " ").toLowerCase();
-  // Move "crate" to the end if not already
-  if (!name.endsWith(" crate")) {
-    name = name + " crate";
-  }
-  return name;
-}
