@@ -1485,7 +1485,7 @@ export const lootTables: { [lootSpawner: string]: LootSpawner } = {
       },
       {
         item: Items.LANDMINE,
-        weight: 100,
+        weight: 50,
         spawnCount: {
           min: 1,
           max: 1
@@ -1984,7 +1984,7 @@ export const lootTables: { [lootSpawner: string]: LootSpawner } = {
       },
       {
         item: Items.LANDMINE,
-        weight: 100,
+        weight: 50,
         spawnCount: {
           min: 1,
           max: 1
