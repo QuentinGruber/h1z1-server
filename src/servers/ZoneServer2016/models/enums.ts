@@ -2491,7 +2491,7 @@ export enum DefaultSkinsBackpack {
   DEFAULT_BLUE_ORANGE = 2038
 }
 
-export enum isMilitaryTan {
+export enum MilitaryTan {
   BLACK_MILITARY = 2118,
   BLUE_MILITARY = 2119,
   BLUE_CAMO_MILITARY = 2120,
@@ -2525,7 +2525,7 @@ export enum isMilitaryTan {
   RAINBOW_CHECK_WESTERN_MILITARY = 5088
 }
 
-export enum isBackpack {
+export enum Backpack1000 {
   CAMOUFLAGE_BACKPACK = 2051,
   GREY_YELLOW_BACKPACK = 2072,
   BLACK_BACKPACK = 2112,
@@ -2541,7 +2541,7 @@ export enum isBackpack {
   FOUNDERS_BACKPACK = 3798
 }
 
-export enum isFramedBp {
+export enum FramedBackpack {
   ANIMAL_HIDE_FRAMED_BACKPACK = 1995,
   FRAMED_BACKPACK = 2111
 }
