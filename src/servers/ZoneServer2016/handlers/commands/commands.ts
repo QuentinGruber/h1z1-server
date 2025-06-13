@@ -2372,7 +2372,7 @@ export const commands: Array<Command> = [
       if (!args.length) {
         server.sendChatText(
           client,
-          "[ERROR] Usage /giverewardtoall {itemDefinitionId} [itemDefinitionId ...]"
+          "[ERROR] Usage /giverewardtoall {CrateID} [CrateID ...]"
         );
         return;
       }
@@ -2399,17 +2399,20 @@ export const commands: Array<Command> = [
       if (!rewardIds.length) {
         server.sendChatText(
           client,
-          `[ERROR] No valid reward itemDefinitionIds provided.${invalid.length ? " ID: " + invalid.join(", ") : ""}`
+          `[ERROR] ${invalid.length ? " Crate ID: " + invalid.join(", ") : ""} is not valid`
         );
         return;
       }
 
-      for (let index = 0; index < prettyNames.length; index++) {
-        const name = prettyNames[index];
+
         server.sendAlertToAll(
-          `Admin ${client.character.name} rewarded all connected players with ${name}`
-        );
-      }
+            `Admin ${client.character.name} has just initiated a crate drop`
+);
+
+for (let index = 0; index < prettyNames.length; index++) {
+  const name = prettyNames[index];
+ 
+}
 
       for (const key in server._clients) {
         const c = server._clients[key];
