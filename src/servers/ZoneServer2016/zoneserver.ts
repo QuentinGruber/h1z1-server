@@ -50,9 +50,9 @@ import {
   ItemTypes,
   ItemClasses,
   ResourceIndicators,
-  isBackpack,
-  isMilitaryTan,
-  isFramedBp
+  Backpack1000,
+  MilitaryTan,
+  FramedBackpack
 } from "./models/enums";
 import { WeatherManager } from "./managers/weathermanager";
 
@@ -6172,7 +6172,7 @@ export class ZoneServer2016 extends EventEmitter {
    * @returns {boolean} True if the item is a MilitaryTan bag, false otherwise.
    */
   isMilitaryTan(itemDefinitionId: number): boolean {
-    return Object.values(isMilitaryTan).includes(itemDefinitionId);
+    return Object.values(MilitaryTan).includes(itemDefinitionId);
   }
 
   /**
@@ -6182,7 +6182,7 @@ export class ZoneServer2016 extends EventEmitter {
    * @returns {boolean} True if the item is a MilitaryTan bag, false otherwise.
    */
   isFramedBp(itemDefinitionId: number): boolean {
-    return Object.values(isFramedBp).includes(itemDefinitionId);
+    return Object.values(FramedBackpack).includes(itemDefinitionId);
   }
 
   /**
@@ -6192,7 +6192,7 @@ export class ZoneServer2016 extends EventEmitter {
    * @returns {boolean} True if the item is a MilitaryTan bag, false otherwise.
    */
   isBackpack(itemDefinitionId: number): boolean {
-    return Object.values(isBackpack).includes(itemDefinitionId);
+    return Object.values(Backpack1000).includes(itemDefinitionId);
   }
 
   /**
