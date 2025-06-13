@@ -1255,6 +1255,27 @@ export const lootTables: { [lootSpawner: string]: LootSpawner } = {
       }
     ]
   },
+  GasStation: {
+    spawnChance: 100,
+    items: [
+      {
+        item: Items.FUEL_ETHANOL,
+        weight: 100,
+        spawnCount: {
+          min: 1,
+          max: 1
+        }
+      },
+      {
+        item: Items.FUEL_BIOFUEL,
+        weight: 100,
+        spawnCount: {
+          min: 1,
+          max: 1
+        }
+      }
+    ]
+  },
   // #endregion
 
   // #region FARM
@@ -1464,7 +1485,7 @@ export const lootTables: { [lootSpawner: string]: LootSpawner } = {
       },
       {
         item: Items.LANDMINE,
-        weight: 100,
+        weight: 50,
         spawnCount: {
           min: 1,
           max: 1
@@ -1828,7 +1849,7 @@ export const lootTables: { [lootSpawner: string]: LootSpawner } = {
       },
       {
         item: Items.LANDMINE,
-        weight: 50,
+        weight: 100,
         spawnCount: {
           min: 1,
           max: 1
@@ -1956,6 +1977,14 @@ export const lootTables: { [lootSpawner: string]: LootSpawner } = {
       {
         item: Items.FUEL_BIOFUEL,
         weight: 100,
+        spawnCount: {
+          min: 1,
+          max: 1
+        }
+      },
+      {
+        item: Items.LANDMINE,
+        weight: 50,
         spawnCount: {
           min: 1,
           max: 1
@@ -2209,6 +2238,14 @@ export const containerLootSpawners: {
       {
         item: Items.WEAPON_AR15,
         weight: 20,
+        spawnCount: {
+          min: 1,
+          max: 1
+        }
+      },
+      {
+        item: Items.BACKPACK_MILITARY_TAN,
+        weight: 25,
         spawnCount: {
           min: 1,
           max: 1
