@@ -2404,15 +2404,13 @@ export const commands: Array<Command> = [
         return;
       }
 
+      server.sendAlertToAll(
+        `Admin ${client.character.name} has just initiated a crate drop`
+      );
 
-        server.sendAlertToAll(
-            `Admin ${client.character.name} has just initiated a crate drop`
-);
-
-for (let index = 0; index < prettyNames.length; index++) {
-  const name = prettyNames[index];
- 
-}
+      for (let index = 0; index < prettyNames.length; index++) {
+        const name = prettyNames[index];
+      }
 
       for (const key in server._clients) {
         const c = server._clients[key];
