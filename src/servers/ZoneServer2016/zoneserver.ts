@@ -49,7 +49,10 @@ import {
   ModelIds,
   ItemTypes,
   ItemClasses,
-  ResourceIndicators
+  ResourceIndicators,
+  isBackpack,
+  isMilitaryTan,
+  isFramedBp
 } from "./models/enums";
 import { WeatherManager } from "./managers/weathermanager";
 
@@ -6160,6 +6163,36 @@ export class ZoneServer2016 extends EventEmitter {
   isHelmet(itemDefinitionId: number): boolean {
     const itemDef = this.getItemDefinition(itemDefinitionId);
     return itemDef?.ITEM_CLASS == 25000 && itemDef?.IS_ARMOR == 1;
+  }
+
+  /**
+   * Checks if an item with the specified itemDefinitionId is a MilitaryTan backpack.
+   *
+   * @param {number} itemDefinitionId - The itemDefinitionId to check.
+   * @returns {boolean} True if the item is a MilitaryTan bag, false otherwise.
+   */
+  isMilitaryTan(itemDefinitionId: number): boolean {
+    return Object.values(isMilitaryTan).includes(itemDefinitionId);
+  }
+
+  /**
+   * Checks if an item with the specified itemDefinitionId is a Framed bag.
+   *
+   * @param {number} itemDefinitionId - The itemDefinitionId to check.
+   * @returns {boolean} True if the item is a MilitaryTan bag, false otherwise.
+   */
+  isFramedBp(itemDefinitionId: number): boolean {
+    return Object.values(isFramedBp).includes(itemDefinitionId);
+  }
+
+  /**
+   * Checks if an item with the specified itemDefinitionId is a Small backpack (1000 bulk).
+   *
+   * @param {number} itemDefinitionId - The itemDefinitionId to check.
+   * @returns {boolean} True if the item is a MilitaryTan bag, false otherwise.
+   */
+  isBackpack(itemDefinitionId: number): boolean {
+    return Object.values(isBackpack).includes(itemDefinitionId);
   }
 
   /**
