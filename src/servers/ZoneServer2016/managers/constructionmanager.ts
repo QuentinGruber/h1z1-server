@@ -1488,7 +1488,7 @@ export class ConstructionManager {
         worldOwned,
         owner
       );
-    //npc.arm(server);
+    npc.arm();
     //temporarily disabled
     server._traps[characterId] = npc;
     server.spawnSimpleNpcForAllInRange(npc);
@@ -1516,8 +1516,7 @@ export class ConstructionManager {
         ownerCharacterId
       );
     if (npc.isLandmine()) {
-      //npc.arm(server);
-      //temporarily disabled
+      npc.arm(server);
     }
     server._explosives[characterId] = npc;
     server.spawnSimpleNpcForAllInRange(npc);

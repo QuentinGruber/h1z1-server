@@ -80,10 +80,7 @@ export class ItemObject extends BaseLightweightCharacter {
       if (this.triggerExplosionShots > 0) return;
       server.deleteEntity(this.characterId, server._spawnedItems);
       delete server.worldObjectManager.spawnedLootObjects[this.spawnerId];
-      server._explosives[this.characterId].detonate(
-        server,
-        server.getClientByCharId(damageInfo.entity)
-      );
+      server._explosives[this.characterId].detonate(damageInfo.entity);
     }
   }
 

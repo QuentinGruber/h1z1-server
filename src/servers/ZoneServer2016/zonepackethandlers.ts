@@ -392,15 +392,10 @@ export class ZonePacketHandlers {
       if (client.firstCharacterReleased) {
         server.challengeManager.loadChallenges(client);
         client.firstCharacterReleased = false;
-        // it's just for performance testing
-        // for (let index = 0; index < 100; index++) {
-        // this.aiManager.add_entity(client.character, EntityType.Player);
-        // }
-        if (server._soloMode || process.env.ENABLE_AI)
-          client.character.h1emu_ai_id = server.aiManager.add_entity(
-            client.character,
-            EntityType.Player
-          );
+        client.character.h1emu_ai_id = server.aiManager.add_entity(
+          client.character,
+          EntityType.Player
+        );
         if (
           server.voiceChatManager.useVoiceChatV2 &&
           server.voiceChatManager.joinVoiceChatOnConnect
@@ -1619,6 +1614,9 @@ export class ZonePacketHandlers {
 
       // Update character position
       client.character.state.position = position;
+      if (client.character.h1emu_ai_id) {
+        server.aiManager.update_pos(client.character.h1emu_ai_id, position);
+      }
 
       // Stop HUD timer if position is out of radius
       if (
