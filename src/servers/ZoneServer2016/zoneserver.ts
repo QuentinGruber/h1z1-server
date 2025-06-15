@@ -647,7 +647,16 @@ export class ZoneServer2016 extends EventEmitter {
     );
     this._gatewayServer.on("disconnect", (sessionId: number) => {
       // this happen when the connection is close without a regular logout
-      this.deleteClient(this._clients[sessionId]);
+      const client = this._clients[sessionId];
+      if (client) {
+        if (client.properlyLogout) {
+          this.deleteClient(client);
+        } else {
+          setTimeout(() => {
+            this.deleteClient(client);
+          }, 10_000);
+        }
+      }
     });
 
     this._gatewayServer.on(
