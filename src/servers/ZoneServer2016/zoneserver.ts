@@ -3922,9 +3922,12 @@ export class ZoneServer2016 extends EventEmitter {
           this.getProximityItems(client)
         );
       }
-    }
-    if (dictionary[characterId].h1emu_ai_id) {
-      this.aiManager.remove_entity(dictionary[characterId].h1emu_ai_id);
+      if (dictionary[characterId].h1emu_ai_id) {
+        let h1emuAiId = dictionary[characterId].h1emu_ai_id;
+        queueMicrotask(() => {
+          this.aiManager.remove_entity(h1emuAiId);
+        });
+      }
     }
     delete dictionary[characterId];
     delete this._transientIds[this._characterIds[characterId]];

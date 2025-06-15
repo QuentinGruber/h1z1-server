@@ -78,23 +78,43 @@ export class TrapEntity extends BaseSimpleNpc {
     }
   }
 
-  async arm() {
+  async arm(allowedInactiveTime?: bigint) {
     switch (this.itemDefinitionId) {
       case Items.PUNJI_STICKS:
       case Items.PUNJI_STICK_ROW:
-        this.h1emu_ai_id = this.server.aiManager.add_trap(this, 1.5, 500n);
+        this.h1emu_ai_id = this.server.aiManager.add_trap(
+          this,
+          1.5,
+          500n,
+          allowedInactiveTime
+        );
         break;
       case Items.SNARE:
-        this.h1emu_ai_id = this.server.aiManager.add_trap(this, 1, 200n);
+        this.h1emu_ai_id = this.server.aiManager.add_trap(
+          this,
+          1,
+          200n,
+          allowedInactiveTime
+        );
         break;
       case Items.BARBED_WIRE:
-        this.h1emu_ai_id = this.server.aiManager.add_trap(this, 20, 200n);
+        this.h1emu_ai_id = this.server.aiManager.add_trap(
+          this,
+          5,
+          200n,
+          allowedInactiveTime
+        );
         break;
       case Items.TRAP_FIRE:
       case Items.TRAP_FLASH:
         // Wait 10 seconds before activating the trap
         await new Promise<void>((resolve) => setTimeout(resolve, 10000));
-        this.h1emu_ai_id = this.server.aiManager.add_trap(this, 1, 90n);
+        this.h1emu_ai_id = this.server.aiManager.add_trap(
+          this,
+          1,
+          90n,
+          allowedInactiveTime
+        );
         break;
     }
   }
@@ -152,7 +172,7 @@ export class TrapEntity extends BaseSimpleNpc {
               position: this.state.position
             }
           );
-          this.destroy(server);
+          this.destroy();
           return;
         }
         break;
@@ -198,7 +218,7 @@ export class TrapEntity extends BaseSimpleNpc {
         if (!this.isTriggered) {
           this.trapTimer?.refresh();
         } else {
-          this.destroy(server);
+          this.destroy();
           this.actorModelId = ModelIds.SNARE;
           server.worldObjectManager.createLootEntity(
             server,
@@ -259,7 +279,7 @@ export class TrapEntity extends BaseSimpleNpc {
               position: this.state.position
             }
           );
-          this.destroy(server);
+          this.destroy();
           return;
         }
         break;
@@ -300,14 +320,14 @@ export class TrapEntity extends BaseSimpleNpc {
         if (!this.isTriggered) {
           this.trapTimer?.refresh();
         } else {
-          this.destroy(server);
+          this.destroy();
         }
         break;
     }
   }
 
-  destroy(server: ZoneServer2016): boolean {
-    return server.deleteEntity(this.characterId, server._traps);
+  destroy(): boolean {
+    return this.server.deleteEntity(this.characterId, this.server._traps);
   }
 
   isInside(position: Float32Array) {
@@ -342,7 +362,7 @@ export class TrapEntity extends BaseSimpleNpc {
       this.pGetSimpleProxyHealth()
     );
     if (this.health > 0) return;
-    if (this.destroy(server)) this.detonateTrap(server, damageInfo);
+    if (this.destroy()) this.detonateTrap(server, damageInfo);
   }
 
   detonateTrap(server: ZoneServer2016, damageInfo: DamageInfo) {
@@ -456,6 +476,6 @@ export class TrapEntity extends BaseSimpleNpc {
   OnExplosiveHit(server: ZoneServer2016, sourceEntity: BaseEntity) {
     if (!isPosInRadius(5, this.state.position, sourceEntity.state.position))
       return;
-    this.destroy(server);
+    this.destroy();
   }
 }
