@@ -2020,7 +2020,9 @@ export class ZoneServer2016 extends EventEmitter {
     this.rconManager.on("message", this.handleRconMessage.bind(this));
     this.rewardManager.start();
     this.hookManager.checkHook("OnServerReady");
-    this.startH1emuAi();
+    if (!process.env.DISABLE_AI) {
+      this.startH1emuAi();
+    }
     this.challengePositionCheckInterval = setInterval(
       () => this.checkPlayersPositionsChallenges(),
       30_000
