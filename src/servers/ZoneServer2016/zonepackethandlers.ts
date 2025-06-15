@@ -3781,6 +3781,7 @@ export class ZonePacketHandlers {
           );
 
           server._rewardCrateDefinitions.forEach((crate) => {
+            if (crate.excludeFromExchange) return; // Skip excluded crates
             if (
               crate.rewards.some(
                 (reward) =>

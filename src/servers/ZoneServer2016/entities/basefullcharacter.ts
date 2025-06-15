@@ -770,6 +770,51 @@ export abstract class BaseFullCharacter extends BaseLightweightCharacter {
     }
     // --- End durability loss ---
 
+    // --- Durability loss for MilitaryTan bag on death ---
+    const MilitaryTan = this._loadout[LoadoutSlots.BACK];
+    if (MilitaryTan && server.isMilitaryTan(MilitaryTan.itemDefinitionId)) {
+      MilitaryTan.currentDurability =
+        (MilitaryTan.currentDurability || 0) - 334; /// 6 Lifes/Tan
+      if (MilitaryTan.currentDurability <= 0) {
+        server.removeInventoryItem(this, MilitaryTan);
+        this.lootContainerItem(server, server.generateItem(Items.CLOTH, 4));
+        this.lootContainerItem(server, server.generateItem(Items.TWINE, 1));
+        this.lootContainerItem(
+          server,
+          server.generateItem(Items.METAL_BRACKET, 1)
+        );
+      }
+    }
+    // --- End durability loss for MilitaryTan ---
+
+    // --- Durability loss for Small Backpack on death ---
+    const smallBackpack = this._loadout[LoadoutSlots.BACK];
+    if (smallBackpack && server.isBackpack(smallBackpack.itemDefinitionId)) {
+      smallBackpack.currentDurability =
+        (smallBackpack.currentDurability || 0) - 500; // 4 lifes/small backpack
+      if (smallBackpack.currentDurability <= 0) {
+        server.removeInventoryItem(this, smallBackpack);
+        this.lootContainerItem(server, server.generateItem(Items.CLOTH, 4));
+      }
+    }
+    // --- End durability loss for Small Backpack ---
+
+    // --- Durability loss for Framed Backpack on death ---
+    const framedBackpack = this._loadout[LoadoutSlots.BACK];
+    if (framedBackpack && server.isFramedBp(framedBackpack.itemDefinitionId)) {
+      framedBackpack.currentDurability =
+        (framedBackpack.currentDurability || 0) - 400; // 5 lifes/framed backpack
+      if (framedBackpack.currentDurability <= 0) {
+        server.removeInventoryItem(this, framedBackpack);
+        this.lootContainerItem(server, server.generateItem(Items.CLOTH, 2));
+        this.lootContainerItem(
+          server,
+          server.generateItem(Items.BACKPACK_FRAME, 1)
+        );
+      }
+    }
+    // --- End durability loss for Framed Backpack ---
+
     const items: { [itemGuid: string]: BaseItem } = {};
     Object.values(this._loadout).forEach((itemData) => {
       if (

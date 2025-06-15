@@ -202,7 +202,7 @@ export class ConfigManager {
     //#endregion
     //#region RandomEvents
     const { enabled: randomEventsEnabled } = this.config.randomevents;
-    server.challengeManager.enabled = randomEventsEnabled;
+    server.randomEventsManager.enabled = randomEventsEnabled;
     //#endregion
     //
     //#region voicechat

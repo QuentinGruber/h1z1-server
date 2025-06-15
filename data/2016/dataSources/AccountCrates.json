@@ -2686,6 +2686,7 @@
   {
     "name": "King of the Kill Mystery Bag",
     "itemDefinitionId": 3239,
+    "excludeFromExchange": true,
     "rewards": [
       {
         "name": "Battle Royale Loser T-Shirt",
@@ -2742,6 +2743,7 @@
   {
     "name": "King of the Kill Elite Bag",
     "itemDefinitionId": 3240,
+    "excludeFromExchange": true,
     "rewards": [
       {
         "name": "Battle Royale Logo T-Shirt",
@@ -2778,6 +2780,7 @@
   {
     "name": "Skirmish Bag: Small Firearms",
     "itemDefinitionId": 3274,
+    "excludeFromExchange": true,
     "rewards": [
       {
         "name": "Blue and Black Hoodie",
@@ -2804,6 +2807,7 @@
   {
     "name": "Skirmish Bag: Shotties & Snipers",
     "itemDefinitionId": 3365,
+    "excludeFromExchange": true,
     "rewards": [
       {
         "name": "Green Starred Armor",
@@ -2830,6 +2834,7 @@
   {
     "name": "Skirmish Bag: Ironman",
     "itemDefinitionId": 3447,
+    "excludeFromExchange": true,
     "rewards": [
       {
         "name": "Blue Survivor Backpack",
@@ -2856,6 +2861,7 @@
   {
     "name": "Skirmish Bag: Reanimated",
     "itemDefinitionId": 3523,
+    "excludeFromExchange": true,
     "rewards": [
       {
         "name": "Starry-Eyed Goggles",
@@ -2882,6 +2888,7 @@
   {
     "name": "Skirmish Bag: Shotguns & Snipers 2",
     "itemDefinitionId": 3633,
+    "excludeFromExchange": true,
     "rewards": [
       {
         "name": "Beige Slacks",
@@ -3046,6 +3053,7 @@
   {
     "name": "Elite Bag Hardcore",
     "itemDefinitionId": 1880,
+    "excludeFromExchange": true,
     "rewards": [
       {
         "name": "Abs Shirt",
