@@ -64,6 +64,7 @@ import {
   ConstructionUnknown,
   PlayerUpdatePosition
 } from "types/zone2016packets";
+import { MAX_UINT32, TRAPS_DESPAWN_TIME } from "../../../utils/constants";
 
 export class ConstructionManager {
   overridePlacementItems: Array<number> = [
@@ -1488,7 +1489,7 @@ export class ConstructionManager {
         worldOwned,
         owner
       );
-    //npc.arm(server);
+    npc.arm(worldOwned ? BigInt(MAX_UINT32) : TRAPS_DESPAWN_TIME);
     //temporarily disabled
     server._traps[characterId] = npc;
     server.spawnSimpleNpcForAllInRange(npc);
@@ -1516,8 +1517,7 @@ export class ConstructionManager {
         ownerCharacterId
       );
     if (npc.isLandmine()) {
-      //npc.arm(server);
-      //temporarily disabled
+      npc.arm(server);
     }
     server._explosives[characterId] = npc;
     server.spawnSimpleNpcForAllInRange(npc);

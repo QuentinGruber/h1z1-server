@@ -1967,16 +1967,22 @@ export class ZoneServer2016 extends EventEmitter {
 
   startH1emuAi() {
     setInterval(() => {
-      if (process.env.ENABLE_AI_TIME_LOGS) {
-        const start = performance.now();
-        this.aiManager.run();
-        const end = performance.now();
-        const duration = end - start;
-        if (duration >= 1) {
-          console.log(`H1emu-ai took ${duration}ms`);
+      try {
+        if (process.env.ENABLE_AI_TIME_LOGS) {
+          const start = performance.now();
+          this.aiManager.run();
+          const end = performance.now();
+          const duration = end - start;
+          if (duration >= 3) {
+            console.log(
+              `H1emu-ai took ${duration}ms with ${this.aiManager.get_stats().entities} entities`
+            );
+          }
+        } else {
+          this.aiManager.run();
         }
-      } else {
-        this.aiManager.run();
+      } catch (e) {
+        console.error(e);
       }
     }, 100);
   }
@@ -2023,7 +2029,7 @@ export class ZoneServer2016 extends EventEmitter {
     this.rconManager.on("message", this.handleRconMessage.bind(this));
     this.rewardManager.start();
     this.hookManager.checkHook("OnServerReady");
-    if (this._soloMode || process.env.ENABLE_AI) {
+    if (!process.env.DISABLE_AI) {
       this.startH1emuAi();
     }
     this.challengePositionCheckInterval = setInterval(
@@ -2532,6 +2538,11 @@ export class ZoneServer2016 extends EventEmitter {
 
   killCharacter(client: Client, damageInfo: DamageInfo) {
     if (!client.character.isAlive) return;
+    queueMicrotask(() => {
+      if (client.character.h1emu_ai_id) {
+        this.aiManager.entity_dead(client.character.h1emu_ai_id);
+      }
+    });
     if (!this.hookManager.checkHook("OnPlayerDeath", client, damageInfo))
       return;
 
@@ -2937,6 +2948,11 @@ export class ZoneServer2016 extends EventEmitter {
 
     if (!client.character.isRespawning) return;
 
+    queueMicrotask(() => {
+      if (client.character.h1emu_ai_id) {
+        this.aiManager.entity_alive(client.character.h1emu_ai_id);
+      }
+    });
     if (client.vehicle.mountedVehicle) {
       this.dismountVehicle(client);
     }
@@ -3917,9 +3933,12 @@ export class ZoneServer2016 extends EventEmitter {
           this.getProximityItems(client)
         );
       }
-    }
-    if (dictionary[characterId].h1emu_ai_id) {
-      this.aiManager.remove_entity(dictionary[characterId].h1emu_ai_id);
+      if (dictionary[characterId].h1emu_ai_id) {
+        let h1emuAiId = dictionary[characterId].h1emu_ai_id;
+        queueMicrotask(() => {
+          this.aiManager.remove_entity(h1emuAiId);
+        });
+      }
     }
     delete dictionary[characterId];
     delete this._transientIds[this._characterIds[characterId]];
