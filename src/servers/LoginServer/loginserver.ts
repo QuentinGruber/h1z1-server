@@ -83,6 +83,13 @@ export enum PopLevel {
   HIGH = 2,
   FULL = 3
 }
+export function getPopLevel(population: number): PopLevel {
+  if (population <= 20) return PopLevel.LOW;
+  else if (population >= 21 && population <= 50) return PopLevel.MEDIUM;
+  else if (population >= 51 && population <= 120) return PopLevel.HIGH;
+  else if (population >= 121) return PopLevel.FULL;
+  else return PopLevel.LOW;
+}
 
 interface QueuedClient {
   client: Client;
@@ -258,18 +265,18 @@ export class LoginServer extends EventEmitter {
                     console.error(`Game server ${serverId} not found`);
                     return;
                   }
-                  let populationLevel: PopLevel = PopLevel.LOW;
+                  let populationLevel: PopLevel = getPopLevel(population);
 
-                  if (population <= 50 && population >= 25) {
-                    populationLevel = PopLevel.MEDIUM;
-                  } else if (
-                    population < serverData.maxPopulationNumber &&
-                    population > 50
-                  ) {
-                    populationLevel = PopLevel.HIGH;
-                  } else if (population >= serverData.maxPopulationNumber) {
-                    populationLevel = PopLevel.FULL;
-                  }
+                  // if (population <= 50 && population >= 25) {
+                  //   populationLevel = PopLevel.MEDIUM;
+                  // } else if (
+                  //   population < serverData.maxPopulationNumber &&
+                  //   population > 50
+                  // ) {
+                  //   populationLevel = PopLevel.HIGH;
+                  // } else if (population >= serverData.maxPopulationNumber) {
+                  //   populationLevel = PopLevel.FULL;
+                  // }
 
                   this._db?.collection(DB_COLLECTIONS.SERVERS).findOneAndUpdate(
                     { serverId: serverId },
