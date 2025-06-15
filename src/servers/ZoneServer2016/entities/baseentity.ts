@@ -88,6 +88,8 @@ export abstract class BaseEntity {
   materialType: number;
 
   h1emu_ai_id?: bigint;
+
+  server: ZoneServer2016;
   constructor(
     characterId: string,
     transientId: number,
@@ -108,6 +110,7 @@ export abstract class BaseEntity {
     this.interactionDistance = server.interactionDistance;
     this.materialType = this.getMaterialType(server, this.actorModelId);
     server.pushToGridCell(this);
+    this.server = server;
   }
 
   getMaterialType(server: ZoneServer2016, actorModelId: number) {
