@@ -2414,11 +2414,6 @@
         "rewardChance": 2
       },
       {
-        "name": "Anarchy Leather Pants",
-        "itemDefinitionId": 2413,
-        "rewardChance": 5
-      },
-      {
         "name": "Arachnid Tactical Jacket",
         "itemDefinitionId": 3755,
         "rewardChance": 5
@@ -2558,11 +2553,6 @@
         "name": "Frankenswine Backpack",
         "itemDefinitionId": 3774,
         "rewardChance": 2
-      },
-      {
-        "name": "Anarchy Leather Pants",
-        "itemDefinitionId": 2413,
-        "rewardChance": 5
       },
       {
         "name": "Arachnid Tactical Jacket",
