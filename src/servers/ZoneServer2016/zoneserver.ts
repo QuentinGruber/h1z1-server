@@ -3633,6 +3633,7 @@ export class ZoneServer2016 extends EventEmitter {
     const message = `FairPlay: blocked incoming projectile from ${client.character.name}`;
     const fireHint = client.fireHints[hitReport.sessionProjectileCount];
     const weaponItem = fireHint.weaponItem;
+    if (!weaponItem) return;
     const entity = this.getEntity(hitReport.characterId);
     if (weaponItem.itemDefinitionId == Items.WEAPON_BOW_RECURVE) {
       for (const a in this._throwableProjectiles) {
@@ -3662,7 +3663,6 @@ export class ZoneServer2016 extends EventEmitter {
       }
       return;
     }
-    if (!weaponItem) return;
     if (fireHint.hitNumber > 0) {
       if (targetClient) {
         this.sendChatTextToAdmins(
