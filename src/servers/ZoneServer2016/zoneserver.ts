@@ -2855,7 +2855,7 @@ export class ZoneServer2016 extends EventEmitter {
             this.applyCharacterEffect(
               character,
               Effects.PFX_Fire_Person_loop,
-              1500,
+              700,
               10000
             );
           }
@@ -7809,17 +7809,25 @@ export class ZoneServer2016 extends EventEmitter {
       itemType = itemDefinition.ITEM_TYPE;
     let count = 1;
     const timeout = 3000;
-    switch (itemType) {
-      case 36:
-      case 39:
-        count = 1;
-        break;
-      case 34: // salvage/shred
-        count = 4;
-        break;
-      default:
-        this.sendChatText(client, "[ERROR] Unknown salvage item or count.");
+    if (
+      item.itemDefinitionId === Items.BELT_POUCH ||
+      item.itemDefinitionId === Items.WAIST_PACK
+    ) {
+      count = 1;
+    } else {
+      switch (itemType) {
+        case 36:
+        case 39:
+          count = 1;
+          break;
+        case 34: // salvage/shred
+          count = 4;
+          break;
+        default:
+          this.sendChatText(client, "[ERROR] Unknown salvage item or count.");
+      }
     }
+
     this.utilizeHudTimer(client, nameId, timeout, animationId, () => {
       this.shredItemPass(character, item, count);
     });

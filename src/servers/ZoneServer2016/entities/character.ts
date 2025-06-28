@@ -1253,7 +1253,7 @@ export class Character2016 extends BaseFullCharacter {
       oldHealth = this._resources[ResourceIds.HEALTH];
     if (!client) return;
 
-    if (this.isGodMode() || !this.isAlive || this.isRespawning || damage <= 25)
+    if (this.isGodMode() || !this.isAlive || this.isRespawning || damage < 1)
       return;
 
     // Don't damage players inside shelters
