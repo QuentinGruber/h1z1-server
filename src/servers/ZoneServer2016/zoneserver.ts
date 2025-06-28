@@ -2749,7 +2749,14 @@ export class ZoneServer2016 extends EventEmitter {
 
   sendKillFeed(client: Client, damageInfo: DamageInfo) {
     if (client.character.characterId === damageInfo.entity) return;
-    const killerClient = this.getClientByCharId(damageInfo.entity);
+    const killerEntity = this.getEntity(damageInfo.entity);
+    let killerClient;
+
+    if (killerEntity instanceof ProjectileEntity) {
+      killerClient = this.getClientByCharId(killerEntity.managerCharacterId);
+    } else {
+      killerClient = this.getClientByCharId(damageInfo.entity);
+    }
     let isInGodMode = false;
     if (killerClient) {
       isInGodMode = killerClient.character.isGodMode();
@@ -2760,7 +2767,7 @@ export class ZoneServer2016 extends EventEmitter {
       "Character.KilledBy",
 
       {
-        killer: damageInfo.entity,
+        killer: killerClient?.character.characterId,
         killed: client.character.characterId,
         isCheater: isInGodMode
       }
@@ -3184,6 +3191,7 @@ export class ZoneServer2016 extends EventEmitter {
       this._destroyables[entityKey] ||
       this._temporaryObjects[entityKey] ||
       this._traps[entityKey] ||
+      this._throwableProjectiles[entityKey] ||
       undefined
     );
   }
