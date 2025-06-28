@@ -42,63 +42,63 @@ export class RewardManager {
       },
       {
         itemId: AccountItems.REWARD_CRATE_INFERNAL,
-        dropChances: 6
+        dropChances: 0
       },
       {
         itemId: AccountItems.REWARD_CRATE_ALPHA_LAUNCH,
-        dropChances: 6
+        dropChances: 0
       },
       {
         itemId: AccountItems.REWARD_CRATE_PREDATOR,
-        dropChances: 5
+        dropChances: 10
       },
       {
         itemId: AccountItems.REWARD_CRATE_EZW,
-        dropChances: 6
+        dropChances: 0
       },
       {
         itemId: AccountItems.REWARD_CRATE_RENEGADE,
-        dropChances: 6
+        dropChances: 0
       },
       {
         itemId: AccountItems.REWARD_CRATE_WASTELAND,
-        dropChances: 6
+        dropChances: 0
       },
       {
         itemId: AccountItems.REWARD_CRATE_RONIN,
-        dropChances: 6
+        dropChances: 0
       },
       {
         itemId: AccountItems.REWARD_CRATE_MERCENARY,
-        dropChances: 6
+        dropChances: 0
       },
       {
         itemId: AccountItems.REWARD_CRATE_WEARABLES,
-        dropChances: 6
+        dropChances: 0
       },
       {
         itemId: AccountItems.REWARD_CRATE_INVITATIONAL_2016,
-        dropChances: 6
+        dropChances: 0
       },
       {
         itemId: AccountItems.REWARD_CRATE_VIGILANTE,
-        dropChances: 6
+        dropChances: 0
       },
       {
         itemId: AccountItems.REWARD_CRATE_H1EMU,
-        dropChances: 5
+        dropChances: 20
       },
       {
         itemId: AccountItems.REWARD_CRATE_SWIRL,
-        dropChances: 5
+        dropChances: 25
       },
       {
         itemId: AccountItems.REWARD_CRATE_BREAKOUT,
-        dropChances: 5
+        dropChances: 20
       },
       {
         itemId: AccountItems.REWARD_CRATE_VICTORY,
-        dropChances: 5
+        dropChances: 10
       },
       {
         itemId: AccountItems.REWARD_CRATE_H1EMUEX,
