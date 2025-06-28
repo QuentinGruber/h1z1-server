@@ -36,6 +36,7 @@ import { CommandInteractionString } from "types/zone2016packets";
 import { EntityType } from "h1emu-ai";
 import { BaseEntity } from "./baseentity";
 import { ChallengeType } from "../managers/challengemanager";
+import { ProjectileEntity } from "./projectileentity";
 
 export class Npc extends BaseFullCharacter {
   health: number;
@@ -170,8 +171,16 @@ export class Npc extends BaseFullCharacter {
   }
 
   async damage(server: ZoneServer2016, damageInfo: DamageInfo) {
-    const client = server.getClientByCharId(damageInfo.entity),
-      oldHealth = this.health;
+    let client = server.getClientByCharId(damageInfo.entity);
+    if (!client) {
+      const sourceEntity = server.getEntity(damageInfo.entity);
+      if (sourceEntity instanceof ProjectileEntity) {
+        client = server.getClientByCharId(sourceEntity.managerCharacterId);
+      } else {
+        return;
+      }
+    }
+    const oldHealth = this.health;
 
     if ((this.health -= damageInfo.damage) <= 0 && this.isAlive) {
       this.deathTime = Date.now();
