@@ -63,9 +63,6 @@ export class LootableConstructionEntity extends BaseLootableEntity {
   /** Determines if the LootableConstructionEntity is a SmeltingEntity or CollectingEntity */
   subEntity?: SmeltingEntity | CollectingEntity;
 
-  /** The guid of the secured shelter the LootableConstructionEntity is inside */
-  isHidden: string = "";
-
   /** Used by DecayManager, determines if the entity will be damaged the next decay tick */
   isDecayProtected: boolean = false;
   isProp: boolean = false;
