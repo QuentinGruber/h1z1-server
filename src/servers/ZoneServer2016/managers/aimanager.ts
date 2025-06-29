@@ -17,7 +17,8 @@ import { ExplosiveEntity } from "../entities/explosiveentity";
 import { TrapEntity } from "../entities/trapentity";
 import { ZoneServer2016 } from "../zoneserver";
 
-const degradeTrapsTime = 1300_000;
+const degradeTrapsCallTime = 1300_000;
+const ttlExplosives = 3600_000 * 3;
 export class AiManager {
   trapEntities: Set<TrapEntity> = new Set();
   playerEntities: Set<Character2016> = new Set();
@@ -104,9 +105,16 @@ export class AiManager {
   private degradeTraps() {
     this.trapEntities.forEach((trap) => {
       trap.damage(this.server, {
-        damage: (trap.maxHealth * degradeTrapsTime) / trap.degradationTime,
+        damage: (trap.maxHealth * degradeTrapsCallTime) / trap.degradationTime,
         entity: "Server.degradeTraps"
       });
+    });
+  }
+  private triggerOldExplosives() {
+    this.explosiveEntities.forEach((explosive) => {
+      if (explosive.creationTime + ttlExplosives < this.now) {
+        explosive.detonate();
+      }
     });
   }
   private executeScheduled(fn: () => void) {
@@ -127,6 +135,7 @@ export class AiManager {
     this.now = Date.now();
     this.checkTraps();
     this.checkExplosive();
-    this.scheduleExecute(this.degradeTraps, degradeTrapsTime);
+    this.scheduleExecute(this.degradeTraps, degradeTrapsCallTime);
+    this.scheduleExecute(this.triggerOldExplosives, 60_000);
   }
 }
