@@ -23,13 +23,17 @@ jobs:
         with:
           node-version: "20"
 
-      - name: Save previous version
+      - name: Get published version from npm
         id: prev
-        run: echo "npm view h1z1-server@next version" >> $GITHUB_OUTPUT
+        run: |
+          VERSION=$(npm view h1z1-server@next version)
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
 
-      - name: Read current version
+      - name: Read current version from package.json
         id: current
-        run: echo "version=$(node -p "require('./package.json').version")" >> $GITHUB_OUTPUT
+        run: |
+          VERSION=$(node -p "require('./package.json').version")
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
 
       - name: Compare versions
         id: compare
@@ -50,12 +54,27 @@ jobs:
             echo "isprerelease=false" >> $GITHUB_OUTPUT
           fi
 
-      - name: Ensure version changed and is prerelease
-        if: steps.compare.outputs.changed == 'true' && steps.prerelease.outputs.isprerelease == 'true'
+      - name: Check if base version (x.y.z) is unchanged
+        id: basecheck
+        run: |
+          prev_base=$(echo "${{ steps.prev.outputs.version }}" | cut -d'-' -f1)
+          curr_base=$(echo "${{ steps.current.outputs.version }}" | cut -d'-' -f1)
+
+          echo "Previous base version: $prev_base"
+          echo "Current base version: $curr_base"
+
+          if [ "$prev_base" = "$curr_base" ]; then
+            echo "base_unchanged=true" >> $GITHUB_OUTPUT
+          else
+            echo "base_unchanged=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Ensure version changed and is valid prerelease
+        if: steps.compare.outputs.changed == 'true' && steps.prerelease.outputs.isprerelease == 'true' && steps.basecheck.outputs.base_unchanged == 'true'
         run: echo "Ready to publish..."
 
       - name: Publish to npm
-        if: steps.compare.outputs.changed == 'true' && steps.prerelease.outputs.isprerelease == 'true'
+        if: steps.compare.outputs.changed == 'true' && steps.prerelease.outputs.isprerelease == 'true' && steps.basecheck.outputs.base_unchanged == 'true'
         run: npm publish --tag next
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
