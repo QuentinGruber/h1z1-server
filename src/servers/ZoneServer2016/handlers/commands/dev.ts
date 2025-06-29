@@ -491,16 +491,6 @@ const dev: any = {
   acc: function (server: ZoneServer2016, client: Client, args: Array<string>) {
     server.sendData<ItemsAddAccountItem>(client, "Items.AddAccountItem", {});
   },
-  ai_load: function (
-    server: ZoneServer2016,
-    client: Client,
-    args: Array<string>
-  ) {
-    server.sendChatText(
-      client,
-      server.aiManager.get_stats().entities.toString()
-    );
-  },
   ui: function (server: ZoneServer2016, client: Client, args: Array<string>) {
     server.sendData(client, "Effect.AddUiIndicator", {
       characterId: client.character.characterId,
@@ -530,6 +520,9 @@ const dev: any = {
       unknownData2: {}
     });
   },
+  ai: function (server: ZoneServer2016, client: Client, args: Array<string>) {
+    server.sendChatText(client, server.aiManager.getEntitiesStats());
+  },
   zombie: async function (
     server: ZoneServer2016,
     client: Client,
@@ -548,7 +541,7 @@ const dev: any = {
     );
 
     server._npcs[characterId] = zombie;
-    server.aiManager.add_entity(zombie, zombie.entityType);
+    // server.aiManager.add_entity(zombie, zombie.entityType);
     const a = server.navManager.createAgent(zombie.state.position);
     zombie.navAgent = a;
 
