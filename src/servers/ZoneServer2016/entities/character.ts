@@ -1299,6 +1299,16 @@ export class Character2016 extends BaseFullCharacter {
         sourceEntity.characterId != client.character.characterId
       ) {
         sourceEntity.metrics.playersKilled++;
+      } else if (sourceEntity instanceof ProjectileEntity) {
+        const sourceCharacter = server.getEntity(
+          sourceEntity.managerCharacterId
+        );
+        if (
+          sourceCharacter instanceof Character2016 &&
+          sourceCharacter.characterId != client.character.characterId
+        ) {
+          sourceCharacter.metrics.playersKilled++;
+        }
       }
     }
     server.updateResource(

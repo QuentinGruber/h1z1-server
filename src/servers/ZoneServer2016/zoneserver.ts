@@ -2513,7 +2513,16 @@ export class ZoneServer2016 extends EventEmitter {
 
   logPlayerDeath(client: Client, damageInfo: DamageInfo) {
     debug(client.character.name + " has died");
-    const sourceClient = this.getClientByCharId(damageInfo.entity);
+    let sourceClient = this.getClientByCharId(damageInfo.entity);
+    if (!sourceClient) {
+      const sourceEntity = this.getEntity(damageInfo.entity);
+      if (sourceEntity instanceof ProjectileEntity) {
+        sourceClient = this.getClientByCharId(sourceEntity.managerCharacterId);
+      } else {
+        return;
+      }
+    }
+
     if (!sourceClient) return;
 
     if (
