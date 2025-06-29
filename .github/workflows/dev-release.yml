@@ -77,4 +77,4 @@ jobs:
         if: steps.compare.outputs.changed == 'true' && steps.prerelease.outputs.isprerelease == 'true' && steps.basecheck.outputs.base_unchanged == 'true'
         run: npm publish --tag next
         env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+          NODE_AUTH_TOKEN: ${{secrets.npm_token}}
