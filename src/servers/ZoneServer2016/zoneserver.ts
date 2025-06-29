@@ -254,12 +254,12 @@ import { AccountInventoryManager } from "./managers/accountinventorymanager";
 import { PlayTimeManager } from "./managers/playtimemanager";
 import { RewardManager } from "./managers/rewardmanager";
 import { DynamicAppearance } from "types/zonedata";
-import { AiManager } from "h1emu-ai";
 import { clearInterval, setInterval } from "node:timers";
 import { NavManager } from "../../utils/recast";
 import { ProjectileEntity } from "./entities/projectileentity";
 import { ChallengeManager, ChallengeType } from "./managers/challengemanager";
 import { RandomEventsManager } from "./managers/randomeventsmanager";
+import { AiManager } from "./managers/aimanager";
 
 const spawnLocations2 = require("../../../data/2016/zoneData/Z1_gridSpawns.json"),
   deprecatedDoors = require("../../../data/2016/sampleData/deprecatedDoors.json"),
@@ -522,7 +522,7 @@ export class ZoneServer2016 extends EventEmitter {
     this.pluginManager = new PluginManager();
     this.commandHandler = new CommandHandler();
     this.playTimeManager = new PlayTimeManager();
-    this.aiManager = new AiManager();
+    this.aiManager = new AiManager(this);
     this.navManager = new NavManager();
     this.challengeManager = new ChallengeManager(this);
     this.randomEventsManager = new RandomEventsManager(this);
@@ -910,9 +910,6 @@ export class ZoneServer2016 extends EventEmitter {
 
   async stop() {
     clearInterval(this.challengePositionCheckInterval);
-    for (const trap of Object.values(this._traps)) {
-      clearTimeout(trap.trapTimer);
-    }
     this.worldDataManager.kill();
     this.inGameTimeManager.stop();
     this.smeltingManager.clearTimers();
@@ -1982,11 +1979,12 @@ export class ZoneServer2016 extends EventEmitter {
           this.aiManager.run();
           const end = performance.now();
           const duration = end - start;
-          if (duration >= 3) {
+          if (duration >= 1) {
             console.log(
-              `H1emu-ai took ${duration}ms with ${this.aiManager.get_stats().entities} entities`
+              `H1emu-ai took ${duration}ms with ${this.aiManager.getEntitiesTotalNumber()} entities`
             );
           }
+          console.log(this.aiManager.getEntitiesStats());
         } else {
           this.aiManager.run();
         }
@@ -2370,10 +2368,8 @@ export class ZoneServer2016 extends EventEmitter {
     }
 
     if (client.character) {
-      if (client.character.h1emu_ai_id) {
-        this.aiManager.remove_entity(client.character.h1emu_ai_id);
-      }
       client.isLoading = true; // stop anything from acting on character
+      this.aiManager.removeEntity(client.character);
       // "shift" time played prior to logging out
       client.character.metrics.startedSurvivingTP +=
         Date.now() - Number(client.character.lastLoginDate);
@@ -2556,11 +2552,6 @@ export class ZoneServer2016 extends EventEmitter {
 
   killCharacter(client: Client, damageInfo: DamageInfo) {
     if (!client.character.isAlive) return;
-    queueMicrotask(() => {
-      if (client.character.h1emu_ai_id) {
-        this.aiManager.entity_dead(client.character.h1emu_ai_id);
-      }
-    });
     if (!this.hookManager.checkHook("OnPlayerDeath", client, damageInfo))
       return;
 
@@ -2973,11 +2964,6 @@ export class ZoneServer2016 extends EventEmitter {
 
     if (!client.character.isRespawning) return;
 
-    queueMicrotask(() => {
-      if (client.character.h1emu_ai_id) {
-        this.aiManager.entity_alive(client.character.h1emu_ai_id);
-      }
-    });
     if (client.vehicle.mountedVehicle) {
       this.dismountVehicle(client);
     }
@@ -3960,12 +3946,7 @@ export class ZoneServer2016 extends EventEmitter {
           this.getProximityItems(client)
         );
       }
-      if (dictionary[characterId].h1emu_ai_id) {
-        let h1emuAiId = dictionary[characterId].h1emu_ai_id;
-        queueMicrotask(() => {
-          this.aiManager.remove_entity(h1emuAiId);
-        });
-      }
+      this.aiManager.removeEntity(dictionary[characterId]);
     }
     delete dictionary[characterId];
     delete this._transientIds[this._characterIds[characterId]];

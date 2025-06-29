@@ -89,9 +89,6 @@ export abstract class BaseEntity {
 
   /** The guid of the secured shelter the entity is inside */
   isHidden: string = "";
-
-  h1emu_ai_id?: bigint;
-
   server: ZoneServer2016;
   constructor(
     characterId: string,

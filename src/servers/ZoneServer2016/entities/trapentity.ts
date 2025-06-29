@@ -29,14 +29,18 @@ import {
 import { ZoneServer2016 } from "../zoneserver";
 import { BaseSimpleNpc } from "./basesimplenpc";
 import { BaseEntity } from "./baseentity";
-import { scheduler } from "timers/promises";
 
 export class TrapEntity extends BaseSimpleNpc {
-  /** Damage delay for the TrapEntity */
-  trapTimer?: NodeJS.Timeout;
-
   /** Returns true if a snare has been stepped on */
   isTriggered = false;
+
+  cooldown: number = 1000;
+
+  lastTrigger: number = Date.now();
+
+  triggerRadiusX: number = 1;
+
+  triggerRadiusY: number = 1;
 
   /** Distance (H1Z1 meters) where the TrapEntity will render */
   npcRenderDistance = 75;
@@ -78,54 +82,45 @@ export class TrapEntity extends BaseSimpleNpc {
     }
   }
 
-  async arm(allowedInactiveTime?: bigint) {
+  async arm() {
     switch (this.itemDefinitionId) {
       case Items.PUNJI_STICKS:
       case Items.PUNJI_STICK_ROW:
-        this.h1emu_ai_id = this.server.aiManager.add_trap(
-          this,
-          1.5,
-          500n,
-          allowedInactiveTime
-        );
+        this.server.aiManager.addEntity(this);
+        this.cooldown = 500;
+        this.triggerRadiusX = 1;
+        this.triggerRadiusY = 0.5;
         break;
       case Items.SNARE:
-        this.h1emu_ai_id = this.server.aiManager.add_trap(
-          this,
-          1,
-          200n,
-          allowedInactiveTime
-        );
+        this.server.aiManager.addEntity(this);
+        this.cooldown = 200;
+        this.triggerRadiusX = 1;
+        this.triggerRadiusY = 0.5;
         break;
       case Items.BARBED_WIRE:
-        this.h1emu_ai_id = this.server.aiManager.add_trap(
-          this,
-          5,
-          200n,
-          allowedInactiveTime
-        );
+        this.server.aiManager.addEntity(this);
+        this.cooldown = 200;
+        this.triggerRadiusX = 5;
         break;
       case Items.TRAP_FIRE:
       case Items.TRAP_FLASH:
         // Wait 10 seconds before activating the trap
         await new Promise<void>((resolve) => setTimeout(resolve, 10000));
-        this.h1emu_ai_id = this.server.aiManager.add_trap(
-          this,
-          1,
-          90n,
-          allowedInactiveTime
-        );
+        this.server.aiManager.addEntity(this);
+        this.cooldown = 90;
+        this.triggerRadiusX = 1;
+        this.triggerRadiusY = 0.5;
         break;
     }
   }
 
   async detonate(characterId: string) {
-    await scheduler.yield();
     const client = this.server.getClientByCharId(characterId);
     const server = this.server;
     if (!client) {
       return;
     }
+    this.lastTrigger = Date.now();
     switch (this.itemDefinitionId) {
       case Items.PUNJI_STICKS:
       case Items.PUNJI_STICK_ROW:
@@ -215,9 +210,7 @@ export class TrapEntity extends BaseSimpleNpc {
           }
         }
 
-        if (!this.isTriggered) {
-          this.trapTimer?.refresh();
-        } else {
+        if (this.isTriggered) {
           this.destroy();
           this.actorModelId = ModelIds.SNARE;
           server.worldObjectManager.createLootEntity(
@@ -266,9 +259,7 @@ export class TrapEntity extends BaseSimpleNpc {
           }
         }
 
-        if (this.health > 0) {
-          this.trapTimer?.refresh();
-        } else {
+        if (this.health <= 0) {
           server.sendDataToAllWithSpawnedEntity(
             server._traps,
             this.characterId,
@@ -317,9 +308,7 @@ export class TrapEntity extends BaseSimpleNpc {
             });
           }
         }
-        if (!this.isTriggered) {
-          this.trapTimer?.refresh();
-        } else {
+        if (this.isTriggered) {
           this.destroy();
         }
         break;

@@ -64,7 +64,6 @@ import {
   ConstructionUnknown,
   PlayerUpdatePosition
 } from "types/zone2016packets";
-import { MAX_UINT32, TRAPS_DESPAWN_TIME } from "../../../utils/constants";
 
 export class ConstructionManager {
   overridePlacementItems: Array<number> = [
@@ -1489,7 +1488,7 @@ export class ConstructionManager {
         worldOwned,
         owner
       );
-    npc.arm(worldOwned ? BigInt(MAX_UINT32) : TRAPS_DESPAWN_TIME);
+    npc.arm();
     //temporarily disabled
     server._traps[characterId] = npc;
     server.spawnSimpleNpcForAllInRange(npc);

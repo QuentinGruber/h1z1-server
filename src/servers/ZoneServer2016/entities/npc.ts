@@ -33,7 +33,6 @@ import {
   StringIds
 } from "../models/enums";
 import { CommandInteractionString } from "types/zone2016packets";
-import { EntityType } from "h1emu-ai";
 import { BaseEntity } from "./baseentity";
 import { ChallengeType } from "../managers/challengemanager";
 import { ProjectileEntity } from "./projectileentity";
@@ -75,7 +74,6 @@ export class Npc extends BaseFullCharacter {
     return this.deathTime == 0;
   }
   server: ZoneServer2016;
-  entityType: EntityType;
   npcMeleeDamage: number;
   isSelected: boolean = false;
   constructor(
@@ -94,41 +92,34 @@ export class Npc extends BaseFullCharacter {
     this.initNpcData();
     this.server = server;
     switch (actorModelId) {
-      // TODO: use enums
       case ModelIds.ZOMBIE_FEMALE_WALKER:
       case ModelIds.ZOMBIE_MALE_WALKER:
-        this.entityType = EntityType.Zombie;
         this.materialType = MaterialTypes.ZOMBIE;
         this.npcMeleeDamage = 2000;
         break;
       case ModelIds.ZOMBIE_SCREAMER:
-        this.entityType = EntityType.Screamer;
         this.materialType = MaterialTypes.ZOMBIE;
         this.npcMeleeDamage = 3000;
         break;
       case ModelIds.DEER:
       case ModelIds.DEER_BUCK:
-        this.entityType = EntityType.Deer;
         this.materialType = MaterialTypes.FLESH;
         this.npcMeleeDamage = 0;
         break;
       case ModelIds.WOLF:
-        this.entityType = EntityType.Wolf;
         this.materialType = MaterialTypes.FLESH;
         this.npcMeleeDamage = 2000;
         break;
       case ModelIds.BEAR:
-        this.entityType = EntityType.Bear;
         this.materialType = MaterialTypes.FLESH;
         this.npcMeleeDamage = 4000;
         break;
       default:
-        this.entityType = EntityType.Deer;
         this.materialType = MaterialTypes.FLESH;
         this.npcMeleeDamage = 0;
         break;
     }
-    this.h1emu_ai_id = server.aiManager.add_entity(this, this.entityType);
+    server.aiManager.addEntity(this);
   }
 
   playAnimation(animationName: string) {
