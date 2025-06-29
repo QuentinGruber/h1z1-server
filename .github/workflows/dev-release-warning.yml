@@ -73,7 +73,7 @@ jobs:
           fi
 
       - name: prerelease succesfull message
-        if: steps.compare.outputs.changed == 'true' && steps.prerelease.outputs.isprerelease == 'true' && steps.basecheck.outputs.base_unchanged == 'false'
+        if: steps.compare.outputs.changed == 'true' && steps.prerelease.outputs.isprerelease == 'true' && steps.basecheck.outputs.base_unchanged == 'true'
         uses: actions/github-script@v7
         with:
           script: |
