@@ -42,6 +42,8 @@ export class ExplosiveEntity extends BaseLightweightCharacter {
   /** the characterId from who place this to keep track */
   ownerCharacterId: string;
 
+  creationTime: number = Date.now();
+
   isAwaitingExplosion: boolean = false;
 
   constructor(
