@@ -234,6 +234,7 @@ import {
   RconMessageType
 } from "./managers/rconmanager";
 import { GroupManager } from "./managers/groupmanager";
+import { ClanManager } from "./managers/clanmanager";
 import { SpeedTreeManager } from "./managers/speedtreemanager";
 import { ConstructionManager } from "./managers/constructionmanager";
 import { FairPlayManager } from "./managers/fairplaymanager";
@@ -309,6 +310,16 @@ export class ZoneServer2016 extends EventEmitter {
 
   /** Total amount of clients on the server */
   readonly _clients: { [characterId: string]: Client } = {};
+
+  _joinRequests: Map<
+    string,
+    {
+      clanTag: string;
+      characterId: string;
+      characterName: string;
+      timestamp: number;
+    }
+  > = new Map();
 
   /** Global dictionaries for all entities */
   _characters: EntityDictionary<Character> = {};
@@ -402,6 +413,7 @@ export class ZoneServer2016 extends EventEmitter {
   chatManager: ChatManager;
   rconManager: RConManager;
   groupManager: GroupManager;
+  clanManager: ClanManager;
   speedtreeManager: SpeedTreeManager;
   constructionManager: ConstructionManager;
   fairPlayManager: FairPlayManager;
@@ -515,6 +527,7 @@ export class ZoneServer2016 extends EventEmitter {
     this.chatManager = new ChatManager();
     this.rconManager = new RConManager();
     this.groupManager = new GroupManager();
+    this.clanManager = new ClanManager();
     this.speedtreeManager = new SpeedTreeManager();
     this.rewardManager = new RewardManager(this);
     this.constructionManager = new ConstructionManager();
@@ -722,6 +735,12 @@ export class ZoneServer2016 extends EventEmitter {
       v.characterId = this.generateGuid();
       v.transientId = this.getTransientId(v.characterId);
     }
+  }
+
+  async getPlayerClan(characterId: string): Promise<any> {
+    return await this._db
+      ?.collection(DB_COLLECTIONS.CLANS)
+      .findOne({ members: characterId });
   }
 
   async reloadCommandCache() {
@@ -1693,6 +1712,9 @@ export class ZoneServer2016 extends EventEmitter {
       (await this.groupManager.getGroupId(this, client)) ?? 0;
     client.character.playTime = savedCharacter.playTime || 0;
     client.character.lastDropPlaytime = savedCharacter.lastDropPlayTime || 0;
+
+    // Load and set the clan data
+    await client.character.getClan(this);
 
     let newCharacter = false;
     if (_.isEqual(savedCharacter.position, [0, 0, 0, 1])) {
