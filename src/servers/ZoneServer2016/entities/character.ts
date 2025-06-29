@@ -129,9 +129,6 @@ export class Character2016 extends BaseFullCharacter {
   isRunning = false;
   isSitting = false;
 
-  /** The guid of the secured shelter the player is inside */
-  isHidden: string = "";
-
   /** Used for resources */
   isBleeding = false;
   isBandaged = false;

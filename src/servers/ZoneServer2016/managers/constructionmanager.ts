@@ -1955,7 +1955,7 @@ export class ConstructionManager {
     for (const f in construction.freeplaceEntities) {
       const freePlacedEntity = construction.freeplaceEntities[f];
       if (construction.isInside(freePlacedEntity.state.position)) {
-        if (freePlacedEntity instanceof LootableConstructionEntity) {
+        if (freePlacedEntity instanceof BaseEntity) {
           if (allowed) {
             this.constructionHideEntities(
               server,
@@ -2046,7 +2046,7 @@ export class ConstructionManager {
     server: ZoneServer2016,
     client: Client,
     constructionGuid: string,
-    freePlacedEntity: LootableConstructionEntity,
+    freePlacedEntity: BaseEntity,
     state: boolean
   ) {
     if (state) {

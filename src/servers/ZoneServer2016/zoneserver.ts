@@ -4146,6 +4146,8 @@ export class ZoneServer2016 extends EventEmitter {
         }
 
         if (object instanceof ConstructionChildEntity) {
+          if (this.constructionManager.shouldHideEntity(this, client, object))
+            continue;
           this.constructionManager.spawnSimpleConstruction(
             this,
             client,
