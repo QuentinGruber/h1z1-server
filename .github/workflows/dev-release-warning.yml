@@ -57,8 +57,23 @@ jobs:
             echo "isprerelease=false" >> $GITHUB_OUTPUT
           fi
 
+      - name: Check if base version (x.y.z) is unchanged
+        id: basecheck
+        run: |
+          prev_base=$(echo "${{ steps.prev.outputs.version }}" | cut -d'-' -f1)
+          curr_base=$(echo "${{ steps.current.outputs.version }}" | cut -d'-' -f1)
+
+          echo "Previous base version: $prev_base"
+          echo "Current base version: $curr_base"
+
+          if [ "$prev_base" = "$curr_base" ]; then
+            echo "base_unchanged=true" >> $GITHUB_OUTPUT
+          else
+            echo "base_unchanged=false" >> $GITHUB_OUTPUT
+          fi
+
       - name: prerelease succesfull message
-        if: steps.compare.outputs.changed == 'true' && steps.prerelease.outputs.isprerelease == 'true'
+        if: steps.compare.outputs.changed == 'true' && steps.prerelease.outputs.isprerelease == 'true' && steps.basecheck.outputs.base_unchanged == 'false'
         uses: actions/github-script@v7
         with:
           script: |
@@ -90,4 +105,26 @@ jobs:
         if: steps.compare.outputs.changed == 'true' && steps.prerelease.outputs.isprerelease == 'false'
         run: |
           echo "❌ Version is not a valid prerelease. Failing the workflow."
+          exit 1
+
+      - name: Comment and fail if base version changed
+        if: steps.compare.outputs.changed == 'true' && steps.basecheck.outputs.base_unchanged == 'false'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const oldVersion = "${{ steps.prev.outputs.version }}";
+            const newVersion = "${{ steps.current.outputs.version }}";
+            const prNumber = context.payload.pull_request.number;
+            const body = `❌ Version change from \`${oldVersion}\` to \`${newVersion}\` is invalid.\nOnly the **prerelease tag** may change (e.g., \`1.2.3-alpha.1\` → \`1.2.3-beta.2\`).`;
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: prNumber,
+              body,
+            });
+
+      - name: Fail if base version changed
+        if: steps.compare.outputs.changed == 'true' && steps.basecheck.outputs.base_unchanged == 'false'
+        run: |
+          echo "❌ Base version changed. Only the prerelease part may differ."
           exit 1
