@@ -63,6 +63,24 @@ function getGender(actorModelId: number): number {
   }
 }
 
+const invalidItemForLootbag: Items[] = [
+  Items.WEAPON_FISTS,
+  Items.WEAPON_FLASHLIGHT,
+  Items.MAP,
+  Items.COMPASS_IMPROVISED,
+  Items.BOOTS_GRAY_BLUE
+];
+
+function isValidForLootbag(itemDefinitionId: number): boolean {
+  for (let index = 0; index < invalidItemForLootbag.length; index++) {
+    const invalidId = invalidItemForLootbag[index];
+    if (invalidId === itemDefinitionId) {
+      return false;
+    }
+  }
+  return true;
+}
+
 export abstract class BaseFullCharacter extends BaseLightweightCharacter {
   /** Callback for OnFullCharacterDataRequest */
   onReadyCallback?: (clientTriggered: ZoneClient2016) => void;
@@ -819,7 +837,7 @@ export abstract class BaseFullCharacter extends BaseLightweightCharacter {
     Object.values(this._loadout).forEach((itemData) => {
       if (
         itemData.itemGuid != "0x0" &&
-        !this.isDefaultItem(itemData.itemDefinitionId) &&
+        isValidForLootbag(itemData.itemDefinitionId) &&
         !server.isAdminItem(itemData.itemDefinitionId)
       ) {
         const item = new BaseItem(
@@ -840,7 +858,7 @@ export abstract class BaseFullCharacter extends BaseLightweightCharacter {
     Object.values(this._containers).forEach((container: LoadoutContainer) => {
       Object.values(container.items).forEach((item) => {
         if (
-          !this.isDefaultItem(item.itemDefinitionId) &&
+          isValidForLootbag(item.itemDefinitionId) &&
           !server.isAdminItem(item.itemDefinitionId)
         ) {
           let stacked = false;
