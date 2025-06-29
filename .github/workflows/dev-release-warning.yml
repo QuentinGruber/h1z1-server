@@ -57,7 +57,7 @@ jobs:
             echo "isprerelease=false" >> $GITHUB_OUTPUT
           fi
 
-      - name: Ensure version changed and is prerelease
+      - name: prerelease succesfull message
         if: steps.compare.outputs.changed == 'true' && steps.prerelease.outputs.isprerelease == 'true'
         uses: actions/github-script@v7
         with:
@@ -71,3 +71,23 @@ jobs:
               issue_number: prNumber,
               body,
             });
+      - name: prerelease wrong format message
+        if: steps.compare.outputs.changed == 'true' && steps.prerelease.outputs.isprerelease == 'false'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const version = "${{ steps.current.outputs.version }}";
+            const prNumber = context.payload.pull_request.number;
+            const body = `❌ This PR can't be merged into \`dev\`: version \`${version}\` is not a valid prerelease.`;
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: prNumber,
+              body,
+            });
+
+      - name: Fail if version is not a prerelease
+        if: steps.compare.outputs.changed == 'true' && steps.prerelease.outputs.isprerelease == 'false'
+        run: |
+          echo "❌ Version is not a valid prerelease. Failing the workflow."
+          exit 1
