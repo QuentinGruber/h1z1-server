@@ -51,6 +51,8 @@ export class TrapEntity extends BaseSimpleNpc {
   ownerCharacterId: string;
   readonly cubebounds!: CubeBounds;
   server: ZoneServer2016;
+
+  degradationTime: number = 3600_000 * 24;
   constructor(
     characterId: string,
     transientId: number,
