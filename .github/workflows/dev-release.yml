@@ -1,0 +1,61 @@
+name: dev-release
+
+on:
+  pull_request:
+    branches:
+      - dev # PRs targeting /dev
+    types:
+      - closed
+
+jobs:
+  check-and-publish-dev-release:
+    if: github.event.pull_request.merged == true
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # Required to compare with previous commit
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Save previous version
+        id: prev
+        run: echo "npm view h1z1-server@next version" >> $GITHUB_OUTPUT
+
+      - name: Read current version
+        id: current
+        run: echo "version=$(node -p "require('./package.json').version")" >> $GITHUB_OUTPUT
+
+      - name: Compare versions
+        id: compare
+        run: |
+          if [ "${{ steps.prev.outputs.version }}" != "${{ steps.current.outputs.version }}" ]; then
+            echo "changed=true" >> $GITHUB_OUTPUT
+          else
+            echo "changed=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Check if new version is prerelease
+        id: prerelease
+        run: |
+          VERSION=${{ steps.current.outputs.version }}
+          if [[ "$VERSION" == *-* ]]; then
+            echo "isprerelease=true" >> $GITHUB_OUTPUT
+          else
+            echo "isprerelease=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Ensure version changed and is prerelease
+        if: steps.compare.outputs.changed == 'true' && steps.prerelease.outputs.isprerelease == 'true'
+        run: echo "Ready to publish..."
+
+      - name: Publish to npm
+        if: steps.compare.outputs.changed == 'true' && steps.prerelease.outputs.isprerelease == 'true'
+        run: npm publish --tag next
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
