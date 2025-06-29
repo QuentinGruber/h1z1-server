@@ -24,7 +24,7 @@ export class RandomEventsManager {
   interval?: NodeJS.Timeout;
   // managed by config
   enabled: boolean = true;
-  constructor(public server: ZoneServer2016) { }
+  constructor(public server: ZoneServer2016) {}
   start() {
     if (this.enabled) {
       this.interval = setInterval(() => this.run(), 600_000);
