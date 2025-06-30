@@ -76,14 +76,15 @@ export class RandomEventsManager {
     const playerCount = Object.keys(this.server._clients).length;
     let multiplier = 1;
     if (playerCount >= 100) {
-      multiplier = 2;
+      multiplier = 2.5;
     } else if (playerCount >= 60) {
-      multiplier = 1.6;
+      multiplier = 2;
     } else if (playerCount >= 30) {
-      multiplier = 1.3;
+      multiplier = 1.5;
     }
-    // Increase chance by multiplying the random threshold
-    if (!this.server._airdrop && randomInt(10) < multiplier) {
+    // Use a larger range for more granularity
+    const threshold = 10 * multiplier;
+    if (!this.server._airdrop && randomInt(100) < threshold) {
       this.spawnRandomAirdrop();
     }
   }
