@@ -182,9 +182,9 @@ export class Npc extends BaseFullCharacter {
       // Custom lootbag for zombies
       switch (this.actorModelId) {
         case ModelIds.ZOMBIE_FEMALE_WALKER:
-        case ModelIds.ZOMBIE_MALE_WALKER: {
+        case ModelIds.ZOMBIE_MALE_WALKER:
+        case ModelIds.ZOMBIE_SCREAMER: {
           const characterId = generateRandomGuid();
-          console.log("Creating lootbag for zombie NPC");
 
           const lootbag = new Lootbag(
             characterId,
@@ -517,6 +517,7 @@ export class Npc extends BaseFullCharacter {
         switch (this.actorModelId) {
           case ModelIds.ZOMBIE_FEMALE_WALKER:
           case ModelIds.ZOMBIE_MALE_WALKER:
+          case ModelIds.ZOMBIE_SCREAMER:
             const emptySyringe = client.character.getItemById(
               Items.SYRINGE_EMPTY
             );
@@ -539,8 +540,6 @@ export class Npc extends BaseFullCharacter {
           case ModelIds.WOLF:
             this.triggerAwards(server, client, this.rewardItems);
             break;
-          case ModelIds.ZOMBIE_SCREAMER:
-            this.triggerAwards(server, client, this.rewardItems, true);
         }
         server.damageItem(client.character, skinningKnife, 200);
         server.deleteEntity(this.characterId, server._npcs);
@@ -551,8 +550,7 @@ export class Npc extends BaseFullCharacter {
   triggerAwards(
     server: ZoneServer2016,
     client: ZoneClient2016,
-    rewardItems: { itemDefId: number; weight: number }[],
-    isScreamer: boolean = false
+    rewardItems: { itemDefId: number; weight: number }[]
   ) {
     const ranges = [];
     const preRewardedItems: number[] = [];
