@@ -17,6 +17,7 @@ import { BaseFullCharacter } from "./basefullcharacter";
 import { ZoneClient2016 } from "../classes/zoneclient";
 import {
   chance,
+  generateRandomGuid,
   getCurrentServerTimeWrapper,
   getDistance,
   logClientActionToMongo,
@@ -36,6 +37,7 @@ import { CommandInteractionString } from "types/zone2016packets";
 import { BaseEntity } from "./baseentity";
 import { ChallengeType } from "../managers/challengemanager";
 import { ProjectileEntity } from "./projectileentity";
+import { Lootbag } from "../entities/lootbag";
 
 export class Npc extends BaseFullCharacter {
   health: number;
@@ -176,7 +178,38 @@ export class Npc extends BaseFullCharacter {
     if ((this.health -= damageInfo.damage) <= 0 && this.isAlive) {
       this.deathTime = Date.now();
       this.flags.knockedOut = 1;
-      server.worldObjectManager.createLootbag(server, this);
+
+      // Custom lootbag for zombies
+      switch (this.actorModelId) {
+        case ModelIds.ZOMBIE_FEMALE_WALKER:
+        case ModelIds.ZOMBIE_MALE_WALKER: {
+          const characterId = generateRandomGuid();
+          console.log("Creating lootbag for zombie NPC");
+
+          const lootbag = new Lootbag(
+            characterId,
+            server.getTransientId(characterId),
+            9391, // modelId for lootbag
+            new Float32Array([
+              this.state.position[0] + 0.7,
+              this.state.position[1],
+              this.state.position[2] + 0.7
+            ]),
+            new Float32Array([0, 0, 0, 0]),
+            server
+          );
+          const container = lootbag.getContainer();
+          if (container) {
+            this.addZombieLoot(server, lootbag, container);
+          }
+          server._lootbags[characterId] = lootbag;
+          break;
+        }
+        default:
+          server.worldObjectManager.createLootbag(server, this);
+          break;
+      }
+
       if (client) {
         if (this.npcId === NpcIds.ZOMBIE) {
           server.challengeManager.registerChallengeProgression(
@@ -240,6 +273,90 @@ export class Npc extends BaseFullCharacter {
     }
   }
 
+  addZombieLoot(server: ZoneServer2016, lootbag: Lootbag, container: any) {
+    const wornLetters = [
+      Items.WORN_LETTER_CHURCH_PV,
+      Items.WORN_LETTER_LJ_PV,
+      Items.WORN_LETTER_MISTY_DAM,
+      Items.WORN_LETTER_RADIO,
+      Items.WORN_LETTER_RUBY_LAKE,
+      Items.WORN_LETTER_TOXIC_LAKE,
+      Items.WORN_LETTER_VILLAS,
+      Items.WORN_LETTER_WATER_TOWER
+    ];
+    // Worn letter (15% chance, up to 2)
+    for (let i = 0; i < 2; i++) {
+      if (chance(150)) {
+        const randomWornLetter =
+          wornLetters[randomIntFromInterval(0, wornLetters.length - 1)];
+        const wornLetterItem = server.generateItem(randomWornLetter, 1);
+        if (wornLetterItem) {
+          server.addContainerItem(lootbag, wornLetterItem, container);
+        }
+      }
+    }
+
+    const GoodammoTypes = [
+      Items.AMMO_12GA,
+      Items.AMMO_223,
+      Items.AMMO_308,
+      Items.AMMO_762
+    ];
+    // Ammo (5% chance, up to 2)
+    for (let i = 0; i < GoodammoTypes.length - 1; i++) {
+      if (chance(50)) {
+        const randomAmmo =
+          GoodammoTypes[randomIntFromInterval(0, GoodammoTypes.length - 1)];
+        const ammoCount = randomIntFromInterval(1, 3);
+        const ammoItem = server.generateItem(randomAmmo, ammoCount);
+        if (ammoItem) {
+          server.addContainerItem(lootbag, ammoItem, container);
+        }
+      }
+    }
+
+    const ammoTypes = [Items.AMMO_380, Items.AMMO_9MM, Items.AMMO_45];
+    // Ammo (10% chance, up to 2)
+    for (let i = 0; i < ammoTypes.length - 1; i++) {
+      if (chance(100)) {
+        const randomAmmo =
+          ammoTypes[randomIntFromInterval(0, ammoTypes.length - 1)];
+        const ammoCount = randomIntFromInterval(1, 5);
+        const ammoItem = server.generateItem(randomAmmo, ammoCount);
+        if (ammoItem) {
+          server.addContainerItem(lootbag, ammoItem, container);
+        }
+      }
+    }
+
+    const specialItems = [
+      Items.WEAPON_BOW_MAKESHIFT,
+      Items.BACKPACK_BLUE_ORANGE,
+      Items.CRUMPLED_NOTE,
+      Items.REFRIGERATOR_NOTE
+    ];
+    // Special item (10% chance, up to 1)
+    for (let i = 0; i < specialItems.length - 1; i++) {
+      if (chance(150)) {
+        const randomSpecial =
+          specialItems[randomIntFromInterval(0, specialItems.length - 1)];
+        const specialItem = server.generateItem(randomSpecial, 1);
+        if (specialItem) {
+          server.addContainerItem(lootbag, specialItem, container);
+        }
+      }
+    }
+
+    // Cloth (80% chance, up to 2)
+    if (chance(800)) {
+      const clothCount = randomIntFromInterval(1, 3);
+      const clothItem = server.generateItem(Items.CLOTH, clothCount);
+      if (clothItem) {
+        server.addContainerItem(lootbag, clothItem, container);
+      }
+    }
+  }
+
   OnFullCharacterDataRequest(server: ZoneServer2016, client: ZoneClient2016) {
     server.sendData(client, "LightweightToFullNpc", this.pGetFull(server));
 
@@ -298,7 +415,6 @@ export class Npc extends BaseFullCharacter {
 
   OnMeleeHit(server: ZoneServer2016, damageInfo: DamageInfo) {
     if (!this.isAlive) return; // prevent dead npc despawning from melee dmg
-
     damageInfo.damage = damageInfo.damage / 1.5;
     this.damage(server, damageInfo);
   }
@@ -412,7 +528,6 @@ export class Npc extends BaseFullCharacter {
               server.removeInventoryItem(client.character, emptySyringe);
               return;
             }
-            this.triggerAwards(server, client, this.rewardItems, true);
             break;
           case ModelIds.DEER_BUCK:
           case ModelIds.DEER:
@@ -437,31 +552,10 @@ export class Npc extends BaseFullCharacter {
     server: ZoneServer2016,
     client: ZoneClient2016,
     rewardItems: { itemDefId: number; weight: number }[],
-    isZombie: boolean = false
+    isScreamer: boolean = false
   ) {
     const ranges = [];
     const preRewardedItems: number[] = [];
-    // Ensure zombie logic is tied to NPC type
-    if (isZombie) {
-      if (chance(20)) {
-        const wornLetters = [
-          Items.WORN_LETTER_CHURCH_PV,
-          Items.WORN_LETTER_LJ_PV,
-          Items.WORN_LETTER_MISTY_DAM,
-          Items.WORN_LETTER_RADIO,
-          Items.WORN_LETTER_RUBY_LAKE,
-          Items.WORN_LETTER_TOXIC_LAKE,
-          Items.WORN_LETTER_VILLAS,
-          Items.WORN_LETTER_WATER_TOWER
-        ];
-
-        const randomIndex = randomIntFromInterval(0, wornLetters.length - 1);
-        const randomWornLetter = wornLetters[randomIndex];
-        const newItem = server.generateItem(randomWornLetter, 1);
-        client.character.lootContainerItem(server, newItem);
-      }
-    }
-
     let cumulativeWeight = 0;
     for (const reward of rewardItems) {
       const range = {
