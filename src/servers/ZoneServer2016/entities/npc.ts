@@ -351,7 +351,7 @@ export class Npc extends BaseFullCharacter {
     const PrototypeItems = [
       Items.PROTOTYPE_MECHANISM,
       Items.PROTOTYPE_RECEIVER,
-      Items.PROTOTYPE_TRIGGER_ASSEMBLY,
+      Items.PROTOTYPE_TRIGGER_ASSEMBLY
     ];
     if (chance(10)) {
       const randomSpecial =
