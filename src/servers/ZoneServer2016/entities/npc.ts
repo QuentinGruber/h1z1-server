@@ -189,7 +189,7 @@ export class Npc extends BaseFullCharacter {
           const lootbag = new Lootbag(
             characterId,
             server.getTransientId(characterId),
-            9581, // modelId for lootbag
+            ModelIds.LOOT_BAG_LARGE,
             new Float32Array([
               this.state.position[0] + 0.7,
               this.state.position[1],
