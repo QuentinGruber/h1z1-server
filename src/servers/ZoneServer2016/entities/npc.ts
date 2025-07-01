@@ -427,22 +427,12 @@ export class Npc extends BaseFullCharacter {
     switch (this.actorModelId) {
       case ModelIds.ZOMBIE_SCREAMER:
         this.nameId = StringIds.BANSHEE;
-        this.rewardItems = [
-          {
-            itemDefId: Items.CLOTH,
-            weight: 40
-          }
-        ];
         this.npcId = NpcIds.ZOMBIE;
         break;
       case ModelIds.ZOMBIE_FEMALE_WALKER:
       case ModelIds.ZOMBIE_MALE_WALKER:
         this.nameId = StringIds.ZOMBIE_WALKER;
         this.rewardItems = [
-          {
-            itemDefId: Items.CLOTH,
-            weight: 40
-          },
           {
             itemDefId: Items.BRAIN_INFECTED,
             weight: 10
@@ -529,6 +519,7 @@ export class Npc extends BaseFullCharacter {
               server.removeInventoryItem(client.character, emptySyringe);
               return;
             }
+            this.triggerAwards(server, client, this.rewardItems, true);
             break;
           case ModelIds.DEER_BUCK:
           case ModelIds.DEER:
@@ -550,7 +541,8 @@ export class Npc extends BaseFullCharacter {
   triggerAwards(
     server: ZoneServer2016,
     client: ZoneClient2016,
-    rewardItems: { itemDefId: number; weight: number }[]
+    rewardItems: { itemDefId: number; weight: number }[],
+    isZombie: boolean = false
   ) {
     const ranges = [];
     const preRewardedItems: number[] = [];
