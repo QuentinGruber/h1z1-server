@@ -519,7 +519,7 @@ export class Npc extends BaseFullCharacter {
               server.removeInventoryItem(client.character, emptySyringe);
               return;
             }
-            this.triggerAwards(server, client, this.rewardItems, true);
+            this.triggerAwards(server, client, this.rewardItems);
             break;
           case ModelIds.DEER_BUCK:
           case ModelIds.DEER:
@@ -541,8 +541,7 @@ export class Npc extends BaseFullCharacter {
   triggerAwards(
     server: ZoneServer2016,
     client: ZoneClient2016,
-    rewardItems: { itemDefId: number; weight: number }[],
-    isZombie: boolean = false
+    rewardItems: { itemDefId: number; weight: number }[]
   ) {
     const ranges = [];
     const preRewardedItems: number[] = [];
