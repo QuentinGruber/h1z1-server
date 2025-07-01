@@ -302,7 +302,7 @@ export class Npc extends BaseFullCharacter {
       Items.AMMO_308,
       Items.AMMO_762
     ];
-    // Ammo (5% chance, up to 2)
+    // Ammo (5% chance)
     for (let i = 0; i < GoodammoTypes.length - 1; i++) {
       if (chance(50)) {
         const randomAmmo =
@@ -316,7 +316,7 @@ export class Npc extends BaseFullCharacter {
     }
 
     const ammoTypes = [Items.AMMO_380, Items.AMMO_9MM, Items.AMMO_45];
-    // Ammo (10% chance, up to 2)
+    // Ammo (10% chance)
     for (let i = 0; i < ammoTypes.length - 1; i++) {
       if (chance(100)) {
         const randomAmmo =
@@ -335,7 +335,7 @@ export class Npc extends BaseFullCharacter {
       Items.CRUMPLED_NOTE,
       Items.REFRIGERATOR_NOTE
     ];
-    // Special item (10% chance, up to 1)
+    // Special item (10% chance)
     for (let i = 0; i < specialItems.length - 1; i++) {
       if (chance(150)) {
         const randomSpecial =
@@ -347,7 +347,22 @@ export class Npc extends BaseFullCharacter {
       }
     }
 
-    // Cloth (80% chance, up to 2)
+    // Prototype item (1% chance)
+    const PrototypeItems = [
+      Items.PROTOTYPE_MECHANISM,
+      Items.PROTOTYPE_RECEIVER,
+      Items.PROTOTYPE_TRIGGER_ASSEMBLY,
+    ];
+    if (chance(10)) {
+      const randomSpecial =
+        PrototypeItems[randomIntFromInterval(0, PrototypeItems.length - 1)];
+      const specialItem = server.generateItem(randomSpecial, 1);
+      if (specialItem) {
+        server.addContainerItem(lootbag, specialItem, container);
+      }
+    }
+
+    // Cloth (80% chance)
     if (chance(800)) {
       const clothCount = randomIntFromInterval(1, 3);
       const clothItem = server.generateItem(Items.CLOTH, clothCount);
