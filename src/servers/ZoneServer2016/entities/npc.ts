@@ -189,7 +189,7 @@ export class Npc extends BaseFullCharacter {
           const lootbag = new Lootbag(
             characterId,
             server.getTransientId(characterId),
-            9581, // modelId for lootbag
+            ModelIds.LOOT_BAG_LARGE,
             new Float32Array([
               this.state.position[0] + 0.7,
               this.state.position[1],
@@ -351,7 +351,7 @@ export class Npc extends BaseFullCharacter {
     const PrototypeItems = [
       Items.PROTOTYPE_MECHANISM,
       Items.PROTOTYPE_RECEIVER,
-      Items.PROTOTYPE_TRIGGER_ASSEMBLY,
+      Items.PROTOTYPE_TRIGGER_ASSEMBLY
     ];
     if (chance(0.5)) {
       const randomSpecial =
