@@ -57,7 +57,7 @@ import { ConstructionDoor } from "../entities/constructiondoor";
 import { PlantingDiameter } from "../entities/plantingdiameter";
 import { Plant } from "../entities/plant";
 import { DB_COLLECTIONS } from "../../../utils/enums";
-import { DB_NAME, TRAPS_DESPAWN_TIME } from "../../../utils/constants";
+import { DB_NAME } from "../../../utils/constants";
 import { Character2016 } from "../entities/character";
 import { Items, VehicleIds } from "../models/enums";
 import { Vehicle2016 } from "../entities/vehicle";
@@ -1410,7 +1410,7 @@ export class WorldDataManager {
         );
         trap.health = entityData.health;
         server._traps[trap.characterId] = trap;
-        trap.arm(TRAPS_DESPAWN_TIME);
+        trap.arm();
     }
   }
 

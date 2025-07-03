@@ -254,12 +254,12 @@ import { AccountInventoryManager } from "./managers/accountinventorymanager";
 import { PlayTimeManager } from "./managers/playtimemanager";
 import { RewardManager } from "./managers/rewardmanager";
 import { DynamicAppearance } from "types/zonedata";
-import { AiManager } from "h1emu-ai";
 import { clearInterval, setInterval } from "node:timers";
 import { NavManager } from "../../utils/recast";
 import { ProjectileEntity } from "./entities/projectileentity";
 import { ChallengeManager, ChallengeType } from "./managers/challengemanager";
 import { RandomEventsManager } from "./managers/randomeventsmanager";
+import { AiManager } from "./managers/aimanager";
 
 const spawnLocations2 = require("../../../data/2016/zoneData/Z1_gridSpawns.json"),
   deprecatedDoors = require("../../../data/2016/sampleData/deprecatedDoors.json"),
@@ -522,7 +522,7 @@ export class ZoneServer2016 extends EventEmitter {
     this.pluginManager = new PluginManager();
     this.commandHandler = new CommandHandler();
     this.playTimeManager = new PlayTimeManager();
-    this.aiManager = new AiManager();
+    this.aiManager = new AiManager(this);
     this.navManager = new NavManager();
     this.challengeManager = new ChallengeManager(this);
     this.randomEventsManager = new RandomEventsManager(this);
@@ -910,9 +910,6 @@ export class ZoneServer2016 extends EventEmitter {
 
   async stop() {
     clearInterval(this.challengePositionCheckInterval);
-    for (const trap of Object.values(this._traps)) {
-      clearTimeout(trap.trapTimer);
-    }
     this.worldDataManager.kill();
     this.inGameTimeManager.stop();
     this.smeltingManager.clearTimers();
@@ -1265,12 +1262,21 @@ export class ZoneServer2016 extends EventEmitter {
       }
 
       if (object instanceof LootableConstructionEntity) {
+        // If player is underneath, allow further Y distance
+        let yDistance = 1;
+        if (
+          client.character.state.position[1] <
+          object.state.position[1] - 0.5
+        ) {
+          yDistance = 3;
+        }
+
         if (
           isPosInRadiusWithY(
-            2,
+            2, // radius stays 2
             client.character.state.position,
             object.state.position,
-            1
+            yDistance // only Y-difference changes
           )
         ) {
           if (object.parentObjectCharacterId) {
@@ -1973,11 +1979,12 @@ export class ZoneServer2016 extends EventEmitter {
           this.aiManager.run();
           const end = performance.now();
           const duration = end - start;
-          if (duration >= 3) {
+          if (duration >= 1) {
             console.log(
-              `H1emu-ai took ${duration}ms with ${this.aiManager.get_stats().entities} entities`
+              `H1emu-ai took ${duration}ms with ${this.aiManager.getEntitiesTotalNumber()} entities`
             );
           }
+          console.log(this.aiManager.getEntitiesStats());
         } else {
           this.aiManager.run();
         }
@@ -2361,10 +2368,8 @@ export class ZoneServer2016 extends EventEmitter {
     }
 
     if (client.character) {
-      if (client.character.h1emu_ai_id) {
-        this.aiManager.remove_entity(client.character.h1emu_ai_id);
-      }
       client.isLoading = true; // stop anything from acting on character
+      this.aiManager.removeEntity(client.character);
       // "shift" time played prior to logging out
       client.character.metrics.startedSurvivingTP +=
         Date.now() - Number(client.character.lastLoginDate);
@@ -2504,7 +2509,16 @@ export class ZoneServer2016 extends EventEmitter {
 
   logPlayerDeath(client: Client, damageInfo: DamageInfo) {
     debug(client.character.name + " has died");
-    const sourceClient = this.getClientByCharId(damageInfo.entity);
+    let sourceClient = this.getClientByCharId(damageInfo.entity);
+    if (!sourceClient) {
+      const sourceEntity = this.getEntity(damageInfo.entity);
+      if (sourceEntity instanceof ProjectileEntity) {
+        sourceClient = this.getClientByCharId(sourceEntity.managerCharacterId);
+      } else {
+        return;
+      }
+    }
+
     if (!sourceClient) return;
 
     if (
@@ -2538,11 +2552,6 @@ export class ZoneServer2016 extends EventEmitter {
 
   killCharacter(client: Client, damageInfo: DamageInfo) {
     if (!client.character.isAlive) return;
-    queueMicrotask(() => {
-      if (client.character.h1emu_ai_id) {
-        this.aiManager.entity_dead(client.character.h1emu_ai_id);
-      }
-    });
     if (!this.hookManager.checkHook("OnPlayerDeath", client, damageInfo))
       return;
 
@@ -2740,7 +2749,14 @@ export class ZoneServer2016 extends EventEmitter {
 
   sendKillFeed(client: Client, damageInfo: DamageInfo) {
     if (client.character.characterId === damageInfo.entity) return;
-    const killerClient = this.getClientByCharId(damageInfo.entity);
+    const killerEntity = this.getEntity(damageInfo.entity);
+    let killerClient;
+
+    if (killerEntity instanceof ProjectileEntity) {
+      killerClient = this.getClientByCharId(killerEntity.managerCharacterId);
+    } else {
+      killerClient = this.getClientByCharId(damageInfo.entity);
+    }
     let isInGodMode = false;
     if (killerClient) {
       isInGodMode = killerClient.character.isGodMode();
@@ -2751,7 +2767,7 @@ export class ZoneServer2016 extends EventEmitter {
       "Character.KilledBy",
 
       {
-        killer: damageInfo.entity,
+        killer: killerClient?.character.characterId,
         killed: client.character.characterId,
         isCheater: isInGodMode
       }
@@ -2846,7 +2862,7 @@ export class ZoneServer2016 extends EventEmitter {
             this.applyCharacterEffect(
               character,
               Effects.PFX_Fire_Person_loop,
-              1500,
+              700,
               10000
             );
           }
@@ -2948,11 +2964,6 @@ export class ZoneServer2016 extends EventEmitter {
 
     if (!client.character.isRespawning) return;
 
-    queueMicrotask(() => {
-      if (client.character.h1emu_ai_id) {
-        this.aiManager.entity_alive(client.character.h1emu_ai_id);
-      }
-    });
     if (client.vehicle.mountedVehicle) {
       this.dismountVehicle(client);
     }
@@ -3175,6 +3186,7 @@ export class ZoneServer2016 extends EventEmitter {
       this._destroyables[entityKey] ||
       this._temporaryObjects[entityKey] ||
       this._traps[entityKey] ||
+      this._throwableProjectiles[entityKey] ||
       undefined
     );
   }
@@ -3632,7 +3644,9 @@ export class ZoneServer2016 extends EventEmitter {
     }
     const message = `FairPlay: blocked incoming projectile from ${client.character.name}`;
     const fireHint = client.fireHints[hitReport.sessionProjectileCount];
+    if (!fireHint) return;
     const weaponItem = fireHint.weaponItem;
+    if (!weaponItem) return;
     const entity = this.getEntity(hitReport.characterId);
     if (weaponItem.itemDefinitionId == Items.WEAPON_BOW_RECURVE) {
       for (const a in this._throwableProjectiles) {
@@ -3662,7 +3676,6 @@ export class ZoneServer2016 extends EventEmitter {
       }
       return;
     }
-    if (!weaponItem) return;
     if (fireHint.hitNumber > 0) {
       if (targetClient) {
         this.sendChatTextToAdmins(
@@ -3933,12 +3946,7 @@ export class ZoneServer2016 extends EventEmitter {
           this.getProximityItems(client)
         );
       }
-      if (dictionary[characterId].h1emu_ai_id) {
-        let h1emuAiId = dictionary[characterId].h1emu_ai_id;
-        queueMicrotask(() => {
-          this.aiManager.remove_entity(h1emuAiId);
-        });
-      }
+      this.aiManager.removeEntity(dictionary[characterId]);
     }
     delete dictionary[characterId];
     delete this._transientIds[this._characterIds[characterId]];
@@ -4119,6 +4127,8 @@ export class ZoneServer2016 extends EventEmitter {
         }
 
         if (object instanceof ConstructionChildEntity) {
+          if (this.constructionManager.shouldHideEntity(this, client, object))
+            continue;
           this.constructionManager.spawnSimpleConstruction(
             this,
             client,
@@ -7799,17 +7809,25 @@ export class ZoneServer2016 extends EventEmitter {
       itemType = itemDefinition.ITEM_TYPE;
     let count = 1;
     const timeout = 3000;
-    switch (itemType) {
-      case 36:
-      case 39:
-        count = 1;
-        break;
-      case 34: // salvage/shred
-        count = 4;
-        break;
-      default:
-        this.sendChatText(client, "[ERROR] Unknown salvage item or count.");
+    if (
+      item.itemDefinitionId === Items.BELT_POUCH ||
+      item.itemDefinitionId === Items.WAIST_PACK
+    ) {
+      count = 1;
+    } else {
+      switch (itemType) {
+        case 36:
+        case 39:
+          count = 1;
+          break;
+        case 34: // salvage/shred
+          count = 4;
+          break;
+        default:
+          this.sendChatText(client, "[ERROR] Unknown salvage item or count.");
+      }
     }
+
     this.utilizeHudTimer(client, nameId, timeout, animationId, () => {
       this.shredItemPass(character, item, count);
     });

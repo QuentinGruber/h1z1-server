@@ -129,9 +129,6 @@ export class Character2016 extends BaseFullCharacter {
   isRunning = false;
   isSitting = false;
 
-  /** The guid of the secured shelter the player is inside */
-  isHidden: string = "";
-
   /** Used for resources */
   isBleeding = false;
   isBandaged = false;
@@ -1253,7 +1250,7 @@ export class Character2016 extends BaseFullCharacter {
       oldHealth = this._resources[ResourceIds.HEALTH];
     if (!client) return;
 
-    if (this.isGodMode() || !this.isAlive || this.isRespawning || damage <= 25)
+    if (this.isGodMode() || !this.isAlive || this.isRespawning || damage < 1)
       return;
 
     // Don't damage players inside shelters
@@ -1299,6 +1296,16 @@ export class Character2016 extends BaseFullCharacter {
         sourceEntity.characterId != client.character.characterId
       ) {
         sourceEntity.metrics.playersKilled++;
+      } else if (sourceEntity instanceof ProjectileEntity) {
+        const sourceCharacter = server.getEntity(
+          sourceEntity.managerCharacterId
+        );
+        if (
+          sourceCharacter instanceof Character2016 &&
+          sourceCharacter.characterId != client.character.characterId
+        ) {
+          sourceCharacter.metrics.playersKilled++;
+        }
       }
     }
     server.updateResource(

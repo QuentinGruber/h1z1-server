@@ -24,7 +24,6 @@ import { ZoneClient2016 } from "../classes/zoneclient";
 import { CharacterPlayWorldCompositeEffect } from "types/zone2016packets";
 import { scheduler } from "node:timers/promises";
 import { BaseEntity } from "./baseentity";
-import { TRAPS_DESPAWN_TIME } from "../../../utils/constants";
 
 export class ExplosiveEntity extends BaseLightweightCharacter {
   /** Id of the item - See ServerItemDefinitions.json for more information */
@@ -42,6 +41,8 @@ export class ExplosiveEntity extends BaseLightweightCharacter {
 
   /** the characterId from who place this to keep track */
   ownerCharacterId: string;
+
+  creationTime: number = Date.now();
 
   isAwaitingExplosion: boolean = false;
 
@@ -129,12 +130,7 @@ export class ExplosiveEntity extends BaseLightweightCharacter {
   async arm(server: ZoneServer2016) {
     // Wait 10 seconds before activating the trap
     await scheduler.wait(10_000);
-    this.h1emu_ai_id = server.aiManager.add_trap(
-      this,
-      0.6,
-      90n,
-      TRAPS_DESPAWN_TIME
-    );
+    server.aiManager.addEntity(this);
   }
 
   /** Called when the explosive gets hit by a projectile (bullet, arrow, etc.) */

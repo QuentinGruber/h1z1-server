@@ -313,7 +313,7 @@ export class Vehicle2016 extends BaseLootableEntity {
     this.nameId = getVehicleName(this.actorModelId);
 
     switch (this.vehicleId) {
-      case VehicleIds.PICKUP:
+      case VehicleIds.PICKUP: {
         this.destroyedEffect = Effects.VEH_Death_PickupTruck;
         this.destroyedModel = ModelIds.PICKUP_DESTROYED;
         this.minorDamageEffect = Effects.VEH_Damage_PickupTruck_Stage01;
@@ -321,6 +321,7 @@ export class Vehicle2016 extends BaseLootableEntity {
         this.criticalDamageEffect = Effects.VEH_Damage_PickupTruck_Stage03;
         this.supercriticalDamageEffect = Effects.VEH_Damage_PickupTruck_Stage04;
         break;
+      }
       case VehicleIds.POLICECAR:
         this.destroyedEffect = Effects.VEH_Death_PoliceCar;
         this.destroyedModel = ModelIds.POLICE_CAR_DESTROYED;
@@ -329,7 +330,13 @@ export class Vehicle2016 extends BaseLootableEntity {
         this.criticalDamageEffect = Effects.VEH_Damage_PoliceCar_Stage03;
         this.supercriticalDamageEffect = Effects.VEH_Damage_PoliceCar_Stage04;
         break;
-      case VehicleIds.ATV:
+      case VehicleIds.ATV: {
+        const allowedShaders = [838, 1143, 837, 1003, 1148];
+        const randomShader =
+          allowedShaders[Math.floor(Math.random() * allowedShaders.length)];
+        if (this.shaderGroupId == 0) {
+          this.shaderGroupId = randomShader;
+        }
         this.destroyedEffect = Effects.VEH_Death_ATV;
         this.destroyedModel = ModelIds.ATV_DESTROYED;
         this.minorDamageEffect = Effects.VEH_Damage_ATV_Stage01;
@@ -337,6 +344,7 @@ export class Vehicle2016 extends BaseLootableEntity {
         this.criticalDamageEffect = Effects.VEH_Damage_ATV_Stage03;
         this.supercriticalDamageEffect = Effects.VEH_Damage_ATV_Stage04;
         break;
+      }
       case VehicleIds.PARACHUTE:
         this.destroyedEffect = 0;
         this.destroyedModel = 0;
@@ -346,10 +354,10 @@ export class Vehicle2016 extends BaseLootableEntity {
         this.supercriticalDamageEffect = 0;
         break;
       case VehicleIds.OFFROADER:
-      default:
-        const allowedShaders = [838, 1143, 837, 1003, 1148],
-          randomShader =
-            allowedShaders[Math.floor(Math.random() * allowedShaders.length)];
+      default: {
+        const allowedShaders = [838, 1143, 837, 1003, 1148];
+        const randomShader =
+          allowedShaders[Math.floor(Math.random() * allowedShaders.length)];
         if (this.shaderGroupId == 0) {
           this.shaderGroupId = randomShader;
         }
@@ -360,6 +368,7 @@ export class Vehicle2016 extends BaseLootableEntity {
         this.criticalDamageEffect = Effects.VEH_Damage_OffRoader_Stage03;
         this.supercriticalDamageEffect = Effects.VEH_Damage_OffRoader_Stage04;
         break;
+      }
     }
   }
 

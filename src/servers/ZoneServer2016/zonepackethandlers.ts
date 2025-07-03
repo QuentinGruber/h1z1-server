@@ -157,7 +157,6 @@ import { Lootbag } from "./entities/lootbag";
 import { ReceivedPacket } from "types/shared";
 import { LoadoutItem } from "./classes/loadoutItem";
 import { BaseItem } from "./classes/baseItem";
-import { EntityType } from "h1emu-ai";
 
 function getStanceFlags(num: number): StanceFlags {
   function getBit(bin: string, bit: number) {
@@ -392,10 +391,7 @@ export class ZonePacketHandlers {
       if (client.firstCharacterReleased) {
         server.challengeManager.loadChallenges(client);
         client.firstCharacterReleased = false;
-        client.character.h1emu_ai_id = server.aiManager.add_entity(
-          client.character,
-          EntityType.Player
-        );
+        server.aiManager.addEntity(client.character);
         if (
           server.voiceChatManager.useVoiceChatV2 &&
           server.voiceChatManager.joinVoiceChatOnConnect
@@ -1614,9 +1610,6 @@ export class ZonePacketHandlers {
 
       // Update character position
       client.character.state.position = position;
-      if (client.character.h1emu_ai_id) {
-        server.aiManager.update_pos(client.character.h1emu_ai_id, position);
-      }
 
       // Stop HUD timer if position is out of radius
       if (

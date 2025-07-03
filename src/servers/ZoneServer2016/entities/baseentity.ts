@@ -87,8 +87,8 @@ export abstract class BaseEntity {
   /** The physical material the entity is made of - See enums.ts/MaterialTypes for more information */
   materialType: number;
 
-  h1emu_ai_id?: bigint;
-
+  /** The guid of the secured shelter the entity is inside */
+  isHidden: string = "";
   server: ZoneServer2016;
   constructor(
     characterId: string,
