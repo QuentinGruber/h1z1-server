@@ -68,7 +68,8 @@ const invalidItemForLootbag: Items[] = [
   Items.WEAPON_FLASHLIGHT,
   Items.MAP,
   Items.COMPASS_IMPROVISED,
-  Items.BOOTS_GRAY_BLUE
+  Items.BOOTS_GRAY_BLUE,
+  Items.SKINNING_KNIFE
 ];
 
 function isValidForLootbag(itemDefinitionId: number): boolean {
