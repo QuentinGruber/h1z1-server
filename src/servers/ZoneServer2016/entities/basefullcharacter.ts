@@ -90,8 +90,7 @@ const invalidItemForLootbag: Items[] = [
   Items.CONTAINER_ANIMAL_TRAP,
   Items.CONTAINER_BEE_BOX,
   Items.CONTAINER_STASH,
-  Items.CONTAINER_REPAIR_BOX,
-  
+  Items.CONTAINER_REPAIR_BOX
 ];
 
 function isValidForLootbag(itemDefinitionId: number): boolean {
