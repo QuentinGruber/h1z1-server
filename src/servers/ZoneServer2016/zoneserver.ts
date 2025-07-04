@@ -1077,7 +1077,11 @@ export class ZoneServer2016 extends EventEmitter {
         characterId: character.characterId
       });
       if (!charactersArray) {
-        await collection.insertOne(character);
+        const result = await collection.insertOne(character);
+        if (!result.insertedId || !result.acknowledged) {
+          console.error(result);
+          throw new Error("Failed to insert character into database");
+        }
       }
       this._loginConnectionManager.sendData(client, "CharacterCreateReply", {
         reqId: reqId,
