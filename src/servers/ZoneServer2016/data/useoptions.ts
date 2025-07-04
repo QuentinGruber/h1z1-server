@@ -363,12 +363,12 @@ export const UseOptions: { [itemDefinitionIds: number]: ItemUseOption } = {
     comfortCount: 1500
   },
   50: {
-        itemDef: Items.CORN,
-        type: ItemUseOptions.EAT,
-        timeout: 2000,
-        eatCount: 1500, 
-        comfortCount: 250
-    },
+    itemDef: Items.CORN,
+    type: ItemUseOptions.EAT,
+    timeout: 2000,
+    eatCount: 1500,
+    comfortCount: 250
+  },
 
   //----------Use Medical-------------//
   5: {
