@@ -458,7 +458,7 @@ export class WorldObjectManager {
         if (container) {
           const experimental =
             experimentalWeapons[
-            Math.floor(Math.random() * experimentalWeapons.length)
+              Math.floor(Math.random() * experimentalWeapons.length)
             ];
           server.addContainerItem(
             lootbag,
@@ -477,7 +477,7 @@ export class WorldObjectManager {
         if (container) {
           const experimental =
             experimentalWeapons[
-            Math.floor(Math.random() * experimentalWeapons.length)
+              Math.floor(Math.random() * experimentalWeapons.length)
             ];
           server.addContainerItem(
             lootbag,
@@ -983,7 +983,7 @@ export class WorldObjectManager {
           this.createNpc(
             server,
             authorizedModelId[
-            Math.floor(Math.random() * authorizedModelId.length)
+              Math.floor(Math.random() * authorizedModelId.length)
             ],
             new Float32Array(npcInstance.position),
             new Float32Array(eul2quat(npcInstance.rotation)),
@@ -1019,7 +1019,7 @@ export class WorldObjectManager {
           if (
             chance <=
             lootTable.spawnChance *
-            (1 - isLootNerfedLoc(itemInstance.position) / 100)
+              (1 - isLootNerfedLoc(itemInstance.position) / 100)
           ) {
             if (!WorldObjectManager.itemSpawnersChances[itemInstance.id]) {
               const realSpawnChance =
@@ -1164,8 +1164,8 @@ export class WorldObjectManager {
             prop.hasItem(Items.QUEST_KURAMA_MEDICAL_SCRUBS_CAP)
           ) {
             const req1 = prop.getItemById(
-              Items.QUEST_KURAMA_MEDICAL_SCRUBS_SHIRT
-            ),
+                Items.QUEST_KURAMA_MEDICAL_SCRUBS_SHIRT
+              ),
               req2 = prop.getItemById(Items.QUEST_KURAMA_MEDICAL_SCRUBS_PANTS),
               req3 = prop.getItemById(Items.QUEST_KURAMA_MEDICAL_SCRUBS_CAP);
 
@@ -1291,8 +1291,8 @@ export class WorldObjectManager {
             ) {
               const count = Math.floor(
                 Math.random() *
-                (item.spawnCount.max - item.spawnCount.min + 1) +
-                item.spawnCount.min
+                  (item.spawnCount.max - item.spawnCount.min + 1) +
+                  item.spawnCount.min
               );
               // temporary spawnchance
               server.addContainerItem(
