@@ -994,9 +994,15 @@ export class ZoneServer2016 extends EventEmitter {
     try {
       await this.sendInitData(client);
     } catch (error) {
-      debug(error);
       console.log(error);
       this.sendData<LoginFailed>(client, "LoginFailed", {});
+      if (!this._soloMode) {
+        await this._db.collection(DB_COLLECTIONS.LOGIN_ERRORS).insertOne({
+          error,
+          guid: client.loginSessionId,
+          characterId: client.character.characterId
+        });
+      }
     }
   }
 
