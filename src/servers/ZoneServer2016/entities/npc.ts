@@ -284,9 +284,9 @@ export class Npc extends BaseFullCharacter {
       Items.WORN_LETTER_VILLAS,
       Items.WORN_LETTER_WATER_TOWER
     ];
-    // Worn letter (15% chance, up to 2)
+    // Worn letter (2% chance)
     for (let i = 0; i < 2; i++) {
-      if (chance(40)) {
+      if (chance(20)) {
         const randomWornLetter =
           wornLetters[randomIntFromInterval(0, wornLetters.length - 1)];
         const wornLetterItem = server.generateItem(randomWornLetter, 1);
@@ -316,9 +316,9 @@ export class Npc extends BaseFullCharacter {
     }
 
     const ammoTypes = [Items.AMMO_380, Items.AMMO_9MM, Items.AMMO_45];
-    // Ammo (10% chance)
+    // Ammo (7% chance)
     for (let i = 0; i < ammoTypes.length - 1; i++) {
-      if (chance(100)) {
+      if (chance(70)) {
         const randomAmmo =
           ammoTypes[randomIntFromInterval(0, ammoTypes.length - 1)];
         const ammoCount = randomIntFromInterval(1, 5);
@@ -337,7 +337,7 @@ export class Npc extends BaseFullCharacter {
     ];
     // Special item (10% chance)
     for (let i = 0; i < specialItems.length - 1; i++) {
-      if (chance(150)) {
+      if (chance(100)) {
         const randomSpecial =
           specialItems[randomIntFromInterval(0, specialItems.length - 1)];
         const specialItem = server.generateItem(randomSpecial, 1);
