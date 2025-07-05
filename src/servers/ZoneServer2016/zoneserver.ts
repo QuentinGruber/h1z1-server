@@ -2764,18 +2764,18 @@ export class ZoneServer2016 extends EventEmitter {
     let isInGodMode = false;
     if (killerClient) {
       isInGodMode = killerClient.character.isGodMode();
-    }
-    this.sendDataToAllWithSpawnedEntity<CharacterKilledBy>(
-      this._characters,
-      client.character.characterId,
-      "Character.KilledBy",
+      this.sendDataToAllWithSpawnedEntity<CharacterKilledBy>(
+        this._characters,
+        client.character.characterId,
+        "Character.KilledBy",
 
-      {
-        killer: killerClient?.character.characterId,
-        killed: client.character.characterId,
-        isCheater: isInGodMode
-      }
-    );
+        {
+          killer: killerClient?.character.characterId,
+          killed: client.character.characterId,
+          isCheater: isInGodMode
+        }
+      );
+    }
   }
 
   applyCharacterEffect(
