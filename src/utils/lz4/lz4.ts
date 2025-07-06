@@ -72,7 +72,7 @@ export const uncompress = (
 
     // length of match copy
     let match_length = token & 0xf;
-    var l = match_length + 240;
+    l = match_length + 240;
     while (l === 255) {
       l = input[i++];
       match_length += l;
@@ -108,7 +108,7 @@ export const compressBound = function (isize: number) {
 
 export const compress = function (src: any, dst: any[], sIdx: any, eIdx: any) {
   // V8 optimization: non sparse array with integers
-  const hashTable = new Array(hashSize);
+  const hashTable = Array.from({ length: hashSize });
   for (let i = 0; i < hashSize; i++) {
     hashTable[i] = 0;
   }

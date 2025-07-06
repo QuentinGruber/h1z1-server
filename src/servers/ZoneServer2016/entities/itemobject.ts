@@ -3,7 +3,7 @@
 //   GNU GENERAL PUBLIC LICENSE
 //   Version 3, 29 June 2007
 //   copyright (C) 2020 - 2021 Quentin Gruber
-//   copyright (C) 2021 - 2024 H1emu community
+//   copyright (C) 2021 - 2025 H1emu community
 //
 //   https://github.com/QuentinGruber/h1z1-server
 //   https://www.npmjs.com/package/h1z1-server
@@ -51,6 +51,9 @@ export class ItemObject extends BaseLightweightCharacter {
     /* eslint-enable @typescript-eslint/no-unused-vars */
   ) {
     server.pickupItem(client, this.characterId);
+    // -1 spawnerId means item was dropped
+    if (this.spawnerId <= -1) return;
+    server.lootCrateWithChance(client, 5);
   }
 
   OnInteractionString(server: ZoneServer2016, client: ZoneClient2016): void {
@@ -77,10 +80,7 @@ export class ItemObject extends BaseLightweightCharacter {
       if (this.triggerExplosionShots > 0) return;
       server.deleteEntity(this.characterId, server._spawnedItems);
       delete server.worldObjectManager.spawnedLootObjects[this.spawnerId];
-      server._explosives[this.characterId].detonate(
-        server,
-        server.getClientByCharId(damageInfo.entity)
-      );
+      server._explosives[this.characterId].detonate(damageInfo.entity);
     }
   }
 

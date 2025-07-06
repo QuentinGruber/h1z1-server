@@ -3,7 +3,7 @@
 //   GNU GENERAL PUBLIC LICENSE
 //   Version 3, 29 June 2007
 //   copyright (C) 2020 - 2021 Quentin Gruber
-//   copyright (C) 2021 - 2024 H1emu community
+//   copyright (C) 2021 - 2025 H1emu community
 //
 //   https://github.com/QuentinGruber/h1z1-server
 //   https://www.npmjs.com/package/h1z1-server
@@ -35,9 +35,11 @@ export class SOEOutputStream extends EventEmitter {
   private _cache: dataCacheMap = {};
   private _rc4: RC4;
   private hasPendingEmit: boolean = false;
-  maxSequenceAvailable: number = 100;
   outOfOrder: Set<number> = new Set();
-  constructor(cryptoKey: Uint8Array) {
+  constructor(
+    cryptoKey: Uint8Array,
+    public maxSequenceAvailable: number = 300
+  ) {
     super();
     this._rc4 = new RC4(cryptoKey);
   }

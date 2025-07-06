@@ -3,7 +3,7 @@
 //   GNU GENERAL PUBLIC LICENSE
 //   Version 3, 29 June 2007
 //   copyright (C) 2020 - 2021 Quentin Gruber
-//   copyright (C) 2021 - 2024 H1emu community
+//   copyright (C) 2021 - 2025 H1emu community
 //
 //   https://github.com/QuentinGruber/h1z1-server
 //   https://www.npmjs.com/package/h1z1-server
@@ -20,9 +20,9 @@ export const gamemodePackets: PacketStructures = [
     {
       fields: [
         { name: "position", type: "floatvector4", defaultValue: [0, 0, 0, 0] },
-        { name: "radius", type: "uint32", defaultValue: 1000 },
-        { name: "unknownDword3", type: "uint32", defaultValue: 10 },
-        { name: "unknownDword4", type: "uint32", defaultValue: 0 }
+        { name: "radius", type: "float", defaultValue: 1000 },
+        { name: "unknownDword3", type: "uint32", defaultValue: 1000 },
+        { name: "unknownDword4", type: "float", defaultValue: 1 }
       ]
     }
   ],
@@ -32,20 +32,20 @@ export const gamemodePackets: PacketStructures = [
     {
       fields: [
         { name: "position", type: "floatvector4", defaultValue: [0, 0, 0, 0] },
-        { name: "radius", type: "uint32", defaultValue: 1000 }
+        { name: "radius", type: "float", defaultValue: 1000 }
       ]
     }
   ],
   [
-    "GameMode.Unk4",
+    "GameMode.DeathInfo",
     0xcf0400,
     {
       fields: [
-        { name: "unknownDword1", type: "uint32", defaultValue: 0 },
-        { name: "unknownBoolean1", type: "boolean", defaultValue: false },
-        { name: "unknownString1", type: "string", defaultValue: "" },
-        { name: "unknownDword2", type: "uint32", defaultValue: 0 },
-        { name: "unknownDword3", type: "uint32", defaultValue: 0 },
+        { name: "endingPositionIndex", type: "uint32", defaultValue: 0 },
+        { name: "endsInDraw", type: "boolean", defaultValue: false },
+        { name: "playerName", type: "string", defaultValue: "" },
+        { name: "remainingHealth", type: "uint32", defaultValue: 0 },
+        { name: "weapon", type: "uint32", defaultValue: 0 },
         { name: "unknownDword4", type: "uint32", defaultValue: 0 }
       ]
     }
@@ -60,19 +60,19 @@ export const gamemodePackets: PacketStructures = [
     }
   ],
   [
-    "GameMode.Unk9",
+    "GameMode.PlayersRemaining",
     0xcf0900,
     {
-      fields: [{ name: "unknownDword1", type: "uint32", defaultValue: 0 }]
+      fields: [{ name: "players", type: "uint32", defaultValue: 0 }]
     }
   ],
   [
-    "GameMode.Unk10",
+    "GameMode.TeamsRemaining",
     0xcf0a00,
     {
       fields: [
-        { name: "unknownDword1", type: "uint32", defaultValue: 0 },
-        { name: "unknownDword2", type: "uint32", defaultValue: 0 }
+        { name: "players", type: "uint32", defaultValue: 0 },
+        { name: "teams", type: "uint32", defaultValue: 0 }
       ]
     }
   ],

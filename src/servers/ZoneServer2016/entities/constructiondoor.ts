@@ -3,7 +3,7 @@
 //   GNU GENERAL PUBLIC LICENSE
 //   Version 3, 29 June 2007
 //   copyright (C) 2020 - 2021 Quentin Gruber
-//   copyright (C) 2021 - 2024 H1emu community
+//   copyright (C) 2021 - 2025 H1emu community
 //
 //   https://github.com/QuentinGruber/h1z1-server
 //   https://www.npmjs.com/package/h1z1-server
@@ -153,6 +153,11 @@ export class ConstructionDoor extends DoorEntity {
       ResourceTypes.CONDITION,
       server._constructionDoors
     );
+    if (damageInfo.damage > 0) {
+      const timestamp = Date.now();
+      const parentFoundation = this.getParentFoundation(server);
+      if (parentFoundation) parentFoundation.lastDamagedTimestamp = timestamp;
+    }
 
     if (this.health > 0) return;
     this.destroy(server, 3000);
@@ -181,6 +186,8 @@ export class ConstructionDoor extends DoorEntity {
       case Items.DOOR_METAL:
         slotMap = parent.occupiedWallSlots;
         updateSecured = true;
+        parent.wallSlotsPlacementTimer[this.getSlotNumber()] =
+          Date.now() + 30000;
         break;
     }
     if (slotMap) parent.clearSlot(this.getSlotNumber(), slotMap);
@@ -263,7 +270,7 @@ export class ConstructionDoor extends DoorEntity {
         this.getHasPermission(
           server,
           client.character.characterId,
-          ConstructionPermissionIds.DEMOLISH
+          ConstructionPermissionIds.CONTAINERS // Container permissions player is able to open constructiondoors
         ) ||
         (client.isAdmin && client.isDebugMode) // debug mode open all doors/gates
       ) {
@@ -380,12 +387,16 @@ export class ConstructionDoor extends DoorEntity {
         server,
         client.character.characterId,
         ConstructionPermissionIds.DEMOLISH
-      ) ||
-      !this.grantedAccess.includes(client.character.characterId)
+      )
     ) {
       server.sendData(client, "Command.InteractionString", {
         guid: this.characterId,
         stringId: StringIds.OPEN_AND_LOCK
+      });
+    } else if (!this.grantedAccess.includes(client.character.characterId)) {
+      server.sendData(client, "Command.InteractionString", {
+        guid: this.characterId,
+        stringId: StringIds.ENTER_ACCESS_CODE
       });
     } else {
       server.sendData(client, "Command.InteractionString", {
@@ -406,8 +417,12 @@ export class ConstructionDoor extends DoorEntity {
   OnExplosiveHit(
     server: ZoneServer2016,
     sourceEntity: BaseEntity,
-    client?: ZoneClient2016
+    client?: ZoneClient2016,
+    useRaycast?: boolean
   ) {
+    if (server.isPvE) {
+      return;
+    }
     const itemDefinitionId =
       sourceEntity instanceof ExplosiveEntity
         ? sourceEntity.itemDefinitionId
@@ -422,12 +437,16 @@ export class ConstructionDoor extends DoorEntity {
     ) {
       return;
     }
-
     if (server.constructionManager.isConstructionInSecuredArea(server, this)) {
-      if (!client) return;
-      server.constructionManager.sendBaseSecuredMessage(server, client);
-
-      return;
+      if (useRaycast) {
+        if (!client) return;
+        server.constructionManager.sendBaseSecuredMessage(server, client);
+        return;
+      } else {
+        if (!client) return;
+        server.constructionManager.sendBaseSecuredMessage(server, client);
+        return;
+      }
     }
     server.constructionManager.checkConstructionDamage(
       server,

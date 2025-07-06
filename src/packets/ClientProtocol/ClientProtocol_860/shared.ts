@@ -3,7 +3,7 @@
 //   GNU GENERAL PUBLIC LICENSE
 //   Version 3, 29 June 2007
 //   copyright (C) 2020 - 2021 Quentin Gruber
-//   copyright (C) 2021 - 2024 H1emu community
+//   copyright (C) 2021 - 2025 H1emu community
 //
 //   https://github.com/QuentinGruber/h1z1-server
 //   https://www.npmjs.com/package/h1z1-server
@@ -381,7 +381,7 @@ export function packItemDefinitionData(obj: any) {
   }
   v.writeUInt8(flagValue, 0); // flags
   data = Buffer.concat([data, v]);
-  (v = Buffer.allocUnsafe(4)), v.writeUInt32LE(obj["nameId"], 0);
+  ((v = Buffer.allocUnsafe(4)), v.writeUInt32LE(obj["nameId"], 0));
   data = Buffer.concat([data, v]);
   v.writeUInt32LE(obj["descriptionId"], 0);
   data = Buffer.concat([data, v]);
@@ -406,20 +406,20 @@ export function packItemDefinitionData(obj: any) {
   v.writeUInt32LE(obj["slot"], 0);
   data = Buffer.concat([data, v]);
   if (obj["modelName"]) {
-    (v = Buffer.allocUnsafe(4 + obj["modelName"].length)),
-      v.writePrefixedStringLE(obj["modelName"], 0);
+    ((v = Buffer.allocUnsafe(4 + obj["modelName"].length)),
+      v.writePrefixedStringLE(obj["modelName"], 0));
   } else {
-    (v = Buffer.allocUnsafe(4)), v.writePrefixedStringLE("", 0);
+    ((v = Buffer.allocUnsafe(4)), v.writePrefixedStringLE("", 0));
   }
   data = Buffer.concat([data, v]);
   if (obj["textureAlias"]) {
-    (v = Buffer.allocUnsafe(4 + obj["textureAlias"].length)),
-      v.writePrefixedStringLE(obj["textureAlias"], 0);
+    ((v = Buffer.allocUnsafe(4 + obj["textureAlias"].length)),
+      v.writePrefixedStringLE(obj["textureAlias"], 0));
   } else {
-    (v = Buffer.allocUnsafe(4)), v.writePrefixedStringLE("", 0);
+    ((v = Buffer.allocUnsafe(4)), v.writePrefixedStringLE("", 0));
   }
   data = Buffer.concat([data, v]);
-  (v = Buffer.allocUnsafe(4)), v.writeUInt32LE(obj["genderUsage"], 0);
+  ((v = Buffer.allocUnsafe(4)), v.writeUInt32LE(obj["genderUsage"], 0));
   data = Buffer.concat([data, v]);
   v.writeUInt32LE(obj["itemType"], 0);
   data = Buffer.concat([data, v]);
@@ -448,13 +448,13 @@ export function packItemDefinitionData(obj: any) {
   v.writeUInt32LE(obj["unknownDword27"], 0);
   data = Buffer.concat([data, v]);
   if (obj["tintAlias"]) {
-    (v = Buffer.allocUnsafe(4 + obj["tintAlias"].length)),
-      v.writePrefixedStringLE(obj["tintAlias"], 0);
+    ((v = Buffer.allocUnsafe(4 + obj["tintAlias"].length)),
+      v.writePrefixedStringLE(obj["tintAlias"], 0));
   } else {
-    (v = Buffer.allocUnsafe(4)), v.writePrefixedStringLE("", 0);
+    ((v = Buffer.allocUnsafe(4)), v.writePrefixedStringLE("", 0));
   }
   data = Buffer.concat([data, v]);
-  (v = Buffer.allocUnsafe(4)), v.writeUInt32LE(obj["unknownDword28"], 0);
+  ((v = Buffer.allocUnsafe(4)), v.writeUInt32LE(obj["unknownDword28"], 0));
   data = Buffer.concat([data, v]);
   v.writeUInt32LE(obj["unknownDword29"], 0);
   data = Buffer.concat([data, v]);
@@ -475,20 +475,20 @@ export function packItemDefinitionData(obj: any) {
   v.writeUInt32LE(obj["unknownDword37"], 0);
   data = Buffer.concat([data, v]);
   if (obj["overlayTexture"]) {
-    (v = Buffer.allocUnsafe(4 + obj["overlayTexture"].length)),
-      v.writePrefixedStringLE(obj["overlayTexture"], 0);
+    ((v = Buffer.allocUnsafe(4 + obj["overlayTexture"].length)),
+      v.writePrefixedStringLE(obj["overlayTexture"], 0));
   } else {
-    (v = Buffer.allocUnsafe(4)), v.writePrefixedStringLE("", 0);
+    ((v = Buffer.allocUnsafe(4)), v.writePrefixedStringLE("", 0));
   }
   data = Buffer.concat([data, v]);
   if (obj["decalSlot"]) {
-    (v = Buffer.allocUnsafe(4 + obj["decalSlot"].length)),
-      v.writePrefixedStringLE(obj["decalSlot"], 0);
+    ((v = Buffer.allocUnsafe(4 + obj["decalSlot"].length)),
+      v.writePrefixedStringLE(obj["decalSlot"], 0));
   } else {
-    (v = Buffer.allocUnsafe(4)), v.writePrefixedStringLE("", 0);
+    ((v = Buffer.allocUnsafe(4)), v.writePrefixedStringLE("", 0));
   }
   data = Buffer.concat([data, v]);
-  (v = Buffer.allocUnsafe(4)), v.writeUInt32LE(obj["unknownDword38"], 0);
+  ((v = Buffer.allocUnsafe(4)), v.writeUInt32LE(obj["unknownDword38"], 0));
   data = Buffer.concat([data, v]);
   v.writeUInt32LE(obj["unknownDword39"], 0);
   data = Buffer.concat([data, v]);
@@ -497,13 +497,13 @@ export function packItemDefinitionData(obj: any) {
   v.writeUInt32LE(obj["unknownDword41"], 0);
   data = Buffer.concat([data, v]);
   if (obj["overrideAppearance"]) {
-    (v = Buffer.allocUnsafe(4 + obj["overrideAppearance"].length)),
-      v.writePrefixedStringLE(obj["overrideAppearance"], 0);
+    ((v = Buffer.allocUnsafe(4 + obj["overrideAppearance"].length)),
+      v.writePrefixedStringLE(obj["overrideAppearance"], 0));
   } else {
-    (v = Buffer.allocUnsafe(4)), v.writePrefixedStringLE("", 0);
+    ((v = Buffer.allocUnsafe(4)), v.writePrefixedStringLE("", 0));
   }
   data = Buffer.concat([data, v]);
-  (v = Buffer.allocUnsafe(4)), v.writeUInt32LE(obj["overrideCameraId"], 0);
+  ((v = Buffer.allocUnsafe(4)), v.writeUInt32LE(obj["overrideCameraId"], 0));
   data = Buffer.concat([data, v]);
   v.writeUInt32LE(obj["unknownDword43"], 0);
   data = Buffer.concat([data, v]);

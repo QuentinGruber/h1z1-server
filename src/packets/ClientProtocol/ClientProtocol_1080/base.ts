@@ -3,7 +3,7 @@
 //   GNU GENERAL PUBLIC LICENSE
 //   Version 3, 29 June 2007
 //   copyright (C) 2020 - 2021 Quentin Gruber
-//   copyright (C) 2021 - 2024 H1emu community
+//   copyright (C) 2021 - 2025 H1emu community
 //
 //   https://github.com/QuentinGruber/h1z1-server
 //   https://www.npmjs.com/package/h1z1-server
@@ -28,6 +28,7 @@ import {
   packPositionUpdateData,
   packUnsignedIntWith2bitLengthValue,
   readPositionUpdateData,
+  readPositionUpdateDataAndCheckLength,
   readUnsignedIntWith2bitLengthValue,
   recipeData,
   packItemWeaponData,
@@ -2387,6 +2388,16 @@ export const basePackets: PacketStructures = [
   ["Quest", 0x1b, {}],
   ["Reward", 0x1c, {}],
   [
+    "Reward.AddRewardItem",
+    0x1c01,
+    {
+      fields: [
+        ...rewardBundleSchema,
+        { name: "unknownBoolean2", type: "boolean", defaultValue: true }
+      ]
+    }
+  ],
+  [
     "Reward.AddNonRewardItem",
     0x1c02,
     {
@@ -2425,7 +2436,19 @@ export const basePackets: PacketStructures = [
   ["Acquaintance", 0x2b, {}],
   ["ClientServerShuttingDown", 0x2c, {}],
 
-  ["Broadcast", 0x2e, {}],
+  [
+    "Broadcast",
+    0x2e0000,
+    {
+      fields: [
+        { name: "identity", type: "schema", fields: identitySchema },
+        { name: "unknownString1", type: "string", defaultValue: "" },
+        { name: "unknownDword1", type: "uint32", defaultValue: 0 },
+        { name: "unknownBoolean1", type: "boolean", defaultValue: false },
+        { name: "unknownBoolean2", type: "boolean", defaultValue: false }
+      ]
+    }
+  ],
   ["ClientKickedFromServer", 0x2f, {}],
   [
     "UpdateClientSessionData",
@@ -2948,7 +2971,7 @@ export const basePackets: PacketStructures = [
         {
           name: "positionUpdate",
           type: "custom",
-          parser: readPositionUpdateData,
+          parser: readPositionUpdateDataAndCheckLength,
           packer: packPositionUpdateData,
           defaultValue: 1
         }
@@ -3388,6 +3411,34 @@ export const basePackets: PacketStructures = [
       ]
     }
   ],
+  [
+    "Audio.SetState",
+    0xdd01,
+    {
+      fields: [
+        { name: "unknownString1", type: "string", defaultValue: "" },
+        { name: "unknownString2", type: "string", defaultValue: "" }
+      ]
+    }
+  ],
+  [
+    "Audio.SetSwitch",
+    0xdd02,
+    {
+      fields: [
+        { name: "characterId", type: "uint64string", defaultValue: "0" },
+        { name: "unknownString1", type: "string", defaultValue: "ShoeType" },
+        { name: "unknownString2", type: "string", defaultValue: "Sneaker" }
+      ]
+    }
+  ],
+  [
+    "Audio.PostEvent",
+    0xdd03,
+    {
+      fields: [{ name: "unknownString1", type: "string", defaultValue: "" }]
+    }
+  ],
   ["CheckLocalValues", 0xde, {}],
   ["ChronicleBase", 0xdf, {}],
   [
@@ -3479,7 +3530,41 @@ export const basePackets: PacketStructures = [
   ["BattlEyeData", 0xe6, {}],
   ["OnlineIdBase", 0xe7, {}],
   ["Ps4PlayGoBase", 0xe8, {}],
-  ["SynchronizedTeleportBase", 0xe9, {}],
+  [
+    "SynchronizedTeleport.WaitingForPlayers",
+    0xe90100,
+    {
+      fields: [
+        { name: "unknownBoolean1", type: "boolean", defaultValue: false }
+      ]
+    }
+  ],
+  [
+    "SynchronizedTeleport.Unk2",
+    0xe90200,
+    {
+      fields: []
+    }
+  ],
+  [
+    "SynchronizedTeleport.StartingMatch",
+    0xe90300,
+    {
+      fields: [
+        { name: "cooldown", type: "uint32", defaultValue: 5000 },
+        { name: "unknownBoolean1", type: "boolean", defaultValue: false }
+      ]
+    }
+  ],
+  [
+    "SynchronizedTeleport.Countdown",
+    0xe90400,
+    {
+      fields: [
+        { name: "unknownBoolean1", type: "boolean", defaultValue: false }
+      ]
+    }
+  ],
   ["StaticViewBase", 0xea, {}],
   ["DatasheetsBase", 0xec, {}],
   ["PlayerWorldTransferRequest", 0xed, {}],
@@ -3514,7 +3599,14 @@ export const basePackets: PacketStructures = [
   ["CrateOpeningBase", 0xf6, {}],
   ["PlayerHeatWarning", 0xf7, {}],
   [
-    "AnimationBase",
+    "Animation.Request",
+    0xf801,
+    {
+      fields: [{ name: "itemDefinitionId", type: "uint32", defaultValue: 0 }]
+    }
+  ],
+  [
+    "Animation.Play",
     0xf802,
     {
       fields: [

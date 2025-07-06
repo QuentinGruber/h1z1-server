@@ -3,7 +3,7 @@
 //   GNU GENERAL PUBLIC LICENSE
 //   Version 3, 29 June 2007
 //   copyright (C) 2020 - 2021 Quentin Gruber
-//   copyright (C) 2021 - 2024 H1emu community
+//   copyright (C) 2021 - 2025 H1emu community
 //
 //   https://github.com/QuentinGruber/h1z1-server
 //   https://www.npmjs.com/package/h1z1-server
@@ -17,7 +17,8 @@ const Z1_vehicles = require("../../../../data/2016/zoneData/Z1_vehicleLocations.
 import {
   ConstructionEntity,
   dailyRepairMaterial,
-  DamageInfo
+  DamageInfo,
+  ShelterSlotsPlacementTimer
 } from "types/zoneserver";
 import {
   eul2quat,
@@ -578,6 +579,7 @@ export class ConstructionManager {
     modelId: number,
     position: Float32Array,
     rotation: Float32Array,
+    scale: Float32Array,
     parentObjectCharacterId: string,
     BuildingSlot: string
   ) {
@@ -670,7 +672,9 @@ export class ConstructionManager {
     }
 
     if (
-      ![Items.TRAP_FIRE, Items.TRAP_FLASH].includes(itemDefinitionId) &&
+      ![Items.TRAP_FIRE, Items.TRAP_FLASH, Items.WOODEN_BARRICADE].includes(
+        itemDefinitionId
+      ) &&
       this.handleInvalidPlacement(
         server,
         client,
@@ -690,6 +694,7 @@ export class ConstructionManager {
         modelId,
         position,
         rotation,
+        scale,
         parentObjectCharacterId,
         BuildingSlot,
         freeplaceParentCharacterId
@@ -711,6 +716,7 @@ export class ConstructionManager {
     modelId: number,
     position: Float32Array,
     rotation: Float32Array,
+    scale: Float32Array,
     parentObjectCharacterId: string,
     BuildingSlot: string,
     freeplaceParentCharacterId?: string
@@ -911,6 +917,7 @@ export class ConstructionManager {
           modelId,
           position,
           rotation,
+          scale,
           freeplaceParentCharacterId ?? "",
           itemDefinitionId
         );
@@ -949,6 +956,31 @@ export class ConstructionManager {
       return false;
     }
 
+    if (
+      parent &&
+      this.isSlotOnPlacementCooldown(
+        parent.shelterSlotsPlacementTimer,
+        getConstructionSlotId(BuildingSlot)
+      )
+    ) {
+      server.sendAlert(
+        client,
+        `You cant place in this slot for the next ${((parent.shelterSlotsPlacementTimer[getConstructionSlotId(BuildingSlot)] - Date.now()) / 1000).toFixed(2)} seconds`
+      );
+      return false;
+    }
+
+    if (
+      parent &&
+      parent.isSlotOccupied(
+        parent.occupiedShelterSlots,
+        getConstructionSlotId(BuildingSlot)
+      )
+    ) {
+      this.placementError(server, client, ConstructionErrors.OVERLAP);
+      return false;
+    }
+
     if (!parent.isShelterSlotValid(BuildingSlot, itemDefinitionId)) {
       this.placementError(server, client, ConstructionErrors.UNKNOWN_SLOT);
       return false;
@@ -974,8 +1006,12 @@ export class ConstructionManager {
         BuildingSlot
       );
 
+    const result = parent.setShelterSlot(server, shelter);
+    if (!result) {
+      this.placementError(server, client, ConstructionErrors.WALL_SLOT_FAILED);
+      return false;
+    }
     server._constructionSimple[characterId] = shelter;
-    parent.setShelterSlot(server, shelter);
     server.executeFuncForAllReadyClientsInRange((client) => {
       this.spawnSimpleConstruction(server, client, shelter);
     }, shelter);
@@ -1015,6 +1051,21 @@ export class ConstructionManager {
         this.placementError(server, client, ConstructionErrors.OVERLAP);
         return false;
       }
+
+      if (
+        parent &&
+        this.isSlotOnPlacementCooldown(
+          parent.upperWallSlotsPlacementTimer,
+          getConstructionSlotId(BuildingSlot)
+        )
+      ) {
+        server.sendAlert(
+          client,
+          `You cant place in this slot for the next ${((parent.upperWallSlotsPlacementTimer[getConstructionSlotId(BuildingSlot)] - Date.now()) / 1000).toFixed(2)} seconds`
+        );
+        return false;
+      }
+
       position = parent.getSlotPosition(BuildingSlot, parent.upperWallSlots);
       rotation = parent.getSlotRotation(BuildingSlot, parent.upperWallSlots);
     } else {
@@ -1028,6 +1079,21 @@ export class ConstructionManager {
         this.placementError(server, client, ConstructionErrors.OVERLAP);
         return false;
       }
+
+      if (
+        parent &&
+        this.isSlotOnPlacementCooldown(
+          parent.wallSlotsPlacementTimer,
+          getConstructionSlotId(BuildingSlot)
+        )
+      ) {
+        server.sendAlert(
+          client,
+          `You cant place in this slot for the next ${((parent.wallSlotsPlacementTimer[getConstructionSlotId(BuildingSlot)] - Date.now()) / 1000).toFixed(2)} seconds`
+        );
+        return false;
+      }
+
       position = parent.getSlotPosition(BuildingSlot, parent.wallSlots);
       rotation = parent.getSlotRotation(BuildingSlot, parent.wallSlots);
     }
@@ -1216,6 +1282,20 @@ export class ConstructionManager {
       return false;
     }
 
+    if (
+      parent &&
+      this.isSlotOnPlacementCooldown(
+        parent.wallSlotsPlacementTimer,
+        getConstructionSlotId(BuildingSlot)
+      )
+    ) {
+      server.sendAlert(
+        client,
+        `You cant place in this slot for the next ${((parent.wallSlotsPlacementTimer[getConstructionSlotId(BuildingSlot)] - Date.now()) / 1000).toFixed(2)} seconds`
+      );
+      return false;
+    }
+
     if (!parent.isWallSlotValid(BuildingSlot, itemDefinitionId)) {
       this.placementError(server, client, ConstructionErrors.UNKNOWN_SLOT);
       return false;
@@ -1223,6 +1303,13 @@ export class ConstructionManager {
 
     const position = parent.getSlotPosition(BuildingSlot, parent.wallSlots),
       rotation = parent.getSlotRotation(BuildingSlot, parent.wallSlots);
+    if (
+      position &&
+      (itemDefinitionId == Items.METAL_GATE ||
+        itemDefinitionId == Items.METAL_WALL ||
+        itemDefinitionId == Items.METAL_WALL_UPPER)
+    )
+      position[1] -= 0.1;
     if (!position || !rotation) {
       this.placementError(server, client, ConstructionErrors.UNKNOWN_SLOT);
       return false;
@@ -1243,7 +1330,11 @@ export class ConstructionManager {
         BuildingSlot
       );
 
-    parent.setWallSlot(server, door);
+    const result = parent.setWallSlot(server, door);
+    if (!result) {
+      this.placementError(server, client, ConstructionErrors.WALL_SLOT_FAILED);
+      return false;
+    }
 
     server._constructionDoors[characterId] = door;
     server.executeFuncForAllReadyClientsInRange((client) => {
@@ -1397,7 +1488,7 @@ export class ConstructionManager {
         worldOwned,
         owner
       );
-    //npc.arm(server);
+    npc.arm();
     //temporarily disabled
     server._traps[characterId] = npc;
     server.spawnSimpleNpcForAllInRange(npc);
@@ -1425,8 +1516,7 @@ export class ConstructionManager {
         ownerCharacterId
       );
     if (npc.isLandmine()) {
-      //npc.arm(server);
-      //temporarily disabled
+      npc.arm(server);
     }
     server._explosives[characterId] = npc;
     server.spawnSimpleNpcForAllInRange(npc);
@@ -1588,8 +1678,9 @@ export class ConstructionManager {
           container.canAcceptItems = false;
           break;
         case Items.DEW_COLLECTOR:
-        case Items.BEE_BOX:
           container.acceptedItems = [Items.WATER_EMPTY];
+        case Items.BEE_BOX:
+          container.acceptedItems = [Items.WATER_EMPTY, Items.HONEYCOMB];
       }
     }
     server.executeFuncForAllReadyClientsInRange((client) => {
@@ -1667,6 +1758,7 @@ export class ConstructionManager {
     modelId: number,
     position: Float32Array,
     rotation: Float32Array,
+    scale: Float32Array,
     parentObjectCharacterId: string,
     itemDefinitionId: number
   ) {
@@ -1683,6 +1775,8 @@ export class ConstructionManager {
         parentObjectCharacterId,
         ""
       );
+
+    construction.scale = scale;
 
     const parent = construction.getParent(server);
     if (parent) {
@@ -1783,7 +1877,7 @@ export class ConstructionManager {
       }
     }
     if (allowed) return false;
-    const bufferZone = 0.35;
+    const bufferZone = 0.15;
     const position = client.character.state.position;
     const positions: Float32Array[] = [];
 
@@ -1857,6 +1951,22 @@ export class ConstructionManager {
       ConstructionPermissionIds.VISIT
     );
     if (hasVisitPermission) allowed = true;
+    for (const f in construction.freeplaceEntities) {
+      const freePlacedEntity = construction.freeplaceEntities[f];
+      if (construction.isInside(freePlacedEntity.state.position)) {
+        if (freePlacedEntity instanceof BaseEntity) {
+          if (allowed) {
+            this.constructionHideEntities(
+              server,
+              client,
+              construction.characterId,
+              freePlacedEntity,
+              true
+            );
+          }
+        }
+      }
+    }
     if (construction.isInside(client.character.state.position)) {
       if (allowed) {
         this.constructionHidePlayer(
@@ -1929,6 +2039,57 @@ export class ConstructionManager {
         }
       } else return;
     } else if (client.character.isHidden) client.character.isHidden = "";
+  }
+
+  constructionHideEntities(
+    server: ZoneServer2016,
+    client: Client,
+    constructionGuid: string,
+    freePlacedEntity: BaseEntity,
+    state: boolean
+  ) {
+    if (state) {
+      if (!freePlacedEntity.isHidden) {
+        freePlacedEntity.isHidden = constructionGuid;
+        for (const a in server._clients) {
+          const iteratedClient = server._clients[a];
+
+          const constructionEntity =
+            server.getConstructionEntity(constructionGuid);
+
+          let hasVisitPermission = false;
+          if (constructionEntity) {
+            hasVisitPermission = constructionEntity.getHasPermission(
+              server,
+              iteratedClient.character.characterId,
+              ConstructionPermissionIds.VISIT
+            );
+          }
+
+          const isSameGroup =
+            client.character.groupId != 0 &&
+            iteratedClient.character.groupId != 0 &&
+            client.character.groupId === iteratedClient.character.groupId;
+
+          const hasPermission = isSameGroup && hasVisitPermission;
+
+          if (
+            iteratedClient.spawnedEntities.has(client.character) &&
+            iteratedClient.character.isHidden != freePlacedEntity.isHidden &&
+            !hasPermission
+          ) {
+            server.sendData<CharacterRemovePlayer>(
+              iteratedClient,
+              "Character.RemovePlayer",
+              {
+                characterId: client.character.characterId
+              }
+            );
+            iteratedClient.spawnedEntities.delete(client.character);
+          }
+        }
+      } else return;
+    } else if (freePlacedEntity.isHidden) freePlacedEntity.isHidden = "";
   }
 
   tpPlayerOutsideFoundation(
@@ -2479,11 +2640,19 @@ export class ConstructionManager {
     entity: ConstructionEntity,
     weaponItem: LoadoutItem
   ) {
-    if (
-      client.character.lastRepairTime &&
-      Date.now() - client.character.lastRepairTime < 1000
-    ) {
-      server.sendChatText(client, "Cooldown on repairing.");
+    const foundation = entity.getParentFoundation(server);
+    let timeDif;
+    if (foundation) timeDif = Date.now() - foundation.lastDamagedTimestamp;
+    if (entity instanceof ConstructionParentEntity)
+      timeDif = Date.now() - entity.lastDamagedTimestamp;
+
+    const cooldownTime = 30000;
+
+    if (timeDif && timeDif < cooldownTime) {
+      server.sendAlert(
+        client,
+        `You cant repair this base for the next ${(cooldownTime / 1000 - Number(timeDif / 1000)).toFixed(2)} seconds`
+      );
       return;
     }
 
@@ -2497,6 +2666,14 @@ export class ConstructionManager {
     if (entity instanceof ConstructionParentEntity) {
       Object.values(entity.occupiedExpansionSlots).forEach(
         (expansion: ConstructionParentEntity) => {
+          const timeDiffExpansion = Date.now() - expansion.lastDamagedTimestamp;
+          if (timeDiffExpansion < 30000) {
+            server.sendAlert(
+              client,
+              `You cant repair this base for the next ${(cooldownTime / 1000 - Number(timeDiffExpansion / 1000)).toFixed(2)} seconds`
+            );
+            return;
+          }
           // repair every object on each expansion
           accumulatedItemDamage += this.repairShelterSlots(server, expansion);
           accumulatedItemDamage += this.repairWallSlots(server, expansion);
@@ -2524,7 +2701,6 @@ export class ConstructionManager {
       Math.ceil(accumulatedItemDamage / 4)
     );
     client.character.lastMeleeHitTime = Date.now();
-    client.character.lastRepairTime = Date.now();
   }
 
   private fullyRepairFreeplaceEntities(
@@ -2672,11 +2848,28 @@ export class ConstructionManager {
     }
   }
 
-  sendBaseSecuredMessage(server: ZoneServer2016, client: Client) {
-    server.sendAlert(
-      client,
-      "You must destroy the base's gate before affecting interior structures."
-    );
+  sendBaseSecuredMessage(
+    server: ZoneServer2016,
+    client: Client,
+    rayCastProtectionType: number = 0
+  ) {
+    switch (rayCastProtectionType) {
+      case 1:
+        server.sendAlert(client, "Base protection unbroken, damage reduced");
+        return;
+      case 2:
+        server.sendAlert(
+          client,
+          "You must destroy the base's gate before placing explosives inside."
+        );
+        return;
+      default:
+        server.sendAlert(
+          client,
+          "You must destroy the base's gate before affecting interior structures."
+        );
+        return;
+    }
   }
 
   checkConstructionDamage(
@@ -2711,5 +2904,28 @@ export class ConstructionManager {
           ? damage
           : damage / Math.sqrt(distance)
     });
+  }
+
+  isSlotOnPlacementCooldown(slots: ShelterSlotsPlacementTimer, slot: number) {
+    return slots[slot] > Date.now();
+  }
+
+  hasOwnedBases(server: ZoneServer2016, characterId: string) {
+    for (const a in server._constructionFoundations) {
+      const foundation = server._constructionFoundations[a];
+      if (foundation.ownerCharacterId === characterId) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  removeOwnerFromBases(server: ZoneServer2016, characterId: string) {
+    for (const a in server._constructionFoundations) {
+      const foundation = server._constructionFoundations[a];
+      if (foundation.ownerCharacterId === characterId) {
+        foundation.ownerCharacterId = "";
+      }
+    }
   }
 }

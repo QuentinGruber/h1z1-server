@@ -14,12 +14,26 @@ server:
   isFirstPersonOnly: false
   isNoBuildInPois: true
   baseConstructionDamage: 34000
+  damageWeapons: true # Damage weapons on firing
+  disablePOIManager: false # Disables the POI messages
+  disableMapBoundsCheck: false # Disables inboundscheck
 
 # Rcon
 
 rcon:
   password: ""
   port: 0
+
+# Challenges
+
+challenges:
+  enabled: true
+  challengePerDay: 6
+
+# Random events
+
+randomevents:
+  enabled: true
 
 # VoiceChat
 
@@ -62,7 +76,7 @@ fairplay:
 
 weather:
   defaultTemplate: "h1emubaseweather"
-  dynamicEnabled: false
+  dynamicEnabled: true
 
 # Anything to do with loot, vehicle, and npc spawning / despawning
 worldobjects:
@@ -83,7 +97,7 @@ worldobjects:
   lootbagDespawnTimer: 1800000 # 30 minutes
 
   # Misc
-  minAirdropSurvivors: 20
+  minAirdropSurvivors: 10
   vehicleSpawnCap: 120
   # How far any other vehicle has to be for another to spawn
   vehicleSpawnRadius: 50

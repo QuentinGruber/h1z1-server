@@ -3,7 +3,7 @@
 //   GNU GENERAL PUBLIC LICENSE
 //   Version 3, 29 June 2007
 //   copyright (C) 2020 - 2021 Quentin Gruber
-//   copyright (C) 2021 - 2024 H1emu community
+//   copyright (C) 2021 - 2025 H1emu community
 //
 //   https://github.com/QuentinGruber/h1z1-server
 //   https://www.npmjs.com/package/h1z1-server
@@ -36,7 +36,7 @@ test("PlayTimeManager", { timeout: 10000 }, async (t) => {
 });
 test(
   "PlayTimeManager-mongo",
-  { timeout: 10000, skip: !isMongoTests },
+  { timeout: 60000, skip: !isMongoTests },
   async (t) => {
     t.mock.timers.enable({ apis: ["setInterval"] });
     const zone = new ZoneServer2016(

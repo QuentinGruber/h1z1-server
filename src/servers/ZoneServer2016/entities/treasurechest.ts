@@ -3,7 +3,7 @@
 //   GNU GENERAL PUBLIC LICENSE
 //   Version 3, 29 June 2007
 //   copyright (C) 2020 - 2021 Quentin Gruber
-//   copyright (C) 2021 - 2024 H1emu community
+//   copyright (C) 2021 - 2025 H1emu community
 //
 //   https://github.com/QuentinGruber/h1z1-server
 //   https://www.npmjs.com/package/h1z1-server
@@ -133,7 +133,7 @@ export class TreasureChest extends LootableProp {
     );
     const rewards = server.rewardManager.rewards;
     for (const reward of rewards) {
-      if (chance(100)) {
+      if (chance(5) && reward.dropChances > 0) {
         const item = server.generateItem(reward.itemId, 1, true);
         if (!item) return;
         this.lootContainerItem(server, item, item?.stackCount, false);

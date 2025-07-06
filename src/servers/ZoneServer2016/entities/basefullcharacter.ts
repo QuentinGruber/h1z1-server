@@ -3,7 +3,7 @@
 //   GNU GENERAL PUBLIC LICENSE
 //   Version 3, 29 June 2007
 //   copyright (C) 2020 - 2021 Quentin Gruber
-//   copyright (C) 2021 - 2024 H1emu community
+//   copyright (C) 2021 - 2025 H1emu community
 //
 //   https://github.com/QuentinGruber/h1z1-server
 //   https://www.npmjs.com/package/h1z1-server
@@ -12,6 +12,7 @@
 // ======================================================================
 
 import {
+  AudioSetSwitch,
   EquipmentSetCharacterEquipment,
   EquipmentSetCharacterEquipmentSlot,
   LightweightToFullNpc
@@ -60,6 +61,46 @@ function getGender(actorModelId: number): number {
     default:
       return 0;
   }
+}
+
+const invalidItemForLootbag: Items[] = [
+  Items.WEAPON_FISTS,
+  Items.WEAPON_FLASHLIGHT,
+  Items.MAP,
+  Items.COMPASS_IMPROVISED,
+  Items.BOOTS_GRAY_BLUE,
+  Items.SKINNING_KNIFE,
+  Items.VEHICLE_HORN,
+  Items.VEHICLE_HORN_POLICECAR,
+  Items.VEHICLE_HOTWIRE,
+  Items.VEHICLE_MOTOR_ATV,
+  Items.VEHICLE_MOTOR_OFFROADER,
+  Items.VEHICLE_MOTOR_PICKUP,
+  Items.VEHICLE_MOTOR_POLICECAR,
+  Items.VEHICLE_SIREN_POLICECAR,
+  Items.CONTAINER_VEHICLE_POLICECAR,
+  Items.CONTAINER_VEHICLE_OFFROADER,
+  Items.CONTAINER_VEHICLE_ATV,
+  Items.CONTAINER_VEHICLE_PICKUP,
+  Items.CONTAINER_FURNACE,
+  Items.CONTAINER_STORAGE,
+  Items.CONTAINER_DEW_COLLECTOR,
+  Items.CONTAINER_CAMPFIRE,
+  Items.CONTAINER_BARBEQUE,
+  Items.CONTAINER_ANIMAL_TRAP,
+  Items.CONTAINER_BEE_BOX,
+  Items.CONTAINER_STASH,
+  Items.CONTAINER_REPAIR_BOX
+];
+
+function isValidForLootbag(itemDefinitionId: number): boolean {
+  for (let index = 0; index < invalidItemForLootbag.length; index++) {
+    const invalidId = invalidItemForLootbag[index];
+    if (invalidId === itemDefinitionId) {
+      return false;
+    }
+  }
+  return true;
 }
 
 export abstract class BaseFullCharacter extends BaseLightweightCharacter {
@@ -185,11 +226,6 @@ export abstract class BaseFullCharacter extends BaseLightweightCharacter {
 
   /* eslint-disable @typescript-eslint/no-unused-vars */
   updateLoadout(server: ZoneServer2016) {
-    const client = server.getClientByContainerAccessor(this);
-    if (client) {
-      if (!client.character.initialized) return;
-      server.checkShoes(client);
-    }
     server.sendDataToAllWithSpawnedEntity(
       server._characters,
       this.characterId,
@@ -204,6 +240,15 @@ export abstract class BaseFullCharacter extends BaseLightweightCharacter {
       this.characterId,
       "Equipment.SetCharacterEquipment",
       this.pGetEquipment()
+    );
+  }
+
+  updateFootwearAudio(server: ZoneServer2016) {
+    server.sendDataToAllWithSpawnedEntity(
+      server._characters,
+      this.characterId,
+      "Audio.SetSwitch",
+      this.pGetFootwearAudio(server)
     );
   }
 
@@ -365,6 +410,9 @@ export abstract class BaseFullCharacter extends BaseLightweightCharacter {
     }
     this.updateLoadout(server);
     if (equipmentSlotId) this.updateEquipmentSlot(server, equipmentSlotId);
+    if (client && server.isFootwear(item.itemDefinitionId)) {
+      server.updateFootwear(client, item.itemDefinitionId, false);
+    }
   }
 
   generateEquipmentFromLoadout(server: ZoneServer2016) {
@@ -746,11 +794,72 @@ export abstract class BaseFullCharacter extends BaseLightweightCharacter {
   }
 
   getDeathItems(server: ZoneServer2016) {
+    // --- Durability loss for footwear on death ---
+    const footwear = this._loadout[LoadoutSlots.FEET];
+    if (
+      footwear &&
+      (server.isConvey(footwear.itemDefinitionId) ||
+        server.isZed(footwear.itemDefinitionId) ||
+        server.isGator(footwear.itemDefinitionId))
+    ) {
+      footwear.currentDurability = (footwear.currentDurability || 0) - 1080;
+      if (footwear.currentDurability <= 0) {
+        server.removeInventoryItem(this, footwear);
+        this.lootContainerItem(server, server.generateItem(Items.CLOTH, 4));
+      }
+    }
+    // --- End durability loss ---
+
+    // --- Durability loss for MilitaryTan bag on death ---
+    const MilitaryTan = this._loadout[LoadoutSlots.BACK];
+    if (MilitaryTan && server.isMilitaryTan(MilitaryTan.itemDefinitionId)) {
+      MilitaryTan.currentDurability =
+        (MilitaryTan.currentDurability || 0) - 334; /// 6 Lifes/Tan
+      if (MilitaryTan.currentDurability <= 0) {
+        server.removeInventoryItem(this, MilitaryTan);
+        this.lootContainerItem(server, server.generateItem(Items.CLOTH, 4));
+        this.lootContainerItem(server, server.generateItem(Items.TWINE, 1));
+        this.lootContainerItem(
+          server,
+          server.generateItem(Items.METAL_BRACKET, 1)
+        );
+      }
+    }
+    // --- End durability loss for MilitaryTan ---
+
+    // --- Durability loss for Small Backpack on death ---
+    const smallBackpack = this._loadout[LoadoutSlots.BACK];
+    if (smallBackpack && server.isBackpack(smallBackpack.itemDefinitionId)) {
+      smallBackpack.currentDurability =
+        (smallBackpack.currentDurability || 0) - 500; // 4 lifes/small backpack
+      if (smallBackpack.currentDurability <= 0) {
+        server.removeInventoryItem(this, smallBackpack);
+        this.lootContainerItem(server, server.generateItem(Items.CLOTH, 4));
+      }
+    }
+    // --- End durability loss for Small Backpack ---
+
+    // --- Durability loss for Framed Backpack on death ---
+    const framedBackpack = this._loadout[LoadoutSlots.BACK];
+    if (framedBackpack && server.isFramedBp(framedBackpack.itemDefinitionId)) {
+      framedBackpack.currentDurability =
+        (framedBackpack.currentDurability || 0) - 400; // 5 lifes/framed backpack
+      if (framedBackpack.currentDurability <= 0) {
+        server.removeInventoryItem(this, framedBackpack);
+        this.lootContainerItem(server, server.generateItem(Items.CLOTH, 2));
+        this.lootContainerItem(
+          server,
+          server.generateItem(Items.BACKPACK_FRAME, 1)
+        );
+      }
+    }
+    // --- End durability loss for Framed Backpack ---
+
     const items: { [itemGuid: string]: BaseItem } = {};
     Object.values(this._loadout).forEach((itemData) => {
       if (
         itemData.itemGuid != "0x0" &&
-        !this.isDefaultItem(itemData.itemDefinitionId) &&
+        isValidForLootbag(itemData.itemDefinitionId) &&
         !server.isAdminItem(itemData.itemDefinitionId)
       ) {
         const item = new BaseItem(
@@ -771,7 +880,7 @@ export abstract class BaseFullCharacter extends BaseLightweightCharacter {
     Object.values(this._containers).forEach((container: LoadoutContainer) => {
       Object.values(container.items).forEach((item) => {
         if (
-          !this.isDefaultItem(item.itemDefinitionId) &&
+          isValidForLootbag(item.itemDefinitionId) &&
           !server.isAdminItem(item.itemDefinitionId)
         ) {
           let stacked = false;
@@ -880,6 +989,28 @@ export abstract class BaseFullCharacter extends BaseLightweightCharacter {
     };
   }
 
+  pGetFootwearAudio(server: ZoneServer2016): AudioSetSwitch {
+    const item: LoadoutItem | undefined = this._loadout[LoadoutSlots.FEET];
+    let footwearStatus = "Barefoot";
+    if (item && server.isConvey(item.itemDefinitionId)) {
+      footwearStatus = "Sneaker";
+    } else if (item && server.isBoot(item.itemDefinitionId)) {
+      footwearStatus = "Boot";
+    } else if (
+      item &&
+      (server.isZed(item.itemDefinitionId) ||
+        server.isGator(item.itemDefinitionId))
+    ) {
+      footwearStatus = "Silent";
+    }
+
+    return {
+      characterId: this.characterId,
+      unknownString1: "ShoeType",
+      unknownString2: footwearStatus
+    };
+  }
+
   pGetLoadoutSlot(slotId: number) {
     const slot = this._loadout[slotId];
     return {
@@ -937,12 +1068,6 @@ export abstract class BaseFullCharacter extends BaseLightweightCharacter {
         ) {
           // secondary
           slot = LoadoutSlots.TERTIARY;
-        }
-        if (
-          ![Items.GRENADE_SMOKE].includes(itemDefId) &&
-          itemDef?.ITEM_CLASS == ItemClasses.THROWABLES
-        ) {
-          slot = 0;
         }
         break;
       case ItemClasses.WEAPONS_GENERIC: // item1/item2 slots
@@ -1087,24 +1212,6 @@ export abstract class BaseFullCharacter extends BaseLightweightCharacter {
   }
 
   pGetItemData(server: ZoneServer2016, item: BaseItem, containerDefId: number) {
-    let durability: number = 0;
-    switch (true) {
-      case server.isWeapon(item.itemDefinitionId):
-        durability = 2000;
-        break;
-      case server.isArmor(item.itemDefinitionId):
-        durability = 1000;
-        break;
-      case server.isHelmet(item.itemDefinitionId):
-        durability = 100;
-        break;
-      case server.isConvey(item.itemDefinitionId):
-        durability = 5400;
-        break;
-      case server.isGeneric(item.itemDefinitionId):
-        durability = 2000;
-        break;
-    }
     return {
       itemDefinitionId: item.itemDefinitionId,
       tintId: 0,
@@ -1116,9 +1223,11 @@ export abstract class BaseFullCharacter extends BaseLightweightCharacter {
       containerGuid: item.containerGuid,
       containerDefinitionId: containerDefId,
       containerSlotId: item.slotId,
-      baseDurability: durability,
-      currentDurability: durability ? item.currentDurability : 0,
-      maxDurabilityFromDefinition: durability,
+      baseDurability: server.getItemBaseDurability(item.itemDefinitionId),
+      currentDurability: item.currentDurability,
+      maxDurabilityFromDefinition: server.getItemBaseDurability(
+        item.itemDefinitionId
+      ),
       unknownBoolean1: true,
       ownerCharacterId: EXTERNAL_CONTAINER_GUID,
       unknownDword9: 1,

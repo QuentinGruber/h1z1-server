@@ -3,7 +3,7 @@
 //   GNU GENERAL PUBLIC LICENSE
 //   Version 3, 29 June 2007
 //   copyright (C) 2020 - 2021 Quentin Gruber
-//   copyright (C) 2021 - 2024 H1emu community
+//   copyright (C) 2021 - 2025 H1emu community
 //
 //   https://github.com/QuentinGruber/h1z1-server
 //   https://www.npmjs.com/package/h1z1-server
@@ -32,7 +32,18 @@ import {
   getCurrentServerTimeWrapper,
   isLootNerfedLoc
 } from "../../../utils/utils";
-import { EquipSlots, Items, Effects, ModelIds } from "../models/enums";
+import {
+  EquipSlots,
+  Items,
+  Effects,
+  ModelIds,
+  DefaultSkinsConveys,
+  DefaultSkinsBackpack,
+  DefaultSkinsMotorHelmet,
+  DefaultSkinsZeds,
+  DefaultSkinsGators,
+  DefaultSkinsBoots
+} from "../models/enums";
 import { Vehicle2016 } from "../entities/vehicle";
 import { LootDefinition } from "types/zoneserver";
 import { ItemObject } from "../entities/itemobject";
@@ -55,6 +66,35 @@ import { Npc } from "../entities/npc";
 import { scheduler } from "node:timers/promises";
 const debug = require("debug")("ZoneServer");
 
+export function getRandomSkin(itemDefinitionId: number) {
+  let itemDefId = 0;
+  let arr: any[] = [];
+  switch (itemDefinitionId) {
+    case Items.CONVEYS_BLUE:
+      arr = Object.keys(DefaultSkinsConveys);
+      break;
+    case Items.BACKPACK_BLUE_ORANGE:
+      arr = Object.keys(DefaultSkinsBackpack);
+      break;
+    case Items.HELMET_MOTORCYCLE:
+      arr = Object.keys(DefaultSkinsMotorHelmet);
+      break;
+    case Items.ZEDS_WHITE:
+      arr = Object.keys(DefaultSkinsZeds);
+      break;
+    case Items.GATORS_RED:
+      arr = Object.keys(DefaultSkinsGators);
+      break;
+    case Items.BOOTS_GRAY_BLUE:
+      arr = Object.keys(DefaultSkinsBoots);
+      break;
+    default:
+      return itemDefinitionId;
+  }
+  itemDefId = Number(arr[Math.floor((Math.random() * arr.length) / 2)]);
+  return itemDefId;
+}
+
 export function getRandomItem(items: Array<LootDefinition>) {
   const totalWeight = items.reduce((total, item) => total + item.weight, 0),
     randomWeight = Math.random() * totalWeight;
@@ -76,10 +116,10 @@ export class WorldObjectManager {
   spawnedLootObjects: { [spawnerId: number]: string } = {};
 
   /** Global respawn timers */
-  private _lastLootRespawnTime: number = 0;
-  private _lastVehicleRespawnTime: number = 0;
-  private _lastNpcRespawnTime: number = 0;
-  private _lastWaterSourceReplenishTime: number = 0;
+  _lastLootRespawnTime: number = 0;
+  _lastVehicleRespawnTime: number = 0;
+  _lastNpcRespawnTime: number = 0;
+  _lastWaterSourceReplenishTime: number = 0;
 
   /** MANAGED BY CONFIGMANAGER - See defaultConfig.yaml for more information */
   vehicleSpawnCap!: number;
@@ -115,16 +155,16 @@ export class WorldObjectManager {
 
     const playerCount = _.size(server._characters);
 
-    if (playerCount >= 100) {
+    if (playerCount >= 75) {
       this.lootRespawnTimer = 600_000; // 10 min
-    } else if (playerCount >= 75) {
-      this.lootRespawnTimer = 900_000; // 15 min
     } else if (playerCount >= 50) {
-      this.lootRespawnTimer = 1_200_000; // 20 min
+      this.lootRespawnTimer = 900_000; // 15 min
     } else if (playerCount >= 25) {
+      this.lootRespawnTimer = 1_200_000; // 20 min
+    } else if (playerCount >= 1) {
       this.lootRespawnTimer = 1_500_000; // 25 min
     } else {
-      this.lootRespawnTimer = 1_800_000; // 30 min
+      this.lootRespawnTimer = 1_500_000; // 25 min
     }
   }
 
@@ -483,6 +523,16 @@ export class WorldObjectManager {
             effectTime: 60
           }
         );
+
+        if (
+          isPosInRadius(
+            3,
+            c.character.state.position,
+            server._airdrop.destinationPos
+          )
+        ) {
+          server.killCharacter(c, { damage: 99999, entity: "aidrop" });
+        }
       }
     }
     server._lootbags[characterId] = lootbag;
@@ -597,6 +647,7 @@ export class WorldObjectManager {
               propType.modelId,
               new Float32Array(propInstance.position),
               new Float32Array(fixEulerOrder(propInstance.rotation)),
+              new Float32Array([1, 1, 1, 1]),
               server._serverGuid,
               Items.WORKBENCH
             );
@@ -984,7 +1035,7 @@ export class WorldObjectManager {
               this.createLootEntity(
                 server,
                 server.generateItem(
-                  item.item,
+                  getRandomSkin(item.item),
                   randomIntFromInterval(
                     item.spawnCount.min,
                     item.spawnCount.max
@@ -1246,7 +1297,7 @@ export class WorldObjectManager {
               // temporary spawnchance
               server.addContainerItem(
                 prop,
-                server.generateItem(item.item, count),
+                server.generateItem(getRandomSkin(item.item), count),
                 container
               );
             }

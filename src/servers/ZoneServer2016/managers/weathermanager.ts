@@ -3,7 +3,7 @@
 //   GNU GENERAL PUBLIC LICENSE
 //   Version 3, 29 June 2007
 //   copyright (C) 2020 - 2021 Quentin Gruber
-//   copyright (C) 2021 - 2024 H1emu community
+//   copyright (C) 2021 - 2025 H1emu community
 //
 //   https://github.com/QuentinGruber/h1z1-server
 //   https://www.npmjs.com/package/h1z1-server
@@ -15,30 +15,103 @@ import fs from "node:fs";
 
 import { Weather2016, WeatherTemplate } from "types/zoneserver";
 import {
-  randomIntFromInterval,
-  _,
-  getCurrentServerTimeWrapper,
-  isChristmasSeason
+  _
+  //isChristmasSeason
 } from "../../../utils/utils";
 import { ZoneClient2016 as Client } from "../classes/zoneclient";
 import { ZoneServer2016 } from "../zoneserver";
+import EventEmitter from "node:events";
 //const debug = require("debug")("dynamicWeather");
 
 const localWeatherTemplates = require("../../../../data/2016/dataSources/weather.json");
 
-export class WeatherManager {
-  fogValue = 2;
-  skyColorValue = 0;
-  windStrengthValue = 0;
+function rnd_number(
+  max: number,
+  min: number = 0,
+  fixed: boolean = false
+): number {
+  const num = Math.random() * (max - min) + min;
+  return fixed ? Math.round(num) : num;
+}
+
+/*function getContinuousRange(max: number, length: number): number[] {
+    if (length > max + 1) {
+        throw new Error("Length cannot be greater than the range size.");
+    }
+
+    const start = Math.floor(Math.random() * (max - length + 2)); // Random start point ensuring it fits within the range
+    const range = Array.from({ length }, (_, i) => start + i); // Create continuous range [start, start + 1, ..., start + length - 1]
+
+    return range;
+}*/
+
+function getOrderedNumbersInRange(
+  min: number,
+  max: number,
+  length: number
+): number[] {
+  if (length > max - min + 1) {
+    console.log("Length cannot be greater than the range of numbers.");
+    return [];
+  }
+
+  // Calculate the starting point
+  const start = Math.floor(Math.random() * (max - min + 1 - length)) + min;
+
+  // Generate the sequence of numbers
+  const sequence = Array.from({ length }, (_, i) => start + i);
+
+  return sequence;
+}
+
+function adjustNumber(
+  desiredNumber: number,
+  currentNumber: number,
+  changeNumber: number
+): number {
+  if (currentNumber < desiredNumber) {
+    currentNumber += changeNumber;
+    if (currentNumber > desiredNumber) {
+      currentNumber = desiredNumber; // Ensure it does not go above the desired number
+    }
+  } else if (currentNumber > desiredNumber) {
+    currentNumber -= changeNumber;
+    if (currentNumber < desiredNumber) {
+      currentNumber = desiredNumber; // Ensure it does not go below the desired number
+    }
+  }
+
+  return currentNumber; // Return the updated number
+}
+
+export class WeatherManager extends EventEmitter {
   weatherChoosen = false;
-  fogChecked = false;
   fog = 0; // density
   currentSeason = "summer";
   skyColor = 0;
+  desiredSkyColor = 0;
   windStrength = 0;
+  cloudWeight0 = 0.01;
+  cloudWeight1 = 0.01;
+  cloudWeight2 = 0.01;
+  cloudWeight3 = 0.01;
   temperature = 80;
-  fogEnabled = 1;
+  rain = 0;
+  lastRainingHour = -1;
+  rainRampupTime = 0;
+  globalPrecipation = 0;
+  desiredGlobalPrecipation = 0;
+  fogDensity = 0.0001;
+  fogFloor = 34;
+  fogGradient = 0.001;
+  desiredfogDensity = 0.00001;
+  desiredfogFloor = 34;
+  desiredfogGradient = 0.00001;
+  lastDayWasFoggy = false;
+  lastDayWasRainy = false;
+  rainAllowed = false;
   fogAllowed = false;
+  rainingHours: number[] = [];
   seasonStarted = false;
 
   weather!: Weather2016;
@@ -46,14 +119,15 @@ export class WeatherManager {
   dynamicWorker: any;
 
   // setup by config file
-  dynamicEnabled = false;
+  dynamicEnabled = true;
   defaultTemplate = "donotusethat";
 
   init() {
-    const defaultTemplate = isChristmasSeason()
+    /*const defaultTemplate = isChristmasSeason()
       ? "winter"
       : this.defaultTemplate;
-    this.weather = this.templates[defaultTemplate];
+    this.weather = this.templates[defaultTemplate];*/
+    this.weather = this.chooseWeather();
     this.seasonstart();
   }
 
@@ -147,11 +221,6 @@ export class WeatherManager {
     }
     server.sendChatText(client, `Randomized weather`);
 
-    function rnd_number(max: any, fixed: boolean = false) {
-      const num = Math.random() * max;
-      return Number(fixed ? num.toFixed(0) : num);
-    }
-
     this.weather = {
       overcast: 50.0,
       fogDensity: rnd_number(0.001),
@@ -195,21 +264,13 @@ export class WeatherManager {
     if (this.dynamicEnabled) {
       this.dynamicWorker = setTimeout(() => {
         if (!this.dynamicEnabled) return;
-        this.weather = this.dynamicWeather(
-          getCurrentServerTimeWrapper().getFull(),
-          server._serverStartTime.getFull(),
-          server.inGameTimeManager.baseTimeMultiplier
-        );
+        this.weather = this.dynamicWeather(server.inGameTimeManager.time);
         this.sendUpdateToAll(server);
         // Needed to avoid black screen issue ? Why ? No idea.
         this.sendUpdateToAll(server);
         this.dynamicWorker.refresh();
       }, 360000 / server.inGameTimeManager.baseTimeMultiplier);
     }
-  }
-
-  toggleFog() {
-    return this.changeFog();
   }
 
   sendUpdateToAll(server: ZoneServer2016, client?: Client, broadcast = false) {
@@ -228,85 +289,130 @@ export class WeatherManager {
     }
   }
 
+  moveToDesiredValues() {
+    this.fogDensity = adjustNumber(
+      this.desiredfogDensity,
+      this.fogDensity,
+      0.0000025
+    );
+    this.fogFloor = adjustNumber(this.desiredfogFloor, this.fogFloor, 1);
+    this.fogGradient = adjustNumber(
+      this.desiredfogGradient,
+      this.fogGradient,
+      0.00015
+    );
+
+    this.skyColor = adjustNumber(this.desiredSkyColor, this.skyColor, 0.025);
+
+    this.weather.skyClarity = this.skyColor;
+    this.weather.fogDensity = this.fogDensity;
+    this.weather.fogFloor = this.fogFloor;
+    this.weather.fogGradient = this.fogGradient;
+  }
+
+  moveGPtoDesiredValue() {
+    this.globalPrecipation = adjustNumber(
+      this.desiredGlobalPrecipation,
+      this.globalPrecipation,
+      0.012
+    );
+  }
+
   chooseWeather() {
-    const weatherType = randomIntFromInterval(1, 3);
+    const weatherType = rnd_number(4, 1, true);
     switch (weatherType) {
       case 1: // sunny
-        this.skyColor = randomIntFromInterval(0, 60);
+      case 2:
+        this.rainAllowed = false;
+        this.desiredSkyColor = rnd_number(0.1, -0.15);
+        this.cloudWeight0 = rnd_number(0.08);
+        this.cloudWeight1 = rnd_number(0.03);
+        this.cloudWeight2 = rnd_number(0.08);
+        this.cloudWeight3 = rnd_number(0.08);
         switch (this.currentSeason) {
           case "summer":
             this.temperature = 80;
-            this.windStrength = randomIntFromInterval(0, 60);
-            this.fog = 0;
+            this.windStrength = rnd_number(0.2);
+            //this.fog = 0;
             break;
           case "autumn":
             this.temperature = 80;
-            this.windStrength = randomIntFromInterval(0, 120);
-            this.fog = 0;
+            this.windStrength = rnd_number(0.8);
+            //this.fog = 0;
             break;
           case "winter":
-            this.temperature = 0;
-            this.windStrength = randomIntFromInterval(0, 160);
-            this.fog = 0;
+            this.temperature = 80;
+            this.windStrength = rnd_number(0.8);
+            //this.fog = 0;
             break;
           case "spring":
             this.temperature = 80;
-            this.windStrength = randomIntFromInterval(0, 100);
-            this.fog = 0;
+            this.windStrength = rnd_number(0.4);
+            //this.fog = 0;
             break;
           default:
             break;
         }
         break;
-      case 2: // cloudy
-        this.skyColor = randomIntFromInterval(280, 400);
+      case 3: // cloudy
+        this.rainAllowed = true;
+        this.desiredSkyColor = rnd_number(1, 0.6);
+        this.cloudWeight0 = rnd_number(0.1, 0.08);
+        this.cloudWeight1 = rnd_number(0.1, 0.08);
+        this.cloudWeight2 = rnd_number(0.1, 0.08);
+        this.cloudWeight3 = rnd_number(0.1, 0.08);
         switch (this.currentSeason) {
           case "summer":
             this.temperature = 80;
-            this.windStrength = randomIntFromInterval(0, 120);
-            this.fog = randomIntFromInterval(0, 80);
+            this.windStrength = rnd_number(0.2);
+            //this.fog = randomIntFromInterval(0, 80);
             break;
           case "autumn":
             this.temperature = 80;
-            this.windStrength = randomIntFromInterval(0, 240);
-            this.fog = randomIntFromInterval(140, 200);
+            this.windStrength = rnd_number(0.8);
+            //this.fog = randomIntFromInterval(140, 200);
             break;
           case "winter":
-            this.temperature = 0;
-            this.windStrength = randomIntFromInterval(0, 600);
-            this.fog = randomIntFromInterval(140, 200);
+            this.temperature = 80;
+            this.windStrength = rnd_number(0.8);
+            //this.fog = randomIntFromInterval(140, 200);
             break;
           case "spring":
             this.temperature = 80;
-            this.windStrength = randomIntFromInterval(0, 160);
-            this.fog = randomIntFromInterval(0, 100);
+            this.windStrength = rnd_number(0.4);
+            //this.fog = randomIntFromInterval(0, 100);
             break;
           default:
             break;
         }
         break;
-      case 3: // middle cloudy
-        this.skyColor = randomIntFromInterval(200, 280);
+      case 4: // middle cloudy
+        this.rainAllowed = true;
+        this.desiredSkyColor = rnd_number(0.5, 0.3);
+        this.cloudWeight0 = rnd_number(0.08, 0.04);
+        this.cloudWeight1 = rnd_number(0.08, 0.03);
+        this.cloudWeight2 = rnd_number(0.08, 0.04);
+        this.cloudWeight3 = rnd_number(0.08, 0.04);
         switch (this.currentSeason) {
           case "summer":
             this.temperature = 80;
-            this.windStrength = randomIntFromInterval(0, 100);
-            this.fog = randomIntFromInterval(0, 40);
+            this.windStrength = rnd_number(0.2);
+            //this.fog = randomIntFromInterval(0, 40);
             break;
           case "autumn":
             this.temperature = 80;
-            this.windStrength = randomIntFromInterval(0, 180);
-            this.fog = randomIntFromInterval(38, 100);
+            this.windStrength = rnd_number(0.8);
+            //this.fog = randomIntFromInterval(38, 100);
             break;
           case "winter":
-            this.temperature = 0;
-            this.windStrength = randomIntFromInterval(0, 400);
-            this.fog = randomIntFromInterval(38, 100);
+            this.temperature = 80;
+            this.windStrength = rnd_number(0.8);
+            //this.fog = randomIntFromInterval(38, 100);
             break;
           case "spring":
             this.temperature = 80;
-            this.windStrength = randomIntFromInterval(0, 140);
-            this.fog = randomIntFromInterval(0, 48);
+            this.windStrength = rnd_number(0.4);
+            //this.fog = randomIntFromInterval(0, 48);
             break;
           default:
             break;
@@ -315,24 +421,92 @@ export class WeatherManager {
       default:
         break;
     }
+
+    this.fogAllowed = Math.random() < 0.2; // 20% chance for fog
+    if (!this.lastDayWasFoggy && this.fogAllowed) {
+      this.lastDayWasFoggy = true;
+      const fogType = rnd_number(3, 1, true);
+      switch (fogType) {
+        case 1:
+          this.desiredfogDensity = rnd_number(0.0002, 0.00008);
+          this.desiredfogFloor = 120;
+          this.desiredfogGradient = 0.02;
+          break;
+        case 2:
+          this.desiredfogDensity = rnd_number(0.0002, 0.00008);
+          this.desiredfogFloor = 160;
+          this.desiredfogGradient = 0.02;
+          if (this.desiredSkyColor < 0.5) this.desiredSkyColor = 0.5;
+          break;
+        case 3:
+          this.desiredfogDensity = rnd_number(0.0002, 0.00008);
+          this.desiredfogFloor = 200;
+          this.desiredfogGradient = 0.02;
+          this.desiredSkyColor = rnd_number(1, 0.5);
+          break;
+      }
+    } else {
+      this.lastDayWasFoggy = false;
+      this.desiredfogDensity = 0.0001;
+      this.desiredfogFloor = 30;
+      this.desiredfogGradient = 0.001;
+    }
+
+    //simple 50% chance for rain during cloudy days
+    if (!this.lastDayWasRainy && this.rainAllowed && Math.random() <= 0.5) {
+      this.rainingHours = getOrderedNumbersInRange(2, 23, 9);
+      this.desiredSkyColor = rnd_number(1, 0.5);
+      this.desiredGlobalPrecipation = rnd_number(0.95, 0.4);
+      this.lastDayWasRainy = true;
+    } else {
+      this.rainingHours = [];
+      this.desiredGlobalPrecipation = 0;
+      this.lastDayWasRainy = false;
+    }
+
     this.weatherChoosen = true;
+    return {
+      overcast: 25,
+      fogDensity: this.fogDensity,
+      fogFloor: this.fogFloor,
+      fogGradient: this.fogGradient,
+      globalPrecipitation: 0,
+      temperature: this.temperature,
+      skyClarity: this.skyColor,
+      cloudWeight0: this.cloudWeight0,
+      cloudWeight1: this.cloudWeight1,
+      cloudWeight2: this.cloudWeight2,
+      cloudWeight3: this.cloudWeight3,
+      transitionTime: 3,
+      sunAxisX: 38,
+      sunAxisY: 15,
+      sunAxisZ: 0,
+      windDirectionX: 2,
+      windDirectionY: 2,
+      windDirectionZ: 0,
+      wind: this.windStrength,
+      rainMinStrength: 0,
+      rainRampupTimeSeconds: 0,
+      cloudFile: "sky_Z_clouds.dds",
+      stratusCloudTiling: 0.3,
+      stratusCloudScrollU: -0.002,
+      stratusCloudScrollV: 0,
+      stratusCloudHeight: 1000,
+      cumulusCloudTiling: 0.3,
+      cumulusCloudScrollU: 0.001,
+      cumulusCloudScrollV: 0.004,
+      cumulusCloudHeight: 8000,
+      cloudAnimationSpeed: 0.09,
+      cloudSilverLiningThickness: 0.15,
+      cloudSilverLiningBrightness: 2,
+      cloudShadows: 0.25
+    };
   }
 
-  changeFog() {
-    this.fogEnabled = this.fogEnabled ? 0 : 1;
-    return this.fogEnabled;
-  }
-
-  dynamicWeather(
-    serverTime: number,
-    startTime: number,
-    timeMultiplier: number
-  ): Weather2016 {
-    const delta = Date.now() - startTime;
-    const currentDate = new Date((serverTime + delta) * timeMultiplier);
+  dynamicWeather(serverTime: number): Weather2016 {
+    const currentDate = new Date(serverTime * 1000);
     const currentHour = currentDate.getUTCHours();
     const currentMonth = currentDate.getUTCMonth();
-
     switch (
       currentMonth // switch seasons 1-12 months
     ) {
@@ -362,128 +536,54 @@ export class WeatherManager {
     switch (
       currentHour // switch for enabling weather effects based by in-game time
     ) {
-      case 1: // start deteriorating fog (fog values wont go below 0 so no need for check if fog was turned on)
-        this.fog = 0;
-        this.fogAllowed = false;
+      case 1:
+        this.weatherChoosen = false;
         break;
       case 2: // Determine weather for next day cycle (sunny,cloudy etc)
         if (!this.weatherChoosen) {
-          this.chooseWeather();
+          this.weather = this.chooseWeather();
         }
         break;
       case 3: //
         this.weatherChoosen = false;
         break;
-      /*case 4: // start accumulating rain clouds and start rain with a random delay (after clouds accululated) if matched %chance
-            if (!rainChecked && !rainIncoming) {
-              rainChecked = true;
-              const rainchance = randomIntFromInterval(0, 100);
-              if (rainchance <= rainchanceReq) {
-                rainIncoming = true;
-                const rainDelay = randomIntFromInterval(
-                  18720072 / timeMultiplier,
-                  86400000 / timeMultiplier
-                );
-                const rainTime = randomIntFromInterval(
-                  14200000 / timeMultiplier,
-                  41600000 / timeMultiplier
-                );
-                const accumulateCloudsDelay = rainDelay - 18720000 / timeMultiplier;
-                setTimeout(function () {
-                  cloudsAccumulating = 1;
-                }, accumulateCloudsDelay);
-                setTimeout(function () {
-                  rainEnabled = 50;
-                  cloudsAccumulating = 0;
-                }, rainDelay);
-                setTimeout(function () {
-                  rainEnabled = 0;
-                  cloudsAccumulating = -1;
-                }, rainDelay + rainTime);
-                setTimeout(function () {
-                  rainIncoming = false;
-                }, rainDelay + rainTime + 187200 / timeMultiplier);
-              }
-            }
-            break;*/
-      case 19: // start accumulating fog if matching %chance
-        const fogtogglechance = randomIntFromInterval(0, 100);
-        if (!this.fogChecked) {
-          if (fogtogglechance <= 65) {
-            this.fog = 0;
-            this.fogAllowed = false;
-          } else {
-            this.fogAllowed = true;
-          }
-          this.fogChecked = true;
-        }
+      case 19:
         break;
       case 20:
-        this.fogChecked = false;
         break;
       default:
         break;
     }
-    if (this.fogValue == this.fog) {
-      // do nothing
-    } else if (this.fogValue > this.fog) {
-      this.fogValue--;
-    } else if (this.fogAllowed) {
-      this.fogValue++;
-    }
-    if (this.skyColorValue == this.skyColor) {
-      // do nothing
-    } else if (this.skyColorValue > this.skyColor) {
-      this.skyColorValue--;
-    } else {
-      this.skyColorValue++;
-    }
-    if (this.windStrengthValue == this.windStrength) {
-      // do nothing
-    } else if (this.windStrengthValue > this.windStrength) {
-      this.windStrengthValue--;
-    } else {
-      this.windStrengthValue++;
-    }
     this.seasonstart();
-
-    return {
-      overcast: 1,
-      fogDensity: this.fogEnabled
-        ? Number((this.fogValue / 40000).toFixed(5))
-        : 0,
-      fogFloor: 71,
-      fogGradient: 0.008,
-      globalPrecipitation: 0, //broken
-      temperature: this.temperature, // does almost nothing
-      skyClarity: Number((this.skyColor / 400).toFixed(5)),
-      cloudWeight0: 0, //clouds cause the screen flickering
-      cloudWeight1: 0,
-      cloudWeight2: 0,
-      cloudWeight3: 0,
-      transitionTime: 0.25,
-      sunAxisX: 0,
-      sunAxisY: 0,
-      sunAxisZ: 0,
-      windDirectionX: -1,
-      windDirectionY: -0.5,
-      windDirectionZ: -1,
-      wind: Number((this.windStrength / 25).toFixed(5)),
-      rainMinStrength: 0,
-      rainRampupTimeSeconds: 1,
-      cloudFile: "sky_Z_clouds.dds",
-      stratusCloudTiling: 0.3,
-      stratusCloudScrollU: -0.002,
-      stratusCloudScrollV: 0,
-      stratusCloudHeight: 1000,
-      cumulusCloudTiling: 0.2,
-      cumulusCloudScrollU: 0,
-      cumulusCloudScrollV: 0.002,
-      cumulusCloudHeight: 8000,
-      cloudAnimationSpeed: 0.1,
-      cloudSilverLiningThickness: 0.8,
-      cloudSilverLiningBrightness: 0.2,
-      cloudShadows: 0.5
-    };
+    if (
+      this.rainingHours.includes(currentHour) &&
+      Math.max(...this.rainingHours) >= currentHour
+    ) {
+      // fill one bottle per rain hour
+      if (this.lastRainingHour === -1 || this.lastRainingHour !== currentHour) {
+        this.lastRainingHour = currentHour;
+        this.emit("raining");
+      }
+      this.rain = 0.1;
+      this.rainRampupTime = 1;
+      this.moveGPtoDesiredValue();
+    } else if (currentHour > Math.min(...this.rainingHours)) {
+      this.rain = 0;
+      this.lastRainingHour = -1;
+      this.rainRampupTime = 0;
+      this.desiredGlobalPrecipation = 0;
+      this.moveGPtoDesiredValue();
+    } else if (this.rainingHours.length == 0 && !this.lastDayWasRainy) {
+      this.rain = 0;
+      this.lastRainingHour = -1;
+      this.rainRampupTime = 0;
+      this.desiredGlobalPrecipation = 0;
+      this.moveGPtoDesiredValue();
+    }
+    this.weather.globalPrecipitation = this.globalPrecipation;
+    this.weather.rainMinStrength = this.rain;
+    this.weather.rainRampupTimeSeconds = this.rainRampupTime;
+    this.moveToDesiredValues();
+    return this.weather;
   }
 }

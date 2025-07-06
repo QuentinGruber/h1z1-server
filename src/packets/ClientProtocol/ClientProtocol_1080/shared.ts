@@ -3,7 +3,7 @@
 //   GNU GENERAL PUBLIC LICENSE
 //   Version 3, 29 June 2007
 //   copyright (C) 2020 - 2021 Quentin Gruber
-//   copyright (C) 2021 - 2024 H1emu community
+//   copyright (C) 2021 - 2025 H1emu community
 //
 //   https://github.com/QuentinGruber/h1z1-server
 //   https://www.npmjs.com/package/h1z1-server
@@ -460,8 +460,175 @@ export function readPositionUpdateData(data: Buffer, offset: number) {
     offset += v.length;
     v = readSignedIntWith2bitLengthValue(data, offset);
     rotationEul[7] = v.value / 10000;
-    obj["PosAndRot"] = rotationEul;
     offset += v.length;
+    obj["PosAndRot"] = rotationEul;
+  }
+  return {
+    value: obj,
+    length: offset - startOffset
+  };
+}
+const generateDummyPosUpdate = function () {
+  const dummyObj: any = {};
+  dummyObj.flags = 0;
+  dummyObj.sequenceTime = 0;
+  dummyObj.unknown3_int8 = 0;
+  return dummyObj;
+};
+
+export function readPositionUpdateDataAndCheckLength(
+  data: Buffer,
+  offset: number
+) {
+  const obj: any = {},
+    startOffset = offset;
+  obj.raw = data.slice(1);
+  obj["flags"] = data.readUInt16LE(offset);
+  offset += 2;
+
+  obj["sequenceTime"] = data.readUInt32LE(offset);
+  offset += 4;
+
+  obj["unknown3_int8"] = data.readUInt8(offset);
+  offset += 1;
+  let v;
+  if (obj.flags & 1) {
+    v = readUnsignedIntWith2bitLengthValue(data, offset);
+    obj["stance"] = v.value;
+    offset += v.length;
+  }
+
+  if (obj.flags & 2) {
+    const position = [];
+    v = readSignedIntWith2bitLengthValue(data, offset);
+    position[0] = v.value / 100;
+    offset += v.length;
+    v = readSignedIntWith2bitLengthValue(data, offset);
+    position[1] = v.value / 100;
+    offset += v.length;
+    v = readSignedIntWith2bitLengthValue(data, offset);
+    position[2] = v.value / 100;
+    offset += v.length;
+    position[3] = 1;
+    obj["position"] = position;
+  }
+
+  if (obj.flags & 0x20) {
+    obj["orientation"] = data.readFloatLE(offset);
+    offset += 4;
+  }
+
+  if (obj.flags & 0x40) {
+    v = readSignedIntWith2bitLengthValue(data, offset);
+    obj["frontTilt"] = v.value / 100; // not 100% sure about name
+    offset += v.length;
+  }
+
+  if (obj.flags & 0x80) {
+    v = readSignedIntWith2bitLengthValue(data, offset);
+    obj["sideTilt"] = v.value / 100; // not 100% sure
+    offset += v.length;
+  }
+
+  if (obj.flags & 4) {
+    v = readSignedIntWith2bitLengthValue(data, offset);
+    obj["angleChange"] = v.value / 100; // maybe
+    offset += v.length;
+  }
+
+  if (obj.flags & 0x8) {
+    v = readSignedIntWith2bitLengthValue(data, offset);
+    obj["verticalSpeed"] = v.value / 100;
+    offset += v.length;
+  }
+
+  if (obj.flags & 0x10) {
+    v = readSignedIntWith2bitLengthValue(data, offset);
+    obj["horizontalSpeed"] = v.value / 10;
+    offset += v.length;
+  }
+
+  if (obj.flags & 0x100) {
+    // either the previous one i meantioned is rotation delta or this one cause rotation is almost neved sent by client
+    const unknown12_float = [];
+    v = readSignedIntWith2bitLengthValue(data, offset);
+    unknown12_float[0] = v.value / 100;
+    offset += v.length;
+    v = readSignedIntWith2bitLengthValue(data, offset);
+    unknown12_float[1] = v.value / 100;
+    offset += v.length;
+    v = readSignedIntWith2bitLengthValue(data, offset);
+    unknown12_float[2] = v.value / 100;
+    obj["unknown12_float"] = unknown12_float;
+    offset += v.length;
+  }
+
+  if (obj.flags & 0x200) {
+    const rotationEul = [];
+    v = readSignedIntWith2bitLengthValue(data, offset);
+    rotationEul[0] = v.value / 100;
+    offset += v.length;
+    v = readSignedIntWith2bitLengthValue(data, offset);
+    rotationEul[1] = v.value / 100;
+    offset += v.length;
+    v = readSignedIntWith2bitLengthValue(data, offset);
+    rotationEul[2] = v.value / 100;
+    offset += v.length;
+    v = readSignedIntWith2bitLengthValue(data, offset);
+    rotationEul[3] = v.value / 100;
+    obj["rotation"] = eul2quat(new Float32Array(rotationEul));
+    obj["rotationRaw"] = rotationEul;
+    obj["lookAt"] = eul2quat(new Float32Array([rotationEul[0], 0, 0, 0]));
+    offset += v.length;
+  }
+
+  if (obj.flags & 0x400) {
+    v = readSignedIntWith2bitLengthValue(data, offset);
+    obj["direction"] = v.value / 10;
+    offset += v.length;
+  }
+
+  if (obj.flags & 0x800) {
+    v = readSignedIntWith2bitLengthValue(data, offset);
+    obj["engineRPM"] = v.value / 10;
+    offset += v.length;
+  }
+  if (obj.flags & 0x1000) {
+    const rotationEul = [];
+    v = readSignedIntWith2bitLengthValue(data, offset);
+    rotationEul[0] = v.value / 10000;
+    offset += v.length;
+    v = readSignedIntWith2bitLengthValue(data, offset);
+    rotationEul[1] = v.value / 10000;
+    offset += v.length;
+    v = readSignedIntWith2bitLengthValue(data, offset);
+    rotationEul[2] = v.value / 10000;
+    offset += v.length;
+    v = readSignedIntWith2bitLengthValue(data, offset);
+    rotationEul[3] = v.value / 10000;
+
+    v = readSignedIntWith2bitLengthValue(data, offset);
+    rotationEul[4] = v.value / 10000;
+    offset += v.length;
+    v = readSignedIntWith2bitLengthValue(data, offset);
+    rotationEul[5] = v.value / 10000;
+    offset += v.length;
+    v = readSignedIntWith2bitLengthValue(data, offset);
+    rotationEul[6] = v.value / 10000;
+    offset += v.length;
+    v = readSignedIntWith2bitLengthValue(data, offset);
+    rotationEul[7] = v.value / 10000;
+    offset += v.length;
+    rotationEul[8] = data.readUint8(offset);
+    offset += 1;
+    obj["PosAndRot"] = rotationEul;
+  }
+  if (offset != data.length) {
+    console.error("Wrong positionUpdate buffer", obj);
+    return {
+      value: generateDummyPosUpdate(),
+      length: offset - startOffset
+    };
   }
   return {
     value: obj,
@@ -586,6 +753,36 @@ export function packPositionUpdateData(obj: any) {
 
   data.writeUInt16LE(flags, 0);
 
+  return data;
+}
+
+export interface MultiDeathData {
+  characterId: string;
+  unknown4: number;
+  unknown5: number;
+  flag: number;
+  managerCharacterId: string;
+}
+
+export function packMultiStateDeathData(obj: MultiDeathData) {
+  const isRagdoll = obj.flag && obj.flag > 0;
+  let offset = 0;
+  const data = Buffer.allocUnsafe(isRagdoll ? 19 : 11);
+  const characterIdBI = BigInt(obj.characterId);
+  data.writeBigUInt64LE(characterIdBI, offset);
+  offset += 8;
+  data.writeUInt8(obj["unknown4"], offset);
+  offset += 1;
+  data.writeUInt8(obj["unknown5"], offset);
+  offset += 1;
+  data.writeUInt8(obj.flag, offset);
+  offset += 1;
+
+  if (isRagdoll) {
+    const managerCharacterIdBI = BigInt(obj.managerCharacterId);
+    data.writeBigUInt64LE(managerCharacterIdBI, offset);
+    offset += 8;
+  }
   return data;
 }
 
@@ -1143,7 +1340,7 @@ export const lightWeightNpcSchema: PacketFields = [
   { name: "unknownString3", type: "string", defaultValue: "" },
   { name: "unknownString4", type: "string", defaultValue: "" },
   { name: "vehicleId", type: "uint32", defaultValue: 0 },
-  { name: "unknownDword5", type: "uint32", defaultValue: 0 },
+  { name: "projectileUniqueId", type: "uint32", defaultValue: 0 },
   { name: "npcDefinitionId", type: "uint32", defaultValue: 0 },
   { name: "positionUpdateType", type: "uint8", defaultValue: 0 }, // determine if npc is moving with positionUpdate - Avcio
   { name: "profileId", type: "uint32", defaultValue: 0 },
@@ -1200,10 +1397,10 @@ export const lightWeightNpcSchema: PacketFields = [
     ],
     defaultValue: {}
   },
-  { name: "unknownByte3", type: "uint8", defaultValue: 0 },
+  { name: "movementVersion", type: "uint8", defaultValue: 0 },
   { name: "unknownDword8", type: "uint32", defaultValue: 0 },
   {
-    name: "unknownQword1",
+    name: "managerCharacterId",
     type: "uint64string",
     defaultValue: "0x0"
   },
@@ -1489,7 +1686,7 @@ export const currencySchema: PacketFields = [
 ];
 
 export const rewardBundleSchema: PacketFields = [
-  { name: "unknownBoolean1", type: "boolean", defaultValue: false },
+  { name: "unknownBoolean1", type: "boolean", defaultValue: true },
   {
     name: "currency",
     type: "array",
@@ -1497,53 +1694,36 @@ export const rewardBundleSchema: PacketFields = [
     fields: currencySchema
   },
   { name: "unknownDword1", type: "uint32", defaultValue: 0 },
-  { name: "unknownDword2", type: "uint32", defaultValue: 0 },
+  { name: "unknownDword2", type: "uint32", defaultValue: 19 },
   { name: "unknownDword3", type: "uint32", defaultValue: 0 },
   { name: "unknownDword4", type: "uint32", defaultValue: 0 },
   { name: "unknownDword5", type: "uint32", defaultValue: 0 },
   { name: "unknownDword6", type: "uint32", defaultValue: 0 },
   { name: "time", type: "uint64string", defaultValue: "0" },
   { name: "characterId", type: "uint64string", defaultValue: "0" },
-  { name: "nameId", type: "uint32", defaultValue: 0 },
-  { name: "unknownDword7", type: "uint32", defaultValue: 0 },
-  { name: "entriesArrLength", type: "uint32", defaultValue: 0 },
-  /* INGORE THIS FOR NOW, CAN'T FIND READ export function (length set to 0 for now)
+  { name: "nameId", type: "uint32", defaultValue: 22 },
+  { name: "unknownDword7", type: "uint32", defaultValue: 49 },
   {
-      name: "entries",
-      type: "array",
-      defaultValue: [{}],
-      fields: [
-          {
-              name: "entryData",
-              type: "variabletype8",
-              types: {
-                  1: [
-                      {
-                          name: "unknownData1",
-                          type: "schema",
-                          fields: [
-                              {
-                                  name: "unknownBoolean1",
-                                  type: "boolean",
-                                  defaultValue: false,
-                              },
-                              { name: "imageSetId", type: "uint32", defaultValue: 0 },
-                              { name: "unknownDword1", type: "uint32", defaultValue: 0 },
-                              { name: "nameId", type: "uint32", defaultValue: 0 },
-                              { name: "quantity", type: "uint32", defaultValue: 0 },
-                              { name: "itemId", type: "uint32", defaultValue: 0 },
-                              { name: "unknownDword2", type: "uint32", defaultValue: 0 },
-                              { name: "unknownString1", type: "string", defaultValue: "" },
-                              { name: "unknownDword3", type: "uint32", defaultValue: 0 },
-                              { name: "unknownDword4", type: "uint32", defaultValue: 0 },
-                          ],
-                      },
-                  ],
-              },
-          },
-      ],
+    name: "entries",
+    type: "array",
+    defaultValue: [{}],
+    fields: [
+      { name: "itemType", type: "uint8", defaultValue: 1 },
+      { name: "unknownDword1", type: "uint32", defaultValue: 0 },
+      { name: "imageSetId", type: "uint32", defaultValue: 0 },
+      { name: "unknownDword3", type: "uint32", defaultValue: 1 },
+      { name: "nameId", type: "uint32", defaultValue: 0 },
+      { name: "quantity", type: "uint32", defaultValue: 0 },
+      { name: "itemDefId", type: "uint32", defaultValue: 0 },
+      { name: "itemGuid", type: "uint64string", defaultValue: "0" },
+      { name: "itemTextColor", type: "uint32", defaultValue: 0 },
+      { name: "membersOnly", type: "uint8", defaultValue: 0 },
+      { name: "tint", type: "int32", defaultValue: -1 },
+      { name: "unknownDword5", type: "uint32", defaultValue: 0 },
+      { name: "unknownDword6", type: "uint32", defaultValue: 0 },
+      { name: "unknownDword7", type: "uint32", defaultValue: 0 }
+    ]
   },
-  */
   { name: "unknownDword8", type: "uint32", defaultValue: 0 }
 ];
 export const collectionsSchema: PacketFields = [
@@ -3064,4 +3244,29 @@ export const storeBundleSchema: PacketFields = [
       { name: "unknownDword13", type: "uint32", defaultValue: 0 }
     ]
   }
+];
+
+export const damageReportPlayerInfoSchema: PacketFields = [
+  { name: "flags1", type: "uint8", defaultValue: 0 },
+  { name: "flags2", type: "uint8", defaultValue: 0 },
+  { name: "unknownDword1", type: "uint32", defaultValue: 0 },
+  { name: "unknownQword1", type: "uint64string", defaultValue: "0" },
+  { name: "unknownQword2", type: "uint64string", defaultValue: "0" },
+  { name: "unknownQword3", type: "uint64string", defaultValue: "0" },
+  { name: "unknownDword2", type: "uint32", defaultValue: 0 },
+  { name: "unknownDword3", type: "int32", defaultValue: 0 },
+  { name: "unknownDword4", type: "uint32", defaultValue: 0 },
+  { name: "unknownDword5", type: "uint32", defaultValue: 0 },
+  { name: "unknownDword6", type: "uint32", defaultValue: 0 },
+  { name: "unknownDword7", type: "uint32", defaultValue: 0 },
+  { name: "unknownDword8", type: "uint32", defaultValue: 0 },
+  {
+    name: "unknownFloatVector1",
+    type: "floatvector4",
+    defaultValue: [0, 0, 0, 1]
+  },
+  { name: "unknownDword9", type: "uint32", defaultValue: 0 },
+  { name: "unknownDword10", type: "uint32", defaultValue: 0 },
+  { name: "unknownDword11", type: "uint32", defaultValue: 0 },
+  { name: "unknownDword12", type: "uint32", defaultValue: 0 }
 ];

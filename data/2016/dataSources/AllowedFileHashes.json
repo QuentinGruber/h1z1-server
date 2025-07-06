@@ -1025,7 +1025,15 @@
   },
   {
     "file_name": "Assets_256.pack",
-    "crc32_hash": "f3774e08"
+    "crc32_hash": "47ce5604",
+    "old_crc32_hash": "1c0eacbc"
+  },
+  {
+    "file_name": "Assets_257.pack",
+    "crc32_hash": "bc999532"
+  },
+  {
+    "file_name": "Assets_258.pack",
+    "crc32_hash": "5b6b2a7f"
   }
 ]
-

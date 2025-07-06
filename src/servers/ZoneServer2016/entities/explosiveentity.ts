@@ -3,7 +3,7 @@
 //   GNU GENERAL PUBLIC LICENSE
 //   Version 3, 29 June 2007
 //   copyright (C) 2020 - 2021 Quentin Gruber
-//   copyright (C) 2021 - 2024 H1emu community
+//   copyright (C) 2021 - 2025 H1emu community
 //
 //   https://github.com/QuentinGruber/h1z1-server
 //   https://www.npmjs.com/package/h1z1-server
@@ -29,9 +29,6 @@ export class ExplosiveEntity extends BaseLightweightCharacter {
   /** Id of the item - See ServerItemDefinitions.json for more information */
   itemDefinitionId: number;
 
-  /** The delay it takes for the landmine to be armed */
-  mineTimer?: NodeJS.Timeout;
-
   /** The distance where the explosive will render for the player */
   npcRenderDistance = 300;
 
@@ -44,6 +41,10 @@ export class ExplosiveEntity extends BaseLightweightCharacter {
 
   /** the characterId from who place this to keep track */
   ownerCharacterId: string;
+
+  creationTime: number = Date.now();
+
+  isAwaitingExplosion: boolean = false;
 
   constructor(
     characterId: string,
@@ -97,65 +98,39 @@ export class ExplosiveEntity extends BaseLightweightCharacter {
       }
     );
     setTimeout(() => {
-      this.detonate(server, client);
+      this.detonate(client.character.characterId);
     }, 10000);
   }
 
-  detonate(server: ZoneServer2016, client?: ZoneClient2016) {
-    if (!server._explosives[this.characterId] || this.detonated) return;
+  detonate(characterId: string = "") {
+    let client = this.server.getClientByCharId(characterId);
+    if (!this.server._explosives[this.characterId] || this.detonated) return;
     this.detonated = true;
-    server.sendCompositeEffectToAllInRange(
+    this.server.sendCompositeEffectToAllInRange(
       600,
       "",
       this.state.position,
       Effects.PFX_Impact_Explosion_Landmine_Dirt_10m
     );
     if (isChristmasSeason()) {
-      server.sendCompositeEffectToAllInRange(
+      this.server.sendCompositeEffectToAllInRange(
         600,
         "",
         this.state.position,
         Effects.PFX_Seasonal_Holiday_Snow_skel
       );
     }
-    server.deleteEntity(this.characterId, server._explosives);
-    server.explosionDamage(this, client);
+    queueMicrotask(() => {
+      this.server.deleteEntity(this.characterId, this.server._explosives);
+    });
+    this.server.explosionDamage(this, client);
   }
 
   /** Used by landmines to arm their explosivenss */
   async arm(server: ZoneServer2016) {
-    if (this.isLandmine()) {
-      // Wait 10 seconds before activating the trap
-      await new Promise<void>((resolve) => setTimeout(resolve, 10000));
-    }
-    this.mineTimer = setTimeout(() => {
-      if (!server._explosives[this.characterId]) {
-        return;
-      }
-      for (const a in server._clients) {
-        if (
-          getDistance(
-            server._clients[a].character.state.position,
-            this.state.position
-          ) < 0.6
-        ) {
-          this.detonate(server);
-          return;
-        }
-      }
-      for (const a in server._vehicles) {
-        if (
-          getDistance(server._vehicles[a].state.position, this.state.position) <
-          1.8
-        ) {
-          this.detonate(server);
-          return;
-        }
-      }
-      if (server._explosives[this.characterId]) {
-        this.mineTimer?.refresh();
-      }
-    }, 90);
+    // Wait 10 seconds before activating the trap
+    await scheduler.wait(10_000);
+    server.aiManager.addEntity(this);
   }
 
   /** Called when the explosive gets hit by a projectile (bullet, arrow, etc.) */
@@ -170,29 +145,35 @@ export class ExplosiveEntity extends BaseLightweightCharacter {
       if (randomInt < 90) this.triggerExplosionShots += 1;
     }
     if (this.triggerExplosionShots > 0) return;
-    this.detonate(server, server.getClientByCharId(damageInfo.entity));
+    this.detonate(damageInfo.entity);
   }
 
   async OnExplosiveHit(
     server: ZoneServer2016,
     sourceEntity: BaseEntity,
-    client?: ZoneClient2016
+    client?: ZoneClient2016,
+    waitTime: number = 0,
+    useRaycast: boolean = false
   ) {
+    if (this.isAwaitingExplosion) return;
+    this.isAwaitingExplosion = true;
     if (this.characterId == sourceEntity.characterId) return;
-    if (getDistance(sourceEntity.state.position, this.state.position) >= 2)
-      return;
-
-    await scheduler.wait(200);
+    if (!useRaycast) {
+      if (getDistance(sourceEntity.state.position, this.state.position) >= 2)
+        return;
+    }
+    await scheduler.wait(waitTime);
     if (server._spawnedItems[this.characterId]) {
       const itemObject = server._spawnedItems[this.characterId];
       server.deleteEntity(this.characterId, server._spawnedItems);
       delete server.worldObjectManager.spawnedLootObjects[itemObject.spawnerId];
     }
     if (this.detonated) return;
-    this.detonate(server, client);
+    this.detonate(client?.character.characterId);
   }
 
-  destroy(server: ZoneServer2016): boolean {
-    return server.deleteEntity(this.characterId, server._explosives);
+  destroy(): boolean {
+    this.detonate();
+    return true;
   }
 }

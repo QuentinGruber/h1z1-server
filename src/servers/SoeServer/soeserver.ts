@@ -3,7 +3,7 @@
 //   GNU GENERAL PUBLIC LICENSE
 //   Version 3, 29 June 2007
 //   copyright (C) 2020 - 2021 Quentin Gruber
-//   copyright (C) 2021 - 2024 H1emu community
+//   copyright (C) 2021 - 2025 H1emu community
 //
 //   https://github.com/QuentinGruber/h1z1-server
 //   https://www.npmjs.com/package/h1z1-server
@@ -39,7 +39,7 @@ export class SOEServer extends EventEmitter {
   keepAliveTimeoutTime: number = 40000;
   private readonly _maxMultiBufferSize: number;
   private _resendTimeout: number = 250;
-  private _maxResentTries: number = 12;
+  private _maxResentTries: number = 24;
   _allowRawDataReception: boolean = false;
   private _packetResetInterval: NodeJS.Timeout | undefined;
   avgEventLoopLag: number = 0;
@@ -678,10 +678,7 @@ export class SOEServer extends EventEmitter {
           4
         )}`
       );
-      console.error(e);
-      process.exitCode = 444;
-      // @ts-ignore
-      return null;
+      throw e;
     }
   }
 

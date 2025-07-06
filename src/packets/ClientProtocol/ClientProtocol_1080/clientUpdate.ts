@@ -3,7 +3,7 @@
 //   GNU GENERAL PUBLIC LICENSE
 //   Version 3, 29 June 2007
 //   copyright (C) 2020 - 2021 Quentin Gruber
-//   copyright (C) 2021 - 2024 H1emu community
+//   copyright (C) 2021 - 2025 H1emu community
 //
 //   https://github.com/QuentinGruber/h1z1-server
 //   https://www.npmjs.com/package/h1z1-server
@@ -350,14 +350,14 @@ export const clientUpdatePackets: PacketStructures = [
     {
       fields: [
         { name: "recipesDiscovered", type: "uint32", defaultValue: 0 },
-        { name: "unknown4", type: "uint32", defaultValue: 0 },
+        { name: "playersKilled", type: "uint32", defaultValue: 0 },
         { name: "wildlifeKilled", type: "uint32", defaultValue: 0 },
         { name: "zombiesKilled", type: "uint32", defaultValue: 0 },
-        { name: "unknown7", type: "uint32", defaultValue: 0 },
+        { name: "vehiclesDestroyed", type: "uint32", defaultValue: 0 },
         { name: "minutesSurvived", type: "uint32", defaultValue: 0 },
         { name: "position", type: "floatvector4", defaultValue: [0, 0, 0, 1] },
-        { name: "unknown10", type: "uint32", defaultValue: 0 },
-        { name: "unknown11", type: "boolean", defaultValue: 1 }
+        { name: "lastDamageAmount", type: "uint32", defaultValue: 0 },
+        { name: "killedByHeadshot", type: "boolean", defaultValue: false }
       ]
     }
   ],

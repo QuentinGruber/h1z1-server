@@ -3,7 +3,7 @@
 //   GNU GENERAL PUBLIC LICENSE
 //   Version 3, 29 June 2007
 //   copyright (C) 2020 - 2021 Quentin Gruber
-//   copyright (C) 2021 - 2024 H1emu community
+//   copyright (C) 2021 - 2025 H1emu community
 //
 //   https://github.com/QuentinGruber/h1z1-server
 //   https://www.npmjs.com/package/h1z1-server
@@ -19,8 +19,8 @@ export const mapRegionPackets: PacketStructures = [
     0xa401,
     {
       fields: [
-        { name: "unknown1", type: "float", defaultValue: 0.0 },
-        { name: "unknown2", type: "float", defaultValue: 0.0 }
+        { name: "unknown1", type: "float", defaultValue: 0.75 },
+        { name: "unknown2", type: "float", defaultValue: 0.150000005960464 }
       ]
     }
   ],
@@ -29,7 +29,7 @@ export const mapRegionPackets: PacketStructures = [
     0xa402,
     {
       fields: [
-        { name: "unknown1", type: "float", defaultValue: 0.0 },
+        { name: "unknown1", type: "float", defaultValue: 100.0 },
         { name: "unknown2", type: "uint32", defaultValue: 0 },
         {
           name: "regions",

@@ -3,7 +3,7 @@
 //   GNU GENERAL PUBLIC LICENSE
 //   Version 3, 29 June 2007
 //   copyright (C) 2020 - 2021 Quentin Gruber
-//   copyright (C) 2021 - 2024 H1emu community
+//   copyright (C) 2021 - 2025 H1emu community
 //
 //   https://github.com/QuentinGruber/h1z1-server
 //   https://www.npmjs.com/package/h1z1-server
@@ -100,6 +100,8 @@ export abstract class BaseLightweightCharacter extends BaseEntity {
   /** Determines if the lightweight should be used as a SimpleNpc (non-moving) */
   useSimpleStruct: boolean = false;
 
+  movementVersion: number = 0;
+
   navAgent?: CrowdAgent;
 
   constructor(
@@ -145,7 +147,9 @@ export abstract class BaseLightweightCharacter extends BaseEntity {
     return {
       characterId: this.characterId,
       transientId: this.transientId,
-      actorModelId: this.actorModelId,
+      actorModelId: this.temporaryActorModelId
+        ? this.temporaryActorModelId
+        : this.actorModelId,
       // fix players / vehicles spawning in ground
       position: new Float32Array(
         Array.from(this.state.position).map((pos, idx) => {
@@ -162,6 +166,7 @@ export abstract class BaseLightweightCharacter extends BaseEntity {
         flags2: this.flags,
         flags3: this.flags
       },
+      movementVersion: this.movementVersion,
       headActor: this.headActor,
       attachedObject: {}
     };

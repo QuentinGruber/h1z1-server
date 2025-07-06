@@ -3,7 +3,7 @@
 //   GNU GENERAL PUBLIC LICENSE
 //   Version 3, 29 June 2007
 //   copyright (C) 2020 - 2021 Quentin Gruber
-//   copyright (C) 2021 - 2024 H1emu community
+//   copyright (C) 2021 - 2025 H1emu community
 //
 //   https://github.com/QuentinGruber/h1z1-server
 //   https://www.npmjs.com/package/h1z1-server
@@ -191,6 +191,7 @@ export interface FireHint {
   hitNumber: number;
   weaponItem: LoadoutItem
   timeStamp: number,
+  projectileUniqueId: number;
   marked?: { characterId: string, position: Float32Array, rotation: Float32Array, gameTime: number }
 }
 
@@ -235,6 +236,8 @@ export interface Recipe {
   filterId: FilterIds;
   bundleCount?: number;
   components: Array<RecipeComponent>;
+  splitted?: boolean;
+  itemId?: number;
   requireWorkbench?: boolean
   requireWeaponWorkbench?: boolean
   leftOverItems?: number[]
@@ -270,6 +273,10 @@ export interface dailyRepairMaterial {
 export type SlottedConstructionEntity = ConstructionChildEntity | ConstructionParentEntity | ConstructionDoor;
 
 export type ConstructionEntity = SlottedConstructionEntity | LootableConstructionEntity;
+
+export type ShelterSlotsPlacementTimer = {
+	[slot: number]: number;
+};
 
 export interface ConstructionPermissions {
   characterId: string;
@@ -500,6 +507,7 @@ export interface AccountDefinition {
 export interface RewardCrateDefinition {
   itemDefinitionId: number,
   rewards: RewardCrateRewardDefinition[]
+  excludeFromExchange?: boolean;
 }
 
 export interface RewardCrateRewardDefinition {

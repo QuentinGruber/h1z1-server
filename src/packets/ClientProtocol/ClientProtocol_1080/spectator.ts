@@ -3,7 +3,7 @@
 //   GNU GENERAL PUBLIC LICENSE
 //   Version 3, 29 June 2007
 //   copyright (C) 2020 - 2021 Quentin Gruber
-//   copyright (C) 2021 - 2024 H1emu community
+//   copyright (C) 2021 - 2025 H1emu community
 //
 //   https://github.com/QuentinGruber/h1z1-server
 //   https://www.npmjs.com/package/h1z1-server
@@ -149,6 +149,15 @@ export const spectatorPackets: PacketStructures = [
         { name: "unknownQword1", type: "uint64string", defaultValue: "" },
         { name: "unknownString1", type: "string", defaultValue: "" },
         { name: "unknownDword1", type: "uint32", defaultValue: 0 }
+      ]
+    }
+  ],
+  [
+    "Spectator.Unknown12",
+    0xe30c00,
+    {
+      fields: [
+        { name: "unknownQword1", type: "uint64string", defaultValue: "0" }
       ]
     }
   ]

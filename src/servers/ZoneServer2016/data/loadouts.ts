@@ -3,7 +3,7 @@
 //   GNU GENERAL PUBLIC LICENSE
 //   Version 3, 29 June 2007
 //   copyright (C) 2020 - 2021 Quentin Gruber
-//   copyright (C) 2021 - 2024 H1emu community
+//   copyright (C) 2021 - 2025 H1emu community
 //
 //   https://github.com/QuentinGruber/h1z1-server
 //   https://www.npmjs.com/package/h1z1-server
@@ -152,6 +152,37 @@ export const characterBuildKitLoadout = [
   { item: Items.METAL_DOORWAY, count: 40 },
   { item: Items.GROUND_TAMPER, count: 10 },
   { item: Items.WEAPON_HAMMER_DEMOLITION }
+];
+
+export const characterTestKitLoadout = [
+  { item: Items.FOUNDATION, count: 10 },
+  { item: Items.FOUNDATION_EXPANSION, count: 20 },
+  { item: Items.SHELTER, count: 20 },
+  { item: Items.SHELTER_LARGE, count: 20 },
+  { item: Items.SHELTER_UPPER, count: 20 },
+  { item: Items.SHELTER_UPPER_LARGE, count: 20 },
+  { item: Items.DOOR_METAL, count: 20 },
+  { item: Items.DOOR_WOOD, count: 20 },
+  { item: Items.DOOR_BASIC, count: 10 },
+  { item: Items.SHACK, count: 10 },
+  { item: Items.SHACK_SMALL, count: 10 },
+  { item: Items.SHACK_BASIC, count: 10 },
+  { item: Items.STRUCTURE_STAIRS, count: 20 },
+  { item: Items.STRUCTURE_STAIRS_UPPER, count: 20 },
+  { item: Items.FOUNDATION_RAMP, count: 20 },
+  { item: Items.FOUNDATION_STAIRS, count: 20 },
+  { item: Items.FURNACE, count: 20 },
+  { item: Items.STORAGE_BOX, count: 20 },
+  { item: Items.LOOKOUT_TOWER, count: 20 },
+  { item: Items.METAL_GATE, count: 20 },
+  { item: Items.METAL_WALL, count: 20 },
+  { item: Items.METAL_WALL_UPPER, count: 20 },
+  { item: Items.METAL_DOORWAY, count: 20 },
+  { item: Items.GROUND_TAMPER, count: 10 },
+  { item: Items.WEAPON_HAMMER_DEMOLITION },
+  { item: Items.LIGHTER },
+  { item: Items.IED, count: 200 },
+  { item: Items.FUEL_ETHANOL, count: 400 }
 ];
 
 export const vehicleDefaultLoadouts = {

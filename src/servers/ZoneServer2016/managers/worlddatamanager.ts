@@ -3,7 +3,7 @@
 //   GNU GENERAL PUBLIC LICENSE
 //   Version 3, 29 June 2007
 //   copyright (C) 2020 - 2021 Quentin Gruber
-//   copyright (C) 2021 - 2024 H1emu community
+//   copyright (C) 2021 - 2025 H1emu community
 //
 //   https://github.com/QuentinGruber/h1z1-server
 //   https://www.npmjs.com/package/h1z1-server
@@ -59,7 +59,7 @@ import { Plant } from "../entities/plant";
 import { DB_COLLECTIONS } from "../../../utils/enums";
 import { DB_NAME } from "../../../utils/constants";
 import { Character2016 } from "../entities/character";
-import { Items } from "../models/enums";
+import { Items, VehicleIds } from "../models/enums";
 import { Vehicle2016 } from "../entities/vehicle";
 import { TrapEntity } from "../entities/trapentity";
 import { ExplosiveEntity } from "../entities/explosiveentity";
@@ -147,7 +147,7 @@ export function constructContainers(
 }
 
 export class WorldDataManager {
-  private _db: any;
+  private _db!: Db;
   private _appDataFolder = getAppDataFolderPath();
   private _worldId: number = 0;
   private _soloMode: boolean = false;
@@ -262,7 +262,14 @@ export class WorldDataManager {
 
   async saveWorld(world: WorldArg) {
     console.time("WDM: saveWorld");
-    await this.saveVehicles(world.vehicles);
+    await this.saveVehicles(
+      world.vehicles.filter(
+        (vehicle) =>
+          ![VehicleIds.SPECTATE, VehicleIds.PARACHUTE].includes(
+            vehicle.vehicleId
+          )
+      )
+    );
     await this.saveServerData(world.lastGuidItem);
     await this.saveCharacters(world.characters);
     await this.saveConstructionData(world.constructions);
@@ -382,16 +389,16 @@ export class WorldDataManager {
   //#region SERVER DATA
 
   async getServerData(serverId: number): Promise<ServerSaveData | null> {
-    let serverData: ServerSaveData;
+    let serverData: ServerSaveData | null;
     if (this._soloMode) {
       serverData = require(`${this._appDataFolder}/worlddata/world.json`);
-      if (!serverData.serverId) {
+      if (!serverData?.serverId) {
         debug("World data not found in file, aborting.");
         return null;
       }
     } else {
       serverData = await this._db
-        ?.collection(DB_COLLECTIONS.WORLDS)
+        ?.collection<ServerSaveData>(DB_COLLECTIONS.WORLDS)
         .findOne({ worldId: serverId });
       if (!serverData || !serverData.serverId) {
         debug("World data not found in mongo, aborting.");
@@ -475,7 +482,7 @@ export class WorldDataManager {
         _containers: loadedCharacter._containers || {},
         _resources: loadedCharacter._resources || {},
         mutedCharacters: loadedCharacter.mutedCharacters || [],
-        groupId: 0, //loadedCharacter.groupId || 0,
+        metrics: loadedCharacter.metrics || {},
         playTime: loadedCharacter.playTime ?? 0,
         lastDropPlayTime: loadedCharacter.lastDropPlayTime ?? 0,
         status: 1,
@@ -539,7 +546,7 @@ export class WorldDataManager {
       lastDropPlayTime: character.lastDropPlaytime,
       spawnGridData: character.spawnGridData,
       mutedCharacters: character.mutedCharacters,
-      groupId: 0 //character.groupId
+      metrics: character.metrics
     };
     return saveData;
   }
@@ -726,9 +733,13 @@ export class WorldDataManager {
         case Items.ANIMAL_TRAP:
           if (container) container.canAcceptItems = false;
           break;
-        case Items.DEW_COLLECTOR:
         case Items.BEE_BOX:
+          if (container)
+            container.acceptedItems = [Items.HONEYCOMB, Items.WATER_EMPTY];
+          break;
+        case Items.DEW_COLLECTOR:
           if (container) container.acceptedItems = [Items.WATER_EMPTY];
+          break;
       }
     }
     if (isWorldConstruction) {
@@ -880,7 +891,7 @@ export class WorldDataManager {
     } else {
       constructionParents = <any>(
         await this._db
-          ?.collection("construction")
+          ?.collection(DB_COLLECTIONS.CONSTRUCTION)
           .find({ serverId: this._worldId })
           .toArray()
       );
@@ -1030,28 +1041,33 @@ export class WorldDataManager {
         JSON.stringify(constructions, null, 2)
       );
     } else {
-      const collection = this._db?.collection(
-        DB_COLLECTIONS.CONSTRUCTION
-      ) as Collection;
-      const updatePromises = [];
-      for (let i = 0; i < constructions.length; i++) {
-        const construction = constructions[i];
-        updatePromises.push(
-          collection.replaceOne(
-            { characterId: construction.characterId, serverId: this._worldId },
-            construction,
-            { upsert: true }
-          )
-        );
+      if (constructions.length) {
+        const collection = this._db?.collection(
+          DB_COLLECTIONS.CONSTRUCTION
+        ) as Collection;
+        const updatePromises = [];
+        for (let i = 0; i < constructions.length; i++) {
+          const construction = constructions[i];
+          updatePromises.push(
+            collection.updateOne(
+              {
+                characterId: construction.characterId,
+                serverId: this._worldId
+              },
+              { $set: construction },
+              { upsert: true }
+            )
+          );
+        }
+        await Promise.all(updatePromises);
+        const allCharactersIds = constructions.map((c) => {
+          return c.characterId;
+        });
+        await collection.deleteMany({
+          serverId: this._worldId,
+          characterId: { $nin: allCharactersIds }
+        });
       }
-      await Promise.all(updatePromises);
-      const allCharactersIds = constructions.map((construction) => {
-        return construction.characterId;
-      });
-      await collection.deleteMany({
-        serverId: this._worldId,
-        characterId: { $nin: allCharactersIds }
-      });
     }
   }
 
@@ -1078,6 +1094,7 @@ export class WorldDataManager {
     return {
       ...this.getBaseFullEntitySaveData(entity, serverId),
       seedSlots: slots,
+      placementTime: entity.placementTime,
       fertilizedTimestamp: entity.fertilizedTimestamp,
       isFertilized: entity.isFertilized
     };
@@ -1376,7 +1393,7 @@ export class WorldDataManager {
           entityData.ownerCharacterId
         );
         server._explosives[entityData.characterId] = explosive;
-        //explosive.arm(server);
+        explosive.arm(server);
         //temporarily Disabled
         break;
       default:
@@ -1393,8 +1410,7 @@ export class WorldDataManager {
         );
         trap.health = entityData.health;
         server._traps[trap.characterId] = trap;
-      //trap.arm(server);
-      //temporarily disabled
+        trap.arm();
     }
   }
 

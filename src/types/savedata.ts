@@ -3,7 +3,7 @@
 //   GNU GENERAL PUBLIC LICENSE
 //   Version 3, 29 June 2007
 //   copyright (C) 2020 - 2021 Quentin Gruber
-//   copyright (C) 2021 - 2024 H1emu community
+//   copyright (C) 2021 - 2025 H1emu community
 //
 //   https://github.com/QuentinGruber/h1z1-server
 //   https://www.npmjs.com/package/h1z1-server
@@ -69,8 +69,8 @@ export interface CharacterUpdateSaveData
   characterId: string,
   isRespawning: boolean;
   spawnGridData: number[];
+  metrics: CharacterMetricsSaveData;
   mutedCharacters: string[];
-  groupId: number;
   playTime: number;
   lastDropPlayTime: number;
 }
@@ -162,6 +162,7 @@ export interface PlantingDiameterSaveData
   extends BaseFullEntitySaveData {
     seedSlots: { [id: string]: PlantSaveData };
     fertilizedTimestamp: number;
+    placementTime: number;
     isFertilized: boolean;
 }
 
@@ -175,4 +176,13 @@ export interface TrapSaveData
 export interface ServerSaveData extends BaseSaveData {
   lastItemGuid: string;
   worldSaveVersion: number;
+}
+
+export interface CharacterMetricsSaveData {
+  zombiesKilled: number;
+  wildlifeKilled: number;
+  recipesDiscovered: number;
+  startedSurvivingTP: number;
+  vehiclesDestroyed: number;
+  playersKilled: number;
 }

@@ -3,7 +3,7 @@
 //   GNU GENERAL PUBLIC LICENSE
 //   Version 3, 29 June 2007
 //   copyright (C) 2020 - 2021 Quentin Gruber
-//   copyright (C) 2021 - 2024 H1emu community
+//   copyright (C) 2021 - 2025 H1emu community
 //
 //   https://github.com/QuentinGruber/h1z1-server
 //   https://www.npmjs.com/package/h1z1-server
@@ -61,6 +61,8 @@ export abstract class BaseEntity {
   /** Id of the model that corresponds to the entity */
   actorModelId!: number;
 
+  temporaryActorModelId?: number;
+
   /** State of the BaseLightweightCharacter, includes: state (Float32Array),
    * rotation(Float32Array), lookAt(Float32Array), and yaw (number) */
   state: {
@@ -85,7 +87,9 @@ export abstract class BaseEntity {
   /** The physical material the entity is made of - See enums.ts/MaterialTypes for more information */
   materialType: number;
 
-  h1emu_ai_id?: bigint;
+  /** The guid of the secured shelter the entity is inside */
+  isHidden: string = "";
+  server: ZoneServer2016;
   constructor(
     characterId: string,
     transientId: number,
@@ -106,6 +110,7 @@ export abstract class BaseEntity {
     this.interactionDistance = server.interactionDistance;
     this.materialType = this.getMaterialType(server, this.actorModelId);
     server.pushToGridCell(this);
+    this.server = server;
   }
 
   getMaterialType(server: ZoneServer2016, actorModelId: number) {

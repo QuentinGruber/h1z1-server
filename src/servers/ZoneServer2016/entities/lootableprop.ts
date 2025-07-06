@@ -16,8 +16,9 @@ import { ZoneClient2016 } from "../classes/zoneclient";
 
 import { StringIds, Items, ModelIds } from "../models/enums";
 import { DamageInfo } from "types/zoneserver";
-import { eul2quat, randomIntFromInterval } from "../../../utils/utils";
+import { randomIntFromInterval } from "../../../utils/utils";
 import { AddSimpleNpc } from "types/zone2016packets";
+import { ChallengeType } from "../managers/challengemanager";
 
 function getContainerAndTime(entity: LootableProp) {
   switch (entity.actorModelId) {
@@ -64,22 +65,27 @@ function getContainerAndTime(entity: LootableProp) {
       entity.searchTime = 500;
       entity.lootSpawner = "Cabinets Cube";
       break;
+
+    case ModelIds.CABINET_SET_03:
+    case ModelIds.CABINET_SET_05:
+    case ModelIds.CABINET_SET_06:
+    case ModelIds.CABINET_SET_07:
+    case ModelIds.CABINET_SET_08:
+    case ModelIds.CABINET_SET_09:
+      entity.containerId = Items.CONTAINER_CABINETS_KITCHEN;
+      entity.searchTime = 5000;
+      entity.lootSpawner = "Cabinets Kitchen";
+      break;
     case ModelIds.CABINETS_KITCHEN_02:
     case ModelIds.CABINETS_KITCHEN_03:
     case ModelIds.CABINETS_KITCHEN_05:
     case ModelIds.CABINETS_KITCHEN_04:
     case ModelIds.CABINETS_KITCHEN_01:
-    case ModelIds.CABINET_SET_06:
-    case ModelIds.CABINET_SET_04:
     case ModelIds.CABINETS_KITCHEN_06:
-    case ModelIds.CABINET_SET_02:
-    case ModelIds.CABINET_SET_05:
-    case ModelIds.CABINET_SET_03:
     case ModelIds.CABINET_SET_01:
+    case ModelIds.CABINET_SET_02:
+    case ModelIds.CABINET_SET_04:
     case ModelIds.CABINET_SET_10:
-    case ModelIds.CABINET_SET_08:
-    case ModelIds.CABINET_SET_07:
-    case ModelIds.CABINET_SET_09:
     case ModelIds.CABINET_SET_11:
       entity.containerId = Items.CONTAINER_CABINETS_KITCHEN;
       entity.searchTime = 1000;
@@ -237,7 +243,7 @@ export class LootableProp extends BaseLootableEntity {
     this.npcRenderDistance = renderDistance;
     this.loadoutId = 5;
     getContainerAndTime(this);
-    switch (this.lootSpawner) {
+    /*switch (this.lootSpawner) {
       case "Wrecked Van":
       case "Wrecked Car":
       case "Wrecked Truck":
@@ -251,7 +257,7 @@ export class LootableProp extends BaseLootableEntity {
           ])
         );
         break;
-    }
+    }*/
   }
 
   pGetSimpleNpc(): AddSimpleNpc {
@@ -284,7 +290,6 @@ export class LootableProp extends BaseLootableEntity {
         () => {
           super.OnPlayerSelect(server, client);
           client.searchedProps.push(this);
-          server.lootCrateWithChance(client, 5);
         }
       );
     } else {
@@ -306,7 +311,12 @@ export class LootableProp extends BaseLootableEntity {
       });
     } else {
       switch (this.actorModelId) {
+        case ModelIds.CABINET_SET_03:
         case ModelIds.CABINET_SET_05:
+        case ModelIds.CABINET_SET_06:
+        case ModelIds.CABINET_SET_07:
+        case ModelIds.CABINET_SET_08:
+        case ModelIds.CABINET_SET_09:
           server.sendData(client, "Command.InteractionString", {
             guid: this.characterId,
             stringId: StringIds.SEARCH_ALL_CABINETS
@@ -353,6 +363,12 @@ export class LootableProp extends BaseLootableEntity {
               server,
               server.generateItem(Items.METAL_SCRAP)
             );
+            server.challengeManager.registerChallengeProgression(
+              client,
+              ChallengeType.RECYCLING,
+              1
+            );
+            server.lootCrateWithChance(client, 2);
           }
         } else {
           server.sendChatText(
