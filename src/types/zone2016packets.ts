@@ -2722,7 +2722,7 @@ export interface CommandRequestWeaponFireStateUpdate {
 }
 export interface CommandDeliveryDisplayInfo {
   startIndex?: number;
-  segments?: unknown[];
+  segments: unknown[];
 }
 export interface CommandDeliveryManagerStatus {
   deliveryAvailable?: number;
