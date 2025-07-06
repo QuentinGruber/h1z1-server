@@ -49,10 +49,7 @@ import {
   ModelIds,
   ItemTypes,
   ItemClasses,
-  ResourceIndicators,
-  Backpack1000,
-  MilitaryTan,
-  FramedBackpack
+  ResourceIndicators
 } from "./models/enums";
 import { WeatherManager } from "./managers/weathermanager";
 
