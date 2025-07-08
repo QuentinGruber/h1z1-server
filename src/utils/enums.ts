@@ -70,6 +70,7 @@ export enum DB_COLLECTIONS {
   VPN_WHITELIST = "vpn-whitelist",
   CHALLENGES = "challenges",
   AUTHKEYS = "verified-authkeys",
+  NODEJS_REPORTS = "nodejs-reports",
   LOGIN_ERRORS = "login-errors"
 }
 
