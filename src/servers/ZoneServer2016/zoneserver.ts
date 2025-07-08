@@ -994,9 +994,15 @@ export class ZoneServer2016 extends EventEmitter {
     try {
       await this.sendInitData(client);
     } catch (error) {
-      debug(error);
       console.log(error);
       this.sendData<LoginFailed>(client, "LoginFailed", {});
+      if (!this._soloMode) {
+        await this._db.collection(DB_COLLECTIONS.LOGIN_ERRORS).insertOne({
+          error,
+          guid: client.loginSessionId,
+          characterId: client.character.characterId
+        });
+      }
     }
   }
 
@@ -1077,7 +1083,11 @@ export class ZoneServer2016 extends EventEmitter {
         characterId: character.characterId
       });
       if (!charactersArray) {
-        await collection.insertOne(character);
+        const result = await collection.insertOne(character);
+        if (!result.insertedId || !result.acknowledged) {
+          console.error(result);
+          throw new Error("Failed to insert character into database");
+        }
       }
       this._loginConnectionManager.sendData(client, "CharacterCreateReply", {
         reqId: reqId,
@@ -2760,18 +2770,18 @@ export class ZoneServer2016 extends EventEmitter {
     let isInGodMode = false;
     if (killerClient) {
       isInGodMode = killerClient.character.isGodMode();
-    }
-    this.sendDataToAllWithSpawnedEntity<CharacterKilledBy>(
-      this._characters,
-      client.character.characterId,
-      "Character.KilledBy",
+      this.sendDataToAllWithSpawnedEntity<CharacterKilledBy>(
+        this._characters,
+        client.character.characterId,
+        "Character.KilledBy",
 
-      {
-        killer: killerClient?.character.characterId,
-        killed: client.character.characterId,
-        isCheater: isInGodMode
-      }
-    );
+        {
+          killer: killerClient?.character.characterId,
+          killed: client.character.characterId,
+          isCheater: isInGodMode
+        }
+      );
+    }
   }
 
   applyCharacterEffect(
