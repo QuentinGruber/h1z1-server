@@ -580,6 +580,11 @@ export class Character2016 extends BaseFullCharacter {
         client.character._resources[ResourceIds.STAMINA] -= 20;
         break;
       case energy <= 2601 && energy > 801:
+        server.challengeManager.registerChallengeProgression(
+          client,
+          ChallengeType.TIRED_BUDDY,
+          1
+        );
         desiredEnergyIndicator = ResourceIndicators.VERY_TIRED;
         client.character._resources[ResourceIds.STAMINA] -= 14;
         break;
