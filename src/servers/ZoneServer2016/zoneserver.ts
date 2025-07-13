@@ -52,7 +52,8 @@ import {
   ResourceIndicators,
   Backpack1000,
   MilitaryTan,
-  FramedBackpack
+  FramedBackpack,
+  GameModes
 } from "./models/enums";
 import { WeatherManager } from "./managers/weathermanager";
 
@@ -202,7 +203,11 @@ import {
   RewardAddNonRewardItem,
   SendSelfToClient,
   SendZoneDetails,
+  SynchronizedTeleportPlayersReady,
+  SynchronizedTeleportRelease,
+  SynchronizedTeleportWaitingForPlayers,
   UiConfirmHit,
+  VehicleAutoMount,
   VehicleOccupy,
   VehicleOwner,
   WeaponWeapon,
@@ -296,7 +301,7 @@ export class ZoneServer2016 extends EventEmitter {
   readonly _soloMode: boolean;
   _serverName = process.env.SERVER_NAME || "";
   readonly _mongoAddress: string;
-  private readonly _clientProtocol = "ClientProtocol_1080";
+  private _clientProtocol: string;
   protected _loginConnectionManager!: LoginConnectionManager;
   _serverGuid = generateRandomGuid();
   _worldId = 0;
@@ -338,6 +343,7 @@ export class ZoneServer2016 extends EventEmitter {
   _screenEffects: { [screenEffectName: string]: ScreenEffect } = {};
   _clientEffectsData: { [effectId: number]: clientEffect } = {};
   _modelsData: { [modelId: number]: modelData } = {};
+  _syncTeleport: { [characterId: string]: boolean } = {};
 
   /** Interactible options for items - See (ZonePacketHandlers.ts or datasources/ItemUseOptions) */
   _itemUseOptions: { [optionId: number]: UseOption } = {};
@@ -491,20 +497,23 @@ export class ZoneServer2016 extends EventEmitter {
   challengeManager: ChallengeManager;
   challengePositionCheckInterval?: NodeJS.Timeout;
   randomEventsManager: RandomEventsManager;
+  gameMode: GameModes = GameModes.SURVIVAL;
 
   constructor(
     serverPort: number,
     gatewayKey: Uint8Array = Buffer.from(DEFAULT_CRYPTO_KEY),
     mongoAddress = "",
     worldId?: number,
-    internalServerPort?: number
+    internalServerPort?: number,
+    protocol: string = "ClientProtocol_1080"
   ) {
     super();
+    this._clientProtocol = protocol;
     this._gatewayServer = new GatewayServer(serverPort, gatewayKey);
     this._packetHandlers = new ZonePacketHandlers();
     this._mongoAddress = mongoAddress;
     this._worldId = worldId || 0;
-    this._protocol = new H1Z1Protocol("ClientProtocol_1080");
+    this._protocol = new H1Z1Protocol(this._clientProtocol);
     this.worldObjectManager = new WorldObjectManager();
     this.voiceChatManager = new VoiceChatManager();
     this.smeltingManager = new SmeltingManager();
@@ -537,10 +546,14 @@ export class ZoneServer2016 extends EventEmitter {
     });
     /** Determines what rulesets are used. */
     const serverGameRules = [];
-    serverGameRules.push(this.isPvE ? "PvE" : "PvP");
-    if (this.isFirstPersonOnly) serverGameRules.push("FirstPersonOnly");
-    if (this.isHeadshotOnly) serverGameRules.push("Headshots");
-    if (this.isNoBuildInPois) serverGameRules.push("NoBuildNearPois");
+    if (this.isSurvival()) {
+      serverGameRules.push(this.isPvE ? "PvE" : "PvP");
+      if (this.isFirstPersonOnly) serverGameRules.push("FirstPersonOnly");
+      if (this.isHeadshotOnly) serverGameRules.push("Headshots");
+      if (this.isNoBuildInPois) serverGameRules.push("NoBuildNearPois");
+    } else if (this.isBattleRoyale()) {
+      serverGameRules.push("BattleRoyale");
+    }
     this.serverGameRules = serverGameRules.join(",");
 
     this._soloMode = false;
@@ -1723,11 +1736,10 @@ export class ZoneServer2016 extends EventEmitter {
       !this.enableWorldSaves
     ) {
       client.character.isRespawning = true;
-      this.respawnPlayer(
-        client,
-        this._spawnGrid[randomIntFromInterval(0, 99)],
-        false
+      const pos = this.calculatePosFromSpawnCell(
+        this._spawnGrid[randomIntFromInterval(0, 99)]
       );
+      this.respawnPlayer(client, pos, false);
     } else {
       client.character.state.position = new Float32Array(
         savedCharacter.position
@@ -2016,15 +2028,21 @@ export class ZoneServer2016 extends EventEmitter {
     }
     this.fairPlayManager.decryptFairPlayValues();
     this._spawnGrid = this.divideMapIntoSpawnGrid(7448, 7448, 744);
-    this.speedtreeManager.initiateList();
+    if (this.isSurvival()) {
+      this.speedtreeManager.initiateList();
+    }
     this.startRoutinesLoop();
-    this.smeltingManager.checkSmeltables(this);
-    this.smeltingManager.checkCollectors(this);
-    this.decayManager.run(this);
+    if (this.isSurvival()) {
+      this.smeltingManager.checkSmeltables(this);
+      this.smeltingManager.checkCollectors(this);
+      this.decayManager.run(this);
+    }
     this._serverStartTime = getCurrentServerTimeWrapper();
     this.weatherManager.startWeatherWorker(this);
     this.inGameTimeManager.start();
-    this.randomEventsManager.start();
+    if (this.isSurvival()) {
+      this.randomEventsManager.start();
+    }
     if (!this._soloMode) {
       this.accountInventoriesManager.init(
         this._db.collection(DB_COLLECTIONS.ACCOUNT_ITEMS)
@@ -2044,7 +2062,9 @@ export class ZoneServer2016 extends EventEmitter {
     this.initUseOptionsDataSource();
     this.rconManager.start();
     this.rconManager.on("message", this.handleRconMessage.bind(this));
-    this.rewardManager.start();
+    if (this.isSurvival()) {
+      this.rewardManager.start();
+    }
     this.hookManager.checkHook("OnServerReady");
     if (!process.env.DISABLE_AI) {
       this.startH1emuAi();
@@ -2067,12 +2087,16 @@ export class ZoneServer2016 extends EventEmitter {
       skyData: this.weatherManager.weather
     });*/
 
+    const { environment, sku } = this.isBattleRoyale()
+      ? { environment: "LIVE_KOTK", sku: "SKU_Is_KotK" }
+      : { environment: "LIVE", sku: "SKU_Is_JustSurvive" };
+
     this.sendData<InitializationParameters>(
       client,
       "InitializationParameters",
       {
-        ENVIRONMENT: "LIVE", // LOCAL, MAIN, QA, TEST, STAGE, LIVE, //THE_NINE, INNOVA
-        unknownString1: "SKU_Is_JustSurvive", //JS.Environment
+        ENVIRONMENT: environment, // LOCAL, MAIN, QA, TEST, STAGE, LIVE, //THE_NINE, INNOVA
+        unknownString1: sku, //JS.Environment
         rulesetDefinitions: Object.values(gameRulesSource).map(
           (gameRule: any) => {
             return {
@@ -2342,8 +2366,9 @@ export class ZoneServer2016 extends EventEmitter {
         await scheduler.yield();
         this.checkVehiclesInMapBounds();
         await scheduler.yield();
+        this.updateSyncTeleport();
+        await scheduler.yield();
         this.setTickRate();
-        this.syncAirdrop();
         await scheduler.yield();
         if (
           this.enableWorldSaves &&
@@ -2508,7 +2533,7 @@ export class ZoneServer2016 extends EventEmitter {
             ? Math.max(
                 0,
                 damageRecord.hitInfo.oldHP - damageRecord.hitInfo.newHP
-              ) * 100
+              )
             : 0,
         killedByHeadshot: ["HEAD", "GLASSES", "NECK"].includes(
           damageRecord?.hitInfo.hitLocation ?? ""
@@ -2965,12 +2990,26 @@ export class ZoneServer2016 extends EventEmitter {
     }
   }
 
+  calculatePosFromSpawnCell(cell: SpawnCell): Float32Array {
+    const randomSpawnIndex = Math.floor(
+      Math.random() * cell.spawnPoints.length
+    );
+
+    return new Float32Array([
+      cell.spawnPoints[randomSpawnIndex][0],
+      cell.spawnPoints[randomSpawnIndex][1] + 1,
+      cell.spawnPoints[randomSpawnIndex][2],
+      1
+    ]);
+  }
+
   respawnPlayer(
     client: Client,
-    cell: SpawnCell,
+    position: Float32Array,
     clearEquipment: boolean = true
   ) {
-    if (!this.hookManager.checkHook("OnPlayerRespawn", client)) return;
+    if (!this.hookManager.checkHook("OnPlayerRespawn", client, position))
+      return;
 
     if (!client.character.isRespawning) return;
 
@@ -3003,20 +3042,10 @@ export class ZoneServer2016 extends EventEmitter {
       }
     );
 
-    const randomSpawnIndex = Math.floor(
-      Math.random() * cell.spawnPoints.length
-    );
     if (client.character.initialized) {
       client.managedObjects?.forEach((characterId) => {
         this.dropVehicleManager(client, characterId);
       });
-      const tempPos = new Float32Array([
-        cell.spawnPoints[randomSpawnIndex][0],
-        cell.spawnPoints[randomSpawnIndex][1] + 1,
-        cell.spawnPoints[randomSpawnIndex][2],
-        1
-      ]);
-      client.character.state.position = tempPos;
 
       this.sendData<CharacterRespawnReply>(client, "Character.RespawnReply", {
         characterId: client.character.characterId,
@@ -3032,12 +3061,12 @@ export class ZoneServer2016 extends EventEmitter {
         client,
         "ClientUpdate.UpdateLocation",
         {
-          position: tempPos,
+          position: position,
           unknownBoolean1: false
         }
       );
-      client.character.awaitingTeleportLocation = tempPos;
-      client.oldPos.position = tempPos;
+      client.character.awaitingTeleportLocation = position;
+      client.oldPos.position = position;
       /*const damageInfo: DamageInfo = {
         entity: "Server.Respawn",
         damage: 99999
@@ -3073,7 +3102,7 @@ export class ZoneServer2016 extends EventEmitter {
       client.character.updateEquipment(this);
     }
     client.character.equipLoadout(this);
-    client.character.state.position = cell.spawnPoints[randomSpawnIndex];
+    client.character.state.position = position;
     client.character.resetResources(this);
     client.character.updateEquipment(this);
     client.character.updateFootwearAudio(this);
@@ -4085,6 +4114,7 @@ export class ZoneServer2016 extends EventEmitter {
   }
 
   private checkVehiclesInMapBounds() {
+    if (this.isBattleRoyale()) return;
     for (const a in this._vehicles) {
       const vehicle = this._vehicles[a];
       let inMapBounds: boolean = false;
@@ -7594,6 +7624,7 @@ export class ZoneServer2016 extends EventEmitter {
   }
 
   sleep(client: Client) {
+    if (this.isBattleRoyale()) return;
     client.character._resources[ResourceIds.ENDURANCE] = 8000;
     client.character._resources[ResourceIds.STAMINA] = 600;
     this.applyMovementModifier(client, MovementModifiers.RESTED);
@@ -9586,7 +9617,7 @@ export class ZoneServer2016 extends EventEmitter {
     });
   }
 
-  deployParachute(client: Client) {
+  deployParachute(client: Client, shaderGroupId: number) {
     const characterId = this.generateGuid(),
       vehicle = new Vehicle2016(
         characterId,
@@ -9596,14 +9627,96 @@ export class ZoneServer2016 extends EventEmitter {
         client.character.state.rotation,
         this,
         getCurrentServerTimeWrapper().getTruncatedU32(),
-        VehicleIds.PARACHUTE
+        VehicleIds.PARACHUTE,
+        shaderGroupId
       );
     this.worldObjectManager.createVehicle(this, vehicle, true);
+    if (!this._vehicles[characterId]) {
+      console.log(`WTF, no parachute deployed for ${client?.character?.name}`);
+      return;
+    }
+
+    this.sendData<AddLightweightVehicle>(client, "AddLightweightVehicle", {
+      ...vehicle.pGetLightweightVehicle(),
+      unknownGuid1: this.generateGuid()
+    });
+    client.spawnedEntities.add(vehicle);
+
     vehicle.onReadyCallback = (client) => {
-      this.mountVehicle(client, characterId);
-      this.assignManagedObject(client, vehicle);
-      client.vehicle.mountedVehicle = characterId;
+      console.log(`Parachute callback for ${client?.character?.name}`);
+      this.sendData<VehicleAutoMount>(client, "Vehicle.AutoMount", {
+        guid: vehicle.characterId,
+        unknownBoolean1: true,
+        unknownDword1: 0
+      });
     };
+  }
+
+  addToSyncTeleport(client: Client, position: Float32Array) {
+    this._syncTeleport[client.character.characterId] = false;
+    this.sendData<SynchronizedTeleportWaitingForPlayers>(
+      client,
+      "SynchronizedTeleport.WaitingForPlayers",
+      {}
+    );
+    this.sendData<ClientUpdateUpdateLocation>(
+      client,
+      "ClientUpdate.UpdateLocation",
+      {
+        position: position,
+        triggerLoadingScreen: true
+      }
+    );
+    client.character.state.position = position;
+  }
+
+  updateSyncTeleport(this: ZoneServer2016) {
+    const readyClients: Client[] = [];
+
+    for (const characterId in this._syncTeleport) {
+      const client = this.getClientByCharId(characterId);
+      if (!client) {
+        delete this._syncTeleport[characterId];
+        continue;
+      }
+
+      if (!this._syncTeleport[characterId]) {
+        return;
+      }
+      readyClients.push(client);
+    }
+
+    if (readyClients.length == 0) return;
+
+    this._syncTeleport = {};
+
+    readyClients.forEach((client) => {
+      this.sendData<SynchronizedTeleportPlayersReady>(
+        client,
+        "SynchronizedTeleport.PlayersReady",
+        {
+          cooldown: 5000
+        }
+      );
+    });
+
+    setTimeout(() => {
+      readyClients.forEach((client) => {
+        this.sendData<SynchronizedTeleportRelease>(
+          client,
+          "SynchronizedTeleport.Release",
+          {}
+        );
+      });
+    }, 5000);
+  }
+
+  isSurvival(): boolean {
+    return this.gameMode == GameModes.SURVIVAL;
+  }
+
+  isBattleRoyale(): boolean {
+    return this.gameMode == GameModes.BATTLE_ROYALE;
   }
 }
 

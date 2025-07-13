@@ -31,8 +31,8 @@ export class ChatManager {
         unknownDword1: 0,
         color: [255, 255, 255, 0],
         unknownDword2: 13951728,
-        unknownByte3: 0,
-        unknownByte4: 1
+        unknownBoolean1: false,
+        unknownBoolean2: true
       });
     }
     server.sendData(client, "Chat.ChatText", {
@@ -40,8 +40,8 @@ export class ChatManager {
       unknownDword1: 0,
       color: [255, 255, 255, 0],
       unknownDword2: 13951728,
-      unknownByte3: 0,
-      unknownByte4: 1
+      unknownBoolean1: false,
+      unknownBoolean2: true
     });
   }
   sendChatTextToAllOthers(
@@ -115,8 +115,8 @@ export class ChatManager {
         unknownDword1: 0,
         color: [255, 255, 255, 0],
         unknownDword2: 13951728,
-        unknownByte3: 0,
-        unknownByte4: 1
+        unknownBoolean1: false,
+        unknownBoolean2: true
       }
     );
   }
