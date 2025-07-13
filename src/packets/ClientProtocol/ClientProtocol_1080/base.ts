@@ -33,7 +33,8 @@ import {
   recipeData,
   packItemWeaponData,
   containers,
-  passengerSchema
+  passengerSchema,
+  accountItemsSchema
 } from "./shared";
 import {
   achievementSchema,
@@ -1395,84 +1396,7 @@ export const basePackets: PacketStructures = [
                 }
               ]
             },
-            {
-              name: "accountItems",
-              type: "schema",
-              defaultValue: {},
-              fields: [
-                {
-                  name: "unknownArray1",
-                  type: "array",
-                  defaultValue: [],
-                  fields: [
-                    {
-                      name: "unknownQword1",
-                      type: "uint64string",
-                      defaultValue: ""
-                    },
-                    {
-                      name: "unknownData1",
-                      type: "schema",
-                      defaultValue: {},
-                      fields: [
-                        {
-                          name: "unknownQword1",
-                          type: "uint64string",
-                          defaultValue: ""
-                        },
-                        {
-                          name: "unknownDword1",
-                          type: "uint32",
-                          defaultValue: 0
-                        },
-                        {
-                          name: "unknownDword2",
-                          type: "uint32",
-                          defaultValue: 0
-                        },
-                        {
-                          name: "unknownDword3",
-                          type: "uint32",
-                          defaultValue: 0
-                        }
-                      ]
-                    }
-                  ]
-                },
-                {
-                  name: "unknownArray2",
-                  type: "array",
-                  defaultValue: [],
-                  fields: [
-                    {
-                      name: "unknownQword1",
-                      type: "uint64string",
-                      defaultValue: ""
-                    },
-                    { name: "unknownDword1", type: "uint32", defaultValue: 0 },
-                    { name: "unknownDword2", type: "uint32", defaultValue: 0 }
-                  ]
-                },
-                {
-                  name: "unknownArray3",
-                  type: "array",
-                  defaultValue: [],
-                  fields: [
-                    {
-                      name: "unknownQword1",
-                      type: "uint64string",
-                      defaultValue: ""
-                    },
-                    {
-                      name: "unknownQword2",
-                      type: "uint64string",
-                      defaultValue: ""
-                    },
-                    { name: "unknownDword1", type: "uint32", defaultValue: 0 }
-                  ]
-                }
-              ]
-            },
+            ...accountItemsSchema,
             {
               name: "unknownArray26",
               type: "array",
@@ -3216,7 +3140,6 @@ export const basePackets: PacketStructures = [
       ]
     }
   ],
-  ["Stats", 0xc6, {}],
   ["Score", 0xc7, {}],
   ["Resources", 0xc8, {}],
   [
@@ -3540,14 +3463,14 @@ export const basePackets: PacketStructures = [
     }
   ],
   [
-    "SynchronizedTeleport.Unk2",
+    "SynchronizedTeleport.NotifyReady",
     0xe90200,
     {
       fields: []
     }
   ],
   [
-    "SynchronizedTeleport.StartingMatch",
+    "SynchronizedTeleport.PlayersReady",
     0xe90300,
     {
       fields: [
@@ -3557,7 +3480,7 @@ export const basePackets: PacketStructures = [
     }
   ],
   [
-    "SynchronizedTeleport.Countdown",
+    "SynchronizedTeleport.Release",
     0xe90400,
     {
       fields: [
