@@ -9632,7 +9632,6 @@ export class ZoneServer2016 extends EventEmitter {
       );
     this.worldObjectManager.createVehicle(this, vehicle, true);
     if (!this._vehicles[characterId]) {
-      console.log(`WTF, no parachute deployed for ${client?.character?.name}`);
       return;
     }
 
@@ -9643,7 +9642,6 @@ export class ZoneServer2016 extends EventEmitter {
     client.spawnedEntities.add(vehicle);
 
     vehicle.onReadyCallback = (client) => {
-      console.log(`Parachute callback for ${client?.character?.name}`);
       this.sendData<VehicleAutoMount>(client, "Vehicle.AutoMount", {
         guid: vehicle.characterId,
         unknownBoolean1: true,
