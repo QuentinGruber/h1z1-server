@@ -12,6 +12,8 @@
 // ======================================================================
 import {
   damageReportPlayerInfoSchema,
+  knockedOutItemData,
+  knockedOutPlayerProfileData,
   pack2ByteLengthString,
   packMultiStateDeathData
 } from "../../../packets/ClientProtocol/ClientProtocol_1080/shared";
@@ -425,7 +427,30 @@ export const characterPackets: PacketStructures = [
     "Character.KnockedOut",
     0x0f2c,
     {
-      fields: [{ name: "guid", type: "uint64string", defaultValue: "0" }]
+      fields: [
+        { name: "guid", type: "uint64string", defaultValue: "0" },
+        {
+          name: "unknownData1",
+          type: "schema",
+          fields: damageReportPlayerInfoSchema
+        },
+        {
+          name: "unknownData2",
+          type: "schema",
+          fields: knockedOutItemData
+        },
+        {
+          name: "unknownData3",
+          type: "schema",
+          fields: damageReportPlayerInfoSchema
+        },
+        {
+          name: "unknownData4",
+          type: "schema",
+          fields: knockedOutItemData
+        },
+        ...damageReportPlayerInfoSchema
+      ]
     }
   ],
   [
@@ -443,7 +468,7 @@ export const characterPackets: PacketStructures = [
             {
               name: "unknownArray1",
               type: "array",
-              fields: [...damageReportPlayerInfoSchema]
+              fields: damageReportPlayerInfoSchema
             },
             { name: "unknownDword1", type: "uint32", defaultValue: 0 },
             { name: "unknownDword2", type: "uint32", defaultValue: 0 }
@@ -452,48 +477,12 @@ export const characterPackets: PacketStructures = [
         {
           name: "unknownArray2",
           type: "array",
-          fields: [
-            { name: "unknownQword1", type: "uint64string", defaultValue: "0" },
-            { name: "unknownString1", type: "string", defaultValue: "" },
-            { name: "unknownString2", type: "string", defaultValue: "" },
-            { name: "unknownString3", type: "string", defaultValue: "" },
-            { name: "unknownQword2", type: "uint64string", defaultValue: "0" },
-            { name: "unknownDword1", type: "uint32", defaultValue: 0 },
-            { name: "unknownDword2", type: "uint32", defaultValue: 0 },
-            { name: "unknownDword3", type: "uint32", defaultValue: 0 },
-            { name: "unknownDword4", type: "uint32", defaultValue: 0 },
-            { name: "unknownByte1", type: "uint8", defaultValue: 0 },
-            { name: "unknownDword5", type: "uint32", defaultValue: 0 },
-            { name: "unknownDword6", type: "uint32", defaultValue: 0 },
-            { name: "unknownDword7", type: "uint32", defaultValue: 0 },
-            { name: "unknownDword8", type: "uint32", defaultValue: 0 },
-            { name: "unknownDword9", type: "uint32", defaultValue: 0 },
-            { name: "unknownDword10", type: "uint32", defaultValue: 0 },
-            { name: "unknownDword11", type: "uint32", defaultValue: 0 },
-            { name: "unknownDword12", type: "uint32", defaultValue: 0 },
-            { name: "unknownDword13", type: "uint32", defaultValue: 0 },
-            { name: "unknownDword14", type: "uint32", defaultValue: 0 },
-            { name: "unknownDword15", type: "uint32", defaultValue: 0 }
-          ]
+          fields: knockedOutPlayerProfileData
         },
         {
           name: "unknownArray3",
           type: "array",
-          fields: [
-            { name: "unknownDword1", type: "uint32", defaultValue: 0 },
-            { name: "unknownQword1", type: "uint64string", defaultValue: "0" },
-            { name: "unknownDword2", type: "uint32", defaultValue: 0 },
-            { name: "unknownDword3", type: "uint32", defaultValue: 0 },
-            { name: "unknownDword4", type: "uint32", defaultValue: 0 },
-            { name: "unknownDword5", type: "uint32", defaultValue: 0 },
-            { name: "unknownDword6", type: "uint32", defaultValue: 0 },
-            { name: "unknownDword7", type: "uint32", defaultValue: 0 },
-            { name: "unknownDword8", type: "uint32", defaultValue: 0 },
-            { name: "unknownDword9", type: "uint32", defaultValue: 0 },
-            { name: "unknownDword10", type: "uint32", defaultValue: 0 },
-            { name: "unknownDword11", type: "uint32", defaultValue: 0 },
-            { name: "unknownDword12", type: "uint32", defaultValue: 0 }
-          ]
+          fields: knockedOutItemData
         },
         {
           name: "unknownArray4",

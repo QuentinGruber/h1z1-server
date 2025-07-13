@@ -13,7 +13,7 @@
 
 import { h1z1Buffer } from "h1z1-dataschema";
 import { PacketStructures } from "types/packetStructure";
-import { accountItemSchema } from "./shared";
+import { accountItemSchema, accountItemsSchema } from "./shared";
 
 export function parseItemRequestSubData(data: h1z1Buffer, offset: number) {
   const obj: any = {},
@@ -176,10 +176,7 @@ export const itemsPackets: PacketStructures = [
     "Items.SetAccountItemManager",
     0xad10,
     {
-      fields: [
-        // Todo
-        { name: "unknowWord2", type: "uint32", defaultValue: 1 }
-      ]
+      fields: [...accountItemsSchema]
     }
   ],
   [
