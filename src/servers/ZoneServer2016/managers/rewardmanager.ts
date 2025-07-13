@@ -27,6 +27,11 @@ export class RewardManager {
   playTimerewards: Reward[];
   private timer?: NodeJS.Timeout;
   constructor(public server: ZoneServer2016) {
+    if (server.isBattleRoyale()) {
+      this.rewards = [];
+      this.playTimerewards = [];
+      return;
+    }
     this.rewards = [
       {
         itemId: AccountItems.REWARD_CRATE_MARAUDER,

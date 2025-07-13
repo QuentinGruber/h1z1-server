@@ -42,7 +42,8 @@ import {
   DefaultSkinsMotorHelmet,
   DefaultSkinsZeds,
   DefaultSkinsGators,
-  DefaultSkinsBoots
+  DefaultSkinsBoots,
+  VehicleIds
 } from "../models/enums";
 import { Vehicle2016 } from "../entities/vehicle";
 import { LootDefinition } from "types/zoneserver";
@@ -170,33 +171,40 @@ export class WorldObjectManager {
 
   async run(server: ZoneServer2016) {
     debug("WOM::Run");
-    this.getItemRespawnTimer(server);
-    if (this._lastLootRespawnTime + this.lootRespawnTimer <= Date.now()) {
-      this.refillScrapInChunks(server);
-      this.createLoot(server);
-      this.createContainerLoot(server);
-      this._lastLootRespawnTime = Date.now();
-      server.divideLargeCells(700);
-    }
-    if (this._lastNpcRespawnTime + this.npcRespawnTimer <= Date.now()) {
-      this.createNpcs(server);
-      this._lastNpcRespawnTime = Date.now();
-    }
-    if (this._lastVehicleRespawnTime + this.vehicleRespawnTimer <= Date.now()) {
-      this.createVehicles(server);
-      this._lastVehicleRespawnTime = Date.now();
-    }
-    if (
-      this._lastWaterSourceReplenishTime + this.waterSourceReplenishTimer <=
-      Date.now()
-    ) {
-      this.replenishWaterSources(server);
-      this._lastWaterSourceReplenishTime = Date.now();
+    if (server.isSurvival()) {
+      this.getItemRespawnTimer(server);
+      if (this._lastLootRespawnTime + this.lootRespawnTimer <= Date.now()) {
+        this.refillScrapInChunks(server);
+        this.createLoot(server);
+        this.createContainerLoot(server);
+        this._lastLootRespawnTime = Date.now();
+        server.divideLargeCells(700);
+      }
+      if (this._lastNpcRespawnTime + this.npcRespawnTimer <= Date.now()) {
+        this.createNpcs(server);
+        this._lastNpcRespawnTime = Date.now();
+      }
+      if (
+        this._lastVehicleRespawnTime + this.vehicleRespawnTimer <=
+        Date.now()
+      ) {
+        this.createVehicles(server);
+        this._lastVehicleRespawnTime = Date.now();
+      }
+      if (
+        this._lastWaterSourceReplenishTime + this.waterSourceReplenishTimer <=
+        Date.now()
+      ) {
+        this.replenishWaterSources(server);
+        this._lastWaterSourceReplenishTime = Date.now();
+      }
+
+      this.updateQuestContainers(server);
     }
 
-    this.updateQuestContainers(server);
-
-    this.despawnEntities(server);
+    if (server.isSurvival()) {
+      this.despawnEntities(server);
+    }
   }
 
   private async npcDespawner(server: ZoneServer2016) {
@@ -539,185 +547,188 @@ export class WorldObjectManager {
   }
 
   createProps(server: ZoneServer2016) {
-    Z1_lootableProps.forEach((propType: any) => {
-      propType.instances.forEach((propInstance: any) => {
-        const itemMap: { [modelId: number]: number } = {
-          36: Items.FURNACE,
-          9205: Items.BARBEQUE,
-          9041: Items.CAMPFIRE
-        };
-        if (Object.keys(itemMap).includes(propInstance.modelId.toString())) {
-          server.constructionManager.placeSmeltingEntity(
-            server,
-            itemMap[propInstance.modelId],
+    if (server.isSurvival()) {
+      Z1_lootableProps.forEach((propType: any) => {
+        propType.instances.forEach((propInstance: any) => {
+          const itemMap: { [modelId: number]: number } = {
+            36: Items.FURNACE,
+            9205: Items.BARBEQUE,
+            9041: Items.CAMPFIRE
+          };
+          if (Object.keys(itemMap).includes(propInstance.modelId.toString())) {
+            server.constructionManager.placeSmeltingEntity(
+              server,
+              itemMap[propInstance.modelId],
+              propInstance.modelId,
+              new Float32Array(propInstance.position),
+              new Float32Array(fixEulerOrder(propInstance.rotation)),
+              new Float32Array(propInstance.scale),
+              server._serverGuid,
+              true
+            );
+            return;
+          }
+          const characterId = generateRandomGuid();
+          const obj = new (
+            propInstance.modelId == 9347 ? TreasureChest : LootableProp
+          )(
+            characterId,
+            server.getTransientId(characterId), // need transient generated for Interaction Replication
             propInstance.modelId,
             new Float32Array(propInstance.position),
-            new Float32Array(fixEulerOrder(propInstance.rotation)),
+            new Float32Array([
+              propInstance.rotation[1],
+              propInstance.rotation[0],
+              propInstance.rotation[2],
+              0
+            ]),
+            server,
             new Float32Array(propInstance.scale),
-            server._serverGuid,
-            true
+            propInstance.id,
+            Number(propType.renderDistance)
           );
-          return;
-        }
-        const characterId = generateRandomGuid();
-        const obj = new (
-          propInstance.modelId == 9347 ? TreasureChest : LootableProp
-        )(
-          characterId,
-          server.getTransientId(characterId), // need transient generated for Interaction Replication
-          propInstance.modelId,
-          new Float32Array(propInstance.position),
-          new Float32Array([
-            propInstance.rotation[1],
-            propInstance.rotation[0],
-            propInstance.rotation[2],
-            0
-          ]),
-          server,
-          new Float32Array(propInstance.scale),
-          propInstance.id,
-          Number(propType.renderDistance)
-        );
-        server._lootableProps[characterId] = obj;
-        obj.equipItem(server, server.generateItem(obj.containerId), false);
-        if (
-          ![
-            ModelIds.HOSPITAL_LAB_WORKBENCH,
-            ModelIds.TREASURE_CHEST,
-            ModelIds.CAMPFIRE,
-            ModelIds.FURNACE
-          ].includes(propInstance.modelId)
-        ) {
-          const container = obj.getContainer();
-          if (container) {
-            container.canAcceptItems = false;
-          }
-          obj.nameId = server.getItemDefinition(obj.containerId)?.NAME_ID ?? 0;
-        }
-      });
-    });
-    Z1_taskProps.forEach((propType: any) => {
-      propType.instances.forEach((propInstance: any) => {
-        const characterId = generateRandomGuid();
-        let obj;
-        switch (propType.actorDefinition) {
-          case "Common_Props_SpikeTrap.adr":
-            server.constructionManager.placeTrap(
-              server,
-              Items.PUNJI_STICKS,
-              propType.modelId,
-              new Float32Array(propInstance.position),
-              fixEulerOrder(propInstance.rotation),
-              true
-            );
-            break;
-          case "Common_Props_BarbedWire.adr":
-          case "Common_Props_BarbedWire_Posts.adr":
-            server.constructionManager.placeTrap(
-              server,
-              Items.BARBED_WIRE,
-              propType.modelId,
-              new Float32Array(propInstance.position),
-              fixEulerOrder(propInstance.rotation),
-              true
-            );
-            break;
-          case "Common_Props_Cabinets_BathroomSink.adr":
-          case "Common_Props_Bathroom_Toilet01.adr":
-          case "Common_Props_Dam_WaterValve01.adr":
-          case "Common_Props_Well.adr":
-          case "Common_Props_FireHydrant.adr":
-            obj = new WaterSource(
-              characterId,
-              server.getTransientId(characterId), // need transient generated for Interaction Replication
-              propType.modelId,
-              new Float32Array(propInstance.position),
-              new Float32Array(fixEulerOrder(propInstance.rotation)),
-              server,
-              new Float32Array(propInstance.scale),
-              propInstance.id,
-              propType.renderDistance,
-              propType.actorDefinition,
-              this.waterSourceRefillAmount
-            );
-            break;
-          case "Common_Props_WorkBench01.adr":
-            server.constructionManager.placeSimpleConstruction(
-              server,
-              propType.modelId,
-              new Float32Array(propInstance.position),
-              new Float32Array(fixEulerOrder(propInstance.rotation)),
-              new Float32Array([1, 1, 1, 1]),
-              server._serverGuid,
-              Items.WORKBENCH
-            );
-            break;
-          case "Common_Props_Gravestone01.adr":
-            obj = new TaskProp(
-              characterId,
-              server.getTransientId(characterId), // need transient generated for Interaction Replication
-              propType.modelId,
-              new Float32Array(propInstance.position),
-              new Float32Array(fixEulerOrder(propInstance.rotation)),
-              server,
-              new Float32Array(propInstance.scale),
-              propInstance.id,
-              propType.renderDistance,
-              propType.actorDefinition
-            );
-            if (propType.tribute) {
-              const thisObj = obj;
-              obj.OnInteractionString = (server, client) => {
-                server.sendData(client, "Command.InteractionString", {
-                  guid: thisObj.characterId,
-                  stringId: 0
-                });
-              };
-              obj.getTaskPropData = () => {
-                thisObj.nameId = 66;
-                thisObj.rewardItems = [];
-              };
-              obj.OnPlayerSelect = (server, client) => {
-                server.utilizeHudTimer(
-                  client,
-                  66,
-                  60000, // Minute of silence
-                  0,
-                  () => {
-                    server.sendChatText(
-                      client,
-                      "In loving memory of our dear friend, you will be deeply missed."
-                    );
-                  }
-                );
-              };
-              // punish shooting at the grave
-              obj.OnProjectileHit = (server, damageInfo) => {
-                const assholeId = damageInfo.entity;
-                const asshole = server._characters[assholeId];
-                damageInfo.damage = damageInfo.damage * 2;
-                asshole.damage(server, damageInfo);
-              };
-              obj.OnMeleeHit = obj.OnProjectileHit;
+          server._lootableProps[characterId] = obj;
+          obj.equipItem(server, server.generateItem(obj.containerId), false);
+          if (
+            ![
+              ModelIds.HOSPITAL_LAB_WORKBENCH,
+              ModelIds.TREASURE_CHEST,
+              ModelIds.CAMPFIRE,
+              ModelIds.FURNACE
+            ].includes(propInstance.modelId)
+          ) {
+            const container = obj.getContainer();
+            if (container) {
+              container.canAcceptItems = false;
             }
-            break;
-          default:
-            obj = new TaskProp(
-              characterId,
-              server.getTransientId(characterId), // need transient generated for Interaction Replication
-              propType.modelId,
-              new Float32Array(propInstance.position),
-              new Float32Array(fixEulerOrder(propInstance.rotation)),
-              server,
-              new Float32Array(propInstance.scale),
-              propInstance.id,
-              propType.renderDistance,
-              propType.actorDefinition
-            );
-        }
-        if (obj) server._taskProps[characterId] = obj;
+            obj.nameId =
+              server.getItemDefinition(obj.containerId)?.NAME_ID ?? 0;
+          }
+        });
       });
-    });
+      Z1_taskProps.forEach((propType: any) => {
+        propType.instances.forEach((propInstance: any) => {
+          const characterId = generateRandomGuid();
+          let obj;
+          switch (propType.actorDefinition) {
+            case "Common_Props_SpikeTrap.adr":
+              server.constructionManager.placeTrap(
+                server,
+                Items.PUNJI_STICKS,
+                propType.modelId,
+                new Float32Array(propInstance.position),
+                fixEulerOrder(propInstance.rotation),
+                true
+              );
+              break;
+            case "Common_Props_BarbedWire.adr":
+            case "Common_Props_BarbedWire_Posts.adr":
+              server.constructionManager.placeTrap(
+                server,
+                Items.BARBED_WIRE,
+                propType.modelId,
+                new Float32Array(propInstance.position),
+                fixEulerOrder(propInstance.rotation),
+                true
+              );
+              break;
+            case "Common_Props_Cabinets_BathroomSink.adr":
+            case "Common_Props_Bathroom_Toilet01.adr":
+            case "Common_Props_Dam_WaterValve01.adr":
+            case "Common_Props_Well.adr":
+            case "Common_Props_FireHydrant.adr":
+              obj = new WaterSource(
+                characterId,
+                server.getTransientId(characterId), // need transient generated for Interaction Replication
+                propType.modelId,
+                new Float32Array(propInstance.position),
+                new Float32Array(fixEulerOrder(propInstance.rotation)),
+                server,
+                new Float32Array(propInstance.scale),
+                propInstance.id,
+                propType.renderDistance,
+                propType.actorDefinition,
+                this.waterSourceRefillAmount
+              );
+              break;
+            case "Common_Props_WorkBench01.adr":
+              server.constructionManager.placeSimpleConstruction(
+                server,
+                propType.modelId,
+                new Float32Array(propInstance.position),
+                new Float32Array(fixEulerOrder(propInstance.rotation)),
+                new Float32Array([1, 1, 1, 1]),
+                server._serverGuid,
+                Items.WORKBENCH
+              );
+              break;
+            case "Common_Props_Gravestone01.adr":
+              obj = new TaskProp(
+                characterId,
+                server.getTransientId(characterId), // need transient generated for Interaction Replication
+                propType.modelId,
+                new Float32Array(propInstance.position),
+                new Float32Array(fixEulerOrder(propInstance.rotation)),
+                server,
+                new Float32Array(propInstance.scale),
+                propInstance.id,
+                propType.renderDistance,
+                propType.actorDefinition
+              );
+              if (propType.tribute) {
+                const thisObj = obj;
+                obj.OnInteractionString = (server, client) => {
+                  server.sendData(client, "Command.InteractionString", {
+                    guid: thisObj.characterId,
+                    stringId: 0
+                  });
+                };
+                obj.getTaskPropData = () => {
+                  thisObj.nameId = 66;
+                  thisObj.rewardItems = [];
+                };
+                obj.OnPlayerSelect = (server, client) => {
+                  server.utilizeHudTimer(
+                    client,
+                    66,
+                    60000, // Minute of silence
+                    0,
+                    () => {
+                      server.sendChatText(
+                        client,
+                        "In loving memory of our dear friend, you will be deeply missed."
+                      );
+                    }
+                  );
+                };
+                // punish shooting at the grave
+                obj.OnProjectileHit = (server, damageInfo) => {
+                  const assholeId = damageInfo.entity;
+                  const asshole = server._characters[assholeId];
+                  damageInfo.damage = damageInfo.damage * 2;
+                  asshole.damage(server, damageInfo);
+                };
+                obj.OnMeleeHit = obj.OnProjectileHit;
+              }
+              break;
+            default:
+              obj = new TaskProp(
+                characterId,
+                server.getTransientId(characterId), // need transient generated for Interaction Replication
+                propType.modelId,
+                new Float32Array(propInstance.position),
+                new Float32Array(fixEulerOrder(propInstance.rotation)),
+                server,
+                new Float32Array(propInstance.scale),
+                propInstance.id,
+                propType.renderDistance,
+                propType.actorDefinition
+              );
+          }
+          if (obj) server._taskProps[characterId] = obj;
+        });
+      });
+    }
     Z1_crates.forEach((propType: any) => {
       propType.instances.forEach((propInstance: any) => {
         const characterId = generateRandomGuid();
@@ -837,11 +848,48 @@ export class WorldObjectManager {
     }
   }
 
+  createVehicleAtPos(
+    server: ZoneServer2016,
+    position: Float32Array,
+    rotation: Float32Array = new Float32Array([0, 0, 0, 1]),
+    vehicleId: number = 1,
+    maxSpawnChance = false
+  ) {
+    const characterId = server.generateGuid(),
+      vehicleData = new Vehicle2016(
+        characterId,
+        server.getTransientId(characterId),
+        0,
+        new Float32Array(position),
+        new Float32Array(rotation),
+        server,
+        getCurrentServerTimeWrapper().getTruncatedU32(),
+        vehicleId
+      );
+    this.createVehicle(server, vehicleData, maxSpawnChance);
+  }
+
   createVehicle(
     server: ZoneServer2016,
-    vehicle: Vehicle2016,
+    vehicle: any,
     maxSpawnChance: boolean = false
-  ) {
+  ): void {
+    if (!(vehicle instanceof Vehicle2016)) {
+      const characterId = server.generateGuid();
+      const vehicleData = new Vehicle2016(
+        characterId,
+        server.getTransientId(characterId),
+        0,
+        new Float32Array(vehicle.position),
+        new Float32Array(vehicle.rotation),
+        server,
+        getCurrentServerTimeWrapper().getTruncatedU32(),
+        vehicle.vehicleId
+      );
+      this.createVehicle(server, vehicleData, maxSpawnChance);
+      return;
+    }
+
     vehicle.equipLoadout(server);
 
     this.setSpawnchance(
@@ -856,18 +904,20 @@ export class WorldObjectManager {
       maxSpawnChance ? 100 : 50,
       Items.SPARKPLUGS
     );
-    this.setSpawnchance(
-      server,
-      vehicle,
-      maxSpawnChance ? 100 : 30,
-      Items.VEHICLE_KEY
-    );
-    this.setSpawnchance(
-      server,
-      vehicle,
-      maxSpawnChance ? 100 : 20,
-      Items.FUEL_BIOFUEL
-    );
+    if (vehicle.vehicleId != VehicleIds.PARACHUTE) {
+      this.setSpawnchance(
+        server,
+        vehicle,
+        maxSpawnChance ? 100 : 30,
+        Items.VEHICLE_KEY
+      );
+      this.setSpawnchance(
+        server,
+        vehicle,
+        maxSpawnChance ? 100 : 20,
+        Items.FUEL_BIOFUEL
+      );
+    }
     this.setSpawnchance(
       server,
       vehicle,
@@ -884,7 +934,7 @@ export class WorldObjectManager {
     server._vehicles[vehicle.characterId] = vehicle;
   }
 
-  createVehicles(server: ZoneServer2016) {
+  createVehicles(server: ZoneServer2016, maxSpawnChance: boolean = false) {
     if (_.size(server._vehicles) >= this.vehicleSpawnCap) return;
     const respawnAmount = Math.ceil(
       (this.vehicleSpawnCap - _.size(server._vehicles)) / 8
@@ -920,7 +970,7 @@ export class WorldObjectManager {
           dataVehicle.vehicleId
         );
       vehicleData.positionUpdate.orientation = dataVehicle.orientation;
-      this.createVehicle(server, vehicleData); // save vehicle
+      this.createVehicle(server, vehicleData, maxSpawnChance); // save vehicle
     }
     debug("All vehicles created");
   }

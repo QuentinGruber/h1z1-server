@@ -35,21 +35,34 @@ export const internalCommands: Array<InternalCommand> = [
   {
     name: "respawn",
     permissionLevel: PermissionLevels.DEFAULT,
-    execute: (
+    execute: async (
       server: ZoneServer2016,
       client: Client,
       packetData: CharacterRespawn
     ) => {
-      const gridPosition = packetData.gridPosition;
-      if (!gridPosition) return;
-      let doReturn = false;
-      server._spawnGrid.forEach((cell: SpawnCell) => {
-        if (doReturn) return;
-        if (isPosInRadius(50, cell.position, gridPosition)) {
-          server.respawnPlayer(client, cell);
-          doReturn = true;
-        }
-      });
+      await server.hookManager.checkAsyncHook("OnPlayerRespawn", client);
+
+      if (server.isBattleRoyale()) {
+        const pos =
+          client.character.awaitingTeleportLocation ??
+          new Float32Array([3824.41, 148.55, -3999.0, 1]);
+        server.respawnPlayer(client, pos);
+        return;
+      }
+
+      const { gridPosition } = packetData;
+      if (!gridPosition) {
+        return;
+      }
+
+      const matchingCell = server._spawnGrid.find((cell: SpawnCell) =>
+        isPosInRadius(50, cell.position, gridPosition)
+      );
+
+      if (matchingCell) {
+        const pos = server.calculatePosFromSpawnCell(matchingCell);
+        server.respawnPlayer(client, pos);
+      }
     }
   },
   {
