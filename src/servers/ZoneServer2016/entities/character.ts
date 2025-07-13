@@ -563,46 +563,46 @@ export class Character2016 extends BaseFullCharacter {
       client.character._resources[ResourceIds.COMFORT] -= 3;
       client.character._resources[ResourceIds.HYDRATION] -= 4;
 
-    let desiredEnergyIndicator = "";
-    const energyIndicators = [
-      ResourceIndicators.EXHAUSTED,
-      ResourceIndicators.VERY_TIRED,
-      ResourceIndicators.TIRED
-    ];
-    switch (true) {
-      case energy <= 801:
-        server.challengeManager.registerChallengeProgression(
-          client,
-          ChallengeType.TIRED_BUDDY,
-          1
-        );
-        desiredEnergyIndicator = ResourceIndicators.EXHAUSTED;
-        client.character._resources[ResourceIds.STAMINA] -= 20;
-        break;
-      case energy <= 2601 && energy > 801:
-        server.challengeManager.registerChallengeProgression(
-          client,
-          ChallengeType.TIRED_BUDDY,
-          1
-        );
-        desiredEnergyIndicator = ResourceIndicators.VERY_TIRED;
-        client.character._resources[ResourceIds.STAMINA] -= 14;
-        break;
-      case energy <= 3501 && energy > 2601:
-        server.challengeManager.registerChallengeProgression(
-          client,
-          ChallengeType.TIRED_BUDDY,
-          1
-        );
-        desiredEnergyIndicator = ResourceIndicators.TIRED;
-        break;
-      case energy > 3501:
-        desiredEnergyIndicator = "";
-        break;
-      default:
-        desiredEnergyIndicator = "";
-        break;
-    }
+      let desiredEnergyIndicator = "";
+      const energyIndicators = [
+        ResourceIndicators.EXHAUSTED,
+        ResourceIndicators.VERY_TIRED,
+        ResourceIndicators.TIRED
+      ];
+      switch (true) {
+        case energy <= 801:
+          server.challengeManager.registerChallengeProgression(
+            client,
+            ChallengeType.TIRED_BUDDY,
+            1
+          );
+          desiredEnergyIndicator = ResourceIndicators.EXHAUSTED;
+          client.character._resources[ResourceIds.STAMINA] -= 20;
+          break;
+        case energy <= 2601 && energy > 801:
+          server.challengeManager.registerChallengeProgression(
+            client,
+            ChallengeType.TIRED_BUDDY,
+            1
+          );
+          desiredEnergyIndicator = ResourceIndicators.VERY_TIRED;
+          client.character._resources[ResourceIds.STAMINA] -= 14;
+          break;
+        case energy <= 3501 && energy > 2601:
+          server.challengeManager.registerChallengeProgression(
+            client,
+            ChallengeType.TIRED_BUDDY,
+            1
+          );
+          desiredEnergyIndicator = ResourceIndicators.TIRED;
+          break;
+        case energy > 3501:
+          desiredEnergyIndicator = "";
+          break;
+        default:
+          desiredEnergyIndicator = "";
+          break;
+      }
 
       let desiredComfortIndicator = "";
       const comfortIndicators = [
