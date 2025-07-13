@@ -27,7 +27,7 @@ export class RewardManager {
   playTimerewards: Reward[];
   private timer?: NodeJS.Timeout;
   constructor(public server: ZoneServer2016) {
-    if (server.isBattleRoyale()) {
+    if (server?.isBattleRoyale()) {
       this.rewards = [];
       this.playTimerewards = [];
       return;
