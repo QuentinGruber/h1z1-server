@@ -16,6 +16,7 @@ import { DB_COLLECTIONS } from "../../../utils/enums";
 import { ZoneClient2016 as Client } from "../classes/zoneclient";
 import { ZoneServer2016 } from "../zoneserver";
 import { getDateString } from "../../../utils/utils";
+import { ChatChatText } from "types/zone2016packets";
 const blacklist = require("../../../..//data/2016/sampleData/blacklisted_words.json");
 
 export class ChatManager {
@@ -26,7 +27,7 @@ export class ChatManager {
     clearChat = false
   ) {
     if (clearChat) {
-      server.sendData(client, "Chat.ChatText", {
+      server.sendData<ChatChatText>(client, "Chat.ChatText", {
         message: `\n\n\n\n\n\n`,
         unknownDword1: 0,
         color: [255, 255, 255, 0],
@@ -35,7 +36,7 @@ export class ChatManager {
         unknownBoolean2: true
       });
     }
-    server.sendData(client, "Chat.ChatText", {
+    server.sendData<ChatChatText>(client, "Chat.ChatText", {
       message: message,
       unknownDword1: 0,
       color: [255, 255, 255, 0],
@@ -106,7 +107,7 @@ export class ChatManager {
       message = "I love you";
     }
 
-    server.sendDataToAllInRange(
+    server.sendDataToAllInRange<ChatChatText>(
       range,
       client.character.state.position,
       "Chat.ChatText",

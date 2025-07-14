@@ -82,8 +82,8 @@ export const chatPackets: PacketStructures = [
         { name: "unknownDword1", type: "uint32", defaultValue: 0 },
         { name: "color", type: "bytes", length: 4 },
         { name: "unknownDword2", type: "uint32", defaultValue: 0 },
-        { name: "unknownBoolean1", type: "boolean", defaultValue: true },
-        { name: "unknownBoolean2", type: "boolean", defaultValue: true }
+        { name: "unknownBoolean1", type: "boolean", defaultValue: false },
+        { name: "unknownBoolean2", type: "boolean", defaultValue: false }
       ]
     }
   ]
