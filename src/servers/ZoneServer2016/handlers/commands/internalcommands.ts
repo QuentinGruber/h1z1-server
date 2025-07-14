@@ -74,6 +74,7 @@ export const internalCommands: Array<InternalCommand> = [
       packetData: SpectatorEnable
     ) => {
       client.character.isSpectator = !client.character.isSpectator;
+      server.hookManager.checkHook("OnPlayerSpectate", client);
       if (client.character.isSpectator) {
         const vehicle = new Vehicle(
           OBSERVER_GUID,

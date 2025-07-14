@@ -31,7 +31,8 @@ export type Hooks =
   | "OnPlayerDied"
   | "OnPlayerDisconnected"
   | "OnPlayerRespawn"
-  | "OnPlayerDamage";
+  | "OnPlayerDamage"
+  | "OnPlayerSpectate";
 
 export type FunctionHookType = boolean | void;
 
