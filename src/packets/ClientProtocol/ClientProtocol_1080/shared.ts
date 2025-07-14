@@ -3391,3 +3391,54 @@ export const accountItemsSchema: PacketFields = [
     ]
   }
 ];
+
+// sub_140376CC0
+export const skinItemSchema: PacketFields = [
+  { name: "itemDefinitionId", type: "uint32", defaultValue: 0 },
+  { name: "unknownQword1", type: "uint64string", defaultValue: "0" },
+  { name: "unknownDword2", type: "uint32", defaultValue: 0 },
+  { name: "unknownByte1", type: "uint8", defaultValue: 0 }
+];
+
+// sub_14037D8E0
+export const skinItemsSchema: PacketFields = [
+  {
+    name: "items",
+    type: "array",
+    defaultValue: [],
+    fields: [
+      { name: "unknownDword1", type: "uint32", defaultValue: 0 },
+      { name: "itemData", type: "schema", fields: skinItemSchema }
+    ]
+  }
+];
+
+// sub_140381090
+export const emoteItemsSchema: PacketFields = [
+  {
+    name: "emotes",
+    type: "array",
+    defaultValue: [],
+    fields: [
+      { name: "unknownDword1", type: "uint32", defaultValue: 0 },
+      { name: "unknownDword2", type: "uint32", defaultValue: 0 },
+      { name: "unknownDword3", type: "uint32", defaultValue: 0 }
+    ]
+  }
+];
+
+// sub_140382290
+export const itemCollectionSchema: PacketFields = [
+  {
+    name: "itemCollection",
+    type: "array",
+    defaultValue: [],
+    fields: [
+      { name: "unknownDword1", type: "uint32", defaultValue: 0 },
+      { name: "unknownDword2", type: "uint32", defaultValue: 0 },
+      { name: "unknownString1", type: "string", defaultValue: "" },
+      ...skinItemsSchema,
+      ...emoteItemsSchema
+    ]
+  }
+];

@@ -13,7 +13,14 @@
 
 import { h1z1Buffer } from "h1z1-dataschema";
 import { PacketStructures } from "types/packetStructure";
-import { accountItemSchema, accountItemsSchema } from "./shared";
+import {
+  accountItemSchema,
+  accountItemsSchema,
+  emoteItemsSchema,
+  itemCollectionSchema,
+  skinItemSchema,
+  skinItemsSchema
+} from "./shared";
 
 export function parseItemRequestSubData(data: h1z1Buffer, offset: number) {
   const obj: any = {},
@@ -102,7 +109,6 @@ export const itemsPackets: PacketStructures = [
     0xad02,
     {
       fields: [
-        // TODO: Not sure if this is correct
         {
           name: "unknownArray1",
           type: "array",
@@ -276,26 +282,62 @@ export const itemsPackets: PacketStructures = [
       ]
     }
   ],
-  ["Items.ItemPacketIdSetEmoteItem", 0xad1f, {}],
-  ["Items.RemoveEmoteItem", 0xad20, {}],
-  ["Items.SetSkinItemManager", 0xad21, {}],
+  [
+    "Items.SetEmoteItem",
+    0xad1f,
+    {
+      fields: [
+        { name: "unknownDword1", type: "uint32", defaultValue: 1 },
+        { name: "unknownDword2", type: "uint32", defaultValue: 3154 }
+      ]
+    }
+  ],
+  [
+    "Items.RemoveEmoteItem",
+    0xad20,
+    {
+      fields: [{ name: "itemDefinitionId", type: "uint32", defaultValue: 0 }]
+    }
+  ],
+  [
+    "Items.SetSkinItemManager",
+    0xad21,
+    {
+      fields: [
+        { name: "unknownDword1", type: "uint32", defaultValue: 0 },
+        { name: "unknownDword2", type: "uint32", defaultValue: 0 },
+        { name: "unknownString1", type: "string", defaultValue: "" },
+        ...skinItemsSchema,
+        ...emoteItemsSchema,
+        ...itemCollectionSchema
+      ]
+    }
+  ], // Related to unknownData8 in sendself
   [
     "Items.SetSkinItem",
     0xad22,
     {
       fields: [
         { name: "unknownDword1", type: "uint32", defaultValue: 1 },
-        { name: "itemDefinitionId", type: "uint32", defaultValue: 0 },
-        { name: "unknownQword1", type: "uint64string", defaultValue: "0" },
-        { name: "unknownDword3", type: "uint32", defaultValue: 0 },
-        { name: "unknownByte1", type: "uint8", defaultValue: 0 }
+        ...skinItemSchema
       ]
     }
   ],
   ["Items.RemoveSkinItem", 0xad23, {}],
   ["Items.SetSkinItemCollectionCustomName", 0xad24, {}],
   ["Items.SelectSkinItemCollectionId", 0xad25, {}],
-  ["Items.SetCurrentSkinItemCollection", 0xad26, {}],
+  [
+    "Items.SetCurrentSkinItemCollection",
+    0xad26,
+    {
+      fields: [
+        { name: "unknownDword1", type: "uint32", defaultValue: 0 },
+        { name: "unknownString1", type: "string", defaultValue: "" },
+        ...skinItemsSchema,
+        ...emoteItemsSchema
+      ]
+    }
+  ], // Related to unknownData8 in sendself
   ["Items.RequestAddItemTimer", 0xad27, {}],
   ["Items.RequestTrialItem", 0xad28, {}],
   ["Items.RequestRentalItem", 0xad29, {}],
