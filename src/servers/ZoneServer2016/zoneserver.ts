@@ -344,6 +344,7 @@ export class ZoneServer2016 extends EventEmitter {
   _clientEffectsData: { [effectId: number]: clientEffect } = {};
   _modelsData: { [modelId: number]: modelData } = {};
   _syncTeleport: { [characterId: string]: boolean } = {};
+  blockSyncTeleportTicks: number = 0;
 
   /** Interactible options for items - See (ZonePacketHandlers.ts or datasources/ItemUseOptions) */
   _itemUseOptions: { [optionId: number]: UseOption } = {};
@@ -9670,6 +9671,13 @@ export class ZoneServer2016 extends EventEmitter {
 
   updateSyncTeleport(this: ZoneServer2016) {
     const readyClients: Client[] = [];
+
+    // This is so some actions can hold players for some extra time if needed
+    // A little sidenote, if you want players to hold for 20 seconds. set it to 2 since the worldRoutine triggers every 10 seconds by default
+    if (this.blockSyncTeleportTicks > 0) {
+      this.blockSyncTeleportTicks--;
+      return;
+    }
 
     for (const characterId in this._syncTeleport) {
       const client = this.getClientByCharId(characterId);
