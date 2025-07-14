@@ -478,9 +478,9 @@ export class Vehicle2016 extends BaseLootableEntity {
       return {
         characterId: passenger,
         identity: {
-          characterName: server._characters[passenger].name
+          characterName: server._characters[passenger]?.name ?? ""
         },
-        unknownString1: server._characters[passenger].name,
+        unknownString1: server._characters[passenger]?.name ?? "",
         unknownByte1: 1
       };
     });
