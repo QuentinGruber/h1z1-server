@@ -9629,7 +9629,8 @@ export class ZoneServer2016 extends EventEmitter {
         this,
         getCurrentServerTimeWrapper().getTruncatedU32(),
         VehicleIds.PARACHUTE,
-        shaderGroupId
+        shaderGroupId,
+        client.character.characterId
       );
     this.worldObjectManager.createVehicle(this, vehicle, true);
     if (!this._vehicles[characterId]) {
