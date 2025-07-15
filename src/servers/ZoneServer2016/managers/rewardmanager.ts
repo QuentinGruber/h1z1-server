@@ -144,6 +144,7 @@ export class RewardManager {
     }
   }
   dropReward(client: ZoneClient2016) {
+    if (this.server?.isBattleRoyale()) return;
     let random = Math.random() * 100;
     for (const reward of this.rewards) {
       if (reward.dropChances === 0) {

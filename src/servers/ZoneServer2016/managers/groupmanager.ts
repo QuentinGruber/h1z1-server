@@ -244,6 +244,7 @@ export class GroupManager {
     source: Client,
     target: Client
   ) {
+    if (server.isBattleRoyale()) return;
     if (this.pendingInvites[target.character.characterId]) {
       server.sendAlert(
         source,
@@ -318,6 +319,7 @@ export class GroupManager {
     target: Client,
     joinState: boolean
   ) {
+    if (server.isBattleRoyale()) return;
     const pendingInvite = this.pendingInvites[target.character.characterId];
     if (pendingInvite != source.character.groupId) {
       server.sendAlert(target, "You have no pending invites!");
