@@ -731,11 +731,11 @@ const dev: any = {
     );
   },
   r: function (server: ZoneServer2016, client: Client, args: Array<string>) {
-    // quick respawn
-    server.respawnPlayer(
-      client,
+    const position = server.calculatePosFromSpawnCell(
       server._spawnGrid[randomIntFromInterval(0, 99)]
     );
+    // quick respawn
+    server.respawnPlayer(client, position);
   },
   testpacket: function (
     server: ZoneServer2016,

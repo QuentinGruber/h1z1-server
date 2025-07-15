@@ -16,6 +16,7 @@ import * as yaml from "js-yaml";
 import { Config } from "../models/config";
 import { ZoneServer2016 } from "../zoneserver";
 import { copyFile } from "../../../utils/utils";
+import { GameModes } from "../models/enums";
 
 function fileExists(filePath: string): boolean {
   try {
@@ -150,6 +151,7 @@ export class ConfigManager {
   applyConfig(server: ZoneServer2016) {
     //#region server
     const {
+      gameMode,
       proximityItemsDistance,
       interactionDistance,
       charactersRenderDistance,
@@ -169,6 +171,9 @@ export class ConfigManager {
       disablePOIManager,
       disableMapBoundsCheck
     } = this.config.server;
+    server.gameMode =
+      GameModes[gameMode.trim().toUpperCase() as keyof typeof GameModes] ??
+      GameModes.SURVIVAL;
     server.proximityItemsDistance = proximityItemsDistance;
     server.interactionDistance = interactionDistance;
     server.charactersRenderDistance = charactersRenderDistance;

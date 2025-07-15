@@ -41,7 +41,8 @@ import {
   LoadoutSlots,
   StringIds,
   AccountItems,
-  Effects
+  Effects,
+  VehicleIds
 } from "./models/enums";
 import { BaseFullCharacter } from "./entities/basefullcharacter";
 import { BaseLightweightCharacter } from "./entities/baselightweightcharacter";
@@ -126,7 +127,10 @@ import {
   GrinderExchangeRequest,
   GrinderExchangeResponse,
   RagdollUpdatePose,
-  AnimationRequest
+  AnimationRequest,
+  ClientFinishedLoading,
+  SynchronizedTeleportNotifyReady,
+  VehicleAutoMount
 } from "types/zone2016packets";
 import { VehicleCurrentMoveMode } from "types/zone2015packets";
 import {
@@ -322,7 +326,7 @@ export class ZonePacketHandlers {
   ClientFinishedLoading(
     server: ZoneServer2016,
     client: Client,
-    packet: ReceivedPacket<any>
+    packet: ReceivedPacket<ClientFinishedLoading>
   ) {
     if (!server.hookManager.checkHook("OnClientFinishedLoading", client)) {
       return;
@@ -1149,6 +1153,7 @@ export class ZonePacketHandlers {
     client: Client,
     packet: ReceivedPacket<DtoHitSpeedTreeReport>
   ) {
+    if (server.isBattleRoyale()) return;
     server.speedtreeManager.use(
       server,
       client,
@@ -1568,7 +1573,8 @@ export class ZonePacketHandlers {
         stanceFlags.JUMPING &&
         !stanceFlags.FLOATING &&
         client.character.lastJumpTime < sequenceTime &&
-        !client.character.isGodMode()
+        !client.character.isGodMode() &&
+        !server.isBattleRoyale()
       ) {
         client.character.lastJumpTime = sequenceTime + 1100;
         client.character._resources[ResourceIds.STAMINA] = Math.max(
@@ -1901,6 +1907,7 @@ export class ZonePacketHandlers {
   ) {
     const vehicle = server._vehicles[packet.data.vehicleGuid ?? ""],
       accessType = packet.data.accessType ?? 0;
+    if (vehicle?.vehicleId == VehicleIds.PARACHUTE) return;
     vehicle.setLockState(server, client, !!accessType);
   }
   CommandInteractionString(
@@ -2228,6 +2235,7 @@ export class ZonePacketHandlers {
         }
         break;
       case ItemUseOptions.SLICE:
+        if (server.isBattleRoyale()) return;
         server.sliceItem(client, character, item, animationId);
         break;
       case ItemUseOptions.EQUIP:
@@ -2314,6 +2322,7 @@ export class ZonePacketHandlers {
         );
         break;
       case ItemUseOptions.IGNITE:
+        if (server.isBattleRoyale()) return;
         server.igniteOption(client, item);
         break;
       case ItemUseOptions.UNLOAD:
@@ -2326,11 +2335,17 @@ export class ZonePacketHandlers {
         }
         break;
       case ItemUseOptions.SALVAGE:
+        if (server.isBattleRoyale()) return;
         for (let i = 0; i < count; i++) {
           await server.salvageAmmo(client, character, item, animationId);
         }
         break;
       case ItemUseOptions.LOOT:
+        if (
+          character instanceof Vehicle2016 &&
+          character.vehicleId == VehicleIds.PARACHUTE
+        )
+          return;
         const containerEnt = client.character.mountedContainer,
           c = containerEnt?.getContainer();
 
@@ -2399,7 +2414,12 @@ export class ZonePacketHandlers {
       case ItemUseOptions.LOOT_SPARKS:
       case ItemUseOptions.LOOT_VEHICLE_LOADOUT:
         const sourceCharacter = client.character.mountedContainer;
-        if (!sourceCharacter) return;
+        if (
+          !sourceCharacter ||
+          (sourceCharacter instanceof Vehicle2016 &&
+            sourceCharacter.vehicleId == VehicleIds.PARACHUTE)
+        )
+          return;
         const loadoutItem =
           sourceCharacter.getLoadoutItem(itemGuid) ||
           sourceCharacter.getInventoryItem(itemGuid);
@@ -2489,6 +2509,7 @@ export class ZonePacketHandlers {
         server.useAmmoBox(client, character, item);
         break;
       case ItemUseOptions.REPAIR:
+        if (server.isBattleRoyale()) return;
         const repairItem = client.character.getInventoryItem(
           (packet.data.itemSubData as any)?.targetItemGuid
         );
@@ -3882,6 +3903,27 @@ export class ZonePacketHandlers {
     );
   }
 
+  syncTeleportReady(
+    server: ZoneServer2016,
+    client: Client,
+    packet: ReceivedPacket<SynchronizedTeleportNotifyReady>
+  ) {
+    const { characterId } = client.character;
+    if (characterId in server._syncTeleport) {
+      server._syncTeleport[characterId] = true;
+    }
+  }
+
+  vehicleAutoMount(
+    server: ZoneServer2016,
+    client: Client,
+    packet: ReceivedPacket<VehicleAutoMount>
+  ) {
+    if (!packet.data.unknownBoolean1 && packet.data.guid) {
+      server.mountVehicle(client, packet.data.guid);
+    }
+  }
+
   processPacket(
     server: ZoneServer2016,
     client: Client,
@@ -4185,6 +4227,12 @@ export class ZonePacketHandlers {
         break;
       case "Animation.Request":
         this.animationRequest(server, client, packet);
+        break;
+      case "SynchronizedTeleport.NotifyReady":
+        this.syncTeleportReady(server, client, packet);
+        break;
+      case "Vehicle.AutoMount":
+        this.vehicleAutoMount(server, client, packet);
         break;
       default:
         debug(packet);

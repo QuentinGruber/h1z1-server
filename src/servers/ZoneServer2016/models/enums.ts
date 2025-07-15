@@ -481,7 +481,8 @@ export enum ResourceIds {
   COMFORT = 68,
   FUEL = 396,
   CONDITION = 561,
-  CONSTRUCTION_CONDITION = 567
+  CONSTRUCTION_CONDITION = 567,
+  TOXICITY = 611
 }
 
 export enum ResourceTypes {
@@ -494,7 +495,8 @@ export enum ResourceTypes {
   ENDURANCE = 22,
   COMFORT = 68,
   FUEL = 50,
-  CONDITION = 1
+  CONDITION = 1,
+  TOXICITY = 75
 }
 
 export enum ResourceIndicators {
@@ -1427,7 +1429,8 @@ export enum Items {
   ELITE_BAG = 1841,
   MYSTERY_BAG_2 = 1879,
   ELITE_BAG_HARDCORE = 1880,
-  MYSTERY_BAG_V2 = 2033
+  MYSTERY_BAG_V2 = 2033,
+  ACCOUNT_ITEM_BR_CROWN = 3273
 }
 
 export enum WeaponDefinitionIds {
@@ -2577,4 +2580,9 @@ export enum DefaultSkinsBoots {
   TAN_BOOTS = 2207,
   GRAY_BOOTS = 2208,
   DEFAULT_GRAY_BLUE_BOOTS = 2209
+}
+
+export enum GameModes {
+  SURVIVAL,
+  BATTLE_ROYALE
 }
