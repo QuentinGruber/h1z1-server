@@ -43,6 +43,7 @@ import { Vehicle2016 } from "../../entities/vehicle";
 import { Plane } from "../../entities/plane";
 import { NavManager } from "../../../../utils/recast";
 import { scheduler } from "timers/promises";
+import { DB_COLLECTIONS } from "../../../../utils/enums";
 
 const abilities = require("../../../../../data/2016/dataSources/Abilities.json"),
   vehicleAbilities = require("../../../../../data/2016/dataSources/VehicleAbilities.json");
@@ -803,6 +804,18 @@ const dev: any = {
     client.character._resources[Number(args[1])] = Number(args[2]);
 
     server.sendChatText(client, "Setting character resource");
+  },
+  report: function (
+    server: ZoneServer2016,
+    client: Client,
+    args: Array<string>
+  ) {
+    const report = process.report.getReport();
+    server._db
+      .collection(DB_COLLECTIONS.NODEJS_REPORTS)
+      .insertOne({ serverId: server._worldId, ...report });
+
+    server.sendChatText(client, "Nodejs report saved!");
   },
   selectloadout: function (
     server: ZoneServer2016,
