@@ -41,7 +41,6 @@ import {
 } from "../../../../utils/utils";
 import { WorldObjectManager } from "../../managers/worldobjectmanager";
 import { Vehicle2016 } from "../../entities/vehicle";
-import { Plane } from "../../entities/plane";
 import { NavManager } from "../../../../utils/recast";
 import { scheduler } from "timers/promises";
 

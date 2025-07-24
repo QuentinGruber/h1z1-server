@@ -46,7 +46,6 @@ import {
   HealTypes,
   Effects,
   WeaponDefinitionIds,
-  ModelIds,
   ItemTypes,
   ItemClasses,
   ResourceIndicators,
@@ -100,8 +99,6 @@ import {
   getDifference,
   logClientActionToMongo,
   removeUntransferableFields,
-  movePoint,
-  getAngle,
   getDistance2d,
   TimeWrapper,
   getCurrentServerTimeWrapper,
@@ -161,11 +158,9 @@ import {
   CharacterDroppedItemNotification,
   CharacterKilledBy,
   CharacterManagedObject,
-  CharacterMovementVersion,
   CharacterPlayWorldCompositeEffect,
   CharacterRemovePlayer,
   CharacterRespawnReply,
-  CharacterSeekTarget,
   CharacterSelectSessionResponse,
   CharacterStartMultiStateDeath,
   CharacterUpdateCharacterState,
@@ -182,7 +177,6 @@ import {
   ClientUpdateStartTimer,
   ClientUpdateUpdateLocation,
   ClientUpdateUpdateLockoutTimes,
-  CommandDeliveryDisplayInfo,
   CommandPlayDialogEffect,
   ContainerError,
   ContainerInitEquippedContainers,
@@ -191,7 +185,6 @@ import {
   GameTimeSync,
   H1emuPrintToConsole,
   InitializationParameters,
-  LightweightToFullVehicle,
   LoginFailed,
   MountDismountResponse,
   MountMountResponse,
@@ -240,7 +233,6 @@ import { ConstructionManager } from "./managers/constructionmanager";
 import { FairPlayManager } from "./managers/fairplaymanager";
 import { PluginManager } from "./managers/pluginmanager";
 import { Destroyable } from "./entities/destroyable";
-import { Plane } from "./entities/plane";
 import { FileHashTypeList, ReceivedPacket } from "types/shared";
 import { SOEOutputChannels } from "../../servers/SoeServer/soeoutputstream";
 import { scheduler } from "node:timers/promises";
