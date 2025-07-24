@@ -317,7 +317,8 @@ export class ZonePacketHandlers {
         });
       });
 
-    server.sendDeliveryStatus(client);
+    server.airdropManager.broadcastDeliveryInfo(client);
+    server.airdropManager.sendDeliveryStatus(client);
   }
   ClientFinishedLoading(
     server: ZoneServer2016,
@@ -516,7 +517,6 @@ export class ZonePacketHandlers {
         client.character._loadout[LoadoutSlots.FEET]?.itemDefinitionId ?? 0,
         client.character._loadout[LoadoutSlots.FEET] == undefined
       );
-      server.airdropManager(client, true);
     }
     if (!client.character.isAlive || client.character.isRespawning) {
       // try to fix stuck on death screen
@@ -1215,120 +1215,6 @@ export class ZonePacketHandlers {
       }
     }
 
-    // Airdrop management
-    if (positionUpdate.unknown3_int8 === 5) {
-      if (!server._airdrop || !positionUpdate.position) return;
-
-      const airdropManager = server._airdrop.manager;
-      if (
-        airdropManager?.character.characterId !== client.character.characterId
-      )
-        return;
-
-      // Update plane position and orientation
-      server._airdrop.plane.state.position = new Float32Array([
-        positionUpdate.position[0],
-        400,
-        positionUpdate.position[2],
-        1
-      ]);
-      server._airdrop.plane.positionUpdate.orientation =
-        positionUpdate.orientation;
-      server._airdrop.plane.state.rotation = eul2quat(
-        new Float32Array([positionUpdate.orientation, 0, 0, 0])
-      );
-
-      // Handle airdrop release
-      if (
-        !server._airdrop.cargoSpawned &&
-        server._airdrop.cargo &&
-        isPosInRadius(
-          150,
-          positionUpdate.position,
-          server._airdrop.destinationPos
-        )
-      ) {
-        server._airdrop.cargoSpawned = true;
-
-        // Disabling the alert, manager is usually not the person who called an airdrop
-        //server.sendAlert(server._airdrop.manager, "Air drop released. The package is delivered.");
-
-        setTimeout(() => {
-          if (server._airdrop?.cargo) {
-            for (const client of Object.values(server._clients)) {
-              if (!client.firstLoading && !client.isLoading) {
-                const vehicleData =
-                  server._airdrop.cargo.pGetFullVehicle(server);
-                server.sendData(client, "AddLightweightVehicle", {
-                  ...server._airdrop.cargo.pGetLightweightVehicle(),
-                  unknownGuid1: server.generateGuid()
-                });
-                server.sendData(client, "Character.MovementVersion", {
-                  characterId: server._airdrop.cargo.characterId,
-                  version: 6
-                });
-                server.sendData(
-                  client,
-                  "LightweightToFullVehicle",
-                  vehicleData as any
-                );
-                server.sendData(client, "Character.SeekTarget", {
-                  characterId: server._airdrop.cargo.characterId,
-                  TargetCharacterId: server._airdrop.cargoTarget,
-                  initSpeed: -5,
-                  acceleration: 0,
-                  speed: 0,
-                  turn: 5,
-                  yRot: 0
-                });
-                server.sendData(client, "Character.ManagedObject", {
-                  objectCharacterId: server._airdrop.cargo.characterId,
-                  characterId: client.character.characterId
-                });
-              }
-            }
-          }
-        }, 4500);
-      }
-      return;
-    }
-
-    // Airdrop container spawn handling
-    if (positionUpdate.unknown3_int8 === 6) {
-      if (
-        !server._airdrop ||
-        !positionUpdate.position ||
-        !server._airdrop.cargo
-      )
-        return;
-      if (
-        server._airdrop.manager?.character.characterId !==
-        client.character.characterId
-      )
-        return;
-
-      server._airdrop.cargo.state.position[1] = positionUpdate.position[1]; // Update Y position only
-      server._airdrop.cargo.positionUpdate.orientation =
-        positionUpdate.orientation;
-
-      if (
-        !server._airdrop.containerSpawned &&
-        positionUpdate.position[1] <= server._airdrop.destinationPos[1] + 2
-      ) {
-        server._airdrop.containerSpawned = true;
-        server.worldObjectManager.createAirdropContainer(
-          server,
-          server._airdrop.destinationPos,
-          server._airdrop.forcedAirdropType
-        );
-        for (const client of Object.values(server._clients)) {
-          server.airdropManager(client, false);
-        }
-        delete server._airdrop;
-      }
-      return;
-    }
-
     // Vehicle handling
     const transientId = (packetData.transientId as number) || 0;
     const characterId = server._transientIds[transientId];
@@ -1746,19 +1632,6 @@ export class ZonePacketHandlers {
         }
       });
       return;
-    }
-
-    if (server._airdrop) {
-      if (server._airdrop.plane.characterId == packet.data.characterId) {
-        server._airdrop.plane.OnFullCharacterDataRequest(server, client);
-        return;
-      } else if (
-        server._airdrop.cargo &&
-        server._airdrop.cargo.characterId == packet.data.characterId
-      ) {
-        server._airdrop.cargo.OnFullCharacterDataRequest(server, client);
-        return;
-      }
     }
 
     const entity = server.getEntity(packet.data.characterId);
