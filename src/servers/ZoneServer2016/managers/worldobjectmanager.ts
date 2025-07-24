@@ -359,7 +359,7 @@ export class WorldObjectManager {
       lootbag = new Lootbag(
         characterId,
         server.getTransientId(characterId),
-        isCharacter ? 9581 : 9391,
+        isCharacter ? ModelIds.LOOT_BAG_BLOODY : ModelIds.LOOT_BAG_CLEAN,
         new Float32Array([pos[0], pos[1] + 0.1, pos[2]]),
         new Float32Array([0, 0, 0, 0]),
         server
