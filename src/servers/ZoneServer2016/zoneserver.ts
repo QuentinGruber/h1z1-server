@@ -9724,7 +9724,7 @@ export class ZoneServer2016 extends EventEmitter {
   }
 
   isBattleRoyale(): boolean {
-    return this.gameMode == GameModes.BATTLE_ROYALE;
+    return this.gameMode > 0;
   }
 }
 
