@@ -553,7 +553,7 @@ export class ZoneServer2016 extends EventEmitter {
       if (this.isHeadshotOnly) serverGameRules.push("Headshots");
       if (this.isNoBuildInPois) serverGameRules.push("NoBuildNearPois");
     } else if (this.isBattleRoyale()) {
-      switch(this.gameMode) {
+      switch (this.gameMode) {
         case GameModes.BATTLE_ROYALE:
           serverGameRules.push("BattleRoyale");
           break;
