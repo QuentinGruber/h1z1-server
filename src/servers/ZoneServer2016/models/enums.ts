@@ -2583,6 +2583,6 @@ export enum DefaultSkinsBoots {
 }
 
 export enum GameModes {
-  SURVIVAL,
-  BATTLE_ROYALE
+  SURVIVAL = 0,
+  BATTLE_ROYALE = 1
 }
