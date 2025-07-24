@@ -553,7 +553,17 @@ export class ZoneServer2016 extends EventEmitter {
       if (this.isHeadshotOnly) serverGameRules.push("Headshots");
       if (this.isNoBuildInPois) serverGameRules.push("NoBuildNearPois");
     } else if (this.isBattleRoyale()) {
-      serverGameRules.push("BattleRoyale");
+      switch(this.gameMode) {
+        case GameModes.BATTLE_ROYALE:
+          serverGameRules.push("BattleRoyale");
+          break;
+        case GameModes.BATTLE_ROYALE_2:
+          serverGameRules.push("BattleRoyaleTwoPlayerTeams");
+          break;
+        case GameModes.BATTLE_ROYALE_5:
+          serverGameRules.push("BattleRoyaleFivePlayerTeams");
+          break;
+      }
     }
     this.serverGameRules = serverGameRules.join(",");
 

@@ -2584,5 +2584,7 @@ export enum DefaultSkinsBoots {
 
 export enum GameModes {
   SURVIVAL = 0,
-  BATTLE_ROYALE = 1
+  BATTLE_ROYALE = 1,
+  BATTLE_ROYALE_2 = 5,
+  BATTLE_ROYALE_5 = 7
 }
