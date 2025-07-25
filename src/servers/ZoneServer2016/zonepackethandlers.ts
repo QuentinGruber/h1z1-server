@@ -3042,7 +3042,7 @@ export class ZonePacketHandlers {
     if (!characterId) return;
     let obj: ConstructionPermissions = foundation.permissions[characterId];
     if (!obj) {
-      if (Object.keys(foundation.permissions).length >= 8) {
+      if (Object.keys(foundation.permissions).length >= 12) {
         server.sendAlert(client, "Permissions limit reached.");
         return;
       }
