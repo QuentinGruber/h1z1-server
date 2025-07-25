@@ -37,7 +37,8 @@ import { ConstructionChildEntity } from "../../entities/constructionchildentity"
 import { ConstructionDoor } from "../../entities/constructiondoor";
 import {
   getCurrentServerTimeWrapper,
-  randomIntFromInterval
+  randomIntFromInterval,
+  TimeWrapper
 } from "../../../../utils/utils";
 import { WorldObjectManager } from "../../managers/worldobjectmanager";
 import { Vehicle2016 } from "../../entities/vehicle";
@@ -1469,6 +1470,8 @@ const dev: any = {
     client: Client,
     args: Array<string>
   ) {
+    const currentTick = getCurrentServerTimeWrapper().getTruncatedU32(),
+      dropTick = new TimeWrapper(currentTick + 26378).getTruncatedU32();
     server.sendData<CommandDeliveryDisplayInfo>(
       client,
       "Command.DeliveryDisplayInfo",
@@ -1477,7 +1480,7 @@ const dev: any = {
         segments: [
           {
             actorModelId: ModelIds.AIRDROP_PLANE,
-            activationTime: getCurrentServerTimeWrapper().getTruncatedU32(),
+            activationTime: currentTick,
             ticksForStage: 80,
             rotation: 0.5,
             effectId: 0,
@@ -1548,8 +1551,7 @@ const dev: any = {
           },
           {
             actorModelId: ModelIds.MILITARY_CRATE_PARACHUTE,
-            activationTime:
-              getCurrentServerTimeWrapper().getTruncatedU32() + 26378,
+            activationTime: dropTick,
             ticksForStage: 35.4963,
             rotation: 0,
             effectId: 0,
@@ -1568,8 +1570,7 @@ const dev: any = {
           },
           {
             actorModelId: ModelIds.AIRDROP_CARGO_CONTAINER,
-            activationTime:
-              getCurrentServerTimeWrapper().getTruncatedU32() + 26378,
+            activationTime: dropTick,
             ticksForStage: 35.4963,
             rotation: 0,
             effectId: 0,
@@ -1588,8 +1589,7 @@ const dev: any = {
           },
           {
             actorModelId: ModelIds.MILITARY_CRATE,
-            activationTime:
-              getCurrentServerTimeWrapper().getTruncatedU32() + 26378,
+            activationTime: dropTick,
             ticksForStage: 35.4963,
             rotation: 0,
             effectId: 0,

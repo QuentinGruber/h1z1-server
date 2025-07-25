@@ -1,7 +1,11 @@
 import { CommandDeliveryDisplayInfo } from "types/zone2016packets";
 import { ZoneServer2016 } from "../zoneserver";
 import { Effects, ModelIds } from "../models/enums";
-import { _, getCurrentServerTimeWrapper } from "../../../utils/utils";
+import {
+  _,
+  getCurrentServerTimeWrapper,
+  TimeWrapper
+} from "../../../utils/utils";
 import { ZoneClient2016 } from "../classes/zoneclient";
 
 interface DeliveryProgressData {
@@ -154,8 +158,10 @@ export class AirdropManager {
       callerPos: new Float32Array([position[0], position[1], position[2], 0]),
       calledTick: currentTick,
       dropPoint: dropPoint,
-      tickAtPlayer: tickAtPlayer,
-      crateSpawnTick: tickAtPlayer + crateSpeed,
+      tickAtPlayer: new TimeWrapper(tickAtPlayer).getTruncatedU32(),
+      crateSpawnTick: new TimeWrapper(
+        tickAtPlayer + crateSpeed
+      ).getTruncatedU32(),
       removeTick: planeSpeed
     });
 
@@ -201,7 +207,7 @@ export class AirdropManager {
         segments: [
           {
             actorModelId: ModelIds.AIRDROP_PLANE,
-            activationTime: calledTick,
+            activationTime: new TimeWrapper(calledTick).getTruncatedU32(),
             ticksForStage: planeSpeed / 1000,
             rotation: 0.5,
             effectId: 0,
@@ -215,7 +221,9 @@ export class AirdropManager {
             ModelIds.MILITARY_CRATE
           ].map((modelId) => ({
             actorModelId: modelId,
-            activationTime: calledTick + tickAtPlayer,
+            activationTime: new TimeWrapper(
+              calledTick + tickAtPlayer
+            ).getTruncatedU32(),
             ticksForStage: crateSpeed / 1000,
             rotation: 0,
             effectId: 0,
