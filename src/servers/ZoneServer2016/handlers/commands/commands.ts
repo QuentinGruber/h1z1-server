@@ -87,7 +87,7 @@ export const commands: Array<Command> = [
       client: Client,
       args: Array<string>
     ) => {
-      if (!server.airdropManager.allowedAirdropSpawn()) {
+      if (server.airdropManager.allowedAirdropSpawn()) {
         server.randomEventsManager.spawnRandomAirdrop();
       } else {
         server.sendAlert(client, "There is already an active airdrop");
