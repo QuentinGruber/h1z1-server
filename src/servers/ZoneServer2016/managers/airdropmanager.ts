@@ -31,12 +31,12 @@ export class AirdropManager {
     }
   > = new Map();
   private maxAirdrops: number = 1;
+  public crateDropSpeed: number = 35496.3;
+  public planeMovementSpeed: number = 80000;
+
   constructor(public server: ZoneServer2016) {}
 
-  generateDeliveryPath(
-    position: Float32Array,
-    speed: number = 80000
-  ): {
+  generateDeliveryPath(position: Float32Array): {
     path: DeliveryProgressData[];
     tickAtPlayer: number;
     dropPoint: Float32Array;
@@ -75,7 +75,9 @@ export class AirdropManager {
     const totalDist = Math.hypot(endX - startX, endZ - startZ);
     const distToPlayer = Math.hypot(playerX - startX, playerZ - startZ);
 
-    const tickAtPlayer = Math.floor((distToPlayer / totalDist) * speed);
+    const tickAtPlayer = Math.floor(
+      Math.floor((distToPlayer / totalDist) * this.planeMovementSpeed)
+    );
 
     const distToDrop = Math.max(0, distToPlayer - 1800);
     const distToRise = Math.min(totalDist, distToPlayer + 1800);
@@ -143,13 +145,8 @@ export class AirdropManager {
     if (!forceSpawn && !this.allowedAirdropSpawn()) {
       return false;
     }
-    const planeSpeed = 80000,
-      crateSpeed = 35496.3;
-
-    const { path, tickAtPlayer, dropPoint } = this.generateDeliveryPath(
-      position,
-      planeSpeed
-    );
+    const { path, tickAtPlayer, dropPoint } =
+      this.generateDeliveryPath(position);
 
     const currentTick = getCurrentServerTimeWrapper().getTruncatedU32();
     const airdropId = this.nextAirdropId++;
@@ -160,28 +157,31 @@ export class AirdropManager {
       dropPoint: dropPoint,
       tickAtPlayer: new TimeWrapper(tickAtPlayer).getTruncatedU32(),
       crateSpawnTick: new TimeWrapper(
-        tickAtPlayer + crateSpeed
+        tickAtPlayer + this.crateDropSpeed
       ).getTruncatedU32(),
-      removeTick: planeSpeed
+      removeTick: this.planeMovementSpeed
     });
 
-    setTimeout(() => {
-      this.server.worldObjectManager.createAirdropContainer(
-        this.server,
-        position,
-        forcedAirdropType
-      );
-      this.server.sendCompositeEffectToAllInRange(
-        400,
-        "",
-        position,
-        Effects.PFX_Impact_Explosion_AirdropBomb_Default_10m
-      );
-    }, tickAtPlayer + crateSpeed);
+    setTimeout(
+      () => {
+        this.server.worldObjectManager.createAirdropContainer(
+          this.server,
+          position,
+          forcedAirdropType
+        );
+        this.server.sendCompositeEffectToAllInRange(
+          400,
+          "",
+          position,
+          Effects.PFX_Impact_Explosion_AirdropBomb_Default_10m
+        );
+      },
+      Math.floor(tickAtPlayer + this.crateDropSpeed)
+    );
 
     setTimeout(() => {
       this.activeAirdrops.delete(airdropId);
-    }, planeSpeed);
+    }, this.planeMovementSpeed);
 
     this.broadcastDeliveryInfo();
     this.updateAirdropIndicator();
@@ -198,17 +198,13 @@ export class AirdropManager {
         tickAtPlayer,
         removeTick
       } = airdrop;
-
-      const planeSpeed = removeTick;
-      const crateSpeed = 35496.3;
-
       const deliveryData: CommandDeliveryDisplayInfo = {
         startIndex: airdropId,
         segments: [
           {
             actorModelId: ModelIds.AIRDROP_PLANE,
             activationTime: new TimeWrapper(calledTick).getTruncatedU32(),
-            ticksForStage: planeSpeed / 1000,
+            ticksForStage: removeTick / 1000,
             rotation: 0.5,
             effectId: 0,
             endPosition: new Float32Array([0, 0, 0, 0]),
@@ -224,7 +220,7 @@ export class AirdropManager {
             activationTime: new TimeWrapper(
               calledTick + tickAtPlayer
             ).getTruncatedU32(),
-            ticksForStage: crateSpeed / 1000,
+            ticksForStage: this.crateDropSpeed / 1000,
             rotation: 0,
             effectId: 0,
             endPosition: callerPos,
