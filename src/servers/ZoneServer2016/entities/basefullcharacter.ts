@@ -42,6 +42,7 @@ import {
   EXTERNAL_CONTAINER_GUID,
   LOADOUT_CONTAINER_ID
 } from "../../../utils/constants";
+import { DeathItemDamageConfig } from "../data/deathitemdamageconfig";
 
 const debugName = "ZoneServer",
   debug = require("debug")(debugName);
@@ -69,7 +70,28 @@ const invalidItemForLootbag: Items[] = [
   Items.MAP,
   Items.COMPASS_IMPROVISED,
   Items.BOOTS_GRAY_BLUE,
-  Items.SKINNING_KNIFE
+  Items.SKINNING_KNIFE,
+  Items.VEHICLE_HORN,
+  Items.VEHICLE_HORN_POLICECAR,
+  Items.VEHICLE_HOTWIRE,
+  Items.VEHICLE_MOTOR_ATV,
+  Items.VEHICLE_MOTOR_OFFROADER,
+  Items.VEHICLE_MOTOR_PICKUP,
+  Items.VEHICLE_MOTOR_POLICECAR,
+  Items.VEHICLE_SIREN_POLICECAR,
+  Items.CONTAINER_VEHICLE_POLICECAR,
+  Items.CONTAINER_VEHICLE_OFFROADER,
+  Items.CONTAINER_VEHICLE_ATV,
+  Items.CONTAINER_VEHICLE_PICKUP,
+  Items.CONTAINER_FURNACE,
+  Items.CONTAINER_STORAGE,
+  Items.CONTAINER_DEW_COLLECTOR,
+  Items.CONTAINER_CAMPFIRE,
+  Items.CONTAINER_BARBEQUE,
+  Items.CONTAINER_ANIMAL_TRAP,
+  Items.CONTAINER_BEE_BOX,
+  Items.CONTAINER_STASH,
+  Items.CONTAINER_REPAIR_BOX
 ];
 
 function isValidForLootbag(itemDefinitionId: number): boolean {
@@ -772,124 +794,74 @@ export abstract class BaseFullCharacter extends BaseLightweightCharacter {
     this.equipItem(server, item, true, slotId);
   }
 
-  getDeathItems(server: ZoneServer2016) {
-    // --- Durability loss for footwear on death ---
-    const footwear = this._loadout[LoadoutSlots.FEET];
-    if (
-      footwear &&
-      (server.isConvey(footwear.itemDefinitionId) ||
-        server.isZed(footwear.itemDefinitionId) ||
-        server.isGator(footwear.itemDefinitionId))
-    ) {
-      footwear.currentDurability = (footwear.currentDurability || 0) - 1080;
-      if (footwear.currentDurability <= 0) {
-        server.removeInventoryItem(this, footwear);
-        this.lootContainerItem(server, server.generateItem(Items.CLOTH, 4));
-      }
-    }
-    // --- End durability loss ---
-
-    // --- Durability loss for MilitaryTan bag on death ---
-    const MilitaryTan = this._loadout[LoadoutSlots.BACK];
-    if (MilitaryTan && server.isMilitaryTan(MilitaryTan.itemDefinitionId)) {
-      MilitaryTan.currentDurability =
-        (MilitaryTan.currentDurability || 0) - 334; /// 6 Lifes/Tan
-      if (MilitaryTan.currentDurability <= 0) {
-        server.removeInventoryItem(this, MilitaryTan);
-        this.lootContainerItem(server, server.generateItem(Items.CLOTH, 4));
-        this.lootContainerItem(server, server.generateItem(Items.TWINE, 1));
-        this.lootContainerItem(
-          server,
-          server.generateItem(Items.METAL_BRACKET, 1)
-        );
-      }
-    }
-    // --- End durability loss for MilitaryTan ---
-
-    // --- Durability loss for Small Backpack on death ---
-    const smallBackpack = this._loadout[LoadoutSlots.BACK];
-    if (smallBackpack && server.isBackpack(smallBackpack.itemDefinitionId)) {
-      smallBackpack.currentDurability =
-        (smallBackpack.currentDurability || 0) - 500; // 4 lifes/small backpack
-      if (smallBackpack.currentDurability <= 0) {
-        server.removeInventoryItem(this, smallBackpack);
-        this.lootContainerItem(server, server.generateItem(Items.CLOTH, 4));
-      }
-    }
-    // --- End durability loss for Small Backpack ---
-
-    // --- Durability loss for Framed Backpack on death ---
-    const framedBackpack = this._loadout[LoadoutSlots.BACK];
-    if (framedBackpack && server.isFramedBp(framedBackpack.itemDefinitionId)) {
-      framedBackpack.currentDurability =
-        (framedBackpack.currentDurability || 0) - 400; // 5 lifes/framed backpack
-      if (framedBackpack.currentDurability <= 0) {
-        server.removeInventoryItem(this, framedBackpack);
-        this.lootContainerItem(server, server.generateItem(Items.CLOTH, 2));
-        this.lootContainerItem(
-          server,
-          server.generateItem(Items.BACKPACK_FRAME, 1)
-        );
-      }
-    }
-    // --- End durability loss for Framed Backpack ---
-
+  getDeathItems(server: ZoneServer2016): { [itemGuid: string]: BaseItem } {
     const items: { [itemGuid: string]: BaseItem } = {};
-    Object.values(this._loadout).forEach((itemData) => {
+    const processItem = (
+      itemData: LoadoutItem | BaseItem,
+      debugFlag: string
+    ) => {
       if (
         itemData.itemGuid != "0x0" &&
         isValidForLootbag(itemData.itemDefinitionId) &&
         !server.isAdminItem(itemData.itemDefinitionId)
       ) {
-        const item = new BaseItem(
-          itemData.itemDefinitionId,
-          itemData.itemGuid,
-          itemData.currentDurability,
-          itemData.stackCount
+        const config = DeathItemDamageConfig.getConfig(
+          server,
+          itemData.itemDefinitionId
         );
+        let durability = itemData.currentDurability;
+        if (config?.damage) {
+          durability = Math.max(0, durability - config.damage);
+        }
 
-        item.debugFlag = "getDeathItems";
-        if (itemData.weapon)
-          item.weapon = new Weapon(item, itemData.weapon.ammoCount);
-        item.slotId = Object.keys(items).length + 1;
-        items[item.itemGuid] = item;
-      }
-    });
-
-    Object.values(this._containers).forEach((container: LoadoutContainer) => {
-      Object.values(container.items).forEach((item) => {
         if (
-          isValidForLootbag(item.itemDefinitionId) &&
-          !server.isAdminItem(item.itemDefinitionId)
+          durability > 0 ||
+          server.getItemBaseDurability(itemData.itemDefinitionId) ==
+            itemData.currentDurability
         ) {
-          let stacked = false;
-          for (const i of Object.values(items)) {
-            // stack similar items
-            if (
-              i.itemDefinitionId == item.itemDefinitionId &&
-              server.isStackable(item.itemDefinitionId)
-            ) {
-              items[i.itemGuid].stackCount += item.stackCount;
-              stacked = true;
-              break;
+          if (server.isStackable(itemData.itemDefinitionId)) {
+            for (const existingItem of Object.values(items)) {
+              if (existingItem.itemDefinitionId == itemData.itemDefinitionId) {
+                existingItem.stackCount += itemData.stackCount;
+                return;
+              }
             }
           }
-          if (!stacked) {
-            const newItem = new BaseItem(
-              item.itemDefinitionId,
-              item.itemGuid,
-              item.currentDurability,
-              item.stackCount
-            );
 
-            newItem.debugFlag = "getDeathItemsNotStacked";
-            if (item.weapon)
-              newItem.weapon = new Weapon(newItem, item.weapon.ammoCount);
-            newItem.slotId = Object.keys(items).length + 1;
-            items[newItem.itemGuid] = newItem;
+          const newItem = new BaseItem(
+            itemData.itemDefinitionId,
+            itemData.itemGuid,
+            durability,
+            itemData.stackCount
+          );
+          newItem.debugFlag = debugFlag;
+          if (itemData.weapon) {
+            newItem.weapon = new Weapon(newItem, itemData.weapon.ammoCount);
           }
+          newItem.slotId = Object.keys(items).length + 1;
+          items[newItem.itemGuid] = newItem;
+        } else if (config?.lootItems) {
+          config.lootItems.forEach(({ itemId, count }) => {
+            if (isValidForLootbag(itemId) && !server.isAdminItem(itemId)) {
+              const lootItem = server.generateItem(itemId, count, true);
+              if (lootItem) {
+                lootItem.slotId = Object.keys(items).length + 1;
+                items[lootItem.itemGuid] = lootItem;
+              }
+            }
+          });
         }
-      });
+      }
+    };
+
+    Object.values(this._loadout).forEach((itemData: LoadoutItem) =>
+      processItem(itemData, "getDeathItems")
+    );
+
+    Object.values(this._containers).forEach((container: LoadoutContainer) => {
+      Object.values(container.items).forEach((item: BaseItem) =>
+        processItem(item, "getDeathItemsNotStacked")
+      );
     });
 
     return items;

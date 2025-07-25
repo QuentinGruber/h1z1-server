@@ -19,6 +19,7 @@ import {
   CharacterPlayWorldCompositeEffect,
   CharacterSeekTarget,
   ClientUpdateTextAlert,
+  CommandDeliveryDisplayInfo,
   InGamePurchaseActiveSchedules,
   InGamePurchaseGiftOrderNotification,
   InGamePurchaseItemOfTheDay,
@@ -30,19 +31,20 @@ import {
 import { Npc } from "../../entities/npc";
 import { ZoneClient2016 as Client } from "../../classes/zoneclient";
 import { ZoneServer2016 } from "../../zoneserver";
-import { Items, ModelIds, VehicleIds } from "../../models/enums";
+import { Effects, Items, ModelIds, VehicleIds } from "../../models/enums";
 import { LootableConstructionEntity } from "../../entities/lootableconstructionentity";
 import { ConstructionChildEntity } from "../../entities/constructionchildentity";
 import { ConstructionDoor } from "../../entities/constructiondoor";
 import {
   getCurrentServerTimeWrapper,
-  randomIntFromInterval
+  randomIntFromInterval,
+  TimeWrapper
 } from "../../../../utils/utils";
 import { WorldObjectManager } from "../../managers/worldobjectmanager";
 import { Vehicle2016 } from "../../entities/vehicle";
-import { Plane } from "../../entities/plane";
 import { NavManager } from "../../../../utils/recast";
 import { scheduler } from "timers/promises";
+import { DB_COLLECTIONS } from "../../../../utils/enums";
 
 const abilities = require("../../../../../data/2016/dataSources/Abilities.json"),
   vehicleAbilities = require("../../../../../data/2016/dataSources/VehicleAbilities.json");
@@ -804,6 +806,18 @@ const dev: any = {
 
     server.sendChatText(client, "Setting character resource");
   },
+  report: function (
+    server: ZoneServer2016,
+    client: Client,
+    args: Array<string>
+  ) {
+    const report = process.report.getReport();
+    server._db
+      .collection(DB_COLLECTIONS.NODEJS_REPORTS)
+      .insertOne({ serverId: server._worldId, ...report });
+
+    server.sendChatText(client, "Nodejs report saved!");
+  },
   selectloadout: function (
     server: ZoneServer2016,
     client: Client,
@@ -1430,6 +1444,184 @@ const dev: any = {
     args: Array<string>
   ) {
     server.sleep(client);
+  },
+  status: function (
+    server: ZoneServer2016,
+    client: Client,
+    args: Array<string>
+  ) {
+    server.sendData(client, "Command.DeliveryManagerStatus", {
+      deliveryAvailable: Number(args[1]), // treated as bool
+      status: Number(args[2]), // 0, 1, 2
+      unknownString1: args[3]
+    });
+  },
+  notification: function (
+    server: ZoneServer2016,
+    client: Client,
+    args: Array<string>
+  ) {
+    server.sendData(client, "Command.DeliveryManagerShowNotification", {
+      status: args[1]
+    });
+  },
+  airdrop: function (
+    server: ZoneServer2016,
+    client: Client,
+    args: Array<string>
+  ) {
+    const currentTick = getCurrentServerTimeWrapper().getTruncatedU32(),
+      dropTick = new TimeWrapper(currentTick + 26378).getTruncatedU32();
+    server.sendData<CommandDeliveryDisplayInfo>(
+      client,
+      "Command.DeliveryDisplayInfo",
+      {
+        startIndex: 1, // Increase every time a airdrop is called on the server. Just leave it at 1 for now
+        segments: [
+          {
+            actorModelId: ModelIds.AIRDROP_PLANE,
+            activationTime: currentTick,
+            ticksForStage: 80,
+            rotation: 0.5,
+            effectId: 0,
+            endPosition: [0, 0, 0, 0],
+            unknownDword3: 0,
+            progressStages: [
+              {
+                progress: 0,
+                position: [-1194.992, 950, -3836, 0]
+              },
+              {
+                progress: 0.2297337,
+                position: [-1799.766, 450, -1146.35, 0]
+              },
+              {
+                progress: 0.3297337,
+                position: [-2063.016, 450, 24.41919, 0.03383358]
+              },
+              {
+                progress: 0.4172337,
+                position: [-2293.359, 450, 1048.842, 0.05638929]
+              },
+              {
+                progress: 0.4234837,
+                position: [-2309.812, 460, 1122.014, 0.07894501]
+              },
+              {
+                progress: 0.4297337,
+                position: [-2326.265, 470, 1195.187, 0.1015007]
+              },
+              {
+                progress: 0.4359837,
+                position: [-2342.719, 480, 1268.36, 0.1240565]
+              },
+              {
+                progress: 0.4422337,
+                position: [-2359.171, 490, 1341.533, 0.1466122]
+              },
+              {
+                progress: 0.4484837,
+                position: [-2375.625, 500, 1414.707, 0.1691679]
+              },
+              {
+                progress: 0.4547337,
+                position: [-2392.078, 510, 1487.88, 0.1917236]
+              },
+              {
+                progress: 0.4609837,
+                position: [-2408.531, 520, 1561.052, 0.2142793]
+              },
+              {
+                progress: 0.4672337,
+                position: [-2424.984, 530, 1634.226, 0.236835]
+              },
+              {
+                progress: 0.6047336,
+                position: [-2786.953, 950, 3244.033, 0.2255572]
+              },
+              {
+                progress: 0.7922336,
+                position: [-3280.546, 950, 5439.224, 0]
+              },
+              {
+                progress: 1,
+                position: [-3827.491, 950, 7871.688, 0]
+              }
+            ]
+          },
+          {
+            actorModelId: ModelIds.MILITARY_CRATE_PARACHUTE,
+            activationTime: dropTick,
+            ticksForStage: 35.4963,
+            rotation: 0,
+            effectId: 0,
+            endPosition: [-2063.015, 59.54073, 24.23216, 0],
+            unknownDword3: 0,
+            progressStages: [
+              {
+                progress: 0,
+                position: [-2063.015, 450, 24.41884, 0]
+              },
+              {
+                progress: 1,
+                position: [-2063.015, 59.54073, 24.23216, 0]
+              }
+            ]
+          },
+          {
+            actorModelId: ModelIds.AIRDROP_CARGO_CONTAINER,
+            activationTime: dropTick,
+            ticksForStage: 35.4963,
+            rotation: 0,
+            effectId: 0,
+            endPosition: [-2063.015, 59.54073, 24.23216, 0],
+            unknownDword3: 0,
+            progressStages: [
+              {
+                progress: 0,
+                position: [-2063.015, 450, 24.41884, 0]
+              },
+              {
+                progress: 1,
+                position: [-2063.015, 59.54073, 24.23216, 0]
+              }
+            ]
+          },
+          {
+            actorModelId: ModelIds.MILITARY_CRATE,
+            activationTime: dropTick,
+            ticksForStage: 35.4963,
+            rotation: 0,
+            effectId: 0,
+            endPosition: [-2063.015, 59.54073, 24.23216, 0],
+            unknownDword3: 0,
+            progressStages: [
+              {
+                progress: 0,
+                position: [-2063.015, 450, 24.41884, 0]
+              },
+              {
+                progress: 1,
+                position: [-2063.015, 59.54073, 24.23216, 0]
+              }
+            ]
+          }
+        ]
+      }
+    );
+
+    setTimeout(() => {
+      server.worldObjectManager.createAirdropContainer(
+        server,
+        new Float32Array([-2063.015, 59.54073, 24.23216, 0])
+      );
+      server.sendCompositeEffectToAllInRange(
+        400,
+        "",
+        new Float32Array([-2063.015, 59.54073, 24.23216, 0]),
+        Effects.PFX_Impact_Explosion_AirdropBomb_Default_10m
+      );
+    }, 61874);
   },
   updatecharacter: function (
     server: ZoneServer2016,

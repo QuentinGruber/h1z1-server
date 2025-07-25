@@ -78,6 +78,10 @@ weather:
   defaultTemplate: "h1emubaseweather"
   dynamicEnabled: true
 
+airdrop:
+  planeMovementSpeed: 140000
+  crateDropSpeed: 60000
+
 # Anything to do with loot, vehicle, and npc spawning / despawning
 worldobjects:
   # Respawn timers
