@@ -35,7 +35,8 @@ export class Lootbag extends BaseLootableEntity {
     super(characterId, transientId, actorModelId, position, rotation, server);
     const container = this.getContainer();
     if (container) container.canAcceptItems = false;
-    this.flags.noCollide = 1;
+    if (actorModelId != ModelIds.MILITARY_CRATE)
+      this.flags.noCollide = 1;
     this.npcRenderDistance =
       this.actorModelId != ModelIds.MILITARY_CRATE ? 50 : 200;
     this.defaultLoadout =

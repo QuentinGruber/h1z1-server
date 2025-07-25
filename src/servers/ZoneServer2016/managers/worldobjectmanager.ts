@@ -424,7 +424,7 @@ export class WorldObjectManager {
     const lootbag = new Lootbag(
       characterId,
       server.getTransientId(characterId),
-      9218,
+      ModelIds.MILITARY_CRATE,
       new Float32Array([pos[0], pos[1] + 0.1, pos[2]]),
       new Float32Array([0, 0, 0, 0]),
       server
