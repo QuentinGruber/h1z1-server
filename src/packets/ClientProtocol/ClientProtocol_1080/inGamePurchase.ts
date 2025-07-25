@@ -345,14 +345,14 @@ export const inGamePurchasePackets: PacketStructures = [
     }
   ],
   [
-    "InGamePurchase.AcccountInfoRequest",
+    "InGamePurchase.AccountInfoRequest",
     0x271900,
     {
       fields: [{ name: "locale", type: "string", defaultValue: "" }]
     }
   ],
   [
-    "InGamePurchase.AcccountInfoResponse",
+    "InGamePurchase.AccountInfoResponse",
     0x271a00,
     {
       fields: [

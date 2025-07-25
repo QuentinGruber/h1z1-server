@@ -4167,8 +4167,8 @@ export class ZonePacketHandlers {
         break;
       case "Recipe.Discovery":
         break;
-      case "InGamePurchase.AcccountInfoRequest":
-        server.sendData(client, "InGamePurchase.AcccountInfoResponse", {
+      case "InGamePurchase.AccountInfoRequest":
+        server.sendData(client, "InGamePurchase.AccountInfoResponse", {
           unknownDword1: 1,
           locale: "en_US",
           currency: "USD"

@@ -101,7 +101,7 @@ const dev: any = {
       ]
     });
 
-    server.sendData(client, "InGamePurchase.AcccountInfoResponse", {
+    server.sendData(client, "InGamePurchase.AccountInfoResponse", {
       unknownDword1: 1,
       locale: "BE",
       currency: "EUR",
