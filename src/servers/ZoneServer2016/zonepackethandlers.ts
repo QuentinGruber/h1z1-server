@@ -4188,6 +4188,10 @@ export class ZonePacketHandlers {
       case "InGamePurchase.WalletInfoRequest":
         break;
       case "InGamePurchase.StationCashProductsRequest":
+        server.sendData(client, "InGamePurchase.StationCashProductsResponse", {
+          unknownDword1: 1,
+          products: []
+        });
         break;
       case "Items.RequestUseAccountItem":
         this.requestUseAccountItem(server, client, packet);
