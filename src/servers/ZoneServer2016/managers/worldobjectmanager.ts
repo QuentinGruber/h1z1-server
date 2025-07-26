@@ -367,7 +367,7 @@ export class WorldObjectManager {
       lootbag = new Lootbag(
         characterId,
         server.getTransientId(characterId),
-        isCharacter ? 9581 : 9391,
+        isCharacter ? ModelIds.LOOT_BAG_BLOODY : ModelIds.LOOT_BAG_CLEAN,
         new Float32Array([pos[0], pos[1] + 0.1, pos[2]]),
         new Float32Array([0, 0, 0, 0]),
         server
@@ -432,7 +432,7 @@ export class WorldObjectManager {
     const lootbag = new Lootbag(
       characterId,
       server.getTransientId(characterId),
-      9218,
+      ModelIds.MILITARY_CRATE,
       new Float32Array([pos[0], pos[1] + 0.1, pos[2]]),
       new Float32Array([0, 0, 0, 0]),
       server
@@ -512,37 +512,25 @@ export class WorldObjectManager {
         }
         break;
     }
-    if (server._airdrop) {
-      const smokePos = new Float32Array([
-        server._airdrop.destinationPos[0],
-        server._airdrop.destinationPos[1] + 0.3,
-        server._airdrop.destinationPos[2],
-        1
-      ]);
-      for (const a in server._clients) {
-        const c = server._clients[a];
-        server.sendData<CharacterPlayWorldCompositeEffect>(
-          c,
-          "Character.PlayWorldCompositeEffect",
-          {
-            characterId: c.character.characterId,
-            effectId: effectId,
-            position: smokePos,
-            effectTime: 60
-          }
-        );
-
-        if (
-          isPosInRadius(
-            3,
-            c.character.state.position,
-            server._airdrop.destinationPos
-          )
-        ) {
-          server.killCharacter(c, { damage: 99999, entity: "aidrop" });
+    const smokePos = new Float32Array([pos[0], pos[1] + 0.3, pos[2], 1]);
+    for (const a in server._clients) {
+      const c = server._clients[a];
+      server.sendData<CharacterPlayWorldCompositeEffect>(
+        c,
+        "Character.PlayWorldCompositeEffect",
+        {
+          characterId: c.character.characterId,
+          effectId: effectId,
+          position: smokePos,
+          effectTime: 60
         }
+      );
+
+      if (isPosInRadius(3, c.character.state.position, pos)) {
+        server.killCharacter(c, { damage: 99999, entity: "aidrop" });
       }
     }
+
     server._lootbags[characterId] = lootbag;
   }
 

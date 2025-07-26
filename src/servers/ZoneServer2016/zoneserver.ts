@@ -46,13 +46,9 @@ import {
   HealTypes,
   Effects,
   WeaponDefinitionIds,
-  ModelIds,
   ItemTypes,
   ItemClasses,
   ResourceIndicators,
-  Backpack1000,
-  MilitaryTan,
-  FramedBackpack,
   GameModes
 } from "./models/enums";
 import { WeatherManager } from "./managers/weathermanager";
@@ -101,8 +97,6 @@ import {
   getDifference,
   logClientActionToMongo,
   removeUntransferableFields,
-  movePoint,
-  getAngle,
   getDistance2d,
   TimeWrapper,
   getCurrentServerTimeWrapper,
@@ -162,11 +156,9 @@ import {
   CharacterDroppedItemNotification,
   CharacterKilledBy,
   CharacterManagedObject,
-  CharacterMovementVersion,
   CharacterPlayWorldCompositeEffect,
   CharacterRemovePlayer,
   CharacterRespawnReply,
-  CharacterSeekTarget,
   CharacterSelectSessionResponse,
   CharacterStartMultiStateDeath,
   CharacterUpdateCharacterState,
@@ -191,7 +183,6 @@ import {
   GameTimeSync,
   H1emuPrintToConsole,
   InitializationParameters,
-  LightweightToFullVehicle,
   LoginFailed,
   MountDismountResponse,
   MountMountResponse,
@@ -244,7 +235,6 @@ import { ConstructionManager } from "./managers/constructionmanager";
 import { FairPlayManager } from "./managers/fairplaymanager";
 import { PluginManager } from "./managers/pluginmanager";
 import { Destroyable } from "./entities/destroyable";
-import { Plane } from "./entities/plane";
 import { FileHashTypeList, ReceivedPacket } from "types/shared";
 import { SOEOutputChannels } from "../../servers/SoeServer/soeoutputstream";
 import { scheduler } from "node:timers/promises";
@@ -265,6 +255,7 @@ import { ProjectileEntity } from "./entities/projectileentity";
 import { ChallengeManager, ChallengeType } from "./managers/challengemanager";
 import { RandomEventsManager } from "./managers/randomeventsmanager";
 import { AiManager } from "./managers/aimanager";
+import { AirdropManager } from "./managers/airdropmanager";
 
 const spawnLocations2 = require("../../../data/2016/zoneData/Z1_gridSpawns.json"),
   deprecatedDoors = require("../../../data/2016/sampleData/deprecatedDoors.json"),
@@ -357,27 +348,6 @@ export class ZoneServer2016 extends EventEmitter {
     };
   } = {};
 
-  /** Airdrop information - includes:
-   * plane (Plane), cargo (Plane), planeTarget (string),
-   * planeTargetPos (Float32Array), cargoTarget (string), cargoTargetPos(Float32Array),
-   * destination (string), destinationPos (Float32Array), cargoSpawned (boolean),
-   * hospitalCrate (boolean), manager (Client)
-   */
-  _airdrop?: {
-    plane: Plane;
-    cargo?: Plane;
-    planeTarget: string;
-    planeTargetPos: Float32Array;
-    cargoTarget: string;
-    cargoTargetPos: Float32Array;
-    destination: string;
-    destinationPos: Float32Array;
-    cargoSpawned: boolean;
-    containerSpawned: boolean;
-    forcedAirdropType?: string;
-    manager?: Client;
-  };
-
   _serverStartTime: TimeWrapper = new TimeWrapper(0);
   _transientIds: { [transientId: number]: string } = {};
   _characterIds: { [characterId: string]: number } = {};
@@ -416,6 +386,7 @@ export class ZoneServer2016 extends EventEmitter {
   configManager: ConfigManager;
   playTimeManager: PlayTimeManager;
   aiManager: AiManager;
+  airdropManager: AirdropManager;
 
   _ready: boolean = false;
 
@@ -533,6 +504,7 @@ export class ZoneServer2016 extends EventEmitter {
     this.commandHandler = new CommandHandler();
     this.playTimeManager = new PlayTimeManager();
     this.aiManager = new AiManager(this);
+    this.airdropManager = new AirdropManager(this);
     this.navManager = new NavManager();
     this.challengeManager = new ChallengeManager(this);
     this.randomEventsManager = new RandomEventsManager(this);
@@ -4807,319 +4779,6 @@ export class ZoneServer2016 extends EventEmitter {
 
   //#region ********************VEHICLE********************
 
-  airdropManager(client: Client, spawn: boolean) {
-    if (!this._airdrop) return;
-    if (spawn) {
-      // These lightWeight characters are only used like targets for the plane
-      const lightWeight = {
-        characterId: this._airdrop.planeTarget,
-        transientId: 1,
-        actorModelId: ModelIds.WEAPON_EMPTY,
-        position: this._airdrop.planeTargetPos,
-        rotation: new Float32Array([0, 0, 0, 0]),
-        scale: new Float32Array([0.001, 0.001, 0.001, 0.001]),
-        positionUpdateType: 0,
-        profileId: 0,
-        isLightweight: true,
-        headActor: "",
-        flags: {
-          flags1: {},
-          flags2: {},
-          flags3: {}
-        },
-        attachedObject: {}
-      };
-      this.sendData<AddLightweightNpc>(
-        client,
-        "AddLightweightNpc",
-        lightWeight
-      );
-      /*const lightWeight2 = {
-        characterId: this._airdrop.destination,
-        transientId: 0,
-        actorModelId: 33,
-        position: this._airdrop.destinationPos,
-        rotation: new Float32Array([0, 0, 0, 0]),
-        scale: new Float32Array([1, 1, 1, 1]),
-        positionUpdateType: 0,
-        profileId: 0,
-        isLightweight: true,
-        flags: {},
-        headActor: "",
-      };*/
-      const lightWeight3 = {
-        characterId: this._airdrop.cargoTarget,
-        transientId: 2,
-        actorModelId: ModelIds.WEAPON_EMPTY,
-        position: this._airdrop.cargoTargetPos,
-        rotation: new Float32Array([0, 0, 0, 0]),
-        scale: new Float32Array([0.001, 0.001, 0.001, 0.001]),
-        positionUpdateType: 0,
-        profileId: 0,
-        isLightweight: true,
-        headActor: "",
-        flags: {
-          flags1: {},
-          flags2: {},
-          flags3: {}
-        },
-        attachedObject: {}
-      };
-      this.sendData<AddLightweightNpc>(
-        client,
-        "AddLightweightNpc",
-        lightWeight
-      );
-      //this.sendData<>(client, "AddLightweightNpc", lightWeight2);
-      this.sendData<AddLightweightNpc>(
-        client,
-        "AddLightweightNpc",
-        lightWeight3
-      );
-      this.sendData<AddLightweightVehicle>(client, "AddLightweightVehicle", {
-        ...this._airdrop.plane.pGetLightweightVehicle(),
-        unknownGuid1: this.generateGuid()
-      });
-      this.sendData<CharacterMovementVersion>(
-        client,
-        "Character.MovementVersion",
-        {
-          characterId: this._airdrop.plane.characterId,
-          version: 5
-        }
-      );
-      setTimeout(() => {
-        if (this._airdrop) {
-          this.sendData<LightweightToFullVehicle>(
-            client,
-            "LightweightToFullVehicle",
-            this._airdrop.plane.pGetFullVehicle(this)
-          );
-        }
-      }, 1000);
-
-      this.sendData<CharacterSeekTarget>(client, "Character.SeekTarget", {
-        characterId: this._airdrop.plane.characterId,
-        TargetCharacterId: this._airdrop.planeTarget,
-        initSpeed: -20,
-        acceleration: 0,
-        speed: 0,
-        turn: 5,
-        yRot: 0,
-        rotation: new Float32Array([
-          0,
-          this._airdrop.plane.positionUpdate.orientation || 0,
-          0,
-          0
-        ])
-      });
-      if (
-        this._airdrop.manager &&
-        this._airdrop.manager.character.characterId ==
-          client.character.characterId
-      ) {
-        this.sendData<CharacterManagedObject>(
-          client,
-          "Character.ManagedObject",
-          {
-            objectCharacterId: this._airdrop.plane.characterId,
-            characterId: client.character.characterId
-          }
-        );
-      }
-
-      if (this._airdrop.cargoSpawned && this._airdrop.cargo) {
-        this.sendData<AddLightweightVehicle>(client, "AddLightweightVehicle", {
-          ...this._airdrop.cargo.pGetLightweightVehicle(),
-          unknownGuid1: this.generateGuid()
-        });
-        this.sendData<CharacterMovementVersion>(
-          client,
-          "Character.MovementVersion",
-          {
-            characterId: this._airdrop.cargo.characterId,
-            version: 6
-          }
-        );
-        this.sendData<LightweightToFullVehicle>(
-          client,
-          "LightweightToFullVehicle",
-          this._airdrop.cargo.pGetFullVehicle(this)
-        );
-        this.sendData<CharacterSeekTarget>(client, "Character.SeekTarget", {
-          characterId: this._airdrop.cargo.characterId,
-          TargetCharacterId: this._airdrop.cargoTarget,
-          initSpeed: -5,
-          acceleration: 0,
-          speed: 0,
-          turn: 5,
-          yRot: 0
-        });
-        this.sendData<CharacterManagedObject>(
-          client,
-          "Character.ManagedObject",
-          {
-            objectCharacterId: this._airdrop.cargo.characterId,
-            characterId: client.character.characterId
-          }
-        );
-      }
-    } else if (!spawn) {
-      this.sendData<CharacterRemovePlayer>(client, "Character.RemovePlayer", {
-        characterId: this._airdrop.plane.characterId
-      });
-      if (this._airdrop.cargo) {
-        this.sendData<CharacterRemovePlayer>(client, "Character.RemovePlayer", {
-          characterId: this._airdrop.cargo.characterId,
-          unknownWord1: 1,
-          effectId: Effects.PFX_Impact_Explosion_AirdropBomb_Default_10m,
-          timeToDisappear: 0,
-          effectDelay: 0
-        });
-      }
-      // removing them seems to crash the client somehow
-      /*this.sendData<>(client, "Character.RemovePlayer", {
-        characterId: this._airdrop.destination,
-      });
-      this.sendData<>(client, "Character.RemovePlayer", {
-        characterId: this._airdrop.planeTarget,
-      });
-      this.sendData<>(client, "Character.RemovePlayer", {
-        characterId: this._airdrop.cargoTarget,
-      });*/
-    }
-  }
-
-  async syncAirdrop() {
-    if (!this._airdrop) return;
-    let choosenClient: Client | undefined;
-    let currentDistance = 999999;
-    for (const a in this._clients) {
-      const client = this._clients[a];
-      this.sendData<CharacterRemovePlayer>(client, "Character.RemovePlayer", {
-        characterId: this._airdrop.plane.characterId
-      });
-      this.sendData<AddLightweightVehicle>(client, "AddLightweightVehicle", {
-        ...this._airdrop.plane.pGetLightweightVehicle(),
-        unknownGuid1: this.generateGuid()
-      });
-      this.sendData<CharacterMovementVersion>(
-        client,
-        "Character.MovementVersion",
-        {
-          characterId: this._airdrop.plane.characterId,
-          version: 5
-        }
-      );
-      if (this._airdrop.cargoSpawned && this._airdrop.cargo) {
-        this.sendData<CharacterRemovePlayer>(client, "Character.RemovePlayer", {
-          characterId: this._airdrop.cargo.characterId
-        });
-        this.sendData<AddLightweightVehicle>(client, "AddLightweightVehicle", {
-          ...this._airdrop.cargo.pGetLightweightVehicle(),
-          unknownGuid1: this.generateGuid()
-        });
-        this.sendData<CharacterMovementVersion>(
-          client,
-          "Character.MovementVersion",
-          {
-            characterId: this._airdrop.cargo.characterId,
-            version: 6
-          }
-        );
-        this.sendData<CharacterSeekTarget>(client, "Character.SeekTarget", {
-          characterId: this._airdrop.cargo.characterId,
-          TargetCharacterId: this._airdrop.cargoTarget,
-          initSpeed: -5,
-          acceleration: 0,
-          speed: 0,
-          turn: 5,
-          yRot: 0,
-          rotation: new Float32Array([0, 1, 0, 0])
-        });
-        this.sendData<CharacterManagedObject>(
-          client,
-          "Character.ManagedObject",
-          {
-            objectCharacterId: this._airdrop.cargo.characterId,
-            characterId: client.character.characterId
-          }
-        );
-        this.sendData<LightweightToFullVehicle>(
-          client,
-          "LightweightToFullVehicle",
-          this._airdrop.cargo.pGetFullVehicle(this)
-        );
-      }
-      setTimeout(() => {
-        if (this._airdrop) {
-          this.sendData<LightweightToFullVehicle>(
-            client,
-            "LightweightToFullVehicle",
-            this._airdrop.plane.pGetFullVehicle(this)
-          );
-        }
-      }, 1000);
-      this.sendData<CharacterSeekTarget>(client, "Character.SeekTarget", {
-        characterId: this._airdrop.plane.characterId,
-        TargetCharacterId: this._airdrop.planeTarget,
-        initSpeed: -20,
-        acceleration: 0,
-        speed: 0,
-        turn: 5,
-        yRot: 0,
-        rotation: new Float32Array([
-          0,
-          this._airdrop.plane.positionUpdate.orientation || 0,
-          0,
-          0
-        ])
-      });
-      if (!choosenClient) {
-        choosenClient = client;
-        currentDistance = getDistance2d(
-          client.character.state.position,
-          this._airdrop.cargo
-            ? this._airdrop.cargo.state.position
-            : this._airdrop.plane.state.position
-        );
-      }
-      if (
-        currentDistance >
-        getDistance2d(
-          client.character.state.position,
-          this._airdrop.cargo
-            ? this._airdrop.cargo.state.position
-            : this._airdrop.plane.state.position
-        )
-      ) {
-        const avgPing = this._gatewayServer.getSoeClientAvgPing(
-          client.soeClientId
-        );
-        choosenClient = client;
-        if (avgPing) {
-          if (avgPing < 130) {
-            choosenClient = client;
-            currentDistance = getDistance2d(
-              client.character.state.position,
-              this._airdrop.plane.state.position
-            );
-          }
-        }
-      }
-    }
-    this._airdrop.manager = choosenClient;
-    if (!this._airdrop.manager) return;
-    this.sendData<CharacterManagedObject>(
-      this._airdrop.manager,
-      "Character.ManagedObject",
-      {
-        objectCharacterId: this._airdrop.plane.characterId,
-        characterId: this._airdrop.manager.character.characterId
-      }
-    );
-  }
-
   vehicleManager(client: Client) {
     for (const key in this._vehicles) {
       const vehicle = this._vehicles[key];
@@ -6256,36 +5915,6 @@ export class ZoneServer2016 extends EventEmitter {
   }
 
   /**
-   * Checks if an item with the specified itemDefinitionId is a MilitaryTan backpack.
-   *
-   * @param {number} itemDefinitionId - The itemDefinitionId to check.
-   * @returns {boolean} True if the item is a MilitaryTan bag, false otherwise.
-   */
-  isMilitaryTan(itemDefinitionId: number): boolean {
-    return Object.values(MilitaryTan).includes(itemDefinitionId);
-  }
-
-  /**
-   * Checks if an item with the specified itemDefinitionId is a Framed bag.
-   *
-   * @param {number} itemDefinitionId - The itemDefinitionId to check.
-   * @returns {boolean} True if the item is a MilitaryTan bag, false otherwise.
-   */
-  isFramedBp(itemDefinitionId: number): boolean {
-    return Object.values(FramedBackpack).includes(itemDefinitionId);
-  }
-
-  /**
-   * Checks if an item with the specified itemDefinitionId is a Small backpack (1000 bulk).
-   *
-   * @param {number} itemDefinitionId - The itemDefinitionId to check.
-   * @returns {boolean} True if the item is a MilitaryTan bag, false otherwise.
-   */
-  isBackpack(itemDefinitionId: number): boolean {
-    return Object.values(Backpack1000).includes(itemDefinitionId);
-  }
-
-  /**
    * Checks if an item with the specified itemDefinitionId is a convey.
    *
    * @param {number} itemDefinitionId - The itemDefinitionId to check.
@@ -7174,36 +6803,12 @@ export class ZoneServer2016 extends EventEmitter {
     }
   }
 
-  updateAirdropIndicator(client: Client | undefined = undefined) {
-    let statusCode = 0;
-    if (this._airdrop) {
-      statusCode = 1;
-    } else if (
-      _.size(this._clients) < this.worldObjectManager.minAirdropSurvivors &&
-      !this._soloMode
-    ) {
-      statusCode = 2;
-    }
-
-    const data = {
-      indicator: statusCode == 0 ? 1 : 0,
-      status: 0
-    };
-
-    if (!client) {
-      this.sendDataToAll("Command.DeliveryManagerStatus", data);
-      return;
-    }
-
-    this.sendData(client, "Command.DeliveryManagerStatus", data);
-  }
-
   useAirdrop(
     client: Client,
     character: Character | BaseLootableEntity,
     item: BaseItem
   ) {
-    if (this._airdrop) {
+    if (!this.airdropManager.allowedAirdropSpawn() && !client.isDebugMode) {
       this.sendAlert(client, "All planes are busy.");
       return;
     }
@@ -7239,105 +6844,19 @@ export class ZoneServer2016 extends EventEmitter {
       ![Items.AIRDROP_TICKET, Items.AIRDROP_CODE].includes(
         item.itemDefinitionId
       ) ||
+      !this.airdropManager.spawnAirdrop(
+        client.character.state.position,
+        item.hasAirdropClearance ? "Hospital" : "",
+        client.isDebugMode
+      ) ||
       !this.removeInventoryItem(character, item)
     )
       return;
     this.sendAlert(client, "Your delivery is on the way!");
-    this.spawnAirdrop(
-      client.character.state.position,
-      item.hasAirdropClearance ? "Hospital" : ""
-    );
+
     if (item.hasAirdropClearance) {
       item.hasAirdropClearance = false;
     }
-  }
-
-  spawnAirdrop(position: Float32Array, forcedAirdropType: string) {
-    const pos = new Float32Array([position[0], 400, position[2], 1]);
-    const angle = getAngle(position, new Float32Array([0, 0, 0, 0]));
-    const distance =
-      5000 + getDistance2d(position, new Float32Array([0, 0, 0, 0]));
-    const moved = movePoint(pos, angle, distance);
-    const moved2 = movePoint(moved, angle, 1500);
-    const characterId = this.generateGuid();
-    const characterId2 = this.generateGuid();
-    const characterId3 = this.generateGuid();
-    const characterId4 = this.generateGuid();
-    const characterId5 = this.generateGuid();
-    const plane = new Plane(
-      characterId,
-      this.getTransientId(characterId),
-      ModelIds.AIRDROP_PLANE,
-      moved,
-      new Float32Array([0, 0, 0, 1]),
-      // client.character.state.lookAt,
-      this,
-      getCurrentServerTimeWrapper().getTruncatedU32(),
-      VehicleIds.SPECTATE
-    );
-    const cargo = new Plane(
-      characterId4,
-      this.getTransientId(characterId4),
-      ModelIds.AIRDROP_CARGO_CONTAINER,
-      new Float32Array([pos[0], pos[1] - 20, pos[2], 1]),
-      new Float32Array([0, 0, 0, 1]),
-      // client.character.state.lookAt,
-      this,
-      getCurrentServerTimeWrapper().getTruncatedU32(),
-      VehicleIds.SPECTATE
-    );
-    this._airdrop = {
-      plane: plane,
-      cargo: cargo,
-      planeTarget: characterId2,
-      planeTargetPos: moved2,
-      cargoTarget: characterId5,
-      cargoTargetPos: new Float32Array([pos[0], pos[1] + 100, pos[2], 1]),
-      destination: characterId3,
-      destinationPos: position,
-      cargoSpawned: false,
-      containerSpawned: false,
-      forcedAirdropType: forcedAirdropType
-    };
-    let choosenClient: Client | undefined;
-    let currentDistance = 999999;
-    for (const a in this._clients) {
-      const client = this._clients[a];
-      if (
-        !choosenClient ||
-        currentDistance >
-          getDistance2d(
-            client.character.state.position,
-            this._airdrop.plane.state.position
-          )
-      ) {
-        choosenClient = client;
-        currentDistance = getDistance2d(
-          client.character.state.position,
-          this._airdrop.plane.state.position
-        );
-      }
-    }
-    this._airdrop.manager = choosenClient;
-    for (const a in this._clients) {
-      if (!this._clients[a].isLoading) {
-        this.airdropManager(this._clients[a], true);
-      }
-    }
-
-    this.sendDeliveryStatus();
-
-    setTimeout(() => {
-      if (this._airdrop && this._airdrop.plane.characterId == characterId) {
-        for (const a in this._clients) {
-          if (!this._clients[a].isLoading) {
-            this.airdropManager(this._clients[a], false);
-          }
-        }
-        this.sendDeliveryStatus();
-        delete this._airdrop;
-      }
-    }, 600000);
   }
 
   useAmmoBox(
@@ -9598,35 +9117,6 @@ export class ZoneServer2016 extends EventEmitter {
         }
       )[0]?.ITEM_APPEARANCE_DATA?.SHADER_PARAMETER_GROUP_ID ?? 0
     );
-  }
-
-  sendDeliveryStatus(client: Client | undefined = undefined) {
-    const hasEnoughSurvivors =
-      this._soloMode ||
-      this.worldObjectManager.minAirdropSurvivors < _.size(this._clients);
-
-    let status = 0;
-    switch (true) {
-      case !hasEnoughSurvivors:
-        status = 2;
-        break;
-      case this._airdrop !== undefined:
-        status = 1;
-        break;
-    }
-
-    if (client) {
-      this.sendData(client, "Command.DeliveryManagerStatus", {
-        color: status == 0 ? 1 : 0,
-        status: status
-      });
-      return;
-    }
-
-    this.sendDataToAll("Command.DeliveryManagerStatus", {
-      color: status == 0 ? 1 : 0,
-      status: status
-    });
   }
 
   deployParachute(client: Client, shaderGroupId: number) {

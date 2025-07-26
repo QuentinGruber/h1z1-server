@@ -60,7 +60,7 @@ export class RandomEventsManager {
       { value: "Supplier", weight: 20 }
     ];
     const airdropType = this.weightedRandom(airdropTypes);
-    this.server.spawnAirdrop(pos, airdropType);
+    this.server.airdropManager.spawnAirdrop(pos, airdropType);
     const cellName = getCellName(cellIndex, 10);
     this.server.sendAlertToAll(`Random airdrop on ${cellName}`);
     if (!this.server._soloMode) {
@@ -84,7 +84,10 @@ export class RandomEventsManager {
     }
     // Use a larger range for more granularity
     const threshold = 10 * multiplier;
-    if (!this.server._airdrop && randomInt(100) < threshold) {
+    if (
+      !this.server.airdropManager.allowedAirdropSpawn() &&
+      randomInt(100) < threshold
+    ) {
       this.spawnRandomAirdrop();
     }
   }

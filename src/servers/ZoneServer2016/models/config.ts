@@ -150,6 +150,11 @@ interface RandomEventsConfig {
   enabled: boolean;
 }
 
+interface AirdropConfig {
+  planeMovementSpeed: number;
+  crateDropSpeed: number;
+}
+
 export interface Config {
   server: ServerConfig;
   rcon: RconConfig;
@@ -157,6 +162,7 @@ export interface Config {
   voicechat: VoiceChatConfig;
   fairplay: FairplayConfig;
   weather: WeatherConfig;
+  airdrop: AirdropConfig;
   gametime: GameTimeConfig;
   worldobjects: WorldObjectsConfig;
   speedtree: SpeedTreeConfig;

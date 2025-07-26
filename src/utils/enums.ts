@@ -70,7 +70,8 @@ export enum DB_COLLECTIONS {
   VPN_WHITELIST = "vpn-whitelist",
   CHALLENGES = "challenges",
   AUTHKEYS = "verified-authkeys",
-  LOGIN_ERRORS = "login-errors"
+  LOGIN_ERRORS = "login-errors",
+  NODEJS_REPORTS = "nodejs-reports"
 }
 
 export enum KILL_TYPE {

@@ -87,6 +87,7 @@ export class ConfigManager {
       fairplay,
       voicechat,
       weather,
+      airdrop,
       worldobjects,
       speedtree,
       construction,
@@ -120,6 +121,10 @@ export class ConfigManager {
       weather: {
         ...weather,
         ...config.weather
+      },
+      airdrop: {
+        ...airdrop,
+        ...config.airdrop
       },
       worldobjects: {
         ...worldobjects,
@@ -242,6 +247,12 @@ export class ConfigManager {
     const { defaultTemplate, dynamicEnabled } = this.config.weather;
     server.weatherManager.defaultTemplate = defaultTemplate;
     server.weatherManager.dynamicEnabled = dynamicEnabled;
+    //#endregion
+
+    //#region airdrops
+    const { planeMovementSpeed, crateDropSpeed } = this.config.airdrop;
+    server.airdropManager.planeMovementSpeed = planeMovementSpeed;
+    server.airdropManager.crateDropSpeed = crateDropSpeed;
     //#endregion
 
     //#region worldobjects
