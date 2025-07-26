@@ -3442,3 +3442,10 @@ export const itemCollectionSchema: PacketFields = [
     ]
   }
 ];
+
+export const vehicleStatSchema: PacketFields = [
+  { name: "characterId", type: "uint64string", defaultValue: "0" },
+  { name: "unknownDword1", type: "uint32", defaultValue: 0 },
+  { name: "unknownDword2", type: "uint32", defaultValue: 0 },
+  ...statSchema
+];
