@@ -2503,7 +2503,16 @@ export const basePackets: PacketStructures = [
       ]
     }
   ],
-  ["ClientTrialProfileUpsell", 0x62, {}],
+  [
+    "ClientTrialProfileUpsell",
+    0x62,
+    {
+      fields: [
+        { name: "unknownDword1", type: "uint32", defaultValue: 0 },
+        { name: "unknownDword2", type: "uint32", defaultValue: 0 }
+      ]
+    }
+  ],
   ["ActivityManager.ProfileActivityList", 0x6301, {}],
   ["ActivityManager.JoinErrorString", 0x6302, {}],
   ["RequestSendItemDefinitionsToClient", 0x64, {}],
@@ -2564,8 +2573,13 @@ export const basePackets: PacketStructures = [
     }
   ],
   ["MatchHistory", 0x68, {}],
-  ["UpdateUserAge", 0x69, {}],
-  ["Loot", 0x6a, {}],
+  [
+    "UpdateUserAge",
+    0x69,
+    {
+      fields: [{ name: "age", type: "uint32", defaultValue: 0 }]
+    }
+  ],
   ["ActionBarManager", 0x6b, {}],
   ["ClientTrialProfileUpsellRequest", 0x6c, {}],
   ["PlayerUpdateJump", 0x6d, {}],
@@ -2631,7 +2645,16 @@ export const basePackets: PacketStructures = [
   ["Rating", 0x75, {}],
   ["ClientActivityLaunch", 0x76, {}],
   ["ServerActivityLaunch", 0x77, {}],
-  ["ClientFlashTimer", 0x78, {}],
+  [
+    "ClientFlashTimer",
+    0x78,
+    {
+      fields: [
+        { name: "unknownBoolean1", type: "boolean", defaultValue: false },
+        { name: "unknownDword1", type: "uint32", defaultValue: 0 }
+      ]
+    }
+  ],
   [
     "PlayerUpdatePosition",
     0x79,
