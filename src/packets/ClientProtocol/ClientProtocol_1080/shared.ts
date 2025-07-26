@@ -3449,3 +3449,21 @@ export const vehicleStatSchema: PacketFields = [
   { name: "unknownDword2", type: "uint32", defaultValue: 0 },
   ...statSchema
 ];
+
+export const mountSchema: PacketFields = [
+  { name: "unknownDword1", type: "uint32", defaultValue: 0 },
+  { name: "unknownDword2", type: "uint32", defaultValue: 0 },
+  { name: "unknownDword3", type: "uint32", defaultValue: 0 },
+  {
+    name: "unknownQword1",
+    type: "uint64string",
+    defaultValue: ""
+  },
+  {
+    name: "unknownBoolean1",
+    type: "boolean",
+    defaultValue: true
+  },
+  { name: "unknownDword4", type: "uint32", defaultValue: 0 },
+  { name: "unknownString1", type: "string", defaultValue: "" }
+];
