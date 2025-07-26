@@ -6847,7 +6847,8 @@ export class ZoneServer2016 extends EventEmitter {
       !this.airdropManager.spawnAirdrop(
         client.character.state.position,
         item.hasAirdropClearance ? "Hospital" : "",
-        client.isDebugMode
+        client.isDebugMode,
+        client.character.characterId
       ) ||
       !this.removeInventoryItem(character, item)
     )

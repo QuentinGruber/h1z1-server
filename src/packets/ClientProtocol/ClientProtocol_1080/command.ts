@@ -349,7 +349,7 @@ export const commandPackets: PacketStructures = [
           fields: [
             { name: "actorModelId", type: "uint32", defaultValue: 0 },
             { name: "activationTime", type: "uint32", defaultValue: 0 },
-            { name: "ticksForStage", type: "float", defaultValue: 0 },
+            { name: "totalTicks", type: "float", defaultValue: 0 },
             { name: "rotation", type: "float", defaultValue: 0.5 },
             { name: "effectId", type: "uint32", defaultValue: 0 },
             {
