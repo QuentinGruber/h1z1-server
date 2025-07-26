@@ -215,6 +215,7 @@ export const commands: Array<Command> = [
       client: Client,
       args: Array<string>
     ) => {
+      if (server.isBattleRoyale()) return;
       server.groupManager.handleGroupCommand(server, client, args);
     }
   },
@@ -229,10 +230,11 @@ export const commands: Array<Command> = [
     name: "respawn",
     permissionLevel: PermissionLevels.DEFAULT,
     execute: (server: ZoneServer2016, client: Client, args: Array<string>) => {
-      server.respawnPlayer(
-        client,
+      if (server.isBattleRoyale()) return;
+      const position = server.calculatePosFromSpawnCell(
         server._spawnGrid[randomIntFromInterval(0, 99)]
       );
+      server.respawnPlayer(client, position);
     }
   },
   {
@@ -1758,7 +1760,7 @@ export const commands: Array<Command> = [
           position: targetClient.character.state.position,
           triggerLoadingScreen: true
         });
-        server.deployParachute(targetClient);
+        server.deployParachute(targetClient, 0);
       }
     }
   },

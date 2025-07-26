@@ -51,6 +51,9 @@ const abilities = require("../../../../../data/2016/dataSources/Abilities.json")
 
 const dev: any = {
   igp: function (server: ZoneServer2016, client: Client, args: Array<string>) {
+    server.sendData(client, "InGamePurchase.ServerStatusResponse", {
+      status: true
+    });
     server.sendData(client, "InGamePurchase.EnableMarketplace", {
       unknownBoolean1: true,
       unknownBoolean2: true
@@ -103,7 +106,7 @@ const dev: any = {
       ]
     });
 
-    server.sendData(client, "InGamePurchase.AcccountInfoResponse", {
+    server.sendData(client, "InGamePurchase.AccountInfoResponse", {
       unknownDword1: 1,
       locale: "BE",
       currency: "EUR",
@@ -197,10 +200,10 @@ const dev: any = {
       ]
     });
 
-    const categories = require("../../data/2016/marketplaceData/categories.json");
+    const categories = require("../../../../../data/2016/marketplaceData/categories.json");
     server.sendData(client, "InGamePurchase.StoreBundleCategories", categories);
 
-    const bundles = require("../../data/2016/marketplaceData/bundles.json");
+    const bundles = require("../../../../../data/2016/marketplaceData/bundles.json");
     server.sendData(client, "InGamePurchase.StoreBundles", bundles);
 
     server.sendData(client, "InGamePurchase.SubscriptionProductsResponse", {
@@ -733,11 +736,11 @@ const dev: any = {
     );
   },
   r: function (server: ZoneServer2016, client: Client, args: Array<string>) {
-    // quick respawn
-    server.respawnPlayer(
-      client,
+    const position = server.calculatePosFromSpawnCell(
       server._spawnGrid[randomIntFromInterval(0, 99)]
     );
+    // quick respawn
+    server.respawnPlayer(client, position);
   },
   testpacket: function (
     server: ZoneServer2016,

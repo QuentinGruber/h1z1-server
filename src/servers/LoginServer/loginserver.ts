@@ -212,7 +212,7 @@ export class LoginServer extends EventEmitter {
             if (connectionEstablished || packet.name === "SessionRequest") {
               switch (packet.name) {
                 case "SessionRequest": {
-                  const { serverId, h1emuVersion, serverRuleSets } =
+                  const { serverId, h1emuVersion, serverRuleSets, gameMode } =
                     packet.data;
                   debug(
                     `Received session request from ${client.address}:${client.port}`
@@ -241,7 +241,8 @@ export class LoginServer extends EventEmitter {
                     await this.updateZoneServerVersion(serverId, h1emuVersion);
                     await this.updateZoneServerRuleSets(
                       serverId,
-                      serverRuleSets
+                      serverRuleSets,
+                      gameMode
                     );
                     await this.updateServerStatus(serverId, true);
                   } else {
@@ -755,20 +756,24 @@ export class LoginServer extends EventEmitter {
     );
   }
 
-  async updateZoneServerRuleSets(serverId: number, ruleSet: string) {
+  async updateZoneServerRuleSets(
+    serverId: number,
+    ruleSet: string,
+    gameMode: number
+  ) {
     const serverData = await this._db
       .collection(DB_COLLECTIONS.SERVERS)
       .findOne({ serverId: serverId });
     if (serverData) {
       const currentValue = serverData["populationData"];
+      const updatedValue = currentValue
+        .replace(/(Rulesets=")([^"]*)(")/, `$1${ruleSet}$3`)
+        .replace(/(Mode=")([^"]*)(")/, `$1${gameMode}$3`);
       await this._db.collection(DB_COLLECTIONS.SERVERS).updateOne(
         { serverId: serverId },
         {
           $set: {
-            populationData: currentValue.replace(
-              /(Rulesets=")([^"]*)(")/,
-              `$1${ruleSet}$3`
-            )
+            populationData: updatedValue
           }
         }
       );

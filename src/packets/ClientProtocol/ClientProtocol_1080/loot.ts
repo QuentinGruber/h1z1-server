@@ -12,5 +12,17 @@
 // ======================================================================
 
 import { PacketStructures } from "types/packetStructure";
+import { rewardBundleSchema } from "./shared";
 
-export const lootPackets: PacketStructures = [["Loot", 0x6a, {}]];
+export const lootPackets: PacketStructures = [
+  [
+    "Loot",
+    0x6a01,
+    {
+      fields: [
+        { name: "unknownQword1", type: "uint32", defaultValue: 0 },
+        { name: "unknownArray1", type: "array", fields: rewardBundleSchema }
+      ]
+    }
+  ]
+];
