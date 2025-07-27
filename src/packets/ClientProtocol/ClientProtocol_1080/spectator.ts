@@ -100,7 +100,7 @@ export const spectatorPackets: PacketStructures = [
     }
   ],
   [
-    "Spectator.Unknown5",
+    "Spectator.DeathList",
     0xe30500,
     {
       fields: [
@@ -129,14 +129,14 @@ export const spectatorPackets: PacketStructures = [
     }
   ],
   [
-    "Spectator.SetUnknownFlag1",
+    "Spectator.SetModerator",
     0xe30600,
     {
       fields: []
     }
   ],
   [
-    "Spectator.SetUnknownFlag2",
+    "Spectator.SetOwner",
     0xe30700,
     {
       fields: []
