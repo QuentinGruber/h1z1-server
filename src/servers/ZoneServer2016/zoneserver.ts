@@ -103,7 +103,8 @@ import {
   flhash,
   getDateString,
   loadJson,
-  chance
+  chance,
+  quat2heading
 } from "../../utils/utils";
 
 import { Db, MongoClient, WithId } from "mongodb";
@@ -194,6 +195,7 @@ import {
   RewardAddNonRewardItem,
   SendSelfToClient,
   SendZoneDetails,
+  SpectatorAllSpectators,
   SynchronizedTeleportPlayersReady,
   SynchronizedTeleportRelease,
   SynchronizedTeleportWaitingForPlayers,
@@ -5069,6 +5071,17 @@ export class ZoneServer2016 extends EventEmitter {
     }
   }
 
+  sendDataToAllAdmins(packetName: h1z1PacketsType2016, obj: any): void {
+    const data = this._protocol.pack(packetName, obj);
+    if (data) {
+      for (const a in this._clients) {
+        if (this._clients[a].isAdmin) {
+          this.sendRawDataReliable(this._clients[a], data);
+        }
+      }
+    }
+  }
+
   getClientsInRange(range: number, position: Float32Array): Client[] {
     const clients: Client[] = [];
     for (const a in this._clients) {
@@ -8698,6 +8711,7 @@ export class ZoneServer2016 extends EventEmitter {
       }
       await scheduler.wait(this.tickRate, {});
     }
+    this.updateSpectatorMap();
     this.startRoutinesLoop();
   }
 
@@ -9152,6 +9166,22 @@ export class ZoneServer2016 extends EventEmitter {
         unknownDword1: 0
       });
     };
+  }
+
+  updateSpectatorMap() {
+    this.sendDataToAllAdmins("Spectator.AllSpectators", {
+      unknownDword1: 1,
+      unknownArray1: Object.values(this._clients).map((client) => ({
+        characterId: client.character.characterId,
+        characterName: client?.character?.name ?? "",
+        playerHeading: quat2heading(client.character.state.rotation),
+        playerX: client.character.state.position[0],
+        playerY: client.character.state.position[1],
+        playerZ: client.character.state.position[2],
+        unknownArray2: []
+      })),
+      unknownArray2: []
+    });
   }
 
   addToSyncTeleport(client: Client, position: Float32Array) {

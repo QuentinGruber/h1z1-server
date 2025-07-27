@@ -22,7 +22,7 @@ export const spectatorPackets: PacketStructures = [
     }
   ],
   [
-    "Spectator.Unknown2",
+    "Spectator.AllSpectators",
     0xe30200,
     {
       fields: [
@@ -32,17 +32,18 @@ export const spectatorPackets: PacketStructures = [
           type: "array",
           defaultValue: [],
           fields: [
-            { name: "unknownQword1", type: "uint64string", defaultValue: "" },
-            { name: "unknownString1", type: "string", defaultValue: "" },
-            { name: "unknownString2", type: "string", defaultValue: "" },
+            { name: "characterId", type: "uint64string", defaultValue: "" },
+            { name: "characterName", type: "string", defaultValue: "" },
+            { name: "twitchName", type: "string", defaultValue: "" },
             { name: "unknownByte1", type: "uint8", defaultValue: 0 },
             { name: "unknownByte2", type: "uint8", defaultValue: 0 },
             { name: "unknownDword1", type: "uint32", defaultValue: 0 },
-            { name: "unknownWord1", type: "uint16", defaultValue: 0 },
-            { name: "unknownByte3", type: "uint8", defaultValue: 0 },
+            { name: "unknownWord1", type: "int16", defaultValue: 0 },
+            { name: "playerHeading", type: "uint8", defaultValue: 0 },
             { name: "unknownByte4", type: "uint8", defaultValue: 0 },
-            { name: "unknownWord2", type: "uint16", defaultValue: 0 },
-            { name: "unknownWord3", type: "uint16", defaultValue: 0 },
+            { name: "playerX", type: "int16", defaultValue: 0 },
+            { name: "playerY", type: "int16", defaultValue: 0 },
+            { name: "playerZ", type: "int16", defaultValue: 0 },
             { name: "unknownByte5", type: "uint8", defaultValue: 0 },
             { name: "unknownByte6", type: "uint8", defaultValue: 0 },
             {
