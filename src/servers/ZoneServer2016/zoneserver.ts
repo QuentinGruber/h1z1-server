@@ -195,7 +195,6 @@ import {
   RewardAddNonRewardItem,
   SendSelfToClient,
   SendZoneDetails,
-  SpectatorAllSpectators,
   SynchronizedTeleportPlayersReady,
   SynchronizedTeleportRelease,
   SynchronizedTeleportWaitingForPlayers,
