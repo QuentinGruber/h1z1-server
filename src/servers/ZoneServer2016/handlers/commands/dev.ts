@@ -1185,10 +1185,10 @@ const dev: any = {
   ) {
     switch (Number(args[1])) {
       case 1:
-        server.sendData(client, "Spectator.SetUnknownFlag1", {});
+        server.sendData(client, "Spectator.SetModerator", {});
         break;
       case 2:
-        server.sendData(client, "Spectator.SetUnknownFlag2", {});
+        server.sendData(client, "Spectator.SetOwner", {});
         break;
       default:
         server.sendChatText(client, "Unknown spectator flag");
