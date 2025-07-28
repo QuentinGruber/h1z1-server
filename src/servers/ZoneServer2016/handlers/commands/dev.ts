@@ -26,7 +26,8 @@ import {
   InGamePurchaseSpiceWebAuthUrlResponse,
   InGamePurchaseStoreBundles,
   InGamePurchaseWalletBalanceUpdate,
-  ItemsAddAccountItem
+  ItemsAddAccountItem,
+  Loot
 } from "types/zone2016packets";
 import { Npc } from "../../entities/npc";
 import { ZoneClient2016 as Client } from "../../classes/zoneclient";
@@ -47,9 +48,105 @@ import { scheduler } from "timers/promises";
 import { DB_COLLECTIONS } from "../../../../utils/enums";
 
 const abilities = require("../../../../../data/2016/dataSources/Abilities.json"),
-  vehicleAbilities = require("../../../../../data/2016/dataSources/VehicleAbilities.json");
+  vehicleAbilities = require("../../../../../data/2016/dataSources/VehicleAbilities.json"),
+  discovery = require("../../../../../data/2016/dataSources/ClientDiscoveries.json");
 
 const dev: any = {
+  discoveries: function (
+    server: ZoneServer2016,
+    client: Client,
+    args: Array<string>
+  ) {
+    server.sendData(client, "Recipe.Discoveries", discovery);
+  },
+  di: function (server: ZoneServer2016, client: Client, args: Array<string>) {
+    const item = client.character.getItemById(Number(args[1]));
+    if (item) {
+      server.sendData(client, "Recipe.ComponentUpdate", {
+        recipeId: 2,
+        itemCount: item.stackCount,
+        itemGuid: item.itemGuid
+      });
+    }
+  },
+  disc: function (server: ZoneServer2016, client: Client, args: Array<string>) {
+    server.sendData(client, "Recipe.Discoveries", {
+      recipes: [
+        {
+          unk: 2,
+          recipeId: 2,
+          nameId: 38,
+          iconId: 37,
+          unknownDword1: 0,
+          descriptionId: 605,
+          rewardItemCount: 1,
+          bundleCount: 0,
+          memberOnly: false,
+          filterId: 0,
+          components: [
+            {
+              itemDefinitionId: 25,
+              nameId: 47,
+              iconId: 32,
+              unknownDword2: 0,
+              descriptionId: 11001,
+              requiredAmount: 1,
+              unknownQword1: "0",
+              unknownDword3: -1,
+              itemDefinitionId2: 25
+            },
+            {
+              itemDefinitionId: 26,
+              nameId: 48,
+              iconId: 20,
+              unknownDword2: 0,
+              descriptionId: 1239,
+              requiredAmount: 1,
+              unknownQword1: "0",
+              unknownDword3: -1,
+              itemDefinitionId2: 26
+            }
+          ],
+          itemDefinitionId: 11
+        }
+      ],
+      unkArray1: [
+        {
+          unknownQword1: "25",
+          unkArray1: [
+            {
+              unknownDword1: 2,
+              unknownDword2: 2
+            }
+          ]
+        },
+        {
+          unknownQword1: "26",
+          unkArray1: [
+            {
+              unknownDword1: 2,
+              unknownDword2: 2
+            }
+          ]
+        },
+        {
+          unknownQword1: "1638426",
+          unkArray1: [
+            {
+              unknownDword1: 2,
+              unknownDword2: 2
+            }
+          ]
+        }
+      ],
+      unkArray2: [
+        {
+          unknownQword1: "1638426",
+          unknownDword1: 2
+        }
+      ]
+    });
+  },
   igp: function (server: ZoneServer2016, client: Client, args: Array<string>) {
     server.sendData(client, "InGamePurchase.ServerStatusResponse", {
       status: true
