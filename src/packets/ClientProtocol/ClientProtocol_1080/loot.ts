@@ -20,7 +20,7 @@ export const lootPackets: PacketStructures = [
     0x6a01,
     {
       fields: [
-        { name: "unknownQword1", type: "uint32", defaultValue: 0 },
+        { name: "unknownQword1", type: "uint64string", defaultValue: "" },
         { name: "unknownArray1", type: "array", fields: rewardBundleSchema }
       ]
     }

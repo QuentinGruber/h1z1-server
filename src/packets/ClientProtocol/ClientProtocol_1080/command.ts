@@ -162,7 +162,13 @@ export const commandPackets: PacketStructures = [
       ]
     }
   ],
-  ["Command.ShowRecipeWindow", 0x091b00, {}],
+  [
+    "Command.ShowRecipeWindow",
+    0x091b00,
+    {
+      fields: [{ name: "unknownDword1", type: "uint32", defaultValue: 0 }]
+    }
+  ],
   ["Command.ActivateProfileFailed", 0x091c00, {}],
   [
     "Command.PlayDialogEffect",
