@@ -3810,7 +3810,7 @@ export interface SpectatorTeleport {
   y?: number;
 }
 export interface SpectatorDeathList {
-  unknownArray1?: unknown[];
+  data?: unknown[];
 }
 export interface SpectatorSetModerator {
 }

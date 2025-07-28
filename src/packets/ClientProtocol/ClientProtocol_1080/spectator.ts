@@ -105,24 +105,28 @@ export const spectatorPackets: PacketStructures = [
     {
       fields: [
         {
-          name: "unknownArray1",
+          name: "data",
           type: "array",
           defaultValue: [],
           fields: [
-            { name: "unknownQword1", type: "uint64string", defaultValue: "" },
-            { name: "unknownString1", type: "string", defaultValue: "" },
-            { name: "unknownString2", type: "string", defaultValue: "" },
-            { name: "unknownQword2", type: "uint64string", defaultValue: "" },
-            { name: "unknownString3", type: "string", defaultValue: "" },
-            { name: "unknownString4", type: "string", defaultValue: "" },
-            { name: "unknownByte1", type: "uint16", defaultValue: 0 },
-            { name: "unknownWord1", type: "uint16", defaultValue: 0 },
-            { name: "unknownWord2", type: "uint16", defaultValue: 0 },
-            { name: "unknownWord3", type: "uint16", defaultValue: 0 },
-            { name: "unknownWord4", type: "uint16", defaultValue: 0 },
-            { name: "unknownWord5", type: "uint16", defaultValue: 0 },
-            { name: "unknownDword1", type: "uint32", defaultValue: 0 },
-            { name: "unknownDword2", type: "uint32", defaultValue: 0 }
+            { name: "characterId", type: "uint64string", defaultValue: "" },
+            { name: "playerName", type: "string", defaultValue: "" },
+            { name: "twitchName", type: "string", defaultValue: "" },
+            {
+              name: "otherCharacterId",
+              type: "uint64string",
+              defaultValue: ""
+            },
+            { name: "otherName", type: "string", defaultValue: "" },
+            { name: "otherTwitchName", type: "string", defaultValue: "" },
+            { name: "causeOfDeath", type: "uint8", defaultValue: 0 }, // 0 = weapon, 1 = vehicle, 2 = toxic gas, 3 = bombs, 4 = falling
+            { name: "playerX", type: "uint16", defaultValue: 0 },
+            { name: "playerY", type: "uint16", defaultValue: 0 },
+            { name: "playerZ", type: "uint16", defaultValue: 0 },
+            { name: "playersRemaining", type: "uint16", defaultValue: 0 },
+            { name: "teamsRemaining", type: "uint16", defaultValue: 0 },
+            { name: "vehicleOrWeaponId", type: "uint32", defaultValue: 0 },
+            { name: "kills", type: "uint32", defaultValue: 0 }
           ]
         }
       ]
