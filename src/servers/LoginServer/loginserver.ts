@@ -945,7 +945,7 @@ export class LoginServer extends EventEmitter {
         serverTicket: guid,
         encryptionKey: this._cryptoKey,
         guid: characterId,
-        sessionId: sessionId.toString(),
+        sessionId: `${sessionId}`,
         characterName: character?.characterName ?? "" // TODO: We should save characterNames to light too
       }
     };
@@ -981,8 +981,8 @@ export class LoginServer extends EventEmitter {
         serverTicket: client.authKey,
         encryptionKey: this._cryptoKey,
         guid: characterId,
-        sessionId: client.sessionId,
-        characterName: character.characterName
+        sessionId: `${client.sessionId}`,
+        characterName: character?.characterName ?? ""
       }
     };
   }
