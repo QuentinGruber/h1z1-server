@@ -829,7 +829,7 @@ export const profileSchema: PacketFields = [
   { name: "nameId", type: "uint32", defaultValue: 0 },
   { name: "descriptionId", type: "uint32", defaultValue: 0 },
   { name: "type", type: "uint8", defaultValue: 0 },
-  { name: "unknownDword1", type: "uint32", defaultValue: 0 },
+  { name: "iconId", type: "uint32", defaultValue: 0 },
   { name: "abilityBgImageSet", type: "uint32", defaultValue: 0 },
   { name: "badgeImageSet", type: "uint32", defaultValue: 0 },
   { name: "buttonImageSet", type: "uint32", defaultValue: 0 },

@@ -3138,7 +3138,7 @@ export interface ClientUpdateActivateProfile {
   nameId?: number;
   descriptionId?: number;
   type?: number;
-  unknownDword1?: number;
+  iconId?: number;
   abilityBgImageSet?: number;
   badgeImageSet?: number;
   buttonImageSet?: number;
