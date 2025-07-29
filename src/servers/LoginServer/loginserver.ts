@@ -946,7 +946,7 @@ export class LoginServer extends EventEmitter {
         encryptionKey: this._cryptoKey,
         guid: characterId,
         sessionId: `${sessionId}`,
-        characterName: character?.characterName ?? "" // TODO: We should save characterNames to light too
+        characterName: character?.payload.name ?? ""
       }
     };
   }
