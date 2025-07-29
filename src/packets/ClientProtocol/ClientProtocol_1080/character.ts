@@ -582,7 +582,7 @@ export const characterPackets: PacketStructures = [
     0x0f3f,
     {
       fields: [
-        { name: "guid1", type: "uint64string", defaultValue: "0" },
+        { name: "characterId", type: "uint64string", defaultValue: "0" },
         { name: "guid2", type: "uint64string", defaultValue: "0" },
         { name: "guid3", type: "uint64string", defaultValue: "0" },
         { name: "guid4", type: "uint64string", defaultValue: "0" },

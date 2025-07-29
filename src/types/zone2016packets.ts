@@ -1295,7 +1295,7 @@ export interface CharacterManagedObject {
   characterId?: string;
 }
 export interface CharacterCharacterStateDelta {
-  guid1?: string;
+  characterId?: string;
   guid2?: string;
   guid3?: string;
   guid4?: string;
@@ -2296,7 +2296,7 @@ export interface CollisionDamage {
   objectCharacterId?: string;
   unknownDword1?: number;
   damage?: number;
-  unknownDword2?: number;
+  causeOfDamage?: number;
   position?: Float32Array;
   unknownByte2?: number;
 }

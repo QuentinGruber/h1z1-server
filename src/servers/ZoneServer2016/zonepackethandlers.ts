@@ -253,7 +253,7 @@ export class ZonePacketHandlers {
       client,
       "Character.CharacterStateDelta",
       {
-        guid1: client.guid,
+        characterId: client.guid,
         guid2: "0x0000000000000000",
         guid3: "0x0000000040000000",
         guid4: "0x0000000000000000",
@@ -602,6 +602,14 @@ export class ZonePacketHandlers {
     client: Client,
     packet: ReceivedPacket<CollisionDamage>
   ) {
+    const DamageTypes = [
+      "WeaponDamage",
+      "VehicleCollision",
+      "ToxicGas",
+      "ExplosiveDamage",
+      "FallDamage"
+    ];
+    const cause = packet.data.causeOfDamage ?? 0;
     if (packet.data.objectCharacterId != client.character.characterId) {
       const objVehicle = server._vehicles[packet.data.objectCharacterId || ""];
       if (objVehicle && objVehicle.engineOn) {
@@ -649,7 +657,7 @@ export class ZonePacketHandlers {
         // only apply collision dmg if falling
         if (characterId === objectCharacterId) {
           client.character.damage(server, {
-            entity: "Server.CollisionDamage",
+            entity: `Server.${DamageTypes[cause]}}`,
             damage: damage
           });
         }
@@ -657,7 +665,7 @@ export class ZonePacketHandlers {
       }
 
       client.character.damage(server, {
-        entity: "Server.CollisionDamage",
+        entity: `Server.${DamageTypes[cause]}}`,
         damage: damage
       });
     } else if (vehicle) {
