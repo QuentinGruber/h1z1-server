@@ -924,7 +924,8 @@ export class LoginServer extends EventEmitter {
     serverId: number,
     serverAddress: string,
     characterId: string,
-    guid: string
+    guid: string,
+    sessionId: number
   ): Promise<CharacterLoginReply> {
     const character = await this._db
       .collection(DB_COLLECTIONS.CHARACTERS_LIGHT)
@@ -935,15 +936,17 @@ export class LoginServer extends EventEmitter {
       );
     }
     return {
-      unknownQword1: "0x0",
-      unknownDword1: 0,
+      characterId: characterId,
+      serverId: serverId,
       unknownDword2: 0,
       status: character ? 1 : 0,
       applicationData: {
         serverAddress: serverAddress,
         serverTicket: guid,
         encryptionKey: this._cryptoKey,
-        guid: characterId
+        guid: characterId,
+        sessionId: sessionId.toString(),
+        characterName: character?.characterName ?? "" // TODO: We should save characterNames to light too
       }
     };
   }
@@ -969,8 +972,8 @@ export class LoginServer extends EventEmitter {
       }
     }
     return {
-      unknownQword1: "0x0",
-      unknownDword1: 0,
+      characterId: characterId,
+      serverId: 1,
       unknownDword2: 0,
       status: 1,
       applicationData: {
@@ -978,10 +981,8 @@ export class LoginServer extends EventEmitter {
         serverTicket: client.authKey,
         encryptionKey: this._cryptoKey,
         guid: characterId,
-        unknownQword2: "0x0",
-        stationName: "",
-        characterName: character.characterName,
-        unknownString: ""
+        sessionId: client.sessionId,
+        characterName: character.characterName
       }
     };
   }
@@ -1185,7 +1186,8 @@ export class LoginServer extends EventEmitter {
       serverId,
       serverAddress,
       characterId,
-      UserSession.guid
+      UserSession.guid,
+      client.sessionId
     );
     const rejectionFlags = await this.getClientRejectionFlags(serverId, client);
 
