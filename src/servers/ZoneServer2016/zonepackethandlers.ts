@@ -657,7 +657,7 @@ export class ZonePacketHandlers {
         // only apply collision dmg if falling
         if (characterId === objectCharacterId) {
           client.character.damage(server, {
-            entity: `Server.${DamageTypes[cause]}}`,
+            entity: `Server.${DamageTypes[cause]}`,
             damage: damage
           });
         }
@@ -665,7 +665,7 @@ export class ZonePacketHandlers {
       }
 
       client.character.damage(server, {
-        entity: `Server.${DamageTypes[cause]}}`,
+        entity: `Server.${DamageTypes[cause]}`,
         damage: damage
       });
     } else if (vehicle) {
