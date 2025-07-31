@@ -1,6 +1,7 @@
 server:
   welcomeMessage: "Welcome to H1emu! :D"
   adminMessage: "You are an Admin!"
+  gameMode: "SURVIVAL"
   proximityItemsDistance: 2
   interactionDistance: 3
   charactersRenderDistance: 350

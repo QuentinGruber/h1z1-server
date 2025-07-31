@@ -83,8 +83,8 @@ export interface CharacterLoginRequest {
 };
 }
 export interface CharacterLoginReply {
-  unknownQword1: string;
-  unknownDword1: number;
+  characterId: string;
+  serverId: number;
   unknownDword2: number;
   status: number;
   applicationData :{
@@ -93,9 +93,9 @@ export interface CharacterLoginReply {
   encryptionKey: unknown;
   encryptionType?: number;
   guid: string;
-  unknownQword1?: string;
-  unknownString1?: string;
-  unknownString2?: string;
+  sessionId?: string;
+  stationName?: string;
+  characterName?: string;
   unknownString3?: string;
   serverFeatureBit?: string;
 };

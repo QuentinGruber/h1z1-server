@@ -24,7 +24,7 @@ export class AirdropManager {
       path: DeliveryProgressData[];
       dropPoint: Float32Array;
       callerPos: Float32Array;
-      tickAtPlayer: number;
+      tickAtPos: number;
       calledTick: number;
       crateSpawnTick: number;
       removeTick: number;
@@ -38,7 +38,7 @@ export class AirdropManager {
 
   generateDeliveryPath(position: Float32Array): {
     path: DeliveryProgressData[];
-    tickAtPlayer: number;
+    tickAtPos: number;
     dropPoint: Float32Array;
   } {
     const mapBound = 4096;
@@ -75,7 +75,7 @@ export class AirdropManager {
     const totalDist = Math.hypot(endX - startX, endZ - startZ);
     const distToPlayer = Math.hypot(playerX - startX, playerZ - startZ);
 
-    const tickAtPlayer = Math.floor(
+    const tickAtPos = Math.floor(
       Math.floor((distToPlayer / totalDist) * this.planeMovementSpeed)
     );
 
@@ -134,19 +134,19 @@ export class AirdropManager {
       }
     }
 
-    return { path, tickAtPlayer, dropPoint };
+    return { path, tickAtPos, dropPoint };
   }
 
   spawnAirdrop(
     position: Float32Array,
     forcedAirdropType: string,
-    forceSpawn: boolean = false
+    forceSpawn: boolean = false,
+    caller: string = ""
   ): boolean {
     if (!forceSpawn && !this.allowedAirdropSpawn()) {
       return false;
     }
-    const { path, tickAtPlayer, dropPoint } =
-      this.generateDeliveryPath(position);
+    const { path, tickAtPos, dropPoint } = this.generateDeliveryPath(position);
 
     const currentTick = getCurrentServerTimeWrapper().getTruncatedU32();
     const airdropId = this.nextAirdropId++;
@@ -155,12 +155,22 @@ export class AirdropManager {
       callerPos: new Float32Array([position[0], position[1], position[2], 0]),
       calledTick: currentTick,
       dropPoint: dropPoint,
-      tickAtPlayer: new TimeWrapper(tickAtPlayer).getTruncatedU32(),
+      tickAtPos: new TimeWrapper(tickAtPos).getTruncatedU32(),
       crateSpawnTick: new TimeWrapper(
-        tickAtPlayer + this.crateDropSpeed
+        tickAtPos + this.crateDropSpeed
       ).getTruncatedU32(),
       removeTick: this.planeMovementSpeed
     });
+
+    setTimeout(() => {
+      const client = this.server.getClientByCharId(caller);
+      if (client) {
+        this.server.sendAlert(
+          client,
+          "Air drop released. The package is delivered."
+        );
+      }
+    }, Math.floor(tickAtPos));
 
     setTimeout(
       () => {
@@ -176,7 +186,7 @@ export class AirdropManager {
           Effects.PFX_Impact_Explosion_AirdropBomb_Default_10m
         );
       },
-      Math.floor(tickAtPlayer + this.crateDropSpeed)
+      Math.floor(tickAtPos + this.crateDropSpeed)
     );
 
     setTimeout(() => {
@@ -190,21 +200,15 @@ export class AirdropManager {
 
   broadcastDeliveryInfo(client: ZoneClient2016 | undefined = undefined) {
     for (const [airdropId, airdrop] of this.activeAirdrops.entries()) {
-      const {
-        path,
-        dropPoint,
-        callerPos,
-        calledTick,
-        tickAtPlayer,
-        removeTick
-      } = airdrop;
+      const { path, dropPoint, callerPos, calledTick, tickAtPos, removeTick } =
+        airdrop;
       const deliveryData: CommandDeliveryDisplayInfo = {
         startIndex: airdropId,
         segments: [
           {
             actorModelId: ModelIds.AIRDROP_PLANE,
             activationTime: new TimeWrapper(calledTick).getTruncatedU32(),
-            ticksForStage: removeTick / 1000,
+            totalTicks: removeTick / 1000,
             rotation: 0.5,
             effectId: 0,
             endPosition: new Float32Array([0, 0, 0, 0]),
@@ -218,9 +222,9 @@ export class AirdropManager {
           ].map((modelId) => ({
             actorModelId: modelId,
             activationTime: new TimeWrapper(
-              calledTick + tickAtPlayer
+              calledTick + tickAtPos
             ).getTruncatedU32(),
-            ticksForStage: this.crateDropSpeed / 1000,
+            totalTicks: this.crateDropSpeed / 1000,
             rotation: 0,
             effectId: 0,
             endPosition: callerPos,

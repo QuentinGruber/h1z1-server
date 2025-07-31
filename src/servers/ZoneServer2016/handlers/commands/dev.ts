@@ -26,7 +26,8 @@ import {
   InGamePurchaseSpiceWebAuthUrlResponse,
   InGamePurchaseStoreBundles,
   InGamePurchaseWalletBalanceUpdate,
-  ItemsAddAccountItem
+  ItemsAddAccountItem,
+  Loot
 } from "types/zone2016packets";
 import { Npc } from "../../entities/npc";
 import { ZoneClient2016 as Client } from "../../classes/zoneclient";
@@ -47,10 +48,109 @@ import { scheduler } from "timers/promises";
 import { DB_COLLECTIONS } from "../../../../utils/enums";
 
 const abilities = require("../../../../../data/2016/dataSources/Abilities.json"),
-  vehicleAbilities = require("../../../../../data/2016/dataSources/VehicleAbilities.json");
+  vehicleAbilities = require("../../../../../data/2016/dataSources/VehicleAbilities.json"),
+  discovery = require("../../../../../data/2016/dataSources/ClientDiscoveries.json");
 
 const dev: any = {
+  discoveries: function (
+    server: ZoneServer2016,
+    client: Client,
+    args: Array<string>
+  ) {
+    server.sendData(client, "Recipe.Discoveries", discovery);
+  },
+  di: function (server: ZoneServer2016, client: Client, args: Array<string>) {
+    const item = client.character.getItemById(Number(args[1]));
+    if (item) {
+      server.sendData(client, "Recipe.ComponentUpdate", {
+        recipeId: 2,
+        itemCount: item.stackCount,
+        itemGuid: item.itemGuid
+      });
+    }
+  },
+  disc: function (server: ZoneServer2016, client: Client, args: Array<string>) {
+    server.sendData(client, "Recipe.Discoveries", {
+      recipes: [
+        {
+          unk: 2,
+          recipeId: 2,
+          nameId: 38,
+          iconId: 37,
+          unknownDword1: 0,
+          descriptionId: 605,
+          rewardItemCount: 1,
+          bundleCount: 0,
+          memberOnly: false,
+          filterId: 0,
+          components: [
+            {
+              itemDefinitionId: 25,
+              nameId: 47,
+              iconId: 32,
+              unknownDword2: 0,
+              descriptionId: 11001,
+              requiredAmount: 1,
+              unknownQword1: "0",
+              unknownDword3: -1,
+              itemDefinitionId2: 25
+            },
+            {
+              itemDefinitionId: 26,
+              nameId: 48,
+              iconId: 20,
+              unknownDword2: 0,
+              descriptionId: 1239,
+              requiredAmount: 1,
+              unknownQword1: "0",
+              unknownDword3: -1,
+              itemDefinitionId2: 26
+            }
+          ],
+          itemDefinitionId: 11
+        }
+      ],
+      unkArray1: [
+        {
+          unknownQword1: "25",
+          unkArray1: [
+            {
+              unknownDword1: 2,
+              unknownDword2: 2
+            }
+          ]
+        },
+        {
+          unknownQword1: "26",
+          unkArray1: [
+            {
+              unknownDword1: 2,
+              unknownDword2: 2
+            }
+          ]
+        },
+        {
+          unknownQword1: "1638426",
+          unkArray1: [
+            {
+              unknownDword1: 2,
+              unknownDword2: 2
+            }
+          ]
+        }
+      ],
+      unkArray2: [
+        {
+          unknownQword1: "1638426",
+          unknownDword1: 2
+        }
+      ]
+    });
+  },
   igp: function (server: ZoneServer2016, client: Client, args: Array<string>) {
+    server.sendData(client, "InGamePurchase.ServerStatusResponse", {
+      status: true
+    });
     server.sendData(client, "InGamePurchase.EnableMarketplace", {
       unknownBoolean1: true,
       unknownBoolean2: true
@@ -103,7 +203,7 @@ const dev: any = {
       ]
     });
 
-    server.sendData(client, "InGamePurchase.AcccountInfoResponse", {
+    server.sendData(client, "InGamePurchase.AccountInfoResponse", {
       unknownDword1: 1,
       locale: "BE",
       currency: "EUR",
@@ -197,10 +297,10 @@ const dev: any = {
       ]
     });
 
-    const categories = require("../../data/2016/marketplaceData/categories.json");
+    const categories = require("../../../../../data/2016/marketplaceData/categories.json");
     server.sendData(client, "InGamePurchase.StoreBundleCategories", categories);
 
-    const bundles = require("../../data/2016/marketplaceData/bundles.json");
+    const bundles = require("../../../../../data/2016/marketplaceData/bundles.json");
     server.sendData(client, "InGamePurchase.StoreBundles", bundles);
 
     server.sendData(client, "InGamePurchase.SubscriptionProductsResponse", {
@@ -733,11 +833,11 @@ const dev: any = {
     );
   },
   r: function (server: ZoneServer2016, client: Client, args: Array<string>) {
-    // quick respawn
-    server.respawnPlayer(
-      client,
+    const position = server.calculatePosFromSpawnCell(
       server._spawnGrid[randomIntFromInterval(0, 99)]
     );
+    // quick respawn
+    server.respawnPlayer(client, position);
   },
   testpacket: function (
     server: ZoneServer2016,
@@ -1182,10 +1282,10 @@ const dev: any = {
   ) {
     switch (Number(args[1])) {
       case 1:
-        server.sendData(client, "Spectator.SetUnknownFlag1", {});
+        server.sendData(client, "Spectator.SetModerator", {});
         break;
       case 2:
-        server.sendData(client, "Spectator.SetUnknownFlag2", {});
+        server.sendData(client, "Spectator.SetOwner", {});
         break;
       default:
         server.sendChatText(client, "Unknown spectator flag");

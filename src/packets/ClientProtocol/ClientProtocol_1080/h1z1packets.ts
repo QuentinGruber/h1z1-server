@@ -60,6 +60,7 @@ import { referenceDataPackets } from "./referenceData";
 import { rewardBuffsPackets } from "./rewardBuffs";
 import { skillPackets } from "./skill";
 import { staticFacilityInfoPackets } from "./staticFacilityInfo";
+import { statsPackets } from "./stats";
 import { targetPackets } from "./target";
 import { uiPackets } from "./ui";
 import { vehiclePackets } from "./vehicle";
@@ -125,6 +126,7 @@ const packets: PacketStructures = [
   ...rewardBuffsPackets,
   ...skillPackets,
   ...staticFacilityInfoPackets,
+  ...statsPackets,
   ...targetPackets,
   ...uiPackets,
   ...vehiclePackets,

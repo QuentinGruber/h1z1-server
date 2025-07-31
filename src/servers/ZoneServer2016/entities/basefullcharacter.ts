@@ -1285,6 +1285,8 @@ export abstract class BaseFullCharacter extends BaseLightweightCharacter {
         return ResourceTypes.FUEL;
       case ResourceIds.CONDITION:
         return ResourceTypes.CONDITION;
+      case ResourceIds.TOXICITY:
+        return ResourceTypes.TOXICITY;
       default:
         return 0;
     }

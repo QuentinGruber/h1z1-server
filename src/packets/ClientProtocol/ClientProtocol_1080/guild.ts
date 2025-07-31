@@ -14,10 +14,52 @@
 import { PacketStructures } from "types/packetStructure";
 
 export const guildPackets: PacketStructures = [
-  ["Guild.Disband", 0x5902, {}],
-  ["Guild.Rename", 0x5903, {}],
-  ["Guild.ChangeMemberRank", 0x590a, {}],
-  ["Guild.MotdUpdate", 0x590b, {}],
+  [
+    "Guild.Disband",
+    0x5902,
+    {
+      fields: [
+        { name: "unknownQword1", type: "uint64string", defaultValue: "" }
+      ]
+    }
+  ],
+  [
+    "Guild.Rename",
+    0x5903,
+    {
+      fields: [
+        { name: "unknownQword1", type: "uint64string", defaultValue: "" },
+        { name: "unknownString1", type: "string", defaultValue: "" },
+        { name: "unknownString2", type: "string", defaultValue: "" }
+      ]
+    }
+  ],
+  [
+    "Guild.ChangeMemberRank",
+    0x590a,
+    {
+      fields: [
+        { name: "unknownQword1", type: "uint64string", defaultValue: "" },
+        { name: "unknownQword2", type: "uint64string", defaultValue: "" },
+        { name: "unknownString1", type: "string", defaultValue: "" },
+        { name: "unknownString2", type: "string", defaultValue: "" },
+        { name: "unknownDword1", type: "uint32", defaultValue: 0 },
+        { name: "unknownString3", type: "string", defaultValue: "" }
+      ]
+    }
+  ],
+  [
+    "Guild.MotdUpdate",
+    0x590b,
+    {
+      fields: [
+        { name: "unknownQword1", type: "uint64string", defaultValue: "" },
+        { name: "unknownString1", type: "string", defaultValue: "" },
+        { name: "unknownString2", type: "string", defaultValue: "" },
+        { name: "unknownQword2", type: "uint64string", defaultValue: "" }
+      ]
+    }
+  ],
   ["Guild.UpdateRank", 0x590e, {}],
   ["Guild.DataFull", 0x590f, {}],
   ["Guild.Data", 0x5910, {}],

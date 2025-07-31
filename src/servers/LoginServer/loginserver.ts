@@ -212,7 +212,7 @@ export class LoginServer extends EventEmitter {
             if (connectionEstablished || packet.name === "SessionRequest") {
               switch (packet.name) {
                 case "SessionRequest": {
-                  const { serverId, h1emuVersion, serverRuleSets } =
+                  const { serverId, h1emuVersion, serverRuleSets, gameMode } =
                     packet.data;
                   debug(
                     `Received session request from ${client.address}:${client.port}`
@@ -241,7 +241,8 @@ export class LoginServer extends EventEmitter {
                     await this.updateZoneServerVersion(serverId, h1emuVersion);
                     await this.updateZoneServerRuleSets(
                       serverId,
-                      serverRuleSets
+                      serverRuleSets,
+                      gameMode
                     );
                     await this.updateServerStatus(serverId, true);
                   } else {
@@ -755,20 +756,24 @@ export class LoginServer extends EventEmitter {
     );
   }
 
-  async updateZoneServerRuleSets(serverId: number, ruleSet: string) {
+  async updateZoneServerRuleSets(
+    serverId: number,
+    ruleSet: string,
+    gameMode: number
+  ) {
     const serverData = await this._db
       .collection(DB_COLLECTIONS.SERVERS)
       .findOne({ serverId: serverId });
     if (serverData) {
       const currentValue = serverData["populationData"];
+      const updatedValue = currentValue
+        .replace(/(Rulesets=")([^"]*)(")/, `$1${ruleSet}$3`)
+        .replace(/(Mode=")([^"]*)(")/, `$1${gameMode}$3`);
       await this._db.collection(DB_COLLECTIONS.SERVERS).updateOne(
         { serverId: serverId },
         {
           $set: {
-            populationData: currentValue.replace(
-              /(Rulesets=")([^"]*)(")/,
-              `$1${ruleSet}$3`
-            )
+            populationData: updatedValue
           }
         }
       );
@@ -919,7 +924,8 @@ export class LoginServer extends EventEmitter {
     serverId: number,
     serverAddress: string,
     characterId: string,
-    guid: string
+    guid: string,
+    sessionId: number
   ): Promise<CharacterLoginReply> {
     const character = await this._db
       .collection(DB_COLLECTIONS.CHARACTERS_LIGHT)
@@ -930,15 +936,17 @@ export class LoginServer extends EventEmitter {
       );
     }
     return {
-      unknownQword1: "0x0",
-      unknownDword1: 0,
+      characterId: characterId,
+      serverId: serverId,
       unknownDword2: 0,
       status: character ? 1 : 0,
       applicationData: {
         serverAddress: serverAddress,
         serverTicket: guid,
         encryptionKey: this._cryptoKey,
-        guid: characterId
+        guid: characterId,
+        sessionId: `${sessionId}`,
+        characterName: character?.payload.name ?? ""
       }
     };
   }
@@ -964,8 +972,8 @@ export class LoginServer extends EventEmitter {
       }
     }
     return {
-      unknownQword1: "0x0",
-      unknownDword1: 0,
+      characterId: characterId,
+      serverId: 1,
       unknownDword2: 0,
       status: 1,
       applicationData: {
@@ -973,10 +981,8 @@ export class LoginServer extends EventEmitter {
         serverTicket: client.authKey,
         encryptionKey: this._cryptoKey,
         guid: characterId,
-        unknownQword2: "0x0",
-        stationName: "",
-        characterName: character.characterName,
-        unknownString: ""
+        sessionId: `${client.sessionId}`,
+        characterName: character?.characterName ?? ""
       }
     };
   }
@@ -1180,7 +1186,8 @@ export class LoginServer extends EventEmitter {
       serverId,
       serverAddress,
       characterId,
-      UserSession.guid
+      UserSession.guid,
+      client.sessionId
     );
     const rejectionFlags = await this.getClientRejectionFlags(serverId, client);
 

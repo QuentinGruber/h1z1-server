@@ -1629,3 +1629,21 @@ export function getCellName(index: number, numCols: number): string {
 
   return columnLetter + rowNumber; // Example: "A1", "B3", "J10"
 }
+
+export function quat2heading(quaternion: Float32Array): number {
+  const x = quaternion[0];
+  const y = quaternion[1];
+  const z = quaternion[2];
+  const w = quaternion[3];
+
+  const siny_cosp = 2 * (w * y + x * z);
+  const cosy_cosp = 1 - 2 * (y * y + x * x);
+  const yaw = Math.atan2(siny_cosp, cosy_cosp);
+
+  let degrees = (yaw * 180) / Math.PI;
+  degrees = ((degrees % 360) + 360) % 360;
+
+  const uint8Value = Math.round((degrees / 360) * 255);
+
+  return Math.max(0, Math.min(255, uint8Value));
+}
