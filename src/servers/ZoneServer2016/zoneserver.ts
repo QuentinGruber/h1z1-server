@@ -4724,6 +4724,9 @@ export class ZoneServer2016 extends EventEmitter {
   }
 
   kickPlayer(client: Client) {
+    if (client.vehicle) {
+      this.dismountVehicle(client);
+    }
     if (!client || client.isAdmin) return;
     this.sendData<CharacterSelectSessionResponse>(
       client,
