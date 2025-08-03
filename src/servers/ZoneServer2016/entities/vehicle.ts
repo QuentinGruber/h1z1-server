@@ -468,6 +468,7 @@ export class Vehicle2016 extends BaseLootableEntity {
       npcData: {
         ...this.pGetFull(server)
       },
+      engineState: this.engineOn ? 6 : 0,
       unknownArray1: [],
       unknownArray2: [],
       passengers: this.pGetPassengers(server),
@@ -1278,13 +1279,6 @@ export class Vehicle2016 extends BaseLootableEntity {
       server.sendData(client, "Command.PlayDialogEffect", {
         characterId: this.characterId,
         effectId: this.currentDamageEffect
-      });
-    }
-    // has to be sent or vehicle will lose sound after fullVehicle packet
-    if (this.engineOn) {
-      server.sendData(client, "Vehicle.Engine", {
-        vehicleCharacterId: this.characterId,
-        engineOn: true
       });
     }
 

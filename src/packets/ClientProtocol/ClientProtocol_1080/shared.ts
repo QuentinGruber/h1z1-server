@@ -2051,7 +2051,7 @@ export const fullNpcSchema: PacketFields = [
   { name: "unknownDword14", type: "uint32", defaultValue: 0 },
   { name: "unknownDword15", type: "uint32", defaultValue: 0 },
   { name: "unknownDword16", type: "uint32", defaultValue: 0 },
-  { name: "unknownDword17", type: "uint32", defaultValue: 0 },
+  { name: "nameId", type: "uint32", defaultValue: 0 },
   { name: "unknownByte1", type: "uint8", defaultValue: 0 },
   { name: "unknownByte2", type: "uint8", defaultValue: 0 },
   { name: "unknownDword18", type: "uint32", defaultValue: 0 },

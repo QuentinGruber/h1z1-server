@@ -869,7 +869,7 @@ export interface LightweightToFullNpc {
   unknownDword14?: number;
   unknownDword15?: number;
   unknownDword16?: number;
-  unknownDword17?: number;
+  nameId?: number;
   unknownByte1?: number;
   unknownByte2?: number;
   unknownDword18?: number;
@@ -932,7 +932,7 @@ export interface LightweightToFullVehicle {
   unknownDword14?: number;
   unknownDword15?: number;
   unknownDword16?: number;
-  unknownDword17?: number;
+  nameId?: number;
   unknownByte1?: number;
   unknownByte2?: number;
   unknownDword18?: number;
@@ -958,7 +958,7 @@ export interface LightweightToFullVehicle {
 };
   unknownDword21?: number;
 };
-  unknownByte1?: number;
+  engineState?: number;
   unknownDword1?: number;
   unknownArray1?: unknown[];
   unknownArray2?: unknown[];

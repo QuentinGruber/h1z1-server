@@ -3141,7 +3141,7 @@ export const basePackets: PacketStructures = [
     {
       fields: [
         { name: "npcData", type: "schema", fields: fullNpcSchema },
-        { name: "unknownByte1", type: "uint8", defaultValue: 0 },
+        { name: "engineState", type: "uint8", defaultValue: 0 },
         { name: "unknownDword1", type: "uint32", defaultValue: 0 },
         {
           name: "unknownArray1",
