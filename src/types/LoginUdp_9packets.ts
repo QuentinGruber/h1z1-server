@@ -8,12 +8,13 @@ export interface LoginRequest {
   ThirdPartyId?: number;
 }
 export interface LoginReply {
-  loggedIn: boolean;
-  status: number;
-  isMember: boolean;
-  isInternal: boolean;
-  namespace: string;
-  applicationPayload: unknown;
+  loggedIn?: boolean;
+  status?: number;
+  isMember?: boolean;
+  isInternal?: boolean;
+  namespace?: string;
+  applicationPayload :{
+};
 }
 export interface Logout {
 }
@@ -46,8 +47,8 @@ export interface CharacterLoginRequest {
 };
 }
 export interface CharacterLoginReply {
-  unknownQword1: string;
-  unknownDword1: number;
+  characterId: string;
+  serverId: number;
   unknownDword2: number;
   status: number;
   applicationData :{
@@ -55,7 +56,7 @@ export interface CharacterLoginReply {
   serverTicket: string;
   encryptionKey: unknown;
   guid: string;
-  unknownQword2?: string;
+  sessionId?: string;
   stationName?: string;
   characterName?: string;
   unknownString?: string;
