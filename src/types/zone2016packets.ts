@@ -2635,9 +2635,17 @@ export interface MapRegionRequestContinentData {
   zoneId?: number;
 }
 export interface ItemsSetItemTimerManager {
+  unknownDword1?: number;
+  unknownDword2?: number;
+  unknownQword1?: string;
+  unknownQword2?: string;
   unknownArray1?: unknown[];
+  unknownDword1_?: number;
+  unknownDword2_?: number;
+  unknownQword1_?: string;
   unknownArray2?: unknown[];
   unknownArray3?: unknown[];
+  unknownByte1_?: number;
 }
 export interface ItemsSetItemTrialLockTimer {
   unknownDword1?: number;

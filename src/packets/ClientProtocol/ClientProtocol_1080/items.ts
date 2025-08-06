@@ -111,48 +111,144 @@ export const itemsPackets: PacketStructures = [
     0xad02,
     {
       fields: [
+        // sub_140373A20
+        { name: "unknownDword1", type: "uint32", defaultValue: 0 },
+        { name: "unknownDword2", type: "uint32", defaultValue: 0 },
+        { name: "unknownQword1", type: "uint64string", defaultValue: "0" },
+        { name: "unknownQword2", type: "uint64string", defaultValue: "0" },
+        // end sub_140373A20
         {
+          // sub_14037CF80
           name: "unknownArray1",
           type: "array",
           defaultValue: [],
           fields: [
+            { name: "unknownDword1_", type: "uint32", defaultValue: "0" },
+            // sub_140373A20
+            { name: "unknownDword1", type: "uint32", defaultValue: 0 },
+            { name: "unknownDword2", type: "uint32", defaultValue: 0 },
             { name: "unknownQword1", type: "uint64string", defaultValue: "0" },
+            { name: "unknownQword2", type: "uint64string", defaultValue: "0" },
+            // end sub_140373A20
+            { name: "unknownDword2_", type: "uint32", defaultValue: "0" }
+          ]
+        },
+        { name: "unknownDword1_", type: "uint32", defaultValue: 0 },
+        { name: "unknownDword2_", type: "uint32", defaultValue: 0 },
+        { name: "unknownQword1_", type: "uint64string", defaultValue: "0" },
+        {
+          // sub_14037D0F0
+          name: "unknownArray2",
+          type: "array",
+          defaultValue: [],
+          fields: [
+            { name: "unknownDword1_", type: "uint32", defaultValue: "0" },
             {
-              name: "unknownArray1",
-              type: "array",
-              defaultValue: [],
+              // sub_1403702F0
+              name: "unknownData1",
+              type: "schema",
+              defaultValue: {},
               fields: [
                 {
-                  name: "unknownQword1",
-                  type: "uint64string",
-                  defaultValue: "0"
+                  // sub_140373AD0
+                  name: "unknownData1",
+                  type: "schema",
+                  defaultValue: {},
+                  fields: [
+                    {
+                      name: "unknownDword1",
+                      type: "uint32",
+                      defaultValue: 0
+                    },
+                    {
+                      name: "unknownDword2",
+                      type: "uint32",
+                      defaultValue: 0
+                    },
+                    {
+                      name: "unknownQword1",
+                      type: "uint64string",
+                      defaultValue: ""
+                    }
+                  ]
                 },
-                { name: "unknownDword1", type: "uint32", defaultValue: 0 },
-                { name: "unknownDword2", type: "uint32", defaultValue: 0 },
-                { name: "unknownDword3", type: "uint32", defaultValue: 0 }
+                {
+                  name: "unknownDword1",
+                  type: "uint32",
+                  defaultValue: 0
+                },
+                {
+                  name: "unknownDword2",
+                  type: "uint32",
+                  defaultValue: 0
+                },
+                {
+                  name: "unknownByte1",
+                  type: "uint8",
+                  defaultValue: 0
+                }
               ]
             }
           ]
         },
         {
-          name: "unknownArray2",
-          type: "array",
-          defaultValue: [],
-          fields: [
-            { name: "unknownQword1", type: "uint64string", defaultValue: "0" },
-            { name: "unknownDword1", type: "uint32", defaultValue: 0 },
-            { name: "unknownDword2", type: "uint32", defaultValue: 0 }
-          ]
-        },
-        {
+          // sub_14037CE40
           name: "unknownArray3",
           type: "array",
           defaultValue: [],
           fields: [
-            { name: "unknownQword1", type: "uint64string", defaultValue: "0" },
-            { name: "unknownQword2", type: "uint64string", defaultValue: "0" },
-            { name: "unknownDword1", type: "uint32", defaultValue: 0 }
+            { name: "unknownDword1", type: "uint32", defaultValue: 0 },
+            {
+              // sub_1403701A0
+              name: "unknownData1",
+              type: "schema",
+              defaultValue: {},
+              fields: [
+                {
+                  name: "unknownData1",
+                  type: "schema",
+                  defaultValue: {},
+                  fields: [
+                    {
+                      name: "unknownDword1",
+                      type: "uint32",
+                      defaultValue: 0
+                    },
+                    {
+                      name: "unknownDword2",
+                      type: "uint32",
+                      defaultValue: 0
+                    },
+                    {
+                      name: "unknownQword1",
+                      type: "uint64string",
+                      defaultValue: ""
+                    }
+                  ]
+                },
+                {
+                  name: "unknownDword1",
+                  type: "uint32",
+                  defaultValue: 0
+                },
+                {
+                  name: "unknownDword2",
+                  type: "uint32",
+                  defaultValue: 0
+                },
+                {
+                  name: "unknownByte1",
+                  type: "uint8",
+                  defaultValue: 0
+                }
+              ]
+            }
           ]
+        },
+        {
+          name: "unknownByte1_",
+          type: "uint8",
+          defaultValue: 0
         }
       ]
     }
@@ -298,7 +394,7 @@ export const itemsPackets: PacketStructures = [
           defaultValue: [],
           fields: [
             { name: "itemDefinitionId", type: "uint32", defaultValue: 0 },
-            { name: "unknownDword2", type: "uint32", defaultValue: 0 }
+            { name: "itemCount", type: "uint32", defaultValue: 1 }
           ]
         },
         {
@@ -307,7 +403,7 @@ export const itemsPackets: PacketStructures = [
           defaultValue: [],
           fields: [
             { name: "itemDefinitionId", type: "uint32", defaultValue: 0 },
-            { name: "unknownDword2", type: "uint32", defaultValue: 0 }
+            { name: "itemCount", type: "uint32", defaultValue: 1 }
           ]
         }
       ]
