@@ -303,23 +303,12 @@ export class ZonePacketHandlers {
       {}
     ); // Required for WaitForWorldReady
 
-    server.accountInventoriesManager
-      .getAccountItems(client.loginSessionId)
-      .then((accountItems) => {
-        server.sendData(client, "Items.SetEscrowAccountItemManager", {
-          accountItems: accountItems.map((item: BaseItem) => {
-            return {
-              itemId: item.itemGuid,
-              itemData: {
-                itemId: item.itemGuid,
-                itemGuid: item.itemGuid,
-                itemDefinitionId: item.itemDefinitionId,
-                itemCount: item.stackCount
-              }
-            };
-          })
-        });
-      });
+    server.sendData(client, "Items.AccountItemManagerStateChanged", {
+      escrowEnabled: 0,
+      escrowServerConnected: 1,
+      escrowAccountLoadSucceeded: 1,
+      escrowAccountAllowTrading: 0
+    });
 
     server.airdropManager.broadcastDeliveryInfo(client);
     server.airdropManager.sendDeliveryStatus(client);
@@ -3669,7 +3658,7 @@ export class ZonePacketHandlers {
           remainingCount -= removeCount;
 
           removedItems.push({ inventoryItem, count: removeCount });
-          server.removeAccountItem(
+          await server.removeAccountItem(
             client.character,
             inventoryItem,
             removeCount

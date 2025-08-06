@@ -30,6 +30,7 @@ import { ZoneClient2016 } from "../classes/zoneclient";
 import { ZoneServer2016 } from "../zoneserver";
 import { BaseFullCharacter } from "./basefullcharacter";
 import {
+  AccountItem,
   CharacterEffect,
   characterIndicatorData,
   DamageInfo,
@@ -1043,7 +1044,8 @@ export class Character2016 extends BaseFullCharacter {
 
   pGetSendSelf(
     server: ZoneServer2016,
-    client: ZoneClient2016
+    client: ZoneClient2016,
+    accountItems: AccountItem[]
   ): SendSelfToClient {
     return {
       data: {
@@ -1075,7 +1077,46 @@ export class Character2016 extends BaseFullCharacter {
         //unknownDword40: 1
         isAdmin: client.isAdmin,
         firstPersonOnly: server.isFirstPersonOnly,
-        shaderGroupId: this.getShaderGroup()
+        shaderGroupId: this.getShaderGroup(),
+        accountItems: {
+          items: accountItems.map((item: BaseItem) => {
+            return {
+              itemId: item.itemGuid,
+              itemData: {
+                itemId: item.itemGuid,
+                itemDefinitionId: item.itemDefinitionId,
+                itemCount: item.stackCount
+              }
+            };
+          })
+        }
+        //profileId: 270,
+        //unknownDword15: 165449,
+        //unknownDword16: 260,
+        //unknownDword18: 1,
+        //unknownDword19: 218,
+        //unknownDword26: 2,
+        //unknownDword23: 91,
+        //unknownDword24: 1,
+        //unknownBoolean5: true,
+        //dailyRibbonCount: 300,
+        //profiles: [
+        //  {
+        //    profileId: 2,
+        //    nameId: 12287,
+        //    descriptionId: 12271,
+        //    type: 3,
+        //    iconId: 171,
+        //    unknownByte1: 8,
+        //    unknownByte2: 128,
+        //    unknownArray1: [],
+        //    unknownByte3: 2,
+        //    unknownDword7: 1.7,
+        //    unknownDword8: 0.95,
+        //    unknownDword10: 1,
+        //    unknownDword11: 15
+        //  }
+        //]
       } as any
     };
   }
