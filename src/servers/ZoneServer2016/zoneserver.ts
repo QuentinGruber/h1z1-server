@@ -6857,7 +6857,7 @@ export class ZoneServer2016 extends EventEmitter {
       ) ||
       !this.airdropManager.spawnAirdrop(
         client.character.state.position,
-        item.hasAirdropClearance ? "Hospital" : "",
+        client.character.hasAirdropClearance ? "Hospital" : "",
         client.isDebugMode,
         client.character.characterId
       ) ||
@@ -6866,8 +6866,8 @@ export class ZoneServer2016 extends EventEmitter {
       return;
     this.sendAlert(client, "Your delivery is on the way!");
 
-    if (item.hasAirdropClearance) {
-      item.hasAirdropClearance = false;
+    if (client.character.hasAirdropClearance) {
+      client.character.hasAirdropClearance = false;
     }
   }
 

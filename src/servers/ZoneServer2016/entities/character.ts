@@ -309,6 +309,8 @@ export class Character2016 extends BaseFullCharacter {
 
   currentChallenge: ChallengeType = ChallengeType.NONE;
 
+  hasAirdropClearance: boolean = false;
+
   constructor(
     characterId: string,
     transientId: number,
