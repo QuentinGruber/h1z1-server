@@ -17,6 +17,8 @@ import {
   accountItemSchema,
   accountItemsSchema,
   emoteItemsSchema,
+  escrowAccountItemSchema,
+  escrowAccountItemsSchema,
   itemCollectionSchema,
   skinItemSchema,
   skinItemsSchema
@@ -182,45 +184,67 @@ export const itemsPackets: PacketStructures = [
     "Items.SetAccountItemManager",
     0xad10,
     {
-      fields: [...accountItemsSchema]
+      fields: accountItemsSchema
     }
   ],
   [
     "Items.AddAccountItem",
-    0xad1100,
+    0xad11,
     {
       fields: [
-        { name: "itemId", type: "uint64string", defaultValue: "0x0" },
-        { name: "unknowWord2", type: "uint32", defaultValue: 1 },
-        { name: "unknowWord3", type: "uint32", defaultValue: 2 },
-        { name: "unknowWord4", type: "uint32", defaultValue: 3 } // count ?
+        ...accountItemSchema,
+        {
+          name: "unknownByte1",
+          type: "uint8",
+          defaultValue: 192
+        }
       ]
     }
   ],
-  ["Items.RemoveAccountItem", 0xad12, {}],
-  ["Items.UpdateAccountItem", 0xad13, {}],
+  [
+    "Items.RemoveAccountItem",
+    0xad12,
+    {
+      fields: [
+        {
+          name: "itemId",
+          type: "uint64string",
+          defaultValue: ""
+        },
+        {
+          name: "itemDefinitionId",
+          type: "uint32",
+          defaultValue: 0
+        }
+      ]
+    }
+  ],
+  [
+    "Items.UpdateAccountItem",
+    0xad13,
+    {
+      fields: [
+        ...accountItemSchema,
+        {
+          name: "unknownByte1",
+          type: "uint8",
+          defaultValue: 192
+        }
+      ]
+    }
+  ],
   [
     "Items.SetEscrowAccountItemManager",
     0xad14,
     {
-      fields: [
-        {
-          name: "accountItems",
-          type: "array",
-          defaultValue: [],
-          fields: [
-            { name: "itemId", type: "uint64string", defaultValue: "0" },
-            { name: "itemData", type: "schema", fields: accountItemSchema }
-          ]
-        }
-      ]
+      fields: escrowAccountItemsSchema
     }
   ],
   [
     "Items.AddEscrowAccountItem",
     0xad15,
     {
-      fields: [{ name: "itemData", type: "schema", fields: accountItemSchema }]
+      fields: escrowAccountItemSchema
     }
   ],
   [
@@ -237,7 +261,7 @@ export const itemsPackets: PacketStructures = [
     "Items.UpdateEscrowAccountItem",
     0xad17,
     {
-      fields: [{ name: "itemData", type: "schema", fields: accountItemSchema }]
+      fields: escrowAccountItemSchema
     }
   ],
   [
@@ -245,7 +269,8 @@ export const itemsPackets: PacketStructures = [
     0xad18,
     {
       fields: [
-        { name: "unknownQword1", type: "uint64string", defaultValue: "0" }, // probably characterId
+        { name: "escrowEnabled", type: "uint32", defaultValue: 0 },
+        { name: "escrowServerConnected", type: "uint32", defaultValue: 0 },
         { name: "escrowAccountLoadSucceeded", type: "uint32", defaultValue: 0 },
         { name: "escrowAccountAllowTrading", type: "uint32", defaultValue: 0 }
       ]
@@ -255,7 +280,13 @@ export const itemsPackets: PacketStructures = [
   ["Items.RemoveNewAccountItemRec", 0xad1a, {}],
   ["Items.RemoveNewAccountItemRecByItemId", 0xad1b, {}],
   ["Items.RemoveAllNewAccountItemRecs", 0xad1c, {}],
-  ["Items.ReportNewRewardCrateAdded", 0xad1d, {}],
+  [
+    "Items.ReportNewRewardCrateAdded",
+    0xad1d,
+    {
+      fields: accountItemSchema
+    }
+  ],
   [
     "Items.ReportRewardCrateContents",
     0xad1e,

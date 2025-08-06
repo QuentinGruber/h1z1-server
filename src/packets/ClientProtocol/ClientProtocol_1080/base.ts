@@ -35,6 +35,7 @@ import {
   containers,
   passengerSchema,
   accountItemsSchema,
+  escrowAccountItemsSchema,
   itemCollectionSchema,
   emoteItemsSchema,
   skinItemsSchema,
@@ -1385,58 +1386,7 @@ export const basePackets: PacketStructures = [
               ]
             },
             ...accountItemsSchema,
-            {
-              name: "unknownArray26",
-              type: "array",
-              defaultValue: [],
-              fields: [
-                {
-                  name: "unknownQword1",
-                  type: "uint64string",
-                  defaultValue: ""
-                },
-                {
-                  name: "unknownData1",
-                  type: "schema",
-                  defaultValue: {},
-                  fields: [
-                    {
-                      name: "unknownData1",
-                      type: "schema",
-                      defaultValue: {},
-                      fields: [
-                        {
-                          name: "unknownQword1",
-                          type: "uint64string",
-                          defaultValue: ""
-                        },
-                        {
-                          name: "unknownDword1",
-                          type: "uint32",
-                          defaultValue: 0
-                        },
-                        {
-                          name: "unknownDword2",
-                          type: "uint32",
-                          defaultValue: 0
-                        },
-                        {
-                          name: "unknownDword3",
-                          type: "uint32",
-                          defaultValue: 0
-                        }
-                      ]
-                    },
-                    {
-                      name: "unknownQword1",
-                      type: "uint64string",
-                      defaultValue: ""
-                    },
-                    { name: "unknownDword1", type: "uint32", defaultValue: 0 }
-                  ]
-                }
-              ]
-            },
+            ...escrowAccountItemsSchema,
             {
               name: "unknownData7",
               type: "schema",

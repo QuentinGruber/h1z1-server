@@ -3047,14 +3047,6 @@ export function pack2ByteLengthString(string: string) {
   */
 }
 
-export const accountItemSchema: PacketFields = [
-  { name: "itemId", type: "uint64string", defaultValue: "0" },
-  { name: "itemDefinitionId", type: "uint64", defaultValue: 0 },
-  { name: "itemCount", type: "uint32", defaultValue: 0 },
-  { name: "itemGuid", type: "uint64string", defaultValue: "0" },
-  { name: "unknownDword4", type: "uint32", defaultValue: 0 }
-];
-
 export const storeBundleSchema: PacketFields = [
   {
     name: "appStoreBundle",
@@ -3311,6 +3303,58 @@ export const knockedOutItemData: PacketFields = [
   { name: "unknownDword12", type: "uint32", defaultValue: 0 }
 ];
 
+export const accountItemSchema: PacketFields = [
+  {
+    name: "itemId",
+    type: "uint64string",
+    defaultValue: ""
+  },
+  {
+    name: "itemDefinitionId",
+    type: "uint32",
+    defaultValue: 0
+  },
+  {
+    name: "unknownDword2",
+    type: "int32",
+    defaultValue: 0
+  },
+  {
+    name: "itemCount",
+    type: "int32",
+    defaultValue: 0
+  }
+];
+
+export const escrowAccountItemSchema: PacketFields = [
+  {
+    name: "itemData",
+    type: "schema",
+    defaultValue: {},
+    fields: accountItemSchema
+  },
+  { name: "unknownQword1", type: "uint64string", defaultValue: "0" },
+  { name: "unknownDword1", type: "uint32", defaultValue: 0 }
+];
+
+export const listEscrowAccountItemSchema: PacketFields = [
+  {
+    name: "itemId",
+    type: "uint64string",
+    defaultValue: ""
+  },
+  ...escrowAccountItemSchema
+];
+
+export const escrowAccountItemsSchema: PacketFields = [
+  {
+    name: "escrowAccountItems",
+    type: "array",
+    defaultValue: [],
+    fields: listEscrowAccountItemSchema
+  }
+];
+
 export const accountItemsSchema: PacketFields = [
   {
     name: "accountItems",
@@ -3318,41 +3362,20 @@ export const accountItemsSchema: PacketFields = [
     defaultValue: {},
     fields: [
       {
-        name: "unknownArray1",
+        name: "items",
         type: "array",
         defaultValue: [],
         fields: [
           {
-            name: "unknownQword1",
+            name: "itemId",
             type: "uint64string",
             defaultValue: ""
           },
           {
-            name: "unknownData1",
+            name: "itemData",
             type: "schema",
             defaultValue: {},
-            fields: [
-              {
-                name: "unknownQword1",
-                type: "uint64string",
-                defaultValue: ""
-              },
-              {
-                name: "unknownDword1",
-                type: "uint32",
-                defaultValue: 0
-              },
-              {
-                name: "unknownDword2",
-                type: "uint32",
-                defaultValue: 0
-              },
-              {
-                name: "unknownDword3",
-                type: "uint32",
-                defaultValue: 0
-              }
-            ]
+            fields: accountItemSchema
           }
         ]
       },
@@ -3362,12 +3385,12 @@ export const accountItemsSchema: PacketFields = [
         defaultValue: [],
         fields: [
           {
-            name: "unknownQword1",
+            name: "itemId",
             type: "uint64string",
             defaultValue: ""
           },
-          { name: "unknownDword1", type: "uint32", defaultValue: 0 },
-          { name: "unknownDword2", type: "uint32", defaultValue: 0 }
+          { name: "itemDefinitionId", type: "uint32", defaultValue: 0 },
+          { name: "itemCount", type: "uint32", defaultValue: 0 }
         ]
       },
       {
