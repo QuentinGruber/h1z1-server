@@ -6261,17 +6261,17 @@ export class ZoneServer2016 extends EventEmitter {
    * @param {number} [count=1]  - Optional: Specifies the amount of items that need to be removed, default is 1.
    * @returns {boolean} Returns true if the item was successfully removed, false if there was an error.
    */
-  async removeAccountItem(
+  removeAccountItem(
     character: BaseFullCharacter,
     item: BaseItem,
     count: number = 1
-  ): Promise<boolean> {
+  ): boolean {
     const client = this.getClientByCharId(character.characterId);
     if (!client) return false;
 
     item.stackCount -= count;
     if (item.stackCount <= 0) {
-      await this.accountInventoriesManager.removeAccountItem(
+      this.accountInventoriesManager.removeAccountItem(
         client.loginSessionId,
         item
       );
@@ -6280,7 +6280,7 @@ export class ZoneServer2016 extends EventEmitter {
         itemDefinitionId: item.itemDefinitionId
       });
     } else {
-      await this.accountInventoriesManager.updateAccountItem(
+      this.accountInventoriesManager.updateAccountItem(
         client.loginSessionId,
         item
       );
@@ -6405,12 +6405,12 @@ export class ZoneServer2016 extends EventEmitter {
    * @param {boolean} [updateEquipment=true] - Optional: Specifies whether to update the equipment, default is true.
    * @returns {boolean} Returns true if the items were successfully removed, false if there was an error.
    */
-  async removeInventoryItem(
+  removeInventoryItem(
     character: BaseFullCharacter,
     item: BaseItem,
     count: number = 1,
     updateEquipment: boolean = true
-  ): Promise<boolean> {
+  ): boolean {
     item.debugFlag = "removeInventoryItem";
     if (count > item.stackCount) {
       console.error(
@@ -6420,7 +6420,7 @@ export class ZoneServer2016 extends EventEmitter {
     }
 
     if (this.isAccountItem(item.itemDefinitionId)) {
-      return await this.removeAccountItem(character, item);
+      return this.removeAccountItem(character, item);
     } else if (character._loadout[item.slotId]?.itemGuid == item.itemGuid) {
       return this.removeLoadoutItem(character, item.slotId, updateEquipment);
     } else {
