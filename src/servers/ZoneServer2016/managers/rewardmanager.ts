@@ -138,7 +138,7 @@ export class RewardManager {
   addRewardToPlayer(client: ZoneClient2016, rewardId: AccountItems) {
     const item = this.server.generateAccountItem(rewardId);
     if (item) {
-      this.server.lootAccountItem(this.server, client, item, true);
+      this.server.lootAccountItem(this.server, client, item);
     } else {
       console.log("Server failed to generate reward account item");
     }

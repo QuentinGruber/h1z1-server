@@ -3400,8 +3400,7 @@ export class ZonePacketHandlers {
             server.lootAccountItem(
               server,
               client,
-              server.generateAccountItem(reward),
-              true
+              server.generateAccountItem(reward)
             );
           }, 12_000);
         }
@@ -3736,7 +3735,7 @@ export class ZonePacketHandlers {
           true
         );
 
-        server.lootAccountItem(server, client, item, false);
+        server.lootAccountItem(server, client, item);
         server.sendData<GrinderExchangeResponse>(
           client,
           "Grinder.ExchangeResponse",

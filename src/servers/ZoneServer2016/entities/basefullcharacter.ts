@@ -466,7 +466,7 @@ export abstract class BaseFullCharacter extends BaseLightweightCharacter {
     }
     const itemDefId = item.itemDefinitionId;
     if (server.isAccountItem(itemDefId) && client) {
-      server.lootAccountItem(server, client, item, sendUpdate);
+      server.lootAccountItem(server, client, item);
     } else if (this.getAvailableLoadoutSlot(server, itemDefId)) {
       if (client && client.character.initialized && sendUpdate) {
         server.sendData(client, "Reward.AddNonRewardItem", {

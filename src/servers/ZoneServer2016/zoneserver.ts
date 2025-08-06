@@ -5573,6 +5573,7 @@ export class ZoneServer2016 extends EventEmitter {
     const itemDef = this.getItemDefinition(itemDefinitionId);
     return [
       "RewardCrate",
+      "LockedRewardCrate",
       "RewardCrateKey",
       "AccountRecipe",
       "IncrementEntitlement",
@@ -6201,8 +6202,7 @@ export class ZoneServer2016 extends EventEmitter {
   async lootAccountItem(
     server: ZoneServer2016,
     client: Client,
-    item?: BaseItem,
-    sendUpdate: boolean = false
+    item?: BaseItem
   ) {
     if (!item) {
       return;
@@ -6237,14 +6237,6 @@ export class ZoneServer2016 extends EventEmitter {
         itemCount: item.stackCount
       });
     }
-
-    if (!sendUpdate) return;
-    server.sendData(client, "Reward.AddNonRewardItem", {
-      itemDefId: item.itemDefinitionId,
-      iconId: server.getItemDefinition(item.itemDefinitionId)?.IMAGE_SET_ID,
-      nameId: server.getItemDefinition(item.itemDefinitionId)?.NAME_ID,
-      count: item.stackCount
-    });
   }
 
   lootCrateWithChance(client: Client, dropChance: number) {
