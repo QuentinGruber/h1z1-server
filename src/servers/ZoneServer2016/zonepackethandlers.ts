@@ -3431,6 +3431,15 @@ export class ZonePacketHandlers {
 
         if (!newItem) return;
 
+        if (
+          oitem.currentDurability <= 0 &&
+          server.getItemBaseDurability(oitem.itemDefinitionId) == 0
+        ) {
+          oitem.currentDurability = server.getItemBaseDurability(
+            newItem.itemDefinitionId
+          );
+        }
+
         // Copy over item data to new item
         newItem.currentDurability = oitem.currentDurability;
         newItem.itemGuid = oitem.itemGuid;
