@@ -34,9 +34,9 @@ export const recipePackets: PacketStructures = [
     0x2602,
     {
       fields: [
-        { name: "unknownDword1", type: "uint32", defaultValue: 0 },
-        { name: "unknownDword2", type: "uint32", defaultValue: 0 },
-        { name: "unknownQword1", type: "uint64string", defaultValue: "0" }
+        { name: "recipeId", type: "uint32", defaultValue: 0 },
+        { name: "itemCount", type: "uint32", defaultValue: 0 },
+        { name: "itemGuid", type: "uint64string", defaultValue: "0" }
       ]
     }
   ],
@@ -87,7 +87,7 @@ export const recipePackets: PacketStructures = [
                   type: "uint64string",
                   defaultValue: "0"
                 },
-                { name: "unknownDword3", type: "uint32", defaultValue: 0 },
+                { name: "unknownDword3", type: "int32", defaultValue: 0 },
                 { name: "itemDefinitionId2", type: "uint32", defaultValue: 0 }
               ]
             },
@@ -120,6 +120,15 @@ export const recipePackets: PacketStructures = [
             { name: "unknownDword1", type: "uint32", defaultValue: 0 }
           ]
         }
+      ]
+    }
+  ],
+  [
+    "Recipe.RequestDiscovery",
+    0x2606,
+    {
+      fields: [
+        { name: "componentHash", type: "uint64string", defaultValue: "0" }
       ]
     }
   ],

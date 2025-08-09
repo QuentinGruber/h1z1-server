@@ -16,6 +16,7 @@ import { FileHash } from ".../../types/shared";
 import { CONNECTION_REJECTION_FLAGS } from "utils/enums";
 
 interface ServerConfig {
+  gameMode: string;
   proximityItemsDistance: number;
   interactionDistance: number;
   charactersRenderDistance: number;

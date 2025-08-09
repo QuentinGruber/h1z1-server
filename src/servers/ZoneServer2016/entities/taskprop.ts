@@ -288,14 +288,14 @@ export class TaskProp extends BaseLightweightCharacter {
       case "Task_Hospital_Researcher_Radio.adr":
         if (!client.character.hasItem(Items.AIRDROP_CODE)) return;
         const item = client.character.getItemById(Items.AIRDROP_CODE);
-        if (!item || item.hasAirdropClearance) return;
+        if (!item || client.character.hasAirdropClearance) return;
         server.utilizeHudTimer(
           client,
           StringIds.LONG_RANGE_RADIO,
           1000,
           0,
           () => {
-            item.hasAirdropClearance = true;
+            client.character.hasAirdropClearance = true;
             server.sendAlert(
               client,
               "You hear an automated message requesting a code to call in an airdrop."

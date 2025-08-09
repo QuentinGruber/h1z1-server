@@ -27,6 +27,11 @@ export class RewardManager {
   playTimerewards: Reward[];
   private timer?: NodeJS.Timeout;
   constructor(public server: ZoneServer2016) {
+    if (server?.isBattleRoyale()) {
+      this.rewards = [];
+      this.playTimerewards = [];
+      return;
+    }
     this.rewards = [
       {
         itemId: AccountItems.REWARD_CRATE_MARAUDER,
@@ -133,12 +138,13 @@ export class RewardManager {
   addRewardToPlayer(client: ZoneClient2016, rewardId: AccountItems) {
     const item = this.server.generateAccountItem(rewardId);
     if (item) {
-      this.server.lootAccountItem(this.server, client, item, true);
+      this.server.lootAccountItem(this.server, client, item);
     } else {
       console.log("Server failed to generate reward account item");
     }
   }
   dropReward(client: ZoneClient2016) {
+    if (this.server?.isBattleRoyale()) return;
     let random = Math.random() * 100;
     for (const reward of this.rewards) {
       if (reward.dropChances === 0) {
