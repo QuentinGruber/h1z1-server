@@ -13,7 +13,6 @@
 import {
   attachmentSchema,
   damageReportPlayerInfoSchema,
-  equipmentCharacterSchema,
   identitySchema,
   knockedOutItemData,
   knockedOutPlayerProfileData,
