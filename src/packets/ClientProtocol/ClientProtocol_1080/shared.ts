@@ -3525,3 +3525,39 @@ export const lobbyDataSchema: PacketFields = [
   { name: "unknownDword7", type: "uint32", defaultValue: 0 },
   { name: "unknownBoolean2", type: "boolean", defaultValue: false }
 ];
+
+export const skillPointDataSchema: PacketFields = [
+  {
+    name: "skillPointData",
+    type: "schema",
+    defaultValue: {},
+    fields: [
+      {
+        name: "skillPointsGranted",
+        type: "uint64string",
+        defaultValue: ""
+      },
+      {
+        name: "skillPointsTotal",
+        type: "uint64string",
+        defaultValue: ""
+      },
+      {
+        name: "skillPointsSpent",
+        type: "uint64string",
+        defaultValue: ""
+      },
+      {
+        name: "unknownQword1",
+        type: "uint64string",
+        defaultValue: ""
+      },
+      {
+        name: "unknownQword2",
+        type: "uint64string",
+        defaultValue: ""
+      },
+      { name: "unknownDword1", type: "uint32", defaultValue: 0 }
+    ]
+  }
+];
