@@ -987,6 +987,18 @@ export interface CharacterRemovePlayer {
   stickyEffectId?: number;
   timeToDisappear?: number;
 }
+export interface CharacterKnockback {
+  unknownDword1?: number;
+  unknownFloatVector1?: Float32Array;
+  unknownFloatVector2?: Float32Array;
+  unknownDword2?: number;
+}
+export interface CharacterUpdateHitpoints {
+  characterId?: string;
+  unknownDword1?: number;
+  unknownDword2?: number;
+  unknownDword3?: number;
+}
 export interface CharacterPlayAnimation {
   characterId?: string;
   animationName: unknown;
@@ -1001,6 +1013,25 @@ export interface CharacterPlayAnimation {
 export interface CharacterUpdateScale {
   characterId?: string;
   scale?: Float32Array;
+}
+export interface CharacterUpdateTemporaryAppearance {
+  characterId?: string;
+  unknownDword1?: number;
+}
+export interface CharacterSetLookAt {
+  characterId?: string;
+  unknownQword2?: string;
+}
+export interface CharacterRenamePlayer {
+  characterId?: string;
+  unknownDword1?: number;
+  unknownDword2?: number;
+  unknownDword3?: number;
+  characterFirstName?: string;
+  characterLastName?: string;
+  unknownString1?: string;
+  characterName?: string;
+  unknownQword1?: string;
 }
 export interface CharacterUpdateCharacterState {
   characterId?: string;
@@ -1056,7 +1087,7 @@ export interface CharacterUpdateCharacterState {
 };
   states6:{
      REUSE_ME_2: number,
-     REUSE_ME_3: number,
+     ignitionLoweringIntoMatch: number,
      hidesHeat: number,
      nearDeath: number,
      dormant: number,
@@ -1077,6 +1108,36 @@ export interface CharacterUpdateCharacterState {
   placeholder?: number;
   gameTime?: number;
 }
+export interface CharacterExpectedSpeed {
+  characterId?: string;
+  speed?: number;
+}
+export interface CharacterThoughtBubble {
+  characterId?: string;
+  unknownDword1?: number;
+  unknownDword2?: number;
+  unknownByte1?: number;
+}
+export interface CharacterSlotCompositeEffectOverride {
+  characterId?: string;
+  unknownDword1?: number;
+  unknownDword2?: number;
+}
+export interface CharacterPreferredLanguages {
+  characterId?: string;
+  unknownDword1?: number;
+}
+export interface CharacterCustomizationChange {
+  characterId?: string;
+  unknownBoolean1?: boolean;
+  customizationData?: unknown[];
+}
+export interface CharacterPlayerTitle {
+  characterId?: string;
+  unknownDword1?: number;
+  unknownDword2?: number;
+  unknownDword3?: number;
+}
 export interface CharacterAddEffectTagCompositeEffect {
   characterId?: string;
   unknownDword1?: number;
@@ -1090,10 +1151,46 @@ export interface CharacterRemoveEffectTagCompositeEffect {
   effectId?: number;
   newEffectId?: number;
 }
+export interface CharacterCustomizeNpc {
+  characterId?: string;
+  unknownDword1?: number;
+  unknownString1?: string;
+  unknownString2?: string;
+  unknownDword2?: number;
+  unknownString3?: string;
+}
+export interface CharacterSetSpawnerActivationEffect {
+  characterId?: string;
+  effectId?: number;
+}
+export interface CharacterSetComboState {
+  characterId?: string;
+  unknownByte1?: number;
+}
+export interface CharacterSetSurpriseState {
+  characterId?: string;
+  unknownDword1?: number;
+}
+export interface CharacterRemoveNpcCustomization {
+  characterId?: string;
+  unknownDword1?: number;
+  unknownString1?: string;
+  unknownString2?: string;
+  unknownDword2?: number;
+  unknownString3?: string;
+}
 export interface CharacterReplaceBaseModel {
   characterId?: string;
   modelId?: number;
   effectId?: number;
+}
+export interface CharacterSetCollidable {
+  characterId?: string;
+  unknownByte1?: number;
+}
+export interface CharacterUpdateOwner {
+  characterId?: string;
+  unknownBoolean1?: boolean;
 }
 export interface CharacterWeaponStance {
   characterId?: string;
@@ -1148,6 +1245,10 @@ export interface CharacterSeekTargetUpdate {
 export interface CharacterUpdateActiveWieldType {
   characterId?: string;
   unknownDword1?: number;
+}
+export interface CharacterMemberStatus {
+  characterId?: string;
+  unknownByte1?: number;
 }
 export interface CharacterKnockedOut {
   guid?: string;
@@ -1277,9 +1378,31 @@ export interface CharacterRespawnReply {
   characterId?: string;
   status?: boolean;
 }
+export interface CharacterActivateProfile {
+  characterId?: string;
+  unknownByte1?: number;
+  attachmentData?: unknown[];
+  unknownDword1?: number;
+  unknownDword2?: number;
+  unknownDword3?: number;
+  unknownDword4?: number;
+  unknownString1?: string;
+  unknownString2?: string;
+  stats?: unknown[];
+}
 export interface CharacterJet {
   characterId?: string;
   state?: number;
+}
+export interface CharacterStartRevive {
+  characterId?: string;
+  targetCharacterId?: string;
+  unknownDword1?: number;
+}
+export interface CharacterStopRevive {
+  characterId?: string;
+  targetCharacterId?: string;
+  unknownBoolean1?: boolean;
 }
 export interface CharacterSetFaction {
   guid?: string;
@@ -1289,10 +1412,33 @@ export interface CharacterSetBattleRank {
   characterId?: string;
   battleRank?: number;
 }
+export interface CharacterStartHeal {
+  characterId?: string;
+  targetCharacterId?: string;
+  unknownByte1?: number;
+}
+export interface CharacterStopHeal {
+  characterId?: string;
+  targetCharacterId?: string;
+}
 export interface CharacterManagedObject {
   objectCharacterId?: string;
   guid2?: string;
   characterId?: string;
+}
+export interface CharacterMaterialTypeOverride {
+  characterId?: string;
+  unknownDword1?: number;
+}
+export interface CharacterDebrisLaunch {
+  characterId?: string;
+  unknownDword1?: number;
+  unknownDword2?: number;
+  unknownQword2?: string;
+}
+export interface CharacterHideCorpse {
+  characterId?: string;
+  unknownBoolean1?: boolean;
 }
 export interface CharacterCharacterStateDelta {
   characterId?: string;
@@ -1301,14 +1447,33 @@ export interface CharacterCharacterStateDelta {
   guid4?: string;
   gameTime?: number;
 }
+export interface CharacterUpdateStat {
+  characterId?: string;
+  stats?: unknown[];
+}
+export interface CharacterAnimationRequest {
+  characterId?: string;
+  unknownDword1?: number;
+  unknownFloatVector1?: Float32Array;
+  unknownFloatVector2?: Float32Array;
+  unknownDword2?: number;
+}
 export interface CharacterPlayWorldCompositeEffect {
   characterId?: string;
   effectId?: number;
   position?: Float32Array;
   effectTime?: number;
 }
+export interface CharacterAFK {
+  characterId?: string;
+  unknownByte1?: number;
+}
 export interface CharacterFullCharacterDataRequest {
   characterId?: string;
+}
+export interface CharacterDeploy {
+  characterId?: string;
+  unknownDword1?: number;
 }
 export interface CharacterKilledBy {
   killer?: string;
@@ -1330,6 +1495,10 @@ export interface CharacterNoSpaceNotification {
 export interface CharacterStartMultiStateDeath {
   data: unknown;
 }
+export interface CharacterAggroLevel {
+  characterId?: string;
+  unknownDword1?: number;
+}
 export interface CharacterDoorState {
   characterId?: string;
   unknownDword1?: number;
@@ -1339,6 +1508,10 @@ export interface CharacterSetAllowRespawn {
   characterId?: string;
   allowRespawn?: boolean;
 }
+export interface CharacterUpdateGuildTag {
+  characterId?: string;
+  guildName?: string;
+}
 export interface CharacterMovementVersion {
   characterId?: string;
   version?: number;
@@ -1347,6 +1520,10 @@ export interface CharacterDailyRepairMaterials {
   characterId?: string;
   containerId?: string;
   materials?: unknown[];
+}
+export interface CharacterUpdateTwitchInfo {
+  characterId?: string;
+  twitchName?: string;
 }
 export interface CharacterUpdateSimpleProxyHealth {
   characterId?: string;
@@ -3897,4 +4074,4 @@ export interface ShaderParameterOverrideBase {
   unknownDword2?: number;
   shaderGroupId?: number;
 }
-export type zone2016packets = ClientFinishedLoading | SendSelfToClient | ClientIsReady | ZoneDoneSendingInitialData | ClientBeginZoning | ProjectileDebug | SendZoneDetails | GameTimeSync | UpdateClientSessionData | WorldDisplayInfo | SetLocale | WorldShutdownNotice | KeepAlive | ClientExitLaunchUrl | MembershipActivation | ShowSystemMessage | POIChangeMessage | ClientLog | CommerceSessionResponse | LoginFailed | NpcCollision | ClientGameSettings | ClientTrialProfileUpsell | PlayerTitle | UpdateUserAge | InitializationParameters | ClientInitializationDetails | ClientFlashTimer | PlayerUpdatePosition | Synchronization | PlayerUpdateManagedPosition | AddSimpleNpc | ContinentBattleInfo | GetContinentBattleInfo | SendSecurityPacketAndSelfDestruct | GetRespawnLocations | Security | ServerPopulationInfo | GetServerPopulationInfo | VehicleCollision | PlayerStop | ClientSettings | RewardBuffInfo | GetRewardBuffInfo | CharacterSelectSessionResponse | UpdateWeatherData | AddLightweightPc | AddLightweightNpc | AddLightweightVehicle | AddProxiedObject | LightweightToFullPc | LightweightToFullNpc | LightweightToFullVehicle | ReplicationInteractionComponent | FairPlayInternal | CharacterRemovePlayer | CharacterPlayAnimation | CharacterUpdateScale | CharacterUpdateCharacterState | CharacterAddEffectTagCompositeEffect | CharacterRemoveEffectTagCompositeEffect | CharacterReplaceBaseModel | CharacterWeaponStance | CharacterUpdateTintAlias | CharacterMoveOnRail | CharacterClearMovementRail | CharacterMoveOnRelativeRail | CharacterDestroyed | CharacterSeekTarget | CharacterSeekTargetUpdate | CharacterUpdateActiveWieldType | CharacterKnockedOut | CharacterKnockedOutDamageReport | CharacterRespawn | CharacterRespawnReply | CharacterJet | CharacterSetFaction | CharacterSetBattleRank | CharacterManagedObject | CharacterCharacterStateDelta | CharacterPlayWorldCompositeEffect | CharacterFullCharacterDataRequest | CharacterKilledBy | CharacterMotorRunning | CharacterDroppedItemNotification | CharacterNoSpaceNotification | CharacterStartMultiStateDeath | CharacterDoorState | CharacterSetAllowRespawn | CharacterMovementVersion | CharacterDailyRepairMaterials | CharacterUpdateSimpleProxyHealth | GroupInvite | GroupJoin | GroupAutoGroup | GroupLeave | GroupKick | GroupDisband | GroupSetGroupFlags | GroupSetGroupOwner | GroupSetGroupDescription | GroupUnknownA | GroupMapPingRelated | GroupUnknownC | GroupGetGroup | GroupUnknownF | GroupJoinLookingForMore | GroupToggleSquadLeaderChat | GroupUnknown12 | GroupPlayerJoined | GroupUnknown14 | GroupRemoveGroup | GroupRemoveMember | GroupRemoveInvitation | GroupUnknown19 | GroupUnknown1a | GroupRaidCreate | ReferenceDataItemClassDefinitions | ReferenceDataItemCategoryDefinitions | ReferenceDataProfileDefinitions | ReferenceDataWeaponDefinitions | ReferenceDataProjectileDefinitions | ReferenceDataDynamicAppearance | UiExecuteScript | UiCinematicStartLookAt | UiWeaponHitFeedback | UiZoneWaypoint | UiConfirmHit | RewardAddRewardItem | RewardAddNonRewardItem | RecipeAdd | RecipeComponentUpdate | RecipeRemove | RecipeDiscovery | RecipeDiscoveries | RecipeRequestDiscovery | RecipeUnk8 | RecipeList | InGamePurchaseServerStatusResponse | FriendList | FriendMessage | ClientPathRequest | ClientPathReply | FirstTimeEventUnknown1 | FirstTimeEventState | FirstTimeEventUnknown2 | FirstTimeEventUnknown3 | FirstTimeEventScript | FirstTimeEventUnknown4 | GuildDisband | GuildRename | GuildChangeMemberRank | GuildMotdUpdate | AchievementAdd | AchievementInitialize | Loot | MountMountResponse | MountDismountRequest | MountDismountResponse | MountList | MountOfferUpsell | MountSeatChangeRequest | MountSeatChangeResponse | MountSeatSwapRequest | MountFlipMount | Ping | Pong | VoiceLogin | VoiceJoinChannel | VoiceLeaveChannel | VoiceRadioChannel | VoiceLeaveRadio | VoiceUnk9 | WeaponWeapon | FacilityReferenceData | FacilityFacilityData | FacilitySpawnCollisionChanged | SkillSetSkillPointProgress | LoadoutSelectLoadout | LoadoutUnk1 | LoadoutSetLoadoutSlots | LoadoutSetLoadoutSlot | LoadoutSelectSlot | LoadoutCreateCustomLoadout | ExperienceSetExperienceRanks | ExperienceSetExperienceRateTier | VehicleOwner | VehicleOccupy | VehicleStateData | VehicleStateDamage | VehicleSpawn | VehicleTint | VehicleActiveWeapon | VehicleStats | VehicleDamageInfo | VehicleStatUpdate | VehicleUpdateWeapon | VehicleUpdateQueuePosition | VehicleSetAutoDrive | VehicleLockOnInfo | VehicleLockOnState | VehicleTrackingState | VehicleCounterMeasureState | VehicleLoadVehicleDefinitionManager | VehicleAcquireState | VehicleAutoMount | VehicleDeploy | VehicleEngine | VehicleAccessType | VehicleHealthUpdateOwner | VehicleOwnerPassengerList | VehicleKick | VehicleNoAccess | VehicleExpiration | VehicleGroup | VehicleDeployResponse | VehicleControllerLogOut | VehicleCurrentMoveMode | VehicleItemDefinitionRequest | VehicleItemDefinitionReply | VehicleInventoryItems | ResourceEvent | CollisionDamage | EquipmentSetCharacterEquipment | EquipmentSetCharacterEquipmentSlot | EquipmentUnsetCharacterEquipmentSlot | EquipmentSetCharacterEquipmentSlots | DefinitionFilterSetDefinitionVariable | DefinitionFilterSetDefinitionIntSet | DefinitionFilterUnknownWithVariable1 | DefinitionFilterUnknownWithVariable2 | H1emuPrintToConsole | H1emuMessageBox | H1emuRequestAssetHashes | H1emuVoiceInit | H1emuRequestModules | H1emuRequestWindows | H1emuVoiceState | WallOfDataUIEvent | WallOfDataClientSystemInfo | WallOfDataClientTransition | EffectAddEffect | EffectUpdateEffect | EffectRemoveEffect | EffectAddEffectTag | EffectRemoveUiIndicators | EffectAddUiIndicator | AbilitiesInitAbility | AbilitiesUpdateAbility | AbilitiesUninitAbility | AbilitiesSetActivatableAbilityManager | AbilitiesSetVehicleActivatableAbilityManager | AbilitiesActivateAbility | AbilitiesDeactivateAbility | AbilitiesVehicleDeactivateAbility | AbilitiesActivateAbilityFailed | AbilitiesClearAbilityLineManager | AbilitiesSetProfileAbilityLineMembers | AbilitiesSetLoadoutAbilities | AbilitiesAddLoadoutAbility | AbilitiesAddPersistentAbility | AbilitiesSetProfileRankAbilities | MapRegionGlobalData | MapRegionData | MapRegionMapOutOfBounds | MapRegionRequestContinentData | ItemsSetItemTimerManager | ItemsSetItemTrialLockTimer | ItemsSetAccountItemManager | ItemsAddAccountItem | ItemsRemoveAccountItem | ItemsUpdateAccountItem | ItemsSetEscrowAccountItemManager | ItemsAddEscrowAccountItem | ItemsRemoveEscrowAccountItem | ItemsUpdateEscrowAccountItem | ItemsAccountItemManagerStateChanged | ItemsReportNewRewardCrateAdded | ItemsReportRewardCrateContents | ItemsSetEmoteItem | ItemsRemoveEmoteItem | ItemsSetSkinItemManager | ItemsSetSkinItem | ItemsSetCurrentSkinItemCollection | ItemsRequestUseItem | ItemsRequestUseAccountItem | CurrencySetCurrencyDiscount | ZoneSettingData | WordFilterData | StaticFacilityInfoAllZones | OperationClientClearMissions | WordFilterData | StatsUnk2 | StatsUnk3 | StatsUnk4 | StatsAllPlayerStatLeaderboard | StatsPlayersLeaderboard | LocksShowMenu | CharacterStateInteractionStart | CharacterStateInteractionStop | AudioSetState | AudioSetSwitch | AudioPostEvent | NpcFoundationPermissionsManagerAddPermission | NpcFoundationPermissionsManagerEditPermission | NpcFoundationPermissionsManagerBaseShowPermissions | ReplicationNpcComponent | VehicleSkinSetVehicleSkinManager | AnimationRequest | AnimationPlay | ChatChat | ChatEnterArea | ChatDebugChat | ChatFromStringId | ChatChatText | CommandPlaySoundAtLocation | CommandInteractRequest | CommandInteractCancel | CommandInteractDebug | CommandInteractionList | CommandInteractionSelect | CommandSetProfile | CommandPlayerSelect | CommandFreeInteractionNpc | CommandRecipeStart | CommandShowRecipeWindow | CommandPlayDialogEffect | CommandPlaySoundIdOnTarget | CommandInteractionString | CommandAddWorldCommand | CommandAddZoneCommand | CommandExecuteCommand | CommandZoneExecuteCommand | CommandItemDefinitionRequest | CommandItemDefinitionReply | CommandItemDefinitions | CommandEnableCompositeEffects | CommandRequestWeaponFireStateUpdate | CommandDeliveryDisplayInfo | CommandDeliveryManagerStatus | CommandDeliveryManagerShowNotification | CommandReportLastDeath | CommandPointAndReport | CommandSpawnVehicle | CommandRunSpeed | CommandAddItem | ClientUpdateItemAdd | ClientUpdateItemUpdate | ClientUpdateItemDelete | ClientUpdateUpdateStat | ClientUpdateUpdateLocation | ClientUpdateActivateProfile | ClientUpdateDoneSendingPreloadCharacters | ClientUpdateDamageInfo | ClientUpdateRespawnLocations | ClientUpdateModifyMovementSpeed | ClientUpdateModifyTurnRate | ClientUpdateModifyStrafeSpeed | ClientUpdateUpdateManagedLocation | ClientUpdateManagedMovementVersion | ClientUpdateUpdateWeaponAddClips | ClientUpdateStartTimer | ClientUpdateCompleteLogoutProcess | ClientUpdateProximateItems | ClientUpdateTextAlert | ClientUpdateNetworkProximityUpdatesComplete | ClientUpdateDeathMetrics | ClientUpdateManagedObjectResponseControl | ClientUpdateNpcRelevance | ClientUpdateMonitorTimeDrift | ClientUpdateUpdateRewardAndGrinderState | ClientUpdateUpdateLockoutTimes | ClientUpdateZoneStatus | InGamePurchasePreviewOrderResponse | InGamePurchasePlaceOrderResponse | InGamePurchaseStoreBundles | InGamePurchaseStoreBundleCategoryGroups | InGamePurchaseStoreBundleCategories | InGamePurchaseExclusivePartnerStoreBundles | InGamePurchaseStoreBundleGroups | InGamePurchaseWalletInfoResponse | InGamePurchaseStationCashProductsResponse | InGamePurchaseStateCodesResponse | InGamePurchaseCountryCodesResponse | InGamePurchaseSubscriptionProductsResponse | InGamePurchaseEnableMarketplace | InGamePurchaseAccountInfoRequest | InGamePurchaseAccountInfoResponse | InGamePurchaseStoreBundleContentRequest | InGamePurchaseStoreBundleContentResponse | InGamePurchaseClientStatistics | InGamePurchaseDisplayMannequinStoreBundles | InGamePurchaseItemOfTheDay | InGamePurchaseEnablePaymentSources | InGamePurchaseSetMembershipFreeItemInfo | InGamePurchaseGiftOrderNotification | InGamePurchaseActiveSchedules | InGamePurchaseNudgeOfferNotification | InGamePurchaseSpiceWebAuthUrlResponse | InGamePurchaseBundlePriceUpdate | InGamePurchaseWalletBalanceUpdate | InGamePurchaseMemberFreeItemCount | QuickChatSendData | Broadcast | LobbyGameDefinitionDefinitionsRequest | LobbyGameDefinitionDefinitionsResponse | CoinStoreItemList | CoinStoreSellToClientRequest | CoinStoreTransactionComplete | ProfileStatsGetPlayerProfileStats | H1emuFairPlay | H1emuHeartBeat | DtoHitReportPacket | DtoStateChange | DtoObjectInitialData | DtoHitSpeedTreeReport | ContainerMoveItem | ContainerInitEquippedContainers | ContainerError | ContainerListAll | ContainerUpdateEquippedContainer | ConstructionPlacementRequest | ConstructionPlacementResponse | ConstructionPlacementFinalizeRequest | ConstructionPlacementFinalizeResponse | ConstructionUnknown | LocksSetLock | RagdollStart | RagdollUpdatePose | RagdollUnk2 | RagdollUnk | RagdollStop | GameModeUpdateToxicGas | GameModeUpdateSafeZone | GameModeDeathInfo | GameModeStartLogout | GameModePlayersRemaining | GameModeTeamsRemaining | GameModeUnk11 | GameModeUnk13 | GameModeUnk15 | GameModeUnk16 | GameModeUnk18 | GameModeUnk19 | GameModeUnk20 | GameModeUnk21 | GameModeStartMatch | GameModeUnk23 | GameModeShowVictoryScreen | GrinderExchangeRequest | GrinderExchangeResponse | ScreenEffectApplyScreenEffect | ScreenEffectRemoveScreenEffect | SpectatorEnable | SpectatorAllSpectators | SpectatorUnknown3 | SpectatorTeleport | SpectatorDeathList | SpectatorSetModerator | SpectatorSetOwner | SpectatorMatchResults | SpectatorUnknown12 | SynchronizedTeleportWaitingForPlayers | SynchronizedTeleportNotifyReady | SynchronizedTeleportPlayersReady | SynchronizedTeleportRelease | AccessedCharacterBeginCharacterAccess | AccessedCharacterEndCharacterAccess | AccessedCharacterUpdateMutatorRights | AccessedCharacterUnknown3 | AccessedCharacterUnknown2 | ShaderParameterOverrideBase;
+export type zone2016packets = ClientFinishedLoading | SendSelfToClient | ClientIsReady | ZoneDoneSendingInitialData | ClientBeginZoning | ProjectileDebug | SendZoneDetails | GameTimeSync | UpdateClientSessionData | WorldDisplayInfo | SetLocale | WorldShutdownNotice | KeepAlive | ClientExitLaunchUrl | MembershipActivation | ShowSystemMessage | POIChangeMessage | ClientLog | CommerceSessionResponse | LoginFailed | NpcCollision | ClientGameSettings | ClientTrialProfileUpsell | PlayerTitle | UpdateUserAge | InitializationParameters | ClientInitializationDetails | ClientFlashTimer | PlayerUpdatePosition | Synchronization | PlayerUpdateManagedPosition | AddSimpleNpc | ContinentBattleInfo | GetContinentBattleInfo | SendSecurityPacketAndSelfDestruct | GetRespawnLocations | Security | ServerPopulationInfo | GetServerPopulationInfo | VehicleCollision | PlayerStop | ClientSettings | RewardBuffInfo | GetRewardBuffInfo | CharacterSelectSessionResponse | UpdateWeatherData | AddLightweightPc | AddLightweightNpc | AddLightweightVehicle | AddProxiedObject | LightweightToFullPc | LightweightToFullNpc | LightweightToFullVehicle | ReplicationInteractionComponent | FairPlayInternal | CharacterRemovePlayer | CharacterKnockback | CharacterUpdateHitpoints | CharacterPlayAnimation | CharacterUpdateScale | CharacterUpdateTemporaryAppearance | CharacterSetLookAt | CharacterRenamePlayer | CharacterUpdateCharacterState | CharacterExpectedSpeed | CharacterThoughtBubble | CharacterSlotCompositeEffectOverride | CharacterPreferredLanguages | CharacterCustomizationChange | CharacterPlayerTitle | CharacterAddEffectTagCompositeEffect | CharacterRemoveEffectTagCompositeEffect | CharacterCustomizeNpc | CharacterSetSpawnerActivationEffect | CharacterSetComboState | CharacterSetSurpriseState | CharacterRemoveNpcCustomization | CharacterReplaceBaseModel | CharacterSetCollidable | CharacterUpdateOwner | CharacterWeaponStance | CharacterUpdateTintAlias | CharacterMoveOnRail | CharacterClearMovementRail | CharacterMoveOnRelativeRail | CharacterDestroyed | CharacterSeekTarget | CharacterSeekTargetUpdate | CharacterUpdateActiveWieldType | CharacterMemberStatus | CharacterKnockedOut | CharacterKnockedOutDamageReport | CharacterRespawn | CharacterRespawnReply | CharacterActivateProfile | CharacterJet | CharacterStartRevive | CharacterStopRevive | CharacterSetFaction | CharacterSetBattleRank | CharacterStartHeal | CharacterStopHeal | CharacterManagedObject | CharacterMaterialTypeOverride | CharacterDebrisLaunch | CharacterHideCorpse | CharacterCharacterStateDelta | CharacterUpdateStat | CharacterAnimationRequest | CharacterPlayWorldCompositeEffect | CharacterAFK | CharacterFullCharacterDataRequest | CharacterDeploy | CharacterKilledBy | CharacterMotorRunning | CharacterDroppedItemNotification | CharacterNoSpaceNotification | CharacterStartMultiStateDeath | CharacterAggroLevel | CharacterDoorState | CharacterSetAllowRespawn | CharacterUpdateGuildTag | CharacterMovementVersion | CharacterDailyRepairMaterials | CharacterUpdateTwitchInfo | CharacterUpdateSimpleProxyHealth | GroupInvite | GroupJoin | GroupAutoGroup | GroupLeave | GroupKick | GroupDisband | GroupSetGroupFlags | GroupSetGroupOwner | GroupSetGroupDescription | GroupUnknownA | GroupMapPingRelated | GroupUnknownC | GroupGetGroup | GroupUnknownF | GroupJoinLookingForMore | GroupToggleSquadLeaderChat | GroupUnknown12 | GroupPlayerJoined | GroupUnknown14 | GroupRemoveGroup | GroupRemoveMember | GroupRemoveInvitation | GroupUnknown19 | GroupUnknown1a | GroupRaidCreate | ReferenceDataItemClassDefinitions | ReferenceDataItemCategoryDefinitions | ReferenceDataProfileDefinitions | ReferenceDataWeaponDefinitions | ReferenceDataProjectileDefinitions | ReferenceDataDynamicAppearance | UiExecuteScript | UiCinematicStartLookAt | UiWeaponHitFeedback | UiZoneWaypoint | UiConfirmHit | RewardAddRewardItem | RewardAddNonRewardItem | RecipeAdd | RecipeComponentUpdate | RecipeRemove | RecipeDiscovery | RecipeDiscoveries | RecipeRequestDiscovery | RecipeUnk8 | RecipeList | InGamePurchaseServerStatusResponse | FriendList | FriendMessage | ClientPathRequest | ClientPathReply | FirstTimeEventUnknown1 | FirstTimeEventState | FirstTimeEventUnknown2 | FirstTimeEventUnknown3 | FirstTimeEventScript | FirstTimeEventUnknown4 | GuildDisband | GuildRename | GuildChangeMemberRank | GuildMotdUpdate | AchievementAdd | AchievementInitialize | Loot | MountMountResponse | MountDismountRequest | MountDismountResponse | MountList | MountOfferUpsell | MountSeatChangeRequest | MountSeatChangeResponse | MountSeatSwapRequest | MountFlipMount | Ping | Pong | VoiceLogin | VoiceJoinChannel | VoiceLeaveChannel | VoiceRadioChannel | VoiceLeaveRadio | VoiceUnk9 | WeaponWeapon | FacilityReferenceData | FacilityFacilityData | FacilitySpawnCollisionChanged | SkillSetSkillPointProgress | LoadoutSelectLoadout | LoadoutUnk1 | LoadoutSetLoadoutSlots | LoadoutSetLoadoutSlot | LoadoutSelectSlot | LoadoutCreateCustomLoadout | ExperienceSetExperienceRanks | ExperienceSetExperienceRateTier | VehicleOwner | VehicleOccupy | VehicleStateData | VehicleStateDamage | VehicleSpawn | VehicleTint | VehicleActiveWeapon | VehicleStats | VehicleDamageInfo | VehicleStatUpdate | VehicleUpdateWeapon | VehicleUpdateQueuePosition | VehicleSetAutoDrive | VehicleLockOnInfo | VehicleLockOnState | VehicleTrackingState | VehicleCounterMeasureState | VehicleLoadVehicleDefinitionManager | VehicleAcquireState | VehicleAutoMount | VehicleDeploy | VehicleEngine | VehicleAccessType | VehicleHealthUpdateOwner | VehicleOwnerPassengerList | VehicleKick | VehicleNoAccess | VehicleExpiration | VehicleGroup | VehicleDeployResponse | VehicleControllerLogOut | VehicleCurrentMoveMode | VehicleItemDefinitionRequest | VehicleItemDefinitionReply | VehicleInventoryItems | ResourceEvent | CollisionDamage | EquipmentSetCharacterEquipment | EquipmentSetCharacterEquipmentSlot | EquipmentUnsetCharacterEquipmentSlot | EquipmentSetCharacterEquipmentSlots | DefinitionFilterSetDefinitionVariable | DefinitionFilterSetDefinitionIntSet | DefinitionFilterUnknownWithVariable1 | DefinitionFilterUnknownWithVariable2 | H1emuPrintToConsole | H1emuMessageBox | H1emuRequestAssetHashes | H1emuVoiceInit | H1emuRequestModules | H1emuRequestWindows | H1emuVoiceState | WallOfDataUIEvent | WallOfDataClientSystemInfo | WallOfDataClientTransition | EffectAddEffect | EffectUpdateEffect | EffectRemoveEffect | EffectAddEffectTag | EffectRemoveUiIndicators | EffectAddUiIndicator | AbilitiesInitAbility | AbilitiesUpdateAbility | AbilitiesUninitAbility | AbilitiesSetActivatableAbilityManager | AbilitiesSetVehicleActivatableAbilityManager | AbilitiesActivateAbility | AbilitiesDeactivateAbility | AbilitiesVehicleDeactivateAbility | AbilitiesActivateAbilityFailed | AbilitiesClearAbilityLineManager | AbilitiesSetProfileAbilityLineMembers | AbilitiesSetLoadoutAbilities | AbilitiesAddLoadoutAbility | AbilitiesAddPersistentAbility | AbilitiesSetProfileRankAbilities | MapRegionGlobalData | MapRegionData | MapRegionMapOutOfBounds | MapRegionRequestContinentData | ItemsSetItemTimerManager | ItemsSetItemTrialLockTimer | ItemsSetAccountItemManager | ItemsAddAccountItem | ItemsRemoveAccountItem | ItemsUpdateAccountItem | ItemsSetEscrowAccountItemManager | ItemsAddEscrowAccountItem | ItemsRemoveEscrowAccountItem | ItemsUpdateEscrowAccountItem | ItemsAccountItemManagerStateChanged | ItemsReportNewRewardCrateAdded | ItemsReportRewardCrateContents | ItemsSetEmoteItem | ItemsRemoveEmoteItem | ItemsSetSkinItemManager | ItemsSetSkinItem | ItemsSetCurrentSkinItemCollection | ItemsRequestUseItem | ItemsRequestUseAccountItem | CurrencySetCurrencyDiscount | ZoneSettingData | WordFilterData | StaticFacilityInfoAllZones | OperationClientClearMissions | WordFilterData | StatsUnk2 | StatsUnk3 | StatsUnk4 | StatsAllPlayerStatLeaderboard | StatsPlayersLeaderboard | LocksShowMenu | CharacterStateInteractionStart | CharacterStateInteractionStop | AudioSetState | AudioSetSwitch | AudioPostEvent | NpcFoundationPermissionsManagerAddPermission | NpcFoundationPermissionsManagerEditPermission | NpcFoundationPermissionsManagerBaseShowPermissions | ReplicationNpcComponent | VehicleSkinSetVehicleSkinManager | AnimationRequest | AnimationPlay | ChatChat | ChatEnterArea | ChatDebugChat | ChatFromStringId | ChatChatText | CommandPlaySoundAtLocation | CommandInteractRequest | CommandInteractCancel | CommandInteractDebug | CommandInteractionList | CommandInteractionSelect | CommandSetProfile | CommandPlayerSelect | CommandFreeInteractionNpc | CommandRecipeStart | CommandShowRecipeWindow | CommandPlayDialogEffect | CommandPlaySoundIdOnTarget | CommandInteractionString | CommandAddWorldCommand | CommandAddZoneCommand | CommandExecuteCommand | CommandZoneExecuteCommand | CommandItemDefinitionRequest | CommandItemDefinitionReply | CommandItemDefinitions | CommandEnableCompositeEffects | CommandRequestWeaponFireStateUpdate | CommandDeliveryDisplayInfo | CommandDeliveryManagerStatus | CommandDeliveryManagerShowNotification | CommandReportLastDeath | CommandPointAndReport | CommandSpawnVehicle | CommandRunSpeed | CommandAddItem | ClientUpdateItemAdd | ClientUpdateItemUpdate | ClientUpdateItemDelete | ClientUpdateUpdateStat | ClientUpdateUpdateLocation | ClientUpdateActivateProfile | ClientUpdateDoneSendingPreloadCharacters | ClientUpdateDamageInfo | ClientUpdateRespawnLocations | ClientUpdateModifyMovementSpeed | ClientUpdateModifyTurnRate | ClientUpdateModifyStrafeSpeed | ClientUpdateUpdateManagedLocation | ClientUpdateManagedMovementVersion | ClientUpdateUpdateWeaponAddClips | ClientUpdateStartTimer | ClientUpdateCompleteLogoutProcess | ClientUpdateProximateItems | ClientUpdateTextAlert | ClientUpdateNetworkProximityUpdatesComplete | ClientUpdateDeathMetrics | ClientUpdateManagedObjectResponseControl | ClientUpdateNpcRelevance | ClientUpdateMonitorTimeDrift | ClientUpdateUpdateRewardAndGrinderState | ClientUpdateUpdateLockoutTimes | ClientUpdateZoneStatus | InGamePurchasePreviewOrderResponse | InGamePurchasePlaceOrderResponse | InGamePurchaseStoreBundles | InGamePurchaseStoreBundleCategoryGroups | InGamePurchaseStoreBundleCategories | InGamePurchaseExclusivePartnerStoreBundles | InGamePurchaseStoreBundleGroups | InGamePurchaseWalletInfoResponse | InGamePurchaseStationCashProductsResponse | InGamePurchaseStateCodesResponse | InGamePurchaseCountryCodesResponse | InGamePurchaseSubscriptionProductsResponse | InGamePurchaseEnableMarketplace | InGamePurchaseAccountInfoRequest | InGamePurchaseAccountInfoResponse | InGamePurchaseStoreBundleContentRequest | InGamePurchaseStoreBundleContentResponse | InGamePurchaseClientStatistics | InGamePurchaseDisplayMannequinStoreBundles | InGamePurchaseItemOfTheDay | InGamePurchaseEnablePaymentSources | InGamePurchaseSetMembershipFreeItemInfo | InGamePurchaseGiftOrderNotification | InGamePurchaseActiveSchedules | InGamePurchaseNudgeOfferNotification | InGamePurchaseSpiceWebAuthUrlResponse | InGamePurchaseBundlePriceUpdate | InGamePurchaseWalletBalanceUpdate | InGamePurchaseMemberFreeItemCount | QuickChatSendData | Broadcast | LobbyGameDefinitionDefinitionsRequest | LobbyGameDefinitionDefinitionsResponse | CoinStoreItemList | CoinStoreSellToClientRequest | CoinStoreTransactionComplete | ProfileStatsGetPlayerProfileStats | H1emuFairPlay | H1emuHeartBeat | DtoHitReportPacket | DtoStateChange | DtoObjectInitialData | DtoHitSpeedTreeReport | ContainerMoveItem | ContainerInitEquippedContainers | ContainerError | ContainerListAll | ContainerUpdateEquippedContainer | ConstructionPlacementRequest | ConstructionPlacementResponse | ConstructionPlacementFinalizeRequest | ConstructionPlacementFinalizeResponse | ConstructionUnknown | LocksSetLock | RagdollStart | RagdollUpdatePose | RagdollUnk2 | RagdollUnk | RagdollStop | GameModeUpdateToxicGas | GameModeUpdateSafeZone | GameModeDeathInfo | GameModeStartLogout | GameModePlayersRemaining | GameModeTeamsRemaining | GameModeUnk11 | GameModeUnk13 | GameModeUnk15 | GameModeUnk16 | GameModeUnk18 | GameModeUnk19 | GameModeUnk20 | GameModeUnk21 | GameModeStartMatch | GameModeUnk23 | GameModeShowVictoryScreen | GrinderExchangeRequest | GrinderExchangeResponse | ScreenEffectApplyScreenEffect | ScreenEffectRemoveScreenEffect | SpectatorEnable | SpectatorAllSpectators | SpectatorUnknown3 | SpectatorTeleport | SpectatorDeathList | SpectatorSetModerator | SpectatorSetOwner | SpectatorMatchResults | SpectatorUnknown12 | SynchronizedTeleportWaitingForPlayers | SynchronizedTeleportNotifyReady | SynchronizedTeleportPlayersReady | SynchronizedTeleportRelease | AccessedCharacterBeginCharacterAccess | AccessedCharacterEndCharacterAccess | AccessedCharacterUpdateMutatorRights | AccessedCharacterUnknown3 | AccessedCharacterUnknown2 | ShaderParameterOverrideBase;
