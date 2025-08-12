@@ -499,7 +499,8 @@ export const basePackets: PacketStructures = [
 
             { name: "unknownDword34", type: "uint32", defaultValue: 0 },
             { name: "unknownDword35", type: "uint32", defaultValue: 0 },
-            { // related to Abilities
+            {
+              // related to Abilities
               name: "unknownAbilityData1",
               type: "schema",
               defaultValue: {},
@@ -836,7 +837,8 @@ export const basePackets: PacketStructures = [
                 }
               ]
             },
-            { // related to AquireTimers
+            {
+              // related to AquireTimers
               name: "unknownData1",
               type: "schema",
               defaultValue: {},
@@ -953,7 +955,8 @@ export const basePackets: PacketStructures = [
               ]
             },
             { name: "unknownDword37", type: "uint32", defaultValue: 0 },
-            { // related to CharacterStateBase
+            {
+              // related to CharacterStateBase
               name: "unknownData3",
               type: "schema",
               defaultValue: {},
@@ -1345,7 +1348,8 @@ export const basePackets: PacketStructures = [
                 { name: "unknownDword3", type: "uint32", defaultValue: 0 }
               ]
             },
-            { // related to implant packets
+            {
+              // related to implant packets
               name: "implantSlots",
               type: "array",
               defaultValue: [],
@@ -1611,7 +1615,8 @@ export const basePackets: PacketStructures = [
               type: "schema",
               defaultValue: {},
               fields: [
-                { // sub_140385D00 - related to missions
+                {
+                  // sub_140385D00 - related to missions
                   name: "unknownArray1",
                   type: "array",
                   defaultValue: [],
