@@ -39,7 +39,8 @@ import {
   itemCollectionSchema,
   emoteItemsSchema,
   skinItemsSchema,
-  mountSchema
+  mountSchema,
+  skillPointDataSchema
 } from "./shared";
 import {
   achievementSchema,
@@ -498,7 +499,7 @@ export const basePackets: PacketStructures = [
 
             { name: "unknownDword34", type: "uint32", defaultValue: 0 },
             { name: "unknownDword35", type: "uint32", defaultValue: 0 },
-            {
+            { // related to Abilities
               name: "unknownAbilityData1",
               type: "schema",
               defaultValue: {},
@@ -835,7 +836,7 @@ export const basePackets: PacketStructures = [
                 }
               ]
             },
-            {
+            { // related to AquireTimers
               name: "unknownData1",
               type: "schema",
               defaultValue: {},
@@ -952,7 +953,7 @@ export const basePackets: PacketStructures = [
               ]
             },
             { name: "unknownDword37", type: "uint32", defaultValue: 0 },
-            {
+            { // related to CharacterStateBase
               name: "unknownData3",
               type: "schema",
               defaultValue: {},
@@ -1081,7 +1082,7 @@ export const basePackets: PacketStructures = [
               ]
             },
             {
-              name: "unknownArray21",
+              name: "unknownArray21", // related to DefinitionFilter
               type: "array",
               defaultValue: [],
               fields: [
@@ -1103,7 +1104,7 @@ export const basePackets: PacketStructures = [
               ]
             },
             {
-              name: "unknownArray22",
+              name: "unknownArray22", // related to unknownArray4 in LightWeightToFullNpc
               type: "array",
               defaultValue: [],
               fields: [
@@ -1240,7 +1241,7 @@ export const basePackets: PacketStructures = [
               ]
             },
             {
-              name: "unknownArray23",
+              name: "unknownArray23", // related to unknownArray5 in LightWeightToFullNpc
               type: "array",
               defaultValue: [],
               fields: [
@@ -1301,7 +1302,7 @@ export const basePackets: PacketStructures = [
               ]
             },
             {
-              name: "unknownArray25", // playerRanks (from ps2 sendself dump)
+              name: "unknownArray25", // playerRanks (from ps2 sendself dump) -- related to Experience
               type: "array",
               defaultValue: [],
               fields: [
@@ -1344,7 +1345,7 @@ export const basePackets: PacketStructures = [
                 { name: "unknownDword3", type: "uint32", defaultValue: 0 }
               ]
             },
-            {
+            { // related to implant packets
               name: "implantSlots",
               type: "array",
               defaultValue: [],
@@ -1610,7 +1611,7 @@ export const basePackets: PacketStructures = [
               type: "schema",
               defaultValue: {},
               fields: [
-                {
+                { // sub_140385D00 - related to missions
                   name: "unknownArray1",
                   type: "array",
                   defaultValue: [],
@@ -1940,39 +1941,7 @@ export const basePackets: PacketStructures = [
                 }
               ]
             },
-            {
-              name: "skillPointData",
-              type: "schema",
-              defaultValue: {},
-              fields: [
-                {
-                  name: "skillPointsGranted",
-                  type: "uint64string",
-                  defaultValue: ""
-                },
-                {
-                  name: "skillPointsTotal",
-                  type: "uint64string",
-                  defaultValue: ""
-                },
-                {
-                  name: "skillPointsSpent",
-                  type: "uint64string",
-                  defaultValue: ""
-                },
-                {
-                  name: "unknownQword1",
-                  type: "uint64string",
-                  defaultValue: ""
-                },
-                {
-                  name: "unknownQword2",
-                  type: "uint64string",
-                  defaultValue: ""
-                },
-                { name: "unknownDword1", type: "uint32", defaultValue: 0 }
-              ]
-            },
+            ...skillPointDataSchema,
             {
               name: "skills",
               type: "array",
