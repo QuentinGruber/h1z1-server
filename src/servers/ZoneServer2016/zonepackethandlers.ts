@@ -2538,8 +2538,6 @@ export class ZonePacketHandlers {
               server.containerError(client, ContainerErrors.NO_ITEM_IN_SLOT);
               return;
             }
-            if (loadoutItem.itemDefinitionId == 1899)
-              loadoutItem.itemDefinitionId = 1373; // Remove this next wipe
             loadoutItem.transferLoadoutItem(
               server,
               targetCharacterId,
@@ -2590,8 +2588,6 @@ export class ZonePacketHandlers {
             server.containerError(client, ContainerErrors.NO_SPACE);
             return;
           }
-          if (loadoutItem.itemDefinitionId == 1899)
-            loadoutItem.itemDefinitionId = 1373; // Remove this next wipe
           sourceCharacter.transferItemFromLoadout(
             server,
             targetContainer,
