@@ -298,7 +298,9 @@ export class ZoneServer2016 extends EventEmitter {
   protected _loginConnectionManager!: LoginConnectionManager;
   _serverGuid = generateRandomGuid();
   _worldId = 0;
-  _grid: GridCell[] = [];
+  _grid: Map<number, GridCell> = new Map();
+  _cellSize: number = 250;
+  _cellSizeMaxHeight: number = 250;
   _spawnGrid: SpawnCell[] = [];
 
   saveTimeInterval: number = 600000;
@@ -1377,16 +1379,10 @@ export class ZoneServer2016 extends EventEmitter {
   getCraftingProximityItems(client: Client): ClientUpdateProximateItems {
     const proximityItems: ClientUpdateProximateItems = { items: [] };
 
-    for (const gridCell of this._grid) {
-      if (
-        !isPosInRadius(
-          client.chunkRenderDistance,
-          gridCell.position,
-          client.character.state.position
-        )
-      )
-        continue;
-
+    for (const gridCell of this.getCellsInRange(
+      client.character.state.position,
+      client.chunkRenderDistance
+    )) {
       for (const object of gridCell.objects) {
         if (object instanceof ItemObject) {
           if (
@@ -2249,58 +2245,74 @@ export class ZoneServer2016 extends EventEmitter {
     return grid;
   }
 
-  divideLargeCells(threshold: number) {
-    const grid = this._grid;
-    for (let i = 0; i < grid.length; i++) {
-      const gridCell: GridCell = grid[i];
-      if (gridCell.height < 250) continue;
-      if (gridCell.objects.length > threshold) {
-        const newGridCellWidth = gridCell.width / 2;
-        const newGridCellHeight = gridCell.height / 2;
-        // 4 cells made of 1
-        const newGridCell1 = new GridCell(
-          gridCell.position[0],
-          gridCell.position[2],
-          newGridCellWidth,
-          newGridCellHeight
-        );
-        const newGridCell2 = new GridCell(
-          gridCell.position[0] + newGridCellWidth,
-          gridCell.position[2],
-          newGridCellWidth,
-          newGridCellHeight
-        );
-        const newGridCell3 = new GridCell(
-          gridCell.position[0],
-          gridCell.position[2] + newGridCellHeight,
-          newGridCellWidth,
-          newGridCellHeight
-        );
-        const newGridCell4 = new GridCell(
-          gridCell.position[0] + newGridCellWidth,
-          gridCell.position[2] + newGridCellHeight,
-          newGridCellWidth,
-          newGridCellHeight
-        );
-        // remove old grid cell
-        const objects = this._grid[i].objects;
-        this._grid.splice(i, 1);
-        i--;
+  private getGridKey(x: number, y: number): number {
+    const xIndex = Math.floor(x / this._cellSize);
+    const yIndex = Math.floor(y / this._cellSize);
+    return xIndex + yIndex * this._cellSizeMaxHeight;
+  }
 
-        this._grid.push(newGridCell1);
-        this._grid.push(newGridCell2);
-        this._grid.push(newGridCell3);
-        this._grid.push(newGridCell4);
-        objects.forEach((object: BaseEntity) => {
-          this.pushToGridCell(object);
-        });
-      }
+  divideLargeCells(threshold: number) {
+    const newCells: [number, GridCell][] = [];
+    const cellsToRemove: number[] = [];
+
+    for (const [key, gridCell] of this._grid) {
+      if (gridCell.height < 250 || gridCell.objects.length <= threshold)
+        continue;
+
+      const x = gridCell.position[0];
+      const y = gridCell.position[2];
+      const newGridCellWidth = gridCell.width / 2;
+      const newGridCellHeight = gridCell.height / 2;
+
+      newCells.push(
+        [
+          this.getGridKey(x, y),
+          new GridCell(x, y, newGridCellWidth, newGridCellHeight)
+        ],
+        [
+          this.getGridKey(x + newGridCellWidth, y),
+          new GridCell(
+            x + newGridCellWidth,
+            y,
+            newGridCellWidth,
+            newGridCellHeight
+          )
+        ],
+        [
+          this.getGridKey(x, y + newGridCellHeight),
+          new GridCell(
+            x,
+            y + newGridCellHeight,
+            newGridCellWidth,
+            newGridCellHeight
+          )
+        ],
+        [
+          this.getGridKey(x + newGridCellWidth, y + newGridCellHeight),
+          new GridCell(
+            x + newGridCellWidth,
+            y + newGridCellHeight,
+            newGridCellWidth,
+            newGridCellHeight
+          )
+        ]
+      );
+
+      cellsToRemove.push(key);
+    }
+
+    for (const key of cellsToRemove) {
+      const objects = this._grid.get(key)!.objects;
+      this._grid.delete(key);
+      objects.forEach((object) => this.pushToGridCell(object));
+    }
+
+    for (const [key, cell] of newCells) {
+      this._grid.set(key, cell);
     }
   }
 
   pushToGridCell(obj: BaseEntity) {
-    if (this._grid.length == 0)
-      this._grid = this.divideMapIntoGrid(8196, 8196, 250);
     if (
       obj instanceof Vehicle ||
       obj instanceof Character ||
@@ -2311,39 +2323,18 @@ export class ZoneServer2016 extends EventEmitter {
       // dont push objects that can change its position
       return;
     }
-    for (let i = 0; i < this._grid.length; i++) {
-      const gridCell = this._grid[i];
-      if (
-        obj.state.position[0] >= gridCell.position[0] &&
-        obj.state.position[0] <= gridCell.position[0] + gridCell.width &&
-        obj.state.position[2] >= gridCell.position[2] &&
-        obj.state.position[2] <= gridCell.position[2] + gridCell.height
-      ) {
-        if (gridCell.objects.includes(obj)) {
-          return;
-        }
-        gridCell.objects.push(obj);
-      }
-    }
+    const x = obj.state.position[0],
+      y = obj.state.position[2];
+    const key = this.getGridKey(x, y);
+    let cell = this._grid.get(key);
+    if (cell) cell.objects.push(obj);
   }
 
   assignChunkRenderDistance(client: Client) {
-    let lowerRenderDistance = false;
-    const character = client.character;
-    for (let i = 0; i < this._grid.length; i++) {
-      const gridCell: GridCell = this._grid[i];
-
-      if (
-        character.state.position[0] >= gridCell.position[0] &&
-        character.state.position[0] <= gridCell.position[0] + gridCell.width &&
-        character.state.position[2] >= gridCell.position[2] &&
-        character.state.position[2] <= gridCell.position[2] + gridCell.height &&
-        gridCell.height < 250
-      ) {
-        lowerRenderDistance = true;
-      }
-    }
-    client.chunkRenderDistance = lowerRenderDistance ? 600 : 700;
+    const position = client.character.state.position;
+    const key = this.getGridKey(position[0], position[2]);
+    const cell = this._grid.get(key);
+    client.chunkRenderDistance = cell && cell.height < 250 ? 600 : 700;
   }
 
   private async worldRoutine() {
@@ -2919,10 +2910,7 @@ export class ZoneServer2016 extends EventEmitter {
     // render distance is max client.chunkRenderDistance, could probably be lowered a lot
     // - meme
 
-    for (const gridCell of this._grid) {
-      if (!isPosInRadius(400, gridCell.position, position)) {
-        continue;
-      }
+    for (const gridCell of this.getCellsInRange(position, 400)) {
       for (const object of gridCell.objects) {
         object.OnExplosiveHit(this, sourceEntity, client);
       }
@@ -4126,14 +4114,35 @@ export class ZoneServer2016 extends EventEmitter {
     }
   }
 
+  private getCellsInRange(position: Float32Array, radius: number) {
+    const cells: GridCell[] = [];
+    const minX =
+      Math.floor((position[0] - radius) / this._cellSize) * this._cellSize;
+    const maxX =
+      Math.floor((position[0] + radius) / this._cellSize) * this._cellSize;
+    const minY =
+      Math.floor((position[2] - radius) / this._cellSize) * this._cellSize;
+    const maxY =
+      Math.floor((position[2] + radius) / this._cellSize) * this._cellSize;
+    for (let x = minX; x <= maxX; x++) {
+      for (let y = minY; y <= maxY; y++) {
+        const key = x + y * this._cellSizeMaxHeight;
+        const cell = this._grid.get(key);
+        if (cell) cells.push(cell);
+      }
+    }
+    return cells;
+  }
+
   private spawnGridObjects(client: Client) {
     const position = client.character.state.position;
-    for (const gridCell of this._grid) {
-      if (
-        !isPosInRadius(client.chunkRenderDistance, gridCell.position, position)
-      )
-        continue;
-
+    const cellsInRange = this.getCellsInRange(
+      position,
+      client.chunkRenderDistance
+    );
+    const toSpawn = new Set<BaseSimpleNpc | BaseLightweightCharacter>();
+    const updates: PlayerUpdatePosition[] = [];
+    for (const gridCell of cellsInRange) {
       for (const object of gridCell.objects) {
         if (
           client.spawnedEntities.has(object) ||
@@ -4153,10 +4162,7 @@ export class ZoneServer2016 extends EventEmitter {
             client,
             object
           );
-          continue;
-        }
-
-        if (object instanceof ConstructionChildEntity) {
+        } else if (object instanceof ConstructionChildEntity) {
           if (this.constructionManager.shouldHideEntity(this, client, object))
             continue;
           this.constructionManager.spawnSimpleConstruction(
@@ -4164,10 +4170,7 @@ export class ZoneServer2016 extends EventEmitter {
             client,
             object
           );
-          continue;
-        }
-
-        if (object instanceof LootableConstructionEntity) {
+        } else if (object instanceof LootableConstructionEntity) {
           if (this.constructionManager.shouldHideEntity(this, client, object))
             continue;
           this.constructionManager.spawnLootableConstruction(
@@ -4175,61 +4178,58 @@ export class ZoneServer2016 extends EventEmitter {
             client,
             object
           );
-          continue;
-        }
-
-        if (object instanceof BaseSimpleNpc) {
+        } else if (object instanceof BaseSimpleNpc) {
           if (object instanceof Crate && object.spawnTimestamp > Date.now()) {
             continue;
           }
-          client.spawnedEntities.add(object);
-          this.addSimpleNpc(client, object);
-          continue;
-        }
-
-        client.spawnedEntities.add(object);
-        if (object instanceof BaseLightweightCharacter) {
-          if (object.useSimpleStruct) {
-            this.addSimpleNpc(client, object);
-          } else {
+          toSpawn.add(object);
+        } else if (object instanceof BaseLightweightCharacter) {
+          toSpawn.add(object);
+          if (!object.useSimpleStruct) {
             this.addLightweightNpc(client, object);
             if (object instanceof DoorEntity) {
               if (object.isOpen) {
-                this.sendData<PlayerUpdatePosition>(
-                  client,
-                  "PlayerUpdatePosition",
-                  {
-                    transientId: object.transientId,
-                    positionUpdate: {
-                      sequenceTime: 0,
-                      unknown3_int8: 0,
-                      position: object.state.position,
-                      orientation: object.openAngle
-                    }
+                updates.push({
+                  transientId: object.transientId,
+                  positionUpdate: {
+                    sequenceTime: 0,
+                    unknown3_int8: 0,
+                    position: object.state.position,
+                    orientation: object.openAngle
                   }
-                );
+                });
               }
-              continue;
             }
             if (object instanceof Npc) {
               object.updateEquipment(this);
-              continue;
             }
           }
         }
       }
     }
+
+    for (const obj of toSpawn) {
+      if (obj instanceof BaseLightweightCharacter && !obj.useSimpleStruct) {
+        this.addLightweightNpc(client, obj);
+        continue;
+      }
+      this.addSimpleNpc(client, obj);
+      client.spawnedEntities.add(obj);
+    }
+    for (const up of updates) {
+      this.sendData(client, "PlayerUpdatePosition", up);
+    }
   }
 
   private spawnLoadingGridObjects(client: Client) {
     const position = client.character.state.position;
-    for (const gridCell of this._grid) {
-      if (
-        !isPosInRadius(client.chunkRenderDistance, gridCell.position, position)
-      ) {
-        continue;
-      }
+    const toSpawn = new Set<BaseSimpleNpc | BaseLightweightCharacter>();
+    for (const gridCell of this.getCellsInRange(
+      position,
+      client.chunkRenderDistance
+    )) {
       for (const object of gridCell.objects) {
+        if (client.spawnedEntities.has(object)) continue;
         if (
           !isPosInRadius(
             (object.npcRenderDistance as number) ||
@@ -4241,25 +4241,24 @@ export class ZoneServer2016 extends EventEmitter {
           continue;
         }
 
-        if (client.spawnedEntities.has(object)) continue;
-
-        if (object instanceof BaseSimpleNpc) {
-          if (object instanceof Crate && object.spawnTimestamp > Date.now()) {
-            continue;
-          }
-          client.spawnedEntities.add(object);
-          this.addSimpleNpc(client, object);
-          continue;
-        }
-
-        if (
-          object instanceof BaseLightweightCharacter &&
-          object.useSimpleStruct
-        ) {
-          client.spawnedEntities.add(object);
-          this.addSimpleNpc(client, object);
+        switch (true) {
+          case object instanceof BaseSimpleNpc:
+            if (object instanceof Crate && object.spawnTimestamp > Date.now()) {
+              continue;
+            }
+            toSpawn.add(object);
+            break;
+          case object instanceof BaseLightweightCharacter &&
+            object.useSimpleStruct:
+            toSpawn.add(object);
+            break;
         }
       }
+    }
+
+    for (const obj of toSpawn) {
+      client.spawnedEntities.add(obj);
+      this.addSimpleNpc(client, obj);
     }
   }
 
