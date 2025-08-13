@@ -155,6 +155,12 @@ interface AirdropConfig {
   crateDropSpeed: number;
 }
 
+interface GroupConfig {
+  enabled: boolean;
+  player_limit: number;
+  foundation_player_limit: number;
+}
+
 export interface Config {
   server: ServerConfig;
   rcon: RconConfig;
@@ -170,4 +176,5 @@ export interface Config {
   decay: DecayConfig;
   smelting: SmeltingConfig;
   randomevents: RandomEventsConfig;
+  groups: GroupConfig;
 }

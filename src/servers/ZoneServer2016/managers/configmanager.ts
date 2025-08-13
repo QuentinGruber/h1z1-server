@@ -398,5 +398,13 @@ export class ConfigManager {
     server.inGameTimeManager.baseTimeMultiplier = timeMultiplier;
     server.inGameTimeManager.nightTimeMultiplierValue = nightTimeMultiplier;
     //#endregion
+
+    //#region groups
+    const { enabled, player_limit, foundation_player_limit } =
+      this.config.groups;
+    server.groupManager.playerLimit = player_limit;
+    server.groupManager.foundationPlayerLimit = foundation_player_limit;
+    server.groupManager.enabled = enabled;
+    //#endregion
   }
 }

@@ -28,6 +28,9 @@ export class GroupManager {
   pendingInvites: { [characterId: string]: number } = {};
   soloGroups: { [groupId: number]: Group } = {};
   groupSync: { [groupId: number]: number } = {};
+  playerLimit: number = 0;
+  foundationPlayerLimit = 0;
+  enabled: boolean = true;
 
   sendGroupError(server: ZoneServer2016, client: Client, error: GroupErrors) {
     server.sendChatText(client, `[GroupError] ${error}`);
@@ -244,7 +247,7 @@ export class GroupManager {
     source: Client,
     target: Client
   ) {
-    if (server.isBattleRoyale()) return;
+    if (server.isBattleRoyale() || !this.enabled) return;
     if (this.pendingInvites[target.character.characterId]) {
       server.sendAlert(
         source,
@@ -278,7 +281,7 @@ export class GroupManager {
     }
 
     const group = await this.getGroup(server, source.character.groupId);
-    if (group && group.members.length >= 12) {
+    if (group && group.members.length >= this.playerLimit) {
       server.sendAlert(source, "Group limit reached");
       delete this.pendingInvites[target.character.characterId];
       return;
@@ -319,7 +322,7 @@ export class GroupManager {
     target: Client,
     joinState: boolean
   ) {
-    if (server.isBattleRoyale()) return;
+    if (server.isBattleRoyale() || !this.enabled) return;
     const pendingInvite = this.pendingInvites[target.character.characterId];
     if (pendingInvite != source.character.groupId) {
       server.sendAlert(target, "You have no pending invites!");
@@ -328,7 +331,7 @@ export class GroupManager {
 
     let group = await this.getGroup(server, source.character.groupId);
 
-    if (group && group.members.length >= 12) {
+    if (group && group.members.length >= this.playerLimit) {
       server.sendAlert(target, "Group limit reached");
       delete this.pendingInvites[target.character.characterId];
       return;

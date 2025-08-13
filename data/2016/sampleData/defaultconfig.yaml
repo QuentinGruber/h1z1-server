@@ -191,3 +191,8 @@ gametime:
   nightTimeMultiplier: 2 # This way night time pass 2 times faster than daytime
   timeMultiplier: 36 # 1 hour IRL = 36 hours ingame, so 20 min for a full day
   baseTime: 6 # server ingameTime start at 6 AM, 18 = 6PM
+
+groups:
+  enabled: true
+  player_limit: 12
+  foundation_player_limit: 12
