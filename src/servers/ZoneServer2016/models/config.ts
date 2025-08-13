@@ -67,7 +67,6 @@ interface GameTimeConfig {
 
 interface WorldObjectsConfig {
   vehicleSpawnCap: number;
-  minAirdropSurvivors: number;
   hasCustomLootRespawnTime: boolean;
   lootRespawnTimer: number;
   vehicleRespawnTimer: number;
@@ -151,6 +150,7 @@ interface RandomEventsConfig {
 }
 
 interface AirdropConfig {
+  minimumPlayers: number;
   planeMovementSpeed: number;
   crateDropSpeed: number;
 }

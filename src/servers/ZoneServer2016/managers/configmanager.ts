@@ -93,7 +93,8 @@ export class ConfigManager {
       construction,
       decay,
       smelting,
-      randomevents
+      randomevents,
+      groups
     } = this.defaultConfig;
     return {
       ...this.defaultConfig,
@@ -149,6 +150,10 @@ export class ConfigManager {
       randomevents: {
         ...randomevents,
         ...config.randomevents
+      },
+      groups: {
+        ...groups,
+        ...config.groups
       }
     };
   }
@@ -250,7 +255,9 @@ export class ConfigManager {
     //#endregion
 
     //#region airdrops
-    const { planeMovementSpeed, crateDropSpeed } = this.config.airdrop;
+    const { planeMovementSpeed, crateDropSpeed, minimumPlayers } =
+      this.config.airdrop;
+    server.airdropManager.minimumPlayers = minimumPlayers;
     server.airdropManager.planeMovementSpeed = planeMovementSpeed;
     server.airdropManager.crateDropSpeed = crateDropSpeed;
     //#endregion
@@ -258,7 +265,6 @@ export class ConfigManager {
     //#region worldobjects
     const {
       vehicleSpawnCap,
-      minAirdropSurvivors,
       hasCustomLootRespawnTime,
       lootRespawnTimer,
       vehicleRespawnTimer,
@@ -278,7 +284,6 @@ export class ConfigManager {
       crowbarHitDamage
     } = this.config.worldobjects;
     server.worldObjectManager.vehicleSpawnCap = vehicleSpawnCap;
-    server.worldObjectManager.minAirdropSurvivors = minAirdropSurvivors;
     server.worldObjectManager.hasCustomLootRespawnTime =
       hasCustomLootRespawnTime;
     server.worldObjectManager.lootRespawnTimer = lootRespawnTimer;

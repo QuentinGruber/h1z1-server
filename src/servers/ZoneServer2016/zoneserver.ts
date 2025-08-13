@@ -2435,6 +2435,7 @@ export class ZoneServer2016 extends EventEmitter {
       this.sendZonePopulationUpdate();
     }
     this.setTickRate();
+    this.airdropManager.sendDeliveryStatus();
   }
 
   async generateDamageRecord(
@@ -6817,7 +6818,7 @@ export class ZoneServer2016 extends EventEmitter {
     }
 
     if (
-      _.size(this._clients) < this.worldObjectManager.minAirdropSurvivors &&
+      _.size(this._clients) < this.airdropManager.minimumPlayers &&
       !this._soloMode &&
       !client.isDebugMode
     ) {

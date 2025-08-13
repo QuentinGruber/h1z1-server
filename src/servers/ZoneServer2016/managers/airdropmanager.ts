@@ -1,4 +1,7 @@
-import { CommandDeliveryDisplayInfo } from "types/zone2016packets";
+import {
+  CommandDeliveryDisplayInfo,
+  CommandDeliveryManagerStatus
+} from "types/zone2016packets";
 import { ZoneServer2016 } from "../zoneserver";
 import { Effects, ModelIds } from "../models/enums";
 import {
@@ -33,6 +36,7 @@ export class AirdropManager {
   private maxAirdrops: number = 1;
   public crateDropSpeed: number = 35496.3;
   public planeMovementSpeed: number = 80000;
+  public minimumPlayers: number = 0;
 
   constructor(public server: ZoneServer2016) {}
 
@@ -191,10 +195,11 @@ export class AirdropManager {
 
     setTimeout(() => {
       this.activeAirdrops.delete(airdropId);
+      this.sendDeliveryStatus();
     }, this.planeMovementSpeed);
 
     this.broadcastDeliveryInfo();
-    this.updateAirdropIndicator();
+    this.sendDeliveryStatus();
     return true;
   }
 
@@ -256,36 +261,10 @@ export class AirdropManager {
     return this.activeAirdrops.size < this.maxAirdrops;
   }
 
-  updateAirdropIndicator(client: ZoneClient2016 | undefined = undefined) {
-    let statusCode = 0;
-    if (this.activeAirdrops.size > 0) {
-      statusCode = 1;
-    } else if (
-      _.size(this.server._clients) <
-        this.server.worldObjectManager.minAirdropSurvivors &&
-      !this.server._soloMode
-    ) {
-      statusCode = 2;
-    }
-
-    const data = {
-      indicator: statusCode == 0 ? 1 : 0,
-      status: 0
-    };
-
-    if (!client) {
-      this.server.sendDataToAll("Command.DeliveryManagerStatus", data);
-      return;
-    }
-
-    this.server.sendData(client, "Command.DeliveryManagerStatus", data);
-  }
-
-  sendDeliveryStatus(client: ZoneClient2016 | undefined = undefined) {
+  sendDeliveryStatus() {
     const hasEnoughSurvivors =
       this.server._soloMode ||
-      this.server.worldObjectManager.minAirdropSurvivors <
-        _.size(this.server._clients);
+      this.minimumPlayers < _.size(this.server._clients);
 
     let status = 0;
     switch (true) {
@@ -297,17 +276,12 @@ export class AirdropManager {
         break;
     }
 
-    if (client) {
-      this.server.sendData(client, "Command.DeliveryManagerStatus", {
-        color: status == 0 ? 1 : 0,
+    this.server.sendDataToAll<CommandDeliveryManagerStatus>(
+      "Command.DeliveryManagerStatus",
+      {
+        deliveryAvailable: status == 0 ? 1 : 0,
         status: status
-      });
-      return;
-    }
-
-    this.server.sendDataToAll("Command.DeliveryManagerStatus", {
-      color: status == 0 ? 1 : 0,
-      status: status
-    });
+      }
+    );
   }
 }

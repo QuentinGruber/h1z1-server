@@ -311,7 +311,7 @@ export class ZonePacketHandlers {
     });
 
     server.airdropManager.broadcastDeliveryInfo(client);
-    server.airdropManager.sendDeliveryStatus(client);
+    server.airdropManager.sendDeliveryStatus();
   }
   ClientFinishedLoading(
     server: ZoneServer2016,
