@@ -24,88 +24,129 @@ import dgram from "node:dgram";
 import { PacketsQueue } from "./PacketsQueue";
 const debug = require("debug")("SOEServer");
 
+// Constants for better maintainability
+const DEFAULT_CONFIG = {
+  UDP_LENGTH: 512,
+  WAIT_TIME_MS: 24,
+  KEEP_ALIVE_TIMEOUT: 40000,
+  RESEND_TIMEOUT: 250,
+  MAX_RESENT_TRIES: 24,
+  CRC_LENGTH: 2 as crc_length_options,
+  EVENT_LOOP_LAG_SAMPLES: 100,
+  PERFORMANCE_INTERVAL: 100,
+  STATS_RESET_INTERVAL: 60000,
+  BUFFER_POOL_SIZE: 1024 * 1024, // 1MB
+  SOCKET_BUFFER_SIZE: 2 * 1024 * 1024 // 2MB
+} as const;
+
 export class SOEServer extends EventEmitter {
-  _serverPort: number;
-  _cryptoKey: Uint8Array;
-  _protocol!: Soeprotocol;
-  _udpLength: number = 512;
+  private readonly _serverPort: number;
+  private readonly _cryptoKey: Uint8Array;
+  private _protocol!: Soeprotocol;
+  private _udpLength: number = DEFAULT_CONFIG.UDP_LENGTH;
   _useEncryption: boolean = true;
-  private _clients: Map<string, SOEClient> = new Map();
-  private _connection: dgram.Socket;
-  private _connectionv6: dgram.Socket;
+  private readonly _clients: Map<string, SOEClient> = new Map();
+  private readonly _connection: dgram.Socket;
+  private readonly _connectionv6: dgram.Socket;
   private readonly _crcSeed: number = Math.floor(Math.random() * 255);
-  private _crcLength: crc_length_options = 2;
-  _waitTimeMs: number = 24;
-  keepAliveTimeoutTime: number = 40000;
+  private _crcLength: crc_length_options = DEFAULT_CONFIG.CRC_LENGTH;
+  private _waitTimeMs: number = DEFAULT_CONFIG.WAIT_TIME_MS;
+  keepAliveTimeoutTime: number = DEFAULT_CONFIG.KEEP_ALIVE_TIMEOUT;
   private readonly _maxMultiBufferSize: number;
-  private _resendTimeout: number = 250;
-  private _maxResentTries: number = 24;
-  _allowRawDataReception: boolean = false;
+  private _resendTimeout: number = DEFAULT_CONFIG.RESEND_TIMEOUT;
+  private _maxResentTries: number = DEFAULT_CONFIG.MAX_RESENT_TRIES;
+  private _allowRawDataReception: boolean = false;
   private _packetResetInterval: NodeJS.Timeout | undefined;
-  avgEventLoopLag: number = 0;
-  eventLoopLagValues: number[] = [];
-  currentEventLoopLag: number = 0;
+
+  // Performance monitoring
+  public avgEventLoopLag: number = 0;
+  public eventLoopLagValues: number[] = [];
+  public currentEventLoopLag: number = 0;
   constructor(serverPort: number, cryptoKey: Uint8Array) {
     super();
-    const oneMb = 1024 * 1024;
-    Buffer.poolSize = oneMb;
+
+    // Initialize core properties
+    Buffer.poolSize = DEFAULT_CONFIG.BUFFER_POOL_SIZE;
     this._serverPort = serverPort;
     this._cryptoKey = cryptoKey;
     this._maxMultiBufferSize = this._udpLength - 4 - this._crcLength;
-    this._connection = dgram.createSocket({
-      type: "udp4",
+
+    // Create UDP sockets
+    this._connection = this._createSocket("udp4");
+    this._connectionv6 = this._createSocket("udp6");
+
+    // Initialize performance monitoring
+    this._initializePerformanceMonitoring();
+  }
+
+  private _createSocket(type: "udp4" | "udp6"): dgram.Socket {
+    return dgram.createSocket({
+      type,
       reuseAddr: true,
-      recvBufferSize: oneMb * 2,
-      sendBufferSize: oneMb
+      recvBufferSize: DEFAULT_CONFIG.SOCKET_BUFFER_SIZE,
+      sendBufferSize: DEFAULT_CONFIG.BUFFER_POOL_SIZE
     });
-    this._connectionv6 = dgram.createSocket({
-      type: "udp6",
-      reuseAddr: true,
-      recvBufferSize: oneMb * 2,
-      sendBufferSize: oneMb
-    });
-    // To support node 18 that we use for h1z1-server binaries
+  }
+
+  private _initializePerformanceMonitoring(): void {
     try {
-      const intervalTime = 100;
       const obs = new PerformanceObserver((list) => {
         const entry = list.getEntries()[0];
-        this.currentEventLoopLag = Math.floor(entry.duration) - intervalTime;
-        // calculate the average of the last 100 values
-        // if the array is full then we remove the first value
-        if (this.eventLoopLagValues.length > 100) {
+        this.currentEventLoopLag =
+          Math.floor(entry.duration) - DEFAULT_CONFIG.PERFORMANCE_INTERVAL;
+
+        // Maintain rolling average of event loop lag
+        if (
+          this.eventLoopLagValues.length >=
+          DEFAULT_CONFIG.EVENT_LOOP_LAG_SAMPLES
+        ) {
           this.eventLoopLagValues.shift();
         }
+
         this.eventLoopLagValues.push(this.currentEventLoopLag);
         this.avgEventLoopLag =
-          this.eventLoopLagValues.reduce((a, b) => a + b, 0) /
+          this.eventLoopLagValues.reduce((sum, val) => sum + val, 0) /
           this.eventLoopLagValues.length;
+
         performance.clearMarks();
         performance.clearMeasures();
         performance.mark("A");
       });
+
       obs.observe({ entryTypes: ["measure"], buffered: true });
       performance.mark("A");
+
       setInterval(() => {
         performance.mark("B");
         performance.measure("A to B", "A", "B");
-      }, intervalTime);
-    } catch (e) {
-      console.error(e);
+      }, DEFAULT_CONFIG.PERFORMANCE_INTERVAL);
+    } catch (error) {
+      console.error("Failed to initialize performance monitoring:", error);
       console.log("PerformanceObserver not available");
     }
   }
 
-  getNetworkStats() {
+  public getNetworkStats(): string[] {
     const avgServerLag =
       this.avgEventLoopLag > 1
         ? Number(this.avgEventLoopLag.toFixed(1)) - 1
         : 0;
-    return [`Avg Server lag : ${avgServerLag}ms`];
+    return [`Avg Server lag: ${avgServerLag}ms`];
   }
 
-  // return the client if found
-  getSoeClient(soeClientId: string): SOEClient | undefined {
+  public getSoeClient(soeClientId: string): SOEClient | undefined {
     return this._clients.get(soeClientId);
+  }
+
+  public getClientCount(): number {
+    return this._clients.size;
+  }
+
+  public getServerStats(): { clientCount: number; avgEventLoopLag: number } {
+    return {
+      clientCount: this._clients.size,
+      avgEventLoopLag: this.avgEventLoopLag
+    };
   }
 
   // create a physical packet and send it
@@ -140,70 +181,86 @@ export class SOEServer extends EventEmitter {
   getResends(client: Client): LogicalPacket[] {
     const currentTime = Date.now();
     const resends: LogicalPacket[] = [];
-    const resendedSequences: Set<number> = new Set();
-    for (const [sequence, time] of client.unAckData) {
-      // if the packet is too old then we resend it
-      if (time + this._resendTimeout + client.avgPing < currentTime) {
-        const dataCache = client.outputStream.getDataCache(sequence);
-        if (dataCache) {
-          if (dataCache.resendCounter >= this._maxResentTries) {
-            continue;
-          }
-          dataCache.resendCounter++;
-          client.stats.packetResend++;
-          const logicalPacket = this.createLogicalPacket(
-            dataCache.fragment ? SoeOpcode.DataFragment : SoeOpcode.Data,
-            { sequence: sequence, data: dataCache.data }
-          );
-          if (logicalPacket) {
-            resendedSequences.add(sequence);
-            resends.push(logicalPacket);
-          }
-        } else {
-          // If the data cache is not found it means that the packet has been acked
-        }
-      }
-    }
+    const resendedSequences = new Set<number>();
 
-    // check for possible accerated resends
-    for (const sequence of client.outputStream.outOfOrder) {
-      if (sequence < client.outputStream.lastAck.get()) {
-        continue;
-      }
+    // Process timeout-based resends
+    this._processTimeoutResends(
+      client,
+      currentTime,
+      resends,
+      resendedSequences
+    );
 
-      // resend every packets between the last ack and the out of order packet
-      for (
-        let index = client.outputStream.lastAck.get();
-        index < sequence;
-        index++
-      ) {
-        // If that sequence has been out of order acked or resended then we don't resend it again
-        if (
-          client.outputStream.outOfOrder.has(index) ||
-          resendedSequences.has(index)
-        ) {
-          continue;
-        }
-        const dataCache = client.outputStream.getDataCache(index);
-        if (dataCache) {
-          const logicalPacket = this.createLogicalPacket(
-            dataCache.fragment ? SoeOpcode.DataFragment : SoeOpcode.Data,
-            { sequence: index, data: dataCache.data }
-          );
-          if (logicalPacket) {
-            resendedSequences.add(index);
-            resends.push(logicalPacket);
-          }
-        } else {
-          // well if it's not in the cache then it means that it has been acked
-        }
-      }
-    }
+    // Process accelerated resends based on out-of-order packets
+    this._processAcceleratedResends(client, resends, resendedSequences);
 
-    // clear out of order array
+    // Clear out of order array after processing
     client.outputStream.outOfOrder.clear();
 
     return resends;
+  }
+
+  private _processTimeoutResends(
+    client: Client,
+    currentTime: number,
+    resends: LogicalPacket[],
+    resendedSequences: Set<number>
+  ): void {
+    const resendThreshold = this._resendTimeout + client.avgPing;
+
+    for (const [sequence, timestamp] of client.unAckData) {
+      if (timestamp + resendThreshold >= currentTime) continue;
+
+      const dataCache = client.outputStream.getDataCache(sequence);
+      if (!dataCache || dataCache.resendCounter >= this._maxResentTries)
+        continue;
+
+      const logicalPacket = this._createResendPacket(dataCache, sequence);
+      if (logicalPacket) {
+        dataCache.resendCounter++;
+        client.stats.packetResend++;
+        resendedSequences.add(sequence);
+        resends.push(logicalPacket);
+      }
+    }
+  }
+
+  private _processAcceleratedResends(
+    client: Client,
+    resends: LogicalPacket[],
+    resendedSequences: Set<number>
+  ): void {
+    const lastAck = client.outputStream.lastAck.get();
+
+    for (const outOfOrderSequence of client.outputStream.outOfOrder) {
+      if (outOfOrderSequence < lastAck) continue;
+
+      // Resend packets between lastAck and out-of-order sequence
+      for (let seq = lastAck; seq < outOfOrderSequence; seq++) {
+        if (
+          client.outputStream.outOfOrder.has(seq) ||
+          resendedSequences.has(seq)
+        )
+          continue;
+
+        const dataCache = client.outputStream.getDataCache(seq);
+        if (!dataCache) continue;
+
+        const logicalPacket = this._createResendPacket(dataCache, seq);
+        if (logicalPacket) {
+          resendedSequences.add(seq);
+          resends.push(logicalPacket);
+        }
+      }
+    }
+  }
+
+  private _createResendPacket(
+    dataCache: any,
+    sequence: number
+  ): LogicalPacket | null {
+    const opcode = dataCache.fragment ? SoeOpcode.DataFragment : SoeOpcode.Data;
+    return this.createLogicalPacket(opcode, { sequence, data: dataCache.data });
   }
 
   // Use the lastAck value to acknowlege multiple packets as a time
@@ -303,153 +360,205 @@ export class SOEServer extends EventEmitter {
   }
 
   // Handle the packet received from the client
-  private handlePacket(client: SOEClient, packet: any) {
-    switch (packet.name) {
-      case "SessionRequest":
-        debug(
-          "Received session request from " + client.address + ":" + client.port
-        );
-        client.sessionId = packet.session_id;
-        client.clientUdpLength = packet.udp_length;
-        client.protocolName = packet.protocol;
-        client.serverUdpLength = this._udpLength;
-        client.crcSeed = this._crcSeed;
-        client.crcLength = this._crcLength;
-        client.inputStream.setEncryption(this._useEncryption);
-        client.outputStream.setEncryption(this._useEncryption);
-        // 4 since we don't count the opcode and it's an uint16
-        client.outputStream.setFragmentSize(
-          client.clientUdpLength - (4 + this._crcLength)
-        );
-        // setup the keep alive timer
-        client.lastKeepAliveTimer = this.keepAliveTimeoutTime
-          ? setTimeout(() => {
-              debug("Client keep alive timeout");
-              this.emit("disconnect", client);
-            }, this.keepAliveTimeoutTime)
-          : null;
+  private handlePacket(client: SOEClient, packet: any): void {
+    const packetHandlers = {
+      SessionRequest: () => this._handleSessionRequest(client, packet),
+      FatalError: () => this._handleDisconnect(client),
+      Disconnect: () => this._handleDisconnect(client),
+      MultiPacket: () => this._handleMultiPacket(client, packet),
+      Ping: () => this._handlePing(client),
+      NetStatusRequest: () => debug("Received net status request from client"),
+      Data: () => this._handleData(client, packet, false),
+      DataFragment: () => this._handleData(client, packet, true),
+      OutOfOrder: () => this._handleOutOfOrder(client, packet),
+      Ack: () => this._handleAck(client, packet)
+    };
 
-        const sessionReply = this.createLogicalPacket(SoeOpcode.SessionReply, {
-          session_id: client.sessionId,
-          crc_seed: client.crcSeed,
-          crc_length: client.crcLength,
-          encrypt_method: 0,
-          udp_length: client.serverUdpLength
-        });
-        // We send the session reply packet directly because it's a special case
-        this._sendAndBuildPhysicalPacket(client, sessionReply);
-        break;
-      case "FatalError":
-      case "Disconnect":
-        debug("Received disconnect from client");
-        this.deleteClient(client);
-        this.emit("disconnect", client);
-        break;
-      case "MultiPacket": {
-        for (let i = 0; i < packet.sub_packets.length; i++) {
-          const subPacket = packet.sub_packets[i];
-          this.handlePacket(client, subPacket);
-        }
-        break;
-      }
-      case "Ping":
-        debug("Received ping from client");
-        const ping = this.createLogicalPacket(SoeOpcode.Ping, {});
-        // Same as session reply, we send the ping directly
-        this._sendAndBuildPhysicalPacket(client, ping);
-        break;
-      case "NetStatusRequest":
-        debug("Received net status request from client");
-        break;
-      case "Data":
-        client.inputStream.write(
-          Buffer.from(packet.data),
-          packet.sequence,
-          false
-        );
-        break;
-      case "DataFragment":
-        client.inputStream.write(
-          Buffer.from(packet.data),
-          packet.sequence,
-          true
-        );
-        break;
-      case "OutOfOrder":
-        client.stats.packetsOutOfOrder++;
-        client.outputStream.outOfOrder.add(packet.sequence);
-        //client.outputStream.singleAck(packet.sequence, client.unAckData)
-        break;
-      case "Ack":
-        const mostWaitedPacketTime = client.unAckData.get(packet.sequence);
-        if (mostWaitedPacketTime) {
-          const currentLag = this.currentEventLoopLag || 0;
-          const dataCache = client.outputStream.getDataCache(packet.sequence);
-          if (dataCache) {
-            client.addPing(
-              Date.now() -
-                mostWaitedPacketTime -
-                currentLag +
-                this._resendTimeout *
-                  client.outputStream.getDataCache(packet.sequence)
-                    .resendCounter
-            );
-          }
-        }
-        client.outputStream.ack(packet.sequence, client.unAckData);
-        break;
-      default:
-        console.log(`Unknown SOE packet received from ${client.sessionId}`);
-        console.log(packet);
+    const handler = packetHandlers[packet.name as keyof typeof packetHandlers];
+    if (handler) {
+      handler();
+    } else {
+      console.log(
+        `Unknown SOE packet received from ${client.sessionId}:`,
+        packet
+      );
     }
   }
 
-  onMessage(data: Buffer, remote: RemoteInfo) {
+  private _handleSessionRequest(client: SOEClient, packet: any): void {
+    debug(`Received session request from ${client.address}:${client.port}`);
+
+    // Configure client session
+    Object.assign(client, {
+      sessionId: packet.session_id,
+      clientUdpLength: packet.udp_length,
+      protocolName: packet.protocol,
+      serverUdpLength: this._udpLength,
+      crcSeed: this._crcSeed,
+      crcLength: this._crcLength
+    });
+
+    // Configure encryption and fragmentation
+    client.inputStream.setEncryption(this._useEncryption);
+    client.outputStream.setEncryption(this._useEncryption);
+    client.outputStream.setFragmentSize(
+      client.clientUdpLength - (4 + this._crcLength)
+    );
+
+    // Setup keep-alive timer
+    if (this.keepAliveTimeoutTime) {
+      client.lastKeepAliveTimer = setTimeout(() => {
+        debug("Client keep alive timeout");
+        this.emit("disconnect", client);
+      }, this.keepAliveTimeoutTime);
+    }
+
+    // Send session reply
+    const sessionReply = this.createLogicalPacket(SoeOpcode.SessionReply, {
+      session_id: client.sessionId,
+      crc_seed: client.crcSeed,
+      crc_length: client.crcLength,
+      encrypt_method: 0,
+      udp_length: client.serverUdpLength
+    });
+    this._sendAndBuildPhysicalPacket(client, sessionReply);
+  }
+
+  private _handleDisconnect(client: SOEClient): void {
+    debug("Received disconnect from client");
+    this.deleteClient(client);
+    this.emit("disconnect", client);
+  }
+
+  private _handleMultiPacket(client: SOEClient, packet: any): void {
+    packet.sub_packets.forEach((subPacket: any) =>
+      this.handlePacket(client, subPacket)
+    );
+  }
+
+  private _handlePing(client: SOEClient): void {
+    debug("Received ping from client");
+    const ping = this.createLogicalPacket(SoeOpcode.Ping, {});
+    this._sendAndBuildPhysicalPacket(client, ping);
+  }
+
+  private _handleData(
+    client: SOEClient,
+    packet: any,
+    isFragment: boolean
+  ): void {
+    client.inputStream.write(
+      Buffer.from(packet.data),
+      packet.sequence,
+      isFragment
+    );
+  }
+
+  private _handleOutOfOrder(client: SOEClient, packet: any): void {
+    client.stats.packetsOutOfOrder++;
+    client.outputStream.outOfOrder.add(packet.sequence);
+  }
+
+  private _handleAck(client: SOEClient, packet: any): void {
+    const packetTime = client.unAckData.get(packet.sequence);
+    if (packetTime) {
+      const dataCache = client.outputStream.getDataCache(packet.sequence);
+      if (dataCache) {
+        const ping =
+          Date.now() -
+          packetTime -
+          (this.currentEventLoopLag || 0) +
+          this._resendTimeout * dataCache.resendCounter;
+        client.addPing(ping);
+      }
+    }
+    client.outputStream.ack(packet.sequence, client.unAckData);
+  }
+
+  onMessage(data: Buffer, remote: RemoteInfo): void {
     try {
-      let client: SOEClient;
       const clientId = SOEClient.getClientId(remote);
-      debug(data.length + " bytes from ", clientId);
-      // if doesn't know the client
-      if (!this._clients.has(clientId)) {
-        // if it's not a session request then we ignore it
-        if (data[1] !== 1) {
-          return;
-        }
-        client = this._createClient(remote);
-      } else {
-        client = this._clients.get(clientId) as SOEClient;
-      }
+      debug(`${data.length} bytes from ${clientId}`);
+
+      const client = this._getOrCreateClient(remote, data);
+      if (!client) return;
+
       if (data[0] === 0x00) {
-        const raw_parsed_data: string = this._protocol.parse(data);
-        if (raw_parsed_data) {
-          const parsed_data = JSON.parse(raw_parsed_data);
-          if (parsed_data.name === "Error") {
-            console.error("parsing error " + parsed_data.error);
-            console.error(parsed_data);
-          } else {
-            if (client.lastKeepAliveTimer) {
-              client.lastKeepAliveTimer.refresh();
-            }
-            this.handlePacket(client, parsed_data);
-          }
-        } else {
-          console.error("Unmanaged packet from client", clientId, data);
-        }
+        this._processProtocolPacket(client, data, clientId);
       } else {
-        if (this._allowRawDataReception) {
-          console.log("Raw data received from client", clientId, data);
-          this.emit("appdata", client, data, true); // Unreliable + Unordered
-        } else {
-          console.log(
-            "Raw data received from client but raw data reception isn't enabled",
-            clientId,
-            data
-          );
-        }
+        this._processRawData(client, data, clientId);
       }
-    } catch (e) {
-      console.log(e);
+    } catch (error) {
+      console.error("Error processing message:", error);
       process.exitCode = 1;
+    }
+  }
+
+  private _getOrCreateClient(
+    remote: RemoteInfo,
+    data: Buffer
+  ): SOEClient | null {
+    const clientId = SOEClient.getClientId(remote);
+
+    if (this._clients.has(clientId)) {
+      return this._clients.get(clientId)!;
+    }
+
+    // Only create new client for session requests
+    if (data[1] !== 1) {
+      debug(`Ignoring non-session-request from unknown client: ${clientId}`);
+      return null;
+    }
+
+    return this._createClient(remote);
+  }
+
+  private _processProtocolPacket(
+    client: SOEClient,
+    data: Buffer,
+    clientId: string
+  ): void {
+    const rawParsedData = this._protocol.parse(data);
+
+    if (!rawParsedData) {
+      console.error(`Failed to parse packet from client ${clientId}:`, data);
+      return;
+    }
+
+    let parsedData: any;
+    try {
+      parsedData = JSON.parse(rawParsedData);
+    } catch (error) {
+      console.error(`Invalid JSON from client ${clientId}:`, rawParsedData);
+      return;
+    }
+
+    if (parsedData.name === "Error") {
+      console.error(
+        `Protocol parsing error from ${clientId}:`,
+        parsedData.error
+      );
+      return;
+    }
+
+    // Refresh keep-alive timer
+    client.lastKeepAliveTimer?.refresh();
+
+    this.handlePacket(client, parsedData);
+  }
+
+  private _processRawData(
+    client: SOEClient,
+    data: Buffer,
+    clientId: string
+  ): void {
+    if (this._allowRawDataReception) {
+      debug(`Raw data received from client ${clientId}`);
+      this.emit("appdata", client, data, true); // Unreliable + Unordered
+    } else {
+      debug(
+        `Raw data ignored from client ${clientId} (raw reception disabled)`
+      );
     }
   }
 
@@ -566,97 +675,84 @@ export class SOEServer extends EventEmitter {
     }
     return appPackets;
   }
-  private sendingProcess(client: Client) {
-    // If there is a pending sending timer then we clear it
+  private sendingProcess(client: Client): void {
     this._clearSendingTimer(client);
-    if (client.isDeleted) {
-      return;
+
+    if (client.isDeleted) return;
+
+    // Process packets in priority order: resends, new app data, acks
+    this._processResends(client);
+    this._processNewAppData(client);
+    this._processAcks(client);
+    this._flushWaitingQueue(client);
+
+    // Schedule next sending cycle if needed
+    if (client.unAckData.size > 0) {
+      this._activateSendingTimer(client);
     }
+  }
+
+  private _processResends(client: Client): void {
     const resends = this.getResends(client);
+
     for (const resend of resends) {
       client.stats.totalLogicalPacketSent++;
-      if (this._canBeBufferedIntoQueue(resend, client.waitingQueue)) {
-        client.waitingQueue.addPacket(resend);
-      } else {
-        const waitingQueuePacket = this.getClientWaitQueuePacket(
-          client,
-          client.waitingQueue
-        );
-        if (waitingQueuePacket) {
-          this._sendAndBuildPhysicalPacket(client, waitingQueuePacket);
-        }
-        if (this._canBeBufferedIntoQueue(resend, client.waitingQueue)) {
-          client.waitingQueue.addPacket(resend);
-        } else {
-          // if it still can't be buffered it means that the packet is too big so we send it directly
-          this._sendAndBuildPhysicalPacket(client, resend);
-        }
-      }
+      this._tryBufferOrSend(client, resend);
       client.unAckData.delete(resend.sequence as number);
     }
-    if (client.outputStream.isReliableAvailable()) {
-      const appPackets = this.getAvailableAppPackets(client);
-      client.delayedLogicalPackets.push(...appPackets);
-    }
+  }
 
-    if (client.delayedLogicalPackets.length > 0) {
-      for (
-        let index = 0;
-        index < client.delayedLogicalPackets.length;
-        index++
-      ) {
-        const packet = client.delayedLogicalPackets.shift();
-        if (!packet) {
-          break;
-        }
-        if (this._canBeBufferedIntoQueue(packet, client.waitingQueue)) {
-          client.waitingQueue.addPacket(packet);
-        } else {
-          // sends the already buffered packets
-          const waitingQueuePacket = this.getClientWaitQueuePacket(
-            client,
-            client.waitingQueue
-          );
-          if (waitingQueuePacket) {
-            this._sendAndBuildPhysicalPacket(client, waitingQueuePacket);
-          }
-          if (this._canBeBufferedIntoQueue(packet, client.waitingQueue)) {
-            client.waitingQueue.addPacket(packet);
-          } else {
-            // if it still can't be buffered it means that the packet is too big so we send it directly
-            this._sendAndBuildPhysicalPacket(client, packet);
-          }
-        }
-      }
+  private _processNewAppData(client: Client): void {
+    if (!client.outputStream.isReliableAvailable()) return;
+
+    const appPackets = this.getAvailableAppPackets(client);
+    client.delayedLogicalPackets.push(...appPackets);
+
+    // Process delayed packets
+    while (client.delayedLogicalPackets.length > 0) {
+      const packet = client.delayedLogicalPackets.shift();
+      if (!packet) break;
+
+      this._tryBufferOrSend(client, packet);
     }
+  }
+
+  private _processAcks(client: Client): void {
     const ackPacket = this.getAck(client);
-    if (ackPacket) {
-      client.stats.totalLogicalPacketSent++;
-      if (this._canBeBufferedIntoQueue(ackPacket, client.waitingQueue)) {
-        client.waitingQueue.addPacket(ackPacket);
+    if (!ackPacket) return;
+
+    client.stats.totalLogicalPacketSent++;
+
+    if (!this._canBeBufferedIntoQueue(ackPacket, client.waitingQueue)) {
+      this._flushWaitingQueue(client);
+    }
+    client.waitingQueue.addPacket(ackPacket);
+  }
+
+  private _tryBufferOrSend(client: Client, packet: LogicalPacket): void {
+    if (this._canBeBufferedIntoQueue(packet, client.waitingQueue)) {
+      client.waitingQueue.addPacket(packet);
+    } else {
+      // Flush current queue first
+      this._flushWaitingQueue(client);
+
+      // Try buffering again after flush
+      if (this._canBeBufferedIntoQueue(packet, client.waitingQueue)) {
+        client.waitingQueue.addPacket(packet);
       } else {
-        const waitingQueuePacket = this.getClientWaitQueuePacket(
-          client,
-          client.waitingQueue
-        );
-        if (waitingQueuePacket) {
-          this._sendAndBuildPhysicalPacket(client, waitingQueuePacket);
-        }
-        // no additionnal check needed here because ack packets have a fixed size
-        client.waitingQueue.addPacket(ackPacket);
+        // Packet too large for buffering, send directly
+        this._sendAndBuildPhysicalPacket(client, packet);
       }
     }
-    // if there is still some packets in the queue then we send them
-    const waitingQueuePacket = this.getClientWaitQueuePacket(
+  }
+
+  private _flushWaitingQueue(client: Client): void {
+    const queuedPacket = this.getClientWaitQueuePacket(
       client,
       client.waitingQueue
     );
-    if (waitingQueuePacket) {
-      this._sendAndBuildPhysicalPacket(client, waitingQueuePacket);
-    }
-
-    if (client.unAckData.size > 0) {
-      this._activateSendingTimer(client);
+    if (queuedPacket) {
+      this._sendAndBuildPhysicalPacket(client, queuedPacket);
     }
   }
   // Build the logical packet via the soeprotocol
@@ -718,30 +814,37 @@ export class SOEServer extends EventEmitter {
     this._sendLogicalPacket(client, logicalPacket);
   }
 
-  // Called by the application to send data to a client
-  sendAppData(
+  // Public API methods
+  public sendAppData(
     client: Client,
     data: Uint8Array,
-    channel = SOEOutputChannels.Reliable
+    channel: SOEOutputChannels = SOEOutputChannels.Reliable
   ): void {
+    if (client.isDeleted) {
+      debug(`Attempted to send data to deleted client ${client.soeClientId}`);
+      return;
+    }
     client.outputStream.write(data, channel);
   }
 
-  setEncryption(client: Client, value: boolean): void {
+  public setEncryption(client: Client, value: boolean): void {
     client.outputStream.setEncryption(value);
     client.inputStream.setEncryption(value);
   }
 
-  toggleEncryption(client: Client): void {
+  public toggleEncryption(client: Client): void {
     client.outputStream.toggleEncryption();
     client.inputStream.toggleEncryption();
   }
 
-  deleteClient(client: SOEClient): void {
+  public deleteClient(client: SOEClient): void {
+    if (client.isDeleted) return;
+
     client.isDeleted = true;
     client.closeTimers();
     this._clearSendingTimer(client);
     this._clients.delete(client.soeClientId);
-    debug("client connection from port : ", client.port, " deleted");
+
+    debug(`Client connection from ${client.address}:${client.port} deleted`);
   }
 }
