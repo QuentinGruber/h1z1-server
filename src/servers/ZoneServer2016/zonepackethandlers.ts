@@ -2929,7 +2929,10 @@ export class ZonePacketHandlers {
     if (!characterId) return;
     let obj: ConstructionPermissions = foundation.permissions[characterId];
     if (!obj) {
-      if (Object.keys(foundation.permissions).length >= 12) {
+      if (
+        Object.keys(foundation.permissions).length >=
+        server.groupManager.foundationPlayerLimit
+      ) {
         server.sendAlert(client, "Permissions limit reached.");
         return;
       }
