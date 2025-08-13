@@ -3561,3 +3561,83 @@ export const skillPointDataSchema: PacketFields = [
     ]
   }
 ];
+
+export const interactionTimerSchema: PacketFields = [
+  {
+    name: "timeData",
+    type: "schema",
+    defaultValue: {},
+    fields: [
+      {
+        name: "duration",
+        type: "uint32",
+        defaultValue: 0
+      },
+      {
+        name: "unknownDword2",
+        type: "uint32",
+        defaultValue: 0
+      },
+      {
+        name: "unknownQword1",
+        type: "uint64string",
+        defaultValue: ""
+      }
+    ]
+  }
+];
+
+export const interactionExtraTimerSchema: PacketFields = [
+  {
+    name: "extraData",
+    type: "schema",
+    defaultValue: {},
+    fields: [
+      {
+        name: "unknownDword1",
+        type: "uint32",
+        defaultValue: 0
+      },
+      {
+        name: "unknownDword2",
+        type: "uint32",
+        defaultValue: 0
+      },
+      {
+        name: "unknownDword3",
+        type: "uint32",
+        defaultValue: 0
+      },
+      {
+        name: "unknownDword4",
+        type: "uint32",
+        defaultValue: 0
+      }
+    ]
+  }
+];
+
+export const interactionDataSchema: PacketFields = [
+  {
+    name: "interactionData",
+    type: "schema",
+    defaultValue: {},
+    fields: [
+      ...interactionTimerSchema,
+      {
+        name: "unknownQword1",
+        type: "uint64string",
+        defaultValue: ""
+      },
+      { name: "unknownDword1", type: "uint32", defaultValue: 0 },
+      { name: "unknownDword2", type: "uint32", defaultValue: 0 },
+      { name: "unknownDword3", type: "uint32", defaultValue: 0 },
+      ...interactionExtraTimerSchema,
+      {
+        name: "unknownString1",
+        type: "string",
+        defaultValue: ""
+      }
+    ]
+  }
+];

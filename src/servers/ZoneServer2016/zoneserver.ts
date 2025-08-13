@@ -5381,7 +5381,9 @@ export class ZoneServer2016 extends EventEmitter {
       "CharacterState.InteractionStart",
       {
         characterId: client.character.characterId,
-        time: time,
+        timeData: {
+          duration: time
+        },
         animationId: animationId,
         stringId: stringId
       }

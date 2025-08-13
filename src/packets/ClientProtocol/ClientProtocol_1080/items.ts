@@ -271,7 +271,7 @@ export const itemsPackets: PacketStructures = [
   ["Items.RemoveItemTrialTimer", 0xad08, {}],
   ["Items.ExpireItemTrialTimer", 0xad09, {}],
   ["Items.UpdateItemTrialTimer", 0xad0a, {}],
-  ["Items.SetItemRentalTimers", 0xad0b, {}],
+  ["Items.SetItemRentalTimers", 0xad0b, {}], // sub_14037CE40 somewhere
   ["Items.AddItemRentalTimer", 0xad0c, {}],
   ["Items.RemoveItemRentalTimer", 0xad0d, {}],
   ["Items.ExpireItemRentalTimer", 0xad0e, {}],

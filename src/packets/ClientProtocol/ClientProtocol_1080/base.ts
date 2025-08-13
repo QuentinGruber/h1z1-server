@@ -40,7 +40,8 @@ import {
   emoteItemsSchema,
   skinItemsSchema,
   mountSchema,
-  skillPointDataSchema
+  skillPointDataSchema,
+  interactionDataSchema
 } from "./shared";
 import {
   achievementSchema,
@@ -130,7 +131,6 @@ export const basePackets: PacketStructures = [
               fields: profileSchema
             },
             { name: "currentProfile", type: "uint32", defaultValue: 0 },
-
             {
               name: "unknownArray1",
               type: "array",
@@ -838,18 +838,20 @@ export const basePackets: PacketStructures = [
               ]
             },
             {
-              // related to AquireTimers
+              // sub_1403653E0
               name: "unknownData1",
               type: "schema",
               defaultValue: {},
               fields: [
                 {
+                  // sub_140381D50
                   name: "unknownArray1",
                   type: "array",
                   defaultValue: [],
                   fields: [
                     { name: "unknownDword1", type: "uint32", defaultValue: 0 },
                     {
+                      // sub_140373AD0
                       name: "unknownData1",
                       type: "schema",
                       defaultValue: {},
@@ -875,6 +877,7 @@ export const basePackets: PacketStructures = [
                   ]
                 },
                 {
+                  // sub_140386A60
                   name: "unknownArray2",
                   type: "array",
                   defaultValue: [],
@@ -882,11 +885,13 @@ export const basePackets: PacketStructures = [
                     { name: "unknownDword1", type: "uint32", defaultValue: 0 },
                     { name: "unknownByte1", type: "uint8", defaultValue: 0 },
                     {
+                      // sub_1403775E0
                       name: "unknownData1",
                       type: "schema",
                       defaultValue: {},
                       fields: [
                         {
+                          // sub_140373AD0 -- There's more calls to this
                           name: "unknownData1",
                           type: "schema",
                           defaultValue: {},
@@ -956,8 +961,7 @@ export const basePackets: PacketStructures = [
             },
             { name: "unknownDword37", type: "uint32", defaultValue: 0 },
             {
-              // related to CharacterStateBase
-              name: "unknownData3",
+              name: "characterStateData",
               type: "schema",
               defaultValue: {},
               fields: [
@@ -966,75 +970,7 @@ export const basePackets: PacketStructures = [
                   type: "uint64string",
                   defaultValue: ""
                 },
-                {
-                  name: "unknownData1",
-                  type: "schema",
-                  defaultValue: {},
-                  fields: [
-                    {
-                      name: "unknownData1",
-                      type: "schema",
-                      defaultValue: {},
-                      fields: [
-                        {
-                          name: "unknownDword1",
-                          type: "uint32",
-                          defaultValue: 0
-                        },
-                        {
-                          name: "unknownDword2",
-                          type: "uint32",
-                          defaultValue: 0
-                        },
-                        {
-                          name: "unknownQword1",
-                          type: "uint64string",
-                          defaultValue: ""
-                        }
-                      ]
-                    },
-                    {
-                      name: "unknownQword1",
-                      type: "uint64string",
-                      defaultValue: ""
-                    },
-                    { name: "unknownDword1", type: "uint32", defaultValue: 0 },
-                    { name: "unknownDword2", type: "uint32", defaultValue: 0 },
-                    { name: "unknownDword3", type: "uint32", defaultValue: 0 },
-                    {
-                      name: "unknownData2",
-                      type: "schema",
-                      defaultValue: {},
-                      fields: [
-                        {
-                          name: "unknownDword1",
-                          type: "uint32",
-                          defaultValue: 0
-                        },
-                        {
-                          name: "unknownDword2",
-                          type: "uint32",
-                          defaultValue: 0
-                        },
-                        {
-                          name: "unknownDword3",
-                          type: "uint32",
-                          defaultValue: 0
-                        },
-                        {
-                          name: "unknownDword4",
-                          type: "uint32",
-                          defaultValue: 0
-                        }
-                      ]
-                    },
-                    {
-                      name: "unknownString1",
-                      type: "string",
-                      defaultValue: ""
-                    }
-                  ]
-                },
+                ...interactionDataSchema,
                 { name: "unknownByte1", type: "uint8", defaultValue: 0 }
               ]
             },
@@ -2831,7 +2767,104 @@ export const basePackets: PacketStructures = [
     }
   ],
   ["HudManager", 0xa5, {}],
-  ["AcquireTimers", 0xa6, {}],
+  [
+    "AcquireTimers",
+    0xa6,
+    {
+      fields: [
+        { name: "unknownDword1", type: "uint32", defaultValue: 0 },
+        {
+          // sub_140381D50
+          name: "unknownArray1",
+          type: "array",
+          defaultValue: [],
+          fields: [
+            { name: "unknownDword1", type: "uint32", defaultValue: 0 },
+            {
+              // sub_140373AD0
+              name: "unknownData1",
+              type: "schema",
+              defaultValue: {},
+              fields: [
+                {
+                  name: "unknownDword1",
+                  type: "uint32",
+                  defaultValue: 0
+                },
+                {
+                  name: "unknownDword2",
+                  type: "uint32",
+                  defaultValue: 0
+                },
+                {
+                  name: "unknownQword1",
+                  type: "uint64string",
+                  defaultValue: ""
+                }
+              ]
+            },
+            { name: "unknownDword2", type: "uint32", defaultValue: 0 }
+          ]
+        },
+        {
+          // sub_140386A60
+          name: "unknownArray2",
+          type: "array",
+          defaultValue: [],
+          fields: [
+            { name: "unknownDword1", type: "uint32", defaultValue: 0 },
+            { name: "unknownByte1", type: "uint8", defaultValue: 0 },
+            {
+              // sub_1403775E0
+              name: "unknownData1",
+              type: "schema",
+              defaultValue: {},
+              fields: [
+                {
+                  // sub_140373AD0 -- There's more calls to this
+                  name: "unknownData1",
+                  type: "schema",
+                  defaultValue: {},
+                  fields: [
+                    {
+                      name: "unknownDword1",
+                      type: "uint32",
+                      defaultValue: 0
+                    },
+                    {
+                      name: "unknownDword2",
+                      type: "uint32",
+                      defaultValue: 0
+                    },
+                    {
+                      name: "unknownQword1",
+                      type: "uint64string",
+                      defaultValue: ""
+                    }
+                  ]
+                },
+                {
+                  name: "unknownDword1",
+                  type: "uint32",
+                  defaultValue: 0
+                },
+                {
+                  name: "unknownByte1",
+                  type: "uint8",
+                  defaultValue: 0
+                }
+              ]
+            }
+          ]
+        },
+        {
+          name: "unknownByte1",
+          type: "uint8",
+          defaultValue: 0
+        }
+      ]
+    }
+  ],
   ["LoginBase", 0xa7, {}],
   [
     "ServerPopulationInfo",
