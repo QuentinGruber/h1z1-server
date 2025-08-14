@@ -22,7 +22,7 @@ export const spectatorPackets: PacketStructures = [
     }
   ],
   [
-    "Spectator.Unknown2",
+    "Spectator.AllSpectators",
     0xe30200,
     {
       fields: [
@@ -32,17 +32,18 @@ export const spectatorPackets: PacketStructures = [
           type: "array",
           defaultValue: [],
           fields: [
-            { name: "unknownQword1", type: "uint64string", defaultValue: "" },
-            { name: "unknownString1", type: "string", defaultValue: "" },
-            { name: "unknownString2", type: "string", defaultValue: "" },
+            { name: "characterId", type: "uint64string", defaultValue: "" },
+            { name: "characterName", type: "string", defaultValue: "" },
+            { name: "twitchName", type: "string", defaultValue: "" },
             { name: "unknownByte1", type: "uint8", defaultValue: 0 },
             { name: "unknownByte2", type: "uint8", defaultValue: 0 },
             { name: "unknownDword1", type: "uint32", defaultValue: 0 },
-            { name: "unknownWord1", type: "uint16", defaultValue: 0 },
-            { name: "unknownByte3", type: "uint8", defaultValue: 0 },
+            { name: "unknownWord1", type: "int16", defaultValue: 0 },
+            { name: "playerHeading", type: "uint8", defaultValue: 0 },
             { name: "unknownByte4", type: "uint8", defaultValue: 0 },
-            { name: "unknownWord2", type: "uint16", defaultValue: 0 },
-            { name: "unknownWord3", type: "uint16", defaultValue: 0 },
+            { name: "playerX", type: "int16", defaultValue: 0 },
+            { name: "playerY", type: "int16", defaultValue: 0 },
+            { name: "playerZ", type: "int16", defaultValue: 0 },
             { name: "unknownByte5", type: "uint8", defaultValue: 0 },
             { name: "unknownByte6", type: "uint8", defaultValue: 0 },
             {
@@ -99,43 +100,47 @@ export const spectatorPackets: PacketStructures = [
     }
   ],
   [
-    "Spectator.Unknown5",
+    "Spectator.DeathList",
     0xe30500,
     {
       fields: [
         {
-          name: "unknownArray1",
+          name: "data",
           type: "array",
           defaultValue: [],
           fields: [
-            { name: "unknownQword1", type: "uint64string", defaultValue: "" },
-            { name: "unknownString1", type: "string", defaultValue: "" },
-            { name: "unknownString2", type: "string", defaultValue: "" },
-            { name: "unknownQword2", type: "uint64string", defaultValue: "" },
-            { name: "unknownString3", type: "string", defaultValue: "" },
-            { name: "unknownString4", type: "string", defaultValue: "" },
-            { name: "unknownByte1", type: "uint16", defaultValue: 0 },
-            { name: "unknownWord1", type: "uint16", defaultValue: 0 },
-            { name: "unknownWord2", type: "uint16", defaultValue: 0 },
-            { name: "unknownWord3", type: "uint16", defaultValue: 0 },
-            { name: "unknownWord4", type: "uint16", defaultValue: 0 },
-            { name: "unknownWord5", type: "uint16", defaultValue: 0 },
-            { name: "unknownDword1", type: "uint32", defaultValue: 0 },
-            { name: "unknownDword2", type: "uint32", defaultValue: 0 }
+            { name: "characterId", type: "uint64string", defaultValue: "" },
+            { name: "playerName", type: "string", defaultValue: "" },
+            { name: "twitchName", type: "string", defaultValue: "" },
+            {
+              name: "otherCharacterId",
+              type: "uint64string",
+              defaultValue: ""
+            },
+            { name: "otherName", type: "string", defaultValue: "" },
+            { name: "otherTwitchName", type: "string", defaultValue: "" },
+            { name: "causeOfDeath", type: "uint8", defaultValue: 0 }, // 0 = weapon, 1 = vehicle, 2 = toxic gas, 3 = bombs, 4 = falling
+            { name: "playerX", type: "uint16", defaultValue: 0 },
+            { name: "playerY", type: "uint16", defaultValue: 0 },
+            { name: "playerZ", type: "uint16", defaultValue: 0 },
+            { name: "playersRemaining", type: "uint16", defaultValue: 0 },
+            { name: "teamsRemaining", type: "uint16", defaultValue: 0 },
+            { name: "vehicleOrWeaponId", type: "uint32", defaultValue: 0 },
+            { name: "kills", type: "uint32", defaultValue: 0 }
           ]
         }
       ]
     }
   ],
   [
-    "Spectator.SetUnknownFlag1",
+    "Spectator.SetModerator",
     0xe30600,
     {
       fields: []
     }
   ],
   [
-    "Spectator.SetUnknownFlag2",
+    "Spectator.SetOwner",
     0xe30700,
     {
       fields: []

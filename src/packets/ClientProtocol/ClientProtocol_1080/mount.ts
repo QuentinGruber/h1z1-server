@@ -12,7 +12,7 @@
 // ======================================================================
 
 import { PacketStructures } from "types/packetStructure";
-import { identitySchema } from "./shared";
+import { identitySchema, mountSchema } from "./shared";
 
 export const mountPackets: PacketStructures = [
   ["Mount.MountRequest", 0x7101, {}],
@@ -52,11 +52,35 @@ export const mountPackets: PacketStructures = [
       ]
     }
   ],
-  ["Mount.List", 0x7105, {}],
+  [
+    "Mount.List",
+    0x7105,
+    {
+      fields: [
+        {
+          name: "unknownArray1",
+          type: "array",
+          fields: mountSchema
+        }
+      ]
+    }
+  ],
   ["Mount.Spawn", 0x7106, {}],
   ["Mount.Despawn", 0x7107, {}],
   ["Mount.SpawnByItemDefinitionId", 0x7108, {}],
-  ["Mount.OfferUpsell", 0x7109, {}],
+  [
+    "Mount.OfferUpsell",
+    0x7109,
+    {
+      fields: [
+        {
+          name: "unknownArray1",
+          type: "array",
+          fields: mountSchema
+        }
+      ]
+    }
+  ],
   [
     "Mount.SeatChangeRequest",
     0x710a,
@@ -81,7 +105,23 @@ export const mountPackets: PacketStructures = [
       ]
     }
   ],
-  ["Mount.SeatSwapRequest", 0x710c, {}],
+  [
+    "Mount.SeatSwapRequest",
+    0x710c,
+    {
+      fields: [
+        { name: "characterId", type: "uint64string", defaultValue: "0" },
+        { name: "identity", type: "schema", fields: identitySchema },
+        { name: "unknownDword1", type: "uint32", defaultValue: 0 }
+      ]
+    }
+  ],
   ["Mount.SeatSwapResponse", 0x710d, {}],
-  ["Mount.TypeCount", 0x710e, {}]
+  [
+    "Mount.FlipMount",
+    0x710e,
+    {
+      fields: [{ name: "characterId", type: "uint64string", defaultValue: "0" }]
+    }
+  ]
 ];

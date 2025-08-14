@@ -17,6 +17,7 @@ import { ZoneServer2016 } from "../zoneserver";
 import { Collection } from "mongodb";
 import { getAppDataFolderPath } from "../../../utils/utils";
 import fs from "node:fs";
+import { LEGACY_CRATE_CONVERSION } from "../data/accountCrates";
 
 export class AccountInventoryManager {
   isInSoloMode: boolean;
@@ -42,13 +43,43 @@ export class AccountInventoryManager {
   }
 
   async getAccountItems(loginSessionId: string): Promise<AccountItem[]> {
+    let accountItems: AccountItem[],
+      soloUpdate = false;
     if (this.isInSoloMode) {
-      return this._getSoloAccountItems(loginSessionId);
+      accountItems = this._getSoloAccountItems(loginSessionId);
     } else {
-      return await this.mongodbCollection
+      accountItems = await this.mongodbCollection
         .find<AccountItem>({ loginSessionId })
         .toArray();
     }
+
+    for (const item of accountItems) {
+      const newId = LEGACY_CRATE_CONVERSION[item.itemDefinitionId];
+      if (newId && newId != item.itemDefinitionId) {
+        if (!this.isInSoloMode) {
+          await this.mongodbCollection.updateOne(
+            {
+              loginSessionId,
+              itemDefinitionId: item.itemDefinitionId
+            },
+            {
+              $set: {
+                itemDefinitionId: newId
+              }
+            }
+          );
+        } else {
+          soloUpdate = true;
+        }
+        item.itemDefinitionId = newId;
+      }
+    }
+
+    if (this.isInSoloMode && soloUpdate) {
+      this._saveSoloAccountItems(accountItems);
+    }
+
+    return accountItems;
   }
 
   async getAccountItem(
@@ -77,6 +108,11 @@ export class AccountInventoryManager {
       accountItems = this._getSoloAccountItems(loginSessionId);
     } else {
       accountItems = await this.getAccountItems(loginSessionId);
+    }
+
+    const newCrateItem = LEGACY_CRATE_CONVERSION[item.itemDefinitionId];
+    if (newCrateItem && newCrateItem != item.itemDefinitionId) {
+      item.itemDefinitionId = newCrateItem;
     }
     const index = accountItems.findIndex((v) => {
       return v.itemDefinitionId === item.itemDefinitionId;

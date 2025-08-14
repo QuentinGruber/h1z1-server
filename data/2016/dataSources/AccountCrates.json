@@ -1,7 +1,7 @@
 [
   {
     "name": "Showdown Crate",
-    "itemDefinitionId": 2761,
+    "itemDefinitionId": 3630,
     "rewards": [
       {
         "name": "Showdown AR-15",
@@ -72,7 +72,7 @@
   },
   {
     "name": "Alpha Launch Crate",
-    "itemDefinitionId": 1797,
+    "itemDefinitionId": 3623,
     "rewards": [
       {
         "name": "Camouflage Backpack",
@@ -296,7 +296,7 @@
   },
   {
     "name": "Predator Crate",
-    "itemDefinitionId": 3207,
+    "itemDefinitionId": 3208,
     "rewards": [
       {
         "name": "Mask of the Jester",
@@ -488,7 +488,7 @@
   },
   {
     "name": "EZW Crate",
-    "itemDefinitionId": 3118,
+    "itemDefinitionId": 3119,
     "rewards": [
       {
         "name": "EZW Spiked Helmet",
@@ -671,7 +671,7 @@
   },
   {
     "name": "Renegade Crate",
-    "itemDefinitionId": 2836,
+    "itemDefinitionId": 2890,
     "rewards": [
       {
         "name": "Lightning AR-15",
@@ -896,7 +896,7 @@
   },
   {
     "name": "Wasteland Crate",
-    "itemDefinitionId": 2939,
+    "itemDefinitionId": 3025,
     "rewards": [
       {
         "name": "Wasteland Skull Helmet",
@@ -1140,7 +1140,7 @@
   },
   {
     "name": "Battle Royale Wearables Crate",
-    "itemDefinitionId": 2031,
+    "itemDefinitionId": 3625,
     "rewards": [
       {
         "name": "Emote: We're Not Worthy",
@@ -1260,8 +1260,8 @@
     ]
   },
   {
-    "name": "Battle Royale Wearables Crate",
-    "itemDefinitionId": 2350,
+    "name": "Vigilante Crate",
+    "itemDefinitionId": 3627,
     "rewards": [
       {
         "name": "Cigar Hog Mask",
@@ -1377,7 +1377,7 @@
   },
   {
     "name": "H1Z1 Invitational Crate",
-    "itemDefinitionId": 2436,
+    "itemDefinitionId": 3629,
     "rewards": [
       {
         "name": "Toxic AK-47",
@@ -1543,7 +1543,7 @@
   },
   {
     "name": "H1Z1 Wearables Crate",
-    "itemDefinitionId": 2009,
+    "itemDefinitionId": 3624,
     "rewards": [
       {
         "name": "Emote: Cry Baby",
@@ -1664,7 +1664,7 @@
   },
   {
     "name": "Marauder Crate",
-    "itemDefinitionId": 2276,
+    "itemDefinitionId": 3626,
     "rewards": [
       {
         "name": "Red Face Bandana & Biker Shades",
@@ -1780,7 +1780,7 @@
   },
   {
     "name": "Mercenary Crate",
-    "itemDefinitionId": 2432,
+    "itemDefinitionId": 3628,
     "rewards": [
       {
         "name": "Mercenary AR-15",
@@ -1926,7 +1926,7 @@
   },
   {
     "name": "Ronin Crate",
-    "itemDefinitionId": 3501,
+    "itemDefinitionId": 3502,
     "rewards": [
       {
         "name": "Irezumi Dragon AR-15",
@@ -2037,7 +2037,7 @@
   },
   {
     "name": "2016 Invitational Crate",
-    "itemDefinitionId": 3569,
+    "itemDefinitionId": 3570,
     "rewards": [
       {
         "name": "Ninja AR-15",

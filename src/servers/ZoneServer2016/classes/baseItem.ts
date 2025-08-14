@@ -34,9 +34,6 @@ export class BaseItem {
   /** Determines if the item should be treated as a weapon object */
   weapon?: Weapon;
 
-  /** Returns true if the airdrop has passed all the checks to land safely */
-  hasAirdropClearance: boolean = false;
-
   constructor(
     itemDefinitionId: number,
     guid: string,
