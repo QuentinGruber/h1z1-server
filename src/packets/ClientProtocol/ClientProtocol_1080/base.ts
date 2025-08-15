@@ -41,7 +41,8 @@ import {
   skinItemsSchema,
   mountSchema,
   skillPointDataSchema,
-  interactionDataSchema
+  interactionDataSchema,
+  broadcastSchema
 } from "./shared";
 import {
   achievementSchema,
@@ -2101,16 +2102,24 @@ export const basePackets: PacketStructures = [
   ["ClientServerShuttingDown", 0x2c, {}],
 
   [
-    "Broadcast",
+    "Broadcast.Local",
     0x2e0000,
     {
-      fields: [
-        { name: "identity", type: "schema", fields: identitySchema },
-        { name: "unknownString1", type: "string", defaultValue: "" },
-        { name: "unknownDword1", type: "uint32", defaultValue: 0 },
-        { name: "unknownBoolean1", type: "boolean", defaultValue: false },
-        { name: "unknownBoolean2", type: "boolean", defaultValue: false }
-      ]
+      fields: broadcastSchema
+    }
+  ],
+  [
+    "Broadcast.Zone",
+    0x2e0200,
+    {
+      fields: broadcastSchema
+    }
+  ],
+  [
+    "Broadcast.World",
+    0x2e0300,
+    {
+      fields: broadcastSchema
     }
   ],
   ["ClientKickedFromServer", 0x2f, {}],

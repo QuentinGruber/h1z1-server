@@ -3641,3 +3641,16 @@ export const interactionDataSchema: PacketFields = [
     ]
   }
 ];
+
+export const broadcastSchema: PacketFields = [
+  {
+    name: "identity",
+    type: "schema",
+    defaultValue: {},
+    fields: identitySchema
+  }, // Automatically marked as system broadcast when no chracterFirstName and LastName are present
+  { name: "message", type: "string", defaultValue: "" }, // Leave blank if you want to send a stringId
+  { name: "stringId", type: "uint32", defaultValue: 0 },
+  { name: "hideBroadcast", type: "boolean", defaultValue: false }, // Only works for system broadcasts
+  { name: "chatOnly", type: "boolean", defaultValue: false }
+];
