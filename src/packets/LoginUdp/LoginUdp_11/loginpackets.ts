@@ -44,12 +44,12 @@ export const applicationDataJS2016 = [
   { name: "encryptionType", type: "uint32", defaultValue: 3 },
   { name: "guid", type: "uint64string" },
   {
-    name: "unknownQword1",
+    name: "sessionId",
     type: "uint64string",
     defaultValue: "0x0000000000000000"
   },
-  { name: "unknownString1", type: "string", defaultValue: "" },
-  { name: "unknownString2", type: "string", defaultValue: "" },
+  { name: "stationName", type: "string", defaultValue: "PII" },
+  { name: "characterName", type: "string", defaultValue: "" },
   { name: "unknownString3", type: "string", defaultValue: "" },
   {
     name: "serverFeatureBit",
@@ -269,8 +269,8 @@ const packets: PacketStructures = [
     0x08,
     {
       fields: [
-        { name: "unknownQword1", type: "uint64string" },
-        { name: "unknownDword1", type: "uint32" },
+        { name: "characterId", type: "uint64string" },
+        { name: "serverId", type: "uint32" },
         { name: "unknownDword2", type: "uint32" },
         { name: "status", type: "uint32" },
         {

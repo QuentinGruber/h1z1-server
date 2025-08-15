@@ -12,7 +12,7 @@
 // ======================================================================
 
 import { BaseFullCharacter } from "../entities/basefullcharacter";
-import { ContainerErrors } from "../models/enums";
+import { ContainerErrors, Items } from "../models/enums";
 import { ZoneServer2016 } from "../zoneserver";
 import { BaseItem } from "./baseItem";
 import { LoadoutItem } from "./loadoutItem";
@@ -108,6 +108,19 @@ export class LoadoutContainer extends LoadoutItem {
     itemDefinitionId: number,
     count: number
   ): boolean {
+    if (
+      this.itemDefinitionId == Items.CONTAINER_REPAIR_BOX &&
+      ![
+        Items.WOOD_LOG,
+        Items.WOOD_PLANK,
+        Items.NAIL,
+        Items.METAL_BRACKET,
+        Items.METAL_SHEET,
+        Items.SHARD_METAL,
+        Items.WOOD_STICK
+      ].includes(itemDefinitionId)
+    )
+      return false;
     if (this.getMaxBulk(server) == 0) return true; // for external containers
     const itemDefinition = server.getItemDefinition(itemDefinitionId);
     if (!itemDefinition) return false;

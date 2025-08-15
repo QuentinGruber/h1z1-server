@@ -13,7 +13,16 @@
 
 import { h1z1Buffer } from "h1z1-dataschema";
 import { PacketStructures } from "types/packetStructure";
-import { accountItemSchema } from "./shared";
+import {
+  accountItemSchema,
+  accountItemsSchema,
+  emoteItemsSchema,
+  escrowAccountItemSchema,
+  escrowAccountItemsSchema,
+  itemCollectionSchema,
+  skinItemSchema,
+  skinItemsSchema
+} from "./shared";
 
 export function parseItemRequestSubData(data: h1z1Buffer, offset: number) {
   const obj: any = {},
@@ -102,49 +111,144 @@ export const itemsPackets: PacketStructures = [
     0xad02,
     {
       fields: [
-        // TODO: Not sure if this is correct
+        // sub_140373A20
+        { name: "unknownDword1", type: "uint32", defaultValue: 0 },
+        { name: "unknownDword2", type: "uint32", defaultValue: 0 },
+        { name: "unknownQword1", type: "uint64string", defaultValue: "0" },
+        { name: "unknownQword2", type: "uint64string", defaultValue: "0" },
+        // end sub_140373A20
         {
+          // sub_14037CF80
           name: "unknownArray1",
           type: "array",
           defaultValue: [],
           fields: [
+            { name: "unknownDword1_", type: "uint32", defaultValue: "0" },
+            // sub_140373A20
+            { name: "unknownDword1", type: "uint32", defaultValue: 0 },
+            { name: "unknownDword2", type: "uint32", defaultValue: 0 },
             { name: "unknownQword1", type: "uint64string", defaultValue: "0" },
+            { name: "unknownQword2", type: "uint64string", defaultValue: "0" },
+            // end sub_140373A20
+            { name: "unknownDword2_", type: "uint32", defaultValue: "0" }
+          ]
+        },
+        { name: "unknownDword1_", type: "uint32", defaultValue: 0 },
+        { name: "unknownDword2_", type: "uint32", defaultValue: 0 },
+        { name: "unknownQword1_", type: "uint64string", defaultValue: "0" },
+        {
+          // sub_14037D0F0
+          name: "unknownArray2",
+          type: "array",
+          defaultValue: [],
+          fields: [
+            { name: "unknownDword1_", type: "uint32", defaultValue: "0" },
             {
-              name: "unknownArray1",
-              type: "array",
-              defaultValue: [],
+              // sub_1403702F0
+              name: "unknownData1",
+              type: "schema",
+              defaultValue: {},
               fields: [
                 {
-                  name: "unknownQword1",
-                  type: "uint64string",
-                  defaultValue: "0"
+                  // sub_140373AD0
+                  name: "unknownData1",
+                  type: "schema",
+                  defaultValue: {},
+                  fields: [
+                    {
+                      name: "unknownDword1",
+                      type: "uint32",
+                      defaultValue: 0
+                    },
+                    {
+                      name: "unknownDword2",
+                      type: "uint32",
+                      defaultValue: 0
+                    },
+                    {
+                      name: "unknownQword1",
+                      type: "uint64string",
+                      defaultValue: ""
+                    }
+                  ]
                 },
-                { name: "unknownDword1", type: "uint32", defaultValue: 0 },
-                { name: "unknownDword2", type: "uint32", defaultValue: 0 },
-                { name: "unknownDword3", type: "uint32", defaultValue: 0 }
+                {
+                  name: "unknownDword1",
+                  type: "uint32",
+                  defaultValue: 0
+                },
+                {
+                  name: "unknownDword2",
+                  type: "uint32",
+                  defaultValue: 0
+                },
+                {
+                  name: "unknownByte1",
+                  type: "uint8",
+                  defaultValue: 0
+                }
               ]
             }
           ]
         },
         {
-          name: "unknownArray2",
-          type: "array",
-          defaultValue: [],
-          fields: [
-            { name: "unknownQword1", type: "uint64string", defaultValue: "0" },
-            { name: "unknownDword1", type: "uint32", defaultValue: 0 },
-            { name: "unknownDword2", type: "uint32", defaultValue: 0 }
-          ]
-        },
-        {
+          // sub_14037CE40
           name: "unknownArray3",
           type: "array",
           defaultValue: [],
           fields: [
-            { name: "unknownQword1", type: "uint64string", defaultValue: "0" },
-            { name: "unknownQword2", type: "uint64string", defaultValue: "0" },
-            { name: "unknownDword1", type: "uint32", defaultValue: 0 }
+            { name: "unknownDword1", type: "uint32", defaultValue: 0 },
+            {
+              // sub_1403701A0
+              name: "unknownData1",
+              type: "schema",
+              defaultValue: {},
+              fields: [
+                {
+                  name: "unknownData1",
+                  type: "schema",
+                  defaultValue: {},
+                  fields: [
+                    {
+                      name: "unknownDword1",
+                      type: "uint32",
+                      defaultValue: 0
+                    },
+                    {
+                      name: "unknownDword2",
+                      type: "uint32",
+                      defaultValue: 0
+                    },
+                    {
+                      name: "unknownQword1",
+                      type: "uint64string",
+                      defaultValue: ""
+                    }
+                  ]
+                },
+                {
+                  name: "unknownDword1",
+                  type: "uint32",
+                  defaultValue: 0
+                },
+                {
+                  name: "unknownDword2",
+                  type: "uint32",
+                  defaultValue: 0
+                },
+                {
+                  name: "unknownByte1",
+                  type: "uint8",
+                  defaultValue: 0
+                }
+              ]
+            }
           ]
+        },
+        {
+          name: "unknownByte1_",
+          type: "uint8",
+          defaultValue: 0
         }
       ]
     }
@@ -167,7 +271,7 @@ export const itemsPackets: PacketStructures = [
   ["Items.RemoveItemTrialTimer", 0xad08, {}],
   ["Items.ExpireItemTrialTimer", 0xad09, {}],
   ["Items.UpdateItemTrialTimer", 0xad0a, {}],
-  ["Items.SetItemRentalTimers", 0xad0b, {}],
+  ["Items.SetItemRentalTimers", 0xad0b, {}], // sub_14037CE40 somewhere
   ["Items.AddItemRentalTimer", 0xad0c, {}],
   ["Items.RemoveItemRentalTimer", 0xad0d, {}],
   ["Items.ExpireItemRentalTimer", 0xad0e, {}],
@@ -176,48 +280,67 @@ export const itemsPackets: PacketStructures = [
     "Items.SetAccountItemManager",
     0xad10,
     {
-      fields: [
-        // Todo
-        { name: "unknowWord2", type: "uint32", defaultValue: 1 }
-      ]
+      fields: accountItemsSchema
     }
   ],
   [
     "Items.AddAccountItem",
-    0xad1100,
+    0xad11,
     {
       fields: [
-        { name: "itemId", type: "uint64string", defaultValue: "0x0" },
-        { name: "unknowWord2", type: "uint32", defaultValue: 1 },
-        { name: "unknowWord3", type: "uint32", defaultValue: 2 },
-        { name: "unknowWord4", type: "uint32", defaultValue: 3 } // count ?
+        ...accountItemSchema,
+        {
+          name: "unknownByte1",
+          type: "uint8",
+          defaultValue: 192
+        }
       ]
     }
   ],
-  ["Items.RemoveAccountItem", 0xad12, {}],
-  ["Items.UpdateAccountItem", 0xad13, {}],
+  [
+    "Items.RemoveAccountItem",
+    0xad12,
+    {
+      fields: [
+        {
+          name: "itemId",
+          type: "uint64string",
+          defaultValue: ""
+        },
+        {
+          name: "itemDefinitionId",
+          type: "uint32",
+          defaultValue: 0
+        }
+      ]
+    }
+  ],
+  [
+    "Items.UpdateAccountItem",
+    0xad13,
+    {
+      fields: [
+        ...accountItemSchema,
+        {
+          name: "unknownByte1",
+          type: "uint8",
+          defaultValue: 192
+        }
+      ]
+    }
+  ],
   [
     "Items.SetEscrowAccountItemManager",
     0xad14,
     {
-      fields: [
-        {
-          name: "accountItems",
-          type: "array",
-          defaultValue: [],
-          fields: [
-            { name: "itemId", type: "uint64string", defaultValue: "0" },
-            { name: "itemData", type: "schema", fields: accountItemSchema }
-          ]
-        }
-      ]
+      fields: escrowAccountItemsSchema
     }
   ],
   [
     "Items.AddEscrowAccountItem",
     0xad15,
     {
-      fields: [{ name: "itemData", type: "schema", fields: accountItemSchema }]
+      fields: escrowAccountItemSchema
     }
   ],
   [
@@ -234,7 +357,7 @@ export const itemsPackets: PacketStructures = [
     "Items.UpdateEscrowAccountItem",
     0xad17,
     {
-      fields: [{ name: "itemData", type: "schema", fields: accountItemSchema }]
+      fields: escrowAccountItemSchema
     }
   ],
   [
@@ -242,7 +365,8 @@ export const itemsPackets: PacketStructures = [
     0xad18,
     {
       fields: [
-        { name: "unknownQword1", type: "uint64string", defaultValue: "0" }, // probably characterId
+        { name: "escrowEnabled", type: "uint32", defaultValue: 0 },
+        { name: "escrowServerConnected", type: "uint32", defaultValue: 0 },
         { name: "escrowAccountLoadSucceeded", type: "uint32", defaultValue: 0 },
         { name: "escrowAccountAllowTrading", type: "uint32", defaultValue: 0 }
       ]
@@ -252,7 +376,13 @@ export const itemsPackets: PacketStructures = [
   ["Items.RemoveNewAccountItemRec", 0xad1a, {}],
   ["Items.RemoveNewAccountItemRecByItemId", 0xad1b, {}],
   ["Items.RemoveAllNewAccountItemRecs", 0xad1c, {}],
-  ["Items.ReportNewRewardCrateAdded", 0xad1d, {}],
+  [
+    "Items.ReportNewRewardCrateAdded",
+    0xad1d,
+    {
+      fields: accountItemSchema
+    }
+  ],
   [
     "Items.ReportRewardCrateContents",
     0xad1e,
@@ -264,7 +394,7 @@ export const itemsPackets: PacketStructures = [
           defaultValue: [],
           fields: [
             { name: "itemDefinitionId", type: "uint32", defaultValue: 0 },
-            { name: "unknownDword2", type: "uint32", defaultValue: 0 }
+            { name: "itemCount", type: "uint32", defaultValue: 1 }
           ]
         },
         {
@@ -273,32 +403,68 @@ export const itemsPackets: PacketStructures = [
           defaultValue: [],
           fields: [
             { name: "itemDefinitionId", type: "uint32", defaultValue: 0 },
-            { name: "unknownDword2", type: "uint32", defaultValue: 0 }
+            { name: "itemCount", type: "uint32", defaultValue: 1 }
           ]
         }
       ]
     }
   ],
-  ["Items.ItemPacketIdSetEmoteItem", 0xad1f, {}],
-  ["Items.RemoveEmoteItem", 0xad20, {}],
-  ["Items.SetSkinItemManager", 0xad21, {}],
+  [
+    "Items.SetEmoteItem",
+    0xad1f,
+    {
+      fields: [
+        { name: "unknownDword1", type: "uint32", defaultValue: 1 },
+        { name: "unknownDword2", type: "uint32", defaultValue: 3154 }
+      ]
+    }
+  ],
+  [
+    "Items.RemoveEmoteItem",
+    0xad20,
+    {
+      fields: [{ name: "itemDefinitionId", type: "uint32", defaultValue: 0 }]
+    }
+  ],
+  [
+    "Items.SetSkinItemManager",
+    0xad21,
+    {
+      fields: [
+        { name: "unknownDword1", type: "uint32", defaultValue: 0 },
+        { name: "unknownDword2", type: "uint32", defaultValue: 0 },
+        { name: "unknownString1", type: "string", defaultValue: "" },
+        ...skinItemsSchema,
+        ...emoteItemsSchema,
+        ...itemCollectionSchema
+      ]
+    }
+  ], // Related to unknownData8 in sendself
   [
     "Items.SetSkinItem",
     0xad22,
     {
       fields: [
         { name: "unknownDword1", type: "uint32", defaultValue: 1 },
-        { name: "itemDefinitionId", type: "uint32", defaultValue: 0 },
-        { name: "unknownQword1", type: "uint64string", defaultValue: "0" },
-        { name: "unknownDword3", type: "uint32", defaultValue: 0 },
-        { name: "unknownByte1", type: "uint8", defaultValue: 0 }
+        ...skinItemSchema
       ]
     }
   ],
   ["Items.RemoveSkinItem", 0xad23, {}],
   ["Items.SetSkinItemCollectionCustomName", 0xad24, {}],
   ["Items.SelectSkinItemCollectionId", 0xad25, {}],
-  ["Items.SetCurrentSkinItemCollection", 0xad26, {}],
+  [
+    "Items.SetCurrentSkinItemCollection",
+    0xad26,
+    {
+      fields: [
+        { name: "unknownDword1", type: "uint32", defaultValue: 0 },
+        { name: "unknownString1", type: "string", defaultValue: "" },
+        ...skinItemsSchema,
+        ...emoteItemsSchema
+      ]
+    }
+  ], // Related to unknownData8 in sendself
   ["Items.RequestAddItemTimer", 0xad27, {}],
   ["Items.RequestTrialItem", 0xad28, {}],
   ["Items.RequestRentalItem", 0xad29, {}],

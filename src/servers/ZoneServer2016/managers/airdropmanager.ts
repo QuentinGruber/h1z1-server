@@ -1,4 +1,7 @@
-import { CommandDeliveryDisplayInfo } from "types/zone2016packets";
+import {
+  CommandDeliveryDisplayInfo,
+  CommandDeliveryManagerStatus
+} from "types/zone2016packets";
 import { ZoneServer2016 } from "../zoneserver";
 import { Effects, ModelIds } from "../models/enums";
 import {
@@ -24,7 +27,7 @@ export class AirdropManager {
       path: DeliveryProgressData[];
       dropPoint: Float32Array;
       callerPos: Float32Array;
-      tickAtPlayer: number;
+      tickAtPos: number;
       calledTick: number;
       crateSpawnTick: number;
       removeTick: number;
@@ -33,12 +36,13 @@ export class AirdropManager {
   private maxAirdrops: number = 1;
   public crateDropSpeed: number = 35496.3;
   public planeMovementSpeed: number = 80000;
+  public minimumPlayers: number = 0;
 
   constructor(public server: ZoneServer2016) {}
 
   generateDeliveryPath(position: Float32Array): {
     path: DeliveryProgressData[];
-    tickAtPlayer: number;
+    tickAtPos: number;
     dropPoint: Float32Array;
   } {
     const mapBound = 4096;
@@ -75,7 +79,7 @@ export class AirdropManager {
     const totalDist = Math.hypot(endX - startX, endZ - startZ);
     const distToPlayer = Math.hypot(playerX - startX, playerZ - startZ);
 
-    const tickAtPlayer = Math.floor(
+    const tickAtPos = Math.floor(
       Math.floor((distToPlayer / totalDist) * this.planeMovementSpeed)
     );
 
@@ -134,19 +138,19 @@ export class AirdropManager {
       }
     }
 
-    return { path, tickAtPlayer, dropPoint };
+    return { path, tickAtPos, dropPoint };
   }
 
   spawnAirdrop(
     position: Float32Array,
     forcedAirdropType: string,
-    forceSpawn: boolean = false
+    forceSpawn: boolean = false,
+    caller: string = ""
   ): boolean {
     if (!forceSpawn && !this.allowedAirdropSpawn()) {
       return false;
     }
-    const { path, tickAtPlayer, dropPoint } =
-      this.generateDeliveryPath(position);
+    const { path, tickAtPos, dropPoint } = this.generateDeliveryPath(position);
 
     const currentTick = getCurrentServerTimeWrapper().getTruncatedU32();
     const airdropId = this.nextAirdropId++;
@@ -155,12 +159,22 @@ export class AirdropManager {
       callerPos: new Float32Array([position[0], position[1], position[2], 0]),
       calledTick: currentTick,
       dropPoint: dropPoint,
-      tickAtPlayer: new TimeWrapper(tickAtPlayer).getTruncatedU32(),
+      tickAtPos: new TimeWrapper(tickAtPos).getTruncatedU32(),
       crateSpawnTick: new TimeWrapper(
-        tickAtPlayer + this.crateDropSpeed
+        tickAtPos + this.crateDropSpeed
       ).getTruncatedU32(),
       removeTick: this.planeMovementSpeed
     });
+
+    setTimeout(() => {
+      const client = this.server.getClientByCharId(caller);
+      if (client) {
+        this.server.sendAlert(
+          client,
+          "Air drop released. The package is delivered."
+        );
+      }
+    }, Math.floor(tickAtPos));
 
     setTimeout(
       () => {
@@ -176,35 +190,30 @@ export class AirdropManager {
           Effects.PFX_Impact_Explosion_AirdropBomb_Default_10m
         );
       },
-      Math.floor(tickAtPlayer + this.crateDropSpeed)
+      Math.floor(tickAtPos + this.crateDropSpeed)
     );
 
     setTimeout(() => {
       this.activeAirdrops.delete(airdropId);
+      this.sendDeliveryStatus();
     }, this.planeMovementSpeed);
 
     this.broadcastDeliveryInfo();
-    this.updateAirdropIndicator();
+    this.sendDeliveryStatus();
     return true;
   }
 
   broadcastDeliveryInfo(client: ZoneClient2016 | undefined = undefined) {
     for (const [airdropId, airdrop] of this.activeAirdrops.entries()) {
-      const {
-        path,
-        dropPoint,
-        callerPos,
-        calledTick,
-        tickAtPlayer,
-        removeTick
-      } = airdrop;
+      const { path, dropPoint, callerPos, calledTick, tickAtPos, removeTick } =
+        airdrop;
       const deliveryData: CommandDeliveryDisplayInfo = {
         startIndex: airdropId,
         segments: [
           {
             actorModelId: ModelIds.AIRDROP_PLANE,
             activationTime: new TimeWrapper(calledTick).getTruncatedU32(),
-            ticksForStage: removeTick / 1000,
+            totalTicks: removeTick / 1000,
             rotation: 0.5,
             effectId: 0,
             endPosition: new Float32Array([0, 0, 0, 0]),
@@ -218,9 +227,9 @@ export class AirdropManager {
           ].map((modelId) => ({
             actorModelId: modelId,
             activationTime: new TimeWrapper(
-              calledTick + tickAtPlayer
+              calledTick + tickAtPos
             ).getTruncatedU32(),
-            ticksForStage: this.crateDropSpeed / 1000,
+            totalTicks: this.crateDropSpeed / 1000,
             rotation: 0,
             effectId: 0,
             endPosition: callerPos,
@@ -252,36 +261,10 @@ export class AirdropManager {
     return this.activeAirdrops.size < this.maxAirdrops;
   }
 
-  updateAirdropIndicator(client: ZoneClient2016 | undefined = undefined) {
-    let statusCode = 0;
-    if (this.activeAirdrops.size > 0) {
-      statusCode = 1;
-    } else if (
-      _.size(this.server._clients) <
-        this.server.worldObjectManager.minAirdropSurvivors &&
-      !this.server._soloMode
-    ) {
-      statusCode = 2;
-    }
-
-    const data = {
-      indicator: statusCode == 0 ? 1 : 0,
-      status: 0
-    };
-
-    if (!client) {
-      this.server.sendDataToAll("Command.DeliveryManagerStatus", data);
-      return;
-    }
-
-    this.server.sendData(client, "Command.DeliveryManagerStatus", data);
-  }
-
-  sendDeliveryStatus(client: ZoneClient2016 | undefined = undefined) {
+  sendDeliveryStatus() {
     const hasEnoughSurvivors =
       this.server._soloMode ||
-      this.server.worldObjectManager.minAirdropSurvivors <
-        _.size(this.server._clients);
+      this.minimumPlayers < _.size(this.server._clients);
 
     let status = 0;
     switch (true) {
@@ -293,17 +276,12 @@ export class AirdropManager {
         break;
     }
 
-    if (client) {
-      this.server.sendData(client, "Command.DeliveryManagerStatus", {
-        color: status == 0 ? 1 : 0,
+    this.server.sendDataToAll<CommandDeliveryManagerStatus>(
+      "Command.DeliveryManagerStatus",
+      {
+        deliveryAvailable: status == 0 ? 1 : 0,
         status: status
-      });
-      return;
-    }
-
-    this.server.sendDataToAll("Command.DeliveryManagerStatus", {
-      color: status == 0 ? 1 : 0,
-      status: status
-    });
+      }
+    );
   }
 }

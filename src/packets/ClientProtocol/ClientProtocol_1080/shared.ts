@@ -829,7 +829,7 @@ export const profileSchema: PacketFields = [
   { name: "nameId", type: "uint32", defaultValue: 0 },
   { name: "descriptionId", type: "uint32", defaultValue: 0 },
   { name: "type", type: "uint8", defaultValue: 0 },
-  { name: "unknownDword1", type: "uint32", defaultValue: 0 },
+  { name: "iconId", type: "uint32", defaultValue: 0 },
   { name: "abilityBgImageSet", type: "uint32", defaultValue: 0 },
   { name: "badgeImageSet", type: "uint32", defaultValue: 0 },
   { name: "buttonImageSet", type: "uint32", defaultValue: 0 },
@@ -2050,7 +2050,7 @@ export const fullNpcSchema: PacketFields = [
   { name: "unknownDword13", type: "uint32", defaultValue: 0 },
   { name: "unknownDword14", type: "uint32", defaultValue: 0 },
   { name: "unknownDword15", type: "uint32", defaultValue: 0 },
-  { name: "unknownDword16", type: "uint32", defaultValue: 0 },
+  { name: "descriptionId", type: "uint32", defaultValue: 0 },
   { name: "unknownDword17", type: "uint32", defaultValue: 0 },
   { name: "unknownByte1", type: "uint8", defaultValue: 0 },
   { name: "unknownByte2", type: "uint8", defaultValue: 0 },
@@ -3047,14 +3047,6 @@ export function pack2ByteLengthString(string: string) {
   */
 }
 
-export const accountItemSchema: PacketFields = [
-  { name: "itemId", type: "uint64string", defaultValue: "0" },
-  { name: "itemDefinitionId", type: "uint64", defaultValue: 0 },
-  { name: "itemCount", type: "uint32", defaultValue: 0 },
-  { name: "itemGuid", type: "uint64string", defaultValue: "0" },
-  { name: "unknownDword4", type: "uint32", defaultValue: 0 }
-];
-
 export const storeBundleSchema: PacketFields = [
   {
     name: "appStoreBundle",
@@ -3269,4 +3261,383 @@ export const damageReportPlayerInfoSchema: PacketFields = [
   { name: "unknownDword10", type: "uint32", defaultValue: 0 },
   { name: "unknownDword11", type: "uint32", defaultValue: 0 },
   { name: "unknownDword12", type: "uint32", defaultValue: 0 }
+];
+
+export const knockedOutPlayerProfileData: PacketFields = [
+  { name: "unknownQword1", type: "uint64string", defaultValue: "0" },
+  { name: "unknownString1", type: "string", defaultValue: "" },
+  { name: "unknownString2", type: "string", defaultValue: "" },
+  { name: "unknownString3", type: "string", defaultValue: "" },
+  { name: "unknownQword2", type: "uint64string", defaultValue: "0" },
+  { name: "unknownDword1", type: "uint32", defaultValue: 0 },
+  { name: "unknownDword2", type: "uint32", defaultValue: 0 },
+  { name: "unknownDword3", type: "uint32", defaultValue: 0 },
+  { name: "unknownDword4", type: "uint32", defaultValue: 0 },
+  { name: "unknownByte1", type: "uint8", defaultValue: 0 },
+  { name: "unknownDword5", type: "uint32", defaultValue: 0 },
+  { name: "unknownDword6", type: "uint32", defaultValue: 0 },
+  { name: "unknownDword7", type: "uint32", defaultValue: 0 },
+  { name: "unknownDword8", type: "uint32", defaultValue: 0 },
+  { name: "unknownDword9", type: "uint32", defaultValue: 0 },
+  { name: "unknownDword10", type: "uint32", defaultValue: 0 },
+  { name: "unknownDword11", type: "uint32", defaultValue: 0 },
+  { name: "unknownDword12", type: "uint32", defaultValue: 0 },
+  { name: "unknownDword13", type: "uint32", defaultValue: 0 },
+  { name: "unknownDword14", type: "uint32", defaultValue: 0 },
+  { name: "unknownDword15", type: "int32", defaultValue: 0 }
+];
+
+export const knockedOutItemData: PacketFields = [
+  { name: "unknownQword1", type: "uint64string", defaultValue: "0" },
+  { name: "unknownDword1", type: "uint32", defaultValue: 0 },
+  { name: "unknownDword2", type: "uint32", defaultValue: 0 },
+  { name: "unknownDword3", type: "uint32", defaultValue: 0 },
+  { name: "unknownDword4", type: "uint32", defaultValue: 0 },
+  { name: "unknownDword5", type: "uint32", defaultValue: 0 },
+  { name: "unknownDword6", type: "uint32", defaultValue: 0 },
+  { name: "unknownDword7", type: "uint32", defaultValue: 0 },
+  { name: "unknownDword8", type: "uint32", defaultValue: 0 },
+  { name: "unknownDword9", type: "uint32", defaultValue: 0 },
+  { name: "unknownDword10", type: "uint32", defaultValue: 0 },
+  { name: "unknownDword11", type: "uint32", defaultValue: 0 },
+  { name: "unknownDword12", type: "uint32", defaultValue: 0 }
+];
+
+export const accountItemSchema: PacketFields = [
+  {
+    name: "itemId",
+    type: "uint64string",
+    defaultValue: ""
+  },
+  {
+    name: "itemDefinitionId",
+    type: "uint32",
+    defaultValue: 0
+  },
+  {
+    name: "unknownDword2",
+    type: "int32",
+    defaultValue: 0
+  },
+  {
+    name: "itemCount",
+    type: "int32",
+    defaultValue: 0
+  }
+];
+
+export const escrowAccountItemSchema: PacketFields = [
+  {
+    name: "itemData",
+    type: "schema",
+    defaultValue: {},
+    fields: accountItemSchema
+  },
+  { name: "unknownQword1", type: "uint64string", defaultValue: "0" },
+  { name: "unknownDword1", type: "uint32", defaultValue: 0 }
+];
+
+export const listEscrowAccountItemSchema: PacketFields = [
+  {
+    name: "itemId",
+    type: "uint64string",
+    defaultValue: ""
+  },
+  ...escrowAccountItemSchema
+];
+
+export const escrowAccountItemsSchema: PacketFields = [
+  {
+    name: "escrowAccountItems",
+    type: "array",
+    defaultValue: [],
+    fields: listEscrowAccountItemSchema
+  }
+];
+
+export const accountItemsSchema: PacketFields = [
+  {
+    name: "accountItems",
+    type: "schema",
+    defaultValue: {},
+    fields: [
+      {
+        name: "items",
+        type: "array",
+        defaultValue: [],
+        fields: [
+          {
+            name: "itemId",
+            type: "uint64string",
+            defaultValue: ""
+          },
+          {
+            name: "itemData",
+            type: "schema",
+            defaultValue: {},
+            fields: accountItemSchema
+          }
+        ]
+      },
+      {
+        name: "unknownArray2",
+        type: "array",
+        defaultValue: [],
+        fields: [
+          {
+            name: "itemId",
+            type: "uint64string",
+            defaultValue: ""
+          },
+          { name: "itemDefinitionId", type: "uint32", defaultValue: 0 },
+          { name: "itemCount", type: "uint32", defaultValue: 0 }
+        ]
+      },
+      {
+        name: "unknownArray3",
+        type: "array",
+        defaultValue: [],
+        fields: [
+          {
+            name: "unknownQword1",
+            type: "uint64string",
+            defaultValue: ""
+          },
+          {
+            name: "unknownQword2",
+            type: "uint64string",
+            defaultValue: ""
+          },
+          { name: "unknownDword1", type: "uint32", defaultValue: 0 }
+        ]
+      }
+    ]
+  }
+];
+
+// sub_140376CC0
+export const skinItemSchema: PacketFields = [
+  { name: "itemDefinitionId", type: "uint32", defaultValue: 0 },
+  { name: "unknownQword1", type: "uint64string", defaultValue: "0" },
+  { name: "unknownDword2", type: "uint32", defaultValue: 0 },
+  { name: "unknownByte1", type: "uint8", defaultValue: 0 }
+];
+
+// sub_14037D8E0
+export const skinItemsSchema: PacketFields = [
+  {
+    name: "items",
+    type: "array",
+    defaultValue: [],
+    fields: [
+      { name: "unknownDword1", type: "uint32", defaultValue: 0 },
+      { name: "itemData", type: "schema", fields: skinItemSchema }
+    ]
+  }
+];
+
+// sub_140381090
+export const emoteItemsSchema: PacketFields = [
+  {
+    name: "emotes",
+    type: "array",
+    defaultValue: [],
+    fields: [
+      { name: "unknownDword1", type: "uint32", defaultValue: 0 },
+      { name: "unknownDword2", type: "uint32", defaultValue: 0 },
+      { name: "unknownDword3", type: "uint32", defaultValue: 0 }
+    ]
+  }
+];
+
+// sub_140382290
+export const itemCollectionSchema: PacketFields = [
+  {
+    name: "itemCollection",
+    type: "array",
+    defaultValue: [],
+    fields: [
+      { name: "unknownDword1", type: "uint32", defaultValue: 0 },
+      { name: "unknownDword2", type: "uint32", defaultValue: 0 },
+      { name: "unknownString1", type: "string", defaultValue: "" },
+      ...skinItemsSchema,
+      ...emoteItemsSchema
+    ]
+  }
+];
+
+export const vehicleStatSchema: PacketFields = [
+  { name: "characterId", type: "uint64string", defaultValue: "0" },
+  { name: "unknownDword1", type: "uint32", defaultValue: 0 },
+  { name: "unknownDword2", type: "uint32", defaultValue: 0 },
+  ...statSchema
+];
+
+export const mountSchema: PacketFields = [
+  { name: "unknownDword1", type: "uint32", defaultValue: 0 },
+  { name: "unknownDword2", type: "uint32", defaultValue: 0 },
+  { name: "unknownDword3", type: "uint32", defaultValue: 0 },
+  {
+    name: "unknownQword1",
+    type: "uint64string",
+    defaultValue: ""
+  },
+  {
+    name: "unknownBoolean1",
+    type: "boolean",
+    defaultValue: true
+  },
+  { name: "unknownDword4", type: "uint32", defaultValue: 0 },
+  { name: "unknownString1", type: "string", defaultValue: "" }
+];
+
+export const playerCustomizationSchema: PacketFields = [
+  { name: "unknownDword1", type: "uint32", defaultValue: 0 },
+  { name: "unknownString1", type: "string", defaultValue: "" },
+  { name: "unknownDword2", type: "uint32", defaultValue: 0 },
+  { name: "unknownDword3", type: "uint32", defaultValue: 0 }
+];
+
+export const lobbyDataSchema: PacketFields = [
+  { name: "unknownDword1", type: "uint32", defaultValue: 0 },
+  { name: "unknownDword2", type: "uint32", defaultValue: 0 },
+  { name: "unknownDword3", type: "uint32", defaultValue: 0 },
+  {
+    name: "unknownArray1",
+    type: "array",
+    defaultValue: [],
+    fields: [
+      { name: "unknownDword1", type: "uint32", defaultValue: 0 },
+      { name: "unknownDword2", type: "uint32", defaultValue: 0 }
+    ]
+  },
+  {
+    name: "playerData",
+    type: "schema",
+    defaultValue: [],
+    fields: identitySchema
+  },
+  { name: "unknownBoolean1", type: "boolean", defaultValue: false },
+  { name: "unknownDword4", type: "uint32", defaultValue: 0 },
+  { name: "unknownQword1", type: "uint64string", defaultValue: "0" },
+  { name: "unknownDword5", type: "uint32", defaultValue: 0 },
+  { name: "unknownDword6", type: "uint32", defaultValue: 0 },
+  { name: "unknownDword7", type: "uint32", defaultValue: 0 },
+  { name: "unknownBoolean2", type: "boolean", defaultValue: false }
+];
+
+export const skillPointDataSchema: PacketFields = [
+  {
+    name: "skillPointData",
+    type: "schema",
+    defaultValue: {},
+    fields: [
+      {
+        name: "skillPointsGranted",
+        type: "uint64string",
+        defaultValue: ""
+      },
+      {
+        name: "skillPointsTotal",
+        type: "uint64string",
+        defaultValue: ""
+      },
+      {
+        name: "skillPointsSpent",
+        type: "uint64string",
+        defaultValue: ""
+      },
+      {
+        name: "unknownQword1",
+        type: "uint64string",
+        defaultValue: ""
+      },
+      {
+        name: "unknownQword2",
+        type: "uint64string",
+        defaultValue: ""
+      },
+      { name: "unknownDword1", type: "uint32", defaultValue: 0 }
+    ]
+  }
+];
+
+export const interactionTimerSchema: PacketFields = [
+  {
+    name: "timeData",
+    type: "schema",
+    defaultValue: {},
+    fields: [
+      {
+        name: "duration",
+        type: "uint32",
+        defaultValue: 0
+      },
+      {
+        name: "unknownDword2",
+        type: "uint32",
+        defaultValue: 0
+      },
+      {
+        name: "unknownQword1",
+        type: "uint64string",
+        defaultValue: ""
+      }
+    ]
+  }
+];
+
+export const interactionExtraTimerSchema: PacketFields = [
+  {
+    name: "extraData",
+    type: "schema",
+    defaultValue: {},
+    fields: [
+      {
+        name: "unknownDword1",
+        type: "uint32",
+        defaultValue: 0
+      },
+      {
+        name: "unknownDword2",
+        type: "uint32",
+        defaultValue: 0
+      },
+      {
+        name: "unknownDword3",
+        type: "uint32",
+        defaultValue: 0
+      },
+      {
+        name: "unknownDword4",
+        type: "uint32",
+        defaultValue: 0
+      }
+    ]
+  }
+];
+
+export const interactionDataSchema: PacketFields = [
+  {
+    name: "interactionData",
+    type: "schema",
+    defaultValue: {},
+    fields: [
+      ...interactionTimerSchema,
+      {
+        name: "unknownQword1",
+        type: "uint64string",
+        defaultValue: ""
+      },
+      { name: "unknownDword1", type: "uint32", defaultValue: 0 },
+      { name: "unknownDword2", type: "uint32", defaultValue: 0 },
+      { name: "unknownDword3", type: "uint32", defaultValue: 0 },
+      ...interactionExtraTimerSchema,
+      {
+        name: "unknownString1",
+        type: "string",
+        defaultValue: ""
+      }
+    ]
+  }
 ];

@@ -16,6 +16,7 @@ import * as yaml from "js-yaml";
 import { Config } from "../models/config";
 import { ZoneServer2016 } from "../zoneserver";
 import { copyFile } from "../../../utils/utils";
+import { GameModes } from "../models/enums";
 
 function fileExists(filePath: string): boolean {
   try {
@@ -92,7 +93,8 @@ export class ConfigManager {
       construction,
       decay,
       smelting,
-      randomevents
+      randomevents,
+      groups
     } = this.defaultConfig;
     return {
       ...this.defaultConfig,
@@ -148,6 +150,10 @@ export class ConfigManager {
       randomevents: {
         ...randomevents,
         ...config.randomevents
+      },
+      groups: {
+        ...groups,
+        ...config.groups
       }
     };
   }
@@ -155,6 +161,7 @@ export class ConfigManager {
   applyConfig(server: ZoneServer2016) {
     //#region server
     const {
+      gameMode,
       proximityItemsDistance,
       interactionDistance,
       charactersRenderDistance,
@@ -174,6 +181,9 @@ export class ConfigManager {
       disablePOIManager,
       disableMapBoundsCheck
     } = this.config.server;
+    server.gameMode =
+      GameModes[gameMode.trim().toUpperCase() as keyof typeof GameModes] ??
+      GameModes.SURVIVAL;
     server.proximityItemsDistance = proximityItemsDistance;
     server.interactionDistance = interactionDistance;
     server.charactersRenderDistance = charactersRenderDistance;
@@ -245,7 +255,9 @@ export class ConfigManager {
     //#endregion
 
     //#region airdrops
-    const { planeMovementSpeed, crateDropSpeed } = this.config.airdrop;
+    const { planeMovementSpeed, crateDropSpeed, minimumPlayers } =
+      this.config.airdrop;
+    server.airdropManager.minimumPlayers = minimumPlayers;
     server.airdropManager.planeMovementSpeed = planeMovementSpeed;
     server.airdropManager.crateDropSpeed = crateDropSpeed;
     //#endregion
@@ -253,7 +265,6 @@ export class ConfigManager {
     //#region worldobjects
     const {
       vehicleSpawnCap,
-      minAirdropSurvivors,
       hasCustomLootRespawnTime,
       lootRespawnTimer,
       vehicleRespawnTimer,
@@ -273,7 +284,6 @@ export class ConfigManager {
       crowbarHitDamage
     } = this.config.worldobjects;
     server.worldObjectManager.vehicleSpawnCap = vehicleSpawnCap;
-    server.worldObjectManager.minAirdropSurvivors = minAirdropSurvivors;
     server.worldObjectManager.hasCustomLootRespawnTime =
       hasCustomLootRespawnTime;
     server.worldObjectManager.lootRespawnTimer = lootRespawnTimer;
@@ -392,6 +402,14 @@ export class ConfigManager {
     server.inGameTimeManager.timeFrozenByConfig = timeFrozen;
     server.inGameTimeManager.baseTimeMultiplier = timeMultiplier;
     server.inGameTimeManager.nightTimeMultiplierValue = nightTimeMultiplier;
+    //#endregion
+
+    //#region groups
+    const { enabled, player_limit, foundation_player_limit } =
+      this.config.groups;
+    server.groupManager.playerLimit = player_limit;
+    server.groupManager.foundationPlayerLimit = foundation_player_limit;
+    server.groupManager.enabled = enabled;
     //#endregion
   }
 }

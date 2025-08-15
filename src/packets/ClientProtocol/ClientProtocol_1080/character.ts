@@ -11,9 +11,15 @@
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
 import {
+  attachmentSchema,
   damageReportPlayerInfoSchema,
+  identitySchema,
+  knockedOutItemData,
+  knockedOutPlayerProfileData,
   pack2ByteLengthString,
-  packMultiStateDeathData
+  packMultiStateDeathData,
+  playerCustomizationSchema,
+  statSchema
 } from "../../../packets/ClientProtocol/ClientProtocol_1080/shared";
 import { PacketStructures } from "types/packetStructure";
 
@@ -35,8 +41,42 @@ export const characterPackets: PacketStructures = [
       ]
     }
   ],
-  ["Character.Knockback", 0x0f02, {}],
-  ["Character.UpdateHitpoints", 0x0f03, {}],
+  [
+    "Character.Knockback",
+    0x0f02,
+    {
+      fields: [
+        { name: "unknownDword1", type: "uint32", defaultValue: 0 },
+        {
+          name: "unknownFloatVector1",
+          type: "floatvector4",
+          defaultValue: [0, 0, 0, 0]
+        },
+        {
+          name: "unknownFloatVector2",
+          type: "floatvector4",
+          defaultValue: [0, 0, 0, 0]
+        },
+        { name: "unknownDword2", type: "uint32", defaultValue: 0 }
+      ]
+    }
+  ],
+  [
+    "Character.UpdateHitpoints",
+    0x0f03,
+    {
+      fields: [
+        {
+          name: "characterId",
+          type: "uint64string",
+          defaultValue: "0x0000000000000000"
+        },
+        { name: "unknownDword1", type: "uint32", defaultValue: 0 },
+        { name: "unknownDword2", type: "uint32", defaultValue: 0 },
+        { name: "unknownDword3", type: "uint32", defaultValue: 0 }
+      ]
+    }
+  ],
   [
     "Character.PlayAnimation",
     0x0f04,
@@ -83,10 +123,53 @@ export const characterPackets: PacketStructures = [
       ]
     }
   ],
-  ["Character.UpdateTemporaryAppearance", 0x0f06, {}],
+  [
+    "Character.UpdateTemporaryAppearance",
+    0x0f06,
+    {
+      fields: [
+        {
+          name: "characterId",
+          type: "uint64string",
+          defaultValue: "0x0000000000000000"
+        },
+        { name: "unknownDword1", type: "uint32", defaultValue: 0 }
+      ]
+    }
+  ],
   ["Character.RemoveTemporaryAppearance", 0x0f07, {}],
-  ["Character.SetLookAt", 0x0f08, {}],
-  ["Character.RenamePlayer", 0x0f09, {}],
+  [
+    "Character.SetLookAt",
+    0x0f08,
+    {
+      fields: [
+        {
+          name: "characterId",
+          type: "uint64string",
+          defaultValue: "0"
+        },
+        {
+          name: "unknownQword2",
+          type: "uint64string",
+          defaultValue: "0"
+        }
+      ]
+    }
+  ],
+  [
+    "Character.RenamePlayer",
+    0x0f09,
+    {
+      fields: [
+        {
+          name: "characterId",
+          type: "uint64string",
+          defaultValue: "0"
+        },
+        ...identitySchema
+      ]
+    }
+  ],
   [
     "Character.UpdateCharacterState",
     0x0f0a,
@@ -168,7 +251,7 @@ export const characterPackets: PacketStructures = [
           type: "bitflags",
           flags: [
             { bit: 0, name: "REUSE_ME_2", defaultValue: false },
-            { bit: 1, name: "REUSE_ME_3", defaultValue: false },
+            { bit: 1, name: "ignitionLoweringIntoMatch", defaultValue: false },
             { bit: 2, name: "hidesHeat", defaultValue: false },
             { bit: 3, name: "nearDeath", defaultValue: false },
             { bit: 4, name: "dormant", defaultValue: false },
@@ -196,16 +279,105 @@ export const characterPackets: PacketStructures = [
       ]
     }
   ],
-  ["Character.ExpectedSpeed", 0x0f0b, {}],
+  [
+    "Character.ExpectedSpeed",
+    0x0f0b,
+    {
+      fields: [
+        {
+          name: "characterId",
+          type: "uint64string",
+          defaultValue: "0"
+        },
+        { name: "speed", type: "uint32", defaultValue: 0 }
+      ]
+    }
+  ],
   ["Character.ScriptedAnimation", 0x0f0c, {}],
-  ["Character.ThoughtBubble", 0x0f0d, {}],
+  [
+    "Character.ThoughtBubble",
+    0x0f0d,
+    {
+      fields: [
+        {
+          name: "characterId",
+          type: "uint64string",
+          defaultValue: "0"
+        },
+        { name: "unknownDword1", type: "uint32", defaultValue: 0 },
+        { name: "unknownDword2", type: "uint32", defaultValue: 0 },
+        { name: "unknownByte1", type: "uint8", defaultValue: 0 }
+      ]
+    }
+  ],
   ["Character._REUSE_14", 0x0f0e, {}],
   ["Character.LootEvent", 0x0f0f, {}],
-  ["Character.SlotCompositeEffectOverride", 0x0f10, {}],
+  [
+    "Character.SlotCompositeEffectOverride",
+    0x0f10,
+    {
+      fields: [
+        {
+          name: "characterId",
+          type: "uint64string",
+          defaultValue: "0"
+        },
+        { name: "unknownDword1", type: "uint32", defaultValue: 0 },
+        { name: "unknownDword2", type: "uint32", defaultValue: 0 }
+      ]
+    }
+  ],
   ["Character.EffectPackage", 0x0f11, {}],
-  ["Character.PreferredLanguages", 0x0f12, {}],
-  ["Character.CustomizationChange", 0x0f13, {}],
-  ["Character.PlayerTitle", 0x0f14, {}],
+  [
+    "Character.PreferredLanguages",
+    0x0f12,
+    {
+      fields: [
+        {
+          name: "characterId",
+          type: "uint64string",
+          defaultValue: "0"
+        },
+        { name: "unknownDword1", type: "uint32", defaultValue: 0 }
+      ]
+    }
+  ],
+  [
+    "Character.CustomizationChange",
+    0x0f13,
+    {
+      fields: [
+        {
+          name: "characterId",
+          type: "uint64string",
+          defaultValue: "0"
+        },
+        { name: "unknownBoolean1", type: "boolean", defaultValue: false },
+        {
+          name: "customizationData",
+          type: "array",
+          defaultValue: [],
+          fields: playerCustomizationSchema
+        }
+      ]
+    }
+  ],
+  [
+    "Character.PlayerTitle",
+    0x0f14,
+    {
+      fields: [
+        {
+          name: "characterId",
+          type: "uint64string",
+          defaultValue: "0"
+        },
+        { name: "unknownDword1", type: "uint32", defaultValue: 0 },
+        { name: "unknownDword2", type: "uint32", defaultValue: 0 },
+        { name: "unknownDword3", type: "uint32", defaultValue: 0 }
+      ]
+    }
+  ],
   [
     "Character.AddEffectTagCompositeEffect",
     0x0f15,
@@ -248,11 +420,84 @@ export const characterPackets: PacketStructures = [
     }
   ],
   ["Character.SetSpawnAnimation", 0x0f17, {}],
-  ["Character.CustomizeNpc", 0x0f18, {}],
-  ["Character.SetSpawnerActivationEffect", 0x0f19, {}],
-  ["Character.SetComboState", 0x0f1a, {}],
-  ["Character.SetSurpriseState", 0x0f1b, {}],
-  ["Character.RemoveNpcCustomization", 0x0f1c, {}],
+  [
+    "Character.CustomizeNpc",
+    0x0f18,
+    {
+      fields: [
+        {
+          name: "characterId",
+          type: "uint64string",
+          defaultValue: "0"
+        },
+        { name: "unknownDword1", type: "uint32", defaultValue: 0 },
+        { name: "unknownString1", type: "string", defaultValue: "" },
+        { name: "unknownString2", type: "string", defaultValue: "" },
+        { name: "unknownDword2", type: "uint32", defaultValue: 0 },
+        { name: "unknownString3", type: "string", defaultValue: "" }
+      ]
+    }
+  ],
+  [
+    "Character.SetSpawnerActivationEffect",
+    0x0f19,
+    {
+      fields: [
+        {
+          name: "characterId",
+          type: "uint64string",
+          defaultValue: "0x0000000000000000"
+        },
+        { name: "effectId", type: "uint32", defaultValue: 0 }
+      ]
+    }
+  ],
+  [
+    "Character.SetComboState",
+    0x0f1a,
+    {
+      fields: [
+        {
+          name: "characterId",
+          type: "uint64string",
+          defaultValue: "0x0000000000000000"
+        },
+        { name: "unknownByte1", type: "uint8", defaultValue: 0 }
+      ]
+    }
+  ],
+  [
+    "Character.SetSurpriseState",
+    0x0f1b,
+    {
+      fields: [
+        {
+          name: "characterId",
+          type: "uint64string",
+          defaultValue: "0x0000000000000000"
+        },
+        { name: "unknownDword1", type: "uint32", defaultValue: 0 }
+      ]
+    }
+  ],
+  [
+    "Character.RemoveNpcCustomization",
+    0x0f1c,
+    {
+      fields: [
+        {
+          name: "characterId",
+          type: "uint64string",
+          defaultValue: "0"
+        },
+        { name: "unknownDword1", type: "uint32", defaultValue: 0 },
+        { name: "unknownString1", type: "string", defaultValue: "" },
+        { name: "unknownString2", type: "string", defaultValue: "" },
+        { name: "unknownDword2", type: "uint32", defaultValue: 0 },
+        { name: "unknownString3", type: "string", defaultValue: "" }
+      ]
+    }
+  ],
   [
     "Character.ReplaceBaseModel",
     0x0f1d,
@@ -268,8 +513,34 @@ export const characterPackets: PacketStructures = [
       ]
     }
   ],
-  ["Character.SetCollidable", 0x0f1e, {}],
-  ["Character.UpdateOwner", 0x0f1f, {}],
+  [
+    "Character.SetCollidable",
+    0x0f1e,
+    {
+      fields: [
+        {
+          name: "characterId",
+          type: "uint64string",
+          defaultValue: "0x0000000000000000"
+        },
+        { name: "unknownByte1", type: "uint8", defaultValue: 0 }
+      ]
+    }
+  ],
+  [
+    "Character.UpdateOwner",
+    0x0f1f,
+    {
+      fields: [
+        {
+          name: "characterId",
+          type: "uint64string",
+          defaultValue: "0x0000000000000000"
+        },
+        { name: "unknownBoolean1", type: "boolean", defaultValue: false }
+      ]
+    }
+  ],
   [
     "Character.WeaponStance",
     0x0f20,
@@ -420,12 +691,48 @@ export const characterPackets: PacketStructures = [
   ],
   ["Character.LaunchProjectile", 0x0f29, {}],
   ["Character.SetSynchronizedAnimations", 0x0f2a, {}],
-  ["Character.MemberStatus", 0x0f2b, {}],
+  [
+    "Character.MemberStatus",
+    0x0f2b,
+    {
+      fields: [
+        {
+          name: "characterId",
+          type: "uint64string",
+          defaultValue: "0x0000000000000000"
+        },
+        { name: "unknownByte1", type: "uint8", defaultValue: 0 }
+      ]
+    }
+  ],
   [
     "Character.KnockedOut",
     0x0f2c,
     {
-      fields: [{ name: "guid", type: "uint64string", defaultValue: "0" }]
+      fields: [
+        { name: "guid", type: "uint64string", defaultValue: "0" },
+        {
+          name: "unknownData1",
+          type: "schema",
+          fields: damageReportPlayerInfoSchema
+        },
+        {
+          name: "unknownData2",
+          type: "schema",
+          fields: knockedOutItemData
+        },
+        {
+          name: "unknownData3",
+          type: "schema",
+          fields: damageReportPlayerInfoSchema
+        },
+        {
+          name: "unknownData4",
+          type: "schema",
+          fields: knockedOutItemData
+        },
+        ...damageReportPlayerInfoSchema
+      ]
     }
   ],
   [
@@ -443,7 +750,7 @@ export const characterPackets: PacketStructures = [
             {
               name: "unknownArray1",
               type: "array",
-              fields: [...damageReportPlayerInfoSchema]
+              fields: damageReportPlayerInfoSchema
             },
             { name: "unknownDword1", type: "uint32", defaultValue: 0 },
             { name: "unknownDword2", type: "uint32", defaultValue: 0 }
@@ -452,48 +759,12 @@ export const characterPackets: PacketStructures = [
         {
           name: "unknownArray2",
           type: "array",
-          fields: [
-            { name: "unknownQword1", type: "uint64string", defaultValue: "0" },
-            { name: "unknownString1", type: "string", defaultValue: "" },
-            { name: "unknownString2", type: "string", defaultValue: "" },
-            { name: "unknownString3", type: "string", defaultValue: "" },
-            { name: "unknownQword2", type: "uint64string", defaultValue: "0" },
-            { name: "unknownDword1", type: "uint32", defaultValue: 0 },
-            { name: "unknownDword2", type: "uint32", defaultValue: 0 },
-            { name: "unknownDword3", type: "uint32", defaultValue: 0 },
-            { name: "unknownDword4", type: "uint32", defaultValue: 0 },
-            { name: "unknownByte1", type: "uint8", defaultValue: 0 },
-            { name: "unknownDword5", type: "uint32", defaultValue: 0 },
-            { name: "unknownDword6", type: "uint32", defaultValue: 0 },
-            { name: "unknownDword7", type: "uint32", defaultValue: 0 },
-            { name: "unknownDword8", type: "uint32", defaultValue: 0 },
-            { name: "unknownDword9", type: "uint32", defaultValue: 0 },
-            { name: "unknownDword10", type: "uint32", defaultValue: 0 },
-            { name: "unknownDword11", type: "uint32", defaultValue: 0 },
-            { name: "unknownDword12", type: "uint32", defaultValue: 0 },
-            { name: "unknownDword13", type: "uint32", defaultValue: 0 },
-            { name: "unknownDword14", type: "uint32", defaultValue: 0 },
-            { name: "unknownDword15", type: "uint32", defaultValue: 0 }
-          ]
+          fields: knockedOutPlayerProfileData
         },
         {
           name: "unknownArray3",
           type: "array",
-          fields: [
-            { name: "unknownDword1", type: "uint32", defaultValue: 0 },
-            { name: "unknownQword1", type: "uint64string", defaultValue: "0" },
-            { name: "unknownDword2", type: "uint32", defaultValue: 0 },
-            { name: "unknownDword3", type: "uint32", defaultValue: 0 },
-            { name: "unknownDword4", type: "uint32", defaultValue: 0 },
-            { name: "unknownDword5", type: "uint32", defaultValue: 0 },
-            { name: "unknownDword6", type: "uint32", defaultValue: 0 },
-            { name: "unknownDword7", type: "uint32", defaultValue: 0 },
-            { name: "unknownDword8", type: "uint32", defaultValue: 0 },
-            { name: "unknownDword9", type: "uint32", defaultValue: 0 },
-            { name: "unknownDword10", type: "uint32", defaultValue: 0 },
-            { name: "unknownDword11", type: "uint32", defaultValue: 0 },
-            { name: "unknownDword12", type: "uint32", defaultValue: 0 }
-          ]
+          fields: knockedOutItemData
         },
         {
           name: "unknownArray4",
@@ -537,7 +808,38 @@ export const characterPackets: PacketStructures = [
       ]
     }
   ],
-  ["Character.ActivateProfile", 0x0f31, {}],
+  [
+    "Character.ActivateProfile",
+    0x0f31,
+    {
+      fields: [
+        {
+          name: "characterId",
+          type: "uint64string",
+          defaultValue: "0x0000000000000000"
+        },
+        { name: "unknownByte1", type: "uint8", defaultValue: 0 },
+        {
+          name: "attachmentData",
+          type: "array",
+          defaultValue: [],
+          fields: attachmentSchema
+        },
+        { name: "unknownDword1", type: "uint32", defaultValue: 0 },
+        { name: "unknownDword2", type: "uint32", defaultValue: 0 },
+        { name: "unknownDword3", type: "uint32", defaultValue: 0 },
+        { name: "unknownDword4", type: "uint32", defaultValue: 0 },
+        { name: "unknownString1", type: "string", defaultValue: "" },
+        { name: "unknownString2", type: "string", defaultValue: "" },
+        {
+          name: "stats",
+          type: "array",
+          defaultValue: [],
+          fields: statSchema
+        }
+      ]
+    }
+  ],
   [
     "Character.Jet",
     0x0f32,
@@ -549,8 +851,28 @@ export const characterPackets: PacketStructures = [
     }
   ],
   ["Character.Turbo", 0x0f33, {}],
-  ["Character.StartRevive", 0x0f34, {}],
-  ["Character.StopRevive", 0x0f35, {}],
+  [
+    "Character.StartRevive",
+    0x0f34,
+    {
+      fields: [
+        { name: "characterId", type: "uint64string", defaultValue: "0" },
+        { name: "targetCharacterId", type: "uint64string", defaultValue: "0" },
+        { name: "unknownDword1", type: "uint32", defaultValue: 0 }
+      ]
+    }
+  ],
+  [
+    "Character.StopRevive",
+    0x0f35,
+    {
+      fields: [
+        { name: "characterId", type: "uint64string", defaultValue: "0" },
+        { name: "targetCharacterId", type: "uint64string", defaultValue: "0" },
+        { name: "unknownBoolean1", type: "boolean", defaultValue: false }
+      ]
+    }
+  ],
   ["Character.ReadyToRevive", 0x0f36, {}],
   [
     "Character.SetFaction",
@@ -572,8 +894,27 @@ export const characterPackets: PacketStructures = [
       ]
     }
   ],
-  ["Character.StartHeal", 0x0f39, {}],
-  ["Character.StopHeal", 0x0f3a, {}],
+  [
+    "Character.StartHeal",
+    0x0f39,
+    {
+      fields: [
+        { name: "characterId", type: "uint64string", defaultValue: "0" },
+        { name: "targetCharacterId", type: "uint64string", defaultValue: "0" },
+        { name: "unknownByte1", type: "uint8", defaultValue: 0 }
+      ]
+    }
+  ],
+  [
+    "Character.StopHeal",
+    0x0f3a,
+    {
+      fields: [
+        { name: "characterId", type: "uint64string", defaultValue: "0" },
+        { name: "targetCharacterId", type: "uint64string", defaultValue: "0" }
+      ]
+    }
+  ],
   [
     "Character.ManagedObject",
     0x0f3b,
@@ -585,15 +926,44 @@ export const characterPackets: PacketStructures = [
       ]
     }
   ],
-  ["Character.MaterialTypeOverride", 0x0f3c, {}],
-  ["Character.DebrisLaunch", 0x0f3d, {}],
-  ["Character.HideCorpse", 0x0f3e, {}],
+  [
+    "Character.MaterialTypeOverride",
+    0x0f3c,
+    {
+      fields: [
+        { name: "characterId", type: "uint64string", defaultValue: "0" },
+        { name: "unknownDword1", type: "uint32", defaultValue: 0 }
+      ]
+    }
+  ],
+  [
+    "Character.DebrisLaunch",
+    0x0f3d,
+    {
+      fields: [
+        { name: "characterId", type: "uint64string", defaultValue: "0" },
+        { name: "unknownDword1", type: "uint32", defaultValue: 0 },
+        { name: "unknownDword2", type: "uint32", defaultValue: 0 },
+        { name: "unknownQword2", type: "uint64string", defaultValue: "0" }
+      ]
+    }
+  ],
+  [
+    "Character.HideCorpse",
+    0x0f3e,
+    {
+      fields: [
+        { name: "characterId", type: "uint64string", defaultValue: "0" },
+        { name: "unknownBoolean1", type: "boolean", defaultValue: false }
+      ]
+    }
+  ],
   [
     "Character.CharacterStateDelta",
     0x0f3f,
     {
       fields: [
-        { name: "guid1", type: "uint64string", defaultValue: "0" },
+        { name: "characterId", type: "uint64string", defaultValue: "0" },
         { name: "guid2", type: "uint64string", defaultValue: "0" },
         { name: "guid3", type: "uint64string", defaultValue: "0" },
         { name: "guid4", type: "uint64string", defaultValue: "0" },
@@ -601,8 +971,44 @@ export const characterPackets: PacketStructures = [
       ]
     }
   ],
-  ["Character.UpdateStat", 0x0f40, {}],
-  ["Character.AnimationRequest", 0x0f41, {}],
+  [
+    "Character.UpdateStat",
+    0x0f40,
+    {
+      fields: [
+        { name: "characterId", type: "uint64string", defaultValue: "0" },
+        {
+          name: "stats",
+          type: "array",
+          defaultValue: [],
+          fields: statSchema
+        }
+      ]
+    }
+  ],
+  [
+    "Character.AnimationRequest",
+    0x0f41,
+    {
+      fields: [
+        { name: "characterId", type: "uint64string", defaultValue: "0" },
+        // TODO: sub_140352740
+        { name: "unknownDword1", type: "uint32", defaultValue: 0 },
+        {
+          name: "unknownFloatVector1",
+          type: "floatvector4",
+          defaultValue: [0, 0, 0, 0]
+        },
+        {
+          name: "unknownFloatVector2",
+          type: "floatvector4",
+          defaultValue: [0, 0, 0, 0]
+        },
+        { name: "unknownDword2", type: "uint32", defaultValue: 0 }
+        // TODO: More data
+      ]
+    }
+  ],
   ["Character.NonPriorityCharacters", 0x0f42, {}],
   [
     "Character.PlayWorldCompositeEffect",
@@ -620,7 +1026,16 @@ export const characterPackets: PacketStructures = [
       ]
     }
   ],
-  ["Character.AFK", 0x0f44, {}],
+  [
+    "Character.AFK",
+    0x0f44,
+    {
+      fields: [
+        { name: "characterId", type: "uint64string", defaultValue: "" },
+        { name: "unknownByte1", type: "uint8", defaultValue: 0 }
+      ]
+    }
+  ],
   [
     "Character.FullCharacterDataRequest",
     0x0f45,
@@ -628,7 +1043,16 @@ export const characterPackets: PacketStructures = [
       fields: [{ name: "characterId", type: "uint64string", defaultValue: "0" }]
     }
   ],
-  ["Character.Deploy", 0x0f46, {}],
+  [
+    "Character.Deploy",
+    0x0f46,
+    {
+      fields: [
+        { name: "characterId", type: "uint64string", defaultValue: "" },
+        { name: "unknownDword1", type: "uint32", defaultValue: 0 }
+      ]
+    }
+  ],
   ["Character.LowAmmoUpdate", 0x0f47, {}],
   [
     "Character.KilledBy",
@@ -698,7 +1122,16 @@ export const characterPackets: PacketStructures = [
       ]
     }
   ],
-  ["Character.AggroLevel", 0x0f50, {}],
+  [
+    "Character.AggroLevel",
+    0x0f50,
+    {
+      fields: [
+        { name: "characterId", type: "uint64string", defaultValue: "" },
+        { name: "unknownDword1", type: "uint32", defaultValue: 0 }
+      ]
+    }
+  ],
   [
     "Character.DoorState",
     0x0f51,
@@ -721,7 +1154,16 @@ export const characterPackets: PacketStructures = [
       ]
     }
   ],
-  ["Character.UpdateGuildTag", 0x0f55, {}],
+  [
+    "Character.UpdateGuildTag",
+    0x0f55,
+    {
+      fields: [
+        { name: "characterId", type: "uint64string", defaultValue: "0" },
+        { name: "guildName", type: "string", defaultValue: "" }
+      ]
+    }
+  ],
   [
     "Character.MovementVersion",
     0x0f56,
@@ -757,7 +1199,16 @@ export const characterPackets: PacketStructures = [
   ["Character.EnterCache", 0x0f5b, {}],
   ["Character.ExitCache", 0x0f5c, {}],
   ["Character.TransportPlayerToGatheringZone", 0x0f5d, {}],
-  ["Character.UpdateTwitchInfo", 0x0f5e, {}],
+  [
+    "Character.UpdateTwitchInfo",
+    0x0f5e,
+    {
+      fields: [
+        { name: "characterId", type: "uint64string", defaultValue: "0" },
+        { name: "twitchName", type: "string", defaultValue: "" }
+      ]
+    }
+  ],
   [
     "Character.UpdateSimpleProxyHealth",
     0x0f5f,

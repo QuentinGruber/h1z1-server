@@ -13,6 +13,7 @@
 
 import { PacketStructures } from "types/packetStructure";
 import { itemSchema, passengerSchema } from "./shared";
+import { vehicleStatSchema } from "../ClientProtocol_1080/shared";
 
 export const vehiclePackets: PacketStructures = [
   [
@@ -92,7 +93,7 @@ export const vehiclePackets: PacketStructures = [
     {
       fields: [
         { name: "guid", type: "uint64string", defaultValue: "0" },
-        { name: "unknownFloat1", type: "float", defaultValue: 0.0 },
+        { name: "unknownDword1", type: "uint32", defaultValue: 0 },
         {
           name: "unknownArray1",
           type: "array",
@@ -114,7 +115,25 @@ export const vehiclePackets: PacketStructures = [
       ]
     }
   ],
-  ["Vehicle.StateDamage", 0x8904, {}],
+  [
+    "Vehicle.StateDamage",
+    0x8904,
+    {
+      fields: [
+        { name: "characterId", type: "uint64string", defaultValue: "0" },
+        {
+          name: "unknownFloatVector1",
+          type: "floatvector4",
+          defaultValue: [0, 0, 0, 0]
+        },
+        {
+          name: "unknownFloatVector2",
+          type: "floatvector4",
+          defaultValue: [0, 0, 0, 0]
+        }
+      ]
+    }
+  ],
   ["Vehicle.PlayerManager", 0x8905, {}],
   [
     "Vehicle.Spawn",
@@ -126,13 +145,62 @@ export const vehiclePackets: PacketStructures = [
       ]
     }
   ],
-  ["Vehicle.Tint", 0x8907, {}],
+  [
+    "Vehicle.Tint",
+    0x8907,
+    {
+      fields: [
+        { name: "characterId", type: "uint64string", defaultValue: "0" },
+        { name: "unknownString1", type: "string", defaultValue: "" }
+      ]
+    }
+  ],
   ["Vehicle.LoadVehicleTerminalDefinitionManager", 0x8908, {}],
-  ["Vehicle.ActiveWeapon", 0x8909, {}],
-  ["Vehicle.Stats", 0x890a, {}],
-  ["Vehicle.DamageInfo", 0x890b, {}],
-  ["Vehicle.StatUpdate", 0x890c, {}],
-  ["Vehicle.UpdateWeapon", 0x890d, {}],
+  [
+    "Vehicle.ActiveWeapon",
+    0x8909,
+    {
+      fields: [{ name: "unknownDword1", type: "uint32", defaultValue: 0 }]
+    }
+  ],
+  [
+    "Vehicle.Stats",
+    0x890a,
+    {
+      fields: [
+        { name: "characterId", type: "uint64string", defaultValue: "0" },
+        { name: "unknownDword1", type: "uint32", defaultValue: 0 }
+      ]
+    }
+  ],
+  [
+    "Vehicle.DamageInfo",
+    0x890b,
+    {
+      fields: [
+        { name: "characterId", type: "uint64string", defaultValue: "0" },
+        { name: "unknownDword1", type: "uint32", defaultValue: 0 }
+      ]
+    }
+  ],
+  [
+    "Vehicle.StatUpdate",
+    0x890c,
+    {
+      fields: vehicleStatSchema
+    }
+  ],
+  [
+    "Vehicle.UpdateWeapon",
+    0x890d,
+    {
+      fields: [
+        { name: "unknownDword1", type: "uint32", defaultValue: 0 },
+        { name: "unknownDword2", type: "uint32", defaultValue: 0 },
+        { name: "unknownDword3", type: "uint32", defaultValue: 0 }
+      ]
+    }
+  ],
   ["Vehicle.RemovedFromQueue", 0x890e, {}],
   [
     "Vehicle.UpdateQueuePosition",
@@ -149,10 +217,121 @@ export const vehiclePackets: PacketStructures = [
       fields: [{ name: "guid", type: "uint64string", defaultValue: "0" }]
     }
   ],
-  ["Vehicle.LockOnInfo", 0x8912, {}],
-  ["Vehicle.LockOnState", 0x8913, {}],
-  ["Vehicle.TrackingState", 0x8914, {}],
-  ["Vehicle.CounterMeasureState", 0x8915, {}],
+  [
+    "Vehicle.LockOnInfo",
+    0x8912,
+    {
+      fields: [
+        { name: "characterId", type: "uint64string", defaultValue: "0" },
+        {
+          // sub_140545E20
+          name: "unknownArray1",
+          type: "array",
+          fields: [
+            { name: "unknownQword1", type: "uint64string", defaultValue: "0" },
+            { name: "unknownQword2", type: "uint64string", defaultValue: "0" },
+            { name: "unknownDword1", type: "uint32", defaultValue: 0 }
+          ]
+        },
+        {
+          // sub_140545E20
+          name: "unknownArray2",
+          type: "array",
+          fields: [
+            { name: "unknownQword1", type: "uint64string", defaultValue: "0" },
+            { name: "unknownQword2", type: "uint64string", defaultValue: "0" },
+            { name: "unknownDword1", type: "uint32", defaultValue: 0 }
+          ]
+        },
+        {
+          // sub_140546020
+          name: "unknownArray3",
+          type: "array",
+          defaultValue: [{}],
+          fields: [
+            { name: "unknownQword1", type: "uint64string", defaultValue: "0" },
+            { name: "unknownDword1", type: "uint32", defaultValue: 0 },
+            {
+              // sub_1405456B0
+              name: "unknownSchema1",
+              type: "schema",
+              fields: [
+                {
+                  name: "unknownQword1",
+                  type: "uint64string",
+                  defaultValue: "0"
+                },
+                { name: "unknownDword1", type: "uint32", defaultValue: 0 },
+                { name: "unknownDword2", type: "uint32", defaultValue: 0 }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  [
+    "Vehicle.LockOnState",
+    0x8913,
+    {
+      fields: [
+        { name: "characterId", type: "uint64string", defaultValue: "0" },
+        {
+          // sub_140545E20
+          name: "unknownArray1",
+          type: "array",
+          fields: [
+            { name: "unknownQword1", type: "uint64string", defaultValue: "0" },
+            { name: "unknownQword2", type: "uint64string", defaultValue: "0" },
+            { name: "unknownDword1", type: "uint32", defaultValue: 0 }
+          ]
+        }
+      ]
+    }
+  ],
+  [
+    "Vehicle.TrackingState",
+    0x8914,
+    {
+      fields: [
+        { name: "characterId", type: "uint64string", defaultValue: "0" },
+        {
+          // sub_140546020
+          name: "unknownArray1",
+          type: "array",
+          defaultValue: [{}],
+          fields: [
+            { name: "unknownQword1", type: "uint64string", defaultValue: "0" },
+            { name: "unknownDword1", type: "uint32", defaultValue: 0 },
+            {
+              // sub_1405456B0
+              name: "unknownSchema1",
+              type: "schema",
+              fields: [
+                {
+                  name: "unknownQword1",
+                  type: "uint64string",
+                  defaultValue: "0"
+                },
+                { name: "unknownDword1", type: "uint32", defaultValue: 0 },
+                { name: "unknownDword2", type: "uint32", defaultValue: 0 }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  [
+    "Vehicle.CounterMeasureState",
+    0x8915,
+    {
+      fields: [
+        { name: "characterId", type: "uint64string", defaultValue: "0" },
+        { name: "unknownBoolean1", type: "boolean", defaultValue: false }
+      ]
+    }
+  ],
   [
     "Vehicle.LoadVehicleDefinitionManager",
     0x8916,
@@ -170,7 +349,25 @@ export const vehiclePackets: PacketStructures = [
       ]
     }
   ],
-  ["Vehicle.AcquireState", 0x8917, {}],
+  [
+    "Vehicle.AcquireState",
+    0x8917,
+    {
+      fields: [
+        { name: "characterId", type: "uint64string", defaultValue: "0" },
+        {
+          // sub_140545E20
+          name: "unknownArray1",
+          type: "array",
+          fields: [
+            { name: "unknownQword1", type: "uint64string", defaultValue: "0" },
+            { name: "unknownQword2", type: "uint64string", defaultValue: "0" },
+            { name: "unknownDword1", type: "uint32", defaultValue: 0 }
+          ]
+        }
+      ]
+    }
+  ],
   ["Vehicle.Dismiss", 0x8918, {}],
   [
     "Vehicle.AutoMount",
@@ -183,7 +380,16 @@ export const vehiclePackets: PacketStructures = [
       ]
     }
   ],
-  ["Vehicle.Deploy", 0x891a, {}],
+  [
+    "Vehicle.Deploy",
+    0x891a,
+    {
+      fields: [
+        { name: "characterId", type: "uint64string", defaultValue: "0" },
+        { name: "unknownDword1", type: "uint32", defaultValue: 0 }
+      ]
+    }
+  ],
   [
     "Vehicle.Engine",
     0x891b,
@@ -210,7 +416,16 @@ export const vehiclePackets: PacketStructures = [
     }
   ],
   ["Vehicle.KickPlayer", 0x891d, {}],
-  ["Vehicle.HealthUpdateOwner", 0x891e, {}],
+  [
+    "Vehicle.HealthUpdateOwner",
+    0x891e,
+    {
+      fields: [
+        { name: "characterId", type: "uint64string", defaultValue: "0" },
+        { name: "unknownDword1", type: "uint32", defaultValue: 0 }
+      ]
+    }
+  ],
   [
     "Vehicle.OwnerPassengerList",
     0x891f,
@@ -226,8 +441,22 @@ export const vehiclePackets: PacketStructures = [
       ]
     }
   ],
-  ["Vehicle.Kick", 0x8920, {}],
-  ["Vehicle.NoAccess", 0x8921, {}],
+  [
+    "Vehicle.Kick",
+    0x8920,
+    {
+      fields: [
+        { name: "kickReason", type: "uint32", defaultValue: 0 } // 1 - 3
+      ]
+    }
+  ],
+  [
+    "Vehicle.NoAccess",
+    0x8921,
+    {
+      fields: [{ name: "errorMessageId", type: "uint32", defaultValue: 0 }]
+    }
+  ],
   [
     "Vehicle.Expiration",
     0x8922,
@@ -235,10 +464,33 @@ export const vehiclePackets: PacketStructures = [
       fields: [{ name: "expireTime", type: "uint32", defaultValue: 0 }]
     }
   ],
-  ["Vehicle.Group", 0x8923, {}],
-  ["Vehicle.DeployResponse", 0x8924, {}],
+  [
+    "Vehicle.Group",
+    0x8923,
+    {
+      fields: [
+        { name: "characterId", type: "uint64string", defaultValue: "0" },
+        { name: "unknownDword1", type: "uint32", defaultValue: 0 },
+        { name: "unknownDword2", type: "uint32", defaultValue: 0 },
+        { name: "unknownString1", type: "string", defaultValue: "" }
+      ]
+    }
+  ],
+  [
+    "Vehicle.DeployResponse",
+    0x8924,
+    {
+      fields: [{ name: "unknownDword1", type: "uint32", defaultValue: 0 }]
+    }
+  ],
   ["Vehicle.ExitPoints", 0x8925, {}],
-  ["Vehicle.ControllerLogOut", 0x8926, {}],
+  [
+    "Vehicle.ControllerLogOut",
+    0x8926,
+    {
+      fields: [{ name: "characterId", type: "uint64string", defaultValue: "0" }]
+    }
+  ],
   [
     "Vehicle.CurrentMoveMode",
     0x8927,
@@ -256,7 +508,16 @@ export const vehiclePackets: PacketStructures = [
       fields: [{ name: "itemDefinitionId", type: "uint32", defaultValue: 0 }]
     }
   ],
-  ["Vehicle.ItemDefinitionReply", 0x8929, {}],
+  [
+    "Vehicle.ItemDefinitionReply",
+    0x8929,
+    {
+      fields: [
+        { name: "unknownDword1", type: "uint32", defaultValue: 0 },
+        { name: "unknownDword2", type: "uint32", defaultValue: 0 }
+      ]
+    }
+  ],
   [
     "Vehicle.InventoryItems",
     0x892a,
