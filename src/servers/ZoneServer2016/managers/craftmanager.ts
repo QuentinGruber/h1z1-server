@@ -157,13 +157,17 @@ export class CraftManager {
    * @param count The number of craft components to remove.
    * @returns A boolean indicating if the removal was successful.
    */
-  removeCraftComponent(
+  async removeCraftComponent(
     server: ZoneServer2016,
     itemDS: ItemDataSource,
     count: number
-  ): boolean {
+  ): Promise<boolean> {
     return (
-      server.removeInventoryItem(itemDS.character, itemDS.item, count) ||
+      (await server.removeInventoryItem(
+        itemDS.character,
+        itemDS.item,
+        count
+      )) ||
       server.deleteEntity(
         (itemDS.item as any).associatedCharacterGuid,
         server._spawnedItems
@@ -490,14 +494,20 @@ export class CraftManager {
       }
       for (const itemDS of inventory[component.itemDefinitionId]) {
         if (itemDS.item.stackCount >= remainingItems) {
-          if (!this.removeCraftComponent(server, itemDS, remainingItems)) {
+          if (
+            !(await this.removeCraftComponent(server, itemDS, remainingItems))
+          ) {
             server.containerError(client, ContainerErrors.NO_ITEM_IN_SLOT);
             return false; // return if not enough items
           }
           remainingItems = 0;
         } else {
           if (
-            this.removeCraftComponent(server, itemDS, itemDS.item.stackCount)
+            await this.removeCraftComponent(
+              server,
+              itemDS,
+              itemDS.item.stackCount
+            )
           ) {
             remainingItems -= itemDS.item.stackCount;
           } else {

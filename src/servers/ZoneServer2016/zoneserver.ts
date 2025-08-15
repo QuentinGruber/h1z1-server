@@ -185,6 +185,8 @@ import {
   GameTimeSync,
   H1emuPrintToConsole,
   InitializationParameters,
+  ItemsRemoveAccountItem,
+  ItemsUpdateAccountItem,
   LoginFailed,
   MountDismountResponse,
   MountMountResponse,
@@ -6256,30 +6258,34 @@ export class ZoneServer2016 extends EventEmitter {
    * @param {number} [count=1]  - Optional: Specifies the amount of items that need to be removed, default is 1.
    * @returns {boolean} Returns true if the item was successfully removed, false if there was an error.
    */
-  removeAccountItem(
+  async removeAccountItem(
     character: BaseFullCharacter,
     item: BaseItem,
     count: number = 1
-  ): boolean {
+  ): Promise<boolean> {
     const client = this.getClientByCharId(character.characterId);
     if (!client) return false;
 
     item.stackCount -= count;
     if (item.stackCount <= 0) {
-      this.accountInventoriesManager.removeAccountItem(
+      await this.accountInventoriesManager.removeAccountItem(
         client.loginSessionId,
         item
       );
-      this.sendData(client, "Items.RemoveAccountItem", {
+      this.sendData<ItemsRemoveAccountItem>(client, "Items.RemoveAccountItem", {
+        itemId: item.itemGuid,
+        itemDefinitionId: item.itemDefinitionId
+      });
+      console.log({
         itemId: item.itemGuid,
         itemDefinitionId: item.itemDefinitionId
       });
     } else {
-      this.accountInventoriesManager.updateAccountItem(
+      await this.accountInventoriesManager.updateAccountItem(
         client.loginSessionId,
         item
       );
-      this.sendData(client, "Items.UpdateAccountItem", {
+      this.sendData<ItemsUpdateAccountItem>(client, "Items.UpdateAccountItem", {
         itemId: item.itemGuid,
         itemDefinitionId: item.itemDefinitionId,
         itemCount: item.stackCount
@@ -6400,12 +6406,12 @@ export class ZoneServer2016 extends EventEmitter {
    * @param {boolean} [updateEquipment=true] - Optional: Specifies whether to update the equipment, default is true.
    * @returns {boolean} Returns true if the items were successfully removed, false if there was an error.
    */
-  removeInventoryItem(
+  async removeInventoryItem(
     character: BaseFullCharacter,
     item: BaseItem,
     count: number = 1,
     updateEquipment: boolean = true
-  ): boolean {
+  ): Promise<boolean> {
     item.debugFlag = "removeInventoryItem";
     if (count > item.stackCount) {
       console.error(
@@ -6415,7 +6421,7 @@ export class ZoneServer2016 extends EventEmitter {
     }
 
     if (this.isAccountItem(item.itemDefinitionId)) {
-      return this.removeAccountItem(character, item);
+      return await this.removeAccountItem(character, item);
     } else if (character._loadout[item.slotId]?.itemGuid == item.itemGuid) {
       return this.removeLoadoutItem(character, item.slotId, updateEquipment);
     } else {
