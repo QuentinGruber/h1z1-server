@@ -18,6 +18,7 @@ import { SOEOutputStream } from "./soeoutputstream";
 import { PacketsQueue } from "./PacketsQueue";
 import { clearInterval } from "node:timers";
 import { LogicalPacket } from "./logicalPacket";
+import { CongestionControl } from "../../congestion-control";
 
 interface SOEClientStats {
   totalPhysicalPacketSent: number;
@@ -58,6 +59,7 @@ export default class SOEClient {
   sendingTimer: NodeJS.Timeout | null = null;
   private _statsResetTimer: NodeJS.Timer;
   delayedLogicalPackets: LogicalPacket[] = [];
+  congestionControl: CongestionControl;
   constructor(remote: RemoteInfo, crcSeed: number, cryptoKey: Uint8Array) {
     this.soeClientId = SOEClient.getClientId(remote);
     this.address = remote.address;
@@ -72,6 +74,7 @@ export default class SOEClient {
       this.outputStream = new SOEOutputStream(cryptoKey);
     }
     this._statsResetTimer = setInterval(() => this._resetStats(), 60000);
+    this.congestionControl = new CongestionControl();
   }
   static getClientId(remote: RemoteInfo): string {
     return remote.address + ":" + remote.port;

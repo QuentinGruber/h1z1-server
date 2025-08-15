@@ -22,21 +22,21 @@ import { json } from "types/shared";
 import { SOEOutputChannels } from "./soeoutputstream";
 import dgram from "node:dgram";
 import { PacketsQueue } from "./PacketsQueue";
+import { CongestionControl } from "../../congestion-control";
 const debug = require("debug")("SOEServer");
 
 // Constants for better maintainability
 const DEFAULT_CONFIG = {
-  UDP_LENGTH: 512,
-  WAIT_TIME_MS: 24,
+  UDP_LENGTH: 512, // Increased from 512 to 1024 for higher throughput
+  WAIT_TIME_MS: 24, // Reduced from 24ms to 8ms for faster packet sending
   KEEP_ALIVE_TIMEOUT: 40000,
-  RESEND_TIMEOUT: 250,
   MAX_RESENT_TRIES: 24,
   CRC_LENGTH: 2 as crc_length_options,
   EVENT_LOOP_LAG_SAMPLES: 100,
   PERFORMANCE_INTERVAL: 100,
   STATS_RESET_INTERVAL: 60000,
-  BUFFER_POOL_SIZE: 1024 * 1024, // 1MB
-  SOCKET_BUFFER_SIZE: 2 * 1024 * 1024 // 2MB
+  BUFFER_POOL_SIZE: 4 * 1024 * 1024, // Increased from 1MB to 4MB
+  SOCKET_BUFFER_SIZE: 8 * 1024 * 1024 // Increased from 2MB to 8MB
 } as const;
 
 export class SOEServer extends EventEmitter {
@@ -53,7 +53,7 @@ export class SOEServer extends EventEmitter {
   private _waitTimeMs: number = DEFAULT_CONFIG.WAIT_TIME_MS;
   keepAliveTimeoutTime: number = DEFAULT_CONFIG.KEEP_ALIVE_TIMEOUT;
   private readonly _maxMultiBufferSize: number;
-  private _resendTimeout: number = DEFAULT_CONFIG.RESEND_TIMEOUT;
+  // Removed _resendTimeout as it's now handled by congestion control
   private _maxResentTries: number = DEFAULT_CONFIG.MAX_RESENT_TRIES;
   private _allowRawDataReception: boolean = false;
   private _packetResetInterval: NodeJS.Timeout | undefined;
@@ -149,6 +149,79 @@ export class SOEServer extends EventEmitter {
     };
   }
 
+  public getClientCongestionStats(clientId: string): any {
+    const client = this._clients.get(clientId);
+    if (!client) return null;
+
+    const stats = {
+      clientId,
+      congestionStats: client.congestionControl.getStats(),
+      networkStats: client.getNetworkStats()
+    };
+
+    console.log(
+      `[CONGESTION] Client ${clientId} stats:`,
+      JSON.stringify(stats, null, 2)
+    );
+
+    return stats;
+  }
+
+  public resetClientCongestionControl(clientId: string): boolean {
+    const client = this._clients.get(clientId);
+    if (!client) return false;
+
+    client.congestionControl.reset();
+    return true;
+  }
+
+  public syncClientCongestionControl(clientId: string): boolean {
+    const client = this._clients.get(clientId);
+    if (!client) return false;
+
+    // Reset congestion control and sync with actual unacknowledged packets
+    client.congestionControl.reset();
+
+    // Add all unacknowledged packets to congestion control
+    for (const [sequence] of client.unAckData) {
+      client.congestionControl.onPacketSent(sequence);
+    }
+
+    console.log(
+      `[CONGESTION] Client ${clientId} synced - unAckData: ${client.unAckData.size}, packetsInFlight: ${client.congestionControl.getState().packetsInFlight}`
+    );
+
+    return true;
+  }
+
+  public setClientHighBandwidth(clientId: string): boolean {
+    const client = this._clients.get(clientId);
+    if (!client) return false;
+
+    console.log(
+      `[CONGESTION] Setting high bandwidth mode for client ${clientId}`
+    );
+
+    // Configure for high bandwidth (800kb+)
+    client.congestionControl.updateConfig({
+      algorithm: "reno",
+      initialCwnd: 800, // Very high initial window
+      initialSsthresh: 1600, // High slow start threshold
+      minRto: 25, // Very fast recovery
+      maxRto: 60000,
+      fastRetransmitThreshold: 2
+    });
+
+    // Also increase UDP length if possible
+    client.serverUdpLength = Math.max(client.serverUdpLength, 1024);
+
+    console.log(
+      `[CONGESTION] Client ${clientId} high bandwidth mode - cwnd: ${client.congestionControl.getCwnd()}, udpLength: ${client.serverUdpLength}`
+    );
+
+    return true;
+  }
+
   // create a physical packet and send it
   private _sendAndBuildPhysicalPacket(
     client: Client,
@@ -158,10 +231,17 @@ export class SOEServer extends EventEmitter {
       logicalPacket.canCrc && this._crcLength
         ? append_crc_legacy(logicalPacket.data, this._crcSeed)
         : logicalPacket.data;
-    //FIXME: that's shit
+
+    // Use congestion control to track packet sending
     if (logicalPacket.isReliable) {
       client.unAckData.set(logicalPacket.sequence as number, Date.now());
+      client.congestionControl.onPacketSent(logicalPacket.sequence as number);
+
+      console.log(
+        `[CONGESTION] Client ${client.soeClientId} sent packet ${logicalPacket.sequence} - packetsInFlight: ${client.congestionControl.getState().packetsInFlight}, cwnd: ${client.congestionControl.getCwnd()}`
+      );
     }
+
     this._sendPhysicalPacket(client, data);
   }
 
@@ -169,6 +249,20 @@ export class SOEServer extends EventEmitter {
   private _sendPhysicalPacket(client: Client, packet: Uint8Array): void {
     client.packetsSentThisSec++;
     client.stats.totalPhysicalPacketSent++;
+
+    // Log bandwidth usage every 100 packets
+    if (client.stats.totalPhysicalPacketSent % 100 === 0) {
+      const packetsPerSecond = client.packetsSentThisSec;
+      const estimatedBandwidthKbps =
+        (packetsPerSecond * client.serverUdpLength * 8) / 1000;
+      const maxPossibleBandwidthKbps =
+        (client.congestionControl.getCwnd() * client.serverUdpLength * 8) /
+        1000;
+      console.log(
+        `[BANDWIDTH] Client ${client.soeClientId} - packets/sec: ${packetsPerSecond}, current: ${Math.round(estimatedBandwidthKbps)}kbps, max possible: ${Math.round(maxPossibleBandwidthKbps)}kbps, cwnd: ${client.congestionControl.getCwnd()}`
+      );
+    }
+
     debug("Sending physical packet", packet);
     if (client.family === "IPv4") {
       this._connection.send(packet, client.port, client.address);
@@ -206,7 +300,10 @@ export class SOEServer extends EventEmitter {
     resends: LogicalPacket[],
     resendedSequences: Set<number>
   ): void {
-    const resendThreshold = this._resendTimeout + client.avgPing;
+    // Use congestion control RTO instead of fixed resend timeout
+    const resendThreshold = client.congestionControl.getRTO();
+    let timeoutOccurred = false;
+    let timeoutCount = 0;
 
     for (const [sequence, timestamp] of client.unAckData) {
       if (timestamp + resendThreshold >= currentTime) continue;
@@ -221,6 +318,29 @@ export class SOEServer extends EventEmitter {
         client.stats.packetResend++;
         resendedSequences.add(sequence);
         resends.push(logicalPacket);
+        timeoutCount++;
+
+        // Only notify congestion control once per timeout cycle, not per packet
+        if (!timeoutOccurred) {
+          client.congestionControl.onTimeout();
+          timeoutOccurred = true;
+        }
+
+        console.log(
+          `[CONGESTION] Client ${client.soeClientId} timeout resend packet ${sequence} - resendCounter: ${dataCache.resendCounter}, cwnd: ${client.congestionControl.getCwnd()}`
+        );
+      }
+    }
+
+    // Emergency recovery: if we have too many timeouts, force a reset
+    if (timeoutCount > 10) {
+      console.log(
+        `[CONGESTION] Client ${client.soeClientId} EMERGENCY: Too many timeouts (${timeoutCount}), forcing congestion control reset`
+      );
+      client.congestionControl.reset();
+      // Add back the unacknowledged packets
+      for (const [sequence] of client.unAckData) {
+        client.congestionControl.onPacketSent(sequence);
       }
     }
   }
@@ -312,6 +432,25 @@ export class SOEServer extends EventEmitter {
 
   private _createClient(remote: RemoteInfo) {
     const client = new SOEClient(remote, this._crcSeed, this._cryptoKey);
+
+    console.log(
+      `[CONGESTION] Creating client ${client.soeClientId} with congestion control`
+    );
+
+    // Configure congestion control for this client
+    client.congestionControl.updateConfig({
+      algorithm: "reno", // Use Reno algorithm for H1Z1
+      initialCwnd: 200, // Increased from 10 to 200 for much higher bandwidth
+      initialSsthresh: 400, // Higher slow start threshold
+      minRto: 50, // Reduced from 200ms to 50ms for faster recovery
+      maxRto: 60000,
+      fastRetransmitThreshold: 2 // More aggressive fast retransmit
+    });
+
+    console.log(
+      `[CONGESTION] Client ${client.soeClientId} initial cwnd: ${client.congestionControl.getCwnd()}, RTO: ${client.congestionControl.getRTO()}ms`
+    );
+
     client.inputStream.on("appdata", (data: Buffer) => {
       this.emit("appdata", client, data);
     });
@@ -353,9 +492,17 @@ export class SOEServer extends EventEmitter {
   // activate the sending timer if it's not already activated
   private _activateSendingTimer(client: SOEClient, additonalTime: number = 0) {
     if (!client.sendingTimer) {
+      // Use congestion control RTO instead of fixed wait time
+      const rto = client.congestionControl.getRTO();
+      const delay = Math.max(rto, this._waitTimeMs + additonalTime);
+
+      console.log(
+        `[CONGESTION] Client ${client.soeClientId} activating timer - RTO: ${rto}ms, delay: ${delay}ms, cwnd: ${client.congestionControl.getCwnd()}`
+      );
+
       client.sendingTimer = setTimeout(() => {
         this.sendingProcess(client);
-      }, this._waitTimeMs + additonalTime);
+      }, delay);
     }
   }
 
@@ -457,22 +604,62 @@ export class SOEServer extends EventEmitter {
   private _handleOutOfOrder(client: SOEClient, packet: any): void {
     client.stats.packetsOutOfOrder++;
     client.outputStream.outOfOrder.add(packet.sequence);
+
+    // OutOfOrder is a single ACK for one specific packet
+    const packetTime = client.unAckData.get(packet.sequence);
+    if (packetTime) {
+      const ping = Date.now() - packetTime - (this.currentEventLoopLag || 0);
+      client.addPing(ping);
+
+      // Update congestion control with RTT for this single packet
+      client.congestionControl.onPacketAcked(packet.sequence, ping);
+
+      console.log(
+        `[CONGESTION] Client ${client.soeClientId} OutOfOrder ACK packet ${packet.sequence} - ping: ${ping}ms, cwnd: ${client.congestionControl.getCwnd()}`
+      );
+    }
   }
 
   private _handleAck(client: SOEClient, packet: any): void {
-    const packetTime = client.unAckData.get(packet.sequence);
-    if (packetTime) {
-      const dataCache = client.outputStream.getDataCache(packet.sequence);
-      if (dataCache) {
-        const ping =
-          Date.now() -
-          packetTime -
-          (this.currentEventLoopLag || 0) +
-          this._resendTimeout * dataCache.resendCounter;
-        client.addPing(ping);
+    // Ack is an ACK-ALL that acknowledges all packets up to this sequence
+    const ackSequence = packet.sequence;
+    let ackedCount = 0;
+    let totalPing = 0;
+
+    // Process all packets up to the ack sequence
+    for (const [sequence, timestamp] of client.unAckData) {
+      if (sequence <= ackSequence) {
+        const ping = Date.now() - timestamp - (this.currentEventLoopLag || 0);
+        totalPing += ping;
+        ackedCount++;
+
+        // Update congestion control for each acknowledged packet
+        client.congestionControl.onPacketAcked(sequence, ping);
+
+        console.log(
+          `[CONGESTION] Client ${client.soeClientId} ACK-ALL acknowledging packet ${sequence} - ping: ${ping}ms, cwnd: ${client.congestionControl.getCwnd()}`
+        );
       }
     }
+
+    // Update average ping if we have packets to acknowledge
+    if (ackedCount > 0) {
+      const avgPing = totalPing / ackedCount;
+      client.addPing(avgPing);
+      console.log(
+        `[CONGESTION] Client ${client.soeClientId} ACK-ALL complete - acked ${ackedCount} packets, avg ping: ${avgPing}ms, cwnd: ${client.congestionControl.getCwnd()}, RTO: ${client.congestionControl.getRTO()}ms`
+      );
+    }
+
     client.outputStream.ack(packet.sequence, client.unAckData);
+
+    // Force a sending process to handle any pending packets after ACK-ALL
+    if (client.delayedLogicalPackets.length > 0) {
+      console.log(
+        `[CONGESTION] Client ${client.soeClientId} forcing sending process after ACK-ALL - delayed packets: ${client.delayedLogicalPackets.length}`
+      );
+      this._activateSendingTimer(client, 1); // Small delay to ensure ACK is processed
+    }
   }
 
   onMessage(data: Buffer, remote: RemoteInfo): void {
@@ -584,10 +771,13 @@ export class SOEServer extends EventEmitter {
 
   async stop(): Promise<void> {
     clearInterval(this._packetResetInterval);
-    // delete all _clients
+
+    // Flush and delete all clients
     for (const client of this._clients.values()) {
+      this._flushAllRemainingPackets(client);
       client.closeTimers();
     }
+
     await new Promise<void>((resolve) => {
       this._connection.close(() => {
         resolve();
@@ -680,6 +870,10 @@ export class SOEServer extends EventEmitter {
 
     if (client.isDeleted) return;
 
+    console.log(
+      `[CONGESTION] Client ${client.soeClientId} sending process - unAckData: ${client.unAckData.size}, canSend: ${client.congestionControl.canSendPacket()}, cwnd: ${client.congestionControl.getCwnd()}`
+    );
+
     // Process packets in priority order: resends, new app data, acks
     this._processResends(client);
     this._processNewAppData(client);
@@ -687,15 +881,43 @@ export class SOEServer extends EventEmitter {
     this._flushWaitingQueue(client);
 
     // Schedule next sending cycle if needed
-    if (client.unAckData.size > 0) {
+    // Use congestion control to determine if we should continue sending
+    if (client.unAckData.size > 0 || client.congestionControl.canSendPacket()) {
       this._activateSendingTimer(client);
+    } else {
+      console.log(
+        `[CONGESTION] Client ${client.soeClientId} no more packets to send or congestion window full`
+      );
+    }
+
+    // Emergency recovery: if we have a mismatch between unAckData and congestion control
+    if (
+      client.unAckData.size !==
+      client.congestionControl.getState().packetsInFlight
+    ) {
+      console.log(
+        `[CONGESTION] Client ${client.soeClientId} EMERGENCY: State mismatch detected - unAckData: ${client.unAckData.size}, packetsInFlight: ${client.congestionControl.getState().packetsInFlight}`
+      );
+      this.syncClientCongestionControl(client.soeClientId);
     }
   }
 
   private _processResends(client: Client): void {
     const resends = this.getResends(client);
 
+    console.log(
+      `[CONGESTION] Client ${client.soeClientId} processing resends - count: ${resends.length}, canSend: ${client.congestionControl.canSendPacket()}`
+    );
+
     for (const resend of resends) {
+      // Check if we can send more packets according to congestion control
+      if (!client.congestionControl.canSendPacket()) {
+        console.log(
+          `[CONGESTION] Client ${client.soeClientId} congestion window full, stopping resend processing`
+        );
+        break;
+      }
+
       client.stats.totalLogicalPacketSent++;
       this._tryBufferOrSend(client, resend);
       client.unAckData.delete(resend.sequence as number);
@@ -708,8 +930,20 @@ export class SOEServer extends EventEmitter {
     const appPackets = this.getAvailableAppPackets(client);
     client.delayedLogicalPackets.push(...appPackets);
 
-    // Process delayed packets
+    console.log(
+      `[CONGESTION] Client ${client.soeClientId} processing new app data - available: ${appPackets.length}, delayed: ${client.delayedLogicalPackets.length}, canSend: ${client.congestionControl.canSendPacket()}`
+    );
+
+    // Process delayed packets with congestion control
     while (client.delayedLogicalPackets.length > 0) {
+      // Check if we can send more packets according to congestion control
+      if (!client.congestionControl.canSendPacket()) {
+        console.log(
+          `[CONGESTION] Client ${client.soeClientId} congestion window full, stopping app data processing`
+        );
+        break;
+      }
+
       const packet = client.delayedLogicalPackets.shift();
       if (!packet) break;
 
@@ -840,11 +1074,61 @@ export class SOEServer extends EventEmitter {
   public deleteClient(client: SOEClient): void {
     if (client.isDeleted) return;
 
+    console.log(`[CONGESTION] Client ${client.soeClientId} being deleted`);
+
+    // Flush any remaining packets before deleting
+    this._flushAllRemainingPackets(client);
+
     client.isDeleted = true;
     client.closeTimers();
     this._clearSendingTimer(client);
     this._clients.delete(client.soeClientId);
 
+    console.log(
+      `[CONGESTION] Client ${client.soeClientId} deleted successfully`
+    );
     debug(`Client connection from ${client.address}:${client.port} deleted`);
+  }
+
+  private _flushAllRemainingPackets(client: SOEClient): void {
+    console.log(
+      `[CONGESTION] Client ${client.soeClientId} flushing all remaining packets`
+    );
+
+    // Process any remaining delayed packets
+    while (client.delayedLogicalPackets.length > 0) {
+      const packet = client.delayedLogicalPackets.shift();
+      if (packet) {
+        console.log(
+          `[CONGESTION] Client ${client.soeClientId} flushing delayed packet ${packet.sequence}`
+        );
+        this._sendAndBuildPhysicalPacket(client, packet);
+      }
+    }
+
+    // Flush waiting queue
+    this._flushWaitingQueue(client);
+
+    // Process any remaining resends
+    const resends = this.getResends(client);
+    for (const resend of resends) {
+      console.log(
+        `[CONGESTION] Client ${client.soeClientId} flushing resend packet ${resend.sequence}`
+      );
+      this._sendAndBuildPhysicalPacket(client, resend);
+    }
+
+    // Send any pending ACKs
+    const ackPacket = this.getAck(client);
+    if (ackPacket) {
+      console.log(
+        `[CONGESTION] Client ${client.soeClientId} flushing ACK packet`
+      );
+      this._sendAndBuildPhysicalPacket(client, ackPacket);
+    }
+
+    console.log(
+      `[CONGESTION] Client ${client.soeClientId} finished flushing packets`
+    );
   }
 }
