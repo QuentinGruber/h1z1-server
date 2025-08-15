@@ -3758,6 +3758,24 @@ export class ZonePacketHandlers {
         );
       }
     }
+
+    const accountItems = await server.accountInventoriesManager.getAccountItems(
+      client.loginSessionId
+    );
+    server.sendData(client, "Items.SetAccountItemManager", {
+      accountItems: {
+        items: accountItems.map((item: BaseItem) => {
+          return {
+            itemId: item.itemGuid,
+            itemData: {
+              itemId: item.itemGuid,
+              itemDefinitionId: item.itemDefinitionId,
+              itemCount: item.stackCount
+            }
+          };
+        })
+      }
+    });
   }
 
   animationRequest(
