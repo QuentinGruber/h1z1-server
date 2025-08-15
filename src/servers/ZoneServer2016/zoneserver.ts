@@ -4512,8 +4512,11 @@ export class ZoneServer2016 extends EventEmitter {
       SOEOutputChannels.Reliable
     );
   }
-  sendAlertToAll(message: string) {
-    this._sendDataToAll("ClientUpdate.TextAlert", {
+  sendAlertToAll(message: string, playerName: string = "") {
+    this._sendDataToAll("Broadcast.Zone", {
+      identity: {
+        characterFirstName: playerName
+      },
       message: message
     });
   }
