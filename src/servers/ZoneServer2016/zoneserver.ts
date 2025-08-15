@@ -6276,10 +6276,6 @@ export class ZoneServer2016 extends EventEmitter {
         itemId: item.itemGuid,
         itemDefinitionId: item.itemDefinitionId
       });
-      console.log({
-        itemId: item.itemGuid,
-        itemDefinitionId: item.itemDefinitionId
-      });
     } else {
       await this.accountInventoriesManager.updateAccountItem(
         client.loginSessionId,
