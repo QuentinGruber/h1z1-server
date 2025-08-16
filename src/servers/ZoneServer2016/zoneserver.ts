@@ -475,6 +475,7 @@ export class ZoneServer2016 extends EventEmitter {
   randomEventsManager: RandomEventsManager;
   gameMode: GameModes = GameModes.SURVIVAL;
   tasksManager: TaskManager;
+  clientRoutineRate!: number;
 
   constructor(
     serverPort: number,
@@ -1863,7 +1864,7 @@ export class ZoneServer2016 extends EventEmitter {
 
     this.tasksManager.register_schedule(
       this.clientRoutineLoop.bind(this),
-      3000
+      this.clientRoutineRate
     );
 
     this._ready = true;

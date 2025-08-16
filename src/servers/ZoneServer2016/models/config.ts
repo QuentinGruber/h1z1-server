@@ -21,6 +21,7 @@ interface ServerConfig {
   interactionDistance: number;
   charactersRenderDistance: number;
   tickRate: number;
+  clientRoutineRate: number;
   worldRoutineRate: number;
   welcomeMessage: string;
   adminMessage: string;

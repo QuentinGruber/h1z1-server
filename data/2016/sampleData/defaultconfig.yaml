@@ -5,8 +5,9 @@ server:
   proximityItemsDistance: 2
   interactionDistance: 3
   charactersRenderDistance: 350
-  tickRate: 2000
-  worldRoutineRate: 10000
+  tickRate: 20 # Update per sec
+  clientRoutineRate: 3000 # ms
+  worldRoutineRate: 10000 # ms
   enableLoginServerKickRequests: true
   rebootTime: 48 # hours (0 to disable)
   rebootWarnTime: 600 # seconds
@@ -196,3 +197,4 @@ groups:
   enabled: true
   player_limit: 12
   foundation_player_limit: 12
+

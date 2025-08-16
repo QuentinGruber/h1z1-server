@@ -166,6 +166,7 @@ export class ConfigManager {
       interactionDistance,
       charactersRenderDistance,
       tickRate,
+      clientRoutineRate,
       worldRoutineRate,
       welcomeMessage,
       adminMessage,
@@ -188,6 +189,7 @@ export class ConfigManager {
     server.interactionDistance = interactionDistance;
     server.charactersRenderDistance = charactersRenderDistance;
     server.gameLoopTickRate = tickRate;
+    server.clientRoutineRate = clientRoutineRate;
     server.worldRoutineRate = worldRoutineRate;
     server.welcomeMessage = welcomeMessage;
     server.adminMessage = adminMessage;
