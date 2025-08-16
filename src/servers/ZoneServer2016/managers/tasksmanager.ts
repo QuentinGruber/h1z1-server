@@ -50,7 +50,6 @@ export class TaskManager {
       );
       return;
     }
-    let current = 0;
     for (let index = 0; index < this.priorityQueue.length; index++) {
       if (!this.checkElapsed(startTime, allowedTime)) {
         console.warn(
@@ -60,7 +59,6 @@ export class TaskManager {
       }
       const element = this.priorityQueue.shift();
       element();
-      current++;
     }
     for (let index = 0; index < this.queue.length; index++) {
       if (!this.checkElapsed(startTime, allowedTime)) {
@@ -69,7 +67,6 @@ export class TaskManager {
       }
       const element = this.queue.shift();
       element();
-      current++;
     }
   }
 
