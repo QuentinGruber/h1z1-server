@@ -8696,7 +8696,7 @@ export class ZoneServer2016 extends EventEmitter {
     this.tasksManager.process(Math.floor(this.gameLoopUpdateRate / 2));
     const endTime = Date.now();
     const timeTaken = endTime - startTime;
-    if (timeTaken / 2 > this.gameLoopUpdateRate) {
+    if (timeTaken > this.gameLoopUpdateRate / 2) {
       console.warn(
         `Routine took ${timeTaken}ms to execute, which is more than the half tickRate ${this.gameLoopUpdateRate}`
       );
