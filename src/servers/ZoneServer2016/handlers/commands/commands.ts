@@ -275,7 +275,7 @@ export const commands: Array<Command> = [
             uptimeMin < 60
               ? `${uptimeMin.toFixed()}m`
               : `${(uptimeMin / 60).toFixed()}h `
-          }`
+          }, TickRate: ${server.gameLoopTickRate}hz`
         );
         if (client.isAdmin) {
           server.sendChatText(

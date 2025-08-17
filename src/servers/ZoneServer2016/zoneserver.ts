@@ -1028,8 +1028,8 @@ export class ZoneServer2016 extends EventEmitter {
     ) {
       debug(`Receive Data ${[packet.name]}`);
     }
-    this.tasksManager.register(async () => {
-      if (packet.flag === GatewayChannels.UpdatePosition) {
+    if (packet.flag === GatewayChannels.UpdatePosition) {
+      this.tasksManager.register(async () => {
         if (!packet.data.flags) return;
         const movingCharacter = this._characters[client.character.characterId];
         if (movingCharacter) {
@@ -1042,8 +1042,8 @@ export class ZoneServer2016 extends EventEmitter {
             )
           );
         }
-      }
-    }, true);
+      }, true);
+    }
 
     this.tasksManager.register(async () => {
       try {
@@ -8592,11 +8592,13 @@ export class ZoneServer2016 extends EventEmitter {
     return generateRandomGuid();
   }
   private _sendRawDataReliable(client: Client, data: Buffer) {
-    this._gatewayServer.sendTunnelData(
-      client.soeClientId,
-      data,
-      SOEOutputChannels.Reliable
-    );
+    this.tasksManager.register(() => {
+      this._gatewayServer.sendTunnelData(
+        client.soeClientId,
+        data,
+        SOEOutputChannels.Reliable
+      );
+    });
   }
   sendRawDataReliable(client: Client, data: Buffer) {
     this._sendRawDataReliable(client, data);
@@ -8691,7 +8693,7 @@ export class ZoneServer2016 extends EventEmitter {
   }
   gameLoop() {
     const startTime = Date.now();
-    this.tasksManager.process(this.gameLoopUpdateRate / 2);
+    this.tasksManager.process(Math.floor(this.gameLoopUpdateRate / 2));
     const endTime = Date.now();
     const timeTaken = endTime - startTime;
     if (timeTaken / 2 > this.gameLoopUpdateRate) {
