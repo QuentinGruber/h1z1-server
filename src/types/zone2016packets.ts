@@ -29,7 +29,7 @@ export interface SendSelfToClient {
   unknownDword3?: number;
   characterFirstName?: string;
   characterLastName?: string;
-  unknownString1?: string;
+  steamId?: string;
   characterName?: string;
   unknownQword1?: string;
 };
@@ -592,7 +592,7 @@ export interface AddLightweightPc {
   unknownDword3?: number;
   characterFirstName?: string;
   characterLastName?: string;
-  unknownString1?: string;
+  steamId?: string;
   characterName?: string;
   unknownQword1?: string;
 };
@@ -1035,7 +1035,7 @@ export interface CharacterRenamePlayer {
   unknownDword3?: number;
   characterFirstName?: string;
   characterLastName?: string;
-  unknownString1?: string;
+  steamId?: string;
   characterName?: string;
   unknownQword1?: string;
 }
@@ -1550,7 +1550,7 @@ export interface GroupInvite {
   unknownDword3?: number;
   characterFirstName?: string;
   characterLastName?: string;
-  unknownString1?: string;
+  steamId?: string;
   characterName?: string;
   unknownQword1?: string;
 };
@@ -1565,7 +1565,7 @@ export interface GroupInvite {
   unknownDword3?: number;
   characterFirstName?: string;
   characterLastName?: string;
-  unknownString1?: string;
+  steamId?: string;
   characterName?: string;
   unknownQword1?: string;
 };
@@ -1591,7 +1591,7 @@ export interface GroupJoin {
   unknownDword3?: number;
   characterFirstName?: string;
   characterLastName?: string;
-  unknownString1?: string;
+  steamId?: string;
   characterName?: string;
   unknownQword1?: string;
 };
@@ -1606,7 +1606,7 @@ export interface GroupJoin {
   unknownDword3?: number;
   characterFirstName?: string;
   characterLastName?: string;
-  unknownString1?: string;
+  steamId?: string;
   characterName?: string;
   unknownQword1?: string;
 };
@@ -1716,7 +1716,7 @@ export interface GroupPlayerJoined {
   unknownDword3?: number;
   characterFirstName?: string;
   characterLastName?: string;
-  unknownString1?: string;
+  steamId?: string;
   characterName?: string;
   unknownQword1?: string;
 };
@@ -1758,7 +1758,7 @@ export interface GroupUnknown14 {
   unknownDword3?: number;
   characterFirstName?: string;
   characterLastName?: string;
-  unknownString1?: string;
+  steamId?: string;
   characterName?: string;
   unknownQword1?: string;
 };
@@ -1811,7 +1811,7 @@ export interface GroupRemoveInvitation {
   unknownDword3?: number;
   characterFirstName?: string;
   characterLastName?: string;
-  unknownString1?: string;
+  steamId?: string;
   characterName?: string;
   unknownQword1?: string;
 };
@@ -1826,7 +1826,7 @@ export interface GroupRemoveInvitation {
   unknownDword3?: number;
   characterFirstName?: string;
   characterLastName?: string;
-  unknownString1?: string;
+  steamId?: string;
   characterName?: string;
   unknownQword1?: string;
 };
@@ -1860,7 +1860,7 @@ export interface GroupRaidCreate {
   unknownDword3?: number;
   characterFirstName?: string;
   characterLastName?: string;
-  unknownString1?: string;
+  steamId?: string;
   characterName?: string;
   unknownQword1?: string;
 };
@@ -1875,7 +1875,7 @@ export interface GroupRaidCreate {
   unknownDword3?: number;
   characterFirstName?: string;
   characterLastName?: string;
-  unknownString1?: string;
+  steamId?: string;
   characterName?: string;
   unknownQword1?: string;
 };
@@ -2112,7 +2112,7 @@ export interface LobbyUpdateLobbyGame {
   unknownDword3?: number;
   characterFirstName?: string;
   characterLastName?: string;
-  unknownString1?: string;
+  steamId?: string;
   characterName?: string;
   unknownQword1?: string;
 };
@@ -2240,7 +2240,7 @@ export interface MountMountResponse {
   unknownDword3?: number;
   characterFirstName?: string;
   characterLastName?: string;
-  unknownString1?: string;
+  steamId?: string;
   characterName?: string;
   unknownQword1?: string;
 };
@@ -2275,7 +2275,7 @@ export interface MountSeatChangeResponse {
   unknownDword3?: number;
   characterFirstName?: string;
   characterLastName?: string;
-  unknownString1?: string;
+  steamId?: string;
   characterName?: string;
   unknownQword1?: string;
 };
@@ -2291,7 +2291,7 @@ export interface MountSeatSwapRequest {
   unknownDword3?: number;
   characterFirstName?: string;
   characterLastName?: string;
-  unknownString1?: string;
+  steamId?: string;
   characterName?: string;
   unknownQword1?: string;
 };
@@ -3314,7 +3314,7 @@ export interface ChatChat {
   unknownDword3?: number;
   characterFirstName?: string;
   characterLastName?: string;
-  unknownString1?: string;
+  steamId?: string;
   characterName?: string;
   unknownQword1?: string;
 };
@@ -3324,7 +3324,7 @@ export interface ChatChat {
   unknownDword3?: number;
   characterFirstName?: string;
   characterLastName?: string;
-  unknownString1?: string;
+  steamId?: string;
   characterName?: string;
   unknownQword1?: string;
 };
@@ -3918,7 +3918,7 @@ export interface BroadcastLocal {
   unknownDword3?: number;
   characterFirstName?: string;
   characterLastName?: string;
-  unknownString1?: string;
+  steamId?: string;
   characterName?: string;
   unknownQword1?: string;
 };
