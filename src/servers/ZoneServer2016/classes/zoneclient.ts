@@ -85,7 +85,7 @@ export class ZoneClient2016 {
   isWeaponLock: boolean = false;
   avgPingReady: boolean = false;
   chunkRenderDistance: number = 400;
-  routineCounter: number = 0;
+  tickCounter: number = 0;
   zonePings: number[] = [];
   properlyLogout: boolean = false;
   permissionLevel: number = 0;
