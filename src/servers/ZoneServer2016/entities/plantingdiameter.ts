@@ -15,8 +15,9 @@ import { TemporaryEntity } from "./temporaryentity";
 import { ZoneServer2016 } from "../zoneserver";
 import { Plant } from "./plant";
 import { DamageInfo } from "types/zoneserver";
-import { Items, ConstructionPermissionIds } from "../models/enums";
+import { Items, ConstructionPermissionIds, StringIds } from "../models/enums";
 import { ZoneClient2016 } from "../classes/zoneclient";
+import { isPosInRadius } from "utils/utils";
 
 export class PlantingDiameter extends TemporaryEntity {
   /** The time (milliseconds) at which the PlantingDiameter was placed */
@@ -34,16 +35,21 @@ export class PlantingDiameter extends TemporaryEntity {
   /** Time (milliseconds) when a fertilizer was applied to a PlantingDiameter */
   fertilizedTimestamp: number = 0;
 
+  /** CharacterId of the player who placed this object */
+  ownerCharacterId: string;
+
   constructor(
     characterId: string,
     transientId: number,
     actorModelId: number,
     position: Float32Array,
     rotation: Float32Array,
-    server: ZoneServer2016
+    server: ZoneServer2016,
+    ownerCharacterId: string
   ) {
     super(characterId, transientId, actorModelId, position, rotation, server);
     this.npcRenderDistance = 30;
+    this.ownerCharacterId = ownerCharacterId;
   }
 
   destroy(server: ZoneServer2016): boolean {
@@ -51,6 +57,15 @@ export class PlantingDiameter extends TemporaryEntity {
       plant.destroy(server);
     }
     return server.deleteEntity(this.characterId, server._temporaryObjects);
+  }
+
+  OnInteractionString(server: ZoneServer2016, client: ZoneClient2016): void {
+    if (this.canUndoPlacement(server, client)) {
+      server.sendData(client, "Command.InteractionString", {
+        guid: this.characterId,
+        stringId: StringIds.UNDO_PLACEMENT
+      });
+    }
   }
 
   OnPlayerSelect(server: ZoneServer2016, client: ZoneClient2016) {
@@ -68,9 +83,13 @@ export class PlantingDiameter extends TemporaryEntity {
     const client = server.getClientByCharId(damageInfo.entity),
       weapon = client?.character.getEquippedWeapon();
     if (!client || !weapon) return;
-    if (weapon.itemDefinitionId !== Items.WEAPON_HAMMER_DEMOLITION) return;
-    for (const a in server._constructionFoundations) {
-      const foundation = server._constructionFoundations[a];
+    if (weapon.itemDefinitionId != Items.WEAPON_HAMMER_DEMOLITION) return;
+
+    const parentFoundations = Object.values(
+      server._constructionFoundations
+    ).filter((foundation) => foundation.isInside(this.state.position));
+
+    for (const foundation of parentFoundations) {
       if (
         !foundation.getHasPermission(
           server,
@@ -81,6 +100,12 @@ export class PlantingDiameter extends TemporaryEntity {
         return;
     }
 
+    if (
+      parentFoundations.length == 0 &&
+      client.character.characterId != this.ownerCharacterId
+    )
+      return;
+
     for (const plant of Object.values(this.seedSlots)) {
       plant.destroy(server);
     }
@@ -90,9 +115,13 @@ export class PlantingDiameter extends TemporaryEntity {
   canUndoPlacement(server: ZoneServer2016, client: ZoneClient2016) {
     const weapon = client.character.getEquippedWeapon();
     if (!weapon) return false;
-    for (const a in server._constructionFoundations) {
-      const foundation = server._constructionFoundations[a];
-      return (
+
+    const parentFoundations = Object.values(
+      server._constructionFoundations
+    ).filter((foundation) => foundation.isInside(this.state.position));
+
+    for (const foundation of parentFoundations) {
+      if (
         foundation.getHasPermission(
           server,
           client.character.characterId,
@@ -100,7 +129,11 @@ export class PlantingDiameter extends TemporaryEntity {
         ) &&
         Date.now() < this.placementTime + 120000 &&
         weapon.itemDefinitionId == Items.WEAPON_HAMMER_DEMOLITION
-      );
+      ) {
+        return true;
+      }
     }
+
+    return client.character.characterId == this.ownerCharacterId;
   }
 }

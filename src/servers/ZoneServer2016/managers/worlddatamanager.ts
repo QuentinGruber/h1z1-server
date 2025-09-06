@@ -1096,7 +1096,8 @@ export class WorldDataManager {
       seedSlots: slots,
       placementTime: entity.placementTime,
       fertilizedTimestamp: entity.fertilizedTimestamp,
-      isFertilized: entity.isFertilized
+      isFertilized: entity.isFertilized,
+      ownerCharacterId: entity.ownerCharacterId
     };
   }
 
@@ -1194,7 +1195,8 @@ export class WorldDataManager {
         entityData.actorModelId,
         new Float32Array(entityData.position),
         new Float32Array(entityData.rotation),
-        server
+        server,
+        entityData?.ownerCharacterId ?? ""
       );
 
     plantingDiameter.fertilizedTimestamp = entityData.fertilizedTimestamp;
