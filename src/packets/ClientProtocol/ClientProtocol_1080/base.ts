@@ -2778,7 +2778,7 @@ export const basePackets: PacketStructures = [
   ["HudManager", 0xa5, {}],
   [
     "AcquireTimers",
-    0xa6,
+    0xa600,
     {
       fields: [
         { name: "unknownDword1", type: "uint32", defaultValue: 0 },
