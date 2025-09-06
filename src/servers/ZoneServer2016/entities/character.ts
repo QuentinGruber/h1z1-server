@@ -36,6 +36,7 @@ import {
   DamageInfo,
   DamageRecord,
   HealType,
+  ItemDefinition,
   positionUpdate,
   Recipe,
   StanceFlags
@@ -943,34 +944,18 @@ export class Character2016 extends BaseFullCharacter {
       "Loadout.SetLoadoutSlots",
       this.pGetLoadoutSlots()
     );
-    const abilities: any = [
-      {
-        loadoutSlotId: 1,
-        abilityLineId: 1,
-        unknownArray1: [
-          {
-            unknownDword1: 1111164,
-            unknownDword2: 1111164,
-            unknownDword3: 0
-          }
-        ],
-        unknownDword3: 2,
-        itemDefinitionId: 83,
-        unknownByte: 64
-      }
-      // hardcoded one weapon ability to fix fists after respawning
-    ];
+    /*const abilities: any = [];
     const abilityLineId = 1;
     for (const a in client.character._loadout) {
       const slot = client.character._loadout[a];
       const itemDefinition = server.getItemDefinition(slot.itemDefinitionId);
-      if (!itemDefinition) continue;
+      if (!itemDefinition || itemDefinition.CODE_FACTORY_NAME != "Weapon") continue;
 
       const abilityId = itemDefinition.ACTIVATABLE_ABILITY_ID;
       if (slot.itemDefinitionId == Items.WEAPON_FISTS) {
         const object = {
           loadoutSlotId: slot.slotId,
-          abilityLineId,
+          abilityLineId: abilityLineId,
           unknownArray1: [
             {
               unknownDword1: 1111278,
@@ -1006,9 +991,9 @@ export class Character2016 extends BaseFullCharacter {
         abilities.push(object);
       }
       //abilityLineId++;
-    }
+    }*/
     server.sendData(client, "Abilities.SetActivatableAbilityManager", {
-      abilities
+      abilities: this.pGetActivatableAbilities(server)
     });
   }
 
@@ -1243,6 +1228,54 @@ export class Character2016 extends BaseFullCharacter {
       },
       currentSlotId: this.currentLoadoutSlot
     };
+  }
+
+  pGetActivatableAbility(
+    slotId: number,
+    itemDefinition: ItemDefinition,
+    abilityLineId: number
+  ) {
+    const WEAPON_FISTS = Items.WEAPON_FISTS,
+      itemDefinitionId = itemDefinition.ID,
+      abilityId = itemDefinition.ACTIVATABLE_ABILITY_ID,
+      abilityEntry = {
+        unknownDword1: abilityId,
+        unknownDword2: abilityId,
+        unknownDword3: 0
+      };
+    return {
+      loadoutSlotId: slotId,
+      abilityLineId: abilityLineId,
+      unknownArray1:
+        itemDefinitionId == WEAPON_FISTS
+          ? [
+              {
+                unknownDword1: 1111278,
+                unknownDword2: 1111278,
+                unknownDword3: 0
+              },
+              abilityEntry
+            ]
+          : [abilityEntry],
+      unknownDword3: 2,
+      itemDefinitionId: itemDefinitionId,
+      unknownByte: itemDefinition.CODE_FACTORY_NAME == "Weapon" ? 64 : 0
+    };
+  }
+
+  pGetActivatableAbilities(server: ZoneServer2016) {
+    const abilities: any[] = [];
+    let abilityLineId = 1;
+    Object.values(this._loadout).forEach((slot) => {
+      const itemDefinition = server.getItemDefinition(slot.itemDefinitionId);
+      if (!itemDefinition || itemDefinition.CODE_FACTORY_NAME != "Weapon")
+        return;
+      const { slotId } = slot;
+      abilities.push(
+        this.pGetActivatableAbility(slotId, itemDefinition, abilityLineId++)
+      );
+    });
+    return abilities;
   }
 
   resetMetrics() {
