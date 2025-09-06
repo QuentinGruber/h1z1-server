@@ -17,7 +17,6 @@ import { Plant } from "./plant";
 import { DamageInfo } from "types/zoneserver";
 import { Items, ConstructionPermissionIds, StringIds } from "../models/enums";
 import { ZoneClient2016 } from "../classes/zoneclient";
-import { isPosInRadius } from "utils/utils";
 
 export class PlantingDiameter extends TemporaryEntity {
   /** The time (milliseconds) at which the PlantingDiameter was placed */
