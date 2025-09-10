@@ -14,6 +14,7 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 // TODO enable @typescript-eslint/no-unused-vars
 import { h1z1PacketsType2016 } from "types/packets";
+import { Worker } from "node:worker_threads";
 import {
   CharacterManagedObject,
   CharacterPlayWorldCompositeEffect,
@@ -37,6 +38,7 @@ import { LootableConstructionEntity } from "../../entities/lootableconstructione
 import { ConstructionChildEntity } from "../../entities/constructionchildentity";
 import { ConstructionDoor } from "../../entities/constructiondoor";
 import {
+  generateRandomGuid,
   getCurrentServerTimeWrapper,
   randomIntFromInterval,
   TimeWrapper
@@ -46,12 +48,99 @@ import { Vehicle2016 } from "../../entities/vehicle";
 import { NavManager } from "../../../../utils/recast";
 import { scheduler } from "timers/promises";
 import { DB_COLLECTIONS } from "../../../../utils/enums";
+import { randomInt } from "crypto";
+import { GatewayChannels } from "h1emu-core";
 
 const abilities = require("../../../../../data/2016/dataSources/Abilities.json"),
   vehicleAbilities = require("../../../../../data/2016/dataSources/VehicleAbilities.json"),
   discovery = require("../../../../../data/2016/dataSources/ClientDiscoveries.json");
 
 const dev: any = {
+  change_tick: function (
+    server: ZoneServer2016,
+    client: Client,
+    args: Array<string>
+  ) {
+    server.gameLoopTickRate = Number(args[1]);
+    server.sendChatText(
+      client,
+      `Changed tickrate to ${server.gameLoopTickRate}`
+    );
+  },
+  load_balancing: function (
+    server: ZoneServer2016,
+    client: Client,
+    args: Array<string>
+  ) {
+    const nb = Number(args[1]) || 10;
+    const basePort = 60_000;
+    for (let index = 0; index < nb; index++) {
+      const port = basePort - index;
+      const soeserver = server._gatewayServer["_soeServer"];
+      const soeClient = soeserver["_createClient"]({
+        family: "IPv4",
+        size: 100,
+        address: "127.0.0.1",
+        port
+      });
+      soeClient.useEncryption = true;
+      soeClient.sessionId = randomInt(10000);
+      soeClient.clientUdpLength = soeserver["_udpLength"];
+      soeClient.protocolName = "";
+      soeClient.serverUdpLength = soeserver["_udpLength"];
+      soeClient.crcSeed = 0;
+      soeClient.crcLength = soeserver["_crcLength"];
+      soeClient.inputStream.setEncryption(soeserver["_useEncryption"]);
+      soeClient.outputStream.setEncryption(soeserver["_useEncryption"]);
+      // 4 since we don't count the opcode and it's an uint16
+      soeClient.outputStream.setFragmentSize(
+        soeClient.clientUdpLength - (4 + soeserver["_crcLength"])
+      );
+      // setup the keep alive timer
+      soeClient.lastKeepAliveTimer = null;
+      const characterId = generateRandomGuid();
+      const transientId = server.getTransientId(characterId);
+
+      const fakeClient = server.createClient(
+        soeClient.sessionId,
+        soeClient.soeClientId,
+        "fake",
+        characterId,
+        transientId
+      );
+      fakeClient.character.name = "looser";
+      fakeClient.character.state = client.character.state;
+      fakeClient.character.isAlive = true;
+      fakeClient.character.isReady = true;
+      fakeClient.character.isRespawning = false;
+      fakeClient.character.actorModelId = client.character.actorModelId;
+      fakeClient.character.headActor = client.character.headActor;
+      fakeClient.character.hairModel = client.character.hairModel;
+      fakeClient.character.gender = client.character.gender;
+      fakeClient.character._containers = client.character._containers;
+      fakeClient.character._resources = client.character._resources;
+
+      server._clients[fakeClient.sessionId] = fakeClient;
+      server._characters[characterId] = fakeClient.character;
+      server._gatewayServer.on(
+        "tunneldata",
+        (sessionId: number, data, flags, replicated: boolean | undefined) => {
+          if (replicated) {
+            return;
+          }
+          if (flags === GatewayChannels.UpdatePosition) {
+            server._gatewayServer.emit(
+              "tunneldata",
+              soeClient.sessionId,
+              data,
+              GatewayChannels.UpdatePosition,
+              true
+            );
+          }
+        }
+      );
+    }
+  },
   discoveries: function (
     server: ZoneServer2016,
     client: Client,
