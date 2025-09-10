@@ -2371,6 +2371,10 @@ export class ZoneServer2016 extends EventEmitter {
       clearInterval(client.afkTimer);
     }
 
+    if (client.assetIntegrityKickTimer) {
+      clearTimeout(client.assetIntegrityKickTimer);
+    }
+
     if (client.character) {
       client.isLoading = true; // stop anything from acting on character
       this.aiManager.removeEntity(client.character);
@@ -4712,9 +4716,6 @@ export class ZoneServer2016 extends EventEmitter {
   }
 
   kickPlayer(client: Client) {
-    if (client.vehicle) {
-      this.dismountVehicle(client);
-    }
     if (!client || client.isAdmin) return;
     this.sendData<CharacterSelectSessionResponse>(
       client,
