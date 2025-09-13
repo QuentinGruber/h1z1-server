@@ -15,5 +15,5 @@ export const LEGACY_CRATE_CONVERSION: { [oldId: number]: number } = {
   3501: AccountItems.REWARD_CRATE_RONIN,
   3569: AccountItems.REWARD_CRATE_INVITATIONAL_2016,
   2350: AccountItems.REWARD_CRATE_VIGILANTE,
-  2682 :2691 // Fix brown shemagh
+  2682: 2691 // Fix brown shemagh
 };
