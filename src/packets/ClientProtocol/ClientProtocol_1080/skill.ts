@@ -12,6 +12,7 @@
 // ======================================================================
 
 import { PacketStructures } from "types/packetStructure";
+import { skillPointDataSchema } from "./shared";
 
 export const skillPackets: PacketStructures = [
   ["Skill.Echo", 0x8601, {}],
@@ -20,7 +21,16 @@ export const skillPackets: PacketStructures = [
   ["Skill.GetSkillPointManager", 0x8604, {}],
   ["Skill.SetLoyaltyPoints", 0x8605, {}],
   ["Skill.LoadSkillDefinitionManager", 0x8606, {}],
-  ["Skill.SetSkillPointManager", 0x8607, {}],
+  [
+    "Skill.SetSkillPointManager",
+    0x8607,
+    {
+      fields: [
+        { name: "unknownDword1", type: "uint32", defaultValue: 0 },
+        ...skillPointDataSchema
+      ]
+    }
+  ],
   [
     "Skill.SetSkillPointProgress",
     0x8608,

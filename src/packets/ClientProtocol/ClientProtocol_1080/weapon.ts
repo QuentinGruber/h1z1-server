@@ -82,7 +82,15 @@ const weaponPackets: PacketStructures = [
     }
   ],
   ["Weapon.ReloadInterrupt", 0x8309, {}],
-  ["Weapon.ReloadRejected", 0x830b, {}],
+  [
+    "Weapon.ReloadRejected",
+    0x830b,
+    {
+      fields: [
+        { name: "unknownQword1", type: "uint64string", defaultValue: "0" }
+      ]
+    }
+  ],
   [
     "Weapon.SwitchFireModeRequest",
     0x830c,
@@ -128,10 +136,64 @@ const weaponPackets: PacketStructures = [
     }
   ],
   ["Weapon.DebugProjectile", 0x8310, {}],
-  ["Weapon.AddFireGroup", 0x8311, {}],
-  ["Weapon.RemoveFireGroup", 0x8312, {}],
-  ["Weapon.ReplaceFireGroup", 0x8313, {}],
-  ["Weapon.GuidedUpdate", 0x8314, {}],
+  [
+    "Weapon.AddFireGroup",
+    0x8311,
+    {
+      fields: [
+        { name: "guid", type: "uint64string", defaultValue: "0" },
+        { name: "unknownBoolean1", type: "boolean", defaultValue: false },
+        { name: "unknownDword1", type: "uint32", defaultValue: 0 }
+      ]
+    }
+  ],
+  [
+    "Weapon.RemoveFireGroup",
+    0x8312,
+    {
+      fields: [
+        { name: "unknownDword1", type: "uint32", defaultValue: 0 },
+        { name: "unknownShort1", type: "uint16", defaultValue: 0 },
+        { name: "unknownByte1", type: "uint8", defaultValue: 0 }
+      ]
+    }
+  ],
+  [
+    "Weapon.ReplaceFireGroup",
+    0x8313,
+    {
+      fields: [
+        { name: "guid", type: "uint64string", defaultValue: "0" },
+        { name: "unknownByte1", type: "uint8", defaultValue: 0 },
+        { name: "unknownBoolean1", type: "boolean", defaultValue: false },
+        { name: "unknownDword1", type: "uint32", defaultValue: 0 }
+      ]
+    }
+  ],
+  [
+    "Weapon.GuidedUpdate",
+    0x8314,
+    {
+      fields: [
+        {
+          name: "transientId",
+          type: "custom",
+          parser: readUnsignedIntWith2bitLengthValue,
+          packer: packUnsignedIntWith2bitLengthValue
+        },
+        {
+          name: "secondTransientId",
+          type: "custom",
+          parser: readUnsignedIntWith2bitLengthValue,
+          packer: packUnsignedIntWith2bitLengthValue
+        },
+        { name: "unknownDword1", type: "uint32", defaultValue: 0 },
+        { name: "unknownDword2", type: "uint32", defaultValue: 0 },
+        { name: "unknownDword3", type: "uint32", defaultValue: 0 },
+        { name: "unknownDword4", type: "uint32", defaultValue: 0 }
+      ]
+    }
+  ],
   [
     "Weapon.RemoteWeapon",
     0x8315,
@@ -178,7 +240,16 @@ const weaponPackets: PacketStructures = [
       ]
     }
   ],
-  ["Weapon.WeaponToggleEffects", 0x831b, {}],
+  [
+    "Weapon.WeaponToggleEffects",
+    0x831b,
+    {
+      fields: [
+        { name: "guid", type: "uint64string", defaultValue: "0" },
+        { name: "unknownByte1", type: "uint8", defaultValue: 0 }
+      ]
+    }
+  ],
   [
     "Weapon.Reset",
     0x831c,
@@ -203,7 +274,23 @@ const weaponPackets: PacketStructures = [
       ]
     }
   ],
-  ["Weapon.FireRejected", 0x831e, {}],
+  [
+    "Weapon.FireRejected",
+    0x831e,
+    {
+      fields: [
+        { name: "guid", type: "uint64string", defaultValue: "0" },
+        { name: "unknownBoolean1", type: "boolean", defaultValue: true },
+        { name: "unknownByte1", type: "uint8", defaultValue: 1 },
+        {
+          name: "unknownArray1",
+          type: "array",
+          defaultValue: [],
+          fields: [{ name: "unknownDword1", type: "uint32", defaultValue: 0 }]
+        }
+      ]
+    }
+  ],
   [
     "Weapon.MultiWeapon",
     0x831f,
@@ -278,9 +365,37 @@ const weaponPackets: PacketStructures = [
       ]
     }
   ],
-  ["Weapon.AddDebugLogEntry", 0x8324, {}],
-  ["Weapon.DebugZoneState", 0x8325, {}],
-  ["Weapon.GrenadeBounceReport", 0x8326, {}],
+  [
+    "Weapon.AddDebugLogEntry",
+    0x8324,
+    {
+      fields: [
+        { name: "guid", type: "uint64string", defaultValue: "0" },
+        { name: "unknownString1", type: "string", defaultValue: "" }
+      ]
+    }
+  ],
+  [
+    "Weapon.DebugZoneState",
+    0x8325,
+    {
+      fields: [
+        { name: "guid", type: "uint64string", defaultValue: "0" },
+        { name: "unknownDword1", type: "uint32", defaultValue: 0 }
+      ]
+    }
+  ],
+  [
+    "Weapon.GrenadeBounceReport",
+    0x8326,
+    {
+      fields: [
+        { name: "unknownDword1", type: "uint32", defaultValue: 0 },
+        { name: "unknownDword2", type: "uint32", defaultValue: 0 },
+        { name: "unknownQword1", type: "uint64string", defaultValue: "0" }
+      ]
+    }
+  ],
   [
     "Weapon.AimBlockedNotify",
     0x8327,

@@ -85,7 +85,7 @@ export class RandomEventsManager {
     // Use a larger range for more granularity
     const threshold = 10 * multiplier;
     if (
-      !this.server.airdropManager.allowedAirdropSpawn() &&
+      this.server.airdropManager.allowedAirdropSpawn() &&
       randomInt(100) < threshold
     ) {
       this.spawnRandomAirdrop();

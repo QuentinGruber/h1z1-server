@@ -427,6 +427,14 @@ export const UseOptions: { [itemDefinitionIds: number]: ItemUseOption } = {
     healType: HealTypes.OTHER,
     timeout: 1000
   },
+  51: {
+    itemDef: 2424, // BR Med kits
+    type: ItemUseOptions.USE_MEDICAL,
+    timeout: 5000,
+    healCount: 99,
+    healType: HealTypes.MEDKIT,
+    bandagingCount: 120
+  },
 
   //----------Ignite-------------//
   9: {

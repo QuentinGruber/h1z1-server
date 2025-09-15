@@ -24,7 +24,8 @@ const packets: PacketStructures = [
       fields: [
         { name: "serverId", type: "uint32", defaultValue: 0 },
         { name: "h1emuVersion", type: "string", defaultValue: "" },
-        { name: "serverRuleSets", type: "string", defaultValue: "PVP" }
+        { name: "serverRuleSets", type: "string", defaultValue: "PVP" },
+        { name: "gameMode", type: "uint32", defaultValue: 0 }
       ]
     }
   ],

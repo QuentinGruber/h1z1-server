@@ -14,6 +14,7 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 // TODO enable @typescript-eslint/no-unused-vars
 import { h1z1PacketsType2016 } from "types/packets";
+import { Worker } from "node:worker_threads";
 import {
   CharacterManagedObject,
   CharacterPlayWorldCompositeEffect,
@@ -26,7 +27,8 @@ import {
   InGamePurchaseSpiceWebAuthUrlResponse,
   InGamePurchaseStoreBundles,
   InGamePurchaseWalletBalanceUpdate,
-  ItemsAddAccountItem
+  ItemsAddAccountItem,
+  Loot
 } from "types/zone2016packets";
 import { Npc } from "../../entities/npc";
 import { ZoneClient2016 as Client } from "../../classes/zoneclient";
@@ -36,6 +38,7 @@ import { LootableConstructionEntity } from "../../entities/lootableconstructione
 import { ConstructionChildEntity } from "../../entities/constructionchildentity";
 import { ConstructionDoor } from "../../entities/constructiondoor";
 import {
+  generateRandomGuid,
   getCurrentServerTimeWrapper,
   randomIntFromInterval,
   TimeWrapper
@@ -45,12 +48,198 @@ import { Vehicle2016 } from "../../entities/vehicle";
 import { NavManager } from "../../../../utils/recast";
 import { scheduler } from "timers/promises";
 import { DB_COLLECTIONS } from "../../../../utils/enums";
+import { randomInt } from "crypto";
+import { GatewayChannels } from "h1emu-core";
 
 const abilities = require("../../../../../data/2016/dataSources/Abilities.json"),
-  vehicleAbilities = require("../../../../../data/2016/dataSources/VehicleAbilities.json");
+  vehicleAbilities = require("../../../../../data/2016/dataSources/VehicleAbilities.json"),
+  discovery = require("../../../../../data/2016/dataSources/ClientDiscoveries.json");
 
 const dev: any = {
+  change_tick: function (
+    server: ZoneServer2016,
+    client: Client,
+    args: Array<string>
+  ) {
+    server.gameLoopTickRate = Number(args[1]);
+    server.sendChatText(
+      client,
+      `Changed tickrate to ${server.gameLoopTickRate}`
+    );
+  },
+  load_balancing: function (
+    server: ZoneServer2016,
+    client: Client,
+    args: Array<string>
+  ) {
+    const nb = Number(args[1]) || 10;
+    const basePort = 60_000;
+    for (let index = 0; index < nb; index++) {
+      const port = basePort - index;
+      const soeserver = server._gatewayServer["_soeServer"];
+      const soeClient = soeserver["_createClient"]({
+        family: "IPv4",
+        size: 100,
+        address: "127.0.0.1",
+        port
+      });
+      soeClient.useEncryption = true;
+      soeClient.sessionId = randomInt(10000);
+      soeClient.clientUdpLength = soeserver["_udpLength"];
+      soeClient.protocolName = "";
+      soeClient.serverUdpLength = soeserver["_udpLength"];
+      soeClient.crcSeed = 0;
+      soeClient.crcLength = soeserver["_crcLength"];
+      soeClient.inputStream.setEncryption(soeserver["_useEncryption"]);
+      soeClient.outputStream.setEncryption(soeserver["_useEncryption"]);
+      // 4 since we don't count the opcode and it's an uint16
+      soeClient.outputStream.setFragmentSize(
+        soeClient.clientUdpLength - (4 + soeserver["_crcLength"])
+      );
+      // setup the keep alive timer
+      soeClient.lastKeepAliveTimer = null;
+      const characterId = generateRandomGuid();
+      const transientId = server.getTransientId(characterId);
+
+      const fakeClient = server.createClient(
+        soeClient.sessionId,
+        soeClient.soeClientId,
+        "fake",
+        characterId,
+        transientId
+      );
+      fakeClient.character.name = "looser";
+      fakeClient.character.state = client.character.state;
+      fakeClient.character.isAlive = true;
+      fakeClient.character.isReady = true;
+      fakeClient.character.isRespawning = false;
+      fakeClient.character.actorModelId = client.character.actorModelId;
+      fakeClient.character.headActor = client.character.headActor;
+      fakeClient.character.hairModel = client.character.hairModel;
+      fakeClient.character.gender = client.character.gender;
+      fakeClient.character._containers = client.character._containers;
+      fakeClient.character._resources = client.character._resources;
+
+      server._clients[fakeClient.sessionId] = fakeClient;
+      server._characters[characterId] = fakeClient.character;
+      server._gatewayServer.on(
+        "tunneldata",
+        (sessionId: number, data, flags, replicated: boolean | undefined) => {
+          if (replicated) {
+            return;
+          }
+          if (flags === GatewayChannels.UpdatePosition) {
+            server._gatewayServer.emit(
+              "tunneldata",
+              soeClient.sessionId,
+              data,
+              GatewayChannels.UpdatePosition,
+              true
+            );
+          }
+        }
+      );
+    }
+  },
+  discoveries: function (
+    server: ZoneServer2016,
+    client: Client,
+    args: Array<string>
+  ) {
+    server.sendData(client, "Recipe.Discoveries", discovery);
+  },
+  di: function (server: ZoneServer2016, client: Client, args: Array<string>) {
+    const item = client.character.getItemById(Number(args[1]));
+    if (item) {
+      server.sendData(client, "Recipe.ComponentUpdate", {
+        recipeId: 2,
+        itemCount: item.stackCount,
+        itemGuid: item.itemGuid
+      });
+    }
+  },
+  disc: function (server: ZoneServer2016, client: Client, args: Array<string>) {
+    server.sendData(client, "Recipe.Discoveries", {
+      recipes: [
+        {
+          unk: 2,
+          recipeId: 2,
+          nameId: 38,
+          iconId: 37,
+          unknownDword1: 0,
+          descriptionId: 605,
+          rewardItemCount: 1,
+          bundleCount: 0,
+          memberOnly: false,
+          filterId: 0,
+          components: [
+            {
+              itemDefinitionId: 25,
+              nameId: 47,
+              iconId: 32,
+              unknownDword2: 0,
+              descriptionId: 11001,
+              requiredAmount: 1,
+              unknownQword1: "0",
+              unknownDword3: -1,
+              itemDefinitionId2: 25
+            },
+            {
+              itemDefinitionId: 26,
+              nameId: 48,
+              iconId: 20,
+              unknownDword2: 0,
+              descriptionId: 1239,
+              requiredAmount: 1,
+              unknownQword1: "0",
+              unknownDword3: -1,
+              itemDefinitionId2: 26
+            }
+          ],
+          itemDefinitionId: 11
+        }
+      ],
+      unkArray1: [
+        {
+          unknownQword1: "25",
+          unkArray1: [
+            {
+              unknownDword1: 2,
+              unknownDword2: 2
+            }
+          ]
+        },
+        {
+          unknownQword1: "26",
+          unkArray1: [
+            {
+              unknownDword1: 2,
+              unknownDword2: 2
+            }
+          ]
+        },
+        {
+          unknownQword1: "1638426",
+          unkArray1: [
+            {
+              unknownDword1: 2,
+              unknownDword2: 2
+            }
+          ]
+        }
+      ],
+      unkArray2: [
+        {
+          unknownQword1: "1638426",
+          unknownDword1: 2
+        }
+      ]
+    });
+  },
   igp: function (server: ZoneServer2016, client: Client, args: Array<string>) {
+    server.sendData(client, "InGamePurchase.ServerStatusResponse", {
+      status: true
+    });
     server.sendData(client, "InGamePurchase.EnableMarketplace", {
       unknownBoolean1: true,
       unknownBoolean2: true
@@ -103,7 +292,7 @@ const dev: any = {
       ]
     });
 
-    server.sendData(client, "InGamePurchase.AcccountInfoResponse", {
+    server.sendData(client, "InGamePurchase.AccountInfoResponse", {
       unknownDword1: 1,
       locale: "BE",
       currency: "EUR",
@@ -197,10 +386,10 @@ const dev: any = {
       ]
     });
 
-    const categories = require("../../data/2016/marketplaceData/categories.json");
+    const categories = require("../../../../../data/2016/marketplaceData/categories.json");
     server.sendData(client, "InGamePurchase.StoreBundleCategories", categories);
 
-    const bundles = require("../../data/2016/marketplaceData/bundles.json");
+    const bundles = require("../../../../../data/2016/marketplaceData/bundles.json");
     server.sendData(client, "InGamePurchase.StoreBundles", bundles);
 
     server.sendData(client, "InGamePurchase.SubscriptionProductsResponse", {
@@ -733,11 +922,11 @@ const dev: any = {
     );
   },
   r: function (server: ZoneServer2016, client: Client, args: Array<string>) {
-    // quick respawn
-    server.respawnPlayer(
-      client,
+    const position = server.calculatePosFromSpawnCell(
       server._spawnGrid[randomIntFromInterval(0, 99)]
     );
+    // quick respawn
+    server.respawnPlayer(client, position);
   },
   testpacket: function (
     server: ZoneServer2016,
@@ -1182,10 +1371,10 @@ const dev: any = {
   ) {
     switch (Number(args[1])) {
       case 1:
-        server.sendData(client, "Spectator.SetUnknownFlag1", {});
+        server.sendData(client, "Spectator.SetModerator", {});
         break;
       case 2:
-        server.sendData(client, "Spectator.SetUnknownFlag2", {});
+        server.sendData(client, "Spectator.SetOwner", {});
         break;
       default:
         server.sendChatText(client, "Unknown spectator flag");

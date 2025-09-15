@@ -1,11 +1,13 @@
 server:
   welcomeMessage: "Welcome to H1emu! :D"
   adminMessage: "You are an Admin!"
+  gameMode: "SURVIVAL"
   proximityItemsDistance: 2
   interactionDistance: 3
   charactersRenderDistance: 350
-  tickRate: 2000
-  worldRoutineRate: 10000
+  tickRate: 30 # Update per sec
+  clientRoutineRate: 3000 # ms
+  worldRoutineRate: 10000 # ms
   enableLoginServerKickRequests: true
   rebootTime: 48 # hours (0 to disable)
   rebootWarnTime: 600 # seconds
@@ -79,6 +81,7 @@ weather:
   dynamicEnabled: true
 
 airdrop:
+  minimumPlayers: 10
   planeMovementSpeed: 140000
   crateDropSpeed: 60000
 
@@ -101,7 +104,6 @@ worldobjects:
   lootbagDespawnTimer: 1800000 # 30 minutes
 
   # Misc
-  minAirdropSurvivors: 10
   vehicleSpawnCap: 120
   # How far any other vehicle has to be for another to spawn
   vehicleSpawnRadius: 50
@@ -190,3 +192,8 @@ gametime:
   nightTimeMultiplier: 2 # This way night time pass 2 times faster than daytime
   timeMultiplier: 36 # 1 hour IRL = 36 hours ingame, so 20 min for a full day
   baseTime: 6 # server ingameTime start at 6 AM, 18 = 6PM
+
+groups:
+  enabled: true
+  player_limit: 12
+  foundation_player_limit: 12

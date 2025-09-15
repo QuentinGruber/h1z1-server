@@ -231,6 +231,7 @@ export class Vehicle2016 extends BaseLootableEntity {
   };
 
   shaderGroupId: number = 0;
+  ownerCharacterId: string = "";
 
   droppedManagedClient?: ZoneClient2016; // for temporary fix
   isMountable: boolean = true;
@@ -244,7 +245,8 @@ export class Vehicle2016 extends BaseLootableEntity {
     server: ZoneServer2016,
     gameTime: number,
     vehicleId: number,
-    shaderGroupId: number = 0
+    shaderGroupId: number = 0,
+    ownerCharacterId: string = ""
   ) {
     super(characterId, transientId, actorModelId, position, rotation, server);
     this.positionUpdateType = PositionUpdateType.MOVABLE;
@@ -268,6 +270,7 @@ export class Vehicle2016 extends BaseLootableEntity {
       this.vehicleId == VehicleIds.SPECTATE ||
       this.vehicleId == VehicleIds.PARACHUTE;
     this.shaderGroupId = shaderGroupId;
+    this.ownerCharacterId = ownerCharacterId;
     switch (this.vehicleId) {
       case VehicleIds.PICKUP:
         this.seats = {
@@ -465,6 +468,7 @@ export class Vehicle2016 extends BaseLootableEntity {
       npcData: {
         ...this.pGetFull(server)
       },
+      engineState: this.engineOn ? 6 : 0,
       unknownArray1: [],
       unknownArray2: [],
       passengers: this.pGetPassengers(server),
@@ -478,9 +482,9 @@ export class Vehicle2016 extends BaseLootableEntity {
       return {
         characterId: passenger,
         identity: {
-          characterName: server._characters[passenger].name
+          characterName: server._characters[passenger]?.name ?? ""
         },
-        unknownString1: server._characters[passenger].name,
+        unknownString1: server._characters[passenger]?.name ?? "",
         unknownByte1: 1
       };
     });
@@ -972,6 +976,7 @@ export class Vehicle2016 extends BaseLootableEntity {
 
   hasVehicleKey(server: ZoneServer2016): boolean {
     return (
+      this.vehicleId == VehicleIds.PARACHUTE ||
       !!this.getItemById(Items.VEHICLE_KEY) ||
       this.doesPassengersHaveKey(server)
     );
@@ -1276,15 +1281,12 @@ export class Vehicle2016 extends BaseLootableEntity {
         effectId: this.currentDamageEffect
       });
     }
-    // has to be sent or vehicle will lose sound after fullVehicle packet
-    if (this.engineOn) {
-      server.sendData(client, "Vehicle.Engine", {
-        vehicleCharacterId: this.characterId,
-        engineOn: true
-      });
-    }
 
-    if (this.onReadyCallback) {
+    if (
+      this.onReadyCallback &&
+      (this.ownerCharacterId == "" ||
+        this.ownerCharacterId == client.character.characterId)
+    ) {
       this.onReadyCallback(client);
       delete this.onReadyCallback;
     }
