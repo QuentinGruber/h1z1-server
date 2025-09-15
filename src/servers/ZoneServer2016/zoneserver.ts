@@ -1388,51 +1388,28 @@ export class ZoneServer2016 extends EventEmitter {
     return proximityItems;
   }
 
-  getCraftingProximityItems(client: Client): ClientUpdateProximateItems {
-    const proximityItems: ClientUpdateProximateItems = { items: [] };
-
-    for (const gridCell of this._grid) {
-      if (
-        !isPosInRadius(
+  getCraftingProximityItems(client: Client) {
+    return Object.values(this._grid)
+      .filter((gridCell) =>
+        isPosInRadius(
           client.chunkRenderDistance,
           gridCell.position,
           client.character.state.position
         )
       )
-        continue;
-
-      for (const object of gridCell.objects) {
-        if (object instanceof ItemObject) {
-          if (
+      .flatMap((gridCell) =>
+        Object.values(gridCell.objects).filter(
+          (obj): obj is ItemObject =>
+            obj instanceof ItemObject &&
             isPosInRadiusWithY(
               this.proximityItemsDistance,
               client.character.state.position,
-              object.state.position,
+              obj.state.position,
               1
-            )
-          ) {
-            const proximityItem = {
-              itemDefinitionId: object.item.itemDefinitionId,
-              associatedCharacterGuid: object.characterId,
-              itemData: {
-                itemDefinitionId: object.item.itemDefinitionId,
-                tintId: 0,
-                guid: object.item.itemGuid,
-                count: object.item.stackCount,
-                itemSubData: {
-                  hasSubData: false
-                },
-                unknownBoolean1: true,
-                ownerCharacterId: object.characterId,
-                unknownDword9: 1
-              }
-            };
-            (proximityItems.items as any[]).push(proximityItem);
-          }
-        }
-      }
-    }
-    return proximityItems;
+            ) &&
+            Number.isFinite(obj.item.stackCount)
+        )
+      );
   }
 
   async fetchCharacterData(client: Client) {
@@ -2394,6 +2371,10 @@ export class ZoneServer2016 extends EventEmitter {
     this.hookManager.checkHook("OnPlayerDisconnected", client);
     if (client.afkTimer) {
       clearInterval(client.afkTimer);
+    }
+
+    if (client.assetIntegrityKickTimer) {
+      clearTimeout(client.assetIntegrityKickTimer);
     }
 
     if (client.character) {
@@ -4515,8 +4496,11 @@ export class ZoneServer2016 extends EventEmitter {
       SOEOutputChannels.Reliable
     );
   }
-  sendAlertToAll(message: string) {
-    this._sendDataToAll("ClientUpdate.TextAlert", {
+  sendAlertToAll(message: string, playerName: string = "") {
+    this._sendDataToAll("Broadcast.Zone", {
+      identity: {
+        characterFirstName: playerName
+      },
       message: message
     });
   }
@@ -4735,9 +4719,6 @@ export class ZoneServer2016 extends EventEmitter {
   }
 
   kickPlayer(client: Client) {
-    if (client.vehicle) {
-      this.dismountVehicle(client);
-    }
     if (!client || client.isAdmin) return;
     this.sendData<CharacterSelectSessionResponse>(
       client,

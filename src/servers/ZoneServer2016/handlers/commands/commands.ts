@@ -2410,7 +2410,7 @@ export const commands: Array<Command> = [
       }
 
       server.sendAlertToAll(
-        `Admin ${client.character.name} has just initiated a crate drop`
+        `${client.character.name} has just initiated a crate drop`
       );
 
       for (const key in server._clients) {
@@ -2730,7 +2730,7 @@ export const commands: Array<Command> = [
     permissionLevel: PermissionLevels.ADMIN,
     keepCase: true,
     execute: (server: ZoneServer2016, client: Client, args: Array<string>) => {
-      server.sendAlertToAll(args.join(" "));
+      server.sendAlertToAll(args.join(" "), client.character.name);
     }
   },
   {
