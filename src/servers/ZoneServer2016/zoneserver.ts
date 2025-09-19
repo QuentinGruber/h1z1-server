@@ -1388,30 +1388,6 @@ export class ZoneServer2016 extends EventEmitter {
     return proximityItems;
   }
 
-  getCraftingProximityItems(client: Client) {
-    return Object.values(this._grid)
-      .filter((gridCell) =>
-        isPosInRadius(
-          client.chunkRenderDistance,
-          gridCell.position,
-          client.character.state.position
-        )
-      )
-      .flatMap((gridCell) =>
-        Object.values(gridCell.objects).filter(
-          (obj): obj is ItemObject =>
-            obj instanceof ItemObject &&
-            isPosInRadiusWithY(
-              this.proximityItemsDistance,
-              client.character.state.position,
-              obj.state.position,
-              1
-            ) &&
-            Number.isFinite(obj.item.stackCount)
-        )
-      );
-  }
-
   async fetchCharacterData(client: Client) {
     if (!this.hookManager.checkHook("OnSendCharacterData", client)) return;
     if (!(await this.hookManager.checkAsyncHook("OnSendCharacterData", client)))
