@@ -64,6 +64,19 @@ function getCraftComponentsDataSource(
       }
     });
   });
+  const proximityItems = server.getCraftingProximityItems(client)?.items;
+  if (proximityItems) {
+    proximityItems.forEach((item: any) => {
+      if (inventory[item.itemDefinitionId]) {
+        inventory[item.itemDefinitionId].stackCount += item.itemData.count;
+      } else {
+        inventory[item.itemDefinitionId] = {
+          ...item,
+          stackCount: item.itemData.count
+        }; // push new itemstack
+      }
+    });
+  }
 
   if (!client.character.mountedContainer) return inventory;
 
@@ -453,6 +466,19 @@ export class CraftManager {
     const r = client.character.recipes[recipeId];
     for (const component of r.components) {
       const inventory = this.getInventoryDataSource(client.character);
+      const proximityItems = server.getProximityItems(client) as {
+        items: any[];
+      };
+      if (proximityItems?.items) {
+        const character = client.character;
+        proximityItems.items.forEach((item) => {
+          if (inventory[item.itemDefinitionId]) {
+            inventory[item.itemDefinitionId].push({ item, character });
+          } else {
+            inventory[item.itemDefinitionId] = [{ item, character }];
+          }
+        });
+      }
       let remainingItems = component.requiredAmount * recipeCount,
         stackCount = 0;
       if (!inventory[component.itemDefinitionId]) {
