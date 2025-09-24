@@ -944,54 +944,6 @@ export class Character2016 extends BaseFullCharacter {
       "Loadout.SetLoadoutSlots",
       this.pGetLoadoutSlots()
     );
-    /*const abilities: any = [];
-    const abilityLineId = 1;
-    for (const a in client.character._loadout) {
-      const slot = client.character._loadout[a];
-      const itemDefinition = server.getItemDefinition(slot.itemDefinitionId);
-      if (!itemDefinition || itemDefinition.CODE_FACTORY_NAME != "Weapon") continue;
-
-      const abilityId = itemDefinition.ACTIVATABLE_ABILITY_ID;
-      if (slot.itemDefinitionId == Items.WEAPON_FISTS) {
-        const object = {
-          loadoutSlotId: slot.slotId,
-          abilityLineId: abilityLineId,
-          unknownArray1: [
-            {
-              unknownDword1: 1111278,
-              unknownDword2: 1111278,
-              unknownDword3: 0
-            },
-            {
-              unknownDword1: abilityId,
-              unknownDword2: abilityId,
-              unknownDword3: 0
-            }
-          ],
-          unknownDword3: 2,
-          itemDefinitionId: slot.itemDefinitionId,
-          unknownByte: 64
-        };
-        abilities.push(object);
-      } else {
-        const object = {
-          loadoutSlotId: slot.slotId,
-          abilityLineId,
-          unknownArray1: [
-            {
-              unknownDword1: abilityId,
-              unknownDword2: abilityId,
-              unknownDword3: 0
-            }
-          ],
-          unknownDword3: 2,
-          itemDefinitionId: slot.itemDefinitionId,
-          unknownByte: 64
-        };
-        abilities.push(object);
-      }
-      //abilityLineId++;
-    }*/
     server.sendData(client, "Abilities.SetActivatableAbilityManager", {
       abilities: this.pGetActivatableAbilities(server)
     });
@@ -1264,7 +1216,23 @@ export class Character2016 extends BaseFullCharacter {
   }
 
   pGetActivatableAbilities(server: ZoneServer2016) {
-    const abilities: any[] = [];
+    const abilities: any[] = [
+      {
+        loadoutSlotId: 1,
+        abilityLineId: 1,
+        unknownArray1: [
+          {
+            unknownDword1: 1111164,
+            unknownDword2: 1111164,
+            unknownDword3: 0
+          }
+        ],
+        unknownDword3: 2,
+        itemDefinitionId: 83,
+        unknownByte: 64
+      }
+      // hardcoded one weapon ability to fix fists after respawning
+    ];
     let abilityLineId = 1;
     Object.values(this._loadout).forEach((slot) => {
       const itemDefinition = server.getItemDefinition(slot.itemDefinitionId);
