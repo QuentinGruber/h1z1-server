@@ -20,6 +20,7 @@ import { Character2016 } from "../entities/character";
 import { BaseItem } from "../classes/baseItem";
 import { BaseLootableEntity } from "../entities/baselootableentity";
 import { ChallengeType } from "./challengemanager";
+import { ItemObject } from "../entities/itemobject";
 const debug = require("debug")("ZoneServer");
 
 interface CraftComponentDSEntry {
@@ -71,7 +72,7 @@ function getCraftComponentsDataSource(
         inventory[item.itemDefinitionId].stackCount += item.itemData.count;
       } else {
         inventory[item.itemDefinitionId] = {
-          ...item,
+          ...item.itemData,
           stackCount: item.itemData.count
         }; // push new itemstack
       }
@@ -162,17 +163,21 @@ export class CraftManager {
     itemDS: ItemDataSource,
     count: number
   ): Promise<boolean> {
-    return (
-      (await server.removeInventoryItem(
-        itemDS.character,
-        itemDS.item,
-        count
-      )) ||
-      server.deleteEntity(
-        (itemDS.item as any).associatedCharacterGuid,
-        server._spawnedItems
-      )
-    );
+    if (await server.removeInventoryItem(itemDS.character, itemDS.item, count))
+      return true;
+
+    const item: any = itemDS.item;
+    if (item?.stackCount - count <= count) {
+      return server.deleteEntity(item.ownerCharacterId, server._spawnedItems);
+    } else if (item?.stackCount) {
+      const e = server.getEntity(item.ownerCharacterId);
+      if (e && e instanceof ItemObject) {
+        e.item.stackCount -= count;
+        return true;
+      }
+    }
+
+    return false;
   }
 
   /**
@@ -466,16 +471,30 @@ export class CraftManager {
     const r = client.character.recipes[recipeId];
     for (const component of r.components) {
       const inventory = this.getInventoryDataSource(client.character);
-      const proximityItems = server.getProximityItems(client) as {
+      const proximityItems = server.getCraftingProximityItems(client) as {
         items: any[];
       };
       if (proximityItems?.items) {
         const character = client.character;
         proximityItems.items.forEach((item) => {
-          if (inventory[item.itemDefinitionId]) {
-            inventory[item.itemDefinitionId].push({ item, character });
-          } else {
-            inventory[item.itemDefinitionId] = [{ item, character }];
+          if (!inventory[item.itemDefinitionId]) {
+            inventory[item.itemDefinitionId] = [
+              {
+                item: {
+                  ...item.itemData,
+                  stackCount: item?.itemData?.count ?? 0
+                },
+                character
+              }
+            ];
+          } else if (inventory[item.itemDefinitionId]) {
+            inventory[item.itemDefinitionId].push({
+              item: {
+                ...item.itemData,
+                stackCount: item?.itemData?.count ?? 0
+              },
+              character
+            });
           }
         });
       }
