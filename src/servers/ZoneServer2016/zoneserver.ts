@@ -2434,6 +2434,7 @@ export class ZoneServer2016 extends EventEmitter {
         }
       }
     }
+    this.worldRoutineTimer.refresh();
   }
 
   setTickRate() {
