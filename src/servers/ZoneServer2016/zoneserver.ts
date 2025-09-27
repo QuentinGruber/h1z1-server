@@ -260,7 +260,7 @@ import { ChallengeManager, ChallengeType } from "./managers/challengemanager";
 import { RandomEventsManager } from "./managers/randomeventsmanager";
 import { AiManager } from "./managers/aimanager";
 import { AirdropManager } from "./managers/airdropmanager";
-import { TaskManager } from "./managers/tasksmanager";
+//import { TaskManager } from "./managers/tasksmanager";
 
 const spawnLocations2 = require("../../../data/2016/zoneData/Z1_gridSpawns.json"),
   deprecatedDoors = require("../../../data/2016/sampleData/deprecatedDoors.json"),
@@ -362,6 +362,7 @@ export class ZoneServer2016 extends EventEmitter {
     address: process.env.LOGINSERVER_IP,
     port: 1110
   };
+  worldRoutineTimer!: NodeJS.Timeout;
   _allowedCommands: string[] = process.env.ALLOWED_COMMANDS
     ? JSON.parse(process.env.ALLOWED_COMMANDS)
     : [];
@@ -449,7 +450,7 @@ export class ZoneServer2016 extends EventEmitter {
   proximityItemsDistance!: number;
   interactionDistance!: number;
   charactersRenderDistance!: number;
-  gameLoopTickRate!: number;
+  tickRate!: number;
   worldRoutineRate!: number;
   welcomeMessage!: string;
   adminMessage!: string;
@@ -474,8 +475,8 @@ export class ZoneServer2016 extends EventEmitter {
   challengePositionCheckInterval?: NodeJS.Timeout;
   randomEventsManager: RandomEventsManager;
   gameMode: GameModes = GameModes.SURVIVAL;
-  tasksManager: TaskManager;
-  clientRoutineRate!: number;
+  //tasksManager: TaskManager;
+  //clientRoutineRate!: number;
 
   constructor(
     serverPort: number,
@@ -514,7 +515,7 @@ export class ZoneServer2016 extends EventEmitter {
     this.navManager = new NavManager();
     this.challengeManager = new ChallengeManager(this);
     this.randomEventsManager = new RandomEventsManager(this);
-    this.tasksManager = new TaskManager();
+    //this.tasksManager = new TaskManager();
     /* CONFIG MANAGER MUST BE INSTANTIATED LAST ! */
     this.configManager = new ConfigManager(this, process.env.CONFIG_PATH);
     this.enableWorldSaves =
@@ -727,9 +728,9 @@ export class ZoneServer2016 extends EventEmitter {
     }
   }
 
-  get gameLoopUpdateRate() {
+  /*get gameLoopUpdateRate() {
     return 1000 / this.gameLoopTickRate;
-  }
+  }*/
 
   async reloadCommandCache() {
     delete require.cache[require.resolve("./handlers/commands/commandhandler")];
@@ -922,6 +923,7 @@ export class ZoneServer2016 extends EventEmitter {
     this.smeltingManager.clearTimers();
     this.decayManager.clearTimers();
     this.randomEventsManager.stop();
+    clearTimeout(this.worldRoutineTimer);
     clearTimeout(this.weatherManager.dynamicWorker);
     clearTimeout(this.routinesLoopTimer);
     clearTimeout(this.rebootTimeTimer);
@@ -996,7 +998,21 @@ export class ZoneServer2016 extends EventEmitter {
   }
 
   async onZoneLoginEvent(client: Client) {
-    this.tasksManager.register(async () => {
+    debug("zone login");
+    try {
+      await this.sendInitData(client);
+    } catch (error) {
+      console.log(error);
+      this.sendData<LoginFailed>(client, "LoginFailed", {});
+      if (!this._soloMode) {
+        await this._db.collection(DB_COLLECTIONS.LOGIN_ERRORS).insertOne({
+          error,
+          guid: client.loginSessionId,
+          characterId: client.character.characterId
+        });
+      }
+    }
+    /*this.tasksManager.register(async () => {
       debug("zone login");
       try {
         await this.sendInitData(client);
@@ -1011,7 +1027,7 @@ export class ZoneServer2016 extends EventEmitter {
           });
         }
       }
-    });
+    });*/
   }
 
   onZoneDataEvent(client: Client, packet: H1z1ProtocolReadingFormat) {
@@ -1029,7 +1045,19 @@ export class ZoneServer2016 extends EventEmitter {
       debug(`Receive Data ${[packet.name]}`);
     }
     if (packet.flag === GatewayChannels.UpdatePosition) {
-      this.tasksManager.register(async () => {
+      if (!packet.data.flags) return;
+      const movingCharacter = this._characters[client.character.characterId];
+      if (movingCharacter) {
+        this.sendRawToAllOthersWithSpawnedCharacter(
+          client,
+          movingCharacter.characterId,
+          this._protocol.createPositionBroadcast2016(
+            packet.data.raw,
+            movingCharacter.transientId
+          )
+        );
+      }
+      /*this.tasksManager.register(async () => {
         if (!packet.data.flags) return;
         const movingCharacter = this._characters[client.character.characterId];
         if (movingCharacter) {
@@ -1042,10 +1070,22 @@ export class ZoneServer2016 extends EventEmitter {
             )
           );
         }
-      }, true);
+      }, true);*/
     }
 
-    this.tasksManager.register(async () => {
+    try {
+      this._packetHandlers.processPacket(
+        this,
+        client,
+        packet as ReceivedPacket<any>
+      );
+    } catch (error) {
+      console.error(error);
+      console.error(`An error occurred while processing a packet : `, packet);
+      logVersion();
+    }
+
+    /*this.tasksManager.register(async () => {
       try {
         this._packetHandlers.processPacket(
           this,
@@ -1057,7 +1097,7 @@ export class ZoneServer2016 extends EventEmitter {
         console.error(`An error occurred while processing a packet : `, packet);
         logVersion();
       }
-    });
+    });*/
   }
 
   async getIsAdmin(loginSessionId: string) {
@@ -1857,7 +1897,7 @@ export class ZoneServer2016 extends EventEmitter {
 
     this.customizeStaticDTOs();
 
-    this.tasksManager.register_schedule(
+    /*this.tasksManager.register_schedule(
       this.worldRoutine.bind(this),
       this.worldRoutineRate
     );
@@ -1865,7 +1905,7 @@ export class ZoneServer2016 extends EventEmitter {
     this.tasksManager.register_schedule(
       this.clientRoutineLoop.bind(this),
       this.clientRoutineRate
-    );
+    );*/
 
     this._ready = true;
     console.log(
@@ -2041,7 +2081,7 @@ export class ZoneServer2016 extends EventEmitter {
     if (this.isSurvival()) {
       this.speedtreeManager.initiateList();
     }
-    this.gameLoop();
+    this.startRoutinesLoop();
     if (this.isSurvival()) {
       this.smeltingManager.checkSmeltables(this);
       this.smeltingManager.checkCollectors(this);
@@ -2062,6 +2102,10 @@ export class ZoneServer2016 extends EventEmitter {
       );
     }
     this._gatewayServer.start();
+    this.worldRoutineTimer = setTimeout(
+      () => this.worldRoutine.bind(this)(),
+      this.worldRoutineRate
+    );
     this.initHudIndicatorDataSource();
     this.initScreenEffectDataSource();
     this.initClientEffectsDataSource();
@@ -2378,6 +2422,8 @@ export class ZoneServer2016 extends EventEmitter {
         await scheduler.yield();
         this.updateSyncTeleport();
         await scheduler.yield();
+        this.setTickRate();
+        await scheduler.yield();
         this.updateSpectatorMap();
         if (
           this.enableWorldSaves &&
@@ -2390,8 +2436,21 @@ export class ZoneServer2016 extends EventEmitter {
     }
   }
 
+  setTickRate() {
+    const size = _.size(this._clients);
+    if (size <= 0) {
+      this.tickRate = 3000;
+      return;
+    }
+    this.tickRate = 3000 / size;
+  }
+
   async deleteClient(client: Client) {
     this.hookManager.checkHook("OnPlayerDisconnected", client);
+    if (!client) {
+      this.setTickRate();
+      return;
+    }
     if (client.afkTimer) {
       clearInterval(client.afkTimer);
     }
@@ -2442,6 +2501,7 @@ export class ZoneServer2016 extends EventEmitter {
     if (!this._soloMode) {
       this.sendZonePopulationUpdate();
     }
+    this.setTickRate();
     this.airdropManager.sendDeliveryStatus();
   }
 
@@ -4335,7 +4395,23 @@ export class ZoneServer2016 extends EventEmitter {
     obj: ZonePacket,
     channel: SOEOutputChannels
   ) {
-    this.tasksManager.register(() => {
+    switch (packetName) {
+      case "H1emu.RequestModules":
+      case "Command.ExecuteCommand":
+      case "KeepAlive":
+      case "PlayerUpdatePosition":
+      case "GameTimeSync":
+      case "Synchronization":
+      case "Vehicle.StateData":
+        break;
+      default:
+        debug("send data", packetName);
+    }
+    const data = this._protocol.pack(packetName, obj);
+    if (data) {
+      this._gatewayServer.sendTunnelData(client.soeClientId, data, channel);
+    }
+    /*this.tasksManager.register(() => {
       switch (packetName) {
         case "H1emu.RequestModules":
         case "Command.ExecuteCommand":
@@ -4352,7 +4428,7 @@ export class ZoneServer2016 extends EventEmitter {
       if (data) {
         this._gatewayServer.sendTunnelData(client.soeClientId, data, channel);
       }
-    });
+    });*/
   }
 
   sendUnbufferedData(
@@ -8596,13 +8672,18 @@ export class ZoneServer2016 extends EventEmitter {
     return generateRandomGuid();
   }
   private _sendRawDataReliable(client: Client, data: Buffer) {
-    this.tasksManager.register(() => {
+    /*this.tasksManager.register(() => {
       this._gatewayServer.sendTunnelData(
         client.soeClientId,
         data,
         SOEOutputChannels.Reliable
       );
-    });
+    });*/
+    this._gatewayServer.sendTunnelData(
+      client.soeClientId,
+      data,
+      SOEOutputChannels.Reliable
+    );
   }
   sendRawDataReliable(client: Client, data: Buffer) {
     this._sendRawDataReliable(client, data);
@@ -8669,45 +8750,54 @@ export class ZoneServer2016 extends EventEmitter {
       }
     }
   }
-  clientRoutineLoop() {
+  async startRoutinesLoop() {
+    if (_.size(this._clients) <= 0) {
+      this.routinesLoopTimer = setTimeout(() => {
+        this.startRoutinesLoop();
+      }, 3000);
+      return;
+    }
     for (const a in this._clients) {
+      while (this.isSaving) {
+        await scheduler.wait(500);
+      }
+      const startTime = Date.now();
       const client = this._clients[a];
       if (!client.isLoading) {
+        client.routineCounter++;
         this.constructionManager.constructionPermissionsManager(this, client);
         if (!this.disableMapBoundsCheck) {
           this.checkInMapBounds(client);
         }
         this.checkZonePing(client);
-        if (client.tickCounter % 2 === 0)
+        if (client.routineCounter >= 3) {
           this.createFairPlayInternalPacket(client);
-        if (client.tickCounter % 2 === 0)
           this.assignChunkRenderDistance(client);
-        if (client.tickCounter % 5 === 0)
           this.removeOutOfDistanceEntities(client);
-        if (client.tickCounter % 2 === 0) this.removeOODInteractionData(client);
-        if (client.tickCounter % 2 === 0 && !this.disablePOIManager)
-          this.POIManager(client);
+          this.removeOODInteractionData(client);
+          if (!this.disablePOIManager) {
+            this.POIManager(client);
+          }
+          client.routineCounter = 0;
+        }
+        //this.constructionManager.spawnConstructionParentsInRange(this, client); // put back into grid for now
         this.vehicleManager(client);
         this.spawnGridObjects(client); // Spawn base parts before the player
         this.spawnCharacters(client);
+        //this.constructionManager.worldConstructionManager(this, client); // put into grid
         client.posAtLastRoutine = client.character.state.position;
-        client.tickCounter++;
       }
+      const endTime = Date.now();
+      const timeTaken = endTime - startTime;
+      if (timeTaken > this.tickRate) {
+        console.log(
+          `Routine took ${timeTaken}ms to execute, which is more than the tickRate ${this.tickRate}`
+        );
+      }
+      await scheduler.wait(this.tickRate, {});
     }
-  }
-  gameLoop() {
-    const startTime = Date.now();
-    this.tasksManager.process(Math.floor(this.gameLoopUpdateRate / 2));
-    const endTime = Date.now();
-    const timeTaken = endTime - startTime;
-    if (timeTaken > this.gameLoopUpdateRate / 2) {
-      console.warn(
-        `Routine took ${timeTaken}ms to execute, which is more than the half tickRate ${this.gameLoopUpdateRate}`
-      );
-    }
-
-    const delay = Math.max(0, this.gameLoopUpdateRate - timeTaken);
-    setTimeout(() => this.gameLoop(), delay);
+    this.updateSpectatorMap();
+    this.startRoutinesLoop();
   }
 
   executeRoutine(client: Client) {

@@ -1211,7 +1211,7 @@ export class Character2016 extends BaseFullCharacter {
           : [abilityEntry],
       unknownDword3: 2,
       itemDefinitionId: itemDefinitionId,
-      unknownByte: itemDefinition.CODE_FACTORY_NAME == "Weapon" ? 64 : 0
+      unknownByte: 64
     };
   }
 
@@ -1236,11 +1236,10 @@ export class Character2016 extends BaseFullCharacter {
     let abilityLineId = 1;
     Object.values(this._loadout).forEach((slot) => {
       const itemDefinition = server.getItemDefinition(slot.itemDefinitionId);
-      if (!itemDefinition || itemDefinition.CODE_FACTORY_NAME != "Weapon")
-        return;
+      if (!itemDefinition) return;
       const { slotId } = slot;
       abilities.push(
-        this.pGetActivatableAbility(slotId, itemDefinition, abilityLineId++)
+        this.pGetActivatableAbility(slotId, itemDefinition, abilityLineId)
       );
     });
     return abilities;

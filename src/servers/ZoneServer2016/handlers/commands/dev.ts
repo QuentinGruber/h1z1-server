@@ -56,17 +56,6 @@ const abilities = require("../../../../../data/2016/dataSources/Abilities.json")
   discovery = require("../../../../../data/2016/dataSources/ClientDiscoveries.json");
 
 const dev: any = {
-  change_tick: function (
-    server: ZoneServer2016,
-    client: Client,
-    args: Array<string>
-  ) {
-    server.gameLoopTickRate = Number(args[1]);
-    server.sendChatText(
-      client,
-      `Changed tickrate to ${server.gameLoopTickRate}`
-    );
-  },
   load_balancing: function (
     server: ZoneServer2016,
     client: Client,
