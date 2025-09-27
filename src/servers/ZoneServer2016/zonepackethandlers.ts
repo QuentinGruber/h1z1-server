@@ -524,6 +524,7 @@ export class ZonePacketHandlers {
       );
     }
     server.spawnContainerAccessNpc(client);
+    server.setTickRate();
   }
   Security(
     server: ZoneServer2016,
