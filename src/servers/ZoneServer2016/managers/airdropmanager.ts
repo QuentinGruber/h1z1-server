@@ -35,7 +35,7 @@ export class AirdropManager {
   > = new Map();
   private maxAirdrops: number = 1;
   public crateDropSpeed: number = 35496.3;
-  public planeMovementSpeed: number = 80000;
+  public planeMovementSpeed: number = 40000;
   public minimumPlayers: number = 0;
 
   constructor(public server: ZoneServer2016) {}
