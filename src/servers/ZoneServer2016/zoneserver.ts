@@ -2830,7 +2830,6 @@ export class ZoneServer2016 extends EventEmitter {
             );
           }
           slot.weapon.ammoCount = 0;
-          this.damageItem(client.character, slot, 350);
         }
       });
       this.worldObjectManager.createLootbag(this, character);

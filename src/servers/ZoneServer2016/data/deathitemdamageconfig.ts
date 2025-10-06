@@ -48,15 +48,14 @@ export class DeathItemDamageConfig {
     }
   };
 
-  static getConfig(
-    server: ZoneServer2016,
-    itemId: Items
-  ): DeathItemDetails | undefined {
+  static getConfig(server: ZoneServer2016, itemId: Items): DeathItemDetails {
     const itemDefinition = server.getItemDefinition(itemId);
     const itemClass = itemDefinition?.ITEM_CLASS as ItemClasses | undefined;
     return (
       this.ITEM_ID_CONFIG[itemId] ??
-      (itemClass ? this.ITEM_CLASS_CONFIG[itemClass] : undefined)
+      (itemClass
+        ? this.ITEM_CLASS_CONFIG[itemClass]
+        : { damage: 350, lootItems: {} })
     );
   }
 }
