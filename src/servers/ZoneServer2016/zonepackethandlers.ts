@@ -2434,6 +2434,9 @@ export class ZonePacketHandlers {
       count,
       newSlotId
     } = packet.data;
+    if (client.hudTimer) {
+      client.clearHudTimer();
+    }
     const sourceCharacterId = characterId;
     if (sourceCharacterId != targetCharacterId) {
       server.startInteractionTimer(client, 0, 0, 9);
