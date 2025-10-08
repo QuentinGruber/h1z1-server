@@ -23,7 +23,7 @@
     "mongodb": "6.17.0",
     "recast-navigation": "0.39.0",
     "threads": "1.7.0",
-    "typescript": "5.8.3",
+    "typescript": "5.9.2",
     "ws": "8.18.3"
   },
   "directories": {
