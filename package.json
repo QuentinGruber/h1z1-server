@@ -21,7 +21,7 @@
     "h1z1-dataschema": "1.9.2",
     "js-yaml": "4.1.0",
     "mongodb": "6.17.0",
-    "recast-navigation": "0.39.0",
+    "recast-navigation": "0.42.0",
     "threads": "1.7.0",
     "typescript": "5.8.3",
     "ws": "8.18.3"
