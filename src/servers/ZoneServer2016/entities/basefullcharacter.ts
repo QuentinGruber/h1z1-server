@@ -755,7 +755,7 @@ export abstract class BaseFullCharacter extends BaseLightweightCharacter {
         server.containerError(client, ContainerErrors.UNKNOWN_CONTAINER);
       return;
     }
-    
+
     // If there are items to move, validate new container capacity
     if (itemsToMoveLater.length > 0) {
       const newItemDef = server.getItemDefinition(item.itemDefinitionId);
@@ -781,8 +781,7 @@ export abstract class BaseFullCharacter extends BaseLightweightCharacter {
           const exceedsBulk = maxBulk > 0 && requiredBulk > maxBulk;
 
           if (exceedsSlots || exceedsBulk) {
-            if (client)
-              server.containerError(client, ContainerErrors.NO_SPACE);
+            if (client) server.containerError(client, ContainerErrors.NO_SPACE);
             return;
           }
         }
@@ -824,7 +823,7 @@ export abstract class BaseFullCharacter extends BaseLightweightCharacter {
       delete item.weapon.reloadTimer;
     }
     this.equipItem(server, item, true, slotId);
-    
+
     // Handle moving items to the new container if it's a container
     if (itemsToMoveLater.length > 0) {
       if (!oldLoadoutItem) return;
@@ -864,8 +863,7 @@ export abstract class BaseFullCharacter extends BaseLightweightCharacter {
               container.items
             )) {
               if (
-                nestedItem.itemDefinitionId ===
-                oldLoadoutItem.itemDefinitionId
+                nestedItem.itemDefinitionId === oldLoadoutItem.itemDefinitionId
               ) {
                 for (const checkContainer of Object.values(this._containers)) {
                   if (checkContainer.itemGuid === itemGuid) {

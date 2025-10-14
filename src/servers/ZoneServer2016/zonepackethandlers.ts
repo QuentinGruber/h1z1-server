@@ -2507,19 +2507,24 @@ export class ZonePacketHandlers {
           } else if (containerGuid == LOADOUT_CONTAINER_GUID) {
             // to loadout - Enhanced drag swapping
             const targetLoadoutItem = sourceCharacter._loadout[newSlotId];
-            
+
             // Check if target slot is occupied (drag swapping scenario)
             if (targetLoadoutItem?.itemDefinitionId) {
               // Validate that the new item can go in this slot
-              if (!server.validateLoadoutSlot(
-                item.itemDefinitionId,
-                newSlotId,
-                sourceCharacter.loadoutId
-              )) {
-                server.containerError(client, ContainerErrors.INVALID_LOADOUT_SLOT);
+              if (
+                !server.validateLoadoutSlot(
+                  item.itemDefinitionId,
+                  newSlotId,
+                  sourceCharacter.loadoutId
+                )
+              ) {
+                server.containerError(
+                  client,
+                  ContainerErrors.INVALID_LOADOUT_SLOT
+                );
                 return;
               }
-              
+
               // Check if we have space in inventory for the swapped item
               const availableContainer = sourceCharacter.getAvailableContainer(
                 server,
@@ -2531,7 +2536,7 @@ export class ZonePacketHandlers {
                 return;
               }
             }
-            
+
             // Equip the new item (equipContainerItem handles the swapping logic)
             sourceCharacter.equipContainerItem(server, item, newSlotId);
           } else {
