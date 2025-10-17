@@ -826,89 +826,22 @@ export abstract class BaseFullCharacter extends BaseLightweightCharacter {
 
     // Handle moving items to the new container if it's a container
     if (itemsToMoveLater.length > 0) {
-      if (!oldLoadoutItem) return;
-
       const newContainer = this._containers[slotId];
       const newItemDef = server.getItemDefinition(item.itemDefinitionId);
       const isNewItemContainer = newItemDef?.ITEM_TYPE === ItemTypes.CONTAINER;
 
-      if (isNewItemContainer && newContainer) {
-        for (const itemToMove of itemsToMoveLater) {
-          try {
-            if (oldContainer) {
-              delete oldContainer.items[itemToMove.itemGuid];
-            }
-            server.addContainerItem(this, itemToMove, newContainer, false);
-          } catch (error) {
-            console.log(error);
+      if (!isNewItemContainer || !newContainer) {
+        return;
+      }
+      
+      for (const itemToMove of itemsToMoveLater) {
+        try {
+          if (oldContainer) {
+            delete oldContainer.items[itemToMove.itemGuid];
           }
-        }
-      } else {
-        // Check where the old container ended up
-        let oldContainerInInventory: LoadoutContainer | undefined;
-        const owningClient = server.getClientByCharId(this.characterId);
-
-        // Search in top-level containers first
-        for (const container of Object.values(this._containers)) {
-          if (container.itemDefinitionId === oldLoadoutItem.itemDefinitionId) {
-            oldContainerInInventory = container;
-            break;
-          }
-        }
-
-        // If not found in top-level containers, search inside all containers
-        if (!oldContainerInInventory) {
-          for (const container of Object.values(this._containers)) {
-            for (const [itemGuid, nestedItem] of Object.entries(
-              container.items
-            )) {
-              if (
-                nestedItem.itemDefinitionId === oldLoadoutItem.itemDefinitionId
-              ) {
-                for (const checkContainer of Object.values(this._containers)) {
-                  if (checkContainer.itemGuid === itemGuid) {
-                    oldContainerInInventory = checkContainer;
-                    break;
-                  }
-                }
-                if (oldContainerInInventory) break;
-              }
-            }
-            if (oldContainerInInventory) break;
-          }
-        }
-
-        // Moves items from the old container to the new container after equipping
-        if (oldContainerInInventory && newContainer) {
-          for (const itemToMove of itemsToMoveLater) {
-            try {
-              oldContainerInInventory.transferItem(
-                server,
-                newContainer,
-                itemToMove,
-                0,
-                itemToMove.stackCount
-              );
-
-              if (owningClient) {
-                server.updateItem(owningClient, itemToMove);
-              }
-            } catch (error) {
-              console.log(error);
-            }
-          }
-        } else if (newContainer) {
-          for (const itemToMove of itemsToMoveLater) {
-            try {
-              server.addContainerItem(this, itemToMove, newContainer, false);
-
-              if (owningClient) {
-                server.updateItem(owningClient, itemToMove);
-              }
-            } catch (error) {
-              console.log(error);
-            }
-          }
+          server.addContainerItem(this, itemToMove, newContainer, false);
+        } catch (error) {
+          console.log(error);
         }
       }
     }
@@ -1198,12 +1131,19 @@ export abstract class BaseFullCharacter extends BaseLightweightCharacter {
   getAvailableContainer(
     server: ZoneServer2016,
     itemDefinitionId: number,
-    count: number
+    count: number,
+    excludeContainerGuid?: string
   ): LoadoutContainer | undefined {
     const itemDef = server.getItemDefinition(itemDefinitionId);
     if (!itemDef) return;
     for (const container of this.getSortedContainers()) {
       if (!container) continue;
+      if (
+        excludeContainerGuid &&
+        container.itemGuid === excludeContainerGuid
+      ) {
+        continue;
+      }
       if (
         container.getMaxBulk(server) == 0 ||
         container.getAvailableBulk(server) >= itemDef.BULK * count

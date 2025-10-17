@@ -2529,7 +2529,8 @@ export class ZonePacketHandlers {
               const availableContainer = sourceCharacter.getAvailableContainer(
                 server,
                 targetLoadoutItem.itemDefinitionId,
-                1
+                1,
+                targetLoadoutItem.itemGuid
               );
               if (!availableContainer) {
                 server.containerError(client, ContainerErrors.NO_SPACE);
