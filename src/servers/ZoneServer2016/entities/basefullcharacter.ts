@@ -833,7 +833,7 @@ export abstract class BaseFullCharacter extends BaseLightweightCharacter {
       if (!isNewItemContainer || !newContainer) {
         return;
       }
-      
+
       for (const itemToMove of itemsToMoveLater) {
         try {
           if (oldContainer) {
@@ -1138,10 +1138,7 @@ export abstract class BaseFullCharacter extends BaseLightweightCharacter {
     if (!itemDef) return;
     for (const container of this.getSortedContainers()) {
       if (!container) continue;
-      if (
-        excludeContainerGuid &&
-        container.itemGuid === excludeContainerGuid
-      ) {
+      if (excludeContainerGuid && container.itemGuid === excludeContainerGuid) {
         continue;
       }
       if (
