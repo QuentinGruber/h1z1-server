@@ -33,6 +33,10 @@ import { Resolver } from "node:dns";
 import { ZoneClient2016 } from "servers/ZoneServer2016/classes/zoneclient";
 import * as crypto from "crypto";
 import { ZoneClient } from "servers/ZoneServer2015/classes/zoneclient";
+import {
+  itemTiers,
+  tierWeights
+} from "../servers/ZoneServer2016/data/lootspawns";
 
 const startTime = Date.now();
 
@@ -1594,26 +1598,23 @@ export function isPosInPoi(position: Float32Array): boolean {
   return isInPoi;
 }
 
-const Z1_nerfedPOIs = require("../../data/2016/zoneData/Z1_nerfedPOIs");
-export function isLootNerfedLoc(position: Float32Array): number {
-  let useRange = true;
-  let nerfedValue = 0;
-  Z1_nerfedPOIs.forEach((point: any) => {
-    if (point.bounds) {
-      useRange = false;
-      point.bounds.forEach((bound: any) => {
-        if (isInsideSquare([position[0], position[2]], bound)) {
-          nerfedValue = point.nerfValue;
-          return;
-        }
-      });
-    }
-    if (useRange && isPosInRadius(point.range, position, point.position)) {
-      nerfedValue = point.nerfValue;
-    }
-  });
+export function getItemTier(itemId: number): number {
+  return itemTiers[itemId] || 1;
+}
 
-  return nerfedValue;
+const normalTierWeights = Object.entries(tierWeights).map(([tier, weight]) => ({
+  tier: Number(tier),
+  weight: weight as number
+}));
+const reversedTierWeights = normalTierWeights.map((_, i, arr) => ({
+  tier: arr[arr.length - 1 - i].tier,
+  weight: arr[i].weight
+}));
+
+export function getTierWeights(
+  isInPOI: boolean
+): { tier: number; weight: number }[] {
+  return isInPOI ? reversedTierWeights : normalTierWeights;
 }
 
 export function chance(chanceNum: number): boolean {

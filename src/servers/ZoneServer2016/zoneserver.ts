@@ -493,7 +493,7 @@ export class ZoneServer2016 extends EventEmitter {
     this._mongoAddress = mongoAddress;
     this._worldId = worldId || 0;
     this._protocol = new H1Z1Protocol(this._clientProtocol);
-    this.worldObjectManager = new WorldObjectManager();
+    this.worldObjectManager = new WorldObjectManager(this);
     this.voiceChatManager = new VoiceChatManager();
     this.smeltingManager = new SmeltingManager();
     this.decayManager = new DecayManager();

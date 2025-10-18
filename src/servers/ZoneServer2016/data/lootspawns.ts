@@ -4267,3 +4267,34 @@ export const containerLootSpawners: {
     ]
   }
 };
+
+export const tierWeights: { [tier: number]: number } = {
+  1: 40,
+  2: 30,
+  3: 20,
+  4: 10
+};
+
+export const itemTiers: { [itemId: number]: number } = {
+  [Items.WEAPON_308]: 4,
+  [Items.AMMO_308]: 4,
+
+  [Items.WEAPON_AK47]: 3,
+  [Items.AMMO_762]: 3,
+
+  [Items.WEAPON_AR15]: 2,
+  [Items.WEAPON_SHOTGUN]: 2,
+  [Items.AMMO_223]: 2,
+  [Items.AMMO_12GA]: 2,
+
+  [Items.WEAPON_BOW_WOOD]: 1,
+  [Items.WEAPON_1911]: 1,
+  [Items.WEAPON_M9]: 1,
+  [Items.WEAPON_MAGNUM]: 1,
+  [Items.WEAPON_R380]: 1,
+  [Items.AMMO_ARROW]: 1,
+  [Items.AMMO_45]: 1,
+  [Items.AMMO_9MM]: 1,
+  [Items.AMMO_44]: 1,
+  [Items.AMMO_380]: 1
+};

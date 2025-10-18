@@ -13,9 +13,12 @@
 import { ZoneServer2016 } from "../zoneserver";
 import { ZoneClient2016 } from "../classes/zoneclient";
 import { DamageInfo } from "../../../types/zoneserver";
-import { randomIntFromInterval, isPosInRadius } from "../../../utils/utils";
+import {
+  randomIntFromInterval,
+  isPosInRadius,
+  isPosInPoi
+} from "../../../utils/utils";
 import { containerLootSpawners } from "../data/lootspawns";
-import { getRandomItem } from "../managers/worldobjectmanager";
 import { BaseSimpleNpc } from "./basesimplenpc";
 import { Effects, Items, ModelIds } from "../models/enums";
 import { CharacterRemovePlayer } from "../../../types/zone2016packets";
@@ -101,7 +104,10 @@ export class Crate extends BaseSimpleNpc {
       : containerLootSpawners["Crate"];
     const chance = Math.floor(Math.random() * 100) + 1; // temporary spawnchance
     if (chance <= lootTable.spawnChance) {
-      const item = getRandomItem(lootTable.items);
+      const item = server.worldObjectManager.getRandomItem(
+        lootTable.items,
+        isPosInPoi(new Float32Array(this.state.position))
+      );
       if (item) {
         const spawnedItem = server.worldObjectManager.createLootEntity(
           server,

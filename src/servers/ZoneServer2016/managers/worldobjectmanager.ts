@@ -30,7 +30,9 @@ import {
   randomIntFromInterval,
   fixEulerOrder,
   getCurrentServerTimeWrapper,
-  isLootNerfedLoc
+  getItemTier,
+  isPosInPoi,
+  getTierWeights
 } from "../../../utils/utils";
 import {
   EquipSlots,
@@ -46,7 +48,7 @@ import {
   VehicleIds
 } from "../models/enums";
 import { Vehicle2016 } from "../entities/vehicle";
-import { LootDefinition } from "types/zoneserver";
+import { ItemDefinition, LootDefinition } from "types/zoneserver";
 import { ItemObject } from "../entities/itemobject";
 import { DoorEntity } from "../entities/doorentity";
 import { BaseFullCharacter } from "../entities/basefullcharacter";
@@ -95,20 +97,6 @@ export function getRandomSkin(itemDefinitionId: number) {
   itemDefId = Number(arr[Math.floor((Math.random() * arr.length) / 2)]);
   return itemDefId;
 }
-
-export function getRandomItem(items: Array<LootDefinition>) {
-  const totalWeight = items.reduce((total, item) => total + item.weight, 0),
-    randomWeight = Math.random() * totalWeight;
-  let currentWeight = 0;
-
-  for (let i = 0; i < items.length; i++) {
-    currentWeight += items[i].weight;
-    if (currentWeight > randomWeight) {
-      return items[i];
-    }
-  }
-}
-
 export class WorldObjectManager {
   /** HashMap of all spawned NPCs in the world - uses spawnerId (number) for indexing */
   spawnedNpcs: { [spawnerId: number]: string } = {};
@@ -149,6 +137,18 @@ export class WorldObjectManager {
     EquipSlots.HAIR
   ];
   static itemSpawnersChances: Record<string, number> = {};
+
+  private itemTierCache: Record<number, number[]> = {};
+
+  constructor(server: ZoneServer2016) {
+    Object.values(server._itemDefinitions).forEach(
+      (itemDef: ItemDefinition) => {
+        const tier = getItemTier(itemDef.ID);
+        this.itemTierCache[tier] = this.itemTierCache[tier] || [];
+        this.itemTierCache[tier].push(itemDef.ID);
+      }
+    );
+  }
 
   private getItemRespawnTimer(server: ZoneServer2016): void {
     if (this.hasCustomLootRespawnTime) return;
@@ -275,6 +275,54 @@ export class WorldObjectManager {
     this.npcDespawner(server);
     this.lootbagDespawner(server);
     this.itemDespawner(server);
+  }
+
+  getRandomItem(items: Array<LootDefinition>, isInPOI: boolean) {
+    const tierWeights = getTierWeights(isInPOI);
+    const totalTierWeight = tierWeights.reduce((sum, tw) => sum + tw.weight, 0);
+    if (totalTierWeight == 0) {
+      return undefined;
+    }
+
+    let tierRoll = Math.random() * totalTierWeight;
+    let selectedTier = tierWeights[0].tier;
+    for (const { tier, weight } of tierWeights) {
+      if (tierRoll < weight) {
+        selectedTier = tier;
+        break;
+      }
+      tierRoll -= weight;
+    }
+
+    // Fallback logic: try selected tier, then lower tiers in order (never higher)
+    const tierOrder = tierWeights.map((tw) => tw.tier).sort((a, b) => a - b); // ascending order (lowest to highest tier)
+    let startIdx = tierOrder.indexOf(selectedTier);
+    if (startIdx === -1) startIdx = 0;
+
+    for (let i = startIdx; i >= 0; i--) {
+      const tier = tierOrder[i];
+      const tierItemIds = this.itemTierCache[tier] || [];
+      if (!tierItemIds.length) continue;
+      const itemPool = items.filter(
+        (item) => tierItemIds.includes(item.item) && item.weight > 0
+      );
+      if (!itemPool.length) continue;
+      const totalWeight = itemPool.reduce(
+        (total, item) => total + item.weight,
+        0
+      );
+      if (totalWeight == 0) continue;
+      let randomWeight = Math.random() * totalWeight;
+      for (const item of itemPool) {
+        if (randomWeight < item.weight) {
+          return item;
+        }
+        randomWeight -= item.weight;
+      }
+      // If for some reason no item is selected, continue to next lower tier
+    }
+
+    return undefined;
   }
 
   createNpc(
@@ -1044,45 +1092,39 @@ export class WorldObjectManager {
     let counter = 0;
     for (const spawnerType of Z1_items) {
       const lootTable = lTables[spawnerType.actorDefinition];
-      if (lootTable) {
-        for (const itemInstance of spawnerType.instances) {
-          if (counter > 9) {
-            counter = 0;
-            await scheduler.wait(60);
+      if (!lootTable) continue;
+
+      for (const itemInstance of spawnerType.instances) {
+        if (counter > 9) {
+          counter = 0;
+          await scheduler.wait(60);
+        }
+        counter++;
+        if (this.spawnedLootObjects[itemInstance.id]) continue;
+        const chance = Math.floor(Math.random() * 100) + 1,
+          isInPOI = isPosInPoi(new Float32Array(itemInstance.position));
+        if (chance <= lootTable.spawnChance) {
+          if (!WorldObjectManager.itemSpawnersChances[itemInstance.id]) {
+            const realSpawnChance =
+              ((lootTable.spawnChance / lootTable.items.length) *
+                spawnerType.instances.length) /
+              100;
+            WorldObjectManager.itemSpawnersChances[
+              spawnerType.actorDefinition
+            ] = realSpawnChance;
           }
-          counter++;
-          if (this.spawnedLootObjects[itemInstance.id]) continue;
-          const chance = Math.floor(Math.random() * 100) + 1;
-          if (
-            chance <=
-            lootTable.spawnChance *
-              (1 - isLootNerfedLoc(itemInstance.position) / 100)
-          ) {
-            if (!WorldObjectManager.itemSpawnersChances[itemInstance.id]) {
-              const realSpawnChance =
-                ((lootTable.spawnChance / lootTable.items.length) *
-                  spawnerType.instances.length) /
-                100;
-              WorldObjectManager.itemSpawnersChances[
-                spawnerType.actorDefinition
-              ] = realSpawnChance;
-            }
-            const item = getRandomItem(lootTable.items);
-            if (item) {
-              this.createLootEntity(
-                server,
-                server.generateItem(
-                  getRandomSkin(item.item),
-                  randomIntFromInterval(
-                    item.spawnCount.min,
-                    item.spawnCount.max
-                  )
-                ),
-                new Float32Array(itemInstance.position),
-                new Float32Array(itemInstance.rotation),
-                itemInstance.id
-              );
-            }
+          const item = this.getRandomItem(lootTable.items, isInPOI);
+          if (item) {
+            this.createLootEntity(
+              server,
+              server.generateItem(
+                getRandomSkin(item.item),
+                randomIntFromInterval(item.spawnCount.min, item.spawnCount.max)
+              ),
+              new Float32Array(itemInstance.position),
+              new Float32Array(itemInstance.rotation),
+              itemInstance.id
+            );
           }
         }
       }
@@ -1314,18 +1356,16 @@ export class WorldObjectManager {
       const lootTable = containerLootSpawners[prop.lootSpawner];
       if (lootTable) {
         for (let x = 0; x < lootTable.maxItems; x++) {
-          const item = getRandomItem(lootTable.items);
+          const chance = Math.floor(Math.random() * 100) + 1,
+            isInPOI = isPosInPoi(new Float32Array(prop.state.position));
+          const item = this.getRandomItem(lootTable.items, isInPOI);
           if (!item) continue;
-          const chance = Math.floor(Math.random() * 100) + 1; // temporary spawnchance
           let allow = true;
           Object.values(container.items).forEach((spawnedItem: BaseItem) => {
             if (item.item == spawnedItem.itemDefinitionId) allow = false; // dont allow the same item to be added twice
           });
           if (allow) {
-            if (
-              chance <=
-              item.weight * (1 - isLootNerfedLoc(prop.state.position) / 100)
-            ) {
+            if (chance <= lootTable.spawnChance) {
               const count = Math.floor(
                 Math.random() *
                   (item.spawnCount.max - item.spawnCount.min + 1) +
