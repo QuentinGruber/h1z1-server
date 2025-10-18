@@ -742,28 +742,59 @@ export abstract class BaseFullCharacter extends BaseLightweightCharacter {
       loadout = externalContainer ? this._loadout : sourceCharacter._loadout,
       oldLoadoutItem = loadout[slotId],
       container = sourceCharacter.getItemContainer(item.itemGuid);
+    const oldContainer = this._containers[slotId];
+    const itemsToMoveLater =
+      oldLoadoutItem?.itemDefinitionId &&
+      oldContainer &&
+      _.size(oldContainer.items) > 0
+        ? Object.values(oldContainer.items)
+        : [];
+
     if (!oldLoadoutItem?.itemDefinitionId && !container) {
       if (client)
         server.containerError(client, ContainerErrors.UNKNOWN_CONTAINER);
       return;
     }
+
+    // If there are items to move, validate new container capacity
+    if (itemsToMoveLater.length > 0) {
+      const newItemDef = server.getItemDefinition(item.itemDefinitionId);
+      if (newItemDef?.ITEM_TYPE === ItemTypes.CONTAINER) {
+        const newContainerDefinitionId = newItemDef.PARAM1;
+        if (newContainerDefinitionId) {
+          const newContainerDef = server.getContainerDefinition(
+            newContainerDefinitionId
+          );
+          const maxSlots = newContainerDef?.MAXIMUM_SLOTS ?? 0;
+          const maxBulk = newContainerDef?.MAX_BULK ?? 0;
+          const requiredSlots = itemsToMoveLater.length;
+
+          let requiredBulk = 0;
+          for (const itemToMove of itemsToMoveLater) {
+            const itemDef = server.getItemDefinition(
+              itemToMove.itemDefinitionId
+            );
+            requiredBulk += (itemDef?.BULK ?? 0) * itemToMove.stackCount;
+          }
+
+          const exceedsSlots = maxSlots > 0 && requiredSlots > maxSlots;
+          const exceedsBulk = maxBulk > 0 && requiredBulk > maxBulk;
+
+          if (exceedsSlots || exceedsBulk) {
+            if (client) server.containerError(client, ContainerErrors.NO_SPACE);
+            return;
+          }
+        }
+      }
+    }
+
+    // Attempt to remove the item from its current container
     if (!server.removeContainerItem(sourceCharacter, item, container, 1)) {
       if (client)
         server.containerError(client, ContainerErrors.NO_ITEM_IN_SLOT);
       return;
     }
     if (oldLoadoutItem?.itemDefinitionId) {
-      //TODO: Probably have to rework this? This makes backpack swapping possible.
-      const def = server.getItemDefinition(oldLoadoutItem.itemDefinitionId);
-      if (def?.ITEM_TYPE == ItemTypes.CONTAINER) {
-        if (this.getAvailableLoadoutSlot(server, item.itemDefinitionId)) {
-          this.equipItem(server, item, true, slotId);
-        } else {
-          sourceCharacter.lootItem(server, item, 1, false);
-        }
-        return;
-      }
-
       // if target loadoutSlot is occupied
       if (oldLoadoutItem.itemGuid == item.itemGuid) {
         if (client)
@@ -792,6 +823,28 @@ export abstract class BaseFullCharacter extends BaseLightweightCharacter {
       delete item.weapon.reloadTimer;
     }
     this.equipItem(server, item, true, slotId);
+
+    // Handle moving items to the new container if it's a container
+    if (itemsToMoveLater.length > 0) {
+      const newContainer = this._containers[slotId];
+      const newItemDef = server.getItemDefinition(item.itemDefinitionId);
+      const isNewItemContainer = newItemDef?.ITEM_TYPE === ItemTypes.CONTAINER;
+
+      if (!isNewItemContainer || !newContainer) {
+        return;
+      }
+
+      for (const itemToMove of itemsToMoveLater) {
+        try {
+          if (oldContainer) {
+            delete oldContainer.items[itemToMove.itemGuid];
+          }
+          server.addContainerItem(this, itemToMove, newContainer, false);
+        } catch (error) {
+          console.log(error);
+        }
+      }
+    }
   }
 
   getDeathItems(server: ZoneServer2016): { [itemGuid: string]: BaseItem } {
@@ -1078,12 +1131,16 @@ export abstract class BaseFullCharacter extends BaseLightweightCharacter {
   getAvailableContainer(
     server: ZoneServer2016,
     itemDefinitionId: number,
-    count: number
+    count: number,
+    excludeContainerGuid?: string
   ): LoadoutContainer | undefined {
     const itemDef = server.getItemDefinition(itemDefinitionId);
     if (!itemDef) return;
     for (const container of this.getSortedContainers()) {
       if (!container) continue;
+      if (excludeContainerGuid && container.itemGuid === excludeContainerGuid) {
+        continue;
+      }
       if (
         container.getMaxBulk(server) == 0 ||
         container.getAvailableBulk(server) >= itemDef.BULK * count
