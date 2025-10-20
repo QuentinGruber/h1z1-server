@@ -1184,7 +1184,9 @@ const dev: any = {
     for (const v in server._vehicles) {
       console.log(server._vehicles[v]);
       if (server._vehicles[v].actorModelId === parseInt(args[1])) {
-        location.position = server._vehicles[v].state.position;
+        location.position = new Float32Array(
+          server._vehicles[v].state.position
+        );
         server.sendData(client, "ClientUpdate.UpdateLocation", location);
         found = true;
         break;
@@ -1215,7 +1217,7 @@ const dev: any = {
     for (const n in server._npcs) {
       if (server._npcs[n].actorModelId === parseInt(args[1])) {
         console.log(server._npcs[n]);
-        location.position = server._npcs[n].state.position;
+        location.position = new Float32Array(server._npcs[n].state.position);
         server.sendData(client, "ClientUpdate.UpdateLocation", location);
         found = true;
         break;
