@@ -2582,8 +2582,9 @@ export class ZoneServer2016 extends EventEmitter {
       {
         recipesDiscovered: client.character.metrics.recipesDiscovered,
         zombiesKilled: client.character.metrics.zombiesKilled,
-        minutesSurvived:
-          (Date.now() - client.character.metrics.startedSurvivingTP) / 60000,
+        minutesSurvived: Math.ceil(
+          (Date.now() - client.character.metrics.startedSurvivingTP) / 60000
+        ),
         wildlifeKilled: client.character.metrics.wildlifeKilled,
         vehiclesDestroyed: client.character.metrics.vehiclesDestroyed,
         playersKilled: client.character.metrics.playersKilled,
