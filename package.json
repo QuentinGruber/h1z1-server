@@ -66,6 +66,7 @@
     "publish_release-next": "npm run create-release-next && npm publish --tag next && git push origin dev",
     "create-release-next": "npm version --no-git-tag-version prerelease && git add . && git commit -m 'publish-a-next-version' ",
     "check_prettier": "prettier --check ./src && prettier --check ./tests && prettier --check ./benchmarks",
+    "format": "npm run prettier_sources",
     "prettier_sources": "prettier --write ./src && prettier --write ./tests && prettier --write ./benchmarks",
     "tests": "npm run gen-packets-types && npm run gen-packets-interfaces && npm run prettier_sources"
   },
