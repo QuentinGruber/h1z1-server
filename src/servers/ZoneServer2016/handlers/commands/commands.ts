@@ -3401,6 +3401,7 @@ export const commands: Array<Command> = [
         return;
       }
 
+      server.shutdownStartedTime = 0;
       server.abortShutdown = true;
       server.sendChatText(client, "Aborted server shutdown.");
     }
