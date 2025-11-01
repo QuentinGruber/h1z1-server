@@ -60,6 +60,7 @@ import {
   CharacterWeaponStance,
   ClientUpdateDamageInfo,
   ClientUpdateModifyMovementSpeed,
+  ClientUpdateProximateItems,
   CommandPlayDialogEffect,
   EquipmentSetCharacterEquipmentSlot,
   LoadoutSetLoadoutSlots,
@@ -77,6 +78,7 @@ import { ExplosiveEntity } from "./explosiveentity";
 import { BaseEntity } from "./baseentity";
 import { ProjectileEntity } from "./projectileentity";
 import { ChallengeType } from "../managers/challengemanager";
+import { LootableConstructionEntity } from "./lootableconstructionentity";
 const stats = require("../../../../data/2016/sampleData/stats.json");
 
 interface CharacterStates {
@@ -1568,6 +1570,15 @@ export class Character2016 extends BaseFullCharacter {
       },
       currentSlotId: lootableEntity.currentLoadoutSlot
     });
+
+    // Just to update available crafting items.
+    if (lootableEntity instanceof LootableConstructionEntity) {
+      server.sendData<ClientUpdateProximateItems>(
+          client,
+          "ClientUpdate.ProximateItems",
+          server.getProximityItems(client)
+        );
+    }
   }
 
   dismountContainer(server: ZoneServer2016) {
