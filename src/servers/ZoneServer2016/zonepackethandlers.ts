@@ -1988,20 +1988,17 @@ export class ZonePacketHandlers {
     };
     server.killCharacter(client, damageInfo);
   }
-  FirstTimeEventInventoryAccess(
+  CommandTogglePlayerInterfaces(
     server: ZoneServer2016,
     client: Client,
     packet: ReceivedPacket<object>
   ) {
-    client.character.isInInventory = !client.character.isInInventory;
-    if (client.character.isInInventory) {
-      const proximityItems = server.getProximityItems(client);
-      server.sendData<ClientUpdateProximateItems>(
-        client,
-        "ClientUpdate.ProximateItems",
-        proximityItems
-      );
-    }
+    const proximityItems = server.getProximityItems(client);
+    server.sendData<ClientUpdateProximateItems>(
+      client,
+      "ClientUpdate.ProximateItems",
+      proximityItems
+    ); 
   }
   CommandSuicide(
     server: ZoneServer2016,
@@ -4019,8 +4016,8 @@ export class ZonePacketHandlers {
       case "Command.Redeploy":
         this.CommandRedeploy(server, client, packet);
         break;
-      case "FirstTimeEvent.Unknown1":
-        this.FirstTimeEventInventoryAccess(server, client, packet);
+      case "Command.TogglePlayerInterfaces":
+        this.CommandTogglePlayerInterfaces(server, client, packet);
         break;
       case "Items.RequestUseItem":
         this.RequestUseItem(server, client, packet);

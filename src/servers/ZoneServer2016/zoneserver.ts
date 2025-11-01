@@ -1292,7 +1292,7 @@ export class ZoneServer2016 extends EventEmitter {
 
   getProximityItems(client: Client): ClientUpdateProximateItems {
     const proximityItems: ClientUpdateProximateItems = { items: [] };
-
+  
     for (const object of client.spawnedEntities) {
       if (object instanceof ItemObject) {
         if (
@@ -1340,6 +1340,7 @@ export class ZoneServer2016 extends EventEmitter {
             object.state.position,
             yDistance // only Y-difference changes
           )
+          || object.mountedCharacter == client.character.characterId
         ) {
           if (object.parentObjectCharacterId) {
             const parent = object.getParent(this);
@@ -5595,8 +5596,8 @@ export class ZoneServer2016 extends EventEmitter {
             : EXTERNAL_CONTAINER_GUID,
         data: character.pGetItemData(this, item, containerDefinitionId)
       });
-    });
-  }
+  });
+}
 
   /**
    * Generates random equipment for the specified entity and slots (Zombies only).
@@ -6577,9 +6578,10 @@ export class ZoneServer2016 extends EventEmitter {
 
   /**
    * Removes a single item type from the inventory and spawns it on the ground
-   * @param client The client to have its item dropped.
+   * @param character The character that should drop the item
    * @param item The item object.
    * @param count Optional: The number of items to drop on the ground, default 1.
+   * @param animationId The animation to play
    */
   dropItem(
     character: BaseFullCharacter,
