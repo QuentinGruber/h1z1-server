@@ -243,6 +243,10 @@ export class Character2016 extends BaseFullCharacter {
   /** Current stance of the player: jumping, running etc. (See getStanceFlags for all possible stances) */
   stance?: StanceFlags;
 
+  /** Tracks if the player is currently playing an emote */
+  currentEmote: number = 0; // effectId of the current emote, 0 = no emote
+  lastEmoteTime: number = 0; // timestamp of when the emote was started
+
   /** Metrics of miscellaneous attributes */
   metrics: CharacterMetrics = {
     recipesDiscovered: 0,

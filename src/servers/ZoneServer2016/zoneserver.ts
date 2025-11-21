@@ -5073,6 +5073,27 @@ export class ZoneServer2016 extends EventEmitter {
     );
   }
 
+  /**
+   * Cancels the currently playing emote for a character
+   * @param client - The client whose emote should be cancelled
+   */
+  cancelEmote(client: Client) {
+    if (client.character.currentEmote === 0) return; // no emote playing
+    
+    // Send effect ID 0 to cancel the emote
+    this.sendDataToAllWithSpawnedEntity<CommandPlayDialogEffect>(
+      this._characters,
+      client.character.characterId,
+      "Command.PlayDialogEffect",
+      {
+        characterId: client.character.characterId,
+        effectId: 0
+      }
+    );
+    
+    client.character.currentEmote = 0;
+  }
+
   /*sendEffectToAllWithSpawnedEntity( idk whats wrong with it, sometimes works and sometimes doesnt
     characterId: string,
     effectId: number,
