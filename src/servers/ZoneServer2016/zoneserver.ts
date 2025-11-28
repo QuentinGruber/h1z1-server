@@ -1292,7 +1292,7 @@ export class ZoneServer2016 extends EventEmitter {
 
   getProximityItems(client: Client): ClientUpdateProximateItems {
     const proximityItems: ClientUpdateProximateItems = { items: [] };
-  
+
     for (const object of client.spawnedEntities) {
       if (object instanceof ItemObject) {
         if (
@@ -1339,8 +1339,8 @@ export class ZoneServer2016 extends EventEmitter {
             client.character.state.position,
             object.state.position,
             yDistance // only Y-difference changes
-          )
-          || object.mountedCharacter == client.character.characterId
+          ) ||
+          object.mountedCharacter == client.character.characterId
         ) {
           if (object.parentObjectCharacterId) {
             const parent = object.getParent(this);
@@ -5596,8 +5596,8 @@ export class ZoneServer2016 extends EventEmitter {
             : EXTERNAL_CONTAINER_GUID,
         data: character.pGetItemData(this, item, containerDefinitionId)
       });
-  });
-}
+    });
+  }
 
   /**
    * Generates random equipment for the specified entity and slots (Zombies only).
@@ -7925,7 +7925,7 @@ export class ZoneServer2016 extends EventEmitter {
       itemDefinition.ID,
       overrideProjectileId
         ? packet.packet.sessionProjectileCount +
-          parseInt(client.character.characterId.slice(-5), 16)
+            parseInt(client.character.characterId.slice(-5), 16)
         : packet.packet.projectileUniqueId,
       client.character.characterId
     );

@@ -1574,10 +1574,10 @@ export class Character2016 extends BaseFullCharacter {
     // Just to update available crafting items.
     if (lootableEntity instanceof LootableConstructionEntity) {
       server.sendData<ClientUpdateProximateItems>(
-          client,
-          "ClientUpdate.ProximateItems",
-          server.getProximityItems(client)
-        );
+        client,
+        "ClientUpdate.ProximateItems",
+        server.getProximityItems(client)
+      );
     }
   }
 

@@ -1998,7 +1998,7 @@ export class ZonePacketHandlers {
       client,
       "ClientUpdate.ProximateItems",
       proximityItems
-    ); 
+    );
   }
   CommandSuicide(
     server: ZoneServer2016,
