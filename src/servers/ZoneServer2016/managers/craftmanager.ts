@@ -170,8 +170,8 @@ export class CraftManager {
     if (await server.removeInventoryItem(itemDS.character, itemDS.item, count))
       return true;
 
-    const item: any = itemDS.item;
-    if (item?.stackCount - count <= count) {
+  const item: any = itemDS.item;
+    if (item?.stackCount - count <= 0) {
       return server.deleteEntity(item.ownerCharacterId, server._spawnedItems);
     } else if (item?.stackCount) {
       const e = server.getEntity(item.ownerCharacterId);
