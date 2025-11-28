@@ -20,9 +20,9 @@ export const voicePackets: PacketStructures = [
     {
       fields: [
         { name: "clientName", type: "string", defaultValue: "" },
-        { name: "sessionId", type: "string", defaultValue: "" },
+        { name: "characterName", type: "string", defaultValue: "" },
         { name: "url", type: "string", defaultValue: "" },
-        { name: "characterName", type: "string", defaultValue: "" }
+        { name: "sessionId", type: "nullstring", defaultValue: "" }
       ]
     }
   ],

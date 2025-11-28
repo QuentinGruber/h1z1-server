@@ -524,6 +524,7 @@ export class ZonePacketHandlers {
       );
     }
     server.spawnContainerAccessNpc(client);
+    server.setTickRate();
   }
   Security(
     server: ZoneServer2016,
@@ -1987,20 +1988,17 @@ export class ZonePacketHandlers {
     };
     server.killCharacter(client, damageInfo);
   }
-  FirstTimeEventInventoryAccess(
+  CommandTogglePlayerInterfaces(
     server: ZoneServer2016,
     client: Client,
     packet: ReceivedPacket<object>
   ) {
-    client.character.isInInventory = !client.character.isInInventory;
-    if (client.character.isInInventory) {
-      const proximityItems = server.getProximityItems(client);
-      server.sendData<ClientUpdateProximateItems>(
-        client,
-        "ClientUpdate.ProximateItems",
-        proximityItems
-      );
-    }
+    const proximityItems = server.getProximityItems(client);
+    server.sendData<ClientUpdateProximateItems>(
+      client,
+      "ClientUpdate.ProximateItems",
+      proximityItems
+    );
   }
   CommandSuicide(
     server: ZoneServer2016,
@@ -2433,6 +2431,9 @@ export class ZonePacketHandlers {
       count,
       newSlotId
     } = packet.data;
+    if (client.hudTimer) {
+      client.clearHudTimer();
+    }
     const sourceCharacterId = characterId;
     if (sourceCharacterId != targetCharacterId) {
       server.startInteractionTimer(client, 0, 0, 9);
@@ -2501,16 +2502,41 @@ export class ZonePacketHandlers {
               count
             );
           } else if (containerGuid == LOADOUT_CONTAINER_GUID) {
-            // to loadout
-            /*if (
-              server.validateLoadoutSlot(
-                item.itemDefinitionId,
-                newSlotId,
-                client.character.loadoutId
-              )
-            ) {*/
+            // to loadout - Enhanced drag swapping
+            const targetLoadoutItem = sourceCharacter._loadout[newSlotId];
+
+            // Check if target slot is occupied (drag swapping scenario)
+            if (targetLoadoutItem?.itemDefinitionId) {
+              // Validate that the new item can go in this slot
+              if (
+                !server.validateLoadoutSlot(
+                  item.itemDefinitionId,
+                  newSlotId,
+                  sourceCharacter.loadoutId
+                )
+              ) {
+                server.containerError(
+                  client,
+                  ContainerErrors.INVALID_LOADOUT_SLOT
+                );
+                return;
+              }
+
+              // Check if we have space in inventory for the swapped item
+              const availableContainer = sourceCharacter.getAvailableContainer(
+                server,
+                targetLoadoutItem.itemDefinitionId,
+                1,
+                targetLoadoutItem.itemGuid
+              );
+              if (!availableContainer) {
+                server.containerError(client, ContainerErrors.NO_SPACE);
+                return;
+              }
+            }
+
+            // Equip the new item (equipContainerItem handles the swapping logic)
             sourceCharacter.equipContainerItem(server, item, newSlotId);
-            //}
           } else {
             // invalid
             server.containerError(client, ContainerErrors.UNKNOWN_CONTAINER);
@@ -3990,8 +4016,8 @@ export class ZonePacketHandlers {
       case "Command.Redeploy":
         this.CommandRedeploy(server, client, packet);
         break;
-      case "FirstTimeEvent.Unknown1":
-        this.FirstTimeEventInventoryAccess(server, client, packet);
+      case "Command.TogglePlayerInterfaces":
+        this.CommandTogglePlayerInterfaces(server, client, packet);
         break;
       case "Items.RequestUseItem":
         this.RequestUseItem(server, client, packet);

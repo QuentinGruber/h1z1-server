@@ -20,11 +20,16 @@ import { Character2016 } from "../entities/character";
 import { BaseItem } from "../classes/baseItem";
 import { BaseLootableEntity } from "../entities/baselootableentity";
 import { ChallengeType } from "./challengemanager";
+import { ItemObject } from "../entities/itemobject";
 const debug = require("debug")("ZoneServer");
 
 interface CraftComponentDSEntry {
   itemDefinitionId: number;
   stackCount: number;
+}
+interface RemovedItem {
+  itemDS: ItemDataSource;
+  count: number;
 }
 
 type ItemDataSource = {
@@ -71,7 +76,7 @@ function getCraftComponentsDataSource(
         inventory[item.itemDefinitionId].stackCount += item.itemData.count;
       } else {
         inventory[item.itemDefinitionId] = {
-          ...item,
+          ...item.itemData,
           stackCount: item.itemData.count
         }; // push new itemstack
       }
@@ -162,17 +167,40 @@ export class CraftManager {
     itemDS: ItemDataSource,
     count: number
   ): Promise<boolean> {
-    return (
-      (await server.removeInventoryItem(
-        itemDS.character,
-        itemDS.item,
-        count
-      )) ||
-      server.deleteEntity(
-        (itemDS.item as any).associatedCharacterGuid,
-        server._spawnedItems
-      )
-    );
+    if (await server.removeInventoryItem(itemDS.character, itemDS.item, count))
+      return true;
+
+    const item: any = itemDS.item;
+    if (item?.stackCount - count <= 0) {
+      return server.deleteEntity(item.ownerCharacterId, server._spawnedItems);
+    } else if (item?.stackCount) {
+      const e = server.getEntity(item.ownerCharacterId);
+      if (e && e instanceof ItemObject) {
+        e.item.stackCount -= count;
+        return true;
+      }
+    }
+
+    return false;
+  }
+
+  /**
+   * Restores removed items to the character's inventory.
+   * @param server The ZoneServer2016 instance.
+   * @param client The client whose inventory needs restoration.
+   * @param removedItems Array of removed items to restore.
+   */
+  async restoreRemovedItems(
+    server: ZoneServer2016,
+    client: Client,
+    removedItems: RemovedItem[]
+  ): Promise<void> {
+    for (const removed of removedItems) {
+      await client.character.lootItem(
+        server,
+        server.generateItem(removed.itemDS.item.itemDefinitionId, removed.count)
+      );
+    }
   }
 
   /**
@@ -464,18 +492,34 @@ export class CraftManager {
       0
     );
     const r = client.character.recipes[recipeId];
+    const removedItems: RemovedItem[] = [];
+    let craftSuccess = true;
     for (const component of r.components) {
       const inventory = this.getInventoryDataSource(client.character);
-      const proximityItems = server.getProximityItems(client) as {
+      const proximityItems = server.getCraftingProximityItems(client) as {
         items: any[];
       };
       if (proximityItems?.items) {
         const character = client.character;
         proximityItems.items.forEach((item) => {
-          if (inventory[item.itemDefinitionId]) {
-            inventory[item.itemDefinitionId].push({ item, character });
-          } else {
-            inventory[item.itemDefinitionId] = [{ item, character }];
+          if (!inventory[item.itemDefinitionId]) {
+            inventory[item.itemDefinitionId] = [
+              {
+                item: {
+                  ...item.itemData,
+                  stackCount: item?.itemData?.count ?? 0
+                },
+                character
+              }
+            ];
+          } else if (inventory[item.itemDefinitionId]) {
+            inventory[item.itemDefinitionId].push({
+              item: {
+                ...item.itemData,
+                stackCount: item?.itemData?.count ?? 0
+              },
+              character
+            });
           }
         });
       }
@@ -483,14 +527,16 @@ export class CraftManager {
         stackCount = 0;
       if (!inventory[component.itemDefinitionId]) {
         server.containerError(client, ContainerErrors.NO_ITEM_IN_SLOT);
-        return false;
+        craftSuccess = false;
+        break;
       }
       for (const itemDS of inventory[component.itemDefinitionId]) {
         stackCount += itemDS.item.stackCount;
       }
       if (remainingItems > stackCount) {
         server.containerError(client, ContainerErrors.NO_ITEM_IN_SLOT);
-        return false;
+        craftSuccess = false;
+        break;
       }
       for (const itemDS of inventory[component.itemDefinitionId]) {
         if (itemDS.item.stackCount >= remainingItems) {
@@ -498,8 +544,13 @@ export class CraftManager {
             !(await this.removeCraftComponent(server, itemDS, remainingItems))
           ) {
             server.containerError(client, ContainerErrors.NO_ITEM_IN_SLOT);
-            return false; // return if not enough items
+            craftSuccess = false; // return if not enough items
+            break;
           }
+          removedItems.push({
+            itemDS,
+            count: Math.min(itemDS.item.stackCount, remainingItems)
+          });
           remainingItems = 0;
         } else {
           if (
@@ -509,15 +560,26 @@ export class CraftManager {
               itemDS.item.stackCount
             )
           ) {
+            removedItems.push({
+              itemDS,
+              count: Math.min(itemDS.item.stackCount, remainingItems)
+            });
             remainingItems -= itemDS.item.stackCount;
           } else {
             server.containerError(client, ContainerErrors.NO_ITEM_IN_SLOT);
-            return false; // return if not enough items
+            craftSuccess = false; // return if not enough items
+            break;
           }
         }
         if (!remainingItems) break;
       }
     }
+
+    if (!craftSuccess) {
+      await this.restoreRemovedItems(server, client, removedItems);
+      return false;
+    }
+
     client.character.lootItem(
       server,
       server.generateItem(recipeId, craftCount, true)

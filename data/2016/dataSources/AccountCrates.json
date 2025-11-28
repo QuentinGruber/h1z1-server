@@ -1849,7 +1849,7 @@
       },
       {
         "name": "Brown Digital Camo Shemagh",
-        "itemDefinitionId": 2682,
+        "itemDefinitionId": 2691,
         "rewardChance": 5
       },
       {
@@ -3570,6 +3570,97 @@
         "name": "Orange Survivor Backpack",
         "itemDefinitionId": 3050,
         "rewardChance": 5
+      }
+    ]
+  },
+  {
+    "name": "2025 Hallowen crate",
+    "itemDefinitionId": 5333,
+    "rewards": [
+      {
+        "name": "Skull Hoodie",
+        "itemDefinitionId": 5319,
+        "rewardChance": 0.5
+      },
+      {
+        "name": "Creepy Santa Ghillie Suit",
+        "itemDefinitionId": 5317,
+        "rewardChance": 0.5
+      },
+      {
+        "name": "Bliss 12GA Pump Shotgun",
+        "itemDefinitionId": 5324,
+        "rewardChance": 0.5
+      },
+      {
+        "name": "Moonlight Sniper Rifle",
+        "itemDefinitionId": 5326,
+        "rewardChance": 0.5
+      },
+      {
+        "name": "Pumpkin Face Helmet",
+        "itemDefinitionId": 5316,
+        "rewardChance": 1
+      },
+      {
+        "name": "Hallow Pants",
+        "itemDefinitionId": 5323,
+        "rewardChance": 1
+      },
+      {
+        "name": "Hallow Hoodie",
+        "itemDefinitionId": 5318,
+        "rewardChance": 1
+      },
+      {
+        "name": "Moonlight Backpack",
+        "itemDefinitionId": 5327,
+        "rewardChance": 1
+      },
+      {
+        "name": "Skull Leggings",
+        "itemDefinitionId": 5325,
+        "rewardChance": 5
+      },
+      {
+        "name": "Moonlight Pants",
+        "itemDefinitionId": 5328,
+        "rewardChance": 5
+      },
+      {
+        "name": "Moonlight Shirt",
+        "itemDefinitionId": 5329,
+        "rewardChance": 5
+      },
+      {
+        "name": "Spiderweb Backpack",
+        "itemDefinitionId": 5330,
+        "rewardChance": 5
+      },
+      {
+        "name": "Heart Scrub Cap",
+        "itemDefinitionId": 5320,
+        "rewardChance": 20
+      },
+      {
+        "name": "Heart Scrub Shirt",
+        "itemDefinitionId": 5322,
+        "rewardChance": 20
+      },
+      {
+        "name": "Heart Scrub Pants",
+        "itemDefinitionId": 5321,
+        "rewardChance": 20
+      },
+      {
+        "name": "Orange Conveys",
+        "itemDefinitionId": 5332,
+        "rewardChance": 20
+      },
+      {
+        "name": "Spooky Zeds",
+        "itemDefinitionId": 5331,
+        "rewardChance": 20
       }
     ]
   }

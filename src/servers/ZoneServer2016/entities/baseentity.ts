@@ -71,7 +71,7 @@ export abstract class BaseEntity {
   };
 
   /** Physical size of the entity based on the entity model */
-  scale = new Float32Array([1, 1, 1, 1]);
+  scale: Float32Array = new Float32Array([1, 1, 1, 1]);
 
   /** Distance (H1Z1 meters) where the entity will render,
    * when undefined, uses the zoneserver._charactersRenderDistance value instead

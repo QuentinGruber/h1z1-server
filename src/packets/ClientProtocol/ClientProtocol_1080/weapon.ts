@@ -76,7 +76,7 @@ const weaponPackets: PacketStructures = [
         { name: "weaponGuid", type: "uint64string", defaultValue: "0" },
         { name: "weaponProjectileCount", type: "uint32", defaultValue: 0 },
         { name: "ammoCount", type: "uint32", defaultValue: 0 },
-        { name: "unknownDword3", type: "uint32", defaultValue: 0 },
+        { name: "inventoryAmmoCount", type: "uint32", defaultValue: 0 },
         { name: "currentReloadCount", type: "uint64string", defaultValue: "0" }
       ]
     }
@@ -530,7 +530,13 @@ const remoteWeaponUpdatePackets: any = [
     }
   ],
   ["Update.RemoveFireGroup", 0x09, {}],
-  ["Update.ReplaceFireGroup", 0x0a, {}],
+  [
+    "Update.ReplaceFireGroup",
+    0x0a,
+    {
+      fields: [{ name: "unknownDword1", type: "uint32", defaultValue: 0 }]
+    }
+  ],
   [
     "Update.ProjectileLaunch",
     0x0b,

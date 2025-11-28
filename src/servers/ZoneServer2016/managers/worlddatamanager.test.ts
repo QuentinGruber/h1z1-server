@@ -152,7 +152,7 @@ async function worldSaveUnitTests(t: any, mongoAddress: string) {
       world.lastGuidItem
     );
   });
-  await t.test("load vehicles", { skip: true }, async () => {
+  await t.test("load vehicles", async () => {
     const loadedVehicles = await wdmanager.loadVehiclesData();
     removeMongoDbId(loadedVehicles);
     assert.deepStrictEqual(loadedVehicles, world.vehicles);

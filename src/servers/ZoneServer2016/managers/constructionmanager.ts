@@ -884,7 +884,8 @@ export class ConstructionManager {
           server,
           modelId,
           position,
-          fixEulerOrder(rotation)
+          fixEulerOrder(rotation),
+          client.character.characterId
         );
       case Items.SEED_WHEAT:
       case Items.SEED_CORN:
@@ -1697,7 +1698,8 @@ export class ConstructionManager {
     server: ZoneServer2016,
     modelId: number,
     position: Float32Array,
-    rotation: Float32Array
+    rotation: Float32Array,
+    ownerCharacterId: string
   ): boolean {
     const characterId = server.generateGuid(),
       transientId = 1;
@@ -1707,7 +1709,8 @@ export class ConstructionManager {
       modelId,
       position,
       rotation,
-      server
+      server,
+      ownerCharacterId
     );
     server._temporaryObjects[characterId] = obj;
     server.spawnSimpleNpcForAllInRange(obj);

@@ -36,6 +36,7 @@ import {
   DamageInfo,
   DamageRecord,
   HealType,
+  ItemDefinition,
   positionUpdate,
   Recipe,
   StanceFlags
@@ -60,6 +61,7 @@ import {
   CharacterWeaponStance,
   ClientUpdateDamageInfo,
   ClientUpdateModifyMovementSpeed,
+  ClientUpdateProximateItems,
   CommandPlayDialogEffect,
   EquipmentSetCharacterEquipmentSlot,
   LoadoutSetLoadoutSlots,
@@ -77,6 +79,7 @@ import { ExplosiveEntity } from "./explosiveentity";
 import { BaseEntity } from "./baseentity";
 import { ProjectileEntity } from "./projectileentity";
 import { ChallengeType } from "../managers/challengemanager";
+import { LootableConstructionEntity } from "./lootableconstructionentity";
 const stats = require("../../../../data/2016/sampleData/stats.json");
 
 interface CharacterStates {
@@ -112,7 +115,7 @@ export class Character2016 extends BaseFullCharacter {
   /** Used to update the status of the players resources */
   resourcesUpdater?: any;
   factionId = 2;
-  isInInventory: boolean = false;
+  //isInInventory: boolean = false;
   playTime: number = 0;
   lastDropPlaytime: number = 0;
   set godMode(state: boolean) {
@@ -943,72 +946,8 @@ export class Character2016 extends BaseFullCharacter {
       "Loadout.SetLoadoutSlots",
       this.pGetLoadoutSlots()
     );
-    const abilities: any = [
-      {
-        loadoutSlotId: 1,
-        abilityLineId: 1,
-        unknownArray1: [
-          {
-            unknownDword1: 1111164,
-            unknownDword2: 1111164,
-            unknownDword3: 0
-          }
-        ],
-        unknownDword3: 2,
-        itemDefinitionId: 83,
-        unknownByte: 64
-      }
-      // hardcoded one weapon ability to fix fists after respawning
-    ];
-    const abilityLineId = 1;
-    for (const a in client.character._loadout) {
-      const slot = client.character._loadout[a];
-      const itemDefinition = server.getItemDefinition(slot.itemDefinitionId);
-      if (!itemDefinition) continue;
-
-      const abilityId = itemDefinition.ACTIVATABLE_ABILITY_ID;
-      if (slot.itemDefinitionId == Items.WEAPON_FISTS) {
-        const object = {
-          loadoutSlotId: slot.slotId,
-          abilityLineId,
-          unknownArray1: [
-            {
-              unknownDword1: 1111278,
-              unknownDword2: 1111278,
-              unknownDword3: 0
-            },
-            {
-              unknownDword1: abilityId,
-              unknownDword2: abilityId,
-              unknownDword3: 0
-            }
-          ],
-          unknownDword3: 2,
-          itemDefinitionId: slot.itemDefinitionId,
-          unknownByte: 64
-        };
-        abilities.push(object);
-      } else {
-        const object = {
-          loadoutSlotId: slot.slotId,
-          abilityLineId,
-          unknownArray1: [
-            {
-              unknownDword1: abilityId,
-              unknownDword2: abilityId,
-              unknownDword3: 0
-            }
-          ],
-          unknownDword3: 2,
-          itemDefinitionId: slot.itemDefinitionId,
-          unknownByte: 64
-        };
-        abilities.push(object);
-      }
-      //abilityLineId++;
-    }
     server.sendData(client, "Abilities.SetActivatableAbilityManager", {
-      abilities
+      abilities: this.pGetActivatableAbilities(server)
     });
   }
 
@@ -1243,6 +1182,69 @@ export class Character2016 extends BaseFullCharacter {
       },
       currentSlotId: this.currentLoadoutSlot
     };
+  }
+
+  pGetActivatableAbility(
+    slotId: number,
+    itemDefinition: ItemDefinition,
+    abilityLineId: number
+  ) {
+    const WEAPON_FISTS = Items.WEAPON_FISTS,
+      itemDefinitionId = itemDefinition.ID,
+      abilityId = itemDefinition.ACTIVATABLE_ABILITY_ID,
+      abilityEntry = {
+        unknownDword1: abilityId,
+        unknownDword2: abilityId,
+        unknownDword3: 0
+      };
+    return {
+      loadoutSlotId: slotId,
+      abilityLineId: abilityLineId,
+      unknownArray1:
+        itemDefinitionId == WEAPON_FISTS
+          ? [
+              {
+                unknownDword1: 1111278,
+                unknownDword2: 1111278,
+                unknownDword3: 0
+              },
+              abilityEntry
+            ]
+          : [abilityEntry],
+      unknownDword3: 2,
+      itemDefinitionId: itemDefinitionId,
+      unknownByte: 64
+    };
+  }
+
+  pGetActivatableAbilities(server: ZoneServer2016) {
+    const abilities: any[] = [
+      {
+        loadoutSlotId: 1,
+        abilityLineId: 1,
+        unknownArray1: [
+          {
+            unknownDword1: 1111164,
+            unknownDword2: 1111164,
+            unknownDword3: 0
+          }
+        ],
+        unknownDword3: 2,
+        itemDefinitionId: 83,
+        unknownByte: 64
+      }
+      // hardcoded one weapon ability to fix fists after respawning
+    ];
+    let abilityLineId = 1;
+    Object.values(this._loadout).forEach((slot) => {
+      const itemDefinition = server.getItemDefinition(slot.itemDefinitionId);
+      if (!itemDefinition) return;
+      const { slotId } = slot;
+      abilities.push(
+        this.pGetActivatableAbility(slotId, itemDefinition, abilityLineId)
+      );
+    });
+    return abilities;
   }
 
   resetMetrics() {
@@ -1568,6 +1570,15 @@ export class Character2016 extends BaseFullCharacter {
       },
       currentSlotId: lootableEntity.currentLoadoutSlot
     });
+
+    // Just to update available crafting items.
+    if (lootableEntity instanceof LootableConstructionEntity) {
+      server.sendData<ClientUpdateProximateItems>(
+        client,
+        "ClientUpdate.ProximateItems",
+        server.getProximityItems(client)
+      );
+    }
   }
 
   dismountContainer(server: ZoneServer2016) {
