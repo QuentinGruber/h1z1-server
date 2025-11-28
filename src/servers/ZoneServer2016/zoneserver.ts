@@ -8108,12 +8108,20 @@ export class ZoneServer2016 extends EventEmitter {
 
     if (itemDefinition.ITEM_CLASS == ItemClasses.THROWABLES) {
       this.createThrowableProjectile(client, packet, itemDefinition, true);
-      // Remove loadout item if there's no more grenades in the inventory, this check is only temporary until removeInventoryItems is fixed
-      this.removeInventoryItem(client.character, weaponItem);
-      /*(const nextItem = client.character.getItemById(weaponItem.itemDefinitionId)
-        if (nextItem) {
-            client.character.equipItem(this, nextItem);
-        }*/
+      const inv = client.character.getInventoryAsContainer();
+      const similarItems = inv[itemDefinition.ID];
+      if (similarItems && similarItems.length) {
+        const anotherNade = similarItems.find((v) => {
+          return v !== weaponItem;
+        });
+        if (anotherNade) {
+          this.removeInventoryItem(client.character, anotherNade);
+        } else {
+          this.removeInventoryItem(client.character, weaponItem);
+        }
+      } else {
+        this.removeInventoryItem(client.character, weaponItem);
+      }
       return;
     } else if (itemDefinition.ID == Items.WEAPON_BOW_RECURVE) {
       this.createThrowableProjectile(
