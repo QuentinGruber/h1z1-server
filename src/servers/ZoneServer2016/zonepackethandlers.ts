@@ -1420,24 +1420,15 @@ export class ZonePacketHandlers {
       const stanceFlags = getStanceFlags(stance);
 
       if (stanceFlags.SITTING) {
-        server.sendData<ClientUpdateModifyMovementSpeed>(
-          client,
-          "ClientUpdate.ModifyMovementSpeed",
-          {
-            speed: 0.5
-          }
-        );
+        server.sendData<CommandRunSpeed>(client, "Command.RunSpeed", {
+          runSpeed: 0.1
+        });
         setTimeout(() => {
-          server.sendData<ClientUpdateModifyMovementSpeed>(
-            client,
-            "ClientUpdate.ModifyMovementSpeed",
-            {
-              speed: 2.0
-            }
-          );
-        }, 2000);
+          server.sendData<CommandRunSpeed>(client, "Command.RunSpeed", {
+            runSpeed: 0
+          });
+        }, 2000)
       }
-
 
       // Detect movements based on stance
       server.fairPlayManager.detectJumpXSMovement(server, client, stanceFlags);
