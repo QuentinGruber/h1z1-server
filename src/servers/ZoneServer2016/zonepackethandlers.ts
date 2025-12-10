@@ -198,7 +198,7 @@ function getStanceFlags(num: number): StanceFlags {
 //const abilities = require("../../../data/2016/sampleData/abilities.json");
 
 export class ZonePacketHandlers {
-  constructor() { }
+  constructor() {}
 
   ClientIsReady(
     server: ZoneServer2016,
@@ -758,23 +758,24 @@ export class ZonePacketHandlers {
       },
       {
         title: "Reported player pvp stats:",
-        info: `Shots fired:${targetClient.pvpStats.shotsFired}, shots hit:${targetClient.pvpStats.shotsHit
-          }, overall accuracy: ${(
-            (100 * targetClient.pvpStats.shotsHit) /
-            targetClient.pvpStats.shotsFired
-          ).toFixed(2)}% | head: ${(
-            (targetClient.pvpStats.head * 100) /
-            targetClient.pvpStats.shotsHit
-          ).toFixed(0)}% | spine: ${(
-            (targetClient.pvpStats.spine * 100) /
-            targetClient.pvpStats.shotsHit
-          ).toFixed(0)}% | hands: ${(
-            (targetClient.pvpStats.hands * 100) /
-            targetClient.pvpStats.shotsHit
-          ).toFixed(0)}% | legs ${(
-            (targetClient.pvpStats.legs * 100) /
-            targetClient.pvpStats.shotsHit
-          ).toFixed(0)}%`
+        info: `Shots fired:${targetClient.pvpStats.shotsFired}, shots hit:${
+          targetClient.pvpStats.shotsHit
+        }, overall accuracy: ${(
+          (100 * targetClient.pvpStats.shotsHit) /
+          targetClient.pvpStats.shotsFired
+        ).toFixed(2)}% | head: ${(
+          (targetClient.pvpStats.head * 100) /
+          targetClient.pvpStats.shotsHit
+        ).toFixed(0)}% | spine: ${(
+          (targetClient.pvpStats.spine * 100) /
+          targetClient.pvpStats.shotsHit
+        ).toFixed(0)}% | hands: ${(
+          (targetClient.pvpStats.hands * 100) /
+          targetClient.pvpStats.shotsHit
+        ).toFixed(0)}% | legs ${(
+          (targetClient.pvpStats.legs * 100) /
+          targetClient.pvpStats.shotsHit
+        ).toFixed(0)}%`
       },
       { title: "Reported player suspicious processes:", info: `:${logs}` },
       {
@@ -1427,7 +1428,7 @@ export class ZonePacketHandlers {
           server.sendData<CommandRunSpeed>(client, "Command.RunSpeed", {
             runSpeed: 0
           });
-        }, 2000)
+        }, 2000);
       }
 
       // Detect movements based on stance
@@ -1452,8 +1453,8 @@ export class ZonePacketHandlers {
       // Handle sitting logic
       client.character.isSitting =
         stanceFlags.SITTING &&
-          stanceFlags.ON_GROUND &&
-          !client.vehicle.mountedVehicle
+        stanceFlags.ON_GROUND &&
+        !client.vehicle.mountedVehicle
           ? true
           : stanceFlags.SITTING
             ? false
@@ -1765,7 +1766,8 @@ export class ZonePacketHandlers {
       vehicle = server._vehicles[characterId as string];
     if (!vehicle) return;
     debug(
-      `vehTransient:${vehicle.transientId} , mode: ${moveMode} from ${client.character.name
+      `vehTransient:${vehicle.transientId} , mode: ${moveMode} from ${
+        client.character.name
       } time:${Date.now()}`
     );
   }
@@ -2468,8 +2470,8 @@ export class ZonePacketHandlers {
       if (sourceCharacterId == targetCharacterId) {
         // from / to client container
         const sourceContainer = client.character.getItemContainer(
-          itemGuid ?? ""
-        ),
+            itemGuid ?? ""
+          ),
           targetContainer = client.character.getContainerFromGuid(
             containerGuid ?? ""
           );
@@ -2586,8 +2588,8 @@ export class ZonePacketHandlers {
       } else {
         // to external container
         const sourceContainer = sourceCharacter.getItemContainer(
-          itemGuid ?? ""
-        ),
+            itemGuid ?? ""
+          ),
           targetCharacter = sourceCharacter.mountedContainer;
 
         if (
@@ -2618,7 +2620,7 @@ export class ZonePacketHandlers {
               loadoutItem.stackCount
             ) ||
             Object.values(targetContainer.items).length >=
-            targetContainer.getMaxSlots(server)
+              targetContainer.getMaxSlots(server)
           ) {
             server.containerError(client, ContainerErrors.NO_SPACE);
             return;
@@ -2650,7 +2652,7 @@ export class ZonePacketHandlers {
             item.stackCount
           ) ||
           Object.values(targetContainer.items).length >=
-          targetContainer.getMaxSlots(server)
+            targetContainer.getMaxSlots(server)
         ) {
           server.containerError(client, ContainerErrors.NO_SPACE);
           return;
@@ -3230,7 +3232,7 @@ export class ZonePacketHandlers {
     packet: ReceivedPacket<GroupInvite>
   ) {
     const targetCharacterId =
-      packet.data.inviteData?.targetCharacter?.characterId || "",
+        packet.data.inviteData?.targetCharacter?.characterId || "",
       targetCharacterName =
         packet.data.inviteData?.targetCharacter?.identity?.characterFirstName ||
         "";
@@ -3253,7 +3255,7 @@ export class ZonePacketHandlers {
     packet: ReceivedPacket<GroupJoin>
   ) {
     const characterName =
-      packet.data.inviteData?.sourceCharacter?.identity?.characterName || "",
+        packet.data.inviteData?.sourceCharacter?.identity?.characterName || "",
       source = server.getClientByNameOrLoginSession(characterName);
     if (!(source instanceof Client)) return;
 
@@ -3378,7 +3380,7 @@ export class ZonePacketHandlers {
   ) {
     debug(`VehicleItemDefinitionRequest: ${packet.data.itemDefinitionId}`);
   }
-  FairPlayInternal(server: ZoneServer2016, client: Client, packet: any) { }
+  FairPlayInternal(server: ZoneServer2016, client: Client, packet: any) {}
   //#endregion
 
   async requestUseAccountItem(
@@ -3441,8 +3443,8 @@ export class ZonePacketHandlers {
         break;
       case ItemUseOptions.APPLY_SKIN:
         const oitem = client.character.getInventoryItem(
-          itemSubData.targetItemGuid
-        ),
+            itemSubData.targetItemGuid
+          ),
           accountItem = [
             ...Object.values(server._accountItemDefinitions),
             { ACCOUNT_ITEM_ID: Items.AIRDROP_TICKET, REWARD_ITEM_ID: 0 }
@@ -3455,10 +3457,10 @@ export class ZonePacketHandlers {
         }
 
         const newItem = server.generateItem(
-          accountItem.REWARD_ITEM_ID,
-          1,
-          true
-        ),
+            accountItem.REWARD_ITEM_ID,
+            1,
+            true
+          ),
           containerItems = client.character.getContainerFromGuid(
             oitem.itemGuid
           )?.items;
