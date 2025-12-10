@@ -2131,6 +2131,9 @@ export interface LobbyShowLobbyUi {
   unknownDword2?: number;
 }
 export interface FirstTimeEventNotifySystem {
+  unknownDword1?: number;
+  unknownBoolean1?: boolean;
+  displayElement?: number;
 }
 export interface FirstTimeEventState {
   unknownDword1?: number;

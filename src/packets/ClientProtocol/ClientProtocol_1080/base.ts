@@ -2224,7 +2224,11 @@ export const basePackets: PacketStructures = [
     "FirstTimeEvent.NotifySystem",
     0x4601,
     {
-      fields: []
+      fields: [
+        { name: "unknownDword1", type: "int32", defaultValue: 0 },
+        { name: "unknownBoolean1", type: "boolean", defaultValue: false },
+        { name: "displayElement", type: "int32", defaultValue: 0 }
+      ]
     }
   ],
   [
