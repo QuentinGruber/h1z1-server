@@ -108,6 +108,14 @@ export class RewardManager {
       {
         itemId: AccountItems.REWARD_CRATE_H1EMUEXCLUSIVE,
         dropChances: 0
+      },
+      {
+        itemId: AccountItems.REWARD_CRATE_INFERNAL_2025,
+        dropChances: 0
+      },
+      {
+        itemId: AccountItems.REWARD_CRATE_FROST,
+        dropChances: 0
       }
     ];
     this.playTimerewards = [
@@ -185,7 +193,7 @@ export class RewardManager {
       const client = this.server._clients[clientKey];
       if (
         client.character.playTime - client.character.lastDropPlaytime >
-          (isHalloween() ? 60 : 120) &&
+        (isHalloween() ? 60 : 120) &&
         isPosInPoi(client.character.state.position)
       ) {
         this.dropPlayTimeReward(client);
