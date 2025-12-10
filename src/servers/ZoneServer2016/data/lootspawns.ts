@@ -678,7 +678,7 @@ export const lootTables: { [lootSpawner: string]: LootSpawner } = {
       },
       {
         item: Items.WATER_EMPTY,
-        weight: 25,
+        weight: 12,
         spawnCount: {
           min: 1,
           max: 1
@@ -983,7 +983,7 @@ export const lootTables: { [lootSpawner: string]: LootSpawner } = {
       },
       {
         item: Items.WATER_EMPTY,
-        weight: 15,
+        weight: 12,
         spawnCount: {
           min: 1,
           max: 1
@@ -1002,7 +1002,7 @@ export const lootTables: { [lootSpawner: string]: LootSpawner } = {
         weight: 30,
         spawnCount: {
           min: 1,
-          max: 3
+          max: 2
         }
       },
       {
@@ -1010,7 +1010,7 @@ export const lootTables: { [lootSpawner: string]: LootSpawner } = {
         weight: 40,
         spawnCount: {
           min: 1,
-          max: 4
+          max: 3
         }
       },
       {
@@ -1063,7 +1063,7 @@ export const lootTables: { [lootSpawner: string]: LootSpawner } = {
       },
       {
         item: Items.WATER_EMPTY,
-        weight: 15,
+        weight: 12,
         spawnCount: {
           min: 1,
           max: 1
@@ -1199,7 +1199,7 @@ export const lootTables: { [lootSpawner: string]: LootSpawner } = {
       },
       {
         item: Items.WATER_EMPTY,
-        weight: 15,
+        weight: 12,
         spawnCount: {
           min: 1,
           max: 1
@@ -1284,7 +1284,7 @@ export const lootTables: { [lootSpawner: string]: LootSpawner } = {
     items: [
       {
         item: Items.FERTILIZER,
-        weight: 23,
+        weight: 19,
         spawnCount: {
           min: 1,
           max: 1
@@ -1324,7 +1324,7 @@ export const lootTables: { [lootSpawner: string]: LootSpawner } = {
       },
       {
         item: Items.WATER_EMPTY,
-        weight: 15,
+        weight: 12,
         spawnCount: {
           min: 1,
           max: 1
@@ -1918,6 +1918,14 @@ export const lootTables: { [lootSpawner: string]: LootSpawner } = {
           min: 1,
           max: 1
         }
+      },
+      {
+        item: Items.WEAPON_ROCKET_LAUNCHER,
+        weight: 3,
+        spawnCount: {
+          min: 1,
+          max: 1
+        }
       }
     ]
   },
@@ -1939,7 +1947,7 @@ export const lootTables: { [lootSpawner: string]: LootSpawner } = {
         weight: 100,
         spawnCount: {
           min: 1,
-          max: 3
+          max: 2
         }
       },
       {
@@ -1947,7 +1955,7 @@ export const lootTables: { [lootSpawner: string]: LootSpawner } = {
         weight: 100,
         spawnCount: {
           min: 1,
-          max: 4
+          max: 3
         }
       },
       {
@@ -2150,7 +2158,7 @@ export const containerLootSpawners: {
         weight: 33,
         spawnCount: {
           min: 1,
-          max: 3
+          max: 2
         }
       },
       {
@@ -2180,7 +2188,7 @@ export const containerLootSpawners: {
         weight: 33,
         spawnCount: {
           min: 1,
-          max: 3
+          max: 2
         }
       },
       {
@@ -2210,7 +2218,7 @@ export const containerLootSpawners: {
         weight: 33,
         spawnCount: {
           min: 1,
-          max: 3
+          max: 2
         }
       },
       {
@@ -3302,14 +3310,6 @@ export const containerLootSpawners: {
           min: 1,
           max: 1
         }
-      },
-      {
-        item: Items.ANIMAL_FAT,
-        weight: 25,
-        spawnCount: {
-          min: 1,
-          max: 2
-        }
       }
     ]
   },
@@ -3355,14 +3355,6 @@ export const containerLootSpawners: {
         spawnCount: {
           min: 1,
           max: 1
-        }
-      },
-      {
-        item: Items.ANIMAL_FAT,
-        weight: 25,
-        spawnCount: {
-          min: 1,
-          max: 2
         }
       }
     ]
@@ -3830,7 +3822,7 @@ export const containerLootSpawners: {
       },
       {
         item: Items.FERTILIZER,
-        weight: 6,
+        weight: 4,
         spawnCount: {
           min: 1,
           max: 1

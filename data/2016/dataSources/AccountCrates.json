@@ -3080,6 +3080,7 @@
   {
     "name": "Mystery Bag v2",
     "itemDefinitionId": 2033,
+    "excludeFromExchange": true,
     "rewards": [
       {
         "name": "Black Canvas Outback Hat",
@@ -3661,6 +3662,92 @@
         "name": "Spooky Zeds",
         "itemDefinitionId": 5331,
         "rewardChance": 20
+      }
+    ]
+  },
+  {
+    "name": "Frost Crate",
+    "itemDefinitionId": 5375,
+    "rewards": [
+      {
+        "name": "Krampus Helmet",
+        "itemDefinitionId": 5370,
+        "rewardChance": 0.5
+      },
+      {
+        "name": "Blizzard Sniper Rifle",
+        "itemDefinitionId": 5371,
+        "rewardChance": 0.5
+      },
+      {
+        "name": "Blizzard Shotgun",
+        "itemDefinitionId": 5372,
+        "rewardChance": 0.5
+      },
+      {
+        "name": "Snowman Helmet",
+        "itemDefinitionId": 5357,
+        "rewardChance": 1
+      },
+      {
+        "name": "Merry Body Armor",
+        "itemDefinitionId": 5363,
+        "rewardChance": 1
+      },
+      {
+        "name": "Santa Satchel",
+        "itemDefinitionId": 5366,
+        "rewardChance": 1
+      },
+      {
+        "name": "Ice Cold Bandana",
+        "itemDefinitionId": 5367,
+        "rewardChance": 1
+      },
+      {
+        "name": "Festive Hoodie",
+        "itemDefinitionId": 5359,
+        "rewardChance": 5
+      },
+      {
+        "name": "Festive Slacks",
+        "itemDefinitionId": 5360,
+        "rewardChance": 5
+      },
+      {
+        "name": "Santa White T-Shirt",
+        "itemDefinitionId": 5373,
+        "rewardChance": 5
+      },
+      {
+        "name": "Merry Gloves",
+        "itemDefinitionId": 5365,
+        "rewardChance": 5
+      },
+      {
+        "name": "Jolly shorts",
+        "itemDefinitionId": 5368,
+        "rewardChance": 30
+      },
+      {
+        "name": "Merry Zeds",
+        "itemDefinitionId": 5362,
+        "rewardChance": 30
+      },
+      {
+        "name": "Merry Shirt",
+        "itemDefinitionId": 5358,
+        "rewardChance": 30
+      },
+      {
+        "name": "Santa Boonie Hat",
+        "itemDefinitionId": 5369,
+        "rewardChance": 30
+      },
+      {
+        "name": "Merry Leggings",
+        "itemDefinitionId": 5361,
+        "rewardChance": 30
       }
     ]
   }

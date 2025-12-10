@@ -218,16 +218,16 @@ export const smeltingData: { [recipeId: number]: smeltRecipe } = {
   },
   // disabled for now, need to fix requiredAmount for smelting - Meme
   /*
-  14: {
-    filterId: FilterIds.FURNACE,
-    rewardId: Items.METAL_BAR,
-    components: [
-      {
-        itemDefinitionId: Items.NAIL,
-        requiredAmount: 4,
-      },
-    ],
-  },*/
+    14: {
+      filterId: FilterIds.FURNACE,
+      rewardId: Items.METAL_BAR,
+      components: [
+        {
+          itemDefinitionId: Items.NAIL,
+          requiredAmount: 4,
+        },
+      ],
+    },*/
   15: {
     filterId: FilterIds.FURNACE,
     rewardId: Items.METAL_BAR,
@@ -830,16 +830,16 @@ export const smeltingData: { [recipeId: number]: smeltRecipe } = {
   },
   // Not addded "Modified Toxic AK-47"
   /*
-  76: {
-    filterId: FilterIds.FURNACE,
-    rewardId: Items.METAL_BAR,
-    components: [
-      {
-        itemDefinitionId: 2483,
-        requiredAmount: 1
-      }
-    ]
-  },*/
+    76: {
+      filterId: FilterIds.FURNACE,
+      rewardId: Items.METAL_BAR,
+      components: [
+        {
+          itemDefinitionId: 2483,
+          requiredAmount: 1
+        }
+      ]
+    },*/
   77: {
     filterId: FilterIds.FURNACE,
     rewardId: Items.METAL_BAR,
@@ -896,6 +896,174 @@ export const smeltingData: { [recipeId: number]: smeltRecipe } = {
     components: [
       {
         itemDefinitionId: Items.WEAPON_WILDSTYLE_SHOTGUN,
+        requiredAmount: 1
+      }
+    ]
+  },
+  83: {
+    filterId: FilterIds.FURNACE,
+    rewardId: Items.GLYCERINE,
+    components: [
+      {
+        itemDefinitionId: Items.ANIMAL_FAT,
+        requiredAmount: 2
+      },
+      {
+        itemDefinitionId: Items.WATER_EMPTY,
+        requiredAmount: 1
+      }
+    ]
+  },
+  84: {
+    filterId: FilterIds.COOKING,
+    rewardId: Items.NITRIC_ACID,
+    components: [
+      {
+        itemDefinitionId: Items.FERTILIZER,
+        requiredAmount: 1
+      },
+      {
+        itemDefinitionId: Items.SULFURIC_ACID,
+        requiredAmount: 1
+      }
+    ]
+  },
+  85: {
+    filterId: FilterIds.FURNACE,
+    rewardId: Items.METAL_SCRAP,
+    components: [
+      {
+        itemDefinitionId: Items.CANNED_FOOD01,
+        requiredAmount: 1
+      }
+    ]
+  },
+  86: {
+    filterId: FilterIds.FURNACE,
+    rewardId: Items.METAL_SCRAP,
+    components: [
+      {
+        itemDefinitionId: Items.CANNED_FOOD02,
+        requiredAmount: 1
+      }
+    ]
+  },
+  87: {
+    filterId: FilterIds.FURNACE,
+    rewardId: Items.METAL_SCRAP,
+    components: [
+      {
+        itemDefinitionId: Items.CANNED_FOOD03,
+        requiredAmount: 1
+      }
+    ]
+  },
+  88: {
+    filterId: FilterIds.FURNACE,
+    rewardId: Items.METAL_SCRAP,
+    components: [
+      {
+        itemDefinitionId: Items.CANNED_FOOD04,
+        requiredAmount: 1
+      }
+    ]
+  },
+  89: {
+    filterId: FilterIds.FURNACE,
+    rewardId: Items.METAL_SCRAP,
+    components: [
+      {
+        itemDefinitionId: Items.CANNED_FOOD05,
+        requiredAmount: 1
+      }
+    ]
+  },
+  90: {
+    filterId: FilterIds.FURNACE,
+    rewardId: Items.METAL_SCRAP,
+    components: [
+      {
+        itemDefinitionId: Items.CANNED_FOOD06,
+        requiredAmount: 1
+      }
+    ]
+  },
+  91: {
+    filterId: FilterIds.FURNACE,
+    rewardId: Items.METAL_SCRAP,
+    components: [
+      {
+        itemDefinitionId: Items.CANNED_FOOD07,
+        requiredAmount: 1
+      }
+    ]
+  },
+  92: {
+    filterId: FilterIds.FURNACE,
+    rewardId: Items.METAL_SCRAP,
+    components: [
+      {
+        itemDefinitionId: Items.CANNED_FOOD08,
+        requiredAmount: 1
+      }
+    ]
+  },
+  93: {
+    filterId: FilterIds.FURNACE,
+    rewardId: Items.METAL_SCRAP,
+    components: [
+      {
+        itemDefinitionId: Items.CANNED_FOOD09,
+        requiredAmount: 1
+      }
+    ]
+  },
+  94: {
+    filterId: FilterIds.FURNACE,
+    rewardId: Items.METAL_SCRAP,
+    components: [
+      {
+        itemDefinitionId: Items.CANNED_FOOD10,
+        requiredAmount: 1
+      }
+    ]
+  },
+  95: {
+    filterId: FilterIds.FURNACE,
+    rewardId: Items.METAL_SCRAP,
+    components: [
+      {
+        itemDefinitionId: Items.CANNED_FOOD11,
+        requiredAmount: 1
+      }
+    ]
+  },
+  96: {
+    filterId: FilterIds.FURNACE,
+    rewardId: Items.METAL_SCRAP,
+    components: [
+      {
+        itemDefinitionId: Items.CANNED_FOOD25,
+        requiredAmount: 1
+      }
+    ]
+  },
+  97: {
+    filterId: FilterIds.FURNACE,
+    rewardId: Items.METAL_SCRAP,
+    components: [
+      {
+        itemDefinitionId: Items.CANNED_FOOD21,
+        requiredAmount: 1
+      }
+    ]
+  },
+  98: {
+    filterId: FilterIds.FURNACE,
+    rewardId: Items.METAL_SCRAP,
+    components: [
+      {
+        itemDefinitionId: Items.CANNED_FOOD26,
         requiredAmount: 1
       }
     ]
@@ -2488,22 +2656,22 @@ export const recipes: { [recipeId: number]: Recipe } = {
   },
   // disabled for now as crashes game client
   /*[Items.SHACK_SMALL]: {
-    filterId: FilterIds.HOUSING,
-    components: [
-      {
-        itemDefinitionId: Items.WOOD_PLANK,
-        requiredAmount: 4,
-      },
-      {
-        itemDefinitionId: Items.NAIL,
-        requiredAmount: 4,
-      },
-      {
-        itemDefinitionId: Items.METAL_BRACKET,
-        requiredAmount: 2,
-      },
-    ],
-  },*/
+      filterId: FilterIds.HOUSING,
+      components: [
+        {
+          itemDefinitionId: Items.WOOD_PLANK,
+          requiredAmount: 4,
+        },
+        {
+          itemDefinitionId: Items.NAIL,
+          requiredAmount: 4,
+        },
+        {
+          itemDefinitionId: Items.METAL_BRACKET,
+          requiredAmount: 2,
+        },
+      ],
+    },*/
   [Items.FLARE_SMOKE]: {
     filterId: FilterIds.SURVIVAL,
     components: [
@@ -2993,6 +3161,54 @@ export const recipes: { [recipeId: number]: Recipe } = {
       {
         itemDefinitionId: Items.WEAPON_1911,
         requiredAmount: 1
+      }
+    ],
+    requireWeaponWorkbench: true
+  },
+  [Items.GLYCERINE]: {
+    filterId: FilterIds.FURNACE,
+    components: [
+      {
+        itemDefinitionId: Items.ANIMAL_FAT,
+        requiredAmount: 2
+      },
+      {
+        itemDefinitionId: Items.WATER_EMPTY,
+        requiredAmount: 1
+      }
+    ]
+  },
+  [Items.NITRIC_ACID]: {
+    filterId: FilterIds.COOKING,
+    components: [
+      {
+        itemDefinitionId: Items.FERTILIZER,
+        requiredAmount: 1
+      },
+      {
+        itemDefinitionId: Items.SULFURIC_ACID,
+        requiredAmount: 1
+      }
+    ]
+  },
+  [Items.DYNAMITE]: {
+    filterId: FilterIds.WEAPONS,
+    components: [
+      {
+        itemDefinitionId: Items.NITRIC_ACID,
+        requiredAmount: 1
+      },
+      {
+        itemDefinitionId: Items.GLYCERINE,
+        requiredAmount: 1
+      },
+      {
+        itemDefinitionId: Items.DUCT_TAPE,
+        requiredAmount: 1
+      },
+      {
+        itemDefinitionId: Items.SHARD_PLASTIC,
+        requiredAmount: 4
       }
     ],
     requireWeaponWorkbench: true
