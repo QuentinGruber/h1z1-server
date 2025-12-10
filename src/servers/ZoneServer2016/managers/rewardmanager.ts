@@ -193,7 +193,7 @@ export class RewardManager {
       const client = this.server._clients[clientKey];
       if (
         client.character.playTime - client.character.lastDropPlaytime >
-        (isHalloween() ? 60 : 120) &&
+          (isHalloween() ? 60 : 120) &&
         isPosInPoi(client.character.state.position)
       ) {
         this.dropPlayTimeReward(client);
