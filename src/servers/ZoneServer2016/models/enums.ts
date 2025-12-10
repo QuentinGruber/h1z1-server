@@ -2593,3 +2593,8 @@ export enum GameModes {
   BATTLE_ROYALE_GREEN_DAWN = 10,
   BATTLE_ROYALE_REANIMATOR = 14
 }
+
+export enum UIElements {
+  MAP = 12,
+  INVENTORY = 15
+}
