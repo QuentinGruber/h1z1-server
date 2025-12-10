@@ -273,7 +273,7 @@ const weaponDefinitionSchema: PacketFields = [
                 defaultValue: 0
               },
               { name: "FIRE_DETECT_RANGE", type: "uint16", defaultValue: 0 },
-              { name: "EFFECT_GROUP", type: "float", defaultValue: 0 },
+              { name: "EFFECT_GROUP", type: "uint32", defaultValue: 0 },
               { name: "PLAYER_STATE_GROUP_ID", type: "float", defaultValue: 0 },
               { name: "MOVEMENT_MODIFIER", type: "float", defaultValue: 0 },
               { name: "TURN_MODIFIER", type: "float", defaultValue: 0 },
