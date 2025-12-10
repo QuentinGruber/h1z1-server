@@ -69,7 +69,6 @@ import {
   ClientUpdateNetworkProximityUpdatesComplete,
   ClientUpdateProximateItems,
   ClientUpdateUpdateLocation,
-  ClientUpdateModifyMovementSpeed,
   ClientUpdateUpdateManagedLocation,
   CollisionDamage,
   CommandAddWorldCommand,
