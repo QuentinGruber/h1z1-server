@@ -1421,6 +1421,17 @@ export class ZonePacketHandlers {
     if (packet.data.stance) {
       const stanceFlags = getStanceFlags(stance);
 
+      if (stanceFlags.SITTING) {
+        server.sendData<CommandRunSpeed>(client, "Command.RunSpeed", {
+          runSpeed: 0.1
+        });
+        setTimeout(() => {
+          server.sendData<CommandRunSpeed>(client, "Command.RunSpeed", {
+            runSpeed: 0
+          });
+        }, 2000);
+      }
+
       // Detect movements based on stance
       server.fairPlayManager.detectJumpXSMovement(server, client, stanceFlags);
       server.fairPlayManager.detectDroneMovement(server, client, stanceFlags);
