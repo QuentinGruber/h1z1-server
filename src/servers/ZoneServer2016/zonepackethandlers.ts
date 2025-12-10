@@ -1988,7 +1988,7 @@ export class ZonePacketHandlers {
     };
     server.killCharacter(client, damageInfo);
   }
-  CommandTogglePlayerInterfaces(
+  FirstTimeEventNotifySystem(
     server: ZoneServer2016,
     client: Client,
     packet: ReceivedPacket<object>
@@ -4016,8 +4016,8 @@ export class ZonePacketHandlers {
       case "Command.Redeploy":
         this.CommandRedeploy(server, client, packet);
         break;
-      case "Command.TogglePlayerInterfaces":
-        this.CommandTogglePlayerInterfaces(server, client, packet);
+      case "FirstTimeEvent.NotifySystem":
+        this.FirstTimeEventNotifySystem(server, client, packet);
         break;
       case "Items.RequestUseItem":
         this.RequestUseItem(server, client, packet);

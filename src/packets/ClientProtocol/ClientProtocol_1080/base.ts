@@ -2221,7 +2221,7 @@ export const basePackets: PacketStructures = [
   ],
   ["ClientMetrics", 0x45, {}],
   [
-    "Command.TogglePlayerInterfaces",
+    "FirstTimeEvent.NotifySystem",
     0x4601,
     {
       fields: []
