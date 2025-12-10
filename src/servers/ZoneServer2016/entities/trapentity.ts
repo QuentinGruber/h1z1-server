@@ -90,7 +90,7 @@ export class TrapEntity extends BaseSimpleNpc {
       case Items.PUNJI_STICK_ROW:
         this.server.aiManager.addEntity(this);
         this.cooldown = 500;
-        this.triggerRadiusX = 1;
+        this.triggerRadiusX = 0.8;
         this.triggerRadiusY = 0.5;
         break;
       case Items.SNARE:

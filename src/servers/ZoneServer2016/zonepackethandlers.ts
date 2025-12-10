@@ -42,7 +42,8 @@ import {
   StringIds,
   AccountItems,
   Effects,
-  VehicleIds
+  VehicleIds,
+  UIElements
 } from "./models/enums";
 import { BaseFullCharacter } from "./entities/basefullcharacter";
 import { BaseLightweightCharacter } from "./entities/baselightweightcharacter";
@@ -130,7 +131,8 @@ import {
   AnimationRequest,
   ClientFinishedLoading,
   SynchronizedTeleportNotifyReady,
-  VehicleAutoMount
+  VehicleAutoMount,
+  FirstTimeEventNotifySystem
 } from "types/zone2016packets";
 import { VehicleCurrentMoveMode } from "types/zone2015packets";
 import {
@@ -1988,17 +1990,28 @@ export class ZonePacketHandlers {
     };
     server.killCharacter(client, damageInfo);
   }
-  CommandTogglePlayerInterfaces(
+  FirstTimeEventNotifySystem(
     server: ZoneServer2016,
     client: Client,
-    packet: ReceivedPacket<object>
+    packet: ReceivedPacket<FirstTimeEventNotifySystem>
   ) {
-    const proximityItems = server.getProximityItems(client);
-    server.sendData<ClientUpdateProximateItems>(
-      client,
-      "ClientUpdate.ProximateItems",
-      proximityItems
-    );
+    switch (packet.data.displayElement) {
+      case UIElements.INVENTORY:
+        client.character.isInInventory = !client.character.isInInventory;
+        if (client.character.isInInventory) {
+          server.sendData<ClientUpdateProximateItems>(
+            client,
+            "ClientUpdate.ProximateItems",
+            server.getProximityItems(client)
+          );
+        }
+        break;
+      case UIElements.MAP:
+        break;
+      default:
+        debug(`Received unknown FirstTimeEvent: ${packet.data.displayElement}`);
+        break;
+    }
   }
   CommandSuicide(
     server: ZoneServer2016,
@@ -4016,8 +4029,8 @@ export class ZonePacketHandlers {
       case "Command.Redeploy":
         this.CommandRedeploy(server, client, packet);
         break;
-      case "Command.TogglePlayerInterfaces":
-        this.CommandTogglePlayerInterfaces(server, client, packet);
+      case "FirstTimeEvent.NotifySystem":
+        this.FirstTimeEventNotifySystem(server, client, packet);
         break;
       case "Items.RequestUseItem":
         this.RequestUseItem(server, client, packet);

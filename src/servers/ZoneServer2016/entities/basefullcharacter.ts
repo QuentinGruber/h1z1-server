@@ -944,20 +944,29 @@ export abstract class BaseFullCharacter extends BaseLightweightCharacter {
 
   pGetAttachmentSlot(slotId: number) {
     const slot = this._equipment[slotId];
-    return slot
-      ? {
-          modelName: slot.modelName.replace(
-            /Up|Down/g,
-            this.hoodState == "Down" ? "Up" : "Down"
-          ),
-          effectId: slot.effectId || 0,
-          textureAlias: slot.textureAlias || "",
-          tintAlias: slot.tintAlias || "Default",
-          decalAlias: slot.decalAlias || "#",
-          slotId: slot.slotId,
-          SHADER_PARAMETER_GROUP: slot?.SHADER_PARAMETER_GROUP ?? []
-        }
-      : undefined;
+    if (!slot) return undefined;
+
+    const shaderGroup = slot.SHADER_PARAMETER_GROUP ?? [];
+    let shaderParams = shaderGroup;
+
+    if (slotId == 3 && shaderGroup.length == 4) {
+      shaderParams =
+        this.hoodState == "Down"
+          ? [shaderGroup[0], shaderGroup[1]]
+          : [shaderGroup[2], shaderGroup[3]];
+    }
+
+    const hoodReplace = this.hoodState == "Down" ? "Up" : "Down";
+
+    return {
+      modelName: slot.modelName.replace(/Up|Down/g, hoodReplace),
+      effectId: slot.effectId || 0,
+      textureAlias: slot.textureAlias || "",
+      tintAlias: slot.tintAlias || "Default",
+      decalAlias: slot.decalAlias || "#",
+      slotId: slot.slotId,
+      SHADER_PARAMETER_GROUP: shaderParams
+    };
   }
 
   pGetAttachmentSlots() {

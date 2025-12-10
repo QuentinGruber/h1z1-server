@@ -45,7 +45,7 @@ function getRenderDistance(itemDefinitionId: number) {
       range = 420;
       break;
   }
-  return range;
+  return range ? range : 1000;
 }
 
 import { BaseLightweightCharacter } from "./baselightweightcharacter";

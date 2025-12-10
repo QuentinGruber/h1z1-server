@@ -642,7 +642,7 @@ export class ZoneServer2016 extends EventEmitter {
         const oldClient = this.getClientByGuid(guid);
         if (oldClient) {
           this.sendData<LoginFailed>(oldClient, "LoginFailed", {});
-          this.deleteClient(oldClient);
+          await this.deleteClient(oldClient);
         }
         this._clients[sessionId] = zoneClient;
         this._characters[characterId] = zoneClient.character;
@@ -1991,7 +1991,9 @@ export class ZoneServer2016 extends EventEmitter {
         constructions,
         vehicles
       });
-      this._isSaving = false;
+      setTimeout(() => {
+        this._isSaving = false;
+      }, 10000);
       this.sendChatTextToAdmins("World saved!");
       this.nextSaveTime = Date.now() + this.saveTimeInterval;
       debug("World saved!");
@@ -3724,6 +3726,18 @@ export class ZoneServer2016 extends EventEmitter {
   registerHit(client: Client, packet: any, gameTime: number) {
     //if (!client.character.isAlive) return;
     // Should be able to trade while in combat
+
+    if (client.isWeaponLock) {
+      this.sendChatText(
+        client,
+        "FairPlay: Your projectile was blocked due to low network quality"
+      );
+      this.sendChatTextToAdmins(
+        `FairPlay: ${client.character.name} shot has been blocked due to low network quality`,
+        false
+      );
+      return;
+    }
 
     const { hitReport } = packet;
     if (!hitReport) return; // should never trigger
@@ -7925,7 +7939,7 @@ export class ZoneServer2016 extends EventEmitter {
       itemDefinition.ID,
       overrideProjectileId
         ? packet.packet.sessionProjectileCount +
-            parseInt(client.character.characterId.slice(-5), 16)
+          parseInt(client.character.characterId.slice(-5), 16)
         : packet.packet.projectileUniqueId,
       client.character.characterId
     );
@@ -9061,14 +9075,7 @@ export class ZoneServer2016 extends EventEmitter {
     delete this._vehicles[vehicleGuid]?.manager;
   }
   sendZonePopulationUpdate() {
-    let populationNumber = 0;
-    for (const key in this._characters) {
-      const char = this._characters[key];
-      const client = this.getClientByCharId(char.characterId);
-      if (!client?.isAdmin) {
-        populationNumber++;
-      }
-    }
+    let populationNumber = _.size(this._clients);
     this._loginConnectionManager.sendData(
       {
         ...this._loginServerInfo,

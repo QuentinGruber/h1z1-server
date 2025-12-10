@@ -42,7 +42,7 @@ import { LoadoutContainer } from "../classes/loadoutcontainer";
 
 export class Npc extends BaseFullCharacter {
   health: number;
-  npcRenderDistance = 80;
+  npcRenderDistance = 100;
   spawnerId: number;
   deathTime: number = 0;
   npcId: number = 0;

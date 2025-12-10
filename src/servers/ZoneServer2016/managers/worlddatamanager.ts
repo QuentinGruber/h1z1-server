@@ -160,7 +160,7 @@ export class WorldDataManager {
 
   static async getDatabase(mongoAddress: string): Promise<[Db, MongoClient]> {
     const mongoClient = new MongoClient(mongoAddress, {
-      maxPoolSize: 100
+      maxPoolSize: 200
     });
     try {
       await mongoClient.connect();
@@ -1035,40 +1035,39 @@ export class WorldDataManager {
   }
 
   async saveConstructionData(constructions: ConstructionParentSaveData[]) {
+    if (!constructions.length) return;
+
     if (this._soloMode) {
       fs.writeFileSync(
         `${this._appDataFolder}/worlddata/construction.json`,
         JSON.stringify(constructions, null, 2)
       );
-    } else {
-      if (constructions.length) {
-        const collection = this._db?.collection(
-          DB_COLLECTIONS.CONSTRUCTION
-        ) as Collection;
-        const updatePromises = [];
-        for (let i = 0; i < constructions.length; i++) {
-          const construction = constructions[i];
-          updatePromises.push(
-            collection.updateOne(
-              {
-                characterId: construction.characterId,
-                serverId: this._worldId
-              },
-              { $set: construction },
-              { upsert: true }
-            )
-          );
-        }
-        await Promise.all(updatePromises);
-        const allCharactersIds = constructions.map((c) => {
-          return c.characterId;
-        });
-        await collection.deleteMany({
-          serverId: this._worldId,
-          characterId: { $nin: allCharactersIds }
-        });
-      }
+      return;
     }
+
+    const collection = this._db?.collection(
+      DB_COLLECTIONS.CONSTRUCTION
+    ) as Collection;
+
+    // 1. Build ordered bulkWrite operations
+    const ops = constructions.map((c) => ({
+      updateOne: {
+        filter: { characterId: c.characterId, serverId: this._worldId },
+        update: { $set: c },
+        upsert: true
+      }
+    }));
+
+    // 2. Execute bulkWrite in order for consistency
+    await collection.bulkWrite(ops, { ordered: true });
+
+    // 3. Remove old records not present in the current constructions
+    const allCharacterIds = constructions.map((c) => c.characterId);
+
+    await collection.deleteMany({
+      serverId: this._worldId,
+      characterId: { $nin: allCharacterIds }
+    });
   }
 
   static getPlantSaveData(entity: Plant, serverId: number): PlantSaveData {

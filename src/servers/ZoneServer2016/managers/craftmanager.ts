@@ -171,14 +171,15 @@ export class CraftManager {
       return true;
 
     const item: any = itemDS.item;
-    if (item?.stackCount - count <= 0) {
+    const remainder = item?.stackCount - count;
+    if (remainder <= 0) {
       return server.deleteEntity(item.ownerCharacterId, server._spawnedItems);
-    } else if (item?.stackCount) {
-      const e = server.getEntity(item.ownerCharacterId);
-      if (e && e instanceof ItemObject) {
-        e.item.stackCount -= count;
-        return true;
-      }
+    }
+
+    const entity = server.getEntity(item.ownerCharacterId);
+    if (entity instanceof ItemObject) {
+      entity.item.stackCount -= count;
+      return true;
     }
 
     return false;
