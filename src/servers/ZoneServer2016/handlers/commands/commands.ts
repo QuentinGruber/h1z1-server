@@ -124,6 +124,7 @@ export const commands: Array<Command> = [
       client: Client,
       args: Array<string>
     ) => {
+      if (server._soloMode) return;
       const collection = server._db.collection(DB_COLLECTIONS.KILLS);
       const query = await collection
         .aggregate([
