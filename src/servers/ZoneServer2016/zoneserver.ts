@@ -642,7 +642,7 @@ export class ZoneServer2016 extends EventEmitter {
         const oldClient = this.getClientByGuid(guid);
         if (oldClient) {
           this.sendData<LoginFailed>(oldClient, "LoginFailed", {});
-          this.deleteClient(oldClient);
+          await this.deleteClient(oldClient);
         }
         this._clients[sessionId] = zoneClient;
         this._characters[characterId] = zoneClient.character;
