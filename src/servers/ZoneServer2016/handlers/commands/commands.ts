@@ -412,40 +412,135 @@ export const commands: Array<Command> = [
   {
     name: "emote",
     permissionLevel: PermissionLevels.DEFAULT,
-    execute: (server: ZoneServer2016, client: Client, args: Array<string>) => {
-      if (server.isPvE) {
-        const animationId = Number(args[0]);
-        if (!animationId || animationId > MAX_UINT32) {
-          server.sendChatText(client, "Usage /emote <id>");
-          return;
-        }
+    execute: async (
+      server: ZoneServer2016,
+      client: Client,
+      args: Array<string>
+    ) => {
+      if (!args[0]) {
+        server.sendChatText(client, "Usage /emote <name>");
+        return;
+      }
 
-        if (!server.isPvE) {
-          switch (animationId) {
-            case 18:
-            case 21:
-            case 29:
-            case 30:
-            case 39:
-            case 88:
-            case 34:
-            case 35:
-            case 43:
-            case 46:
-            case 51:
-            case 58:
-            case 68:
-            case 95:
-            case 97:
-            case 101:
-            case 102:
-              server.sendChatText(
-                client,
-                "[ERROR] This emote has been disabled due to abuse."
-              );
-              return;
-          }
-        }
+      // Emote name to ID mapping
+      const emoteMap: { [key: string]: number } = {
+        wavehello: 2,
+        wavebye: 3,
+        doublebird: 4,
+        point: 5,
+        agree: 6,
+        applause: 7,
+        beckon: 8,
+        cutthroat: 9,
+        salute: 10,
+        dancea: 11,
+        wavehellob: 12,
+        laugh: 13,
+        no: 14,
+        noway: 15,
+        handsup: 16,
+        sit: 17,
+        teabag: 18,
+        birdcannon: 20,
+        bootyslap: 21,
+        crotchchop: 22,
+        crybaby: 23,
+        grind: 24,
+        pelvicthrust: 25,
+        sarcasmdance: 26,
+        screwyou2: 27,
+        shimmydance: 28,
+        werenotworthy: 29,
+        beg: 30,
+        fisticuffs: 31,
+        flex: 32,
+        hump: 33,
+        flexpoint: 34,
+        listentothecrowd: 35,
+        airguitar: 36,
+        basicsalute: 37,
+        blowkiss: 38,
+        bow: 39,
+        buttscratchsniff: 40,
+        cheer: 41,
+        cold: 42,
+        confused: 43,
+        crazy: 44,
+        cry: 45,
+        curse: 46,
+        curtsey: 47,
+        doh: 48,
+        fingerwaggle: 49,
+        fistpump: 50,
+        frustrated: 51,
+        flustered: 52,
+        getattention: 53,
+        glare: 54,
+        handbeckon: 55,
+        happydance: 56,
+        hot: 57,
+        isitraining: 58,
+        jumphooray: 59,
+        loser: 60,
+        lookaway: 61,
+        listen: 62,
+        moon: 63,
+        neener: 64,
+        orate: 65,
+        pout: 66,
+        ponder: 67,
+        peer: 68,
+        royalwave: 69,
+        rudeslap: 70,
+        sad: 71,
+        scold: 72,
+        screwyoua: 73,
+        scream: 74,
+        shakefist: 75,
+        shakehead: 76,
+        shame: 77,
+        shieldeyes: 78,
+        shiverdownspine: 79,
+        shrugdance: 80,
+        sigh: 81,
+        singlefingerwaggle: 82,
+        sniff: 83,
+        stretch: 84,
+        square: 85,
+        sulk: 86,
+        swearoath: 87,
+        teabagb: 88,
+        tapfoot: 89,
+        teabaglight: 90,
+        threaten: 91,
+        thanks: 92,
+        thumbsdown: 93,
+        thumbsup: 94,
+        victory: 95,
+        violin: 96,
+        whistle: 97,
+        wave: 98,
+        wince: 99,
+        woohoo: 100,
+        raisecrown: 101,
+        thriller: 102
+      };
+
+      const emoteName = args[0].toLowerCase();
+      const animationId = emoteMap[emoteName];
+
+      if (!animationId) {
+        server.sendChatText(
+          client,
+          `Unknown emote: ${args[0]}. Use /emotelist to see available emotes.`
+        );
+        return;
+      }
+
+      const allowedEmoteswithoutowning = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11];
+
+      // Check if this emote is in the allowed list (no ownership check needed)
+      if (allowedEmoteswithoutowning.includes(animationId) || client.isAdmin) {
         server.sendDataToAllWithSpawnedEntity(
           server._characters,
           client.character.characterId,
@@ -455,12 +550,158 @@ export const commands: Array<Command> = [
             animationId: animationId
           }
         );
-      } else {
-        server.sendChatText(
-          client,
-          "[ERROR] Emotes are currently disabled in PvP servers."
-        );
+        return;
       }
+
+      // Check if player owns the emote as an account item
+      let hasEmote = false;
+
+      // Check all account items for emote
+      const accountItems =
+        await server.accountInventoriesManager.getAccountItems(
+          client.loginSessionId
+        );
+      for (const accountItem of accountItems) {
+        if (accountItem && accountItem.itemDefinitionId) {
+          const itemDef = server.getItemDefinition(
+            accountItem.itemDefinitionId
+          );
+          if (itemDef && itemDef.PARAM1 === animationId) {
+            hasEmote = true;
+            break;
+          }
+        }
+      }
+
+      if (!hasEmote) {
+        server.sendChatText(client, "[ERROR] You don't own this emote");
+        return;
+      }
+
+      server.sendDataToAllWithSpawnedEntity(
+        server._characters,
+        client.character.characterId,
+        "Animation.Play",
+        {
+          characterId: client.character.characterId,
+          animationId: animationId
+        }
+      );
+    }
+  },
+  {
+    name: "emotelist",
+    permissionLevel: PermissionLevels.DEFAULT,
+    execute: async (
+      server: ZoneServer2016,
+      client: Client,
+      args: Array<string>
+    ) => {
+      const emoteNames = [
+        "wavehello",
+        "wavebye",
+        "doublebird",
+        "point",
+        "agree",
+        "applause",
+        "beckon",
+        "cutthroat",
+        "salute",
+        "dancea",
+        "wavehellob",
+        "laugh",
+        "no",
+        "noway",
+        "handsup",
+        "sit",
+        "teabag",
+        "birdcannon",
+        "bootyslap",
+        "crotchchop",
+        "crybaby",
+        "grind",
+        "pelvicthrust",
+        "sarcasmdance",
+        "screwyou2",
+        "shimmydance",
+        "werenotworthy",
+        "beg",
+        "fisticuffs",
+        "flex",
+        "hump",
+        "flexpoint",
+        "listentothecrowd",
+        "airguitar",
+        "basicsalute",
+        "blowkiss",
+        "bow",
+        "buttscratchsniff",
+        "cheer",
+        "cold",
+        "confused",
+        "crazy",
+        "cry",
+        "curse",
+        "curtsey",
+        "doh",
+        "fingerwaggle",
+        "fistpump",
+        "frustrated",
+        "flustered",
+        "getattention",
+        "glare",
+        "handbeckon",
+        "happydance",
+        "hot",
+        "isitraining",
+        "jumphooray",
+        "loser",
+        "lookaway",
+        "listen",
+        "moon",
+        "neener",
+        "orate",
+        "pout",
+        "ponder",
+        "peer",
+        "royalwave",
+        "rudeslap",
+        "sad",
+        "scold",
+        "screwyoua",
+        "scream",
+        "shakefist",
+        "shakehead",
+        "shame",
+        "shieldeyes",
+        "shiverdownspine",
+        "shrugdance",
+        "sigh",
+        "singlefingerwaggle",
+        "sniff",
+        "stretch",
+        "square",
+        "sulk",
+        "swearoath",
+        "teabagb",
+        "tapfoot",
+        "teabaglight",
+        "threaten",
+        "thanks",
+        "thumbsdown",
+        "thumbsup",
+        "victory",
+        "violin",
+        "whistle",
+        "wave",
+        "wince",
+        "woohoo",
+        "raisecrown",
+        "thriller"
+      ];
+
+      server.sendChatText(client, "Available emotes:", true);
+      server.sendChatText(client, emoteNames.join(", "));
     }
   },
   {
