@@ -21,7 +21,7 @@ import { SOEOutputChannels } from "servers/SoeServer/soeoutputstream";
 const debug = require("debug")("GatewayServer");
 
 export class GatewayServer extends EventEmitter {
-  private _soeServer: SOEServer;
+  public _soeServer: SOEServer;
   private _protocol: GatewayProtocol;
   private _crcLength: crc_length_options;
   private _udpLength: number;

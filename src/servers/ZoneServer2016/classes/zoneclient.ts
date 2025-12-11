@@ -83,6 +83,7 @@ export class ZoneClient2016 {
   avgPingLen: number = 4;
   pingWarnings: number = 0;
   isWeaponLock: boolean = false;
+  lastMovementImpared: number = 0;
   avgPingReady: boolean = false;
   chunkRenderDistance: number = 400;
   routineCounter: number = 0;

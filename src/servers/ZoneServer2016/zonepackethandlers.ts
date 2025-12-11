@@ -852,7 +852,59 @@ export class ZonePacketHandlers {
     client: Client,
     packet: ReceivedPacket<ClientUpdateMonitorTimeDrift>
   ) {
-    // nothing for now
+    const soeClient = server._gatewayServer._soeServer.getSoeClient(
+      client.soeClientId
+    );
+    if (!soeClient) return;
+
+    const packetLoss = soeClient.getNetworkQuality();
+    if (packetLoss == undefined) return;
+
+    const name = client.character.name;
+
+    // Lock weapon if packet loss is too high
+    if (
+      !client.isWeaponLock &&
+      packetLoss >= server.maxPacketLoss &&
+      !server.isSaving
+    ) {
+      client.isWeaponLock = true;
+      server.sendAlert(
+        client,
+        "Your network quality falls below acceptable standards. Your shots will not register"
+      );
+      for (const c of Object.values(server._clients)) {
+        if (c.isAdmin && c.isDebugMode) {
+          server.chatManager.sendChatText(
+            server,
+            c,
+            `Fairplay: ${name} network quality falls below acceptable standards`,
+            false
+          );
+        }
+      }
+      return;
+    }
+
+    // Unlock weapon if packet loss has improved
+    if (client.isWeaponLock && packetLoss < server.maxPacketLoss) {
+      if (soeClient.statsResettedRecently) return;
+      client.isWeaponLock = false;
+      server.sendAlert(
+        client,
+        "Your network quality has improved. Your shots will now register properly"
+      );
+      for (const c of Object.values(server._clients)) {
+        if (c.isAdmin && c.isDebugMode) {
+          server.chatManager.sendChatText(
+            server,
+            c,
+            `Fairplay: ${name} network quality has improved`,
+            false
+          );
+        }
+      }
+    }
   }
   ClientLog(
     server: ZoneServer2016,
@@ -1379,7 +1431,7 @@ export class ZonePacketHandlers {
     } = packet.data;
 
     // Return early for spammed junk packets
-    if (flags === 2 || packet.data.flags == 513) {
+    if (/*flags === 2 || */ packet.data.flags == 513) {
       return;
     }
     // Disable temporary god mode if enabled
@@ -1511,6 +1563,29 @@ export class ZonePacketHandlers {
         return;*/
 
       // Update character position
+      // check sequence drift and impare movement if its a packetloss
+      const isLowSequenceDrift =
+        packet.data.sequenceTime + client.avgPing + 250 >
+        getCurrentServerTimeWrapper().getTruncatedU32();
+      if (
+        client.isWeaponLock &&
+        !isLowSequenceDrift &&
+        packet.data.position &&
+        client.lastMovementImpared + 3000 < Date.now()
+      ) {
+        client.lastMovementImpared = Date.now();
+        server.sendData<CommandRunSpeed>(client, "Command.RunSpeed", {
+          runSpeed: 1
+        });
+        server.sendChatTextToAdmins(
+          `Fairplay: Imparing movement of ${client.character.name} for 1.5s due to sequence drift`
+        );
+        setTimeout(() => {
+          server.sendData<CommandRunSpeed>(client, "Command.RunSpeed", {
+            runSpeed: 0
+          });
+        }, 1500);
+      }
       client.character.state.position = position;
 
       // Stop HUD timer if position is out of radius
