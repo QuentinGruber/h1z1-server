@@ -5940,8 +5940,14 @@ export class ZoneServer2016 extends EventEmitter {
       case WeaponDefinitionIds.WEAPON_WRENCH:
         durability = 2000;
         break;
-      case WeaponDefinitionIds.WEAPON_HAMMER:
       case WeaponDefinitionIds.WEAPON_CROWBAR:
+      case WeaponDefinitionIds.WEAPON_HAMMER:
+        if (!forceMaxDurability) {
+          do {
+            wornOffDurability = Math.floor(Math.random() * durability);
+          } while (wornOffDurability < 500);
+          break;
+        }
       case WeaponDefinitionIds.WEAPON_308:
       case WeaponDefinitionIds.WEAPON_SHOTGUN:
       case WeaponDefinitionIds.WEAPON_AK47:
@@ -5953,7 +5959,7 @@ export class ZoneServer2016 extends EventEmitter {
         if (!forceMaxDurability) {
           do {
             wornOffDurability = Math.floor(Math.random() * durability);
-          } while (durability < 250);
+          } while (wornOffDurability < 350);
           break;
         }
     }
