@@ -475,6 +475,7 @@ export class ZoneServer2016 extends EventEmitter {
   challengePositionCheckInterval?: NodeJS.Timeout;
   randomEventsManager: RandomEventsManager;
   gameMode: GameModes = GameModes.SURVIVAL;
+  maxPacketLoss: number = 5;
   //tasksManager: TaskManager;
   //clientRoutineRate!: number;
 
@@ -653,13 +654,7 @@ export class ZoneServer2016 extends EventEmitter {
       // this happen when the connection is close without a regular logout
       const client = this._clients[sessionId];
       if (client) {
-        if (client.properlyLogout) {
-          this.deleteClient(client);
-        } else {
-          setTimeout(() => {
-            this.deleteClient(client);
-          }, 10_000);
-        }
+        this.deleteClient(client);
       }
     });
 
