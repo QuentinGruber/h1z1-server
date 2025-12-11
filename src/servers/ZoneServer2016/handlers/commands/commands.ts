@@ -345,6 +345,74 @@ export const commands: Array<Command> = [
     }
   },
   {
+    name: "findloot",
+    permissionLevel: PermissionLevels.MODERATOR,
+    execute: (server: ZoneServer2016, client: Client, args: Array<string>) => {
+      if (!args[0] || !args[1]) {
+        server.sendChatText(client, "[ERROR] Usage /findloot [itemId] [range]");
+        return;
+      }
+      let totalCount = 0;
+      for (const a in server._lootableConstruction) {
+        const lootableConstrucion = server._lootableConstruction[a];
+        if (
+          !isPosInRadius(
+            Number(args[1]),
+            client.character.state.position,
+            lootableConstrucion.state.position
+          )
+        )
+          continue;
+        let count = 0;
+        for (const b in lootableConstrucion._containers) {
+          const container = lootableConstrucion._containers[b];
+          for (const c in container.items) {
+            const item = container.items[c];
+            if (item.itemDefinitionId == Number(args[0])) {
+              count += item.stackCount;
+              totalCount += item.stackCount;
+            }
+          }
+        }
+        if (count) {
+          server.sendChatText(
+            client,
+            `COUNT: ${count} POSITION: [ ${lootableConstrucion.state.position[0]} ${lootableConstrucion.state.position[1]} ${lootableConstrucion.state.position[2]} ]`
+          );
+        }
+      }
+      for (const a in server._worldLootableConstruction) {
+        const lootableConstrucion = server._worldLootableConstruction[a];
+        if (
+          !isPosInRadius(
+            Number(args[1]),
+            client.character.state.position,
+            lootableConstrucion.state.position
+          )
+        )
+          continue;
+        let count = 0;
+        for (const b in lootableConstrucion._containers) {
+          const container = lootableConstrucion._containers[b];
+          for (const c in container.items) {
+            const item = container.items[c];
+            if (item.itemDefinitionId == Number(args[0])) {
+              count += item.stackCount;
+              totalCount += item.stackCount;
+            }
+          }
+        }
+        if (count) {
+          server.sendChatText(
+            client,
+            `COUNT: ${count} POSITION: [ ${lootableConstrucion.state.position[0]} ${lootableConstrucion.state.position[1]} ${lootableConstrucion.state.position[2]} ]`
+          );
+        }
+      }
+      server.sendChatText(client, `TOTAL COUNT: ${totalCount}`);
+    }
+  },
+  {
     name: "netstats",
     permissionLevel: PermissionLevels.DEFAULT,
     execute: async (
