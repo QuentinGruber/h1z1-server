@@ -39,6 +39,7 @@ import {
   characterKitLoadout,
   characterVehicleKit
 } from "../../data/loadouts";
+import { emoteMap, emoteNames, defaultEmotes } from "../../data/emotes";
 import {
   Effects,
   EquipSlots,
@@ -271,10 +272,9 @@ export const commands: Array<Command> = [
 
         server.sendChatText(
           client,
-          `Uptime: ${
-            uptimeMin < 60
-              ? `${uptimeMin.toFixed()}m`
-              : `${(uptimeMin / 60).toFixed()}h `
+          `Uptime: ${uptimeMin < 60
+            ? `${uptimeMin.toFixed()}m`
+            : `${(uptimeMin / 60).toFixed()}h `
           }`
         );
         if (client.isAdmin) {
@@ -298,8 +298,7 @@ export const commands: Array<Command> = [
       const pop = _.size(server._clients);
       server.sendChatText(
         client,
-        `There ${pop > 1 ? "are" : "is"} ${pop} player${
-          pop > 1 ? "s" : ""
+        `There ${pop > 1 ? "are" : "is"} ${pop} player${pop > 1 ? "s" : ""
         } online.`
       );
     }
@@ -422,110 +421,6 @@ export const commands: Array<Command> = [
         return;
       }
 
-      // Emote name to ID mapping
-      const emoteMap: { [key: string]: number } = {
-        wavehello: 2,
-        wavebye: 3,
-        doublebird: 4,
-        point: 5,
-        agree: 6,
-        applause: 7,
-        beckon: 8,
-        cutthroat: 9,
-        salute: 10,
-        dancea: 11,
-        wavehellob: 12,
-        laugh: 13,
-        no: 14,
-        noway: 15,
-        handsup: 16,
-        sit: 17,
-        teabag: 18,
-        birdcannon: 20,
-        bootyslap: 21,
-        crotchchop: 22,
-        crybaby: 23,
-        grind: 24,
-        pelvicthrust: 25,
-        sarcasmdance: 26,
-        screwyou2: 27,
-        shimmydance: 28,
-        werenotworthy: 29,
-        beg: 30,
-        fisticuffs: 31,
-        flex: 32,
-        hump: 33,
-        flexpoint: 34,
-        listentothecrowd: 35,
-        airguitar: 36,
-        basicsalute: 37,
-        blowkiss: 38,
-        bow: 39,
-        buttscratchsniff: 40,
-        cheer: 41,
-        cold: 42,
-        confused: 43,
-        crazy: 44,
-        cry: 45,
-        curse: 46,
-        curtsey: 47,
-        doh: 48,
-        fingerwaggle: 49,
-        fistpump: 50,
-        frustrated: 51,
-        flustered: 52,
-        getattention: 53,
-        glare: 54,
-        handbeckon: 55,
-        happydance: 56,
-        hot: 57,
-        isitraining: 58,
-        jumphooray: 59,
-        loser: 60,
-        lookaway: 61,
-        listen: 62,
-        moon: 63,
-        neener: 64,
-        orate: 65,
-        pout: 66,
-        ponder: 67,
-        peer: 68,
-        royalwave: 69,
-        rudeslap: 70,
-        sad: 71,
-        scold: 72,
-        screwyoua: 73,
-        scream: 74,
-        shakefist: 75,
-        shakehead: 76,
-        shame: 77,
-        shieldeyes: 78,
-        shiverdownspine: 79,
-        shrugdance: 80,
-        sigh: 81,
-        singlefingerwaggle: 82,
-        sniff: 83,
-        stretch: 84,
-        square: 85,
-        sulk: 86,
-        swearoath: 87,
-        teabagb: 88,
-        tapfoot: 89,
-        teabaglight: 90,
-        threaten: 91,
-        thanks: 92,
-        thumbsdown: 93,
-        thumbsup: 94,
-        victory: 95,
-        violin: 96,
-        whistle: 97,
-        wave: 98,
-        wince: 99,
-        woohoo: 100,
-        raisecrown: 101,
-        thriller: 102
-      };
-
       const emoteName = args[0].toLowerCase();
       const animationId = emoteMap[emoteName];
 
@@ -537,10 +432,8 @@ export const commands: Array<Command> = [
         return;
       }
 
-      const allowedEmoteswithoutowning = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11];
-
       // Check if this emote is in the allowed list (no ownership check needed)
-      if (allowedEmoteswithoutowning.includes(animationId) || client.isAdmin) {
+      if (defaultEmotes.includes(animationId)) {
         server.sendDataToAllWithSpawnedEntity(
           server._characters,
           client.character.characterId,
@@ -597,111 +490,39 @@ export const commands: Array<Command> = [
       client: Client,
       args: Array<string>
     ) => {
-      const emoteNames = [
-        "wavehello",
-        "wavebye",
-        "doublebird",
-        "point",
-        "agree",
-        "applause",
-        "beckon",
-        "cutthroat",
-        "salute",
-        "dancea",
-        "wavehellob",
-        "laugh",
-        "no",
-        "noway",
-        "handsup",
-        "sit",
-        "teabag",
-        "birdcannon",
-        "bootyslap",
-        "crotchchop",
-        "crybaby",
-        "grind",
-        "pelvicthrust",
-        "sarcasmdance",
-        "screwyou2",
-        "shimmydance",
-        "werenotworthy",
-        "beg",
-        "fisticuffs",
-        "flex",
-        "hump",
-        "flexpoint",
-        "listentothecrowd",
-        "airguitar",
-        "basicsalute",
-        "blowkiss",
-        "bow",
-        "buttscratchsniff",
-        "cheer",
-        "cold",
-        "confused",
-        "crazy",
-        "cry",
-        "curse",
-        "curtsey",
-        "doh",
-        "fingerwaggle",
-        "fistpump",
-        "frustrated",
-        "flustered",
-        "getattention",
-        "glare",
-        "handbeckon",
-        "happydance",
-        "hot",
-        "isitraining",
-        "jumphooray",
-        "loser",
-        "lookaway",
-        "listen",
-        "moon",
-        "neener",
-        "orate",
-        "pout",
-        "ponder",
-        "peer",
-        "royalwave",
-        "rudeslap",
-        "sad",
-        "scold",
-        "screwyoua",
-        "scream",
-        "shakefist",
-        "shakehead",
-        "shame",
-        "shieldeyes",
-        "shiverdownspine",
-        "shrugdance",
-        "sigh",
-        "singlefingerwaggle",
-        "sniff",
-        "stretch",
-        "square",
-        "sulk",
-        "swearoath",
-        "teabagb",
-        "tapfoot",
-        "teabaglight",
-        "threaten",
-        "thanks",
-        "thumbsdown",
-        "thumbsup",
-        "victory",
-        "violin",
-        "whistle",
-        "wave",
-        "wince",
-        "woohoo",
-        "raisecrown",
-        "thriller"
-      ];
+      const ownedEmotes: string[] = [];
+
+      // Add default emotes that don't require ownership
+      for (const [emoteName, animationId] of Object.entries(emoteMap)) {
+        if (defaultEmotes.includes(animationId)) {
+          ownedEmotes.push(emoteName);
+        }
+      }
+
+      // Check account items for owned emotes
+      const accountItems =
+        await server.accountInventoriesManager.getAccountItems(
+          client.loginSessionId
+        );
+      for (const accountItem of accountItems) {
+        if (accountItem && accountItem.itemDefinitionId) {
+          const itemDef = server.getItemDefinition(
+            accountItem.itemDefinitionId
+          );
+          if (itemDef && itemDef.PARAM1) {
+            // Find emote name by animation ID
+            for (const [emoteName, animationId] of Object.entries(emoteMap)) {
+              if (animationId === itemDef.PARAM1 && !defaultEmotes.includes(animationId)) {
+                ownedEmotes.push(emoteName);
+                break;
+              }
+            }
+          }
+        }
+      }
 
       server.sendChatText(client, "Available emotes:", true);
-      server.sendChatText(client, emoteNames.join(", "));
+      server.sendChatText(client, ownedEmotes.sort().join(", "));
     }
   },
   {
@@ -1402,15 +1223,13 @@ export const commands: Array<Command> = [
         time += Date.now();
         server.sendChatText(
           client,
-          `You have ${
-            isSilent ? "silently " : ""
+          `You have ${isSilent ? "silently " : ""
           }banned ${character?.characterName} until ${getDateString(time)}`
         );
       } else {
         server.sendChatText(
           client,
-          `You have ${
-            isSilent ? "silently " : ""
+          `You have ${isSilent ? "silently " : ""
           }banned ${character?.characterName} permanently`
         );
       }
@@ -1483,15 +1302,13 @@ export const commands: Array<Command> = [
         time += Date.now();
         server.sendChatText(
           client,
-          `You have ${
-            isSilent ? "silently " : ""
+          `You have ${isSilent ? "silently " : ""
           }banned ${character?.characterName} until ${getDateString(time)}`
         );
       } else {
         server.sendChatText(
           client,
-          `You have ${
-            isSilent ? "silently " : ""
+          `You have ${isSilent ? "silently " : ""
           }banned ${character?.characterName} permanently`
         );
       }
@@ -1897,8 +1714,7 @@ export const commands: Array<Command> = [
         time += Date.now();
         server.sendChatText(
           client,
-          `You have muted ${
-            targetClient.character.name
+          `You have muted ${targetClient.character.name
           } until ${getDateString(time)}`
         );
       } else {
@@ -2133,14 +1949,12 @@ export const commands: Array<Command> = [
       server.inGameTimeManager.time = time;
       server.sendChatText(
         client,
-        `Will force time to be ${
-          choosenHour % 1 >= 0.5
-            ? Number(choosenHour.toFixed(0)) - 1
-            : choosenHour.toFixed(0)
-        }:${
-          choosenHour % 1 === 0
-            ? "00"
-            : (((choosenHour % 1) * 100 * 60) / 100).toFixed(0)
+        `Will force time to be ${choosenHour % 1 >= 0.5
+          ? Number(choosenHour.toFixed(0)) - 1
+          : choosenHour.toFixed(0)
+        }:${choosenHour % 1 === 0
+          ? "00"
+          : (((choosenHour % 1) * 100 * 60) / 100).toFixed(0)
         } on next sync...`,
         true
       );
@@ -2767,10 +2581,8 @@ export const commands: Array<Command> = [
         }
         server.sendChatText(
           client,
-          `Adding ${count}x item${
-            count == 1 ? "" : "s"
-          } with id ${itemDefId} to player ${
-            targetClient ? targetClient.character.name : client.character.name
+          `Adding ${count}x item${count == 1 ? "" : "s"
+          } with id ${itemDefId} to player ${targetClient ? targetClient.character.name : client.character.name
           }`
         );
         (targetClient ? targetClient.character : client.character).lootItem(
@@ -2780,8 +2592,7 @@ export const commands: Array<Command> = [
       } else {
         server.sendChatText(
           client,
-          `Adding ${count}x item${
-            count == 1 ? "" : "s"
+          `Adding ${count}x item${count == 1 ? "" : "s"
           } with id ${itemDefId} to player ${client.character.name}`
         );
         client.character.lootItem(server, item);
@@ -3446,8 +3257,7 @@ export const commands: Array<Command> = [
           counter++;
           server.sendChatText(
             client,
-            `${counter}. ${name ? name : item.itemDefinitionId}, count: ${
-              item.stackCount
+            `${counter}. ${name ? name : item.itemDefinitionId}, count: ${item.stackCount
             }`
           );
         }
@@ -3463,8 +3273,7 @@ export const commands: Array<Command> = [
           )?.NAME;
           server.sendChatText(
             client,
-            `${
-              containerName ? containerName : container.itemDefinitionId
+            `${containerName ? containerName : container.itemDefinitionId
             } [${container.getUsedBulk(server)}/${container.getMaxBulk(
               server
             )}]:`
@@ -3476,8 +3285,7 @@ export const commands: Array<Command> = [
             )?.NAME;
             server.sendChatText(
               client,
-              `${counter}. ${
-                itemName ? itemName : item.itemDefinitionId
+              `${counter}. ${itemName ? itemName : item.itemDefinitionId
               }, count: ${item.stackCount}`
             );
           });
