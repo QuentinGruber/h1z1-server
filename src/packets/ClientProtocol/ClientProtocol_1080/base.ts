@@ -2221,10 +2221,14 @@ export const basePackets: PacketStructures = [
   ],
   ["ClientMetrics", 0x45, {}],
   [
-    "FirstTimeEvent.Unknown1",
+    "FirstTimeEvent.NotifySystem",
     0x4601,
     {
-      fields: []
+      fields: [
+        { name: "unknownDword1", type: "int32", defaultValue: 0 },
+        { name: "unknownBoolean1", type: "boolean", defaultValue: false },
+        { name: "displayElement", type: "int32", defaultValue: 0 }
+      ]
     }
   ],
   [

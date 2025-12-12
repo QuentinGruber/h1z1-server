@@ -475,6 +475,7 @@ export class ZoneServer2016 extends EventEmitter {
   challengePositionCheckInterval?: NodeJS.Timeout;
   randomEventsManager: RandomEventsManager;
   gameMode: GameModes = GameModes.SURVIVAL;
+  maxPacketLoss: number = 5;
   //tasksManager: TaskManager;
   //clientRoutineRate!: number;
 
@@ -642,7 +643,7 @@ export class ZoneServer2016 extends EventEmitter {
         const oldClient = this.getClientByGuid(guid);
         if (oldClient) {
           this.sendData<LoginFailed>(oldClient, "LoginFailed", {});
-          this.deleteClient(oldClient);
+          await this.deleteClient(oldClient);
         }
         this._clients[sessionId] = zoneClient;
         this._characters[characterId] = zoneClient.character;
@@ -653,13 +654,7 @@ export class ZoneServer2016 extends EventEmitter {
       // this happen when the connection is close without a regular logout
       const client = this._clients[sessionId];
       if (client) {
-        if (client.properlyLogout) {
-          this.deleteClient(client);
-        } else {
-          setTimeout(() => {
-            this.deleteClient(client);
-          }, 10_000);
-        }
+        this.deleteClient(client);
       }
     });
 
@@ -1339,7 +1334,8 @@ export class ZoneServer2016 extends EventEmitter {
             client.character.state.position,
             object.state.position,
             yDistance // only Y-difference changes
-          )
+          ) ||
+          object.mountedCharacter == client.character.characterId
         ) {
           if (object.parentObjectCharacterId) {
             const parent = object.getParent(this);
@@ -1990,7 +1986,9 @@ export class ZoneServer2016 extends EventEmitter {
         constructions,
         vehicles
       });
-      this._isSaving = false;
+      setTimeout(() => {
+        this._isSaving = false;
+      }, 10000);
       this.sendChatTextToAdmins("World saved!");
       this.nextSaveTime = Date.now() + this.saveTimeInterval;
       debug("World saved!");
@@ -3723,6 +3721,18 @@ export class ZoneServer2016 extends EventEmitter {
   registerHit(client: Client, packet: any, gameTime: number) {
     //if (!client.character.isAlive) return;
     // Should be able to trade while in combat
+
+    if (client.isWeaponLock) {
+      this.sendChatText(
+        client,
+        "FairPlay: Your projectile was blocked due to low network quality"
+      );
+      this.sendChatTextToAdmins(
+        `FairPlay: ${client.character.name} shot has been blocked due to low network quality`,
+        false
+      );
+      return;
+    }
 
     const { hitReport } = packet;
     if (!hitReport) return; // should never trigger
@@ -5946,8 +5956,14 @@ export class ZoneServer2016 extends EventEmitter {
       case WeaponDefinitionIds.WEAPON_WRENCH:
         durability = 2000;
         break;
-      case WeaponDefinitionIds.WEAPON_HAMMER:
       case WeaponDefinitionIds.WEAPON_CROWBAR:
+      case WeaponDefinitionIds.WEAPON_HAMMER:
+        if (!forceMaxDurability) {
+          do {
+            wornOffDurability = Math.floor(Math.random() * durability);
+          } while (wornOffDurability < 500);
+          break;
+        }
       case WeaponDefinitionIds.WEAPON_308:
       case WeaponDefinitionIds.WEAPON_SHOTGUN:
       case WeaponDefinitionIds.WEAPON_AK47:
@@ -5959,7 +5975,7 @@ export class ZoneServer2016 extends EventEmitter {
         if (!forceMaxDurability) {
           do {
             wornOffDurability = Math.floor(Math.random() * durability);
-          } while (durability < 250);
+          } while (wornOffDurability < 350);
           break;
         }
     }
@@ -6598,9 +6614,10 @@ export class ZoneServer2016 extends EventEmitter {
 
   /**
    * Removes a single item type from the inventory and spawns it on the ground
-   * @param client The client to have its item dropped.
+   * @param character The character that should drop the item
    * @param item The item object.
    * @param count Optional: The number of items to drop on the ground, default 1.
+   * @param animationId The animation to play
    */
   dropItem(
     character: BaseFullCharacter,
@@ -7944,7 +7961,7 @@ export class ZoneServer2016 extends EventEmitter {
       itemDefinition.ID,
       overrideProjectileId
         ? packet.packet.sessionProjectileCount +
-          parseInt(client.character.characterId.slice(-5), 16)
+            parseInt(client.character.characterId.slice(-5), 16)
         : packet.packet.projectileUniqueId,
       client.character.characterId
     );
@@ -9080,14 +9097,7 @@ export class ZoneServer2016 extends EventEmitter {
     delete this._vehicles[vehicleGuid]?.manager;
   }
   sendZonePopulationUpdate() {
-    let populationNumber = 0;
-    for (const key in this._characters) {
-      const char = this._characters[key];
-      const client = this.getClientByCharId(char.characterId);
-      if (!client?.isAdmin) {
-        populationNumber++;
-      }
-    }
+    let populationNumber = _.size(this._clients);
     this._loginConnectionManager.sendData(
       {
         ...this._loginServerInfo,
