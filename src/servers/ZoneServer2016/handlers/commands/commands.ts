@@ -39,6 +39,7 @@ import {
   characterKitLoadout,
   characterVehicleKit
 } from "../../data/loadouts";
+import { emoteMap, emoteNames, defaultEmotes } from "../../data/emotes";
 import {
   Effects,
   EquipSlots,
@@ -481,40 +482,29 @@ export const commands: Array<Command> = [
   {
     name: "emote",
     permissionLevel: PermissionLevels.DEFAULT,
-    execute: (server: ZoneServer2016, client: Client, args: Array<string>) => {
-      if (server.isPvE) {
-        const animationId = Number(args[0]);
-        if (!animationId || animationId > MAX_UINT32) {
-          server.sendChatText(client, "Usage /emote <id>");
-          return;
-        }
+    execute: async (
+      server: ZoneServer2016,
+      client: Client,
+      args: Array<string>
+    ) => {
+      if (!args[0]) {
+        server.sendChatText(client, "Usage /emote <name>");
+        return;
+      }
 
-        if (!server.isPvE) {
-          switch (animationId) {
-            case 18:
-            case 21:
-            case 29:
-            case 30:
-            case 39:
-            case 88:
-            case 34:
-            case 35:
-            case 43:
-            case 46:
-            case 51:
-            case 58:
-            case 68:
-            case 95:
-            case 97:
-            case 101:
-            case 102:
-              server.sendChatText(
-                client,
-                "[ERROR] This emote has been disabled due to abuse."
-              );
-              return;
-          }
-        }
+      const emoteName = args[0].toLowerCase();
+      const animationId = emoteMap[emoteName];
+
+      if (!animationId) {
+        server.sendChatText(
+          client,
+          `Unknown emote: ${args[0]}. Use /emotelist to see available emotes.`
+        );
+        return;
+      }
+
+      // Check if this emote is in the allowed list (no ownership check needed)
+      if (defaultEmotes.includes(animationId)) {
         server.sendDataToAllWithSpawnedEntity(
           server._characters,
           client.character.characterId,
@@ -524,12 +514,89 @@ export const commands: Array<Command> = [
             animationId: animationId
           }
         );
-      } else {
-        server.sendChatText(
-          client,
-          "[ERROR] Emotes are currently disabled in PvP servers."
-        );
+        return;
       }
+
+      // Check if player owns the emote as an account item
+      let hasEmote = false;
+
+      // Check all account items for emote
+      const accountItems =
+        await server.accountInventoriesManager.getAccountItems(
+          client.loginSessionId
+        );
+      for (const accountItem of accountItems) {
+        if (accountItem && accountItem.itemDefinitionId) {
+          const itemDef = server.getItemDefinition(
+            accountItem.itemDefinitionId
+          );
+          if (itemDef && itemDef.PARAM1 === animationId) {
+            hasEmote = true;
+            break;
+          }
+        }
+      }
+
+      if (!hasEmote) {
+        server.sendChatText(client, "[ERROR] You don't own this emote");
+        return;
+      }
+
+      server.sendDataToAllWithSpawnedEntity(
+        server._characters,
+        client.character.characterId,
+        "Animation.Play",
+        {
+          characterId: client.character.characterId,
+          animationId: animationId
+        }
+      );
+    }
+  },
+  {
+    name: "emotelist",
+    permissionLevel: PermissionLevels.DEFAULT,
+    execute: async (
+      server: ZoneServer2016,
+      client: Client,
+      args: Array<string>
+    ) => {
+      const ownedEmotes: string[] = [];
+
+      // Add default emotes that don't require ownership
+      for (const [emoteName, animationId] of Object.entries(emoteMap)) {
+        if (defaultEmotes.includes(animationId)) {
+          ownedEmotes.push(emoteName);
+        }
+      }
+
+      // Check account items for owned emotes
+      const accountItems =
+        await server.accountInventoriesManager.getAccountItems(
+          client.loginSessionId
+        );
+      for (const accountItem of accountItems) {
+        if (accountItem && accountItem.itemDefinitionId) {
+          const itemDef = server.getItemDefinition(
+            accountItem.itemDefinitionId
+          );
+          if (itemDef && itemDef.PARAM1) {
+            // Find emote name by animation ID
+            for (const [emoteName, animationId] of Object.entries(emoteMap)) {
+              if (
+                animationId === itemDef.PARAM1 &&
+                !defaultEmotes.includes(animationId)
+              ) {
+                ownedEmotes.push(emoteName);
+                break;
+              }
+            }
+          }
+        }
+      }
+
+      server.sendChatText(client, "Available emotes:", true);
+      server.sendChatText(client, ownedEmotes.sort().join(", "));
     }
   },
   {
