@@ -108,6 +108,14 @@ export class RewardManager {
       {
         itemId: AccountItems.REWARD_CRATE_H1EMUEXCLUSIVE,
         dropChances: 0
+      },
+      {
+        itemId: AccountItems.REWARD_CRATE_INFERNAL_2025,
+        dropChances: 0
+      },
+      {
+        itemId: AccountItems.REWARD_CRATE_FROST,
+        dropChances: 0
       }
     ];
     this.playTimerewards = [
