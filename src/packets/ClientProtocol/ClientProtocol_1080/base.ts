@@ -1940,13 +1940,17 @@ export const basePackets: PacketStructures = [
               type: "uint64string",
               defaultValue: "0x0"
             },
-            { name: "unknownQword3", type: "uint64string", defaultValue: "" },
+            {
+              name: "unknownQword3",
+              type: "uint64string",
+              defaultValue: "0x0"
+            },
             {
               name: "vehicleLoadoutRelatedDword",
               type: "uint32",
               defaultValue: 0
             },
-            { name: "unknownDword40", type: "int32", defaultValue: 0 },
+            { name: "unknownDword40", type: "int32", defaultValue: -1 },
             { name: "isAdmin", type: "boolean", defaultValue: true },
             { name: "firstPersonOnly", type: "boolean", defaultValue: false },
             { name: "spectatorFlags", type: "uint8", defaultValue: 0 }
