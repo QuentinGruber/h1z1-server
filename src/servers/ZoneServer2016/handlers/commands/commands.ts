@@ -1861,6 +1861,27 @@ export const commands: Array<Command> = [
     }
   },
   {
+    name: "setmaxpacketloss",
+    permissionLevel: PermissionLevels.ADMIN,
+    execute: (server: ZoneServer2016, client: Client, args: Array<string>) => {
+      if (!args[0]) {
+        server.sendChatText(client, "You must specify a value");
+        return;
+      }
+      const packetloss = Number(args[0]);
+      if (packetloss < 1) {
+        server.sendChatText(client, "Minimum packet loss to specify is 1");
+        return;
+      }
+      server.sendChatText(
+        client,
+        `Max packet loss set to ${packetloss} from ${server.maxPacketLoss}`,
+        false
+      );
+      server.maxPacketLoss = packetloss;
+    }
+  },
+  {
     name: "heal",
     permissionLevel: PermissionLevels.MODERATOR,
     execute: async (
