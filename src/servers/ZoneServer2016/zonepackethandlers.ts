@@ -323,6 +323,18 @@ export class ZonePacketHandlers {
     if (!server.hookManager.checkHook("OnClientFinishedLoading", client)) {
       return;
     }
+
+    if (!client.firstLoading) {
+      setTimeout(() => {
+        const soeClient = server._gatewayServer._soeServer.getSoeClient(
+          client.soeClientId
+        );
+        if (soeClient) {
+          soeClient.finishedLoading = true;
+        }
+      }, 5000);
+    }
+
     if (client.character.awaitingTeleportLocation) {
       const awaitingPos = client.character.awaitingTeleportLocation;
       setTimeout(() => {
