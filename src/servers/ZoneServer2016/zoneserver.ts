@@ -5089,7 +5089,7 @@ export class ZoneServer2016 extends EventEmitter {
    */
   cancelEmote(client: Client) {
     if (client.character.currentEmote === 0) return; // no emote playing
-    
+
     // Send effect ID 0 to cancel the emote
     this.sendDataToAllWithSpawnedEntity<CommandPlayDialogEffect>(
       this._characters,
@@ -5100,7 +5100,7 @@ export class ZoneServer2016 extends EventEmitter {
         effectId: 0
       }
     );
-    
+
     client.character.currentEmote = 0;
   }
 
@@ -7961,7 +7961,7 @@ export class ZoneServer2016 extends EventEmitter {
       itemDefinition.ID,
       overrideProjectileId
         ? packet.packet.sessionProjectileCount +
-          parseInt(client.character.characterId.slice(-5), 16)
+            parseInt(client.character.characterId.slice(-5), 16)
         : packet.packet.projectileUniqueId,
       client.character.characterId
     );

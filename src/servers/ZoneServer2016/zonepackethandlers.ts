@@ -607,17 +607,17 @@ export class ZonePacketHandlers {
     packet: ReceivedPacket<CommandPlayDialogEffect>
   ) {
     const effectId = packet.data.effectId ?? 0;
-    
+
     // Validate that the player can use emotes
     // Only allow emotes when player has hands/fists equipped (LoadoutSlots.FISTS)
     const equippedItem = client.character.getEquippedWeapon();
-    
+
     // Check if the player has fists equipped or no weapon
     if (equippedItem && equippedItem.itemDefinitionId !== Items.WEAPON_FISTS) {
       // Player has a weapon equipped that is not fists, don't allow emote
       return;
     }
-    
+
     // Track that the player is playing an emote
     if (effectId > 0) {
       client.character.currentEmote = effectId;
@@ -626,7 +626,7 @@ export class ZonePacketHandlers {
       // effectId 0 means cancel emote
       client.character.currentEmote = 0;
     }
-    
+
     // Send the emote to all other players
     server.sendDataToAllOthersWithSpawnedEntity<CommandPlayDialogEffect>(
       server._characters,
@@ -4187,9 +4187,6 @@ export class ZonePacketHandlers {
         break;
       case "Command.PlayDialogEffect":
         this.CommandPlayDialogEffect(server, client, packet);
-        break;
-      case "FirstTimeEvent.Unknown1":
-        this.FirstTimeEventInventoryAccess(server, client, packet);
         break;
       case "FirstTimeEvent.NotifySystem":
         this.FirstTimeEventNotifySystem(server, client, packet);
