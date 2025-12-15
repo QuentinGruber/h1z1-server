@@ -665,9 +665,9 @@ export class SOEServer extends EventEmitter {
     }
 
     // Trim lostPackets to last 100 if needed
-    if (client.lostPackets.length > 100) {
-      client.lostPackets.splice(0, client.lostPackets.length - 100);
-    }
+    //if (client.lostPackets.length > 100) {
+    //  client.lostPackets.splice(0, client.lostPackets.length - 100);
+    //}
 
     if (client.unAckData.size > 0) {
       this._activateSendingTimer(client);

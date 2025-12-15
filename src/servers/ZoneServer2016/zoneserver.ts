@@ -654,7 +654,16 @@ export class ZoneServer2016 extends EventEmitter {
       // this happen when the connection is close without a regular logout
       const client = this._clients[sessionId];
       if (client) {
-        this.deleteClient(client);
+        if (client.properlyLogout) {
+          this.deleteClient(client);
+        } else {
+          setTimeout(() => {
+            // Double-check client still exists before deleting
+            if (this._clients[sessionId]) {
+              this.deleteClient(client);
+            }
+          }, 10_000);
+        }
       }
     });
 
