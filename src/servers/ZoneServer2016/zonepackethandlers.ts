@@ -76,6 +76,7 @@ import {
   CommandExecuteCommand,
   CommandFreeInteractionNpc,
   CommandInteractRequest,
+  CommandPlayDialogEffect,
   CommandInteractionString,
   CommandItemDefinitionReply,
   CommandItemDefinitionRequest,
@@ -598,6 +599,44 @@ export class ZonePacketHandlers {
       client,
       "Command.FreeInteractionNpc",
       {}
+    );
+  }
+  CommandPlayDialogEffect(
+    server: ZoneServer2016,
+    client: Client,
+    packet: ReceivedPacket<CommandPlayDialogEffect>
+  ) {
+    const effectId = packet.data.effectId ?? 0;
+    
+    // Validate that the player can use emotes
+    // Only allow emotes when player has hands/fists equipped (LoadoutSlots.FISTS)
+    const equippedItem = client.character.getEquippedWeapon();
+    
+    // Check if the player has fists equipped or no weapon
+    if (equippedItem && equippedItem.itemDefinitionId !== Items.WEAPON_FISTS) {
+      // Player has a weapon equipped that is not fists, don't allow emote
+      return;
+    }
+    
+    // Track that the player is playing an emote
+    if (effectId > 0) {
+      client.character.currentEmote = effectId;
+      client.character.lastEmoteTime = Date.now();
+    } else {
+      // effectId 0 means cancel emote
+      client.character.currentEmote = 0;
+    }
+    
+    // Send the emote to all other players
+    server.sendDataToAllOthersWithSpawnedEntity<CommandPlayDialogEffect>(
+      server._characters,
+      client,
+      client.character.characterId,
+      "Command.PlayDialogEffect",
+      {
+        characterId: client.character.characterId,
+        effectId: effectId
+      }
     );
   }
   CollisionDamage(
@@ -1527,6 +1566,13 @@ export class ZonePacketHandlers {
 
       // Update running state
       client.character.isRunning = stanceFlags.SPRINTING;
+
+      // Cancel emote when player is moving too much (sprinting) or goes prone
+      if (client.character.currentEmote > 0) {
+        if (stanceFlags.SPRINTING || stanceFlags.PRONED) {
+          server.cancelEmote(client);
+        }
+      }
 
       // Handle jump penalty
       if (
@@ -3123,6 +3169,10 @@ export class ZonePacketHandlers {
     if (!weaponItem || !weaponItem.weapon) return;
     switch (packet.packetName) {
       case "Weapon.FireStateUpdate":
+        // Cancel emote when player starts firing
+        if (packet.packet.firestate > 0 && client.character.currentEmote > 0) {
+          server.cancelEmote(client);
+        }
         server.handleWeaponFireStateUpdate(
           client,
           weaponItem,
@@ -3130,6 +3180,10 @@ export class ZonePacketHandlers {
         );
         break;
       case "Weapon.Fire":
+        // Cancel emote when player fires
+        if (client.character.currentEmote > 0) {
+          server.cancelEmote(client);
+        }
         server.handleWeaponFire(client, weaponItem, packet);
         break;
       case "Weapon.ProjectileHitReport":
@@ -3445,6 +3499,10 @@ export class ZonePacketHandlers {
       client.character.currentInteractionGuid;
 
     if (hitLocation) {
+      // Cancel emote when player starts melee attack
+      if (client.character.currentEmote > 0) {
+        server.cancelEmote(client);
+      }
       client.character.abilityInitTime = Date.now();
       client.character.meleeHit = {
         abilityHitLocation: hitLocation,
@@ -4126,6 +4184,12 @@ export class ZonePacketHandlers {
         break;
       case "Command.Redeploy":
         this.CommandRedeploy(server, client, packet);
+        break;
+      case "Command.PlayDialogEffect":
+        this.CommandPlayDialogEffect(server, client, packet);
+        break;
+      case "FirstTimeEvent.Unknown1":
+        this.FirstTimeEventInventoryAccess(server, client, packet);
         break;
       case "FirstTimeEvent.NotifySystem":
         this.FirstTimeEventNotifySystem(server, client, packet);
