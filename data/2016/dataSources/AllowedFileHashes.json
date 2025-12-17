@@ -1025,21 +1025,26 @@
   },
   {
     "file_name": "Assets_256.pack",
-    "crc32_hash": "600179b5",
-    "old_crc32_hash": "47ce5604"
+    "crc32_hash": "396f3599"
   },
   {
     "file_name": "Assets_257.pack",
-    "crc32_hash": "329599bc",
-    "old_crc32_hash": "bc999532"
+    "crc32_hash": "bc999532"
   },
   {
     "file_name": "Assets_258.pack",
-    "crc32_hash": "7f2a6b5b",
-    "old_crc32_hash": "5b6b2a7f"
+    "crc32_hash": "5b6b2a7f"
   },
   {
     "file_name": "Assets_259.pack",
-    "crc32_hash": "83625ea7"
+    "crc32_hash": "a75e6283"
+  },
+  {
+    "file_name": "Assets_260.pack",
+    "crc32_hash": "7b106055"
+  },
+  {
+    "file_name": "Assets_261.pack",
+    "crc32_hash": "bfdc08a2"
   }
 ]
