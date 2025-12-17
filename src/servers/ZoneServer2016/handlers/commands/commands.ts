@@ -1554,6 +1554,8 @@ export const commands: Array<Command> = [
     execute: (server: ZoneServer2016, client: Client, args: Array<string>) => {
       const direction = (args[0] || "up").toLowerCase(); // Default direction is "up"
       const heightInput = args[1];
+      const playerName = args[2]; // Optional player name
+
       const height = heightInput !== undefined ? parseFloat(heightInput) : 50;
       if (isNaN(height)) {
         server.sendChatText(
@@ -1562,7 +1564,24 @@ export const commands: Array<Command> = [
         );
         return;
       }
-      const newPosition = new Float32Array(client.character.state.position);
+
+      // Determine target client
+      let targetClient = client;
+      if (playerName) {
+        const foundClient = server.getClientByNameOrLoginSession(playerName);
+        if (server.playerNotFound(client, playerName, foundClient)) {
+          return;
+        }
+        if (!foundClient || !(foundClient instanceof Client)) {
+          server.sendChatText(client, "Client not found.");
+          return;
+        }
+        targetClient = foundClient;
+      }
+
+      const newPosition = new Float32Array(
+        targetClient.character.state.position
+      );
       switch (direction) {
         case "up":
           newPosition[1] += height;
@@ -1577,11 +1596,20 @@ export const commands: Array<Command> = [
           );
           return;
       }
-      server.sendData(client, "ClientUpdate.UpdateLocation", {
+
+      server.sendData(targetClient, "ClientUpdate.UpdateLocation", {
         position: newPosition,
         triggerLoadingScreen: false
       });
-      server.sendChatText(client, `Moved ${direction} by ${height}`);
+
+      if (targetClient === client) {
+        server.sendChatText(client, `Moved ${direction} by ${height}`);
+      } else {
+        server.sendChatText(
+          client,
+          `Moved ${targetClient.character.name} ${direction} by ${height}`
+        );
+      }
     }
   },
   {
