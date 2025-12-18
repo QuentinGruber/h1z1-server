@@ -40,7 +40,6 @@ export default class SOEClient {
   waitingQueue: PacketsQueue = new PacketsQueue();
   protocolName: string = "unset";
   unAckData: Map<number, number> = new Map();
-  lostPackets: number[] = [];
   lastAckSend: wrappedUint16 = new wrappedUint16(-1);
   inputStream: SOEInputStream;
   outputStream: SOEOutputStream;
@@ -59,8 +58,6 @@ export default class SOEClient {
   sendingTimer: NodeJS.Timeout | null = null;
   private _statsResetTimer: NodeJS.Timer;
   delayedLogicalPackets: LogicalPacket[] = [];
-  finishedLoading: boolean = false;
-  statsResettedRecently: boolean = false;
   constructor(remote: RemoteInfo, crcSeed: number, cryptoKey: Uint8Array) {
     this.soeClientId = SOEClient.getClientId(remote);
     this.address = remote.address;
@@ -74,7 +71,7 @@ export default class SOEClient {
     } else {
       this.outputStream = new SOEOutputStream(cryptoKey);
     }
-    this._statsResetTimer = setInterval(() => this._resetStats(), 10000);
+    this._statsResetTimer = setInterval(() => this._resetStats(), 60000);
   }
   static getClientId(remote: RemoteInfo): string {
     return remote.address + ":" + remote.port;
@@ -83,78 +80,26 @@ export default class SOEClient {
     // wierd stuff with the new global Symbol used with the using keyword, skipping that headache for now
     clearInterval(this._statsResetTimer as unknown as number);
   }
-  private getDynamicWaitTime(): number {
-    if (!this.finishedLoading) return 30;
-
-    const ping = this.avgPing || 0;
-    const minPing = 50;
-    const maxPing = 250;
-    const minWait = 4;
-    const maxWait = 12;
-
-    // Calculate ratio (0–1) and clamp to range
-    const ratio = Math.max(
-      0,
-      Math.min(1, (ping - minPing) / (maxPing - minPing))
-    );
-
-    // Calculate wait time in the range 4–12 ms
-    const waitTime = minWait + ratio * (maxWait - minWait);
-
-    return Math.round(waitTime);
-  }
   private _resetStats() {
-    // Reset network statistics and set a temporary flag
     this.stats.totalPhysicalPacketSent = 0;
     this.stats.packetsOutOfOrder = 0;
     this.stats.packetResend = 0;
     this.stats.totalLogicalPacketSent = 0;
-    this.statsResettedRecently = true;
-    setTimeout(() => {
-      this.statsResettedRecently = false;
-    }, 5000);
-  }
-
-  seqDiff(a: number, b: number): number {
-    // Difference with uint16 (65536) overflow handling
-    return (a - b + 65536) % 65536;
-  }
-
-  getNetworkQuality(): number {
-    const lastAckSeq = this.outputStream.lastAck.get();
-    let packetLoss = 0;
-
-    // Count lost packets within the last 100 sequence numbers
-    for (const sequence of this.lostPackets) {
-      if (this.seqDiff(lastAckSeq, sequence) <= 100) {
-        packetLoss++;
-      }
-    }
-
-    return packetLoss;
   }
   getNetworkStats(): string[] {
-    const { totalLogicalPacketSent, packetResend, packetsOutOfOrder } =
-      this.stats;
-    const totalPackets = totalLogicalPacketSent + packetResend;
-
+    const {
+      totalPhysicalPacketSent: totalPacketSent,
+      packetResend,
+      packetsOutOfOrder
+    } = this.stats;
+    const packetLossRate =
+      Number((packetResend / totalPacketSent).toFixed(3)) * 100;
     const packetOutOfOrderRate =
-      totalPackets > 0
-        ? Number(((packetsOutOfOrder / totalPackets) * 100).toFixed(1))
-        : 0;
-
-    const lastAckSeq = this.outputStream.lastAck.get();
-    let packetLoss = 0;
-
-    for (const sequence of this.lostPackets) {
-      if (this.seqDiff(lastAckSeq, sequence) <= 100) packetLoss++;
-    }
-
+      Number((packetsOutOfOrder / totalPacketSent).toFixed(3)) * 100;
     return [
-      `Packet loss rate: ${packetLoss}%`,
-      `Out-of-order rate: ${packetOutOfOrderRate}%`,
-      `Avg ping: ${this.avgPing}ms`,
-      `Wait Time: ${this.getDynamicWaitTime().toFixed(2)}ms`
+      `Packet loss rate ${packetLossRate}%`,
+      `Packet outOfOrder rate ${packetOutOfOrderRate}%`,
+      `Avg ping ${this.avgPing}ms`
     ];
   }
   addPing(ping: number) {
