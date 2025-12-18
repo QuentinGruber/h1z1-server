@@ -324,18 +324,6 @@ export class ZonePacketHandlers {
     if (!server.hookManager.checkHook("OnClientFinishedLoading", client)) {
       return;
     }
-
-    if (!client.firstLoading) {
-      setTimeout(() => {
-        const soeClient = server._gatewayServer._soeServer.getSoeClient(
-          client.soeClientId
-        );
-        if (soeClient) {
-          soeClient.finishedLoading = true;
-        }
-      }, 5000);
-    }
-
     if (client.character.awaitingTeleportLocation) {
       const awaitingPos = client.character.awaitingTeleportLocation;
       setTimeout(() => {
@@ -903,59 +891,43 @@ export class ZonePacketHandlers {
     client: Client,
     packet: ReceivedPacket<ClientUpdateMonitorTimeDrift>
   ) {
-    const soeClient = server._gatewayServer._soeServer.getSoeClient(
-      client.soeClientId
-    );
-    if (!soeClient) return;
-
-    const packetLoss = soeClient.getNetworkQuality();
-    if (packetLoss == undefined) return;
-
-    const name = client.character.name;
-
-    // Lock weapon if packet loss is too high
+    /*const message = packet.data.message || "";
     if (
-      !client.isWeaponLock &&
-      packetLoss >= server.maxPacketLoss &&
-      !server.isSaving
+      packet.data.file ===
+        server.fairPlayManager.fairPlayValues?.requiredFile2 &&
+      //!client.clientLogs.includes(packet.data.message) && TODO: FIX THIS SINCE IT NEVER WORKED -Meme
+      !client.isAdmin
     ) {
-      client.isWeaponLock = true;
-      server.sendAlert(
-        client,
-        "Your network quality falls below acceptable standards. Your shots will not register"
-      );
-      for (const c of Object.values(server._clients)) {
-        if (c.isAdmin && c.isDebugMode) {
-          server.chatManager.sendChatText(
-            server,
-            c,
-            `Fairplay: ${name} network quality falls below acceptable standards`,
+      const obj = { log: message, isSuspicious: false };
+      for (let x = 0; x < server.fairPlayManager._suspiciousList.length; x++) {
+        if (
+          message
+            .toLowerCase()
+            .includes(server.fairPlayManager._suspiciousList[x].toLowerCase())
+        ) {
+          obj.isSuspicious = true;
+          if (!server._soloMode) {
+            logClientActionToMongo(
+              server._db?.collection(DB_COLLECTIONS.FAIRPLAY) as Collection,
+              client,
+              server._worldId,
+              {
+                type: "suspicious software",
+                suspicious: server.fairPlayManager._suspiciousList[x]
+              }
+            );
+          }
+          server.sendChatTextToAdmins(
+            `FairPlay: kicking ${client.character.name} for using suspicious software - ${server.fairPlayManager._suspiciousList[x]}`,
             false
           );
+          server.kickPlayer(client);
+          break;
         }
       }
-      return;
+      client.clientLogs.push(obj);
     }
-
-    // Unlock weapon if packet loss has improved
-    if (client.isWeaponLock && packetLoss < server.maxPacketLoss) {
-      if (soeClient.statsResettedRecently) return;
-      client.isWeaponLock = false;
-      server.sendAlert(
-        client,
-        "Your network quality has improved. Your shots will now register properly"
-      );
-      for (const c of Object.values(server._clients)) {
-        if (c.isAdmin && c.isDebugMode) {
-          server.chatManager.sendChatText(
-            server,
-            c,
-            `Fairplay: ${name} network quality has improved`,
-            false
-          );
-        }
-      }
-    }
+    debug(packet);*/
   }
   ClientLog(
     server: ZoneServer2016,
