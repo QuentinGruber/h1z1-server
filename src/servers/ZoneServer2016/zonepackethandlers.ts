@@ -4323,6 +4323,20 @@ export class ZonePacketHandlers {
         server.fairPlayManager.handleAssetCheck(server, client, data);
         break;
       case "02": // client messages
+        // TODO: Below is temporary
+        if (!server._soloMode) {
+          logClientActionToMongo(
+            server._db?.collection(DB_COLLECTIONS.FAIRPLAY_TEMP) as Collection,
+            client,
+            server._worldId,
+            {
+              type: data.includes("\\Device\\HarddiskVolume")
+                ? "windows"
+                : "modules",
+              data: data
+            }
+          );
+        }
         server.sendChatTextToAdmins(`${client.character.name}: ${data}`);
         break;
       case "09":
