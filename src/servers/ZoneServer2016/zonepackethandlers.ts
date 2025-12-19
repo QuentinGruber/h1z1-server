@@ -27,7 +27,8 @@ import {
   getCurrentServerTimeWrapper,
   getDateString,
   isHalloween,
-  isChristmasSeason
+  isChristmasSeason,
+  logClientActionToMongo
 } from "../../utils/utils";
 
 import { CraftManager } from "./managers/craftmanager";
@@ -133,7 +134,8 @@ import {
   ClientFinishedLoading,
   SynchronizedTeleportNotifyReady,
   VehicleAutoMount,
-  FirstTimeEventNotifySystem
+  FirstTimeEventNotifySystem,
+  PlayerUpdatePosition
 } from "types/zone2016packets";
 import { VehicleCurrentMoveMode } from "types/zone2015packets";
 import {
@@ -164,6 +166,7 @@ import { Lootbag } from "./entities/lootbag";
 import { ReceivedPacket } from "types/shared";
 import { LoadoutItem } from "./classes/loadoutItem";
 import { BaseItem } from "./classes/baseItem";
+import { Collection } from "mongodb";
 
 function getStanceFlags(num: number): StanceFlags {
   function getBit(bin: string, bit: number) {
@@ -934,9 +937,9 @@ export class ZonePacketHandlers {
     client: Client,
     packet: ReceivedPacket<ClientLog>
   ) {
-    /*const message = packet.data.message || "";
+    const message = packet.data.message || "";
     if (
-      packet.data.file ===
+      packet.data.file ==
         server.fairPlayManager.fairPlayValues?.requiredFile2 &&
       //!client.clientLogs.includes(packet.data.message) && TODO: FIX THIS SINCE IT NEVER WORKED -Meme
       !client.isAdmin
@@ -970,7 +973,7 @@ export class ZonePacketHandlers {
       }
       client.clientLogs.push(obj);
     }
-    debug(packet);*/
+    debug(packet);
   }
   WallOfDataUIEvent(
     server: ZoneServer2016,
@@ -1441,20 +1444,22 @@ export class ZonePacketHandlers {
   PlayerUpdatePosition(
     server: ZoneServer2016,
     client: Client,
-    packet: ReceivedPacket<any> // todo: remove any - Meme
+    packet: ReceivedPacket<PlayerUpdatePosition>
   ) {
-    const {
-      flags,
-      sequenceTime,
-      position,
-      rotation,
-      rotationRaw,
-      lookAt,
-      stance
-    } = packet.data;
+    const positionUpdate = packet.data as any;
+    if (!positionUpdate) return;
+
+    const flags = positionUpdate.flags;
+    const sequenceTime = positionUpdate.sequenceTime;
+    const position = positionUpdate.position;
+    const rotation = positionUpdate.rotation;
+    const orientation = positionUpdate.orientation;
+    const rotationRaw = positionUpdate.rotationRaw;
+    const lookAt = positionUpdate.lookAt;
+    const stance = positionUpdate.stance;
 
     // Return early for spammed junk packets
-    if (/*flags === 2 || */ packet.data.flags == 513) {
+    if (flags == 513) {
       return;
     }
     // Disable temporary god mode if enabled
@@ -1463,7 +1468,7 @@ export class ZonePacketHandlers {
     client.character.positionUpdate = client.character.positionUpdate || {};
     Object.assign(client.character.positionUpdate, packet.data);
 
-    if (packet.data.orientation) {
+    if (orientation) {
       // orientation
       /*server.fairPlayManager.checkAimVector(
         server,
@@ -1493,7 +1498,7 @@ export class ZonePacketHandlers {
     }
 
     // Handle stance flag (0x01)
-    if (packet.data.stance) {
+    if (stance) {
       const stanceFlags = getStanceFlags(stance);
 
       if (stanceFlags.SITTING) {
@@ -1573,7 +1578,7 @@ export class ZonePacketHandlers {
       client.character.positionUpdate.stance = stance;
     }
     // Handle position flag (0x02)
-    if (packet.data.position) {
+    if (position) {
       if (!client.characterReleased) client.characterReleased = true;
       // if (client.movementSet.size < ZoneClient2016.minMovementForAfk) {
       //   const movementId = Math.round(position[0]) + Math.round(position[2]);
@@ -1595,12 +1600,12 @@ export class ZonePacketHandlers {
       // Update character position
       // check sequence drift and impare movement if its a packetloss
       const isLowSequenceDrift =
-        packet.data.sequenceTime + client.avgPing + 250 >
+        sequenceTime + client.avgPing + 250 >
         getCurrentServerTimeWrapper().getTruncatedU32();
       if (
         client.isWeaponLock &&
         !isLowSequenceDrift &&
-        packet.data.position &&
+        position &&
         client.lastMovementImpared + 3000 < Date.now()
       ) {
         client.lastMovementImpared = Date.now();
@@ -1657,7 +1662,7 @@ export class ZonePacketHandlers {
       }
     }
     // Handle rotation flag (0x200)
-    if (packet.data.rotation) {
+    if (rotation && lookAt && _.size(rotationRaw) > 0) {
       client.character.state.rotation = rotation;
       client.character.state.yaw = rotationRaw[0];
       client.character.state.lookAt = lookAt;
@@ -4318,6 +4323,20 @@ export class ZonePacketHandlers {
         server.fairPlayManager.handleAssetCheck(server, client, data);
         break;
       case "02": // client messages
+        // TODO: Below is temporary
+        if (!server._soloMode) {
+          logClientActionToMongo(
+            server._db?.collection(DB_COLLECTIONS.FAIRPLAY_TEMP) as Collection,
+            client,
+            server._worldId,
+            {
+              type: data.includes("\\Device\\HarddiskVolume")
+                ? "windows"
+                : "modules",
+              data: data
+            }
+          );
+        }
         server.sendChatTextToAdmins(`${client.character.name}: ${data}`);
         break;
       case "09":
