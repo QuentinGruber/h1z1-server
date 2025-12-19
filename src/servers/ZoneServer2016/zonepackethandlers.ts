@@ -1662,7 +1662,7 @@ export class ZonePacketHandlers {
       }
     }
     // Handle rotation flag (0x200)
-    if (rotation && _.size(rotationRaw) > 0) {
+    if (rotation && lookAt && _.size(rotationRaw) > 0) {
       client.character.state.rotation = rotation;
       client.character.state.yaw = rotationRaw[0];
       client.character.state.lookAt = lookAt;
