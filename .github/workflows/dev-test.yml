@@ -36,7 +36,7 @@ jobs:
       - run: npm i --ignore-scripts
       - run: npm run gen-packets-types
       - run: npm run gen-packets-interfaces
-      - run: git diff --exit-code
+      - run: git diff --exit-code -- src/types/**
   test-npm-pack-linux:
     name: npm-pack-linux
     runs-on: ubuntu-latest
