@@ -2981,7 +2981,8 @@ export class ZonePacketHandlers {
     if (
       client.character.characterId != foundation.ownerCharacterId &&
       foundation.permissions[characterId]?.demolish &&
-      characterId != client.character.characterId
+      characterId != client.character.characterId &&
+      !client.isDebugMode
     ) {
       server.sendAlert(
         client,
