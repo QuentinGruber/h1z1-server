@@ -838,7 +838,11 @@ export class ConstructionParentEntity extends ConstructionChildEntity {
     return false;
   }
 
-  destroy(server: ZoneServer2016, destructTime = 0): boolean {
+  destroy(
+    server: ZoneServer2016,
+    destructTime = 0,
+    slotCooldown = 30000
+  ): boolean {
     const deleted = server.deleteEntity(
       this.characterId,
       server._constructionFoundations,
@@ -874,12 +878,11 @@ export class ConstructionParentEntity extends ConstructionChildEntity {
       case Items.DOOR_METAL:
       case Items.METAL_WALL:
       case Items.METAL_DOORWAY:
-        parent.wallSlotsPlacementTimer[this.getSlotNumber()] =
-          Date.now() + 30000;
+        parent.wallSlotsPlacementTimer[this.getSlotNumber()] = slotCooldown;
         break;
       case Items.METAL_WALL_UPPER:
         parent.upperWallSlotsPlacementTimer[this.getSlotNumber()] =
-          Date.now() + 30000;
+          slotCooldown;
         break;
       case Items.SHELTER:
       case Items.SHELTER_LARGE:
@@ -888,8 +891,7 @@ export class ConstructionParentEntity extends ConstructionChildEntity {
       case Items.STRUCTURE_STAIRS:
       case Items.STRUCTURE_STAIRS_UPPER:
       case Items.LOOKOUT_TOWER:
-        parent.shelterSlotsPlacementTimer[this.getSlotNumber()] =
-          Date.now() + 30000;
+        parent.shelterSlotsPlacementTimer[this.getSlotNumber()] = slotCooldown;
         break;
       case Items.FOUNDATION_RAMP:
       case Items.FOUNDATION_STAIRS:
