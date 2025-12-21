@@ -301,8 +301,8 @@
     "fogDensity": 0.000235,
     "fogFloor": 35,
     "fogGradient": 0.001,
-    "globalPrecipitation": 100,
-    "temperature": 0,
+    "globalPrecipitation": 1,
+    "temperature": -1,
     "skyClarity": 0.2,
     "cloudWeight0": 0.08,
     "cloudWeight1": 0.03,
@@ -333,4 +333,3 @@
     "cloudShadows": 0.25
   }
 }
-

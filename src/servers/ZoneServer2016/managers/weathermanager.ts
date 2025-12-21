@@ -14,10 +14,7 @@
 import fs from "node:fs";
 
 import { Weather2016, WeatherTemplate } from "types/zoneserver";
-import {
-  _
-  //isChristmasSeason
-} from "../../../utils/utils";
+import { _, isChristmasSeason } from "../../../utils/utils";
 import { ZoneClient2016 as Client } from "../classes/zoneclient";
 import { ZoneServer2016 } from "../zoneserver";
 import EventEmitter from "node:events";
@@ -584,6 +581,10 @@ export class WeatherManager extends EventEmitter {
     this.weather.rainMinStrength = this.rain;
     this.weather.rainRampupTimeSeconds = this.rainRampupTime;
     this.moveToDesiredValues();
+    if (isChristmasSeason()) {
+      this.weather.globalPrecipitation = 1; // this.globalPrecipation;
+      this.weather.temperature = -0.1;
+    }
     return this.weather;
   }
 }
