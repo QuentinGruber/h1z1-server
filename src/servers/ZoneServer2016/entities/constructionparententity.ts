@@ -1039,7 +1039,14 @@ export class ConstructionParentEntity extends ConstructionChildEntity {
       "Character.UpdateSimpleProxyHealth",
       this.pGetSimpleProxyHealth()
     );
-    if (damageInfo.damage > 0) {
+    if (
+      damageInfo.damage > 0 &&
+      !this.getHasPermission(
+        server,
+        damageInfo.entity,
+        ConstructionPermissionIds.DEMOLISH
+      )
+    ) {
       const timestamp = Date.now();
       const parent = this.getParent(server);
       if (parent) parent.lastDamagedTimestamp = timestamp;

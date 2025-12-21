@@ -2631,7 +2631,8 @@ export class ConstructionManager {
     }
 
     entity.damage(server, {
-      entity: "Server.DemoHammer",
+      entity: client.character.characterId,
+      weapon: weaponItem.itemDefinitionId,
       damage: entity.maxHealth / 3 + 10
     });
     server.damageItem(client.character, weaponItem, 50);

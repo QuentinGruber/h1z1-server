@@ -153,7 +153,14 @@ export class ConstructionDoor extends DoorEntity {
       ResourceTypes.CONDITION,
       server._constructionDoors
     );
-    if (damageInfo.damage > 0) {
+    if (
+      damageInfo.damage > 0 &&
+      !this.getHasPermission(
+        server,
+        damageInfo.entity,
+        ConstructionPermissionIds.DEMOLISH
+      )
+    ) {
       const timestamp = Date.now();
       const parentFoundation = this.getParentFoundation(server);
       if (parentFoundation) parentFoundation.lastDamagedTimestamp = timestamp;
