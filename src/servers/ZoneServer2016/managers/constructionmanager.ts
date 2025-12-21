@@ -1304,6 +1304,7 @@ export class ConstructionManager {
 
     const position = parent.getSlotPosition(BuildingSlot, parent.wallSlots),
       rotation = parent.getSlotRotation(BuildingSlot, parent.wallSlots);
+    // TODO: Do we still want this?
     if (
       position &&
       (itemDefinitionId == Items.METAL_GATE ||
