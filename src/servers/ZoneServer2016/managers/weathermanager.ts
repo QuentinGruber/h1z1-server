@@ -584,6 +584,8 @@ export class WeatherManager extends EventEmitter {
     this.weather.rainMinStrength = this.rain;
     this.weather.rainRampupTimeSeconds = this.rainRampupTime;
     this.moveToDesiredValues();
+    this.weather.globalPrecipitation = 1; // this.globalPrecipation;
+    this.weather.temperature = -0.1;
     return this.weather;
   }
 }
