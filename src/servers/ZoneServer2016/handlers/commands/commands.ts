@@ -2815,8 +2815,10 @@ export const commands: Array<Command> = [
     name: "addallitems",
     permissionLevel: PermissionLevels.DEV,
     execute: (server: ZoneServer2016, client: Client, args: Array<string>) => {
-      server.sendChatText(client, "Disabled for now.");
-      /*
+      if (!server._soloMode) {
+        server.sendChatText(client, "Disabled for now.");
+        return;
+      }
       client.character.equipItem(
         server,
         server.generateItem(Items.FANNY_PACK_DEV)
@@ -2824,9 +2826,8 @@ export const commands: Array<Command> = [
       server.sendChatText(client, "Adding 1x of all items to inventory.");
       for (const itemDef of Object.values(server._itemDefinitions)) {
         client.character.lootItem(server, server.generateItem(itemDef.ID));
-        Scheduler.yield();
+        scheduler.yield();
       }
-      */
     }
   },
   {
