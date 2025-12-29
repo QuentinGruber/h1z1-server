@@ -111,6 +111,7 @@ interface ConstructionConfig {
   vehicleSpawnPointBlockedPlacementRange: number;
   playerFoundationBlockedPlacementRange: number;
   playerShackBlockedPlacementRange: number;
+  lowerStrongholdDefenses: boolean;
 }
 
 interface DecayConfig {

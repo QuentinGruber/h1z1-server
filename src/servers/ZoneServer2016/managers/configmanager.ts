@@ -343,7 +343,8 @@ export class ConfigManager {
       spawnPointBlockedPlacementRange,
       vehicleSpawnPointBlockedPlacementRange,
       playerFoundationBlockedPlacementRange,
-      playerShackBlockedPlacementRange
+      playerShackBlockedPlacementRange,
+      lowerStrongholdDefenses
     } = this.config.construction;
     server.constructionManager.allowStackedPlacement = allowStackedPlacement;
     server.constructionManager.allowOutOfBoundsPlacement =
@@ -357,6 +358,8 @@ export class ConfigManager {
       playerFoundationBlockedPlacementRange;
     server.constructionManager.playerShackBlockedPlacementRange =
       playerShackBlockedPlacementRange;
+    server.constructionManager.lowerStrongholdDefenses =
+      lowerStrongholdDefenses;
     //#endregion
 
     //#region decay
