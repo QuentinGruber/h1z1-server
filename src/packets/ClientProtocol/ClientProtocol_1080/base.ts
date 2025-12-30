@@ -2652,6 +2652,8 @@ export const basePackets: PacketStructures = [
             ],
             4: [
               // RemoveCharacterResource
+              { name: "characterId", type: "uint64string", defaultValue: "0" },
+              { name: "resourceId", type: "uint32", defaultValue: 0 }
             ]
           }
         }
