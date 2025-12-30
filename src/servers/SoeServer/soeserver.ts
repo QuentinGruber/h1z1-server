@@ -556,9 +556,9 @@ export class SOEServer extends EventEmitter {
     if (client.isDeleted) {
       return;
     }
-    if(client.stats.totalLogicalPacketSent > 0)
+    if (client.stats.totalLogicalPacketSent > 0)
       client.stats.totalLogicalPacketSent--;
-    if(client.stats.totalPhysicalPacketSent > 0)
+    if (client.stats.totalPhysicalPacketSent > 0)
       client.stats.totalPhysicalPacketSent--;
     const resends = this.getResends(client);
     for (const resend of resends) {
