@@ -230,7 +230,8 @@ export class ConfigManager {
     server.voiceChatManager.useVoiceChatV2 = useVoiceChatV2;
     server.voiceChatManager.joinVoiceChatOnConnect = joinVoiceChatOnConnect;
     server.voiceChatManager.serverAccessToken = serverAccessToken;
-    server.voiceChatManager.serverAddress = process.env.VOICE_CHAT_SERVER_ADDRESS || serverAddress;
+    server.voiceChatManager.serverAddress =
+      process.env.VOICE_CHAT_SERVER_ADDRESS || serverAddress;
     //#endregion
 
     //#region fairplay
