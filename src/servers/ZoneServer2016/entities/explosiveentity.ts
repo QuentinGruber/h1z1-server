@@ -155,7 +155,7 @@ export class ExplosiveEntity extends BaseLightweightCharacter {
     waitTime: number = 0,
     useRaycast: boolean = false
   ) {
-    if (this.isAwaitingExplosion) return;
+    if (useRaycast && this.isAwaitingExplosion) return;
     this.isAwaitingExplosion = true;
     if (this.characterId == sourceEntity.characterId) return;
     if (!useRaycast) {
