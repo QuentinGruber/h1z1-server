@@ -2338,7 +2338,11 @@ export class ZonePacketHandlers {
       case ItemUseOptions.SALVAGE:
         if (server.isBattleRoyale()) return;
         for (let i = 0; i < count; i++) {
-          await server.salvageAmmo(client, character, item, animationId);
+          if (
+            !(await server.salvageAmmo(client, character, item, animationId))
+          ) {
+            break;
+          }
         }
         break;
       case ItemUseOptions.LOOT:
