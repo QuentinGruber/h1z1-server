@@ -42,7 +42,7 @@ voicechat:
   useVoiceChatV2: false
   joinVoiceChatOnConnect: false
   serverAccessToken: ""
-  serverAddress: "127.0.0.1"
+  serverAddress: ""
 
 # Fairplay / anticheat config
 
