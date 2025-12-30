@@ -221,11 +221,16 @@ export class ConfigManager {
     //#endregion
     //
     //#region voicechat
-    const { useVoiceChatV2, joinVoiceChatOnConnect, serverAccessToken } =
-      this.config.voicechat;
+    const {
+      useVoiceChatV2,
+      joinVoiceChatOnConnect,
+      serverAccessToken,
+      serverAddress
+    } = this.config.voicechat;
     server.voiceChatManager.useVoiceChatV2 = useVoiceChatV2;
     server.voiceChatManager.joinVoiceChatOnConnect = joinVoiceChatOnConnect;
     server.voiceChatManager.serverAccessToken = serverAccessToken;
+    server.voiceChatManager.serverAddress = serverAddress;
     //#endregion
 
     //#region fairplay
