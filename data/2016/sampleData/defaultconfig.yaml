@@ -144,6 +144,7 @@ construction:
   vehicleSpawnPointBlockedPlacementRange: 30
   playerFoundationBlockedPlacementRange: 70
   playerShackBlockedPlacementRange: 20
+  lowerStrongholdDefenses: false # Lowers the walls and gates by 0.1 units to close the gap underneath.
 
 decay:
   decayTickInterval: 1200000 # 20 minutes per decay tick

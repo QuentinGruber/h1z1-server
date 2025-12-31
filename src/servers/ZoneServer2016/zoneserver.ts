@@ -7582,6 +7582,13 @@ export class ZoneServer2016 extends EventEmitter {
 
     return await new Promise<boolean>((resolve) => {
       this.utilizeHudTimer(client, nameId, timeout, animationId, async () => {
+        if (
+          client.character.mountedContainer != character &&
+          character != client.character
+        ) {
+          resolve(false);
+          return;
+        }
         resolve(await this.salvageItemPass(character, item, count));
       });
     });

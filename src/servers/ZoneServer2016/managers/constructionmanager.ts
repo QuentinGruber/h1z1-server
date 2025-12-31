@@ -88,6 +88,7 @@ export class ConstructionManager {
   vehicleSpawnPointBlockedPlacementRange!: number;
   playerFoundationBlockedPlacementRange!: number;
   playerShackBlockedPlacementRange!: number;
+  lowerStrongholdDefenses!: boolean;
 
   sendConstructionData(server: ZoneServer2016, client: Client) {
     const unknownArray1 = [46, 45, 47, 48, 49, 50, 12, 7, 15],
@@ -1305,6 +1306,7 @@ export class ConstructionManager {
     const position = parent.getSlotPosition(BuildingSlot, parent.wallSlots),
       rotation = parent.getSlotRotation(BuildingSlot, parent.wallSlots);
     if (
+      server.constructionManager.lowerStrongholdDefenses &&
       position &&
       (itemDefinitionId == Items.METAL_GATE ||
         itemDefinitionId == Items.METAL_WALL ||

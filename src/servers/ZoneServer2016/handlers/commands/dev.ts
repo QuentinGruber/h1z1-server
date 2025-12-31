@@ -984,6 +984,28 @@ const dev: any = {
 
     server.sendChatText(client, "Setting character resource");
   },
+  deleteresource: function (
+    server: ZoneServer2016,
+    client: Client,
+    args: Array<string>
+  ) {
+    if (!args[1]) {
+      server.sendChatText(client, "Missing resourceId");
+      return;
+    }
+
+    delete client.character._resources[Number(args[1])];
+
+    server.sendData(client, "ResourceEvent", {
+      eventData: {
+        type: 4,
+        value: {
+          characterId: client.character.characterId,
+          resourceId: Number(args[1])
+        }
+      }
+    });
+  },
   report: function (
     server: ZoneServer2016,
     client: Client,

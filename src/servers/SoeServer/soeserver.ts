@@ -202,6 +202,7 @@ export class SOEServer extends EventEmitter {
 
     // clear out of order array
     client.outputStream.outOfOrder.clear();
+    client.stats.packetsOutOfOrder = 0;
 
     return resends;
   }
@@ -255,6 +256,10 @@ export class SOEServer extends EventEmitter {
 
   private _createClient(remote: RemoteInfo) {
     const client = new SOEClient(remote, this._crcSeed, this._cryptoKey);
+    // Start a persistent sending loop for this client
+    (client as any).sendingInterval = setInterval(() => {
+      this.sendingProcess(client);
+    }, this._waitTimeMs);
     client.inputStream.on("appdata", (data: Buffer) => {
       this.emit("appdata", client, data);
     });
@@ -272,7 +277,7 @@ export class SOEServer extends EventEmitter {
 
     client.outputStream.on(SOEOutputChannels.Reliable, () => {
       // some reliables are available, we send them
-      this._activateSendingTimer(client);
+      this.sendingProcess(client);
     });
 
     client.outputStream.on(
@@ -291,15 +296,6 @@ export class SOEServer extends EventEmitter {
     // });
     this._clients.set(client.soeClientId, client);
     return client;
-  }
-
-  // activate the sending timer if it's not already activated
-  private _activateSendingTimer(client: SOEClient, additonalTime: number = 0) {
-    if (!client.sendingTimer) {
-      client.sendingTimer = setTimeout(() => {
-        this.sendingProcess(client);
-      }, this._waitTimeMs + additonalTime);
-    }
   }
 
   // Handle the packet received from the client
@@ -544,12 +540,6 @@ export class SOEServer extends EventEmitter {
     }
     return Buffer.from(logicalData);
   }
-  private _clearSendingTimer(client: Client) {
-    if (client.sendingTimer) {
-      clearTimeout(client.sendingTimer);
-      client.sendingTimer = null;
-    }
-  }
 
   // Get an array of logical app packets that can be sent
   private getAvailableAppPackets(client: Client): LogicalPacket[] {
@@ -567,8 +557,6 @@ export class SOEServer extends EventEmitter {
     return appPackets;
   }
   private sendingProcess(client: Client) {
-    // If there is a pending sending timer then we clear it
-    this._clearSendingTimer(client);
     if (client.isDeleted) {
       return;
     }
@@ -593,6 +581,7 @@ export class SOEServer extends EventEmitter {
         }
       }
       client.unAckData.delete(resend.sequence as number);
+      client.stats.packetResend--;
     }
     if (client.outputStream.isReliableAvailable()) {
       const appPackets = this.getAvailableAppPackets(client);
@@ -654,10 +643,6 @@ export class SOEServer extends EventEmitter {
     if (waitingQueuePacket) {
       this._sendAndBuildPhysicalPacket(client, waitingQueuePacket);
     }
-
-    if (client.unAckData.size > 0) {
-      this._activateSendingTimer(client);
-    }
   }
   // Build the logical packet via the soeprotocol
   private createLogicalPacket(
@@ -701,7 +686,19 @@ export class SOEServer extends EventEmitter {
     client.stats.totalLogicalPacketSent++;
     if (this._canBeBufferedIntoQueue(logicalPacket, client.waitingQueue)) {
       client.waitingQueue.addPacket(logicalPacket);
-      this._activateSendingTimer(client);
+      // If the queue is not empty and adding this packet fills it up or nearly fills it, flush immediately
+      if (
+        client.waitingQueue.packets.length > 1 &&
+        client.waitingQueue.CurrentByteLength >= this._maxMultiBufferSize * 0.9
+      ) {
+        const waitingQueuePacket = this.getClientWaitQueuePacket(
+          client,
+          client.waitingQueue
+        );
+        if (waitingQueuePacket) {
+          this._sendAndBuildPhysicalPacket(client, waitingQueuePacket);
+        }
+      }
     } else {
       client.delayedLogicalPackets.push(logicalPacket);
       this.sendingProcess(client);
@@ -739,8 +736,10 @@ export class SOEServer extends EventEmitter {
 
   deleteClient(client: SOEClient): void {
     client.isDeleted = true;
-    client.closeTimers();
-    this._clearSendingTimer(client);
+    if ((client as any).sendingInterval) {
+      clearInterval((client as any).sendingInterval);
+      (client as any).sendingInterval = null;
+    }
     this._clients.delete(client.soeClientId);
     debug("client connection from port : ", client.port, " deleted");
   }
