@@ -489,18 +489,6 @@
   },
   {
     "POIid": 20,
-    "POIname": "Military Base 2",
-    "stringId": 9550,
-    "range": 165,
-    "position": [
-      -2566.21,
-      42.91,
-      -328.69,
-      1
-    ]
-  },
-  {
-    "POIid": 21,
     "POIname": "Governor's Compound",
     "stringId": 13566,
     "range": 200,
