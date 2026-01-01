@@ -139,6 +139,7 @@ interface VoiceChatConfig {
   joinVoiceChatOnConnect: boolean;
   serverId: number;
   serverAccessToken: string;
+  serverAddress: string;
 }
 
 interface ChallengeConfig {

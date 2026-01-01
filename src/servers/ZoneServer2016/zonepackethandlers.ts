@@ -859,7 +859,7 @@ export class ZonePacketHandlers {
         if (!client.characterReleased) return;
         if (client.firstReleased) {
           server.sendData<H1emuVoiceInit>(client, "H1emu.VoiceInit", {
-            args: `172.232.36.121 ${server._worldId}` // TODO: not wise but we'll change it
+            args: `${server.voiceChatManager.serverAddress} ${server._worldId}`
           });
           server.sendData(
             client,

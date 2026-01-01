@@ -18,6 +18,7 @@ export class VoiceChatManager {
   useVoiceChatV2!: boolean;
   joinVoiceChatOnConnect!: boolean;
   serverAccessToken!: string;
+  serverAddress!: string;
 
   sendVoiceChatError(server: ZoneServer2016, client: Client, error: string) {
     server.sendChatText(client, `[Voicechat Error] ${error}`);
