@@ -1,4 +1,4 @@
-//   copyright (C) 2021 - 2023 H1emu community
+//   copyright (C) 2021 - 2026 H1emu community
 //
 //   https://github.com/QuentinGruber/h1z1-server
 //   https://www.npmjs.com/package/h1z1-server
