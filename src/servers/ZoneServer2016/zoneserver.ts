@@ -4267,8 +4267,13 @@ export class ZoneServer2016 extends EventEmitter {
         }
 
         if (object instanceof BaseSimpleNpc) {
-          if (object instanceof Crate && object.spawnTimestamp > Date.now()) {
-            continue;
+          if (object instanceof Crate) {
+            if (object.spawnTimestamp > Date.now()) {
+              continue;
+            }
+            if (object.destroyed) {
+              object.destroyed = false;
+            }
           }
           client.spawnedEntities.add(object);
           this.addSimpleNpc(client, object);
@@ -4332,8 +4337,13 @@ export class ZoneServer2016 extends EventEmitter {
         if (client.spawnedEntities.has(object)) continue;
 
         if (object instanceof BaseSimpleNpc) {
-          if (object instanceof Crate && object.spawnTimestamp > Date.now()) {
-            continue;
+          if (object instanceof Crate) {
+            if (object.spawnTimestamp > Date.now()) {
+              continue;
+            }
+            if (object.destroyed) {
+              object.destroyed = false;
+            }
           }
           client.spawnedEntities.add(object);
           this.addSimpleNpc(client, object);
