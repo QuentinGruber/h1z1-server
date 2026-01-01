@@ -8160,12 +8160,22 @@ export class ZoneServer2016 extends EventEmitter {
 
     if (itemDefinition.ITEM_CLASS == ItemClasses.THROWABLES) {
       this.createThrowableProjectile(client, packet, itemDefinition, true);
-      // Remove loadout item if there's no more grenades in the inventory, this check is only temporary until removeInventoryItems is fixed
+      const inv = client.character.getInventoryAsContainer();
+      const similarItems = inv[itemDefinition.ID];
+      const currentSlotId = weaponItem.slotId;
+
+      // remove the equipped grenade
       this.removeInventoryItem(client.character, weaponItem);
-      /*(const nextItem = client.character.getItemById(weaponItem.itemDefinitionId)
-        if (nextItem) {
-            client.character.equipItem(this, nextItem);
-        }*/
+
+      // auto-equip the next similar grenade from inventory if available
+      if (similarItems && similarItems.length) {
+        const nextNade = similarItems.find((v) => {
+          return v !== weaponItem;
+        });
+        if (nextNade) {
+          client.character.equipContainerItem(this, nextNade, currentSlotId);
+        }
+      }
       return;
     } else if (itemDefinition.ID == Items.WEAPON_BOW_RECURVE) {
       this.createThrowableProjectile(
