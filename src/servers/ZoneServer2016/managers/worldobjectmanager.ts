@@ -332,6 +332,7 @@ export class WorldObjectManager {
         itemSpawnerId || 0,
         item
       );
+    lootObj.isWorldItem = true;
     server._spawnedItems[characterId] = lootObj;
     server._spawnedItems[characterId].nameId = itemDef.NAME_ID;
 

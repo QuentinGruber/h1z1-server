@@ -2600,3 +2600,9 @@ export enum UIElements {
   MAP = 12,
   INVENTORY = 15
 }
+
+export enum ReplicationPropertyHash {
+  UNKNOWN1 = 0x50d51c9d,
+  ISWORLDITEM = 0xf68bb709,
+  UNKNOWN2 = 0xb927f3ef
+}
