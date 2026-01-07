@@ -2142,14 +2142,11 @@ export class ZonePacketHandlers {
   ) {
     switch (packet.data.displayElement) {
       case UIElements.INVENTORY:
-        client.character.isInInventory = !client.character.isInInventory;
-        if (client.character.isInInventory) {
-          server.sendData<ClientUpdateProximateItems>(
-            client,
-            "ClientUpdate.ProximateItems",
-            server.getProximityItems(client)
-          );
-        }
+        server.sendData<ClientUpdateProximateItems>(
+          client,
+          "ClientUpdate.ProximateItems",
+          server.getProximityItems(client)
+        );
         break;
       case UIElements.MAP:
         break;
