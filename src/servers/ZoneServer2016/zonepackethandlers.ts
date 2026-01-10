@@ -44,7 +44,8 @@ import {
   AccountItems,
   Effects,
   VehicleIds,
-  UIElements
+  UIElements,
+  ReplicationPropertyHash
 } from "./models/enums";
 import { BaseFullCharacter } from "./entities/basefullcharacter";
 import { BaseLightweightCharacter } from "./entities/baselightweightcharacter";
@@ -108,8 +109,6 @@ import {
   NpcFoundationPermissionsManagerBaseShowPermissions,
   NpcFoundationPermissionsManagerEditPermission,
   PlayerUpdateManagedPosition,
-  ReplicationInteractionComponent,
-  ReplicationNpcComponent,
   RewardBuffInfo,
   Security,
   SetLocale,
@@ -135,7 +134,8 @@ import {
   SynchronizedTeleportNotifyReady,
   VehicleAutoMount,
   FirstTimeEventNotifySystem,
-  PlayerUpdatePosition
+  PlayerUpdatePosition,
+  ReplicationCreateComponent
 } from "types/zone2016packets";
 import { VehicleCurrentMoveMode } from "types/zone2015packets";
 import {
@@ -167,6 +167,11 @@ import { ReceivedPacket } from "types/shared";
 import { LoadoutItem } from "./classes/loadoutItem";
 import { BaseItem } from "./classes/baseItem";
 import { Collection } from "mongodb";
+import { ItemObject } from "./entities/itemobject";
+import {
+  generateOldInteractionComponent,
+  generateOldNpcComponent
+} from "../../packets/ClientProtocol/ClientProtocol_1080/shared";
 
 function getStanceFlags(num: number): StanceFlags {
   function getBit(bin: string, bit: number) {
@@ -1941,12 +1946,21 @@ export class ZonePacketHandlers {
       !isNonReplicatable &&
       !client.sentInteractionData.includes(entity)
     ) {
-      server.sendData<ReplicationNpcComponent>(
+      server.sendData<ReplicationCreateComponent>(
         client,
-        "Replication.NpcComponent",
+        "Replication.CreateComponent",
         {
           transientId: entity.transientId,
-          nameId: entity.nameId
+          stringSize: "ClientNpcComponent".length,
+          componentName: "ClientNpcComponent",
+          properties: [
+            {
+              replicationId: 124,
+              propertyHash: ReplicationPropertyHash.ISWORLDITEM,
+              bufferSize: 82,
+              bufferData: generateOldNpcComponent()
+            }
+          ]
         }
       );
       client.sentInteractionData.push(entity);
@@ -1957,11 +1971,21 @@ export class ZonePacketHandlers {
           entity instanceof LootableConstructionEntity
         )
       ) {
-        server.sendData<ReplicationInteractionComponent>(
+        server.sendData<ReplicationCreateComponent>(
           client,
-          "Replication.InteractionComponent",
+          "Replication.CreateComponent",
           {
-            transientId: entity.transientId
+            transientId: entity.transientId,
+            stringSize: "ClientInteractComponent".length,
+            componentName: "ClientInteractComponent",
+            properties: [
+              {
+                replicationId: 0x2e6e,
+                propertyHash: ReplicationPropertyHash.UNKNOWN1,
+                bufferSize: 0xb,
+                bufferData: generateOldInteractionComponent()
+              }
+            ]
           }
         );
       }
@@ -2118,14 +2142,11 @@ export class ZonePacketHandlers {
   ) {
     switch (packet.data.displayElement) {
       case UIElements.INVENTORY:
-        client.character.isInInventory = !client.character.isInInventory;
-        if (client.character.isInInventory) {
-          server.sendData<ClientUpdateProximateItems>(
-            client,
-            "ClientUpdate.ProximateItems",
-            server.getProximityItems(client)
-          );
-        }
+        server.sendData<ClientUpdateProximateItems>(
+          client,
+          "ClientUpdate.ProximateItems",
+          server.getProximityItems(client)
+        );
         break;
       case UIElements.MAP:
         break;
@@ -2813,6 +2834,22 @@ export class ZonePacketHandlers {
           count
         );
       }
+    } else if (sourceCharacterId in server._spawnedItems) {
+      // from ground item
+      const sourceCharacter: ItemObject =
+        server._spawnedItems[sourceCharacterId];
+
+      if (
+        !isPosInRadius(
+          server.proximityItemsDistance,
+          client.character.state.position,
+          sourceCharacter.state.position
+        )
+      ) {
+        server.sendChatText(client, "Item not in range!");
+        return;
+      }
+      sourceCharacter.takeItem(server, client, containerGuid, count, newSlotId);
     } else {
       // from external container
       const sourceCharacter = client.character.mountedContainer;

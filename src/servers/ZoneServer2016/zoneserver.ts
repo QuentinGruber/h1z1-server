@@ -194,6 +194,7 @@ import {
   MountSeatChangeResponse,
   POIChangeMessage,
   PlayerUpdatePosition,
+  ReplicationCreateComponent,
   ResourceEvent,
   RewardAddNonRewardItem,
   SendSelfToClient,
@@ -4091,6 +4092,17 @@ export class ZoneServer2016 extends EventEmitter {
       ...entity.pGetLightweight(),
       nameId
     });
+    if (!(entity instanceof ItemObject) || !entity.isWorldItem) return;
+    this.sendData<ReplicationCreateComponent>(
+      client,
+      "Replication.CreateComponent",
+      {
+        transientId: entity.transientId,
+        stringSize: "ClientNpcComponent".length,
+        componentName: "ClientNpcComponent",
+        properties: [{}]
+      }
+    );
   }
   addSimpleNpc(client: Client, entity: BaseSimpleNpc) {
     this.sendData<AddSimpleNpc>(client, "AddSimpleNpc", entity.pGetSimpleNpc());
@@ -7987,7 +7999,7 @@ export class ZoneServer2016 extends EventEmitter {
       itemDefinition.ID,
       overrideProjectileId
         ? packet.packet.sessionProjectileCount +
-            parseInt(client.character.characterId.slice(-5), 16)
+          parseInt(client.character.characterId.slice(-5), 16)
         : packet.packet.projectileUniqueId,
       client.character.characterId
     );
