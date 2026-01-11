@@ -129,7 +129,7 @@ export class ItemObject extends BaseLightweightCharacter {
   npcRenderDistance = 25;
   spawnerId = 0;
   item: BaseItem;
-  isWorldItem: Boolean = false;
+  isWorldItem: boolean = false;
   creationTime: number = 0;
   triggerExplosionShots = Math.floor(Math.random() * 3) + 2; // random number 2-4 neccesary shots
   shaderGroupId: number = 0;
