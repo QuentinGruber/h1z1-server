@@ -1297,6 +1297,11 @@ export class ZoneServer2016 extends EventEmitter {
 
   getProximityItems(client: Client): ClientUpdateProximateItems {
     const proximityItems: ClientUpdateProximateItems = { items: [] };
+    let foundation: ConstructionParentEntity | undefined =
+      this._constructionFoundations[client.character.insideBuilding] ??
+      this._constructionSimple[
+        client.character.insideBuilding
+      ]?.getParentFoundation(this);
 
     for (const object of client.spawnedEntities) {
       if (object instanceof ItemObject) {
@@ -1308,6 +1313,14 @@ export class ZoneServer2016 extends EventEmitter {
             1
           )
         ) {
+          if (
+            object.checkBuildingObstruct(
+              this,
+              client.character.state.position,
+              foundation
+            )
+          )
+            continue;
           const proximityItem = {
             itemDefinitionId: object.item.itemDefinitionId,
             associatedCharacterGuid: object.characterId,
@@ -6712,6 +6725,7 @@ export class ZoneServer2016 extends EventEmitter {
     );
 
     if (!obj) return;
+    obj.insideBuilding = character.insideBuilding;
     this.executeFuncForAllReadyClientsInRange((c) => {
       c.spawnedEntities.add(obj);
       this.addLightweightNpc(c, obj);
@@ -7999,7 +8013,7 @@ export class ZoneServer2016 extends EventEmitter {
       itemDefinition.ID,
       overrideProjectileId
         ? packet.packet.sessionProjectileCount +
-            parseInt(client.character.characterId.slice(-5), 16)
+          parseInt(client.character.characterId.slice(-5), 16)
         : packet.packet.projectileUniqueId,
       client.character.characterId
     );

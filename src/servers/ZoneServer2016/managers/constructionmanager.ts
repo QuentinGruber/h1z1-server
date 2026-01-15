@@ -2418,9 +2418,11 @@ export class ConstructionManager {
     client: Client
   ) {
     let hide = false;
-
+    client.character.insideBuilding = "";
     for (const object of client.spawnedEntities) {
       if (object instanceof ConstructionParentEntity) {
+        if (object.isInside(client.character.state.position))
+          client.character.insideBuilding = object.characterId;
         if (this.checkFoundationPermission(server, client, object)) {
           hide = true;
           continue;
@@ -2428,6 +2430,8 @@ export class ConstructionManager {
       }
 
       if (object instanceof ConstructionChildEntity) {
+        if (object.isInside(client.character.state.position))
+          client.character.insideBuilding = object.characterId;
         if (
           this.checkConstructionChildEntityPermission(server, client, object)
         ) {

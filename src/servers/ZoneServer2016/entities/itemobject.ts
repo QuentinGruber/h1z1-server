@@ -17,7 +17,12 @@ import { ZoneServer2016 } from "../zoneserver";
 import { BaseItem } from "../classes/baseItem";
 import { BaseLightweightCharacter } from "./baselightweightcharacter";
 import { ZoneClient2016 } from "../classes/zoneclient";
-import { randomIntFromInterval } from "../../../utils/utils";
+import {
+  checkLineThroughDoorway,
+  randomIntFromInterval,
+  rotateAroundPivot,
+  wallInterceptsLine
+} from "../../../utils/utils";
 import {
   AddLightweightNpc,
   ClientUpdateProximateItems
@@ -25,6 +30,9 @@ import {
 import { LoadoutContainer } from "../classes/loadoutcontainer";
 import { BaseFullCharacter } from "./basefullcharacter";
 import { LOADOUT_CONTAINER_GUID } from "../../../utils/constants";
+import { ConstructionDoor } from "./constructiondoor";
+import { ConstructionParentEntity } from "./constructionparententity";
+import { ConstructionChildEntity } from "./constructionchildentity";
 
 // TODO find a better way to handle items not inside containers
 function transferItemObject(
@@ -129,6 +137,7 @@ export class ItemObject extends BaseLightweightCharacter {
   npcRenderDistance = 25;
   spawnerId = 0;
   item: BaseItem;
+  insideBuilding: string = "";
   isWorldItem: boolean = false;
   creationTime: number = 0;
   triggerExplosionShots = Math.floor(Math.random() * 3) + 2; // random number 2-4 neccesary shots
@@ -222,6 +231,130 @@ export class ItemObject extends BaseLightweightCharacter {
       if (this.spawnerId <= -1) return;
       server.lootCrateWithChance(client, 5);
     }
+  }
+
+  checkBuildingObstruct(
+    server: ZoneServer2016,
+    character: Float32Array,
+    foundation: ConstructionParentEntity | undefined
+  ): boolean {
+    const charPos = new Float32Array(character);
+
+    const itemPos = this.state.position;
+    charPos[1] += 1.8;
+
+    const charInFoundation: boolean =
+      foundation instanceof ConstructionParentEntity;
+
+    if (!charInFoundation) {
+      foundation =
+        server._constructionFoundations[this.insideBuilding] ??
+        server._constructionSimple[this.insideBuilding]?.getParent(server);
+    }
+
+    if (!foundation) return false;
+
+    if (
+      foundation.itemDefinitionId == Items.SHACK ||
+      foundation.itemDefinitionId == Items.SHACK_BASIC || // TODO
+      foundation.itemDefinitionId == Items.SHACK_SMALL
+    ) {
+      if (!foundation.isSecured) return false;
+
+      if (charInFoundation && foundation.isInside(itemPos)) return false;
+
+      return true;
+    }
+
+    if (
+      foundation.itemDefinitionId != Items.FOUNDATION_EXPANSION &&
+      foundation.itemDefinitionId != Items.FOUNDATION &&
+      foundation.itemDefinitionId != Items.GROUND_TAMPER
+    ) {
+      return false;
+    }
+
+    if (foundation.itemDefinitionId == Items.FOUNDATION_EXPANSION)
+      foundation = foundation.getParentFoundation(server);
+
+    if (!foundation) return false;
+
+    const allShelters = {
+      ...foundation.occupiedShelterSlots,
+      ...Object.assign(
+        {},
+        ...Object.values(foundation.occupiedExpansionSlots).map(
+          (exp) => exp.occupiedShelterSlots
+        )
+      )
+    };
+
+    const allWalls = {
+      ...foundation.occupiedWallSlots,
+      ...Object.assign(
+        {},
+        ...Object.values(foundation.occupiedExpansionSlots).map(
+          (exp) => exp.occupiedWallSlots
+        )
+      )
+    };
+
+    for (const w in allWalls) {
+      const wall = allWalls[w];
+      const wallStart = new Float32Array<ArrayBufferLike>(wall.state.position);
+      let wallEnd = new Float32Array(wall.fixedPosition);
+
+      wallEnd[0] = 2 * wallEnd[0] - wallStart[0]; // doorEnd is currently the midpoint
+      wallEnd[2] = 2 * wallEnd[2] - wallStart[2]; // extend it to the end
+      wallEnd[1] += 3.5;
+
+      if (wall instanceof ConstructionDoor && wall.isOpen)
+        wallEnd = rotateAroundPivot(wallStart, wallEnd, -Math.PI / 2);
+
+      if (wallInterceptsLine(charPos, itemPos, wallStart, wallEnd)) {
+        if (
+          wall.itemDefinitionId == Items.METAL_DOORWAY &&
+          checkLineThroughDoorway(charPos, itemPos, wall)
+        )
+          continue;
+        else return true;
+      }
+    }
+
+    for (const s in allShelters) {
+      const shelter: ConstructionChildEntity = allShelters[s];
+
+      if (!shelter.cubebounds) continue;
+      const walls: [Float32Array, Float32Array][] = [
+        [
+          new Float32Array(shelter.cubebounds[0]),
+          new Float32Array(shelter.cubebounds[5])
+        ],
+
+        [
+          new Float32Array(shelter.cubebounds[1]),
+          new Float32Array(shelter.cubebounds[6])
+        ],
+
+        [
+          new Float32Array(shelter.cubebounds[2]),
+          new Float32Array(shelter.cubebounds[7])
+        ],
+
+        [
+          new Float32Array(shelter.cubebounds[3]),
+          new Float32Array(shelter.cubebounds[4])
+        ]
+      ];
+
+      for (const wall of walls) {
+        if (wallInterceptsLine(charPos, itemPos, ...wall)) {
+          return !checkLineThroughDoorway(charPos, itemPos, shelter);
+        }
+      }
+    }
+
+    return false;
   }
 
   OnInteractionString(server: ZoneServer2016, client: ZoneClient2016): void {

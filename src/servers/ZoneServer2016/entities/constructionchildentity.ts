@@ -288,6 +288,10 @@ export class ConstructionChildEntity extends BaseLightweightCharacter {
         this.boundsOn = getCubeBounds(position, 5, 5, angle, p, p + 1.8);
 
         break;
+      case Items.METAL_DOORWAY:
+      case Items.METAL_WALL:
+        this.fixedPosition = movePoint(position, -(rotation[1] + 1.575), 2.5);
+        break;
     }
 
     const itemDefinition = server.getItemDefinition(this.itemDefinitionId);
