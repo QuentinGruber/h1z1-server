@@ -261,6 +261,7 @@ import { ChallengeManager, ChallengeType } from "./managers/challengemanager";
 import { RandomEventsManager } from "./managers/randomeventsmanager";
 import { AiManager } from "./managers/aimanager";
 import { AirdropManager } from "./managers/airdropmanager";
+import { generateWorldItemRepData } from "../../packets/ClientProtocol/ClientProtocol_1080/shared";
 //import { TaskManager } from "./managers/tasksmanager";
 
 const spawnLocations2 = require("../../../data/2016/zoneData/Z1_gridSpawns.json"),
@@ -4120,7 +4121,11 @@ export class ZoneServer2016 extends EventEmitter {
         transientId: entity.transientId,
         stringSize: "ClientNpcComponent".length,
         componentName: "ClientNpcComponent",
-        properties: [{}]
+        properties: [
+          {
+            bufferData: generateWorldItemRepData(entity.nameId)
+          }
+        ]
       }
     );
   }
