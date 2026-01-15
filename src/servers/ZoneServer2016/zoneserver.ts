@@ -1305,12 +1305,19 @@ export class ZoneServer2016 extends EventEmitter {
 
     for (const object of client.spawnedEntities) {
       if (object instanceof ItemObject) {
+        let yDistance = 1;
+        if (
+          client.character.state.position[1] <
+          object.state.position[1] - 0.5
+        ) {
+          yDistance = 1.8;
+        }
         if (
           isPosInRadiusWithY(
             this.proximityItemsDistance,
             client.character.state.position,
             object.state.position,
-            1
+            yDistance
           )
         ) {
           if (
