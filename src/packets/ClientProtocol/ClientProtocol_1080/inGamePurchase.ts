@@ -237,7 +237,13 @@ export const inGamePurchasePackets: PacketStructures = [
     }
   ],
   ["InGamePurchase.ServerStatusRequest", 0x270c00, {}],
-  ["InGamePurchase.ServerStatusResponse", 0x270d01, {}],
+  [
+    "InGamePurchase.ServerStatusResponse",
+    0x270d,
+    {
+      fields: [{ name: "status", type: "boolean", defaultValue: false }]
+    }
+  ],
   ["InGamePurchase.StationCashProductsRequest", 0x270e00, {}],
   [
     "InGamePurchase.StationCashProductsResponse",
@@ -345,14 +351,14 @@ export const inGamePurchasePackets: PacketStructures = [
     }
   ],
   [
-    "InGamePurchase.AcccountInfoRequest",
+    "InGamePurchase.AccountInfoRequest",
     0x271900,
     {
       fields: [{ name: "locale", type: "string", defaultValue: "" }]
     }
   ],
   [
-    "InGamePurchase.AcccountInfoResponse",
+    "InGamePurchase.AccountInfoResponse",
     0x271a00,
     {
       fields: [

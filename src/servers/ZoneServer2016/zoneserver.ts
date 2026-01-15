@@ -46,18 +46,16 @@ import {
   HealTypes,
   Effects,
   WeaponDefinitionIds,
-  ModelIds,
   ItemTypes,
   ItemClasses,
   ResourceIndicators,
-  Backpack1000,
-  MilitaryTan,
-  FramedBackpack
+  GameModes
 } from "./models/enums";
 import { WeatherManager } from "./managers/weathermanager";
 
 import {
   AccountDefinition,
+  AccountItem,
   ClientBan,
   clientEffect,
   ConstructionEntity,
@@ -100,15 +98,14 @@ import {
   getDifference,
   logClientActionToMongo,
   removeUntransferableFields,
-  movePoint,
-  getAngle,
   getDistance2d,
   TimeWrapper,
   getCurrentServerTimeWrapper,
   flhash,
   getDateString,
   loadJson,
-  chance
+  chance,
+  quat2heading
 } from "../../utils/utils";
 
 import { Db, MongoClient, WithId } from "mongodb";
@@ -161,11 +158,9 @@ import {
   CharacterDroppedItemNotification,
   CharacterKilledBy,
   CharacterManagedObject,
-  CharacterMovementVersion,
   CharacterPlayWorldCompositeEffect,
   CharacterRemovePlayer,
   CharacterRespawnReply,
-  CharacterSeekTarget,
   CharacterSelectSessionResponse,
   CharacterStartMultiStateDeath,
   CharacterUpdateCharacterState,
@@ -190,7 +185,8 @@ import {
   GameTimeSync,
   H1emuPrintToConsole,
   InitializationParameters,
-  LightweightToFullVehicle,
+  ItemsRemoveAccountItem,
+  ItemsUpdateAccountItem,
   LoginFailed,
   MountDismountResponse,
   MountMountResponse,
@@ -202,7 +198,11 @@ import {
   RewardAddNonRewardItem,
   SendSelfToClient,
   SendZoneDetails,
+  SynchronizedTeleportPlayersReady,
+  SynchronizedTeleportRelease,
+  SynchronizedTeleportWaitingForPlayers,
   UiConfirmHit,
+  VehicleAutoMount,
   VehicleOccupy,
   VehicleOwner,
   WeaponWeapon,
@@ -239,7 +239,6 @@ import { ConstructionManager } from "./managers/constructionmanager";
 import { FairPlayManager } from "./managers/fairplaymanager";
 import { PluginManager } from "./managers/pluginmanager";
 import { Destroyable } from "./entities/destroyable";
-import { Plane } from "./entities/plane";
 import { FileHashTypeList, ReceivedPacket } from "types/shared";
 import { SOEOutputChannels } from "../../servers/SoeServer/soeoutputstream";
 import { scheduler } from "node:timers/promises";
@@ -254,12 +253,14 @@ import { AccountInventoryManager } from "./managers/accountinventorymanager";
 import { PlayTimeManager } from "./managers/playtimemanager";
 import { RewardManager } from "./managers/rewardmanager";
 import { DynamicAppearance } from "types/zonedata";
-import { AiManager } from "h1emu-ai";
 import { clearInterval, setInterval } from "node:timers";
 import { NavManager } from "../../utils/recast";
 import { ProjectileEntity } from "./entities/projectileentity";
 import { ChallengeManager, ChallengeType } from "./managers/challengemanager";
 import { RandomEventsManager } from "./managers/randomeventsmanager";
+import { AiManager } from "./managers/aimanager";
+import { AirdropManager } from "./managers/airdropmanager";
+//import { TaskManager } from "./managers/tasksmanager";
 
 const spawnLocations2 = require("../../../data/2016/zoneData/Z1_gridSpawns.json"),
   deprecatedDoors = require("../../../data/2016/sampleData/deprecatedDoors.json"),
@@ -296,7 +297,7 @@ export class ZoneServer2016 extends EventEmitter {
   readonly _soloMode: boolean;
   _serverName = process.env.SERVER_NAME || "";
   readonly _mongoAddress: string;
-  private readonly _clientProtocol = "ClientProtocol_1080";
+  private _clientProtocol: string;
   protected _loginConnectionManager!: LoginConnectionManager;
   _serverGuid = generateRandomGuid();
   _worldId = 0;
@@ -338,6 +339,8 @@ export class ZoneServer2016 extends EventEmitter {
   _screenEffects: { [screenEffectName: string]: ScreenEffect } = {};
   _clientEffectsData: { [effectId: number]: clientEffect } = {};
   _modelsData: { [modelId: number]: modelData } = {};
+  _syncTeleport: { [characterId: string]: boolean } = {};
+  blockSyncTeleportTicks: number = 0;
 
   /** Interactible options for items - See (ZonePacketHandlers.ts or datasources/ItemUseOptions) */
   _itemUseOptions: { [optionId: number]: UseOption } = {};
@@ -349,27 +352,6 @@ export class ZoneServer2016 extends EventEmitter {
       action: string;
     };
   } = {};
-
-  /** Airdrop information - includes:
-   * plane (Plane), cargo (Plane), planeTarget (string),
-   * planeTargetPos (Float32Array), cargoTarget (string), cargoTargetPos(Float32Array),
-   * destination (string), destinationPos (Float32Array), cargoSpawned (boolean),
-   * hospitalCrate (boolean), manager (Client)
-   */
-  _airdrop?: {
-    plane: Plane;
-    cargo?: Plane;
-    planeTarget: string;
-    planeTargetPos: Float32Array;
-    cargoTarget: string;
-    cargoTargetPos: Float32Array;
-    destination: string;
-    destinationPos: Float32Array;
-    cargoSpawned: boolean;
-    containerSpawned: boolean;
-    forcedAirdropType?: string;
-    manager?: Client;
-  };
 
   _serverStartTime: TimeWrapper = new TimeWrapper(0);
   _transientIds: { [transientId: number]: string } = {};
@@ -409,6 +391,7 @@ export class ZoneServer2016 extends EventEmitter {
   configManager: ConfigManager;
   playTimeManager: PlayTimeManager;
   aiManager: AiManager;
+  airdropManager: AirdropManager;
 
   _ready: boolean = false;
 
@@ -491,20 +474,25 @@ export class ZoneServer2016 extends EventEmitter {
   challengeManager: ChallengeManager;
   challengePositionCheckInterval?: NodeJS.Timeout;
   randomEventsManager: RandomEventsManager;
+  gameMode: GameModes = GameModes.SURVIVAL;
+  //tasksManager: TaskManager;
+  //clientRoutineRate!: number;
 
   constructor(
     serverPort: number,
     gatewayKey: Uint8Array = Buffer.from(DEFAULT_CRYPTO_KEY),
     mongoAddress = "",
     worldId?: number,
-    internalServerPort?: number
+    internalServerPort?: number,
+    protocol: string = "ClientProtocol_1080"
   ) {
     super();
+    this._clientProtocol = protocol;
     this._gatewayServer = new GatewayServer(serverPort, gatewayKey);
     this._packetHandlers = new ZonePacketHandlers();
     this._mongoAddress = mongoAddress;
     this._worldId = worldId || 0;
-    this._protocol = new H1Z1Protocol("ClientProtocol_1080");
+    this._protocol = new H1Z1Protocol(this._clientProtocol);
     this.worldObjectManager = new WorldObjectManager();
     this.voiceChatManager = new VoiceChatManager();
     this.smeltingManager = new SmeltingManager();
@@ -522,10 +510,12 @@ export class ZoneServer2016 extends EventEmitter {
     this.pluginManager = new PluginManager();
     this.commandHandler = new CommandHandler();
     this.playTimeManager = new PlayTimeManager();
-    this.aiManager = new AiManager();
+    this.aiManager = new AiManager(this);
+    this.airdropManager = new AirdropManager(this);
     this.navManager = new NavManager();
     this.challengeManager = new ChallengeManager(this);
     this.randomEventsManager = new RandomEventsManager(this);
+    //this.tasksManager = new TaskManager();
     /* CONFIG MANAGER MUST BE INSTANTIATED LAST ! */
     this.configManager = new ConfigManager(this, process.env.CONFIG_PATH);
     this.enableWorldSaves =
@@ -537,10 +527,24 @@ export class ZoneServer2016 extends EventEmitter {
     });
     /** Determines what rulesets are used. */
     const serverGameRules = [];
-    serverGameRules.push(this.isPvE ? "PvE" : "PvP");
-    if (this.isFirstPersonOnly) serverGameRules.push("FirstPersonOnly");
-    if (this.isHeadshotOnly) serverGameRules.push("Headshots");
-    if (this.isNoBuildInPois) serverGameRules.push("NoBuildNearPois");
+    if (this.isSurvival()) {
+      serverGameRules.push(this.isPvE ? "PvE" : "PvP");
+      if (this.isFirstPersonOnly) serverGameRules.push("FirstPersonOnly");
+      if (this.isHeadshotOnly) serverGameRules.push("Headshots");
+      if (this.isNoBuildInPois) serverGameRules.push("NoBuildNearPois");
+    } else if (this.isBattleRoyale()) {
+      switch (this.gameMode) {
+        case GameModes.BATTLE_ROYALE:
+          serverGameRules.push("BattleRoyale");
+          break;
+        case GameModes.BATTLE_ROYALE_2:
+          serverGameRules.push("BattleRoyaleTwoPlayerTeams");
+          break;
+        case GameModes.BATTLE_ROYALE_5:
+          serverGameRules.push("BattleRoyaleFivePlayerTeams");
+          break;
+      }
+    }
     this.serverGameRules = serverGameRules.join(",");
 
     this._soloMode = false;
@@ -647,7 +651,16 @@ export class ZoneServer2016 extends EventEmitter {
     );
     this._gatewayServer.on("disconnect", (sessionId: number) => {
       // this happen when the connection is close without a regular logout
-      this.deleteClient(this._clients[sessionId]);
+      const client = this._clients[sessionId];
+      if (client) {
+        if (client.properlyLogout) {
+          this.deleteClient(client);
+        } else {
+          setTimeout(() => {
+            this.deleteClient(client);
+          }, 10_000);
+        }
+      }
     });
 
     this._gatewayServer.on(
@@ -714,6 +727,10 @@ export class ZoneServer2016 extends EventEmitter {
       v.transientId = this.getTransientId(v.characterId);
     }
   }
+
+  /*get gameLoopUpdateRate() {
+    return 1000 / this.gameLoopTickRate;
+  }*/
 
   async reloadCommandCache() {
     delete require.cache[require.resolve("./handlers/commands/commandhandler")];
@@ -901,9 +918,6 @@ export class ZoneServer2016 extends EventEmitter {
 
   async stop() {
     clearInterval(this.challengePositionCheckInterval);
-    for (const trap of Object.values(this._traps)) {
-      clearTimeout(trap.trapTimer);
-    }
     this.worldDataManager.kill();
     this.inGameTimeManager.stop();
     this.smeltingManager.clearTimers();
@@ -988,10 +1002,32 @@ export class ZoneServer2016 extends EventEmitter {
     try {
       await this.sendInitData(client);
     } catch (error) {
-      debug(error);
       console.log(error);
       this.sendData<LoginFailed>(client, "LoginFailed", {});
+      if (!this._soloMode) {
+        await this._db.collection(DB_COLLECTIONS.LOGIN_ERRORS).insertOne({
+          error,
+          guid: client.loginSessionId,
+          characterId: client.character.characterId
+        });
+      }
     }
+    /*this.tasksManager.register(async () => {
+      debug("zone login");
+      try {
+        await this.sendInitData(client);
+      } catch (error) {
+        console.log(error);
+        this.sendData<LoginFailed>(client, "LoginFailed", {});
+        if (!this._soloMode) {
+          await this._db.collection(DB_COLLECTIONS.LOGIN_ERRORS).insertOne({
+            error,
+            guid: client.loginSessionId,
+            characterId: client.character.characterId
+          });
+        }
+      }
+    });*/
   }
 
   onZoneDataEvent(client: Client, packet: H1z1ProtocolReadingFormat) {
@@ -1021,6 +1057,20 @@ export class ZoneServer2016 extends EventEmitter {
           )
         );
       }
+      /*this.tasksManager.register(async () => {
+        if (!packet.data.flags) return;
+        const movingCharacter = this._characters[client.character.characterId];
+        if (movingCharacter) {
+          this.sendRawToAllOthersWithSpawnedCharacter(
+            client,
+            movingCharacter.characterId,
+            this._protocol.createPositionBroadcast2016(
+              packet.data.raw,
+              movingCharacter.transientId
+            )
+          );
+        }
+      }, true);*/
     }
 
     try {
@@ -1034,6 +1084,20 @@ export class ZoneServer2016 extends EventEmitter {
       console.error(`An error occurred while processing a packet : `, packet);
       logVersion();
     }
+
+    /*this.tasksManager.register(async () => {
+      try {
+        this._packetHandlers.processPacket(
+          this,
+          client,
+          packet as ReceivedPacket<any>
+        );
+      } catch (error) {
+        console.error(error);
+        console.error(`An error occurred while processing a packet : `, packet);
+        logVersion();
+      }
+    });*/
   }
 
   async getIsAdmin(loginSessionId: string) {
@@ -1071,7 +1135,11 @@ export class ZoneServer2016 extends EventEmitter {
         characterId: character.characterId
       });
       if (!charactersArray) {
-        await collection.insertOne(character);
+        const result = await collection.insertOne(character);
+        if (!result.insertedId || !result.acknowledged) {
+          console.error(result);
+          throw new Error("Failed to insert character into database");
+        }
       }
       this._loginConnectionManager.sendData(client, "CharacterCreateReply", {
         reqId: reqId,
@@ -1256,13 +1324,23 @@ export class ZoneServer2016 extends EventEmitter {
       }
 
       if (object instanceof LootableConstructionEntity) {
+        // If player is underneath, allow further Y distance
+        let yDistance = 1;
+        if (
+          client.character.state.position[1] <
+          object.state.position[1] - 0.5
+        ) {
+          yDistance = 3;
+        }
+
         if (
           isPosInRadiusWithY(
-            2,
+            2, // radius stays 2
             client.character.state.position,
             object.state.position,
-            1
-          )
+            yDistance // only Y-difference changes
+          ) ||
+          object.mountedCharacter == client.character.characterId
         ) {
           if (object.parentObjectCharacterId) {
             const parent = object.getParent(this);
@@ -1419,11 +1497,11 @@ export class ZoneServer2016 extends EventEmitter {
     client.startingPos = client.character.state.position;
   }
 
-  sendCharacterData(client: Client) {
+  sendCharacterData(client: Client, accountItems: AccountItem[]) {
     this.sendData<SendSelfToClient>(
       client,
       "SendSelfToClient",
-      client.character.pGetSendSelf(this, client)
+      client.character.pGetSendSelf(this, client, accountItems)
     );
     client.character.initialized = true;
     this.initializeContainerList(client);
@@ -1634,6 +1712,7 @@ export class ZoneServer2016 extends EventEmitter {
     this._loginConnectionManager.setLoginInfo(this._loginServerInfo, {
       serverId: this._worldId,
       h1emuVersion: process.env.H1Z1_SERVER_VERSION || "unknown",
+      gameMode: Number(this.gameMode),
       serverRuleSets: this.serverGameRules
     });
     this._loginConnectionManager.start();
@@ -1698,11 +1777,10 @@ export class ZoneServer2016 extends EventEmitter {
       !this.enableWorldSaves
     ) {
       client.character.isRespawning = true;
-      this.respawnPlayer(
-        client,
-        this._spawnGrid[randomIntFromInterval(0, 99)],
-        false
+      const pos = this.calculatePosFromSpawnCell(
+        this._spawnGrid[randomIntFromInterval(0, 99)]
       );
+      this.respawnPlayer(client, pos, false);
     } else {
       client.character.state.position = new Float32Array(
         savedCharacter.position
@@ -1819,6 +1897,16 @@ export class ZoneServer2016 extends EventEmitter {
     await this.pluginManager.initializePlugins(this);
 
     this.customizeStaticDTOs();
+
+    /*this.tasksManager.register_schedule(
+      this.worldRoutine.bind(this),
+      this.worldRoutineRate
+    );
+
+    this.tasksManager.register_schedule(
+      this.clientRoutineLoop.bind(this),
+      this.clientRoutineRate
+    );*/
 
     this._ready = true;
     console.log(
@@ -1958,16 +2046,23 @@ export class ZoneServer2016 extends EventEmitter {
 
   startH1emuAi() {
     setInterval(() => {
-      if (process.env.ENABLE_AI_TIME_LOGS) {
-        const start = performance.now();
-        this.aiManager.run();
-        const end = performance.now();
-        const duration = end - start;
-        if (duration >= 1) {
-          console.log(`H1emu-ai took ${duration}ms`);
+      try {
+        if (process.env.ENABLE_AI_TIME_LOGS) {
+          const start = performance.now();
+          this.aiManager.run();
+          const end = performance.now();
+          const duration = end - start;
+          if (duration >= 1) {
+            console.log(
+              `H1emu-ai took ${duration}ms with ${this.aiManager.getEntitiesTotalNumber()} entities`
+            );
+          }
+          console.log(this.aiManager.getEntitiesStats());
+        } else {
+          this.aiManager.run();
         }
-      } else {
-        this.aiManager.run();
+      } catch (e) {
+        console.error(e);
       }
     }, 100);
   }
@@ -1984,15 +2079,21 @@ export class ZoneServer2016 extends EventEmitter {
     }
     this.fairPlayManager.decryptFairPlayValues();
     this._spawnGrid = this.divideMapIntoSpawnGrid(7448, 7448, 744);
-    this.speedtreeManager.initiateList();
+    if (this.isSurvival()) {
+      this.speedtreeManager.initiateList();
+    }
     this.startRoutinesLoop();
-    this.smeltingManager.checkSmeltables(this);
-    this.smeltingManager.checkCollectors(this);
-    this.decayManager.run(this);
+    if (this.isSurvival()) {
+      this.smeltingManager.checkSmeltables(this);
+      this.smeltingManager.checkCollectors(this);
+      this.decayManager.run(this);
+    }
     this._serverStartTime = getCurrentServerTimeWrapper();
     this.weatherManager.startWeatherWorker(this);
     this.inGameTimeManager.start();
-    this.randomEventsManager.start();
+    if (this.isSurvival()) {
+      this.randomEventsManager.start();
+    }
     if (!this._soloMode) {
       this.accountInventoriesManager.init(
         this._db.collection(DB_COLLECTIONS.ACCOUNT_ITEMS)
@@ -2012,9 +2113,11 @@ export class ZoneServer2016 extends EventEmitter {
     this.initUseOptionsDataSource();
     this.rconManager.start();
     this.rconManager.on("message", this.handleRconMessage.bind(this));
-    this.rewardManager.start();
+    if (this.isSurvival()) {
+      this.rewardManager.start();
+    }
     this.hookManager.checkHook("OnServerReady");
-    if (this._soloMode || process.env.ENABLE_AI) {
+    if (!process.env.DISABLE_AI) {
       this.startH1emuAi();
     }
     this.challengePositionCheckInterval = setInterval(
@@ -2035,12 +2138,16 @@ export class ZoneServer2016 extends EventEmitter {
       skyData: this.weatherManager.weather
     });*/
 
+    const { environment, sku } = this.isBattleRoyale()
+      ? { environment: "LIVE_KOTK", sku: "SKU_Is_KotK" }
+      : { environment: "LIVE", sku: "SKU_Is_JustSurvive" };
+
     this.sendData<InitializationParameters>(
       client,
       "InitializationParameters",
       {
-        ENVIRONMENT: "LIVE", // LOCAL, MAIN, QA, TEST, STAGE, LIVE, //THE_NINE, INNOVA
-        unknownString1: "SKU_Is_JustSurvive", //JS.Environment
+        ENVIRONMENT: environment, // LOCAL, MAIN, QA, TEST, STAGE, LIVE, //THE_NINE, INNOVA
+        unknownString1: sku, //JS.Environment
         rulesetDefinitions: Object.values(gameRulesSource).map(
           (gameRule: any) => {
             return {
@@ -2140,7 +2247,11 @@ export class ZoneServer2016 extends EventEmitter {
         )
     });
 
-    this.sendCharacterData(client);
+    const accountItems = await this.accountInventoriesManager.getAccountItems(
+      client.loginSessionId
+    );
+
+    this.sendCharacterData(client, accountItems);
 
     // Now we can send all the rest of the data while the player is at the loading screen.
     // This ensures the player doesn't have to wait on the loading screen after clicking 'join', as this packet is large.
@@ -2310,9 +2421,11 @@ export class ZoneServer2016 extends EventEmitter {
         await scheduler.yield();
         this.checkVehiclesInMapBounds();
         await scheduler.yield();
-        this.setTickRate();
-        this.syncAirdrop();
+        this.updateSyncTeleport();
         await scheduler.yield();
+        this.setTickRate();
+        await scheduler.yield();
+        this.updateSpectatorMap();
         if (
           this.enableWorldSaves &&
           !this.isSaving &&
@@ -2340,16 +2453,17 @@ export class ZoneServer2016 extends EventEmitter {
       this.setTickRate();
       return;
     }
-
     if (client.afkTimer) {
       clearInterval(client.afkTimer);
     }
 
+    if (client.assetIntegrityKickTimer) {
+      clearTimeout(client.assetIntegrityKickTimer);
+    }
+
     if (client.character) {
-      if (client.character.h1emu_ai_id) {
-        this.aiManager.remove_entity(client.character.h1emu_ai_id);
-      }
       client.isLoading = true; // stop anything from acting on character
+      this.aiManager.removeEntity(client.character);
       // "shift" time played prior to logging out
       client.character.metrics.startedSurvivingTP +=
         Date.now() - Number(client.character.lastLoginDate);
@@ -2390,6 +2504,7 @@ export class ZoneServer2016 extends EventEmitter {
       this.sendZonePopulationUpdate();
     }
     this.setTickRate();
+    this.airdropManager.sendDeliveryStatus();
   }
 
   async generateDamageRecord(
@@ -2468,8 +2583,9 @@ export class ZoneServer2016 extends EventEmitter {
       {
         recipesDiscovered: client.character.metrics.recipesDiscovered,
         zombiesKilled: client.character.metrics.zombiesKilled,
-        minutesSurvived:
-          (Date.now() - client.character.metrics.startedSurvivingTP) / 60000,
+        minutesSurvived: Math.ceil(
+          (Date.now() - client.character.metrics.startedSurvivingTP) / 60000
+        ),
         wildlifeKilled: client.character.metrics.wildlifeKilled,
         vehiclesDestroyed: client.character.metrics.vehiclesDestroyed,
         playersKilled: client.character.metrics.playersKilled,
@@ -2478,7 +2594,7 @@ export class ZoneServer2016 extends EventEmitter {
             ? Math.max(
                 0,
                 damageRecord.hitInfo.oldHP - damageRecord.hitInfo.newHP
-              ) * 100
+              )
             : 0,
         killedByHeadshot: ["HEAD", "GLASSES", "NECK"].includes(
           damageRecord?.hitInfo.hitLocation ?? ""
@@ -2489,7 +2605,16 @@ export class ZoneServer2016 extends EventEmitter {
 
   logPlayerDeath(client: Client, damageInfo: DamageInfo) {
     debug(client.character.name + " has died");
-    const sourceClient = this.getClientByCharId(damageInfo.entity);
+    let sourceClient = this.getClientByCharId(damageInfo.entity);
+    if (!sourceClient) {
+      const sourceEntity = this.getEntity(damageInfo.entity);
+      if (sourceEntity instanceof ProjectileEntity) {
+        sourceClient = this.getClientByCharId(sourceEntity.managerCharacterId);
+      } else {
+        return;
+      }
+    }
+
     if (!sourceClient) return;
 
     if (
@@ -2707,7 +2832,6 @@ export class ZoneServer2016 extends EventEmitter {
             );
           }
           slot.weapon.ammoCount = 0;
-          this.damageItem(client.character, slot, 350);
         }
       });
       this.worldObjectManager.createLootbag(this, character);
@@ -2720,22 +2844,29 @@ export class ZoneServer2016 extends EventEmitter {
 
   sendKillFeed(client: Client, damageInfo: DamageInfo) {
     if (client.character.characterId === damageInfo.entity) return;
-    const killerClient = this.getClientByCharId(damageInfo.entity);
+    const killerEntity = this.getEntity(damageInfo.entity);
+    let killerClient;
+
+    if (killerEntity instanceof ProjectileEntity) {
+      killerClient = this.getClientByCharId(killerEntity.managerCharacterId);
+    } else {
+      killerClient = this.getClientByCharId(damageInfo.entity);
+    }
     let isInGodMode = false;
     if (killerClient) {
       isInGodMode = killerClient.character.isGodMode();
-    }
-    this.sendDataToAllWithSpawnedEntity<CharacterKilledBy>(
-      this._characters,
-      client.character.characterId,
-      "Character.KilledBy",
+      this.sendDataToAllWithSpawnedEntity<CharacterKilledBy>(
+        this._characters,
+        client.character.characterId,
+        "Character.KilledBy",
 
-      {
-        killer: damageInfo.entity,
-        killed: client.character.characterId,
-        isCheater: isInGodMode
-      }
-    );
+        {
+          killer: killerClient?.character.characterId,
+          killed: client.character.characterId,
+          isCheater: isInGodMode
+        }
+      );
+    }
   }
 
   applyCharacterEffect(
@@ -2826,7 +2957,7 @@ export class ZoneServer2016 extends EventEmitter {
             this.applyCharacterEffect(
               character,
               Effects.PFX_Fire_Person_loop,
-              1500,
+              700,
               10000
             );
           }
@@ -2919,12 +3050,26 @@ export class ZoneServer2016 extends EventEmitter {
     }
   }
 
+  calculatePosFromSpawnCell(cell: SpawnCell): Float32Array {
+    const randomSpawnIndex = Math.floor(
+      Math.random() * cell.spawnPoints.length
+    );
+
+    return new Float32Array([
+      cell.spawnPoints[randomSpawnIndex][0],
+      cell.spawnPoints[randomSpawnIndex][1] + 1,
+      cell.spawnPoints[randomSpawnIndex][2],
+      1
+    ]);
+  }
+
   respawnPlayer(
     client: Client,
-    cell: SpawnCell,
+    position: Float32Array,
     clearEquipment: boolean = true
   ) {
-    if (!this.hookManager.checkHook("OnPlayerRespawn", client)) return;
+    if (!this.hookManager.checkHook("OnPlayerRespawn", client, position))
+      return;
 
     if (!client.character.isRespawning) return;
 
@@ -2957,20 +3102,10 @@ export class ZoneServer2016 extends EventEmitter {
       }
     );
 
-    const randomSpawnIndex = Math.floor(
-      Math.random() * cell.spawnPoints.length
-    );
     if (client.character.initialized) {
       client.managedObjects?.forEach((characterId) => {
         this.dropVehicleManager(client, characterId);
       });
-      const tempPos = new Float32Array([
-        cell.spawnPoints[randomSpawnIndex][0],
-        cell.spawnPoints[randomSpawnIndex][1] + 1,
-        cell.spawnPoints[randomSpawnIndex][2],
-        1
-      ]);
-      client.character.state.position = tempPos;
 
       this.sendData<CharacterRespawnReply>(client, "Character.RespawnReply", {
         characterId: client.character.characterId,
@@ -2986,12 +3121,12 @@ export class ZoneServer2016 extends EventEmitter {
         client,
         "ClientUpdate.UpdateLocation",
         {
-          position: tempPos,
+          position: position,
           unknownBoolean1: false
         }
       );
-      client.character.awaitingTeleportLocation = tempPos;
-      client.oldPos.position = tempPos;
+      client.character.awaitingTeleportLocation = position;
+      client.oldPos.position = position;
       /*const damageInfo: DamageInfo = {
         entity: "Server.Respawn",
         damage: 99999
@@ -3027,7 +3162,7 @@ export class ZoneServer2016 extends EventEmitter {
       client.character.updateEquipment(this);
     }
     client.character.equipLoadout(this);
-    client.character.state.position = cell.spawnPoints[randomSpawnIndex];
+    client.character.state.position = position;
     client.character.resetResources(this);
     client.character.updateEquipment(this);
     client.character.updateFootwearAudio(this);
@@ -3150,6 +3285,7 @@ export class ZoneServer2016 extends EventEmitter {
       this._destroyables[entityKey] ||
       this._temporaryObjects[entityKey] ||
       this._traps[entityKey] ||
+      this._throwableProjectiles[entityKey] ||
       undefined
     );
   }
@@ -3607,7 +3743,9 @@ export class ZoneServer2016 extends EventEmitter {
     }
     const message = `FairPlay: blocked incoming projectile from ${client.character.name}`;
     const fireHint = client.fireHints[hitReport.sessionProjectileCount];
+    if (!fireHint) return;
     const weaponItem = fireHint.weaponItem;
+    if (!weaponItem) return;
     const entity = this.getEntity(hitReport.characterId);
     if (weaponItem.itemDefinitionId == Items.WEAPON_BOW_RECURVE) {
       for (const a in this._throwableProjectiles) {
@@ -3637,7 +3775,6 @@ export class ZoneServer2016 extends EventEmitter {
       }
       return;
     }
-    if (!weaponItem) return;
     if (fireHint.hitNumber > 0) {
       if (targetClient) {
         this.sendChatTextToAdmins(
@@ -3908,9 +4045,7 @@ export class ZoneServer2016 extends EventEmitter {
           this.getProximityItems(client)
         );
       }
-    }
-    if (dictionary[characterId].h1emu_ai_id) {
-      this.aiManager.remove_entity(dictionary[characterId].h1emu_ai_id);
+      this.aiManager.removeEntity(dictionary[characterId]);
     }
     delete dictionary[characterId];
     delete this._transientIds[this._characterIds[characterId]];
@@ -4039,6 +4174,7 @@ export class ZoneServer2016 extends EventEmitter {
   }
 
   private checkVehiclesInMapBounds() {
+    if (this.isBattleRoyale()) return;
     for (const a in this._vehicles) {
       const vehicle = this._vehicles[a];
       let inMapBounds: boolean = false;
@@ -4091,6 +4227,8 @@ export class ZoneServer2016 extends EventEmitter {
         }
 
         if (object instanceof ConstructionChildEntity) {
+          if (this.constructionManager.shouldHideEntity(this, client, object))
+            continue;
           this.constructionManager.spawnSimpleConstruction(
             this,
             client,
@@ -4275,6 +4413,24 @@ export class ZoneServer2016 extends EventEmitter {
     if (data) {
       this._gatewayServer.sendTunnelData(client.soeClientId, data, channel);
     }
+    /*this.tasksManager.register(() => {
+      switch (packetName) {
+        case "H1emu.RequestModules":
+        case "Command.ExecuteCommand":
+        case "KeepAlive":
+        case "PlayerUpdatePosition":
+        case "GameTimeSync":
+        case "Synchronization":
+        case "Vehicle.StateData":
+          break;
+        default:
+          debug("send data", packetName);
+      }
+      const data = this._protocol.pack(packetName, obj);
+      if (data) {
+        this._gatewayServer.sendTunnelData(client.soeClientId, data, channel);
+      }
+    });*/
   }
 
   sendUnbufferedData(
@@ -4441,8 +4597,11 @@ export class ZoneServer2016 extends EventEmitter {
       SOEOutputChannels.Reliable
     );
   }
-  sendAlertToAll(message: string) {
-    this._sendDataToAll("ClientUpdate.TextAlert", {
+  sendAlertToAll(message: string, playerName: string = "") {
+    this._sendDataToAll("Broadcast.Zone", {
+      identity: {
+        characterFirstName: playerName
+      },
       message: message
     });
   }
@@ -4716,319 +4875,6 @@ export class ZoneServer2016 extends EventEmitter {
   }
 
   //#region ********************VEHICLE********************
-
-  airdropManager(client: Client, spawn: boolean) {
-    if (!this._airdrop) return;
-    if (spawn) {
-      // These lightWeight characters are only used like targets for the plane
-      const lightWeight = {
-        characterId: this._airdrop.planeTarget,
-        transientId: 1,
-        actorModelId: ModelIds.WEAPON_EMPTY,
-        position: this._airdrop.planeTargetPos,
-        rotation: new Float32Array([0, 0, 0, 0]),
-        scale: new Float32Array([0.001, 0.001, 0.001, 0.001]),
-        positionUpdateType: 0,
-        profileId: 0,
-        isLightweight: true,
-        headActor: "",
-        flags: {
-          flags1: {},
-          flags2: {},
-          flags3: {}
-        },
-        attachedObject: {}
-      };
-      this.sendData<AddLightweightNpc>(
-        client,
-        "AddLightweightNpc",
-        lightWeight
-      );
-      /*const lightWeight2 = {
-        characterId: this._airdrop.destination,
-        transientId: 0,
-        actorModelId: 33,
-        position: this._airdrop.destinationPos,
-        rotation: new Float32Array([0, 0, 0, 0]),
-        scale: new Float32Array([1, 1, 1, 1]),
-        positionUpdateType: 0,
-        profileId: 0,
-        isLightweight: true,
-        flags: {},
-        headActor: "",
-      };*/
-      const lightWeight3 = {
-        characterId: this._airdrop.cargoTarget,
-        transientId: 2,
-        actorModelId: ModelIds.WEAPON_EMPTY,
-        position: this._airdrop.cargoTargetPos,
-        rotation: new Float32Array([0, 0, 0, 0]),
-        scale: new Float32Array([0.001, 0.001, 0.001, 0.001]),
-        positionUpdateType: 0,
-        profileId: 0,
-        isLightweight: true,
-        headActor: "",
-        flags: {
-          flags1: {},
-          flags2: {},
-          flags3: {}
-        },
-        attachedObject: {}
-      };
-      this.sendData<AddLightweightNpc>(
-        client,
-        "AddLightweightNpc",
-        lightWeight
-      );
-      //this.sendData<>(client, "AddLightweightNpc", lightWeight2);
-      this.sendData<AddLightweightNpc>(
-        client,
-        "AddLightweightNpc",
-        lightWeight3
-      );
-      this.sendData<AddLightweightVehicle>(client, "AddLightweightVehicle", {
-        ...this._airdrop.plane.pGetLightweightVehicle(),
-        unknownGuid1: this.generateGuid()
-      });
-      this.sendData<CharacterMovementVersion>(
-        client,
-        "Character.MovementVersion",
-        {
-          characterId: this._airdrop.plane.characterId,
-          version: 5
-        }
-      );
-      setTimeout(() => {
-        if (this._airdrop) {
-          this.sendData<LightweightToFullVehicle>(
-            client,
-            "LightweightToFullVehicle",
-            this._airdrop.plane.pGetFullVehicle(this)
-          );
-        }
-      }, 1000);
-
-      this.sendData<CharacterSeekTarget>(client, "Character.SeekTarget", {
-        characterId: this._airdrop.plane.characterId,
-        TargetCharacterId: this._airdrop.planeTarget,
-        initSpeed: -20,
-        acceleration: 0,
-        speed: 0,
-        turn: 5,
-        yRot: 0,
-        rotation: new Float32Array([
-          0,
-          this._airdrop.plane.positionUpdate.orientation || 0,
-          0,
-          0
-        ])
-      });
-      if (
-        this._airdrop.manager &&
-        this._airdrop.manager.character.characterId ==
-          client.character.characterId
-      ) {
-        this.sendData<CharacterManagedObject>(
-          client,
-          "Character.ManagedObject",
-          {
-            objectCharacterId: this._airdrop.plane.characterId,
-            characterId: client.character.characterId
-          }
-        );
-      }
-
-      if (this._airdrop.cargoSpawned && this._airdrop.cargo) {
-        this.sendData<AddLightweightVehicle>(client, "AddLightweightVehicle", {
-          ...this._airdrop.cargo.pGetLightweightVehicle(),
-          unknownGuid1: this.generateGuid()
-        });
-        this.sendData<CharacterMovementVersion>(
-          client,
-          "Character.MovementVersion",
-          {
-            characterId: this._airdrop.cargo.characterId,
-            version: 6
-          }
-        );
-        this.sendData<LightweightToFullVehicle>(
-          client,
-          "LightweightToFullVehicle",
-          this._airdrop.cargo.pGetFullVehicle(this)
-        );
-        this.sendData<CharacterSeekTarget>(client, "Character.SeekTarget", {
-          characterId: this._airdrop.cargo.characterId,
-          TargetCharacterId: this._airdrop.cargoTarget,
-          initSpeed: -5,
-          acceleration: 0,
-          speed: 0,
-          turn: 5,
-          yRot: 0
-        });
-        this.sendData<CharacterManagedObject>(
-          client,
-          "Character.ManagedObject",
-          {
-            objectCharacterId: this._airdrop.cargo.characterId,
-            characterId: client.character.characterId
-          }
-        );
-      }
-    } else if (!spawn) {
-      this.sendData<CharacterRemovePlayer>(client, "Character.RemovePlayer", {
-        characterId: this._airdrop.plane.characterId
-      });
-      if (this._airdrop.cargo) {
-        this.sendData<CharacterRemovePlayer>(client, "Character.RemovePlayer", {
-          characterId: this._airdrop.cargo.characterId,
-          unknownWord1: 1,
-          effectId: Effects.PFX_Impact_Explosion_AirdropBomb_Default_10m,
-          timeToDisappear: 0,
-          effectDelay: 0
-        });
-      }
-      // removing them seems to crash the client somehow
-      /*this.sendData<>(client, "Character.RemovePlayer", {
-        characterId: this._airdrop.destination,
-      });
-      this.sendData<>(client, "Character.RemovePlayer", {
-        characterId: this._airdrop.planeTarget,
-      });
-      this.sendData<>(client, "Character.RemovePlayer", {
-        characterId: this._airdrop.cargoTarget,
-      });*/
-    }
-  }
-
-  async syncAirdrop() {
-    if (!this._airdrop) return;
-    let choosenClient: Client | undefined;
-    let currentDistance = 999999;
-    for (const a in this._clients) {
-      const client = this._clients[a];
-      this.sendData<CharacterRemovePlayer>(client, "Character.RemovePlayer", {
-        characterId: this._airdrop.plane.characterId
-      });
-      this.sendData<AddLightweightVehicle>(client, "AddLightweightVehicle", {
-        ...this._airdrop.plane.pGetLightweightVehicle(),
-        unknownGuid1: this.generateGuid()
-      });
-      this.sendData<CharacterMovementVersion>(
-        client,
-        "Character.MovementVersion",
-        {
-          characterId: this._airdrop.plane.characterId,
-          version: 5
-        }
-      );
-      if (this._airdrop.cargoSpawned && this._airdrop.cargo) {
-        this.sendData<CharacterRemovePlayer>(client, "Character.RemovePlayer", {
-          characterId: this._airdrop.cargo.characterId
-        });
-        this.sendData<AddLightweightVehicle>(client, "AddLightweightVehicle", {
-          ...this._airdrop.cargo.pGetLightweightVehicle(),
-          unknownGuid1: this.generateGuid()
-        });
-        this.sendData<CharacterMovementVersion>(
-          client,
-          "Character.MovementVersion",
-          {
-            characterId: this._airdrop.cargo.characterId,
-            version: 6
-          }
-        );
-        this.sendData<CharacterSeekTarget>(client, "Character.SeekTarget", {
-          characterId: this._airdrop.cargo.characterId,
-          TargetCharacterId: this._airdrop.cargoTarget,
-          initSpeed: -5,
-          acceleration: 0,
-          speed: 0,
-          turn: 5,
-          yRot: 0,
-          rotation: new Float32Array([0, 1, 0, 0])
-        });
-        this.sendData<CharacterManagedObject>(
-          client,
-          "Character.ManagedObject",
-          {
-            objectCharacterId: this._airdrop.cargo.characterId,
-            characterId: client.character.characterId
-          }
-        );
-        this.sendData<LightweightToFullVehicle>(
-          client,
-          "LightweightToFullVehicle",
-          this._airdrop.cargo.pGetFullVehicle(this)
-        );
-      }
-      setTimeout(() => {
-        if (this._airdrop) {
-          this.sendData<LightweightToFullVehicle>(
-            client,
-            "LightweightToFullVehicle",
-            this._airdrop.plane.pGetFullVehicle(this)
-          );
-        }
-      }, 1000);
-      this.sendData<CharacterSeekTarget>(client, "Character.SeekTarget", {
-        characterId: this._airdrop.plane.characterId,
-        TargetCharacterId: this._airdrop.planeTarget,
-        initSpeed: -20,
-        acceleration: 0,
-        speed: 0,
-        turn: 5,
-        yRot: 0,
-        rotation: new Float32Array([
-          0,
-          this._airdrop.plane.positionUpdate.orientation || 0,
-          0,
-          0
-        ])
-      });
-      if (!choosenClient) {
-        choosenClient = client;
-        currentDistance = getDistance2d(
-          client.character.state.position,
-          this._airdrop.cargo
-            ? this._airdrop.cargo.state.position
-            : this._airdrop.plane.state.position
-        );
-      }
-      if (
-        currentDistance >
-        getDistance2d(
-          client.character.state.position,
-          this._airdrop.cargo
-            ? this._airdrop.cargo.state.position
-            : this._airdrop.plane.state.position
-        )
-      ) {
-        const avgPing = this._gatewayServer.getSoeClientAvgPing(
-          client.soeClientId
-        );
-        choosenClient = client;
-        if (avgPing) {
-          if (avgPing < 130) {
-            choosenClient = client;
-            currentDistance = getDistance2d(
-              client.character.state.position,
-              this._airdrop.plane.state.position
-            );
-          }
-        }
-      }
-    }
-    this._airdrop.manager = choosenClient;
-    if (!this._airdrop.manager) return;
-    this.sendData<CharacterManagedObject>(
-      this._airdrop.manager,
-      "Character.ManagedObject",
-      {
-        objectCharacterId: this._airdrop.plane.characterId,
-        characterId: this._airdrop.manager.character.characterId
-      }
-    );
-  }
 
   vehicleManager(client: Client) {
     for (const key in this._vehicles) {
@@ -5316,6 +5162,17 @@ export class ZoneServer2016 extends EventEmitter {
         this._clients[a].spawnedEntities.has(dictionary[entityCharacterId])
       ) {
         this.sendRawDataReliable(this._clients[a], data);
+      }
+    }
+  }
+
+  sendDataToAllAdmins(packetName: h1z1PacketsType2016, obj: any): void {
+    const data = this._protocol.pack(packetName, obj);
+    if (data) {
+      for (const a in this._clients) {
+        if (this._clients[a].isAdmin) {
+          this.sendRawDataReliable(this._clients[a], data);
+        }
       }
     }
   }
@@ -5611,7 +5468,9 @@ export class ZoneServer2016 extends EventEmitter {
       "CharacterState.InteractionStart",
       {
         characterId: client.character.characterId,
-        time: time,
+        timeData: {
+          duration: time
+        },
         animationId: animationId,
         stringId: stringId
       }
@@ -5804,6 +5663,7 @@ export class ZoneServer2016 extends EventEmitter {
     const itemDef = this.getItemDefinition(itemDefinitionId);
     return [
       "RewardCrate",
+      "LockedRewardCrate",
       "RewardCrateKey",
       "AccountRecipe",
       "IncrementEntitlement",
@@ -6166,36 +6026,6 @@ export class ZoneServer2016 extends EventEmitter {
   }
 
   /**
-   * Checks if an item with the specified itemDefinitionId is a MilitaryTan backpack.
-   *
-   * @param {number} itemDefinitionId - The itemDefinitionId to check.
-   * @returns {boolean} True if the item is a MilitaryTan bag, false otherwise.
-   */
-  isMilitaryTan(itemDefinitionId: number): boolean {
-    return Object.values(MilitaryTan).includes(itemDefinitionId);
-  }
-
-  /**
-   * Checks if an item with the specified itemDefinitionId is a Framed bag.
-   *
-   * @param {number} itemDefinitionId - The itemDefinitionId to check.
-   * @returns {boolean} True if the item is a MilitaryTan bag, false otherwise.
-   */
-  isFramedBp(itemDefinitionId: number): boolean {
-    return Object.values(FramedBackpack).includes(itemDefinitionId);
-  }
-
-  /**
-   * Checks if an item with the specified itemDefinitionId is a Small backpack (1000 bulk).
-   *
-   * @param {number} itemDefinitionId - The itemDefinitionId to check.
-   * @returns {boolean} True if the item is a MilitaryTan bag, false otherwise.
-   */
-  isBackpack(itemDefinitionId: number): boolean {
-    return Object.values(Backpack1000).includes(itemDefinitionId);
-  }
-
-  /**
    * Checks if an item with the specified itemDefinitionId is a convey.
    *
    * @param {number} itemDefinitionId - The itemDefinitionId to check.
@@ -6462,8 +6292,7 @@ export class ZoneServer2016 extends EventEmitter {
   async lootAccountItem(
     server: ZoneServer2016,
     client: Client,
-    item?: BaseItem,
-    sendUpdate: boolean = false
+    item?: BaseItem
   ) {
     if (!item) {
       return;
@@ -6482,36 +6311,22 @@ export class ZoneServer2016 extends EventEmitter {
         client.loginSessionId,
         savedItem
       );
-      server.sendData(client, "Items.UpdateEscrowAccountItem", {
-        itemData: {
-          itemId: savedItem.itemGuid,
-          itemDefinitionId: savedItem.itemDefinitionId,
-          itemCount: savedItem.stackCount,
-          itemGuid: savedItem.itemGuid
-        }
+      server.sendData(client, "Items.UpdateAccountItem", {
+        itemId: savedItem.itemGuid,
+        itemDefinitionId: savedItem.itemDefinitionId,
+        itemCount: savedItem.stackCount
       });
     } else {
       await server.accountInventoriesManager.addAccountItem(
         client.loginSessionId,
         item
       );
-      server.sendData(client, "Items.AddEscrowAccountItem", {
-        itemData: {
-          itemId: item.itemGuid,
-          itemDefinitionId: item.itemDefinitionId,
-          itemCount: item.stackCount,
-          itemGuid: item.itemGuid
-        }
+      server.sendData(client, "Items.AddAccountItem", {
+        itemId: item.itemGuid,
+        itemDefinitionId: item.itemDefinitionId,
+        itemCount: item.stackCount
       });
     }
-
-    if (!sendUpdate) return;
-    server.sendData(client, "Reward.AddNonRewardItem", {
-      itemDefId: item.itemDefinitionId,
-      iconId: server.getItemDefinition(item.itemDefinitionId)?.IMAGE_SET_ID,
-      nameId: server.getItemDefinition(item.itemDefinitionId)?.NAME_ID,
-      count: item.stackCount
-    });
   }
 
   lootCrateWithChance(client: Client, dropChance: number) {
@@ -6528,36 +6343,33 @@ export class ZoneServer2016 extends EventEmitter {
    * @param {number} [count=1]  - Optional: Specifies the amount of items that need to be removed, default is 1.
    * @returns {boolean} Returns true if the item was successfully removed, false if there was an error.
    */
-  removeAccountItem(
+  async removeAccountItem(
     character: BaseFullCharacter,
     item: BaseItem,
     count: number = 1
-  ): boolean {
+  ): Promise<boolean> {
     const client = this.getClientByCharId(character.characterId);
     if (!client) return false;
 
     item.stackCount -= count;
     if (item.stackCount <= 0) {
-      this.accountInventoriesManager.removeAccountItem(
+      await this.accountInventoriesManager.removeAccountItem(
         client.loginSessionId,
         item
       );
-      this.sendData(client, "Items.RemoveEscrowAccountItem", {
+      this.sendData<ItemsRemoveAccountItem>(client, "Items.RemoveAccountItem", {
         itemId: item.itemGuid,
         itemDefinitionId: item.itemDefinitionId
       });
     } else {
-      this.accountInventoriesManager.updateAccountItem(
+      await this.accountInventoriesManager.updateAccountItem(
         client.loginSessionId,
         item
       );
-      this.sendData(client, "Items.UpdateEscrowAccountItem", {
-        itemData: {
-          itemId: item.itemGuid,
-          itemDefinitionId: item.itemDefinitionId,
-          itemCount: item.stackCount,
-          itemGuid: item.itemGuid
-        }
+      this.sendData<ItemsUpdateAccountItem>(client, "Items.UpdateAccountItem", {
+        itemId: item.itemGuid,
+        itemDefinitionId: item.itemDefinitionId,
+        itemCount: item.stackCount
       });
     }
 
@@ -6675,12 +6487,12 @@ export class ZoneServer2016 extends EventEmitter {
    * @param {boolean} [updateEquipment=true] - Optional: Specifies whether to update the equipment, default is true.
    * @returns {boolean} Returns true if the items were successfully removed, false if there was an error.
    */
-  removeInventoryItem(
+  async removeInventoryItem(
     character: BaseFullCharacter,
     item: BaseItem,
     count: number = 1,
     updateEquipment: boolean = true
-  ): boolean {
+  ): Promise<boolean> {
     item.debugFlag = "removeInventoryItem";
     if (count > item.stackCount) {
       console.error(
@@ -6690,7 +6502,7 @@ export class ZoneServer2016 extends EventEmitter {
     }
 
     if (this.isAccountItem(item.itemDefinitionId)) {
-      return this.removeAccountItem(character, item);
+      return await this.removeAccountItem(character, item);
     } else if (character._loadout[item.slotId]?.itemGuid == item.itemGuid) {
       return this.removeLoadoutItem(character, item.slotId, updateEquipment);
     } else {
@@ -6766,9 +6578,10 @@ export class ZoneServer2016 extends EventEmitter {
 
   /**
    * Removes a single item type from the inventory and spawns it on the ground
-   * @param client The client to have its item dropped.
+   * @param character The character that should drop the item
    * @param item The item object.
    * @param count Optional: The number of items to drop on the ground, default 1.
+   * @param animationId The animation to play
    */
   dropItem(
     character: BaseFullCharacter,
@@ -7084,42 +6897,18 @@ export class ZoneServer2016 extends EventEmitter {
     }
   }
 
-  updateAirdropIndicator(client: Client | undefined = undefined) {
-    let statusCode = 0;
-    if (this._airdrop) {
-      statusCode = 1;
-    } else if (
-      _.size(this._clients) < this.worldObjectManager.minAirdropSurvivors &&
-      !this._soloMode
-    ) {
-      statusCode = 2;
-    }
-
-    const data = {
-      indicator: statusCode == 0 ? 1 : 0,
-      status: 0
-    };
-
-    if (!client) {
-      this.sendDataToAll("Command.DeliveryManagerStatus", data);
-      return;
-    }
-
-    this.sendData(client, "Command.DeliveryManagerStatus", data);
-  }
-
   useAirdrop(
     client: Client,
     character: Character | BaseLootableEntity,
     item: BaseItem
   ) {
-    if (this._airdrop) {
+    if (!this.airdropManager.allowedAirdropSpawn() && !client.isDebugMode) {
       this.sendAlert(client, "All planes are busy.");
       return;
     }
 
     if (
-      _.size(this._clients) < this.worldObjectManager.minAirdropSurvivors &&
+      _.size(this._clients) < this.airdropManager.minimumPlayers &&
       !this._soloMode &&
       !client.isDebugMode
     ) {
@@ -7149,105 +6938,20 @@ export class ZoneServer2016 extends EventEmitter {
       ![Items.AIRDROP_TICKET, Items.AIRDROP_CODE].includes(
         item.itemDefinitionId
       ) ||
+      !this.airdropManager.spawnAirdrop(
+        client.character.state.position,
+        client.character.hasAirdropClearance ? "Hospital" : "",
+        client.isDebugMode,
+        client.character.characterId
+      ) ||
       !this.removeInventoryItem(character, item)
     )
       return;
     this.sendAlert(client, "Your delivery is on the way!");
-    this.spawnAirdrop(
-      client.character.state.position,
-      item.hasAirdropClearance ? "Hospital" : ""
-    );
-    if (item.hasAirdropClearance) {
-      item.hasAirdropClearance = false;
-    }
-  }
 
-  spawnAirdrop(position: Float32Array, forcedAirdropType: string) {
-    const pos = new Float32Array([position[0], 400, position[2], 1]);
-    const angle = getAngle(position, new Float32Array([0, 0, 0, 0]));
-    const distance =
-      5000 + getDistance2d(position, new Float32Array([0, 0, 0, 0]));
-    const moved = movePoint(pos, angle, distance);
-    const moved2 = movePoint(moved, angle, 1500);
-    const characterId = this.generateGuid();
-    const characterId2 = this.generateGuid();
-    const characterId3 = this.generateGuid();
-    const characterId4 = this.generateGuid();
-    const characterId5 = this.generateGuid();
-    const plane = new Plane(
-      characterId,
-      this.getTransientId(characterId),
-      ModelIds.AIRDROP_PLANE,
-      moved,
-      new Float32Array([0, 0, 0, 1]),
-      // client.character.state.lookAt,
-      this,
-      getCurrentServerTimeWrapper().getTruncatedU32(),
-      VehicleIds.SPECTATE
-    );
-    const cargo = new Plane(
-      characterId4,
-      this.getTransientId(characterId4),
-      ModelIds.AIRDROP_CARGO_CONTAINER,
-      new Float32Array([pos[0], pos[1] - 20, pos[2], 1]),
-      new Float32Array([0, 0, 0, 1]),
-      // client.character.state.lookAt,
-      this,
-      getCurrentServerTimeWrapper().getTruncatedU32(),
-      VehicleIds.SPECTATE
-    );
-    this._airdrop = {
-      plane: plane,
-      cargo: cargo,
-      planeTarget: characterId2,
-      planeTargetPos: moved2,
-      cargoTarget: characterId5,
-      cargoTargetPos: new Float32Array([pos[0], pos[1] + 100, pos[2], 1]),
-      destination: characterId3,
-      destinationPos: position,
-      cargoSpawned: false,
-      containerSpawned: false,
-      forcedAirdropType: forcedAirdropType
-    };
-    let choosenClient: Client | undefined;
-    let currentDistance = 999999;
-    for (const a in this._clients) {
-      const client = this._clients[a];
-      if (
-        !choosenClient ||
-        currentDistance >
-          getDistance2d(
-            client.character.state.position,
-            this._airdrop.plane.state.position
-          )
-      ) {
-        choosenClient = client;
-        currentDistance = getDistance2d(
-          client.character.state.position,
-          this._airdrop.plane.state.position
-        );
-      }
+    if (client.character.hasAirdropClearance) {
+      client.character.hasAirdropClearance = false;
     }
-    this._airdrop.manager = choosenClient;
-    for (const a in this._clients) {
-      if (!this._clients[a].isLoading) {
-        this.airdropManager(this._clients[a], true);
-      }
-    }
-
-    this.sendDeliveryStatus();
-
-    setTimeout(() => {
-      if (this._airdrop && this._airdrop.plane.characterId == characterId) {
-        for (const a in this._clients) {
-          if (!this._clients[a].isLoading) {
-            this.airdropManager(this._clients[a], false);
-          }
-        }
-        this.sendDeliveryStatus();
-        delete this._airdrop;
-      }
-    }, 600000);
   }
 
   useAmmoBox(
@@ -7546,6 +7250,7 @@ export class ZoneServer2016 extends EventEmitter {
   }
 
   sleep(client: Client) {
+    if (this.isBattleRoyale()) return;
     client.character._resources[ResourceIds.ENDURANCE] = 8000;
     client.character._resources[ResourceIds.STAMINA] = 600;
     this.applyMovementModifier(client, MovementModifiers.RESTED);
@@ -7771,17 +7476,25 @@ export class ZoneServer2016 extends EventEmitter {
       itemType = itemDefinition.ITEM_TYPE;
     let count = 1;
     const timeout = 3000;
-    switch (itemType) {
-      case 36:
-      case 39:
-        count = 1;
-        break;
-      case 34: // salvage/shred
-        count = 4;
-        break;
-      default:
-        this.sendChatText(client, "[ERROR] Unknown salvage item or count.");
+    if (
+      item.itemDefinitionId === Items.BELT_POUCH ||
+      item.itemDefinitionId === Items.WAIST_PACK
+    ) {
+      count = 1;
+    } else {
+      switch (itemType) {
+        case 36:
+        case 39:
+          count = 1;
+          break;
+        case 34: // salvage/shred
+          count = 4;
+          break;
+        default:
+          this.sendChatText(client, "[ERROR] Unknown salvage item or count.");
+      }
     }
+
     this.utilizeHudTimer(client, nameId, timeout, animationId, () => {
       this.shredItemPass(character, item, count);
     });
@@ -8212,7 +7925,7 @@ export class ZoneServer2016 extends EventEmitter {
       itemDefinition.ID,
       overrideProjectileId
         ? packet.packet.sessionProjectileCount +
-          parseInt(client.character.characterId.slice(-5), 16)
+            parseInt(client.character.characterId.slice(-5), 16)
         : packet.packet.projectileUniqueId,
       client.character.characterId
     );
@@ -8962,6 +8675,13 @@ export class ZoneServer2016 extends EventEmitter {
     return generateRandomGuid();
   }
   private _sendRawDataReliable(client: Client, data: Buffer) {
+    /*this.tasksManager.register(() => {
+      this._gatewayServer.sendTunnelData(
+        client.soeClientId,
+        data,
+        SOEOutputChannels.Reliable
+      );
+    });*/
     this._gatewayServer.sendTunnelData(
       client.soeClientId,
       data,
@@ -9079,6 +8799,7 @@ export class ZoneServer2016 extends EventEmitter {
       }
       await scheduler.wait(this.tickRate, {});
     }
+    this.updateSpectatorMap();
     this.startRoutinesLoop();
   }
 
@@ -9501,36 +9222,7 @@ export class ZoneServer2016 extends EventEmitter {
     );
   }
 
-  sendDeliveryStatus(client: Client | undefined = undefined) {
-    const hasEnoughSurvivors =
-      this._soloMode ||
-      this.worldObjectManager.minAirdropSurvivors < _.size(this._clients);
-
-    let status = 0;
-    switch (true) {
-      case !hasEnoughSurvivors:
-        status = 2;
-        break;
-      case this._airdrop !== undefined:
-        status = 1;
-        break;
-    }
-
-    if (client) {
-      this.sendData(client, "Command.DeliveryManagerStatus", {
-        color: status == 0 ? 1 : 0,
-        status: status
-      });
-      return;
-    }
-
-    this.sendDataToAll("Command.DeliveryManagerStatus", {
-      color: status == 0 ? 1 : 0,
-      status: status
-    });
-  }
-
-  deployParachute(client: Client) {
+  deployParachute(client: Client, shaderGroupId: number) {
     const characterId = this.generateGuid(),
       vehicle = new Vehicle2016(
         characterId,
@@ -9540,14 +9232,118 @@ export class ZoneServer2016 extends EventEmitter {
         client.character.state.rotation,
         this,
         getCurrentServerTimeWrapper().getTruncatedU32(),
-        VehicleIds.PARACHUTE
+        VehicleIds.PARACHUTE,
+        shaderGroupId,
+        client.character.characterId
       );
     this.worldObjectManager.createVehicle(this, vehicle, true);
+    if (!this._vehicles[characterId]) {
+      return;
+    }
+
+    this.sendData<AddLightweightVehicle>(client, "AddLightweightVehicle", {
+      ...vehicle.pGetLightweightVehicle(),
+      unknownGuid1: this.generateGuid()
+    });
+    client.spawnedEntities.add(vehicle);
+
     vehicle.onReadyCallback = (client) => {
-      this.mountVehicle(client, characterId);
-      this.assignManagedObject(client, vehicle);
-      client.vehicle.mountedVehicle = characterId;
+      this.sendData<VehicleAutoMount>(client, "Vehicle.AutoMount", {
+        guid: vehicle.characterId,
+        unknownBoolean1: true,
+        unknownDword1: 0
+      });
     };
+  }
+
+  updateSpectatorMap() {
+    this.sendDataToAllAdmins("Spectator.AllSpectators", {
+      unknownDword1: 1,
+      unknownArray1: Object.values(this._clients).map((client) => ({
+        characterId: client.character.characterId,
+        characterName: client?.character?.name ?? "",
+        playerHeading: quat2heading(client.character.state.rotation),
+        playerX: client.character.state.position[0],
+        playerY: client.character.state.position[1],
+        playerZ: client.character.state.position[2],
+        unknownArray2: []
+      })),
+      unknownArray2: []
+    });
+  }
+
+  addToSyncTeleport(client: Client, position: Float32Array) {
+    this._syncTeleport[client.character.characterId] = false;
+    this.sendData<SynchronizedTeleportWaitingForPlayers>(
+      client,
+      "SynchronizedTeleport.WaitingForPlayers",
+      {}
+    );
+    this.sendData<ClientUpdateUpdateLocation>(
+      client,
+      "ClientUpdate.UpdateLocation",
+      {
+        position: position,
+        triggerLoadingScreen: true
+      }
+    );
+    client.character.state.position = position;
+  }
+
+  updateSyncTeleport(this: ZoneServer2016) {
+    const readyClients: Client[] = [];
+
+    // This is so some actions can hold players for some extra time if needed
+    // A little sidenote, if you want players to hold for 20 seconds. set it to 2 since the worldRoutine triggers every 10 seconds by default
+    if (this.blockSyncTeleportTicks > 0) {
+      this.blockSyncTeleportTicks--;
+      return;
+    }
+
+    for (const characterId in this._syncTeleport) {
+      const client = this.getClientByCharId(characterId);
+      if (!client) {
+        delete this._syncTeleport[characterId];
+        continue;
+      }
+
+      if (!this._syncTeleport[characterId]) {
+        return;
+      }
+      readyClients.push(client);
+    }
+
+    if (readyClients.length == 0) return;
+
+    this._syncTeleport = {};
+
+    readyClients.forEach((client) => {
+      this.sendData<SynchronizedTeleportPlayersReady>(
+        client,
+        "SynchronizedTeleport.PlayersReady",
+        {
+          cooldown: 5000
+        }
+      );
+    });
+
+    setTimeout(() => {
+      readyClients.forEach((client) => {
+        this.sendData<SynchronizedTeleportRelease>(
+          client,
+          "SynchronizedTeleport.Release",
+          {}
+        );
+      });
+    }, 5000);
+  }
+
+  isSurvival(): boolean {
+    return this.gameMode == GameModes.SURVIVAL;
+  }
+
+  isBattleRoyale(): boolean {
+    return this.gameMode > 0;
   }
 }
 

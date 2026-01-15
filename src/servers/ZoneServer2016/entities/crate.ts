@@ -178,7 +178,9 @@ export class Crate extends BaseSimpleNpc {
   }
 
   destroy(server: ZoneServer2016): boolean {
-    this.spawnLoot(server);
+    if (server.isSurvival()) {
+      this.spawnLoot(server);
+    }
 
     this.spawnTimestamp = Date.now() + this.respawnTime;
     this.health = this.maxHealth;

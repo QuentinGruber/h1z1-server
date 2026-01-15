@@ -36,7 +36,7 @@ test("PlayTimeManager", { timeout: 10000 }, async (t) => {
 });
 test(
   "PlayTimeManager-mongo",
-  { timeout: 10000, skip: !isMongoTests },
+  { timeout: 60000, skip: !isMongoTests },
   async (t) => {
     t.mock.timers.enable({ apis: ["setInterval"] });
     const zone = new ZoneServer2016(

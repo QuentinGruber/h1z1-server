@@ -377,7 +377,9 @@ export class H1Z1Protocol {
           packetData = DataSchema.pack(packet.schema, object);
         } catch (error) {
           console.error(`${packetName} : ${error}`);
-          console.error(`${packetName} : ${JSON.stringify(object)}`);
+          if (packetName !== "SendSelfToClient") {
+            console.error(`${packetName} : ${JSON.stringify(object)}`);
+          }
         }
         if (packetData) {
           data = Buffer.allocUnsafe(packetTypeBytes.length + packetData.length);

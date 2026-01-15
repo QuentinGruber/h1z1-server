@@ -30,11 +30,13 @@ import { ZoneClient2016 } from "../classes/zoneclient";
 import { ZoneServer2016 } from "../zoneserver";
 import { BaseFullCharacter } from "./basefullcharacter";
 import {
+  AccountItem,
   CharacterEffect,
   characterIndicatorData,
   DamageInfo,
   DamageRecord,
   HealType,
+  ItemDefinition,
   positionUpdate,
   Recipe,
   StanceFlags
@@ -59,6 +61,7 @@ import {
   CharacterWeaponStance,
   ClientUpdateDamageInfo,
   ClientUpdateModifyMovementSpeed,
+  ClientUpdateProximateItems,
   CommandPlayDialogEffect,
   EquipmentSetCharacterEquipmentSlot,
   LoadoutSetLoadoutSlots,
@@ -76,6 +79,7 @@ import { ExplosiveEntity } from "./explosiveentity";
 import { BaseEntity } from "./baseentity";
 import { ProjectileEntity } from "./projectileentity";
 import { ChallengeType } from "../managers/challengemanager";
+import { LootableConstructionEntity } from "./lootableconstructionentity";
 const stats = require("../../../../data/2016/sampleData/stats.json");
 
 interface CharacterStates {
@@ -111,7 +115,7 @@ export class Character2016 extends BaseFullCharacter {
   /** Used to update the status of the players resources */
   resourcesUpdater?: any;
   factionId = 2;
-  isInInventory: boolean = false;
+  //isInInventory: boolean = false;
   playTime: number = 0;
   lastDropPlaytime: number = 0;
   set godMode(state: boolean) {
@@ -128,9 +132,6 @@ export class Character2016 extends BaseFullCharacter {
   /** States set by StanceFlags */
   isRunning = false;
   isSitting = false;
-
-  /** The guid of the secured shelter the player is inside */
-  isHidden: string = "";
 
   /** Used for resources */
   isBleeding = false;
@@ -311,6 +312,8 @@ export class Character2016 extends BaseFullCharacter {
 
   currentChallenge: ChallengeType = ChallengeType.NONE;
 
+  hasAirdropClearance: boolean = false;
+
   constructor(
     characterId: string,
     transientId: number,
@@ -332,13 +335,18 @@ export class Character2016 extends BaseFullCharacter {
     this._resources = {
       [ResourceIds.HEALTH]: 10000,
       [ResourceIds.STAMINA]: 600,
-      [ResourceIds.HUNGER]: 10000,
-      [ResourceIds.HYDRATION]: 10000,
-      [ResourceIds.VIRUS]: 0,
-      [ResourceIds.COMFORT]: 5000,
-      [ResourceIds.BLEEDING]: 0,
-      [ResourceIds.ENDURANCE]: 8000
+      [ResourceIds.BLEEDING]: 0
     };
+    if (server.isSurvival()) {
+      this._resources[ResourceIds.HUNGER] = 10000;
+      this._resources[ResourceIds.HYDRATION] = 10000;
+      this._resources[ResourceIds.VIRUS] = 0;
+      this._resources[ResourceIds.COMFORT] = 5000;
+      this._resources[ResourceIds.ENDURANCE] = 8000;
+    }
+    if (server.isBattleRoyale()) {
+      this._resources[ResourceIds.TOXICITY] = 0;
+    }
     this.characterStates = {
       knockedOut: false,
       inWater: false,
@@ -423,8 +431,15 @@ export class Character2016 extends BaseFullCharacter {
     let i = 0;
     for (const recipe of Object.values(this.recipes)) {
       const recipeDef = server.getItemDefinition(Number(recipeKeys[i]));
-      i++;
       if (!recipeDef) continue;
+      if (
+        server.isBattleRoyale() &&
+        ![Items.BANDAGE, Items.BACKPACK_SATCHEL, Items.ARMOR_PLATED].includes(
+          recipeDef.ID
+        )
+      )
+        continue;
+      i++;
       recipes.push({
         recipeId: recipeDef.ID,
         itemDefinitionId: recipeDef.ID,
@@ -514,20 +529,24 @@ export class Character2016 extends BaseFullCharacter {
       stamina = this._resources[ResourceIds.STAMINA],
       bleeding = this._resources[ResourceIds.BLEEDING],
       energy = this._resources[ResourceIds.ENDURANCE],
-      comfort = this._resources[ResourceIds.COMFORT];
+      comfort = this._resources[ResourceIds.COMFORT],
+      toxicity = this._resources[ResourceIds.TOXICITY];
 
     if (
       client.character.isRunning &&
       (client.vehicle.mountedVehicle == "" || !client.vehicle.mountedVehicle)
     ) {
-      client.character._resources[ResourceIds.STAMINA] -= 4;
-      client.character.isExhausted =
-        client.character._resources[ResourceIds.STAMINA] < 120;
+      if (server.isSurvival()) {
+        client.character._resources[ResourceIds.STAMINA] -= 4;
+        client.character.isExhausted =
+          client.character._resources[ResourceIds.STAMINA] < 120;
+      }
     } else if (!client.character.isBleeding || !client.character.isMoving) {
       client.character._resources[ResourceIds.STAMINA] += 12;
     }
     if (
       client.character.isSitting &&
+      server.isSurvival() &&
       (checkConstructionInRange(
         server._lootableConstruction,
         client.character.state.position,
@@ -544,86 +563,100 @@ export class Character2016 extends BaseFullCharacter {
       client.character._resources[ResourceIds.COMFORT] += 30;
     }
 
-    client.character._resources[ResourceIds.HUNGER] -= 2;
-    client.character._resources[ResourceIds.ENDURANCE] -= 2;
-    client.character._resources[ResourceIds.COMFORT] -= 3;
-    client.character._resources[ResourceIds.HYDRATION] -= 4;
+    if (server.isSurvival()) {
+      client.character._resources[ResourceIds.HUNGER] -= 2;
+      client.character._resources[ResourceIds.ENDURANCE] -= 2;
+      client.character._resources[ResourceIds.COMFORT] -= 3;
+      client.character._resources[ResourceIds.HYDRATION] -= 4;
 
-    let desiredEnergyIndicator = "";
-    const energyIndicators = [
-      ResourceIndicators.EXHAUSTED,
-      ResourceIndicators.VERY_TIRED,
-      ResourceIndicators.TIRED
-    ];
-    switch (true) {
-      case energy <= 801:
-        desiredEnergyIndicator = ResourceIndicators.EXHAUSTED;
-        client.character._resources[ResourceIds.STAMINA] -= 20;
-        break;
-      case energy <= 2601 && energy > 801:
-        desiredEnergyIndicator = ResourceIndicators.VERY_TIRED;
-        client.character._resources[ResourceIds.STAMINA] -= 14;
-        break;
-      case energy <= 3501 && energy > 2601:
-        server.challengeManager.registerChallengeProgression(
-          client,
-          ChallengeType.TIRED_BUDDY,
-          1
-        );
-        desiredEnergyIndicator = ResourceIndicators.TIRED;
-        break;
-      case energy > 3501:
-        desiredEnergyIndicator = "";
-        break;
-      default:
-        desiredEnergyIndicator = "";
-        break;
-    }
-
-    let desiredComfortIndicator = "";
-    const comfortIndicators = [
-      ResourceIndicators.COMFORT_PLUS,
-      ResourceIndicators.COMFORT_PLUSPLUS
-    ];
-    switch (true) {
-      case comfort > 2001:
-        desiredComfortIndicator = ResourceIndicators.COMFORT_PLUSPLUS;
-        client.character._resources[ResourceIds.HEALTH] += 10;
-        client.character._resources[ResourceIds.STAMINA] += 2;
-        break;
-      case comfort >= 751 && comfort <= 2001:
-        desiredComfortIndicator = ResourceIndicators.COMFORT_PLUS;
-        client.character._resources[ResourceIds.HEALTH] += 5;
-        client.character._resources[ResourceIds.STAMINA] += 1;
-        break;
-      case comfort < 751:
-        desiredComfortIndicator = "";
-        break;
-      default:
-        desiredComfortIndicator = "";
-        break;
-    }
-
-    this.checkResource(server, ResourceIds.ENDURANCE);
-    this.checkResource(server, ResourceIds.STAMINA);
-    this.checkResource(server, ResourceIds.COMFORT);
-    [...energyIndicators, ...comfortIndicators].forEach((indicator: string) => {
-      const index = this.resourceHudIndicators.indexOf(indicator);
-      const desiredIndicator =
-        indicator === desiredEnergyIndicator
-          ? desiredEnergyIndicator
-          : indicator === desiredComfortIndicator
-            ? desiredComfortIndicator
-            : null;
-
-      if (index > -1 && indicator != desiredIndicator) {
-        this.resourceHudIndicators.splice(index, 1);
-        server.sendHudIndicators(client);
-      } else if (indicator == desiredIndicator && index <= -1) {
-        this.resourceHudIndicators.push(desiredIndicator);
-        server.sendHudIndicators(client);
+      let desiredEnergyIndicator = "";
+      const energyIndicators = [
+        ResourceIndicators.EXHAUSTED,
+        ResourceIndicators.VERY_TIRED,
+        ResourceIndicators.TIRED
+      ];
+      switch (true) {
+        case energy <= 801:
+          server.challengeManager.registerChallengeProgression(
+            client,
+            ChallengeType.TIRED_BUDDY,
+            1
+          );
+          desiredEnergyIndicator = ResourceIndicators.EXHAUSTED;
+          client.character._resources[ResourceIds.STAMINA] -= 20;
+          break;
+        case energy <= 2601 && energy > 801:
+          server.challengeManager.registerChallengeProgression(
+            client,
+            ChallengeType.TIRED_BUDDY,
+            1
+          );
+          desiredEnergyIndicator = ResourceIndicators.VERY_TIRED;
+          client.character._resources[ResourceIds.STAMINA] -= 14;
+          break;
+        case energy <= 3501 && energy > 2601:
+          server.challengeManager.registerChallengeProgression(
+            client,
+            ChallengeType.TIRED_BUDDY,
+            1
+          );
+          desiredEnergyIndicator = ResourceIndicators.TIRED;
+          break;
+        case energy > 3501:
+          desiredEnergyIndicator = "";
+          break;
+        default:
+          desiredEnergyIndicator = "";
+          break;
       }
-    });
+
+      let desiredComfortIndicator = "";
+      const comfortIndicators = [
+        ResourceIndicators.COMFORT_PLUS,
+        ResourceIndicators.COMFORT_PLUSPLUS
+      ];
+      switch (true) {
+        case comfort > 2001:
+          desiredComfortIndicator = ResourceIndicators.COMFORT_PLUSPLUS;
+          client.character._resources[ResourceIds.HEALTH] += 10;
+          client.character._resources[ResourceIds.STAMINA] += 2;
+          break;
+        case comfort >= 751 && comfort <= 2001:
+          desiredComfortIndicator = ResourceIndicators.COMFORT_PLUS;
+          client.character._resources[ResourceIds.HEALTH] += 5;
+          client.character._resources[ResourceIds.STAMINA] += 1;
+          break;
+        case comfort < 751:
+          desiredComfortIndicator = "";
+          break;
+        default:
+          desiredComfortIndicator = "";
+          break;
+      }
+
+      this.checkResource(server, ResourceIds.ENDURANCE);
+      this.checkResource(server, ResourceIds.STAMINA);
+      this.checkResource(server, ResourceIds.COMFORT);
+      [...energyIndicators, ...comfortIndicators].forEach(
+        (indicator: string) => {
+          const index = this.resourceHudIndicators.indexOf(indicator);
+          const desiredIndicator =
+            indicator === desiredEnergyIndicator
+              ? desiredEnergyIndicator
+              : indicator === desiredComfortIndicator
+                ? desiredComfortIndicator
+                : null;
+
+          if (index > -1 && indicator != desiredIndicator) {
+            this.resourceHudIndicators.splice(index, 1);
+            server.sendHudIndicators(client);
+          } else if (indicator == desiredIndicator && index <= -1) {
+            this.resourceHudIndicators.push(desiredIndicator);
+            server.sendHudIndicators(client);
+          }
+        }
+      );
+    }
 
     let desiredBleedingIndicator = "";
     const bleedingIndicators = [
@@ -676,90 +709,79 @@ export class Character2016 extends BaseFullCharacter {
       });
     }
     this.checkResource(server, ResourceIds.BLEEDING);
-    this.checkResource(server, ResourceIds.HUNGER, () => {
-      this.damage(server, { entity: "Server.Character.Hunger", damage: 100 });
-    });
-    const indexHunger = this.resourceHudIndicators.indexOf(
-      ResourceIndicators.STARVING
-    );
-    if (hunger == 0) {
-      if (indexHunger <= -1) {
-        this.resourceHudIndicators.push(ResourceIndicators.STARVING);
-        server.sendHudIndicators(client);
-      }
-    } else {
-      if (indexHunger > -1) {
-        this.resourceHudIndicators.splice(indexHunger, 1);
-        server.sendHudIndicators(client);
-      }
-    }
-    const indexFoodPoison = this.resourceHudIndicators.indexOf(
-      ResourceIndicators.FOOD_POISONING
-    );
-    if (this.isPoisoned) {
-      if (indexFoodPoison <= -1) {
-        this.resourceHudIndicators.push(ResourceIndicators.FOOD_POISONING);
-        server.sendHudIndicators(client);
-      }
-    } else {
-      if (indexFoodPoison > -1) {
-        this.resourceHudIndicators.splice(indexFoodPoison);
-        server.sendHudIndicators(client);
-      }
-    }
-    const indexCoffeeSugared = this.resourceHudIndicators.indexOf(
-      ResourceIndicators.COFFEE_SUGAR
-    );
-    if (this.isCoffeeSugared) {
-      if (indexCoffeeSugared <= -1) {
-        this.resourceHudIndicators.push(ResourceIndicators.COFFEE_SUGAR);
-        server.sendHudIndicators(client);
-      }
-    } else {
-      if (indexCoffeeSugared > -1) {
-        this.resourceHudIndicators.splice(indexFoodPoison);
-        server.sendHudIndicators(client);
-      }
-    }
-    this.checkResource(server, ResourceIds.HUNGER, () => {
-      this.damage(server, { entity: "Server.Character.Hunger", damage: 100 });
-    });
-    this.checkResource(server, ResourceIds.HYDRATION, () => {
-      this.damage(server, {
-        entity: "Server.Character.Hydration",
-        damage: 100
+    if (server.isSurvival()) {
+      this.checkResource(server, ResourceIds.HUNGER, () => {
+        this.damage(server, { entity: "Server.Character.Hunger", damage: 100 });
       });
-    });
-    const indexDehydrated = this.resourceHudIndicators.indexOf(
-      ResourceIndicators.DEHYDRATED
-    );
-    if (hydration == 0) {
-      if (indexDehydrated <= -1) {
-        this.resourceHudIndicators.push(ResourceIndicators.DEHYDRATED);
-        server.sendHudIndicators(client);
+
+      const indexHunger = this.resourceHudIndicators.indexOf(
+        ResourceIndicators.STARVING
+      );
+      if (hunger == 0) {
+        if (indexHunger <= -1) {
+          this.resourceHudIndicators.push(ResourceIndicators.STARVING);
+          server.sendHudIndicators(client);
+        }
+      } else {
+        if (indexHunger > -1) {
+          this.resourceHudIndicators.splice(indexHunger, 1);
+          server.sendHudIndicators(client);
+        }
       }
-    } else {
-      if (indexDehydrated > -1) {
-        this.resourceHudIndicators.splice(indexDehydrated, 1);
-        server.sendHudIndicators(client);
+      const indexFoodPoison = this.resourceHudIndicators.indexOf(
+        ResourceIndicators.FOOD_POISONING
+      );
+      if (this.isPoisoned) {
+        if (indexFoodPoison <= -1) {
+          this.resourceHudIndicators.push(ResourceIndicators.FOOD_POISONING);
+          server.sendHudIndicators(client);
+        }
+      } else {
+        if (indexFoodPoison > -1) {
+          this.resourceHudIndicators.splice(indexFoodPoison);
+          server.sendHudIndicators(client);
+        }
+      }
+      const indexCoffeeSugared = this.resourceHudIndicators.indexOf(
+        ResourceIndicators.COFFEE_SUGAR
+      );
+      if (this.isCoffeeSugared) {
+        if (indexCoffeeSugared <= -1) {
+          this.resourceHudIndicators.push(ResourceIndicators.COFFEE_SUGAR);
+          server.sendHudIndicators(client);
+        }
+      } else {
+        if (indexCoffeeSugared > -1) {
+          this.resourceHudIndicators.splice(indexFoodPoison);
+          server.sendHudIndicators(client);
+        }
+      }
+      this.checkResource(server, ResourceIds.HUNGER, () => {
+        this.damage(server, { entity: "Server.Character.Hunger", damage: 100 });
+      });
+      this.checkResource(server, ResourceIds.HYDRATION, () => {
+        this.damage(server, {
+          entity: "Server.Character.Hydration",
+          damage: 100
+        });
+      });
+      const indexDehydrated = this.resourceHudIndicators.indexOf(
+        ResourceIndicators.DEHYDRATED
+      );
+      if (hydration == 0) {
+        if (indexDehydrated <= -1) {
+          this.resourceHudIndicators.push(ResourceIndicators.DEHYDRATED);
+          server.sendHudIndicators(client);
+        }
+      } else {
+        if (indexDehydrated > -1) {
+          this.resourceHudIndicators.splice(indexDehydrated, 1);
+          server.sendHudIndicators(client);
+        }
       }
     }
     this.checkResource(server, ResourceIds.HEALTH);
 
-    this.updateResource(
-      server,
-      client,
-      ResourceIds.HUNGER,
-      ResourceTypes.HUNGER,
-      hunger
-    );
-    this.updateResource(
-      server,
-      client,
-      ResourceIds.HYDRATION,
-      ResourceTypes.HYDRATION,
-      hydration
-    );
     this.updateResource(
       server,
       client,
@@ -770,45 +792,71 @@ export class Character2016 extends BaseFullCharacter {
     this.updateResource(
       server,
       client,
-      ResourceIds.VIRUS,
-      ResourceTypes.VIRUS,
-      virus
-    );
-    if (stamina <= 2) {
-      server.challengeManager.registerChallengeProgression(
-        client,
-        ChallengeType.CARDIO_ISSUES,
-        1
-      );
-    }
-    this.updateResource(
-      server,
-      client,
-      ResourceIds.STAMINA,
-      ResourceTypes.STAMINA,
-      stamina
-    );
-    this.updateResource(
-      server,
-      client,
       ResourceIds.BLEEDING,
       ResourceTypes.BLEEDING,
       bleeding
     );
-    this.updateResource(
-      server,
-      client,
-      ResourceIds.ENDURANCE,
-      ResourceTypes.ENDURANCE,
-      energy
-    );
-    this.updateResource(
-      server,
-      client,
-      ResourceIds.COMFORT,
-      ResourceTypes.COMFORT,
-      comfort
-    );
+
+    if (server.isSurvival()) {
+      this.updateResource(
+        server,
+        client,
+        ResourceIds.STAMINA,
+        ResourceTypes.STAMINA,
+        stamina
+      );
+      this.updateResource(
+        server,
+        client,
+        ResourceIds.HUNGER,
+        ResourceTypes.HUNGER,
+        hunger
+      );
+      this.updateResource(
+        server,
+        client,
+        ResourceIds.HYDRATION,
+        ResourceTypes.HYDRATION,
+        hydration
+      );
+      this.updateResource(
+        server,
+        client,
+        ResourceIds.VIRUS,
+        ResourceTypes.VIRUS,
+        virus
+      );
+      if (stamina <= 2) {
+        server.challengeManager.registerChallengeProgression(
+          client,
+          ChallengeType.CARDIO_ISSUES,
+          1
+        );
+      }
+      this.updateResource(
+        server,
+        client,
+        ResourceIds.ENDURANCE,
+        ResourceTypes.ENDURANCE,
+        energy
+      );
+      this.updateResource(
+        server,
+        client,
+        ResourceIds.COMFORT,
+        ResourceTypes.COMFORT,
+        comfort
+      );
+    }
+    if (server.isBattleRoyale()) {
+      this.updateResource(
+        server,
+        client,
+        ResourceIds.TOXICITY,
+        ResourceTypes.TOXICITY,
+        toxicity
+      );
+    }
 
     client.character.resourcesUpdater.refresh();
   }
@@ -898,72 +946,8 @@ export class Character2016 extends BaseFullCharacter {
       "Loadout.SetLoadoutSlots",
       this.pGetLoadoutSlots()
     );
-    const abilities: any = [
-      {
-        loadoutSlotId: 1,
-        abilityLineId: 1,
-        unknownArray1: [
-          {
-            unknownDword1: 1111164,
-            unknownDword2: 1111164,
-            unknownDword3: 0
-          }
-        ],
-        unknownDword3: 2,
-        itemDefinitionId: 83,
-        unknownByte: 64
-      }
-      // hardcoded one weapon ability to fix fists after respawning
-    ];
-    const abilityLineId = 1;
-    for (const a in client.character._loadout) {
-      const slot = client.character._loadout[a];
-      const itemDefinition = server.getItemDefinition(slot.itemDefinitionId);
-      if (!itemDefinition) continue;
-
-      const abilityId = itemDefinition.ACTIVATABLE_ABILITY_ID;
-      if (slot.itemDefinitionId == Items.WEAPON_FISTS) {
-        const object = {
-          loadoutSlotId: slot.slotId,
-          abilityLineId,
-          unknownArray1: [
-            {
-              unknownDword1: 1111278,
-              unknownDword2: 1111278,
-              unknownDword3: 0
-            },
-            {
-              unknownDword1: abilityId,
-              unknownDword2: abilityId,
-              unknownDword3: 0
-            }
-          ],
-          unknownDword3: 2,
-          itemDefinitionId: slot.itemDefinitionId,
-          unknownByte: 64
-        };
-        abilities.push(object);
-      } else {
-        const object = {
-          loadoutSlotId: slot.slotId,
-          abilityLineId,
-          unknownArray1: [
-            {
-              unknownDword1: abilityId,
-              unknownDword2: abilityId,
-              unknownDword3: 0
-            }
-          ],
-          unknownDword3: 2,
-          itemDefinitionId: slot.itemDefinitionId,
-          unknownByte: 64
-        };
-        abilities.push(object);
-      }
-      //abilityLineId++;
-    }
     server.sendData(client, "Abilities.SetActivatableAbilityManager", {
-      abilities
+      abilities: this.pGetActivatableAbilities(server)
     });
   }
 
@@ -1001,7 +985,8 @@ export class Character2016 extends BaseFullCharacter {
 
   pGetSendSelf(
     server: ZoneServer2016,
-    client: ZoneClient2016
+    client: ZoneClient2016,
+    accountItems: AccountItem[]
   ): SendSelfToClient {
     return {
       data: {
@@ -1033,7 +1018,46 @@ export class Character2016 extends BaseFullCharacter {
         //unknownDword40: 1
         isAdmin: client.isAdmin,
         firstPersonOnly: server.isFirstPersonOnly,
-        shaderGroupId: this.getShaderGroup()
+        shaderGroupId: this.getShaderGroup(),
+        accountItems: {
+          items: accountItems.map((item: BaseItem) => {
+            return {
+              itemId: item.itemGuid,
+              itemData: {
+                itemId: item.itemGuid,
+                itemDefinitionId: item.itemDefinitionId,
+                itemCount: item.stackCount
+              }
+            };
+          })
+        }
+        //profileId: 270,
+        //unknownDword15: 165449,
+        //unknownDword16: 260,
+        //unknownDword18: 1,
+        //unknownDword19: 218,
+        //unknownDword26: 2,
+        //unknownDword23: 91,
+        //unknownDword24: 1,
+        //unknownBoolean5: true,
+        //dailyRibbonCount: 300,
+        //profiles: [
+        //  {
+        //    profileId: 2,
+        //    nameId: 12287,
+        //    descriptionId: 12271,
+        //    type: 3,
+        //    iconId: 171,
+        //    unknownByte1: 8,
+        //    unknownByte2: 128,
+        //    unknownArray1: [],
+        //    unknownByte3: 2,
+        //    unknownDword7: 1.7,
+        //    unknownDword8: 0.95,
+        //    unknownDword10: 1,
+        //    unknownDword11: 15
+        //  }
+        //]
       } as any
     };
   }
@@ -1160,6 +1184,69 @@ export class Character2016 extends BaseFullCharacter {
     };
   }
 
+  pGetActivatableAbility(
+    slotId: number,
+    itemDefinition: ItemDefinition,
+    abilityLineId: number
+  ) {
+    const WEAPON_FISTS = Items.WEAPON_FISTS,
+      itemDefinitionId = itemDefinition.ID,
+      abilityId = itemDefinition.ACTIVATABLE_ABILITY_ID,
+      abilityEntry = {
+        unknownDword1: abilityId,
+        unknownDword2: abilityId,
+        unknownDword3: 0
+      };
+    return {
+      loadoutSlotId: slotId,
+      abilityLineId: abilityLineId,
+      unknownArray1:
+        itemDefinitionId == WEAPON_FISTS
+          ? [
+              {
+                unknownDword1: 1111278,
+                unknownDword2: 1111278,
+                unknownDword3: 0
+              },
+              abilityEntry
+            ]
+          : [abilityEntry],
+      unknownDword3: 2,
+      itemDefinitionId: itemDefinitionId,
+      unknownByte: 64
+    };
+  }
+
+  pGetActivatableAbilities(server: ZoneServer2016) {
+    const abilities: any[] = [
+      {
+        loadoutSlotId: 1,
+        abilityLineId: 1,
+        unknownArray1: [
+          {
+            unknownDword1: 1111164,
+            unknownDword2: 1111164,
+            unknownDword3: 0
+          }
+        ],
+        unknownDword3: 2,
+        itemDefinitionId: 83,
+        unknownByte: 64
+      }
+      // hardcoded one weapon ability to fix fists after respawning
+    ];
+    let abilityLineId = 1;
+    Object.values(this._loadout).forEach((slot) => {
+      const itemDefinition = server.getItemDefinition(slot.itemDefinitionId);
+      if (!itemDefinition) return;
+      const { slotId } = slot;
+      abilities.push(
+        this.pGetActivatableAbility(slotId, itemDefinition, abilityLineId)
+      );
+    });
+    return abilities;
+  }
+
   resetMetrics() {
     this.metrics.zombiesKilled = 0;
     this.metrics.wildlifeKilled = 0;
@@ -1171,13 +1258,18 @@ export class Character2016 extends BaseFullCharacter {
 
   resetResources(server: ZoneServer2016) {
     this._resources[ResourceIds.HEALTH] = 10000;
-    this._resources[ResourceIds.HUNGER] = 10000;
-    this._resources[ResourceIds.HYDRATION] = 10000;
     this._resources[ResourceIds.STAMINA] = 600;
     this._resources[ResourceIds.BLEEDING] = 0;
-    this._resources[ResourceIds.ENDURANCE] = 8000;
-    this._resources[ResourceIds.VIRUS] = 0;
-    this._resources[ResourceIds.COMFORT] = 5000;
+    if (server.isSurvival()) {
+      this._resources[ResourceIds.HUNGER] = 10000;
+      this._resources[ResourceIds.HYDRATION] = 10000;
+      this._resources[ResourceIds.ENDURANCE] = 8000;
+      this._resources[ResourceIds.VIRUS] = 0;
+      this._resources[ResourceIds.COMFORT] = 5000;
+    }
+    if (server.isBattleRoyale()) {
+      this._resources[ResourceIds.TOXICITY] = 0;
+    }
     for (const a in this.healType) {
       const healType = this.healType[a];
       healType.healingTicks = 0;
@@ -1203,39 +1295,49 @@ export class Character2016 extends BaseFullCharacter {
     server.updateResource(
       client,
       this.characterId,
-      this._resources[ResourceIds.HUNGER],
-      ResourceIds.HUNGER
-    );
-    server.updateResource(
-      client,
-      this.characterId,
-      this._resources[ResourceIds.HYDRATION],
-      ResourceIds.HYDRATION
-    );
-    server.updateResource(
-      client,
-      this.characterId,
       this._resources[ResourceIds.BLEEDING],
       ResourceIds.BLEEDING
     );
-    server.updateResource(
-      client,
-      this.characterId,
-      this._resources[ResourceIds.ENDURANCE],
-      ResourceIds.ENDURANCE
-    );
-    server.updateResource(
-      client,
-      this.characterId,
-      this._resources[ResourceIds.VIRUS],
-      ResourceIds.VIRUS
-    );
-    server.updateResource(
-      client,
-      this.characterId,
-      this._resources[ResourceIds.COMFORT],
-      ResourceIds.COMFORT
-    );
+    if (server.isSurvival()) {
+      server.updateResource(
+        client,
+        this.characterId,
+        this._resources[ResourceIds.HUNGER],
+        ResourceIds.HUNGER
+      );
+      server.updateResource(
+        client,
+        this.characterId,
+        this._resources[ResourceIds.HYDRATION],
+        ResourceIds.HYDRATION
+      );
+      server.updateResource(
+        client,
+        this.characterId,
+        this._resources[ResourceIds.ENDURANCE],
+        ResourceIds.ENDURANCE
+      );
+      server.updateResource(
+        client,
+        this.characterId,
+        this._resources[ResourceIds.VIRUS],
+        ResourceIds.VIRUS
+      );
+      server.updateResource(
+        client,
+        this.characterId,
+        this._resources[ResourceIds.COMFORT],
+        ResourceIds.COMFORT
+      );
+    }
+    if (server.isBattleRoyale()) {
+      server.updateResource(
+        client,
+        this.characterId,
+        this._resources[ResourceIds.TOXICITY],
+        ResourceIds.TOXICITY
+      );
+    }
   }
 
   getHealth() {
@@ -1248,12 +1350,13 @@ export class Character2016 extends BaseFullCharacter {
       server._characters[damageInfo.hitReport?.characterId]
     )
       return;
-    const client = server.getClientByCharId(this.characterId),
-      damage = damageInfo.damage,
-      oldHealth = this._resources[ResourceIds.HEALTH];
+    const client = server.getClientByCharId(this.characterId);
     if (!client) return;
+    server.hookManager.checkHook("OnPlayerDamage", client, damageInfo);
+    const damage = damageInfo.damage,
+      oldHealth = this._resources[ResourceIds.HEALTH];
 
-    if (this.isGodMode() || !this.isAlive || this.isRespawning || damage <= 25)
+    if (this.isGodMode() || !this.isAlive || this.isRespawning || damage < 1)
       return;
 
     // Don't damage players inside shelters
@@ -1299,6 +1402,16 @@ export class Character2016 extends BaseFullCharacter {
         sourceEntity.characterId != client.character.characterId
       ) {
         sourceEntity.metrics.playersKilled++;
+      } else if (sourceEntity instanceof ProjectileEntity) {
+        const sourceCharacter = server.getEntity(
+          sourceEntity.managerCharacterId
+        );
+        if (
+          sourceCharacter instanceof Character2016 &&
+          sourceCharacter.characterId != client.character.characterId
+        ) {
+          sourceCharacter.metrics.playersKilled++;
+        }
       }
     }
     server.updateResource(
@@ -1457,6 +1570,15 @@ export class Character2016 extends BaseFullCharacter {
       },
       currentSlotId: lootableEntity.currentLoadoutSlot
     });
+
+    // Just to update available crafting items.
+    if (lootableEntity instanceof LootableConstructionEntity) {
+      server.sendData<ClientUpdateProximateItems>(
+        client,
+        "ClientUpdate.ProximateItems",
+        server.getProximityItems(client)
+      );
+    }
   }
 
   dismountContainer(server: ZoneServer2016) {
@@ -1888,16 +2010,23 @@ export class Character2016 extends BaseFullCharacter {
   }
 
   OnExplosiveHit(server: ZoneServer2016, sourceEntity: BaseEntity) {
-    let damage = 10000;
+    let damage = 10000,
+      weapon,
+      entity;
     switch (true) {
       case sourceEntity instanceof ExplosiveEntity:
         damage = 50000;
+        weapon = sourceEntity.itemDefinitionId;
+        entity = sourceEntity.characterId;
         break;
       case sourceEntity instanceof ProjectileEntity:
         damage = sourceEntity.actorModelId == 0 ? 8000 : 10000;
+        weapon = sourceEntity.itemDefinitionId;
+        entity = sourceEntity.managerCharacterId;
         break;
       default:
         damage = 10000;
+        entity = sourceEntity.characterId;
         break;
     }
 
@@ -1907,7 +2036,8 @@ export class Character2016 extends BaseFullCharacter {
     );
     if (distance > 1) damage /= distance;
     this.damage(server, {
-      entity: sourceEntity.characterId,
+      entity: entity,
+      weapon: weapon,
       damage: damage
     });
   }

@@ -12,27 +12,38 @@
 // ======================================================================
 
 import { PacketStructures } from "types/packetStructure";
+import {
+  interactionDataSchema,
+  interactionExtraTimerSchema,
+  interactionTimerSchema
+} from "./shared";
 
 export const characterStatePackets: PacketStructures = [
+  [
+    "CharacterState.TimerDataSource",
+    0xd001,
+    {
+      fields: [
+        { name: "characterId", type: "uint64string", defaultValue: "0" },
+        ...interactionDataSchema,
+        { name: "useOptionString", type: "nullstring", defaultValue: "" }
+      ]
+    }
+  ],
   [
     "CharacterState.InteractionStart",
     0xd002,
     {
       fields: [
         { name: "characterId", type: "uint64string", defaultValue: "0" },
-        { name: "time", type: "uint32", defaultValue: 0 },
-        { name: "unknownDword2", type: "uint32", defaultValue: 0 },
-        { name: "unknownQword1", type: "uint64string", defaultValue: "0x0" },
+        ...interactionTimerSchema,
         { name: "unknownQword2", type: "uint64string", defaultValue: "0x0" },
         { name: "unknownDword3", type: "uint32", defaultValue: 0 },
         { name: "stringId", type: "uint32", defaultValue: 0 },
         { name: "animationId", type: "uint32", defaultValue: 0 },
-        { name: "unknownDword6", type: "uint32", defaultValue: 0 },
-        { name: "unknownDword7", type: "uint32", defaultValue: 0 },
-        { name: "unknownDword8", type: "uint32", defaultValue: 0 },
-        { name: "unknownDword9", type: "uint32", defaultValue: 0 },
+        ...interactionExtraTimerSchema,
         { name: "UseOptionItemId", type: "string", defaultValue: "" },
-        { name: "useOptionString", type: "string", defaultValue: "" }
+        { name: "useOptionString", type: "nullstring", defaultValue: "" }
       ]
     }
   ],
@@ -41,6 +52,17 @@ export const characterStatePackets: PacketStructures = [
     0xd003,
     {
       fields: [{ name: "characterId", type: "uint64string", defaultValue: "0" }]
+    }
+  ],
+  [
+    "CharacterState.UpdateTimerDataSource",
+    0xd004,
+    {
+      fields: [
+        { name: "characterId", type: "uint64string", defaultValue: "0" },
+        ...interactionDataSchema,
+        { name: "useOptionString", type: "nullstring", defaultValue: "" }
+      ]
     }
   ]
 ];

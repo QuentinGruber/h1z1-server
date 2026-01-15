@@ -885,7 +885,8 @@ export class ConstructionManager {
           server,
           modelId,
           position,
-          fixEulerOrder(rotation)
+          fixEulerOrder(rotation),
+          client.character.characterId
         );
       case Items.SEED_WHEAT:
       case Items.SEED_CORN:
@@ -1489,7 +1490,7 @@ export class ConstructionManager {
         worldOwned,
         owner
       );
-    //npc.arm(server);
+    npc.arm();
     //temporarily disabled
     server._traps[characterId] = npc;
     server.spawnSimpleNpcForAllInRange(npc);
@@ -1517,8 +1518,7 @@ export class ConstructionManager {
         ownerCharacterId
       );
     if (npc.isLandmine()) {
-      //npc.arm(server);
-      //temporarily disabled
+      npc.arm(server);
     }
     server._explosives[characterId] = npc;
     server.spawnSimpleNpcForAllInRange(npc);
@@ -1699,7 +1699,8 @@ export class ConstructionManager {
     server: ZoneServer2016,
     modelId: number,
     position: Float32Array,
-    rotation: Float32Array
+    rotation: Float32Array,
+    ownerCharacterId: string
   ): boolean {
     const characterId = server.generateGuid(),
       transientId = 1;
@@ -1709,7 +1710,8 @@ export class ConstructionManager {
       modelId,
       position,
       rotation,
-      server
+      server,
+      ownerCharacterId
     );
     server._temporaryObjects[characterId] = obj;
     server.spawnSimpleNpcForAllInRange(obj);
@@ -1956,7 +1958,7 @@ export class ConstructionManager {
     for (const f in construction.freeplaceEntities) {
       const freePlacedEntity = construction.freeplaceEntities[f];
       if (construction.isInside(freePlacedEntity.state.position)) {
-        if (freePlacedEntity instanceof LootableConstructionEntity) {
+        if (freePlacedEntity instanceof BaseEntity) {
           if (allowed) {
             this.constructionHideEntities(
               server,
@@ -2047,7 +2049,7 @@ export class ConstructionManager {
     server: ZoneServer2016,
     client: Client,
     constructionGuid: string,
-    freePlacedEntity: LootableConstructionEntity,
+    freePlacedEntity: BaseEntity,
     state: boolean
   ) {
     if (state) {

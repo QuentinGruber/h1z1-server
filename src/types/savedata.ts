@@ -164,6 +164,7 @@ export interface PlantingDiameterSaveData
     fertilizedTimestamp: number;
     placementTime: number;
     isFertilized: boolean;
+    ownerCharacterId: string;
 }
 
 export interface TrapSaveData

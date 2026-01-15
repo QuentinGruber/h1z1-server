@@ -87,7 +87,7 @@ export const commands: Array<Command> = [
       client: Client,
       args: Array<string>
     ) => {
-      if (!server._airdrop) {
+      if (server.airdropManager.allowedAirdropSpawn()) {
         server.randomEventsManager.spawnRandomAirdrop();
       } else {
         server.sendAlert(client, "There is already an active airdrop");
@@ -215,6 +215,7 @@ export const commands: Array<Command> = [
       client: Client,
       args: Array<string>
     ) => {
+      if (server.isBattleRoyale()) return;
       server.groupManager.handleGroupCommand(server, client, args);
     }
   },
@@ -229,10 +230,11 @@ export const commands: Array<Command> = [
     name: "respawn",
     permissionLevel: PermissionLevels.DEFAULT,
     execute: (server: ZoneServer2016, client: Client, args: Array<string>) => {
-      server.respawnPlayer(
-        client,
+      if (server.isBattleRoyale()) return;
+      const position = server.calculatePosFromSpawnCell(
         server._spawnGrid[randomIntFromInterval(0, 99)]
       );
+      server.respawnPlayer(client, position);
     }
   },
   {
@@ -411,48 +413,54 @@ export const commands: Array<Command> = [
     name: "emote",
     permissionLevel: PermissionLevels.DEFAULT,
     execute: (server: ZoneServer2016, client: Client, args: Array<string>) => {
-      const animationId = Number(args[0]);
-      if (!animationId || animationId > MAX_UINT32) {
-        server.sendChatText(client, "Usage /emote <id>");
-        return;
-      }
-
-      if (!server.isPvE) {
-        switch (animationId) {
-          case 18:
-          case 21:
-          case 29:
-          case 30:
-          case 39:
-          case 88:
-          case 34:
-          case 35:
-          case 43:
-          case 46:
-          case 51:
-          case 58:
-          case 68:
-          case 95:
-          case 97:
-          case 101:
-          case 102:
-            server.sendChatText(
-              client,
-              "[ERROR] This emote has been disabled due to abuse."
-            );
-            return;
+      if (server.isPvE) {
+        const animationId = Number(args[0]);
+        if (!animationId || animationId > MAX_UINT32) {
+          server.sendChatText(client, "Usage /emote <id>");
+          return;
         }
-      }
 
-      server.sendDataToAllWithSpawnedEntity(
-        server._characters,
-        client.character.characterId,
-        "Animation.Play",
-        {
-          characterId: client.character.characterId,
-          animationId: animationId
+        if (!server.isPvE) {
+          switch (animationId) {
+            case 18:
+            case 21:
+            case 29:
+            case 30:
+            case 39:
+            case 88:
+            case 34:
+            case 35:
+            case 43:
+            case 46:
+            case 51:
+            case 58:
+            case 68:
+            case 95:
+            case 97:
+            case 101:
+            case 102:
+              server.sendChatText(
+                client,
+                "[ERROR] This emote has been disabled due to abuse."
+              );
+              return;
+          }
         }
-      );
+        server.sendDataToAllWithSpawnedEntity(
+          server._characters,
+          client.character.characterId,
+          "Animation.Play",
+          {
+            characterId: client.character.characterId,
+            animationId: animationId
+          }
+        );
+      } else {
+        server.sendChatText(
+          client,
+          "[ERROR] Emotes are currently disabled in PvP servers."
+        );
+      }
     }
   },
   {
@@ -1752,7 +1760,7 @@ export const commands: Array<Command> = [
           position: targetClient.character.state.position,
           triggerLoadingScreen: true
         });
-        server.deployParachute(targetClient);
+        server.deployParachute(targetClient, 0);
       }
     }
   },
@@ -2402,7 +2410,7 @@ export const commands: Array<Command> = [
       }
 
       server.sendAlertToAll(
-        `Admin ${client.character.name} has just initiated a crate drop`
+        `${client.character.name} has just initiated a crate drop`
       );
 
       for (const key in server._clients) {
@@ -2722,7 +2730,7 @@ export const commands: Array<Command> = [
     permissionLevel: PermissionLevels.ADMIN,
     keepCase: true,
     execute: (server: ZoneServer2016, client: Client, args: Array<string>) => {
-      server.sendAlertToAll(args.join(" "));
+      server.sendAlertToAll(args.join(" "), client.character.name);
     }
   },
   {

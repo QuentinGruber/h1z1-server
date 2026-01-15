@@ -142,7 +142,7 @@ export const abilitiesPackets: PacketStructures = [
       ]
     }
   ],
-  ["Abilities.SetAbilityTimerManager", 0xa107, {}],
+  ["Abilities.SetAbilityTimerManager", 0xa107, {}], // related to unknownData7 in sendSelf
   ["Abilities.AddAbilityTimer", 0xa108, {}],
   ["Abilities.RemoveAbilityTimer", 0xa109, {}],
   ["Abilities.UpdateAbilityTimer", 0xa10a, {}],

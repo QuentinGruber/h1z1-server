@@ -362,6 +362,13 @@ export const UseOptions: { [itemDefinitionIds: number]: ItemUseOption } = {
     drinkCount: 500,
     comfortCount: 1500
   },
+  50: {
+    itemDef: Items.CORN,
+    type: ItemUseOptions.EAT,
+    timeout: 2000,
+    eatCount: 1500,
+    comfortCount: 250
+  },
 
   //----------Use Medical-------------//
   5: {
@@ -419,6 +426,14 @@ export const UseOptions: { [itemDefinitionIds: number]: ItemUseOption } = {
     type: ItemUseOptions.USE_MEDICAL,
     healType: HealTypes.OTHER,
     timeout: 1000
+  },
+  51: {
+    itemDef: 2424, // BR Med kits
+    type: ItemUseOptions.USE_MEDICAL,
+    timeout: 5000,
+    healCount: 99,
+    healType: HealTypes.MEDKIT,
+    bandagingCount: 120
   },
 
   //----------Ignite-------------//

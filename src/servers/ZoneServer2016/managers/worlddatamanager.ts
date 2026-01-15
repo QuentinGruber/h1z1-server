@@ -1096,7 +1096,8 @@ export class WorldDataManager {
       seedSlots: slots,
       placementTime: entity.placementTime,
       fertilizedTimestamp: entity.fertilizedTimestamp,
-      isFertilized: entity.isFertilized
+      isFertilized: entity.isFertilized,
+      ownerCharacterId: entity.ownerCharacterId
     };
   }
 
@@ -1194,7 +1195,8 @@ export class WorldDataManager {
         entityData.actorModelId,
         new Float32Array(entityData.position),
         new Float32Array(entityData.rotation),
-        server
+        server,
+        entityData?.ownerCharacterId ?? ""
       );
 
     plantingDiameter.fertilizedTimestamp = entityData.fertilizedTimestamp;
@@ -1393,7 +1395,7 @@ export class WorldDataManager {
           entityData.ownerCharacterId
         );
         server._explosives[entityData.characterId] = explosive;
-        //explosive.arm(server);
+        explosive.arm(server);
         //temporarily Disabled
         break;
       default:
@@ -1410,8 +1412,7 @@ export class WorldDataManager {
         );
         trap.health = entityData.health;
         server._traps[trap.characterId] = trap;
-      //trap.arm(server);
-      //temporarily disabled
+        trap.arm();
     }
   }
 

@@ -14,11 +14,47 @@
 import { PacketStructures } from "types/packetStructure";
 
 export const uiPackets: PacketStructures = [
-  ["Ui.TaskAdd", 0x1a01, {}],
-  ["Ui.TaskUpdate", 0x1a02, {}],
-  ["Ui.TaskComplete", 0x1a03, {}],
-  ["Ui.TaskFail", 0x1a04, {}],
-  ["Ui.Unknown", 0x1a05, {}],
+  [
+    "Ui.TaskAdd",
+    0x1a01,
+    {
+      fields: [
+        { name: "unknownDword1", type: "uint32", defaultValue: 0 },
+        { name: "unknownDword2", type: "uint32", defaultValue: 0 },
+        { name: "unknownDword3", type: "uint32", defaultValue: 0 },
+        { name: "unknownBoolean1", type: "boolean", defaultValue: false },
+        { name: "unknownBoolean2", type: "boolean", defaultValue: false },
+        { name: "unknownDword4", type: "uint32", defaultValue: 0 },
+        { name: "unknownBoolean3", type: "boolean", defaultValue: false },
+        { name: "unknownDword5", type: "uint32", defaultValue: 0 }
+      ]
+    }
+  ],
+  [
+    "Ui.TaskUpdate",
+    0x1a02,
+    {
+      fields: [
+        { name: "unknownDword1", type: "uint32", defaultValue: 0 },
+        { name: "unknownDword2", type: "uint32", defaultValue: 0 }
+      ]
+    }
+  ],
+  [
+    "Ui.TaskComplete",
+    0x1a03,
+    {
+      fields: [{ name: "unknownDword1", type: "uint32", defaultValue: 0 }]
+    }
+  ],
+  [
+    "Ui.TaskFail",
+    0x1a04,
+    {
+      fields: [{ name: "unknownDword1", type: "uint32", defaultValue: 0 }]
+    }
+  ],
+  ["Ui.HideObjectiveWindow", 0x1a05, {}],
   [
     "Ui.ExecuteScript",
     0x1a07,
@@ -34,10 +70,42 @@ export const uiPackets: PacketStructures = [
       ]
     }
   ],
-  ["Ui.StartTimer", 0x1a09, {}],
+  [
+    "Ui.StartTimer",
+    0x1a09,
+    {
+      fields: [{ name: "unknownDword1", type: "uint32", defaultValue: 0 }]
+    }
+  ],
   ["Ui.ResetTimer", 0x1a0a, {}],
-  ["Ui.ObjectiveTargetUpdate", 0x1a0d, {}],
-  ["Ui.Message", 0x1a0e, {}],
+  [
+    "Ui.ObjectiveTargetUpdate",
+    0x1a0d,
+    {
+      fields: [
+        { name: "unknownBoolean1", type: "boolean", defaultValue: false },
+        { name: "unknownQword1", type: "uint64string", defaultValue: "0" },
+        { name: "unknownDword1", type: "uint32", defaultValue: 0 },
+        { name: "unknownQword2", type: "uint64string", defaultValue: "0" },
+        { name: "unknownDword2", type: "uint32", defaultValue: 0 },
+        {
+          name: "unknownFloatVector1",
+          type: "floatvector4",
+          defaultValue: [0, 0, 0, 0]
+        },
+        { name: "unknownDword3", type: "uint32", defaultValue: 0 }
+      ]
+    }
+  ],
+  [
+    "Ui.Message",
+    0x1a0e,
+    {
+      fields: [
+        { name: "unknownByte1", type: "uint8", defaultValue: 0 } // 1 - 3
+      ]
+    }
+  ],
   [
     "Ui.CinematicStartLookAt",
     0x1a0f,
@@ -59,8 +127,33 @@ export const uiPackets: PacketStructures = [
       ]
     }
   ],
-  ["Ui.HeadShotFeedback", 0x1a11, {}],
-  ["Ui.WaypointCooldown", 0x1a14, {}],
+  [
+    "Ui.HeadShotFeedback",
+    0x1a11,
+    {
+      fields: [
+        { name: "unknownBoolean1", type: "boolean", defaultValue: false },
+        { name: "unknownBoolean2", type: "boolean", defaultValue: false }
+      ]
+    }
+  ],
+  [
+    "Ui.WaypointCooldown",
+    0x1a14,
+    {
+      fields: [
+        {
+          name: "unknownArray1",
+          type: "array",
+          defaultValue: [],
+          fields: [
+            { name: "unknownDword1", type: "uint32", defaultValue: 0 },
+            { name: "unknownDword2", type: "uint32", defaultValue: 0 }
+          ]
+        }
+      ]
+    }
+  ],
   [
     "Ui.ZoneWaypoint",
     0x1a15,
@@ -71,12 +164,56 @@ export const uiPackets: PacketStructures = [
       ]
     }
   ],
-  ["Ui.WaypointNotify", 0x1a16, {}],
+  [
+    "Ui.WaypointNotify",
+    0x1a16,
+    {
+      fields: [
+        { name: "unknownBoolean1", type: "boolean", defaultValue: false },
+        { name: "unknownDword1", type: "uint32", defaultValue: 0 }
+      ]
+    }
+  ],
   ["Ui.ContinentDominationNotification", 0x1a17, {}],
-  ["Ui.InteractStart", 0x1a18, {}],
+  [
+    "Ui.InteractStart",
+    0x1a18,
+    {
+      fields: [
+        { name: "unknownQword1", type: "uint64string", defaultValue: "0" },
+        { name: "unknownDword1", type: "uint32", defaultValue: 0 },
+        { name: "unknownByte1", type: "uint8", defaultValue: 0 }
+      ]
+    }
+  ],
   ["Ui.SomeInteractionThing", 0x1a19, {}],
-  ["Ui.RewardNotification", 0x1a1a, {}],
-  ["Ui.WarpgateRotateWarning", 0x1a1b, {}],
+  [
+    "Ui.RewardNotification",
+    0x1a1a,
+    {
+      fields: [
+        { name: "unknownQword1", type: "uint64string", defaultValue: "0" },
+        { name: "unknownDword1", type: "uint32", defaultValue: 0 },
+        { name: "unknownDword2", type: "uint32", defaultValue: 0 },
+        { name: "unknownDword3", type: "uint32", defaultValue: 0 },
+        { name: "unknownDword4", type: "uint32", defaultValue: 0 },
+        { name: "unknownDword5", type: "uint32", defaultValue: 0 },
+        { name: "unknownDword6", type: "uint32", defaultValue: 0 }
+      ]
+    }
+  ],
+  [
+    "Ui.WarpgateRotateWarning",
+    0x1a1b,
+    {
+      fields: [
+        { name: "unknownDword1", type: "uint32", defaultValue: 0 },
+        { name: "unknownDword2", type: "uint32", defaultValue: 0 },
+        { name: "unknownDword3", type: "uint32", defaultValue: 0 },
+        { name: "unknownDword4", type: "uint32", defaultValue: 0 } // This reads 2 extra bytes if higher than 0
+      ]
+    }
+  ],
   [
     "Ui.ConfirmHit",
     0x1a1c,

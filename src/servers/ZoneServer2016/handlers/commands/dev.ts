@@ -14,41 +14,221 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 // TODO enable @typescript-eslint/no-unused-vars
 import { h1z1PacketsType2016 } from "types/packets";
+import { Worker } from "node:worker_threads";
 import {
   CharacterManagedObject,
   CharacterPlayWorldCompositeEffect,
   CharacterSeekTarget,
   ClientUpdateTextAlert,
+  CommandDeliveryDisplayInfo,
   InGamePurchaseActiveSchedules,
   InGamePurchaseGiftOrderNotification,
   InGamePurchaseItemOfTheDay,
   InGamePurchaseSpiceWebAuthUrlResponse,
   InGamePurchaseStoreBundles,
   InGamePurchaseWalletBalanceUpdate,
-  ItemsAddAccountItem
+  ItemsAddAccountItem,
+  Loot
 } from "types/zone2016packets";
 import { Npc } from "../../entities/npc";
 import { ZoneClient2016 as Client } from "../../classes/zoneclient";
 import { ZoneServer2016 } from "../../zoneserver";
-import { Items, ModelIds, VehicleIds } from "../../models/enums";
+import { Effects, Items, ModelIds, VehicleIds } from "../../models/enums";
 import { LootableConstructionEntity } from "../../entities/lootableconstructionentity";
 import { ConstructionChildEntity } from "../../entities/constructionchildentity";
 import { ConstructionDoor } from "../../entities/constructiondoor";
 import {
+  generateRandomGuid,
   getCurrentServerTimeWrapper,
-  randomIntFromInterval
+  randomIntFromInterval,
+  TimeWrapper
 } from "../../../../utils/utils";
 import { WorldObjectManager } from "../../managers/worldobjectmanager";
 import { Vehicle2016 } from "../../entities/vehicle";
-import { Plane } from "../../entities/plane";
 import { NavManager } from "../../../../utils/recast";
 import { scheduler } from "timers/promises";
+import { DB_COLLECTIONS } from "../../../../utils/enums";
+import { randomInt } from "crypto";
+import { GatewayChannels } from "h1emu-core";
 
 const abilities = require("../../../../../data/2016/dataSources/Abilities.json"),
-  vehicleAbilities = require("../../../../../data/2016/dataSources/VehicleAbilities.json");
+  vehicleAbilities = require("../../../../../data/2016/dataSources/VehicleAbilities.json"),
+  discovery = require("../../../../../data/2016/dataSources/ClientDiscoveries.json");
 
 const dev: any = {
+  load_balancing: function (
+    server: ZoneServer2016,
+    client: Client,
+    args: Array<string>
+  ) {
+    const nb = Number(args[1]) || 10;
+    const basePort = 60_000;
+    for (let index = 0; index < nb; index++) {
+      const port = basePort - index;
+      const soeserver = server._gatewayServer["_soeServer"];
+      const soeClient = soeserver["_createClient"]({
+        family: "IPv4",
+        size: 100,
+        address: "127.0.0.1",
+        port
+      });
+      soeClient.useEncryption = true;
+      soeClient.sessionId = randomInt(10000);
+      soeClient.clientUdpLength = soeserver["_udpLength"];
+      soeClient.protocolName = "";
+      soeClient.serverUdpLength = soeserver["_udpLength"];
+      soeClient.crcSeed = 0;
+      soeClient.crcLength = soeserver["_crcLength"];
+      soeClient.inputStream.setEncryption(soeserver["_useEncryption"]);
+      soeClient.outputStream.setEncryption(soeserver["_useEncryption"]);
+      // 4 since we don't count the opcode and it's an uint16
+      soeClient.outputStream.setFragmentSize(
+        soeClient.clientUdpLength - (4 + soeserver["_crcLength"])
+      );
+      // setup the keep alive timer
+      soeClient.lastKeepAliveTimer = null;
+      const characterId = generateRandomGuid();
+      const transientId = server.getTransientId(characterId);
+
+      const fakeClient = server.createClient(
+        soeClient.sessionId,
+        soeClient.soeClientId,
+        "fake",
+        characterId,
+        transientId
+      );
+      fakeClient.character.name = "looser";
+      fakeClient.character.state = client.character.state;
+      fakeClient.character.isAlive = true;
+      fakeClient.character.isReady = true;
+      fakeClient.character.isRespawning = false;
+      fakeClient.character.actorModelId = client.character.actorModelId;
+      fakeClient.character.headActor = client.character.headActor;
+      fakeClient.character.hairModel = client.character.hairModel;
+      fakeClient.character.gender = client.character.gender;
+      fakeClient.character._containers = client.character._containers;
+      fakeClient.character._resources = client.character._resources;
+
+      server._clients[fakeClient.sessionId] = fakeClient;
+      server._characters[characterId] = fakeClient.character;
+      server._gatewayServer.on(
+        "tunneldata",
+        (sessionId: number, data, flags, replicated: boolean | undefined) => {
+          if (replicated) {
+            return;
+          }
+          if (flags === GatewayChannels.UpdatePosition) {
+            server._gatewayServer.emit(
+              "tunneldata",
+              soeClient.sessionId,
+              data,
+              GatewayChannels.UpdatePosition,
+              true
+            );
+          }
+        }
+      );
+    }
+  },
+  discoveries: function (
+    server: ZoneServer2016,
+    client: Client,
+    args: Array<string>
+  ) {
+    server.sendData(client, "Recipe.Discoveries", discovery);
+  },
+  di: function (server: ZoneServer2016, client: Client, args: Array<string>) {
+    const item = client.character.getItemById(Number(args[1]));
+    if (item) {
+      server.sendData(client, "Recipe.ComponentUpdate", {
+        recipeId: 2,
+        itemCount: item.stackCount,
+        itemGuid: item.itemGuid
+      });
+    }
+  },
+  disc: function (server: ZoneServer2016, client: Client, args: Array<string>) {
+    server.sendData(client, "Recipe.Discoveries", {
+      recipes: [
+        {
+          unk: 2,
+          recipeId: 2,
+          nameId: 38,
+          iconId: 37,
+          unknownDword1: 0,
+          descriptionId: 605,
+          rewardItemCount: 1,
+          bundleCount: 0,
+          memberOnly: false,
+          filterId: 0,
+          components: [
+            {
+              itemDefinitionId: 25,
+              nameId: 47,
+              iconId: 32,
+              unknownDword2: 0,
+              descriptionId: 11001,
+              requiredAmount: 1,
+              unknownQword1: "0",
+              unknownDword3: -1,
+              itemDefinitionId2: 25
+            },
+            {
+              itemDefinitionId: 26,
+              nameId: 48,
+              iconId: 20,
+              unknownDword2: 0,
+              descriptionId: 1239,
+              requiredAmount: 1,
+              unknownQword1: "0",
+              unknownDword3: -1,
+              itemDefinitionId2: 26
+            }
+          ],
+          itemDefinitionId: 11
+        }
+      ],
+      unkArray1: [
+        {
+          unknownQword1: "25",
+          unkArray1: [
+            {
+              unknownDword1: 2,
+              unknownDword2: 2
+            }
+          ]
+        },
+        {
+          unknownQword1: "26",
+          unkArray1: [
+            {
+              unknownDword1: 2,
+              unknownDword2: 2
+            }
+          ]
+        },
+        {
+          unknownQword1: "1638426",
+          unkArray1: [
+            {
+              unknownDword1: 2,
+              unknownDword2: 2
+            }
+          ]
+        }
+      ],
+      unkArray2: [
+        {
+          unknownQword1: "1638426",
+          unknownDword1: 2
+        }
+      ]
+    });
+  },
   igp: function (server: ZoneServer2016, client: Client, args: Array<string>) {
+    server.sendData(client, "InGamePurchase.ServerStatusResponse", {
+      status: true
+    });
     server.sendData(client, "InGamePurchase.EnableMarketplace", {
       unknownBoolean1: true,
       unknownBoolean2: true
@@ -101,7 +281,7 @@ const dev: any = {
       ]
     });
 
-    server.sendData(client, "InGamePurchase.AcccountInfoResponse", {
+    server.sendData(client, "InGamePurchase.AccountInfoResponse", {
       unknownDword1: 1,
       locale: "BE",
       currency: "EUR",
@@ -195,10 +375,10 @@ const dev: any = {
       ]
     });
 
-    const categories = require("../../data/2016/marketplaceData/categories.json");
+    const categories = require("../../../../../data/2016/marketplaceData/categories.json");
     server.sendData(client, "InGamePurchase.StoreBundleCategories", categories);
 
-    const bundles = require("../../data/2016/marketplaceData/bundles.json");
+    const bundles = require("../../../../../data/2016/marketplaceData/bundles.json");
     server.sendData(client, "InGamePurchase.StoreBundles", bundles);
 
     server.sendData(client, "InGamePurchase.SubscriptionProductsResponse", {
@@ -491,16 +671,6 @@ const dev: any = {
   acc: function (server: ZoneServer2016, client: Client, args: Array<string>) {
     server.sendData<ItemsAddAccountItem>(client, "Items.AddAccountItem", {});
   },
-  ai_load: function (
-    server: ZoneServer2016,
-    client: Client,
-    args: Array<string>
-  ) {
-    server.sendChatText(
-      client,
-      server.aiManager.get_stats().entities.toString()
-    );
-  },
   ui: function (server: ZoneServer2016, client: Client, args: Array<string>) {
     server.sendData(client, "Effect.AddUiIndicator", {
       characterId: client.character.characterId,
@@ -530,6 +700,9 @@ const dev: any = {
       unknownData2: {}
     });
   },
+  ai: function (server: ZoneServer2016, client: Client, args: Array<string>) {
+    server.sendChatText(client, server.aiManager.getEntitiesStats());
+  },
   zombie: async function (
     server: ZoneServer2016,
     client: Client,
@@ -548,7 +721,7 @@ const dev: any = {
     );
 
     server._npcs[characterId] = zombie;
-    server.aiManager.add_entity(zombie, zombie.entityType);
+    // server.aiManager.add_entity(zombie, zombie.entityType);
     const a = server.navManager.createAgent(zombie.state.position);
     zombie.navAgent = a;
 
@@ -738,11 +911,11 @@ const dev: any = {
     );
   },
   r: function (server: ZoneServer2016, client: Client, args: Array<string>) {
-    // quick respawn
-    server.respawnPlayer(
-      client,
+    const position = server.calculatePosFromSpawnCell(
       server._spawnGrid[randomIntFromInterval(0, 99)]
     );
+    // quick respawn
+    server.respawnPlayer(client, position);
   },
   testpacket: function (
     server: ZoneServer2016,
@@ -810,6 +983,18 @@ const dev: any = {
     client.character._resources[Number(args[1])] = Number(args[2]);
 
     server.sendChatText(client, "Setting character resource");
+  },
+  report: function (
+    server: ZoneServer2016,
+    client: Client,
+    args: Array<string>
+  ) {
+    const report = process.report.getReport();
+    server._db
+      .collection(DB_COLLECTIONS.NODEJS_REPORTS)
+      .insertOne({ serverId: server._worldId, ...report });
+
+    server.sendChatText(client, "Nodejs report saved!");
   },
   selectloadout: function (
     server: ZoneServer2016,
@@ -999,7 +1184,9 @@ const dev: any = {
     for (const v in server._vehicles) {
       console.log(server._vehicles[v]);
       if (server._vehicles[v].actorModelId === parseInt(args[1])) {
-        location.position = server._vehicles[v].state.position;
+        location.position = new Float32Array(
+          server._vehicles[v].state.position
+        );
         server.sendData(client, "ClientUpdate.UpdateLocation", location);
         found = true;
         break;
@@ -1030,7 +1217,7 @@ const dev: any = {
     for (const n in server._npcs) {
       if (server._npcs[n].actorModelId === parseInt(args[1])) {
         console.log(server._npcs[n]);
-        location.position = server._npcs[n].state.position;
+        location.position = new Float32Array(server._npcs[n].state.position);
         server.sendData(client, "ClientUpdate.UpdateLocation", location);
         found = true;
         break;
@@ -1175,10 +1362,10 @@ const dev: any = {
   ) {
     switch (Number(args[1])) {
       case 1:
-        server.sendData(client, "Spectator.SetUnknownFlag1", {});
+        server.sendData(client, "Spectator.SetModerator", {});
         break;
       case 2:
-        server.sendData(client, "Spectator.SetUnknownFlag2", {});
+        server.sendData(client, "Spectator.SetOwner", {});
         break;
       default:
         server.sendChatText(client, "Unknown spectator flag");
@@ -1437,6 +1624,184 @@ const dev: any = {
     args: Array<string>
   ) {
     server.sleep(client);
+  },
+  status: function (
+    server: ZoneServer2016,
+    client: Client,
+    args: Array<string>
+  ) {
+    server.sendData(client, "Command.DeliveryManagerStatus", {
+      deliveryAvailable: Number(args[1]), // treated as bool
+      status: Number(args[2]), // 0, 1, 2
+      unknownString1: args[3]
+    });
+  },
+  notification: function (
+    server: ZoneServer2016,
+    client: Client,
+    args: Array<string>
+  ) {
+    server.sendData(client, "Command.DeliveryManagerShowNotification", {
+      status: args[1]
+    });
+  },
+  airdrop: function (
+    server: ZoneServer2016,
+    client: Client,
+    args: Array<string>
+  ) {
+    const currentTick = getCurrentServerTimeWrapper().getTruncatedU32(),
+      dropTick = new TimeWrapper(currentTick + 26378).getTruncatedU32();
+    server.sendData<CommandDeliveryDisplayInfo>(
+      client,
+      "Command.DeliveryDisplayInfo",
+      {
+        startIndex: 1, // Increase every time a airdrop is called on the server. Just leave it at 1 for now
+        segments: [
+          {
+            actorModelId: ModelIds.AIRDROP_PLANE,
+            activationTime: currentTick,
+            ticksForStage: 80,
+            rotation: 0.5,
+            effectId: 0,
+            endPosition: [0, 0, 0, 0],
+            unknownDword3: 0,
+            progressStages: [
+              {
+                progress: 0,
+                position: [-1194.992, 950, -3836, 0]
+              },
+              {
+                progress: 0.2297337,
+                position: [-1799.766, 450, -1146.35, 0]
+              },
+              {
+                progress: 0.3297337,
+                position: [-2063.016, 450, 24.41919, 0.03383358]
+              },
+              {
+                progress: 0.4172337,
+                position: [-2293.359, 450, 1048.842, 0.05638929]
+              },
+              {
+                progress: 0.4234837,
+                position: [-2309.812, 460, 1122.014, 0.07894501]
+              },
+              {
+                progress: 0.4297337,
+                position: [-2326.265, 470, 1195.187, 0.1015007]
+              },
+              {
+                progress: 0.4359837,
+                position: [-2342.719, 480, 1268.36, 0.1240565]
+              },
+              {
+                progress: 0.4422337,
+                position: [-2359.171, 490, 1341.533, 0.1466122]
+              },
+              {
+                progress: 0.4484837,
+                position: [-2375.625, 500, 1414.707, 0.1691679]
+              },
+              {
+                progress: 0.4547337,
+                position: [-2392.078, 510, 1487.88, 0.1917236]
+              },
+              {
+                progress: 0.4609837,
+                position: [-2408.531, 520, 1561.052, 0.2142793]
+              },
+              {
+                progress: 0.4672337,
+                position: [-2424.984, 530, 1634.226, 0.236835]
+              },
+              {
+                progress: 0.6047336,
+                position: [-2786.953, 950, 3244.033, 0.2255572]
+              },
+              {
+                progress: 0.7922336,
+                position: [-3280.546, 950, 5439.224, 0]
+              },
+              {
+                progress: 1,
+                position: [-3827.491, 950, 7871.688, 0]
+              }
+            ]
+          },
+          {
+            actorModelId: ModelIds.MILITARY_CRATE_PARACHUTE,
+            activationTime: dropTick,
+            ticksForStage: 35.4963,
+            rotation: 0,
+            effectId: 0,
+            endPosition: [-2063.015, 59.54073, 24.23216, 0],
+            unknownDword3: 0,
+            progressStages: [
+              {
+                progress: 0,
+                position: [-2063.015, 450, 24.41884, 0]
+              },
+              {
+                progress: 1,
+                position: [-2063.015, 59.54073, 24.23216, 0]
+              }
+            ]
+          },
+          {
+            actorModelId: ModelIds.AIRDROP_CARGO_CONTAINER,
+            activationTime: dropTick,
+            ticksForStage: 35.4963,
+            rotation: 0,
+            effectId: 0,
+            endPosition: [-2063.015, 59.54073, 24.23216, 0],
+            unknownDword3: 0,
+            progressStages: [
+              {
+                progress: 0,
+                position: [-2063.015, 450, 24.41884, 0]
+              },
+              {
+                progress: 1,
+                position: [-2063.015, 59.54073, 24.23216, 0]
+              }
+            ]
+          },
+          {
+            actorModelId: ModelIds.MILITARY_CRATE,
+            activationTime: dropTick,
+            ticksForStage: 35.4963,
+            rotation: 0,
+            effectId: 0,
+            endPosition: [-2063.015, 59.54073, 24.23216, 0],
+            unknownDword3: 0,
+            progressStages: [
+              {
+                progress: 0,
+                position: [-2063.015, 450, 24.41884, 0]
+              },
+              {
+                progress: 1,
+                position: [-2063.015, 59.54073, 24.23216, 0]
+              }
+            ]
+          }
+        ]
+      }
+    );
+
+    setTimeout(() => {
+      server.worldObjectManager.createAirdropContainer(
+        server,
+        new Float32Array([-2063.015, 59.54073, 24.23216, 0])
+      );
+      server.sendCompositeEffectToAllInRange(
+        400,
+        "",
+        new Float32Array([-2063.015, 59.54073, 24.23216, 0]),
+        Effects.PFX_Impact_Explosion_AirdropBomb_Default_10m
+      );
+    }, 61874);
   },
   updatecharacter: function (
     server: ZoneServer2016,

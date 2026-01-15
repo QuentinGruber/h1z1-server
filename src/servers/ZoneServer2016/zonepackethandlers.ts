@@ -41,7 +41,8 @@ import {
   LoadoutSlots,
   StringIds,
   AccountItems,
-  Effects
+  Effects,
+  VehicleIds
 } from "./models/enums";
 import { BaseFullCharacter } from "./entities/basefullcharacter";
 import { BaseLightweightCharacter } from "./entities/baselightweightcharacter";
@@ -126,7 +127,10 @@ import {
   GrinderExchangeRequest,
   GrinderExchangeResponse,
   RagdollUpdatePose,
-  AnimationRequest
+  AnimationRequest,
+  ClientFinishedLoading,
+  SynchronizedTeleportNotifyReady,
+  VehicleAutoMount
 } from "types/zone2016packets";
 import { VehicleCurrentMoveMode } from "types/zone2015packets";
 import {
@@ -157,7 +161,6 @@ import { Lootbag } from "./entities/lootbag";
 import { ReceivedPacket } from "types/shared";
 import { LoadoutItem } from "./classes/loadoutItem";
 import { BaseItem } from "./classes/baseItem";
-import { EntityType } from "h1emu-ai";
 
 function getStanceFlags(num: number): StanceFlags {
   function getBit(bin: string, bit: number) {
@@ -250,7 +253,7 @@ export class ZonePacketHandlers {
       client,
       "Character.CharacterStateDelta",
       {
-        guid1: client.guid,
+        characterId: client.guid,
         guid2: "0x0000000000000000",
         guid3: "0x0000000040000000",
         guid4: "0x0000000000000000",
@@ -300,30 +303,20 @@ export class ZonePacketHandlers {
       {}
     ); // Required for WaitForWorldReady
 
-    server.accountInventoriesManager
-      .getAccountItems(client.loginSessionId)
-      .then((accountItems) => {
-        server.sendData(client, "Items.SetEscrowAccountItemManager", {
-          accountItems: accountItems.map((item: BaseItem) => {
-            return {
-              itemId: item.itemGuid,
-              itemData: {
-                itemId: item.itemGuid,
-                itemGuid: item.itemGuid,
-                itemDefinitionId: item.itemDefinitionId,
-                itemCount: item.stackCount
-              }
-            };
-          })
-        });
-      });
+    server.sendData(client, "Items.AccountItemManagerStateChanged", {
+      escrowEnabled: 0,
+      escrowServerConnected: 1,
+      escrowAccountLoadSucceeded: 1,
+      escrowAccountAllowTrading: 0
+    });
 
-    server.sendDeliveryStatus(client);
+    server.airdropManager.broadcastDeliveryInfo(client);
+    server.airdropManager.sendDeliveryStatus();
   }
   ClientFinishedLoading(
     server: ZoneServer2016,
     client: Client,
-    packet: ReceivedPacket<any>
+    packet: ReceivedPacket<ClientFinishedLoading>
   ) {
     if (!server.hookManager.checkHook("OnClientFinishedLoading", client)) {
       return;
@@ -392,15 +385,7 @@ export class ZonePacketHandlers {
       if (client.firstCharacterReleased) {
         server.challengeManager.loadChallenges(client);
         client.firstCharacterReleased = false;
-        // it's just for performance testing
-        // for (let index = 0; index < 100; index++) {
-        // this.aiManager.add_entity(client.character, EntityType.Player);
-        // }
-        if (server._soloMode || process.env.ENABLE_AI)
-          client.character.h1emu_ai_id = server.aiManager.add_entity(
-            client.character,
-            EntityType.Player
-          );
+        server.aiManager.addEntity(client.character);
         if (
           server.voiceChatManager.useVoiceChatV2 &&
           server.voiceChatManager.joinVoiceChatOnConnect
@@ -525,7 +510,6 @@ export class ZonePacketHandlers {
         client.character._loadout[LoadoutSlots.FEET]?.itemDefinitionId ?? 0,
         client.character._loadout[LoadoutSlots.FEET] == undefined
       );
-      server.airdropManager(client, true);
     }
     if (!client.character.isAlive || client.character.isRespawning) {
       // try to fix stuck on death screen
@@ -607,6 +591,14 @@ export class ZonePacketHandlers {
     client: Client,
     packet: ReceivedPacket<CollisionDamage>
   ) {
+    const DamageTypes = [
+      "WeaponDamage",
+      "VehicleCollision",
+      "ToxicGas",
+      "ExplosiveDamage",
+      "FallDamage"
+    ];
+    const cause = packet.data.causeOfDamage ?? 0;
     if (packet.data.objectCharacterId != client.character.characterId) {
       const objVehicle = server._vehicles[packet.data.objectCharacterId || ""];
       if (objVehicle && objVehicle.engineOn) {
@@ -654,7 +646,7 @@ export class ZonePacketHandlers {
         // only apply collision dmg if falling
         if (characterId === objectCharacterId) {
           client.character.damage(server, {
-            entity: "Server.CollisionDamage",
+            entity: `Server.${DamageTypes[cause]}`,
             damage: damage
           });
         }
@@ -662,7 +654,7 @@ export class ZonePacketHandlers {
       }
 
       client.character.damage(server, {
-        entity: "Server.CollisionDamage",
+        entity: `Server.${DamageTypes[cause]}`,
         damage: damage
       });
     } else if (vehicle) {
@@ -1158,6 +1150,7 @@ export class ZonePacketHandlers {
     client: Client,
     packet: ReceivedPacket<DtoHitSpeedTreeReport>
   ) {
+    if (server.isBattleRoyale()) return;
     server.speedtreeManager.use(
       server,
       client,
@@ -1222,120 +1215,6 @@ export class ZonePacketHandlers {
         if (positionUpdate.position)
           projectile.state.position = positionUpdate.position;
       }
-    }
-
-    // Airdrop management
-    if (positionUpdate.unknown3_int8 === 5) {
-      if (!server._airdrop || !positionUpdate.position) return;
-
-      const airdropManager = server._airdrop.manager;
-      if (
-        airdropManager?.character.characterId !== client.character.characterId
-      )
-        return;
-
-      // Update plane position and orientation
-      server._airdrop.plane.state.position = new Float32Array([
-        positionUpdate.position[0],
-        400,
-        positionUpdate.position[2],
-        1
-      ]);
-      server._airdrop.plane.positionUpdate.orientation =
-        positionUpdate.orientation;
-      server._airdrop.plane.state.rotation = eul2quat(
-        new Float32Array([positionUpdate.orientation, 0, 0, 0])
-      );
-
-      // Handle airdrop release
-      if (
-        !server._airdrop.cargoSpawned &&
-        server._airdrop.cargo &&
-        isPosInRadius(
-          150,
-          positionUpdate.position,
-          server._airdrop.destinationPos
-        )
-      ) {
-        server._airdrop.cargoSpawned = true;
-
-        // Disabling the alert, manager is usually not the person who called an airdrop
-        //server.sendAlert(server._airdrop.manager, "Air drop released. The package is delivered.");
-
-        setTimeout(() => {
-          if (server._airdrop?.cargo) {
-            for (const client of Object.values(server._clients)) {
-              if (!client.firstLoading && !client.isLoading) {
-                const vehicleData =
-                  server._airdrop.cargo.pGetFullVehicle(server);
-                server.sendData(client, "AddLightweightVehicle", {
-                  ...server._airdrop.cargo.pGetLightweightVehicle(),
-                  unknownGuid1: server.generateGuid()
-                });
-                server.sendData(client, "Character.MovementVersion", {
-                  characterId: server._airdrop.cargo.characterId,
-                  version: 6
-                });
-                server.sendData(
-                  client,
-                  "LightweightToFullVehicle",
-                  vehicleData as any
-                );
-                server.sendData(client, "Character.SeekTarget", {
-                  characterId: server._airdrop.cargo.characterId,
-                  TargetCharacterId: server._airdrop.cargoTarget,
-                  initSpeed: -5,
-                  acceleration: 0,
-                  speed: 0,
-                  turn: 5,
-                  yRot: 0
-                });
-                server.sendData(client, "Character.ManagedObject", {
-                  objectCharacterId: server._airdrop.cargo.characterId,
-                  characterId: client.character.characterId
-                });
-              }
-            }
-          }
-        }, 4500);
-      }
-      return;
-    }
-
-    // Airdrop container spawn handling
-    if (positionUpdate.unknown3_int8 === 6) {
-      if (
-        !server._airdrop ||
-        !positionUpdate.position ||
-        !server._airdrop.cargo
-      )
-        return;
-      if (
-        server._airdrop.manager?.character.characterId !==
-        client.character.characterId
-      )
-        return;
-
-      server._airdrop.cargo.state.position[1] = positionUpdate.position[1]; // Update Y position only
-      server._airdrop.cargo.positionUpdate.orientation =
-        positionUpdate.orientation;
-
-      if (
-        !server._airdrop.containerSpawned &&
-        positionUpdate.position[1] <= server._airdrop.destinationPos[1] + 2
-      ) {
-        server._airdrop.containerSpawned = true;
-        server.worldObjectManager.createAirdropContainer(
-          server,
-          server._airdrop.destinationPos,
-          server._airdrop.forcedAirdropType
-        );
-        for (const client of Object.values(server._clients)) {
-          server.airdropManager(client, false);
-        }
-        delete server._airdrop;
-      }
-      return;
     }
 
     // Vehicle handling
@@ -1577,7 +1456,8 @@ export class ZonePacketHandlers {
         stanceFlags.JUMPING &&
         !stanceFlags.FLOATING &&
         client.character.lastJumpTime < sequenceTime &&
-        !client.character.isGodMode()
+        !client.character.isGodMode() &&
+        !server.isBattleRoyale()
       ) {
         client.character.lastJumpTime = sequenceTime + 1100;
         client.character._resources[ResourceIds.STAMINA] = Math.max(
@@ -1757,19 +1637,6 @@ export class ZonePacketHandlers {
       return;
     }
 
-    if (server._airdrop) {
-      if (server._airdrop.plane.characterId == packet.data.characterId) {
-        server._airdrop.plane.OnFullCharacterDataRequest(server, client);
-        return;
-      } else if (
-        server._airdrop.cargo &&
-        server._airdrop.cargo.characterId == packet.data.characterId
-      ) {
-        server._airdrop.cargo.OnFullCharacterDataRequest(server, client);
-        return;
-      }
-    }
-
     const entity = server.getEntity(packet.data.characterId);
     if (!(entity instanceof BaseFullCharacter) && !(entity instanceof Plant)) {
       return;
@@ -1910,6 +1777,7 @@ export class ZonePacketHandlers {
   ) {
     const vehicle = server._vehicles[packet.data.vehicleGuid ?? ""],
       accessType = packet.data.accessType ?? 0;
+    if (vehicle?.vehicleId == VehicleIds.PARACHUTE) return;
     vehicle.setLockState(server, client, !!accessType);
   }
   CommandInteractionString(
@@ -2120,20 +1988,17 @@ export class ZonePacketHandlers {
     };
     server.killCharacter(client, damageInfo);
   }
-  FirstTimeEventInventoryAccess(
+  CommandTogglePlayerInterfaces(
     server: ZoneServer2016,
     client: Client,
     packet: ReceivedPacket<object>
   ) {
-    client.character.isInInventory = !client.character.isInInventory;
-    if (client.character.isInInventory) {
-      const proximityItems = server.getProximityItems(client);
-      server.sendData<ClientUpdateProximateItems>(
-        client,
-        "ClientUpdate.ProximateItems",
-        proximityItems
-      );
-    }
+    const proximityItems = server.getProximityItems(client);
+    server.sendData<ClientUpdateProximateItems>(
+      client,
+      "ClientUpdate.ProximateItems",
+      proximityItems
+    );
   }
   CommandSuicide(
     server: ZoneServer2016,
@@ -2237,6 +2102,7 @@ export class ZonePacketHandlers {
         }
         break;
       case ItemUseOptions.SLICE:
+        if (server.isBattleRoyale()) return;
         server.sliceItem(client, character, item, animationId);
         break;
       case ItemUseOptions.EQUIP:
@@ -2323,6 +2189,7 @@ export class ZonePacketHandlers {
         );
         break;
       case ItemUseOptions.IGNITE:
+        if (server.isBattleRoyale()) return;
         server.igniteOption(client, item);
         break;
       case ItemUseOptions.UNLOAD:
@@ -2335,11 +2202,17 @@ export class ZonePacketHandlers {
         }
         break;
       case ItemUseOptions.SALVAGE:
+        if (server.isBattleRoyale()) return;
         for (let i = 0; i < count; i++) {
           await server.salvageAmmo(client, character, item, animationId);
         }
         break;
       case ItemUseOptions.LOOT:
+        if (
+          character instanceof Vehicle2016 &&
+          character.vehicleId == VehicleIds.PARACHUTE
+        )
+          return;
         const containerEnt = client.character.mountedContainer,
           c = containerEnt?.getContainer();
 
@@ -2408,7 +2281,12 @@ export class ZonePacketHandlers {
       case ItemUseOptions.LOOT_SPARKS:
       case ItemUseOptions.LOOT_VEHICLE_LOADOUT:
         const sourceCharacter = client.character.mountedContainer;
-        if (!sourceCharacter) return;
+        if (
+          !sourceCharacter ||
+          (sourceCharacter instanceof Vehicle2016 &&
+            sourceCharacter.vehicleId == VehicleIds.PARACHUTE)
+        )
+          return;
         const loadoutItem =
           sourceCharacter.getLoadoutItem(itemGuid) ||
           sourceCharacter.getInventoryItem(itemGuid);
@@ -2498,6 +2376,7 @@ export class ZonePacketHandlers {
         server.useAmmoBox(client, character, item);
         break;
       case ItemUseOptions.REPAIR:
+        if (server.isBattleRoyale()) return;
         const repairItem = client.character.getInventoryItem(
           (packet.data.itemSubData as any)?.targetItemGuid
         );
@@ -2552,6 +2431,9 @@ export class ZonePacketHandlers {
       count,
       newSlotId
     } = packet.data;
+    if (client.hudTimer) {
+      client.clearHudTimer();
+    }
     const sourceCharacterId = characterId;
     if (sourceCharacterId != targetCharacterId) {
       server.startInteractionTimer(client, 0, 0, 9);
@@ -2620,16 +2502,41 @@ export class ZonePacketHandlers {
               count
             );
           } else if (containerGuid == LOADOUT_CONTAINER_GUID) {
-            // to loadout
-            /*if (
-              server.validateLoadoutSlot(
-                item.itemDefinitionId,
-                newSlotId,
-                client.character.loadoutId
-              )
-            ) {*/
+            // to loadout - Enhanced drag swapping
+            const targetLoadoutItem = sourceCharacter._loadout[newSlotId];
+
+            // Check if target slot is occupied (drag swapping scenario)
+            if (targetLoadoutItem?.itemDefinitionId) {
+              // Validate that the new item can go in this slot
+              if (
+                !server.validateLoadoutSlot(
+                  item.itemDefinitionId,
+                  newSlotId,
+                  sourceCharacter.loadoutId
+                )
+              ) {
+                server.containerError(
+                  client,
+                  ContainerErrors.INVALID_LOADOUT_SLOT
+                );
+                return;
+              }
+
+              // Check if we have space in inventory for the swapped item
+              const availableContainer = sourceCharacter.getAvailableContainer(
+                server,
+                targetLoadoutItem.itemDefinitionId,
+                1,
+                targetLoadoutItem.itemGuid
+              );
+              if (!availableContainer) {
+                server.containerError(client, ContainerErrors.NO_SPACE);
+                return;
+              }
+            }
+
+            // Equip the new item (equipContainerItem handles the swapping logic)
             sourceCharacter.equipContainerItem(server, item, newSlotId);
-            //}
           } else {
             // invalid
             server.containerError(client, ContainerErrors.UNKNOWN_CONTAINER);
@@ -2656,8 +2563,6 @@ export class ZonePacketHandlers {
               server.containerError(client, ContainerErrors.NO_ITEM_IN_SLOT);
               return;
             }
-            if (loadoutItem.itemDefinitionId == 1899)
-              loadoutItem.itemDefinitionId = 1373; // Remove this next wipe
             loadoutItem.transferLoadoutItem(
               server,
               targetCharacterId,
@@ -2708,8 +2613,6 @@ export class ZonePacketHandlers {
             server.containerError(client, ContainerErrors.NO_SPACE);
             return;
           }
-          if (loadoutItem.itemDefinitionId == 1899)
-            loadoutItem.itemDefinitionId = 1373; // Remove this next wipe
           sourceCharacter.transferItemFromLoadout(
             server,
             targetContainer,
@@ -3051,7 +2954,10 @@ export class ZonePacketHandlers {
     if (!characterId) return;
     let obj: ConstructionPermissions = foundation.permissions[characterId];
     if (!obj) {
-      if (Object.keys(foundation.permissions).length >= 16) {
+      if (
+        Object.keys(foundation.permissions).length >=
+        server.groupManager.foundationPlayerLimit
+      ) {
         server.sendAlert(client, "Permissions limit reached.");
         return;
       }
@@ -3518,8 +3424,7 @@ export class ZonePacketHandlers {
             server.lootAccountItem(
               server,
               client,
-              server.generateAccountItem(reward),
-              true
+              server.generateAccountItem(reward)
             );
           }, 12_000);
         }
@@ -3549,6 +3454,15 @@ export class ZonePacketHandlers {
           )?.items;
 
         if (!newItem) return;
+
+        if (
+          oitem.currentDurability <= 0 &&
+          server.getItemBaseDurability(oitem.itemDefinitionId) == 0
+        ) {
+          oitem.currentDurability = server.getItemBaseDurability(
+            newItem.itemDefinitionId
+          );
+        }
 
         // Copy over item data to new item
         newItem.currentDurability = oitem.currentDurability;
@@ -3776,7 +3690,7 @@ export class ZonePacketHandlers {
           remainingCount -= removeCount;
 
           removedItems.push({ inventoryItem, count: removeCount });
-          server.removeAccountItem(
+          await server.removeAccountItem(
             client.character,
             inventoryItem,
             removeCount
@@ -3854,7 +3768,7 @@ export class ZonePacketHandlers {
           true
         );
 
-        server.lootAccountItem(server, client, item, false);
+        server.lootAccountItem(server, client, item);
         server.sendData<GrinderExchangeResponse>(
           client,
           "Grinder.ExchangeResponse",
@@ -3869,6 +3783,24 @@ export class ZonePacketHandlers {
         );
       }
     }
+
+    const accountItems = await server.accountInventoriesManager.getAccountItems(
+      client.loginSessionId
+    );
+    server.sendData(client, "Items.SetAccountItemManager", {
+      accountItems: {
+        items: accountItems.map((item: BaseItem) => {
+          return {
+            itemId: item.itemGuid,
+            itemData: {
+              itemId: item.itemGuid,
+              itemDefinitionId: item.itemDefinitionId,
+              itemCount: item.stackCount
+            }
+          };
+        })
+      }
+    });
   }
 
   animationRequest(
@@ -3889,6 +3821,27 @@ export class ZonePacketHandlers {
         animationId: animationId
       }
     );
+  }
+
+  syncTeleportReady(
+    server: ZoneServer2016,
+    client: Client,
+    packet: ReceivedPacket<SynchronizedTeleportNotifyReady>
+  ) {
+    const { characterId } = client.character;
+    if (characterId in server._syncTeleport) {
+      server._syncTeleport[characterId] = true;
+    }
+  }
+
+  vehicleAutoMount(
+    server: ZoneServer2016,
+    client: Client,
+    packet: ReceivedPacket<VehicleAutoMount>
+  ) {
+    if (!packet.data.unknownBoolean1 && packet.data.guid) {
+      server.mountVehicle(client, packet.data.guid);
+    }
   }
 
   processPacket(
@@ -4063,8 +4016,8 @@ export class ZonePacketHandlers {
       case "Command.Redeploy":
         this.CommandRedeploy(server, client, packet);
         break;
-      case "FirstTimeEvent.Unknown1":
-        this.FirstTimeEventInventoryAccess(server, client, packet);
+      case "Command.TogglePlayerInterfaces":
+        this.CommandTogglePlayerInterfaces(server, client, packet);
         break;
       case "Items.RequestUseItem":
         this.RequestUseItem(server, client, packet);
@@ -4134,8 +4087,8 @@ export class ZonePacketHandlers {
         break;
       case "Recipe.Discovery":
         break;
-      case "InGamePurchase.AcccountInfoRequest":
-        server.sendData(client, "InGamePurchase.AcccountInfoResponse", {
+      case "InGamePurchase.AccountInfoRequest":
+        server.sendData(client, "InGamePurchase.AccountInfoResponse", {
           unknownDword1: 1,
           locale: "en_US",
           currency: "USD"
@@ -4155,6 +4108,10 @@ export class ZonePacketHandlers {
       case "InGamePurchase.WalletInfoRequest":
         break;
       case "InGamePurchase.StationCashProductsRequest":
+        server.sendData(client, "InGamePurchase.StationCashProductsResponse", {
+          unknownDword1: 1,
+          products: []
+        });
         break;
       case "Items.RequestUseAccountItem":
         this.requestUseAccountItem(server, client, packet);
@@ -4194,6 +4151,12 @@ export class ZonePacketHandlers {
         break;
       case "Animation.Request":
         this.animationRequest(server, client, packet);
+        break;
+      case "SynchronizedTeleport.NotifyReady":
+        this.syncTeleportReady(server, client, packet);
+        break;
+      case "Vehicle.AutoMount":
+        this.vehicleAutoMount(server, client, packet);
         break;
       default:
         debug(packet);

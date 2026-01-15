@@ -1,0 +1,130 @@
+name: check-prerelease
+
+on:
+  pull_request:
+    branches:
+      - dev
+    types:
+      - opened
+      - synchronize
+      - reopened
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  check-prerelease:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Get published version from npm
+        id: prev
+        run: |
+          VERSION=$(npm view h1z1-server@next version)
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+
+      - name: Read current version from package.json
+        id: current
+        run: |
+          VERSION=$(node -p "require('./package.json').version")
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+
+      - name: Compare versions
+        id: compare
+        run: |
+          if [ "${{ steps.prev.outputs.version }}" != "${{ steps.current.outputs.version }}" ]; then
+            echo "changed=true" >> $GITHUB_OUTPUT
+          else
+            echo "changed=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Check if new version is prerelease
+        id: prerelease
+        run: |
+          VERSION=${{ steps.current.outputs.version }}
+          if [[ "$VERSION" == *-* ]]; then
+            echo "isprerelease=true" >> $GITHUB_OUTPUT
+          else
+            echo "isprerelease=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Check if base version (x.y.z) is unchanged
+        id: basecheck
+        run: |
+          prev_base=$(echo "${{ steps.prev.outputs.version }}" | cut -d'-' -f1)
+          curr_base=$(echo "${{ steps.current.outputs.version }}" | cut -d'-' -f1)
+
+          echo "Previous base version: $prev_base"
+          echo "Current base version: $curr_base"
+
+          if [ "$prev_base" = "$curr_base" ]; then
+            echo "base_unchanged=true" >> $GITHUB_OUTPUT
+          else
+            echo "base_unchanged=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: prerelease succesfull message
+        if: steps.compare.outputs.changed == 'true' && steps.prerelease.outputs.isprerelease == 'true' && steps.basecheck.outputs.base_unchanged == 'true'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const version = "${{ steps.current.outputs.version }}";
+            const prNumber = context.payload.pull_request.number;
+            const body = `🚀 If this PR is merged into \`dev\`, version \`${version}\` will be published as a prerelease.\n\n✅ Ensure it’s been reviewed and approved before merging.`;
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: prNumber,
+              body,
+            });
+      - name: prerelease wrong format message
+        if: steps.compare.outputs.changed == 'true' && steps.prerelease.outputs.isprerelease == 'false'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const version = "${{ steps.current.outputs.version }}";
+            const prNumber = context.payload.pull_request.number;
+            const body = `❌ This PR can't be merged into \`dev\`: version \`${version}\` is not a valid prerelease.`;
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: prNumber,
+              body,
+            });
+
+      - name: Fail if version is not a prerelease
+        if: steps.compare.outputs.changed == 'true' && steps.prerelease.outputs.isprerelease == 'false'
+        run: |
+          echo "❌ Version is not a valid prerelease. Failing the workflow."
+          exit 1
+
+      - name: Comment and fail if base version changed
+        if: steps.compare.outputs.changed == 'true' && steps.basecheck.outputs.base_unchanged == 'false'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const oldVersion = "${{ steps.prev.outputs.version }}";
+            const newVersion = "${{ steps.current.outputs.version }}";
+            const prNumber = context.payload.pull_request.number;
+            const body = `❌ Version change from \`${oldVersion}\` to \`${newVersion}\` is invalid.\nOnly the **prerelease tag** may change (e.g., \`1.2.3-alpha.1\` → \`1.2.3-beta.2\`).`;
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: prNumber,
+              body,
+            });
+
+      - name: Fail if base version changed
+        if: steps.compare.outputs.changed == 'true' && steps.basecheck.outputs.base_unchanged == 'false'
+        run: |
+          echo "❌ Base version changed. Only the prerelease part may differ."
+          exit 1

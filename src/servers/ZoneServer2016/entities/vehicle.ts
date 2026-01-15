@@ -231,6 +231,7 @@ export class Vehicle2016 extends BaseLootableEntity {
   };
 
   shaderGroupId: number = 0;
+  ownerCharacterId: string = "";
 
   droppedManagedClient?: ZoneClient2016; // for temporary fix
   isMountable: boolean = true;
@@ -244,7 +245,8 @@ export class Vehicle2016 extends BaseLootableEntity {
     server: ZoneServer2016,
     gameTime: number,
     vehicleId: number,
-    shaderGroupId: number = 0
+    shaderGroupId: number = 0,
+    ownerCharacterId: string = ""
   ) {
     super(characterId, transientId, actorModelId, position, rotation, server);
     this.positionUpdateType = PositionUpdateType.MOVABLE;
@@ -268,6 +270,7 @@ export class Vehicle2016 extends BaseLootableEntity {
       this.vehicleId == VehicleIds.SPECTATE ||
       this.vehicleId == VehicleIds.PARACHUTE;
     this.shaderGroupId = shaderGroupId;
+    this.ownerCharacterId = ownerCharacterId;
     switch (this.vehicleId) {
       case VehicleIds.PICKUP:
         this.seats = {
@@ -313,7 +316,7 @@ export class Vehicle2016 extends BaseLootableEntity {
     this.nameId = getVehicleName(this.actorModelId);
 
     switch (this.vehicleId) {
-      case VehicleIds.PICKUP:
+      case VehicleIds.PICKUP: {
         this.destroyedEffect = Effects.VEH_Death_PickupTruck;
         this.destroyedModel = ModelIds.PICKUP_DESTROYED;
         this.minorDamageEffect = Effects.VEH_Damage_PickupTruck_Stage01;
@@ -321,6 +324,7 @@ export class Vehicle2016 extends BaseLootableEntity {
         this.criticalDamageEffect = Effects.VEH_Damage_PickupTruck_Stage03;
         this.supercriticalDamageEffect = Effects.VEH_Damage_PickupTruck_Stage04;
         break;
+      }
       case VehicleIds.POLICECAR:
         this.destroyedEffect = Effects.VEH_Death_PoliceCar;
         this.destroyedModel = ModelIds.POLICE_CAR_DESTROYED;
@@ -329,7 +333,13 @@ export class Vehicle2016 extends BaseLootableEntity {
         this.criticalDamageEffect = Effects.VEH_Damage_PoliceCar_Stage03;
         this.supercriticalDamageEffect = Effects.VEH_Damage_PoliceCar_Stage04;
         break;
-      case VehicleIds.ATV:
+      case VehicleIds.ATV: {
+        const allowedShaders = [838, 1143, 837, 1003, 1148];
+        const randomShader =
+          allowedShaders[Math.floor(Math.random() * allowedShaders.length)];
+        if (this.shaderGroupId == 0) {
+          this.shaderGroupId = randomShader;
+        }
         this.destroyedEffect = Effects.VEH_Death_ATV;
         this.destroyedModel = ModelIds.ATV_DESTROYED;
         this.minorDamageEffect = Effects.VEH_Damage_ATV_Stage01;
@@ -337,6 +347,7 @@ export class Vehicle2016 extends BaseLootableEntity {
         this.criticalDamageEffect = Effects.VEH_Damage_ATV_Stage03;
         this.supercriticalDamageEffect = Effects.VEH_Damage_ATV_Stage04;
         break;
+      }
       case VehicleIds.PARACHUTE:
         this.destroyedEffect = 0;
         this.destroyedModel = 0;
@@ -346,10 +357,10 @@ export class Vehicle2016 extends BaseLootableEntity {
         this.supercriticalDamageEffect = 0;
         break;
       case VehicleIds.OFFROADER:
-      default:
-        const allowedShaders = [838, 1143, 837, 1003, 1148],
-          randomShader =
-            allowedShaders[Math.floor(Math.random() * allowedShaders.length)];
+      default: {
+        const allowedShaders = [838, 1143, 837, 1003, 1148];
+        const randomShader =
+          allowedShaders[Math.floor(Math.random() * allowedShaders.length)];
         if (this.shaderGroupId == 0) {
           this.shaderGroupId = randomShader;
         }
@@ -360,6 +371,7 @@ export class Vehicle2016 extends BaseLootableEntity {
         this.criticalDamageEffect = Effects.VEH_Damage_OffRoader_Stage03;
         this.supercriticalDamageEffect = Effects.VEH_Damage_OffRoader_Stage04;
         break;
+      }
     }
   }
 
@@ -456,6 +468,7 @@ export class Vehicle2016 extends BaseLootableEntity {
       npcData: {
         ...this.pGetFull(server)
       },
+      engineState: this.engineOn ? 6 : 0,
       unknownArray1: [],
       unknownArray2: [],
       passengers: this.pGetPassengers(server),
@@ -469,9 +482,9 @@ export class Vehicle2016 extends BaseLootableEntity {
       return {
         characterId: passenger,
         identity: {
-          characterName: server._characters[passenger].name
+          characterName: server._characters[passenger]?.name ?? ""
         },
-        unknownString1: server._characters[passenger].name,
+        unknownString1: server._characters[passenger]?.name ?? "",
         unknownByte1: 1
       };
     });
@@ -963,6 +976,7 @@ export class Vehicle2016 extends BaseLootableEntity {
 
   hasVehicleKey(server: ZoneServer2016): boolean {
     return (
+      this.vehicleId == VehicleIds.PARACHUTE ||
       !!this.getItemById(Items.VEHICLE_KEY) ||
       this.doesPassengersHaveKey(server)
     );
@@ -1267,15 +1281,12 @@ export class Vehicle2016 extends BaseLootableEntity {
         effectId: this.currentDamageEffect
       });
     }
-    // has to be sent or vehicle will lose sound after fullVehicle packet
-    if (this.engineOn) {
-      server.sendData(client, "Vehicle.Engine", {
-        vehicleCharacterId: this.characterId,
-        engineOn: true
-      });
-    }
 
-    if (this.onReadyCallback) {
+    if (
+      this.onReadyCallback &&
+      (this.ownerCharacterId == "" ||
+        this.ownerCharacterId == client.character.characterId)
+    ) {
       this.onReadyCallback(client);
       delete this.onReadyCallback;
     }

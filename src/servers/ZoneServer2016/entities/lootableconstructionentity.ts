@@ -63,9 +63,6 @@ export class LootableConstructionEntity extends BaseLootableEntity {
   /** Determines if the LootableConstructionEntity is a SmeltingEntity or CollectingEntity */
   subEntity?: SmeltingEntity | CollectingEntity;
 
-  /** The guid of the secured shelter the LootableConstructionEntity is inside */
-  isHidden: string = "";
-
   /** Used by DecayManager, determines if the entity will be damaged the next decay tick */
   isDecayProtected: boolean = false;
   isProp: boolean = false;
@@ -289,45 +286,59 @@ export class LootableConstructionEntity extends BaseLootableEntity {
   }
 
   async handleBeeboxSwarm(server: ZoneServer2016, damageInfo: DamageInfo) {
-    const client = server.getClientByCharId(damageInfo.entity);
     const dictionary = server.getEntityDictionary(this.characterId);
-    if (!client || !dictionary) return;
+    if (!dictionary) return;
 
-    server.sendDataToAllWithSpawnedEntity<CharacterPlayWorldCompositeEffect>(
-      dictionary,
-      this.characterId,
-      "Character.PlayWorldCompositeEffect",
-      {
-        characterId: this.characterId,
-        effectId: Effects.PFX_Bee_Swarm_Attack,
-        position: client.character.state.position,
-        effectTime: 5
-      }
-    );
-
-    for (let i = 0; i < 12; i++) {
-      const dmgInfo: DamageInfo = {
-        entity: "",
-        damage: 25
-      };
-      client.character.damage(server, dmgInfo);
-      await scheduler.wait(500);
+    // Find all clients within the radius
+    const clientsInRange = Object.values(server._clients).filter((c) => {
+      if (!c.character || !c.character.isAlive) return false;
+      return isPosInRadius(5, this.state.position, c.character.state.position);
+    });
+    //  Bee FX for all affected clients
+    for (const c of clientsInRange) {
+      server.sendDataToAllWithSpawnedEntity<CharacterPlayWorldCompositeEffect>(
+        dictionary,
+        this.characterId,
+        "Character.PlayWorldCompositeEffect",
+        {
+          characterId: this.characterId,
+          effectId: Effects.PFX_Bee_Swarm_Attack,
+          position: c.character.state.position,
+          effectTime: 5
+        }
+      );
     }
 
-    let hudIndicator: HudIndicator | undefined = undefined;
-    hudIndicator = server._hudIndicators[ResourceIndicators.BEES];
+    // Only show HUD and deal damage if bees are angry
+    if (damageInfo && damageInfo.damage > 0) {
+      let hudIndicator: HudIndicator | undefined =
+        server._hudIndicators[ResourceIndicators.BEES];
+      if (hudIndicator) {
+        for (const c of clientsInRange) {
+          if (c.character.hudIndicators[hudIndicator.typeName]) {
+            c.character.hudIndicators[hudIndicator.typeName].expirationTime +=
+              5000;
+          } else {
+            c.character.hudIndicators[hudIndicator.typeName] = {
+              typeName: hudIndicator.typeName,
+              expirationTime: Date.now() + 5000
+            };
+            server.sendHudIndicators(c);
+          }
+        }
+      }
 
-    if (!hudIndicator) return;
-
-    if (client.character.hudIndicators[hudIndicator.typeName]) {
-      client.character.hudIndicators[hudIndicator.typeName].expirationTime +=
-        5000;
-    } else {
-      client.character.hudIndicators[hudIndicator.typeName] = {
-        typeName: hudIndicator.typeName,
-        expirationTime: Date.now() + 5000
-      };
-      server.sendHudIndicators(client);
+      // Damage all affected clients over time
+      for (let i = 0; i < 12; i++) {
+        for (const c of clientsInRange) {
+          const dmgInfo: DamageInfo = {
+            entity: c.character.characterId,
+            damage: 20
+          };
+          c.character.damage(server, dmgInfo);
+        }
+        await scheduler.wait(500);
+      }
     }
   }
 
@@ -344,22 +355,11 @@ export class LootableConstructionEntity extends BaseLootableEntity {
   }
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   OnProjectileHit(server: ZoneServer2016, damageInfo: DamageInfo) {
-    /* disable projectile damage for raycast
     if (this.isProp) return;
-    let freePlaceDmgMultiplier = 1;
-
-    const dictionary = server.getEntityDictionary(this.characterId);
-    if (
-      dictionary == server._worldLootableConstruction ||
-      (server._worldSimpleConstruction && !this.parentObjectCharacterId)
-    ) {
-      freePlaceDmgMultiplier = 2;
+    if (this.itemDefinitionId == Items.BEE_BOX) {
+      this.handleBeeboxSwarm(server, damageInfo);
     }
-    // 26 308 shots for freeplaced objects, 13 for parented objects
-
-    const damage = damageInfo.damage * (3 * freePlaceDmgMultiplier);
-    this.damage(server, { ...damageInfo, damage });
-    */
+    // ...existing or future projectile damage logic...
   }
 
   OnExplosiveHit(

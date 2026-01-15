@@ -16,6 +16,7 @@ import { FileHash } from ".../../types/shared";
 import { CONNECTION_REJECTION_FLAGS } from "utils/enums";
 
 interface ServerConfig {
+  gameMode: string;
   proximityItemsDistance: number;
   interactionDistance: number;
   charactersRenderDistance: number;
@@ -66,7 +67,6 @@ interface GameTimeConfig {
 
 interface WorldObjectsConfig {
   vehicleSpawnCap: number;
-  minAirdropSurvivors: number;
   hasCustomLootRespawnTime: boolean;
   lootRespawnTimer: number;
   vehicleRespawnTimer: number;
@@ -149,6 +149,18 @@ interface RandomEventsConfig {
   enabled: boolean;
 }
 
+interface AirdropConfig {
+  minimumPlayers: number;
+  planeMovementSpeed: number;
+  crateDropSpeed: number;
+}
+
+interface GroupConfig {
+  enabled: boolean;
+  player_limit: number;
+  foundation_player_limit: number;
+}
+
 export interface Config {
   server: ServerConfig;
   rcon: RconConfig;
@@ -156,6 +168,7 @@ export interface Config {
   voicechat: VoiceChatConfig;
   fairplay: FairplayConfig;
   weather: WeatherConfig;
+  airdrop: AirdropConfig;
   gametime: GameTimeConfig;
   worldobjects: WorldObjectsConfig;
   speedtree: SpeedTreeConfig;
@@ -163,4 +176,5 @@ export interface Config {
   decay: DecayConfig;
   smelting: SmeltingConfig;
   randomevents: RandomEventsConfig;
+  groups: GroupConfig;
 }

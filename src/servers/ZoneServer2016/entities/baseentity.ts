@@ -71,7 +71,7 @@ export abstract class BaseEntity {
   };
 
   /** Physical size of the entity based on the entity model */
-  scale = new Float32Array([1, 1, 1, 1]);
+  scale: Float32Array = new Float32Array([1, 1, 1, 1]);
 
   /** Distance (H1Z1 meters) where the entity will render,
    * when undefined, uses the zoneserver._charactersRenderDistance value instead
@@ -87,7 +87,9 @@ export abstract class BaseEntity {
   /** The physical material the entity is made of - See enums.ts/MaterialTypes for more information */
   materialType: number;
 
-  h1emu_ai_id?: bigint;
+  /** The guid of the secured shelter the entity is inside */
+  isHidden: string = "";
+  server: ZoneServer2016;
   constructor(
     characterId: string,
     transientId: number,
@@ -108,6 +110,7 @@ export abstract class BaseEntity {
     this.interactionDistance = server.interactionDistance;
     this.materialType = this.getMaterialType(server, this.actorModelId);
     server.pushToGridCell(this);
+    this.server = server;
   }
 
   getMaterialType(server: ZoneServer2016, actorModelId: number) {

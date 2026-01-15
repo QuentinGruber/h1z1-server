@@ -48,12 +48,12 @@ const packets: any[] = [
     0x02,
     {
       fields: [
-        { name: "loggedIn", type: "boolean" },
-        { name: "status", type: "uint32" },
-        { name: "isMember", type: "boolean" },
-        { name: "isInternal", type: "boolean" },
-        { name: "namespace", type: "string" },
-        { name: "applicationPayload", type: "byteswithlength" }
+        { name: "loggedIn", type: "boolean", defaultValue: true },
+        { name: "status", type: "uint32", defaultValue: 1 },
+        { name: "isMember", type: "boolean", defaultValue: false },
+        { name: "isInternal", type: "boolean", defaultValue: false },
+        { name: "namespace", type: "string", defaultValue: "STATION" },
+        { name: "applicationPayload", type: "byteswithlength", fields: [] }
       ]
     }
   ],
@@ -127,8 +127,8 @@ const packets: any[] = [
     0x08,
     {
       fields: [
-        { name: "unknownQword1", type: "int64string" },
-        { name: "unknownDword1", type: "uint32" },
+        { name: "characterId", type: "int64string" },
+        { name: "serverId", type: "uint32" },
         { name: "unknownDword2", type: "uint32" },
         { name: "status", type: "uint32" },
         {
@@ -139,7 +139,7 @@ const packets: any[] = [
             { name: "serverTicket", type: "string" },
             { name: "encryptionKey", type: "byteswithlength" },
             { name: "guid", type: "int64string" },
-            { name: "unknownQword2", type: "int64string", defaultValue: "" },
+            { name: "sessionId", type: "int64string", defaultValue: "" },
             { name: "stationName", type: "string", defaultValue: "" },
             { name: "characterName", type: "string", defaultValue: "" },
             { name: "unknownString", type: "string", defaultValue: "" }
