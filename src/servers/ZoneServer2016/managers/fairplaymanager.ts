@@ -740,9 +740,9 @@ export class FairPlayManager {
       return false;
     }
     return (
-      file1.crc32_hash == file2.crc32_hash ||
+      file1.crc32_hash == file2.crc32_hash /*||
       file1.old_crc32_hash == file2.crc32_hash ||
-      file2.old_crc32_hash == file1.crc32_hash
+      file2.old_crc32_hash == file1.crc32_hash*/
     );
   }
 
