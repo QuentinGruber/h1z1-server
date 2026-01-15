@@ -21,6 +21,7 @@ import { BaseItem } from "../classes/baseItem";
 import { BaseLootableEntity } from "../entities/baselootableentity";
 import { ChallengeType } from "./challengemanager";
 import { ItemObject } from "../entities/itemobject";
+import { ClientUpdateProximateItems } from "types/zone2016packets";
 const debug = require("debug")("ZoneServer");
 
 interface CraftComponentDSEntry {
@@ -179,6 +180,13 @@ export class CraftManager {
     const entity = server.getEntity(item.ownerCharacterId);
     if (entity instanceof ItemObject) {
       entity.item.stackCount -= count;
+      const client = server.getClientByCharId(itemDS.character.characterId);
+      if (!client) return true;
+      server.sendData<ClientUpdateProximateItems>(
+        client,
+        "ClientUpdate.ProximateItems",
+        server.getProximityItems(client)
+      );
       return true;
     }
 
