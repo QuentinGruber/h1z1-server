@@ -1037,6 +1037,7 @@
   },
   {
     "file_name": "Assets_259.pack",
-    "crc32_hash": "bfdc08a2"
+    "old_crc32_hash": "bfdc08a2",
+    "crc32_hash": "a20404c1"
   }
 ]

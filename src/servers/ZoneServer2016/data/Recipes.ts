@@ -899,6 +899,146 @@ export const smeltingData: { [recipeId: number]: smeltRecipe } = {
         requiredAmount: 1
       }
     ]
+  },
+  83: {
+    filterId: FilterIds.FURNACE,
+    rewardId: Items.METAL_BAR,
+    components: [
+      {
+        itemDefinitionId: Items.CANNED_FOOD01,
+        requiredAmount: 1
+      }
+    ]
+  },
+  84: {
+    filterId: FilterIds.FURNACE,
+    rewardId: Items.METAL_BAR,
+    components: [
+      {
+        itemDefinitionId: Items.CANNED_FOOD02,
+        requiredAmount: 1
+      }
+    ]
+  },
+  85: {
+    filterId: FilterIds.FURNACE,
+    rewardId: Items.METAL_BAR,
+    components: [
+      {
+        itemDefinitionId: Items.CANNED_FOOD03,
+        requiredAmount: 1
+      }
+    ]
+  },
+  86: {
+    filterId: FilterIds.FURNACE,
+    rewardId: Items.METAL_BAR,
+    components: [
+      {
+        itemDefinitionId: Items.CANNED_FOOD04,
+        requiredAmount: 1
+      }
+    ]
+  },
+  87: {
+    filterId: FilterIds.FURNACE,
+    rewardId: Items.METAL_BAR,
+    components: [
+      {
+        itemDefinitionId: Items.CANNED_FOOD05,
+        requiredAmount: 1
+      }
+    ]
+  },
+  88: {
+    filterId: FilterIds.FURNACE,
+    rewardId: Items.METAL_BAR,
+    components: [
+      {
+        itemDefinitionId: Items.CANNED_FOOD06,
+        requiredAmount: 1
+      }
+    ]
+  },
+  89: {
+    filterId: FilterIds.FURNACE,
+    rewardId: Items.METAL_BAR,
+    components: [
+      {
+        itemDefinitionId: Items.CANNED_FOOD07,
+        requiredAmount: 1
+      }
+    ]
+  },
+  90: {
+    filterId: FilterIds.FURNACE,
+    rewardId: Items.METAL_BAR,
+    components: [
+      {
+        itemDefinitionId: Items.CANNED_FOOD08,
+        requiredAmount: 1
+      }
+    ]
+  },
+  91: {
+    filterId: FilterIds.FURNACE,
+    rewardId: Items.METAL_BAR,
+    components: [
+      {
+        itemDefinitionId: Items.CANNED_FOOD09,
+        requiredAmount: 1
+      }
+    ]
+  },
+  92: {
+    filterId: FilterIds.FURNACE,
+    rewardId: Items.METAL_BAR,
+    components: [
+      {
+        itemDefinitionId: Items.CANNED_FOOD10,
+        requiredAmount: 1
+      }
+    ]
+  },
+  93: {
+    filterId: FilterIds.FURNACE,
+    rewardId: Items.METAL_BAR,
+    components: [
+      {
+        itemDefinitionId: Items.CANNED_FOOD11,
+        requiredAmount: 1
+      }
+    ]
+  },
+  94: {
+    filterId: FilterIds.FURNACE,
+    rewardId: Items.METAL_BAR,
+    components: [
+      {
+        itemDefinitionId: Items.CANNED_FOOD21,
+        requiredAmount: 1
+      }
+    ]
+  },
+  95: {
+    filterId: FilterIds.FURNACE,
+    rewardId: Items.METAL_BAR,
+    components: [
+      {
+        itemDefinitionId: Items.CANNED_FOOD25,
+        requiredAmount: 1
+      }
+    ]
+  },
+  96: {
+    filterId: FilterIds.FURNACE,
+    rewardId: Items.METAL_BAR,
+    components: [
+      {
+        itemDefinitionId: Items.CANNED_FOOD26,
+        requiredAmount: 1
+      }
+    ]
   }
 };
 
