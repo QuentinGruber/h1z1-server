@@ -119,6 +119,10 @@ export abstract class BaseFullCharacter extends BaseLightweightCharacter {
   gender: number;
   hoodState: string = "Up";
 
+  // Updates from constructionPermissionsManager, avoids checking all buildings every inventory access.
+  /** The guid of the building the character is inside of */
+  insideBuilding: string = "";
+
   /** The default items that will spawn on and with the BaseFullCharacter */
   defaultLoadout: LoadoutKit = [];
   constructor(

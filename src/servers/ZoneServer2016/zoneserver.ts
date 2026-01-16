@@ -261,6 +261,7 @@ import { ChallengeManager, ChallengeType } from "./managers/challengemanager";
 import { RandomEventsManager } from "./managers/randomeventsmanager";
 import { AiManager } from "./managers/aimanager";
 import { AirdropManager } from "./managers/airdropmanager";
+import { generateWorldItemRepData } from "../../packets/ClientProtocol/ClientProtocol_1080/shared";
 //import { TaskManager } from "./managers/tasksmanager";
 
 const spawnLocations2 = require("../../../data/2016/zoneData/Z1_gridSpawns.json"),
@@ -1297,17 +1298,37 @@ export class ZoneServer2016 extends EventEmitter {
 
   getProximityItems(client: Client): ClientUpdateProximateItems {
     const proximityItems: ClientUpdateProximateItems = { items: [] };
+    let foundation: ConstructionParentEntity | undefined =
+      this._constructionFoundations[client.character.insideBuilding] ??
+      this._constructionSimple[
+        client.character.insideBuilding
+      ]?.getParentFoundation(this);
 
     for (const object of client.spawnedEntities) {
       if (object instanceof ItemObject) {
+        let yDistance = 1;
+        if (
+          client.character.state.position[1] <
+          object.state.position[1] - 0.5
+        ) {
+          yDistance = 1.8;
+        }
         if (
           isPosInRadiusWithY(
             this.proximityItemsDistance,
             client.character.state.position,
             object.state.position,
-            1
+            yDistance
           )
         ) {
+          if (
+            object.checkBuildingObstruct(
+              this,
+              client.character.state.position,
+              foundation
+            )
+          )
+            continue;
           const proximityItem = {
             itemDefinitionId: object.item.itemDefinitionId,
             associatedCharacterGuid: object.characterId,
@@ -4100,7 +4121,11 @@ export class ZoneServer2016 extends EventEmitter {
         transientId: entity.transientId,
         stringSize: "ClientNpcComponent".length,
         componentName: "ClientNpcComponent",
-        properties: [{}]
+        properties: [
+          {
+            bufferData: generateWorldItemRepData(entity.nameId)
+          }
+        ]
       }
     );
   }
@@ -6712,6 +6737,7 @@ export class ZoneServer2016 extends EventEmitter {
     );
 
     if (!obj) return;
+    obj.insideBuilding = character.insideBuilding;
     this.executeFuncForAllReadyClientsInRange((c) => {
       c.spawnedEntities.add(obj);
       this.addLightweightNpc(c, obj);
