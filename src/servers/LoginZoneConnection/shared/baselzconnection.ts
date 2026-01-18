@@ -19,6 +19,7 @@ import dgram, { RemoteInfo } from "node:dgram";
 const debug = require("debug")("LZConnection");
 
 export abstract class BaseLZConnection extends EventEmitter {
+  _serverAddress: string;
   _serverPort?: number;
   _protocol: LZConnectionProtocol;
   _udpLength: number = 512;
@@ -29,6 +30,7 @@ export abstract class BaseLZConnection extends EventEmitter {
   _pingTimer!: NodeJS.Timeout;
   protected constructor(serverPort?: number) {
     super();
+    this._serverAddress = process.env.SERVER_BIND_ADDRESS || "0.0.0.0";
     this._serverPort = serverPort;
     this._protocol = new LZConnectionProtocol();
     this._connection = dgram.createSocket("udp4");
@@ -72,7 +74,7 @@ export abstract class BaseLZConnection extends EventEmitter {
     );
 
     return await new Promise((resolve) => {
-      this._connection.bind(this._serverPort, undefined, () => {
+      this._connection.bind(this._serverPort, this._serverAddress, () => {
         resolve();
       });
     });

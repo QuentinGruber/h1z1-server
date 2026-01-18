@@ -25,6 +25,8 @@ import { PacketsQueue } from "./PacketsQueue";
 const debug = require("debug")("SOEServer");
 
 export class SOEServer extends EventEmitter {
+  _serverAddress: string;
+  _serverAddressV6: string;
   _serverPort: number;
   _cryptoKey: Uint8Array;
   _protocol!: Soeprotocol;
@@ -50,6 +52,8 @@ export class SOEServer extends EventEmitter {
     const oneMb = 1024 * 1024;
     Buffer.poolSize = oneMb;
     this._serverPort = serverPort;
+    this._serverAddress = process.env.SERVER_BIND_ADDRESS || "0.0.0.0";
+    this._serverAddressV6 = process.env.SERVER_BIND_ADDRESS_V6 || "::";
     this._cryptoKey = cryptoKey;
     this._maxMultiBufferSize = this._udpLength - 4 - this._crcLength;
     this._connection = dgram.createSocket({
@@ -463,9 +467,9 @@ export class SOEServer extends EventEmitter {
     this._connectionv6.on("message", (data, remote) => {
       this.onMessage(data, remote);
     });
-    this._connection.bind(this._serverPort);
+    this._connection.bind(this._serverPort, this._serverAddress);
     if (!process.env.DISABLE_IPV6) {
-      this._connectionv6.bind(this._serverPort);
+      this._connectionv6.bind(this._serverPort, this._serverAddressV6);
     }
   }
 
