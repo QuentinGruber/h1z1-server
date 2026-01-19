@@ -435,17 +435,6 @@ export class SOEServer extends EventEmitter {
         } else {
           console.error("Unmanaged packet from client", clientId, data);
         }
-      } else {
-        if (this._allowRawDataReception) {
-          console.log("Raw data received from client", clientId, data);
-          this.emit("appdata", client, data, true); // Unreliable + Unordered
-        } else {
-          console.log(
-            "Raw data received from client but raw data reception isn't enabled",
-            clientId,
-            data
-          );
-        }
       }
     } catch (e) {
       console.log(e);
