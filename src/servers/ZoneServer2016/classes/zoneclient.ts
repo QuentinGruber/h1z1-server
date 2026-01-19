@@ -3,7 +3,7 @@
 //   GNU GENERAL PUBLIC LICENSE
 //   Version 3, 29 June 2007
 //   copyright (C) 2020 - 2021 Quentin Gruber
-//   copyright (C) 2021 - 2025 H1emu community
+//   copyright (C) 2021 - 2026 H1emu community
 //
 //   https://github.com/QuentinGruber/h1z1-server
 //   https://www.npmjs.com/package/h1z1-server
@@ -83,6 +83,7 @@ export class ZoneClient2016 {
   avgPingLen: number = 4;
   pingWarnings: number = 0;
   isWeaponLock: boolean = false;
+  lastMovementImpared: number = 0;
   avgPingReady: boolean = false;
   chunkRenderDistance: number = 400;
   routineCounter: number = 0;

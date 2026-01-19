@@ -3,7 +3,7 @@
 //   GNU GENERAL PUBLIC LICENSE
 //   Version 3, 29 June 2007
 //   copyright (C) 2020 - 2021 Quentin Gruber
-//   copyright (C) 2021 - 2025 H1emu community
+//   copyright (C) 2021 - 2026 H1emu community
 //
 //   https://github.com/QuentinGruber/h1z1-server
 //   https://www.npmjs.com/package/h1z1-server
@@ -115,7 +115,6 @@ export class Character2016 extends BaseFullCharacter {
   /** Used to update the status of the players resources */
   resourcesUpdater?: any;
   factionId = 2;
-  //isInInventory: boolean = false;
   playTime: number = 0;
   lastDropPlaytime: number = 0;
   set godMode(state: boolean) {
@@ -244,6 +243,10 @@ export class Character2016 extends BaseFullCharacter {
 
   /** Current stance of the player: jumping, running etc. (See getStanceFlags for all possible stances) */
   stance?: StanceFlags;
+
+  /** Tracks if the player is currently playing an emote */
+  currentEmote: number = 0; // effectId of the current emote, 0 = no emote
+  lastEmoteTime: number = 0; // timestamp of when the emote was started
 
   /** Metrics of miscellaneous attributes */
   metrics: CharacterMetrics = {

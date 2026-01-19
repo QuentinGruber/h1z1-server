@@ -3,7 +3,7 @@
 //   GNU GENERAL PUBLIC LICENSE
 //   Version 3, 29 June 2007
 //   copyright (C) 2020 - 2021 Quentin Gruber
-//   copyright (C) 2021 - 2025 H1emu community
+//   copyright (C) 2021 - 2026 H1emu community
 //
 //   https://github.com/QuentinGruber/h1z1-server
 //   https://www.npmjs.com/package/h1z1-server
@@ -1940,13 +1940,17 @@ export const basePackets: PacketStructures = [
               type: "uint64string",
               defaultValue: "0x0"
             },
-            { name: "unknownQword3", type: "uint64string", defaultValue: "" },
+            {
+              name: "unknownQword3",
+              type: "uint64string",
+              defaultValue: "0x0"
+            },
             {
               name: "vehicleLoadoutRelatedDword",
               type: "uint32",
               defaultValue: 0
             },
-            { name: "unknownDword40", type: "int32", defaultValue: 0 },
+            { name: "unknownDword40", type: "int32", defaultValue: -1 },
             { name: "isAdmin", type: "boolean", defaultValue: true },
             { name: "firstPersonOnly", type: "boolean", defaultValue: false },
             { name: "spectatorFlags", type: "uint8", defaultValue: 0 }
@@ -2221,10 +2225,14 @@ export const basePackets: PacketStructures = [
   ],
   ["ClientMetrics", 0x45, {}],
   [
-    "Command.TogglePlayerInterfaces",
+    "FirstTimeEvent.NotifySystem",
     0x4601,
     {
-      fields: []
+      fields: [
+        { name: "unknownDword1", type: "int32", defaultValue: 0 },
+        { name: "unknownBoolean1", type: "boolean", defaultValue: false },
+        { name: "displayElement", type: "int32", defaultValue: 0 }
+      ]
     }
   ],
   [
@@ -2644,6 +2652,8 @@ export const basePackets: PacketStructures = [
             ],
             4: [
               // RemoveCharacterResource
+              { name: "characterId", type: "uint64string", defaultValue: "0" },
+              { name: "resourceId", type: "uint32", defaultValue: 0 }
             ]
           }
         }

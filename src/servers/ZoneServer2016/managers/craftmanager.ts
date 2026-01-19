@@ -3,7 +3,7 @@
 //   GNU GENERAL PUBLIC LICENSE
 //   Version 3, 29 June 2007
 //   copyright (C) 2020 - 2021 Quentin Gruber
-//   copyright (C) 2021 - 2025 H1emu community
+//   copyright (C) 2021 - 2026 H1emu community
 //
 //   https://github.com/QuentinGruber/h1z1-server
 //   https://www.npmjs.com/package/h1z1-server
@@ -21,6 +21,7 @@ import { BaseItem } from "../classes/baseItem";
 import { BaseLootableEntity } from "../entities/baselootableentity";
 import { ChallengeType } from "./challengemanager";
 import { ItemObject } from "../entities/itemobject";
+import { ClientUpdateProximateItems } from "types/zone2016packets";
 const debug = require("debug")("ZoneServer");
 
 interface CraftComponentDSEntry {
@@ -171,14 +172,22 @@ export class CraftManager {
       return true;
 
     const item: any = itemDS.item;
-    if (item?.stackCount - count <= 0) {
+    const remainder = item?.stackCount - count;
+    if (remainder <= 0) {
       return server.deleteEntity(item.ownerCharacterId, server._spawnedItems);
-    } else if (item?.stackCount) {
-      const e = server.getEntity(item.ownerCharacterId);
-      if (e && e instanceof ItemObject) {
-        e.item.stackCount -= count;
-        return true;
-      }
+    }
+
+    const entity = server.getEntity(item.ownerCharacterId);
+    if (entity instanceof ItemObject) {
+      entity.item.stackCount -= count;
+      const client = server.getClientByCharId(itemDS.character.characterId);
+      if (!client) return true;
+      server.sendData<ClientUpdateProximateItems>(
+        client,
+        "ClientUpdate.ProximateItems",
+        server.getProximityItems(client)
+      );
+      return true;
     }
 
     return false;

@@ -5,7 +5,7 @@
 //   GNU GENERAL PUBLIC LICENSE
 //   Version 3, 29 June 2007
 //   copyright (C) 2020 - 2021 Quentin Gruber
-//   copyright (C) 2021 - 2025 H1emu community
+//   copyright (C) 2021 - 2026 H1emu community
 //
 //   https://github.com/QuentinGruber/h1z1-server
 //   https://www.npmjs.com/package/h1z1-server
@@ -756,6 +756,8 @@ export enum AccountItems {
   REWARD_CRATE_VICTORY = 5064,
   REWARD_CRATE_BREAKOUT = 5255,
   REWARD_CRATE_SWIRL = 5256,
+  REWARD_CRATE_INFERNAL_2025 = 5333,
+  REWARD_CRATE_FROST = 5375,
   MYSTERY_BAG_KOTK = 3239,
   KOTK_ELITE_BAG = 3240,
   SKIRMISH_SMALL_FIREARMS = 3274,
@@ -2592,4 +2594,15 @@ export enum GameModes {
   BATTLE_ROYALE_5 = 7,
   BATTLE_ROYALE_GREEN_DAWN = 10,
   BATTLE_ROYALE_REANIMATOR = 14
+}
+
+export enum UIElements {
+  MAP = 12,
+  INVENTORY = 15
+}
+
+export enum ReplicationPropertyHash {
+  UNKNOWN1 = 0x50d51c9d,
+  ISWORLDITEM = 0xf68bb709,
+  UNKNOWN2 = 0xb927f3ef
 }

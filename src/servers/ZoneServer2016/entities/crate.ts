@@ -3,7 +3,7 @@
 //   GNU GENERAL PUBLIC LICENSE
 //   Version 3, 29 June 2007
 //   copyright (C) 2020 - 2021 Quentin Gruber
-//   copyright (C) 2021 - 2025 H1emu community
+//   copyright (C) 2021 - 2026 H1emu community
 //
 //   https://github.com/QuentinGruber/h1z1-server
 //   https://www.npmjs.com/package/h1z1-server
@@ -73,6 +73,7 @@ export class Crate extends BaseSimpleNpc {
   maxHealth: number = 5000;
   health: number = this.maxHealth;
   spawnTimestamp: number = 0;
+  destroyed: boolean = false;
   /** Returns true if the crate is in the radius of a buffed position (hunter drive, car camps etc.) */
   isBuffed: boolean;
   /** Time (milliseconds) for the crate to respawn in the world */
@@ -96,6 +97,8 @@ export class Crate extends BaseSimpleNpc {
   }
 
   spawnLoot(server: ZoneServer2016) {
+    // Don't generate loot if crate is already destroyed
+    if (this.destroyed) return;
     const lootTable = this.isBuffed
       ? containerLootSpawners["Crate_buffed"]
       : containerLootSpawners["Crate"];
@@ -150,6 +153,9 @@ export class Crate extends BaseSimpleNpc {
     const weapon = client.character.getEquippedWeapon();
     if (!weapon) return;
 
+    // Don't generate wood planks if crate is already destroyed
+    if (this.destroyed) return;
+
     // 20% chance to spawn wood planks, 60% if it's a crowbar
     const woodPlanksChance = Math.floor(Math.random() * 100) + 1;
     const spawnChanceWoodPlank =
@@ -182,6 +188,7 @@ export class Crate extends BaseSimpleNpc {
       this.spawnLoot(server);
     }
 
+    this.destroyed = true;
     this.spawnTimestamp = Date.now() + this.respawnTime;
     this.health = this.maxHealth;
     server.sendDataToAllWithSpawnedEntity<CharacterRemovePlayer>(

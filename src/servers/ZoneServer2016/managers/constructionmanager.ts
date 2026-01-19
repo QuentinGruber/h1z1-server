@@ -3,7 +3,7 @@
 //   GNU GENERAL PUBLIC LICENSE
 //   Version 3, 29 June 2007
 //   copyright (C) 2020 - 2021 Quentin Gruber
-//   copyright (C) 2021 - 2025 H1emu community
+//   copyright (C) 2021 - 2026 H1emu community
 //
 //   https://github.com/QuentinGruber/h1z1-server
 //   https://www.npmjs.com/package/h1z1-server
@@ -88,6 +88,7 @@ export class ConstructionManager {
   vehicleSpawnPointBlockedPlacementRange!: number;
   playerFoundationBlockedPlacementRange!: number;
   playerShackBlockedPlacementRange!: number;
+  lowerStrongholdDefenses!: boolean;
 
   sendConstructionData(server: ZoneServer2016, client: Client) {
     const unknownArray1 = [46, 45, 47, 48, 49, 50, 12, 7, 15],
@@ -1305,6 +1306,7 @@ export class ConstructionManager {
     const position = parent.getSlotPosition(BuildingSlot, parent.wallSlots),
       rotation = parent.getSlotRotation(BuildingSlot, parent.wallSlots);
     if (
+      server.constructionManager.lowerStrongholdDefenses &&
       position &&
       (itemDefinitionId == Items.METAL_GATE ||
         itemDefinitionId == Items.METAL_WALL ||
@@ -2416,9 +2418,11 @@ export class ConstructionManager {
     client: Client
   ) {
     let hide = false;
-
+    client.character.insideBuilding = "";
     for (const object of client.spawnedEntities) {
       if (object instanceof ConstructionParentEntity) {
+        if (object.isInside(client.character.state.position))
+          client.character.insideBuilding = object.characterId;
         if (this.checkFoundationPermission(server, client, object)) {
           hide = true;
           continue;
@@ -2426,6 +2430,8 @@ export class ConstructionManager {
       }
 
       if (object instanceof ConstructionChildEntity) {
+        if (object.isInside(client.character.state.position))
+          client.character.insideBuilding = object.characterId;
         if (
           this.checkConstructionChildEntityPermission(server, client, object)
         ) {
@@ -2631,7 +2637,8 @@ export class ConstructionManager {
     }
 
     entity.damage(server, {
-      entity: "Server.DemoHammer",
+      entity: client.character.characterId,
+      weapon: weaponItem.itemDefinitionId,
       damage: entity.maxHealth / 3 + 10
     });
     server.damageItem(client.character, weaponItem, 50);

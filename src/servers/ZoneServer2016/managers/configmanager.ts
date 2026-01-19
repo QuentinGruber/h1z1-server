@@ -3,7 +3,7 @@
 //   GNU GENERAL PUBLIC LICENSE
 //   Version 3, 29 June 2007
 //   copyright (C) 2020 - 2021 Quentin Gruber
-//   copyright (C) 2021 - 2025 H1emu community
+//   copyright (C) 2021 - 2026 H1emu community
 //
 //   https://github.com/QuentinGruber/h1z1-server
 //   https://www.npmjs.com/package/h1z1-server
@@ -221,11 +221,17 @@ export class ConfigManager {
     //#endregion
     //
     //#region voicechat
-    const { useVoiceChatV2, joinVoiceChatOnConnect, serverAccessToken } =
-      this.config.voicechat;
+    const {
+      useVoiceChatV2,
+      joinVoiceChatOnConnect,
+      serverAccessToken,
+      serverAddress
+    } = this.config.voicechat;
     server.voiceChatManager.useVoiceChatV2 = useVoiceChatV2;
     server.voiceChatManager.joinVoiceChatOnConnect = joinVoiceChatOnConnect;
     server.voiceChatManager.serverAccessToken = serverAccessToken;
+    server.voiceChatManager.serverAddress =
+      process.env.VOICE_CHAT_SERVER_ADDRESS || serverAddress;
     //#endregion
 
     //#region fairplay
@@ -343,7 +349,8 @@ export class ConfigManager {
       spawnPointBlockedPlacementRange,
       vehicleSpawnPointBlockedPlacementRange,
       playerFoundationBlockedPlacementRange,
-      playerShackBlockedPlacementRange
+      playerShackBlockedPlacementRange,
+      lowerStrongholdDefenses
     } = this.config.construction;
     server.constructionManager.allowStackedPlacement = allowStackedPlacement;
     server.constructionManager.allowOutOfBoundsPlacement =
@@ -357,6 +364,8 @@ export class ConfigManager {
       playerFoundationBlockedPlacementRange;
     server.constructionManager.playerShackBlockedPlacementRange =
       playerShackBlockedPlacementRange;
+    server.constructionManager.lowerStrongholdDefenses =
+      lowerStrongholdDefenses;
     //#endregion
 
     //#region decay

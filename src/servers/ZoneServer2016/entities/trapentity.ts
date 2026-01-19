@@ -3,7 +3,7 @@
 //   GNU GENERAL PUBLIC LICENSE
 //   Version 3, 29 June 2007
 //   copyright (C) 2020 - 2021 Quentin Gruber
-//   copyright (C) 2021 - 2025 H1emu community
+//   copyright (C) 2021 - 2026 H1emu community
 //
 //   https://github.com/QuentinGruber/h1z1-server
 //   https://www.npmjs.com/package/h1z1-server
@@ -90,7 +90,7 @@ export class TrapEntity extends BaseSimpleNpc {
       case Items.PUNJI_STICK_ROW:
         this.server.aiManager.addEntity(this);
         this.cooldown = 500;
-        this.triggerRadiusX = 1;
+        this.triggerRadiusX = 0.8;
         this.triggerRadiusY = 0.5;
         break;
       case Items.SNARE:

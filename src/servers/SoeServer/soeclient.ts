@@ -3,7 +3,7 @@
 //   GNU GENERAL PUBLIC LICENSE
 //   Version 3, 29 June 2007
 //   copyright (C) 2020 - 2021 Quentin Gruber
-//   copyright (C) 2021 - 2025 H1emu community
+//   copyright (C) 2021 - 2026 H1emu community
 //
 //   https://github.com/QuentinGruber/h1z1-server
 //   https://www.npmjs.com/package/h1z1-server
@@ -55,7 +55,6 @@ export default class SOEClient {
   avgPing: number = 0;
   pings: number[] = [];
   avgPingLen: number = 6;
-  sendingTimer: NodeJS.Timeout | null = null;
   private _statsResetTimer: NodeJS.Timer;
   delayedLogicalPackets: LogicalPacket[] = [];
   constructor(remote: RemoteInfo, crcSeed: number, cryptoKey: Uint8Array) {
@@ -77,7 +76,6 @@ export default class SOEClient {
     return remote.address + ":" + remote.port;
   }
   closeTimers() {
-    // wierd stuff with the new global Symbol used with the using keyword, skipping that headache for now
     clearInterval(this._statsResetTimer as unknown as number);
   }
   private _resetStats() {

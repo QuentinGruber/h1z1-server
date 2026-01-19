@@ -3,7 +3,7 @@
 //   GNU GENERAL PUBLIC LICENSE
 //   Version 3, 29 June 2007
 //   copyright (C) 2020 - 2021 Quentin Gruber
-//   copyright (C) 2021 - 2025 H1emu community
+//   copyright (C) 2021 - 2026 H1emu community
 //
 //   https://github.com/QuentinGruber/h1z1-server
 //   https://www.npmjs.com/package/h1z1-server
@@ -33,6 +33,7 @@ import { Resolver } from "node:dns";
 import { ZoneClient2016 } from "servers/ZoneServer2016/classes/zoneclient";
 import * as crypto from "crypto";
 import { ZoneClient } from "servers/ZoneServer2015/classes/zoneclient";
+import { ConstructionDoor } from "../servers/ZoneServer2016/entities/constructiondoor";
 
 const startTime = Date.now();
 
@@ -317,6 +318,108 @@ export function getAngle(position1: Float32Array, position2: Float32Array) {
   const dz = position2[2] - position1[2];
   const angle = Math.atan2(dz, dx);
   return angle;
+}
+
+/**
+ * Rotates point around pivot by angle
+ *
+ * @param pivot - The pivot to rotate around
+ * @param point - The point that will be rotated
+ * @param angle - The angle to rotate
+ * @returns - A new point at the new position
+ */
+export function rotateAroundPivot(
+  pivot: Float32Array,
+  point: Float32Array,
+  angle: number
+): Float32Array {
+  // Calculate the vector from pivot
+  const vX = point[0] - pivot[0];
+  const vY = point[1] - pivot[1];
+  const vZ = point[2] - pivot[2];
+
+  const cos = Math.cos(angle);
+  const sin = Math.sin(angle);
+
+  // Do matrix rotation and then add back the pivot
+  return new Float32Array([
+    pivot[0] + vX * cos - vZ * sin,
+    pivot[1] + vY,
+    pivot[2] + vX * sin + vZ * cos
+  ]);
+}
+
+/**
+ * Checks if a line goes through a open or missing door slot.
+ *
+ * @param a1 - The first point of the line
+ * @param a2 - The second point of the line
+ * @param doorway - The construction entity that has a door.
+ * @returns - Boolean if the line passes through a open door or a door slot with no door.
+ */
+export function checkLineThroughDoorway(
+  a1: Float32Array,
+  a2: Float32Array,
+  doorway: ConstructionChildEntity
+): boolean {
+  const door = doorway.occupiedWallSlots[1];
+  if (door && door instanceof ConstructionDoor && !door.isOpen) return false;
+  let doorEnd: Float32Array;
+  let doorStart: Float32Array;
+
+  if (door instanceof ConstructionDoor && door.isOpen) {
+    doorEnd = new Float32Array(door.fixedPosition);
+    doorStart = new Float32Array(door.state.position);
+  } else {
+    // No door, calculate the door slot
+    const rotation = doorway.getSlotRotation(1, doorway.wallSlots);
+    doorStart = new Float32Array(
+      doorway.getSlotPosition(1, doorway.wallSlots)!
+    );
+    doorEnd = movePoint(doorStart!, -(rotation![1] + 1.575), 0.625);
+  }
+
+  doorEnd[0] = 2 * doorEnd[0] - doorStart[0]; // doorEnd is currently the midpoint
+  doorEnd[2] = 2 * doorEnd[2] - doorStart[2]; // extend it to the end
+  doorEnd[1] += 2;
+  doorStart![1] -= 0.5;
+  return wallInterceptsLine(a1, a2, doorStart!, doorEnd);
+}
+
+/**
+ * Check if the wall defined by b1, b2 is between the line a1, a2
+ *
+ * @param a1 - The first point of the line
+ * @param a2 - The second point of the line
+ * @param b1 - The bottom left corner of the wall
+ * @param b2 - The top right corner of the wall
+ * @returns - A boolean if the line is intercepted by the wall
+ */
+export function wallInterceptsLine(
+  a1: Float32Array,
+  a2: Float32Array,
+  b1: Float32Array,
+  b2: Float32Array
+): boolean {
+  b1[1] -= 0.5; // extend the plane down a bit
+
+  const orient = (p: Float32Array, q: Float32Array, r: Float32Array) =>
+    (q[0] - p[0]) * (r[2] - p[2]) - (q[2] - p[2]) * (r[0] - p[0]);
+
+  const o1 = orient(a1, a2, b1);
+  const o2 = orient(a1, a2, b2);
+  const o3 = orient(b1, b2, a1);
+  const o4 = orient(b1, b2, a2);
+
+  const intersects2D = o1 * o2 < 0 && o3 * o4 < 0;
+  if (!intersects2D) return false;
+
+  const lineMinY = Math.min(a1[1], a2[1]);
+  const lineMaxY = Math.max(a1[1], a2[1]);
+  const wallMinY = Math.min(b1[1], b2[1]);
+  const wallMaxY = Math.max(b1[1], b2[1]);
+
+  return lineMaxY >= wallMinY && lineMinY <= wallMaxY;
 }
 
 /**

@@ -3,7 +3,7 @@
 //   GNU GENERAL PUBLIC LICENSE
 //   Version 3, 29 June 2007
 //   copyright (C) 2020 - 2021 Quentin Gruber
-//   copyright (C) 2021 - 2025 H1emu community
+//   copyright (C) 2021 - 2026 H1emu community
 //
 //   https://github.com/QuentinGruber/h1z1-server
 //   https://www.npmjs.com/package/h1z1-server
@@ -153,7 +153,14 @@ export class ConstructionDoor extends DoorEntity {
       ResourceTypes.CONDITION,
       server._constructionDoors
     );
-    if (damageInfo.damage > 0) {
+    if (
+      damageInfo.damage > 0 &&
+      !this.getHasPermission(
+        server,
+        damageInfo.entity,
+        ConstructionPermissionIds.DEMOLISH
+      )
+    ) {
       const timestamp = Date.now();
       const parentFoundation = this.getParentFoundation(server);
       if (parentFoundation) parentFoundation.lastDamagedTimestamp = timestamp;
@@ -163,7 +170,11 @@ export class ConstructionDoor extends DoorEntity {
     this.destroy(server, 3000);
   }
 
-  destroy(server: ZoneServer2016, destructTime = 0): boolean {
+  destroy(
+    server: ZoneServer2016,
+    destructTime = 0,
+    slotCooldown = 30000
+  ): boolean {
     const deleted = server.deleteEntity(
       this.characterId,
       server._constructionDoors,
@@ -186,8 +197,7 @@ export class ConstructionDoor extends DoorEntity {
       case Items.DOOR_METAL:
         slotMap = parent.occupiedWallSlots;
         updateSecured = true;
-        parent.wallSlotsPlacementTimer[this.getSlotNumber()] =
-          Date.now() + 30000;
+        parent.wallSlotsPlacementTimer[this.getSlotNumber()] = slotCooldown;
         break;
     }
     if (slotMap) parent.clearSlot(this.getSlotNumber(), slotMap);

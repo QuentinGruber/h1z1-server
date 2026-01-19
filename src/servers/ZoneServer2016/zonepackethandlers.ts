@@ -3,7 +3,7 @@
 //   GNU GENERAL PUBLIC LICENSE
 //   Version 3, 29 June 2007
 //   copyright (C) 2020 - 2021 Quentin Gruber
-//   copyright (C) 2021 - 2025 H1emu community
+//   copyright (C) 2021 - 2026 H1emu community
 //
 //   https://github.com/QuentinGruber/h1z1-server
 //   https://www.npmjs.com/package/h1z1-server
@@ -27,7 +27,8 @@ import {
   getCurrentServerTimeWrapper,
   getDateString,
   isHalloween,
-  isChristmasSeason
+  isChristmasSeason,
+  logClientActionToMongo
 } from "../../utils/utils";
 
 import { CraftManager } from "./managers/craftmanager";
@@ -42,7 +43,9 @@ import {
   StringIds,
   AccountItems,
   Effects,
-  VehicleIds
+  VehicleIds,
+  UIElements,
+  ReplicationPropertyHash
 } from "./models/enums";
 import { BaseFullCharacter } from "./entities/basefullcharacter";
 import { BaseLightweightCharacter } from "./entities/baselightweightcharacter";
@@ -75,6 +78,7 @@ import {
   CommandExecuteCommand,
   CommandFreeInteractionNpc,
   CommandInteractRequest,
+  CommandPlayDialogEffect,
   CommandInteractionString,
   CommandItemDefinitionReply,
   CommandItemDefinitionRequest,
@@ -105,8 +109,6 @@ import {
   NpcFoundationPermissionsManagerBaseShowPermissions,
   NpcFoundationPermissionsManagerEditPermission,
   PlayerUpdateManagedPosition,
-  ReplicationInteractionComponent,
-  ReplicationNpcComponent,
   RewardBuffInfo,
   Security,
   SetLocale,
@@ -130,7 +132,10 @@ import {
   AnimationRequest,
   ClientFinishedLoading,
   SynchronizedTeleportNotifyReady,
-  VehicleAutoMount
+  VehicleAutoMount,
+  FirstTimeEventNotifySystem,
+  PlayerUpdatePosition,
+  ReplicationCreateComponent
 } from "types/zone2016packets";
 import { VehicleCurrentMoveMode } from "types/zone2015packets";
 import {
@@ -161,6 +166,12 @@ import { Lootbag } from "./entities/lootbag";
 import { ReceivedPacket } from "types/shared";
 import { LoadoutItem } from "./classes/loadoutItem";
 import { BaseItem } from "./classes/baseItem";
+import { Collection } from "mongodb";
+import { ItemObject } from "./entities/itemobject";
+import {
+  generateOldInteractionComponent,
+  generateOldNpcComponent
+} from "../../packets/ClientProtocol/ClientProtocol_1080/shared";
 
 function getStanceFlags(num: number): StanceFlags {
   function getBit(bin: string, bit: number) {
@@ -586,6 +597,44 @@ export class ZonePacketHandlers {
       {}
     );
   }
+  CommandPlayDialogEffect(
+    server: ZoneServer2016,
+    client: Client,
+    packet: ReceivedPacket<CommandPlayDialogEffect>
+  ) {
+    const effectId = packet.data.effectId ?? 0;
+
+    // Validate that the player can use emotes
+    // Only allow emotes when player has hands/fists equipped (LoadoutSlots.FISTS)
+    const equippedItem = client.character.getEquippedWeapon();
+
+    // Check if the player has fists equipped or no weapon
+    if (equippedItem && equippedItem.itemDefinitionId !== Items.WEAPON_FISTS) {
+      // Player has a weapon equipped that is not fists, don't allow emote
+      return;
+    }
+
+    // Track that the player is playing an emote
+    if (effectId > 0) {
+      client.character.currentEmote = effectId;
+      client.character.lastEmoteTime = Date.now();
+    } else {
+      // effectId 0 means cancel emote
+      client.character.currentEmote = 0;
+    }
+
+    // Send the emote to all other players
+    server.sendDataToAllOthersWithSpawnedEntity<CommandPlayDialogEffect>(
+      server._characters,
+      client,
+      client.character.characterId,
+      "Command.PlayDialogEffect",
+      {
+        characterId: client.character.characterId,
+        effectId: effectId
+      }
+    );
+  }
   CollisionDamage(
     server: ZoneServer2016,
     client: Client,
@@ -815,7 +864,7 @@ export class ZonePacketHandlers {
         if (!client.characterReleased) return;
         if (client.firstReleased) {
           server.sendData<H1emuVoiceInit>(client, "H1emu.VoiceInit", {
-            args: `172.232.36.121 ${server._worldId}` // TODO: not wise but we'll change it
+            args: `${server.voiceChatManager.serverAddress} ${server._worldId}`
           });
           server.sendData(
             client,
@@ -849,13 +898,6 @@ export class ZonePacketHandlers {
     server: ZoneServer2016,
     client: Client,
     packet: ReceivedPacket<ClientUpdateMonitorTimeDrift>
-  ) {
-    // nothing for now
-  }
-  ClientLog(
-    server: ZoneServer2016,
-    client: Client,
-    packet: ReceivedPacket<ClientLog>
   ) {
     /*const message = packet.data.message || "";
     if (
@@ -894,6 +936,49 @@ export class ZonePacketHandlers {
       client.clientLogs.push(obj);
     }
     debug(packet);*/
+  }
+  ClientLog(
+    server: ZoneServer2016,
+    client: Client,
+    packet: ReceivedPacket<ClientLog>
+  ) {
+    const message = packet.data.message || "";
+    if (
+      packet.data.file ==
+        server.fairPlayManager.fairPlayValues?.requiredFile2 &&
+      //!client.clientLogs.includes(packet.data.message) && TODO: FIX THIS SINCE IT NEVER WORKED -Meme
+      !client.isAdmin
+    ) {
+      const obj = { log: message, isSuspicious: false };
+      for (let x = 0; x < server.fairPlayManager._suspiciousList.length; x++) {
+        if (
+          message
+            .toLowerCase()
+            .includes(server.fairPlayManager._suspiciousList[x].toLowerCase())
+        ) {
+          obj.isSuspicious = true;
+          if (!server._soloMode) {
+            logClientActionToMongo(
+              server._db?.collection(DB_COLLECTIONS.FAIRPLAY) as Collection,
+              client,
+              server._worldId,
+              {
+                type: "suspicious software",
+                suspicious: server.fairPlayManager._suspiciousList[x]
+              }
+            );
+          }
+          server.sendChatTextToAdmins(
+            `FairPlay: kicking ${client.character.name} for using suspicious software - ${server.fairPlayManager._suspiciousList[x]}`,
+            false
+          );
+          server.kickPlayer(client);
+          break;
+        }
+      }
+      client.clientLogs.push(obj);
+    }
+    debug(packet);
   }
   WallOfDataUIEvent(
     server: ZoneServer2016,
@@ -1364,20 +1449,22 @@ export class ZonePacketHandlers {
   PlayerUpdatePosition(
     server: ZoneServer2016,
     client: Client,
-    packet: ReceivedPacket<any> // todo: remove any - Meme
+    packet: ReceivedPacket<PlayerUpdatePosition>
   ) {
-    const {
-      flags,
-      sequenceTime,
-      position,
-      rotation,
-      rotationRaw,
-      lookAt,
-      stance
-    } = packet.data;
+    const positionUpdate = packet.data as any;
+    if (!positionUpdate) return;
+
+    const flags = positionUpdate.flags;
+    const sequenceTime = positionUpdate.sequenceTime;
+    const position = positionUpdate.position;
+    const rotation = positionUpdate.rotation;
+    const orientation = positionUpdate.orientation;
+    const rotationRaw = positionUpdate.rotationRaw;
+    const lookAt = positionUpdate.lookAt;
+    const stance = positionUpdate.stance;
 
     // Return early for spammed junk packets
-    if (flags === 2 || packet.data.flags == 513) {
+    if (flags == 513) {
       return;
     }
     // Disable temporary god mode if enabled
@@ -1386,7 +1473,7 @@ export class ZonePacketHandlers {
     client.character.positionUpdate = client.character.positionUpdate || {};
     Object.assign(client.character.positionUpdate, packet.data);
 
-    if (packet.data.orientation) {
+    if (orientation) {
       // orientation
       /*server.fairPlayManager.checkAimVector(
         server,
@@ -1416,8 +1503,19 @@ export class ZonePacketHandlers {
     }
 
     // Handle stance flag (0x01)
-    if (packet.data.stance) {
+    if (stance) {
       const stanceFlags = getStanceFlags(stance);
+
+      if (stanceFlags.SITTING) {
+        server.sendData<CommandRunSpeed>(client, "Command.RunSpeed", {
+          runSpeed: 0.1
+        });
+        setTimeout(() => {
+          server.sendData<CommandRunSpeed>(client, "Command.RunSpeed", {
+            runSpeed: 0
+          });
+        }, 2000);
+      }
 
       // Detect movements based on stance
       server.fairPlayManager.detectJumpXSMovement(server, client, stanceFlags);
@@ -1451,6 +1549,13 @@ export class ZonePacketHandlers {
       // Update running state
       client.character.isRunning = stanceFlags.SPRINTING;
 
+      // Cancel emote when player is moving too much (sprinting) or goes prone
+      if (client.character.currentEmote > 0) {
+        if (stanceFlags.SPRINTING || stanceFlags.PRONED) {
+          server.cancelEmote(client);
+        }
+      }
+
       // Handle jump penalty
       if (
         stanceFlags.JUMPING &&
@@ -1478,7 +1583,7 @@ export class ZonePacketHandlers {
       client.character.positionUpdate.stance = stance;
     }
     // Handle position flag (0x02)
-    if (packet.data.position) {
+    if (position) {
       if (!client.characterReleased) client.characterReleased = true;
       // if (client.movementSet.size < ZoneClient2016.minMovementForAfk) {
       //   const movementId = Math.round(position[0]) + Math.round(position[2]);
@@ -1498,6 +1603,29 @@ export class ZonePacketHandlers {
         return;*/
 
       // Update character position
+      // check sequence drift and impare movement if its a packetloss
+      const isLowSequenceDrift =
+        sequenceTime + client.avgPing + 250 >
+        getCurrentServerTimeWrapper().getTruncatedU32();
+      if (
+        client.isWeaponLock &&
+        !isLowSequenceDrift &&
+        position &&
+        client.lastMovementImpared + 3000 < Date.now()
+      ) {
+        client.lastMovementImpared = Date.now();
+        server.sendData<CommandRunSpeed>(client, "Command.RunSpeed", {
+          runSpeed: 1
+        });
+        server.sendChatTextToAdmins(
+          `Fairplay: Imparing movement of ${client.character.name} for 1.5s due to sequence drift`
+        );
+        setTimeout(() => {
+          server.sendData<CommandRunSpeed>(client, "Command.RunSpeed", {
+            runSpeed: 0
+          });
+        }, 1500);
+      }
       client.character.state.position = position;
 
       // Stop HUD timer if position is out of radius
@@ -1539,7 +1667,7 @@ export class ZonePacketHandlers {
       }
     }
     // Handle rotation flag (0x200)
-    if (packet.data.rotation) {
+    if (rotation && lookAt && _.size(rotationRaw) > 0) {
       client.character.state.rotation = rotation;
       client.character.state.yaw = rotationRaw[0];
       client.character.state.lookAt = lookAt;
@@ -1818,12 +1946,21 @@ export class ZonePacketHandlers {
       !isNonReplicatable &&
       !client.sentInteractionData.includes(entity)
     ) {
-      server.sendData<ReplicationNpcComponent>(
+      server.sendData<ReplicationCreateComponent>(
         client,
-        "Replication.NpcComponent",
+        "Replication.CreateComponent",
         {
           transientId: entity.transientId,
-          nameId: entity.nameId
+          stringSize: "ClientNpcComponent".length,
+          componentName: "ClientNpcComponent",
+          properties: [
+            {
+              replicationId: 124,
+              propertyHash: ReplicationPropertyHash.ISWORLDITEM,
+              bufferSize: 82,
+              bufferData: generateOldNpcComponent()
+            }
+          ]
         }
       );
       client.sentInteractionData.push(entity);
@@ -1834,11 +1971,21 @@ export class ZonePacketHandlers {
           entity instanceof LootableConstructionEntity
         )
       ) {
-        server.sendData<ReplicationInteractionComponent>(
+        server.sendData<ReplicationCreateComponent>(
           client,
-          "Replication.InteractionComponent",
+          "Replication.CreateComponent",
           {
-            transientId: entity.transientId
+            transientId: entity.transientId,
+            stringSize: "ClientInteractComponent".length,
+            componentName: "ClientInteractComponent",
+            properties: [
+              {
+                replicationId: 0x2e6e,
+                propertyHash: ReplicationPropertyHash.UNKNOWN1,
+                bufferSize: 0xb,
+                bufferData: generateOldInteractionComponent()
+              }
+            ]
           }
         );
       }
@@ -1988,17 +2135,25 @@ export class ZonePacketHandlers {
     };
     server.killCharacter(client, damageInfo);
   }
-  CommandTogglePlayerInterfaces(
+  FirstTimeEventNotifySystem(
     server: ZoneServer2016,
     client: Client,
-    packet: ReceivedPacket<object>
+    packet: ReceivedPacket<FirstTimeEventNotifySystem>
   ) {
-    const proximityItems = server.getProximityItems(client);
-    server.sendData<ClientUpdateProximateItems>(
-      client,
-      "ClientUpdate.ProximateItems",
-      proximityItems
-    );
+    switch (packet.data.displayElement) {
+      case UIElements.INVENTORY:
+        server.sendData<ClientUpdateProximateItems>(
+          client,
+          "ClientUpdate.ProximateItems",
+          server.getProximityItems(client)
+        );
+        break;
+      case UIElements.MAP:
+        break;
+      default:
+        debug(`Received unknown FirstTimeEvent: ${packet.data.displayElement}`);
+        break;
+    }
   }
   CommandSuicide(
     server: ZoneServer2016,
@@ -2204,7 +2359,11 @@ export class ZonePacketHandlers {
       case ItemUseOptions.SALVAGE:
         if (server.isBattleRoyale()) return;
         for (let i = 0; i < count; i++) {
-          await server.salvageAmmo(client, character, item, animationId);
+          if (
+            !(await server.salvageAmmo(client, character, item, animationId))
+          ) {
+            break;
+          }
         }
         break;
       case ItemUseOptions.LOOT:
@@ -2675,6 +2834,22 @@ export class ZonePacketHandlers {
           count
         );
       }
+    } else if (sourceCharacterId in server._spawnedItems) {
+      // from ground item
+      const sourceCharacter: ItemObject =
+        server._spawnedItems[sourceCharacterId];
+
+      if (
+        !isPosInRadius(
+          server.proximityItemsDistance,
+          client.character.state.position,
+          sourceCharacter.state.position
+        )
+      ) {
+        server.sendChatText(client, "Item not in range!");
+        return;
+      }
+      sourceCharacter.takeItem(server, client, containerGuid, count, newSlotId);
     } else {
       // from external container
       const sourceCharacter = client.character.mountedContainer;
@@ -2847,7 +3022,8 @@ export class ZonePacketHandlers {
     if (
       client.character.characterId != foundation.ownerCharacterId &&
       foundation.permissions[characterId]?.demolish &&
-      characterId != client.character.characterId
+      characterId != client.character.characterId &&
+      !client.isDebugMode
     ) {
       server.sendAlert(
         client,
@@ -3012,6 +3188,10 @@ export class ZonePacketHandlers {
     if (!weaponItem || !weaponItem.weapon) return;
     switch (packet.packetName) {
       case "Weapon.FireStateUpdate":
+        // Cancel emote when player starts firing
+        if (packet.packet.firestate > 0 && client.character.currentEmote > 0) {
+          server.cancelEmote(client);
+        }
         server.handleWeaponFireStateUpdate(
           client,
           weaponItem,
@@ -3019,6 +3199,10 @@ export class ZonePacketHandlers {
         );
         break;
       case "Weapon.Fire":
+        // Cancel emote when player fires
+        if (client.character.currentEmote > 0) {
+          server.cancelEmote(client);
+        }
         server.handleWeaponFire(client, weaponItem, packet);
         break;
       case "Weapon.ProjectileHitReport":
@@ -3334,6 +3518,10 @@ export class ZonePacketHandlers {
       client.character.currentInteractionGuid;
 
     if (hitLocation) {
+      // Cancel emote when player starts melee attack
+      if (client.character.currentEmote > 0) {
+        server.cancelEmote(client);
+      }
       client.character.abilityInitTime = Date.now();
       client.character.meleeHit = {
         abilityHitLocation: hitLocation,
@@ -4016,8 +4204,11 @@ export class ZonePacketHandlers {
       case "Command.Redeploy":
         this.CommandRedeploy(server, client, packet);
         break;
-      case "Command.TogglePlayerInterfaces":
-        this.CommandTogglePlayerInterfaces(server, client, packet);
+      case "Command.PlayDialogEffect":
+        this.CommandPlayDialogEffect(server, client, packet);
+        break;
+      case "FirstTimeEvent.NotifySystem":
+        this.FirstTimeEventNotifySystem(server, client, packet);
         break;
       case "Items.RequestUseItem":
         this.RequestUseItem(server, client, packet);
@@ -4174,6 +4365,20 @@ export class ZonePacketHandlers {
         server.fairPlayManager.handleAssetCheck(server, client, data);
         break;
       case "02": // client messages
+        // TODO: Below is temporary
+        if (!server._soloMode) {
+          logClientActionToMongo(
+            server._db?.collection(DB_COLLECTIONS.FAIRPLAY_TEMP) as Collection,
+            client,
+            server._worldId,
+            {
+              type: data.includes("\\Device\\HarddiskVolume")
+                ? "windows"
+                : "modules",
+              data: data
+            }
+          );
+        }
         server.sendChatTextToAdmins(`${client.character.name}: ${data}`);
         break;
       case "09":

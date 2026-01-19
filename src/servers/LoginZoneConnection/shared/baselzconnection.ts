@@ -3,7 +3,7 @@
 //   GNU GENERAL PUBLIC LICENSE
 //   Version 3, 29 June 2007
 //   copyright (C) 2020 - 2021 Quentin Gruber
-//   copyright (C) 2021 - 2025 H1emu community
+//   copyright (C) 2021 - 2026 H1emu community
 //
 //   https://github.com/QuentinGruber/h1z1-server
 //   https://www.npmjs.com/package/h1z1-server
@@ -19,6 +19,7 @@ import dgram, { RemoteInfo } from "node:dgram";
 const debug = require("debug")("LZConnection");
 
 export abstract class BaseLZConnection extends EventEmitter {
+  _serverAddress: string;
   _serverPort?: number;
   _protocol: LZConnectionProtocol;
   _udpLength: number = 512;
@@ -29,6 +30,7 @@ export abstract class BaseLZConnection extends EventEmitter {
   _pingTimer!: NodeJS.Timeout;
   protected constructor(serverPort?: number) {
     super();
+    this._serverAddress = process.env.SERVER_BIND_ADDRESS || "0.0.0.0";
     this._serverPort = serverPort;
     this._protocol = new LZConnectionProtocol();
     this._connection = dgram.createSocket("udp4");
@@ -72,7 +74,7 @@ export abstract class BaseLZConnection extends EventEmitter {
     );
 
     return await new Promise((resolve) => {
-      this._connection.bind(this._serverPort, undefined, () => {
+      this._connection.bind(this._serverPort, this._serverAddress, () => {
         resolve();
       });
     });

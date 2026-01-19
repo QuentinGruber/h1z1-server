@@ -1,4 +1,4 @@
-//   copyright (C) 2021 - 2023 H1emu community
+//   copyright (C) 2021 - 2026 H1emu community
 //
 //   https://github.com/QuentinGruber/h1z1-server
 //   https://www.npmjs.com/package/h1z1-server
@@ -45,7 +45,7 @@ function getRenderDistance(itemDefinitionId: number) {
       range = 420;
       break;
   }
-  return range;
+  return range ? range : 1000;
 }
 
 import { BaseLightweightCharacter } from "./baselightweightcharacter";
@@ -287,6 +287,10 @@ export class ConstructionChildEntity extends BaseLightweightCharacter {
         const p = position[1] + 2.4;
         this.boundsOn = getCubeBounds(position, 5, 5, angle, p, p + 1.8);
 
+        break;
+      case Items.METAL_DOORWAY:
+      case Items.METAL_WALL:
+        this.fixedPosition = movePoint(position, -(rotation[1] + 1.575), 2.5);
         break;
     }
 
@@ -535,7 +539,13 @@ export class ConstructionChildEntity extends BaseLightweightCharacter {
       "Character.UpdateSimpleProxyHealth",
       this.pGetSimpleProxyHealth()
     );
-    if (damageInfo.damage > 0) {
+
+    const hasPerms = this.getHasPermission(
+      server,
+      damageInfo.entity,
+      ConstructionPermissionIds.DEMOLISH
+    );
+    if (damageInfo.damage > 0 && !hasPerms) {
       const timestamp = Date.now();
       const parent = this.getParent(server);
       if (parent) parent.lastDamagedTimestamp = timestamp;
@@ -544,7 +554,7 @@ export class ConstructionChildEntity extends BaseLightweightCharacter {
     }
 
     if (this.health > 0) return;
-    this.destroy(server, 3000);
+    this.destroy(server, 3000, hasPerms ? 30000 : 0);
   }
 
   isInside(position: Float32Array) {
@@ -583,7 +593,11 @@ export class ConstructionChildEntity extends BaseLightweightCharacter {
     }
   }
 
-  destroy(server: ZoneServer2016, destructTime = 0): boolean {
+  destroy(
+    server: ZoneServer2016,
+    destructTime = 0,
+    slotCooldown = 30000
+  ): boolean {
     const deleted = server.deleteEntity(
       this.characterId,
       server._constructionSimple[this.characterId]
@@ -610,13 +624,12 @@ export class ConstructionChildEntity extends BaseLightweightCharacter {
       case Items.METAL_DOORWAY:
         slotMap = parent.occupiedWallSlots;
         updateSecured = true;
-        parent.wallSlotsPlacementTimer[this.getSlotNumber()] =
-          Date.now() + 30000;
+        parent.wallSlotsPlacementTimer[this.getSlotNumber()] = slotCooldown;
         break;
       case Items.METAL_WALL_UPPER:
         slotMap = parent.occupiedUpperWallSlots;
         parent.upperWallSlotsPlacementTimer[this.getSlotNumber()] =
-          Date.now() + 30000;
+          slotCooldown;
         break;
       case Items.SHELTER:
       case Items.SHELTER_LARGE:
@@ -626,8 +639,7 @@ export class ConstructionChildEntity extends BaseLightweightCharacter {
       case Items.STRUCTURE_STAIRS_UPPER:
       case Items.LOOKOUT_TOWER:
         slotMap = parent.occupiedShelterSlots;
-        parent.shelterSlotsPlacementTimer[this.getSlotNumber()] =
-          Date.now() + 30000;
+        parent.shelterSlotsPlacementTimer[this.getSlotNumber()] = slotCooldown;
         break;
       case Items.FOUNDATION_RAMP:
       case Items.FOUNDATION_STAIRS:

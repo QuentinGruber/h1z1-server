@@ -3,7 +3,7 @@
 //   GNU GENERAL PUBLIC LICENSE
 //   Version 3, 29 June 2007
 //   copyright (C) 2020 - 2021 Quentin Gruber
-//   copyright (C) 2021 - 2025 H1emu community
+//   copyright (C) 2021 - 2026 H1emu community
 //
 //   https://github.com/QuentinGruber/h1z1-server
 //   https://www.npmjs.com/package/h1z1-server
@@ -273,7 +273,7 @@ const weaponDefinitionSchema: PacketFields = [
                 defaultValue: 0
               },
               { name: "FIRE_DETECT_RANGE", type: "uint16", defaultValue: 0 },
-              { name: "EFFECT_GROUP", type: "float", defaultValue: 0 },
+              { name: "EFFECT_GROUP", type: "uint32", defaultValue: 0 },
               { name: "PLAYER_STATE_GROUP_ID", type: "float", defaultValue: 0 },
               { name: "MOVEMENT_MODIFIER", type: "float", defaultValue: 0 },
               { name: "TURN_MODIFIER", type: "float", defaultValue: 0 },

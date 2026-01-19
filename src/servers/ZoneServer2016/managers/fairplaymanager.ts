@@ -3,7 +3,7 @@
 //   GNU GENERAL PUBLIC LICENSE
 //   Version 3, 29 June 2007
 //   copyright (C) 2020 - 2021 Quentin Gruber
-//   copyright (C) 2021 - 2025 H1emu community
+//   copyright (C) 2021 - 2026 H1emu community
 //
 //   https://github.com/QuentinGruber/h1z1-server
 //   https://www.npmjs.com/package/h1z1-server
@@ -740,9 +740,9 @@ export class FairPlayManager {
       return false;
     }
     return (
-      file1.crc32_hash == file2.crc32_hash ||
+      file1.crc32_hash == file2.crc32_hash /*||
       file1.old_crc32_hash == file2.crc32_hash ||
-      file2.old_crc32_hash == file1.crc32_hash
+      file2.old_crc32_hash == file1.crc32_hash*/
     );
   }
 

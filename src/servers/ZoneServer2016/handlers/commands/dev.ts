@@ -3,7 +3,7 @@
 //   GNU GENERAL PUBLIC LICENSE
 //   Version 3, 29 June 2007
 //   copyright (C) 2020 - 2021 Quentin Gruber
-//   copyright (C) 2021 - 2025 H1emu community
+//   copyright (C) 2021 - 2026 H1emu community
 //
 //   https://github.com/QuentinGruber/h1z1-server
 //   https://www.npmjs.com/package/h1z1-server
@@ -983,6 +983,28 @@ const dev: any = {
     client.character._resources[Number(args[1])] = Number(args[2]);
 
     server.sendChatText(client, "Setting character resource");
+  },
+  deleteresource: function (
+    server: ZoneServer2016,
+    client: Client,
+    args: Array<string>
+  ) {
+    if (!args[1]) {
+      server.sendChatText(client, "Missing resourceId");
+      return;
+    }
+
+    delete client.character._resources[Number(args[1])];
+
+    server.sendData(client, "ResourceEvent", {
+      eventData: {
+        type: 4,
+        value: {
+          characterId: client.character.characterId,
+          resourceId: Number(args[1])
+        }
+      }
+    });
   },
   report: function (
     server: ZoneServer2016,
