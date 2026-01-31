@@ -440,7 +440,7 @@ export class SOEServer extends EventEmitter {
           console.log("Raw data received from client", clientId, data);
           this.emit("appdata", client, data, true); // Unreliable + Unordered
         } else {
-          console.log(
+          debug(
             "Raw data received from client but raw data reception isn't enabled",
             clientId,
             data
