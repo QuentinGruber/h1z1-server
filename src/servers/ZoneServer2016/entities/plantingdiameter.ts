@@ -115,24 +115,30 @@ export class PlantingDiameter extends TemporaryEntity {
     const weapon = client.character.getEquippedWeapon();
     if (!weapon) return false;
 
+    if (weapon.itemDefinitionId != Items.WEAPON_HAMMER_DEMOLITION) {
+      return false;
+    }
+
+    if (Date.now() - this.placementTime > 120_000) {
+      return false;
+    }
+
     const parentFoundations = Object.values(
       server._constructionFoundations
     ).filter((foundation) => foundation.isInside(this.state.position));
 
-    for (const foundation of parentFoundations) {
-      if (
-        foundation.getHasPermission(
-          server,
-          client.character.characterId,
-          ConstructionPermissionIds.DEMOLISH
-        ) &&
-        Date.now() < this.placementTime + 120000 &&
-        weapon.itemDefinitionId == Items.WEAPON_HAMMER_DEMOLITION
-      ) {
-        return true;
-      }
+    const hasAllPermissions = parentFoundations.every((foundation) =>
+      foundation.getHasPermission(
+        server,
+        client.character.characterId,
+        ConstructionPermissionIds.DEMOLISH
+      )
+    );
+
+    if (hasAllPermissions && Object.keys(this.seedSlots).length == 0) {
+      return true;
     }
 
-    return client.character.characterId == this.ownerCharacterId;
+    return false;
   }
 }
