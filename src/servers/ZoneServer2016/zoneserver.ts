@@ -1305,6 +1305,7 @@ export class ZoneServer2016 extends EventEmitter {
       ]?.getParentFoundation(this);
 
     for (const object of client.spawnedEntities) {
+      if (object instanceof Plant) continue; // Don't include plants (seeds and crops)
       if (object instanceof ItemObject) {
         let yDistance = 1;
         if (
