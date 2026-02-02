@@ -572,56 +572,61 @@ export class LoginServer extends EventEmitter {
       case "nameValidationRequest":
         const characterName = String(packet.result.characterName);
         let status = isValidCharacterName(characterName);
-        if (!this._soloMode) {
-          // So we don't care about the case
-          const characterNameRegex = new RegExp(`^${characterName}$`, "i");
-          const blackListedEntries = await this._db
-            .collection(DB_COLLECTIONS.BLACK_LIST_ENTRIES)
-            .aggregate([
-              {
-                $match: {
-                  $or: [
-                    {
-                      IGNORE_SUBSTRING_CHECKS: 0,
-                      $expr: {
-                        $gte: [
-                          {
-                            $indexOfCP: [
-                              { $toLower: characterName },
-                              { $toLower: "$WORD" }
-                            ]
-                          },
-                          0
-                        ]
+        if (!this._soloMode && status != NAME_VALIDATION_STATUS.INVALID) {
+          try {
+            // So we don't care about the case
+            const characterNameRegex = new RegExp(`^${characterName}$`, "i");
+            const blackListedEntries = await this._db
+              .collection(DB_COLLECTIONS.BLACK_LIST_ENTRIES)
+              .aggregate([
+                {
+                  $match: {
+                    $or: [
+                      {
+                        IGNORE_SUBSTRING_CHECKS: 0,
+                        $expr: {
+                          $gte: [
+                            {
+                              $indexOfCP: [
+                                { $toLower: characterName },
+                                { $toLower: "$WORD" }
+                              ]
+                            },
+                            0
+                          ]
+                        }
+                      },
+                      {
+                        REQUIRES_EXACT_MATCH: 1,
+                        WORD: characterNameRegex
                       }
-                    },
-                    {
-                      REQUIRES_EXACT_MATCH: 1,
-                      WORD: characterNameRegex
-                    }
-                  ]
+                    ]
+                  }
                 }
+              ])
+              .toArray();
+            if (blackListedEntries && blackListedEntries.length) {
+              const blackListedEntry = blackListedEntries[0];
+              if (blackListedEntry.FILTER_TYPE === 3) {
+                status = NAME_VALIDATION_STATUS.RESERVED;
+              } else {
+                status = NAME_VALIDATION_STATUS.PROFANE;
               }
-            ])
-            .toArray();
-          if (blackListedEntries && blackListedEntries.length) {
-            const blackListedEntry = blackListedEntries[0];
-            if (blackListedEntry.FILTER_TYPE === 3) {
-              status = NAME_VALIDATION_STATUS.RESERVED;
             } else {
-              status = NAME_VALIDATION_STATUS.PROFANE;
+              const duplicateCharacter = await this._db
+                .collection(DB_COLLECTIONS.CHARACTERS_LIGHT)
+                .findOne({
+                  "payload.name": { $regex: characterNameRegex },
+                  serverId: packet.serverId,
+                  status: 1
+                });
+              if (duplicateCharacter) {
+                status = NAME_VALIDATION_STATUS.TAKEN;
+              }
             }
-          } else {
-            const duplicateCharacter = await this._db
-              .collection(DB_COLLECTIONS.CHARACTERS_LIGHT)
-              .findOne({
-                "payload.name": { $regex: characterNameRegex },
-                serverId: packet.serverId,
-                status: 1
-              });
-            if (duplicateCharacter) {
-              status = NAME_VALIDATION_STATUS.TAKEN;
-            }
+          } catch (e) {
+            console.error(e);
+            status = NAME_VALIDATION_STATUS.INVALID;
           }
         }
         const response = {
