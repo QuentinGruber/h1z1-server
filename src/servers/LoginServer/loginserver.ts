@@ -497,6 +497,9 @@ export class LoginServer extends EventEmitter {
     // In case of shitty json formatting
     sessionIdString = sessionIdString.replaceAll("\\", "");
     try {
+      if (sessionIdString.length > 100) {
+        throw new Error("sessionIdString too long");
+      }
       const sessionIdObject = JSON.parse(sessionIdString);
       authKey = sessionIdObject.sessionId;
       gameVersion = sessionIdObject.gameVersion;
