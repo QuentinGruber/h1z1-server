@@ -30,7 +30,15 @@ test("transientId generator", async () => {
 test("isValidCharacterName", async () => {
   const result = isValidCharacterName("test");
   assert.equal(result, NAME_VALIDATION_STATUS.AVAILABLE);
-  const invalidResult = isValidCharacterName("test@");
+  let invalidResult = isValidCharacterName("test@");
+  assert.equal(invalidResult, NAME_VALIDATION_STATUS.INVALID);
+  invalidResult = isValidCharacterName("THE)");
+  assert.equal(invalidResult, NAME_VALIDATION_STATUS.INVALID);
+  invalidResult = isValidCharacterName("THE");
+  assert.equal(invalidResult, NAME_VALIDATION_STATUS.AVAILABLE);
+  invalidResult = isValidCharacterName("test*");
+  assert.equal(invalidResult, NAME_VALIDATION_STATUS.INVALID);
+  invalidResult = isValidCharacterName(".**");
   assert.equal(invalidResult, NAME_VALIDATION_STATUS.INVALID);
 });
 

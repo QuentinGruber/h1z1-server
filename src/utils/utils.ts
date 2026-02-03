@@ -1436,22 +1436,31 @@ export function registerConstructionSlots(
  * @returns The validation status of the character name.
  */
 export function isValidCharacterName(name: string) {
-  // Regular expression that matches all special characters
-  const specialCharRegex = /[^\w\s]/gi;
+  try {
+    // Original special chars regex (blocks things like !, @, #, etc.)
+    const specialCharRegex = /[^\w\s]/gi;
 
-  // Check if the string is only made up of blank characters
-  const onlyBlankChars = name.replace(/\s/g, "").length === 0;
+    // Additional regex-special characters to block
+    const regexSpecialChars = /[.*+?^${}()|[\]\\]/g;
 
-  // Check if the string contains any special characters
-  const hasSpecialChars = specialCharRegex.test(name);
+    // Check if the string is only made up of whitespace
+    const onlyBlankChars = name.replace(/\s/g, "").length === 0;
 
-  // Return false if the string is only made up of blank characters or contains special characters
-  return !onlyBlankChars &&
-    !hasSpecialChars &&
-    !name.startsWith(" ") &&
-    !name.endsWith(" ")
-    ? NAME_VALIDATION_STATUS.AVAILABLE
-    : NAME_VALIDATION_STATUS.INVALID;
+    // Check if the string contains any special characters or regex special characters
+    const hasSpecialChars =
+      specialCharRegex.test(name) || regexSpecialChars.test(name);
+
+    // Return AVAILABLE only if name passes all checks
+    return !onlyBlankChars &&
+      !hasSpecialChars &&
+      !name.startsWith(" ") &&
+      !name.endsWith(" ")
+      ? NAME_VALIDATION_STATUS.AVAILABLE
+      : NAME_VALIDATION_STATUS.INVALID;
+  } catch (e) {
+    console.error(e);
+    return NAME_VALIDATION_STATUS.INVALID;
+  }
 }
 
 /**
