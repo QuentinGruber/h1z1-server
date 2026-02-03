@@ -56,15 +56,18 @@ export class SOEServer extends EventEmitter {
     this._serverAddressV6 = process.env.SERVER_BIND_ADDRESS_V6 || "::";
     this._cryptoKey = cryptoKey;
     this._maxMultiBufferSize = this._udpLength - 4 - this._crcLength;
+    const isWindows = process.platform === "win32";
     this._connection = dgram.createSocket({
       type: "udp4",
       reuseAddr: true,
+      reusePort: !isWindows,
       recvBufferSize: oneMb * 2,
       sendBufferSize: oneMb
     });
     this._connectionv6 = dgram.createSocket({
       type: "udp6",
       reuseAddr: true,
+      reusePort: !isWindows,
       recvBufferSize: oneMb * 2,
       sendBufferSize: oneMb
     });
