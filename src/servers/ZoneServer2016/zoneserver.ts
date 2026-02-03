@@ -49,7 +49,8 @@ import {
   ItemTypes,
   ItemClasses,
   ResourceIndicators,
-  GameModes
+  GameModes,
+  ReplicationPropertyHash
 } from "./models/enums";
 import { WeatherManager } from "./managers/weathermanager";
 
@@ -195,6 +196,7 @@ import {
   POIChangeMessage,
   PlayerUpdatePosition,
   ReplicationCreateComponent,
+  ReplicationCreateRepData,
   ResourceEvent,
   RewardAddNonRewardItem,
   SendSelfToClient,
@@ -261,7 +263,6 @@ import { ChallengeManager, ChallengeType } from "./managers/challengemanager";
 import { RandomEventsManager } from "./managers/randomeventsmanager";
 import { AiManager } from "./managers/aimanager";
 import { AirdropManager } from "./managers/airdropmanager";
-import { generateWorldItemRepData } from "../../packets/ClientProtocol/ClientProtocol_1080/shared";
 //import { TaskManager } from "./managers/tasksmanager";
 
 const spawnLocations2 = require("../../../data/2016/zoneData/Z1_gridSpawns.json"),
@@ -4035,15 +4036,6 @@ export class ZoneServer2016 extends EventEmitter {
     }
   }
 
-  private removeOODInteractionData(client: Client) {
-    const objectsToRemove = client.sentInteractionData.filter((e) =>
-      this.shouldRemoveEntity(client, e)
-    );
-    client.sentInteractionData = client.sentInteractionData.filter((el) => {
-      return !objectsToRemove.includes(el);
-    });
-  }
-
   despawnEntity(characterId: string) {
     this.sendDataToAll<CharacterRemovePlayer>("Character.RemovePlayer", {
       characterId: characterId
@@ -4114,24 +4106,11 @@ export class ZoneServer2016 extends EventEmitter {
       ...entity.pGetLightweight(),
       nameId
     });
-    if (!(entity instanceof ItemObject) || !entity.isWorldItem) return;
-    this.sendData<ReplicationCreateComponent>(
-      client,
-      "Replication.CreateComponent",
-      {
-        transientId: entity.transientId,
-        stringSize: "ClientNpcComponent".length,
-        componentName: "ClientNpcComponent",
-        properties: [
-          {
-            bufferData: generateWorldItemRepData(entity.nameId)
-          }
-        ]
-      }
-    );
+    this.sendReplicationData(client, entity);
   }
   addSimpleNpc(client: Client, entity: BaseSimpleNpc) {
     this.sendData<AddSimpleNpc>(client, "AddSimpleNpc", entity.pGetSimpleNpc());
+    this.sendReplicationData(client, entity);
   }
 
   spawnSimpleNpcForAllInRange(entity: BaseSimpleNpc) {
@@ -4530,6 +4509,65 @@ export class ZoneServer2016 extends EventEmitter {
       packetName,
       obj,
       SOEOutputChannels.Reliable
+    );
+  }
+
+  sendReplicationData(client: Client, entity: BaseEntity) {
+    if (
+      entity instanceof Crate ||
+      entity instanceof Destroyable ||
+      entity instanceof Character ||
+      (entity instanceof ConstructionChildEntity &&
+        entity.itemDefinitionId == Items.WORKBENCH)
+    )
+      return;
+
+    let nameId = 0;
+    if (entity instanceof BaseLightweightCharacter) {
+      nameId = entity.nameId;
+    }
+
+    this.sendData<ReplicationCreateRepData>(
+      client,
+      "Replication.CreateRepData",
+      {
+        transientId: entity.transientId,
+        sequenceNumber: client.sentInteractionCounter++,
+        propertyHash: ReplicationPropertyHash.ISWORLDITEM
+      }
+    );
+    this.sendData<ReplicationCreateComponent>(
+      client,
+      "Replication.CreateComponent",
+      {
+        transientId: entity.transientId,
+        sequenceNumber: client.sentInteractionCounter++,
+        componentName: "ClientNpcComponent",
+        propertyHash: ReplicationPropertyHash.ISWORLDITEM,
+        payload: {
+          bufferData: {
+            nameId: nameId,
+            componentName: "ClientNpcComponent"
+          }
+        }
+      }
+    );
+
+    this.sendData<ReplicationCreateComponent>(
+      client,
+      "Replication.CreateComponent",
+      {
+        transientId: entity.transientId,
+        componentName: "ClientInteractComponent",
+        sequenceNumber: client.sentInteractionCounter++,
+        propertyHash: ReplicationPropertyHash.UNKNOWN1,
+        payload: {
+          bufferData: {
+            componentName: "ClientInteractComponent",
+            distance: entity instanceof ConstructionParentEntity ? 15 : 3
+          }
+        }
+      }
     );
   }
 
@@ -8888,7 +8926,6 @@ export class ZoneServer2016 extends EventEmitter {
           this.createFairPlayInternalPacket(client);
           this.assignChunkRenderDistance(client);
           this.removeOutOfDistanceEntities(client);
-          this.removeOODInteractionData(client);
           if (!this.disablePOIManager) {
             this.POIManager(client);
           }
