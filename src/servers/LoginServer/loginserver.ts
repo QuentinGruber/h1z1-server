@@ -717,11 +717,15 @@ export class LoginServer extends EventEmitter {
   async sendFileHashes(serverId: number) {
     if (this._soloMode) return;
 
-    this._zoneConnectionManager.sendData(
-      this.getZoneConnectionClient(serverId),
-      "OverrideAllowedFileHashes",
-      { types: [defaultHashes] }
-    );
+    const client = this.getZoneConnectionClient(serverId);
+
+    if (client) {
+      this._zoneConnectionManager.sendData(
+        client,
+        "OverrideAllowedFileHashes",
+        { types: [defaultHashes] }
+      );
+    }
   }
 
   async updateServerStatus(serverId: number, status: boolean) {
@@ -1311,19 +1315,22 @@ export class LoginServer extends EventEmitter {
     return characterLoginInfo.status !== LoginStatus.REJECTED;
   }
 
-  getZoneConnectionClient(serverId: number): LZConnectionClient | undefined {
+  getZoneConnectionClient(serverId: number): LZConnectionClient | null {
     const zoneConnectionIndex = Object.values(this._zoneConnections).findIndex(
       (e) => e === serverId
     );
     const zoneConnectionString = Object.keys(this._zoneConnections)[
       zoneConnectionIndex
     ];
-    const [address, port] = zoneConnectionString.split(":");
+    if (zoneConnectionString) {
+      const [address, port] = zoneConnectionString.split(":");
 
-    const LZClient = new LZConnectionClient({ address, port: Number(port) });
-    // Hack since the loginserver doesn't have a serverId
-    LZClient.serverId = MAX_UINT32;
-    return LZClient;
+      const LZClient = new LZConnectionClient({ address, port: Number(port) });
+      // Hack since the loginserver doesn't have a serverId
+      LZClient.serverId = MAX_UINT32;
+      return LZClient;
+    }
+    return null;
   }
 
   async askZone(
@@ -1335,17 +1342,21 @@ export class LoginServer extends EventEmitter {
       this._internalReqCount++;
       const reqId = this._internalReqCount;
       try {
-        this._zoneConnectionManager.sendData(
-          this.getZoneConnectionClient(serverId),
-          packetName,
-          { reqId: reqId, ...packetObj }
-        );
-        this._pendingInternalReq[reqId] = resolve;
-        this._pendingInternalReqTimeouts[reqId] = setTimeout(() => {
-          delete this._pendingInternalReq[reqId];
-          delete this._pendingInternalReqTimeouts[reqId];
+        const client = this.getZoneConnectionClient(serverId);
+        if (client) {
+          this._zoneConnectionManager.sendData(client, packetName, {
+            reqId: reqId,
+            ...packetObj
+          });
+          this._pendingInternalReq[reqId] = resolve;
+          this._pendingInternalReqTimeouts[reqId] = setTimeout(() => {
+            delete this._pendingInternalReq[reqId];
+            delete this._pendingInternalReqTimeouts[reqId];
+            resolve(0);
+          }, 5000);
+        } else {
           resolve(0);
-        }, 5000);
+        }
       } catch (e) {
         console.error(e);
         resolve(0);
