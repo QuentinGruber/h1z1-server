@@ -168,10 +168,6 @@ import { LoadoutItem } from "./classes/loadoutItem";
 import { BaseItem } from "./classes/baseItem";
 import { Collection } from "mongodb";
 import { ItemObject } from "./entities/itemobject";
-import {
-  generateOldInteractionComponent,
-  generateOldNpcComponent
-} from "../../packets/ClientProtocol/ClientProtocol_1080/shared";
 
 function getStanceFlags(num: number): StanceFlags {
   function getBit(bin: string, bit: number) {
@@ -1939,57 +1935,6 @@ export class ZonePacketHandlers {
     }
     client.character.currentInteractionGuid = guid;
     client.character.lastInteractionStringTime = Date.now();
-    const isNonReplicatable =
-      entity instanceof Destroyable || entity instanceof Character2016;
-    if (
-      entity instanceof BaseLightweightCharacter &&
-      !isNonReplicatable &&
-      !client.sentInteractionData.includes(entity)
-    ) {
-      server.sendData<ReplicationCreateComponent>(
-        client,
-        "Replication.CreateComponent",
-        {
-          transientId: entity.transientId,
-          stringSize: "ClientNpcComponent".length,
-          componentName: "ClientNpcComponent",
-          properties: [
-            {
-              replicationId: 124,
-              propertyHash: ReplicationPropertyHash.ISWORLDITEM,
-              bufferSize: 82,
-              bufferData: generateOldNpcComponent()
-            }
-          ]
-        }
-      );
-      client.sentInteractionData.push(entity);
-      if (
-        !(
-          entity instanceof ConstructionParentEntity ||
-          entity instanceof ConstructionChildEntity ||
-          entity instanceof LootableConstructionEntity
-        )
-      ) {
-        server.sendData<ReplicationCreateComponent>(
-          client,
-          "Replication.CreateComponent",
-          {
-            transientId: entity.transientId,
-            stringSize: "ClientInteractComponent".length,
-            componentName: "ClientInteractComponent",
-            properties: [
-              {
-                replicationId: 0x2e6e,
-                propertyHash: ReplicationPropertyHash.UNKNOWN1,
-                bufferSize: 0xb,
-                bufferData: generateOldInteractionComponent()
-              }
-            ]
-          }
-        );
-      }
-    }
     entity.OnInteractionString(server, client);
   }
   MountSeatChangeRequest(

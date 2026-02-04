@@ -497,6 +497,9 @@ export class LoginServer extends EventEmitter {
     // In case of shitty json formatting
     sessionIdString = sessionIdString.replaceAll("\\", "");
     try {
+      if (sessionIdString.length > 100) {
+        throw new Error("sessionIdString too long");
+      }
       const sessionIdObject = JSON.parse(sessionIdString);
       authKey = sessionIdObject.sessionId;
       gameVersion = sessionIdObject.gameVersion;
@@ -572,56 +575,61 @@ export class LoginServer extends EventEmitter {
       case "nameValidationRequest":
         const characterName = String(packet.result.characterName);
         let status = isValidCharacterName(characterName);
-        if (!this._soloMode) {
-          // So we don't care about the case
-          const characterNameRegex = new RegExp(`^${characterName}$`, "i");
-          const blackListedEntries = await this._db
-            .collection(DB_COLLECTIONS.BLACK_LIST_ENTRIES)
-            .aggregate([
-              {
-                $match: {
-                  $or: [
-                    {
-                      IGNORE_SUBSTRING_CHECKS: 0,
-                      $expr: {
-                        $gte: [
-                          {
-                            $indexOfCP: [
-                              { $toLower: characterName },
-                              { $toLower: "$WORD" }
-                            ]
-                          },
-                          0
-                        ]
+        if (!this._soloMode && status != NAME_VALIDATION_STATUS.INVALID) {
+          try {
+            // So we don't care about the case
+            const characterNameRegex = new RegExp(`^${characterName}$`, "i");
+            const blackListedEntries = await this._db
+              .collection(DB_COLLECTIONS.BLACK_LIST_ENTRIES)
+              .aggregate([
+                {
+                  $match: {
+                    $or: [
+                      {
+                        IGNORE_SUBSTRING_CHECKS: 0,
+                        $expr: {
+                          $gte: [
+                            {
+                              $indexOfCP: [
+                                { $toLower: characterName },
+                                { $toLower: "$WORD" }
+                              ]
+                            },
+                            0
+                          ]
+                        }
+                      },
+                      {
+                        REQUIRES_EXACT_MATCH: 1,
+                        WORD: characterNameRegex
                       }
-                    },
-                    {
-                      REQUIRES_EXACT_MATCH: 1,
-                      WORD: characterNameRegex
-                    }
-                  ]
+                    ]
+                  }
                 }
+              ])
+              .toArray();
+            if (blackListedEntries && blackListedEntries.length) {
+              const blackListedEntry = blackListedEntries[0];
+              if (blackListedEntry.FILTER_TYPE === 3) {
+                status = NAME_VALIDATION_STATUS.RESERVED;
+              } else {
+                status = NAME_VALIDATION_STATUS.PROFANE;
               }
-            ])
-            .toArray();
-          if (blackListedEntries && blackListedEntries.length) {
-            const blackListedEntry = blackListedEntries[0];
-            if (blackListedEntry.FILTER_TYPE === 3) {
-              status = NAME_VALIDATION_STATUS.RESERVED;
             } else {
-              status = NAME_VALIDATION_STATUS.PROFANE;
+              const duplicateCharacter = await this._db
+                .collection(DB_COLLECTIONS.CHARACTERS_LIGHT)
+                .findOne({
+                  "payload.name": { $regex: characterNameRegex },
+                  serverId: packet.serverId,
+                  status: 1
+                });
+              if (duplicateCharacter) {
+                status = NAME_VALIDATION_STATUS.TAKEN;
+              }
             }
-          } else {
-            const duplicateCharacter = await this._db
-              .collection(DB_COLLECTIONS.CHARACTERS_LIGHT)
-              .findOne({
-                "payload.name": { $regex: characterNameRegex },
-                serverId: packet.serverId,
-                status: 1
-              });
-            if (duplicateCharacter) {
-              status = NAME_VALIDATION_STATUS.TAKEN;
-            }
+          } catch (e) {
+            console.error(e);
+            status = NAME_VALIDATION_STATUS.INVALID;
           }
         }
         const response = {
@@ -712,11 +720,15 @@ export class LoginServer extends EventEmitter {
   async sendFileHashes(serverId: number) {
     if (this._soloMode) return;
 
-    this._zoneConnectionManager.sendData(
-      this.getZoneConnectionClient(serverId),
-      "OverrideAllowedFileHashes",
-      { types: [defaultHashes] }
-    );
+    const client = this.getZoneConnectionClient(serverId);
+
+    if (client) {
+      this._zoneConnectionManager.sendData(
+        client,
+        "OverrideAllowedFileHashes",
+        { types: [defaultHashes] }
+      );
+    }
   }
 
   async updateServerStatus(serverId: number, status: boolean) {
@@ -1306,19 +1318,22 @@ export class LoginServer extends EventEmitter {
     return characterLoginInfo.status !== LoginStatus.REJECTED;
   }
 
-  getZoneConnectionClient(serverId: number): LZConnectionClient | undefined {
+  getZoneConnectionClient(serverId: number): LZConnectionClient | null {
     const zoneConnectionIndex = Object.values(this._zoneConnections).findIndex(
       (e) => e === serverId
     );
     const zoneConnectionString = Object.keys(this._zoneConnections)[
       zoneConnectionIndex
     ];
-    const [address, port] = zoneConnectionString.split(":");
+    if (zoneConnectionString) {
+      const [address, port] = zoneConnectionString.split(":");
 
-    const LZClient = new LZConnectionClient({ address, port: Number(port) });
-    // Hack since the loginserver doesn't have a serverId
-    LZClient.serverId = MAX_UINT32;
-    return LZClient;
+      const LZClient = new LZConnectionClient({ address, port: Number(port) });
+      // Hack since the loginserver doesn't have a serverId
+      LZClient.serverId = MAX_UINT32;
+      return LZClient;
+    }
+    return null;
   }
 
   async askZone(
@@ -1330,17 +1345,21 @@ export class LoginServer extends EventEmitter {
       this._internalReqCount++;
       const reqId = this._internalReqCount;
       try {
-        this._zoneConnectionManager.sendData(
-          this.getZoneConnectionClient(serverId),
-          packetName,
-          { reqId: reqId, ...packetObj }
-        );
-        this._pendingInternalReq[reqId] = resolve;
-        this._pendingInternalReqTimeouts[reqId] = setTimeout(() => {
-          delete this._pendingInternalReq[reqId];
-          delete this._pendingInternalReqTimeouts[reqId];
+        const client = this.getZoneConnectionClient(serverId);
+        if (client) {
+          this._zoneConnectionManager.sendData(client, packetName, {
+            reqId: reqId,
+            ...packetObj
+          });
+          this._pendingInternalReq[reqId] = resolve;
+          this._pendingInternalReqTimeouts[reqId] = setTimeout(() => {
+            delete this._pendingInternalReq[reqId];
+            delete this._pendingInternalReqTimeouts[reqId];
+            resolve(0);
+          }, 5000);
+        } else {
           resolve(0);
-        }, 5000);
+        }
       } catch (e) {
         console.error(e);
         resolve(0);

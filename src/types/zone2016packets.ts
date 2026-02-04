@@ -3271,11 +3271,11 @@ export interface NpcFoundationPermissionsManagerBaseShowPermissions {
   permissions?: unknown[];
 }
 export interface ReplicationCreateRepData {
-  replicationId?: number;
+  sequenceNumber?: number;
   propertyHash: number;
   transientId: unknown;
-  sequenceNumber?: number;
-  bufferData?: unknown;
+  unknownByte1?: number;
+  unknownDword1?: number;
 }
 export interface ReplicationUpdateRepData {
   replicationId: number;
@@ -3287,10 +3287,15 @@ export interface ReplicationUpdateRepData {
 }
 export interface ReplicationCreateComponent {
   transientId: unknown;
-  stringSize: number;
   componentName: unknown;
-  unknownDword?: number;
-  properties: unknown[];
+  unknownArray1?: unknown[];
+  unknownDword1?: number;
+  sequenceNumber?: number;
+  propertyHash?: number;
+  unknownByte1?: number;
+  payload :{
+  bufferData?: unknown;
+};
 }
 export interface VehicleSkinSetVehicleSkinManager {
   vehicleId?: string;

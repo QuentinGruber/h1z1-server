@@ -129,14 +129,18 @@ export abstract class BaseLightweightCharacter extends BaseEntity {
       rotation: this.state.rotation,
       modelId: this.actorModelId,
       scale: this.scale,
-      health: (this.health / this.maxHealth) * 100
+      health: this.pGetSimpleProxyHealth().healthPercentage
     };
   }
 
   pGetSimpleProxyHealth() {
+    // Don't show health bars for Stashes, this could be revisited if we ever want to protect stashes so people need to raid them before getting the loot
     return {
       characterId: this.characterId,
-      healthPercentage: (this.health / this.maxHealth) * 100
+      healthPercentage:
+        this.actorModelId == ModelIds.HAND_SHOVEL
+          ? 100
+          : (this.health / this.maxHealth) * 100
     };
   }
 

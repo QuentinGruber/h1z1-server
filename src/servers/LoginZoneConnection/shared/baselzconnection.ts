@@ -33,7 +33,12 @@ export abstract class BaseLZConnection extends EventEmitter {
     this._serverAddress = process.env.SERVER_BIND_ADDRESS || "0.0.0.0";
     this._serverPort = serverPort;
     this._protocol = new LZConnectionProtocol();
-    this._connection = dgram.createSocket("udp4");
+    const isWindows = process.platform === "win32";
+    this._connection = dgram.createSocket({
+      type: "udp4",
+      reuseAddr: true,
+      reusePort: !isWindows
+    });
   }
 
   clientHandler(
