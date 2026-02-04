@@ -64,7 +64,7 @@ export class ZoneClient2016 {
   hudTimer?: NodeJS.Timeout | null = null;
   spawnedDTOs: any[] = [];
   spawnedEntities: Set<BaseEntity> = new Set();
-  sentInteractionData: BaseEntity[] = [];
+  sentInteractionCounter: number = 1;
   searchedProps: (LootableProp | Lootbag)[] = [];
   managedObjects: string[] = [];
   vehicle: {
