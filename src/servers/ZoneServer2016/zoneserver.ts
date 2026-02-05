@@ -780,6 +780,7 @@ export class ZoneServer2016 extends EventEmitter {
     this._loginConnectionManager.on(
       "disconnect",
       (err: string, client: LZConnectionClient, reason: number) => {
+        this._loginConnectionManager.reconnect();
         debug(
           `LoginConnection dropped: ${
             reason ? "Connection Lost" : "Unknown Error"
@@ -4516,9 +4517,7 @@ export class ZoneServer2016 extends EventEmitter {
     if (
       entity instanceof Crate ||
       entity instanceof Destroyable ||
-      entity instanceof Character ||
-      (entity instanceof ConstructionChildEntity &&
-        entity.itemDefinitionId == Items.WORKBENCH)
+      entity instanceof Character
     )
       return;
 
@@ -4527,15 +4526,19 @@ export class ZoneServer2016 extends EventEmitter {
       nameId = entity.nameId;
     }
 
-    this.sendData<ReplicationCreateRepData>(
-      client,
-      "Replication.CreateRepData",
-      {
-        transientId: entity.transientId,
-        sequenceNumber: client.sentInteractionCounter++,
-        propertyHash: ReplicationPropertyHash.ISWORLDITEM
-      }
-    );
+    if (entity instanceof Vehicle) {
+      this.sendData<ReplicationCreateRepData>(
+        client,
+        "Replication.CreateRepData",
+        {
+          transientId: entity.transientId,
+          sequenceNumber: client.sentInteractionCounter++,
+          propertyHash: ReplicationPropertyHash.ISWORLDITEM
+          //unknownDword1: 2029 // Not sure what this means
+        }
+      );
+    }
+
     this.sendData<ReplicationCreateComponent>(
       client,
       "Replication.CreateComponent",
@@ -4564,7 +4567,10 @@ export class ZoneServer2016 extends EventEmitter {
         payload: {
           bufferData: {
             componentName: "ClientInteractComponent",
-            distance: entity instanceof ConstructionParentEntity ? 15 : 3
+            distance: entity.interactionDistance,
+            disableInteractionGlow:
+              entity instanceof ConstructionChildEntity ||
+              entity instanceof ConstructionParentEntity
           }
         }
       }

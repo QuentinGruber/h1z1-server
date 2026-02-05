@@ -41,6 +41,10 @@ export function packClientInteractComponent(obj: any) {
     raw.writeFloatLE(obj["distance"], 0);
   }
 
+  if (obj["disableInteractionGlow"] && obj["disableInteractionGlow"] == true) {
+    raw.writeUint8(1, 9);
+  }
+
   raw.writeUint8(1, raw.length - 1);
   return raw;
 }

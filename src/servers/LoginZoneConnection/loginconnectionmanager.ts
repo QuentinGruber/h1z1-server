@@ -13,6 +13,8 @@
 
 import { LZConnectionClient } from "./shared/lzconnectionclient";
 import { BaseLZConnection } from "./shared/baselzconnection";
+import { Resolver } from "node:dns";
+import { resolveHostAddress } from "./../../utils/utils";
 const debug = require("debug")("BaseLZConnection");
 
 /**
@@ -25,6 +27,7 @@ export class LoginConnectionManager extends BaseLZConnection {
   _loginConnection?: LZConnectionClient;
   _maxConnectionRetry: number = 0;
   _hasBeenConnectedToLogin: boolean = false;
+  _reconnectTimer: NodeJS.Timeout | undefined;
   constructor(serverId: number, serverPort?: number) {
     super(serverPort);
     this.messageHandler = (data: Buffer, client: LZConnectionClient): void => {
@@ -94,6 +97,32 @@ export class LoginConnectionManager extends BaseLZConnection {
         "Can't connect to loginServer " + JSON.stringify(this._loginServerInfo)
       );
     }
+  }
+  async reconnect() {
+    if (this._reconnectTimer) {
+      clearTimeout(this._reconnectTimer);
+    }
+    if (this._hasBeenConnectedToLogin) return;
+    const tryReconnect = async () => {
+      const resolver = new Resolver();
+      const loginServerAddress = await resolveHostAddress(
+        resolver,
+        this._loginServerInfo.address
+      );
+      if (
+        loginServerAddress.length > 0 &&
+        this._loginServerInfo.address != (loginServerAddress[0] as string)
+      ) {
+        this._loginServerInfo.address = loginServerAddress[0] as string;
+      }
+      this.sendData(
+        this._loginServerInfo as LZConnectionClient,
+        "SessionRequest",
+        this._sessionData
+      );
+      this._reconnectTimer = setTimeout(tryReconnect, this._pingTime);
+    };
+    tryReconnect();
   }
 
   setLoginInfo(serverInfo: any, obj: any) {

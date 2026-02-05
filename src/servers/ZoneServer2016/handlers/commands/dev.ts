@@ -1509,9 +1509,9 @@ const dev: any = {
     client: Client,
     args: Array<string>
   ) {
-    // THIS IS CURRENTLY UNSAFE AND WILL RESULT IN THE SAME HOOK BEING CALLED MULTIPLE TIMES!
-
+    // USE WITH CAUTION!
     server.sendChatText(client, "Reloading plugins...");
+    server.hookManager.drop();
     await server.pluginManager.initializePlugins(server);
     server.sendChatText(client, `Loaded ${server.pluginManager.pluginCount}`);
   },

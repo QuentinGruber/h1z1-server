@@ -638,6 +638,12 @@ export class ConstructionChildEntity extends BaseLightweightCharacter {
       case Items.STRUCTURE_STAIRS:
       case Items.STRUCTURE_STAIRS_UPPER:
       case Items.LOOKOUT_TOWER:
+        // Also break down doors on shelter destruction
+        Object.values(this.occupiedWallSlots).forEach((door) => {
+          if (door instanceof ConstructionDoor) {
+            door.destroy(server, destructTime, slotCooldown);
+          }
+        });
         slotMap = parent.occupiedShelterSlots;
         parent.shelterSlotsPlacementTimer[this.getSlotNumber()] = slotCooldown;
         break;
