@@ -102,7 +102,7 @@ export class LoginConnectionManager extends BaseLZConnection {
     if (this._reconnectTimer) {
       clearTimeout(this._reconnectTimer);
     }
-    if(this._hasBeenConnectedToLogin) return;
+    if (this._hasBeenConnectedToLogin) return;
     const tryReconnect = async () => {
       const resolver = new Resolver();
       const loginServerAddress = await resolveHostAddress(
