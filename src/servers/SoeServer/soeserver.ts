@@ -97,8 +97,8 @@ export class SOEServer extends EventEmitter {
         performance.measure("A to B", "A", "B");
       }, intervalTime);
     } catch (e) {
-      console.error(e);
-      console.log("PerformanceObserver not available");
+      debug(e);
+      debug("PerformanceObserver not available");
     }
   }
 
@@ -278,7 +278,7 @@ export class SOEServer extends EventEmitter {
     });
 
     client.inputStream.on("error", (err: Error) => {
-      console.error(err);
+      debug(err);
       this.emit("disconnect", client);
     });
 
@@ -290,7 +290,7 @@ export class SOEServer extends EventEmitter {
     client.outputStream.on(
       SOEOutputChannels.Ordered,
       (data: Buffer, sequence: number) => {
-        console.log("ordered");
+        debug("ordered");
         this._sendAndBuildLogicalPacket(client, SoeOpcode.Ordered, {
           sequence: sequence,
           data: data
@@ -402,8 +402,8 @@ export class SOEServer extends EventEmitter {
         client.outputStream.ack(packet.sequence, client.unAckData);
         break;
       default:
-        console.log(`Unknown SOE packet received from ${client.sessionId}`);
-        console.log(packet);
+        debug(`Unknown SOE packet received from ${client.sessionId}`);
+        debug(packet);
     }
   }
 
@@ -427,8 +427,8 @@ export class SOEServer extends EventEmitter {
         if (raw_parsed_data) {
           const parsed_data = JSON.parse(raw_parsed_data);
           if (parsed_data.name === "Error") {
-            console.error("parsing error " + parsed_data.error);
-            console.error(parsed_data);
+            debug("parsing error " + parsed_data.error);
+            debug(parsed_data);
           } else {
             if (client.lastKeepAliveTimer) {
               client.lastKeepAliveTimer.refresh();
@@ -436,11 +436,11 @@ export class SOEServer extends EventEmitter {
             this.handlePacket(client, parsed_data);
           }
         } else {
-          console.error("Unmanaged packet from client", clientId, data);
+          debug("Unmanaged packet from client", clientId, data);
         }
       } else {
         if (this._allowRawDataReception) {
-          console.log("Raw data received from client", clientId, data);
+          debug("Raw data received from client", clientId, data);
           this.emit("appdata", client, data, true); // Unreliable + Unordered
         } else {
           debug(
@@ -451,7 +451,7 @@ export class SOEServer extends EventEmitter {
         }
       }
     } catch (e) {
-      console.log(e);
+      debug(e);
       process.exitCode = 1;
     }
   }
@@ -663,7 +663,7 @@ export class SOEServer extends EventEmitter {
       );
       return logicalPacket;
     } catch (e) {
-      console.error(
+      debug(
         `Failed to create packet ${packetOpcode} packet data : ${JSON.stringify(
           packet,
           null,
