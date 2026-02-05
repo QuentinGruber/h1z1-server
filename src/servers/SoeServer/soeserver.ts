@@ -97,8 +97,8 @@ export class SOEServer extends EventEmitter {
         performance.measure("A to B", "A", "B");
       }, intervalTime);
     } catch (e) {
-      debug(e);
-      debug("PerformanceObserver not available");
+      console.error(e);
+      console.log("PerformanceObserver not available");
     }
   }
 
@@ -451,7 +451,7 @@ export class SOEServer extends EventEmitter {
         }
       }
     } catch (e) {
-      debug(e);
+      console.log(e);
       process.exitCode = 1;
     }
   }
