@@ -780,6 +780,7 @@ export class ZoneServer2016 extends EventEmitter {
     this._loginConnectionManager.on(
       "disconnect",
       (err: string, client: LZConnectionClient, reason: number) => {
+        this._loginConnectionManager.reconnect();
         debug(
           `LoginConnection dropped: ${
             reason ? "Connection Lost" : "Unknown Error"
