@@ -4564,7 +4564,7 @@ export class ZoneServer2016 extends EventEmitter {
         payload: {
           bufferData: {
             componentName: "ClientInteractComponent",
-            distance: entity instanceof ConstructionParentEntity ? 15 : 3
+            distance: entity.interactionDistance
           }
         }
       }
