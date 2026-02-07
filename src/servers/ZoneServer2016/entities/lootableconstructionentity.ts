@@ -32,7 +32,6 @@ import { CharacterPlayWorldCompositeEffect } from "types/zone2016packets";
 import { scheduler } from "timers/promises";
 import { BaseEntity } from "./baseentity";
 import { isPosInRadius } from "../../../utils/utils";
-import { ExplosiveEntity } from "./explosiveentity";
 
 function getMaxHealth(itemDefinitionId: Items): number {
   switch (itemDefinitionId) {
@@ -374,19 +373,13 @@ export class LootableConstructionEntity extends BaseLootableEntity {
     if (!isPosInRadius(2, this.state.position, sourceEntity.state.position))
       return;
 
-    const itemDefinitionId =
-      sourceEntity instanceof ExplosiveEntity
-        ? sourceEntity.itemDefinitionId
-        : 0;
-
     if (server._worldLootableConstruction[this.characterId]) {
       server.constructionManager.checkConstructionDamage(
         server,
         this,
         server.baseConstructionDamage,
-        sourceEntity.state.position,
         this.state.position,
-        itemDefinitionId
+        sourceEntity
       );
       return;
     }
@@ -403,9 +396,8 @@ export class LootableConstructionEntity extends BaseLootableEntity {
       server,
       this,
       server.baseConstructionDamage,
-      sourceEntity.state.position,
       this.state.position,
-      itemDefinitionId
+      sourceEntity
     );
   }
 }

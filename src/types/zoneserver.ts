@@ -161,6 +161,7 @@ export interface DamageInfo {
   hitReport?: HitReport;
   message?: string;
   meleeType?: number;
+  explosive?: boolean;
 }
 
 export interface DamageRecord {

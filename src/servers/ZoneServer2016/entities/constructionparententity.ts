@@ -39,7 +39,6 @@ import {
   wallSlotDefinitions
 } from "../data/constructionslots";
 import { BaseEntity } from "./baseentity";
-import { ExplosiveEntity } from "./explosiveentity";
 
 function getDamageRange(definitionId: number): number {
   switch (definitionId) {
@@ -840,6 +839,7 @@ export class ConstructionParentEntity extends ConstructionChildEntity {
 
   destroy(
     server: ZoneServer2016,
+    damageInfo: DamageInfo = { entity: "", damage: 0 },
     destructTime = 0,
     slotCooldown = 30000
   ): boolean {
@@ -1056,7 +1056,7 @@ export class ConstructionParentEntity extends ConstructionChildEntity {
       if (parentFoundation) parentFoundation.lastDamagedTimestamp = timestamp;
     }
     if (this.health > 0) return;
-    this.destroy(server, 3000);
+    this.destroy(server, damageInfo, 3000);
   }
 
   OnExplosiveHit(server: ZoneServer2016, sourceEntity: BaseEntity) {
@@ -1072,11 +1072,6 @@ export class ConstructionParentEntity extends ConstructionChildEntity {
     )
       return;
 
-    const itemDefinitionId =
-      sourceEntity instanceof ExplosiveEntity
-        ? sourceEntity.itemDefinitionId
-        : 0;
-
     switch (this.itemDefinitionId) {
       case Items.SHACK:
       case Items.SHACK_SMALL:
@@ -1085,9 +1080,8 @@ export class ConstructionParentEntity extends ConstructionChildEntity {
           server,
           this,
           server.baseConstructionDamage,
-          sourceEntity.state.position,
           this.state.position,
-          itemDefinitionId
+          sourceEntity
         );
     }
   }

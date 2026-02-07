@@ -2779,7 +2779,23 @@ export class ZoneServer2016 extends EventEmitter {
       client.character.characterStates,
       false
     );
+    let inventoryDropped = false;
     if (!client.isLoading) {
+      if (client.vehicle.mountedVehicle) {
+        const vehicle = this._vehicles[client.vehicle.mountedVehicle];
+        if (vehicle?.getDriver(this) == client.character) {
+          const container = vehicle.getContainer();
+          if (container) {
+            inventoryDropped = true;
+            Object.assign(
+              container.items,
+              client.character.getDeathItems(this)
+            );
+          }
+        }
+        this.dismountVehicle(client);
+      }
+
       this.sendData<CharacterStartMultiStateDeath>(
         client,
         "Character.StartMultiStateDeath",
@@ -2826,23 +2842,7 @@ export class ZoneServer2016 extends EventEmitter {
 
     client.character.dismountContainer(this);
 
-    if (client.vehicle.mountedVehicle) {
-      const vehicle = this._vehicles[client.vehicle.mountedVehicle];
-      if (vehicle) {
-        const container = vehicle?.getContainer();
-
-        if (vehicle && container) {
-          container.items = {
-            ...container.items,
-            ...client.character.getDeathItems(this)
-          };
-        }
-        // Wait untill killCharacter is finished for dismountVehicle (if not, there will be no option for the dead occupant to respawn)
-        this.once("killCharacterComplete", (client) => {
-          this.dismountVehicle(client);
-        });
-      }
-    } else {
+    if (!inventoryDropped) {
       Object.values(client.character._loadout).forEach((slot: LoadoutItem) => {
         // need to find a better way later, if out of bulk ammo will be outside of lootbag
         if (slot.weapon) {
@@ -2870,7 +2870,6 @@ export class ZoneServer2016 extends EventEmitter {
     this.clearInventory(client, false);
     this.sendKillFeed(client, damageInfo);
     this.hookManager.checkHook("OnPlayerDied", client, damageInfo);
-    this.emit("killCharacterComplete", client); // Throw emit for dismounting character from vehicle
   }
 
   sendKillFeed(client: Client, damageInfo: DamageInfo) {

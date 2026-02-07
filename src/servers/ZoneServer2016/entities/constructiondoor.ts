@@ -31,7 +31,6 @@ import { ConstructionParentEntity } from "./constructionparententity";
 import { ConstructionChildEntity } from "./constructionchildentity";
 import { CUSTOM_PROFILES_IDS } from "../../../utils/enums";
 import { BaseEntity } from "./baseentity";
-import { ExplosiveEntity } from "./explosiveentity";
 function getDamageRange(definitionId: number): number {
   switch (definitionId) {
     case Items.METAL_GATE:
@@ -167,11 +166,12 @@ export class ConstructionDoor extends DoorEntity {
     }
 
     if (this.health > 0) return;
-    this.destroy(server, 3000);
+    this.destroy(server, damageInfo, 3000);
   }
 
   destroy(
     server: ZoneServer2016,
+    damageInfo: DamageInfo = { entity: "", damage: 0 },
     destructTime = 0,
     slotCooldown = 30000
   ): boolean {
@@ -433,10 +433,6 @@ export class ConstructionDoor extends DoorEntity {
     if (server.isPvE) {
       return;
     }
-    const itemDefinitionId =
-      sourceEntity instanceof ExplosiveEntity
-        ? sourceEntity.itemDefinitionId
-        : 0;
 
     if (
       !isPosInRadius(
@@ -462,9 +458,8 @@ export class ConstructionDoor extends DoorEntity {
       server,
       this,
       server.baseConstructionDamage,
-      sourceEntity.state.position,
       this.fixedPosition ? this.fixedPosition : this.state.position,
-      itemDefinitionId
+      sourceEntity
     );
   }
 }
