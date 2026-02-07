@@ -85,7 +85,6 @@ import {
 import { ConstructionDoor } from "./constructiondoor";
 import { LootableConstructionEntity } from "./lootableconstructionentity";
 import { BaseEntity } from "./baseentity";
-import { ExplosiveEntity } from "./explosiveentity";
 import { DB_COLLECTIONS } from "../../../utils/enums";
 function getDamageRange(definitionId: Items): number {
   switch (definitionId) {

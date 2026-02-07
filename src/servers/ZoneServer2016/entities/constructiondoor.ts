@@ -31,7 +31,6 @@ import { ConstructionParentEntity } from "./constructionparententity";
 import { ConstructionChildEntity } from "./constructionchildentity";
 import { CUSTOM_PROFILES_IDS } from "../../../utils/enums";
 import { BaseEntity } from "./baseentity";
-import { ExplosiveEntity } from "./explosiveentity";
 function getDamageRange(definitionId: number): number {
   switch (definitionId) {
     case Items.METAL_GATE:

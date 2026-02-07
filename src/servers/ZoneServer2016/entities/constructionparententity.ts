@@ -39,7 +39,6 @@ import {
   wallSlotDefinitions
 } from "../data/constructionslots";
 import { BaseEntity } from "./baseentity";
-import { ExplosiveEntity } from "./explosiveentity";
 
 function getDamageRange(definitionId: number): number {
   switch (definitionId) {
