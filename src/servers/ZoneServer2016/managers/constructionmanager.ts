@@ -2887,9 +2887,11 @@ export class ConstructionManager {
     constructionObject: ConstructionEntity,
     damage: number,
     position: Float32Array,
-    entityPosition: Float32Array,
-    itemDefinitionId: number
+    entity: BaseEntity
   ) {
+    const itemDefinitionId =
+        entity instanceof ExplosiveEntity ? entity.itemDefinitionId : 0,
+      entityPosition = entity.state.position;
     switch (itemDefinitionId) {
       case Items.IED:
       case Items.LANDMINE:
@@ -2908,11 +2910,12 @@ export class ConstructionManager {
     const distance = getDistance(entityPosition, position);
 
     constructionObject.damage(server, {
-      entity: "",
+      entity: entity.characterId,
       damage:
         distance < constructionObject.damageRange
           ? damage
-          : damage / Math.sqrt(distance)
+          : damage / Math.sqrt(distance),
+      explosive: true
     });
   }
 

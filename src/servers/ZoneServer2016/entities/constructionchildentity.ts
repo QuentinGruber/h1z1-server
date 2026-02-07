@@ -554,7 +554,7 @@ export class ConstructionChildEntity extends BaseLightweightCharacter {
     }
 
     if (this.health > 0) return;
-    this.destroy(server, 3000, hasPerms ? 30000 : 0);
+    this.destroy(server, damageInfo, 3000, hasPerms ? 30000 : 0);
   }
 
   isInside(position: Float32Array) {
@@ -595,6 +595,7 @@ export class ConstructionChildEntity extends BaseLightweightCharacter {
 
   destroy(
     server: ZoneServer2016,
+    damageInfo: DamageInfo = { entity: "", damage: 0 },
     destructTime = 0,
     slotCooldown = 30000
   ): boolean {
@@ -639,11 +640,13 @@ export class ConstructionChildEntity extends BaseLightweightCharacter {
       case Items.STRUCTURE_STAIRS_UPPER:
       case Items.LOOKOUT_TOWER:
         // Also break down doors on shelter destruction
-        Object.values(this.occupiedWallSlots).forEach((door) => {
-          if (door instanceof ConstructionDoor) {
-            door.destroy(server, destructTime, slotCooldown);
-          }
-        });
+        if (damageInfo?.explosive) {
+          Object.values(this.occupiedWallSlots).forEach((slot) => {
+            if (slot instanceof ConstructionDoor) {
+              slot.destroy(server, damageInfo, destructTime, slotCooldown);
+            }
+          });
+        }
         slotMap = parent.occupiedShelterSlots;
         parent.shelterSlotsPlacementTimer[this.getSlotNumber()] = slotCooldown;
         break;
@@ -797,11 +800,6 @@ export class ConstructionChildEntity extends BaseLightweightCharacter {
     )
       return;
 
-    const itemDefinitionId =
-      sourceEntity instanceof ExplosiveEntity
-        ? sourceEntity.itemDefinitionId
-        : 0;
-
     if (
       server._worldSimpleConstruction[this.characterId] &&
       isPosInRadius(4, this.state.position, sourceEntity.state.position)
@@ -810,9 +808,8 @@ export class ConstructionChildEntity extends BaseLightweightCharacter {
         server,
         this,
         server.baseConstructionDamage,
-        sourceEntity.state.position,
         this.state.position,
-        itemDefinitionId
+        sourceEntity
       );
       return;
     }
@@ -844,9 +841,8 @@ export class ConstructionChildEntity extends BaseLightweightCharacter {
           server,
           this,
           damage,
-          sourceEntity.state.position,
           this.fixedPosition ? this.fixedPosition : this.state.position,
-          itemDefinitionId
+          sourceEntity
         );
         if (!client) return;
         server.constructionManager.sendBaseSecuredMessage(server, client, 1);
@@ -861,9 +857,8 @@ export class ConstructionChildEntity extends BaseLightweightCharacter {
       server,
       this,
       server.baseConstructionDamage,
-      sourceEntity.state.position,
       this.fixedPosition ? this.fixedPosition : this.state.position,
-      itemDefinitionId
+      sourceEntity
     );
   }
 }
