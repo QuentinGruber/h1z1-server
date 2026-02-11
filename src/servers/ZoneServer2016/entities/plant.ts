@@ -78,7 +78,10 @@ export class Plant extends ItemObject {
     const parent = server._temporaryObjects[
       parentObjectCharacterId
     ] as PlantingDiameter;
-    if (parent.isFertilized) this.isFertilized = true;
+    if (parent.isFertilized) {
+      this.isFertilized = true;
+      this.nextStateTime = new Date().getTime() + this.growTime / 2;
+    }
     if (this.item.itemDefinitionId == Items.SEED_CORN) {
       this.nameId = StringIds.CORN;
     } else this.nameId = StringIds.WHEAT;
