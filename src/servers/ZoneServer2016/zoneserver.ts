@@ -4549,7 +4549,8 @@ export class ZoneServer2016 extends EventEmitter {
         payload: {
           bufferData: {
             nameId: nameId,
-            componentName: "ClientNpcComponent"
+            componentName: "ClientNpcComponent",
+            worldItem: entity instanceof ItemObject
           }
         }
       }
