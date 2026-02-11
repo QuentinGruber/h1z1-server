@@ -32,6 +32,9 @@ export class Plant extends ItemObject {
 
   /** Next time (milliseconds) that the crop will enter the next state */
   nextStateTime: number;
+  
+  /** Next time (milliseconds) that a fertilizer mound can appear */
+  nextMoundTime: number = 0;
 
   /** Time (milliseconds) it takes for a crop to enter the next state - Default: 8hrs */
   readonly growTime = 28800000;
@@ -188,8 +191,9 @@ export class Plant extends ItemObject {
   }
 
   OnInteractionString(server: ZoneServer2016, client: ZoneClient2016): void {
-    if (this.isFertilized) {
+    if (this.isFertilized && new Date().getTime() > this.nextMoundTime) {
       const pos = this.state.position;
+      this.nextMoundTime = new Date().getTime() + 180000;
       server.sendData<CharacterPlayWorldCompositeEffect>(client, "Character.PlayWorldCompositeEffect",
         {
           characterId: this.characterId,
@@ -210,11 +214,13 @@ export class Plant extends ItemObject {
     server: ZoneServer2016,
     client: ZoneClient2016
   ): void {
+    /*
     if (!this.isFertilized) return;
     server.sendData(client, "Command.PlayDialogEffect", {
       characterId: this.characterId,
       effectId: Effects.EFX_Crop_Fertilizer
     });
+    */
   }
 
   destroy(server: ZoneServer2016): boolean {
