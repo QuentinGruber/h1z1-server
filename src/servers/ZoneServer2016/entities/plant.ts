@@ -126,21 +126,6 @@ export class Plant extends ItemObject {
         modelId: this.actorModelId
       }
     );
-    if (this.isFertilized) {
-      const pos = this.state.position;
-      server.sendDataToAllWithSpawnedEntity<CharacterPlayWorldCompositeEffect>(
-        // play burning effect & remove it after 15s
-        server._plants,
-        this.characterId,
-        "Character.PlayWorldCompositeEffect",
-        {
-          characterId: this.characterId,
-          effectId: Effects.EFX_Crop_Fertilizer,
-          position: new Float32Array([pos[0], pos[1], pos[2], 1]),
-          effectTime: 180
-        }
-      );
-    }
     const timeToAdd = this.isFertilized ? this.growTime / 2 : this.growTime; // 4 or 8h based on fertilized or not
     this.nextStateTime = new Date().getTime() + timeToAdd;
   }
@@ -203,6 +188,17 @@ export class Plant extends ItemObject {
   }
 
   OnInteractionString(server: ZoneServer2016, client: ZoneClient2016): void {
+    if (this.isFertilized) {
+      const pos = this.state.position;
+      server.sendData<CharacterPlayWorldCompositeEffect>(client, "Character.PlayWorldCompositeEffect",
+        {
+          characterId: this.characterId,
+          effectId: Effects.EFX_Crop_Fertilizer,
+          position: new Float32Array([pos[0], pos[1], pos[2], 1]),
+          effectTime: 180
+        }
+      );
+    }
     if (this.growState != 3) return;
     server.sendData(client, "Command.InteractionString", {
       guid: this.characterId,
