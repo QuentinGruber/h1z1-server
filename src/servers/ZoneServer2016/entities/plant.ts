@@ -163,6 +163,7 @@ export class Plant extends ItemObject {
       this.parentObjectCharacterId
     ] as PlantingDiameter;
     delete parent.seedSlots[this.slot];
+    parent.disappearTimestamp = new Date().getTime() + 86400000;
 
     switch (this.item.itemDefinitionId) {
       case Items.SEED_WHEAT:
