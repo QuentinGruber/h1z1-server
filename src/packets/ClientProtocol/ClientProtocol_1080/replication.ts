@@ -23,7 +23,15 @@ export function packComponentNameString(name: string) {
 }
 
 export function packClientNpcComponent(obj: any) {
-  const raw: Buffer = Buffer.alloc(78);
+  let raw: Buffer;
+  
+  if (obj["worldItem"]) {
+    raw = Buffer.alloc(78);
+    raw.writeUint8(1, raw.length - 1);
+  }
+  else {
+    raw = Buffer.alloc(16);
+  }
   if (obj["nameId"]) {
     raw.writeUInt32LE(obj["nameId"], 12);
   }
@@ -31,7 +39,6 @@ export function packClientNpcComponent(obj: any) {
   raw.writeUint8(122, 0);
   raw.writeUint8(2, 1);
 
-  raw.writeUint8(1, raw.length - 1);
   return raw;
 }
 

@@ -32,6 +32,9 @@ export class Plant extends ItemObject {
 
   /** Next time (milliseconds) that the crop will enter the next state */
   nextStateTime: number;
+  
+  /** Next time (milliseconds) that a fertilizer mound can appear */
+  nextMoundTime: number = 0;
 
   /** Time (milliseconds) it takes for a crop to enter the next state - Default: 8hrs */
   readonly growTime = 28800000;
@@ -78,7 +81,10 @@ export class Plant extends ItemObject {
     const parent = server._temporaryObjects[
       parentObjectCharacterId
     ] as PlantingDiameter;
-    if (parent.isFertilized) this.isFertilized = true;
+    if (parent.isFertilized) {
+      this.isFertilized = true;
+      this.nextStateTime = new Date().getTime() + this.growTime / 2;
+    }
     if (this.item.itemDefinitionId == Items.SEED_CORN) {
       this.nameId = StringIds.CORN;
     } else this.nameId = StringIds.WHEAT;
@@ -123,21 +129,6 @@ export class Plant extends ItemObject {
         modelId: this.actorModelId
       }
     );
-    if (this.isFertilized) {
-      const pos = this.state.position;
-      server.sendDataToAllWithSpawnedEntity<CharacterPlayWorldCompositeEffect>(
-        // play burning effect & remove it after 15s
-        server._plants,
-        this.characterId,
-        "Character.PlayWorldCompositeEffect",
-        {
-          characterId: this.characterId,
-          effectId: Effects.EFX_Crop_Fertilizer,
-          position: new Float32Array([pos[0], pos[1], pos[2], 1]),
-          effectTime: 180
-        }
-      );
-    }
     const timeToAdd = this.isFertilized ? this.growTime / 2 : this.growTime; // 4 or 8h based on fertilized or not
     this.nextStateTime = new Date().getTime() + timeToAdd;
   }
@@ -172,6 +163,7 @@ export class Plant extends ItemObject {
       this.parentObjectCharacterId
     ] as PlantingDiameter;
     delete parent.seedSlots[this.slot];
+    parent.disappearTimestamp = new Date().getTime() + 86400000;
 
     switch (this.item.itemDefinitionId) {
       case Items.SEED_WHEAT:
@@ -200,6 +192,18 @@ export class Plant extends ItemObject {
   }
 
   OnInteractionString(server: ZoneServer2016, client: ZoneClient2016): void {
+    if (this.isFertilized && new Date().getTime() > this.nextMoundTime) {
+      const pos = this.state.position;
+      this.nextMoundTime = new Date().getTime() + 180000;
+      server.sendData<CharacterPlayWorldCompositeEffect>(client, "Character.PlayWorldCompositeEffect",
+        {
+          characterId: this.characterId,
+          effectId: Effects.EFX_Crop_Fertilizer,
+          position: new Float32Array([pos[0], pos[1], pos[2], 1]),
+          effectTime: 180
+        }
+      );
+    }
     if (this.growState != 3) return;
     server.sendData(client, "Command.InteractionString", {
       guid: this.characterId,
@@ -211,11 +215,13 @@ export class Plant extends ItemObject {
     server: ZoneServer2016,
     client: ZoneClient2016
   ): void {
+    /*
     if (!this.isFertilized) return;
     server.sendData(client, "Command.PlayDialogEffect", {
       characterId: this.characterId,
       effectId: Effects.EFX_Crop_Fertilizer
     });
+    */
   }
 
   destroy(server: ZoneServer2016): boolean {
