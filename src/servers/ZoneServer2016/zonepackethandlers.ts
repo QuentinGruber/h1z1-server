@@ -1957,29 +1957,12 @@ export class ZonePacketHandlers {
     ) {
       return;
     }
-    const array = new Float32Array([
-      packet.data.rotation1[3],
-      packet.data.rotation1[1],
-      packet.data.rotation2[2]
-    ]);
-    const matrix = quat2matrix(array);
-    const euler = [
-      Math.atan2(matrix[7], matrix[8]),
-      Math.atan2(
-        -matrix[6],
-        Math.sqrt(Math.pow(matrix[7], 2) + Math.pow(matrix[8], 2))
-      ),
-      Math.atan2(matrix[3], matrix[0])
-    ];
-    let final;
-    if (euler[0] >= 0) {
-      final = new Float32Array([euler[1], 0, 0, 0]);
-    } else {
-      final = new Float32Array([euler[2], 0, 0, 0]);
-    }
-    if (Math.abs(final[0]) < 0.01) {
-      final[0] = 0;
-    }
+
+    const y = packet.data.rotation1[1],
+      w = packet.data.rotation1[3],
+      yaw = Math.atan2(-w, y),
+      final = new Float32Array([yaw, 0, 0, 0]);
+
     const modelId = server.getItemDefinition(
       packet.data.itemDefinitionId
     )?.PLACEMENT_MODEL_ID;
