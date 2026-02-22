@@ -4352,6 +4352,12 @@ export class ZoneServer2016 extends EventEmitter {
         }
 
         if (client.spawnedEntities.has(object)) continue;
+        if (object instanceof LootableConstructionEntity) continue;
+        if (object instanceof ConstructionChildEntity &&
+          (object.itemDefinitionId == Items.WORKBENCH ||
+            object.itemDefinitionId == Items.WORKBENCH_WEAPON 
+          )
+        ) continue;
 
         if (object instanceof BaseSimpleNpc) {
           if (object instanceof Crate) {
