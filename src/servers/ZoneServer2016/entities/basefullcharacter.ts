@@ -637,13 +637,6 @@ export abstract class BaseFullCharacter extends BaseLightweightCharacter {
       availableContainer = this.getAvailableContainer(server, itemDefId, count);
 
     if (!availableContainer) {
-      // container error full
-      if (client) {
-        server.sendData(client, "Character.NoSpaceNotification", {
-          characterId: client.character.characterId
-        });
-      }
-
       this.getSortedContainers().forEach((c) => {
         if (item.stackCount <= 0) return;
         if (array.includes(c)) return;
@@ -666,12 +659,46 @@ export abstract class BaseFullCharacter extends BaseLightweightCharacter {
         }
       });
       if (item.stackCount > 0) {
-        server.worldObjectManager.createLootEntity(
-          server,
-          item,
-          this.state.position,
-          new Float32Array([0, Number(Math.random() * 10 - 5), 0, 1])
-        );
+        if (client?.character.mountedContainer) {
+          const mountedContainer =
+            client.character.mountedContainer.getContainer();
+          if (mountedContainer) {
+            const itemStack = mountedContainer.getAvailableItemStack(
+              server,
+              item.itemDefinitionId,
+              item.stackCount
+            );
+            if (itemStack) {
+              const targetItem = mountedContainer.items[itemStack];
+              targetItem.stackCount += item.stackCount;
+              server.updateContainerItem(
+                client.character.mountedContainer,
+                targetItem,
+                mountedContainer
+              );
+            } else
+              server.addContainerItem(
+                client.character.mountedContainer,
+                item,
+                mountedContainer,
+                true
+              );
+          }
+        } else {
+          // container error full
+          if (client) {
+            server.sendData(client, "Character.NoSpaceNotification", {
+              characterId: client.character.characterId
+            });
+          }
+
+          server.worldObjectManager.createLootEntity(
+            server,
+            item,
+            this.state.position,
+            new Float32Array([0, Number(Math.random() * 10 - 5), 0, 1])
+          );
+        }
       }
       return;
     }
