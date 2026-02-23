@@ -31,7 +31,7 @@ import { EXTERNAL_CONTAINER_GUID } from "../../../utils/constants";
 import { CharacterPlayWorldCompositeEffect } from "types/zone2016packets";
 import { scheduler } from "timers/promises";
 import { BaseEntity } from "./baseentity";
-import { isPosInRadius } from "../../../utils/utils";
+import { isPosInRadius, shouldHideHealthBar } from "../../../utils/utils";
 
 function getMaxHealth(itemDefinitionId: Items): number {
   switch (itemDefinitionId) {
@@ -119,12 +119,18 @@ export class LootableConstructionEntity extends BaseLootableEntity {
     }
 
     this.health -= damageInfo.damage;
-    server.sendDataToAllWithSpawnedEntity(
-      dictionary,
-      this.characterId,
-      "Character.UpdateSimpleProxyHealth",
-      this.pGetSimpleProxyHealth()
-    );
+    for (const a in server._clients) {
+      const client = server._clients[a];
+      if (client.spawnedEntities.has(dictionary[this.characterId])) {
+        server.sendData(
+          client,
+          "Character.UpdateSimpleProxyHealth",
+          shouldHideHealthBar(server, client, this)
+            ? 100
+            : this.pGetSimpleProxyHealth()
+        );
+      }
+    }
 
     if (this.health > 0) return;
     this.destroy(server, 3000);

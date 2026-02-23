@@ -34,6 +34,12 @@ import { ZoneClient2016 } from "servers/ZoneServer2016/classes/zoneclient";
 import * as crypto from "crypto";
 import { ZoneClient } from "servers/ZoneServer2015/classes/zoneclient";
 import { ConstructionDoor } from "../servers/ZoneServer2016/entities/constructiondoor";
+import {
+  ConstructionPermissionIds,
+  ModelIds
+} from "../servers/ZoneServer2016/models/enums";
+import { LootableConstructionEntity } from "../servers/ZoneServer2016/entities/lootableconstructionentity";
+import { AddSimpleNpc } from "../types/zone2016packets";
 
 const startTime = Date.now();
 
@@ -1758,4 +1764,48 @@ export function quat2heading(quaternion: Float32Array): number {
   const uint8Value = Math.round((degrees / 360) * 255);
 
   return Math.max(0, Math.min(255, uint8Value));
+}
+
+export function shouldHideHealthBar(
+  server: ZoneServer2016,
+  client: ZoneClient2016,
+  entity: ConstructionChildEntity | LootableConstructionEntity
+): Boolean {
+  const hiddenEntities =
+    entity.actorModelId == ModelIds.METAL_STORAGE_CHEST ||
+    entity.actorModelId == ModelIds.FURNACE ||
+    entity.actorModelId == 9406 || //workbench
+    entity.actorModelId == 10065; //weapon workbench
+
+  if (!hiddenEntities) return false;
+
+  const foundation = entity.getParentFoundation(server);
+
+  if (!foundation) return false;
+
+  return !foundation.getHasPermission(
+    server,
+    client.character.characterId,
+    ConstructionPermissionIds.CONTAINERS
+  );
+}
+
+export function getSimpleNpcCheckHidden(
+  server: ZoneServer2016,
+  client: ZoneClient2016,
+  entity: ConstructionChildEntity | LootableConstructionEntity
+): AddSimpleNpc {
+  const simpleNpc = {
+    characterId: entity.characterId,
+    transientId: entity.transientId,
+    position: entity.state.position,
+    rotation: entity.state.rotation,
+    modelId: entity.actorModelId,
+    scale: entity.scale,
+    health: (entity.health / entity.maxHealth) * 100
+  };
+
+  if (shouldHideHealthBar(server, client, entity)) simpleNpc.health = 100;
+
+  return simpleNpc;
 }

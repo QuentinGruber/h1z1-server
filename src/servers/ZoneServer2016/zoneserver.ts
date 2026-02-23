@@ -106,7 +106,8 @@ import {
   getDateString,
   loadJson,
   chance,
-  quat2heading
+  quat2heading,
+  getSimpleNpcCheckHidden
 } from "../../utils/utils";
 
 import { Db, MongoClient, WithId } from "mongodb";
@@ -4109,7 +4110,22 @@ export class ZoneServer2016 extends EventEmitter {
     this.sendReplicationData(client, entity);
   }
   addSimpleNpc(client: Client, entity: BaseSimpleNpc) {
-    this.sendData<AddSimpleNpc>(client, "AddSimpleNpc", entity.pGetSimpleNpc());
+    if (
+      entity instanceof LootableConstructionEntity ||
+      entity instanceof ConstructionChildEntity
+    ) {
+      this.sendData<AddSimpleNpc>(
+        client,
+        "AddSimpleNpc",
+        getSimpleNpcCheckHidden(this, client, entity)
+      );
+    } else {
+      this.sendData<AddSimpleNpc>(
+        client,
+        "AddSimpleNpc",
+        entity.pGetSimpleNpc()
+      );
+    }
     this.sendReplicationData(client, entity);
   }
 
