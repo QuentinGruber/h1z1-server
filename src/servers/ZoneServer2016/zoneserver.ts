@@ -1381,6 +1381,15 @@ export class ZoneServer2016 extends EventEmitter {
             ) {
               continue;
             }
+            if (
+              object.checkBuildingObstruct(
+                this,
+                client.character.state.position,
+                object.getParentFoundation(this)
+              )
+            ) {
+              continue;
+            }
           }
           const container = object.getContainer();
           if (container) {

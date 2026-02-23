@@ -31,7 +31,14 @@ import { EXTERNAL_CONTAINER_GUID } from "../../../utils/constants";
 import { CharacterPlayWorldCompositeEffect } from "types/zone2016packets";
 import { scheduler } from "timers/promises";
 import { BaseEntity } from "./baseentity";
-import { isPosInRadius, shouldHideHealthBar } from "../../../utils/utils";
+import {
+  checkLineThroughDoorway,
+  isPosInRadius,
+  rotateAroundPivot,
+  shouldHideHealthBar,
+  wallInterceptsLine
+} from "../../../utils/utils";
+import { ConstructionDoor } from "./constructiondoor";
 
 function getMaxHealth(itemDefinitionId: Items): number {
   switch (itemDefinitionId) {
@@ -405,5 +412,95 @@ export class LootableConstructionEntity extends BaseLootableEntity {
       this.state.position,
       sourceEntity
     );
+  }
+
+  checkBuildingObstruct(
+    server: ZoneServer2016,
+    character: Float32Array,
+    foundation: ConstructionParentEntity | undefined
+  ): boolean {
+    if (!foundation) return false;
+
+    const charPos = new Float32Array(character);
+
+    const containerPos = this.state.position;
+    charPos[1] += 1.8;
+
+    const allShelters = {
+      ...foundation.occupiedShelterSlots,
+      ...Object.assign(
+        {},
+        ...Object.values(foundation.occupiedExpansionSlots).map(
+          (exp) => exp.occupiedShelterSlots
+        )
+      )
+    };
+
+    const allWalls = {
+      ...foundation.occupiedWallSlots,
+      ...Object.assign(
+        {},
+        ...Object.values(foundation.occupiedExpansionSlots).map(
+          (exp) => exp.occupiedWallSlots
+        )
+      )
+    };
+
+    for (const w in allWalls) {
+      const wall = allWalls[w];
+      const wallStart = new Float32Array<ArrayBufferLike>(wall.state.position);
+      let wallEnd = new Float32Array(wall.fixedPosition);
+
+      wallEnd[0] = 2 * wallEnd[0] - wallStart[0]; // doorEnd is currently the midpoint
+      wallEnd[2] = 2 * wallEnd[2] - wallStart[2]; // extend it to the end
+      wallEnd[1] += 2;
+
+      if (wall instanceof ConstructionDoor && wall.isOpen)
+        wallEnd = rotateAroundPivot(wallStart, wallEnd, -Math.PI / 2);
+
+      if (wallInterceptsLine(charPos, containerPos, wallStart, wallEnd)) {
+        if (
+          wall.itemDefinitionId == Items.METAL_DOORWAY &&
+          checkLineThroughDoorway(charPos, containerPos, wall)
+        )
+          continue;
+        else return true;
+      }
+    }
+
+    for (const s in allShelters) {
+      const shelter: ConstructionChildEntity = allShelters[s];
+
+      if (!shelter.cubebounds) continue;
+      const walls: [Float32Array, Float32Array][] = [
+        [
+          new Float32Array(shelter.cubebounds[0]),
+          new Float32Array(shelter.cubebounds[5])
+        ],
+
+        [
+          new Float32Array(shelter.cubebounds[1]),
+          new Float32Array(shelter.cubebounds[6])
+        ],
+
+        [
+          new Float32Array(shelter.cubebounds[2]),
+          new Float32Array(shelter.cubebounds[7])
+        ],
+
+        [
+          new Float32Array(shelter.cubebounds[3]),
+          new Float32Array(shelter.cubebounds[4])
+        ]
+      ];
+
+      for (const wall of walls) {
+        if (wallInterceptsLine(charPos, containerPos, ...wall)) {
+          return !checkLineThroughDoorway(charPos, containerPos, shelter);
+        }
+      }
+    }
+
+    return false;
   }
 }
