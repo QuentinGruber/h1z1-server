@@ -24,12 +24,11 @@ export function packComponentNameString(name: string) {
 
 export function packClientNpcComponent(obj: any) {
   let raw: Buffer;
-  
+
   if (obj["worldItem"]) {
     raw = Buffer.alloc(78);
     raw.writeUint8(1, raw.length - 1);
-  }
-  else {
+  } else {
     raw = Buffer.alloc(16);
   }
   if (obj["nameId"]) {

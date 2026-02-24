@@ -158,8 +158,8 @@ export const characterFarmKitLoadout = [
   { item: Items.GROUND_TILLER, count: 400 },
   { item: Items.SEED_CORN, count: 400 },
   { item: Items.SEED_WHEAT, count: 400 },
-  { item: Items.FERTILIZER, count: 400 },
-]
+  { item: Items.FERTILIZER, count: 400 }
+];
 
 export const characterTestKitLoadout = [
   { item: Items.FOUNDATION, count: 10 },
