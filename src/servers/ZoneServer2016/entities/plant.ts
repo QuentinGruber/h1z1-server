@@ -214,8 +214,8 @@ export class Plant extends ItemObject {
   }
 
   OnFullCharacterDataRequest(
-    server: ZoneServer2016,
-    client: ZoneClient2016
+    _server: ZoneServer2016,
+    _client: ZoneClient2016
   ): void {
     /*
     if (!this.isFertilized) return;
