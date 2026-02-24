@@ -2769,7 +2769,7 @@ export class ZonePacketHandlers {
 
       if (
         !isPosInRadius(
-          server.proximityItemsDistance,
+          server.proximityItemsDistance + 0.2, // It doesn't always reach otherwise
           client.character.state.position,
           sourceCharacter.state.position
         )
