@@ -2338,7 +2338,7 @@ export class ZoneServer2016 extends EventEmitter {
     const grid = [];
     for (let i = -mapWidth / 2; i < mapWidth / 2; i += gridCellSize) {
       for (let j = -mapHeight / 2; j < mapHeight / 2; j += gridCellSize) {
-        const cell = new GridCell(i, j, gridCellSize, gridCellSize);
+        const cell = new GridCell(this, i, j, gridCellSize, gridCellSize);
         grid.push(cell);
       }
     }
@@ -2355,24 +2355,28 @@ export class ZoneServer2016 extends EventEmitter {
         const newGridCellHeight = gridCell.height / 2;
         // 4 cells made of 1
         const newGridCell1 = new GridCell(
+          this,
           gridCell.position[0],
           gridCell.position[2],
           newGridCellWidth,
           newGridCellHeight
         );
         const newGridCell2 = new GridCell(
+          this,
           gridCell.position[0] + newGridCellWidth,
           gridCell.position[2],
           newGridCellWidth,
           newGridCellHeight
         );
         const newGridCell3 = new GridCell(
+          this,
           gridCell.position[0],
           gridCell.position[2] + newGridCellHeight,
           newGridCellWidth,
           newGridCellHeight
         );
         const newGridCell4 = new GridCell(
+          this,
           gridCell.position[0] + newGridCellWidth,
           gridCell.position[2] + newGridCellHeight,
           newGridCellWidth,

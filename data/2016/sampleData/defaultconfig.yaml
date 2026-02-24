@@ -120,6 +120,10 @@ worldobjects:
   crowbarHitRewardChance: 20 # 100 max
   crowbarHitDamage: 10 # Default 25
 
+  # Scrap limit for each grid cell
+  gridScrapLimit: 50
+  gridScrapLimitEnabled: true
+
 # Trees, blackberry bushes, and sticks
 speedtree:
   minBlackberryHarvest: 1

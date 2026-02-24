@@ -139,6 +139,8 @@ export class WorldObjectManager {
   chanceWornLetter!: number;
   waterSourceReplenishTimer!: number;
   waterSourceRefillAmount!: number;
+  gridScrapLimit!: number;
+  gridScrapLimitEnabled!: boolean;
 
   private zombieSlots = [
     EquipSlots.HEAD,
@@ -173,7 +175,9 @@ export class WorldObjectManager {
     if (server.isSurvival()) {
       this.getItemRespawnTimer(server);
       if (this._lastLootRespawnTime + this.lootRespawnTimer <= Date.now()) {
-        this.refillScrapInChunks(server);
+        if (this.gridScrapLimitEnabled) {
+          this.refillScrapInChunks(server);
+        }
         this.createLoot(server);
         this.createContainerLoot(server);
         this._lastLootRespawnTime = Date.now();
@@ -1037,7 +1041,8 @@ export class WorldObjectManager {
     for (let x = 0; x < server._grid.length; x++) {
       const chunk = server._grid[x];
       chunk.availableScrap += 20;
-      if (chunk.availableScrap > 50) chunk.availableScrap = 50;
+      if (chunk.availableScrap > this.gridScrapLimit)
+        chunk.availableScrap = this.gridScrapLimit;
     }
   }
 

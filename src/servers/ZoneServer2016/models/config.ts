@@ -88,6 +88,9 @@ interface WorldObjectsConfig {
 
   crowbarHitRewardChance: number;
   crowbarHitDamage: number;
+
+  gridScrapLimit: number;
+  gridScrapLimitEnabled: boolean;
 }
 
 interface SpeedTreeConfig {

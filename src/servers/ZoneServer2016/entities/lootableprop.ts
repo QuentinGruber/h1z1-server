@@ -352,6 +352,23 @@ export class LootableProp extends BaseLootableEntity {
     if (!client || !weapon || weapon.itemDefinitionId != Items.WEAPON_CROWBAR) {
       return;
     }
+    // If scrap limiting is disabled then skip grid scanning entirely.
+    if (!server.worldObjectManager.gridScrapLimitEnabled) {
+      if (randomIntFromInterval(0, 100) <= server.crowbarHitRewardChance) {
+        client.character.lootItem(
+          server,
+          server.generateItem(Items.METAL_SCRAP)
+        );
+        server.challengeManager.registerChallengeProgression(
+          client,
+          ChallengeType.RECYCLING,
+          1
+        );
+        server.lootCrateWithChance(client, 2);
+      }
+      server.damageItem(client.character, weapon, server.crowbarHitDamage);
+      return;
+    }
     for (let x = 0; x < server._grid.length; x++) {
       const grid = server._grid[x];
       const index = grid.objects.indexOf(this);
