@@ -2485,7 +2485,7 @@ export interface VehicleOccupy {
 }
 export interface VehicleStateData {
   guid?: string;
-  unknownDword1?: number;
+  gameTick?: number;
   unknownArray1?: unknown[];
   unknownArray2?: unknown[];
 }
