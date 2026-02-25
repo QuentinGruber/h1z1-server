@@ -9503,7 +9503,7 @@ if (process.env.VSCODE_DEBUG === "true") {
   const PackageSetting = require("../../../package.json");
   process.env.H1Z1_SERVER_VERSION = PackageSetting.version;
   new ZoneServer2016(
-    1117,
+    Number(process.env.SERVER_BIND_PORT) || 1117,
     Buffer.from(DEFAULT_CRYPTO_KEY, "base64"),
     process.env.MONGO_URL,
     2
