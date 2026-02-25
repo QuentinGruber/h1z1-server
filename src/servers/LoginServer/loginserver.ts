@@ -1592,5 +1592,8 @@ export class LoginServer extends EventEmitter {
 if (process.env.VSCODE_DEBUG === "true") {
   const PackageSetting = require("../../../package.json");
   process.env.H1Z1_SERVER_VERSION = PackageSetting.version;
-  new LoginServer(1115, process.env.MONGO_URL).start();
+  new LoginServer(
+    Number(process.env.SERVER_BIND_PORT) || 1115,
+    process.env.MONGO_URL
+  ).start();
 }
