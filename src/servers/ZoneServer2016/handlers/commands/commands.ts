@@ -37,7 +37,8 @@ import {
   characterTestKitLoadout,
   characterSkinsLoadout,
   characterKitLoadout,
-  characterVehicleKit
+  characterVehicleKit,
+  characterFarmKitLoadout
 } from "../../data/loadouts";
 import { emoteMap, emoteNames, defaultEmotes } from "../../data/emotes";
 import {
@@ -2788,6 +2789,13 @@ export const commands: Array<Command> = [
             server.generateItem(Items.FANNY_PACK_DEV)
           );
           client.character.equipLoadout(server, characterBuildKitLoadout, true);
+          break;
+        case "farm":
+          client.character.equipItem(
+            server,
+            server.generateItem(Items.FANNY_PACK_DEV)
+          );
+          client.character.equipLoadout(server, characterFarmKitLoadout, true);
           break;
         default:
           server.sendChatText(

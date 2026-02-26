@@ -287,7 +287,9 @@ export class ConfigManager {
       chanceScreamer,
       lootbagDespawnTimer,
       crowbarHitRewardChance,
-      crowbarHitDamage
+      crowbarHitDamage,
+      gridScrapLimit,
+      gridScrapLimitEnabled
     } = this.config.worldobjects;
     server.worldObjectManager.vehicleSpawnCap = vehicleSpawnCap;
     server.worldObjectManager.hasCustomLootRespawnTime =
@@ -314,6 +316,15 @@ export class ConfigManager {
 
     server.crowbarHitRewardChance = crowbarHitRewardChance;
     server.crowbarHitDamage = crowbarHitDamage;
+
+    server.worldObjectManager.gridScrapLimit = parseInt(
+      String(process.env.GRID_SCRAP_LIMIT ?? gridScrapLimit ?? 50),
+      10
+    );
+    server.worldObjectManager.gridScrapLimitEnabled =
+      (process.env.GRID_SCRAP_LIMIT_ENABLED ?? "").toLowerCase() == "true" ||
+      gridScrapLimitEnabled;
+
     //#endregion
 
     //#region speedtree

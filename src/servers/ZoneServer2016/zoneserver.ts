@@ -12,7 +12,8 @@
 // ======================================================================
 
 const debugName = "ZoneServer",
-  debug = require("debug")(debugName);
+  debug = require("debug")(debugName),
+  apm = require('elastic-apm-node');
 
 import { EventEmitter } from "node:events";
 import { H1Z1Protocol } from "../../protocols/h1z1protocol";
@@ -2338,7 +2339,7 @@ export class ZoneServer2016 extends EventEmitter {
     const grid = [];
     for (let i = -mapWidth / 2; i < mapWidth / 2; i += gridCellSize) {
       for (let j = -mapHeight / 2; j < mapHeight / 2; j += gridCellSize) {
-        const cell = new GridCell(i, j, gridCellSize, gridCellSize);
+        const cell = new GridCell(this, i, j, gridCellSize, gridCellSize);
         grid.push(cell);
       }
     }
@@ -2355,24 +2356,28 @@ export class ZoneServer2016 extends EventEmitter {
         const newGridCellHeight = gridCell.height / 2;
         // 4 cells made of 1
         const newGridCell1 = new GridCell(
+          this,
           gridCell.position[0],
           gridCell.position[2],
           newGridCellWidth,
           newGridCellHeight
         );
         const newGridCell2 = new GridCell(
+          this,
           gridCell.position[0] + newGridCellWidth,
           gridCell.position[2],
           newGridCellWidth,
           newGridCellHeight
         );
         const newGridCell3 = new GridCell(
+          this,
           gridCell.position[0],
           gridCell.position[2] + newGridCellHeight,
           newGridCellWidth,
           newGridCellHeight
         );
         const newGridCell4 = new GridCell(
+          this,
           gridCell.position[0] + newGridCellWidth,
           gridCell.position[2] + newGridCellHeight,
           newGridCellWidth,
@@ -4549,7 +4554,8 @@ export class ZoneServer2016 extends EventEmitter {
         payload: {
           bufferData: {
             nameId: nameId,
-            componentName: "ClientNpcComponent"
+            componentName: "ClientNpcComponent",
+            worldItem: entity instanceof ItemObject
           }
         }
       }
@@ -7308,6 +7314,7 @@ export class ZoneServer2016 extends EventEmitter {
           plant.isFertilized = true;
           const roz = (plant.nextStateTime - new Date().getTime()) / 2;
           plant.nextStateTime = new Date().getTime() + roz;
+          plant.nextMoundTime = new Date().getTime() + 180000;
           this.sendDataToAllWithSpawnedEntity<CharacterPlayWorldCompositeEffect>(
             // play burning effect & remove it after 15s
             this._plants,
@@ -9497,7 +9504,7 @@ if (process.env.VSCODE_DEBUG === "true") {
   const PackageSetting = require("../../../package.json");
   process.env.H1Z1_SERVER_VERSION = PackageSetting.version;
   new ZoneServer2016(
-    1117,
+    Number(process.env.SERVER_BIND_PORT) || 1117,
     Buffer.from(DEFAULT_CRYPTO_KEY, "base64"),
     process.env.MONGO_URL,
     2
