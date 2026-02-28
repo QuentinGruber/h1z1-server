@@ -66,7 +66,7 @@ import { Npc } from "../entities/npc";
 //import { EntityType } from "h1emu-ai";
 import { scheduler } from "node:timers/promises";
 const debug = require("debug")("ZoneServer");
-const apm = require('elastic-apm-node');
+const apm = require("elastic-apm-node");
 
 export function getRandomSkin(itemDefinitionId: number) {
   let itemDefId = 0;
@@ -172,7 +172,10 @@ export class WorldObjectManager {
   }
 
   async run(server: ZoneServer2016) {
-    const transaction = apm.startTransaction('WorldObjectManager::Run', 'custom');
+    const transaction = apm.startTransaction(
+      "WorldObjectManager::Run",
+      "custom"
+    );
     debug("WOM::Run");
     if (server.isSurvival()) {
       this.getItemRespawnTimer(server);
@@ -930,7 +933,10 @@ export class WorldObjectManager {
   }
 
   createVehicles(server: ZoneServer2016, maxSpawnChance: boolean = false) {
-    const transaction = apm.startTransaction('WorldObjectManager::createVehicles', 'custom');
+    const transaction = apm.startTransaction(
+      "WorldObjectManager::createVehicles",
+      "custom"
+    );
     if (_.size(server._vehicles) >= this.vehicleSpawnCap) return;
     const respawnAmount = Math.ceil(
       (this.vehicleSpawnCap - _.size(server._vehicles)) / 8
@@ -1052,10 +1058,13 @@ export class WorldObjectManager {
   }
 
   async createLoot(server: ZoneServer2016, lTables = lootTables) {
-    const transaction = apm.startTransaction('WorldObjectManager::createLoot', 'custom');
+    const transaction = apm.startTransaction(
+      "WorldObjectManager::createLoot",
+      "custom"
+    );
     let counter = 0;
     for (const spawnerType of Z1_items) {
-      const span = transaction.startSpan('spawnerType');
+      const span = transaction.startSpan("spawnerType");
       const lootTable = lTables[spawnerType.actorDefinition];
       if (lootTable) {
         for (const itemInstance of spawnerType.instances) {
@@ -1314,7 +1323,10 @@ export class WorldObjectManager {
     }
   }
   async createContainerLoot(server: ZoneServer2016) {
-    const transaction = apm.startTransaction('WorldObjectManager::createContainerLoot', 'custom');
+    const transaction = apm.startTransaction(
+      "WorldObjectManager::createContainerLoot",
+      "custom"
+    );
     let counter = 0;
     for (const a in server._lootableProps) {
       if (counter > 9) {
