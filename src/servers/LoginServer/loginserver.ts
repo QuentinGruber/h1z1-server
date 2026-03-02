@@ -542,7 +542,7 @@ export class LoginServer extends EventEmitter {
             }
           }
         ],
-        unknownArray2: [],
+        errorDetails: [],
         ipCountryCode: "US",
         applicationPayload: {
           unknownArray1: [],
