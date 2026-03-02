@@ -12,8 +12,7 @@
 // ======================================================================
 
 const debugName = "ZoneServer",
-  debug = require("debug")(debugName),
-  apm = require('elastic-apm-node');
+  debug = require("debug")(debugName);
 
 import { EventEmitter } from "node:events";
 import { H1Z1Protocol } from "../../protocols/h1z1protocol";

@@ -322,8 +322,9 @@ export class ConfigManager {
       10
     );
     server.worldObjectManager.gridScrapLimitEnabled =
-      (process.env.GRID_SCRAP_LIMIT_ENABLED ?? "").toLowerCase() == "true" ||
-      gridScrapLimitEnabled;
+      process.env.GRID_SCRAP_LIMIT_ENABLED != undefined
+        ? process.env.GRID_SCRAP_LIMIT_ENABLED.toLowerCase() == "true"
+        : gridScrapLimitEnabled;
 
     //#endregion
 

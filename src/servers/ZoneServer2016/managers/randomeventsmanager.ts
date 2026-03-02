@@ -13,7 +13,6 @@
 
 import { randomInt } from "node:crypto";
 import { ZoneServer2016 } from "../zoneserver";
-import { getCellName } from "../../../utils/utils";
 
 interface WeightedItem {
   value: string;
