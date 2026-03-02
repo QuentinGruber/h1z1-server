@@ -4542,23 +4542,32 @@ export class ZoneServer2016 extends EventEmitter {
       );
     }
 
-    this.sendData<ReplicationCreateComponent>(
-      client,
-      "Replication.CreateComponent",
-      {
-        transientId: entity.transientId,
-        sequenceNumber: client.sentInteractionCounter++,
-        componentName: "ClientNpcComponent",
-        propertyHash: ReplicationPropertyHash.ISWORLDITEM,
-        payload: {
-          bufferData: {
-            nameId: nameId,
-            componentName: "ClientNpcComponent",
-            worldItem: entity instanceof ItemObject
+    //TODO: This is temporary until we fix the ReplicationData correctly for construction Objects.
+    if (
+      !(
+        entity instanceof ConstructionDoor ||
+        entity instanceof ConstructionParentEntity ||
+        entity instanceof ConstructionChildEntity ||
+        entity instanceof LootableConstructionEntity
+      )
+    ) {
+      this.sendData<ReplicationCreateComponent>(
+        client,
+        "Replication.CreateComponent",
+        {
+          transientId: entity.transientId,
+          sequenceNumber: client.sentInteractionCounter++,
+          componentName: "ClientNpcComponent",
+          propertyHash: ReplicationPropertyHash.ISWORLDITEM,
+          payload: {
+            bufferData: {
+              nameId: nameId,
+              componentName: "ClientNpcComponent"
+            }
           }
         }
-      }
-    );
+      );
+    }
 
     this.sendData<ReplicationCreateComponent>(
       client,
