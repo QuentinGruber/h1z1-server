@@ -349,7 +349,13 @@ export class LootableProp extends BaseLootableEntity {
     const client = server.getClientByCharId(damageInfo.entity);
     const weapon = client?.character.getEquippedWeapon();
 
-    if (!client || !weapon || weapon.itemDefinitionId != Items.WEAPON_CROWBAR) {
+    if (
+      !client ||
+      !weapon ||
+      weapon.itemDefinitionId != Items.WEAPON_CROWBAR ||
+      client?.character.isHidden?.length > 0 ||
+      client?.character.insideBuilding?.length > 0
+    ) {
       return;
     }
     // If scrap limiting is disabled then skip grid scanning entirely.
