@@ -280,6 +280,9 @@ export class ConfigManager {
       itemDespawnTimer,
       lootDespawnTimer,
       deadNpcDespawnTimer,
+      maxNpcDespawnsPerRun,
+      maxLootbagDespawnsPerRun,
+      maxItemDespawnsPerRun,
       chanceWornLetter,
       vehicleSpawnRadius,
       npcSpawnRadius,
@@ -302,6 +305,10 @@ export class ConfigManager {
     server.worldObjectManager.lootDespawnTimer = lootDespawnTimer;
     server.worldObjectManager.deadNpcDespawnTimer = deadNpcDespawnTimer;
     server.worldObjectManager.lootbagDespawnTimer = lootbagDespawnTimer;
+    server.worldObjectManager.maxNpcDespawnsPerRun = maxNpcDespawnsPerRun;
+    server.worldObjectManager.maxLootbagDespawnsPerRun =
+      maxLootbagDespawnsPerRun;
+    server.worldObjectManager.maxItemDespawnsPerRun = maxItemDespawnsPerRun;
 
     server.worldObjectManager.vehicleSpawnRadius = vehicleSpawnRadius;
     server.worldObjectManager.npcSpawnRadius = npcSpawnRadius;

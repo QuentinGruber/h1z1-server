@@ -2084,7 +2084,7 @@ export class ConstructionManager {
           const hasPermission = isSameGroup && hasVisitPermission;
 
           if (
-            iteratedClient.spawnedEntities.has(client.character) &&
+            iteratedClient.spawnedEntities.has(freePlacedEntity) &&
             iteratedClient.character.isHidden != freePlacedEntity.isHidden &&
             !hasPermission
           ) {
@@ -2092,10 +2092,10 @@ export class ConstructionManager {
               iteratedClient,
               "Character.RemovePlayer",
               {
-                characterId: client.character.characterId
+                characterId: freePlacedEntity.characterId
               }
             );
-            iteratedClient.spawnedEntities.delete(client.character);
+            iteratedClient.spawnedEntities.delete(freePlacedEntity);
           }
         }
       } else return;

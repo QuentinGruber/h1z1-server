@@ -68,6 +68,13 @@ const dev: any = {
     client: Client,
     args: Array<string>
   ) {
+    if (!("_soeServer" in server._gatewayServer)) {
+      server.sendChatText(
+        client,
+        "load_balancing dev command requires non-threaded gateway internals"
+      );
+      return;
+    }
     const nb = Number(args[1]) || 10;
     const basePort = 60_000;
     for (let index = 0; index < nb; index++) {

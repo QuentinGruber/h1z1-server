@@ -425,11 +425,11 @@ export const commands: Array<Command> = [
       client: Client,
       args: Array<string>
     ) => {
-      const stats = server._gatewayServer.getSoeClientNetworkStats(
+      const stats = await server._gatewayServer.getSoeClientNetworkStats(
         client.soeClientId
       );
       if (stats) {
-        const serverStats = server._gatewayServer.getServerNetworkStats();
+        const serverStats = await server._gatewayServer.getServerNetworkStats();
         stats.push(serverStats[0]);
         for (let index = 0; index < stats.length; index++) {
           const stat = stats[index];
@@ -446,10 +446,10 @@ export const commands: Array<Command> = [
       client: Client,
       args: Array<string>
     ) => {
-      const stats = server._gatewayServer.getSoeClientNetworkStats(
+      const stats = await server._gatewayServer.getSoeClientNetworkStats(
         client.soeClientId
       );
-      const serverStats = server._gatewayServer.getServerNetworkStats();
+      const serverStats = await server._gatewayServer.getServerNetworkStats();
       if (stats) {
         server.sendChatText(client, stats[2], true);
         server.sendChatText(client, serverStats[0], false);

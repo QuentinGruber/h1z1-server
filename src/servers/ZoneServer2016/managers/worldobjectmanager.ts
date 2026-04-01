@@ -74,6 +74,13 @@ import { TreasureChest } from "../entities/treasurechest";
 import { Npc } from "../entities/npc";
 //import { EntityType } from "h1emu-ai";
 import { scheduler } from "node:timers/promises";
+import {
+  ContainerPropSnapshot,
+  ItemDespawnSnapshot,
+  LootSpawnWorker,
+  LootbagDespawnSnapshot,
+  NpcDespawnSnapshot
+} from "./lootspawnworker";
 const debug = require("debug")("ZoneServer");
 const apm = require("elastic-apm-node");
 
@@ -161,6 +168,11 @@ export class WorldObjectManager {
     EquipSlots.HAIR
   ];
   static itemSpawnersChances: Record<string, number> = {};
+  private isRunning = false;
+  private lootSpawnWorker?: LootSpawnWorker;
+  maxNpcDespawnsPerRun = 40;
+  maxLootbagDespawnsPerRun = 40;
+  maxItemDespawnsPerRun = 120;
 
   private getItemRespawnTimer(server: ZoneServer2016): void {
     if (this.hasCustomLootRespawnTime) return;
@@ -181,119 +193,308 @@ export class WorldObjectManager {
   }
 
   async run(server: ZoneServer2016) {
+    if (this.isRunning) return;
+    this.isRunning = true;
     const transaction = apm.startTransaction(
       "WorldObjectManager::Run",
       "custom"
     );
     debug("WOM::Run");
-    if (server.isSurvival()) {
-      this.getItemRespawnTimer(server);
-      if (this._lastLootRespawnTime + this.lootRespawnTimer <= Date.now()) {
-        if (this.gridScrapLimitEnabled) {
-          this.refillScrapInChunks(server);
+    try {
+      if (server.isSurvival()) {
+        this.getItemRespawnTimer(server);
+        if (this._lastLootRespawnTime + this.lootRespawnTimer <= Date.now()) {
+          if (this.gridScrapLimitEnabled) {
+            this.refillScrapInChunks(server);
+          }
+          await this.createLootThreaded(server);
+          await this.createContainerLootThreaded(server);
+          this._lastLootRespawnTime = Date.now();
+          server.divideLargeCells(700);
         }
-        this.createLoot(server);
-        this.createContainerLoot(server);
-        this._lastLootRespawnTime = Date.now();
-        server.divideLargeCells(700);
-      }
-      if (this._lastNpcRespawnTime + this.npcRespawnTimer <= Date.now()) {
-        this.createNpcs(server);
-        this._lastNpcRespawnTime = Date.now();
-      }
-      if (
-        this._lastVehicleRespawnTime + this.vehicleRespawnTimer <=
-        Date.now()
-      ) {
-        this.createVehicles(server);
-        this._lastVehicleRespawnTime = Date.now();
-      }
-      if (
-        this._lastWaterSourceReplenishTime + this.waterSourceReplenishTimer <=
-        Date.now()
-      ) {
-        this.replenishWaterSources(server);
-        this._lastWaterSourceReplenishTime = Date.now();
+        if (this._lastNpcRespawnTime + this.npcRespawnTimer <= Date.now()) {
+          await this.createNpcsThreaded(server);
+          this._lastNpcRespawnTime = Date.now();
+        }
+        if (
+          this._lastVehicleRespawnTime + this.vehicleRespawnTimer <=
+          Date.now()
+        ) {
+          this.createVehicles(server);
+          this._lastVehicleRespawnTime = Date.now();
+        }
+        if (
+          this._lastWaterSourceReplenishTime + this.waterSourceReplenishTimer <=
+          Date.now()
+        ) {
+          this.replenishWaterSources(server);
+          this._lastWaterSourceReplenishTime = Date.now();
+        }
+
+        await this.updateQuestContainers(server);
       }
 
-      this.updateQuestContainers(server);
-    }
-
-    if (server.isSurvival()) {
-      this.despawnEntities(server);
-    }
-    transaction.end();
-  }
-
-  private async npcDespawner(server: ZoneServer2016) {
-    let counter = 0;
-    for (const characterId in server._npcs) {
-      if (counter > 30) {
-        counter = 0;
-        await scheduler.wait(30);
+      if (server.isSurvival()) {
+        await this.despawnEntities(server);
       }
-      counter++;
-      const npc = server._npcs[characterId];
-      // dead npc despawner
-      if (
-        npc &&
-        npc.flags.knockedOut &&
-        Date.now() - npc.deathTime >= this.deadNpcDespawnTimer
-      ) {
-        server.deleteEntity(npc.characterId, server._npcs);
-      }
+    } finally {
+      transaction.end();
+      this.isRunning = false;
     }
   }
 
-  private lootbagDespawner(server: ZoneServer2016) {
-    for (const characterId in server._lootbags) {
-      // lootbag despawner
-      const lootbag = server._lootbags[characterId];
-      if (Date.now() - lootbag.creationTime >= this.lootbagDespawnTimer) {
-        server.deleteEntity(lootbag.characterId, server._lootbags);
+  private getLootSpawnWorker(): LootSpawnWorker {
+    if (!this.lootSpawnWorker) {
+      this.lootSpawnWorker = new LootSpawnWorker();
+    }
+    return this.lootSpawnWorker;
+  }
+
+  async stop() {
+    if (!this.lootSpawnWorker) return;
+    await this.lootSpawnWorker.stop();
+    this.lootSpawnWorker = undefined;
+  }
+
+  private async createLootThreaded(server: ZoneServer2016) {
+    try {
+      const worker = this.getLootSpawnWorker();
+      const spawnedLootSpawnerIds = Object.keys(this.spawnedLootObjects).map(
+        (spawnerId) => Number(spawnerId)
+      );
+      const plan = await worker.createLootPlan(spawnedLootSpawnerIds);
+
+      for (const entry of plan) {
+        if (this.spawnedLootObjects[entry.spawnerId]) continue;
+        this.createLootEntity(
+          server,
+          server.generateItem(
+            getRandomSkin(entry.itemDefinitionId),
+            entry.count
+          ),
+          new Float32Array(entry.position),
+          new Float32Array(entry.rotation),
+          entry.spawnerId
+        );
       }
+    } catch (error) {
+      debug(`[WARN] createLootThreaded fallback to main thread: ${error}`);
+      await this.createLoot(server);
     }
   }
 
-  private async itemDespawner(server: ZoneServer2016) {
-    let counter = 0;
-    for (const characterId in server._spawnedItems) {
-      if (counter > 100) {
-        counter = 0;
-        await scheduler.wait(30);
+  private async createContainerLootThreaded(server: ZoneServer2016) {
+    try {
+      const worker = this.getLootSpawnWorker();
+      const props: ContainerPropSnapshot[] = [];
+
+      for (const characterId in server._lootableProps) {
+        const prop = server._lootableProps[characterId] as LootableProp;
+        const container = prop.getContainer();
+        if (!container) continue;
+
+        props.push({
+          characterId,
+          lootSpawner: prop.lootSpawner,
+          shouldSpawnLoot: prop.shouldSpawnLoot,
+          position: [
+            prop.state.position[0],
+            prop.state.position[1],
+            prop.state.position[2]
+          ],
+          existingItemDefinitionIds: Object.values(container.items).map(
+            (spawnedItem: BaseItem) => spawnedItem.itemDefinitionId
+          )
+        });
       }
-      counter++;
-      const itemObject = server._spawnedItems[characterId];
-      if (!itemObject) return;
-      // dropped item despawner
-      const despawnTime =
-        itemObject.spawnerId == -1
-          ? this.itemDespawnTimer
-          : this.lootDespawnTimer;
-      if (Date.now() - itemObject.creationTime >= despawnTime) {
+
+      const plan = await worker.createContainerLootPlan(props);
+      const updatedProps = new Set<string>();
+
+      for (const entry of plan) {
+        const prop = server._lootableProps[entry.characterId] as LootableProp;
+        if (!prop) continue;
+        const container = prop.getContainer();
+        if (!container) continue;
+
+        const hasSameItem = Object.values(container.items).some(
+          (spawnedItem: BaseItem) =>
+            spawnedItem.itemDefinitionId === entry.itemDefinitionId
+        );
+        if (hasSameItem) continue;
+
+        server.addContainerItem(
+          prop,
+          server.generateItem(
+            getRandomSkin(entry.itemDefinitionId),
+            entry.count
+          ),
+          container
+        );
+        updatedProps.add(entry.characterId);
+      }
+
+      if (!updatedProps.size) return;
+      Object.values(server._clients).forEach((client: ZoneClient2016) => {
+        updatedProps.forEach((characterId) => {
+          const prop = server._lootableProps[characterId] as LootableProp;
+          const index = client.searchedProps.indexOf(prop);
+          if (index > -1) {
+            client.searchedProps.splice(index, 1);
+          }
+        });
+      });
+    } catch (error) {
+      debug(
+        `[WARN] createContainerLootThreaded fallback to main thread: ${error}`
+      );
+      await this.createContainerLoot(server);
+    }
+  }
+
+  private async createNpcsThreaded(server: ZoneServer2016) {
+    try {
+      const worker = this.getLootSpawnWorker();
+      const existingNpcPositions = Object.values(server._npcs).map((npc) => [
+        npc.state.position[0],
+        npc.state.position[1],
+        npc.state.position[2]
+      ]);
+
+      const plan = await worker.createNpcPlan(
+        existingNpcPositions,
+        this.npcSpawnRadius,
+        this.chanceNpc,
+        this.chanceScreamer
+      );
+
+      for (const entry of plan) {
+        this.createNpc(
+          server,
+          entry.modelId,
+          new Float32Array(entry.position),
+          new Float32Array(eul2quat(new Float32Array(entry.rotation))),
+          entry.spawnerId
+        );
+      }
+    } catch (error) {
+      debug(`[WARN] createNpcsThreaded fallback to main thread: ${error}`);
+      await this.createNpcs(server);
+    }
+  }
+
+  private async despawnEntities(server: ZoneServer2016) {
+    try {
+      const worker = this.getLootSpawnWorker();
+      const now = Date.now();
+
+      const npcs: NpcDespawnSnapshot[] = Object.values(server._npcs).map(
+        (npc) => ({
+          characterId: npc.characterId,
+          knockedOut: !!npc.flags.knockedOut,
+          deathTime: npc.deathTime
+        })
+      );
+      const lootbags: LootbagDespawnSnapshot[] = Object.values(
+        server._lootbags
+      ).map((lootbag) => ({
+        characterId: lootbag.characterId,
+        creationTime: lootbag.creationTime
+      }));
+      const items: ItemDespawnSnapshot[] = Object.values(
+        server._spawnedItems
+      ).map((itemObject) => ({
+        characterId: itemObject.characterId,
+        creationTime: itemObject.creationTime,
+        spawnerId: itemObject.spawnerId,
+        itemDefinitionId: itemObject.item.itemDefinitionId
+      }));
+
+      const plan = await worker.createDespawnPlan({
+        now,
+        deadNpcDespawnTimer: this.deadNpcDespawnTimer,
+        lootbagDespawnTimer: this.lootbagDespawnTimer,
+        itemDespawnTimer: this.itemDespawnTimer,
+        lootDespawnTimer: this.lootDespawnTimer,
+        fuelItemDefinitionIds: [Items.FUEL_ETHANOL, Items.FUEL_BIOFUEL],
+        npcs,
+        lootbags,
+        items
+      });
+
+      for (const characterId of plan.npcCharacterIds.slice(
+        0,
+        this.maxNpcDespawnsPerRun
+      )) {
+        server.deleteEntity(characterId, server._npcs);
+      }
+
+      for (const characterId of plan.lootbagCharacterIds.slice(
+        0,
+        this.maxLootbagDespawnsPerRun
+      )) {
+        server.deleteEntity(characterId, server._lootbags);
+      }
+
+      for (const entry of plan.itemEntries.slice(
+        0,
+        this.maxItemDespawnsPerRun
+      )) {
+        const itemObject = server._spawnedItems[entry.characterId];
+        if (!itemObject) continue;
         server.deleteEntity(itemObject.characterId, server._spawnedItems);
-        switch (itemObject.item.itemDefinitionId) {
-          case Items.FUEL_ETHANOL:
-          case Items.FUEL_BIOFUEL:
-            server.deleteEntity(itemObject.characterId, server._explosives);
-            break;
+        if (entry.deleteExplosive) {
+          server.deleteEntity(itemObject.characterId, server._explosives);
         }
-        if (itemObject.spawnerId != -1)
-          delete this.spawnedLootObjects[itemObject.spawnerId];
+        if (entry.spawnerId != -1) {
+          delete this.spawnedLootObjects[entry.spawnerId];
+        }
         server.sendCompositeEffectToAllWithSpawnedEntity(
           server._spawnedItems,
           itemObject,
-          server.getItemDefinition(itemObject.item.itemDefinitionId)
-            ?.PICKUP_EFFECT ?? 5151
+          server.getItemDefinition(entry.itemDefinitionId)?.PICKUP_EFFECT ??
+            5151
         );
       }
+    } catch (error) {
+      debug(`[WARN] despawnEntities threaded path failed: ${error}`);
+      // Safe fallback to avoid leaking stale entities if worker path fails.
+      for (const characterId in server._npcs) {
+        const npc = server._npcs[characterId];
+        if (
+          npc &&
+          npc.flags.knockedOut &&
+          Date.now() - npc.deathTime >= this.deadNpcDespawnTimer
+        ) {
+          server.deleteEntity(npc.characterId, server._npcs);
+        }
+      }
+      for (const characterId in server._lootbags) {
+        const lootbag = server._lootbags[characterId];
+        if (Date.now() - lootbag.creationTime >= this.lootbagDespawnTimer) {
+          server.deleteEntity(lootbag.characterId, server._lootbags);
+        }
+      }
+      for (const characterId in server._spawnedItems) {
+        const itemObject = server._spawnedItems[characterId];
+        if (!itemObject) continue;
+        const despawnTime =
+          itemObject.spawnerId == -1
+            ? this.itemDespawnTimer
+            : this.lootDespawnTimer;
+        if (Date.now() - itemObject.creationTime >= despawnTime) {
+          server.deleteEntity(itemObject.characterId, server._spawnedItems);
+          if (
+            itemObject.item.itemDefinitionId == Items.FUEL_ETHANOL ||
+            itemObject.item.itemDefinitionId == Items.FUEL_BIOFUEL
+          ) {
+            server.deleteEntity(itemObject.characterId, server._explosives);
+          }
+          if (itemObject.spawnerId != -1)
+            delete this.spawnedLootObjects[itemObject.spawnerId];
+        }
+      }
     }
-  }
-
-  private despawnEntities(server: ZoneServer2016) {
-    this.npcDespawner(server);
-    this.lootbagDespawner(server);
-    this.itemDespawner(server);
   }
 
   createNpc(
@@ -789,7 +990,7 @@ export class WorldObjectManager {
     for (const a in server._taskProps) {
       if (counter > 9) {
         counter = 0;
-        await scheduler.wait(60);
+        await scheduler.yield();
       }
       counter++;
       const propInstance = server._taskProps[a];
@@ -1020,7 +1221,7 @@ export class WorldObjectManager {
         for (const a in server._npcs) {
           if (counter > 150) {
             counter = 0;
-            await scheduler.wait(30);
+            await scheduler.yield();
           }
           counter++;
           if (!server._npcs[a]) continue;
@@ -1079,7 +1280,7 @@ export class WorldObjectManager {
         for (const itemInstance of spawnerType.instances) {
           if (counter > 9) {
             counter = 0;
-            await scheduler.wait(60);
+            await scheduler.yield();
           }
           counter++;
           if (this.spawnedLootObjects[itemInstance.id]) continue;
@@ -1127,7 +1328,7 @@ export class WorldObjectManager {
     for (const a in server._lootableProps) {
       if (counter > 100) {
         counter = 0;
-        await scheduler.wait(30); // Await the wait function to pause
+        await scheduler.yield();
       }
       counter++;
       const prop = server._lootableProps[a] as BaseFullCharacter;
@@ -1340,7 +1541,7 @@ export class WorldObjectManager {
     for (const a in server._lootableProps) {
       if (counter > 9) {
         counter = 0;
-        await scheduler.wait(60); // Await the wait function to pause
+        await scheduler.yield();
       }
       counter++;
       const prop = server._lootableProps[a] as LootableProp;
@@ -1350,15 +1551,16 @@ export class WorldObjectManager {
       if (!prop.shouldSpawnLoot) continue; // skip medical stations and treasure chests
       const lootTable = containerLootSpawners[prop.lootSpawner];
       if (lootTable) {
+        const containerItemIds = new Set<number>(
+          Object.values(container.items).map(
+            (spawnedItem: BaseItem) => spawnedItem.itemDefinitionId
+          )
+        );
         for (let x = 0; x < lootTable.maxItems; x++) {
           const item = getRandomItem(lootTable.items);
           if (!item) continue;
           const chance = Math.floor(Math.random() * 100) + 1; // temporary spawnchance
-          let allow = true;
-          Object.values(container.items).forEach((spawnedItem: BaseItem) => {
-            if (item.item == spawnedItem.itemDefinitionId) allow = false; // dont allow the same item to be added twice
-          });
-          if (allow) {
+          if (!containerItemIds.has(item.item)) {
             if (
               chance <=
               item.weight * (1 - isLootNerfedLoc(prop.state.position) / 100)
@@ -1374,6 +1576,7 @@ export class WorldObjectManager {
                 server.generateItem(getRandomSkin(item.item), count),
                 container
               );
+              containerItemIds.add(item.item);
             }
           } else {
             x--;

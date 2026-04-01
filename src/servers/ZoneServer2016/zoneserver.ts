@@ -249,6 +249,7 @@ import { GatewayChannels } from "h1emu-core";
 import { IngameTimeManager } from "./managers/gametimemanager";
 import { H1z1ProtocolReadingFormat } from "types/protocols";
 import { GatewayServer } from "../GatewayServer/gatewayserver";
+import { GatewayServerThreaded } from "../GatewayServer/gatewayserver.threaded";
 import { WaterSource } from "./entities/watersource";
 import { WebSocket } from "ws";
 import { CommandHandler } from "./handlers/commands/commandhandler";
@@ -263,6 +264,7 @@ import { ChallengeManager, ChallengeType } from "./managers/challengemanager";
 import { RandomEventsManager } from "./managers/randomeventsmanager";
 import { AiManager } from "./managers/aimanager";
 import { AirdropManager } from "./managers/airdropmanager";
+import { PacketEncodingWorker } from "./managers/packetencodingworker";
 //import { TaskManager } from "./managers/tasksmanager";
 
 const spawnLocations2 = PluginManager.loadServerData(
@@ -332,7 +334,7 @@ export class ZoneServer2016 extends EventEmitter {
   /** Networking layer - allows sending game data to the game client,
    * lays on top of the H1Z1 protocol (on top of the actual H1Z1 packets)
    */
-  _gatewayServer: GatewayServer;
+  _gatewayServer: GatewayServer | GatewayServerThreaded;
   readonly _protocol: H1Z1Protocol;
   _db!: Db;
   readonly _soloMode: boolean;
@@ -435,6 +437,7 @@ export class ZoneServer2016 extends EventEmitter {
   airdropManager: AirdropManager;
 
   _ready: boolean = false;
+  private packetEncodingWorker?: PacketEncodingWorker;
 
   /** Information from ServerItemDefinitions.json */
   _itemDefinitions: { [itemDefinitionId: number]: ItemDefinition } =
@@ -532,7 +535,7 @@ export class ZoneServer2016 extends EventEmitter {
   ) {
     super();
     this._clientProtocol = protocol;
-    this._gatewayServer = new GatewayServer(serverPort, gatewayKey);
+    this._gatewayServer = new GatewayServerThreaded(serverPort, gatewayKey);
     this._packetHandlers = new ZonePacketHandlers();
     this._mongoAddress = mongoAddress;
     this._worldId = worldId || 0;
@@ -635,7 +638,7 @@ export class ZoneServer2016 extends EventEmitter {
         }
         const generatedTransient = this.getTransientId(characterId);
         const sessionId =
-          this._gatewayServer.getSoeClientSessionId(soeClientId);
+          await this._gatewayServer.getSoeClientSessionId(soeClientId);
         if (!sessionId) {
           return;
         }
@@ -653,8 +656,9 @@ export class ZoneServer2016 extends EventEmitter {
           return;
         }
         if (!this._soloMode) {
-          const address =
-            this._gatewayServer.getSoeClientNetworkInfos(soeClientId)?.address;
+          const address = (
+            await this._gatewayServer.getSoeClientNetworkInfos(soeClientId)
+          )?.address;
           if (!address) {
             return;
           }
@@ -967,6 +971,7 @@ export class ZoneServer2016 extends EventEmitter {
   async stop() {
     clearInterval(this.challengePositionCheckInterval);
     this.worldDataManager.kill();
+    await this.worldObjectManager.stop();
     this.inGameTimeManager.stop();
     this.smeltingManager.clearTimers();
     this.decayManager.clearTimers();
@@ -980,6 +985,10 @@ export class ZoneServer2016 extends EventEmitter {
     }
     if (this._mongoClient) {
       await this._mongoClient.close();
+    }
+    if (this.packetEncodingWorker) {
+      await this.packetEncodingWorker.stop();
+      this.packetEncodingWorker = undefined;
     }
     await this._gatewayServer.stop();
     await this.rconManager.stop();
@@ -1583,7 +1592,7 @@ export class ZoneServer2016 extends EventEmitter {
   /**
    * Caches item definitons so they aren't packed every time a client logs in.
    */
-  private packItemDefinitions() {
+  private async packItemDefinitions() {
     /*
     this.itemDefinitionsCache = this._protocol.pack("Command.ItemDefinitions", {
       data: {
@@ -1657,7 +1666,7 @@ export class ZoneServer2016 extends EventEmitter {
       }
     });
 
-    const itemDefinitionsCache = this._protocol.pack(
+    const itemDefinitionsCache = await this.packPacket(
       "Command.ItemDefinitions",
       {
         data: {
@@ -1669,8 +1678,8 @@ export class ZoneServer2016 extends EventEmitter {
     this.itemDefinitionsCache = itemDefinitionsCache;
   }
 
-  private packDynamicAppearance() {
-    const dynamicAppearanceCache = this._protocol.pack(
+  private async packDynamicAppearance() {
+    const dynamicAppearanceCache = await this.packPacket(
       "ReferenceData.DynamicAppearance",
       {
         ITEM_APPEARANCE_DEFINITIONS:
@@ -1687,8 +1696,8 @@ export class ZoneServer2016 extends EventEmitter {
   /**
    * Caches weapon definitons so they aren't packed every time a client logs in.
    */
-  private packWeaponDefinitions() {
-    const weaponDefinitionsCache = this._protocol.pack(
+  private async packWeaponDefinitions() {
+    const weaponDefinitionsCache = await this.packPacket(
       "ReferenceData.WeaponDefinitions",
       {
         data: {
@@ -1722,8 +1731,8 @@ export class ZoneServer2016 extends EventEmitter {
   /**
    * Caches projectile definitons so they aren't packed every time a client logs in.
    */
-  private packProjectileDefinitions() {
-    const projectileDefinitionsCache = this._protocol.pack(
+  private async packProjectileDefinitions() {
+    const projectileDefinitionsCache = await this.packPacket(
       "ReferenceData.ProjectileDefinitions",
       {
         definitionsData: projectileDefinitons
@@ -1737,8 +1746,8 @@ export class ZoneServer2016 extends EventEmitter {
   /**
    * Caches profile definitons so they aren't packed every time a client logs in.
    */
-  private packProfileDefinitions() {
-    const profileDefinitionsCache = this._protocol.pack(
+  private async packProfileDefinitions() {
+    const profileDefinitionsCache = await this.packPacket(
       "ReferenceData.ProfileDefinitions",
       {
         data: {
@@ -1754,8 +1763,8 @@ export class ZoneServer2016 extends EventEmitter {
   /**
    * Caches itemClass definitons so they aren't packed every time a client logs in.
    */
-  private packitemClassDefinitions() {
-    const itemClassDefinitionsCache = this._protocol.pack(
+  private async packitemClassDefinitions() {
+    const itemClassDefinitionsCache = await this.packPacket(
       "ReferenceData.ItemClassDefinitions",
       {
         ITEMCLASS_DEFINITIONS: Object.values(itemClassDefinitions).map(
@@ -1957,17 +1966,17 @@ export class ZoneServer2016 extends EventEmitter {
     // !!ANYTHING THAT USES / GENERATES ITEMS MUST BE CALLED AFTER WORLD DATA IS LOADED!!
 
     //this.packItemDefinitions(); // No longer necessary, we'll see if only sending the required items will impact server performance
-    this.packWeaponDefinitions();
-    this.packProjectileDefinitions();
-    this.packProfileDefinitions();
-    this.packitemClassDefinitions();
-    this.packDynamicAppearance();
+    await this.packWeaponDefinitions();
+    await this.packProjectileDefinitions();
+    await this.packProfileDefinitions();
+    await this.packitemClassDefinitions();
+    await this.packDynamicAppearance();
     this.worldObjectManager.createDoors(this);
     this.worldObjectManager.createProps(this);
 
     await this.pluginManager.initializePlugins(this);
 
-    this.customizeStaticDTOs();
+    await this.customizeStaticDTOs();
 
     /*this.tasksManager.register_schedule(
       this.worldRoutine.bind(this),
@@ -2147,6 +2156,7 @@ export class ZoneServer2016 extends EventEmitter {
     if (!(await this.hookManager.checkAsyncHook("OnServerInit"))) return;
 
     await this.setupServer();
+    this.initializePacketEncodingWorker();
     if (this.isPvE) {
       console.log("Server in PvE mode");
     }
@@ -2304,7 +2314,7 @@ export class ZoneServer2016 extends EventEmitter {
       });
     }*/
     if (!this.weaponDefinitionsCache) {
-      this.packWeaponDefinitions();
+      await this.packWeaponDefinitions();
     }
     if (this.weaponDefinitionsCache) {
       this.sendRawDataReliable(client, this.weaponDefinitionsCache);
@@ -2331,7 +2341,7 @@ export class ZoneServer2016 extends EventEmitter {
     // Z1BR resolved this issue by using LZ4 to compress this block. We can easily add this in the patch, but we'll implement it if users start experiencing network issues.
     // FYI: This was tested with 40 players on my server without any issues. - Jason
     if (!this.dynamicAppearanceCache) {
-      this.packDynamicAppearance();
+      await this.packDynamicAppearance();
     }
     if (this.dynamicAppearanceCache) {
       this.sendRawDataReliable(client, this.dynamicAppearanceCache);
@@ -2494,7 +2504,7 @@ export class ZoneServer2016 extends EventEmitter {
       if (this._ready) {
         this.constructionManager.plantManager(this);
         await scheduler.yield();
-        this.worldObjectManager.run(this);
+        await this.worldObjectManager.run(this);
         await scheduler.yield();
         this.checkVehiclesInMapBounds();
         await scheduler.yield();
@@ -2576,7 +2586,7 @@ export class ZoneServer2016 extends EventEmitter {
       }
     }
     delete this._clients[client.sessionId];
-    this._gatewayServer.deleteSoeClient(client.soeClientId);
+    await this._gatewayServer.deleteSoeClient(client.soeClientId);
     if (!this._soloMode) {
       this.sendZonePopulationUpdate();
     }
@@ -2600,23 +2610,19 @@ export class ZoneServer2016 extends EventEmitter {
       targetPing = 0;
     if (sourceClient && !targetClient) {
       sourceName = sourceClient.character.name || "Unknown";
-      const sourceSOEClientAvgPing = this._gatewayServer.getSoeClientAvgPing(
-        sourceClient.soeClientId
-      );
+      const sourceSOEClientAvgPing =
+        await this._gatewayServer.getSoeClientAvgPing(sourceClient.soeClientId);
       sourcePing = sourceSOEClientAvgPing ?? 0;
     } else if (!sourceClient && targetClient) {
       targetName = targetClient.character.name || "Unknown";
-      const targetSOEClientAvgPing = this._gatewayServer.getSoeClientAvgPing(
-        targetClient.soeClientId
-      );
+      const targetSOEClientAvgPing =
+        await this._gatewayServer.getSoeClientAvgPing(targetClient.soeClientId);
       targetPing = targetSOEClientAvgPing ?? 0;
     } else if (sourceClient && targetClient) {
-      const sourceSOEClientAvgPing = this._gatewayServer.getSoeClientAvgPing(
-        sourceClient.soeClientId
-      );
-      const targetSOEClientAvgPing = this._gatewayServer.getSoeClientAvgPing(
-        targetClient.soeClientId
-      );
+      const sourceSOEClientAvgPing =
+        await this._gatewayServer.getSoeClientAvgPing(sourceClient.soeClientId);
+      const targetSOEClientAvgPing =
+        await this._gatewayServer.getSoeClientAvgPing(targetClient.soeClientId);
       sourcePing = sourceSOEClientAvgPing ?? 0;
       sourceName = sourceClient.character.name || "Unknown";
       targetName = targetClient.character.name || "Unknown";
@@ -3998,7 +4004,7 @@ export class ZoneServer2016 extends EventEmitter {
     }
   }
 
-  customizeStaticDTOs() {
+  async customizeStaticDTOs() {
     // caches DTOs that should always be removed
 
     for (const object in this._lootableProps) {
@@ -4040,7 +4046,7 @@ export class ZoneServer2016 extends EventEmitter {
       };
       this.staticDTOs.push(DTOinstance);
     });
-    const cache = this._protocol.pack("DtoObjectInitialData", {
+    const cache = await this.packPacket("DtoObjectInitialData", {
       unknownDword1: 1,
       unknownArray1: this.staticDTOs,
       unknownArray2: [{}]
@@ -4097,7 +4103,8 @@ export class ZoneServer2016 extends EventEmitter {
     effectId?: number,
     timeToDisappear?: number
   ): boolean {
-    if (!dictionary[characterId]) return false;
+    const entity = dictionary[characterId];
+    if (!entity) return false;
     this.sendDataToAllWithSpawnedEntity<CharacterRemovePlayer>(
       dictionary,
       characterId,
@@ -4111,8 +4118,8 @@ export class ZoneServer2016 extends EventEmitter {
       }
     );
     this._grid.forEach((cell: GridCell) => {
-      if (cell.objects.includes(dictionary[characterId])) {
-        cell.objects.splice(cell.objects.indexOf(dictionary[characterId]), 1);
+      if (cell.objects.includes(entity)) {
+        cell.objects.splice(cell.objects.indexOf(entity), 1);
       }
     });
 
@@ -4120,15 +4127,15 @@ export class ZoneServer2016 extends EventEmitter {
 
     for (const a in this._clients) {
       const client = this._clients[a];
-      if (client.spawnedEntities.delete(dictionary[characterId])) {
+      if (client.spawnedEntities.delete(entity)) {
         this.sendData<ClientUpdateProximateItems>(
           client,
           "ClientUpdate.ProximateItems",
           this.getProximityItems(client)
         );
       }
-      this.aiManager.removeEntity(dictionary[characterId]);
     }
+    this.aiManager.removeEntity(entity);
     delete dictionary[characterId];
     delete this._transientIds[this._characterIds[characterId]];
     delete this._characterIds[characterId];
@@ -4282,11 +4289,17 @@ export class ZoneServer2016 extends EventEmitter {
 
   private spawnGridObjects(client: Client) {
     const position = client.character.state.position;
+    const renderDistance = client.chunkRenderDistance;
     for (const gridCell of this._grid) {
       if (
-        !isPosInRadius(client.chunkRenderDistance, gridCell.position, position)
-      )
+        Math.abs(gridCell.position[0] - position[0]) >
+          renderDistance + gridCell.width / 2 ||
+        Math.abs(gridCell.position[2] - position[2]) >
+          renderDistance + gridCell.height / 2
+      ) {
         continue;
+      }
+      if (!isPosInRadius(renderDistance, gridCell.position, position)) continue;
 
       for (const object of gridCell.objects) {
         if (
@@ -4401,6 +4414,39 @@ export class ZoneServer2016 extends EventEmitter {
         }
 
         if (client.spawnedEntities.has(object)) continue;
+
+        if (object instanceof ConstructionParentEntity) {
+          this.constructionManager.spawnConstructionParent(
+            this,
+            client,
+            object
+          );
+          continue;
+        }
+
+        if (object instanceof ConstructionChildEntity) {
+          if (this.constructionManager.shouldHideEntity(this, client, object)) {
+            continue;
+          }
+          this.constructionManager.spawnSimpleConstruction(
+            this,
+            client,
+            object
+          );
+          continue;
+        }
+
+        if (object instanceof LootableConstructionEntity) {
+          if (this.constructionManager.shouldHideEntity(this, client, object)) {
+            continue;
+          }
+          this.constructionManager.spawnLootableConstruction(
+            this,
+            client,
+            object
+          );
+          continue;
+        }
 
         if (object instanceof BaseSimpleNpc) {
           if (object instanceof Crate) {
@@ -4896,8 +4942,11 @@ export class ZoneServer2016 extends EventEmitter {
       banReason: reason ? reason : "no reason",
       loginSessionId: loginSessionId,
       IP:
-        this._gatewayServer.getSoeClientNetworkInfos(client?.soeClientId ?? "")
-          ?.address ?? "",
+        (
+          await this._gatewayServer.getSoeClientNetworkInfos(
+            client?.soeClientId ?? ""
+          )
+        )?.address ?? "",
       adminId: adminId ? adminId : "",
       expirationDate: timestamp,
       active: true,
@@ -9042,7 +9091,9 @@ export class ZoneServer2016 extends EventEmitter {
   }
 
   async checkZonePing(client: Client) {
-    const ping = this._gatewayServer.getSoeClientAvgPing(client.soeClientId);
+    const ping = await this._gatewayServer.getSoeClientAvgPing(
+      client.soeClientId
+    );
     if (
       client.isAdmin ||
       Number(client.character.lastLoginDate) + 30000 > new Date().getTime() ||
@@ -9257,6 +9308,26 @@ export class ZoneServer2016 extends EventEmitter {
         this.sendRawDataReliable(this._clients[a], data);
       }
     }
+  }
+
+  private initializePacketEncodingWorker() {
+    this.packetEncodingWorker = new PacketEncodingWorker(this._clientProtocol);
+  }
+
+  private async packPacket<ZonePacket>(
+    packetName: h1z1PacketsType2016,
+    obj: ZonePacket
+  ): Promise<Buffer | null> {
+    if (this.packetEncodingWorker) {
+      try {
+        return await this.packetEncodingWorker.encodePacket(packetName, obj);
+      } catch (error) {
+        debug(
+          `Packet encoding worker failed for ${packetName}, falling back to local pack: ${error}`
+        );
+      }
+    }
+    return this._protocol.pack(packetName, obj);
   }
 
   sendDataToAll<ZonePacket>(packetName: h1z1PacketsType2016, obj: ZonePacket) {

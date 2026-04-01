@@ -78,6 +78,9 @@ interface WorldObjectsConfig {
   lootDespawnTimer: number;
   deadNpcDespawnTimer: number;
   lootbagDespawnTimer: number;
+  maxNpcDespawnsPerRun: number;
+  maxLootbagDespawnsPerRun: number;
+  maxItemDespawnsPerRun: number;
 
   chanceWornLetter: number;
 
