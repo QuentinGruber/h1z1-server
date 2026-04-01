@@ -265,30 +265,68 @@ import { AiManager } from "./managers/aimanager";
 import { AirdropManager } from "./managers/airdropmanager";
 //import { TaskManager } from "./managers/tasksmanager";
 
-const spawnLocations2 = require("../../../data/2016/zoneData/Z1_gridSpawns.json"),
-  deprecatedDoors = require("../../../data/2016/sampleData/deprecatedDoors.json"),
-  itemDefinitions = require("./../../../data/2016/dataSources/ServerItemDefinitions.json"),
-  containerDefinitions = require("./../../../data/2016/dataSources/ContainerDefinitions.json"),
-  profileDefinitions = require("./../../../data/2016/dataSources/ServerProfileDefinitions.json"),
-  projectileDefinitons = require("./../../../data/2016/dataSources/ServerProjectileDefinitions.json"),
-  itemClassDefinitions = require("./../../../data/2016/dataSources/ServerItemClassDefinitions.json"),
-  loadoutSlotItemClasses = require("./../../../data/2016/dataSources/LoadoutSlotItemClasses.json"),
-  equipSlotItemClasses = require("./../../../data/2016/dataSources/EquipSlotItemClasses.json"),
-  weaponDefinitions = require("../../../data/2016/dataSources/ServerWeaponDefinitions"),
-  resourceDefinitions = require("../../../data/2016/dataSources/Resources"),
-  Z1_POIs = require("../../../data/2016/zoneData/Z1_POIs"),
-  hudIndicators = require("../../../data/2016/dataSources/HudIndicators"),
-  screenEffects = require("../../../data/2016/sampleData/screenEffects.json"),
-  clientEffectsDataSource = require("../../../data/2016/dataSources/ClientEffects.json"),
-  itemUseOptionsDataSource = require("../../../data/2016/dataSources/ItemUseOptions"),
-  gameRulesSource = require("../../../data/2016/dataSources/ServerGameRules"),
-  models = require("../../../data/2016/dataSources/Models"),
-  accountItemConversions = require("./../../../data/2016/dataSources/AcctItemConversions.json"),
-  rewardCrates = require("./../../../data/2016/dataSources/AccountCrates.json"),
+const spawnLocations2 = PluginManager.loadServerData(
+    "2016/zoneData/Z1_gridSpawns.json"
+  ),
+  deprecatedDoors = PluginManager.loadServerData(
+    "2016/sampleData/deprecatedDoors.json"
+  ),
+  itemDefinitions = PluginManager.loadServerData(
+    "2016/dataSources/ServerItemDefinitions.json"
+  ),
+  containerDefinitions = PluginManager.loadServerData(
+    "2016/dataSources/ContainerDefinitions.json"
+  ),
+  profileDefinitions = PluginManager.loadServerData(
+    "2016/dataSources/ServerProfileDefinitions.json"
+  ),
+  projectileDefinitons = PluginManager.loadServerData(
+    "2016/dataSources/ServerProjectileDefinitions.json"
+  ),
+  itemClassDefinitions = PluginManager.loadServerData(
+    "2016/dataSources/ServerItemClassDefinitions.json"
+  ),
+  loadoutSlotItemClasses = PluginManager.loadServerData(
+    "2016/dataSources/LoadoutSlotItemClasses.json"
+  ),
+  equipSlotItemClasses = PluginManager.loadServerData(
+    "2016/dataSources/EquipSlotItemClasses.json"
+  ),
+  weaponDefinitions = PluginManager.loadServerData(
+    "2016/dataSources/ServerWeaponDefinitions"
+  ),
+  resourceDefinitions = PluginManager.loadServerData(
+    "2016/dataSources/Resources"
+  ),
+  Z1_POIs = PluginManager.loadServerData("2016/zoneData/Z1_POIs"),
+  hudIndicators = PluginManager.loadServerData(
+    "2016/dataSources/HudIndicators"
+  ),
+  screenEffects = PluginManager.loadServerData(
+    "2016/sampleData/screenEffects.json"
+  ),
+  clientEffectsDataSource = PluginManager.loadServerData(
+    "2016/dataSources/ClientEffects.json"
+  ),
+  itemUseOptionsDataSource = PluginManager.loadServerData(
+    "2016/dataSources/ItemUseOptions"
+  ),
+  gameRulesSource = PluginManager.loadServerData(
+    "2016/dataSources/ServerGameRules"
+  ),
+  models = PluginManager.loadServerData("2016/dataSources/Models"),
+  accountItemConversions = PluginManager.loadServerData(
+    "2016/dataSources/AcctItemConversions.json"
+  ),
+  rewardCrates = PluginManager.loadServerData(
+    "2016/dataSources/AccountCrates.json"
+  ),
   equipmentModelTexturesMapping: Record<
     string,
     Record<string, string[]>
-  > = require("../../../data/2016/sampleData/equipmentModelTexturesMapping.json");
+  > = PluginManager.loadServerData(
+    "2016/sampleData/equipmentModelTexturesMapping.json"
+  );
 
 export class ZoneServer2016 extends EventEmitter {
   /** Networking layer - allows sending game data to the game client,
@@ -472,7 +510,9 @@ export class ZoneServer2016 extends EventEmitter {
   disableMapBoundsCheck!: boolean;
   /*                          */
   navManager: NavManager;
-  staticBuildings: AddSimpleNpc[] = require("../../../data/2016/sampleData/staticbuildings.json");
+  staticBuildings: AddSimpleNpc[] = PluginManager.loadServerData(
+    "2016/sampleData/staticbuildings.json"
+  );
   worldSaveFailed: boolean = false;
   challengeManager: ChallengeManager;
   challengePositionCheckInterval?: NodeJS.Timeout;
@@ -714,8 +754,8 @@ export class ZoneServer2016 extends EventEmitter {
       this.registerLoginConnectionListeners(internalServerPort);
     }
 
-    const dynamicappearance = loadJson(
-      __dirname + "/../../../data/2016/sampleData/dynamicappearance.json"
+    const dynamicappearance = PluginManager.loadServerData(
+      "2016/sampleData/dynamicappearance.json"
     );
     this.dynamicappearance = dynamicappearance;
     if (this._mongoAddress && this.rebootTime) {
@@ -1121,7 +1161,9 @@ export class ZoneServer2016 extends EventEmitter {
     try {
       const characterData = JSON.parse(characterObjStringify),
         characterModelData = getCharacterModelData(characterData.payload);
-      let character: FullCharacterSaveData = require("../../../data/2016/sampleData/character.json");
+      let character: FullCharacterSaveData = PluginManager.loadServerData(
+        "2016/sampleData/character.json"
+      );
       character = {
         ...character,
         serverId: characterData.serverId,

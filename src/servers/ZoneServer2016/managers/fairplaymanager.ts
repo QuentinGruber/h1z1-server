@@ -44,10 +44,17 @@ import {
 } from "../models/enums";
 import { ZoneServer2016 } from "../zoneserver";
 import { FileHash } from "types/shared";
+import { PluginManager } from "./pluginmanager";
 
-const encryptedData = require("../../../../data/2016/encryptedData/encryptedData.json"),
-  fairPlayData = require("../../../../data/2016/encryptedData/fairPlayData.json"),
-  defaultHashes: Array<FileHash> = require("../../../../data/2016/dataSources/AllowedFileHashes.json");
+const encryptedData = PluginManager.loadServerData(
+    "2016/encryptedData/encryptedData.json"
+  ),
+  fairPlayData = PluginManager.loadServerData(
+    "2016/encryptedData/fairPlayData.json"
+  ),
+  defaultHashes: Array<FileHash> = PluginManager.loadServerData(
+    "2016/dataSources/AllowedFileHashes.json"
+  );
 
 export class FairPlayManager {
   _decryptKey: string = "";

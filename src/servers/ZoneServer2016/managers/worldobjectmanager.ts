@@ -12,16 +12,25 @@
 // ======================================================================
 
 import { ZoneServer2016 } from "../zoneserver";
-const Z1_doors = require("../../../../data/2016/zoneData/Z1_doors.json");
-const Z1_items = require("../../../../data/2016/zoneData/Z1_items.json");
-const Z1_vehicles = require("../../../../data/2016/zoneData/Z1_vehicleLocations.json");
-const Z1_npcs = require("../../../../data/2016/zoneData/Z1_npcs.json");
-const Z1_lootableProps = require("../../../../data/2016/zoneData/Z1_lootableProps.json");
-const Z1_taskProps = require("../../../../data/2016/zoneData/Z1_taskProps.json");
-const Z1_crates = require("../../../../data/2016/zoneData/Z1_crates.json");
-const Z1_destroyables = require("../../../../data/2016/zoneData/Z1_destroyables.json");
-const models = require("../../../../data/2016/dataSources/Models.json");
-// const bannedZombieModels = require("../../../../data/2016/sampleData/bannedZombiesModels.json");
+import { PluginManager } from "./pluginmanager";
+const Z1_doors = PluginManager.loadServerData("2016/zoneData/Z1_doors.json");
+const Z1_items = PluginManager.loadServerData("2016/zoneData/Z1_items.json");
+const Z1_vehicles = PluginManager.loadServerData(
+  "2016/zoneData/Z1_vehicleLocations.json"
+);
+const Z1_npcs = PluginManager.loadServerData("2016/zoneData/Z1_npcs.json");
+const Z1_lootableProps = PluginManager.loadServerData(
+  "2016/zoneData/Z1_lootableProps.json"
+);
+const Z1_taskProps = PluginManager.loadServerData(
+  "2016/zoneData/Z1_taskProps.json"
+);
+const Z1_crates = PluginManager.loadServerData("2016/zoneData/Z1_crates.json");
+const Z1_destroyables = PluginManager.loadServerData(
+  "2016/zoneData/Z1_destroyables.json"
+);
+const models = PluginManager.loadServerData("2016/dataSources/Models.json");
+// const bannedZombieModels = PluginManager.loadServerData("2016/sampleData/bannedZombiesModels.json");
 import {
   _,
   eul2quat,

@@ -66,7 +66,10 @@ import { scheduler } from "node:timers/promises";
 import { Vehicle2016 } from "../../entities/vehicle";
 import { AddSimpleNpc } from "types/zone2016packets";
 import { writeFileSync } from "node:fs";
-const itemDefinitions = require("./../../../../../data/2016/dataSources/ServerItemDefinitions.json");
+import { PluginManager } from "../../managers/pluginmanager";
+const itemDefinitions = PluginManager.loadServerData(
+  "2016/dataSources/ServerItemDefinitions.json"
+);
 
 export const commands: Array<Command> = [
   //#region DEFAULT PERMISSIONS

@@ -34,6 +34,7 @@ import { ZoneClient2016 } from "servers/ZoneServer2016/classes/zoneclient";
 import * as crypto from "crypto";
 import { ZoneClient } from "servers/ZoneServer2015/classes/zoneclient";
 import { ConstructionDoor } from "../servers/ZoneServer2016/entities/constructiondoor";
+import { PluginManager } from "../servers/ZoneServer2016/managers/pluginmanager";
 
 const startTime = Date.now();
 
@@ -1684,7 +1685,7 @@ export function luck(l: number) {
   return Math.floor(Math.random() * l) === 0;
 }
 
-const Z1_POIs = require("../../data/2016/zoneData/Z1_POIs");
+const Z1_POIs = PluginManager.loadServerData("2016/zoneData/Z1_POIs");
 export function isPosInPoi(position: Float32Array): boolean {
   let isInPoi = false;
   Z1_POIs.forEach((point: any) => {
@@ -1706,7 +1707,9 @@ export function isPosInPoi(position: Float32Array): boolean {
   return isInPoi;
 }
 
-const Z1_nerfedPOIs = require("../../data/2016/zoneData/Z1_nerfedPOIs");
+const Z1_nerfedPOIs = PluginManager.loadServerData(
+  "2016/zoneData/Z1_nerfedPOIs"
+);
 export function isLootNerfedLoc(position: Float32Array): number {
   let useRange = true;
   let nerfedValue = 0;

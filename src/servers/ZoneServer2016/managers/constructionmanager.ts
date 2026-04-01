@@ -11,9 +11,6 @@
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
 
-const Z1_vehicles = require("../../../../data/2016/zoneData/Z1_vehicleLocations.json"),
-  spawnLocations2 = require("../../../../data/2016/zoneData/Z1_gridSpawns.json");
-
 import {
   ConstructionEntity,
   dailyRepairMaterial,
@@ -64,6 +61,14 @@ import {
   ConstructionUnknown,
   PlayerUpdatePosition
 } from "types/zone2016packets";
+import { PluginManager } from "./pluginmanager";
+
+const Z1_vehicles = PluginManager.loadServerData(
+    "2016/zoneData/Z1_vehicleLocations.json"
+  ),
+  spawnLocations2 = PluginManager.loadServerData(
+    "2016/zoneData/Z1_gridSpawns.json"
+  );
 
 export class ConstructionManager {
   overridePlacementItems: Array<number> = [

@@ -18,9 +18,12 @@ import { _, isChristmasSeason } from "../../../utils/utils";
 import { ZoneClient2016 as Client } from "../classes/zoneclient";
 import { ZoneServer2016 } from "../zoneserver";
 import EventEmitter from "node:events";
+import { PluginManager } from "./pluginmanager";
 //const debug = require("debug")("dynamicWeather");
 
-const localWeatherTemplates = require("../../../../data/2016/dataSources/weather.json");
+const localWeatherTemplates = PluginManager.loadServerData(
+  "2016/dataSources/weather.json"
+);
 
 function rnd_number(
   max: number,
@@ -199,7 +202,9 @@ export class WeatherManager extends EventEmitter {
         delete require.cache[
           require.resolve("../../../../data/2016/dataSources/weather.json")
         ];
-        this.templates = require("../../../../data/2016/dataSources/weather.json");
+        this.templates = PluginManager.loadServerData(
+          "2016/dataSources/weather.json"
+        );
       } else {
         await server._db?.collection("weathers").insertOne(template);
         this.templates = await (server._db as any)
