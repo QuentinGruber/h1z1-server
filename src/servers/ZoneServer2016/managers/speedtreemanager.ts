@@ -12,7 +12,7 @@
 // ======================================================================
 
 import { PropInstance, SpeedTree, ZoneSpeedTreeData } from "types/zoneserver";
-import { loadJson, randomIntFromInterval } from "../../../utils/utils";
+import { randomIntFromInterval } from "../../../utils/utils";
 import { ZoneClient2016 as Client } from "../classes/zoneclient";
 import { Items, TreeIds } from "../models/enums";
 import { ZoneServer2016 } from "../zoneserver";

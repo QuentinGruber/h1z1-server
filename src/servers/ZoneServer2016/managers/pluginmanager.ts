@@ -59,8 +59,8 @@ function folderExists(path: string): boolean {
     const stats = fs.statSync(path);
     return stats.isDirectory();
   } catch (err: any) {
-    if (err.code === "ENOENT") {
-      // Folder doesn't exist
+    if (err.code === "ENOENT" || err.code === "ENOTDIR") {
+      // Folder doesn't exist or path traverses through a non-directory
       return false;
     } else {
       // Other error occurred
