@@ -119,12 +119,7 @@ export class WaterSource extends TaskProp {
     }
   }
 
-  /* eslint-disable @typescript-eslint/no-unused-vars */
-  OnPlayerSelect(
-    server: ZoneServer2016,
-    client: ZoneClient2016
-    /* eslint-enable @typescript-eslint/no-unused-vars */
-  ) {
+  OnPlayerSelect(server: ZoneServer2016, client: ZoneClient2016) {
     if (this.actorModelId == ModelIds.FIRE_HYDRANT && !this.isHydrantGushing) {
       server.utilizeHudTimer(client, StringIds.FIRE_HYDRANT, 3000, 0, () => {
         if (this.isHydrantOnCooldown) {
@@ -138,15 +133,17 @@ export class WaterSource extends TaskProp {
       });
       return;
     }
-    const bottle = client.character.getItemById(Items.WATER_EMPTY),
-      infiniteSources = [
-        "Common_Props_Well.adr",
-        "Common_Props_Dam_WaterValve01.adr",
-        "Common_Props_FireHydrant.adr"
-      ],
-      hasUses =
-        infiniteSources.includes(this.actorModel) ||
-        (this.usesLeft && this.usesLeft > 0);
+
+    const infiniteSources = [
+      "Common_Props_Well.adr",
+      "Common_Props_Dam_WaterValve01.adr",
+      "Common_Props_FireHydrant.adr"
+    ];
+
+    const hasUses =
+      infiniteSources.includes(this.actorModel) ||
+      (this.usesLeft && this.usesLeft > 0);
+
     if (!hasUses) {
       server.utilizeHudTimer(client, StringIds.DIRTY_WATER, 250, 0, () => {
         server.sendAlert(client, "This water source is dry.");
@@ -154,7 +151,7 @@ export class WaterSource extends TaskProp {
       return;
     }
 
-    if (!bottle) {
+    if (!client.character.getItemById(Items.WATER_EMPTY)) {
       server.utilizeHudTimer(
         client,
         infiniteSources.includes(this.actorModel)
@@ -176,26 +173,34 @@ export class WaterSource extends TaskProp {
       );
       return;
     }
-    server.utilizeHudTimer(
-      client,
-      infiniteSources.includes(this.actorModel)
+
+    const fillNext = () => {
+      const bottle = client.character.getItemById(Items.WATER_EMPTY);
+      const sourceHasUses =
+        infiniteSources.includes(this.actorModel) ||
+        (this.usesLeft && this.usesLeft > 0);
+
+      if (!bottle || !sourceHasUses) return;
+
+      const stringId = infiniteSources.includes(this.actorModel)
         ? StringIds.WATER_WELL
-        : StringIds.DIRTY_WATER,
-      1000,
-      0,
-      () => {
+        : StringIds.DIRTY_WATER;
+      const filledItem = infiniteSources.includes(this.actorModel)
+        ? Items.WATER_STAGNANT
+        : Items.WATER_DIRTY;
+
+      server.utilizeHudTimer(client, stringId, 1000, 0, () => {
         if (!server.removeInventoryItem(client.character, bottle)) return;
         client.character.lootContainerItem(
           server,
-          server.generateItem(
-            infiniteSources.includes(this.actorModel)
-              ? Items.WATER_STAGNANT
-              : Items.WATER_DIRTY
-          )
+          server.generateItem(filledItem)
         );
         if (this.usesLeft) this.usesLeft--;
-      }
-    );
+        setTimeout(() => fillNext(), 0);
+      });
+    };
+
+    fillNext();
   }
 
   OnMeleeHit(server: ZoneServer2016, damageInfo: DamageInfo) {

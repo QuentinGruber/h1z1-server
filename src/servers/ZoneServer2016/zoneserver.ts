@@ -7197,6 +7197,40 @@ export class ZoneServer2016 extends EventEmitter {
       return;
     }
 
+    const shouldStop = () => {
+      const res = client.character._resources;
+      if (healCount || bandagingCount) {
+        const ht = client.character.healType[healType];
+        const pendingHeal = (ht.healingMaxTicks - ht.healingTicks) * 100;
+        const healthWillBeFull = res[ResourceIds.HEALTH] + pendingHeal >= 10000;
+        const bleedingIsStopped = res[ResourceIds.BLEEDING] <= 0;
+        return healthWillBeFull && bleedingIsStopped;
+      }
+      const isCanned = [
+        Items.CANNED_FOOD01, Items.CANNED_FOOD02, Items.CANNED_FOOD03,
+        Items.CANNED_FOOD04, Items.CANNED_FOOD05, Items.CANNED_FOOD06,
+        Items.CANNED_FOOD07, Items.CANNED_FOOD08, Items.CANNED_FOOD09,
+        Items.CANNED_FOOD10, Items.CANNED_FOOD11, Items.CANNED_FOOD21,
+        Items.CANNED_FOOD25, Items.CANNED_FOOD26
+      ].includes(item.itemDefinitionId);
+      if (isCanned) return false;
+      if (eatCount > 0 && res[ResourceIds.HUNGER] < 10000) return false;
+      if (drinkCount > 0 && res[ResourceIds.HYDRATION] < 10000) return false;
+      if (comfortCount > 0 && res[ResourceIds.COMFORT] < 5000) return false;
+      return true;
+    };
+
+    if ((healCount || bandagingCount) && shouldStop()) {
+      const ht = client.character.healType[healType];
+      const pendingHeal = (ht.healingMaxTicks - ht.healingTicks) * 100;
+      if (pendingHeal > 0) {
+        this.sendAlert(client, "Your healing is already in progress and will reach 100% HP.");
+      } else {
+        this.sendAlert(client, "You are already at full health.");
+      }
+      return;
+    }
+
     this.utilizeHudTimer(client, itemDef.NAME_ID, timeout, animationId, () => {
       this.useComsumablePass(
         client,
@@ -7212,6 +7246,19 @@ export class ZoneServer2016 extends EventEmitter {
         enduranceCount,
         healType
       );
+      const consumeNext = () => {
+        if (shouldStop()) return;
+        const nextItem = character.getItemById(item.itemDefinitionId);
+        if (!nextItem) return;
+        this.utilizeHudTimer(client, itemDef.NAME_ID, timeout, animationId, () => {
+          this.useComsumablePass(
+            client, character, nextItem, eatCount, drinkCount, comfortCount,
+            staminaCount, givetrash, healCount, bandagingCount, enduranceCount, healType
+          );
+          setTimeout(() => consumeNext(), 0);
+        });
+      };
+      setTimeout(() => consumeNext(), 0);
     });
   }
 
@@ -7495,11 +7542,18 @@ export class ZoneServer2016 extends EventEmitter {
         );
     }
     switch (useoption) {
-      case "fill": // empty bottle
-        this.utilizeHudTimer(client, nameId, timeout, animationId, () => {
-          this.fillPass(client, character, item);
-        });
+      case "fill": { // empty bottle - auto-fill all bottles while in water
+        const fillNext = () => {
+          const bottle = character.getItemById(Items.WATER_EMPTY);
+          if (!bottle || !client.character.characterStates.inWater) return;
+          this.utilizeHudTimer(client, nameId, timeout, animationId, () => {
+            this.fillPass(client, character, bottle);
+            setTimeout(() => fillNext(), 0);
+          });
+        };
+        fillNext();
         break;
+      }
       case "sniff": // swizzle
         this.utilizeHudTimer(client, nameId, timeout, animationId, () => {
           this.sniffPass(client, character, item);
