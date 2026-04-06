@@ -178,6 +178,7 @@ export class WorldObjectManager {
   waterSourceRefillAmount!: number;
   gridScrapLimit!: number;
   gridScrapLimitEnabled!: boolean;
+  private _lootNerfCache: Map<number, number> = new Map();
 
   private zombieSlots = [
     EquipSlots.HEAD,
@@ -1341,7 +1342,14 @@ export class WorldObjectManager {
           counter++;
           if (this.spawnedLootObjects[itemInstance.id]) continue;
           const chance = Math.floor(Math.random() * 100) + 1;
-          if (chance <= lootTable.spawnChance) {
+          if (!this._lootNerfCache.has(itemInstance.id)) {
+            this._lootNerfCache.set(itemInstance.id, isLootNerfedLoc(itemInstance.position));
+          }
+          if (
+            chance <=
+            lootTable.spawnChance *
+              (1 - (this._lootNerfCache.get(itemInstance.id) as number) / 100)
+          ) {
             if (!WorldObjectManager.itemSpawnersChances[itemInstance.id]) {
               const realSpawnChance =
                 ((lootTable.spawnChance / allEntries.length) *
@@ -1639,10 +1647,7 @@ export class WorldObjectManager {
       }
       if (Object.keys(container.items).length != 0) {
         Object.values(server._clients).forEach((client: ZoneClient2016) => {
-          const index = client.searchedProps.indexOf(prop);
-          if (index > -1) {
-            client.searchedProps.splice(index, 1);
-          }
+          client.searchedProps.delete(prop);
         });
       }
     }

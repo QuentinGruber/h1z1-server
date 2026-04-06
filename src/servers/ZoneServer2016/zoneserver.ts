@@ -1505,7 +1505,7 @@ export class ZoneServer2016 extends EventEmitter {
             object.state.position,
             1
           ) &&
-          client.searchedProps.includes(object)
+          client.searchedProps.has(object)
         ) {
           const container = object.getContainer();
           if (container) {

@@ -67,7 +67,7 @@ export class ZoneClient2016 {
   spawnedDTOs: any[] = [];
   spawnedEntities: Set<BaseEntity> = new Set();
   sentInteractionCounter: number = 1;
-  searchedProps: (LootableProp | Lootbag)[] = [];
+  searchedProps: Set<LootableProp | Lootbag> = new Set();
   managedObjects: string[] = [];
   vehicle: {
     mountedVehicle?: string;
