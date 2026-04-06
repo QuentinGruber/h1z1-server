@@ -42,6 +42,7 @@ import {
 } from "../../data/loadouts";
 import { emoteMap, emoteNames, defaultEmotes } from "../../data/emotes";
 import {
+  ConstructionPermissionIds,
   Effects,
   EquipSlots,
   Items,
@@ -67,6 +68,7 @@ import { Vehicle2016 } from "../../entities/vehicle";
 import { AddSimpleNpc } from "types/zone2016packets";
 import { writeFileSync } from "node:fs";
 const itemDefinitions = require("./../../../../../data/2016/dataSources/ServerItemDefinitions.json");
+const closeGatesCooldowns: Map<string, number> = new Map();
 
 export const commands: Array<Command> = [
   //#region DEFAULT PERMISSIONS
@@ -3782,4 +3784,70 @@ export const commands: Array<Command> = [
   }
 
   //#endregion
+
+  {
+    name: "closegates",
+    description: "Closes all open gates/doors on decks you have access to (max 20, 30s cooldown).",
+    permissionLevel: PermissionLevels.DEFAULT,
+    execute: (server: ZoneServer2016, client: Client) => {
+      const COOLDOWN_MS = 30_000;
+      const MAX_DOORS = 20;
+      const charId = client.character.characterId;
+      const lastUse = closeGatesCooldowns.get(charId) ?? 0;
+      const remaining = Math.ceil((lastUse + COOLDOWN_MS - Date.now()) / 1000);
+      if (remaining > 0) {
+        server.sendChatText(client, `Wait ${remaining}s before using this again.`);
+        return;
+      }
+      const nearBase = Object.values(server._constructionDoors).some(
+        d => d.getHasPermission(server, charId, ConstructionPermissionIds.CONTAINERS) &&
+          isPosInRadius(50, client.character.state.position, d.state.position)
+      );
+      if (!nearBase) {
+        server.sendChatText(client, "You must be near a base you have access to.");
+        return;
+      }
+      closeGatesCooldowns.set(charId, Date.now());
+      let closed = 0;
+      for (const id in server._constructionDoors) {
+        if (closed >= MAX_DOORS) break;
+        const door = server._constructionDoors[id];
+        if (
+          !door.getHasPermission(server, charId, ConstructionPermissionIds.CONTAINERS) ||
+          !door.isOpen || door.moving
+        ) continue;
+        door.moving = true;
+        setTimeout(() => { door.moving = false; }, 1000);
+        server.sendDataToAllWithSpawnedEntity(
+          server._constructionDoors,
+          door.characterId,
+          "PlayerUpdatePosition",
+          {
+            transientId: door.transientId,
+            positionUpdate: {
+              sequenceTime: 0,
+              unknown3_int8: 0,
+              position: door.state.position,
+              orientation: door.closedAngle
+            }
+          }
+        );
+        server.sendDataToAllWithSpawnedEntity(
+          server._constructionDoors,
+          door.characterId,
+          "Command.PlayDialogEffect",
+          { characterId: door.characterId, effectId: door.closeSound }
+        );
+        door.isOpen = false;
+        door.isSecured = true;
+        const parent = door.getParent(server);
+        if (parent) parent.updateSecuredState(server);
+        closed++;
+      }
+      server.sendChatText(
+        client,
+        closed > 0 ? `Closed ${closed} gate${closed > 1 ? "s" : ""}.` : "No open gates found."
+      );
+    }
+  }
 ];
