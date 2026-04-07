@@ -3610,6 +3610,22 @@ export const commands: Array<Command> = [
     }
   },
   {
+    name: "reloadconfig",
+    permissionLevel: PermissionLevels.ADMIN,
+    execute: async (
+      server: ZoneServer2016,
+      client: Client,
+      args: Array<string>
+    ) => {
+      const success = server.configManager.reload(server);
+      if (success) {
+        server.sendChatText(client, "Config reloaded successfully.");
+      } else {
+        server.sendChatText(client, "Failed to reload config.");
+      }
+    }
+  },
+  {
     name: "console",
     permissionLevel: PermissionLevels.DEFAULT,
     execute: async (
