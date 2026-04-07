@@ -1,0 +1,51 @@
+{
+  "type": "container",
+  "maxItems": 1,
+  "pools": [
+    {
+      "conditions": [],
+      "entries": [
+        {
+          "item": 1903,
+          "weight": 1,
+          "count": {
+            "min": 1,
+            "max": 1
+          }
+        },
+        {
+          "item": 1699,
+          "weight": 1,
+          "count": {
+            "min": 10,
+            "max": 20
+          }
+        },
+        {
+          "item": 1384,
+          "weight": 1,
+          "count": {
+            "min": 10,
+            "max": 20
+          }
+        },
+        {
+          "item": 1436,
+          "weight": 1,
+          "count": {
+            "min": 1,
+            "max": 1
+          }
+        },
+        {
+          "item": 1441,
+          "weight": 1,
+          "count": {
+            "min": 1,
+            "max": 1
+          }
+        }
+      ]
+    }
+  ]
+}

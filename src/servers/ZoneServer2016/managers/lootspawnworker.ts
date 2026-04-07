@@ -55,6 +55,11 @@ export interface ContainerPropSnapshot {
   existingItemDefinitionIds: number[];
 }
 
+export interface SpawnedItemSnapshot {
+  position: [number, number, number];
+  itemDefinitionId: number;
+}
+
 interface ContainerPlanEntry {
   characterId: string;
   itemDefinitionId: number;
@@ -67,6 +72,8 @@ type WorkerRequest =
       type: "loot";
       payload: {
         spawnedLootSpawnerIds: number[];
+        spawnedItems: SpawnedItemSnapshot[];
+        ingameHour: number;
       };
     }
   | {
@@ -120,9 +127,12 @@ export class LootSpawnWorker {
   private pendingRequests: Map<number, PendingRequest> = new Map();
   private isStopped = false;
 
-  constructor() {
+  constructor(workerData: {
+    groundTables: Record<string, unknown>;
+    containerTables: Record<string, unknown>;
+  }) {
     const workerPath = path.join(__dirname, "lootspawn.worker.js");
-    this.worker = new Worker(workerPath);
+    this.worker = new Worker(workerPath, { workerData });
 
     this.worker.on("message", (message: WorkerResponse) => {
       const pendingRequest = this.pendingRequests.get(message.requestId);
@@ -150,12 +160,18 @@ export class LootSpawnWorker {
     });
   }
 
-  createLootPlan(spawnedLootSpawnerIds: number[]): Promise<LootPlanEntry[]> {
+  createLootPlan(
+    spawnedLootSpawnerIds: number[],
+    spawnedItems: SpawnedItemSnapshot[],
+    ingameHour: number
+  ): Promise<LootPlanEntry[]> {
     const request: WorkerRequest = {
       requestId: this.requestId++,
       type: "loot",
       payload: {
-        spawnedLootSpawnerIds
+        spawnedLootSpawnerIds,
+        spawnedItems,
+        ingameHour
       }
     };
     return this.request<LootPlanEntry[]>(request);

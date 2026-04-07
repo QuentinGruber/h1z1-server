@@ -227,7 +227,7 @@ export class WorldDataManager {
   }
   async deleteServerData() {
     if (this._soloMode) {
-      fs.writeFileSync(
+      await fs.promises.writeFile(
         `${this._appDataFolder}/worlddata/world.json`,
         JSON.stringify({}, null, 2)
       );
@@ -240,7 +240,7 @@ export class WorldDataManager {
 
   async deleteCharacters() {
     if (this._soloMode) {
-      fs.writeFileSync(
+      await fs.promises.writeFile(
         `${this._appDataFolder}/single_player_characters2016.json`,
         JSON.stringify([], null, 2)
       );
@@ -415,7 +415,7 @@ export class WorldDataManager {
       worldSaveVersion: this.worldSaveVersion
     };
     if (this._soloMode) {
-      fs.writeFileSync(
+      await fs.promises.writeFile(
         `${this._appDataFolder}/worlddata/world.json`,
         JSON.stringify(saveData, null, 2)
       );
@@ -575,7 +575,7 @@ export class WorldDataManager {
         ...singlePlayerCharacter,
         ...characterSaveData
       };
-      fs.writeFileSync(
+      await fs.promises.writeFile(
         `${this._appDataFolder}/single_player_characters2016.json`,
         JSON.stringify([singlePlayerCharacter], null, 2)
       );
@@ -1038,7 +1038,7 @@ export class WorldDataManager {
     if (!constructions.length) return;
 
     if (this._soloMode) {
-      fs.writeFileSync(
+      await fs.promises.writeFile(
         `${this._appDataFolder}/worlddata/construction.json`,
         JSON.stringify(constructions, null, 2)
       );
@@ -1102,7 +1102,7 @@ export class WorldDataManager {
 
   async saveCropData(crops: PlantingDiameterSaveData[]) {
     if (this._soloMode) {
-      fs.writeFileSync(
+      await fs.promises.writeFile(
         `${this._appDataFolder}/worlddata/crops.json`,
         JSON.stringify(crops, null, 2)
       );
@@ -1232,7 +1232,7 @@ export class WorldDataManager {
 
   async saveVehicles(vehicles: FullVehicleSaveData[]) {
     if (this._soloMode) {
-      fs.writeFileSync(
+      await fs.promises.writeFile(
         `${this._appDataFolder}/worlddata/vehicles.json`,
         JSON.stringify(vehicles, null, 2)
       );
@@ -1264,7 +1264,7 @@ export class WorldDataManager {
     freeplaces: LootableConstructionSaveData[]
   ) {
     if (this._soloMode) {
-      fs.writeFileSync(
+      await fs.promises.writeFile(
         `${this._appDataFolder}/worlddata/worldconstruction.json`,
         JSON.stringify(freeplaces, null, 2)
       );
@@ -1330,7 +1330,7 @@ export class WorldDataManager {
 
   async saveTrapData(traps: TrapSaveData[]) {
     if (this._soloMode) {
-      fs.writeFileSync(
+      await fs.promises.writeFile(
         `${this._appDataFolder}/worlddata/traps.json`,
         JSON.stringify(traps, null, 2)
       );

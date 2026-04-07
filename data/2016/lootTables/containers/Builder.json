@@ -1,0 +1,75 @@
+{
+  "type": "container",
+  "maxItems": 1,
+  "pools": [
+    {
+      "conditions": [],
+      "entries": [
+        {
+          "item": 48,
+          "weight": 1,
+          "count": {
+            "min": 50,
+            "max": 50
+          }
+        },
+        {
+          "item": 16,
+          "weight": 1,
+          "count": {
+            "min": 50,
+            "max": 50
+          }
+        },
+        {
+          "item": 58,
+          "weight": 1,
+          "count": {
+            "min": 1,
+            "max": 1
+          }
+        },
+        {
+          "item": 82,
+          "weight": 1,
+          "count": {
+            "min": 1,
+            "max": 1
+          }
+        },
+        {
+          "item": 1536,
+          "weight": 1,
+          "count": {
+            "min": 1,
+            "max": 1
+          }
+        },
+        {
+          "item": 1433,
+          "weight": 1,
+          "count": {
+            "min": 1,
+            "max": 1
+          }
+        },
+        {
+          "item": 1891,
+          "weight": 1,
+          "count": {
+            "min": 1,
+            "max": 1
+          }
+        },
+        {
+          "item": 1441,
+          "weight": 1,
+          "count": {
+            "min": 1,
+            "max": 1
+          }
+        }
+      ]
+    }
+  ]
+}

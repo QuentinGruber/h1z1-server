@@ -1,0 +1,19 @@
+{
+  "type": "ground",
+  "spawnChance": 5,
+  "pools": [
+    {
+      "conditions": [],
+      "entries": [
+        {
+          "item": 78,
+          "weight": 100,
+          "count": {
+            "min": 1,
+            "max": 1
+          }
+        }
+      ]
+    }
+  ]
+}

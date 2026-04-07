@@ -38,8 +38,7 @@ import {
   isPosInRadius,
   randomIntFromInterval,
   fixEulerOrder,
-  getCurrentServerTimeWrapper,
-  isLootNerfedLoc
+  getCurrentServerTimeWrapper
 } from "../../../utils/utils";
 import {
   EquipSlots,
@@ -55,12 +54,11 @@ import {
   VehicleIds
 } from "../models/enums";
 import { Vehicle2016 } from "../entities/vehicle";
-import { LootDefinition } from "types/zoneserver";
 import { ItemObject } from "../entities/itemobject";
 import { DoorEntity } from "../entities/doorentity";
 import { BaseFullCharacter } from "../entities/basefullcharacter";
 import { ExplosiveEntity } from "../entities/explosiveentity";
-import { lootTables, containerLootSpawners } from "../data/lootspawns";
+import { LootTableManager } from "./loottablemanager";
 import { BaseItem } from "../classes/baseItem";
 import { Lootbag } from "../entities/lootbag";
 import { LootableProp } from "../entities/lootableprop";
@@ -79,7 +77,8 @@ import {
   ItemDespawnSnapshot,
   LootSpawnWorker,
   LootbagDespawnSnapshot,
-  NpcDespawnSnapshot
+  NpcDespawnSnapshot,
+  SpawnedItemSnapshot
 } from "./lootspawnworker";
 const debug = require("debug")("ZoneServer");
 const apm = require("elastic-apm-node");
@@ -113,7 +112,9 @@ export function getRandomSkin(itemDefinitionId: number) {
   return itemDefId;
 }
 
-export function getRandomItem(items: Array<LootDefinition>) {
+export function getRandomItem<T extends { weight: number }>(
+  items: Array<T>
+): T | undefined {
   const totalWeight = items.reduce((total, item) => total + item.weight, 0),
     randomWeight = Math.random() * totalWeight;
   let currentWeight = 0;
@@ -124,6 +125,7 @@ export function getRandomItem(items: Array<LootDefinition>) {
       return items[i];
     }
   }
+  return undefined;
 }
 
 export class WorldObjectManager {
@@ -170,6 +172,7 @@ export class WorldObjectManager {
   static itemSpawnersChances: Record<string, number> = {};
   private isRunning = false;
   private lootSpawnWorker?: LootSpawnWorker;
+  readonly lootTableManager = new LootTableManager();
   maxNpcDespawnsPerRun = 40;
   maxLootbagDespawnsPerRun = 40;
   maxItemDespawnsPerRun = 120;
@@ -245,7 +248,10 @@ export class WorldObjectManager {
 
   private getLootSpawnWorker(): LootSpawnWorker {
     if (!this.lootSpawnWorker) {
-      this.lootSpawnWorker = new LootSpawnWorker();
+      this.lootSpawnWorker = new LootSpawnWorker({
+        groundTables: this.lootTableManager.getGroundTables(),
+        containerTables: this.lootTableManager.getContainerTables()
+      });
     }
     return this.lootSpawnWorker;
   }
@@ -256,13 +262,31 @@ export class WorldObjectManager {
     this.lootSpawnWorker = undefined;
   }
 
-  private async createLootThreaded(server: ZoneServer2016) {
+  async createLootThreaded(server: ZoneServer2016) {
     try {
       const worker = this.getLootSpawnWorker();
-      const spawnedLootSpawnerIds = Object.keys(this.spawnedLootObjects).map(
-        (spawnerId) => Number(spawnerId)
+      const spawnedLootSpawnerIds: number[] = [];
+      for (const spawnerId in this.spawnedLootObjects) {
+        spawnedLootSpawnerIds.push(Number(spawnerId));
+      }
+      const spawnedItemSnapshots: SpawnedItemSnapshot[] = [];
+      for (const characterId in server._spawnedItems) {
+        const itemObject = server._spawnedItems[characterId];
+        spawnedItemSnapshots.push({
+          position: [
+            itemObject.state.position[0],
+            itemObject.state.position[1],
+            itemObject.state.position[2]
+          ] as [number, number, number],
+          itemDefinitionId: itemObject.item.itemDefinitionId
+        });
+      }
+      const ingameHour = (server.inGameTimeManager.time / 3600) % 24;
+      const plan = await worker.createLootPlan(
+        spawnedLootSpawnerIds,
+        spawnedItemSnapshots,
+        ingameHour
       );
-      const plan = await worker.createLootPlan(spawnedLootSpawnerIds);
 
       for (const entry of plan) {
         if (this.spawnedLootObjects[entry.spawnerId]) continue;
@@ -283,7 +307,7 @@ export class WorldObjectManager {
     }
   }
 
-  private async createContainerLootThreaded(server: ZoneServer2016) {
+  async createContainerLootThreaded(server: ZoneServer2016) {
     try {
       const worker = this.getLootSpawnWorker();
       const props: ContainerPropSnapshot[] = [];
@@ -352,7 +376,7 @@ export class WorldObjectManager {
     }
   }
 
-  private async createNpcsThreaded(server: ZoneServer2016) {
+  async createNpcsThreaded(server: ZoneServer2016) {
     try {
       const worker = this.getLootSpawnWorker();
       const existingNpcPositions = Object.values(server._npcs).map((npc) => [
@@ -640,12 +664,13 @@ export class WorldObjectManager {
 
     const index = Math.floor(Math.random() * airdropTypes.length);
     let airdropType = airdropTypes[index];
-    let lootSpawner = containerLootSpawners[airdropType];
 
     if (forceAirdrop.length > 0) {
       airdropType = forceAirdrop;
-      lootSpawner = containerLootSpawners[forceAirdrop];
     }
+
+    const containerTables = this.lootTableManager.getContainerTables();
+    const lootSpawner = containerTables[airdropType];
 
     const characterId = generateRandomGuid();
 
@@ -658,11 +683,13 @@ export class WorldObjectManager {
       server
     );
     const container = lootbag.getContainer();
-    if (container) {
-      lootSpawner.items.forEach((item: LootDefinition) => {
+    if (container && lootSpawner) {
+      // Airdrop: spawn every entry at max count regardless of weights/conditions
+      const allEntries = lootSpawner.pools.flatMap((p) => p.entries);
+      allEntries.forEach((entry) => {
         server.addContainerItem(
           lootbag,
-          server.generateItem(item.item, item.spawnCount.max),
+          server.generateItem(entry.item, entry.count.max),
           container
         );
       });
@@ -1140,6 +1167,11 @@ export class WorldObjectManager {
     );
 
     server._vehicles[vehicle.characterId] = vehicle;
+    // Immediately send the vehicle to any clients in range
+    for (const sessionId in server._clients) {
+      const client = server._clients[sessionId];
+      if (!client.isLoading) server.vehicleManager(client);
+    }
   }
 
   createVehicles(server: ZoneServer2016, maxSpawnChance: boolean = false) {
@@ -1188,7 +1220,7 @@ export class WorldObjectManager {
     debug("All vehicles created");
   }
 
-  async createNpcs(server: ZoneServer2016) {
+  private async createNpcs(server: ZoneServer2016) {
     // This is only for giving the world some life
     for (const spawnerType of Z1_npcs) {
       const authorizedModelId: number[] = [];
@@ -1267,16 +1299,18 @@ export class WorldObjectManager {
     }
   }
 
-  async createLoot(server: ZoneServer2016, lTables = lootTables) {
+  private async createLoot(server: ZoneServer2016) {
     const transaction = apm.startTransaction(
       "WorldObjectManager::createLoot",
       "custom"
     );
+    const groundTables = this.lootTableManager.getGroundTables();
     let counter = 0;
     for (const spawnerType of Z1_items) {
       const span = transaction.startSpan("spawnerType");
-      const lootTable = lTables[spawnerType.actorDefinition];
+      const lootTable = groundTables[spawnerType.actorDefinition];
       if (lootTable) {
+        const allEntries = lootTable.pools.flatMap((p) => p.entries);
         for (const itemInstance of spawnerType.instances) {
           if (counter > 9) {
             counter = 0;
@@ -1285,30 +1319,23 @@ export class WorldObjectManager {
           counter++;
           if (this.spawnedLootObjects[itemInstance.id]) continue;
           const chance = Math.floor(Math.random() * 100) + 1;
-          if (
-            chance <=
-            lootTable.spawnChance *
-              (1 - isLootNerfedLoc(itemInstance.position) / 100)
-          ) {
+          if (chance <= lootTable.spawnChance) {
             if (!WorldObjectManager.itemSpawnersChances[itemInstance.id]) {
               const realSpawnChance =
-                ((lootTable.spawnChance / lootTable.items.length) *
+                ((lootTable.spawnChance / allEntries.length) *
                   spawnerType.instances.length) /
                 100;
               WorldObjectManager.itemSpawnersChances[
                 spawnerType.actorDefinition
               ] = realSpawnChance;
             }
-            const item = getRandomItem(lootTable.items);
-            if (item) {
+            const entry = getRandomItem(allEntries);
+            if (entry) {
               this.createLootEntity(
                 server,
                 server.generateItem(
-                  getRandomSkin(item.item),
-                  randomIntFromInterval(
-                    item.spawnCount.min,
-                    item.spawnCount.max
-                  )
+                  getRandomSkin(entry.item),
+                  randomIntFromInterval(entry.count.min, entry.count.max)
                 ),
                 new Float32Array(itemInstance.position),
                 new Float32Array(itemInstance.rotation),
@@ -1532,11 +1559,12 @@ export class WorldObjectManager {
       }
     }
   }
-  async createContainerLoot(server: ZoneServer2016) {
+  private async createContainerLoot(server: ZoneServer2016) {
     const transaction = apm.startTransaction(
       "WorldObjectManager::createContainerLoot",
       "custom"
     );
+    const containerTables = this.lootTableManager.getContainerTables();
     let counter = 0;
     for (const a in server._lootableProps) {
       if (counter > 9) {
@@ -1547,36 +1575,32 @@ export class WorldObjectManager {
       const prop = server._lootableProps[a] as LootableProp;
       const container = prop.getContainer();
       if (!container) continue;
-      if (!!Object.keys(container.items).length) continue; // skip if container is not empty
-      if (!prop.shouldSpawnLoot) continue; // skip medical stations and treasure chests
-      const lootTable = containerLootSpawners[prop.lootSpawner];
+      if (!!Object.keys(container.items).length) continue;
+      if (!prop.shouldSpawnLoot) continue;
+      const lootTable = containerTables[prop.lootSpawner];
       if (lootTable) {
+        const allEntries = lootTable.pools.flatMap((p) => p.entries);
         const containerItemIds = new Set<number>(
           Object.values(container.items).map(
             (spawnedItem: BaseItem) => spawnedItem.itemDefinitionId
           )
         );
         for (let x = 0; x < lootTable.maxItems; x++) {
-          const item = getRandomItem(lootTable.items);
-          if (!item) continue;
-          const chance = Math.floor(Math.random() * 100) + 1; // temporary spawnchance
-          if (!containerItemIds.has(item.item)) {
-            if (
-              chance <=
-              item.weight * (1 - isLootNerfedLoc(prop.state.position) / 100)
-            ) {
+          const entry = getRandomItem(allEntries);
+          if (!entry) continue;
+          const chance = Math.floor(Math.random() * 100) + 1;
+          if (!containerItemIds.has(entry.item)) {
+            if (chance <= entry.weight) {
               const count = Math.floor(
-                Math.random() *
-                  (item.spawnCount.max - item.spawnCount.min + 1) +
-                  item.spawnCount.min
+                Math.random() * (entry.count.max - entry.count.min + 1) +
+                  entry.count.min
               );
-              // temporary spawnchance
               server.addContainerItem(
                 prop,
-                server.generateItem(getRandomSkin(item.item), count),
+                server.generateItem(getRandomSkin(entry.item), count),
                 container
               );
-              containerItemIds.add(item.item);
+              containerItemIds.add(entry.item);
             }
           } else {
             x--;
@@ -1584,7 +1608,6 @@ export class WorldObjectManager {
         }
       }
       if (Object.keys(container.items).length != 0) {
-        // mark prop as unsearched for clients
         Object.values(server._clients).forEach((client: ZoneClient2016) => {
           const index = client.searchedProps.indexOf(prop);
           if (index > -1) {

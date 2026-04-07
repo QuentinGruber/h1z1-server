@@ -70,33 +70,39 @@ export class AiManager {
   }
 
   private checkTraps() {
-    this.playerEntities.forEach((player) => {
-      this.trapEntities.forEach((trap) => {
-        if (trap.lastTrigger + trap.cooldown > this.now) {
-          return;
-        }
-        const inRadius = isPosInRadiusWithY(
-          trap.triggerRadiusX,
-          player.state.position,
-          trap.state.position,
-          trap.triggerRadiusY
-        );
-        if (player.isAlive && inRadius) {
+    if (this.trapEntities.size === 0 || this.playerEntities.size === 0) return;
+    // Iterate traps in outer loop so the cooldown check skips all player iterations
+    this.trapEntities.forEach((trap) => {
+      if (trap.lastTrigger + trap.cooldown > this.now) return;
+      this.playerEntities.forEach((player) => {
+        if (!player.isAlive) return;
+        if (
+          isPosInRadiusWithY(
+            trap.triggerRadiusX,
+            player.state.position,
+            trap.state.position,
+            trap.triggerRadiusY
+          )
+        ) {
           trap.detonate(player.characterId);
         }
       });
     });
   }
   private checkExplosive() {
+    if (this.explosiveEntities.size === 0 || this.playerEntities.size === 0)
+      return;
     this.playerEntities.forEach((player) => {
+      if (!player.isAlive) return;
       this.explosiveEntities.forEach((explosive) => {
-        const inRadius = isPosInRadiusWithY(
-          0.6,
-          player.state.position,
-          explosive.state.position,
-          0.5
-        );
-        if (player.isAlive && inRadius) {
+        if (
+          isPosInRadiusWithY(
+            0.6,
+            player.state.position,
+            explosive.state.position,
+            0.5
+          )
+        ) {
           explosive.detonate(player.characterId);
         }
       });

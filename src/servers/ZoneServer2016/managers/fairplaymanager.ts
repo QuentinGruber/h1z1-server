@@ -154,19 +154,32 @@ export class FairPlayManager {
         position[1] - client.startLoc > this.fairPlayValues.maxFlying
       ) {
         let kick = true;
-        for (const a in server._constructionFoundations) {
-          if (
-            server._constructionFoundations[a].getHasPermission(
-              server,
-              client.character.characterId,
-              ConstructionPermissionIds.VISIT
-            ) &&
-            server._constructionFoundations[a].isInside(
-              client.character.state.position
-            )
-          )
-            kick = false;
+        // Cache the foundation check for 2.5s to avoid scanning all foundations every movement packet
+        const FOUNDATION_CACHE_TTL = 2500;
+        if (
+          Date.now() - client.fairPlayFoundationCheckTime >
+          FOUNDATION_CACHE_TTL
+        ) {
+          let insideFoundation = false;
+          for (const a in server._constructionFoundations) {
+            if (
+              server._constructionFoundations[a].getHasPermission(
+                server,
+                client.character.characterId,
+                ConstructionPermissionIds.VISIT
+              ) &&
+              server._constructionFoundations[a].isInside(
+                client.character.state.position
+              )
+            ) {
+              insideFoundation = true;
+              break;
+            }
+          }
+          client.fairPlayFoundationCheckResult = insideFoundation;
+          client.fairPlayFoundationCheckTime = Date.now();
         }
+        if (client.fairPlayFoundationCheckResult) kick = false;
         for (const char in server._characters) {
           if (
             server._characters[char].characterId == client.character.characterId
@@ -179,8 +192,10 @@ export class FairPlayManager {
               server._characters[char].state.position,
               4.5
             )
-          )
+          ) {
             kick = false;
+            break;
+          }
         }
         if (kick) {
           server.kickPlayer(client);

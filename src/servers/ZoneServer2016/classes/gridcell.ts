@@ -5,6 +5,8 @@ import { ZoneServer2016 } from "../zoneserver";
 export class GridCell {
   position: Float32Array;
   objects: Array<BaseEntity> = [];
+  /** Clients currently subscribed to this cell for event-driven spawn/despawn */
+  subscribers: Set<any> = new Set();
   width: number;
   height: number;
   availableScrap: number;

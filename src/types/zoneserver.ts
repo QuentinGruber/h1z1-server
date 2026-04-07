@@ -228,6 +228,94 @@ export interface ContainerLootSpawner extends LootSpawner {
   maxItems: number;
 }
 
+// ── Loot Table JSON (disk format) ─────────────────────────────────────────────
+
+export type LootConditionType =
+  | "in_poi"
+  | "not_in_poi"
+  | "poi_tag"
+  | "not_poi_tag"
+  | "random_chance"
+  | "elevation_range"
+  | "item_density"
+  | "server_time";
+
+export interface LootCondition {
+  condition: LootConditionType;
+
+  // ── POI conditions ──────────────────────────────────────────────────────────
+  /** Filter by numeric POI id (used with in_poi / not_in_poi) */
+  poi_ids?: number[];
+  /** Filter by exact POI name (used with in_poi / not_in_poi) */
+  poi_names?: string[];
+  /** Filter by POI tag strings (used with poi_tag / not_poi_tag) */
+  tags?: string[];
+
+  // ── random_chance ───────────────────────────────────────────────────────────
+  /** 0–100 extra chance roll applied on top of spawnChance */
+  chance?: number;
+
+  // ── elevation_range ─────────────────────────────────────────────────────────
+  /** Minimum world Y (inclusive). Omit for no lower bound. */
+  min?: number;
+  /** Maximum world Y (inclusive). Omit for no upper bound. */
+  max?: number;
+
+  // ── item_density ─────────────────────────────────────────────────────────────
+  /**
+   * Item definition IDs to count nearby.
+   * Pool is skipped if count of matching spawned items within `radius` >= `max_count`.
+   */
+  item_ids?: number[];
+  /** Maximum number of matching items allowed within `radius` before pool is skipped. */
+  max_count?: number;
+  /** Search radius in world units for item_density check. */
+  radius?: number;
+
+  // ── server_time ─────────────────────────────────────────────────────────────
+  /**
+   * In-game hour (0–23) when pool becomes active (inclusive).
+   * Supports wrap-around: hour_min=22, hour_max=4 means 22:00–04:00.
+   */
+  hour_min?: number;
+  /** In-game hour (0–23) when pool stops being active (inclusive). */
+  hour_max?: number;
+
+}
+
+export interface LootTableEntry {
+  item: number;
+  weight: number;
+  count: { min: number; max: number };
+}
+
+export interface LootPool {
+  conditions: LootCondition[];
+  entries: LootTableEntry[];
+}
+
+export interface GroundLootTableJson {
+  type: "ground";
+  spawnChance: number;
+  pools: LootPool[];
+}
+
+export interface ContainerLootTableJson {
+  type: "container";
+  maxItems: number;
+  pools: LootPool[];
+  /**
+   * Optional top-level spawn chance (0-100). Used by world entities (e.g. crates)
+   * to decide whether anything spawns at all when the container is broken/opened.
+   * Not used by the worker for searched container props.
+   */
+  spawnChance?: number;
+  /** Plugin-only: "append" merges pools with base table; omit/replace overwrites. */
+  merge?: "append" | "replace";
+}
+
+export type LootTableJson = GroundLootTableJson | ContainerLootTableJson;
+
 export interface RecipeComponent {
   itemDefinitionId: number;
   requiredAmount: number;

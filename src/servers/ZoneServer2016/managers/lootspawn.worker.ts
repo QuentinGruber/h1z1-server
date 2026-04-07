@@ -1,18 +1,34 @@
-import { parentPort } from "node:worker_threads";
+import { parentPort, workerData } from "node:worker_threads";
 import { PluginManager } from "./pluginmanager";
-import { lootTables, containerLootSpawners } from "../data/lootspawns";
+import type {
+  GroundLootTableJson,
+  ContainerLootTableJson,
+  LootCondition,
+  LootPool,
+  LootTableEntry
+} from "types/zoneserver";
 
 const Z1_items = PluginManager.loadServerData("2016/zoneData/Z1_items.json");
 const Z1_npcs = PluginManager.loadServerData("2016/zoneData/Z1_npcs.json");
-const Z1_nerfedPOIs = PluginManager.loadServerData(
-  "2016/zoneData/Z1_nerfedPOIs"
-);
+const Z1_POIs = PluginManager.loadServerData("2016/zoneData/Z1_POIs.json");
+
+const { groundTables, containerTables } = workerData as {
+  groundTables: Record<string, GroundLootTableJson>;
+  containerTables: Record<string, ContainerLootTableJson>;
+};
+
+interface SpawnedItemSnapshot {
+  position: [number, number, number];
+  itemDefinitionId: number;
+}
 
 interface LootPlanRequest {
   requestId: number;
   type: "loot";
   payload: {
     spawnedLootSpawnerIds: number[];
+    spawnedItems: SpawnedItemSnapshot[];
+    ingameHour: number;
   };
 }
 
@@ -116,6 +132,8 @@ interface WorkerResponse {
   error?: string;
 }
 
+// ── Geometry helpers ──────────────────────────────────────────────────────────
+
 function getAuthorizedNpcModels(actorDefinition: string): number[] {
   switch (actorDefinition) {
     case "NPCSpawner_ZombieLazy.adr":
@@ -143,7 +161,17 @@ function isPosInRadius(
   return Math.sqrt(x * x + y * y + z * z) <= radius;
 }
 
-function isInsideSquare(point: [number, number], vs: number[][]): boolean {
+function isPosInRadius2D(
+  radius: number,
+  position1: number[],
+  position2: number[]
+): boolean {
+  const x = position1[0] - position2[0];
+  const z = position1[2] - position2[2];
+  return Math.sqrt(x * x + z * z) <= radius;
+}
+
+function isInsidePolygon(point: [number, number], vs: number[][]): boolean {
   const x = point[0];
   const y = point[1];
   let inside = false;
@@ -159,32 +187,137 @@ function isInsideSquare(point: [number, number], vs: number[][]): boolean {
   return inside;
 }
 
-function getLootNerfedValue(position: number[]): number {
-  let nerfedValue = 0;
-  for (const point of Z1_nerfedPOIs) {
-    if (point.bounds) {
-      for (const bound of point.bounds) {
-        if (isInsideSquare([position[0], position[2]], bound)) {
-          nerfedValue = point.nerfValue;
-          break;
-        }
-      }
-      continue;
+/** Returns true if the XZ position is inside a POI's polygon bounds or radius. */
+function isPosInPoi(position: number[], poi: any): boolean {
+  if (poi.bounds) {
+    for (const bound of poi.bounds) {
+      if (isInsidePolygon([position[0], position[2]], bound)) return true;
     }
-    if (isPosInRadius(point.range, position, point.position)) {
-      nerfedValue = point.nerfValue;
-    }
+    return false;
   }
-  return nerfedValue;
+  if (poi.range && poi.position) {
+    return isPosInRadius2D(poi.range, position, poi.position);
+  }
+  return false;
 }
 
-function getRandomItem(
-  items: Array<{
-    item: number;
-    weight: number;
-    spawnCount: { min: number; max: number };
-  }>
-) {
+// ── Condition evaluation ──────────────────────────────────────────────────────
+
+interface LootContext {
+  position: number[];
+  spawnedItems: SpawnedItemSnapshot[];
+  ingameHour: number;
+}
+
+function evaluateConditions(
+  conditions: LootCondition[],
+  ctx: LootContext
+): boolean {
+  for (const cond of conditions) {
+    switch (cond.condition) {
+      case "in_poi": {
+        const match = Z1_POIs.some((poi: any) => {
+          if (cond.poi_ids && !cond.poi_ids.includes(poi.POIid)) return false;
+          if (cond.poi_names && !cond.poi_names.includes(poi.POIname))
+            return false;
+          return isPosInPoi(ctx.position, poi);
+        });
+        if (!match) return false;
+        break;
+      }
+
+      case "not_in_poi": {
+        const anyPoi = Z1_POIs.some((poi: any) =>
+          isPosInPoi(ctx.position, poi)
+        );
+        if (anyPoi) return false;
+        break;
+      }
+
+      case "poi_tag": {
+        const match = Z1_POIs.some(
+          (poi: any) =>
+            Array.isArray(poi.tags) &&
+            (cond.tags ?? []).some((tag: string) => poi.tags.includes(tag)) &&
+            isPosInPoi(ctx.position, poi)
+        );
+        if (!match) return false;
+        break;
+      }
+
+      case "not_poi_tag": {
+        // Skip pool if the position is inside ANY POI that has one of the given tags
+        const inTaggedPoi = Z1_POIs.some(
+          (poi: any) =>
+            Array.isArray(poi.tags) &&
+            (cond.tags ?? []).some((tag: string) => poi.tags.includes(tag)) &&
+            isPosInPoi(ctx.position, poi)
+        );
+        if (inTaggedPoi) return false;
+        break;
+      }
+
+      case "random_chance": {
+        if (Math.random() * 100 > (cond.chance ?? 100)) return false;
+        break;
+      }
+
+      case "elevation_range": {
+        const y = ctx.position[1];
+        if (cond.min !== undefined && y < cond.min) return false;
+        if (cond.max !== undefined && y > cond.max) return false;
+        break;
+      }
+
+      case "item_density": {
+        const ids = new Set<number>(cond.item_ids ?? []);
+        const radius = cond.radius ?? 50;
+        const maxCount = cond.max_count ?? 1;
+        let count = 0;
+        for (const item of ctx.spawnedItems) {
+          if (!ids.has(item.itemDefinitionId)) continue;
+          if (isPosInRadius2D(radius, ctx.position, item.position)) {
+            count++;
+            if (count >= maxCount) break;
+          }
+        }
+        if (count >= maxCount) return false;
+        break;
+      }
+
+      case "server_time": {
+        const hour = ctx.ingameHour;
+        const min = cond.hour_min ?? 0;
+        const max = cond.hour_max ?? 23;
+        // Support wrap-around (e.g. 22–04)
+        const active =
+          min <= max ? hour >= min && hour <= max : hour >= min || hour <= max;
+        if (!active) return false;
+        break;
+      }
+    }
+  }
+  return true;
+}
+
+/**
+ * Returns entries from all pools whose conditions pass for the given context.
+ * Pools with empty conditions arrays always pass.
+ */
+function getEligibleEntries(
+  pools: LootPool[],
+  ctx: LootContext
+): LootTableEntry[] {
+  const entries: LootTableEntry[] = [];
+  for (const pool of pools) {
+    if (evaluateConditions(pool.conditions, ctx)) {
+      entries.push(...pool.entries);
+    }
+  }
+  return entries;
+}
+
+function getRandomItem(items: LootTableEntry[]): LootTableEntry | undefined {
   const totalWeight = items.reduce((total, item) => total + item.weight, 0);
   const randomWeight = Math.random() * totalWeight;
   let currentWeight = 0;
@@ -195,28 +328,40 @@ function getRandomItem(
   return undefined;
 }
 
-function createLootPlan(spawnedLootSpawnerIds: number[]): LootPlanEntry[] {
+// ── Loot plan ────────────────────────────────────────────────────────────────
+
+function createLootPlan(
+  spawnedLootSpawnerIds: number[],
+  spawnedItems: SpawnedItemSnapshot[],
+  ingameHour: number
+): LootPlanEntry[] {
   const spawnedSet = new Set<number>(spawnedLootSpawnerIds);
   const plan: LootPlanEntry[] = [];
 
   for (const spawnerType of Z1_items) {
-    const lootTable = lootTables[spawnerType.actorDefinition];
+    const lootTable = groundTables[spawnerType.actorDefinition];
     if (!lootTable) continue;
 
     for (const itemInstance of spawnerType.instances) {
       if (spawnedSet.has(itemInstance.id)) continue;
 
       const chance = Math.floor(Math.random() * 100) + 1;
-      const nerf = getLootNerfedValue(itemInstance.position);
-      const threshold = lootTable.spawnChance * (1 - nerf / 100);
-      if (chance > threshold) continue;
+      if (chance > lootTable.spawnChance) continue;
 
-      const item = getRandomItem(lootTable.items);
+      const ctx: LootContext = {
+        position: itemInstance.position,
+        spawnedItems,
+        ingameHour
+      };
+
+      const entries = getEligibleEntries(lootTable.pools, ctx);
+      if (!entries.length) continue;
+
+      const item = getRandomItem(entries);
       if (!item) continue;
 
       const count = Math.floor(
-        Math.random() * (item.spawnCount.max - item.spawnCount.min + 1) +
-          item.spawnCount.min
+        Math.random() * (item.count.max - item.count.min + 1) + item.count.min
       );
       plan.push({
         spawnerId: itemInstance.id,
@@ -231,6 +376,8 @@ function createLootPlan(spawnedLootSpawnerIds: number[]): LootPlanEntry[] {
   return plan;
 }
 
+// ── Container loot plan ───────────────────────────────────────────────────────
+
 function createContainerLootPlan(
   props: ContainerPropSnapshot[]
 ): ContainerPlanEntry[] {
@@ -240,12 +387,23 @@ function createContainerLootPlan(
     if (!prop.shouldSpawnLoot) continue;
     if (prop.existingItemDefinitionIds.length > 0) continue;
 
-    const lootTable = containerLootSpawners[prop.lootSpawner];
+    const lootTable = containerTables[prop.lootSpawner];
     if (!lootTable) continue;
+
+    // Containers don't use item_density / server_time / loot_tier by default,
+    // but they can — pass neutral values so conditions still evaluate correctly.
+    const ctx: LootContext = {
+      position: prop.position,
+      spawnedItems: [],
+      ingameHour: 12
+    };
+
+    const allEntries = getEligibleEntries(lootTable.pools, ctx);
+    if (!allEntries.length) continue;
 
     const containerItemIds = new Set<number>(prop.existingItemDefinitionIds);
     for (let x = 0; x < lootTable.maxItems; x++) {
-      const item = getRandomItem(lootTable.items);
+      const item = getRandomItem(allEntries);
       if (!item) continue;
 
       if (containerItemIds.has(item.item)) {
@@ -254,13 +412,10 @@ function createContainerLootPlan(
       }
 
       const chance = Math.floor(Math.random() * 100) + 1;
-      const nerf = getLootNerfedValue(prop.position);
-      const threshold = item.weight * (1 - nerf / 100);
-      if (chance > threshold) continue;
+      if (chance > item.weight) continue;
 
       const count = Math.floor(
-        Math.random() * (item.spawnCount.max - item.spawnCount.min + 1) +
-          item.spawnCount.min
+        Math.random() * (item.count.max - item.count.min + 1) + item.count.min
       );
 
       plan.push({
@@ -274,6 +429,8 @@ function createContainerLootPlan(
 
   return plan;
 }
+
+// ── NPC plan ──────────────────────────────────────────────────────────────────
 
 function createNpcPlan(
   existingNpcPositions: number[][],
@@ -303,9 +460,7 @@ function createNpcPlan(
 
       const models = [...baseModels];
       const screamerChanceRoll = Math.floor(Math.random() * 1000) + 1;
-      if (screamerChanceRoll <= chanceScreamer) {
-        models.push(9667);
-      }
+      if (screamerChanceRoll <= chanceScreamer) models.push(9667);
 
       const modelId = models[Math.floor(Math.random() * models.length)];
       plan.push({
@@ -320,6 +475,8 @@ function createNpcPlan(
 
   return plan;
 }
+
+// ── Despawn plan ──────────────────────────────────────────────────────────────
 
 function createDespawnPlan(payload: DespawnRequest["payload"]): DespawnPlan {
   const fuelItemDefinitionIds = new Set<number>(payload.fuelItemDefinitionIds);
@@ -355,16 +512,21 @@ function createDespawnPlan(payload: DespawnRequest["payload"]): DespawnPlan {
   };
 }
 
+// ── Message handler ───────────────────────────────────────────────────────────
+
 parentPort?.on("message", (request: WorkerRequest) => {
   try {
     if (request.type === "loot") {
-      const plan = createLootPlan(request.payload.spawnedLootSpawnerIds);
-      const response: WorkerResponse = {
+      const plan = createLootPlan(
+        request.payload.spawnedLootSpawnerIds,
+        request.payload.spawnedItems,
+        request.payload.ingameHour
+      );
+      parentPort?.postMessage({
         requestId: request.requestId,
         type: "loot",
         plan
-      };
-      parentPort?.postMessage(response);
+      } as WorkerResponse);
       return;
     }
 
@@ -375,39 +537,35 @@ parentPort?.on("message", (request: WorkerRequest) => {
         request.payload.chanceNpc,
         request.payload.chanceScreamer
       );
-      const response: WorkerResponse = {
+      parentPort?.postMessage({
         requestId: request.requestId,
         type: "npcs",
         plan
-      };
-      parentPort?.postMessage(response);
+      } as WorkerResponse);
       return;
     }
 
     if (request.type === "despawn") {
       const plan = createDespawnPlan(request.payload);
-      const response: WorkerResponse = {
+      parentPort?.postMessage({
         requestId: request.requestId,
         type: "despawn",
         plan
-      };
-      parentPort?.postMessage(response);
+      } as WorkerResponse);
       return;
     }
 
     const plan = createContainerLootPlan(request.payload.props);
-    const response: WorkerResponse = {
+    parentPort?.postMessage({
       requestId: request.requestId,
       type: "container",
       plan
-    };
-    parentPort?.postMessage(response);
+    } as WorkerResponse);
   } catch (error) {
-    const response: WorkerResponse = {
+    parentPort?.postMessage({
       requestId: request.requestId,
       type: request.type,
       error: String(error)
-    };
-    parentPort?.postMessage(response);
+    } as WorkerResponse);
   }
 });

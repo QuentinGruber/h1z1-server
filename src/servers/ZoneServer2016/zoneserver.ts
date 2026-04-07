@@ -344,6 +344,13 @@ export class ZoneServer2016 extends EventEmitter {
   _serverGuid = generateRandomGuid();
   _worldId = 0;
   _grid: GridCell[] = [];
+  /** Flat lookup array for O(1) cell access: index = col * _gridNumCols + row */
+  private _gridLookup: GridCell[] = [];
+  private _gridCellSize = 0;
+  private _gridOriginX = 0;
+  private _gridOriginZ = 0;
+  private _gridNumCols = 0;
+  private _gridNumRows = 0;
   _spawnGrid: SpawnCell[] = [];
 
   saveTimeInterval: number = 600000;
@@ -482,7 +489,6 @@ export class ZoneServer2016 extends EventEmitter {
   isLocked: boolean = false;
   staticDTOs: Array<PropInstance> = [];
   serverGameRules: string;
-  routinesLoopTimer?: NodeJS.Timeout;
   private _mongoClient?: MongoClient;
   rebootTimeTimer?: NodeJS.Timeout;
   inGameTimeManager: IngameTimeManager = new IngameTimeManager();
@@ -493,7 +499,6 @@ export class ZoneServer2016 extends EventEmitter {
   proximityItemsDistance!: number;
   interactionDistance!: number;
   charactersRenderDistance!: number;
-  tickRate!: number;
   worldRoutineRate!: number;
   welcomeMessage!: string;
   adminMessage!: string;
@@ -977,7 +982,7 @@ export class ZoneServer2016 extends EventEmitter {
     this.randomEventsManager.stop();
     clearTimeout(this.worldRoutineTimer);
     clearTimeout(this.weatherManager.dynamicWorker);
-    clearTimeout(this.routinesLoopTimer);
+    clearTimeout(this._worldTickTimer);
     clearTimeout(this.rebootTimeTimer);
     if (this._loginConnectionManager) {
       await this._loginConnectionManager.stop();
@@ -1974,6 +1979,7 @@ export class ZoneServer2016 extends EventEmitter {
     this.worldObjectManager.createProps(this);
 
     await this.pluginManager.initializePlugins(this);
+    this.worldObjectManager.lootTableManager.load();
 
     await this.customizeStaticDTOs();
 
@@ -2164,7 +2170,6 @@ export class ZoneServer2016 extends EventEmitter {
     if (this.isSurvival()) {
       this.speedtreeManager.initiateList();
     }
-    this.startRoutinesLoop();
     if (this.isSurvival()) {
       this.smeltingManager.checkSmeltables(this);
       this.smeltingManager.checkCollectors(this);
@@ -2185,6 +2190,7 @@ export class ZoneServer2016 extends EventEmitter {
       );
     }
     this._gatewayServer.start();
+    this.startWorldTick();
     this.worldRoutineTimer = setTimeout(
       () => this.worldRoutine.bind(this)(),
       this.worldRoutineRate
@@ -2396,62 +2402,163 @@ export class ZoneServer2016 extends EventEmitter {
     return grid;
   }
 
+  /** Builds a flat O(1) lookup from the uniform grid so getVisibleCells can
+   *  compute the candidate cell range directly instead of iterating all cells. */
+  private buildGridLookup() {
+    if (this._grid.length === 0) return;
+    const cs = this._grid[0].width;
+    let minX = Infinity,
+      minZ = Infinity,
+      maxX = -Infinity,
+      maxZ = -Infinity;
+    for (const cell of this._grid) {
+      if (cell.position[0] < minX) minX = cell.position[0];
+      if (cell.position[2] < minZ) minZ = cell.position[2];
+      if (cell.position[0] > maxX) maxX = cell.position[0];
+      if (cell.position[2] > maxZ) maxZ = cell.position[2];
+    }
+    const numCols = Math.round((maxX - minX) / cs) + 1;
+    const numRows = Math.round((maxZ - minZ) / cs) + 1;
+    this._gridCellSize = cs;
+    this._gridOriginX = minX;
+    this._gridOriginZ = minZ;
+    this._gridNumCols = numCols;
+    this._gridNumRows = numRows;
+    this._gridLookup = new Array(numCols * numRows);
+    for (const cell of this._grid) {
+      const col = Math.round((cell.position[0] - minX) / cs);
+      const row = Math.round((cell.position[2] - minZ) / cs);
+      this._gridLookup[col * numCols + row] = cell;
+    }
+  }
+
+  /** Rebuilds _gridLookup after divideLargeCells, where cell sizes are no longer
+   *  uniform. Uses the smallest cell size so every cell maps to a valid slot. */
+  private buildGridLookupMixed() {
+    if (this._grid.length === 0) return;
+    let minX = Infinity,
+      minZ = Infinity,
+      maxX = -Infinity,
+      maxZ = -Infinity,
+      cs = Infinity;
+    for (const cell of this._grid) {
+      if (cell.position[0] < minX) minX = cell.position[0];
+      if (cell.position[2] < minZ) minZ = cell.position[2];
+      if (cell.position[0] > maxX) maxX = cell.position[0];
+      if (cell.position[2] > maxZ) maxZ = cell.position[2];
+      if (cell.width < cs) cs = cell.width;
+    }
+    const numCols = Math.round((maxX - minX) / cs) + 1;
+    const numRows = Math.round((maxZ - minZ) / cs) + 1;
+    this._gridCellSize = cs;
+    this._gridOriginX = minX;
+    this._gridOriginZ = minZ;
+    this._gridNumCols = numCols;
+    this._gridNumRows = numRows;
+    this._gridLookup = new Array(numCols * numRows);
+    for (const cell of this._grid) {
+      // A large cell covers multiple lookup slots — fill all of them
+      const cols = Math.round(cell.width / cs);
+      const rows = Math.round(cell.height / cs);
+      const startCol = Math.round((cell.position[0] - minX) / cs);
+      const startRow = Math.round((cell.position[2] - minZ) / cs);
+      for (let c = 0; c < cols; c++) {
+        for (let r = 0; r < rows; r++) {
+          this._gridLookup[(startCol + c) * numCols + (startRow + r)] = cell;
+        }
+      }
+    }
+  }
+
   divideLargeCells(threshold: number) {
     const grid = this._grid;
+    let didSplit = false;
     for (let i = 0; i < grid.length; i++) {
       const gridCell: GridCell = grid[i];
       if (gridCell.height < 250) continue;
       if (gridCell.objects.length > threshold) {
         const newGridCellWidth = gridCell.width / 2;
         const newGridCellHeight = gridCell.height / 2;
+        const x0 = gridCell.position[0];
+        const z0 = gridCell.position[2];
         // 4 cells made of 1
         const newGridCell1 = new GridCell(
           this,
-          gridCell.position[0],
-          gridCell.position[2],
+          x0,
+          z0,
           newGridCellWidth,
           newGridCellHeight
         );
         const newGridCell2 = new GridCell(
           this,
-          gridCell.position[0] + newGridCellWidth,
-          gridCell.position[2],
+          x0 + newGridCellWidth,
+          z0,
           newGridCellWidth,
           newGridCellHeight
         );
         const newGridCell3 = new GridCell(
           this,
-          gridCell.position[0],
-          gridCell.position[2] + newGridCellHeight,
+          x0,
+          z0 + newGridCellHeight,
           newGridCellWidth,
           newGridCellHeight
         );
         const newGridCell4 = new GridCell(
           this,
-          gridCell.position[0] + newGridCellWidth,
-          gridCell.position[2] + newGridCellHeight,
+          x0 + newGridCellWidth,
+          z0 + newGridCellHeight,
           newGridCellWidth,
           newGridCellHeight
         );
-        // remove old grid cell
-        const objects = this._grid[i].objects;
-        this._grid.splice(i, 1);
+
+        // Swap-and-pop: O(1) removal instead of splice O(N)
+        const objects = gridCell.objects;
+        grid[i] = grid[grid.length - 1];
+        grid.pop();
         i--;
 
-        this._grid.push(newGridCell1);
-        this._grid.push(newGridCell2);
-        this._grid.push(newGridCell3);
-        this._grid.push(newGridCell4);
-        objects.forEach((object: BaseEntity) => {
-          this.pushToGridCell(object);
-        });
+        grid.push(newGridCell1);
+        grid.push(newGridCell2);
+        grid.push(newGridCell3);
+        grid.push(newGridCell4);
+
+        // Place each object directly into one of the 4 new cells rather than
+        // calling pushToGridCell, which would use the now-stale _gridLookup.
+        const newCells = [
+          newGridCell1,
+          newGridCell2,
+          newGridCell3,
+          newGridCell4
+        ];
+        for (const obj of objects) {
+          const px = obj.state.position[0];
+          const pz = obj.state.position[2];
+          for (const cell of newCells) {
+            if (
+              px >= cell.position[0] &&
+              px <= cell.position[0] + cell.width &&
+              pz >= cell.position[2] &&
+              pz <= cell.position[2] + cell.height
+            ) {
+              cell.objects.push(obj);
+              setImmediate(() => this.onEntityAddedToCell(obj, cell));
+              break;
+            }
+          }
+        }
+
+        // Rebuild lookup once at the end — flag here, rebuild after the loop.
+        didSplit = true;
       }
     }
+    if (didSplit) this.buildGridLookupMixed();
   }
 
   pushToGridCell(obj: BaseEntity) {
-    if (this._grid.length == 0)
+    if (this._grid.length == 0) {
       this._grid = this.divideMapIntoGrid(8196, 8196, 250);
+      this.buildGridLookup();
+    }
     if (
       obj instanceof Vehicle ||
       obj instanceof Character ||
@@ -2462,39 +2569,51 @@ export class ZoneServer2016 extends EventEmitter {
       // dont push objects that can change its position
       return;
     }
-    for (let i = 0; i < this._grid.length; i++) {
-      const gridCell = this._grid[i];
-      if (
-        obj.state.position[0] >= gridCell.position[0] &&
-        obj.state.position[0] <= gridCell.position[0] + gridCell.width &&
-        obj.state.position[2] >= gridCell.position[2] &&
-        obj.state.position[2] <= gridCell.position[2] + gridCell.height
-      ) {
-        if (gridCell.objects.includes(obj)) {
-          return;
-        }
-        gridCell.objects.push(obj);
-      }
-    }
+    const pos = obj.state.position;
+    const cs = this._gridCellSize;
+    const col = Math.max(
+      0,
+      Math.min(
+        this._gridNumCols - 1,
+        Math.floor((pos[0] - this._gridOriginX) / cs)
+      )
+    );
+    const row = Math.max(
+      0,
+      Math.min(
+        this._gridNumRows - 1,
+        Math.floor((pos[2] - this._gridOriginZ) / cs)
+      )
+    );
+    const gridCell = this._gridLookup[col * this._gridNumCols + row];
+    if (!gridCell || gridCell.objects.includes(obj)) return;
+    gridCell.objects.push(obj);
+    setImmediate(() => this.onEntityAddedToCell(obj, gridCell));
   }
 
   assignChunkRenderDistance(client: Client) {
-    let lowerRenderDistance = false;
-    const character = client.character;
-    for (let i = 0; i < this._grid.length; i++) {
-      const gridCell: GridCell = this._grid[i];
-
-      if (
-        character.state.position[0] >= gridCell.position[0] &&
-        character.state.position[0] <= gridCell.position[0] + gridCell.width &&
-        character.state.position[2] >= gridCell.position[2] &&
-        character.state.position[2] <= gridCell.position[2] + gridCell.height &&
-        gridCell.height < 250
-      ) {
-        lowerRenderDistance = true;
-      }
+    if (this._gridLookup.length === 0) {
+      client.chunkRenderDistance = 700;
+      return;
     }
-    client.chunkRenderDistance = lowerRenderDistance ? 600 : 700;
+    const pos = client.character.state.position;
+    const cs = this._gridCellSize;
+    const col = Math.max(
+      0,
+      Math.min(
+        this._gridNumCols - 1,
+        Math.floor((pos[0] - this._gridOriginX) / cs)
+      )
+    );
+    const row = Math.max(
+      0,
+      Math.min(
+        this._gridNumRows - 1,
+        Math.floor((pos[2] - this._gridOriginZ) / cs)
+      )
+    );
+    const cell = this._gridLookup[col * this._gridNumCols + row];
+    client.chunkRenderDistance = cell && cell.height < 250 ? 600 : 700;
   }
 
   private async worldRoutine() {
@@ -2509,8 +2628,6 @@ export class ZoneServer2016 extends EventEmitter {
         await scheduler.yield();
         this.updateSyncTeleport();
         await scheduler.yield();
-        this.setTickRate();
-        await scheduler.yield();
         this.updateSpectatorMap();
         if (
           this.enableWorldSaves &&
@@ -2524,24 +2641,16 @@ export class ZoneServer2016 extends EventEmitter {
     this.worldRoutineTimer.refresh();
   }
 
-  setTickRate() {
-    const size = _.size(this._clients);
-    if (size <= 0) {
-      this.tickRate = 3000;
-      return;
-    }
-    this.tickRate = 3000 / size;
-  }
-
   async deleteClient(client: Client) {
     this.hookManager.checkHook("OnPlayerDisconnected", client);
     if (!client) {
-      this.setTickRate();
       return;
     }
     if (client.afkTimer) {
       clearInterval(client.afkTimer);
     }
+    clearTimeout(client.pingTimer);
+    clearTimeout(client.fairPlayTimer);
 
     if (client.assetIntegrityKickTimer) {
       clearTimeout(client.assetIntegrityKickTimer);
@@ -2584,12 +2693,15 @@ export class ZoneServer2016 extends EventEmitter {
         this.groupManager.handlePlayerDisconnect(this, client);
       }
     }
+    for (const cell of client.subscribedCells) {
+      cell.subscribers.delete(client);
+    }
+    client.subscribedCells.clear();
     delete this._clients[client.sessionId];
     await this._gatewayServer.deleteSoeClient(client.soeClientId);
     if (!this._soloMode) {
       this.sendZonePopulationUpdate();
     }
-    this.setTickRate();
     this.airdropManager.sendDeliveryStatus();
   }
 
@@ -4286,189 +4398,189 @@ export class ZoneServer2016 extends EventEmitter {
     }
   }
 
-  private spawnGridObjects(client: Client) {
-    const position = client.character.state.position;
-    const renderDistance = client.chunkRenderDistance;
-    for (const gridCell of this._grid) {
-      if (
-        Math.abs(gridCell.position[0] - position[0]) >
-          renderDistance + gridCell.width / 2 ||
-        Math.abs(gridCell.position[2] - position[2]) >
-          renderDistance + gridCell.height / 2
-      ) {
-        continue;
+  // ── Event-driven cell subscription system ──────────────────────────
+
+  /** Returns the set of grid cells visible to the client from their current position.
+   *  Uses a direct index range into _gridLookup instead of iterating all cells. */
+  private getVisibleCells(client: Client): Set<GridCell> {
+    const pos = client.character.state.position;
+    const r = client.chunkRenderDistance;
+    const result = new Set<GridCell>();
+
+    if (this._gridLookup.length === 0) return result;
+
+    const cs = this._gridCellSize;
+    const numCols = this._gridNumCols;
+    const numRows = this._gridNumRows;
+    const colMin = Math.max(
+      0,
+      Math.floor((pos[0] - r - this._gridOriginX) / cs)
+    );
+    const colMax = Math.min(
+      numCols - 1,
+      Math.floor((pos[0] + r - this._gridOriginX) / cs)
+    );
+    const rowMin = Math.max(
+      0,
+      Math.floor((pos[2] - r - this._gridOriginZ) / cs)
+    );
+    const rowMax = Math.min(
+      numRows - 1,
+      Math.floor((pos[2] + r - this._gridOriginZ) / cs)
+    );
+
+    for (let col = colMin; col <= colMax; col++) {
+      for (let row = rowMin; row <= rowMax; row++) {
+        const cell = this._gridLookup[col * numCols + row];
+        if (cell && isPosInRadius(r, cell.position, pos)) result.add(cell);
       }
-      if (!isPosInRadius(renderDistance, gridCell.position, position)) continue;
+    }
+    return result;
+  }
 
-      for (const object of gridCell.objects) {
-        if (
-          client.spawnedEntities.has(object) ||
-          !isPosInRadius(
-            (object.npcRenderDistance as number) ||
-              this.charactersRenderDistance,
-            position,
-            object.state.position
-          )
-        ) {
-          continue;
-        }
+  /** Spawns a single grid entity for a client if not already spawned and within range */
+  private spawnEntityForClient(client: Client, object: BaseEntity): void {
+    const position = client.character.state.position;
+    if (
+      !isPosInRadius(
+        (object.npcRenderDistance as number) || this.charactersRenderDistance,
+        position,
+        object.state.position
+      )
+    )
+      return;
 
-        if (object instanceof ConstructionParentEntity) {
-          this.constructionManager.spawnConstructionParent(
-            this,
-            client,
-            object
-          );
-          continue;
-        }
+    // Construction types must bypass the spawnedEntities early-exit because
+    // their child entities (doors, walls) are spawned recursively and may have
+    // been skipped on a previous pass (e.g. !isSynced). spawnConstructionParent
+    // and spawnSimpleConstruction each guard themselves internally.
+    if (object instanceof ConstructionParentEntity) {
+      this.constructionManager.spawnConstructionParent(this, client, object);
+      return;
+    }
+    if (object instanceof ConstructionChildEntity) {
+      if (this.constructionManager.shouldHideEntity(this, client, object))
+        return;
+      this.constructionManager.spawnSimpleConstruction(this, client, object);
+      return;
+    }
+    if (object instanceof LootableConstructionEntity) {
+      if (this.constructionManager.shouldHideEntity(this, client, object))
+        return;
+      this.constructionManager.spawnLootableConstruction(this, client, object);
+      return;
+    }
 
-        if (object instanceof ConstructionChildEntity) {
-          if (this.constructionManager.shouldHideEntity(this, client, object))
-            continue;
-          this.constructionManager.spawnSimpleConstruction(
-            this,
-            client,
-            object
-          );
-          continue;
-        }
-
-        if (object instanceof LootableConstructionEntity) {
-          if (this.constructionManager.shouldHideEntity(this, client, object))
-            continue;
-          this.constructionManager.spawnLootableConstruction(
-            this,
-            client,
-            object
-          );
-          continue;
-        }
-
-        if (object instanceof BaseSimpleNpc) {
-          if (object instanceof Crate) {
-            if (object.spawnTimestamp > Date.now()) {
-              continue;
-            }
-            if (object.destroyed) {
-              object.destroyed = false;
-            }
-          }
-          client.spawnedEntities.add(object);
-          this.addSimpleNpc(client, object);
-          continue;
-        }
-
-        client.spawnedEntities.add(object);
-        if (object instanceof BaseLightweightCharacter) {
-          if (object.useSimpleStruct) {
-            this.addSimpleNpc(client, object);
-          } else {
-            this.addLightweightNpc(client, object);
-            if (object instanceof DoorEntity) {
-              if (object.isOpen) {
-                this.sendData<PlayerUpdatePosition>(
-                  client,
-                  "PlayerUpdatePosition",
-                  {
-                    transientId: object.transientId,
-                    positionUpdate: {
-                      sequenceTime: 0,
-                      unknown3_int8: 0,
-                      position: object.state.position,
-                      orientation: object.openAngle
-                    }
-                  }
-                );
+    if (client.spawnedEntities.has(object)) return;
+    if (object instanceof BaseSimpleNpc) {
+      if (object instanceof Crate) {
+        if (object.spawnTimestamp > Date.now()) return;
+        if (object.destroyed) object.destroyed = false;
+      }
+      client.spawnedEntities.add(object);
+      this.addSimpleNpc(client, object);
+      return;
+    }
+    // During the loading phase, skip full NPC structs — client can't process them yet.
+    // executeRoutine re-subscribes after loading to catch these.
+    if (
+      client.isLoading &&
+      object instanceof BaseLightweightCharacter &&
+      !object.useSimpleStruct
+    ) {
+      return;
+    }
+    client.spawnedEntities.add(object);
+    if (object instanceof BaseLightweightCharacter) {
+      if (object.useSimpleStruct) {
+        this.addSimpleNpc(client, object);
+      } else {
+        this.addLightweightNpc(client, object);
+        if (object instanceof DoorEntity) {
+          if (object.isOpen) {
+            this.sendData<PlayerUpdatePosition>(
+              client,
+              "PlayerUpdatePosition",
+              {
+                transientId: object.transientId,
+                positionUpdate: {
+                  sequenceTime: 0,
+                  unknown3_int8: 0,
+                  position: object.state.position,
+                  orientation: object.openAngle
+                }
               }
-              continue;
-            }
-            if (object instanceof Npc) {
-              object.updateEquipment(this);
-              continue;
-            }
+            );
           }
+          return;
+        }
+        if (object instanceof Npc) {
+          object.updateEquipment(this);
+          return;
         }
       }
     }
   }
 
-  private spawnLoadingGridObjects(client: Client) {
-    const position = client.character.state.position;
-    for (const gridCell of this._grid) {
+  /** Spawns all objects in a cell for a client, closest first */
+  private spawnCellObjectsForClient(client: Client, cell: GridCell): void {
+    const pos = client.character.state.position;
+    const sorted = cell.objects.slice().sort((a, b) => {
+      const dx1 = a.state.position[0] - pos[0];
+      const dz1 = a.state.position[2] - pos[2];
+      const dx2 = b.state.position[0] - pos[0];
+      const dz2 = b.state.position[2] - pos[2];
+      return dx1 * dx1 + dz1 * dz1 - (dx2 * dx2 + dz2 * dz2);
+    });
+    for (const object of sorted) {
+      this.spawnEntityForClient(client, object);
+    }
+  }
+
+  /** Removes all spawned objects belonging to a cell from the client (called on cell unsubscription) */
+  private despawnCellObjectsForClient(client: Client, cell: GridCell): void {
+    for (const object of cell.objects) {
       if (
-        !isPosInRadius(client.chunkRenderDistance, gridCell.position, position)
+        client.spawnedEntities.has(object) &&
+        !(object instanceof Vehicle2016)
       ) {
-        continue;
+        this.sendData<CharacterRemovePlayer>(client, "Character.RemovePlayer", {
+          characterId: object.characterId
+        });
+        client.spawnedEntities.delete(object);
       }
-      for (const object of gridCell.objects) {
-        if (
-          !isPosInRadius(
-            (object.npcRenderDistance as number) ||
-              this.charactersRenderDistance,
-            position,
-            object.state.position
-          )
-        ) {
-          continue;
-        }
+    }
+  }
 
-        if (client.spawnedEntities.has(object)) continue;
+  /** Diffs old vs new visible cells and subscribes/unsubscribes the client accordingly.
+   *  Caller is responsible for gating this on movement threshold. */
+  private updateClientSubscriptions(client: Client): void {
+    const newCells = this.getVisibleCells(client);
+    const oldCells = client.subscribedCells;
 
-        if (object instanceof ConstructionParentEntity) {
-          this.constructionManager.spawnConstructionParent(
-            this,
-            client,
-            object
-          );
-          continue;
-        }
-
-        if (object instanceof ConstructionChildEntity) {
-          if (this.constructionManager.shouldHideEntity(this, client, object)) {
-            continue;
-          }
-          this.constructionManager.spawnSimpleConstruction(
-            this,
-            client,
-            object
-          );
-          continue;
-        }
-
-        if (object instanceof LootableConstructionEntity) {
-          if (this.constructionManager.shouldHideEntity(this, client, object)) {
-            continue;
-          }
-          this.constructionManager.spawnLootableConstruction(
-            this,
-            client,
-            object
-          );
-          continue;
-        }
-
-        if (object instanceof BaseSimpleNpc) {
-          if (object instanceof Crate) {
-            if (object.spawnTimestamp > Date.now()) {
-              continue;
-            }
-            if (object.destroyed) {
-              object.destroyed = false;
-            }
-          }
-          client.spawnedEntities.add(object);
-          this.addSimpleNpc(client, object);
-          continue;
-        }
-
-        if (
-          object instanceof BaseLightweightCharacter &&
-          object.useSimpleStruct
-        ) {
-          client.spawnedEntities.add(object);
-          this.addSimpleNpc(client, object);
-        }
+    for (const cell of newCells) {
+      if (!oldCells.has(cell)) {
+        cell.subscribers.add(client);
+        this.spawnCellObjectsForClient(client, cell);
       }
+    }
+    for (const cell of oldCells) {
+      if (!newCells.has(cell)) {
+        cell.subscribers.delete(client);
+        this.despawnCellObjectsForClient(client, cell);
+      }
+    }
+
+    client.subscribedCells = newCells;
+    client.posAtLastCellUpdate =
+      client.character.state.position.slice() as Float32Array;
+    client.lastKnownChunkRenderDistance = client.chunkRenderDistance;
+  }
+
+  /** Called after an entity is pushed into a grid cell — propagates to subscribers in range */
+  private onEntityAddedToCell(entity: BaseEntity, cell: GridCell): void {
+    for (const subscriber of cell.subscribers) {
+      this.spawnEntityForClient(subscriber as Client, entity);
     }
   }
 
@@ -9015,78 +9127,124 @@ export class ZoneServer2016 extends EventEmitter {
       }
     }
   }
-  async startRoutinesLoop() {
-    if (_.size(this._clients) <= 0) {
-      this.routinesLoopTimer = setTimeout(() => {
-        this.startRoutinesLoop();
-      }, 3000);
-      return;
-    }
-    for (const a in this._clients) {
-      while (this.isSaving) {
-        await scheduler.wait(500);
-      }
-      const startTime = Date.now();
-      const client = this._clients[a];
-      if (!client.isLoading) {
-        client.routineCounter++;
-        this.constructionManager.constructionPermissionsManager(this, client);
-        if (!this.disableMapBoundsCheck) {
-          this.checkInMapBounds(client);
-        }
-        this.checkZonePing(client);
-        if (client.routineCounter >= 3) {
-          this.createFairPlayInternalPacket(client);
-          this.assignChunkRenderDistance(client);
-          this.removeOutOfDistanceEntities(client);
-          if (!this.disablePOIManager) {
-            this.POIManager(client);
-          }
-          client.routineCounter = 0;
-        }
-        //this.constructionManager.spawnConstructionParentsInRange(this, client); // put back into grid for now
-        this.vehicleManager(client);
-        this.spawnGridObjects(client); // Spawn base parts before the player
-        this.spawnCharacters(client);
-        //this.constructionManager.worldConstructionManager(this, client); // put into grid
-        client.posAtLastRoutine = client.character.state.position;
-      }
-      const endTime = Date.now();
-      const timeTaken = endTime - startTime;
-      if (timeTaken > this.tickRate) {
-        console.log(
-          `Routine took ${timeTaken}ms to execute, which is more than the tickRate ${this.tickRate}`
-        );
-      }
-      await scheduler.wait(this.tickRate, {});
-    }
-    this.updateSpectatorMap();
-    this.startRoutinesLoop();
-  }
-
   executeRoutine(client: Client) {
+    // Reset subscriptions so updateClientSubscriptions re-populates everything,
+    // including full NPC structs that were skipped during the loading phase.
+    for (const cell of client.subscribedCells) {
+      cell.subscribers.delete(client);
+    }
+    client.subscribedCells.clear();
+    client.posAtLastCellUpdate = new Float32Array([0, 0, 0, 1]);
     this.constructionManager.constructionPermissionsManager(this, client);
     //this.constructionManager.spawnConstructionParentsInRange(this, client); // put into grid
     this.vehicleManager(client);
     this.removeOutOfDistanceEntities(client);
-    this.spawnGridObjects(client); // Spawn base parts before the player
+    this.updateClientSubscriptions(client);
     this.spawnCharacters(client);
     //this.constructionManager.worldConstructionManager(this, client);
     if (!this.disablePOIManager) {
       this.POIManager(client);
     }
-    client.posAtLastRoutine = client.character.state.position;
+    client.posAtLastRoutine =
+      client.character.state.position.slice() as Float32Array;
+    client.lastRoutineTime = Date.now();
+    this.startClientPeriodicChecks(client);
   }
 
   firstRoutine(client: Client) {
     //this.constructionManager.spawnConstructionParentsInRange(this, client); // put into grid
-    this.spawnLoadingGridObjects(client);
+    this.updateClientSubscriptions(client);
     this.spawnCharacters(client);
     //this.constructionManager.worldConstructionManager(this, client);
     if (!this.disablePOIManager) {
       this.POIManager(client);
     }
-    client.posAtLastRoutine = client.character.state.position;
+    client.posAtLastRoutine =
+      client.character.state.position.slice() as Float32Array;
+  }
+
+  /** Runs the world-state update for a single client based on their current
+   *  known position. Called from the server tick — NOT from packet handlers. */
+  private runClientTick(client: Client) {
+    if (client.isLoading) return;
+    const pos = client.character.state.position;
+
+    // Construction permissions: run when player has moved 3+ units
+    if (getDistance2d(pos, client.posAtLastPermissionCheck) >= 3) {
+      this.constructionManager.constructionPermissionsManager(this, client);
+      client.posAtLastPermissionCheck = pos.slice() as Float32Array;
+    }
+
+    // Heavy world scans: run when player has moved 10+ units
+    if (getDistance2d(pos, client.posAtLastRoutine) >= 10) {
+      if (!this.disableMapBoundsCheck) this.checkInMapBounds(client);
+      this.assignChunkRenderDistance(client);
+      if (!this.disablePOIManager) this.POIManager(client);
+      this.vehicleManager(client);
+
+      // Spawn any entities in already-subscribed cells that weren't in render
+      // range when first subscribed — e.g. NPCs that spawned nearby.
+      for (const cell of client.subscribedCells) {
+        this.spawnCellObjectsForClient(client, cell);
+      }
+
+      client.posAtLastRoutine = pos.slice() as Float32Array;
+      client.lastRoutineTime = Date.now();
+    }
+
+    // Cell subscriptions: run when player has crossed 62.5 units or render distance changed
+    if (
+      getDistance2d(pos, client.posAtLastCellUpdate) >= 62.5 ||
+      client.chunkRenderDistance !== client.lastKnownChunkRenderDistance
+    ) {
+      this.updateClientSubscriptions(client);
+    }
+
+    this.spawnCharacters(client);
+  }
+
+  private _worldTickTimer?: NodeJS.Timeout;
+  private static readonly WORLD_TICK_MS = 200;
+
+  startWorldTick() {
+    const tick = () => {
+      if (!this._ready) {
+        this._worldTickTimer = setTimeout(tick, ZoneServer2016.WORLD_TICK_MS);
+        return;
+      }
+      for (const sessionId in this._clients) {
+        this.runClientTick(this._clients[sessionId]);
+      }
+      this._worldTickTimer = setTimeout(tick, ZoneServer2016.WORLD_TICK_MS);
+    };
+    this._worldTickTimer = setTimeout(tick, ZoneServer2016.WORLD_TICK_MS);
+  }
+
+  startClientPeriodicChecks(client: Client) {
+    clearTimeout(client.pingTimer);
+    clearTimeout(client.fairPlayTimer);
+
+    const pingLoop = () => {
+      if (!this._clients[client.sessionId]) return;
+      if (!client.isLoading) this.checkZonePing(client);
+      client.pingTimer = setTimeout(pingLoop, 3000);
+    };
+    client.pingTimer = setTimeout(pingLoop, 3000);
+
+    const fairPlayLoop = () => {
+      if (!this._clients[client.sessionId]) return;
+      if (!client.isLoading) {
+        this.createFairPlayInternalPacket(client);
+        // Clean up out-of-distance entities, then re-spawn anything in subscribed
+        // cells that has come back into render range since the last cleanup.
+        this.removeOutOfDistanceEntities(client);
+        for (const cell of client.subscribedCells) {
+          this.spawnCellObjectsForClient(client, cell);
+        }
+      }
+      client.fairPlayTimer = setTimeout(fairPlayLoop, 9000);
+    };
+    client.fairPlayTimer = setTimeout(fairPlayLoop, 9000);
   }
 
   async checkZonePing(client: Client) {
@@ -9353,6 +9511,17 @@ export class ZoneServer2016 extends EventEmitter {
       } as any,
       "UpdateZonePopulation",
       { population: populationNumber }
+    );
+  }
+
+  sendLoginServerMessage(data: any) {
+    this._loginConnectionManager.sendData(
+      {
+        ...this._loginServerInfo,
+        serverId: this._worldId
+      } as any,
+      "ClientMessage",
+      data
     );
   }
 

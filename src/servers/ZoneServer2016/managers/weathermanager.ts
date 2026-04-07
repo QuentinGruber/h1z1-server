@@ -195,7 +195,7 @@ export class WeatherManager extends EventEmitter {
       };
       if (server._soloMode) {
         this.templates[template.templateName] = template;
-        fs.writeFileSync(
+        await fs.promises.writeFile(
           `${__dirname}/../../../../data/2016/dataSources/weather.json`,
           JSON.stringify(this.templates, null, "\t")
         );

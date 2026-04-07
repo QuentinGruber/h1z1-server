@@ -2844,16 +2844,24 @@ export const commands: Array<Command> = [
   {
     name: "spawnloot",
     permissionLevel: PermissionLevels.ADMIN,
-    execute: (server: ZoneServer2016, client: Client, args: Array<string>) => {
-      server.worldObjectManager.createLoot(server);
+    execute: async (
+      server: ZoneServer2016,
+      client: Client,
+      args: Array<string>
+    ) => {
+      await server.worldObjectManager.createLootThreaded(server);
       server.sendChatText(client, `Spawned loot`);
     }
   },
   {
     name: "respawnnpcs",
     permissionLevel: PermissionLevels.ADMIN,
-    execute: (server: ZoneServer2016, client: Client, args: Array<string>) => {
-      server.worldObjectManager.createNpcs(server);
+    execute: async (
+      server: ZoneServer2016,
+      client: Client,
+      args: Array<string>
+    ) => {
+      await server.worldObjectManager.createNpcsThreaded(server);
       server.sendChatText(client, `Respawned npcs`);
     }
   },
@@ -3495,10 +3503,9 @@ export const commands: Array<Command> = [
         }
       }
 
-      delete require.cache[require.resolve("../../data/lootspawns")];
-      const loottables = require("../../data/lootspawns").lootTables;
-      server.worldObjectManager.createLoot(server, loottables);
-      server.worldObjectManager.createContainerLoot(server);
+      await server.worldObjectManager.createLootThreaded(server);
+      await server.worldObjectManager.createContainerLootThreaded(server);
+      await new Promise<void>((r) => setImmediate(r));
       server.sendChatText(client, `Respawned loot`);
     }
   },

@@ -1,0 +1,163 @@
+{
+  "type": "container",
+  "maxItems": 2,
+  "pools": [
+    {
+      "conditions": [],
+      "entries": [
+        {
+          "item": 23,
+          "weight": 15,
+          "count": {
+            "min": 1,
+            "max": 2
+          }
+        },
+        {
+          "item": 1436,
+          "weight": 10,
+          "count": {
+            "min": 1,
+            "max": 1
+          }
+        },
+        {
+          "item": 1428,
+          "weight": 15,
+          "count": {
+            "min": 1,
+            "max": 2
+          }
+        },
+        {
+          "item": 22,
+          "weight": 13,
+          "count": {
+            "min": 1,
+            "max": 1
+          }
+        },
+        {
+          "item": 7,
+          "weight": 30,
+          "count": {
+            "min": 1,
+            "max": 1
+          }
+        },
+        {
+          "item": 1393,
+          "weight": 30,
+          "count": {
+            "min": 1,
+            "max": 1
+          }
+        },
+        {
+          "item": 1394,
+          "weight": 30,
+          "count": {
+            "min": 1,
+            "max": 1
+          }
+        },
+        {
+          "item": 1391,
+          "weight": 30,
+          "count": {
+            "min": 1,
+            "max": 1
+          }
+        },
+        {
+          "item": 1392,
+          "weight": 30,
+          "count": {
+            "min": 1,
+            "max": 1
+          }
+        },
+        {
+          "item": 1396,
+          "weight": 30,
+          "count": {
+            "min": 1,
+            "max": 1
+          }
+        },
+        {
+          "item": 1397,
+          "weight": 30,
+          "count": {
+            "min": 1,
+            "max": 1
+          }
+        },
+        {
+          "item": 1398,
+          "weight": 30,
+          "count": {
+            "min": 1,
+            "max": 1
+          }
+        },
+        {
+          "item": 1399,
+          "weight": 30,
+          "count": {
+            "min": 1,
+            "max": 1
+          }
+        },
+        {
+          "item": 1400,
+          "weight": 30,
+          "count": {
+            "min": 1,
+            "max": 1
+          }
+        },
+        {
+          "item": 1401,
+          "weight": 30,
+          "count": {
+            "min": 1,
+            "max": 1
+          }
+        },
+        {
+          "item": 1395,
+          "weight": 30,
+          "count": {
+            "min": 1,
+            "max": 1
+          }
+        },
+        {
+          "item": 1431,
+          "weight": 30,
+          "count": {
+            "min": 1,
+            "max": 1
+          }
+        },
+        {
+          "item": 2536,
+          "weight": 30,
+          "count": {
+            "min": 1,
+            "max": 1
+          }
+        },
+        {
+          "item": 3460,
+          "weight": 5,
+          "count": {
+            "min": 1,
+            "max": 1
+          }
+        }
+      ]
+    }
+  ]
+}

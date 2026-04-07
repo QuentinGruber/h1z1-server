@@ -231,7 +231,7 @@ export class PluginManager {
     return null;
   }
 
-  private static getPluginDataRoots(): string[] {
+  public static getPluginDataRoots(): string[] {
     if (process.env.DISABLE_PLUGINS) {
       return [];
     }
