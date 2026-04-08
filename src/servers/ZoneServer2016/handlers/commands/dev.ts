@@ -50,7 +50,7 @@ import { scheduler } from "timers/promises";
 import { DB_COLLECTIONS } from "../../../../utils/enums";
 import { randomInt } from "crypto";
 import { GatewayChannels } from "h1emu-core";
-import { PluginManager } from "servers/ZoneServer2016/managers/pluginmanager";
+import { PluginManager } from "../../managers/pluginmanager";
 
 const abilities = PluginManager.loadServerData(
     "2016/dataSources/Abilities.json"
