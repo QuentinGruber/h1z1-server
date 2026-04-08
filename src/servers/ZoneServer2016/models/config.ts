@@ -35,6 +35,7 @@ interface ServerConfig {
   damageWeapons: boolean;
   disablePOIManager: boolean;
   disableMapBoundsCheck: boolean;
+  disableBaseCheck: boolean;
 }
 
 interface RconConfig {

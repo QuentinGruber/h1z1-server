@@ -515,6 +515,7 @@ export class ZoneServer2016 extends EventEmitter {
   damageWeapons!: boolean;
   disablePOIManager!: boolean;
   disableMapBoundsCheck!: boolean;
+  disableBaseCheck!: boolean;
   /*                          */
   navManager: NavManager;
   staticBuildings: AddSimpleNpc[] = PluginManager.loadServerData(
@@ -9135,7 +9136,11 @@ export class ZoneServer2016 extends EventEmitter {
     }
     client.subscribedCells.clear();
     client.posAtLastCellUpdate = new Float32Array([0, 0, 0, 1]);
-    this.constructionManager.constructionPermissionsManager(this, client);
+    if (!this.disableBaseCheck) {
+      this.constructionManager.constructionPermissionsManager(this, client);
+      client.posAtLastPermissionCheck =
+        client.character.state.position.slice() as Float32Array;
+    }
     //this.constructionManager.spawnConstructionParentsInRange(this, client); // put into grid
     this.vehicleManager(client);
     this.removeOutOfDistanceEntities(client);
@@ -9170,7 +9175,10 @@ export class ZoneServer2016 extends EventEmitter {
     const pos = client.character.state.position;
 
     // Construction permissions: run when player has moved 3+ units
-    if (getDistance2d(pos, client.posAtLastPermissionCheck) >= 3) {
+    if (
+      !this.disableBaseCheck &&
+      getDistance2d(pos, client.posAtLastPermissionCheck) >= 3
+    ) {
       this.constructionManager.constructionPermissionsManager(this, client);
       client.posAtLastPermissionCheck = pos.slice() as Float32Array;
     }

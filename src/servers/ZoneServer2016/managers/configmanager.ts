@@ -360,7 +360,8 @@ export class ConfigManager {
       baseConstructionDamage,
       damageWeapons,
       disablePOIManager,
-      disableMapBoundsCheck
+      disableMapBoundsCheck,
+      disableBaseCheck
     } = this.config.server;
     server.gameMode =
       GameModes[gameMode.trim().toUpperCase() as keyof typeof GameModes] ??
@@ -382,6 +383,7 @@ export class ConfigManager {
     server.damageWeapons = damageWeapons;
     server.disablePOIManager = disablePOIManager;
     server.disableMapBoundsCheck = disableMapBoundsCheck;
+    server.disableBaseCheck = disableBaseCheck;
     //#endregion
 
     //#region Rcon
