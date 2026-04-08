@@ -964,6 +964,34 @@ export class ZoneServer2016 extends EventEmitter {
                 this.fairPlayManager.defaultHashes = assetHashes.hashes;
               }
               break;
+            case "GlobalBroadcastForward": {
+              if (
+                client.address !== this._loginServerInfo.address ||
+                client.port !== this._loginServerInfo.port
+              ) {
+                debug(
+                  `GlobalBroadcastForward rejected: unexpected sender ${client.address}:${client.port}`
+                );
+                return;
+              }
+              const {
+                broadcastType,
+                initiatorName,
+                message,
+                originServerId,
+                rewardIds
+              } = packet.data;
+              debug(
+                `GlobalBroadcastForward type=${broadcastType} from server ${originServerId}`
+              );
+              this.executeGlobalBroadcast(
+                broadcastType,
+                initiatorName,
+                message,
+                rewardIds
+              );
+              break;
+            }
             default:
               debug(`Unhandled h1emu packet: ${packet.name}`);
               break;
@@ -9538,6 +9566,63 @@ export class ZoneServer2016 extends EventEmitter {
       } as any,
       "ClientMessage",
       data
+    );
+  }
+
+  executeGlobalBroadcast(
+    broadcastType: number,
+    initiatorName: string,
+    message: string,
+    rewardIds: { rewardId: number }[]
+  ) {
+    const identity = { characterFirstName: initiatorName };
+    switch (broadcastType) {
+      case 0: // global announcement
+        this._sendDataToAll("Broadcast.World", { identity, message });
+        break;
+      case 1: // global reward drop to all players
+        for (const key in this._clients) {
+          const c = this._clients[key];
+          for (const { rewardId } of rewardIds) {
+            this.rewardManager.addRewardToPlayer(c, rewardId);
+          }
+        }
+        if (message)
+          this._sendDataToAll("Broadcast.World", { identity, message });
+        break;
+      default:
+        debug(`Unknown GlobalBroadcast type: ${broadcastType}`);
+        break;
+    }
+  }
+
+  sendGlobalBroadcastRequest(
+    broadcastType: number,
+    initiatorName: string,
+    message: string,
+    rewardIds: number[] = []
+  ) {
+    if (this._soloMode) {
+      this.executeGlobalBroadcast(
+        broadcastType,
+        initiatorName,
+        message,
+        rewardIds.map((rewardId) => ({ rewardId }))
+      );
+      return;
+    }
+    this._loginConnectionManager.sendData(
+      {
+        ...this._loginServerInfo,
+        serverId: this._worldId
+      } as any,
+      "GlobalBroadcastRequest",
+      {
+        broadcastType,
+        initiatorName,
+        message,
+        rewardIds: rewardIds.map((rewardId) => ({ rewardId }))
+      }
     );
   }
 

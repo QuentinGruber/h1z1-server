@@ -2939,6 +2939,63 @@ export const commands: Array<Command> = [
     }
   },
   {
+    name: "globalalert",
+    permissionLevel: PermissionLevels.ADMIN,
+    keepCase: true,
+    execute: (server: ZoneServer2016, client: Client, args: Array<string>) => {
+      if (!args.length) {
+        server.sendChatText(client, "[ERROR] Usage: /globalalert {message}");
+        return;
+      }
+      const message = args.join(" ");
+      server.sendGlobalBroadcastRequest(
+        0,
+        client.character.name,
+        message
+      );
+    }
+  },
+  {
+    name: "globalrewardtoall",
+    permissionLevel: PermissionLevels.ADMIN,
+    execute: (server: ZoneServer2016, client: Client, args: Array<string>) => {
+      if (!args.length) {
+        server.sendChatText(
+          client,
+          "[ERROR] Usage: /globalrewardtoall {CrateID} [CrateID ...]"
+        );
+        return;
+      }
+      const rewardIds: number[] = [];
+      const invalid: string[] = [];
+      for (const arg of args) {
+        const rewardId = Number(arg);
+        const validRewardItem = server.rewardManager.rewards.some(
+          (v) => v.itemId === rewardId
+        );
+        if (!validRewardItem) {
+          invalid.push(arg);
+          continue;
+        }
+        rewardIds.push(rewardId);
+      }
+      if (!rewardIds.length) {
+        server.sendChatText(
+          client,
+          `[ERROR]${invalid.length ? " Crate ID: " + invalid.join(", ") : ""} is not valid`
+        );
+        return;
+      }
+      const message = `${client.character.name} has just initiated a global crate drop`;
+      server.sendGlobalBroadcastRequest(
+        1,
+        "",
+        message,
+        rewardIds
+      );
+    }
+  },
+  {
     name: "remover",
     permissionLevel: PermissionLevels.ADMIN,
     execute: (server: ZoneServer2016, client: Client, args: Array<string>) => {

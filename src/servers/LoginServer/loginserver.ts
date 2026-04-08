@@ -120,6 +120,12 @@ export class LoginServer extends EventEmitter {
   _httpServerPort: number = Number(process.env.HTTP_PORT ?? 80);
   private _zoneConnectionManager!: ZoneConnectionManager;
   private _zoneConnections: { [LZConnectionClientId: string]: number } = {};
+  private _globalBroadcastAllowedZones: Set<number> = new Set(
+    (process.env.GLOBAL_BROADCAST_SERVER_IDS || "")
+      .split(",")
+      .map(Number)
+      .filter((id) => id > 0)
+  );
   private _internalReqCount: number = 0;
   private _pendingInternalReq: { [requestId: number]: any } = {};
   private _pendingInternalReqTimeouts: { [requestId: number]: NodeJS.Timeout } =
@@ -310,6 +316,37 @@ export class LoginServer extends EventEmitter {
                     showConsole: showConsole,
                     clearOutput: clearOutput
                   });
+                  break;
+                }
+                case "GlobalBroadcastRequest": {
+                  const originServerId = this._zoneConnections[client.clientId];
+                  if (
+                    !originServerId ||
+                    !this._globalBroadcastAllowedZones.has(originServerId)
+                  )
+                    return;
+                  const { broadcastType, initiatorName, message, rewardIds } =
+                    packet.data;
+                  for (const zoneClientId in this._zoneConnections) {
+                    const zoneServerId = this._zoneConnections[zoneClientId];
+                    if (!this._globalBroadcastAllowedZones.has(zoneServerId))
+                      continue;
+                    const zoneClient =
+                      this._zoneConnectionManager._clients[zoneClientId];
+                    if (zoneClient) {
+                      this._zoneConnectionManager.sendData(
+                        zoneClient,
+                        "GlobalBroadcastForward",
+                        {
+                          broadcastType,
+                          initiatorName,
+                          message,
+                          originServerId,
+                          rewardIds
+                        }
+                      );
+                    }
+                  }
                   break;
                 }
                 default:
