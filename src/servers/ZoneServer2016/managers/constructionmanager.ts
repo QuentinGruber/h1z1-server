@@ -1881,12 +1881,16 @@ export class ConstructionManager {
             true
           );
           return true;
-        } else if (!client.isAdmin || !client.isDebugMode) {
+        } else if (
+          !server.disableBaseCheck &&
+          (!client.isAdmin || !client.isDebugMode)
+        ) {
           this.tpPlayerOutsideFoundation(server, client, foundation);
         }
       }
     }
     if (allowed) return false;
+    if (server.disableBaseCheck) return false;
     const bufferZone = 0.15;
     const position = client.character.state.position;
     const positions: Float32Array[] = [];
@@ -1986,7 +1990,10 @@ export class ConstructionManager {
           true
         );
         return true;
-      } else if (!client.isAdmin || !client.isDebugMode) {
+      } else if (
+        !server.disableBaseCheck &&
+        (!client.isAdmin || !client.isDebugMode)
+      ) {
         const damageInfo: DamageInfo = {
           entity: "Server.Permissions",
           damage: 99999
@@ -2167,6 +2174,7 @@ export class ConstructionManager {
     }, 500);
     setTimeout(() => {
       if (
+        !server.disableBaseCheck &&
         foundation.isSecured &&
         foundation.isInside(client.character.state.position)
       ) {
