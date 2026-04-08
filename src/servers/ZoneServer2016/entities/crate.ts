@@ -71,14 +71,18 @@ export class Crate extends BaseSimpleNpc {
     if (!lootTable) return;
     const chance = Math.floor(Math.random() * 100) + 1;
     if (chance <= (lootTable.spawnChance ?? 100)) {
-      const allEntries = lootTable.pools.flatMap((p) => p.entries);
+      const allEntries = lootTable.pools
+        .flatMap((p) => p.entries)
+        .filter((e) => (e.type ?? "item") === "item" && e.item !== undefined);
       const entry = getRandomItem(allEntries);
-      if (entry) {
+      if (entry && entry.item !== undefined) {
         const spawnedItem = server.worldObjectManager.createLootEntity(
           server,
           server.generateItem(
             entry.item,
-            randomIntFromInterval(entry.count.min, entry.count.max)
+            entry.count
+              ? randomIntFromInterval(entry.count.min, entry.count.max)
+              : 1
           ),
           new Float32Array([
             this.state.position[0],

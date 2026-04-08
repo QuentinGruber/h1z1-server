@@ -283,14 +283,44 @@ export interface LootCondition {
 
 }
 
+export type ItemFunctionType = "set_damage" | "set_count";
+
+export interface ItemFunction {
+  function: ItemFunctionType;
+  /**
+   * For set_damage: fraction of the item's current durability (0.0–1.0).
+   * For set_count: minimum item stack count.
+   */
+  min: number;
+  /** Max value — used as the upper bound of the random range. */
+  max: number;
+}
+
 export interface LootTableEntry {
-  item: number;
+  /**
+   * Determines how this entry is resolved.
+   * - "item": spawns a specific item (default when omitted).
+   * - "loot_table": draws a random item from another named loot table.
+   * - "empty": produces nothing (useful as a weighted no-spawn slot).
+   */
+  type?: "item" | "loot_table" | "empty";
+  /** Item definition ID. Used when type is "item" or absent. */
+  item?: number;
+  /** Name of another loot table to draw from. Used when type is "loot_table". */
+  table?: string;
   weight: number;
-  count: { min: number; max: number };
+  count?: { min: number; max: number };
+  /** Functions applied to the spawned item after generation. */
+  functions?: ItemFunction[];
 }
 
 export interface LootPool {
   conditions: LootCondition[];
+  /**
+   * How many times this pool draws an entry per spawn cycle (container loot only).
+   * When omitted, the pool contributes its entries to the legacy maxItems selection.
+   */
+  rolls?: { min: number; max: number };
   entries: LootTableEntry[];
 }
 
@@ -302,7 +332,6 @@ export interface GroundLootTableJson {
 
 export interface ContainerLootTableJson {
   type: "container";
-  maxItems: number;
   pools: LootPool[];
   /**
    * Optional top-level spawn chance (0-100). Used by world entities (e.g. crates)

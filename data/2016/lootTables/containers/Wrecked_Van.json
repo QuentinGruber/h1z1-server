@@ -1,9 +1,12 @@
 {
   "type": "container",
-  "maxItems": 3,
   "pools": [
     {
       "conditions": [],
+      "rolls": {
+        "min": 0,
+        "max": 3
+      },
       "entries": [
         {
           "item": 48,

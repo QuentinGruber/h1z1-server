@@ -7,6 +7,7 @@ interface LootPlanEntry {
   count: number;
   position: number[];
   rotation: number[];
+  functions?: import("types/zoneserver").ItemFunction[];
 }
 
 interface NpcPlanEntry {
@@ -64,6 +65,7 @@ interface ContainerPlanEntry {
   characterId: string;
   itemDefinitionId: number;
   count: number;
+  functions?: import("types/zoneserver").ItemFunction[];
 }
 
 type WorkerRequest =

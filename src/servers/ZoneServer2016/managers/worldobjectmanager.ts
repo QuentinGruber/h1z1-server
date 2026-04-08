@@ -80,6 +80,7 @@ import {
   NpcDespawnSnapshot,
   SpawnedItemSnapshot
 } from "./lootspawnworker";
+import type { ItemFunction } from "types/zoneserver";
 const debug = require("debug")("ZoneServer");
 const apm = require("elastic-apm-node");
 
@@ -126,6 +127,23 @@ export function getRandomItem<T extends { weight: number }>(
     }
   }
   return undefined;
+}
+
+function applyItemFunctions(item: BaseItem, functions: ItemFunction[]): void {
+  for (const fn of functions) {
+    if (fn.function === "set_damage") {
+      const fraction = fn.min + Math.random() * (fn.max - fn.min);
+      item.currentDurability = Math.max(
+        1,
+        Math.floor(item.currentDurability * fraction)
+      );
+    } else if (fn.function === "set_count") {
+      item.stackCount = Math.max(
+        1,
+        Math.floor(Math.random() * (fn.max - fn.min + 1) + fn.min)
+      );
+    }
+  }
 }
 
 export class WorldObjectManager {
@@ -290,12 +308,15 @@ export class WorldObjectManager {
 
       for (const entry of plan) {
         if (this.spawnedLootObjects[entry.spawnerId]) continue;
+        const item = server.generateItem(
+          getRandomSkin(entry.itemDefinitionId),
+          entry.count
+        );
+        if (item && entry.functions?.length)
+          applyItemFunctions(item, entry.functions);
         this.createLootEntity(
           server,
-          server.generateItem(
-            getRandomSkin(entry.itemDefinitionId),
-            entry.count
-          ),
+          item,
           new Float32Array(entry.position),
           new Float32Array(entry.rotation),
           entry.spawnerId
@@ -347,14 +368,13 @@ export class WorldObjectManager {
         );
         if (hasSameItem) continue;
 
-        server.addContainerItem(
-          prop,
-          server.generateItem(
-            getRandomSkin(entry.itemDefinitionId),
-            entry.count
-          ),
-          container
+        const item = server.generateItem(
+          getRandomSkin(entry.itemDefinitionId),
+          entry.count
         );
+        if (item && entry.functions?.length)
+          applyItemFunctions(item, entry.functions);
+        server.addContainerItem(prop, item, container);
         updatedProps.add(entry.characterId);
       }
 
@@ -684,12 +704,14 @@ export class WorldObjectManager {
     );
     const container = lootbag.getContainer();
     if (container && lootSpawner) {
-      // Airdrop: spawn every entry at max count regardless of weights/conditions
-      const allEntries = lootSpawner.pools.flatMap((p) => p.entries);
+      // Airdrop: spawn every item entry at max count regardless of weights/conditions
+      const allEntries = lootSpawner.pools
+        .flatMap((p) => p.entries)
+        .filter((e) => (e.type ?? "item") === "item" && e.item !== undefined);
       allEntries.forEach((entry) => {
         server.addContainerItem(
           lootbag,
-          server.generateItem(entry.item, entry.count.max),
+          server.generateItem(entry.item!, entry.count?.max ?? 1),
           container
         );
       });
@@ -1330,12 +1352,18 @@ export class WorldObjectManager {
               ] = realSpawnChance;
             }
             const entry = getRandomItem(allEntries);
-            if (entry) {
+            if (
+              entry &&
+              (entry.type ?? "item") === "item" &&
+              entry.item !== undefined
+            ) {
               this.createLootEntity(
                 server,
                 server.generateItem(
                   getRandomSkin(entry.item),
-                  randomIntFromInterval(entry.count.min, entry.count.max)
+                  entry.count
+                    ? randomIntFromInterval(entry.count.min, entry.count.max)
+                    : 1
                 ),
                 new Float32Array(itemInstance.position),
                 new Float32Array(itemInstance.rotation),
@@ -1579,31 +1607,33 @@ export class WorldObjectManager {
       if (!prop.shouldSpawnLoot) continue;
       const lootTable = containerTables[prop.lootSpawner];
       if (lootTable) {
-        const allEntries = lootTable.pools.flatMap((p) => p.entries);
         const containerItemIds = new Set<number>(
           Object.values(container.items).map(
             (spawnedItem: BaseItem) => spawnedItem.itemDefinitionId
           )
         );
-        for (let x = 0; x < lootTable.maxItems; x++) {
-          const entry = getRandomItem(allEntries);
-          if (!entry) continue;
-          const chance = Math.floor(Math.random() * 100) + 1;
-          if (!containerItemIds.has(entry.item)) {
-            if (chance <= entry.weight) {
-              const count = Math.floor(
-                Math.random() * (entry.count.max - entry.count.min + 1) +
-                  entry.count.min
-              );
-              server.addContainerItem(
-                prop,
-                server.generateItem(getRandomSkin(entry.item), count),
-                container
-              );
-              containerItemIds.add(entry.item);
-            }
-          } else {
-            x--;
+        for (const pool of lootTable.pools) {
+          const rolls = pool.rolls
+            ? randomIntFromInterval(pool.rolls.min, pool.rolls.max)
+            : 1;
+          for (let r = 0; r < rolls; r++) {
+            const entry = getRandomItem(pool.entries);
+            if (
+              !entry ||
+              (entry.type ?? "item") !== "item" ||
+              entry.item === undefined
+            )
+              continue;
+            if (containerItemIds.has(entry.item)) continue;
+            const count = entry.count
+              ? randomIntFromInterval(entry.count.min, entry.count.max)
+              : 1;
+            server.addContainerItem(
+              prop,
+              server.generateItem(getRandomSkin(entry.item), count),
+              container
+            );
+            containerItemIds.add(entry.item);
           }
         }
       }

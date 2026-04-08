@@ -5,7 +5,8 @@ import type {
   ContainerLootTableJson,
   LootCondition,
   LootPool,
-  LootTableEntry
+  LootTableEntry,
+  ItemFunction
 } from "types/zoneserver";
 
 const Z1_items = PluginManager.loadServerData("2016/zoneData/Z1_items.json");
@@ -99,12 +100,20 @@ interface LootPlanEntry {
   count: number;
   position: number[];
   rotation: number[];
+  functions?: ItemFunction[];
 }
 
 interface ContainerPlanEntry {
   characterId: string;
   itemDefinitionId: number;
   count: number;
+  functions?: ItemFunction[];
+}
+
+interface ResolvedEntry {
+  itemDefinitionId: number;
+  count: number;
+  functions?: ItemFunction[];
 }
 
 interface NpcPlanEntry {
@@ -328,6 +337,45 @@ function getRandomItem(items: LootTableEntry[]): LootTableEntry | undefined {
   return undefined;
 }
 
+/**
+ * Resolves a raw LootTableEntry to a concrete item, handling entry types:
+ * - "item" (default): returns the item directly.
+ * - "loot_table": recursively draws from the referenced table.
+ * - "empty": returns null (no item spawns).
+ * Depth-limited to 5 to prevent infinite cycles.
+ */
+function resolveEntry(
+  entry: LootTableEntry | undefined,
+  ctx: LootContext,
+  depth = 0
+): ResolvedEntry | null {
+  if (!entry || depth > 5) return null;
+  const type = entry.type ?? "item";
+
+  if (type === "empty") return null;
+
+  if (type === "loot_table") {
+    const table =
+      (containerTables[entry.table ?? ""] as
+        | { pools: LootPool[] }
+        | undefined) ??
+      (groundTables[entry.table ?? ""] as { pools: LootPool[] } | undefined);
+    if (!table) return null;
+    const eligible = getEligibleEntries(table.pools, ctx);
+    return resolveEntry(getRandomItem(eligible), ctx, depth + 1);
+  }
+
+  // type === "item"
+  if (entry.item === undefined) return null;
+  const count = entry.count
+    ? Math.floor(
+        Math.random() * (entry.count.max - entry.count.min + 1) +
+          entry.count.min
+      )
+    : 1;
+  return { itemDefinitionId: entry.item, count, functions: entry.functions };
+}
+
 // ── Loot plan ────────────────────────────────────────────────────────────────
 
 function createLootPlan(
@@ -357,18 +405,16 @@ function createLootPlan(
       const entries = getEligibleEntries(lootTable.pools, ctx);
       if (!entries.length) continue;
 
-      const item = getRandomItem(entries);
-      if (!item) continue;
+      const resolved = resolveEntry(getRandomItem(entries), ctx);
+      if (!resolved) continue;
 
-      const count = Math.floor(
-        Math.random() * (item.count.max - item.count.min + 1) + item.count.min
-      );
       plan.push({
         spawnerId: itemInstance.id,
-        itemDefinitionId: item.item,
-        count,
+        itemDefinitionId: resolved.itemDefinitionId,
+        count: resolved.count,
         position: itemInstance.position,
-        rotation: itemInstance.rotation
+        rotation: itemInstance.rotation,
+        functions: resolved.functions
       });
     }
   }
@@ -398,32 +444,30 @@ function createContainerLootPlan(
       ingameHour: 12
     };
 
-    const allEntries = getEligibleEntries(lootTable.pools, ctx);
-    if (!allEntries.length) continue;
-
     const containerItemIds = new Set<number>(prop.existingItemDefinitionIds);
-    for (let x = 0; x < lootTable.maxItems; x++) {
-      const item = getRandomItem(allEntries);
-      if (!item) continue;
 
-      if (containerItemIds.has(item.item)) {
-        x--;
-        continue;
+    for (const pool of lootTable.pools) {
+      if (!evaluateConditions(pool.conditions, ctx)) continue;
+
+      const rolls = pool.rolls
+        ? Math.floor(
+            Math.random() * (pool.rolls.max - pool.rolls.min + 1) +
+              pool.rolls.min
+          )
+        : 1;
+
+      for (let r = 0; r < rolls; r++) {
+        const resolved = resolveEntry(getRandomItem(pool.entries), ctx);
+        if (!resolved) continue;
+        if (containerItemIds.has(resolved.itemDefinitionId)) continue;
+        plan.push({
+          characterId: prop.characterId,
+          itemDefinitionId: resolved.itemDefinitionId,
+          count: resolved.count,
+          functions: resolved.functions
+        });
+        containerItemIds.add(resolved.itemDefinitionId);
       }
-
-      const chance = Math.floor(Math.random() * 100) + 1;
-      if (chance > item.weight) continue;
-
-      const count = Math.floor(
-        Math.random() * (item.count.max - item.count.min + 1) + item.count.min
-      );
-
-      plan.push({
-        characterId: prop.characterId,
-        itemDefinitionId: item.item,
-        count
-      });
-      containerItemIds.add(item.item);
     }
   }
 

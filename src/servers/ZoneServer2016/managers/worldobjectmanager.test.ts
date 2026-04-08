@@ -22,13 +22,11 @@ test("WorldObjectManager", { timeout: 10000 }, async (t) => {
     const containerTables = manager.getContainerTables();
     for (const key in containerTables) {
       const containerLootTable = containerTables[key];
-      const totalEntries = containerLootTable.pools.flatMap(
-        (p) => p.entries
-      ).length;
-      if (containerLootTable.maxItems) {
+      for (const pool of containerLootTable.pools) {
+        if (!pool.rolls) continue;
         assert(
-          containerLootTable.maxItems <= totalEntries,
-          `${key} MaxItems is > total entries count`
+          pool.rolls.max <= pool.entries.length,
+          `${key} pool rolls.max (${pool.rolls.max}) exceeds entry count (${pool.entries.length})`
         );
       }
     }
