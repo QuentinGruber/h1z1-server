@@ -1251,6 +1251,18 @@ export class ZoneServer2016 extends EventEmitter {
 
   async onClientAllowedRequest(client: LZConnectionClient, packet: any) {
     const { characterId, loginSessionId, reqId } = packet.data;
+    if (!this._ready) {
+      console.log(
+        `Character (${characterId}) connection rejected: server is not ready.`
+      );
+      this.sendCharacterAllowedReply(
+        client,
+        reqId,
+        false,
+        CONNECTION_REJECTION_FLAGS.SERVER_LOCKED
+      );
+      return;
+    }
     if (this.isRebooting) {
       console.log(
         `Character (${characterId}) connection rejected due to reboot`
@@ -1995,6 +2007,7 @@ export class ZoneServer2016 extends EventEmitter {
     );*/
 
     this._ready = true;
+    console.log("Server is ready and accepting connections.");
     console.log(
       `Server saving ${this.enableWorldSaves ? "enabled" : "disabled"}.`
     );
