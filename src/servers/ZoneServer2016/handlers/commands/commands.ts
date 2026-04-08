@@ -2948,11 +2948,7 @@ export const commands: Array<Command> = [
         return;
       }
       const message = args.join(" ");
-      server.sendGlobalBroadcastRequest(
-        0,
-        client.character.name,
-        message
-      );
+      server.sendGlobalBroadcastRequest(0, client.character.name, message);
     }
   },
   {
@@ -2987,12 +2983,7 @@ export const commands: Array<Command> = [
         return;
       }
       const message = `${client.character.name} has just initiated a global crate drop`;
-      server.sendGlobalBroadcastRequest(
-        1,
-        "",
-        message,
-        rewardIds
-      );
+      server.sendGlobalBroadcastRequest(1, "", message, rewardIds);
     }
   },
   {
