@@ -68,6 +68,10 @@ export class ZoneClient2016 {
   spawnedDTOs: any[] = [];
   spawnedEntities: Set<BaseEntity> = new Set();
   spawnedVehicles: Set<Vehicle> = new Set();
+  /** Subset of spawnedEntities: only ConstructionParentEntity */
+  spawnedFoundations: Set<BaseEntity> = new Set();
+  /** Subset of spawnedEntities: only ConstructionChildEntity */
+  spawnedChildEntities: Set<BaseEntity> = new Set();
   /** Spatial hash key for _clientGrid, updated each routine tick */
   gridKey: string = "";
   sentInteractionCounter: number = 1;

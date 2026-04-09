@@ -2333,6 +2333,7 @@ export class ConstructionManager {
     if (!client.spawnedEntities.has(entity)) {
       server.addSimpleNpc(client, entity);
       client.spawnedEntities.add(entity);
+      client.spawnedFoundations.add(entity);
     }
     // slotted construction spawning
     this.spawnConstructionTree(server, client, entity);
@@ -2382,6 +2383,7 @@ export class ConstructionManager {
     if (!client.spawnedEntities.has(entity)) {
       server.addSimpleNpc(client, entity);
       client.spawnedEntities.add(entity);
+      client.spawnedChildEntities.add(entity);
     }
 
     if (!spawnTree) return;
@@ -2433,27 +2435,21 @@ export class ConstructionManager {
     client: Client
   ) {
     let hide = false;
+    const pos = client.character.state.position;
     client.character.insideBuilding = "";
-    for (const object of client.spawnedEntities) {
-      if (object instanceof ConstructionParentEntity) {
-        if (object.isInside(client.character.state.position))
-          client.character.insideBuilding = object.characterId;
-        if (this.checkFoundationPermission(server, client, object)) {
-          hide = true;
-          continue;
-        }
-      }
-
-      if (object instanceof ConstructionChildEntity) {
-        if (object.isInside(client.character.state.position))
-          client.character.insideBuilding = object.characterId;
-        if (
-          this.checkConstructionChildEntityPermission(server, client, object)
-        ) {
-          hide = true;
-          continue;
-        }
-      }
+    for (const object of client.spawnedFoundations) {
+      const foundation = object as ConstructionParentEntity;
+      if (foundation.isInside(pos))
+        client.character.insideBuilding = foundation.characterId;
+      if (this.checkFoundationPermission(server, client, foundation))
+        hide = true;
+    }
+    for (const object of client.spawnedChildEntities) {
+      const child = object as ConstructionChildEntity;
+      if (child.isInside(pos))
+        client.character.insideBuilding = child.characterId;
+      if (this.checkConstructionChildEntityPermission(server, client, child))
+        hide = true;
     }
 
     if (!hide && client.character.isHidden) {

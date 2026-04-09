@@ -368,6 +368,7 @@ export class ZoneServer2016 extends EventEmitter {
 
   /** Total amount of clients on the server */
   readonly _clients: { [characterId: string]: Client } = {};
+  private readonly _charIdToClient: Map<string, Client> = new Map();
 
   /** Global dictionaries for all entities */
   _characters: EntityDictionary<Character> = {};
@@ -707,6 +708,7 @@ export class ZoneServer2016 extends EventEmitter {
           await this.deleteClient(oldClient);
         }
         this._clients[sessionId] = zoneClient;
+        this._charIdToClient.set(characterId, zoneClient);
         this._characters[characterId] = zoneClient.character;
         this.emit("login", zoneClient);
       }
@@ -2790,6 +2792,7 @@ export class ZoneServer2016 extends EventEmitter {
       }
     }
     this.removeClientFromGrid(client);
+    this._charIdToClient.delete(client.character.characterId);
     delete this._clients[client.sessionId];
     await this._gatewayServer.deleteSoeClient(client.soeClientId);
     if (!this._soloMode) {
@@ -3232,43 +3235,24 @@ export class ZoneServer2016 extends EventEmitter {
 
     if (sourceIsProjectile) {
       if (sourceEntity.itemDefinitionId == Items.WEAPON_MOLOTOV) {
-        for (const characterId in this._characters) {
-          if (this.isPvE) {
-            break;
-          }
-          const character = this._characters[characterId];
-          if (
-            getDistance(
-              character.state.position,
-              sourceEntity.state.position
-            ) <= 5 &&
-            !character.characterStates.inWater
-          ) {
-            this.applyCharacterEffect(
-              character,
-              Effects.PFX_Fire_Person_loop,
-              700,
-              10000
-            );
+        if (!this.isPvE) {
+          for (const c of this.getClientsInRange(5, position)) {
+            if (!c.character.characterStates.inWater) {
+              this.applyCharacterEffect(
+                c.character,
+                Effects.PFX_Fire_Person_loop,
+                700,
+                10000
+              );
+            }
           }
         }
         return;
       }
       if (sourceEntity.itemDefinitionId == Items.GRENADE_FLASH) {
-        for (const a in this._clients) {
-          if (this.isPvE) {
-            break;
-          }
-          const c = this._clients[a];
-          const character = c.character;
-          if (
-            getDistance(
-              character.state.position,
-              sourceEntity.state.position
-            ) <= 12
-          ) {
+        if (!this.isPvE) {
+          for (const c of this.getClientsInRange(12, position)) {
             this.addScreenEffect(c, this._screenEffects["FLASH"]);
-
             this.sendAnimationToAllWithSpawnedEntity(c.character, 9);
           }
         }
@@ -3290,28 +3274,24 @@ export class ZoneServer2016 extends EventEmitter {
 
     if (this.isPvE) return;
 
-    // these entities do not use the grid system
-
-    for (const characterId in this._characters) {
-      const character = this._characters[characterId];
-      if (
-        !isPosInRadiusWithY(
-          5,
-          character.state.position,
-          sourceEntity.state.position,
-          3
-        )
-      )
-        continue;
-      character.OnExplosiveHit(this, sourceEntity);
+    // characters/vehicles use their own spatial maps, not the static grid
+    for (const c of this.getClientsInRange(5, position)) {
+      if (isPosInRadiusWithY(5, c.character.state.position, position, 3))
+        c.character.OnExplosiveHit(this, sourceEntity);
     }
-    for (const vehicleKey in this._vehicles) {
-      const vehicle = this._vehicles[vehicleKey];
-      if (
-        !isPosInRadius(5, vehicle.state.position, sourceEntity.state.position)
-      )
-        continue;
-      await vehicle.OnExplosiveHit(this, sourceEntity);
+
+    const cellSize = this._vehicleGridCellSize;
+    const cx = Math.floor(position[0] / cellSize);
+    const cz = Math.floor(position[2] / cellSize);
+    for (let dx = -1; dx <= 1; dx++) {
+      for (let dz = -1; dz <= 1; dz++) {
+        const nearby = this._vehicleGrid.get(`${cx + dx},${cz + dz}`);
+        if (!nearby) continue;
+        for (const vehicle of nearby) {
+          if (isPosInRadius(5, vehicle.state.position, position))
+            await vehicle.OnExplosiveHit(this, sourceEntity);
+        }
+      }
     }
   }
   createProjectileNpc(client: Client, data: any) {
@@ -3675,12 +3655,7 @@ export class ZoneServer2016 extends EventEmitter {
   }
 
   getClientByCharId(characterId: string) {
-    for (const a in this._clients) {
-      const c: Client = this._clients[a];
-      if (c.character.characterId === characterId) {
-        return c;
-      }
-    }
+    return this._charIdToClient.get(characterId);
   }
 
   getClientByGuid(guid: string) {
@@ -4335,6 +4310,8 @@ export class ZoneServer2016 extends EventEmitter {
       const client = this._clients[a];
       if (client.spawnedEntities.delete(entity)) {
         client.spawnedVehicles.delete(entity as Vehicle);
+        client.spawnedFoundations.delete(entity);
+        client.spawnedChildEntities.delete(entity);
         this.sendData<ClientUpdateProximateItems>(
           client,
           "ClientUpdate.ProximateItems",
@@ -5433,16 +5410,13 @@ export class ZoneServer2016 extends EventEmitter {
   }
 
   dropAllManagedObjects(client: Client) {
-    client.managedObjects.forEach((characterId: string) => {
+    for (const characterId of client.managedObjects) {
       this.sendManagedObjectResponseControlPacket(client, {
         control: false,
         objectCharacterId: characterId
       });
-      client.managedObjects.splice(
-        client.managedObjects.findIndex((e: string) => e === characterId),
-        1
-      );
-    });
+    }
+    client.managedObjects = [];
   }
 
   sendCompositeEffectToAllWithSpawnedEntity(
@@ -5630,6 +5604,26 @@ export class ZoneServer2016 extends EventEmitter {
     return clients;
   }
 
+  /** Returns ConstructionParentEntity instances within range using the static grid */
+  getSpawnedFoundationsNear(
+    position: Float32Array,
+    range: number
+  ): ConstructionParentEntity[] {
+    const result: ConstructionParentEntity[] = [];
+    for (const gridCell of this._grid) {
+      if (!isPosInRadius(range + gridCell.width, gridCell.position, position)) continue;
+      for (const obj of gridCell.objects) {
+        if (
+          obj instanceof ConstructionParentEntity &&
+          isPosInRadius(range, obj.state.position, position)
+        ) {
+          result.push(obj);
+        }
+      }
+    }
+    return result;
+  }
+
   mountVehicle(client: Client, vehicleGuid: string) {
     const vehicle = this._vehicles[vehicleGuid];
     if (!vehicle || !vehicle.isMountable) return;
@@ -5638,8 +5632,8 @@ export class ZoneServer2016 extends EventEmitter {
       this.sendChatText(client, "Vehicle is locked.");
       return;
     }
-    for (const a in this._constructionFoundations) {
-      const foundation = this._constructionFoundations[a];
+    // only check nearby foundations
+    for (const foundation of this.getSpawnedFoundationsNear(vehicle.state.position, 50)) {
       if (
         foundation.isSecured &&
         foundation.isInside(vehicle.state.position) &&
