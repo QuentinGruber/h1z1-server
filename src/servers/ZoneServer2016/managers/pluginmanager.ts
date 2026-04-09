@@ -280,6 +280,14 @@ export class PluginManager {
       return defaultPath;
     }
 
+    const packageDataPath = this.resolveModulePath(
+      path.join(__dirname, "../../../..", "data", normalizedPath)
+    );
+
+    if (packageDataPath) {
+      return packageDataPath;
+    }
+
     throw new Error(
       `[PluginManager] Unable to resolve server data module for path: ${relativeDataPath}`
     );
