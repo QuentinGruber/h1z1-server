@@ -123,6 +123,11 @@ export class GatewayServerThreaded extends EventEmitter {
     return this.askGatewayThread(fnName, soeClientId);
   }
 
+  async getServerNetworkStats(): Promise<string[]> {
+    const fnName = this.getServerNetworkStats.name;
+    return this.askGatewayThread(fnName, "");
+  }
+
   private askGatewayThread<T>(fnName: string, soeClientId: string): Promise<T> {
     const reqId = this.reqCount++;
     this.clientInfoChannel.port2.postMessage({

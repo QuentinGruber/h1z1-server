@@ -1,0 +1,78 @@
+{
+  "type": "container",
+  "pools": [
+    {
+      "conditions": [],
+      "rolls": {
+        "min": 0,
+        "max": 5
+      },
+      "entries": [
+        {
+          "item": 1436,
+          "weight": 3,
+          "count": {
+            "min": 1,
+            "max": 1
+          }
+        },
+        {
+          "item": 57,
+          "weight": 8,
+          "count": {
+            "min": 1,
+            "max": 2
+          }
+        },
+        {
+          "item": 1992,
+          "weight": 15,
+          "count": {
+            "min": 1,
+            "max": 2
+          }
+        },
+        {
+          "item": 1719,
+          "weight": 15,
+          "count": {
+            "min": 1,
+            "max": 1
+          }
+        },
+        {
+          "item": 2645,
+          "weight": 4,
+          "count": {
+            "min": 1,
+            "max": 1
+          }
+        },
+        {
+          "item": 2646,
+          "weight": 4,
+          "count": {
+            "min": 1,
+            "max": 1
+          }
+        },
+        {
+          "item": 2647,
+          "weight": 4,
+          "count": {
+            "min": 1,
+            "max": 1
+          }
+        },
+        {
+          "item": 2648,
+          "weight": 4,
+          "count": {
+            "min": 1,
+            "max": 1
+          }
+        }
+      ]
+    }
+  ]
+}

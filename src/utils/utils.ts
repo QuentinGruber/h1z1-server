@@ -34,6 +34,7 @@ import { ZoneClient2016 } from "servers/ZoneServer2016/classes/zoneclient";
 import * as crypto from "crypto";
 import { ZoneClient } from "servers/ZoneServer2015/classes/zoneclient";
 import { ConstructionDoor } from "../servers/ZoneServer2016/entities/constructiondoor";
+import { PluginManager } from "../servers/ZoneServer2016/managers/pluginmanager";
 
 const startTime = Date.now();
 
@@ -1384,10 +1385,10 @@ export function getConstructionSlotId(buildingSlot: string) {
       return 1;
     case "WallStack":
       return 101;
-    default:
-      return Number(
-        buildingSlot.substring(buildingSlot.length, buildingSlot.length - 2)
-      );
+    default: {
+      const match = buildingSlot.match(/(\d+)$/);
+      return match ? Number(match[1]) : 0;
+    }
   }
 }
 
@@ -1684,7 +1685,7 @@ export function luck(l: number) {
   return Math.floor(Math.random() * l) === 0;
 }
 
-const Z1_POIs = require("../../data/2016/zoneData/Z1_POIs");
+const Z1_POIs = PluginManager.loadServerData("2016/zoneData/Z1_POIs");
 export function isPosInPoi(position: Float32Array): boolean {
   let isInPoi = false;
   Z1_POIs.forEach((point: any) => {
@@ -1704,28 +1705,6 @@ export function isPosInPoi(position: Float32Array): boolean {
   });
 
   return isInPoi;
-}
-
-const Z1_nerfedPOIs = require("../../data/2016/zoneData/Z1_nerfedPOIs");
-export function isLootNerfedLoc(position: Float32Array): number {
-  let useRange = true;
-  let nerfedValue = 0;
-  Z1_nerfedPOIs.forEach((point: any) => {
-    if (point.bounds) {
-      useRange = false;
-      point.bounds.forEach((bound: any) => {
-        if (isInsideSquare([position[0], position[2]], bound)) {
-          nerfedValue = point.nerfValue;
-          return;
-        }
-      });
-    }
-    if (useRange && isPosInRadius(point.range, position, point.position)) {
-      nerfedValue = point.nerfValue;
-    }
-  });
-
-  return nerfedValue;
 }
 
 export function chance(chanceNum: number): boolean {

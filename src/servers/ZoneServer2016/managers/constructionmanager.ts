@@ -11,9 +11,6 @@
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
 
-const Z1_vehicles = require("../../../../data/2016/zoneData/Z1_vehicleLocations.json"),
-  spawnLocations2 = require("../../../../data/2016/zoneData/Z1_gridSpawns.json");
-
 import {
   ConstructionEntity,
   dailyRepairMaterial,
@@ -64,6 +61,14 @@ import {
   ConstructionUnknown,
   PlayerUpdatePosition
 } from "types/zone2016packets";
+import { PluginManager } from "./pluginmanager";
+
+const Z1_vehicles = PluginManager.loadServerData(
+    "2016/zoneData/Z1_vehicleLocations.json"
+  ),
+  spawnLocations2 = PluginManager.loadServerData(
+    "2016/zoneData/Z1_gridSpawns.json"
+  );
 
 export class ConstructionManager {
   overridePlacementItems: Array<number> = [
@@ -1876,12 +1881,16 @@ export class ConstructionManager {
             true
           );
           return true;
-        } else if (!client.isAdmin || !client.isDebugMode) {
+        } else if (
+          !server.disableBaseCheck &&
+          (!client.isAdmin || !client.isDebugMode)
+        ) {
           this.tpPlayerOutsideFoundation(server, client, foundation);
         }
       }
     }
     if (allowed) return false;
+    if (server.disableBaseCheck) return false;
     const bufferZone = 0.15;
     const position = client.character.state.position;
     const positions: Float32Array[] = [];
@@ -1981,7 +1990,10 @@ export class ConstructionManager {
           true
         );
         return true;
-      } else if (!client.isAdmin || !client.isDebugMode) {
+      } else if (
+        !server.disableBaseCheck &&
+        (!client.isAdmin || !client.isDebugMode)
+      ) {
         const damageInfo: DamageInfo = {
           entity: "Server.Permissions",
           damage: 99999
@@ -2079,7 +2091,7 @@ export class ConstructionManager {
           const hasPermission = isSameGroup && hasVisitPermission;
 
           if (
-            iteratedClient.spawnedEntities.has(client.character) &&
+            iteratedClient.spawnedEntities.has(freePlacedEntity) &&
             iteratedClient.character.isHidden != freePlacedEntity.isHidden &&
             !hasPermission
           ) {
@@ -2087,10 +2099,10 @@ export class ConstructionManager {
               iteratedClient,
               "Character.RemovePlayer",
               {
-                characterId: client.character.characterId
+                characterId: freePlacedEntity.characterId
               }
             );
-            iteratedClient.spawnedEntities.delete(client.character);
+            iteratedClient.spawnedEntities.delete(freePlacedEntity);
           }
         }
       } else return;
@@ -2162,6 +2174,7 @@ export class ConstructionManager {
     }, 500);
     setTimeout(() => {
       if (
+        !server.disableBaseCheck &&
         foundation.isSecured &&
         foundation.isInside(client.character.state.position)
       ) {

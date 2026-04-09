@@ -18,6 +18,7 @@ server:
   damageWeapons: true # Damage weapons on firing
   disablePOIManager: false # Disables the POI messages
   disableMapBoundsCheck: false # Disables inboundscheck
+  disableBaseCheck: false # Disables in-base permission checks (hide/teleport/kill)
 
 # Rcon
 
@@ -102,6 +103,9 @@ worldobjects:
   lootDespawnTimer: 2400000 # 40 minutes
   deadNpcDespawnTimer: 600000 # 10 minutes
   lootbagDespawnTimer: 1800000 # 30 minutes
+  maxNpcDespawnsPerRun: 40
+  maxLootbagDespawnsPerRun: 40
+  maxItemDespawnsPerRun: 120
 
   # Misc
   vehicleSpawnCap: 120

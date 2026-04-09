@@ -35,6 +35,7 @@ interface ServerConfig {
   damageWeapons: boolean;
   disablePOIManager: boolean;
   disableMapBoundsCheck: boolean;
+  disableBaseCheck: boolean;
 }
 
 interface RconConfig {
@@ -78,6 +79,9 @@ interface WorldObjectsConfig {
   lootDespawnTimer: number;
   deadNpcDespawnTimer: number;
   lootbagDespawnTimer: number;
+  maxNpcDespawnsPerRun: number;
+  maxLootbagDespawnsPerRun: number;
+  maxItemDespawnsPerRun: number;
 
   chanceWornLetter: number;
 

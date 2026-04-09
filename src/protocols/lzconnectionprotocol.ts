@@ -217,6 +217,41 @@ const packets: PacketStructures = [
         }
       ]
     }
+  ],
+  [
+    "GlobalBroadcastRequest",
+    0x1a,
+    {
+      fields: [
+        { name: "broadcastType", type: "uint8", defaultValue: 0 },
+        { name: "initiatorName", type: "string", defaultValue: "" },
+        { name: "message", type: "string", defaultValue: "" },
+        {
+          name: "rewardIds",
+          type: "array",
+          defaultValue: [],
+          fields: [{ name: "rewardId", type: "uint32", defaultValue: 0 }]
+        }
+      ]
+    }
+  ],
+  [
+    "GlobalBroadcastForward",
+    0x1b,
+    {
+      fields: [
+        { name: "broadcastType", type: "uint8", defaultValue: 0 },
+        { name: "initiatorName", type: "string", defaultValue: "" },
+        { name: "message", type: "string", defaultValue: "" },
+        { name: "originServerId", type: "uint32", defaultValue: 0 },
+        {
+          name: "rewardIds",
+          type: "array",
+          defaultValue: [],
+          fields: [{ name: "rewardId", type: "uint32", defaultValue: 0 }]
+        }
+      ]
+    }
   ]
 ];
 

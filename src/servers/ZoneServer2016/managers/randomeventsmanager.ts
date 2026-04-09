@@ -13,6 +13,7 @@
 
 import { randomInt } from "node:crypto";
 import { ZoneServer2016 } from "../zoneserver";
+import { getCellName } from "../../../utils/utils";
 
 interface WeightedItem {
   value: string;
@@ -60,8 +61,8 @@ export class RandomEventsManager {
     ];
     const airdropType = this.weightedRandom(airdropTypes);
     this.server.airdropManager.spawnAirdrop(pos, airdropType);
-    //const cellName = getCellName(cellIndex, 10);
-    //this.server.sendAlertToAll(`Random airdrop on ${cellName}`);
+    const cellName = getCellName(cellIndex, 10);
+    this.server.sendAlertToAll(`Random airdrop on ${cellName}`);
     if (!this.server._soloMode) {
       this.server._db.collection("random_aidrops_logs").insertOne({
         position: pos,

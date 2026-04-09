@@ -66,7 +66,10 @@ import { scheduler } from "node:timers/promises";
 import { Vehicle2016 } from "../../entities/vehicle";
 import { AddSimpleNpc } from "types/zone2016packets";
 import { writeFileSync } from "node:fs";
-const itemDefinitions = require("./../../../../../data/2016/dataSources/ServerItemDefinitions.json");
+import { PluginManager } from "../../managers/pluginmanager";
+const itemDefinitions = PluginManager.loadServerData(
+  "2016/dataSources/ServerItemDefinitions.json"
+);
 
 export const commands: Array<Command> = [
   //#region DEFAULT PERMISSIONS
@@ -422,11 +425,11 @@ export const commands: Array<Command> = [
       client: Client,
       args: Array<string>
     ) => {
-      const stats = server._gatewayServer.getSoeClientNetworkStats(
+      const stats = await server._gatewayServer.getSoeClientNetworkStats(
         client.soeClientId
       );
       if (stats) {
-        const serverStats = server._gatewayServer.getServerNetworkStats();
+        const serverStats = await server._gatewayServer.getServerNetworkStats();
         stats.push(serverStats[0]);
         for (let index = 0; index < stats.length; index++) {
           const stat = stats[index];
@@ -443,10 +446,10 @@ export const commands: Array<Command> = [
       client: Client,
       args: Array<string>
     ) => {
-      const stats = server._gatewayServer.getSoeClientNetworkStats(
+      const stats = await server._gatewayServer.getSoeClientNetworkStats(
         client.soeClientId
       );
-      const serverStats = server._gatewayServer.getServerNetworkStats();
+      const serverStats = await server._gatewayServer.getServerNetworkStats();
       if (stats) {
         server.sendChatText(client, stats[2], true);
         server.sendChatText(client, serverStats[0], false);
@@ -2841,16 +2844,24 @@ export const commands: Array<Command> = [
   {
     name: "spawnloot",
     permissionLevel: PermissionLevels.ADMIN,
-    execute: (server: ZoneServer2016, client: Client, args: Array<string>) => {
-      server.worldObjectManager.createLoot(server);
+    execute: async (
+      server: ZoneServer2016,
+      client: Client,
+      args: Array<string>
+    ) => {
+      await server.worldObjectManager.createLootThreaded(server);
       server.sendChatText(client, `Spawned loot`);
     }
   },
   {
     name: "respawnnpcs",
     permissionLevel: PermissionLevels.ADMIN,
-    execute: (server: ZoneServer2016, client: Client, args: Array<string>) => {
-      server.worldObjectManager.createNpcs(server);
+    execute: async (
+      server: ZoneServer2016,
+      client: Client,
+      args: Array<string>
+    ) => {
+      await server.worldObjectManager.createNpcsThreaded(server);
       server.sendChatText(client, `Respawned npcs`);
     }
   },
@@ -2925,6 +2936,54 @@ export const commands: Array<Command> = [
     keepCase: true,
     execute: (server: ZoneServer2016, client: Client, args: Array<string>) => {
       server.sendAlertToAll(args.join(" "), client.character.name);
+    }
+  },
+  {
+    name: "globalalert",
+    permissionLevel: PermissionLevels.ADMIN,
+    keepCase: true,
+    execute: (server: ZoneServer2016, client: Client, args: Array<string>) => {
+      if (!args.length) {
+        server.sendChatText(client, "[ERROR] Usage: /globalalert {message}");
+        return;
+      }
+      const message = args.join(" ");
+      server.sendGlobalBroadcastRequest(0, client.character.name, message);
+    }
+  },
+  {
+    name: "globalrewardtoall",
+    permissionLevel: PermissionLevels.ADMIN,
+    execute: (server: ZoneServer2016, client: Client, args: Array<string>) => {
+      if (!args.length) {
+        server.sendChatText(
+          client,
+          "[ERROR] Usage: /globalrewardtoall {CrateID} [CrateID ...]"
+        );
+        return;
+      }
+      const rewardIds: number[] = [];
+      const invalid: string[] = [];
+      for (const arg of args) {
+        const rewardId = Number(arg);
+        const validRewardItem = server.rewardManager.rewards.some(
+          (v) => v.itemId === rewardId
+        );
+        if (!validRewardItem) {
+          invalid.push(arg);
+          continue;
+        }
+        rewardIds.push(rewardId);
+      }
+      if (!rewardIds.length) {
+        server.sendChatText(
+          client,
+          `[ERROR]${invalid.length ? " Crate ID: " + invalid.join(", ") : ""} is not valid`
+        );
+        return;
+      }
+      const message = `${client.character.name} has just initiated a global crate drop`;
+      server.sendGlobalBroadcastRequest(1, "", message, rewardIds);
     }
   },
   {
@@ -3492,10 +3551,9 @@ export const commands: Array<Command> = [
         }
       }
 
-      delete require.cache[require.resolve("../../data/lootspawns")];
-      const loottables = require("../../data/lootspawns").lootTables;
-      server.worldObjectManager.createLoot(server, loottables);
-      server.worldObjectManager.createContainerLoot(server);
+      await server.worldObjectManager.createLootThreaded(server);
+      await server.worldObjectManager.createContainerLootThreaded(server);
+      await new Promise<void>((r) => setImmediate(r));
       server.sendChatText(client, `Respawned loot`);
     }
   },
@@ -3597,6 +3655,22 @@ export const commands: Array<Command> = [
 
       server.abortShutdown = true;
       server.sendChatText(client, "Aborted server shutdown.");
+    }
+  },
+  {
+    name: "reloadconfig",
+    permissionLevel: PermissionLevels.ADMIN,
+    execute: async (
+      server: ZoneServer2016,
+      client: Client,
+      args: Array<string>
+    ) => {
+      const success = server.configManager.reload(server);
+      if (success) {
+        server.sendChatText(client, "Config reloaded successfully.");
+      } else {
+        server.sendChatText(client, "Failed to reload config.");
+      }
     }
   },
   {
