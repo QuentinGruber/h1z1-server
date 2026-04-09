@@ -34,7 +34,6 @@ import { ZoneClient2016 } from "servers/ZoneServer2016/classes/zoneclient";
 import * as crypto from "crypto";
 import { ZoneClient } from "servers/ZoneServer2015/classes/zoneclient";
 import { ConstructionDoor } from "../servers/ZoneServer2016/entities/constructiondoor";
-import { PluginManager } from "../servers/ZoneServer2016/managers/pluginmanager";
 
 const startTime = Date.now();
 
@@ -1683,28 +1682,6 @@ export function isChristmasSeason() {
 
 export function luck(l: number) {
   return Math.floor(Math.random() * l) === 0;
-}
-
-const Z1_POIs = PluginManager.loadServerData("2016/zoneData/Z1_POIs");
-export function isPosInPoi(position: Float32Array): boolean {
-  let isInPoi = false;
-  Z1_POIs.forEach((point: any) => {
-    let useRange = true;
-    if (point.bounds) {
-      useRange = false;
-      point.bounds.forEach((bound: any) => {
-        if (isInsideSquare([position[0], position[2]], bound)) {
-          isInPoi = true;
-          return;
-        }
-      });
-    }
-    if (useRange && isPosInRadius(point.range, position, point.position)) {
-      isInPoi = true;
-    }
-  });
-
-  return isInPoi;
 }
 
 export function chance(chanceNum: number): boolean {

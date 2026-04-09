@@ -22,7 +22,6 @@ import {
   fixEulerOrder,
   getConstructionSlotId,
   getDistance,
-  isPosInPoi,
   isPosInRadius,
   isPosInRadiusWithY,
   movePoint
@@ -380,6 +379,7 @@ export class ConstructionManager {
     return false;
   }
   detectPOIPlacement(
+    server: ZoneServer2016,
     itemDefinitionId: number,
     position: Float32Array,
     client: Client,
@@ -388,7 +388,7 @@ export class ConstructionManager {
     if (client.isDebugMode) return false;
     if (this.overridePlacementItems.includes(itemDefinitionId)) return false;
 
-    const isInPoi = isPosInPoi(position);
+    const isInPoi = server.isPosInPoi(position);
     // allow placement in poi if object is parented to a foundation
     if (isInPoi && !isInsidePermissionedFoundation) {
       return true;
@@ -447,6 +447,7 @@ export class ConstructionManager {
     if (
       server.isNoBuildInPois &&
       this.detectPOIPlacement(
+        server,
         itemDefinitionId,
         position,
         client,
