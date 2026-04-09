@@ -1189,11 +1189,7 @@ export class WorldObjectManager {
     );
 
     server._vehicles[vehicle.characterId] = vehicle;
-    // Immediately send the vehicle to any clients in range
-    for (const sessionId in server._clients) {
-      const client = server._clients[sessionId];
-      if (!client.isLoading) server.vehicleManager(client);
-    }
+    server.updateVehicleGrid(vehicle);
   }
 
   createVehicles(server: ZoneServer2016, maxSpawnChance: boolean = false) {
@@ -1242,7 +1238,19 @@ export class WorldObjectManager {
     debug("All vehicles created");
   }
 
-  private async createNpcs(server: ZoneServer2016) {
+  async createNpcs(server: ZoneServer2016) {
+    const npcCellSize = this.npcSpawnRadius || 100;
+    const npcGrid = new Map<string, Float32Array[]>();
+    for (const a in server._npcs) {
+      const pos = server._npcs[a]?.state.position;
+      if (!pos) continue;
+      const key = `${Math.floor(pos[0] / npcCellSize)},${Math.floor(pos[2] / npcCellSize)}`;
+      const cell = npcGrid.get(key);
+      if (cell) cell.push(pos);
+      else npcGrid.set(key, [pos]);
+    }
+
+
     // This is only for giving the world some life
     for (const spawnerType of Z1_npcs) {
       const authorizedModelId: number[] = [];
@@ -1270,24 +1278,20 @@ export class WorldObjectManager {
       }
       if (!authorizedModelId.length) continue;
       for (const npcInstance of spawnerType.instances) {
+        const iPos = npcInstance.position;
+        const icx = Math.floor(iPos[0] / npcCellSize);
+        const icz = Math.floor(iPos[2] / npcCellSize);
         let spawn = true;
-        let counter = 0;
-        for (const a in server._npcs) {
-          if (counter > 150) {
-            counter = 0;
-            await scheduler.yield();
-          }
-          counter++;
-          if (!server._npcs[a]) continue;
-          if (
-            isPosInRadius(
-              this.npcSpawnRadius,
-              npcInstance.position,
-              server._npcs[a].state.position
-            )
-          ) {
-            spawn = false;
-            break;
+        outer: for (let dx = -1; dx <= 1; dx++) {
+          for (let dz = -1; dz <= 1; dz++) {
+            const existing = npcGrid.get(`${icx + dx},${icz + dz}`);
+            if (!existing) continue;
+            for (const pos of existing) {
+              if (isPosInRadius(this.npcSpawnRadius, iPos, pos)) {
+                spawn = false;
+                break outer;
+              }
+            }
           }
         }
         if (!spawn) continue;

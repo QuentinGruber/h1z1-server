@@ -1202,6 +1202,7 @@ export class WorldDataManager {
     constructLoadout(entityData._loadout, vehicle._loadout);
     constructContainers(entityData._containers, vehicle._containers);
     server._vehicles[vehicle.characterId] = vehicle;
+    server.updateVehicleGrid(vehicle);
   }
 
   static loadPlantingDiameter(

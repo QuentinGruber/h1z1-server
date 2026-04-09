@@ -196,6 +196,9 @@ export class Vehicle2016 extends BaseLootableEntity {
   /** Returns true when the player locks the vehicle */
   isLocked: boolean = false;
 
+  /** Spatial grid cell key for vehicleManager lookup, updated on movement */
+  vehicleGridKey: string = "";
+
   /** Used to determine the position of the vehicle to transmit to the server */
   positionUpdate: any /*positionUpdate*/;
 

@@ -19,6 +19,7 @@ import { ZoneServer2016 } from "../zoneserver";
 import { BaseEntity } from "../entities/baseentity";
 import { FireHint } from "../../../types/zoneserver";
 import { Lootbag } from "../entities/lootbag";
+import { Vehicle2016 as Vehicle } from "../entities/vehicle";
 //import { h1z1PacketsType2016 } from "../../../types/packets";
 //import { zone2016packets } from "../../../types/zone2016packets";
 
@@ -66,6 +67,9 @@ export class ZoneClient2016 {
   hudTimer?: NodeJS.Timeout | null = null;
   spawnedDTOs: any[] = [];
   spawnedEntities: Set<BaseEntity> = new Set();
+  spawnedVehicles: Set<Vehicle> = new Set();
+  /** Spatial hash key for _clientGrid, updated each routine tick */
+  gridKey: string = "";
   sentInteractionCounter: number = 1;
   searchedProps: (LootableProp | Lootbag)[] = [];
   managedObjects: string[] = [];

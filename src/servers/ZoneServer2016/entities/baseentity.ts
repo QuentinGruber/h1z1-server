@@ -15,6 +15,7 @@ import { DamageInfo } from "types/zoneserver";
 import { ZoneServer2016 } from "../zoneserver";
 import { ZoneClient2016 } from "../classes/zoneclient";
 import { ModelIds } from "../models/enums";
+import { GridCell } from "../classes/gridcell";
 
 function getRenderDistance(actorModelId: number) {
   let range: number = 0;
@@ -69,6 +70,9 @@ export abstract class BaseEntity {
     position: Float32Array;
     rotation: Float32Array;
   };
+
+  /** Grid cell this entity occupies, set by pushToGridCell */
+  gridCell?: GridCell;
 
   /** Physical size of the entity based on the entity model */
   scale: Float32Array = new Float32Array([1, 1, 1, 1]);

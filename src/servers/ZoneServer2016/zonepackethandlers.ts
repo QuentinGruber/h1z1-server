@@ -1377,6 +1377,7 @@ export class ZonePacketHandlers {
       ]);
       // Update vehicle position
       vehicle.state.position = fixedPosUpdate;
+      server.updateVehicleGrid(vehicle);
       vehicle.oldPos = {
         position: positionUpdate.position,
         time: positionUpdate.sequenceTime

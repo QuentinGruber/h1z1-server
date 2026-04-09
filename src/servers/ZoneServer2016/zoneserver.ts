@@ -354,6 +354,14 @@ export class ZoneServer2016 extends EventEmitter {
   private _gridNumRows = 0;
   _spawnGrid: SpawnCell[] = [];
 
+  // spatial grid used by spawnCharacters
+  private readonly _clientGridCellSize = 300;
+  private _clientGrid: Map<string, Set<Client>> = new Map();
+
+  // spatial grid used by vehicleManager
+  private readonly _vehicleGridCellSize = 300;
+  private _vehicleGrid: Map<string, Set<Vehicle>> = new Map();
+
   saveTimeInterval: number = 600000;
 
   nextSaveTime: number = Date.now() + this.saveTimeInterval;
@@ -2630,9 +2638,53 @@ export class ZoneServer2016 extends EventEmitter {
       )
     );
     const gridCell = this._gridLookup[col * this._gridNumCols + row];
-    if (!gridCell || gridCell.objects.includes(obj)) return;
-    gridCell.objects.push(obj);
+    if (!gridCell || gridCell.objects.has(obj)) return;
+    gridCell.objects.add(obj);
+    obj.gridCell = gridCell;
+    this._entityToGridCell.set(obj.characterId, gridCell);
     setImmediate(() => this.onEntityAddedToCell(obj, gridCell));
+  }
+
+  private _clientGridKey(pos: Float32Array): string {
+    return `${Math.floor(pos[0] / this._clientGridCellSize)},${Math.floor(pos[2] / this._clientGridCellSize)}`;
+  }
+
+  updateClientGrid(client: Client) {
+    const newKey = this._clientGridKey(client.character.state.position);
+    if (client.gridKey === newKey) return;
+    if (client.gridKey) this._clientGrid.get(client.gridKey)?.delete(client);
+    client.gridKey = newKey;
+    let cell = this._clientGrid.get(newKey);
+    if (!cell) { cell = new Set(); this._clientGrid.set(newKey, cell); }
+    cell.add(client);
+  }
+
+  removeClientFromGrid(client: Client) {
+    if (client.gridKey) {
+      this._clientGrid.get(client.gridKey)?.delete(client);
+      client.gridKey = "";
+    }
+  }
+
+  private _vehicleGridKey(pos: Float32Array): string {
+    return `${Math.floor(pos[0] / this._vehicleGridCellSize)},${Math.floor(pos[2] / this._vehicleGridCellSize)}`;
+  }
+
+  updateVehicleGrid(vehicle: Vehicle) {
+    const newKey = this._vehicleGridKey(vehicle.state.position);
+    if (vehicle.vehicleGridKey === newKey) return;
+    if (vehicle.vehicleGridKey) this._vehicleGrid.get(vehicle.vehicleGridKey)?.delete(vehicle);
+    vehicle.vehicleGridKey = newKey;
+    let cell = this._vehicleGrid.get(newKey);
+    if (!cell) { cell = new Set(); this._vehicleGrid.set(newKey, cell); }
+    cell.add(vehicle);
+  }
+
+  removeVehicleFromGrid(vehicle: Vehicle) {
+    if (vehicle.vehicleGridKey) {
+      this._vehicleGrid.get(vehicle.vehicleGridKey)?.delete(vehicle);
+      vehicle.vehicleGridKey = "";
+    }
   }
 
   assignChunkRenderDistance(client: Client) {
@@ -2737,10 +2789,7 @@ export class ZoneServer2016 extends EventEmitter {
         this.groupManager.handlePlayerDisconnect(this, client);
       }
     }
-    for (const cell of client.subscribedCells) {
-      cell.subscribers.delete(client);
-    }
-    client.subscribedCells.clear();
+    this.removeClientFromGrid(client);
     delete this._clients[client.sessionId];
     await this._gatewayServer.deleteSoeClient(client.soeClientId);
     if (!this._soloMode) {
@@ -4273,17 +4322,19 @@ export class ZoneServer2016 extends EventEmitter {
         effectDelay: timeToDisappear ? timeToDisappear : 0
       }
     );
-    this._grid.forEach((cell: GridCell) => {
-      if (cell.objects.includes(entity)) {
-        cell.objects.splice(cell.objects.indexOf(entity), 1);
-      }
-    });
+    if (entity.gridCell) {
+      entity.gridCell.objects.delete(entity);
+      entity.gridCell = undefined;
+    }
+    this._entityToGridCell.delete(characterId);
+    if (entity instanceof Vehicle) this.removeVehicleFromGrid(entity);
 
     // remove deleted entity from spawned entities (correct me if we do it somewhere else)
 
     for (const a in this._clients) {
       const client = this._clients[a];
       if (client.spawnedEntities.delete(entity)) {
+        client.spawnedVehicles.delete(entity as Vehicle);
         this.sendData<ClientUpdateProximateItems>(
           client,
           "ClientUpdate.ProximateItems",
@@ -4368,31 +4419,40 @@ export class ZoneServer2016 extends EventEmitter {
   }
 
   spawnCharacters(client: Client) {
-    for (const c in this._clients) {
-      const characterObj: Character = this._clients[c].character;
-      if (
-        client.character.characterId != characterObj.characterId &&
-        characterObj.isReady &&
-        !this._clients[c].isLoading &&
-        isPosInRadius(
-          characterObj.npcRenderDistance || this.charactersRenderDistance,
-          client.character.state.position,
-          characterObj.state.position
-        ) &&
-        !client.spawnedEntities.has(characterObj) &&
-        characterObj.isAlive &&
-        !characterObj.isSpectator &&
-        !characterObj.isVanished &&
-        (characterObj.isHidden == client.character.isHidden ||
-          client.character.isSpectator) /* &&
-        client.banType != "hiddenplayers"*/
-      ) {
-        this.sendData<AddLightweightPc>(
-          client,
-          "AddLightweightPc",
-          characterObj.pGetLightweightPC(this, this._clients[c])
-        );
-        client.spawnedEntities.add(this._characters[characterObj.characterId]);
+    const pos = client.character.state.position;
+    const cellSize = this._clientGridCellSize;
+    const cx = Math.floor(pos[0] / cellSize);
+    const cz = Math.floor(pos[2] / cellSize);
+    // 3 cells = 900 units, covers max render distance
+    for (let dx = -3; dx <= 3; dx++) {
+      for (let dz = -3; dz <= 3; dz++) {
+        const neighbors = this._clientGrid.get(`${cx + dx},${cz + dz}`);
+        if (!neighbors) continue;
+        for (const c of neighbors) {
+          const characterObj: Character = c.character;
+          if (
+            client.character.characterId != characterObj.characterId &&
+            characterObj.isReady &&
+            isPosInRadius(
+              characterObj.npcRenderDistance || this.charactersRenderDistance,
+              pos,
+              characterObj.state.position
+            ) &&
+            !client.spawnedEntities.has(characterObj) &&
+            characterObj.isAlive &&
+            !characterObj.isSpectator &&
+            !characterObj.isVanished &&
+            (characterObj.isHidden == client.character.isHidden ||
+              client.character.isSpectator)
+          ) {
+            this.sendData<AddLightweightPc>(
+              client,
+              "AddLightweightPc",
+              characterObj.pGetLightweightPC(this, c)
+            );
+            client.spawnedEntities.add(this._characters[characterObj.characterId]);
+          }
+        }
       }
     }
   }
@@ -4400,23 +4460,32 @@ export class ZoneServer2016 extends EventEmitter {
   spawnCharacterToOtherClients(character: Character) {
     const client = this.getClientByCharId(character.characterId);
     if (!client) return;
-    for (const a in this._clients) {
-      const c = this._clients[a];
-      if (
-        isPosInRadius(
-          character.npcRenderDistance || this.charactersRenderDistance,
-          character.state.position,
-          c.character.state.position
-        ) &&
-        !c.spawnedEntities.has(character) &&
-        character != c.character
-      ) {
-        this.sendData<AddLightweightPc>(
-          c,
-          "AddLightweightPc",
-          character.pGetLightweightPC(this, client)
-        );
-        c.spawnedEntities.add(character);
+    const pos = character.state.position;
+    const cellSize = this._clientGridCellSize;
+    const cx = Math.floor(pos[0] / cellSize);
+    const cz = Math.floor(pos[2] / cellSize);
+    for (let dx = -3; dx <= 3; dx++) {
+      for (let dz = -3; dz <= 3; dz++) {
+        const neighbors = this._clientGrid.get(`${cx + dx},${cz + dz}`);
+        if (!neighbors) continue;
+        for (const c of neighbors) {
+          if (
+            isPosInRadius(
+              character.npcRenderDistance || this.charactersRenderDistance,
+              pos,
+              c.character.state.position
+            ) &&
+            !c.spawnedEntities.has(character) &&
+            character != c.character
+          ) {
+            this.sendData<AddLightweightPc>(
+              c,
+              "AddLightweightPc",
+              character.pGetLightweightPC(this, client)
+            );
+            c.spawnedEntities.add(character);
+          }
+        }
       }
     }
   }
@@ -5251,79 +5320,58 @@ export class ZoneServer2016 extends EventEmitter {
   //#region ********************VEHICLE********************
 
   vehicleManager(client: Client) {
-    for (const key in this._vehicles) {
-      const vehicle = this._vehicles[key];
-      if (
-        // vehicle spawning / managed object assignment logic
-        isPosInRadius(
-          vehicle.npcRenderDistance || this.charactersRenderDistance,
-          client.character.state.position,
-          vehicle.state.position
-        )
-      ) {
-        if (!client.spawnedEntities.has(vehicle)) {
-          this.sendData<AddLightweightVehicle>(
-            client,
-            "AddLightweightVehicle",
-            {
+    const clientPos = client.character.state.position;
+    const cellSize = this._vehicleGridCellSize;
+    const cx = Math.floor(clientPos[0] / cellSize);
+    const cz = Math.floor(clientPos[2] / cellSize);
+    const renderDist = this.charactersRenderDistance;
+
+    // spawn nearby vehicles
+    for (let dx = -3; dx <= 3; dx++) {
+      for (let dz = -3; dz <= 3; dz++) {
+        const nearby = this._vehicleGrid.get(`${cx + dx},${cz + dz}`);
+        if (!nearby) continue;
+        for (const vehicle of nearby) {
+          if (
+            !client.spawnedEntities.has(vehicle) &&
+            isPosInRadius(
+              vehicle.npcRenderDistance || renderDist,
+              clientPos,
+              vehicle.state.position
+            )
+          ) {
+            this.sendData<AddLightweightVehicle>(client, "AddLightweightVehicle", {
               ...vehicle.pGetLightweightVehicle(),
               unknownGuid1: this.generateGuid()
-            }
-          );
-          vehicle.effectTags.forEach((effectTag: number) => {
-            this.sendData<CharacterAddEffectTagCompositeEffect>(
-              client,
-              "Character.AddEffectTagCompositeEffect",
-              {
-                characterId: vehicle.characterId,
-                effectId: effectTag,
-                unknownDword1: effectTag,
-                unknownDword2: effectTag
-              }
-            );
-          });
-          /*
-          if (vehicle.engineOn) {
-            this.sendData<>(client, "Vehicle.Engine", {
-              vehicleCharacterId: vehicle.characterId,
-              engineOn: true,
             });
+            vehicle.effectTags.forEach((effectTag: number) => {
+              this.sendData<CharacterAddEffectTagCompositeEffect>(
+                client,
+                "Character.AddEffectTagCompositeEffect",
+                {
+                  characterId: vehicle.characterId,
+                  effectId: effectTag,
+                  unknownDword1: effectTag,
+                  unknownDword2: effectTag
+                }
+              );
+            });
+            client.spawnedEntities.add(vehicle);
+            client.spawnedVehicles.add(vehicle);
           }
-          */
-          /*this.sendData<>(client, "Vehicle.OwnerPassengerList", {
-            characterId: client.character.characterId,
-            passengers: vehicle.pGetPassengers(this),
-          });*/
-          client.spawnedEntities.add(vehicle);
         }
-        // disable managing vehicles with routine, leaving only managed when entering it
-        /*if (!vehicle.isManaged) {
-          // assigns management to first client within radius
-          this.assignManagedObject(client, vehicle);
-        }*/
-      } else if (
-        !isPosInRadius(
-          this.charactersRenderDistance,
-          client.character.state.position,
-          vehicle.state.position
-        )
-      ) {
-        // vehicle despawning / managed object drop logic
+      }
+    }
 
-        const vehicleExist = client.spawnedEntities.has(vehicle);
-        if (vehicleExist) {
-          if (vehicle.isManaged) {
-            this.dropManagedObject(client, vehicle);
-          }
-          this.sendData<CharacterRemovePlayer>(
-            client,
-            "Character.RemovePlayer",
-            {
-              characterId: vehicle.characterId
-            }
-          );
-          client.spawnedEntities.delete(vehicle);
-        }
+    // despawn out of range vehicles
+    for (const vehicle of client.spawnedVehicles) {
+      if (!isPosInRadius(renderDist, clientPos, vehicle.state.position)) {
+        if (vehicle.isManaged) this.dropManagedObject(client, vehicle);
+        this.sendData<CharacterRemovePlayer>(client, "Character.RemovePlayer", {
+          characterId: vehicle.characterId
+        });
+        client.spawnedEntities.delete(vehicle);
+        client.spawnedVehicles.delete(vehicle);
       }
     }
   }
@@ -9187,6 +9235,7 @@ export class ZoneServer2016 extends EventEmitter {
     client.posAtLastPermissionCheck =
       client.character.state.position.slice() as Float32Array;
     //this.constructionManager.spawnConstructionParentsInRange(this, client); // put into grid
+    this.updateClientGrid(client);
     this.vehicleManager(client);
     this.removeOutOfDistanceEntities(client);
     this.updateClientSubscriptions(client);
