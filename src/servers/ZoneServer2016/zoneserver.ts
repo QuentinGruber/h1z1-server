@@ -949,6 +949,7 @@ export class ZoneServer2016 extends EventEmitter {
     if (this.abortShutdown) {
       this.abortShutdown = false;
       this.shutdownStarted = false;
+      this.shutdownStartedTime = 0;
       this.sendAlertToAll(`Server shutdown aborted.`);
       return;
     }
