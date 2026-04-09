@@ -215,9 +215,10 @@ export class Npc extends BaseFullCharacter {
           );
         }
 
-        if (this.npcId == NpcIds.ZOMBIE)
+        if (this.npcId == NpcIds.ZOMBIE) {
           client.character.metrics.zombiesKilled++;
-        else client.character.metrics.wildlifeKilled++;
+          server.hookManager.checkHook("OnZombieKill", client, this);
+        } else client.character.metrics.wildlifeKilled++;
       }
       for (const a in server._clients) {
         const c = server._clients[a];

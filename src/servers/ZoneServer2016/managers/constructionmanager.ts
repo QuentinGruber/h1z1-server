@@ -1446,6 +1446,7 @@ export class ConstructionManager {
       npc.permissions = parentFoundation.permissions;
     }
     server._constructionFoundations[characterId] = npc;
+    server.hookManager.checkHook("OnConstructionBuilt", client, npc);
     server.executeFuncForAllReadyClientsInRange((client) => {
       this.spawnConstructionParent(server, client, npc);
     }, npc);

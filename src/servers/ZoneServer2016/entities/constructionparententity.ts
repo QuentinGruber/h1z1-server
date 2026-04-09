@@ -851,6 +851,7 @@ export class ConstructionParentEntity extends ConstructionChildEntity {
     );
 
     if (!deleted) return false;
+    server.hookManager.checkHook("OnConstructionDestroyed", this, damageInfo);
 
     if (
       this.itemDefinitionId == Items.SHACK ||

@@ -262,20 +262,22 @@ export class WorldDataManager {
 
   async saveWorld(world: WorldArg) {
     console.time("WDM: saveWorld");
-    await this.saveVehicles(
-      world.vehicles.filter(
-        (vehicle) =>
-          ![VehicleIds.SPECTATE, VehicleIds.PARACHUTE].includes(
-            vehicle.vehicleId
-          )
-      )
-    );
-    await this.saveServerData(world.lastGuidItem);
-    await this.saveCharacters(world.characters);
-    await this.saveConstructionData(world.constructions);
-    await this.saveWorldFreeplaceConstruction(world.worldConstructions);
-    await this.saveCropData(world.crops);
-    await this.saveTrapData(world.traps);
+    await Promise.all([
+      this.saveVehicles(
+        world.vehicles.filter(
+          (vehicle) =>
+            ![VehicleIds.SPECTATE, VehicleIds.PARACHUTE].includes(
+              vehicle.vehicleId
+            )
+        )
+      ),
+      this.saveServerData(world.lastGuidItem),
+      this.saveCharacters(world.characters),
+      this.saveConstructionData(world.constructions),
+      this.saveWorldFreeplaceConstruction(world.worldConstructions),
+      this.saveCropData(world.crops),
+      this.saveTrapData(world.traps)
+    ]);
     console.timeEnd("WDM: saveWorld");
   }
 
@@ -1129,18 +1131,18 @@ export class WorldDataManager {
       const collection = this._db?.collection(
         DB_COLLECTIONS.CROPS
       ) as Collection;
-      const updatePromises = [];
-      for (let i = 0; i < crops.length; i++) {
-        const construction = crops[i];
-        updatePromises.push(
-          collection.updateOne(
-            { characterId: construction.characterId, serverId: this._worldId },
-            { $set: construction },
-            { upsert: true }
-          )
+      if (crops.length > 0) {
+        await collection.bulkWrite(
+          crops.map((crop) => ({
+            updateOne: {
+              filter: { characterId: crop.characterId, serverId: this._worldId },
+              update: { $set: crop },
+              upsert: true
+            }
+          })),
+          { ordered: false }
         );
       }
-      await Promise.all(updatePromises);
       const allCharactersIds = crops.map((crop) => {
         return crop.characterId;
       });

@@ -365,12 +365,10 @@ export class DecayManager {
         constructionDoors
       })
       .then(({ entitiesToDamage, decayProtectedResets }) => {
-        // Reset isDecayProtected flags
         for (const charId of decayProtectedResets) {
           const entity = server.getConstructionEntity(charId);
           if (entity) entity.isDecayProtected = false;
         }
-        // Apply damage
         for (const { characterId, damage } of entitiesToDamage) {
           const entity = server.getConstructionEntity(characterId);
           if (!entity) continue;
@@ -387,21 +385,39 @@ export class DecayManager {
     const n = vehicleEntries.length;
     if (n === 0) return;
 
-    // Build neighbor counts in a single O(n²/2) pass instead of O(n²) per vehicle
+    const cellSize = this.vehicleDamageRange;
+    const grid = new Map<string, number[]>();
+    for (let i = 0; i < n; i++) {
+      const pos = vehicleEntries[i].state.position;
+      const key = `${Math.floor(pos[0] / cellSize)},${Math.floor(pos[2] / cellSize)}`;
+      const cell = grid.get(key);
+      if (cell) cell.push(i);
+      else grid.set(key, [i]);
+    }
+
     const neighborCount = new Int32Array(n);
     for (let i = 0; i < n; i++) {
-      for (let j = i + 1; j < n; j++) {
-        if (
-          getDistance(
-            vehicleEntries[i].state.position,
-            vehicleEntries[j].state.position
-          ) <= this.vehicleDamageRange
-        ) {
-          neighborCount[i]++;
-          neighborCount[j]++;
+      const pos = vehicleEntries[i].state.position;
+      const cx = Math.floor(pos[0] / cellSize);
+      const cz = Math.floor(pos[2] / cellSize);
+      for (let dx = -1; dx <= 1; dx++) {
+        for (let dz = -1; dz <= 1; dz++) {
+          const neighbors = grid.get(`${cx + dx},${cz + dz}`);
+          if (!neighbors) continue;
+          for (const j of neighbors) {
+            if (j <= i) continue;
+            if (
+              getDistance(pos, vehicleEntries[j].state.position) <=
+              this.vehicleDamageRange
+            ) {
+              neighborCount[i]++;
+              neighborCount[j]++;
+            }
+          }
         }
       }
     }
+
 
     for (let i = 0; i < n; i++) {
       const vehicle = vehicleEntries[i];

@@ -3106,6 +3106,7 @@ export class ZoneServer2016 extends EventEmitter {
           isCheater: isInGodMode
         }
       );
+      this.hookManager.checkHook("OnPlayerKill", killerClient, client, damageInfo);
     }
   }
 
@@ -7046,6 +7047,7 @@ export class ZoneServer2016 extends EventEmitter {
 
     if (!obj) return;
     obj.insideBuilding = character.insideBuilding;
+    this.hookManager.checkHook("OnItemDrop", client, dropItem);
     this.executeFuncForAllReadyClientsInRange((c) => {
       c.spawnedEntities.add(obj);
       this.addLightweightNpc(c, obj);
@@ -7072,6 +7074,7 @@ export class ZoneServer2016 extends EventEmitter {
     );
 
     client.character.lootItem(this, item);
+    this.hookManager.checkHook("OnItemPickup", client, item);
     this.startInteractionTimer(client, 0, 0, 9);
     if (
       item.itemDefinitionId === Items.FUEL_BIOFUEL ||

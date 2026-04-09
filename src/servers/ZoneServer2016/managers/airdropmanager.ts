@@ -183,6 +183,7 @@ export class AirdropManager {
           position,
           forcedAirdropType
         );
+        this.server.hookManager.checkHook("OnAirdropDrop", position);
         this.server.sendCompositeEffectToAllInRange(
           400,
           "",

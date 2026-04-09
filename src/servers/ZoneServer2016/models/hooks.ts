@@ -32,6 +32,14 @@ export type Hooks =
   | "OnPlayerDisconnected"
   | "OnPlayerRespawn"
   | "OnPlayerDamage"
+  | "OnPlayerHeal"
+  | "OnPlayerKill"
+  | "OnZombieKill"
+  | "OnItemPickup"
+  | "OnItemDrop"
+  | "OnConstructionBuilt"
+  | "OnConstructionDestroyed"
+  | "OnAirdropDrop"
   | "OnPlayerSpectate";
 
 export type FunctionHookType = boolean | void;
