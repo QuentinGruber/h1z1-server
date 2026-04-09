@@ -1385,10 +1385,10 @@ export function getConstructionSlotId(buildingSlot: string) {
       return 1;
     case "WallStack":
       return 101;
-    default:
-      return Number(
-        buildingSlot.substring(buildingSlot.length, buildingSlot.length - 2)
-      );
+    default: {
+      const match = buildingSlot.match(/(\d+)$/);
+      return match ? Number(match[1]) : 0;
+    }
   }
 }
 

@@ -4370,6 +4370,7 @@ export class ZoneServer2016 extends EventEmitter {
       if (
         client.character.characterId != characterObj.characterId &&
         characterObj.isReady &&
+        !this._clients[c].isLoading &&
         isPosInRadius(
           characterObj.npcRenderDistance || this.charactersRenderDistance,
           client.character.state.position,

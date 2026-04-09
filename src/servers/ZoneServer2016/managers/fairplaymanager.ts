@@ -789,18 +789,20 @@ export class FairPlayManager {
     // check if all default / required packs are found in game files
     for (const serverValue of hashes) {
       if (!serverValue) continue;
-      let received: FileHash | undefined;
       if (
-        receivedHashes.find((clientValue) => {
-          received = clientValue;
-          return this.validateFile(serverValue, clientValue);
-        })
+        receivedHashes.find((clientValue) =>
+          this.validateFile(serverValue, clientValue)
+        )
       ) {
         validatedHashes.push(serverValue);
         continue;
       }
+      // find by name only to report what hash the client actually sent
+      const received = receivedHashes.find(
+        (clientValue) => clientValue.file_name === serverValue.file_name
+      );
       console.log(
-        `${client.loginSessionId} (${client.character.name}) failed asset integrity check due to missing or invalid file ${serverValue.file_name} received: ${received?.crc32_hash} expected: ${serverValue.crc32_hash}`
+        `${client.loginSessionId} (${client.character.name}) failed asset integrity check due to missing or invalid file ${serverValue.file_name} received: ${received?.crc32_hash ?? "missing"} expected: ${serverValue.crc32_hash}`
       );
       server.kickPlayerWithReason(
         client,

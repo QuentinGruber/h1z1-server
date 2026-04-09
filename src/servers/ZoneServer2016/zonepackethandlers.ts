@@ -351,24 +351,20 @@ export class ZonePacketHandlers {
         client.character.state.position = awaitingPos;
         client.character.awaitingTeleportLocation = undefined;
         // fixes characters showing up as dead if they respawn close to other characters
-        server.sendDataToAllOthersWithSpawnedEntity(
-          server._characters,
-          client,
-          client.character.characterId,
-          "Character.RemovePlayer",
-          {
-            characterId: client.character.characterId
+        // also clear spawnedEntities so the server and client stay in sync
+        for (const a in server._clients) {
+          const c = server._clients[a];
+          if (c === client) continue;
+          if (c.spawnedEntities.has(client.character)) {
+            server.sendData(c, "Character.RemovePlayer", {
+              characterId: client.character.characterId
+            });
+            c.spawnedEntities.delete(client.character);
           }
-        );
+        }
         setTimeout(() => {
           if (!client?.character) return;
-          server.sendDataToAllOthersWithSpawnedEntity(
-            server._characters,
-            client,
-            client.character.characterId,
-            "AddLightweightPc",
-            client.character.pGetLightweightPC(server, client)
-          );
+          server.spawnCharacterToOtherClients(client.character);
         }, 2000);
       }, 100);
     }
@@ -854,10 +850,12 @@ export class ZonePacketHandlers {
     packet: ReceivedPacket<KeepAlive>
   ) {
     if (client.isLoading && client.characterReleased && client.isSynced) {
+      const isFirstReleased = client.firstReleased;
+      client.firstReleased = false;
       setTimeout(() => {
         client.isLoading = false;
         if (!client.characterReleased) return;
-        if (client.firstReleased) {
+        if (isFirstReleased) {
           server.sendData<H1emuVoiceInit>(client, "H1emu.VoiceInit", {
             args: `${server.voiceChatManager.serverAddress} ${server._worldId}`
           });
@@ -869,11 +867,10 @@ export class ZonePacketHandlers {
           server.fairPlayManager.handleAssetValidationInit(server, client);
         }
         if (
-          client.firstReleased &&
+          isFirstReleased &&
           client.startingPos &&
           client.character.state.position[1] < client.startingPos[1]
         ) {
-          client.firstReleased = false;
           server.sendData<ClientUpdateUpdateLocation>(
             client,
             "ClientUpdate.UpdateLocation",
@@ -884,7 +881,6 @@ export class ZonePacketHandlers {
           );
           client.character.state.position = client.startingPos;
         }
-        client.firstReleased = false;
         server.executeRoutine(client);
       }, 500);
     }
