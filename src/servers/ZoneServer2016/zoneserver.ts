@@ -105,7 +105,8 @@ import {
   flhash,
   getDateString,
   chance,
-  quat2heading
+  quat2heading,
+  isInsideSquare
 } from "../../utils/utils";
 
 import { Db, MongoClient, WithId } from "mongodb";
@@ -9892,6 +9893,27 @@ export class ZoneServer2016 extends EventEmitter {
 
   isBattleRoyale(): boolean {
     return this.gameMode > 0;
+  }
+
+  isPosInPoi(position: Float32Array): boolean {
+    let isInPoi = false;
+    Z1_POIs.forEach((point: any) => {
+      let useRange = true;
+      if (point.bounds) {
+        useRange = false;
+        point.bounds.forEach((bound: any) => {
+          if (isInsideSquare([position[0], position[2]], bound)) {
+            isInPoi = true;
+            return;
+          }
+        });
+      }
+      if (useRange && isPosInRadius(point.range, position, point.position)) {
+        isInPoi = true;
+      }
+    });
+
+    return isInPoi;
   }
 }
 
