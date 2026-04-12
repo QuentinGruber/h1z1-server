@@ -24,6 +24,23 @@ import {
   EntityDecaySnapshot
 } from "./constructiondecayworker";
 
+/** Returns true if an object has no own enumerable keys (avoids array allocation). */
+function hasNoEntries(obj: object): boolean {
+  for (const _ in obj) return false;
+  return true;
+}
+/** Returns true if an object has at least one own enumerable key. */
+function hasEntries(obj: object): boolean {
+  for (const _ in obj) return true;
+  return false;
+}
+/** Counts keys up to max, returning early once max is reached. */
+function countKeysUpTo(obj: object, max: number): number {
+  let n = 0;
+  for (const _ in obj) { if (++n >= max) return n; }
+  return n;
+}
+
 export class DecayManager {
   /** MANAGED BY CONFIGMANAGER — offloads decay damage computation to a worker thread */
   useDecayWorker: boolean = false;
@@ -96,10 +113,9 @@ export class DecayManager {
           this.griefFoundationTimer * 3600000
         ) {
           if (
-            Object.keys(foundation.occupiedWallSlots).length <
-              this.griefCheckSlotAmount &&
-            Object.keys(foundation.occupiedShelterSlots).length == 0 &&
-            Object.keys(foundation.occupiedExpansionSlots).length == 0
+            countKeysUpTo(foundation.occupiedWallSlots, this.griefCheckSlotAmount) < this.griefCheckSlotAmount &&
+            hasNoEntries(foundation.occupiedShelterSlots) &&
+            hasNoEntries(foundation.occupiedExpansionSlots)
           ) {
             for (const a in foundation.occupiedWallSlots) {
               foundation.occupiedWallSlots[a].destroy(server);
@@ -121,22 +137,21 @@ export class DecayManager {
         continue;
       }
       let expansionsEmpty = true;
-      Object.values(foundation.occupiedExpansionSlots).forEach(
-        (exp: ConstructionParentEntity) => {
-          if (
-            Object.keys(exp.occupiedWallSlots).length != 0 ||
-            Object.keys(exp.occupiedShelterSlots).length != 0 ||
-            Object.keys(exp.occupiedUpperWallSlots).length != 0
-          ) {
-            expansionsEmpty = false;
-          }
+      for (const exp of Object.values(foundation.occupiedExpansionSlots)) {
+        if (
+          hasEntries(exp.occupiedWallSlots) ||
+          hasEntries(exp.occupiedShelterSlots) ||
+          hasEntries(exp.occupiedUpperWallSlots)
+        ) {
+          expansionsEmpty = false;
+          break;
         }
-      );
+      }
       if (!expansionsEmpty) continue;
       if (
-        Object.keys(foundation.occupiedWallSlots).length == 0 &&
-        Object.keys(foundation.occupiedShelterSlots).length == 0 &&
-        Object.keys(foundation.occupiedUpperWallSlots).length == 0
+        hasNoEntries(foundation.occupiedWallSlots) &&
+        hasNoEntries(foundation.occupiedShelterSlots) &&
+        hasNoEntries(foundation.occupiedUpperWallSlots)
       ) {
         if (foundation.ticksWithoutObjects >= this.vacantFoundationTicks) {
           for (const a in foundation.occupiedExpansionSlots) {

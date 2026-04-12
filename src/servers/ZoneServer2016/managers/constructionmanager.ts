@@ -312,11 +312,9 @@ export class ConstructionManager {
   ): boolean {
     if (client.isDebugMode) return false;
     if (!this.spawnPointBlockedPlacementRange) return false;
-    let isInSpawnPoint = false;
-    spawnLocations2.forEach((point: Float32Array) => {
-      if (isPosInRadius(this.spawnPointBlockedPlacementRange, position, point))
-        isInSpawnPoint = true;
-    });
+    const isInSpawnPoint = spawnLocations2.some((point: Float32Array) =>
+      isPosInRadius(this.spawnPointBlockedPlacementRange, position, point)
+    );
     if (
       isInSpawnPoint &&
       !isInsidePermissionedFoundation &&
@@ -335,17 +333,9 @@ export class ConstructionManager {
   ): boolean {
     if (client.isDebugMode) return false;
     if (!this.vehicleSpawnPointBlockedPlacementRange) return false;
-    let isInVehicleSpawnPoint = false;
-    Z1_vehicles.forEach((vehicleSpawn: any) => {
-      if (
-        isPosInRadius(
-          this.vehicleSpawnPointBlockedPlacementRange,
-          position,
-          vehicleSpawn.position
-        )
-      )
-        isInVehicleSpawnPoint = true;
-    });
+    const isInVehicleSpawnPoint = Z1_vehicles.some((vehicleSpawn: any) =>
+      isPosInRadius(this.vehicleSpawnPointBlockedPlacementRange, position, vehicleSpawn.position)
+    );
     if (
       isInVehicleSpawnPoint &&
       !isInsidePermissionedFoundation &&
@@ -361,22 +351,14 @@ export class ConstructionManager {
     position: Float32Array
   ): boolean {
     if (this.allowOutOfBoundsPlacement) return false;
-    let inMapBounds: boolean = false;
-    server._spawnGrid.forEach((cell: SpawnCell) => {
-      if (
+    const inMapBounds = server._spawnGrid.some(
+      (cell: SpawnCell) =>
         position[0] >= cell.position[0] - cell.width / 2 &&
         position[0] <= cell.position[0] + cell.width / 2 &&
         position[2] >= cell.position[2] - cell.height / 2 &&
         position[2] <= cell.position[2] + cell.height / 2
-      ) {
-        inMapBounds = true;
-      }
-    });
-
-    if (!inMapBounds) {
-      return true;
-    }
-    return false;
+    );
+    return !inMapBounds;
   }
   detectPOIPlacement(
     server: ZoneServer2016,
@@ -474,8 +456,7 @@ export class ConstructionManager {
     // TODO: SEARCH FOUNDATIONS IN GRID RANGE INSTEAD OF ALL OF THEM
     // TODO: CHECK DECKS BEFORE TAMPERS SO OBJECTS PLACED ON A DECK DON'T GET INCORRECTLY
     // PARENTED TO THE TAMPER A DECK IS ON
-    for (const a in server._constructionFoundations) {
-      const foundation = server._constructionFoundations[a];
+    for (const foundation of server.getSpawnedFoundationsNear(position, 150)) {
       // check if inside a shelter even if not inside foundation (large shelters can extend it)
       Object.values(foundation.occupiedShelterSlots).forEach((shelter) => {
         // check uppers first so entity is not incorrectly parented to top of a lower (isOn)
@@ -661,9 +642,10 @@ export class ConstructionManager {
       return;
     }
 
-    for (const a in server._constructionFoundations) {
-      const foundation = server._constructionFoundations[a];
-
+    for (const foundation of server.getSpawnedFoundationsNear(
+      position,
+      this.playerFoundationBlockedPlacementRange
+    )) {
       if (
         this.handleClosePlacement(
           server,

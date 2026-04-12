@@ -117,6 +117,7 @@ export class ZoneClient2016 {
   fairPlayTimer?: NodeJS.Timeout;
   afkTimer?: NodeJS.Timeout;
   movementSet: Set<number> = new Set();
+  gridKey: string = "";
   static minMovementForAfk: number = 20;
   static afkTime: number = 10 * 60_000;
   gotAfkWarning: boolean = false;

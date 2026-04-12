@@ -298,7 +298,7 @@ export class Character2016 extends BaseFullCharacter {
   hudIndicators: { [typeName: string]: characterIndicatorData } = {};
 
   /** Screen effects applied to a player: bleeding, night vision, etc. (see ScreenEffects.json) */
-  screenEffects: string[] = [];
+  screenEffects: Set<string> = new Set();
 
   /** The time (milliseconds) at which a user has sent a second melee hit */
   abilityInitTime: number = 0;
@@ -692,12 +692,11 @@ export class Character2016 extends BaseFullCharacter {
         server.sendHudIndicators(client);
       }
 
-      const index2 = this.screenEffects.indexOf(indicator);
-      if (index2 > -1 && indicator != desiredBleedingIndicator) {
-        this.screenEffects.splice(index2, 1);
+      if (this.screenEffects.has(indicator) && indicator != desiredBleedingIndicator) {
+        this.screenEffects.delete(indicator);
         server.removeScreenEffect(client, server._screenEffects[indicator]);
-      } else if (indicator == desiredBleedingIndicator && index2 <= -1) {
-        this.screenEffects.push(desiredBleedingIndicator);
+      } else if (indicator == desiredBleedingIndicator && !this.screenEffects.has(desiredBleedingIndicator)) {
+        this.screenEffects.add(desiredBleedingIndicator);
         server.addScreenEffect(
           client,
           server._screenEffects[desiredBleedingIndicator]

@@ -782,8 +782,7 @@ export class WorldObjectManager {
         break;
     }
     const smokePos = new Float32Array([pos[0], pos[1] + 0.3, pos[2], 1]);
-    for (const a in server._clients) {
-      const c = server._clients[a];
+    for (const c of server.getClientsInRange(500, pos)) {
       server.sendData<CharacterPlayWorldCompositeEffect>(
         c,
         "Character.PlayWorldCompositeEffect",
@@ -1189,11 +1188,7 @@ export class WorldObjectManager {
     );
 
     server._vehicles[vehicle.characterId] = vehicle;
-    // Immediately send the vehicle to any clients in range
-    for (const sessionId in server._clients) {
-      const client = server._clients[sessionId];
-      if (!client.isLoading) server.vehicleManager(client);
-    }
+    server.updateVehicleGrid(vehicle);
   }
 
   createVehicles(server: ZoneServer2016, maxSpawnChance: boolean = false) {
@@ -1603,7 +1598,9 @@ export class WorldObjectManager {
       const prop = server._lootableProps[a] as LootableProp;
       const container = prop.getContainer();
       if (!container) continue;
-      if (!!Object.keys(container.items).length) continue;
+      let containerHasItems = false;
+      for (const _ in container.items) { containerHasItems = true; break; }
+      if (containerHasItems) continue;
       if (!prop.shouldSpawnLoot) continue;
       const lootTable = containerTables[prop.lootSpawner];
       if (lootTable) {
@@ -1637,7 +1634,9 @@ export class WorldObjectManager {
           }
         }
       }
-      if (Object.keys(container.items).length != 0) {
+      let containerHasItemsNow = false;
+      for (const _ in container.items) { containerHasItemsNow = true; break; }
+      if (containerHasItemsNow) {
         Object.values(server._clients).forEach((client: ZoneClient2016) => {
           const index = client.searchedProps.indexOf(prop);
           if (index > -1) {

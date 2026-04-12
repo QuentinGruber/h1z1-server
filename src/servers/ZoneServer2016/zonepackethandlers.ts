@@ -1382,6 +1382,7 @@ export class ZonePacketHandlers {
         time: positionUpdate.sequenceTime
       };
       vehicle.positionUpdate.position = fixedPosUpdate;
+      server.updateVehicleGrid(vehicle);
 
       // Stop HUD timer if player moved
       if (

@@ -220,6 +220,7 @@ export class Vehicle2016 extends BaseLootableEntity {
 
   /** Id of a vehicle - See VehicleIds in enums.ts for more information */
   vehicleId: number;
+  vehicleGridKey: string = "";
   destroyedState = 0;
   currentDamageEffect: number = 0;
 

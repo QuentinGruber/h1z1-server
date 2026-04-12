@@ -135,7 +135,9 @@ export class PlantingDiameter extends TemporaryEntity {
       )
     );
 
-    if (hasAllPermissions && Object.keys(this.seedSlots).length == 0) {
+    let hasSeedSlots = false;
+    for (const _ in this.seedSlots) { hasSeedSlots = true; break; }
+    if (hasAllPermissions && !hasSeedSlots) {
       return true;
     }
 

@@ -4,7 +4,7 @@ import { ZoneServer2016 } from "../zoneserver";
 /** Used in splitting the map into the appropriate grids based upon the image */
 export class GridCell {
   position: Float32Array;
-  objects: Array<BaseEntity> = [];
+  objects: Set<BaseEntity> = new Set();
   /** Clients currently subscribed to this cell for event-driven spawn/despawn */
   subscribers: Set<any> = new Set();
   width: number;
