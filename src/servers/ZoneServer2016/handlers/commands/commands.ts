@@ -2059,7 +2059,7 @@ export const commands: Array<Command> = [
         if (object.characterId == client.character.characterId) return;
         server.despawnEntity(object.characterId);
       });
-      client.spawnedEntities = new Set();
+      client.spawnedEntities.clear();
       server._lootableProps = {};
       server._npcs = {};
       server._spawnedItems = {};

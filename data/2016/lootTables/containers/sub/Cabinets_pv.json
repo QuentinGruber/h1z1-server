@@ -1,0 +1,16 @@
+{
+  "type": "container",
+  "pools": [
+    {
+      "conditions": [],
+      "rolls": 1,
+      "entries": [
+        { "item": 2102, "weight": 15 },
+        { "item": 57, "weight": 10 },
+        { "item": 56, "weight": 40 },
+        { "item": 2324, "weight": 15 },
+        { "type": "empty", "weight": 20 }
+      ]
+    }
+  ]
+}

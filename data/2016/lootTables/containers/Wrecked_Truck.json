@@ -3,43 +3,15 @@
   "pools": [
     {
       "conditions": [],
-      "rolls": {
-        "min": 0,
-        "max": 4
-      },
+      "rolls": { "min": 0, "max": 4 },
       "entries": [
-        {
-          "item": 48,
-          "weight": 33,
-          "count": {
-            "min": 1,
-            "max": 3
-          }
-        },
-        {
-          "item": 46,
-          "weight": 33,
-          "count": {
-            "min": 1,
-            "max": 3
-          }
-        },
-        {
-          "item": 155,
-          "weight": 50,
-          "count": {
-            "min": 1,
-            "max": 1
-          }
-        },
-        {
-          "item": 47,
-          "weight": 15,
-          "count": {
-            "min": 1,
-            "max": 1
-          }
-        }
+        { "item": 48, "weight": 28, "count": { "min": 1, "max": 3 } },
+        { "item": 46, "weight": 23, "count": { "min": 1, "max": 3 } },
+        { "item": 155, "weight": 20 },
+        { "item": 47, "weight": 12 },
+        { "item": 1467, "weight": 10 },
+        { "item": 1895, "weight": 10 },
+        { "type": "empty", "weight": 22 }
       ]
     }
   ]

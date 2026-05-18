@@ -2345,7 +2345,7 @@ export class ConstructionManager {
     client: Client,
     entity: ConstructionDoor
   ) {
-    if (client.spawnedEntities.has(entity) || !client.isSynced) return;
+    if (client.spawnedEntities.has(entity)) return;
     server.addLightweightNpc(
       client,
       entity,
