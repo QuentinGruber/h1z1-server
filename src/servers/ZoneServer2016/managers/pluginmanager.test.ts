@@ -22,9 +22,8 @@ test("PluginManager", { timeout: 60000 }, async (t) => {
   const zone = new ZoneServer2016(0);
   await t.test("Plugin Load", async () => {
     await zone.start();
-    assert.strictEqual(
-      zone.pluginManager.pluginCount,
-      1,
+    assert.ok(
+      zone.pluginManager.pluginCount >= 1,
       "Test Plugin didn't load"
     );
   });

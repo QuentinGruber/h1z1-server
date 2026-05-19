@@ -21,7 +21,7 @@
     },
     {
       "conditions": [{ "condition": "poi_tag", "tags": ["military"] }],
-      "rolls": { "min": 0, "max": 3 },
+      "rolls": { "min": 0, "max": 2 },
       "entries": [
         { "type": "loot_table", "table": "sub/File_military", "weight": 80 },
         { "type": "empty", "weight": 20 }

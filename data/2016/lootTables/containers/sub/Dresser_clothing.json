@@ -3,7 +3,7 @@
   "pools": [
     {
       "conditions": [],
-      "rolls": 1,
+      "rolls": { "min": 0, "max": 1 },
       "entries": [
         { "item": 2218, "weight": 15 },
         { "item": 2209, "weight": 15 },

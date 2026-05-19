@@ -91,6 +91,7 @@ export class DecayManager {
     for (const a in server._constructionFoundations) {
       if (++i % 100 === 0) await scheduler.yield();
       const foundation = server._constructionFoundations[a];
+      if (!foundation) continue;
       if (
         foundation.itemDefinitionId == Items.FOUNDATION ||
         foundation.itemDefinitionId == Items.GROUND_TAMPER
