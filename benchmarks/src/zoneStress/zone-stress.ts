@@ -44,14 +44,14 @@ const {
 } = require("../../../out/servers/ZoneServer2016/classes/baseItem");
 const {
   LoadoutItem
-} = require("../../../out/servers/ZoneServer2016/classes/loadoutitem");
+} = require("../../../out/servers/ZoneServer2016/classes/loadoutItem");
 const {
   Weapon
 } = require("../../../out/servers/ZoneServer2016/classes/weapon");
 const {
   ZoneClient2016
 } = require("../../../out/servers/ZoneServer2016/classes/zoneclient");
-const rawConstruction: any[] = require("construction.json");
+const rawConstruction: any[] = require("../../src/zoneStress/construction.json");
 
 // Items.WEAPON_AK47 = 2229, LoadoutSlots.PRIMARY = 1
 const WEAPON_AK47 = 2229;
