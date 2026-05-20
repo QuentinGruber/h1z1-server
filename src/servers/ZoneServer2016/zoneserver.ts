@@ -1156,7 +1156,7 @@ export class ZoneServer2016 extends EventEmitter {
     "Command.Interact",
     "Mount.MountRequest"
   ]);
-  private static readonly MAX_HEAVY_PACKETS_PER_CLIENT_PER_SEC = 20;
+  private static readonly MAX_HEAVY_PACKETS_PER_CLIENT_PER_SEC = 100;
 
   onZoneDataEvent(client: Client, packet: H1z1ProtocolReadingFormat) {
     if (!client) {
