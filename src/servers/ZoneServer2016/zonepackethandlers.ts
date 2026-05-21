@@ -350,18 +350,21 @@ export class ZonePacketHandlers {
         );
         client.character.state.position = awaitingPos;
         client.character.awaitingTeleportLocation = undefined;
-        // fixes characters showing up as dead if they respawn close to other characters
-        // also clear spawnedEntities so the server and client stay in sync
-        for (const a in server._clients) {
-          const c = server._clients[a];
-          if (c === client) continue;
-          if (c.spawnedEntities.has(client.character)) {
-            server.sendData(c, "Character.RemovePlayer", {
-              characterId: client.character.characterId
-            });
-            c.spawnedEntities.delete(client.character);
+        // Defer the de-spawn sweep so concurrent teleports don't stack.
+        setImmediate(() => {
+          // fixes characters showing up as dead if they respawn close to other characters
+          // also clear spawnedEntities so the server and client stay in sync
+          for (const a in server._clients) {
+            const c = server._clients[a];
+            if (c === client) continue;
+            if (c.spawnedEntities.has(client.character)) {
+              server.sendData(c, "Character.RemovePlayer", {
+                characterId: client.character.characterId
+              });
+              c.spawnedEntities.delete(client.character);
+            }
           }
-        }
+        });
         setTimeout(() => {
           if (!client?.character) return;
           server.spawnCharacterToOtherClients(client.character);

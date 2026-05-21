@@ -19,6 +19,7 @@ import { ZoneServer2016 } from "../zoneserver";
 import { BaseEntity } from "../entities/baseentity";
 import { FireHint } from "../../../types/zoneserver";
 import { Lootbag } from "../entities/lootbag";
+import { TrackedEntitySet } from "./trackedentityset";
 //import { h1z1PacketsType2016 } from "../../../types/packets";
 //import { zone2016packets } from "../../../types/zone2016packets";
 
@@ -120,6 +121,8 @@ export class ZoneClient2016 {
   static minMovementForAfk: number = 20;
   static afkTime: number = 10 * 60_000;
   gotAfkWarning: boolean = false;
+  heavyPacketCount: number = 0;
+  heavyPacketWindowStart: number = 0;
   constructor(
     sessionId: number,
     soeClientId: string,
@@ -132,7 +135,10 @@ export class ZoneClient2016 {
     this.soeClientId = soeClientId;
 
     this.loginSessionId = loginSessionId;
-    this.spawnedEntities = new Set();
+    this.spawnedEntities = new TrackedEntitySet<Client>(
+      server._entityObservers,
+      this
+    );
     this.managedObjects = [];
     this.clearTimers = () => {
       clearTimeout(this.npcsToSpawnTimer);

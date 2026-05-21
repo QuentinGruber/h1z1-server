@@ -3,7 +3,7 @@
   "pools": [
     {
       "conditions": [
-        { "condition": "poi_tag", "tags": ["high_tier", "military"] }
+        { "condition": "poi_tag", "tags": ["military"] }
       ],
       "rolls": { "min": 0, "max": 1 },
       "entries": [

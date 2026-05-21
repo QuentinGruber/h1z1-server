@@ -10,12 +10,14 @@
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
 
+import { scheduler } from "timers/promises";
 import { ZoneServer2016 } from "../zoneserver";
 import { Items, ResourceIds, ResourceTypes } from "../models/enums";
 import { LootableConstructionEntity } from "../entities/lootableconstructionentity";
 import { ConstructionDoor } from "../entities/constructiondoor";
 import { ConstructionChildEntity } from "../entities/constructionchildentity";
 import { getDistance } from "../../../utils/utils";
+import { Vehicle2016 as Vehicle } from "../entities/vehicle";
 import { ConstructionParentEntity } from "../entities/constructionparententity";
 import { dailyRepairMaterial } from "types/zoneserver";
 import { BaseItem } from "../classes/baseItem";
@@ -26,7 +28,7 @@ import {
 
 export class DecayManager {
   /** MANAGED BY CONFIGMANAGER — offloads decay damage computation to a worker thread */
-  useDecayWorker: boolean = false;
+  useDecayWorker: boolean = true;
   private _decayWorker?: ConstructionDecayWorker;
 
   /** Used for tracking the tick amount needed before decay damage occurs on the construction */
@@ -64,8 +66,8 @@ export class DecayManager {
     return this._decayWorker;
   }
 
-  public run(server: ZoneServer2016) {
-    this.contructionExpirationCheck(server);
+  public async run(server: ZoneServer2016) {
+    await this.contructionExpirationCheck(server);
     if (this.constructionDamageTickCount >= this.constructionDamageTicks) {
       this.contructionDecayDamage(server);
       this.constructionDamageTickCount = -1;
@@ -79,14 +81,17 @@ export class DecayManager {
     this.vehicleDamageTickCount++;
 
     this.runTimer = setTimeout(() => {
-      this.run(server);
+      void this.run(server);
     }, this.decayTickInterval);
   }
 
-  private contructionExpirationCheck(server: ZoneServer2016) {
+  private async contructionExpirationCheck(server: ZoneServer2016) {
     let destroyedGriefFoundations = 0;
+    let i = 0;
     for (const a in server._constructionFoundations) {
+      if (++i % 100 === 0) await scheduler.yield();
       const foundation = server._constructionFoundations[a];
+      if (!foundation) continue;
       if (
         foundation.itemDefinitionId == Items.FOUNDATION ||
         foundation.itemDefinitionId == Items.GROUND_TAMPER
@@ -387,33 +392,46 @@ export class DecayManager {
     const n = vehicleEntries.length;
     if (n === 0) return;
 
-    // Build neighbor counts in a single O(n²/2) pass instead of O(n²) per vehicle
-    const neighborCount = new Int32Array(n);
-    for (let i = 0; i < n; i++) {
-      for (let j = i + 1; j < n; j++) {
-        if (
-          getDistance(
-            vehicleEntries[i].state.position,
-            vehicleEntries[j].state.position
-          ) <= this.vehicleDamageRange
-        ) {
-          neighborCount[i]++;
-          neighborCount[j]++;
-        }
+    // Build a spatial hash to avoid comparing every entity against every other one.
+    // Each cell is sized to twice the damage range, so checking the surrounding
+    // 3×3 cells is enough to find all nearby candidates.
+    const cellSize = this.vehicleDamageRange * 2 || 100;
+    const spatialHash = new Map<string, Vehicle[]>();
+    for (const v of vehicleEntries) {
+      const pos = v.state.position;
+      const key = `${Math.floor(pos[0] / cellSize)},${Math.floor(pos[2] / cellSize)}`;
+      let bucket = spatialHash.get(key);
+      if (!bucket) {
+        bucket = [];
+        spatialHash.set(key, bucket);
       }
+      bucket.push(v);
     }
 
-    for (let i = 0; i < n; i++) {
-      const vehicle = vehicleEntries[i];
-      if (!vehicle) continue;
-      let damage = this.baseVehicleDamage;
-      if (neighborCount[i] >= this.maxVehiclesPerArea) {
-        damage *= neighborCount[i] - this.maxVehiclesPerArea + 1;
+    for (const vehicle of vehicleEntries) {
+      const pos = vehicle.state.position;
+      const cx = Math.floor(pos[0] / cellSize);
+      const cz = Math.floor(pos[2] / cellSize);
+      let neighbors = 0;
+      for (let dx = -1; dx <= 1; dx++) {
+        for (let dz = -1; dz <= 1; dz++) {
+          const bucket = spatialHash.get(`${cx + dx},${cz + dz}`);
+          if (!bucket) continue;
+          for (const other of bucket) {
+            if (other === vehicle) continue;
+            if (
+              getDistance(pos, other.state.position) <= this.vehicleDamageRange
+            )
+              neighbors++;
+          }
+        }
       }
-      vehicle.damage(server, {
-        entity: "Server.DecayManager",
-        damage: damage
-      });
+
+      let damage = this.baseVehicleDamage;
+      if (neighbors >= this.maxVehiclesPerArea)
+        damage *= neighbors - this.maxVehiclesPerArea + 1;
+
+      vehicle.damage(server, { entity: "Server.DecayManager", damage });
       server.updateResourceToAllWithSpawnedEntity(
         vehicle.characterId,
         vehicle._resources[ResourceIds.CONDITION],

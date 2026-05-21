@@ -161,6 +161,14 @@
           }
         }
       ]
+    },
+    {
+      "conditions": [{ "condition": "poi_names", "poi_names": ["Pleasant Valley"] }],
+      "rolls": { "min": 0, "max": 1 },
+      "entries": [
+        { "type": "loot_table", "table": "sub/Cabinets_pv", "weight": 70 },
+        { "type": "empty", "weight": 30 }
+      ]
     }
   ]
 }

@@ -335,21 +335,21 @@ export class WorldObjectManager {
 
       for (const characterId in server._lootableProps) {
         const prop = server._lootableProps[characterId] as LootableProp;
+        if (!prop.shouldSpawnLoot) continue;
         const container = prop.getContainer();
         if (!container) continue;
+        if (Object.keys(container.items).length > 0) continue;
 
         props.push({
           characterId,
           lootSpawner: prop.lootSpawner,
-          shouldSpawnLoot: prop.shouldSpawnLoot,
+          shouldSpawnLoot: true,
           position: [
             prop.state.position[0],
             prop.state.position[1],
             prop.state.position[2]
           ],
-          existingItemDefinitionIds: Object.values(container.items).map(
-            (spawnedItem: BaseItem) => spawnedItem.itemDefinitionId
-          )
+          existingItemDefinitionIds: []
         });
       }
 

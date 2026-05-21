@@ -65,14 +65,10 @@ export class LootTableManager {
       subdir
     );
 
-    // Collect all known table names from the base directory
+    // Collect all known table names from the base directory including subdirectories
     const allNames = new Set<string>();
     if (fs.existsSync(baseDir)) {
-      for (const file of fs.readdirSync(baseDir)) {
-        if (file.endsWith(".json")) {
-          allNames.add(file.slice(0, -5));
-        }
-      }
+      this.collectTableNames(baseDir, baseDir, allNames);
     }
 
     // Plugins can also introduce brand-new tables by adding files not present in base
@@ -84,11 +80,7 @@ export class LootTableManager {
         subdir
       );
       if (!fs.existsSync(pluginSubDir)) continue;
-      for (const file of fs.readdirSync(pluginSubDir)) {
-        if (file.endsWith(".json")) {
-          allNames.add(file.slice(0, -5));
-        }
-      }
+      this.collectTableNames(pluginSubDir, pluginSubDir, allNames);
     }
 
     for (const name of allNames) {
@@ -97,6 +89,22 @@ export class LootTableManager {
     }
 
     return result;
+  }
+
+  private collectTableNames(
+    dir: string,
+    rootDir: string,
+    names: Set<string>
+  ): void {
+    for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
+      const fullPath = path.join(dir, entry.name);
+      if (entry.isDirectory()) {
+        this.collectTableNames(fullPath, rootDir, names);
+      } else if (entry.name.endsWith(".json")) {
+        const rel = path.relative(rootDir, fullPath);
+        names.add(rel.slice(0, -5).replace(/\\/g, "/"));
+      }
+    }
   }
 
   private resolveTable<T extends GroundLootTableJson | ContainerLootTableJson>(

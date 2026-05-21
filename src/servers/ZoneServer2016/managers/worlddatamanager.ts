@@ -863,9 +863,16 @@ export class WorldDataManager {
           expansionData
         );
         if (!foundation.setExpansionSlot(expansion)) {
+          const slotNum = expansion.getSlotNumber();
           console.error(
             `[WDM] Failed to register expansion slot "${expansion.slot}" (${expansion.characterId}) onto foundation ${foundation.characterId} — slot data may be corrupted`
           );
+          if (slotNum > 0) {
+            foundation.occupiedExpansionSlots[slotNum] = expansion;
+            console.error(
+              `[WDM] Force-inserted expansion at slot ${slotNum} to prevent data loss`
+            );
+          }
         }
       }
     );
@@ -923,7 +930,14 @@ export class WorldDataManager {
     server: ZoneServer2016
   ) {
     constructionParents.forEach((parent) => {
-      WorldDataManager.loadConstructionParentEntity(server, parent);
+      try {
+        WorldDataManager.loadConstructionParentEntity(server, parent);
+      } catch (e) {
+        console.error(
+          `[WDM] Failed to load construction parent entity ${parent.characterId} (item ${parent.itemDefinitionId}) — skipping to avoid blocking remaining entities`,
+          e
+        );
+      }
     });
   }
 
