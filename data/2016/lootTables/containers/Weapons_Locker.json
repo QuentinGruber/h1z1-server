@@ -1,0 +1,30 @@
+{
+  "type": "container",
+  "pools": [
+    {
+      "conditions": [
+        { "condition": "poi_tag", "tags": ["high_tier", "military"] }
+      ],
+      "rolls": { "min": 0, "max": 1 },
+      "entries": [
+        { "item": 10,   "weight": 15, "count": { "min": 1, "max": 1 } },
+        { "item": 2229, "weight": 12, "count": { "min": 1, "max": 1 } },
+        { "item": 1373, "weight": 8,  "count": { "min": 1, "max": 1 } },
+        { "item": 2271, "weight": 30, "count": { "min": 1, "max": 1 } },
+        { "item": 2124, "weight": 25, "count": { "min": 1, "max": 1 } }
+      ]
+    },
+    {
+      "conditions": [
+        { "condition": "not_poi_tag", "tags": ["high_tier", "military"] }
+      ],
+      "rolls": { "min": 0, "max": 1 },
+      "entries": [
+        { "item": 2,    "weight": 35, "count": { "min": 1, "max": 1 } },
+        { "item": 1997, "weight": 35, "count": { "min": 1, "max": 1 } },
+        { "item": 1374, "weight": 15, "count": { "min": 1, "max": 1 } },
+        { "item": 2038, "weight": 15, "count": { "min": 1, "max": 1 } }
+      ]
+    }
+  ]
+}

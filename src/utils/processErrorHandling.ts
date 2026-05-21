@@ -22,14 +22,14 @@ process.on("unhandledRejection", (reason, promise) => {
     `reason: ${reason} at ${new Date()}`
   );
   logVersion();
-  process.exit(1);
+  //process.exit(1);
 });
 
 process.on("uncaughtException", (err) => {
   console.error(`Uncaught Exception: ${err.message} time : ${new Date()}`);
   console.error(err.stack);
   logVersion();
-  process.exit(1);
+  //process.exit(1);
 });
 
 process.on("SIGTERM", () => {

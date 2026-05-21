@@ -12,11 +12,12 @@
 // ======================================================================
 
 import { PropInstance, SpeedTree, ZoneSpeedTreeData } from "types/zoneserver";
-import { loadJson, randomIntFromInterval } from "../../../utils/utils";
+import { randomIntFromInterval } from "../../../utils/utils";
 import { ZoneClient2016 as Client } from "../classes/zoneclient";
 import { Items, TreeIds } from "../models/enums";
 import { ZoneServer2016 } from "../zoneserver";
 import { ChallengeType } from "./challengemanager";
+import { PluginManager } from "./pluginmanager";
 
 export class SpeedTreeManager {
   /** HashMap of destroyed trees,
@@ -45,8 +46,8 @@ export class SpeedTreeManager {
   maxTreeHits!: number;
 
   initiateList() {
-    const Z1_speedTrees = loadJson(
-      __dirname + "/../../../../data/2016/zoneData/Z1_speedTrees.json"
+    const Z1_speedTrees = PluginManager.loadServerData(
+      "2016/zoneData/Z1_speedTrees.json"
     );
     Z1_speedTrees.forEach((tree: any) => {
       this._speedTreesList.set(tree.uniqueId, {

@@ -31,6 +31,18 @@ export class HookManager {
   }
 
   /**
+   * Allows you to drop all currently registered hooks. Useful for plugin reloads.
+   */
+  drop() {
+    for (const key in this._hooks) {
+      delete this._hooks[key];
+    }
+    for (const key in this._asyncHooks) {
+      delete this._asyncHooks[key];
+    }
+  }
+
+  /**
    * Registers a new hook to be called when the corresponding checkHook() call is executed.
    * @param hookName The name of the hook
    * @param hook The function to be called when the hook is executed.

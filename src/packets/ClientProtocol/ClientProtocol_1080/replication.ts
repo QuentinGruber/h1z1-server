@@ -11,8 +11,9 @@
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
 
-import { PacketStructures } from "types/packetStructure";
+import { PacketFields, PacketStructures } from "types/packetStructure";
 import { packUnsignedIntWith2bitLengthValue } from "./shared";
+import DataSchema from "h1z1-dataschema";
 
 export function packComponentNameString(name: string) {
   const stringBuffer = Buffer.from(name.trim(), "ascii"),
@@ -22,23 +23,33 @@ export function packComponentNameString(name: string) {
   return Buffer.concat([lengthBuffer, stringBuffer, nullBuffer]);
 }
 
-export function packClientNpcComponent(obj: any) {
-  const raw: Buffer = Buffer.alloc(78);
-  if (obj["nameId"]) {
-    raw.writeUInt32LE(obj["nameId"], 12);
-  }
-
-  raw.writeUint8(122, 0);
-  raw.writeUint8(2, 1);
-
-  raw.writeUint8(1, raw.length - 1);
-  return raw;
-}
+export const npcComponent: PacketFields = [
+  { name: "unknownDword1", type: "uint32", defaultValue: 634 },
+  { name: "unknownDword2", type: "uint32", defaultValue: 0 },
+  { name: "unknownDword3", type: "uint32", defaultValue: 0 },
+  { name: "nameId", type: "uint32", defaultValue: 0 },
+  { name: "unknownDword5", type: "uint32", defaultValue: 0 },
+  { name: "unknownDword6", type: "uint32", defaultValue: 0 },
+  { name: "unknownDword7", type: "uint32", defaultValue: 0 },
+  { name: "unknownFloatVector1", type: "floatvector3", defaultValue: 0 },
+  { name: "unknownFloatVector2", type: "floatvector3", defaultValue: 0 },
+  { name: "unknownDword8", type: "uint32", defaultValue: 0 },
+  { name: "unknownDword9", type: "uint32", defaultValue: 0 },
+  { name: "unknownQword1", type: "uint64string", defaultValue: "0" },
+  { name: "unknownDword10", type: "uint32", defaultValue: 0 },
+  { name: "unknownDword11", type: "uint32", defaultValue: 0 },
+  { name: "unknownByte1", type: "uint8", defaultValue: 0 },
+  { name: "unknownBoolean1", type: "boolean", defaultValue: true }
+];
 
 export function packClientInteractComponent(obj: any) {
   const raw: Buffer = Buffer.alloc(11);
   if (obj["distance"]) {
     raw.writeFloatLE(obj["distance"], 0);
+  }
+
+  if (obj["disableInteractionGlow"] && obj["disableInteractionGlow"] == true) {
+    raw.writeUint8(1, 9);
   }
 
   raw.writeUint8(1, raw.length - 1);
@@ -48,7 +59,7 @@ export function packClientInteractComponent(obj: any) {
 export function packNpcComponent(obj: any) {
   switch (obj.componentName) {
     case "ClientNpcComponent":
-      return packClientNpcComponent(obj);
+      return DataSchema.pack(npcComponent, obj).data;
     case "ClientInteractComponent":
       return packClientInteractComponent(obj);
     default:

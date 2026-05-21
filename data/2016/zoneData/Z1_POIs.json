@@ -2,6 +2,7 @@
   {
     "POIid": 1,
     "POIname": "Pleasant Valley",
+    "tags": ["residential", "city", "high_tier"],
     "stringId": 9570,
     "range": 500,
     "bounds": [
@@ -65,6 +66,7 @@
   {
     "POIid": 3,
     "POIname": "Bubba's Truck Stop",
+    "tags": ["commercial", "truck_stop", "medium_tier"],
     "stringId": 9550,
     "range": 250,
     "bounds": [
@@ -85,6 +87,7 @@
   {
     "POIid": 4,
     "POIname": "Bumjick Farms",
+    "tags": ["rural", "farm", "medium_tier"],
     "stringId": 9552,
     "range": 200,
     "bounds": [
@@ -120,6 +123,7 @@
   {
     "POIid": 5,
     "POIname": "Cranberry",
+    "tags": ["residential", "city", "high_tier"],
     "stringId": 9554,
     "range": 300,
     "bounds": [
@@ -152,6 +156,7 @@
   {
     "POIid": 6,
     "POIname": "De Soto Service Stop",
+    "tags": ["commercial", "truck_stop"],
     "stringId": 9556,
     "range": 150,
     "bounds": [
@@ -172,6 +177,7 @@
   {
     "POIid": 7,
     "POIname": "Hemingway Truck Stop",
+    "tags": ["commercial", "truck_stop"],
     "stringId": 9558,
     "range": 100,
     "bounds": [
@@ -192,6 +198,7 @@
   {
     "POIid": 8,
     "POIname": "Hunter's Truck Stop",
+    "tags": ["commercial", "truck_stop"],
     "stringId": 9560,
     "range": 150,
     "bounds": [
@@ -219,6 +226,7 @@
   {
     "POIid": 9,
     "POIname": "KZPV 98.5 FM Radio",
+    "tags": ["commercial"],
     "stringId": 9562,
     "range": 100,
     "position": [
@@ -231,6 +239,7 @@
   {
     "POIid": 10,
     "POIname": "Lone Pine Development",
+    "tags": ["residential", "medium_tier"],
     "stringId": 9564,
     "range": 300,
     "bounds": [
@@ -251,6 +260,7 @@
   {
     "POIid": 11,
     "POIname": "Misty Peak Dam",
+    "tags": ["industrial", "medium_tier"],
     "stringId": 9566,
     "range": 150,
     "bounds": [
@@ -271,6 +281,7 @@
   {
     "POIid": 12,
     "POIname": "Opfer Wilderness Camp",
+    "tags": ["wilderness", "rural"],
     "stringId": 9568,
     "range": 300,
     "position": [
@@ -283,6 +294,7 @@
   {
     "POIid": 13,
     "POIname": "Ranchito Taquito",
+    "tags": ["commercial", "city", "medium_tier"],
     "stringId": 9572,
     "range": 400,
     "bounds": [
@@ -376,6 +388,7 @@
   {
     "POIid": 14,
     "POIname": "The Villas Development",
+    "tags": ["residential", "medium_tier"],
     "stringId": 9576,
     "range": 200,
     "bounds": [
@@ -396,6 +409,7 @@
   {
     "POIid": 15,
     "POIname": "Wake Hills Hamlet",
+    "tags": ["residential", "rural"],
     "stringId": 9578,
     "range": 100,
     "position": [
@@ -408,6 +422,7 @@
   {
     "POIid": 16,
     "POIname": "Runamok Campsite",
+    "tags": ["wilderness", "rural"],
     "stringId": 9574,
     "range": 50,
     "position": [
@@ -420,6 +435,7 @@
   {
     "POIid": 17,
     "POIname": "Kurama Medical Facility",
+    "tags": ["medical", "high_tier"],
     "stringId": 12838,
     "range": 350,
     "bounds": [
@@ -446,6 +462,7 @@
   {
     "POIid": 18,
     "POIname": "Military Base",
+    "tags": ["military", "high_tier"],
     "stringId": 9550,
     "range": 0,
     "bounds": [
@@ -466,6 +483,7 @@
   {
     "POIid": 19,
     "POIname": "Toxic",
+    "tags": ["toxic", "medium_tier"],
     "stringId": 9550,
     "range": 0,
     "bounds": [
@@ -490,6 +508,7 @@
   {
     "POIid": 20,
     "POIname": "Governor's Compound",
+    "tags": ["military", "high_tier"],
     "stringId": 13566,
     "range": 200,
     "bounds": [

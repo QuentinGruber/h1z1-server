@@ -350,25 +350,24 @@ export class ZonePacketHandlers {
         );
         client.character.state.position = awaitingPos;
         client.character.awaitingTeleportLocation = undefined;
-        // fixes characters showing up as dead if they respawn close to other characters
-        server.sendDataToAllOthersWithSpawnedEntity(
-          server._characters,
-          client,
-          client.character.characterId,
-          "Character.RemovePlayer",
-          {
-            characterId: client.character.characterId
+        // Defer the de-spawn sweep so concurrent teleports don't stack.
+        setImmediate(() => {
+          // fixes characters showing up as dead if they respawn close to other characters
+          // also clear spawnedEntities so the server and client stay in sync
+          for (const a in server._clients) {
+            const c = server._clients[a];
+            if (c === client) continue;
+            if (c.spawnedEntities.has(client.character)) {
+              server.sendData(c, "Character.RemovePlayer", {
+                characterId: client.character.characterId
+              });
+              c.spawnedEntities.delete(client.character);
+            }
           }
-        );
+        });
         setTimeout(() => {
           if (!client?.character) return;
-          server.sendDataToAllOthersWithSpawnedEntity(
-            server._characters,
-            client,
-            client.character.characterId,
-            "AddLightweightPc",
-            client.character.pGetLightweightPC(server, client)
-          );
+          server.spawnCharacterToOtherClients(client.character);
         }, 2000);
       }, 100);
     }
@@ -531,7 +530,6 @@ export class ZonePacketHandlers {
       );
     }
     server.spawnContainerAccessNpc(client);
-    server.setTickRate();
   }
   Security(
     server: ZoneServer2016,
@@ -855,10 +853,12 @@ export class ZonePacketHandlers {
     packet: ReceivedPacket<KeepAlive>
   ) {
     if (client.isLoading && client.characterReleased && client.isSynced) {
+      const isFirstReleased = client.firstReleased;
+      client.firstReleased = false;
       setTimeout(() => {
         client.isLoading = false;
         if (!client.characterReleased) return;
-        if (client.firstReleased) {
+        if (isFirstReleased) {
           server.sendData<H1emuVoiceInit>(client, "H1emu.VoiceInit", {
             args: `${server.voiceChatManager.serverAddress} ${server._worldId}`
           });
@@ -870,11 +870,10 @@ export class ZonePacketHandlers {
           server.fairPlayManager.handleAssetValidationInit(server, client);
         }
         if (
-          client.firstReleased &&
+          isFirstReleased &&
           client.startingPos &&
           client.character.state.position[1] < client.startingPos[1]
         ) {
-          client.firstReleased = false;
           server.sendData<ClientUpdateUpdateLocation>(
             client,
             "ClientUpdate.UpdateLocation",
@@ -885,7 +884,6 @@ export class ZonePacketHandlers {
           );
           client.character.state.position = client.startingPos;
         }
-        client.firstReleased = false;
         server.executeRoutine(client);
       }, 500);
     }
@@ -1957,29 +1955,12 @@ export class ZonePacketHandlers {
     ) {
       return;
     }
-    const array = new Float32Array([
-      packet.data.rotation1[3],
-      packet.data.rotation1[1],
-      packet.data.rotation2[2]
-    ]);
-    const matrix = quat2matrix(array);
-    const euler = [
-      Math.atan2(matrix[7], matrix[8]),
-      Math.atan2(
-        -matrix[6],
-        Math.sqrt(Math.pow(matrix[7], 2) + Math.pow(matrix[8], 2))
-      ),
-      Math.atan2(matrix[3], matrix[0])
-    ];
-    let final;
-    if (euler[0] >= 0) {
-      final = new Float32Array([euler[1], 0, 0, 0]);
-    } else {
-      final = new Float32Array([euler[2], 0, 0, 0]);
-    }
-    if (Math.abs(final[0]) < 0.01) {
-      final[0] = 0;
-    }
+
+    const y = packet.data.rotation1[1],
+      w = packet.data.rotation1[3],
+      yaw = Math.atan2(-w, y),
+      final = new Float32Array([yaw, 0, 0, 0]);
+
     const modelId = server.getItemDefinition(
       packet.data.itemDefinitionId
     )?.PLACEMENT_MODEL_ID;
@@ -2786,7 +2767,7 @@ export class ZonePacketHandlers {
 
       if (
         !isPosInRadius(
-          server.proximityItemsDistance,
+          server.proximityItemsDistance + 0.2, // It doesn't always reach otherwise
           client.character.state.position,
           sourceCharacter.state.position
         )

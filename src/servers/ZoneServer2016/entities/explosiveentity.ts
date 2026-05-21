@@ -12,11 +12,7 @@
 // ======================================================================
 
 import { DamageInfo } from "types/zoneserver";
-import {
-  getDistance,
-  isChristmasSeason,
-  randomIntFromInterval
-} from "../../../utils/utils";
+import { getDistance, randomIntFromInterval } from "../../../utils/utils";
 import { Effects, Items } from "../models/enums";
 import { ZoneServer2016 } from "../zoneserver";
 import { BaseLightweightCharacter } from "./baselightweightcharacter";
@@ -106,24 +102,7 @@ export class ExplosiveEntity extends BaseLightweightCharacter {
     let client = this.server.getClientByCharId(characterId);
     if (!this.server._explosives[this.characterId] || this.detonated) return;
     this.detonated = true;
-    this.server.sendCompositeEffectToAllInRange(
-      600,
-      "",
-      this.state.position,
-      Effects.PFX_Impact_Explosion_Landmine_Dirt_10m
-    );
-    if (isChristmasSeason()) {
-      this.server.sendCompositeEffectToAllInRange(
-        600,
-        "",
-        this.state.position,
-        Effects.PFX_Seasonal_Holiday_Snow_skel
-      );
-    }
-    queueMicrotask(() => {
-      this.server.deleteEntity(this.characterId, this.server._explosives);
-    });
-    this.server.explosionDamage(this, client);
+    this.server.explosionManager.queueExplosion(this, client);
   }
 
   /** Used by landmines to arm their explosivenss */

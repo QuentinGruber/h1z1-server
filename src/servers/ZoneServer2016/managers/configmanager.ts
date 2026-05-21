@@ -31,11 +31,13 @@ function fileExists(filePath: string): boolean {
 export class ConfigManager {
   private defaultConfig: Config;
   private config: Config;
+  private configPath: string;
 
   constructor(
     server: ZoneServer2016,
     configPath: string = `${process.cwd()}/config.yaml`
   ) {
+    this.configPath = configPath;
     this.defaultConfig = this.loadYaml(
       "/../../../../data/2016/sampleData/defaultconfig.yaml"
     ) as Config;
@@ -53,6 +55,7 @@ export class ConfigManager {
       );
 
       this.config = this.defaultConfig;
+      this.applyEnvOverrides();
       this.applyConfig(server);
       console.log("Default config loaded!");
       return;
@@ -61,6 +64,7 @@ export class ConfigManager {
     const config = this.loadYaml(configPath, false);
     if (config) {
       this.config = this.loadConfig(config);
+      this.applyEnvOverrides();
       this.applyConfig(server);
       console.log("Config Loaded!");
       return;
@@ -68,7 +72,27 @@ export class ConfigManager {
 
     console.error("Config failed to load! Using default.");
     this.config = this.defaultConfig;
+    this.applyEnvOverrides();
     this.applyConfig(server);
+  }
+
+  reload(server: ZoneServer2016): boolean {
+    if (!this.configPath || !fileExists(this.configPath)) {
+      console.error("Config path is invalid! Cannot reload.");
+      return false;
+    }
+
+    const config = this.loadYaml(this.configPath, false);
+    if (!config) {
+      console.error("Config failed to reload!");
+      return false;
+    }
+
+    this.config = this.loadConfig(config);
+    this.applyEnvOverrides();
+    this.applyConfig(server);
+    console.log("Config reloaded!");
+    return true;
   }
 
   public loadYaml(path: string, relative = true): Config | undefined {
@@ -158,6 +182,164 @@ export class ConfigManager {
     };
   }
 
+  /**
+   * Applies environment variable overrides to this.config.
+   *
+   * Naming convention: <SECTION>_<FIELD_NAME>
+   * where FIELD_NAME is the camelCase field converted to SCREAMING_SNAKE_CASE.
+   *
+   * Examples:
+   *   SERVER_GAME_MODE, SERVER_IS_PVE, RCON_PORT, RCON_PASSWORD,
+   *   WORLDOBJECTS_GRID_SCRAP_LIMIT, VOICECHAT_SERVER_ADDRESS, ...
+   *
+   * Backward-compat aliases (old names still work):
+   *   GRID_SCRAP_LIMIT           -> WORLDOBJECTS_GRID_SCRAP_LIMIT
+   *   GRID_SCRAP_LIMIT_ENABLED   -> WORLDOBJECTS_GRID_SCRAP_LIMIT_ENABLED
+   *   VOICE_CHAT_SERVER_ADDRESS  -> VOICECHAT_SERVER_ADDRESS
+   *
+   * Array/object fields (e.g. fairplay.acceptedRejectionTypes,
+   * decay.dailyRepairMaterials) are not overridable via env vars.
+   */
+  private applyEnvOverrides(): void {
+    const normalizedEnv = new Map<string, string>(
+      Object.entries(process.env)
+        .filter((entry): entry is [string, string] => entry[1] !== undefined)
+        .map(([k, v]) => [k.toLowerCase(), v])
+    );
+
+    this.applyEnvToSection(
+      "SERVER",
+      this.config.server as unknown as Record<string, unknown>,
+      normalizedEnv
+    );
+    this.applyEnvToSection(
+      "RCON",
+      this.config.rcon as unknown as Record<string, unknown>,
+      normalizedEnv
+    );
+    this.applyEnvToSection(
+      "CHALLENGES",
+      this.config.challenges as unknown as Record<string, unknown>,
+      normalizedEnv
+    );
+    this.applyEnvToSection(
+      "VOICECHAT",
+      this.config.voicechat as unknown as Record<string, unknown>,
+      normalizedEnv
+    );
+    this.applyEnvToSection(
+      "FAIRPLAY",
+      this.config.fairplay as unknown as Record<string, unknown>,
+      normalizedEnv
+    );
+    this.applyEnvToSection(
+      "WEATHER",
+      this.config.weather as unknown as Record<string, unknown>,
+      normalizedEnv
+    );
+    this.applyEnvToSection(
+      "AIRDROP",
+      this.config.airdrop as unknown as Record<string, unknown>,
+      normalizedEnv
+    );
+    this.applyEnvToSection(
+      "GAMETIME",
+      this.config.gametime as unknown as Record<string, unknown>,
+      normalizedEnv
+    );
+    this.applyEnvToSection(
+      "WORLDOBJECTS",
+      this.config.worldobjects as unknown as Record<string, unknown>,
+      normalizedEnv
+    );
+    this.applyEnvToSection(
+      "SPEEDTREE",
+      this.config.speedtree as unknown as Record<string, unknown>,
+      normalizedEnv
+    );
+    this.applyEnvToSection(
+      "CONSTRUCTION",
+      this.config.construction as unknown as Record<string, unknown>,
+      normalizedEnv
+    );
+    this.applyEnvToSection(
+      "DECAY",
+      this.config.decay as unknown as Record<string, unknown>,
+      normalizedEnv
+    );
+    this.applyEnvToSection(
+      "SMELTING",
+      this.config.smelting as unknown as Record<string, unknown>,
+      normalizedEnv
+    );
+    this.applyEnvToSection(
+      "RANDOMEVENTS",
+      this.config.randomevents as unknown as Record<string, unknown>,
+      normalizedEnv
+    );
+    this.applyEnvToSection(
+      "GROUPS",
+      this.config.groups as unknown as Record<string, unknown>,
+      normalizedEnv
+    );
+
+    // Backward-compat aliases
+    const gridScrapLimit = normalizedEnv.get("grid_scrap_limit");
+    if (gridScrapLimit !== undefined) {
+      const n = parseInt(gridScrapLimit, 10);
+      if (!isNaN(n)) this.config.worldobjects.gridScrapLimit = n;
+    }
+    const gridScrapLimitEnabled = normalizedEnv.get("grid_scrap_limit_enabled");
+    if (gridScrapLimitEnabled !== undefined) {
+      this.config.worldobjects.gridScrapLimitEnabled =
+        gridScrapLimitEnabled.toLowerCase() === "true";
+    }
+    const voiceChatServerAddress = normalizedEnv.get(
+      "voice_chat_server_address"
+    );
+    if (voiceChatServerAddress !== undefined) {
+      this.config.voicechat.serverAddress = voiceChatServerAddress;
+    }
+  }
+
+  // Overrides for fields where the automatic camelCase→SCREAMING_SNAKE
+  // conversion produces an unintuitive name (e.g. isPvE → IS_PVE, not IS_PV_E).
+  private static readonly fieldKeyOverrides: Record<string, string> = {
+    isPvE: "IS_PVE"
+  };
+
+  /**
+   * Iterates all primitive (non-array, non-object) fields in a config section
+   * and applies matching environment variables using the naming convention
+   * `${prefix}_${SCREAMING_SNAKE_CASE_FIELD}`.
+   * Lookup is case-insensitive.
+   */
+  private applyEnvToSection(
+    prefix: string,
+    section: Record<string, unknown>,
+    normalizedEnv: Map<string, string>
+  ): void {
+    for (const [field, currentValue] of Object.entries(section)) {
+      if (currentValue === null || typeof currentValue === "object") continue;
+
+      const fieldKey =
+        ConfigManager.fieldKeyOverrides[field] ??
+        field.replace(/([a-z])([A-Z])/g, "$1_$2").toUpperCase();
+      const envKey = `${prefix}_${fieldKey}`.toLowerCase();
+      const raw = normalizedEnv.get(envKey);
+      if (raw === undefined) continue;
+
+      if (typeof currentValue === "number") {
+        const n = parseFloat(raw);
+        if (!isNaN(n)) section[field] = n;
+      } else if (typeof currentValue === "boolean") {
+        section[field] = raw.toLowerCase() === "true";
+      } else {
+        section[field] = raw;
+      }
+    }
+  }
+
   applyConfig(server: ZoneServer2016) {
     //#region server
     const {
@@ -165,7 +347,6 @@ export class ConfigManager {
       proximityItemsDistance,
       interactionDistance,
       charactersRenderDistance,
-      tickRate,
       worldRoutineRate,
       welcomeMessage,
       adminMessage,
@@ -179,7 +360,8 @@ export class ConfigManager {
       baseConstructionDamage,
       damageWeapons,
       disablePOIManager,
-      disableMapBoundsCheck
+      disableMapBoundsCheck,
+      disableBaseCheck
     } = this.config.server;
     server.gameMode =
       GameModes[gameMode.trim().toUpperCase() as keyof typeof GameModes] ??
@@ -187,7 +369,6 @@ export class ConfigManager {
     server.proximityItemsDistance = proximityItemsDistance;
     server.interactionDistance = interactionDistance;
     server.charactersRenderDistance = charactersRenderDistance;
-    server.tickRate = tickRate;
     server.worldRoutineRate = worldRoutineRate;
     server.welcomeMessage = welcomeMessage;
     server.adminMessage = adminMessage;
@@ -202,6 +383,7 @@ export class ConfigManager {
     server.damageWeapons = damageWeapons;
     server.disablePOIManager = disablePOIManager;
     server.disableMapBoundsCheck = disableMapBoundsCheck;
+    server.disableBaseCheck = disableBaseCheck;
     //#endregion
 
     //#region Rcon
@@ -230,8 +412,7 @@ export class ConfigManager {
     server.voiceChatManager.useVoiceChatV2 = useVoiceChatV2;
     server.voiceChatManager.joinVoiceChatOnConnect = joinVoiceChatOnConnect;
     server.voiceChatManager.serverAccessToken = serverAccessToken;
-    server.voiceChatManager.serverAddress =
-      process.env.VOICE_CHAT_SERVER_ADDRESS || serverAddress;
+    server.voiceChatManager.serverAddress = serverAddress;
     //#endregion
 
     //#region fairplay
@@ -280,6 +461,9 @@ export class ConfigManager {
       itemDespawnTimer,
       lootDespawnTimer,
       deadNpcDespawnTimer,
+      maxNpcDespawnsPerRun,
+      maxLootbagDespawnsPerRun,
+      maxItemDespawnsPerRun,
       chanceWornLetter,
       vehicleSpawnRadius,
       npcSpawnRadius,
@@ -287,7 +471,9 @@ export class ConfigManager {
       chanceScreamer,
       lootbagDespawnTimer,
       crowbarHitRewardChance,
-      crowbarHitDamage
+      crowbarHitDamage,
+      gridScrapLimit,
+      gridScrapLimitEnabled
     } = this.config.worldobjects;
     server.worldObjectManager.vehicleSpawnCap = vehicleSpawnCap;
     server.worldObjectManager.hasCustomLootRespawnTime =
@@ -300,6 +486,10 @@ export class ConfigManager {
     server.worldObjectManager.lootDespawnTimer = lootDespawnTimer;
     server.worldObjectManager.deadNpcDespawnTimer = deadNpcDespawnTimer;
     server.worldObjectManager.lootbagDespawnTimer = lootbagDespawnTimer;
+    server.worldObjectManager.maxNpcDespawnsPerRun = maxNpcDespawnsPerRun;
+    server.worldObjectManager.maxLootbagDespawnsPerRun =
+      maxLootbagDespawnsPerRun;
+    server.worldObjectManager.maxItemDespawnsPerRun = maxItemDespawnsPerRun;
 
     server.worldObjectManager.vehicleSpawnRadius = vehicleSpawnRadius;
     server.worldObjectManager.npcSpawnRadius = npcSpawnRadius;
@@ -314,6 +504,9 @@ export class ConfigManager {
 
     server.crowbarHitRewardChance = crowbarHitRewardChance;
     server.crowbarHitDamage = crowbarHitDamage;
+
+    server.worldObjectManager.gridScrapLimit = gridScrapLimit;
+    server.worldObjectManager.gridScrapLimitEnabled = gridScrapLimitEnabled;
     //#endregion
 
     //#region speedtree

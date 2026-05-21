@@ -80,7 +80,8 @@ import { BaseEntity } from "./baseentity";
 import { ProjectileEntity } from "./projectileentity";
 import { ChallengeType } from "../managers/challengemanager";
 import { LootableConstructionEntity } from "./lootableconstructionentity";
-const stats = require("../../../../data/2016/sampleData/stats.json");
+import { PluginManager } from "../managers/pluginmanager";
+const stats = PluginManager.loadServerData("2016/sampleData/stats.json");
 
 interface CharacterStates {
   invincibility: boolean;
