@@ -30,6 +30,7 @@ export class NavManager {
   lastTimeCall: number = Date.now();
   constructor() {}
   async loadNav() {
+    console.time("[NAV] Navmesh loaded");
     const navData = new Uint8Array(
       readFileSync(__dirname + "/../../data/2016/navData/z1.bin")
     );
@@ -41,6 +42,7 @@ export class NavManager {
 
     this.navMeshQuery = new NavMeshQuery(this.navmesh);
     this.crowd = new Crowd(navMesh, { maxAgents, maxAgentRadius });
+    console.timeEnd("[NAV] Navmesh loaded");
   }
   static Float32ToVec3(f: Float32Array): Vector3 {
     return { x: f[0], y: f[1], z: f[2] };
