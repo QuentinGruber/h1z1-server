@@ -44,60 +44,73 @@ export class NavManager {
     this.crowd = new Crowd(navMesh, { maxAgents, maxAgentRadius });
     console.timeEnd("[NAV] Navmesh loaded");
   }
+
+  static gameToNav(f: Float32Array): Vector3 {
+    return { x: f[0] / 2, y: f[1] / 2, z: f[2] / 2 };
+  }
+  static navToGame(v: Vector3): Float32Array {
+    return new Float32Array([v.x * 2, v.y * 2, v.z * 2, 0]);
+  }
+
+  // Legacy helpers.
   static Float32ToVec3(f: Float32Array): Vector3 {
     return { x: f[0], y: f[1], z: f[2] };
   }
   static Vec3ToFloat32(v: Vector3): Float32Array {
     return new Float32Array([v.x, v.y, v.z]);
   }
+
   updt() {
-    this.crowd.update(1 / 60);
+    const now = Date.now();
+    const timeSinceLastCalled = (now - this.lastTimeCall) / 1000;
+    this.lastTimeCall = now;
+    this.crowd.update(1 / 60, timeSinceLastCalled, 30);
   }
-  getClosestNavPoint(pos: Float32Array): Vector3 {
-    const n = this.navMeshQuery.findNearestPoly(NavManager.Float32ToVec3(pos));
+
+  // Returns nearest navmesh point (in nav coords) to the given game position.
+  // Uses large halfExtents so Y offset doesn't prevent finding a polygon.
+  getClosestNavPoint(gamePos: Float32Array): Vector3 {
+    const navInput = NavManager.gameToNav(gamePos);
+    const n = this.navMeshQuery.findNearestPoly(navInput, {
+      halfExtents: { x: 10, y: 10, z: 10 }
+    });
+    console.log(
+      `[NAV-DEBUG] getClosestNavPoint gameIn=[${gamePos[0].toFixed(2)}, ${gamePos[1].toFixed(2)}, ${gamePos[2].toFixed(2)}] navOut=[${n.nearestPoint.x.toFixed(2)}, ${n.nearestPoint.y.toFixed(2)}, ${n.nearestPoint.z.toFixed(2)}] polyRef=${n.nearestRef}`
+    );
     return n.nearestPoint;
   }
-  createAgent(pos: Float32Array): CrowdAgent {
-    const position = this.getClosestNavPoint(pos);
-    const radius = 0.5;
+
+  createAgent(gamePos: Float32Array): CrowdAgent {
+    const navPosition = this.getClosestNavPoint(gamePos);
+    console.log(
+      `[NAV-DEBUG] createAgent: navPos=[${navPosition.x.toFixed(2)}, ${navPosition.y.toFixed(2)}, ${navPosition.z.toFixed(2)}]`
+    );
 
     const {
       randomPoint: initialAgentPosition,
       success,
       status
-    } = this.navMeshQuery.findRandomPointAroundCircle(position, radius);
+    } = this.navMeshQuery.findRandomPointAroundCircle(navPosition, 0.5);
 
     if (!success) {
-      console.log(statusToReadableString(status));
+      console.log(
+        `[NAV-DEBUG] createAgent: findRandomPointAroundCircle failed (${statusToReadableString(status)}), using navPosition directly`
+      );
     }
 
-    const agent = this.crowd.addAgent(initialAgentPosition, {
+    const spawnPoint = success ? initialAgentPosition : navPosition;
+    const agent = this.crowd.addAgent(spawnPoint, {
       radius: 0.5,
       height: 2,
       maxAcceleration: 4.0,
       maxSpeed: 1.0,
-      collisionQueryRange: 0.1,
+      collisionQueryRange: 0.5,
       pathOptimizationRange: 0.0,
       separationWeight: 0
     });
+    console.log(
+      `[NAV-DEBUG] createAgent: agentIdx=${agent.agentIndex} navPos=[${spawnPoint.x.toFixed(2)}, ${spawnPoint.y.toFixed(2)}, ${spawnPoint.z.toFixed(2)}]`
+    );
     return agent;
-  }
-  testNavMesh(a: Float32Array, b: Float32Array): Float32Array[] {
-    console.time("calculating path");
-
-    const start = NavManager.Float32ToVec3(a);
-    const end = NavManager.Float32ToVec3(b);
-    const { success, error, path } = this.navMeshQuery.computePath(start, end);
-    console.log(success);
-    console.log(error);
-    console.log(path);
-    console.timeEnd("calculating path");
-    const pathNodes: Float32Array[] = [];
-    if (path) {
-      path.forEach((v) => {
-        pathNodes.push(new Float32Array([v.x, v.y, v.z]));
-      });
-    }
-    return pathNodes;
   }
 }

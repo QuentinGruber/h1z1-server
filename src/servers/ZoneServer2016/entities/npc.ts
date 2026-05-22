@@ -648,11 +648,17 @@ export class Npc extends BaseFullCharacter {
     );
   }
   goTo(position: Float32Array) {
-    const angleInRadians2 = Math.random() * (2 * Math.PI) - Math.PI;
     const angleInRadians = Math.atan2(
       position[1] - this.state.position[1],
       getDistance(this.state.position, position)
     );
+    const dx = position[0] - this.state.position[0];
+    const dz = position[2] - this.state.position[2];
+    const dy = position[1] - this.state.position[1];
+
+    const orientation = Math.atan2(dx, dz); // Note: X/Z swapped for North=0 convention
+    const horizontalDist = Math.sqrt(dx * dx + dz * dz);
+    const frontTilt = Math.atan2(dy, horizontalDist);
     this.state.position = position;
     this.server.sendDataToAll("PlayerUpdatePosition", {
       transientId: this.transientId,
@@ -662,8 +668,8 @@ export class Npc extends BaseFullCharacter {
         unknown3_int8: 0,
         stance: 66565,
         engineRPM: 0,
-        orientation: angleInRadians2,
-        frontTilt: 0,
+        orientation: orientation,
+        frontTilt: frontTilt,
         sideTilt: 0,
         angleChange: 0,
         verticalSpeed: angleInRadians,

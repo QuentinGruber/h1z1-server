@@ -729,39 +729,42 @@ const dev: any = {
     // spawn a zombie
     const characterId = server.generateGuid();
     const transient = server.getTransientId(characterId);
+    const spawnPos = client.character.state.position;
+
     const zombie = new Npc(
       characterId,
       transient,
       9510,
-      client.character.state.position,
+      spawnPos,
       client.character.state.rotation,
       server
     );
 
     server._npcs[characterId] = zombie;
-    // server.aiManager.add_entity(zombie, zombie.entityType);
+    console.log(
+      `[ZOMBIE-DEBUG] Creating nav agent at zombie state.position: [${zombie.state.position[0].toFixed(2)}, ${zombie.state.position[1].toFixed(2)}, ${zombie.state.position[2].toFixed(2)}]`
+    );
     const a = server.navManager.createAgent(zombie.state.position);
     zombie.navAgent = a;
+    // Sync zombie to its navmesh spawn point converted back to game coords
+    const initialGamePos = NavManager.navToGame(a.position());
+    zombie.state.position = initialGamePos;
+    console.log(
+      `[ZOMBIE-DEBUG] Nav agent created, navPos=[${a.position().x.toFixed(2)}, ${a.position().y.toFixed(2)}, ${a.position().z.toFixed(2)}] gamePos=[${initialGamePos[0].toFixed(2)}, ${initialGamePos[1].toFixed(2)}, ${initialGamePos[2].toFixed(2)}]`
+    );
 
-    await scheduler.wait(3000);
-    let retries = 0;
+    await scheduler.wait(1000);
     const interval = setInterval(() => {
-      retries++;
-      if (retries > 10) {
-        clearInterval(interval);
-      }
-
       server.navManager.updt();
       if (zombie.navAgent) {
-        zombie.navAgent.requestMoveTarget(
-          server.navManager.getClosestNavPoint(client.character.state.position)
-        );
-        console.log(zombie.navAgent.interpolatedPosition);
-        zombie.goTo(
-          NavManager.Vec3ToFloat32(zombie.navAgent.interpolatedPosition)
-        );
+        const playerPos = client.character.state.position;
+        const targetNavPoint = server.navManager.getClosestNavPoint(playerPos);
+        zombie.navAgent.requestMoveTarget(targetNavPoint);
+        const navPos = zombie.navAgent.interpolatedPosition;
+        const gamePos = NavManager.navToGame(navPos);
+        zombie.goTo(gamePos);
       }
-    }, 500);
+    }, 100);
   },
   abilities: function (
     server: ZoneServer2016,
