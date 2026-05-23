@@ -22,6 +22,7 @@ import {
 import { NavMeshQuery } from "recast-navigation";
 import { importNavMesh } from "recast-navigation";
 import { Crowd } from "recast-navigation";
+const debug = require("debug")("nav");
 
 export class NavManager {
   navmesh!: NavMesh;
@@ -74,16 +75,16 @@ export class NavManager {
     const n = this.navMeshQuery.findNearestPoly(navInput, {
       halfExtents: { x: 10, y: 10, z: 10 }
     });
-    console.log(
-      `[NAV-DEBUG] getClosestNavPoint gameIn=[${gamePos[0].toFixed(2)}, ${gamePos[1].toFixed(2)}, ${gamePos[2].toFixed(2)}] navOut=[${n.nearestPoint.x.toFixed(2)}, ${n.nearestPoint.y.toFixed(2)}, ${n.nearestPoint.z.toFixed(2)}] polyRef=${n.nearestRef}`
+    debug(
+      `getClosestNavPoint gameIn=[${gamePos[0].toFixed(2)}, ${gamePos[1].toFixed(2)}, ${gamePos[2].toFixed(2)}] navOut=[${n.nearestPoint.x.toFixed(2)}, ${n.nearestPoint.y.toFixed(2)}, ${n.nearestPoint.z.toFixed(2)}] polyRef=${n.nearestRef}`
     );
     return n.nearestPoint;
   }
 
   createAgent(gamePos: Float32Array): CrowdAgent {
     const navPosition = this.getClosestNavPoint(gamePos);
-    console.log(
-      `[NAV-DEBUG] createAgent: navPos=[${navPosition.x.toFixed(2)}, ${navPosition.y.toFixed(2)}, ${navPosition.z.toFixed(2)}]`
+    debug(
+      `createAgent: navPos=[${navPosition.x.toFixed(2)}, ${navPosition.y.toFixed(2)}, ${navPosition.z.toFixed(2)}]`
     );
 
     const {
@@ -93,8 +94,8 @@ export class NavManager {
     } = this.navMeshQuery.findRandomPointAroundCircle(navPosition, 0.5);
 
     if (!success) {
-      console.log(
-        `[NAV-DEBUG] createAgent: findRandomPointAroundCircle failed (${statusToReadableString(status)}), using navPosition directly`
+      debug(
+        `createAgent: findRandomPointAroundCircle failed (${statusToReadableString(status)}), using navPosition directly`
       );
     }
 
@@ -108,8 +109,8 @@ export class NavManager {
       pathOptimizationRange: 0.0,
       separationWeight: 0
     });
-    console.log(
-      `[NAV-DEBUG] createAgent: agentIdx=${agent.agentIndex} navPos=[${spawnPoint.x.toFixed(2)}, ${spawnPoint.y.toFixed(2)}, ${spawnPoint.z.toFixed(2)}]`
+    debug(
+      `createAgent: agentIdx=${agent.agentIndex} navPos=[${spawnPoint.x.toFixed(2)}, ${spawnPoint.y.toFixed(2)}, ${spawnPoint.z.toFixed(2)}]`
     );
     return agent;
   }
