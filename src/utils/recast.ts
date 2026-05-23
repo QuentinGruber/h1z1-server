@@ -47,10 +47,10 @@ export class NavManager {
   }
 
   static gameToNav(f: Float32Array): Vector3 {
-    return { x: f[0] / 2, y: f[1] / 2, z: f[2] / 2 };
+    return { x: f[0], y: f[1], z: f[2] };
   }
   static navToGame(v: Vector3): Float32Array {
-    return new Float32Array([v.x * 2, v.y * 2, v.z * 2, 0]);
+    return new Float32Array([v.x, v.y, v.z, 0]);
   }
 
   // Legacy helpers.
