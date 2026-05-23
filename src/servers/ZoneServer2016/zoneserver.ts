@@ -530,6 +530,7 @@ export class ZoneServer2016 extends EventEmitter {
   maxPacketLoss: number = 5;
   //tasksManager: TaskManager;
   //clientRoutineRate!: number;
+  pathfindingRoutine: NodeJS.Timeout;
 
   constructor(
     serverPort: number,
@@ -783,6 +784,11 @@ export class ZoneServer2016 extends EventEmitter {
       v.characterId = this.generateGuid();
       v.transientId = this.getTransientId(v.characterId);
     }
+
+    this.pathfindingRoutine = setInterval(
+      () => this.updatePathfindingPositions(),
+      100
+    );
   }
 
   /*get gameLoopUpdateRate() {
@@ -9913,6 +9919,18 @@ export class ZoneServer2016 extends EventEmitter {
     });
 
     return isInPoi;
+  }
+
+  updatePathfindingPositions() {
+    this.navManager.updt();
+    for (const k in this._npcs) {
+      const npc = this._npcs[k];
+      if (npc.navAgent) {
+        const navPos = npc.navAgent.interpolatedPosition;
+        const gamePos = NavManager.navToGame(navPos);
+        npc.goTo(gamePos);
+      }
+    }
   }
 }
 

@@ -721,6 +721,20 @@ const dev: any = {
   ai: function (server: ZoneServer2016, client: Client, args: Array<string>) {
     server.sendChatText(client, server.aiManager.getEntitiesStats());
   },
+  zombie_test: async function (
+    server: ZoneServer2016,
+    client: Client,
+    args: Array<string>
+  ) {
+    for (const k in server._npcs) {
+      const npc = server._npcs[k];
+      if (npc.navAgent) {
+        const playerPos = client.character.state.position;
+        const targetNavPoint = server.navManager.getClosestNavPoint(playerPos);
+        npc.navAgent.requestMoveTarget(targetNavPoint);
+      }
+    }
+  },
   zombie: async function (
     server: ZoneServer2016,
     client: Client,
