@@ -113,6 +113,7 @@ export class AiManager {
       for (const cell of cells) {
         for (const obj of cell.objects) {
           if (!(obj instanceof ExplosiveEntity)) continue;
+          if (!obj.isArmed) continue;
           if (
             isPosInRadiusWithY(
               EXPLOSIVE_TRIGGER_RADIUS,

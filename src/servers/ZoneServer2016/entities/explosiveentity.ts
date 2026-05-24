@@ -42,6 +42,8 @@ export class ExplosiveEntity extends BaseLightweightCharacter {
 
   isAwaitingExplosion: boolean = false;
 
+  isArmed: boolean = false;
+
   constructor(
     characterId: string,
     transientId: number,
@@ -109,6 +111,7 @@ export class ExplosiveEntity extends BaseLightweightCharacter {
   async arm(server: ZoneServer2016) {
     // Wait 10 seconds before activating the trap
     await scheduler.wait(10_000);
+    this.isArmed = true;
     server.aiManager.addEntity(this);
   }
 
