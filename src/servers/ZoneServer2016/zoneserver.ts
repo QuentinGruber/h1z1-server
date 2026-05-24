@@ -530,7 +530,7 @@ export class ZoneServer2016 extends EventEmitter {
   maxPacketLoss: number = 5;
   //tasksManager: TaskManager;
   //clientRoutineRate!: number;
-  pathfindingRoutine: NodeJS.Timeout;
+  pathfindingRoutine!: NodeJS.Timeout;
 
   constructor(
     serverPort: number,
@@ -784,11 +784,6 @@ export class ZoneServer2016 extends EventEmitter {
       v.characterId = this.generateGuid();
       v.transientId = this.getTransientId(v.characterId);
     }
-
-    this.pathfindingRoutine = setInterval(
-      () => this.updatePathfindingPositions(),
-      100
-    );
   }
 
   /*get gameLoopUpdateRate() {
@@ -1936,6 +1931,10 @@ export class ZoneServer2016 extends EventEmitter {
 
   private async setupServer() {
     await this.navManager.loadNav();
+    this.pathfindingRoutine = setInterval(
+      () => this.updatePathfindingPositions(),
+      100
+    );
     this.weatherManager.init();
     this.playTimeManager.init(this);
     this.initModelsDataSource();
