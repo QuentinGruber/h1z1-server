@@ -1933,7 +1933,7 @@ export class ZoneServer2016 extends EventEmitter {
     await this.navManager.loadNav();
     this.pathfindingRoutine = setInterval(
       () => this.updatePathfindingPositions(),
-      100
+      this.navManager.updateFrequency * 1000
     );
     this.weatherManager.init();
     this.playTimeManager.init(this);

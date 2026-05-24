@@ -29,6 +29,7 @@ export class NavManager {
   crowd!: Crowd;
   navMeshQuery!: NavMeshQuery;
   lastTimeCall: number = Date.now();
+  updateFrequency = 1 / 5;
   constructor() {}
   async loadNav() {
     console.time("[NAV] Navmesh loaded");
@@ -65,7 +66,7 @@ export class NavManager {
     const now = Date.now();
     const timeSinceLastCalled = (now - this.lastTimeCall) / 1000;
     this.lastTimeCall = now;
-    this.crowd.update(1 / 60, timeSinceLastCalled, 30);
+    this.crowd.update(this.updateFrequency, timeSinceLastCalled, 30);
   }
 
   // Returns nearest navmesh point (in nav coords) to the given game position.

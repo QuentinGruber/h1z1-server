@@ -649,10 +649,6 @@ export class Npc extends BaseFullCharacter {
     );
   }
   goTo(position: Float32Array) {
-    const angleInRadians = Math.atan2(
-      position[1] - this.state.position[1],
-      getDistance(this.state.position, position)
-    );
     const dx = position[0] - this.state.position[0];
     const dz = position[2] - this.state.position[2];
     const dy = position[1] - this.state.position[1];
@@ -661,21 +657,27 @@ export class Npc extends BaseFullCharacter {
     const horizontalDist = Math.sqrt(dx * dx + dz * dz);
     const frontTilt = Math.atan2(dy, horizontalDist);
     this.state.position = position;
-    this.server.sendDataToAll("PlayerUpdatePosition", {
-      transientId: this.transientId,
-      positionUpdate: {
-        sequenceTime: getCurrentServerTimeWrapper().getTruncatedU32(),
-        position: this.state.position,
-        unknown3_int8: 0,
-        stance: 66565,
-        engineRPM: 0,
-        orientation: orientation,
-        frontTilt: frontTilt,
-        sideTilt: 0,
-        angleChange: 0,
-        verticalSpeed: angleInRadians,
-        horizontalSpeed: 0.5
+
+    this.server.sendDataToAllWithSpawnedEntity(
+      this.server._npcs,
+      this.characterId,
+      "PlayerUpdatePosition",
+      {
+        transientId: this.transientId,
+        positionUpdate: {
+          sequenceTime: getCurrentServerTimeWrapper().getTruncatedU32(),
+          position: this.state.position,
+          unknown3_int8: 0,
+          stance: 66565,
+          engineRPM: 0,
+          orientation: orientation,
+          frontTilt: frontTilt,
+          sideTilt: 0,
+          angleChange: 0,
+          verticalSpeed: Math.abs(dy),
+          horizontalSpeed: horizontalDist
+        }
       }
-    });
+    );
   }
 }
