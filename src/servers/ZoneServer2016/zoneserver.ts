@@ -9274,6 +9274,19 @@ export class ZoneServer2016 extends EventEmitter {
     }
   }
 
+  detectSnaking(
+    server: ZoneServer2016,
+    client: Client,
+    stanceFlags: StanceFlags
+  ) {
+    if (stanceFlags.SITTING) {
+      server.multiplyMovementModifier(client, 0.2);
+      setTimeout(() => {
+        server.divideMovementModifier(client, 0.2);
+      }, 2000);
+    }
+  }
+
   //#endregion
 
   async reloadZonePacketHandlers() {
