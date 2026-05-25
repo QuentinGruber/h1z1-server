@@ -10,18 +10,27 @@
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
 
+import { scheduler } from "timers/promises";
 import { ZoneServer2016 } from "../zoneserver";
 import { Items, ResourceIds, ResourceTypes } from "../models/enums";
 import { LootableConstructionEntity } from "../entities/lootableconstructionentity";
 import { ConstructionDoor } from "../entities/constructiondoor";
 import { ConstructionChildEntity } from "../entities/constructionchildentity";
 import { getDistance } from "../../../utils/utils";
+import { Vehicle2016 as Vehicle } from "../entities/vehicle";
 import { ConstructionParentEntity } from "../entities/constructionparententity";
-import { Vehicle2016 } from "../entities/vehicle";
 import { dailyRepairMaterial } from "types/zoneserver";
 import { BaseItem } from "../classes/baseItem";
+import {
+  ConstructionDecayWorker,
+  EntityDecaySnapshot
+} from "./constructiondecayworker";
 
 export class DecayManager {
+  /** MANAGED BY CONFIGMANAGER — offloads decay damage computation to a worker thread */
+  useDecayWorker: boolean = true;
+  private _decayWorker?: ConstructionDecayWorker;
+
   /** Used for tracking the tick amount needed before decay damage occurs on the construction */
   constructionDamageTickCount = 0;
 
@@ -47,10 +56,18 @@ export class DecayManager {
 
   public clearTimers() {
     if (this.runTimer) clearTimeout(this.runTimer);
+    this._decayWorker?.stop();
   }
 
-  public run(server: ZoneServer2016) {
-    this.contructionExpirationCheck(server);
+  private getOrCreateWorker(): ConstructionDecayWorker {
+    if (!this._decayWorker) {
+      this._decayWorker = new ConstructionDecayWorker();
+    }
+    return this._decayWorker;
+  }
+
+  public async run(server: ZoneServer2016) {
+    await this.contructionExpirationCheck(server);
     if (this.constructionDamageTickCount >= this.constructionDamageTicks) {
       this.contructionDecayDamage(server);
       this.constructionDamageTickCount = -1;
@@ -64,14 +81,17 @@ export class DecayManager {
     this.vehicleDamageTickCount++;
 
     this.runTimer = setTimeout(() => {
-      this.run(server);
+      void this.run(server);
     }, this.decayTickInterval);
   }
 
-  private contructionExpirationCheck(server: ZoneServer2016) {
+  private async contructionExpirationCheck(server: ZoneServer2016) {
     let destroyedGriefFoundations = 0;
+    let i = 0;
     for (const a in server._constructionFoundations) {
+      if (++i % 100 === 0) await scheduler.yield();
       const foundation = server._constructionFoundations[a];
+      if (!foundation) continue;
       if (
         foundation.itemDefinitionId == Items.FOUNDATION ||
         foundation.itemDefinitionId == Items.GROUND_TAMPER
@@ -235,11 +255,22 @@ export class DecayManager {
   }
 
   contructionDecayDamage(server: ZoneServer2016) {
+    // Run repair boxes first (needs live server refs, stays on main thread)
+    for (const a in server._constructionFoundations) {
+      this.useRepairBox(server, server._constructionFoundations[a]);
+    }
+
+    if (this.useDecayWorker) {
+      this._contructionDecayDamageWorker(server);
+    } else {
+      this._contructionDecayDamageSync(server);
+    }
+  }
+
+  /** Synchronous fallback — original logic */
+  private _contructionDecayDamageSync(server: ZoneServer2016) {
     for (const a in server._constructionFoundations) {
       const foundation = server._constructionFoundations[a];
-
-      this.useRepairBox(server, foundation);
-
       if (
         foundation.itemDefinitionId != Items.FOUNDATION &&
         foundation.itemDefinitionId != Items.GROUND_TAMPER &&
@@ -248,7 +279,6 @@ export class DecayManager {
         this.decayDamage(server, foundation);
       }
     }
-
     for (const a in server._worldLootableConstruction) {
       this.decayDamage(
         server,
@@ -271,45 +301,137 @@ export class DecayManager {
       ) {
         continue;
       }
-      this.decayDamage(server, server._constructionSimple[a]);
+      this.decayDamage(server, simple);
     }
     for (const a in server._lootableConstruction) {
       this.decayDamage(server, server._lootableConstruction[a]);
     }
     for (const a in server._constructionDoors) {
-      const door = server._constructionDoors[a];
-      this.decayDamage(server, door);
+      this.decayDamage(server, server._constructionDoors[a]);
     }
   }
 
-  private getCloseVehicles(server: ZoneServer2016, vehicle: Vehicle2016) {
-    const vehicles: Array<string> = [];
-    for (const characterId in server._vehicles) {
-      const v = server._vehicles[characterId];
-      if (!vehicle) continue;
-      if (
-        getDistance(vehicle.state.position, v.state.position) <=
-        this.vehicleDamageRange
-      ) {
-        vehicles.push(v.characterId);
-      }
+  /** Worker-based path — serializes snapshots, applies action list on main thread */
+  private _contructionDecayDamageWorker(server: ZoneServer2016) {
+    const toSnapshot = (
+      entity:
+        | LootableConstructionEntity
+        | ConstructionDoor
+        | ConstructionChildEntity
+        | ConstructionParentEntity,
+      skipDecay: boolean
+    ): EntityDecaySnapshot => ({
+      characterId: entity.characterId,
+      isDecayProtected: entity.isDecayProtected,
+      maxHealth: entity.maxHealth,
+      skipDecay
+    });
+
+    const foundations: EntityDecaySnapshot[] = [];
+    for (const a in server._constructionFoundations) {
+      const f = server._constructionFoundations[a];
+      const skip =
+        f.itemDefinitionId === Items.FOUNDATION ||
+        f.itemDefinitionId === Items.GROUND_TAMPER ||
+        f.itemDefinitionId === Items.FOUNDATION_EXPANSION;
+      foundations.push(toSnapshot(f, skip));
     }
-    return vehicles;
+
+    const worldLootable = Object.values(server._worldLootableConstruction).map(
+      (e) => toSnapshot(e, false)
+    );
+    const worldSimple = Object.values(server._worldSimpleConstruction).map(
+      (e) => toSnapshot(e, false)
+    );
+    const constructionSimple: EntityDecaySnapshot[] = [];
+    for (const a in server._constructionSimple) {
+      const s = server._constructionSimple[a];
+      const skip =
+        s.itemDefinitionId === Items.FOUNDATION_RAMP ||
+        s.itemDefinitionId === Items.FOUNDATION_STAIRS;
+      constructionSimple.push(toSnapshot(s, skip));
+    }
+    const lootableConstruction = Object.values(
+      server._lootableConstruction
+    ).map((e) => toSnapshot(e, false));
+    const constructionDoors = Object.values(server._constructionDoors).map(
+      (e) => toSnapshot(e, false)
+    );
+
+    this.getOrCreateWorker()
+      .computeDecayDamage({
+        ticksToFullDecay: this.ticksToFullDecay,
+        worldFreeplaceDecayMultiplier: this.worldFreeplaceDecayMultiplier,
+        foundations,
+        worldLootable,
+        worldSimple,
+        constructionSimple,
+        lootableConstruction,
+        constructionDoors
+      })
+      .then(({ entitiesToDamage, decayProtectedResets }) => {
+        // Reset isDecayProtected flags
+        for (const charId of decayProtectedResets) {
+          const entity = server.getConstructionEntity(charId);
+          if (entity) entity.isDecayProtected = false;
+        }
+        // Apply damage
+        for (const { characterId, damage } of entitiesToDamage) {
+          const entity = server.getConstructionEntity(characterId);
+          if (!entity) continue;
+          entity.damage(server, { entity: "Server.DecayManager", damage });
+        }
+      })
+      .catch((err) => {
+        console.error("Construction decay worker error:", err);
+      });
   }
 
   public vehicleDecayDamage(server: ZoneServer2016) {
-    for (const characterId in server._vehicles) {
-      const vehicle = server._vehicles[characterId];
-      if (!vehicle) continue;
-      const closeVehicles = this.getCloseVehicles(server, vehicle);
-      let damage = this.baseVehicleDamage;
-      if (closeVehicles.length > this.maxVehiclesPerArea) {
-        damage *= closeVehicles.length - this.maxVehiclesPerArea + 1;
+    const vehicleEntries = Object.values(server._vehicles);
+    const n = vehicleEntries.length;
+    if (n === 0) return;
+
+    // Build a spatial hash to avoid comparing every entity against every other one.
+    // Each cell is sized to twice the damage range, so checking the surrounding
+    // 3×3 cells is enough to find all nearby candidates.
+    const cellSize = this.vehicleDamageRange * 2 || 100;
+    const spatialHash = new Map<string, Vehicle[]>();
+    for (const v of vehicleEntries) {
+      const pos = v.state.position;
+      const key = `${Math.floor(pos[0] / cellSize)},${Math.floor(pos[2] / cellSize)}`;
+      let bucket = spatialHash.get(key);
+      if (!bucket) {
+        bucket = [];
+        spatialHash.set(key, bucket);
       }
-      vehicle.damage(server, {
-        entity: "Server.DecayManager",
-        damage: damage
-      });
+      bucket.push(v);
+    }
+
+    for (const vehicle of vehicleEntries) {
+      const pos = vehicle.state.position;
+      const cx = Math.floor(pos[0] / cellSize);
+      const cz = Math.floor(pos[2] / cellSize);
+      let neighbors = 0;
+      for (let dx = -1; dx <= 1; dx++) {
+        for (let dz = -1; dz <= 1; dz++) {
+          const bucket = spatialHash.get(`${cx + dx},${cz + dz}`);
+          if (!bucket) continue;
+          for (const other of bucket) {
+            if (other === vehicle) continue;
+            if (
+              getDistance(pos, other.state.position) <= this.vehicleDamageRange
+            )
+              neighbors++;
+          }
+        }
+      }
+
+      let damage = this.baseVehicleDamage;
+      if (neighbors >= this.maxVehiclesPerArea)
+        damage *= neighbors - this.maxVehiclesPerArea + 1;
+
+      vehicle.damage(server, { entity: "Server.DecayManager", damage });
       server.updateResourceToAllWithSpawnedEntity(
         vehicle.characterId,
         vehicle._resources[ResourceIds.CONDITION],

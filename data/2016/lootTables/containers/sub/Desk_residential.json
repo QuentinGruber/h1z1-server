@@ -1,0 +1,17 @@
+{
+  "type": "container",
+  "pools": [
+    {
+      "conditions": [],
+      "rolls": { "min": 0, "max": 1 },
+      "entries": [
+        { "item": 2273, "weight": 10 },
+        { "item": 1696, "weight": 20 },
+        { "item": 2170, "weight": 8 },
+        { "item": 57, "weight": 8 },
+        { "item": 56, "weight": 15 },
+        { "type": "empty", "weight": 42 }
+      ]
+    }
+  ]
+}

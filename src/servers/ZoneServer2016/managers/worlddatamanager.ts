@@ -208,13 +208,16 @@ export class WorldDataManager {
   }
 
   async fetchWorldData(): Promise<FetchedWorldData> {
-    const vehicles = (await this.loadVehiclesData()) as FullVehicleSaveData[];
-    const constructionParents =
-      (await this.loadConstructionData()) as ConstructionParentSaveData[];
-    const freeplace =
-      (await this.loadWorldFreeplaceConstruction()) as LootableConstructionSaveData[];
-    const crops = (await this.loadCropData()) as PlantingDiameterSaveData[];
-    const traps = (await this.loadTrapData()) as TrapSaveData[];
+    const [vehicles, constructionParents, freeplace, crops, traps] =
+      await Promise.all([
+        this.loadVehiclesData() as Promise<FullVehicleSaveData[]>,
+        this.loadConstructionData() as Promise<ConstructionParentSaveData[]>,
+        this.loadWorldFreeplaceConstruction() as Promise<
+          LootableConstructionSaveData[]
+        >,
+        this.loadCropData() as Promise<PlantingDiameterSaveData[]>,
+        this.loadTrapData() as Promise<TrapSaveData[]>
+      ]);
     debug("World fetched!");
     return {
       constructionParents,
@@ -227,7 +230,7 @@ export class WorldDataManager {
   }
   async deleteServerData() {
     if (this._soloMode) {
-      fs.writeFileSync(
+      await fs.promises.writeFile(
         `${this._appDataFolder}/worlddata/world.json`,
         JSON.stringify({}, null, 2)
       );
@@ -240,7 +243,7 @@ export class WorldDataManager {
 
   async deleteCharacters() {
     if (this._soloMode) {
-      fs.writeFileSync(
+      await fs.promises.writeFile(
         `${this._appDataFolder}/single_player_characters2016.json`,
         JSON.stringify([], null, 2)
       );
@@ -255,27 +258,28 @@ export class WorldDataManager {
   }
 
   async deleteWorld() {
-    await this.deleteServerData();
-    await this.deleteCharacters();
+    await Promise.all([this.deleteServerData(), this.deleteCharacters()]);
     debug("World deleted!");
   }
 
   async saveWorld(world: WorldArg) {
     console.time("WDM: saveWorld");
-    await this.saveVehicles(
-      world.vehicles.filter(
-        (vehicle) =>
-          ![VehicleIds.SPECTATE, VehicleIds.PARACHUTE].includes(
-            vehicle.vehicleId
-          )
-      )
-    );
-    await this.saveServerData(world.lastGuidItem);
-    await this.saveCharacters(world.characters);
-    await this.saveConstructionData(world.constructions);
-    await this.saveWorldFreeplaceConstruction(world.worldConstructions);
-    await this.saveCropData(world.crops);
-    await this.saveTrapData(world.traps);
+    await Promise.all([
+      this.saveVehicles(
+        world.vehicles.filter(
+          (vehicle) =>
+            ![VehicleIds.SPECTATE, VehicleIds.PARACHUTE].includes(
+              vehicle.vehicleId
+            )
+        )
+      ),
+      this.saveServerData(world.lastGuidItem),
+      this.saveCharacters(world.characters),
+      this.saveConstructionData(world.constructions),
+      this.saveWorldFreeplaceConstruction(world.worldConstructions),
+      this.saveCropData(world.crops),
+      this.saveTrapData(world.traps)
+    ]);
     console.timeEnd("WDM: saveWorld");
   }
 
@@ -415,7 +419,7 @@ export class WorldDataManager {
       worldSaveVersion: this.worldSaveVersion
     };
     if (this._soloMode) {
-      fs.writeFileSync(
+      await fs.promises.writeFile(
         `${this._appDataFolder}/worlddata/world.json`,
         JSON.stringify(saveData, null, 2)
       );
@@ -575,7 +579,7 @@ export class WorldDataManager {
         ...singlePlayerCharacter,
         ...characterSaveData
       };
-      fs.writeFileSync(
+      await fs.promises.writeFile(
         `${this._appDataFolder}/single_player_characters2016.json`,
         JSON.stringify([singlePlayerCharacter], null, 2)
       );
@@ -763,15 +767,30 @@ export class WorldDataManager {
       } else {
         wall = this.loadConstructionDoorEntity(server, wallData);
       }
-      parent.setWallSlot(server, wall);
+      if (!parent.setWallSlot(server, wall)) {
+        console.error(
+          `[WDM] Wall slot registration failed for ${wall.characterId} (item ${wall.itemDefinitionId}, slot "${wall.slot}") on parent ${parent.characterId} — falling back to freeplace`
+        );
+        parent.addFreeplaceConstruction(wall);
+      }
     });
     Object.values(entityData.occupiedUpperWallSlots).forEach((wallData) => {
       const wall = this.loadConstructionChildEntity(server, wallData);
-      parent.setWallSlot(server, wall);
+      if (!parent.setWallSlot(server, wall)) {
+        console.error(
+          `[WDM] Upper wall slot registration failed for ${wall.characterId} (item ${wall.itemDefinitionId}, slot "${wall.slot}") on parent ${parent.characterId} — falling back to freeplace`
+        );
+        parent.addFreeplaceConstruction(wall);
+      }
     });
     Object.values(entityData.occupiedShelterSlots).forEach((shelterData) => {
       const shelter = this.loadConstructionChildEntity(server, shelterData);
-      parent.setShelterSlot(server, shelter);
+      if (!parent.setShelterSlot(server, shelter)) {
+        console.error(
+          `[WDM] Shelter slot registration failed for ${shelter.characterId} (item ${shelter.itemDefinitionId}, slot "${shelter.slot}") on parent ${parent.characterId} — falling back to freeplace`
+        );
+        parent.addFreeplaceConstruction(shelter);
+      }
     });
     Object.values(entityData.freeplaceEntities).forEach((freeplaceData) => {
       let freeplace:
@@ -847,7 +866,18 @@ export class WorldDataManager {
           server,
           expansionData
         );
-        foundation.setExpansionSlot(expansion);
+        if (!foundation.setExpansionSlot(expansion)) {
+          const slotNum = expansion.getSlotNumber();
+          console.error(
+            `[WDM] Failed to register expansion slot "${expansion.slot}" (${expansion.characterId}) onto foundation ${foundation.characterId} — slot data may be corrupted`
+          );
+          if (slotNum > 0) {
+            foundation.occupiedExpansionSlots[slotNum] = expansion;
+            console.error(
+              `[WDM] Force-inserted expansion at slot ${slotNum} to prevent data loss`
+            );
+          }
+        }
       }
     );
 
@@ -904,7 +934,14 @@ export class WorldDataManager {
     server: ZoneServer2016
   ) {
     constructionParents.forEach((parent) => {
-      WorldDataManager.loadConstructionParentEntity(server, parent);
+      try {
+        WorldDataManager.loadConstructionParentEntity(server, parent);
+      } catch (e) {
+        console.error(
+          `[WDM] Failed to load construction parent entity ${parent.characterId} (item ${parent.itemDefinitionId}) — skipping to avoid blocking remaining entities`,
+          e
+        );
+      }
     });
   }
 
@@ -1038,7 +1075,7 @@ export class WorldDataManager {
     if (!constructions.length) return;
 
     if (this._soloMode) {
-      fs.writeFileSync(
+      await fs.promises.writeFile(
         `${this._appDataFolder}/worlddata/construction.json`,
         JSON.stringify(constructions, null, 2)
       );
@@ -1102,7 +1139,7 @@ export class WorldDataManager {
 
   async saveCropData(crops: PlantingDiameterSaveData[]) {
     if (this._soloMode) {
-      fs.writeFileSync(
+      await fs.promises.writeFile(
         `${this._appDataFolder}/worlddata/crops.json`,
         JSON.stringify(crops, null, 2)
       );
@@ -1232,7 +1269,7 @@ export class WorldDataManager {
 
   async saveVehicles(vehicles: FullVehicleSaveData[]) {
     if (this._soloMode) {
-      fs.writeFileSync(
+      await fs.promises.writeFile(
         `${this._appDataFolder}/worlddata/vehicles.json`,
         JSON.stringify(vehicles, null, 2)
       );
@@ -1264,7 +1301,7 @@ export class WorldDataManager {
     freeplaces: LootableConstructionSaveData[]
   ) {
     if (this._soloMode) {
-      fs.writeFileSync(
+      await fs.promises.writeFile(
         `${this._appDataFolder}/worlddata/worldconstruction.json`,
         JSON.stringify(freeplaces, null, 2)
       );
@@ -1330,7 +1367,7 @@ export class WorldDataManager {
 
   async saveTrapData(traps: TrapSaveData[]) {
     if (this._soloMode) {
-      fs.writeFileSync(
+      await fs.promises.writeFile(
         `${this._appDataFolder}/worlddata/traps.json`,
         JSON.stringify(traps, null, 2)
       );

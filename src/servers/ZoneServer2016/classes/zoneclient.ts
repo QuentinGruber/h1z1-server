@@ -19,6 +19,7 @@ import { ZoneServer2016 } from "../zoneserver";
 import { BaseEntity } from "../entities/baseentity";
 import { FireHint } from "../../../types/zoneserver";
 import { Lootbag } from "../entities/lootbag";
+import { TrackedEntitySet } from "./trackedentityset";
 //import { h1z1PacketsType2016 } from "../../../types/packets";
 //import { zone2016packets } from "../../../types/zone2016packets";
 
@@ -38,6 +39,8 @@ export class ZoneClient2016 {
   banType: string = "";
   HWID: string = "";
   posAtLastRoutine: Float32Array = new Float32Array();
+  posAtLastPermissionCheck: Float32Array = new Float32Array();
+  lastRoutineTime: number = 0;
   posAtTimerStart: Float32Array = new Float32Array();
   oldPos: { position: Float32Array; time: number } = {
     position: new Float32Array(),
@@ -86,13 +89,17 @@ export class ZoneClient2016 {
   lastMovementImpared: number = 0;
   avgPingReady: boolean = false;
   chunkRenderDistance: number = 400;
-  routineCounter: number = 0;
   zonePings: number[] = [];
   properlyLogout: boolean = false;
   permissionLevel: number = 0;
   fireHints: { [id: number]: FireHint } = {};
   isInAir: boolean = false;
   startLoc: number = 0;
+  fairPlayFoundationCheckResult: boolean = false;
+  fairPlayFoundationCheckTime: number = 0;
+  subscribedCells: Set<import("./gridcell").GridCell> = new Set();
+  posAtLastCellUpdate: Float32Array = new Float32Array([0, 0, 0, 1]);
+  lastKnownChunkRenderDistance: number = 400;
   startingPos?: Float32Array;
   firstReleased: boolean = true;
   /*(lightWeightNpcQueue: {
@@ -107,11 +114,15 @@ export class ZoneClient2016 {
   isInVoiceChat: boolean = false;
   voiceChatTimer?: NodeJS.Timeout;
   heartBeatTimer?: NodeJS.Timeout;
+  pingTimer?: NodeJS.Timeout;
+  fairPlayTimer?: NodeJS.Timeout;
   afkTimer?: NodeJS.Timeout;
   movementSet: Set<number> = new Set();
   static minMovementForAfk: number = 20;
   static afkTime: number = 10 * 60_000;
   gotAfkWarning: boolean = false;
+  heavyPacketCount: number = 0;
+  heavyPacketWindowStart: number = 0;
   constructor(
     sessionId: number,
     soeClientId: string,
@@ -124,7 +135,10 @@ export class ZoneClient2016 {
     this.soeClientId = soeClientId;
 
     this.loginSessionId = loginSessionId;
-    this.spawnedEntities = new Set();
+    this.spawnedEntities = new TrackedEntitySet<Client>(
+      server._entityObservers,
+      this
+    );
     this.managedObjects = [];
     this.clearTimers = () => {
       clearTimeout(this.npcsToSpawnTimer);

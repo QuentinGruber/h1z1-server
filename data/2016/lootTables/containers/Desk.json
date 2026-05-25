@@ -1,0 +1,40 @@
+{
+  "type": "container",
+  "pools": [
+    {
+      "conditions": [],
+      "rolls": { "min": 0, "max": 2 },
+      "entries": [
+        { "item": 23, "weight": 30, "count": { "min": 1, "max": 2 } },
+        { "item": 1441, "weight": 5 },
+        { "item": 3460, "weight": 3 },
+        { "type": "loot_table", "table": "sub/Desk_common", "weight": 40 },
+        { "type": "empty", "weight": 20 }
+      ]
+    },
+    {
+      "conditions": [{ "condition": "poi_tag", "tags": ["residential"] }],
+      "rolls": { "min": 0, "max": 1 },
+      "entries": [
+        { "type": "loot_table", "table": "sub/Desk_residential", "weight": 70 },
+        { "type": "empty", "weight": 30 }
+      ]
+    },
+    {
+      "conditions": [{ "condition": "poi_names", "poi_names": ["De Soto Service Stop"] }],
+      "rolls": { "min": 0, "max": 1 },
+      "entries": [
+        { "type": "loot_table", "table": "sub/Desk_desoto", "weight": 75 },
+        { "type": "empty", "weight": 25 }
+      ]
+    },
+    {
+      "conditions": [{ "condition": "poi_tag", "tags": ["military"] }],
+      "rolls": { "min": 0, "max": 2 },
+      "entries": [
+        { "type": "loot_table", "table": "sub/Desk_military", "weight": 75 },
+        { "type": "empty", "weight": 25 }
+      ]
+    }
+  ]
+}
