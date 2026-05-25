@@ -10,6 +10,9 @@ export class GridCell {
   width: number;
   height: number;
   availableScrap: number;
+  /** Timestamp of the last time an entity was added to this cell.
+   *  Used to skip re-scanning cells that haven't changed since the client's last heavy-scan pass. */
+  lastModified = 0;
   constructor(
     server: ZoneServer2016,
     x: number,

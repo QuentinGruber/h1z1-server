@@ -13,6 +13,7 @@
 
 const debugName = "ZoneServer",
   debug = require("debug")(debugName);
+const apm = require("elastic-apm-node");
 
 import { EventEmitter } from "node:events";
 import { H1Z1Protocol } from "../../protocols/h1z1protocol";
@@ -762,26 +763,57 @@ export class ZoneServer2016 extends EventEmitter {
         //   // If there is a lot of packet to process, it's better, if there is none then we only add like some µsec
         //   await scheduler.yield();
         // }
-        const packet = this._protocol.parse(data, flags);
 
-        // for reversing new packets
-        /*
-        if(
-          packet?.name == ""
-        ) {
-          let hexString = '';
-          for (let i = 0; i < data.length; i++) {
-              const byte = data[i].toString(16).padStart(2, '0');
-              hexString += byte + ' ';
+        // Position broadcasts are relayed as-is and fire hundreds of times per second —
+        // not worth the per-packet transaction overhead.
+        const isPositionUpdate = flags === GatewayChannels.UpdatePosition;
+        let transaction = isPositionUpdate
+          ? null
+          : apm.startTransaction("PacketReceive", "game");
+
+        try {
+          const parseSpan = transaction?.startSpan("parse");
+          const packet = this._protocol.parse(data, flags);
+          parseSpan?.end();
+
+          // for reversing new packets
+          /*
+          if(
+            packet?.name == ""
+          ) {
+            let hexString = '';
+            for (let i = 0; i < data.length; i++) {
+                const byte = data[i].toString(16).padStart(2, '0');
+                hexString += byte + ' ';
+            }
+            console.log(`<Buffer ${hexString.trim()}>`);
           }
-          console.log(`<Buffer ${hexString.trim()}>`);
-        }
-        */
+          */
 
-        if (packet) {
-          this.onZoneDataEvent(this._clients[soeClientSessionId], packet);
-        } else {
-          debug("zonefailed : ", data);
+          if (packet) {
+            if (transaction) {
+              if (packet.name === "PlayerUpdateManagedPosition") {
+                // Same reasoning as UpdatePosition flag — high-frequency relay,
+                // not worth the per-packet transaction overhead.
+                transaction.end();
+                transaction = null;
+              } else {
+                transaction.name = `Packet::${packet.name}`;
+                const client = this._clients[soeClientSessionId];
+                if (client?.character?.characterId) {
+                  transaction.addLabels({
+                    character_id: client.character.characterId,
+                    packet_name: packet.name
+                  });
+                }
+              }
+            }
+            this.onZoneDataEvent(this._clients[soeClientSessionId], packet);
+          } else {
+            debug("zonefailed : ", data);
+          }
+        } finally {
+          transaction?.end();
         }
       }
     );
@@ -1225,12 +1257,15 @@ export class ZoneServer2016 extends EventEmitter {
     }
 
     try {
+      const processSpan = apm.currentTransaction?.startSpan("processPacket");
       this._packetHandlers.processPacket(
         this,
         client,
         packet as ReceivedPacket<any>
       );
+      processSpan?.end();
     } catch (error) {
+      apm.currentTransaction?.setOutcome("failure");
       console.error(error);
       console.error(`An error occurred while processing a packet : `, packet);
       logVersion();
@@ -2649,6 +2684,7 @@ export class ZoneServer2016 extends EventEmitter {
               pz <= cell.position[2] + cell.height
             ) {
               cell.objects.push(obj);
+              cell.lastModified = Date.now();
               setImmediate(() => this.onEntityAddedToCell(obj, cell));
               break;
             }
@@ -2696,6 +2732,7 @@ export class ZoneServer2016 extends EventEmitter {
     const gridCell = this._gridLookup[col * this._gridNumCols + row];
     if (!gridCell || gridCell.objects.includes(obj)) return;
     gridCell.objects.push(obj);
+    gridCell.lastModified = Date.now();
     setImmediate(() => this.onEntityAddedToCell(obj, gridCell));
   }
 
@@ -2726,14 +2763,22 @@ export class ZoneServer2016 extends EventEmitter {
 
   private async worldRoutine() {
     if (!this.hookManager.checkHook("OnWorldRoutine")) return;
-    else {
+    const transaction = apm.startTransaction("worldRoutine", "game");
+    try {
       if (this._ready) {
+        const plantSpan = transaction?.startSpan("plantManager");
         this.constructionManager.plantManager(this);
+        plantSpan?.end();
         await scheduler.yield();
+
         await this.worldObjectManager.run(this);
         await scheduler.yield();
+
+        const vehicleSpan = transaction?.startSpan("checkVehiclesInMapBounds");
         this.checkVehiclesInMapBounds();
+        vehicleSpan?.end();
         await scheduler.yield();
+
         this.updateSyncTeleport();
         await scheduler.yield();
         this.updateSpectatorMap();
@@ -2745,8 +2790,10 @@ export class ZoneServer2016 extends EventEmitter {
           this.saveWorld();
         }
       }
+    } finally {
+      transaction?.end();
+      this.worldRoutineTimer.refresh();
     }
-    this.worldRoutineTimer.refresh();
   }
 
   async deleteClient(client: Client) {
@@ -4916,7 +4963,9 @@ export class ZoneServer2016 extends EventEmitter {
       default:
         debug("send data", packetName);
     }
+    const packSpan = apm.currentTransaction?.startSpan(`pack::${packetName}`);
     const data = this._protocol.pack(packetName, obj);
+    packSpan?.end();
     if (data) {
       this._gatewayServer.sendTunnelData(client.soeClientId, data, channel);
     }
@@ -9418,29 +9467,39 @@ export class ZoneServer2016 extends EventEmitter {
   }
 
   /** Runs the world-state update for a single client based on their current
-   *  known position. Called from the server tick — NOT from packet handlers. */
-  private runClientTick(client: Client) {
-    if (client.isLoading) return;
+   *  known position. Called from the server tick — NOT from packet handlers.  */
+  private runClientTick(client: Client): [number, number, number] {
+    if (client.isLoading) return [0, 0, 0];
     const pos = client.character.state.position;
+    let constPermMs = 0,
+      heavyScanMs = 0,
+      spawnCharsMs = 0;
 
     // Construction permissions: run when player has moved 3+ units
     if (getDistance2d(pos, client.posAtLastPermissionCheck) >= 3) {
+      const t = Date.now();
       this.constructionManager.constructionPermissionsManager(this, client);
+      constPermMs = Date.now() - t;
       client.posAtLastPermissionCheck = pos.slice() as Float32Array;
     }
 
     // Heavy world scans: run when player has moved 10+ units
     if (getDistance2d(pos, client.posAtLastRoutine) >= 10) {
+      const t = Date.now();
       if (!this.disableMapBoundsCheck) this.checkInMapBounds(client);
       this.assignChunkRenderDistance(client);
       if (!this.disablePOIManager) this.POIManager(client);
       this.vehicleManager(client);
 
-      // Spawn any entities in already-subscribed cells that weren't in render
-      // range when first subscribed — e.g. NPCs that spawned nearby.
+      // Re-scan only cells that received new entities since this client's last
+      // heavy-scan pass. Cells unchanged since then are skipped entirely, keeping
+      // this O(dirty cells) instead of O(all subscribed cells × all objects).
       for (const cell of client.subscribedCells) {
-        this.spawnCellObjectsForClient(client, cell);
+        if (cell.lastModified > client.lastRoutineTime) {
+          this.spawnCellObjectsForClient(client, cell);
+        }
       }
+      heavyScanMs = Date.now() - t;
 
       client.posAtLastRoutine = pos.slice() as Float32Array;
       client.lastRoutineTime = Date.now();
@@ -9454,7 +9513,11 @@ export class ZoneServer2016 extends EventEmitter {
       void this.updateClientSubscriptions(client);
     }
 
+    const t = Date.now();
     this.spawnCharacters(client);
+    spawnCharsMs = Date.now() - t;
+
+    return [constPermMs, heavyScanMs, spawnCharsMs];
   }
 
   private _worldTickTimer?: NodeJS.Timeout;
@@ -9478,17 +9541,56 @@ export class ZoneServer2016 extends EventEmitter {
     }
   }
 
+  private _lastTickTime = 0;
+
   startWorldTick() {
     const tick = () => {
       if (!this._ready) {
+        this._lastTickTime = Date.now();
         this._worldTickTimer = setTimeout(tick, ZoneServer2016.WORLD_TICK_MS);
         return;
       }
-      this._rebuildSpatialMaps();
-      for (const sessionId in this._clients) {
-        this.runClientTick(this._clients[sessionId]);
+      const now = Date.now();
+      const tickLagMs = this._lastTickTime
+        ? Math.max(0, now - this._lastTickTime - ZoneServer2016.WORLD_TICK_MS)
+        : 0;
+      this._lastTickTime = now;
+
+      const transaction = apm.startTransaction("WorldTick", "game");
+      try {
+        transaction?.addLabels({
+          client_count: Object.keys(this._clients).length,
+          npc_count: Object.keys(this._npcs).length,
+          vehicle_count: Object.keys(this._vehicles).length,
+          loot_count: Object.keys(this._lootableProps).length,
+          construction_count: Object.keys(this._constructionSimple).length,
+          tick_lag_ms: tickLagMs
+        });
+
+        const spatialSpan = transaction?.startSpan("rebuildSpatialMaps");
+        this._rebuildSpatialMaps();
+        spatialSpan?.end();
+
+        const clientTickSpan = transaction?.startSpan("clientTick");
+        let constPermMs = 0,
+          heavyScanMs = 0,
+          spawnCharsMs = 0;
+        for (const sessionId in this._clients) {
+          const [cp, hs, sc] = this.runClientTick(this._clients[sessionId]);
+          constPermMs += cp;
+          heavyScanMs += hs;
+          spawnCharsMs += sc;
+        }
+        clientTickSpan?.addLabels({
+          constPerm_ms: constPermMs,
+          heavyScan_ms: heavyScanMs,
+          spawnChars_ms: spawnCharsMs
+        });
+        clientTickSpan?.end();
+      } finally {
+        transaction?.end();
+        this._worldTickTimer = setTimeout(tick, ZoneServer2016.WORLD_TICK_MS);
       }
-      this._worldTickTimer = setTimeout(tick, ZoneServer2016.WORLD_TICK_MS);
     };
     this._worldTickTimer = setTimeout(tick, ZoneServer2016.WORLD_TICK_MS);
   }

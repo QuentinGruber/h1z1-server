@@ -228,20 +228,26 @@ export class WorldObjectManager {
           if (this.gridScrapLimitEnabled) {
             this.refillScrapInChunks(server);
           }
+          const lootSpan = transaction?.startSpan("createLoot");
           await this.createLootThreaded(server);
           await this.createContainerLootThreaded(server);
+          lootSpan?.end();
           this._lastLootRespawnTime = Date.now();
           server.divideLargeCells(700);
         }
         if (this._lastNpcRespawnTime + this.npcRespawnTimer <= Date.now()) {
+          const npcSpan = transaction?.startSpan("createNpcs");
           await this.createNpcsThreaded(server);
+          npcSpan?.end();
           this._lastNpcRespawnTime = Date.now();
         }
         if (
           this._lastVehicleRespawnTime + this.vehicleRespawnTimer <=
           Date.now()
         ) {
+          const vehicleSpan = transaction?.startSpan("createVehicles");
           this.createVehicles(server);
+          vehicleSpan?.end();
           this._lastVehicleRespawnTime = Date.now();
         }
         if (
@@ -256,7 +262,9 @@ export class WorldObjectManager {
       }
 
       if (server.isSurvival()) {
+        const despawnSpan = transaction?.startSpan("despawnEntities");
         await this.despawnEntities(server);
+        despawnSpan?.end();
       }
     } finally {
       transaction.end();
@@ -1201,45 +1209,50 @@ export class WorldObjectManager {
       "WorldObjectManager::createVehicles",
       "custom"
     );
-    if (_.size(server._vehicles) >= this.vehicleSpawnCap) return;
-    const respawnAmount = Math.ceil(
-      (this.vehicleSpawnCap - _.size(server._vehicles)) / 8
-    );
-    for (let x = 0; x < respawnAmount; x++) {
-      const dataVehicle =
-        Z1_vehicles[randomIntFromInterval(0, Z1_vehicles.length - 1)];
-      let spawn = true;
-      Object.values(server._vehicles).forEach((spawnedVehicle: Vehicle2016) => {
-        if (!spawn) return;
-        if (
-          isPosInRadius(
-            this.vehicleSpawnRadius,
-            dataVehicle.position,
-            spawnedVehicle.state.position
-          )
-        ) {
-          spawn = false;
-        }
-      });
-      if (!spawn) {
-        continue;
-      }
-      const characterId = generateRandomGuid(),
-        vehicleData = new Vehicle2016(
-          characterId,
-          server.getTransientId(characterId),
-          0,
-          new Float32Array(dataVehicle.position),
-          new Float32Array(dataVehicle.rotation),
-          server,
-          getCurrentServerTimeWrapper().getTruncatedU32(),
-          dataVehicle.vehicleId
+    try {
+      if (_.size(server._vehicles) >= this.vehicleSpawnCap) return;
+      const respawnAmount = Math.ceil(
+        (this.vehicleSpawnCap - _.size(server._vehicles)) / 8
+      );
+      for (let x = 0; x < respawnAmount; x++) {
+        const dataVehicle =
+          Z1_vehicles[randomIntFromInterval(0, Z1_vehicles.length - 1)];
+        let spawn = true;
+        Object.values(server._vehicles).forEach(
+          (spawnedVehicle: Vehicle2016) => {
+            if (!spawn) return;
+            if (
+              isPosInRadius(
+                this.vehicleSpawnRadius,
+                dataVehicle.position,
+                spawnedVehicle.state.position
+              )
+            ) {
+              spawn = false;
+            }
+          }
         );
-      vehicleData.positionUpdate.orientation = dataVehicle.orientation;
-      this.createVehicle(server, vehicleData, maxSpawnChance); // save vehicle
+        if (!spawn) {
+          continue;
+        }
+        const characterId = generateRandomGuid(),
+          vehicleData = new Vehicle2016(
+            characterId,
+            server.getTransientId(characterId),
+            0,
+            new Float32Array(dataVehicle.position),
+            new Float32Array(dataVehicle.rotation),
+            server,
+            getCurrentServerTimeWrapper().getTruncatedU32(),
+            dataVehicle.vehicleId
+          );
+        vehicleData.positionUpdate.orientation = dataVehicle.orientation;
+        this.createVehicle(server, vehicleData, maxSpawnChance); // save vehicle
+      }
+    } finally {
+      transaction.end();
+      debug("All vehicles created");
     }
-    transaction.end();
-    debug("All vehicles created");
   }
 
   private async createNpcs(server: ZoneServer2016) {
