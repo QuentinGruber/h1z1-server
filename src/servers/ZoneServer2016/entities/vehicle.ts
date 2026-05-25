@@ -1339,7 +1339,7 @@ export class Vehicle2016 extends BaseLootableEntity {
     );
     const deleted = server.deleteEntity(this.characterId, server._vehicles);
     if (!disableExplosion) {
-      server.explosionManager.queueExplosion(this);
+      server.explosionDamage(this);
     }
     //this.state.position[1] -= 0.4; // makes bags spawn under the map sometimes.
     // TODO: Have to revisit when the heightmap is implemented server side.

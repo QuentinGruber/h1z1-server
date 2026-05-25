@@ -38,7 +38,7 @@ export interface LoginReply {
   unknownString6?: string;
   unknownString7?: string;
 };
-  errorDetails: unknown[];
+  unknownArray2: unknown[];
   unknownString2?: string;
   unknownString3?: string;
   unknownBoolean3?: boolean;

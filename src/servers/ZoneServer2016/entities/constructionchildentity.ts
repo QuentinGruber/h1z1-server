@@ -72,7 +72,8 @@ import {
   isInsideCube,
   isPosInRadius,
   movePoint,
-  registerConstructionSlots
+  registerConstructionSlots,
+  shouldHideHealthBar
 } from "../../../utils/utils";
 import { ZoneClient2016 } from "../classes/zoneclient";
 import { ConstructionParentEntity } from "./constructionparententity";
@@ -532,12 +533,18 @@ export class ConstructionChildEntity extends BaseLightweightCharacter {
     }
 
     this.health -= damageInfo.damage;
-    server.sendDataToAllWithSpawnedEntity(
-      dictionary,
-      this.characterId,
-      "Character.UpdateSimpleProxyHealth",
-      this.pGetSimpleProxyHealth()
-    );
+    for (const a in server._clients) {
+      const client = server._clients[a];
+      if (client.spawnedEntities.has(dictionary[this.characterId])) {
+        server.sendData(
+          client,
+          "Character.UpdateSimpleProxyHealth",
+          shouldHideHealthBar(server, client, this)
+            ? 100
+            : this.pGetSimpleProxyHealth()
+        );
+      }
+    }
 
     const hasPerms = this.getHasPermission(
       server,

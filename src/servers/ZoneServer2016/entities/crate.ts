@@ -13,7 +13,8 @@
 import { ZoneServer2016 } from "../zoneserver";
 import { ZoneClient2016 } from "../classes/zoneclient";
 import { DamageInfo } from "../../../types/zoneserver";
-import { randomIntFromInterval } from "../../../utils/utils";
+import { randomIntFromInterval, isPosInRadius } from "../../../utils/utils";
+import { containerLootSpawners } from "../data/lootspawns";
 import { getRandomItem } from "../managers/worldobjectmanager";
 import { BaseSimpleNpc } from "./basesimplenpc";
 import { Effects, Items, ModelIds } from "../models/enums";
@@ -35,6 +36,36 @@ export function getActorModelId(actorModel: string): number {
   }
 }
 
+function isBuffedCrate(position: Float32Array): boolean {
+  const buffedPostions: [number, number, number, number][] = [
+    [1814.5, 48.88, 224.07, 1],
+    [2043.44, 46.28, 423.75, 1],
+    [2216.36, 49.72, 772.95, 1],
+    [2652.26, 57.87, 848.76, 1],
+    [2303.37, 54.47, 1203.46, 1],
+    [2333.07, 54.47, 1801.1, 1],
+    [2601.42, 32.0, 2046.66, 1],
+    [-2813.46, 47.66, 2735.36, 1],
+    [-2399.8, 16.19, 1871.99, 1],
+    [-3005.66, 52.51, -2055.08, 1],
+    [418.6, 21.66, -723.23, 1],
+    [-1514.96, 354.0, -832.32, 1],
+    [-1781.56, 75.91, 1717.67, 1],
+    [-448.43, 71.63, 1440.45, 1],
+    [-65.6, 53.75, 847.88, 1],
+    [-66.63, 56.4, 775.5, 1],
+    [101.67, 34.26, 254.99, 1],
+    [1604.81, 47.82, -592.11, 1],
+    [1587.97, 57.38, -222.97, 1],
+    [-2063.19, 62.97, 2722.55, 1]
+  ];
+  let result = false;
+  for (const a of buffedPostions) {
+    if (isPosInRadius(40, position, new Float32Array(a))) result = true;
+  }
+  return result;
+}
+
 export class Crate extends BaseSimpleNpc {
   spawnerId: number;
   requiredItemId: number = 0;
@@ -43,6 +74,8 @@ export class Crate extends BaseSimpleNpc {
   health: number = this.maxHealth;
   spawnTimestamp: number = 0;
   destroyed: boolean = false;
+  /** Returns true if the crate is in the radius of a buffed position (hunter drive, car camps etc.) */
+  isBuffed: boolean;
   /** Time (milliseconds) for the crate to respawn in the world */
   respawnTime = 900000; // 15min respawn time
   constructor(
@@ -60,29 +93,24 @@ export class Crate extends BaseSimpleNpc {
     this.spawnerId = zoneId;
     this.scale = scale;
     this.npcRenderDistance = renderDistance;
+    this.isBuffed = isBuffedCrate(this.state.position);
   }
 
   spawnLoot(server: ZoneServer2016) {
     // Don't generate loot if crate is already destroyed
     if (this.destroyed) return;
-    const containerTables =
-      server.worldObjectManager.lootTableManager.getContainerTables();
-    const lootTable = containerTables["Crate"];
-    if (!lootTable) return;
-    const chance = Math.floor(Math.random() * 100) + 1;
-    if (chance <= (lootTable.spawnChance ?? 100)) {
-      const allEntries = lootTable.pools
-        .flatMap((p) => p.entries)
-        .filter((e) => (e.type ?? "item") === "item" && e.item !== undefined);
-      const entry = getRandomItem(allEntries);
-      if (entry && entry.item !== undefined) {
+    const lootTable = this.isBuffed
+      ? containerLootSpawners["Crate_buffed"]
+      : containerLootSpawners["Crate"];
+    const chance = Math.floor(Math.random() * 100) + 1; // temporary spawnchance
+    if (chance <= lootTable.spawnChance) {
+      const item = getRandomItem(lootTable.items);
+      if (item) {
         const spawnedItem = server.worldObjectManager.createLootEntity(
           server,
           server.generateItem(
-            entry.item,
-            entry.count
-              ? randomIntFromInterval(entry.count.min, entry.count.max)
-              : 1
+            item.item,
+            randomIntFromInterval(item.spawnCount.min, item.spawnCount.max)
           ),
           new Float32Array([
             this.state.position[0],

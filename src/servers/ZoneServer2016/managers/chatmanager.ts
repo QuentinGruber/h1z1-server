@@ -17,10 +17,7 @@ import { ZoneClient2016 as Client } from "../classes/zoneclient";
 import { ZoneServer2016 } from "../zoneserver";
 import { getDateString } from "../../../utils/utils";
 import { ChatChatText } from "types/zone2016packets";
-import { PluginManager } from "./pluginmanager";
-const blacklist = PluginManager.loadServerData(
-  "2016/sampleData/blacklisted_words.json"
-);
+const blacklist = require("../../../..//data/2016/sampleData/blacklisted_words.json");
 
 export class ChatManager {
   sendChatText(

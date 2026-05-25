@@ -2948,30 +2948,8 @@ export const basePackets: PacketStructures = [
       ]
     }
   ],
-  [
-    "PlayerUpdate.AttachObject",
-    0xae,
-    {
-      fields: [
-        { name: "gameTick", type: "uint32", defaultValue: 0 },
-        { name: "sourceCharacter", type: "uint64string", defaultValue: "0" },
-        { name: "targetCharacter", type: "uint64string", defaultValue: "0" },
-        {
-          name: "unknownFloatVector1",
-          type: "floatvector4",
-          defaultValue: [0, 0, 0, 0]
-        },
-        {
-          name: "unknownFloatVector2",
-          type: "floatvector4",
-          defaultValue: [0, 0, 0, 0]
-        },
-        { name: "unknownDword2", type: "uint32", defaultValue: 0 },
-        { name: "unknownShort1", type: "uint16", defaultValue: 0 },
-        { name: "unknownDword3", type: "uint32", defaultValue: 0 } // dependant on unknownShort1
-      ]
-    }
-  ],
+
+  ["PlayerUpdate.AttachObject", 0xae, {}],
   ["PlayerUpdate.DetachObject", 0xaf, {}],
   [
     "ClientSettings",

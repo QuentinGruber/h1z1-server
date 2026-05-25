@@ -38,7 +38,7 @@ function getDamageRange(definitionId: number): number {
     case Items.DOOR_WOOD:
     case Items.DOOR_METAL:
     case Items.DOOR_BASIC:
-      return 4.3;
+      return 2.5;
     default:
       return 2;
   }

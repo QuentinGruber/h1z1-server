@@ -12,21 +12,17 @@
 // ======================================================================
 
 import test, { after } from "node:test";
+import { containerLootSpawners } from "../data/lootspawns";
 import assert from "node:assert";
-import { LootTableManager } from "./loottablemanager";
 
 test("WorldObjectManager", { timeout: 10000 }, async (t) => {
   await t.test("containerLootSpawners", () => {
-    const manager = new LootTableManager();
-    manager.load();
-    const containerTables = manager.getContainerTables();
-    for (const key in containerTables) {
-      const containerLootTable = containerTables[key];
-      for (const pool of containerLootTable.pools) {
-        if (!pool.rolls) continue;
+    for (const key in containerLootSpawners) {
+      const containerLootTable = containerLootSpawners[key];
+      if (containerLootTable.maxItems) {
         assert(
-          pool.rolls.max <= pool.entries.length,
-          `${key} pool rolls.max (${pool.rolls.max}) exceeds entry count (${pool.entries.length})`
+          containerLootTable.maxItems <= containerLootTable.items.length,
+          `${key} MaxItems is > items.length`
         );
       }
     }

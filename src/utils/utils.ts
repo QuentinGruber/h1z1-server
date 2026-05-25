@@ -34,6 +34,12 @@ import { ZoneClient2016 } from "servers/ZoneServer2016/classes/zoneclient";
 import * as crypto from "crypto";
 import { ZoneClient } from "servers/ZoneServer2015/classes/zoneclient";
 import { ConstructionDoor } from "../servers/ZoneServer2016/entities/constructiondoor";
+import {
+  ConstructionPermissionIds,
+  ModelIds
+} from "../servers/ZoneServer2016/models/enums";
+import { LootableConstructionEntity } from "../servers/ZoneServer2016/entities/lootableconstructionentity";
+import { AddSimpleNpc } from "../types/zone2016packets";
 
 const startTime = Date.now();
 
@@ -1384,10 +1390,10 @@ export function getConstructionSlotId(buildingSlot: string) {
       return 1;
     case "WallStack":
       return 101;
-    default: {
-      const match = buildingSlot.match(/(\d+)$/);
-      return match ? Number(match[1]) : 0;
-    }
+    default:
+      return Number(
+        buildingSlot.substring(buildingSlot.length, buildingSlot.length - 2)
+      );
   }
 }
 
@@ -1684,6 +1690,50 @@ export function luck(l: number) {
   return Math.floor(Math.random() * l) === 0;
 }
 
+const Z1_POIs = require("../../data/2016/zoneData/Z1_POIs");
+export function isPosInPoi(position: Float32Array): boolean {
+  let isInPoi = false;
+  Z1_POIs.forEach((point: any) => {
+    let useRange = true;
+    if (point.bounds) {
+      useRange = false;
+      point.bounds.forEach((bound: any) => {
+        if (isInsideSquare([position[0], position[2]], bound)) {
+          isInPoi = true;
+          return;
+        }
+      });
+    }
+    if (useRange && isPosInRadius(point.range, position, point.position)) {
+      isInPoi = true;
+    }
+  });
+
+  return isInPoi;
+}
+
+const Z1_nerfedPOIs = require("../../data/2016/zoneData/Z1_nerfedPOIs");
+export function isLootNerfedLoc(position: Float32Array): number {
+  let useRange = true;
+  let nerfedValue = 0;
+  Z1_nerfedPOIs.forEach((point: any) => {
+    if (point.bounds) {
+      useRange = false;
+      point.bounds.forEach((bound: any) => {
+        if (isInsideSquare([position[0], position[2]], bound)) {
+          nerfedValue = point.nerfValue;
+          return;
+        }
+      });
+    }
+    if (useRange && isPosInRadius(point.range, position, point.position)) {
+      nerfedValue = point.nerfValue;
+    }
+  });
+
+  return nerfedValue;
+}
+
 export function chance(chanceNum: number): boolean {
   return Math.random() * 1000 < chanceNum;
 }
@@ -1714,4 +1764,48 @@ export function quat2heading(quaternion: Float32Array): number {
   const uint8Value = Math.round((degrees / 360) * 255);
 
   return Math.max(0, Math.min(255, uint8Value));
+}
+
+export function shouldHideHealthBar(
+  server: ZoneServer2016,
+  client: ZoneClient2016,
+  entity: ConstructionChildEntity | LootableConstructionEntity
+): Boolean {
+  const hiddenEntities =
+    entity.actorModelId == ModelIds.METAL_STORAGE_CHEST ||
+    entity.actorModelId == ModelIds.FURNACE ||
+    entity.actorModelId == 9406 || //workbench
+    entity.actorModelId == 10065; //weapon workbench
+
+  if (!hiddenEntities) return false;
+
+  const foundation = entity.getParentFoundation(server);
+
+  if (!foundation) return false;
+
+  return !foundation.getHasPermission(
+    server,
+    client.character.characterId,
+    ConstructionPermissionIds.CONTAINERS
+  );
+}
+
+export function getSimpleNpcCheckHidden(
+  server: ZoneServer2016,
+  client: ZoneClient2016,
+  entity: ConstructionChildEntity | LootableConstructionEntity
+): AddSimpleNpc {
+  const simpleNpc = {
+    characterId: entity.characterId,
+    transientId: entity.transientId,
+    position: entity.state.position,
+    rotation: entity.state.rotation,
+    modelId: entity.actorModelId,
+    scale: entity.scale,
+    health: (entity.health / entity.maxHealth) * 100
+  };
+
+  if (shouldHideHealthBar(server, client, entity)) simpleNpc.health = 100;
+
+  return simpleNpc;
 }

@@ -44,17 +44,10 @@ import {
 } from "../models/enums";
 import { ZoneServer2016 } from "../zoneserver";
 import { FileHash } from "types/shared";
-import { PluginManager } from "./pluginmanager";
 
-const encryptedData = PluginManager.loadServerData(
-    "2016/encryptedData/encryptedData.json"
-  ),
-  fairPlayData = PluginManager.loadServerData(
-    "2016/encryptedData/fairPlayData.json"
-  ),
-  defaultHashes: Array<FileHash> = PluginManager.loadServerData(
-    "2016/dataSources/AllowedFileHashes.json"
-  );
+const encryptedData = require("../../../../data/2016/encryptedData/encryptedData.json"),
+  fairPlayData = require("../../../../data/2016/encryptedData/fairPlayData.json"),
+  defaultHashes: Array<FileHash> = require("../../../../data/2016/dataSources/AllowedFileHashes.json");
 
 export class FairPlayManager {
   _decryptKey: string = "";
@@ -154,32 +147,19 @@ export class FairPlayManager {
         position[1] - client.startLoc > this.fairPlayValues.maxFlying
       ) {
         let kick = true;
-        // Cache the foundation check for 2.5s to avoid scanning all foundations every movement packet
-        const FOUNDATION_CACHE_TTL = 2500;
-        if (
-          Date.now() - client.fairPlayFoundationCheckTime >
-          FOUNDATION_CACHE_TTL
-        ) {
-          let insideFoundation = false;
-          for (const a in server._constructionFoundations) {
-            if (
-              server._constructionFoundations[a].getHasPermission(
-                server,
-                client.character.characterId,
-                ConstructionPermissionIds.VISIT
-              ) &&
-              server._constructionFoundations[a].isInside(
-                client.character.state.position
-              )
-            ) {
-              insideFoundation = true;
-              break;
-            }
-          }
-          client.fairPlayFoundationCheckResult = insideFoundation;
-          client.fairPlayFoundationCheckTime = Date.now();
+        for (const a in server._constructionFoundations) {
+          if (
+            server._constructionFoundations[a].getHasPermission(
+              server,
+              client.character.characterId,
+              ConstructionPermissionIds.VISIT
+            ) &&
+            server._constructionFoundations[a].isInside(
+              client.character.state.position
+            )
+          )
+            kick = false;
         }
-        if (client.fairPlayFoundationCheckResult) kick = false;
         for (const char in server._characters) {
           if (
             server._characters[char].characterId == client.character.characterId
@@ -192,10 +172,8 @@ export class FairPlayManager {
               server._characters[char].state.position,
               4.5
             )
-          ) {
+          )
             kick = false;
-            break;
-          }
         }
         if (kick) {
           server.kickPlayer(client);
@@ -789,20 +767,18 @@ export class FairPlayManager {
     // check if all default / required packs are found in game files
     for (const serverValue of hashes) {
       if (!serverValue) continue;
+      let received: FileHash | undefined;
       if (
-        receivedHashes.find((clientValue) =>
-          this.validateFile(serverValue, clientValue)
-        )
+        receivedHashes.find((clientValue) => {
+          received = clientValue;
+          return this.validateFile(serverValue, clientValue);
+        })
       ) {
         validatedHashes.push(serverValue);
         continue;
       }
-      // find by name only to report what hash the client actually sent
-      const received = receivedHashes.find(
-        (clientValue) => clientValue.file_name === serverValue.file_name
-      );
       console.log(
-        `${client.loginSessionId} (${client.character.name}) failed asset integrity check due to missing or invalid file ${serverValue.file_name} received: ${received?.crc32_hash ?? "missing"} expected: ${serverValue.crc32_hash}`
+        `${client.loginSessionId} (${client.character.name}) failed asset integrity check due to missing or invalid file ${serverValue.file_name} received: ${received?.crc32_hash} expected: ${serverValue.crc32_hash}`
       );
       server.kickPlayerWithReason(
         client,
