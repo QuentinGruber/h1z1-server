@@ -40,10 +40,7 @@ import {
 import { DamageInfo, EntityDictionary } from "types/zoneserver";
 import { LoadoutItem } from "../classes/loadoutItem";
 import { Npc } from "../entities/npc";
-import { PluginManager } from "./pluginmanager";
-const vehicleAbilities = PluginManager.loadServerData(
-  "2016/dataSources/VehicleAbilities.json"
-);
+const vehicleAbilities = require("../../../../data/2016/dataSources/VehicleAbilities.json");
 
 export class AbilitiesManager {
   sendVehicleAbilities(

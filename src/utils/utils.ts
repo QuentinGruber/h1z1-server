@@ -1390,10 +1390,10 @@ export function getConstructionSlotId(buildingSlot: string) {
       return 1;
     case "WallStack":
       return 101;
-    default: {
-      const match = buildingSlot.match(/(\d+)$/);
-      return match ? Number(match[1]) : 0;
-    }
+    default:
+      return Number(
+        buildingSlot.substring(buildingSlot.length, buildingSlot.length - 2)
+      );
   }
 }
 
@@ -1688,6 +1688,50 @@ export function isChristmasSeason() {
 
 export function luck(l: number) {
   return Math.floor(Math.random() * l) === 0;
+}
+
+const Z1_POIs = require("../../data/2016/zoneData/Z1_POIs");
+export function isPosInPoi(position: Float32Array): boolean {
+  let isInPoi = false;
+  Z1_POIs.forEach((point: any) => {
+    let useRange = true;
+    if (point.bounds) {
+      useRange = false;
+      point.bounds.forEach((bound: any) => {
+        if (isInsideSquare([position[0], position[2]], bound)) {
+          isInPoi = true;
+          return;
+        }
+      });
+    }
+    if (useRange && isPosInRadius(point.range, position, point.position)) {
+      isInPoi = true;
+    }
+  });
+
+  return isInPoi;
+}
+
+const Z1_nerfedPOIs = require("../../data/2016/zoneData/Z1_nerfedPOIs");
+export function isLootNerfedLoc(position: Float32Array): number {
+  let useRange = true;
+  let nerfedValue = 0;
+  Z1_nerfedPOIs.forEach((point: any) => {
+    if (point.bounds) {
+      useRange = false;
+      point.bounds.forEach((bound: any) => {
+        if (isInsideSquare([position[0], position[2]], bound)) {
+          nerfedValue = point.nerfValue;
+          return;
+        }
+      });
+    }
+    if (useRange && isPosInRadius(point.range, position, point.position)) {
+      nerfedValue = point.nerfValue;
+    }
+  });
+
+  return nerfedValue;
 }
 
 export function chance(chanceNum: number): boolean {

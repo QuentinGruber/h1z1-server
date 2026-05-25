@@ -24,15 +24,6 @@ import dgram from "node:dgram";
 import { PacketsQueue } from "./PacketsQueue";
 const debug = require("debug")("SOEServer");
 
-const MAX_PACKETS_PER_IP_PER_SEC = 500;
-const MAX_SESSIONS_PER_IP_PER_MIN = 5;
-
-interface RateWindow {
-  count: number;
-  windowStart: number;
-  logged: boolean;
-}
-
 export class SOEServer extends EventEmitter {
   _serverAddress: string;
   _serverAddressV6: string;
@@ -56,8 +47,6 @@ export class SOEServer extends EventEmitter {
   avgEventLoopLag: number = 0;
   eventLoopLagValues: number[] = [];
   currentEventLoopLag: number = 0;
-  private _ipRateMap: Map<string, RateWindow> = new Map();
-  private _sessionRequestMap: Map<string, RateWindow> = new Map();
   constructor(serverPort: number, cryptoKey: Uint8Array) {
     super();
     const oneMb = 1024 * 1024;
@@ -418,50 +407,8 @@ export class SOEServer extends EventEmitter {
     }
   }
 
-  private _checkIpRateLimit(ip: string): boolean {
-    const now = Date.now();
-    let entry = this._ipRateMap.get(ip);
-    if (!entry || now - entry.windowStart > 1000) {
-      entry = { count: 0, windowStart: now, logged: false };
-      this._ipRateMap.set(ip, entry);
-    }
-    entry.count++;
-    if (entry.count > MAX_PACKETS_PER_IP_PER_SEC) {
-      if (!entry.logged) {
-        console.log(
-          `[DDoS] IP ${ip} rate-limited: ${entry.count} packets in 1s window (dropped)`
-        );
-        entry.logged = true;
-      }
-      return false;
-    }
-    return true;
-  }
-
-  private _checkSessionRateLimit(ip: string): boolean {
-    const now = Date.now();
-    let entry = this._sessionRequestMap.get(ip);
-    if (!entry || now - entry.windowStart > 60000) {
-      entry = { count: 0, windowStart: now, logged: false };
-      this._sessionRequestMap.set(ip, entry);
-    }
-    entry.count++;
-    if (entry.count > MAX_SESSIONS_PER_IP_PER_MIN) {
-      if (!entry.logged) {
-        console.log(
-          `[DDoS] IP ${ip} session-spam: ${entry.count} session requests in 60s (dropped)`
-        );
-        entry.logged = true;
-      }
-      return false;
-    }
-    return true;
-  }
-
   onMessage(data: Buffer, remote: RemoteInfo) {
     try {
-      if (!this._checkIpRateLimit(remote.address)) return;
-
       let client: SOEClient;
       const clientId = SOEClient.getClientId(remote);
       debug(data.length + " bytes from ", clientId);
@@ -471,7 +418,6 @@ export class SOEServer extends EventEmitter {
         if (data[1] !== 1) {
           return;
         }
-        if (!this._checkSessionRateLimit(remote.address)) return;
         client = this._createClient(remote);
       } else {
         client = this._clients.get(clientId) as SOEClient;
@@ -518,16 +464,6 @@ export class SOEServer extends EventEmitter {
     if (udpLength !== undefined) {
       this._udpLength = udpLength;
     }
-    setInterval(() => {
-      const now = Date.now();
-      for (const [ip, entry] of this._ipRateMap) {
-        if (now - entry.windowStart > 2000) this._ipRateMap.delete(ip);
-      }
-      for (const [ip, entry] of this._sessionRequestMap) {
-        if (now - entry.windowStart > 62000) this._sessionRequestMap.delete(ip);
-      }
-    }, 60000);
-
     this._connection.on("message", (data, remote) => {
       this.onMessage(data, remote);
     });
@@ -652,7 +588,7 @@ export class SOEServer extends EventEmitter {
         }
       }
       client.unAckData.delete(resend.sequence as number);
-      if (client.stats.packetResend > 0) client.stats.packetResend--;
+      client.stats.packetResend--;
     }
     if (client.outputStream.isReliableAvailable()) {
       const appPackets = this.getAvailableAppPackets(client);

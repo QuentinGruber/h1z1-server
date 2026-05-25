@@ -50,17 +50,10 @@ import { scheduler } from "timers/promises";
 import { DB_COLLECTIONS } from "../../../../utils/enums";
 import { randomInt } from "crypto";
 import { GatewayChannels } from "h1emu-core";
-import { PluginManager } from "../../managers/pluginmanager";
 
-const abilities = PluginManager.loadServerData(
-    "2016/dataSources/Abilities.json"
-  ),
-  vehicleAbilities = PluginManager.loadServerData(
-    "2016/dataSources/VehicleAbilities.json"
-  ),
-  discovery = PluginManager.loadServerData(
-    "2016/dataSources/ClientDiscoveries.json"
-  );
+const abilities = require("../../../../../data/2016/dataSources/Abilities.json"),
+  vehicleAbilities = require("../../../../../data/2016/dataSources/VehicleAbilities.json"),
+  discovery = require("../../../../../data/2016/dataSources/ClientDiscoveries.json");
 
 const dev: any = {
   load_balancing: function (
@@ -68,13 +61,6 @@ const dev: any = {
     client: Client,
     args: Array<string>
   ) {
-    if (!("_soeServer" in server._gatewayServer)) {
-      server.sendChatText(
-        client,
-        "load_balancing dev command requires non-threaded gateway internals"
-      );
-      return;
-    }
     const nb = Number(args[1]) || 10;
     const basePort = 60_000;
     for (let index = 0; index < nb; index++) {
@@ -389,14 +375,10 @@ const dev: any = {
       ]
     });
 
-    const categories = PluginManager.loadServerData(
-      "2016/marketplaceData/categories.json"
-    );
+    const categories = require("../../../../../data/2016/marketplaceData/categories.json");
     server.sendData(client, "InGamePurchase.StoreBundleCategories", categories);
 
-    const bundles = PluginManager.loadServerData(
-      "2016/marketplaceData/bundles.json"
-    );
+    const bundles = require("../../../../../data/2016/marketplaceData/bundles.json");
     server.sendData(client, "InGamePurchase.StoreBundles", bundles);
 
     server.sendData(client, "InGamePurchase.SubscriptionProductsResponse", {
@@ -948,7 +930,7 @@ const dev: any = {
     client: Client,
     args: Array<string>
   ) {
-    const models = PluginManager.loadServerData("2016/dataSources/Models.json");
+    const models = require("../../../../../data/2016/dataSources/Models.json");
     const wordFilter = args[1];
     if (wordFilter) {
       const result = models.filter((word: any) =>

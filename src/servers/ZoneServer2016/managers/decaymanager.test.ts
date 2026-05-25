@@ -48,7 +48,7 @@ test("decaymanager", { timeout: 10000 }, async (t) => {
     zone.decayManager.run(zone);
     assert.strictEqual(Object.keys(zone._constructionFoundations).length, 0);
   });
-  await t.test("test decay", async () => {
+  await t.test("test decay", () => {
     zone._constructionFoundations = {};
     const characterId = generate_random_guid();
     const transientId = zone.getTransientId(characterId);
@@ -69,11 +69,9 @@ test("decaymanager", { timeout: 10000 }, async (t) => {
     zone._constructionFoundations[characterId] = foundation;
 
     zone.decayManager.griefCheckSlotAmount = 0;
-    zone.decayManager.useDecayWorker = false;
     t.mock.timers.tick(originalDate);
     for (let i = 0; i < 10_000; i++) {
-      zone.decayManager.clearTimers();
-      await zone.decayManager.run(zone);
+      zone.decayManager.run(zone);
     }
     assert.strictEqual(Object.keys(zone._constructionFoundations).length, 0);
   });

@@ -15,7 +15,7 @@ import { setInterval } from "timers";
 import { ZoneServer2016 } from "../zoneserver";
 import { AccountItems } from "../models/enums";
 import { ZoneClient2016 } from "../classes/zoneclient";
-import { isHalloween } from "../../../utils/utils";
+import { isHalloween, isPosInPoi } from "../../../utils/utils";
 
 interface Reward {
   itemId: AccountItems;
@@ -194,7 +194,7 @@ export class RewardManager {
       if (
         client.character.playTime - client.character.lastDropPlaytime >
           (isHalloween() ? 60 : 120) &&
-        this.server.isPosInPoi(client.character.state.position)
+        isPosInPoi(client.character.state.position)
       ) {
         this.dropPlayTimeReward(client);
       }

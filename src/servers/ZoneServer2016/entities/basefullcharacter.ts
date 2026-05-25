@@ -43,20 +43,13 @@ import {
   LOADOUT_CONTAINER_ID
 } from "../../../utils/constants";
 import { DeathItemDamageConfig } from "../data/deathitemdamageconfig";
-import { PluginManager } from "../managers/pluginmanager";
 
 const debugName = "ZoneServer",
   debug = require("debug")(debugName);
 
-const loadoutSlots = PluginManager.loadServerData(
-    "2016/dataSources/LoadoutSlots.json"
-  ),
-  loadoutSlotItemClasses = PluginManager.loadServerData(
-    "2016/dataSources/LoadoutSlotItemClasses.json"
-  ),
-  equipSlotItemClasses = PluginManager.loadServerData(
-    "2016/dataSources/EquipSlotItemClasses.json"
-  );
+const loadoutSlots = require("./../../../../data/2016/dataSources/LoadoutSlots.json"),
+  loadoutSlotItemClasses = require("./../../../../data/2016/dataSources/LoadoutSlotItemClasses.json"),
+  equipSlotItemClasses = require("./../../../../data/2016/dataSources/EquipSlotItemClasses.json");
 
 function getGender(actorModelId: number): number {
   switch (actorModelId) {

@@ -13,12 +13,11 @@
 
 import * as fs from "fs";
 import * as path from "path";
-import * as yaml from "js-yaml";
-import type { ZoneServer2016 } from "../zoneserver";
-import type { Command } from "../handlers/commands/types";
-import type { ZoneClient2016 } from "../classes/zoneclient";
-import type { LoginServer } from "servers/LoginServer/loginserver";
-import { spawn } from "child_process";
+import { ZoneServer2016 } from "../zoneserver";
+import { execSync } from "child_process";
+import { copyFile, fileExists, flhash } from "../../../utils/utils";
+import { Command } from "../handlers/commands/types";
+import { ZoneClient2016 } from "../classes/zoneclient";
 
 /**
  * Abstract class representing a base plugin.
@@ -38,14 +37,8 @@ export abstract class BasePlugin {
    * @param server - The ZoneServer2016 instance.
    * @returns A promise that resolves when the initialization is complete.
    */
-  public abstract init(server: ZoneServer2016 | LoginServer): Promise<void>;
+  public abstract init(server: ZoneServer2016): Promise<void>;
   public dir!: string;
-}
-
-function isZoneServer(
-  server: ZoneServer2016 | LoginServer
-): server is ZoneServer2016 {
-  return "commandHandler" in server;
 }
 
 /**
@@ -59,8 +52,8 @@ function folderExists(path: string): boolean {
     const stats = fs.statSync(path);
     return stats.isDirectory();
   } catch (err: any) {
-    if (err.code === "ENOENT" || err.code === "ENOTDIR") {
-      // Folder doesn't exist or path traverses through a non-directory
+    if (err.code === "ENOENT") {
+      // Folder doesn't exist
       return false;
     } else {
       // Other error occurred
@@ -150,160 +143,10 @@ function replaceInFile(
   fs.writeFileSync(filePath, replacedContent, "utf8");
 }
 
-function fileExists(filePath: string): boolean {
-  try {
-    fs.accessSync(filePath);
-    return true;
-  } catch {
-    return false;
-  }
-}
-
-async function copyFile(
-  originalFilePath: string,
-  newFilePath: string
-): Promise<void> {
-  return new Promise<void>((resolve, reject) => {
-    const readStream = fs.createReadStream(originalFilePath);
-    const writeStream = fs.createWriteStream(newFilePath);
-
-    readStream.pipe(writeStream);
-
-    writeStream.on("finish", () => {
-      readStream.close();
-      writeStream.close();
-      resolve();
-    });
-
-    writeStream.on("error", (err) => {
-      readStream.close();
-      writeStream.close();
-      reject(err);
-    });
-  });
-}
-
-function flhash(str: string): number {
-  let hashvar1 = 0,
-    hashvar2 = 0;
-
-  for (let i = 0; i < str.length; i++) {
-    hashvar1 = hashvar2 + str.charCodeAt(i);
-    hashvar2 = ((1025 * hashvar1) >> 6) ^ (1025 * hashvar1);
-  }
-
-  const hash = 32769 * (((9 * hashvar2) >> 11) ^ (9 * hashvar2));
-  return Number(`0x${hash.toString(16).slice(-8)}`);
-}
-
 export class PluginManager {
-  private static readonly defaultInitTimeoutMs = Number(
-    process.env.PLUGIN_INIT_TIMEOUT_MS ?? 10000
-  );
-
-  private static resolveModulePath(basePath: string): string | null {
-    const candidates = [
-      basePath,
-      `${basePath}.json`,
-      `${basePath}.js`,
-      `${basePath}.cjs`,
-      `${basePath}.mjs`,
-      path.join(basePath, "index.json"),
-      path.join(basePath, "index.js"),
-      path.join(basePath, "index.cjs"),
-      path.join(basePath, "index.mjs")
-    ];
-
-    for (const candidate of candidates) {
-      if (!fs.existsSync(candidate)) {
-        continue;
-      }
-
-      try {
-        if (fs.statSync(candidate).isFile()) {
-          return candidate;
-        }
-      } catch {
-        // Skip inaccessible files and keep trying candidates.
-      }
-    }
-
-    return null;
-  }
-
-  public static getPluginDataRoots(): string[] {
-    if (process.env.DISABLE_PLUGINS) {
-      return [];
-    }
-
-    const pluginsDir =
-      process.env.PLUGINS_DIR || path.join(process.cwd(), "plugins");
-
-    if (!folderExists(pluginsDir)) {
-      return [];
-    }
-
-    return fs
-      .readdirSync(pluginsDir)
-      .sort((a, b) => a.localeCompare(b))
-      .map((folder) => path.join(pluginsDir, folder, "data"))
-      .filter((pluginDataPath) => folderExists(pluginDataPath));
-  }
-
-  public static resolveServerDataModulePath(relativeDataPath: string): string {
-    const normalizedPath = relativeDataPath
-      .replaceAll("\\", "/")
-      .replace(/^\/+/, "")
-      .replace(/\/$/, "");
-
-    const pluginDataRoots = this.getPluginDataRoots();
-    let pluginOverridePath: string | null = null;
-
-    for (const pluginDataRoot of pluginDataRoots) {
-      const resolvedPluginPath = this.resolveModulePath(
-        path.join(pluginDataRoot, normalizedPath)
-      );
-      if (resolvedPluginPath) {
-        pluginOverridePath = resolvedPluginPath;
-      }
-    }
-
-    if (pluginOverridePath) {
-      return pluginOverridePath;
-    }
-
-    const defaultPath = this.resolveModulePath(
-      path.join(process.cwd(), "data", normalizedPath)
-    );
-
-    if (defaultPath) {
-      return defaultPath;
-    }
-
-    const packageDataPath = this.resolveModulePath(
-      path.join(__dirname, "../../../..", "data", normalizedPath)
-    );
-
-    if (packageDataPath) {
-      return packageDataPath;
-    }
-
-    throw new Error(
-      `[PluginManager] Unable to resolve server data module for path: ${relativeDataPath}`
-    );
-  }
-
-  public static loadServerData<T = any>(relativeDataPath: string): T {
-    return require(this.resolveServerDataModulePath(relativeDataPath)) as T;
-  }
-
   private plugins: Array<BasePlugin> = [];
   get pluginCount() {
     return this.plugins.length;
-  }
-
-  private loadYaml(path: string) {
-    return yaml.load(fs.readFileSync(path, "utf8")) as any;
   }
   private pluginsDir =
     process.env.PLUGINS_DIR || path.join(process.cwd(), "plugins");
@@ -352,68 +195,22 @@ export class PluginManager {
 
       console.log("[PluginManager] Installing dependencies...");
 
-      const installProcess = spawn("npm", ["install"], {
-        cwd: path.join(this.pluginsDir, pluginPath),
-        stdio: "inherit",
-        shell: process.platform === "win32"
-      });
+      const installCommand = `npm install`;
 
-      installProcess.once("error", (error) => {
+      try {
+        execSync(installCommand, {
+          cwd: path.join(this.pluginsDir, pluginPath),
+          stdio: "inherit"
+        });
+        console.log("[PluginManager] Dependencies installed successfully.");
+        resolve();
+      } catch (error) {
         console.error(error);
         console.error("[PluginManager] Failed to install dependencies.");
-        reject(error);
-      });
-
-      installProcess.once("close", (code) => {
-        if (code === 0) {
-          console.log("[PluginManager] Dependencies installed successfully.");
-          resolve();
-          return;
-        }
-
-        const error = new Error(
-          `[PluginManager] npm install failed with exit code ${code ?? "unknown"}.`
-        );
-        console.error(error);
-        reject(error);
-      });
-    });
-  }
-
-  private async initializePluginWithTimeout(
-    plugin: BasePlugin,
-    server: ZoneServer2016 | LoginServer
-  ): Promise<void> {
-    const timeoutMs = PluginManager.defaultInitTimeoutMs;
-
-    try {
-      await this.loadPluginConfig(plugin);
-      console.time(`Loading ${plugin.name} plugin`);
-      await Promise.race([
-        plugin.init(server),
-        new Promise((_, reject) => {
-          setTimeout(() => {
-            reject(
-              new Error(
-                `[PluginManager] ${plugin.name} init timeout after ${timeoutMs}ms.`
-              )
-            );
-          }, timeoutMs);
-        })
-      ]);
-      console.timeEnd(`Loading ${plugin.name} plugin`);
-
-      if (isZoneServer(server)) {
-        this.registerPluginCommands(server, plugin);
-      } else if (plugin.commands?.length) {
-        console.log(
-          `[PluginManager] ${plugin.name} tried adding commands, but LoginServer does not support plugin commands.`
-        );
+        reject();
+        process.exit(1);
       }
-      console.log(`[PluginManager] ${plugin.name} initialized!`);
-    } catch (e: any) {
-      console.error(e);
-    }
+    });
   }
 
   /**
@@ -473,15 +270,19 @@ export class PluginManager {
 
   /**
    * Loads the configuration for a plugin.
+   * @param server - The ZoneServer2016 instance.
    * @param plugin - The plugin instance.
    */
-  private async loadPluginConfig(plugin: BasePlugin) {
+  private async loadPluginConfig(server: ZoneServer2016, plugin: BasePlugin) {
     const defaultConfigPath = path.join(
         plugin.dir,
         "data",
         "defaultconfig.yaml"
       ),
-      defaultConfig = this.loadYaml(defaultConfigPath),
+      defaultConfig = server.configManager.loadYaml(
+        defaultConfigPath,
+        false
+      ) as any,
       fileName = `${plugin.name
         .toLowerCase()
         .replaceAll(" ", "-")}-config.yaml`,
@@ -494,7 +295,7 @@ export class PluginManager {
       await copyFile(defaultConfigPath, configPath);
     }
 
-    const configFile = this.loadYaml(configPath);
+    const configFile = server.configManager.loadYaml(configPath, false) as any;
 
     const config = {
       // in case a config file is outdated, load missing values using default
@@ -521,7 +322,7 @@ export class PluginManager {
    * Initializes the plugins and loads their configurations.
    * @param server - The ZoneServer2016 instance.
    */
-  public async initializePlugins(server: ZoneServer2016 | LoginServer) {
+  public async initializePlugins(server: ZoneServer2016) {
     // Used in tests
     if (process.env.DISABLE_PLUGINS) {
       return;
@@ -536,10 +337,16 @@ export class PluginManager {
     await this.loadPlugins();
 
     for (const plugin of this.plugins) {
-      // Keep startup responsive by not serially awaiting plugin init.
-      setImmediate(() => {
-        void this.initializePluginWithTimeout(plugin, server);
-      });
+      try {
+        await this.loadPluginConfig(server, plugin);
+        console.time(`Loading ${plugin.name} plugin`);
+        await plugin.init(server);
+        console.timeEnd(`Loading ${plugin.name} plugin`);
+        this.registerPluginCommands(server, plugin);
+        console.log(`[PluginManager] ${plugin.name} initialized!`);
+      } catch (e: any) {
+        console.error(e);
+      }
     }
 
     if (this.plugins.length == 0) {
