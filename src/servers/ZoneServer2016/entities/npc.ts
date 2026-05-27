@@ -80,6 +80,7 @@ export class Npc extends BaseFullCharacter {
   server: ZoneServer2016;
   npcMeleeDamage: number;
   zombieFsm?: ZombieInstance;
+  currentAnimation = "";
   isSelected: boolean = false;
   constructor(
     characterId: string,
@@ -130,15 +131,22 @@ export class Npc extends BaseFullCharacter {
     server.aiManager.addEntity(this);
   }
 
+  setAnimation(animationName: string) {
+    this.currentAnimation = animationName;
+    this.server.sendDataToAllWithSpawnedEntity(
+      this.server._npcs,
+      this.characterId,
+      "Character.PlayAnimation",
+      { characterId: this.characterId, animationName }
+    );
+  }
+
   playAnimation(animationName: string) {
     this.server.sendDataToAllWithSpawnedEntity(
       this.server._npcs,
       this.characterId,
       "Character.PlayAnimation",
-      {
-        characterId: this.characterId,
-        animationName: animationName
-      }
+      { characterId: this.characterId, animationName }
     );
   }
 
@@ -658,10 +666,18 @@ export class Npc extends BaseFullCharacter {
     const dz = position[2] - this.state.position[2];
     const dy = position[1] - this.state.position[1];
 
-    const orientation = Math.atan2(dx, dz); // Note: X/Z swapped for North=0 convention
     const horizontalDist = Math.sqrt(dx * dx + dz * dz);
+    const orientation = Math.atan2(dx, dz);
     const frontTilt = Math.atan2(dy, horizontalDist);
     this.state.position = position;
+
+    let horizontalSpeed = horizontalDist;
+    let verticalSpeed = Math.abs(dy);
+    if (this.navAgent) {
+      const vel = this.navAgent.velocity();
+      horizontalSpeed = Math.sqrt(vel.x * vel.x + vel.z * vel.z);
+      verticalSpeed = Math.abs(vel.y);
+    }
 
     this.server.sendDataToAllWithSpawnedEntity(
       this.server._npcs,
@@ -679,8 +695,8 @@ export class Npc extends BaseFullCharacter {
           frontTilt: frontTilt,
           sideTilt: 0,
           angleChange: 0,
-          verticalSpeed: Math.abs(dy),
-          horizontalSpeed: horizontalDist
+          verticalSpeed,
+          horizontalSpeed
         }
       }
     );

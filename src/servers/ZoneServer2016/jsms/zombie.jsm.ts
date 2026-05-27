@@ -4,6 +4,62 @@ import type { ZoneServer2016 } from "../zoneserver";
 import { NavManager } from "../../../utils/recast";
 import { getDistance2d } from "../../../utils/utils";
 
+export const enum ZombieLoopingAnim {
+  Idle = "Idle",
+  idle = "idle",
+  Eating = "Eating",
+  FakeRagdoll = "FakeRagdoll",
+  Alive = "Alive",
+  DeathPose = "DeathPose",
+  StopPhysics = "StopPhysics",
+  TrueAnimation = "TrueAnimation",
+  FalseAnimation = "FalseAnimation",
+  StuckBehindFence = "StuckBehindFence",
+  StuckBehindFenceReaching = "StuckBehindFenceReaching",
+  StuckBehindObjectTall = "StuckBehindObjectTall",
+  StuckBehindObjectShort = "StuckBehindObjectShort"
+}
+
+export const enum ZombieOneshotAnim {
+  Flinch = "Flinch",
+  Death = "Death",
+  EatingDone = "EatingDone",
+  DeathRagdoll = "DeathRagdoll",
+  KnifeSlash = "KnifeSlash",
+  MeleeFlinch = "MeleeFlinch",
+  TurnLeft90 = "TurnLeft90",
+  TurnRight90 = "TurnRight90",
+  LostTarget = "LostTarget",
+  GrappleTell = "GrappleTell",
+  TurnLeft45 = "TurnLeft45",
+  TurnRight45 = "TurnRight45",
+  TurnRight180 = "TurnRight180",
+  TurnLeft180 = "TurnLeft180",
+  PushbackNorthMedium = "PushbackNorthMedium",
+  PushbackEastMedium = "PushbackEastMedium",
+  PushbackWestMedium = "PushbackWestMedium",
+  PushbackSouthMedium = "PushbackSouthMedium",
+  BlowbackNorth = "BlowbackNorth",
+  FallOverFence = "FallOverFence",
+  GetUp = "GetUp",
+  Stun = "Stun",
+  DeathRagdollAnywhere = "DeathRagdollAnywhere",
+  StumbleA = "StumbleA",
+  StumbleB = "StumbleB",
+  StumbleC = "StumbleC",
+  ExplodeContract = "ExplodeContract",
+  ExplodeExpand = "ExplodeExpand",
+  GasConvulse = "GasConvulse",
+  Spawn = "Spawn",
+  SpawnFromGround = "SpawnFromGround",
+  Spit = "Spit",
+  CoverEars = "CoverEars",
+  CoverEarsDone = "CoverEarsDone",
+  Stagger_Light = "Stagger_Light",
+  Stagger_Medium = "Stagger_Medium",
+  Stagger_Heavy = "Stagger_Heavy"
+}
+
 export type ZombieState =
   | "idle"
   | "wander"
@@ -24,7 +80,6 @@ export type ZombieTransition =
   | "playerKilled"
   | "doneFeeding"
   | "idleTimeout"
-  | "spotPlayer"
   | "destroyed";
 
 export interface ZombieInstance extends StateMachine {
@@ -51,7 +106,6 @@ export interface ZombieInstance extends StateMachine {
   playerKilled(): void;
   doneFeeding(): void;
   idleTimeout(): void;
-  spotPlayer(): void;
   destroyed(): void;
   goto(state: ZombieState): void;
 }
@@ -85,6 +139,11 @@ function playAnim(npc: Npc, anim: string): void {
   npc.playAnimation(anim);
 }
 
+function setAnim(npc: Npc, anim: string): void {
+  npc.setAnimation(anim);
+  npc.playAnimation(anim);
+}
+
 function stopMovement(npc: Npc): void {
   if (!npc.navAgent) return;
   npc.navAgent.requestMoveTarget(NavManager.gameToNav(npc.state.position));
@@ -113,7 +172,11 @@ export function createZombie(npc: Npc, server: ZoneServer2016): ZombieInstance {
 
     transitions: [
       { name: "hearNoise", from: "wander", to: "investigate" },
-      { name: "seePlayer", from: ["wander", "investigate"], to: "chase" },
+      {
+        name: "seePlayer",
+        from: ["wander", "investigate", "idle"],
+        to: "chase"
+      },
       { name: "smellCorpse", from: "wander", to: "feed" },
       { name: "noiseTimeout", from: "investigate", to: "wander" },
       { name: "reachPlayer", from: "chase", to: "attack" },
@@ -122,7 +185,6 @@ export function createZombie(npc: Npc, server: ZoneServer2016): ZombieInstance {
       { name: "playerKilled", from: "attack", to: "feed" },
       { name: "doneFeeding", from: "feed", to: "wander" },
       { name: "idleTimeout", from: "wander", to: "idle" },
-      { name: "spotPlayer", from: "idle", to: "attack" },
       { name: "destroyed", from: "*", to: "dead" }
     ],
 
@@ -137,7 +199,6 @@ export function createZombie(npc: Npc, server: ZoneServer2016): ZombieInstance {
           this.targetPos = pt;
           moveToward(this.npc, pt, this.server);
         }
-        this.npc.playAnimation("Zombie001_11_Walk");
       },
 
       onInvestigate(this: ZombieInstance): void {
@@ -149,22 +210,20 @@ export function createZombie(npc: Npc, server: ZoneServer2016): ZombieInstance {
       onChase(this: ZombieInstance): void {},
 
       onAttack(this: ZombieInstance): void {
-        stopMovement(this.npc);
         this.lastAttackTime = 2;
-        playAnim(this.npc, "KnifeSlash");
       },
 
       onIdle(this: ZombieInstance): void {
         this.stateTimer = 0;
         stopMovement(this.npc);
-        this.npc.playAnimation("Idle");
+        setAnim(this.npc, ZombieLoopingAnim.Idle);
       },
 
       onFeed(this: ZombieInstance): void {
         stopMovement(this.npc);
         this.stateTimer = 0;
         this.targetCharacterId = null;
-        playAnim(this.npc, "eat");
+        setAnim(this.npc, ZombieLoopingAnim.Eating);
       },
 
       onDead(this: ZombieInstance): void {},
@@ -207,6 +266,19 @@ export function tickZombie(
 
   switch (zombie.state) {
     case "wander": {
+      for (const characterId in zone._characters) {
+        const character = zone._characters[characterId];
+        if (!character.isAlive) continue;
+        if (
+          getDistance2d(zombie.npc.state.position, character.state.position) <
+          10
+        ) {
+          zombie.targetCharacterId = characterId;
+          zombie.seePlayer();
+          break;
+        }
+      }
+
       zombie.patrolTimer += dt;
       const arrived =
         zombie.targetPos != null &&
@@ -234,10 +306,11 @@ export function tickZombie(
         const character = zone._characters[characterId];
         if (!character.isAlive) continue;
         if (
-          getDistance2d(zombie.npc.state.position, character.state.position) < 1
+          getDistance2d(zombie.npc.state.position, character.state.position) <
+          10
         ) {
           zombie.targetCharacterId = characterId;
-          zombie.spotPlayer();
+          zombie.seePlayer();
           break;
         }
       }
@@ -247,20 +320,48 @@ export function tickZombie(
     case "investigate":
       break;
 
-    case "chase":
+    case "chase": {
+      const chaseTarget = zombie.targetCharacterId
+        ? zone._characters[zombie.targetCharacterId]
+        : null;
+      if (!chaseTarget || !chaseTarget.isAlive) {
+        zombie.lostPlayer();
+        break;
+      }
+      const chaseDist = getDistance2d(
+        zombie.npc.state.position,
+        chaseTarget.state.position
+      );
+      if (chaseDist > 50) {
+        zombie.lostPlayer();
+      } else if (chaseDist < 2) {
+        zombie.reachPlayer();
+      } else {
+        moveToward(zombie.npc, chaseTarget.state.position, zombie.server);
+      }
       break;
+    }
 
     case "attack": {
-      if (zombie.targetCharacterId && zombie.lastAttackTime > 2) {
-        const target = zone._characters[zombie.targetCharacterId];
-        if (
-          target &&
-          target.isAlive &&
-          getDistance2d(zombie.npc.state.position, target.state.position) < 1
-        ) {
-          dealDamage(zombie.npc, zombie.targetCharacterId);
-          zombie.lastAttackTime = 0;
-        }
+      const attackTarget = zombie.targetCharacterId
+        ? zone._characters[zombie.targetCharacterId]
+        : null;
+      if (!attackTarget || !attackTarget.isAlive) {
+        zombie.playerKilled();
+        if (zombie.state === "attack") zombie.goto("wander");
+        break;
+      }
+      moveToward(zombie.npc, attackTarget.state.position, zombie.server);
+      const attackDist = getDistance2d(
+        zombie.npc.state.position,
+        attackTarget.state.position
+      );
+      if (attackDist >= 2) {
+        zombie.playerBacked();
+      } else if (zombie.lastAttackTime > 2) {
+        playAnim(zombie.npc, ZombieOneshotAnim.KnifeSlash);
+        dealDamage(zombie.npc, zombie.targetCharacterId!);
+        zombie.lastAttackTime = 0;
       }
       break;
     }
@@ -268,6 +369,7 @@ export function tickZombie(
     case "feed":
       zombie.hunger = Math.max(0, zombie.hunger - dt * 15);
       if (zombie.hunger === 0) {
+        zombie.npc.playAnimation(ZombieOneshotAnim.EatingDone);
         zombie.doneFeeding();
       }
       break;

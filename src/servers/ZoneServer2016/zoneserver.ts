@@ -4567,6 +4567,12 @@ export class ZoneServer2016 extends EventEmitter {
         }
         if (object instanceof Npc) {
           object.updateEquipment(this);
+          if (object.currentAnimation) {
+            this.sendData(client, "Character.PlayAnimation", {
+              characterId: object.characterId,
+              animationName: object.currentAnimation
+            });
+          }
           return;
         }
       }
