@@ -60,9 +60,10 @@ const loadoutSlots = PluginManager.loadServerData(
 
 function getGender(actorModelId: number): number {
   switch (actorModelId) {
-    case ModelIds.ZOMBIE_FEMALE_WALKER:
+    case ModelIds.ZOMBIE_MALE_WALKER:
     case ModelIds.SURVIVOR_MALE_HEAD_01:
       return 1;
+    case ModelIds.ZOMBIE_FEMALE_WALKER:
     case ModelIds.ZOMBIE_MALE_HEAD:
     case ModelIds.SURVIVAL_FEMALE_HEAD_01:
       return 2;

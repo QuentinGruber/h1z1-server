@@ -113,6 +113,59 @@ export const characterSkinsLoadout = [
   { item: Items.FULLY_GEARED_EXPLORER_BACKPACK }
 ];
 
+export const zombieShirts: Items[] = [
+  Items.SHIRT_DEFAULT,
+  Items.CAMO_TAN_FLANNEL_SHIRT,
+  Items.BLUE_FLANNEL_SHIRT,
+  Items.BROWN_FLANNEL_SHIRT,
+  Items.GREEN_FLANNEL_SHIRT,
+  Items.RED_FLANNEL_SHIRT,
+  Items.PAISLEY_FLANNEL_SHIRT,
+  Items.CAMO_GREEN_FLANNEL_SHIRT,
+  Items.SHIRT_SCRUBS_BLUE,
+  Items.SHIRT_SCRUBS_GRAY,
+  Items.PARAMEDIC_UNIFORM,
+  Items.POLICE_SHIRT
+];
+
+export const zombiePants: Items[] = [
+  Items.PANTS_DEFAULT,
+  Items.FLOWER_PRINT_PANTS,
+  Items.POLICE_SLACKS,
+  Items.LEGGINGS,
+  Items.PANTS_SCRUBS_BLUE,
+  Items.PANTS_SCRUBS_GRAY
+];
+
+export const zombieBoots: Items[] = [
+  Items.BOOTS_GRAY_BLUE,
+  Items.CONVEYS_RED,
+  Items.CONVEYS_BLUE,
+  Items.CONVEYS_WHITE
+];
+
+export const zombieHats: Items[] = [
+  Items.AVIATOR_CAP,
+  Items.BLACK_BEANIE,
+  Items.POLICE_HAT,
+  Items.CAP_SCRUBS_BLUE,
+  Items.CAP_SCRUBS_GRAY
+];
+
+export function getRandomZombieLoadout(): LoadoutKit {
+  const loadout: LoadoutKit = [
+    { item: zombieShirts[Math.floor(Math.random() * zombieShirts.length)] },
+    { item: zombiePants[Math.floor(Math.random() * zombiePants.length)] },
+    { item: zombieBoots[Math.floor(Math.random() * zombieBoots.length)] }
+  ];
+  if (Math.random() < 0.5) {
+    loadout.push({
+      item: zombieHats[Math.floor(Math.random() * zombieHats.length)]
+    });
+  }
+  return loadout;
+}
+
 export const characterVehicleKit = [
   { item: Items.SPARKPLUGS },
   { item: Items.VEHICLE_KEY },
