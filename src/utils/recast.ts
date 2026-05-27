@@ -39,7 +39,7 @@ export class NavManager {
     await initRecast();
     const { navMesh } = importNavMesh(navData);
     this.navmesh = navMesh;
-    const maxAgents = 100;
+    const maxAgents = 1000;
     const maxAgentRadius = 0.6;
 
     this.navMeshQuery = new NavMeshQuery(this.navmesh);
@@ -52,14 +52,6 @@ export class NavManager {
   }
   static navToGame(v: Vector3): Float32Array {
     return new Float32Array([v.x, v.y, v.z, 0]);
-  }
-
-  // Legacy helpers.
-  static Float32ToVec3(f: Float32Array): Vector3 {
-    return { x: f[0], y: f[1], z: f[2] };
-  }
-  static Vec3ToFloat32(v: Vector3): Float32Array {
-    return new Float32Array([v.x, v.y, v.z]);
   }
 
   updt() {
