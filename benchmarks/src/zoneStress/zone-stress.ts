@@ -8,6 +8,7 @@
 // ======================================================================
 
 /* eslint-disable @typescript-eslint/no-require-imports */
+export {};
 process.env["DISABLE_PLUGINS"] = "true";
 
 // ---- CONFIG (edit these) --------------------------------------------
