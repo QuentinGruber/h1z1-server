@@ -1,6 +1,7 @@
 import StateMachine from "javascript-state-machine";
 import type { Npc } from "../entities/npc";
 import type { ZoneServer2016 } from "../zoneserver";
+import type { Sound } from "../../../types/zoneserver";
 import { NavManager } from "../../../utils/recast";
 import { getDistance2d } from "../../../utils/utils";
 
@@ -144,6 +145,19 @@ function setAnim(npc: Npc, anim: string): void {
   npc.playAnimation(anim);
 }
 
+function findNearestSound(npc: Npc, sounds: Sound[]): Sound | null {
+  let nearest: Sound | null = null;
+  let nearestDist = Infinity;
+  for (const sound of sounds) {
+    const dist = getDistance2d(npc.state.position, sound.position);
+    if (dist < sound.radius && dist < nearestDist) {
+      nearest = sound;
+      nearestDist = dist;
+    }
+  }
+  return nearest;
+}
+
 function stopMovement(npc: Npc): void {
   if (!npc.navAgent) return;
   npc.navAgent.requestMoveTarget(NavManager.gameToNav(npc.state.position));
@@ -166,12 +180,12 @@ export function createZombie(npc: Npc, server: ZoneServer2016): ZombieInstance {
         stateTimer: 0,
         patrolTimer: 0,
         lastAttackTime: 0,
-        investigateTimeout: 8
+        investigateTimeout: 120
       };
     },
 
     transitions: [
-      { name: "hearNoise", from: "wander", to: "investigate" },
+      { name: "hearNoise", from: ["wander", "idle"], to: "investigate" },
       {
         name: "seePlayer",
         from: ["wander", "investigate", "idle"],
@@ -279,6 +293,15 @@ export function tickZombie(
         }
       }
 
+      if (zombie.state === "wander") {
+        const nearestSound = findNearestSound(zombie.npc, zone.sounds);
+        if (nearestSound) {
+          zombie.lastNoisePos = nearestSound.position;
+          zombie.hearNoise();
+          break;
+        }
+      }
+
       zombie.patrolTimer += dt;
       const arrived =
         zombie.targetPos != null &&
@@ -314,11 +337,43 @@ export function tickZombie(
           break;
         }
       }
+      if (zombie.state === "idle") {
+        const nearestSound = findNearestSound(zombie.npc, zone.sounds);
+        if (nearestSound) {
+          zombie.lastNoisePos = nearestSound.position;
+          zombie.hearNoise();
+        }
+      }
       break;
     }
 
-    case "investigate":
+    case "investigate": {
+      for (const characterId in zone._characters) {
+        const character = zone._characters[characterId];
+        if (!character.isAlive) continue;
+        if (
+          getDistance2d(zombie.npc.state.position, character.state.position) <
+          10
+        ) {
+          zombie.targetCharacterId = characterId;
+          zombie.seePlayer();
+          break;
+        }
+      }
+      if (zombie.state !== "investigate") break;
+
+      if (zombie.stateTimer >= zombie.investigateTimeout) {
+        zombie.noiseTimeout();
+        break;
+      }
+      const nearestSound = findNearestSound(zombie.npc, zone.sounds);
+      if (nearestSound) {
+        zombie.lastNoisePos = nearestSound.position;
+        zombie.stateTimer = 0;
+        moveToward(zombie.npc, nearestSound.position, zombie.server);
+      }
       break;
+    }
 
     case "chase": {
       const chaseTarget = zombie.targetCharacterId

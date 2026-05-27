@@ -728,3 +728,8 @@ export interface RandomReward {
   reward: number;
   isRare: boolean;
 }
+
+export interface Sound {
+  position : Float32Array,
+  radius : number
+}

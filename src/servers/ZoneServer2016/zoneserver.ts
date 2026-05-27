@@ -71,6 +71,7 @@ import {
   RandomReward,
   RewardCrateDefinition,
   ScreenEffect,
+  Sound,
   StanceFlags,
   UseOption
 } from "../../types/zoneserver";
@@ -533,6 +534,7 @@ export class ZoneServer2016 extends EventEmitter {
   //clientRoutineRate!: number;
   pathfindingRoutine!: NodeJS.Timeout;
   private lastZombieFsmTick: number = Date.now();
+  sounds: Sound[] = [];
 
   constructor(
     serverPort: number,
@@ -8428,6 +8430,10 @@ export class ZoneServer2016 extends EventEmitter {
     if (!weaponItem.weapon || weaponItem.weapon.ammoCount <= 0) {
       return;
     }
+    this.sounds.push({
+      position: client.character.state.position,
+      radius: 500
+    });
     this.challengeManager.registerChallengeProgression(
       client,
       ChallengeType.GLOBAL_DISARMAMENT,
@@ -9952,6 +9958,8 @@ export class ZoneServer2016 extends EventEmitter {
         npc.goTo(gamePos);
       }
     }
+    // reset sounds every tick
+    this.sounds = [];
   }
 }
 
