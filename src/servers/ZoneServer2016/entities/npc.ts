@@ -39,6 +39,7 @@ import { ChallengeType } from "../managers/challengemanager";
 import { ProjectileEntity } from "./projectileentity";
 import { Lootbag } from "../entities/lootbag";
 import { LoadoutContainer } from "../classes/loadoutcontainer";
+import { getRandomZombieLoadout } from "../data/loadouts";
 
 export class Npc extends BaseFullCharacter {
   health: number;
@@ -99,6 +100,9 @@ export class Npc extends BaseFullCharacter {
       case ModelIds.ZOMBIE_MALE_WALKER:
         this.materialType = MaterialTypes.ZOMBIE;
         this.npcMeleeDamage = 2000;
+        for (const entry of getRandomZombieLoadout()) {
+          this.equipItem(server, server.generateItem(entry.item), false);
+        }
         break;
       case ModelIds.ZOMBIE_SCREAMER:
         this.materialType = MaterialTypes.ZOMBIE;

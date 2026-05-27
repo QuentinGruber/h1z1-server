@@ -1261,12 +1261,12 @@ export class WorldObjectManager {
       const authorizedModelId: number[] = [];
       switch (spawnerType.actorDefinition) {
         case "NPCSpawner_ZombieLazy.adr":
-          authorizedModelId.push(9510);
-          authorizedModelId.push(9634);
+          authorizedModelId.push(ModelIds.ZOMBIE_FEMALE_WALKER);
+          authorizedModelId.push(ModelIds.ZOMBIE_MALE_WALKER);
           break;
         case "NPCSpawner_ZombieWalker.adr":
-          authorizedModelId.push(9510);
-          authorizedModelId.push(9634);
+          authorizedModelId.push(ModelIds.ZOMBIE_FEMALE_WALKER);
+          authorizedModelId.push(ModelIds.ZOMBIE_MALE_WALKER);
           break;
         case "NPCSpawner_Deer001.adr":
           authorizedModelId.push(9002);
