@@ -172,7 +172,7 @@ interface GroupConfig {
 
 interface AiConfig {
   enabled: boolean;
-  aiTickRate: number;            // ms between AI FSM ticks
+  aiTickRate: number; // ms between AI FSM ticks
   pathfindingUpdateRate: number; // ms between pathfinding simulation and position sync
 }
 

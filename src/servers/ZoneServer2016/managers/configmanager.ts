@@ -625,8 +625,11 @@ export class ConfigManager {
     //#endregion
 
     //#region ai
-    const { enabled: aiEnabled, aiTickRate, pathfindingUpdateRate } =
-      this.config.ai;
+    const {
+      enabled: aiEnabled,
+      aiTickRate,
+      pathfindingUpdateRate
+    } = this.config.ai;
     server.aiEnabled = aiEnabled;
     server.aiTickRate = aiTickRate;
     server.pathfindingUpdateRate = pathfindingUpdateRate;
