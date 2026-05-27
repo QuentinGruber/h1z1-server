@@ -10296,7 +10296,12 @@ export class ZoneServer2016 extends EventEmitter {
       if (npc.navAgent) {
         const navPos = npc.navAgent.interpolatedPosition;
         const gamePos = NavManager.navToGame(navPos);
-        npc.goTo(gamePos);
+        if (
+          gamePos[0] != npc.state.position[0] ||
+          gamePos[2] != npc.state.position[2]
+        ) {
+          npc.goTo(gamePos);
+        }
       }
     }
   }
