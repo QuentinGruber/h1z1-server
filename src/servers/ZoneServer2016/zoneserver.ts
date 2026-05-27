@@ -2028,11 +2028,13 @@ export class ZoneServer2016 extends EventEmitter {
   }
 
   private async setupServer() {
-    await this.navManager.loadNav();
-    this.pathfindingRoutine = setInterval(
-      () => this.updatePathfindingPositions(),
-      this.navManager.updateFrequency * 1000
-    );
+    if (!process.env.DISABLE_AI) {
+      await this.navManager.loadNav();
+      this.pathfindingRoutine = setInterval(
+        () => this.updatePathfindingPositions(),
+        this.navManager.updateFrequency * 1000
+      );
+    }
     this.weatherManager.init();
     this.playTimeManager.init(this);
     this.initModelsDataSource();

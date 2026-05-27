@@ -98,7 +98,9 @@ export class Npc extends BaseFullCharacter {
     this.health = 10000;
     this.initNpcData();
     this.server = server;
-    this.navAgent = this.server.navManager.createAgent(this.state.position);
+    if (!process.env.DISABLE_AI) {
+      this.navAgent = this.server.navManager.createAgent(this.state.position);
+    }
     switch (actorModelId) {
       case ModelIds.ZOMBIE_FEMALE_WALKER:
       case ModelIds.ZOMBIE_MALE_WALKER:
