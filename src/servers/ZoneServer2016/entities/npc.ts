@@ -39,6 +39,7 @@ import { ChallengeType } from "../managers/challengemanager";
 import { ProjectileEntity } from "./projectileentity";
 import { Lootbag } from "../entities/lootbag";
 import { LoadoutContainer } from "../classes/loadoutcontainer";
+import { ZombieInstance, createZombie } from "../jsms/zombie.jsm";
 
 export class Npc extends BaseFullCharacter {
   health: number;
@@ -78,6 +79,7 @@ export class Npc extends BaseFullCharacter {
   }
   server: ZoneServer2016;
   npcMeleeDamage: number;
+  zombieFsm?: ZombieInstance;
   isSelected: boolean = false;
   constructor(
     characterId: string,
@@ -100,10 +102,12 @@ export class Npc extends BaseFullCharacter {
       case ModelIds.ZOMBIE_MALE_WALKER:
         this.materialType = MaterialTypes.ZOMBIE;
         this.npcMeleeDamage = 2000;
+        this.zombieFsm = createZombie(this, server);
         break;
       case ModelIds.ZOMBIE_SCREAMER:
         this.materialType = MaterialTypes.ZOMBIE;
         this.npcMeleeDamage = 3000;
+        this.zombieFsm = createZombie(this, server);
         break;
       case ModelIds.DEER:
       case ModelIds.DEER_BUCK:
@@ -179,6 +183,7 @@ export class Npc extends BaseFullCharacter {
 
     if ((this.health -= damageInfo.damage) <= 0 && this.isAlive) {
       this.deathTime = Date.now();
+      this.zombieFsm?.destroyed();
       this.flags.knockedOut = 1;
 
       // Custom lootbag for zombies

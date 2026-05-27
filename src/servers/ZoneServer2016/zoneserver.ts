@@ -259,6 +259,7 @@ import { RewardManager } from "./managers/rewardmanager";
 import { DynamicAppearance } from "types/zonedata";
 import { clearInterval, setInterval } from "node:timers";
 import { NavManager } from "../../utils/recast";
+import { tickZombie } from "./jsms/zombie.jsm";
 import { ProjectileEntity } from "./entities/projectileentity";
 import { ChallengeManager, ChallengeType } from "./managers/challengemanager";
 import { RandomEventsManager } from "./managers/randomeventsmanager";
@@ -531,6 +532,7 @@ export class ZoneServer2016 extends EventEmitter {
   //tasksManager: TaskManager;
   //clientRoutineRate!: number;
   pathfindingRoutine!: NodeJS.Timeout;
+  private lastZombieFsmTick: number = Date.now();
 
   constructor(
     serverPort: number,
@@ -9920,7 +9922,21 @@ export class ZoneServer2016 extends EventEmitter {
     return isInPoi;
   }
 
+  private tickZombieFsms(dt: number): void {
+    const safeDt = Math.min(dt, 1.0);
+    for (const k in this._npcs) {
+      const npc = this._npcs[k];
+      if (!npc.zombieFsm || !npc.isAlive) continue;
+      tickZombie(this, npc.zombieFsm, safeDt);
+    }
+  }
+
   updatePathfindingPositions() {
+    const now = Date.now();
+    const dt = (now - this.lastZombieFsmTick) / 1000;
+    this.lastZombieFsmTick = now;
+
+    this.tickZombieFsms(dt);
     this.navManager.updt();
     for (const k in this._npcs) {
       const npc = this._npcs[k];

@@ -104,8 +104,8 @@ export class NavManager {
     const agent = this.crowd.addAgent(spawnPoint, {
       radius: 0.5,
       height: 2,
-      maxAcceleration: 4.0,
-      maxSpeed: 5.0,
+      maxAcceleration: 1.0,
+      maxSpeed: 1.0,
       collisionQueryRange: 0.5,
       pathOptimizationRange: 0.0,
       separationWeight: 0
