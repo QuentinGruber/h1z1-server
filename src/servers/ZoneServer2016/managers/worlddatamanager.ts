@@ -208,13 +208,16 @@ export class WorldDataManager {
   }
 
   async fetchWorldData(): Promise<FetchedWorldData> {
-    const vehicles = (await this.loadVehiclesData()) as FullVehicleSaveData[];
-    const constructionParents =
-      (await this.loadConstructionData()) as ConstructionParentSaveData[];
-    const freeplace =
-      (await this.loadWorldFreeplaceConstruction()) as LootableConstructionSaveData[];
-    const crops = (await this.loadCropData()) as PlantingDiameterSaveData[];
-    const traps = (await this.loadTrapData()) as TrapSaveData[];
+    const [vehicles, constructionParents, freeplace, crops, traps] =
+      await Promise.all([
+        this.loadVehiclesData() as Promise<FullVehicleSaveData[]>,
+        this.loadConstructionData() as Promise<ConstructionParentSaveData[]>,
+        this.loadWorldFreeplaceConstruction() as Promise<
+          LootableConstructionSaveData[]
+        >,
+        this.loadCropData() as Promise<PlantingDiameterSaveData[]>,
+        this.loadTrapData() as Promise<TrapSaveData[]>
+      ]);
     debug("World fetched!");
     return {
       constructionParents,
@@ -255,27 +258,28 @@ export class WorldDataManager {
   }
 
   async deleteWorld() {
-    await this.deleteServerData();
-    await this.deleteCharacters();
+    await Promise.all([this.deleteServerData(), this.deleteCharacters()]);
     debug("World deleted!");
   }
 
   async saveWorld(world: WorldArg) {
     console.time("WDM: saveWorld");
-    await this.saveVehicles(
-      world.vehicles.filter(
-        (vehicle) =>
-          ![VehicleIds.SPECTATE, VehicleIds.PARACHUTE].includes(
-            vehicle.vehicleId
-          )
-      )
-    );
-    await this.saveServerData(world.lastGuidItem);
-    await this.saveCharacters(world.characters);
-    await this.saveConstructionData(world.constructions);
-    await this.saveWorldFreeplaceConstruction(world.worldConstructions);
-    await this.saveCropData(world.crops);
-    await this.saveTrapData(world.traps);
+    await Promise.all([
+      this.saveVehicles(
+        world.vehicles.filter(
+          (vehicle) =>
+            ![VehicleIds.SPECTATE, VehicleIds.PARACHUTE].includes(
+              vehicle.vehicleId
+            )
+        )
+      ),
+      this.saveServerData(world.lastGuidItem),
+      this.saveCharacters(world.characters),
+      this.saveConstructionData(world.constructions),
+      this.saveWorldFreeplaceConstruction(world.worldConstructions),
+      this.saveCropData(world.crops),
+      this.saveTrapData(world.traps)
+    ]);
     console.timeEnd("WDM: saveWorld");
   }
 
@@ -863,9 +867,16 @@ export class WorldDataManager {
           expansionData
         );
         if (!foundation.setExpansionSlot(expansion)) {
+          const slotNum = expansion.getSlotNumber();
           console.error(
             `[WDM] Failed to register expansion slot "${expansion.slot}" (${expansion.characterId}) onto foundation ${foundation.characterId} — slot data may be corrupted`
           );
+          if (slotNum > 0) {
+            foundation.occupiedExpansionSlots[slotNum] = expansion;
+            console.error(
+              `[WDM] Force-inserted expansion at slot ${slotNum} to prevent data loss`
+            );
+          }
         }
       }
     );
@@ -923,7 +934,14 @@ export class WorldDataManager {
     server: ZoneServer2016
   ) {
     constructionParents.forEach((parent) => {
-      WorldDataManager.loadConstructionParentEntity(server, parent);
+      try {
+        WorldDataManager.loadConstructionParentEntity(server, parent);
+      } catch (e) {
+        console.error(
+          `[WDM] Failed to load construction parent entity ${parent.characterId} (item ${parent.itemDefinitionId}) — skipping to avoid blocking remaining entities`,
+          e
+        );
+      }
     });
   }
 

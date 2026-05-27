@@ -19,6 +19,11 @@ import { ZoneServer2016 } from "../zoneserver";
 
 const degradeTrapsCallTime = 1300_000;
 const ttlExplosives = 3600_000 * 3;
+/** Largest triggerRadiusX across all TrapEntity item types (spike trap = 5m) */
+const MAX_TRAP_TRIGGER_RADIUS = 5;
+/** Walk-into radius for ExplosiveEntity trigger */
+const EXPLOSIVE_TRIGGER_RADIUS = 0.6;
+const EXPLOSIVE_TRIGGER_RADIUS_Y = 0.5;
 export class AiManager {
   trapEntities: Set<TrapEntity> = new Set();
   playerEntities: Set<Character2016> = new Set();
@@ -71,22 +76,29 @@ export class AiManager {
 
   private checkTraps() {
     if (this.trapEntities.size === 0 || this.playerEntities.size === 0) return;
-    // Iterate traps in outer loop so the cooldown check skips all player iterations
-    this.trapEntities.forEach((trap) => {
-      if (trap.lastTrigger + trap.cooldown > this.now) return;
-      this.playerEntities.forEach((player) => {
-        if (!player.isAlive) return;
-        if (
-          isPosInRadiusWithY(
-            trap.triggerRadiusX,
-            player.state.position,
-            trap.state.position,
-            trap.triggerRadiusY
-          )
-        ) {
-          trap.detonate(player.characterId);
+    // Instead of checking every trigger against every player, we only check players at nearby cells. The grid range is large enough to cover the biggest trigger radius we use (5m for spike traps).
+    this.playerEntities.forEach((player) => {
+      if (!player.isAlive) return;
+      const cells = this.server.getGridCellsInRadius(
+        player.state.position,
+        MAX_TRAP_TRIGGER_RADIUS
+      );
+      for (const cell of cells) {
+        for (const obj of cell.objects) {
+          if (!(obj instanceof TrapEntity)) continue;
+          if (obj.lastTrigger + obj.cooldown > this.now) continue;
+          if (
+            isPosInRadiusWithY(
+              obj.triggerRadiusX,
+              player.state.position,
+              obj.state.position,
+              obj.triggerRadiusY
+            )
+          ) {
+            obj.detonate(player.characterId);
+          }
         }
-      });
+      }
     });
   }
   private checkExplosive() {
@@ -94,18 +106,26 @@ export class AiManager {
       return;
     this.playerEntities.forEach((player) => {
       if (!player.isAlive) return;
-      this.explosiveEntities.forEach((explosive) => {
-        if (
-          isPosInRadiusWithY(
-            0.6,
-            player.state.position,
-            explosive.state.position,
-            0.5
-          )
-        ) {
-          explosive.detonate(player.characterId);
+      const cells = this.server.getGridCellsInRadius(
+        player.state.position,
+        EXPLOSIVE_TRIGGER_RADIUS
+      );
+      for (const cell of cells) {
+        for (const obj of cell.objects) {
+          if (!(obj instanceof ExplosiveEntity)) continue;
+          if (!obj.isArmed) continue;
+          if (
+            isPosInRadiusWithY(
+              EXPLOSIVE_TRIGGER_RADIUS,
+              player.state.position,
+              obj.state.position,
+              EXPLOSIVE_TRIGGER_RADIUS_Y
+            )
+          ) {
+            obj.detonate(player.characterId);
+          }
         }
-      });
+      }
     });
   }
   private degradeTraps() {

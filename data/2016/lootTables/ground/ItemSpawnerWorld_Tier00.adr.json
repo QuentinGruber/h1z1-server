@@ -118,6 +118,24 @@
           }
         }
       ]
+    },
+    {
+      "conditions": [{ "condition": "poi_tag", "tags": ["high_tier"] }],
+      "entries": [
+        { "item": 10, "weight": 5, "functions": [{ "function": "set_damage", "min": 0.3, "max": 0.9 }] },
+        { "item": 1429, "weight": 10, "count": { "min": 1, "max": 2 } },
+        { "type": "empty", "weight": 85 }
+      ]
+    },
+    {
+      "conditions": [{ "condition": "poi_tag", "tags": ["military"] }],
+      "entries": [
+        { "item": 2229, "weight": 3, "functions": [{ "function": "set_damage", "min": 0.3, "max": 0.9 }] },
+        { "item": 2325, "weight": 8, "count": { "min": 1, "max": 2 } },
+        { "item": 10, "weight": 5, "functions": [{ "function": "set_damage", "min": 0.2, "max": 0.8 }] },
+        { "item": 1429, "weight": 10, "count": { "min": 1, "max": 2 } },
+        { "type": "empty", "weight": 74 }
+      ]
     }
   ]
 }

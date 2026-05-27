@@ -1,6 +1,6 @@
 {
   "name": "h1z1-server",
-  "version": "0.47.4-9",
+  "version": "0.48.1-1",
   "description": "Library for emulating h1z1 servers",
   "author": "Quentin Gruber <quentingruber@gmail.com> (http://github.com/quentingruber)",
   "license": "GPL-3.0-only",
@@ -49,6 +49,9 @@
     "start": "node --no-warnings --experimental-require-module ./scripts/h1z1-server-demo-2016.js",
     "start-dev": "npm run build && npm start",
     "start-echo": "npm run build && npm run build-benchs && node --inspect ./benchmarks/out/echo/echo-server-start.js",
+    "stress": "npm run build && npm run build-benchs && node benchmarks/out/zoneStress/zone-stress.js",
+    "stress-profile": "npm run build && npm run build-benchs && node --cpu-prof benchmarks/out/zoneStress/zone-stress.js",
+    "stress-inspect": "npm run build && npm run build-benchs && node --inspect benchmarks/out/zoneStress/zone-stress.js",
     "lint": "oxlint -c oxlintrc.json src",
     "lint-quiet": "oxlint --quiet -c oxlintrc.json src",
     "build": "npm run build-all",

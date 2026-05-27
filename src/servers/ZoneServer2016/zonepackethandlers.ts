@@ -168,6 +168,7 @@ import { LoadoutItem } from "./classes/loadoutItem";
 import { BaseItem } from "./classes/baseItem";
 import { Collection } from "mongodb";
 import { ItemObject } from "./entities/itemobject";
+import { ExplosiveEntity } from "./entities/explosiveentity";
 
 function getStanceFlags(num: number): StanceFlags {
   function getBit(bin: string, bit: number) {
@@ -350,18 +351,21 @@ export class ZonePacketHandlers {
         );
         client.character.state.position = awaitingPos;
         client.character.awaitingTeleportLocation = undefined;
-        // fixes characters showing up as dead if they respawn close to other characters
-        // also clear spawnedEntities so the server and client stay in sync
-        for (const a in server._clients) {
-          const c = server._clients[a];
-          if (c === client) continue;
-          if (c.spawnedEntities.has(client.character)) {
-            server.sendData(c, "Character.RemovePlayer", {
-              characterId: client.character.characterId
-            });
-            c.spawnedEntities.delete(client.character);
+        // Defer the de-spawn sweep so concurrent teleports don't stack.
+        setImmediate(() => {
+          // fixes characters showing up as dead if they respawn close to other characters
+          // also clear spawnedEntities so the server and client stay in sync
+          for (const a in server._clients) {
+            const c = server._clients[a];
+            if (c === client) continue;
+            if (c.spawnedEntities.has(client.character)) {
+              server.sendData(c, "Character.RemovePlayer", {
+                characterId: client.character.characterId
+              });
+              c.spawnedEntities.delete(client.character);
+            }
           }
-        }
+        });
         setTimeout(() => {
           if (!client?.character) return;
           server.spawnCharacterToOtherClients(client.character);
@@ -1497,20 +1501,10 @@ export class ZonePacketHandlers {
     if (stance) {
       const stanceFlags = getStanceFlags(stance);
 
-      if (stanceFlags.SITTING) {
-        server.sendData<CommandRunSpeed>(client, "Command.RunSpeed", {
-          runSpeed: 0.1
-        });
-        setTimeout(() => {
-          server.sendData<CommandRunSpeed>(client, "Command.RunSpeed", {
-            runSpeed: 0
-          });
-        }, 2000);
-      }
-
       // Detect movements based on stance
       server.fairPlayManager.detectJumpXSMovement(server, client, stanceFlags);
       server.fairPlayManager.detectDroneMovement(server, client, stanceFlags);
+      server.detectSnaking(server, client, stanceFlags);
       server.detectEnasMovement(server, client, stanceFlags);
 
       // Handle jump logic
@@ -1618,6 +1612,20 @@ export class ZonePacketHandlers {
         }, 1500);
       }
       client.character.state.position = position;
+
+      // Check if player stepped on an armed landmine
+      if (server.aiManager.explosiveEntities.size > 0) {
+        const landmineCells = server.getGridCellsInRadius(position, 0.6);
+        for (const cell of landmineCells) {
+          for (const obj of cell.objects) {
+            if (!(obj instanceof ExplosiveEntity)) continue;
+            if (!obj.isArmed) continue;
+            if (isPosInRadiusWithY(0.6, position, obj.state.position, 0.5)) {
+              obj.detonate(client.character.characterId);
+            }
+          }
+        }
+      }
 
       // Stop HUD timer if position is out of radius
       if (

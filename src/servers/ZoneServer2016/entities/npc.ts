@@ -40,6 +40,7 @@ import { ProjectileEntity } from "./projectileentity";
 import { Lootbag } from "../entities/lootbag";
 import { LoadoutContainer } from "../classes/loadoutcontainer";
 import { ZombieInstance, createZombie } from "../jsms/zombie.jsm";
+import { getRandomZombieLoadout } from "../data/loadouts";
 
 export class Npc extends BaseFullCharacter {
   health: number;
@@ -104,6 +105,9 @@ export class Npc extends BaseFullCharacter {
         this.materialType = MaterialTypes.ZOMBIE;
         this.npcMeleeDamage = 2000;
         this.zombieFsm = createZombie(this, server);
+        for (const entry of getRandomZombieLoadout()) {
+          this.equipItem(server, server.generateItem(entry.item), false);
+        }
         break;
       case ModelIds.ZOMBIE_SCREAMER:
         this.materialType = MaterialTypes.ZOMBIE;

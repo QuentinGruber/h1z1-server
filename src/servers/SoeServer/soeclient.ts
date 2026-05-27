@@ -90,6 +90,13 @@ export default class SOEClient {
       packetResend,
       packetsOutOfOrder
     } = this.stats;
+    if (totalPacketSent === 0) {
+      return [
+        `Packet loss rate 0%`,
+        `Packet outOfOrder rate 0%`,
+        `Avg ping ${this.avgPing}ms`
+      ];
+    }
     const packetLossRate =
       Number((packetResend / totalPacketSent).toFixed(3)) * 100;
     const packetOutOfOrderRate =

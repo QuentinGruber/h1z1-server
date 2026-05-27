@@ -879,9 +879,16 @@ export class LoginServer extends EventEmitter {
           gameVersion: client.gameVersion
         })
         .toArray();
+      const loginSessionId = await this.getGuidByAuthkey(client.authKey);
+      const isAdmin = Boolean(
+        loginSessionId &&
+        (await this._db
+          .collection(DB_COLLECTIONS.ADMINS)
+          .findOne({ sessionId: loginSessionId, permissionLevel: { $ne: 0 } }))
+      );
       servers = servers
         .map((server: GameServer) => {
-          if (server.locked) {
+          if (server.locked && !isAdmin) {
             server.allowedAccess = false;
           }
           return server;
