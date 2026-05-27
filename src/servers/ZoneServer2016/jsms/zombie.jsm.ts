@@ -23,6 +23,8 @@ export type ZombieTransition =
   | "playerBacked"
   | "playerKilled"
   | "doneFeeding"
+  | "idleTimeout"
+  | "spotPlayer"
   | "destroyed";
 
 export interface ZombieInstance extends StateMachine {
@@ -48,6 +50,8 @@ export interface ZombieInstance extends StateMachine {
   playerBacked(): void;
   playerKilled(): void;
   doneFeeding(): void;
+  idleTimeout(): void;
+  spotPlayer(): void;
   destroyed(): void;
   goto(state: ZombieState): void;
 }
@@ -116,8 +120,10 @@ export function createZombie(npc: Npc, server: ZoneServer2016): ZombieInstance {
       { name: "lostPlayer", from: "chase", to: "wander" },
       { name: "playerBacked", from: "attack", to: "chase" },
       { name: "playerKilled", from: "attack", to: "feed" },
-      { name: "doneFeeding", from: "feed", to: "wander" },
-      { name: "destroyed", from: "*", to: "dead" }
+      { name: "doneFeeding",  from: "feed",   to: "wander" },
+      { name: "idleTimeout", from: "wander", to: "idle"   },
+      { name: "spotPlayer",  from: "idle",   to: "attack" },
+      { name: "destroyed",   from: "*",      to: "dead"   }
     ],
 
     methods: {
@@ -146,6 +152,11 @@ export function createZombie(npc: Npc, server: ZoneServer2016): ZombieInstance {
         stopMovement(this.npc);
         this.lastAttackTime = 2;
         playAnim(this.npc, "bite");
+      },
+
+      onIdle(this: ZombieInstance): void {
+        this.stateTimer = 0;
+        stopMovement(this.npc);
       },
 
       onFeed(this: ZombieInstance): void {
@@ -195,23 +206,32 @@ export function tickZombie(
 
   switch (zombie.state) {
     case "wander": {
-      zombie.npc.playAnimation("Zombie001_11_Walk");
       zombie.patrolTimer += dt;
       const arrived =
         zombie.targetPos != null &&
         getDistance2d(zombie.npc.state.position, zombie.targetPos) < 3;
-      const timedOut = zombie.patrolTimer > 30;
 
-      if (arrived || timedOut || zombie.targetPos == null) {
+      if (zombie.patrolTimer >= 30) {
+        zombie.idleTimeout();
+      } else if (arrived || zombie.targetPos == null) {
         zombie.patrolTimer = 0;
-        const pt = pickPatrolPoint(
-          zombie.npc,
-          zombie.server,
-          zombie.wanderOrigin
-        );
+        const pt = pickPatrolPoint(zombie.npc, zombie.server, zombie.wanderOrigin);
         if (pt) {
           zombie.targetPos = pt;
           moveToward(zombie.npc, pt, zombie.server);
+        }
+      }
+      break;
+    }
+
+    case "idle": {
+      for (const characterId in zone._characters) {
+        const character = zone._characters[characterId];
+        if (!character.isAlive) continue;
+        if (getDistance2d(zombie.npc.state.position, character.state.position) < 1) {
+          zombie.targetCharacterId = characterId;
+          zombie.spotPlayer();
+          break;
         }
       }
       break;
@@ -223,8 +243,20 @@ export function tickZombie(
     case "chase":
       break;
 
-    case "attack":
+    case "attack": {
+      if (zombie.targetCharacterId && zombie.lastAttackTime > 2) {
+        const target = zone._characters[zombie.targetCharacterId];
+        if (
+          target &&
+          target.isAlive &&
+          getDistance2d(zombie.npc.state.position, target.state.position) < 1
+        ) {
+          dealDamage(zombie.npc, zombie.targetCharacterId);
+          zombie.lastAttackTime = 0;
+        }
+      }
       break;
+    }
 
     case "feed":
       zombie.hunger = Math.max(0, zombie.hunger - dt * 15);
