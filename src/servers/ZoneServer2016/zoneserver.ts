@@ -522,6 +522,9 @@ export class ZoneServer2016 extends EventEmitter {
   inGameTimeManager: IngameTimeManager = new IngameTimeManager();
   commandHandler: CommandHandler;
   dynamicappearance: DynamicAppearance;
+  pathfindingRoutine?: NodeJS.Timeout;
+  aiTickRoutine?: NodeJS.Timeout;
+  private lastZombieFsmTick: number = Date.now();
 
   /** MANAGED BY CONFIGMANAGER - See defaultConfig.yaml for more information */
   proximityItemsDistance!: number;
@@ -558,8 +561,9 @@ export class ZoneServer2016 extends EventEmitter {
   maxPacketLoss: number = 5;
   //tasksManager: TaskManager;
   //clientRoutineRate!: number;
-  pathfindingRoutine!: NodeJS.Timeout;
-  private lastZombieFsmTick: number = Date.now();
+  aiEnabled!: boolean;
+  aiTickRate!: number;
+  pathfindingUpdateRate!: number;
   sounds: Sound[] = [];
 
   constructor(
@@ -1067,6 +1071,8 @@ export class ZoneServer2016 extends EventEmitter {
 
   async stop() {
     clearInterval(this.challengePositionCheckInterval);
+    clearInterval(this.aiTickRoutine);
+    clearInterval(this.pathfindingRoutine);
     this.worldDataManager.kill();
     await this.worldObjectManager.stop();
     await this.explosionManager.stop();
@@ -2028,11 +2034,13 @@ export class ZoneServer2016 extends EventEmitter {
   }
 
   private async setupServer() {
-    if (!process.env.DISABLE_AI) {
+    if (!process.env.DISABLE_AI && this.aiEnabled) {
       await this.navManager.loadNav();
+      this.navManager.updateFrequency = this.pathfindingUpdateRate / 1000;
+      this.aiTickRoutine = setInterval(() => this.tickAi(), this.aiTickRate);
       this.pathfindingRoutine = setInterval(
         () => this.updatePathfindingPositions(),
-        this.navManager.updateFrequency * 1000
+        this.pathfindingUpdateRate
       );
     }
     this.weatherManager.init();
@@ -10272,12 +10280,16 @@ export class ZoneServer2016 extends EventEmitter {
     }
   }
 
-  updatePathfindingPositions() {
+  private tickAi(): void {
     const now = Date.now();
     const dt = (now - this.lastZombieFsmTick) / 1000;
     this.lastZombieFsmTick = now;
-
     this.tickZombieFsms(dt);
+    // reset sounds every AI tick
+    this.sounds = [];
+  }
+
+  updatePathfindingPositions(): void {
     this.navManager.updt();
     for (const k in this._npcs) {
       const npc = this._npcs[k];
@@ -10287,8 +10299,6 @@ export class ZoneServer2016 extends EventEmitter {
         npc.goTo(gamePos);
       }
     }
-    // reset sounds every tick
-    this.sounds = [];
   }
 }
 

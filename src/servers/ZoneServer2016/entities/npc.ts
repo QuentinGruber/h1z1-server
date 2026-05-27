@@ -98,7 +98,7 @@ export class Npc extends BaseFullCharacter {
     this.health = 10000;
     this.initNpcData();
     this.server = server;
-    if (!process.env.DISABLE_AI) {
+    if (!process.env.DISABLE_AI && this.server.aiEnabled) {
       this.navAgent = this.server.navManager.createAgent(this.state.position);
     }
     switch (actorModelId) {
@@ -106,7 +106,10 @@ export class Npc extends BaseFullCharacter {
       case ModelIds.ZOMBIE_MALE_WALKER:
         this.materialType = MaterialTypes.ZOMBIE;
         this.npcMeleeDamage = 2000;
-        this.zombieFsm = createZombie(this, server);
+
+        if (!process.env.DISABLE_AI && this.server.aiEnabled) {
+          this.zombieFsm = createZombie(this, server);
+        }
         for (const entry of getRandomZombieLoadout()) {
           this.equipItem(server, server.generateItem(entry.item), false);
         }
@@ -114,7 +117,6 @@ export class Npc extends BaseFullCharacter {
       case ModelIds.ZOMBIE_SCREAMER:
         this.materialType = MaterialTypes.ZOMBIE;
         this.npcMeleeDamage = 3000;
-        this.zombieFsm = createZombie(this, server);
         break;
       case ModelIds.DEER:
       case ModelIds.DEER_BUCK:

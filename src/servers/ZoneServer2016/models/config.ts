@@ -170,6 +170,12 @@ interface GroupConfig {
   foundation_player_limit: number;
 }
 
+interface AiConfig {
+  enabled: boolean;
+  aiTickRate: number;            // ms between AI FSM ticks
+  pathfindingUpdateRate: number; // ms between pathfinding simulation and position sync
+}
+
 export interface Config {
   server: ServerConfig;
   rcon: RconConfig;
@@ -186,4 +192,5 @@ export interface Config {
   smelting: SmeltingConfig;
   randomevents: RandomEventsConfig;
   groups: GroupConfig;
+  ai: AiConfig;
 }

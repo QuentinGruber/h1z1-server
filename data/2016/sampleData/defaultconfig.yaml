@@ -206,3 +206,8 @@ groups:
   enabled: true
   player_limit: 12
   foundation_player_limit: 12
+
+ai:
+  enabled: true
+  aiTickRate: 200          # ms between AI FSM (zombie state machine) ticks
+  pathfindingUpdateRate: 200 # ms between pathfinding simulation and position sync

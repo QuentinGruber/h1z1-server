@@ -118,7 +118,8 @@ export class ConfigManager {
       decay,
       smelting,
       randomevents,
-      groups
+      groups,
+      ai
     } = this.defaultConfig;
     return {
       ...this.defaultConfig,
@@ -178,6 +179,10 @@ export class ConfigManager {
       groups: {
         ...groups,
         ...config.groups
+      },
+      ai: {
+        ...ai,
+        ...config.ai
       }
     };
   }
@@ -280,6 +285,11 @@ export class ConfigManager {
     this.applyEnvToSection(
       "GROUPS",
       this.config.groups as unknown as Record<string, unknown>,
+      normalizedEnv
+    );
+    this.applyEnvToSection(
+      "AI",
+      this.config.ai as unknown as Record<string, unknown>,
       normalizedEnv
     );
 
@@ -612,6 +622,14 @@ export class ConfigManager {
     server.groupManager.playerLimit = player_limit;
     server.groupManager.foundationPlayerLimit = foundation_player_limit;
     server.groupManager.enabled = enabled;
+    //#endregion
+
+    //#region ai
+    const { enabled: aiEnabled, aiTickRate, pathfindingUpdateRate } =
+      this.config.ai;
+    server.aiEnabled = aiEnabled;
+    server.aiTickRate = aiTickRate;
+    server.pathfindingUpdateRate = pathfindingUpdateRate;
     //#endregion
   }
 }
