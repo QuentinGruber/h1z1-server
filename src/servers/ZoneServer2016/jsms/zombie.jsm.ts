@@ -3,6 +3,7 @@ import type { Npc } from "../entities/npc";
 import type { ZoneServer2016 } from "../zoneserver";
 import type { Sound } from "../../../types/zoneserver";
 import { NavManager } from "../../../utils/recast";
+const debug = require("debug")("ai");
 import { getDistance2d } from "../../../utils/utils";
 
 export const enum ZombieLoopingAnim {
@@ -259,7 +260,7 @@ export function createZombie(npc: Npc, server: ZoneServer2016): ZombieInstance {
         this: ZombieInstance,
         lifecycle: { from: string; to: string; transition: string }
       ): void {
-        console.log(
+        debug(
           `[${this.id}] ${lifecycle.from} → ${lifecycle.to} (${lifecycle.transition})`
         );
       }
