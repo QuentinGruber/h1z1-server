@@ -25,9 +25,9 @@ const CONFIG = {
 // ---------------------------------------------------------------------
 
 const { ZoneServer2016 } = require("../../../h1z1-server");
-const { ModelIds } = require(
-  "../../../out/servers/ZoneServer2016/models/enums"
-);
+const {
+  ModelIds
+} = require("../../../out/servers/ZoneServer2016/models/enums");
 const { createFakeCharacter } = require("../../../out/utils/test.utils");
 
 // ---- Helpers --------------------------------------------------------
@@ -94,7 +94,9 @@ async function main() {
   const SPAWN_RADIUS = 400;
 
   // --- Spawn zombies --------------------------------------------------
-  console.log(`Spawning ${CONFIG.npcCount} zombies around (${CENTER_X}, ${CENTER_Y}, ${CENTER_Z})…`);
+  console.log(
+    `Spawning ${CONFIG.npcCount} zombies around (${CENTER_X}, ${CENTER_Y}, ${CENTER_Z})…`
+  );
   const rot = new Float32Array([0, 0, 0, 0]);
 
   for (let i = 0; i < CONFIG.npcCount; i++) {
@@ -125,17 +127,41 @@ async function main() {
   // --- Instrument updatePathfindingPositions --------------------------
   // The server already schedules this via setInterval(200ms) in start().
   // We wrap it to capture wall-clock timing without changing scheduling.
+  //
+  // Metrics are split into three buckets:
+  //   nav  — Recast crowd.update() (pathfinding computation)
+  //   sync — NPC position-sync loop (reads interpolatedPosition, calls goTo)
+  //   tick — total (nav + sync + overhead)
   let totalTicks = 0;
   let totalTickMs = 0;
+  let totalNavMs = 0;
+  let totalSyncMs = 0;
+  let lastNavMs = 0;
+
   const tickStats = new RollingStats();
+  const navStats = new RollingStats(); // crowd.update() time
+  const syncStats = new RollingStats(); // position-sync loop time
+
+  // Wrap navManager.updt so we can time the Recast crowd update separately.
+  const origNavUpdt = server.navManager.updt.bind(server.navManager);
+  server.navManager.updt = () => {
+    const t0 = performance.now();
+    origNavUpdt();
+    lastNavMs = performance.now() - t0;
+    navStats.push(lastNavMs);
+    totalNavMs += lastNavMs;
+  };
 
   const origTick = server.updatePathfindingPositions.bind(server);
   server.updatePathfindingPositions = () => {
     const t0 = performance.now();
-    origTick();
+    origTick(); // calls the wrapped navManager.updt internally
     const dt = performance.now() - t0;
+    const syncMs = dt - lastNavMs; // remainder = NPC position-sync loop
     tickStats.push(dt);
+    syncStats.push(syncMs);
     totalTickMs += dt;
+    totalSyncMs += syncMs;
     totalTicks++;
   };
 
@@ -145,11 +171,21 @@ async function main() {
     t: number;
     tickAvgMs: number;
     tickMaxMs: number;
+    navMaxMs: number;
+    syncMaxMs: number;
     memMB: number;
     stateDist: Record<string, number>;
   }[] = [];
 
-  const ZOMBIE_STATES = ["idle", "wander", "investigate", "chase", "attack", "feed", "dead"];
+  const ZOMBIE_STATES = [
+    "idle",
+    "wander",
+    "investigate",
+    "chase",
+    "attack",
+    "feed",
+    "dead"
+  ];
 
   function getStateDist(srv: any): Record<string, number> {
     const dist: Record<string, number> = {};
@@ -172,10 +208,22 @@ async function main() {
     const ticksPerSec = tAvg > 0 ? (1000 / tAvg).toFixed(1) : "?";
     const dist = getStateDist(server);
 
-    statRows.push({ t, tickAvgMs: tAvg, tickMaxMs: tMax, memMB, stateDist: dist });
+    const nAvg = navStats.avg();
+    const nMax = navStats.max();
+    const sAvg = syncStats.avg();
+    const sMax = syncStats.max();
 
-    const distStr = ZOMBIE_STATES
-      .filter((s) => dist[s] > 0)
+    statRows.push({
+      t,
+      tickAvgMs: tAvg,
+      tickMaxMs: tMax,
+      navMaxMs: nMax,
+      syncMaxMs: sMax,
+      memMB,
+      stateDist: dist
+    });
+
+    const distStr = ZOMBIE_STATES.filter((s) => dist[s] > 0)
       .map((s) => `${s}:${dist[s]}`)
       .join(" ");
 
@@ -185,6 +233,11 @@ async function main() {
         `  (~${String(ticksPerSec).padStart(5)}/s)` +
         `  mem=${memMB}MB` +
         `  [${distStr}]`
+    );
+    console.log(
+      `        ` +
+        `  nav  avg=${nAvg.toFixed(2).padStart(7)}ms  max=${nMax.toFixed(2).padStart(7)}ms` +
+        `  |  sync avg=${sAvg.toFixed(2).padStart(7)}ms  max=${sMax.toFixed(2).padStart(7)}ms`
     );
   }, CONFIG.statsIntervalMs);
 
@@ -208,6 +261,21 @@ async function main() {
     // CPU % = total ms spent in AI tick / total wall-time ms * 100
     const wallMs = elapsed * 1000;
     const cpuPct = ((totalTickMs / wallMs) * 100).toFixed(1);
+    const navCpuPct = ((totalNavMs / wallMs) * 100).toFixed(1);
+    const syncCpuPct = ((totalSyncMs / wallMs) * 100).toFixed(1);
+
+    const navAvgOverall =
+      totalTicks > 0 ? (totalNavMs / totalTicks).toFixed(2) : "0";
+    const syncAvgOverall =
+      totalTicks > 0 ? (totalSyncMs / totalTicks).toFixed(2) : "0";
+
+    // Collect nav/sync peaks from the stat rows (rolling windows only cover last N samples).
+    const navPeak = statRows.length
+      ? Math.max(...statRows.map((r) => r.navMaxMs)).toFixed(2)
+      : "0";
+    const syncPeak = statRows.length
+      ? Math.max(...statRows.map((r) => r.syncMaxMs)).toFixed(2)
+      : "0";
 
     // Final state distribution
     const finalDist = getStateDist(server);
@@ -220,12 +288,20 @@ async function main() {
     console.log(`Tick latency avg:      ${tickAvgOverall}ms`);
     console.log(`Tick latency peak:     ${tickPeak}ms`);
     console.log(`AI tick CPU:           ${cpuPct}% of wall time`);
+    console.log(
+      `  Nav (crowd) avg:     ${navAvgOverall}ms  peak: ${navPeak}ms  (${navCpuPct}% of wall time)`
+    );
+    console.log(
+      `  Pos-sync avg:        ${syncAvgOverall}ms  peak: ${syncPeak}ms  (${syncCpuPct}% of wall time)`
+    );
     console.log(`Memory avg / peak:     ${memAvg}MB / ${memPeak}MB`);
     console.log(`Final state dist:`);
     for (const s of ZOMBIE_STATES) {
       if (finalDist[s] > 0) {
         const pct = ((finalDist[s] / npcCount) * 100).toFixed(1);
-        console.log(`  ${s.padEnd(12)} ${String(finalDist[s]).padStart(5)} (${pct}%)`);
+        console.log(
+          `  ${s.padEnd(12)} ${String(finalDist[s]).padStart(5)} (${pct}%)`
+        );
       }
     }
 
