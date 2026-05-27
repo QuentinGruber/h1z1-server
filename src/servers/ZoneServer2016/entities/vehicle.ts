@@ -373,7 +373,7 @@ export class Vehicle2016 extends BaseLootableEntity {
         break;
       }
     }
-    server.aiManager.addEntity(this);
+    server.explosiveManager.addEntity(this);
   }
 
   getSeatCount() {
@@ -1345,7 +1345,7 @@ export class Vehicle2016 extends BaseLootableEntity {
     // TODO: Have to revisit when the heightmap is implemented server side.
     // fix floating vehicle lootbags
     server.worldObjectManager.createLootbag(server, this);
-    server.aiManager.removeEntity(this);
+    server.explosiveManager.removeEntity(this);
     return deleted;
   }
 

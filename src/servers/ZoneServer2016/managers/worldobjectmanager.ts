@@ -70,7 +70,6 @@ import { CharacterPlayWorldCompositeEffect } from "types/zone2016packets";
 import { WaterSource } from "../entities/watersource";
 import { TreasureChest } from "../entities/treasurechest";
 import { Npc } from "../entities/npc";
-//import { EntityType } from "h1emu-ai";
 import { scheduler } from "node:timers/promises";
 import {
   ContainerPropSnapshot,

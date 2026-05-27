@@ -88,19 +88,19 @@ export class TrapEntity extends BaseSimpleNpc {
     switch (this.itemDefinitionId) {
       case Items.PUNJI_STICKS:
       case Items.PUNJI_STICK_ROW:
-        this.server.aiManager.addEntity(this);
+        this.server.explosiveManager.addEntity(this);
         this.cooldown = 500;
         this.triggerRadiusX = 0.8;
         this.triggerRadiusY = 0.5;
         break;
       case Items.SNARE:
-        this.server.aiManager.addEntity(this);
+        this.server.explosiveManager.addEntity(this);
         this.cooldown = 200;
         this.triggerRadiusX = 1;
         this.triggerRadiusY = 0.5;
         break;
       case Items.BARBED_WIRE:
-        this.server.aiManager.addEntity(this);
+        this.server.explosiveManager.addEntity(this);
         this.cooldown = 200;
         this.triggerRadiusX = 5;
         break;
@@ -108,7 +108,7 @@ export class TrapEntity extends BaseSimpleNpc {
       case Items.TRAP_FLASH:
         // Wait 10 seconds before activating the trap
         await new Promise<void>((resolve) => setTimeout(resolve, 10000));
-        this.server.aiManager.addEntity(this);
+        this.server.explosiveManager.addEntity(this);
         this.cooldown = 90;
         this.triggerRadiusX = 1;
         this.triggerRadiusY = 0.5;

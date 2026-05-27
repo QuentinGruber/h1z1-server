@@ -134,7 +134,7 @@ export class Npc extends BaseFullCharacter {
         this.npcMeleeDamage = 0;
         break;
     }
-    server.aiManager.addEntity(this);
+    server.explosiveManager.addEntity(this);
   }
 
   setAnimation(animationName: string) {

@@ -112,7 +112,7 @@ export class ExplosiveEntity extends BaseLightweightCharacter {
     // Wait 10 seconds before activating the trap
     await scheduler.wait(10_000);
     this.isArmed = true;
-    server.aiManager.addEntity(this);
+    server.explosiveManager.addEntity(this);
   }
 
   /** Called when the explosive gets hit by a projectile (bullet, arrow, etc.) */

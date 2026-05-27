@@ -392,7 +392,7 @@ export class ZonePacketHandlers {
       if (client.firstCharacterReleased) {
         server.challengeManager.loadChallenges(client);
         client.firstCharacterReleased = false;
-        server.aiManager.addEntity(client.character);
+        server.explosiveManager.addEntity(client.character);
         if (
           server.voiceChatManager.useVoiceChatV2 &&
           server.voiceChatManager.joinVoiceChatOnConnect
@@ -1614,7 +1614,7 @@ export class ZonePacketHandlers {
       client.character.state.position = position;
 
       // Check if player stepped on an armed landmine
-      if (server.aiManager.explosiveEntities.size > 0) {
+      if (server.explosiveManager.explosiveEntities.size > 0) {
         const landmineCells = server.getGridCellsInRadius(position, 0.6);
         for (const cell of landmineCells) {
           for (const obj of cell.objects) {

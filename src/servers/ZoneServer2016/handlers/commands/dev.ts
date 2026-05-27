@@ -719,7 +719,7 @@ const dev: any = {
     });
   },
   ai: function (server: ZoneServer2016, client: Client, args: Array<string>) {
-    server.sendChatText(client, server.aiManager.getEntitiesStats());
+    server.sendChatText(client, server.explosiveManager.getEntitiesStats());
   },
   zombie_test: async function (
     server: ZoneServer2016,

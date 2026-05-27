@@ -266,7 +266,7 @@ import { ProjectileEntity } from "./entities/projectileentity";
 import { ChallengeManager, ChallengeType } from "./managers/challengemanager";
 import { RandomEventsManager } from "./managers/randomeventsmanager";
 import { ExplosionManager } from "./managers/explosionmanager";
-import { AiManager } from "./managers/aimanager";
+import { AiManager } from "./managers/explosivemanager";
 import { AirdropManager } from "./managers/airdropmanager";
 import { PacketEncodingWorker } from "./managers/packetencodingworker";
 //import { TaskManager } from "./managers/tasksmanager";
@@ -465,7 +465,7 @@ export class ZoneServer2016 extends EventEmitter {
   pluginManager: PluginManager;
   configManager: ConfigManager;
   playTimeManager: PlayTimeManager;
-  aiManager: AiManager;
+  explosiveManager: AiManager;
   airdropManager: AirdropManager;
 
   _ready: boolean = false;
@@ -594,7 +594,7 @@ export class ZoneServer2016 extends EventEmitter {
     this.pluginManager = new PluginManager();
     this.commandHandler = new CommandHandler();
     this.playTimeManager = new PlayTimeManager();
-    this.aiManager = new AiManager(this);
+    this.explosiveManager = new AiManager(this);
     this.airdropManager = new AirdropManager(this);
     this.navManager = new NavManager();
     this.challengeManager = new ChallengeManager(this);
@@ -2284,22 +2284,22 @@ export class ZoneServer2016 extends EventEmitter {
     }
   }
 
-  startH1emuAi() {
+  startExplosiveManager() {
     setInterval(() => {
       try {
-        if (process.env.ENABLE_AI_TIME_LOGS) {
+        if (process.env.ENABLE_EXPLOSIVE_TIME_LOGS) {
           const start = performance.now();
-          this.aiManager.run();
+          this.explosiveManager.run();
           const end = performance.now();
           const duration = end - start;
           if (duration >= 1) {
             console.log(
-              `H1emu-ai took ${duration}ms with ${this.aiManager.getEntitiesTotalNumber()} entities`
+              `H1emu-ai took ${duration}ms with ${this.explosiveManager.getEntitiesTotalNumber()} entities`
             );
           }
-          console.log(this.aiManager.getEntitiesStats());
+          console.log(this.explosiveManager.getEntitiesStats());
         } else {
-          this.aiManager.run();
+          this.explosiveManager.run();
         }
       } catch (e) {
         console.error(e);
@@ -2358,9 +2358,7 @@ export class ZoneServer2016 extends EventEmitter {
       this.rewardManager.start();
     }
     this.hookManager.checkHook("OnServerReady");
-    if (!process.env.DISABLE_AI) {
-      this.startH1emuAi();
-    }
+    this.startExplosiveManager();
     this.challengePositionCheckInterval = setInterval(
       () => this.checkPlayersPositionsChallenges(),
       30_000
@@ -2823,7 +2821,7 @@ export class ZoneServer2016 extends EventEmitter {
 
     if (client.character) {
       client.isLoading = true; // stop anything from acting on character
-      this.aiManager.removeEntity(client.character);
+      this.explosiveManager.removeEntity(client.character);
       // "shift" time played prior to logging out
       client.character.metrics.startedSurvivingTP +=
         Date.now() - Number(client.character.lastLoginDate);
@@ -4442,7 +4440,7 @@ export class ZoneServer2016 extends EventEmitter {
 
     // 5. Clean up registries
     for (const { id, entity } of entities) {
-      this.aiManager.removeEntity(entity);
+      this.explosiveManager.removeEntity(entity);
       delete dictionary[id];
       delete this._transientIds[this._characterIds[id]];
       delete this._characterIds[id];
@@ -4487,7 +4485,7 @@ export class ZoneServer2016 extends EventEmitter {
         );
       }
     }
-    this.aiManager.removeEntity(entity);
+    this.explosiveManager.removeEntity(entity);
     delete dictionary[characterId];
     delete this._transientIds[this._characterIds[characterId]];
     delete this._characterIds[characterId];
