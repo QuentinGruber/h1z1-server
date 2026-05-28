@@ -12,8 +12,10 @@
 // ======================================================================
 
 import { readFileSync } from "node:fs";
+import { writeFile } from "node:fs/promises";
 import {
   CrowdAgent,
+  getNavMeshPositionsAndIndices,
   init as initRecast,
   NavMesh,
   statusToReadableString,
@@ -106,5 +108,27 @@ export class NavManager {
       `createAgent: agentIdx=${agent.agentIndex} navPos=[${spawnPoint.x.toFixed(2)}, ${spawnPoint.y.toFixed(2)}, ${spawnPoint.z.toFixed(2)}]`
     );
     return agent;
+  }
+
+  genObjDebugNavMesh() {
+    const [positions, indices] = getNavMeshPositionsAndIndices(this.navmesh);
+
+    const lines = [];
+
+    for (let i = 0; i < positions.length; i += 3) {
+      lines.push(`v ${positions[i]} ${positions[i + 1]} ${positions[i + 2]}`);
+    }
+
+    for (let i = 0; i < indices.length; i += 3) {
+      lines.push(
+        `f ${indices[i] + 1} ${indices[i + 1] + 1} ${indices[i + 2] + 1}`
+      );
+    }
+
+    return lines.join("\n");
+  }
+  async dumpNavmesh() {
+    const obj = this.genObjDebugNavMesh();
+    await writeFile("navMeshDump.obj", obj);
   }
 }
