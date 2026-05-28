@@ -11,8 +11,8 @@
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
 
-import { dailyRepairMaterial } from ".../../types/zoneserver";
-import { FileHash } from ".../../types/shared";
+import { dailyRepairMaterial } from "../../../types/zoneserver";
+import { FileHash } from "../../../types/shared";
 import { CONNECTION_REJECTION_FLAGS } from "utils/enums";
 
 interface ServerConfig {
