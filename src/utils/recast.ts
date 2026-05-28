@@ -11,7 +11,7 @@
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
 
-import { readFileSync } from "node:fs";
+import { createWriteStream, readFileSync } from "node:fs";
 import { writeFile } from "node:fs/promises";
 import {
   CrowdAgent,
@@ -110,25 +110,25 @@ export class NavManager {
     return agent;
   }
 
-  genObjDebugNavMesh() {
+  async dumpNavmesh() {
     const [positions, indices] = getNavMeshPositionsAndIndices(this.navmesh);
-
-    const lines = [];
+    const stream = createWriteStream("navMeshDump.obj");
 
     for (let i = 0; i < positions.length; i += 3) {
-      lines.push(`v ${positions[i]} ${positions[i + 1]} ${positions[i + 2]}`);
-    }
-
-    for (let i = 0; i < indices.length; i += 3) {
-      lines.push(
-        `f ${indices[i] + 1} ${indices[i + 1] + 1} ${indices[i + 2] + 1}`
+      stream.write(
+        `v ${positions[i]} ${positions[i + 1]} ${positions[i + 2]}\n`
       );
     }
 
-    return lines.join("\n");
-  }
-  async dumpNavmesh() {
-    const obj = this.genObjDebugNavMesh();
-    await writeFile("navMeshDump.obj", obj);
+    for (let i = 0; i < indices.length; i += 3) {
+      stream.write(
+        `f ${indices[i] + 1} ${indices[i + 1] + 1} ${indices[i + 2] + 1}\n`
+      );
+    }
+
+    await new Promise((resolve, reject) => {
+      stream.end(resolve);
+      stream.on("error", reject);
+    });
   }
 }
