@@ -721,6 +721,15 @@ const dev: any = {
   ai: function (server: ZoneServer2016, client: Client, args: Array<string>) {
     server.sendChatText(client, server.explosiveManager.getEntitiesStats());
   },
+  navdump: function (
+    server: ZoneServer2016,
+    client: Client,
+    args: Array<string>
+  ) {
+    server.sendChatText(client, "Start NavMesh dump");
+    server.navManager.dumpNavmesh();
+    server.sendChatText(client, "NavMesh dump done");
+  },
   zombie_test: async function (
     server: ZoneServer2016,
     client: Client,
