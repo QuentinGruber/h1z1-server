@@ -159,11 +159,6 @@ function findNearestSound(npc: Npc, sounds: Sound[]): Sound | null {
   return nearest;
 }
 
-function stopMovement(npc: Npc): void {
-  if (!npc.navAgent) return;
-  npc.navAgent.requestMoveTarget(NavManager.gameToNav(npc.state.position));
-}
-
 export function createZombie(npc: Npc, server: ZoneServer2016): ZombieInstance {
   return new StateMachine({
     init: "wander",
@@ -230,12 +225,12 @@ export function createZombie(npc: Npc, server: ZoneServer2016): ZombieInstance {
 
       onIdle(this: ZombieInstance): void {
         this.stateTimer = 0;
-        stopMovement(this.npc);
+        this.npc.stopMovement();
         setAnim(this.npc, ZombieLoopingAnim.Idle);
       },
 
       onFeed(this: ZombieInstance): void {
-        stopMovement(this.npc);
+        this.npc.stopMovement();
         this.stateTimer = 0;
         this.targetCharacterId = null;
         setAnim(this.npc, ZombieLoopingAnim.Eating);

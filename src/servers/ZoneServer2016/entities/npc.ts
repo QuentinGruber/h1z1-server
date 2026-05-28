@@ -669,6 +669,10 @@ export class Npc extends BaseFullCharacter {
       }
     );
   }
+  stopMovement() {
+    if (!this.navAgent) return;
+    this.navAgent.resetMoveTarget();
+  }
   goTo(position: Float32Array) {
     const dx = position[0] - this.state.position[0];
     const dz = position[2] - this.state.position[2];
