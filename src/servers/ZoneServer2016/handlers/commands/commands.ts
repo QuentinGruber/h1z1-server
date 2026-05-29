@@ -44,6 +44,7 @@ import {
   Effects,
   EquipSlots,
   Items,
+  ModelIds,
   ResourceIds,
   ResourceTypes,
   VehicleIds
@@ -2242,6 +2243,45 @@ export const commands: Array<Command> = [
         client.character.state.position,
         client.character.state.lookAt
       );
+    }
+  },
+  {
+    name: "spawn",
+    permissionLevel: PermissionLevels.ADMIN,
+    execute: (server: ZoneServer2016, client: Client, args: Array<string>) => {
+      const npcTypes: { [name: string]: number } = {
+        zombie: ModelIds.ZOMBIE_FEMALE_WALKER,
+        zombie_female: ModelIds.ZOMBIE_FEMALE_WALKER,
+        zombie_male: ModelIds.ZOMBIE_MALE_WALKER,
+        zombie_screamer: ModelIds.ZOMBIE_SCREAMER,
+        deer: ModelIds.DEER,
+        deer_buck: ModelIds.DEER_BUCK,
+        wolf: ModelIds.WOLF,
+        bear: ModelIds.BEAR
+      };
+      const availableTypes = Object.keys(npcTypes).join(", ");
+      if (!args[0]) {
+        server.sendChatText(
+          client,
+          `[ERROR] Usage: /spawn <type>\nAvailable types: ${availableTypes}`
+        );
+        return;
+      }
+      const modelId = npcTypes[args[0]];
+      if (modelId === undefined) {
+        server.sendChatText(
+          client,
+          `[ERROR] Unknown NPC type "${args[0]}". Available: ${availableTypes}`
+        );
+        return;
+      }
+      server.worldObjectManager.createNpc(
+        server,
+        modelId,
+        client.character.state.position,
+        client.character.state.lookAt
+      );
+      server.sendChatText(client, `Spawned ${args[0]} at your position`);
     }
   },
   {
