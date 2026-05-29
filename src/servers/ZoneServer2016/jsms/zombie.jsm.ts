@@ -116,7 +116,7 @@ export interface ZombieInstance extends StateMachine {
 }
 
 const BASE_SPEED = 1.0;
-const MAX_SPEED = 4.0;
+const MAX_SPEED = 6.0;
 const AGITATION_DECAY_RATE = 1;
 const AGITATION_NOISE_BOOST = 10;
 const AGITATION_INITIAL = 50;
@@ -348,6 +348,7 @@ export function tickZombie(
       if (zombie.npc.navAgent) {
         zombie.npc.navAgent.maxSpeed =
           BASE_SPEED + (zombie.agitation / 100) * (MAX_SPEED - BASE_SPEED);
+        zombie.npc.navAgent.maxAcceleration = zombie.npc.navAgent.maxSpeed * 2;
       }
 
       if (zombie.agitation === 0) {
