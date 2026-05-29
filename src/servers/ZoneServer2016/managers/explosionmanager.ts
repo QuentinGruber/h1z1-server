@@ -369,6 +369,24 @@ export class ExplosionManager {
             z: char.state.position[2]
           }));
 
+    // TODO: ask Jason if it's good
+    for (const npc of Object.values(server._npcs)) {
+      if (!npc.isAlive) continue;
+      const p = npc.state.position;
+      if (
+        p[0] < minX ||
+        p[0] > maxX ||
+        p[1] < minY ||
+        p[1] > maxY ||
+        p[2] < minZ ||
+        p[2] > maxZ
+      )
+        continue;
+      for (const { entity } of scannedKeys.values()) {
+        npc.OnExplosiveHit(server, entity);
+      }
+    }
+
     // ---- Vehicles --------------------------------------------------
     const vehicles = server.isPvE
       ? []

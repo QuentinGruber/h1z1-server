@@ -156,8 +156,6 @@ export abstract class Npc extends BaseFullCharacter {
       const sourceEntity = server.getEntity(damageInfo.entity);
       if (sourceEntity instanceof ProjectileEntity) {
         client = server.getClientByCharId(sourceEntity.managerCharacterId);
-      } else {
-        return;
       }
     }
     const oldHealth = this.health;
