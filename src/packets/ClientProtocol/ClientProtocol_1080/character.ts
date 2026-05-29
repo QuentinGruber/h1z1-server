@@ -419,7 +419,32 @@ export const characterPackets: PacketStructures = [
       ]
     }
   ],
-  ["Character.SetSpawnAnimation", 0x0f17, {}],
+  [
+    "Character.SetSpawnAnimation",
+    0x0f17,
+    {
+      fields: [
+        {
+          name: "characterId",
+          type: "uint64string"
+        },
+        {
+          name: "unknownQword2",
+          type: "uint64string",
+          defaultValue: "x0000000000000009"
+        },
+        { name: "unknownBool1", type: "boolean", defaultValue: true },
+
+        // SubSpawnAnim (field27_0x2c) — FUN_14036e230
+        { name: "unknownFloat1", type: "float", defaultValue: 5.0 },
+        { name: "unknownDword2", type: "int32", defaultValue: 0 } // count/flag
+        // { name: "unknownBool2", type: "boolean", defaultValue: false } // conditional on unknownDword2 > 0
+        // { name: "unknownFloat2", type: "float", defaultValue: 0 },
+        // { name: "unknownDword3", type: "int32", defaultValue: 0 },
+        // { name: "unknownFloat3", type: "float", defaultValue: 0 }
+      ]
+    }
+  ],
   [
     "Character.CustomizeNpc",
     0x0f18,
