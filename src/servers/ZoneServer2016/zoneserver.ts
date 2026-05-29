@@ -2038,11 +2038,15 @@ export class ZoneServer2016 extends EventEmitter {
   private async setupServer() {
     if (!process.env.DISABLE_AI && this.aiEnabled) {
       await this.navManager.loadNav();
-      this.navManager.updateFrequency = this.pathfindingUpdateRate / 1000;
       this.aiTickRoutine = setInterval(() => this.tickAi(), this.aiTickRate);
       this.pathfindingRoutine = setInterval(
         () => this.updatePathfindingPositions(),
         this.pathfindingUpdateRate
+      );
+      // this.recastRoutine = setInterval(
+      setInterval(
+        () => this.navManager.updt(),
+        this.navManager.updateFrequency * 1000
       );
     }
     this.weatherManager.init();

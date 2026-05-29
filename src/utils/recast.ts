@@ -59,7 +59,7 @@ export class NavManager {
     const now = Date.now();
     const timeSinceLastCalled = (now - this.lastTimeCall) / 1000;
     this.lastTimeCall = now;
-    this.crowd.update(this.updateFrequency, timeSinceLastCalled, 30);
+    this.crowd.update(this.updateFrequency, timeSinceLastCalled, 1);
   }
 
   // Returns nearest navmesh point (in nav coords) to the given game position.

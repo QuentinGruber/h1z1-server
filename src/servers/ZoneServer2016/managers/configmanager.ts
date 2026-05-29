@@ -633,6 +633,8 @@ export class ConfigManager {
     server.aiEnabled = aiEnabled;
     server.aiTickRate = aiTickRate;
     server.pathfindingUpdateRate = pathfindingUpdateRate;
+    // TODO: add to config
+    server.navManager.updateFrequency = 1 / 60;
     //#endregion
   }
 }
