@@ -2354,11 +2354,13 @@ export const commands: Array<Command> = [
       for (const characterId in server._npcs) {
         const npc = server._npcs[characterId];
         if (!matcher(npc)) continue;
-        server.despawnEntity(characterId);
-        delete server._npcs[characterId];
-        for (const a in server._clients) {
-          server._clients[a].spawnedEntities.delete(npc);
+        npc.zombieFsm?.destroyed();
+        npc.deerFsm?.destroyed();
+        npc.screamingZombieFsm?.destroyed();
+        if (npc.spawnerId) {
+          delete server.worldObjectManager.spawnedNpcs[npc.spawnerId];
         }
+        server.deleteEntity(characterId, server._npcs);
         count++;
       }
       server.sendChatText(client, `Despawned ${count} ${args[0]} NPC(s).`);
