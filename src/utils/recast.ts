@@ -12,7 +12,6 @@
 // ======================================================================
 
 import { createWriteStream, readFileSync } from "node:fs";
-import { writeFile } from "node:fs/promises";
 import {
   CrowdAgent,
   getNavMeshPositionsAndIndices,
