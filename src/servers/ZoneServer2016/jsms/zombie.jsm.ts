@@ -271,15 +271,14 @@ export function createZombie(npc: Npc, server: ZoneServer2016): ZombieInstance {
   }) as unknown as ZombieInstance;
 }
 
-function trySmellCorpse(
-  zone: ZoneServer2016,
-  zombie: ZombieInstance
-): boolean {
+function trySmellCorpse(zone: ZoneServer2016, zombie: ZombieInstance): boolean {
   if (zombie.hunger < 60) return false;
   for (const characterId in zone._characters) {
     const character = zone._characters[characterId];
     if (character.isAlive) continue;
-    if (getDistance2d(zombie.npc.state.position, character.state.position) < 30) {
+    if (
+      getDistance2d(zombie.npc.state.position, character.state.position) < 30
+    ) {
       zombie.corpseTargetId = characterId;
       zombie.smellCorpse();
       return true;
@@ -474,9 +473,7 @@ export function tickZombie(
       if (!zombie.isEatingCorpse) {
         // wait for the nav agent to fully decelerate before starting the anim
         const vel = zombie.npc.navAgent?.velocity();
-        const speed = vel
-          ? Math.sqrt(vel.x * vel.x + vel.z * vel.z)
-          : 0;
+        const speed = vel ? Math.sqrt(vel.x * vel.x + vel.z * vel.z) : 0;
         if (speed >= 0.5) break;
         setAnim(zombie.npc, ZombieLoopingAnim.Eating);
         zombie.isEatingCorpse = true;

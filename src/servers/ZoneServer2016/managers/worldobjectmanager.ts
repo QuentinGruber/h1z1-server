@@ -70,6 +70,11 @@ import { CharacterPlayWorldCompositeEffect } from "types/zone2016packets";
 import { WaterSource } from "../entities/watersource";
 import { TreasureChest } from "../entities/treasurechest";
 import { Npc } from "../entities/npc";
+import { ZombieWalker } from "../entities/zombiewalker";
+import { ZombieScreamer } from "../entities/zombiescreamer";
+import { Deer } from "../entities/deer";
+import { Wolf } from "../entities/wolf";
+import { Bear } from "../entities/bear";
 import { scheduler } from "node:timers/promises";
 import {
   ContainerPropSnapshot,
@@ -556,18 +561,66 @@ export class WorldObjectManager {
     spawnerId: number = 0
   ) {
     const characterId = generateRandomGuid();
-    const npc = new Npc(
-      characterId,
-      server.getTransientId(characterId),
-      modelId,
-      position,
-      rotation,
-      server,
-      spawnerId
-    );
-
-    // doesn't work anymore
-    // this.equipRandomSkins(server, npc, this.zombieSlots, bannedZombieModels);
+    const transientId = server.getTransientId(characterId);
+    let npc: Npc;
+    switch (modelId) {
+      case ModelIds.ZOMBIE_FEMALE_WALKER:
+      case ModelIds.ZOMBIE_MALE_WALKER:
+        npc = new ZombieWalker(
+          characterId,
+          transientId,
+          modelId,
+          position,
+          rotation,
+          server,
+          spawnerId
+        );
+        break;
+      case ModelIds.ZOMBIE_SCREAMER:
+        npc = new ZombieScreamer(
+          characterId,
+          transientId,
+          position,
+          rotation,
+          server,
+          spawnerId
+        );
+        break;
+      case ModelIds.DEER:
+      case ModelIds.DEER_BUCK:
+        npc = new Deer(
+          characterId,
+          transientId,
+          modelId,
+          position,
+          rotation,
+          server,
+          spawnerId
+        );
+        break;
+      case ModelIds.WOLF:
+        npc = new Wolf(
+          characterId,
+          transientId,
+          position,
+          rotation,
+          server,
+          spawnerId
+        );
+        break;
+      case ModelIds.BEAR:
+        npc = new Bear(
+          characterId,
+          transientId,
+          position,
+          rotation,
+          server,
+          spawnerId
+        );
+        break;
+      default:
+        throw new Error(`Unknown NPC modelId: ${modelId}`);
+    }
     server._npcs[characterId] = npc;
     if (spawnerId) this.spawnedNpcs[spawnerId] = characterId;
     return npc;

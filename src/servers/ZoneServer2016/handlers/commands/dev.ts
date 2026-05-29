@@ -30,7 +30,7 @@ import {
   ItemsAddAccountItem,
   Loot
 } from "types/zone2016packets";
-import { Npc } from "../../entities/npc";
+import { ZombieWalker } from "../../entities/zombiewalker";
 import { ZoneClient2016 as Client } from "../../classes/zoneclient";
 import { ZoneServer2016 } from "../../zoneserver";
 import { Effects, Items, ModelIds, VehicleIds } from "../../models/enums";
@@ -670,10 +670,10 @@ const dev: any = {
   },
   path: function (server: ZoneServer2016, client: Client, args: Array<string>) {
     const characterId = server.generateGuid();
-    const npc = new Npc(
+    const npc = new ZombieWalker(
       characterId,
       server.getTransientId(characterId),
-      9510,
+      ModelIds.ZOMBIE_FEMALE_WALKER,
       client.character.state.position,
       client.character.state.rotation,
       server
@@ -754,10 +754,10 @@ const dev: any = {
     const transient = server.getTransientId(characterId);
     const spawnPos = client.character.state.position;
 
-    const zombie = new Npc(
+    const zombie = new ZombieWalker(
       characterId,
       transient,
-      9510,
+      ModelIds.ZOMBIE_FEMALE_WALKER,
       spawnPos,
       client.character.state.rotation,
       server
@@ -922,10 +922,10 @@ const dev: any = {
     // spawn a zombie
     const characterId = server.generateGuid();
     const transient = server.getTransientId(characterId);
-    const zombie = new Npc(
+    const zombie = new ZombieWalker(
       characterId,
       transient,
-      9510,
+      ModelIds.ZOMBIE_FEMALE_WALKER,
       client.character.state.position,
       client.character.state.rotation,
       server

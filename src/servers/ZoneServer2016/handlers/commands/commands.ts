@@ -30,7 +30,6 @@ import {
   getDateString
 } from "../../../../utils/utils";
 import { ExplosiveEntity } from "../../entities/explosiveentity";
-import { Npc } from "../../entities/npc";
 import { ZoneClient2016 as Client } from "../../classes/zoneclient";
 import {
   characterBuildKitLoadout,
@@ -2233,22 +2232,16 @@ export const commands: Array<Command> = [
     name: "spawnnpc",
     permissionLevel: PermissionLevels.ADMIN,
     execute: (server: ZoneServer2016, client: Client, args: Array<string>) => {
-      const guid = server.generateGuid();
-      const transientId = server.getTransientId(guid);
       if (!args[0]) {
         server.sendChatText(client, "[ERROR] You need to specify a model id !");
         return;
       }
-      const characterId = server.generateGuid();
-      const npc = new Npc(
-        characterId,
-        transientId,
+      server.worldObjectManager.createNpc(
+        server,
         Number(args[0]),
         client.character.state.position,
-        client.character.state.lookAt,
-        server
+        client.character.state.lookAt
       );
-      server._npcs[characterId] = npc; // save npc
     }
   },
   {
