@@ -94,6 +94,8 @@ export interface ZombieInstance extends StateMachine {
   patrolTimer: number;
   investigateTimeout: number;
   targetCharacterId: string | null;
+  corpseTargetId: string | null;
+  isEatingCorpse: boolean;
   lastAttackTime: number;
   wanderOrigin: Float32Array;
   npc: Npc;
@@ -143,7 +145,6 @@ function playAnim(npc: Npc, anim: string): void {
 
 function setAnim(npc: Npc, anim: string): void {
   npc.setAnimation(anim);
-  npc.playAnimation(anim);
 }
 
 function findNearestSound(npc: Npc, sounds: Sound[]): Sound | null {
@@ -173,6 +174,8 @@ export function createZombie(npc: Npc, server: ZoneServer2016): ZombieInstance {
         targetPos: pickPatrolPoint(npc, server, npc.state.position) as unknown,
         lastNoisePos: null,
         targetCharacterId: null,
+        corpseTargetId: null,
+        isEatingCorpse: false,
         stateTimer: 0,
         patrolTimer: 0,
         lastAttackTime: 0,
@@ -187,7 +190,11 @@ export function createZombie(npc: Npc, server: ZoneServer2016): ZombieInstance {
         from: ["wander", "investigate", "idle"],
         to: "chase"
       },
-      { name: "smellCorpse", from: "wander", to: "feed" },
+      {
+        name: "smellCorpse",
+        from: ["wander", "idle", "investigate", "chase"],
+        to: "feed"
+      },
       { name: "noiseTimeout", from: "investigate", to: "wander" },
       { name: "reachPlayer", from: "chase", to: "attack" },
       { name: "lostPlayer", from: "chase", to: "wander" },
@@ -233,7 +240,8 @@ export function createZombie(npc: Npc, server: ZoneServer2016): ZombieInstance {
         this.npc.stopMovement();
         this.stateTimer = 0;
         this.targetCharacterId = null;
-        setAnim(this.npc, ZombieLoopingAnim.Eating);
+        this.isEatingCorpse = false;
+        // eating animation is delayed until the nav agent fully decelerates
       },
 
       onDead(this: ZombieInstance): void {},
@@ -261,6 +269,23 @@ export function createZombie(npc: Npc, server: ZoneServer2016): ZombieInstance {
       }
     }
   }) as unknown as ZombieInstance;
+}
+
+function trySmellCorpse(
+  zone: ZoneServer2016,
+  zombie: ZombieInstance
+): boolean {
+  if (zombie.hunger < 60) return false;
+  for (const characterId in zone._characters) {
+    const character = zone._characters[characterId];
+    if (character.isAlive) continue;
+    if (getDistance2d(zombie.npc.state.position, character.state.position) < 30) {
+      zombie.corpseTargetId = characterId;
+      zombie.smellCorpse();
+      return true;
+    }
+  }
+  return false;
 }
 
 export function tickZombie(
@@ -296,6 +321,10 @@ export function tickZombie(
           zombie.hearNoise();
           break;
         }
+      }
+
+      if (zombie.state === "wander") {
+        if (trySmellCorpse(zone, zombie)) break;
       }
 
       zombie.patrolTimer += dt;
@@ -340,6 +369,7 @@ export function tickZombie(
           zombie.hearNoise();
         }
       }
+      if (zombie.state === "idle") trySmellCorpse(zone, zombie);
       break;
     }
 
@@ -368,6 +398,7 @@ export function tickZombie(
         zombie.stateTimer = 0;
         moveToward(zombie.npc, nearestSound.position, zombie.server);
       }
+      if (zombie.state === "investigate") trySmellCorpse(zone, zombie);
       break;
     }
 
@@ -388,6 +419,7 @@ export function tickZombie(
       } else if (chaseDist < 2) {
         zombie.reachPlayer();
       } else {
+        if (trySmellCorpse(zone, zombie)) break;
         moveToward(zombie.npc, chaseTarget.state.position, zombie.server);
       }
       break;
@@ -417,12 +449,54 @@ export function tickZombie(
       break;
     }
 
-    case "feed":
+    case "feed": {
+      if (zombie.corpseTargetId) {
+        const corpse = zone._characters[zombie.corpseTargetId];
+        if (!corpse || corpse.isAlive) {
+          zombie.corpseTargetId = null;
+          zombie.isEatingCorpse = false;
+          zombie.doneFeeding();
+          break;
+        }
+        if (!zombie.isEatingCorpse) {
+          const dist = getDistance2d(
+            zombie.npc.state.position,
+            corpse.state.position
+          );
+          if (dist > 2) {
+            moveToward(zombie.npc, corpse.state.position, zombie.server);
+            break;
+          }
+          zombie.npc.stopMovement();
+        }
+      }
+
+      if (!zombie.isEatingCorpse) {
+        // wait for the nav agent to fully decelerate before starting the anim
+        const vel = zombie.npc.navAgent?.velocity();
+        const speed = vel
+          ? Math.sqrt(vel.x * vel.x + vel.z * vel.z)
+          : 0;
+        if (speed >= 0.5) break;
+        setAnim(zombie.npc, ZombieLoopingAnim.Eating);
+        zombie.isEatingCorpse = true;
+        zombie.stateTimer = 0;
+      }
+
+      // periodically re-send the eating anim in case the client resets it
+      if (zombie.stateTimer >= 2) {
+        zombie.stateTimer = 0;
+        setAnim(zombie.npc, ZombieLoopingAnim.Eating);
+      }
+
       zombie.hunger = Math.max(0, zombie.hunger - dt * 15);
       if (zombie.hunger === 0) {
         zombie.npc.playAnimation(ZombieOneshotAnim.EatingDone);
+        zombie.corpseTargetId = null;
+        zombie.isEatingCorpse = false;
         zombie.doneFeeding();
       }
       break;
+    }
   }
 }
