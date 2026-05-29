@@ -4,7 +4,7 @@ import type { ZoneServer2016 } from "../zoneserver";
 import type { Sound } from "../../../types/zoneserver";
 import { NavManager } from "../../../utils/recast";
 const debug = require("debug")("ai");
-import { getDistance2d } from "../../../utils/utils";
+import { getDistance2d, getDistance } from "../../../utils/utils";
 
 export const enum ZombieLoopingAnim {
   Idle = "Idle",
@@ -434,7 +434,7 @@ export function tickZombie(
         break;
       }
       moveToward(zombie.npc, attackTarget.state.position, zombie.server);
-      const attackDist = getDistance2d(
+      const attackDist = getDistance(
         zombie.npc.state.position,
         attackTarget.state.position
       );
