@@ -263,6 +263,7 @@ import { clearInterval, setInterval } from "node:timers";
 import { NavManager } from "../../utils/recast";
 import { tickZombie } from "./jsms/zombie.jsm";
 import { tickDeer } from "./jsms/deer.jsm";
+import { tickScreamingZombie } from "./jsms/screamingzombie.jsm";
 import { ProjectileEntity } from "./entities/projectileentity";
 import { ChallengeManager, ChallengeType } from "./managers/challengemanager";
 import { RandomEventsManager } from "./managers/randomeventsmanager";
@@ -10279,6 +10280,7 @@ export class ZoneServer2016 extends EventEmitter {
       if (!npc.isAlive) continue;
       if (npc.zombieFsm) tickZombie(this, npc.zombieFsm, safeDt);
       if (npc.deerFsm) tickDeer(this, npc.deerFsm, safeDt);
+      if (npc.screamingZombieFsm) tickScreamingZombie(this, npc.screamingZombieFsm, safeDt);
     }
   }
 
