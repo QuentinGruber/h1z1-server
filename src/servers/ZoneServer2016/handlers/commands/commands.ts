@@ -2269,7 +2269,7 @@ export const commands: Array<Command> = [
       if (!args[0]) {
         server.sendChatText(
           client,
-          `[ERROR] Usage: /spawn <type>\nAvailable types: ${availableTypes}`
+          `[ERROR] Usage: /spawn <type> [count]\nAvailable types: ${availableTypes}`
         );
         return;
       }
@@ -2281,13 +2281,35 @@ export const commands: Array<Command> = [
         );
         return;
       }
-      server.worldObjectManager.createNpc(
-        server,
-        modelId,
-        client.character.state.position,
-        client.character.state.lookAt
+      const count = args[1] ? parseInt(args[1], 10) : 1;
+      if (isNaN(count) || count < 1 || count > 500) {
+        server.sendChatText(
+          client,
+          `[ERROR] Count must be a number between 1 and 500`
+        );
+        return;
+      }
+      const scatterRadius = 10;
+      for (let i = 0; i < count; i++) {
+        const offsetX = (Math.random() - 0.5) * 2 * scatterRadius;
+        const offsetZ = (Math.random() - 0.5) * 2 * scatterRadius;
+        const pos = new Float32Array([
+          client.character.state.position[0] + offsetX,
+          client.character.state.position[1],
+          client.character.state.position[2] + offsetZ,
+          1
+        ]);
+        server.worldObjectManager.createNpc(
+          server,
+          modelId,
+          pos,
+          client.character.state.lookAt
+        );
+      }
+      server.sendChatText(
+        client,
+        `Spawned ${count} ${args[0]} around your position`
       );
-      server.sendChatText(client, `Spawned ${args[0]} at your position`);
     }
   },
   {
