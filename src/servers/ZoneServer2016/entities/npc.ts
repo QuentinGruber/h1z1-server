@@ -27,6 +27,7 @@ import { BaseEntity } from "./baseentity";
 import { ChallengeType } from "../managers/challengemanager";
 import { ProjectileEntity } from "./projectileentity";
 import { ZombieInstance } from "../jsms/zombie.jsm";
+import { DeerInstance } from "../jsms/deer.jsm";
 
 export abstract class Npc extends BaseFullCharacter {
   health: number;
@@ -67,6 +68,7 @@ export abstract class Npc extends BaseFullCharacter {
   server: ZoneServer2016;
   npcMeleeDamage: number = 0;
   zombieFsm?: ZombieInstance;
+  deerFsm?: DeerInstance;
   currentAnimation = "";
   isSelected: boolean = false;
 
@@ -161,6 +163,7 @@ export abstract class Npc extends BaseFullCharacter {
     if ((this.health -= damageInfo.damage) <= 0 && this.isAlive) {
       this.deathTime = Date.now();
       this.zombieFsm?.destroyed();
+      this.deerFsm?.destroyed();
       this.flags.knockedOut = 1;
 
       this.addLoot(server);

@@ -262,6 +262,7 @@ import { DynamicAppearance } from "types/zonedata";
 import { clearInterval, setInterval } from "node:timers";
 import { NavManager } from "../../utils/recast";
 import { tickZombie } from "./jsms/zombie.jsm";
+import { tickDeer } from "./jsms/deer.jsm";
 import { ProjectileEntity } from "./entities/projectileentity";
 import { ChallengeManager, ChallengeType } from "./managers/challengemanager";
 import { RandomEventsManager } from "./managers/randomeventsmanager";
@@ -524,7 +525,7 @@ export class ZoneServer2016 extends EventEmitter {
   dynamicappearance: DynamicAppearance;
   pathfindingRoutine?: NodeJS.Timeout;
   aiTickRoutine?: NodeJS.Timeout;
-  private lastZombieFsmTick: number = Date.now();
+  private lastFsmTick: number = Date.now();
 
   /** MANAGED BY CONFIGMANAGER - See defaultConfig.yaml for more information */
   proximityItemsDistance!: number;
@@ -10271,20 +10272,21 @@ export class ZoneServer2016 extends EventEmitter {
     return isInPoi;
   }
 
-  private tickZombieFsms(dt: number): void {
+  private tickNpcFsms(dt: number): void {
     const safeDt = Math.min(dt, 1.0);
     for (const k in this._npcs) {
       const npc = this._npcs[k];
-      if (!npc.zombieFsm || !npc.isAlive) continue;
-      tickZombie(this, npc.zombieFsm, safeDt);
+      if (!npc.isAlive) continue;
+      if (npc.zombieFsm) tickZombie(this, npc.zombieFsm, safeDt);
+      if (npc.deerFsm) tickDeer(this, npc.deerFsm, safeDt);
     }
   }
 
   private tickAi(): void {
     const now = Date.now();
-    const dt = (now - this.lastZombieFsmTick) / 1000;
-    this.lastZombieFsmTick = now;
-    this.tickZombieFsms(dt);
+    const dt = (now - this.lastFsmTick) / 1000;
+    this.lastFsmTick = now;
+    this.tickNpcFsms(dt);
     // reset sounds every AI tick
     this.sounds = [];
   }
