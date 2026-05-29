@@ -88,6 +88,7 @@ export interface ZombieInstance extends StateMachine {
   id: string;
   state: ZombieState;
   hunger: number;
+  agitation: number;
   targetPos: Float32Array | null;
   lastNoisePos: Float32Array | null;
   stateTimer: number;
@@ -113,6 +114,12 @@ export interface ZombieInstance extends StateMachine {
   destroyed(): void;
   goto(state: ZombieState): void;
 }
+
+const WANDER_BASE_SPEED = 1.0;
+const WANDER_MAX_SPEED = 2.5;
+const AGITATION_DECAY_RATE = 1;
+const AGITATION_NOISE_BOOST = 40;
+const AGITATION_INITIAL = 60;
 
 function pickPatrolPoint(
   npc: Npc,
@@ -170,6 +177,7 @@ export function createZombie(npc: Npc, server: ZoneServer2016): ZombieInstance {
         npc,
         server,
         hunger: 0,
+        agitation: AGITATION_INITIAL,
         wanderOrigin: npc.state.position.slice() as Float32Array,
         targetPos: pickPatrolPoint(npc, server, npc.state.position) as unknown,
         lastNoisePos: null,
@@ -209,6 +217,7 @@ export function createZombie(npc: Npc, server: ZoneServer2016): ZombieInstance {
       onWander(this: ZombieInstance): void {
         this.stateTimer = 0;
         this.patrolTimer = 0;
+        this.agitation = AGITATION_INITIAL;
         this.targetCharacterId = null;
         this.wanderOrigin = this.npc.state.position.slice() as Float32Array;
         const pt = pickPatrolPoint(this.npc, this.server, this.wanderOrigin);
@@ -314,27 +323,40 @@ export function tickZombie(
       }
 
       if (zombie.state === "wander") {
-        const nearestSound = findNearestSound(zombie.npc, zone.sounds);
-        if (nearestSound) {
-          zombie.lastNoisePos = nearestSound.position;
-          zombie.hearNoise();
-          break;
-        }
-      }
-
-      if (zombie.state === "wander") {
         if (trySmellCorpse(zone, zombie)) break;
       }
 
-      zombie.patrolTimer += dt;
+      if (zombie.state !== "wander") break;
+
+      const nearestSound = findNearestSound(zombie.npc, zone.sounds);
+      if (nearestSound) {
+        zombie.lastNoisePos = nearestSound.position;
+        zombie.agitation = Math.min(
+          100,
+          zombie.agitation + AGITATION_NOISE_BOOST
+        );
+        zombie.hearNoise();
+        break;
+      }
+
+      zombie.agitation = Math.max(0, zombie.agitation - AGITATION_DECAY_RATE * dt);
+
+      if (zombie.npc.navAgent) {
+        zombie.npc.navAgent.maxSpeed =
+          WANDER_BASE_SPEED +
+          (zombie.agitation / 100) * (WANDER_MAX_SPEED - WANDER_BASE_SPEED);
+      }
+
+      if (zombie.agitation === 0) {
+        zombie.idleTimeout();
+        break;
+      }
+
       const arrived =
         zombie.targetPos != null &&
         getDistance2d(zombie.npc.state.position, zombie.targetPos) < 3;
 
-      if (zombie.patrolTimer >= 60) {
-        zombie.idleTimeout();
-      } else if (arrived || zombie.targetPos == null) {
-        zombie.patrolTimer = 0;
+      if (arrived || zombie.targetPos == null) {
         const pt = pickPatrolPoint(
           zombie.npc,
           zombie.server,
