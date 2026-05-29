@@ -312,6 +312,7 @@ export function tickZombie(
       for (const characterId in zone._characters) {
         const character = zone._characters[characterId];
         if (!character.isAlive) continue;
+        if (character.isVanished || character.isHidden) continue;
         if (
           getDistance2d(zombie.npc.state.position, character.state.position) <
           10
@@ -376,6 +377,7 @@ export function tickZombie(
       for (const characterId in zone._characters) {
         const character = zone._characters[characterId];
         if (!character.isAlive) continue;
+        if (character.isVanished || character.isHidden) continue;
         if (
           getDistance2d(zombie.npc.state.position, character.state.position) <
           10
@@ -400,6 +402,7 @@ export function tickZombie(
       for (const characterId in zone._characters) {
         const character = zone._characters[characterId];
         if (!character.isAlive) continue;
+        if (character.isVanished || character.isHidden) continue;
         if (
           getDistance2d(zombie.npc.state.position, character.state.position) <
           10
@@ -429,7 +432,12 @@ export function tickZombie(
       const chaseTarget = zombie.targetCharacterId
         ? zone._characters[zombie.targetCharacterId]
         : null;
-      if (!chaseTarget || !chaseTarget.isAlive) {
+      if (
+        !chaseTarget ||
+        !chaseTarget.isAlive ||
+        chaseTarget.isVanished ||
+        chaseTarget.isHidden
+      ) {
         zombie.lostPlayer();
         break;
       }
@@ -455,6 +463,10 @@ export function tickZombie(
       if (!attackTarget || !attackTarget.isAlive) {
         zombie.playerKilled();
         if (zombie.state === "attack") zombie.goto("wander");
+        break;
+      }
+      if (attackTarget.isVanished || attackTarget.isHidden) {
+        zombie.goto("wander");
         break;
       }
       moveToward(zombie.npc, attackTarget.state.position, zombie.server);
