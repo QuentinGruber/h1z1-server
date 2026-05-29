@@ -115,11 +115,11 @@ export interface ZombieInstance extends StateMachine {
   goto(state: ZombieState): void;
 }
 
-const WANDER_BASE_SPEED = 1.0;
-const WANDER_MAX_SPEED = 2.5;
+const BASE_SPEED = 1.0;
+const MAX_SPEED = 4.0;
 const AGITATION_DECAY_RATE = 1;
-const AGITATION_NOISE_BOOST = 40;
-const AGITATION_INITIAL = 60;
+const AGITATION_NOISE_BOOST = 10;
+const AGITATION_INITIAL = 50;
 
 function pickPatrolPoint(
   npc: Npc,
@@ -346,8 +346,7 @@ export function tickZombie(
 
       if (zombie.npc.navAgent) {
         zombie.npc.navAgent.maxSpeed =
-          WANDER_BASE_SPEED +
-          (zombie.agitation / 100) * (WANDER_MAX_SPEED - WANDER_BASE_SPEED);
+          BASE_SPEED + (zombie.agitation / 100) * (MAX_SPEED - BASE_SPEED);
       }
 
       if (zombie.agitation === 0) {
