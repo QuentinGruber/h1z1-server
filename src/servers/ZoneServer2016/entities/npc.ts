@@ -18,7 +18,8 @@ import { ZoneClient2016 } from "../classes/zoneclient";
 import {
   getCurrentServerTimeWrapper,
   getDistance,
-  logClientActionToMongo
+  logClientActionToMongo,
+  metersToFeet
 } from "../../../utils/utils";
 import { DB_COLLECTIONS, KILL_TYPE } from "../../../utils/enums";
 import { Items, MeleeTypes, NpcIds, PositionUpdateType } from "../models/enums";
@@ -410,8 +411,8 @@ export abstract class Npc extends BaseFullCharacter {
     let verticalSpeed = Math.abs(dy);
     if (this.navAgent) {
       const vel = this.navAgent.velocity();
-      horizontalSpeed = Math.sqrt(vel.x * vel.x + vel.z * vel.z);
-      verticalSpeed = Math.abs(vel.y);
+      horizontalSpeed = metersToFeet(Math.sqrt(vel.x * vel.x + vel.z * vel.z));
+      verticalSpeed = metersToFeet(Math.abs(vel.y));
     }
 
     this.server.sendDataToAllWithSpawnedEntity(
