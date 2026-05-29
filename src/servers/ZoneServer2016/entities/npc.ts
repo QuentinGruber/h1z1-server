@@ -404,7 +404,20 @@ export abstract class Npc extends BaseFullCharacter {
 
     const horizontalDist = Math.sqrt(dx * dx + dz * dz);
     const orientation = Math.atan2(dx, dz);
+    const prevOrientation = this.state.yaw ?? orientation;
+    let angleChange = orientation - prevOrientation;
+    // normalize to [-π, π]
+    angleChange = Math.atan2(Math.sin(angleChange), Math.cos(angleChange));
+    this.state.yaw = orientation;
     const frontTilt = Math.atan2(dy, horizontalDist);
+
+    const sinO = Math.sin(orientation);
+    const cosO = Math.cos(orientation);
+
+    const lateralDist = dx * cosO - dz * sinO;
+
+    const sideTilt = Math.atan2(lateralDist, horizontalDist);
+
     this.state.position = position;
 
     let horizontalSpeed = horizontalDist;
@@ -427,10 +440,10 @@ export abstract class Npc extends BaseFullCharacter {
           unknown3_int8: 0,
           stance: 66565,
           engineRPM: 0,
-          orientation: orientation,
-          frontTilt: frontTilt,
-          sideTilt: 0,
-          angleChange: 0,
+          orientation,
+          frontTilt,
+          sideTilt,
+          angleChange,
           verticalSpeed,
           horizontalSpeed
         }
