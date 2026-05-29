@@ -65,6 +65,12 @@ import { FullCharacterSaveData } from "types/savedata";
 import { scheduler } from "node:timers/promises";
 import { Vehicle2016 } from "../../entities/vehicle";
 import { AddSimpleNpc } from "types/zone2016packets";
+import { Npc } from "../../entities/npc";
+import { ZombieWalker } from "../../entities/zombiewalker";
+import { ZombieScreamer } from "../../entities/zombiescreamer";
+import { Deer } from "../../entities/deer";
+import { Wolf } from "../../entities/wolf";
+import { Bear } from "../../entities/bear";
 import { writeFileSync } from "node:fs";
 import { PluginManager } from "../../managers/pluginmanager";
 const itemDefinitions = PluginManager.loadServerData(
@@ -2282,6 +2288,58 @@ export const commands: Array<Command> = [
         client.character.state.lookAt
       );
       server.sendChatText(client, `Spawned ${args[0]} at your position`);
+    }
+  },
+  {
+    name: "despawn",
+    permissionLevel: PermissionLevels.ADMIN,
+    execute: (server: ZoneServer2016, client: Client, args: Array<string>) => {
+      const npcGroups: { [name: string]: (npc: Npc) => boolean } = {
+        zombie: (npc) =>
+          npc instanceof ZombieWalker || npc instanceof ZombieScreamer,
+        zombie_female: (npc) =>
+          npc instanceof ZombieWalker &&
+          npc.actorModelId === ModelIds.ZOMBIE_FEMALE_WALKER,
+        zombie_male: (npc) =>
+          npc instanceof ZombieWalker &&
+          npc.actorModelId === ModelIds.ZOMBIE_MALE_WALKER,
+        zombie_screamer: (npc) => npc instanceof ZombieScreamer,
+        deer: (npc) =>
+          npc instanceof Deer && npc.actorModelId === ModelIds.DEER,
+        deer_buck: (npc) =>
+          npc instanceof Deer && npc.actorModelId === ModelIds.DEER_BUCK,
+        wolf: (npc) => npc instanceof Wolf,
+        bear: (npc) => npc instanceof Bear,
+        all: () => true
+      };
+      const availableTypes = Object.keys(npcGroups).join(", ");
+      if (!args[0]) {
+        server.sendChatText(
+          client,
+          `[ERROR] Usage: /despawn <type>\nAvailable types: ${availableTypes}`
+        );
+        return;
+      }
+      const matcher = npcGroups[args[0]];
+      if (!matcher) {
+        server.sendChatText(
+          client,
+          `[ERROR] Unknown type "${args[0]}". Available: ${availableTypes}`
+        );
+        return;
+      }
+      let count = 0;
+      for (const characterId in server._npcs) {
+        const npc = server._npcs[characterId];
+        if (!matcher(npc)) continue;
+        server.despawnEntity(characterId);
+        delete server._npcs[characterId];
+        for (const a in server._clients) {
+          server._clients[a].spawnedEntities.delete(npc);
+        }
+        count++;
+      }
+      server.sendChatText(client, `Despawned ${count} ${args[0]} NPC(s).`);
     }
   },
   {
