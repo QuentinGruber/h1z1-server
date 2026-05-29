@@ -10280,7 +10280,8 @@ export class ZoneServer2016 extends EventEmitter {
       if (!npc.isAlive) continue;
       if (npc.zombieFsm) tickZombie(this, npc.zombieFsm, safeDt);
       if (npc.deerFsm) tickDeer(this, npc.deerFsm, safeDt);
-      if (npc.screamingZombieFsm) tickScreamingZombie(this, npc.screamingZombieFsm, safeDt);
+      if (npc.screamingZombieFsm)
+        tickScreamingZombie(this, npc.screamingZombieFsm, safeDt);
     }
   }
 

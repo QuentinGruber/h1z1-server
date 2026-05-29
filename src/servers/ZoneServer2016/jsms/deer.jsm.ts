@@ -212,11 +212,7 @@ export function tickDeer(
         deer.targetPos != null &&
         getDistance2d(deer.npc.state.position, deer.targetPos) < 3;
       if (arrivedAtFlee && deer.threatPos) {
-        const fleeTarget = pickFleePoint(
-          deer.npc,
-          deer.server,
-          deer.threatPos
-        );
+        const fleeTarget = pickFleePoint(deer.npc, deer.server, deer.threatPos);
         if (fleeTarget) {
           deer.targetPos = fleeTarget;
           moveToward(deer.npc, fleeTarget, deer.server);

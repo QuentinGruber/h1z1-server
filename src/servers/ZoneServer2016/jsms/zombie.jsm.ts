@@ -339,7 +339,10 @@ export function tickZombie(
         break;
       }
 
-      zombie.agitation = Math.max(0, zombie.agitation - AGITATION_DECAY_RATE * dt);
+      zombie.agitation = Math.max(
+        0,
+        zombie.agitation - AGITATION_DECAY_RATE * dt
+      );
 
       if (zombie.npc.navAgent) {
         zombie.npc.navAgent.maxSpeed =
