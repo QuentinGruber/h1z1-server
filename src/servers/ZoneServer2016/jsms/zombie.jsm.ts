@@ -68,6 +68,7 @@ export type ZombieState =
   | "investigate"
   | "chase"
   | "attack"
+  | "attacking"
   | "feed"
   | "dead";
 
@@ -82,7 +83,9 @@ export type ZombieTransition =
   | "playerKilled"
   | "doneFeeding"
   | "idleTimeout"
-  | "destroyed";
+  | "destroyed"
+  | "startAttacking"
+  | "doneAttacking";
 
 export interface ZombieInstance extends StateMachine {
   id: string;
@@ -112,6 +115,8 @@ export interface ZombieInstance extends StateMachine {
   doneFeeding(): void;
   idleTimeout(): void;
   destroyed(): void;
+  startAttacking(): void;
+  doneAttacking(): void;
   goto(state: ZombieState): void;
 }
 
@@ -205,6 +210,8 @@ export function createZombie(npc: Npc, server: ZoneServer2016): ZombieInstance {
       },
       { name: "noiseTimeout", from: "investigate", to: "wander" },
       { name: "reachPlayer", from: "chase", to: "attack" },
+      { name: "startAttacking", from: "attack", to: "attacking" },
+      { name: "doneAttacking", from: "attacking", to: "attack" },
       { name: "lostPlayer", from: "chase", to: "wander" },
       { name: "playerBacked", from: "attack", to: "chase" },
       { name: "playerKilled", from: "attack", to: "feed" },
@@ -237,6 +244,12 @@ export function createZombie(npc: Npc, server: ZoneServer2016): ZombieInstance {
 
       onAttack(this: ZombieInstance): void {
         this.lastAttackTime = 2;
+      },
+
+      onAttacking(this: ZombieInstance): void {
+        playAnim(this.npc, ZombieOneshotAnim.KnifeSlash);
+        this.stateTimer = 0;
+        this.lastAttackTime = 0;
       },
 
       onIdle(this: ZombieInstance): void {
@@ -478,9 +491,27 @@ export function tickZombie(
       if (attackDist >= 2) {
         zombie.playerBacked();
       } else if (zombie.lastAttackTime > 2) {
-        playAnim(zombie.npc, ZombieOneshotAnim.KnifeSlash);
-        dealDamage(zombie.npc, zombie.targetCharacterId!);
-        zombie.lastAttackTime = 0;
+        zombie.startAttacking();
+      }
+      break;
+    }
+
+    case "attacking": {
+      const attackTarget = zombie.targetCharacterId
+        ? zone._characters[zombie.targetCharacterId]
+        : null;
+      zombie.stateTimer += dt;
+      if (zombie.stateTimer >= 2) {
+        if (attackTarget) {
+          const attackDist = getDistance(
+            zombie.npc.state.position,
+            attackTarget.state.position
+          );
+          if (attackDist <= 2) {
+            dealDamage(zombie.npc, zombie.targetCharacterId!);
+          }
+        }
+        zombie.doneAttacking();
       }
       break;
     }
