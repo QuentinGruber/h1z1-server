@@ -75,7 +75,7 @@ function moveToward(
   server: ZoneServer2016
 ): void {
   if (!npc.navAgent) return;
-  const navTarget = server.navManager.getClosestNavPoint(target);
+  const navTarget = server.navManager.getClosestNavPointVec3(target);
   npc.navAgent.requestMoveTarget(navTarget);
 }
 

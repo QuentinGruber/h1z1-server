@@ -739,7 +739,8 @@ const dev: any = {
       const npc = server._npcs[k];
       if (npc.navAgent) {
         const playerPos = client.character.state.position;
-        const targetNavPoint = server.navManager.getClosestNavPoint(playerPos);
+        const targetNavPoint =
+          server.navManager.getClosestNavPointVec3(playerPos);
         npc.navAgent.requestMoveTarget(targetNavPoint);
       }
     }
@@ -781,7 +782,8 @@ const dev: any = {
       server.navManager.updt();
       if (zombie.navAgent) {
         const playerPos = client.character.state.position;
-        const targetNavPoint = server.navManager.getClosestNavPoint(playerPos);
+        const targetNavPoint =
+          server.navManager.getClosestNavPointVec3(playerPos);
         zombie.navAgent.requestMoveTarget(targetNavPoint);
         const navPos = zombie.navAgent.interpolatedPosition;
         const gamePos = NavManager.navToGame(navPos);
@@ -913,6 +915,22 @@ const dev: any = {
       }
     }
     server.sendChatText(client, `Deleted ${counter} small shacks`);
+  },
+  zombieray: function (
+    server: ZoneServer2016,
+    client: Client,
+    args: Array<string>
+  ) {
+    for (const k in server._npcs) {
+      const npc = server._npcs[k];
+      const npc_pos = npc.state.position;
+      const player_pos = client.character.state.position;
+
+      console.time("recast");
+      const result = server.navManager.raycast(npc_pos, player_pos);
+      console.timeEnd("recast");
+      console.log(result);
+    }
   },
   zombiemove: function (
     server: ZoneServer2016,

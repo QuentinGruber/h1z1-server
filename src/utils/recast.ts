@@ -55,6 +55,23 @@ export class NavManager {
     return new Float32Array([v.x, v.y, v.z, 0]);
   }
 
+  getClosestNavPoint(gamePos: Float32Array): any {
+    const navInput = NavManager.gameToNav(gamePos);
+    const n = this.navMeshQuery.findClosestPoint(navInput);
+    return n;
+  }
+
+  raycast(origin: Float32Array, target: Float32Array) {
+    const origin_data = this.getClosestNavPoint(origin);
+
+    const startPoly = origin_data.polyRef;
+    const start = origin_data.point;
+    const end = this.getClosestNavPointVec3(target);
+
+    const result = this.navMeshQuery.raycast(startPoly, start, end);
+    return result;
+  }
+
   updt() {
     const now = Date.now();
     const timeSinceLastCalled = (now - this.lastTimeCall) / 1000;
@@ -64,7 +81,7 @@ export class NavManager {
 
   // Returns nearest navmesh point (in nav coords) to the given game position.
   // Uses large halfExtents so Y offset doesn't prevent finding a polygon.
-  getClosestNavPoint(gamePos: Float32Array): Vector3 {
+  getClosestNavPointVec3(gamePos: Float32Array): Vector3 {
     const navInput = NavManager.gameToNav(gamePos);
     const n = this.navMeshQuery.findNearestPoly(navInput, {
       halfExtents: { x: 10, y: 10, z: 10 }
@@ -76,7 +93,7 @@ export class NavManager {
   }
 
   createAgent(gamePos: Float32Array): CrowdAgent {
-    const navPosition = this.getClosestNavPoint(gamePos);
+    const navPosition = this.getClosestNavPointVec3(gamePos);
     debug(
       `createAgent: navPos=[${navPosition.x.toFixed(2)}, ${navPosition.y.toFixed(2)}, ${navPosition.z.toFixed(2)}]`
     );
