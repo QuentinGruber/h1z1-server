@@ -432,6 +432,13 @@ export function tickZombie(
         zombie.noiseTimeout();
         break;
       }
+      if (
+        zombie.lastNoisePos != null &&
+        getDistance2d(zombie.npc.state.position, zombie.lastNoisePos) < 3
+      ) {
+        zombie.noiseTimeout();
+        break;
+      }
       const nearestSound = findNearestSound(zombie.npc, zone.sounds);
       if (nearestSound) {
         zombie.lastNoisePos = nearestSound.position;
