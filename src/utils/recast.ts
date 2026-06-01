@@ -11,7 +11,7 @@
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
 
-import { createWriteStream, readFileSync } from "node:fs";
+import { createWriteStream, existsSync, readFileSync } from "node:fs";
 import {
   CrowdAgent,
   getNavMeshPositionsAndIndices,
@@ -34,9 +34,16 @@ export class NavManager {
   constructor() {}
   async loadNav() {
     console.time("[NAV] Navmesh loaded");
-    const navData = new Uint8Array(
-      readFileSync(__dirname + "/../../data/2016/navData/z1.bin")
-    );
+    const parts: Buffer[] = [];
+    let part = 0;
+    while (true) {
+      const partPath = __dirname + `/../../data/2016/navData/z1_${part}.bin`;
+      if (!existsSync(partPath)) break;
+      parts.push(readFileSync(partPath));
+      console.log(`[NAV] loaded nav part ${part}`);
+      part++;
+    }
+    const navData = new Uint8Array(Buffer.concat(parts));
     await initRecast();
     const { navMesh } = importNavMesh(navData);
     this.navmesh = navMesh;
