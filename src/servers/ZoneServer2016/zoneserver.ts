@@ -2589,7 +2589,7 @@ export class ZoneServer2016 extends EventEmitter {
     this._gridOriginZ = minZ;
     this._gridNumCols = numCols;
     this._gridNumRows = numRows;
-    this._gridLookup = new Array(numCols * numRows);
+    this._gridLookup = Array.from({ length: numCols * numRows });
     for (const cell of this._grid) {
       const col = Math.round((cell.position[0] - minX) / cs);
       const row = Math.round((cell.position[2] - minZ) / cs);
@@ -2620,7 +2620,7 @@ export class ZoneServer2016 extends EventEmitter {
     this._gridOriginZ = minZ;
     this._gridNumCols = numCols;
     this._gridNumRows = numRows;
-    this._gridLookup = new Array(numCols * numRows);
+    this._gridLookup = Array.from({ length: numCols * numRows });
     for (const cell of this._grid) {
       // A large cell covers multiple lookup slots — fill all of them
       const cols = Math.round(cell.width / cs);
