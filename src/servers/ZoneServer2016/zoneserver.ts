@@ -8694,7 +8694,6 @@ export class ZoneServer2016 extends EventEmitter {
           radius: 100,
           agitation: 10
         });
-
         break;
       case WeaponDefinitionIds.WEAPON_308:
         this.sounds.push({
@@ -8702,7 +8701,83 @@ export class ZoneServer2016 extends EventEmitter {
           radius: 200,
           agitation: 10
         });
-
+        break;
+      case WeaponDefinitionIds.WEAPON_AK47:
+        this.sounds.push({
+          position: client.character.state.position,
+          radius: 120,
+          agitation: 10
+        });
+        break;
+      case WeaponDefinitionIds.WEAPON_SHOTGUN:
+        this.sounds.push({
+          position: client.character.state.position,
+          radius: 150,
+          agitation: 15
+        });
+        break;
+      case WeaponDefinitionIds.WEAPON_NAGAFENS_RAGE:
+        this.sounds.push({
+          position: client.character.state.position,
+          radius: 160,
+          agitation: 15
+        });
+        break;
+      case WeaponDefinitionIds.WEAPON_1911:
+        this.sounds.push({
+          position: client.character.state.position,
+          radius: 75,
+          agitation: 8
+        });
+        break;
+      case WeaponDefinitionIds.WEAPON_M9:
+        this.sounds.push({
+          position: client.character.state.position,
+          radius: 75,
+          agitation: 8
+        });
+        break;
+      case WeaponDefinitionIds.WEAPON_R380:
+        this.sounds.push({
+          position: client.character.state.position,
+          radius: 60,
+          agitation: 7
+        });
+        break;
+      case WeaponDefinitionIds.WEAPON_MAGNUM:
+        this.sounds.push({
+          position: client.character.state.position,
+          radius: 110,
+          agitation: 10
+        });
+        break;
+      case WeaponDefinitionIds.WEAPON_REAPER:
+        this.sounds.push({
+          position: client.character.state.position,
+          radius: 180,
+          agitation: 12
+        });
+        break;
+      case WeaponDefinitionIds.WEAPON_FROSTBITE:
+        this.sounds.push({
+          position: client.character.state.position,
+          radius: 150,
+          agitation: 10
+        });
+        break;
+      case WeaponDefinitionIds.WEAPON_BLAZE:
+        this.sounds.push({
+          position: client.character.state.position,
+          radius: 150,
+          agitation: 10
+        });
+        break;
+      case WeaponDefinitionIds.WEAPON_PURGE:
+        this.sounds.push({
+          position: client.character.state.position,
+          radius: 160,
+          agitation: 12
+        });
         break;
       default:
         break;
