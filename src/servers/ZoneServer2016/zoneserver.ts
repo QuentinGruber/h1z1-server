@@ -8687,10 +8687,26 @@ export class ZoneServer2016 extends EventEmitter {
     if (!weaponItem.weapon || weaponItem.weapon.ammoCount <= 0) {
       return;
     }
-    this.sounds.push({
-      position: client.character.state.position,
-      radius: 500
-    });
+    switch (weaponItem.weapon.itemDefinitionId) {
+      case WeaponDefinitionIds.WEAPON_AR15:
+        this.sounds.push({
+          position: client.character.state.position,
+          radius: 100,
+          agitation: 10
+        });
+
+        break;
+      case WeaponDefinitionIds.WEAPON_308:
+        this.sounds.push({
+          position: client.character.state.position,
+          radius: 200,
+          agitation: 10
+        });
+
+        break;
+      default:
+        break;
+    }
     this.challengeManager.registerChallengeProgression(
       client,
       ChallengeType.GLOBAL_DISARMAMENT,

@@ -159,14 +159,17 @@ function setAnim(npc: Npc, anim: string): void {
   npc.setAnimation(anim);
 }
 
-function findNearestSound(npc: Npc, sounds: Sound[]): Sound | null {
+function listenToSounds(zombie: ZombieInstance, sounds: Sound[]): Sound | null {
   let nearest: Sound | null = null;
   let nearestDist = Infinity;
   for (const sound of sounds) {
-    const dist = getDistance2d(npc.state.position, sound.position);
-    if (dist < sound.radius && dist < nearestDist) {
-      nearest = sound;
-      nearestDist = dist;
+    const dist = getDistance2d(zombie.npc.state.position, sound.position);
+    if (dist < sound.radius) {
+      zombie.agitation = Math.min(100, zombie.agitation + sound.agitation);
+      if (dist < nearestDist) {
+        nearest = sound;
+        nearestDist = dist;
+      }
     }
   }
   return nearest;
@@ -342,7 +345,7 @@ export function tickZombie(
 
       if (zombie.state !== "wander") break;
 
-      const nearestSound = findNearestSound(zombie.npc, zone.sounds);
+      const nearestSound = listenToSounds(zombie, zone.sounds);
       if (nearestSound) {
         zombie.lastNoisePos = nearestSound.position;
         zombie.agitation = Math.min(
@@ -402,7 +405,7 @@ export function tickZombie(
         }
       }
       if (zombie.state === "idle") {
-        const nearestSound = findNearestSound(zombie.npc, zone.sounds);
+        const nearestSound = listenToSounds(zombie, zone.sounds);
         if (nearestSound) {
           zombie.lastNoisePos = nearestSound.position;
           zombie.hearNoise();
@@ -439,7 +442,7 @@ export function tickZombie(
         zombie.noiseTimeout();
         break;
       }
-      const nearestSound = findNearestSound(zombie.npc, zone.sounds);
+      const nearestSound = listenToSounds(zombie, zone.sounds);
       if (nearestSound) {
         zombie.lastNoisePos = nearestSound.position;
         zombie.stateTimer = 0;

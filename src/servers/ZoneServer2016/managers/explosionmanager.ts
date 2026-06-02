@@ -140,6 +140,14 @@ export class ExplosionManager {
 
   // ---- Private --------------------------------------------------------
 
+  private _registerSounds(chunk: PendingExplosion[]) {
+    for (let index = 0; index < chunk.length; index++) {
+      const e = chunk[index];
+      let position = e.entity.state.position;
+      this._server.sounds.push({ position, radius: 300, agitation: 50 });
+    }
+  }
+
   private async _flush(): Promise<void> {
     this._scheduled = false;
     const batch = this._pending.splice(0);
@@ -151,6 +159,9 @@ export class ExplosionManager {
 
       // Visual effects — stays on main thread (just packet sends, cheap).
       this._sendEffects(chunk);
+
+      // TODO: idk if it's the right place
+      this._registerSounds(chunk);
 
       // Single combined grid scan: triggers chain reactions AND builds the
       // construction snapshot in one pass, deduplicating by explosion position

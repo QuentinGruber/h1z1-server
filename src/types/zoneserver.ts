@@ -732,4 +732,5 @@ export interface RandomReward {
 export interface Sound {
   position : Float32Array,
   radius : number
+  agitation: number
 }
