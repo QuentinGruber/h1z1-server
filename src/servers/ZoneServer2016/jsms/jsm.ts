@@ -1,5 +1,5 @@
-export interface Transition extends TransitionBody {
-  eventId: string;
+export interface Transition<EventTypes> extends TransitionBody {
+  eventId: EventTypes;
 }
 export interface TransitionBody {
   from: string[] | null;
@@ -7,16 +7,16 @@ export interface TransitionBody {
   EnterTransition: (() => void) | undefined;
 }
 
-export class JSM {
+export class JSM<EventTypes extends string | number> {
   private _state: keyof typeof this.states = "";
   get state() {
     return this._state;
   }
   states: Record<string, (dt: number) => void> = {};
-  private transitionsHashMap: Record<string, TransitionBody> = {};
+  private transitionsHashMap: Partial<Record<EventTypes, TransitionBody>> = {};
   constructor(
     states: Record<string, (dt: number) => void>,
-    transitions: Transition[],
+    transitions: Transition<EventTypes>[],
     initialState: string = ""
   ) {
     this.states = states;
@@ -34,7 +34,7 @@ export class JSM {
       currentCallback(dt);
     }
   }
-  event(eventId: string) {
+  event(eventId: EventTypes) {
     const transition = this.transitionsHashMap[eventId];
     if (!transition) {
       console.error(`[AI] EventId ${eventId} doesn't exist`);
@@ -52,5 +52,5 @@ export class JSM {
   }
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  onTransition(_from: string, _to: string, _eventId: string) {}
+  onTransition(_from: string, _to: string, _eventId: EventTypes) {}
 }

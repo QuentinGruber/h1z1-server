@@ -11,7 +11,7 @@
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
 
-import { JSM, Transition } from "./jsm";
+import { JSM } from "./jsm";
 import type { Npc } from "../entities/npc";
 import type { ZoneServer2016 } from "../zoneserver";
 import { NavManager } from "../../../utils/recast";
@@ -47,7 +47,7 @@ export const enum DeerEvents {
   Destroyed = "destroyed"
 }
 
-export interface DeerInstance extends JSM {
+export interface DeerInstance extends JSM<DeerEvents> {
   id: string;
   state: DeerTransitions;
   hunger: number;
@@ -276,7 +276,7 @@ export function createDeer(npc: Npc, server: ZoneServer2016): DeerInstance {
           }
         }
       }
-    ] as Transition[],
+    ],
     DeerTransitions.Wander
   ) as unknown as DeerInstance;
 

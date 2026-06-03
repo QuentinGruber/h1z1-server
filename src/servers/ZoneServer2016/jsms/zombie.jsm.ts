@@ -11,7 +11,7 @@
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
 
-import { JSM, Transition } from "./jsm";
+import { JSM } from "./jsm";
 import type { Npc } from "../entities/npc";
 import type { ZoneServer2016 } from "../zoneserver";
 import type { Sound } from "../../../types/zoneserver";
@@ -102,7 +102,7 @@ export const enum ZombieEvents {
   DoneAttacking = "doneAttacking"
 }
 
-export interface ZombieInstance extends JSM {
+export interface ZombieInstance extends JSM<ZombieEvents> {
   id: string;
   state: ZombieTransitions;
   hunger: number;
@@ -600,7 +600,7 @@ export function createZombie(npc: Npc, server: ZoneServer2016): ZombieInstance {
         to: ZombieTransitions.Dead,
         EnterTransition: undefined
       }
-    ] as Transition[],
+    ],
     ZombieTransitions.Wander
   ) as unknown as ZombieInstance;
 
