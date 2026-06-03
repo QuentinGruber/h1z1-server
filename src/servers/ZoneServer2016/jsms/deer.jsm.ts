@@ -18,6 +18,21 @@ import { NavManager } from "../../../utils/recast";
 const debug = require("debug")("ai");
 import { getDistance2d } from "../../../utils/utils";
 
+export const enum AnimalsAnimation {
+  Idle = "Idle",
+  KnifeSlash = "KnifeSlash",
+  Flinch = "Flinch",
+  Death = "Death",
+  WolfHowl = "WolfHowl",
+  StandUp = "StandUp",
+  Eating = "Eating",
+  DeathRagdoll = "DeathRagdoll",
+  DeathRagdollAnywhere = "DeathRagdollAnywhere",
+  DeathPose = "DeathPose",
+  Roar = "Roar",
+  MeleeFlinch = "MeleeFlinch"
+}
+
 export const enum DeerTransitions {
   Eating = "eating",
   Wander = "wander",
