@@ -3769,6 +3769,7 @@ export const commands: Array<Command> = [
   {
     name: "dev",
     permissionLevel: PermissionLevels.DEV,
+    keepCase: true,
     execute: (server: ZoneServer2016, client: Client, args: Array<string>) => {
       const commandName = args[0];
       delete require.cache[require.resolve("./dev")];
