@@ -916,6 +916,18 @@ const dev: any = {
     }
     server.sendChatText(client, `Deleted ${counter} small shacks`);
   },
+  testanimall: function (
+    server: ZoneServer2016,
+    client: Client,
+    args: Array<string>
+  ) {
+    const anim = args[1];
+    for (const k in server._npcs) {
+      const npc = server._npcs[k];
+      npc.playAnimation(anim);
+    }
+    server.sendChatText(client, `Applied anim ${anim} on all spawned npcs`);
+  },
   zombieray: function (
     server: ZoneServer2016,
     client: Client,
