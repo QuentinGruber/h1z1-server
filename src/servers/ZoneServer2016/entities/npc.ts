@@ -28,8 +28,7 @@ import { BaseEntity } from "./baseentity";
 import { ChallengeType } from "../managers/challengemanager";
 import { ProjectileEntity } from "./projectileentity";
 import { ZombieInstance } from "../jsms/zombie.jsm";
-import { DeerInstance } from "../jsms/deer.jsm";
-import { ScreamingZombieInstance } from "../jsms/screamingzombie.jsm";
+import { DeerInstance, DeerEvents } from "../jsms/deer.jsm";
 
 export abstract class Npc extends BaseFullCharacter {
   health: number;
@@ -71,7 +70,6 @@ export abstract class Npc extends BaseFullCharacter {
   npcMeleeDamage: number = 0;
   zombieFsm?: ZombieInstance;
   deerFsm?: DeerInstance;
-  screamingZombieFsm?: ScreamingZombieInstance;
   currentAnimation = "";
   isSelected: boolean = false;
 
@@ -126,7 +124,7 @@ export abstract class Npc extends BaseFullCharacter {
 
   applyDamage(characterId: string) {
     const client = this.server.getClientByCharId(characterId);
-    if (client) {
+    if (client?.isLoading === false) {
       const damageInfo: DamageInfo = {
         entity: this.characterId,
         weapon: Items.WEAPON_MACHETE01,
@@ -164,8 +162,7 @@ export abstract class Npc extends BaseFullCharacter {
     if ((this.health -= damageInfo.damage) <= 0 && this.isAlive) {
       this.deathTime = Date.now();
       this.zombieFsm?.destroyed();
-      this.deerFsm?.destroyed();
-      this.screamingZombieFsm?.destroyed();
+      this.deerFsm?.event(DeerEvents.Destroyed);
       this.flags.knockedOut = 1;
 
       this.addLoot(server);
