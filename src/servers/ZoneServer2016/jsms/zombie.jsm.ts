@@ -1,4 +1,17 @@
-import StateMachine from "javascript-state-machine";
+// ======================================================================
+//
+//   GNU GENERAL PUBLIC LICENSE
+//   Version 3, 29 June 2007
+//   copyright (C) 2020 - 2021 Quentin Gruber
+//   copyright (C) 2021 - 2026 H1emu community
+//
+//   https://github.com/QuentinGruber/h1z1-server
+//   https://www.npmjs.com/package/h1z1-server
+//
+//   Based on https://github.com/psemu/soe-network
+// ======================================================================
+
+import { JSM, Transition } from "./jsm";
 import type { Npc } from "../entities/npc";
 import type { ZoneServer2016 } from "../zoneserver";
 import type { Sound } from "../../../types/zoneserver";
@@ -62,34 +75,36 @@ export const enum ZombieOneshotAnim {
   Stagger_Heavy = "Stagger_Heavy"
 }
 
-export type ZombieState =
-  | "idle"
-  | "wander"
-  | "investigate"
-  | "chase"
-  | "attack"
-  | "attacking"
-  | "feed"
-  | "dead";
+export const enum ZombieTransitions {
+  Idle = "idle",
+  Wander = "wander",
+  Investigate = "investigate",
+  Chase = "chase",
+  Attack = "attack",
+  Attacking = "attacking",
+  Feed = "feed",
+  Dead = "dead"
+}
 
-export type ZombieTransition =
-  | "hearNoise"
-  | "seePlayer"
-  | "smellCorpse"
-  | "noiseTimeout"
-  | "reachPlayer"
-  | "lostPlayer"
-  | "playerBacked"
-  | "playerKilled"
-  | "doneFeeding"
-  | "idleTimeout"
-  | "destroyed"
-  | "startAttacking"
-  | "doneAttacking";
+export const enum ZombieEvents {
+  HearNoise = "hearNoise",
+  SeePlayer = "seePlayer",
+  SmellCorpse = "smellCorpse",
+  NoiseTimeout = "noiseTimeout",
+  ReachPlayer = "reachPlayer",
+  LostPlayer = "lostPlayer",
+  PlayerBacked = "playerBacked",
+  PlayerKilled = "playerKilled",
+  DoneFeeding = "doneFeeding",
+  IdleTimeout = "idleTimeout",
+  Destroyed = "destroyed",
+  StartAttacking = "startAttacking",
+  DoneAttacking = "doneAttacking"
+}
 
-export interface ZombieInstance extends StateMachine {
+export interface ZombieInstance extends JSM {
   id: string;
-  state: ZombieState;
+  state: ZombieTransitions;
   hunger: number;
   agitation: number;
   targetPos: Float32Array | null;
@@ -104,20 +119,6 @@ export interface ZombieInstance extends StateMachine {
   wanderOrigin: Float32Array;
   npc: Npc;
   server: ZoneServer2016;
-  hearNoise(): void;
-  seePlayer(): void;
-  smellCorpse(): void;
-  noiseTimeout(): void;
-  reachPlayer(): void;
-  lostPlayer(): void;
-  playerBacked(): void;
-  playerKilled(): void;
-  doneFeeding(): void;
-  idleTimeout(): void;
-  destroyed(): void;
-  startAttacking(): void;
-  doneAttacking(): void;
-  goto(state: ZombieState): void;
 }
 
 const BASE_SPEED = 1.0;
@@ -174,403 +175,457 @@ function listenToSounds(zombie: ZombieInstance, sounds: Sound[]): Sound | null {
   return nearest;
 }
 
-export function createZombie(npc: Npc, server: ZoneServer2016): ZombieInstance {
-  return new StateMachine({
-    init: "wander",
-
-    data() {
-      return {
-        id: npc.characterId,
-        npc,
-        server,
-        hunger: 0,
-        agitation: AGITATION_INITIAL,
-        wanderOrigin: npc.state.position.slice() as Float32Array,
-        targetPos: pickPatrolPoint(npc, server, npc.state.position) as unknown,
-        lastNoisePos: null,
-        targetCharacterId: null,
-        corpseTargetId: null,
-        isEatingCorpse: false,
-        stateTimer: 0,
-        patrolTimer: 0,
-        lastAttackTime: 0,
-        investigateTimeout: 120
-      };
-    },
-
-    transitions: [
-      { name: "hearNoise", from: ["wander", "idle"], to: "investigate" },
-      {
-        name: "seePlayer",
-        from: ["wander", "investigate", "idle"],
-        to: "chase"
-      },
-      {
-        name: "smellCorpse",
-        from: ["wander", "idle", "investigate", "chase"],
-        to: "feed"
-      },
-      { name: "noiseTimeout", from: "investigate", to: "wander" },
-      { name: "reachPlayer", from: "chase", to: "attack" },
-      { name: "startAttacking", from: "attack", to: "attacking" },
-      { name: "doneAttacking", from: "attacking", to: "attack" },
-      { name: "lostPlayer", from: "chase", to: "wander" },
-      { name: "playerBacked", from: "attack", to: "chase" },
-      { name: "playerKilled", from: "attack", to: "feed" },
-      { name: "doneFeeding", from: "feed", to: "wander" },
-      { name: "idleTimeout", from: "wander", to: "idle" },
-      { name: "destroyed", from: "*", to: "dead" }
-    ],
-
-    methods: {
-      onWander(this: ZombieInstance): void {
-        this.stateTimer = 0;
-        this.patrolTimer = 0;
-        this.agitation = AGITATION_INITIAL;
-        this.targetCharacterId = null;
-        this.wanderOrigin = this.npc.state.position.slice() as Float32Array;
-        const pt = pickPatrolPoint(this.npc, this.server, this.wanderOrigin);
-        if (pt) {
-          this.targetPos = pt;
-          moveToward(this.npc, pt, this.server);
-        }
-      },
-
-      onInvestigate(this: ZombieInstance): void {
-        this.stateTimer = 0;
-        this.targetPos = this.lastNoisePos;
-        if (this.targetPos) moveToward(this.npc, this.targetPos, this.server);
-      },
-
-      onChase(this: ZombieInstance): void {},
-
-      onAttack(this: ZombieInstance): void {
-        this.lastAttackTime = 2;
-      },
-
-      onAttacking(this: ZombieInstance): void {
-        playAnim(this.npc, ZombieOneshotAnim.KnifeSlash);
-        this.stateTimer = 0;
-        this.lastAttackTime = 0;
-      },
-
-      onIdle(this: ZombieInstance): void {
-        this.stateTimer = 0;
-        this.npc.stopMovement();
-        setAnim(this.npc, ZombieLoopingAnim.Idle);
-      },
-
-      onFeed(this: ZombieInstance): void {
-        this.npc.stopMovement();
-        this.stateTimer = 0;
-        this.targetCharacterId = null;
-        this.isEatingCorpse = false;
-        // eating animation is delayed until the nav agent fully decelerates
-      },
-
-      onDead(this: ZombieInstance): void {},
-
-      // guards
-      onBeforeSmellCorpse(this: ZombieInstance): boolean {
-        return this.hunger >= 60;
-      },
-
-      onBeforePlayerKilled(this: ZombieInstance): boolean {
-        return this.hunger >= 30;
-      },
-
-      onBeforeDestroyed(this: ZombieInstance): boolean {
-        return this.state !== "dead";
-      },
-
-      onTransition(
-        this: ZombieInstance,
-        lifecycle: { from: string; to: string; transition: string }
-      ): void {
-        debug(
-          `[${this.id}] ${lifecycle.from} → ${lifecycle.to} (${lifecycle.transition})`
-        );
-      }
-    }
-  }) as unknown as ZombieInstance;
-}
-
-function trySmellCorpse(zone: ZoneServer2016, zombie: ZombieInstance): boolean {
+function trySmellCorpse(zombie: ZombieInstance): boolean {
   if (zombie.hunger < 60) return false;
-  for (const characterId in zone._characters) {
-    const character = zone._characters[characterId];
+  for (const characterId in zombie.server._characters) {
+    const character = zombie.server._characters[characterId];
     if (character.isAlive) continue;
     if (
       getDistance2d(zombie.npc.state.position, character.state.position) < 30
     ) {
       zombie.corpseTargetId = characterId;
-      zombie.smellCorpse();
+      zombie.event(ZombieEvents.SmellCorpse);
       return true;
     }
   }
   return false;
 }
 
-export function tickZombie(
-  zone: ZoneServer2016,
-  zombie: ZombieInstance,
-  dt: number
-): void {
-  if (zombie.state === "dead") return;
+function enterWander(zombie: ZombieInstance): void {
+  zombie.stateTimer = 0;
+  zombie.patrolTimer = 0;
+  zombie.agitation = AGITATION_INITIAL;
+  zombie.targetCharacterId = null;
+  zombie.wanderOrigin = zombie.npc.state.position.slice() as Float32Array;
+  const pt = pickPatrolPoint(zombie.npc, zombie.server, zombie.wanderOrigin);
+  if (pt) {
+    zombie.targetPos = pt;
+    moveToward(zombie.npc, pt, zombie.server);
+  }
+}
 
-  zombie.hunger = Math.min(100, zombie.hunger + dt * 2);
-  zombie.stateTimer += dt;
-  zombie.lastAttackTime += dt;
+function enterFeed(zombie: ZombieInstance): void {
+  zombie.npc.stopMovement();
+  zombie.stateTimer = 0;
+  zombie.targetCharacterId = null;
+  zombie.isEatingCorpse = false;
+}
 
-  switch (zombie.state) {
-    case "wander": {
-      for (const characterId in zone._characters) {
-        const character = zone._characters[characterId];
-        if (!character.isAlive) continue;
-        if (character.isVanished || character.isHidden) continue;
-        if (
-          getDistance2d(zombie.npc.state.position, character.state.position) <
-          10
-        ) {
-          zombie.targetCharacterId = characterId;
-          zombie.seePlayer();
-          break;
+export function createZombie(npc: Npc, server: ZoneServer2016): ZombieInstance {
+  const zombie = new JSM(
+    {
+      [ZombieTransitions.Wander]: (dt: number) => {
+        zombie.hunger = Math.min(100, zombie.hunger + dt * 2);
+        zombie.stateTimer += dt;
+        zombie.lastAttackTime += dt;
+
+        for (const characterId in zombie.server._characters) {
+          const character = zombie.server._characters[characterId];
+          if (!character.isAlive || character.isVanished || character.isHidden)
+            continue;
+          if (
+            getDistance2d(zombie.npc.state.position, character.state.position) <
+            10
+          ) {
+            zombie.targetCharacterId = characterId;
+            zombie.event(ZombieEvents.SeePlayer);
+            return;
+          }
         }
-      }
 
-      if (zombie.state === "wander") {
-        if (trySmellCorpse(zone, zombie)) break;
-      }
+        if (trySmellCorpse(zombie)) return;
 
-      if (zombie.state !== "wander") break;
-
-      const nearestSound = listenToSounds(zombie, zone.sounds);
-      if (nearestSound) {
-        zombie.lastNoisePos = nearestSound.position;
-        zombie.hearNoise();
-        break;
-      }
-
-      zombie.agitation = Math.max(
-        0,
-        zombie.agitation - AGITATION_DECAY_RATE * dt
-      );
-
-      if (zombie.npc.navAgent) {
-        zombie.npc.navAgent.maxSpeed =
-          BASE_SPEED + (zombie.agitation / 100) * (MAX_SPEED - BASE_SPEED);
-        zombie.npc.navAgent.maxAcceleration = zombie.npc.navAgent.maxSpeed * 2;
-      }
-
-      if (zombie.agitation === 0) {
-        zombie.idleTimeout();
-        break;
-      }
-
-      const arrived =
-        zombie.targetPos != null &&
-        getDistance2d(zombie.npc.state.position, zombie.targetPos) < 3;
-
-      if (arrived || zombie.targetPos == null) {
-        const pt = pickPatrolPoint(
-          zombie.npc,
-          zombie.server,
-          zombie.wanderOrigin
-        );
-        if (pt) {
-          zombie.targetPos = pt;
-          moveToward(zombie.npc, pt, zombie.server);
-        }
-      }
-      break;
-    }
-
-    case "idle": {
-      for (const characterId in zone._characters) {
-        const character = zone._characters[characterId];
-        if (!character.isAlive) continue;
-        if (character.isVanished || character.isHidden) continue;
-        if (
-          getDistance2d(zombie.npc.state.position, character.state.position) <
-          10
-        ) {
-          zombie.targetCharacterId = characterId;
-          zombie.seePlayer();
-          break;
-        }
-      }
-      if (zombie.state === "idle") {
-        const nearestSound = listenToSounds(zombie, zone.sounds);
+        const nearestSound = listenToSounds(zombie, zombie.server.sounds);
         if (nearestSound) {
           zombie.lastNoisePos = nearestSound.position;
-          zombie.hearNoise();
+          zombie.event(ZombieEvents.HearNoise);
+          return;
         }
-      }
-      if (zombie.state === "idle") trySmellCorpse(zone, zombie);
-      break;
-    }
 
-    case "investigate": {
-      for (const characterId in zone._characters) {
-        const character = zone._characters[characterId];
-        if (!character.isAlive) continue;
-        if (character.isVanished || character.isHidden) continue;
-        if (
-          getDistance2d(zombie.npc.state.position, character.state.position) <
-          10
-        ) {
-          zombie.targetCharacterId = characterId;
-          zombie.seePlayer();
-          break;
+        zombie.agitation = Math.max(
+          0,
+          zombie.agitation - AGITATION_DECAY_RATE * dt
+        );
+
+        if (zombie.npc.navAgent) {
+          zombie.npc.navAgent.maxSpeed =
+            BASE_SPEED + (zombie.agitation / 100) * (MAX_SPEED - BASE_SPEED);
+          zombie.npc.navAgent.maxAcceleration =
+            zombie.npc.navAgent.maxSpeed * 2;
         }
-      }
-      if (zombie.state !== "investigate") break;
 
-      if (zombie.stateTimer >= zombie.investigateTimeout) {
-        zombie.noiseTimeout();
-        break;
-      }
-      if (
-        zombie.lastNoisePos != null &&
-        getDistance2d(zombie.npc.state.position, zombie.lastNoisePos) < 3
-      ) {
-        zombie.noiseTimeout();
-        break;
-      }
-      const nearestSound = listenToSounds(zombie, zone.sounds);
-      if (nearestSound) {
-        zombie.lastNoisePos = nearestSound.position;
-        zombie.stateTimer = 0;
-        moveToward(zombie.npc, nearestSound.position, zombie.server);
-      }
-      if (zombie.state === "investigate") trySmellCorpse(zone, zombie);
-      break;
-    }
+        if (zombie.agitation === 0) {
+          zombie.event(ZombieEvents.IdleTimeout);
+          return;
+        }
 
-    case "chase": {
-      listenToSounds(zombie, zone.sounds);
-      const chaseTarget = zombie.targetCharacterId
-        ? zone._characters[zombie.targetCharacterId]
-        : null;
-      if (
-        !chaseTarget ||
-        !chaseTarget.isAlive ||
-        chaseTarget.isVanished ||
-        chaseTarget.isHidden
-      ) {
-        zombie.lostPlayer();
-        break;
-      }
-      const chaseDist = getDistance2d(
-        zombie.npc.state.position,
-        chaseTarget.state.position
-      );
-      if (chaseDist > 50) {
-        zombie.lostPlayer();
-      } else if (chaseDist < 2) {
-        zombie.reachPlayer();
-      } else {
-        if (trySmellCorpse(zone, zombie)) break;
-        moveToward(zombie.npc, chaseTarget.state.position, zombie.server);
-      }
-      break;
-    }
+        const arrived =
+          zombie.targetPos != null &&
+          getDistance2d(zombie.npc.state.position, zombie.targetPos) < 3;
 
-    case "attack": {
-      listenToSounds(zombie, zone.sounds);
-      const attackTarget = zombie.targetCharacterId
-        ? zone._characters[zombie.targetCharacterId]
-        : null;
-      if (!attackTarget || !attackTarget.isAlive) {
-        zombie.playerKilled();
-        if (zombie.state === "attack") zombie.goto("wander");
-        break;
-      }
-      if (attackTarget.isVanished || attackTarget.isHidden) {
-        zombie.goto("wander");
-        break;
-      }
-      moveToward(zombie.npc, attackTarget.state.position, zombie.server);
-      const attackDist = getDistance(
-        zombie.npc.state.position,
-        attackTarget.state.position
-      );
-      if (attackDist >= 2) {
-        zombie.playerBacked();
-      } else if (zombie.lastAttackTime > 2) {
-        zombie.startAttacking();
-      }
-      break;
-    }
-
-    case "attacking": {
-      listenToSounds(zombie, zone.sounds);
-      const attackTarget = zombie.targetCharacterId
-        ? zone._characters[zombie.targetCharacterId]
-        : null;
-      zombie.stateTimer += dt;
-      if (zombie.stateTimer >= 2) {
-        if (attackTarget) {
-          const attackDist = getDistance(
-            zombie.npc.state.position,
-            attackTarget.state.position
+        if (arrived || zombie.targetPos == null) {
+          const pt = pickPatrolPoint(
+            zombie.npc,
+            zombie.server,
+            zombie.wanderOrigin
           );
-          if (attackDist <= 2) {
-            dealDamage(zombie.npc, zombie.targetCharacterId!);
+          if (pt) {
+            zombie.targetPos = pt;
+            moveToward(zombie.npc, pt, zombie.server);
           }
         }
-        zombie.doneAttacking();
-      }
-      break;
-    }
+      },
 
-    case "feed": {
-      listenToSounds(zombie, zone.sounds);
-      if (zombie.corpseTargetId) {
-        const corpse = zone._characters[zombie.corpseTargetId];
-        if (!corpse || corpse.isAlive) {
+      [ZombieTransitions.Idle]: (dt: number) => {
+        zombie.hunger = Math.min(100, zombie.hunger + dt * 2);
+        zombie.stateTimer += dt;
+        zombie.lastAttackTime += dt;
+
+        for (const characterId in zombie.server._characters) {
+          const character = zombie.server._characters[characterId];
+          if (!character.isAlive || character.isVanished || character.isHidden)
+            continue;
+          if (
+            getDistance2d(zombie.npc.state.position, character.state.position) <
+            10
+          ) {
+            zombie.targetCharacterId = characterId;
+            zombie.event(ZombieEvents.SeePlayer);
+            return;
+          }
+        }
+
+        const nearestSound = listenToSounds(zombie, zombie.server.sounds);
+        if (nearestSound) {
+          zombie.lastNoisePos = nearestSound.position;
+          zombie.event(ZombieEvents.HearNoise);
+          return;
+        }
+
+        trySmellCorpse(zombie);
+      },
+
+      [ZombieTransitions.Investigate]: (dt: number) => {
+        zombie.hunger = Math.min(100, zombie.hunger + dt * 2);
+        zombie.stateTimer += dt;
+        zombie.lastAttackTime += dt;
+
+        for (const characterId in zombie.server._characters) {
+          const character = zombie.server._characters[characterId];
+          if (!character.isAlive || character.isVanished || character.isHidden)
+            continue;
+          if (
+            getDistance2d(zombie.npc.state.position, character.state.position) <
+            10
+          ) {
+            zombie.targetCharacterId = characterId;
+            zombie.event(ZombieEvents.SeePlayer);
+            return;
+          }
+        }
+
+        if (zombie.stateTimer >= zombie.investigateTimeout) {
+          zombie.event(ZombieEvents.NoiseTimeout);
+          return;
+        }
+
+        if (
+          zombie.lastNoisePos != null &&
+          getDistance2d(zombie.npc.state.position, zombie.lastNoisePos) < 3
+        ) {
+          zombie.event(ZombieEvents.NoiseTimeout);
+          return;
+        }
+
+        const nearestSound = listenToSounds(zombie, zombie.server.sounds);
+        if (nearestSound) {
+          zombie.lastNoisePos = nearestSound.position;
+          zombie.stateTimer = 0;
+          moveToward(zombie.npc, nearestSound.position, zombie.server);
+        }
+
+        trySmellCorpse(zombie);
+      },
+
+      [ZombieTransitions.Chase]: (dt: number) => {
+        zombie.hunger = Math.min(100, zombie.hunger + dt * 2);
+        zombie.stateTimer += dt;
+        zombie.lastAttackTime += dt;
+
+        listenToSounds(zombie, zombie.server.sounds);
+
+        const chaseTarget = zombie.targetCharacterId
+          ? zombie.server._characters[zombie.targetCharacterId]
+          : null;
+        if (
+          !chaseTarget ||
+          !chaseTarget.isAlive ||
+          chaseTarget.isVanished ||
+          chaseTarget.isHidden
+        ) {
+          zombie.event(ZombieEvents.LostPlayer);
+          return;
+        }
+
+        const chaseDist = getDistance2d(
+          zombie.npc.state.position,
+          chaseTarget.state.position
+        );
+        if (chaseDist > 50) {
+          zombie.event(ZombieEvents.LostPlayer);
+        } else if (chaseDist < 2) {
+          zombie.event(ZombieEvents.ReachPlayer);
+        } else {
+          if (trySmellCorpse(zombie)) return;
+          moveToward(zombie.npc, chaseTarget.state.position, zombie.server);
+        }
+      },
+
+      [ZombieTransitions.Attack]: (dt: number) => {
+        zombie.hunger = Math.min(100, zombie.hunger + dt * 2);
+        zombie.stateTimer += dt;
+        zombie.lastAttackTime += dt;
+
+        listenToSounds(zombie, zombie.server.sounds);
+
+        const attackTarget = zombie.targetCharacterId
+          ? zombie.server._characters[zombie.targetCharacterId]
+          : null;
+        if (!attackTarget || !attackTarget.isAlive) {
+          if (zombie.hunger >= 30) {
+            zombie.event(ZombieEvents.PlayerKilled);
+          } else {
+            zombie.event(ZombieEvents.LostPlayer);
+          }
+          return;
+        }
+        if (attackTarget.isVanished || attackTarget.isHidden) {
+          zombie.event(ZombieEvents.LostPlayer);
+          return;
+        }
+        moveToward(zombie.npc, attackTarget.state.position, zombie.server);
+        const attackDist = getDistance(
+          zombie.npc.state.position,
+          attackTarget.state.position
+        );
+        if (attackDist >= 2) {
+          zombie.event(ZombieEvents.PlayerBacked);
+        } else if (zombie.lastAttackTime > 2) {
+          zombie.event(ZombieEvents.StartAttacking);
+        }
+      },
+
+      [ZombieTransitions.Attacking]: (dt: number) => {
+        zombie.hunger = Math.min(100, zombie.hunger + dt * 2);
+        // double increment matches original behaviour (attacking resolves in ~1s)
+        zombie.stateTimer += dt * 2;
+        zombie.lastAttackTime += dt;
+
+        listenToSounds(zombie, zombie.server.sounds);
+
+        const attackTarget = zombie.targetCharacterId
+          ? zombie.server._characters[zombie.targetCharacterId]
+          : null;
+        if (zombie.stateTimer >= 2) {
+          if (attackTarget) {
+            const attackDist = getDistance(
+              zombie.npc.state.position,
+              attackTarget.state.position
+            );
+            if (attackDist <= 2) {
+              dealDamage(zombie.npc, zombie.targetCharacterId!);
+            }
+          }
+          zombie.event(ZombieEvents.DoneAttacking);
+        }
+      },
+
+      [ZombieTransitions.Feed]: (dt: number) => {
+        zombie.hunger = Math.min(100, zombie.hunger + dt * 2);
+        zombie.stateTimer += dt;
+        zombie.lastAttackTime += dt;
+
+        listenToSounds(zombie, zombie.server.sounds);
+
+        if (zombie.corpseTargetId) {
+          const corpse = zombie.server._characters[zombie.corpseTargetId];
+          if (!corpse || corpse.isAlive) {
+            zombie.corpseTargetId = null;
+            zombie.isEatingCorpse = false;
+            zombie.event(ZombieEvents.DoneFeeding);
+            return;
+          }
+          if (!zombie.isEatingCorpse) {
+            const dist = getDistance2d(
+              zombie.npc.state.position,
+              corpse.state.position
+            );
+            if (dist > 2) {
+              moveToward(zombie.npc, corpse.state.position, zombie.server);
+              return;
+            }
+            zombie.npc.stopMovement();
+          }
+        }
+
+        if (!zombie.isEatingCorpse) {
+          // wait for the nav agent to fully decelerate before starting the anim
+          const vel = zombie.npc.navAgent?.velocity();
+          const speed = vel ? Math.sqrt(vel.x * vel.x + vel.z * vel.z) : 0;
+          if (speed >= 0.5) return;
+          setAnim(zombie.npc, ZombieLoopingAnim.Eating);
+          zombie.isEatingCorpse = true;
+          zombie.stateTimer = 0;
+        }
+
+        // periodically re-send the eating anim in case the client resets it
+        if (zombie.stateTimer >= 2) {
+          zombie.stateTimer = 0;
+          setAnim(zombie.npc, ZombieLoopingAnim.Eating);
+        }
+
+        zombie.hunger = Math.max(0, zombie.hunger - dt * 15);
+        if (zombie.hunger === 0) {
+          zombie.npc.playAnimation(ZombieOneshotAnim.EatingDone);
           zombie.corpseTargetId = null;
           zombie.isEatingCorpse = false;
-          zombie.doneFeeding();
-          break;
+          zombie.event(ZombieEvents.DoneFeeding);
         }
-        if (!zombie.isEatingCorpse) {
-          const dist = getDistance2d(
-            zombie.npc.state.position,
-            corpse.state.position
-          );
-          if (dist > 2) {
-            moveToward(zombie.npc, corpse.state.position, zombie.server);
-            break;
-          }
+      },
+
+      [ZombieTransitions.Dead]: (_dt: number) => {}
+    },
+    [
+      {
+        eventId: ZombieEvents.HearNoise,
+        from: [ZombieTransitions.Wander, ZombieTransitions.Idle],
+        to: ZombieTransitions.Investigate,
+        EnterTransition: () => {
+          zombie.stateTimer = 0;
+          zombie.targetPos = zombie.lastNoisePos;
+          if (zombie.targetPos)
+            moveToward(zombie.npc, zombie.targetPos, zombie.server);
+        }
+      },
+      {
+        eventId: ZombieEvents.SeePlayer,
+        from: [
+          ZombieTransitions.Wander,
+          ZombieTransitions.Investigate,
+          ZombieTransitions.Idle
+        ],
+        to: ZombieTransitions.Chase,
+        EnterTransition: undefined
+      },
+      {
+        eventId: ZombieEvents.SmellCorpse,
+        from: [
+          ZombieTransitions.Wander,
+          ZombieTransitions.Idle,
+          ZombieTransitions.Investigate,
+          ZombieTransitions.Chase
+        ],
+        to: ZombieTransitions.Feed,
+        EnterTransition: () => enterFeed(zombie)
+      },
+      {
+        eventId: ZombieEvents.NoiseTimeout,
+        from: [ZombieTransitions.Investigate],
+        to: ZombieTransitions.Wander,
+        EnterTransition: () => enterWander(zombie)
+      },
+      {
+        eventId: ZombieEvents.ReachPlayer,
+        from: [ZombieTransitions.Chase],
+        to: ZombieTransitions.Attack,
+        EnterTransition: () => {
+          zombie.lastAttackTime = 2;
+        }
+      },
+      {
+        eventId: ZombieEvents.StartAttacking,
+        from: [ZombieTransitions.Attack],
+        to: ZombieTransitions.Attacking,
+        EnterTransition: () => {
+          playAnim(zombie.npc, ZombieOneshotAnim.KnifeSlash);
+          zombie.stateTimer = 0;
+          zombie.lastAttackTime = 0;
+        }
+      },
+      {
+        eventId: ZombieEvents.DoneAttacking,
+        from: [ZombieTransitions.Attacking],
+        to: ZombieTransitions.Attack,
+        EnterTransition: () => {
+          zombie.lastAttackTime = 2;
+        }
+      },
+      {
+        eventId: ZombieEvents.LostPlayer,
+        from: [ZombieTransitions.Chase, ZombieTransitions.Attack],
+        to: ZombieTransitions.Wander,
+        EnterTransition: () => enterWander(zombie)
+      },
+      {
+        eventId: ZombieEvents.PlayerBacked,
+        from: [ZombieTransitions.Attack],
+        to: ZombieTransitions.Chase,
+        EnterTransition: undefined
+      },
+      {
+        eventId: ZombieEvents.PlayerKilled,
+        from: [ZombieTransitions.Attack],
+        to: ZombieTransitions.Feed,
+        EnterTransition: () => enterFeed(zombie)
+      },
+      {
+        eventId: ZombieEvents.DoneFeeding,
+        from: [ZombieTransitions.Feed],
+        to: ZombieTransitions.Wander,
+        EnterTransition: () => enterWander(zombie)
+      },
+      {
+        eventId: ZombieEvents.IdleTimeout,
+        from: [ZombieTransitions.Wander],
+        to: ZombieTransitions.Idle,
+        EnterTransition: () => {
+          zombie.stateTimer = 0;
           zombie.npc.stopMovement();
+          setAnim(zombie.npc, ZombieLoopingAnim.Idle);
         }
+      },
+      {
+        eventId: ZombieEvents.Destroyed,
+        from: null,
+        to: ZombieTransitions.Dead,
+        EnterTransition: undefined
       }
+    ] as Transition[],
+    ZombieTransitions.Wander
+  ) as unknown as ZombieInstance;
 
-      if (!zombie.isEatingCorpse) {
-        // wait for the nav agent to fully decelerate before starting the anim
-        const vel = zombie.npc.navAgent?.velocity();
-        const speed = vel ? Math.sqrt(vel.x * vel.x + vel.z * vel.z) : 0;
-        if (speed >= 0.5) break;
-        setAnim(zombie.npc, ZombieLoopingAnim.Eating);
-        zombie.isEatingCorpse = true;
-        zombie.stateTimer = 0;
-      }
-
-      // periodically re-send the eating anim in case the client resets it
-      if (zombie.stateTimer >= 2) {
-        zombie.stateTimer = 0;
-        setAnim(zombie.npc, ZombieLoopingAnim.Eating);
-      }
-
-      zombie.hunger = Math.max(0, zombie.hunger - dt * 15);
-      if (zombie.hunger === 0) {
-        zombie.npc.playAnimation(ZombieOneshotAnim.EatingDone);
-        zombie.corpseTargetId = null;
-        zombie.isEatingCorpse = false;
-        zombie.doneFeeding();
-      }
-      break;
-    }
+  zombie.onTransition = (from: string, to: string, eventId: string) => {
+    debug(`[${zombie.id}] ${from} → ${to} (${eventId})`);
+  };
+  zombie.id = npc.characterId;
+  zombie.npc = npc;
+  zombie.server = server;
+  zombie.hunger = 0;
+  zombie.agitation = AGITATION_INITIAL;
+  zombie.wanderOrigin = npc.state.position.slice() as Float32Array;
+  const initialPatrol = pickPatrolPoint(npc, server, npc.state.position);
+  zombie.targetPos = initialPatrol;
+  if (initialPatrol) {
+    moveToward(npc, initialPatrol, server);
   }
+  zombie.lastNoisePos = null;
+  zombie.targetCharacterId = null;
+  zombie.corpseTargetId = null;
+  zombie.isEatingCorpse = false;
+  zombie.stateTimer = 0;
+  zombie.patrolTimer = 0;
+  zombie.lastAttackTime = 0;
+  zombie.investigateTimeout = 120;
+
+  return zombie;
 }

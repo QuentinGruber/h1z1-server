@@ -70,6 +70,7 @@ import { ZombieWalker } from "../../entities/zombiewalker";
 import { ZombieScreamer } from "../../entities/zombiescreamer";
 import { Deer } from "../../entities/deer";
 import { DeerEvents } from "../../jsms/deer.jsm";
+import { ZombieEvents } from "../../jsms/zombie.jsm";
 import { Wolf } from "../../entities/wolf";
 import { Bear } from "../../entities/bear";
 import { writeFileSync } from "node:fs";
@@ -2355,7 +2356,7 @@ export const commands: Array<Command> = [
       for (const characterId in server._npcs) {
         const npc = server._npcs[characterId];
         if (!matcher(npc)) continue;
-        npc.zombieFsm?.destroyed();
+        npc.zombieFsm?.event(ZombieEvents.Destroyed);
         npc.deerFsm?.event(DeerEvents.Destroyed);
         if (npc.spawnerId) {
           delete server.worldObjectManager.spawnedNpcs[npc.spawnerId];

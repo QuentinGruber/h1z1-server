@@ -27,7 +27,7 @@ import { CommandInteractionString } from "types/zone2016packets";
 import { BaseEntity } from "./baseentity";
 import { ChallengeType } from "../managers/challengemanager";
 import { ProjectileEntity } from "./projectileentity";
-import { ZombieInstance } from "../jsms/zombie.jsm";
+import { ZombieInstance, ZombieEvents } from "../jsms/zombie.jsm";
 import { DeerInstance, DeerEvents } from "../jsms/deer.jsm";
 
 export abstract class Npc extends BaseFullCharacter {
@@ -161,7 +161,7 @@ export abstract class Npc extends BaseFullCharacter {
 
     if ((this.health -= damageInfo.damage) <= 0 && this.isAlive) {
       this.deathTime = Date.now();
-      this.zombieFsm?.destroyed();
+      this.zombieFsm?.event(ZombieEvents.Destroyed);
       this.deerFsm?.event(DeerEvents.Destroyed);
       this.flags.knockedOut = 1;
 
