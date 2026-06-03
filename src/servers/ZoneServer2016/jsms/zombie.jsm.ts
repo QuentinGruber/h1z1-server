@@ -123,7 +123,6 @@ export interface ZombieInstance extends StateMachine {
 const BASE_SPEED = 1.0;
 const MAX_SPEED = 6.0;
 const AGITATION_DECAY_RATE = 1;
-const AGITATION_NOISE_BOOST = 10;
 const AGITATION_INITIAL = 50;
 
 function pickPatrolPoint(
@@ -348,10 +347,6 @@ export function tickZombie(
       const nearestSound = listenToSounds(zombie, zone.sounds);
       if (nearestSound) {
         zombie.lastNoisePos = nearestSound.position;
-        zombie.agitation = Math.min(
-          100,
-          zombie.agitation + AGITATION_NOISE_BOOST
-        );
         zombie.hearNoise();
         break;
       }
@@ -453,6 +448,7 @@ export function tickZombie(
     }
 
     case "chase": {
+      listenToSounds(zombie, zone.sounds);
       const chaseTarget = zombie.targetCharacterId
         ? zone._characters[zombie.targetCharacterId]
         : null;
@@ -481,6 +477,7 @@ export function tickZombie(
     }
 
     case "attack": {
+      listenToSounds(zombie, zone.sounds);
       const attackTarget = zombie.targetCharacterId
         ? zone._characters[zombie.targetCharacterId]
         : null;
@@ -507,6 +504,7 @@ export function tickZombie(
     }
 
     case "attacking": {
+      listenToSounds(zombie, zone.sounds);
       const attackTarget = zombie.targetCharacterId
         ? zone._characters[zombie.targetCharacterId]
         : null;
@@ -527,6 +525,7 @@ export function tickZombie(
     }
 
     case "feed": {
+      listenToSounds(zombie, zone.sounds);
       if (zombie.corpseTargetId) {
         const corpse = zone._characters[zombie.corpseTargetId];
         if (!corpse || corpse.isAlive) {

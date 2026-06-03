@@ -8688,6 +8688,10 @@ export class ZoneServer2016 extends EventEmitter {
       return;
     }
     switch (weaponItem.weapon.itemDefinitionId) {
+      case WeaponDefinitionIds.WEAPON_AR15_2:
+      case WeaponDefinitionIds.WEAPON_PURGE:
+      case WeaponDefinitionIds.WEAPON_BLAZE:
+      case WeaponDefinitionIds.WEAPON_FROSTBITE:
       case WeaponDefinitionIds.WEAPON_AR15:
         this.sounds.push({
           position: client.character.state.position,
@@ -8724,12 +8728,6 @@ export class ZoneServer2016 extends EventEmitter {
         });
         break;
       case WeaponDefinitionIds.WEAPON_1911:
-        this.sounds.push({
-          position: client.character.state.position,
-          radius: 75,
-          agitation: 8
-        });
-        break;
       case WeaponDefinitionIds.WEAPON_M9:
         this.sounds.push({
           position: client.character.state.position,
@@ -8747,7 +8745,7 @@ export class ZoneServer2016 extends EventEmitter {
       case WeaponDefinitionIds.WEAPON_MAGNUM:
         this.sounds.push({
           position: client.character.state.position,
-          radius: 110,
+          radius: 90,
           agitation: 10
         });
         break;
@@ -8758,28 +8756,12 @@ export class ZoneServer2016 extends EventEmitter {
           agitation: 12
         });
         break;
-      case WeaponDefinitionIds.WEAPON_FROSTBITE:
-        this.sounds.push({
-          position: client.character.state.position,
-          radius: 150,
-          agitation: 10
-        });
-        break;
-      case WeaponDefinitionIds.WEAPON_BLAZE:
-        this.sounds.push({
-          position: client.character.state.position,
-          radius: 150,
-          agitation: 10
-        });
-        break;
-      case WeaponDefinitionIds.WEAPON_PURGE:
-        this.sounds.push({
-          position: client.character.state.position,
-          radius: 160,
-          agitation: 12
-        });
-        break;
       default:
+        this.sounds.push({
+          position: client.character.state.position,
+          radius: 10,
+          agitation: 10
+        });
         break;
     }
     this.challengeManager.registerChallengeProgression(
