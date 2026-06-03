@@ -19,13 +19,15 @@ const debug = require("debug")("ai");
 import { getDistance2d } from "../../../utils/utils";
 
 export const enum DeerTransitions {
+  Eating = "eating",
   Wander = "wander",
-  Flee = "flee",
-  Dead = "dead"
+  Flee = "flee"
 }
 
 export const enum DeerEvents {
   SpottedPlayer = "spottedPlayer",
+  Eat = "eat",
+  FinishEat = "finishEat",
   CalmedDown = "calmedDown",
   Destroyed = "destroyed"
 }
@@ -33,6 +35,7 @@ export const enum DeerEvents {
 export interface DeerInstance extends JSM {
   id: string;
   state: DeerTransitions;
+  hunger: number;
   targetPos: Float32Array | null;
   wanderOrigin: Float32Array;
   patrolTimer: number;
@@ -85,12 +88,42 @@ function moveToward(
 export function createDeer(npc: Npc, server: ZoneServer2016): DeerInstance {
   const deer = new JSM(
     {
-      [DeerTransitions.Wander]: (dt: number) => {
-        deer.stateTimer += dt;
+      [DeerTransitions.Eating]: (dt: number) => {
+        deer.hunger += dt * 3;
 
         for (const characterId in deer.server._characters) {
           const character = deer.server._characters[characterId];
-          if (!character.isAlive) continue;
+          if (
+            !character.isAlive ||
+            !character.isHidden ||
+            !character.isVanished
+          )
+            continue;
+          if (
+            getDistance2d(deer.npc.state.position, character.state.position) <
+            20
+          ) {
+            deer.threatPos = character.state.position.slice() as Float32Array;
+            deer.event(DeerEvents.SpottedPlayer);
+            return;
+          }
+        }
+        if (deer.hunger > 90) {
+          deer.event(DeerEvents.FinishEat);
+        }
+      },
+      [DeerTransitions.Wander]: (dt: number) => {
+        deer.stateTimer += dt;
+        deer.hunger -= dt;
+
+        for (const characterId in deer.server._characters) {
+          const character = deer.server._characters[characterId];
+          if (
+            !character.isAlive ||
+            !character.isHidden ||
+            !character.isVanished
+          )
+            continue;
           if (
             getDistance2d(deer.npc.state.position, character.state.position) <
             20
@@ -105,6 +138,11 @@ export function createDeer(npc: Npc, server: ZoneServer2016): DeerInstance {
         const arrived =
           deer.targetPos != null &&
           getDistance2d(deer.npc.state.position, deer.targetPos) < 3;
+
+        if (arrived && deer.hunger < 30) {
+          deer.event(DeerEvents.Eat);
+          return;
+        }
 
         if (arrived || deer.targetPos == null) {
           deer.patrolTimer = 0;
@@ -122,7 +160,12 @@ export function createDeer(npc: Npc, server: ZoneServer2016): DeerInstance {
         let playerNear = false;
         for (const characterId in deer.server._characters) {
           const character = deer.server._characters[characterId];
-          if (!character.isAlive) continue;
+          if (
+            !character.isAlive ||
+            !character.isHidden ||
+            !character.isVanished
+          )
+            continue;
           if (
             getDistance2d(deer.npc.state.position, character.state.position) <
             35
@@ -152,16 +195,41 @@ export function createDeer(npc: Npc, server: ZoneServer2016): DeerInstance {
             moveToward(deer.npc, fleeTarget, deer.server);
           }
         }
-      },
-
-      [DeerTransitions.Dead]: (_dt: number) => {}
+      }
     },
     [
       {
-        eventId: DeerEvents.SpottedPlayer,
+        eventId: DeerEvents.FinishEat,
+        from: [DeerTransitions.Eating],
+        to: DeerTransitions.Wander,
+        EnterTransition: () => {
+          npc.setSpeed(5);
+          deer.patrolTimer = 0;
+          deer.stateTimer = 0;
+          deer.threatPos = null;
+          deer.wanderOrigin = deer.npc.state.position.slice() as Float32Array;
+          const pt = pickPatrolPoint(deer.server, deer.wanderOrigin);
+          if (pt) {
+            deer.targetPos = pt;
+            moveToward(deer.npc, pt, deer.server);
+          }
+        }
+      },
+      {
+        eventId: DeerEvents.Eat,
         from: [DeerTransitions.Wander],
+        to: DeerTransitions.Eating,
+        EnterTransition: () => {
+          deer.npc.stopMovement();
+          deer.npc.playAnimation("Eating");
+        }
+      },
+      {
+        eventId: DeerEvents.SpottedPlayer,
+        from: [DeerTransitions.Wander, DeerTransitions.Eating],
         to: DeerTransitions.Flee,
         EnterTransition: () => {
+          npc.setSpeed(8);
           deer.stateTimer = 0;
           if (deer.threatPos) {
             const fleeTarget = pickFleePoint(
@@ -181,6 +249,7 @@ export function createDeer(npc: Npc, server: ZoneServer2016): DeerInstance {
         from: [DeerTransitions.Flee],
         to: DeerTransitions.Wander,
         EnterTransition: () => {
+          npc.setSpeed(6);
           deer.patrolTimer = 0;
           deer.stateTimer = 0;
           deer.threatPos = null;
@@ -191,12 +260,6 @@ export function createDeer(npc: Npc, server: ZoneServer2016): DeerInstance {
             moveToward(deer.npc, pt, deer.server);
           }
         }
-      },
-      {
-        eventId: DeerEvents.Destroyed,
-        from: [DeerTransitions.Wander, DeerTransitions.Flee],
-        to: DeerTransitions.Dead,
-        EnterTransition: undefined
       }
     ] as Transition[],
     DeerTransitions.Wander
@@ -206,17 +269,13 @@ export function createDeer(npc: Npc, server: ZoneServer2016): DeerInstance {
     debug(`[${deer.id}] ${from} → ${to} (${eventId})`);
   };
   deer.id = npc.characterId;
+  deer.hunger = 20;
   deer.npc = npc;
   deer.server = server;
   deer.wanderOrigin = npc.state.position.slice() as Float32Array;
-  const initialPatrol = pickPatrolPoint(server, npc.state.position);
-  deer.targetPos = initialPatrol;
-  if (initialPatrol) {
-    moveToward(npc, initialPatrol, server);
-  }
   deer.patrolTimer = 0;
   deer.stateTimer = 0;
   deer.threatPos = null;
-
+  npc.setSpeed(6);
   return deer;
 }

@@ -2356,8 +2356,6 @@ export const commands: Array<Command> = [
       for (const characterId in server._npcs) {
         const npc = server._npcs[characterId];
         if (!matcher(npc)) continue;
-        npc.zombieFsm?.event(ZombieEvents.Destroyed);
-        npc.deerFsm?.event(DeerEvents.Destroyed);
         if (npc.spawnerId) {
           delete server.worldObjectManager.spawnedNpcs[npc.spawnerId];
         }

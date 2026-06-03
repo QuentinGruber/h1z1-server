@@ -36,6 +36,10 @@ export class JSM {
   }
   event(eventId: string) {
     const transition = this.transitionsHashMap[eventId];
+    if (!transition) {
+      console.error(`[AI] EventId ${eventId} doesn't exist`);
+      return;
+    }
     const allowed =
       transition.from === null || transition.from.includes(this.state);
     if (allowed) {

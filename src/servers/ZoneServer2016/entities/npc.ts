@@ -113,6 +113,13 @@ export abstract class Npc extends BaseFullCharacter {
     );
   }
 
+  setSpeed(speed: number) {
+    if (this.navAgent) {
+      this.navAgent.maxSpeed = speed;
+      this.navAgent.maxAcceleration = speed * 2.0;
+    }
+  }
+
   playAnimation(animationName: string) {
     this.server.sendDataToAllWithSpawnedEntity(
       this.server._npcs,
