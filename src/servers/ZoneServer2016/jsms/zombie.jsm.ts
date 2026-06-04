@@ -80,6 +80,7 @@ export const enum ZombieTransitions {
   Wander = "wander",
   Investigate = "investigate",
   Chase = "chase",
+  Stumble = "stumble",
   Attack = "attack",
   Attacking = "attacking",
   Feed = "feed",
@@ -99,7 +100,9 @@ export const enum ZombieEvents {
   IdleTimeout = "idleTimeout",
   Destroyed = "destroyed",
   StartAttacking = "startAttacking",
-  DoneAttacking = "doneAttacking"
+  DoneAttacking = "doneAttacking",
+  StartStumble = "startStumble",
+  StumbleTimeout = "stumbleTimeout"
 }
 
 export interface ZombieInstance extends JSM<ZombieEvents> {
@@ -377,7 +380,18 @@ export function createZombie(npc: Npc, server: ZoneServer2016): ZombieInstance {
           zombie.event(ZombieEvents.ReachPlayer);
         } else {
           if (trySmellCorpse(zombie)) return;
+          if (Math.random() < 0.01) {
+            zombie.event(ZombieEvents.StartStumble);
+            return;
+          }
           moveToward(zombie.npc, chaseTarget.state.position, zombie.server);
+        }
+      },
+
+      [ZombieTransitions.Stumble]: (dt: number) => {
+        zombie.stateTimer += dt;
+        if (zombie.stateTimer >= 5) {
+          zombie.event(ZombieEvents.StumbleTimeout);
         }
       },
 
@@ -543,6 +557,35 @@ export function createZombie(npc: Npc, server: ZoneServer2016): ZombieInstance {
         }
       },
       {
+        eventId: ZombieEvents.StartStumble,
+        from: [ZombieTransitions.Chase],
+        to: ZombieTransitions.Stumble,
+        EnterTransition: () => {
+          zombie.npc.stopMovement();
+          zombie.stateTimer = 0;
+          const anims = [
+            ZombieOneshotAnim.StumbleA,
+            ZombieOneshotAnim.StumbleB,
+            ZombieOneshotAnim.StumbleC
+          ];
+          playAnim(zombie.npc, anims[Math.floor(Math.random() * anims.length)]);
+        }
+      },
+      {
+        eventId: ZombieEvents.StumbleTimeout,
+        from: [ZombieTransitions.Stumble],
+        to: ZombieTransitions.Chase,
+        EnterTransition: () => {
+          zombie.stateTimer = 0;
+          const chaseTarget = zombie.targetCharacterId
+            ? zombie.server._characters[zombie.targetCharacterId]
+            : null;
+          if (chaseTarget) {
+            moveToward(zombie.npc, chaseTarget.state.position, zombie.server);
+          }
+        }
+      },
+      {
         eventId: ZombieEvents.StartAttacking,
         from: [ZombieTransitions.Attack],
         to: ZombieTransitions.Attacking,
@@ -562,7 +605,11 @@ export function createZombie(npc: Npc, server: ZoneServer2016): ZombieInstance {
       },
       {
         eventId: ZombieEvents.LostPlayer,
-        from: [ZombieTransitions.Chase, ZombieTransitions.Attack],
+        from: [
+          ZombieTransitions.Chase,
+          ZombieTransitions.Attack,
+          ZombieTransitions.Stumble
+        ],
         to: ZombieTransitions.Wander,
         EnterTransition: () => enterWander(zombie)
       },
