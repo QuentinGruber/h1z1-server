@@ -69,11 +69,13 @@ const dev: any = {
     args: Array<string>
   ) {
     const effectName = args[1];
-    console.log(server._screenEffects);
     const effect = server._screenEffects[effectName];
-    console.log(effect);
-    server.addScreenEffect(client, effect);
-    server.sendChatText(client, `Applied effect ${effectName}`);
+    if (effect) {
+      server.addScreenEffect(client, effect);
+      server.sendChatText(client, `Applied effect ${effectName}`);
+    } else {
+      server.sendChatText(client, `Failed to applied effect ${effectName}`);
+    }
   },
   load_balancing: function (
     server: ZoneServer2016,
