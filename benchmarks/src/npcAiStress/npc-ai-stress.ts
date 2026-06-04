@@ -20,7 +20,15 @@ const CONFIG = {
   playerCount: 10,
   durationSeconds: 60,
   /** Stats print interval in ms */
-  statsIntervalMs: 5000
+  statsIntervalMs: 5000,
+  /** Sounds injected per fake player per AI tick (simulates weapon fire / footsteps) */
+  soundsPerPlayer: 1,
+  /** Radius of each injected sound */
+  soundRadius: 100,
+  /** Agitation value of each injected sound */
+  soundAgitation: 10,
+  /** Max metres a fake player drifts per tick (0 = static) */
+  playerDriftRadius: 5
 };
 // ---------------------------------------------------------------------
 
@@ -72,7 +80,9 @@ async function main() {
   console.log("=== H1Z1 NPC AI Tick Stress Test ===");
   console.log(
     `Config: ${CONFIG.npcCount} zombies | ${CONFIG.playerCount} fake players` +
-      ` | ${CONFIG.durationSeconds}s | stats every ${CONFIG.statsIntervalMs / 1000}s`
+      ` | ${CONFIG.durationSeconds}s | stats every ${CONFIG.statsIntervalMs / 1000}s` +
+      ` | ${CONFIG.soundsPerPlayer} sound(s)/player/tick r=${CONFIG.soundRadius} agit=${CONFIG.soundAgitation}` +
+      ` | drift=${CONFIG.playerDriftRadius}m`
   );
 
   const server = new ZoneServer2016(0);
@@ -116,11 +126,13 @@ async function main() {
   // Place them inside the zombie cluster so zombies eventually enter
   // chase/attack states, giving a realistic mixed-state distribution.
   console.log(`Creating ${CONFIG.playerCount} fake player characters…`);
+  const fakePlayers: any[] = [];
   for (let i = 0; i < CONFIG.playerCount; i++) {
     const character = createFakeCharacter(server);
     const pos = randomPosition(CENTER_X, CENTER_Y, CENTER_Z, SPAWN_RADIUS / 4);
     if (!character.state) character.state = {};
     character.state.position = pos;
+    fakePlayers.push(character);
   }
   console.log("Setup complete. Measuring AI tick performance…\n");
 
@@ -146,6 +158,23 @@ async function main() {
 
   const origTickAi = (server as any).tickAi.bind(server);
   (server as any).tickAi = () => {
+    // Simulate per-player noise each tick (weapon fire / footsteps).
+    // Must happen before origTickAi, which runs tickNpcFsms then clears server.sounds.
+    for (const player of fakePlayers) {
+      for (let s = 0; s < CONFIG.soundsPerPlayer; s++) {
+        server.sounds.push({
+          position: player.state.position,
+          radius: CONFIG.soundRadius,
+          agitation: CONFIG.soundAgitation
+        });
+      }
+      if (CONFIG.playerDriftRadius > 0) {
+        const angle = Math.random() * Math.PI * 2;
+        const drift = Math.random() * CONFIG.playerDriftRadius;
+        player.state.position[0] += Math.cos(angle) * drift;
+        player.state.position[2] += Math.sin(angle) * drift;
+      }
+    }
     const t0 = performance.now();
     origTickAi();
     const dt = performance.now() - t0;
@@ -171,7 +200,9 @@ async function main() {
     "wander",
     "investigate",
     "chase",
+    "stumble",
     "attack",
+    "attacking",
     "feed",
     "dead"
   ];
