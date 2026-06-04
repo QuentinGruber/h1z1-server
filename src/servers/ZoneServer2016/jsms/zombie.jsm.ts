@@ -100,7 +100,8 @@ export const enum ZombieEvents {
   StartAttacking = "startAttacking",
   DoneAttacking = "doneAttacking",
   StartStumble = "startStumble",
-  StumbleTimeout = "stumbleTimeout"
+  StumbleTimeout = "stumbleTimeout",
+  CoverEars = "coverEars"
 }
 
 export interface ZombieInstance extends JSM<ZombieEvents> {
@@ -116,6 +117,8 @@ export interface ZombieInstance extends JSM<ZombieEvents> {
   isEatingCorpse: boolean;
   lastAttackTime: number;
   wanderOrigin: Float32Array;
+  isCoveringEars: boolean;
+  coverEarsTimer: number;
   npc: Npc;
   server: ZoneServer2016;
 }
@@ -238,6 +241,16 @@ export function createZombie(npc: Npc, server: ZoneServer2016): ZombieInstance {
   const zombie = new JSM(
     {
       [ZombieTransitions.Wander]: (dt: number) => {
+        if (zombie.isCoveringEars) {
+          zombie.coverEarsTimer += dt;
+          if (zombie.coverEarsTimer >= 3) {
+            zombie.isCoveringEars = false;
+            zombie.npc.playAnimation(ZombieOneshotAnim.CoverEarsDone);
+            enterWander(zombie);
+          }
+          return;
+        }
+
         tickTimers(zombie, dt);
         applyAgitation(zombie);
 
@@ -583,6 +596,20 @@ export function createZombie(npc: Npc, server: ZoneServer2016): ZombieInstance {
           zombie.npc.stopMovement();
           zombie.npc.setAnimation(ZombieLoopingAnim.Idle);
         }
+      },
+      {
+        eventId: ZombieEvents.CoverEars,
+        from: null,
+        to: ZombieTransitions.Wander,
+        EnterTransition: () => {
+          zombie.npc.stopMovement();
+          zombie.npc.playAnimation(ZombieOneshotAnim.CoverEars);
+          zombie.isCoveringEars = true;
+          zombie.coverEarsTimer = 0;
+          zombie.targetCharacterId = null;
+          zombie.wanderOrigin =
+            zombie.npc.state.position.slice() as Float32Array;
+        }
       }
     ],
     ZombieTransitions.Wander
@@ -608,6 +635,8 @@ export function createZombie(npc: Npc, server: ZoneServer2016): ZombieInstance {
   zombie.isEatingCorpse = false;
   zombie.stateTimer = 0;
   zombie.lastAttackTime = 0;
+  zombie.isCoveringEars = false;
+  zombie.coverEarsTimer = 0;
 
   return zombie;
 }

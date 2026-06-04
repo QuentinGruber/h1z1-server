@@ -28,6 +28,7 @@ import {
 import { Npc } from "./npc";
 import { LoadoutContainer } from "../classes/loadoutcontainer";
 import { Lootbag } from "./lootbag";
+import { createScreamer } from "../jsms/screamer.jsm";
 
 export class ZombieScreamer extends Npc {
   constructor(
@@ -52,6 +53,9 @@ export class ZombieScreamer extends Npc {
     this.npcId = NpcIds.ZOMBIE;
     this.nameId = StringIds.BANSHEE;
     this.rewardItems = [{ itemDefId: Items.BRAIN_INFECTED, weight: 10 }];
+    if (!process.env.DISABLE_AI && server.aiEnabled) {
+      this.fsm = createScreamer(this, server);
+    }
   }
 
   protected addLoot(server: ZoneServer2016): void {
