@@ -10352,8 +10352,7 @@ export class ZoneServer2016 extends EventEmitter {
     for (const k in this._npcs) {
       const npc = this._npcs[k];
       if (!npc.isAlive) continue;
-      if (npc.zombieFsm) npc.zombieFsm.tick(safeDt);
-      if (npc.deerFsm) npc.deerFsm.tick(safeDt);
+      if (npc.fsm) npc.fsm.tick(safeDt);
     }
   }
 

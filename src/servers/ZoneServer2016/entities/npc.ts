@@ -27,8 +27,7 @@ import { CommandInteractionString } from "types/zone2016packets";
 import { BaseEntity } from "./baseentity";
 import { ChallengeType } from "../managers/challengemanager";
 import { ProjectileEntity } from "./projectileentity";
-import { ZombieInstance, ZombieEvents } from "../jsms/zombie.jsm";
-import { DeerInstance, DeerEvents } from "../jsms/deer.jsm";
+import { JSM } from "../jsms/jsm";
 
 export abstract class Npc extends BaseFullCharacter {
   health: number;
@@ -68,8 +67,7 @@ export abstract class Npc extends BaseFullCharacter {
   }
   server: ZoneServer2016;
   npcMeleeDamage: number = 0;
-  zombieFsm?: ZombieInstance;
-  deerFsm?: DeerInstance;
+  fsm?: JSM<string | number>;
   currentAnimation = "";
   isSelected: boolean = false;
 

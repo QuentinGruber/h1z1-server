@@ -212,8 +212,8 @@ async function main() {
     for (const s of ZOMBIE_STATES) dist[s] = 0;
     for (const k in srv._npcs) {
       const npc = srv._npcs[k];
-      if (npc.zombieFsm) {
-        const state: string = npc.zombieFsm.state ?? "unknown";
+      if (npc.fsm) {
+        const state: string = npc.fsm.state ?? "unknown";
         dist[state] = (dist[state] ?? 0) + 1;
       }
     }

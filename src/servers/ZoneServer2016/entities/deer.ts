@@ -46,7 +46,7 @@ export class Deer extends Npc {
       { itemDefId: Items.DEER_BLADDER, weight: 10 }
     ];
     if (!process.env.DISABLE_AI && server.aiEnabled) {
-      this.deerFsm = createDeer(this, server);
+      this.fsm = createDeer(this, server);
     }
   }
 

@@ -28,12 +28,10 @@ import {
 import { Npc } from "./npc";
 import { LoadoutContainer } from "../classes/loadoutcontainer";
 import { Lootbag } from "./lootbag";
-import { ZombieInstance, createZombie } from "../jsms/zombie.jsm";
+import { createZombie } from "../jsms/zombie.jsm";
 import { getRandomZombieLoadout } from "../data/loadouts";
 
 export class ZombieWalker extends Npc {
-  declare zombieFsm?: ZombieInstance;
-
   constructor(
     characterId: string,
     transientId: number,
@@ -58,7 +56,7 @@ export class ZombieWalker extends Npc {
     this.nameId = StringIds.ZOMBIE_WALKER;
     this.rewardItems = [{ itemDefId: Items.BRAIN_INFECTED, weight: 10 }];
     if (!process.env.DISABLE_AI && server.aiEnabled) {
-      this.zombieFsm = createZombie(this, server);
+      this.fsm = createZombie(this, server);
     }
     for (const entry of getRandomZombieLoadout()) {
       this.equipItem(server, server.generateItem(entry.item), false);
