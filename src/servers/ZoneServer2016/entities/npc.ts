@@ -168,8 +168,6 @@ export abstract class Npc extends BaseFullCharacter {
 
     if ((this.health -= damageInfo.damage) <= 0 && this.isAlive) {
       this.deathTime = Date.now();
-      this.zombieFsm?.event(ZombieEvents.Destroyed);
-      this.deerFsm?.event(DeerEvents.Destroyed);
       this.flags.knockedOut = 1;
 
       this.addLoot(server);
