@@ -10366,7 +10366,6 @@ export class ZoneServer2016 extends EventEmitter {
   }
 
   updatePathfindingPositions(): void {
-    this.navManager.updt();
     for (const k in this._npcs) {
       const npc = this._npcs[k];
       if (npc.navAgent) {
