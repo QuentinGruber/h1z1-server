@@ -9470,6 +9470,7 @@ export class ZoneServer2016 extends EventEmitter {
    *  known position. Called from the server tick — NOT from packet handlers.  */
   private runClientTick(client: Client): [number, number, number] {
     if (client.isLoading) return [0, 0, 0];
+    if (client.colorKeysEnabled) this.updateColorKeyEffect(client);
     const pos = client.character.state.position;
     let constPermMs = 0,
       heavyScanMs = 0,
@@ -9829,6 +9830,33 @@ export class ZoneServer2016 extends EventEmitter {
 
   removeScreenEffect(client: Client, effect: ScreenEffect) {
     this.sendData(client, "ScreenEffect.RemoveScreenEffect", effect);
+  }
+
+  private getColorKeyPeriod(time: number): string {
+    if (time < 7200) return "NIGHT"; // midnight – 2 AM
+    if (time < 18000) return "DEEP_BLUE"; // 2 AM – 5 AM
+    if (time < 36000) return "DAWN"; // 5 AM – 10 AM
+    if (time < 59400) return "DAY"; // 10 AM – 4:30 PM
+    if (time < 64800) return "TWILIGHT"; // 4:30 PM – 6 PM
+    if (time < 72000) return "DUSK"; // 6 PM – 8 PM
+    return "NIGHT"; // 8 PM – midnight
+  }
+
+  updateColorKeyEffect(client: Client) {
+    const period = this.getColorKeyPeriod(this.inGameTimeManager.time);
+    if (client.activeColorKeyPeriod === period) return;
+    if (client.activeColorKeyPeriod) {
+      this.removeScreenEffect(
+        client,
+        this._screenEffects[client.activeColorKeyPeriod]
+      );
+    }
+    // Hacky workaround
+    setTimeout(
+      () => this.addScreenEffect(client, this._screenEffects[period]),
+      100
+    );
+    client.activeColorKeyPeriod = period;
   }
 
   private _sendDataToAll<ZonePacket>(
