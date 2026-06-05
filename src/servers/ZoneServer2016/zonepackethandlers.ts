@@ -257,6 +257,8 @@ export class ZonePacketHandlers {
     server.customizeDTO(client);
 
     client.character.startResourceUpdater(client, server);
+    client.character.startVirusBurnTick(client, server);
+    client.character.startImmunityFadeTick(client, server);
     server.sendData<CharacterCharacterStateDelta>(
       client,
       "Character.CharacterStateDelta",

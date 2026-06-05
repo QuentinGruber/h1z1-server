@@ -95,7 +95,7 @@
   {
     "id": 9,
     "typeName": "HALF_ZOMBIE",
-    "duration": 8000,
+    "duration": 4294967295,
     "screenBrightness": 0,
     "colorGradingFilename": "colorkey_zombie_half.tga",
     "colorGrading": 1,
@@ -106,7 +106,7 @@
   {
     "id": 10,
     "typeName": "FULL_ZOMBIE",
-    "duration": 8000,
+    "duration": 4294967295,
     "screenBrightness": 0,
     "colorGradingFilename": "colorkey_zombie_full.tga",
     "colorGrading": 1,

@@ -22,7 +22,15 @@ import {
   metersToFeet
 } from "../../../utils/utils";
 import { DB_COLLECTIONS, KILL_TYPE } from "../../../utils/enums";
-import { Items, MeleeTypes, NpcIds, PositionUpdateType } from "../models/enums";
+import {
+  Items,
+  MaterialTypes,
+  MeleeTypes,
+  NpcIds,
+  PositionUpdateType,
+  ResourceIds,
+  ResourceTypes
+} from "../models/enums";
 import { CommandInteractionString } from "types/zone2016packets";
 import { BaseEntity } from "./baseentity";
 import { ChallengeType } from "../managers/challengemanager";
@@ -147,6 +155,24 @@ export abstract class Npc extends BaseFullCharacter {
         }
       };
       client.character.OnMeleeHit(this.server, damageInfo);
+      if (this.server.isSurvival()) {
+        const virus = client.character._resources[ResourceIds.VIRUS];
+        if (virus > 0) {
+          client.character.immunity = Math.max(
+            0,
+            client.character.immunity - 50
+          );
+        } else {
+          client.character._resources[ResourceIds.VIRUS] = 200;
+          this.server.updateResource(
+            client,
+            client.character.characterId,
+            200,
+            ResourceIds.VIRUS,
+            ResourceTypes.VIRUS
+          );
+        }
+      }
     } else {
       console.log(
         `CharacterId ${characterId} not found when applying damage from npc`

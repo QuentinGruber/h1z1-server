@@ -115,6 +115,8 @@ export class Character2016 extends BaseFullCharacter {
 
   /** Used to update the status of the players resources */
   resourcesUpdater?: any;
+  virusBurnUpdater?: NodeJS.Timeout;
+  immunityFadeUpdater?: NodeJS.Timeout;
   factionId = 2;
   playTime: number = 0;
   lastDropPlaytime: number = 0;
@@ -140,6 +142,7 @@ export class Character2016 extends BaseFullCharacter {
   isPoisoned = false;
   isCoffeeSugared = false;
   isDeerScented = false;
+  immunity: number = 350;
 
   /** Last time (milliseconds) the player melee'd */
   lastMeleeHitTime: number = 0;
@@ -486,6 +489,92 @@ export class Character2016 extends BaseFullCharacter {
     );
   }
 
+  startVirusBurnTick(client: ZoneClient2016, server: ZoneServer2016) {
+    client.character.virusBurnUpdater = setTimeout(() => {
+      if (!server._clients[client.sessionId]) return;
+      if (
+        client.character._resources[ResourceTypes.VIRUS] &&
+        !client.character.isGodMode()
+      ) {
+        const immunity = client.character.immunity;
+        const virus = client.character._resources[ResourceIds.VIRUS];
+        const burnPerTick = 0.3 * (1 - immunity / 1000);
+        client.character._resources[ResourceIds.VIRUS] = Math.min(
+          10000,
+          virus + burnPerTick
+        );
+        client.character.applyVirusThresholds(client, server, virus);
+        server.updateResource(
+          client,
+          client.character.characterId,
+          client.character._resources[ResourceIds.VIRUS],
+          ResourceIds.VIRUS,
+          ResourceTypes.VIRUS
+        );
+      }
+      client.character.virusBurnUpdater?.refresh();
+    }, 3000);
+  }
+
+  startImmunityFadeTick(client: ZoneClient2016, server: ZoneServer2016) {
+    client.character.immunityFadeUpdater = setTimeout(() => {
+      if (!server._clients[client.sessionId]) return;
+      if (server.isSurvival() && client.character.immunity > 0) {
+        client.character.immunity = Math.max(0, client.character.immunity - 1);
+      }
+      client.character.immunityFadeUpdater?.refresh();
+    }, 1000);
+  }
+
+  applyVirusThresholds(
+    client: ZoneClient2016,
+    server: ZoneServer2016,
+    prevVirus: number
+  ) {
+    const virus = this._resources[ResourceIds.VIRUS];
+
+    if (
+      prevVirus < 2500 &&
+      virus >= 2500 &&
+      !this.screenEffects.includes("HALF_ZOMBIE")
+    ) {
+      server.addScreenEffect(client, server._screenEffects["HALF_ZOMBIE"]);
+      server.sendChatText(
+        client,
+        "You are feeling the effects of the H1Z1 virus. (25% infected)"
+      );
+    }
+
+    if (prevVirus < 5000 && virus >= 5000) {
+      server.sendChatText(
+        client,
+        "The H1Z1 virus is at 50%. Your immunity is failing."
+      );
+    }
+
+    if (prevVirus < 7500 && virus >= 7500) {
+      const halfIdx = this.screenEffects.indexOf("HALF_ZOMBIE");
+      if (halfIdx > -1) {
+        this.screenEffects.splice(halfIdx, 1);
+        server.removeScreenEffect(client, server._screenEffects["HALF_ZOMBIE"]);
+      }
+      if (!this.screenEffects.includes("FULL_ZOMBIE")) {
+        server.addScreenEffect(client, server._screenEffects["FULL_ZOMBIE"]);
+        server.sendChatText(
+          client,
+          "Critical H1Z1 infection at 75%! You are nearly lost..."
+        );
+      }
+    }
+
+    if (virus >= 10000) {
+      this.damage(server, {
+        entity: "Server.Character.Virus",
+        damage: 99999
+      });
+    }
+  }
+
   updateResources(client: ZoneClient2016, server: ZoneServer2016) {
     let effectId;
     for (const a in this.hudIndicators) {
@@ -546,7 +635,15 @@ export class Character2016 extends BaseFullCharacter {
           client.character._resources[ResourceIds.STAMINA] < 120;
       }
     } else if (!client.character.isBleeding || !client.character.isMoving) {
-      client.character._resources[ResourceIds.STAMINA] += 12;
+      const isFullZombie =
+        client.character.screenEffects.includes("FULL_ZOMBIE");
+      const isHalfZombie =
+        client.character.screenEffects.includes("HALF_ZOMBIE");
+      if (!isFullZombie) {
+        client.character._resources[ResourceIds.STAMINA] += isHalfZombie
+          ? 6
+          : 12;
+      }
     }
     if (
       client.character.isSitting &&
@@ -619,16 +716,32 @@ export class Character2016 extends BaseFullCharacter {
         ResourceIndicators.COMFORT_PLUS,
         ResourceIndicators.COMFORT_PLUSPLUS
       ];
+      const isFullZombie =
+        client.character.screenEffects.includes("FULL_ZOMBIE");
+      const isHalfZombie =
+        client.character.screenEffects.includes("HALF_ZOMBIE");
       switch (true) {
         case comfort > 2001:
           desiredComfortIndicator = ResourceIndicators.COMFORT_PLUSPLUS;
-          client.character._resources[ResourceIds.HEALTH] += 10;
-          client.character._resources[ResourceIds.STAMINA] += 2;
+          if (!isFullZombie) {
+            client.character._resources[ResourceIds.HEALTH] += isHalfZombie
+              ? 5
+              : 10;
+            client.character._resources[ResourceIds.STAMINA] += isHalfZombie
+              ? 1
+              : 2;
+          }
           break;
         case comfort >= 751 && comfort <= 2001:
           desiredComfortIndicator = ResourceIndicators.COMFORT_PLUS;
-          client.character._resources[ResourceIds.HEALTH] += 5;
-          client.character._resources[ResourceIds.STAMINA] += 1;
+          if (!isFullZombie) {
+            client.character._resources[ResourceIds.HEALTH] += isHalfZombie
+              ? 2
+              : 5;
+            client.character._resources[ResourceIds.STAMINA] += isHalfZombie
+              ? 0
+              : 1;
+          }
           break;
         case comfort < 751:
           desiredComfortIndicator = "";
@@ -870,8 +983,21 @@ export class Character2016 extends BaseFullCharacter {
     resourceId: ResourceIds,
     damageCallback?: () => void
   ) {
-    const minValue = resourceId == ResourceIds.BLEEDING ? -40 : 0,
-      maxValue = server.getResourceMaxValue(resourceId);
+    const minValue = resourceId == ResourceIds.BLEEDING ? -40 : 0;
+    const baseMax = server.getResourceMaxValue(resourceId);
+    const zombieStatResources = [
+      ResourceIds.HEALTH,
+      ResourceIds.STAMINA,
+      ResourceIds.HUNGER,
+      ResourceIds.HYDRATION,
+      ResourceIds.ENDURANCE,
+      ResourceIds.COMFORT
+    ];
+    const isZombified =
+      zombieStatResources.includes(resourceId) &&
+      (this.screenEffects.includes("HALF_ZOMBIE") ||
+        this.screenEffects.includes("FULL_ZOMBIE"));
+    const maxValue = isZombified ? Math.floor(baseMax * 0.75) : baseMax;
     if (this._resources[resourceId] > maxValue) {
       this._resources[resourceId] = maxValue;
     } else if (this._resources[resourceId] < minValue) {
@@ -1270,6 +1396,7 @@ export class Character2016 extends BaseFullCharacter {
       this._resources[ResourceIds.ENDURANCE] = 8000;
       this._resources[ResourceIds.VIRUS] = 0;
       this._resources[ResourceIds.COMFORT] = 5000;
+      this.immunity = 350;
     }
     if (server.isBattleRoyale()) {
       this._resources[ResourceIds.TOXICITY] = 0;
@@ -1283,6 +1410,13 @@ export class Character2016 extends BaseFullCharacter {
     this.resourcesUpdater?.refresh();
     const client = server.getClientByCharId(this.characterId);
     if (!client) return;
+    for (const effectName of ["HALF_ZOMBIE", "FULL_ZOMBIE"]) {
+      const idx = this.screenEffects.indexOf(effectName);
+      if (idx > -1) {
+        this.screenEffects.splice(idx, 1);
+        server.removeScreenEffect(client, server._screenEffects[effectName]);
+      }
+    }
     server.sendHudIndicators(client);
     server.updateResource(
       client,
