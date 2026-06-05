@@ -628,11 +628,13 @@ export class ConfigManager {
     const {
       enabled: aiEnabled,
       aiTickRate,
-      pathfindingUpdateRate
+      pathfindingUpdateRate,
+      infection
     } = this.config.ai;
     server.aiEnabled = aiEnabled;
     server.aiTickRate = aiTickRate;
     server.pathfindingUpdateRate = pathfindingUpdateRate;
+    server.infectionEnabled = infection;
     // TODO: add to config
     server.navManager.updateFrequency = 1 / 60;
     //#endregion

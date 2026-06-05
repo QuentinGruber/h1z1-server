@@ -155,7 +155,7 @@ export abstract class Npc extends BaseFullCharacter {
         }
       };
       client.character.OnMeleeHit(this.server, damageInfo);
-      if (this.server.isSurvival()) {
+      if (this.server.isSurvival() && this.server.infectionEnabled) {
         const virus = client.character._resources[ResourceIds.VIRUS];
         if (virus > 0) {
           client.character.immunity = Math.max(

@@ -211,3 +211,4 @@ ai:
   enabled: true
   aiTickRate: 200 # ms between AI FSM (zombie state machine) ticks
   pathfindingUpdateRate: 150 # ms between pathfinding simulation and position sync
+  infection: false

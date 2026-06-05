@@ -563,6 +563,7 @@ export class ZoneServer2016 extends EventEmitter {
   aiEnabled!: boolean;
   aiTickRate!: number;
   pathfindingUpdateRate!: number;
+  infectionEnabled!: boolean;
   sounds: Sound[] = [];
 
   constructor(
