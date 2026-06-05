@@ -1399,6 +1399,13 @@ export class ZonePacketHandlers {
         server.stopHudTimer(client);
         delete client.hudTimer;
       }
+      if (vehicle.engineOn) {
+        server.sounds.push({
+          radius: 50,
+          position: fixedPosUpdate,
+          agitation: 3
+        });
+      }
     }
 
     // Send position updates to other clients

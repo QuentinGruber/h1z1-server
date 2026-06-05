@@ -724,6 +724,11 @@ export class Vehicle2016 extends BaseLootableEntity {
     );
     this.engineOn = true;
     this.startResourceUpdater(server);
+    server.sounds.push({
+      radius: 80,
+      position: this.state.position,
+      agitation: 5
+    });
   }
 
   stopEngine(server: ZoneServer2016) {
@@ -901,6 +906,12 @@ export class Vehicle2016 extends BaseLootableEntity {
         }
       );
       this.effectTags.push(hornEffect);
+
+      server.sounds.push({
+        radius: 250,
+        position: this.state.position,
+        agitation: 25
+      });
       return;
     }
 
