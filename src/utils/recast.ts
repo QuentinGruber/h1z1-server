@@ -123,13 +123,28 @@ export class NavManager {
       height: 2,
       maxAcceleration: 1.0,
       maxSpeed: 1.0,
-      collisionQueryRange: 0.5,
+      collisionQueryRange: 2.0,
       pathOptimizationRange: 0.0,
-      separationWeight: 0
+      separationWeight: 1.0
     });
     debug(
       `createAgent: agentIdx=${agent.agentIndex} navPos=[${spawnPoint.x.toFixed(2)}, ${spawnPoint.y.toFixed(2)}, ${spawnPoint.z.toFixed(2)}]`
     );
+    return agent;
+  }
+
+  createPassiveAgent(gamePos: Float32Array, radius: number = 0.5): CrowdAgent {
+    const navPosition = this.getClosestNavPointVec3(gamePos);
+    const agent = this.crowd.addAgent(navPosition, {
+      radius,
+      height: 2,
+      maxAcceleration: 0,
+      maxSpeed: 0,
+      collisionQueryRange: radius * 2,
+      pathOptimizationRange: 0,
+      separationWeight: 1,
+      updateFlags: 0
+    });
     return agent;
   }
 

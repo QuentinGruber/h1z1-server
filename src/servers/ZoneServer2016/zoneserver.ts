@@ -4467,6 +4467,10 @@ export class ZoneServer2016 extends EventEmitter {
   ): boolean {
     const entity = dictionary[characterId];
     if (!entity) return false;
+    if (entity instanceof BaseLightweightCharacter && entity.navAgent) {
+      this.navManager.crowd.removeAgent(entity.navAgent);
+      entity.navAgent = undefined;
+    }
     this.sendDataToAllWithSpawnedEntity<CharacterRemovePlayer>(
       dictionary,
       characterId,
@@ -10406,6 +10410,31 @@ export class ZoneServer2016 extends EventEmitter {
         ) {
           npc.goTo(gamePos);
         }
+      }
+    }
+
+    for (const k in this._characters) {
+      const character = this._characters[k];
+      if (!character.navAgent) {
+        character.navAgent = this.navManager.createPassiveAgent(
+          character.state.position
+        );
+      } else {
+        character.navAgent.teleport(
+          NavManager.gameToNav(character.state.position)
+        );
+      }
+    }
+
+    for (const k in this._vehicles) {
+      const vehicle = this._vehicles[k];
+      if (!vehicle.navAgent) {
+        vehicle.navAgent = this.navManager.createPassiveAgent(
+          vehicle.state.position,
+          2.0
+        );
+      } else {
+        vehicle.navAgent.teleport(NavManager.gameToNav(vehicle.state.position));
       }
     }
   }
