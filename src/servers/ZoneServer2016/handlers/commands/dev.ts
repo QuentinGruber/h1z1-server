@@ -63,6 +63,20 @@ const abilities = PluginManager.loadServerData(
   );
 
 const dev: any = {
+  testscreeneffect: function (
+    server: ZoneServer2016,
+    client: Client,
+    args: Array<string>
+  ) {
+    const effectName = args[1];
+    const effect = server._screenEffects[effectName];
+    if (effect) {
+      server.addScreenEffect(client, effect);
+      server.sendChatText(client, `Applied effect ${effectName}`);
+    } else {
+      server.sendChatText(client, `Failed to applied effect ${effectName}`);
+    }
+  },
   load_balancing: function (
     server: ZoneServer2016,
     client: Client,

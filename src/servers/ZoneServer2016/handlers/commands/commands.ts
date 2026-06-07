@@ -85,6 +85,26 @@ export const commands: Array<Command> = [
     }
   },
   {
+    name: "colorkeys",
+    permissionLevel: PermissionLevels.DEFAULT,
+    execute: (server: ZoneServer2016, client: Client, args: Array<string>) => {
+      client.colorKeysEnabled = !client.colorKeysEnabled;
+      if (client.colorKeysEnabled) {
+        server.updateColorKeyEffect(client);
+        server.sendChatText(client, "Color keys enabled.");
+      } else {
+        if (client.activeColorKeyPeriod) {
+          server.removeScreenEffect(
+            client,
+            server._screenEffects[client.activeColorKeyPeriod]
+          );
+          client.activeColorKeyPeriod = undefined;
+        }
+        server.sendChatText(client, "Color keys disabled.");
+      }
+    }
+  },
+  {
     name: "forcerandomairdrop",
     permissionLevel: PermissionLevels.ADMIN,
     execute: async (
@@ -3769,6 +3789,7 @@ export const commands: Array<Command> = [
   {
     name: "dev",
     permissionLevel: PermissionLevels.DEV,
+    keepCase: true,
     execute: (server: ZoneServer2016, client: Client, args: Array<string>) => {
       const commandName = args[0];
       delete require.cache[require.resolve("./dev")];

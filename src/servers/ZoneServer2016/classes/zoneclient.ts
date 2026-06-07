@@ -36,6 +36,8 @@ export class ZoneClient2016 {
   isAdmin: boolean = false;
   isDebugMode: boolean = false;
   isDecoy: boolean = false;
+  colorKeysEnabled: boolean = false;
+  activeColorKeyPeriod: string | undefined = undefined;
   banType: string = "";
   HWID: string = "";
   posAtLastRoutine: Float32Array = new Float32Array();
