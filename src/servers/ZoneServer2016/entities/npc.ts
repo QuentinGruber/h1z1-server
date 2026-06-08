@@ -154,6 +154,15 @@ export abstract class Npc extends BaseFullCharacter {
           hitLocation: client.character.meleeHit.abilityHitLocation
         }
       };
+      const mountedVehicleId = client.vehicle.mountedVehicle;
+      if (mountedVehicleId) {
+        const vehicle = this.server._vehicles[mountedVehicleId];
+        if (vehicle) {
+          vehicle.OnMeleeHit(this.server, damageInfo);
+          return;
+        }
+      }
+
       client.character.OnMeleeHit(this.server, damageInfo);
       if (this.server.isSurvival() && this.server.infectionEnabled) {
         const virus = client.character._resources[ResourceIds.VIRUS];
