@@ -168,7 +168,12 @@ function listenToSounds(zombie: ZombieInstance, sounds: Sound[]): Sound | null {
 function trySeePlayer(zombie: ZombieInstance): boolean {
   for (const characterId in zombie.server._characters) {
     const character = zombie.server._characters[characterId];
-    if (!character.isAlive || character.isVanished || character.isHidden)
+    if (
+      !character.isAlive ||
+      character.isVanished ||
+      character.isHidden ||
+      character.isSpectator
+    )
       continue;
     if (
       getDistance2d(zombie.npc.state.position, character.state.position) < 10

@@ -724,11 +724,13 @@ export class Vehicle2016 extends BaseLootableEntity {
     );
     this.engineOn = true;
     this.startResourceUpdater(server);
-    server.pushSound({
-      radius: 80,
-      position: this.state.position,
-      agitation: 5
-    });
+    if (this.vehicleId !== VehicleIds.SPECTATE) {
+      server.pushSound({
+        radius: 80,
+        position: this.state.position,
+        agitation: 5
+      });
+    }
   }
 
   stopEngine(server: ZoneServer2016) {
@@ -907,11 +909,13 @@ export class Vehicle2016 extends BaseLootableEntity {
       );
       this.effectTags.push(hornEffect);
 
-      server.pushSound({
-        radius: 250,
-        position: this.state.position,
-        agitation: 25
-      });
+      if (this.vehicleId !== VehicleIds.SPECTATE) {
+        server.pushSound({
+          radius: 250,
+          position: this.state.position,
+          agitation: 25
+        });
+      }
       return;
     }
 
@@ -1124,7 +1128,7 @@ export class Vehicle2016 extends BaseLootableEntity {
         ResourceTypes.FUEL,
         server._vehicles
       );
-      if (this.getSirenState()) {
+      if (this.getSirenState() && this.vehicleId !== VehicleIds.SPECTATE) {
         server.pushSound({
           position: this.state.position,
           radius: 200,
