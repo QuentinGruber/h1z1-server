@@ -144,7 +144,7 @@ export class ExplosionManager {
     for (let index = 0; index < chunk.length; index++) {
       const e = chunk[index];
       let position = e.entity.state.position;
-      this._server.sounds.push({ position, radius: 300, agitation: 50 });
+      this._server.pushSound({ position, radius: 300, agitation: 50 });
     }
   }
 

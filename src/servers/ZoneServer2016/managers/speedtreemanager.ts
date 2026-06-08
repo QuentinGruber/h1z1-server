@@ -193,7 +193,7 @@ export class SpeedTreeManager {
 
     const tree = this._speedTreesList.get(objectId);
     if (tree) {
-      server.sounds.push({
+      server.pushSound({
         position: tree.position,
         radius: 80,
         agitation: 10

@@ -8695,35 +8695,35 @@ export class ZoneServer2016 extends EventEmitter {
       case WeaponDefinitionIds.WEAPON_BLAZE:
       case WeaponDefinitionIds.WEAPON_FROSTBITE:
       case WeaponDefinitionIds.WEAPON_AR15:
-        this.sounds.push({
+        this.pushSound({
           position: client.character.state.position,
           radius: 100,
           agitation: 10
         });
         break;
       case WeaponDefinitionIds.WEAPON_308:
-        this.sounds.push({
+        this.pushSound({
           position: client.character.state.position,
           radius: 200,
           agitation: 10
         });
         break;
       case WeaponDefinitionIds.WEAPON_AK47:
-        this.sounds.push({
+        this.pushSound({
           position: client.character.state.position,
           radius: 120,
           agitation: 10
         });
         break;
       case WeaponDefinitionIds.WEAPON_SHOTGUN:
-        this.sounds.push({
+        this.pushSound({
           position: client.character.state.position,
           radius: 150,
           agitation: 15
         });
         break;
       case WeaponDefinitionIds.WEAPON_NAGAFENS_RAGE:
-        this.sounds.push({
+        this.pushSound({
           position: client.character.state.position,
           radius: 160,
           agitation: 15
@@ -8731,35 +8731,35 @@ export class ZoneServer2016 extends EventEmitter {
         break;
       case WeaponDefinitionIds.WEAPON_1911:
       case WeaponDefinitionIds.WEAPON_M9:
-        this.sounds.push({
+        this.pushSound({
           position: client.character.state.position,
           radius: 75,
           agitation: 8
         });
         break;
       case WeaponDefinitionIds.WEAPON_R380:
-        this.sounds.push({
+        this.pushSound({
           position: client.character.state.position,
           radius: 60,
           agitation: 7
         });
         break;
       case WeaponDefinitionIds.WEAPON_MAGNUM:
-        this.sounds.push({
+        this.pushSound({
           position: client.character.state.position,
           radius: 90,
           agitation: 10
         });
         break;
       case WeaponDefinitionIds.WEAPON_REAPER:
-        this.sounds.push({
+        this.pushSound({
           position: client.character.state.position,
           radius: 180,
           agitation: 12
         });
         break;
       default:
-        this.sounds.push({
+        this.pushSound({
           position: client.character.state.position,
           radius: 10,
           agitation: 10
@@ -10387,6 +10387,11 @@ export class ZoneServer2016 extends EventEmitter {
       if (!npc.isAlive) continue;
       if (npc.fsm) npc.fsm.tick(safeDt);
     }
+  }
+
+  pushSound(sound: Sound): void {
+    if (process.env.DISABLE_AI || !this.aiEnabled) return;
+    this.sounds.push(sound);
   }
 
   private tickAi(): void {

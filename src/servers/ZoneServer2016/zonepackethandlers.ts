@@ -1404,7 +1404,7 @@ export class ZonePacketHandlers {
         delete client.hudTimer;
       }
       if (vehicle.engineOn) {
-        server.sounds.push({
+        server.pushSound({
           radius: 50,
           position: fixedPosUpdate,
           agitation: 3
