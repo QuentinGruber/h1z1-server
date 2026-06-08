@@ -213,6 +213,7 @@ function enterWander(zombie: ZombieInstance): void {
   zombie.stateTimer = 0;
   zombie.agitation = AGITATION_INITIAL;
   zombie.targetCharacterId = null;
+  zombie.npc.lookAtTarget = null;
   zombie.wanderOrigin = zombie.npc.state.position.slice() as Float32Array;
   const pt = pickPatrolPoint(zombie.server, zombie.wanderOrigin);
   if (pt) {
@@ -225,6 +226,7 @@ function enterFeed(zombie: ZombieInstance): void {
   zombie.npc.stopMovement();
   zombie.stateTimer = 0;
   zombie.targetCharacterId = null;
+  zombie.npc.lookAtTarget = null;
   zombie.isEatingCorpse = false;
 }
 
@@ -343,6 +345,7 @@ export function createZombie(npc: Npc, server: ZoneServer2016): ZombieInstance {
           return;
         }
 
+        zombie.npc.lookAtTarget = chaseTarget.state.position;
         const chaseDist = getDistance2d(
           zombie.npc.state.position,
           chaseTarget.state.position
@@ -386,6 +389,7 @@ export function createZombie(npc: Npc, server: ZoneServer2016): ZombieInstance {
           zombie.event(ZombieEvents.LostPlayer);
           return;
         }
+        zombie.npc.lookAtTarget = attackTarget.state.position;
         moveToward(zombie.npc, attackTarget.state.position, zombie.server);
         const attackDist = getDistance(
           zombie.npc.state.position,
@@ -443,9 +447,11 @@ export function createZombie(npc: Npc, server: ZoneServer2016): ZombieInstance {
               corpse.state.position
             );
             if (dist > 2) {
+              zombie.npc.lookAtTarget = corpse.state.position;
               moveToward(zombie.npc, corpse.state.position, zombie.server);
               return;
             }
+            zombie.npc.lookAtTarget = null;
             zombie.npc.stopMovement();
           }
         }
@@ -611,6 +617,7 @@ export function createZombie(npc: Npc, server: ZoneServer2016): ZombieInstance {
           zombie.isCoveringEars = true;
           zombie.coverEarsTimer = 0;
           zombie.targetCharacterId = null;
+          zombie.npc.lookAtTarget = null;
           zombie.wanderOrigin =
             zombie.npc.state.position.slice() as Float32Array;
         }

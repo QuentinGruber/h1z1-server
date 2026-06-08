@@ -76,6 +76,7 @@ export abstract class Npc extends BaseFullCharacter {
   npcMeleeDamage: number = 0;
   fsm?: JSM<string | number>;
   currentAnimation = "";
+  lookAtTarget: Float32Array | null = null;
   isSelected: boolean = false;
 
   constructor(
@@ -423,9 +424,10 @@ export abstract class Npc extends BaseFullCharacter {
   }
 
   goTo(position: Float32Array) {
-    const dx = position[0] - this.state.position[0];
-    const dz = position[2] - this.state.position[2];
-    const dy = position[1] - this.state.position[1];
+    const orientTarget = this.lookAtTarget ?? position;
+    const dx = orientTarget[0] - this.state.position[0];
+    const dz = orientTarget[2] - this.state.position[2];
+    const dy = orientTarget[1] - this.state.position[1];
 
     const horizontalDist = Math.sqrt(dx * dx + dz * dz);
     const orientation = Math.atan2(dx, dz);

@@ -179,6 +179,7 @@ function enterWander(screamer: ScreamerInstance): void {
   screamer.stateTimer = 0;
   screamer.agitation = AGITATION_INITIAL;
   screamer.targetCharacterId = null;
+  screamer.npc.lookAtTarget = null;
   screamer.lastNoisePos = null;
   screamer.wanderOrigin = screamer.npc.state.position.slice() as Float32Array;
   const pt = pickPatrolPoint(screamer.server, screamer.wanderOrigin);
@@ -333,6 +334,7 @@ export function createScreamer(
           return;
         }
 
+        screamer.npc.lookAtTarget = chaseTarget.state.position;
         const chaseDist = getDistance2d(
           screamer.npc.state.position,
           chaseTarget.state.position
@@ -360,6 +362,7 @@ export function createScreamer(
           screamer.event(Events.LostPlayer);
           return;
         }
+        screamer.npc.lookAtTarget = attackTarget.state.position;
         moveToward(screamer.npc, attackTarget.state.position, screamer.server);
         const attackDist = getDistance(
           screamer.npc.state.position,
