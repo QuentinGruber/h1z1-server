@@ -377,6 +377,10 @@ export function createScreamer(
         listenToSounds(screamer, screamer.server.sounds);
 
         const attackTarget = getChaseTarget(screamer);
+        if (attackTarget) {
+          screamer.npc.lookAt(attackTarget.state.position);
+        }
+
         if (screamer.stateTimer >= 2) {
           if (attackTarget) {
             const attackDist = getDistance(

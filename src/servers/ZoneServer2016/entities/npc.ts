@@ -475,4 +475,43 @@ export abstract class Npc extends BaseFullCharacter {
       }
     );
   }
+
+  lookAt(targetPosition: Float32Array) {
+    const dx = targetPosition[0] - this.state.position[0];
+    const dz = targetPosition[2] - this.state.position[2];
+    const dy = targetPosition[1] - this.state.position[1];
+    const horizontalDist = Math.sqrt(dx * dx + dz * dz);
+    const orientation = Math.atan2(dx, dz);
+    const prevOrientation = this.state.yaw ?? orientation;
+    let angleChange = orientation - prevOrientation;
+    angleChange = Math.atan2(Math.sin(angleChange), Math.cos(angleChange));
+    this.state.yaw = orientation;
+    const frontTilt = Math.atan2(dy, horizontalDist);
+    const sinO = Math.sin(orientation);
+    const cosO = Math.cos(orientation);
+    const lateralDist = dx * cosO - dz * sinO;
+    const sideTilt = Math.atan2(lateralDist, horizontalDist);
+
+    this.server.sendDataToAllWithSpawnedEntity(
+      this.server._npcs,
+      this.characterId,
+      "PlayerUpdatePosition",
+      {
+        transientId: this.transientId,
+        positionUpdate: {
+          sequenceTime: getCurrentServerTimeWrapper().getTruncatedU32(),
+          position: this.state.position,
+          unknown3_int8: 0,
+          stance: 66565,
+          engineRPM: 0,
+          orientation,
+          frontTilt,
+          sideTilt,
+          angleChange,
+          verticalSpeed: 0,
+          horizontalSpeed: 0
+        }
+      }
+    );
+  }
 }

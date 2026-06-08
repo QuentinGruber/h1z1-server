@@ -405,6 +405,10 @@ export function createZombie(npc: Npc, server: ZoneServer2016): ZombieInstance {
         listenToSounds(zombie, zombie.server.sounds);
 
         const attackTarget = getChaseTarget(zombie);
+        if (attackTarget) {
+          zombie.npc.lookAt(attackTarget.state.position);
+        }
+
         if (zombie.stateTimer >= 2) {
           if (attackTarget) {
             const attackDist = getDistance(
