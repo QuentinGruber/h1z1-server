@@ -163,7 +163,7 @@ export class Destroyable extends BaseSimpleNpc {
   destroyedModels: number[] = [];
   destroyed: boolean = false;
   destroyedEffectId: Effects;
-  obstacleRef: ObstacleRef | null;
+  obstacleRef: ObstacleRef | null = null;
   constructor(
     characterId: string,
     transientId: number,
@@ -186,7 +186,9 @@ export class Destroyable extends BaseSimpleNpc {
     this.maxHealth = getMaxHealth(actorModelId);
     this.health = this.maxHealth;
 
-    this.obstacleRef = setObstacle(server, actorModelId, position);
+    if (!process.env.DISABLE_AI && server.aiEnabled) {
+      this.obstacleRef = setObstacle(server, actorModelId, position);
+    }
   }
 
   damage(server: ZoneServer2016, damageInfo: DamageInfo) {
