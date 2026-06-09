@@ -15,41 +15,64 @@ import { createWriteStream, existsSync, readFileSync } from "node:fs";
 import {
   CrowdAgent,
   getNavMeshPositionsAndIndices,
+  importNavMesh,
+  importTileCache,
   init as initRecast,
   NavMesh,
   statusToReadableString,
+  TileCache,
   Vector3
 } from "recast-navigation";
 import { NavMeshQuery } from "recast-navigation";
-import { importNavMesh } from "recast-navigation";
 import { Crowd } from "recast-navigation";
+import { createDefaultTileCacheMeshProcess } from "recast-navigation/generators";
 const debug = require("debug")("nav");
+
+const MAX_OBSTACLE = 10000;
 
 export class NavManager {
   navmesh!: NavMesh;
+  tilecache!: TileCache;
+  obstaclesRequestsPending: number = 0;
   crowd!: Crowd;
   navMeshQuery!: NavMeshQuery;
   lastTimeCall: number = Date.now();
   updateFrequency = 1 / 5;
+  obstacleCount = 0;
   constructor() {}
   async loadNav() {
     console.time("[NAV] Navmesh loaded");
-    const parts: Buffer[] = [];
+    const mesh_parts: Buffer[] = [];
+    const tc_parts: Buffer[] = [];
     let part = 0;
     while (true) {
       const partPath = __dirname + `/../../data/2016/navData/z1_${part}.bin`;
       if (!existsSync(partPath)) break;
-      parts.push(readFileSync(partPath));
+      mesh_parts.push(readFileSync(partPath));
       console.log(`[NAV] loaded nav part ${part}`);
       part++;
     }
-    const navData = new Uint8Array(Buffer.concat(parts));
+    part = 0;
+
+    while (true) {
+      const partPath =
+        __dirname + `/../../data/2016/navData/z1_cache_${part}.bin`;
+      if (!existsSync(partPath)) break;
+      tc_parts.push(readFileSync(partPath));
+      console.log(`[NAV] loaded nav cache part ${part}`);
+      part++;
+    }
     await initRecast();
+
+    const navData = new Uint8Array(Buffer.concat(mesh_parts));
     const { navMesh } = importNavMesh(navData);
+    const tcData = new Uint8Array(Buffer.concat(tc_parts));
+    const tileCacheMeshProcess = createDefaultTileCacheMeshProcess();
+    const { tileCache } = importTileCache(tcData, tileCacheMeshProcess);
     this.navmesh = navMesh;
+    this.tilecache = tileCache;
     const maxAgents = 1000;
     const maxAgentRadius = 0.6;
-
     this.navMeshQuery = new NavMeshQuery(this.navmesh);
     this.crowd = new Crowd(navMesh, { maxAgents, maxAgentRadius });
     console.timeEnd("[NAV] Navmesh loaded");
@@ -60,6 +83,34 @@ export class NavManager {
   }
   static navToGame(v: Vector3): Float32Array {
     return new Float32Array([v.x, v.y, v.z, 0]);
+  }
+
+  addObstacle(position: Float32Array, halfExtents: Vector3) {
+    if (this.obstacleCount >= MAX_OBSTACLE) {
+      return null;
+    }
+    this.obstacleCount++;
+    const { status, success, obstacle } = this.tilecache.addBoxObstacle(
+      NavManager.gameToNav(position),
+      halfExtents,
+      0.0
+    );
+    console.log(success);
+    if (success) {
+      this.obstaclesRequestsPending++;
+      this.obstacleCount++;
+      if (this.obstaclesRequestsPending > 40) {
+        this.tilecache.update(this.navmesh);
+      }
+      return obstacle.ref;
+    } else {
+      console.log({
+        success: success,
+        status: status,
+        obstacle: obstacle
+      });
+      return null;
+    }
   }
 
   getClosestNavPoint(gamePos: Float32Array): any {

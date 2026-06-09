@@ -18,6 +18,7 @@ import { Effects, ModelIds } from "../models/enums";
 import { AddLightweightNpc, AddSimpleNpc } from "types/zone2016packets";
 import { BaseSimpleNpc } from "./basesimplenpc";
 import { BaseEntity } from "./baseentity";
+import { ObstacleRef, vec3 } from "recast-navigation";
 
 function getDestroyedModels(actorModelId: ModelIds): number[] {
   switch (actorModelId) {
@@ -111,6 +112,49 @@ function getDestroyedEffectId(actorModelId: ModelIds): Effects {
       return Effects.TEST_Null;
   }
 }
+
+function setObstacle(
+  server: ZoneServer2016,
+  actorModelId: ModelIds,
+  position: Float32Array
+): ObstacleRef | null {
+  switch (actorModelId) {
+    case ModelIds.FENCES_WOOD_PLANKS_GREY_PLANK:
+    case ModelIds.FENCES_WOOD_PLANKS_GREY_POSTS_1X1:
+    case ModelIds.FENCES_WOOD_PLANKS_GREY_1X1:
+    case ModelIds.FENCES_WOOD_PLANKS_GREY_POSTS_1X2:
+    case ModelIds.FENCES_WOOD_PLANKS_GREY_GAP_1X1:
+      return server.navManager.addObstacle(
+        position,
+        vec3.fromArray([1.0, 1.0, 1.0])
+      );
+    case ModelIds.CHAIN_LINK_FENCE_1X1:
+    case ModelIds.CHAIN_LINK_FENCE_1X2:
+      return server.navManager.addObstacle(
+        position,
+        vec3.fromArray([1.0, 1.0, 1.0])
+      );
+    case ModelIds.BARBED_WIRE_FENCE_1X1:
+      return server.navManager.addObstacle(
+        position,
+        vec3.fromArray([1.0, 1.0, 1.0])
+      );
+    case ModelIds.BARBED_WIRE_FENCE_1X2:
+      return server.navManager.addObstacle(
+        position,
+        vec3.fromArray([1.0, 1.0, 1.0])
+      );
+    case ModelIds.FENCE_RANCH_1X1:
+    case ModelIds.FENCE_RANCH_1X2:
+      return server.navManager.addObstacle(
+        position,
+        vec3.fromArray([1.0, 1.0, 1.0])
+      );
+    default:
+      return null;
+  }
+}
+
 export class Destroyable extends BaseSimpleNpc {
   spawnerId: number;
   maxHealth: number;
@@ -119,6 +163,7 @@ export class Destroyable extends BaseSimpleNpc {
   destroyedModels: number[] = [];
   destroyed: boolean = false;
   destroyedEffectId: Effects;
+  obstacleRef: ObstacleRef | null;
   constructor(
     characterId: string,
     transientId: number,
@@ -140,6 +185,8 @@ export class Destroyable extends BaseSimpleNpc {
       this.destroyedModels[(this.destroyedModels.length * Math.random()) | 0];
     this.maxHealth = getMaxHealth(actorModelId);
     this.health = this.maxHealth;
+
+    this.obstacleRef = setObstacle(server, actorModelId, position);
   }
 
   damage(server: ZoneServer2016, damageInfo: DamageInfo) {
