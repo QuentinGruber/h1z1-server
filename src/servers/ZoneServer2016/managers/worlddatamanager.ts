@@ -160,7 +160,12 @@ export class WorldDataManager {
 
   static async getDatabase(mongoAddress: string): Promise<[Db, MongoClient]> {
     const mongoClient = new MongoClient(mongoAddress, {
-      maxPoolSize: 200
+      maxPoolSize: 200,
+      // Fail hung queries after 30s instead of waiting forever (default: 0)
+      socketTimeoutMS: 30_000,
+      // Close idle connections after 90s so the NAT/firewall doesn't silently
+      // drop them first (most NATs time out idle TCP at ~4-5 minutes)
+      maxIdleTimeMS: 90_000
     });
     try {
       await mongoClient.connect();
@@ -174,7 +179,29 @@ export class WorldDataManager {
     if (!(await mongoClient.db(DB_NAME).collections()).length) {
       await initMongo(mongoClient, "ZoneServer");
     }
-    return [mongoClient.db(DB_NAME), mongoClient];
+    const db = mongoClient.db(DB_NAME);
+    // Ensure indices exist for hot-path queries (idempotent — safe to run on every startup)
+    await Promise.all([
+      db
+        .collection(DB_COLLECTIONS.CHARACTERS)
+        .createIndex({ characterId: 1, serverId: 1 }, { background: true }),
+      db
+        .collection(DB_COLLECTIONS.GROUPS)
+        .createIndex({ serverId: 1, groupId: 1 }, { background: true }),
+      db
+        .collection(DB_COLLECTIONS.GROUPS)
+        .createIndex({ serverId: 1, members: 1 }, { background: true }),
+      db
+        .collection(DB_COLLECTIONS.CHALLENGES)
+        .createIndex(
+          { playerGuid: 1, serverId: 1, status: 1 },
+          { background: true }
+        ),
+      db
+        .collection(DB_COLLECTIONS.FAIRPLAY_TEMP)
+        .createIndex({ characterId: 1, serverId: 1 }, { background: true })
+    ]);
+    return [db, mongoClient];
   }
 
   async initialize(worldId: number, mongoAddress: string) {

@@ -12,8 +12,8 @@
 // ======================================================================
 
 const debugName = "ZoneServer",
-  debug = require("debug")(debugName);
-const apm = require("elastic-apm-node");
+  debug = require("debug")(debugName),
+  apm = require("elastic-apm-node");
 
 import { EventEmitter } from "node:events";
 import { H1Z1Protocol } from "../../protocols/h1z1protocol";
@@ -355,10 +355,19 @@ export class ZoneServer2016 extends EventEmitter {
   private _gridNumCols = 0;
   private _gridNumRows = 0;
   _spawnGrid: SpawnCell[] = [];
+  /** Pre-computed axis-aligned bounding box of all spawn cells for O(1) map bounds checks. */
+  private _mapBoundsMinX = -Infinity;
+  private _mapBoundsMaxX = Infinity;
+  private _mapBoundsMinZ = -Infinity;
+  private _mapBoundsMaxZ = Infinity;
 
   /** Spatial hashes rebuilt every world tick to accelerate spawnCharacters/vehicleManager lookups. */
   private _charSpatialMap = new Map<string, Client[]>();
+  private _vehicleSpatialMap = new Map<string, Vehicle[]>();
+  /** Static spatial hash for destroyables — built once at startup since they never move. */
+  readonly _destroyableSpatialMap = new Map<string, Destroyable[]>();
   private static readonly _CHAR_GRID_SIZE = 300;
+  static readonly _DESTROYABLE_GRID_SIZE = 50;
 
   private static _charGridRange(
     pos: Float32Array,
@@ -370,6 +379,19 @@ export class ZoneServer2016 extends EventEmitter {
       Math.floor((pos[0] + radius) / sz),
       Math.floor((pos[2] - radius) / sz),
       Math.floor((pos[2] + radius) / sz)
+    ];
+  }
+
+  static _gridRange(
+    pos: Float32Array | number[],
+    radius: number,
+    gridSize: number
+  ): [number, number, number, number] {
+    return [
+      Math.floor((pos[0] - radius) / gridSize),
+      Math.floor((pos[0] + radius) / gridSize),
+      Math.floor((pos[2] - radius) / gridSize),
+      Math.floor((pos[2] + radius) / gridSize)
     ];
   }
 
@@ -400,6 +422,7 @@ export class ZoneServer2016 extends EventEmitter {
   _constructionDoors: EntityDictionary<ConstructionDoor> = {};
   _constructionSimple: EntityDictionary<ConstructionChildEntity> = {};
   _lootableProps: EntityDictionary<LootableProp> = {};
+  _questContainerProps: EntityDictionary<LootableProp> = {};
   _taskProps: EntityDictionary<TaskProp> = {};
   _crates: EntityDictionary<Crate> = {};
   _destroyables: EntityDictionary<Destroyable> = {};
@@ -414,6 +437,7 @@ export class ZoneServer2016 extends EventEmitter {
   _modelsData: { [modelId: number]: modelData } = {};
   _syncTeleport: { [characterId: string]: boolean } = {};
   blockSyncTeleportTicks: number = 0;
+  private _spectatorMapTick: number = 0;
 
   /** Interactible options for items - See (ZonePacketHandlers.ts or datasources/ItemUseOptions) */
   _itemUseOptions: { [optionId: number]: UseOption } = {};
@@ -1190,6 +1214,13 @@ export class ZoneServer2016 extends EventEmitter {
     "Mount.MountRequest"
   ]);
   private static readonly MAX_HEAVY_PACKETS_PER_CLIENT_PER_SEC = 100;
+  private static readonly _noApmPackets = new Set([
+    "PlayerUpdatePosition",
+    "PlayerUpdateManagedPosition",
+    "KeepAlive",
+    "ClientUpdate.MonitorTimeDrift",
+    "Vehicle.StateData"
+  ]);
 
   onZoneDataEvent(client: Client, packet: H1z1ProtocolReadingFormat) {
     if (!client) {
@@ -1256,6 +1287,9 @@ export class ZoneServer2016 extends EventEmitter {
       }, true);*/
     }
 
+    const packetTx = ZoneServer2016._noApmPackets.has(packet.name)
+      ? null
+      : apm.startTransaction(`Packet::${packet.name}`, "custom");
     try {
       const processSpan = apm.currentTransaction?.startSpan("processPacket");
       this._packetHandlers.processPacket(
@@ -1269,6 +1303,8 @@ export class ZoneServer2016 extends EventEmitter {
       console.error(error);
       console.error(`An error occurred while processing a packet : `, packet);
       logVersion();
+    } finally {
+      packetTx?.end();
     }
 
     /*this.tasksManager.register(async () => {
@@ -2310,6 +2346,20 @@ export class ZoneServer2016 extends EventEmitter {
     }
     this.fairPlayManager.decryptFairPlayValues();
     this._spawnGrid = this.divideMapIntoSpawnGrid(7448, 7448, 744);
+    if (this._spawnGrid.length > 0) {
+      this._mapBoundsMinX = Math.min(
+        ...this._spawnGrid.map((c) => c.position[0] - c.width / 2)
+      );
+      this._mapBoundsMaxX = Math.max(
+        ...this._spawnGrid.map((c) => c.position[0] + c.width / 2)
+      );
+      this._mapBoundsMinZ = Math.min(
+        ...this._spawnGrid.map((c) => c.position[2] - c.height / 2)
+      );
+      this._mapBoundsMaxZ = Math.max(
+        ...this._spawnGrid.map((c) => c.position[2] + c.height / 2)
+      );
+    }
     if (this.isSurvival()) {
       this.speedtreeManager.initiateList();
     }
@@ -2763,36 +2813,33 @@ export class ZoneServer2016 extends EventEmitter {
 
   private async worldRoutine() {
     if (!this.hookManager.checkHook("OnWorldRoutine")) return;
-    const transaction = apm.startTransaction("worldRoutine", "game");
-    try {
-      if (this._ready) {
-        const plantSpan = transaction?.startSpan("plantManager");
-        this.constructionManager.plantManager(this);
-        plantSpan?.end();
-        await scheduler.yield();
-
-        await this.worldObjectManager.run(this);
-        await scheduler.yield();
-
-        const vehicleSpan = transaction?.startSpan("checkVehiclesInMapBounds");
-        this.checkVehiclesInMapBounds();
-        vehicleSpan?.end();
-        await scheduler.yield();
-
-        this.updateSyncTeleport();
-        await scheduler.yield();
-        this.updateSpectatorMap();
-        if (
-          this.enableWorldSaves &&
-          !this._isSaving &&
-          this.nextSaveTime - Date.now() < 0
-        ) {
-          this.saveWorld();
-        }
+    const tx = apm.startTransaction("worldRoutine", "custom");
+    if (this._ready) {
+      let span = tx?.startSpan("checkVehiclesInMapBounds");
+      await this.checkVehiclesInMapBounds();
+      span?.end();
+      await scheduler.yield();
+      let span2 = tx?.startSpan("updateSyncTeleport");
+      this.updateSyncTeleport();
+      span2?.end();
+      await scheduler.yield();
+      let span3 = tx?.startSpan("updateSpectatorMap");
+      this.updateSpectatorMap();
+      span3?.end();
+    }
+    tx?.end();
+    this.worldRoutineTimer.refresh();
+    // Fire AFTER the transaction ends so these run in a clean APM context
+    if (this._ready) {
+      if (
+        this.enableWorldSaves &&
+        !this._isSaving &&
+        this.nextSaveTime - Date.now() < 0
+      ) {
+        void this.saveWorld();
       }
-    } finally {
-      transaction?.end();
-      this.worldRoutineTimer.refresh();
+      void this.constructionManager.plantManager(this);
+      void this.worldObjectManager.run(this);
     }
   }
 
@@ -4353,15 +4400,19 @@ export class ZoneServer2016 extends EventEmitter {
     );
   }
 
-  private removeOutOfDistanceEntities(client: Client) {
+  private async removeOutOfDistanceEntities(client: Client) {
     // does not include vehicles
-    for (const entity of client.spawnedEntities) {
+    const entities = [...client.spawnedEntities];
+    let i = 0;
+    for (const entity of entities) {
+      if (!client.spawnedEntities.has(entity)) continue; // removed during yield
       if (this.shouldRemoveEntity(client, entity)) {
         this.sendData<CharacterRemovePlayer>(client, "Character.RemovePlayer", {
           characterId: entity.characterId
         });
         client.spawnedEntities.delete(entity);
       }
+      if (++i % 100 === 0) await scheduler.yield();
     }
   }
 
@@ -4620,26 +4671,21 @@ export class ZoneServer2016 extends EventEmitter {
     }
   }
 
-  private checkVehiclesInMapBounds() {
+  private async checkVehiclesInMapBounds() {
     if (this.isBattleRoyale()) return;
+    let i = 0;
     for (const a in this._vehicles) {
       const vehicle = this._vehicles[a];
-      let inMapBounds: boolean = false;
-      this._spawnGrid.forEach((cell: SpawnCell) => {
-        const position = vehicle.state.position;
-        if (
-          position[0] >= cell.position[0] - cell.width / 2 &&
-          position[0] <= cell.position[0] + cell.width / 2 &&
-          position[2] >= cell.position[2] - cell.height / 2 &&
-          position[2] <= cell.position[2] + cell.height / 2
-        ) {
-          inMapBounds = true;
-        }
-      });
-
-      if (!inMapBounds || vehicle.state.position[1] < -50) {
+      const position = vehicle.state.position;
+      const inMapBounds =
+        position[0] >= this._mapBoundsMinX &&
+        position[0] <= this._mapBoundsMaxX &&
+        position[2] >= this._mapBoundsMinZ &&
+        position[2] <= this._mapBoundsMaxZ;
+      if (!inMapBounds || position[1] < -50) {
         vehicle.destroy(this, true);
       }
+      if (++i % 50 === 0) await scheduler.yield();
     }
   }
 
@@ -4815,6 +4861,22 @@ export class ZoneServer2016 extends EventEmitter {
     }
   }
 
+  /** Spawns entities in all subscribed cells for a client, sequentially.
+   *  Guard prevents concurrent runs for the same client. */
+  private async _spawnSubscribedCells(client: Client): Promise<void> {
+    if (client.isSpawningCells) return;
+    client.isSpawningCells = true;
+    const tx = apm.startTransaction("spawnSubscribedCells", "custom");
+    try {
+      for (const cell of client.subscribedCells) {
+        await this.spawnCellObjectsForClient(client, cell);
+      }
+    } finally {
+      tx?.end();
+      client.isSpawningCells = false;
+    }
+  }
+
   /** Spawns all objects in a cell for a client, yielding every N entities so
    *  ACKs can flow back before the SOE output window fills up.
    *  Batch size shrinks for high-ping clients to reduce the flood window. */
@@ -4822,6 +4884,7 @@ export class ZoneServer2016 extends EventEmitter {
     client: Client,
     cell: GridCell
   ): Promise<void> {
+    await scheduler.yield(); // Defer to event loop so callers never block inline
     const ping = client.avgPing;
     const batchSize = ping > 300 ? 10 : ping > 100 ? 25 : 50;
     let i = 0;
@@ -5514,36 +5577,47 @@ export class ZoneServer2016 extends EventEmitter {
     const renderDist = this.charactersRenderDistance;
 
     // Spawn any in-range vehicles not yet visible to this client.
-    // Iterates this._vehicles directly (not the spatial map snapshot) so
-    // vehicles added after the last world-tick rebuild are not missed.
-    for (const key in this._vehicles) {
-      const vehicle = this._vehicles[key];
-      if (
-        !isPosInRadius(
-          vehicle.npcRenderDistance || renderDist,
-          pos,
-          vehicle.state.position
-        )
-      )
-        continue;
-      if (client.spawnedEntities.has(vehicle)) continue;
-      this.sendData<AddLightweightVehicle>(client, "AddLightweightVehicle", {
-        ...vehicle.pGetLightweightVehicle(),
-        unknownGuid1: this.generateGuid()
-      });
-      vehicle.effectTags.forEach((effectTag: number) => {
-        this.sendData<CharacterAddEffectTagCompositeEffect>(
-          client,
-          "Character.AddEffectTagCompositeEffect",
-          {
-            characterId: vehicle.characterId,
-            effectId: effectTag,
-            unknownDword1: effectTag,
-            unknownDword2: effectTag
-          }
-        );
-      });
-      client.spawnedEntities.add(vehicle);
+    // Uses the spatial map snapshot — vehicles that spawn mid-tick appear on
+    // the next tick (max 200ms delay), matching character spawn behaviour.
+    const [cellMinX, cellMaxX, cellMinZ, cellMaxZ] =
+      ZoneServer2016._charGridRange(pos, renderDist);
+    for (let cx = cellMinX; cx <= cellMaxX; cx++) {
+      for (let cz = cellMinZ; cz <= cellMaxZ; cz++) {
+        const bucket = this._vehicleSpatialMap.get(`${cx},${cz}`);
+        if (!bucket) continue;
+        for (const vehicle of bucket) {
+          if (
+            !isPosInRadius(
+              vehicle.npcRenderDistance || renderDist,
+              pos,
+              vehicle.state.position
+            )
+          )
+            continue;
+          if (client.spawnedEntities.has(vehicle)) continue;
+          this.sendData<AddLightweightVehicle>(
+            client,
+            "AddLightweightVehicle",
+            {
+              ...vehicle.pGetLightweightVehicle(),
+              unknownGuid1: this.generateGuid()
+            }
+          );
+          vehicle.effectTags.forEach((effectTag: number) => {
+            this.sendData<CharacterAddEffectTagCompositeEffect>(
+              client,
+              "Character.AddEffectTagCompositeEffect",
+              {
+                characterId: vehicle.characterId,
+                effectId: effectTag,
+                unknownDword1: effectTag,
+                unknownDword2: effectTag
+              }
+            );
+          });
+          client.spawnedEntities.add(vehicle);
+        }
+      }
     }
 
     // Despawn vehicles that are no longer in range.
@@ -5962,6 +6036,7 @@ export class ZoneServer2016 extends EventEmitter {
       });
       return;
     }
+    const tx = apm.currentTransaction;
     vehicle.removeHotwireEffect(this);
     const seatId = vehicle.getCharacterSeat(client.character.characterId);
     client.character.vehicleExitDate = new Date().getTime();
@@ -5979,6 +6054,7 @@ export class ZoneServer2016 extends EventEmitter {
       return;
     }
     vehicle.seats[seatId] = "";
+    let span = tx?.startSpan("sendDismountResponse");
     this.sendDataToAllWithSpawnedEntity<MountDismountResponse>(
       this._characters,
       client.character.characterId,
@@ -5987,6 +6063,7 @@ export class ZoneServer2016 extends EventEmitter {
         characterId: client.character.characterId
       }
     );
+    span?.end();
     client.isInAir = false;
 
     // Check if there are no more passengers in the vehicle
@@ -6014,6 +6091,7 @@ export class ZoneServer2016 extends EventEmitter {
       unknownBytes1: { itemData: {} },
       unknownBytes2: { itemData: {} }
     });
+    span = tx?.startSpan("sendVehicleOwner");
     this.sendDataToAllWithSpawnedEntity<VehicleOwner>(
       this._vehicles,
       vehicle.characterId,
@@ -6026,7 +6104,10 @@ export class ZoneServer2016 extends EventEmitter {
         passengers: []
       }
     );
+    span?.end();
+    span = tx?.startSpan("dismountContainer");
     client.character.dismountContainer(this);
+    span?.end();
   }
 
   changeSeat(client: Client, packet: ReceivedPacket<MountSeatChangeRequest>) {
@@ -6824,6 +6905,7 @@ export class ZoneServer2016 extends EventEmitter {
    * @param {LoadoutItem} loadoutItem - The new loadout item.
    */
   switchLoadoutSlot(client: Client, loadoutItem: LoadoutItem) {
+    const tx = apm.currentTransaction;
     const oldLoadoutSlot = client.character.currentLoadoutSlot;
     this.reloadInterrupt(client, client.character._loadout[oldLoadoutSlot]);
 
@@ -6839,21 +6921,27 @@ export class ZoneServer2016 extends EventEmitter {
     }
 
     // remove passive equip
+    let span = tx?.startSpan("clearEquipmentSlot");
     this.clearEquipmentSlot(
       client.character,
       client.character.getActiveEquipmentSlot(loadoutItem),
       true
     );
+    span?.end();
     client.character.currentLoadoutSlot = loadoutItem.slotId;
+    span = tx?.startSpan("equipItem-active");
     client.character.equipItem(this, loadoutItem, true, loadoutItem.slotId);
+    span?.end();
 
     // equip passive slot
+    span = tx?.startSpan("equipItem-passive");
     client.character.equipItem(
       this,
       client.character._loadout[oldLoadoutSlot],
       true,
       oldLoadoutSlot
     );
+    span?.end();
     if (loadoutItem.weapon) loadoutItem.weapon.currentReloadCount = 0;
     if (this.isWeapon(loadoutItem.itemDefinitionId)) {
       const itemDefinition = this.getItemDefinition(
@@ -6866,6 +6954,7 @@ export class ZoneServer2016 extends EventEmitter {
           itemDefinition.ACTIVATABLE_ABILITY_ID
         );
       }
+      span = tx?.startSpan("sendRemoteWeaponUpdate");
       this.sendRemoteWeaponUpdateDataToAllOthers(
         client,
         client.character.transientId,
@@ -6876,7 +6965,9 @@ export class ZoneServer2016 extends EventEmitter {
           firemodeIndex: 0
         }
       );
+      span?.end();
 
+      span = tx?.startSpan("sendWeaponStance");
       this.sendDataToAllOthersWithSpawnedEntity<CharacterWeaponStance>(
         this._characters,
         client,
@@ -6887,6 +6978,7 @@ export class ZoneServer2016 extends EventEmitter {
           stance: client.character.weaponStance
         }
       );
+      span?.end();
     }
   }
 
@@ -9441,7 +9533,7 @@ export class ZoneServer2016 extends EventEmitter {
       client.character.state.position.slice() as Float32Array;
     //this.constructionManager.spawnConstructionParentsInRange(this, client); // put into grid
     this.vehicleManager(client);
-    this.removeOutOfDistanceEntities(client);
+    void this.removeOutOfDistanceEntities(client);
     void this.updateClientSubscriptions(client);
     this.spawnCharacters(client);
     //this.constructionManager.worldConstructionManager(this, client);
@@ -9467,40 +9559,43 @@ export class ZoneServer2016 extends EventEmitter {
   }
 
   /** Runs the world-state update for a single client based on their current
-   *  known position. Called from the server tick — NOT from packet handlers.  */
-  private runClientTick(client: Client): [number, number, number] {
-    if (client.isLoading) return [0, 0, 0];
+   *  known position. Called from the server tick — NOT from packet handlers. */
+  private runClientTick(client: Client) {
+    if (client.isLoading) return;
     if (client.colorKeysEnabled) this.updateColorKeyEffect(client);
+    const tx = apm.currentTransaction;
     const pos = client.character.state.position;
-    let constPermMs = 0,
-      heavyScanMs = 0,
-      spawnCharsMs = 0;
 
     // Construction permissions: run when player has moved 3+ units
     if (getDistance2d(pos, client.posAtLastPermissionCheck) >= 3) {
-      const t = Date.now();
+      const sp = tx?.startSpan("constructionPermissionsManager");
       this.constructionManager.constructionPermissionsManager(this, client);
-      constPermMs = Date.now() - t;
+      sp?.end();
       client.posAtLastPermissionCheck = pos.slice() as Float32Array;
     }
 
     // Heavy world scans: run when player has moved 10+ units
     if (getDistance2d(pos, client.posAtLastRoutine) >= 10) {
-      const t = Date.now();
-      if (!this.disableMapBoundsCheck) this.checkInMapBounds(client);
-      this.assignChunkRenderDistance(client);
-      if (!this.disablePOIManager) this.POIManager(client);
-      this.vehicleManager(client);
-
-      // Re-scan only cells that received new entities since this client's last
-      // heavy-scan pass. Cells unchanged since then are skipped entirely, keeping
-      // this O(dirty cells) instead of O(all subscribed cells × all objects).
-      for (const cell of client.subscribedCells) {
-        if (cell.lastModified > client.lastRoutineTime) {
-          this.spawnCellObjectsForClient(client, cell);
-        }
+      if (!this.disableMapBoundsCheck) {
+        const sp = tx?.startSpan("checkInMapBounds");
+        this.checkInMapBounds(client);
+        sp?.end();
       }
-      heavyScanMs = Date.now() - t;
+      const sp2 = tx?.startSpan("assignChunkRenderDistance");
+      this.assignChunkRenderDistance(client);
+      sp2?.end();
+      if (!this.disablePOIManager) {
+        const sp3 = tx?.startSpan("POIManager");
+        this.POIManager(client);
+        sp3?.end();
+      }
+      const sp4 = tx?.startSpan("vehicleManager");
+      this.vehicleManager(client);
+      sp4?.end();
+
+      // Spawn any entities in already-subscribed cells that weren't in render
+      // range when first subscribed — e.g. NPCs that spawned nearby.
+      void this._spawnSubscribedCells(client);
 
       client.posAtLastRoutine = pos.slice() as Float32Array;
       client.lastRoutineTime = Date.now();
@@ -9511,18 +9606,30 @@ export class ZoneServer2016 extends EventEmitter {
       getDistance2d(pos, client.posAtLastCellUpdate) >= 62.5 ||
       client.chunkRenderDistance !== client.lastKnownChunkRenderDistance
     ) {
+      const sp5 = tx?.startSpan("updateClientSubscriptions");
       void this.updateClientSubscriptions(client);
+      sp5?.end();
     }
 
-    const t = Date.now();
+    const sp6 = tx?.startSpan("spawnCharacters");
     this.spawnCharacters(client);
-    spawnCharsMs = Date.now() - t;
-
-    return [constPermMs, heavyScanMs, spawnCharsMs];
+    sp6?.end();
   }
 
   private _worldTickTimer?: NodeJS.Timeout;
   private static readonly WORLD_TICK_MS = 200;
+
+  insertVehicleIntoSpatialMap(vehicle: Vehicle) {
+    const sz = ZoneServer2016._CHAR_GRID_SIZE;
+    const pos = vehicle.state.position;
+    const key = `${Math.floor(pos[0] / sz)},${Math.floor(pos[2] / sz)}`;
+    let bucket = this._vehicleSpatialMap.get(key);
+    if (!bucket) {
+      bucket = [];
+      this._vehicleSpatialMap.set(key, bucket);
+    }
+    if (!bucket.includes(vehicle)) bucket.push(vehicle);
+  }
 
   private _rebuildSpatialMaps() {
     const sz = ZoneServer2016._CHAR_GRID_SIZE;
@@ -9540,58 +9647,56 @@ export class ZoneServer2016 extends EventEmitter {
       }
       bucket.push(c);
     }
+
+    this._vehicleSpatialMap.clear();
+    for (const vehicleId in this._vehicles) {
+      const v = this._vehicles[vehicleId];
+      const pos = v.state.position;
+      const key = `${Math.floor(pos[0] / sz)},${Math.floor(pos[2] / sz)}`;
+      let bucket = this._vehicleSpatialMap.get(key);
+      if (!bucket) {
+        bucket = [];
+        this._vehicleSpatialMap.set(key, bucket);
+      }
+      bucket.push(v);
+    }
+  }
+
+  private _clientTicksRunning = false;
+
+  private async _runClientTicks() {
+    if (this._clientTicksRunning) return;
+    this._clientTicksRunning = true;
+    const tx = apm.startTransaction("clientTicks", "custom");
+    try {
+      for (const sessionId in this._clients) {
+        const clientSpan = tx?.startSpan("clientTick");
+        this.runClientTick(this._clients[sessionId]);
+        clientSpan?.end();
+        await scheduler.yield();
+      }
+    } finally {
+      tx?.end();
+      this._clientTicksRunning = false;
+    }
   }
 
   private _lastTickTime = 0;
 
   startWorldTick() {
-    const tick = () => {
+    const tick = async () => {
       if (!this._ready) {
         this._lastTickTime = Date.now();
         this._worldTickTimer = setTimeout(tick, ZoneServer2016.WORLD_TICK_MS);
         return;
       }
-      const now = Date.now();
-      const tickLagMs = this._lastTickTime
-        ? Math.max(0, now - this._lastTickTime - ZoneServer2016.WORLD_TICK_MS)
-        : 0;
-      this._lastTickTime = now;
-
-      const transaction = apm.startTransaction("WorldTick", "game");
-      try {
-        transaction?.addLabels({
-          client_count: Object.keys(this._clients).length,
-          npc_count: Object.keys(this._npcs).length,
-          vehicle_count: Object.keys(this._vehicles).length,
-          loot_count: Object.keys(this._lootableProps).length,
-          construction_count: Object.keys(this._constructionSimple).length,
-          tick_lag_ms: tickLagMs
-        });
-
-        const spatialSpan = transaction?.startSpan("rebuildSpatialMaps");
-        this._rebuildSpatialMaps();
-        spatialSpan?.end();
-
-        const clientTickSpan = transaction?.startSpan("clientTick");
-        let constPermMs = 0,
-          heavyScanMs = 0,
-          spawnCharsMs = 0;
-        for (const sessionId in this._clients) {
-          const [cp, hs, sc] = this.runClientTick(this._clients[sessionId]);
-          constPermMs += cp;
-          heavyScanMs += hs;
-          spawnCharsMs += sc;
-        }
-        clientTickSpan?.addLabels({
-          constPerm_ms: constPermMs,
-          heavyScan_ms: heavyScanMs,
-          spawnChars_ms: spawnCharsMs
-        });
-        clientTickSpan?.end();
-      } finally {
-        transaction?.end();
-        this._worldTickTimer = setTimeout(tick, ZoneServer2016.WORLD_TICK_MS);
-      }
+      const tx = apm.startTransaction("WorldTick", "custom");
+      const span = tx?.startSpan("rebuildSpatialMaps");
+      this._rebuildSpatialMaps();
+      span?.end();
+      tx?.end();
+      this._worldTickTimer = setTimeout(tick, ZoneServer2016.WORLD_TICK_MS);
+      void this._runClientTicks();
     };
     this._worldTickTimer = setTimeout(tick, ZoneServer2016.WORLD_TICK_MS);
   }
@@ -9607,16 +9712,14 @@ export class ZoneServer2016 extends EventEmitter {
     };
     client.pingTimer = setTimeout(pingLoop, 3000);
 
-    const fairPlayLoop = () => {
+    const fairPlayLoop = async () => {
       if (!this._clients[client.sessionId]) return;
       if (!client.isLoading) {
         this.createFairPlayInternalPacket(client);
         // Clean up out-of-distance entities, then re-spawn anything in subscribed
         // cells that has come back into render range since the last cleanup.
-        this.removeOutOfDistanceEntities(client);
-        for (const cell of client.subscribedCells) {
-          this.spawnCellObjectsForClient(client, cell);
-        }
+        await this.removeOutOfDistanceEntities(client);
+        void this._spawnSubscribedCells(client);
       }
       client.fairPlayTimer = setTimeout(fairPlayLoop, 9000);
     };
@@ -9664,18 +9767,12 @@ export class ZoneServer2016 extends EventEmitter {
   }
 
   checkInMapBounds(client: Client) {
-    let inMapBounds: boolean = false;
-    this._spawnGrid.forEach((cell: SpawnCell) => {
-      const pos = client.character.state.position;
-      if (
-        pos[0] >= cell.position[0] - cell.width / 2 &&
-        pos[0] <= cell.position[0] + cell.width / 2 &&
-        pos[2] >= cell.position[2] - cell.height / 2 &&
-        pos[2] <= cell.position[2] + cell.height / 2
-      ) {
-        inMapBounds = true;
-      }
-    });
+    const pos = client.character.state.position;
+    const inMapBounds =
+      pos[0] >= this._mapBoundsMinX &&
+      pos[0] <= this._mapBoundsMaxX &&
+      pos[2] >= this._mapBoundsMinZ &&
+      pos[2] <= this._mapBoundsMaxZ;
     const index = client.character.screenEffects.indexOf("OUTOFMAPBOUNDS");
     if (!inMapBounds && (!client.isAdmin || !client.isDebugMode)) {
       const damageInfo: DamageInfo = {
@@ -10163,7 +10260,15 @@ export class ZoneServer2016 extends EventEmitter {
   }
 
   updateSpectatorMap() {
-    this.sendDataToAllAdmins("Spectator.AllSpectators", {
+    const adminClients = Object.values(this._clients).filter((c) => c.isAdmin);
+    if (adminClients.length === 0) return;
+    // With many players the pack is expensive — skip every other tick
+    if (
+      Object.keys(this._clients).length > 20 &&
+      ++this._spectatorMapTick % 2 !== 0
+    )
+      return;
+    const data = this._protocol.pack("Spectator.AllSpectators", {
       unknownDword1: 1,
       unknownArray1: Object.values(this._clients).map((client) => ({
         characterId: client.character.characterId,
@@ -10176,6 +10281,10 @@ export class ZoneServer2016 extends EventEmitter {
       })),
       unknownArray2: []
     });
+    if (!data) return;
+    for (const admin of adminClients) {
+      this.sendRawDataReliable(admin, data);
+    }
   }
 
   addToSyncTeleport(client: Client, position: Float32Array) {

@@ -144,13 +144,16 @@ export class Destroyable extends BaseSimpleNpc {
 
   damage(server: ZoneServer2016, damageInfo: DamageInfo) {
     this.health -= damageInfo.damage;
-    server.sendDataToAllWithSpawnedEntity(
-      server._destroyables,
-      this.characterId,
-      "Character.UpdateSimpleProxyHealth",
-      this.pGetSimpleProxyHealth()
-    );
-    if (this.health > 0) return;
+    if (this.health > 0) {
+      server.sendDataToAllWithSpawnedEntity(
+        server._destroyables,
+        this.characterId,
+        "Character.UpdateSimpleProxyHealth",
+        this.pGetSimpleProxyHealth()
+      );
+      return;
+    }
+    this.health = 0;
     this.destroy(server, true);
   }
 
