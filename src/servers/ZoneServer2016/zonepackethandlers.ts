@@ -3286,7 +3286,7 @@ export class ZonePacketHandlers {
 
     switch (weaponpacket?.packetName) {
       case "Weapon.MultiWeapon":
-        for (const p of weaponpacket?.packet.packets) {
+        for (const p of weaponpacket.packet.packets) {
           this.handleWeaponPacket(server, client, p);
           await scheduler.yield();
         }
