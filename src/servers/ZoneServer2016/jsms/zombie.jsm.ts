@@ -128,6 +128,7 @@ const MAX_SPEED = 6.0;
 const AGITATION_DECAY_RATE = 1;
 const AGITATION_INITIAL = 50;
 const INVESTIGATE_TIMEOUT = 120;
+const STUMBLE_CHANCE = 0.001;
 
 function pickPatrolPoint(
   server: ZoneServer2016,
@@ -361,7 +362,7 @@ export function createZombie(npc: Npc, server: ZoneServer2016): ZombieInstance {
           zombie.event(ZombieEvents.ReachPlayer);
         } else {
           if (trySmellCorpse(zombie)) return;
-          if (Math.random() < 0.01) {
+          if (Math.random() < STUMBLE_CHANCE) {
             zombie.event(ZombieEvents.StartStumble);
             return;
           }
