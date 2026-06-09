@@ -18,7 +18,7 @@ import { Effects, ModelIds } from "../models/enums";
 import { AddLightweightNpc, AddSimpleNpc } from "types/zone2016packets";
 import { BaseSimpleNpc } from "./basesimplenpc";
 import { BaseEntity } from "./baseentity";
-import { ObstacleRef, vec3 } from "recast-navigation";
+import { BoxObstacle, vec3 } from "recast-navigation";
 
 function getDestroyedModels(actorModelId: ModelIds): number[] {
   switch (actorModelId) {
@@ -117,7 +117,7 @@ function setObstacle(
   server: ZoneServer2016,
   actorModelId: ModelIds,
   position: Float32Array
-): ObstacleRef | null {
+): BoxObstacle | null {
   switch (actorModelId) {
     case ModelIds.FENCES_WOOD_PLANKS_GREY_PLANK:
     case ModelIds.FENCES_WOOD_PLANKS_GREY_POSTS_1X1:
@@ -163,7 +163,7 @@ export class Destroyable extends BaseSimpleNpc {
   destroyedModels: number[] = [];
   destroyed: boolean = false;
   destroyedEffectId: Effects;
-  obstacleRef: ObstacleRef | null = null;
+  obstacleRef: BoxObstacle | null = null;
   constructor(
     characterId: string,
     transientId: number,
@@ -206,6 +206,9 @@ export class Destroyable extends BaseSimpleNpc {
   destroy(server: ZoneServer2016, useDestroyedModel: boolean = false): boolean {
     if (!this.destroyed) {
       this.destroyed = true;
+      if (this.obstacleRef) {
+        server.navManager.removeObstacle(this.obstacleRef);
+      }
       server.sendDataToAllWithSpawnedEntity(
         server._destroyables,
         this.characterId,

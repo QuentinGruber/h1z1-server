@@ -13,6 +13,7 @@
 
 import { createWriteStream, existsSync, readFileSync } from "node:fs";
 import {
+  BoxObstacle,
   CrowdAgent,
   getNavMeshPositionsAndIndices,
   importNavMesh,
@@ -28,7 +29,7 @@ import { Crowd } from "recast-navigation";
 import { createDefaultTileCacheMeshProcess } from "recast-navigation/generators";
 const debug = require("debug")("nav");
 
-const MAX_OBSTACLE = 10000;
+const MAX_OBSTACLE = 20000;
 const MAX_PENDING_OBSTACLE = 50;
 
 export class NavManager {
@@ -86,6 +87,11 @@ export class NavManager {
     return new Float32Array([v.x, v.y, v.z, 0]);
   }
 
+  removeObstacle(obstacle: BoxObstacle) {
+    this.tilecache.removeObstacle(obstacle);
+    this.obstaclesRequestsPending++;
+  }
+
   addObstacle(position: Float32Array, halfExtents: Vector3) {
     if (this.obstacleCount >= MAX_OBSTACLE) {
       return null;
@@ -106,7 +112,7 @@ export class NavManager {
     if (success) {
       this.obstaclesRequestsPending++;
       this.obstacleCount++;
-      return obstacle.ref;
+      return obstacle;
     }
     return null;
   }
