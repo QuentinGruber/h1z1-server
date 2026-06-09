@@ -29,6 +29,7 @@ import { createDefaultTileCacheMeshProcess } from "recast-navigation/generators"
 const debug = require("debug")("nav");
 
 const MAX_OBSTACLE = 10000;
+const MAX_PENDING_OBSTACLE = 50;
 
 export class NavManager {
   navmesh!: NavMesh;
@@ -89,28 +90,25 @@ export class NavManager {
     if (this.obstacleCount >= MAX_OBSTACLE) {
       return null;
     }
-    this.obstacleCount++;
-    const { status, success, obstacle } = this.tilecache.addBoxObstacle(
+    if (this.obstaclesRequestsPending >= MAX_PENDING_OBSTACLE) {
+      let upToDate = false;
+      // Should be only used at startup, but may be bad
+      while (!upToDate) {
+        ({ upToDate } = this.tilecache.update(this.navmesh));
+      }
+      this.obstaclesRequestsPending = 0;
+    }
+    const { success, obstacle } = this.tilecache.addBoxObstacle(
       NavManager.gameToNav(position),
       halfExtents,
       0.0
     );
-    console.log(success);
     if (success) {
       this.obstaclesRequestsPending++;
       this.obstacleCount++;
-      if (this.obstaclesRequestsPending > 40) {
-        this.tilecache.update(this.navmesh);
-      }
       return obstacle.ref;
-    } else {
-      console.log({
-        success: success,
-        status: status,
-        obstacle: obstacle
-      });
-      return null;
     }
+    return null;
   }
 
   getClosestNavPoint(gamePos: Float32Array): any {
@@ -133,6 +131,13 @@ export class NavManager {
   updt() {
     const now = Date.now();
     const timeSinceLastCalled = (now - this.lastTimeCall) / 1000;
+    if (this.obstaclesRequestsPending) {
+      this.tilecache.update(this.navmesh);
+      this.obstaclesRequestsPending = 0;
+    }
+    debug(
+      `requests: ${this.obstaclesRequestsPending}, total: ${this.tilecache.obstacles.size}`
+    );
     this.lastTimeCall = now;
     this.crowd.update(this.updateFrequency, timeSinceLastCalled, 1);
   }
