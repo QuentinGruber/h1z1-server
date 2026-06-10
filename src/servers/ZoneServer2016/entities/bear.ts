@@ -21,6 +21,7 @@ import {
   StringIds
 } from "../models/enums";
 import { Npc } from "./npc";
+import { createBear } from "../jsms/bear.jsm";
 
 export class Bear extends Npc {
   constructor(
@@ -48,6 +49,9 @@ export class Bear extends Npc {
       { itemDefId: Items.MEAT_BEAR, weight: 40 },
       { itemDefId: Items.ANIMAL_FAT, weight: 20 }
     ];
+    if (!process.env.DISABLE_AI && server.aiEnabled) {
+      this.fsm = createBear(this, server);
+    }
   }
 
   protected addLoot(server: ZoneServer2016): void {
