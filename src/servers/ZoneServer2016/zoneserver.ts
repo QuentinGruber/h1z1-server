@@ -225,8 +225,6 @@ import { LootableProp } from "./entities/lootableprop";
 import { PlantingDiameter } from "./entities/plantingdiameter";
 import { Plant } from "./entities/plant";
 import { SmeltingEntity } from "./classes/smeltingentity";
-import { spawn, Worker } from "threads";
-import { WorldDataManagerThreaded } from "./managers/worlddatamanagerthread";
 import { logVersion } from "../../utils/processErrorHandling";
 import { TaskProp } from "./entities/taskprop";
 import { ChatManager } from "./managers/chatmanager";
@@ -266,7 +264,6 @@ import { RandomEventsManager } from "./managers/randomeventsmanager";
 import { ExplosionManager } from "./managers/explosionmanager";
 import { AiManager } from "./managers/aimanager";
 import { AirdropManager } from "./managers/airdropmanager";
-import { PacketEncodingWorker } from "./managers/packetencodingworker";
 //import { TaskManager } from "./managers/tasksmanager";
 
 const spawnLocations2 = PluginManager.loadServerData(
@@ -476,7 +473,7 @@ export class ZoneServer2016 extends EventEmitter {
   decayManager: DecayManager;
   abilitiesManager: AbilitiesManager;
   weatherManager: WeatherManager;
-  worldDataManager!: WorldDataManagerThreaded;
+  worldDataManager!: WorldDataManager;
   hookManager: HookManager;
   chatManager: ChatManager;
   rconManager: RConManager;
@@ -491,7 +488,6 @@ export class ZoneServer2016 extends EventEmitter {
   airdropManager: AirdropManager;
 
   _ready: boolean = false;
-  private packetEncodingWorker?: PacketEncodingWorker;
 
   /** Information from ServerItemDefinitions.json */
   _itemDefinitions: { [itemDefinitionId: number]: ItemDefinition } =
@@ -1086,7 +1082,6 @@ export class ZoneServer2016 extends EventEmitter {
 
   async stop() {
     clearInterval(this.challengePositionCheckInterval);
-    this.worldDataManager.kill();
     await this.worldObjectManager.stop();
     await this.explosionManager.stop();
     this.inGameTimeManager.stop();
@@ -1102,10 +1097,6 @@ export class ZoneServer2016 extends EventEmitter {
     }
     if (this._mongoClient) {
       await this._mongoClient.close();
-    }
-    if (this.packetEncodingWorker) {
-      await this.packetEncodingWorker.stop();
-      this.packetEncodingWorker = undefined;
     }
     await this._gatewayServer.stop();
     await this.rconManager.stop();
@@ -2064,9 +2055,7 @@ export class ZoneServer2016 extends EventEmitter {
     this.weatherManager.init();
     this.playTimeManager.init(this);
     this.initModelsDataSource();
-    this.worldDataManager = (await spawn(
-      new Worker("./managers/worlddatamanagerthread")
-    )) as unknown as WorldDataManagerThreaded;
+    this.worldDataManager = new WorldDataManager();
     await this.worldDataManager.initialize(this._worldId, this._mongoAddress);
     if (!this._soloMode) {
       [this._db, this._mongoClient] = await WorldDataManager.getDatabase(
@@ -2340,7 +2329,6 @@ export class ZoneServer2016 extends EventEmitter {
     if (!(await this.hookManager.checkAsyncHook("OnServerInit"))) return;
 
     await this.setupServer();
-    this.initializePacketEncodingWorker();
     if (this.isPvE) {
       console.log("Server in PvE mode");
     }
@@ -9968,23 +9956,10 @@ export class ZoneServer2016 extends EventEmitter {
     }
   }
 
-  private initializePacketEncodingWorker() {
-    this.packetEncodingWorker = new PacketEncodingWorker(this._clientProtocol);
-  }
-
   private async packPacket<ZonePacket>(
     packetName: h1z1PacketsType2016,
     obj: ZonePacket
   ): Promise<Buffer | null> {
-    if (this.packetEncodingWorker) {
-      try {
-        return await this.packetEncodingWorker.encodePacket(packetName, obj);
-      } catch (error) {
-        debug(
-          `Packet encoding worker failed for ${packetName}, falling back to local pack: ${error}`
-        );
-      }
-    }
     return this._protocol.pack(packetName, obj);
   }
 
