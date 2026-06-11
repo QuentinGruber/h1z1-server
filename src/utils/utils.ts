@@ -1715,3 +1715,8 @@ export function quat2heading(quaternion: Float32Array): number {
 
   return Math.max(0, Math.min(255, uint8Value));
 }
+
+export function requireFresh(path: string) {
+  delete require.cache[require.resolve(path)];
+  return require(path);
+}
