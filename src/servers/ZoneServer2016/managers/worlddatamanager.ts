@@ -40,6 +40,7 @@ import {
   getCurrentServerTimeWrapper,
   initMongo,
   removeUntransferableFields,
+  requireFresh,
   toBigHex
 } from "../../../utils/utils";
 import { ZoneServer2016 } from "../zoneserver";
@@ -212,11 +213,6 @@ export class WorldDataManager {
     }
   }
 
-  private requireFresh(path: string) {
-    delete require.cache[require.resolve(path)];
-    return require(path);
-  }
-
   async insertWorld(lastItemGuid: bigint) {
     if (this._soloMode) return;
     if (!this._worldId) {
@@ -240,13 +236,16 @@ export class WorldDataManager {
   }
 
   async fetchWorldData(): Promise<FetchedWorldData> {
-    const vehicles = (await this.loadVehiclesData()) as FullVehicleSaveData[];
-    const constructionParents =
-      (await this.loadConstructionData()) as ConstructionParentSaveData[];
-    const freeplace =
-      (await this.loadWorldFreeplaceConstruction()) as LootableConstructionSaveData[];
-    const crops = (await this.loadCropData()) as PlantingDiameterSaveData[];
-    const traps = (await this.loadTrapData()) as TrapSaveData[];
+    const [vehicles, constructionParents, freeplace, crops, traps] =
+      await Promise.all([
+        this.loadVehiclesData() as Promise<FullVehicleSaveData[]>,
+        this.loadConstructionData() as Promise<ConstructionParentSaveData[]>,
+        this.loadWorldFreeplaceConstruction() as Promise<
+          LootableConstructionSaveData[]
+        >,
+        this.loadCropData() as Promise<PlantingDiameterSaveData[]>,
+        this.loadTrapData() as Promise<TrapSaveData[]>
+      ]);
     debug("World fetched!");
     return {
       constructionParents,
@@ -422,9 +421,7 @@ export class WorldDataManager {
   async getServerData(serverId: number): Promise<ServerSaveData | null> {
     let serverData: ServerSaveData | null;
     if (this._soloMode) {
-      serverData = this.requireFresh(
-        `${this._appDataFolder}/worlddata/world.json`
-      );
+      serverData = requireFresh(`${this._appDataFolder}/worlddata/world.json`);
       if (!serverData?.serverId) {
         debug("World data not found in file, aborting.");
         return null;
@@ -921,9 +918,7 @@ export class WorldDataManager {
   async loadVehiclesData() {
     let vehicles: Array<FullVehicleSaveData> = [];
     if (this._soloMode) {
-      vehicles = this.requireFresh(
-        `${this._appDataFolder}/worlddata/vehicles.json`
-      );
+      vehicles = requireFresh(`${this._appDataFolder}/worlddata/vehicles.json`);
       if (!vehicles) {
         debug("vehicles data not found in file, aborting.");
         return;
@@ -942,7 +937,7 @@ export class WorldDataManager {
   async loadConstructionData() {
     let constructionParents: Array<ConstructionParentSaveData> = [];
     if (this._soloMode) {
-      constructionParents = this.requireFresh(
+      constructionParents = requireFresh(
         `${this._appDataFolder}/worlddata/construction.json`
       );
       if (!constructionParents) {
@@ -1282,7 +1277,7 @@ export class WorldDataManager {
   async loadCropData() {
     let crops: Array<PlantingDiameterSaveData> = [];
     if (this._soloMode) {
-      crops = this.requireFresh(`${this._appDataFolder}/worlddata/crops.json`);
+      crops = requireFresh(`${this._appDataFolder}/worlddata/crops.json`);
       if (!crops) {
         debug("Crop data not found in file, aborting.");
         return;
@@ -1366,7 +1361,7 @@ export class WorldDataManager {
     //worldconstruction
     let freeplace: Array<LootableConstructionSaveData> = [];
     if (this._soloMode) {
-      freeplace = this.requireFresh(
+      freeplace = requireFresh(
         `${this._appDataFolder}/worlddata/worldconstruction.json`
       );
       if (!freeplace) {
@@ -1431,7 +1426,7 @@ export class WorldDataManager {
   async loadTrapData() {
     let traps: Array<TrapSaveData> = [];
     if (this._soloMode) {
-      traps = this.requireFresh(`${this._appDataFolder}/worlddata/traps.json`);
+      traps = requireFresh(`${this._appDataFolder}/worlddata/traps.json`);
       if (!traps) {
         debug("trap data not found in file, aborting.");
         return;
