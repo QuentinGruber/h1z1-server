@@ -50,6 +50,8 @@ export class ZombieScreamer extends Npc {
     );
     this.materialType = MaterialTypes.ZOMBIE;
     this.npcMeleeDamage = 3000;
+    this.maxHealth = 30000;
+    this.health = this.maxHealth;
     this.npcId = NpcIds.ZOMBIE;
     this.nameId = StringIds.BANSHEE;
     this.rewardItems = [{ itemDefId: Items.BRAIN_INFECTED, weight: 10 }];
