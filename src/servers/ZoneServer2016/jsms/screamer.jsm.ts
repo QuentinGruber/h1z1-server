@@ -202,6 +202,29 @@ function screamAtNearbyZombies(screamer: ScreamerInstance): void {
   }
 }
 
+function screamAtNearbyPlayers(screamer: ScreamerInstance): void {
+  for (const k in screamer.server._clients) {
+    const client = screamer.server._clients[k];
+    if (
+      !client.character.isAlive ||
+      client.character.isVanished ||
+      client.character.isHidden
+    )
+      continue;
+    if (
+      getDistance2d(
+        screamer.npc.state.position,
+        client.character.state.position
+      ) <= SCREAM_RADIUS
+    ) {
+      screamer.server.addScreenEffect(
+        client,
+        screamer.server._screenEffects["SCREAM"]
+      );
+    }
+  }
+}
+
 export function createScreamer(
   npc: Npc,
   server: ZoneServer2016
@@ -301,7 +324,6 @@ export function createScreamer(
 
       [Transitions.Screaming]: (dt: number) => {
         screamer.stateTimer += dt;
-
         const chaseTarget = getChaseTarget(screamer);
         if (
           !chaseTarget ||
@@ -439,6 +461,7 @@ export function createScreamer(
           screamer.npc.playAnimation(ScreamerAnimations.Scream);
           screamer.stateTimer = 0;
           screamAtNearbyZombies(screamer);
+          screamAtNearbyPlayers(screamer);
         }
       },
       {

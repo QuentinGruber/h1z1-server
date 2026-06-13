@@ -388,5 +388,21 @@
     "screenCover": 0,
     "transparency": 0,
     "color": "000000"
+  },
+  {
+    "id": 37,
+    "typeName": "SCREAM",
+    "duration": 6000,
+    "screenBrightness": 0,
+    "colorGradingFilename": "",
+    "colorGrading": 0,
+    "screenCover": 0,
+    "transparency": 0,
+    "color": "0",
+    "unknownDword7": 1,
+    "unknownDword16": 1,
+    "unknownDword17": 1.5,
+    "unknownDword18": 0.05,
+    "unknownDword19": 1082130432
   }
 ]
