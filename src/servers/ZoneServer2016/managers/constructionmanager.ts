@@ -474,8 +474,6 @@ export class ConstructionManager {
     // for construction entities that don't have a parentObjectCharacterId from the client
     let freeplaceParentCharacterId = "";
     // TODO: SEARCH FOUNDATIONS IN GRID RANGE INSTEAD OF ALL OF THEM
-    // TODO: CHECK DECKS BEFORE TAMPERS SO OBJECTS PLACED ON A DECK DON'T GET INCORRECTLY
-    // PARENTED TO THE TAMPER A DECK IS ON
     for (const a in server._constructionFoundations) {
       const foundation = server._constructionFoundations[a];
       // check if inside a shelter even if not inside foundation (large shelters can extend it)
@@ -507,7 +505,21 @@ export class ConstructionManager {
         });
       }
 
-      // check deck last in case it's parented to a shelter or upper first
+      // check expansion decks before the foundation/tamper itself
+      if (!Number(freeplaceParentCharacterId)) {
+        Object.values(foundation.occupiedExpansionSlots).forEach(
+          (expansion) => {
+            if (
+              !Number(freeplaceParentCharacterId) &&
+              expansion.isInside(position)
+            ) {
+              freeplaceParentCharacterId = expansion.characterId;
+            }
+          }
+        );
+      }
+
+      // check foundation last so expansion decks/shelters take priority
       if (
         !Number(freeplaceParentCharacterId) &&
         foundation.isInside(position)
