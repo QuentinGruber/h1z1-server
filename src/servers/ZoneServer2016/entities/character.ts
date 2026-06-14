@@ -312,7 +312,7 @@ export class Character2016 extends BaseFullCharacter {
   /** HashMap of all recipes on a server
    * uses recipeId (number) for indexing
    */
-  recipes: { [recipeId: number]: Recipe } = recipes;
+  recipes: { [recipeId: number]: Recipe | Recipe[] } = recipes;
 
   currentChallenge: ChallengeType = ChallengeType.NONE;
 
@@ -433,7 +433,7 @@ export class Character2016 extends BaseFullCharacter {
 
     const recipes: Array<any> = [];
     let i = 0;
-    for (const recipe of Object.values(this.recipes)) {
+    for (const recipeEntry of Object.values(this.recipes)) {
       const recipeDef = server.getItemDefinition(Number(recipeKeys[i]));
       if (!recipeDef) continue;
       if (
@@ -444,36 +444,48 @@ export class Character2016 extends BaseFullCharacter {
       )
         continue;
       i++;
-      recipes.push({
-        recipeId: recipeDef.ID,
-        itemDefinitionId: recipeDef.ID,
-        nameId: recipeDef.NAME_ID,
-        iconId: recipeDef.IMAGE_SET_ID,
-        unknownDword1: 0, // idk
-        descriptionId: recipeDef.DESCRIPTION_ID,
-        unknownDword2: 1, // idk
-        bundleCount: recipe.bundleCount || 1,
-        membersOnly: false, // could be used for admin-only recipes?
-        filterId: recipe.filterId,
-        components: recipe.components
-          .map((component: any) => {
-            const componentDef = server.getItemDefinition(
-              component.itemDefinitionId
-            );
-            if (!componentDef) return true;
-            return {
-              unknownDword1: 0, // idk
-              nameId: componentDef.NAME_ID,
-              iconId: componentDef.IMAGE_SET_ID,
-              unknownDword2: 0, // idk
-              requiredAmount: component.requiredAmount,
-              unknownQword1: "0x0", // idk
-              unknownDword3: 0, // idk
-              itemDefinitionId: componentDef.ID
-            };
-          })
-          .filter((component) => component !== true)
-      });
+
+      // Handle both single recipes and recipe arrays
+      const recipeArray = Array.isArray(recipeEntry) ? recipeEntry : [recipeEntry];
+
+      for (let variantIndex = 0; variantIndex < recipeArray.length; variantIndex++) {
+        const recipe = recipeArray[variantIndex];
+        // Use variant index in recipeId to differentiate multiple recipe variants
+        const variantRecipeId = recipeArray.length > 1
+          ? recipeDef.ID + variantIndex * 1000000
+          : recipeDef.ID;
+
+        recipes.push({
+          recipeId: variantRecipeId,
+          itemDefinitionId: recipeDef.ID,
+          nameId: recipeDef.NAME_ID,
+          iconId: recipeDef.IMAGE_SET_ID,
+          unknownDword1: 0, // idk
+          descriptionId: recipeDef.DESCRIPTION_ID,
+          unknownDword2: 1, // idk
+          bundleCount: recipe.bundleCount || 1,
+          membersOnly: false, // could be used for admin-only recipes?
+          filterId: recipe.filterId,
+          components: recipe.components
+            .map((component: any) => {
+              const componentDef = server.getItemDefinition(
+                component.itemDefinitionId
+              );
+              if (!componentDef) return true;
+              return {
+                unknownDword1: 0, // idk
+                nameId: componentDef.NAME_ID,
+                iconId: componentDef.IMAGE_SET_ID,
+                unknownDword2: 0, // idk
+                requiredAmount: component.requiredAmount,
+                unknownQword1: "0x0", // idk
+                unknownDword3: 0, // idk
+                itemDefinitionId: componentDef.ID
+              };
+            })
+            .filter((component: any) => component !== true)
+        });
+      }
     }
 
     return recipes;
@@ -1077,8 +1089,8 @@ export class Character2016 extends BaseFullCharacter {
       equipmentSlotId: this.getActiveEquipmentSlot(item),
       firegroups: firegroups.map((firegroup: any) => {
         const firegroupDef = server.getFiregroupDefinition(
-            firegroup.FIRE_GROUP_ID
-          ),
+          firegroup.FIRE_GROUP_ID
+        ),
           firemodes = firegroupDef?.FIRE_MODES || [];
         if (!firemodes) {
           console.error(`firegroupDef missing for`);
@@ -1088,11 +1100,11 @@ export class Character2016 extends BaseFullCharacter {
           firegroupId: firegroup.FIRE_GROUP_ID,
           unknownArray1: firegroup
             ? firemodes.map((firemode: any, j: number) => {
-                return {
-                  unknownDword1: j,
-                  unknownDword2: firemode.FIRE_MODE_ID
-                };
-              })
+              return {
+                unknownDword1: j,
+                unknownDword2: firemode.FIRE_MODE_ID
+              };
+            })
             : [] // probably firemodes
         };
       })
@@ -1207,13 +1219,13 @@ export class Character2016 extends BaseFullCharacter {
       unknownArray1:
         itemDefinitionId == WEAPON_FISTS
           ? [
-              {
-                unknownDword1: 1111278,
-                unknownDword2: 1111278,
-                unknownDword3: 0
-              },
-              abilityEntry
-            ]
+            {
+              unknownDword1: 1111278,
+              unknownDword2: 1111278,
+              unknownDword3: 0
+            },
+            abilityEntry
+          ]
           : [abilityEntry],
       unknownDword3: 2,
       itemDefinitionId: itemDefinitionId,
@@ -1628,7 +1640,7 @@ export class Character2016 extends BaseFullCharacter {
           statValue: {
             type:
               isFloat(stat.statData.statValue.value.base) ||
-              isFloat(stat.statData.statValue.value.modifier)
+                isFloat(stat.statData.statValue.value.modifier)
                 ? 1
                 : 0,
             value: {
@@ -1722,17 +1734,17 @@ export class Character2016 extends BaseFullCharacter {
     }
     return slot
       ? {
-          modelName: slot.modelName.replace(
-            /Up|Down/g,
-            this.hoodState == "Down" ? "Up" : "Down"
-          ),
-          textureAlias: slot.textureAlias || "",
-          effectId: slot.effectId || 0,
-          tintAlias: slot.tintAlias || "Default",
-          decalAlias: slot.decalAlias || "#",
-          slotId: slot.slotId,
-          SHADER_PARAMETER_GROUP: shaderParams
-        }
+        modelName: slot.modelName.replace(
+          /Up|Down/g,
+          this.hoodState == "Down" ? "Up" : "Down"
+        ),
+        textureAlias: slot.textureAlias || "",
+        effectId: slot.effectId || 0,
+        tintAlias: slot.tintAlias || "Default",
+        decalAlias: slot.decalAlias || "#",
+        slotId: slot.slotId,
+        SHADER_PARAMETER_GROUP: shaderParams
+      }
       : undefined;
   }
 

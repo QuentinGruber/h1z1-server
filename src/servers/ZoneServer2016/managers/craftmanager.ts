@@ -103,6 +103,19 @@ function getCraftComponentsDataSource(
 }
 
 /**
+ * Helper function to get a recipe, handling both single recipes and recipe arrays
+ * @param recipe A Recipe or Recipe[] from the recipes object
+ * @returns The first recipe if it's an array, or the single recipe, or undefined
+ */
+function getRecipeFromEntry(recipe: any): Recipe | undefined {
+  if (!recipe) return undefined;
+  if (Array.isArray(recipe)) {
+    return recipe[0]; // Return the first recipe from the array
+  }
+  return recipe;
+}
+
+/**
  * CraftManager handles the crafting of a recipe by a client.
  */
 export class CraftManager {
@@ -234,9 +247,9 @@ export class CraftManager {
       const remainingItems = component.requiredAmount * recipeCount;
       // if component isn't found at all
       if (!this.componentsDataSource[component.itemDefinitionId]) {
-        const componentRecipe =
-            client.character.recipes[component.itemDefinitionId],
-          componentBundleCount = componentRecipe?.bundleCount || 1;
+        const componentRecipeEntry = client.character.recipes[component.itemDefinitionId];
+        const componentRecipe = getRecipeFromEntry(componentRecipeEntry);
+        const componentBundleCount = componentRecipe?.bundleCount || 1;
         if (!componentRecipe) {
           debug(
             `[CraftManager] ${client.character.name} tried to craft an invalid recipe ${component.itemDefinitionId}!`
@@ -277,9 +290,9 @@ export class CraftManager {
         this.componentsDataSource[component.itemDefinitionId].stackCount <
         remainingItems
       ) {
-        const componentRecipe =
-            client.character.recipes[component.itemDefinitionId],
-          componentBundleCount = componentRecipe?.bundleCount || 1;
+        const componentRecipeEntry = client.character.recipes[component.itemDefinitionId];
+        const componentRecipe = getRecipeFromEntry(componentRecipeEntry);
+        const componentBundleCount = componentRecipe?.bundleCount || 1;
         if (!componentRecipe) {
           debug(
             `[CraftManager] ${client.character.name} tried to craft an invalid recipe ${component.itemDefinitionId}!`
@@ -422,10 +435,54 @@ export class CraftManager {
     if (this.craftLoopCount > this.maxCraftLoopCount) {
       return false;
     }
-    const recipe = client.character.recipes[recipeId],
-      bundleCount = recipe?.bundleCount || 1, // the amount of an item crafted from 1 recipe (ex. crafting 1 stick recipe gives you 2)
-      craftCount = recipeCount * bundleCount; // the actual amount of items to craft
-    if (!recipe) return false;
+
+    // Extract base recipe ID (handle both single and variant recipe IDs)
+    const baseRecipeId = recipeId % 1000000;
+    const variantIndex = Math.floor(recipeId / 1000000);
+
+    const recipeEntry = client.character.recipes[baseRecipeId];
+
+    // Handle recipe arrays - try each variant or specific variant if requested
+    let recipeVariants: any[] = [];
+    if (Array.isArray(recipeEntry)) {
+      if (variantIndex < recipeEntry.length && recipeEntry[variantIndex]) {
+        // Specific variant requested
+        recipeVariants = [recipeEntry[variantIndex]];
+      } else {
+        // Try all variants
+        recipeVariants = recipeEntry;
+      }
+    } else {
+      recipeVariants = [recipeEntry];
+    }
+
+    // Try to craft with the recipe variant(s)
+    for (const recipe of recipeVariants) {
+      if (!recipe) continue;
+      // Create a backup of the components data source
+      const backupComponents = { ...this.componentsDataSource };
+      if (await this.tryCraftWithRecipe(server, client, recipe, baseRecipeId, recipeCount)) {
+        return true;
+      }
+      // Restore backup if this variant failed
+      this.componentsDataSource = backupComponents;
+    }
+    return false;
+  }
+
+  /**
+   * Attempts to craft using a specific recipe variant.
+   */
+  private async tryCraftWithRecipe(
+    server: ZoneServer2016,
+    client: Client,
+    recipe: Recipe,
+    recipeId: number,
+    recipeCount: number
+  ): Promise<boolean> {
+    const bundleCount = recipe.bundleCount || 1;
+    const craftCount = recipeCount * bundleCount;
+
     switch (recipe.filterId) {
       case FilterIds.COOKING:
       case FilterIds.FURNACE:
@@ -500,10 +557,9 @@ export class CraftManager {
       1000 * recipeCount,
       0
     );
-    const r = client.character.recipes[recipeId];
     const removedItems: RemovedItem[] = [];
     let craftSuccess = true;
-    for (const component of r.components) {
+    for (const component of recipe.components) {
       const inventory = this.getInventoryDataSource(client.character);
       const proximityItems = server.getCraftingProximityItems(client) as {
         items: any[];

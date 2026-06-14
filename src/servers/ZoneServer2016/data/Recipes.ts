@@ -1042,7 +1042,7 @@ export const smeltingData: { [recipeId: number]: smeltRecipe } = {
   }
 };
 
-export const recipes: { [recipeId: number]: Recipe } = {
+export const recipes: { [recipeId: number]: Recipe | Recipe[] } = {
   [Items.AMMO_223]: {
     filterId: FilterIds.WEAPONS,
     components: [
@@ -3127,14 +3127,106 @@ export const recipes: { [recipeId: number]: Recipe } = {
       }
     ]
   },
-  [Items.GUN_PART]: {
-    filterId: FilterIds.WEAPONS,
-    components: [
-      {
-        itemDefinitionId: Items.WEAPON_1911,
-        requiredAmount: 1
-      }
-    ],
-    requireWeaponWorkbench: true
-  }
+  [Items.GUN_PART]: [
+    {
+      filterId: FilterIds.WEAPONS,
+      bundleCount: 2,
+      components: [
+        {
+          itemDefinitionId: Items.WEAPON_AK47,
+          requiredAmount: 1
+        }
+      ],
+      requireWeaponWorkbench: true
+    },
+    {
+      filterId: FilterIds.WEAPONS,
+      bundleCount: 2,
+      components: [
+        {
+          itemDefinitionId: Items.WEAPON_AK47_MODIFIED,
+          requiredAmount: 1
+        }
+      ],
+      requireWeaponWorkbench: true
+    },
+    {
+      filterId: FilterIds.WEAPONS,
+      bundleCount: 2,
+      components: [
+        {
+          itemDefinitionId: Items.WEAPON_308,
+          requiredAmount: 1
+        }
+      ],
+      requireWeaponWorkbench: true
+    },
+    {
+      filterId: FilterIds.WEAPONS,
+      bundleCount: 2,
+      components: [
+        {
+          itemDefinitionId: Items.WEAPON_AR15,
+          requiredAmount: 1
+        }
+      ],
+      requireWeaponWorkbench: true
+    },
+    {
+      filterId: FilterIds.WEAPONS,
+      bundleCount: 2,
+      components: [
+        {
+          itemDefinitionId: Items.WEAPON_SHOTGUN,
+          requiredAmount: 1
+        }
+      ],
+      requireWeaponWorkbench: true
+    },
+    // pistols
+    {
+      filterId: FilterIds.WEAPONS,
+      bundleCount: 1,
+      components: [
+        {
+          itemDefinitionId: Items.WEAPON_M9,
+          requiredAmount: 1
+        }
+      ],
+      requireWeaponWorkbench: true
+    },
+    {
+      filterId: FilterIds.WEAPONS,
+      bundleCount: 1,
+      components: [
+        {
+          itemDefinitionId: Items.WEAPON_1911,
+          requiredAmount: 1
+        }
+      ],
+      requireWeaponWorkbench: true
+    },
+    {
+      filterId: FilterIds.WEAPONS,
+      bundleCount: 1,
+      components: [
+        {
+          itemDefinitionId: Items.WEAPON_MAGNUM,
+          requiredAmount: 1
+        }
+      ],
+      requireWeaponWorkbench: true
+    },
+    {
+      filterId: FilterIds.WEAPONS,
+      bundleCount: 1,
+      components: [
+        {
+          itemDefinitionId: Items.WEAPON_R380,
+          requiredAmount: 1
+        }
+      ],
+      requireWeaponWorkbench: true
+    }
+  ]
 };
