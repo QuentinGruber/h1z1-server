@@ -349,6 +349,7 @@ export enum MovementModifiers {
   RESTED = 1.11,
   SWIZZLE = 1.1,
   SNARED = 0.5,
+  SCREAM = 0.49,
   CONVEYS = 1.15,
   BOOTS = 1.07,
   ADRENALINE = 1.12

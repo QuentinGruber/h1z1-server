@@ -19,6 +19,7 @@ import { NavManager } from "../../../utils/recast";
 const debug = require("debug")("ai");
 import { getDistance2d, getDistance } from "../../../utils/utils";
 import { ZombieWalker } from "../entities/zombiewalker";
+import { MovementModifiers } from "../models/enums";
 
 export const enum ScreamerAnimations {
   Flinch = "Flinch",
@@ -221,6 +222,7 @@ function screamAtNearbyPlayers(screamer: ScreamerInstance): void {
         client,
         screamer.server._screenEffects["SCREAM"]
       );
+      screamer.server.applyMovementModifier(client, MovementModifiers.SCREAM);
     }
   }
 }
