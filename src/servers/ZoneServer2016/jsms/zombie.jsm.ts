@@ -18,6 +18,7 @@ import type { Sound } from "../../../types/zoneserver";
 import { NavManager } from "../../../utils/recast";
 const debug = require("debug")("ai");
 import { getDistance2d, getDistance } from "../../../utils/utils";
+import { NpcIds } from "../models/enums";
 
 export const enum ZombieLoopingAnim {
   Idle = "Idle",
@@ -184,6 +185,17 @@ function trySeePlayer(zombie: ZombieInstance): boolean {
       return true;
     }
   }
+  for (const npcId in zombie.server._npcs) {
+    const npc = zombie.server._npcs[npcId];
+    if (!npc.isAlive) continue;
+    if (npc.characterId === zombie.npc.characterId) continue;
+    if (npc.npcId === NpcIds.ZOMBIE) continue;
+    if (getDistance2d(zombie.npc.state.position, npc.state.position) < 10) {
+      zombie.targetCharacterId = npcId;
+      zombie.event(ZombieEvents.SeePlayer);
+      return true;
+    }
+  }
   return false;
 }
 
@@ -203,10 +215,46 @@ function trySmellCorpse(zombie: ZombieInstance): boolean {
   return false;
 }
 
-function getChaseTarget(zombie: ZombieInstance) {
-  return zombie.targetCharacterId
-    ? zombie.server._characters[zombie.targetCharacterId]
-    : null;
+function getChaseTarget(zombie: ZombieInstance): {
+  position: Float32Array;
+  isAlive: boolean;
+  isVanished: boolean;
+  isHidden: boolean;
+} | null {
+  if (!zombie.targetCharacterId) return null;
+  const player = zombie.server._characters[zombie.targetCharacterId];
+  if (player)
+    return {
+      position: player.state.position,
+      isAlive: player.isAlive,
+      isVanished: !!player.isVanished,
+      isHidden: !!player.isHidden
+    };
+  const npc = zombie.server._npcs[zombie.targetCharacterId];
+  if (npc)
+    return {
+      position: npc.state.position,
+      isAlive: npc.isAlive,
+      isVanished: false,
+      isHidden: false
+    };
+  return null;
+}
+
+function applyDamageToTarget(zombie: ZombieInstance): void {
+  if (!zombie.targetCharacterId) return;
+  const character = zombie.server._characters[zombie.targetCharacterId];
+  if (character) {
+    zombie.npc.applyDamage(zombie.targetCharacterId);
+    return;
+  }
+  const targetNpc = zombie.server._npcs[zombie.targetCharacterId];
+  if (targetNpc && targetNpc.isAlive) {
+    targetNpc.damage(zombie.server, {
+      entity: zombie.npc.characterId,
+      damage: zombie.npc.npcMeleeDamage
+    });
+  }
 }
 
 function tickTimers(zombie: ZombieInstance, dt: number): void {
@@ -351,10 +399,10 @@ export function createZombie(npc: Npc, server: ZoneServer2016): ZombieInstance {
           return;
         }
 
-        zombie.npc.lookAtTarget = chaseTarget.state.position;
+        zombie.npc.lookAtTarget = chaseTarget.position;
         const chaseDist = getDistance2d(
           zombie.npc.state.position,
-          chaseTarget.state.position
+          chaseTarget.position
         );
         if (chaseDist > 50) {
           zombie.event(ZombieEvents.LostPlayer);
@@ -366,7 +414,7 @@ export function createZombie(npc: Npc, server: ZoneServer2016): ZombieInstance {
             zombie.event(ZombieEvents.StartStumble);
             return;
           }
-          moveToward(zombie.npc, chaseTarget.state.position, zombie.server);
+          moveToward(zombie.npc, chaseTarget.position, zombie.server);
         }
       },
 
@@ -395,11 +443,11 @@ export function createZombie(npc: Npc, server: ZoneServer2016): ZombieInstance {
           zombie.event(ZombieEvents.LostPlayer);
           return;
         }
-        zombie.npc.lookAtTarget = attackTarget.state.position;
-        moveToward(zombie.npc, attackTarget.state.position, zombie.server);
+        zombie.npc.lookAtTarget = attackTarget.position;
+        moveToward(zombie.npc, attackTarget.position, zombie.server);
         const attackDist = getDistance(
           zombie.npc.state.position,
-          attackTarget.state.position
+          attackTarget.position
         );
         if (attackDist >= 2) {
           zombie.event(ZombieEvents.PlayerBacked);
@@ -416,17 +464,17 @@ export function createZombie(npc: Npc, server: ZoneServer2016): ZombieInstance {
 
         const attackTarget = getChaseTarget(zombie);
         if (attackTarget) {
-          zombie.npc.lookAt(attackTarget.state.position);
+          zombie.npc.lookAt(attackTarget.position);
         }
 
         if (zombie.stateTimer >= 2) {
           if (attackTarget) {
             const attackDist = getDistance(
               zombie.npc.state.position,
-              attackTarget.state.position
+              attackTarget.position
             );
             if (attackDist <= 2) {
-              zombie.npc.applyDamage(zombie.targetCharacterId!);
+              applyDamageToTarget(zombie);
             }
           }
           zombie.event(ZombieEvents.DoneAttacking);
@@ -553,7 +601,7 @@ export function createZombie(npc: Npc, server: ZoneServer2016): ZombieInstance {
           zombie.stateTimer = 0;
           const chaseTarget = getChaseTarget(zombie);
           if (chaseTarget) {
-            moveToward(zombie.npc, chaseTarget.state.position, zombie.server);
+            moveToward(zombie.npc, chaseTarget.position, zombie.server);
           }
         }
       },

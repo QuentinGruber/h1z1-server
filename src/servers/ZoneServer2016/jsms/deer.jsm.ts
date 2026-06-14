@@ -17,6 +17,7 @@ import type { ZoneServer2016 } from "../zoneserver";
 import { NavManager } from "../../../utils/recast";
 const debug = require("debug")("ai");
 import { getDistance2d } from "../../../utils/utils";
+import { NpcIds } from "../models/enums";
 
 export const enum AnimalsAnimation {
   Idle = "Idle",
@@ -110,8 +111,9 @@ export function createDeer(npc: Npc, server: ZoneServer2016): DeerInstance {
           const character = deer.server._characters[characterId];
           if (
             !character.isAlive ||
-            !character.isHidden ||
-            !character.isVanished
+            character.isHidden ||
+            character.isVanished ||
+            character.isSpectator
           )
             continue;
           if (
@@ -119,6 +121,17 @@ export function createDeer(npc: Npc, server: ZoneServer2016): DeerInstance {
             20
           ) {
             deer.threatPos = character.state.position.slice() as Float32Array;
+            deer.event(DeerEvents.SpottedPlayer);
+            return;
+          }
+        }
+        for (const npcId in deer.server._npcs) {
+          const otherNpc = deer.server._npcs[npcId];
+          if (!otherNpc.isAlive || otherNpc.npcId === NpcIds.DEER) continue;
+          if (
+            getDistance2d(deer.npc.state.position, otherNpc.state.position) < 20
+          ) {
+            deer.threatPos = otherNpc.state.position.slice() as Float32Array;
             deer.event(DeerEvents.SpottedPlayer);
             return;
           }
@@ -135,8 +148,9 @@ export function createDeer(npc: Npc, server: ZoneServer2016): DeerInstance {
           const character = deer.server._characters[characterId];
           if (
             !character.isAlive ||
-            !character.isHidden ||
-            !character.isVanished
+            character.isHidden ||
+            character.isVanished ||
+            character.isSpectator
           )
             continue;
           if (
@@ -144,6 +158,17 @@ export function createDeer(npc: Npc, server: ZoneServer2016): DeerInstance {
             20
           ) {
             deer.threatPos = character.state.position.slice() as Float32Array;
+            deer.event(DeerEvents.SpottedPlayer);
+            return;
+          }
+        }
+        for (const npcId in deer.server._npcs) {
+          const otherNpc = deer.server._npcs[npcId];
+          if (!otherNpc.isAlive || otherNpc.npcId === NpcIds.DEER) continue;
+          if (
+            getDistance2d(deer.npc.state.position, otherNpc.state.position) < 20
+          ) {
+            deer.threatPos = otherNpc.state.position.slice() as Float32Array;
             deer.event(DeerEvents.SpottedPlayer);
             return;
           }
@@ -177,8 +202,9 @@ export function createDeer(npc: Npc, server: ZoneServer2016): DeerInstance {
           const character = deer.server._characters[characterId];
           if (
             !character.isAlive ||
-            !character.isHidden ||
-            !character.isVanished
+            character.isHidden ||
+            character.isVanished ||
+            character.isSpectator
           )
             continue;
           if (
@@ -188,6 +214,20 @@ export function createDeer(npc: Npc, server: ZoneServer2016): DeerInstance {
             playerNear = true;
             deer.threatPos = character.state.position.slice() as Float32Array;
             break;
+          }
+        }
+        if (!playerNear) {
+          for (const npcId in deer.server._npcs) {
+            const otherNpc = deer.server._npcs[npcId];
+            if (!otherNpc.isAlive || otherNpc.npcId === NpcIds.DEER) continue;
+            if (
+              getDistance2d(deer.npc.state.position, otherNpc.state.position) <
+              35
+            ) {
+              playerNear = true;
+              deer.threatPos = otherNpc.state.position.slice() as Float32Array;
+              break;
+            }
           }
         }
 
