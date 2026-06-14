@@ -446,14 +446,21 @@ export class Character2016 extends BaseFullCharacter {
       i++;
 
       // Handle both single recipes and recipe arrays
-      const recipeArray = Array.isArray(recipeEntry) ? recipeEntry : [recipeEntry];
+      const recipeArray = Array.isArray(recipeEntry)
+        ? recipeEntry
+        : [recipeEntry];
 
-      for (let variantIndex = 0; variantIndex < recipeArray.length; variantIndex++) {
+      for (
+        let variantIndex = 0;
+        variantIndex < recipeArray.length;
+        variantIndex++
+      ) {
         const recipe = recipeArray[variantIndex];
         // Use variant index in recipeId to differentiate multiple recipe variants
-        const variantRecipeId = recipeArray.length > 1
-          ? recipeDef.ID + variantIndex * 1000000
-          : recipeDef.ID;
+        const variantRecipeId =
+          recipeArray.length > 1
+            ? recipeDef.ID + variantIndex * 1000000
+            : recipeDef.ID;
 
         recipes.push({
           recipeId: variantRecipeId,
@@ -1089,8 +1096,8 @@ export class Character2016 extends BaseFullCharacter {
       equipmentSlotId: this.getActiveEquipmentSlot(item),
       firegroups: firegroups.map((firegroup: any) => {
         const firegroupDef = server.getFiregroupDefinition(
-          firegroup.FIRE_GROUP_ID
-        ),
+            firegroup.FIRE_GROUP_ID
+          ),
           firemodes = firegroupDef?.FIRE_MODES || [];
         if (!firemodes) {
           console.error(`firegroupDef missing for`);
@@ -1100,11 +1107,11 @@ export class Character2016 extends BaseFullCharacter {
           firegroupId: firegroup.FIRE_GROUP_ID,
           unknownArray1: firegroup
             ? firemodes.map((firemode: any, j: number) => {
-              return {
-                unknownDword1: j,
-                unknownDword2: firemode.FIRE_MODE_ID
-              };
-            })
+                return {
+                  unknownDword1: j,
+                  unknownDword2: firemode.FIRE_MODE_ID
+                };
+              })
             : [] // probably firemodes
         };
       })
@@ -1219,13 +1226,13 @@ export class Character2016 extends BaseFullCharacter {
       unknownArray1:
         itemDefinitionId == WEAPON_FISTS
           ? [
-            {
-              unknownDword1: 1111278,
-              unknownDword2: 1111278,
-              unknownDword3: 0
-            },
-            abilityEntry
-          ]
+              {
+                unknownDword1: 1111278,
+                unknownDword2: 1111278,
+                unknownDword3: 0
+              },
+              abilityEntry
+            ]
           : [abilityEntry],
       unknownDword3: 2,
       itemDefinitionId: itemDefinitionId,
@@ -1640,7 +1647,7 @@ export class Character2016 extends BaseFullCharacter {
           statValue: {
             type:
               isFloat(stat.statData.statValue.value.base) ||
-                isFloat(stat.statData.statValue.value.modifier)
+              isFloat(stat.statData.statValue.value.modifier)
                 ? 1
                 : 0,
             value: {
@@ -1734,17 +1741,17 @@ export class Character2016 extends BaseFullCharacter {
     }
     return slot
       ? {
-        modelName: slot.modelName.replace(
-          /Up|Down/g,
-          this.hoodState == "Down" ? "Up" : "Down"
-        ),
-        textureAlias: slot.textureAlias || "",
-        effectId: slot.effectId || 0,
-        tintAlias: slot.tintAlias || "Default",
-        decalAlias: slot.decalAlias || "#",
-        slotId: slot.slotId,
-        SHADER_PARAMETER_GROUP: shaderParams
-      }
+          modelName: slot.modelName.replace(
+            /Up|Down/g,
+            this.hoodState == "Down" ? "Up" : "Down"
+          ),
+          textureAlias: slot.textureAlias || "",
+          effectId: slot.effectId || 0,
+          tintAlias: slot.tintAlias || "Default",
+          decalAlias: slot.decalAlias || "#",
+          slotId: slot.slotId,
+          SHADER_PARAMETER_GROUP: shaderParams
+        }
       : undefined;
   }
 

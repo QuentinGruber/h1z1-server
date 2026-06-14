@@ -247,7 +247,8 @@ export class CraftManager {
       const remainingItems = component.requiredAmount * recipeCount;
       // if component isn't found at all
       if (!this.componentsDataSource[component.itemDefinitionId]) {
-        const componentRecipeEntry = client.character.recipes[component.itemDefinitionId];
+        const componentRecipeEntry =
+          client.character.recipes[component.itemDefinitionId];
         const componentRecipe = getRecipeFromEntry(componentRecipeEntry);
         const componentBundleCount = componentRecipe?.bundleCount || 1;
         if (!componentRecipe) {
@@ -290,7 +291,8 @@ export class CraftManager {
         this.componentsDataSource[component.itemDefinitionId].stackCount <
         remainingItems
       ) {
-        const componentRecipeEntry = client.character.recipes[component.itemDefinitionId];
+        const componentRecipeEntry =
+          client.character.recipes[component.itemDefinitionId];
         const componentRecipe = getRecipeFromEntry(componentRecipeEntry);
         const componentBundleCount = componentRecipe?.bundleCount || 1;
         if (!componentRecipe) {
@@ -461,7 +463,15 @@ export class CraftManager {
       if (!recipe) continue;
       // Create a backup of the components data source
       const backupComponents = { ...this.componentsDataSource };
-      if (await this.tryCraftWithRecipe(server, client, recipe, baseRecipeId, recipeCount)) {
+      if (
+        await this.tryCraftWithRecipe(
+          server,
+          client,
+          recipe,
+          baseRecipeId,
+          recipeCount
+        )
+      ) {
         return true;
       }
       // Restore backup if this variant failed
