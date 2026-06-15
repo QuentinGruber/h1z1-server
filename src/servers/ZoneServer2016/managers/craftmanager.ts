@@ -103,16 +103,28 @@ function getCraftComponentsDataSource(
 }
 
 /**
- * Helper function to get a recipe, handling both single recipes and recipe arrays
- * @param recipe A Recipe or Recipe[] from the recipes object
- * @returns The first recipe if it's an array, or the single recipe, or undefined
+ * Finds a recipe that produces the given itemDefinitionId by checking rewardId fields
+ * @param character The character whose recipes to search
+ * @param itemDefinitionId The item ID to find a recipe for
+ * @returns The first matching recipe and its recipe ID, or undefined if not found
  */
-function getRecipeFromEntry(recipe: any): Recipe | undefined {
-  if (!recipe) return undefined;
-  if (Array.isArray(recipe)) {
-    return recipe[0]; // Return the first recipe from the array
+function findRecipeByRewardId(
+  character: Character2016,
+  itemDefinitionId: number
+): { recipeId: number; recipe: Recipe } | undefined {
+  for (const [recipeId, recipeEntry] of Object.entries(character.recipes)) {
+    let recipe: Recipe | undefined;
+    if (recipeEntry) {
+      recipe = Array.isArray(recipeEntry) ? recipeEntry[0] : recipeEntry;
+    }
+    if (recipe && recipe.rewardId === itemDefinitionId) {
+      return {
+        recipeId: Number(recipeId),
+        recipe
+      };
+    }
   }
-  return recipe;
+  return undefined;
 }
 
 /**
@@ -231,7 +243,7 @@ export class CraftManager {
    * @param client The client performing the craft.
    * @param recipe The recipe object.
    * @param recipeCount The number of times to repeat the recipe.
-   * @param recipeId The ID of the recipe being crafted.
+   * @param rewardItemId The item ID that will be produced by this recipe.
    * @param craftCount The total number of items to craft.
    * @returns A promise resolving to a boolean indicating if the craft queue generation was successful.
    */
@@ -240,30 +252,33 @@ export class CraftManager {
     client: Client,
     recipe: Recipe,
     recipeCount: number,
-    recipeId: number,
+    rewardItemId: number,
     craftCount: number
   ): Promise<boolean> {
     for (const component of recipe.components) {
       const remainingItems = component.requiredAmount * recipeCount;
       // if component isn't found at all
       if (!this.componentsDataSource[component.itemDefinitionId]) {
-        const componentRecipeEntry =
-          client.character.recipes[component.itemDefinitionId];
-        const componentRecipe = getRecipeFromEntry(componentRecipeEntry);
-        const componentBundleCount = componentRecipe?.bundleCount || 1;
-        if (!componentRecipe) {
+        const componentRecipeLookup = findRecipeByRewardId(
+          client.character,
+          component.itemDefinitionId
+        );
+        if (!componentRecipeLookup) {
           debug(
-            `[CraftManager] ${client.character.name} tried to craft an invalid recipe ${component.itemDefinitionId}!`
+            `[CraftManager] ${client.character.name} tried to craft an invalid recipe for item ${component.itemDefinitionId}!`
           );
           return false; // no valid recipe to craft component
         }
+        const componentRecipe = componentRecipeLookup.recipe;
+        const componentRecipeId = componentRecipeLookup.recipeId;
+        const componentBundleCount = componentRecipe?.bundleCount || 1;
 
         if (component.requiredAmount / componentBundleCount < 1) {
           if (
             !(await this.craftItem(
               server,
               client,
-              component.itemDefinitionId,
+              componentRecipeId,
               Math.ceil(
                 (component.requiredAmount / componentBundleCount) * recipeCount
               )
@@ -277,7 +292,7 @@ export class CraftManager {
               !(await this.craftItem(
                 server,
                 client,
-                component.itemDefinitionId,
+                componentRecipeId,
                 Math.ceil(component.requiredAmount / componentBundleCount)
               ))
             ) {
@@ -291,16 +306,19 @@ export class CraftManager {
         this.componentsDataSource[component.itemDefinitionId].stackCount <
         remainingItems
       ) {
-        const componentRecipeEntry =
-          client.character.recipes[component.itemDefinitionId];
-        const componentRecipe = getRecipeFromEntry(componentRecipeEntry);
-        const componentBundleCount = componentRecipe?.bundleCount || 1;
-        if (!componentRecipe) {
+        const componentRecipeLookup = findRecipeByRewardId(
+          client.character,
+          component.itemDefinitionId
+        );
+        if (!componentRecipeLookup) {
           debug(
-            `[CraftManager] ${client.character.name} tried to craft an invalid recipe ${component.itemDefinitionId}!`
+            `[CraftManager] ${client.character.name} tried to craft an invalid recipe for item ${component.itemDefinitionId}!`
           );
           return false; // no valid recipe to craft component
         }
+        const componentRecipe = componentRecipeLookup.recipe;
+        const componentRecipeId = componentRecipeLookup.recipeId;
+        const componentBundleCount = componentRecipe?.bundleCount || 1;
         let stackCount =
           this.componentsDataSource[component.itemDefinitionId].stackCount;
         if (component.requiredAmount / componentBundleCount < 1) {
@@ -322,12 +340,7 @@ export class CraftManager {
             craft += Math.ceil(craftAmount / componentBundleCount);
           }
           if (
-            !(await this.craftItem(
-              server,
-              client,
-              component.itemDefinitionId,
-              craft
-            ))
+            !(await this.craftItem(server, client, componentRecipeId, craft))
           ) {
             return false; // craftItem returned some error
           }
@@ -346,7 +359,7 @@ export class CraftManager {
               !(await this.craftItem(
                 server,
                 client,
-                component.itemDefinitionId,
+                componentRecipeId,
                 Math.ceil(craftAmount / componentBundleCount)
               ))
             ) {
@@ -366,12 +379,12 @@ export class CraftManager {
         return false;
       }
     }
-    // push dummy item
-    if (this.componentsDataSource[recipeId]) {
-      this.componentsDataSource[recipeId].stackCount += craftCount;
+    // push dummy item using the reward item ID (not the recipe ID)
+    if (this.componentsDataSource[rewardItemId]) {
+      this.componentsDataSource[rewardItemId].stackCount += craftCount;
     } else {
-      this.componentsDataSource[recipeId] = {
-        itemDefinitionId: recipeId,
+      this.componentsDataSource[rewardItemId] = {
+        itemDefinitionId: rewardItemId,
         stackCount: craftCount
       };
     }
@@ -492,6 +505,7 @@ export class CraftManager {
   ): Promise<boolean> {
     const bundleCount = recipe.bundleCount || 1;
     const craftCount = recipeCount * bundleCount;
+    const rewardItemId = recipe.rewardId || recipeId; // fallback to recipeId if rewardId not defined
 
     switch (recipe.filterId) {
       case FilterIds.COOKING:
@@ -553,7 +567,7 @@ export class CraftManager {
         client,
         recipe,
         recipeCount,
-        recipeId,
+        rewardItemId,
         craftCount
       ))
     ) {
@@ -563,7 +577,7 @@ export class CraftManager {
     //#region CRAFTING
     await server.pUtilizeHudTimer(
       client,
-      server.getItemDefinition(recipeId)?.NAME_ID ?? 0,
+      server.getItemDefinition(rewardItemId)?.NAME_ID ?? 0,
       1000 * recipeCount,
       0
     );
@@ -657,14 +671,14 @@ export class CraftManager {
 
     client.character.lootItem(
       server,
-      server.generateItem(recipeId, craftCount, true)
+      server.generateItem(rewardItemId, craftCount, true)
     );
     if (recipe.leftOverItems) {
       recipe.leftOverItems.forEach((id: number) => {
         client.character.lootItem(server, server.generateItem(id, 1));
       });
     }
-    switch (recipeId) {
+    switch (rewardItemId) {
       case Items.IED:
         server.challengeManager.registerChallengeProgression(
           client,

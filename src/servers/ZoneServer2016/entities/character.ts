@@ -312,7 +312,7 @@ export class Character2016 extends BaseFullCharacter {
   /** HashMap of all recipes on a server
    * uses recipeId (number) for indexing
    */
-  recipes: { [recipeId: number]: Recipe | Recipe[] } = recipes;
+  recipes: { [recipeId: number]: Recipe } = recipes;
 
   currentChallenge: ChallengeType = ChallengeType.NONE;
 
@@ -434,8 +434,15 @@ export class Character2016 extends BaseFullCharacter {
     const recipes: Array<any> = [];
     let i = 0;
     for (const recipeEntry of Object.values(this.recipes)) {
-      const recipeDef = server.getItemDefinition(Number(recipeKeys[i]));
-      if (!recipeDef) continue;
+      const recipeId = Number(recipeKeys[i]);
+      const recipe = Array.isArray(recipeEntry) ? recipeEntry[0] : recipeEntry;
+
+      // Use rewardId if available, otherwise use the recipe key (item ID)
+      const itemId = recipe?.rewardId || recipeId;
+      const recipeDef = server.getItemDefinition(itemId);
+
+      if (!recipeDef) {
+      }
       if (
         server.isBattleRoyale() &&
         ![Items.BANDAGE, Items.BACKPACK_SATCHEL, Items.ARMOR_PLATED].includes(
@@ -456,11 +463,9 @@ export class Character2016 extends BaseFullCharacter {
         variantIndex++
       ) {
         const recipe = recipeArray[variantIndex];
-        // Use variant index in recipeId to differentiate multiple recipe variants
+        // Use recipe ID (not item ID) as base for variant index calculation
         const variantRecipeId =
-          recipeArray.length > 1
-            ? recipeDef.ID + variantIndex * 1000000
-            : recipeDef.ID;
+          recipeArray.length > 1 ? recipeId + variantIndex * 1000000 : recipeId;
 
         recipes.push({
           recipeId: variantRecipeId,
