@@ -437,11 +437,13 @@ export class Character2016 extends BaseFullCharacter {
       const recipeId = Number(recipeKeys[i]);
       const recipe = Array.isArray(recipeEntry) ? recipeEntry[0] : recipeEntry;
 
-      // Use rewardId if available, otherwise use the recipe key (item ID)
+      // Use rewardId if available, otherwise use the recipe key (recipe ID)
       const itemId = recipe?.rewardId || recipeId;
       const recipeDef = server.getItemDefinition(itemId);
 
       if (!recipeDef) {
+        i++;
+        continue;
       }
       if (
         server.isBattleRoyale() &&
