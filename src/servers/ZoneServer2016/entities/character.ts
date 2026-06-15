@@ -454,20 +454,18 @@ export class Character2016 extends BaseFullCharacter {
         continue;
       i++;
 
-      // Handle both single recipes and recipe arrays
-      const recipeArray = Array.isArray(recipeEntry)
-        ? recipeEntry
-        : [recipeEntry];
+      // Normalize to array for consistent handling
+      const variants = Array.isArray(recipeEntry) ? recipeEntry : [recipeEntry];
 
       for (
         let variantIndex = 0;
-        variantIndex < recipeArray.length;
+        variantIndex < variants.length;
         variantIndex++
       ) {
-        const recipe = recipeArray[variantIndex];
+        const recipe = variants[variantIndex];
         // Use recipe ID (not item ID) as base for variant index calculation
         const variantRecipeId =
-          recipeArray.length > 1 ? recipeId + variantIndex * 1000000 : recipeId;
+          variants.length > 1 ? recipeId + variantIndex * 1000000 : recipeId;
 
         recipes.push({
           recipeId: variantRecipeId,
