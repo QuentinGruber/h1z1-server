@@ -327,7 +327,38 @@ export const characterPackets: PacketStructures = [
       ]
     }
   ],
-  ["Character.EffectPackage", 0x0f11, {}],
+  [
+    "Character.EffectPackage",
+    0x0f11,
+    {
+      fields: [
+        {
+          name: "unknownQword1",
+          type: "uint64string",
+          defaultValue: "0"
+        },
+        {
+          name: "unknownQword2",
+          type: "uint64string",
+          defaultValue: "0"
+        },
+        { name: "unknownBoolean1", type: "boolean", defaultValue: false },
+        {
+          name: "unknownData1", // sub_14036E230
+          type: "schema",
+          defaultValue: {},
+          fields: [
+            { name: "unknownDword1", type: "uint32", defaultValue: 0 },
+            { name: "unknownDword2", type: "uint32", defaultValue: 0 },
+            { name: "unknownBoolean1", type: "boolean", defaultValue: false },
+            { name: "unknownDword3", type: "uint32", defaultValue: 0 },
+            { name: "unknownDword4", type: "uint32", defaultValue: 0 },
+            { name: "unknownDword5", type: "uint32", defaultValue: 0 }
+          ]
+        }
+      ]
+    }
+  ],
   [
     "Character.PreferredLanguages",
     0x0f12,

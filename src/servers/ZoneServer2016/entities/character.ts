@@ -1901,6 +1901,7 @@ export class Character2016 extends BaseFullCharacter {
         transientId: this.transientId,
         attachmentData: this.pGetAttachmentSlots(),
         headActor: this.headActor,
+        eyeActor: this.eyeActor,
         hairModel: this.hairModel,
         resources: { data: this.pGetResources() },
         remoteWeapons: { data: this.pGetRemoteWeaponsData(server) }

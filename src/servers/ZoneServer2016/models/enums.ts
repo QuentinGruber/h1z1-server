@@ -2606,5 +2606,8 @@ export enum UIElements {
 export enum ReplicationPropertyHash {
   UNKNOWN1 = 0x50d51c9d,
   ISWORLDITEM = 0xf68bb709,
-  UNKNOWN2 = 0xb927f3ef
+  UNKNOWN2 = 0xb927f3ef,
+  ZOMBIE = 0xcc26bbdc // Enables RequestObject
+
+  //0x41A00000
 }

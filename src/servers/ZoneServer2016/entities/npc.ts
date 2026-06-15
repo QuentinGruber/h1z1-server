@@ -39,6 +39,12 @@ import { JSM } from "../jsms/jsm";
 export abstract class Npc extends BaseFullCharacter {
   health: number;
   npcRenderDistance = 100;
+
+  /** Attach the animation object to the npc itself (used for zombie animations) */
+  override get attachedObjectTargetId(): string {
+    return this.transientId.toString();
+  }
+
   spawnerId: number;
   deathTime: number = 0;
   npcId: number = 0;
