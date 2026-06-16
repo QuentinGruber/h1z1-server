@@ -1235,7 +1235,8 @@ export const recipes: { [recipeId: number]: Recipe } = {
         itemDefinitionId: Items.PROTOTYPE_RECEIVER,
         requiredAmount: 1
       }
-    ]
+    ],
+    requireWeaponWorkbench: true
   },
   1008: {
     rewardId: Items.WEAPON_FROSTBITE,
@@ -1257,7 +1258,8 @@ export const recipes: { [recipeId: number]: Recipe } = {
         itemDefinitionId: Items.PROTOTYPE_RECEIVER,
         requiredAmount: 1
       }
-    ]
+    ],
+    requireWeaponWorkbench: true
   },
   1009: {
     rewardId: Items.WEAPON_NAGAFENS_RAGE,
@@ -1279,7 +1281,8 @@ export const recipes: { [recipeId: number]: Recipe } = {
         itemDefinitionId: Items.PROTOTYPE_RECEIVER,
         requiredAmount: 1
       }
-    ]
+    ],
+    requireWeaponWorkbench: true
   },
   1010: {
     rewardId: Items.WEAPON_PURGE,
@@ -1301,7 +1304,8 @@ export const recipes: { [recipeId: number]: Recipe } = {
         itemDefinitionId: Items.PROTOTYPE_RECEIVER,
         requiredAmount: 1
       }
-    ]
+    ],
+    requireWeaponWorkbench: true
   },
   1011: {
     rewardId: Items.WEAPON_REAPER,
@@ -1323,7 +1327,8 @@ export const recipes: { [recipeId: number]: Recipe } = {
         itemDefinitionId: Items.PROTOTYPE_RECEIVER,
         requiredAmount: 1
       }
-    ]
+    ],
+    requireWeaponWorkbench: true
   },
   1012: {
     rewardId: Items.AIRDROP_CODE,
@@ -2441,7 +2446,8 @@ export const recipes: { [recipeId: number]: Recipe } = {
         itemDefinitionId: Items.UPGRADE_KIT_GUN,
         requiredAmount: 1
       }
-    ]
+    ],
+    requireWeaponWorkbench: true
   },
   1086: {
     rewardId: Items.WEAPON_MOLOTOV,
