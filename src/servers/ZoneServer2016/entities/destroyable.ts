@@ -116,39 +116,61 @@ function getDestroyedEffectId(actorModelId: ModelIds): Effects {
 function setObstacle(
   server: ZoneServer2016,
   actorModelId: ModelIds,
-  position: Float32Array
+  position: Float32Array,
+  rotation: Float32Array
 ): BoxObstacle | null {
+  const yaw = rotation[1];
   switch (actorModelId) {
     case ModelIds.FENCES_WOOD_PLANKS_GREY_PLANK:
     case ModelIds.FENCES_WOOD_PLANKS_GREY_POSTS_1X1:
     case ModelIds.FENCES_WOOD_PLANKS_GREY_1X1:
-    case ModelIds.FENCES_WOOD_PLANKS_GREY_POSTS_1X2:
     case ModelIds.FENCES_WOOD_PLANKS_GREY_GAP_1X1:
       return server.navManager.addObstacle(
         position,
-        vec3.fromArray([1.0, 1.0, 1.0])
+        vec3.fromArray([1.0, 2.0, 0.5]),
+        yaw
+      );
+    case ModelIds.FENCES_WOOD_PLANKS_GREY_POSTS_1X2:
+      return server.navManager.addObstacle(
+        position,
+        vec3.fromArray([2.0, 2.0, 0.5]),
+        yaw
       );
     case ModelIds.CHAIN_LINK_FENCE_1X1:
+      return server.navManager.addObstacle(
+        position,
+        vec3.fromArray([1.0, 2.0, 0.5]),
+        yaw
+      );
     case ModelIds.CHAIN_LINK_FENCE_1X2:
       return server.navManager.addObstacle(
         position,
-        vec3.fromArray([1.0, 1.0, 1.0])
+        vec3.fromArray([2.0, 2.0, 0.5]),
+        yaw
       );
     case ModelIds.BARBED_WIRE_FENCE_1X1:
       return server.navManager.addObstacle(
         position,
-        vec3.fromArray([1.0, 1.0, 1.0])
+        vec3.fromArray([1.0, 2.0, 0.5]),
+        yaw
       );
     case ModelIds.BARBED_WIRE_FENCE_1X2:
       return server.navManager.addObstacle(
         position,
-        vec3.fromArray([1.0, 1.0, 1.0])
+        vec3.fromArray([2.0, 2.0, 0.5]),
+        yaw
       );
     case ModelIds.FENCE_RANCH_1X1:
+      return server.navManager.addObstacle(
+        position,
+        vec3.fromArray([1.0, 2.0, 0.5]),
+        yaw
+      );
     case ModelIds.FENCE_RANCH_1X2:
       return server.navManager.addObstacle(
         position,
-        vec3.fromArray([1.0, 1.0, 1.0])
+        vec3.fromArray([2.0, 2.0, 0.5]),
+        yaw
       );
     default:
       return null;
@@ -187,7 +209,7 @@ export class Destroyable extends BaseSimpleNpc {
     this.health = this.maxHealth;
 
     if (!process.env.DISABLE_AI && server.aiEnabled) {
-      this.obstacleRef = setObstacle(server, actorModelId, position);
+      this.obstacleRef = setObstacle(server, actorModelId, position, rotation);
     }
   }
 

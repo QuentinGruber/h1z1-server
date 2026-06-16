@@ -92,7 +92,11 @@ export class NavManager {
     this.obstaclesRequestsPending++;
   }
 
-  addObstacle(position: Float32Array, halfExtents: Vector3) {
+  addObstacle(
+    position: Float32Array,
+    halfExtents: Vector3,
+    yRotation: number = 0.0
+  ) {
     if (this.obstacleCount >= MAX_OBSTACLE) {
       return null;
     }
@@ -107,7 +111,7 @@ export class NavManager {
     const { success, obstacle } = this.tilecache.addBoxObstacle(
       NavManager.gameToNav(position),
       halfExtents,
-      0.0
+      yRotation
     );
     if (success) {
       this.obstaclesRequestsPending++;
@@ -138,7 +142,10 @@ export class NavManager {
     const now = Date.now();
     const timeSinceLastCalled = (now - this.lastTimeCall) / 1000;
     if (this.obstaclesRequestsPending) {
-      this.tilecache.update(this.navmesh);
+      let upToDate = false;
+      while (!upToDate) {
+        ({ upToDate } = this.tilecache.update(this.navmesh));
+      }
       this.obstaclesRequestsPending = 0;
     }
     debug(
