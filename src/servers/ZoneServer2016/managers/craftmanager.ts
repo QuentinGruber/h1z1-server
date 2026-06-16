@@ -112,11 +112,7 @@ function findRecipeByRewardId(
   character: Character2016,
   itemDefinitionId: number
 ): { recipeId: number; recipe: Recipe } | undefined {
-  for (const [recipeId, recipeEntry] of Object.entries(character.recipes)) {
-    let recipe: Recipe | undefined;
-    if (recipeEntry) {
-      recipe = Array.isArray(recipeEntry) ? recipeEntry[0] : recipeEntry;
-    }
+  for (const [recipeId, recipe] of Object.entries(character.recipes)) {
     if (recipe && recipe.rewardId === itemDefinitionId) {
       return {
         recipeId: Number(recipeId),
@@ -451,50 +447,20 @@ export class CraftManager {
       return false;
     }
 
-    // Extract base recipe ID (handle both single and variant recipe IDs)
-    const baseRecipeId = recipeId % 1000000;
-    const variantIndex = Math.floor(recipeId / 1000000);
+    const recipe = client.character.recipes[recipeId];
+    if (!recipe) return false;
 
-    const recipeEntry = client.character.recipes[baseRecipeId];
-
-    // Handle recipe arrays - try each variant or specific variant if requested
-    let recipeVariants: any[] = [];
-    if (Array.isArray(recipeEntry)) {
-      if (variantIndex < recipeEntry.length && recipeEntry[variantIndex]) {
-        // Specific variant requested
-        recipeVariants = [recipeEntry[variantIndex]];
-      } else {
-        // Try all variants
-        recipeVariants = recipeEntry;
-      }
-    } else {
-      recipeVariants = [recipeEntry];
-    }
-
-    // Try to craft with the recipe variant(s)
-    for (const recipe of recipeVariants) {
-      if (!recipe) continue;
-      // Create a backup of the components data source
-      const backupComponents = { ...this.componentsDataSource };
-      if (
-        await this.tryCraftWithRecipe(
-          server,
-          client,
-          recipe,
-          baseRecipeId,
-          recipeCount
-        )
-      ) {
-        return true;
-      }
-      // Restore backup if this variant failed
-      this.componentsDataSource = backupComponents;
-    }
-    return false;
+    return await this.tryCraftWithRecipe(
+      server,
+      client,
+      recipe,
+      recipeId,
+      recipeCount
+    );
   }
 
   /**
-   * Attempts to craft using a specific recipe variant.
+   * Attempts to craft using a specific recipe.
    */
   private async tryCraftWithRecipe(
     server: ZoneServer2016,
@@ -505,7 +471,7 @@ export class CraftManager {
   ): Promise<boolean> {
     const bundleCount = recipe.bundleCount || 1;
     const craftCount = recipeCount * bundleCount;
-    const rewardItemId = recipe.rewardId || recipeId; // fallback to recipeId if rewardId not defined
+    const rewardItemId = recipe.rewardId;
 
     switch (recipe.filterId) {
       case FilterIds.COOKING:

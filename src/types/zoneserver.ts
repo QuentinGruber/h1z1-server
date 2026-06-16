@@ -355,8 +355,7 @@ export interface Recipe {
   bundleCount?: number;
   components: Array<RecipeComponent>;
   splitted?: boolean;
-  itemId?: number;
-  rewardId?: number;
+  rewardId: number;
   requireWorkbench?: boolean
   requireWeaponWorkbench?: boolean
   leftOverItems?: number[]
