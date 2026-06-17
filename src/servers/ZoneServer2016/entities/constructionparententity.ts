@@ -13,7 +13,13 @@
 
 import { ConstructionChildEntity } from "./constructionchildentity";
 import { LootableConstructionEntity } from "./lootableconstructionentity";
-import { ConstructionPermissionIds, Items, StringIds } from "../models/enums";
+import {
+  ConstructionPermissionIds,
+  Items,
+  ModelIds,
+  StringIds
+} from "../models/enums";
+import { BoxObstacle, vec3 } from "recast-navigation";
 import { ZoneServer2016 } from "../zoneserver";
 import {
   getConstructionSlotId,
@@ -65,6 +71,49 @@ function getMaxHealth(itemDefinitionId: Items): number {
   }
 }
 
+function setObstacle(
+  server: ZoneServer2016,
+  actorModelId: number,
+  position: Float32Array,
+  rotation: Float32Array
+): BoxObstacle | null {
+  const yaw = rotation[1];
+  switch (actorModelId) {
+    case ModelIds.DECK_FOUNDATION:
+      return server.navManager.addObstacle(
+        position,
+        vec3.fromArray([7.5, 10.0, 7.5]),
+        yaw
+      );
+    case ModelIds.DECK_EXPANSION:
+      return server.navManager.addObstacle(
+        position,
+        vec3.fromArray([7.5, 10.0, 2.5]),
+        yaw
+      );
+    case ModelIds.WOOD_SHACK:
+      return server.navManager.addObstacle(
+        position,
+        vec3.fromArray([2.35, 10.0, 2.5]),
+        yaw
+      );
+    case ModelIds.METAL_SHACK:
+      return server.navManager.addObstacle(
+        position,
+        vec3.fromArray([2.35, 10.0, 2.5]),
+        yaw
+      );
+    case ModelIds.SMALL_SHACK:
+      return server.navManager.addObstacle(
+        position,
+        vec3.fromArray([1.75, 10.0, 1.25]),
+        yaw
+      );
+    default:
+      return null;
+  }
+}
+
 export class ConstructionParentEntity extends ConstructionChildEntity {
   /** Allowed permissions for players on the ConstructionParentEntity,
    * determines if a player can visit, use containers, build or demolish*/
@@ -91,6 +140,9 @@ export class ConstructionParentEntity extends ConstructionChildEntity {
    * uses slot (number) for indexing
    */
   occupiedRampSlots: { [slot: number]: ConstructionChildEntity } = {};
+
+  /** Navmesh obstacle reference */
+  obstacleRef: BoxObstacle | null = null;
 
   /** Last time the ConstructionParentEntity was damaged */
   lastDamagedTimestamp: number = 0;
@@ -251,6 +303,15 @@ export class ConstructionParentEntity extends ConstructionChildEntity {
 
     const itemDefinition = server.getItemDefinition(this.itemDefinitionId);
     if (itemDefinition) this.nameId = itemDefinition.NAME_ID;
+
+    if (!process.env.DISABLE_AI && server.aiEnabled) {
+      this.obstacleRef = setObstacle(server, actorModelId, position, rotation);
+      if (this.obstacleRef) {
+        console.log(
+          `[NavMesh] Added obstacle for construction ${this.characterId} (modelId: ${actorModelId})`
+        );
+      }
+    }
   }
 
   getOccupiedSlotMaps(): Array<OccupiedSlotMap> {
@@ -843,6 +904,12 @@ export class ConstructionParentEntity extends ConstructionChildEntity {
     destructTime = 0,
     slotCooldown = 30000
   ): boolean {
+    if (this.obstacleRef) {
+      console.log(
+        `[NavMesh] Removed obstacle for construction ${this.characterId}`
+      );
+      server.navManager.removeObstacle(this.obstacleRef);
+    }
     const deleted = server.deleteEntity(
       this.characterId,
       server._constructionFoundations,

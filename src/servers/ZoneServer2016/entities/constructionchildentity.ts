@@ -86,6 +86,7 @@ import { ConstructionDoor } from "./constructiondoor";
 import { LootableConstructionEntity } from "./lootableconstructionentity";
 import { BaseEntity } from "./baseentity";
 import { DB_COLLECTIONS } from "../../../utils/enums";
+import { BoxObstacle } from "recast-navigation";
 function getDamageRange(definitionId: Items): number {
   switch (definitionId) {
     case Items.METAL_WALL:
@@ -169,6 +170,9 @@ export class ConstructionChildEntity extends BaseLightweightCharacter {
   /** Time (milliseconds) the player has to undo placement on the ConstructionChildEntity */
   undoPlacementTime = 600000;
   destroyedEffect: number = Effects.PFX_Death_Barricade01;
+
+  /** Navmesh obstacle reference */
+  obstacleRef: BoxObstacle | null = null;
 
   /** Used by DecayManager, determines if the entity will be damaged the next decay tick */
   isDecayProtected: boolean = false;
@@ -598,6 +602,12 @@ export class ConstructionChildEntity extends BaseLightweightCharacter {
     destructTime = 0,
     slotCooldown = 30000
   ): boolean {
+    if (this.obstacleRef) {
+      console.log(
+        `[NavMesh] Removed obstacle for world construction ${this.characterId}`
+      );
+      server.navManager.removeObstacle(this.obstacleRef);
+    }
     const deleted = server.deleteEntity(
       this.characterId,
       server._constructionSimple[this.characterId]
