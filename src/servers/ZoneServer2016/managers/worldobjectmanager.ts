@@ -72,6 +72,7 @@ import { TreasureChest } from "../entities/treasurechest";
 import { Npc } from "../entities/npc";
 import { ZombieWalker } from "../entities/zombiewalker";
 import { ZombieScreamer } from "../entities/zombiescreamer";
+import { Gazer } from "../entities/gazer";
 import { Deer } from "../entities/deer";
 import { Wolf } from "../entities/wolf";
 import { Bear } from "../entities/bear";
@@ -578,6 +579,16 @@ export class WorldObjectManager {
         break;
       case ModelIds.ZOMBIE_SCREAMER:
         npc = new ZombieScreamer(
+          characterId,
+          transientId,
+          position,
+          rotation,
+          server,
+          spawnerId
+        );
+        break;
+      case ModelIds.GAZER:
+        npc = new Gazer(
           characterId,
           transientId,
           position,

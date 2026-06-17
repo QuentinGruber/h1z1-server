@@ -210,6 +210,7 @@ export enum ModelIds {
   FURNACE = 36,
   HAND_SHOVEL = 9248,
   ZOMBIE_SCREAMER = 9667,
+  GAZER = 9668,
   ZOMBIE_FEMALE_WALKER = 9510,
   ZOMBIE_MALE_WALKER = 9634,
   DEER_BUCK = 9253,
@@ -417,6 +418,7 @@ export enum VehicleIds {
 
 export enum NpcIds {
   ZOMBIE = 3,
+  GAZER = 4,
   DEER = 13,
   WOLF = 14,
   BEAR = 825,
