@@ -429,13 +429,16 @@ export class Character2016 extends BaseFullCharacter {
   }
 
   pGetRecipes(server: ZoneServer2016): any[] {
-    const recipeKeys = Object.keys(this.recipes);
-
     const recipes: Array<any> = [];
-    let i = 0;
-    for (const recipe of Object.values(this.recipes)) {
-      const recipeDef = server.getItemDefinition(Number(recipeKeys[i]));
-      if (!recipeDef) continue;
+
+    for (const [recipeId, recipe] of Object.entries(this.recipes)) {
+      // Use rewardId for item lookup
+      const itemId = recipe.rewardId;
+      const recipeDef = server.getItemDefinition(itemId);
+
+      if (!recipeDef) {
+        continue;
+      }
       if (
         server.isBattleRoyale() &&
         ![Items.BANDAGE, Items.BACKPACK_SATCHEL, Items.ARMOR_PLATED].includes(
@@ -443,9 +446,9 @@ export class Character2016 extends BaseFullCharacter {
         )
       )
         continue;
-      i++;
+
       recipes.push({
-        recipeId: recipeDef.ID,
+        recipeId: Number(recipeId),
         itemDefinitionId: recipeDef.ID,
         nameId: recipeDef.NAME_ID,
         iconId: recipeDef.IMAGE_SET_ID,
@@ -472,7 +475,7 @@ export class Character2016 extends BaseFullCharacter {
               itemDefinitionId: componentDef.ID
             };
           })
-          .filter((component) => component !== true)
+          .filter((component: any) => component !== true)
       });
     }
 
