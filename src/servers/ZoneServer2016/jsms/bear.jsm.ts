@@ -82,31 +82,25 @@ function moveToward(
 }
 
 function findTarget(bear: BearInstance): string | null {
-  for (const characterId in bear.server._characters) {
-    const character = bear.server._characters[characterId];
-    if (
-      !character.isAlive ||
-      character.isVanished ||
-      character.isHidden ||
-      character.isSpectator
-    )
-      continue;
-    if (
-      getDistance2d(bear.npc.state.position, character.state.position) <
-      DETECT_RADIUS
-    ) {
-      return characterId;
-    }
-  }
-  for (const npcId in bear.server._npcs) {
-    const npc = bear.server._npcs[npcId];
-    if (!npc.isAlive) continue;
-    if (npc.characterId === bear.npc.characterId) continue;
-    if (npc.npcId !== NpcIds.ZOMBIE) continue;
-    if (
-      getDistance2d(bear.npc.state.position, npc.state.position) < DETECT_RADIUS
-    ) {
-      return npcId;
+  const sz = 50;
+  const pos = bear.npc.state.position;
+  const cx = Math.floor(pos[0] / sz);
+  const cz = Math.floor(pos[2] / sz);
+  for (let dx = -1; dx <= 1; dx++) {
+    for (let dz = -1; dz <= 1; dz++) {
+      const bucket = bear.server.aiTargetSpatialMap.get(
+        `${cx + dx},${cz + dz}`
+      );
+      if (!bucket) continue;
+      for (const entry of bucket) {
+        if (entry.npcId !== NpcIds.SURVIVOR) {
+          if (entry.npcId !== NpcIds.ZOMBIE) continue;
+          if (entry.id === bear.npc.characterId) continue;
+        }
+        if (getDistance2d(pos, entry.position) < DETECT_RADIUS) {
+          return entry.id;
+        }
+      }
     }
   }
   return null;

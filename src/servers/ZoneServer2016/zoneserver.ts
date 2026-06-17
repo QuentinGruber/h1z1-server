@@ -39,6 +39,7 @@ import {
   LoadoutIds,
   LoadoutSlots,
   MovementModifiers,
+  NpcIds,
   ResourceIds,
   ResourceTypes,
   VehicleIds,
@@ -360,6 +361,13 @@ export class ZoneServer2016 extends EventEmitter {
   /** Spatial hashes rebuilt every world tick to accelerate spawnCharacters/vehicleManager lookups. */
   private _charSpatialMap = new Map<string, Client[]>();
   private static readonly _CHAR_GRID_SIZE = 300;
+
+  /** AI target map rebuilt every AI tick for spatial detection in JSMs. */
+  aiTargetSpatialMap = new Map<
+    string,
+    { id: string; position: Float32Array; npcId: number }[]
+  >();
+  private static readonly _AI_TARGET_GRID_SIZE = 50;
 
   private static _charGridRange(
     pos: Float32Array,
@@ -9663,6 +9671,36 @@ export class ZoneServer2016 extends EventEmitter {
     }
   }
 
+  private _rebuildAiTargetMap(): void {
+    const sz = ZoneServer2016._AI_TARGET_GRID_SIZE;
+    this.aiTargetSpatialMap.clear();
+    for (const characterId in this._characters) {
+      const char = this._characters[characterId];
+      if (!char.isAlive || char.isVanished || char.isHidden || char.isSpectator)
+        continue;
+      const pos = char.state.position;
+      const key = `${Math.floor(pos[0] / sz)},${Math.floor(pos[2] / sz)}`;
+      let b = this.aiTargetSpatialMap.get(key);
+      if (!b) {
+        b = [];
+        this.aiTargetSpatialMap.set(key, b);
+      }
+      b.push({ id: characterId, position: pos, npcId: NpcIds.SURVIVOR });
+    }
+    for (const npcId in this._npcs) {
+      const npc = this._npcs[npcId];
+      if (!npc.isAlive) continue;
+      const pos = npc.state.position;
+      const key = `${Math.floor(pos[0] / sz)},${Math.floor(pos[2] / sz)}`;
+      let b = this.aiTargetSpatialMap.get(key);
+      if (!b) {
+        b = [];
+        this.aiTargetSpatialMap.set(key, b);
+      }
+      b.push({ id: npcId, position: pos, npcId: npc.npcId });
+    }
+  }
+
   private _lastTickTime = 0;
 
   startWorldTick() {
@@ -10412,6 +10450,7 @@ export class ZoneServer2016 extends EventEmitter {
     const now = Date.now();
     const dt = (now - this.lastFsmTick) / 1000;
     this.lastFsmTick = now;
+    this._rebuildAiTargetMap();
     this.tickNpcFsms(dt);
     // reset sounds every AI tick
     this.sounds = [];

@@ -98,31 +98,26 @@ function moveToward(
 }
 
 function findTarget(wolf: WolfInstance): string | null {
-  for (const characterId in wolf.server._characters) {
-    const character = wolf.server._characters[characterId];
-    if (
-      !character.isAlive ||
-      character.isVanished ||
-      character.isHidden ||
-      character.isSpectator
-    )
-      continue;
-    if (
-      getDistance2d(wolf.npc.state.position, character.state.position) <
-      DETECT_RADIUS
-    ) {
-      return characterId;
-    }
-  }
-  for (const npcId in wolf.server._npcs) {
-    const npc = wolf.server._npcs[npcId];
-    if (!npc.isAlive) continue;
-    if (npc.characterId === wolf.npc.characterId) continue;
-    if (npc.npcId === NpcIds.WOLF || npc.npcId === NpcIds.BEAR) continue;
-    if (
-      getDistance2d(wolf.npc.state.position, npc.state.position) < DETECT_RADIUS
-    ) {
-      return npcId;
+  const sz = 50;
+  const pos = wolf.npc.state.position;
+  const cx = Math.floor(pos[0] / sz);
+  const cz = Math.floor(pos[2] / sz);
+  for (let dx = -1; dx <= 1; dx++) {
+    for (let dz = -1; dz <= 1; dz++) {
+      const bucket = wolf.server.aiTargetSpatialMap.get(
+        `${cx + dx},${cz + dz}`
+      );
+      if (!bucket) continue;
+      for (const entry of bucket) {
+        if (entry.npcId !== NpcIds.SURVIVOR) {
+          if (entry.npcId === NpcIds.WOLF || entry.npcId === NpcIds.BEAR)
+            continue;
+          if (entry.id === wolf.npc.characterId) continue;
+        }
+        if (getDistance2d(pos, entry.position) < DETECT_RADIUS) {
+          return entry.id;
+        }
+      }
     }
   }
   return null;
@@ -143,20 +138,28 @@ function getTarget(
 }
 
 function alertNearbyWolves(wolf: WolfInstance): void {
-  for (const k in wolf.server._npcs) {
-    const npc = wolf.server._npcs[k];
-    if (!npc.isAlive || !npc.fsm) continue;
-    if (npc.npcId !== NpcIds.WOLF) continue;
-    if (npc.characterId === wolf.npc.characterId) continue;
-    if (
-      getDistance2d(wolf.npc.state.position, npc.state.position) >
-      HOWL_ALERT_RADIUS
-    )
-      continue;
-    const packWolf = npc.fsm as unknown as WolfInstance;
-    packWolf.threatPos = wolf.threatPos;
-    packWolf.targetCharacterId = wolf.targetCharacterId;
-    npc.fsm.event(WolfEvents.AlertedByHowl);
+  const sz = 50;
+  const pos = wolf.npc.state.position;
+  const cx = Math.floor(pos[0] / sz);
+  const cz = Math.floor(pos[2] / sz);
+  for (let dx = -1; dx <= 1; dx++) {
+    for (let dz = -1; dz <= 1; dz++) {
+      const bucket = wolf.server.aiTargetSpatialMap.get(
+        `${cx + dx},${cz + dz}`
+      );
+      if (!bucket) continue;
+      for (const entry of bucket) {
+        if (entry.npcId !== NpcIds.WOLF) continue;
+        if (entry.id === wolf.npc.characterId) continue;
+        if (getDistance2d(pos, entry.position) > HOWL_ALERT_RADIUS) continue;
+        const npc = wolf.server._npcs[entry.id];
+        if (!npc?.fsm) continue;
+        const packWolf = npc.fsm as unknown as WolfInstance;
+        packWolf.threatPos = wolf.threatPos;
+        packWolf.targetCharacterId = wolf.targetCharacterId;
+        npc.fsm.event(WolfEvents.AlertedByHowl);
+      }
+    }
   }
 }
 

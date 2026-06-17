@@ -19,7 +19,7 @@ import { NavManager } from "../../../utils/recast";
 const debug = require("debug")("ai");
 import { getDistance2d, getDistance } from "../../../utils/utils";
 import { ZombieWalker } from "../entities/zombiewalker";
-import { MovementModifiers } from "../models/enums";
+import { MovementModifiers, NpcIds } from "../models/enums";
 
 export const enum ScreamerAnimations {
   Flinch = "Flinch",
@@ -141,17 +141,24 @@ function listenToSounds(
 }
 
 function tryDetectPlayer(screamer: ScreamerInstance): boolean {
-  for (const characterId in screamer.server._characters) {
-    const character = screamer.server._characters[characterId];
-    if (!character.isAlive || character.isVanished || character.isHidden)
-      continue;
-    if (
-      getDistance2d(screamer.npc.state.position, character.state.position) <
-      PLAYER_DETECT_RADIUS
-    ) {
-      screamer.targetCharacterId = characterId;
-      screamer.event(Events.StartScreaming);
-      return true;
+  const sz = 50;
+  const pos = screamer.npc.state.position;
+  const cx = Math.floor(pos[0] / sz);
+  const cz = Math.floor(pos[2] / sz);
+  for (let dx = -1; dx <= 1; dx++) {
+    for (let dz = -1; dz <= 1; dz++) {
+      const bucket = screamer.server.aiTargetSpatialMap.get(
+        `${cx + dx},${cz + dz}`
+      );
+      if (!bucket) continue;
+      for (const entry of bucket) {
+        if (entry.npcId !== NpcIds.SURVIVOR) continue;
+        if (getDistance2d(pos, entry.position) < PLAYER_DETECT_RADIUS) {
+          screamer.targetCharacterId = entry.id;
+          screamer.event(Events.StartScreaming);
+          return true;
+        }
+      }
     }
   }
   return false;
@@ -191,14 +198,23 @@ function enterWander(screamer: ScreamerInstance): void {
 }
 
 function screamAtNearbyZombies(screamer: ScreamerInstance): void {
-  for (const k in screamer.server._npcs) {
-    const npc = screamer.server._npcs[k];
-    if (!npc.isAlive || !npc.fsm || !(npc instanceof ZombieWalker)) continue;
-    if (
-      getDistance2d(screamer.npc.state.position, npc.state.position) <=
-      SCREAM_RADIUS
-    ) {
-      npc.fsm.event("coverEars");
+  const sz = 50;
+  const pos = screamer.npc.state.position;
+  const cx = Math.floor(pos[0] / sz);
+  const cz = Math.floor(pos[2] / sz);
+  for (let dx = -1; dx <= 1; dx++) {
+    for (let dz = -1; dz <= 1; dz++) {
+      const bucket = screamer.server.aiTargetSpatialMap.get(
+        `${cx + dx},${cz + dz}`
+      );
+      if (!bucket) continue;
+      for (const entry of bucket) {
+        if (entry.npcId !== NpcIds.ZOMBIE) continue;
+        if (getDistance2d(pos, entry.position) > SCREAM_RADIUS) continue;
+        const npc = screamer.server._npcs[entry.id];
+        if (!npc?.fsm || !(npc instanceof ZombieWalker)) continue;
+        npc.fsm.event("coverEars");
+      }
     }
   }
 }
@@ -234,19 +250,24 @@ export function createScreamer(
   const screamer = new JSM(
     {
       [Transitions.Sleep]: (_dt: number) => {
-        for (const characterId in screamer.server._characters) {
-          const character = screamer.server._characters[characterId];
-          if (!character.isAlive || character.isVanished || character.isHidden)
-            continue;
-          if (
-            getDistance2d(
-              screamer.npc.state.position,
-              character.state.position
-            ) < PLAYER_DETECT_RADIUS
-          ) {
-            screamer.targetCharacterId = characterId;
-            screamer.event(Events.StartRising);
-            return;
+        const sz = 50;
+        const pos = screamer.npc.state.position;
+        const cx = Math.floor(pos[0] / sz);
+        const cz = Math.floor(pos[2] / sz);
+        for (let dx = -1; dx <= 1; dx++) {
+          for (let dz = -1; dz <= 1; dz++) {
+            const bucket = screamer.server.aiTargetSpatialMap.get(
+              `${cx + dx},${cz + dz}`
+            );
+            if (!bucket) continue;
+            for (const entry of bucket) {
+              if (entry.npcId !== NpcIds.SURVIVOR) continue;
+              if (getDistance2d(pos, entry.position) < PLAYER_DETECT_RADIUS) {
+                screamer.targetCharacterId = entry.id;
+                screamer.event(Events.StartRising);
+                return;
+              }
+            }
           }
         }
         const nearestSound = listenToSounds(screamer, screamer.server.sounds);

@@ -77,32 +77,28 @@ function listenToSounds(gazer: ZombieInstance, sounds: Sound[]): Sound | null {
 }
 
 function trySeePlayer(gazer: ZombieInstance): boolean {
-  for (const characterId in gazer.server._characters) {
-    const character = gazer.server._characters[characterId];
-    if (
-      !character.isAlive ||
-      character.isVanished ||
-      character.isHidden ||
-      character.isSpectator
-    )
-      continue;
-    if (
-      getDistance2d(gazer.npc.state.position, character.state.position) < 10
-    ) {
-      gazer.targetCharacterId = characterId;
-      gazer.event(ZombieEvents.SeePlayer);
-      return true;
-    }
-  }
-  for (const npcId in gazer.server._npcs) {
-    const npc = gazer.server._npcs[npcId];
-    if (!npc.isAlive) continue;
-    if (npc.characterId === gazer.npc.characterId) continue;
-    if (npc.npcId === NpcIds.ZOMBIE || npc.npcId === NpcIds.GAZER) continue;
-    if (getDistance2d(gazer.npc.state.position, npc.state.position) < 10) {
-      gazer.targetCharacterId = npcId;
-      gazer.event(ZombieEvents.SeePlayer);
-      return true;
+  const sz = 50;
+  const pos = gazer.npc.state.position;
+  const cx = Math.floor(pos[0] / sz);
+  const cz = Math.floor(pos[2] / sz);
+  for (let dx = -1; dx <= 1; dx++) {
+    for (let dz = -1; dz <= 1; dz++) {
+      const bucket = gazer.server.aiTargetSpatialMap.get(
+        `${cx + dx},${cz + dz}`
+      );
+      if (!bucket) continue;
+      for (const entry of bucket) {
+        if (entry.npcId !== NpcIds.SURVIVOR) {
+          if (entry.npcId === NpcIds.ZOMBIE || entry.npcId === NpcIds.GAZER)
+            continue;
+          if (entry.id === gazer.npc.characterId) continue;
+        }
+        if (getDistance2d(pos, entry.position) < 10) {
+          gazer.targetCharacterId = entry.id;
+          gazer.event(ZombieEvents.SeePlayer);
+          return true;
+        }
+      }
     }
   }
   return false;
