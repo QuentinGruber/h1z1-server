@@ -82,31 +82,31 @@ function setObstacle(
     case ModelIds.DECK_FOUNDATION:
       return server.navManager.addObstacle(
         position,
-        vec3.fromArray([7.5, 10.0, 7.5]),
+        vec3.fromArray([7.5, 2.0, 7.5]),
         yaw
       );
     case ModelIds.DECK_EXPANSION:
       return server.navManager.addObstacle(
         position,
-        vec3.fromArray([7.5, 10.0, 2.5]),
+        vec3.fromArray([7.5, 2.0, 2.5]),
         yaw
       );
     case ModelIds.WOOD_SHACK:
       return server.navManager.addObstacle(
         position,
-        vec3.fromArray([2.35, 10.0, 2.5]),
+        vec3.fromArray([2.35, 2.0, 2.5]),
         yaw
       );
     case ModelIds.METAL_SHACK:
       return server.navManager.addObstacle(
         position,
-        vec3.fromArray([2.35, 10.0, 2.5]),
+        vec3.fromArray([2.35, 2.0, 2.5]),
         yaw
       );
     case ModelIds.SMALL_SHACK:
       return server.navManager.addObstacle(
         position,
-        vec3.fromArray([1.75, 10.0, 1.25]),
+        vec3.fromArray([1.75, 2.0, 1.25]),
         yaw
       );
     default:

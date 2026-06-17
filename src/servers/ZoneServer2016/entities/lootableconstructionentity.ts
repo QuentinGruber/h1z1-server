@@ -46,7 +46,7 @@ function setObstacle(
     case ModelIds.FURNACE:
       return server.navManager.addObstacle(
         position,
-        vec3.fromArray([0.5, 1.0, 0.5]),
+        vec3.fromArray([0.5, 2.0, 0.5]),
         yaw
       );
     default:
