@@ -4379,13 +4379,12 @@ export class ZoneServer2016 extends EventEmitter {
   }
 
   private shouldRemoveEntity(client: Client, entity: BaseEntity): boolean {
-    return (
-      entity && // in case if entity is undefined somehow
-      //!(entity instanceof ConstructionParentEntity) &&
-      !(entity instanceof Vehicle2016) &&
-      (this.filterOutOfDistance(entity, client.character.state.position) ||
-        this.constructionManager.shouldHideEntity(this, client, entity))
-    );
+    if (!entity || entity instanceof Vehicle2016) return false;
+    if (this.constructionManager.shouldHideEntity(this, client, entity)) {
+      return true;
+    }
+    const anchor = this.getConstructionRoot(entity);
+    return this.filterOutOfDistance(anchor, client.character.state.position);
   }
 
   private async removeOutOfDistanceEntities(client: Client) {
@@ -4759,14 +4758,42 @@ export class ZoneServer2016 extends EventEmitter {
     return result;
   }
 
+  /** Walks up a construction part's parent chain to the root foundation so an
+   *  entire base (deck + expansions + their doors/shelters) can be treated as a
+   *  single visibility unit. Returns the entity itself for non-construction
+   *  entities or parts whose parent can't be resolved. */
+  getConstructionRoot(entity: BaseEntity): BaseEntity {
+    let current: BaseEntity = entity;
+    let pid = (current as { parentObjectCharacterId?: string })
+      .parentObjectCharacterId;
+    let guard = 0;
+    // guard bounds the walk in case of corrupt/cyclic parent links
+    while (pid && pid !== "0" && guard++ < 16) {
+      const parent =
+        this._constructionFoundations[pid] || this._constructionSimple[pid];
+      if (!parent || parent === current) break;
+      current = parent;
+      pid = (current as { parentObjectCharacterId?: string })
+        .parentObjectCharacterId;
+    }
+    return current;
+  }
+
   /** Spawns a single grid entity for a client if not already spawned and within range */
   private spawnEntityForClient(client: Client, object: BaseEntity): void {
     const position = client.character.state.position;
+    const anchor =
+      object instanceof ConstructionParentEntity ||
+      object instanceof ConstructionChildEntity ||
+      object instanceof ConstructionDoor ||
+      object instanceof LootableConstructionEntity
+        ? this.getConstructionRoot(object)
+        : object;
     if (
       !isPosInRadius(
-        (object.npcRenderDistance as number) || this.charactersRenderDistance,
+        (anchor.npcRenderDistance as number) || this.charactersRenderDistance,
         position,
-        object.state.position
+        anchor.state.position
       )
     )
       return;
@@ -4852,8 +4879,17 @@ export class ZoneServer2016 extends EventEmitter {
   /** Spawns entities in all subscribed cells for a client, sequentially.
    *  Guard prevents concurrent runs for the same client. */
   private async _spawnSubscribedCells(client: Client): Promise<void> {
-    if (client.isSpawningCells) return;
+    // Never silently drop a re-scan request: if one is already running, flag it
+    // so the in-flight pass runs again once it finishes. Dropping it could leave
+    // entities (e.g. expansion doors/shelters skipped while out of range on the
+    // first pass) unspawned until the player happens to move far enough to
+    // trigger another scan.
+    if (client.isSpawningCells) {
+      client.pendingCellRescan = true;
+      return;
+    }
     client.isSpawningCells = true;
+    client.pendingCellRescan = false;
     const tx = apm.startTransaction("spawnSubscribedCells", "custom");
     try {
       for (const cell of client.subscribedCells) {
@@ -4862,6 +4898,10 @@ export class ZoneServer2016 extends EventEmitter {
     } finally {
       tx?.end();
       client.isSpawningCells = false;
+    }
+    // If a re-scan was requested while we were running, run it again.
+    if (client.pendingCellRescan) {
+      setImmediate(() => void this._spawnSubscribedCells(client));
     }
   }
 

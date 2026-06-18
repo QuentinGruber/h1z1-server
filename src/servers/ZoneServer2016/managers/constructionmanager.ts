@@ -2346,15 +2346,7 @@ export class ConstructionManager {
     parentEntity: ConstructionParentEntity | ConstructionChildEntity
   ) {
     for (const entity of Object.values(parentEntity.freeplaceEntities)) {
-      if (
-        !isPosInRadius(
-          entity.npcRenderDistance || server.charactersRenderDistance,
-          entity.state.position,
-          client.character.state.position
-        ) ||
-        this.shouldHideEntity(server, client, entity)
-      )
-        continue;
+      if (this.shouldHideEntity(server, client, entity)) continue;
       if (entity instanceof ConstructionChildEntity) {
         this.spawnSimpleConstruction(server, client, entity);
       } else if (entity instanceof ConstructionDoor) {
@@ -2449,20 +2441,10 @@ export class ConstructionManager {
   ) {
     for (const slotMap of parentEntity.getOccupiedSlotMaps()) {
       for (const entity of Object.values(slotMap)) {
-        if (
-          isPosInRadius(
-            entity.npcRenderDistance
-              ? entity.npcRenderDistance
-              : server.charactersRenderDistance,
-            client.character.state.position,
-            entity.state.position
-          )
-        ) {
-          if (entity instanceof ConstructionChildEntity) {
-            this.spawnSimpleConstruction(server, client, entity);
-          } else if (entity instanceof ConstructionDoor) {
-            this.spawnConstructionDoor(server, client, entity);
-          }
+        if (entity instanceof ConstructionChildEntity) {
+          this.spawnSimpleConstruction(server, client, entity);
+        } else if (entity instanceof ConstructionDoor) {
+          this.spawnConstructionDoor(server, client, entity);
         }
       }
     }

@@ -108,6 +108,7 @@ export class ZoneClient2016 {
   posAtLastCellUpdate: Float32Array = new Float32Array([0, 0, 0, 1]);
   lastKnownChunkRenderDistance: number = 400;
   isSpawningCells: boolean = false;
+  pendingCellRescan: boolean = false;
   startingPos?: Float32Array;
   firstReleased: boolean = true;
   /*(lightWeightNpcQueue: {
