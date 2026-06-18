@@ -490,30 +490,45 @@ function createNpcPlan(
     if (!baseModels.length) continue;
 
     for (const npcInstance of spawnerType.instances) {
-      let blocked = false;
-      for (const npcPos of plannedPositions) {
-        if (isPosInRadius(npcSpawnRadius, npcInstance.position, npcPos)) {
-          blocked = true;
-          break;
+      const spawnCount: number = npcInstance.count ?? 1;
+      for (let i = 0; i < spawnCount; i++) {
+        let pos: number[] = npcInstance.position;
+        if (i > 0) {
+          const angle = Math.random() * Math.PI * 2;
+          const dist = 4 + Math.random() * 4;
+          pos = [
+            npcInstance.position[0] + Math.cos(angle) * dist,
+            npcInstance.position[1],
+            npcInstance.position[2] + Math.sin(angle) * dist,
+            1
+          ];
         }
+
+        let blocked = false;
+        for (const npcPos of plannedPositions) {
+          if (isPosInRadius(npcSpawnRadius, pos, npcPos)) {
+            blocked = true;
+            break;
+          }
+        }
+        if (blocked) continue;
+
+        const spawnChanceRoll = Math.floor(Math.random() * 100) + 1;
+        if (spawnChanceRoll > chanceNpc) continue;
+
+        const models = [...baseModels];
+        const screamerChanceRoll = Math.floor(Math.random() * 1000) + 1;
+        if (screamerChanceRoll <= chanceScreamer) models.push(9667);
+
+        const modelId = models[Math.floor(Math.random() * models.length)];
+        plan.push({
+          spawnerId: i === 0 ? npcInstance.id : 0,
+          modelId,
+          position: pos,
+          rotation: npcInstance.rotation
+        });
+        plannedPositions.push([pos[0], pos[1], pos[2]]);
       }
-      if (blocked) continue;
-
-      const spawnChanceRoll = Math.floor(Math.random() * 100) + 1;
-      if (spawnChanceRoll > chanceNpc) continue;
-
-      const models = [...baseModels];
-      const screamerChanceRoll = Math.floor(Math.random() * 1000) + 1;
-      if (screamerChanceRoll <= chanceScreamer) models.push(9667);
-
-      const modelId = models[Math.floor(Math.random() * models.length)];
-      plan.push({
-        spawnerId: npcInstance.id,
-        modelId,
-        position: npcInstance.position,
-        rotation: npcInstance.rotation
-      });
-      plannedPositions.push(npcInstance.position);
     }
   }
 

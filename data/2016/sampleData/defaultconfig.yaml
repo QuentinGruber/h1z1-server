@@ -112,9 +112,9 @@ worldobjects:
   # How far any other vehicle has to be for another to spawn
   vehicleSpawnRadius: 50
   # How far another spawned npc has to be for another to spawn
-  npcSpawnRadius: 3
+  npcSpawnRadius: 2
   chanceNpc: 100 # To be reworked: 100 max
-  chanceScreamer: 5 # To be reworked: 1000 max
+  chanceScreamer: 50 # To be reworked: 1000 max
 
   chanceWornLetter: 1 # 100 max
 
