@@ -73,8 +73,8 @@ export class NavManager {
     const { tileCache } = importTileCache(tcData, tileCacheMeshProcess);
     this.navmesh = navMesh;
     this.tilecache = tileCache;
-    const maxAgents = 1000;
-    const maxAgentRadius = 0.6;
+    const maxAgents = 2000;
+    const maxAgentRadius = 2.0;
     this.navMeshQuery = new NavMeshQuery(this.navmesh);
     this.crowd = new Crowd(navMesh, { maxAgents, maxAgentRadius });
     console.timeEnd("[NAV] Navmesh loaded");
@@ -188,13 +188,13 @@ export class NavManager {
 
     const spawnPoint = success ? initialAgentPosition : navPosition;
     const agent = this.crowd.addAgent(spawnPoint, {
-      radius: 0.5,
+      radius: 0.3,
       height: 2,
       maxAcceleration: 1.0,
       maxSpeed: 1.0,
       collisionQueryRange: 2.0,
-      pathOptimizationRange: 0.0,
-      separationWeight: 1.0
+      pathOptimizationRange: 4.0,
+      separationWeight: 2.0
     });
     debug(
       `createAgent: agentIdx=${agent.agentIndex} navPos=[${spawnPoint.x.toFixed(2)}, ${spawnPoint.y.toFixed(2)}, ${spawnPoint.z.toFixed(2)}]`
