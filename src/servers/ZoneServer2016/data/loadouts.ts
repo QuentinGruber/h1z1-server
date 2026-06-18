@@ -125,7 +125,12 @@ export const zombieShirts: Items[] = [
   Items.SHIRT_SCRUBS_BLUE,
   Items.SHIRT_SCRUBS_GRAY,
   Items.PARAMEDIC_UNIFORM,
-  Items.POLICE_SHIRT
+  Items.POLICE_SHIRT,
+  Items.BASIC_HOODIE,
+  Items.HAPPY_SKULL_SCRUBS_SHIRT,
+  Items.MILITARY_SCRUBS_SHIRT,
+  Items.HUGZ_NEEDED_SCRUBS_SHIRT,
+  Items.KURAMA_MEDICAL_SCRUBS_SHIRT
 ];
 
 export const zombiePants: Items[] = [
@@ -134,14 +139,19 @@ export const zombiePants: Items[] = [
   Items.POLICE_SLACKS,
   Items.LEGGINGS,
   Items.PANTS_SCRUBS_BLUE,
-  Items.PANTS_SCRUBS_GRAY
+  Items.PANTS_SCRUBS_GRAY,
+  Items.HAPPY_SKULL_SCRUBS_PANTS,
+  Items.MILITARY_SCRUBS_PANTS,
+  Items.HUGZ_NEEDED_SCRUBS_PANTS,
+  Items.KURAMA_MEDICAL_SCRUBS_PANTS
 ];
 
 export const zombieBoots: Items[] = [
   Items.BOOTS_GRAY_BLUE,
   Items.CONVEYS_RED,
   Items.CONVEYS_BLUE,
-  Items.CONVEYS_WHITE
+  Items.CONVEYS_WHITE,
+  Items.BOOTS_TAN
 ];
 
 export const zombieHats: Items[] = [
@@ -149,7 +159,11 @@ export const zombieHats: Items[] = [
   Items.BLACK_BEANIE,
   Items.POLICE_HAT,
   Items.CAP_SCRUBS_BLUE,
-  Items.CAP_SCRUBS_GRAY
+  Items.CAP_SCRUBS_GRAY,
+  Items.HAPPY_SKULL_SCRUBS_CAP,
+  Items.MILITARY_SCRUBS_CAP,
+  Items.HUGZ_NEEDED_SCRUBS_CAP,
+  Items.KURAMA_MEDICAL_SCRUBS_CAP
 ];
 
 export function getRandomZombieLoadout(): LoadoutKit {
