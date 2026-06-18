@@ -3989,6 +3989,28 @@ export const commands: Array<Command> = [
       console.log(server.weatherManager.weather);
       server.weatherManager.sendUpdateToAll(server, client, false);
     }
+  },
+  {
+    name: "npcs",
+    permissionLevel: PermissionLevels.ADMIN,
+    execute: (server: ZoneServer2016, client: Client, _args: Array<string>) => {
+      let zombies = 0;
+      let screamers = 0;
+      let bears = 0;
+      let wolves = 0;
+      let deer = 0;
+      for (const npc of Object.values(server._npcs)) {
+        if (npc instanceof ZombieScreamer) screamers++;
+        else if (npc instanceof ZombieWalker) zombies++;
+        else if (npc instanceof Bear) bears++;
+        else if (npc instanceof Wolf) wolves++;
+        else if (npc instanceof Deer) deer++;
+      }
+      server.sendChatText(
+        client,
+        `[NPCs] Zombies: ${zombies} | Screamers: ${screamers} | Bears: ${bears} | Wolves: ${wolves} | Deer: ${deer}`
+      );
+    }
   }
 
   //#endregion
