@@ -41,6 +41,7 @@ export class Wolf extends Npc {
       server,
       spawnerId
     );
+    this.health = 7500;
     this.materialType = MaterialTypes.FLESH;
     this.npcMeleeDamage = 2000;
     this.npcId = NpcIds.WOLF;

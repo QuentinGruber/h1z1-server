@@ -36,6 +36,7 @@ export class Deer extends Npc {
       server,
       spawnerId
     );
+    this.health = 7500;
     this.materialType = MaterialTypes.FLESH;
     this.npcMeleeDamage = 0;
     this.npcId = NpcIds.DEER;

@@ -59,7 +59,7 @@ const CHASE_LOSE_DIST = 60;
 const ATTACK_RANGE = 2.5;
 const STANDUP_DURATION = 2;
 const WANDER_SPEED = 4;
-const CHASE_SPEED = 7;
+const CHASE_SPEED = 5;
 
 function pickPatrolPoint(
   server: ZoneServer2016,

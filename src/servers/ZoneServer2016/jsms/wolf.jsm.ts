@@ -75,7 +75,7 @@ const ATTACK_RANGE = 2;
 const HOWL_DURATION = 3;
 const HOWL_ALERT_RADIUS = 40;
 const WANDER_SPEED = 6;
-const CHASE_SPEED = 9;
+const CHASE_SPEED = 6.5;
 
 function pickPatrolPoint(
   server: ZoneServer2016,

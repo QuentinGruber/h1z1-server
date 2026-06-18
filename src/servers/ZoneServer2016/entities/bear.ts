@@ -41,6 +41,7 @@ export class Bear extends Npc {
       server,
       spawnerId
     );
+    this.health = 20000;
     this.materialType = MaterialTypes.FLESH;
     this.npcMeleeDamage = 4000;
     this.npcId = NpcIds.BEAR;

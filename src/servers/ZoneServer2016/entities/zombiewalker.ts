@@ -51,7 +51,7 @@ export class ZombieWalker extends Npc {
       spawnerId
     );
     this.materialType = MaterialTypes.ZOMBIE;
-    this.npcMeleeDamage = 2000;
+    this.npcMeleeDamage = 2500;
     this.npcId = NpcIds.ZOMBIE;
     this.nameId = StringIds.ZOMBIE_WALKER;
     this.rewardItems = [{ itemDefId: Items.BRAIN_INFECTED, weight: 10 }];
