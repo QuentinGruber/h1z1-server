@@ -1723,3 +1723,7 @@ export function metersToFeet(meters: number) {
 export function feetToMeters(feet: number) {
   return feet * 0.3048;
 }
+export function requireFresh(path: string) {
+  delete require.cache[require.resolve(path)];
+  return require(path);
+}

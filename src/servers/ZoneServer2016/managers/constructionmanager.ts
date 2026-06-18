@@ -17,6 +17,8 @@ import {
   DamageInfo,
   ShelterSlotsPlacementTimer
 } from "types/zoneserver";
+import { scheduler } from "node:timers/promises";
+const apm = require("elastic-apm-node");
 import {
   eul2quat,
   fixEulerOrder,
@@ -472,8 +474,6 @@ export class ConstructionManager {
     // for construction entities that don't have a parentObjectCharacterId from the client
     let freeplaceParentCharacterId = "";
     // TODO: SEARCH FOUNDATIONS IN GRID RANGE INSTEAD OF ALL OF THEM
-    // TODO: CHECK DECKS BEFORE TAMPERS SO OBJECTS PLACED ON A DECK DON'T GET INCORRECTLY
-    // PARENTED TO THE TAMPER A DECK IS ON
     for (const a in server._constructionFoundations) {
       const foundation = server._constructionFoundations[a];
       // check if inside a shelter even if not inside foundation (large shelters can extend it)
@@ -505,7 +505,21 @@ export class ConstructionManager {
         });
       }
 
-      // check deck last in case it's parented to a shelter or upper first
+      // check expansion decks before the foundation/tamper itself
+      if (!Number(freeplaceParentCharacterId)) {
+        Object.values(foundation.occupiedExpansionSlots).forEach(
+          (expansion) => {
+            if (
+              !Number(freeplaceParentCharacterId) &&
+              expansion.isInside(position)
+            ) {
+              freeplaceParentCharacterId = expansion.characterId;
+            }
+          }
+        );
+      }
+
+      // check foundation last so expansion decks/shelters take priority
       if (
         !Number(freeplaceParentCharacterId) &&
         foundation.isInside(position)
@@ -596,21 +610,31 @@ export class ConstructionManager {
       return;
     }
 
+    const tx = apm.currentTransaction;
+
     // invalid placement checks that don't require a parentCharacterId
-    if (
-      this.detectStackedPlacement(
-        server,
-        parentObjectCharacterId,
-        position,
-        itemDefinitionId
-      )
-    ) {
+    let span = tx?.startSpan("detectStackedPlacement");
+    const isStacked = this.detectStackedPlacement(
+      server,
+      parentObjectCharacterId,
+      position,
+      itemDefinitionId
+    );
+    span?.end();
+    if (isStacked) {
       this.sendPlacementFinalize(server, client, false);
       this.placementError(server, client, ConstructionErrors.STACKED);
       return;
     }
 
-    if (this.detectStackedTamperPlacement(server, item, position)) {
+    span = tx?.startSpan("detectStackedTamperPlacement");
+    const isTamperStacked = this.detectStackedTamperPlacement(
+      server,
+      item,
+      position
+    );
+    span?.end();
+    if (isTamperStacked) {
       this.sendPlacementFinalize(server, client, false);
       this.placementError(
         server,
@@ -638,16 +662,19 @@ export class ConstructionManager {
     }
 
     // for construction entities that don't have a parentObjectCharacterId from the client
+    span = tx?.startSpan("getFreeplaceParentCharacterId");
     const freeplaceParentCharacterId = this.getFreeplaceParentCharacterId(
-        server,
-        position
-      ),
-      isOnPermissionedFoundation = this.getIsOnPermissionedFoundation(
-        server,
-        client,
-        parentObjectCharacterId,
-        freeplaceParentCharacterId
-      );
+      server,
+      position
+    );
+    span?.end();
+
+    const isOnPermissionedFoundation = this.getIsOnPermissionedFoundation(
+      server,
+      client,
+      parentObjectCharacterId,
+      freeplaceParentCharacterId
+    );
 
     if (
       (!!Number(parentObjectCharacterId) ||
@@ -661,6 +688,8 @@ export class ConstructionManager {
       return;
     }
 
+    span = tx?.startSpan("handleClosePlacement-loop");
+    let closePlacementBlocked = false;
     for (const a in server._constructionFoundations) {
       const foundation = server._constructionFoundations[a];
 
@@ -674,11 +703,15 @@ export class ConstructionManager {
           isOnPermissionedFoundation
         )
       ) {
-        return;
+        closePlacementBlocked = true;
+        break;
       }
     }
+    span?.end();
+    if (closePlacementBlocked) return;
 
-    if (
+    span = tx?.startSpan("handleInvalidPlacement");
+    const isInvalid =
       ![Items.TRAP_FIRE, Items.TRAP_FLASH, Items.WOODEN_BARRICADE].includes(
         itemDefinitionId
       ) &&
@@ -688,25 +721,25 @@ export class ConstructionManager {
         itemDefinitionId,
         position,
         isOnPermissionedFoundation
-      )
-    ) {
-      return;
-    }
+      );
+    span?.end();
+    if (isInvalid) return;
 
-    if (
-      !this.handleConstructionPlacement(
-        server,
-        client,
-        itemDefinitionId,
-        modelId,
-        position,
-        rotation,
-        scale,
-        parentObjectCharacterId,
-        BuildingSlot,
-        freeplaceParentCharacterId
-      )
-    ) {
+    span = tx?.startSpan("handleConstructionPlacement");
+    const placed = this.handleConstructionPlacement(
+      server,
+      client,
+      itemDefinitionId,
+      modelId,
+      position,
+      rotation,
+      scale,
+      parentObjectCharacterId,
+      BuildingSlot,
+      freeplaceParentCharacterId
+    );
+    span?.end();
+    if (!placed) {
       this.sendPlacementFinalize(server, client, false);
       return;
     }
@@ -2230,8 +2263,13 @@ export class ConstructionManager {
     }
   }
 
-  plantManager(server: ZoneServer2016) {
+  private _plantManagerRunning = false;
+  async plantManager(server: ZoneServer2016) {
+    if (this._plantManagerRunning) return;
+    this._plantManagerRunning = true;
     const date = new Date().getTime();
+    let i = 0;
+    let seedCount = 0;
     for (const characterId in server._temporaryObjects) {
       const object = server._temporaryObjects[characterId] as PlantingDiameter;
       if (object instanceof PlantingDiameter) {
@@ -2243,11 +2281,14 @@ export class ConstructionManager {
         } else if (object.disappearTimestamp < date)
           object.disappearTimestamp = date + 86400000;
         if (object.fertilizedTimestamp < date) object.isFertilized = false;
-        Object.values(object.seedSlots).forEach((plant) => {
+        for (const plant of Object.values(object.seedSlots)) {
           if (plant.nextStateTime < date) plant.grow(server);
-        });
+          if (++seedCount % 20 === 0) await scheduler.yield();
+        }
       }
+      if (++i % 50 === 0) await scheduler.yield();
     }
+    this._plantManagerRunning = false;
   }
 
   shouldHideEntity(
@@ -2433,7 +2474,7 @@ export class ConstructionManager {
   ) {
     let hide = false;
     client.character.insideBuilding = "";
-    for (const object of client.spawnedEntities) {
+    for (const object of client.spawnedConstructionEntities) {
       if (object instanceof ConstructionParentEntity) {
         if (object.isInside(client.character.state.position))
           client.character.insideBuilding = object.characterId;
