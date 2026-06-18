@@ -14,10 +14,8 @@ process.env["DISABLE_PLUGINS"] = "true";
 
 // ---- CONFIG (edit these) --------------------------------------------
 const CONFIG = {
-  /** Number of zombie NPCs to spawn */
-  npcCount: 500,
   /** Number of fake player characters placed in the zombie cluster (triggers chase/attack) */
-  playerCount: 10,
+  playerCount: 100,
   durationSeconds: 60,
   /** Stats print interval in ms */
   statsIntervalMs: 5000,
@@ -33,9 +31,6 @@ const CONFIG = {
 // ---------------------------------------------------------------------
 
 const { ZoneServer2016 } = require("../../../h1z1-server");
-const {
-  ModelIds
-} = require("../../../out/servers/ZoneServer2016/models/enums");
 const { createFakeCharacter } = require("../../../out/utils/test.utils");
 
 // ---- Helpers --------------------------------------------------------
@@ -79,7 +74,7 @@ class RollingStats {
 async function main() {
   console.log("=== H1Z1 NPC AI Tick Stress Test ===");
   console.log(
-    `Config: ${CONFIG.npcCount} zombies | ${CONFIG.playerCount} fake players` +
+    `Config: ${CONFIG.playerCount} fake players` +
       ` | ${CONFIG.durationSeconds}s | stats every ${CONFIG.statsIntervalMs / 1000}s` +
       ` | ${CONFIG.soundsPerPlayer} sound(s)/player/tick r=${CONFIG.soundRadius} agit=${CONFIG.soundAgitation}` +
       ` | drift=${CONFIG.playerDriftRadius}m`
@@ -103,28 +98,22 @@ async function main() {
   const CENTER_Z = 700;
   const SPAWN_RADIUS = 400;
 
-  // --- Spawn zombies --------------------------------------------------
-  console.log(
-    `Spawning ${CONFIG.npcCount} zombies around (${CENTER_X}, ${CENTER_Y}, ${CENTER_Z})…`
-  );
-  const rot = new Float32Array([0, 0, 0, 0]);
-
-  for (let i = 0; i < CONFIG.npcCount; i++) {
-    const pos = randomPosition(CENTER_X, CENTER_Y, CENTER_Z, SPAWN_RADIUS);
-    server.worldObjectManager.createNpc(
-      server,
-      ModelIds.ZOMBIE_MALE_WALKER,
-      pos,
-      rot
-    );
+  // --- Wait for server default NPC spawn ------------------------------
+  console.log("Waiting for server default NPC spawn…");
+  const npcWaitStart = Date.now();
+  while (Object.keys(server._npcs).length === 0) {
+    if (Date.now() - npcWaitStart > 30_000) {
+      console.error("Timeout waiting for default NPC spawn");
+      break;
+    }
+    await new Promise((r) => setTimeout(r, 500));
   }
-
   const npcCount = Object.keys(server._npcs).length;
-  console.log(`Zombies spawned: ${npcCount}`);
+  console.log(`Default NPCs spawned: ${npcCount}`);
 
   // --- Create fake players --------------------------------------------
-  // Place them inside the zombie cluster so zombies eventually enter
-  // chase/attack states, giving a realistic mixed-state distribution.
+  // Place them among the default NPCs so they trigger chase/attack states,
+  // giving a realistic mixed-state distribution.
   console.log(`Creating ${CONFIG.playerCount} fake player characters…`);
   const fakePlayers: any[] = [];
   for (let i = 0; i < CONFIG.playerCount; i++) {
