@@ -2282,7 +2282,7 @@ export const commands: Array<Command> = [
         zombie_female: ModelIds.ZOMBIE_FEMALE_WALKER,
         zombie_male: ModelIds.ZOMBIE_MALE_WALKER,
         zombie_screamer: ModelIds.ZOMBIE_SCREAMER,
-        gazer: ModelIds.GAZER,
+        gazer: ModelIds.ZOMBIE_MALE_WALKER,
         deer: ModelIds.DEER,
         deer_buck: ModelIds.DEER_BUCK,
         wolf: ModelIds.WOLF,
