@@ -641,16 +641,6 @@ export class WorldObjectManager {
           spawnerId
         );
         break;
-      case ModelIds.GAZER:
-        npc = new Gazer(
-          characterId,
-          transientId,
-          position,
-          rotation,
-          server,
-          spawnerId
-        );
-        break;
       case ModelIds.DEER:
       case ModelIds.DEER_BUCK:
         npc = new Deer(
