@@ -374,6 +374,7 @@ export class ZoneServer2016 extends EventEmitter {
     { id: string; position: Float32Array; npcId: number }[]
   >();
   private static readonly _AI_TARGET_GRID_SIZE = 50;
+  recastRoutine?: NodeJS.Timeout;
 
   private static _charGridRange(
     pos: Float32Array,
@@ -1098,6 +1099,7 @@ export class ZoneServer2016 extends EventEmitter {
   }
 
   async stop() {
+    clearInterval(this.recastRoutine);
     clearInterval(this.challengePositionCheckInterval);
     clearInterval(this.aiTickRoutine);
     clearInterval(this.pathfindingRoutine);
@@ -2076,8 +2078,7 @@ export class ZoneServer2016 extends EventEmitter {
         () => this.updatePathfindingPositions(),
         this.pathfindingUpdateRate
       );
-      // this.recastRoutine = setInterval(
-      setInterval(
+      this.recastRoutine = setInterval(
         () => this.navManager.updt(),
         this.navManager.updateFrequency * 1000
       );
