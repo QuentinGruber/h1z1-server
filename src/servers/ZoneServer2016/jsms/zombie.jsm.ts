@@ -394,7 +394,6 @@ export function createZombie(npc: Npc, server: ZoneServer2016): ZombieInstance {
           return;
         }
 
-        zombie.npc.lookAtTarget = chaseTarget.position;
         const chaseDist = getDistance2d(
           zombie.npc.state.position,
           chaseTarget.position
@@ -544,7 +543,9 @@ export function createZombie(npc: Npc, server: ZoneServer2016): ZombieInstance {
           ZombieTransitions.Idle
         ],
         to: ZombieTransitions.Chase,
-        EnterTransition: undefined
+        EnterTransition: () => {
+          zombie.npc.lookAtTarget = null;
+        }
       },
       {
         eventId: ZombieEvents.SmellCorpse,
@@ -632,7 +633,9 @@ export function createZombie(npc: Npc, server: ZoneServer2016): ZombieInstance {
         eventId: ZombieEvents.PlayerBacked,
         from: [ZombieTransitions.Attack],
         to: ZombieTransitions.Chase,
-        EnterTransition: undefined
+        EnterTransition: () => {
+          zombie.npc.lookAtTarget = null;
+        }
       },
       {
         eventId: ZombieEvents.PlayerKilled,
