@@ -13,9 +13,7 @@
 
 import { ZoneServer2016 } from "../zoneserver";
 import { ZoneClient2016 } from "../classes/zoneclient";
-import {
-  generateRandomGuid,
-} from "../../../utils/utils";
+import { generateRandomGuid } from "../../../utils/utils";
 import {
   Items,
   MaterialTypes,
@@ -88,7 +86,7 @@ export class PrototypeZombie extends Npc {
     const lootMap: Record<number, number> = {
       [NpcIds.PROTOTYPE_ASSAULT_ZOMBIE]: Items.PROTOTYPE_MECHANISM,
       [NpcIds.PROTOTYPE_HUNTER_ZOMBIE]: Items.PROTOTYPE_RECEIVER,
-      [NpcIds.PROTOTYPE_SNIPER_ZOMBIE]: Items.PROTOTYPE_TRIGGER_ASSEMBLY,
+      [NpcIds.PROTOTYPE_SNIPER_ZOMBIE]: Items.PROTOTYPE_TRIGGER_ASSEMBLY
     };
 
     const itemId = lootMap[this.npcId];

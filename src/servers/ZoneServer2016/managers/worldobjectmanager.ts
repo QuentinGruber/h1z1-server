@@ -558,7 +558,7 @@ export class WorldObjectManager {
           server._spawnedItems,
           itemObject,
           server.getItemDefinition(entry.itemDefinitionId)?.PICKUP_EFFECT ??
-          5151
+            5151
         );
         itemIdsToDelete.push(entry.characterId);
         if (entry.deleteExplosive) explosiveIdsToDelete.push(entry.characterId);
@@ -859,7 +859,7 @@ export class WorldObjectManager {
         if (container) {
           const experimental =
             experimentalWeapons[
-            Math.floor(Math.random() * experimentalWeapons.length)
+              Math.floor(Math.random() * experimentalWeapons.length)
             ];
           server.addContainerItem(
             lootbag,
@@ -878,7 +878,7 @@ export class WorldObjectManager {
         if (container) {
           const experimental =
             experimentalWeapons[
-            Math.floor(Math.random() * experimentalWeapons.length)
+              Math.floor(Math.random() * experimentalWeapons.length)
             ];
           server.addContainerItem(
             lootbag,
@@ -1450,7 +1450,7 @@ export class WorldObjectManager {
           this.createNpc(
             server,
             authorizedModelId[
-            Math.floor(Math.random() * authorizedModelId.length)
+              Math.floor(Math.random() * authorizedModelId.length)
             ],
             new Float32Array(npcInstance.position),
             new Float32Array(eul2quat(npcInstance.rotation)),
@@ -1481,9 +1481,7 @@ export class WorldObjectManager {
           continue;
       }
 
-      const authorizedModelId = [
-        ModelIds.ZOMBIE_MALE_WALKER
-      ];
+      const authorizedModelId = [ModelIds.ZOMBIE_MALE_WALKER];
 
       for (const npcInstance of spawnerType.instances) {
         let spawn = true;
@@ -1508,7 +1506,10 @@ export class WorldObjectManager {
         // Create PrototypeZombie directly (not generic ZombieWalker)
         const characterId = generateRandomGuid();
         const transientId = server.getTransientId(characterId);
-        const modelId = authorizedModelId[Math.floor(Math.random() * authorizedModelId.length)];
+        const modelId =
+          authorizedModelId[
+            Math.floor(Math.random() * authorizedModelId.length)
+          ];
 
         const npc = new PrototypeZombie(
           characterId,
@@ -1706,8 +1707,8 @@ export class WorldObjectManager {
             prop.hasItem(Items.QUEST_KURAMA_MEDICAL_SCRUBS_CAP)
           ) {
             const req1 = prop.getItemById(
-              Items.QUEST_KURAMA_MEDICAL_SCRUBS_SHIRT
-            ),
+                Items.QUEST_KURAMA_MEDICAL_SCRUBS_SHIRT
+              ),
               req2 = prop.getItemById(Items.QUEST_KURAMA_MEDICAL_SCRUBS_PANTS),
               req3 = prop.getItemById(Items.QUEST_KURAMA_MEDICAL_SCRUBS_CAP);
 
