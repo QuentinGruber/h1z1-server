@@ -11965,5 +11965,68 @@
                 "count": 3
             }
         ]
+    },
+    {
+        "actorDefinition": "NPCSpawner_PrototypeAssaultZombie.adr",
+        "unk_float0": 1,
+        "instances": [
+            {
+                "position": [
+                    1721.40,
+                    92.74,
+                    -2727.11,
+                    1
+                ],
+                "rotation": [
+                    0,
+                    0,
+                    0,
+                    0
+                ],
+                "id": 4000000001
+            }
+        ]
+    },
+    {
+        "actorDefinition": "NPCSpawner_PrototypeHunterZombie.adr",
+        "unk_float0": 1,
+        "instances": [
+            {
+                "position": [
+                    -558.16,
+                    13.27,
+                    -1044.39,
+                    1
+                ],
+                "rotation": [
+                    0,
+                    0,
+                    0,
+                    0
+                ],
+                "id": 4000000002
+            }
+        ]
+    },
+    {
+        "actorDefinition": "NPCSpawner_PrototypeSniperZombie.adr",
+        "unk_float0": 1,
+        "instances": [
+            {
+                "position": [
+                    -103.43,
+                    8.37,
+                    -300.36,
+                    1
+                ],
+                "rotation": [
+                    0,
+                    0,
+                    0,
+                    0
+                ],
+                "id": 4000000003
+            }
+        ]
     }
 ]

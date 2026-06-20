@@ -45,6 +45,7 @@ import {
   Items,
   Effects,
   ModelIds,
+  NpcIds,
   DefaultSkinsConveys,
   DefaultSkinsBackpack,
   DefaultSkinsMotorHelmet,
@@ -72,6 +73,7 @@ import { TreasureChest } from "../entities/treasurechest";
 import { Npc } from "../entities/npc";
 import { ZombieWalker } from "../entities/zombiewalker";
 import { ZombieScreamer } from "../entities/zombiescreamer";
+import { PrototypeZombie } from "../entities/prototypezombie";
 import { Deer } from "../entities/deer";
 import { Wolf } from "../entities/wolf";
 import { Bear } from "../entities/bear";
@@ -161,6 +163,7 @@ export class WorldObjectManager {
   _lastLootRespawnTime: number = 0;
   _lastVehicleRespawnTime: number = 0;
   _lastNpcRespawnTime: number = 0;
+  _lastPrototypeZombieRespawnTime: number = 0;
   _lastWaterSourceReplenishTime: number = 0;
   private _waterSourceCache: WaterSource[] | null = null;
 
@@ -249,6 +252,13 @@ export class WorldObjectManager {
           await this.createNpcsThreaded(server);
           npcSpan?.end();
           this._lastNpcRespawnTime = Date.now();
+        }
+        // Prototype zombies: 1 hour respawn timer (3,600,000 ms), 100% spawn chance
+        if (this._lastPrototypeZombieRespawnTime + 3_600_000 <= Date.now()) {
+          const prototypeSpan = transaction.startSpan("spawnPrototypeZombies");
+          await this.spawnPrototypeZombies(server);
+          prototypeSpan?.end();
+          this._lastPrototypeZombieRespawnTime = Date.now();
         }
         if (
           this._lastVehicleRespawnTime + this.vehicleRespawnTimer <=
@@ -548,7 +558,7 @@ export class WorldObjectManager {
           server._spawnedItems,
           itemObject,
           server.getItemDefinition(entry.itemDefinitionId)?.PICKUP_EFFECT ??
-            5151
+          5151
         );
         itemIdsToDelete.push(entry.characterId);
         if (entry.deleteExplosive) explosiveIdsToDelete.push(entry.characterId);
@@ -849,7 +859,7 @@ export class WorldObjectManager {
         if (container) {
           const experimental =
             experimentalWeapons[
-              Math.floor(Math.random() * experimentalWeapons.length)
+            Math.floor(Math.random() * experimentalWeapons.length)
             ];
           server.addContainerItem(
             lootbag,
@@ -868,7 +878,7 @@ export class WorldObjectManager {
         if (container) {
           const experimental =
             experimentalWeapons[
-              Math.floor(Math.random() * experimentalWeapons.length)
+            Math.floor(Math.random() * experimentalWeapons.length)
             ];
           server.addContainerItem(
             lootbag,
@@ -1385,6 +1395,7 @@ export class WorldObjectManager {
     // This is only for giving the world some life
     for (const spawnerType of Z1_npcs) {
       const authorizedModelId: number[] = [];
+
       switch (spawnerType.actorDefinition) {
         case "NPCSpawner_ZombieLazy.adr":
           authorizedModelId.push(ModelIds.ZOMBIE_FEMALE_WALKER);
@@ -1439,7 +1450,7 @@ export class WorldObjectManager {
           this.createNpc(
             server,
             authorizedModelId[
-              Math.floor(Math.random() * authorizedModelId.length)
+            Math.floor(Math.random() * authorizedModelId.length)
             ],
             new Float32Array(npcInstance.position),
             new Float32Array(eul2quat(npcInstance.rotation)),
@@ -1449,6 +1460,75 @@ export class WorldObjectManager {
       }
     }
     debug("All npcs objects created");
+  }
+
+  private async spawnPrototypeZombies(server: ZoneServer2016) {
+    // Prototype zombies: 100% spawn chance, independent respawn (1 hour)
+    for (const spawnerType of Z1_npcs) {
+      let prototypeNpcId: number | null = null;
+
+      switch (spawnerType.actorDefinition) {
+        case "NPCSpawner_PrototypeAssaultZombie.adr":
+          prototypeNpcId = NpcIds.PROTOTYPE_ASSAULT_ZOMBIE;
+          break;
+        case "NPCSpawner_PrototypeHunterZombie.adr":
+          prototypeNpcId = NpcIds.PROTOTYPE_HUNTER_ZOMBIE;
+          break;
+        case "NPCSpawner_PrototypeSniperZombie.adr":
+          prototypeNpcId = NpcIds.PROTOTYPE_SNIPER_ZOMBIE;
+          break;
+        default:
+          continue;
+      }
+
+      const authorizedModelId = [
+        ModelIds.ZOMBIE_MALE_WALKER
+      ];
+
+      for (const npcInstance of spawnerType.instances) {
+        let spawn = true;
+
+        // Check if there's already a prototype zombie at this location
+        for (const a in server._npcs) {
+          if (!server._npcs[a]) continue;
+          if (
+            isPosInRadius(
+              this.npcSpawnRadius,
+              npcInstance.position,
+              server._npcs[a].state.position
+            )
+          ) {
+            spawn = false;
+            break;
+          }
+        }
+
+        if (!spawn) continue;
+
+        // Create PrototypeZombie directly (not generic ZombieWalker)
+        const characterId = generateRandomGuid();
+        const transientId = server.getTransientId(characterId);
+        const modelId = authorizedModelId[Math.floor(Math.random() * authorizedModelId.length)];
+
+        const npc = new PrototypeZombie(
+          characterId,
+          transientId,
+          modelId,
+          new Float32Array(npcInstance.position),
+          new Float32Array(eul2quat(npcInstance.rotation)),
+          server,
+          npcInstance.id,
+          prototypeNpcId ?? NpcIds.ZOMBIE
+        );
+
+        server._npcs[characterId] = npc;
+        if (npcInstance.id) this.spawnedNpcs[npcInstance.id] = characterId;
+
+        // Debug: log spawn position
+        console.log(`[DEBUG] Spawned ${spawnerType.actorDefinition} at position: [${npcInstance.position[0]}, ${npcInstance.position[1]}, ${npcInstance.position[2]}]`);
+      }
+    }
+    console.log("Prototype zombies spawned");
   }
 
   refillScrapInChunks(server: ZoneServer2016) {
@@ -1629,8 +1709,8 @@ export class WorldObjectManager {
             prop.hasItem(Items.QUEST_KURAMA_MEDICAL_SCRUBS_CAP)
           ) {
             const req1 = prop.getItemById(
-                Items.QUEST_KURAMA_MEDICAL_SCRUBS_SHIRT
-              ),
+              Items.QUEST_KURAMA_MEDICAL_SCRUBS_SHIRT
+            ),
               req2 = prop.getItemById(Items.QUEST_KURAMA_MEDICAL_SCRUBS_PANTS),
               req3 = prop.getItemById(Items.QUEST_KURAMA_MEDICAL_SCRUBS_CAP);
 
