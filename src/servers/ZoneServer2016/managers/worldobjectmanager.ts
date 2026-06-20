@@ -1523,12 +1523,9 @@ export class WorldObjectManager {
 
         server._npcs[characterId] = npc;
         if (npcInstance.id) this.spawnedNpcs[npcInstance.id] = characterId;
-
-        // Debug: log spawn position
-        console.log(`[DEBUG] Spawned ${spawnerType.actorDefinition} at position: [${npcInstance.position[0]}, ${npcInstance.position[1]}, ${npcInstance.position[2]}]`);
       }
     }
-    console.log("Prototype zombies spawned");
+    debug("Prototype zombies spawned");
   }
 
   refillScrapInChunks(server: ZoneServer2016) {
