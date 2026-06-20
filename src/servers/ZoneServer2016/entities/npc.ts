@@ -443,7 +443,7 @@ export class Npc extends BaseFullCharacter {
     const client = server.getClientByCharId(damageInfo.entity),
       weapon = client?.character.getEquippedWeapon();
 
-    if (!client || !weapon) return;
+    if (!weapon) return;
 
     const durabilityDamage = server.getDurabilityDamage(
       weapon.itemDefinitionId
