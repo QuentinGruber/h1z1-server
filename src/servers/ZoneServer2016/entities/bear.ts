@@ -55,9 +55,7 @@ export class Bear extends Npc {
     }
   }
 
-  protected addLoot(server: ZoneServer2016): void {
-    server.worldObjectManager.createLootbag(server, this);
-  }
+  protected addLoot(_server: ZoneServer2016): void {}
 
   protected onHarvest(server: ZoneServer2016, client: ZoneClient2016): void {
     this.triggerAwards(server, client, this.rewardItems);
