@@ -186,7 +186,11 @@ export function getSpecifiedZombieLoadout(name: string): LoadoutKit {
     case "Hunter":
       loadout = [
         { item: Items.HUNTING_POLO },
-        { item: Items.BROWN_CAMO_PANTS }
+        { item: Items.BROWN_CAMO_PANTS },
+        { item: Items.BOOTS_TAN },
+        { item: Items.SNIPER_FINGERLESS_GLOVES },
+        { item: Items.SNIPER_LAMINATED_BODY_ARMOR },
+        { item: Items.HAT_BEANIE }
       ];
       return loadout;
     case "Sniper":
