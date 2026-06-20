@@ -196,6 +196,15 @@ export class ZombieScreamer extends Npc {
       server.removeInventoryItem(client.character, emptySyringe);
       return;
     }
+    const emptyVial = client.character.getItemById(Items.VIAL_EMPTY);
+    if (emptyVial) {
+      client.character.lootContainerItem(
+        server,
+        server.generateItem(Items.VIAL_H1Z1_B_PLASMA)
+      );
+      server.removeInventoryItem(client.character, emptyVial);
+      return;
+    }
     this.triggerAwards(server, client, this.rewardItems);
   }
 
