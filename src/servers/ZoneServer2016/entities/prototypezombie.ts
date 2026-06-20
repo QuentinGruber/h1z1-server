@@ -14,9 +14,7 @@
 import { ZoneServer2016 } from "../zoneserver";
 import { ZoneClient2016 } from "../classes/zoneclient";
 import {
-  chance,
   generateRandomGuid,
-  randomIntFromInterval
 } from "../../../utils/utils";
 import {
   Items,
