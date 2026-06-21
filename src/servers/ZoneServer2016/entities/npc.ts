@@ -443,6 +443,17 @@ export class Npc extends BaseFullCharacter {
     if (!this.isAlive) return; // prevent dead npc despawning from melee dmg
     damageInfo.damage = damageInfo.damage / 1.5;
     this.damage(server, damageInfo);
+
+    const client = server.getClientByCharId(damageInfo.entity),
+      weapon = client?.character.getEquippedWeapon();
+
+    if (!weapon) return;
+
+    const durabilityDamage = server.getDurabilityDamage(
+      weapon.itemDefinitionId
+    );
+
+    server.damageItem(client.character, weapon, durabilityDamage);
   }
 
   destroy(server: ZoneServer2016): boolean {
