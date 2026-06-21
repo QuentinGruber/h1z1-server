@@ -111,6 +111,8 @@ worldobjects:
   vehicleSpawnCap: 120
   # How far any other vehicle has to be for another to spawn
   vehicleSpawnRadius: 50
+
+  npcSpawnCap: 1000
   # How far another spawned npc has to be for another to spawn
   npcSpawnRadius: 2
   chanceNpc: 100 # To be reworked: 100 max

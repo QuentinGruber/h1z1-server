@@ -183,6 +183,7 @@ export class WorldObjectManager {
   waterSourceRefillAmount!: number;
   gridScrapLimit!: number;
   gridScrapLimitEnabled!: boolean;
+  npcSpawnCap!: number;
 
   private zombieSlots = [
     EquipSlots.HEAD,
@@ -437,7 +438,8 @@ export class WorldObjectManager {
         existingNpcPositions,
         this.npcSpawnRadius,
         this.chanceNpc,
-        this.chanceScreamer
+        this.chanceScreamer,
+        this.npcSpawnCap
       );
 
       let i = 0;
