@@ -297,7 +297,15 @@ export function createZombie(npc: Npc, server: ZoneServer2016): ZombieInstance {
           if (zombie.coverEarsTimer >= 3) {
             zombie.isCoveringEars = false;
             zombie.npc.playAnimation(ZombieOneshotAnim.CoverEarsDone);
-            enterWander(zombie);
+            if (zombie.lastNoisePos) {
+              // swarm toward where the scream came from
+              zombie.stateTimer = 0;
+              zombie.agitation = 100;
+              zombie.targetPos = zombie.lastNoisePos;
+              zombie.event(ZombieEvents.HearNoise);
+            } else {
+              enterWander(zombie);
+            }
           }
           return;
         }

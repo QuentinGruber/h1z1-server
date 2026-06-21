@@ -14,7 +14,6 @@
 import { JSM } from "./jsm";
 import type { Npc } from "../entities/npc";
 import type { ZoneServer2016 } from "../zoneserver";
-import type { Sound } from "../../../types/zoneserver";
 import { NavManager } from "../../../utils/recast";
 const debug = require("debug")("ai");
 import { getDistance2d, getDistance } from "../../../utils/utils";
@@ -84,6 +83,8 @@ export interface ScreamerInstance extends JSM<Events> {
   stateTimer: number;
   targetCharacterId: string | null;
   wanderOrigin: Float32Array;
+  armsFreed: boolean;
+  screamCooldownTimer: number;
   npc: Npc;
   server: ZoneServer2016;
 }
@@ -93,9 +94,12 @@ const MAX_SPEED = 5.0;
 const AGITATION_DECAY_RATE = 1;
 const AGITATION_INITIAL = 50;
 const SCREAM_DURATION = 3;
-const RISE_DURATION = 4;
 const SCREAM_RADIUS = 50;
 const PLAYER_DETECT_RADIUS = 20;
+const SCREAM_COOLDOWN = 20;
+const ATTRACT_RADIUS = 250;
+const ATTRACT_AGITATION = 60;
+const CIRCLE_RADIUS = 12;
 
 function pickPatrolPoint(
   server: ZoneServer2016,
@@ -105,6 +109,19 @@ function pickPatrolPoint(
   const { success, randomPoint } =
     server.navManager.navMeshQuery.findRandomPointAroundCircle(navCenter, 60);
   return success ? NavManager.navToGame(randomPoint) : null;
+}
+
+function pickPointAroundPlayer(
+  server: ZoneServer2016,
+  playerPos: Float32Array
+): Float32Array {
+  const angle = Math.random() * Math.PI * 2;
+  const target = new Float32Array([
+    playerPos[0] + Math.cos(angle) * CIRCLE_RADIUS,
+    playerPos[1],
+    playerPos[2] + Math.sin(angle) * CIRCLE_RADIUS
+  ]);
+  return NavManager.navToGame(server.navManager.getClosestNavPointVec3(target));
 }
 
 function moveToward(
@@ -190,10 +207,21 @@ function screamAtNearbyZombies(screamer: ScreamerInstance): void {
         if (getDistance2d(pos, entry.position) > SCREAM_RADIUS) continue;
         const npc = screamer.server._npcs[entry.id];
         if (!npc?.fsm || !(npc instanceof ZombieWalker)) continue;
+        (
+          npc.fsm as unknown as { lastNoisePos: Float32Array | null }
+        ).lastNoisePos = screamer.npc.state.position.slice() as Float32Array;
         npc.fsm.event("coverEars");
       }
     }
   }
+}
+
+function pushScreamSound(screamer: ScreamerInstance): void {
+  screamer.server.pushSound({
+    position: screamer.npc.state.position.slice() as Float32Array,
+    radius: ATTRACT_RADIUS,
+    agitation: ATTRACT_AGITATION
+  });
 }
 
 function screamAtNearbyPlayers(screamer: ScreamerInstance): void {
@@ -281,6 +309,7 @@ export function createScreamer(
       },
       [Transitions.Screaming]: (dt: number) => {
         screamer.stateTimer += dt;
+        pushScreamSound(screamer);
         const chaseTarget = getChaseTarget(screamer);
         if (
           !chaseTarget ||
@@ -299,6 +328,7 @@ export function createScreamer(
 
       [Transitions.Chase]: (dt: number) => {
         screamer.stateTimer += dt;
+        screamer.screamCooldownTimer += dt;
         applyAgitation(screamer);
 
         const chaseTarget = getChaseTarget(screamer);
@@ -312,14 +342,39 @@ export function createScreamer(
           return;
         }
 
-        screamer.npc.lookAtTarget = chaseTarget.state.position;
         const chaseDist = getDistance2d(
           screamer.npc.state.position,
           chaseTarget.state.position
         );
         if (chaseDist > 80) {
           screamer.event(Events.LostPlayer);
-        } else if (chaseDist < 2) {
+          return;
+        }
+
+        // Phase 1 (arms still bound): never melee, just wander around the
+        // player, re-screaming every SCREAM_COOLDOWN.
+        if (!screamer.armsFreed) {
+          screamer.npc.lookAtTarget = null;
+          if (screamer.screamCooldownTimer >= SCREAM_COOLDOWN) {
+            screamer.event(Events.StartScreaming);
+            return;
+          }
+          const arrived =
+            screamer.targetPos != null &&
+            getDistance2d(screamer.npc.state.position, screamer.targetPos) < 3;
+          if (arrived || screamer.targetPos == null) {
+            screamer.targetPos = pickPointAroundPlayer(
+              screamer.server,
+              chaseTarget.state.position
+            );
+            moveToward(screamer.npc, screamer.targetPos, screamer.server);
+          }
+          return;
+        }
+
+        // Phase 2 (arms freed): melee.
+        screamer.npc.lookAtTarget = chaseTarget.state.position;
+        if (chaseDist < 2) {
           screamer.event(Events.ReachPlayer);
         } else {
           moveToward(screamer.npc, chaseTarget.state.position, screamer.server);
@@ -402,6 +457,8 @@ export function createScreamer(
         to: Transitions.Chase,
         EnterTransition: () => {
           screamer.stateTimer = 0;
+          screamer.screamCooldownTimer = 0;
+          screamer.targetPos = null;
           applyAgitation(screamer);
           const target = getChaseTarget(screamer);
           if (target)
@@ -482,6 +539,8 @@ export function createScreamer(
   screamer.lastNoisePos = null;
   screamer.stateTimer = 0;
   screamer.targetCharacterId = null;
+  screamer.armsFreed = false;
+  screamer.screamCooldownTimer = 0;
 
   npc.setAnimation(ScreamerAnimations.ScreamerReset);
 
