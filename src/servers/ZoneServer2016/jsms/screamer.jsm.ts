@@ -54,7 +54,6 @@ export const enum Transitions {
   Sleep = "sleep",
   Rising = "rising",
   Wander = "wander",
-  Investigate = "investigate",
   Screaming = "Screaming",
   Chase = "chase",
   Attack = "attack",
@@ -62,8 +61,6 @@ export const enum Transitions {
 }
 
 export const enum Events {
-  HearNoise = "hearNoise",
-  NoiseTimeout = "noiseTimeout",
   ReachPlayer = "reachPlayer",
   LostPlayer = "lostPlayer",
   PlayerBacked = "playerBacked",
@@ -99,7 +96,6 @@ const SCREAM_DURATION = 3;
 const RISE_DURATION = 4;
 const SCREAM_RADIUS = 50;
 const PLAYER_DETECT_RADIUS = 20;
-const INVESTIGATE_TIMEOUT = 120;
 
 function pickPatrolPoint(
   server: ZoneServer2016,
@@ -119,25 +115,6 @@ function moveToward(
   if (!npc.navAgent) return;
   const navTarget = server.navManager.getClosestNavPointVec3(target);
   npc.navAgent.requestMoveTarget(navTarget);
-}
-
-function listenToSounds(
-  screamer: ScreamerInstance,
-  sounds: Sound[]
-): Sound | null {
-  let nearest: Sound | null = null;
-  let nearestDist = Infinity;
-  for (const sound of sounds) {
-    const dist = getDistance2d(screamer.npc.state.position, sound.position);
-    if (dist < sound.radius) {
-      screamer.agitation = Math.min(100, screamer.agitation + sound.agitation);
-      if (dist < nearestDist) {
-        nearest = sound;
-        nearestDist = dist;
-      }
-    }
-  }
-  return nearest;
 }
 
 function tryDetectPlayer(screamer: ScreamerInstance): boolean {
@@ -270,19 +247,11 @@ export function createScreamer(
             }
           }
         }
-        const nearestSound = listenToSounds(screamer, screamer.server.sounds);
-        if (nearestSound) {
-          screamer.lastNoisePos = nearestSound.position;
-          screamer.event(Events.StartRising);
-        }
       },
 
       [Transitions.Rising]: (dt: number) => {
         screamer.stateTimer += dt;
         if (tryDetectPlayer(screamer)) return;
-        if (screamer.stateTimer >= RISE_DURATION) {
-          screamer.event(Events.NoiseTimeout);
-        }
       },
 
       [Transitions.Wander]: (dt: number) => {
@@ -290,13 +259,6 @@ export function createScreamer(
         applyAgitation(screamer);
 
         if (tryDetectPlayer(screamer)) return;
-
-        const nearestSound = listenToSounds(screamer, screamer.server.sounds);
-        if (nearestSound) {
-          screamer.lastNoisePos = nearestSound.position;
-          screamer.event(Events.HearNoise);
-          return;
-        }
 
         decayAgitation(screamer, dt);
 
@@ -317,34 +279,6 @@ export function createScreamer(
           }
         }
       },
-
-      [Transitions.Investigate]: (dt: number) => {
-        screamer.stateTimer += dt;
-        applyAgitation(screamer);
-
-        if (tryDetectPlayer(screamer)) return;
-
-        if (screamer.stateTimer >= INVESTIGATE_TIMEOUT) {
-          screamer.event(Events.NoiseTimeout);
-          return;
-        }
-
-        if (
-          screamer.lastNoisePos != null &&
-          getDistance2d(screamer.npc.state.position, screamer.lastNoisePos) < 3
-        ) {
-          screamer.event(Events.NoiseTimeout);
-          return;
-        }
-
-        const nearestSound = listenToSounds(screamer, screamer.server.sounds);
-        if (nearestSound) {
-          screamer.lastNoisePos = nearestSound.position;
-          screamer.stateTimer = 0;
-          moveToward(screamer.npc, nearestSound.position, screamer.server);
-        }
-      },
-
       [Transitions.Screaming]: (dt: number) => {
         screamer.stateTimer += dt;
         const chaseTarget = getChaseTarget(screamer);
@@ -365,7 +299,6 @@ export function createScreamer(
 
       [Transitions.Chase]: (dt: number) => {
         screamer.stateTimer += dt;
-        listenToSounds(screamer, screamer.server.sounds);
         applyAgitation(screamer);
 
         const chaseTarget = getChaseTarget(screamer);
@@ -395,7 +328,6 @@ export function createScreamer(
 
       [Transitions.Attack]: (dt: number) => {
         screamer.stateTimer += dt;
-        listenToSounds(screamer, screamer.server.sounds);
         applyAgitation(screamer);
 
         const attackTarget = getChaseTarget(screamer);
@@ -422,7 +354,6 @@ export function createScreamer(
 
       [Transitions.Attacking]: (dt: number) => {
         screamer.stateTimer += dt * 2;
-        listenToSounds(screamer, screamer.server.sounds);
 
         const attackTarget = getChaseTarget(screamer);
         if (attackTarget) {
@@ -454,30 +385,8 @@ export function createScreamer(
         }
       },
       {
-        eventId: Events.HearNoise,
-        from: [Transitions.Wander],
-        to: Transitions.Investigate,
-        EnterTransition: () => {
-          screamer.stateTimer = 0;
-          screamer.targetPos = screamer.lastNoisePos;
-          if (screamer.targetPos)
-            moveToward(screamer.npc, screamer.targetPos, screamer.server);
-        }
-      },
-      {
-        eventId: Events.NoiseTimeout,
-        from: [Transitions.Investigate, Transitions.Rising],
-        to: Transitions.Wander,
-        EnterTransition: () => enterWander(screamer)
-      },
-      {
         eventId: Events.StartScreaming,
-        from: [
-          Transitions.Wander,
-          Transitions.Investigate,
-          Transitions.Chase,
-          Transitions.Rising
-        ],
+        from: [Transitions.Wander, Transitions.Chase, Transitions.Rising],
         to: Transitions.Screaming,
         EnterTransition: () => {
           screamer.npc.stopMovement();
