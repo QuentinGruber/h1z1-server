@@ -444,9 +444,9 @@ export class Npc extends BaseFullCharacter {
     damageInfo.damage = damageInfo.damage / 1.5;
     this.damage(server, damageInfo);
 
-    const client = server.getClientByCharId(damageInfo.entity),
-      weapon = client?.character.getEquippedWeapon();
-
+    const client = server.getClientByCharId(damageInfo.entity);
+    if (!client) return;
+    const weapon = client.character.getEquippedWeapon();
     if (!weapon) return;
 
     const durabilityDamage = server.getDurabilityDamage(
