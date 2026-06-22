@@ -14,7 +14,8 @@
 import { ZoneServer2016 } from "../zoneserver";
 import { Effects, ModelIds, NpcIds, StringIds } from "../models/enums";
 import { ZombieWalker } from "./zombiewalker";
-import { createExploder } from "../jsms/exploder.jsm";
+import { createExploder, detonateExploder } from "../jsms/exploder.jsm";
+import { DamageInfo } from "types/zoneserver";
 
 export class Exploder extends ZombieWalker {
   constructor(
@@ -41,6 +42,15 @@ export class Exploder extends ZombieWalker {
     // override the walker FSM set by parent constructor
     if (!process.env.DISABLE_AI && server.aiEnabled) {
       this.fsm = createExploder(this, server);
+    }
+  }
+
+  async damage(server: ZoneServer2016, damageInfo: DamageInfo) {
+    const wasAlive = this.isAlive;
+    await super.damage(server, damageInfo);
+    // detonate when killed
+    if (wasAlive && !this.isAlive) {
+      detonateExploder(server, this, this.characterId);
     }
   }
 }

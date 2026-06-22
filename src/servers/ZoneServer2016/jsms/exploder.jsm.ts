@@ -149,8 +149,11 @@ function getChaseTarget(exploder: ZombieInstance): {
   return null;
 }
 
-function explodeAndDie(exploder: ZombieInstance): void {
-  const { npc, server } = exploder;
+export function detonateExploder(
+  server: ZoneServer2016,
+  npc: Npc,
+  ownerCharacterId: string
+): void {
   const pos = npc.state.position;
 
   const characterId = generateRandomGuid();
@@ -164,13 +167,16 @@ function explodeAndDie(exploder: ZombieInstance): void {
     new Float32Array([0, 0, 0, 0]),
     server,
     Items.LANDMINE,
-    npc.characterId
+    ownerCharacterId
   );
   server._explosives[characterId] = explosive;
   npc.playAnimation(ZombieOneshotAnim.ExplodeExpand);
-  explosive.detonate(npc.characterId);
+  explosive.detonate(ownerCharacterId);
+}
 
-  // kill the exploder
+function explodeAndDie(exploder: ZombieInstance): void {
+  const { npc, server } = exploder;
+  // kill the exploder, damage() override detonates the explosion on death
   npc.damage(server, {
     entity: npc.characterId,
     damage: npc.health + 1
