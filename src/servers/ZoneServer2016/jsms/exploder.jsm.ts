@@ -21,6 +21,9 @@ import {
   getDistance2d,
   getDistance
 } from "../../../utils/utils";
+import {
+  Effects
+} from "../models/enums";
 import { isHostile } from "./factions";
 import {
   ZombieLoopingAnim,
@@ -156,7 +159,7 @@ export function detonateExploder(
     "Command.PlayDialogEffect",
     {
       characterId: npc.characterId,
-      effectId: 5242
+      effectId: Effects.PFX_Char_Zombie_Exploder_Explosion
     }
   );
   npc.playAnimation(ZombieOneshotAnim.ExplodeExpand);
