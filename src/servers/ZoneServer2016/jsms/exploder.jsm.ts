@@ -154,24 +154,17 @@ export function detonateExploder(
   npc: Npc,
   ownerCharacterId: string
 ): void {
-  const pos = npc.state.position;
-
-  const characterId = generateRandomGuid();
-  const transientId = server.getTransientId(characterId);
-  // Boring hack
-  const explosive = new ExplosiveEntity(
-    characterId,
-    transientId,
-    LANDMINE_MODEL_ID,
-    pos.slice() as Float32Array,
-    new Float32Array([0, 0, 0, 0]),
-    server,
-    Items.LANDMINE,
-    ownerCharacterId
+  server.sendDataToAllWithSpawnedEntity(
+    server._npcs,
+    npc.characterId,
+    "Command.PlayDialogEffect",
+    {
+      characterId: npc.characterId,
+      effectId: 5242
+    }
   );
-  server._explosives[characterId] = explosive;
   npc.playAnimation(ZombieOneshotAnim.ExplodeExpand);
-  explosive.detonate(ownerCharacterId);
+  server.explosionDamage(npc);
 }
 
 function explodeAndDie(exploder: ZombieInstance): void {
