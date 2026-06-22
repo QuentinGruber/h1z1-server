@@ -93,6 +93,7 @@ type WorkerRequest =
         npcSpawnRadius: number;
         chanceNpc: number;
         chanceScreamer: number;
+        npcSpawnCap: number;
       };
     }
   | {
@@ -196,7 +197,8 @@ export class LootSpawnWorker {
     existingNpcPositions: number[][],
     npcSpawnRadius: number,
     chanceNpc: number,
-    chanceScreamer: number
+    chanceScreamer: number,
+    npcSpawnCap: number
   ): Promise<NpcPlanEntry[]> {
     const request: WorkerRequest = {
       requestId: this.requestId++,
@@ -205,7 +207,8 @@ export class LootSpawnWorker {
         existingNpcPositions,
         npcSpawnRadius,
         chanceNpc,
-        chanceScreamer
+        chanceScreamer,
+        npcSpawnCap
       }
     };
     return this.request<NpcPlanEntry[]>(request);

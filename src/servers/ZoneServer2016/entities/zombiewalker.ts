@@ -29,6 +29,7 @@ import { Npc } from "./npc";
 import { LoadoutContainer } from "../classes/loadoutcontainer";
 import { Lootbag } from "./lootbag";
 import { createZombie } from "../jsms/zombie.jsm";
+import { Factions } from "../jsms/factions";
 import { getRandomZombieLoadout } from "../data/loadouts";
 
 export class ZombieWalker extends Npc {
@@ -53,6 +54,7 @@ export class ZombieWalker extends Npc {
     this.materialType = MaterialTypes.ZOMBIE;
     this.npcMeleeDamage = 2500;
     this.npcId = NpcIds.ZOMBIE;
+    this.faction = Factions.ZOMBIE;
     this.nameId = StringIds.ZOMBIE_WALKER;
     this.rewardItems = [{ itemDefId: Items.BRAIN_INFECTED, weight: 10 }];
     if (!process.env.DISABLE_AI && server.aiEnabled) {

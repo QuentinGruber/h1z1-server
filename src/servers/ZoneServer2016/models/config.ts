@@ -68,6 +68,7 @@ interface GameTimeConfig {
 
 interface WorldObjectsConfig {
   vehicleSpawnCap: number;
+  npcSpawnCap: number;
   hasCustomLootRespawnTime: boolean;
   lootRespawnTimer: number;
   vehicleRespawnTimer: number;

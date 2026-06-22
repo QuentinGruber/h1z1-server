@@ -28,7 +28,13 @@ import {
 import { Npc } from "./npc";
 import { LoadoutContainer } from "../classes/loadoutcontainer";
 import { Lootbag } from "./lootbag";
-import { createScreamer } from "../jsms/screamer.jsm";
+import {
+  createScreamer,
+  ScreamerAnimations,
+  ScreamerInstance
+} from "../jsms/screamer.jsm";
+import { DamageInfo } from "types/zoneserver";
+import { Factions } from "../jsms/factions";
 
 export class ZombieScreamer extends Npc {
   constructor(
@@ -53,10 +59,21 @@ export class ZombieScreamer extends Npc {
     this.maxHealth = 30000;
     this.health = this.maxHealth;
     this.npcId = NpcIds.ZOMBIE;
+    this.faction = Factions.ZOMBIE;
     this.nameId = StringIds.BANSHEE;
     this.rewardItems = [{ itemDefId: Items.BRAIN_INFECTED, weight: 10 }];
     if (!process.env.DISABLE_AI && server.aiEnabled) {
       this.fsm = createScreamer(this, server);
+    }
+  }
+
+  async damage(server: ZoneServer2016, damageInfo: DamageInfo) {
+    await super.damage(server, damageInfo);
+    if (!this.fsm) return;
+    const fsm = this.fsm as unknown as ScreamerInstance;
+    if (!fsm.armsFreed && this.isAlive && this.health <= this.maxHealth / 2) {
+      fsm.armsFreed = true;
+      this.playAnimation(ScreamerAnimations.Untie);
     }
   }
 

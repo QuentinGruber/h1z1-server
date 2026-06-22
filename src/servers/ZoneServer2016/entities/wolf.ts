@@ -22,6 +22,7 @@ import {
 } from "../models/enums";
 import { Npc } from "./npc";
 import { createWolf } from "../jsms/wolf.jsm";
+import { Factions } from "../jsms/factions";
 
 export class Wolf extends Npc {
   constructor(
@@ -45,6 +46,7 @@ export class Wolf extends Npc {
     this.materialType = MaterialTypes.FLESH;
     this.npcMeleeDamage = 2000;
     this.npcId = NpcIds.WOLF;
+    this.faction = Factions.WOLF;
     this.nameId = StringIds.WOLF;
     this.rewardItems = [
       { itemDefId: Items.MEAT_WOLF, weight: 30 },

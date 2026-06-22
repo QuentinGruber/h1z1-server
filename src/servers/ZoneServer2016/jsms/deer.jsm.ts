@@ -17,7 +17,6 @@ import type { ZoneServer2016 } from "../zoneserver";
 import { NavManager } from "../../../utils/recast";
 const debug = require("debug")("ai");
 import { getDistance2d } from "../../../utils/utils";
-import { NpcIds } from "../models/enums";
 
 export const enum AnimalsAnimation {
   Idle = "Idle",
@@ -110,7 +109,7 @@ function findThreat(deer: DeerInstance, radius: number): Float32Array | null {
       );
       if (!bucket) continue;
       for (const entry of bucket) {
-        if (entry.npcId === NpcIds.DEER) continue;
+        if (entry.faction === deer.npc.faction) continue;
         if (getDistance2d(pos, entry.position) < radius) {
           return entry.position;
         }

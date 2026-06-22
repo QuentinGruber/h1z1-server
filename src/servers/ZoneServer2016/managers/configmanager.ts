@@ -476,6 +476,7 @@ export class ConfigManager {
       maxItemDespawnsPerRun,
       chanceWornLetter,
       vehicleSpawnRadius,
+      npcSpawnCap,
       npcSpawnRadius,
       chanceNpc,
       chanceScreamer,
@@ -486,6 +487,7 @@ export class ConfigManager {
       gridScrapLimitEnabled
     } = this.config.worldobjects;
     server.worldObjectManager.vehicleSpawnCap = vehicleSpawnCap;
+    server.worldObjectManager.npcSpawnCap = npcSpawnCap;
     server.worldObjectManager.hasCustomLootRespawnTime =
       hasCustomLootRespawnTime;
     server.worldObjectManager.lootRespawnTimer = lootRespawnTimer;

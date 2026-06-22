@@ -57,6 +57,7 @@ interface NpcPlanRequest {
     npcSpawnRadius: number;
     chanceNpc: number;
     chanceScreamer: number;
+    npcSpawnCap: number;
   };
 }
 
@@ -480,10 +481,14 @@ function createNpcPlan(
   existingNpcPositions: number[][],
   npcSpawnRadius: number,
   chanceNpc: number,
-  chanceScreamer: number
+  chanceScreamer: number,
+  npcSpawnCap: number
 ): NpcPlanEntry[] {
   const plan: NpcPlanEntry[] = [];
   const plannedPositions: number[][] = [...existingNpcPositions];
+
+  const remaining = npcSpawnCap - existingNpcPositions.length;
+  if (remaining <= 0) return plan;
 
   for (const spawnerType of Z1_npcs) {
     const baseModels = getAuthorizedNpcModels(spawnerType.actorDefinition);
@@ -492,6 +497,8 @@ function createNpcPlan(
     for (const npcInstance of spawnerType.instances) {
       const spawnCount: number = npcInstance.count ?? 1;
       for (let i = 0; i < spawnCount; i++) {
+        if (plan.length >= remaining) return plan;
+
         let pos: number[] = npcInstance.position;
         if (i > 0) {
           const angle = Math.random() * Math.PI * 2;
@@ -594,7 +601,8 @@ parentPort?.on("message", (request: WorkerRequest) => {
         request.payload.existingNpcPositions,
         request.payload.npcSpawnRadius,
         request.payload.chanceNpc,
-        request.payload.chanceScreamer
+        request.payload.chanceScreamer,
+        request.payload.npcSpawnCap
       );
       parentPort?.postMessage({
         requestId: request.requestId,

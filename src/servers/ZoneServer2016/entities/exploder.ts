@@ -14,10 +14,10 @@
 import { ZoneServer2016 } from "../zoneserver";
 import { Effects, ModelIds, NpcIds, StringIds } from "../models/enums";
 import { ZombieWalker } from "./zombiewalker";
-import { createGazer, spawnGasCloudAt } from "../jsms/gazer.jsm";
+import { createExploder, detonateExploder } from "../jsms/exploder.jsm";
 import { DamageInfo } from "types/zoneserver";
 
-export class Gazer extends ZombieWalker {
+export class Exploder extends ZombieWalker {
   constructor(
     characterId: string,
     transientId: number,
@@ -36,21 +36,21 @@ export class Gazer extends ZombieWalker {
       spawnerId
     );
     this.npcMeleeDamage = 0;
-    this.npcId = NpcIds.GAZER;
+    this.npcId = NpcIds.EXPLODER;
     this.nameId = StringIds.ZOMBIE_WALKER;
-    this.effectTags.push(Effects.PFX_Char_Zombie_Gasser_Ambient);
+    this.effectTags.push(Effects.PFX_Char_Zombie_Exploder_Ambient);
     // override the walker FSM set by parent constructor
     if (!process.env.DISABLE_AI && server.aiEnabled) {
-      this.fsm = createGazer(this, server);
+      this.fsm = createExploder(this, server);
     }
   }
 
   async damage(server: ZoneServer2016, damageInfo: DamageInfo) {
     const wasAlive = this.isAlive;
     await super.damage(server, damageInfo);
-    // explode into a gas cloud
+    // detonate when killed
     if (wasAlive && !this.isAlive) {
-      spawnGasCloudAt(server, this.state.position, this.characterId);
+      detonateExploder(server, this, this.characterId);
     }
   }
 }

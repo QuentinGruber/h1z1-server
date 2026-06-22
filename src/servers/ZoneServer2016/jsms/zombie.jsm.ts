@@ -18,7 +18,7 @@ import type { Sound } from "../../../types/zoneserver";
 import { NavManager } from "../../../utils/recast";
 const debug = require("debug")("ai");
 import { getDistance2d, getDistance } from "../../../utils/utils";
-import { NpcIds } from "../models/enums";
+import { isHostile } from "./factions";
 
 export const enum ZombieLoopingAnim {
   Idle = "Idle",
@@ -179,10 +179,8 @@ function trySeePlayer(zombie: ZombieInstance): boolean {
       );
       if (!bucket) continue;
       for (const entry of bucket) {
-        if (entry.npcId !== NpcIds.SURVIVOR) {
-          if (entry.npcId === NpcIds.ZOMBIE) continue;
-          if (entry.id === zombie.npc.characterId) continue;
-        }
+        if (entry.id === zombie.npc.characterId) continue;
+        if (!isHostile(zombie.npc.faction, entry.faction)) continue;
         if (getDistance2d(pos, entry.position) < 10) {
           zombie.targetCharacterId = entry.id;
           zombie.event(ZombieEvents.SeePlayer);
@@ -297,7 +295,15 @@ export function createZombie(npc: Npc, server: ZoneServer2016): ZombieInstance {
           if (zombie.coverEarsTimer >= 3) {
             zombie.isCoveringEars = false;
             zombie.npc.playAnimation(ZombieOneshotAnim.CoverEarsDone);
-            enterWander(zombie);
+            if (zombie.lastNoisePos) {
+              // swarm toward where the scream came from
+              zombie.stateTimer = 0;
+              zombie.agitation = 100;
+              zombie.targetPos = zombie.lastNoisePos;
+              zombie.event(ZombieEvents.HearNoise);
+            } else {
+              enterWander(zombie);
+            }
           }
           return;
         }

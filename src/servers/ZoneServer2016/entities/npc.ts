@@ -35,6 +35,7 @@ import { BaseEntity } from "./baseentity";
 import { ChallengeType } from "../managers/challengemanager";
 import { ProjectileEntity } from "./projectileentity";
 import { JSM } from "../jsms/jsm";
+import { Factions } from "../jsms/factions";
 
 export abstract class Npc extends BaseFullCharacter {
   health: number;
@@ -48,6 +49,7 @@ export abstract class Npc extends BaseFullCharacter {
   spawnerId: number;
   deathTime: number = 0;
   npcId: number = 0;
+  faction: Factions = Factions.None;
   rewardItems: { itemDefId: number; weight: number }[] = [];
   flags = {
     bit0: 0,
