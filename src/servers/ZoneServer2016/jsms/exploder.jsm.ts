@@ -31,7 +31,7 @@ import {
 const EXPLODE_WINDUP = 2;
 
 const BASE_SPEED = 1.0;
-const MAX_SPEED = 5.0;
+const MAX_SPEED = 6.0;
 const AGITATION_DECAY_RATE = 1;
 const AGITATION_INITIAL = 50;
 const INVESTIGATE_TIMEOUT = 120;
