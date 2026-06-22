@@ -155,21 +155,6 @@ export class ZombieScreamer extends Npc {
       }
     }
 
-    // Prototype item (1% chance)
-    const PrototypeItems = [
-      Items.PROTOTYPE_MECHANISM,
-      Items.PROTOTYPE_RECEIVER,
-      Items.PROTOTYPE_TRIGGER_ASSEMBLY
-    ];
-    if (chance(10)) {
-      const randomSpecial =
-        PrototypeItems[randomIntFromInterval(0, PrototypeItems.length - 1)];
-      const specialItem = server.generateItem(randomSpecial, 1);
-      if (specialItem) {
-        lootItems.push(specialItem);
-      }
-    }
-
     // Cloth (80% chance)
     if (chance(800)) {
       const clothCount = randomIntFromInterval(1, 3);

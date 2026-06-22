@@ -180,6 +180,47 @@ export function getRandomZombieLoadout(): LoadoutKit {
   return loadout;
 }
 
+export function getSpecifiedZombieLoadout(name: string): LoadoutKit {
+  let loadout: LoadoutKit = [];
+  switch (name) {
+    case "Hunter":
+      loadout = [
+        { item: Items.WEAPON_CROSSBOW },
+        { item: Items.HUNTING_POLO },
+        { item: Items.BROWN_CAMO_PANTS },
+        { item: Items.BOOTS_TAN },
+        { item: Items.SNIPER_FINGERLESS_GLOVES },
+        { item: Items.SNIPER_LAMINATED_BODY_ARMOR },
+        { item: Items.HAT_BEANIE }
+      ];
+      return loadout;
+    case "Sniper":
+      loadout = [
+        { item: Items.WEAPON_308 },
+        { item: Items.SNIPER_BOOTS },
+        { item: Items.SNIPER_CAMO_PADDED_PANTS },
+        { item: Items.SNIPER_FINGERLESS_GLOVES },
+        { item: Items.SNIPER_LAMINATED_BODY_ARMOR },
+        { item: Items.SNIPER_TACTICAL_HELMET },
+        { item: Items.SNIPER_FARMER_JACKET }
+      ];
+      return loadout;
+    case "Assault":
+      loadout = [
+        { item: Items.WEAPON_COMBAT_SHOTGUN },
+        { item: Items.HEAVY_ASSAULT_POLO_SHIRT },
+        { item: Items.HEAVY_ASSAULT_COMBAT_BOOTS },
+        { item: Items.HEAVY_ASSAULT_FULL_HELMET },
+        { item: Items.HEAVY_ASSAULT_BODY_ARMOR },
+        { item: Items.HEAVY_ASSAULT_PADDED_GLOVES },
+        { item: Items.HEAVY_ASSAULT_MILITARY_PANTS }
+      ];
+      return loadout;
+    default:
+      return getRandomZombieLoadout();
+  }
+}
+
 export const characterVehicleKit = [
   { item: Items.SPARKPLUGS },
   { item: Items.VEHICLE_KEY },
