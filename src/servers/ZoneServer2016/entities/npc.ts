@@ -143,6 +143,22 @@ export abstract class Npc extends BaseFullCharacter {
     );
   }
 
+  removeEffectTag(effectId: number) {
+    const index = this.effectTags.indexOf(effectId);
+    if (index <= -1) return;
+    this.effectTags.splice(index, 1);
+    this.server.sendDataToAllWithSpawnedEntity(
+      this.server._npcs,
+      this.characterId,
+      "Character.RemoveEffectTagCompositeEffect",
+      {
+        characterId: this.characterId,
+        effectId: effectId,
+        newEffectId: 0
+      }
+    );
+  }
+
   applyDamage(characterId: string) {
     const client = this.server.getClientByCharId(characterId);
     if (client?.isLoading === false) {
