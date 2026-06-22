@@ -14,7 +14,8 @@
 import { ZoneServer2016 } from "../zoneserver";
 import { Effects, ModelIds, NpcIds, StringIds } from "../models/enums";
 import { ZombieWalker } from "./zombiewalker";
-import { createGazer } from "../jsms/gazer.jsm";
+import { createGazer, spawnGasCloudAt } from "../jsms/gazer.jsm";
+import { DamageInfo } from "types/zoneserver";
 
 export class Gazer extends ZombieWalker {
   constructor(
@@ -41,6 +42,15 @@ export class Gazer extends ZombieWalker {
     // override the walker FSM set by parent constructor
     if (!process.env.DISABLE_AI && server.aiEnabled) {
       this.fsm = createGazer(this, server);
+    }
+  }
+
+  async damage(server: ZoneServer2016, damageInfo: DamageInfo) {
+    const wasAlive = this.isAlive;
+    await super.damage(server, damageInfo);
+    // explode into a gas cloud
+    if (wasAlive && !this.isAlive) {
+      spawnGasCloudAt(server, this.state.position, this.characterId);
     }
   }
 }

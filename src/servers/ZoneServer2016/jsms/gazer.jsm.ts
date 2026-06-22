@@ -144,6 +144,34 @@ function getChaseTarget(gazer: ZombieInstance): {
   return null;
 }
 
+export function spawnGasCloudAt(
+  server: ZoneServer2016,
+  position: Float32Array,
+  ownerCharacterId: string
+): void {
+  const characterId = generateRandomGuid();
+  const transientId = server.getTransientId(characterId);
+  const cloud = new ProjectileEntity(
+    characterId,
+    transientId,
+    0,
+    position.slice() as Float32Array,
+    new Float32Array([0, 0, 0, 0]),
+    server,
+    Items.GRENADE_GAS,
+    0,
+    ownerCharacterId
+  );
+  server._throwableProjectiles[characterId] = cloud;
+  server.getClientsInRange(200, position).forEach((c: ZoneClient2016) => {
+    server.addLightweightNpc(c, cloud);
+    c.spawnedEntities.add(cloud);
+  });
+  // bypass the grenade's 5-second fuse and trigger the gas cloud immediately
+  clearTimeout(cloud.triggerTimeout);
+  cloud.onTrigger(server);
+}
+
 function spawnGasCloud(gazer: ZombieInstance): void {
   const targetCharacter =
     gazer.server._characters[gazer.targetCharacterId ?? ""];
@@ -152,29 +180,11 @@ function spawnGasCloud(gazer: ZombieInstance): void {
     targetCharacter?.state.position ?? targetNpc?.state.position;
   if (!targetPos) return;
 
-  const characterId = generateRandomGuid();
-  const transientId = gazer.server.getTransientId(characterId);
-  const cloud = new ProjectileEntity(
-    characterId,
-    transientId,
-    0,
-    targetPos.slice() as Float32Array,
-    new Float32Array([0, 0, 0, 0]),
+  spawnGasCloudAt(
     gazer.server,
-    Items.GRENADE_GAS,
-    0,
+    targetPos.slice() as Float32Array,
     gazer.npc.characterId
   );
-  gazer.server._throwableProjectiles[characterId] = cloud;
-  gazer.server
-    .getClientsInRange(200, targetPos)
-    .forEach((c: ZoneClient2016) => {
-      gazer.server.addLightweightNpc(c, cloud);
-      c.spawnedEntities.add(cloud);
-    });
-  // bypass the grenade's 5-second fuse and trigger the gas cloud immediately
-  clearTimeout(cloud.triggerTimeout);
-  cloud.onTrigger(gazer.server);
 }
 
 function tickTimers(gazer: ZombieInstance, dt: number): void {
