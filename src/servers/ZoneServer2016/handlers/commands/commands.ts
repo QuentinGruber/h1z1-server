@@ -45,6 +45,7 @@ import {
   EquipSlots,
   Items,
   ModelIds,
+  NpcIds,
   ResourceIds,
   ResourceTypes,
   VehicleIds
@@ -68,6 +69,7 @@ import { AddSimpleNpc } from "types/zone2016packets";
 import { Npc } from "../../entities/npc";
 import { ZombieWalker } from "../../entities/zombiewalker";
 import { ZombieScreamer } from "../../entities/zombiescreamer";
+import { Exploder } from "../../entities/exploder";
 import { Deer } from "../../entities/deer";
 import { DeerEvents } from "../../jsms/deer.jsm";
 import { ZombieEvents } from "../../jsms/zombie.jsm";
@@ -2283,6 +2285,7 @@ export const commands: Array<Command> = [
         zombie_male: ModelIds.ZOMBIE_MALE_WALKER,
         zombie_screamer: ModelIds.ZOMBIE_SCREAMER,
         gazer: ModelIds.ZOMBIE_MALE_WALKER,
+        exploder: ModelIds.ZOMBIE_MALE_WALKER,
         deer: ModelIds.DEER,
         deer_buck: ModelIds.DEER_BUCK,
         wolf: ModelIds.WOLF,
@@ -2313,6 +2316,10 @@ export const commands: Array<Command> = [
         return;
       }
       const scatterRadius = 10;
+      const npcIdMap: Record<string, NpcIds> = {
+        exploder: NpcIds.EXPLODER,
+        gazer: NpcIds.GAZER
+      };
       for (let i = 0; i < count; i++) {
         const offsetX = (Math.random() - 0.5) * 2 * scatterRadius;
         const offsetZ = (Math.random() - 0.5) * 2 * scatterRadius;
@@ -2326,7 +2333,9 @@ export const commands: Array<Command> = [
           server,
           modelId,
           pos,
-          client.character.state.lookAt
+          client.character.state.lookAt,
+          0,
+          npcIdMap[args[0]]
         );
       }
       server.sendChatText(
@@ -2349,6 +2358,7 @@ export const commands: Array<Command> = [
           npc instanceof ZombieWalker &&
           npc.actorModelId === ModelIds.ZOMBIE_MALE_WALKER,
         zombie_screamer: (npc) => npc instanceof ZombieScreamer,
+        exploder: (npc) => npc instanceof Exploder,
         deer: (npc) =>
           npc instanceof Deer && npc.actorModelId === ModelIds.DEER,
         deer_buck: (npc) =>

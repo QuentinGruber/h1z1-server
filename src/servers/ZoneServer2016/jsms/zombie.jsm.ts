@@ -180,7 +180,12 @@ function trySeePlayer(zombie: ZombieInstance): boolean {
       if (!bucket) continue;
       for (const entry of bucket) {
         if (entry.npcId !== NpcIds.SURVIVOR) {
-          if (entry.npcId === NpcIds.ZOMBIE) continue;
+          if (
+            entry.npcId === NpcIds.ZOMBIE ||
+            entry.npcId === NpcIds.GAZER ||
+            entry.npcId === NpcIds.EXPLODER
+          )
+            continue;
           if (entry.id === zombie.npc.characterId) continue;
         }
         if (getDistance2d(pos, entry.position) < 10) {

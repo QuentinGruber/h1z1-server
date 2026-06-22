@@ -419,6 +419,7 @@ export enum NpcIds {
   SURVIVOR = 0, // fake, just made for convinence
   ZOMBIE = 3,
   GAZER = 4, // fake, not based on game data
+  EXPLODER = 5, // fake, not based on game data
   DEER = 13,
   WOLF = 14,
   BEAR = 825,

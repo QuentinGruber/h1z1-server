@@ -45,6 +45,7 @@ import {
   Items,
   Effects,
   ModelIds,
+  NpcIds,
   DefaultSkinsConveys,
   DefaultSkinsBackpack,
   DefaultSkinsMotorHelmet,
@@ -72,6 +73,7 @@ import { TreasureChest } from "../entities/treasurechest";
 import { Npc } from "../entities/npc";
 import { ZombieWalker } from "../entities/zombiewalker";
 import { ZombieScreamer } from "../entities/zombiescreamer";
+import { Exploder } from "../entities/exploder";
 import { Deer } from "../entities/deer";
 import { Wolf } from "../entities/wolf";
 import { Bear } from "../entities/bear";
@@ -85,6 +87,7 @@ import {
   SpawnedItemSnapshot
 } from "./lootspawnworker";
 import type { ItemFunction } from "types/zoneserver";
+import { Gazer } from "../entities/gazer";
 const debug = require("debug")("ZoneServer");
 const apm = require("elastic-apm-node");
 
@@ -614,7 +617,8 @@ export class WorldObjectManager {
     modelId: number,
     position: Float32Array,
     rotation: Float32Array,
-    spawnerId: number = 0
+    spawnerId: number = 0,
+    npcId?: NpcIds
   ) {
     const characterId = generateRandomGuid();
     const transientId = server.getTransientId(characterId);
@@ -622,15 +626,40 @@ export class WorldObjectManager {
     switch (modelId) {
       case ModelIds.ZOMBIE_FEMALE_WALKER:
       case ModelIds.ZOMBIE_MALE_WALKER:
-        npc = new ZombieWalker(
-          characterId,
-          transientId,
-          modelId,
-          position,
-          rotation,
-          server,
-          spawnerId
-        );
+        switch (npcId) {
+          case NpcIds.EXPLODER:
+            npc = new Exploder(
+              characterId,
+              transientId,
+              position,
+              rotation,
+              server,
+              spawnerId
+            );
+            break;
+          case NpcIds.GAZER:
+            npc = new Gazer(
+              characterId,
+              transientId,
+              position,
+              rotation,
+              server,
+              spawnerId
+            );
+
+            break;
+          default:
+            npc = new ZombieWalker(
+              characterId,
+              transientId,
+              modelId,
+              position,
+              rotation,
+              server,
+              spawnerId
+            );
+            break;
+        }
         break;
       case ModelIds.ZOMBIE_SCREAMER:
         npc = new ZombieScreamer(
