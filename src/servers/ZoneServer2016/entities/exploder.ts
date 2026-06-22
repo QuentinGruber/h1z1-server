@@ -51,7 +51,7 @@ export class Exploder extends ZombieWalker {
     // detonate when killed
     if (wasAlive && !this.isAlive) {
       this.removeEffectTag(Effects.PFX_Char_Zombie_Exploder_Ambient);
-      detonateExploder(server, this, this.characterId);
+      detonateExploder(server, this);
     }
   }
 }
