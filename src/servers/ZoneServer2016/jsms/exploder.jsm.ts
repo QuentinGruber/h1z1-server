@@ -17,14 +17,9 @@ import type { ZoneServer2016 } from "../zoneserver";
 import type { Sound } from "../../../types/zoneserver";
 import { NavManager } from "../../../utils/recast";
 const debug = require("debug")("ai");
-import {
-  generateRandomGuid,
-  getDistance2d,
-  getDistance
-} from "../../../utils/utils";
-import { Items } from "../models/enums";
+import { getDistance2d, getDistance } from "../../../utils/utils";
+import { Effects } from "../models/enums";
 import { isHostile } from "./factions";
-import { ExplosiveEntity } from "../entities/explosiveentity";
 import {
   ZombieLoopingAnim,
   ZombieOneshotAnim,
@@ -33,7 +28,6 @@ import {
   type ZombieInstance
 } from "./zombie.jsm";
 
-const LANDMINE_MODEL_ID = 9176;
 const EXPLODE_WINDUP = 2;
 
 const BASE_SPEED = 1.0;
@@ -149,29 +143,18 @@ function getChaseTarget(exploder: ZombieInstance): {
   return null;
 }
 
-export function detonateExploder(
-  server: ZoneServer2016,
-  npc: Npc,
-  ownerCharacterId: string
-): void {
-  const pos = npc.state.position;
-
-  const characterId = generateRandomGuid();
-  const transientId = server.getTransientId(characterId);
-  // Boring hack
-  const explosive = new ExplosiveEntity(
-    characterId,
-    transientId,
-    LANDMINE_MODEL_ID,
-    pos.slice() as Float32Array,
-    new Float32Array([0, 0, 0, 0]),
-    server,
-    Items.LANDMINE,
-    ownerCharacterId
+export function detonateExploder(server: ZoneServer2016, npc: Npc): void {
+  server.sendDataToAllWithSpawnedEntity(
+    server._npcs,
+    npc.characterId,
+    "Command.PlayDialogEffect",
+    {
+      characterId: npc.characterId,
+      effectId: Effects.PFX_Char_Zombie_Exploder_Explosion
+    }
   );
-  server._explosives[characterId] = explosive;
   npc.playAnimation(ZombieOneshotAnim.ExplodeExpand);
-  explosive.detonate(ownerCharacterId);
+  server.explosionDamage(npc);
 }
 
 function explodeAndDie(exploder: ZombieInstance): void {
