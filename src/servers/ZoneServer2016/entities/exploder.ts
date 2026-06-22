@@ -12,7 +12,7 @@
 // ======================================================================
 
 import { ZoneServer2016 } from "../zoneserver";
-import { ModelIds, NpcIds, StringIds } from "../models/enums";
+import { Effects, ModelIds, NpcIds, StringIds } from "../models/enums";
 import { ZombieWalker } from "./zombiewalker";
 import { createExploder } from "../jsms/exploder.jsm";
 
@@ -37,6 +37,7 @@ export class Exploder extends ZombieWalker {
     this.npcMeleeDamage = 0;
     this.npcId = NpcIds.EXPLODER;
     this.nameId = StringIds.ZOMBIE_WALKER;
+    this.effectTags.push(Effects.PFX_Char_Zombie_Exploder_Ambient);
     // override the walker FSM set by parent constructor
     if (!process.env.DISABLE_AI && server.aiEnabled) {
       this.fsm = createExploder(this, server);

@@ -4576,6 +4576,18 @@ export class ZoneServer2016 extends EventEmitter {
       ...entity.pGetLightweight(),
       nameId
     });
+    entity.effectTags.forEach((effectTag: number) => {
+      this.sendData<CharacterAddEffectTagCompositeEffect>(
+        client,
+        "Character.AddEffectTagCompositeEffect",
+        {
+          characterId: entity.characterId,
+          effectId: effectTag,
+          unknownDword1: effectTag,
+          unknownDword2: effectTag
+        }
+      );
+    });
     this.sendReplicationData(client, entity);
   }
   addSimpleNpc(client: Client, entity: BaseSimpleNpc) {
