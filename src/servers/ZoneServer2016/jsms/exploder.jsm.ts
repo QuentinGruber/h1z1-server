@@ -18,13 +18,10 @@ import type { Sound } from "../../../types/zoneserver";
 import { NavManager } from "../../../utils/recast";
 const debug = require("debug")("ai");
 import {
-  generateRandomGuid,
   getDistance2d,
   getDistance
 } from "../../../utils/utils";
-import { Items } from "../models/enums";
 import { isHostile } from "./factions";
-import { ExplosiveEntity } from "../entities/explosiveentity";
 import {
   ZombieLoopingAnim,
   ZombieOneshotAnim,
@@ -33,7 +30,6 @@ import {
   type ZombieInstance
 } from "./zombie.jsm";
 
-const LANDMINE_MODEL_ID = 9176;
 const EXPLODE_WINDUP = 2;
 
 const BASE_SPEED = 1.0;
