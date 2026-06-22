@@ -17,13 +17,8 @@ import type { ZoneServer2016 } from "../zoneserver";
 import type { Sound } from "../../../types/zoneserver";
 import { NavManager } from "../../../utils/recast";
 const debug = require("debug")("ai");
-import {
-  getDistance2d,
-  getDistance
-} from "../../../utils/utils";
-import {
-  Effects
-} from "../models/enums";
+import { getDistance2d, getDistance } from "../../../utils/utils";
+import { Effects } from "../models/enums";
 import { isHostile } from "./factions";
 import {
   ZombieLoopingAnim,
@@ -148,11 +143,7 @@ function getChaseTarget(exploder: ZombieInstance): {
   return null;
 }
 
-export function detonateExploder(
-  server: ZoneServer2016,
-  npc: Npc,
-  ownerCharacterId: string
-): void {
+export function detonateExploder(server: ZoneServer2016, npc: Npc): void {
   server.sendDataToAllWithSpawnedEntity(
     server._npcs,
     npc.characterId,
