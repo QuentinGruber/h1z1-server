@@ -181,6 +181,8 @@ export class WorldObjectManager {
   npcSpawnRadius!: number;
   chanceNpc!: number;
   chanceScreamer!: number;
+  chanceGazer!: number;
+  chanceExploder!: number;
   chanceWornLetter!: number;
   waterSourceReplenishTimer!: number;
   waterSourceRefillAmount!: number;
@@ -442,6 +444,8 @@ export class WorldObjectManager {
         this.npcSpawnRadius,
         this.chanceNpc,
         this.chanceScreamer,
+        this.chanceGazer,
+        this.chanceExploder,
         this.npcSpawnCap
       );
 
@@ -452,7 +456,8 @@ export class WorldObjectManager {
           entry.modelId,
           new Float32Array(entry.position),
           new Float32Array(eul2quat(new Float32Array(entry.rotation))),
-          entry.spawnerId
+          entry.spawnerId,
+          entry.npcId
         );
         if (++i % 100 === 0) await scheduler.yield();
       }
@@ -1467,14 +1472,31 @@ export class WorldObjectManager {
           if (screamerChance <= this.chanceScreamer) {
             authorizedModelId.push(9667);
           }
-          this.createNpc(
-            server,
+          const modelId =
             authorizedModelId[
               Math.floor(Math.random() * authorizedModelId.length)
-            ],
+            ];
+          let npcId: NpcIds | undefined;
+          if (
+            modelId === ModelIds.ZOMBIE_FEMALE_WALKER ||
+            modelId === ModelIds.ZOMBIE_MALE_WALKER
+          ) {
+            if (Math.floor(Math.random() * 1000) + 1 <= this.chanceExploder) {
+              npcId = NpcIds.EXPLODER;
+            } else if (
+              Math.floor(Math.random() * 1000) + 1 <=
+              this.chanceGazer
+            ) {
+              npcId = NpcIds.GAZER;
+            }
+          }
+          this.createNpc(
+            server,
+            modelId,
             new Float32Array(npcInstance.position),
             new Float32Array(eul2quat(npcInstance.rotation)),
-            npcInstance.id
+            npcInstance.id,
+            npcId
           );
         }
       }

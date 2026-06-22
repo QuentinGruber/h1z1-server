@@ -15,6 +15,7 @@ interface NpcPlanEntry {
   modelId: number;
   position: number[];
   rotation: number[];
+  npcId?: number;
 }
 
 export interface NpcDespawnSnapshot {
@@ -93,6 +94,8 @@ type WorkerRequest =
         npcSpawnRadius: number;
         chanceNpc: number;
         chanceScreamer: number;
+        chanceGazer: number;
+        chanceExploder: number;
         npcSpawnCap: number;
       };
     }
@@ -198,6 +201,8 @@ export class LootSpawnWorker {
     npcSpawnRadius: number,
     chanceNpc: number,
     chanceScreamer: number,
+    chanceGazer: number,
+    chanceExploder: number,
     npcSpawnCap: number
   ): Promise<NpcPlanEntry[]> {
     const request: WorkerRequest = {
@@ -208,6 +213,8 @@ export class LootSpawnWorker {
         npcSpawnRadius,
         chanceNpc,
         chanceScreamer,
+        chanceGazer,
+        chanceExploder,
         npcSpawnCap
       }
     };

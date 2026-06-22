@@ -70,6 +70,7 @@ import { Npc } from "../../entities/npc";
 import { ZombieWalker } from "../../entities/zombiewalker";
 import { ZombieScreamer } from "../../entities/zombiescreamer";
 import { Exploder } from "../../entities/exploder";
+import { Gazer } from "../../entities/gazer";
 import { Deer } from "../../entities/deer";
 import { DeerEvents } from "../../jsms/deer.jsm";
 import { ZombieEvents } from "../../jsms/zombie.jsm";
@@ -4006,11 +4007,15 @@ export const commands: Array<Command> = [
     execute: (server: ZoneServer2016, client: Client, _args: Array<string>) => {
       let zombies = 0;
       let screamers = 0;
+      let gazers = 0;
+      let exploders = 0;
       let bears = 0;
       let wolves = 0;
       let deer = 0;
       for (const npc of Object.values(server._npcs)) {
         if (npc instanceof ZombieScreamer) screamers++;
+        else if (npc instanceof Gazer) gazers++;
+        else if (npc instanceof Exploder) exploders++;
         else if (npc instanceof ZombieWalker) zombies++;
         else if (npc instanceof Bear) bears++;
         else if (npc instanceof Wolf) wolves++;
@@ -4018,7 +4023,7 @@ export const commands: Array<Command> = [
       }
       server.sendChatText(
         client,
-        `[NPCs] Zombies: ${zombies} | Screamers: ${screamers} | Bears: ${bears} | Wolves: ${wolves} | Deer: ${deer}`
+        `[NPCs] Zombies: ${zombies} | Screamers: ${screamers} | Gazers: ${gazers} | Exploders: ${exploders} | Bears: ${bears} | Wolves: ${wolves} | Deer: ${deer}`
       );
     }
   }

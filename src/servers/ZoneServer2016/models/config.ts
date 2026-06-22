@@ -90,6 +90,8 @@ interface WorldObjectsConfig {
   npcSpawnRadius: number;
   chanceNpc: number;
   chanceScreamer: number;
+  chanceGazer: number;
+  chanceExploder: number;
 
   crowbarHitRewardChance: number;
   crowbarHitDamage: number;
