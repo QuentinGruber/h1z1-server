@@ -61,7 +61,6 @@ export class SOEServer extends EventEmitter {
   constructor(serverPort: number, cryptoKey: Uint8Array) {
     super();
     const oneMb = 1024 * 1024;
-    Buffer.poolSize = oneMb;
     this._serverPort = serverPort;
     this._serverAddress = process.env.SERVER_BIND_ADDRESS || "0.0.0.0";
     this._serverAddressV6 = process.env.SERVER_BIND_ADDRESS_V6 || "::";
