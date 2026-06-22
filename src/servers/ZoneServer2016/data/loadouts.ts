@@ -185,6 +185,7 @@ export function getSpecifiedZombieLoadout(name: string): LoadoutKit {
   switch (name) {
     case "Hunter":
       loadout = [
+        { item: Items.WEAPON_CROSSBOW },
         { item: Items.HUNTING_POLO },
         { item: Items.BROWN_CAMO_PANTS },
         { item: Items.BOOTS_TAN },
@@ -195,6 +196,7 @@ export function getSpecifiedZombieLoadout(name: string): LoadoutKit {
       return loadout;
     case "Sniper":
       loadout = [
+        { item: Items.WEAPON_308 },
         { item: Items.SNIPER_BOOTS },
         { item: Items.SNIPER_CAMO_PADDED_PANTS },
         { item: Items.SNIPER_FINGERLESS_GLOVES },
@@ -205,6 +207,7 @@ export function getSpecifiedZombieLoadout(name: string): LoadoutKit {
       return loadout;
     case "Assault":
       loadout = [
+        { item: Items.WEAPON_COMBAT_SHOTGUN },
         { item: Items.HEAVY_ASSAULT_POLO_SHIRT },
         { item: Items.HEAVY_ASSAULT_COMBAT_BOOTS },
         { item: Items.HEAVY_ASSAULT_FULL_HELMET },
