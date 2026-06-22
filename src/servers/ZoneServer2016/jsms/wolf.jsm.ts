@@ -17,7 +17,7 @@ import type { ZoneServer2016 } from "../zoneserver";
 import { NavManager } from "../../../utils/recast";
 const debug = require("debug")("ai");
 import { getDistance2d, getDistance } from "../../../utils/utils";
-import { NpcIds } from "../models/enums";
+import { Factions, isHostile } from "./factions";
 
 export const enum AnimalsAnimation {
   Idle = "Idle",
@@ -109,11 +109,8 @@ function findTarget(wolf: WolfInstance): string | null {
       );
       if (!bucket) continue;
       for (const entry of bucket) {
-        if (entry.npcId !== NpcIds.SURVIVOR) {
-          if (entry.npcId === NpcIds.WOLF || entry.npcId === NpcIds.BEAR)
-            continue;
-          if (entry.id === wolf.npc.characterId) continue;
-        }
+        if (entry.id === wolf.npc.characterId) continue;
+        if (!isHostile(wolf.npc.faction, entry.faction)) continue;
         if (getDistance2d(pos, entry.position) < DETECT_RADIUS) {
           return entry.id;
         }
@@ -149,7 +146,7 @@ function alertNearbyWolves(wolf: WolfInstance): void {
       );
       if (!bucket) continue;
       for (const entry of bucket) {
-        if (entry.npcId !== NpcIds.WOLF) continue;
+        if (entry.faction !== Factions.WOLF) continue;
         if (entry.id === wolf.npc.characterId) continue;
         if (getDistance2d(pos, entry.position) > HOWL_ALERT_RADIUS) continue;
         const npc = wolf.server._npcs[entry.id];

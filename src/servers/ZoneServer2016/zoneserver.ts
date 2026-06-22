@@ -39,7 +39,6 @@ import {
   LoadoutIds,
   LoadoutSlots,
   MovementModifiers,
-  NpcIds,
   ResourceIds,
   ResourceTypes,
   VehicleIds,
@@ -54,6 +53,7 @@ import {
   GameModes,
   ReplicationPropertyHash
 } from "./models/enums";
+import { Factions } from "./jsms/factions";
 import { WeatherManager } from "./managers/weathermanager";
 
 import {
@@ -371,7 +371,11 @@ export class ZoneServer2016 extends EventEmitter {
   /** AI target map rebuilt every AI tick for spatial detection in JSMs. */
   aiTargetSpatialMap = new Map<
     string,
-    { id: string; position: Float32Array; npcId: number }[]
+    {
+      id: string;
+      position: Float32Array;
+      faction: Factions;
+    }[]
   >();
   private static readonly _AI_TARGET_GRID_SIZE = 50;
   recastRoutine?: NodeJS.Timeout;
@@ -9825,7 +9829,11 @@ export class ZoneServer2016 extends EventEmitter {
         b = [];
         this.aiTargetSpatialMap.set(key, b);
       }
-      b.push({ id: characterId, position: pos, npcId: NpcIds.SURVIVOR });
+      b.push({
+        id: characterId,
+        position: pos,
+        faction: Factions.HUMAN
+      });
     }
     for (const npcId in this._npcs) {
       const npc = this._npcs[npcId];
@@ -9837,7 +9845,11 @@ export class ZoneServer2016 extends EventEmitter {
         b = [];
         this.aiTargetSpatialMap.set(key, b);
       }
-      b.push({ id: npcId, position: pos, npcId: npc.npcId });
+      b.push({
+        id: npcId,
+        position: pos,
+        faction: npc.faction
+      });
     }
   }
 

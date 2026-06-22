@@ -22,7 +22,8 @@ import {
   getDistance2d,
   getDistance
 } from "../../../utils/utils";
-import { Items, NpcIds } from "../models/enums";
+import { Items } from "../models/enums";
+import { isHostile } from "./factions";
 import { ExplosiveEntity } from "../entities/explosiveentity";
 import {
   ZombieLoopingAnim,
@@ -93,15 +94,8 @@ function trySeePlayer(exploder: ZombieInstance): boolean {
       );
       if (!bucket) continue;
       for (const entry of bucket) {
-        if (entry.npcId !== NpcIds.SURVIVOR) {
-          if (
-            entry.npcId === NpcIds.ZOMBIE ||
-            entry.npcId === NpcIds.GAZER ||
-            entry.npcId === NpcIds.EXPLODER
-          )
-            continue;
-          if (entry.id === exploder.npc.characterId) continue;
-        }
+        if (entry.id === exploder.npc.characterId) continue;
+        if (!isHostile(exploder.npc.faction, entry.faction)) continue;
         if (getDistance2d(pos, entry.position) < 10) {
           exploder.targetCharacterId = entry.id;
           exploder.event(ZombieEvents.SeePlayer);

@@ -22,7 +22,8 @@ import {
   getDistance2d,
   getDistance
 } from "../../../utils/utils";
-import { Items, NpcIds } from "../models/enums";
+import { Items } from "../models/enums";
+import { isHostile } from "./factions";
 import { ProjectileEntity } from "../entities/projectileentity";
 import type { ZoneClient2016 } from "../classes/zoneclient";
 import {
@@ -88,11 +89,8 @@ function trySeePlayer(gazer: ZombieInstance): boolean {
       );
       if (!bucket) continue;
       for (const entry of bucket) {
-        if (entry.npcId !== NpcIds.SURVIVOR) {
-          if (entry.npcId === NpcIds.ZOMBIE || entry.npcId === NpcIds.GAZER)
-            continue;
-          if (entry.id === gazer.npc.characterId) continue;
-        }
+        if (entry.id === gazer.npc.characterId) continue;
+        if (!isHostile(gazer.npc.faction, entry.faction)) continue;
         if (getDistance2d(pos, entry.position) < 10) {
           gazer.targetCharacterId = entry.id;
           gazer.event(ZombieEvents.SeePlayer);

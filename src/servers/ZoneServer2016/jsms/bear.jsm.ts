@@ -17,7 +17,7 @@ import type { ZoneServer2016 } from "../zoneserver";
 import { NavManager } from "../../../utils/recast";
 const debug = require("debug")("ai");
 import { getDistance2d, getDistance } from "../../../utils/utils";
-import { NpcIds } from "../models/enums";
+import { isHostile } from "./factions";
 import { AnimalsAnimation } from "./wolf.jsm";
 
 export const enum BearTransitions {
@@ -93,10 +93,8 @@ function findTarget(bear: BearInstance): string | null {
       );
       if (!bucket) continue;
       for (const entry of bucket) {
-        if (entry.npcId !== NpcIds.SURVIVOR) {
-          if (entry.npcId !== NpcIds.ZOMBIE) continue;
-          if (entry.id === bear.npc.characterId) continue;
-        }
+        if (entry.id === bear.npc.characterId) continue;
+        if (!isHostile(bear.npc.faction, entry.faction)) continue;
         if (getDistance2d(pos, entry.position) < DETECT_RADIUS) {
           return entry.id;
         }

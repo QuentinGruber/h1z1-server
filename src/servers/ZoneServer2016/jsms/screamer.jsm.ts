@@ -18,7 +18,8 @@ import { NavManager } from "../../../utils/recast";
 const debug = require("debug")("ai");
 import { getDistance2d, getDistance } from "../../../utils/utils";
 import { ZombieWalker } from "../entities/zombiewalker";
-import { MovementModifiers, NpcIds } from "../models/enums";
+import { MovementModifiers } from "../models/enums";
+import { Factions } from "./factions";
 
 export const enum ScreamerAnimations {
   Flinch = "Flinch",
@@ -146,7 +147,7 @@ function tryDetectPlayer(screamer: ScreamerInstance): boolean {
       );
       if (!bucket) continue;
       for (const entry of bucket) {
-        if (entry.npcId !== NpcIds.SURVIVOR) continue;
+        if (entry.faction !== Factions.HUMAN) continue;
         if (getDistance2d(pos, entry.position) < PLAYER_DETECT_RADIUS) {
           screamer.targetCharacterId = entry.id;
           screamer.event(Events.StartScreaming);
@@ -203,7 +204,7 @@ function screamAtNearbyZombies(screamer: ScreamerInstance): void {
       );
       if (!bucket) continue;
       for (const entry of bucket) {
-        if (entry.npcId !== NpcIds.ZOMBIE) continue;
+        if (entry.faction !== Factions.ZOMBIE) continue;
         if (getDistance2d(pos, entry.position) > SCREAM_RADIUS) continue;
         const npc = screamer.server._npcs[entry.id];
         if (!npc?.fsm || !(npc instanceof ZombieWalker)) continue;
@@ -266,7 +267,7 @@ export function createScreamer(
             );
             if (!bucket) continue;
             for (const entry of bucket) {
-              if (entry.npcId !== NpcIds.SURVIVOR) continue;
+              if (entry.faction !== Factions.HUMAN) continue;
               if (getDistance2d(pos, entry.position) < PLAYER_DETECT_RADIUS) {
                 screamer.targetCharacterId = entry.id;
                 screamer.event(Events.StartRising);

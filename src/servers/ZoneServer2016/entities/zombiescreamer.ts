@@ -34,6 +34,7 @@ import {
   ScreamerInstance
 } from "../jsms/screamer.jsm";
 import { DamageInfo } from "types/zoneserver";
+import { Factions } from "../jsms/factions";
 
 export class ZombieScreamer extends Npc {
   constructor(
@@ -58,6 +59,7 @@ export class ZombieScreamer extends Npc {
     this.maxHealth = 30000;
     this.health = this.maxHealth;
     this.npcId = NpcIds.ZOMBIE;
+    this.faction = Factions.ZOMBIE;
     this.nameId = StringIds.BANSHEE;
     this.rewardItems = [{ itemDefId: Items.BRAIN_INFECTED, weight: 10 }];
     if (!process.env.DISABLE_AI && server.aiEnabled) {

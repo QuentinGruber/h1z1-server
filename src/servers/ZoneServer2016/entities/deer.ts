@@ -16,6 +16,7 @@ import { ZoneClient2016 } from "../classes/zoneclient";
 import { Items, MaterialTypes, NpcIds, StringIds } from "../models/enums";
 import { Npc } from "./npc";
 import { createDeer } from "../jsms/deer.jsm";
+import { Factions } from "../jsms/factions";
 
 export class Deer extends Npc {
   constructor(
@@ -40,6 +41,7 @@ export class Deer extends Npc {
     this.materialType = MaterialTypes.FLESH;
     this.npcMeleeDamage = 0;
     this.npcId = NpcIds.DEER;
+    this.faction = Factions.PASSIVE;
     this.nameId = StringIds.DEER;
     this.rewardItems = [
       { itemDefId: Items.MEAT_VENISON, weight: 30 },

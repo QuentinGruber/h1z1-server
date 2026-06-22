@@ -18,7 +18,7 @@ import type { Sound } from "../../../types/zoneserver";
 import { NavManager } from "../../../utils/recast";
 const debug = require("debug")("ai");
 import { getDistance2d, getDistance } from "../../../utils/utils";
-import { NpcIds } from "../models/enums";
+import { isHostile } from "./factions";
 
 export const enum ZombieLoopingAnim {
   Idle = "Idle",
@@ -179,15 +179,8 @@ function trySeePlayer(zombie: ZombieInstance): boolean {
       );
       if (!bucket) continue;
       for (const entry of bucket) {
-        if (entry.npcId !== NpcIds.SURVIVOR) {
-          if (
-            entry.npcId === NpcIds.ZOMBIE ||
-            entry.npcId === NpcIds.GAZER ||
-            entry.npcId === NpcIds.EXPLODER
-          )
-            continue;
-          if (entry.id === zombie.npc.characterId) continue;
-        }
+        if (entry.id === zombie.npc.characterId) continue;
+        if (!isHostile(zombie.npc.faction, entry.faction)) continue;
         if (getDistance2d(pos, entry.position) < 10) {
           zombie.targetCharacterId = entry.id;
           zombie.event(ZombieEvents.SeePlayer);
