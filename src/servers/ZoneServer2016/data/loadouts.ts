@@ -166,6 +166,54 @@ export const zombieHats: Items[] = [
   Items.KURAMA_MEDICAL_SCRUBS_CAP
 ];
 
+export const green_scrubs: Items[] = [
+  Items.GREEN_SCRUBS_SHIRT,
+  Items.GREEN_SCRUBS_PANTS,
+  Items.GREEN_SCRUBS_CAP
+];
+
+export const red_scrubs: Items[] = [
+  Items.RED_SCRUBS_SHIRT,
+  Items.RED_SCRUBS_PANTS,
+  Items.RED_SCRUBS_CAP
+];
+
+export const blue_scrubs: Items[] = [
+  Items.SHIRT_SCRUBS_BLUE,
+  Items.PANTS_SCRUBS_BLUE,
+  Items.CAP_SCRUBS_BLUE
+];
+
+export const gray_scrubs: Items[] = [
+  Items.SHIRT_SCRUBS_GRAY,
+  Items.PANTS_SCRUBS_GRAY,
+  Items.CAP_SCRUBS_GRAY
+];
+
+export const kurama_medical_scrubs: Items[] = [
+  Items.KURAMA_MEDICAL_SCRUBS_SHIRT,
+  Items.KURAMA_MEDICAL_SCRUBS_PANTS,
+  Items.KURAMA_MEDICAL_SCRUBS_CAP
+];
+
+export const happy_skull_scrubs: Items[] = [
+  Items.HAPPY_SKULL_SCRUBS_SHIRT,
+  Items.HAPPY_SKULL_SCRUBS_PANTS,
+  Items.HAPPY_SKULL_SCRUBS_CAP
+];
+
+export const military_scrubs: Items[] = [
+  Items.MILITARY_SCRUBS_SHIRT,
+  Items.MILITARY_SCRUBS_PANTS,
+  Items.MILITARY_SCRUBS_CAP
+];
+
+export const hugz_needed_scrubs: Items[] = [
+  Items.HUGZ_NEEDED_SCRUBS_SHIRT,
+  Items.HUGZ_NEEDED_SCRUBS_PANTS,
+  Items.HUGZ_NEEDED_SCRUBS_CAP
+];
+
 export function getRandomZombieLoadout(): LoadoutKit {
   const loadout: LoadoutKit = [
     { item: zombieShirts[Math.floor(Math.random() * zombieShirts.length)] },
@@ -215,6 +263,21 @@ export function getSpecifiedZombieLoadout(name: string): LoadoutKit {
         { item: Items.HEAVY_ASSAULT_PADDED_GLOVES },
         { item: Items.HEAVY_ASSAULT_MILITARY_PANTS }
       ];
+      return loadout;
+    case "Nurse":
+      const allScrubs = [
+        green_scrubs,
+        red_scrubs,
+        blue_scrubs,
+        gray_scrubs,
+        kurama_medical_scrubs,
+        happy_skull_scrubs,
+        military_scrubs,
+        hugz_needed_scrubs
+      ];
+      const selectedScrubs =
+        allScrubs[Math.floor(Math.random() * allScrubs.length)];
+      loadout = selectedScrubs.map((item) => ({ item }));
       return loadout;
     default:
       return getRandomZombieLoadout();
