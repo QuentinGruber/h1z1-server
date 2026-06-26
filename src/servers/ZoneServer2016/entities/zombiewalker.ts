@@ -66,20 +66,18 @@ export class ZombieWalker extends Npc {
     if (!process.env.DISABLE_AI && server.aiEnabled) {
       this.fsm = createZombie(this, server);
     }
-    switch (this.variant) {
-      case "Nurse": {
-        for (const entry of getSpecifiedZombieLoadout("Nurse")) {
-          this.equipItem(server, server.generateItem(entry.item), false);
-        }
-        break;
+    if (this.variant) {
+      for (const entry of getSpecifiedZombieLoadout(this.variant)) {
+        this.equipItem(server, server.generateItem(entry.item), false);
       }
-      default:
-        for (const entry of getRandomZombieLoadout()) {
-          this.equipItem(server, server.generateItem(entry.item), false);
-        }
-        break;
+    } else {
+      for (const entry of getRandomZombieLoadout()) {
+        this.equipItem(server, server.generateItem(entry.item), false);
+      }
     }
+
   }
+
 
   protected addLoot(server: ZoneServer2016): void {
     this.addZombieLoot(server);
