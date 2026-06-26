@@ -1530,17 +1530,12 @@ export class WorldObjectManager {
         // Validate polygon is an array and has proper structure
         if (!Array.isArray(polygon) || polygon.length < 3) continue;
 
-        try {
-          if (this.isPointInPolygon([position[0], position[2]], polygon)) {
-            // Found POI - look up variant from map using POI ID
-            const variant = this._Poimap.get(String(poi.POIid));
-            if (variant) {
-              return variant;
-            }
+        if (this.isPointInPolygon([position[0], position[2]], polygon)) {
+          // Found POI - look up variant from map using POI ID
+          const variant = this._Poimap.get(String(poi.POIid));
+          if (variant) {
+            return variant;
           }
-        } catch (error) {
-          // Skip malformed polygons
-          continue;
         }
       }
     }
