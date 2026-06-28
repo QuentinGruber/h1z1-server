@@ -75,9 +75,7 @@ export class ZombieWalker extends Npc {
         this.equipItem(server, server.generateItem(entry.item), false);
       }
     }
-
   }
-
 
   protected addLoot(server: ZoneServer2016): void {
     this.addZombieLoot(server);
