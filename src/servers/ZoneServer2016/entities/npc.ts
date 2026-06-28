@@ -86,6 +86,7 @@ export abstract class Npc extends BaseFullCharacter {
   currentAnimation = "";
   lookAtTarget: Float32Array | null = null;
   isSelected: boolean = false;
+  variant: string = "";
 
   constructor(
     characterId: string,
@@ -94,13 +95,15 @@ export abstract class Npc extends BaseFullCharacter {
     position: Float32Array,
     rotation: Float32Array,
     server: ZoneServer2016,
-    spawnerId: number = 0
+    spawnerId: number = 0,
+    variant: string = ""
   ) {
     super(characterId, transientId, actorModelId, position, rotation, server);
     this.positionUpdateType = PositionUpdateType.MOVABLE;
     this.spawnerId = spawnerId;
     this.health = 10000;
     this.server = server;
+    this.variant = variant;
     if (!process.env.DISABLE_AI && this.server.aiEnabled) {
       this.navAgent = this.server.navManager.createAgent(this.state.position);
     }

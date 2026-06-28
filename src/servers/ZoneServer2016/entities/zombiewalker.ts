@@ -30,7 +30,10 @@ import { LoadoutContainer } from "../classes/loadoutcontainer";
 import { Lootbag } from "./lootbag";
 import { createZombie } from "../jsms/zombie.jsm";
 import { Factions } from "../jsms/factions";
-import { getRandomZombieLoadout } from "../data/loadouts";
+import {
+  getRandomZombieLoadout,
+  getSpecifiedZombieLoadout
+} from "../data/loadouts";
 
 export class ZombieWalker extends Npc {
   constructor(
@@ -40,7 +43,8 @@ export class ZombieWalker extends Npc {
     position: Float32Array,
     rotation: Float32Array,
     server: ZoneServer2016,
-    spawnerId: number = 0
+    spawnerId: number = 0,
+    variant: string = ""
   ) {
     super(
       characterId,
@@ -49,21 +53,31 @@ export class ZombieWalker extends Npc {
       position,
       rotation,
       server,
-      spawnerId
+      spawnerId,
+      variant
     );
     this.materialType = MaterialTypes.ZOMBIE;
     this.npcMeleeDamage = 2500;
     this.npcId = NpcIds.ZOMBIE;
     this.faction = Factions.ZOMBIE;
     this.nameId = StringIds.ZOMBIE_WALKER;
+    this.variant = variant;
     this.rewardItems = [{ itemDefId: Items.BRAIN_INFECTED, weight: 10 }];
     if (!process.env.DISABLE_AI && server.aiEnabled) {
       this.fsm = createZombie(this, server);
     }
-    for (const entry of getRandomZombieLoadout()) {
-      this.equipItem(server, server.generateItem(entry.item), false);
+    if (this.variant) {
+      for (const entry of getSpecifiedZombieLoadout(this.variant)) {
+        this.equipItem(server, server.generateItem(entry.item), false);
+      }
+    } else {
+      for (const entry of getRandomZombieLoadout()) {
+        this.equipItem(server, server.generateItem(entry.item), false);
+      }
     }
+
   }
+
 
   protected addLoot(server: ZoneServer2016): void {
     this.addZombieLoot(server);

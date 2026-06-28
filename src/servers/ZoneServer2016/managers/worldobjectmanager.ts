@@ -29,6 +29,7 @@ const Z1_crates = PluginManager.loadServerData("2016/zoneData/Z1_crates.json");
 const Z1_destroyables = PluginManager.loadServerData(
   "2016/zoneData/Z1_destroyables.json"
 );
+const Z1_POIs = PluginManager.loadServerData("2016/zoneData/Z1_POIs.json");
 const models = PluginManager.loadServerData("2016/dataSources/Models.json");
 // const bannedZombieModels = PluginManager.loadServerData("2016/sampleData/bannedZombiesModels.json");
 import {
@@ -637,6 +638,7 @@ export class WorldObjectManager {
     const characterId = generateRandomGuid();
     const transientId = server.getTransientId(characterId);
     let npc: Npc;
+
     switch (modelId) {
       case ModelIds.ZOMBIE_FEMALE_WALKER:
       case ModelIds.ZOMBIE_MALE_WALKER:
@@ -663,6 +665,7 @@ export class WorldObjectManager {
 
             break;
           default:
+            let variant = this.getVariantBasedOnPoi(new Float32Array(position));
             npc = new ZombieWalker(
               characterId,
               transientId,
@@ -670,7 +673,8 @@ export class WorldObjectManager {
               position,
               rotation,
               server,
-              spawnerId
+              spawnerId,
+              variant
             );
             break;
         }
@@ -1512,6 +1516,63 @@ export class WorldObjectManager {
       }
     }
     debug("All npcs objects created");
+  }
+
+  _Poimap: Map<string, string> = new Map([["17", "Nurse"]]);
+
+  private getVariantBasedOnPoi(position: Float32Array): string {
+    // Find which POI contains this position
+    for (const poi of Z1_POIs) {
+      if (!poi.bounds || !Array.isArray(poi.bounds)) continue;
+
+      // Check if position is in any of the polygon bounds for this POI
+      for (const polygon of poi.bounds) {
+        // Validate polygon is an array and has proper structure
+        if (!Array.isArray(polygon) || polygon.length < 3) continue;
+
+        if (this.isPointInPolygon([position[0], position[2]], polygon)) {
+          // Found POI - look up variant from map using POI ID
+          const variant = this._Poimap.get(String(poi.POIid));
+          if (variant) {
+            return variant;
+          }
+        }
+      }
+    }
+    // No POI found - return empty for random variant
+    return "";
+  }
+
+  private isPointInPolygon(
+    point: [number, number],
+    polygon: Array<[number, number]>
+  ): boolean {
+    const [x, y] = point;
+    let inside = false;
+
+    for (let i = 0, j = polygon.length - 1; i < polygon.length; j = i++) {
+      const coord = polygon[i];
+      const prevCoord = polygon[j];
+
+      // Validate coordinates are properly formatted
+      if (
+        !Array.isArray(coord) ||
+        !Array.isArray(prevCoord) ||
+        coord.length < 2 ||
+        prevCoord.length < 2
+      ) {
+        continue;
+      }
+
+      const [xi, yi] = coord;
+      const [xj, yj] = prevCoord;
+
+      const intersect =
+        yi > y !== yj > y && x < ((xj - xi) * (y - yi)) / (yj - yi) + xi;
+      if (intersect) inside = !inside;
+    }
+
+    return inside;
   }
 
   private async spawnPrototypeZombies(server: ZoneServer2016) {
