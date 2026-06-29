@@ -2223,7 +2223,9 @@ export class ZoneServer2016 extends EventEmitter {
             );
           removeUntransferableFields(lootableConstructionSaveData);
           worldConstructions.push(lootableConstructionSaveData);
-          reachableConstructionIds?.add(lootableConstructionSaveData.characterId);
+          reachableConstructionIds?.add(
+            lootableConstructionSaveData.characterId
+          );
         } catch (e) {
           console.error(
             `[saveWorld] Failed to serialize world construction ${entity.characterId} (item ${entity.itemDefinitionId}) — skipping; its last save is retained`,
@@ -2302,12 +2304,17 @@ export class ZoneServer2016 extends EventEmitter {
         !retainConstructionIds.length &&
         !retainWorldConstructionIds.length
       ) {
-        const orphans = await this.findSaveGraphOrphans(reachableConstructionIds);
+        const orphans = await this.findSaveGraphOrphans(
+          reachableConstructionIds
+        );
         if (orphans.length) {
           const maxLogged = 50;
           const sample = orphans
             .slice(0, maxLogged)
-            .map((o) => `${o.dictionary}:${o.characterId}(item ${o.itemDefinitionId})`)
+            .map(
+              (o) =>
+                `${o.dictionary}:${o.characterId}(item ${o.itemDefinitionId})`
+            )
             .join(", ");
           const more =
             orphans.length > maxLogged

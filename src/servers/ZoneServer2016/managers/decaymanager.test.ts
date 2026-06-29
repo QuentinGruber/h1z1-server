@@ -83,94 +83,100 @@ test("decaymanager", { timeout: 10000 }, async (t) => {
   // #1467: structures re-homed onto a foundation as freeplace entities (e.g. an
   // upper shelter + gate + loot left after their supporting lower shelter is
   // removed) must not be treated as a "vacant" deck and wiped on decay.
-  await t.test("#1467 vacant decay keeps re-homed freeplace structures", async () => {
-    zone._constructionFoundations = {};
-    zone._constructionSimple = {};
-    zone.decayManager.griefCheckSlotAmount = 0; // isolate the vacant-foundation path
-    zone.decayManager.useDecayWorker = false;
-    const pos = new Float32Array([0, 0, 0, 0]);
+  await t.test(
+    "#1467 vacant decay keeps re-homed freeplace structures",
+    async () => {
+      zone._constructionFoundations = {};
+      zone._constructionSimple = {};
+      zone.decayManager.griefCheckSlotAmount = 0; // isolate the vacant-foundation path
+      zone.decayManager.useDecayWorker = false;
+      const pos = new Float32Array([0, 0, 0, 0]);
 
-    const foundationId = generate_random_guid();
-    const foundation = new ConstructionParentEntity(
-      foundationId,
-      zone.getTransientId(foundationId),
-      1,
-      pos,
-      pos,
-      zone,
-      Items.FOUNDATION,
-      "1",
-      "name",
-      "",
-      ""
-    );
-    zone._constructionFoundations[foundationId] = foundation;
+      const foundationId = generate_random_guid();
+      const foundation = new ConstructionParentEntity(
+        foundationId,
+        zone.getTransientId(foundationId),
+        1,
+        pos,
+        pos,
+        zone,
+        Items.FOUNDATION,
+        "1",
+        "name",
+        "",
+        ""
+      );
+      zone._constructionFoundations[foundationId] = foundation;
 
-    const shelterId = generate_random_guid();
-    const shelter = new ConstructionChildEntity(
-      shelterId,
-      zone.getTransientId(shelterId),
-      1,
-      pos,
-      pos,
-      zone,
-      Items.SHELTER,
-      foundationId,
-      ""
-    );
-    zone._constructionSimple[shelterId] = shelter;
-    foundation.addFreeplaceConstruction(shelter);
+      const shelterId = generate_random_guid();
+      const shelter = new ConstructionChildEntity(
+        shelterId,
+        zone.getTransientId(shelterId),
+        1,
+        pos,
+        pos,
+        zone,
+        Items.SHELTER,
+        foundationId,
+        ""
+      );
+      zone._constructionSimple[shelterId] = shelter;
+      foundation.addFreeplaceConstruction(shelter);
 
-    // empty slot maps but a non-empty freeplace; force past the vacancy timer
-    foundation.ticksWithoutObjects = zone.decayManager.vacantFoundationTicks;
-    await zone.decayManager.run(zone);
-    zone.decayManager.clearTimers();
+      // empty slot maps but a non-empty freeplace; force past the vacancy timer
+      foundation.ticksWithoutObjects = zone.decayManager.vacantFoundationTicks;
+      await zone.decayManager.run(zone);
+      zone.decayManager.clearTimers();
 
-    assert.ok(
-      zone._constructionFoundations[foundationId],
-      "foundation must survive while it still holds freeplace structures"
-    );
-    assert.ok(
-      foundation.freeplaceEntities[shelterId],
-      "re-homed shelter must not be wiped on decay"
-    );
-    assert.ok(
-      zone._constructionSimple[shelterId],
-      "re-homed shelter must remain in the world"
-    );
-  });
+      assert.ok(
+        zone._constructionFoundations[foundationId],
+        "foundation must survive while it still holds freeplace structures"
+      );
+      assert.ok(
+        foundation.freeplaceEntities[shelterId],
+        "re-homed shelter must not be wiped on decay"
+      );
+      assert.ok(
+        zone._constructionSimple[shelterId],
+        "re-homed shelter must remain in the world"
+      );
+    }
+  );
   // guard: the fix only narrows "vacant" — a genuinely empty deck is still cleaned up.
-  await t.test("#1467 genuinely empty foundation is still decayed", async () => {
-    zone._constructionFoundations = {};
-    zone.decayManager.griefCheckSlotAmount = 0;
-    zone.decayManager.useDecayWorker = false;
-    const pos = new Float32Array([0, 0, 0, 0]);
+  await t.test(
+    "#1467 genuinely empty foundation is still decayed",
+    async () => {
+      zone._constructionFoundations = {};
+      zone.decayManager.griefCheckSlotAmount = 0;
+      zone.decayManager.useDecayWorker = false;
+      const pos = new Float32Array([0, 0, 0, 0]);
 
-    const foundationId = generate_random_guid();
-    const foundation = new ConstructionParentEntity(
-      foundationId,
-      zone.getTransientId(foundationId),
-      1,
-      pos,
-      pos,
-      zone,
-      Items.FOUNDATION,
-      "1",
-      "name",
-      "",
-      ""
-    );
-    zone._constructionFoundations[foundationId] = foundation;
-    foundation.ticksWithoutObjects = zone.decayManager.vacantFoundationTicks;
-    await zone.decayManager.run(zone);
-    zone.decayManager.clearTimers();
+      const foundationId = generate_random_guid();
+      const foundation = new ConstructionParentEntity(
+        foundationId,
+        zone.getTransientId(foundationId),
+        1,
+        pos,
+        pos,
+        zone,
+        Items.FOUNDATION,
+        "1",
+        "name",
+        "",
+        ""
+      );
+      zone._constructionFoundations[foundationId] = foundation;
+      foundation.ticksWithoutObjects = zone.decayManager.vacantFoundationTicks;
+      await zone.decayManager.run(zone);
+      zone.decayManager.clearTimers();
 
-    assert.strictEqual(
-      Object.keys(zone._constructionFoundations).length,
-      0,
-      "a truly empty foundation must still be removed after the vacancy timer"
-    );
-  });
+      assert.strictEqual(
+        Object.keys(zone._constructionFoundations).length,
+        0,
+        "a truly empty foundation must still be removed after the vacancy timer"
+      );
+    }
+  );
   // #1467 regression guard: a plain loot/storage container left in freeplace is NOT a
   // structure and must NOT keep an otherwise-empty deck from despawning (only re-homed
   // shelters/gates do). Without this the deck would become immune to vacant decay.
@@ -376,7 +382,9 @@ test("decaymanager", { timeout: 10000 }, async (t) => {
         "shelter must reload after restart"
       );
       assert.ok(
-        zone._constructionFoundations[foundationId].freeplaceEntities[shelterId],
+        zone._constructionFoundations[foundationId].freeplaceEntities[
+          shelterId
+        ],
         "shelter must reattach to the foundation as freeplace after restart"
       );
       assert.ok(

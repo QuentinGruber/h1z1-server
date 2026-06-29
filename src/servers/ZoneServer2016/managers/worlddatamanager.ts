@@ -824,59 +824,68 @@ export class WorldDataManager {
         );
       }
     });
-    Object.values(entityData.occupiedUpperWallSlots ?? {}).forEach((wallData) => {
-      try {
-        const wall = this.loadConstructionChildEntity(server, wallData);
-        if (!parent.setWallSlot(server, wall)) {
+    Object.values(entityData.occupiedUpperWallSlots ?? {}).forEach(
+      (wallData) => {
+        try {
+          const wall = this.loadConstructionChildEntity(server, wallData);
+          if (!parent.setWallSlot(server, wall)) {
+            console.error(
+              `[WDM] Upper wall slot registration failed for ${wall.characterId} (item ${wall.itemDefinitionId}, slot "${wall.slot}") on parent ${parent.characterId} — falling back to freeplace`
+            );
+            parent.addFreeplaceConstruction(wall);
+          }
+        } catch (e) {
           console.error(
-            `[WDM] Upper wall slot registration failed for ${wall.characterId} (item ${wall.itemDefinitionId}, slot "${wall.slot}") on parent ${parent.characterId} — falling back to freeplace`
+            `[WDM] Failed to load an upper-wall-slot child on parent ${parent.characterId} — skipping just this child`,
+            e
           );
-          parent.addFreeplaceConstruction(wall);
         }
-      } catch (e) {
-        console.error(
-          `[WDM] Failed to load an upper-wall-slot child on parent ${parent.characterId} — skipping just this child`,
-          e
-        );
       }
-    });
-    Object.values(entityData.occupiedShelterSlots ?? {}).forEach((shelterData) => {
-      try {
-        const shelter = this.loadConstructionChildEntity(server, shelterData);
-        if (!parent.setShelterSlot(server, shelter)) {
+    );
+    Object.values(entityData.occupiedShelterSlots ?? {}).forEach(
+      (shelterData) => {
+        try {
+          const shelter = this.loadConstructionChildEntity(server, shelterData);
+          if (!parent.setShelterSlot(server, shelter)) {
+            console.error(
+              `[WDM] Shelter slot registration failed for ${shelter.characterId} (item ${shelter.itemDefinitionId}, slot "${shelter.slot}") on parent ${parent.characterId} — falling back to freeplace`
+            );
+            parent.addFreeplaceConstruction(shelter);
+          }
+        } catch (e) {
           console.error(
-            `[WDM] Shelter slot registration failed for ${shelter.characterId} (item ${shelter.itemDefinitionId}, slot "${shelter.slot}") on parent ${parent.characterId} — falling back to freeplace`
+            `[WDM] Failed to load a shelter-slot child on parent ${parent.characterId} — skipping just this child`,
+            e
           );
-          parent.addFreeplaceConstruction(shelter);
         }
-      } catch (e) {
-        console.error(
-          `[WDM] Failed to load a shelter-slot child on parent ${parent.characterId} — skipping just this child`,
-          e
-        );
       }
-    });
-    Object.values(entityData.freeplaceEntities ?? {}).forEach((freeplaceData) => {
-      try {
-        let freeplace:
-          | ConstructionChildEntity
-          | ConstructionDoor
-          | LootableConstructionEntity;
-        if ("occupiedWallSlots" in freeplaceData) {
-          freeplace = this.loadConstructionChildEntity(server, freeplaceData);
-        } else if ("passwordHash" in freeplaceData) {
-          freeplace = this.loadConstructionDoorEntity(server, freeplaceData);
-        } else {
-          freeplace = this.loadLootableConstructionEntity(server, freeplaceData);
+    );
+    Object.values(entityData.freeplaceEntities ?? {}).forEach(
+      (freeplaceData) => {
+        try {
+          let freeplace:
+            | ConstructionChildEntity
+            | ConstructionDoor
+            | LootableConstructionEntity;
+          if ("occupiedWallSlots" in freeplaceData) {
+            freeplace = this.loadConstructionChildEntity(server, freeplaceData);
+          } else if ("passwordHash" in freeplaceData) {
+            freeplace = this.loadConstructionDoorEntity(server, freeplaceData);
+          } else {
+            freeplace = this.loadLootableConstructionEntity(
+              server,
+              freeplaceData
+            );
+          }
+          parent.addFreeplaceConstruction(freeplace);
+        } catch (e) {
+          console.error(
+            `[WDM] Failed to load a freeplace child on parent ${parent.characterId} — skipping just this child`,
+            e
+          );
         }
-        parent.addFreeplaceConstruction(freeplace);
-      } catch (e) {
-        console.error(
-          `[WDM] Failed to load a freeplace child on parent ${parent.characterId} — skipping just this child`,
-          e
-        );
       }
-    });
+    );
   }
 
   static loadConstructionChildEntity(
@@ -1031,7 +1040,9 @@ export class WorldDataManager {
     // a child-parent shell can itself hold expansions (only via corrupt slot data,
     // since in-game only a FOUNDATION authorizes expansions); drain each so their
     // structures/loot are re-homed too instead of orphaned under the deleted shell.
-    for (const expansion of Object.values(entity.occupiedExpansionSlots ?? {})) {
+    for (const expansion of Object.values(
+      entity.occupiedExpansionSlots ?? {}
+    )) {
       WorldDataManager.rehomeChildrenToFoundation(
         server,
         foundation,

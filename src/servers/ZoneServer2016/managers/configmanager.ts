@@ -560,7 +560,8 @@ export class ConfigManager {
       playerShackBlockedPlacementRange;
     server.constructionManager.lowerStrongholdDefenses =
       lowerStrongholdDefenses;
-    server.constructionManager.constructionOrphanCheck = constructionOrphanCheck;
+    server.constructionManager.constructionOrphanCheck =
+      constructionOrphanCheck;
     //#endregion
 
     //#region decay
