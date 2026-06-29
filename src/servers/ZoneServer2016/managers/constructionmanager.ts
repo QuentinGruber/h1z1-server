@@ -1157,7 +1157,12 @@ export class ConstructionManager {
         BuildingSlot
       );
 
-    parent.setWallSlot(server, wall);
+    if (!parent.setWallSlot(server, wall)) {
+      // #1467 (H6): a rejected slot (occupancy collision) must not leave the entity
+      // live but unreachable from the save graph — bail instead of orphaning it.
+      this.placementError(server, client, ConstructionErrors.WALL_SLOT_FAILED);
+      return false;
+    }
 
     server._constructionSimple[characterId] = wall;
     server.executeFuncForAllReadyClientsInRange((client) => {
@@ -1224,7 +1229,11 @@ export class ConstructionManager {
         BuildingSlot
       );
 
-    parentFoundation.setRampSlot(ramp);
+    if (!parentFoundation.setRampSlot(ramp)) {
+      // #1467 (H6): don't leave a slot-rejected ramp orphaned in _constructionSimple.
+      this.placementError(server, client, ConstructionErrors.OVERLAP);
+      return false;
+    }
     server._constructionSimple[characterId] = ramp;
     server.executeFuncForAllReadyClientsInRange((client) => {
       this.spawnSimpleConstruction(server, client, ramp);
@@ -1288,7 +1297,11 @@ export class ConstructionManager {
         BuildingSlot
       );
 
-    parentFoundation.setRampSlot(stairs);
+    if (!parentFoundation.setRampSlot(stairs)) {
+      // #1467 (H6): don't leave slot-rejected stairs orphaned in _constructionSimple.
+      this.placementError(server, client, ConstructionErrors.OVERLAP);
+      return false;
+    }
     server._constructionSimple[characterId] = stairs;
     server.executeFuncForAllReadyClientsInRange((client) => {
       this.spawnSimpleConstruction(server, client, stairs);
@@ -1475,7 +1488,12 @@ export class ConstructionManager {
         BuildingSlot
       );
     if (parentFoundation && BuildingSlot) {
-      parentFoundation.setExpansionSlot(npc);
+      if (!parentFoundation.setExpansionSlot(npc)) {
+        // #1467 (H6): a rejected expansion slot must not leave the expansion live
+        // but unreachable from the save graph — bail instead of orphaning it.
+        this.placementError(server, client, ConstructionErrors.OVERLAP);
+        return false;
+      }
       npc.permissions = parentFoundation.permissions;
     }
     server._constructionFoundations[characterId] = npc;

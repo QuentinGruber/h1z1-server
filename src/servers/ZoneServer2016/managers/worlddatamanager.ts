@@ -943,10 +943,24 @@ export class WorldDataManager {
             console.error(
               `[WDM] Failed to register expansion slot "${expansion.slot}" (${expansion.characterId}) onto foundation ${foundation.characterId} — slot data may be corrupted`
             );
-            if (slotNum > 0) {
+            // #1467 (H4): only force-insert into a genuinely EMPTY slot — never
+            // clobber an already-registered expansion (that orphans it). If the slot
+            // number is unusable (0/garbled) or already taken, re-home this
+            // expansion's children onto the foundation so its shelters/gates/loot
+            // stay reachable from the save graph (the slot-less shell can't persist).
+            if (slotNum > 0 && !foundation.occupiedExpansionSlots[slotNum]) {
               foundation.occupiedExpansionSlots[slotNum] = expansion;
               console.error(
                 `[WDM] Force-inserted expansion at slot ${slotNum} to prevent data loss`
+              );
+            } else {
+              console.error(
+                `[WDM] Re-homing expansion ${expansion.characterId} children onto foundation ${foundation.characterId} (slot ${slotNum} unusable/occupied) to prevent data loss`
+              );
+              WorldDataManager.rehomeChildrenToFoundation(
+                server,
+                foundation,
+                expansion
               );
             }
           }
@@ -962,7 +976,15 @@ export class WorldDataManager {
     Object.values(entityData.occupiedRampSlots ?? {}).forEach((rampData) => {
       try {
         const ramp = this.loadConstructionChildEntity(server, rampData);
-        foundation.setRampSlot(ramp);
+        if (!foundation.setRampSlot(ramp)) {
+          // #1467 (H5): the ramp/stairs loop was the only load slot loop with no
+          // fallback; a collision/invalid slot left it orphaned (only in
+          // _constructionSimple) and dropped on the next save. Re-home to freeplace.
+          console.error(
+            `[WDM] Ramp slot registration failed for ${ramp.characterId} (item ${ramp.itemDefinitionId}, slot "${ramp.slot}") on foundation ${foundation.characterId} — falling back to freeplace`
+          );
+          foundation.addFreeplaceConstruction(ramp);
+        }
       } catch (e) {
         console.error(
           `[WDM] Failed to load a ramp on foundation ${foundation.characterId} — skipping just this ramp`,
@@ -972,6 +994,37 @@ export class WorldDataManager {
     });
     foundation.updateSecuredState(server);
     return foundation;
+  }
+
+  /**
+   * #1467 (H4): move a construction entity's direct children onto the given
+   * foundation's freeplaceEntities so they stay reachable from the save graph, then
+   * drop the now-childless shell from the world dictionary. Used at load time when a
+   * child-parent (e.g. an expansion) cannot be placed into a slot, so its
+   * shelters/gates/loot are preserved instead of orphaned. Nested subtrees follow
+   * automatically (a re-homed shelter is serialized with its own children).
+   */
+  static rehomeChildrenToFoundation(
+    server: ZoneServer2016,
+    foundation: ConstructionParentEntity,
+    entity: ConstructionParentEntity
+  ) {
+    const children: Array<
+      ConstructionChildEntity | ConstructionDoor | LootableConstructionEntity
+    > = [
+      ...Object.values(entity.occupiedWallSlots ?? {}),
+      ...Object.values(entity.occupiedUpperWallSlots ?? {}),
+      ...Object.values(entity.occupiedShelterSlots ?? {}),
+      ...Object.values(entity.occupiedRampSlots ?? {}),
+      ...Object.values(entity.freeplaceEntities ?? {})
+    ];
+    for (const child of children) {
+      child.parentObjectCharacterId = foundation.characterId;
+      foundation.freeplaceEntities[child.characterId] = child;
+    }
+    // the shell has no valid slot, so it cannot be persisted — remove it rather
+    // than leaving an unsaveable orphan live in the foundation dictionary.
+    delete server._constructionFoundations[entity.characterId];
   }
 
   async loadVehiclesData() {

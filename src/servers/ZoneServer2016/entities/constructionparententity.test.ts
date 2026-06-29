@@ -458,6 +458,95 @@ test("constructionparententity-destroy-preserve", { timeout: 10000 }, async (t) 
       );
     }
   );
+  // #1467 (H4): an expansion that can't be re-placed into a slot on load (corrupt /
+  // legacy slot data, e.g. slot=="") must have its children re-homed onto the
+  // foundation, not orphaned. Pre-fix the force-insert was skipped for slot<=0 and
+  // the whole expansion subtree (its shelters/gates/loot) was dropped on the next save.
+  await t.test(
+    "#1467 an unplaceable expansion re-homes its children to the foundation (no subtree loss)",
+    () => {
+      zone._constructionFoundations = {};
+      zone._constructionSimple = {};
+      const p = new Float32Array([0, 0, 0, 0]);
+
+      const foundationId = generate_random_guid();
+      const foundation = new ConstructionParentEntity(
+        foundationId,
+        zone.getTransientId(foundationId),
+        1,
+        p,
+        p,
+        zone,
+        Items.FOUNDATION,
+        "1",
+        "name",
+        "",
+        ""
+      );
+      zone._constructionFoundations[foundationId] = foundation;
+
+      const expansionId = generate_random_guid();
+      const expansion = new ConstructionParentEntity(
+        expansionId,
+        zone.getTransientId(expansionId),
+        1,
+        p,
+        p,
+        zone,
+        Items.FOUNDATION_EXPANSION,
+        "1",
+        "name",
+        foundationId,
+        "Structure01"
+      );
+      zone._constructionFoundations[expansionId] = expansion;
+      // attach directly so setup doesn't depend on expansion-slot validation specifics
+      foundation.occupiedExpansionSlots[1] = expansion;
+
+      const shelterId = generate_random_guid();
+      const shelter = new ConstructionChildEntity(
+        shelterId,
+        zone.getTransientId(shelterId),
+        1,
+        p,
+        p,
+        zone,
+        Items.SHELTER,
+        expansionId,
+        "Structure01"
+      );
+      zone._constructionSimple[shelterId] = shelter;
+      expansion.occupiedShelterSlots[1] = shelter;
+
+      const saveData = WorldDataManager.getConstructionParentSaveData(
+        foundation,
+        zone._worldId
+      );
+      const corrupt = JSON.parse(JSON.stringify(saveData));
+      // corrupt the expansion's slot so it cannot be re-placed on load (getSlotNumber()==0)
+      const expKey = Object.keys(corrupt.occupiedExpansionSlots)[0];
+      corrupt.occupiedExpansionSlots[expKey].slot = "";
+
+      zone._constructionFoundations = {};
+      zone._constructionSimple = {};
+      WorldDataManager.loadConstructionParentEntity(zone, corrupt);
+
+      const reloaded = zone._constructionFoundations[foundationId];
+      assert.ok(reloaded, "foundation still loads");
+      assert.ok(
+        !zone._constructionFoundations[expansionId],
+        "the slot-less expansion shell is removed (it cannot persist without a slot)"
+      );
+      assert.ok(
+        zone._constructionSimple[shelterId],
+        "the expansion's shelter survived the load"
+      );
+      assert.ok(
+        reloaded.freeplaceEntities[shelterId],
+        "the shelter was re-homed onto the foundation, reachable from the save graph"
+      );
+    }
+  );
 });
 
 after(() => {
