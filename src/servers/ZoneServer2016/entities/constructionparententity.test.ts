@@ -552,7 +552,7 @@ test("constructionparententity-destroy-preserve", { timeout: 10000 }, async (t) 
   // dropped on the next save) and must NOT false-flag reachable entities.
   await t.test(
     "#1467 the save-graph orphan backstop flags an unreachable construction (and only it)",
-    () => {
+    async () => {
       zone._constructionFoundations = {};
       zone._constructionSimple = {};
       zone._constructionDoors = {};
@@ -610,9 +610,9 @@ test("constructionparententity-destroy-preserve", { timeout: 10000 }, async (t) 
         WorldDataManager.getConstructionParentSaveData(foundation, zone._worldId)
       ];
       const reachableSet = zone.collectReachableConstructionIds(constructions, []);
-      const orphanIds = zone
-        .findSaveGraphOrphans(reachableSet)
-        .map((o) => o.characterId);
+      const orphanIds = (await zone.findSaveGraphOrphans(reachableSet)).map(
+        (o) => o.characterId
+      );
 
       assert.ok(
         orphanIds.includes(orphanId),

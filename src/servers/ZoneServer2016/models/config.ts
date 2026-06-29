@@ -119,6 +119,10 @@ interface ConstructionConfig {
   playerFoundationBlockedPlacementRange: number;
   playerShackBlockedPlacementRange: number;
   lowerStrongholdDefenses: boolean;
+  /** #1467 (H14): enable the save-side orphan backstop (logs any construction that
+   * is live but unreachable from the save graph). Runs sampled (every Nth save) and
+   * yields; disable on very large servers only if it ever shows up in profiling. */
+  constructionOrphanCheck: boolean;
 }
 
 interface DecayConfig {

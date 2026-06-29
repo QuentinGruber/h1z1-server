@@ -95,6 +95,8 @@ export class ConstructionManager {
   playerFoundationBlockedPlacementRange!: number;
   playerShackBlockedPlacementRange!: number;
   lowerStrongholdDefenses!: boolean;
+  /** #1467 (H14): operator gate for the save-side orphan backstop. */
+  constructionOrphanCheck!: boolean;
 
   sendConstructionData(server: ZoneServer2016, client: Client) {
     const unknownArray1 = [46, 45, 47, 48, 49, 50, 12, 7, 15],
