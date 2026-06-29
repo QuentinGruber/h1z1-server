@@ -2188,9 +2188,11 @@ export class ZoneServer2016 extends EventEmitter {
         this._worldId
       );
       // #1467 (H14): orphan backstop — operator-gated + sampled so it costs nothing
-      // on most saves at scale. Decide ONCE here so the reachable-id set is built
-      // incrementally inside the (already-yielding) build loops below, not in a
-      // second synchronous pass.
+      // on most saves at scale. Decide ONCE here so the reachable-id set is gathered
+      // during the (already-yielding) build loops below — sharing their yield cadence —
+      // rather than in a separate post-build walk. (The per-foundation collection is
+      // still an additive recursive pass over each save-data subtree, just hoisted into
+      // the loop so it never blocks the tick on its own.)
       let runOrphanCheck = false;
       if (this.constructionManager.constructionOrphanCheck) {
         runOrphanCheck =
@@ -2285,11 +2287,16 @@ export class ZoneServer2016 extends EventEmitter {
       }
 
       // #1467 (H14): structural backstop — log any construction live in memory but
-      // UNREACHABLE from the save graph (it would be silently dropped on this save),
-      // turning any future orphan-introducing regression into a loud warning. The
-      // reachable set was assembled (gated + sampled) during the build loops above;
-      // here we just scan, yielding so it never blocks the tick. Skipped on a partial
-      // save (a foundation was retained, so its children are legitimately absent).
+      // UNREACHABLE from this save's construction graph, turning any future
+      // orphan-introducing regression into a loud warning. The reachable set was
+      // assembled (gated + sampled) during the build loops above; here we just scan,
+      // yielding so it never blocks the tick. Skipped on a partial save (a foundation
+      // was retained, so its children are legitimately absent). NOTE: the reachable set
+      // is a snapshot taken as each foundation was serialized, so an entity placed
+      // mid-save can appear here transiently — it is reachable via its live parent and
+      // persists on the next save. Only an entity that stays here across saves is a
+      // true orphan. The list is capped so a mass-orphan regression cannot build a
+      // multi-megabyte log line synchronously.
       if (
         reachableConstructionIds &&
         !retainConstructionIds.length &&
@@ -2297,10 +2304,17 @@ export class ZoneServer2016 extends EventEmitter {
       ) {
         const orphans = await this.findSaveGraphOrphans(reachableConstructionIds);
         if (orphans.length) {
+          const maxLogged = 50;
+          const sample = orphans
+            .slice(0, maxLogged)
+            .map((o) => `${o.dictionary}:${o.characterId}(item ${o.itemDefinitionId})`)
+            .join(", ");
+          const more =
+            orphans.length > maxLogged
+              ? ` …and ${orphans.length - maxLogged} more`
+              : "";
           console.error(
-            `[saveWorld] #1467 backstop: ${orphans.length} construction ${orphans.length === 1 ? "entity is" : "entities are"} live but UNREACHABLE from the save graph and will be dropped on this save: ${orphans
-              .map((o) => `${o.dictionary}:${o.characterId}(item ${o.itemDefinitionId})`)
-              .join(", ")}`
+            `[saveWorld] #1467 backstop: ${orphans.length} construction ${orphans.length === 1 ? "entity is" : "entities are"} live but UNREACHABLE from this save's construction graph (a persistent orphan will be dropped on save; an entity placed mid-save can appear transiently and persists next save): ${sample}${more}`
           );
         }
       }
@@ -2341,8 +2355,9 @@ export class ZoneServer2016 extends EventEmitter {
    * #1467 (H14): collect every characterId reachable from the construction save
    * graph — each top-level foundation recursed through its slot maps, freeplace, and
    * expansions, plus world-lootable. Pure; used by tests and the orphan backstop.
-   * At runtime saveWorld instead folds {@link addReachableConstructionIds} into its
-   * (already-yielding) build loops so the set costs no extra synchronous pass.
+   * At runtime saveWorld instead calls {@link addReachableConstructionIds} per
+   * foundation inside its (already-yielding) build loops, so this additive recursive
+   * walk shares the loops' yield cadence rather than running as a separate pass.
    */
   collectReachableConstructionIds(
     constructions: ConstructionParentSaveData[],

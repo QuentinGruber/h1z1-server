@@ -1002,13 +1002,19 @@ export class WorldDataManager {
    * drop the now-childless shell from the world dictionary. Used at load time when a
    * child-parent (e.g. an expansion) cannot be placed into a slot, so its
    * shelters/gates/loot are preserved instead of orphaned. Nested subtrees follow
-   * automatically (a re-homed shelter is serialized with its own children).
+   * automatically (a re-homed shelter is serialized with its own children). A
+   * child-parent that itself nests expansions (only reachable from corrupt/garbled
+   * slot data) is drained recursively so those subtrees are re-homed too; `seen`
+   * guards against a cyclic shell graph.
    */
   static rehomeChildrenToFoundation(
     server: ZoneServer2016,
     foundation: ConstructionParentEntity,
-    entity: ConstructionParentEntity
+    entity: ConstructionParentEntity,
+    seen: Set<string> = new Set()
   ) {
+    if (seen.has(entity.characterId)) return;
+    seen.add(entity.characterId);
     const children: Array<
       ConstructionChildEntity | ConstructionDoor | LootableConstructionEntity
     > = [
@@ -1021,6 +1027,17 @@ export class WorldDataManager {
     for (const child of children) {
       child.parentObjectCharacterId = foundation.characterId;
       foundation.freeplaceEntities[child.characterId] = child;
+    }
+    // a child-parent shell can itself hold expansions (only via corrupt slot data,
+    // since in-game only a FOUNDATION authorizes expansions); drain each so their
+    // structures/loot are re-homed too instead of orphaned under the deleted shell.
+    for (const expansion of Object.values(entity.occupiedExpansionSlots ?? {})) {
+      WorldDataManager.rehomeChildrenToFoundation(
+        server,
+        foundation,
+        expansion,
+        seen
+      );
     }
     // the shell has no valid slot, so it cannot be persisted — remove it rather
     // than leaving an unsaveable orphan live in the foundation dictionary.

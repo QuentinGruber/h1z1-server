@@ -1530,7 +1530,11 @@ export function removeUntransferableFields(
     // eslint-disable-next-line no-prototype-builtins
     if (data.hasOwnProperty(key)) {
       const value = data[key];
-      if (typeof value === "object" && value !== null) {
+      // null is a valid, transferable field value — leave it untouched. (typeof null
+      // is "object", so without this short-circuit it would fall through to the delete
+      // branch below; the prior behavior recursed into it, a no-op that preserved it.)
+      if (value === null) continue;
+      if (typeof value === "object") {
         // #1467 (H12): guard against circular references — a cycle would otherwise
         // recurse until the stack overflows synchronously inside the save build,
         // aborting the entire world save.
