@@ -11,7 +11,10 @@
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
 
-import { ConstructionChildEntity } from "./constructionchildentity";
+import {
+  ConstructionChildEntity,
+  cascadeDestroyConstructionChild
+} from "./constructionchildentity";
 import { LootableConstructionEntity } from "./lootableconstructionentity";
 import { ConstructionDoor } from "./constructiondoor";
 import { ConstructionPermissionIds, Items, StringIds } from "../models/enums";
@@ -892,13 +895,15 @@ export class ConstructionParentEntity extends ConstructionChildEntity {
   }
 
   /**
-   * #1467 (preserve): when a deck/expansion is destroyed, move its children
-   * somewhere they remain reachable from the save graph instead of being
-   * orphaned. If a parent foundation survives (e.g. an expansion removed from a
-   * live deck) the children become that deck's freeplace entities and persist;
-   * otherwise loot is promoted to world-owned (persisted) and simple structures
-   * to world-simple. NOTE: _worldSimpleConstruction is not persisted, so simple
-   * structures left on a fully-removed top deck will not survive a restart.
+   * #1467 (preserve): when a deck/expansion is destroyed, handle its children so
+   * none are orphaned (left live in-world but unreachable from the save graph).
+   * If a parent foundation survives (e.g. an expansion removed from a live deck)
+   * the children are re-homed onto it as freeplace entities and persist. If the
+   * whole deck is gone there is no valid persisted home for structural pieces, so
+   * loot is preserved as world-owned (persisted) and the structures are
+   * cascade-destroyed (their nested loot preserved first). Player builds are never
+   * moved into _worldSimpleConstruction -- that dictionary holds regenerated world
+   * props (e.g. workbenches) and is intentionally not persisted.
    */
   private preserveChildrenOnDestroy(server: ZoneServer2016) {
     const inheritor =
@@ -919,13 +924,12 @@ export class ConstructionParentEntity extends ConstructionChildEntity {
       } else if (child instanceof LootableConstructionEntity) {
         server._worldLootableConstruction[child.characterId] = child;
         delete server._lootableConstruction[child.characterId];
-      } else if (child instanceof ConstructionChildEntity) {
-        server._worldSimpleConstruction[child.characterId] = child;
-        delete server._constructionSimple[child.characterId];
+      } else {
+        cascadeDestroyConstructionChild(server, child);
       }
     }
     // sub-expansions are parent-typed and can't be re-homed as freeplace; destroy
-    // them so their own contents are preserved/promoted instead of orphaned
+    // them so their own contents are preserved/cascaded instead of orphaned
     for (const expansion of Object.values(this.occupiedExpansionSlots)) {
       expansion.destroy(server);
     }

@@ -15,6 +15,7 @@ import { ZoneServer2016 } from "../zoneserver";
 import assert from "node:assert";
 import { ConstructionParentEntity } from "./constructionparententity";
 import { ConstructionChildEntity } from "./constructionchildentity";
+import { LootableConstructionEntity } from "./lootableconstructionentity";
 import { generate_random_guid } from "h1emu-core";
 import { Items } from "../models/enums";
 
@@ -103,11 +104,13 @@ test("constructionparententity-destroy-preserve", { timeout: 10000 }, async (t) 
   );
 
   await t.test(
-    "#1467 destroying a top deck promotes its structures to world-owned (no orphan)",
+    "#1467 destroying a top deck cascade-destroys structures and preserves nested loot",
     () => {
       zone._constructionFoundations = {};
       zone._constructionSimple = {};
       zone._worldSimpleConstruction = {};
+      zone._worldLootableConstruction = {};
+      zone._lootableConstruction = {};
 
       const deckId = generate_random_guid();
       const deck = new ConstructionParentEntity(
@@ -140,28 +143,75 @@ test("constructionparententity-destroy-preserve", { timeout: 10000 }, async (t) 
       zone._constructionSimple[shelterId] = shelter;
       deck.occupiedShelterSlots[1] = shelter;
 
+      // a nested structure (upper shelter) and a loot box stored inside the shelter
+      const upperId = generate_random_guid();
+      const upper = new ConstructionChildEntity(
+        upperId,
+        zone.getTransientId(upperId),
+        1,
+        pos,
+        pos,
+        zone,
+        Items.SHELTER_UPPER,
+        shelterId,
+        ""
+      );
+      zone._constructionSimple[upperId] = upper;
+      shelter.occupiedShelterSlots[1] = upper;
+
+      const lootId = generate_random_guid();
+      const loot = new LootableConstructionEntity(
+        lootId,
+        zone.getTransientId(lootId),
+        1,
+        pos,
+        pos,
+        zone,
+        new Float32Array([1, 1, 1, 1]),
+        Items.REPAIR_BOX,
+        shelterId,
+        ""
+      );
+      zone._lootableConstruction[lootId] = loot;
+      shelter.freeplaceEntities[lootId] = loot;
+
       deck.destroy(zone);
 
       assert.ok(
         !zone._constructionFoundations[deckId],
         "deck should be removed from the world"
       );
+      // structures are cascade-destroyed, never dumped into the regenerated
+      // world-prop dictionary
       assert.ok(
-        zone._worldSimpleConstruction[shelterId],
-        "structure should be promoted to world-owned construction, not orphaned"
+        !zone._constructionSimple[shelterId] &&
+          !zone._worldSimpleConstruction[shelterId],
+        "shelter should be removed, not left in world-simple"
       );
       assert.ok(
-        !zone._constructionSimple[shelterId],
-        "structure should no longer be foundation-owned"
+        !zone._constructionSimple[upperId] &&
+          !zone._worldSimpleConstruction[upperId],
+        "nested upper shelter should be removed, not left in world-simple"
+      );
+      // loot is preserved as world-owned (persisted)
+      assert.ok(
+        zone._worldLootableConstruction[lootId],
+        "loot nested inside the shelter should be preserved as world-owned"
+      );
+      assert.ok(
+        !zone._lootableConstruction[lootId],
+        "loot should no longer be foundation-owned"
       );
     }
   );
 
   await t.test(
-    "#1467 destroying a child with a broken parent chain promotes survivors",
+    "#1467 destroying a child with a broken parent chain preserves loot and removes structures",
     () => {
       zone._constructionSimple = {};
       zone._worldSimpleConstruction = {};
+      zone._worldLootableConstruction = {};
+      zone._lootableConstruction = {};
 
       // shelterB's parent does not exist -> the chain up to a foundation is broken
       const shelterBId = generate_random_guid();
@@ -192,10 +242,11 @@ test("constructionparententity-destroy-preserve", { timeout: 10000 }, async (t) 
       );
       zone._constructionSimple[shelterAId] = shelterA;
 
-      const survivorId = generate_random_guid();
-      const survivor = new ConstructionChildEntity(
-        survivorId,
-        zone.getTransientId(survivorId),
+      // a structural survivor and a loot survivor placed on shelterA
+      const structId = generate_random_guid();
+      const struct = new ConstructionChildEntity(
+        structId,
+        zone.getTransientId(structId),
         1,
         pos,
         pos,
@@ -204,18 +255,35 @@ test("constructionparententity-destroy-preserve", { timeout: 10000 }, async (t) 
         shelterAId,
         ""
       );
-      zone._constructionSimple[survivorId] = survivor;
-      shelterA.freeplaceEntities[survivorId] = survivor;
+      zone._constructionSimple[structId] = struct;
+      shelterA.freeplaceEntities[structId] = struct;
+
+      const lootId = generate_random_guid();
+      const loot = new LootableConstructionEntity(
+        lootId,
+        zone.getTransientId(lootId),
+        1,
+        pos,
+        pos,
+        zone,
+        new Float32Array([1, 1, 1, 1]),
+        Items.REPAIR_BOX,
+        shelterAId,
+        ""
+      );
+      zone._lootableConstruction[lootId] = loot;
+      shelterA.freeplaceEntities[lootId] = loot;
 
       shelterA.destroy(zone);
 
       assert.ok(
-        zone._worldSimpleConstruction[survivorId],
-        "survivor should be promoted to world-owned when the parent chain is broken"
+        zone._worldLootableConstruction[lootId],
+        "loot survivor should be preserved as world-owned when the chain is broken"
       );
       assert.ok(
-        !zone._constructionSimple[survivorId],
-        "survivor should be removed from foundation-owned construction"
+        !zone._constructionSimple[structId] &&
+          !zone._worldSimpleConstruction[structId],
+        "structural survivor should be cascade-destroyed, not left in world-simple"
       );
     }
   );
