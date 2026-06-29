@@ -1114,9 +1114,17 @@ export class WorldDataManager {
     entity: LootableConstructionEntity,
     serverId: number
   ): LootableConstructionSaveData {
+    const container = entity.getContainer();
     return {
       ...this.getBaseConstructionSaveData(entity, serverId),
-      container: entity.getContainer(),
+      // #1467 (H11): serialize the container into the canonical primitive-only
+      // LoadoutContainerSaveData (the shape characters/vehicles persist, and the
+      // declared type of this field) instead of embedding the live LoadoutContainer,
+      // whose runtime fields (e.g. a stored weapon's reloadTimer) could make the save
+      // object non-serializable and abort the entire world save.
+      container: container
+        ? this.getLoadoutContainerSaveData(container)
+        : undefined,
       subEntityType: entity.subEntity?.subType || ""
     };
   }
@@ -1453,6 +1461,11 @@ export class WorldDataManager {
         JSON.stringify(freeplaces, null, 2)
       );
     } else {
+      // #1467 (H13): in mongo, skip the (no-op) writes AND the destructive
+      // deleteMany($nin:[]) on a transient-empty snapshot — it would otherwise wipe
+      // ALL world-lootable (including re-homed player loot). Solo above does a full
+      // overwrite, which correctly reflects a legitimately empty world.
+      if (!freeplaces.length) return;
       const collection = this._db?.collection(
         DB_COLLECTIONS.WORLD_CONSTRUCTIONS
       );

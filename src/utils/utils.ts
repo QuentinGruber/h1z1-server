@@ -1520,15 +1520,23 @@ export async function logClientActionToMongo(
  *
  * @param data - The object to remove untransferable fields from.
  */
-export function removeUntransferableFields(data: any) {
+export function removeUntransferableFields(
+  data: any,
+  seen: WeakSet<object> = new WeakSet()
+) {
   const allowedTypes = ["string", "number", "boolean", "undefined", "bigint"];
 
   for (const key in data) {
     // eslint-disable-next-line no-prototype-builtins
     if (data.hasOwnProperty(key)) {
       const value = data[key];
-      if (typeof value === "object") {
-        removeUntransferableFields(value);
+      if (typeof value === "object" && value !== null) {
+        // #1467 (H12): guard against circular references — a cycle would otherwise
+        // recurse until the stack overflows synchronously inside the save build,
+        // aborting the entire world save.
+        if (seen.has(value)) continue;
+        seen.add(value);
+        removeUntransferableFields(value, seen);
       } else if (!allowedTypes.includes(typeof value)) {
         console.log(`Invalid value type: ${typeof value}.`);
         delete data[key];
