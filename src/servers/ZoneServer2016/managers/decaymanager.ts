@@ -104,7 +104,11 @@ export class DecayManager {
             Object.keys(foundation.occupiedWallSlots).length <
               this.griefCheckSlotAmount &&
             Object.keys(foundation.occupiedShelterSlots).length == 0 &&
-            Object.keys(foundation.occupiedExpansionSlots).length == 0
+            Object.keys(foundation.occupiedExpansionSlots).length == 0 &&
+            // #1467: don't grief-wipe a deck that still holds re-homed
+            // structures / loot as freeplace entities or ramps
+            Object.keys(foundation.occupiedRampSlots).length == 0 &&
+            Object.keys(foundation.freeplaceEntities).length == 0
           ) {
             for (const a in foundation.occupiedWallSlots) {
               foundation.occupiedWallSlots[a].destroy(server);
@@ -131,17 +135,25 @@ export class DecayManager {
           if (
             Object.keys(exp.occupiedWallSlots).length != 0 ||
             Object.keys(exp.occupiedShelterSlots).length != 0 ||
-            Object.keys(exp.occupiedUpperWallSlots).length != 0
+            Object.keys(exp.occupiedUpperWallSlots).length != 0 ||
+            // #1467: freeplace structures / loot and ramps keep an expansion non-empty
+            Object.keys(exp.freeplaceEntities).length != 0 ||
+            Object.keys(exp.occupiedRampSlots).length != 0
           ) {
             expansionsEmpty = false;
           }
         }
       );
       if (!expansionsEmpty) continue;
+      // #1467: a foundation is only "vacant" when nothing remains on it —
+      // re-homed shelters / gates / loot live in freeplaceEntities (and ramps),
+      // and must not be treated as empty or they get wiped on decay
       if (
         Object.keys(foundation.occupiedWallSlots).length == 0 &&
         Object.keys(foundation.occupiedShelterSlots).length == 0 &&
-        Object.keys(foundation.occupiedUpperWallSlots).length == 0
+        Object.keys(foundation.occupiedUpperWallSlots).length == 0 &&
+        Object.keys(foundation.freeplaceEntities).length == 0 &&
+        Object.keys(foundation.occupiedRampSlots).length == 0
       ) {
         if (foundation.ticksWithoutObjects >= this.vacantFoundationTicks) {
           for (const a in foundation.occupiedExpansionSlots) {
