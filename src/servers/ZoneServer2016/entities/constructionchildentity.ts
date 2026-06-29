@@ -408,6 +408,16 @@ export class ConstructionChildEntity extends BaseLightweightCharacter {
     ) {
       return false;
     }
+    // #1467: never silently overwrite an existing occupant with a different
+    // entity. The overwritten entity (and, for upper shelters, the loot nested
+    // inside it) becomes unreachable from the foundation slot graph and is dropped
+    // from the next world save -- vanishing invisibly on restart. Reject instead;
+    // callers either already gate on occupancy (placement) or re-home the loser to
+    // freeplace on load. The self-id check keeps reloading the same save idempotent.
+    const existing = occupiedSlots[slot];
+    if (existing && existing.characterId !== entity.characterId) {
+      return false;
+    }
     occupiedSlots[slot] = entity;
     return true;
   }

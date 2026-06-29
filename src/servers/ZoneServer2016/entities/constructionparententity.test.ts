@@ -287,6 +287,109 @@ test("constructionparententity-destroy-preserve", { timeout: 10000 }, async (t) 
       );
     }
   );
+  // #1467 (real reported cause): setSlot must not silently overwrite an occupied
+  // slot. Two upper shelters resolving to the same slot on one lower shelter would
+  // otherwise overwrite in occupiedShelterSlots, orphaning the first upper (and its
+  // nested loot) so it is dropped from the next save and vanishes on restart.
+  await t.test(
+    "#1467 setShelterSlot rejects a second entity on an occupied slot (no overwrite-orphan)",
+    () => {
+      zone._constructionFoundations = {};
+      zone._constructionSimple = {};
+      const p = new Float32Array([0, 0, 0, 0]);
+
+      const foundationId = generate_random_guid();
+      const foundation = new ConstructionParentEntity(
+        foundationId,
+        zone.getTransientId(foundationId),
+        1,
+        p,
+        p,
+        zone,
+        Items.FOUNDATION,
+        "1",
+        "name",
+        "",
+        ""
+      );
+      const lowerId = generate_random_guid();
+      const lower = new ConstructionChildEntity(
+        lowerId,
+        zone.getTransientId(lowerId),
+        1,
+        p,
+        p,
+        zone,
+        Items.SHELTER,
+        foundationId,
+        "Structure01"
+      );
+      assert.strictEqual(
+        foundation.setShelterSlot(zone, lower),
+        true,
+        "lower shelter attaches to the foundation"
+      );
+
+      // two upper shelters that both resolve to the same slot on the lower shelter
+      const upperAId = generate_random_guid();
+      const upperA = new ConstructionChildEntity(
+        upperAId,
+        zone.getTransientId(upperAId),
+        1,
+        p,
+        p,
+        zone,
+        Items.SHELTER_UPPER,
+        lowerId,
+        "Structure01"
+      );
+      const upperBId = generate_random_guid();
+      const upperB = new ConstructionChildEntity(
+        upperBId,
+        zone.getTransientId(upperBId),
+        1,
+        p,
+        p,
+        zone,
+        Items.SHELTER_UPPER,
+        lowerId,
+        "Structure01"
+      );
+
+      assert.strictEqual(
+        lower.setShelterSlot(zone, upperA),
+        true,
+        "first upper shelter attaches"
+      );
+      assert.strictEqual(
+        lower.setShelterSlot(zone, upperB),
+        false,
+        "second upper on the same slot is rejected, not silently overwritten"
+      );
+      assert.strictEqual(
+        Object.keys(lower.occupiedShelterSlots).length,
+        1,
+        "only one upper occupies the slot"
+      );
+      assert.strictEqual(
+        lower.occupiedShelterSlots[upperA.getSlotNumber()].characterId,
+        upperAId,
+        "the first upper is preserved, not overwritten by the second"
+      );
+
+      // re-setting the SAME entity stays idempotent (safe re-load of one save)
+      assert.strictEqual(
+        lower.setShelterSlot(zone, upperA),
+        true,
+        "re-setting the same entity is allowed (idempotent reload)"
+      );
+      assert.strictEqual(
+        Object.keys(lower.occupiedShelterSlots).length,
+        1,
+        "idempotent re-set does not add a duplicate"
+      );
+    }
+  );
 });
 
 after(() => {
