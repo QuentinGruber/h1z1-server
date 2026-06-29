@@ -547,6 +547,87 @@ test("constructionparententity-destroy-preserve", { timeout: 10000 }, async (t) 
       );
     }
   );
+  // #1467 (H14): the save-side orphan backstop must detect a construction that is
+  // live in a world dictionary but unreachable from the save graph (it would be
+  // dropped on the next save) and must NOT false-flag reachable entities.
+  await t.test(
+    "#1467 the save-graph orphan backstop flags an unreachable construction (and only it)",
+    () => {
+      zone._constructionFoundations = {};
+      zone._constructionSimple = {};
+      zone._constructionDoors = {};
+      zone._lootableConstruction = {};
+      const p = new Float32Array([0, 0, 0, 0]);
+
+      const foundationId = generate_random_guid();
+      const foundation = new ConstructionParentEntity(
+        foundationId,
+        zone.getTransientId(foundationId),
+        1,
+        p,
+        p,
+        zone,
+        Items.FOUNDATION,
+        "1",
+        "name",
+        "",
+        ""
+      );
+      zone._constructionFoundations[foundationId] = foundation;
+
+      // a reachable shelter (in the foundation's shelter slot -> serialized)
+      const reachableShelterId = generate_random_guid();
+      const reachableShelter = new ConstructionChildEntity(
+        reachableShelterId,
+        zone.getTransientId(reachableShelterId),
+        1,
+        p,
+        p,
+        zone,
+        Items.SHELTER,
+        foundationId,
+        "Structure01"
+      );
+      zone._constructionSimple[reachableShelterId] = reachableShelter;
+      foundation.occupiedShelterSlots[1] = reachableShelter;
+
+      // an ORPHAN: live in _constructionSimple but attached to no foundation graph
+      const orphanId = generate_random_guid();
+      const orphan = new ConstructionChildEntity(
+        orphanId,
+        zone.getTransientId(orphanId),
+        1,
+        p,
+        p,
+        zone,
+        Items.SHELTER,
+        foundationId,
+        ""
+      );
+      zone._constructionSimple[orphanId] = orphan;
+
+      const constructions = [
+        WorldDataManager.getConstructionParentSaveData(foundation, zone._worldId)
+      ];
+      const reachableSet = zone.collectReachableConstructionIds(constructions, []);
+      const orphanIds = zone
+        .findSaveGraphOrphans(reachableSet)
+        .map((o) => o.characterId);
+
+      assert.ok(
+        orphanIds.includes(orphanId),
+        "the unreachable shelter is flagged as an orphan"
+      );
+      assert.ok(
+        !orphanIds.includes(reachableShelterId),
+        "the reachable shelter is NOT flagged"
+      );
+      assert.ok(
+        !orphanIds.includes(foundationId),
+        "the saved foundation is NOT flagged"
+      );
+    }
+  );
 });
 
 after(() => {

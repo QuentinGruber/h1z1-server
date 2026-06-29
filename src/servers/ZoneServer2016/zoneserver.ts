@@ -2259,6 +2259,27 @@ export class ZoneServer2016 extends EventEmitter {
         }
       }
 
+      // #1467 (H14): structural backstop — flag any construction that is live in
+      // memory but UNREACHABLE from the save graph (it would be silently dropped on
+      // this save). Log-only for now; it converts any future orphan-introducing
+      // regression into a loud, actionable log instead of silent data loss. Skipped
+      // on a partial save (a foundation failed to serialize and was retained), since
+      // that base's children are legitimately absent from this pass.
+      if (!retainConstructionIds.length && !retainWorldConstructionIds.length) {
+        const reachable = this.collectReachableConstructionIds(
+          constructions,
+          worldConstructions
+        );
+        const orphans = this.findSaveGraphOrphans(reachable);
+        if (orphans.length) {
+          console.error(
+            `[saveWorld] #1467 backstop: ${orphans.length} construction ${orphans.length === 1 ? "entity is" : "entities are"} live but UNREACHABLE from the save graph and will be dropped on this save: ${orphans
+              .map((o) => `${o.dictionary}:${o.characterId}(item ${o.itemDefinitionId})`)
+              .join(", ")}`
+          );
+        }
+      }
+
       console.timeEnd("ZONE: processing");
 
       await this.worldDataManager.saveWorld({
@@ -2289,6 +2310,73 @@ export class ZoneServer2016 extends EventEmitter {
         this.shutdown(20, "World saving failed, rollback");
       }
     }
+  }
+
+  /**
+   * #1467 (H14): collect every characterId reachable from the construction save
+   * graph — each top-level foundation recursed through its slot maps, freeplace, and
+   * expansions, plus world-lootable. Pure; used by the orphan backstop.
+   */
+  collectReachableConstructionIds(
+    constructions: ConstructionParentSaveData[],
+    worldConstructions: LootableConstructionSaveData[]
+  ): Set<string> {
+    const reachable = new Set<string>();
+    const visit = (data: any) => {
+      if (!data || !data.characterId) return;
+      reachable.add(data.characterId);
+      const maps = [
+        data.occupiedWallSlots,
+        data.occupiedUpperWallSlots,
+        data.occupiedShelterSlots,
+        data.occupiedRampSlots,
+        data.occupiedExpansionSlots,
+        data.freeplaceEntities
+      ];
+      for (const map of maps) {
+        if (map) for (const child of Object.values(map)) visit(child);
+      }
+    };
+    for (const c of constructions) visit(c);
+    for (const w of worldConstructions) {
+      if (w?.characterId) reachable.add(w.characterId);
+    }
+    return reachable;
+  }
+
+  /**
+   * #1467 (H14): return every player-construction entity live in the world
+   * dictionaries but NOT reachable from the save graph (an orphan that will be
+   * dropped on the next save). World-spawned construction lives in separate
+   * dictionaries and is intentionally not scanned.
+   */
+  findSaveGraphOrphans(
+    reachable: Set<string>
+  ): Array<{ characterId: string; dictionary: string; itemDefinitionId: number }> {
+    const orphans: Array<{
+      characterId: string;
+      dictionary: string;
+      itemDefinitionId: number;
+    }> = [];
+    const scan = (
+      dict: { [characterId: string]: { itemDefinitionId?: number } },
+      label: string
+    ) => {
+      for (const characterId in dict) {
+        if (!reachable.has(characterId)) {
+          orphans.push({
+            characterId,
+            dictionary: label,
+            itemDefinitionId: dict[characterId]?.itemDefinitionId ?? 0
+          });
+        }
+      }
+    };
+    scan(this._constructionFoundations, "foundation");
+    scan(this._constructionSimple, "simple");
+    scan(this._constructionDoors, "door");
+    scan(this._lootableConstruction, "lootable");
+    return orphans;
   }
 
   executeRconCommand(ws: WebSocket, payload: string) {
