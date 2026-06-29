@@ -2691,6 +2691,10 @@ export class ConstructionManager {
         server.generateItem(entity.itemDefinitionId)
       );
       entity.destroy(server);
+      // the entity is now destroyed/detached — return so we do not fall through and
+      // call entity.damage() on a dead entity (a double-action on a removed entity).
+      server.damageItem(client.character, weaponItem, 50);
+      return;
     }
 
     entity.damage(server, {

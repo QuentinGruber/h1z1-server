@@ -416,6 +416,14 @@ export class ConstructionChildEntity extends BaseLightweightCharacter {
     // freeplace on load. The self-id check keeps reloading the same save idempotent.
     const existing = occupiedSlots[slot];
     if (existing && existing.characterId !== entity.characterId) {
+      // #1467 diagnostic: this rejection is the exact moment the slot-overwrite
+      // orphan WOULD have occurred on the pre-fix (unguarded) code — an upper shelter
+      // (and the loot nested inside it) silently dropped on the next save. Logged with
+      // full context so the live trigger can be identified from server logs without
+      // having to reproduce it; the existing occupant is preserved.
+      console.error(
+        `[#1467] setSlot blocked an overwrite: parent ${this.characterId} (item ${this.itemDefinitionId}) slot ${slot} already holds ${existing.characterId} (item ${existing.itemDefinitionId}); rejected ${entity.characterId} (item ${entity.itemDefinitionId}).`
+      );
       return false;
     }
     occupiedSlots[slot] = entity;
