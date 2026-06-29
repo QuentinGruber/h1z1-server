@@ -171,8 +171,64 @@ test("decaymanager", { timeout: 10000 }, async (t) => {
       "a truly empty foundation must still be removed after the vacancy timer"
     );
   });
+  // #1467 regression guard: a plain loot/storage container left in freeplace is NOT a
+  // structure and must NOT keep an otherwise-empty deck from despawning (only re-homed
+  // shelters/gates do). Without this the deck would become immune to vacant decay.
+  await t.test(
+    "#1467 a lone loot container does not keep a vacant deck alive",
+    async () => {
+      zone._constructionFoundations = {};
+      zone._lootableConstruction = {};
+      zone.decayManager.griefCheckSlotAmount = 0; // isolate the vacant-foundation path
+      zone.decayManager.useDecayWorker = false;
+      const pos = new Float32Array([0, 0, 0, 0]);
+
+      const foundationId = generate_random_guid();
+      const foundation = new ConstructionParentEntity(
+        foundationId,
+        zone.getTransientId(foundationId),
+        1,
+        pos,
+        pos,
+        zone,
+        Items.FOUNDATION,
+        "1",
+        "name",
+        "",
+        ""
+      );
+      zone._constructionFoundations[foundationId] = foundation;
+
+      // a standalone loot/storage container placed directly on the deck (freeplace)
+      const lootId = generate_random_guid();
+      const loot = new LootableConstructionEntity(
+        lootId,
+        zone.getTransientId(lootId),
+        1,
+        pos,
+        pos,
+        zone,
+        new Float32Array([1, 1, 1, 1]),
+        Items.REPAIR_BOX,
+        foundationId,
+        ""
+      );
+      zone._lootableConstruction[lootId] = loot;
+      foundation.addFreeplaceConstruction(loot);
+
+      foundation.ticksWithoutObjects = zone.decayManager.vacantFoundationTicks;
+      await zone.decayManager.run(zone);
+      zone.decayManager.clearTimers();
+
+      assert.strictEqual(
+        Object.keys(zone._constructionFoundations).length,
+        0,
+        "a deck holding only a loot container must still decay after the vacancy timer"
+      );
+    }
+  );
   // #1467: the grief-cleanup heuristic must likewise spare a foundation that
-  // still holds re-homed structures / loot as freeplace entities.
+  // still holds re-homed structures as freeplace entities (but not plain loot).
   await t.test(
     "#1467 grief cleanup spares a foundation holding freeplace structures",
     async () => {
