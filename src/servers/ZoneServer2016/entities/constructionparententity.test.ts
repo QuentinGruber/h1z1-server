@@ -16,6 +16,7 @@ import assert from "node:assert";
 import { ConstructionParentEntity } from "./constructionparententity";
 import { ConstructionChildEntity } from "./constructionchildentity";
 import { LootableConstructionEntity } from "./lootableconstructionentity";
+import { WorldDataManager } from "../managers/worlddatamanager";
 import { generate_random_guid } from "h1emu-core";
 import { Items } from "../models/enums";
 
@@ -387,6 +388,73 @@ test("constructionparententity-destroy-preserve", { timeout: 10000 }, async (t) 
         Object.keys(lower.occupiedShelterSlots).length,
         1,
         "idempotent re-set does not add a duplicate"
+      );
+    }
+  );
+  // #1467 (H1): load-path resilience — a foundation save doc missing a slot map
+  // (schema drift / older-schema / partial crash-time write) must NOT throw. Pre-fix
+  // `Object.values(undefined)` threw, the per-foundation catch swallowed it, and the
+  // WHOLE base (every gate/shelter/loot) was discarded then erased by deleteMany.
+  await t.test(
+    "#1467 a foundation save doc with a missing slot map still loads (no whole-base drop)",
+    () => {
+      zone._constructionFoundations = {};
+      zone._constructionSimple = {};
+      const p = new Float32Array([0, 0, 0, 0]);
+
+      const foundationId = generate_random_guid();
+      const foundation = new ConstructionParentEntity(
+        foundationId,
+        zone.getTransientId(foundationId),
+        1,
+        p,
+        p,
+        zone,
+        Items.FOUNDATION,
+        "1",
+        "name",
+        "",
+        ""
+      );
+      const shelterId = generate_random_guid();
+      const shelter = new ConstructionChildEntity(
+        shelterId,
+        zone.getTransientId(shelterId),
+        1,
+        p,
+        p,
+        zone,
+        Items.SHELTER,
+        foundationId,
+        "Structure01"
+      );
+      foundation.setShelterSlot(zone, shelter);
+      zone._constructionFoundations[foundationId] = foundation;
+      zone._constructionSimple[shelterId] = shelter;
+
+      const saveData = WorldDataManager.getConstructionParentSaveData(
+        foundation,
+        zone._worldId
+      );
+      const corrupt = JSON.parse(JSON.stringify(saveData));
+      // simulate schema drift / partial write: required (here empty) slot maps gone
+      delete corrupt.occupiedUpperWallSlots;
+      delete corrupt.freeplaceEntities;
+      delete corrupt.occupiedRampSlots;
+
+      zone._constructionFoundations = {};
+      zone._constructionSimple = {};
+      assert.doesNotThrow(
+        () => WorldDataManager.loadConstructionParentEntity(zone, corrupt),
+        "load must tolerate a missing slot map instead of dropping the whole base"
+      );
+      assert.ok(
+        zone._constructionFoundations[foundationId],
+        "foundation still loads despite the missing slot map"
+      );
+      assert.ok(
+        zone._constructionSimple[shelterId],
+        "the well-formed shelter sibling still loads"
       );
     }
   );

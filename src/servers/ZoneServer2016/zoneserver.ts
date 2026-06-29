@@ -1122,14 +1122,16 @@ export class ZoneServer2016 extends EventEmitter {
     if (currentTimeLeft < 0) {
       this.sendAlertToAll(`Server will shutdown now`);
       this.enableWorldSaves = false;
-      if (!this.worldSaveFailed) {
-        this._isSaving = false; // allow shutdown save even if periodic save just ran
-        try {
-          await this.saveWorld();
-        } catch (e) {
-          console.error(e);
-          console.error("saving world failed on reboot");
-        }
+      // #1467: always attempt one best-effort shutdown save, even if a periodic save
+      // failed earlier. worldSaveFailed must suppress periodic retry storms, NOT the
+      // final save — skipping it loses every base's changes since the last good save
+      // (the "rollback skips the final save" realization of the data-loss bug).
+      this._isSaving = false;
+      try {
+        await this.saveWorld();
+      } catch (e) {
+        console.error(e);
+        console.error("saving world failed on reboot");
       }
       Object.values(this._clients).forEach((client: Client) => {
         this.sendData<CharacterSelectSessionResponse>(
@@ -2181,6 +2183,9 @@ export class ZoneServer2016 extends EventEmitter {
         this._worldId
       );
       const worldConstructions: LootableConstructionSaveData[] = [];
+      // #1467: ids that failed to serialize this pass are retained so deleteMany
+      // does not permanently prune their last-good docs.
+      const retainWorldConstructionIds: string[] = [];
       let saveI = 0;
       for (const entity of Object.values(this._worldLootableConstruction)) {
         if (++saveI % 100 === 0) await scheduler.yield();
@@ -2190,25 +2195,46 @@ export class ZoneServer2016 extends EventEmitter {
           (entity instanceof TrapEntity && entity?.worldOwned)
         )
           continue; // Don't save world spawned campfires / barbeques
-        const lootableConstructionSaveData =
-          WorldDataManager.getLootableConstructionSaveData(
-            entity,
-            this._worldId
+        try {
+          const lootableConstructionSaveData =
+            WorldDataManager.getLootableConstructionSaveData(
+              entity,
+              this._worldId
+            );
+          removeUntransferableFields(lootableConstructionSaveData);
+          worldConstructions.push(lootableConstructionSaveData);
+        } catch (e) {
+          console.error(
+            `[saveWorld] Failed to serialize world construction ${entity.characterId} (item ${entity.itemDefinitionId}) — skipping; its last save is retained`,
+            e
           );
-        removeUntransferableFields(lootableConstructionSaveData);
-        worldConstructions.push(lootableConstructionSaveData);
+          retainWorldConstructionIds.push(entity.characterId);
+        }
       }
       const constructions: ConstructionParentSaveData[] = [];
+      // #1467: a single foundation failing to serialize must NOT abort the entire
+      // world save (the outer catch rolls back and the shutdown then skips the final
+      // save, losing every base's recent changes). Skip only the bad foundation and
+      // retain its id so deleteMany keeps its last-good doc rather than erasing it.
+      const retainConstructionIds: string[] = [];
       saveI = 0;
       for (const entity of Object.values(this._constructionFoundations)) {
         if (++saveI % 100 === 0) await scheduler.yield();
         if (entity.itemDefinitionId != Items.FOUNDATION_EXPANSION) {
-          const construction = WorldDataManager.getConstructionParentSaveData(
-            entity,
-            this._worldId
-          );
-          // isTransferable(construction) too complex will run on max recursive call error
-          constructions.push(construction);
+          try {
+            const construction = WorldDataManager.getConstructionParentSaveData(
+              entity,
+              this._worldId
+            );
+            // isTransferable(construction) too complex will run on max recursive call error
+            constructions.push(construction);
+          } catch (e) {
+            console.error(
+              `[saveWorld] Failed to serialize construction foundation ${entity.characterId} (item ${entity.itemDefinitionId}) — skipping; its last save is retained`,
+              e
+            );
+            retainConstructionIds.push(entity.characterId);
+          }
         }
       }
       const crops: PlantingDiameterSaveData[] = [];
@@ -2242,7 +2268,9 @@ export class ZoneServer2016 extends EventEmitter {
         crops,
         traps,
         constructions,
-        vehicles
+        vehicles,
+        retainConstructionIds,
+        retainWorldConstructionIds
       });
       setTimeout(() => {
         this._isSaving = false;
@@ -2254,7 +2282,12 @@ export class ZoneServer2016 extends EventEmitter {
       console.error(e);
       this.worldSaveFailed = true;
       this.sendAlertToAll("World save failed!");
-      this.shutdown(20, "World saving failed, rollback");
+      // #1467: don't re-enter shutdown if one is already in progress (the shutdown
+      // path calls saveWorld itself) — that would recurse. A failed *periodic* save
+      // still triggers the rollback shutdown as before.
+      if (!this.shutdownStarted) {
+        this.shutdown(20, "World saving failed, rollback");
+      }
     }
   }
 
