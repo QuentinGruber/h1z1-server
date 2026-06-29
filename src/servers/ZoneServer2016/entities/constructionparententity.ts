@@ -13,6 +13,7 @@
 
 import { ConstructionChildEntity } from "./constructionchildentity";
 import { LootableConstructionEntity } from "./lootableconstructionentity";
+import { ConstructionDoor } from "./constructiondoor";
 import { ConstructionPermissionIds, Items, StringIds } from "../models/enums";
 import { ZoneServer2016 } from "../zoneserver";
 import {
@@ -852,21 +853,10 @@ export class ConstructionParentEntity extends ConstructionChildEntity {
 
     if (!deleted) return false;
 
-    if (
-      this.itemDefinitionId == Items.SHACK ||
-      this.itemDefinitionId == Items.SHACK_SMALL ||
-      this.itemDefinitionId == Items.SHACK_BASIC
-    ) {
-      for (const entity of Object.values(this.freeplaceEntities)) {
-        if (entity instanceof ConstructionChildEntity) {
-          server._worldSimpleConstruction[entity.characterId] = entity;
-          delete server._constructionSimple[entity.characterId];
-        } else if (entity instanceof LootableConstructionEntity) {
-          server._worldLootableConstruction[entity.characterId] = entity;
-          delete server._lootableConstruction[entity.characterId];
-        }
-      }
-    }
+    // #1467 (preserve): re-home this deck/expansion's children so they are never
+    // left referencing a destroyed parent (orphaned -> dropped from the next save).
+    this.preserveChildrenOnDestroy(server);
+
     const parent =
       server._constructionFoundations[this.parentObjectCharacterId];
     if (!parent) return deleted;
@@ -899,6 +889,46 @@ export class ConstructionParentEntity extends ConstructionChildEntity {
     }
     parent.clearSlot(this.getSlotNumber(), parent.occupiedExpansionSlots);
     return deleted;
+  }
+
+  /**
+   * #1467 (preserve): when a deck/expansion is destroyed, move its children
+   * somewhere they remain reachable from the save graph instead of being
+   * orphaned. If a parent foundation survives (e.g. an expansion removed from a
+   * live deck) the children become that deck's freeplace entities and persist;
+   * otherwise loot is promoted to world-owned (persisted) and simple structures
+   * to world-simple. NOTE: _worldSimpleConstruction is not persisted, so simple
+   * structures left on a fully-removed top deck will not survive a restart.
+   */
+  private preserveChildrenOnDestroy(server: ZoneServer2016) {
+    const inheritor =
+      server._constructionFoundations[this.parentObjectCharacterId];
+    const children: Array<
+      ConstructionChildEntity | ConstructionDoor | LootableConstructionEntity
+    > = [
+      ...Object.values(this.occupiedWallSlots),
+      ...Object.values(this.occupiedUpperWallSlots),
+      ...Object.values(this.occupiedShelterSlots),
+      ...Object.values(this.occupiedRampSlots),
+      ...Object.values(this.freeplaceEntities)
+    ];
+    for (const child of children) {
+      if (inheritor) {
+        child.parentObjectCharacterId = inheritor.characterId;
+        inheritor.freeplaceEntities[child.characterId] = child;
+      } else if (child instanceof LootableConstructionEntity) {
+        server._worldLootableConstruction[child.characterId] = child;
+        delete server._lootableConstruction[child.characterId];
+      } else if (child instanceof ConstructionChildEntity) {
+        server._worldSimpleConstruction[child.characterId] = child;
+        delete server._constructionSimple[child.characterId];
+      }
+    }
+    // sub-expansions are parent-typed and can't be re-homed as freeplace; destroy
+    // them so their own contents are preserved/promoted instead of orphaned
+    for (const expansion of Object.values(this.occupiedExpansionSlots)) {
+      expansion.destroy(server);
+    }
   }
 
   isExpansionSlotsEmpty() {

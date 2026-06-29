@@ -675,6 +675,28 @@ export class ConstructionChildEntity extends BaseLightweightCharacter {
         parentFoundation.freeplaceEntities[freePlacedEntity.characterId] =
           freePlacedEntity;
       }
+    } else {
+      // #1467 (preserve): the parent chain is already gone (e.g. an ancestor was
+      // destroyed earlier in the same cascade) -- promote survivors to world-owned
+      // so they aren't orphaned (live in-world but unreachable from the save graph)
+      const promote = (
+        entity:
+          | ConstructionChildEntity
+          | ConstructionDoor
+          | LootableConstructionEntity
+      ) => {
+        if (entity instanceof LootableConstructionEntity) {
+          server._worldLootableConstruction[entity.characterId] = entity;
+          delete server._lootableConstruction[entity.characterId];
+        } else if (entity instanceof ConstructionChildEntity) {
+          server._worldSimpleConstruction[entity.characterId] = entity;
+          delete server._constructionSimple[entity.characterId];
+        }
+      };
+      freeplace.forEach(promote);
+      for (const a in this.freeplaceEntities) {
+        promote(this.freeplaceEntities[a]);
+      }
     }
     return deleted;
   }
