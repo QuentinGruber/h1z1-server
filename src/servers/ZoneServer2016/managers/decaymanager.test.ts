@@ -15,6 +15,8 @@ import { ZoneServer2016 } from "../zoneserver";
 import assert from "node:assert";
 import { ConstructionParentEntity } from "../entities/constructionparententity";
 import { ConstructionChildEntity } from "../entities/constructionchildentity";
+import { LootableConstructionEntity } from "../entities/lootableconstructionentity";
+import { WorldDataManager } from "./worlddatamanager";
 import { generate_random_guid } from "h1emu-core";
 import { Items } from "../models/enums";
 
@@ -222,6 +224,108 @@ test("decaymanager", { timeout: 10000 }, async (t) => {
       assert.ok(
         foundation.freeplaceEntities[shelterId],
         "freeplace shelter must survive grief cleanup"
+      );
+    }
+  );
+  // #1467 end-to-end: the literal bug report -> a re-homed shelter (with loot
+  // inside it) must survive the decay tick AND a save/reload (serialize -> JSON
+  // -> reconstruct) round-trip, which is what "after a server restart" exercises.
+  await t.test(
+    "#1467 re-homed shelter + loot survive decay and a save/reload round-trip",
+    async () => {
+      zone._constructionFoundations = {};
+      zone._constructionSimple = {};
+      zone._lootableConstruction = {};
+      zone.decayManager.griefCheckSlotAmount = 0; // isolate the vacant-foundation path
+      zone.decayManager.useDecayWorker = false;
+      const pos = new Float32Array([0, 0, 0, 0]);
+
+      const foundationId = generate_random_guid();
+      const foundation = new ConstructionParentEntity(
+        foundationId,
+        zone.getTransientId(foundationId),
+        1,
+        pos,
+        pos,
+        zone,
+        Items.FOUNDATION,
+        "1",
+        "name",
+        "",
+        ""
+      );
+      zone._constructionFoundations[foundationId] = foundation;
+
+      // a shelter re-homed onto the foundation as freeplace (the #1467 precondition)
+      const shelterId = generate_random_guid();
+      const shelter = new ConstructionChildEntity(
+        shelterId,
+        zone.getTransientId(shelterId),
+        1,
+        pos,
+        pos,
+        zone,
+        Items.SHELTER,
+        foundationId,
+        ""
+      );
+      zone._constructionSimple[shelterId] = shelter;
+      foundation.addFreeplaceConstruction(shelter);
+
+      // a loot box stored inside the shelter
+      const lootId = generate_random_guid();
+      const loot = new LootableConstructionEntity(
+        lootId,
+        zone.getTransientId(lootId),
+        1,
+        pos,
+        pos,
+        zone,
+        new Float32Array([1, 1, 1, 1]),
+        Items.REPAIR_BOX,
+        shelterId,
+        ""
+      );
+      zone._lootableConstruction[lootId] = loot;
+      shelter.addFreeplaceConstruction(loot);
+
+      // push past the vacancy timer so the pre-fix decay WOULD have wiped the deck
+      foundation.ticksWithoutObjects = zone.decayManager.vacantFoundationTicks;
+      await zone.decayManager.run(zone);
+      zone.decayManager.clearTimers();
+
+      assert.ok(
+        zone._constructionFoundations[foundationId],
+        "foundation must survive the decay tick"
+      );
+
+      // serialize exactly as saveWorld does, JSON round-trip (the disk save), then
+      // simulate a restart by clearing live state and loading from the saved data
+      const saveData = WorldDataManager.getConstructionParentSaveData(
+        foundation,
+        zone._worldId
+      );
+      const persisted = JSON.parse(JSON.stringify(saveData));
+      zone._constructionFoundations = {};
+      zone._constructionSimple = {};
+      zone._lootableConstruction = {};
+      WorldDataManager.loadConstructionParentEntity(zone, persisted);
+
+      assert.ok(
+        zone._constructionFoundations[foundationId],
+        "foundation must reload after restart"
+      );
+      assert.ok(
+        zone._constructionSimple[shelterId],
+        "shelter must reload after restart"
+      );
+      assert.ok(
+        zone._constructionFoundations[foundationId].freeplaceEntities[shelterId],
+        "shelter must reattach to the foundation as freeplace after restart"
+      );
+      assert.ok(
+        zone._lootableConstruction[lootId],
+        "loot stored inside the shelter must reload after restart"
       );
     }
   );
